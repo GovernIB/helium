@@ -1,0 +1,159 @@
+/**
+ * 
+ */
+package net.conselldemallorca.helium.model.dto;
+
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ * Classe per retornar informació d'un document
+ * 
+ * @author Josep Gayà <josepg@limit.es>
+ */
+public class DocumentDto implements Serializable {
+
+	private Long id;
+	private Date dataCreacio;
+	private Date dataModificacio;
+	private Date dataDocument;
+	private String arxiuNom;
+	private byte[] arxiuContingut;
+	private boolean signat = false;
+	private boolean adjunt = false;
+	private String adjuntTitol;
+
+	private String processInstanceId;
+	
+	private Long documentId;
+	private String documentCodi;
+	private String contentType;
+	private String custodiaCodi;
+	private Long portasignaturesId;
+	private Integer tipusDocPortasignatures;
+
+	private String adjuntId;
+
+	private String tokenSignatura;
+	private boolean signatEnTasca;
+
+
+
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
+	public Date getDataCreacio() {
+		return dataCreacio;
+	}
+	public void setDataCreacio(Date dataCreacio) {
+		this.dataCreacio = dataCreacio;
+	}
+	public Date getDataModificacio() {
+		return dataModificacio;
+	}
+	public void setDataModificacio(Date dataModificacio) {
+		this.dataModificacio = dataModificacio;
+	}
+	public Date getDataDocument() {
+		return dataDocument;
+	}
+	public void setDataDocument(Date dataDocument) {
+		this.dataDocument = dataDocument;
+	}
+	public String getArxiuNom() {
+		return arxiuNom;
+	}
+	public void setArxiuNom(String arxiuNom) {
+		this.arxiuNom = arxiuNom;
+	}
+	public byte[] getArxiuContingut() {
+		return arxiuContingut;
+	}
+	public void setArxiuContingut(byte[] arxiuContingut) {
+		this.arxiuContingut = arxiuContingut;
+	}
+	public boolean isSignat() {
+		return signat;
+	}
+	public void setSignat(boolean signat) {
+		this.signat = signat;
+	}
+	public boolean isAdjunt() {
+		return adjunt;
+	}
+	public void setAdjunt(boolean adjunt) {
+		this.adjunt = adjunt;
+	}
+	public String getAdjuntTitol() {
+		return adjuntTitol;
+	}
+	public void setAdjuntTitol(String adjuntTitol) {
+		this.adjuntTitol = adjuntTitol;
+	}
+	public String getContentType() {
+		return contentType;
+	}
+	public void setContentType(String contentType) {
+		this.contentType = contentType;
+	}
+	public String getCustodiaCodi() {
+		return custodiaCodi;
+	}
+	public void setCustodiaCodi(String custodiaCodi) {
+		this.custodiaCodi = custodiaCodi;
+	}
+	public String getAdjuntId() {
+		return adjuntId;
+	}
+	public void setAdjuntId(String adjuntId) {
+		this.adjuntId = adjuntId;
+	}
+	public String getProcessInstanceId() {
+		return processInstanceId;
+	}
+	public void setProcessInstanceId(String processInstanceId) {
+		this.processInstanceId = processInstanceId;
+	}
+	public Long getDocumentId() {
+		return documentId;
+	}
+	public void setDocumentId(Long documentId) {
+		this.documentId = documentId;
+	}
+	public String getDocumentCodi() {
+		return documentCodi;
+	}
+	public void setDocumentCodi(String documentCodi) {
+		this.documentCodi = documentCodi;
+	}
+	public String getTokenSignatura() {
+		return tokenSignatura;
+	}
+	public void setTokenSignatura(String tokenSignatura) {
+		this.tokenSignatura = tokenSignatura;
+	}
+	public boolean isSignatEnTasca() {
+		return signatEnTasca;
+	}
+	public void setSignatEnTasca(boolean signatEnTasca) {
+		this.signatEnTasca = signatEnTasca;
+	}
+	public Long getPortasignaturesId() {
+		return portasignaturesId;
+	}
+	public void setPortasignaturesId(Long portasignaturesId) {
+		this.portasignaturesId = portasignaturesId;
+	}
+	public Integer getTipusDocPortasignatures() {
+		return tipusDocPortasignatures;
+	}
+	public void setTipusDocPortasignatures(Integer tipusDocPortasignatures) {
+		this.tipusDocPortasignatures = tipusDocPortasignatures;
+	}
+
+	private static final long serialVersionUID = 774909297938469787L;
+
+}

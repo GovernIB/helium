@@ -1,0 +1,14 @@
+<!DOCTYPE server>
+<server>
+  <mbean code="org.jboss.mail.MailService" name="jboss:service=HeliumMail">
+    <attribute name="JNDIName">java:es.caib.helium.mail</attribute>    
+    <attribute name="Configuration">
+        <configuration>
+            <property name="mail.transport.protocol" value="smtp"/>
+            <property name="mail.smtp.host" value="mail.helium.org"/>            
+            <property name="mail.debug" value="false"/>
+            <property name="mail.smtp.auth" value="true"/> 
+        </configuration>
+    </attribute>
+  </mbean>
+</server>

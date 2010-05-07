@@ -1,0 +1,208 @@
+/**
+ * 
+ */
+package net.conselldemallorca.helium.jbpm3.handlers;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.FilaResultat;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.ParellaCodiValor;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo.IniciadorTipus;
+import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
+import net.conselldemallorca.helium.model.dao.DaoProxy;
+import net.conselldemallorca.helium.model.dao.DocumentStoreDao;
+import net.conselldemallorca.helium.model.dao.DominiDao;
+import net.conselldemallorca.helium.model.dao.EntornDao;
+import net.conselldemallorca.helium.model.dao.MailDao;
+import net.conselldemallorca.helium.model.dto.ExpedientDto;
+import net.conselldemallorca.helium.model.hibernate.DocumentStore;
+import net.conselldemallorca.helium.model.hibernate.Domini;
+import net.conselldemallorca.helium.model.hibernate.Entorn;
+import net.conselldemallorca.helium.model.service.ExpedientService;
+import net.conselldemallorca.helium.model.service.ServiceProxy;
+import net.conselldemallorca.helium.model.service.TascaService;
+import net.conselldemallorca.helium.util.GlobalProperties;
+
+import org.jbpm.JbpmException;
+import org.jbpm.graph.def.ActionHandler;
+import org.jbpm.graph.exe.ExecutionContext;
+
+/**
+ * Handler que pot servir com a base per als handlers que s'hagin
+ * d'implementar a dins les definicions de procés.
+ * 
+ * @author Josep Gayà <josepg@limit.es>
+ */
+public abstract class BasicActionHandler implements ActionHandler {
+
+	public abstract void execute(ExecutionContext executionContext) throws Exception;
+
+
+
+	/**
+	 * Llança un error de validació
+	 * 
+	 * @param error descripció de l'error
+	 */
+	public void errorValidacio(String error) {
+		throw new ValidationException(error);
+	}
+
+	/**
+	 * Realitza una consulta a un domini
+	 * 
+	 * @param executionContext
+	 * @param codiDomini
+	 * @param parametres
+	 * @return
+	 */
+	public List<FilaResultat> consultaDomini(
+			ExecutionContext executionContext,
+			String codiDomini,
+			String id,
+			Map<String, Object> parametres) {
+		ExpedientInfo expedient = getExpedient(executionContext);
+		Entorn entorn = getEntornDao().findAmbCodi(expedient.getEntornCodi());
+		Domini domini = getDominiDao().findAmbEntornICodi(
+				entorn.getId(),
+				codiDomini);
+		if (domini == null)
+			throw new JbpmException("No s'ha trobat el domini amb el codi '" + codiDomini + "'");
+		try {
+			List<net.conselldemallorca.helium.integracio.domini.FilaResultat> resultatConsulta = getDominiDao().consultar(domini.getId(), id, parametres);
+			List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+			for (net.conselldemallorca.helium.integracio.domini.FilaResultat fila: resultatConsulta) {
+				FilaResultat fres = new FilaResultat();
+				for (net.conselldemallorca.helium.integracio.domini.ParellaCodiValor parella: fila.getColumnes()) {
+					fres.addColumna(new ParellaCodiValor(
+							parella.getCodi(),
+							parella.getValor()));
+				}
+				resposta.add(fres);
+			}
+			return resposta;
+		} catch (Exception ex) {
+			throw new JbpmException("Error en la consulta del domini amb el codi '" + codiDomini + "'", ex);
+		}
+	}
+
+	/**
+	 * Obté el document al que fa referència una variable
+	 * 
+	 * @param executionContext
+	 * @param varDocument
+	 * @return
+	 */
+	public DocumentInfo getDocument(
+			ExecutionContext executionContext,
+			String varDocument) {
+		String varCodi = TascaService.PREFIX_DOCUMENT + varDocument;
+		Object valor = executionContext.getVariable(varCodi);
+		if (valor instanceof Long) {
+			Long id = (Long)valor;
+			DocumentStore docStore = getDocumentStoreDao().getById(id, false);
+			DocumentInfo resposta = new DocumentInfo();
+			resposta.setId(docStore.getId());
+			resposta.setArxiuNom(docStore.getArxiuNom());
+			resposta.setArxiuContingut(docStore.getArxiuContingut());
+			resposta.setDataCreacio(docStore.getDataCreacio());
+			resposta.setDataDocument(docStore.getDataDocument());
+			resposta.setSignat(docStore.isSignat());
+			return resposta;
+		} else {
+			throw new JbpmException("La variable \"" + varCodi + "\" no es del tipus correcte");
+		}
+	}
+
+	/**
+	 * Retorna l'expedient associat al procés actual
+	 * 
+	 * @param executionContext
+	 * @return
+	 */
+	public ExpedientInfo getExpedient(ExecutionContext executionContext) {
+		ExpedientDto expedient = getExpedientService().findExpedientAmbProcessInstanceId(
+				getProcessInstanceId(executionContext));
+		if (expedient != null) {
+			ExpedientInfo resposta = new ExpedientInfo();
+			resposta.setTitol(expedient.getTitol());
+			resposta.setNumero(expedient.getNumero());
+			resposta.setNumeroDefault(expedient.getNumeroDefault());
+			resposta.setDataInici(expedient.getDataInici());
+			resposta.setDataFi(expedient.getDataFi());
+			resposta.setComentari(expedient.getComentari());
+			resposta.setInfoAturat(expedient.getInfoAturat());
+			if (expedient.getIniciadorTipus().equals(net.conselldemallorca.helium.model.hibernate.Expedient.IniciadorTipus.INTERN))
+				resposta.setIniciadorTipus(IniciadorTipus.INTERN);
+			else if (expedient.getIniciadorTipus().equals(net.conselldemallorca.helium.model.hibernate.Expedient.IniciadorTipus.SISTRA))
+				resposta.setIniciadorTipus(IniciadorTipus.SISTRA);
+			resposta.setIniciadorCodi(expedient.getIniciadorCodi());
+			resposta.setResponsableCodi(expedient.getResponsableCodi());
+			resposta.setExpedientTipusCodi(expedient.getTipus().getCodi());
+			resposta.setEntornCodi(expedient.getEntorn().getCodi());
+			if (expedient.getEstat() != null)
+				resposta.setEstatCodi(expedient.getEstat().getCodi());
+			return resposta;
+		}
+		return null;
+	}
+
+	/**
+	 * Envia un email amb possibilitat d'adjuntar documents de l'expedient.
+	 * 
+	 * @param recipients
+	 * @param ccRecipients
+	 * @param bccRecipients
+	 * @param subject
+	 * @param text
+	 * @param attachments
+	 */
+	public void enviarEmail(
+			List<String> recipients,
+			List<String> ccRecipients,
+			List<String> bccRecipients,
+			String subject,
+			String text,
+			List<Long> attachments) {
+		try {
+			getMailDao().send(
+					GlobalProperties.getInstance().getProperty("app.correu.remitent"),
+					recipients,
+					ccRecipients,
+					bccRecipients,
+					subject,
+					text,
+					attachments);
+		} catch (Exception ex) {
+			throw new JbpmException("No s'ha pogut enviar el missatge", ex);
+		}
+	}
+
+
+
+	private String getProcessInstanceId(ExecutionContext executionContext) {
+		return new Long(executionContext.getProcessInstance().getId()).toString();
+	}
+	private EntornDao getEntornDao() {
+		return DaoProxy.getInstance().getEntornDao();
+	}
+	private DominiDao getDominiDao() {
+		return DaoProxy.getInstance().getDominiDao();
+	}
+	private DocumentStoreDao getDocumentStoreDao() {
+		return DaoProxy.getInstance().getDocumentStoreDao();
+	}
+	private MailDao getMailDao() {
+		return DaoProxy.getInstance().getMailDao();
+	}
+	private ExpedientService getExpedientService() {
+		return ServiceProxy.getInstance().getExpedientService();
+	}
+
+	static final long serialVersionUID = 1L;
+
+}

@@ -1,0 +1,2 @@
+<%@ page language="java" contentType="text/plain; charset=UTF-8" pageEncoding="UTF-8"%><%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%><c:forEach var="fila" items="${resultat}"><c:forEach var="columna" items="${fila.columnes}"><c:if test="${columna.codi == camp.dominiCampText}">${columna.valor}</c:if></c:forEach><c:forEach var="columna" items="${fila.columnes}"><c:if test="${columna.codi == camp.dominiCampValor}">|${columna.valor}</c:if></c:forEach>
+</c:forEach>

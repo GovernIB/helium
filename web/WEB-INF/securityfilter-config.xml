@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE securityfilter-config PUBLIC
+    "-//SecurityFilter.org//DTD Security Filter Configuration 1.1//EN"
+    "http://www.securityfilter.org/dtd/securityfilter-config_1_1.dtd">
+
+<securityfilter-config>
+
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>Servei avisos BANTEL</web-resource-name>
+			<url-pattern>/ws/NotificacioEntrada*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>HEL_BANTELAVI</role-name>
+		</auth-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>Servei dominis SISTRA</web-resource-name>
+			<url-pattern>/ws/ConsultaDomini*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>HEL_DOMSISTRA</role-name>
+		</auth-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>Servei domini intern</web-resource-name>
+			<url-pattern>/ws/DominiIntern*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>HEL_DOMINTERN</role-name>
+		</auth-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>Servei callback portasignatures</web-resource-name>
+			<url-pattern>/ws/MCGDws*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>HEL_PORTASIG</role-name>
+		</auth-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>Servei guardar formulari extern</web-resource-name>
+			<url-pattern>/ws/FormulariExtern*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>HEL_FORMEXT</role-name>
+		</auth-constraint>
+	</security-constraint>
+
+	<login-config>
+		<auth-method>BASIC</auth-method>
+		<realm-name>Helium</realm-name>
+	</login-config>
+
+	<realm className="net.conselldemallorca.helium.integracio.security.IntegracioSecurityRealm">
+		<realm-param name="bantelAvisosRole" value="HEL_BANTELAVI" />
+		<realm-param name="dominiSistraRole" value="HEL_DOMSISTRA" />
+		<realm-param name="dominiInternRole" value="HEL_DOMINTERN" />
+		<realm-param name="portasignaturesRole" value="HEL_PORTASIG" />
+		<realm-param name="formulariExternRole" value="HEL_FORMEXT" />
+	</realm>
+
+</securityfilter-config>

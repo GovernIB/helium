@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://cxf.apache.org/jaxws
+		http://cxf.apache.org/schemas/jaxws.xsd">
+	
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+
+	<jaxws:client
+		id="sistraBantelClient"
+		serviceClass="net.conselldemallorca.helium.integracio.bantel.client.wsdl.BackofficeFacade"
+		address="${app.bantel.entrades.url}"
+		username="${app.bantel.entrades.username}" password="${app.bantel.entrades.password}"/>
+	<jaxws:client
+		id="sistraZonaperClient"
+		serviceClass="net.conselldemallorca.helium.integracio.zonaper.wsdl.BackofficeFacade"
+		address="${app.zonaper.service.url}"
+		username="${app.zonaper.service.username}" password="${app.zonaper.service.password}"/>
+
+	<bean id="notificacioEntradaImpl" class="net.conselldemallorca.helium.integracio.bantel.service.BantelFacadeImpl">
+		<property name="sistraBantelClient" ref="sistraBantelClient" />
+		<property name="defaultIniciExpedientPlugin">
+			<bean class="net.conselldemallorca.helium.integracio.bantel.plugin.DefaultIniciExpedientPlugin"/>
+		</property>
+	</bean>
+	<jaxws:endpoint 
+		id="notificacioEntrada" 
+		implementor="#notificacioEntradaImpl" 
+		address="/NotificacioEntrada"/>
+
+	<bean id="sistraFacadeImpl" class="net.conselldemallorca.helium.integracio.domini.service.SistraFacadeImpl"/>
+	<jaxws:endpoint 
+		id="consultaDomini" 
+		implementor="#sistraFacadeImpl" 
+		address="/ConsultaDomini"/>
+
+	<bean id="dominiIntern" class="net.conselldemallorca.helium.integracio.domini.DominiIntern"/>
+	<jaxws:endpoint 
+		id="dominiInternService" 
+		implementor="#dominiIntern" 
+		address="/DominiIntern"/>
+
+	<bean id="portasignaturesPluginImpl" class="net.conselldemallorca.helium.integracio.plugins.portasignatures.service.PortasignaturesPluginImpl"></bean>
+	<jaxws:endpoint 
+		id="callback" 
+		implementor="#portasignaturesPluginImpl" 
+		address="/MCGDws"/>
+
+	<bean id="formulariExtern" class="net.conselldemallorca.helium.integracio.forms.GuardarFormulariImpl"/>
+	<jaxws:endpoint 
+		id="formulariExternService" 
+		implementor="#formulariExtern" 
+		address="/FormulariExtern"/>
+
+	<!--jaxws:endpoint 
+		id="dominiExempleService" 
+		implementor="net.conselldemallorca.helium.integracio.domini.DominiExempleImpl" 
+		address="/DominiExemple"/>
+	<jaxws:endpoint 
+		id="dadesExpedientExempleService" 
+		implementor="net.conselldemallorca.helium.integracio.dadesexp.service.DadesExpedientExempleImpl" 
+		address="/DadesExpedientExemple"/>
+	<jaxws:endpoint 
+		id="iniciFormulariExempleService" 
+		implementor="net.conselldemallorca.helium.integracio.forms.IniciFormulariExempleImpl" 
+		address="/IniciFormulariExemple"/-->
+
+</beans>

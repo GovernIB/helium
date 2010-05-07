@@ -1,0 +1,178 @@
+/**
+ * 
+ */
+package net.conselldemallorca.helium.presentacio.mvc;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import net.conselldemallorca.helium.model.hibernate.Domini;
+import net.conselldemallorca.helium.model.hibernate.Entorn;
+import net.conselldemallorca.helium.model.hibernate.Domini.TipusDomini;
+import net.conselldemallorca.helium.model.service.DissenyService;
+import net.conselldemallorca.helium.presentacio.mvc.util.BaseController;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Validator;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.support.SessionStatus;
+
+
+
+/**
+ * Controlador per la gestió de dominis
+ * 
+ * @author Josep Gayà <josepg@limit.es>
+ */
+@Controller
+@RequestMapping("/domini/*.html")
+public class DominiController extends BaseController {
+
+	private DissenyService dissenyService;
+	private Validator annotationValidator;
+
+
+
+	@Autowired
+	public DominiController(
+			DissenyService dissenyService) {
+		this.dissenyService  = dissenyService;
+	}
+
+	@ModelAttribute("command")
+	public Domini populateCommand(
+			@RequestParam(value = "id", required = false) Long id) {
+		if (id != null) {
+			return dissenyService.getDominiById(id);
+		}
+		return new Domini();
+	}
+
+	@ModelAttribute("tipusDomini")
+	public TipusDomini[] populateTipusDomini() {
+		return Domini.TipusDomini.values();
+
+	}
+
+	@RequestMapping(value = "llistat")
+	public String llistat(
+			HttpServletRequest request,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			model.addAttribute("llistat", dissenyService.findDominiAmbEntorn(entorn.getId()));
+			return "domini/llistat";
+		} else {
+			missatgeError(request, "No hi ha cap entorn seleccionat");
+			return "redirect:/index.html";
+		}
+	}
+
+	@RequestMapping(value = "form", method = RequestMethod.GET)
+	public String formGet(
+			HttpServletRequest request) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			return "domini/form";
+		} else {
+			missatgeError(request, "No hi ha cap entorn seleccionat");
+			return "redirect:/index.html";
+		}
+	}
+	@RequestMapping(value = "form", method = RequestMethod.POST)
+	public String formPost(
+			HttpServletRequest request,
+			@RequestParam(value = "submit", required = false) String submit,
+			@ModelAttribute("command") Domini command,
+			BindingResult result,
+			SessionStatus status) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			if ("submit".equals(submit) || submit.length() == 0) {
+				command.setEntorn(entorn);
+				annotationValidator.validate(command, result);
+		        if (result.hasErrors()) {
+		        	return "domini/form";
+		        }
+		        try {
+		        	if (command.getId() == null)
+		        		dissenyService.createDomini(command);
+		        	else
+		        		dissenyService.updateDomini(command);
+		        	missatgeInfo(request, "El domini s'ha guardat correctament");
+		        	status.setComplete();
+		        } catch (Exception ex) {
+		        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+		        	logger.error("No s'ha pogut guardar el domini", ex);
+		        	return "domini/form";
+		        }
+			}
+			return "redirect:/domini/llistat.html";
+		} else {
+			missatgeError(request, "No hi ha cap entorn seleccionat");
+			return "redirect:/index.html";
+		}
+	}
+
+	@RequestMapping(value = "delete")
+	public String delete(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) Long id) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			try {
+				dissenyService.deleteDomini(id);
+				missatgeInfo(request, "El domini s'ha esborrat correctament");
+			} catch (Exception ex) {
+	        	missatgeError(request, "No s'ha pogut esborrar el domini", ex.getLocalizedMessage());
+	        	logger.error("No s'ha pogut esborrar el domini", ex);
+	        	return "domini/form";
+	        }
+			return "redirect:/domini/llistat.html";
+		} else {
+			missatgeError(request, "No hi ha cap entorn seleccionat");
+			return "redirect:/index.html";
+		}
+	}
+
+	@RequestMapping(value = "consulta")
+	public String consulta(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) Long id,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			try {
+				model.addAttribute("domini", dissenyService.getDominiById(id));
+				model.addAttribute("resultat", dissenyService.consultaDomini(id));
+			} catch (Exception ex) {
+	        	missatgeError(request, "No s'ha pogut consultar el domini", ex.getLocalizedMessage());
+	        	logger.error("No s'ha pogut consultar el domini", ex);
+	        }
+			return "domini/consulta";
+		} else {
+			missatgeError(request, "No hi ha cap entorn seleccionat");
+			return "redirect:/index.html";
+		}
+	}
+
+
+
+	@Resource(name = "annotationValidator")
+	public void setAnnotationValidator(Validator annotationValidator) {
+		this.annotationValidator = annotationValidator;
+	}
+
+
+
+	private static final Log logger = LogFactory.getLog(DominiController.class);
+
+}

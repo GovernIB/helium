@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="helium">
+        <wb-resource deploy-path="/" source-path="/web"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/model-src"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/integracio-src"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/security-src"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/jbpm-src"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/common-src"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/presentacio-src"/>
+        <property name="context-root" value="helium"/>
+        <property name="java-output-path"/>
+    </wb-module>
+</project-modules>

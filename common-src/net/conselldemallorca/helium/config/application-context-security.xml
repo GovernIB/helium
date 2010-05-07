@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+			http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.1.xsd">
+
+	<global-method-security secured-annotations="enabled"/>
+
+	<http entry-point-ref="preAuthenticatedProcessingFilterEntryPoint">
+		<intercept-url pattern="/css/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/js/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/img/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/ws/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/signatura/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/index.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/error.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/entorn/seleccio.html" access="ROLE_ADMIN,ROLE_USER" />
+		<intercept-url pattern="/entorn/configDefault.html" access="ROLE_ADMIN,ROLE_USER" />
+		<intercept-url pattern="/persona/**" access="ROLE_ADMIN" />
+		<intercept-url pattern="/entorn/**" access="ROLE_ADMIN" />
+		<intercept-url pattern="/rol/**" access="ROLE_ADMIN" />
+		<intercept-url pattern="/festiu/**" access="ROLE_ADMIN" />
+		<intercept-url pattern="/**" access="ROLE_ADMIN,ROLE_USER" />
+		<anonymous/>
+		<!--form-login/>
+		<http-basic/-->
+		<logout logout-url="/logout.jsp"/>
+	</http>
+
+	<authentication-manager alias="authenticationManager"/>
+	<beans:bean id="preAuthenticatedProcessingFilterEntryPoint" class="org.springframework.security.ui.preauth.PreAuthenticatedProcessingFilterEntryPoint"/>
+	<beans:bean id="preAuthenticatedAuthenticationProvider" class="org.springframework.security.providers.preauth.PreAuthenticatedAuthenticationProvider">
+		<custom-authentication-provider/>
+		<beans:property name="preAuthenticatedUserDetailsService">
+			<beans:bean class="org.springframework.security.providers.preauth.PreAuthenticatedGrantedAuthoritiesUserDetailsService"/>
+		</beans:property>
+	</beans:bean>
+
+	<beans:bean id="attributes2GrantedAuthoritiesMapper" class="org.springframework.security.authoritymapping.MapBasedAttributes2GrantedAuthoritiesMapper">
+		<beans:property name="attributes2grantedAuthoritiesMap">
+			<beans:bean class="net.conselldemallorca.helium.security.permission.JbpmIdGroupMap">
+				<beans:constructor-arg ref="sessionFactory"/>
+				<beans:constructor-arg value="${app.role.external.prefix}"/>
+				<beans:property name="toOverwriteAfterQuery">
+					<beans:map>
+						<beans:entry key="HEL_ADMIN" value="ROLE_ADMIN"/>
+						<beans:entry key="HEL_USER" value="ROLE_USER"/>
+						<beans:entry key="TOTHOM" value="ROLE_USER"/>
+					</beans:map>
+				</beans:property>
+			</beans:bean>
+		</beans:property>
+	</beans:bean>
+	<beans:bean id="j2eePreauthFilter" class="org.springframework.security.ui.preauth.j2ee.J2eePreAuthenticatedProcessingFilter">
+		<custom-filter position="PRE_AUTH_FILTER"/>
+		<beans:property name="authenticationDetailsSource">
+			<beans:bean class="org.springframework.security.ui.preauth.j2ee.J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource">
+				<beans:property name="mappableRolesRetriever" ref="attributes2GrantedAuthoritiesMapper"/>
+				<beans:property name="userRoles2GrantedAuthoritiesMapper" ref="attributes2GrantedAuthoritiesMapper"/>
+			</beans:bean>
+		</beans:property>
+		<beans:property name="authenticationManager" ref="authenticationManager"/>
+	</beans:bean>
+
+</beans:beans>

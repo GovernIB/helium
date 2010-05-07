@@ -1,0 +1,40 @@
+
+ul#tabnav {
+	list-style-type: none;
+	padding: 0 0 24px 6px;
+	border-bottom: 1px solid #aaa;
+	margin: 5px 0 8px 0;
+}
+ul#tabnav li {
+	float: left;
+	height: 21px;
+	background-color: #f2f2f2;
+	margin: 2px 2px 0 2px;
+	border: 1px solid #aaa;
+}
+ul#tabnav li.active {
+	border-bottom: 1px solid #fff;
+	background-color: #fff;
+}
+ul#tabnav li.active a {
+	font-weight: bold;
+	color: #666;
+}
+ul#tabnav a {
+	float: left;
+	display: block;
+	color: #999;
+	text-decoration: none;
+	padding: 4px 10px;
+}
+ul#tabnav a:hover {
+	background: #fff;
+	color: #666;
+}
+
+ul#tabnav li.warn a {
+	padding-left: 20px;
+	background-image: url(../img/bullet_error.png);
+	background-repeat: no-repeat;
+	background-position: 4px 2px;
+}

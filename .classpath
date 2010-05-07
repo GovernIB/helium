@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="model-src"/>
+	<classpathentry kind="src" path="integracio-src"/>
+	<classpathentry kind="src" path="security-src"/>
+	<classpathentry kind="src" path="jbpm-src"/>
+	<classpathentry kind="src" path="common-src"/>
+	<classpathentry kind="src" path="presentacio-src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.5.0_21"/>
+	<classpathentry kind="con" path="org.eclipse.jst.server.core.container/org.eclipse.jst.server.tomcat.runtimeTarget/Apache Tomcat v6.0 amb Java 1.5"/>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
+	<classpathentry kind="lib" path="lib/applets/swing-layout-1.0.3.jar"/>
+	<classpathentry kind="lib" path="lib/applets/plugin.jar"/>
+	<classpathentry kind="lib" path="lib/applets/signaturaapi-3.0.3-SNAPSHOT.jar"/>
+	<classpathentry kind="output" path="build/classes"/>
+</classpath>
