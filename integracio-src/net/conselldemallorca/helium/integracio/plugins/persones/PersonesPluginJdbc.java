@@ -84,18 +84,31 @@ public class PersonesPluginJdbc implements PersonesPlugin {
 					parameterSource,
 					new RowMapper() {
 						public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
-							String codi = rs.getString(1);
-							String nom = rs.getString(2);
-							String llinatges = rs.getString(3);
-							String dni = rs.getString(4);
-							String email = rs.getString(5);
-							Persona persona = new Persona(codi,
-													nom,
-													llinatges,
-													email,
-													sexePerNom(nom));
-							persona.setDni(dni);
-							return persona;
+							if (nomLlinatgesSeparat()) {
+								String codi = rs.getString(1);
+								String nom = rs.getString(2);
+								String llinatges = rs.getString(3);
+								String dni = rs.getString(4);
+								String email = rs.getString(5);
+								Persona persona = new Persona(codi,
+														nom,
+														llinatges,
+														email,
+														sexePerNom(nom));
+								persona.setDni(dni);
+								return persona;
+							} else {
+								String codi = rs.getString(1);
+								String nomSencer = rs.getString(2);
+								String dni = rs.getString(3);
+								String email = rs.getString(4);
+								Persona persona = new Persona(codi,
+														nomSencer,
+														email,
+														sexePerNom(nomSencer));
+								persona.setDni(dni);
+								return persona;
+							}
 						}
 					});
 			
@@ -128,4 +141,12 @@ public class PersonesPluginJdbc implements PersonesPlugin {
 			return Sexe.SEXE_HOME;
 		}
 	}
+
+	private boolean nomLlinatgesSeparat() {
+		String junt = GlobalProperties.getInstance().getProperty("app.persones.plugin.jdbc.nom.llinatges.junt");
+		if (junt == null)
+			return true;
+		return junt.equalsIgnoreCase("false");
+	}
+
 }
