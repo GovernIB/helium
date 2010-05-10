@@ -56,6 +56,7 @@
 			</beans:bean>
 		</beans:property>
 	</beans:bean>
+
 	<beans:bean id="j2eePreauthFilter" class="org.springframework.security.ui.preauth.j2ee.J2eePreAuthenticatedProcessingFilter">
 		<custom-filter position="PRE_AUTH_FILTER"/>
 		<beans:property name="authenticationDetailsSource">
