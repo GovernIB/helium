@@ -111,6 +111,7 @@
 			<form-error-page>/loginError.jsp</form-error-page>
 		</form-login-config-->
 	</login-config>
+
 	<security-role>
 		<role-name>HEL_ADMIN</role-name>
 	</security-role>
@@ -120,6 +121,7 @@
 	<security-role>
 		<role-name>TOTHOM</role-name>
 	</security-role>
+
 	<security-constraint>
 		<web-resource-collection>
 			<web-resource-name>All areas</web-resource-name>
