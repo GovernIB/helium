@@ -29,6 +29,9 @@ function confirmar(e) {
 		<c:param name="tabActiu" value="camps"/>
 	</c:import>
 
+	<h3 class="titol-tab titol-validacions-campdef">
+		Validacions de la variable ${camp.codiEtiqueta}
+	</h3>
 	<display:table name="validacions" id="registre" requestURI="" class="displaytag">
 		<display:column property="expressio" title="Expressió"/>
 		<display:column property="missatge" title="Missatge"/>

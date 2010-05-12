@@ -319,6 +319,30 @@ h3.titol-delegacio {
 	background-repeat: no-repeat;
 	background-position: 2px 6px;
 }
+h3.titol-variables-tascadef {
+	padding-left: 24px;
+	background-image: url(../img/page_white_stack.png);
+	background-repeat: no-repeat;
+	background-position: 2px 6px;
+}
+h3.titol-documents-tascadef {
+	padding-left: 24px;
+	background-image: url(../img/page_white_stack.png);
+	background-repeat: no-repeat;
+	background-position: 2px 6px;
+}
+h3.titol-signatures-tascadef {
+	padding-left: 24px;
+	background-image: url(../img/page_white_stack.png);
+	background-repeat: no-repeat;
+	background-position: 2px 6px;
+}
+h3.titol-validacions-campdef {
+	padding-left: 24px;
+	background-image: url(../img/page_white_stack.png);
+	background-repeat: no-repeat;
+	background-position: 2px 6px;
+}
 
 h4.titol-missatge {
 	padding: 0;
