@@ -13,7 +13,13 @@
 <c:set var="valorActual" value="${command[codiActual]}" scope="request"/>
 <c:set var="valorDominiActual" value="${tasca.valorsDomini[codiActual]}" scope="request"/>
 <c:set var="valorTextActual" value="${tasca.varsComText[codiActual]}" scope="request"/>
-<c:set var="extraParams"><c:choose><c:when test="${not empty tasca.id}">taskId:${tasca.id},processInstanceId:${tasca.processInstanceId},definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}',valors:function(){return canvisSelectValorsAddicionals}</c:when><c:otherwise>processInstanceId:${tasca.processInstanceId},definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}'</c:otherwise></c:choose></c:set>
+<c:set var="extraParams">
+	<c:choose>
+		<c:when test="${not empty tasca.id}">taskId:${tasca.id},processInstanceId:${tasca.processInstanceId},definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}',valors:function(){return canvisSelectValorsAddicionals}</c:when>
+		<c:when test="${empty tasca.id and empty tasca.processInstanceId}">definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}'</c:when>
+		<c:otherwise>processInstanceId:${tasca.processInstanceId},definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}'</c:otherwise>
+	</c:choose>
+</c:set>
 <c:choose>
 	<c:when test="${tasca.validada or readOnly}">
 		<c:import url="../common/formElement.jsp">

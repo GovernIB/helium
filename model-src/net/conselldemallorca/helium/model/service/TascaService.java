@@ -581,7 +581,15 @@ public class TascaService {
 			String taskId,
 			String campCodi,
 			String textInicial) throws DominiException {
-		return dtoConverter.getResultatConsultaDomini(taskId, null, campCodi, textInicial, null);
+		JbpmTask task = jbpmDao.getTaskById(taskId);
+		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(task.getProcessDefinitionId());
+		return dtoConverter.getResultatConsultaDomini(
+				definicioProces,
+				taskId,
+				null,
+				campCodi,
+				textInicial,
+				null);
 	}
 
 	@Autowired

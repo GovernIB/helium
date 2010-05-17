@@ -45,7 +45,7 @@ public class ExpedientConsultaDominiController extends BaseController {
 	public String consultaCamp(
 			HttpServletRequest request,
 			@RequestParam(value = "taskId", required = false) String taskId,
-			@RequestParam(value = "processInstanceId", required = true) String processInstanceId,
+			@RequestParam(value = "processInstanceId", required = false) String processInstanceId,
 			@RequestParam(value = "definicioProcesId", required = true) Long definicioProcesId,
 			@RequestParam(value = "campCodi", required = true) String campCodi,
 			@RequestParam(value = "q", required = false) String textInicial,
@@ -63,6 +63,7 @@ public class ExpedientConsultaDominiController extends BaseController {
 						dissenyService.getResultatConsultaDomini(
 								taskId,
 								processInstanceId,
+								definicioProcesId,
 								campCodi,
 								textInicial,
 								getMapDelsValors(valors)));

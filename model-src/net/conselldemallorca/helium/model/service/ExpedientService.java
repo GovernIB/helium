@@ -587,7 +587,15 @@ public class ExpedientService {
 			String processInstanceId,
 			String campCodi,
 			String textInicial) throws DominiException {
-		return dtoConverter.getResultatConsultaDomini(null, processInstanceId, campCodi, textInicial, null);
+		JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(processInstanceId);
+		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(jpd.getId());
+		return dtoConverter.getResultatConsultaDomini(
+				definicioProces,
+				null,
+				processInstanceId,
+				campCodi,
+				textInicial,
+				null);
 	}
 
 	public List<Registre> getRegistrePerExpedient(Long expedientId) {

@@ -17,6 +17,7 @@ import java.util.zip.ZipOutputStream;
 import net.conselldemallorca.helium.integracio.domini.FilaResultat;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.model.dao.CampAgrupacioDao;
 import net.conselldemallorca.helium.model.dao.CampDao;
 import net.conselldemallorca.helium.model.dao.CampTascaDao;
@@ -1118,10 +1119,49 @@ public class DissenyService {
 	public List<FilaResultat> getResultatConsultaDomini(
 			String taskId,
 			String processInstanceId,
+			Long definicioProcesId,
 			String campCodi,
 			String textInicial,
 			Map<String, Object> valorsAddicionals) {
-		return dtoConverter.getResultatConsultaDomini(taskId, processInstanceId, campCodi, textInicial, valorsAddicionals);
+		if (definicioProcesId != null) {
+			DefinicioProces definicioProces = definicioProcesDao.getById(definicioProcesId, false);
+			Camp camp = null;
+			for (Camp c: definicioProces.getCamps()) {
+				if (c.getCodi().equals(campCodi)) {
+					camp = c;
+					break;
+				}
+			}
+			
+			if (camp.getEnumeracio() != null) {
+				return dtoConverter.getResultatConsultaEnumeracio(definicioProces, campCodi, textInicial);
+			} else {
+				return dtoConverter.getResultatConsultaDomini(
+						definicioProces,
+						taskId,
+						processInstanceId,
+						campCodi,
+						textInicial,
+						valorsAddicionals);
+			}
+		} else {
+			DefinicioProces dp = null;
+			if (taskId != null) {
+				JbpmTask task = jbpmDao.getTaskById(taskId);
+				dp = definicioProcesDao.findAmbJbpmId(task.getProcessDefinitionId());
+			} else {
+				JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(processInstanceId);
+				dp = definicioProcesDao.findAmbJbpmId(jpd.getId());
+			}
+			return dtoConverter.getResultatConsultaDomini(
+					dp,
+					taskId,
+					processInstanceId,
+					campCodi,
+					textInicial,
+					valorsAddicionals);
+		}
+		
 	}
 
 	public CampAgrupacio getCampAgrupacioById(Long id) {
