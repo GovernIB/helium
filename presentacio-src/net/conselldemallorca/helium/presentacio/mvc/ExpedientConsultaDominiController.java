@@ -3,6 +3,9 @@
  */
 package net.conselldemallorca.helium.presentacio.mvc;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.model.hibernate.Entorn;
@@ -47,6 +50,7 @@ public class ExpedientConsultaDominiController extends BaseController {
 			@RequestParam(value = "campCodi", required = true) String campCodi,
 			@RequestParam(value = "q", required = false) String textInicial,
 			@RequestParam(value = "tipus", required = true) String tipus,
+			@RequestParam(value = "valors", required = false) String valors,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
@@ -56,7 +60,12 @@ public class ExpedientConsultaDominiController extends BaseController {
 						dissenyService.findCampAmbDefinicioProcesICodi(definicioProcesId, campCodi));
 				model.addAttribute(
 						"resultat",
-						dissenyService.getResultatConsultaDomini(taskId, processInstanceId, campCodi, textInicial));
+						dissenyService.getResultatConsultaDomini(
+								taskId,
+								processInstanceId,
+								campCodi,
+								textInicial,
+								getMapDelsValors(valors)));
 			} catch (Exception ex) {
 				logger.error("Error en la consulta de domini pel camp " + campCodi, ex);
 			}
@@ -71,6 +80,19 @@ public class ExpedientConsultaDominiController extends BaseController {
 	}
 
 
+
+	private Map<String, Object> getMapDelsValors(String valors) {
+		if (valors == null)
+			return null;
+		Map<String, Object> resposta = new HashMap<String, Object>();
+		String[] parelles = valors.split(",");
+		for (int i = 0; i < parelles.length; i++) {
+			String[] parts = parelles[i].split(":");
+			if (parts.length == 2)
+				resposta.put(parts[0], parts[1]);
+		}
+		return resposta;
+	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientConsultaDominiController.class);
 

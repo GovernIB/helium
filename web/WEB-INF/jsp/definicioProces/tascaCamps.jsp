@@ -29,6 +29,9 @@ function confirmar(e) {
 		<c:param name="tabActiu" value="tasques"/>
 	</c:import>
 
+	<h3 class="titol-tab titol-variables-tascadef">
+		Variables de la tasca ${tasca.nom}
+	</h3>
 	<display:table name="campsTasca" id="registre" requestURI="" class="displaytag">
 		<display:column property="camp.codiEtiqueta" title="Variable"/>
 		<display:column title="Propietats">

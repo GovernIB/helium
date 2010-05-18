@@ -135,11 +135,14 @@
 								<c:if test="${not empty param.selectUrl}">
 									<script type="text/javascript">
 										// <![CDATA[
-										initSelect(
-												"${inputId}",
-												"${status.value}",
-												"${param.selectUrl}",
-												<c:choose><c:when test="${empty param.selectExtraParams}">null</c:when><c:otherwise>{${param.selectExtraParams}}</c:otherwise></c:choose>);
+										function initSelect_${inputId}() {
+											initSelect(
+													"${inputId}",
+													"${status.value}",
+													"${param.selectUrl}",
+													<c:choose><c:when test="${empty param.selectExtraParams}">null</c:when><c:otherwise>{${param.selectExtraParams}}</c:otherwise></c:choose>);
+										}
+										initSelect_${inputId}();
 										// ]]>
 									</script>
 								</c:if>

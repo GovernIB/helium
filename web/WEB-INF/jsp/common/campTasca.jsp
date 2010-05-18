@@ -13,7 +13,7 @@
 <c:set var="valorActual" value="${command[codiActual]}" scope="request"/>
 <c:set var="valorDominiActual" value="${tasca.valorsDomini[codiActual]}" scope="request"/>
 <c:set var="valorTextActual" value="${tasca.varsComText[codiActual]}" scope="request"/>
-<c:set var="extraParams"><c:choose><c:when test="${not empty tasca.id}">taskId:${tasca.id},processInstanceId:${tasca.processInstanceId},definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}'</c:when><c:otherwise>processInstanceId:${tasca.processInstanceId},definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}'</c:otherwise></c:choose></c:set>
+<c:set var="extraParams"><c:choose><c:when test="${not empty tasca.id}">taskId:${tasca.id},processInstanceId:${tasca.processInstanceId},definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}',valors:function(){return canvisSelectValorsAddicionals}</c:when><c:otherwise>processInstanceId:${tasca.processInstanceId},definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}'</c:otherwise></c:choose></c:set>
 <c:choose>
 	<c:when test="${tasca.validada or readOnly}">
 		<c:import url="../common/formElement.jsp">
@@ -116,6 +116,7 @@
 			<c:param name="selectExtraParams">${extraParams},tipus:'select'</c:param>
 			<c:param name="iterateOn"><c:if test="${campActual.multiple}">valorActual</c:if></c:param>
 			<c:param name="multipleIcons"><c:if test="${campActual.multiple}">true</c:if></c:param>
+			<c:param name="onchange">canviSelectTasca(this.id, this.name);</c:param>
 		</c:import>
 	</c:when>
 	<c:when test="${campActual.tipus == 'SUGGEST'}">

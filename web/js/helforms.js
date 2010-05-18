@@ -38,6 +38,7 @@ function initSuggest(codi, url, callback, extraParams) {
 }
 
 function initSelect(selectId, valor, url, extraParams) {
+	var valorActual = $("select#" + selectId).val();
 	$("select#" + selectId).html(
 			'<option>Carregant...</option>');
     $.getJSON(
@@ -53,7 +54,39 @@ function initSelect(selectId, valor, url, extraParams) {
 		        		options += '<option value="' + j[i].valor + '">' + j[i].text + '</option>';
 		        }
 		        $("select#" + selectId).html(options);
+		        if (canvisSelectInicialitzat)
+		        	$("select#" + selectId).val(valorActual);
 			});
+}
+
+var canvisSelectValorsAddicionals;
+var canvisSelectInicialitzat = false;
+var canvisSelectTasca = new Array();
+function canviSelectTasca(selectId, camp) {
+	var trobat = false;
+	var valor = $("select#" + selectId).val();
+	for (i = 0; i < canvisSelectTasca.length; i++) {
+		if (canvisSelectTasca[i][0] == camp) {
+			canvisSelectTasca[i][1] = valor;
+			trobat = true;
+			break;
+		}
+	}
+	if (!trobat)
+		canvisSelectTasca[canvisSelectTasca.length] = new Array(camp, valor);
+	var str = "";
+	for (i = 0; i < canvisSelectTasca.length; i++) {
+		str = str + canvisSelectTasca[i][0] + ":" + canvisSelectTasca[i][1];
+		if (i < canvisSelectTasca.length - 1)
+			str = str + ",";
+	}
+	canvisSelectValorsAddicionals = str;
+	var sels = $("#" + selectId).parents("form").find("select");
+	for (i = 0; i < sels.length; i++) {
+		if (sels[i].id != selectId)
+			eval("initSelect_" + sels[i].id + "()");
+	}
+	canvisSelectInicialitzat = true;
 }
 
 function multipleRemove(elem, index, field) {

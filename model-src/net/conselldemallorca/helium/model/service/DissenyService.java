@@ -1119,8 +1119,9 @@ public class DissenyService {
 			String taskId,
 			String processInstanceId,
 			String campCodi,
-			String textInicial) {
-		return dtoConverter.getResultatConsultaDomini(taskId, processInstanceId, campCodi, textInicial);
+			String textInicial,
+			Map<String, Object> valorsAddicionals) {
+		return dtoConverter.getResultatConsultaDomini(taskId, processInstanceId, campCodi, textInicial, valorsAddicionals);
 	}
 
 	public CampAgrupacio getCampAgrupacioById(Long id) {

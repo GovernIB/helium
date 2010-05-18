@@ -581,7 +581,7 @@ public class TascaService {
 			String taskId,
 			String campCodi,
 			String textInicial) throws DominiException {
-		return dtoConverter.getResultatConsultaDomini(taskId, null, campCodi, textInicial);
+		return dtoConverter.getResultatConsultaDomini(taskId, null, campCodi, textInicial, null);
 	}
 
 	@Autowired

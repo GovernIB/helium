@@ -349,7 +349,8 @@ public class DtoConverter {
 			String taskId,
 			String processInstanceId,
 			String campCodi,
-			String textInicial) throws DominiException {
+			String textInicial,
+			Map<String, Object> valorsAddicionals) throws DominiException {
 		Camp camp = null;
 		if (taskId != null) {
 			JbpmTask task = jbpmDao.getTaskById(taskId);
@@ -373,12 +374,18 @@ public class DtoConverter {
 			}
 		}
 		if (camp != null) {
+			Map<String, Object> params = getParamsConsulta(
+					taskId,
+					processInstanceId,
+					camp);
+			if (valorsAddicionals != null) {
+				if (params == null)
+					params = new HashMap<String, Object>();
+				params.putAll(valorsAddicionals);
+			}
 			return getResultatConsultaDominiPerCamp(
 					camp,
-					getParamsConsulta(
-							taskId,
-							processInstanceId,
-							camp),
+					params,
 					textInicial);
 		}
 		return new ArrayList<FilaResultat>();

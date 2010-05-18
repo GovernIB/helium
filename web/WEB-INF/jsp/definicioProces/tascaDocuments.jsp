@@ -29,6 +29,9 @@ function confirmar(e) {
 		<c:param name="tabActiu" value="tasques"/>
 	</c:import>
 
+	<h3 class="titol-tab titol-documents-tascadef">
+		Documents de la tasca ${tasca.nom}
+	</h3>
 	<display:table name="tascaDocuments" id="registre" requestURI="" class="displaytag">
 		<display:column property="document.nom" title="Document"/>
 		<display:column title="Propietats">
