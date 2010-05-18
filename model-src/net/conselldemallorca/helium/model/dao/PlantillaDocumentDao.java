@@ -184,7 +184,7 @@ public class PlantillaDocumentDao {
 							if (arg0 != null && arg0 instanceof String) {
 								String codi = (String)arg0;
 								//System.out.println(">>> persona " + codi);
-								net.conselldemallorca.helium.model.hibernate.Persona persona = pluginPersonaDao.findAmbCodi(codi);
+								Persona persona = pluginPersonaDao.findAmbCodiPlugin(codi);
 								if (persona == null)
 									return new BeanModel(
 											new Persona("???", "???", "???", Sexe.SEXE_HOME),
