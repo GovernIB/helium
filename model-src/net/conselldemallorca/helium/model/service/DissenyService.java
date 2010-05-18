@@ -411,6 +411,8 @@ public class DissenyService {
 	public void deleteDocumentTasca(Long id) {
 		DocumentTasca vell = getDocumentTascaById(id);
 		if (vell != null) {
+			vell.getTasca().removeDocument(vell);
+			vell.getDocument().removeTasca(vell);
 			documentTascaDao.delete(id);
 			reordenarDocumentsTasca(vell.getTasca().getId());
 		}
