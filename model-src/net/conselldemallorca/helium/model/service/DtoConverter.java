@@ -345,35 +345,49 @@ public class DtoConverter {
 		return null;
 	}
 
+	public List<FilaResultat> getResultatConsultaEnumeracio(
+			DefinicioProces definicioProces,
+			String campCodi,
+			String textInicial) {
+		Camp camp = null;
+		for (Camp c: definicioProces.getCamps()) {
+			if (c.getCodi().equals(campCodi)) {
+				camp = c;
+				break;
+			}
+		}
+		if (camp != null && camp.getEnumeracio() != null) {
+			Enumeracio enumeracio = camp.getEnumeracio();
+			List<FilaResultat> resultat = new ArrayList<FilaResultat>();
+			for (String key: enumeracio.getLlistaValors().keySet()) {
+				String valor = enumeracio.getLlistaValors().get(key);
+				if (textInicial == null || valor.toLowerCase().startsWith(textInicial.toLowerCase())) {
+					FilaResultat fila = new FilaResultat();
+					fila.addColumna(new ParellaCodiValor("codi", key));
+					fila.addColumna(new ParellaCodiValor("valor", valor));
+					resultat.add(fila);
+				}
+			}
+			return resultat;
+		}
+		return new ArrayList<FilaResultat>();
+	}
+			
 	public List<FilaResultat> getResultatConsultaDomini(
+			DefinicioProces definicioProces,
 			String taskId,
 			String processInstanceId,
 			String campCodi,
 			String textInicial,
 			Map<String, Object> valorsAddicionals) throws DominiException {
 		Camp camp = null;
-		if (taskId != null) {
-			JbpmTask task = jbpmDao.getTaskById(taskId);
-			Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
-					task.getName(),
-					task.getProcessDefinitionId());
-			for (CampTasca ct: tasca.getCamps()) {
-				if (ct.getCamp().getCodi().equals(campCodi)) {
-					camp = ct.getCamp();
-					break;
-				}
-			}
-		} else if (processInstanceId != null) {
-			JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(processInstanceId);
-			DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(jpd.getId());
-			for (Camp c: definicioProces.getCamps()) {
-				if (c.getCodi().equals(campCodi)) {
-					camp = c;
-					break;
-				}
+		for (Camp c: definicioProces.getCamps()) {
+			if (c.getCodi().equals(campCodi)) {
+				camp = c;
+				break;
 			}
 		}
-		if (camp != null) {
+		if (camp != null && camp.getDomini() != null) {
 			Map<String, Object> params = getParamsConsulta(
 					taskId,
 					processInstanceId,
@@ -383,10 +397,7 @@ public class DtoConverter {
 					params = new HashMap<String, Object>();
 				params.putAll(valorsAddicionals);
 			}
-			return getResultatConsultaDominiPerCamp(
-					camp,
-					params,
-					textInicial);
+			return getResultatConsultaDominiPerCamp(camp, params, textInicial);
 		}
 		return new ArrayList<FilaResultat>();
 	}
@@ -395,45 +406,30 @@ public class DtoConverter {
 			Camp camp,
 			Map<String, Object> params,
 			String textInicial) throws DominiException {
-		if (camp != null) {
-			if (camp.getDomini() != null) {
-				Domini domini = camp.getDomini();
-				try {
-					List<FilaResultat> resultat = dominiDao.consultar(
-							domini.getId(),
-							camp.getDominiId(),
-							params);
-					// Filtra els resultats amb el textInicial (si n'hi ha)
-					if (textInicial != null) {
-						String columna = camp.getDominiCampText();
-						Iterator<FilaResultat> it = resultat.iterator();
-						while (it.hasNext()) {
-							FilaResultat fr = it.next();
-							for (ParellaCodiValor parella: fr.getColumnes()) {
-								if (parella.getCodi().equals(columna) && !parella.getValor().toString().toUpperCase().contains(textInicial.toUpperCase())) {
-									it.remove();
-									break;
-								}
+		if (camp != null && camp.getDomini() != null) {
+			Domini domini = camp.getDomini();
+			try {
+				List<FilaResultat> resultat = dominiDao.consultar(
+						domini.getId(),
+						camp.getDominiId(),
+						params);
+				// Filtra els resultats amb el textInicial (si n'hi ha)
+				if (textInicial != null) {
+					String columna = camp.getDominiCampText();
+					Iterator<FilaResultat> it = resultat.iterator();
+					while (it.hasNext()) {
+						FilaResultat fr = it.next();
+						for (ParellaCodiValor parella: fr.getColumnes()) {
+							if (parella.getCodi().equals(columna) && !parella.getValor().toString().toUpperCase().contains(textInicial.toUpperCase())) {
+								it.remove();
+								break;
 							}
 						}
 					}
-					return resultat;
-				} catch (Exception ex) {
-					throw new DominiException("No s'ha pogut consultar el domini", ex);
-				}
-			} else if (camp.getEnumeracio() != null) {
-				Enumeracio enumeracio = camp.getEnumeracio();
-				List<FilaResultat> resultat = new ArrayList<FilaResultat>();
-				for (String key: enumeracio.getLlistaValors().keySet()) {
-					String valor = enumeracio.getLlistaValors().get(key);
-					if (textInicial == null || valor.toLowerCase().startsWith(textInicial.toLowerCase())) {
-						FilaResultat fila = new FilaResultat();
-						fila.addColumna(new ParellaCodiValor("codi", key));
-						fila.addColumna(new ParellaCodiValor("valor", valor));
-						resultat.add(fila);
-					}
 				}
 				return resultat;
+			} catch (Exception ex) {
+				throw new DominiException("No s'ha pogut consultar el domini", ex);
 			}
 		}
 		return new ArrayList<FilaResultat>();
@@ -887,7 +883,8 @@ public class DtoConverter {
 				else if (processInstanceId != null)
 					value = jbpmDao.getProcessInstanceVariable(processInstanceId, campCodi);
 			}
-			params.put(paramCodi, value);
+			if (value != null)
+				params.put(paramCodi, value);
 		}
 		return params;
 	}
