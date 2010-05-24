@@ -65,6 +65,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.jbpm.JbpmException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContextHolder;
@@ -939,28 +940,32 @@ public class ExpedientService {
 			String transicioOK,
 			String transicioKO) throws Exception {
 		
-		Integer doc = pluginPortasignaturesDao.UploadDocument(
-						persona,
-						documentDto,
-						expedient,
-						importancia,
-						dataLimit);
-		
-		Calendar cal = Calendar.getInstance();
-		Portasignatures portasignatures = new Portasignatures();
-		portasignatures.setDocumentId(doc);
-		portasignatures.setTokenId(tokenId);
-		portasignatures.setDataEnviat(cal.getTime());
-		portasignatures.setEstat(TipusEstat.PENDENT);
-		portasignatures.setDocumentStoreId(documentDto.getId());
-		portasignatures.setTransicioOK(transicioOK);
-		portasignatures.setTransicioKO(transicioKO);
-		pluginPortasignaturesDao.saveOrUpdate(portasignatures);
-		
-		Document document = documentDao.getById(documentDto.getDocumentId(), false);
-		document.setPortasignaturesId(portasignatures.getId());
-		document.setTipusDocPortasignatures(documentDto.getTipusDocPortasignatures());
-		documentDao.saveOrUpdate(document);
+		try {
+			Integer doc = pluginPortasignaturesDao.UploadDocument(
+							persona,
+							documentDto,
+							expedient,
+							importancia,
+							dataLimit);
+			
+			Calendar cal = Calendar.getInstance();
+			Portasignatures portasignatures = new Portasignatures();
+			portasignatures.setDocumentId(doc);
+			portasignatures.setTokenId(tokenId);
+			portasignatures.setDataEnviat(cal.getTime());
+			portasignatures.setEstat(TipusEstat.PENDENT);
+			portasignatures.setDocumentStoreId(documentDto.getId());
+			portasignatures.setTransicioOK(transicioOK);
+			portasignatures.setTransicioKO(transicioKO);
+			pluginPortasignaturesDao.saveOrUpdate(portasignatures);
+			
+			Document document = documentDao.getById(documentDto.getDocumentId(), false);
+			document.setPortasignaturesId(portasignatures.getId());
+			document.setTipusDocPortasignatures(documentDto.getTipusDocPortasignatures());
+			documentDao.saveOrUpdate(document);
+		} catch (Exception e) {
+			throw new JbpmException("No s'ha pogut pujar el document al portasignatures", e);
+		}
 	}
 	
 	public byte[] obtenirDocumentPortasignatures(

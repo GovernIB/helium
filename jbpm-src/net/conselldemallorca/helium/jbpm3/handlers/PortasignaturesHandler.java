@@ -6,6 +6,8 @@ import net.conselldemallorca.helium.integracio.plugins.persones.Persona;
 import net.conselldemallorca.helium.model.dto.DocumentDto;
 import net.conselldemallorca.helium.model.service.TascaService;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
 
@@ -31,15 +33,27 @@ public class PortasignaturesHandler extends AbstractHeliumActionHandler {
 	private String transicioKO;
 	
 	public void execute(ExecutionContext executionContext) throws Exception {
-		Persona persona = getPersonaAmbCodi(
-				(String)getValorOVariable(executionContext, responsableCodi, varResponsableCodi));
-		
-		String varCodi = TascaService.PREFIX_DOCUMENT +
-				(String)getValorOVariable(executionContext, document, varDocument);
-		Long documentStoreId = (Long)executionContext.getVariable(varCodi);
-		DocumentDto documentDto = getExpedientService().getDocument(documentStoreId);
-		
 		try {
+			Boolean personaCodi = getValorOVariable(executionContext, responsableCodi, varResponsableCodi) != null;
+			Persona persona = null;
+			if (personaCodi) {
+				persona = getPersonaAmbCodi(
+						(String)getValorOVariable(executionContext, responsableCodi, varResponsableCodi));
+			} else {
+				throw new JbpmException("No s'ha pogut trobar la persona '" + getValorOVariable(executionContext, responsableCodi, varResponsableCodi) + "'.");
+			}
+			
+			Boolean documentCodi = getValorOVariable(executionContext, document, varDocument) != null;
+			DocumentDto documentDto = null;
+			if (documentCodi) {
+				String varCodi = TascaService.PREFIX_DOCUMENT +
+						(String)getValorOVariable(executionContext, document, varDocument);
+				Long documentStoreId = (Long)executionContext.getVariable(varCodi);
+				documentDto = getExpedientService().getDocument(documentStoreId);
+			} else {
+				throw new JbpmException("No s'ha pogut trobar el document '" + getValorOVariable(executionContext, document, varDocument) + "'.");
+			}
+
 			getExpedientService().enviarPortasignatures(
 					persona,
 					documentDto,
@@ -50,7 +64,8 @@ public class PortasignaturesHandler extends AbstractHeliumActionHandler {
 					(String)getValorOVariable(executionContext, transicioOK, varTransicioOK),
 					(String)getValorOVariable(executionContext, transicioKO, varTransicioKO));
 		} catch (Exception e) {
-			throw new JbpmException("No s'ha pogut enviar el document al portasignatures. " + e.getMessage());
+			logger.error("Error PortasignaturesHandler. ", e);
+			throw new JbpmException("No s'ha pogut enviar el document al portasignatures", e);
 		}
 	}
 
@@ -90,4 +105,6 @@ public class PortasignaturesHandler extends AbstractHeliumActionHandler {
 	public void setTransicioKO(String transicioKO) {
 		this.transicioKO = transicioKO;
 	}
+	
+	private static final Log logger = LogFactory.getLog(PortasignaturesHandler.class);
 }

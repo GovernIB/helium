@@ -183,21 +183,23 @@ public class PortasignaturesPlugin {
 			byte[] convertit = convertir.render(documentDto.getArxiuContingut(), documentDto.getArxiuNom());
 			
 			if (convertit != null) {
-				final String contentTypeAttachment = "application/pdf";
-				final String nameAttachment = nomArxiu + ".pdf";
-				final byte[] contingutAttachment = convertit;
-				final ByteArrayOutputStream baosAttachment = new ByteArrayOutputStream();
-				DataSource dataSourceAttachment = new DataSource() {
-					public OutputStream getOutputStream() throws IOException { return baosAttachment; }
-					public InputStream getInputStream() throws IOException { return new ByteArrayInputStream(contingutAttachment); }
-					public String getName() { return nameAttachment; }
-					public String getContentType() { return contentTypeAttachment; }
-				};
-				
-				DataHandler attachmentFile = new DataHandler(dataSourceAttachment);
-				stub.addAttachment(attachmentFile);
-			} else {
-				throw new Exception("Error en la conversio del document.");
+				try {
+					final String contentTypeAttachment = "application/pdf";
+					final String nameAttachment = nomArxiu + ".pdf";
+					final byte[] contingutAttachment = convertit;
+					final ByteArrayOutputStream baosAttachment = new ByteArrayOutputStream();
+					DataSource dataSourceAttachment = new DataSource() {
+						public OutputStream getOutputStream() throws IOException { return baosAttachment; }
+						public InputStream getInputStream() throws IOException { return new ByteArrayInputStream(contingutAttachment); }
+						public String getName() { return nameAttachment; }
+						public String getContentType() { return contentTypeAttachment; }
+					};
+					
+					DataHandler attachmentFile = new DataHandler(dataSourceAttachment);
+					stub.addAttachment(attachmentFile);
+				} catch (Exception e) {
+					throw new Exception("Error en la conversio del document", e);
+				}
 			}
 		} else {
 			DataHandler attachmentFile = new DataHandler(dataSource);
