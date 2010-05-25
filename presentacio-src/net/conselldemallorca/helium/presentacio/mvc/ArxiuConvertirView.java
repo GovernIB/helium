@@ -9,10 +9,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import net.conselldemallorca.helium.util.GlobalProperties;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.artofsolving.jodconverter.DefaultDocumentFormatRegistry;
 import com.artofsolving.jodconverter.DocumentConverter;
@@ -51,6 +55,7 @@ public class ArxiuConvertirView extends ArxiuView {
 			Map model,
 			HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
+		try {
 		response.setHeader(HEADER_PRAGMA, "");
 		response.setHeader(HEADER_EXPIRES, "");
 		response.setHeader(HEADER_CACHE_CONTROL, "");
@@ -144,6 +149,10 @@ public class ArxiuConvertirView extends ArxiuView {
 				super.render(model, request, response);
 			}
 		}
+		} catch (Exception ex) {
+			logger.error("Error en la conversió del document", ex);
+			throw new ServletException(ex);
+		}
 	}
 
 
@@ -208,5 +217,7 @@ public class ArxiuConvertirView extends ArxiuView {
 	private String getPropertyDefaultExtension() {
 		return GlobalProperties.getInstance().getProperty("app.conversio.default.extension");
 	}
+
+	private static final Log logger = LogFactory.getLog(ArxiuConvertirView.class);
 
 }
