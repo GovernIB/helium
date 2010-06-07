@@ -53,10 +53,10 @@ function confirmarEsborrarSignatura(e) {
 					<c:set var="tascaActual" value="${tasca}" scope="request"/>
 					<c:set var="documentActual" value="${tasca.varsDocumentsPerSignar[firma.document.codi]}" scope="request"/>
 					<c:set var="codiDocumentActual" value="${firma.document.codi}" scope="request"/>
+					<c:set var="tokenActual" value="${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignatura}" scope="request"/>
 					<c:import url="../common/iconesConsultaDocument.jsp"/>
 					<c:if test="${tasca.varsDocumentsPerSignar[firma.document.codi].signatEnTasca}">
 						<img src="<c:url value="/img/tick.png"/>" alt="Ok" title="Ok" border="0"/>
-						<%--a href="<c:url value="/tasca/signaturaEsborrar.html"><c:param name="id" value="${tasca.id}"/><c:param name="var" value="${codiDocumentActual}"/></c:url>" onclick="return confirmarEsborrarSignatura(event)"><img src="<c:url value="/img/rosette_delete.png"/>" alt="Esborrar signatura" title="Esborrar signatura" border="0"/></a--%>
 					</c:if>
 					&nbsp;&nbsp;
 					<c:if test="${not tasca.varsDocumentsPerSignar[firma.document.codi].signatEnTasca}">

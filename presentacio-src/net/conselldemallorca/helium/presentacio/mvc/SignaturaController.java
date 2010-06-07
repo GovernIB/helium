@@ -58,6 +58,7 @@ public class SignaturaController extends BaseController {
 	public String documentAmbToken(
 			HttpServletRequest request,
 			@RequestParam(value = "token", required = true) String token,
+			@RequestParam(value = "noe", required = false) String noe,
 			ModelMap model) {
 		DocumentDto document = tascaService.getDocumentAmbToken(token, true);
 		if (document != null) {
@@ -81,7 +82,7 @@ public class SignaturaController extends BaseController {
 				model.addAttribute(
 						ArxiuConvertirView.MODEL_ATTRIBUTE_OUTEXTENSION,
 						extensio);
-				if ("true".equalsIgnoreCase(estampaActiu)) {
+				if (noe == null && "true".equalsIgnoreCase(estampaActiu)) {
 					model.addAttribute(
 							ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA,
 							(String)GlobalProperties.getInstance().get("app.base.url") + "/signatura/verificar.html?id=" + token);
