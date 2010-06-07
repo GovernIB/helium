@@ -22,9 +22,11 @@ import net.conselldemallorca.helium.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.model.hibernate.Domini;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
+import net.conselldemallorca.helium.model.hibernate.Expedient;
 import net.conselldemallorca.helium.model.service.ExpedientService;
 import net.conselldemallorca.helium.model.service.ServiceProxy;
 import net.conselldemallorca.helium.model.service.TascaService;
+import net.conselldemallorca.helium.util.ExpedientIniciant;
 import net.conselldemallorca.helium.util.GlobalProperties;
 
 import org.jbpm.JbpmException;
@@ -66,6 +68,8 @@ public abstract class BasicActionHandler implements ActionHandler {
 			String id,
 			Map<String, Object> parametres) {
 		ExpedientInfo expedient = getExpedient(executionContext);
+		if (expedient == null)
+			throw new JbpmException("No s'ha trobat cap expedient que correspongui amb aquesta instància de procés (" + executionContext.getProcessInstance().getId() + ")");
 		Entorn entorn = getEntornDao().findAmbCodi(expedient.getEntornCodi());
 		Domini domini = getDominiDao().findAmbEntornICodi(
 				entorn.getId(),
@@ -125,28 +129,51 @@ public abstract class BasicActionHandler implements ActionHandler {
 	 * @return
 	 */
 	public ExpedientInfo getExpedient(ExecutionContext executionContext) {
-		ExpedientDto expedient = getExpedientService().findExpedientAmbProcessInstanceId(
-				getProcessInstanceId(executionContext));
-		if (expedient != null) {
+		Expedient ex = ExpedientIniciant.getExpedient();
+		if (ex != null) {
 			ExpedientInfo resposta = new ExpedientInfo();
-			resposta.setTitol(expedient.getTitol());
-			resposta.setNumero(expedient.getNumero());
-			resposta.setNumeroDefault(expedient.getNumeroDefault());
-			resposta.setDataInici(expedient.getDataInici());
-			resposta.setDataFi(expedient.getDataFi());
-			resposta.setComentari(expedient.getComentari());
-			resposta.setInfoAturat(expedient.getInfoAturat());
-			if (expedient.getIniciadorTipus().equals(net.conselldemallorca.helium.model.hibernate.Expedient.IniciadorTipus.INTERN))
+			resposta.setTitol(ex.getTitol());
+			resposta.setNumero(ex.getNumero());
+			resposta.setNumeroDefault(ex.getNumeroDefault());
+			resposta.setDataInici(ex.getDataInici());
+			resposta.setDataFi(ex.getDataFi());
+			resposta.setComentari(ex.getComentari());
+			resposta.setInfoAturat(ex.getInfoAturat());
+			if (ex.getIniciadorTipus().equals(net.conselldemallorca.helium.model.hibernate.Expedient.IniciadorTipus.INTERN))
 				resposta.setIniciadorTipus(IniciadorTipus.INTERN);
-			else if (expedient.getIniciadorTipus().equals(net.conselldemallorca.helium.model.hibernate.Expedient.IniciadorTipus.SISTRA))
+			else if (ex.getIniciadorTipus().equals(net.conselldemallorca.helium.model.hibernate.Expedient.IniciadorTipus.SISTRA))
 				resposta.setIniciadorTipus(IniciadorTipus.SISTRA);
-			resposta.setIniciadorCodi(expedient.getIniciadorCodi());
-			resposta.setResponsableCodi(expedient.getResponsableCodi());
-			resposta.setExpedientTipusCodi(expedient.getTipus().getCodi());
-			resposta.setEntornCodi(expedient.getEntorn().getCodi());
-			if (expedient.getEstat() != null)
-				resposta.setEstatCodi(expedient.getEstat().getCodi());
+			resposta.setIniciadorCodi(ex.getIniciadorCodi());
+			resposta.setResponsableCodi(ex.getResponsableCodi());
+			resposta.setExpedientTipusCodi(ex.getTipus().getCodi());
+			resposta.setEntornCodi(ex.getEntorn().getCodi());
+			if (ex.getEstat() != null)
+				resposta.setEstatCodi(ex.getEstat().getCodi());
 			return resposta;
+		} else {
+			ExpedientDto expedient = getExpedientService().findExpedientAmbProcessInstanceId(
+					getProcessInstanceId(executionContext));
+			if (expedient != null) {
+				ExpedientInfo resposta = new ExpedientInfo();
+				resposta.setTitol(expedient.getTitol());
+				resposta.setNumero(expedient.getNumero());
+				resposta.setNumeroDefault(expedient.getNumeroDefault());
+				resposta.setDataInici(expedient.getDataInici());
+				resposta.setDataFi(expedient.getDataFi());
+				resposta.setComentari(expedient.getComentari());
+				resposta.setInfoAturat(expedient.getInfoAturat());
+				if (expedient.getIniciadorTipus().equals(net.conselldemallorca.helium.model.hibernate.Expedient.IniciadorTipus.INTERN))
+					resposta.setIniciadorTipus(IniciadorTipus.INTERN);
+				else if (expedient.getIniciadorTipus().equals(net.conselldemallorca.helium.model.hibernate.Expedient.IniciadorTipus.SISTRA))
+					resposta.setIniciadorTipus(IniciadorTipus.SISTRA);
+				resposta.setIniciadorCodi(expedient.getIniciadorCodi());
+				resposta.setResponsableCodi(expedient.getResponsableCodi());
+				resposta.setExpedientTipusCodi(expedient.getTipus().getCodi());
+				resposta.setEntornCodi(expedient.getEntorn().getCodi());
+				if (expedient.getEstat() != null)
+					resposta.setEstatCodi(expedient.getEstat().getCodi());
+				return resposta;
+			}
 		}
 		return null;
 	}
