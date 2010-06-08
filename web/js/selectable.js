@@ -19,7 +19,10 @@ function initSelectable(maxcols) {
 		        	if (j >= maxcols) break;
 		        	for (var k = 0; k < rows[i].childNodes[j].childNodes.length; k++) {
 		        		if (rows[i].childNodes[j].childNodes[k].nodeName == 'A') {
-		        			eval("rows[i].onclick = function() {document.location = '" + rows[i].childNodes[j].childNodes[k].href + "'}");
+		        			if (rows[i].childNodes[j].childNodes[k].onclick != null)
+		        				rows[i].onclick = rows[i].childNodes[j].childNodes[k].onclick;
+		        			else
+		        				eval("rows[i].onclick = function() {document.location = '" + rows[i].childNodes[j].childNodes[k].href + "'}");
 		        			rows[i].onmouseover = function() { previousClass=this.className;this.className='over ' + this.className };
 		    		        rows[i].onmouseout = function() { this.className=previousClass };
 		        			enllasat = true;

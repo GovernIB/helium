@@ -9,7 +9,37 @@
 	<meta name="titolcmp" content="Consultes">
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
+	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
 	<c:import url="../common/formIncludes.jsp"/>
+<script type="text/javascript" src="<c:url value="/js/jquery/ui/ui.core.js"/>"></script>
+<script  type="text/javascript" src="<c:url value="/js/jquery/ui/jquery-ui-1.7.2.custom.js"/>"></script>
+<script type="text/javascript" language="javascript">
+// <![CDATA[
+	function editarRegistre(campId, campCodi, campEtiqueta, numCamps, index) {
+		var amplada = 600;
+		var alcada = 64 * numCamps + 80;
+		var url = "varRegistre.html?id=${param.id}&registreId=" + campId;
+		if (index != null)
+			url = url + "&index=" + index;
+		$('<iframe id="' + campCodi + '" src="' + url + '"/>').dialog({
+			title: campEtiqueta,
+			autoOpen: true,
+			modal: true,
+			autoResize: true,
+			width: parseInt(amplada),
+			height: parseInt(alcada)
+		}).width(amplada - 30).height(alcada - 30);
+		return false;
+	}
+	function esborrarRegistre(e, campId, index) {
+		var e = e || window.event;
+		e.cancelBubble = true;
+		if (e.stopPropagation) e.stopPropagation();
+		window.location = "varRegistreEsborrar.html?id=${param.id}&registreId=" + campId + "&index=" + index;
+		return false;
+	}
+// ]]>
+</script>
 </head>
 <body>
 
@@ -35,11 +65,22 @@
 				</c:forEach>
 			</c:if>
 		</div>
-		<c:import url="../common/formElement.jsp">
-			<c:param name="type" value="buttons"/>
-			<c:param name="values">submit,cancel</c:param>
-			<c:param name="titles">Modificar,Cancel·lar</c:param>
-		</c:import>
+		<c:choose>
+			<c:when test="${tasca.camps[0].camp.tipus == 'REGISTRE'}">
+				<c:import url="../common/formElement.jsp">
+					<c:param name="type" value="buttons"/>
+					<c:param name="values">cancel</c:param>
+					<c:param name="titles">Tornar</c:param>
+				</c:import>
+			</c:when>
+			<c:otherwise>
+				<c:import url="../common/formElement.jsp">
+					<c:param name="type" value="buttons"/>
+					<c:param name="values">submit,cancel</c:param>
+					<c:param name="titles">Modificar,Cancel·lar</c:param>
+				</c:import>
+			</c:otherwise>
+		</c:choose>
 	</form:form>
 
 </body>

@@ -7,8 +7,10 @@ import java.lang.reflect.Array;
 
 import net.conselldemallorca.helium.model.dto.TascaDto;
 import net.conselldemallorca.helium.model.hibernate.CampTasca;
+import net.conselldemallorca.helium.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.model.service.ExpedientService;
 import net.conselldemallorca.helium.model.service.TascaService;
+import net.conselldemallorca.helium.util.EntornActual;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.springframework.validation.Errors;
@@ -43,7 +45,14 @@ public class TascaFormValidator implements Validator {
 			TascaDto tasca = getTasca(command);
 			for (CampTasca camp: tasca.getCamps()) {
 				if (camp.isRequired()) {
-					if (!camp.getCamp().isMultiple()) {
+					if (camp.getCamp().getTipus().equals(TipusCamp.REGISTRE)) {
+						Object[] valor = (Object[])tascaService.getVariable(
+								EntornActual.getEntornId(),
+								tasca.getId(),
+								camp.getCamp().getCodi());
+						if (valor == null || valor.length == 0)
+							ValidationUtils.rejectIfEmpty(errors, camp.getCamp().getCodi(), "not.blank");
+					} else if (!camp.getCamp().isMultiple()) {
 						ValidationUtils.rejectIfEmpty(errors, camp.getCamp().getCodi(), "not.blank");
 					} else {
 						Object valors = PropertyUtils.getSimpleProperty(command, camp.getCamp().getCodi());

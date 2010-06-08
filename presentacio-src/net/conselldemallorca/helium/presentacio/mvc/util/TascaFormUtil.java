@@ -12,6 +12,7 @@ import java.util.Map;
 import net.conselldemallorca.helium.integracio.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.model.dto.TascaDto;
 import net.conselldemallorca.helium.model.hibernate.Camp;
+import net.conselldemallorca.helium.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.model.hibernate.Validacio;
 import net.conselldemallorca.helium.model.hibernate.Camp.TipusCamp;
@@ -62,6 +63,22 @@ public class TascaFormUtil {
 				campsAddicionals,
 				campsAddicionalsClasses,
 				true);
+	}
+	@SuppressWarnings("unchecked")
+	public static Object getCommandForRegistre(
+			Camp camp,
+			Map<String, Object> valors,
+			Map<String, Object> campsAddicionals,
+			Map<String, Class> campsAddicionalsClasses) {
+		List<Camp> camps = new ArrayList<Camp>();
+		for (CampRegistre campRegistre: camp.getRegistreMembres())
+			camps.add(campRegistre.getMembre());
+		return getCommandForCamps(
+				camps,
+				valors,
+				campsAddicionals,
+				campsAddicionalsClasses,
+				false);
 	}
 
 	public static Map<String, Object> valorsFromCommand(
@@ -122,17 +139,17 @@ public class TascaFormUtil {
 		return newArray;
 	}
 
-	public static Validator getBeanValidatorForCommand(TascaDto tasca) {
+	public static Validator getBeanValidatorForCommand(List<Camp> camps) {
 		SimpleBeanValidationConfigurationLoader validationConfigurationLoader = new SimpleBeanValidationConfigurationLoader();
 		DefaultBeanValidationConfiguration beanValidationConfiguration = new DefaultBeanValidationConfiguration();
-		for (CampTasca campTasca: tasca.getCamps()) {
-			for (Validacio validacio: campTasca.getCamp().getValidacions()) {
+		for (Camp camp: camps) {
+			for (Validacio validacio: camp.getValidacions()) {
 				ExpressionValidationRule validationRule = new ExpressionValidationRule(new ValangConditionExpressionParser(), validacio.getExpressio());
-				String codiError = "error.tasca." + tasca.getDefinicioProces().getJbpmKey() + "." +tasca.getJbpmName() + "." + campTasca.getCamp().getCodi();
+				String codiError = "error.camp." + camp.getCodi();
 				validationRule.setErrorCode(codiError);
 				validationRule.setDefaultErrorMessage(validacio.getMissatge());
 				beanValidationConfiguration.addPropertyRule(
-						campTasca.getCamp().getCodi(),
+						camp.getCodi(),
 						validationRule);
 			}
 		}
@@ -241,35 +258,37 @@ public class TascaFormUtil {
 			}
 			// Inicialitza els camps del command amb els valors de la tasca
 			for (Camp camp: camps) {
-				String campCodi = getCampCodi(camp, perFiltre);
-				boolean ambArray;
-				if (!perFiltre) {
-					ambArray = camp.isMultiple();
-				} else {
-					ambArray = 	camp.getTipus().equals(TipusCamp.DATE) ||
-								camp.getTipus().equals(TipusCamp.INTEGER) ||
-								camp.getTipus().equals(TipusCamp.FLOAT) ||
-								camp.getTipus().equals(TipusCamp.PRICE);
-				}
-				if (ambArray) {
-					if (valors != null && valors.get(campCodi) != null) {
-						PropertyUtils.setSimpleProperty(
-								command,
-								campCodi,
-								valors.get(campCodi));
+				if (!camp.getTipus().equals(TipusCamp.REGISTRE)) {
+					String campCodi = getCampCodi(camp, perFiltre);
+					boolean ambArray;
+					if (!perFiltre) {
+						ambArray = camp.isMultiple();
+					} else {
+						ambArray = 	camp.getTipus().equals(TipusCamp.DATE) ||
+									camp.getTipus().equals(TipusCamp.INTEGER) ||
+									camp.getTipus().equals(TipusCamp.FLOAT) ||
+									camp.getTipus().equals(TipusCamp.PRICE);
+					}
+					if (ambArray) {
+						if (valors != null && valors.get(campCodi) != null) {
+							PropertyUtils.setSimpleProperty(
+									command,
+									campCodi,
+									valors.get(campCodi));
+						} else {
+							PropertyUtils.setSimpleProperty(
+									command,
+									campCodi,
+									Array.newInstance(
+											camp.getJavaClass(),
+											(perFiltre) ? 2 : 1));
+						}
 					} else {
 						PropertyUtils.setSimpleProperty(
 								command,
 								campCodi,
-								Array.newInstance(
-										camp.getJavaClass(),
-										(perFiltre) ? 2 : 1));
+								(valors != null) ? valors.get(campCodi) : null);
 					}
-				} else {
-					PropertyUtils.setSimpleProperty(
-							command,
-							campCodi,
-							(valors != null) ? valors.get(campCodi) : null);
 				}
 			}
 		} catch (Exception ex) {

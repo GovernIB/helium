@@ -9,6 +9,8 @@
 <html>
 <head>
 	<title>${tasca.nom}</title>
+	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
+	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 	<c:if test="${isIframe}">
 		<script type="text/javascript" src="<c:url value="/js/jquery/jquery.js"/>"></script>
 		<c:if test="${not empty formRecursParams.css}">
@@ -47,9 +49,7 @@ function canviTermini(input) {
 <c:if test="${not empty tasca.formExtern}">
 	<script type="text/javascript" src="<c:url value="/dwr/interface/formulariExternDwrService.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/dwr/engine.js"/>"></script>
-	<script type="text/javascript" src="<c:url value="/js/jquery/ui/ui.core.js"/>"></script>
-	<script  type="text/javascript" src="<c:url value="/js/jquery/ui/jquery-ui-1.7.2.custom.js"/>"></script>
-<script type="text/javascript" language="javascript">
+<script type="text/javascript">
 // <![CDATA[
 	function clickFormExtern(form) {
 		formulariExternDwrService.dadesIniciFormulari(
@@ -79,6 +79,35 @@ function canviTermini(input) {
 // ]]>
 </script>
 </c:if>
+<script type="text/javascript" src="<c:url value="/js/jquery/ui/ui.core.js"/>"></script>
+<script  type="text/javascript" src="<c:url value="/js/jquery/ui/jquery-ui-1.7.2.custom.js"/>"></script>
+<script type="text/javascript" language="javascript">
+// <![CDATA[
+	function editarRegistre(campId, campCodi, campEtiqueta, numCamps, index) {
+		var amplada = 600;
+		var alcada = 64 * numCamps + 80;
+		var url = "registre.html?id=${tasca.id}&registreId=" + campId;
+		if (index != null)
+			url = url + "&index=" + index;
+		$('<iframe id="' + campCodi + '" src="' + url + '"/>').dialog({
+			title: campEtiqueta,
+			autoOpen: true,
+			modal: true,
+			autoResize: true,
+			width: parseInt(amplada),
+			height: parseInt(alcada)
+		}).width(amplada - 30).height(alcada - 30);
+		return false;
+	}
+	function esborrarRegistre(e, campId, index) {
+		var e = e || window.event;
+		e.cancelBubble = true;
+		if (e.stopPropagation) e.stopPropagation();
+		window.location = "registreEsborrar.html?id=${tasca.id}&registreId=" + campId + "&index=" + index;
+		return false;
+	}
+// ]]>
+</script>
 </head>
 <body>
 	<c:if test="${not isIframe}">

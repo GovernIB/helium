@@ -4,10 +4,16 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 <c:if test="${not empty campTascaActual}">
 	<c:set var="campActual" value="${campTascaActual.camp}" scope="request"/>
 	<c:set var="readOnly" value="${campTascaActual.readOnly}" scope="request"/>
 	<c:set var="required" value="${campTascaActual.required}" scope="request"/>
+</c:if>
+<c:if test="${not empty campRegistreActual}">
+	<c:set var="campActual" value="${campRegistreActual.membre}" scope="request"/>
+	<c:set var="readOnly" value="${false}" scope="request"/>
+	<c:set var="required" value="${campRegistreActual.obligatori}" scope="request"/>
 </c:if>
 <c:set var="codiActual" value="${campActual.codi}" scope="request"/>
 <c:set var="valorActual" value="${command[codiActual]}" scope="request"/>
@@ -22,13 +28,37 @@
 </c:set>
 <c:choose>
 	<c:when test="${tasca.validada or readOnly}">
-		<c:import url="../common/formElement.jsp">
-			<c:param name="property">${codiActual}</c:param>
-			<c:param name="required">${required}</c:param>
-			<c:param name="type">static</c:param>
-			<c:param name="label">${campActual.etiqueta}</c:param>
-			<c:param name="staticText">${valorTextActual}&nbsp;</c:param>
-		</c:import>
+		<c:choose>
+			<c:when test="${campActual.tipus == 'REGISTRE'}">
+				<c:import url="../common/formElement.jsp">
+					<c:param name="property">${codiActual}</c:param>
+					<c:param name="required">${required}</c:param>
+					<c:param name="type" value="custom"/>
+					<c:param name="label">${campActual.etiqueta}</c:param>
+					<c:param name="content">
+						<c:set var="files" scope="request" value="${tasca.varsComText[codiActual]}"/>
+						<c:if test="${not empty tasca.varsComText[codiActual]}">
+							<display:table name="files" id="registre" requestURI="" class="displaytag selectable">
+								<c:forEach var="membre" items="${campActual.registreMembres}" varStatus="varStatus">
+									<c:if test="${membre.llistar}">
+										<display:column title="${membre.membre.etiqueta}">${registre[varStatus.index]}</display:column>
+									</c:if>
+								</c:forEach>
+							</display:table>
+						</c:if>
+					</c:param>
+				</c:import>
+			</c:when>
+			<c:otherwise>
+				<c:import url="../common/formElement.jsp">
+					<c:param name="property">${codiActual}</c:param>
+					<c:param name="required">${required}</c:param>
+					<c:param name="type">static</c:param>
+					<c:param name="label">${campActual.etiqueta}</c:param>
+					<c:param name="staticText">${valorTextActual}&nbsp;</c:param>
+				</c:import>
+			</c:otherwise>
+		</c:choose>
 	</c:when>
 	<c:when test="${campActual.tipus == 'STRING'}">
 		<c:import url="../common/formElement.jsp">
@@ -178,6 +208,39 @@
 			<c:param name="comment">${campActual.observacions}</c:param>
 			<c:param name="iterateOn"><c:if test="${campActual.multiple}">valorActual</c:if></c:param>
 			<c:param name="multipleIcons"><c:if test="${campActual.multiple}">true</c:if></c:param>
+		</c:import>
+	</c:when>
+	<c:when test="${campActual.tipus == 'REGISTRE'}">
+		<c:import url="../common/formElement.jsp">
+			<c:param name="property">${codiActual}</c:param>
+			<c:param name="required">${required}</c:param>
+			<c:param name="type" value="custom"/>
+			<c:param name="label">${campActual.etiqueta}</c:param>
+			<c:param name="content">
+				<c:set var="files" scope="request" value="${tasca.varsComText[codiActual]}"/>
+				<c:if test="${not empty tasca.varsComText[codiActual]}">
+					<display:table name="files" id="registre" requestURI="" class="displaytag selectable">
+						<c:forEach var="membre" items="${campActual.registreMembres}" varStatus="varStatus">
+							<c:if test="${membre.llistar}">
+								<display:column title="${membre.membre.etiqueta}">
+									<c:if test="${varStatus.first}"><a href="#" onclick="return editarRegistre(${campActual.id}, '${codiActual}', '${campActual.etiqueta}', ${fn:length(campActual.registreMembres)}, ${registre_rowNum - 1})"></a></c:if>
+									${registre[varStatus.index]}
+								</display:column>
+							</c:if>
+						</c:forEach>
+						<display:column style="width:16px">
+							<a href="#" onclick="return esborrarRegistre(event, ${campActual.id}, ${registre_rowNum - 1})"><img src="<c:url value="/img/cross.png"/>" alt="Esborrar" title="Esborrar" border="0"/></a>
+						</display:column>
+					</display:table>
+					<script type="text/javascript">initSelectable();</script>
+				</c:if>
+				<c:if test="${campActual.multiple || fn:length(files) < 1}">
+					<form action="#">
+						<button style="font-size:11px;margin-top: 2px" type="submit" class="submitButton" onclick="return editarRegistre(${campActual.id}, '${codiActual}', '${campActual.etiqueta}', ${fn:length(campActual.registreMembres)})">Afegir</button>
+					</form>
+				</c:if>
+			</c:param>
+			<c:param name="comment">${campActual.observacions}</c:param>
 		</c:import>
 	</c:when>
 	<c:otherwise>

@@ -500,7 +500,7 @@ public class DtoConverter {
 		Map<String, ParellaCodiValor> resposta = new HashMap<String, ParellaCodiValor>();
 		if (valors != null) {
 			for (Camp camp: camps) {
-				if (!camp.isMultiple()) {
+				if (!camp.isMultiple() && (camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST))) {
 					Object valor = valors.get(camp.getCodi());
 					ParellaCodiValor codiValor = null;
 					if (valor instanceof String) {
@@ -735,11 +735,27 @@ public class DtoConverter {
 				boolean found = false;
 				for (Camp camp: camps) {
 					if (camp.getCodi().equals(key)) {
-						if (!camp.isMultiple()) {
-							resposta.put(
-									key,
-									textPerCamp(camp, valors.get(key), valorsDomini.get(key)));
-						} else {
+						if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
+							Object valor = valors.get(key);
+							if (valor != null) {
+								List<String[]> grid = new ArrayList<String[]>();
+								for (int i = 0; i < Array.getLength(valor); i++) {
+									String[] texts = new String[camp.getRegistreMembres().size()];
+									Object valorRegistre = Array.get(valor, i);
+									for (int j = 0; j < texts.length; j++) {
+										Camp membreRegistre = camp.getRegistreMembres().get(j).getMembre();
+										if (membreRegistre.getTipus().equals(TipusCamp.SUGGEST) || membreRegistre.getTipus().equals(TipusCamp.SELECCIO))
+											texts[j] = textPerCamp(membreRegistre, Array.get(valorRegistre, j), new ParellaCodiValor("???", "???"));
+										else
+											texts[j] = textPerCamp(membreRegistre, Array.get(valorRegistre, j), null);
+									}
+									grid.add(texts);
+								}
+								resposta.put(key, grid);
+							} else {
+								resposta.put(key, null);
+							}
+						} else if (camp.isMultiple()) {
 							Object valor = valors.get(key);
 							if (valor != null) {
 								List<String> texts = new ArrayList<String>();
@@ -756,6 +772,10 @@ public class DtoConverter {
 							} else {
 								resposta.put(key, null);
 							}
+						} else {
+							resposta.put(
+									key,
+									textPerCamp(camp, valors.get(key), valorsDomini.get(key)));
 						}
 						found = true;
 						break;

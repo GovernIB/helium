@@ -177,7 +177,7 @@ public class ExpedientIniciarPasFormController extends BaseController {
 				if ("submit".equals(submit) || submit.length() == 0) {
 					validator.validate(command, result);
 					try {
-						TascaFormUtil.getBeanValidatorForCommand(tascaInicial).validate(command, result);
+						TascaFormUtil.getBeanValidatorForCommand(camps).validate(command, result);
 					} catch (Exception ex) {
 						missatgeError(request, "S'han produit errors de validació", ex.getLocalizedMessage());
 			        	logger.error("S'han produit errors de validació", ex);

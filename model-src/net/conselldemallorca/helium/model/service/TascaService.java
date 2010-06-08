@@ -136,6 +136,67 @@ public class TascaService {
 				"Guardar variables \"" + tasca.getNom() + "\"");*/
 		return tasca;
 	}
+
+	public void guardarRegistre(
+			String taskId,
+			String campCodi,
+			Object[] valors) {
+		guardarRegistre(
+				taskId,
+				campCodi,
+				valors,
+				-1);
+	}
+	public void guardarRegistre(
+			String taskId,
+			String campCodi,
+			Object[] valors,
+			int index) {
+		Object valor = jbpmDao.getTaskInstanceVariable(taskId, campCodi);
+		if (valor == null) {
+			jbpmDao.setTaskInstanceVariable(
+					taskId,
+					campCodi,
+					new Object[]{valors});
+		} else {
+			Object[] valorMultiple = (Object[])valor;
+			if (index != -1) {
+				valorMultiple[index] = valors;
+				jbpmDao.setTaskInstanceVariable(
+						taskId,
+						campCodi,
+						valor);
+			} else {
+				Object[] valorNou = new Object[valorMultiple.length + 1];
+				for (int i = 0; i < valorMultiple.length; i++)
+					valorNou[i] = valorMultiple[i];
+				valorNou[valorMultiple.length] = valors;
+				jbpmDao.setTaskInstanceVariable(
+						taskId,
+						campCodi,
+						valorNou);
+			}
+		}
+	}
+	public void esborrarRegistre(
+			String taskId,
+			String campCodi,
+			int index) {
+		Object valor = jbpmDao.getTaskInstanceVariable(taskId, campCodi);
+		if (valor != null) {
+			Object[] valorMultiple = (Object[])valor;
+			if (valorMultiple.length > 0) {
+				Object[] valorNou = new Object[valorMultiple.length - 1];
+				for (int i = 0; i < valorNou.length; i++)
+					valorNou[i] = (i < index) ? valorMultiple[i] : valorMultiple[i + 1];
+				jbpmDao.setTaskInstanceVariable(
+						taskId,
+						campCodi,
+						valorNou);
+			}
+		}
+	}
+
 	public TascaDto validar(
 			Long entornId,
 			String taskId,

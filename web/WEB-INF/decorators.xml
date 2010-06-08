@@ -14,4 +14,10 @@
 	<excludes>
 		<pattern>/tasca/formIframe*</pattern>
 	</excludes>
+	<excludes>
+		<pattern>/tasca/registre*</pattern>
+	</excludes>
+	<excludes>
+		<pattern>/expedient/varRegistre*</pattern>
+	</excludes>
 </decorators>
