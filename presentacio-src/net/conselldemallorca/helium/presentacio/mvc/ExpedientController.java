@@ -262,9 +262,9 @@ public class ExpedientController extends BaseController {
 				}*/
 				String nomArxiu = document.getArxiuNom().substring(0, document.getArxiuNom().lastIndexOf("."));
 				String extensioArxiu = document.getArxiuNom().substring(document.getArxiuNom().lastIndexOf(".") + 1);
-				if (!extensioArxiu.equals("pdf")) {
+				/*if (!extensioArxiu.equals("pdf")) {
 					extensioArxiu = "pdf";
-				}
+				}*/
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, nomArxiu + "." + extensioArxiu);
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, document.getArxiuContingut());
 				return "arxiuView";

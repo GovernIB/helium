@@ -77,10 +77,17 @@ function confirmarEsborrarSignatura(e) {
 				<fmt:formatDate value="${instanciaProces.varsDocuments[codi].dataDocument}" pattern="dd/MM/yyyy"/>
 			</display:column>
 			<display:column>
-				<c:if test="${not empty instanciaProces.varsDocuments[codi]}">
-					<c:set var="documentActual" value="${instanciaProces.varsDocuments[codi]}" scope="request"/>
-					<c:import url="../common/iconesConsultaDocument.jsp"/>
-				</c:if>
+				<c:choose>
+					<c:when test="${instanciaProces.varsDocuments[codi].adjunt}">
+						<a href="<c:url value="/expedient/documentDescarregar.html"><c:param name="processInstanceId" value="${instanciaProces.id}"/><c:param name="docId" value="${instanciaProces.varsDocuments[codi].id}"/></c:url>"><img src="<c:url value="/img/page_white_put.png"/>" alt="Descarregar" title="Descarregar" border="0"/></a>
+					</c:when>
+					<c:otherwise>
+						<c:if test="${not empty instanciaProces.varsDocuments[codi]}">
+							<c:set var="documentActual" value="${instanciaProces.varsDocuments[codi]}" scope="request"/>
+							<c:import url="../common/iconesConsultaDocument.jsp"/>
+						</c:if>
+					</c:otherwise>
+				</c:choose>
 			</display:column>
 			<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
 				<display:column>
