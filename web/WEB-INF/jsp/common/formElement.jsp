@@ -238,23 +238,6 @@
 		</c:forEach>
 	</c:when>
 	<c:otherwise>
-<script type="text/javascript">
-// <![CDATA[
-    var submitAction;
-	function saveAction(element, action) {
-		submitAction = action;
-		if ($.browser.msie && $.browser.version.substr(0,1) <= 7) {
-			element.innerHTML = action;
-			var $submits = document.getElementsByName("submit");
-			for (var i = 0; i < $submits.length; i++) {
-			    if ($submits[i] != element) {
-			        $submits[i].name = $submits[i].name + i;
-			    }
-			}
-		}
-	}
-// ]]>
-</script>
 		<div class="buttonHolder">
 			<c:set var="buttonValues" value="${fn:split(param.values,',')}"/>
 			<c:set var="buttonTitles" value="${fn:split(param.titles,',')}"/>
