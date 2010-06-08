@@ -65,3 +65,6 @@ ul.dropdown li.area-tipus a {
 ul.dropdown li.rols a {
 	background-image: url(images/user_suit.png);
 }
+ul.dropdown li.reassignar a {
+	background-image: url(images/user_go.png);
+}
