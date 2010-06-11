@@ -88,36 +88,38 @@ public class TascaFormUtil {
 			boolean perFiltre) {
     	Map<String, Object> resposta = new HashMap<String, Object>();
     	for (Camp camp: camps) {
-    		try {
-	    		String campCodi = getCampCodi(camp, perFiltre);
-	    		Object valor = PropertyUtils.getSimpleProperty(command, campCodi);
-	    		if (camp.isMultiple() && revisarArrays) {
-    				// Lleva els valors buits de l'array
-	    			int tamany = 0;
-	    			for (int i = 0; i < Array.getLength(valor); i++) {
-	    				Object va = Array.get(valor, i);
-	    				if (va != null && !"".equals(va))
-	    					tamany++;
-	    			}
-	    			Object newArray = cloneMultipleArray(
-	    					campCodi,
-	    					command,
-	    					camps,
-	    					tamany - Array.getLength(valor));
-	    			int index = 0;
-	    			for (int i = 0; i < Array.getLength(valor); i++) {
-	    				Object va = Array.get(valor, i);
-	    				if (va != null && !"".equals(va))
-	    					Array.set(newArray, index++, va);
-	    			}
-	    			if (Array.getLength(newArray) > 0)
-	    				resposta.put(campCodi, newArray);
-	    			else
-	    				resposta.put(campCodi, null);
-	    		} else {
-	    			resposta.put(campCodi, valor);
-	    		}
-    		} catch (Exception ignored) {}
+    		if (!camp.getTipus().equals(TipusCamp.REGISTRE)) {
+	    		try {
+		    		String campCodi = getCampCodi(camp, perFiltre);
+		    		Object valor = PropertyUtils.getSimpleProperty(command, campCodi);
+		    		if (camp.isMultiple() && revisarArrays) {
+	    				// Lleva els valors buits de l'array
+		    			int tamany = 0;
+		    			for (int i = 0; i < Array.getLength(valor); i++) {
+		    				Object va = Array.get(valor, i);
+		    				if (va != null && !"".equals(va))
+		    					tamany++;
+		    			}
+		    			Object newArray = cloneMultipleArray(
+		    					campCodi,
+		    					command,
+		    					camps,
+		    					tamany - Array.getLength(valor));
+		    			int index = 0;
+		    			for (int i = 0; i < Array.getLength(valor); i++) {
+		    				Object va = Array.get(valor, i);
+		    				if (va != null && !"".equals(va))
+		    					Array.set(newArray, index++, va);
+		    			}
+		    			if (Array.getLength(newArray) > 0)
+		    				resposta.put(campCodi, newArray);
+		    			else
+		    				resposta.put(campCodi, null);
+		    		} else {
+		    			resposta.put(campCodi, valor);
+		    		}
+	    		} catch (Exception ignored) {}
+    		}
     	}
     	return resposta;
 	}

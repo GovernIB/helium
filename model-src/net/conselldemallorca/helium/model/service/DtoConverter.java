@@ -208,7 +208,7 @@ public class DtoConverter {
 					camps,
 					valors);
 			dto.setValorsMultiplesDomini(valorsMultiplesDomini);
-			dto.setVarsComText(textPerCamps(camps, valors, valorsDomini, valorsMultiplesDomini));
+			dto.setVarsComText(textPerCamps(task.getId(), null, camps, valors, valorsDomini, valorsMultiplesDomini));
 		}
 		return dto;
 	}
@@ -293,7 +293,7 @@ public class DtoConverter {
 					camps,
 					valors);
 			dto.setValorsMultiplesDomini(valorsMultiplesDomini);
-			dto.setVarsComText(textPerCamps(camps, valors, valorsDomini, valorsMultiplesDomini));
+			dto.setVarsComText(textPerCamps(null, processInstanceId, camps, valors, valorsDomini, valorsMultiplesDomini));
 		}
 		return dto;
 	}
@@ -505,11 +505,9 @@ public class DtoConverter {
 					ParellaCodiValor codiValor = null;
 					if (valor instanceof String) {
 						codiValor = obtenirValorDomini(
+								taskId,
+								processInstanceId,
 								camp,
-								getParamsConsulta(
-										taskId,
-										processInstanceId,
-										camp),
 								valor);
 					} else if (valor instanceof String[]) {
 						String[] cv = (String[])valor;
@@ -539,11 +537,9 @@ public class DtoConverter {
 							Object v = Array.get(valor, i);
 							if (v instanceof String) {
 								codiValor = obtenirValorDomini(
+										taskId,
+										processInstanceId,
 										camp,
-										getParamsConsulta(
-												taskId,
-												processInstanceId,
-												camp),
 										v);
 							} else if (v instanceof String[]) {
 								String[] cv = (String[])v;
@@ -560,8 +556,9 @@ public class DtoConverter {
 		return resposta;
 	}
 	private ParellaCodiValor obtenirValorDomini(
+			String taskId,
+			String processInstanceId,
 			Camp camp,
-			Map<String, Object> params,
 			Object valor) throws DominiException {
 		ParellaCodiValor resposta = null;
 		TipusCamp tipus = camp.getTipus();
@@ -572,7 +569,10 @@ public class DtoConverter {
 					List<FilaResultat> resultat = dominiDao.consultar(
 							domini.getId(),
 							camp.getDominiId(),
-							params);
+							getParamsConsulta(
+									taskId,
+									processInstanceId,
+									camp));
 					String columnaCodi = camp.getDominiCampValor();
 					String columnaValor = camp.getDominiCampText();
 					Iterator<FilaResultat> it = resultat.iterator();
@@ -725,6 +725,8 @@ public class DtoConverter {
 	}
 
 	private Map<String, Object> textPerCamps(
+			String taskId,
+			String processInstanceId,
 			Collection<Camp> camps,
 			Map<String, Object> valors,
 			Map<String, ParellaCodiValor> valorsDomini,
@@ -744,10 +746,22 @@ public class DtoConverter {
 									Object valorRegistre = Array.get(valor, i);
 									for (int j = 0; j < texts.length; j++) {
 										Camp membreRegistre = camp.getRegistreMembres().get(j).getMembre();
-										if (membreRegistre.getTipus().equals(TipusCamp.SUGGEST) || membreRegistre.getTipus().equals(TipusCamp.SELECCIO))
-											texts[j] = textPerCamp(membreRegistre, Array.get(valorRegistre, j), new ParellaCodiValor("???", "???"));
-										else
-											texts[j] = textPerCamp(membreRegistre, Array.get(valorRegistre, j), null);
+										if (membreRegistre.getTipus().equals(TipusCamp.SUGGEST) || membreRegistre.getTipus().equals(TipusCamp.SELECCIO)) {
+											ParellaCodiValor codiValor = obtenirValorDomini(
+													taskId,
+													processInstanceId,
+													membreRegistre,
+													Array.get(valorRegistre, j));
+											texts[j] = textPerCamp(
+													membreRegistre,
+													Array.get(valorRegistre, j),
+													codiValor);
+										} else {
+											texts[j] = textPerCamp(
+													membreRegistre,
+													Array.get(valorRegistre, j),
+													null);
+										}
 									}
 									grid.add(texts);
 								}
