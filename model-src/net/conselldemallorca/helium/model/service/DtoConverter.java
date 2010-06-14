@@ -97,10 +97,11 @@ public class DtoConverter {
 		dto.setIniciadorCodi(expedient.getIniciadorCodi());
 		dto.setIniciadorTipus(expedient.getIniciadorTipus());
 		dto.setResponsableCodi(expedient.getResponsableCodi());
-		if (expedient.getIniciadorTipus().equals(IniciadorTipus.INTERN))
+		if (expedient.getIniciadorTipus().equals(IniciadorTipus.INTERN)) {
 			dto.setIniciadorPersona(pluginPersonaDao.findAmbCodiPlugin(expedient.getIniciadorCodi()));
-		if (expedient.getResponsableCodi() != null)
-			dto.setResponsablePersona(pluginPersonaDao.findAmbCodiPlugin(expedient.getResponsableCodi()));
+			if (expedient.getResponsableCodi() != null)
+				dto.setResponsablePersona(pluginPersonaDao.findAmbCodiPlugin(expedient.getResponsableCodi()));
+		}
 		if (expedient.getIniciadorTipus().equals(IniciadorTipus.SISTRA))
 			dto.setBantelEntradaNum(expedient.getNumeroEntradaSistra());
 		dto.setTipus(expedient.getTipus());
