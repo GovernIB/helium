@@ -562,6 +562,12 @@ public class JbpmDao {
 		return commandService.execute(command);
 	}
 
+	@SuppressWarnings("unchecked")
+	public List<String> listActions(String jbpmId) {
+		long id = new Long(jbpmId).longValue();
+		return (List<String>)commandService.execute(
+				new ListActionsCommand(id));
+	}
 	public void executeAction(
 			String processInstanceId,
 			String actionName) {

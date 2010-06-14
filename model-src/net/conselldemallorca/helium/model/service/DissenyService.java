@@ -18,6 +18,7 @@ import net.conselldemallorca.helium.integracio.domini.FilaResultat;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
+import net.conselldemallorca.helium.model.dao.AccioDao;
 import net.conselldemallorca.helium.model.dao.CampAgrupacioDao;
 import net.conselldemallorca.helium.model.dao.CampDao;
 import net.conselldemallorca.helium.model.dao.CampTascaDao;
@@ -49,6 +50,7 @@ import net.conselldemallorca.helium.model.exportacio.FirmaTascaExportacio;
 import net.conselldemallorca.helium.model.exportacio.TascaExportacio;
 import net.conselldemallorca.helium.model.exportacio.TerminiExportacio;
 import net.conselldemallorca.helium.model.exportacio.ValidacioExportacio;
+import net.conselldemallorca.helium.model.hibernate.Accio;
 import net.conselldemallorca.helium.model.hibernate.Camp;
 import net.conselldemallorca.helium.model.hibernate.CampAgrupacio;
 import net.conselldemallorca.helium.model.hibernate.CampTasca;
@@ -100,6 +102,7 @@ public class DissenyService {
 	private CampAgrupacioDao campAgrupacioDao;
 	private ConsultaDao consultaDao;
 	private ConsultaCampDao consultaCampDao;
+	private AccioDao accioDao;
 
 	private DtoConverter dtoConverter;
 	private JbpmDao jbpmDao;
@@ -1328,6 +1331,33 @@ public class DissenyService {
 		}
 	}
 
+	public Accio getAccioById(Long id) {
+		Accio accio = accioDao.getById(id, false);
+		return accio;
+	}
+	public Accio createAccio(Accio entity) {
+		Accio saved = accioDao.saveOrUpdate(entity);
+		return saved;
+	}
+	public Accio updateAccio(Accio entity) {
+		return accioDao.merge(entity);
+	}
+	public void deleteAccio(Long id) {
+		Accio vella = getAccioById(id);
+		if (vella != null)
+			accioDao.delete(id);
+	}
+	public List<Accio> findAccionsAmbDefinicioProces(Long definicioProcesId) {
+		return accioDao.findAmbDefinicioProces(definicioProcesId);
+	}
+	public Accio findAccioAmbDefinicioProcesICodi(Long definicioProcesId, String codi) {
+		return accioDao.findAmbDefinicioProcesICodi(definicioProcesId, codi);
+	}
+	public List<String> findAccionsJbpm(Long id) {
+		DefinicioProces definicioProces = definicioProcesDao.getById(id, false);
+		return jbpmDao.listActions(definicioProces.getJbpmId());
+	}
+
 
 
 	@Autowired
@@ -1397,6 +1427,10 @@ public class DissenyService {
 	@Autowired
 	public void setConsultaCampDao(ConsultaCampDao consultaCampDao) {
 		this.consultaCampDao = consultaCampDao;
+	}
+	@Autowired
+	public void setAccioDao(AccioDao accioDao) {
+		this.accioDao = accioDao;
 	}
 	@Autowired
 	public void setDtoConverter(DtoConverter dtoConverter) {
