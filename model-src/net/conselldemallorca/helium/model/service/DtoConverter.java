@@ -209,7 +209,7 @@ public class DtoConverter {
 					camps,
 					valors);
 			dto.setValorsMultiplesDomini(valorsMultiplesDomini);
-			dto.setVarsComText(textPerCamps(camps, valors, valorsDomini, valorsMultiplesDomini));
+			dto.setVarsComText(textPerCamps(task.getId(), null, camps, valors, valorsDomini, valorsMultiplesDomini));
 		}
 		return dto;
 	}
@@ -294,7 +294,7 @@ public class DtoConverter {
 					camps,
 					valors);
 			dto.setValorsMultiplesDomini(valorsMultiplesDomini);
-			dto.setVarsComText(textPerCamps(camps, valors, valorsDomini, valorsMultiplesDomini));
+			dto.setVarsComText(textPerCamps(null, processInstanceId, camps, valors, valorsDomini, valorsMultiplesDomini));
 		}
 		return dto;
 	}
@@ -506,11 +506,9 @@ public class DtoConverter {
 					ParellaCodiValor codiValor = null;
 					if (valor instanceof String) {
 						codiValor = obtenirValorDomini(
+								taskId,
+								processInstanceId,
 								camp,
-								getParamsConsulta(
-										taskId,
-										processInstanceId,
-										camp),
 								valor);
 					} else if (valor instanceof String[]) {
 						String[] cv = (String[])valor;
@@ -540,11 +538,9 @@ public class DtoConverter {
 							Object v = Array.get(valor, i);
 							if (v instanceof String) {
 								codiValor = obtenirValorDomini(
+										taskId,
+										processInstanceId,
 										camp,
-										getParamsConsulta(
-												taskId,
-												processInstanceId,
-												camp),
 										v);
 							} else if (v instanceof String[]) {
 								String[] cv = (String[])v;
@@ -561,8 +557,9 @@ public class DtoConverter {
 		return resposta;
 	}
 	private ParellaCodiValor obtenirValorDomini(
+			String taskId,
+			String processInstanceId,
 			Camp camp,
-			Map<String, Object> params,
 			Object valor) throws DominiException {
 		ParellaCodiValor resposta = null;
 		TipusCamp tipus = camp.getTipus();
@@ -573,7 +570,10 @@ public class DtoConverter {
 					List<FilaResultat> resultat = dominiDao.consultar(
 							domini.getId(),
 							camp.getDominiId(),
-							params);
+							getParamsConsulta(
+									taskId,
+									processInstanceId,
+									camp));
 					String columnaCodi = camp.getDominiCampValor();
 					String columnaValor = camp.getDominiCampText();
 					Iterator<FilaResultat> it = resultat.iterator();
@@ -726,6 +726,8 @@ public class DtoConverter {
 	}
 
 	private Map<String, Object> textPerCamps(
+			String taskId,
+			String processInstanceId,
 			Collection<Camp> camps,
 			Map<String, Object> valors,
 			Map<String, ParellaCodiValor> valorsDomini,
@@ -736,11 +738,39 @@ public class DtoConverter {
 				boolean found = false;
 				for (Camp camp: camps) {
 					if (camp.getCodi().equals(key)) {
-						if (!camp.isMultiple()) {
-							resposta.put(
-									key,
-									textPerCamp(camp, valors.get(key), valorsDomini.get(key)));
-						} else {
+						if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
+							Object valor = valors.get(key);
+							if (valor != null) {
+								List<String[]> grid = new ArrayList<String[]>();
+								for (int i = 0; i < Array.getLength(valor); i++) {
+									String[] texts = new String[camp.getRegistreMembres().size()];
+									Object valorRegistre = Array.get(valor, i);
+									for (int j = 0; j < texts.length; j++) {
+										Camp membreRegistre = camp.getRegistreMembres().get(j).getMembre();
+										if (membreRegistre.getTipus().equals(TipusCamp.SUGGEST) || membreRegistre.getTipus().equals(TipusCamp.SELECCIO)) {
+											ParellaCodiValor codiValor = obtenirValorDomini(
+													taskId,
+													processInstanceId,
+													membreRegistre,
+													Array.get(valorRegistre, j));
+											texts[j] = textPerCamp(
+													membreRegistre,
+													Array.get(valorRegistre, j),
+													codiValor);
+										} else {
+											texts[j] = textPerCamp(
+													membreRegistre,
+													Array.get(valorRegistre, j),
+													null);
+										}
+									}
+									grid.add(texts);
+								}
+								resposta.put(key, grid);
+							} else {
+								resposta.put(key, null);
+							}
+						} else if (camp.isMultiple()) {
 							Object valor = valors.get(key);
 							if (valor != null) {
 								List<String> texts = new ArrayList<String>();
@@ -757,6 +787,10 @@ public class DtoConverter {
 							} else {
 								resposta.put(key, null);
 							}
+						} else {
+							resposta.put(
+									key,
+									textPerCamp(camp, valors.get(key), valorsDomini.get(key)));
 						}
 						found = true;
 						break;

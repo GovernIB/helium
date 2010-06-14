@@ -53,7 +53,9 @@ public class Camp implements Serializable, GenericEntity<Long> {
 		PRICE,
 		TERMINI,
 		SELECCIO,
-		SUGGEST
+		SUGGEST,
+		REGISTRE,
+		BOTO
 	}
 
 	private Long id;
@@ -75,6 +77,8 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	private String dominiCampText;
 	@MaxLength(64)
 	private String dominiCampValor;
+	@MaxLength(255)
+	private String jbpmAction;
 	private boolean multiple;
 	private boolean ocult;
 
@@ -87,7 +91,9 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	private Set<CampTasca> campsTasca = new HashSet<CampTasca>();
 	private Set<Document> documentDates = new HashSet<Document>();
 	private List<Validacio> validacions = new ArrayList<Validacio>();
-	
+
+	private Set<CampRegistre> registrePares = new HashSet<CampRegistre>();
+	private List<CampRegistre> registreMembres = new ArrayList<CampRegistre>();
 
 
 
@@ -172,6 +178,14 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 	public void setDominiCampValor(String dominiCampValor) {
 		this.dominiCampValor = dominiCampValor;
+	}
+
+	@Column(name="jbpm_action", length=255)
+	public String getJbpmAction() {
+		return jbpmAction;
+	}
+	public void setJbpmAction(String jbpmAction) {
+		this.jbpmAction = jbpmAction;
 	}
 
 	@Column(name="multiple")
@@ -273,6 +287,35 @@ public class Camp implements Serializable, GenericEntity<Long> {
 		getValidacions().remove(validacio);
 	}
 
+	@OneToMany(mappedBy="membre", cascade={CascadeType.ALL})
+	public Set<CampRegistre> getRegistrePares() {
+		return this.registrePares;
+	}
+	public void setRegistrePares(Set<CampRegistre> registrePares) {
+		this.registrePares = registrePares;
+	}
+	public void addRegistrePare(CampRegistre registrePare) {
+		getRegistrePares().add(registrePare);
+	}
+	public void removeRegistrePare(CampRegistre registrePare) {
+		getRegistrePares().remove(registrePare);
+	}
+
+	@OneToMany(mappedBy="registre", cascade={CascadeType.ALL})
+	@OrderBy("ordre asc")
+	public List<CampRegistre> getRegistreMembres() {
+		return this.registreMembres;
+	}
+	public void setRegistreMembres(List<CampRegistre> registreMembres) {
+		this.registreMembres = registreMembres;
+	}
+	public void addRegistreMembre(CampRegistre registreMembre) {
+		getRegistreMembres().add(registreMembre);
+	}
+	public void removeRegistreMembre(CampRegistre registreMembre) {
+		getRegistreMembres().remove(registreMembre);
+	}
+
 	@Transient
 	public String getCodiEtiqueta() {
 		return codi + "/" + etiqueta;
@@ -296,6 +339,8 @@ public class Camp implements Serializable, GenericEntity<Long> {
 			return BigDecimal.class;
 		} else if (TipusCamp.TERMINI.equals(tipus)) {
 			return Termini.class;
+		} else if (TipusCamp.REGISTRE.equals(tipus)) {
+			return Object[].class;
 		} else {
 			return String.class;
 		}
