@@ -88,21 +88,35 @@ public class TascaService {
 
 
 	public TascaDto getById(Long entornId, String taskId) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, true);
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		return toTascaDto(task, true);
 	}
 	public List<TascaDto> findTasquesPersonals(Long entornId) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		List<JbpmTask> tasques = jbpmDao.findPersonalTasks(auth.getName());
+		return findTasquesPersonals(entornId, null);
+	}
+	public List<TascaDto> findTasquesPersonals(Long entornId, String usuari) {
+		String usuariBo = usuari;
+		if (usuariBo == null) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			usuariBo = auth.getName();
+		}
+		List<JbpmTask> tasques = jbpmDao.findPersonalTasks(usuariBo);
 		return tasquesFiltrades(entornId, tasques);
 	}
 	public List<TascaDto> findTasquesGrup(Long entornId) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		List<JbpmTask> tasques = jbpmDao.findGroupTasks(auth.getName());
+		return findTasquesGrup(entornId, null);
+	}
+	public List<TascaDto> findTasquesGrup(Long entornId, String usuari) {
+		String usuariBo = usuari;
+		if (usuariBo == null) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			usuariBo = auth.getName();
+		}
+		List<JbpmTask> tasques = jbpmDao.findGroupTasks(usuariBo);
 		return tasquesFiltrades(entornId, tasques);
 	}
 	public TascaDto agafar(Long entornId, String taskId) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, false);
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, false);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		jbpmDao.takeTaskInstance(taskId, auth.getName());
 		TascaDto tasca = toTascaDto(task, true);
@@ -117,7 +131,14 @@ public class TascaService {
 			Long entornId,
 			String taskId,
 			Map<String, Object> variables) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, true);
+		return guardarVariables(entornId, taskId, variables, null);
+	}
+	public TascaDto guardarVariables(
+			Long entornId,
+			String taskId,
+			Map<String, Object> variables,
+			String usuari) {
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);
 		boolean iniciada = task.getStartTime() == null;
 		jbpmDao.startTaskInstance(taskId);
 		jbpmDao.setTaskInstanceVariables(taskId, variables);
@@ -141,7 +162,15 @@ public class TascaService {
 			String taskId,
 			Map<String, Object> variables,
 			boolean comprovarAssignacio) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, comprovarAssignacio);
+		return validar(entornId, taskId, variables, comprovarAssignacio, null);
+	}
+	public TascaDto validar(
+			Long entornId,
+			String taskId,
+			Map<String, Object> variables,
+			boolean comprovarAssignacio,
+			String usuari) {
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, comprovarAssignacio);
 		jbpmDao.startTaskInstance(taskId);
 		jbpmDao.setTaskInstanceVariables(taskId, variables);
 		validarTasca(taskId);
@@ -156,7 +185,7 @@ public class TascaService {
 	public TascaDto restaurar(
 			Long entornId,
 			String taskId) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, true);
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		if (!isTascaValidada(task))
 			throw new IllegalStateException("La tasca no ha estat validada");
 		//deleteDocumentsTasca(taskId);
@@ -180,7 +209,7 @@ public class TascaService {
 			String taskId,
 			boolean comprovarAssignacio,
 			String outcome) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, comprovarAssignacio);
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, comprovarAssignacio);
 		if (!isTascaValidada(task))
 			throw new IllegalStateException("El formulari no ha estat validat");
 		if (!isDocumentsComplet(task))
@@ -224,7 +253,7 @@ public class TascaService {
 			Long entornId,
 			String taskId,
 			String codiVariable) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, true);
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		return jbpmDao.getTaskInstanceVariable(task.getId(), codiVariable);
 	}
 	public void createVariable(
@@ -232,7 +261,7 @@ public class TascaService {
 			String taskId,
 			String codiVariable,
 			Object valor) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, true);
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		Map<String, Object> variables = new HashMap<String, Object>();
 		variables.put(codiVariable, valor);
 		jbpmDao.setTaskInstanceVariables(task.getId(), variables);
@@ -249,7 +278,7 @@ public class TascaService {
 			String taskId,
 			String codiVariable,
 			Object valor) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, true);
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		Object valorVell = jbpmDao.getTaskInstanceVariable(taskId, codiVariable);
 		Map<String, Object> variables = new HashMap<String, Object>();
 		variables.put(codiVariable, valor);
@@ -267,7 +296,7 @@ public class TascaService {
 			Long entornId,
 			String taskId,
 			String codiVariable) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, true);
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		jbpmDao.deleteTaskInstanceVariable(task.getId(), codiVariable);
 		TascaDto tasca = toTascaDto(task, true);
 		registreDao.crearRegistreEsborrarVariableTasca(
@@ -284,7 +313,7 @@ public class TascaService {
 			String nom,
 			Date data,
 			byte[] contingut) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, true);
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		if (!isTascaValidada(task))
 			throw new IllegalStateException("La tasca no ha estat validada");
 		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
@@ -346,7 +375,7 @@ public class TascaService {
 			Long entornId,
 			String taskId,
 			String documentCodi) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, true);
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		String codiVariableJbpm = PREFIX_DOCUMENT + documentCodi;
 		Long documentJbpm = (Long)jbpmDao.getTaskInstanceVariable(taskId, codiVariableJbpm);
 		if (documentJbpm == null)
@@ -378,7 +407,7 @@ public class TascaService {
 			Long entornId,
 			String taskId,
 			String codiVariable) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, true);
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		String codiVariableJbpm = PREFIX_DOCUMENT + codiVariable;
 		Long documentStoreId = (Long)jbpmDao.getTaskInstanceVariable(
 				taskId,
@@ -396,7 +425,7 @@ public class TascaService {
 			Long entornId,
 			String taskId,
 			String codiVariable) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, true);
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		Long documentStoreId = (Long)jbpmDao.getProcessInstanceVariable(
 				task.getProcessInstanceId(),
 				PREFIX_DOCUMENT + codiVariable);
@@ -461,7 +490,7 @@ public class TascaService {
 		resposta.setDataCreacio(new Date());
 		resposta.setDataDocument(new Date());
 		resposta.setArxiuNom(document.getNom() + ".odt");
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, true);
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		if (document.isPlantilla()) {
 			JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
 			ExpedientDto expedient = dtoConverter.toExpedientDto(
@@ -503,7 +532,7 @@ public class TascaService {
 			String actorId,
 			String comentari,
 			boolean supervisada) {
-		JbpmTask original = comprovarSeguretatTasca(entornId, taskId, true);
+		JbpmTask original = comprovarSeguretatTasca(entornId, taskId, null, true);
 		JbpmTask delegada = jbpmDao.cloneTaskInstance(
 				taskId,
 				actorId,
@@ -524,7 +553,7 @@ public class TascaService {
 	public void delegacioCancelar(
 			Long entornId,
 			String taskId) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, true);
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		DelegationInfo delegationInfo = getDelegationInfo(task);
 		if (delegationInfo == null || !taskId.equals(delegationInfo.getSourceTaskId())) {
 			throw new IllegalStateException("No es pot cancel·lar la delegació d'aquesta tasca");
@@ -538,7 +567,7 @@ public class TascaService {
 	public FormulariExtern iniciarFormulariExtern(
 			Long entornId,
 			String taskId) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, true);
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
 				task.getName(),
 				task.getProcessDefinitionId());
@@ -643,7 +672,7 @@ public class TascaService {
 
 
 
-	private JbpmTask comprovarSeguretatTasca(Long entornId, String taskId, boolean comprovarAssignacio) {
+	private JbpmTask comprovarSeguretatTasca(Long entornId, String taskId, String usuari, boolean comprovarAssignacio) {
 		JbpmTask task = jbpmDao.getTaskById(taskId);
 		if (task == null) {
 			throw new NotFoundException("No s'ha trobat la tasca");
@@ -653,9 +682,13 @@ public class TascaService {
 			throw new NotFoundException("No s'ha trobat la tasca");
 		}
 		if (comprovarAssignacio) {
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			if (!auth.getName().equals(task.getAssignee())) {
-				throw new NotFoundException("Aquest usuari no té aquesta tasca assignada");
+			if (usuari == null) {
+				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+				if (!auth.getName().equals(task.getAssignee()))
+					throw new NotFoundException("Aquest usuari no té aquesta tasca assignada");
+			} else {
+				if (!usuari.equals(task.getAssignee()))
+					throw new NotFoundException("Aquest usuari no té aquesta tasca assignada");
 			}
 		}
 		if (task.isSuspended()) {
