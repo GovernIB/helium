@@ -55,7 +55,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 		SELECCIO,
 		SUGGEST,
 		REGISTRE,
-		BOTO
+		ACCIO
 	}
 
 	private Long id;

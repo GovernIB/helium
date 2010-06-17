@@ -691,7 +691,7 @@ public class ExpedientService {
 		JbpmProcessInstance processInstance = jbpmDao.getProcessInstance(processInstanceId);
 		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(processInstance.getProcessDefinitionId());
 		Accio accio = accioDao.findAmbDefinicioProcesICodi(definicioProces.getId(), accioCodi);
-		jbpmDao.executeAction(
+		jbpmDao.executeActionInstanciaProces(
 				processInstanceId,
 				accio.getJbpmAction());
 	}

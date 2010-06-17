@@ -200,6 +200,31 @@ public class TascaController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/tasca/executarAccio")
+	public String executarAccio(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) String id,
+			@RequestParam(value = "accio", required = true) String accio,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			try {
+				tascaService.executarAccio(
+						entorn.getId(),
+						id,
+						accio);
+				missatgeInfo(request, "L'acció s'ha executat amb èxit");
+			} catch (Exception ex) {
+				missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+				logger.error("No s'ha pogut mostrar l'arxiu", ex);
+			}
+			return "redirect:/tasca/form.html?id=" + id;
+		} else {
+			missatgeError(request, "No hi ha cap entorn seleccionat");
+			return "redirect:/index.html";
+		}
+	}
+
 
 
 	private String textFormRecursProcessat(TascaDto tasca, String text) {

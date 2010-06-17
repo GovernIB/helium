@@ -621,6 +621,14 @@ public class TascaService {
 				null);
 	}
 
+	public void executarAccio(
+			Long entornId,
+			String taskId,
+			String accio) throws DominiException {
+		comprovarSeguretatTasca(entornId, taskId, null, true);
+		jbpmDao.executeActionInstanciaTasca(taskId, accio);
+	}
+
 	@Autowired
 	public void setExpedientDao(ExpedientDao expedientDao) {
 		this.expedientDao = expedientDao;

@@ -97,6 +97,16 @@ public class DefinicioProcesCampController extends BaseController {
 		}
 		return null;
 	}
+	@ModelAttribute("accionsJbpm")
+	public List<String> populateAccionsJbpm(
+			@RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId,
+			@RequestParam(value = "definicioProces", required = false) Long definicioProces) {
+		if (definicioProcesId != null)
+			return dissenyService.findAccionsJbpm(definicioProcesId);
+		if (definicioProces != null)
+			return dissenyService.findAccionsJbpm(definicioProces);
+		return null;
+	}
 
 	@ModelAttribute("command")
 	public Camp populateCommand(
