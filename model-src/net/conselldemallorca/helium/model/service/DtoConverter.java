@@ -159,6 +159,10 @@ public class DtoConverter {
 		dto.setRecursForm(tasca.getRecursForm());
 		dto.setFormExtern(tasca.getFormExtern());
 		List<CampTasca> campsTasca = campTascaDao.findAmbTascaOrdenats(tasca.getId());
+		// (1) Per evitar error de lazy initialization en la validació del formulari de tasca
+		for (CampTasca camp: campsTasca)
+			camp.getCamp().getValidacions().size();
+		// (/1)
 		dto.setCamps(campsTasca);
 		List<DocumentTasca> documentsTasca = documentTascaDao.findAmbTascaOrdenats(tasca.getId());
 		dto.setDocuments(documentsTasca);
@@ -896,7 +900,7 @@ public class DtoConverter {
 			String processInstanceId,
 			Camp camp) {
 		String dominiParams = camp.getDominiParams();
-		if (dominiParams == null)
+		if (dominiParams == null || dominiParams.length() == 0)
 			return null;
 		Map<String, Object> params = new HashMap<String, Object>();
 		String[] pairs = dominiParams.split(";");

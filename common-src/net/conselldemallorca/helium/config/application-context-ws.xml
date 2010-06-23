@@ -59,11 +59,10 @@
 		implementor="#formulariExtern" 
 		address="/FormulariExtern"/>
 
-	<bean id="tramitacio" class="net.conselldemallorca.helium.integracio.tramitacio.TramitacioServiceImpl"/>
+	<bean id="tramitacioService" class="net.conselldemallorca.helium.integracio.tramitacio.Tramitacio"/>
 	<jaxws:endpoint 
-		id="tramitacioService" 
-		implementor="#tramitacio" 
-		address="/Tramitacio"/>
+		implementor="#tramitacioService" 
+		address="/TramitacioService"/>
 
 	<!--jaxws:endpoint 
 		id="dominiExempleService" 

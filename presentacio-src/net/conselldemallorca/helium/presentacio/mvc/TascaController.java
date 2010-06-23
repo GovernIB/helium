@@ -139,7 +139,7 @@ public class TascaController extends BaseController {
 				boolean found = false;
 				for (String outcome: tasca.getOutcomes()) {
 					if (outcome != null && outcome.equals(submit)) {
-						tascaService.completar(entorn.getId(), id, true, outcome);
+						tascaService.completar(entorn.getId(), id, true, null, outcome);
 						found = true;
 						break;
 					}

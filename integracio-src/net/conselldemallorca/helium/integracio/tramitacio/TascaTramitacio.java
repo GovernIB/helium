@@ -17,6 +17,7 @@ public class TascaTramitacio {
 	private String id;
 	private String codi;
 	private String titol;
+	private String expedient;
 	private String missatgeInfo;
 	private String missatgeWarn;
 	private String responsable;
@@ -54,6 +55,12 @@ public class TascaTramitacio {
 	}
 	public void setTitol(String titol) {
 		this.titol = titol;
+	}
+	public String getExpedient() {
+		return expedient;
+	}
+	public void setExpedient(String expedient) {
+		this.expedient = expedient;
 	}
 	public String getMissatgeInfo() {
 		return missatgeInfo;

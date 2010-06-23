@@ -88,7 +88,10 @@ public class TascaService {
 
 
 	public TascaDto getById(Long entornId, String taskId) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
+		return getById(entornId, taskId, null);
+	}
+	public TascaDto getById(Long entornId, String taskId, String usuari) {
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);
 		return toTascaDto(task, true);
 	}
 	public List<TascaDto> findTasquesPersonals(Long entornId) {
@@ -202,14 +205,22 @@ public class TascaService {
 			Long entornId,
 			String taskId,
 			boolean comprovarAssignacio) {
-		completar(entornId, taskId, comprovarAssignacio, null);
+		completar(entornId, taskId, comprovarAssignacio, null, null);
 	}
 	public void completar(
 			Long entornId,
 			String taskId,
 			boolean comprovarAssignacio,
+			String usuari) {
+		completar(entornId, taskId, comprovarAssignacio, usuari, null);
+	}
+	public void completar(
+			Long entornId,
+			String taskId,
+			boolean comprovarAssignacio,
+			String usuari,
 			String outcome) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, comprovarAssignacio);
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, comprovarAssignacio);
 		if (!isTascaValidada(task))
 			throw new IllegalStateException("El formulari no ha estat validat");
 		if (!isDocumentsComplet(task))
@@ -229,7 +240,7 @@ public class TascaService {
 				JbpmTask taskOriginal = jbpmDao.getTaskById(delegationInfo.getSourceTaskId());
 				if (!delegationInfo.isSupervised()) {
 					// Si no es supervisada també finalitza la tasca original
-					completar(entornId, taskOriginal.getId(), false, outcome);
+					completar(entornId, taskOriginal.getId(), false, null, outcome);
 				}
 				deleteDelegationInfo(taskOriginal);
 			}
@@ -313,7 +324,24 @@ public class TascaService {
 			String nom,
 			Date data,
 			byte[] contingut) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
+		guardarDocument(
+				entornId,
+				taskId,
+				documentCodi,
+				nom,
+				data,
+				contingut,
+				null);
+	}
+	public void guardarDocument(
+			Long entornId,
+			String taskId,
+			String documentCodi,
+			String nom,
+			Date data,
+			byte[] contingut,
+			String usuari) {
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);
 		if (!isTascaValidada(task))
 			throw new IllegalStateException("La tasca no ha estat validada");
 		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());

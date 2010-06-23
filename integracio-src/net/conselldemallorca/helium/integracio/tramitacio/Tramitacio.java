@@ -11,18 +11,20 @@ import java.util.Map;
 
 import javax.jws.WebService;
 
-import net.conselldemallorca.helium.model.dao.DaoProxy;
 import net.conselldemallorca.helium.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.model.dto.TascaDto;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
 import net.conselldemallorca.helium.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.model.hibernate.Expedient.IniciadorTipus;
+import net.conselldemallorca.helium.model.service.DissenyService;
+import net.conselldemallorca.helium.model.service.EntornService;
 import net.conselldemallorca.helium.model.service.ExpedientService;
-import net.conselldemallorca.helium.model.service.ServiceProxy;
 import net.conselldemallorca.helium.model.service.TascaService;
+import net.conselldemallorca.helium.util.EntornActual;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Implementació del servei de tramitació d'expedients
@@ -30,7 +32,13 @@ import org.apache.commons.logging.LogFactory;
  * @author Josep Gayà <josepg@limit.es>
  */
 @WebService(endpointInterface = "net.conselldemallorca.helium.integracio.tramitacio.TramitacioService")
-public class TramitacioServiceImpl implements TramitacioService {
+public class Tramitacio implements TramitacioService {
+
+	private EntornService entornService;
+	private DissenyService dissenyService;
+	private ExpedientService expedientService;
+	private TascaService tascaService;
+	
 
 	public String iniciExpedient(
 			String entorn,
@@ -38,13 +46,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String numero,
 			String titol,
 			List<ParellaCodiValor> valorsFormulari) throws TramitacioException {
-		ExpedientService expedientService = ServiceProxy.getInstance().getExpedientService();
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb aquest codi '" + entorn + "'");
 		ExpedientTipus et = findExpedientTipusAmbEntornICodi(e.getId(), expedientTipus);
 		if (et == null)
-			throw new TramitacioException("No existeix cap tipus d'expedient amb aquest codi '" + expedientTipus + "'");
+			throw new TramitacioException("No existeix cap tipus d'expedient amb el codi '" + expedientTipus + "'");
 		if (numero != null && !et.getTeNumero())
 			throw new TramitacioException("Aquest tipus d'expedient no suporta número d'expedient");
 		if (titol != null && !et.getTeTitol())
@@ -80,12 +87,11 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public List<TascaTramitacio> consultaTasquesPersonals(
 			String entorn,
 			String usuari) throws TramitacioException {
-		TascaService tascaService = ServiceProxy.getInstance().getTascaService();
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
-			throw new TramitacioException("No existeix cap entorn amb aquest codi '" + entorn + "'");
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
-			List<TascaDto> tasques = tascaService.findTasquesGrup(e.getId());
+			List<TascaDto> tasques = tascaService.findTasquesPersonals(e.getId(), usuari);
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
 			for (TascaDto tasca: tasques)
 				resposta.add(convertirTascaTramitacio(tasca));
@@ -99,12 +105,11 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public List<TascaTramitacio> consultaTasquesGrup(
 			String entorn,
 			String usuari) throws TramitacioException {
-		TascaService tascaService = ServiceProxy.getInstance().getTascaService();
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
-			throw new TramitacioException("No existeix cap entorn amb aquest codi '" + entorn + "'");
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
-			List<TascaDto> tasques = tascaService.findTasquesGrup(e.getId());
+			List<TascaDto> tasques = tascaService.findTasquesGrup(e.getId(), usuari);
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
 			for (TascaDto tasca: tasques)
 				resposta.add(convertirTascaTramitacio(tasca));
@@ -119,9 +124,10 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String usuari,
 			String tascaId) throws TramitacioException {
-		TascaService tascaService = ServiceProxy.getInstance().getTascaService();
 		Entorn e = findEntornAmbCodi(entorn);
-		TascaDto tasca = tascaService.getById(e.getId(), tascaId);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		TascaDto tasca = tascaService.getById(e.getId(), tascaId, usuari);
 		List<CampTasca> resposta = new ArrayList<CampTasca>();
 		for (net.conselldemallorca.helium.model.hibernate.CampTasca campTasca: tasca.getCamps())
 			resposta.add(convertirCampTasca(campTasca));
@@ -133,10 +139,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String usuari,
 			String tascaId,
 			List<ParellaCodiValor> valors) throws TramitacioException {
-		TascaService tascaService = ServiceProxy.getInstance().getTascaService();
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
-			throw new TramitacioException("No existeix cap entorn amb aquest codi '" + entorn + "'");
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		Map<String, Object> variables = null;
 		if (valors != null) {
 			variables = new HashMap<String, Object>();
@@ -163,9 +168,10 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String usuari,
 			String tascaId) throws TramitacioException {
-		TascaService tascaService = ServiceProxy.getInstance().getTascaService();
 		Entorn e = findEntornAmbCodi(entorn);
-		TascaDto tasca = tascaService.getById(e.getId(), tascaId);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		TascaDto tasca = tascaService.getById(e.getId(), tascaId, usuari);
 		List<DocumentTasca> resposta = new ArrayList<DocumentTasca>();
 		for (net.conselldemallorca.helium.model.hibernate.DocumentTasca documentTasca: tasca.getDocuments())
 			resposta.add(convertirDocumentTasca(documentTasca));
@@ -180,10 +186,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String nom,
 			Date data,
 			byte[] contingut) throws TramitacioException {
-		TascaService tascaService = ServiceProxy.getInstance().getTascaService();
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
-			throw new TramitacioException("No existeix cap entorn amb aquest codi '" + entorn + "'");
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
 			tascaService.guardarDocument(
 					e.getId(),
@@ -191,7 +196,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 					document,
 					nom,
 					data,
-					contingut);
+					contingut,
+					usuari);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar el document a la tasca", ex);
 			throw new TramitacioException("No s'ha pogut guardar el document a la tasca: " + ex.getMessage());
@@ -203,15 +209,15 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String usuari,
 			String tascaId,
 			String transicio) throws TramitacioException {
-		TascaService tascaService = ServiceProxy.getInstance().getTascaService();
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
-			throw new TramitacioException("No existeix cap entorn amb aquest codi '" + entorn + "'");
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
 			tascaService.completar(
 					e.getId(),
 					tascaId,
 					true,
+					usuari,
 					transicio);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut completar la tasca", ex);
@@ -221,19 +227,40 @@ public class TramitacioServiceImpl implements TramitacioService {
 
 
 
+	@Autowired
+	public void setEntornService(EntornService entornService) {
+		this.entornService = entornService;
+	}
+	@Autowired
+	public void setDissenyService(DissenyService dissenyService) {
+		this.dissenyService = dissenyService;
+	}
+	@Autowired
+	public void setExpedientService(ExpedientService expedientService) {
+		this.expedientService = expedientService;
+	}
+	@Autowired
+	public void setTascaService(TascaService tascaService) {
+		this.tascaService = tascaService;
+	}
+
+
+
 	private Entorn findEntornAmbCodi(String codi) {
-		return DaoProxy.getInstance().getEntornDao().findAmbCodi(codi);
+		Entorn entorn = entornService.findAmbCodi(codi);
+		if (entorn != null)
+			EntornActual.setEntornId(entorn.getId());
+		return entorn;
 	}
 	private ExpedientTipus findExpedientTipusAmbEntornICodi(Long entornId, String codi) {
-		return DaoProxy.getInstance().getExpedientTipusDao().findAmbEntornICodi(
-				entornId,
-				codi);
+		return dissenyService.findExpedientTipusAmbEntornICodi(entornId, codi);
 	}
 	private TascaTramitacio convertirTascaTramitacio(TascaDto tasca) {
 		TascaTramitacio tt = new TascaTramitacio();
 		tt.setId(tasca.getId());
 		tt.setCodi(tasca.getJbpmName());
 		tt.setTitol(tasca.getNom());
+		tt.setExpedient(tasca.getExpedient().getNumeroDefault());
 		tt.setMissatgeInfo(tasca.getMissatgeInfo());
 		tt.setMissatgeWarn(tasca.getMissatgeWarn());
 		tt.setResponsable(tasca.getAssignee());
@@ -275,6 +302,6 @@ public class TramitacioServiceImpl implements TramitacioService {
 		return dt;
 	}
 
-	private static final Log logger = LogFactory.getLog(TramitacioServiceImpl.class);
+	private static final Log logger = LogFactory.getLog(Tramitacio.class);
 
 }

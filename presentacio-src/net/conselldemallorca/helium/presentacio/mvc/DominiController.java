@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.presentacio.mvc;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.model.hibernate.Camp;
 import net.conselldemallorca.helium.model.hibernate.Domini;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
 import net.conselldemallorca.helium.model.hibernate.Domini.TipusDomini;
@@ -18,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
+import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,6 +41,7 @@ public class DominiController extends BaseController {
 
 	private DissenyService dissenyService;
 	private Validator annotationValidator;
+	private Validator additionalValidator;
 
 
 
@@ -45,6 +49,7 @@ public class DominiController extends BaseController {
 	public DominiController(
 			DissenyService dissenyService) {
 		this.dissenyService  = dissenyService;
+		this.additionalValidator = new DominiValidator();
 	}
 
 	@ModelAttribute("command")
@@ -99,6 +104,7 @@ public class DominiController extends BaseController {
 			if ("submit".equals(submit) || submit.length() == 0) {
 				command.setEntorn(entorn);
 				annotationValidator.validate(command, result);
+				additionalValidator.validate(command, result);
 		        if (result.hasErrors()) {
 		        	return "domini/form";
 		        }
@@ -171,6 +177,24 @@ public class DominiController extends BaseController {
 		this.annotationValidator = annotationValidator;
 	}
 
+
+
+	private class DominiValidator implements Validator {
+		@SuppressWarnings("unchecked")
+		public boolean supports(Class clazz) {
+			return clazz.isAssignableFrom(Camp.class);
+		}
+		public void validate(Object target, Errors errors) {
+			Domini domini = (Domini)target;
+			if (domini.getTipus().equals(TipusDomini.CONSULTA_WS)) {
+				ValidationUtils.rejectIfEmpty(errors, "url", "not.blank");
+			}
+			if (domini.getTipus().equals(TipusDomini.CONSULTA_SQL)) {
+				ValidationUtils.rejectIfEmpty(errors, "jndiDatasource", "not.blank");
+				ValidationUtils.rejectIfEmpty(errors, "sql", "not.blank");
+			}
+		}
+	}
 
 
 	private static final Log logger = LogFactory.getLog(DominiController.class);

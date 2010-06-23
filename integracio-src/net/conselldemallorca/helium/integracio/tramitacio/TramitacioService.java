@@ -13,7 +13,7 @@ import javax.jws.WebService;
  * 
  * @author Josep Gayà <josepg@limit.es>
  */
-@WebService
+@WebService(name="TramitacioService")
 public interface TramitacioService {
 
 	/**

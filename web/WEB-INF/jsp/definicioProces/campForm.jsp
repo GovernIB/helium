@@ -12,18 +12,21 @@
 <script type="text/javascript">
 // <![CDATA[
 function disable(blocid) {
-	$("#" + blocid).find("input,select,textarea").attr("disabled", "disabled").attr("value", "");
+	$("#" + blocid).find("input,select,textarea").attr("disabled", "disabled");
 }
 function enable(blocid) {
 	$("#" + blocid).find("input,select,textarea").removeAttr("disabled");
 }
 function canviTipus(input) {
-	disable("camps_accio");
-	disable("camps_consulta");
 	if (input.value == "SELECCIO" || input.value == "SUGGEST") {
 		enable("camps_consulta");
+		disable("camps_accio");
 	} else if (input.value == "ACCIO") {
 		enable("camps_accio");
+		disable("camps_consulta");
+	} else {
+		disable("camps_accio");
+		disable("camps_consulta");
 	}
 }
 // ]]>
@@ -80,16 +83,6 @@ function canviTipus(input) {
 			</c:import>
 		</div>
 		<div class="inlineLabels col last">
-			<h3>Dades de l'acció</h3>
-			<div id="camps_accio">
-				<c:import url="../common/formElement.jsp">
-					<c:param name="property" value="jbpmAction"/>
-					<c:param name="type" value="select"/>
-					<c:param name="items" value="accionsJbpm"/>
-					<c:param name="itemBuit" value="<< Seleccioni un handler >>"/>
-					<c:param name="label">Handler</c:param>
-				</c:import>
-			</div>
 			<h3>Dades per la consulta</h3>
 			<div id="camps_consulta">
 				<c:import url="../common/formElement.jsp">
@@ -120,12 +113,22 @@ function canviTipus(input) {
 					<c:param name="label">Paràmetres pel domini</c:param>
 				</c:import>
 				<c:import url="../common/formElement.jsp">
+					<c:param name="property" value="dominiCampValor"/>
+					<c:param name="label">Camp amb el valor</c:param>
+				</c:import>
+				<c:import url="../common/formElement.jsp">
 					<c:param name="property" value="dominiCampText"/>
 					<c:param name="label">Camp amb el text</c:param>
 				</c:import>
+			</div>
+			<h3>Dades de l'acció</h3>
+			<div id="camps_accio">
 				<c:import url="../common/formElement.jsp">
-					<c:param name="property" value="dominiCampValor"/>
-					<c:param name="label">Camp amb el valor</c:param>
+					<c:param name="property" value="jbpmAction"/>
+					<c:param name="type" value="select"/>
+					<c:param name="items" value="accionsJbpm"/>
+					<c:param name="itemBuit" value="<< Seleccioni un handler >>"/>
+					<c:param name="label">Handler</c:param>
 				</c:import>
 			</div>
 		</div>
@@ -138,6 +141,7 @@ function canviTipus(input) {
 
 	<p class="aclaracio">Els camps marcats amb <img src="<c:url value="/img/bullet_red.png"/>" alt="Camp obligatori" title="Camp obligatori" border="0"/> són obligatoris</p>
 
-<script type="text/javascript">$(document).ready(canviTipus(document.getElementById("tipus0")));</script>
+	<script type="text/javascript">$(document).ready(canviTipus(document.getElementById("tipus0")));</script>
+
 </body>
 </html>
