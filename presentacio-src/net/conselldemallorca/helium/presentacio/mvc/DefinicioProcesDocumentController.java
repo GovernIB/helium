@@ -78,8 +78,22 @@ public class DefinicioProcesDocumentController extends BaseController {
 			@RequestParam(value = "id", required = false) Long id,
 			@RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId,
 			@RequestParam(value = "definicioProces", required = false) Long definicioProces) {
-		if (id != null)
-			return dissenyService.getDocumentById(id);
+		if (id != null) {
+			Document vell = dissenyService.getDocumentById(id);
+			Document document = new Document();
+			document.setId(id);
+			document.setCodi(vell.getCodi());
+			document.setNom(vell.getNom());
+			document.setArxiuNom(vell.getArxiuNom());
+			document.setDescripcio(vell.getDescripcio());
+			document.setPlantilla(vell.isPlantilla());
+			document.setContentType(vell.getContentType());
+			document.setCustodiaCodi(vell.getCustodiaCodi());
+			document.setTipusDocPortasignatures(vell.getTipusDocPortasignatures());
+			document.setDefinicioProces(vell.getDefinicioProces());
+			document.setCampData(vell.getCampData());
+			return document;
+		}
 		Document nou = new Document();
 		if (definicioProcesId != null)
 			nou.setDefinicioProces(dissenyService.getById(definicioProcesId));

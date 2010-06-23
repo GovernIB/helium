@@ -976,11 +976,6 @@ public class ExpedientService {
 			portasignatures.setTransicioOK(transicioOK);
 			portasignatures.setTransicioKO(transicioKO);
 			pluginPortasignaturesDao.saveOrUpdate(portasignatures);
-			
-			Document document = documentDao.getById(documentDto.getDocumentId(), false);
-			document.setPortasignaturesId(portasignatures.getId());
-			document.setTipusDocPortasignatures(documentDto.getTipusDocPortasignatures());
-			documentDao.saveOrUpdate(document);
 		} catch (Exception e) {
 			throw new JbpmException("No s'ha pogut pujar el document al portasignatures", e);
 		}
