@@ -16,11 +16,10 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.integracio.forms.GuardarFormulari;
-import net.conselldemallorca.helium.integracio.forms.ParellaCodiValor;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.model.dto.TascaDto;
+import net.conselldemallorca.helium.model.exception.NotFoundException;
 import net.conselldemallorca.helium.model.hibernate.Camp;
 import net.conselldemallorca.helium.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
@@ -33,7 +32,6 @@ import net.conselldemallorca.helium.presentacio.mvc.util.TascaFormUtil;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.cxf.frontend.ClientProxyFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -87,20 +85,22 @@ public class TascaFormController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			TascaDto tasca = tascaService.getById(entorn.getId(), id);
-			if (tasca.getRecursForm() != null) {
-				try {
-					byte[] contingut = dissenyService.getDeploymentResource(
-							tasca.getDefinicioProces().getId(),
-							tasca.getRecursForm());
-					model.addAttribute(
-							"formRecursParams",
-							getFormRecursParams(new String(contingut, "UTF-8")));
-				} catch (Exception ex) {
-					logger.error("No s'han pogut extreure els parametres del recurs", ex);
+			try {
+				TascaDto tasca = tascaService.getById(entorn.getId(), id);
+				if (tasca.getRecursForm() != null) {
+					try {
+						byte[] contingut = dissenyService.getDeploymentResource(
+								tasca.getDefinicioProces().getId(),
+								tasca.getRecursForm());
+						model.addAttribute(
+								"formRecursParams",
+								getFormRecursParams(new String(contingut, "UTF-8")));
+					} catch (Exception ex) {
+						logger.error("No s'han pogut extreure els parametres del recurs", ex);
+					}
 				}
-			}
-			return tasca;
+				return tasca;
+			} catch (NotFoundException ignored) {}
 		}
 		return null;
 	}
@@ -112,20 +112,22 @@ public class TascaFormController extends BaseController {
 			@RequestParam(value = "id", required = true) String id) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			TascaDto tasca = tascaService.getById(entorn.getId(), id);
-			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
-			campsAddicionals.put("id", id);
-			campsAddicionals.put("entornId", entorn.getId());
-			campsAddicionals.put("procesScope", null);
-			Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
-			campsAddicionalsClasses.put("id", String.class);
-			campsAddicionalsClasses.put("entornId", Long.class);
-			campsAddicionalsClasses.put("procesScope", Map.class);
-			Object command = TascaFormUtil.getCommandForTasca(
-					tasca,
-					campsAddicionals,
-					campsAddicionalsClasses);
-			return command;
+			try {
+				TascaDto tasca = tascaService.getById(entorn.getId(), id);
+				Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+				campsAddicionals.put("id", id);
+				campsAddicionals.put("entornId", entorn.getId());
+				campsAddicionals.put("procesScope", null);
+				Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
+				campsAddicionalsClasses.put("id", String.class);
+				campsAddicionalsClasses.put("entornId", Long.class);
+				campsAddicionalsClasses.put("procesScope", Map.class);
+				Object command = TascaFormUtil.getCommandForTasca(
+						tasca,
+						campsAddicionals,
+						campsAddicionalsClasses);
+				return command;
+			} catch (NotFoundException ignored) {}
 		}
 		return null;
 	}
@@ -144,8 +146,10 @@ public class TascaFormController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			TascaDto tasca = (TascaDto)model.get("tasca");
-			Object command = model.get("command");
-			return TascaFormUtil.getValorsPerSuggest(tasca, command);
+			if (tasca != null) {
+				Object command = model.get("command");
+				return TascaFormUtil.getValorsPerSuggest(tasca, command);
+			}
 		}
 		return null;
 	}
@@ -157,6 +161,10 @@ public class TascaFormController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
+			if (model.get("command") == null) {
+				missatgeError(request, "Aquesta tasca ja no està disponible");
+				return "redirect:/tasca/personaLlistat.html";
+			}
 			return "tasca/form";
 		} else {
 			missatgeError(request, "No hi ha cap entorn seleccionat");
@@ -177,6 +185,10 @@ public class TascaFormController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
+			if (model.get("command") == null) {
+				missatgeError(request, "Aquesta tasca ja no està disponible");
+				return "redirect:/tasca/personaLlistat.html";
+			}
 			TascaDto tasca = (TascaDto)model.get("tasca");
 			List<Camp> camps = new ArrayList<Camp>();
     		for (CampTasca campTasca: tasca.getCamps())
@@ -289,26 +301,6 @@ public class TascaFormController extends BaseController {
 	        	return "tasca/form";
 			}
 			return "redirect:/tasca/form.html?id=" + id;
-		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
-			return "redirect:/index.html";
-		}
-	}
-
-	@RequestMapping(value = "/tasca/test", method = RequestMethod.GET)
-	public String test(
-			HttpServletRequest request,
-			@RequestParam(value = "id", required = true) String id) {
-		Entorn entorn = getEntornActiu(request);
-		if (entorn != null) {
-			ClientProxyFactoryBean factory = new ClientProxyFactoryBean();
-			factory.setServiceClass(GuardarFormulari.class);
-			factory.setAddress("http://localhost:8080/helium/ws/FormulariExtern");
-			GuardarFormulari client = (GuardarFormulari)factory.create();
-			List<ParellaCodiValor> valors = new ArrayList<ParellaCodiValor>();
-			valors.add(new ParellaCodiValor("string", "Hola"));
-			client.guardar(id, valors);
-			return "redirect:/index.html";
 		} else {
 			missatgeError(request, "No hi ha cap entorn seleccionat");
 			return "redirect:/index.html";
