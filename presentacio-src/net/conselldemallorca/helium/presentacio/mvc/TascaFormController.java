@@ -87,7 +87,7 @@ public class TascaFormController extends BaseController {
 		if (entorn != null) {
 			try {
 				TascaDto tasca = tascaService.getById(entorn.getId(), id);
-				if (tasca.getRecursForm() != null) {
+				if (tasca.getRecursForm() != null && tasca.getRecursForm().length() > 0) {
 					try {
 						byte[] contingut = dissenyService.getDeploymentResource(
 								tasca.getDefinicioProces().getId(),

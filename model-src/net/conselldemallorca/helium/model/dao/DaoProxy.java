@@ -65,5 +65,8 @@ public class DaoProxy implements ApplicationContextAware {
 	public JbpmDao getJbpmDao() {
 		return (JbpmDao)ctx.getBean("jbpmDao", JbpmDao.class);
 	}
+	public ReassignacioDao getReassignacioDao() {
+		return (ReassignacioDao)ctx.getBean("reassignacioDao", ReassignacioDao.class);
+	}
 
 }
