@@ -129,10 +129,23 @@ public class TascaFormUtil {
 		DefaultBeanValidationConfiguration beanValidationConfiguration = new DefaultBeanValidationConfiguration();
 		for (CampTasca campTasca: tasca.getCamps()) {
 			for (Validacio validacio: campTasca.getCamp().getValidacions()) {
-				ExpressionValidationRule validationRule = new ExpressionValidationRule(new ValangConditionExpressionParser(), validacio.getExpressio());
+				ExpressionValidationRule validationRule = new ExpressionValidationRule(
+						new ValangConditionExpressionParser(),
+						validacio.getExpressio());
 				String codiError = "error.tasca." + tasca.getDefinicioProces().getJbpmKey() + "." +tasca.getJbpmName() + "." + campTasca.getCamp().getCodi();
 				validationRule.setErrorCode(codiError);
 				validationRule.setDefaultErrorMessage(validacio.getMissatge());
+				beanValidationConfiguration.addPropertyRule(
+						campTasca.getCamp().getCodi(),
+						validationRule);
+			}
+			if (	campTasca.getCamp().getTipus().equals(TipusCamp.STRING) ||
+					campTasca.getCamp().getTipus().equals(TipusCamp.TEXTAREA)) {
+				ExpressionValidationRule validationRule = new ExpressionValidationRule(
+						new ValangConditionExpressionParser(),
+						"length(" + campTasca.getCamp().getCodi() + ") < 2049");
+				validationRule.setErrorCode("max.length");
+				validationRule.setDefaultErrorMessage("El contingut d'aquest camp excedeix la llargada màxima");
 				beanValidationConfiguration.addPropertyRule(
 						campTasca.getCamp().getCodi(),
 						validationRule);
