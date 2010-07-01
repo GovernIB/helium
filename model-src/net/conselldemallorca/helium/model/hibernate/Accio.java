@@ -103,7 +103,7 @@ public class Accio implements Serializable, GenericEntity<Long> {
 
 	@ManyToOne(optional=false)
 	@JoinColumn(name="definicio_proces_id")
-	@ForeignKey(name="hel_defproc_document_fk")
+	@ForeignKey(name="hel_defproc_accio_fk")
 	public DefinicioProces getDefinicioProces() {
 		return definicioProces;
 	}
