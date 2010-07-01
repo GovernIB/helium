@@ -602,7 +602,10 @@ public class TascaService {
 		if (tasca.getFormExtern() == null)
 			throw new IllegalStateException("Aquesta tasca no té definit cap formulari extern");
 		Map<String, Object> vars = jbpmDao.getTaskInstanceVariables(task.getId());
+		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 		return formulariExternDao.iniciarFormulariExtern(
+				expedient.getTipus(),
 				taskId,
 				tasca.getFormExtern(),
 				vars);

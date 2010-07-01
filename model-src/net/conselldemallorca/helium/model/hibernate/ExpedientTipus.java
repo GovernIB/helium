@@ -76,10 +76,17 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 
 	@MaxLength(64)
 	private String sistraTramitCodi;
-	@MaxLength(1024)
+	@MaxLength(2048)
 	private String sistraTramitMapeigCamps;
-	@MaxLength(1024)
+	@MaxLength(2048)
 	private String sistraTramitMapeigDocuments;
+
+	@MaxLength(255)
+	private String formextUrl;
+	@MaxLength(255)
+	private String formextUsuari;
+	@MaxLength(25)
+	private String formextContrasenya;
 
 	@NotNull
 	private Entorn entorn;
@@ -230,7 +237,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 		this.sistraTramitCodi = sistraTramitCodi;
 	}
 
-	@Column(name="sistra_mapcamps", length=1024)
+	@Column(name="sistra_mapcamps", length=2048)
 	public String getSistraTramitMapeigCamps() {
 		return sistraTramitMapeigCamps;
 	}
@@ -238,12 +245,36 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 		this.sistraTramitMapeigCamps = sistraTramitMapeigCamps;
 	}
 
-	@Column(name="sistra_mapdocs", length=1024)
+	@Column(name="sistra_mapdocs", length=2048)
 	public String getSistraTramitMapeigDocuments() {
 		return sistraTramitMapeigDocuments;
 	}
 	public void setSistraTramitMapeigDocuments(String sistraTramitMapeigDocuments) {
 		this.sistraTramitMapeigDocuments = sistraTramitMapeigDocuments;
+	}
+
+	@Column(name="formext_url", length=255)
+	public String getFormextUrl() {
+		return formextUrl;
+	}
+	public void setFormextUrl(String formextUrl) {
+		this.formextUrl = formextUrl;
+	}
+
+	@Column(name="formext_usuari", length=255)
+	public String getFormextUsuari() {
+		return formextUsuari;
+	}
+	public void setFormextUsuari(String formextUsuari) {
+		this.formextUsuari = formextUsuari;
+	}
+
+	@Column(name="formext_contrasenya", length=255)
+	public String getFormextContrasenya() {
+		return formextContrasenya;
+	}
+	public void setFormextContrasenya(String formextContrasenya) {
+		this.formextContrasenya = formextContrasenya;
 	}
 
 	@ManyToOne(optional=false)
