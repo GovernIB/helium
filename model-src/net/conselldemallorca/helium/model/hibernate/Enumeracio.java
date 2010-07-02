@@ -4,9 +4,9 @@
 package net.conselldemallorca.helium.model.hibernate;
 
 import java.io.Serializable;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -22,6 +22,8 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+
+import net.conselldemallorca.helium.integracio.domini.ParellaCodiValor;
 
 import org.hibernate.annotations.ForeignKey;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
@@ -121,14 +123,14 @@ public class Enumeracio implements Serializable {
 	}
 
 	@Transient
-	public Map<String, String> getLlistaValors() {
-		Map<String, String> resposta = new HashMap<String, String>();
+	public List<ParellaCodiValor> getLlistaValors() {
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
 		if (valors != null) {
 			String[] parelles = valors.split(",");
 			for (int i = 0; i < parelles.length; i++) {
 				String[] parts = parelles[i].split(":");
 				if (parts.length == 2)
-					resposta.put(parts[0], parts[1]);
+					resposta.add(new ParellaCodiValor(parts[0], parts[1]));
 			}
 		}
 		return resposta;

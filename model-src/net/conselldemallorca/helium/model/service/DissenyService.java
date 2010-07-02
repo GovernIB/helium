@@ -1137,7 +1137,6 @@ public class DissenyService {
 					break;
 				}
 			}
-			
 			if (camp.getEnumeracio() != null) {
 				return dtoConverter.getResultatConsultaEnumeracio(definicioProces, campCodi, textInicial);
 			} else {

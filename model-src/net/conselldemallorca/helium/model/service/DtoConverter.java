@@ -364,12 +364,11 @@ public class DtoConverter {
 		if (camp != null && camp.getEnumeracio() != null) {
 			Enumeracio enumeracio = camp.getEnumeracio();
 			List<FilaResultat> resultat = new ArrayList<FilaResultat>();
-			for (String key: enumeracio.getLlistaValors().keySet()) {
-				String valor = enumeracio.getLlistaValors().get(key);
-				if (textInicial == null || valor.toLowerCase().startsWith(textInicial.toLowerCase())) {
+			for (ParellaCodiValor parella: enumeracio.getLlistaValors()) {
+				if (textInicial == null || ((String)parella.getValor()).toLowerCase().startsWith(textInicial.toLowerCase())) {
 					FilaResultat fila = new FilaResultat();
-					fila.addColumna(new ParellaCodiValor("codi", key));
-					fila.addColumna(new ParellaCodiValor("valor", valor));
+					fila.addColumna(new ParellaCodiValor("codi", parella.getCodi()));
+					fila.addColumna(new ParellaCodiValor("valor", parella.getValor()));
 					resultat.add(fila);
 				}
 			}
@@ -603,10 +602,13 @@ public class DtoConverter {
 				}
 			} else if (camp.getEnumeracio() != null) {
 				Enumeracio enumeracio = camp.getEnumeracio();
-				Map<String, String> mapaValors = enumeracio.getLlistaValors();
-				resposta = new ParellaCodiValor(
+				for (ParellaCodiValor parella: enumeracio.getLlistaValors()) {
+					if (valor.equals(parella.getCodi())) {
+						resposta = new ParellaCodiValor(
 								(String)valor,
-								mapaValors.get(valor));
+								parella.getCodi());
+					}
+				}
 			}
 		}
 		return resposta;
