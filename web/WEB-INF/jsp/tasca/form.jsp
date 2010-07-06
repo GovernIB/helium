@@ -214,5 +214,9 @@ function clickExecutarAccio(accio) {
 		<input id="executarAccioCampAccio" type="hidden" name="accio"/>
 	</form>
 
+	<br/><c:import url="../common/tramitacioTasca.jsp">
+		<c:param name="pipella" value="form"/>
+	</c:import>
+
 </body>
 </html>

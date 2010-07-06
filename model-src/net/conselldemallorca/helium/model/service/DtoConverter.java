@@ -914,7 +914,7 @@ public class DtoConverter {
 			if (campCodi.startsWith("#{")) {
 				if (processInstanceId != null) {
 					value = jbpmDao.evaluateExpression(processInstanceId, campCodi);
-				} else {
+				} else if (taskId != null) {
 					JbpmTask task = jbpmDao.getTaskById(taskId);
 					value = jbpmDao.evaluateExpression(task.getProcessInstanceId(), campCodi);
 				}

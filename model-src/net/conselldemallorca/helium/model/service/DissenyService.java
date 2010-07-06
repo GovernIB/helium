@@ -1165,7 +1165,6 @@ public class DissenyService {
 					textInicial,
 					valorsAddicionals);
 		}
-		
 	}
 
 	public CampAgrupacio getCampAgrupacioById(Long id) {

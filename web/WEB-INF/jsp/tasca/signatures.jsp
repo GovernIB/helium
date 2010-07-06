@@ -94,5 +94,9 @@ function confirmarEsborrarSignatura(e) {
 
 	<p class="aclaracio">Els documents marcats amb <img src="<c:url value="/img/bullet_red.png"/>" alt="Document obligatori" title="Document obligatori" border="0"/> són de signatura obligatòria</p>
 
+	<br/><c:import url="../common/tramitacioTasca.jsp">
+		<c:param name="pipella" value="signatures"/>
+	</c:import>
+
 </body>
 </html>

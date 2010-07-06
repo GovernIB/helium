@@ -113,8 +113,8 @@ public class TascaController extends BaseController {
 		if (entorn != null) {
 			try {
 				tascaService.agafar(entorn.getId(), id);
-				missatgeInfo(request, "La tasca s'ha agafat i està disponible en el llistat de tasques personals");
-				return "redirect:/tasca/personaLlistat.html";
+				missatgeInfo(request, "La tasca està disponible en el seu llistat de tasques personals");
+				return "redirect:/tasca/info.html?id=" + id;
 			} catch (Exception ex) {
 	        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut agafar la tasca", ex);
@@ -130,6 +130,7 @@ public class TascaController extends BaseController {
 	public String completar(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) String id,
+			@RequestParam(value = "pipella", required = false) String pipella,
 			@RequestParam(value = "submit", required = false) String submit,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
@@ -161,7 +162,17 @@ public class TascaController extends BaseController {
 		        			(ex.getCause() != null) ? ex.getCause().getMessage() : ex.getMessage());
 				}
 	        	logger.error("No s'ha pogut finalitzar la tasca", ex);
-	        	return "redirect:/tasca/info.html?id=" + tasca.getId();
+	        	if ("info".equals(pipella)) {
+	        		return "redirect:/tasca/info.html?id=" + tasca.getId();
+	        	} else if ("form".equals(pipella)) {
+	        		return "redirect:/tasca/form.html?id=" + tasca.getId();
+	        	} else if ("documents".equals(pipella)) {
+	        		return "redirect:/tasca/documents.html?id=" + tasca.getId();
+	        	} else if ("signatures".equals(pipella)) {
+	        		return "redirect:/tasca/signatures.html?id=" + tasca.getId();
+	        	} else {
+	        		return "redirect:/tasca/info.html?id=" + tasca.getId();
+	        	}
 	        }
 		} else {
 			missatgeError(request, "No hi ha cap entorn seleccionat");
