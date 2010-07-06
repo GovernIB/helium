@@ -30,4 +30,11 @@ public interface PersonesPlugin {
 	 */
 	public Persona findAmbCodi(String codi);
 
+	/**
+	 * Retorna totes les persones
+	 * 
+	 * @return totes les persones
+	 */
+	public List<Persona> findAll();
+
 }

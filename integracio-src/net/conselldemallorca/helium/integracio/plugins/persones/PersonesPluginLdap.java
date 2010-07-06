@@ -51,6 +51,16 @@ public class PersonesPluginLdap implements PersonesPlugin {
 		}
 	}
 
+	public List<Persona> findAll() {
+		try {
+			String likeFilter = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.filter.like");
+			String filter = new String(likeFilter).replace("*###*", "*");
+			return findPersonesLdap(filter);
+		} catch (Exception ex) {
+			throw new PersonaPluginException("No s'ha pogut trobar cap persona", ex);
+		}
+	}
+
 
 
 	@SuppressWarnings("unchecked")
@@ -87,14 +97,16 @@ public class PersonesPluginLdap implements PersonesPlugin {
 			if (attrs.get(returnedAtts[2]) != null)
 				llinatges = (String)attrs.get(returnedAtts[2]).get();
 			String email = null;
-			if (attrs.get(returnedAtts[3]) != null)
-				email = (String)attrs.get(returnedAtts[3]).get();
+			if (attrs.get(returnedAtts[4]) != null)
+				email = (String)attrs.get(returnedAtts[4]).get();
 			Persona persona = new Persona(
 					codi,
 					nom,
 					llinatges,
 					email,
 					sexePerNom(nom));
+			if (attrs.get(returnedAtts[3]) != null)
+			persona.setDni((String)attrs.get(returnedAtts[3]).get());
 			resposta.add(persona);
 		}
 		ctx.close();

@@ -47,6 +47,8 @@ import org.springframework.web.bind.support.SessionStatus;
 @RequestMapping("/persona/*.html")
 public class PersonaController extends BaseController {
 
+	public static final String VARIABLE_SESSIO_COMMAND = "consultaPersonesCommand";
+
 	private PersonaService personaService;
 	private PluginService pluginService;
 	private Validator annotationValidator;
@@ -92,33 +94,6 @@ public class PersonaController extends BaseController {
 		return personaService.findPermisosAll();
 	}
 
-	@RequestMapping(value = "llistat")
-	public String llistat(
-			HttpServletRequest request,
-			@RequestParam(value = "page", required = false) String page,
-			@RequestParam(value = "sort", required = false) String sort,
-			@RequestParam(value = "dir", required = false) String dir,
-			@RequestParam(value = "objectsPerPage", required = false) String objectsPerPage,
-			ModelMap model) {
-		int pagina = (page != null) ? new Integer(page).intValue() : 1;
-		int firstRow = (pagina - 1) * getObjectsPerPage(objectsPerPage);
-		boolean isAsc = "asc".equals(dir);
-		model.addAttribute(
-				"llistat",
-				newPaginatedList(
-						pagina,
-						sort,
-						isAsc,
-						getObjectsPerPage(objectsPerPage),
-						personaService.countPersonaUsuariAll(),
-						personaService.findPersonaUsuariPagedAndOrderedAll(
-								sort,
-								isAsc,
-								firstRow,
-								getObjectsPerPage(objectsPerPage))));
-		return "persona/llistat";
-	}
-
 	@RequestMapping(value = "form", method = RequestMethod.GET)
 	public String formGet() {
 		return "persona/form";
@@ -151,9 +126,9 @@ public class PersonaController extends BaseController {
 	        	logger.error("No s'ha pogut guardar el registre", ex);
 	        	return "persona/form";
 	        }
-	        return "redirect:/persona/llistat.html";
+	        return "redirect:/persona/consulta.html";
 		} else {
-			return "redirect:/persona/llistat.html";
+			return "redirect:/persona/consulta.html";
 		}
 	}
 
@@ -163,7 +138,7 @@ public class PersonaController extends BaseController {
 			@RequestParam(value = "id", required = true) Long id) {
 		personaService.deletePersona(id);
 		missatgeInfo(request, "La persona s'ha esborrat correctament");
-		return "redirect:/persona/llistat.html";
+		return "redirect:/persona/consulta.html";
 	}
 
 	@RequestMapping(value = "suggest", method = RequestMethod.GET)
