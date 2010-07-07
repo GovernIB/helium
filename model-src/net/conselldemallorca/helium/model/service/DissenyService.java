@@ -48,6 +48,7 @@ import net.conselldemallorca.helium.model.exportacio.DefinicioProcesExportacio;
 import net.conselldemallorca.helium.model.exportacio.DocumentExportacio;
 import net.conselldemallorca.helium.model.exportacio.DocumentTascaExportacio;
 import net.conselldemallorca.helium.model.exportacio.FirmaTascaExportacio;
+import net.conselldemallorca.helium.model.exportacio.RegistreMembreExportacio;
 import net.conselldemallorca.helium.model.exportacio.TascaExportacio;
 import net.conselldemallorca.helium.model.exportacio.TerminiExportacio;
 import net.conselldemallorca.helium.model.exportacio.ValidacioExportacio;
@@ -845,15 +846,23 @@ public class DissenyService {
 					camp.isOcult(),
 					(camp.getEnumeracio() != null) ? camp.getEnumeracio().getCodi() : null,
 					(camp.getDomini() != null) ? camp.getDomini().getCodi() : null,
-					(camp.getAgrupacio() != null) ? camp.getAgrupacio().getCodi() : null);
+					(camp.getAgrupacio() != null) ? camp.getAgrupacio().getCodi() : null,
+					camp.getJbpmAction());
 			// Afegeix les validacions del camp
 			for (Validacio validacio: camp.getValidacions()) {
-				ValidacioExportacio vtdto = new ValidacioExportacio(
+				dto.addValidacio(new ValidacioExportacio(
 						validacio.getNom(),
 						validacio.getExpressio(),
 						validacio.getMissatge(),
-						validacio.getOrdre());
-				dto.addValidacio(vtdto);
+						validacio.getOrdre()));
+			}
+			// Afegeix els membres dels camps de tipus registre
+			for (CampRegistre membre: camp.getRegistreMembres()) {
+				dto.addRegistreMembre(new RegistreMembreExportacio(
+						membre.getMembre().getCodi(),
+						membre.isObligatori(),
+						membre.isLlistar(),
+						membre.getOrdre()));
 			}
 			campsDto.add(dto);
 		}
@@ -1021,6 +1030,7 @@ public class DissenyService {
 			nou.setDominiCampValor(camp.getDominiCampValor());
 			nou.setMultiple(camp.isMultiple());
 			nou.setOcult(camp.isOcult());
+			nou.setJbpmAction(camp.getJbpmAction());
 			if (camp.getCodiEnumeracio() != null) {
 				Enumeracio enumeracio = enumeracioDao.findAmbEntornICodi(entornId, camp.getCodiEnumeracio());
 				if (enumeracio != null)
@@ -1048,6 +1058,20 @@ public class DissenyService {
 			}
 			campDao.saveOrUpdate(nou);
 			camps.put(nou.getCodi(), nou);
+		}
+		// Propaga els membres dels camps de tipus registre
+		for (CampExportacio camp: exportacio.getCamps()) {
+			if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
+				for (RegistreMembreExportacio membre: camp.getRegistreMembres()) {
+					CampRegistre campRegistre = new CampRegistre(
+							camps.get(camp.getCodi()),
+							camps.get(membre.getCodi()),
+							membre.getOrdre());
+					campRegistre.setLlistar(membre.isLlistar());
+					campRegistre.setObligatori(membre.isObligatori());
+					campRegistreDao.saveOrUpdate(campRegistre);
+				}
+			}
 		}
 		// Propaga els documents
 		Map<String, Document> documents = new HashMap<String, Document>();
@@ -1636,6 +1660,7 @@ public class DissenyService {
 			nou.setDominiCampValor(camp.getDominiCampValor());
 			nou.setDominiParams(camp.getDominiParams());
 			nou.setEnumeracio(camp.getEnumeracio());
+			nou.setJbpmAction(camp.getJbpmAction());
 			campDao.saveOrUpdate(nou);
 			camps.put(nou.getCodi(), nou);
 			// Copia les validacions dels camps
@@ -1645,6 +1670,20 @@ public class DissenyService {
 						validacio.getExpressio(),
 						validacio.getMissatge());
 				nou.addValidacio(novaValidacio);
+			}
+		}
+		// Propaga els membres dels camps de tipus registre
+		for (Camp camp: origen.getCamps()) {
+			if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
+				for (CampRegistre membre: camp.getRegistreMembres()) {
+					CampRegistre campRegistre = new CampRegistre(
+							camps.get(camp.getCodi()),
+							camps.get(membre.getMembre().getCodi()),
+							membre.getOrdre());
+					campRegistre.setLlistar(membre.isLlistar());
+					campRegistre.setObligatori(membre.isObligatori());
+					campRegistreDao.saveOrUpdate(campRegistre);
+				}
 			}
 		}
 		// Propaga els documents

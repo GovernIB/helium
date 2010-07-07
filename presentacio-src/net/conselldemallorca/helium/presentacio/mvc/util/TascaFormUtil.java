@@ -160,7 +160,7 @@ public class TascaFormUtil {
 					camp.getTipus().equals(TipusCamp.TEXTAREA)) {
 				ExpressionValidationRule validationRule = new ExpressionValidationRule(
 						new ValangConditionExpressionParser(),
-						"length(" + camp.getCodi() + ") < 2049");
+						camp.getCodi() + " is null or length(" + camp.getCodi() + ") < 2049");
 				validationRule.setErrorCode("max.length");
 				validationRule.setDefaultErrorMessage("El contingut d'aquest camp excedeix la llargada màxima");
 				beanValidationConfiguration.addPropertyRule(

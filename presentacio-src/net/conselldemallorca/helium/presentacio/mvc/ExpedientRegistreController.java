@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.presentacio.mvc;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.model.service.DissenyService;
 import net.conselldemallorca.helium.model.service.ExpedientService;
 
@@ -39,6 +40,12 @@ public class ExpedientRegistreController extends CommonRegistreController {
 			DissenyService dissenyService) {
 		super(dissenyService);
 		this.expedientService = expedientService;
+	}
+
+	@ModelAttribute("instanciaProces")
+	public InstanciaProcesDto populateInstanciaProces(
+			@RequestParam(value = "id", required = true) String id) {
+		return expedientService.getInstanciaProcesById(id, true);
 	}
 
 	@RequestMapping(value = "/expedient/varRegistre", method = RequestMethod.GET)

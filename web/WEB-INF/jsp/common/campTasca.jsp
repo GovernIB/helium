@@ -22,8 +22,7 @@
 <c:set var="extraParams">
 	<c:choose>
 		<c:when test="${not empty tasca.id}">taskId:${tasca.id},processInstanceId:${tasca.processInstanceId},definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}',valors:function(){return canvisSelectValorsAddicionals}</c:when>
-		<c:when test="${empty tasca.id and empty tasca.processInstanceId}">definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}'</c:when>
-		<c:otherwise>processInstanceId:${tasca.processInstanceId},definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}'</c:otherwise>
+		<c:otherwise>processInstanceId:${instanciaProces.id},definicioProcesId:${instanciaProces.definicioProces.id},campCodi:'${codiActual}'</c:otherwise>
 	</c:choose>
 </c:set>
 <c:choose>
@@ -239,6 +238,7 @@
 						<button style="font-size:11px;margin-top: 2px" type="submit" class="submitButton" onclick="return editarRegistre(${campActual.id}, '${codiActual}', '${campActual.etiqueta}', ${fn:length(campActual.registreMembres)})">Afegir</button>
 					</form>
 				</c:if>
+				<div style="clear:both"></div>
 			</c:param>
 			<c:param name="comment">${campActual.observacions}</c:param>
 		</c:import>
