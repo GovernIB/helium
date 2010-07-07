@@ -196,7 +196,7 @@ public class TascaFormController extends BaseController {
 			if ("submit".equals(submit) || submit.length() == 0) {
 				try {
 					afegirVariablesDelProces(command, tasca);
-					TascaFormUtil.getBeanValidatorForCommand(tasca).validate(command, result);
+					TascaFormUtil.getBeanValidatorForCommand(camps).validate(command, result);
 				} catch (Exception ex) {
 					missatgeError(request, "S'han produit errors de validació", ex.getLocalizedMessage());
 		        	logger.error("S'han produit errors de validació", ex);
@@ -229,7 +229,7 @@ public class TascaFormController extends BaseController {
 				validator.validate(command, result);
 				try {
 					afegirVariablesDelProces(command, tasca);
-					TascaFormUtil.getBeanValidatorForCommand(tasca).validate(command, result);
+					TascaFormUtil.getBeanValidatorForCommand(camps).validate(command, result);
 				} catch (Exception ex) {
 					missatgeError(request, "S'han produit errors de validació", ex.getLocalizedMessage());
 		        	logger.error("S'han produit errors de validació", ex);

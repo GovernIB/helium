@@ -319,9 +319,11 @@ public class ExpedientDadaModificarController extends BaseController {
 			if (taskId == null) {
 				tascaNova.setValorsDomini(instanciaProces.getValorsDomini());
 				tascaNova.setValorsMultiplesDomini(instanciaProces.getValorsMultiplesDomini());
+				tascaNova.setVarsComText(instanciaProces.getVarsComText());
 			} else {
 				tascaNova.setValorsDomini(tasca.getValorsDomini());
 				tascaNova.setValorsMultiplesDomini(tasca.getValorsMultiplesDomini());
+				tascaNova.setVarsComText(tasca.getVarsComText());
 			}
 		}
 		return tascaNova;

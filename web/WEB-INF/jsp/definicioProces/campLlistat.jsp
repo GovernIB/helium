@@ -43,6 +43,15 @@ function confirmar(e) {
 				<button type="submit" class="submitButton">Validacions&nbsp;(${fn:length(registre.validacions)})</button>
 			</form>
 	    </display:column>
+	    <display:column>
+	    	<c:if test="${registre.tipus == 'REGISTRE'}">
+		    	<form action="campRegistreMembres.html">
+					<input type="hidden" name="definicioProcesId" value="${definicioProces.id}"/>
+					<input type="hidden" name="registreId" value="${registre.id}"/>
+					<button type="submit" class="submitButton">Camps del registre&nbsp;(${fn:length(registre.registreMembres)})</button>
+				</form>
+			</c:if>
+	    </display:column>
 		<display:column>
 	    	<a href="<c:url value="/definicioProces/campDelete.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="Esborrar" title="Esborrar" border="0"/></a>
 	    </display:column>

@@ -504,7 +504,7 @@ public class DtoConverter {
 		Map<String, ParellaCodiValor> resposta = new HashMap<String, ParellaCodiValor>();
 		if (valors != null) {
 			for (Camp camp: camps) {
-				if (!camp.isMultiple()) {
+				if (!camp.isMultiple() && (camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST))) {
 					Object valor = valors.get(camp.getCodi());
 					ParellaCodiValor codiValor = null;
 					if (valor instanceof String) {

@@ -71,7 +71,25 @@ function confirmarModificar(e) {
 					</c:forEach>
 					<c:choose><c:when test="${found}">${campActual.etiqueta}</c:when><c:otherwise>${codi}</c:otherwise></c:choose>
 				</display:column>
-				<display:column title="Valor">${instanciaProces.varsComText[codi]}</display:column>
+				<display:column title="Valor">
+					<c:set var="esRegistre" value="${false}"/>
+					<c:forEach var="camp" items="${instanciaProces.camps}">
+						<c:if test="${camp.codi == codi and camp.tipus == 'REGISTRE'}"><c:set var="esRegistre" value="${true}"/><c:set var="campActual" value="${camp}"/></c:if>
+					</c:forEach>
+					<c:choose>
+						<c:when test="${esRegistre}">
+							<c:set var="registres" value="${instanciaProces.varsComText[codi]}" scope="request"/>
+							<display:table name="registres" id="reg" class="displaytag">
+								<c:forEach var="membre" items="${campActual.registreMembres}" varStatus="varStatus">
+									<c:if test="${membre.llistar}">
+										<display:column title="${membre.membre.etiqueta}">${reg[varStatus.index]}</display:column>
+									</c:if>
+								</c:forEach>
+							</display:table>
+						</c:when>
+						<c:otherwise>${instanciaProces.varsComText[codi]}</c:otherwise>
+					</c:choose>
+				</display:column>
 				<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
 					<display:column>
 						<a href="<c:url value="/expedient/dadaModificar.html"><c:param name="id" value="${instanciaProces.id}"/><c:param name="var" value="${codi}"/></c:url>" onclick="return confirmarModificar(event)"><img src="<c:url value="/img/page_white_edit.png"/>" alt="Editar" title="Editar" border="0"/></a>
@@ -143,9 +161,9 @@ function confirmarModificar(e) {
 					<div class="missatgesGris">
 						<h4 class="titol-missatge">
 							${tasca.nom}
-							<img src="<c:url value="/img/magnifier_zoom_in.png"/>" alt="Mostrar/Ocultar" title="Mostrar/Ocultar" border="0" onclick="mostrarOcultar(this,'dades-tasca-${tasca.id}')"/>
+							<img src="<c:url value="/img/magnifier_zoom_out.png"/>" alt="Mostrar/Ocultar" title="Mostrar/Ocultar" border="0" onclick="mostrarOcultar(this,'dades-tasca-${tasca.id}')"/>
 						</h4>
-						<div id="dades-tasca-${tasca.id}" style="display:none">
+						<div id="dades-tasca-${tasca.id}">
 							<display:table name="pageScope.tasca.variableKeys" id="codi" class="displaytag">
 								<display:column title="Variable">
 									<c:set var="found" value="${false}"/>
@@ -154,7 +172,25 @@ function confirmarModificar(e) {
 									</c:forEach>
 									<c:choose><c:when test="${found}">${campActual.etiqueta}</c:when><c:otherwise>${codi}</c:otherwise></c:choose>
 								</display:column>
-								<display:column title="Valor">${tasca.varsComText[codi]}</display:column>
+								<display:column title="Valor">
+									<c:set var="esRegistre" value="${false}"/>
+									<c:forEach var="camp" items="${tasca.camps}">
+										<c:if test="${camp.camp.codi == codi and camp.camp.tipus == 'REGISTRE'}"><c:set var="esRegistre" value="${true}"/><c:set var="campActual" value="${camp.camp}"/></c:if>
+									</c:forEach>
+									<c:choose>
+										<c:when test="${esRegistre}">
+											<c:set var="registres" value="${tasca.varsComText[codi]}" scope="request"/>
+											<display:table name="registres" id="reg" class="displaytag">
+												<c:forEach var="membre" items="${campActual.registreMembres}" varStatus="varStatus">
+													<c:if test="${membre.llistar}">
+														<display:column title="${membre.membre.etiqueta}">${reg[varStatus.index]}</display:column>
+													</c:if>
+												</c:forEach>
+											</display:table>
+										</c:when>
+										<c:otherwise>${tasca.varsComText[codi]}</c:otherwise>
+									</c:choose>
+								</display:column>
 								<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
 									<display:column>
 										<a href="<c:url value="/expedient/dadaModificar.html"><c:param name="taskId" value="${tasca.id}"/><c:param name="var" value="${codi}"/></c:url>" onclick="return confirmarModificar(event)"><img src="<c:url value="/img/page_white_edit.png"/>" alt="Editar" title="Editar" border="0"/></a>

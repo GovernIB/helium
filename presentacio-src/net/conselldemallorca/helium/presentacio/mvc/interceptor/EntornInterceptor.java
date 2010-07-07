@@ -62,7 +62,7 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 						entornActual = entorns.get(0);
 					} else {
 						UsuariPreferencies prefs = personaService.getUsuariPreferencies();
-						if (prefs.getDefaultEntornCodi() != null) {
+						if (prefs != null && prefs.getDefaultEntornCodi() != null) {
 							Entorn entornDefecte = entornService.findAmbCodi(
 									prefs.getDefaultEntornCodi());
 							if (entornDefecte != null)

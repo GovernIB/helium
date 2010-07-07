@@ -429,6 +429,66 @@ public class ExpedientService {
 				varName);
 	}
 
+	public void guardarRegistre(
+			String processInstanceId,
+			String campCodi,
+			Object[] valors) {
+		guardarRegistre(
+				processInstanceId,
+				campCodi,
+				valors,
+				-1);
+	}
+	public void guardarRegistre(
+			String processInstanceId,
+			String campCodi,
+			Object[] valors,
+			int index) {
+		Object valor = jbpmDao.getProcessInstanceVariable(processInstanceId, campCodi);
+		if (valor == null) {
+			jbpmDao.setProcessInstanceVariable(
+					processInstanceId,
+					campCodi,
+					new Object[]{valors});
+		} else {
+			Object[] valorMultiple = (Object[])valor;
+			if (index != -1) {
+				valorMultiple[index] = valors;
+				jbpmDao.setProcessInstanceVariable(
+						processInstanceId,
+						campCodi,
+						valor);
+			} else {
+				Object[] valorNou = new Object[valorMultiple.length + 1];
+				for (int i = 0; i < valorMultiple.length; i++)
+					valorNou[i] = valorMultiple[i];
+				valorNou[valorMultiple.length] = valors;
+				jbpmDao.setProcessInstanceVariable(
+						processInstanceId,
+						campCodi,
+						valorNou);
+			}
+		}
+	}
+	public void esborrarRegistre(
+			String processInstanceId,
+			String campCodi,
+			int index) {
+		Object valor = jbpmDao.getProcessInstanceVariable(processInstanceId, campCodi);
+		if (valor != null) {
+			Object[] valorMultiple = (Object[])valor;
+			if (valorMultiple.length > 0) {
+				Object[] valorNou = new Object[valorMultiple.length - 1];
+				for (int i = 0; i < valorNou.length; i++)
+					valorNou[i] = (i < index) ? valorMultiple[i] : valorMultiple[i + 1];
+				jbpmDao.setProcessInstanceVariable(
+						processInstanceId,
+						campCodi,
+						valorNou);
+			}
+		}
+	}
+
 	public DocumentDto getDocument(Long documentStoreId) {
 		return dtoConverter.toDocumentDto(documentStoreId, true);
 		

@@ -21,6 +21,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.model.dao.AccioDao;
 import net.conselldemallorca.helium.model.dao.CampAgrupacioDao;
 import net.conselldemallorca.helium.model.dao.CampDao;
+import net.conselldemallorca.helium.model.dao.CampRegistreDao;
 import net.conselldemallorca.helium.model.dao.CampTascaDao;
 import net.conselldemallorca.helium.model.dao.ConsultaCampDao;
 import net.conselldemallorca.helium.model.dao.ConsultaDao;
@@ -53,6 +54,7 @@ import net.conselldemallorca.helium.model.exportacio.ValidacioExportacio;
 import net.conselldemallorca.helium.model.hibernate.Accio;
 import net.conselldemallorca.helium.model.hibernate.Camp;
 import net.conselldemallorca.helium.model.hibernate.CampAgrupacio;
+import net.conselldemallorca.helium.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.model.hibernate.Consulta;
 import net.conselldemallorca.helium.model.hibernate.ConsultaCamp;
@@ -90,6 +92,7 @@ public class DissenyService {
 	private TascaDao tascaDao;
 	private CampDao campDao;
 	private CampTascaDao campTascaDao;
+	private CampRegistreDao campRegistreDao;
 	private DocumentDao documentDao;
 	private DocumentTascaDao documentTascaDao;
 	private FirmaTascaDao firmaTascaDao;
@@ -589,6 +592,71 @@ public class DissenyService {
 				validacioDao.delete(id);
 				reordenarValidacionsCamp(campId);
 			}
+		}
+	}
+
+	public CampRegistre getCampRegistreById(Long id) {
+		return campRegistreDao.getById(id, false);		
+	}
+	public CampRegistre addCampRegistre(
+			Long registreId,
+			Long membreId,
+			boolean obligatori,
+			boolean llistar) {
+		CampRegistre existent = campRegistreDao.findAmbRegistreMembre(registreId, membreId);
+		if (existent != null) {
+			existent.setObligatori(obligatori);
+			existent.setLlistar(llistar);
+			return existent;
+		} else {
+			CampRegistre campRegistre = new CampRegistre(
+					campDao.getById(registreId, false),
+					campDao.getById(membreId, false),
+					campRegistreDao.getNextOrder(registreId));
+			campRegistre.setObligatori(obligatori);
+			campRegistre.setLlistar(llistar);
+			return campRegistreDao.saveOrUpdate(campRegistre);
+		}
+	}
+	public void deleteCampRegistre(Long id) {
+		CampRegistre vell = getCampRegistreById(id);
+		if (vell != null) {
+			vell.getRegistre().removeRegistreMembre(vell);
+			campRegistreDao.delete(id);
+			reordenarMembresRegistre(vell.getRegistre().getId());
+		}
+	}
+	public List<CampRegistre> findCampMembreAmbRegistre(Long registreId) {
+		return campRegistreDao.findAmbRegistreOrdenats(registreId);
+	}
+	public void goUpCampRegistre(Long id) {
+		CampRegistre campRegistre = getCampRegistreById(id);
+		int ordreActual = campRegistre.getOrdre();
+		CampRegistre anterior = campRegistreDao.getAmbOrdre(
+				campRegistre.getRegistre().getId(),
+				ordreActual - 1);
+		if (anterior != null) {
+			campRegistre.setOrdre(-1);
+			anterior.setOrdre(ordreActual);
+			campRegistreDao.merge(campRegistre);
+			campRegistreDao.merge(anterior);
+			campRegistreDao.flush();
+			campRegistre.setOrdre(ordreActual - 1);
+		}
+	}
+	public void goDownCampRegistre(Long id) {
+		CampRegistre campRegistre = getCampRegistreById(id);
+		int ordreActual = campRegistre.getOrdre();
+		CampRegistre seguent = campRegistreDao.getAmbOrdre(
+				campRegistre.getRegistre().getId(),
+				ordreActual + 1);
+		if (seguent != null) {
+			campRegistre.setOrdre(-1);
+			seguent.setOrdre(ordreActual);
+			campRegistreDao.merge(campRegistre);
+			campRegistreDao.merge(seguent);
+			campRegistreDao.flush();
+			campRegistre.setOrdre(ordreActual + 1);
 		}
 	}
 
@@ -1379,6 +1447,10 @@ public class DissenyService {
 		this.campTascaDao = campTascaDao;
 	}
 	@Autowired
+	public void setCampRegistreDao(CampRegistreDao campRegistreDao) {
+		this.campRegistreDao = campRegistreDao;
+	}
+	@Autowired
 	public void setDocumentDao(DocumentDao documentDao) {
 		this.documentDao = documentDao;
 	}
@@ -1501,6 +1573,12 @@ public class DissenyService {
 		int i = 0;
 		for (Validacio validacio: validacions)
 			validacio.setOrdre(i++);
+	}
+	private void reordenarMembresRegistre(Long registreId) {
+		List<CampRegistre> membres = campRegistreDao.findAmbRegistreOrdenats(registreId);
+		int i = 0;
+		for (CampRegistre campRegistre: membres)
+			campRegistre.setOrdre(i++);
 	}
 	private void reordenarEstats(Long expedientTipusId) {
 		List<Estat> estats = estatDao.findAmbExpedientTipusOrdenats(expedientTipusId);
