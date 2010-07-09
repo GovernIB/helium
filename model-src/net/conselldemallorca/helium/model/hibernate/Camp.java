@@ -54,7 +54,8 @@ public class Camp implements Serializable, GenericEntity<Long> {
 		TERMINI,
 		SELECCIO,
 		SUGGEST,
-		REGISTRE
+		REGISTRE,
+		ACCIO
 	}
 
 	private Long id;
@@ -76,6 +77,8 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	private String dominiCampText;
 	@MaxLength(64)
 	private String dominiCampValor;
+	@MaxLength(255)
+	private String jbpmAction;
 	private boolean multiple;
 	private boolean ocult;
 
@@ -175,6 +178,14 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 	public void setDominiCampValor(String dominiCampValor) {
 		this.dominiCampValor = dominiCampValor;
+	}
+
+	@Column(name="jbpm_action", length=255)
+	public String getJbpmAction() {
+		return jbpmAction;
+	}
+	public void setJbpmAction(String jbpmAction) {
+		this.jbpmAction = jbpmAction;
 	}
 
 	@Column(name="multiple")

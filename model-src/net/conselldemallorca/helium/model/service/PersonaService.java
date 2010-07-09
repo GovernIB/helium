@@ -122,11 +122,44 @@ public class PersonaService {
 			boolean asc,
 			int firstRow,
 			int maxResults) {
-		return toPersonaUsuariDto(personaDao.findPagedAndOrderedAll(sort, asc, firstRow, maxResults));
+		return toPersonaUsuariDto(personaDao.findPagedAndOrderedAll(
+				sort,
+				asc,
+				firstRow,
+				maxResults));
 	}
 	@Secured({"ROLE_ADMIN"})
 	public int countPersonaUsuariAll() {
 		return personaDao.getCountAll();
+	}
+	@Secured({"ROLE_ADMIN"})
+	public List<PersonaUsuariDto> findPersonaUsuariPagedAndOrderedFiltre(
+			String sort,
+			boolean asc,
+			int firstRow,
+			int maxResults,
+			String codi,
+			String nomLike,
+			String emailLike) {
+		return toPersonaUsuariDto(
+				personaDao.findPagedAndOrderedFiltre(
+						sort,
+						asc,
+						firstRow,
+						maxResults,
+						codi,
+						nomLike,
+						emailLike));
+	}
+	@Secured({"ROLE_ADMIN"})
+	public int countPersonaUsuariFiltre(
+			String codi,
+			String nomLike,
+			String emailLike) {
+		return personaDao.getCountFiltre(
+				codi,
+				nomLike,
+				emailLike);
 	}
 
 	@Secured({"ROLE_ADMIN", "ROLE_USER"})

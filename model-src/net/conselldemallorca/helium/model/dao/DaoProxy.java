@@ -41,6 +41,9 @@ public class DaoProxy implements ApplicationContextAware {
 	public CarrecDao getCarrecDao() {
 		return (CarrecDao)ctx.getBean("carrecDao", CarrecDao.class);
 	}
+	public ExpedientTipusDao getExpedientTipusDao() {
+		return (ExpedientTipusDao)ctx.getBean("expedientTipusDao", ExpedientTipusDao.class);
+	}
 	public TascaDao getTascaDao() {
 		return (TascaDao)ctx.getBean("tascaDao", TascaDao.class);
 	}

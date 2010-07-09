@@ -415,6 +415,28 @@ public class ExpedientController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "accio")
+	public String accio(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) String id,
+			@RequestParam(value = "submit", required = true) String jbpmAction,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
+			if (potModificarExpedient(expedient)) {
+				expedientService.executarAccio(id, jbpmAction);
+				missatgeInfo(request, "L'acció s'ha executat correctament");
+				return "redirect:/expedient/info.html?id=" + id;
+			} else {
+				missatgeError(request, "No té permisos per modificar aquest expedient");
+				return "redirect:/expedient/consulta.html";
+			}
+		} else {
+			missatgeError(request, "No hi ha cap entorn seleccionat");
+			return "redirect:/index.html";
+		}
+	}
 
 	private boolean potConsultarExpedient(ExpedientDto expedient) {
 		return permissionService.filterAllowed(
@@ -423,6 +445,14 @@ public class ExpedientController extends BaseController {
 				new Permission[] {
 					ExtendedPermission.ADMINISTRATION,
 					ExtendedPermission.READ}) != null;
+	}
+	private boolean potModificarExpedient(ExpedientDto expedient) {
+		return permissionService.filterAllowed(
+				expedient.getTipus(),
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.ADMINISTRATION,
+					ExtendedPermission.WRITE}) != null;
 	}
 	private boolean potEsborrarExpedient(ExpedientDto expedient) {
 		return permissionService.filterAllowed(

@@ -9,6 +9,7 @@ Definició de procés actual:
 	<c:when test="${param.tabActiu == 'documents'}"><c:set var="formUrl" value="/definicioProces/documentLlistat.html"/></c:when>
 	<c:when test="${param.tabActiu == 'terminis'}"><c:set var="formUrl" value="/definicioProces/terminiLlistat.html"/></c:when>
 	<c:when test="${param.tabActiu == 'agrupacions'}"><c:set var="formUrl" value="/definicioProces/campAgrupacioLlistat.html"/></c:when>
+	<c:when test="${param.tabActiu == 'accions'}"><c:set var="formUrl" value="/definicioProces/accioLlistat.html"/></c:when>
 	<c:when test="${param.tabActiu == 'recursos'}"><c:set var="formUrl" value="/definicioProces/recursLlistat.html"/></c:when>
 </c:choose>
 <form action="<c:url value="${formUrl}"/>" style="display:inline">
@@ -26,5 +27,6 @@ Definició de procés actual:
 	<li<c:if test="${param.tabActiu == 'documents'}"> class="active"</c:if>><a href="<c:url value="/definicioProces/documentLlistat.html"><c:param name="definicioProcesId" value="${definicioProces.id}"/></c:url>">Documents</a></li>
 	<li<c:if test="${param.tabActiu == 'terminis'}"> class="active"</c:if>><a href="<c:url value="/definicioProces/terminiLlistat.html"><c:param name="definicioProcesId" value="${definicioProces.id}"/></c:url>">Terminis</a></li>
 	<li<c:if test="${param.tabActiu == 'agrupacions'}"> class="active"</c:if>><a href="<c:url value="/definicioProces/campAgrupacioLlistat.html"><c:param name="definicioProcesId" value="${definicioProces.id}"/></c:url>">Agrupacions</a></li>
+	<li<c:if test="${param.tabActiu == 'accions'}"> class="active"</c:if>><a href="<c:url value="/definicioProces/accioLlistat.html"><c:param name="definicioProcesId" value="${definicioProces.id}"/></c:url>">Accions</a></li>
 	<li<c:if test="${param.tabActiu == 'recursos'}"> class="active"</c:if>><a href="<c:url value="/definicioProces/recursLlistat.html"><c:param name="definicioProcesId" value="${definicioProces.id}"/></c:url>">Recursos</a></li>
 </ul>

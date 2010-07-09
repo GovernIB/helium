@@ -31,7 +31,9 @@ public class CampExportacio implements Serializable {
 	private String codiEnumeracio;
 	private String codiDomini;
 	private String agrupacioCodi;
+	private String jbpmAction;
 	private Set<ValidacioExportacio> validacions = new HashSet<ValidacioExportacio>();
+	private Set<RegistreMembreExportacio> registreMembres = new HashSet<RegistreMembreExportacio>();
 
 
 
@@ -48,7 +50,8 @@ public class CampExportacio implements Serializable {
 			boolean ocult,
 			String codiEnumeracio,
 			String codiDomini,
-			String agrupacioCodi) {
+			String agrupacioCodi,
+			String jbpmAction) {
 		this.codi = codi;
 		this.tipus = tipus;
 		this.etiqueta = etiqueta;
@@ -62,6 +65,7 @@ public class CampExportacio implements Serializable {
 		this.codiEnumeracio = codiEnumeracio;
 		this.codiDomini = codiDomini;
 		this.agrupacioCodi = agrupacioCodi;
+		this.jbpmAction = jbpmAction;
 	}
 
 	public String getCodi() {
@@ -96,6 +100,15 @@ public class CampExportacio implements Serializable {
 	}
 	public void addValidacio(ValidacioExportacio validacio) {
 		getValidacions().add(validacio);
+	}
+	public Set<RegistreMembreExportacio> getRegistreMembres() {
+		return registreMembres;
+	}
+	public void setRegistreMembres(Set<RegistreMembreExportacio> registreMembres) {
+		this.registreMembres = registreMembres;
+	}
+	public void addRegistreMembre(RegistreMembreExportacio registreMembre) {
+		getRegistreMembres().add(registreMembre);
 	}
 	public String getDominiId() {
 		return dominiId;
@@ -148,9 +161,14 @@ public class CampExportacio implements Serializable {
 	public String getAgrupacioCodi() {
 		return agrupacioCodi;
 	}
-
 	public void setAgrupacioCodi(String agrupacioCodi) {
 		this.agrupacioCodi = agrupacioCodi;
+	}
+	public String getJbpmAction() {
+		return jbpmAction;
+	}
+	public void setJbpmAction(String jbpmAction) {
+		this.jbpmAction = jbpmAction;
 	}
 
 

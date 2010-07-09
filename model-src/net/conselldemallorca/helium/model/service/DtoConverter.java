@@ -97,10 +97,11 @@ public class DtoConverter {
 		dto.setIniciadorCodi(expedient.getIniciadorCodi());
 		dto.setIniciadorTipus(expedient.getIniciadorTipus());
 		dto.setResponsableCodi(expedient.getResponsableCodi());
-		if (expedient.getIniciadorTipus().equals(IniciadorTipus.INTERN))
+		if (expedient.getIniciadorTipus().equals(IniciadorTipus.INTERN)) {
 			dto.setIniciadorPersona(pluginPersonaDao.findAmbCodiPlugin(expedient.getIniciadorCodi()));
-		if (expedient.getResponsableCodi() != null)
-			dto.setResponsablePersona(pluginPersonaDao.findAmbCodiPlugin(expedient.getResponsableCodi()));
+			if (expedient.getResponsableCodi() != null)
+				dto.setResponsablePersona(pluginPersonaDao.findAmbCodiPlugin(expedient.getResponsableCodi()));
+		}
 		if (expedient.getIniciadorTipus().equals(IniciadorTipus.SISTRA))
 			dto.setBantelEntradaNum(expedient.getNumeroEntradaSistra());
 		dto.setTipus(expedient.getTipus());
@@ -158,6 +159,10 @@ public class DtoConverter {
 		dto.setRecursForm(tasca.getRecursForm());
 		dto.setFormExtern(tasca.getFormExtern());
 		List<CampTasca> campsTasca = campTascaDao.findAmbTascaOrdenats(tasca.getId());
+		// (1) Per evitar error de lazy initialization en la validació del formulari de tasca
+		for (CampTasca camp: campsTasca)
+			camp.getCamp().getValidacions().size();
+		// (/1)
 		dto.setCamps(campsTasca);
 		List<DocumentTasca> documentsTasca = documentTascaDao.findAmbTascaOrdenats(tasca.getId());
 		dto.setDocuments(documentsTasca);
@@ -359,12 +364,11 @@ public class DtoConverter {
 		if (camp != null && camp.getEnumeracio() != null) {
 			Enumeracio enumeracio = camp.getEnumeracio();
 			List<FilaResultat> resultat = new ArrayList<FilaResultat>();
-			for (String key: enumeracio.getLlistaValors().keySet()) {
-				String valor = enumeracio.getLlistaValors().get(key);
-				if (textInicial == null || valor.toLowerCase().startsWith(textInicial.toLowerCase())) {
+			for (ParellaCodiValor parella: enumeracio.getLlistaValors()) {
+				if (textInicial == null || ((String)parella.getValor()).toLowerCase().startsWith(textInicial.toLowerCase())) {
 					FilaResultat fila = new FilaResultat();
-					fila.addColumna(new ParellaCodiValor("codi", key));
-					fila.addColumna(new ParellaCodiValor("valor", valor));
+					fila.addColumna(new ParellaCodiValor("codi", parella.getCodi()));
+					fila.addColumna(new ParellaCodiValor("valor", parella.getValor()));
 					resultat.add(fila);
 				}
 			}
@@ -598,10 +602,13 @@ public class DtoConverter {
 				}
 			} else if (camp.getEnumeracio() != null) {
 				Enumeracio enumeracio = camp.getEnumeracio();
-				Map<String, String> mapaValors = enumeracio.getLlistaValors();
-				resposta = new ParellaCodiValor(
+				for (ParellaCodiValor parella: enumeracio.getLlistaValors()) {
+					if (valor.equals(parella.getCodi())) {
+						resposta = new ParellaCodiValor(
 								(String)valor,
-								mapaValors.get(valor));
+								parella.getCodi());
+					}
+				}
 			}
 		}
 		return resposta;
@@ -895,7 +902,7 @@ public class DtoConverter {
 			String processInstanceId,
 			Camp camp) {
 		String dominiParams = camp.getDominiParams();
-		if (dominiParams == null)
+		if (dominiParams == null || dominiParams.length() == 0)
 			return null;
 		Map<String, Object> params = new HashMap<String, Object>();
 		String[] pairs = dominiParams.split(";");
@@ -907,7 +914,7 @@ public class DtoConverter {
 			if (campCodi.startsWith("#{")) {
 				if (processInstanceId != null) {
 					value = jbpmDao.evaluateExpression(processInstanceId, campCodi);
-				} else {
+				} else if (taskId != null) {
 					JbpmTask task = jbpmDao.getTaskById(taskId);
 					value = jbpmDao.evaluateExpression(task.getProcessInstanceId(), campCodi);
 				}

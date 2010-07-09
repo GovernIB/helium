@@ -15,7 +15,9 @@
 			<c:if test="${document.readOnly}">
 				<h4 class="titol-missatge">
 				${document.document.nom}&nbsp;&nbsp;
-				<a href="<c:url value="/tasca/documentDescarregar.html"><c:param name="id" value="${tasca.id}"/><c:param name="codi" value="${document.document.codi}"/></c:url>"><img src="<c:url value="/img/page_white_put.png"/>" alt="Descarregar" title="Descarregar" border="0"/></a>
+				<c:if test="${not empty tasca.varsDocuments[document.document.codi]}">
+					<a href="<c:url value="/tasca/documentDescarregar.html"><c:param name="id" value="${tasca.id}"/><c:param name="codi" value="${document.document.codi}"/></c:url>"><img src="<c:url value="/img/page_white_put.png"/>" alt="Descarregar" title="Descarregar" border="0"/></a>
+				</c:if>
 				</h4><br/>
 			</c:if>
 		</c:forEach>

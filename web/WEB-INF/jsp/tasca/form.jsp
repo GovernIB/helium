@@ -44,6 +44,12 @@ function canviTermini(input) {
 	var dies = document.getElementById(campId + "_dies").value;
 	document.getElementById(campId).value = anys + "/" + mesos + "/" + dies;
 }
+function clickExecutarAccio(accio) {
+	if (confirm("Estau segur que voleu executar aquesta acció?")) {
+		$("#executarAccioCampAccio").val(accio);
+		$("#executarAccioForm").submit();
+	}
+}
 // ]]>
 </script>
 <c:if test="${not empty tasca.formExtern}">
@@ -231,6 +237,15 @@ function canviTermini(input) {
 			</c:otherwise>
 		</c:choose>
 	</c:if>
+
+	<form id="executarAccioForm" action="executarAccio.html" style="display:none">
+		<input type="hidden" name="id" value="${tasca.id}"/>
+		<input id="executarAccioCampAccio" type="hidden" name="accio"/>
+	</form>
+
+	<br/><c:import url="../common/tramitacioTasca.jsp">
+		<c:param name="pipella" value="form"/>
+	</c:import>
 
 </body>
 </html>

@@ -111,7 +111,8 @@ function confirmarDelegar(e) {
 			</div>
 		</c:if>
 	</c:if>
-	<c:if test="${not tasca.delegada or not tasca.delegacioOriginal}">
+	<c:import url="../common/tramitacioTasca.jsp"/>
+	<%--c:if test="${not tasca.delegada or not tasca.delegacioOriginal}">
 		<div class="missatgesGris">
 			<h4 class="titol-missatge">Finalitzar la tasca</h4>
 			<c:set var="outcomes"><c:forEach var="outcome" items="${tasca.outcomes}" varStatus="status"><c:choose><c:when test="${not empty outcome}">${outcome}</c:when><c:otherwise>Finalitzar</c:otherwise></c:choose><c:if test="${not status.last}">,</c:if></c:forEach></c:set>
@@ -124,7 +125,7 @@ function confirmarDelegar(e) {
 				</c:import>
 			</form>
 		</div>
-	</c:if>
+	</c:if--%>
 
 </body>
 </html>

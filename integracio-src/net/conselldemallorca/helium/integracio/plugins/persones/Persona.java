@@ -85,8 +85,11 @@ public class Persona implements Serializable {
 	}
 	public String getNomSencer() {
 		StringBuffer nomSencer = new StringBuffer();
-		nomSencer.append(getNom()); nomSencer.append(" ");
-		nomSencer.append(getLlinatge1());
+		nomSencer.append(getNom());
+		if (getLlinatge1() != null && getLlinatge1().length() > 0) {
+			nomSencer.append(" ");
+			nomSencer.append(getLlinatge1());
+		}
 		if (getLlinatge2() != null && getLlinatge2().length() > 0) {
 			nomSencer.append(" ");
 			nomSencer.append(getLlinatge2());

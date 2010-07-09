@@ -27,7 +27,7 @@ function confirmar(e) {
 	<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable">
 		<display:column property="codi" title="Codi" sortable="true" url="/expedientTipus/info.html" paramId="expedientTipusId" paramProperty="id"/>
 		<display:column property="nom" title="Títol" sortable="true"/>
-		<display:column title="Amb títol?" sortable="false">
+		<%--display:column title="Amb títol?" sortable="false">
 			<c:choose><c:when test="${registre.teTitol}">Si</c:when><c:otherwise>No</c:otherwise></c:choose>
 		</display:column>
 		<display:column title="Demana títol?" sortable="false">
@@ -38,7 +38,7 @@ function confirmar(e) {
 		</display:column>
 		<display:column title="Demana número?" sortable="false">
 			<c:choose><c:when test="${registre.demanaNumero}">Si</c:when><c:otherwise>No</c:otherwise></c:choose>
-		</display:column>
+		</display:column--%>
 		<security:accesscontrollist domainObject="${entornActual}" hasPermission="16,32">
 			<display:column>
 		    	<form action="<c:url value="/permisos/expedientTipus.html"/>">

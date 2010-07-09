@@ -205,7 +205,7 @@ span.pageBanner {
 	border-bottom: none;
 }
 span.pageLinks {
-	padding: 0 .4em .1em .4em;
+	padding: .4em;
 	border-top: none;
 	margin-bottom: 1em;
 }

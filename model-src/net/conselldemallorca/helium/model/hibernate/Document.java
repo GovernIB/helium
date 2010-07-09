@@ -56,7 +56,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 	private String contentType;
 	@MaxLength(255)
 	private String custodiaCodi;
-	private Long portasignaturesId;
 	private Integer tipusDocPortasignatures;
 
 	@NotNull
@@ -200,13 +199,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 		getFirmes().remove(firma);
 	}
 
-	@Column(name="portasignatures_id")
-	public Long getPortasignaturesId() {
-		return portasignaturesId;
-	}
-	public void setPortasignaturesId(Long portasignaturesId) {
-		this.portasignaturesId = portasignaturesId;
-	}
 	@Column(name="tipus_portasignatures")
 	public Integer getTipusDocPortasignatures() {
 		return tipusDocPortasignatures;

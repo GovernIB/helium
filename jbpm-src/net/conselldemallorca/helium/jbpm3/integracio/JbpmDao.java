@@ -562,13 +562,29 @@ public class JbpmDao {
 		return commandService.execute(command);
 	}
 
-	public void executeAction(
+	@SuppressWarnings("unchecked")
+	public List<String> listActions(String jbpmId) {
+		long id = new Long(jbpmId).longValue();
+		return (List<String>)commandService.execute(
+				new ListActionsCommand(id));
+	}
+	public void executeActionInstanciaProces(
 			String processInstanceId,
 			String actionName) {
 		long id = new Long(processInstanceId).longValue();
 		ExecuteActionCommand command = new ExecuteActionCommand(
 				id,
 				actionName);
+		commandService.execute(command);
+	}
+	public void executeActionInstanciaTasca(
+			String taskInstanceId,
+			String actionName) {
+		long id = new Long(taskInstanceId).longValue();
+		ExecuteActionCommand command = new ExecuteActionCommand(
+				id,
+				actionName);
+		command.setTaskInstance(true);
 		commandService.execute(command);
 	}
 

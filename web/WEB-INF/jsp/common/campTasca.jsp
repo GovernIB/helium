@@ -22,8 +22,7 @@
 <c:set var="extraParams">
 	<c:choose>
 		<c:when test="${not empty tasca.id}">taskId:${tasca.id},processInstanceId:${tasca.processInstanceId},definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}',valors:function(){return canvisSelectValorsAddicionals}</c:when>
-		<c:when test="${empty tasca.id and empty tasca.processInstanceId}">definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}'</c:when>
-		<c:otherwise>processInstanceId:${tasca.processInstanceId},definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}'</c:otherwise>
+		<c:otherwise>processInstanceId:${instanciaProces.id},definicioProcesId:${instanciaProces.definicioProces.id},campCodi:'${codiActual}'</c:otherwise>
 	</c:choose>
 </c:set>
 <c:choose>
@@ -239,8 +238,23 @@
 						<button style="font-size:11px;margin-top: 2px" type="submit" class="submitButton" onclick="return editarRegistre(${campActual.id}, '${codiActual}', '${campActual.etiqueta}', ${fn:length(campActual.registreMembres)})">Afegir</button>
 					</form>
 				</c:if>
+				<div style="clear:both"></div>
 			</c:param>
 			<c:param name="comment">${campActual.observacions}</c:param>
+		</c:import>
+	</c:when>
+	<c:when test="${campActual.tipus == 'ACCIO'}">
+		<c:import url="../common/formElement.jsp">
+			<c:param name="property">${codiActual}</c:param>
+			<c:param name="required">${required}</c:param>
+			<c:param name="type" value="custom"/>
+			<c:param name="label">${campActual.etiqueta}</c:param>
+			<c:param name="content">
+				<button type="button" onclick="clickExecutarAccio('${campActual.jbpmAction}')">Executar</button>
+			</c:param>
+			<c:param name="comment">${campActual.observacions}</c:param>
+			<c:param name="iterateOn"><c:if test="${campActual.multiple}">valorActual</c:if></c:param>
+			<c:param name="multipleIcons"><c:if test="${campActual.multiple}">true</c:if></c:param>
 		</c:import>
 	</c:when>
 	<c:otherwise>

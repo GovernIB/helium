@@ -64,7 +64,25 @@ public class PersonesPluginJdbc implements PersonesPlugin {
 			throw new PersonaPluginException("No s'ha pogut trobar cap persona", ex);
 		}
 	}
-	
+
+	public List<Persona> findAll() {
+		try {
+			String query = GlobalProperties.getInstance().getProperty("app.persones.plugin.jdbc.filter.name");
+			Map<String, Object> parametres = new HashMap<String, Object>();
+			parametres.put("nom", "");
+
+			List<Persona> resultat = consultaSql(query, parametres);
+			
+			if (resultat.size() > 0) {
+				return resultat;
+			}
+			
+			return null;
+		} catch (Exception ex) {
+			throw new PersonaPluginException("No s'ha pogut trobar cap persona", ex);
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	private List<Persona> consultaSql(
 			String query,
@@ -121,7 +139,7 @@ public class PersonesPluginJdbc implements PersonesPlugin {
 			throw new DominiException("No s'han pogut consultar les persones", ex);
 		}
 	}
-	
+
 	private Sexe sexePerNom(String nom) {
 		String[] parts = nom.trim().split(" ");
 		String norm = parts[0];

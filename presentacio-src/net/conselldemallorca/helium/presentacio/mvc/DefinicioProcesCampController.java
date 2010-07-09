@@ -30,6 +30,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
+import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
@@ -95,6 +96,16 @@ public class DefinicioProcesCampController extends BaseController {
 			Long id = (definicioProcesId != null) ? definicioProcesId : definicioProces;
 			return dissenyService.findCampAgrupacioAmbDefinicioProces(id);
 		}
+		return null;
+	}
+	@ModelAttribute("accionsJbpm")
+	public List<String> populateAccionsJbpm(
+			@RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId,
+			@RequestParam(value = "definicioProces", required = false) Long definicioProces) {
+		if (definicioProcesId != null)
+			return dissenyService.findAccionsJbpm(definicioProcesId);
+		if (definicioProces != null)
+			return dissenyService.findAccionsJbpm(definicioProces);
 		return null;
 	}
 
@@ -301,6 +312,20 @@ public class DefinicioProcesCampController extends BaseController {
 			Camp camp = (Camp)target;
 			if (camp.getCodi().contains(".")) {
 				errors.rejectValue("codi", "error.camp.codi.char.nok");
+			}
+			if (camp.getTipus().equals(TipusCamp.ACCIO)) {
+				ValidationUtils.rejectIfEmpty(errors, "jbpmAction", "not.blank");
+			}
+			if (camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST)) {
+				if (camp.getDomini() == null && camp.getEnumeracio() == null) {
+					errors.rejectValue("enumeracio", "error.camp.enumdom.buit");
+					errors.rejectValue("domini", "error.camp.enumdom.buit");
+				}
+				if (camp.getDomini() != null) {
+					ValidationUtils.rejectIfEmpty(errors, "dominiId", "not.blank");
+					ValidationUtils.rejectIfEmpty(errors, "dominiCampText", "not.blank");
+					ValidationUtils.rejectIfEmpty(errors, "dominiCampValor", "not.blank");
+				}
 			}
 		}
 	}

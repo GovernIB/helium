@@ -9,6 +9,28 @@
 	<meta name="titolcmp" content="Disseny">
 	<c:import url="../common/formIncludes.jsp"/>
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
+<script type="text/javascript">
+// <![CDATA[
+function disable(blocid) {
+	$("#" + blocid).find("input,select,textarea").attr("disabled", "disabled");
+}
+function enable(blocid) {
+	$("#" + blocid).find("input,select,textarea").removeAttr("disabled");
+}
+function canviTipus(input) {
+	if (input.value == "SELECCIO" || input.value == "SUGGEST") {
+		enable("camps_consulta");
+		disable("camps_accio");
+	} else if (input.value == "ACCIO") {
+		enable("camps_accio");
+		disable("camps_consulta");
+	} else {
+		disable("camps_accio");
+		disable("camps_consulta");
+	}
+}
+// ]]>
+</script>
 </head>
 <body>
 
@@ -33,6 +55,7 @@
 				<c:param name="items" value="tipusCamp"/>
 				<c:param name="itemBuit" value="<< Seleccioni un tipus >>"/>
 				<c:param name="label">Tipus</c:param>
+				<c:param name="onchange">canviTipus(this)</c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="etiqueta"/>
@@ -58,44 +81,56 @@
 				<c:param name="type" value="checkbox"/>
 				<c:param name="label">Multiple</c:param>
 			</c:import>
-			</div>
-			<div class="inlineLabels col last">
+		</div>
+		<div class="inlineLabels col last">
 			<h3>Dades per la consulta</h3>
-			<c:import url="../common/formElement.jsp">
-				<c:param name="property" value="enumeracio"/>
-				<c:param name="type" value="select"/>
-				<c:param name="items" value="enumeracions"/>
-				<c:param name="itemLabel" value="nom"/>
-				<c:param name="itemValue" value="id"/>
-				<c:param name="itemBuit" value="<< Seleccioni una enumeració >>"/>
-				<c:param name="label">Enumeracio</c:param>
-			</c:import>
-			<c:import url="../common/formElement.jsp">
-				<c:param name="property" value="domini"/>
-				<c:param name="type" value="select"/>
-				<c:param name="items" value="dominis"/>
-				<c:param name="itemLabel" value="nom"/>
-				<c:param name="itemValue" value="id"/>
-				<c:param name="itemBuit" value="<< Seleccioni un domini >>"/>
-				<c:param name="label">Domini</c:param>
-			</c:import>
-			<c:import url="../common/formElement.jsp">
-				<c:param name="property" value="dominiId"/>
-				<c:param name="label">Id del domini</c:param>
-			</c:import>
-			<c:import url="../common/formElement.jsp">
-				<c:param name="property" value="dominiParams"/>
-				<c:param name="type" value="textarea"/>
-				<c:param name="label">Paràmetres pel domini</c:param>
-			</c:import>
-			<c:import url="../common/formElement.jsp">
-				<c:param name="property" value="dominiCampText"/>
-				<c:param name="label">Camp amb el text</c:param>
-			</c:import>
-			<c:import url="../common/formElement.jsp">
-				<c:param name="property" value="dominiCampValor"/>
-				<c:param name="label">Camp amb el valor</c:param>
-			</c:import>
+			<div id="camps_consulta">
+				<c:import url="../common/formElement.jsp">
+					<c:param name="property" value="enumeracio"/>
+					<c:param name="type" value="select"/>
+					<c:param name="items" value="enumeracions"/>
+					<c:param name="itemLabel" value="nom"/>
+					<c:param name="itemValue" value="id"/>
+					<c:param name="itemBuit" value="<< Seleccioni una enumeració >>"/>
+					<c:param name="label">Enumeracio</c:param>
+				</c:import>
+				<c:import url="../common/formElement.jsp">
+					<c:param name="property" value="domini"/>
+					<c:param name="type" value="select"/>
+					<c:param name="items" value="dominis"/>
+					<c:param name="itemLabel" value="nom"/>
+					<c:param name="itemValue" value="id"/>
+					<c:param name="itemBuit" value="<< Seleccioni un domini >>"/>
+					<c:param name="label">Domini</c:param>
+				</c:import>
+				<c:import url="../common/formElement.jsp">
+					<c:param name="property" value="dominiId"/>
+					<c:param name="label">Id del domini</c:param>
+				</c:import>
+				<c:import url="../common/formElement.jsp">
+					<c:param name="property" value="dominiParams"/>
+					<c:param name="type" value="textarea"/>
+					<c:param name="label">Paràmetres pel domini</c:param>
+				</c:import>
+				<c:import url="../common/formElement.jsp">
+					<c:param name="property" value="dominiCampValor"/>
+					<c:param name="label">Camp amb el valor</c:param>
+				</c:import>
+				<c:import url="../common/formElement.jsp">
+					<c:param name="property" value="dominiCampText"/>
+					<c:param name="label">Camp amb el text</c:param>
+				</c:import>
+			</div>
+			<h3>Dades de l'acció</h3>
+			<div id="camps_accio">
+				<c:import url="../common/formElement.jsp">
+					<c:param name="property" value="jbpmAction"/>
+					<c:param name="type" value="select"/>
+					<c:param name="items" value="accionsJbpm"/>
+					<c:param name="itemBuit" value="<< Seleccioni un handler >>"/>
+					<c:param name="label">Handler</c:param>
+				</c:import>
+			</div>
 		</div>
 		<c:import url="../common/formElement.jsp">
 			<c:param name="type" value="buttons"/>
@@ -105,6 +140,8 @@
 	</form:form>
 
 	<p class="aclaracio">Els camps marcats amb <img src="<c:url value="/img/bullet_red.png"/>" alt="Camp obligatori" title="Camp obligatori" border="0"/> són obligatoris</p>
+
+	<script type="text/javascript">$(document).ready(canviTipus(document.getElementById("tipus0")));</script>
 
 </body>
 </html>

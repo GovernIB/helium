@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.model.dto.DocumentDto;
 import net.conselldemallorca.helium.model.dto.TascaDto;
+import net.conselldemallorca.helium.model.exception.NotFoundException;
 import net.conselldemallorca.helium.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
 import net.conselldemallorca.helium.model.service.TascaService;
@@ -60,20 +61,22 @@ public class TascaDocumentsController extends BaseController {
 			@RequestParam(value = "id", required = true) String id) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			TascaDto tasca = tascaService.getById(entorn.getId(), id);
-			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
-			campsAddicionals.put("id", id);
-			campsAddicionals.put("entornId", entorn.getId());
-			campsAddicionals.put("procesScope", null);
-			Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
-			campsAddicionalsClasses.put("id", String.class);
-			campsAddicionalsClasses.put("entornId", Long.class);
-			campsAddicionalsClasses.put("procesScope", Map.class);
-			Object command = TascaFormUtil.getCommandForTasca(
-					tasca,
-					campsAddicionals,
-					campsAddicionalsClasses);
-			return command;
+			try {
+				TascaDto tasca = tascaService.getById(entorn.getId(), id);
+				Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+				campsAddicionals.put("id", id);
+				campsAddicionals.put("entornId", entorn.getId());
+				campsAddicionals.put("procesScope", null);
+				Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
+				campsAddicionalsClasses.put("id", String.class);
+				campsAddicionalsClasses.put("entornId", Long.class);
+				campsAddicionalsClasses.put("procesScope", Map.class);
+				Object command = TascaFormUtil.getCommandForTasca(
+						tasca,
+						campsAddicionals,
+						campsAddicionalsClasses);
+				return command;
+			} catch (NotFoundException ignored) {}
 		}
 		return null;
 	}
@@ -85,6 +88,10 @@ public class TascaDocumentsController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
+			if (model.get("commandReadOnly") == null) {
+				missatgeError(request, "Aquesta tasca ja no està disponible");
+				return "redirect:/tasca/personaLlistat.html";
+			}
 			TascaDto tasca = tascaService.getById(entorn.getId(), id);
 			model.addAttribute("tasca", tasca);
 			for (DocumentTasca document: tasca.getDocuments()) {
@@ -112,6 +119,10 @@ public class TascaDocumentsController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
+			if (model.get("commandReadOnly") == null) {
+				missatgeError(request, "Aquesta tasca ja no està disponible");
+				return "redirect:/tasca/personaLlistat.html";
+			}
 			if ("submit".equals(submit) || submit.length() == 0) {
 				if (command.getData() != null && command.getContingut() != null) {
 					if (multipartFile.getSize() > 0) {
@@ -151,6 +162,10 @@ public class TascaDocumentsController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
+			if (model.get("commandReadOnly") == null) {
+				missatgeError(request, "Aquesta tasca ja no està disponible");
+				return "redirect:/tasca/personaLlistat.html";
+			}
 			try {
 				tascaService.esborrarDocument(
 						entorn.getId(),

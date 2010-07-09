@@ -11,6 +11,7 @@ import java.util.Map;
 import net.conselldemallorca.helium.integracio.forms.IniciFormulari;
 import net.conselldemallorca.helium.integracio.forms.ParellaCodiValor;
 import net.conselldemallorca.helium.integracio.forms.RespostaIniciFormulari;
+import net.conselldemallorca.helium.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.model.hibernate.FormulariExtern;
 import net.conselldemallorca.helium.model.service.TascaService;
 import net.conselldemallorca.helium.util.GlobalProperties;
@@ -51,6 +52,7 @@ public class FormulariExternDao extends HibernateGenericDao<FormulariExtern, Lon
 	}
 
 	public FormulariExtern iniciarFormulariExtern(
+			ExpedientTipus expedientTipus,
 			String taskId,
 			String codiFormulari,
 			Map<String, Object> vars) {
@@ -61,7 +63,11 @@ public class FormulariExternDao extends HibernateGenericDao<FormulariExtern, Lon
 					parelles.add(new ParellaCodiValor(key, vars.get(key)));
 			}
 		}
-		RespostaIniciFormulari resposta = iniciFormulariExtern(codiFormulari, taskId, parelles);
+		RespostaIniciFormulari resposta = iniciFormulariExtern(
+				expedientTipus,
+				codiFormulari,
+				taskId,
+				parelles);
 		FormulariExtern fext = findAmbFormulariId(resposta.getFormulariId());
 		if (fext == null) {
 			fext = new FormulariExtern(
@@ -83,21 +89,30 @@ public class FormulariExternDao extends HibernateGenericDao<FormulariExtern, Lon
 
 
 	private RespostaIniciFormulari iniciFormulariExtern(
+			ExpedientTipus expedientTipus,
 			String codiFormulari,
 			String taskId,
 			List<ParellaCodiValor> valors) {
 		ClientProxyFactoryBean factory = new ClientProxyFactoryBean();
-		String url = GlobalProperties.getInstance().getProperty(
-				"app.forms.service.url");
-		String username = GlobalProperties.getInstance().getProperty(
-				"app.forms.service.username");
-		String password = GlobalProperties.getInstance().getProperty(
-				"app.forms.service.password");
 		factory.setServiceClass(IniciFormulari.class);
-		factory.setAddress(url);
-		if (username != null && !"".equals(username) && password != null && !"".equals(password)) {
-			factory.setUsername(username);
-			factory.setPassword(password);
+		if (expedientTipus.getFormextUrl() != null) {
+			factory.setAddress(expedientTipus.getFormextUrl());
+			if (expedientTipus.getFormextUsuari() != null)
+				factory.setUsername(expedientTipus.getFormextUsuari());
+			if (expedientTipus.getFormextContrasenya() != null)
+				factory.setPassword(expedientTipus.getFormextContrasenya());
+		} else {
+			String url = GlobalProperties.getInstance().getProperty(
+					"app.forms.service.url");
+			factory.setAddress(url);
+			String username = GlobalProperties.getInstance().getProperty(
+					"app.forms.service.username");
+			String password = GlobalProperties.getInstance().getProperty(
+					"app.forms.service.password");
+			if (username != null && !"".equals(username) && password != null && !"".equals(password)) {
+				factory.setUsername(username);
+				factory.setPassword(password);
+			}
 		}
 		return ((IniciFormulari)factory.create()).iniciFormulari(codiFormulari, taskId, valors);
 	}

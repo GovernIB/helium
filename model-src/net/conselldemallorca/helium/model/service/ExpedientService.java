@@ -24,6 +24,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
+import net.conselldemallorca.helium.model.dao.AccioDao;
 import net.conselldemallorca.helium.model.dao.ConsultaDao;
 import net.conselldemallorca.helium.model.dao.DefinicioProcesDao;
 import net.conselldemallorca.helium.model.dao.DocumentDao;
@@ -45,6 +46,7 @@ import net.conselldemallorca.helium.model.dto.TokenDto;
 import net.conselldemallorca.helium.model.exception.DominiException;
 import net.conselldemallorca.helium.model.exception.IllegalArgumentsException;
 import net.conselldemallorca.helium.model.exception.NotFoundException;
+import net.conselldemallorca.helium.model.hibernate.Accio;
 import net.conselldemallorca.helium.model.hibernate.Camp;
 import net.conselldemallorca.helium.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.model.hibernate.Document;
@@ -90,6 +92,7 @@ public class ExpedientService {
 	private ConsultaDao consultaDao;
 	private PluginCustodiaDao pluginCustodiaDao;
 	private RegistreDao registreDao;
+	private AccioDao accioDao;
 	private TerminiIniciatDao terminiIniciatDao;
 	private PluginPortasignaturesDao pluginPortasignaturesDao;
 
@@ -742,6 +745,17 @@ public class ExpedientService {
 		jbpmDao.changeProcessInstanceVersion(processInstanceId, -1);
 	}
 
+	public void executarAccio(
+			String processInstanceId,
+			String accioCodi) {
+		JbpmProcessInstance processInstance = jbpmDao.getProcessInstance(processInstanceId);
+		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(processInstance.getProcessDefinitionId());
+		Accio accio = accioDao.findAmbDefinicioProcesICodi(definicioProces.getId(), accioCodi);
+		jbpmDao.executeActionInstanciaProces(
+				processInstanceId,
+				accio.getJbpmAction());
+	}
+
 
 
 	@Autowired
@@ -795,6 +809,10 @@ public class ExpedientService {
 	@Autowired
 	public void setRegistreDao(RegistreDao registreDao) {
 		this.registreDao = registreDao;
+	}
+	@Autowired
+	public void setAccioDao(AccioDao accioDao) {
+		this.accioDao = accioDao;
 	}
 	@Autowired
 	public void setTerminiIniciatDao(TerminiIniciatDao terminiIniciatDao) {
@@ -1018,11 +1036,6 @@ public class ExpedientService {
 			portasignatures.setTransicioOK(transicioOK);
 			portasignatures.setTransicioKO(transicioKO);
 			pluginPortasignaturesDao.saveOrUpdate(portasignatures);
-			
-			Document document = documentDao.getById(documentDto.getDocumentId(), false);
-			document.setPortasignaturesId(portasignatures.getId());
-			document.setTipusDocPortasignatures(documentDto.getTipusDocPortasignatures());
-			documentDao.saveOrUpdate(document);
 		} catch (Exception e) {
 			throw new JbpmException("No s'ha pogut pujar el document al portasignatures", e);
 		}

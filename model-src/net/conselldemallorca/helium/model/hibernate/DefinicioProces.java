@@ -59,6 +59,7 @@ public class DefinicioProces implements Serializable, GenericEntity<Long> {
 	private Set<Document> documents = new HashSet<Document>();
 	private Set<Termini> terminis = new HashSet<Termini>();
 	private Set<CampAgrupacio> agrupacions = new HashSet<CampAgrupacio>();
+	private Set<Accio> accions = new HashSet<Accio>();
 
 
 
@@ -210,6 +211,20 @@ public class DefinicioProces implements Serializable, GenericEntity<Long> {
 	}
 	public void removeAgrupacio(CampAgrupacio agrupacio) {
 		getAgrupacions().remove(agrupacio);
+	}
+
+	@OneToMany(mappedBy="definicioProces", cascade={CascadeType.ALL})
+	public Set<Accio> getAccions() {
+		return this.accions;
+	}
+	public void setAccions(Set<Accio> accions) {
+		this.accions = accions;
+	}
+	public void addAccio(Accio accio) {
+		getAccions().add(accio);
+	}
+	public void removeAccio(Accio accio) {
+		getAccions().remove(accio);
 	}
 
 	@Transient

@@ -18,6 +18,7 @@ import net.conselldemallorca.helium.integracio.domini.FilaResultat;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
+import net.conselldemallorca.helium.model.dao.AccioDao;
 import net.conselldemallorca.helium.model.dao.CampAgrupacioDao;
 import net.conselldemallorca.helium.model.dao.CampDao;
 import net.conselldemallorca.helium.model.dao.CampRegistreDao;
@@ -47,9 +48,11 @@ import net.conselldemallorca.helium.model.exportacio.DefinicioProcesExportacio;
 import net.conselldemallorca.helium.model.exportacio.DocumentExportacio;
 import net.conselldemallorca.helium.model.exportacio.DocumentTascaExportacio;
 import net.conselldemallorca.helium.model.exportacio.FirmaTascaExportacio;
+import net.conselldemallorca.helium.model.exportacio.RegistreMembreExportacio;
 import net.conselldemallorca.helium.model.exportacio.TascaExportacio;
 import net.conselldemallorca.helium.model.exportacio.TerminiExportacio;
 import net.conselldemallorca.helium.model.exportacio.ValidacioExportacio;
+import net.conselldemallorca.helium.model.hibernate.Accio;
 import net.conselldemallorca.helium.model.hibernate.Camp;
 import net.conselldemallorca.helium.model.hibernate.CampAgrupacio;
 import net.conselldemallorca.helium.model.hibernate.CampRegistre;
@@ -103,6 +106,7 @@ public class DissenyService {
 	private CampAgrupacioDao campAgrupacioDao;
 	private ConsultaDao consultaDao;
 	private ConsultaCampDao consultaCampDao;
+	private AccioDao accioDao;
 
 	private DtoConverter dtoConverter;
 	private JbpmDao jbpmDao;
@@ -842,15 +846,23 @@ public class DissenyService {
 					camp.isOcult(),
 					(camp.getEnumeracio() != null) ? camp.getEnumeracio().getCodi() : null,
 					(camp.getDomini() != null) ? camp.getDomini().getCodi() : null,
-					(camp.getAgrupacio() != null) ? camp.getAgrupacio().getCodi() : null);
+					(camp.getAgrupacio() != null) ? camp.getAgrupacio().getCodi() : null,
+					camp.getJbpmAction());
 			// Afegeix les validacions del camp
 			for (Validacio validacio: camp.getValidacions()) {
-				ValidacioExportacio vtdto = new ValidacioExportacio(
+				dto.addValidacio(new ValidacioExportacio(
 						validacio.getNom(),
 						validacio.getExpressio(),
 						validacio.getMissatge(),
-						validacio.getOrdre());
-				dto.addValidacio(vtdto);
+						validacio.getOrdre()));
+			}
+			// Afegeix els membres dels camps de tipus registre
+			for (CampRegistre membre: camp.getRegistreMembres()) {
+				dto.addRegistreMembre(new RegistreMembreExportacio(
+						membre.getMembre().getCodi(),
+						membre.isObligatori(),
+						membre.isLlistar(),
+						membre.getOrdre()));
 			}
 			campsDto.add(dto);
 		}
@@ -1018,6 +1030,7 @@ public class DissenyService {
 			nou.setDominiCampValor(camp.getDominiCampValor());
 			nou.setMultiple(camp.isMultiple());
 			nou.setOcult(camp.isOcult());
+			nou.setJbpmAction(camp.getJbpmAction());
 			if (camp.getCodiEnumeracio() != null) {
 				Enumeracio enumeracio = enumeracioDao.findAmbEntornICodi(entornId, camp.getCodiEnumeracio());
 				if (enumeracio != null)
@@ -1045,6 +1058,20 @@ public class DissenyService {
 			}
 			campDao.saveOrUpdate(nou);
 			camps.put(nou.getCodi(), nou);
+		}
+		// Propaga els membres dels camps de tipus registre
+		for (CampExportacio camp: exportacio.getCamps()) {
+			if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
+				for (RegistreMembreExportacio membre: camp.getRegistreMembres()) {
+					CampRegistre campRegistre = new CampRegistre(
+							camps.get(camp.getCodi()),
+							camps.get(membre.getCodi()),
+							membre.getOrdre());
+					campRegistre.setLlistar(membre.isLlistar());
+					campRegistre.setObligatori(membre.isObligatori());
+					campRegistreDao.saveOrUpdate(campRegistre);
+				}
+			}
 		}
 		// Propaga els documents
 		Map<String, Document> documents = new HashMap<String, Document>();
@@ -1202,7 +1229,6 @@ public class DissenyService {
 					break;
 				}
 			}
-			
 			if (camp.getEnumeracio() != null) {
 				return dtoConverter.getResultatConsultaEnumeracio(definicioProces, campCodi, textInicial);
 			} else {
@@ -1231,7 +1257,6 @@ public class DissenyService {
 					textInicial,
 					valorsAddicionals);
 		}
-		
 	}
 
 	public CampAgrupacio getCampAgrupacioById(Long id) {
@@ -1396,6 +1421,33 @@ public class DissenyService {
 		}
 	}
 
+	public Accio getAccioById(Long id) {
+		Accio accio = accioDao.getById(id, false);
+		return accio;
+	}
+	public Accio createAccio(Accio entity) {
+		Accio saved = accioDao.saveOrUpdate(entity);
+		return saved;
+	}
+	public Accio updateAccio(Accio entity) {
+		return accioDao.merge(entity);
+	}
+	public void deleteAccio(Long id) {
+		Accio vella = getAccioById(id);
+		if (vella != null)
+			accioDao.delete(id);
+	}
+	public List<Accio> findAccionsAmbDefinicioProces(Long definicioProcesId) {
+		return accioDao.findAmbDefinicioProces(definicioProcesId);
+	}
+	public Accio findAccioAmbDefinicioProcesICodi(Long definicioProcesId, String codi) {
+		return accioDao.findAmbDefinicioProcesICodi(definicioProcesId, codi);
+	}
+	public List<String> findAccionsJbpm(Long id) {
+		DefinicioProces definicioProces = definicioProcesDao.getById(id, false);
+		return jbpmDao.listActions(definicioProces.getJbpmId());
+	}
+
 
 
 	@Autowired
@@ -1469,6 +1521,10 @@ public class DissenyService {
 	@Autowired
 	public void setConsultaCampDao(ConsultaCampDao consultaCampDao) {
 		this.consultaCampDao = consultaCampDao;
+	}
+	@Autowired
+	public void setAccioDao(AccioDao accioDao) {
+		this.accioDao = accioDao;
 	}
 	@Autowired
 	public void setDtoConverter(DtoConverter dtoConverter) {
@@ -1604,6 +1660,7 @@ public class DissenyService {
 			nou.setDominiCampValor(camp.getDominiCampValor());
 			nou.setDominiParams(camp.getDominiParams());
 			nou.setEnumeracio(camp.getEnumeracio());
+			nou.setJbpmAction(camp.getJbpmAction());
 			campDao.saveOrUpdate(nou);
 			camps.put(nou.getCodi(), nou);
 			// Copia les validacions dels camps
@@ -1613,6 +1670,20 @@ public class DissenyService {
 						validacio.getExpressio(),
 						validacio.getMissatge());
 				nou.addValidacio(novaValidacio);
+			}
+		}
+		// Propaga els membres dels camps de tipus registre
+		for (Camp camp: origen.getCamps()) {
+			if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
+				for (CampRegistre membre: camp.getRegistreMembres()) {
+					CampRegistre campRegistre = new CampRegistre(
+							camps.get(camp.getCodi()),
+							camps.get(membre.getMembre().getCodi()),
+							membre.getOrdre());
+					campRegistre.setLlistar(membre.isLlistar());
+					campRegistre.setObligatori(membre.isObligatori());
+					campRegistreDao.saveOrUpdate(campRegistre);
+				}
 			}
 		}
 		// Propaga els documents
