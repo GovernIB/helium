@@ -11,7 +11,7 @@
 				<c:otherwise>Modificar rol</c:otherwise>
 			</c:choose>
 		</title>
-		<meta name="titolcmp" content="Configuració">
+		<meta name="titolcmp" content="Configuració"/>
 		<c:import url="../common/formIncludes.jsp"/>
 		<script type="text/javascript">
 			// <![CDATA[

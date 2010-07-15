@@ -6,7 +6,7 @@
 <html>
 <head>
 	<title><c:choose><c:when test="${empty command.id}">Crear nou càrrec</c:when><c:otherwise>Modificar càrrec</c:otherwise></c:choose></title>
-	<meta name="titolcmp" content="Organització">
+	<meta name="titolcmp" content="Organització"/>
 	<c:import url="../common/formIncludes.jsp"/>
 </head>
 <body>

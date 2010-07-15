@@ -73,15 +73,6 @@ public class TascaRegistreController extends CommonRegistreController {
 		return super.registrePost(request, id, registreId, index, submit, command, result, status, model);
 	}
 
-	@RequestMapping(value = "/tasca/registreEsborrar")
-	public String esborrarMembre(
-			HttpServletRequest request,
-			@RequestParam(value = "id", required = true) String id,
-			@RequestParam(value = "registreId", required = true) Long registreId,
-			@RequestParam(value = "index", required = true) int index) {
-		return super.esborrarMembre(request, id, registreId, index);
-	}
-
 	@Override
 	public void esborrarRegistre(String id, String campCodi, int index) {
 		tascaService.esborrarRegistre(id, campCodi, index);

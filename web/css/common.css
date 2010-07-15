@@ -87,6 +87,15 @@ form.uniForm .estret {
 	padding: .8em;
 	color: #666;
 }
+.missatgesVermell {
+	background: #FFDFDF none repeat scroll 0 0;
+	border-color: #DFCDCD;
+	border-style: solid;
+	border-width: 1px 0;
+	margin: 0 0 1.5em;
+	padding: .8em;
+	color: #666;
+}
 .missatgesBlau {
 	background: #DCF0F6 none repeat scroll 0 0;
 	border-color: #AFD2DE;

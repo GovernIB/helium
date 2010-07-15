@@ -112,26 +112,31 @@ public class TascaFormController extends BaseController {
 			@RequestParam(value = "id", required = true) String id) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			try {
-				TascaDto tasca = tascaService.getById(entorn.getId(), id);
-				Map<String, Object> campsAddicionals = new HashMap<String, Object>();
-				campsAddicionals.put("id", id);
-				campsAddicionals.put("entornId", entorn.getId());
-				campsAddicionals.put("procesScope", null);
-				Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
-				campsAddicionalsClasses.put("id", String.class);
-				campsAddicionalsClasses.put("entornId", Long.class);
-				campsAddicionalsClasses.put("procesScope", Map.class);
-				Object command = TascaFormUtil.getCommandForTasca(
-						tasca,
-						campsAddicionals,
-						campsAddicionalsClasses);
-				return command;
-			} catch (NotFoundException ignored) {}
+			Object commandSessio = TascaFormUtil.recuperarCommandTemporal(request);
+			if (commandSessio != null) {
+				return commandSessio;
+			} else {
+				try {
+					TascaDto tasca = tascaService.getById(entorn.getId(), id);
+					Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+					campsAddicionals.put("id", id);
+					campsAddicionals.put("entornId", entorn.getId());
+					campsAddicionals.put("procesScope", null);
+					Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
+					campsAddicionalsClasses.put("id", String.class);
+					campsAddicionalsClasses.put("entornId", Long.class);
+					campsAddicionalsClasses.put("procesScope", Map.class);
+					Object command = TascaFormUtil.getCommandForTasca(
+							tasca,
+							campsAddicionals,
+							campsAddicionalsClasses);
+					return command;
+				} catch (NotFoundException ignored) {}
+			}
 		}
 		return null;
 	}
-	
+
 	@ModelAttribute("commandReadOnly")
 	public Object populateCommandReadOnly(
 			HttpServletRequest request,
@@ -179,6 +184,8 @@ public class TascaFormController extends BaseController {
 			@RequestParam(value = "helMultipleIndex", required = false) Integer index,
 			@RequestParam(value = "helMultipleField", required = false) String field,
 			@RequestParam(value = "iframe", required = false) String iframe,
+			@RequestParam(value = "registreEsborrarId", required = false) Long registreEsborrarId,
+			@RequestParam(value = "registreEsborrarIndex", required = false) Integer registreEsborrarIndex,
 			@ModelAttribute("command") Object command,
 			BindingResult result,
 			SessionStatus status,
@@ -193,7 +200,7 @@ public class TascaFormController extends BaseController {
 			List<Camp> camps = new ArrayList<Camp>();
     		for (CampTasca campTasca: tasca.getCamps())
     			camps.add(campTasca.getCamp());
-			if ("submit".equals(submit) || submit.length() == 0) {
+			if ("submit".equals(submit)) {
 				try {
 					afegirVariablesDelProces(command, tasca);
 					TascaFormUtil.getBeanValidatorForCommand(camps).validate(command, result);
@@ -215,16 +222,16 @@ public class TascaFormController extends BaseController {
 		        					true,
 		    						false));
 		        	missatgeInfo(request, "Les dades del formulari s'han guardat correctament");
-		        	status.setComplete();
-		        	if (iframe != null)
-		        		return "redirect:/tasca/formIframe.html?id=" + id + "&iframe=iframe";
-		        	else
-		        		return "redirect:/tasca/form.html?id=" + id;
 		        } catch (Exception ex) {
 		        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut guardar les dades del formulari", ex);
 		        	return "tasca/form";
 		        }
+		        status.setComplete();
+	        	if (iframe != null)
+	        		return "redirect:/tasca/formIframe.html?id=" + id + "&iframe=iframe";
+	        	else
+	        		return "redirect:/tasca/form.html?id=" + id;
 			} else if ("validate".equals(submit)) {
 				validator.validate(command, result);
 				try {
@@ -299,8 +306,23 @@ public class TascaFormController extends BaseController {
 					logger.error("No s'ha pogut afegir el camp múltiple", ex);
 				}
 	        	return "tasca/form";
+			} else {
+				status.setComplete();
+				if (registreEsborrarId != null && registreEsborrarIndex != null) {
+					Camp camp = dissenyService.getCampById(registreEsborrarId);
+					try {
+						tascaService.esborrarRegistre(id, camp.getCodi(), registreEsborrarIndex.intValue());
+					} catch (Exception ex) {
+			        	missatgeError(request, "No s'ha pogut esborrar el registre", ex.getLocalizedMessage());
+			        	logger.error("No s'ha pogut esborrar el registre", ex);
+			        }
+				}
+				TascaFormUtil.guardarCommandTemporal(request, command);
+	        	if (iframe != null)
+	        		return "redirect:/tasca/formIframe.html?id=" + id + "&iframe=iframe";
+	        	else
+	        		return "redirect:/tasca/form.html?id=" + id;
 			}
-			return "redirect:/tasca/form.html?id=" + id;
 		} else {
 			missatgeError(request, "No hi ha cap entorn seleccionat");
 			return "redirect:/index.html";

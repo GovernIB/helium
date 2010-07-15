@@ -6,7 +6,7 @@
 <html>
 <head>
 	<title><c:choose><c:when test="${empty command.id}">Crear nova persona</c:when><c:otherwise>Modificar persona</c:otherwise></c:choose></title>
-	<meta name="titolcmp" content="Configuració">
+	<meta name="titolcmp" content="Configuració"/>
 	<c:import url="../common/formIncludes.jsp"/>
 <script type="text/javascript">
 // <![CDATA[

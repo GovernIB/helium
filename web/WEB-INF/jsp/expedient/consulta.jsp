@@ -9,7 +9,7 @@
 <html>
 <head>
 	<title>Consulta general</title>
-	<meta name="titolcmp" content="Consultes">
+	<meta name="titolcmp" content="Consultes"/>
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
     <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
     <c:import url="../common/formIncludes.jsp"/>

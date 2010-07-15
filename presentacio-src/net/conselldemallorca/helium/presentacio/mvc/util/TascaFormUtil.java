@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import net.conselldemallorca.helium.integracio.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.model.dto.TascaDto;
 import net.conselldemallorca.helium.model.hibernate.Camp;
@@ -35,6 +37,10 @@ import org.springmodules.validation.util.cel.valang.ValangConditionExpressionPar
  * @author Josep Gayà <josepg@limit.es>
  */
 public class TascaFormUtil {
+
+	private static final String VARIABLE_SESSIO_COMMAND_TMP = "TascaFormUtil_CommandSessioTmp";
+
+
 
 	@SuppressWarnings("unchecked")
 	public static Object getCommandForTasca(
@@ -196,6 +202,19 @@ public class TascaFormUtil {
 			}
 		}
 		return resposta;
+	}
+
+	public static void guardarCommandTemporal(
+			HttpServletRequest request,
+			Object command) {
+		request.getSession().setAttribute(VARIABLE_SESSIO_COMMAND_TMP, command);
+	}
+	public static Object recuperarCommandTemporal(
+			HttpServletRequest request) {
+		Object command = request.getSession().getAttribute(VARIABLE_SESSIO_COMMAND_TMP);
+		if (command != null)
+			request.getSession().removeAttribute(VARIABLE_SESSIO_COMMAND_TMP);
+		return command;
 	}
 
 

@@ -6,7 +6,7 @@
 <html>
 <head>
 	<title>Modificar perfil</title>
-	<meta name="titolcmp" content="El meu perfil">
+	<meta name="titolcmp" content="El meu perfil"/>
 	<c:import url="../common/formIncludes.jsp"/>
 </head>
 <body>

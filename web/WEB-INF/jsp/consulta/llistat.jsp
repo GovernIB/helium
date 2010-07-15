@@ -8,7 +8,7 @@
 <html>
 <head>
 	<title>Consultes</title>
-	<meta name="titolcmp" content="Disseny">
+	<meta name="titolcmp" content="Disseny"/>
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
     <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 <script type="text/javascript">

@@ -7,7 +7,7 @@
 <html>
 <head>
 	<title>Càrrecs</title>
-	<meta name="titolcmp" content="Configuració">
+	<meta name="titolcmp" content="Configuració"/>
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
     <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
     <link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>

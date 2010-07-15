@@ -7,7 +7,7 @@
 <html>
 <head>
 	<title>Iniciar expedient: ${expedientTipus.nom}</title>
-	<meta name="titolcmp" content="Nou expedient">
+	<meta name="titolcmp" content="Nou expedient"/>
 	<c:import url="../common/formIncludes.jsp"/>
 <script type="text/javascript">
 // <![CDATA[

@@ -234,9 +234,7 @@
 					<script type="text/javascript">initSelectable();</script>
 				</c:if>
 				<c:if test="${campActual.multiple || fn:length(files) < 1}">
-					<form action="#">
-						<button style="font-size:11px;margin-top: 2px" type="submit" class="submitButton" onclick="return editarRegistre(${campActual.id}, '${codiActual}', '${campActual.etiqueta}', ${fn:length(campActual.registreMembres)})">Afegir</button>
-					</form>
+					<button style="font-size:11px;margin-top: 2px" type="submit" class="submitButton" onclick="return editarRegistre(${campActual.id}, '${codiActual}', '${campActual.etiqueta}', ${fn:length(campActual.registreMembres)})">Afegir</button>
 				</c:if>
 				<div style="clear:both"></div>
 			</c:param>
@@ -250,7 +248,7 @@
 			<c:param name="type" value="custom"/>
 			<c:param name="label">${campActual.etiqueta}</c:param>
 			<c:param name="content">
-				<button type="button" onclick="clickExecutarAccio('${campActual.jbpmAction}')">Executar</button>
+				<button class="submitButton" type="button" onclick="clickExecutarAccio('${campActual.jbpmAction}')">Executar</button>
 			</c:param>
 			<c:param name="comment">${campActual.observacions}</c:param>
 			<c:param name="iterateOn"><c:if test="${campActual.multiple}">valorActual</c:if></c:param>

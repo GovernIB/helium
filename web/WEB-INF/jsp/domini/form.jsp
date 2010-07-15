@@ -6,7 +6,7 @@
 <html>
 <head>
 	<title><c:choose><c:when test="${empty command.id}">Crear nou domini</c:when><c:otherwise>Modificar domini</c:otherwise></c:choose></title>
-	<meta name="titolcmp" content="Disseny">
+	<meta name="titolcmp" content="Disseny"/>
 	<c:import url="../common/formIncludes.jsp"/>
 <script type="text/javascript">
 // <![CDATA[

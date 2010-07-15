@@ -6,7 +6,6 @@ package net.conselldemallorca.helium.model.service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -63,8 +62,6 @@ public class TascaService {
 
 	public static final String VAR_PREFIX = "H3l1um#";
 
-	public static final String VAR_TASCA_TITOLNOU = "H3l1um#tasca.titolnou";
-	public static final String VAR_TASCA_EVALUADA = "H3l1um#tasca.evaluada";
 	public static final String VAR_TASCA_VALIDADA = "H3l1um#tasca.validada";
 	public static final String VAR_TASCA_DELEGACIO = "H3l1um#tasca.delegacio";
 
@@ -797,8 +794,6 @@ public class TascaService {
 		return task;
 	}
 	private TascaDto toTascaDto(JbpmTask task, boolean ambVariables) {
-		if (!isTascaEvaluada(task))
-			evaluarTasca(task);
 		return dtoConverter.toTascaDto(
 				task,
 				ambVariables,
@@ -833,36 +828,6 @@ public class TascaService {
 	}
 	private void restaurarTasca(String taskId) {
 		jbpmDao.deleteTaskInstanceVariable(taskId, VAR_TASCA_VALIDADA);
-	}
-	private String evaluarTasca(JbpmTask task) {
-		Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
-				task.getName(),
-				task.getProcessDefinitionId());
-		String titolNou = null;
-		if (tasca.getNomScript() != null) {
-			try {
-				Set<String> outputVars = new HashSet<String>();
-				outputVars.add("titol");
-				Map<String,Object> resultat = jbpmDao.evaluateScript(
-						task.getProcessInstanceId(),
-						tasca.getNomScript(),
-						outputVars);
-				if (resultat.get("titol") != null)
-					titolNou = resultat.get("titol").toString();
-			} catch (Exception ignored) {}
-		}
-		Map<String, Object> variables = new HashMap<String, Object>();
-		variables.put(VAR_TASCA_EVALUADA, new Date());
-		if (titolNou != null)
-			variables.put(VAR_TASCA_TITOLNOU, titolNou);
-		jbpmDao.setTaskInstanceVariables(task.getId(), variables);
-		return titolNou;
-	}
-	private boolean isTascaEvaluada(JbpmTask task) {
-		Object valor = jbpmDao.getTaskInstanceVariable(task.getId(), VAR_TASCA_EVALUADA);
-		if (valor == null || !(valor instanceof Date))
-			return false;
-		return true;
 	}
 	private boolean isTascaValidada(JbpmTask task) {
 		Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(

@@ -6,7 +6,7 @@
 <html>
 <head>
 	<title>Definició de procés: ${definicioProces.jbpmName}</title>
-	<meta name="titolcmp" content="Disseny">
+	<meta name="titolcmp" content="Disseny"/>
 	<c:import url="../common/formIncludes.jsp"/>
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 </head>

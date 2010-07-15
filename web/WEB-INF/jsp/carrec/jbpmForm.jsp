@@ -6,7 +6,7 @@
 <html>
 <head>
 	<title>Informació del càrrec</title>
-	<meta name="titolcmp" content="Configuració">
+	<meta name="titolcmp" content="Configuració"/>
 	<c:import url="../common/formIncludes.jsp"/>
 </head>
 <body>

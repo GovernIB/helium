@@ -55,6 +55,8 @@ import net.conselldemallorca.helium.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.util.GlobalProperties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -67,6 +69,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class DtoConverter {
+
+	public static final String VAR_TASCA_TITOLNOU = "H3l1um#tasca.titolnou";
+	public static final String VAR_TASCA_EVALUADA = "H3l1um#tasca.evaluada";
 
 	private ExpedientDao expedientDao;
 	private DocumentTascaDao documentTascaDao;
@@ -120,6 +125,8 @@ public class DtoConverter {
 			boolean validada,
 			boolean documentsComplet,
 			boolean signaturesComplet) {
+		if (!isTascaEvaluada(task))
+			evaluarTasca(task);
 		Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
 				task.getName(),
 				task.getProcessDefinitionId());
@@ -616,8 +623,8 @@ public class DtoConverter {
 
 	private void filtrarVariablesTasca(Map<String, Object> variables) {
 		if (variables != null) {
-			variables.remove(TascaService.VAR_TASCA_EVALUADA);
-			variables.remove(TascaService.VAR_TASCA_TITOLNOU);
+			variables.remove(VAR_TASCA_EVALUADA);
+			variables.remove(VAR_TASCA_TITOLNOU);
 			variables.remove(TascaService.VAR_TASCA_VALIDADA);
 			variables.remove(TascaService.VAR_TASCA_DELEGACIO);
 			List<String> codisEsborrar = new ArrayList<String>();
@@ -717,7 +724,7 @@ public class DtoConverter {
 	}
 
 	private String getTitolNouPerTasca(JbpmTask task) {
-		return (String)jbpmDao.getTaskInstanceVariable(task.getId(), TascaService.VAR_TASCA_TITOLNOU);
+		return (String)jbpmDao.getTaskInstanceVariable(task.getId(), VAR_TASCA_TITOLNOU);
 	}
 
 	private Map<String, Persona> getPersonesMap(String assignee, Set<String> pooledActors) {
@@ -930,6 +937,34 @@ public class DtoConverter {
 		return params;
 	}
 
+	private String evaluarTasca(JbpmTask task) {
+		Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
+				task.getName(),
+				task.getProcessDefinitionId());
+		String titolNou = null;
+		if (tasca.getNomScript() != null) {
+			try {
+				titolNou = (String)jbpmDao.evaluateExpression(
+						task.getProcessInstanceId(),
+						tasca.getNomScript());
+			} catch (Exception ex) {
+				logger.error("No s'ha pogut evaluar l'script per canviar el titol de la tasca", ex);
+			}
+		}
+		Map<String, Object> variables = new HashMap<String, Object>();
+		variables.put(VAR_TASCA_EVALUADA, new Date());
+		if (titolNou != null)
+			variables.put(VAR_TASCA_TITOLNOU, titolNou);
+		jbpmDao.setTaskInstanceVariables(task.getId(), variables);
+		return titolNou;
+	}
+	private boolean isTascaEvaluada(JbpmTask task) {
+		Object valor = jbpmDao.getTaskInstanceVariable(task.getId(), VAR_TASCA_EVALUADA);
+		if (valor == null || !(valor instanceof Date))
+			return false;
+		return true;
+	}
+
 	private String nomArxiuAmbExtensio(String fileName, String extensio) {
 		int indexPunt = fileName.lastIndexOf(".");
 		if (indexPunt != -1) {
@@ -939,5 +974,7 @@ public class DtoConverter {
 			return fileName + "." + extensio;
 		}
 	}
+
+	private static final Log logger = LogFactory.getLog(DtoConverter.class);
 
 }

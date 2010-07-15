@@ -6,7 +6,7 @@
 <html>
 <head>
 	<title>Tasques pendents</title>
-	<meta name="titolcmp" content="Tasques">
+	<meta name="titolcmp" content="Tasques"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 <script type="text/javascript">

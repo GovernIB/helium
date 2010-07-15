@@ -7,7 +7,7 @@
 <html>
 <head>
 	<title>Expedients disponibles per iniciar</title>
-	<meta name="titolcmp" content="Nou expedient">
+	<meta name="titolcmp" content="Nou expedient"/>
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 <script type="text/javascript">

@@ -6,7 +6,7 @@
 <html>
 <head>
 	<title><c:choose><c:when test="${empty command.id}">Crear nou tipus d'area</c:when><c:otherwise>Modificar tipus d'àrea</c:otherwise></c:choose></title>
-	<meta name="titolcmp" content="Organització">
+	<meta name="titolcmp" content="Organització"/>
 	<c:import url="../common/formIncludes.jsp"/>
 </head>
 <body>

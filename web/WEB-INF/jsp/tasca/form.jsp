@@ -18,7 +18,7 @@
 		</c:if>
 	</c:if>
 	<c:if test="${not isIframe}">
-		<meta name="titolcmp" content="Tasques">
+		<meta name="titolcmp" content="Tasques"/>
 		<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	</c:if>
 	<c:import url="../common/formIncludes.jsp">
@@ -109,8 +109,14 @@ function clickExecutarAccio(accio) {
 		var e = e || window.event;
 		e.cancelBubble = true;
 		if (e.stopPropagation) e.stopPropagation();
-		window.location = "registreEsborrar.html?id=${tasca.id}&registreId=" + campId + "&index=" + index;
+		$('form#command').append('<input type="hidden" name="registreEsborrarId" value="' + campId + '"/>');
+		$('form#command').append('<input type="hidden" name="registreEsborrarIndex" value="' + index + '"/>');
+		refresh();
 		return false;
+	}
+	function refresh() {
+		$('form#command :button[name="submit"]').attr("name", "sbmt");
+		$('form#command').submit();
 	}
 // ]]>
 </script>
@@ -141,6 +147,26 @@ function clickExecutarAccio(accio) {
 	</c:if>
 
 	<c:if test="${tasca.campsNotReadOnly}">
+		<c:set var="botons" scope="request">
+			<c:choose>
+				<c:when test="${tasca.validada}">
+					<c:import url="../common/formElement.jsp">
+						<c:param name="type" value="buttons"/>
+						<c:param name="values">restore</c:param>
+						<c:param name="titles">Modificar</c:param>
+						<c:param name="onclick" value="guardarAccio(this.value)"/>
+					</c:import>
+				</c:when>
+				<c:otherwise>
+					<c:import url="../common/formElement.jsp">
+						<c:param name="type" value="buttons"/>
+						<c:param name="values">submit,validate</c:param>
+						<c:param name="titles">Guardar,Validar</c:param>
+						<c:param name="onclick" value="guardarAccio(this.value)"/>
+					</c:import>
+				</c:otherwise>
+			</c:choose>
+		</c:set>
 		<c:choose>
 			<c:when test="${not empty tasca.formExtern}">
 				<c:if test="${tasca.validada}">
@@ -166,26 +192,6 @@ function clickExecutarAccio(accio) {
 				</form>
 			</c:when>
 			<c:otherwise>
-				<c:set var="botons" scope="request">
-					<c:choose>
-						<c:when test="${tasca.validada}">
-							<c:import url="../common/formElement.jsp">
-								<c:param name="type" value="buttons"/>
-								<c:param name="values">restore</c:param>
-								<c:param name="titles">Modificar</c:param>
-								<c:param name="onclick" value="guardarAccio(this.value)"/>
-							</c:import>
-						</c:when>
-						<c:otherwise>
-							<c:import url="../common/formElement.jsp">
-								<c:param name="type" value="buttons"/>
-								<c:param name="values">submit,validate</c:param>
-								<c:param name="titles">Guardar,Validar</c:param>
-								<c:param name="onclick" value="guardarAccio(this.value)"/>
-							</c:import>
-						</c:otherwise>
-					</c:choose>
-				</c:set>
 				<c:choose>
 					<c:when test="${empty param.toParent}">
 						<c:choose>

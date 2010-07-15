@@ -8,7 +8,7 @@
 <html>
 	<head>
 		<title>Variables <c:choose><c:when test="${param.tipus=='FILTRE'}">del filtre</c:when><c:otherwise>de l'informe</c:otherwise></c:choose> de la consulta ${consulta.nom}</title>
-		<meta name="titolcmp" content="Disseny">
+		<meta name="titolcmp" content="Disseny"/>
 		<c:import url="../common/formIncludes.jsp"/>
 		<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 		<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>

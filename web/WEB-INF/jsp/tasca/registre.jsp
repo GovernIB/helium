@@ -26,6 +26,9 @@ function canviTermini(input) {
 	var dies = document.getElementById(campId + "_dies").value;
 	document.getElementById(campId).value = anys + "/" + mesos + "/" + dies;
 }
+function refrescarPare() {
+	parent.refresh();
+}
 // ]]>
 </script>
 </head>
@@ -51,8 +54,7 @@ function canviTermini(input) {
 			</form:form>
 			<p class="aclaracio">Els camps marcats amb <img src="<c:url value="/img/bullet_red.png"/>" alt="Camp obligatori" title="Camp obligatori" border="0"/> són obligatoris</p>
 		</c:when>
-		<c:otherwise><script type="text/javascript">parent.location = '<c:url value="/tasca/form.html"><c:param name="id" value="${param.id}"/></c:url>';</script></c:otherwise>
+		<c:otherwise><script type="text/javascript">refrescarPare();</script></c:otherwise>
 	</c:choose>
-
 </body>
 </html>

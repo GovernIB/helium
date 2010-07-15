@@ -6,7 +6,7 @@
 <html>
 	<head>
 		<title>Rols</title>
-		<meta name="titolcmp" content="Configuració">
+		<meta name="titolcmp" content="Configuració"/>
 		<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 		<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
     	<script type="text/javascript">
