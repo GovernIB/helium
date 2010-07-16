@@ -1213,7 +1213,7 @@ public class DissenyService {
 		return dtoConverter.getResultatConsultaDominiPerCamp(camp, null, textInicial);
 	}
 
-	public List<FilaResultat> getResultatConsultaDomini(
+	public List<FilaResultat> getResultatConsultaCamp(
 			String taskId,
 			String processInstanceId,
 			Long definicioProcesId,
@@ -1229,7 +1229,7 @@ public class DissenyService {
 					break;
 				}
 			}
-			if (camp.getEnumeracio() != null) {
+			if (camp != null && camp.getEnumeracio() != null) {
 				return dtoConverter.getResultatConsultaEnumeracio(definicioProces, campCodi, textInicial);
 			} else {
 				return dtoConverter.getResultatConsultaDomini(
