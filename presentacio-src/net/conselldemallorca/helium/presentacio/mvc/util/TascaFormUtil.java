@@ -210,9 +210,10 @@ public class TascaFormUtil {
 		request.getSession().setAttribute(VARIABLE_SESSIO_COMMAND_TMP, command);
 	}
 	public static Object recuperarCommandTemporal(
-			HttpServletRequest request) {
+			HttpServletRequest request,
+			boolean esborrar) {
 		Object command = request.getSession().getAttribute(VARIABLE_SESSIO_COMMAND_TMP);
-		if (command != null)
+		if (command != null && esborrar)
 			request.getSession().removeAttribute(VARIABLE_SESSIO_COMMAND_TMP);
 		return command;
 	}

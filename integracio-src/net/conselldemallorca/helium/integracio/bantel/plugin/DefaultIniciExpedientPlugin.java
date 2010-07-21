@@ -42,19 +42,22 @@ public class DefaultIniciExpedientPlugin implements IniciExpedientPlugin {
 
 
 
-	public DadesIniciExpedient obtenirDadesInici(TramiteBTE tramit) {
+	public List<DadesIniciExpedient> obtenirDadesInici(TramiteBTE tramit) {
 		List<ExpedientTipus> candidats = dissenyService.findExpedientTipusAmbSistraTramitCodi(tramit.getIdentificadorTramite());
-		if (candidats.size() == 1) {
-			ExpedientTipus expedientTipus = candidats.get(0);
-			DadesIniciExpedient resposta = new DadesIniciExpedient();
-			resposta.setEntornCodi(expedientTipus.getEntorn().getCodi());
-			resposta.setTipusCodi(expedientTipus.getCodi());
-			if (expedientTipus.getTeTitol() && expedientTipus.getDemanaTitol())
-				resposta.setTitol(tramit.getNumeroEntrada());
-			if (expedientTipus.getTeNumero() && expedientTipus.getDemanaNumero())
-				resposta.setNumero(expedientTipus.getNumeroExpedientActual());
-			resposta.setDadesInicials(getDadesInicials(expedientTipus, tramit));
-			resposta.setDocumentsInicials(getDocumentsInicials(expedientTipus, tramit));
+		if (candidats.size() > 0) {
+			List<DadesIniciExpedient> resposta = new ArrayList<DadesIniciExpedient>();
+			for (ExpedientTipus expedientTipus: candidats) {
+				DadesIniciExpedient dadesIniciExpedient = new DadesIniciExpedient();
+				dadesIniciExpedient.setEntornCodi(expedientTipus.getEntorn().getCodi());
+				dadesIniciExpedient.setTipusCodi(expedientTipus.getCodi());
+				if (expedientTipus.getTeTitol() && expedientTipus.getDemanaTitol())
+					dadesIniciExpedient.setTitol(tramit.getNumeroEntrada());
+				if (expedientTipus.getTeNumero() && expedientTipus.getDemanaNumero())
+					dadesIniciExpedient.setNumero(expedientTipus.getNumeroExpedientActual());
+				dadesIniciExpedient.setDadesInicials(getDadesInicials(expedientTipus, tramit));
+				dadesIniciExpedient.setDocumentsInicials(getDocumentsInicials(expedientTipus, tramit));
+				resposta.add(dadesIniciExpedient);
+			}
 			return resposta;
 		} else {
 			throw new RuntimeException("No s'han configurat els paràmetres necessàris per a l'inici d'un tràmit del tipus " + tramit.getIdentificadorTramite());
@@ -82,29 +85,31 @@ public class DefaultIniciExpedientPlugin implements IniciExpedientPlugin {
 		String[] parts = expedientTipus.getSistraTramitMapeigCamps().split(";");
 		for (int i = 0; i < parts.length; i++) {
 			String[] parella = parts[i].split(":");
-			String varSistra = parella[0];
-			String varHelium = parella[1];
-			Camp campHelium = null;
-			for (CampTasca campTasca: campsTasca) {
-				if (campTasca.getCamp().getCodi().equalsIgnoreCase(varHelium)) {
-					campHelium = campTasca.getCamp();
-					break;
+			if (parella.length > 1) {
+				String varSistra = parella[0];
+				String varHelium = parella[1];
+				Camp campHelium = null;
+				for (CampTasca campTasca: campsTasca) {
+					if (campTasca.getCamp().getCodi().equalsIgnoreCase(varHelium)) {
+						campHelium = campTasca.getCamp();
+						break;
+					}
 				}
-			}
-			try {
-				if(campHelium == null || !campHelium.isMultiple()){
-					String valorSistra = valorVariableSistra(tramit, varSistra);
-					resposta.put(
-							varHelium,
-							valorVariableHelium(valorSistra, campHelium, false));
-				} else {
-					String[] valorSistra = valorVariableSistraMultiple(tramit, varSistra);
-					resposta.put(
-							varHelium,
-							valorVariableHelium(valorSistra, campHelium, true));
+				try {
+					if(campHelium == null || !campHelium.isMultiple()){
+						String valorSistra = valorVariableSistra(tramit, varSistra);
+						resposta.put(
+								varHelium,
+								valorVariableHelium(valorSistra, campHelium, false));
+					} else {
+						String[] valorSistra = valorVariableSistraMultiple(tramit, varSistra);
+						resposta.put(
+								varHelium,
+								valorVariableHelium(valorSistra, campHelium, true));
+					}
+				} catch (Exception ex) {
+					logger.error("Error llegint dades del document de SISTRA", ex);
 				}
-			} catch (Exception ex) {
-				logger.error("Error llegint dades del document de SISTRA", ex);
 			}
 		}
 		return resposta;
@@ -118,22 +123,24 @@ public class DefaultIniciExpedientPlugin implements IniciExpedientPlugin {
 		String[] parts = expedientTipus.getSistraTramitMapeigDocuments().split(";");
 		for (int i = 0; i < parts.length; i++) {
 			String[] parella = parts[i].split(":");
-			String varSistra = parella[0];
-			String varHelium = parella[1];
-			net.conselldemallorca.helium.model.hibernate.Document docHelium = null;
-			for (DocumentTasca document: documents) {
-				if (document.getDocument().getCodi().equalsIgnoreCase(varHelium)) {
-					docHelium = document.getDocument();
-					break;
+			if (parella.length > 1) {
+				String varSistra = parella[0];
+				String varHelium = parella[1];
+				net.conselldemallorca.helium.model.hibernate.Document docHelium = null;
+				for (DocumentTasca document: documents) {
+					if (document.getDocument().getCodi().equalsIgnoreCase(varHelium)) {
+						docHelium = document.getDocument();
+						break;
+					}
 				}
-			}
-			try {
-				if (docHelium != null)
-					resposta.put(
-							varHelium,
-							valorDocumentSistra(tramit, varSistra, docHelium));
-			} catch (Exception ex) {
-				logger.error("Error llegint dades del document de SISTRA", ex);
+				try {
+					if (docHelium != null)
+						resposta.put(
+								varHelium,
+								valorDocumentSistra(tramit, varSistra, docHelium));
+				} catch (Exception ex) {
+					logger.error("Error llegint dades del document de SISTRA", ex);
+				}
 			}
 		}
 		return resposta;

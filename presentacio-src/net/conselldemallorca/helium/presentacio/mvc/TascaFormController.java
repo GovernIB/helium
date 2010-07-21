@@ -78,46 +78,37 @@ public class TascaFormController extends BaseController {
 		this.validator = new TascaFormValidator(tascaService);
 	}
 
-	@ModelAttribute("tasca")
-	public TascaDto populateTasca(
+	@SuppressWarnings("unchecked")
+	@ModelAttribute("command")
+	public Object populateCommand(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) String id,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			try {
-				TascaDto tasca = tascaService.getById(entorn.getId(), id);
-				if (tasca.getRecursForm() != null && tasca.getRecursForm().length() > 0) {
-					try {
-						byte[] contingut = dissenyService.getDeploymentResource(
-								tasca.getDefinicioProces().getId(),
-								tasca.getRecursForm());
-						model.addAttribute(
-								"formRecursParams",
-								getFormRecursParams(new String(contingut, "UTF-8")));
-					} catch (Exception ex) {
-						logger.error("No s'han pogut extreure els parametres del recurs", ex);
-					}
-				}
-				return tasca;
-			} catch (NotFoundException ignored) {}
-		}
-		return null;
-	}
-
-	@SuppressWarnings("unchecked")
-	@ModelAttribute("command")
-	public Object populateCommand(
-			HttpServletRequest request,
-			@RequestParam(value = "id", required = true) String id) {
-		Entorn entorn = getEntornActiu(request);
-		if (entorn != null) {
-			Object commandSessio = TascaFormUtil.recuperarCommandTemporal(request);
+			TascaDto tasca = tascaService.getById(entorn.getId(), id);
+			Object command = null;
+			Object commandSessio = TascaFormUtil.recuperarCommandTemporal(request, true);
 			if (commandSessio != null) {
-				return commandSessio;
+				List<Camp> camps = new ArrayList<Camp>();
+	    		for (CampTasca campTasca: tasca.getCamps())
+	    			camps.add(campTasca.getCamp());
+				tasca = tascaService.getById(
+						entorn.getId(),
+						id,
+						TascaFormUtil.valorsFromCommand(
+	        					camps,
+	        					commandSessio,
+	        					true,
+	    						false));
+				model.addAttribute(
+						"valorsPerSuggest",
+						TascaFormUtil.getValorsPerSuggest(tasca, commandSessio));
+				model.addAttribute("commandReadOnly", commandSessio);
+				command = commandSessio;
 			} else {
+				tasca = tascaService.getById(entorn.getId(), id);
 				try {
-					TascaDto tasca = tascaService.getById(entorn.getId(), id);
 					Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 					campsAddicionals.put("id", id);
 					campsAddicionals.put("entornId", entorn.getId());
@@ -126,35 +117,30 @@ public class TascaFormController extends BaseController {
 					campsAddicionalsClasses.put("id", String.class);
 					campsAddicionalsClasses.put("entornId", Long.class);
 					campsAddicionalsClasses.put("procesScope", Map.class);
-					Object command = TascaFormUtil.getCommandForTasca(
+					command = TascaFormUtil.getCommandForTasca(
 							tasca,
 							campsAddicionals,
 							campsAddicionalsClasses);
-					return command;
+					model.addAttribute(
+							"valorsPerSuggest",
+							TascaFormUtil.getValorsPerSuggest(tasca, command));
+					model.addAttribute("commandReadOnly", command);
 				} catch (NotFoundException ignored) {}
 			}
-		}
-		return null;
-	}
-
-	@ModelAttribute("commandReadOnly")
-	public Object populateCommandReadOnly(
-			HttpServletRequest request,
-			@RequestParam(value = "id", required = true) String id) {
-		return populateCommand(request, id);
-	}
-
-	@ModelAttribute("valorsPerSuggest")
-	public Map<String, List<String>> populateValorsPerSuggest(
-			HttpServletRequest request,
-			ModelMap model) {
-		Entorn entorn = getEntornActiu(request);
-		if (entorn != null) {
-			TascaDto tasca = (TascaDto)model.get("tasca");
-			if (tasca != null) {
-				Object command = model.get("command");
-				return TascaFormUtil.getValorsPerSuggest(tasca, command);
+			if (tasca.getRecursForm() != null && tasca.getRecursForm().length() > 0) {
+				try {
+					byte[] contingut = dissenyService.getDeploymentResource(
+							tasca.getDefinicioProces().getId(),
+							tasca.getRecursForm());
+					model.addAttribute(
+							"formRecursParams",
+							getFormRecursParams(new String(contingut, "UTF-8")));
+				} catch (Exception ex) {
+					logger.error("No s'han pogut extreure els parametres del recurs", ex);
+				}
 			}
+			model.addAttribute("tasca", tasca);
+			return command;
 		}
 		return null;
 	}
@@ -201,14 +187,6 @@ public class TascaFormController extends BaseController {
     		for (CampTasca campTasca: tasca.getCamps())
     			camps.add(campTasca.getCamp());
 			if ("submit".equals(submit)) {
-				try {
-					afegirVariablesDelProces(command, tasca);
-					TascaFormUtil.getBeanValidatorForCommand(camps).validate(command, result);
-				} catch (Exception ex) {
-					missatgeError(request, "S'han produit errors de validació", ex.getLocalizedMessage());
-		        	logger.error("S'han produit errors de validació", ex);
-		        	return "tasca/form";
-				}
 		        if (result.hasErrors()) {
 		        	return "tasca/form";
 		        }

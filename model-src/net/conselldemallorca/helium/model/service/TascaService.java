@@ -23,6 +23,7 @@ import net.conselldemallorca.helium.model.dao.FormulariExternDao;
 import net.conselldemallorca.helium.model.dao.LuceneDao;
 import net.conselldemallorca.helium.model.dao.PlantillaDocumentDao;
 import net.conselldemallorca.helium.model.dao.PluginCustodiaDao;
+import net.conselldemallorca.helium.model.dao.PluginGestioDocumentalDao;
 import net.conselldemallorca.helium.model.dao.RegistreDao;
 import net.conselldemallorca.helium.model.dao.TascaDao;
 import net.conselldemallorca.helium.model.dto.DocumentDto;
@@ -45,6 +46,7 @@ import net.conselldemallorca.helium.model.hibernate.Expedient;
 import net.conselldemallorca.helium.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.model.hibernate.FormulariExtern;
 import net.conselldemallorca.helium.model.hibernate.Tasca;
+import net.conselldemallorca.helium.model.hibernate.DocumentStore.DocumentFont;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.Authentication;
@@ -81,15 +83,22 @@ public class TascaService {
 	private LuceneDao luceneDao;
 	private RegistreDao registreDao;
 	private FormulariExternDao formulariExternDao;
+	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
 
 
 
 	public TascaDto getById(Long entornId, String taskId) {
-		return getById(entornId, taskId, null);
+		return getById(entornId, taskId, null, null);
+	}
+	public TascaDto getById(Long entornId, String taskId, Map<String, Object> valorsCommand) {
+		return getById(entornId, taskId, null, valorsCommand);
 	}
 	public TascaDto getById(Long entornId, String taskId, String usuari) {
+		return getById(entornId, taskId, usuari, null);
+	}
+	public TascaDto getById(Long entornId, String taskId, String usuari, Map<String, Object> valorsCommand) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);
-		return toTascaDto(task, true);
+		return toTascaDto(task, valorsCommand, true);
 	}
 	public List<TascaDto> findTasquesPersonals(Long entornId) {
 		return findTasquesPersonals(entornId, null);
@@ -119,7 +128,7 @@ public class TascaService {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, false);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		jbpmDao.takeTaskInstance(taskId, auth.getName());
-		TascaDto tasca = toTascaDto(task, true);
+		TascaDto tasca = toTascaDto(task, null, true);
 		registreDao.crearRegistreIniciarTasca(
 				tasca.getExpedient().getId(),
 				taskId,
@@ -142,7 +151,7 @@ public class TascaService {
 		boolean iniciada = task.getStartTime() == null;
 		jbpmDao.startTaskInstance(taskId);
 		jbpmDao.setTaskInstanceVariables(taskId, variables);
-		TascaDto tasca = toTascaDto(task, true);
+		TascaDto tasca = toTascaDto(task, null, true);
 		if (iniciada) {
 			registreDao.crearRegistreModificarTasca(
 					tasca.getExpedient().getId(),
@@ -235,7 +244,7 @@ public class TascaService {
 		jbpmDao.startTaskInstance(taskId);
 		jbpmDao.setTaskInstanceVariables(taskId, variables);
 		validarTasca(taskId);
-		TascaDto tasca = toTascaDto(task, true);
+		TascaDto tasca = toTascaDto(task, null, true);
 		registreDao.crearRegistreModificarTasca(
 				tasca.getExpedient().getId(),
 				taskId,
@@ -251,7 +260,7 @@ public class TascaService {
 			throw new IllegalStateException("La tasca no ha estat validada");
 		//deleteDocumentsTasca(taskId);
 		restaurarTasca(taskId);
-		TascaDto tasca = toTascaDto(task, true);
+		TascaDto tasca = toTascaDto(task, null, true);
 		registreDao.crearRegistreModificarTasca(
 				tasca.getExpedient().getId(),
 				taskId,
@@ -310,7 +319,7 @@ public class TascaService {
 				getMapDefinicionsProces(expedient),
 				getMapCamps(expedient),
 				getMapValorsJbpm(expedient));
-		TascaDto tasca = toTascaDto(task, true);
+		TascaDto tasca = toTascaDto(task, null, true);
 		registreDao.crearRegistreFinalitzarTasca(
 				tasca.getExpedient().getId(),
 				taskId,
@@ -334,7 +343,7 @@ public class TascaService {
 		Map<String, Object> variables = new HashMap<String, Object>();
 		variables.put(codiVariable, valor);
 		jbpmDao.setTaskInstanceVariables(task.getId(), variables);
-		TascaDto tasca = toTascaDto(task, true);
+		TascaDto tasca = toTascaDto(task, null, true);
 		registreDao.crearRegistreCrearVariableTasca(
 				tasca.getExpedient().getId(),
 				taskId,
@@ -352,7 +361,7 @@ public class TascaService {
 		Map<String, Object> variables = new HashMap<String, Object>();
 		variables.put(codiVariable, valor);
 		jbpmDao.setTaskInstanceVariables(task.getId(), variables);
-		TascaDto tasca = toTascaDto(task, true);
+		TascaDto tasca = toTascaDto(task, null, true);
 		registreDao.crearRegistreModificarVariableTasca(
 				tasca.getExpedient().getId(),
 				taskId,
@@ -367,7 +376,7 @@ public class TascaService {
 			String codiVariable) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		jbpmDao.deleteTaskInstanceVariable(task.getId(), codiVariable);
-		TascaDto tasca = toTascaDto(task, true);
+		TascaDto tasca = toTascaDto(task, null, true);
 		registreDao.crearRegistreEsborrarVariableTasca(
 				tasca.getExpedient().getId(),
 				taskId,
@@ -395,9 +404,9 @@ public class TascaService {
 			Long entornId,
 			String taskId,
 			String documentCodi,
-			String nom,
+			String arxiuNom,
 			Date data,
-			byte[] contingut,
+			byte[] arxiuContingut,
 			String usuari) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);
 		if (!isTascaValidada(task))
@@ -413,32 +422,48 @@ public class TascaService {
 		Long docStoreId = (Long)jbpmDao.getProcessInstanceVariable(task.getProcessInstanceId(), codiVariableJbpm);
 		String nomArxiuAntic = null;
 		boolean creat = (docStoreId == null);
-		if (!creat) {
-			nomArxiuAntic = documentStoreDao.getById(docStoreId, false).getArxiuNom();
-			documentStoreDao.update(
-					docStoreId,
-					expedient,
-					document.getNom(),
-					data,
-					nom,
-					contingut);
-		} else {
+		// Crea el document al store
+		if (docStoreId == null) {
 			docStoreId = documentStoreDao.create(
-					expedient,
 					task.getProcessInstanceId(),
 					codiVariableJbpm,
+					data,
+					(pluginGestioDocumentalDao.isGestioDocumentalActiu()) ? DocumentFont.ALFRESCO : DocumentFont.INTERNA,
+					arxiuNom,
+					arxiuContingut,
+					false,
+					null);
+		} else {
+			DocumentStore docStore = documentStoreDao.getById(docStoreId, false);
+			nomArxiuAntic = docStore.getArxiuNom();
+			documentStoreDao.update(
+					docStoreId,
+					data,
+					arxiuNom,
+					arxiuContingut,
+					null);
+			if (arxiuContingut != null)
+				pluginGestioDocumentalDao.deleteDocument(docStore.getReferenciaFont());
+		}
+		// Crea el document a dins la gestió documental
+		if (arxiuContingut != null && pluginGestioDocumentalDao.isGestioDocumentalActiu()) {
+			String referenciaFont = pluginGestioDocumentalDao.createDocument(
+					expedient,
+					docStoreId.toString(),
 					document.getNom(),
 					data,
-					nom,
-					contingut,
-					false);
+					arxiuNom,
+					arxiuContingut);
+			documentStoreDao.updateReferenciaFont(
+					docStoreId,
+					referenciaFont);
 		}
 		// Guarda la referència al nou document a dins el jBPM
 		jbpmDao.setTaskInstanceVariable(
 				task.getId(),
 				codiVariableJbpm,
 				docStoreId);
-		TascaDto tasca = toTascaDto(task, true);
+		TascaDto tasca = toTascaDto(task, null, true);
 		// Registra l'acció
 		if (creat) {
 			registreDao.crearRegistreCrearDocumentTasca(
@@ -446,7 +471,7 @@ public class TascaService {
 					taskId,
 					SecurityContextHolder.getContext().getAuthentication().getName(),
 					document.getCodi(),
-					nom);
+					arxiuNom);
 		} else {
 			registreDao.crearRegistreModificarDocumentTasca(
 					tasca.getExpedient().getId(),
@@ -454,7 +479,7 @@ public class TascaService {
 					SecurityContextHolder.getContext().getAuthentication().getName(),
 					document.getCodi(),
 					nomArxiuAntic,
-					nom);
+					arxiuNom);
 		}
 	}
 	public void esborrarDocument(
@@ -471,6 +496,8 @@ public class TascaService {
 			if (documentStore != null) {
 				if (documentStore.isSignat())
 					pluginCustodiaDao.deleteDocumentAmbSignatura(documentStore.getReferenciaCustodia());
+				if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
+					pluginGestioDocumentalDao.deleteDocument(documentStore.getReferenciaFont());
 				documentStoreDao.delete(documentJbpm);
 			}
 			if (jbpmDao.getTaskInstanceVariable(taskId, codiVariableJbpm) != null)
@@ -482,7 +509,7 @@ public class TascaService {
 						task.getProcessInstanceId(),
 						codiVariableJbpm);
 		}
-		TascaDto tasca = toTascaDto(task, true);
+		TascaDto tasca = toTascaDto(task, null, true);
 		registreDao.crearRegistreEsborrarDocumentTasca(
 				tasca.getExpedient().getId(),
 				taskId,
@@ -582,7 +609,7 @@ public class TascaService {
 			ExpedientDto expedient = dtoConverter.toExpedientDto(
 					expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId()),
 					false);
-			TascaDto tasca = toTascaDto(task, true);
+			TascaDto tasca = toTascaDto(task, null, true);
 			InstanciaProcesDto instanciaProces = dtoConverter.toInstanciaProcesDto(
 					task.getProcessInstanceId(),
 					true);
@@ -766,6 +793,11 @@ public class TascaService {
 	public void setFormulariExternDao(FormulariExternDao formulariExternDao) {
 		this.formulariExternDao = formulariExternDao;
 	}
+	@Autowired
+	public void setPluginGestioDocumentalDao(
+			PluginGestioDocumentalDao pluginGestioDocumentalDao) {
+		this.pluginGestioDocumentalDao = pluginGestioDocumentalDao;
+	}
 
 
 
@@ -793,9 +825,10 @@ public class TascaService {
 		}
 		return task;
 	}
-	private TascaDto toTascaDto(JbpmTask task, boolean ambVariables) {
+	private TascaDto toTascaDto(JbpmTask task, Map<String, Object> varsCommand, boolean ambVariables) {
 		return dtoConverter.toTascaDto(
 				task,
+				varsCommand,
 				ambVariables,
 				isTascaValidada(task),
 				isDocumentsComplet(task),
@@ -809,7 +842,7 @@ public class TascaService {
 		for (JbpmTask task: tasques) {
 			Long currentEntornId = entornPerTasca(task).getId();
 			if (currentEntornId != null && entornId.equals(currentEntornId))
-				filtrades.add(toTascaDto(task, false));
+				filtrades.add(toTascaDto(task, null, false));
 		}
 		return filtrades;
 	}

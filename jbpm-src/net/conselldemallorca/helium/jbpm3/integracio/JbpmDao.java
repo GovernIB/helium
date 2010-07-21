@@ -316,7 +316,7 @@ public class JbpmDao {
 		return resultat;
 	}
 
-	public List<String> findTaskOutcomes(String jbpmId, String taskName) {
+	public List<String> findStartTaskOutcomes(String jbpmId, String taskName) {
 		List<String> resultat = new ArrayList<String>();
 		long pdid = new Long(jbpmId).longValue();
 		GetProcessDefinitionByIdCommand command = new GetProcessDefinitionByIdCommand(pdid);
@@ -328,13 +328,12 @@ public class JbpmDao {
 		}
 		return resultat;
 	}
-	@SuppressWarnings("unchecked")
 	public List<String> findTaskInstanceOutcomes(String taskInstanceId) {
 		List<String> resultat = new ArrayList<String>();
 		long id = new Long(taskInstanceId).longValue();
 		GetTaskInstanceCommand command = new GetTaskInstanceCommand(id);
 		TaskInstance taskInstance = (TaskInstance)commandService.execute(command);
-		List<Transition> outcomes = (List<Transition>)taskInstance.getAvailableTransitions();
+		List<Transition> outcomes = (List<Transition>)taskInstance.getTask().getTaskNode().getLeavingTransitions();
 		if (outcomes != null) {
 			for (Transition transition: outcomes)
 				resultat.add(transition.getName());

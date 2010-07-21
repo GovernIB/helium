@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.integracio.bantel.plugin;
 
+import java.util.List;
+
 import net.conselldemallorca.helium.integracio.bantel.client.wsdl.TramiteBTE;
 
 /**
@@ -12,6 +14,6 @@ import net.conselldemallorca.helium.integracio.bantel.client.wsdl.TramiteBTE;
  */
 public interface IniciExpedientPlugin {
 
-	public DadesIniciExpedient obtenirDadesInici(TramiteBTE tramit);
+	public List<DadesIniciExpedient> obtenirDadesInici(TramiteBTE tramit);
 
 }

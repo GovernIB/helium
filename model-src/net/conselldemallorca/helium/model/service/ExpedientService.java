@@ -35,6 +35,7 @@ import net.conselldemallorca.helium.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.model.dao.ExpedientTipusDao;
 import net.conselldemallorca.helium.model.dao.LuceneDao;
 import net.conselldemallorca.helium.model.dao.PluginCustodiaDao;
+import net.conselldemallorca.helium.model.dao.PluginGestioDocumentalDao;
 import net.conselldemallorca.helium.model.dao.PluginPortasignaturesDao;
 import net.conselldemallorca.helium.model.dao.RegistreDao;
 import net.conselldemallorca.helium.model.dao.TerminiIniciatDao;
@@ -57,6 +58,7 @@ import net.conselldemallorca.helium.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.model.hibernate.Registre;
 import net.conselldemallorca.helium.model.hibernate.TerminiIniciat;
+import net.conselldemallorca.helium.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.model.hibernate.Portasignatures.Transicio;
@@ -95,6 +97,7 @@ public class ExpedientService {
 	private AccioDao accioDao;
 	private TerminiIniciatDao terminiIniciatDao;
 	private PluginPortasignaturesDao pluginPortasignaturesDao;
+	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
 
 	private JbpmDao jbpmDao;
 	private DtoConverter dtoConverter;
@@ -252,6 +255,8 @@ public class ExpedientService {
 						pluginCustodiaDao.deleteDocumentAmbSignatura(documentStore.getReferenciaCustodia());
 					} catch (Exception ignored) {}
 				}
+				if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
+					pluginGestioDocumentalDao.deleteDocument(documentStore.getReferenciaFont());
 				documentStoreDao.delete(documentStore.getId());
 			}
 			expedientDao.delete(expedient);
@@ -347,7 +352,7 @@ public class ExpedientService {
 		List<TascaDto> resposta = new ArrayList<TascaDto>();
 		List<JbpmTask> tasks = jbpmDao.findTaskInstancesForProcessInstance(processInstanceId);
 		for (JbpmTask task: tasks)
-			resposta.add(dtoConverter.toTascaDto(task, true, true, true, true));
+			resposta.add(dtoConverter.toTascaDto(task, null, true, true, true, true));
 		Collections.sort(resposta);
 		return resposta;
 	}
@@ -500,7 +505,7 @@ public class ExpedientService {
 			String arxiuNom,
 			byte[] arxiuContingut) {
 		Document document = documentDao.getById(documentId, false);
-		createUpdateDocumentStore(
+		createUpdateDocument(
 				processInstanceId,
 				document.getCodi(),
 				document.getNom(),
@@ -519,7 +524,7 @@ public class ExpedientService {
 			String arxiuNom,
 			byte[] arxiuContingut) {
 		String adId = (adjuntId == null) ? new Long(new Date().getTime()).toString() : adjuntId;
-		createUpdateDocumentStore(
+		createUpdateDocument(
 				processInstanceId,
 				adId,
 				adjuntTitol,
@@ -535,6 +540,8 @@ public class ExpedientService {
 			String jbpmVariable = documentStore.getJbpmVariable();
 			if (documentStore.isSignat())
 				pluginCustodiaDao.deleteDocumentAmbSignatura(documentStore.getReferenciaCustodia());
+			if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
+				pluginGestioDocumentalDao.deleteDocument(documentStore.getReferenciaFont());
 			documentStoreDao.delete(documentStoreId);
 			jbpmDao.deleteProcessInstanceVariable(processInstanceId, jbpmVariable);
 			JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(processInstanceId);
@@ -822,6 +829,13 @@ public class ExpedientService {
 	public void setPluginPortasignaturesDao(PluginPortasignaturesDao pluginPortasignaturesDao) {
 		this.pluginPortasignaturesDao = pluginPortasignaturesDao;
 	}
+	@Autowired
+	public void setPluginGestioDocumentalDao(
+			PluginGestioDocumentalDao pluginGestioDocumentalDao) {
+		this.pluginGestioDocumentalDao = pluginGestioDocumentalDao;
+	}
+
+
 
 	@SuppressWarnings("unchecked")
 	private Map<String, JbpmNodePosition> getNodePositions(String processInstanceId) {
@@ -946,7 +960,7 @@ public class ExpedientService {
 		return resposta;
 	}
 
-	private void createUpdateDocumentStore(
+	private void createUpdateDocument(
 				String processInstanceId,
 				String documentCodi,
 				String documentNom,
@@ -955,59 +969,75 @@ public class ExpedientService {
 				String arxiuNom,
 				byte[] arxiuContingut,
 				boolean adjunt) {
-			JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(processInstanceId);
-			Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
-			// Obté la referencia al documentStore del jBPM
-			Long docStoreId = (Long)jbpmDao.getProcessInstanceVariable(
+		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(processInstanceId);
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
+		String nomArxiuAntic = null;
+		// Obté la referencia al documentStore del jBPM
+		Long docStoreId = (Long)jbpmDao.getProcessInstanceVariable(
+				processInstanceId,
+				jbpmVariable);
+		boolean creat = (docStoreId == null);
+		// Crea el document al store
+		if (docStoreId == null) {
+			docStoreId = documentStoreDao.create(
 					processInstanceId,
-					jbpmVariable);
-			String nomArxiuAntic = null;
-			boolean creat = (docStoreId == null);
-			if (!creat) {
-				nomArxiuAntic = documentStoreDao.getById(docStoreId, false).getArxiuNom();
-				documentStoreDao.update(
-						docStoreId,
-						expedient,
-						documentNom,
-						data,
-						arxiuNom,
-						arxiuContingut);
-			} else {
-				docStoreId = documentStoreDao.create(
-						expedient,
-						processInstanceId,
-						jbpmVariable,
-						documentNom,
-						data,
-						arxiuNom,
-						arxiuContingut,
-						adjunt);
-			}
-			// Guarda la referència al nou document a dins el jBPM
-			jbpmDao.setProcessInstanceVariable(processInstanceId, jbpmVariable, docStoreId);
-			// Registra l'acció
-			if (creat) {
-				registreDao.crearRegistreCrearDocumentInstanciaProces(
-						expedient.getId(),
-						processInstanceId,
-						SecurityContextHolder.getContext().getAuthentication().getName(),
-						documentCodi,
-						arxiuNom);
-			} else {
-				registreDao.crearRegistreModificarDocumentInstanciaProces(
-						expedient.getId(),
-						processInstanceId,
-						SecurityContextHolder.getContext().getAuthentication().getName(),
-						documentCodi,
-						nomArxiuAntic,
-						arxiuNom);
-			}
+					jbpmVariable,
+					data,
+					(pluginGestioDocumentalDao.isGestioDocumentalActiu()) ? DocumentFont.ALFRESCO : DocumentFont.INTERNA,
+					arxiuNom,
+					arxiuContingut,
+					adjunt,
+					documentNom);
+		} else {
+			DocumentStore docStore = documentStoreDao.getById(docStoreId, false);
+			nomArxiuAntic = docStore.getArxiuNom();
+			documentStoreDao.update(
+					docStoreId,
+					data,
+					arxiuNom,
+					arxiuContingut,
+					documentNom);
+			if (arxiuContingut != null)
+				pluginGestioDocumentalDao.deleteDocument(docStore.getReferenciaFont());
 		}
+		// Crea el document a dins la gestió documental
+		if (arxiuContingut != null && pluginGestioDocumentalDao.isGestioDocumentalActiu()) {
+			String referenciaFont = pluginGestioDocumentalDao.createDocument(
+					expedient,
+					docStoreId.toString(),
+					documentNom,
+					data,
+					arxiuNom,
+					arxiuContingut);
+			documentStoreDao.updateReferenciaFont(
+					docStoreId,
+					referenciaFont);
+		}
+		// Guarda la referència al nou document a dins el jBPM
+		jbpmDao.setProcessInstanceVariable(processInstanceId, jbpmVariable, docStoreId);
+		// Registra l'acció
+		if (creat) {
+			registreDao.crearRegistreCrearDocumentInstanciaProces(
+					expedient.getId(),
+					processInstanceId,
+					SecurityContextHolder.getContext().getAuthentication().getName(),
+					documentCodi,
+					arxiuNom);
+		} else {
+			registreDao.crearRegistreModificarDocumentInstanciaProces(
+					expedient.getId(),
+					processInstanceId,
+					SecurityContextHolder.getContext().getAuthentication().getName(),
+					documentCodi,
+					nomArxiuAntic,
+					arxiuNom);
+		}
+	}
 
 	private String getNumexpExpression() {
 		return GlobalProperties.getInstance().getProperty("app.numexp.expression");
 	}
-	
+
 	public void enviarPortasignatures(
 			Persona persona,
 			DocumentDto documentDto,
@@ -1040,7 +1070,7 @@ public class ExpedientService {
 			throw new JbpmException("No s'ha pogut pujar el document al portasignatures", e);
 		}
 	}
-	
+
 	public byte[] obtenirDocumentPortasignatures(
 			Integer documentId) {
 		try {
@@ -1050,7 +1080,7 @@ public class ExpedientService {
 			return null;
 		}
 	}
-	
+
 	public void afegirDocumentCustodia(
 			Integer documentId,
 			Long documentStoreId) throws Exception {
@@ -1086,7 +1116,7 @@ public class ExpedientService {
 			}
 		}
 	}
-	
+
 	public Double processarDocumentSignat(Integer id) throws Exception {
 		Double resposta = -1D;
 		String transicio = "";
@@ -1125,7 +1155,7 @@ public class ExpedientService {
 		
 		return resposta;
 	}
-	
+
 	public Double processarDocumentRebutjat(Integer id, String motiuRebuig) throws Exception {
 		Double resposta = -1D;
 		String transicio = "";

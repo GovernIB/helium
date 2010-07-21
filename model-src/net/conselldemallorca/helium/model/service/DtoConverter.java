@@ -33,6 +33,7 @@ import net.conselldemallorca.helium.model.dao.DominiDao;
 import net.conselldemallorca.helium.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.model.dao.FirmaTascaDao;
 import net.conselldemallorca.helium.model.dao.PluginCustodiaDao;
+import net.conselldemallorca.helium.model.dao.PluginGestioDocumentalDao;
 import net.conselldemallorca.helium.model.dao.PluginPersonaDao;
 import net.conselldemallorca.helium.model.dao.TascaDao;
 import net.conselldemallorca.helium.model.dto.DocumentDto;
@@ -52,6 +53,7 @@ import net.conselldemallorca.helium.model.hibernate.Expedient;
 import net.conselldemallorca.helium.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.model.hibernate.Tasca;
 import net.conselldemallorca.helium.model.hibernate.Camp.TipusCamp;
+import net.conselldemallorca.helium.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.util.GlobalProperties;
 
@@ -85,6 +87,7 @@ public class DtoConverter {
 	private DominiDao dominiDao;
 	private PluginPersonaDao pluginPersonaDao;
 	private PluginCustodiaDao pluginCustodiaDao;
+	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
 	private JbpmDao jbpmDao;
 
 
@@ -121,6 +124,7 @@ public class DtoConverter {
 
 	public TascaDto toTascaDto(
 			JbpmTask task,
+			Map<String, Object> varsCommand,
 			boolean ambVariables,
 			boolean validada,
 			boolean documentsComplet,
@@ -204,6 +208,8 @@ public class DtoConverter {
 							task.getProcessInstanceId(),
 							signaturesTasca));
 			filtrarVariablesTasca(valors);
+			if (varsCommand != null)
+				valors.putAll(varsCommand);
 			dto.setVariables(valors);
 			List<Camp> camps = new ArrayList<Camp>();
 			for (CampTasca campTasca: campsTasca)
@@ -237,7 +243,7 @@ public class DtoConverter {
 		dto.setDocumentsComplet(false);
 		dto.setSignaturesComplet(false);
 		dto.setDefinicioProces(tasca.getDefinicioProces());
-		dto.setOutcomes(jbpmDao.findTaskOutcomes(jbpmId, startTaskName));
+		dto.setOutcomes(jbpmDao.findStartTaskOutcomes(jbpmId, startTaskName));
 		dto.setValidacions(tasca.getValidacions());
 		
 		//Camps
@@ -329,7 +335,12 @@ public class DtoConverter {
 									GlobalProperties.getInstance().getProperty("app.conversio.signatura.extension")));
 						dto.setArxiuContingut(docSignat.getArxiuContingut());
 					} else {
-						dto.setArxiuContingut(documentStoreDao.retrieveContingut(documentStoreId));
+						if (document.getFont().equals(DocumentFont.INTERNA)) {
+							dto.setArxiuContingut(document.getArxiuContingut());
+						} else {
+							dto.setArxiuContingut(
+									pluginGestioDocumentalDao.retrieveDocument(document.getReferenciaFont()));
+						}
 					}
 				}
 				dto.setSignat(document.isSignat());
@@ -383,7 +394,7 @@ public class DtoConverter {
 		}
 		return new ArrayList<FilaResultat>();
 	}
-			
+
 	public List<FilaResultat> getResultatConsultaDomini(
 			DefinicioProces definicioProces,
 			String taskId,
@@ -495,6 +506,11 @@ public class DtoConverter {
 	@Autowired
 	public void setPluginCustodiaDao(PluginCustodiaDao pluginCustodiaDao) {
 		this.pluginCustodiaDao = pluginCustodiaDao;
+	}
+	@Autowired
+	public void setPluginGestioDocumentalDao(
+			PluginGestioDocumentalDao pluginGestioDocumentalDao) {
+		this.pluginGestioDocumentalDao = pluginGestioDocumentalDao;
 	}
 	@Autowired
 	public void setJbpmDao(JbpmDao jbpmDao) {
@@ -942,7 +958,7 @@ public class DtoConverter {
 				task.getName(),
 				task.getProcessDefinitionId());
 		String titolNou = null;
-		if (tasca.getNomScript() != null) {
+		if (tasca.getNomScript() != null && tasca.getNomScript().length() > 0) {
 			try {
 				titolNou = (String)jbpmDao.evaluateExpression(
 						task.getProcessInstanceId(),

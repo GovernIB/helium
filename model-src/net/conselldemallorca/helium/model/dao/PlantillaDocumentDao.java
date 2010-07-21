@@ -38,6 +38,7 @@ import freemarker.core.Environment;
 import freemarker.core.NonStringException;
 import freemarker.ext.beans.ArrayModel;
 import freemarker.ext.beans.BeanModel;
+import freemarker.ext.beans.BooleanModel;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.SimpleNumber;
 import freemarker.template.SimpleScalar;
@@ -168,6 +169,8 @@ public class PlantillaDocumentDao {
 									return new ArrayModel(valor, new DefaultObjectWrapper());
 								else if (valor instanceof String)
 									return new SimpleScalar((String)valor);
+								else if (valor instanceof Boolean)
+									return new BooleanModel((Boolean)valor, new DefaultObjectWrapper());
 								else
 									return new BeanModel(valor, new DefaultObjectWrapper());
 							}

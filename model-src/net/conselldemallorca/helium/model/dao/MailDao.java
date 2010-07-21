@@ -10,6 +10,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import net.conselldemallorca.helium.model.hibernate.DocumentStore;
+import net.conselldemallorca.helium.model.hibernate.DocumentStore.DocumentFont;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -27,6 +28,7 @@ public class MailDao {
 
 	private JavaMailSender mailSender;
 	private DocumentStoreDao documentStoreDao;
+	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
 
 
 
@@ -88,12 +90,12 @@ public class MailDao {
 			for (Long documentStoreId: attachments) {
 				DocumentStore document = documentStoreDao.getById(documentStoreId, false);
 				ByteArrayResource contingut;
-				if (document.isSignat()) {
+				if (document.getFont().equals(DocumentFont.INTERNA)) {
 					contingut = new ByteArrayResource(
-							documentStoreDao.retrieveContingut(documentStoreId));
+							document.getArxiuContingut());
 				} else {
 					contingut = new ByteArrayResource(
-							documentStoreDao.retrieveContingut(documentStoreId));
+							pluginGestioDocumentalDao.retrieveDocument(document.getReferenciaFont()));
 				}
 				helper.addAttachment(document.getArxiuNom(), contingut);
 			}
@@ -113,6 +115,11 @@ public class MailDao {
 	@Autowired
 	public void setDocumentStoreDao(DocumentStoreDao documentStoreDao) {
 		this.documentStoreDao = documentStoreDao;
+	}
+	@Autowired
+	public void setPluginGestioDocumentalDao(
+			PluginGestioDocumentalDao pluginGestioDocumentalDao) {
+		this.pluginGestioDocumentalDao = pluginGestioDocumentalDao;
 	}
 
 }

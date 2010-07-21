@@ -16,6 +16,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
+import net.conselldemallorca.helium.model.dto.TascaDto;
 import net.conselldemallorca.helium.model.hibernate.Camp;
 import net.conselldemallorca.helium.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
@@ -78,7 +79,8 @@ public abstract class CommonRegistreController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) String id,
 			@RequestParam(value = "registreId", required = true) Long registreId,
-			@RequestParam(value = "index", required = false) Integer index) {
+			@RequestParam(value = "index", required = false) Integer index,
+			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			Camp camp = dissenyService.getCampById(registreId);
@@ -115,7 +117,23 @@ public abstract class CommonRegistreController extends BaseController {
 					valors,
 					campsAddicionals,
 					campsAddicionalsClasses);
+			populateOthers(request, id, command, model);
 			return command;
+		}
+		return null;
+	}
+
+	@ModelAttribute("valorsPerSuggest")
+	public Map<String, List<String>> populateValorsPerSuggest(
+			HttpServletRequest request,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			TascaDto tasca = (TascaDto)model.get("tasca");
+			if (tasca != null) {
+				Object command = model.get("command");
+				return TascaFormUtil.getValorsPerSuggest(tasca, command);
+			}
 		}
 		return null;
 	}
@@ -237,6 +255,13 @@ public abstract class CommonRegistreController extends BaseController {
 		binder.registerCustomEditor(
 				Termini.class,
 				new TerminiTypeEditor());
+	}
+
+	public void populateOthers(
+			HttpServletRequest request,
+			String id,
+			Object command,
+			ModelMap model) {
 	}
 
 	public abstract Object[] getValorRegistre(Long entornId, String id, String campCodi);

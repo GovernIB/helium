@@ -3,12 +3,18 @@
  */
 package net.conselldemallorca.helium.presentacio.mvc;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.model.dto.TascaDto;
+import net.conselldemallorca.helium.model.hibernate.Camp;
+import net.conselldemallorca.helium.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
 import net.conselldemallorca.helium.model.service.DissenyService;
 import net.conselldemallorca.helium.model.service.TascaService;
+import net.conselldemallorca.helium.presentacio.mvc.util.TascaFormUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -43,16 +49,29 @@ public class TascaRegistreController extends CommonRegistreController {
 		this.tascaService = tascaService;
 	}
 
-	@ModelAttribute("tasca")
-	public TascaDto populateTasca(
+	@Override
+	public void populateOthers(
 			HttpServletRequest request,
-			@RequestParam(value = "id", required = true) String id,
+			String id,
+			Object command,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			return tascaService.getById(entorn.getId(), id);
+			TascaDto tasca = tascaService.getById(entorn.getId(), id);
+			List<Camp> camps = new ArrayList<Camp>();
+    		for (CampTasca campTasca: tasca.getCamps())
+    			camps.add(campTasca.getCamp());
+			model.addAttribute(
+					"tasca",
+					tascaService.getById(
+							entorn.getId(),
+							id,
+							TascaFormUtil.valorsFromCommand(
+		        					camps,
+		        					command,
+		        					true,
+		    						false)));
 		}
-		return null;
 	}
 
 	@RequestMapping(value = "/tasca/registre", method = RequestMethod.GET)
