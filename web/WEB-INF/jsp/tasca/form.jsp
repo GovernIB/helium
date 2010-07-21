@@ -170,7 +170,7 @@ function clickExecutarAccio(accio) {
 		<c:choose>
 			<c:when test="${not empty tasca.formExtern}">
 				<c:if test="${tasca.validada}">
-					<form:form action="form.html" cssClass="uniForm" onsubmit="return confirmar(this)">
+					<form:form action="form.html" cssClass="uniForm tascaForm zebraForm" onsubmit="return confirmar(this)">
 						<form:hidden path="id"/>
 						<form:hidden path="entornId"/>
 						<div class="inlineLabels">
@@ -196,7 +196,7 @@ function clickExecutarAccio(accio) {
 					<c:when test="${empty param.toParent}">
 						<c:choose>
 							<c:when test="${empty tasca.recursForm or tasca.validada}">
-								<form:form action="form.html" cssClass="uniForm" onsubmit="return confirmar(this)">
+								<form:form action="form.html" cssClass="uniForm tascaForm zebraForm" onsubmit="return confirmar(this)">
 									<form:hidden path="id"/>
 									<form:hidden path="entornId"/>
 									<div class="inlineLabels">
@@ -215,7 +215,7 @@ function clickExecutarAccio(accio) {
 							<c:otherwise>
 								<c:choose>
 									<c:when test="${isIframe}">
-										<form:form action="formIframe.html" cssClass="uniForm" onsubmit="return confirmar(this)">
+										<form:form action="formIframe.html" cssClass="uniForm tascaForm zebraForm" onsubmit="return confirmar(this)">
 											<form:hidden path="id"/>
 											<form:hidden path="entornId"/>
 											<input type="hidden" name="iframe" value="iframe"/>

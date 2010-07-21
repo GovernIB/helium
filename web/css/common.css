@@ -87,6 +87,22 @@ form.uniForm .estret {
 	padding: .8em;
 	color: #666;
 }
+.missatgesGrisFort {
+	background: #666 none repeat scroll 0 0;
+	border-color: #DDD;
+	border-style: solid;
+	border-width: 1px 0;
+	margin: 0 0 1.5em;
+	padding: .8em;
+	color: #eee;
+}
+.missatgesGrisFort h4.titol-missatge {
+	padding: 0;
+	margin: 0 0 8px 0;
+    color: #eee;
+    font-weight: bold;
+    font-size: 16px;
+}
 .missatgesVermell {
 	background: #FFDFDF none repeat scroll 0 0;
 	border-color: #DFCDCD;
@@ -125,7 +141,12 @@ img.suggestImgEsborrar {
 	top: 3px;
 	left: -20px;
 }
-
+.tascaForm img.suggestImgInfo {
+	left: -30px !important;
+}
+.tascaForm img.suggestImgEsborrar {
+	left: -30px !important;
+}
 
 button.submitButton {
 	background: transparent url(../img/gradients.png) repeat-x;
