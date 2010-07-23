@@ -111,7 +111,7 @@
 												changeMonth: true,
 												changeYear: true
 											}));
-											$("#${inputId}").datepicker();
+											$("#${inputId}").datepicker(/*{firstDay: 1, minDate: new Date(2010, 1 - 1, 1)}*/);
 										});
 										// ]]>
 									</script>
