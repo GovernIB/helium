@@ -126,7 +126,7 @@ public class TascaController extends BaseController {
 				tascaPersonaFiltreCommand.setOrdre(ordre);
 				request.getSession().setAttribute("commandTascaPersonaFiltre", tascaPersonaFiltreCommand);
 			}
-			HashMap<String, Object> tasquesPersonalsFiltre = tascaService.findTasquesPersonalsFiltre(
+			List<TascaDto> tasquesPersonalsFiltre = tascaService.findTasquesPersonalsFiltre(
 					entorn.getId(),
 					tascaPersonaFiltreCommand.getNom(),
 					tascaPersonaFiltreCommand.getExpedient(),
@@ -138,12 +138,10 @@ public class TascaController extends BaseController {
 					tascaPersonaFiltreCommand.getDataLimitFi(),
 					tascaPersonaFiltreCommand.getColumna(),
 					tascaPersonaFiltreCommand.getOrdre());
-			model.addAttribute("personaLlistat", tasquesPersonalsFiltre.get("llistat"));
-			model.addAttribute("personaLlistatAll", tasquesPersonalsFiltre.get("totalTasques"));
+			model.addAttribute("personaLlistat", tasquesPersonalsFiltre);
+			model.addAttribute("personaLlistatAll", tascaService.getTotalTasquesPersona(entorn.getId()));
 			
-			List<TascaDto> tasquesGrup = tascaService.findTasquesGrup(entorn.getId());
-			model.addAttribute("grupLlistat", tasquesGrup);
-			model.addAttribute("grupLlistatAll", tasquesGrup.size());
+			model.addAttribute("grupLlistatAll", tascaService.getTotalTasquesGrup(entorn.getId()));
 			
 			model.addAttribute("command", tascaPersonaFiltreCommand);
 			model.addAttribute("tipusExp", llistatExpedientTipusAmbPermisos(entorn));
@@ -174,9 +172,7 @@ public class TascaController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			List<TascaDto> tasquesPersona = tascaService.findTasquesPersonals(entorn.getId());
-			model.addAttribute("personaLlistat", tasquesPersona);
-			model.addAttribute("personaLlistatAll",tasquesPersona.size());
+			model.addAttribute("personaLlistatAll", tascaService.getTotalTasquesPersona(entorn.getId()));
 			
 			String paramColumna = new ParamEncoder("registre").encodeParameterName(TableTagParameters.PARAMETER_SORT);
 			String columna = request.getParameter(paramColumna);
@@ -191,7 +187,7 @@ public class TascaController extends BaseController {
 				tascaGrupFiltreCommand.setOrdre(ordre);
 				request.getSession().setAttribute("commandTascaGrupFiltre", tascaGrupFiltreCommand);
 			}
-			HashMap<String, Object> tasquesGrupFiltre = tascaService.findTasquesGrupFiltre(
+			List<TascaDto> tasquesGrupFiltre = tascaService.findTasquesGrupFiltre(
 					entorn.getId(),
 					tascaGrupFiltreCommand.getNom(),
 					tascaGrupFiltreCommand.getExpedient(),
@@ -203,8 +199,8 @@ public class TascaController extends BaseController {
 					tascaGrupFiltreCommand.getDataLimitFi(),
 					tascaGrupFiltreCommand.getColumna(),
 					tascaGrupFiltreCommand.getOrdre());
-			model.addAttribute("grupLlistat", tasquesGrupFiltre.get("llistat"));
-			model.addAttribute("grupLlistatAll", tasquesGrupFiltre.get("totalTasques"));
+			model.addAttribute("grupLlistat", tasquesGrupFiltre);
+			model.addAttribute("grupLlistatAll", tascaService.getTotalTasquesGrup(entorn.getId()));
 			
 			model.addAttribute("command", tascaGrupFiltreCommand);
 			model.addAttribute("tipusExp", llistatExpedientTipusAmbPermisos(entorn));

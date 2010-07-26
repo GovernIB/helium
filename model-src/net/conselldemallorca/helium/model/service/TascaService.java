@@ -105,7 +105,7 @@ public class TascaService {
 	public List<TascaDto> findTasquesPersonals(Long entornId) {
 		return findTasquesPersonals(entornId, null);
 	}
-	public HashMap<String, Object> findTasquesPersonalsFiltre(
+	public List<TascaDto> findTasquesPersonalsFiltre(
 			Long entornId,
 			String tasca,
 			String expedient,
@@ -140,7 +140,7 @@ public class TascaService {
 		List<JbpmTask> tasques = jbpmDao.findPersonalTasks(usuariBo);
 		return tasquesFiltrades(entornId, tasques);
 	}
-	public HashMap<String, Object> findTasquesPersonalsFiltre(
+	public List<TascaDto> findTasquesPersonalsFiltre(
 			Long entornId,
 			String usuari,
 			String tasca,
@@ -176,7 +176,7 @@ public class TascaService {
 	public List<TascaDto> findTasquesGrup(Long entornId) {
 		return findTasquesGrup(entornId, null);
 	}
-	public HashMap<String, Object> findTasquesGrupFiltre(
+	public List<TascaDto> findTasquesGrupFiltre(
 			Long entornId,
 			String tasca,
 			String expedient,
@@ -211,7 +211,7 @@ public class TascaService {
 		List<JbpmTask> tasques = jbpmDao.findGroupTasks(usuariBo);
 		return tasquesFiltrades(entornId, tasques);
 	}
-	public HashMap<String, Object> findTasquesGrupFiltre(
+	public List<TascaDto> findTasquesGrupFiltre(
 			Long entornId,
 			String usuari,
 			String tasca,
@@ -966,7 +966,7 @@ public class TascaService {
 		}
 		return filtrades;
 	}
-	private HashMap<String, Object> tasquesFiltradesValors(
+	private List<TascaDto> tasquesFiltradesValors(
 			Long entornId,
 			List<JbpmTask> tasques,
 			String tasca,
@@ -980,14 +980,10 @@ public class TascaService {
 			String columna,
 			String ordre) {
 		// Filtra les tasques per mostrar només les del entorn seleccionat
-		Integer totalTasques = 0;
-		HashMap<String, Object> resposta = new HashMap<String, Object>();
 		List<TascaDto> filtrades = new ArrayList<TascaDto>();
 		for (JbpmTask task: tasques) {
 			Long currentEntornId = entornPerTasca(task).getId();
 			if ((currentEntornId != null) && (entornId.equals(currentEntornId))) {
-				totalTasques++;
-				
 				Expedient exp = expedientDao.findAmbProcessInstanceId(jbpmDao.getRootProcessInstance(task.getProcessInstanceId()).getId());
 				Boolean filtra = true;
 				if ((tasca != null) && (!tasca.equals(""))) {
@@ -1085,9 +1081,7 @@ public class TascaService {
 			}
 		};
 		Collections.sort(filtrades, comparador);
-		resposta.put("totalTasques", totalTasques);
-		resposta.put("llistat", filtrades);
-		return resposta;
+		return filtrades;
 	}
 	private String normalitzaText(String text) {
 		return text
@@ -1237,6 +1231,30 @@ public class TascaService {
 	}
 	private Map<String, Object> getVariablesDelegacio(JbpmTask task) {
 		return jbpmDao.getTaskInstanceVariables(task.getId());
+	}
+	public Integer getTotalTasquesPersona(Long entornId) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String usuariBo = auth.getName();
+		List<JbpmTask> tasques = jbpmDao.findPersonalTasks(usuariBo);
+		Integer total = 0;
+		for (JbpmTask task: tasques) {
+			Long currentEntornId = entornPerTasca(task).getId();
+			if (currentEntornId != null && entornId.equals(currentEntornId))
+				total++;
+		}
+		return total;
+	}
+	public Integer getTotalTasquesGrup(Long entornId) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String usuariBo = auth.getName();
+		List<JbpmTask> tasques = jbpmDao.findGroupTasks(usuariBo);
+		Integer total = 0;
+		for (JbpmTask task: tasques) {
+			Long currentEntornId = entornPerTasca(task).getId();
+			if (currentEntornId != null && entornId.equals(currentEntornId))
+				total++;
+		}
+		return total;
 	}
 
 }
