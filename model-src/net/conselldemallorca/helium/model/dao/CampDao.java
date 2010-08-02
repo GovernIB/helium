@@ -74,4 +74,56 @@ public class CampDao extends HibernateGenericDao<Camp, Long> {
 				list();
 	}
 
+	public Camp getAmbOrdre(Long definicioProcesId, String agrupacioCodi, Integer ordre) {
+		return (Camp)getSession().createQuery(
+				"from Camp ca " +
+				"where ca.definicioProces.id = ? " +
+				"and ca.agrupacio.codi = ? " +
+				"and ca.ordre = ?").
+				setLong(0, definicioProcesId).
+				setString(1, agrupacioCodi).
+				setInteger(2, ordre).
+				uniqueResult();
+	}
+
+	public Integer getNextOrdre(Long definicioProcesId, Long agrupacioId) {
+		Object result = getSession().createQuery(
+				"select max(ca.ordre) " +
+				"from Camp ca " +
+				"where ca.definicioProces.id = ? " +
+				"and ca.agrupacio.id = ? ").
+				setLong(0, definicioProcesId)
+				.setLong(1, agrupacioId)
+				.uniqueResult();
+		if (result == null)
+			return 0;
+		return ((Integer)result).intValue() + 1;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<Camp> findAmbDefinicioProcesIAgrupacioOrdenats(
+			Long definicioProcesId, Long agrupacioId) {
+		return (List<Camp>)getSession()
+				.createQuery(
+						"from Camp c " +
+						"where c.definicioProces.id = ? " +
+						"and c.agrupacio.id = ? " +
+						"order by c.ordre asc ")
+				.setLong(0, definicioProcesId)
+				.setLong(1, agrupacioId)
+				.list();
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<Camp> findVariablesSenseAgrupacio(Long definicioProcesId) {
+		return (List<Camp>)getSession()
+				.createQuery(
+						"from Camp c " +
+						"where c.definicioProces.id = ? " +
+						"and c.agrupacio is null " +
+						"order by c.etiqueta asc ")
+				.setLong(0, definicioProcesId)
+				.list();
+	}
+
 }

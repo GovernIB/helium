@@ -267,16 +267,30 @@ public class DissenyService {
 		return campDao.getById(id, false);
 	}
 	public Camp createCamp(Camp entity) {
+		if (entity.getAgrupacio() != null) {
+			Integer maxOrdre = campDao.getNextOrdre(
+					entity.getDefinicioProces().getId(),
+					entity.getAgrupacio().getId());
+			entity.setOrdre(maxOrdre);
+		}
 		Camp saved = campDao.saveOrUpdate(entity);
 		return saved;
 	}
 	public Camp updateCamp(Camp entity) {
+		if ((entity.getAgrupacio() != null) && (entity.getOrdre() == null)) {
+			Integer maxOrdre = campDao.getNextOrdre(
+					entity.getDefinicioProces().getId(),
+					entity.getAgrupacio().getId());
+			entity.setOrdre(maxOrdre);
+		}
 		return campDao.merge(entity);
 	}
 	public void deleteCamp(Long id) {
 		Camp vell = getCampById(id);
-		if (vell != null)
+		if (vell != null) {
 			campDao.delete(id);
+			reordenarCamps(vell.getDefinicioProces().getId(), vell.getAgrupacio().getId());
+		}
 	}
 	public List<Camp> findCampsAmbDefinicioProces(Long definicioProcesId) {
 		return campDao.findAmbDefinicioProces(definicioProcesId);
@@ -1273,11 +1287,21 @@ public class DissenyService {
 		CampAgrupacio vell = getCampAgrupacioById(id);
 		if (vell != null) {
 			campAgrupacioDao.delete(id);
+			
+			for (Camp c : vell.getCamps()) {
+				c.setAgrupacio(null);
+				c.setOrdre(null);
+				campDao.saveOrUpdate(c);
+			}
+			
 			reordenarAgrupacions(vell.getDefinicioProces().getId());
 		}
 	}
 	public List<CampAgrupacio> findCampAgrupacioAmbDefinicioProces(Long definicioProcesId) {
 		return campAgrupacioDao.findAmbDefinicioProcesOrdenats(definicioProcesId);
+	}
+	public CampAgrupacio findCampAgrupacioPerId(Long definicioProcesId, String agrupacioCodi) {
+		return campAgrupacioDao.findAmbDefinicioProcesICodi(definicioProcesId, agrupacioCodi);
 	}
 	public void goUpCampAgrupacio(Long id) {
 		CampAgrupacio campAgrupacio = getCampAgrupacioById(id);
@@ -1307,6 +1331,40 @@ public class DissenyService {
 			campAgrupacioDao.merge(seguent);
 			campAgrupacioDao.flush();
 			campAgrupacio.setOrdre(ordreActual + 1);
+		}
+	}
+	
+	public void goUpCamp(Long id, String agrupacioCodi) {
+		Camp camp = getCampById(id);
+		int ordreActual = camp.getOrdre();
+		Camp anterior = campDao.getAmbOrdre(
+				camp.getDefinicioProces().getId(),
+				agrupacioCodi,
+				ordreActual - 1);
+		if (anterior != null) {
+			camp.setOrdre(-1);
+			anterior.setOrdre(ordreActual);
+			campDao.merge(camp);
+			campDao.merge(anterior);
+			campDao.flush();
+			camp.setOrdre(ordreActual - 1);
+		}
+	}
+	
+	public void goDownCamp(Long id, String agrupacioCodi) {
+		Camp camp = getCampById(id);
+		int ordreActual = camp.getOrdre();
+		Camp seguent = campDao.getAmbOrdre(
+				camp.getDefinicioProces().getId(),
+				agrupacioCodi,
+				ordreActual + 1);
+		if (seguent != null) {
+			camp.setOrdre(-1);
+			seguent.setOrdre(ordreActual);
+			campDao.merge(camp);
+			campDao.merge(seguent);
+			campDao.flush();
+			camp.setOrdre(ordreActual + 1);
 		}
 	}
 
@@ -1418,6 +1476,17 @@ public class DissenyService {
 			consultaCampDao.merge(seguent);
 			consultaCampDao.flush();
 			consultaCamp.setOrdre(ordreActual + 1);
+		}
+	}
+
+	public void deleteCampFromAgrupacio(Long id) {
+		Camp camp = getCampById(id);
+		if (camp != null) {
+			CampAgrupacio agrupacio = camp.getAgrupacio();
+			camp.setOrdre(null);
+			camp.setAgrupacio(null);
+			campDao.merge(camp);
+			reordenarCamps(camp.getDefinicioProces().getId(), agrupacio.getId());
 		}
 	}
 
@@ -1616,6 +1685,12 @@ public class DissenyService {
 		for (CampAgrupacio campAgrupacio: campsAgrupacio)
 			campAgrupacio.setOrdre(i++);
 	}
+	private void reordenarCamps(Long definicioProcesId, Long agrupacioId) {
+		List<Camp> camps = campDao.findAmbDefinicioProcesIAgrupacioOrdenats(definicioProcesId, agrupacioId);
+		int i = 0;
+		for (Camp camp: camps)
+			camp.setOrdre(i++);
+	}
 	private void reordenarConsultaCamp(Long consultaId, TipusConsultaCamp tipus) {
 		List<ConsultaCamp> consultaCamp = consultaCampDao.findAmbConsultaITipusOrdenats(consultaId, tipus);
 		int i = 0;
@@ -1791,6 +1866,19 @@ public class DissenyService {
 				return resourceName;
 		}
 		return null;
+	}
+
+	public List<Camp> getVariablesSenseAgruapcio(Long definicioProcesId) {
+		return campDao.findVariablesSenseAgrupacio(definicioProcesId);
+	}
+
+	public void afegirCampAgrupacio(Long definicioProcesId, String agrupacioCodi, Long id) {
+		CampAgrupacio campAgrupacio = campAgrupacioDao.findAmbDefinicioProcesICodi(definicioProcesId, agrupacioCodi);
+		Camp camp = campDao.getById(id, false);
+		camp.setAgrupacio(campAgrupacio);
+		Integer maxOrdre = campDao.getNextOrdre(definicioProcesId, camp.getAgrupacio().getId());
+		camp.setOrdre(maxOrdre);
+		campDao.merge(camp);
 	}
 
 }

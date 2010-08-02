@@ -95,6 +95,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	private Set<CampRegistre> registrePares = new HashSet<CampRegistre>();
 	private List<CampRegistre> registreMembres = new ArrayList<CampRegistre>();
 
+	private Integer ordre;
 
 
 	public Camp() {}
@@ -315,6 +316,14 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	public void removeRegistreMembre(CampRegistre registreMembre) {
 		getRegistreMembres().remove(registreMembre);
 	}
+	
+	@Column(name="ordre")
+	public Integer getOrdre() {
+		return ordre;
+	}
+	public void setOrdre(Integer ordre) {
+		this.ordre = ordre;
+	}
 
 	@Transient
 	public String getCodiEtiqueta() {
@@ -378,8 +387,6 @@ public class Camp implements Serializable, GenericEntity<Long> {
 			return false;
 		return true;
 	}
-
-
 
 	private static final long serialVersionUID = 1L;
 

@@ -83,8 +83,10 @@ function canviSelectTasca(selectId, camp) {
 	canvisSelectValorsAddicionals = str;
 	var sels = $("#" + selectId).parents("form").find("select");
 	for (i = 0; i < sels.length; i++) {
-		if (sels[i].id != selectId)
-			eval("initSelect_" + sels[i].id + "()");
+		if (sels[i].id != selectId) {
+			try { eval("initSelect_" + sels[i].id + "()"); }
+			catch (ex) {}
+		}
 	}
 	canvisSelectInicialitzat = true;
 }
