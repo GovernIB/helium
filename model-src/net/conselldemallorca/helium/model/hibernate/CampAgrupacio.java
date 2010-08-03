@@ -4,8 +4,8 @@
 package net.conselldemallorca.helium.model.hibernate;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
@@ -50,7 +51,7 @@ public class CampAgrupacio implements Serializable, GenericEntity<Long> {
 	@NotNull
 	private DefinicioProces definicioProces;
 
-	private Set<Camp> camps = new HashSet<Camp>();
+	private List<Camp> camps = new ArrayList<Camp>();
 
 
 
@@ -116,10 +117,11 @@ public class CampAgrupacio implements Serializable, GenericEntity<Long> {
 	}
 
 	@OneToMany(mappedBy="agrupacio")
-	public Set<Camp> getCamps() {
+	@OrderBy("ordre asc")
+	public List<Camp> getCamps() {
 		return this.camps;
 	}
-	public void setCamps(Set<Camp> camps) {
+	public void setCamps(List<Camp> camps) {
 		this.camps = camps;
 	}
 	public void addCamp(Camp camp) {

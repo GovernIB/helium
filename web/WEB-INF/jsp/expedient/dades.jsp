@@ -112,7 +112,14 @@ function confirmarModificar(e) {
 						<img src="<c:url value="/img/magnifier_zoom_in.png"/>" alt="Mostrar/Ocultar" title="Mostrar/Ocultar" border="0" onclick="mostrarOcultar(this,'dades-agrup-${agrupacio.codi}')"/>
 					</h4>
 					<div id="dades-agrup-${agrupacio.codi}" style="display:none">
-						<c:set var="campsAgrupacio" value="${agrupacio.camps}" scope="request"/>
+<%
+	net.conselldemallorca.helium.model.hibernate.CampAgrupacio agrupacio = (net.conselldemallorca.helium.model.hibernate.CampAgrupacio)pageContext.getAttribute("agrupacio");
+	request.setAttribute(
+			"campsAgrupacio",
+			getCampsAgrupacioNoBuits(
+					agrupacio.getCamps(),
+					instanciaProces.getVarsComText()));
+%>
 						<display:table name="campsAgrupacio" id="campAgrup" class="displaytag">
 							<display:column title="Variable">
 								<c:set var="found" value="${false}"/>
@@ -235,6 +242,16 @@ public java.util.List<String> getVariablesProcesSenseAgrupar(
 		}
 		if (!trobat)
 			resposta.add(codi);
+	}
+	return resposta;
+}
+public java.util.List<net.conselldemallorca.helium.model.hibernate.Camp> getCampsAgrupacioNoBuits(
+		java.util.List<net.conselldemallorca.helium.model.hibernate.Camp> campsAgrupacio,
+		java.util.Map<String, Object> varsComText) {
+	java.util.List<net.conselldemallorca.helium.model.hibernate.Camp> resposta = new java.util.ArrayList<net.conselldemallorca.helium.model.hibernate.Camp>();
+	for (net.conselldemallorca.helium.model.hibernate.Camp camp: campsAgrupacio) {
+		if (varsComText.containsKey(camp.getCodi()))
+				resposta.add(camp);
 	}
 	return resposta;
 }
