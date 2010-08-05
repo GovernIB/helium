@@ -96,7 +96,7 @@ public class TascaFormController extends BaseController {
 				tasca = tascaService.getById(
 						entorn.getId(),
 						id,
-						TascaFormUtil.valorsFromCommand(
+						TascaFormUtil.getValorsFromCommand(
 	        					camps,
 	        					commandSessio,
 	        					true,
@@ -194,7 +194,7 @@ public class TascaFormController extends BaseController {
 		        	tascaService.guardarVariables(
 		        			entorn.getId(),
 		        			id,
-		        			TascaFormUtil.valorsFromCommand(
+		        			TascaFormUtil.getValorsFromCommand(
 		        					camps,
 		        					command,
 		        					true,
@@ -227,7 +227,7 @@ public class TascaFormController extends BaseController {
 		        	tascaService.validar(
 		        			entorn.getId(),
 		        			id,
-		        			TascaFormUtil.valorsFromCommand(
+		        			TascaFormUtil.getValorsFromCommand(
 		        					camps,
 		        					command,
 		        					true,

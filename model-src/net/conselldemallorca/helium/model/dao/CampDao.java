@@ -33,6 +33,19 @@ public class CampDao extends HibernateGenericDao<Camp, Long> {
 				setLong(0, definicioProcesId).
 				list();
 	}
+	@SuppressWarnings("unchecked")
+	public List<Camp> findAmbDefinicioProcesOrdenatsPerCodi(Long definicioProcesId) {
+		return (List<Camp>)getSession().
+				createQuery(
+						"from " +
+						"    Camp c " +
+						"where " +
+						"    c.definicioProces.id=? " +
+						"order by" +
+						"    c.codi asc").
+				setLong(0, definicioProcesId).
+				list();
+	}
 
 	public Camp findAmbDefinicioProcesICodi(Long definicioProcesId, String codi) {
 		return (Camp)getSession().
@@ -121,7 +134,7 @@ public class CampDao extends HibernateGenericDao<Camp, Long> {
 						"from Camp c " +
 						"where c.definicioProces.id = ? " +
 						"and c.agrupacio is null " +
-						"order by c.etiqueta asc ")
+						"order by c.codi asc ")
 				.setLong(0, definicioProcesId)
 				.list();
 	}

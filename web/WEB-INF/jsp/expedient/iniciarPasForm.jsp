@@ -8,6 +8,8 @@
 <head>
 	<title>Iniciar expedient: ${expedientTipus.nom}</title>
 	<meta name="titolcmp" content="Nou expedient"/>
+	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
+	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 	<c:import url="../common/formIncludes.jsp"/>
 <script type="text/javascript">
 // <![CDATA[
@@ -19,12 +21,47 @@ function confirmar(e) {
 }
 // ]]>
 </script>
+<script type="text/javascript" src="<c:url value="/js/jquery/ui/ui.core.js"/>"></script>
+<script  type="text/javascript" src="<c:url value="/js/jquery/ui/jquery-ui-1.7.2.custom.js"/>"></script>
+<script type="text/javascript" language="javascript">
+// <![CDATA[
+	function editarRegistre(campId, campCodi, campEtiqueta, numCamps, index) {
+		var amplada = 600;
+		var alcada = 64 * numCamps + 80;
+		var url = "iniciarRegistre.html?id=${expedientTipus.id}&registreId=" + campId;
+		if (index != null)
+			url = url + "&index=" + index;
+		$('<iframe id="' + campCodi + '" src="' + url + '"/>').dialog({
+			title: campEtiqueta,
+			autoOpen: true,
+			modal: true,
+			autoResize: true,
+			width: parseInt(amplada),
+			height: parseInt(alcada)
+		}).width(amplada - 30).height(alcada - 30);
+		return false;
+	}
+	function esborrarRegistre(e, campId, index) {
+		var e = e || window.event;
+		e.cancelBubble = true;
+		if (e.stopPropagation) e.stopPropagation();
+		$('form#command').append('<input type="hidden" name="registreEsborrarId" value="' + campId + '"/>');
+		$('form#command').append('<input type="hidden" name="registreEsborrarIndex" value="' + index + '"/>');
+		refresh();
+		return false;
+	}
+	function refresh() {
+		$('form#command :button[name="submit"]').attr("name", "sbmt");
+		$('form#command').submit();
+	}
+// ]]>
+</script>
 </head>
 <body>
 
 	<h3 class="titol-tab titol-dades-tasca">${tasca.nom}</h3>
 
-	<form:form action="iniciarPasForm.html" cssClass="uniForm" onsubmit="return confirmar(event)">
+	<form:form action="iniciarPasForm.html" cssClass="uniForm tascaForm zebraForm" onsubmit="return confirmar(event)">
 		<div class="inlineLabels">
 			<form:hidden path="entornId"/>
 			<form:hidden path="expedientTipusId"/>

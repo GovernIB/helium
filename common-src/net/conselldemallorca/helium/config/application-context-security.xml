@@ -51,6 +51,7 @@
 						<beans:entry key="HEL_ADMIN" value="ROLE_ADMIN"/>
 						<beans:entry key="HEL_USER" value="ROLE_USER"/>
 						<beans:entry key="TOTHOM" value="ROLE_USER"/>
+						<beans:entry key="tothom" value="ROLE_USER"/>
 					</beans:map>
 				</beans:property>
 			</beans:bean>

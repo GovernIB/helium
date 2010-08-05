@@ -437,7 +437,9 @@ public class LuceneDao extends LuceneIndexSupport {
 		} else if (camp.getTipus().equals(TipusCamp.TEXTAREA)) {
 			return normalitzarILlevarAccents((String)valor);
 		} else {
-			return (String)valor;
+			if (valor == null)
+				return null;
+			return valor.toString();
 		}
 	}
 

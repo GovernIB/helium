@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.presentacio.mvc;
 
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -108,6 +109,7 @@ public class ExpedientIniciarController extends BaseController {
 		if (entorn != null) {
 			ExpedientTipus tipus = dissenyService.getExpedientTipusById(expedientTipusId);
 			if (potIniciarExpedientTipus(tipus)) {
+				netejarSessioRegistres(request);
 				// Si l'expedient té titol i/o número redirigeix al pas per demanar aquestes dades
 				if (tipus.getDemanaNumero().booleanValue() || tipus.getDemanaTitol().booleanValue()) {
 					if (definicioProcesId != null)
@@ -168,6 +170,16 @@ public class ExpedientIniciarController extends BaseController {
 				new Permission[] {
 					ExtendedPermission.ADMINISTRATION,
 					ExtendedPermission.CREATE}) != null;
+	}
+
+	@SuppressWarnings("unchecked")
+	private void netejarSessioRegistres(HttpServletRequest request) {
+		Enumeration<String> atributs = request.getSession().getAttributeNames();
+		while (atributs.hasMoreElements()) {
+			String atribut = atributs.nextElement();
+			if (atribut.startsWith(ExpedientIniciarRegistreController.PREFIX_REGISTRE_SESSIO))
+				request.getSession().removeAttribute(atribut);
+		}
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientIniciarController.class);

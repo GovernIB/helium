@@ -10,10 +10,13 @@ import net.conselldemallorca.helium.integracio.plugins.custodia.DocumentCustodia
 import net.conselldemallorca.helium.integracio.plugins.custodia.SignaturaInfo;
 import net.conselldemallorca.helium.model.dto.DocumentDto;
 import net.conselldemallorca.helium.model.exception.CustodiaPluginException;
+import net.conselldemallorca.helium.model.exception.PluginException;
 import net.conselldemallorca.helium.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.model.hibernate.Expedient;
 import net.conselldemallorca.helium.util.GlobalProperties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -86,15 +89,22 @@ public class PluginCustodiaDao {
 
 
 	@SuppressWarnings("unchecked")
-	private CustodiaPlugin getCustodiaPlugin() throws Exception {
+	private CustodiaPlugin getCustodiaPlugin() {
 		if (custodiaPlugin == null) {
 			String pluginClass = GlobalProperties.getInstance().getProperty("app.custodia.plugin.class");
 			if (pluginClass != null && pluginClass.length() > 0) {
-				Class clazz = Class.forName(pluginClass);
-				custodiaPlugin = (CustodiaPlugin)clazz.newInstance();
+				try {
+					Class clazz = Class.forName(pluginClass);
+					custodiaPlugin = (CustodiaPlugin)clazz.newInstance();
+				} catch (Exception ex) {
+					logger.error("No s'ha pogut crear la instància del plugin de custòdia", ex);
+					throw new PluginException("No s'ha pogut crear la instància del plugin de custòdia", ex);
+				}
 			}
 		}
 		return custodiaPlugin;
 	}
+
+	private static final Log logger = LogFactory.getLog(PluginCustodiaDao.class);
 
 }

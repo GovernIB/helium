@@ -123,7 +123,7 @@ public class PluginGestioDocumentalDao {
 
 
 	@SuppressWarnings("unchecked")
-	private GestioDocumentalPlugin getGestioDocumentalPlugin() throws GestioDocumentalPluginException {
+	private GestioDocumentalPlugin getGestioDocumentalPlugin() {
 		if (gestioDocumentalPlugin == null) {
 			String pluginClass = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.class");
 			if (pluginClass != null && pluginClass.length() > 0) {
@@ -136,7 +136,8 @@ public class PluginGestioDocumentalDao {
 					Class clazz = Class.forName(pluginClass);
 					gestioDocumentalPlugin = (GestioDocumentalPlugin)clazz.newInstance();
 				} catch (Exception ex) {
-					throw new GestioDocumentalPluginException("No s'ha pogut crear la instància del plugin de gestió documental", ex);
+					logger.error("No s'ha pogut crear la instància del plugin de gestió documental", ex);
+					throw new PluginException("No s'ha pogut crear la instància del plugin de gestió documental", ex);
 				}
 			}
 		}

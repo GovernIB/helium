@@ -28,7 +28,7 @@ function confirmar(e) {
 		<c:param name="tabActiu" value="documents"/>
 	</c:import>
 
-	<display:table name="documents" id="registre" requestURI="" class="displaytag selectable">
+	<display:table name="documents" id="registre" requestURI="" defaultsort="1" class="displaytag selectable">
 		<display:column property="codi" title="Codi" sortable="true" url="/definicioProces/documentForm.html?definicioProcesId=${param.definicioProcesId}" paramId="id" paramProperty="id"/>
 		<display:column property="nom" title="Nom" sortable="true"/>
 		<display:column title="És plantilla?">

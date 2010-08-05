@@ -50,7 +50,7 @@ function mostrarOcultar(objid) {
 				</c:import>
 				<c:import url="../common/formElement.jsp">
 					<c:param name="property" value="contrasenya"/>
-					<c:param name="label">Usuari del servei</c:param>
+					<c:param name="label">Contrasenya del servei</c:param>
 					<c:param name="comment">Si no necessita autenticació es pot deixar en blanc</c:param>
 				</c:import>
 			</div>

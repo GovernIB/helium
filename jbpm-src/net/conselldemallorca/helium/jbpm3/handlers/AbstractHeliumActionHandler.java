@@ -13,6 +13,7 @@ import net.conselldemallorca.helium.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.model.hibernate.Estat;
 import net.conselldemallorca.helium.model.hibernate.Termini;
 import net.conselldemallorca.helium.model.hibernate.TerminiIniciat;
+import net.conselldemallorca.helium.model.service.AlertaService;
 import net.conselldemallorca.helium.model.service.DissenyService;
 import net.conselldemallorca.helium.model.service.ExpedientService;
 import net.conselldemallorca.helium.model.service.ServiceProxy;
@@ -73,6 +74,9 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 	}
 	TerminiService getTerminiService() {
 		return ServiceProxy.getInstance().getTerminiService();
+	}
+	AlertaService getAlertaService() {
+		return ServiceProxy.getInstance().getAlertaService();
 	}
 	SistraDao getSistraService() {
 		return DaoProxy.getInstance().getSistraDao();

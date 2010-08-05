@@ -32,7 +32,7 @@ function canviTermini(input) {
 <body>
 	<c:choose>
 		<c:when test="${not tancarRegistre}">
-			<form:form action="varRegistre.html" cssClass="uniForm">
+			<form:form action="varRegistre.html" cssClass="uniForm tascaForm zebraForm">
 				<form:hidden path="id"/>
 				<form:hidden path="registreId"/>
 				<form:hidden path="entornId"/>

@@ -48,6 +48,13 @@
 				<c:param name="required" value="true"/>
 				<c:param name="label">A/E</c:param>
 			</c:import>
+			<c:import url="../common/formElement.jsp">
+				<c:param name="property" value="sexe"/>
+				<c:param name="required" value="true"/>
+				<c:param name="type" value="select"/>
+				<c:param name="items" value="sexes"/>
+				<c:param name="label">Sexe</c:param>
+			</c:import>
 			<%--c:import url="../common/formElement.jsp">
 				<c:param name="property" value="avisCorreu"/>
 				<c:param name="type" value="checkbox"/>

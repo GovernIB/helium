@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentDisseny;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.FilaResultat;
@@ -41,6 +42,12 @@ public abstract class BasicActionHandler implements ActionHandler {
 			ExecutionContext executionContext,
 			String varDocument) {
 		return new DocumentInfo();
+	}
+
+	public DocumentDisseny getDocumentDisseny(
+			ExecutionContext executionContext,
+			String codiDocument) {
+		return new DocumentDisseny();
 	}
 
 	public ExpedientInfo getExpedient(ExecutionContext executionContext) {

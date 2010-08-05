@@ -18,6 +18,9 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+
+import net.conselldemallorca.helium.model.service.TascaService;
 
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
@@ -202,6 +205,13 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	}
 	public void setAdjuntTitol(String adjuntTitol) {
 		this.adjuntTitol = adjuntTitol;
+	}
+
+	@Transient
+	public String getCodiDocument() {
+		if (getJbpmVariable() == null)
+			return null;
+		return getJbpmVariable().substring(TascaService.PREFIX_DOCUMENT.length());
 	}
 
 

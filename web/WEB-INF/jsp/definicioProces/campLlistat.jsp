@@ -29,7 +29,7 @@ function confirmar(e) {
 		<c:param name="tabActiu" value="camps"/>
 	</c:import>
 
-	<display:table name="camps" id="registre" requestURI="" class="displaytag selectable">
+	<display:table name="camps" id="registre" requestURI="" defaultsort="1" class="displaytag selectable">
 		<display:column property="codi" title="Codi" sortable="true" url="/definicioProces/campForm.html?definicioProcesId=${param.definicioProcesId}" paramId="id" paramProperty="id"/>
 		<display:column property="etiqueta" title="Etiqueta" sortable="true"/>
 		<display:column property="tipus" title="Tipus" sortable="true"/>
@@ -48,7 +48,7 @@ function confirmar(e) {
 		    	<form action="campRegistreMembres.html">
 					<input type="hidden" name="definicioProcesId" value="${definicioProces.id}"/>
 					<input type="hidden" name="registreId" value="${registre.id}"/>
-					<button type="submit" class="submitButton">Camps del registre&nbsp;(${fn:length(registre.registreMembres)})</button>
+					<button type="submit" class="submitButton">Vars&nbsp;registre&nbsp;(${fn:length(registre.registreMembres)})</button>
 				</form>
 			</c:if>
 	    </display:column>

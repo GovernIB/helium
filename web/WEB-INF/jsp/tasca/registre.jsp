@@ -35,7 +35,7 @@ function refrescarPare() {
 <body>
 	<c:choose>
 		<c:when test="${not tancarRegistre}">
-			<form:form action="registre.html" cssClass="uniForm">
+			<form:form action="registre.html" cssClass="uniForm tascaForm zebraForm">
 				<form:hidden path="id"/>
 				<form:hidden path="registreId"/>
 				<form:hidden path="entornId"/>

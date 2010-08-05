@@ -87,7 +87,7 @@ public class TascaFormUtil {
 				false);
 	}
 
-	public static Map<String, Object> valorsFromCommand(
+	public static Map<String, Object> getValorsFromCommand(
 			List<Camp> camps,
 			Object command,
 			boolean revisarArrays,
@@ -180,11 +180,11 @@ public class TascaFormUtil {
 		return new BeanValidator(validationConfigurationLoader);
 	}
 
-	public static Map<String, List<String>> getValorsPerSuggest(TascaDto tasca, Object command) {
-		Map<String, List<String>> resposta = new HashMap<String, List<String>>();
+	public static Map<String, List<Object>> getValorsPerSuggest(TascaDto tasca, Object command) {
+		Map<String, List<Object>> resposta = new HashMap<String, List<Object>>();
 		if (tasca.getValorsMultiplesDomini() != null) {
 			for (String key: tasca.getValorsMultiplesDomini().keySet()) {
-				List<String> liniaResposta = new ArrayList<String>();
+				List<Object> liniaResposta = new ArrayList<Object>();
 				try {
 					Object value = PropertyUtils.getSimpleProperty(command, key);
 					for (int i = 0; i < Array.getLength(value); i++) {
@@ -217,34 +217,8 @@ public class TascaFormUtil {
 			request.getSession().removeAttribute(VARIABLE_SESSIO_COMMAND_TMP);
 		return command;
 	}
-
-
-
-	private static Object cloneMultipleArray(
-			String field,
-			Object command,
-			List<Camp> camps,
-			int addTolength) throws Exception {
-		for (Camp camp: camps) {
-			if (camp.getCodi().equals(field)) {
-				Object value = PropertyUtils.getSimpleProperty(command, field);
-				if (value != null) {
-					int length = ((Object[])value).length;
-					return Array.newInstance(
-							camp.getJavaClass(),
-							length + addTolength);
-				} else {
-					return Array.newInstance(
-							camp.getJavaClass(),
-							1);
-				}
-			}
-		}
-		return null;
-	}
-
 	@SuppressWarnings("unchecked")
-	private static Object getCommandForCamps(
+	public static Object getCommandForCamps(
 			List<Camp> camps,
 			Map<String, Object> valors,
 			Map<String, Object> campsAddicionals,
@@ -330,6 +304,31 @@ public class TascaFormUtil {
 			logger.error("No s'ha pogut afegir el camp al command", ex);
 		}
 		return command;
+	}
+
+
+
+	private static Object cloneMultipleArray(
+			String field,
+			Object command,
+			List<Camp> camps,
+			int addTolength) throws Exception {
+		for (Camp camp: camps) {
+			if (camp.getCodi().equals(field)) {
+				Object value = PropertyUtils.getSimpleProperty(command, field);
+				if (value != null) {
+					int length = ((Object[])value).length;
+					return Array.newInstance(
+							camp.getJavaClass(),
+							length + addTolength);
+				} else {
+					return Array.newInstance(
+							camp.getJavaClass(),
+							1);
+				}
+			}
+		}
+		return null;
 	}
 
 	private static String getCampCodi(Camp camp, boolean perFiltre) {

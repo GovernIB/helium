@@ -22,6 +22,7 @@ public class DefinicioProcesExportacio implements Serializable {
 	private List<DocumentExportacio> documents;
 	private List<TerminiExportacio> terminis;
 	private List<AgrupacioExportacio> agrupacions;
+	private List<AccioExportacio> accions;
 
 	private String nomDeploy;
 	private byte[] contingutDeploy;
@@ -75,6 +76,12 @@ public class DefinicioProcesExportacio implements Serializable {
 	}
 	public void setAgrupacions(List<AgrupacioExportacio> agrupacions) {
 		this.agrupacions = agrupacions;
+	}
+	public List<AccioExportacio> getAccions() {
+		return accions;
+	}
+	public void setAccions(List<AccioExportacio> accions) {
+		this.accions = accions;
 	}
 
 

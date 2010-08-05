@@ -31,15 +31,15 @@
 		<display:table name="camps" id="registre" requestURI="" class="displaytag selectable">
 			<display:column property="etiqueta" title="Etiqueta" sortable="true"/>
 			<display:column>
-				<a href="<c:url value="/definicioProces/campPujar.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/><c:param name="agrupacioCodi" value="${agrupacio.codi}"/></c:url>"><img src="<c:url value="/img/famarrow_up.png"/>" alt="Amunt" title="Amunt" border="0"/></a>
-				<a href="<c:url value="/definicioProces/campBaixar.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/><c:param name="agrupacioCodi" value="${agrupacio.codi}"/></c:url>"><img src="<c:url value="/img/famarrow_down.png"/>" alt="Avall" title="Avall" border="0"/></a>
+				<a href="<c:url value="/definicioProces/campAgrupacioOrdrePujar.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/><c:param name="agrupacioCodi" value="${agrupacio.codi}"/></c:url>"><img src="<c:url value="/img/famarrow_up.png"/>" alt="Amunt" title="Amunt" border="0"/></a>
+				<a href="<c:url value="/definicioProces/campAgrupacioOrdreBaixar.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/><c:param name="agrupacioCodi" value="${agrupacio.codi}"/></c:url>"><img src="<c:url value="/img/famarrow_down.png"/>" alt="Avall" title="Avall" border="0"/></a>
 			</display:column>
 			<display:column>
-		    	<a href="<c:url value="/definicioProces/agrupacioCampDelete.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/><c:param name="agrupacioCodi" value="${agrupacio.codi}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="Esborrar" title="Esborrar" border="0"/></a>
+		    	<a href="<c:url value="/definicioProces/campAgrupacioOrdreDelete.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/><c:param name="agrupacioCodi" value="${agrupacio.codi}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="Esborrar" title="Esborrar" border="0"/></a>
 		    </display:column>
 		</display:table>
 		
-		<form:form action="assignarVariablesForm.html" method="post" cssClass="uniForm">
+		<form:form action="campAgrupacioOrdre.html" method="post" cssClass="uniForm">
 			<input type="hidden" id="definicioProcesId" name="definicioProcesId" value="${param.definicioProcesId}" />
 			<input type="hidden" id="agrupacioCodi" name="agrupacioCodi" value="${agrupacio.codi}" />
 			<fieldset class="inlineLabels">
@@ -48,7 +48,7 @@
 					<c:param name="property" value="id"/>
 					<c:param name="type" value="select"/>
 					<c:param name="items" value="variables"/>
-					<c:param name="itemLabel" value="etiqueta"/>
+					<c:param name="itemLabel" value="codiEtiqueta"/>
 					<c:param name="itemValue" value="id"/>
 					<c:param name="itemBuit" value="<< Seleccioni una variable >>"/>
 					<c:param name="label">Variables de la tasca</c:param>

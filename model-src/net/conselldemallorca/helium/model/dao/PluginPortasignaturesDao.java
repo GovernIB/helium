@@ -6,10 +6,13 @@ import java.util.List;
 import net.conselldemallorca.helium.integracio.plugins.persones.Persona;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortasignaturesPlugin;
 import net.conselldemallorca.helium.model.dto.DocumentDto;
+import net.conselldemallorca.helium.model.exception.PluginException;
 import net.conselldemallorca.helium.model.hibernate.Expedient;
 import net.conselldemallorca.helium.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.util.GlobalProperties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
 
@@ -21,12 +24,14 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignatures, Long> {
 
+	private PortasignaturesPlugin portasignaturesPlugin;
+
+
+
 	public PluginPortasignaturesDao() {
 		super(Portasignatures.class);
 	}
-	
-	private PortasignaturesPlugin portasignaturesPlugin;
-	
+
 	public Integer UploadDocument(
 			Persona persona,
 			DocumentDto documentDto,
@@ -40,23 +45,11 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 				importancia,
 				dataLimit);
 	}
-	
+
 	public byte[] DownloadDocument(
 			Integer documentId) throws Exception {
 		return getPortasignaturesPlugin().DownloadDocument(
 				documentId);
-	}
-	
-	@SuppressWarnings("unchecked")
-	private PortasignaturesPlugin getPortasignaturesPlugin() throws Exception {
-		if (portasignaturesPlugin == null) {
-			String pluginClass = GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.class");
-			if ((pluginClass != null) && (pluginClass.length() > 0)) {
-				Class clazz = Class.forName(pluginClass);
-				portasignaturesPlugin = (PortasignaturesPlugin)clazz.newInstance();
-			}
-		}
-		return portasignaturesPlugin;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -72,4 +65,24 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 		
 		return null;
 	}
+
+	@SuppressWarnings("unchecked")
+	private PortasignaturesPlugin getPortasignaturesPlugin() {
+		if (portasignaturesPlugin == null) {
+			String pluginClass = GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.class");
+			if ((pluginClass != null) && (pluginClass.length() > 0)) {
+				try {
+					Class clazz = Class.forName(pluginClass);
+					portasignaturesPlugin = (PortasignaturesPlugin)clazz.newInstance();
+				} catch (Exception ex) {
+					logger.error("No s'ha pogut crear la instància del plugin de portasignatures", ex);
+					throw new PluginException("No s'ha pogut crear la instància del plugin de portasignatures", ex);
+				}
+			}
+		}
+		return portasignaturesPlugin;
+	}
+
+	private static final Log logger = LogFactory.getLog(PluginPortasignaturesDao.class);
+
 }

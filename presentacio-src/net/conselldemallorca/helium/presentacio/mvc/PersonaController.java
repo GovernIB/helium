@@ -10,6 +10,7 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.ParellaCodiValor;
 import net.conselldemallorca.helium.model.dto.PersonaUsuariDto;
 import net.conselldemallorca.helium.model.hibernate.Permis;
 import net.conselldemallorca.helium.model.hibernate.Persona;
@@ -92,6 +93,14 @@ public class PersonaController extends BaseController {
 	@ModelAttribute("permisos")
 	public List<Permis> populatePersones() {
 		return personaService.findPermisosAll();
+	}
+
+	@ModelAttribute("sexes")
+	public ParellaCodiValor[] populateSexes() {
+		ParellaCodiValor[] resposta = new ParellaCodiValor[2];
+		resposta[0] = new ParellaCodiValor("Home", Persona.Sexe.SEXE_HOME);
+		resposta[1] = new ParellaCodiValor("Dona", Persona.Sexe.SEXE_DONA);
+		return resposta;
 	}
 
 	@RequestMapping(value = "form", method = RequestMethod.GET)

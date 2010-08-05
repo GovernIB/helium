@@ -4,8 +4,10 @@
 package net.conselldemallorca.helium.model.hibernate;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -36,6 +38,12 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 		uniqueConstraints={@UniqueConstraint(columnNames={"termini_id", "process_instance_id"})})
 public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 
+	public enum TerminiIniciatEstat {
+		NORMAL,
+		AVIS,
+		CADUCAT
+	}
+
 	private Long id;
 	@NotNull
 	private Date dataInici;
@@ -43,14 +51,18 @@ public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 	private Date dataFi;
 	private Date dataAturada;
 	private Date dataCancelacio;
+	private Date dataFiProrroga;
 	private int diesAturat;
 	@NotBlank
 	@MaxLength(255)
 	private String processInstanceId;
-	@MaxLength(255)
-	private String timerName;
+	@MaxLength(1024)
+	private String timerIds;
+	private String taskInstanceId;
 	@MaxLength(255)
 	private String jbpmVariable;
+	private boolean alertaPrevia;
+	private boolean alertaFinal;
 
 	private Termini termini;
 
@@ -117,6 +129,15 @@ public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 		this.dataCancelacio = dataCancelacio;
 	}
 
+	@Column(name="data_fi_prorroga")
+	@Temporal(TemporalType.DATE)
+	public Date getDataFiProrroga() {
+		return dataFiProrroga;
+	}
+	public void setDataFiProrroga(Date dataFiProrroga) {
+		this.dataFiProrroga = dataFiProrroga;
+	}
+
 	@Column(name="dies_aturat")
 	public int getDiesAturat() {
 		return diesAturat;
@@ -133,12 +154,20 @@ public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 		this.processInstanceId = processInstanceId;
 	}
 
-	@Column(name="timer_name", length=255)
-	public String getTimerName() {
-		return timerName;
+	@Column(name="timer_ids", length=1024)
+	public String getTimerIds() {
+		return timerIds;
 	}
-	public void setTimerName(String timerName) {
-		this.timerName = timerName;
+	public void setTimerIds(String timerIds) {
+		this.timerIds = timerIds;
+	}
+
+	@Column(name="task_instance_id", length=255)
+	public String getTaskInstanceId() {
+		return taskInstanceId;
+	}
+	public void setTaskInstanceId(String taskInstanceId) {
+		this.taskInstanceId = taskInstanceId;
 	}
 
 	@Column(name="jbpm_variable", length=255)
@@ -147,6 +176,22 @@ public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 	}
 	public void setJbpmVariable(String jbpmVariable) {
 		this.jbpmVariable = jbpmVariable;
+	}
+
+	@Column(name="alerta_previa")
+	public boolean isAlertaPrevia() {
+		return alertaPrevia;
+	}
+	public void setAlertaPrevia(boolean alertaPrevia) {
+		this.alertaPrevia = alertaPrevia;
+	}
+
+	@Column(name="alerta_final")
+	public boolean isAlertaFinal() {
+		return alertaFinal;
+	}
+	public void setAlertaFinal(boolean alertaFinal) {
+		this.alertaFinal = alertaFinal;
 	}
 
 	@ManyToOne(optional=true)
@@ -170,12 +215,61 @@ public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 	}
 	@Transient
 	public Date getDataFiAmbAturadaActual() {
+		if (dataFiProrroga != null)
+			return dataFiProrroga;
 		if (dataFi == null)
 			return null;
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(dataFi);
 		cal.add(Calendar.DAY_OF_MONTH, getNumDiesAturadaActual(new Date()));
 		return cal.getTime();
+	}
+	@Transient
+	public TerminiIniciatEstat getEstat() {
+		Date ara = new Date();
+		Date dataFi = getDataFiAmbAturadaActual();
+		if (ara.after(dataFi))
+			return TerminiIniciatEstat.CADUCAT;
+		if (termini.getDiesPrevisAvis() != null) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(dataFi);
+			cal.add(Calendar.DAY_OF_MONTH, -termini.getDiesPrevisAvis().intValue());
+			if (ara.after(cal.getTime()))
+				return TerminiIniciatEstat.AVIS;
+		}
+		return TerminiIniciatEstat.NORMAL;
+	}
+
+	@Transient
+	public void afegirTimerId(long id) {
+		if (timerIds == null) {
+			timerIds = new Long(id).toString();
+		} else {
+			if (!timerIds.contains(new Long(id).toString()))
+				timerIds += "," + id;
+		}
+	}
+	@Transient
+	public void esborrarTimerId(long id) {
+		if (timerIds != null) {
+			timerIds.replaceAll(new Long(id).toString(), "");
+			timerIds.replaceAll(",,", ",");
+		}
+	}
+	@Transient
+	public long[] getTimerIdsArray() {
+		if (timerIds != null) {
+			List<Long> ids = new ArrayList<Long>();
+			for (String id: timerIds.split(",")) {
+				if (id.length() > 0)
+					ids.add(new Long(id));
+			}
+			long[] resposta = new long[ids.size()];
+			for (int i = 0; i < ids.size(); i++)
+				resposta[i] = ids.get(i).longValue();
+			return resposta;
+		}
+		return new long[0];
 	}
 
 

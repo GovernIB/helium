@@ -13,6 +13,7 @@ import java.util.Date;
 public class DocumentInfo {
 
 	private Long id;
+	private String titol;
 	private Date dataCreacio;
 	private Date dataDocument;
 	private String arxiuNom;
@@ -29,6 +30,12 @@ public class DocumentInfo {
 	}
 	public void setId(Long id) {
 		this.id = id;
+	}
+	public String getTitol() {
+		return titol;
+	}
+	public void setTitol(String titol) {
+		this.titol = titol;
 	}
 	public Date getDataCreacio() {
 		return dataCreacio;

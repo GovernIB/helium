@@ -28,16 +28,10 @@ function confirmar(e) {
 		<c:param name="tabActiu" value="terminis"/>
 	</c:import>
 
-	<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable">
+	<display:table name="llistat" id="registre" requestURI="" defaultsort="1" class="displaytag selectable">
 		<display:column property="codi" title="Codi" sortable="true" url="/definicioProces/terminiForm.html?definicioProcesId=${param.definicioProcesId}" paramId="id" paramProperty="id"/>
 		<display:column property="nom" title="Nom" sortable="true"/>
 		<display:column property="durada" title="Durada"/>
-		<display:column title="Dies laborables?" sortable="true">
-			<c:choose><c:when test="${registre.laborable}">Si</c:when><c:otherwise>No</c:otherwise></c:choose>
-		</display:column>
-		<display:column title="Control manual?" sortable="true">
-			<c:choose><c:when test="${registre.manual}">Si</c:when><c:otherwise>No</c:otherwise></c:choose>
-		</display:column>
 		<display:column>
 			<a href="<c:url value="/definicioProces/terminiDelete.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="Esborrar" title="Esborrar" border="0"/></a>
 		</display:column>

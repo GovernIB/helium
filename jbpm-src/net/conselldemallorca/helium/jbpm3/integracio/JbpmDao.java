@@ -7,6 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -34,6 +35,7 @@ import org.jbpm.graph.def.ProcessDefinition;
 import org.jbpm.graph.def.Transition;
 import org.jbpm.graph.exe.ProcessInstance;
 import org.jbpm.graph.exe.Token;
+import org.jbpm.job.Timer;
 import org.jbpm.taskmgmt.exe.TaskInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -601,6 +603,29 @@ public class JbpmDao {
 			long tokenId,
 			String transitionName) {
 		SignalCommand command = new SignalCommand(tokenId, transitionName);
+		commandService.execute(command);
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<Timer> findTimersWithProcessInstanceId(
+			String processInstanceId) {
+		long id = new Long(processInstanceId).longValue();
+		FindProcessInstanceTimersCommand command = new FindProcessInstanceTimersCommand(id);
+		return (List<Timer>)commandService.execute(command);
+	}
+
+	public void suspendTimer(
+			long timerId,
+			Date dueDate) {
+		SuspendProcessInstanceTimerCommand command = new SuspendProcessInstanceTimerCommand(timerId);
+		command.setDueDate(dueDate);
+		commandService.execute(command);
+	}
+	public void resumeTimer(
+			long timerId,
+			Date dueDate) {
+		ResumeProcessInstanceTimerCommand command = new ResumeProcessInstanceTimerCommand(timerId);
+		command.setDueDate(dueDate);
 		commandService.execute(command);
 	}
 

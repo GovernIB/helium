@@ -31,7 +31,7 @@
 	// ]]>
 </script>
 
-<button id="botoFiltres" class="submitButton">Mostrar filtres</button>
+<button id="botoFiltres" class="submitButton">Mostrar filtre</button>
 
 <div id="filtres" style="display: none;">
 	<form:form action="${param.formulari}" cssClass="uniForm" method="post">

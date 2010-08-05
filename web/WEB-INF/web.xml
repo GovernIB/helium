@@ -121,6 +121,9 @@
 	<security-role>
 		<role-name>TOTHOM</role-name>
 	</security-role>
+	<security-role>
+		<role-name>tothom</role-name>
+	</security-role>
 
 	<security-constraint>
 		<web-resource-collection>
@@ -145,6 +148,7 @@
 			<role-name>HEL_ADMIN</role-name>
 			<role-name>HEL_USER</role-name>
 			<role-name>TOTHOM</role-name>
+			<role-name>tothom</role-name>
 		</auth-constraint>
 	</security-constraint>
 

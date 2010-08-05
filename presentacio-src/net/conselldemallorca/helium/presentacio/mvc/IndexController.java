@@ -10,7 +10,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.model.dto.TascaDto;
+import net.conselldemallorca.helium.model.hibernate.Alerta;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
+import net.conselldemallorca.helium.model.service.AlertaService;
 import net.conselldemallorca.helium.model.service.EntornService;
 import net.conselldemallorca.helium.model.service.PermissionService;
 import net.conselldemallorca.helium.model.service.TascaService;
@@ -34,6 +36,7 @@ public class IndexController extends BaseController {
 
 	private EntornService entornService;
 	private TascaService tascaService;
+	private AlertaService alertaService;
 	private PermissionService permissionService;
 
 
@@ -42,9 +45,11 @@ public class IndexController extends BaseController {
 	public IndexController(
 			EntornService entornService,
 			TascaService tascaService,
+			AlertaService alertaService,
 			PermissionService permissionService) {
 		this.entornService = entornService;
 		this.tascaService = tascaService;
+		this.alertaService = alertaService;
 		this.permissionService = permissionService;
 	}
 
@@ -56,9 +61,11 @@ public class IndexController extends BaseController {
 		if (entorn != null) {
 			model.addAttribute("personaLlistat", tascaService.findTasquesPersonals(entorn.getId()));
 			model.addAttribute("grupLlistat", tascaService.findTasquesGrup(entorn.getId()));
+			model.addAttribute("alertesLlistat", alertaService.findActivesAmbEntornIUsuariAutenticat(entorn.getId()));
 		} else {
 			Map<Entorn, List<TascaDto>> tasquesPersonaEntorn = new HashMap<Entorn, List<TascaDto>>();
 			Map<Entorn, List<TascaDto>> tasquesGrupEntorn = new HashMap<Entorn, List<TascaDto>>();
+			Map<Entorn, List<Alerta>> alertesEntorn = new HashMap<Entorn, List<Alerta>>();
 			List<Entorn> entornsActius = entornService.findActius();
 			permissionService.filterAllowed(
 					entornsActius,
@@ -69,10 +76,12 @@ public class IndexController extends BaseController {
 			for (Entorn ent: entornsActius) {
 				tasquesPersonaEntorn.put(ent, tascaService.findTasquesPersonals(ent.getId()));
 				tasquesGrupEntorn.put(ent, tascaService.findTasquesGrup(ent.getId()));
+				alertesEntorn.put(ent, alertaService.findActivesAmbEntornIUsuariAutenticat(ent.getId()));
 			}
 			model.addAttribute("entornsActius", entornsActius);
 			model.addAttribute("tasquesPersonaEntorn", tasquesPersonaEntorn);
 			model.addAttribute("tasquesGrupEntorn", tasquesGrupEntorn);
+			model.addAttribute("alertesEntorn", alertesEntorn);
 		}
 		return "index";
 	}

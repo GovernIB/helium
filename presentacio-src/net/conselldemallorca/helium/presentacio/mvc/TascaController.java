@@ -15,9 +15,11 @@ import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
 import net.conselldemallorca.helium.model.dto.TascaDto;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
 import net.conselldemallorca.helium.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.model.service.DissenyService;
 import net.conselldemallorca.helium.model.service.PermissionService;
 import net.conselldemallorca.helium.model.service.TascaService;
+import net.conselldemallorca.helium.model.service.TerminiService;
 import net.conselldemallorca.helium.presentacio.mvc.util.BaseController;
 import net.conselldemallorca.helium.security.permission.ExtendedPermission;
 
@@ -49,6 +51,7 @@ public class TascaController extends BaseController {
 	private String TAG_FORM_FI = "<!--helium:form-fi-->";
 
 	private TascaService tascaService;
+	private TerminiService terminiService;
 	private DissenyService dissenyService;
 	private PermissionService permissionService;
 
@@ -56,9 +59,11 @@ public class TascaController extends BaseController {
 	@Autowired
 	public TascaController(
 			TascaService tascaService,
+			TerminiService terminiService,
 			DissenyService dissenyService,
 			PermissionService permissionService) {
 		this.tascaService = tascaService;
+		this.terminiService = terminiService;
 		this.dissenyService = dissenyService;
 		this.permissionService = permissionService;
 	}
@@ -138,6 +143,8 @@ public class TascaController extends BaseController {
 					tascaPersonaFiltreCommand.getDataLimitFi(),
 					tascaPersonaFiltreCommand.getColumna(),
 					tascaPersonaFiltreCommand.getOrdre());
+
+			model.addAttribute("terminisIniciats", findTerminisIniciatsPerTasques(tasquesPersonalsFiltre));
 			model.addAttribute("personaLlistat", tasquesPersonalsFiltre);
 			model.addAttribute("personaLlistatAll", tascaService.getTotalTasquesPersona(entorn.getId()));
 			
@@ -562,14 +569,40 @@ public class TascaController extends BaseController {
 			this.ordre = ordre;
 		}
 	}
-	
+
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 		binder.registerCustomEditor(
 				Date.class,
 				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
 	}
-	
+
+
+
+	private List<TerminiIniciat> findTerminisIniciatsPerTasques(List<TascaDto> tasques) {
+		List<TerminiIniciat> resposta = new ArrayList<TerminiIniciat>();
+		if (tasques != null) {
+			String[] taskInstanceIds = new String[tasques.size()];
+			int i = 0;
+			for (TascaDto tasca: tasques)
+				taskInstanceIds[i++] = tasca.getId();
+			List<TerminiIniciat> terminis = terminiService.findIniciatsAmbTaskInstanceIds(taskInstanceIds);
+			for (TascaDto tasca: tasques) {
+				boolean found = false;
+				for (TerminiIniciat termini: terminis) {
+					if (termini.getTaskInstanceId() == tasca.getId()) {
+						resposta.add(termini);
+						found = true;
+						break;
+					}
+				}
+				if (!found)
+					resposta.add(null);
+			}
+		}
+		return resposta;
+	}
+
 	private static final Log logger = LogFactory.getLog(TascaController.class);
 
 }

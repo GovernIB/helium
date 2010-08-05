@@ -6,6 +6,7 @@
 		<pattern>/tasca/formIframe*</pattern>
 		<pattern>/tasca/registre*</pattern>
 		<pattern>/expedient/varRegistre*</pattern>
+		<pattern>/expedient/iniciarRegistre*</pattern>
 	</excludes>
 	<decorator name="default" page="default.jsp">
 		<pattern>/*</pattern>

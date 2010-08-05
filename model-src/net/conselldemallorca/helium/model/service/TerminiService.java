@@ -3,17 +3,23 @@
  */
 package net.conselldemallorca.helium.model.service;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
+import net.conselldemallorca.helium.model.dao.AlertaDao;
 import net.conselldemallorca.helium.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.model.dao.FestiuDao;
 import net.conselldemallorca.helium.model.dao.RegistreDao;
 import net.conselldemallorca.helium.model.dao.TerminiDao;
 import net.conselldemallorca.helium.model.dao.TerminiIniciatDao;
+import net.conselldemallorca.helium.model.hibernate.Alerta;
 import net.conselldemallorca.helium.model.hibernate.Expedient;
 import net.conselldemallorca.helium.model.hibernate.Festiu;
 import net.conselldemallorca.helium.model.hibernate.Termini;
@@ -21,6 +27,7 @@ import net.conselldemallorca.helium.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.util.GlobalProperties;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +45,10 @@ public class TerminiService {
 	private FestiuDao festiuDao;
 	private RegistreDao registreDao;
 	private ExpedientDao expedientDao;
+	private AlertaDao alertaDao;
 	private JbpmDao jbpmDao;
+
+	private Timer terminiTimer;
 
 
 
@@ -68,6 +78,7 @@ public class TerminiService {
 			terminiIniciat.setDataFi(dataFi);
 			terminiIniciat.setDataAturada(null);
 			terminiIniciat.setDataCancelacio(null);
+			resumeTimers(terminiIniciat);
 		}
 		registreDao.crearRegistreIniciarTermini(
 				getExpedientForProcessInstanceId(processInstanceId).getId(),
@@ -84,6 +95,7 @@ public class TerminiService {
 		if (terminiIniciat.getDataInici() == null)
 			throw new net.conselldemallorca.helium.model.exception.IllegalStateException("El termini no està iniciat");
 		terminiIniciat.setDataAturada(data);
+		suspendTimers(terminiIniciat);
 		String processInstanceId = terminiIniciat.getProcessInstanceId();
 		registreDao.crearRegistreAturarTermini(
 				getExpedientForProcessInstanceId(processInstanceId).getId(),
@@ -100,10 +112,8 @@ public class TerminiService {
 			throw new net.conselldemallorca.helium.model.exception.IllegalStateException("El termini no està pausat");
 		int diesAturat = terminiIniciat.getNumDiesAturadaActual(data);
 		terminiIniciat.setDiesAturat(terminiIniciat.getDiesAturat() + diesAturat);
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(terminiIniciat.getDataFi());
-		cal.add(Calendar.DAY_OF_MONTH, diesAturat);
 		terminiIniciat.setDataAturada(null);
+		resumeTimers(terminiIniciat);
 		String processInstanceId = terminiIniciat.getProcessInstanceId();
 		registreDao.crearRegistreReprendreTermini(
 				getExpedientForProcessInstanceId(processInstanceId).getId(),
@@ -119,6 +129,7 @@ public class TerminiService {
 		if (terminiIniciat.getDataInici() == null)
 			throw new net.conselldemallorca.helium.model.exception.IllegalStateException("El termini no està iniciat");
 		terminiIniciat.setDataCancelacio(data);
+		suspendTimers(terminiIniciat);
 		String processInstanceId = terminiIniciat.getProcessInstanceId();
 		registreDao.crearRegistreCancelarTermini(
 				getExpedientForProcessInstanceId(processInstanceId).getId(),
@@ -134,9 +145,19 @@ public class TerminiService {
 			String processInstanceId) {
 		return terminiIniciatDao.findAmbTerminiIdIProcessInstanceId(terminiId, processInstanceId);
 	}
-	public void setTimerName(Long terminiIniciatId, String timerName) {
+	public List<TerminiIniciat> findIniciatsAmbTaskInstanceIds(String[] taskInstanceIds) {
+		if (taskInstanceIds == null || taskInstanceIds.length == 0)
+			return new ArrayList<TerminiIniciat>();
+		return terminiIniciatDao.findAmbTaskInstanceIds(taskInstanceIds);
+	}
+	public void configurarTerminiIniciatAmbDadesJbpm(
+			Long terminiIniciatId,
+			String taskInstanceId,
+			Long timerId) {
 		TerminiIniciat terminiIniciat = terminiIniciatDao.getById(terminiIniciatId, false);
-		terminiIniciat.setTimerName(timerName);
+		terminiIniciat.setTaskInstanceId(taskInstanceId);
+		if (timerId != null)
+			terminiIniciat.afegirTimerId(timerId.longValue());
 	}
 
 	public Festiu getFestiuById(Long id) {
@@ -164,6 +185,48 @@ public class TerminiService {
 		return festiuDao.findAmbData(data);
 	}
 
+	public void comprovarTerminisIniciats() {
+		List<TerminiIniciat> expirats = terminiIniciatDao.findIniciatsActius();
+		for (TerminiIniciat terminiIniciat: expirats) {
+			if (terminiIniciat.getDataFiAmbAturadaActual().before(new Date())) {
+				if (terminiIniciat.getTermini().isAlertaFinal() && ! terminiIniciat.isAlertaFinal()) {
+					JbpmTask task = jbpmDao.getTaskById(terminiIniciat.getTaskInstanceId());
+					if (task.getAssignee() != null) {
+						crearAlertaFinal(terminiIniciat, task.getAssignee(), getExpedientPerTask(task));
+					} else {
+						for (String actor: task.getPooledActors())
+							crearAlertaFinal(terminiIniciat, actor, getExpedientPerTask(task));
+					}
+					terminiIniciat.setAlertaFinal(true);
+				}
+				if (terminiIniciat.getTermini().isAlertaPrevia() && ! terminiIniciat.isAlertaPrevia()) {
+					JbpmTask task = jbpmDao.getTaskById(terminiIniciat.getTaskInstanceId());
+					if (task.getAssignee() != null) {
+						crearAlertaPrevia(terminiIniciat, task.getAssignee(), getExpedientPerTask(task));
+					} else {
+						for (String actor: task.getPooledActors())
+							crearAlertaPrevia(terminiIniciat, actor, getExpedientPerTask(task));
+					}
+					terminiIniciat.setAlertaPrevia(true);
+				}
+			}
+		}
+	}
+
+	public void setApplicationContext(ApplicationContext applicationContext) {
+		long periode = 10 * 1000; 
+		String syncPeriode = GlobalProperties.getInstance().getProperty("app.termini.comprovacio.periode");
+		if (syncPeriode != null) {
+			try {
+				periode = new Long(syncPeriode).longValue();
+			} catch (Exception ignored) {};
+		}
+		terminiTimer = new Timer();
+		terminiTimer.scheduleAtFixedRate(
+				new ComprovarTerminisIniciatsTask(applicationContext),
+			    0,
+			    periode);
+	}
 
 
 	@Autowired
@@ -185,6 +248,10 @@ public class TerminiService {
 	@Autowired
 	public void setExpedientDao(ExpedientDao expedientDao) {
 		this.expedientDao = expedientDao;
+	}
+	@Autowired
+	public void setAlertaDao(AlertaDao alertaDao) {
+		this.alertaDao = alertaDao;
 	}
 	@Autowired
 	public void setJbpmDao(JbpmDao jbpmDao) {
@@ -275,6 +342,60 @@ public class TerminiService {
 		if (pi == null)
 			return null;
 		return expedientDao.findAmbProcessInstanceId(pi.getId());
+	}
+
+	private void suspendTimers(TerminiIniciat terminiIniciat) {
+		long[] timerIds = terminiIniciat.getTimerIdsArray();
+		for (int i = 0; i < timerIds.length; i++)
+			jbpmDao.suspendTimer(
+					timerIds[i],
+					new Date(Long.MAX_VALUE));
+	}
+	private void resumeTimers(TerminiIniciat terminiIniciat) {
+		long[] timerIds = terminiIniciat.getTimerIdsArray();
+		for (int i = 0; i < timerIds.length; i++)
+			jbpmDao.resumeTimer(
+					timerIds[i],
+					terminiIniciat.getDataFi());
+	}
+
+	private Expedient getExpedientPerTask(JbpmTask task) {
+		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
+		return expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
+	}
+	private void crearAlertaPrevia(
+			TerminiIniciat terminiIniciat,
+			String responsable,
+			Expedient expedient) {
+		Alerta alerta = new Alerta(
+				new Date(),
+				responsable,
+				"El termini \"" + terminiIniciat.getTermini().getNom() + "\" està a punt d'expirar",
+				terminiIniciat.getTermini().getDefinicioProces().getEntorn());
+		alerta.setExpedient(expedient);
+		alertaDao.saveOrUpdate(alerta);
+	}
+	private void crearAlertaFinal(
+			TerminiIniciat terminiIniciat,
+			String responsable,
+			Expedient expedient) {
+		Alerta alerta = new Alerta(
+				new Date(),
+				responsable,
+				"El termini \"" + terminiIniciat.getTermini().getNom() + "\" està a punt d'expirar",
+				terminiIniciat.getTermini().getDefinicioProces().getEntorn());
+		alerta.setExpedient(expedient);
+		alertaDao.saveOrUpdate(alerta);
+	}
+
+	class ComprovarTerminisIniciatsTask extends TimerTask {
+		private ApplicationContext applicationContext;
+		public ComprovarTerminisIniciatsTask(ApplicationContext applicationContext) {
+			this.applicationContext = applicationContext;
+		}
+		public void run() {
+			((TerminiService)applicationContext.getBean("terminiService", TerminiService.class)).comprovarTerminisIniciats();
+        }
 	}
 
 }

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentDisseny;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.FilaResultat;
@@ -19,10 +20,13 @@ import net.conselldemallorca.helium.model.dao.DominiDao;
 import net.conselldemallorca.helium.model.dao.EntornDao;
 import net.conselldemallorca.helium.model.dao.MailDao;
 import net.conselldemallorca.helium.model.dto.ExpedientDto;
+import net.conselldemallorca.helium.model.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.model.hibernate.Document;
 import net.conselldemallorca.helium.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.model.hibernate.Domini;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
 import net.conselldemallorca.helium.model.hibernate.Expedient;
+import net.conselldemallorca.helium.model.service.DissenyService;
 import net.conselldemallorca.helium.model.service.ExpedientService;
 import net.conselldemallorca.helium.model.service.ServiceProxy;
 import net.conselldemallorca.helium.model.service.TascaService;
@@ -106,11 +110,24 @@ public abstract class BasicActionHandler implements ActionHandler {
 			String varDocument) {
 		String varCodi = TascaService.PREFIX_DOCUMENT + varDocument;
 		Object valor = executionContext.getVariable(varCodi);
+		if (valor == null)
+			return null;
 		if (valor instanceof Long) {
 			Long id = (Long)valor;
 			DocumentStore docStore = getDocumentStoreDao().getById(id, false);
 			DocumentInfo resposta = new DocumentInfo();
 			resposta.setId(docStore.getId());
+			if (docStore.isAdjunt()) {
+				resposta.setTitol(docStore.getAdjuntTitol());
+			} else {
+				InstanciaProcesDto instanciaProces = getExpedientService().getInstanciaProcesById(
+						new Long(executionContext.getProcessInstance().getId()).toString(),
+						false);
+				Document document = getDissenyService().findDocumentAmbDefinicioProcesICodi(
+						instanciaProces.getDefinicioProces().getId(),
+						docStore.getCodiDocument());
+				resposta.setTitol(document.getNom());
+			}
 			resposta.setArxiuNom(docStore.getArxiuNom());
 			resposta.setArxiuContingut(docStore.getArxiuContingut());
 			resposta.setDataCreacio(docStore.getDataCreacio());
@@ -120,6 +137,36 @@ public abstract class BasicActionHandler implements ActionHandler {
 		} else {
 			throw new JbpmException("La variable \"" + varCodi + "\" no es del tipus correcte");
 		}
+	}
+
+	/**
+	 * Obté la informació de disseny del document
+	 * 
+	 * @param executionContext
+	 * @param codiDocument
+	 * @return
+	 */
+	public DocumentDisseny getDocumentDisseny(
+			ExecutionContext executionContext,
+			String codiDocument) {
+		InstanciaProcesDto instanciaProces = getExpedientService().getInstanciaProcesById(
+				new Long(executionContext.getProcessInstance().getId()).toString(),
+				false);
+		Document document = getDissenyService().findDocumentAmbDefinicioProcesICodi(
+				instanciaProces.getDefinicioProces().getId(),
+				codiDocument);
+		if (document == null)
+			return null;
+		DocumentDisseny resposta = new DocumentDisseny();
+		resposta.setId(document.getId());
+		resposta.setCodi(document.getCodi());
+		resposta.setNom(document.getNom());
+		resposta.setDescripcio(document.getDescripcio());
+		resposta.setPlantilla(document.isPlantilla());
+		resposta.setContentType(document.getContentType());
+		resposta.setCustodiaCodi(document.getCustodiaCodi());
+		resposta.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
+		return resposta;
 	}
 
 	/**
@@ -228,6 +275,9 @@ public abstract class BasicActionHandler implements ActionHandler {
 	}
 	private ExpedientService getExpedientService() {
 		return ServiceProxy.getInstance().getExpedientService();
+	}
+	private DissenyService getDissenyService() {
+		return ServiceProxy.getInstance().getDissenyService();
 	}
 
 	static final long serialVersionUID = 1L;

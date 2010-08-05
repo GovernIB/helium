@@ -23,6 +23,7 @@ function mostrarAmagarAuth() {
 <body>
 	<c:set var="esReadOnly" value="${globalProperties['app.persones.readonly'] == 'true'}"/>
 	<c:set var="tipusText"><c:choose><c:when test="${not esReadOnly}">text</c:when><c:otherwise>static</c:otherwise></c:choose></c:set>
+	<c:set var="tipusSelect"><c:choose><c:when test="${not esReadOnly}">select</c:when><c:otherwise>static</c:otherwise></c:choose></c:set>
 	<form:form action="form.html" cssClass="uniForm" enctype="multipart/form-data" >
 		<fieldset class="inlineLabels col first">
 			<h3>Dades personals</h3>
@@ -66,6 +67,15 @@ function mostrarAmagarAuth() {
 				<c:param name="required" value="true"/>
 				<c:param name="type" value="${tipusText}"/>
 				<c:param name="label">A/E</c:param>
+			</c:import>
+			<c:import url="../common/formElement.jsp">
+				<c:param name="property" value="sexe"/>
+				<c:param name="required" value="true"/>
+				<c:param name="type" value="${tipusSelect}"/>
+				<c:param name="items" value="sexes"/>
+				<c:param name="itemLabel" value="codi"/>
+				<c:param name="itemValue" value="valor"/>
+				<c:param name="label">Sexe</c:param>
 			</c:import>
 			<%--c:import url="../common/formElement.jsp">
 				<c:param name="property" value="avisCorreu"/>

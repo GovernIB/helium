@@ -79,7 +79,22 @@
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="manual"/>
 				<c:param name="type" value="checkbox"/>
-				<c:param name="label">Control manual?</c:param>
+				<c:param name="label">Permetre control manual?</c:param>
+			</c:import>
+			<c:import url="../common/formElement.jsp">
+				<c:param name="property" value="diesPrevisAvis"/>
+				<c:param name="label">Dies previs per alerta</c:param>
+				<c:param name="comment">Es generarà una alerta els dies especificats abans de finalitzar el termini. Si es deixa buit no es generarà cap alerta.</c:param>
+			</c:import>
+			<c:import url="../common/formElement.jsp">
+				<c:param name="property" value="alertaPrevia"/>
+				<c:param name="type" value="checkbox"/>
+				<c:param name="label">Generar alerta prèvia?</c:param>
+			</c:import>
+			<c:import url="../common/formElement.jsp">
+				<c:param name="property" value="alertaFinal"/>
+				<c:param name="type" value="checkbox"/>
+				<c:param name="label">Generar alerta final?</c:param>
 			</c:import>
 		</div>
 		<c:import url="../common/formElement.jsp">

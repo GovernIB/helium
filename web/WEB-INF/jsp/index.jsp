@@ -31,15 +31,26 @@
 				</div>
 			</c:otherwise>
 		</c:choose>
+		<c:if test="${fn:length(alertesLlistat) > 0}">
+			<div class="missatgesGris">
+				<h4 class="titol-missatge">
+					<img src="<c:url value="/img/email.png"/>" alt="Alertes sense llegir" title="Alertes sense llegir" border="0" style="position:relative;top:3px;"/>
+					Alertes pendents
+				</h4>
+				<br/>
+				<p style="padding-left: 18px">(${fn:length(alertesLlistat)}) <a href="<c:url value="/alerta/llistat.html"/>" title="Veure alertes pendents">alertes</a> pendents</p>
+			</div>
+		</c:if>
 	</c:if>
 	<c:if test="${empty entornActual and not empty entornsActius}">
 		<c:forEach var="entorn" items="${entornsActius}">
 			<c:set var="tasquesPersona" value="${tasquesPersonaEntorn[entorn]}"/>
 			<c:set var="tasquesGrup" value="${tasquesGrupEntorn[entorn]}"/>
+			<c:set var="alertes" value="${alertesEntorn[entorn]}"/>
 			<div class="missatgesGris">
 				<h4 class="titol-missatge">
 					<img src="<c:url value="/img/application_form.png"/>" alt="Tasques" title="Tasques" border="0" style="position:relative;top:3px;"/>
-					${entorn.nom}: tasques pendents
+					${entorn.nom}
 				</h4>
 				<c:if test="${fn:length(tasquesPersona) > 0}">
 					<br/>
@@ -52,6 +63,10 @@
 				<c:if test="${fn:length(tasquesPersona) == 0 && fn:length(tasquesGrup) == 0}">
 					<br/>
 					<p style="padding-left: 18px"><img src="<c:url value="/img/tick.png"/>" alt="Ok" title="Ok" border="0" style="position:relative;top:3px;"/> Cap tasca pendent</p>
+				</c:if>
+				<c:if test="${fn:length(alertes) > 0}">
+					<br/>
+					<p style="padding-left: 18px">(${fn:length(alertes)}) <a href="<c:url value="/alerta/llistat.html"><c:param name="entornCanviarAmbId" value="${entorn.id}"/></c:url>">Hi ha alertes sense llegir</a></p>
 				</c:if>
 			</div>
 		</c:forEach>

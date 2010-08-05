@@ -231,7 +231,10 @@ public class DtoConverter {
 		return dto;
 	}
 
-	public TascaDto toTascaInicialDto(String startTaskName, String jbpmId, Map<String, Object> valors) {
+	public TascaDto toTascaInicialDto(
+			String startTaskName,
+			String jbpmId,
+			Map<String, Object> valors) {
 		Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
 				startTaskName,
 				jbpmId);
@@ -270,6 +273,8 @@ public class DtoConverter {
 					null,
 					camps,
 					valors));
+			dto.setVarsComText(
+					textPerCamps(null, null, camps, valors, dto.getValorsDomini(), dto.getValorsMultiplesDomini()));
 		}
 		return dto;
 	}
@@ -628,8 +633,8 @@ public class DtoConverter {
 				for (ParellaCodiValor parella: enumeracio.getLlistaValors()) {
 					if (valor.equals(parella.getCodi())) {
 						resposta = new ParellaCodiValor(
-								(String)valor,
-								parella.getCodi());
+								parella.getCodi(),
+								parella.getValor());
 					}
 				}
 			}

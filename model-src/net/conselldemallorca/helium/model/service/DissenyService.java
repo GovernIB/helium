@@ -41,6 +41,7 @@ import net.conselldemallorca.helium.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.model.exception.DeploymentException;
 import net.conselldemallorca.helium.model.exception.DominiException;
 import net.conselldemallorca.helium.model.exception.ExportException;
+import net.conselldemallorca.helium.model.exportacio.AccioExportacio;
 import net.conselldemallorca.helium.model.exportacio.AgrupacioExportacio;
 import net.conselldemallorca.helium.model.exportacio.CampExportacio;
 import net.conselldemallorca.helium.model.exportacio.CampTascaExportacio;
@@ -295,6 +296,9 @@ public class DissenyService {
 	public List<Camp> findCampsAmbDefinicioProces(Long definicioProcesId) {
 		return campDao.findAmbDefinicioProces(definicioProcesId);
 	}
+	public List<Camp> findCampsAmbDefinicioProcesOrdenatsPerCodi(Long definicioProcesId) {
+		return campDao.findAmbDefinicioProcesOrdenatsPerCodi(definicioProcesId);
+	}
 	public Camp findCampAmbDefinicioProcesICodi(Long definicioProcesId, String codi) {
 		return campDao.findAmbDefinicioProcesICodi(definicioProcesId, codi);
 	}
@@ -402,6 +406,9 @@ public class DissenyService {
 	public List<Document> findDocumentsAmbDefinicioProces(Long definicioProcesId) {
 		return documentDao.findAmbDefinicioProces(definicioProcesId);
 	}
+	public List<Document> findDocumentsAmbDefinicioProcesOrdenatsPerCodi(Long definicioProcesId) {
+		return documentDao.findAmbDefinicioProces(definicioProcesId);
+	}
 	public Document findDocumentAmbDefinicioProcesICodi(Long definicioProcesId, String codi) {
 		return documentDao.findAmbDefinicioProcesICodi(definicioProcesId, codi);
 	}
@@ -449,8 +456,9 @@ public class DissenyService {
 				ordreActual - 1);
 		if (anterior != null) {
 			documentTasca.setOrder(-1);
-			anterior.setOrder(ordreActual);
 			documentTascaDao.merge(documentTasca);
+			documentTascaDao.flush();
+			anterior.setOrder(ordreActual);
 			documentTascaDao.merge(anterior);
 			documentTascaDao.flush();
 			documentTasca.setOrder(ordreActual - 1);
@@ -464,8 +472,9 @@ public class DissenyService {
 				ordreActual + 1);
 		if (seguent != null) {
 			documentTasca.setOrder(-1);
-			seguent.setOrder(ordreActual);
 			documentTascaDao.merge(documentTasca);
+			documentTascaDao.flush();
+			seguent.setOrder(ordreActual);
 			documentTascaDao.merge(seguent);
 			documentTascaDao.flush();
 			documentTasca.setOrder(ordreActual + 1);
@@ -861,7 +870,8 @@ public class DissenyService {
 					(camp.getEnumeracio() != null) ? camp.getEnumeracio().getCodi() : null,
 					(camp.getDomini() != null) ? camp.getDomini().getCodi() : null,
 					(camp.getAgrupacio() != null) ? camp.getAgrupacio().getCodi() : null,
-					camp.getJbpmAction());
+					camp.getJbpmAction(),
+					camp.getOrdre());
 			// Afegeix les validacions del camp
 			for (Validacio validacio: camp.getValidacions()) {
 				dto.addValidacio(new ValidacioExportacio(
@@ -964,7 +974,10 @@ public class DissenyService {
 					termini.getAnys(),
 					termini.getMesos(),
 					termini.getDies(),
-					termini.isLaborable());
+					termini.isLaborable(),
+					termini.getDiesPrevisAvis(),
+					termini.isAlertaPrevia(),
+					termini.isAlertaFinal());
 			terminisDto.add(dto);
 		}
 		definicioProcesExportacio.setTerminis(terminisDto);
@@ -980,6 +993,18 @@ public class DissenyService {
 			agrupacionsDto.add(dto);
 		}
 		definicioProcesExportacio.setAgrupacions(agrupacionsDto);
+		// Afegeix les accions
+		List<Accio> accions = accioDao.findAmbDefinicioProces(definicioProcesId);
+		List<AccioExportacio> accionsDto = new ArrayList<AccioExportacio>();
+		for (Accio accio: accions) {
+			AccioExportacio dto = new AccioExportacio(
+					accio.getCodi(),
+					accio.getNom(),
+					accio.getDescripcio(),
+					accio.getJbpmAction());
+			accionsDto.add(dto);
+		}
+		definicioProcesExportacio.setAccions(accionsDto);
 		// Afegeix el deploy pel jBPM
 		DefinicioProces definicioProces = definicioProcesDao.getById(definicioProcesId, false);
 		definicioProcesExportacio.setNomDeploy("export.par");
@@ -1029,6 +1054,16 @@ public class DissenyService {
 			campAgrupacioDao.saveOrUpdate(nova);
 			agrupacions.put(agrupacio.getCodi(), nova);
 		}
+		// Propaga les accions
+		for (AccioExportacio accio: exportacio.getAccions()) {
+			Accio nova = new Accio(
+					definicioProces,
+					accio.getCodi(),
+					accio.getNom(),
+					accio.getJbpmAction());
+			nova.setDescripcio(accio.getDescripcio());
+			accioDao.saveOrUpdate(nova);
+		}
 		// Propaga els camps
 		Map<String, Camp> camps = new HashMap<String, Camp>();
 		for (CampExportacio camp: exportacio.getCamps()) {
@@ -1045,6 +1080,7 @@ public class DissenyService {
 			nou.setMultiple(camp.isMultiple());
 			nou.setOcult(camp.isOcult());
 			nou.setJbpmAction(camp.getJbpmAction());
+			nou.setOrdre(camp.getOrdre());
 			if (camp.getCodiEnumeracio() != null) {
 				Enumeracio enumeracio = enumeracioDao.findAmbEntornICodi(entornId, camp.getCodiEnumeracio());
 				if (enumeracio != null)
@@ -1116,6 +1152,9 @@ public class DissenyService {
 					termini.getDies(),
 					termini.isLaborable());
 			nou.setDescripcio(termini.getDescripcio());
+			nou.setDiesPrevisAvis(termini.getDiesPrevisAvis());
+			nou.setAlertaPrevia(termini.isAlertaPrevia());
+			nou.setAlertaFinal(termini.isAlertaFinal());
 			terminiDao.saveOrUpdate(nou);
 		}
 		// Propaga les tasques
@@ -1646,8 +1685,11 @@ public class DissenyService {
 	private void reordenarDocumentsTasca(Long tascaId) {
 		List<DocumentTasca> documentsTasca = documentTascaDao.findAmbTascaOrdenats(tascaId);
 		int i = 0;
-		for (DocumentTasca documentTasca: documentsTasca)
+		for (DocumentTasca documentTasca: documentsTasca) {
 			documentTasca.setOrder(i++);
+			documentTascaDao.merge(documentTasca);
+			documentTascaDao.flush();
+		}
 	}
 	private void reordenarFirmesTasca(Long tascaId) {
 		List<FirmaTasca> firmesTasca = firmaTascaDao.findAmbTascaOrdenats(tascaId);
@@ -1718,6 +1760,28 @@ public class DissenyService {
 	private void copiarDadesDefinicioProces(
 			DefinicioProces origen,
 			DefinicioProces desti) {
+		// Propaga les agrupacions
+		Map<String, CampAgrupacio> agrupacions = new HashMap<String, CampAgrupacio>();
+		for (CampAgrupacio agrupacio: origen.getAgrupacions()) {
+			CampAgrupacio nova = new CampAgrupacio(
+					desti,
+					agrupacio.getCodi(),
+					agrupacio.getNom(),
+					agrupacio.getOrdre());
+			nova.setDescripcio(agrupacio.getDescripcio());
+			campAgrupacioDao.saveOrUpdate(nova);
+			agrupacions.put(agrupacio.getCodi(), nova);
+		}
+		// Propaga les accions
+		for (Accio accio: origen.getAccions()) {
+			Accio nova = new Accio(
+					desti,
+					accio.getCodi(),
+					accio.getNom(),
+					accio.getJbpmAction());
+			nova.setDescripcio(accio.getDescripcio());
+			accioDao.saveOrUpdate(nova);
+		}
 		// Propaga els camps
 		Map<String, Camp> camps = new HashMap<String, Camp>();
 		for (Camp camp: origen.getCamps()) {
@@ -1736,6 +1800,7 @@ public class DissenyService {
 			nou.setDominiParams(camp.getDominiParams());
 			nou.setEnumeracio(camp.getEnumeracio());
 			nou.setJbpmAction(camp.getJbpmAction());
+			nou.setOrdre(camp.getOrdre());
 			campDao.saveOrUpdate(nou);
 			camps.put(nou.getCodi(), nou);
 			// Copia les validacions dels camps
@@ -1746,6 +1811,9 @@ public class DissenyService {
 						validacio.getMissatge());
 				nou.addValidacio(novaValidacio);
 			}
+			// Configura l'agrupació
+			if (camp.getAgrupacio() != null)
+				nou.setAgrupacio(agrupacions.get(camp.getAgrupacio().getCodi()));
 		}
 		// Propaga els membres dels camps de tipus registre
 		for (Camp camp: origen.getCamps()) {
@@ -1790,17 +1858,10 @@ public class DissenyService {
 					termini.getDies(),
 					termini.isLaborable());
 			nou.setDescripcio(termini.getDescripcio());
+			nou.setDiesPrevisAvis(termini.getDiesPrevisAvis());
+			nou.setAlertaPrevia(termini.isAlertaPrevia());
+			nou.setAlertaFinal(termini.isAlertaFinal());
 			terminiDao.saveOrUpdate(nou);
-		}
-		// Propaga les agrupacions
-		for (CampAgrupacio agrupacio: origen.getAgrupacions()) {
-			CampAgrupacio nova = new CampAgrupacio(
-					desti,
-					agrupacio.getCodi(),
-					agrupacio.getNom(),
-					agrupacio.getOrdre());
-			nova.setDescripcio(agrupacio.getDescripcio());
-			campAgrupacioDao.saveOrUpdate(nova);
 		}
 		// Propaga les dades de les tasques
 		for (Tasca nova: desti.getTasques()) {

@@ -230,7 +230,7 @@
 						<c:if test="${varStatus.last and not empty param.multipleIcons}">
 							<button type="submit" class="submitButton" name="submit" value="multipleAdd" onclick="multipleAdd(this, '${inputName}')">+</button>
 						</c:if>
-						<c:if test="${not empty param.comment}"><p class="formHint">${param.comment}</p></c:if>
+						<c:if test="${not empty param.comment and varStatus.last}"><p class="formHint">${param.comment}</p></c:if>
 					</div>
 				</c:otherwise>
 			</c:choose>

@@ -99,6 +99,7 @@ public abstract class CommonRegistreController extends BaseController {
 			Map<String, Object> valors = null;
 			if (index != null) {
 				Object[] valorRegistre = getValorRegistre(
+						request,
 						entorn.getId(),
 						id,
 						camp.getCodi());
@@ -124,7 +125,7 @@ public abstract class CommonRegistreController extends BaseController {
 	}
 
 	@ModelAttribute("valorsPerSuggest")
-	public Map<String, List<String>> populateValorsPerSuggest(
+	public Map<String, List<Object>> populateValorsPerSuggest(
 			HttpServletRequest request,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
@@ -149,7 +150,7 @@ public abstract class CommonRegistreController extends BaseController {
 	}
 	protected String registrePost(
 			HttpServletRequest request,
-			@RequestParam(value = "id", required = true) String id,
+			@RequestParam(value = "id", required = false) String id,
 			@RequestParam(value = "registreId", required = true) Long registreId,
 			@RequestParam(value = "index", required = false) Integer index,
 			@RequestParam(value = "submit", required = true) String submit,
@@ -168,7 +169,7 @@ public abstract class CommonRegistreController extends BaseController {
 				validator.validate(command, result);
 		        if (!result.hasErrors()) {
 			        try {
-			        	Map<String, Object> valorsCommand = TascaFormUtil.valorsFromCommand(
+			        	Map<String, Object> valorsCommand = TascaFormUtil.getValorsFromCommand(
 	        					camps,
 	        					command,
 	        					true,
@@ -181,12 +182,14 @@ public abstract class CommonRegistreController extends BaseController {
 			        	}
 			        	if (index != null) {
 				        	guardarRegistre(
+									request,
 				        			id,
 				        			camp.getCodi(),
 				        			valors,
 				        			index.intValue());
 			        	} else {
 			        		guardarRegistre(
+									request,
 				        			id,
 				        			camp.getCodi(),
 				        			valors);
@@ -218,6 +221,7 @@ public abstract class CommonRegistreController extends BaseController {
 			Camp camp = dissenyService.getCampById(registreId);
 			try {
 				esborrarRegistre(
+						request,
 						id,
 						camp.getCodi(),
 						index);
@@ -264,10 +268,10 @@ public abstract class CommonRegistreController extends BaseController {
 			ModelMap model) {
 	}
 
-	public abstract Object[] getValorRegistre(Long entornId, String id, String campCodi);
-	public abstract void guardarRegistre(String id, String campCodi, Object[] valors, int index);
-	public abstract void guardarRegistre(String id, String campCodi, Object[] valors);
-	public abstract void esborrarRegistre(String id, String campCodi, int index);
+	public abstract Object[] getValorRegistre(HttpServletRequest request,Long entornId, String id, String campCodi);
+	public abstract void guardarRegistre(HttpServletRequest request,String id, String campCodi, Object[] valors, int index);
+	public abstract void guardarRegistre(HttpServletRequest request,String id, String campCodi, Object[] valors);
+	public abstract void esborrarRegistre(HttpServletRequest request,String id, String campCodi, int index);
 	public abstract String redirectUrl(String id, String campCodi);
 	public abstract String registreUrl();
 

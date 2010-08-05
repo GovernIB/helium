@@ -98,7 +98,7 @@ function confirmarDelegar(e) {
 							<c:import url="../common/formElement.jsp">
 								<c:param name="property" value="supervisada"/>
 								<c:param name="type" value="checkbox"/>
-								<c:param name="label">Supervisada?</c:param>
+								<c:param name="label">Supervisar?</c:param>
 							</c:import>
 							<c:import url="../common/formElement.jsp">
 								<c:param name="type" value="buttons"/>

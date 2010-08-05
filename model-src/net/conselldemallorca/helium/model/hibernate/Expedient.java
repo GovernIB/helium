@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -17,6 +18,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Transient;
@@ -73,6 +75,8 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 
 	private Set<Expedient> relacionsOrigen = new HashSet<Expedient>();
 	private Set<Expedient> relacionsDesti = new HashSet<Expedient>();
+
+	private Set<Alerta> alertes = new HashSet<Alerta>();
 
 
 
@@ -229,7 +233,6 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	public void addRelacioOrigen(Expedient relacionat) {
 		getRelacionsOrigen().add(relacionat);
 	}
-
 	public void removeRelacioOrigen(Expedient relacionat) {
 		getRelacionsOrigen().remove(relacionat);
 	}
@@ -238,17 +241,28 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	public Set<Expedient> getRelacionsDesti() {
 		return this.relacionsDesti;
 	}
-
 	public void setRelacionsDesti(Set<Expedient> relacionsDesti) {
 		this.relacionsDesti = relacionsDesti;
 	}
-
 	public void addRelacioDesti(Expedient relacionat) {
 		getRelacionsDesti().add(relacionat);
 	}
-
 	public void removeRelacioDesti(Expedient relacionat) {
 		getRelacionsDesti().remove(relacionat);
+	}
+
+	@OneToMany(mappedBy="expedient", cascade=CascadeType.REMOVE)
+	public Set<Alerta> getAlertes() {
+		return this.alertes;
+	}
+	public void setalertes(Set<Alerta> alertes) {
+		this.alertes = alertes;
+	}
+	public void addAlerta(Alerta alerta) {
+		getAlertes().add(alerta);
+	}
+	public void removeAlerta(Alerta alerta) {
+		getAlertes().remove(alerta);
 	}
 
 	@Transient

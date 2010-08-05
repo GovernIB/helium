@@ -29,7 +29,7 @@ function confirmar(e) {
 		<c:param name="tabActiu" value="agrupacions"/>
 	</c:import>
 
-	<display:table name="agrupacions" id="registre" requestURI="" class="displaytag selectable">
+	<display:table name="agrupacions" id="registre" requestURI="" defaultsort="1" class="displaytag selectable">
 		<display:column property="codi" title="Codi" sortable="true" url="/definicioProces/campAgrupacioForm.html?definicioProcesId=${param.definicioProcesId}" paramId="id" paramProperty="id"/>
 		<display:column property="nom" title="Nom" sortable="true"/>
 		<display:column>
@@ -37,7 +37,7 @@ function confirmar(e) {
 			<a href="<c:url value="/definicioProces/campAgrupacioBaixar.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/></c:url>"><img src="<c:url value="/img/famarrow_down.png"/>" alt="Avall" title="Avall" border="0"/></a>
 		</display:column>
 	    <display:column>
-	    	<form action="assignarVariablesLlistat.html">
+	    	<form action="campAgrupacioOrdre.html">
 				<input type="hidden" name="definicioProcesId" value="${definicioProces.id}"/>
 				<input type="hidden" name="agrupacioCodi" value="${registre.codi}"/>
 				<button type="submit" class="submitButton">Variables&nbsp;(${fn:length(registre.camps)})</button>

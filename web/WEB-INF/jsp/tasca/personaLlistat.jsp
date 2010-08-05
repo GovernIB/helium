@@ -59,7 +59,13 @@
 				<c:otherwise>${registre.priority}</c:otherwise>
 			</c:choose>
 		</display:column>
-		<display:column property="dueDate" title="Data límit&nbsp;" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true"/>
+		<c:choose>
+			<c:when test="${not empty terminisIniciats[registre_rowNum - 1] and terminisIniciats[registre_rowNum - 1].estat == 'NORMAL'}"><c:set var="estilData">background-color:green</c:set></c:when>
+			<c:when test="${not empty terminisIniciats[registre_rowNum - 1] and terminisIniciats[registre_rowNum - 1].estat == 'AVIS'}"><c:set var="estilData">background-color:yellow</c:set></c:when>
+			<c:when test="${not empty terminisIniciats[registre_rowNum - 1] and terminisIniciats[registre_rowNum - 1].estat == 'CADUCAT'}"><c:set var="estilData">background-color:red</c:set></c:when>
+			<c:otherwise><c:set var="estilData"></c:set></c:otherwise>
+		</c:choose>
+		<display:column property="dueDate" title="Data límit&nbsp;" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true" style="${estilData}"/>
 	</display:table>
 	<script type="text/javascript">initSelectable();</script>
 

@@ -19,7 +19,7 @@
 		<c:param name="tabActiu" value="tasques"/>
 	</c:import>
 
-	<display:table name="tasques" id="registre" requestURI="" class="displaytag selectable">
+	<display:table name="tasques" id="registre" requestURI="" defaultsort="1" class="displaytag selectable">
 		<display:column property="jbpmName" title="Codi" sortable="true" url="/definicioProces/tascaForm.html?definicioProcesId=${param.definicioProcesId}" paramId="id" paramProperty="id"/>
 		<display:column property="nom" title="Títol" sortable="true"/>
 		<display:column>

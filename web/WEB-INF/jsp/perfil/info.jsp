@@ -17,6 +17,7 @@
 		<%--dt>Data naixement</dt><dd><fmt:formatDate value="${info.dataNaixement}" pattern="dd/MM/yyyy" /></dd--%>
 		<dt>DNI</dt><dd>${info.dni}&nbsp;</dd>
 		<dt>A/E</dt><dd>${info.email}</dd>
+		<dt>Sexe</dt><dd><c:choose><c:when test="${info.sexe == 'SEXE_HOME'}">Home</c:when><c:otherwise>Dona</c:otherwise></c:choose></dd>
 		<%--dt>Notificar events per correu</dt><dd><c:choose><c:when test="${info.avisCorreu}">Si</c:when><c:otherwise>No</c:otherwise></c:choose></dd--%>
 	</dl>
 

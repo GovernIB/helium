@@ -34,6 +34,20 @@ public class DocumentDao extends HibernateGenericDao<Document, Long> {
 	}
 
 	@SuppressWarnings("unchecked")
+	public List<Document> findAmbDefinicioProcesOrdenatsPerCodi(Long definicioProcesId) {
+		return (List<Document>)getSession().
+				createQuery(
+						"from " +
+						"    Document d " +
+						"where " +
+						"    d.definicioProces.id=? " +
+						"order by " +
+						"    d.codi asc").
+				setLong(0, definicioProcesId).
+				list();
+	}
+
+	@SuppressWarnings("unchecked")
 	public Document findAmbDefinicioProcesICodi(Long definicioProcesId, String codi) {
 		List<Document> documents = (List<Document>)getSession().
 				createQuery(
