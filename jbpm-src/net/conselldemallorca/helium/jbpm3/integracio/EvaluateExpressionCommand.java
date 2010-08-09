@@ -17,27 +17,38 @@ import org.jbpm.jpdl.el.impl.JbpmExpressionEvaluator;
 public class EvaluateExpressionCommand extends AbstractBaseCommand {
 
 	private static final long serialVersionUID = -1908847549444051495L;
-	private long id;
+	private long pid;
+	private long tid = -1;
 	private String expression;
 
 	public EvaluateExpressionCommand(
-			long id,
+			long pid,
 			String expression) {
 		super();
-		this.id = id;
+		this.pid = pid;
 		this.expression = expression;
 	}
 
 	public Object execute(JbpmContext jbpmContext) throws Exception {
-		ProcessInstance pi = jbpmContext.getProcessInstance(id);
+		ProcessInstance pi = jbpmContext.getProcessInstance(pid);
+		ExecutionContext ec = new ExecutionContext(pi.getRootToken());
+		if (tid != -1) {
+			ec.setTaskInstance(jbpmContext.getTaskInstance(tid));
+		}
 		return JbpmExpressionEvaluator.evaluate(expression, new ExecutionContext(pi.getRootToken())); 
 	}
 
-	public long getId() {
-		return id;
+	public long getPid() {
+		return pid;
 	}
-	public void setId(long id) {
-		this.id = id;
+	public void setPid(long pid) {
+		this.pid = pid;
+	}
+	public long getTid() {
+		return tid;
+	}
+	public void setTid(long tid) {
+		this.tid = tid;
 	}
 	public String getExpression() {
 		return expression;
@@ -48,12 +59,12 @@ public class EvaluateExpressionCommand extends AbstractBaseCommand {
 
 	@Override
 	public String getAdditionalToStringInformation() {
-	    return "id=" + id;
+	    return "pid=" + pid;
 	}
 
 	//methods for fluent programming
-	public EvaluateExpressionCommand id(long id) {
-		setId(id);
+	public EvaluateExpressionCommand pid(long pid) {
+		setPid(pid);
 	    return this;
 	}
 

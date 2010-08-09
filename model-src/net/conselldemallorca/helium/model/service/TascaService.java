@@ -102,6 +102,19 @@ public class TascaService {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);
 		return toTascaDto(task, valorsCommand, true);
 	}
+	public TascaDto getByIdSenseComprovacio(String taskId) {
+		return getByIdSenseComprovacio(taskId, null, null);
+	}
+	public TascaDto getByIdSenseComprovacio(String taskId, Map<String, Object> valorsCommand) {
+		return getByIdSenseComprovacio(taskId, null, valorsCommand);
+	}
+	public TascaDto getByIdSenseComprovacio(String taskId, String usuari) {
+		return getByIdSenseComprovacio(taskId, usuari, null);
+	}
+	public TascaDto getByIdSenseComprovacio(String taskId, String usuari, Map<String, Object> valorsCommand) {
+		JbpmTask task = jbpmDao.getTaskById(taskId);
+		return toTascaDto(task, valorsCommand, true);
+	}
 	public List<TascaDto> findTasquesPersonals(Long entornId) {
 		return findTasquesPersonals(entornId, null);
 	}

@@ -554,12 +554,15 @@ public class JbpmDao {
 	}
 
 	public Object evaluateExpression(
+			String taskInstanceInstanceId,
 			String processInstanceId,
 			String expression) {
-		long id = new Long(processInstanceId).longValue();
+		long pid = new Long(processInstanceId).longValue();
 		EvaluateExpressionCommand command = new EvaluateExpressionCommand(
-				id,
+				pid,
 				expression);
+		if (taskInstanceInstanceId != null)
+			command.setTid(new Long(taskInstanceInstanceId).longValue());
 		return commandService.execute(command);
 	}
 

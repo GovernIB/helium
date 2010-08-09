@@ -941,10 +941,10 @@ public class DtoConverter {
 			Object value = null;
 			if (campCodi.startsWith("#{")) {
 				if (processInstanceId != null) {
-					value = jbpmDao.evaluateExpression(processInstanceId, campCodi);
+					value = jbpmDao.evaluateExpression(taskId, processInstanceId, campCodi);
 				} else if (taskId != null) {
 					JbpmTask task = jbpmDao.getTaskById(taskId);
-					value = jbpmDao.evaluateExpression(task.getProcessInstanceId(), campCodi);
+					value = jbpmDao.evaluateExpression(taskId, task.getProcessInstanceId(), campCodi);
 				}
 			} else {
 				if (taskId != null)
@@ -966,6 +966,7 @@ public class DtoConverter {
 		if (tasca.getNomScript() != null && tasca.getNomScript().length() > 0) {
 			try {
 				titolNou = (String)jbpmDao.evaluateExpression(
+						task.getId(),
 						task.getProcessInstanceId(),
 						tasca.getNomScript());
 			} catch (Exception ex) {
