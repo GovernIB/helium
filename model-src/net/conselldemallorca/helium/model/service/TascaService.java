@@ -1082,10 +1082,12 @@ public class TascaService {
 						break;
 					// Data límit
 					case 5:
-						if (ord == 1)
-							result = t1.getDueDate().compareTo(t2.getDueDate());
-						else if (ord == 2)
-							result = t2.getDueDate().compareTo(t1.getDueDate());
+						if ((t1.getDueDate() != null) && (t2.getDueDate() != null)) {
+							if (ord == 1)
+								result = t1.getDueDate().compareTo(t2.getDueDate());
+							else if (ord == 2)
+								result = t2.getDueDate().compareTo(t1.getDueDate());
+						}
 						break;
 					default:
 						break;
