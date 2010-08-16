@@ -3,6 +3,9 @@
  */
 package net.conselldemallorca.helium.model.dao;
 
+import net.conselldemallorca.helium.integracio.plugins.registre.DadesRegistre;
+import net.conselldemallorca.helium.integracio.plugins.registre.RegistrePlugin;
+import net.conselldemallorca.helium.integracio.plugins.registre.RegistrePluginException;
 import net.conselldemallorca.helium.model.exception.PluginException;
 import net.conselldemallorca.helium.util.GlobalProperties;
 
@@ -11,31 +14,52 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Repository;
 
 /**
- * Dao per accedir a la funcionalitat del plugin de gestió documental
+ * Dao per accedir a la funcionalitat del plugin de registre
  * 
  * @author Josep Gayà <josepg@limit.es>
  */
 @Repository
 public class PluginRegistreDao {
 
-	private Object registrePlugin;
+	private RegistrePlugin registrePlugin;
 
 
 
-	public String registrarEntrada() {
-		return null;
+	public String[] registrarEntrada(
+			DadesRegistre dadesRegistre) {
+		try {
+			return getRegistrePlugin().registrarEntrada(dadesRegistre);
+		} catch (RegistrePluginException ex) {
+			logger.error("Error al crear el registre d'entrada", ex);
+			throw new PluginException("Error al crear el registre d'entrada", ex);
+		}
 	}
 
-	public String consultarEntrada(String numRegistre) {
-		return null;
+	public DadesRegistre consultarEntrada(String numero, String any) {
+		try {
+			return getRegistrePlugin().consultarEntrada(numero, any);
+		} catch (RegistrePluginException ex) {
+			logger.error("Error al consultar el registre d'entrada", ex);
+			throw new PluginException("Error al consultar el registre d'entrada", ex);
+		}
 	}
 
-	public String registrarSortida() {
-		return null;
+	public String[] registrarSortida(DadesRegistre dadesRegistre) {
+		try {
+			return getRegistrePlugin().registrarSortida(dadesRegistre);
+		} catch (RegistrePluginException ex) {
+			logger.error("Error al crear el registre de sortida", ex);
+			throw new PluginException("Error al crear el registre de sortida", ex);
+		}
 	}
 
-	public String consultarSortida(String numRegistre) {
-		return null;
+	public DadesRegistre consultarSortida(String numero, String any) {
+		try {
+			return getRegistrePlugin().consultarSortida(numero, any);
+		} catch (RegistrePluginException ex) {
+			logger.error("Error al consultar el registre de sortida", ex);
+			throw new PluginException("Error al consultar el registre de sortida", ex);
+		}
 	}
 
 	public boolean isRegistreActiu() {
@@ -45,14 +69,14 @@ public class PluginRegistreDao {
 
 
 
-	@SuppressWarnings({ "unused", "unchecked" })
-	private Object getRegistrePlugin() {
+	@SuppressWarnings("unchecked")
+	private RegistrePlugin getRegistrePlugin() {
 		if (registrePlugin == null) {
 			String pluginClass = GlobalProperties.getInstance().getProperty("app.registre.plugin.class");
 			if (pluginClass != null && pluginClass.length() > 0) {
 				try {
 					Class clazz = Class.forName(pluginClass);
-					registrePlugin = (Object)clazz.newInstance();
+					registrePlugin = (RegistrePlugin)clazz.newInstance();
 				} catch (Exception ex) {
 					logger.error("No s'ha pogut crear la instància del plugin de registre", ex);
 					throw new PluginException("No s'ha pogut crear la instància del plugin de registre", ex);
