@@ -431,8 +431,8 @@ public class TascaController extends BaseController {
 		private Integer prioritat;
 		private Date dataLimitInici;
 		private Date dataLimitFi;
-		private String columna;
-		private String ordre;
+		private String columna = "3";
+		private String ordre = "2";
 		public TascaPersonaFiltreCommand() {}
 		public String getNom() {
 			return nom;
@@ -505,8 +505,8 @@ public class TascaController extends BaseController {
 		private Integer prioritat;
 		private Date dataLimitInici;
 		private Date dataLimitFi;
-		private String columna;
-		private String ordre;
+		private String columna = "3";
+		private String ordre = "2";
 		public TascaGrupFiltreCommand() {}
 		public String getNom() {
 			return nom;

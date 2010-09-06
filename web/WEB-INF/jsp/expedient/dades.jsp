@@ -7,7 +7,7 @@
 
 <html>
 <head>
-	<title>Expedient: ${expedient.identificador}</title>
+	<title>Expedient: ${expedient.identificadorLimitat}</title>
 	<meta name="titolcmp" content="Consultes"/>
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
@@ -74,10 +74,10 @@ function confirmarModificar(e) {
 				<display:column title="Valor">
 					<c:set var="esRegistre" value="${false}"/>
 					<c:forEach var="camp" items="${instanciaProces.camps}">
-						<c:if test="${camp.codi == codi and camp.tipus == 'REGISTRE'}"><c:set var="esRegistre" value="${true}"/><c:set var="campActual" value="${camp}"/></c:if>
+						<c:if test="${camp.codi == codi}"><c:set var="campActual" value="${camp}"/></c:if>
 					</c:forEach>
 					<c:choose>
-						<c:when test="${esRegistre}">
+						<c:when test="${campActual.tipus == 'REGISTRE'}">
 							<c:set var="registres" value="${instanciaProces.varsComText[codi]}" scope="request"/>
 							<display:table name="registres" id="reg" class="displaytag">
 								<c:forEach var="membre" items="${campActual.registreMembres}" varStatus="varStatus">
@@ -128,7 +128,24 @@ function confirmarModificar(e) {
 								</c:forEach>
 								<c:choose><c:when test="${found}">${campActual.etiqueta}</c:when><c:otherwise>${campAgrup.codi}</c:otherwise></c:choose>
 							</display:column>
-							<display:column title="Valor">${instanciaProces.varsComText[campAgrup.codi]}</display:column>
+							<display:column title="Valor">
+								<c:forEach var="camp" items="${instanciaProces.camps}">
+									<c:if test="${camp.codi == campAgrup.codi}"><c:set var="campActual" value="${camp}"/></c:if>
+								</c:forEach>
+								<c:choose>
+									<c:when test="${campActual.tipus == 'REGISTRE'}">
+										<c:set var="registres" value="${instanciaProces.varsComText[campAgrup.codi]}" scope="request"/>
+										<display:table name="registres" id="reg" class="displaytag">
+											<c:forEach var="membre" items="${campActual.registreMembres}" varStatus="varStatus">
+												<c:if test="${membre.llistar}">
+													<display:column title="${membre.membre.etiqueta}">${reg[varStatus.index]}</display:column>
+												</c:if>
+											</c:forEach>
+										</display:table>
+									</c:when>
+									<c:otherwise>${instanciaProces.varsComText[campAgrup.codi]}</c:otherwise>
+								</c:choose>
+							</display:column>
 							<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
 								<display:column>
 									<a href="<c:url value="/expedient/dadaModificar.html"><c:param name="id" value="${instanciaProces.id}"/><c:param name="var" value="${campAgrup.codi}"/></c:url>" onclick="return confirmarModificar(event)"><img src="<c:url value="/img/page_white_edit.png"/>" alt="Editar" title="Editar" border="0"/></a>

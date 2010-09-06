@@ -24,17 +24,22 @@ public class DadesRegistre implements Serializable {
 	private String data;
 	private String tipus;
 	private String idioma;
-	private String entitat1;
-	private String entitat2;
-	private String entitatAltres;
+	private String remitentEntitat1;
+	private String remitentEntitat2;
+	private String remitentAltres;
+	private String destinatariEntitat1;
+	private String destinatariEntitat2;
+	private String destinatariAltres;
 	private String procedenciaBalears;
 	private String procedenciaFora;
-	private String entrada1;
-	private String entrada2;
+	private String destiBalears;
+	private String destiFora;
 	private String sortida1;
 	private String sortida2;
-	private String remitent;
+	private String entrada1;
+	private String entrada2;
 	private String destinatari;
+	private String remitent;
 	private String idiomaExtracte;
 	private String extracte;
 
@@ -45,6 +50,54 @@ public class DadesRegistre implements Serializable {
 	}
 	public void setNumero(String numero) {
 		this.numero = numero;
+	}
+	public String getRemitentEntitat1() {
+		return remitentEntitat1;
+	}
+	public void setRemitentEntitat1(String remitentEntitat1) {
+		this.remitentEntitat1 = remitentEntitat1;
+	}
+	public String getRemitentEntitat2() {
+		return remitentEntitat2;
+	}
+	public void setRemitentEntitat2(String remitentEntitat2) {
+		this.remitentEntitat2 = remitentEntitat2;
+	}
+	public String getRemitentAltres() {
+		return remitentAltres;
+	}
+	public void setRemitentAltres(String remitentAltres) {
+		this.remitentAltres = remitentAltres;
+	}
+	public String getDestinatariEntitat1() {
+		return destinatariEntitat1;
+	}
+	public void setDestinatariEntitat1(String destinatariEntitat1) {
+		this.destinatariEntitat1 = destinatariEntitat1;
+	}
+	public String getDestinatariEntitat2() {
+		return destinatariEntitat2;
+	}
+	public void setDestinatariEntitat2(String destinatariEntitat2) {
+		this.destinatariEntitat2 = destinatariEntitat2;
+	}
+	public String getDestinatariAltres() {
+		return destinatariAltres;
+	}
+	public void setDestinatariAltres(String destinatariAltres) {
+		this.destinatariAltres = destinatariAltres;
+	}
+	public String getDestiBalears() {
+		return destiBalears;
+	}
+	public void setDestiBalears(String destiBalears) {
+		this.destiBalears = destiBalears;
+	}
+	public String getDestiFora() {
+		return destiFora;
+	}
+	public void setDestiFora(String destiFora) {
+		this.destiFora = destiFora;
 	}
 	public String getAny() {
 		return any;
@@ -105,24 +158,6 @@ public class DadesRegistre implements Serializable {
 	}
 	public void setIdioma(String idioma) {
 		this.idioma = idioma;
-	}
-	public String getEntitat1() {
-		return entitat1;
-	}
-	public void setEntitat1(String entitat1) {
-		this.entitat1 = entitat1;
-	}
-	public String getEntitat2() {
-		return entitat2;
-	}
-	public void setEntitat2(String entitat2) {
-		this.entitat2 = entitat2;
-	}
-	public String getEntitatAltres() {
-		return entitatAltres;
-	}
-	public void setEntitatAltres(String entitatAltres) {
-		this.entitatAltres = entitatAltres;
 	}
 	public String getProcedenciaBalears() {
 		return procedenciaBalears;

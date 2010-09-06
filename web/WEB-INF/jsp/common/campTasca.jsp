@@ -39,13 +39,15 @@
 					<c:param name="content">
 						<c:set var="files" scope="request" value="${tasca.varsComText[codiActual]}"/>
 						<c:if test="${not empty tasca.varsComText[codiActual]}">
-							<display:table name="files" id="registre" requestURI="" class="displaytag selectable">
-								<c:forEach var="membre" items="${campActual.registreMembres}" varStatus="varStatus">
-									<c:if test="${membre.llistar}">
-										<display:column title="${membre.membre.etiqueta}">${registre[varStatus.index]}</display:column>
-									</c:if>
-								</c:forEach>
-							</display:table>
+							<div style="overflow:auto">
+								<display:table name="files" id="registre" requestURI="" class="displaytag selectable">
+									<c:forEach var="membre" items="${campActual.registreMembres}" varStatus="varStatus">
+										<c:if test="${membre.llistar}">
+											<display:column title="${membre.membre.etiqueta}">${registre[varStatus.index]}</display:column>
+										</c:if>
+									</c:forEach>
+								</display:table>
+							</div>
 						</c:if>
 					</c:param>
 				</c:import>
@@ -179,32 +181,40 @@
 			<c:param name="type" value="custom"/>
 			<c:param name="label">${campActual.etiqueta}</c:param>
 			<c:param name="content">
-				<spring:bind path="${codiActual}">
-					<c:set var="anys" value="${fn:split(status.value,'/')[0]}"/>
-					<label for="${codiActual}_anys" class="blockLabel">
-						<%--span>Anys</span--%>
-						<select id="${codiActual}_anys" name="${codiActual}_anys" onchange="canviTermini(this)">
-							<c:forEach var="index" begin="0" end="12">
-								<option value="${index}"<c:if test="${anys==index}"> selected="selected"</c:if>>${index}</option>
-							</c:forEach>
-						</select>
-					</label>
-					<c:set var="mesos" value="${fn:split(status.value,'/')[1]}"/>
-					<label for="${codiActual}_mesos" class="blockLabel">
-						<%--span>Mesos</span--%>
-						<select id="${codiActual}_mesos" name="${codiActual}_mesos" onchange="canviTermini(this)">
-							<c:forEach var="index" begin="0" end="12">
-								<option value="${index}"<c:if test="${mesos==index}"> selected="selected"</c:if>>${index}</option>
-							</c:forEach>
-						</select>
-					</label>
-					<c:set var="dies" value="${fn:split(status.value,'/')[2]}"/>
-					<label for="${codiActual}_dies" class="blockLabel">
-						<%--span>Dies</span--%>
-						<input id="${codiActual}_dies" name="${codiActual}_dies" value="${dies}" class="textInput" onchange="canviTermini(this)"/>
-					</label>
-					<form:hidden path="${codiActual}"/>
-				</spring:bind>
+				<ul class="alternate alt_termini">
+					<spring:bind path="${codiActual}">
+						<li>
+							<c:set var="anys" value="${fn:split(status.value,'/')[0]}"/>
+							<label for="${codiActual}_anys" class="blockLabel">
+								<span>Anys</span>
+								<select id="${codiActual}_anys" name="${codiActual}_anys" onchange="canviTermini(this)">
+									<c:forEach var="index" begin="0" end="12">
+										<option value="${index}"<c:if test="${anys==index}"> selected="selected"</c:if>>${index}</option>
+									</c:forEach>
+								</select>
+							</label>
+						</li>
+						<li>
+							<c:set var="mesos" value="${fn:split(status.value,'/')[1]}"/>
+							<label for="${codiActual}_mesos" class="blockLabel">
+								<span>Mesos</span>
+								<select id="${codiActual}_mesos" name="${codiActual}_mesos" onchange="canviTermini(this)">
+									<c:forEach var="index" begin="0" end="12">
+										<option value="${index}"<c:if test="${mesos==index}"> selected="selected"</c:if>>${index}</option>
+									</c:forEach>
+								</select>
+							</label>
+						</li>
+						<li>
+							<c:set var="dies" value="${fn:split(status.value,'/')[2]}"/>
+							<label for="${codiActual}_dies" class="blockLabel">
+								<span>Dies</span>
+								<input id="${codiActual}_dies" name="${codiActual}_dies" value="${dies}" class="textInput" onchange="canviTermini(this)"/>
+							</label>
+						</li>
+						<form:hidden path="${codiActual}"/>
+					</spring:bind>
+				</ul>
 			</c:param>
 			<c:param name="comment">${campActual.observacions}</c:param>
 			<c:param name="iterateOn"><c:if test="${campActual.multiple}">valorActual</c:if></c:param>
@@ -220,23 +230,25 @@
 			<c:param name="content">
 				<c:set var="files" scope="request" value="${tasca.varsComText[codiActual]}"/>
 				<c:if test="${not empty tasca.varsComText[codiActual]}">
-					<display:table name="files" id="registre" requestURI="" class="displaytag selectable">
-						<c:forEach var="membre" items="${campActual.registreMembres}" varStatus="varStatus">
-							<c:if test="${membre.llistar}">
-								<display:column title="${membre.membre.etiqueta}">
-									<c:if test="${varStatus.first}"><a href="#" onclick="return editarRegistre(${campActual.id}, '${codiActual}', '${campActual.etiqueta}', ${fn:length(campActual.registreMembres)}, ${registre_rowNum - 1})"></a></c:if>
-									${registre[varStatus.index]}
-								</display:column>
-							</c:if>
-						</c:forEach>
-						<display:column style="width:16px">
-							<a href="#" onclick="return esborrarRegistre(event, ${campActual.id}, ${registre_rowNum - 1})"><img src="<c:url value="/img/cross.png"/>" alt="Esborrar" title="Esborrar" border="0"/></a>
-						</display:column>
-					</display:table>
+					<div style="overflow:auto">
+						<display:table name="files" id="registre" requestURI="" class="displaytag selectable">
+							<c:forEach var="membre" items="${campActual.registreMembres}" varStatus="varStatus">
+								<c:if test="${membre.llistar}">
+									<display:column title="${membre.membre.etiqueta}">
+										<c:if test="${varStatus.first}"><a href="#" onclick="return editarRegistre(${campActual.id}, '${codiActual}', '${fn:replace(campActual.etiqueta,"\'","\\'")}', ${fn:length(campActual.registreMembres)}, ${registre_rowNum - 1})"></a></c:if>
+										${registre[varStatus.index]}
+									</display:column>
+								</c:if>
+							</c:forEach>
+							<display:column style="width:16px">
+								<a href="#" onclick="return esborrarRegistre(event, ${campActual.id}, ${registre_rowNum - 1})"><img src="<c:url value="/img/cross.png"/>" alt="Esborrar" title="Esborrar" border="0"/></a>
+							</display:column>
+						</display:table>
+					</div>
 					<script type="text/javascript">initSelectable();</script>
 				</c:if>
 				<c:if test="${campActual.multiple || fn:length(files) < 1}">
-					<button style="font-size:11px;margin-top: 2px" type="submit" class="submitButton" onclick="return editarRegistre(${campActual.id}, '${codiActual}', '${campActual.etiqueta}', ${fn:length(campActual.registreMembres)})">Afegir</button>
+					<button style="font-size:11px;margin-top: 2px" type="submit" class="submitButton" onclick="return editarRegistre(${campActual.id}, '${codiActual}', '${fn:replace(campActual.etiqueta,"\'","\\'")}', ${fn:length(campActual.registreMembres)})">Afegir</button>
 				</c:if>
 				<div style="clear:both"></div>
 			</c:param>

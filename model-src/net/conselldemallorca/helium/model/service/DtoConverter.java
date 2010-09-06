@@ -15,6 +15,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.crypto.Cipher;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.DESKeySpec;
+
 import net.conselldemallorca.helium.integracio.domini.FilaResultat;
 import net.conselldemallorca.helium.integracio.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.integracio.plugins.persones.Persona;
@@ -32,7 +36,6 @@ import net.conselldemallorca.helium.model.dao.DocumentTascaDao;
 import net.conselldemallorca.helium.model.dao.DominiDao;
 import net.conselldemallorca.helium.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.model.dao.FirmaTascaDao;
-import net.conselldemallorca.helium.model.dao.PluginCustodiaDao;
 import net.conselldemallorca.helium.model.dao.PluginGestioDocumentalDao;
 import net.conselldemallorca.helium.model.dao.PluginPersonaDao;
 import net.conselldemallorca.helium.model.dao.TascaDao;
@@ -57,6 +60,8 @@ import net.conselldemallorca.helium.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.util.GlobalProperties;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
@@ -86,7 +91,6 @@ public class DtoConverter {
 	private DefinicioProcesDao definicioProcesDao;
 	private DominiDao dominiDao;
 	private PluginPersonaDao pluginPersonaDao;
-	private PluginCustodiaDao pluginCustodiaDao;
 	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
 	private JbpmDao jbpmDao;
 
@@ -129,17 +133,12 @@ public class DtoConverter {
 			boolean validada,
 			boolean documentsComplet,
 			boolean signaturesComplet) {
-		if (!isTascaEvaluada(task))
-			evaluarTasca(task);
 		Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
 				task.getName(),
 				task.getProcessDefinitionId());
 		TascaDto dto = new TascaDto();
 		dto.setId(task.getId());
 		dto.setNom(tasca.getNom());
-		String titolNou = getTitolNouPerTasca(task);
-		if (titolNou != null)
-			dto.setNom(titolNou);
 		dto.setMissatgeInfo(tasca.getMissatgeInfo());
 		dto.setMissatgeWarn(tasca.getMissatgeWarn());
 		dto.setDelegable(tasca.getExpressioDelegacio() != null);
@@ -179,7 +178,7 @@ public class DtoConverter {
 		dto.setDocuments(documentsTasca);
 		List<FirmaTasca> signaturesTasca = firmaTascaDao.findAmbTascaOrdenats(tasca.getId());
 		dto.setSignatures(signaturesTasca);
-		if (ambVariables) {
+		if (ambVariables || !isTascaEvaluada(task)) {
 			Map<String, Object> valors = jbpmDao.getTaskInstanceVariables(task.getId());
 			DelegationInfo delegationInfo = obtenirDelegationInfo(valors);
 			if (delegationInfo != null) {
@@ -227,7 +226,12 @@ public class DtoConverter {
 					valors);
 			dto.setValorsMultiplesDomini(valorsMultiplesDomini);
 			dto.setVarsComText(textPerCamps(task.getId(), null, camps, valors, valorsDomini, valorsMultiplesDomini));
+			if (!isTascaEvaluada(task))
+				evaluarTasca(task, dto.getVarsComText());
 		}
+		String titolNou = getTitolNouPerTasca(task);
+		if (titolNou != null)
+			dto.setNom(titolNou);
 		return dto;
 	}
 
@@ -332,20 +336,12 @@ public class DtoConverter {
 				dto.setArxiuNom(document.getArxiuNom());
 				dto.setProcessInstanceId(document.getProcessInstanceId());
 				if (ambContingut) {
-					if (document.isSignat()) {
-						DocumentDto docSignat = pluginCustodiaDao.getDocumentAmbSignatura(document.getReferenciaCustodia());
-						if ("true".equalsIgnoreCase((String)GlobalProperties.getInstance().getProperty("app.conversio.signatura.actiu")))
-							dto.setArxiuNom(nomArxiuAmbExtensio(
-									document.getArxiuNom(),
-									GlobalProperties.getInstance().getProperty("app.conversio.signatura.extension")));
-						dto.setArxiuContingut(docSignat.getArxiuContingut());
+					if (document.getFont().equals(DocumentFont.INTERNA)) {
+						dto.setArxiuContingut(document.getArxiuContingut());
 					} else {
-						if (document.getFont().equals(DocumentFont.INTERNA)) {
-							dto.setArxiuContingut(document.getArxiuContingut());
-						} else {
-							dto.setArxiuContingut(
-									pluginGestioDocumentalDao.retrieveDocument(document.getReferenciaFont()));
-						}
+						dto.setArxiuContingut(
+								pluginGestioDocumentalDao.retrieveDocument(
+										document.getReferenciaFont()));
 					}
 				}
 				dto.setSignat(document.isSignat());
@@ -364,6 +360,7 @@ public class DtoConverter {
 						dto.setCustodiaCodi(doc.getCustodiaCodi());
 						dto.setDocumentId(doc.getId());
 						dto.setDocumentCodi(doc.getCodi());
+						dto.setDocumentNom(doc.getNom());
 						dto.setTipusDocPortasignatures(doc.getTipusDocPortasignatures());
 					}
 				}
@@ -507,10 +504,6 @@ public class DtoConverter {
 	@Autowired
 	public void setPluginPersonaDao(PluginPersonaDao pluginPersonaDao) {
 		this.pluginPersonaDao = pluginPersonaDao;
-	}
-	@Autowired
-	public void setPluginCustodiaDao(PluginCustodiaDao pluginCustodiaDao) {
-		this.pluginCustodiaDao = pluginCustodiaDao;
 	}
 	@Autowired
 	public void setPluginGestioDocumentalDao(
@@ -727,7 +720,7 @@ public class DtoConverter {
 				if (documentStoreId != null) {
 					DocumentDto dto = toDocumentDto(documentStoreId, false);
 					if (dto != null) {
-						dto.setTokenSignatura(taskId + "#" + documentStoreId);
+						dto.setTokenSignatura(xifrarToken(taskId + "#" + documentStoreId.toString()));
 						Object signatEnTasca = jbpmDao.getTaskInstanceVariable(taskId, TascaService.PREFIX_SIGNATURA + dto.getDocumentCodi());
 						dto.setSignatEnTasca(signatEnTasca != null);
 						resposta.put(
@@ -779,7 +772,9 @@ public class DtoConverter {
 								for (int i = 0; i < Array.getLength(valor); i++) {
 									String[] texts = new String[camp.getRegistreMembres().size()];
 									Object valorRegistre = Array.get(valor, i);
-									for (int j = 0; j < texts.length; j++) {
+									for (int j = 0; j < Array.getLength(valorRegistre); j++) {
+										if (j == camp.getRegistreMembres().size())
+											break;
 										Camp membreRegistre = camp.getRegistreMembres().get(j).getMembre();
 										if (membreRegistre.getTipus().equals(TipusCamp.SUGGEST) || membreRegistre.getTipus().equals(TipusCamp.SELECCIO)) {
 											ParellaCodiValor codiValor = obtenirValorDomini(
@@ -941,10 +936,10 @@ public class DtoConverter {
 			Object value = null;
 			if (campCodi.startsWith("#{")) {
 				if (processInstanceId != null) {
-					value = jbpmDao.evaluateExpression(taskId, processInstanceId, campCodi);
+					value = jbpmDao.evaluateExpression(taskId, processInstanceId, campCodi, null);
 				} else if (taskId != null) {
 					JbpmTask task = jbpmDao.getTaskById(taskId);
-					value = jbpmDao.evaluateExpression(taskId, task.getProcessInstanceId(), campCodi);
+					value = jbpmDao.evaluateExpression(taskId, task.getProcessInstanceId(), campCodi, null);
 				}
 			} else {
 				if (taskId != null)
@@ -958,7 +953,7 @@ public class DtoConverter {
 		return params;
 	}
 
-	private String evaluarTasca(JbpmTask task) {
+	private String evaluarTasca(JbpmTask task, Map<String, Object> valors) {
 		Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
 				task.getName(),
 				task.getProcessDefinitionId());
@@ -968,7 +963,8 @@ public class DtoConverter {
 				titolNou = (String)jbpmDao.evaluateExpression(
 						task.getId(),
 						task.getProcessInstanceId(),
-						tasca.getNomScript());
+						tasca.getNomScript(),
+						valors);
 			} catch (Exception ex) {
 				logger.error("No s'ha pogut evaluar l'script per canviar el titol de la tasca", ex);
 			}
@@ -987,13 +983,22 @@ public class DtoConverter {
 		return true;
 	}
 
-	private String nomArxiuAmbExtensio(String fileName, String extensio) {
-		int indexPunt = fileName.lastIndexOf(".");
-		if (indexPunt != -1) {
-			String nom = fileName.substring(0, indexPunt);
-			return nom + "." + extensio;
-		} else {
-			return fileName + "." + extensio;
+	private String xifrarToken(String token) {
+		try {
+			String secretKey = GlobalProperties.getInstance().getProperty("app.signatura.secret");
+			if (secretKey == null)
+				secretKey = TascaService.DEFAULT_SECRET_KEY;
+			SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance(TascaService.DEFAULT_KEY_ALGORITHM);
+			Cipher cipher = Cipher.getInstance(TascaService.DEFAULT_ENCRYPTION_SCHEME);
+			cipher.init(
+					Cipher.ENCRYPT_MODE,
+					secretKeyFactory.generateSecret(new DESKeySpec(secretKey.getBytes())));
+			byte[] encryptedText = cipher.doFinal(token.getBytes());
+			byte[] base64Bytes = Base64.encodeBase64(encryptedText);
+			return new String(Hex.encodeHex(base64Bytes));
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut xifrar el token", ex);
+			return token;
 		}
 	}
 

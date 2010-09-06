@@ -36,6 +36,7 @@ import net.conselldemallorca.helium.util.GlobalProperties;
 import org.jbpm.JbpmException;
 import org.jbpm.graph.def.ActionHandler;
 import org.jbpm.graph.exe.ExecutionContext;
+import org.jbpm.graph.exe.Token;
 
 /**
  * Handler que pot servir com a base per als handlers que s'hagin
@@ -167,6 +168,33 @@ public abstract class BasicActionHandler implements ActionHandler {
 		resposta.setCustodiaCodi(document.getCustodiaCodi());
 		resposta.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
 		return resposta;
+	}
+
+	/**
+	 * Enllaça un document d'una instancia de procés pare. Si el document no existeix no
+	 * el copia i no produeix cap error.
+	 * 
+	 * @param executionContext
+	 * @param codiDocument
+	 */
+	public void crearReferenciaDocumentInstanciaProcesPare(
+			ExecutionContext executionContext,
+			String varDocument) {
+		Token tokenPare = executionContext.getProcessInstance().getRootToken().getParent();
+		if (tokenPare != null) {
+			String varCodi = TascaService.PREFIX_DOCUMENT + varDocument;
+			Object valor = tokenPare.getProcessInstance().getContextInstance().getVariable(varCodi);
+			if (valor != null) {
+				if (valor instanceof Long) {
+					long lv = ((Long)valor).longValue();
+					executionContext.setVariable(varCodi, new Long(-lv));
+				} else {
+					throw new JbpmException("El contingut del document '" + varDocument + "' no és del tipus correcte");
+				}
+			}
+		} else {
+			throw new JbpmException("Aquesta instància de procés no té pare");
+		}
 	}
 
 	/**

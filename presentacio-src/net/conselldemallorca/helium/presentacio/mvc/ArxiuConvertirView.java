@@ -40,7 +40,7 @@ public class ArxiuConvertirView extends ArxiuView {
 
 	public static final String MODEL_ATTRIBUTE_CONVERSIONENABLED = "conversionEnabled";
 	public static final String MODEL_ATTRIBUTE_OUTEXTENSION = "outputExtension";
-	public static final String MODEL_ATTRIBUTE_ESTAMPA = "estampa";
+	public static final String MODEL_ATTRIBUTE_ESTAMPA_MISSATGE = "estampa";
 	public static final String MODEL_ATTRIBUTE_ESTAMPA_POSX = "estampaX";
 	public static final String MODEL_ATTRIBUTE_ESTAMPA_POSY = "estampaY";
 	public static final String MODEL_ATTRIBUTE_ESTAMPA_ROTATION = "estampaRotation";
@@ -65,7 +65,7 @@ public class ArxiuConvertirView extends ArxiuView {
 		boolean conversion = (conversionEnabled == null) ? getPropertyEnabled() : conversionEnabled.booleanValue();
 		if (!getPropertyEnabled()) conversion = false;
 		String outputExtension = (String)model.get(MODEL_ATTRIBUTE_OUTEXTENSION);
-		String estampa = (String)model.get(MODEL_ATTRIBUTE_ESTAMPA);
+		String estampa = (String)model.get(MODEL_ATTRIBUTE_ESTAMPA_MISSATGE);
 		if (data != null) {
 			if (conversion) {
 				DocumentFormat inputFormat = formatPerNomArxiu(fileName);
@@ -78,7 +78,7 @@ public class ArxiuConvertirView extends ArxiuView {
 					throw new IllegalArgumentException("format de sortida no suportat");
 				response.setContentType(outputFormat.getMimeType());
 				response.setHeader("Content-Disposition","attachment; filename=\"" + nomArxiuConvertit(fileName, outputFormat) + "\"");
-				if (estampa == null || !outputFormat.getFileExtension().equals("pdf")) {
+				if (estampa == null || !outputFormat.getFileExtension().equalsIgnoreCase("pdf")) {
 					// No s'afegeix res al pdf
 					if (!outputFormat.getFileExtension().equals(inputFormat.getFileExtension())) {
 						convert(

@@ -4,10 +4,10 @@
 package net.conselldemallorca.helium.model.dao;
 
 import java.util.Date;
-import java.util.List;
 
-import net.conselldemallorca.helium.integracio.gesdoc.GestioDocumentalPlugin;
-import net.conselldemallorca.helium.integracio.gesdoc.GestioDocumentalPluginException;
+import net.conselldemallorca.helium.integracio.plugins.gesdoc.GestioDocumentalPlugin;
+import net.conselldemallorca.helium.integracio.plugins.gesdoc.GestioDocumentalPluginAlfrescoCaib;
+import net.conselldemallorca.helium.integracio.plugins.gesdoc.GestioDocumentalPluginException;
 import net.conselldemallorca.helium.model.exception.PluginException;
 import net.conselldemallorca.helium.model.hibernate.Expedient;
 import net.conselldemallorca.helium.util.GlobalProperties;
@@ -68,48 +68,6 @@ public class PluginGestioDocumentalDao {
 		}
 	}
 
-	public void setDocumentView(
-			String documentId,
-			byte[] view) {
-		try {
-			getGestioDocumentalPlugin().setDocumentView(documentId, view);
-		} catch (GestioDocumentalPluginException ex) {
-			logger.error("Error al introduir la vista del document a la gestió documental", ex);
-			throw new PluginException("Error al introduir la vista del document a la gestió documental", ex);
-		}
-	}
-
-	public byte[] getDocumentView(
-			String documentId) {
-		try {
-			return getGestioDocumentalPlugin().getDocumentView(documentId);
-		} catch (GestioDocumentalPluginException ex) {
-			logger.error("Error al obtenir la vista del document de la gestió documental", ex);
-			throw new PluginException("Error al obtenir la vista del document de la gestió documental", ex);
-		}
-	}
-
-	public void addSignatureToDocument(
-			String documentId,
-			byte[] signature) {
-		try {
-			getGestioDocumentalPlugin().addSignatureToDocument(documentId, signature);
-		} catch (GestioDocumentalPluginException ex) {
-			logger.error("Error al afegir la signatura del document a la gestió documental", ex);
-			throw new PluginException("Error al afegir la signatura del document a la gestió documental", ex);
-		}
-	}
-
-	public List<byte[]> getSignaturesFromDocument(
-			String documentId) {
-		try {
-			return getGestioDocumentalPlugin().getSignaturesFromDocument(documentId);
-		} catch (GestioDocumentalPluginException ex) {
-			logger.error("Error al obtenir la signatura del document de la gestió documental", ex);
-			throw new PluginException("Error al obtenir la signatura del document de la gestió documental", ex);
-		}
-	}
-
 	public boolean isGestioDocumentalActiu() {
 		String pluginClass = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.class");
 		if (pluginClass != null && pluginClass.length() > 0) {
@@ -126,10 +84,8 @@ public class PluginGestioDocumentalDao {
 	private GestioDocumentalPlugin getGestioDocumentalPlugin() {
 		if (gestioDocumentalPlugin == null) {
 			String pluginClass = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.class");
-			if (pluginClass != null && pluginClass.length() > 0) {
-				String alfrescoActiu = GlobalProperties.getInstance().getProperty("app.docstore.alfresco.actiu");
-				if ("true".equals(alfrescoActiu))
-					pluginClass = "net.conselldemallorca.helium.integracio.gesdoc.GestioDocumentalPluginAlfrescoCaib";
+			if (pluginClass == null || pluginClass.length() == 0) {
+				
 			}
 			if (pluginClass != null && pluginClass.length() > 0) {
 				try {
@@ -139,6 +95,10 @@ public class PluginGestioDocumentalDao {
 					logger.error("No s'ha pogut crear la instància del plugin de gestió documental", ex);
 					throw new PluginException("No s'ha pogut crear la instància del plugin de gestió documental", ex);
 				}
+			} else {
+				String alfrescoActiu = GlobalProperties.getInstance().getProperty("app.docstore.alfresco.actiu");
+				if ("true".equals(alfrescoActiu))
+					gestioDocumentalPlugin = new GestioDocumentalPluginAlfrescoCaib();
 			}
 		}
 		return gestioDocumentalPlugin;

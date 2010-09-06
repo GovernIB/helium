@@ -148,7 +148,7 @@
 								</c:if>
 							</c:when>
 							<c:when test="${param.type == 'custom'}">
-								<div class="multiField">${param.content}</div>
+								<div class="multiField<c:if test="${not empty param.customClass}"> ${param.customClass}</c:if>">${param.content}</div>
 							</c:when>
 							<c:when test="${param.type == 'multicheck'}">
 								<c:set var="items" value="${requestScope[param.items]}"/>

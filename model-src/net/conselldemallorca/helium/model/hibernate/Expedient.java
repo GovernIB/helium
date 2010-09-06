@@ -4,6 +4,8 @@
 package net.conselldemallorca.helium.model.hibernate;
 
 import java.io.Serializable;
+import java.text.DecimalFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -267,13 +269,24 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 
 	@Transient
 	public String getIdentificador() {
-		if ((tipus.getTeNumero().booleanValue() && tipus.getDemanaNumero()) && (tipus.getTeTitol().booleanValue() && tipus.getDemanaTitol()))
+		if (tipus.getTeNumero().booleanValue() && tipus.getTeTitol().booleanValue())
 			return "[" + getNumero() + "] " + getTitol();
-		else if ((tipus.getTeNumero().booleanValue() && tipus.getDemanaNumero()) && !(tipus.getTeTitol().booleanValue() && tipus.getDemanaTitol()))
+		else if (tipus.getTeNumero().booleanValue() && !tipus.getTeTitol().booleanValue())
 			return getNumero();
-		else if (!(tipus.getTeNumero().booleanValue() && tipus.getDemanaNumero()) && (tipus.getTeTitol().booleanValue() && tipus.getDemanaTitol()))
+		else if (!tipus.getTeNumero().booleanValue() && tipus.getTeTitol().booleanValue())
 			return getTitol();
 		return this.getNumeroDefault();
+	}
+	@Transient
+	public String getIdentificadorOrdenacio() {
+		if (!tipus.getTeNumero().booleanValue() && tipus.getTeTitol().booleanValue()) {
+			return getIdentificador();
+		} else {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(dataInici);
+			int anyInici = cal.get(Calendar.YEAR);
+			return new Integer(anyInici).toString() + new DecimalFormat("0000000000000000000").format(id);
+		}
 	}
 
 	@Transient

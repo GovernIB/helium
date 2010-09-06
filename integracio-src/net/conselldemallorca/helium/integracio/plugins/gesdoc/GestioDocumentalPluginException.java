@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.conselldemallorca.helium.integracio.gesdoc;
+package net.conselldemallorca.helium.integracio.plugins.gesdoc;
 
 
 /**

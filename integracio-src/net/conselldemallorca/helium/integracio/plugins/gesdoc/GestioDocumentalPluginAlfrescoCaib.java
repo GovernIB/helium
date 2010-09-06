@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.conselldemallorca.helium.integracio.gesdoc;
+package net.conselldemallorca.helium.integracio.plugins.gesdoc;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -105,44 +104,6 @@ public class GestioDocumentalPluginAlfrescoCaib implements GestioDocumentalPlugi
 		} finally {
 			endAlfrescoSession();
 		}
-	}
-
-	public void setDocumentView(
-			String documentId,
-			byte[] view) throws GestioDocumentalPluginException {
-		try {
-			startAlfrescoSession();
-			Reference ref = new Reference(ALFRESCO_STORE, documentId, null);
-			createContent(
-					getParent(ref),
-					"view",
-					null,
-					null,
-					view);
-		} catch (Exception ex) {
-			logger.error("Error al guardar l'arxiu dins el gestor documental", ex);
-			throw new AlfrescoException("Error al guardar l'arxiu dins el gestor documental", ex);
-		} finally {
-			endAlfrescoSession();
-		}
-	}
-
-	public byte[] getDocumentView(
-			String documentId) throws GestioDocumentalPluginException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public void addSignatureToDocument(
-			String documentId,
-			byte[] signature) throws GestioDocumentalPluginException {
-		// TODO Auto-generated method stub
-	}
-
-	public List<byte[]> getSignaturesFromDocument(
-			String documentId) throws GestioDocumentalPluginException {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.conselldemallorca.helium.integracio.plugins.signatura;
+package net.conselldemallorca.helium.integracio.plugins.signatura.applet;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -13,20 +13,19 @@ import es.caib.signatura.api.SignerFactory;
 import es.caib.signatura.api.UpgradeNeededException;
 
 /**
- * Implementació del plugin de firma per la CAIB
+ * Applet per a la signatura de documents digitals emprant el plugin de la CAIB
  * 
  * @author Josep Gayà <josepg@limit.es>
  */
-public class SignaturaPluginCaib implements SignaturaPlugin {
+public class SignaturaAppletCaib extends SignaturaApplet {
 
 	private Signer signer;
 
-
-
-	public void testSigner() throws NecessitaActualitzarException {
+	@Override
+	public void initSigner() throws NecessitaActualitzarException {
 		getSigner();
 	}
-
+	@Override
 	public String[] getCertList(String params) throws ObtencioCertificatsException {
 		try {
 			return getSigner().getCertList(params);
@@ -35,7 +34,7 @@ public class SignaturaPluginCaib implements SignaturaPlugin {
 			throw new ObtencioCertificatsException("No s'ha pogut obtenir la llista de certificats disponibles", ex);
 		}
 	}
-
+	@Override
 	public Object sign(
 			InputStream inputDocument,
 			String certName,
@@ -87,5 +86,7 @@ public class SignaturaPluginCaib implements SignaturaPlugin {
 		}
 		return signer;
 	}
+
+	private static final long serialVersionUID = 1L;
 
 }

@@ -5,7 +5,7 @@
 
 <html>
 <head>
-	<title>Expedient: ${expedient.identificador}</title>
+	<title>Expedient: ${expedient.identificadorLimitat}</title>
 	<meta name="titolcmp" content="Consultes"/>
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
@@ -21,7 +21,14 @@
 
 	<c:url value="/expedient/documentDescarregar.html" var="downloadUrl"><c:param name="processInstanceId" value="${param.id}"/><c:param name="docId" value="${command.docId}"/></c:url>
 
-	<form:form action="documentModificar.html" cssClass="uniForm" enctype="multipart/form-data">
+	<div class="missatgesDocumentGris">
+		<h4 class="titol-missatge">
+			<c:choose><c:when test="${not document.adjunt}">${command.nom}</c:when><c:otherwise>Document adjunt</c:otherwise></c:choose>
+			<c:if test="${documentDisseny.plantilla}">
+				<a href="<c:url value="/expedient/documentGenerar.html"><c:param name="id" value="${param.id}"/><c:param name="docId" value="${command.docId}"/></c:url>"><img src="<c:url value="/img/page_white_star.png"/>" alt="Generar" title="Generar" border="0"/></a>
+			</c:if>
+		</h4>
+		<form:form action="documentModificar.html" cssClass="uniForm" enctype="multipart/form-data">
 		<div class="inlineLabels">
 			<input type="hidden" name="id" value="${param.id}"/>
 			<form:hidden path="docId"/>
@@ -34,12 +41,7 @@
 					</c:import>
 				</c:when>
 				<c:otherwise>
-					<c:import url="../common/formElement.jsp">
-						<c:param name="property" value="nom"/>
-						<c:param name="required" value="true"/>
-						<c:param name="type" value="static"/>
-						<c:param name="label">Document</c:param>
-					</c:import>
+					<form:hidden path="nom"/>
 				</c:otherwise>
 			</c:choose>
 			<c:import url="../common/formElement.jsp">
@@ -48,7 +50,7 @@
 				<c:param name="type" value="file"/>
 				<c:param name="fileUrl">${downloadUrl}</c:param>
 				<c:param name="fileExists" value="${not empty command.data}"/>
-				<c:param name="label">Arxiu</c:param>
+				<c:param name="label">Document</c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="data"/>
@@ -63,6 +65,8 @@
 			<c:param name="titles">Modificar,Cancel·lar</c:param>
 		</c:import>
 	</form:form>
+	</div>
+
 
 </body>
 </html>

@@ -19,6 +19,7 @@ import net.conselldemallorca.helium.model.service.PermissionService;
 import net.conselldemallorca.helium.model.service.TerminiService;
 import net.conselldemallorca.helium.presentacio.mvc.util.BaseController;
 import net.conselldemallorca.helium.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.util.GlobalProperties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -240,34 +241,43 @@ public class ExpedientController extends BaseController {
 		if (entorn != null) {
 			DocumentDto document = expedientService.getDocument(docId);
 			if (document != null) {
-				/*if (!document.isSignat()) {
+				if (document.isSignat() && document.isArxiuConvertiblePdf()) {
 					model.addAttribute(
 							ArxiuConvertirView.MODEL_ATTRIBUTE_FILENAME,
 							document.getArxiuNom());
 					model.addAttribute(
 							ArxiuConvertirView.MODEL_ATTRIBUTE_DATA,
 							document.getArxiuContingut());
-					boolean conversionEnabled = (document.getExtensioConsulta() != null);
 					model.addAttribute(
 							ArxiuConvertirView.MODEL_ATTRIBUTE_CONVERSIONENABLED,
-							conversionEnabled);
+							true);
 					model.addAttribute(
 							ArxiuConvertirView.MODEL_ATTRIBUTE_OUTEXTENSION,
-							document.getExtensioConsulta());
+							"pdf");
+					String estampaActiu = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.actiu");
+					if ("true".equalsIgnoreCase(estampaActiu)) {
+						String estampaPosX = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.posx");
+						String estampaPosY = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.posy");
+						String estampaRotation = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.rotation");
+						model.addAttribute(
+								ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_MISSATGE,
+								(String)GlobalProperties.getInstance().get("app.base.url") + "/signatura/verificar.html?id=" + docId);
+						model.addAttribute(
+								ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_POSX,
+								new Float(estampaPosX));
+						model.addAttribute(
+								ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_POSY,
+								new Float(estampaPosY));
+						model.addAttribute(
+								ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_ROTATION,
+								new Float(estampaRotation));
+					}
 					return "arxiuConvertirView";
 				} else {
 					model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, document.getArxiuNom());
 					model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, document.getArxiuContingut());
 					return "arxiuView";
-				}*/
-				String nomArxiu = document.getArxiuNom().substring(0, document.getArxiuNom().lastIndexOf("."));
-				String extensioArxiu = document.getArxiuNom().substring(document.getArxiuNom().lastIndexOf(".") + 1);
-				/*if (!extensioArxiu.equals("pdf")) {
-					extensioArxiu = "pdf";
-				}*/
-				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, nomArxiu + "." + extensioArxiu);
-				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, document.getArxiuContingut());
-				return "arxiuView";
+				}
 			}
 			return "arxiuView";
 		} else {

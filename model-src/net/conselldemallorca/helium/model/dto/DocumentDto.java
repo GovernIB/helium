@@ -27,6 +27,7 @@ public class DocumentDto implements Serializable {
 	
 	private Long documentId;
 	private String documentCodi;
+	private String documentNom;
 	private String contentType;
 	private String custodiaCodi;
 	private Long portasignaturesId;
@@ -129,6 +130,12 @@ public class DocumentDto implements Serializable {
 	public void setDocumentCodi(String documentCodi) {
 		this.documentCodi = documentCodi;
 	}
+	public String getDocumentNom() {
+		return documentNom;
+	}
+	public void setDocumentNom(String documentNom) {
+		this.documentNom = documentNom;
+	}
 	public String getTokenSignatura() {
 		return tokenSignatura;
 	}
@@ -153,6 +160,43 @@ public class DocumentDto implements Serializable {
 	public void setTipusDocPortasignatures(Integer tipusDocPortasignatures) {
 		this.tipusDocPortasignatures = tipusDocPortasignatures;
 	}
+
+	public String getArxiuNomSenseExtensio() {
+		if (getArxiuNom() == null)
+			return null;
+		int indexPunt = getArxiuNom().lastIndexOf(".");
+		if (indexPunt != -1) {
+			return getArxiuNom().substring(0, indexPunt);
+		} else {
+			return getArxiuNom();
+		}
+	}
+	public String getArxiuExtensio() {
+		if (getArxiuNom() == null)
+			return null;
+		int indexPunt = getArxiuNom().lastIndexOf(".");
+		if (indexPunt != -1) {
+			return getArxiuNom().substring(indexPunt + 1);
+		} else {
+			return null;
+		}
+	}
+	public boolean isArxiuConvertiblePdf() {
+		String extensio = getArxiuExtensio();
+		if (extensio != null) {
+			for (int i = 0; i < extensionsConvertiblesPdf.length; i++) {
+				if (extensio.equalsIgnoreCase(extensionsConvertiblesPdf[i]))
+					return true;
+			}
+		}
+		return false;
+	}
+
+
+
+	private String[] extensionsConvertiblesPdf = {
+			"pdf", "odt", "sxw", "rtf", "doc", "wpd", "txt", "ods",
+			"sxc", "xls", "csv", "tsv", "odp", "sxi", "ppt"};
 
 	private static final long serialVersionUID = 774909297938469787L;
 

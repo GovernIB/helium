@@ -17,6 +17,7 @@ import net.conselldemallorca.helium.model.service.EntornService;
 import net.conselldemallorca.helium.model.service.PermissionService;
 import net.conselldemallorca.helium.model.service.TascaService;
 import net.conselldemallorca.helium.presentacio.mvc.util.BaseController;
+import net.conselldemallorca.helium.presentacio.mvc.util.Regtest;
 import net.conselldemallorca.helium.security.permission.ExtendedPermission;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,6 +85,14 @@ public class IndexController extends BaseController {
 			model.addAttribute("alertesEntorn", alertesEntorn);
 		}
 		return "index";
+	}
+
+	@RequestMapping(value = "/regtest", method = RequestMethod.GET)
+	public String test(
+			HttpServletRequest request,
+			ModelMap model) {
+		new Regtest().test();
+		return "redirect:/index.html";
 	}
 
 }

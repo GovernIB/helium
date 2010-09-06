@@ -381,6 +381,13 @@ public class TascaDto implements Comparable<TascaDto> {
 		return false;
 	}
 
+	public String getNomLimitat() {
+		if (nom.length() > 100)
+			return nom.substring(0, 100) + " (...)";
+		else
+			return nom;
+	}
+
 	public int compareTo(TascaDto aThat) {
 	    if (this == aThat) return 0;
     	return this.getCreateTime().compareTo(aThat.getCreateTime());

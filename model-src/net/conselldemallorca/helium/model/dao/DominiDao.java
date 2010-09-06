@@ -120,9 +120,8 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 			client = (DominiHelium)factory.create();
 			wsCache.put(domini.getId(), client);
 		}
-		List<ParellaCodiValor> paramsConsulta = null;
+		List<ParellaCodiValor> paramsConsulta = new ArrayList<ParellaCodiValor>();
 		if (parametres != null) {
-			paramsConsulta = new ArrayList<ParellaCodiValor>();
 			for (String codi: parametres.keySet()) {
 				paramsConsulta.add(new ParellaCodiValor(
 						codi,

@@ -289,8 +289,11 @@ public class DissenyService {
 	public void deleteCamp(Long id) {
 		Camp vell = getCampById(id);
 		if (vell != null) {
+			for (CampTasca campTasca: vell.getCampsTasca())
+				campTasca.getTasca().removeCamp(campTasca);
 			campDao.delete(id);
-			reordenarCamps(vell.getDefinicioProces().getId(), vell.getAgrupacio().getId());
+			if (vell.getAgrupacio() != null)
+				reordenarCamps(vell.getDefinicioProces().getId(), vell.getAgrupacio().getId());
 		}
 	}
 	public List<Camp> findCampsAmbDefinicioProces(Long definicioProcesId) {
@@ -1013,15 +1016,19 @@ public class DissenyService {
 			ZipOutputStream zos = new ZipOutputStream(baos);
 			byte[] data = new byte[1024];
 			for (String resource: jbpmDao.getResourceNames(definicioProces.getJbpmId())) {
-				InputStream is = new ByteArrayInputStream(jbpmDao.getResourceBytes(
+				byte[] bytes = jbpmDao.getResourceBytes(
 						definicioProces.getJbpmId(),
-						resource));
-				zos.putNextEntry(new ZipEntry(resource));
-				int count;
-				while ((count = is.read(data, 0, 1024)) != -1) {
-					zos.write(data, 0, count);
+						resource);
+				if (bytes != null) {
+					InputStream is = new ByteArrayInputStream(jbpmDao.getResourceBytes(
+							definicioProces.getJbpmId(),
+							resource));
+					zos.putNextEntry(new ZipEntry(resource));
+					int count;
+					while ((count = is.read(data, 0, 1024)) != -1)
+						zos.write(data, 0, count);
+			        zos.closeEntry();
 				}
-		        zos.closeEntry();
 			}
 			zos.close();
 			definicioProcesExportacio.setContingutDeploy(baos.toByteArray());
@@ -1525,7 +1532,8 @@ public class DissenyService {
 			camp.setOrdre(null);
 			camp.setAgrupacio(null);
 			campDao.merge(camp);
-			reordenarCamps(camp.getDefinicioProces().getId(), agrupacio.getId());
+			if (agrupacio != null)
+				reordenarCamps(camp.getDefinicioProces().getId(), agrupacio.getId());
 		}
 	}
 
@@ -1845,6 +1853,8 @@ public class DissenyService {
 			nou.setContentType(document.getContentType());
 			if (document.getCampData() != null)
 				nou.setCampData(camps.get(document.getCampData().getCodi()));
+			documentDao.saveOrUpdate(nou);
+			documentDao.flush();
 			documents.put(nou.getCodi(), nou);
 		}
 		// Propaga els terminis

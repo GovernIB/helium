@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.conselldemallorca.helium.integracio.plugins.signatura;
+package net.conselldemallorca.helium.integracio.plugins.signatura.applet;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -16,9 +16,9 @@ import java.io.FileOutputStream;
 public class SignaturaTest {
 
 	public static void main(String[] args) {
-		SignaturaPlugin signaturaPlugin = new SignaturaPluginCaib();
+		SignaturaAppletCaib signaturaPlugin = new SignaturaAppletCaib();
 		try {
-			signaturaPlugin.testSigner();
+			signaturaPlugin.initSigner();
 			String[] certList = null;
 			try {
 				certList = signaturaPlugin.getCertList("");

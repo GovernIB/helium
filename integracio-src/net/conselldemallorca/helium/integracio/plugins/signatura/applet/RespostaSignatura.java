@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.conselldemallorca.helium.integracio.plugins.signatura;
+package net.conselldemallorca.helium.integracio.plugins.signatura.applet;
 
 import java.io.Serializable;
 

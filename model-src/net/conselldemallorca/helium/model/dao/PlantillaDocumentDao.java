@@ -84,7 +84,7 @@ public class PlantillaDocumentDao {
 				model);
 		afegirFuncionsAlModel(
 				entornId,
-				tasca.getId(),
+				(tasca != null) ? tasca.getId() : null,
 				processInstanceId,
 				model);
 		DocumentTemplateFactory documentTemplateFactory = new DocumentTemplateFactory();
@@ -164,7 +164,9 @@ public class PlantillaDocumentDao {
 							if (arg0 != null && arg0 instanceof String) {
 								String codi = (String)arg0;
 								//System.out.println(">>> valor " + codi);
-								Object valor = jbpmDao.getTaskInstanceVariable(taskId, codi);
+								Object valor = null;
+								if (taskId != null)
+									valor = jbpmDao.getTaskInstanceVariable(taskId, codi);
 								if (valor == null)
 									valor = jbpmDao.getProcessInstanceVariable(processInstanceId, codi);
 								if (valor == null)

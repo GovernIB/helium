@@ -36,6 +36,7 @@ import org.jbpm.graph.def.Transition;
 import org.jbpm.graph.exe.ProcessInstance;
 import org.jbpm.graph.exe.Token;
 import org.jbpm.job.Timer;
+import org.jbpm.taskmgmt.def.Task;
 import org.jbpm.taskmgmt.exe.TaskInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -127,9 +128,15 @@ public class JbpmDao {
 		ProcessDefinition pd = dpd.getProcessDefinition();
 		Map<String,Object> tasks = pd.getTaskMgmtDefinition().getTasks();
 		if (tasks != null) {
-			for (String taskName: tasks.keySet()) {
+			for (String taskName: tasks.keySet())
 				taskNames.add(taskName);
-			}
+		}
+		// Si la tasca del start-state no té name no surt llistada a pd.getTaskMgmtDefinition().getTasks()
+		// Però en realitat sí que té name (el del start-state) i s'ha d'agafar de la següent forma:
+		Task startTask = pd.getTaskMgmtDefinition().getStartTask();
+		if (startTask != null) {
+			if (!taskNames.contains(startTask.getName()))
+				taskNames.add(startTask.getName());
 		}
 		return taskNames;
 	}
@@ -195,6 +202,7 @@ public class JbpmDao {
 			command.setStartTransitionName(transitionName);
 		ProcessInstance processInstance = (ProcessInstance)commandService.execute(command);
 		resultat = new JbpmProcessInstance(processInstance);
+		
 		return resultat;
 	}
 	public JbpmProcessInstance getRootProcessInstance(
@@ -556,7 +564,8 @@ public class JbpmDao {
 	public Object evaluateExpression(
 			String taskInstanceInstanceId,
 			String processInstanceId,
-			String expression) {
+			String expression,
+			Map<String, Object> valors) {
 		long pid = new Long(processInstanceId).longValue();
 		EvaluateExpressionCommand command = new EvaluateExpressionCommand(
 				pid,

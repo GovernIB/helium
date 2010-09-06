@@ -6,7 +6,7 @@
 
 <html>
 <head>
-	<title>${tasca.nom}</title>
+	<title>${tasca.nomLimitat}</title>
 	<meta name="titolcmp" content="Tasques"/>
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<c:import url="../common/formIncludes.jsp"/>

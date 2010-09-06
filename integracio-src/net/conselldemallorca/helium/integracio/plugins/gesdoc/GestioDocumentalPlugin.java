@@ -1,10 +1,9 @@
 /**
  * 
  */
-package net.conselldemallorca.helium.integracio.gesdoc;
+package net.conselldemallorca.helium.integracio.plugins.gesdoc;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * Interfície per accedir al gestor documental.
@@ -51,45 +50,5 @@ public interface GestioDocumentalPlugin {
 	 * @throws GestioDocumentalPluginException
 	 */
 	public void deleteDocument(String documentId) throws GestioDocumentalPluginException;
-
-	/**
-	 * Afegeix una signatura a un document
-	 * 
-	 * @param documentId
-	 * @param signature
-	 * @throws GestioDocumentalPluginException
-	 */
-	public void addSignatureToDocument(
-			String documentId,
-			byte[] signature) throws GestioDocumentalPluginException;
-
-	/**
-	 * Obté les signatures d'un document
-	 * 
-	 * @param documentId
-	 * @return
-	 * @throws GestioDocumentalPluginException
-	 */
-	public List<byte[]> getSignaturesFromDocument(String documentId) throws GestioDocumentalPluginException;
-
-	/**
-	 * Canvia la vista d'un document
-	 * 
-	 * @param documentId
-	 * @param view
-	 * @throws GestioDocumentalPluginException
-	 */
-	public void setDocumentView(
-			String documentId,
-			byte[] view) throws GestioDocumentalPluginException;
-
-	/**
-	 * Obté la vista d'un document
-	 * 
-	 * @param documentId
-	 * @return
-	 * @throws GestioDocumentalPluginException
-	 */
-	public byte[] getDocumentView(String documentId) throws GestioDocumentalPluginException;
 
 }

@@ -206,7 +206,7 @@ public class Tasca implements Serializable, GenericEntity<Long> {
 		getDocuments().remove(document);
 	}
 
-	@OneToMany(mappedBy="tasca", cascade={CascadeType.ALL})
+	@OneToMany(mappedBy="tasca", cascade={CascadeType.ALL}, fetch=FetchType.LAZY)
 	@OrderBy("order asc")
 	public List<FirmaTasca> getFirmes() {
 		return this.firmes;

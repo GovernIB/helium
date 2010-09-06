@@ -8,7 +8,7 @@
 <c:set var="isIframe" value="${not empty param.iframe}"/>
 <html>
 <head>
-	<title>${tasca.nom}</title>
+	<title>${tasca.nomLimitat}</title>
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 	<c:if test="${isIframe}">
@@ -38,7 +38,7 @@ function confirmar(form) {
 		return true;
 }
 function canviTermini(input) {
-	var campId = input.id.substring(0, input.id.indexOf("_"));
+	var campId = input.id.substring(0, input.id.lastIndexOf("_"));
 	var anys = document.getElementById(campId + "_anys").value;
 	var mesos = document.getElementById(campId + "_mesos").value;
 	var dies = document.getElementById(campId + "_dies").value;

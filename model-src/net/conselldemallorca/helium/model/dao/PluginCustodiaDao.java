@@ -6,13 +6,9 @@ package net.conselldemallorca.helium.model.dao;
 import java.util.List;
 
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPlugin;
-import net.conselldemallorca.helium.integracio.plugins.custodia.DocumentCustodia;
-import net.conselldemallorca.helium.integracio.plugins.custodia.SignaturaInfo;
-import net.conselldemallorca.helium.model.dto.DocumentDto;
-import net.conselldemallorca.helium.model.exception.CustodiaPluginException;
+import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPluginException;
+import net.conselldemallorca.helium.integracio.plugins.signatura.InfoSignatura;
 import net.conselldemallorca.helium.model.exception.PluginException;
-import net.conselldemallorca.helium.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.model.hibernate.Expedient;
 import net.conselldemallorca.helium.util.GlobalProperties;
 
 import org.apache.commons.logging.Log;
@@ -31,15 +27,13 @@ public class PluginCustodiaDao {
 
 
 
-	public String afegirDocumentAmbSignatura(
-			Expedient expedient,
-			DefinicioProces definicioProces,
-			String varDocumentCodi,
-			DocumentDto document,
+	public String afegirSignatura(
+			String documentId,
 			String nomArxiuSignat,
-			Object signatura) throws CustodiaPluginException {
+			String codiTipusCustodia,
+			byte[] signatura) throws PluginException {
 		try {
-			DocumentCustodia documentCustodia = new DocumentCustodia();
+			/*DocumentCustodia documentCustodia = new DocumentCustodia();
 			documentCustodia.setId(document.getId().toString());
 			documentCustodia.setEntornCodi(expedient.getEntorn().getCodi());
 			documentCustodia.setExpedientTipusCodi(expedient.getTipus().getCodi());
@@ -50,40 +44,56 @@ public class PluginCustodiaDao {
 			documentCustodia.setSignedFileName(nomArxiuSignat);
 			documentCustodia.setContentType(document.getContentType());
 			documentCustodia.setCustodiaCodi(document.getCustodiaCodi());
-			documentCustodia.setSignature(signatura);
-			return getCustodiaPlugin().addSignedDocument(
-					documentCustodia);
-		} catch (Exception ex) {
-			throw new CustodiaPluginException("No s'ha pogut guardar el document a la custòdia", ex);
+			documentCustodia.setSignature(signatura);*/
+			return getCustodiaPlugin().addSignature(
+					documentId,
+					nomArxiuSignat,
+					codiTipusCustodia,
+					signatura);
+		} catch (CustodiaPluginException ex) {
+			logger.error("Error al guardar la signatura dins la custòdia", ex);
+			throw new PluginException("Error al guardar la signatura dins la custòdia", ex);
 		}
 	}
 
-	public void deleteDocumentAmbSignatura(String id) throws CustodiaPluginException {
+	public List<byte[]> obtenirSignatures(String documentId) throws PluginException {
 		try {
-			getCustodiaPlugin().deleteSignedDocument(id);
-		} catch (Exception ex) {
-			throw new CustodiaPluginException("No s'ha pogut esborrar el document de la custòdia");
+			return getCustodiaPlugin().getSignatures(documentId);
+		} catch (CustodiaPluginException ex) {
+			logger.error("Error al obtenir les signatures de la custòdia", ex);
+			throw new PluginException("Error al obtenir les signatures de la custòdia", ex);
 		}
 	}
 
-	public DocumentDto getDocumentAmbSignatura(String id) throws CustodiaPluginException {
+	public void esborrarSignatures(String documentId) throws PluginException {
 		try {
-			DocumentCustodia documentCustodia = getCustodiaPlugin().getSignedDocument(id);
-			DocumentDto resposta = new DocumentDto();
-			resposta.setArxiuNom(documentCustodia.getSignedFileName());
-			resposta.setArxiuContingut(documentCustodia.getSignedFileContent());
-			return resposta;
-		} catch (Exception ex) {
-			throw new CustodiaPluginException("No s'ha pogut obtenir el document de la custòdia");
+			getCustodiaPlugin().deleteSignatures(documentId);
+		} catch (CustodiaPluginException ex) {
+			logger.error("Error al esborrar les signatures de la custòdia", ex);
+			throw new PluginException("Error al esborrar les signatures de la custòdia", ex);
 		}
 	}
 
-	public List<SignaturaInfo> verificarDocumentAmbSignatura(String id) throws CustodiaPluginException {
+	public List<InfoSignatura> infoSignatures(String documentId) throws PluginException {
 		try {
-			return getCustodiaPlugin().verifyDocument(id);
-		} catch (Exception ex) {
-			throw new CustodiaPluginException("No s'ha pogut verificar el document de la custòdia");
+			return getCustodiaPlugin().infoSignatures(documentId);
+		} catch (CustodiaPluginException ex) {
+			logger.error("Error al obtenir informació de les signatures de la custòdia", ex);
+			throw new PluginException("Error al obtenir informació de les signatures de la custòdia", ex);
 		}
+	}
+
+	public boolean potObtenirInfoSignatures() {
+		return getCustodiaPlugin().potObtenirInfoSignatures();
+	}
+
+	public boolean isValidacioImplicita() {
+		return getCustodiaPlugin().isValidacioImplicita();
+	}
+
+	public boolean isCustodiaActiu() {
+		String pluginClass = GlobalProperties.getInstance().getProperty("app.custodia.plugin.class");
+		return (pluginClass != null && !"".equals(pluginClass));
 	}
 
 

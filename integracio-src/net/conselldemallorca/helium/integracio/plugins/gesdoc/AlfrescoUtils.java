@@ -1,24 +1,17 @@
 /**
  * 
  */
-package net.conselldemallorca.helium.integracio.gesdoc;
+package net.conselldemallorca.helium.integracio.plugins.gesdoc;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.rmi.RemoteException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.activation.MimetypesFileTypeMap;
-
-import net.conselldemallorca.helium.model.exception.AlfrescoException;
-import net.conselldemallorca.helium.util.GlobalProperties;
 
 import org.alfresco.webservice.authentication.AuthenticationFault;
 import org.alfresco.webservice.content.Content;
@@ -44,119 +37,25 @@ import org.alfresco.webservice.util.Constants;
 import org.alfresco.webservice.util.ContentUtils;
 import org.alfresco.webservice.util.Utils;
 import org.alfresco.webservice.util.WebServiceFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
- * Implementació del plugin de gestió documental amb Alfresco
+ * Funcions per a interactuar amb l'API de Alfresco
  * 
  * @author Josep Gayà <josepg@limit.es>
  */
-public class GestioDocumentalPluginAlfresco implements GestioDocumentalPlugin {
+public class AlfrescoUtils {
 
-	public String createDocument(
-			String expedientNumero,
-			String expedientTipus,
-			String documentCodi,
-			String documentDescripcio,
-			Date documentData,
-			String documentArxiuNom,
-			byte[] documentArxiuContingut) throws GestioDocumentalPluginException {
-		try {
-			startAlfrescoSession();
-			Reference ref = getAlfrescoDocumentPath(
-					getPathDocument(
-							expedientNumero,
-							expedientTipus,
-							documentCodi,
-							documentData),
-					true);
-			Map<String, String> properties = new HashMap<String, String>();
-			properties.put(Constants.PROP_DESCRIPTION, documentDescripcio);
-			updateNodeProperties(ref, properties);
-			return createContent(
-					ref,
-					"data",
-					documentArxiuNom,
-					"Data: " + new SimpleDateFormat("dd/MM/yyyy").format(documentData),
-					documentArxiuContingut);
-		} catch (Exception ex) {
-			logger.error("Error al guardar l'arxiu dins el gestor documental", ex);
-			throw new AlfrescoException("Error al guardar l'arxiu dins el gestor documental", ex);
-		} finally {
-			endAlfrescoSession();
-		}
+	private String apiUrl;
+	private String userName;
+	private String password;
+
+	public AlfrescoUtils(String apiUrl, String userName, String password) {
+		this.apiUrl = apiUrl;
+		this.userName = userName;
+		this.password = password;
 	}
 
-	public byte[] retrieveDocument(String documentId) throws GestioDocumentalPluginException {
-		try {
-			startAlfrescoSession();
-			return retrieveContent(new Reference(ALFRESCO_STORE, documentId, null));
-		} catch (Exception ex) {
-			logger.error("Error al llegir l'arxiu del gestor documental", ex);
-			throw new AlfrescoException("Error al llegir l'arxiu del gestor documental", ex);
-		} finally {
-			endAlfrescoSession();
-		}
-	}
-
-	
-
-	public void deleteDocument(String documentId) throws GestioDocumentalPluginException {
-		try {
-			startAlfrescoSession();
-			Reference ref = new Reference(ALFRESCO_STORE, documentId, null);
-			deleteContent(getParent(ref));
-		} catch (Exception ex) {
-			logger.error("Error al esborrar l'arxiu del gestor documental", ex);
-			throw new AlfrescoException("Error al esborrar l'arxiu del gestor documental", ex);
-		} finally {
-			endAlfrescoSession();
-		}
-	}
-
-	public void setDocumentView(
-			String documentId,
-			byte[] view) throws GestioDocumentalPluginException {
-		try {
-			startAlfrescoSession();
-			Reference ref = new Reference(ALFRESCO_STORE, documentId, null);
-			createContent(
-					getParent(ref),
-					"view",
-					null,
-					null,
-					view);
-		} catch (Exception ex) {
-			logger.error("Error al guardar l'arxiu dins el gestor documental", ex);
-			throw new AlfrescoException("Error al guardar l'arxiu dins el gestor documental", ex);
-		} finally {
-			endAlfrescoSession();
-		}
-	}
-
-	public byte[] getDocumentView(
-			String documentId) throws GestioDocumentalPluginException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public void addSignatureToDocument(
-			String documentId,
-			byte[] signature) throws GestioDocumentalPluginException {
-		// TODO Auto-generated method stub
-	}
-
-	public List<byte[]> getSignaturesFromDocument(
-			String documentId) throws GestioDocumentalPluginException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-
-	private Reference getAlfrescoDocumentPath(String[] path, boolean create) throws RepositoryFault, RemoteException {
-		String baseDir = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.basedir");
+	public Reference getAlfrescoDocumentPath(String baseDir, String[] path, boolean create) throws RepositoryFault, RemoteException {
 		String[] baseDirParts;
 		if (baseDir.startsWith("/"))
 			baseDirParts = baseDir.substring(1).split("/");
@@ -172,7 +71,7 @@ public class GestioDocumentalPluginAlfresco implements GestioDocumentalPlugin {
 			ref = retrieveOrCreateSpace(ref, totalPath[i], create);
 		return ref;
 	}
-	private String createContent(
+	public String createContent(
 			Reference ref,
 			String name,
 			String title,
@@ -198,7 +97,7 @@ public class GestioDocumentalPluginAlfresco implements GestioDocumentalPlugin {
 				new ContentFormat(new MimetypesFileTypeMap().getContentType(name), null));
 		return content.getNode().getUuid();
 	}
-	private void updateNodeProperties(Reference ref, Map<String, String> properties) throws RepositoryFault, RemoteException {
+	public void updateNodeProperties(Reference ref, Map<String, String> properties) throws RepositoryFault, RemoteException {
 		NamedValue[] props = new NamedValue[properties.size()];
 		int index = 0;
 		for (String p: properties.keySet())
@@ -211,7 +110,7 @@ public class GestioDocumentalPluginAlfresco implements GestioDocumentalPlugin {
         cml.setUpdate(new CMLUpdate[]{update});
         getAlfrescoRepositoryService().update(cml);
 	}
-	private byte[] retrieveContent(Reference ref) throws IOException {
+	public byte[] retrieveContent(Reference ref) throws IOException {
 		Content[] readResult = getAlfrescoContentService().read(
                 new Predicate(new Reference[]{ref}, ALFRESCO_STORE, null), 
                 Constants.PROP_CONTENT);
@@ -223,18 +122,46 @@ public class GestioDocumentalPluginAlfresco implements GestioDocumentalPlugin {
 			baos.write(buffer, 0, nread);
 		return baos.toByteArray();
 	}
-	private void deleteContent(Reference ref) throws RepositoryFault, RemoteException {
+	public byte[] retrieveContentFromParent(Reference parent, String contentName) throws IOException {
+		Content[] readResult = getAlfrescoContentService().read(
+                new Predicate(new Reference[]{parent}, ALFRESCO_STORE, null), 
+                Constants.PROP_CONTENT);
+		if (readResult.length > 0) {
+			Reference ref = new Reference(
+					ALFRESCO_STORE,
+					null,
+					readResult[0].getNode().getPath() + "/cm:" + normalizeNodeName(contentName));
+			return retrieveContent(ref);
+		}
+		return null;
+	}
+	public void deleteContent(Reference ref) throws RepositoryFault, RemoteException {
 		CMLDelete delete = new CMLDelete(new Predicate(new Reference[]{ref}, ALFRESCO_STORE, null));
 		CML cml = new CML();
 		cml.setDelete(new CMLDelete[]{delete});
 		getAlfrescoRepositoryService().update(cml);
 	}
-	private Reference getParent(Reference space) throws RepositoryFault, RemoteException {
+	public void deleteContentFromParent(Reference parent, String contentName) throws IOException {
+		Content[] readResult = getAlfrescoContentService().read(
+                new Predicate(new Reference[]{parent}, ALFRESCO_STORE, null), 
+                Constants.PROP_CONTENT);
+		if (readResult.length > 0) {
+			Reference ref = new Reference(
+					ALFRESCO_STORE,
+					null,
+					readResult[0].getNode().getPath() + "/cm:" + normalizeNodeName(contentName));
+			deleteContent(ref);
+		}
+	}
+	public Reference getParent(Reference space) throws RepositoryFault, RemoteException {
 		QueryResult result = getAlfrescoRepositoryService().queryParents(space);
 		ResultSet resultset = result.getResultSet();
 		String first_parent_id = resultset.getRows(0).getNode().getId();
 		Reference parent = new Reference(ALFRESCO_STORE, first_parent_id, null);
 		return parent;
+	}
+	public Reference getReferenceForUuid(String uuid) {
+		return new Reference(ALFRESCO_STORE, uuid, null);
 	}
 
 	private ParentReference getCompanyHome() {	
@@ -296,19 +223,6 @@ public class GestioDocumentalPluginAlfresco implements GestioDocumentalPlugin {
 		return s;
 	}
 
-	private String[] getPathDocument(
-			String expedientNumero,
-			String expedientTipus,
-			String documentCodi,
-			Date documentData) {
-		// tipus/any/numero/codi
-		return new String[] {
-				expedientTipus,
-				new SimpleDateFormat("yyyy").format(documentData),
-				expedientNumero,
-				documentCodi};
-	}
-
 	private RepositoryServiceSoapBindingStub getAlfrescoRepositoryService() {
 		configureAlfrescoRepository();
 		return WebServiceFactory.getRepositoryService();
@@ -318,22 +232,19 @@ public class GestioDocumentalPluginAlfresco implements GestioDocumentalPlugin {
 		return WebServiceFactory.getContentService();
 	}
 
-	private String startAlfrescoSession() throws AuthenticationFault {
+	public String startAlfrescoSession() throws AuthenticationFault {
 		configureAlfrescoRepository();
-		String alfrescoUser = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.user");
-		String alfrescoPass = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.pass");
-		AuthenticationUtils.startSession(alfrescoUser, alfrescoPass);
+		AuthenticationUtils.startSession(userName, password);
 		return AuthenticationUtils.getAuthenticationDetails().getTicket();
 	}
-	private void endAlfrescoSession() {
+	public void endAlfrescoSession() {
 		configureAlfrescoRepository();
 		AuthenticationUtils.endSession();
 	}
 	private boolean repoConfigured = false;
 	private void configureAlfrescoRepository() {
-		String alfrescoApiurl = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.apiurl");
 		if (!repoConfigured) {
-			WebServiceFactory.setEndpointAddress(alfrescoApiurl);
+			WebServiceFactory.setEndpointAddress(apiUrl);
 			repoConfigured = true;
 		}
 	}
@@ -346,6 +257,5 @@ public class GestioDocumentalPluginAlfresco implements GestioDocumentalPlugin {
 		';', '&', '%', '+',
 		'\\'};
 	private static final Store ALFRESCO_STORE = new Store(Constants.WORKSPACE_STORE, "SpacesStore");
-	private static final Log logger = LogFactory.getLog(GestioDocumentalPluginAlfresco.class);
 
 }

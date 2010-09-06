@@ -6,6 +6,8 @@ import java.util.Properties;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
+import net.conselldemallorca.helium.util.GlobalProperties;
+
 import es.caib.regweb.logic.helper.ParametrosRegistroEntrada;
 import es.caib.regweb.logic.helper.ParametrosRegistroSalida;
 import es.caib.regweb.logic.interfaces.RegistroEntradaFacade;
@@ -28,22 +30,31 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 			DadesRegistre dadesRegistre) throws RegistrePluginException {
 		try {
 			ParametrosRegistroEntrada params = new ParametrosRegistroEntrada();
-			params.fijaUsuario("admin");
+			params.fijaUsuario(GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal"));
 			params.setdataentrada(dadesRegistre.getDataEntrada());
 			params.sethora(dadesRegistre.getHoraEntrada());
 			params.setoficina(dadesRegistre.getOficina());
 			params.setoficinafisica(dadesRegistre.getOficinaFisica());
 			params.setdata(dadesRegistre.getData());
-			params.settipo(dadesRegistre.getTipus());
+			if (dadesRegistre.getTipus() != null)
+				params.settipo(dadesRegistre.getTipus());
 			params.setidioma(dadesRegistre.getIdioma());
-			params.setentidad1(dadesRegistre.getEntitat1());
-			params.setentidad2(dadesRegistre.getEntitat2());
-			params.setaltres(dadesRegistre.getEntitatAltres());
-			params.setbalears(dadesRegistre.getProcedenciaBalears());
-			params.setfora(dadesRegistre.getProcedenciaFora());
-			params.setsalida1(dadesRegistre.getSortida1());
-			params.setsalida2(dadesRegistre.getSortida2());
-			params.setdestinatari(dadesRegistre.getDestinatari());
+			if (dadesRegistre.getRemitentEntitat1() != null)
+				params.setentidad1(dadesRegistre.getRemitentEntitat1());
+			if (dadesRegistre.getRemitentEntitat2() != null)
+				params.setentidad2(dadesRegistre.getRemitentEntitat2());
+			if (dadesRegistre.getRemitentAltres() != null)
+				params.setaltres(dadesRegistre.getRemitentAltres());
+			if (dadesRegistre.getProcedenciaBalears() != null)
+				params.setbalears(dadesRegistre.getProcedenciaBalears());
+			if (dadesRegistre.getProcedenciaFora() != null)
+				params.setfora(dadesRegistre.getProcedenciaFora());
+			if (dadesRegistre.getSortida1() != null)
+				params.setsalida1(dadesRegistre.getSortida1());
+			if (dadesRegistre.getSortida2() != null)
+				params.setsalida2(dadesRegistre.getSortida2());
+			if (dadesRegistre.getDestinatari() != null)
+				params.setdestinatari(dadesRegistre.getDestinatari());
 			params.setidioex(dadesRegistre.getIdiomaExtracte());
 			params.setcomentario(dadesRegistre.getExtracte());
 			RegistroEntradaFacade registroEntrada = getRegistreEntradaService();
@@ -51,7 +62,7 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 			if (respostaValidacio.getValidado()) {
 				ParametrosRegistroEntrada respostaGrabacio = registroEntrada.grabar(params);
 				if (respostaGrabacio.getGrabado()) {
-					return new String[] {respostaGrabacio.getNumeroEntrada() + "/" + respostaGrabacio.getAnoEntrada()};
+					return new String[] {respostaGrabacio.getNumeroEntrada(), respostaGrabacio.getAnoEntrada()};
 				} else {
 					throw new RegistrePluginException("No s'ha pogut guardar l'entrada");
 				}
@@ -86,16 +97,25 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 			params.setoficina(dadesRegistre.getOficina());
 			params.setoficinafisica(dadesRegistre.getOficinaFisica());
 			params.setdata(dadesRegistre.getData());
-			params.settipo(dadesRegistre.getTipus());
+			if (dadesRegistre.getTipus() != null)
+				params.settipo(dadesRegistre.getTipus());
 			params.setidioma(dadesRegistre.getIdioma());
-			params.setentidad1(dadesRegistre.getEntitat1());
-			params.setentidad2(dadesRegistre.getEntitat2());
-			params.setaltres(dadesRegistre.getEntitatAltres());
-			params.setbalears(dadesRegistre.getProcedenciaBalears());
-			params.setfora(dadesRegistre.getProcedenciaFora());
-			params.setentrada1(dadesRegistre.getEntrada1());
-			params.setentrada2(dadesRegistre.getEntrada2());
-			params.setremitent(dadesRegistre.getRemitent());
+			if (dadesRegistre.getDestinatariEntitat1() != null)
+				params.setentidad1(dadesRegistre.getDestinatariEntitat1());
+			if (dadesRegistre.getDestinatariEntitat2() != null)
+				params.setentidad2(dadesRegistre.getDestinatariEntitat2());
+			if (dadesRegistre.getDestinatariAltres() != null)
+				params.setaltres(dadesRegistre.getDestinatariAltres());
+			if (dadesRegistre.getDestiBalears() != null)
+				params.setbalears(dadesRegistre.getDestiBalears());
+			if (dadesRegistre.getDestiFora() != null)
+				params.setfora(dadesRegistre.getDestiFora());
+			if (dadesRegistre.getEntrada1() != null)
+				params.setentrada1(dadesRegistre.getEntrada1());
+			if (dadesRegistre.getEntrada2() != null)
+				params.setentrada2(dadesRegistre.getEntrada2());
+			if (dadesRegistre.getRemitent() != null)
+				params.setremitent(dadesRegistre.getRemitent());
 			params.setidioex(dadesRegistre.getIdiomaExtracte());
 			params.setcomentario(dadesRegistre.getExtracte());
 			RegistroSalidaFacade registroSalida = getRegistreSortidaService();
@@ -103,7 +123,7 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 			if (respostaValidacio.getValidado()) {
 				ParametrosRegistroSalida respostaGrabacio = registroSalida.grabar(params);
 				if (respostaGrabacio.getGrabado()) {
-					return new String[] {respostaGrabacio.getNumeroSalida() + "/" + respostaGrabacio.getAnoSalida()};
+					return new String[] {respostaGrabacio.getNumeroSalida(), respostaGrabacio.getAnoSalida()};
 				} else {
 					throw new RegistrePluginException("No s'ha pogut guardar la sortida");
 				}
@@ -130,13 +150,7 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 
 
 	private RegistroEntradaFacade getRegistreEntradaService() throws Exception {
-		Properties props = new Properties();
-		props.put(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.security.jndi.JndiLoginInitialContextFactory");
-		props.put(Context.URL_PKG_PREFIXES, "org.jboss.naming:org.jnp.interfaces");
-		props.put(Context.PROVIDER_URL, "jnp://10.35.3.88:1099");
-		props.put(Context.SECURITY_PRINCIPAL, "admin");
-		props.put(Context.SECURITY_CREDENTIALS, "admin");
-		Context ctx = new InitialContext(props);
+		Context ctx = getInitialContext();
 		Object objRef = ctx.lookup("es.caib.regweb.logic.RegistroEntradaFacade");
 		RegistroEntradaFacadeHome home = (RegistroEntradaFacadeHome)javax.rmi.PortableRemoteObject.narrow(
 				objRef,
@@ -144,21 +158,33 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 		ctx.close();
 		return home.create();
 	}
-
 	private RegistroSalidaFacade getRegistreSortidaService() throws Exception {
-		Properties props = new Properties();
-		props.put(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.security.jndi.JndiLoginInitialContextFactory");
-		props.put(Context.URL_PKG_PREFIXES, "org.jboss.naming:org.jnp.interfaces");
-		props.put(Context.PROVIDER_URL, "jnp://10.35.3.88:1099");
-		props.put(Context.SECURITY_PRINCIPAL, "admin");
-		props.put(Context.SECURITY_CREDENTIALS, "admin");
-		Context ctx = new InitialContext(props);
+		Context ctx = getInitialContext();
 		Object objRef = ctx.lookup("es.caib.regweb.logic.RegistroSalidaFacade");
 		RegistroSalidaFacadeHome home = (RegistroSalidaFacadeHome)javax.rmi.PortableRemoteObject.narrow(
 				objRef,
 				RegistroSalidaFacadeHome.class);
 		ctx.close();
 		return home.create();
+	}
+	private Context getInitialContext() throws Exception {
+		Properties props = new Properties();
+		props.put(
+				Context.INITIAL_CONTEXT_FACTORY,
+				GlobalProperties.getInstance().getProperty("app.registre.plugin.initial.context.factory"));
+		props.put(
+				Context.URL_PKG_PREFIXES,
+				GlobalProperties.getInstance().getProperty("app.registre.plugin.url.pkg.prefixes"));
+		props.put(
+				Context.PROVIDER_URL,
+				GlobalProperties.getInstance().getProperty("app.registre.plugin.provider.url"));
+		props.put(
+				Context.SECURITY_PRINCIPAL,
+				GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal"));
+		props.put(
+				Context.SECURITY_CREDENTIALS,
+				GlobalProperties.getInstance().getProperty("app.registre.plugin.security.credentials"));
+		return new InitialContext(props);
 	}
 
 }

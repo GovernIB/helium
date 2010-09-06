@@ -106,8 +106,8 @@ public class OrganitzacioService {
 			Carrec carrec = carrecDao.getById(carrecId, false);
 			if (carrec == null)
 				throw new NotFoundException("No s'ha trobat el càrrec amb id:" + carrecId);
-			if (carrec.getPersonaCodi() != null)
-				throw new NotFoundException("No està disponible el càrrec amb id:" + carrecId);
+			/*if (carrec.getPersonaCodi() != null)
+				throw new NotFoundException("No està disponible el càrrec amb id:" + carrecId);*/
 			carrec.setPersonaCodi(persona.getCodi());
 			carrec.setPersonaSexe(
 					(persona.getSexe().equals(Sexe.SEXE_HOME)) ?

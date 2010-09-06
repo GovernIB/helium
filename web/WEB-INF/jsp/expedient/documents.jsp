@@ -6,10 +6,13 @@
 
 <html>
 <head>
-	<title>Expedient: ${expedient.identificador}</title>
+	<title>Expedient: ${expedient.identificadorLimitat}</title>
 	<meta name="titolcmp" content="Consultes"/>
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
+	<c:import url="../common/formIncludes.jsp"/>
+	<script type="text/javascript" src="<c:url value="/js/jquery/ui/ui.core.js"/>"></script>
+	<script  type="text/javascript" src="<c:url value="/js/jquery/ui/jquery-ui-1.7.2.custom.js"/>"></script>
 <script type="text/javascript">
 // <![CDATA[
 function mostrarOcultar(img, objid) {
@@ -45,6 +48,19 @@ function confirmarEsborrarSignatura(e) {
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
 	return confirm("Estau segur que voleu esborrar TOTES les signatures d'aquest document?");
+}
+function verificarSignatura(element) {
+	var amplada = 800;
+	var alcada = 600;
+	$('<iframe id="verificacio" src="' + element.href + '"/>').dialog({
+		title: "Verificació de signatures",
+		autoOpen: true,
+		modal: true,
+		autoResize: true,
+		width: parseInt(amplada),
+		height: parseInt(alcada)
+	}).width(amplada - 30).height(alcada - 30);
+	return false;
 }
 // ]]>
 </script>

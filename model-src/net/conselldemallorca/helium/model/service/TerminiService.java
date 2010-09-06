@@ -80,11 +80,14 @@ public class TerminiService {
 			terminiIniciat.setDataCancelacio(null);
 			resumeTimers(terminiIniciat);
 		}
-		registreDao.crearRegistreIniciarTermini(
-				getExpedientForProcessInstanceId(processInstanceId).getId(),
-				processInstanceId,
-				terminiId.toString(),
-				SecurityContextHolder.getContext().getAuthentication().getName());
+		Long expedientId = getExpedientForProcessInstanceId(processInstanceId).getId();
+		if (expedientId != null) {
+			registreDao.crearRegistreIniciarTermini(
+					getExpedientForProcessInstanceId(processInstanceId).getId(),
+					processInstanceId,
+					terminiId.toString(),
+					SecurityContextHolder.getContext().getAuthentication().getName());
+		}
 		return terminiIniciatDao.saveOrUpdate(terminiIniciat);
 	}
 	public void pausar(Long terminiIniciatId) {
@@ -97,11 +100,14 @@ public class TerminiService {
 		terminiIniciat.setDataAturada(data);
 		suspendTimers(terminiIniciat);
 		String processInstanceId = terminiIniciat.getProcessInstanceId();
-		registreDao.crearRegistreAturarTermini(
-				getExpedientForProcessInstanceId(processInstanceId).getId(),
-				processInstanceId,
-				terminiIniciat.getTermini().getId().toString(),
-				SecurityContextHolder.getContext().getAuthentication().getName());
+		Long expedientId = getExpedientForProcessInstanceId(processInstanceId).getId();
+		if (expedientId != null) {
+			registreDao.crearRegistreAturarTermini(
+					getExpedientForProcessInstanceId(processInstanceId).getId(),
+					processInstanceId,
+					terminiIniciat.getTermini().getId().toString(),
+					SecurityContextHolder.getContext().getAuthentication().getName());
+		}
 	}
 	public void continuar(Long terminiIniciatId) {
 		continuar(terminiIniciatId, new Date());
@@ -115,11 +121,14 @@ public class TerminiService {
 		terminiIniciat.setDataAturada(null);
 		resumeTimers(terminiIniciat);
 		String processInstanceId = terminiIniciat.getProcessInstanceId();
-		registreDao.crearRegistreReprendreTermini(
-				getExpedientForProcessInstanceId(processInstanceId).getId(),
-				processInstanceId,
-				terminiIniciat.getTermini().getId().toString(),
-				SecurityContextHolder.getContext().getAuthentication().getName());
+		Long expedientId = getExpedientForProcessInstanceId(processInstanceId).getId();
+		if (expedientId != null) {
+			registreDao.crearRegistreReprendreTermini(
+					getExpedientForProcessInstanceId(processInstanceId).getId(),
+					processInstanceId,
+					terminiIniciat.getTermini().getId().toString(),
+					SecurityContextHolder.getContext().getAuthentication().getName());
+		}
 	}
 	public void cancelar(Long terminiIniciatId) {
 		cancelar(terminiIniciatId, new Date());
@@ -131,11 +140,14 @@ public class TerminiService {
 		terminiIniciat.setDataCancelacio(data);
 		suspendTimers(terminiIniciat);
 		String processInstanceId = terminiIniciat.getProcessInstanceId();
-		registreDao.crearRegistreCancelarTermini(
-				getExpedientForProcessInstanceId(processInstanceId).getId(),
-				processInstanceId,
-				terminiIniciat.getTermini().getId().toString(),
-				SecurityContextHolder.getContext().getAuthentication().getName());
+		Long expedientId = getExpedientForProcessInstanceId(processInstanceId).getId();
+		if (expedientId != null) {
+			registreDao.crearRegistreCancelarTermini(
+					getExpedientForProcessInstanceId(processInstanceId).getId(),
+					processInstanceId,
+					terminiIniciat.getTermini().getId().toString(),
+					SecurityContextHolder.getContext().getAuthentication().getName());
+		}
 	}
 	public List<TerminiIniciat> findIniciatsAmbProcessInstanceId(String processInstanceId) {
 		return terminiIniciatDao.findAmbProcessInstanceId(processInstanceId);
@@ -339,8 +351,9 @@ public class TerminiService {
 
 	private Expedient getExpedientForProcessInstanceId(String processInstanceId) {
 		JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(processInstanceId);
-		if (pi == null)
+		if (pi == null) {
 			return null;
+		}
 		return expedientDao.findAmbProcessInstanceId(pi.getId());
 	}
 

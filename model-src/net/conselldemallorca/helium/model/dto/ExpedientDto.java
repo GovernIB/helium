@@ -39,6 +39,13 @@ public class ExpedientDto extends Expedient {
 		this.bantelEntradaNum = bantelEntradaNum;
 	}
 
+	public String getIdentificadorLimitat() {
+		if (getIdentificador().length() > 100)
+			return getIdentificador().substring(0, 100) + " (...)";
+		else
+			return getIdentificador();
+	}
+
 
 
 	private static final long serialVersionUID = 1L;

@@ -59,9 +59,11 @@
 				<c:param name="property" value="dataCreacioInici"/>
 				<c:param name="type" value="custom"/>
 				<c:param name="label">Data de creació</c:param>
+				<c:param name="customClass">customField</c:param>
 				<c:param name="content">
 					<spring:bind path="dataCreacioInici">
-						<label for="dataCreacioInici" class="blockLabel">Entre
+						<label for="dataCreacioInici" class="blockLabel">
+							<span>Entre</span>
 							<input id="dataCreacioInici" name="dataCreacioInici" value="${status.value}" type="text" class="textInput"/>
 							<script type="text/javascript">
 								// <![CDATA[
@@ -78,7 +80,8 @@
 						</label>
 					</spring:bind>
 					<spring:bind path="dataCreacioFi">
-						<label for="dataCreacioFi" class="blockLabel blockLabelLast">i
+						<label for="dataCreacioFi" class="blockLabel blockLabelLast">
+							<span>i</span>
 							<input id="dataCreacioFi" name="dataCreacioFi" value="${status.value}" type="text" class="textInput"/>
 							<script type="text/javascript">
 								// <![CDATA[
@@ -109,9 +112,11 @@
 				<c:param name="property" value="dataLimitInici"/>
 				<c:param name="type" value="custom"/>
 				<c:param name="label">Data límit</c:param>
+				<c:param name="customClass">customField</c:param>
 				<c:param name="content">
 					<spring:bind path="dataLimitInici">
-						<label for="dataLimitInici" class="blockLabel">Entre
+						<label for="dataLimitInici" class="blockLabel">
+							<span>Entre</span>
 							<input id="dataLimitInici" name="dataLimitInici" value="${status.value}" type="text" class="textInput"/>
 							<script type="text/javascript">
 								// <![CDATA[
@@ -128,7 +133,8 @@
 						</label>
 					</spring:bind>
 					<spring:bind path="dataLimitFi">
-						<label for="dataLimitFi" class="blockLabel blockLabelLast">i
+						<label for="dataLimitFi" class="blockLabel blockLabelLast">
+							<span>i</span>
 							<input id="dataLimitFi" name="dataLimitFi" value="${status.value}" type="text" class="textInput"/>
 							<script type="text/javascript">
 								// <![CDATA[

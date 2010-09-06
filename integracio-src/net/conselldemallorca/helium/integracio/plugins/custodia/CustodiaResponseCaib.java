@@ -8,7 +8,7 @@ package net.conselldemallorca.helium.integracio.plugins.custodia;
  * 
  * @author Josep Gayà <josepg@limit.es>
  */
-public class CustodiaResponse {
+public class CustodiaResponseCaib {
 
 	private boolean error;
 	private String errorCodi;

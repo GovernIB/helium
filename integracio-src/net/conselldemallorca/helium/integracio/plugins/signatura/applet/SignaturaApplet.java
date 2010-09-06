@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.conselldemallorca.helium.integracio.plugins.signatura;
+package net.conselldemallorca.helium.integracio.plugins.signatura.applet;
 
 import java.applet.Applet;
 import java.awt.BorderLayout;
@@ -49,17 +49,16 @@ public abstract class SignaturaApplet extends Applet {
 	private JPasswordField jPasswordField;
 
 	private PropertyResourceBundle missatges;
-	private SignaturaPlugin signaturaPlugin;
 
 
 
-	public void init () {
+	public void init() {
 		String lang = getParameter("locale");
 		try {
 			if (lang != null)
-				missatges = (PropertyResourceBundle)ResourceBundle.getBundle("net.conselldemallorca.helium.integracio.plugins.signatura.missatges_signatura", new Locale(lang));
+				missatges = (PropertyResourceBundle)ResourceBundle.getBundle("net.conselldemallorca.helium.integracio.plugins.signatura.applet.missatges_signatura", new Locale(lang));
 			else
-				missatges = (PropertyResourceBundle)ResourceBundle.getBundle("net.conselldemallorca.helium.integracio.plugins.signatura.missatges_signatura");
+				missatges = (PropertyResourceBundle)ResourceBundle.getBundle("net.conselldemallorca.helium.integracio.plugins.signatura.applet.missatges_signatura");
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -142,41 +141,31 @@ public abstract class SignaturaApplet extends Applet {
         }
     }
 
-	@SuppressWarnings("unchecked")
 	private void initSignature() {
-		String pluginClass = getPluginClass();
-		if (pluginClass != null && pluginClass.length() > 0) {
+		try {
+			initSigner();
+			String[] certList = null;
 			try {
-				Class clazz = Class.forName(pluginClass);
-				signaturaPlugin = (SignaturaPlugin)clazz.newInstance();
+				certList = getCertList(getSignaturaParams());
 			} catch (Exception ex) {
-				missatgeError("msg.error.plugin", ex.getLocalizedMessage());
+				missatgeError("msg.error.certlist");
+				ex.printStackTrace(); 
+				return;
+		    }
+			if (certList != null) {
+				jComboBoxCertificats.setModel(
+						new DefaultComboBoxModel(certList));
+			} else {
+				jComboBoxCertificats.setModel(
+						new DefaultComboBoxModel(new String[] {}));
 			}
-			try {
-				signaturaPlugin.testSigner();
-				String[] certList = null;
-				try {
-					certList = signaturaPlugin.getCertList(getSignaturaParams());
-				} catch (Exception ex) {
-					missatgeError("msg.error.certlist");
-					ex.printStackTrace(); 
-					return;
-			    }
-				if (certList != null) {
-					jComboBoxCertificats.setModel(
-							new DefaultComboBoxModel(certList));
-				} else {
-					jComboBoxCertificats.setModel(
-							new DefaultComboBoxModel(new String[] {}));
-				}
-				jComboBoxCertificats.setEnabled(true);
-				jButtonSignar.setEnabled(true);
-				jPasswordField.setEnabled(true);
-			} catch (NecessitaActualitzarException ex) {
-				ex.printStackTrace();
-				missatgeError("msg.error.upgrade", ex.getLocalizedMessage());
-				getAppletContext().showDocument(ex.getUrl());
-			}
+			jComboBoxCertificats.setEnabled(true);
+			jButtonSignar.setEnabled(true);
+			jPasswordField.setEnabled(true);
+		} catch (NecessitaActualitzarException ex) {
+			ex.printStackTrace();
+			missatgeError("msg.error.upgrade", ex.getLocalizedMessage());
+			getAppletContext().showDocument(ex.getUrl());
 		}
 	}
 
@@ -232,7 +221,7 @@ public abstract class SignaturaApplet extends Applet {
 		RespostaSignatura resposta = new RespostaSignatura();
 		resposta.setToken(getParameter("token"));
 		try {
-			Object signatura = signaturaPlugin.sign(
+			Object signatura = sign(
 					inputDocument,
 					certName,
 					new String(jPasswordField.getPassword()),
@@ -283,7 +272,7 @@ public abstract class SignaturaApplet extends Applet {
 				URLEncoder.encode(getParameter("token"), "UTF-8");
 	}
 	private String getTargetUrl() {
-		return getBaseUrl() + "/signatura/signarAmbToken.html";
+		return getBaseUrl() + "/signatura/signarAmbTokenCaib.html";
 	}
 	private String getBaseUrl() {
 		return getParameter("baseUrl");
@@ -310,7 +299,14 @@ public abstract class SignaturaApplet extends Applet {
 			return "unknown.bin";
 	}
 
-	public abstract String getPluginClass();
+	public abstract void initSigner() throws NecessitaActualitzarException;
+	public abstract String[] getCertList(String params) throws ObtencioCertificatsException;
+	public abstract Object sign(
+			InputStream inputDocument,
+			String certName,
+			String password,
+			String params) throws SignaturaException, ContrasenyaIncorrectaException;
+	
 
 	private static final long serialVersionUID = 1L;
 
