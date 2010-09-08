@@ -64,6 +64,17 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	private String referenciaCustodia;
 	@MaxLength(255)
 	private String referenciaFont;
+	@MaxLength(255)
+	private String registreNumero;
+	@MaxLength(255)
+	private String registreAny;
+	private Date registreData;
+	@MaxLength(255)
+	private String registreOficinaCodi;
+	@MaxLength(255)
+	private String registreOficinaNom;
+	private boolean registreEntrada;
+
 	private boolean adjunt = false;
 	@MaxLength(255)
 	private String adjuntTitol;
@@ -191,6 +202,55 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 		this.referenciaFont = referenciaFont;
 	}
 
+	@Column(name="registre_num", length=255)
+	public String getRegistreNumero() {
+		return registreNumero;
+	}
+	public void setRegistreNumero(String registreNumero) {
+		this.registreNumero = registreNumero;
+	}
+
+	@Column(name="registre_any", length=255)
+	public String getRegistreAny() {
+		return registreAny;
+	}
+	public void setRegistreAny(String registreAny) {
+		this.registreAny = registreAny;
+	}
+
+	@Column(name="registre_data")
+	@Temporal(TemporalType.TIMESTAMP)
+	public Date getRegistreData() {
+		return registreData;
+	}
+	public void setRegistreData(Date registreData) {
+		this.registreData = registreData;
+	}
+
+	@Column(name="registre_ofcodi", length=255)
+	public String getRegistreOficinaCodi() {
+		return registreOficinaCodi;
+	}
+	public void setRegistreOficinaCodi(String registreOficinaCodi) {
+		this.registreOficinaCodi = registreOficinaCodi;
+	}
+
+	@Column(name="registre_ofnom", length=255)
+	public String getRegistreOficinaNom() {
+		return registreOficinaNom;
+	}
+	public void setRegistreOficinaNom(String registreOficinaNom) {
+		this.registreOficinaNom = registreOficinaNom;
+	}
+
+	@Column(name="registre_entrada")
+	public boolean isRegistreEntrada() {
+		return registreEntrada;
+	}
+	public void setRegistreEntrada(boolean registreEntrada) {
+		this.registreEntrada = registreEntrada;
+	}
+
 	@Column(name="adjunt")
 	public boolean isAdjunt() {
 		return adjunt;
@@ -212,6 +272,16 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 		if (getJbpmVariable() == null)
 			return null;
 		return getJbpmVariable().substring(TascaService.PREFIX_DOCUMENT.length());
+	}
+	@Transient
+	public boolean isRegistrat() {
+		return (registreNumero != null)
+			|| (registreAny != null)
+			|| (registreData != null);
+	}
+	@Transient
+	public boolean isRegistreSortida() {
+		return !isRegistreEntrada();
 	}
 
 

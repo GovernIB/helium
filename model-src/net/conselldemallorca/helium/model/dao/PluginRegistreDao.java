@@ -3,9 +3,9 @@
  */
 package net.conselldemallorca.helium.model.dao;
 
-import net.conselldemallorca.helium.integracio.plugins.registre.DadesRegistre;
 import net.conselldemallorca.helium.integracio.plugins.registre.RegistrePlugin;
 import net.conselldemallorca.helium.integracio.plugins.registre.RegistrePluginException;
+import net.conselldemallorca.helium.integracio.plugins.registre.SeientRegistral;
 import net.conselldemallorca.helium.model.exception.PluginException;
 import net.conselldemallorca.helium.util.GlobalProperties;
 
@@ -26,7 +26,7 @@ public class PluginRegistreDao {
 
 
 	public String[] registrarEntrada(
-			DadesRegistre dadesRegistre) {
+			SeientRegistral dadesRegistre) {
 		try {
 			return getRegistrePlugin().registrarEntrada(dadesRegistre);
 		} catch (RegistrePluginException ex) {
@@ -35,16 +35,16 @@ public class PluginRegistreDao {
 		}
 	}
 
-	public DadesRegistre consultarEntrada(String numero, String any) {
+	public SeientRegistral consultarEntrada(String oficina, String numero, String any) {
 		try {
-			return getRegistrePlugin().consultarEntrada(numero, any);
+			return getRegistrePlugin().consultarEntrada(oficina, numero, any);
 		} catch (RegistrePluginException ex) {
 			logger.error("Error al consultar el registre d'entrada", ex);
 			throw new PluginException("Error al consultar el registre d'entrada", ex);
 		}
 	}
 
-	public String[] registrarSortida(DadesRegistre dadesRegistre) {
+	public String[] registrarSortida(SeientRegistral dadesRegistre) {
 		try {
 			return getRegistrePlugin().registrarSortida(dadesRegistre);
 		} catch (RegistrePluginException ex) {
@@ -53,12 +53,21 @@ public class PluginRegistreDao {
 		}
 	}
 
-	public DadesRegistre consultarSortida(String numero, String any) {
+	public SeientRegistral consultarSortida(String oficina, String numero, String any) {
 		try {
-			return getRegistrePlugin().consultarSortida(numero, any);
+			return getRegistrePlugin().consultarSortida(oficina, numero, any);
 		} catch (RegistrePluginException ex) {
 			logger.error("Error al consultar el registre de sortida", ex);
 			throw new PluginException("Error al consultar el registre de sortida", ex);
+		}
+	}
+
+	public String getNomOficina(String codi) {
+		try {
+			return getRegistrePlugin().getNomOficina(codi);
+		} catch (RegistrePluginException ex) {
+			logger.error("Error al consultar el nom de l'oficina", ex);
+			throw new PluginException("Error al consultar el nom de l'oficina", ex);
 		}
 	}
 

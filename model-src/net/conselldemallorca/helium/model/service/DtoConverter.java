@@ -364,6 +364,14 @@ public class DtoConverter {
 						dto.setTipusDocPortasignatures(doc.getTipusDocPortasignatures());
 					}
 				}
+				if (document.isRegistrat()) {
+					dto.setRegistreData(document.getRegistreData());
+					dto.setRegistreNumero(document.getRegistreNumero());
+					dto.setRegistreAny(document.getRegistreAny());
+					dto.setRegistreOficinaCodi(document.getRegistreOficinaCodi());
+					dto.setRegistreOficinaNom(document.getRegistreOficinaNom());
+					dto.setRegistrat(true);
+				}
 				return dto;
 			}
 		}

@@ -110,7 +110,7 @@ public class GestioDocumentalPluginAlfrescoCaib implements GestioDocumentalPlugi
 
 	private Reference getAlfrescoDocumentPath(String[] path, boolean create) throws RepositoryFault, RemoteException {
 		String baseDir = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.basedir");
-		if (baseDir != null && baseDir.length() > 0)
+		if (baseDir == null || baseDir.length() == 0)
 			baseDir = GlobalProperties.getInstance().getProperty("app.docstore.alfresco.basedir");
 		String[] baseDirParts;
 		if (baseDir.startsWith("/"))
@@ -265,10 +265,10 @@ public class GestioDocumentalPluginAlfrescoCaib implements GestioDocumentalPlugi
 	private String startAlfrescoSession() throws AuthenticationFault {
 		configureAlfrescoRepository();
 		String alfrescoUser = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.user");
-		if (alfrescoUser != null && alfrescoUser.length() > 0)
+		if (alfrescoUser == null || alfrescoUser.length() == 0)
 			alfrescoUser = GlobalProperties.getInstance().getProperty("app.docstore.alfresco.user");
 		String alfrescoPass = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.pass");
-		if (alfrescoPass != null && alfrescoPass.length() > 0)
+		if (alfrescoPass == null || alfrescoPass.length() == 0)
 			alfrescoPass = GlobalProperties.getInstance().getProperty("app.docstore.alfresco.pass");
 		AuthenticationUtils.startSession(alfrescoUser, alfrescoPass);
 		return AuthenticationUtils.getAuthenticationDetails().getTicket();
@@ -280,7 +280,7 @@ public class GestioDocumentalPluginAlfrescoCaib implements GestioDocumentalPlugi
 	private boolean repoConfigured = false;
 	private void configureAlfrescoRepository() {
 		String alfrescoApiurl = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.apiurl");
-		if (alfrescoApiurl != null && alfrescoApiurl.length() > 0)
+		if (alfrescoApiurl == null || alfrescoApiurl.length() == 0)
 			alfrescoApiurl = GlobalProperties.getInstance().getProperty("app.docstore.alfresco.apiurl");
 		if (!repoConfigured) {
 			WebServiceFactory.setEndpointAddress(alfrescoApiurl);

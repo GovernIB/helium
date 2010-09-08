@@ -70,7 +70,7 @@ public class PluginGestioDocumentalDao {
 
 	public boolean isGestioDocumentalActiu() {
 		String pluginClass = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.class");
-		if (pluginClass != null && pluginClass.length() > 0) {
+		if (pluginClass == null || pluginClass.length() == 0) {
 			String alfrescoActiu = GlobalProperties.getInstance().getProperty("app.docstore.alfresco.actiu");
 			if ("true".equals(alfrescoActiu))
 				pluginClass = "net.conselldemallorca.helium.integracio.gesdoc.GestioDocumentalPluginAlfrescoCaib";
@@ -84,9 +84,6 @@ public class PluginGestioDocumentalDao {
 	private GestioDocumentalPlugin getGestioDocumentalPlugin() {
 		if (gestioDocumentalPlugin == null) {
 			String pluginClass = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.class");
-			if (pluginClass == null || pluginClass.length() == 0) {
-				
-			}
 			if (pluginClass != null && pluginClass.length() > 0) {
 				try {
 					Class clazz = Class.forName(pluginClass);

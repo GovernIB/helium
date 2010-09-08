@@ -62,6 +62,18 @@ function verificarSignatura(element) {
 	}).width(amplada - 30).height(alcada - 30);
 	return false;
 }
+function infoRegistre(docId) {
+	var amplada = 500;
+	var alcada = 200;
+	$('<div>' + $("#registre_" + docId).html() + '</div>').dialog({
+		title: "Informació de registre",
+		autoOpen: true,
+		modal: true,
+		width: parseInt(amplada),
+		height: parseInt(alcada)
+	}).width(amplada - 30).height(alcada - 30);
+	return false;
+}
 // ]]>
 </script>
 </head>
@@ -102,6 +114,9 @@ function verificarSignatura(element) {
 							<c:set var="documentActual" value="${instanciaProces.varsDocuments[codi]}" scope="request"/>
 							<c:import url="../common/iconesConsultaDocument.jsp"/>
 						</c:if>
+						<c:if test="${instanciaProces.varsDocuments[codi].registrat}">
+							<img src="<c:url value="/img/book_open.png"/>" alt="Registrat" title="Registrat" border="0" style="cursor:pointer" onclick="infoRegistre(${instanciaProces.varsDocuments[codi].id})"/>
+						</c:if>
 					</c:otherwise>
 				</c:choose>
 			</display:column>
@@ -133,6 +148,20 @@ function verificarSignatura(element) {
 			</button>
 		</form>
 	</security:accesscontrollist>
+
+	<c:forEach var="reg" items="${instanciaProces.varsDocuments}">
+		<c:set var="document" value="${reg.value}"/>
+		<c:if test="${document.registrat}">
+			<div id="registre_${document.id}" style="display:none">
+				<dl class="form-info">
+					<dt>Oficina</dt><dd>${document.registreOficinaNom}</dd>
+					<dt>Data</dt><dd><fmt:formatDate value="${document.registreData}" pattern="dd/MM/yyyy HH:mm"/></dd>
+					<dt>Tipus</dt><dd><c:choose><c:when test="${document.registreEntrada}">Entrada</c:when><c:otherwise>Sortida</c:otherwise></c:choose></dd>
+					<dt>Número</dt><dd>${document.registreNumero}/${document.registreAny}</dd>
+				</dl>
+			</div>
+		</c:if>
+	</c:forEach>
 
 </body>
 </html>

@@ -3,10 +3,18 @@
  */
 package net.conselldemallorca.helium.jbpm3.handlers;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import net.conselldemallorca.helium.integracio.plugins.registre.RegistreDocument;
+import net.conselldemallorca.helium.integracio.plugins.registre.RegistreFont;
+import net.conselldemallorca.helium.integracio.plugins.registre.SeientRegistral;
+import net.conselldemallorca.helium.integracio.plugins.registre.RegistreDocument.IdiomaRegistre;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistre;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentDisseny;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
@@ -19,6 +27,7 @@ import net.conselldemallorca.helium.model.dao.DocumentStoreDao;
 import net.conselldemallorca.helium.model.dao.DominiDao;
 import net.conselldemallorca.helium.model.dao.EntornDao;
 import net.conselldemallorca.helium.model.dao.MailDao;
+import net.conselldemallorca.helium.model.dao.PluginRegistreDao;
 import net.conselldemallorca.helium.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.model.hibernate.Document;
@@ -116,6 +125,8 @@ public abstract class BasicActionHandler implements ActionHandler {
 		if (valor instanceof Long) {
 			Long id = (Long)valor;
 			DocumentStore docStore = getDocumentStoreDao().getById(id, false);
+			if (docStore == null)
+				return null;
 			DocumentInfo resposta = new DocumentInfo();
 			resposta.setId(docStore.getId());
 			if (docStore.isAdjunt()) {
@@ -284,6 +295,113 @@ public abstract class BasicActionHandler implements ActionHandler {
 		}
 	}
 
+	/**
+	 * Registra un document d'entrada
+	 * 
+	 * @param dadesRegistre
+	 * @param executionContext
+	 * @return
+	 */
+	public String[] registreEntrada(
+			DadesRegistre dadesRegistre,
+			ExecutionContext executionContext) {
+		try {
+			SeientRegistral seient = getSeientRegistral(
+					dadesRegistre,
+					executionContext);
+			String[] numeroAny = getRegistreDao().registrarEntrada(seient);
+			guardarInfoRegistre(
+					executionContext,
+					dadesRegistre.getVarDocument(),
+					seient.getData(),
+					seient.getHora(),
+					seient.getOficina(),
+					numeroAny[0],
+					numeroAny[1],
+					true);
+			return numeroAny;
+		} catch (Exception ex) {
+			throw new JbpmException("No s'ha pogut registrar el document", ex);
+		}
+	}
+	/**
+	 * Consulta un document d'entrada
+	 * 
+	 * @param varDocument
+	 * @param executionContext
+	 * @return
+	 */
+	public DadesRegistre registreConsultarEntrada(
+			String varDocument,
+			ExecutionContext executionContext) {
+		DocumentStore docStore = getDocumentRegistrat(varDocument, executionContext);
+		if (docStore == null)
+			throw new JbpmException("No s'ha trobat el document '" + varDocument + "'");
+		if (!docStore.isRegistrat())
+			throw new JbpmException("El document '" + varDocument + "' no està registrat");
+		try {
+			return toDadesRegistre(getRegistreDao().consultarEntrada(
+					docStore.getRegistreOficinaCodi(),
+					docStore.getRegistreNumero(),
+					docStore.getRegistreAny()));
+		} catch (Exception ex) {
+			throw new JbpmException("No s'ha pogut consultar el registre", ex);
+		}
+	}
+	/**
+	 * Registra un document de sortida
+	 * 
+	 * @param dadesRegistre
+	 * @param executionContext
+	 * @return
+	 */
+	public String[] registreSortida(
+			DadesRegistre dadesRegistre,
+			ExecutionContext executionContext) {
+		try {
+			SeientRegistral seient = getSeientRegistral(
+					dadesRegistre,
+					executionContext);
+			String[] numeroAny = getRegistreDao().registrarSortida(seient);
+			guardarInfoRegistre(
+					executionContext,
+					dadesRegistre.getVarDocument(),
+					seient.getData(),
+					seient.getHora(),
+					seient.getOficina(),
+					numeroAny[0],
+					numeroAny[1],
+					false);
+			return numeroAny;
+		} catch (Exception ex) {
+			throw new JbpmException("No s'ha pogut registrar el document", ex);
+		}
+	}
+	/**
+	 * Consulta un document de sortida
+	 * 
+	 * @param varDocument
+	 * @param executionContext
+	 * @return
+	 */
+	public DadesRegistre registreConsultarSortida(
+			String varDocument,
+			ExecutionContext executionContext) {
+		DocumentStore docStore = getDocumentRegistrat(varDocument, executionContext);
+		if (docStore == null)
+			throw new JbpmException("No s'ha trobat el document '" + varDocument + "'");
+		if (!docStore.isRegistrat())
+			throw new JbpmException("El document '" + varDocument + "' no està registrat");
+		try {
+			return toDadesRegistre(getRegistreDao().consultarSortida(
+					docStore.getRegistreOficinaCodi(),
+					docStore.getRegistreNumero(),
+					docStore.getRegistreAny()));
+		} catch (Exception ex) {
+			throw new JbpmException("No s'ha pogut consultar el registre", ex);
+		}
+	}
+
 
 
 	private String getProcessInstanceId(ExecutionContext executionContext) {
@@ -301,11 +419,165 @@ public abstract class BasicActionHandler implements ActionHandler {
 	private MailDao getMailDao() {
 		return DaoProxy.getInstance().getMailDao();
 	}
+	private PluginRegistreDao getRegistreDao() {
+		return DaoProxy.getInstance().getPluginRegistreDao();
+	}
 	private ExpedientService getExpedientService() {
 		return ServiceProxy.getInstance().getExpedientService();
 	}
 	private DissenyService getDissenyService() {
 		return ServiceProxy.getInstance().getDissenyService();
+	}
+
+	private SeientRegistral getSeientRegistral(
+			DadesRegistre dades,
+			ExecutionContext executionContext) {
+		SeientRegistral resposta = new SeientRegistral();
+		Date ara = new Date();
+		if (dades.getData() == null || "".equals(dades.getData())) {
+			DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+			resposta.setData(df.format(ara));
+		} else {
+			resposta.setData(dades.getData());
+		}
+		if (dades.getHora() == null || "".equals(dades.getHora())) {
+			DateFormat df = new SimpleDateFormat("HH:mm");
+			resposta.setHora(df.format(ara));
+		} else {
+			resposta.setHora(dades.getHora());
+		}
+		resposta.setOficina(dades.getOficina());
+		resposta.setOficinaFisica(dades.getOficinaFisica());
+		RegistreFont remitent = new RegistreFont();
+		remitent.setCodiEntitat(dades.getRemitentCodiEntitat());
+		remitent.setNomEntitat(dades.getRemitentNomEntitat());
+		remitent.setCodiGeografic(dades.getRemitentCodiGeografic());
+		remitent.setNomGeografic(dades.getRemitentNomGeografic());
+		remitent.setNumeroRegistre(dades.getRemitentRegistreNumero());
+		remitent.setAnyRegistre(dades.getRemitentRegistreAny());
+		resposta.setRemitent(remitent);
+		RegistreFont destinatari = new RegistreFont();
+		destinatari.setCodiEntitat(dades.getDestinatariCodiEntitat());
+		destinatari.setNomEntitat(dades.getDestinatariNomEntitat());
+		destinatari.setCodiGeografic(dades.getDestinatariCodiGeografic());
+		destinatari.setNomGeografic(dades.getDestinatariNomGeografic());
+		destinatari.setNumeroRegistre(dades.getDestinatariRegistreNumero());
+		destinatari.setAnyRegistre(dades.getDestinatariRegistreAny());
+		resposta.setDestinatari(destinatari);
+		resposta.setDocument(getRegistreDocument(dades, executionContext));
+		return resposta;
+	}
+	private RegistreDocument getRegistreDocument(
+			DadesRegistre dades,
+			ExecutionContext executionContext) {
+		RegistreDocument resposta = new RegistreDocument();
+		resposta.setTipus(dades.getDocumentTipus());
+		resposta.setIdiomaDocument(getIdiomaRegistre(dades.getDocumentIdiomaDocument()));
+		resposta.setIdiomaExtracte(getIdiomaRegistre(dades.getDocumentIdiomaExtracte()));
+		if (dades.getVarDocument() == null || dades.getVarDocument().length() == 0) {
+			DocumentStore docStore = getDocumentRegistrat(dades.getVarDocument(), executionContext);
+			if (docStore == null)
+				throw new JbpmException("No s'ha trobat el document '" + dades.getVarDocument() + "'");
+			InstanciaProcesDto instanciaProces = getExpedientService().getInstanciaProcesById(
+					new Long(executionContext.getProcessInstance().getId()).toString(),
+					false);
+			if (docStore.isAdjunt()) {
+				resposta.setExtracte(instanciaProces.getExpedient().getIdentificador() + ": " + docStore.getAdjuntTitol());
+			} else {
+				Document document = getDissenyService().findDocumentAmbDefinicioProcesICodi(
+						instanciaProces.getDefinicioProces().getId(),
+						docStore.getCodiDocument());
+				resposta.setExtracte(instanciaProces.getExpedient().getIdentificador() + ": " + document.getNom());
+			}
+			DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+			resposta.setData(df.format(docStore.getDataDocument()));
+		} else {
+			throw new JbpmException("No s'ha especificat el document per registrar");
+		}
+		return resposta;
+	}
+	private DocumentStore getDocumentRegistrat(String varDocument, ExecutionContext executionContext) {
+		String varCodi = TascaService.PREFIX_DOCUMENT + varDocument;
+		Object valor = executionContext.getVariable(varCodi);
+		if (valor instanceof Long) {
+			return DaoProxy.getInstance().getDocumentStoreDao().getById(
+					(Long)valor,
+					false);
+		}
+		return null;
+	}
+	private IdiomaRegistre getIdiomaRegistre(String idioma) {
+		if ("es".equalsIgnoreCase(idioma))
+			return IdiomaRegistre.ES;
+		return IdiomaRegistre.CA;
+	}
+	private DadesRegistre toDadesRegistre(SeientRegistral seient) {
+		DadesRegistre resposta = new DadesRegistre();
+		resposta.setData(seient.getData());
+		resposta.setHora(seient.getHora());
+		resposta.setOficina(seient.getOficina());
+		resposta.setOficinaFisica(seient.getOficinaFisica());
+		resposta.setRemitentCodiEntitat(seient.getRemitent().getCodiEntitat());
+		resposta.setRemitentNomEntitat(seient.getRemitent().getNomEntitat());
+		resposta.setRemitentCodiGeografic(seient.getRemitent().getCodiGeografic());
+		resposta.setRemitentNomGeografic(seient.getRemitent().getNomGeografic());
+		resposta.setRemitentRegistreNumero(seient.getRemitent().getNumeroRegistre());
+		resposta.setRemitentRegistreAny(seient.getRemitent().getAnyRegistre());
+		resposta.setDestinatariCodiEntitat(seient.getDestinatari().getCodiEntitat());
+		resposta.setDestinatariNomEntitat(seient.getDestinatari().getNomEntitat());
+		resposta.setDestinatariCodiGeografic(seient.getDestinatari().getCodiGeografic());
+		resposta.setDestinatariNomGeografic(seient.getDestinatari().getNomGeografic());
+		resposta.setDestinatariRegistreNumero(seient.getDestinatari().getNumeroRegistre());
+		resposta.setDestinatariRegistreAny(seient.getDestinatari().getAnyRegistre());
+		resposta.setDocumentTipus(seient.getDocument().getTipus());
+		resposta.setDocumentIdiomaDocument(seient.getDocument().getIdiomaDocument().toString());
+		resposta.setDocumentIdiomaExtracte(seient.getDocument().getIdiomaDocument().toString());
+		resposta.setDocumentData(seient.getDocument().getData());
+		resposta.setDocumentExtracte(seient.getDocument().getExtracte());
+		return resposta;
+	}
+	private void guardarInfoRegistre(
+			ExecutionContext executionContext,
+			String varDocument,
+			String data,
+			String hora,
+			String oficina,
+			String numero,
+			String any,
+			boolean entrada) {
+		Long documentId = getDocumentId(varDocument, executionContext);
+		if (documentId == null)
+			throw new JbpmException("No s'ha trobat el document '" + varDocument + "'");
+		DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+		Date dataRegistre = null;
+		try {
+			dataRegistre = df.parse(data + " " + hora);
+		} catch (Exception ex) {
+			dataRegistre = new Date();
+		}
+		if (entrada)
+			DaoProxy.getInstance().getDocumentStoreDao().updateRegistreEntrada(
+					documentId,
+					dataRegistre,
+					numero,
+					any,
+					oficina,
+					getRegistreDao().getNomOficina(oficina));
+		else
+			DaoProxy.getInstance().getDocumentStoreDao().updateRegistreSortida(
+					documentId,
+					dataRegistre,
+					numero,
+					any,
+					oficina,
+					getRegistreDao().getNomOficina(oficina));
+	}
+	private Long getDocumentId(String varDocument, ExecutionContext executionContext) {
+		String varCodi = TascaService.PREFIX_DOCUMENT + varDocument;
+		Object valor = executionContext.getVariable(varCodi);
+		if (valor instanceof Long)
+			return (Long)valor;
+		return null;
 	}
 
 	static final long serialVersionUID = 1L;

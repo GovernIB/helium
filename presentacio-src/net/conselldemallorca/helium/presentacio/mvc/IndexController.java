@@ -87,12 +87,4 @@ public class IndexController extends BaseController {
 		return "index";
 	}
 
-	@RequestMapping(value = "/regtest", method = RequestMethod.GET)
-	public String test(
-			HttpServletRequest request,
-			ModelMap model) {
-		new Regtest().test();
-		return "redirect:/index.html";
-	}
-
 }

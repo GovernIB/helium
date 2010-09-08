@@ -18,7 +18,7 @@ public interface RegistrePlugin {
 	 * @return
 	 */
 	public String[] registrarEntrada(
-			DadesRegistre dadesRegistre) throws RegistrePluginException;
+			SeientRegistral dadesRegistre) throws RegistrePluginException;
 
 	/**
 	 * Consulta les dades d'un registre d'entrada
@@ -27,7 +27,8 @@ public interface RegistrePlugin {
 	 * @param any
 	 * @return
 	 */
-	public DadesRegistre consultarEntrada(
+	public SeientRegistral consultarEntrada(
+			String oficina,
 			String numero,
 			String any) throws RegistrePluginException;
 
@@ -38,7 +39,7 @@ public interface RegistrePlugin {
 	 * @return
 	 */
 	public String[] registrarSortida(
-			DadesRegistre dadesRegistre) throws RegistrePluginException;
+			SeientRegistral dadesRegistre) throws RegistrePluginException;
 
 	/**
 	 * Consulta les dades d'un registre de sortida
@@ -47,8 +48,19 @@ public interface RegistrePlugin {
 	 * @param any
 	 * @return
 	 */
-	public DadesRegistre consultarSortida(
+	public SeientRegistral consultarSortida(
+			String oficina,
 			String numero,
 			String any) throws RegistrePluginException;
+
+	/**
+	 * Retorna el nom d'una oficina donat el seu codi
+	 * 
+	 * @param codi
+	 * @return
+	 * @throws RegistrePluginException
+	 */
+	public String getNomOficina(
+			String codi) throws RegistrePluginException;
 
 }

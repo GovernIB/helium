@@ -33,6 +33,14 @@ public class DocumentDto implements Serializable {
 	private Long portasignaturesId;
 	private Integer tipusDocPortasignatures;
 
+	private String registreNumero;
+	private String registreAny;
+	private Date registreData;
+	private String registreOficinaCodi;
+	private String registreOficinaNom;
+	private boolean registreEntrada = true;
+	private boolean registrat = false;
+
 	private String adjuntId;
 
 	private String tokenSignatura;
@@ -159,6 +167,48 @@ public class DocumentDto implements Serializable {
 	}
 	public void setTipusDocPortasignatures(Integer tipusDocPortasignatures) {
 		this.tipusDocPortasignatures = tipusDocPortasignatures;
+	}
+	public String getRegistreNumero() {
+		return registreNumero;
+	}
+	public void setRegistreNumero(String registreNumero) {
+		this.registreNumero = registreNumero;
+	}
+	public String getRegistreAny() {
+		return registreAny;
+	}
+	public void setRegistreAny(String registreAny) {
+		this.registreAny = registreAny;
+	}
+	public Date getRegistreData() {
+		return registreData;
+	}
+	public void setRegistreData(Date registreData) {
+		this.registreData = registreData;
+	}
+	public String getRegistreOficinaCodi() {
+		return registreOficinaCodi;
+	}
+	public void setRegistreOficinaCodi(String registreOficinaCodi) {
+		this.registreOficinaCodi = registreOficinaCodi;
+	}
+	public String getRegistreOficinaNom() {
+		return registreOficinaNom;
+	}
+	public void setRegistreOficinaNom(String registreOficinaNom) {
+		this.registreOficinaNom = registreOficinaNom;
+	}
+	public boolean isRegistreEntrada() {
+		return registreEntrada;
+	}
+	public void setRegistreEntrada(boolean registreEntrada) {
+		this.registreEntrada = registreEntrada;
+	}
+	public boolean isRegistrat() {
+		return registrat;
+	}
+	public void setRegistrat(boolean registrat) {
+		this.registrat = registrat;
 	}
 
 	public String getArxiuNomSenseExtensio() {

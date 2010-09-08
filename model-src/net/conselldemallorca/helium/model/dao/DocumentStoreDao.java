@@ -72,6 +72,37 @@ public class DocumentStoreDao extends HibernateGenericDao<DocumentStore, Long> {
 		ds.setReferenciaFont(referenciaFont);
 	}
 
+	public void updateRegistreEntrada(
+			Long id,
+			Date data,
+			String numero,
+			String any,
+			String oficinaCodi,
+			String oficinaNom) {
+		DocumentStore ds = this.getById(id, false);
+		ds.setRegistreData(data);
+		ds.setRegistreNumero(numero);
+		ds.setRegistreAny(any);
+		ds.setRegistreOficinaCodi(oficinaCodi);
+		ds.setRegistreOficinaNom(oficinaNom);
+		ds.setRegistreEntrada(true);
+	}
+	public void updateRegistreSortida(
+			Long id,
+			Date data,
+			String numero,
+			String any,
+			String oficinaCodi,
+			String oficinaNom) {
+		DocumentStore ds = this.getById(id, false);
+		ds.setRegistreData(data);
+		ds.setRegistreNumero(numero);
+		ds.setRegistreAny(any);
+		ds.setRegistreOficinaCodi(oficinaCodi);
+		ds.setRegistreOficinaNom(oficinaNom);
+		ds.setRegistreEntrada(false);
+	}
+
 	@SuppressWarnings("unchecked")
 	public List<DocumentStore> findAmbProcessInstanceId(String processInstanceId) {
 		return getHibernateTemplate().find(

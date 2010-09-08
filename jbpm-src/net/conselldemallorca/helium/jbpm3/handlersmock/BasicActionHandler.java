@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistre;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentDisseny;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
@@ -54,16 +55,6 @@ public abstract class BasicActionHandler implements ActionHandler {
 		return new ExpedientInfo();
 	}
 
-	/**
-	 * Envia un email amb possibilitat d'adjuntar documents de l'expedient.
-	 * 
-	 * @param recipients
-	 * @param ccRecipients
-	 * @param bccRecipients
-	 * @param subject
-	 * @param text
-	 * @param attachments
-	 */
 	public void enviarEmail(
 			List<String> recipients,
 			List<String> ccRecipients,
@@ -71,6 +62,27 @@ public abstract class BasicActionHandler implements ActionHandler {
 			String subject,
 			String text,
 			List<Long> attachments) {
+	}
+	
+	public String[] registreEntrada(
+			DadesRegistre dadesRegistre,
+			ExecutionContext executionContext) {
+		return null;
+	}
+	public DadesRegistre registreConsultarEntrada(
+			String varDocument,
+			ExecutionContext executionContext) {
+		return null;
+	}
+	public String[] registreSortida(
+			DadesRegistre dadesRegistre,
+			ExecutionContext executionContext) {
+		return null;
+	}
+	public DadesRegistre registreConsultarSortida(
+			String varDocument,
+			ExecutionContext executionContext) {
+		return null;
 	}
 
 	static final long serialVersionUID = 1L;
