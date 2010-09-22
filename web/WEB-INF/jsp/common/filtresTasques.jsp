@@ -12,9 +12,9 @@
 		$("#botoFiltres").click(function(){
 			$("#filtres").slideToggle();
 		}).toggle(function(){
-			$(this).html("Ocultar filtres");
+			$(this).html('<span class="filtre">&nbsp;</span>Ocultar filtre');
 		}, function(){
-			$(this).html("Mostrar filtres");
+			$(this).html('<span class="filtre">&nbsp;</span>Mostrar filtre');
 		});
 
 		<c:if test="${not empty command.nom
@@ -31,7 +31,7 @@
 	// ]]>
 </script>
 
-<button id="botoFiltres" class="submitButton">Mostrar filtre</button>
+<button id="botoFiltres" class="submitButtonImage"><span class="filtre">&nbsp;</span>Mostrar filtre</button>
 
 <div id="filtres" style="display: none;">
 	<form:form action="${param.formulari}" cssClass="uniForm" method="post">

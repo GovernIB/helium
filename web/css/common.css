@@ -163,9 +163,6 @@ button.submitButton {
 	padding: 1px 10px;
 	-moz-border-radius: 2px;
 	border: 1px solid #666;
-	
-	/* Versió ie6 */
-	margin: 0 5px 0 0;
 }
 button.submitButton:hover, button.submitButtonImage:hover {
 	background-position: 0 -540px;
@@ -174,31 +171,15 @@ button.submitButtonImage {
 	background: transparent url(../img/gradients.png) repeat-x;
 	background-position: 0 -3960px;
 	border: 1px solid #666666;
-	/* Original */
-	/*-moz-border-radius: 2px;
-	padding-left: 10px;
-	padding: 1px 10px;
-	*/
-	/* Versió ie6 */
-	padding: 2px 5px 2px 20px;
-	margin: 0;
-	cursor: pointer;
-	position: relative;
+	-moz-border-radius: 2px;
+	padding: 1px 10px 1px 4px;
 }
 
 button.submitButtonImage span {
-	/* Original */
-	/*padding: 8px;
-	margin-right: 6px;
+	padding: 8px;
+	margin-right: 4px;
 	background-repeat: no-repeat;
-	background-position: 0 8px;*/
-	/* Versio ie6 */
-	width: 16px;
-	height: 16px;
-	position: absolute;
-	left: -18px;
-	*left: 2px;
-	*top: 2px;
+	background-position: 0 8px;
 }
 button.submitButtonImage span.entorn-admin {
 	background-image: url(../img/world_edit.png);
@@ -208,6 +189,9 @@ button.submitButtonImage span.entorn-permisos {
 }
 button.submitButtonImage span.nova-variable {
 	background-image: url(../img/page_white_add.png);
+}
+button.submitButtonImage span.filtre {
+	background-image: url(../img/magnifier.png);
 }
 
 

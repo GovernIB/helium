@@ -13,25 +13,22 @@
 	<c:import url="../common/formIncludes.jsp"/>
 <script type="text/javascript">
 // <![CDATA[
-function confirmar(e) {
-	var e = e || window.event;
-	e.cancelBubble = true;
-	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Estau segur que voleu iniciar un nou expedient?");
-}
-// ]]>
-</script>
-<script type="text/javascript" src="<c:url value="/js/jquery/ui/ui.core.js"/>"></script>
-<script  type="text/javascript" src="<c:url value="/js/jquery/ui/jquery-ui-1.7.2.custom.js"/>"></script>
-<script type="text/javascript" language="javascript">
-// <![CDATA[
+	var accioInici;
+	function confirmar(e) {
+		if (!e) var e = window.event;
+		e.cancelBubble = true;
+		if (e.stopPropagation) e.stopPropagation();
+		if (accioInici == 'submit')
+			return confirm("Estau segur que voleu iniciar un nou expedient?");
+		return true;
+	}
 	function editarRegistre(campId, campCodi, campEtiqueta, numCamps, index) {
-		var amplada = 600;
+		var amplada = 686;
 		var alcada = 64 * numCamps + 80;
 		var url = "iniciarRegistre.html?id=${expedientTipus.id}&registreId=" + campId;
 		if (index != null)
 			url = url + "&index=" + index;
-		$('<iframe id="' + campCodi + '" src="' + url + '"/>').dialog({
+		$('<iframe id="' + campCodi + '" src="' + url + '" frameborder="0" marginheight="0" marginwidth="0"/>').dialog({
 			title: campEtiqueta,
 			autoOpen: true,
 			modal: true,
@@ -77,6 +74,7 @@ function confirmar(e) {
 			<c:param name="type" value="buttons"/>
 			<c:param name="values">submit,cancel</c:param>
 			<c:param name="titles">Iniciar,Cancel·lar</c:param>
+			<c:param name="onclick">accioInici=this.value</c:param>
 		</c:import>
 	</form:form>
 

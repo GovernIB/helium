@@ -11,17 +11,22 @@
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
 	<c:import url="../common/formIncludes.jsp"/>
-<script type="text/javascript" src="<c:url value="/js/jquery/ui/ui.core.js"/>"></script>
-<script  type="text/javascript" src="<c:url value="/js/jquery/ui/jquery-ui-1.7.2.custom.js"/>"></script>
 <script type="text/javascript" language="javascript">
 // <![CDATA[
+	function canviTermini(input) {
+		var campId = input.id.substring(0, input.id.lastIndexOf("_"));
+		var anys = document.getElementById(campId + "_anys").value;
+		var mesos = document.getElementById(campId + "_mesos").value;
+		var dies = document.getElementById(campId + "_dies").value;
+		document.getElementById(campId).value = anys + "/" + mesos + "/" + dies;
+	}
 	function editarRegistre(campId, campCodi, campEtiqueta, numCamps, index) {
-		var amplada = 600;
+		var amplada = 686;
 		var alcada = 64 * numCamps + 80;
 		var url = "varRegistre.html?id=${param.id}&registreId=" + campId;
 		if (index != null)
 			url = url + "&index=" + index;
-		$('<iframe id="' + campCodi + '" src="' + url + '"/>').dialog({
+		$('<iframe id="' + campCodi + '" src="' + url + '" frameborder="0" marginheight="0" marginwidth="0"/>').dialog({
 			title: campEtiqueta,
 			autoOpen: true,
 			modal: true,

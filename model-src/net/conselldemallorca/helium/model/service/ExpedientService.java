@@ -493,14 +493,14 @@ public class ExpedientService {
 		return dtoConverter.toDocumentDto(documentStoreId, true);
 		
 	}
-	public void guardarDocument(
+	public Long guardarDocument(
 			String processInstanceId,
 			Long documentId,
 			Date data,
 			String arxiuNom,
 			byte[] arxiuContingut) {
 		Document document = documentDao.getById(documentId, false);
-		createUpdateDocument(
+		return createUpdateDocument(
 				processInstanceId,
 				document.getCodi(),
 				document.getNom(),
@@ -622,8 +622,30 @@ public class ExpedientService {
 		List<TokenDto> resposta = new ArrayList<TokenDto>();
 		Map<String, JbpmToken> activeTokens = jbpmDao.getActiveTokens(processInstanceId);
 		Map<String, JbpmNodePosition> positions = null;
-		if (withNodePosition)
+		if (withNodePosition) {
 			positions = getNodePositions(processInstanceId);
+			int[] dimensions = getImageDimensions(processInstanceId);
+			int minX = 0;
+			int maxX = dimensions[0];
+			int minY = 0;
+			int maxY = dimensions[1];
+			for (JbpmNodePosition position: positions.values()) {
+				if (position.getPosX() < minX)
+					minX = position.getPosX();
+				if (position.getPosX() + position.getWidth() > maxX)
+					maxX = position.getPosX() + position.getWidth();
+				if (position.getPosY() < minY)
+					minY = position.getPosY();
+				if (position.getPosY() + position.getHeight() > maxY)
+					maxY = position.getPosY() + position.getHeight();
+			}
+			if (minX < 0 || minY < 0) {
+				for (JbpmNodePosition position: positions.values()) {
+					position.setPosX(position.getPosX() - minX);
+					position.setPosY(position.getPosY() - minY);
+				}
+			}
+		}
 		for (String tokenName: activeTokens.keySet()) {
 			JbpmToken token = activeTokens.get(tokenName);
 			TokenDto dto = toTokenDto(token);
@@ -918,6 +940,21 @@ public class ExpedientService {
 		}
 		return resposta;
 	}
+	private int[] getImageDimensions(String processInstanceId) {
+		JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(processInstanceId);
+		byte[] gpdBytes = jbpmDao.getResourceBytes(jpd.getId(), "gpd.xml");
+		if (gpdBytes != null) {
+			try {
+				Element root = DocumentHelper.parseText(new String(gpdBytes)).getRootElement();
+				return new int[] {
+						Integer.parseInt(root.attributeValue("width")),
+						Integer.parseInt(root.attributeValue("height"))};
+			} catch (Exception ex) {
+				logger.error("No s'ha pogut desxifrar l'arxiu gpd.xml", ex);
+			}
+		}
+		return null;
+	}
 
 	private void processarNumeroExpedient(ExpedientTipus expedientTipus, String numero, String numeroDefault) {
 		int any = Calendar.getInstance().get(Calendar.YEAR);
@@ -1016,7 +1053,7 @@ public class ExpedientService {
 		return resposta;
 	}
 
-	private void createUpdateDocument(
+	private Long createUpdateDocument(
 				String processInstanceId,
 				String documentCodi,
 				String documentNom,
@@ -1088,6 +1125,7 @@ public class ExpedientService {
 					nomArxiuAntic,
 					arxiuNom);
 		}
+		return docStoreId;
 	}
 
 	private String getNumexpExpression() {

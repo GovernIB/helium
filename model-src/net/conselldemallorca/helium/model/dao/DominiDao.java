@@ -27,7 +27,6 @@ import net.sf.ehcache.Element;
 
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.hibernate.criterion.Restrictions;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -73,7 +72,9 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 		List<FilaResultat> resultat = null;
 		Domini domini = getById(dominiId, false);
 		String cacheKey = getCacheKey(domini.getId(), parametres);
-		Element element = dominiCache.get(cacheKey);
+		Element element = null;
+		if (dominiCache != null)
+			dominiCache.get(cacheKey);
 		if (element == null) {
 			if (domini.getTipus().equals(TipusDomini.CONSULTA_WS))
 				resultat = consultaWs(domini, id, parametres);
@@ -82,7 +83,8 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 			if (domini.getCacheSegons() > 0) {
 				element = new Element(cacheKey, resultat);
 				element.setTimeToLive(domini.getCacheSegons());
-				dominiCache.put(element);
+				if (dominiCache != null)
+					dominiCache.put(element);
 				logger.info("Cache domini '" + cacheKey + "': " + resultat.size() + " registres");
 			}
 		} else {
@@ -101,7 +103,6 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 
 
 
-	@Autowired
 	public void setDominiCache(Ehcache dominiCache) {
 		this.dominiCache = dominiCache;
 	}

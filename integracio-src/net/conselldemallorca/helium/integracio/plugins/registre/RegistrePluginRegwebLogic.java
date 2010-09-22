@@ -91,7 +91,7 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 			String any) throws RegistrePluginException {
 		try {
 			ParametrosRegistroEntrada params = new ParametrosRegistroEntrada();
-			params.fijaUsuario("admin");
+			params.fijaUsuario(GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal"));
 			params.setoficina(oficina);
 			params.setNumeroEntrada(numero);
 			params.setAnoEntrada(any);
@@ -132,7 +132,7 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 			SeientRegistral dadesRegistre) throws RegistrePluginException {
 		try {
 			ParametrosRegistroSalida params = new ParametrosRegistroSalida();
-			params.fijaUsuario("admin");
+			params.fijaUsuario(GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal"));
 			params.setdatasalida(dadesRegistre.getData());
 			params.sethora(dadesRegistre.getHora());
 			params.setoficina(dadesRegistre.getOficina());
@@ -190,7 +190,7 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 			String any) throws RegistrePluginException {
 		try {
 			ParametrosRegistroSalida params = new ParametrosRegistroSalida();
-			params.fijaUsuario("admin");
+			params.fijaUsuario(GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal"));
 			params.setoficina(oficina);
 			params.setNumeroSalida(numero);
 			params.setAnoSalida(any);
@@ -276,12 +276,16 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 		props.put(
 				Context.PROVIDER_URL,
 				GlobalProperties.getInstance().getProperty("app.registre.plugin.provider.url"));
-		props.put(
-				Context.SECURITY_PRINCIPAL,
-				GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal"));
-		props.put(
-				Context.SECURITY_CREDENTIALS,
-				GlobalProperties.getInstance().getProperty("app.registre.plugin.security.credentials"));
+		String principal = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal");
+		if (principal != null && principal.length() > 0)
+			props.put(
+					Context.SECURITY_PRINCIPAL,
+					principal);
+		String credentials = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.credentials");
+		if (credentials != null && credentials.length() > 0)
+			props.put(
+					Context.SECURITY_CREDENTIALS,
+					credentials);
 		return new InitialContext(props);
 	}
 

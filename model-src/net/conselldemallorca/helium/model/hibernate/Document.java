@@ -21,6 +21,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.ForeignKey;
@@ -207,6 +208,12 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.tipusDocPortasignatures = tipusDocPortasignatures;
 	}
 
+
+
+	@Transient
+	public String getCodiNom() {
+		return codi + "/" + nom;
+	}
 
 	@Override
 	public int hashCode() {

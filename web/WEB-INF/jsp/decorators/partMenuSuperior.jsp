@@ -20,7 +20,7 @@
 				<li class="image carrec"><a href="<c:url value="/carrec/jbpmConfigurats.html"/>">Càrrecs</a></li>
 			</c:if>
 			<li class="image festius"><a href="<c:url value="/festiu/calendari.html"/>">Festius</a></li>
-			<li class="image reassignar"><a href="<c:url value="/reassignar/llistat.html"/>">Reassignar</a></li>
+			<li class="image reassignar"><a href="<c:url value="/reassignar/llistat.html"/>">Reassignacions</a></li>
 		</ul>
 	</li>
 	</security:authorize>

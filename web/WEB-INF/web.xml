@@ -126,6 +126,9 @@
 		<role-name>HEL_USER</role-name>
 	</security-role>
 	<security-role>
+		<role-name>HEL_WS</role-name>
+	</security-role>
+	<security-role>
 		<role-name>TOTHOM</role-name>
 	</security-role>
 	<security-role>
@@ -154,6 +157,7 @@
 		<auth-constraint>
 			<role-name>HEL_ADMIN</role-name>
 			<role-name>HEL_USER</role-name>
+			<role-name>HEL_WS</role-name>
 			<role-name>TOTHOM</role-name>
 			<role-name>tothom</role-name>
 		</auth-constraint>

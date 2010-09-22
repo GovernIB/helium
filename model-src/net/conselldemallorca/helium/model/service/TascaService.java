@@ -633,7 +633,14 @@ public class TascaService {
 			Long entornId,
 			String taskId,
 			String documentCodi) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
+		esborrarDocument(entornId, taskId, documentCodi, null);
+	}
+	public void esborrarDocument(
+			Long entornId,
+			String taskId,
+			String documentCodi,
+			String usuari) {
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);
 		String codiVariableJbpm = PREFIX_DOCUMENT + documentCodi;
 		Long documentJbpm = (Long)jbpmDao.getTaskInstanceVariable(taskId, codiVariableJbpm);
 		if (documentJbpm == null)
@@ -1057,7 +1064,10 @@ public class TascaService {
 			Expedient expedientPerTasca = expedientDao.findAmbProcessInstanceId(
 					jbpmDao.getRootProcessInstance(task.getProcessInstanceId()).getId());
 			Long currentEntornId = expedientPerTasca.getEntorn().getId();
-			TascaDto tascaDto = toTascaDto(task, null, false);
+			Tasca t = tascaDao.findAmbActivityNameIProcessDefinitionId(
+					task.getName(),
+					task.getProcessDefinitionId());
+			TascaDto tascaDto = dtoConverter.toTascaDtoPerOrdenacio(task, t);
 			if ((currentEntornId != null) && (entornId.equals(currentEntornId))) {
 				Boolean incloure = true;
 				if ((tasca != null) && (!tasca.equals(""))) {

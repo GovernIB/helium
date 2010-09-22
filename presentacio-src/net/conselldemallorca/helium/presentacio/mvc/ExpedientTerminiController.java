@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.presentacio.mvc;
 
+import java.util.Date;
+
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.model.dto.ExpedientDto;
@@ -101,7 +103,7 @@ public class ExpedientTerminiController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			try {
-				terminiService.iniciar(terminiId, id);
+				terminiService.iniciar(terminiId, id, new Date());
 				missatgeInfo(request, "El termini s'ha iniciat correctament");
 			} catch (Exception ex) {
 				missatgeError(request, "No s'ha pogut iniciar el termini", ex.getLocalizedMessage());
@@ -122,7 +124,7 @@ public class ExpedientTerminiController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			try {
-				terminiService.pausar(terminiId);
+				terminiService.pausar(terminiId, new Date());
 				missatgeInfo(request, "El termini s'ha aturat correctament");
 			} catch (Exception ex) {
 				missatgeError(request, "No s'ha pogut aturar el termini", ex.getLocalizedMessage());
@@ -143,7 +145,7 @@ public class ExpedientTerminiController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			try {
-				terminiService.continuar(terminiId);
+				terminiService.continuar(terminiId, new Date());
 				missatgeInfo(request, "El termini s'ha continuat correctament");
 			} catch (Exception ex) {
 				missatgeError(request, "No s'ha pogut continuar el termini", ex.getLocalizedMessage());
@@ -164,7 +166,7 @@ public class ExpedientTerminiController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			try {
-				terminiService.cancelar(terminiId);
+				terminiService.cancelar(terminiId, new Date());
 				missatgeInfo(request, "El termini s'ha cancel·lat correctament");
 			} catch (Exception ex) {
 				missatgeError(request, "No s'ha pogut cancel·lar el termini", ex.getLocalizedMessage());

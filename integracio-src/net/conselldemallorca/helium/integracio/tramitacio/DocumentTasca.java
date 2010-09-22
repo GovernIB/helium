@@ -12,12 +12,19 @@ package net.conselldemallorca.helium.integracio.tramitacio;
  */
 public class DocumentTasca {
 
+	private Long id;
 	private String codi;
 	private String nom;
 	private String descripcio;
 
 
 
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
 	public String getCodi() {
 		return codi;
 	}

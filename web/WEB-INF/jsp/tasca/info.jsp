@@ -22,12 +22,6 @@ function mostrarOcultar(img, objid) {
 		img.src = '<c:url value="/img/magnifier_zoom_in.png"/>';
 	}
 }
-function confirmarFinalitzar(e) {
-	var e = e || window.event;
-	e.cancelBubble = true;
-	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Estau segur que voleu finalitzar aquesta tasca?");
-}
 function confirmarDelegar(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;

@@ -45,6 +45,7 @@ public class Termini implements Serializable, GenericEntity<Long> {
 	private String nom;
 	@MaxLength(255)
 	private String descripcio;
+	private boolean duradaPredefinida;
 	private int anys;
 	private int mesos;
 	private int dies;
@@ -105,6 +106,14 @@ public class Termini implements Serializable, GenericEntity<Long> {
 	}
 	public void setDescripcio(String descripcio) {
 		this.descripcio = descripcio;
+	}
+
+	@Column(name="durada_predef")
+	public boolean isDuradaPredefinida() {
+		return duradaPredefinida;
+	}
+	public void setDuradaPredefinida(boolean duradaPredefinida) {
+		this.duradaPredefinida = duradaPredefinida;
 	}
 
 	@Column(name="anys")

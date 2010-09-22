@@ -5,7 +5,9 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
 <head>
 	<title>${registre.etiqueta}</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
@@ -17,23 +19,6 @@
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 	<c:import url="../common/formIncludes.jsp"/>
-<script type="text/javascript">
-// <![CDATA[
-function canviTermini(input) {
-	var campId = input.id.substring(0, input.id.indexOf("_"));
-	var anys = document.getElementById(campId + "_anys").value;
-	var mesos = document.getElementById(campId + "_mesos").value;
-	var dies = document.getElementById(campId + "_dies").value;
-	document.getElementById(campId).value = anys + "/" + mesos + "/" + dies;
-}
-function refrescarPare(accio) {
-	if (accio == 'submit')
-		parent.refresh();
-	else
-		window.close();
-}
-// ]]>
-</script>
 </head>
 <body>
 	<c:choose>
@@ -57,7 +42,7 @@ function refrescarPare(accio) {
 			</form:form>
 			<p class="aclaracio">Els camps marcats amb <img src="<c:url value="/img/bullet_red.png"/>" alt="Camp obligatori" title="Camp obligatori" border="0"/> són obligatoris</p>
 		</c:when>
-		<c:otherwise><script type="text/javascript">refrescarPare('${param.submit}');</script></c:otherwise>
+		<c:otherwise><script type="text/javascript">parent.refresh();</script></c:otherwise>
 	</c:choose>
 
 </body>

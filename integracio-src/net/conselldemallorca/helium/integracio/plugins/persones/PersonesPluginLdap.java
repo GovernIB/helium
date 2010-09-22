@@ -96,6 +96,9 @@ public class PersonesPluginLdap implements PersonesPlugin {
 			String llinatges = null;
 			if (attrs.get(returnedAtts[2]) != null)
 				llinatges = (String)attrs.get(returnedAtts[2]).get();
+			String dni = null;
+			if (attrs.get(returnedAtts[3]) != null)
+				dni = (String)attrs.get(returnedAtts[3]).get();
 			String email = null;
 			if (attrs.get(returnedAtts[4]) != null)
 				email = (String)attrs.get(returnedAtts[4]).get();
@@ -105,8 +108,7 @@ public class PersonesPluginLdap implements PersonesPlugin {
 					llinatges,
 					email,
 					sexePerNom(nom));
-			if (attrs.get(returnedAtts[3]) != null)
-			persona.setDni((String)attrs.get(returnedAtts[3]).get());
+			persona.setDni(dni);
 			resposta.add(persona);
 		}
 		ctx.close();

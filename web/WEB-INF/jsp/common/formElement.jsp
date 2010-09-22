@@ -140,9 +140,10 @@
 													"${inputId}",
 													"${status.value}",
 													"${param.selectUrl}",
-													<c:choose><c:when test="${empty param.selectExtraParams}">null</c:when><c:otherwise>{${param.selectExtraParams}}</c:otherwise></c:choose>);
+													<c:choose><c:when test="${empty param.selectExtraParams}">null</c:when><c:otherwise>{${param.selectExtraParams}}</c:otherwise></c:choose>,
+													<c:choose><c:when test="${empty param.selectDominiParams}">null</c:when><c:otherwise>"${param.selectDominiParams}"</c:otherwise></c:choose>);
 										}
-										initSelect_${inputId}();
+										$(document).ready(function() {initSelect_${inputId}()});
 										// ]]>
 									</script>
 								</c:if>

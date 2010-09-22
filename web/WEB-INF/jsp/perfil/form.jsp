@@ -53,6 +53,8 @@
 				<c:param name="required" value="true"/>
 				<c:param name="type" value="select"/>
 				<c:param name="items" value="sexes"/>
+				<c:param name="itemLabel" value="codi"/>
+				<c:param name="itemValue" value="valor"/>
 				<c:param name="label">Sexe</c:param>
 			</c:import>
 			<%--c:import url="../common/formElement.jsp">

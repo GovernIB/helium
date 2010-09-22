@@ -74,8 +74,8 @@ public class TascaDto implements Comparable<TascaDto> {
 	private List<FirmaTasca> signatures;
 
 	private Map<String, Object> variables;
-	private Map<String, Object> varsDocuments;
-	private Map<String, Object> varsDocumentsPerSignar;
+	private Map<String, DocumentDto> varsDocuments;
+	private Map<String, DocumentDto> varsDocumentsPerSignar;
 	private Map<String, ParellaCodiValor> valorsDomini;
 	private Map<String, List<ParellaCodiValor>> valorsMultiplesDomini;
 	private Map<String, Object> varsComText;
@@ -327,16 +327,16 @@ public class TascaDto implements Comparable<TascaDto> {
 			return null;
 		return variables.get(varName);
 	}
-	public Map<String, Object> getVarsDocuments() {
+	public Map<String, DocumentDto> getVarsDocuments() {
 		return varsDocuments;
 	}
-	public void setVarsDocuments(Map<String, Object> varsDocuments) {
+	public void setVarsDocuments(Map<String, DocumentDto> varsDocuments) {
 		this.varsDocuments = varsDocuments;
 	}
-	public Map<String, Object> getVarsDocumentsPerSignar() {
+	public Map<String, DocumentDto> getVarsDocumentsPerSignar() {
 		return varsDocumentsPerSignar;
 	}
-	public void setVarsDocumentsPerSignar(Map<String, Object> varsDocumentsPerSignar) {
+	public void setVarsDocumentsPerSignar(Map<String, DocumentDto> varsDocumentsPerSignar) {
 		this.varsDocumentsPerSignar = varsDocumentsPerSignar;
 	}
 	public Map<String, ParellaCodiValor> getValorsDomini() {
@@ -360,9 +360,13 @@ public class TascaDto implements Comparable<TascaDto> {
 	}
 
 	public Set<String> getVariableKeys() {
+		if (variables == null)
+			return null;
 		return variables.keySet();
 	}
 	public Set<String> getDocumentKeys() {
+		if (varsDocuments == null)
+			return null;
 		return varsDocuments.keySet();
 	}
 

@@ -149,13 +149,12 @@ public class ExpedientIniciarPasFormController extends BaseController {
 		if (entorn != null) {
 			ExpedientTipus tipus = dissenyService.getExpedientTipusById(expedientTipusId);
 			if (potIniciarExpedientTipus(tipus)) {
-				model.addAttribute(
-						"tasca",
-						expedientService.getStartTask(
-								entorn.getId(),
-								expedientTipusId,
-								definicioProcesId,
-								(Map<String, Object>)model.get("valorsCommand")));
+				TascaDto tasca = expedientService.getStartTask(
+						entorn.getId(),
+						expedientTipusId,
+						definicioProcesId,
+						(Map<String, Object>)model.get("valorsCommand"));
+				model.addAttribute("tasca", tasca);
 				return "expedient/iniciarPasForm";
 			} else {
 				missatgeError(request, "No té permisos per iniciar expedients d'aquest tipus");
@@ -264,6 +263,9 @@ public class ExpedientIniciarPasFormController extends BaseController {
 					model.addAttribute("tasca", tascaInicial);
 		        	model.addAttribute("valorsPerSuggest", TascaFormUtil.getValorsPerSuggest(tascaInicial, command));
 		        	return "expedient/iniciarPasForm";
+				} else if ("cancel".equals(submit)) {
+					status.setComplete();
+					return "redirect:/expedient/iniciar.html";
 				} else {
 					status.setComplete();
 					if (registreEsborrarId != null && registreEsborrarIndex != null) {

@@ -34,10 +34,10 @@ public class ExpedientEstatModificarHandler extends AbstractHeliumActionHandler 
 					ex.getTipus().getId(),
 					ec);
 			if (estat != null) {
-				logger.info("Informació modificació estat: " + ec + ", " + ex.getTipus().getId());
+				logger.info("Informació modificació estat: " + ec + ", " + ex.getId() + ", " + ex.getTipus().getId());
 				ex.setEstat(estat);
 			} else {
-				logger.info("Informació modificació estat: " + ec + ", " + ex.getTipus().getId());
+				logger.info("Informació modificació estat: " + ec + ", " + ex.getId() + ", " + ex.getTipus().getId());
 				throw new JbpmException("No existeix cap estat amb el codi '" + ec + "'");
 			}
 		} else {
@@ -47,7 +47,7 @@ public class ExpedientEstatModificarHandler extends AbstractHeliumActionHandler 
 						expedient.getTipus().getId(),
 						ec);
 				if (estat != null) {
-					logger.info("Informació modificació estat: " + ec + ", " + expedient.getTipus().getId());
+					logger.info("Informació modificació estat: " + ec + ", " + expedient.getId() + ", " + expedient.getTipus().getId());
 					getExpedientService().editar(
 							expedient.getEntorn().getId(),
 							expedient.getId(),
@@ -59,7 +59,7 @@ public class ExpedientEstatModificarHandler extends AbstractHeliumActionHandler 
 							expedient.getComentari(),
 							estat.getId());
 				} else {
-					logger.info("Informació modificació estat: " + ec + ", " + expedient.getTipus().getId());
+					logger.info("Informació modificació estat: " + ec + ", " + expedient.getId() + ", " + expedient.getTipus().getId());
 					throw new JbpmException("No existeix cap estat amb el codi '" + ec + "'");
 				}
 			} else {

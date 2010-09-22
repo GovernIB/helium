@@ -33,7 +33,7 @@ function confirmar(e) {
 		Documents de la tasca ${tasca.nom}
 	</h3>
 	<display:table name="tascaDocuments" id="registre" requestURI="" class="displaytag">
-		<display:column property="document.nom" title="Document"/>
+		<display:column property="document.codiNom" title="Document"/>
 		<display:column title="Propietats">
 			<c:if test="${registre.required}">rq</c:if>
 			<c:if test="${registre.readOnly}">ro</c:if>
@@ -57,7 +57,7 @@ function confirmar(e) {
 				<c:param name="property" value="documentId"/>
 				<c:param name="type" value="select"/>
 				<c:param name="items" value="documents"/>
-				<c:param name="itemLabel" value="nom"/>
+				<c:param name="itemLabel" value="codiNom"/>
 				<c:param name="itemValue" value="id"/>
 				<c:param name="itemBuit" value="<< Seleccioni un document >>"/>
 				<c:param name="label">Document</c:param>

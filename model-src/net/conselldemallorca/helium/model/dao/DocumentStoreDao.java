@@ -59,8 +59,8 @@ public class DocumentStoreDao extends HibernateGenericDao<DocumentStore, Long> {
 		ds.setDataModificacio(new Date());
 		if (ds.isAdjunt())
 			ds.setAdjuntTitol(adjuntTitol);
+		ds.setArxiuNom(arxiuNom);
 		if (arxiuContingut != null) {
-			ds.setArxiuNom(arxiuNom);
 			ds.setArxiuContingut(arxiuContingut);
 		}
 	}

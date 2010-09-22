@@ -54,23 +54,69 @@ public class TerminiService {
 
 	public TerminiIniciat iniciar(
 			Long terminiId,
-			String processInstanceId) {
-		return iniciar(terminiId, processInstanceId, new Date());
+			String processInstanceId,
+			Date dataInici) {
+		Termini termini = terminiDao.getById(terminiId, false);
+		TerminiIniciat terminiIniciat = terminiIniciatDao.findAmbTerminiIdIProcessInstanceId(
+				terminiId,
+				processInstanceId);
+		if (terminiIniciat == null) {
+			Date dataFi = getDataFiTermini(
+					dataInici,
+					termini.getAnys(),
+					termini.getMesos(),
+					termini.getDies(),
+					termini.isLaborable());
+			terminiIniciat = new TerminiIniciat(
+					termini,
+					processInstanceId,
+					dataInici,
+					dataFi);
+		} else {
+			Date dataFi = getDataFiTermini(
+					dataInici,
+					terminiIniciat.getAnys(),
+					terminiIniciat.getMesos(),
+					terminiIniciat.getDies(),
+					termini.isLaborable());
+			terminiIniciat.setDataFi(dataFi);
+			terminiIniciat.setDataAturada(null);
+			terminiIniciat.setDataCancelacio(null);
+			resumeTimers(terminiIniciat);
+		}
+		Long expedientId = getExpedientForProcessInstanceId(processInstanceId).getId();
+		if (expedientId != null) {
+			registreDao.crearRegistreIniciarTermini(
+					getExpedientForProcessInstanceId(processInstanceId).getId(),
+					processInstanceId,
+					terminiId.toString(),
+					SecurityContextHolder.getContext().getAuthentication().getName());
+		}
+		return terminiIniciatDao.saveOrUpdate(terminiIniciat);
 	}
 	public TerminiIniciat iniciar(
 			Long terminiId,
 			String processInstanceId,
-			Date dataInici) {
+			Date dataInici,
+			int anys,
+			int mesos,
+			int dies) {
 		Termini termini = terminiDao.getById(terminiId, false);
 		Date dataFi = getDataFiTermini(
 				dataInici,
-				termini);
+				anys,
+				mesos,
+				dies,
+				termini.isLaborable());
 		TerminiIniciat terminiIniciat = terminiIniciatDao.findAmbTerminiIdIProcessInstanceId(
 				terminiId,
 				processInstanceId);
 		if (terminiIniciat == null) {
 			terminiIniciat = new TerminiIniciat(
 					termini,
+					anys,
+					mesos,
+					dies,
 					processInstanceId,
 					dataInici,
 					dataFi);
@@ -90,9 +136,6 @@ public class TerminiService {
 		}
 		return terminiIniciatDao.saveOrUpdate(terminiIniciat);
 	}
-	public void pausar(Long terminiIniciatId) {
-		pausar(terminiIniciatId, new Date());
-	}
 	public void pausar(Long terminiIniciatId, Date data) {
 		TerminiIniciat terminiIniciat = terminiIniciatDao.getById(terminiIniciatId, false);
 		if (terminiIniciat.getDataInici() == null)
@@ -108,9 +151,6 @@ public class TerminiService {
 					terminiIniciat.getTermini().getId().toString(),
 					SecurityContextHolder.getContext().getAuthentication().getName());
 		}
-	}
-	public void continuar(Long terminiIniciatId) {
-		continuar(terminiIniciatId, new Date());
 	}
 	public void continuar(Long terminiIniciatId, Date data) {
 		TerminiIniciat terminiIniciat = terminiIniciatDao.getById(terminiIniciatId, false);
@@ -129,9 +169,6 @@ public class TerminiService {
 					terminiIniciat.getTermini().getId().toString(),
 					SecurityContextHolder.getContext().getAuthentication().getName());
 		}
-	}
-	public void cancelar(Long terminiIniciatId) {
-		cancelar(terminiIniciatId, new Date());
 	}
 	public void cancelar(Long terminiIniciatId, Date data) {
 		TerminiIniciat terminiIniciat = terminiIniciatDao.getById(terminiIniciatId, false);
@@ -274,11 +311,10 @@ public class TerminiService {
 
 	private Date getDataFiTermini(
 			Date inici,
-			Termini termini) {
-		int anys = termini.getAnys();
-		int mesos = termini.getMesos();
-		int dies = termini.getDies();
-		boolean laborable = termini.isLaborable();
+			int anys,
+			int mesos,
+			int dies,
+			boolean laborable) {
 		Calendar dataFi = Calendar.getInstance();
 		dataFi.setTime(inici); //inicialitzam la data final amb la data d'inici
 		// Afegim els anys i mesos
@@ -395,7 +431,7 @@ public class TerminiService {
 		Alerta alerta = new Alerta(
 				new Date(),
 				responsable,
-				"El termini \"" + terminiIniciat.getTermini().getNom() + "\" està a punt d'expirar",
+				"El termini \"" + terminiIniciat.getTermini().getNom() + "\" ha expirat",
 				terminiIniciat.getTermini().getDefinicioProces().getEntorn());
 		alerta.setExpedient(expedient);
 		alertaDao.saveOrUpdate(alerta);

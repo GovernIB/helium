@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.jbpm3.handlers;
 
+import java.util.Date;
+
 import net.conselldemallorca.helium.model.hibernate.TerminiIniciat;
 
 import org.jbpm.JbpmException;
@@ -32,7 +34,7 @@ public class TerminiCancelarHandler extends AbstractHeliumActionHandler {
 						termini.getId(),
 						getVariableComData(executionContext, varData));
 			else
-				getTerminiService().cancelar(termini.getId());
+				getTerminiService().cancelar(termini.getId(), new Date());
 		} else {
 			throw new JbpmException("No existeix cap termini iniciat amb aquest codi '" + terminiCodi + "'");
 		}

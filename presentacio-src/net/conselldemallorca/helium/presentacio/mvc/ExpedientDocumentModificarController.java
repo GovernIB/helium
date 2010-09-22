@@ -185,6 +185,7 @@ public class ExpedientDocumentModificarController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) String id,
 			@RequestParam(value = "docId", required = true) Long docId,
+			@RequestParam(value = "data", required = false) Date data,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
@@ -192,7 +193,7 @@ public class ExpedientDocumentModificarController extends BaseController {
 				DocumentDto document = expedientService.generarDocumentPlantilla(
 						docId,
 						id,
-						new Date());
+						(data != null) ? data : new Date());
 				if (document != null) {
 					model.addAttribute(
 							ArxiuConvertirView.MODEL_ATTRIBUTE_FILENAME,

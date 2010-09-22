@@ -21,9 +21,12 @@
 		<%--dt>Notificar events per correu</dt><dd><c:choose><c:when test="${info.avisCorreu}">Si</c:when><c:otherwise>No</c:otherwise></c:choose></dd--%>
 	</dl>
 
-	<div style="clear:both"></div><br/>
-	<form action="contrasenya.html"><button type="submit" class="submitButton">Canviar contrasenya</button></form><br/>
-	<form action="form.html"><button type="submit" class="submitButton">Modificar perfil</button></form>
+	<c:set var="esReadOnly" value="${globalProperties['app.persones.readonly'] == 'true'}"/>
+	<c:if test="${not esReadOnly}">
+		<div style="clear:both"></div><br/>
+		<form action="contrasenya.html"><button type="submit" class="submitButton">Canviar contrasenya</button></form><br/>
+		<form action="form.html"><button type="submit" class="submitButton">Modificar perfil</button></form>
+	</c:if>
 
 </body>
 </html>

@@ -85,13 +85,15 @@ public class BantelFacadeImpl implements BantelFacade {
 					//Afegim els documents
 					Map<String,DadesDocument> documents = dadesIniciExpedient.getDocumentsInicials();
 					if(documents != null && !documents.isEmpty()){
-						for (Map.Entry<String, DadesDocument> doc: documents.entrySet()){
-							expedientService.guardarDocument(
-									nouExpedient.getProcessInstanceId(), 
-									doc.getValue().getIdDocument(), 
-									doc.getValue().getData(), 
-									doc.getValue().getArxiuNom(), 
-									doc.getValue().getArxiuContingut());
+						for (Map.Entry<String, DadesDocument> doc: documents.entrySet()) {
+							if (doc.getValue() != null) {
+								expedientService.guardarDocument(
+										nouExpedient.getProcessInstanceId(), 
+										doc.getValue().getIdDocument(), 
+										doc.getValue().getData(), 
+										doc.getValue().getArxiuNom(), 
+										doc.getValue().getArxiuContingut());
+							}
 						}
 					}
 				}

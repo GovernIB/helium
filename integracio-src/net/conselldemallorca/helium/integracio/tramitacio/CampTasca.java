@@ -20,8 +20,14 @@ public class CampTasca {
 	private String dominiCampText;
 	private String dominiCampValor;
 	private String jbpmAction;
+	private boolean readFrom;
+	private boolean writeTo;
+	private boolean required;
+	private boolean readOnly;
 	private boolean multiple;
 	private boolean ocult;
+
+	private Object valor;
 
 
 
@@ -79,6 +85,30 @@ public class CampTasca {
 	public void setJbpmAction(String jbpmAction) {
 		this.jbpmAction = jbpmAction;
 	}
+	public boolean isReadFrom() {
+		return readFrom;
+	}
+	public void setReadFrom(boolean readFrom) {
+		this.readFrom = readFrom;
+	}
+	public boolean isWriteTo() {
+		return writeTo;
+	}
+	public void setWriteTo(boolean writeTo) {
+		this.writeTo = writeTo;
+	}
+	public boolean isRequired() {
+		return required;
+	}
+	public void setRequired(boolean required) {
+		this.required = required;
+	}
+	public boolean isReadOnly() {
+		return readOnly;
+	}
+	public void setReadOnly(boolean readOnly) {
+		this.readOnly = readOnly;
+	}
 	public boolean isMultiple() {
 		return multiple;
 	}
@@ -90,6 +120,12 @@ public class CampTasca {
 	}
 	public void setOcult(boolean ocult) {
 		this.ocult = ocult;
+	}
+	public Object getValor() {
+		return valor;
+	}
+	public void setValor(Object valor) {
+		this.valor = valor;
 	}
 
 }

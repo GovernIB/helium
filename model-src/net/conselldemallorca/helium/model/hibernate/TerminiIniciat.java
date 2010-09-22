@@ -53,17 +53,19 @@ public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 	private Date dataCancelacio;
 	private Date dataFiProrroga;
 	private int diesAturat;
+	private int anys;
+	private int mesos;
+	private int dies;
 	@NotBlank
 	@MaxLength(255)
 	private String processInstanceId;
 	@MaxLength(1024)
 	private String timerIds;
 	private String taskInstanceId;
-	@MaxLength(255)
-	private String jbpmVariable;
 	private boolean alertaPrevia;
 	private boolean alertaFinal;
 
+	@NotNull
 	private Termini termini;
 
 
@@ -71,12 +73,18 @@ public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 	public TerminiIniciat() {}
 	public TerminiIniciat(Termini termini, String processInstanceId, Date dataInici, Date dataFi) {
 		this.termini = termini;
+		this.anys = termini.getAnys();
+		this.mesos = termini.getMesos();
+		this.dies = termini.getDies();
 		this.processInstanceId = processInstanceId;
 		this.dataInici = dataInici;
 		this.dataFi = dataFi;
 	}
-	public TerminiIniciat(String jbpmVariable, String processInstanceId, Date dataInici, Date dataFi) {
-		this.jbpmVariable = jbpmVariable;
+	public TerminiIniciat(Termini termini, int anys, int mesos, int dies, String processInstanceId, Date dataInici, Date dataFi) {
+		this.termini = termini;
+		this.anys = anys;
+		this.mesos = mesos;
+		this.dies = dies;
 		this.processInstanceId = processInstanceId;
 		this.dataInici = dataInici;
 		this.dataFi = dataFi;
@@ -146,6 +154,42 @@ public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 		this.diesAturat = diesAturat;
 	}
 
+	@Column(name="anys")
+	public int getAnys() {
+		return anys;
+	}
+	public void setAnys(int anys) {
+		this.anys = anys;
+	}
+
+	@Column(name="mesos")
+	public int getMesos() {
+		return mesos;
+	}
+	public void setMesos(int mesos) {
+		this.mesos = mesos;
+	}
+
+	@Column(name="dies")
+	public int getDies() {
+		return dies;
+	}
+	public void setDies(int dies) {
+		this.dies = dies;
+	}
+
+	@Transient
+	public String getDurada() {
+		net.conselldemallorca.helium.jbpm3.integracio.Termini t = new net.conselldemallorca.helium.jbpm3.integracio.Termini();
+		t.setAnys(anys);
+		t.setMesos(mesos);
+		t.setDies(dies);
+		if (dies > 0)
+			return t.toString() + ((termini.isLaborable()) ? " laborables" : " naturals");
+		else
+			return t.toString();
+	}
+
 	@Column(name="process_instance_id", length=255, nullable=false)
 	public String getProcessInstanceId() {
 		return processInstanceId;
@@ -170,14 +214,6 @@ public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 		this.taskInstanceId = taskInstanceId;
 	}
 
-	@Column(name="jbpm_variable", length=255)
-	public String getJbpmVariable() {
-		return jbpmVariable;
-	}
-	public void setJbpmVariable(String jbpmVariable) {
-		this.jbpmVariable = jbpmVariable;
-	}
-
 	@Column(name="alerta_previa")
 	public boolean isAlertaPrevia() {
 		return alertaPrevia;
@@ -194,7 +230,7 @@ public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 		this.alertaFinal = alertaFinal;
 	}
 
-	@ManyToOne(optional=true)
+	@ManyToOne(optional=false)
 	@JoinColumn(name="termini_id")
 	@ForeignKey(name="hel_termini_terminic_fk")
 	public Termini getTermini() {

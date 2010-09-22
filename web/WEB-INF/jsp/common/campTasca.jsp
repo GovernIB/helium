@@ -16,6 +16,8 @@
 	<c:set var="required" value="${campRegistreActual.obligatori}" scope="request"/>
 </c:if>
 <c:set var="codiActual" value="${campActual.codi}" scope="request"/>
+<c:set var="etiquetaActual" value="${campActual.etiqueta}" scope="request"/>
+<c:set var="dominiParamsActual" value="${campActual.dominiParams}" scope="request"/>
 <c:set var="valorActual" value="${command[codiActual]}" scope="request"/>
 <c:set var="valorDominiActual" value="${tasca.valorsDomini[codiActual]}" scope="request"/>
 <c:set var="valorTextActual" value="${tasca.varsComText[codiActual]}" scope="request"/>
@@ -153,6 +155,7 @@
 			<c:param name="comment">${campActual.observacions}</c:param>
 			<c:param name="selectUrl"><c:url value="/domini/consultaExpedient.html"/></c:param>
 			<c:param name="selectExtraParams">${extraParams},tipus:'select'</c:param>
+			<c:param name="selectDominiParams"><%=toJavascript((String)request.getAttribute("dominiParamsActual"))%></c:param>
 			<c:param name="iterateOn"><c:if test="${campActual.multiple}">valorActual</c:if></c:param>
 			<c:param name="multipleIcons"><c:if test="${campActual.multiple}">true</c:if></c:param>
 			<c:param name="onchange">canviSelectTasca(this.id, this.name);</c:param>
@@ -207,6 +210,7 @@
 						</li>
 						<li>
 							<c:set var="dies" value="${fn:split(status.value,'/')[2]}"/>
+							<c:if test="${empty dies or dies == ''}"><c:set var="dies" value="0"/></c:if>
 							<label for="${codiActual}_dies" class="blockLabel">
 								<span>Dies</span>
 								<input id="${codiActual}_dies" name="${codiActual}_dies" value="${dies}" class="textInput" onchange="canviTermini(this)"/>
@@ -235,7 +239,7 @@
 							<c:forEach var="membre" items="${campActual.registreMembres}" varStatus="varStatus">
 								<c:if test="${membre.llistar}">
 									<display:column title="${membre.membre.etiqueta}">
-										<c:if test="${varStatus.first}"><a href="#" onclick="return editarRegistre(${campActual.id}, '${codiActual}', '${fn:replace(campActual.etiqueta,"\'","\\'")}', ${fn:length(campActual.registreMembres)}, ${registre_rowNum - 1})"></a></c:if>
+										<c:if test="${varStatus.first}"><a href="#" onclick="return editarRegistre(${campActual.id}, '${codiActual}', '<%=toJavascript((String)request.getAttribute("etiquetaActual"))%>', ${fn:length(campActual.registreMembres)}, ${registre_rowNum - 1})"></a></c:if>
 										${registre[varStatus.index]}
 									</display:column>
 								</c:if>
@@ -248,7 +252,7 @@
 					<script type="text/javascript">initSelectable();</script>
 				</c:if>
 				<c:if test="${campActual.multiple || fn:length(files) < 1}">
-					<button style="font-size:11px;margin-top: 2px" type="submit" class="submitButton" onclick="return editarRegistre(${campActual.id}, '${codiActual}', '${fn:replace(campActual.etiqueta,"\'","\\'")}', ${fn:length(campActual.registreMembres)})">Afegir</button>
+					<button style="font-size:11px;margin-top: 2px" type="submit" class="submitButton" onclick="return editarRegistre(${campActual.id}, '${codiActual}', '<%=toJavascript((String)request.getAttribute("etiquetaActual"))%>', ${fn:length(campActual.registreMembres)})">Afegir</button>
 				</c:if>
 				<div style="clear:both"></div>
 			</c:param>
@@ -262,7 +266,7 @@
 			<c:param name="type" value="custom"/>
 			<c:param name="label">${campActual.etiqueta}</c:param>
 			<c:param name="content">
-				<button class="submitButton" type="button" onclick="clickExecutarAccio('${campActual.jbpmAction}')">Executar</button>
+				<button class="submitButton" name="submit" type="submit" value="submit" onclick="return accioCampExecutar(this, '${campActual.jbpmAction}')">Executar</button>
 			</c:param>
 			<c:param name="comment">${campActual.observacions}</c:param>
 			<c:param name="iterateOn"><c:if test="${campActual.multiple}">valorActual</c:if></c:param>
@@ -280,3 +284,13 @@
 		</c:import>
 	</c:otherwise>
 </c:choose>
+<%!
+private String toJavascript(String str) {
+	if (str == null)
+		return null;
+	return str.replace("'", "\\'");
+		/*replace("{", "").
+		replace("}", "").
+		replace("#", "");*/
+}
+%>

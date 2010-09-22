@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.model.service;
 
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
+import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.model.dao.CampAgrupacioDao;
 import net.conselldemallorca.helium.model.dao.CampTascaDao;
 import net.conselldemallorca.helium.model.dao.DefinicioProcesDao;
@@ -126,28 +128,11 @@ public class DtoConverter {
 		return dto;
 	}
 
-	public TascaDto toTascaDto(
+	public TascaDto toTascaDtoPerOrdenacio(
 			JbpmTask task,
-			Map<String, Object> varsCommand,
-			boolean ambVariables,
-			boolean validada,
-			boolean documentsComplet,
-			boolean signaturesComplet) {
-		Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
-				task.getName(),
-				task.getProcessDefinitionId());
+			Tasca tasca) {
 		TascaDto dto = new TascaDto();
 		dto.setId(task.getId());
-		dto.setNom(tasca.getNom());
-		dto.setMissatgeInfo(tasca.getMissatgeInfo());
-		dto.setMissatgeWarn(tasca.getMissatgeWarn());
-		dto.setDelegable(tasca.getExpressioDelegacio() != null);
-		dto.setTipus(tasca.getTipus());
-		dto.setJbpmName(tasca.getJbpmName());
-		dto.setValidada(validada);
-		dto.setDocumentsComplet(documentsComplet);
-		dto.setSignaturesComplet(signaturesComplet);
-		dto.setDefinicioProces(tasca.getDefinicioProces());
 		dto.setDescription(task.getDescription());
 		dto.setAssignee(task.getAssignee());
 		dto.setPooledActors(task.getPooledActors());
@@ -164,74 +149,149 @@ public class DtoConverter {
 		dto.setOutcomes(jbpmDao.findTaskInstanceOutcomes(task.getId()));
 		dto.setExpedient(expedientDao.findAmbProcessInstanceId(
 				jbpmDao.getRootProcessInstance(task.getProcessInstanceId()).getId()));
-		dto.setValidacions(tasca.getValidacions());
 		dto.setProcessInstanceId(task.getProcessInstanceId());
-		dto.setRecursForm(tasca.getRecursForm());
-		dto.setFormExtern(tasca.getFormExtern());
-		List<CampTasca> campsTasca = campTascaDao.findAmbTascaOrdenats(tasca.getId());
-		// (1) Per evitar error de lazy initialization en la validació del formulari de tasca
-		for (CampTasca camp: campsTasca)
-			camp.getCamp().getValidacions().size();
-		// (/1)
-		dto.setCamps(campsTasca);
-		List<DocumentTasca> documentsTasca = documentTascaDao.findAmbTascaOrdenats(tasca.getId());
-		dto.setDocuments(documentsTasca);
-		List<FirmaTasca> signaturesTasca = firmaTascaDao.findAmbTascaOrdenats(tasca.getId());
-		dto.setSignatures(signaturesTasca);
-		if (ambVariables || !isTascaEvaluada(task)) {
-			Map<String, Object> valors = jbpmDao.getTaskInstanceVariables(task.getId());
-			DelegationInfo delegationInfo = obtenirDelegationInfo(valors);
-			if (delegationInfo != null) {
-				boolean original = task.getId().equals(delegationInfo.getSourceTaskId());
-				dto.setDelegada(true);
-				dto.setDelegacioOriginal(original);
-				dto.setDelegacioData(delegationInfo.getStart());
-				dto.setDelegacioSupervisada(delegationInfo.isSupervised());
-				dto.setDelegacioComentari(delegationInfo.getComment());
-				if (original) {
-					JbpmTask tascaDelegacio = jbpmDao.getTaskById(delegationInfo.getTargetTaskId());
-					dto.setDelegacioPersona(pluginPersonaDao.findAmbCodiPlugin(tascaDelegacio.getAssignee()));
-				} else {
-					JbpmTask tascaDelegacio = jbpmDao.getTaskById(delegationInfo.getSourceTaskId());
-					dto.setDelegacioPersona(pluginPersonaDao.findAmbCodiPlugin(tascaDelegacio.getAssignee()));
-				}
+		Map<String, Object> valorsTasca = jbpmDao.getTaskInstanceVariables(task.getId());
+		DelegationInfo delegationInfo = obtenirDelegationInfo(valorsTasca);
+		if (delegationInfo != null) {
+			boolean original = task.getId().equals(delegationInfo.getSourceTaskId());
+			dto.setDelegada(true);
+			dto.setDelegacioOriginal(original);
+			dto.setDelegacioData(delegationInfo.getStart());
+			dto.setDelegacioSupervisada(delegationInfo.isSupervised());
+			dto.setDelegacioComentari(delegationInfo.getComment());
+			if (original) {
+				JbpmTask tascaDelegacio = jbpmDao.getTaskById(delegationInfo.getTargetTaskId());
+				dto.setDelegacioPersona(pluginPersonaDao.findAmbCodiPlugin(tascaDelegacio.getAssignee()));
+			} else {
+				JbpmTask tascaDelegacio = jbpmDao.getTaskById(delegationInfo.getSourceTaskId());
+				dto.setDelegacioPersona(pluginPersonaDao.findAmbCodiPlugin(tascaDelegacio.getAssignee()));
 			}
-			dto.setVarsDocuments(
-					obtenirVarsDocumentsTasca(
-							task.getId(),
-							task.getProcessInstanceId(),
-							documentsTasca));
-			dto.setVarsDocumentsPerSignar(
-					obtenirVarsDocumentsPerSignarTasca(
-							task.getId(),
-							task.getProcessInstanceId(),
-							signaturesTasca));
-			filtrarVariablesTasca(valors);
-			if (varsCommand != null)
-				valors.putAll(varsCommand);
-			dto.setVariables(valors);
-			List<Camp> camps = new ArrayList<Camp>();
-			for (CampTasca campTasca: campsTasca)
-				camps.add(campTasca.getCamp());
-			Map<String, ParellaCodiValor> valorsDomini = obtenirValorsDomini(
-					task.getId(),
-					null,
-					camps,
-					valors);
-			dto.setValorsDomini(valorsDomini);
-			Map<String, List<ParellaCodiValor>> valorsMultiplesDomini = obtenirValorsMultiplesDomini(
-					task.getId(),
-					null,
-					camps,
-					valors);
-			dto.setValorsMultiplesDomini(valorsMultiplesDomini);
-			dto.setVarsComText(textPerCamps(task.getId(), null, camps, valors, valorsDomini, valorsMultiplesDomini));
-			if (!isTascaEvaluada(task))
-				evaluarTasca(task, dto.getVarsComText());
 		}
-		String titolNou = getTitolNouPerTasca(task);
-		if (titolNou != null)
-			dto.setNom(titolNou);
+		if (tasca != null) {
+			dto.setNom(tasca.getNom());
+			dto.setMissatgeInfo(tasca.getMissatgeInfo());
+			dto.setMissatgeWarn(tasca.getMissatgeWarn());
+			dto.setDelegable(tasca.getExpressioDelegacio() != null);
+			dto.setTipus(tasca.getTipus());
+			dto.setJbpmName(tasca.getJbpmName());
+			dto.setDefinicioProces(tasca.getDefinicioProces());
+			dto.setValidacions(tasca.getValidacions());
+			dto.setRecursForm(tasca.getRecursForm());
+			dto.setFormExtern(tasca.getFormExtern());
+			if (!isTascaEvaluada(task)) {
+				List<CampTasca> cts = campTascaDao.findAmbTascaOrdenats(tasca.getId());
+				List<Camp> campsTasca = new ArrayList<Camp>();
+				for (CampTasca campTasca: cts)
+					campsTasca.add(campTasca.getCamp());
+				Map<String, ParellaCodiValor> valorsDominiTasca = obtenirValorsDomini(
+						task.getId(),
+						null,
+						campsTasca,
+						valorsTasca);
+				Map<String, List<ParellaCodiValor>> valorsMultiplesDominiTasca = obtenirValorsMultiplesDomini(
+						task.getId(),
+						null,
+						campsTasca,
+						valorsTasca);
+				Map<String, Object> textPerCamps = textPerCamps(
+						task.getId(),
+						null,
+						campsTasca,
+						valorsTasca,
+						valorsDominiTasca,
+						valorsMultiplesDominiTasca);
+				Set<Camp> campsProces = tasca.getDefinicioProces().getCamps();
+				Map<String, Object> valorsProces = jbpmDao.getProcessInstanceVariables(task.getProcessInstanceId());
+				Map<String, ParellaCodiValor> valorsDominiProces = obtenirValorsDomini(
+						null,
+						task.getProcessInstanceId(),
+						campsProces,
+						valorsProces);
+				Map<String, List<ParellaCodiValor>> valorsMultiplesDominiProces = obtenirValorsMultiplesDomini(
+						null,
+						task.getProcessInstanceId(),
+						campsProces,
+						valorsProces);
+				textPerCamps.putAll(textPerCamps(
+						null,
+						task.getProcessInstanceId(),
+						campsProces,
+						valorsProces,
+						valorsDominiProces,
+						valorsMultiplesDominiProces));
+				String titolNou = evaluarTasca(task, textPerCamps);
+				if (titolNou != null)
+					dto.setNom(titolNou);
+			} else {
+				String titolNou = getTitolNouPerTasca(task);
+				if (titolNou != null)
+					dto.setNom(titolNou);
+			}
+		} else {
+			dto.setNom(task.getName());
+		}
+		return dto;
+	}
+
+	public TascaDto toTascaDto(
+			JbpmTask task,
+			Map<String, Object> varsCommand,
+			boolean ambVariables,
+			boolean validada,
+			boolean documentsComplet,
+			boolean signaturesComplet) {
+		Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
+				task.getName(),
+				task.getProcessDefinitionId());
+		TascaDto dto = toTascaDtoPerOrdenacio(task, tasca);
+		if (tasca != null) {
+			dto.setValidada(validada);
+			dto.setDocumentsComplet(documentsComplet);
+			dto.setSignaturesComplet(signaturesComplet);
+			List<CampTasca> campsTasca = campTascaDao.findAmbTascaOrdenats(tasca.getId());
+			// (1) Per evitar error de lazy initialization en la validació del formulari de tasca
+			for (CampTasca camp: campsTasca)
+				camp.getCamp().getValidacions().size();
+			// (/1)
+			dto.setCamps(campsTasca);
+			List<DocumentTasca> documentsTasca = documentTascaDao.findAmbTascaOrdenats(tasca.getId());
+			dto.setDocuments(documentsTasca);
+			List<FirmaTasca> signaturesTasca = firmaTascaDao.findAmbTascaOrdenats(tasca.getId());
+			dto.setSignatures(signaturesTasca);
+			if (ambVariables) {
+				Map<String, Object> valors = jbpmDao.getTaskInstanceVariables(task.getId());
+				dto.setVarsDocuments(
+						obtenirVarsDocumentsTasca(
+								task.getId(),
+								task.getProcessInstanceId(),
+								documentsTasca));
+				dto.setVarsDocumentsPerSignar(
+						obtenirVarsDocumentsPerSignarTasca(
+								task.getId(),
+								task.getProcessInstanceId(),
+								signaturesTasca));
+				filtrarVariablesTasca(valors);
+				if (varsCommand != null)
+					valors.putAll(varsCommand);
+				dto.setVariables(valors);
+				List<Camp> camps = new ArrayList<Camp>();
+				for (CampTasca campTasca: campsTasca)
+					camps.add(campTasca.getCamp());
+				Map<String, ParellaCodiValor> valorsDomini = obtenirValorsDomini(
+						task.getId(),
+						null,
+						camps,
+						valors);
+				dto.setValorsDomini(valorsDomini);
+				Map<String, List<ParellaCodiValor>> valorsMultiplesDomini = obtenirValorsMultiplesDomini(
+						task.getId(),
+						null,
+						camps,
+						valors);
+				dto.setValorsMultiplesDomini(valorsMultiplesDomini);
+				dto.setVarsComText(textPerCamps(task.getId(), null, camps, valors, valorsDomini, valorsMultiplesDomini));
+			}
+		}
 		return dto;
 	}
 
@@ -423,12 +483,13 @@ public class DtoConverter {
 			Map<String, Object> params = getParamsConsulta(
 					taskId,
 					processInstanceId,
-					camp);
-			if (valorsAddicionals != null) {
+					camp,
+					valorsAddicionals);
+			/*if (valorsAddicionals != null) {
 				if (params == null)
 					params = new HashMap<String, Object>();
 				params.putAll(valorsAddicionals);
-			}
+			}*/
 			return getResultatConsultaDominiPerCamp(camp, params, textInicial);
 		}
 		return new ArrayList<FilaResultat>();
@@ -605,7 +666,8 @@ public class DtoConverter {
 							getParamsConsulta(
 									taskId,
 									processInstanceId,
-									camp));
+									camp,
+									null));
 					String columnaCodi = camp.getDominiCampValor();
 					String columnaValor = camp.getDominiCampText();
 					Iterator<FilaResultat> it = resultat.iterator();
@@ -661,11 +723,11 @@ public class DtoConverter {
 		}
 	}
 
-	private Map<String, Object> obtenirVarsDocumentsTasca(
+	private Map<String, DocumentDto> obtenirVarsDocumentsTasca(
 			String taskId,
 			String processInstanceId,
 			List<DocumentTasca> documents) {
-		Map<String, Object> resposta = new HashMap<String, Object>();
+		Map<String, DocumentDto> resposta = new HashMap<String, DocumentDto>();
 		for (DocumentTasca document: documents) {
 			Long documentStoreId = (Long)jbpmDao.getTaskInstanceVariable(
 					taskId,
@@ -711,11 +773,11 @@ public class DtoConverter {
 		return resposta;
 	}
 
-	private Map<String, Object> obtenirVarsDocumentsPerSignarTasca(
+	private Map<String, DocumentDto> obtenirVarsDocumentsPerSignarTasca(
 			String taskId,
 			String processInstanceId,
 			List<FirmaTasca> signatures) {
-		Map<String, Object> resposta = new HashMap<String, Object>();
+		Map<String, DocumentDto> resposta = new HashMap<String, DocumentDto>();
 		if (signatures != null) {
 			for (FirmaTasca signatura: signatures) {
 				Long documentStoreId = (Long)jbpmDao.getTaskInstanceVariable(
@@ -857,7 +919,7 @@ public class DtoConverter {
 			} else if (camp.getTipus().equals(TipusCamp.FLOAT)) {
 				text = new DecimalFormat("#.#").format((Long)value);
 			} else if (camp.getTipus().equals(TipusCamp.PRICE)) {
-				text = new DecimalFormat("#,###.00").format((Long)value);
+				text = new DecimalFormat("#,###.00").format((BigDecimal)value);
 			} else if (camp.getTipus().equals(TipusCamp.DATE)) {
 				text = new SimpleDateFormat("dd/MM/yyyy").format((Date)value);
 			} else if (camp.getTipus().equals(TipusCamp.BOOLEAN)) {
@@ -869,7 +931,7 @@ public class DtoConverter {
 			} else if (camp.getTipus().equals(TipusCamp.SUGGEST)) {
 				text = (String)valorDomini.getValor();
 			} else if (camp.getTipus().equals(TipusCamp.TERMINI)) {
-				text = terminiComText((String)value);
+				text = ((Termini)value).toString();
 			} else {
 				text = value.toString();
 			}
@@ -880,58 +942,11 @@ public class DtoConverter {
 		}
 	}
 
-	private String terminiComText(String termini) {
-		String[] parts = termini.split("/");
-		StringBuffer sb = new StringBuffer();
-		int anys;
-		int mesos;
-		int dies;
-		if (parts.length == 0) {
-			anys = 0;
-			mesos = 0;
-			dies = 0;
-		} else if (parts.length == 1) {
-			anys = 0;
-			mesos = 0;
-			dies = Integer.parseInt(parts[0]);
-		} else if (parts.length == 2) {
-			anys = 0;
-			mesos = Integer.parseInt(parts[0]);
-			dies = Integer.parseInt(parts[1]);
-		} else {
-			anys = Integer.parseInt(parts[0]);
-			mesos = Integer.parseInt(parts[1]);
-			dies = Integer.parseInt(parts[2]);
-		}
-		boolean plural = false;
-		if (anys > 0) {
-			sb.append(anys);
-			plural = anys > 1;
-			sb.append((plural) ? " anys": " any");
-			if (mesos > 0 && dies > 0)
-				sb.append(", ");
-			else if (mesos > 0 || dies > 0)
-				sb.append(" i ");
-		}
-		if (mesos > 0) {
-			sb.append(mesos);
-			plural = mesos > 1;
-			sb.append((plural) ? " mesos": " mes");
-			if (dies > 0)
-				sb.append(" i ");
-		}
-		if (dies > 0) {
-			sb.append(dies);
-			plural = dies > 1;
-			sb.append((plural) ? " dies": " dia");
-		}
-		return sb.toString();
-	}
-
 	private Map<String, Object> getParamsConsulta(
 			String taskId,
 			String processInstanceId,
-			Camp camp) {
+			Camp camp,
+			Map<String, Object> valorsAddicionals) {
 		String dominiParams = camp.getDominiParams();
 		if (dominiParams == null || dominiParams.length() == 0)
 			return null;
@@ -950,7 +965,9 @@ public class DtoConverter {
 					value = jbpmDao.evaluateExpression(taskId, task.getProcessInstanceId(), campCodi, null);
 				}
 			} else {
-				if (taskId != null)
+				if (valorsAddicionals != null && valorsAddicionals.size() > 0)
+					value = valorsAddicionals.get(campCodi);
+				else if (taskId != null)
 					value = jbpmDao.getTaskInstanceVariable(taskId, campCodi);
 				else if (processInstanceId != null)
 					value = jbpmDao.getProcessInstanceVariable(processInstanceId, campCodi);
@@ -961,7 +978,7 @@ public class DtoConverter {
 		return params;
 	}
 
-	private String evaluarTasca(JbpmTask task, Map<String, Object> valors) {
+	private String evaluarTasca(JbpmTask task, Map<String, Object> textos) {
 		Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
 				task.getName(),
 				task.getProcessDefinitionId());
@@ -972,7 +989,7 @@ public class DtoConverter {
 						task.getId(),
 						task.getProcessInstanceId(),
 						tasca.getNomScript(),
-						valors);
+						textos);
 			} catch (Exception ex) {
 				logger.error("No s'ha pogut evaluar l'script per canviar el titol de la tasca", ex);
 			}

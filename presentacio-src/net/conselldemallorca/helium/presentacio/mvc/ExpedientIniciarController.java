@@ -12,7 +12,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.model.dto.DefinicioProcesDto;
-import net.conselldemallorca.helium.model.dto.TascaDto;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
 import net.conselldemallorca.helium.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.model.hibernate.Expedient.IniciadorTipus;
@@ -119,12 +118,12 @@ public class ExpedientIniciarController extends BaseController {
 				}
 				// Si l'expedient no té titol i/o número però requereix dades inicials redirigeix
 				// al pas per demanar aquestes dades
-				TascaDto tascaInicial = expedientService.getStartTask(
-		        		entorn.getId(),
-		        		expedientTipusId,
-		        		definicioProcesId,
-		        		null);
-		        if (tascaInicial != null) {
+				DefinicioProcesDto definicioProces = null;
+				if (definicioProcesId != null)
+					definicioProces = dissenyService.getById(definicioProcesId);
+				else
+					definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId);
+				if (definicioProces.isHasStartTask()) {
 					if (definicioProcesId != null)
 						return "redirect:/expedient/iniciarPasForm.html?expedientTipusId=" + expedientTipusId + "&definicioProcesId=" + definicioProcesId;
 					else

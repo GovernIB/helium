@@ -55,7 +55,17 @@ function confirmarCancelar(e) {
 			<c:if test="${registre.id == ini.termini.id and empty ini.dataCancelacio}"><c:set var="iniciat" value="${ini}"/></c:if>
 		</c:forEach>
 		<display:column title="Nom" property="nom"/>
-		<display:column title="Durada" property="durada"/>
+		<display:column title="Durada">
+			<c:choose>
+				<c:when test="${not empty iniciat}">${iniciat.durada}</c:when>
+				<c:otherwise>
+					<c:choose>
+						<c:when test="${registre.duradaPredefinida}">${registre.durada}</c:when>
+						<c:otherwise>Sense especificar</c:otherwise>
+					</c:choose>
+				</c:otherwise>
+			</c:choose>
+		</display:column>
 		<display:column title="Iniciat el">
 			<c:if test="${not empty iniciat}"><fmt:formatDate value="${iniciat.dataInici}" pattern="dd/MM/yyyy"/></c:if>
 		</display:column>
@@ -64,6 +74,17 @@ function confirmarCancelar(e) {
 		</display:column>
 		<display:column title="Data de fi de termini">
 			<c:if test="${not empty iniciat}"><fmt:formatDate value="${iniciat.dataFi}" pattern="dd/MM/yyyy"/></c:if>
+		</display:column>
+		<display:column title="Estat">
+			<c:choose>
+				<c:when test="${empty iniciat}">Pendent d'iniciar</c:when>
+				<c:otherwise>
+					<c:choose>
+						<c:when test="${not empty iniciat.dataAturada}">Aturat</c:when>
+						<c:otherwise>Actiu</c:otherwise>
+					</c:choose>
+				</c:otherwise>
+			</c:choose>
 		</display:column>
 		<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
 			<display:column>

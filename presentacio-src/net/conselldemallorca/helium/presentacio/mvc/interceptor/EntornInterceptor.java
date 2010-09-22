@@ -19,6 +19,7 @@ import net.conselldemallorca.helium.model.service.PermissionService;
 import net.conselldemallorca.helium.model.service.PersonaService;
 import net.conselldemallorca.helium.security.permission.ExtendedPermission;
 import net.conselldemallorca.helium.util.EntornActual;
+import net.conselldemallorca.helium.util.ExpedientIniciant;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -93,6 +94,8 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 							ExtendedPermission.ADMINISTRATION,
 							ExtendedPermission.READ});
 			}
+			// Inicialitza la variable ThreadLocal de l'expedient que s'està iniciant
+			ExpedientIniciant.setExpedient(null);
 			// Guarda l'entorn actual a la sessió i com a una variable ThreadLocal
 			request.getSession().setAttribute(
 					VARIABLE_SESSIO_ENTORN_ACTUAL,
@@ -131,6 +134,15 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 			}
 		}
 		return true;
+	}
+
+	public void afterCompletion(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Object handler,
+			Exception ex) {
+		EntornActual.setEntornId(null);
+		ExpedientIniciant.setExpedient(null);
 	}
 
 

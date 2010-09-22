@@ -50,9 +50,9 @@ public class DefaultIniciExpedientPlugin implements IniciExpedientPlugin {
 				DadesIniciExpedient dadesIniciExpedient = new DadesIniciExpedient();
 				dadesIniciExpedient.setEntornCodi(expedientTipus.getEntorn().getCodi());
 				dadesIniciExpedient.setTipusCodi(expedientTipus.getCodi());
-				if (expedientTipus.getTeTitol() && expedientTipus.getDemanaTitol())
+				if (expedientTipus.getDemanaTitol())
 					dadesIniciExpedient.setTitol(tramit.getNumeroEntrada());
-				if (expedientTipus.getTeNumero() && expedientTipus.getDemanaNumero())
+				if (expedientTipus.getDemanaNumero())
 					dadesIniciExpedient.setNumero(expedientTipus.getNumeroExpedientActual());
 				dadesIniciExpedient.setDadesInicials(getDadesInicials(expedientTipus, tramit));
 				dadesIniciExpedient.setDocumentsInicials(getDocumentsInicials(expedientTipus, tramit));
@@ -96,16 +96,16 @@ public class DefaultIniciExpedientPlugin implements IniciExpedientPlugin {
 					}
 				}
 				try {
-					if(campHelium == null || !campHelium.isMultiple()){
-						String valorSistra = valorVariableSistra(tramit, varSistra);
-						resposta.put(
-								varHelium,
-								valorVariableHelium(valorSistra, campHelium, false));
-					} else {
-						String[] valorSistra = valorVariableSistraMultiple(tramit, varSistra);
-						resposta.put(
-								varHelium,
-								valorVariableHelium(valorSistra, campHelium, true));
+					if (campHelium != null) {
+						if (!campHelium.isMultiple()) {
+							String valorSistra = valorVariableSistra(tramit, varSistra);
+							Object valorHelium = valorVariableHelium(valorSistra, campHelium, false);
+							resposta.put(varHelium, valorHelium);
+						} else {
+							String[] valorSistra = valorVariableSistraMultiple(tramit, varSistra);
+							Object valorHelium = valorVariableHelium(valorSistra, campHelium, true);
+							resposta.put(varHelium, valorHelium);
+						}
 					}
 				} catch (Exception ex) {
 					logger.error("Error llegint dades del document de SISTRA", ex);

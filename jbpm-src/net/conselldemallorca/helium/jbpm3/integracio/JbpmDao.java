@@ -572,6 +572,8 @@ public class JbpmDao {
 				expression);
 		if (taskInstanceInstanceId != null)
 			command.setTid(new Long(taskInstanceInstanceId).longValue());
+		if (valors != null)
+			command.setValors(valors);
 		return commandService.execute(command);
 	}
 

@@ -32,7 +32,7 @@
 				<c:param name="type" value="file"/>
 				<c:param name="required" value="true"/>
 				<c:param name="fileUrl">${downloadUrl}</c:param>
-				<c:param name="fileExists" value="${not empty command.data}"/>
+				<c:param name="fileExists" value="${not empty command.nom}"/>
 				<c:param name="label">Arxiu</c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">

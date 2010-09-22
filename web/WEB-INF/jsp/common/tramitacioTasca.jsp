@@ -1,5 +1,15 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<script type="text/javascript">
+// <![CDATA[
+function confirmarFinalitzar(e) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	if (e.stopPropagation) e.stopPropagation();
+	return confirm("Estau segur que voleu finalitzar aquesta tasca?");
+}
+// ]]>
+</script>
 <c:choose>
 	<c:when test="${not empty tasca.camps and not tasca.validada}">
 		<c:set var="tramitacioClass" value="missatgesVermell"/>

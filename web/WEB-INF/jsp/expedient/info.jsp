@@ -70,24 +70,22 @@ function confirmarAccio(e) {
 			<input type="hidden" name="id" value="${param.id}"/>
 			<button type="submit" class="submitButton">Modificar informació</button>
 		</form>
+		<c:if test="${not empty instanciaProces.definicioProces.accions}">
+			<br/><div class="missatgesGris">
+				<h4 class="titol-missatge">Executar acció</h4>
+				<c:set var="accionsValor"><c:forEach var="accio" items="${instanciaProces.definicioProces.accions}" varStatus="status">${accio.codi}<c:if test="${not status.last}">,</c:if></c:forEach></c:set>
+				<c:set var="accionsNom"><c:forEach var="accio" items="${instanciaProces.definicioProces.accions}" varStatus="status">${accio.nom}<c:if test="${not status.last}">,</c:if></c:forEach></c:set>
+				<form action="accio.html" method="post" class="uniForm" onsubmit="return confirmarAccio(event)">
+					<input type="hidden" name="id" value="${instanciaProces.id}"/>
+					<c:import url="../common/formElement.jsp">
+						<c:param name="type" value="buttons"/>
+						<c:param name="values">${accionsValor}</c:param>
+						<c:param name="titles">${accionsNom}</c:param>
+					</c:import>
+				</form>
+			</div>
+		</c:if>
 	</security:accesscontrollist>
-
-	<c:if test="${not empty instanciaProces.definicioProces.accions}">
-		<br/><div class="missatgesGris">
-			<h4 class="titol-missatge">Executar acció</h4>
-			<c:set var="accionsValor"><c:forEach var="accio" items="${instanciaProces.definicioProces.accions}" varStatus="status">${accio.codi}<c:if test="${not status.last}">,</c:if></c:forEach></c:set>
-			<c:set var="accionsNom"><c:forEach var="accio" items="${instanciaProces.definicioProces.accions}" varStatus="status">${accio.nom}<c:if test="${not status.last}">,</c:if></c:forEach></c:set>
-			<form action="accio.html" method="post" class="uniForm" onsubmit="return confirmarAccio(event)">
-				<input type="hidden" name="id" value="${instanciaProces.id}"/>
-				<c:import url="../common/formElement.jsp">
-					<c:param name="type" value="buttons"/>
-					<c:param name="values">${accionsValor}</c:param>
-					<c:param name="titles">${accionsNom}</c:param>
-				</c:import>
-			</form>
-		</div>
-	</c:if>
-
 	<c:if test="${instanciaProces.imatgeDisponible}">
 		<script type="text/javascript">
 			$('.finestraProces').openDOMWindow({
