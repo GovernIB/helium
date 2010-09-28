@@ -64,8 +64,6 @@ public class DefaultIniciExpedientPlugin implements IniciExpedientPlugin {
 		}
 	}
 
-
-
 	@Autowired
 	public void setDissenyService(DissenyService dissenyService) {
 		this.dissenyService = dissenyService;
@@ -114,7 +112,7 @@ public class DefaultIniciExpedientPlugin implements IniciExpedientPlugin {
 		}
 		return resposta;
 	}
-	
+
 	private Map<String, DadesDocument> getDocumentsInicials(ExpedientTipus expedientTipus, TramiteBTE tramit) {
 		if (expedientTipus.getSistraTramitMapeigDocuments() == null)
 			return null;
@@ -170,7 +168,6 @@ public class DefaultIniciExpedientPlugin implements IniciExpedientPlugin {
 		}
 		return null;
 	}
-	
 	@SuppressWarnings("unchecked")
 	private String[] valorVariableSistraMultiple(TramiteBTE tramit, String varSistra) throws Exception {
 		String[] parts = varSistra.split("\\.");
@@ -247,7 +244,6 @@ public class DefaultIniciExpedientPlugin implements IniciExpedientPlugin {
 		}
 		return null;
 	}
-
 	private DadesDocument valorDocumentSistra(
 			TramiteBTE tramit,
 			String varSistra,
@@ -272,7 +268,6 @@ public class DefaultIniciExpedientPlugin implements IniciExpedientPlugin {
 		}
 		return resposta;
 	}
-
 	private Object valorVariableHelium(Object val, Camp camp, boolean multiple) throws Exception {
 		if(multiple){
 			String[] valors = (String[])val;
@@ -334,7 +329,6 @@ public class DefaultIniciExpedientPlugin implements IniciExpedientPlugin {
 		return valor;
 	}
 
-
 	private List<CampTasca> getCampsStartTask(ExpedientTipus expedientTipus) {
 		TascaDto startTask = expedientService.getStartTask(
 				expedientTipus.getEntorn().getId(),
@@ -346,12 +340,6 @@ public class DefaultIniciExpedientPlugin implements IniciExpedientPlugin {
 		return new ArrayList<CampTasca>();
 	}
 
-	/*private Set<net.conselldemallorca.helium.model.hibernate.Document> getDocuments(ExpedientTipus expedientTipus) {
-		DefinicioProcesDto definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(
-				expedientTipus.getId()); 
-		return definicioProces.getDocuments();
-	}*/
-	
 	private List<DocumentTasca> getDocuments(ExpedientTipus expedientTipus) {
 		TascaDto startTask = expedientService.getStartTask(
 				expedientTipus.getEntorn().getId(),

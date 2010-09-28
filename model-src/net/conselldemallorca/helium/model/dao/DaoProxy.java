@@ -35,6 +35,9 @@ public class DaoProxy implements ApplicationContextAware {
 	public DefinicioProcesDao getDefinicioProcesDao() {
 		return (DefinicioProcesDao)ctx.getBean("definicioProcesDao", DefinicioProcesDao.class);
 	}
+	public CampDao getCampDao() {
+		return (CampDao)ctx.getBean("campDao", CampDao.class);
+	}
 	public PluginPersonaDao getPluginPersonaDao() {
 		return (PluginPersonaDao)ctx.getBean("pluginPersonaDao", PluginPersonaDao.class);
 	}

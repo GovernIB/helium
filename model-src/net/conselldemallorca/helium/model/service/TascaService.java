@@ -1192,9 +1192,10 @@ public class TascaService {
 	}
 
 	private void validarTasca(String taskId) {
-		Map<String, Object> variables = new HashMap<String, Object>();
-		variables.put(VAR_TASCA_VALIDADA, new Date());
-		jbpmDao.setTaskInstanceVariables(taskId, variables);
+		jbpmDao.setTaskInstanceVariable(
+				taskId,
+				VAR_TASCA_VALIDADA,
+				new Date());
 	}
 	private void restaurarTasca(String taskId) {
 		jbpmDao.deleteTaskInstanceVariable(taskId, VAR_TASCA_VALIDADA);

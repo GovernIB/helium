@@ -85,6 +85,12 @@ public abstract class BasicActionHandler implements ActionHandler {
 		return null;
 	}
 
+	public String getTextPerVariableAmbDomini(
+			ExecutionContext executionContext,
+			String varCodi) {
+		return null;
+	}
+
 	static final long serialVersionUID = 1L;
 
 }

@@ -30,6 +30,8 @@ import net.conselldemallorca.helium.model.dao.MailDao;
 import net.conselldemallorca.helium.model.dao.PluginRegistreDao;
 import net.conselldemallorca.helium.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.model.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.model.hibernate.Camp;
+import net.conselldemallorca.helium.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.model.hibernate.Document;
 import net.conselldemallorca.helium.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.model.hibernate.Domini;
@@ -400,6 +402,37 @@ public abstract class BasicActionHandler implements ActionHandler {
 		} catch (Exception ex) {
 			throw new JbpmException("No s'ha pogut consultar el registre", ex);
 		}
+	}
+
+	/**
+	 * Retorna el text que es correspon amb el valor d'una variable
+	 * provinent d'una consulta de domini o d'una enumeració.
+	 * 
+	 * @param executionContext
+	 * @param varCodi
+	 * @return
+	 */
+	public String getTextPerVariableAmbDomini(
+			ExecutionContext executionContext,
+			String varCodi) {
+		long processInstanceId = executionContext.getProcessInstance().getId();
+		long processDefinitionId = executionContext.getProcessInstance().getProcessDefinition().getId();
+		DefinicioProces definicioProces = DaoProxy.getInstance().getDefinicioProcesDao().findAmbJbpmId(new Long(processDefinitionId).toString());
+		if (definicioProces != null) {
+			Camp camp = DaoProxy.getInstance().getCampDao().findAmbDefinicioProcesICodi(definicioProces.getId(), varCodi);
+			if (camp != null) {
+				return ServiceProxy.getInstance().getDtoConverter().getTextConsultaDomini(
+						null,
+						new Long(processInstanceId).toString(),
+						camp,
+						executionContext.getVariable(varCodi));
+			} else {
+				throw new JbpmException("No s'ha trobat el camp '" + varCodi + "' per a la definició de procés " + definicioProces.getId());
+			}
+		} else {
+			throw new JbpmException("No s'ha trobat la definició de procés per a la instància de procés " + processInstanceId);
+		}
+	
 	}
 
 

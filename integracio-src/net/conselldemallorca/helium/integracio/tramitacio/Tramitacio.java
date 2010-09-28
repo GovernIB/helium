@@ -535,6 +535,8 @@ public class Tramitacio implements TramitacioService {
 		dt.setCodi(documentTasca.getDocument().getCodi());
 		dt.setNom(documentTasca.getDocument().getNom());
 		dt.setDescripcio(documentTasca.getDocument().getDescripcio());
+		dt.setArxiu(document.getArxiuNom());
+		dt.setData(document.getDataDocument());
 		return dt;
 	}
 	private CampProces convertirCampProces(
@@ -562,6 +564,8 @@ public class Tramitacio implements TramitacioService {
 		dt.setId(document.getId());
 		dt.setCodi(document.getDocumentCodi());
 		dt.setNom(document.getDocumentNom());
+		dt.setArxiu(document.getArxiuNom());
+		dt.setData(document.getDataDocument());
 		return dt;
 	}
 
