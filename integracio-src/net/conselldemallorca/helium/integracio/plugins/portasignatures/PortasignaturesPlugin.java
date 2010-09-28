@@ -110,7 +110,10 @@ public class PortasignaturesPlugin {
 		attributes.setSender(sender);
 		
 		// Especificamos la importancia del document.
-		attributes.setImportance(ImportanceEnum.fromString(importancia));
+		if (importancia != null)
+			attributes.setImportance(ImportanceEnum.fromString(importancia));
+		else
+			attributes.setImportance(ImportanceEnum.normal);
 		
 		if (dataLimit != null) {
 			Calendar cal = Calendar.getInstance();

@@ -7,14 +7,17 @@ import java.util.Date;
 
 import net.conselldemallorca.helium.integracio.plugins.persones.Persona;
 import net.conselldemallorca.helium.model.dao.DaoProxy;
+import net.conselldemallorca.helium.model.dao.PluginRegistreDao;
 import net.conselldemallorca.helium.model.dao.SistraDao;
 import net.conselldemallorca.helium.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.model.hibernate.Estat;
 import net.conselldemallorca.helium.model.hibernate.Termini;
 import net.conselldemallorca.helium.model.hibernate.TerminiIniciat;
+import net.conselldemallorca.helium.model.service.AlertaService;
 import net.conselldemallorca.helium.model.service.DissenyService;
 import net.conselldemallorca.helium.model.service.ExpedientService;
+import net.conselldemallorca.helium.model.service.PluginService;
 import net.conselldemallorca.helium.model.service.ServiceProxy;
 import net.conselldemallorca.helium.model.service.TerminiService;
 
@@ -68,14 +71,23 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 	ExpedientService getExpedientService() {
 		return ServiceProxy.getInstance().getExpedientService();
 	}
+	PluginService getPluginService() {
+		return ServiceProxy.getInstance().getPluginService();
+	}
 	DissenyService getDissenyService() {
 		return ServiceProxy.getInstance().getDissenyService();
 	}
 	TerminiService getTerminiService() {
 		return ServiceProxy.getInstance().getTerminiService();
 	}
+	AlertaService getAlertaService() {
+		return ServiceProxy.getInstance().getAlertaService();
+	}
 	SistraDao getSistraService() {
 		return DaoProxy.getInstance().getSistraDao();
+	}
+	PluginRegistreDao getPluginRegistreService() {
+		return DaoProxy.getInstance().getPluginRegistreDao();
 	}
 
 	protected String getProcessInstanceId(ExecutionContext executionContext) {

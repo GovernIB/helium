@@ -24,7 +24,7 @@
 	</c:if>
 	<c:if test="${hiHaCampsReadOnly}">
 		<h4 class="titol-missatge">Dades de referència</h4>
-		<form:form cssClass="uniForm" commandName="commandReadOnly">
+		<form:form cssClass="uniForm tascaForm" commandName="commandReadOnly">
 			<div class="inlineLabels">
 				<c:if test="${not empty tasca.camps}">
 					<c:forEach var="camp" items="${tasca.camps}">

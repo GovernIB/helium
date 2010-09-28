@@ -4,6 +4,8 @@
 package net.conselldemallorca.helium.presentacio.mvc;
 
 import java.lang.reflect.Array;
+import java.util.List;
+import java.util.Map;
 
 import net.conselldemallorca.helium.model.dto.TascaDto;
 import net.conselldemallorca.helium.model.hibernate.CampTasca;
@@ -27,6 +29,7 @@ public class TascaFormValidator implements Validator {
 	private static ThreadLocal<TascaDto> tascaThreadLocal = new ThreadLocal<TascaDto>();
 	private TascaService tascaService;
 	private ExpedientService expedientService;
+	private Map<String, List<Object>> valorsSuggest;
 	boolean inicial;
 	public TascaFormValidator(TascaService tascaService) {
 		this.tascaService = tascaService;
@@ -34,6 +37,11 @@ public class TascaFormValidator implements Validator {
 	}
 	public TascaFormValidator(ExpedientService expedientService) {
 		this.expedientService = expedientService;
+		this.inicial = true;
+	}
+	public TascaFormValidator(ExpedientService expedientService, Map<String, List<Object>> valorsSuggest) {
+		this.expedientService = expedientService;
+		this.valorsSuggest = valorsSuggest;
 		this.inicial = true;
 	}
 	@SuppressWarnings("unchecked")
@@ -46,12 +54,20 @@ public class TascaFormValidator implements Validator {
 			for (CampTasca camp: tasca.getCamps()) {
 				if (camp.isRequired()) {
 					if (camp.getCamp().getTipus().equals(TipusCamp.REGISTRE)) {
-						Object[] valor = (Object[])tascaService.getVariable(
-								EntornActual.getEntornId(),
-								tasca.getId(),
-								camp.getCamp().getCodi());
-						if (valor == null || valor.length == 0)
+						if (tascaService != null) {
+							Object[] valor = (Object[])tascaService.getVariable(
+									EntornActual.getEntornId(),
+									tasca.getId(),
+									camp.getCamp().getCodi());
+							if (valor == null || valor.length == 0)
+								ValidationUtils.rejectIfEmpty(errors, camp.getCamp().getCodi(), "not.blank");
+						} else if (valorsSuggest != null) {
+							List<Object> valor = valorsSuggest.get(camp.getCamp().getCodi());
+							if (valor == null || valor.size() == 0)
+								ValidationUtils.rejectIfEmpty(errors, camp.getCamp().getCodi(), "not.blank");
+						} else {
 							ValidationUtils.rejectIfEmpty(errors, camp.getCamp().getCodi(), "not.blank");
+						}
 					} else if (!camp.getCamp().isMultiple()) {
 						ValidationUtils.rejectIfEmpty(errors, camp.getCamp().getCodi(), "not.blank");
 					} else {

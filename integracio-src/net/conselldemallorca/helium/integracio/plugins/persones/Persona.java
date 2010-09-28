@@ -130,6 +130,18 @@ public class Persona implements Serializable {
 		this.relleu = relleu;
 	}
 
+	public String getInicials() {
+		String[] parts = getNomSencer().split(" ");
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < parts.length; i++) {
+			if (parts[i].length() > 2)
+				sb.append(parts[i].substring(0, 1));
+		}
+		return sb.toString();
+	}
+
+
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

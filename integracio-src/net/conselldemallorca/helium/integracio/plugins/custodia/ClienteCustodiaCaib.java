@@ -10,6 +10,11 @@ import java.rmi.RemoteException;
 
 import javax.xml.rpc.ServiceException;
 
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+
 import es.caib.signatura.cliente.custodia.CustodiaRequestBuilder;
 import es.caib.signatura.cliente.services.custodia.CustodiaService;
 import es.caib.signatura.cliente.services.custodia.CustodiaServiceLocator;
@@ -137,6 +142,41 @@ public class ClienteCustodiaCaib {
 				this.usuario,
 				this.password,
 				hash);
+	}
+
+	public CustodiaResponseCaib parseResponse(byte[] response) throws DocumentException {
+		CustodiaResponseCaib resposta = new CustodiaResponseCaib();
+		Document document = DocumentHelper.parseText(new String(response));
+		Element resultMajorElement = null;
+		Element resultMinorElement = null;
+		Element resultMessageElement = null;
+		if ("CustodiaResponse".equals(document.getRootElement().getName())) {
+			resultMajorElement = document.getRootElement().element("VerifyResponse").element("Result").element("ResultMajor");
+			resultMinorElement = document.getRootElement().element("VerifyResponse").element("Result").element("ResultMinor");
+			resultMessageElement = document.getRootElement().element("VerifyResponse").element("Result").element("ResultMessage");
+		} else if ("EliminacionResponse".equals(document.getRootElement().getName())) {
+			resultMajorElement = document.getRootElement().element("Result").element("ResultMajor");
+			resultMinorElement = document.getRootElement().element("Result").element("ResultMinor");
+			resultMessageElement = document.getRootElement().element("Result").element("ResultMessage");
+		} else if ("ConsultaResponse".equals(document.getRootElement().getName())) {
+			resultMajorElement = document.getRootElement().element("Result").element("ResultMajor");
+			resultMinorElement = document.getRootElement().element("Result").element("ResultMinor");
+			resultMessageElement = document.getRootElement().element("Result").element("ResultMessage");
+		} else if ("VerificacionResponse".equals(document.getRootElement().getName())) {
+			resultMajorElement = document.getRootElement().element("Result").element("ResultMajor");
+			resultMinorElement = document.getRootElement().element("Result").element("ResultMinor");
+			resultMessageElement = document.getRootElement().element("Result").element("ResultMessage");
+		}
+		if (resultMajorElement == null)
+			throw new DocumentException("No s'ha trobat el ResultMajor");
+		boolean hasErrors = "RequesterError".equals(resultMajorElement.getText());
+		resposta.setError(hasErrors);
+		//System.out.println(">>> " + resultMajorElement.getText() + ":" + resultMinorElement.getText() + ":" + resultMessageElement.getText());
+		if (hasErrors) {
+			resposta.setErrorCodi(resultMinorElement.getText());
+			resposta.setErrorDescripcio(resultMessageElement.getText());
+		}
+		return resposta;
 	}
 
 

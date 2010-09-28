@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import net.conselldemallorca.helium.integracio.domini.FilaResultat;
 import net.conselldemallorca.helium.integracio.plugins.persones.Persona;
 import net.conselldemallorca.helium.integracio.plugins.persones.Persona.Sexe;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
@@ -24,6 +25,7 @@ import net.conselldemallorca.helium.model.hibernate.Area;
 import net.conselldemallorca.helium.model.hibernate.Carrec;
 import net.conselldemallorca.helium.model.hibernate.CarrecJbpmId;
 import net.conselldemallorca.helium.model.hibernate.Document;
+import net.conselldemallorca.helium.model.hibernate.Domini;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
 import net.conselldemallorca.helium.util.GlobalProperties;
 import net.conselldemallorca.helium.util.NombreEnCastella;
@@ -38,6 +40,8 @@ import freemarker.core.Environment;
 import freemarker.core.NonStringException;
 import freemarker.ext.beans.ArrayModel;
 import freemarker.ext.beans.BeanModel;
+import freemarker.ext.beans.BooleanModel;
+import freemarker.ext.beans.DateModel;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.SimpleNumber;
 import freemarker.template.SimpleScalar;
@@ -61,7 +65,7 @@ public class PlantillaDocumentDao {
 	private CarrecJbpmIdDao carrecJbpmIdDao;
 	private AreaDao areaDao;
 	private JbpmDao jbpmDao;
-
+	private DominiDao dominiDao;
 
 
 	public byte[] generarDocumentAmbPlantilla(
@@ -81,7 +85,7 @@ public class PlantillaDocumentDao {
 				model);
 		afegirFuncionsAlModel(
 				entornId,
-				tasca.getId(),
+				(tasca != null) ? tasca.getId() : null,
 				processInstanceId,
 				model);
 		DocumentTemplateFactory documentTemplateFactory = new DocumentTemplateFactory();
@@ -127,7 +131,9 @@ public class PlantillaDocumentDao {
 	public void setJbpmDao(JbpmDao jbpmDao) {
 		this.jbpmDao = jbpmDao;
 	}
-
+	public void setDominiDao(DominiDao dominiDao) {
+		this.dominiDao = dominiDao;
+	}
 
 
 	private void afegirContextAlModel(
@@ -159,7 +165,9 @@ public class PlantillaDocumentDao {
 							if (arg0 != null && arg0 instanceof String) {
 								String codi = (String)arg0;
 								//System.out.println(">>> valor " + codi);
-								Object valor = jbpmDao.getTaskInstanceVariable(taskId, codi);
+								Object valor = null;
+								if (taskId != null)
+									valor = jbpmDao.getTaskInstanceVariable(taskId, codi);
 								if (valor == null)
 									valor = jbpmDao.getProcessInstanceVariable(processInstanceId, codi);
 								if (valor == null)
@@ -168,6 +176,10 @@ public class PlantillaDocumentDao {
 									return new ArrayModel(valor, new DefaultObjectWrapper());
 								else if (valor instanceof String)
 									return new SimpleScalar((String)valor);
+								else if (valor instanceof Boolean)
+									return new BooleanModel((Boolean)valor, new DefaultObjectWrapper());
+								else if (valor instanceof Date)
+									return new DateModel((Date)valor, new DefaultObjectWrapper());
 								else
 									return new BeanModel(valor, new DefaultObjectWrapper());
 							}
@@ -381,6 +393,51 @@ public class PlantillaDocumentDao {
 							}
 						}
 						return new SimpleScalar("[Nombre d'arguments incorrecte]");
+					}
+				});
+		model.put(
+				"consultaDomini",
+				new TemplateMethodModel() {
+					public TemplateModel exec(List args) throws TemplateModelException {
+						if (args.size() >= 1) {
+							Object arg0 = args.get(0);
+							String arg1 = "";
+							if ((arg0 != null) && (arg0 instanceof String)) {
+								String codi = (String)arg0;
+								Domini domini = dominiDao.findAmbEntornICodi(entornId, codi);
+								if (domini != null) {
+									try {
+										Map<String, Object> parametres = new HashMap<String, Object>();
+										if (args.size() > 1) {
+											arg1 = args.get(1).toString();
+											if (args.size() > 2) {
+												int i = 2;
+												for (int n = 0; n < ((args.size()-2)/2); n++) {
+													String cod = args.get(i++).toString();
+													Object val = args.get(i++);
+													parametres.put(cod, val);
+												}
+											}
+										}
+										
+										List<FilaResultat> llistat = dominiDao.consultar(domini.getId(), arg1, parametres);
+										Object[] array = new Object[llistat.size()];
+										for (int i = 0; i < llistat.size(); i++) {
+											Object[] subArray = new Object[2];
+											subArray[0] = llistat.get(i).getColumnes().get(0).getValor();
+											subArray[1] = llistat.get(i).getColumnes().get(1).getValor();
+											array[i] = subArray;
+										}
+										return new ArrayModel(
+												array,
+												new DefaultObjectWrapper());
+									} catch (Exception e) {
+										throw new TemplateModelException(e);
+									}
+								}
+							}
+						}
+						return new SimpleScalar("[Arguments incorrectes]");
 					}
 				});
 	}

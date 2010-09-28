@@ -8,10 +8,15 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
+import net.conselldemallorca.helium.integracio.plugins.signatura.InfoSignatura;
 import net.conselldemallorca.helium.model.exception.CustodiaPluginException;
 import net.conselldemallorca.helium.util.GlobalProperties;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Implementació del plugin de custodia documental que guarda
@@ -21,49 +26,65 @@ import net.conselldemallorca.helium.util.GlobalProperties;
  */
 public class CustodiaPluginFilesystem implements CustodiaPlugin {
 
-	private static final String ID_PREFIX = "HEL_";
+	private static final String ID_PREFIX = "HELSIG_";
 
 
 
-	public String addSignedDocument(DocumentCustodia document) {
+	public String addSignature(
+			String documentId,
+			String arxiuNom,
+			String tipusDocument,
+			byte[] signatura) throws CustodiaPluginException {
 		try {
-			String fid = ID_PREFIX + document.getId();
-			File f = new File(getBaseDir() + fid);
+			File f = new File(getBaseDir() + ID_PREFIX + documentId);
 			if (f.exists())
 				f.delete();
-			document.setSignedFileContent((byte[])document.getSignature());
 			FileOutputStream fos = new FileOutputStream(f);
 			ObjectOutputStream oout = new ObjectOutputStream(fos);
-			oout.writeObject(document);
+			oout.writeObject(signatura);
 			fos.close();
-			return fid;
+			return documentId;
 		} catch (Exception ex) {
-			throw new CustodiaPluginException("No s'ha pogut guardar el document", ex);
+			logger.error("No s'ha pogut custodiar la signatura", ex);
+			throw new CustodiaPluginException("No s'ha pogut custodiar la signatura", ex);
 		}
 	}
 
-	public void deleteSignedDocument(String id) {
-		File f = new File(getBaseDir() + id);
-		if (f.exists())
-			f.delete();
-	}
-
-	public DocumentCustodia getSignedDocument(String id) {
+	public List<byte[]> getSignatures(String id) throws CustodiaPluginException {
 		try {
-			File f = new File(getBaseDir() + id);
+			List<byte[]> resposta = new ArrayList<byte[]>();
+			File f = new File(getBaseDir() + ID_PREFIX + id);
 			if (f.exists()) {
 				FileInputStream fis = new FileInputStream(f);
 				ObjectInputStream inputFromApplet = new ObjectInputStream(fis);
-				return (DocumentCustodia)inputFromApplet.readObject();
+				resposta.add((byte[])inputFromApplet.readObject());
 			}
+			return resposta;
 		} catch (Exception ex) {
-			throw new CustodiaPluginException("No s'ha pogut recuperar el document", ex);
+			throw new CustodiaPluginException("No s'han pogut esborrar les signatures", ex);
 		}
+	}
+
+	public void deleteSignatures(String id) throws CustodiaPluginException {
+		try {
+			File f = new File(getBaseDir() + ID_PREFIX + id);
+			if (f.exists())
+				f.delete();
+		} catch (Exception ex) {
+			logger.error("No s'han pogut esborrar les signatures", ex);
+			throw new CustodiaPluginException("No s'han pogut esborrar les signatures", ex);
+		}
+	}
+
+	public List<InfoSignatura> infoSignatures(String id) throws CustodiaPluginException {
 		return null;
 	}
 
-	public List<SignaturaInfo> verifyDocument(String id) {
-		return null;
+	public boolean potObtenirInfoSignatures() {
+		return false;
+	}
+	public boolean isValidacioImplicita() {
+		return false;
 	}
 
 
@@ -71,5 +92,7 @@ public class CustodiaPluginFilesystem implements CustodiaPlugin {
 	private String getBaseDir() {
 		return GlobalProperties.getInstance().getProperty("app.custodia.plugin.filesystem.basedir");
 	}
+
+	private static final Log logger = LogFactory.getLog(CustodiaPluginFilesystem.class);
 
 }

@@ -15,16 +15,23 @@
 		<intercept-url pattern="/css/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/js/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/img/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		<intercept-url pattern="/ws/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		<intercept-url pattern="/signatura/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/index.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/error.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/ws/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/signatura/**" access="ROLE_ADMIN,ROLE_USER" />
 		<intercept-url pattern="/entorn/seleccio.html" access="ROLE_ADMIN,ROLE_USER" />
 		<intercept-url pattern="/entorn/configDefault.html" access="ROLE_ADMIN,ROLE_USER" />
+		<intercept-url pattern="/persona/suggest.html" access="ROLE_ADMIN,ROLE_USER" />
 		<intercept-url pattern="/persona/**" access="ROLE_ADMIN" />
 		<intercept-url pattern="/entorn/**" access="ROLE_ADMIN" />
 		<intercept-url pattern="/rol/**" access="ROLE_ADMIN" />
 		<intercept-url pattern="/festiu/**" access="ROLE_ADMIN" />
+		<!--intercept-url pattern="/ws/NotificacioEntrada" access="ROLE_ADMIN,ROLE_WS" />
+		<intercept-url pattern="/ws/FormulariExtern" access="ROLE_ADMIN,ROLE_WS" />
+		<intercept-url pattern="/ws/MCGDws" access="ROLE_ADMIN,ROLE_WS" />
+		<intercept-url pattern="/ws/ConsultaDomini" access="ROLE_ADMIN,ROLE_WS" />
+		<intercept-url pattern="/ws/TramitacioService" access="ROLE_ADMIN,ROLE_WS" />
+		<intercept-url pattern="/ws/**" access="ROLE_ADMIN,ROLE_USER" /-->
 		<intercept-url pattern="/**" access="ROLE_ADMIN,ROLE_USER" />
 		<anonymous/>
 		<!--form-login/>
@@ -50,7 +57,9 @@
 					<beans:map>
 						<beans:entry key="HEL_ADMIN" value="ROLE_ADMIN"/>
 						<beans:entry key="HEL_USER" value="ROLE_USER"/>
+						<beans:entry key="HEL_WS" value="ROLE_WS"/>
 						<beans:entry key="TOTHOM" value="ROLE_USER"/>
+						<beans:entry key="tothom" value="ROLE_USER"/>
 					</beans:map>
 				</beans:property>
 			</beans:bean>

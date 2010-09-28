@@ -32,6 +32,7 @@ public class CampExportacio implements Serializable {
 	private String codiDomini;
 	private String agrupacioCodi;
 	private String jbpmAction;
+	private Integer ordre;
 	private Set<ValidacioExportacio> validacions = new HashSet<ValidacioExportacio>();
 	private Set<RegistreMembreExportacio> registreMembres = new HashSet<RegistreMembreExportacio>();
 
@@ -51,7 +52,8 @@ public class CampExportacio implements Serializable {
 			String codiEnumeracio,
 			String codiDomini,
 			String agrupacioCodi,
-			String jbpmAction) {
+			String jbpmAction,
+			Integer ordre) {
 		this.codi = codi;
 		this.tipus = tipus;
 		this.etiqueta = etiqueta;
@@ -66,6 +68,7 @@ public class CampExportacio implements Serializable {
 		this.codiDomini = codiDomini;
 		this.agrupacioCodi = agrupacioCodi;
 		this.jbpmAction = jbpmAction;
+		this.ordre = ordre;
 	}
 
 	public String getCodi() {
@@ -169,6 +172,12 @@ public class CampExportacio implements Serializable {
 	}
 	public void setJbpmAction(String jbpmAction) {
 		this.jbpmAction = jbpmAction;
+	}
+	public Integer getOrdre() {
+		return ordre;
+	}
+	public void setOrdre(Integer ordre) {
+		this.ordre = ordre;
 	}
 
 

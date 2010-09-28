@@ -25,9 +25,8 @@ import net.conselldemallorca.helium.model.hibernate.Domini.TipusDomini;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
-import org.apache.cxf.frontend.ClientProxyFactoryBean;
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.hibernate.criterion.Restrictions;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -73,7 +72,9 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 		List<FilaResultat> resultat = null;
 		Domini domini = getById(dominiId, false);
 		String cacheKey = getCacheKey(domini.getId(), parametres);
-		Element element = dominiCache.get(cacheKey);
+		Element element = null;
+		if (dominiCache != null)
+			dominiCache.get(cacheKey);
 		if (element == null) {
 			if (domini.getTipus().equals(TipusDomini.CONSULTA_WS))
 				resultat = consultaWs(domini, id, parametres);
@@ -82,7 +83,8 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 			if (domini.getCacheSegons() > 0) {
 				element = new Element(cacheKey, resultat);
 				element.setTimeToLive(domini.getCacheSegons());
-				dominiCache.put(element);
+				if (dominiCache != null)
+					dominiCache.put(element);
 				logger.info("Cache domini '" + cacheKey + "': " + resultat.size() + " registres");
 			}
 		} else {
@@ -101,7 +103,6 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 
 
 
-	@Autowired
 	public void setDominiCache(Ehcache dominiCache) {
 		this.dominiCache = dominiCache;
 	}
@@ -114,15 +115,14 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 			Map<String, Object> parametres) throws Exception {
 		DominiHelium client = wsCache.get(domini.getId());
 		if (client == null) {
-			ClientProxyFactoryBean factory = new ClientProxyFactoryBean();
+			JaxWsProxyFactoryBean factory = new JaxWsProxyFactoryBean();
 			factory.setServiceClass(DominiHelium.class);
 			factory.setAddress(domini.getUrl());
 			client = (DominiHelium)factory.create();
 			wsCache.put(domini.getId(), client);
 		}
-		List<ParellaCodiValor> paramsConsulta = null;
+		List<ParellaCodiValor> paramsConsulta = new ArrayList<ParellaCodiValor>();
 		if (parametres != null) {
-			paramsConsulta = new ArrayList<ParellaCodiValor>();
 			for (String codi: parametres.keySet()) {
 				paramsConsulta.add(new ParellaCodiValor(
 						codi,

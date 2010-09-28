@@ -69,7 +69,7 @@ public class DefinicioProcesDocumentTascaController extends BaseController {
 	@ModelAttribute("documents")
 	public List<Document> populateDocuments(
 			@RequestParam(value = "definicioProcesId", required = true) Long definicioProcesId) {
-		return dissenyService.findDocumentsAmbDefinicioProces(definicioProcesId);
+		return dissenyService.findDocumentsAmbDefinicioProcesOrdenatsPerCodi(definicioProcesId);
 	}
 	@ModelAttribute("tascaDocuments")
 	public List<DocumentTasca> populateTascaDocuments(
@@ -80,7 +80,7 @@ public class DefinicioProcesDocumentTascaController extends BaseController {
 	}
 
 	@RequestMapping(value = "/definicioProces/tascaDocuments", method = RequestMethod.GET)
-	public String llistatCamps(
+	public String llistatDocuments(
 			HttpServletRequest request,
 			@RequestParam(value = "definicioProcesId", required = true) Long definicioProcesId,
 			@RequestParam(value = "tascaId", required = true) Long tascaId,
@@ -103,7 +103,7 @@ public class DefinicioProcesDocumentTascaController extends BaseController {
 		}
 	}
 	@RequestMapping(value = "/definicioProces/tascaDocuments", method = RequestMethod.POST)
-	public String afegirCamp(
+	public String afegirDocument(
 			HttpServletRequest request,
 			@RequestParam(value = "submit", required = false) String submit,
 			@RequestParam(value = "definicioProcesId", required = true) Long definicioProcesId,
@@ -143,7 +143,7 @@ public class DefinicioProcesDocumentTascaController extends BaseController {
 		}
 	}
 	@RequestMapping(value = "/definicioProces/tascaDocumentEsborrar")
-	public String esborrarCamp(
+	public String esborrarDocument(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) Long id,
 			@RequestParam(value = "definicioProcesId", required = true) Long definicioProcesId) {
@@ -170,7 +170,7 @@ public class DefinicioProcesDocumentTascaController extends BaseController {
 		}
 	}
 	@RequestMapping(value = "/definicioProces/tascaDocumentPujar")
-	public String pujarCamp(
+	public String pujarDocument(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) Long id,
 			@RequestParam(value = "definicioProcesId", required = true) Long definicioProcesId) {
@@ -180,6 +180,7 @@ public class DefinicioProcesDocumentTascaController extends BaseController {
 			if (potDissenyarDefinicioProces(entorn, definicioProces)) {
 				DocumentTasca documentTasca = dissenyService.getDocumentTascaById(id);
 				try {
+					System.out.println(">>> ARA");
 					dissenyService.goUpDocumentTasca(id);
 				} catch (Exception ex) {
 		        	missatgeError(request, "No s'ha pogut canviar l'ordre del document", ex.getLocalizedMessage());
@@ -196,7 +197,7 @@ public class DefinicioProcesDocumentTascaController extends BaseController {
 		}
 	}
 	@RequestMapping(value = "/definicioProces/tascaDocumentBaixar")
-	public String baixarCamp(
+	public String baixarDocument(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) Long id,
 			@RequestParam(value = "definicioProcesId", required = true) Long definicioProcesId) {

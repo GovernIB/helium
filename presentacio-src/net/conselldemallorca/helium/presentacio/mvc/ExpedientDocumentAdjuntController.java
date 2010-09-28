@@ -68,9 +68,8 @@ public class ExpedientDocumentAdjuntController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			DocumentExpedientCommand command = new DocumentExpedientCommand();
-			if (id == null) {
+			if (adjuntId == null)
 				command.setData(new Date());
-			}
 			return command;
 		}
 		return null;

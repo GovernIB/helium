@@ -6,7 +6,7 @@
 <html>
 <head>
 	<title><c:choose><c:when test="${empty command.id}">Crear nou tipus d'expedient</c:when><c:otherwise>Modificar tipus d'expedient</c:otherwise></c:choose></title>
-	<meta name="titolcmp" content="Disseny">
+	<meta name="titolcmp" content="Disseny"/>
 	<c:import url="../common/formIncludes.jsp"/>
 </head>
 <body>

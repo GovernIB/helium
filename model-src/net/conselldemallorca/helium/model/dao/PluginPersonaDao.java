@@ -125,6 +125,7 @@ public class PluginPersonaDao extends PersonaDao implements ApplicationContextAw
 				persona.getNomSencer(),
 				persona.getEmail(),
 				sexe);
+		p.setDni(persona.getDni());
 		return p;
 	}
 

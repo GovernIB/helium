@@ -6,6 +6,10 @@
 		<param-name>contextConfigLocation</param-name>
 		<param-value>/WEB-INF/application-context.xml</param-value>
 	</context-param>
+	<context-param>
+		<param-name>log4jConfigLocation</param-name>
+		<param-value>/WEB-INF/classes/log4j.xml</param-value>
+	</context-param>
 
 	<resource-ref>
 		<description>Datasource de l'aplicació</description>
@@ -71,6 +75,9 @@
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
+	<listener>
+		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+	</listener>
 
 	<servlet>
 		<servlet-name>helium</servlet-name>
@@ -119,7 +126,13 @@
 		<role-name>HEL_USER</role-name>
 	</security-role>
 	<security-role>
+		<role-name>HEL_WS</role-name>
+	</security-role>
+	<security-role>
 		<role-name>TOTHOM</role-name>
+	</security-role>
+	<security-role>
+		<role-name>tothom</role-name>
 	</security-role>
 
 	<security-constraint>
@@ -144,7 +157,9 @@
 		<auth-constraint>
 			<role-name>HEL_ADMIN</role-name>
 			<role-name>HEL_USER</role-name>
+			<role-name>HEL_WS</role-name>
 			<role-name>TOTHOM</role-name>
+			<role-name>tothom</role-name>
 		</auth-constraint>
 	</security-constraint>
 

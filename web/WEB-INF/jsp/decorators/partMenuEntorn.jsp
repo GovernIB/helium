@@ -6,6 +6,14 @@
 	<div id="page-entorn-title">
 		<h2>
 			<span>${entornActual.nom}</span> Entorn
+			<c:if test="${hiHaAlertesActives}">
+				<a href="<c:url value="/alerta/llistat.html"/>">
+					<c:choose>
+						<c:when test="${hiHaAlertesNollegides}"><img src="<c:url value="/img/email_blink.gif"/>" alt="Hi ha alertes sense llegir" title="Hi ha alertes sense llegir" border="0"/></c:when>
+						<c:otherwise><img src="<c:url value="/img/email.png"/>" alt="Hi ha alertes actives" title="Hi ha alertes actives" border="0"/></c:otherwise>
+					</c:choose>
+				</a>
+			</c:if>
 			<%--(<security:accesscontrollist domainObject="${entornActual}" hasPermission="1">R</security:accesscontrollist><security:accesscontrollist domainObject="${entornActual}" hasPermission="2">W</security:accesscontrollist><security:accesscontrollist domainObject="${entornActual}" hasPermission="4">C</security:accesscontrollist><security:accesscontrollist domainObject="${entornActual}" hasPermission="8">D</security:accesscontrollist><security:accesscontrollist domainObject="${entornActual}" hasPermission="16">A</security:accesscontrollist><security:accesscontrollist domainObject="${entornActual}" hasPermission="32">G</security:accesscontrollist><security:accesscontrollist domainObject="${entornActual}" hasPermission="64">O</security:accesscontrollist>)--%>
 		</h2>
 		<security:accesscontrollist domainObject="${entornActual}" hasPermission="16">

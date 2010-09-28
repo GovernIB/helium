@@ -6,7 +6,7 @@
 <html>
 <head>
 	<title>Àrees</title>
-	<meta name="titolcmp" content="Organització">
+	<meta name="titolcmp" content="Organització"/>
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
     <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 <script type="text/javascript">

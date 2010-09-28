@@ -111,7 +111,7 @@
 												changeMonth: true,
 												changeYear: true
 											}));
-											$("#${inputId}").datepicker();
+											$("#${inputId}").datepicker(/*{firstDay: 1, minDate: new Date(2010, 1 - 1, 1)}*/);
 										});
 										// ]]>
 									</script>
@@ -140,15 +140,16 @@
 													"${inputId}",
 													"${status.value}",
 													"${param.selectUrl}",
-													<c:choose><c:when test="${empty param.selectExtraParams}">null</c:when><c:otherwise>{${param.selectExtraParams}}</c:otherwise></c:choose>);
+													<c:choose><c:when test="${empty param.selectExtraParams}">null</c:when><c:otherwise>{${param.selectExtraParams}}</c:otherwise></c:choose>,
+													<c:choose><c:when test="${empty param.selectDominiParams}">null</c:when><c:otherwise>"${param.selectDominiParams}"</c:otherwise></c:choose>);
 										}
-										initSelect_${inputId}();
+										$(document).ready(function() {initSelect_${inputId}()});
 										// ]]>
 									</script>
 								</c:if>
 							</c:when>
 							<c:when test="${param.type == 'custom'}">
-								<div class="multiField">${param.content}</div>
+								<div class="multiField<c:if test="${not empty param.customClass}"> ${param.customClass}</c:if>">${param.content}</div>
 							</c:when>
 							<c:when test="${param.type == 'multicheck'}">
 								<c:set var="items" value="${requestScope[param.items]}"/>
@@ -230,7 +231,7 @@
 						<c:if test="${varStatus.last and not empty param.multipleIcons}">
 							<button type="submit" class="submitButton" name="submit" value="multipleAdd" onclick="multipleAdd(this, '${inputName}')">+</button>
 						</c:if>
-						<c:if test="${not empty param.comment}"><p class="formHint">${param.comment}</p></c:if>
+						<c:if test="${not empty param.comment and varStatus.last}"><p class="formHint">${param.comment}</p></c:if>
 					</div>
 				</c:otherwise>
 			</c:choose>

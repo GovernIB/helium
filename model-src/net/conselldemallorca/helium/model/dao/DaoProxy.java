@@ -32,6 +32,12 @@ public class DaoProxy implements ApplicationContextAware {
 	public EntornDao getEntornDao() {
 		return (EntornDao)ctx.getBean("entornDao", EntornDao.class);
 	}
+	public DefinicioProcesDao getDefinicioProcesDao() {
+		return (DefinicioProcesDao)ctx.getBean("definicioProcesDao", DefinicioProcesDao.class);
+	}
+	public CampDao getCampDao() {
+		return (CampDao)ctx.getBean("campDao", CampDao.class);
+	}
 	public PluginPersonaDao getPluginPersonaDao() {
 		return (PluginPersonaDao)ctx.getBean("pluginPersonaDao", PluginPersonaDao.class);
 	}
@@ -64,6 +70,9 @@ public class DaoProxy implements ApplicationContextAware {
 	}
 	public JbpmDao getJbpmDao() {
 		return (JbpmDao)ctx.getBean("jbpmDao", JbpmDao.class);
+	}
+	public PluginRegistreDao getPluginRegistreDao() {
+		return (PluginRegistreDao)ctx.getBean("pluginRegistreDao", PluginRegistreDao.class);
 	}
 	public ReassignacioDao getReassignacioDao() {
 		return (ReassignacioDao)ctx.getBean("reassignacioDao", ReassignacioDao.class);

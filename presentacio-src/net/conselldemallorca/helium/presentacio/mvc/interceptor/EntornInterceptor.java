@@ -8,15 +8,18 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.conselldemallorca.helium.model.hibernate.Alerta;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
 import net.conselldemallorca.helium.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.model.hibernate.UsuariPreferencies;
+import net.conselldemallorca.helium.model.service.AlertaService;
 import net.conselldemallorca.helium.model.service.DissenyService;
 import net.conselldemallorca.helium.model.service.EntornService;
 import net.conselldemallorca.helium.model.service.PermissionService;
 import net.conselldemallorca.helium.model.service.PersonaService;
 import net.conselldemallorca.helium.security.permission.ExtendedPermission;
 import net.conselldemallorca.helium.util.EntornActual;
+import net.conselldemallorca.helium.util.ExpedientIniciant;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,11 +37,14 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 	public static final String VARIABLE_REQUEST_CANVI_ENTORN = "entornCanviarAmbId";
 	public static final String VARIABLE_SESSIO_ENTORN_ACTUAL = "entornActual";
 	public static final String VARIABLE_SESSIO_TRAMITS_PER_INICIAR = "hiHaTramitsPerIniciar";
+	public static final String VARIABLE_REQUEST_ALERTES_ACTIVES = "hiHaAlertesActives";
+	public static final String VARIABLE_REQUEST_ALERTES_NOLLEGIDES = "hiHaAlertesNollegides";
 
 	private EntornService entornService;
 	private PersonaService personaService;
 	private DissenyService dissenyService;
 	private PermissionService permissionService;
+	private AlertaService alertaService;
 
 
 
@@ -88,6 +94,8 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 							ExtendedPermission.ADMINISTRATION,
 							ExtendedPermission.READ});
 			}
+			// Inicialitza la variable ThreadLocal de l'expedient que s'està iniciant
+			ExpedientIniciant.setExpedient(null);
 			// Guarda l'entorn actual a la sessió i com a una variable ThreadLocal
 			request.getSession().setAttribute(
 					VARIABLE_SESSIO_ENTORN_ACTUAL,
@@ -96,8 +104,8 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 				EntornActual.setEntornId(entornActual.getId());
 			else
 				EntornActual.setEntornId(null);
-			// Actualitza si hi ha tràmits per iniciar
 			if (entornActual != null) {
+				// Actualitza si hi ha tràmits per iniciar
 				List<ExpedientTipus> tipus = dissenyService.findExpedientTipusAmbEntorn(entornActual.getId());
 				permissionService.filterAllowed(
 						tipus,
@@ -108,9 +116,33 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 				request.getSession().setAttribute(
 						VARIABLE_SESSIO_TRAMITS_PER_INICIAR,
 						new Boolean(tipus.size() > 0));
+				// Indica si hi ha alertes
+				List<Alerta> alertes = alertaService.findActivesAmbEntornIUsuariAutenticat(entornActual.getId());
+				request.setAttribute(
+						VARIABLE_REQUEST_ALERTES_ACTIVES,
+						new Boolean(alertes != null && alertes.size() > 0));
+				boolean totesLlegides = true;
+				for (Alerta alerta: alertes) {
+					if (!alerta.isLlegida()) {
+						totesLlegides = false;
+						break;
+					}
+				}
+				request.setAttribute(
+						VARIABLE_REQUEST_ALERTES_NOLLEGIDES,
+						new Boolean(!totesLlegides));
 			}
 		}
 		return true;
+	}
+
+	public void afterCompletion(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Object handler,
+			Exception ex) {
+		EntornActual.setEntornId(null);
+		ExpedientIniciant.setExpedient(null);
 	}
 
 
@@ -130,6 +162,10 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 	@Autowired
 	public void setPermissionService(PermissionService permissionService) {
 		this.permissionService = permissionService;
+	}
+	@Autowired
+	public void setAlertaService(AlertaService alertaService) {
+		this.alertaService = alertaService;
 	}
 
 

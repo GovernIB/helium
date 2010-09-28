@@ -31,7 +31,7 @@ public class RegistreDao extends HibernateGenericDao<Registre, Long> {
 				responsableCodi,
 				Registre.Accio.INICIAR,
 				Registre.Entitat.EXPEDIENT,
-				expedientId.toString());
+				getExpedientId(expedientId));
 		return saveOrUpdate(registre);
 	}
 	public Registre crearRegistreModificarExpedient(
@@ -45,7 +45,7 @@ public class RegistreDao extends HibernateGenericDao<Registre, Long> {
 				responsableCodi,
 				Registre.Accio.MODIFICAR,
 				Registre.Entitat.EXPEDIENT,
-				expedientId.toString());
+				getExpedientId(expedientId));
 		registre.setValorVell(valorVell);
 		registre.setValorNou(valorNou);
 		return saveOrUpdate(registre);
@@ -60,7 +60,7 @@ public class RegistreDao extends HibernateGenericDao<Registre, Long> {
 				responsableCodi,
 				Registre.Accio.ATURAR,
 				Registre.Entitat.EXPEDIENT,
-				expedientId.toString());
+				getExpedientId(expedientId));
 		registre.setMissatge(comentari);
 		return saveOrUpdate(registre);
 	}
@@ -73,7 +73,7 @@ public class RegistreDao extends HibernateGenericDao<Registre, Long> {
 				responsableCodi,
 				Registre.Accio.REPRENDRE,
 				Registre.Entitat.EXPEDIENT,
-				expedientId.toString());
+				getExpedientId(expedientId));
 		return saveOrUpdate(registre);
 	}
 	public Registre crearRegistreEsborrarExpedient(
@@ -85,7 +85,7 @@ public class RegistreDao extends HibernateGenericDao<Registre, Long> {
 				responsableCodi,
 				Registre.Accio.ESBORRAR,
 				Registre.Entitat.EXPEDIENT,
-				expedientId.toString());
+				getExpedientId(expedientId));
 		return saveOrUpdate(registre);
 	}
 	public Registre crearRegistreCrearTasca(
@@ -475,7 +475,7 @@ public class RegistreDao extends HibernateGenericDao<Registre, Long> {
 				responsableCodi,
 				Registre.Accio.INICIAR,
 				Registre.Entitat.TERMINI,
-				expedientId.toString());
+				getExpedientId(expedientId));
 		registre.setProcessInstanceId(processInstanceId);
 		return saveOrUpdate(registre);
 	}
@@ -490,7 +490,7 @@ public class RegistreDao extends HibernateGenericDao<Registre, Long> {
 				responsableCodi,
 				Registre.Accio.ATURAR,
 				Registre.Entitat.TERMINI,
-				expedientId.toString());
+				getExpedientId(expedientId));
 		registre.setProcessInstanceId(processInstanceId);
 		return saveOrUpdate(registre);
 	}
@@ -505,7 +505,7 @@ public class RegistreDao extends HibernateGenericDao<Registre, Long> {
 				responsableCodi,
 				Registre.Accio.REPRENDRE,
 				Registre.Entitat.TERMINI,
-				expedientId.toString());
+				getExpedientId(expedientId));
 		registre.setProcessInstanceId(processInstanceId);
 		return saveOrUpdate(registre);
 	}
@@ -520,7 +520,7 @@ public class RegistreDao extends HibernateGenericDao<Registre, Long> {
 				responsableCodi,
 				Registre.Accio.CANCELAR,
 				Registre.Entitat.TERMINI,
-				expedientId.toString());
+				getExpedientId(expedientId));
 		registre.setProcessInstanceId(processInstanceId);
 		return saveOrUpdate(registre);
 	}
@@ -535,7 +535,7 @@ public class RegistreDao extends HibernateGenericDao<Registre, Long> {
 				responsableCodi,
 				Registre.Accio.FINALITZAR,
 				Registre.Entitat.TERMINI,
-				expedientId.toString());
+				getExpedientId(expedientId));
 		registre.setProcessInstanceId(processInstanceId);
 		return saveOrUpdate(registre);
 	}
@@ -564,6 +564,12 @@ public class RegistreDao extends HibernateGenericDao<Registre, Long> {
 				"    r.data").
 		setString(0, processInstanceId).
 		list();
+	}
+
+	public String getExpedientId(Long id) {
+		if (id != null)
+			return id.toString();
+		return null;
 	}
 
 }

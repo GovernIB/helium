@@ -13,7 +13,7 @@ public class TascaDelegacioCommand {
 	private String taskId;
 	private String actorId;
 	private String comentari;
-	private boolean supervisada;
+	private boolean supervisada = true;
 
 
 

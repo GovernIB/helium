@@ -11,7 +11,7 @@
 </c:if>
 <c:set var="codiActual" value="${campActual.definicioProces.jbpmKey}_${campActual.codi}" scope="request"/>
 <c:set var="valorActual" value="${command[codiActual]}" scope="request"/>
-<c:set var="extraParams"><c:choose><c:when test="${not empty tasca.id}">taskId:${tasca.id},processInstanceId:${tasca.processInstanceId},definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}'</c:when><c:otherwise>processInstanceId:${tasca.processInstanceId},definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}'</c:otherwise></c:choose></c:set>
+<c:set var="extraParams">definicioProcesId:${campActual.definicioProces.id},campCodi:'${campActual.codi}'</c:set>
 <c:choose>
 	<c:when test="${campActual.tipus == 'STRING'}">
 		<c:import url="../common/formElement.jsp">

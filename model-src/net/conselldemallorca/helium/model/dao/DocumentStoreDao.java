@@ -3,42 +3,12 @@
  */
 package net.conselldemallorca.helium.model.dao;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import javax.activation.MimetypesFileTypeMap;
-
-import net.conselldemallorca.helium.model.exception.AlfrescoException;
 import net.conselldemallorca.helium.model.hibernate.DocumentStore;
-import net.conselldemallorca.helium.model.hibernate.Expedient;
 import net.conselldemallorca.helium.model.hibernate.DocumentStore.DocumentFont;
-import net.conselldemallorca.helium.util.GlobalProperties;
 
-import org.alfresco.webservice.content.Content;
-import org.alfresco.webservice.content.ContentServiceSoapBindingStub;
-import org.alfresco.webservice.repository.RepositoryServiceSoapBindingStub;
-import org.alfresco.webservice.repository.UpdateResult;
-import org.alfresco.webservice.types.CML;
-import org.alfresco.webservice.types.CMLCreate;
-import org.alfresco.webservice.types.CMLDelete;
-import org.alfresco.webservice.types.ContentFormat;
-import org.alfresco.webservice.types.NamedValue;
-import org.alfresco.webservice.types.ParentReference;
-import org.alfresco.webservice.types.Predicate;
-import org.alfresco.webservice.types.Reference;
-import org.alfresco.webservice.types.Store;
-import org.alfresco.webservice.util.AuthenticationUtils;
-import org.alfresco.webservice.util.Constants;
-import org.alfresco.webservice.util.ContentUtils;
-import org.alfresco.webservice.util.Utils;
-import org.alfresco.webservice.util.WebServiceFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -53,31 +23,17 @@ public class DocumentStoreDao extends HibernateGenericDao<DocumentStore, Long> {
 		super(DocumentStore.class);
 	}
 
-	public byte[] retrieveContingut(Long id) {
-		DocumentStore ds = getById(id, false);
-		if (ds.getFont().equals(DocumentFont.ALFRESCO)) {
-			try {
-				return alfrescoRetrieve(ds.getReferenciaFont());
-			} catch (Exception ex) {
-				logger.error("No s'ha pogut llegir el document '" + ds.getReferenciaFont() + "' d'alfresco");
-			}
-			return null;
-		} else {
-			return ds.getArxiuContingut();
-		}
-	}
-
 	public Long create(
-			Expedient expedient,
 			String processInstanceId,
 			String jbpmVariable,
-			String documentNom,
 			Date dataDocument,
+			DocumentFont documentFont,
 			String arxiuNom,
 			byte[] arxiuContingut,
-			boolean adjunt) {
+			boolean adjunt,
+			String adjuntTitol) {
 		DocumentStore ds = new DocumentStore(
-				(isAlfrescoActive()) ? DocumentFont.ALFRESCO : DocumentFont.INTERNA,
+				documentFont,
 				processInstanceId,
 				jbpmVariable,
 				new Date(),
@@ -85,76 +41,66 @@ public class DocumentStoreDao extends HibernateGenericDao<DocumentStore, Long> {
 				arxiuNom);
 		ds.setAdjunt(adjunt);
 		if (adjunt)
-			ds.setAdjuntTitol(documentNom);
-		if (isAlfrescoActive()) {
-			getHibernateTemplate().saveOrUpdate(ds);
-			String[] path = new String[] {
-					expedient.getEntorn().getCodi(),
-					expedient.getTipus().getCodi(),
-					expedient.getNumeroDefault()};
-			String uuid = alfrescoSave(
-					path,
-					ds.getId().toString(),
-					arxiuNom,
-					documentNom,
-					dataDocument,
-					arxiuContingut);
-			ds.setReferenciaFont(uuid);
-		} else {
+			ds.setAdjuntTitol(adjuntTitol);
+		if (arxiuContingut != null)
 			ds.setArxiuContingut(arxiuContingut);
-			getHibernateTemplate().saveOrUpdate(ds);
-		}
+		getHibernateTemplate().saveOrUpdate(ds);
 		return ds.getId();
 	}
 
 	public void update(
 			Long id,
-			Expedient expedient,
-			String documentNom,
 			Date dataDocument,
 			String arxiuNom,
-			byte[] arxiuContingut) {
+			byte[] arxiuContingut,
+			String adjuntTitol) {
 		DocumentStore ds = this.getById(id, false);
 		ds.setDataDocument(dataDocument);
 		ds.setDataModificacio(new Date());
 		if (ds.isAdjunt())
-			ds.setAdjuntTitol(documentNom);
+			ds.setAdjuntTitol(adjuntTitol);
+		ds.setArxiuNom(arxiuNom);
 		if (arxiuContingut != null) {
-			ds.setArxiuNom(arxiuNom);
-			if (ds.getFont().equals(DocumentFont.ALFRESCO)) {
-				try {
-					alfrescoDelete(ds.getReferenciaFont(), false);
-				} catch (Exception ex) {
-					logger.error("No s'ha pogut esborrar el document '" + ds.getReferenciaFont() + "' d'alfresco");
-				}
-				String[] path = new String[] {
-						expedient.getEntorn().getCodi(),
-						expedient.getTipus().getCodi(),
-						expedient.getNumeroDefault()};
-				String uuid = alfrescoSave(
-						path,
-						ds.getId().toString(),
-						arxiuNom,
-						documentNom,
-						dataDocument,
-						arxiuContingut);
-				ds.setReferenciaFont(uuid);
-			} else {
-				ds.setArxiuContingut(arxiuContingut);
-			}
+			ds.setArxiuContingut(arxiuContingut);
 		}
 	}
 
-	public void delete(Long id) {
+	public void updateReferenciaFont(
+			Long id,
+			String referenciaFont) {
 		DocumentStore ds = this.getById(id, false);
-		if (ds.getFont().equals(DocumentFont.ALFRESCO)) {
-			try {
-				alfrescoDelete(ds.getReferenciaFont(), true);
-			} catch (Exception ex) {
-				logger.error("No s'ha pogut esborrar el document '" + ds.getReferenciaFont() + "' d'alfresco");
-			}
-		}
-		super.delete(ds);
+		ds.setReferenciaFont(referenciaFont);
+	}
+
+	public void updateRegistreEntrada(
+			Long id,
+			Date data,
+			String numero,
+			String any,
+			String oficinaCodi,
+			String oficinaNom) {
+		DocumentStore ds = this.getById(id, false);
+		ds.setRegistreData(data);
+		ds.setRegistreNumero(numero);
+		ds.setRegistreAny(any);
+		ds.setRegistreOficinaCodi(oficinaCodi);
+		ds.setRegistreOficinaNom(oficinaNom);
+		ds.setRegistreEntrada(true);
+	}
+	public void updateRegistreSortida(
+			Long id,
+			Date data,
+			String numero,
+			String any,
+			String oficinaCodi,
+			String oficinaNom) {
+		DocumentStore ds = this.getById(id, false);
+		ds.setRegistreData(data);
+		ds.setRegistreNumero(numero);
+		ds.setRegistreAny(any);
+		ds.setRegistreOficinaCodi(oficinaCodi);
+		ds.setRegistreOficinaNom(oficinaNom);
+		ds.setRegistreEntrada(false);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -168,7 +114,7 @@ public class DocumentStoreDao extends HibernateGenericDao<DocumentStore, Long> {
 	}
 
 
-
+/*
 	private String alfrescoSave(
 			String[] path,
 			String nom,
@@ -375,5 +321,5 @@ public class DocumentStoreDao extends HibernateGenericDao<DocumentStore, Long> {
 		'\\'};
 	private static final Store ALFRESCO_STORE = new Store(Constants.WORKSPACE_STORE, "SpacesStore");
 	private static final Log logger = LogFactory.getLog(DocumentStoreDao.class);
-
+*/
 }

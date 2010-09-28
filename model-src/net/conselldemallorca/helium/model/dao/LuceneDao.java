@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.model.hibernate.Camp;
 import net.conselldemallorca.helium.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.model.hibernate.Expedient;
@@ -427,7 +428,8 @@ public class LuceneDao extends LuceneIndexSupport {
 		} else if (camp.getTipus().equals(TipusCamp.PRICE)) {
 			return numberPerIndexar((BigDecimal)valor);
 		} else if (camp.getTipus().equals(TipusCamp.TERMINI)) {
-			return (String)valor;
+			Termini term = (Termini)valor;
+			return term.getAnys() + "/" + term.getMesos() + "/" + term.getDies();
 		} else if (camp.getTipus().equals(TipusCamp.SELECCIO)) {
 			return (String)valor;
 		} else if (camp.getTipus().equals(TipusCamp.SUGGEST)) {
@@ -437,7 +439,9 @@ public class LuceneDao extends LuceneIndexSupport {
 		} else if (camp.getTipus().equals(TipusCamp.TEXTAREA)) {
 			return normalitzarILlevarAccents((String)valor);
 		} else {
-			return (String)valor;
+			if (valor == null)
+				return null;
+			return valor.toString();
 		}
 	}
 

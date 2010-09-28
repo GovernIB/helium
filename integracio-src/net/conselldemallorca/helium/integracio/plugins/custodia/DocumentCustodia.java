@@ -24,7 +24,7 @@ public class DocumentCustodia implements Serializable {
 	private byte[] signedFileContent;
 	private String contentType;
 	private String custodiaCodi;
-	private Object signature;
+	private byte[] signature;
 
 
 
@@ -94,10 +94,10 @@ public class DocumentCustodia implements Serializable {
 	public void setCustodiaCodi(String custodiaCodi) {
 		this.custodiaCodi = custodiaCodi;
 	}
-	public Object getSignature() {
+	public byte[] getSignature() {
 		return signature;
 	}
-	public void setSignature(Object signature) {
+	public void setSignature(byte[] signature) {
 		this.signature = signature;
 	}
 

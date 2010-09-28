@@ -6,7 +6,7 @@
 <html>
 <head>
 	<title><c:choose><c:when test="${not empty command.expedientTipusId}">Tipus d'expedient: ${expedientTipus.nom}</c:when><c:otherwise>Desplegar arxiu</c:otherwise></c:choose></title>
-	<meta name="titolcmp" content="Disseny">
+	<meta name="titolcmp" content="Disseny"/>
     <link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<c:import url="../common/formIncludes.jsp"/>
 </head>

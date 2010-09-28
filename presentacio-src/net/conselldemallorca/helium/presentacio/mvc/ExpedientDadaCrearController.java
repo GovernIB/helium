@@ -93,7 +93,7 @@ public class ExpedientDadaCrearController extends BaseController {
 				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(
 						id,
 						true);
-				List<Camp> camps = dissenyService.findCampsAmbDefinicioProces(instanciaProces.getDefinicioProces().getId());
+				List<Camp> camps = dissenyService.findCampsAmbDefinicioProcesOrdenatsPerCodi(instanciaProces.getDefinicioProces().getId());
 				Iterator<Camp> it = camps.iterator();
 				while (it.hasNext()) {
 					Camp camp = it.next();
@@ -103,7 +103,7 @@ public class ExpedientDadaCrearController extends BaseController {
 				return camps;
 			} else {
 				TascaDto tasca = tascaService.getById(entorn.getId(), taskId);
-				List<Camp> camps = dissenyService.findCampsAmbDefinicioProces(tasca.getDefinicioProces().getId());
+				List<Camp> camps = dissenyService.findCampsAmbDefinicioProcesOrdenatsPerCodi(tasca.getDefinicioProces().getId());
 				Iterator<Camp> it = camps.iterator();
 				while (it.hasNext()) {
 					Camp camp = it.next();

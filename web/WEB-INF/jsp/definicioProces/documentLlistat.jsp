@@ -7,7 +7,7 @@
 <html>
 <head>
 	<title>Definició de procés: ${definicioProces.jbpmName}</title>
-	<meta name="titolcmp" content="Disseny">
+	<meta name="titolcmp" content="Disseny"/>
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
@@ -28,7 +28,7 @@ function confirmar(e) {
 		<c:param name="tabActiu" value="documents"/>
 	</c:import>
 
-	<display:table name="documents" id="registre" requestURI="" class="displaytag selectable">
+	<display:table name="documents" id="registre" requestURI="" defaultsort="1" class="displaytag selectable">
 		<display:column property="codi" title="Codi" sortable="true" url="/definicioProces/documentForm.html?definicioProcesId=${param.definicioProcesId}" paramId="id" paramProperty="id"/>
 		<display:column property="nom" title="Nom" sortable="true"/>
 		<display:column title="És plantilla?">

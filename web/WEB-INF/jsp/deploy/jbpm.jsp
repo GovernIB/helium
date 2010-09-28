@@ -6,7 +6,7 @@
 <html>
 <head>
 	<title>Desplegar arxiu jBPM</title>
-	<meta name="titolcmp" content="Disseny">
+	<meta name="titolcmp" content="Disseny"/>
     <link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<c:import url="../common/formIncludes.jsp"/>
 </head>

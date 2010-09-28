@@ -6,8 +6,8 @@
 
 <html>
 <head>
-	<title>${tasca.nom}</title>
-	<meta name="titolcmp" content="Tasques">
+	<title>${tasca.nomLimitat}</title>
+	<meta name="titolcmp" content="Tasques"/>
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<c:import url="../common/formIncludes.jsp"/>
 <script type="text/javascript">
@@ -21,12 +21,6 @@ function mostrarOcultar(img, objid) {
 		obj.style.display = "none";
 		img.src = '<c:url value="/img/magnifier_zoom_in.png"/>';
 	}
-}
-function confirmarFinalitzar(e) {
-	var e = e || window.event;
-	e.cancelBubble = true;
-	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Estau segur que voleu finalitzar aquesta tasca?");
 }
 function confirmarDelegar(e) {
 	var e = e || window.event;
@@ -98,7 +92,7 @@ function confirmarDelegar(e) {
 							<c:import url="../common/formElement.jsp">
 								<c:param name="property" value="supervisada"/>
 								<c:param name="type" value="checkbox"/>
-								<c:param name="label">Supervisada?</c:param>
+								<c:param name="label">Supervisar?</c:param>
 							</c:import>
 							<c:import url="../common/formElement.jsp">
 								<c:param name="type" value="buttons"/>

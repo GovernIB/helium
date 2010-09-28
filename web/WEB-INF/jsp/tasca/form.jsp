@@ -8,7 +8,7 @@
 <c:set var="isIframe" value="${not empty param.iframe}"/>
 <html>
 <head>
-	<title>${tasca.nom}</title>
+	<title>${tasca.nomLimitat}</title>
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 	<c:if test="${isIframe}">
@@ -18,7 +18,7 @@
 		</c:if>
 	</c:if>
 	<c:if test="${not isIframe}">
-		<meta name="titolcmp" content="Tasques">
+		<meta name="titolcmp" content="Tasques"/>
 		<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	</c:if>
 	<c:import url="../common/formIncludes.jsp">
@@ -27,28 +27,11 @@
 	<c:if test="${isIframe}"><style>.ui-widget {font-size: 81%;}</style></c:if>
 <script type="text/javascript">
 // <![CDATA[
-var accio = "";
-function guardarAccio(a) {
-	accio = a;
-}
 function confirmar(form) {
 	if (accio == "validate")
 		return confirm("Estau segur que voleu donar per bones les dades d'aquesta tasca?");
 	else
 		return true;
-}
-function canviTermini(input) {
-	var campId = input.id.substring(0, input.id.indexOf("_"));
-	var anys = document.getElementById(campId + "_anys").value;
-	var mesos = document.getElementById(campId + "_mesos").value;
-	var dies = document.getElementById(campId + "_dies").value;
-	document.getElementById(campId).value = anys + "/" + mesos + "/" + dies;
-}
-function clickExecutarAccio(accio) {
-	if (confirm("Estau segur que voleu executar aquesta acció?")) {
-		$("#executarAccioCampAccio").val(accio);
-		$("#executarAccioForm").submit();
-	}
 }
 // ]]>
 </script>
@@ -85,17 +68,22 @@ function clickExecutarAccio(accio) {
 // ]]>
 </script>
 </c:if>
-<script type="text/javascript" src="<c:url value="/js/jquery/ui/ui.core.js"/>"></script>
-<script  type="text/javascript" src="<c:url value="/js/jquery/ui/jquery-ui-1.7.2.custom.js"/>"></script>
 <script type="text/javascript" language="javascript">
 // <![CDATA[
+	function canviTermini(input) {
+		var campId = input.id.substring(0, input.id.lastIndexOf("_"));
+		var anys = document.getElementById(campId + "_anys").value;
+		var mesos = document.getElementById(campId + "_mesos").value;
+		var dies = document.getElementById(campId + "_dies").value;
+		document.getElementById(campId).value = anys + "/" + mesos + "/" + dies;
+	}
 	function editarRegistre(campId, campCodi, campEtiqueta, numCamps, index) {
-		var amplada = 600;
+		var amplada = 686;
 		var alcada = 64 * numCamps + 80;
 		var url = "registre.html?id=${tasca.id}&registreId=" + campId;
 		if (index != null)
 			url = url + "&index=" + index;
-		$('<iframe id="' + campCodi + '" src="' + url + '"/>').dialog({
+		$('<iframe id="' + campCodi + '" src="' + url + '" frameborder="0" marginheight="0" marginwidth="0"/>').dialog({
 			title: campEtiqueta,
 			autoOpen: true,
 			modal: true,
@@ -109,9 +97,27 @@ function clickExecutarAccio(accio) {
 		var e = e || window.event;
 		e.cancelBubble = true;
 		if (e.stopPropagation) e.stopPropagation();
-		window.location = "registreEsborrar.html?id=${tasca.id}&registreId=" + campId + "&index=" + index;
+		$('form#command').append('<input type="hidden" name="registreEsborrarId" value="' + campId + '"/>');
+		$('form#command').append('<input type="hidden" name="registreEsborrarIndex" value="' + index + '"/>');
+		refresh();
 		return false;
 	}
+	function refresh() {
+		$('form#command :button[name="submit"]').attr("name", "sbmt");
+		$('form#command').submit();
+	}
+
+	function campOnFocus(camp) {
+		$('form#command :input[name="helCampFocus"]').val("" + $(window).scrollTop() + "#${param.id}");
+	}
+	function initFocus() {
+		$("form#command :input").focus(function() {campOnFocus(this)});
+		<c:if test="${not empty sessionScope.helCampFocus}">
+			$(window).scrollTop(${sessionScope.helCampFocus});
+			<c:remove var="helCampFocus" scope="session"/>
+		</c:if>
+	}
+	$(document).ready(initFocus);
 // ]]>
 </script>
 </head>
@@ -141,12 +147,33 @@ function clickExecutarAccio(accio) {
 	</c:if>
 
 	<c:if test="${tasca.campsNotReadOnly}">
+		<c:set var="botons" scope="request">
+			<c:choose>
+				<c:when test="${tasca.validada}">
+					<c:import url="../common/formElement.jsp">
+						<c:param name="type" value="buttons"/>
+						<c:param name="values">restore</c:param>
+						<c:param name="titles">Modificar</c:param>
+						<c:param name="onclick" value="guardarAccio(this.value)"/>
+					</c:import>
+				</c:when>
+				<c:otherwise>
+					<c:import url="../common/formElement.jsp">
+						<c:param name="type" value="buttons"/>
+						<c:param name="values">submit,validate</c:param>
+						<c:param name="titles">Guardar,Validar</c:param>
+						<c:param name="onclick" value="guardarAccio(this.value)"/>
+					</c:import>
+				</c:otherwise>
+			</c:choose>
+		</c:set>
 		<c:choose>
 			<c:when test="${not empty tasca.formExtern}">
 				<c:if test="${tasca.validada}">
-					<form:form action="form.html" cssClass="uniForm" onsubmit="return confirmar(this)">
+					<form:form action="form.html" cssClass="uniForm tascaForm zebraForm" onsubmit="return confirmar(this)">
 						<form:hidden path="id"/>
 						<form:hidden path="entornId"/>
+						<input type="hidden" name="helCampFocus"/>
 						<div class="inlineLabels">
 							<c:if test="${not empty tasca.camps}">
 								<c:forEach var="camp" items="${tasca.camps}">
@@ -156,8 +183,8 @@ function clickExecutarAccio(accio) {
 									</c:if>
 								</c:forEach>
 							</c:if>
+							${botons}
 						</div>
-						${botons}
 					</form:form><br/>
 				</c:if>
 				<form action="form.html" onclick="return clickFormExtern(this)">
@@ -166,33 +193,14 @@ function clickExecutarAccio(accio) {
 				</form>
 			</c:when>
 			<c:otherwise>
-				<c:set var="botons" scope="request">
-					<c:choose>
-						<c:when test="${tasca.validada}">
-							<c:import url="../common/formElement.jsp">
-								<c:param name="type" value="buttons"/>
-								<c:param name="values">restore</c:param>
-								<c:param name="titles">Modificar</c:param>
-								<c:param name="onclick" value="guardarAccio(this.value)"/>
-							</c:import>
-						</c:when>
-						<c:otherwise>
-							<c:import url="../common/formElement.jsp">
-								<c:param name="type" value="buttons"/>
-								<c:param name="values">submit,validate</c:param>
-								<c:param name="titles">Guardar,Validar</c:param>
-								<c:param name="onclick" value="guardarAccio(this.value)"/>
-							</c:import>
-						</c:otherwise>
-					</c:choose>
-				</c:set>
 				<c:choose>
 					<c:when test="${empty param.toParent}">
 						<c:choose>
 							<c:when test="${empty tasca.recursForm or tasca.validada}">
-								<form:form action="form.html" cssClass="uniForm" onsubmit="return confirmar(this)">
+								<form:form action="form.html" cssClass="uniForm tascaForm zebraForm" onsubmit="return confirmar(this)">
 									<form:hidden path="id"/>
 									<form:hidden path="entornId"/>
+									<input type="hidden" name="helCampFocus"/>
 									<div class="inlineLabels">
 										<c:if test="${not empty tasca.camps}">
 											<c:forEach var="camp" items="${tasca.camps}">
@@ -202,16 +210,17 @@ function clickExecutarAccio(accio) {
 												</c:if>
 											</c:forEach>
 										</c:if>
+										${botons}
 									</div>
-									${botons}
 								</form:form>
 							</c:when>
 							<c:otherwise>
 								<c:choose>
 									<c:when test="${isIframe}">
-										<form:form action="formIframe.html" cssClass="uniForm" onsubmit="return confirmar(this)">
+										<form:form action="formIframe.html" cssClass="uniForm tascaForm zebraForm" onsubmit="return confirmar(this)">
 											<form:hidden path="id"/>
 											<form:hidden path="entornId"/>
+											<input type="hidden" name="helCampFocus"/>
 											<input type="hidden" name="iframe" value="iframe"/>
 											<c:import url="formRecurs.jsp"/>
 										</form:form>
@@ -237,11 +246,6 @@ function clickExecutarAccio(accio) {
 			</c:otherwise>
 		</c:choose>
 	</c:if>
-
-	<form id="executarAccioForm" action="executarAccio.html" style="display:none">
-		<input type="hidden" name="id" value="${tasca.id}"/>
-		<input id="executarAccioCampAccio" type="hidden" name="accio"/>
-	</form>
 
 	<br/><c:import url="../common/tramitacioTasca.jsp">
 		<c:param name="pipella" value="form"/>

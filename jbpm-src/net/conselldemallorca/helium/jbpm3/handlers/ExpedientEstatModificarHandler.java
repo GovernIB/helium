@@ -8,6 +8,8 @@ import net.conselldemallorca.helium.model.hibernate.Estat;
 import net.conselldemallorca.helium.model.hibernate.Expedient;
 import net.conselldemallorca.helium.util.ExpedientIniciant;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
 
@@ -32,9 +34,11 @@ public class ExpedientEstatModificarHandler extends AbstractHeliumActionHandler 
 					ex.getTipus().getId(),
 					ec);
 			if (estat != null) {
+				logger.info("Informació modificació estat: " + ec + ", " + ex.getId() + ", " + ex.getTipus().getId());
 				ex.setEstat(estat);
 			} else {
-				throw new JbpmException("No existeix cap estat amb el codi '" + estatCodi + "'");
+				logger.info("Informació modificació estat: " + ec + ", " + ex.getId() + ", " + ex.getTipus().getId());
+				throw new JbpmException("No existeix cap estat amb el codi '" + ec + "'");
 			}
 		} else {
 			ExpedientDto expedient = getExpedient(executionContext);
@@ -43,6 +47,7 @@ public class ExpedientEstatModificarHandler extends AbstractHeliumActionHandler 
 						expedient.getTipus().getId(),
 						ec);
 				if (estat != null) {
+					logger.info("Informació modificació estat: " + ec + ", " + expedient.getId() + ", " + expedient.getTipus().getId());
 					getExpedientService().editar(
 							expedient.getEntorn().getId(),
 							expedient.getId(),
@@ -54,6 +59,7 @@ public class ExpedientEstatModificarHandler extends AbstractHeliumActionHandler 
 							expedient.getComentari(),
 							estat.getId());
 				} else {
+					logger.info("Informació modificació estat: " + ec + ", " + expedient.getId() + ", " + expedient.getTipus().getId());
 					throw new JbpmException("No existeix cap estat amb el codi '" + ec + "'");
 				}
 			} else {
@@ -68,5 +74,9 @@ public class ExpedientEstatModificarHandler extends AbstractHeliumActionHandler 
 	public void setVarEstatCodi(String varEstatCodi) {
 		this.varEstatCodi = varEstatCodi;
 	}
+
+
+
+	private static final Log logger = LogFactory.getLog(ExpedientEstatModificarHandler.class);
 
 }

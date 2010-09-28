@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -82,7 +83,7 @@ public class FirmaTasca implements Serializable, GenericEntity<Long> {
 		this.order = order;
 	}
 
-	@ManyToOne(optional=false)
+	@ManyToOne(optional=false, fetch=FetchType.LAZY)
 	@JoinColumn(name="document_id")
 	@ForeignKey(name="hel_document_firtasca_fk")
 	public Document getDocument() {
@@ -92,7 +93,7 @@ public class FirmaTasca implements Serializable, GenericEntity<Long> {
 		this.document = document;
 	}
 
-	@ManyToOne(optional=false)
+	@ManyToOne(optional=false, fetch=FetchType.EAGER)
 	@JoinColumn(name="tasca_id")
 	@ForeignKey(name="hel_tasca_firtasca_fk")
 	public Tasca getTasca() {

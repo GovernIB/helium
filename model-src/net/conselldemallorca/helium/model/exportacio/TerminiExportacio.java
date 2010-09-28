@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 
 /**
- * DTO amb informació d'una enumeracio per exportar
+ * DTO amb informació d'un termini per exportar
  * 
  * @author Josep Gayà <josepg@limit.es>
  */
@@ -21,6 +21,9 @@ public class TerminiExportacio implements Serializable {
 	private int mesos;
 	private int dies;
 	private boolean laborable;
+	private Integer diesPrevisAvis;
+	private boolean alertaPrevia;
+	private boolean alertaFinal;
 
 
 
@@ -31,7 +34,10 @@ public class TerminiExportacio implements Serializable {
 			int anys,
 			int mesos,
 			int dies,
-			boolean laborable) {
+			boolean laborable,
+			Integer diesPrevisAvis,
+			boolean alertaPrevia,
+			boolean alertaFinal) {
 		this.codi = codi;
 		this.nom = nom;
 		this.descripcio = descripcio;
@@ -39,6 +45,9 @@ public class TerminiExportacio implements Serializable {
 		this.mesos = mesos;
 		this.dies = dies;
 		this.laborable = laborable;
+		this.diesPrevisAvis = diesPrevisAvis;
+		this.alertaPrevia = alertaPrevia;
+		this.alertaFinal = alertaFinal;
 	}
 
 	public String getCodi() {
@@ -82,6 +91,24 @@ public class TerminiExportacio implements Serializable {
 	}
 	public void setLaborable(boolean laborable) {
 		this.laborable = laborable;
+	}
+	public Integer getDiesPrevisAvis() {
+		return diesPrevisAvis;
+	}
+	public void setDiesPrevisAvis(Integer diesPrevisAvis) {
+		this.diesPrevisAvis = diesPrevisAvis;
+	}
+	public boolean isAlertaPrevia() {
+		return alertaPrevia;
+	}
+	public void setAlertaPrevia(boolean alertaPrevia) {
+		this.alertaPrevia = alertaPrevia;
+	}
+	public boolean isAlertaFinal() {
+		return alertaFinal;
+	}
+	public void setAlertaFinal(boolean alertaFinal) {
+		this.alertaFinal = alertaFinal;
 	}
 
 

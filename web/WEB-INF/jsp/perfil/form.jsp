@@ -6,7 +6,7 @@
 <html>
 <head>
 	<title>Modificar perfil</title>
-	<meta name="titolcmp" content="El meu perfil">
+	<meta name="titolcmp" content="El meu perfil"/>
 	<c:import url="../common/formIncludes.jsp"/>
 </head>
 <body>
@@ -47,6 +47,15 @@
 				<c:param name="property" value="email"/>
 				<c:param name="required" value="true"/>
 				<c:param name="label">A/E</c:param>
+			</c:import>
+			<c:import url="../common/formElement.jsp">
+				<c:param name="property" value="sexe"/>
+				<c:param name="required" value="true"/>
+				<c:param name="type" value="select"/>
+				<c:param name="items" value="sexes"/>
+				<c:param name="itemLabel" value="codi"/>
+				<c:param name="itemValue" value="valor"/>
+				<c:param name="label">Sexe</c:param>
 			</c:import>
 			<%--c:import url="../common/formElement.jsp">
 				<c:param name="property" value="avisCorreu"/>

@@ -7,8 +7,8 @@
 
 <html>
 <head>
-	<title>Expedient: ${expedient.identificador}</title>
-	<meta name="titolcmp" content="Consultes">
+	<title>Expedient: ${expedient.identificadorLimitat}</title>
+	<meta name="titolcmp" content="Consultes"/>
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 <script type="text/javascript">
@@ -74,10 +74,10 @@ function confirmarModificar(e) {
 				<display:column title="Valor">
 					<c:set var="esRegistre" value="${false}"/>
 					<c:forEach var="camp" items="${instanciaProces.camps}">
-						<c:if test="${camp.codi == codi and camp.tipus == 'REGISTRE'}"><c:set var="esRegistre" value="${true}"/><c:set var="campActual" value="${camp}"/></c:if>
+						<c:if test="${camp.codi == codi}"><c:set var="campActual" value="${camp}"/></c:if>
 					</c:forEach>
 					<c:choose>
-						<c:when test="${esRegistre}">
+						<c:when test="${campActual.tipus == 'REGISTRE'}">
 							<c:set var="registres" value="${instanciaProces.varsComText[codi]}" scope="request"/>
 							<display:table name="registres" id="reg" class="displaytag">
 								<c:forEach var="membre" items="${campActual.registreMembres}" varStatus="varStatus">
@@ -112,7 +112,14 @@ function confirmarModificar(e) {
 						<img src="<c:url value="/img/magnifier_zoom_in.png"/>" alt="Mostrar/Ocultar" title="Mostrar/Ocultar" border="0" onclick="mostrarOcultar(this,'dades-agrup-${agrupacio.codi}')"/>
 					</h4>
 					<div id="dades-agrup-${agrupacio.codi}" style="display:none">
-						<c:set var="campsAgrupacio" value="${agrupacio.camps}" scope="request"/>
+<%
+	net.conselldemallorca.helium.model.hibernate.CampAgrupacio agrupacio = (net.conselldemallorca.helium.model.hibernate.CampAgrupacio)pageContext.getAttribute("agrupacio");
+	request.setAttribute(
+			"campsAgrupacio",
+			getCampsAgrupacioNoBuits(
+					agrupacio.getCamps(),
+					instanciaProces.getVarsComText()));
+%>
 						<display:table name="campsAgrupacio" id="campAgrup" class="displaytag">
 							<display:column title="Variable">
 								<c:set var="found" value="${false}"/>
@@ -121,7 +128,24 @@ function confirmarModificar(e) {
 								</c:forEach>
 								<c:choose><c:when test="${found}">${campActual.etiqueta}</c:when><c:otherwise>${campAgrup.codi}</c:otherwise></c:choose>
 							</display:column>
-							<display:column title="Valor">${instanciaProces.varsComText[campAgrup.codi]}</display:column>
+							<display:column title="Valor">
+								<c:forEach var="camp" items="${instanciaProces.camps}">
+									<c:if test="${camp.codi == campAgrup.codi}"><c:set var="campActual" value="${camp}"/></c:if>
+								</c:forEach>
+								<c:choose>
+									<c:when test="${campActual.tipus == 'REGISTRE'}">
+										<c:set var="registres" value="${instanciaProces.varsComText[campAgrup.codi]}" scope="request"/>
+										<display:table name="registres" id="reg" class="displaytag">
+											<c:forEach var="membre" items="${campActual.registreMembres}" varStatus="varStatus">
+												<c:if test="${membre.llistar}">
+													<display:column title="${membre.membre.etiqueta}">${reg[varStatus.index]}</display:column>
+												</c:if>
+											</c:forEach>
+										</display:table>
+									</c:when>
+									<c:otherwise>${instanciaProces.varsComText[campAgrup.codi]}</c:otherwise>
+								</c:choose>
+							</display:column>
 							<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
 								<display:column>
 									<a href="<c:url value="/expedient/dadaModificar.html"><c:param name="id" value="${instanciaProces.id}"/><c:param name="var" value="${campAgrup.codi}"/></c:url>" onclick="return confirmarModificar(event)"><img src="<c:url value="/img/page_white_edit.png"/>" alt="Editar" title="Editar" border="0"/></a>
@@ -164,42 +188,44 @@ function confirmarModificar(e) {
 							<img src="<c:url value="/img/magnifier_zoom_out.png"/>" alt="Mostrar/Ocultar" title="Mostrar/Ocultar" border="0" onclick="mostrarOcultar(this,'dades-tasca-${tasca.id}')"/>
 						</h4>
 						<div id="dades-tasca-${tasca.id}">
-							<display:table name="pageScope.tasca.variableKeys" id="codi" class="displaytag">
-								<display:column title="Variable">
-									<c:set var="found" value="${false}"/>
-									<c:forEach var="camp" items="${tasca.camps}">
-										<c:if test="${camp.camp.codi == codi}"><c:set var="found" value="${true}"/><c:set var="campActual" value="${camp.camp}"/></c:if>
-									</c:forEach>
-									<c:choose><c:when test="${found}">${campActual.etiqueta}</c:when><c:otherwise>${codi}</c:otherwise></c:choose>
-								</display:column>
-								<display:column title="Valor">
-									<c:set var="esRegistre" value="${false}"/>
-									<c:forEach var="camp" items="${tasca.camps}">
-										<c:if test="${camp.camp.codi == codi and camp.camp.tipus == 'REGISTRE'}"><c:set var="esRegistre" value="${true}"/><c:set var="campActual" value="${camp.camp}"/></c:if>
-									</c:forEach>
-									<c:choose>
-										<c:when test="${esRegistre}">
-											<c:set var="registres" value="${tasca.varsComText[codi]}" scope="request"/>
-											<display:table name="registres" id="reg" class="displaytag">
-												<c:forEach var="membre" items="${campActual.registreMembres}" varStatus="varStatus">
-													<c:if test="${membre.llistar}">
-														<display:column title="${membre.membre.etiqueta}">${reg[varStatus.index]}</display:column>
-													</c:if>
-												</c:forEach>
-											</display:table>
-										</c:when>
-										<c:otherwise>${tasca.varsComText[codi]}</c:otherwise>
-									</c:choose>
-								</display:column>
-								<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
-									<display:column>
-										<a href="<c:url value="/expedient/dadaModificar.html"><c:param name="taskId" value="${tasca.id}"/><c:param name="var" value="${codi}"/></c:url>" onclick="return confirmarModificar(event)"><img src="<c:url value="/img/page_white_edit.png"/>" alt="Editar" title="Editar" border="0"/></a>
+							<c:if test="${not empty pageScope.tasca.variableKeys}">
+								<display:table name="pageScope.tasca.variableKeys" id="codi" class="displaytag">
+									<display:column title="Variable">
+										<c:set var="found" value="${false}"/>
+										<c:forEach var="camp" items="${tasca.camps}">
+											<c:if test="${camp.camp.codi == codi}"><c:set var="found" value="${true}"/><c:set var="campActual" value="${camp.camp}"/></c:if>
+										</c:forEach>
+										<c:choose><c:when test="${found}">${campActual.etiqueta}</c:when><c:otherwise>${codi}</c:otherwise></c:choose>
 									</display:column>
-									<display:column>
-										<a href="<c:url value="/expedient/dadaTascaEsborrar.html"><c:param name="taskId" value="${tasca.id}"/><c:param name="var" value="${codi}"/></c:url>" onclick="return confirmarEsborrarTasca(event)"><img src="<c:url value="/img/cross.png"/>" alt="Esborrar" title="Esborrar" border="0"/></a>
+									<display:column title="Valor">
+										<c:set var="esRegistre" value="${false}"/>
+										<c:forEach var="camp" items="${tasca.camps}">
+											<c:if test="${camp.camp.codi == codi and camp.camp.tipus == 'REGISTRE'}"><c:set var="esRegistre" value="${true}"/><c:set var="campActual" value="${camp.camp}"/></c:if>
+										</c:forEach>
+										<c:choose>
+											<c:when test="${esRegistre}">
+												<c:set var="registres" value="${tasca.varsComText[codi]}" scope="request"/>
+												<display:table name="registres" id="reg" class="displaytag">
+													<c:forEach var="membre" items="${campActual.registreMembres}" varStatus="varStatus">
+														<c:if test="${membre.llistar}">
+															<display:column title="${membre.membre.etiqueta}">${reg[varStatus.index]}</display:column>
+														</c:if>
+													</c:forEach>
+												</display:table>
+											</c:when>
+											<c:otherwise>${tasca.varsComText[codi]}</c:otherwise>
+										</c:choose>
 									</display:column>
-								</security:accesscontrollist>
-							</display:table>
+									<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
+										<display:column>
+											<a href="<c:url value="/expedient/dadaModificar.html"><c:param name="taskId" value="${tasca.id}"/><c:param name="var" value="${codi}"/></c:url>" onclick="return confirmarModificar(event)"><img src="<c:url value="/img/page_white_edit.png"/>" alt="Editar" title="Editar" border="0"/></a>
+										</display:column>
+										<display:column>
+											<a href="<c:url value="/expedient/dadaTascaEsborrar.html"><c:param name="taskId" value="${tasca.id}"/><c:param name="var" value="${codi}"/></c:url>" onclick="return confirmarEsborrarTasca(event)"><img src="<c:url value="/img/cross.png"/>" alt="Esborrar" title="Esborrar" border="0"/></a>
+										</display:column>
+									</security:accesscontrollist>
+								</display:table>
+							</c:if>
 						</div>
 						<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
 							<form action="<c:url value="/expedient/dadaCrear.html"/>">
@@ -235,6 +261,16 @@ public java.util.List<String> getVariablesProcesSenseAgrupar(
 		}
 		if (!trobat)
 			resposta.add(codi);
+	}
+	return resposta;
+}
+public java.util.List<net.conselldemallorca.helium.model.hibernate.Camp> getCampsAgrupacioNoBuits(
+		java.util.List<net.conselldemallorca.helium.model.hibernate.Camp> campsAgrupacio,
+		java.util.Map<String, Object> varsComText) {
+	java.util.List<net.conselldemallorca.helium.model.hibernate.Camp> resposta = new java.util.ArrayList<net.conselldemallorca.helium.model.hibernate.Camp>();
+	for (net.conselldemallorca.helium.model.hibernate.Camp camp: campsAgrupacio) {
+		if (varsComText.containsKey(camp.getCodi()))
+				resposta.add(camp);
 	}
 	return resposta;
 }

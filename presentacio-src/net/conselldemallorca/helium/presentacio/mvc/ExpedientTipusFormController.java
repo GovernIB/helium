@@ -38,7 +38,6 @@ import org.springframework.web.bind.support.SessionStatus;
  * @author Josep Gayà <josepg@limit.es>
  */
 @Controller
-@RequestMapping("/expedientTipus/*.html")
 public class ExpedientTipusFormController extends BaseController {
 
 	private DissenyService dissenyService;
@@ -70,7 +69,7 @@ public class ExpedientTipusFormController extends BaseController {
 		return new ExpedientTipus();
 	}
 
-	@RequestMapping(value = "form", method = RequestMethod.GET)
+	@RequestMapping(value = "/expedientTipus/form", method = RequestMethod.GET)
 	public String formGet(
 			HttpServletRequest request,
 			ModelMap model) {
@@ -91,7 +90,7 @@ public class ExpedientTipusFormController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
-	@RequestMapping(value = "form", method = RequestMethod.POST)
+	@RequestMapping(value = "/expedientTipus/form", method = RequestMethod.POST)
 	public String formPost(
 			HttpServletRequest request,
 			@RequestParam(value = "submit", required = false) String submit,

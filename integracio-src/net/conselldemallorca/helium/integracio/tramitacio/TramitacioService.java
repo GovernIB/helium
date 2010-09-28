@@ -59,6 +59,20 @@ public interface TramitacioService {
 			String usuari) throws TramitacioException;
 
 	/**
+	 * Mètode per a agafar una tasca assignada a un grup de l'usuari
+	 * 
+	 * @param entorn
+	 * @param usuari
+	 * @param tascaId
+	 * @throws TramitacioException
+	 */
+	public void agafarTasca(
+			String entorn,
+			String usuari,
+			String tascaId) throws TramitacioException;
+
+	/**
+	 * Mètode per a consultar els camps del formulari de la tasca
 	 * 
 	 * @param entorn
 	 * @param usuari
@@ -71,6 +85,7 @@ public interface TramitacioService {
 			String tascaId) throws TramitacioException;
 
 	/**
+	 * Mètode per a modificar els valors del formulari de la tasca
 	 * 
 	 * @param entorn
 	 * @param usuari
@@ -85,6 +100,7 @@ public interface TramitacioService {
 			List<ParellaCodiValor> valors) throws TramitacioException;
 
 	/**
+	 * Mètode per a consultar els documents de la tasca
 	 * 
 	 * @param entorn
 	 * @param usuari
@@ -97,6 +113,7 @@ public interface TramitacioService {
 			String tascaId) throws TramitacioException;
 
 	/**
+	 * Mètode per a modificar el contingut dels documents de la tasca
 	 * 
 	 * @param entorn
 	 * @param usuari
@@ -114,6 +131,22 @@ public interface TramitacioService {
 			byte[] contingut) throws TramitacioException;
 
 	/**
+	 * Mètode per a esborrar el contingut dels documents de la tasca
+	 * 
+	 * @param entorn
+	 * @param usuari
+	 * @param tascaId
+	 * @param document
+	 * @throws TramitacioException
+	 */
+	public void esborrarDocumentTasca(
+			String entorn,
+			String usuari,
+			String tascaId,
+			String document) throws TramitacioException;
+
+	/**
+	 * Mètode per a finalitzar una tasca
 	 * 
 	 * @param entorn
 	 * @param usuari
@@ -126,5 +159,132 @@ public interface TramitacioService {
 			String usuari,
 			String tascaId,
 			String transicio) throws TramitacioException;
+
+	/**
+	 * Consulta les variables d'un procés
+	 * 
+	 * @param entorn
+	 * @param usuari
+	 * @param processInstanceId
+	 * @return
+	 * @throws TramitacioException
+	 */
+	public List<CampProces> consultarVariablesProces(
+			String entorn,
+			String usuari,
+			String processInstanceId) throws TramitacioException;
+
+	/**
+	 * Mètode per a modificar variables del procés
+	 * 
+	 * @param entorn
+	 * @param usuari
+	 * @param processInstanceId
+	 * @param varCodi
+	 * @param valor
+	 * @throws TramitacioException
+	 */
+	public void setVariableProces(
+			String entorn,
+			String usuari,
+			String processInstanceId,
+			String varCodi,
+			Object valor) throws TramitacioException;
+
+	/**
+	 * Mètode per a esborrar variables del procés
+	 * 
+	 * @param entorn
+	 * @param usuari
+	 * @param processInstanceId
+	 * @param varCodi
+	 * @throws TramitacioException
+	 */
+	public void esborrarVariableProces(
+			String entorn,
+			String usuari,
+			String processInstanceId,
+			String varCodi) throws TramitacioException;
+
+	/**
+	 * Mètode per a consultar els documents d'un expedient
+	 * 
+	 * @param entorn
+	 * @param usuari
+	 * @param processInstanceId
+	 * @return
+	 * @throws TramitacioException
+	 */
+	public List<DocumentProces> consultarDocumentsProces(
+			String entorn,
+			String usuari,
+			String processInstanceId) throws TramitacioException;
+
+	/**
+	 * Mètode per a modificar documents del procés
+	 * 
+	 * @param entorn
+	 * @param usuari
+	 * @param processInstanceId
+	 * @param documentCodi
+	 * @param arxiu
+	 * @param data
+	 * @param contingut
+	 * @return
+	 * @throws TramitacioException
+	 */
+	public Long setDocumentProces(
+			String entorn,
+			String usuari,
+			String processInstanceId,
+			String documentCodi,
+			String arxiu,
+			Date data,
+			byte[] contingut) throws TramitacioException;
+
+	/**
+	 * Mètode per a esborrar documents del procés
+	 * 
+	 * @param entorn
+	 * @param usuari
+	 * @param processInstanceId
+	 * @param documentId
+	 * @throws TramitacioException
+	 */
+	public void esborrarDocumentProces(
+			String entorn,
+			String usuari,
+			String processInstanceId,
+			Long documentId) throws TramitacioException;
+
+	/**
+	 * Mètode per a executar una acció a dins un procés
+	 * 
+	 * @param entorn
+	 * @param usuari
+	 * @param processInstanceId
+	 * @param accio
+	 * @throws TramitacioException
+	 */
+	public void executarAccioProces(
+			String entorn,
+			String usuari,
+			String processInstanceId,
+			String accio) throws TramitacioException;	
+
+	/**
+	 * Mètode per a executar un script a dins un procés
+	 * 
+	 * @param entorn
+	 * @param usuari
+	 * @param processInstanceId
+	 * @param script
+	 * @throws TramitacioException
+	 */
+	public void executarScriptProces(
+			String entorn,
+			String usuari,
+			String processInstanceId,
+			String script) throws TramitacioException;
 
 }

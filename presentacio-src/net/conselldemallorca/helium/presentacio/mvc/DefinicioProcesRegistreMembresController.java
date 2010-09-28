@@ -64,7 +64,7 @@ public class DefinicioProcesRegistreMembresController extends BaseController {
 			@RequestParam(value = "registreId", required = false) Long registreId) {
 		if (registreId == null)
 			return null;
-		List<Camp> camps = dissenyService.findCampsAmbDefinicioProces(definicioProcesId);
+		List<Camp> camps = dissenyService.findCampsAmbDefinicioProcesOrdenatsPerCodi(definicioProcesId);
 		Iterator<Camp> it = camps.iterator();
 		while (it.hasNext()) {
 			Camp camp = it.next();

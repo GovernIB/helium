@@ -7,7 +7,7 @@ import net.conselldemallorca.helium.integracio.plugins.portasignatures.service.w
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.service.wsdl.CallbackRequest;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.service.wsdl.CallbackResponse;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.service.wsdl.MCGDws;
-import net.conselldemallorca.helium.model.service.ExpedientService;
+import net.conselldemallorca.helium.model.service.PluginService;
 import net.conselldemallorca.helium.model.service.ServiceProxy;
 
 import org.apache.commons.logging.Log;
@@ -36,7 +36,7 @@ public class PortasignaturesPluginImpl implements MCGDws {
 		Double resposta = -1D;
 		try {
 			estat = callbackRequest.getApplication().getDocument().getAttributes().getState();
-			ExpedientService expedientService = ServiceProxy.getInstance().getExpedientService();
+			PluginService pluginService = ServiceProxy.getInstance().getPluginService();
 			switch (estat) {
 				case DOCUMENT_BLOQUEJAT:
 					resposta = 1D;
@@ -47,12 +47,12 @@ public class PortasignaturesPluginImpl implements MCGDws {
 					logger.info("Document " + document + " pendent (" + resposta + ").");
 					break;
 				case DOCUMENT_SIGNAT:
-					resposta = expedientService.processarDocumentSignat(
+					resposta = pluginService.processarDocumentSignatPortasignatures(
 							document);
 					logger.info("Document " + document + " signat (" + resposta + ").");
 					break;
 				case DOCUMENT_REBUTJAT:
-					resposta = expedientService.processarDocumentRebutjat(
+					resposta = pluginService.processarDocumentRebutjatPortasignatures(
 							document,
 							callbackRequest.getApplication().getDocument().getSigner().getRejection().getDescription());
 					logger.info("Document " + document + " rebutjat (" + resposta + ").");

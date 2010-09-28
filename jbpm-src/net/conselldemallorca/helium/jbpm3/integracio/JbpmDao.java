@@ -7,6 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -34,6 +35,8 @@ import org.jbpm.graph.def.ProcessDefinition;
 import org.jbpm.graph.def.Transition;
 import org.jbpm.graph.exe.ProcessInstance;
 import org.jbpm.graph.exe.Token;
+import org.jbpm.job.Timer;
+import org.jbpm.taskmgmt.def.Task;
 import org.jbpm.taskmgmt.exe.TaskInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -125,9 +128,15 @@ public class JbpmDao {
 		ProcessDefinition pd = dpd.getProcessDefinition();
 		Map<String,Object> tasks = pd.getTaskMgmtDefinition().getTasks();
 		if (tasks != null) {
-			for (String taskName: tasks.keySet()) {
+			for (String taskName: tasks.keySet())
 				taskNames.add(taskName);
-			}
+		}
+		// Si la tasca del start-state no té name no surt llistada a pd.getTaskMgmtDefinition().getTasks()
+		// Però en realitat sí que té name (el del start-state) i s'ha d'agafar de la següent forma:
+		Task startTask = pd.getTaskMgmtDefinition().getStartTask();
+		if (startTask != null) {
+			if (!taskNames.contains(startTask.getName()))
+				taskNames.add(startTask.getName());
 		}
 		return taskNames;
 	}
@@ -193,6 +202,7 @@ public class JbpmDao {
 			command.setStartTransitionName(transitionName);
 		ProcessInstance processInstance = (ProcessInstance)commandService.execute(command);
 		resultat = new JbpmProcessInstance(processInstance);
+		
 		return resultat;
 	}
 	public JbpmProcessInstance getRootProcessInstance(
@@ -316,7 +326,7 @@ public class JbpmDao {
 		return resultat;
 	}
 
-	public List<String> findTaskOutcomes(String jbpmId, String taskName) {
+	public List<String> findStartTaskOutcomes(String jbpmId, String taskName) {
 		List<String> resultat = new ArrayList<String>();
 		long pdid = new Long(jbpmId).longValue();
 		GetProcessDefinitionByIdCommand command = new GetProcessDefinitionByIdCommand(pdid);
@@ -328,13 +338,12 @@ public class JbpmDao {
 		}
 		return resultat;
 	}
-	@SuppressWarnings("unchecked")
 	public List<String> findTaskInstanceOutcomes(String taskInstanceId) {
 		List<String> resultat = new ArrayList<String>();
 		long id = new Long(taskInstanceId).longValue();
 		GetTaskInstanceCommand command = new GetTaskInstanceCommand(id);
 		TaskInstance taskInstance = (TaskInstance)commandService.execute(command);
-		List<Transition> outcomes = (List<Transition>)taskInstance.getAvailableTransitions();
+		List<Transition> outcomes = (List<Transition>)taskInstance.getTask().getTaskNode().getLeavingTransitions();
 		if (outcomes != null) {
 			for (Transition transition: outcomes)
 				resultat.add(transition.getName());
@@ -553,12 +562,18 @@ public class JbpmDao {
 	}
 
 	public Object evaluateExpression(
+			String taskInstanceInstanceId,
 			String processInstanceId,
-			String expression) {
-		long id = new Long(processInstanceId).longValue();
+			String expression,
+			Map<String, Object> valors) {
+		long pid = new Long(processInstanceId).longValue();
 		EvaluateExpressionCommand command = new EvaluateExpressionCommand(
-				id,
+				pid,
 				expression);
+		if (taskInstanceInstanceId != null)
+			command.setTid(new Long(taskInstanceInstanceId).longValue());
+		if (valors != null)
+			command.setValors(valors);
 		return commandService.execute(command);
 	}
 
@@ -602,6 +617,29 @@ public class JbpmDao {
 			long tokenId,
 			String transitionName) {
 		SignalCommand command = new SignalCommand(tokenId, transitionName);
+		commandService.execute(command);
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<Timer> findTimersWithProcessInstanceId(
+			String processInstanceId) {
+		long id = new Long(processInstanceId).longValue();
+		FindProcessInstanceTimersCommand command = new FindProcessInstanceTimersCommand(id);
+		return (List<Timer>)commandService.execute(command);
+	}
+
+	public void suspendTimer(
+			long timerId,
+			Date dueDate) {
+		SuspendProcessInstanceTimerCommand command = new SuspendProcessInstanceTimerCommand(timerId);
+		command.setDueDate(dueDate);
+		commandService.execute(command);
+	}
+	public void resumeTimer(
+			long timerId,
+			Date dueDate) {
+		ResumeProcessInstanceTimerCommand command = new ResumeProcessInstanceTimerCommand(timerId);
+		command.setDueDate(dueDate);
 		commandService.execute(command);
 	}
 

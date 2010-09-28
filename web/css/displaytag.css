@@ -4,6 +4,7 @@ table.displaytag {
 	margin: 0 0 8px 0;
 	border-collapse: separate;
 	border-spacing: 2px;
+	background-color: white;
 }
 table.displaytag th, table.displaytag td {
 	padding: .4em .6em .4em .6em;

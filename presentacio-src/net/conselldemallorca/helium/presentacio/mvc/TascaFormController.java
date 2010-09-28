@@ -58,6 +58,8 @@ import org.springframework.web.bind.support.SessionStatus;
 @Controller
 public class TascaFormController extends BaseController {
 
+	public static final String VARIABLE_SESSIO_CAMP_FOCUS = "helCampFocus";
+
 	private String TAG_PARAM_REGEXP = "<!--helium:param-(.+?)-->";
 
 	private TascaService tascaService;
@@ -78,78 +80,69 @@ public class TascaFormController extends BaseController {
 		this.validator = new TascaFormValidator(tascaService);
 	}
 
-	@ModelAttribute("tasca")
-	public TascaDto populateTasca(
+	@SuppressWarnings("unchecked")
+	@ModelAttribute("command")
+	public Object populateCommand(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) String id,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			try {
-				TascaDto tasca = tascaService.getById(entorn.getId(), id);
-				if (tasca.getRecursForm() != null && tasca.getRecursForm().length() > 0) {
-					try {
-						byte[] contingut = dissenyService.getDeploymentResource(
-								tasca.getDefinicioProces().getId(),
-								tasca.getRecursForm());
-						model.addAttribute(
-								"formRecursParams",
-								getFormRecursParams(new String(contingut, "UTF-8")));
-					} catch (Exception ex) {
-						logger.error("No s'han pogut extreure els parametres del recurs", ex);
-					}
-				}
-				return tasca;
-			} catch (NotFoundException ignored) {}
-		}
-		return null;
-	}
-
-	@SuppressWarnings("unchecked")
-	@ModelAttribute("command")
-	public Object populateCommand(
-			HttpServletRequest request,
-			@RequestParam(value = "id", required = true) String id) {
-		Entorn entorn = getEntornActiu(request);
-		if (entorn != null) {
-			try {
-				TascaDto tasca = tascaService.getById(entorn.getId(), id);
-				Map<String, Object> campsAddicionals = new HashMap<String, Object>();
-				campsAddicionals.put("id", id);
-				campsAddicionals.put("entornId", entorn.getId());
-				campsAddicionals.put("procesScope", null);
-				Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
-				campsAddicionalsClasses.put("id", String.class);
-				campsAddicionalsClasses.put("entornId", Long.class);
-				campsAddicionalsClasses.put("procesScope", Map.class);
-				Object command = TascaFormUtil.getCommandForTasca(
-						tasca,
-						campsAddicionals,
-						campsAddicionalsClasses);
-				return command;
-			} catch (NotFoundException ignored) {}
-		}
-		return null;
-	}
-	
-	@ModelAttribute("commandReadOnly")
-	public Object populateCommandReadOnly(
-			HttpServletRequest request,
-			@RequestParam(value = "id", required = true) String id) {
-		return populateCommand(request, id);
-	}
-
-	@ModelAttribute("valorsPerSuggest")
-	public Map<String, List<String>> populateValorsPerSuggest(
-			HttpServletRequest request,
-			ModelMap model) {
-		Entorn entorn = getEntornActiu(request);
-		if (entorn != null) {
-			TascaDto tasca = (TascaDto)model.get("tasca");
-			if (tasca != null) {
-				Object command = model.get("command");
-				return TascaFormUtil.getValorsPerSuggest(tasca, command);
+			TascaDto tasca = tascaService.getById(entorn.getId(), id);
+			Object command = null;
+			Object commandSessio = TascaFormUtil.recuperarCommandTemporal(request, true);
+			if (commandSessio != null) {
+				List<Camp> camps = new ArrayList<Camp>();
+	    		for (CampTasca campTasca: tasca.getCamps())
+	    			camps.add(campTasca.getCamp());
+				tasca = tascaService.getById(
+						entorn.getId(),
+						id,
+						TascaFormUtil.getValorsFromCommand(
+	        					camps,
+	        					commandSessio,
+	        					true,
+	    						false));
+				model.addAttribute(
+						"valorsPerSuggest",
+						TascaFormUtil.getValorsPerSuggest(tasca, commandSessio));
+				model.addAttribute("commandReadOnly", commandSessio);
+				command = commandSessio;
+			} else {
+				tasca = tascaService.getById(entorn.getId(), id);
+				try {
+					Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+					campsAddicionals.put("id", id);
+					campsAddicionals.put("entornId", entorn.getId());
+					campsAddicionals.put("procesScope", null);
+					Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
+					campsAddicionalsClasses.put("id", String.class);
+					campsAddicionalsClasses.put("entornId", Long.class);
+					campsAddicionalsClasses.put("procesScope", Map.class);
+					command = TascaFormUtil.getCommandForTasca(
+							tasca,
+							campsAddicionals,
+							campsAddicionalsClasses);
+					model.addAttribute(
+							"valorsPerSuggest",
+							TascaFormUtil.getValorsPerSuggest(tasca, command));
+					model.addAttribute("commandReadOnly", command);
+				} catch (NotFoundException ignored) {}
 			}
+			if (tasca.getRecursForm() != null && tasca.getRecursForm().length() > 0) {
+				try {
+					byte[] contingut = dissenyService.getDeploymentResource(
+							tasca.getDefinicioProces().getId(),
+							tasca.getRecursForm());
+					model.addAttribute(
+							"formRecursParams",
+							getFormRecursParams(new String(contingut, "UTF-8")));
+				} catch (Exception ex) {
+					logger.error("No s'han pogut extreure els parametres del recurs", ex);
+				}
+			}
+			model.addAttribute("tasca", tasca);
+			return command;
 		}
 		return null;
 	}
@@ -161,6 +154,14 @@ public class TascaFormController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
+			String campFocus = (String)request.getSession().getAttribute(VARIABLE_SESSIO_CAMP_FOCUS);
+			if (campFocus != null) {
+				String[] partsCampFocus = campFocus.split("#");
+				if (partsCampFocus.length == 2) {
+					if (!id.equals(partsCampFocus[1]))
+						request.getSession().removeAttribute(VARIABLE_SESSIO_CAMP_FOCUS);
+				}
+			}
 			if (model.get("command") == null) {
 				missatgeError(request, "Aquesta tasca ja no està disponible");
 				return "redirect:/tasca/personaLlistat.html";
@@ -179,6 +180,10 @@ public class TascaFormController extends BaseController {
 			@RequestParam(value = "helMultipleIndex", required = false) Integer index,
 			@RequestParam(value = "helMultipleField", required = false) String field,
 			@RequestParam(value = "iframe", required = false) String iframe,
+			@RequestParam(value = "registreEsborrarId", required = false) Long registreEsborrarId,
+			@RequestParam(value = "registreEsborrarIndex", required = false) Integer registreEsborrarIndex,
+			@RequestParam(value = "helAccioCamp", required = false) String accioCamp,
+			@RequestParam(value = "helCampFocus", required = false) String campFocus,
 			@ModelAttribute("command") Object command,
 			BindingResult result,
 			SessionStatus status,
@@ -193,15 +198,15 @@ public class TascaFormController extends BaseController {
 			List<Camp> camps = new ArrayList<Camp>();
     		for (CampTasca campTasca: tasca.getCamps())
     			camps.add(campTasca.getCamp());
-			if ("submit".equals(submit) || submit.length() == 0) {
-				try {
-					afegirVariablesDelProces(command, tasca);
-					TascaFormUtil.getBeanValidatorForCommand(camps).validate(command, result);
-				} catch (Exception ex) {
-					missatgeError(request, "S'han produit errors de validació", ex.getLocalizedMessage());
-		        	logger.error("S'han produit errors de validació", ex);
-		        	return "tasca/form";
+    		if (campFocus != null) {
+				String[] partsCampFocus = campFocus.split("#");
+				if (partsCampFocus.length == 2) {
+					request.getSession().setAttribute(VARIABLE_SESSIO_CAMP_FOCUS, partsCampFocus[0]);
+				} else {
+					request.getSession().setAttribute(VARIABLE_SESSIO_CAMP_FOCUS, campFocus);
 				}
+    		}
+			if ("submit".equals(submit)) {
 		        if (result.hasErrors()) {
 		        	return "tasca/form";
 		        }
@@ -209,22 +214,35 @@ public class TascaFormController extends BaseController {
 		        	tascaService.guardarVariables(
 		        			entorn.getId(),
 		        			id,
-		        			TascaFormUtil.valorsFromCommand(
+		        			TascaFormUtil.getValorsFromCommand(
 		        					camps,
 		        					command,
 		        					true,
 		    						false));
 		        	missatgeInfo(request, "Les dades del formulari s'han guardat correctament");
-		        	status.setComplete();
-		        	if (iframe != null)
-		        		return "redirect:/tasca/formIframe.html?id=" + id + "&iframe=iframe";
-		        	else
-		        		return "redirect:/tasca/form.html?id=" + id;
 		        } catch (Exception ex) {
 		        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut guardar les dades del formulari", ex);
 		        	return "tasca/form";
 		        }
+		        try {
+					if (accioCamp != null && accioCamp.length() > 0) {
+						tascaService.executarAccio(
+								entorn.getId(),
+								id,
+								accioCamp);
+						missatgeInfo(request, "L'acció s'ha executat amb èxit");
+					}
+				} catch (Exception ex) {
+					missatgeError(request, "No s'ha pogut executar l'acció", ex.getLocalizedMessage());
+					logger.error("No s'ha pogut executar l'acció: ", ex);
+					return "tasca/form";
+				}
+		        status.setComplete();
+	        	if (iframe != null)
+	        		return "redirect:/tasca/formIframe.html?id=" + id + "&iframe=iframe";
+	        	else
+	        		return "redirect:/tasca/form.html?id=" + id;
 			} else if ("validate".equals(submit)) {
 				validator.validate(command, result);
 				try {
@@ -242,7 +260,7 @@ public class TascaFormController extends BaseController {
 		        	tascaService.validar(
 		        			entorn.getId(),
 		        			id,
-		        			TascaFormUtil.valorsFromCommand(
+		        			TascaFormUtil.getValorsFromCommand(
 		        					camps,
 		        					command,
 		        					true,
@@ -255,7 +273,7 @@ public class TascaFormController extends BaseController {
 		        	else
 		        		return "redirect:/tasca/form.html?id=" + id;
 		        } catch (Exception ex) {
-		        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+		        	missatgeError(request, "No s'ha pogut validar el formulari", ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut validar el formulari", ex);
 		        	return "tasca/form";
 		        }
@@ -271,7 +289,7 @@ public class TascaFormController extends BaseController {
 		        	status.setComplete();
 		        	return "redirect:/tasca/form.html?id=" + id;
 		        } catch (Exception ex) {
-		        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+		        	missatgeError(request, "No s'ha pogut restaurar el formulari", ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut restaurar el formulari", ex);
 		        	return "tasca/form";
 		        }
@@ -283,7 +301,7 @@ public class TascaFormController extends BaseController {
 								field,
 								TascaFormUtil.addMultiple(field, command, camps));
 				} catch (Exception ex) {
-					missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+					missatgeError(request, "No s'ha pogut afegir el camp múltiple", ex.getLocalizedMessage());
 					logger.error("No s'ha pogut afegir el camp múltiple", ex);
 				}
 	        	return "tasca/form";
@@ -295,12 +313,43 @@ public class TascaFormController extends BaseController {
 								field,
 								TascaFormUtil.deleteMultiple(field, command, camps, index));
 				} catch (Exception ex) {
-					missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
-					logger.error("No s'ha pogut afegir el camp múltiple", ex);
+					missatgeError(request, "No s'ha pogut esborrar el camp múltiple", ex.getLocalizedMessage());
+					logger.error("No s'ha pogut esborrar el camp múltiple", ex);
 				}
 	        	return "tasca/form";
+			/*} else if ("accioCamp".equals(submit)) {
+		        try {
+					if (accioCamp != null && accioCamp != null) {
+						tascaService.executarAccio(
+								entorn.getId(),
+								id,
+								accioCamp);
+						missatgeInfo(request, "L'acció s'ha executat amb èxit");
+					}
+				} catch (Exception ex) {
+					missatgeError(request, "No s'ha pogut executar l'acció", ex.getLocalizedMessage());
+					logger.error("No s'ha pogut executar l'acció: ", ex);
+					return "tasca/form";
+				}
+		        status.setComplete();
+	        	return "tasca/form";*/
+			} else {
+				status.setComplete();
+				if (registreEsborrarId != null && registreEsborrarIndex != null) {
+					Camp camp = dissenyService.getCampById(registreEsborrarId);
+					try {
+						tascaService.esborrarRegistre(id, camp.getCodi(), registreEsborrarIndex.intValue());
+					} catch (Exception ex) {
+			        	missatgeError(request, "No s'ha pogut esborrar el registre", ex.getLocalizedMessage());
+			        	logger.error("No s'ha pogut esborrar el registre", ex);
+			        }
+				}
+				TascaFormUtil.guardarCommandTemporal(request, command);
+	        	if (iframe != null)
+	        		return "redirect:/tasca/formIframe.html?id=" + id + "&iframe=iframe";
+	        	else
+	        		return "redirect:/tasca/form.html?id=" + id;
 			}
-			return "redirect:/tasca/form.html?id=" + id;
 		} else {
 			missatgeError(request, "No hi ha cap entorn seleccionat");
 			return "redirect:/index.html";

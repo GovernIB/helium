@@ -6,7 +6,7 @@
 <html>
 <head>
 	<title><c:choose><c:when test="${empty command.id}">Crear nou entorn</c:when><c:otherwise>Modificar entorn</c:otherwise></c:choose></title>
-	<meta name="titolcmp" content="Configuració">
+	<meta name="titolcmp" content="Configuració"/>
 	<c:import url="../common/formIncludes.jsp"/>
 </head>
 <body>

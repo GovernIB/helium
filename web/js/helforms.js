@@ -37,7 +37,24 @@ function initSuggest(codi, url, callback, extraParams) {
 	});
 }
 
-function initSelect(selectId, valor, url, extraParams) {
+var selectDominiParams = new Array();
+var consultaActiva = new Array();
+function initSelect(selectId, valor, url, extraParams, dominiParams) {
+	//if (!$.browser.msie || parseInt(jQuery.browser.version) > 7) {
+		$.blockUI({
+			message: 'Carregant dades...' ,
+			css: {
+	        	border: 'none', 
+	        	padding: '15px', 
+	        	backgroundColor: '#000', 
+	        	'-webkit-border-radius': '10px', 
+	        	'-moz-border-radius': '10px', 
+	        	opacity: .5, 
+	        	color: '#fff'}
+		});
+	//}
+	selectDominiParams[selectId] = dominiParams;
+	consultaActiva.push(selectId);
 	var valorActual = $("select#" + selectId).val();
 	$("select#" + selectId).html(
 			'<option>Carregant...</option>');
@@ -53,6 +70,16 @@ function initSelect(selectId, valor, url, extraParams) {
 		        	else
 		        		options += '<option value="' + j[i].valor + '">' + j[i].text + '</option>';
 		        }
+		        for (i = 0; i < consultaActiva.length; i++) {
+		        	if (consultaActiva[i] == selectId) {
+		        		consultaActiva.splice(i, 1);
+		        		break;
+		        	}
+		        }
+		        //if (!$.browser.msie || parseInt(jQuery.browser.version) > 7) {
+			        if (consultaActiva.length == 0)
+			        	$.unblockUI({ message: null });
+		        //}
 		        $("select#" + selectId).html(options);
 		        if (canvisSelectInicialitzat)
 		        	$("select#" + selectId).val(valorActual);
@@ -83,8 +110,10 @@ function canviSelectTasca(selectId, camp) {
 	canvisSelectValorsAddicionals = str;
 	var sels = $("#" + selectId).parents("form").find("select");
 	for (i = 0; i < sels.length; i++) {
-		if (sels[i].id != selectId)
-			eval("initSelect_" + sels[i].id + "()");
+		if (sels[i].id != selectId && selectDominiParams[sels[i].id] != null && selectDominiParams[sels[i].id].indexOf(camp) != -1) {
+			try { eval("initSelect_" + sels[i].id + "()"); }
+			catch (ex) {}
+		}
 	}
 	canvisSelectInicialitzat = true;
 }
@@ -124,6 +153,22 @@ function multipleAdd(elem, field) {
 	return true;
 }
 
+function accioCampExecutar(elem, field) {
+	if (confirm("L'execució d'aquesta acció provocarà que es guardin automaticament les dades de la tasca. Voleu continuar?")) {
+		var fieldField = document.getElementById("helAccioCamp");
+		if (fieldField == null) {
+			newField = document.createElement('input');
+			newField.setAttribute("id", "helAccioCamp");
+			newField.setAttribute("name", "helAccioCamp");
+			newField.setAttribute("type", "hidden");
+			newField.setAttribute("value", field);
+			elem.form.appendChild(newField);
+		}
+		return true;
+	}
+	return false;
+}
+
 var submitAction;
 function saveAction(element, action) {
 	submitAction = action;
@@ -136,4 +181,12 @@ function saveAction(element, action) {
 		    }
 		}
 	}
+}
+
+function canviTermini(input) {
+	var campId = input.id.substring(0, input.id.indexOf("_"));
+	var anys = document.getElementById(campId + "_anys").value;
+	var mesos = document.getElementById(campId + "_mesos").value;
+	var dies = document.getElementById(campId + "_dies").value;
+	document.getElementById(campId).value = anys + "/" + mesos + "/" + dies;
 }

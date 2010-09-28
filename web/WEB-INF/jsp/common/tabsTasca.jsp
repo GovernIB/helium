@@ -33,7 +33,7 @@ function confirmarDelegacioCancel(e) {
 				</c:otherwise>
 			</c:choose>
 			<dt>Data</dt><dd><fmt:formatDate value="${tasca.delegacioData}" pattern="dd/MM/yyyy HH:mm"/></dd>
-			<dt>Comentari</dt><dd>${tasca.delegacioComentari}<c:if test="${empty comentari}">(Sense comentari)</c:if></dd>
+			<dt>Comentari</dt><dd>${tasca.delegacioComentari}<c:if test="${empty tasca.delegacioComentari}">(Sense comentari)</c:if></dd>
 			<dt>Supervisada</dt><dd><c:choose><c:when test="${tasca.delegacioSupervisada}">Si</c:when><c:otherwise>No</c:otherwise></c:choose></dd>
 		</dl>
 		<c:if test="${tasca.delegacioOriginal}">

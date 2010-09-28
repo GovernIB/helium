@@ -131,7 +131,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			if (commandFiltre != null) {
 				model.addAttribute("commandFiltre", commandFiltre);
 				List<Camp> camps = dissenyService.findCampsPerConsulta(commandSeleccio.getConsultaId());
-				Map<String, Object> valors = TascaFormUtil.valorsFromCommand(
+				Map<String, Object> valors = TascaFormUtil.getValorsFromCommand(
 						camps,
 						commandFiltre,
 						true,

@@ -9,7 +9,7 @@
 <html>
 <head>
 	<title>Consulta general</title>
-	<meta name="titolcmp" content="Consultes">
+	<meta name="titolcmp" content="Consultes"/>
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
     <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
     <c:import url="../common/formIncludes.jsp"/>
@@ -40,9 +40,11 @@ function confirmar(e) {
 				<c:param name="property" value="dataInici1"/>
 				<c:param name="type" value="custom"/>
 				<c:param name="label">Data d'inici</c:param>
+				<c:param name="customClass">customField</c:param>
 				<c:param name="content">
 					<spring:bind path="dataInici1">
-						<label for="dataInici1" class="blockLabel">Entre
+						<label for="dataInici1" class="blockLabel">
+							<span>Entre</span>
 							<input id="dataInici1" name="dataInici1" value="${status.value}" type="text" class="textInput"/>
 							<script type="text/javascript">
 								// <![CDATA[
@@ -59,7 +61,8 @@ function confirmar(e) {
 						</label>
 					</spring:bind>
 					<spring:bind path="dataInici2">
-						<label for="dataInici2" class="blockLabel blockLabelLast">i
+						<label for="dataInici2" class="blockLabel blockLabelLast">
+							<span>i</span>
 							<input id="dataInici2" name="dataInici2" value="${status.value}" type="text" class="textInput"/>
 							<script type="text/javascript">
 								// <![CDATA[
@@ -77,6 +80,8 @@ function confirmar(e) {
 					</spring:bind>
 				</c:param>
 			</c:import>
+		</div>
+		<div class="inlineLabels col last">
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="expedientTipus"/>
 				<c:param name="type" value="select"/>

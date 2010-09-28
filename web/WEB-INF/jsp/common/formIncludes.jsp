@@ -2,7 +2,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%-- Calendari --%>
 <c:if test="${empty param.withoutCss || param.withoutCss == 'false'}">
-	<style type="text/css" media="screen">@import "<c:url value="/css/uni-form/uni-form.css"/>";</style>
+	<link href="<c:url value="/css/uni-form/uni-form.css"/>" rel="stylesheet" type="text/css"/>
+	<link href="<c:url value="/css/uni-form/default.uni-form.css"/>" rel="stylesheet" type="text/css"/>
+	<link href="<c:url value="/css/uni-form/helium.uni-form.css"/>" rel="stylesheet" type="text/css"/>
 </c:if>
 <script type="text/javascript" src="<c:url value="/js/jquery/ui/ui.core.js"/>"></script>
 <script type="text/javascript" src="<c:url value="/js/jquery/ui/ui.datepicker.js"/>"></script>
@@ -15,3 +17,7 @@
 
 <script type="text/javascript" src="<c:url value="/js/jquery/jquery.meio.mask.min.js"/>"></script>
 <script type="text/javascript" src="<c:url value="/js/jquery/jquery.keyfilter-1.7.min.js"/>"></script>
+
+<script type="text/javascript" src="<c:url value="/js/jquery/ui/ui.core.js"/>"></script>
+<script  type="text/javascript" src="<c:url value="/js/jquery/ui/jquery-ui-1.7.2.custom.js"/>"></script>
+<script type="text/javascript" src="<c:url value="/js/jquery/jquery.blockUI.js"/>"></script>

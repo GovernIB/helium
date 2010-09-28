@@ -34,6 +34,25 @@ public class TascaDao extends HibernateGenericDao<Tasca, Long> {
 	}
 
 	@SuppressWarnings("unchecked")
+	public Tasca findAmbActivityNameIDefinicioProces(
+			String activityName,
+			Long definicioProcesId) {
+		List<Tasca> llista = getSession().
+				createQuery(
+						"from " +
+						"    Tasca t " +
+						"where " +
+						"    t.jbpmName=? " +
+						"and t.definicioProces.id=?").
+				setString(0, activityName).
+				setLong(1, definicioProcesId).
+				list();
+		if (llista.size() > 0)
+			return llista.get(0);
+		return null;
+	}
+
+	@SuppressWarnings("unchecked")
 	public Tasca findAmbActivityNameIProcessDefinitionId(
 			String activityName,
 			String processDefinitionId) {

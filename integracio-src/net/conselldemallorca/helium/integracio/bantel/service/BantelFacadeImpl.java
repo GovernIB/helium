@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.integracio.bantel.service;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.jws.WebService;
@@ -61,38 +62,41 @@ public class BantelFacadeImpl implements BantelFacade {
 			refClient.setNumeroEntrada(ref.getNumeroEntrada());
 			logger.info("Processant tràmit " + ref.getNumeroEntrada());
 			try {
-				DadesIniciExpedient dadesIniciExpedient = getIniciExpedientPlugin().obtenirDadesInici(
+				List<DadesIniciExpedient> expedientsPerIniciar = getIniciExpedientPlugin().obtenirDadesInici(
 						sistraBantelClient.obtenerEntrada(refClient));
-				Entorn entorn = entornService.findAmbCodi(dadesIniciExpedient.getEntornCodi());
-				ExpedientTipus expedientTipus = dissenyService.findExpedientTipusAmbEntornICodi(
-						entorn.getId(),
-						dadesIniciExpedient.getTipusCodi());
-				EntornActual.setEntornId(entorn.getId());
-				ExpedientDto nouExpedient = expedientService.iniciar(
-						entorn.getId(),
-						expedientTipus.getId(),
-						null,
-						dadesIniciExpedient.getNumero(),
-						dadesIniciExpedient.getTitol(),
-						dadesIniciExpedient.getDadesInicials(),
-						dadesIniciExpedient.getTransitionName(),
-						IniciadorTipus.SISTRA,
-						Expedient.crearIniciadorCodiPerSistra(ref.getNumeroEntrada(), ref.getClaveAcceso()),
-						null);
-				
-				//Afegim els documents
-				Map<String,DadesDocument> documents = dadesIniciExpedient.getDocumentsInicials();
-				if(documents != null && !documents.isEmpty()){
-					for (Map.Entry<String, DadesDocument> doc: documents.entrySet()){
-						expedientService.guardarDocument(
-								nouExpedient.getProcessInstanceId(), 
-								doc.getValue().getIdDocument(), 
-								doc.getValue().getData(), 
-								doc.getValue().getArxiuNom(), 
-								doc.getValue().getArxiuContingut());
+				for (DadesIniciExpedient dadesIniciExpedient: expedientsPerIniciar) {
+					Entorn entorn = entornService.findAmbCodi(dadesIniciExpedient.getEntornCodi());
+					ExpedientTipus expedientTipus = dissenyService.findExpedientTipusAmbEntornICodi(
+							entorn.getId(),
+							dadesIniciExpedient.getTipusCodi());
+					EntornActual.setEntornId(entorn.getId());
+					ExpedientDto nouExpedient = expedientService.iniciar(
+							entorn.getId(),
+							expedientTipus.getId(),
+							null,
+							dadesIniciExpedient.getNumero(),
+							dadesIniciExpedient.getTitol(),
+							dadesIniciExpedient.getDadesInicials(),
+							dadesIniciExpedient.getTransitionName(),
+							IniciadorTipus.SISTRA,
+							Expedient.crearIniciadorCodiPerSistra(ref.getNumeroEntrada(), ref.getClaveAcceso()),
+							null);
+					
+					//Afegim els documents
+					Map<String,DadesDocument> documents = dadesIniciExpedient.getDocumentsInicials();
+					if(documents != null && !documents.isEmpty()){
+						for (Map.Entry<String, DadesDocument> doc: documents.entrySet()) {
+							if (doc.getValue() != null) {
+								expedientService.guardarDocument(
+										nouExpedient.getProcessInstanceId(), 
+										doc.getValue().getIdDocument(), 
+										doc.getValue().getData(), 
+										doc.getValue().getArxiuNom(), 
+										doc.getValue().getArxiuContingut());
+							}
+						}
 					}
 				}
-				
 				logger.info("Nou expedient creat per al tràmit " + ref.getNumeroEntrada());
 				sistraBantelClient.establecerResultadoProceso(
 						refClient,

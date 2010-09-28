@@ -7,8 +7,8 @@
 
 <html>
 <head>
-	<title>Expedient: ${expedient.identificador}</title>
-	<meta name="titolcmp" content="Consultes">
+	<title>Expedient: ${expedient.identificadorLimitat}</title>
+	<meta name="titolcmp" content="Consultes"/>
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 </head>
@@ -22,6 +22,7 @@
 		Tokens del procés
 	</h3>
 	<display:table name="tokens" id="registre" class="displaytag">
+		<display:column property="id" title="Id" sortable="false"/>
 		<display:column property="fullName" title="Nom" sortable="false"/>
 		<display:column property="parentFullName" title="Pare" sortable="false"/>
 		<display:column title="root" sortable="false">

@@ -7,7 +7,7 @@
 <html>
 <head>
 	<title>Festius</title>
-	<meta name="titolcmp" content="Configuració">
+	<meta name="titolcmp" content="Configuració"/>
 	<link href="<c:url value="/css/calendari.css"/>" rel="stylesheet" type="text/css"/>
 	<script type="text/javascript" src="<c:url value="/dwr/interface/festiuDwrService.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/dwr/engine.js"/>"></script>

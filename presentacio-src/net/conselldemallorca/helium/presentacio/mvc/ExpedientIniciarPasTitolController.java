@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.presentacio.mvc;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.integracio.plugins.persones.Persona;
+import net.conselldemallorca.helium.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.model.dto.TascaDto;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
 import net.conselldemallorca.helium.model.hibernate.ExpedientTipus;
@@ -150,13 +151,13 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 			        }
 			        // Si l'expedient requereix dades inicials redirigeix al pas per demanar 
 			        // aquestes dades
-			        TascaDto tascaInicial = expedientService.getStartTask(
-			        		entorn.getId(),
-			        		expedientTipusId,
-			        		definicioProcesId,
-			        		null);
-			        if (tascaInicial != null) {
-			        	request.getSession().setAttribute(CLAU_SESSIO_TITOL, command.getTitol());
+			        DefinicioProcesDto definicioProces = null;
+					if (definicioProcesId != null)
+						definicioProces = dissenyService.getById(definicioProcesId);
+					else
+						definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId);
+					if (definicioProces.isHasStartTask()) {
+						request.getSession().setAttribute(CLAU_SESSIO_TITOL, command.getTitol());
 			        	request.getSession().setAttribute(CLAU_SESSIO_NUMERO, command.getNumero());
 						if (definicioProcesId != null)
 							return "redirect:/expedient/iniciarPasForm.html?expedientTipusId=" + expedientTipusId + "&definicioProcesId=" + definicioProcesId;

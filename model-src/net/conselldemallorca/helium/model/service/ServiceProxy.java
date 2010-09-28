@@ -54,5 +54,11 @@ public class ServiceProxy implements ApplicationContextAware {
 	public TerminiService getTerminiService() {
 		return (TerminiService)ctx.getBean("terminiService", TerminiService.class);
 	}
+	public AlertaService getAlertaService() {
+		return (AlertaService)ctx.getBean("alertaService", AlertaService.class);
+	}
+	public DtoConverter getDtoConverter() {
+		return (DtoConverter)ctx.getBean("dtoConverter", DtoConverter.class);
+	}
 
 }

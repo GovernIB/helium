@@ -70,7 +70,7 @@ public class DefinicioProcesCampTascaController extends BaseController {
 	@ModelAttribute("camps")
 	public List<Camp> populateCamps(
 			@RequestParam(value = "definicioProcesId", required = true) Long definicioProcesId) {
-		return dissenyService.findCampsAmbDefinicioProces(definicioProcesId);
+		return dissenyService.findCampsAmbDefinicioProcesOrdenatsPerCodi(definicioProcesId);
 	}
 	@ModelAttribute("campsTasca")
 	public List<CampTasca> populateCampsForm(

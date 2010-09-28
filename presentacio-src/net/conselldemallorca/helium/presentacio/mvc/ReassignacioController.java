@@ -6,7 +6,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.model.hibernate.Entorn;
 import net.conselldemallorca.helium.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.model.service.ReassignacioService;
 import net.conselldemallorca.helium.presentacio.mvc.util.BaseController;
@@ -68,15 +67,9 @@ public class ReassignacioController extends BaseController {
 	public String reassignarGet(
 			HttpServletRequest request,
 			ModelMap model) {
-		Entorn entorn = getEntornActiu(request);
-		if (entorn != null) {
-			List<Reassignacio> reassignacions = reassignacioService.llistaReassignacions();
-			model.addAttribute("llistat", reassignacions);
-			return "reassignar/llistat";
-		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
-			return "redirect:/index.html";
-		}
+		List<Reassignacio> reassignacions = reassignacioService.llistaReassignacions();
+		model.addAttribute("llistat", reassignacions);
+		return "reassignar/llistat";
 	}
 	
 	@RequestMapping(value = "/reassignar/form", method = RequestMethod.GET)
@@ -135,11 +128,21 @@ public class ReassignacioController extends BaseController {
 			return clazz.isAssignableFrom(ReassignacioCommand.class);
 		}
 		public void validate(Object target, Errors errors) {
+			Date avui = new Date();
 			ReassignacioCommand command = (ReassignacioCommand)target;
 			ValidationUtils.rejectIfEmpty(errors, "usuariOrigen", "not.blank");
 			ValidationUtils.rejectIfEmpty(errors, "usuariDesti", "not.blank");
 			ValidationUtils.rejectIfEmpty(errors, "dataInici", "not.blank");
 			ValidationUtils.rejectIfEmpty(errors, "dataFi", "not.blank");
+			if ((command.getDataInici() != null) && (avui.compareTo(command.getDataInici()) > 0)) {
+				errors.rejectValue("dataInici", "error.data.anterior");
+			}
+			if ((command.getDataFi() != null) && (avui.compareTo(command.getDataFi()) > 0)) {
+				errors.rejectValue("dataFi", "error.data.anterior");
+			}
+			if ((command.getDataInici() != null) && (command.getDataFi() != null) && ((command.getDataFi()).compareTo(command.getDataInici()) < 0)) {
+				errors.rejectValue("dataFi", "error.dataFi.anterior");
+			}
 		}
 	}
 	

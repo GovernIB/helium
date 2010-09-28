@@ -3,12 +3,18 @@
  */
 package net.conselldemallorca.helium.presentacio.mvc;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.model.dto.TascaDto;
+import net.conselldemallorca.helium.model.hibernate.Camp;
+import net.conselldemallorca.helium.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
 import net.conselldemallorca.helium.model.service.DissenyService;
 import net.conselldemallorca.helium.model.service.TascaService;
+import net.conselldemallorca.helium.presentacio.mvc.util.TascaFormUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -43,16 +49,29 @@ public class TascaRegistreController extends CommonRegistreController {
 		this.tascaService = tascaService;
 	}
 
-	@ModelAttribute("tasca")
-	public TascaDto populateTasca(
+	@Override
+	public void populateOthers(
 			HttpServletRequest request,
-			@RequestParam(value = "id", required = true) String id,
+			String id,
+			Object command,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			return tascaService.getById(entorn.getId(), id);
+			TascaDto tasca = tascaService.getById(entorn.getId(), id);
+			List<Camp> camps = new ArrayList<Camp>();
+    		for (CampTasca campTasca: tasca.getCamps())
+    			camps.add(campTasca.getCamp());
+			model.addAttribute(
+					"tasca",
+					tascaService.getById(
+							entorn.getId(),
+							id,
+							TascaFormUtil.getValorsFromCommand(
+		        					camps,
+		        					command,
+		        					true,
+		    						false)));
 		}
-		return null;
 	}
 
 	@RequestMapping(value = "/tasca/registre", method = RequestMethod.GET)
@@ -73,30 +92,21 @@ public class TascaRegistreController extends CommonRegistreController {
 		return super.registrePost(request, id, registreId, index, submit, command, result, status, model);
 	}
 
-	@RequestMapping(value = "/tasca/registreEsborrar")
-	public String esborrarMembre(
-			HttpServletRequest request,
-			@RequestParam(value = "id", required = true) String id,
-			@RequestParam(value = "registreId", required = true) Long registreId,
-			@RequestParam(value = "index", required = true) int index) {
-		return super.esborrarMembre(request, id, registreId, index);
-	}
-
 	@Override
-	public void esborrarRegistre(String id, String campCodi, int index) {
+	public void esborrarRegistre(HttpServletRequest request, String id, String campCodi, int index) {
 		tascaService.esborrarRegistre(id, campCodi, index);
 	}
 	@Override
-	public Object[] getValorRegistre(Long entornId, String id, String campCodi) {
+	public Object[] getValorRegistre(HttpServletRequest request, Long entornId, String id, String campCodi) {
 		return (Object[])tascaService.getVariable(entornId, id, campCodi);
 	}
 	@Override
-	public void guardarRegistre(String id, String campCodi, Object[] valors,
+	public void guardarRegistre(HttpServletRequest request, String id, String campCodi, Object[] valors,
 			int index) {
 		tascaService.guardarRegistre(id, campCodi, valors, index);
 	}
 	@Override
-	public void guardarRegistre(String id, String campCodi, Object[] valors) {
+	public void guardarRegistre(HttpServletRequest request, String id, String campCodi, Object[] valors) {
 		tascaService.guardarRegistre(id, campCodi, valors);
 	}
 	@Override

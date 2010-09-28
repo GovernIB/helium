@@ -54,7 +54,7 @@ public class PortasignaturesHandler extends AbstractHeliumActionHandler {
 				throw new JbpmException("No s'ha pogut trobar el document '" + getValorOVariable(executionContext, document, varDocument) + "'.");
 			}
 
-			getExpedientService().enviarPortasignatures(
+			getPluginService().enviarPortasignatures(
 					persona,
 					documentDto,
 					this.getExpedient(executionContext),

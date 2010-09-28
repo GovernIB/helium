@@ -211,7 +211,8 @@ public class TascaDocumentsController extends BaseController {
 			HttpServletRequest request,
 			ModelMap model,
 			@RequestParam(value = "id", required = true) String id,
-			@RequestParam(value = "documentId", required = true) Long documentId) {
+			@RequestParam(value = "documentId", required = true) Long documentId,
+			@RequestParam(value = "data", required = false) Date data) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			try {
@@ -219,7 +220,7 @@ public class TascaDocumentsController extends BaseController {
 						entorn.getId(),
 						documentId,
 						id,
-						new Date());
+						(data != null) ? data : new Date());
 				if (document != null) {
 					model.addAttribute(
 							ArxiuConvertirView.MODEL_ATTRIBUTE_FILENAME,

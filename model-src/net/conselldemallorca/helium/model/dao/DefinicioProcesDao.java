@@ -40,7 +40,9 @@ public class DefinicioProcesDao extends HibernateGenericDao<DefinicioProces, Lon
 	public List<DefinicioProces> findAmbEntornIJbpmKey(
 			Long entornId,
 			String jbpmKey) {
-		return findByCriteria(
+		return findOrderedByCriteria(
+				"id",
+				false,
 				Restrictions.eq("entorn.id", entornId),
 				Restrictions.eq("jbpmKey", jbpmKey));
 	}

@@ -7,8 +7,8 @@
 
 <html>
 <head>
-	<title>Expedient: ${expedient.identificador}</title>
-	<meta name="titolcmp" content="Consultes">
+	<title>Expedient: ${expedient.identificadorLimitat}</title>
+	<meta name="titolcmp" content="Consultes"/>
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 <script type="text/javascript">
 // <![CDATA[

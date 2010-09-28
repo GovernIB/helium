@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import net.conselldemallorca.helium.model.hibernate.Expedient;
+import net.conselldemallorca.helium.util.ExpedientIniciant;
 
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
@@ -69,8 +70,13 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 	public Expedient findAmbProcessInstanceId(String processInstanceId) {
 		List<Expedient> expedients = findByCriteria(
 				Restrictions.eq("processInstanceId", processInstanceId));
-		if (expedients.size() > 0)
+		if (expedients.size() > 0) {
 			return expedients.get(0);
+		} else {
+			Expedient expedientIniciant = ExpedientIniciant.getExpedient();
+			if (expedientIniciant != null && expedientIniciant.getProcessInstanceId().equals(processInstanceId))
+				return expedientIniciant;
+		}
 		return null;
 	}
 	public Expedient findAmbEntornTipusITitol(

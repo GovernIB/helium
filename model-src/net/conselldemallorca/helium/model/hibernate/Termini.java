@@ -45,11 +45,15 @@ public class Termini implements Serializable, GenericEntity<Long> {
 	private String nom;
 	@MaxLength(255)
 	private String descripcio;
+	private boolean duradaPredefinida;
 	private int anys;
 	private int mesos;
 	private int dies;
 	private boolean laborable;
 	private boolean manual = true;
+	private Integer diesPrevisAvis;
+	private boolean alertaPrevia;
+	private boolean alertaFinal;
 
 	@NotNull
 	private DefinicioProces definicioProces;
@@ -104,6 +108,14 @@ public class Termini implements Serializable, GenericEntity<Long> {
 		this.descripcio = descripcio;
 	}
 
+	@Column(name="durada_predef")
+	public boolean isDuradaPredefinida() {
+		return duradaPredefinida;
+	}
+	public void setDuradaPredefinida(boolean duradaPredefinida) {
+		this.duradaPredefinida = duradaPredefinida;
+	}
+
 	@Column(name="anys")
 	public int getAnys() {
 		return anys;
@@ -126,7 +138,10 @@ public class Termini implements Serializable, GenericEntity<Long> {
 		t.setAnys(anys);
 		t.setMesos(mesos);
 		t.setDies(dies);
-		return t.toString();
+		if (dies > 0)
+			return t.toString() + ((laborable) ? " laborables" : " naturals");
+		else
+			return t.toString();
 	}
 
 	@Column(name="dies")
@@ -151,6 +166,30 @@ public class Termini implements Serializable, GenericEntity<Long> {
 	}
 	public void setManual(boolean manual) {
 		this.manual = manual;
+	}
+
+	@Column(name="dies_previs_avis")
+	public Integer getDiesPrevisAvis() {
+		return diesPrevisAvis;
+	}
+	public void setDiesPrevisAvis(Integer diesPrevisAvis) {
+		this.diesPrevisAvis = diesPrevisAvis;
+	}
+
+	@Column(name="alerta_previa")
+	public boolean isAlertaPrevia() {
+		return alertaPrevia;
+	}
+	public void setAlertaPrevia(boolean alertaPrevia) {
+		this.alertaPrevia = alertaPrevia;
+	}
+
+	@Column(name="alerta_final")
+	public boolean isAlertaFinal() {
+		return alertaFinal;
+	}
+	public void setAlertaFinal(boolean alertaFinal) {
+		this.alertaFinal = alertaFinal;
 	}
 
 	@ManyToOne(optional=false)

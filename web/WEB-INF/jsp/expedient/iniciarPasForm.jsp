@@ -7,16 +7,50 @@
 <html>
 <head>
 	<title>Iniciar expedient: ${expedientTipus.nom}</title>
-	<meta name="titolcmp" content="Nou expedient">
+	<meta name="titolcmp" content="Nou expedient"/>
+	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
+	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 	<c:import url="../common/formIncludes.jsp"/>
 <script type="text/javascript">
 // <![CDATA[
-function confirmar(e) {
-	var e = e || window.event;
-	e.cancelBubble = true;
-	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Estau segur que voleu iniciar un nou expedient?");
-}
+	var accioInici;
+	function confirmar(e) {
+		if (!e) var e = window.event;
+		e.cancelBubble = true;
+		if (e.stopPropagation) e.stopPropagation();
+		if (accioInici == 'submit')
+			return confirm("Estau segur que voleu iniciar un nou expedient?");
+		return true;
+	}
+	function editarRegistre(campId, campCodi, campEtiqueta, numCamps, index) {
+		var amplada = 686;
+		var alcada = 64 * numCamps + 80;
+		var url = "iniciarRegistre.html?id=${expedientTipus.id}&registreId=" + campId;
+		if (index != null)
+			url = url + "&index=" + index;
+		$('<iframe id="' + campCodi + '" src="' + url + '" frameborder="0" marginheight="0" marginwidth="0"/>').dialog({
+			title: campEtiqueta,
+			autoOpen: true,
+			modal: true,
+			autoResize: true,
+			width: parseInt(amplada),
+			height: parseInt(alcada)
+		}).width(amplada - 30).height(alcada - 30);
+		return false;
+	}
+	function esborrarRegistre(e, campId, index) {
+		var e = e || window.event;
+		e.cancelBubble = true;
+		if (e.stopPropagation) e.stopPropagation();
+		$('form#command').append('<input type="hidden" name="registreEsborrarId" value="' + campId + '"/>');
+		$('form#command').append('<input type="hidden" name="registreEsborrarIndex" value="' + index + '"/>');
+		refresh();
+		return false;
+	}
+	function refresh() {
+		$('form#command :button[name="submit"]').attr("name", "sbmt");
+		$('form#command').submit();
+	}
 // ]]>
 </script>
 </head>
@@ -24,7 +58,7 @@ function confirmar(e) {
 
 	<h3 class="titol-tab titol-dades-tasca">${tasca.nom}</h3>
 
-	<form:form action="iniciarPasForm.html" cssClass="uniForm" onsubmit="return confirmar(event)">
+	<form:form action="iniciarPasForm.html" cssClass="uniForm tascaForm zebraForm" onsubmit="return confirmar(event)">
 		<div class="inlineLabels">
 			<form:hidden path="entornId"/>
 			<form:hidden path="expedientTipusId"/>
@@ -40,6 +74,7 @@ function confirmar(e) {
 			<c:param name="type" value="buttons"/>
 			<c:param name="values">submit,cancel</c:param>
 			<c:param name="titles">Iniciar,Cancel·lar</c:param>
+			<c:param name="onclick">accioInici=this.value</c:param>
 		</c:import>
 	</form:form>
 

@@ -11,12 +11,20 @@ import java.util.Map;
 import javax.jws.WebService;
 
 import net.conselldemallorca.helium.integracio.plugins.persones.Persona;
+import net.conselldemallorca.helium.model.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.model.dto.TascaDto;
 import net.conselldemallorca.helium.model.hibernate.Area;
+import net.conselldemallorca.helium.model.hibernate.Camp;
+import net.conselldemallorca.helium.model.hibernate.CampRegistre;
+import net.conselldemallorca.helium.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.model.hibernate.Carrec;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
+import net.conselldemallorca.helium.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.model.service.EntornService;
+import net.conselldemallorca.helium.model.service.ExpedientService;
 import net.conselldemallorca.helium.model.service.OrganitzacioService;
 import net.conselldemallorca.helium.model.service.PluginService;
+import net.conselldemallorca.helium.model.service.TascaService;
 import net.conselldemallorca.helium.util.GlobalProperties;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +38,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class DominiIntern implements DominiHelium {
 
 	private EntornService entornService;
+	private TascaService tascaService;
+	private ExpedientService expedientService;
 	private OrganitzacioService organitzacioService;
 	private PluginService pluginService;
 
@@ -45,6 +55,8 @@ public class DominiIntern implements DominiHelium {
 			return personesAmbArea(parametersMap);
 		} else if ("PERSONES_AMB_CARREC".equals(id)) {
 			return personesAmbCarrec(parametersMap);
+		} else if ("VARIABLE_REGISTRE".equals(id)) {
+			return variableRegistre(parametersMap);
 		}
 		return new ArrayList<FilaResultat>();
 	}
@@ -54,6 +66,14 @@ public class DominiIntern implements DominiHelium {
 	@Autowired
 	public void setEntornService(EntornService entornService) {
 		this.entornService = entornService;
+	}
+	@Autowired
+	public void setTascaService(TascaService tascaService) {
+		this.tascaService = tascaService;
+	}
+	@Autowired
+	public void setExpedientService(ExpedientService expedientService) {
+		this.expedientService = expedientService;
 	}
 	@Autowired
 	public void setOrganitzacioService(OrganitzacioService organitzacioService) {
@@ -88,6 +108,75 @@ public class DominiIntern implements DominiHelium {
 			Persona persona = pluginService.findPersonaAmbCodi(personaCodi);
 			if (persona != null)
 				resposta.add(novaFilaPersona(persona));
+		}
+		return resposta;
+	}
+	@SuppressWarnings("unchecked")
+	private List<FilaResultat> variableRegistre(Map<String, Object> parametres) {
+		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+		Long taskInstanceId = (Long)parametres.get("taskInstanceId");
+		Long processInstanceId = (Long)parametres.get("processInstanceId");
+		String variable = (String)parametres.get("variable");
+		String filtreColumna = (String)parametres.get("filtreColumna");
+		Object filtreValor = parametres.get("filtreValor");
+		Object valor = null;
+		Object valorText = null;
+		Camp camp = null;
+		if (taskInstanceId != null) {
+			TascaDto tasca = tascaService.getByIdSenseComprovacio(taskInstanceId.toString());
+			valor = tasca.getVariable(variable);
+			valorText = tasca.getVarsComText().get(variable);
+			for (CampTasca ct: tasca.getCamps()) {
+				if (ct.getCamp().getCodi().equals(variable)) {
+					camp = ct.getCamp();
+					break;
+				}
+			}
+		} else if (processInstanceId != null) {
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId.toString(), true);
+			valor = instanciaProces.getVariable(variable);
+			valorText = instanciaProces.getVarsComText().get(variable);
+			for (Camp c: instanciaProces.getCamps()) {
+				if (c.getCodi().equals(variable)) {
+					camp = c;
+					break;
+				}
+			}
+		}
+		if (valor != null && valor instanceof Object[] && camp.getTipus().equals(TipusCamp.REGISTRE)) {
+			Object[] registres = (Object[])valor;
+			List<String[]> registresText = (List<String[]>)valorText;
+			int indexFila = 0;
+			for (int i = 0; i < registres.length; i++) {
+				Object[] valors = (Object[])registres[i];
+				String[] texts = registresText.get(i);
+				boolean incloureAquest = true;
+				if (filtreColumna != null) {
+					incloureAquest = false;
+					int indexColumna = 0;
+					for (CampRegistre campRegistre: camp.getRegistreMembres()) {
+						if (filtreColumna.equals(campRegistre.getMembre().getCodi())) {
+							if (valors[indexColumna] == null && filtreValor == null)
+								incloureAquest = true;
+							else if (valors[indexColumna] != null && valors[indexColumna].equals(filtreValor))
+								incloureAquest = true;
+							else if (filtreValor != null && filtreValor.equals(valors[indexColumna]))
+								incloureAquest = true;
+							break;
+						}
+					}
+				}
+				if (incloureAquest) {
+					FilaResultat fila = new FilaResultat();
+					fila.addColumna(new ParellaCodiValor("_index", indexFila++));
+					int indexColumna = 0;
+					for (CampRegistre campRegistre: camp.getRegistreMembres()) {
+						fila.addColumna(new ParellaCodiValor("_valor_" + campRegistre.getMembre().getCodi(), valors[indexColumna]));
+						fila.addColumna(new ParellaCodiValor(campRegistre.getMembre().getCodi(), texts[indexColumna++]));
+					}
+					resposta.add(fila);
+				}
+			}
 		}
 		return resposta;
 	}

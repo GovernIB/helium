@@ -12,6 +12,7 @@ import org.jbpm.graph.exe.ExecutionContext;
  * @author Josep Gayà <josepg@limit.es>
  */
 @SuppressWarnings("serial")
+@Deprecated
 public class TimerConfigurarAmbTerminiHandler implements ActionHandler {
 
 	public void execute(ExecutionContext executionContext) throws Exception {

@@ -11,10 +11,15 @@ import java.util.Map;
 
 import javax.jws.WebService;
 
+import net.conselldemallorca.helium.model.dto.DocumentDto;
 import net.conselldemallorca.helium.model.dto.ExpedientDto;
+import net.conselldemallorca.helium.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.model.dto.TascaDto;
+import net.conselldemallorca.helium.model.hibernate.Camp;
+import net.conselldemallorca.helium.model.hibernate.Document;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
 import net.conselldemallorca.helium.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.model.service.DissenyService;
 import net.conselldemallorca.helium.model.service.EntornService;
@@ -38,7 +43,8 @@ public class Tramitacio implements TramitacioService {
 	private DissenyService dissenyService;
 	private ExpedientService expedientService;
 	private TascaService tascaService;
-	
+
+
 
 	public String iniciExpedient(
 			String entorn,
@@ -120,6 +126,31 @@ public class Tramitacio implements TramitacioService {
 		}
 	}
 
+	public void agafarTasca(
+			String entorn,
+			String usuari,
+			String tascaId) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		try {
+			List<TascaDto> tasques = tascaService.findTasquesGrup(e.getId(), usuari);
+			boolean agafada = false;
+			for (TascaDto tasca: tasques) {
+				if (tasca.getId().equals(tascaId)) {
+					tascaService.agafar(e.getId(), tascaId);
+					agafada = true;
+					break;
+				}
+			}
+			if (!agafada)
+				throw new TramitacioException("L'usuari '" + usuari + "' no té la tasca " + tascaId + " assignada");
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut obtenir el llistat de tasques", ex);
+			throw new TramitacioException("No s'ha pogut obtenir el llistat de tasques: " + ex.getMessage());
+		}
+	}
+
 	public List<CampTasca> consultaFormulariTasca(
 			String entorn,
 			String usuari,
@@ -130,7 +161,9 @@ public class Tramitacio implements TramitacioService {
 		TascaDto tasca = tascaService.getById(e.getId(), tascaId, usuari);
 		List<CampTasca> resposta = new ArrayList<CampTasca>();
 		for (net.conselldemallorca.helium.model.hibernate.CampTasca campTasca: tasca.getCamps())
-			resposta.add(convertirCampTasca(campTasca));
+			resposta.add(convertirCampTasca(
+					campTasca,
+					tasca.getVariable(campTasca.getCamp().getCodi())));
 		return resposta;
 	}
 
@@ -174,7 +207,9 @@ public class Tramitacio implements TramitacioService {
 		TascaDto tasca = tascaService.getById(e.getId(), tascaId, usuari);
 		List<DocumentTasca> resposta = new ArrayList<DocumentTasca>();
 		for (net.conselldemallorca.helium.model.hibernate.DocumentTasca documentTasca: tasca.getDocuments())
-			resposta.add(convertirDocumentTasca(documentTasca));
+			resposta.add(convertirDocumentTasca(
+					documentTasca,
+					tasca.getVarsDocuments().get(documentTasca.getDocument().getCodi())));
 		return resposta;
 	}
 
@@ -182,7 +217,7 @@ public class Tramitacio implements TramitacioService {
 			String entorn,
 			String usuari,
 			String tascaId,
-			String document,
+			String arxiu,
 			String nom,
 			Date data,
 			byte[] contingut) throws TramitacioException {
@@ -193,7 +228,7 @@ public class Tramitacio implements TramitacioService {
 			tascaService.guardarDocument(
 					e.getId(),
 					tascaId,
-					document,
+					arxiu,
 					nom,
 					data,
 					contingut,
@@ -201,6 +236,25 @@ public class Tramitacio implements TramitacioService {
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar el document a la tasca", ex);
 			throw new TramitacioException("No s'ha pogut guardar el document a la tasca: " + ex.getMessage());
+		}
+	}
+	public void esborrarDocumentTasca(
+			String entorn,
+			String usuari,
+			String tascaId,
+			String document) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		try {
+			tascaService.esborrarDocument(
+					e.getId(),
+					tascaId,
+					document,
+					usuari);
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut esborrar el document de la tasca", ex);
+			throw new TramitacioException("No s'ha pogut esborrar el document de la tasca: " + ex.getMessage());
 		}
 	}
 
@@ -222,6 +276,179 @@ public class Tramitacio implements TramitacioService {
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut completar la tasca", ex);
 			throw new TramitacioException("No s'ha pogut completar la tasca: " + ex.getMessage());
+		}
+	}
+
+	public List<CampProces> consultarVariablesProces(
+			String entorn,
+			String usuari,
+			String processInstanceId) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		try {
+			List<CampProces> resposta = new ArrayList<CampProces>();
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, true);
+			for (String var: instanciaProces.getVariables().keySet()) {
+				Camp campVar = null;
+				for (Camp camp: instanciaProces.getCamps()) {
+					if (camp.getCodi().equals(var)) {
+						campVar = camp;
+						break;
+					}
+				}
+				if (campVar == null) {
+					campVar = new Camp();
+					campVar.setCodi(var);
+					campVar.setEtiqueta(var);
+					campVar.setTipus(TipusCamp.STRING);
+				}
+				resposta.add(convertirCampProces(
+						campVar,
+						instanciaProces.getVariable(var)));
+			}
+			return resposta;
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut guardar la variable al procés", ex);
+			throw new TramitacioException("No s'ha pogut guardar la variable al procés: " + ex.getMessage());
+		}
+	}
+	public void setVariableProces(
+			String entorn,
+			String usuari,
+			String processInstanceId,
+			String varCodi,
+			Object valor) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		try {
+			expedientService.updateVariable(
+					processInstanceId,
+					varCodi,
+					valor);
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut guardar la variable al procés", ex);
+			throw new TramitacioException("No s'ha pogut guardar la variable al procés: " + ex.getMessage());
+		}
+	}
+	public void esborrarVariableProces(
+			String entorn,
+			String usuari,
+			String processInstanceId,
+			String varCodi) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		try {
+			expedientService.deleteVariable(
+					processInstanceId,
+					varCodi);
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut esborrar la variable al procés", ex);
+			throw new TramitacioException("No s'ha pogut esborrar la variable al procés: " + ex.getMessage());
+		}
+	}
+
+	public List<DocumentProces> consultarDocumentsProces(
+			String entorn,
+			String usuari,
+			String processInstanceId) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		try {
+			List<DocumentProces> resposta = new ArrayList<DocumentProces>();
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, true);
+			for (DocumentDto document: instanciaProces.getVarsDocuments().values()) {
+				resposta.add(convertirDocumentProces(document));
+			}
+			return resposta;
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut guardar la variable al procés", ex);
+			throw new TramitacioException("No s'ha pogut guardar la variable al procés: " + ex.getMessage());
+		}
+	}
+	public Long setDocumentProces(
+			String entorn,
+			String usuari,
+			String processInstanceId,
+			String documentCodi,
+			String arxiu,
+			Date data,
+			byte[] contingut) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		try {
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, false);
+			if (instanciaProces == null)
+				throw new TramitacioException("No s'ha pogut trobar la instancia de proces amb id " + processInstanceId);
+			Document document = dissenyService.findDocumentAmbDefinicioProcesICodi(
+					instanciaProces.getDefinicioProces().getId(),
+					documentCodi);
+			if (document == null)
+				throw new TramitacioException("No s'ha pogut trobar el document amb codi " + documentCodi);
+			return expedientService.guardarDocument(
+					processInstanceId,
+					document.getId(),
+					data,
+					arxiu,
+					contingut);
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut guardar el document al procés", ex);
+			throw new TramitacioException("No s'ha pogut guardar el document al procés: " + ex.getMessage());
+		}
+	}
+	public void esborrarDocumentProces(
+			String entorn,
+			String usuari,
+			String processInstanceId,
+			Long documentId) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		try {
+			expedientService.deleteDocument(
+					processInstanceId,
+					documentId);
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut esborrar el document del procés", ex);
+			throw new TramitacioException("No s'ha pogut esborrar el document del procés: " + ex.getMessage());
+		}
+	}
+
+	public void executarAccioProces(
+			String entorn,
+			String usuari,
+			String processInstanceId,
+			String accio) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		try {
+			expedientService.executarAccio(processInstanceId, accio);
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut executar l'script", ex);
+			throw new TramitacioException("No s'ha pogut executar l'script: " + ex.getMessage());
+		}
+	}
+	public void executarScriptProces(
+			String entorn,
+			String usuari,
+			String processInstanceId,
+			String script) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		try {
+			expedientService.evaluateScript(
+					processInstanceId,
+					script,
+					null);
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut executar l'script", ex);
+			throw new TramitacioException("No s'ha pogut executar l'script: " + ex.getMessage());
 		}
 	}
 
@@ -275,10 +502,12 @@ public class Tramitacio implements TramitacioService {
 		tt.setCancelled(tasca.isCancelled());
 		tt.setSuspended(tasca.isSuspended());
 		tt.setTransicionsSortida(tasca.getOutcomes());
+		tt.setProcessInstanceId(tasca.getProcessInstanceId());
 		return tt;
 	}
 	private CampTasca convertirCampTasca(
-			net.conselldemallorca.helium.model.hibernate.CampTasca campTasca) {
+			net.conselldemallorca.helium.model.hibernate.CampTasca campTasca,
+			Object valor) {
 		CampTasca ct = new CampTasca();
 		ct.setCodi(campTasca.getCamp().getCodi());
 		ct.setEtiqueta(campTasca.getCamp().getEtiqueta());
@@ -289,16 +518,54 @@ public class Tramitacio implements TramitacioService {
 		ct.setDominiCampValor(campTasca.getCamp().getDominiCampValor());
 		ct.setDominiCampText(campTasca.getCamp().getDominiCampText());
 		ct.setJbpmAction(campTasca.getCamp().getJbpmAction());
+		ct.setReadFrom(campTasca.isReadFrom());
+		ct.setWriteTo(campTasca.isWriteTo());
+		ct.setRequired(campTasca.isRequired());
+		ct.setReadOnly(campTasca.isReadOnly());
 		ct.setMultiple(campTasca.getCamp().isMultiple());
 		ct.setOcult(campTasca.getCamp().isOcult());
+		ct.setValor(valor);
 		return ct;
 	}
 	private DocumentTasca convertirDocumentTasca(
-			net.conselldemallorca.helium.model.hibernate.DocumentTasca documentTasca) {
+			net.conselldemallorca.helium.model.hibernate.DocumentTasca documentTasca,
+			DocumentDto document) {
 		DocumentTasca dt = new DocumentTasca();
+		dt.setId(document.getId());
 		dt.setCodi(documentTasca.getDocument().getCodi());
 		dt.setNom(documentTasca.getDocument().getNom());
 		dt.setDescripcio(documentTasca.getDocument().getDescripcio());
+		dt.setArxiu(document.getArxiuNom());
+		dt.setData(document.getDataDocument());
+		return dt;
+	}
+	private CampProces convertirCampProces(
+			Camp camp,
+			Object valor) {
+		CampProces ct = new CampProces();
+		if (camp != null) {
+			ct.setCodi(camp.getCodi());
+			ct.setEtiqueta(camp.getEtiqueta());
+			ct.setTipus(camp.getTipus().name());
+			ct.setObservacions(camp.getObservacions());
+			ct.setDominiId(camp.getDominiId());
+			ct.setDominiParams(camp.getDominiParams());
+			ct.setDominiCampValor(camp.getDominiCampValor());
+			ct.setDominiCampText(camp.getDominiCampText());
+			ct.setJbpmAction(camp.getJbpmAction());
+			ct.setMultiple(camp.isMultiple());
+			ct.setOcult(camp.isOcult());
+			ct.setValor(valor);
+		}
+		return ct;
+	}
+	private DocumentProces convertirDocumentProces(DocumentDto document) {
+		DocumentProces dt = new DocumentProces();
+		dt.setId(document.getId());
+		dt.setCodi(document.getDocumentCodi());
+		dt.setNom(document.getDocumentNom());
+		dt.setArxiu(document.getArxiuNom());
+		dt.setData(document.getDataDocument());
 		return dt;
 	}
 

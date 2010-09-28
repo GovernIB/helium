@@ -19,6 +19,7 @@ import net.conselldemallorca.helium.model.service.ExpedientService;
 import net.conselldemallorca.helium.model.service.PermissionService;
 import net.conselldemallorca.helium.presentacio.mvc.util.BaseController;
 import net.conselldemallorca.helium.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.util.GlobalProperties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -103,8 +104,12 @@ public class ExpedientDocumentModificarController extends BaseController {
 			if (potModificarExpedient(expedient)) {
 				DocumentDto doc = expedientService.getDocument(docId);
 				if (!doc.isSignat()) {
+					DocumentDto dto = expedientService.getDocument(docId);
 					model.addAttribute("expedient", expedient);
-					model.addAttribute("document", doc);
+					model.addAttribute("document", dto);
+					model.addAttribute(
+							"documentDisseny",
+							dissenyService.getDocumentById(docId));
 					return "expedient/documentForm";
 				} else {
 					missatgeError(request, "No es pot modificar un document signat");
@@ -168,6 +173,46 @@ public class ExpedientDocumentModificarController extends BaseController {
 			} else {
 				missatgeError(request, "No té permisos per modificar aquest expedient");
 				return "redirect:/expedient/consulta.html";
+			}
+		} else {
+			missatgeError(request, "No hi ha cap entorn seleccionat");
+			return "redirect:/index.html";
+		}
+	}
+
+	@RequestMapping(value = "/expedient/documentGenerar", method = RequestMethod.GET)
+	public String documentGenerarGet(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) String id,
+			@RequestParam(value = "docId", required = true) Long docId,
+			@RequestParam(value = "data", required = false) Date data,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			try {
+				DocumentDto document = expedientService.generarDocumentPlantilla(
+						docId,
+						id,
+						(data != null) ? data : new Date());
+				if (document != null) {
+					model.addAttribute(
+							ArxiuConvertirView.MODEL_ATTRIBUTE_FILENAME,
+							document.getArxiuNom());
+					model.addAttribute(
+							ArxiuConvertirView.MODEL_ATTRIBUTE_DATA,
+							document.getArxiuContingut());
+					model.addAttribute(
+							ArxiuConvertirView.MODEL_ATTRIBUTE_CONVERSIONENABLED,
+							"true".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.conversio.gentasca.actiu")));
+					model.addAttribute(
+							ArxiuConvertirView.MODEL_ATTRIBUTE_OUTEXTENSION,
+							GlobalProperties.getInstance().getProperty("app.conversio.gentasca.extension"));
+				}
+				return "arxiuConvertirView";				
+			} catch (Exception ex) {
+				missatgeError(request, "No s'ha pogut generar el document", ex.getLocalizedMessage());
+	        	logger.error("Error generant el document " + docId + " per la instància de procés " + id, ex);
+	        	return "redirect:/expedient/documentModificar.html?id=" + id + "&docId=" + docId;
 			}
 		} else {
 			missatgeError(request, "No hi ha cap entorn seleccionat");

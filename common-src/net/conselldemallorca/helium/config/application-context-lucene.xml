@@ -11,14 +11,14 @@
 		default-autowire="byType">
 
 	<bean id="analyzer" class="org.apache.lucene.analysis.standard.StandardAnalyzer"/>
-	<bean id="jdbcDirectory" class="net.conselldemallorca.helium.model.lucene.JdbcDirectoryFactoryBean">
+	<!--bean id="jdbcDirectory" class="net.conselldemallorca.helium.model.lucene.JdbcDirectoryFactoryBean" lazy-init="true">
 		<property name="dataSource" ref="dataSource"/>
 		<property name="dialect">
 			<bean class="${app.lucene.jdbc.dialect}"/>
 		</property>
 		<property name="tableName" value="hel_index"/>
 		<property name="createIfNotExists" value="true"/>
-	</bean>
+	</bean-->
 	<bean id="fsDirectory" class="org.springmodules.lucene.index.support.FSDirectoryFactoryBean">
 		<property name="location" value="${app.lucene.fs.basedir}"/>
 		<property name="create" value="true"/>

@@ -3,19 +3,19 @@
  */
 package net.conselldemallorca.helium.integracio.plugins.signatura;
 
-import java.io.InputStream;
-import java.net.URL;
 
 /**
- * Interfície del plugin de signatura digital
+ * Interfície per accedir a la funcionalitat de signatura digital en
+ * servidor.
  * 
  * @author Josep Gayà <josepg@limit.es>
  */
 public interface SignaturaPlugin {
 
-	public void testSigner() throws NecessitaActualitzarException;
-	public String[] getCertList(String params) throws ObtencioCertificatsException;
-	public Object sign(InputStream inputDocument, String certName, String password, String params) throws SignaturaException, ContrasenyaIncorrectaException;
-	public URL getUrlActualitzacio();
+	public InfoSignatura verificarSignatura(
+			byte[] document,
+			byte[] signatura) throws SignaturaPluginException;
+
+	public boolean isVerificacioAmbId();
 
 }

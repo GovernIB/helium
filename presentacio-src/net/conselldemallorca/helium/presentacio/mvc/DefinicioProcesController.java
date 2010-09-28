@@ -3,12 +3,17 @@
  */
 package net.conselldemallorca.helium.presentacio.mvc;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.model.dto.ExpedientDto;
+import net.conselldemallorca.helium.model.exportacio.DefinicioProcesExportacio;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
 import net.conselldemallorca.helium.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.model.service.DissenyService;
@@ -26,6 +31,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 
 
@@ -82,6 +88,7 @@ public class DefinicioProcesController extends BaseController {
 		if (entorn != null) {
 			DefinicioProcesDto definicioProces = dissenyService.getByIdAmbComprovacio(entorn.getId(), definicioProcesId);
 			if (potDissenyarDefinicioProces(entorn, definicioProces)) {
+				model.addAttribute("command", new DeployCommand());
 				model.addAttribute("definicioProces", dissenyService.getByIdAmbComprovacio(entorn.getId(), definicioProcesId));
 				model.addAttribute("subDefinicionsProces", dissenyService.findSubDefinicionsProces(definicioProcesId));
 				return "definicioProces/info";
@@ -149,6 +156,45 @@ public class DefinicioProcesController extends BaseController {
 				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
 				return "redirect:/index.html";
 			}
+		} else {
+			missatgeError(request, "No hi ha cap entorn seleccionat");
+			return "redirect:/index.html";
+		}
+	}
+
+	@RequestMapping(value = "configurar")
+	public String configurar(
+			HttpServletRequest request,
+			@RequestParam(value = "submit", required = false) String submit,
+			@RequestParam("arxiu") final MultipartFile multipartFile,
+			@RequestParam(value = "definicioProcesId", required = true) Long definicioProcesId) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			try {
+				InputStream is = new ByteArrayInputStream(multipartFile.getBytes());
+		    	ObjectInputStream input = new ObjectInputStream(is);
+		    	Object deserialitzat = input.readObject();
+		    	if (deserialitzat instanceof DefinicioProcesExportacio) {
+		    		DefinicioProcesExportacio exportacio = (DefinicioProcesExportacio)deserialitzat;
+		    		dissenyService.configurarAmbExportacio(
+		        			entorn.getId(),
+		        			definicioProcesId,
+		        			exportacio);
+		    		missatgeInfo(request, "Les dades s'han importat correctament");
+		        	return "redirect:/definicioProces/llistat.html";
+		    	} else {
+		    		missatgeError(request, "Aquest arxiu no és un arxiu d'exportació vàlid");
+		    	}
+			} catch (IOException ex) {
+				logger.error("Error llegint l'arxiu a importar", ex);
+				missatgeError(request, "Error llegint l'arxiu a importar: ");
+			} catch (ClassNotFoundException ex) {
+				logger.error("Error llegint l'arxiu a importar", ex);
+				missatgeError(request, "Error llegint l'arxiu a importar: ");
+			} catch (Exception ex) {
+				missatgeError(request, "Error en la importació de dades: " + ex.getMessage());
+			}
+			return "redirect:/definicioProces/info.html?definicioProcesId=" + definicioProcesId;
 		} else {
 			missatgeError(request, "No hi ha cap entorn seleccionat");
 			return "redirect:/index.html";
@@ -226,6 +272,23 @@ public class DefinicioProcesController extends BaseController {
 				new Permission[] {
 					ExtendedPermission.ADMINISTRATION,
 					ExtendedPermission.DESIGN}) != null;
+	}
+
+	public class DeployCommand {
+		private Long definicioProcesId;
+		private byte[] arxiu;
+		public Long getDefinicioProcesId() {
+			return definicioProcesId;
+		}
+		public void setDefinicioProcesId(Long definicioProcesId) {
+			this.definicioProcesId = definicioProcesId;
+		}
+		public byte[] getArxiu() {
+			return arxiu;
+		}
+		public void setArxiu(byte[] arxiu) {
+			this.arxiu = arxiu;
+		}
 	}
 
 	private static final Log logger = LogFactory.getLog(DefinicioProcesController.class);

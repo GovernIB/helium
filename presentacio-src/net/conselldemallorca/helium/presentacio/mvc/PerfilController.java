@@ -9,6 +9,7 @@ import java.util.Date;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.ParellaCodiValor;
 import net.conselldemallorca.helium.model.hibernate.Persona;
 import net.conselldemallorca.helium.model.service.PersonaService;
 import net.conselldemallorca.helium.presentacio.mvc.interceptor.PersonaInterceptor;
@@ -53,6 +54,14 @@ public class PerfilController extends BaseController {
 	public PerfilController(
 			PersonaService personaService) {
 		this.personaService = personaService;
+	}
+
+	@ModelAttribute("sexes")
+	public ParellaCodiValor[] populateSexes() {
+		ParellaCodiValor[] resposta = new ParellaCodiValor[2];
+		resposta[0] = new ParellaCodiValor("Home", Persona.Sexe.SEXE_HOME);
+		resposta[1] = new ParellaCodiValor("Dona", Persona.Sexe.SEXE_DONA);
+		return resposta;
 	}
 
 	@RequestMapping(value = "info")

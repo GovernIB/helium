@@ -8,7 +8,7 @@
 <html>
 <head>
 	<title>Permisos per l'entorn ${entorn.nom}</title>
-	<meta name="titolcmp" content="Configuració">
+	<meta name="titolcmp" content="Configuració"/>
     <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
     <c:import url="../common/formIncludes.jsp"/>
 <script type="text/javascript">

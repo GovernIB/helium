@@ -97,12 +97,12 @@
 	<bean id="serviceProxy" class="net.conselldemallorca.helium.model.service.ServiceProxy" factory-method="getInstance"/>
 	<bean id="daoProxy" class="net.conselldemallorca.helium.model.dao.DaoProxy" factory-method="getInstance"/>
 
-	<bean id="dominiCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+	<!--bean id="dominiCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
 		<property name="cacheManager">
 			<bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
 		</property>
 		<property name="cacheName" value="dominiCache"/>
-	</bean>
+	</bean-->
 
 	<bean id="globalProperties" class="net.conselldemallorca.helium.util.GlobalProperties">
 		<constructor-arg value="${es.caib.helium.properties.path}"/>

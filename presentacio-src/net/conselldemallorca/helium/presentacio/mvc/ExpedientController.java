@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.presentacio.mvc;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.List;
 
@@ -19,6 +21,7 @@ import net.conselldemallorca.helium.model.service.PermissionService;
 import net.conselldemallorca.helium.model.service.TerminiService;
 import net.conselldemallorca.helium.presentacio.mvc.util.BaseController;
 import net.conselldemallorca.helium.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.util.GlobalProperties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -240,34 +243,69 @@ public class ExpedientController extends BaseController {
 		if (entorn != null) {
 			DocumentDto document = expedientService.getDocument(docId);
 			if (document != null) {
-				/*if (!document.isSignat()) {
+				if (document.isArxiuConvertiblePdf() && (document.isSignat() || document.isRegistrat())) {
 					model.addAttribute(
 							ArxiuConvertirView.MODEL_ATTRIBUTE_FILENAME,
 							document.getArxiuNom());
 					model.addAttribute(
 							ArxiuConvertirView.MODEL_ATTRIBUTE_DATA,
 							document.getArxiuContingut());
-					boolean conversionEnabled = (document.getExtensioConsulta() != null);
 					model.addAttribute(
 							ArxiuConvertirView.MODEL_ATTRIBUTE_CONVERSIONENABLED,
-							conversionEnabled);
+							true);
 					model.addAttribute(
 							ArxiuConvertirView.MODEL_ATTRIBUTE_OUTEXTENSION,
-							document.getExtensioConsulta());
+							"pdf");
+					if (document.isSignat()) {
+						String estampaActiu = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.actiu");
+						if ("true".equalsIgnoreCase(estampaActiu)) {
+							String estampaPosX = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.posx");
+							String estampaPosY = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.posy");
+							String estampaRotation = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.rotation");
+							model.addAttribute(
+									ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_MISSATGE,
+									(String)GlobalProperties.getInstance().get("app.base.url") + "/signatura/verificar.html?id=" + docId);
+							model.addAttribute(
+									ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_POSX,
+									new Float(estampaPosX));
+							model.addAttribute(
+									ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_POSY,
+									new Float(estampaPosY));
+							model.addAttribute(
+									ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_ROTATION,
+									new Float(estampaRotation));
+						}
+					}
+					if (document.isRegistrat()) {
+						model.addAttribute(
+								ArxiuConvertirView.MODEL_ATTRIBUTE_REGISTRE_ENTITAT,
+								(String)GlobalProperties.getInstance().get("app.registre.segell.entitat"));
+						model.addAttribute(
+								ArxiuConvertirView.MODEL_ATTRIBUTE_REGISTRE_OFICINA,
+								document.getRegistreOficinaNom());
+						DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+						if (document.isRegistreEntrada()) {
+							model.addAttribute(
+									ArxiuConvertirView.MODEL_ATTRIBUTE_REGISTRE_DATA,
+									df.format(document.getRegistreData()));
+							model.addAttribute(
+									ArxiuConvertirView.MODEL_ATTRIBUTE_REGISTRE_ENTRADA,
+									document.getRegistreNumero() + "/" + document.getRegistreAny());
+						} else {
+							model.addAttribute(
+									ArxiuConvertirView.MODEL_ATTRIBUTE_REGISTRE_DATA,
+									df.format(document.getRegistreData()));
+							model.addAttribute(
+									ArxiuConvertirView.MODEL_ATTRIBUTE_REGISTRE_SORTIDA,
+									document.getRegistreNumero() + "/" + document.getRegistreAny());
+						}
+					}
 					return "arxiuConvertirView";
 				} else {
 					model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, document.getArxiuNom());
 					model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, document.getArxiuContingut());
 					return "arxiuView";
-				}*/
-				String nomArxiu = document.getArxiuNom().substring(0, document.getArxiuNom().lastIndexOf("."));
-				String extensioArxiu = document.getArxiuNom().substring(document.getArxiuNom().lastIndexOf(".") + 1);
-				/*if (!extensioArxiu.equals("pdf")) {
-					extensioArxiu = "pdf";
-				}*/
-				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, nomArxiu + "." + extensioArxiu);
-				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, document.getArxiuContingut());
-				return "arxiuView";
+				}
 			}
 			return "arxiuView";
 		} else {

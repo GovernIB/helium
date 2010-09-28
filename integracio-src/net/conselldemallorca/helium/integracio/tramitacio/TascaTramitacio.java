@@ -36,6 +36,8 @@ public class TascaTramitacio {
 
 	private List<String> transicionsSortida;
 
+	private String processInstanceId;
+
 
 
 	public String getId() {
@@ -145,6 +147,12 @@ public class TascaTramitacio {
 	}
 	public void setTransicionsSortida(List<String> transicionsSortida) {
 		this.transicionsSortida = transicionsSortida;
+	}
+	public String getProcessInstanceId() {
+		return processInstanceId;
+	}
+	public void setProcessInstanceId(String processInstanceId) {
+		this.processInstanceId = processInstanceId;
 	}
 
 }

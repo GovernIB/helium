@@ -6,10 +6,13 @@
 
 <html>
 <head>
-	<title>Expedient: ${expedient.identificador}</title>
-	<meta name="titolcmp" content="Consultes">
+	<title>Expedient: ${expedient.identificadorLimitat}</title>
+	<meta name="titolcmp" content="Consultes"/>
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
+	<c:import url="../common/formIncludes.jsp"/>
+	<script type="text/javascript" src="<c:url value="/js/jquery/ui/ui.core.js"/>"></script>
+	<script  type="text/javascript" src="<c:url value="/js/jquery/ui/jquery-ui-1.7.2.custom.js"/>"></script>
 <script type="text/javascript">
 // <![CDATA[
 function mostrarOcultar(img, objid) {
@@ -45,6 +48,31 @@ function confirmarEsborrarSignatura(e) {
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
 	return confirm("Estau segur que voleu esborrar TOTES les signatures d'aquest document?");
+}
+function verificarSignatura(element) {
+	var amplada = 800;
+	var alcada = 600;
+	$('<iframe id="verificacio" src="' + element.href + '"/>').dialog({
+		title: "Verificació de signatures",
+		autoOpen: true,
+		modal: true,
+		autoResize: true,
+		width: parseInt(amplada),
+		height: parseInt(alcada)
+	}).width(amplada - 30).height(alcada - 30);
+	return false;
+}
+function infoRegistre(docId) {
+	var amplada = 500;
+	var alcada = 200;
+	$('<div>' + $("#registre_" + docId).html() + '</div>').dialog({
+		title: "Informació de registre",
+		autoOpen: true,
+		modal: true,
+		width: parseInt(amplada),
+		height: parseInt(alcada)
+	}).width(amplada - 30).height(alcada - 30);
+	return false;
 }
 // ]]>
 </script>
@@ -86,6 +114,9 @@ function confirmarEsborrarSignatura(e) {
 							<c:set var="documentActual" value="${instanciaProces.varsDocuments[codi]}" scope="request"/>
 							<c:import url="../common/iconesConsultaDocument.jsp"/>
 						</c:if>
+						<c:if test="${instanciaProces.varsDocuments[codi].registrat}">
+							<img src="<c:url value="/img/book_open.png"/>" alt="Registrat" title="Registrat" border="0" style="cursor:pointer" onclick="infoRegistre(${instanciaProces.varsDocuments[codi].id})"/>
+						</c:if>
 					</c:otherwise>
 				</c:choose>
 			</display:column>
@@ -117,6 +148,20 @@ function confirmarEsborrarSignatura(e) {
 			</button>
 		</form>
 	</security:accesscontrollist>
+
+	<c:forEach var="reg" items="${instanciaProces.varsDocuments}">
+		<c:set var="document" value="${reg.value}"/>
+		<c:if test="${document.registrat}">
+			<div id="registre_${document.id}" style="display:none">
+				<dl class="form-info">
+					<dt>Oficina</dt><dd>${document.registreOficinaNom}</dd>
+					<dt>Data</dt><dd><fmt:formatDate value="${document.registreData}" pattern="dd/MM/yyyy HH:mm"/></dd>
+					<dt>Tipus</dt><dd><c:choose><c:when test="${document.registreEntrada}">Entrada</c:when><c:otherwise>Sortida</c:otherwise></c:choose></dd>
+					<dt>Número</dt><dd>${document.registreNumero}/${document.registreAny}</dd>
+				</dl>
+			</div>
+		</c:if>
+	</c:forEach>
 
 </body>
 </html>
