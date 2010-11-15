@@ -219,6 +219,7 @@ public class ExpedientIniciarPasFormController extends BaseController {
 								definicioProcesId,
 								(String)request.getSession().getAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_NUMERO),
 								(String)request.getSession().getAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_TITOL),
+								null,
 								valors,
 								null,
 								IniciadorTipus.INTERN,

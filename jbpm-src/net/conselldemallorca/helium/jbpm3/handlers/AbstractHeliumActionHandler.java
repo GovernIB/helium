@@ -3,10 +3,12 @@
  */
 package net.conselldemallorca.helium.jbpm3.handlers;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import net.conselldemallorca.helium.integracio.plugins.persones.Persona;
 import net.conselldemallorca.helium.model.dao.DaoProxy;
+import net.conselldemallorca.helium.model.dao.DocumentStoreDao;
 import net.conselldemallorca.helium.model.dao.PluginRegistreDao;
 import net.conselldemallorca.helium.model.dao.SistraDao;
 import net.conselldemallorca.helium.model.dto.DefinicioProcesDto;
@@ -89,6 +91,9 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 	PluginRegistreDao getPluginRegistreService() {
 		return DaoProxy.getInstance().getPluginRegistreDao();
 	}
+	DocumentStoreDao getDocumentStoreDao() {
+		return DaoProxy.getInstance().getDocumentStoreDao();
+	}
 
 	protected String getProcessInstanceId(ExecutionContext executionContext) {
 		return new Long(executionContext.getProcessInstance().getId()).toString();
@@ -104,6 +109,48 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 			return value;
 		if (var != null)
 			return executionContext.getVariable(var);
+		return null;
+	}
+	protected Date getValorOVariableData(ExecutionContext executionContext, Object value, String var) {
+		if (value != null) {
+			if (value instanceof Date) {
+				return (Date)value;
+			} else {
+				try {
+					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+					return sdf.parse(value.toString());
+				} catch (Exception ignored) {}
+			}
+		}
+		if (var != null) {
+			Object valor = executionContext.getVariable(var);
+			if (valor instanceof Date) {
+				return (Date)valor;
+			} else {
+				try {
+					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+					return sdf.parse(valor.toString());
+				} catch (Exception ignored) {}
+			}
+		}
+		return null;
+	}
+	protected Integer getValorOVariableInteger(ExecutionContext executionContext, Object value, String var) {
+		if (value != null) {
+			if (value instanceof Integer) {
+				return (Integer)value;
+			} else {
+				return new Integer(value.toString());
+			}
+		}
+		if (var != null) {
+			Object valor = executionContext.getVariable(var);
+			if (valor instanceof Integer) {
+				return (Integer)valor;
+			} else {
+				return new Integer(valor.toString());
+			}
+		}
 		return null;
 	}
 

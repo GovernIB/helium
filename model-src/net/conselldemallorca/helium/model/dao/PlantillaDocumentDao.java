@@ -419,17 +419,20 @@ public class PlantillaDocumentDao {
 												}
 											}
 										}
-										
-										List<FilaResultat> llistat = dominiDao.consultar(domini.getId(), arg1, parametres);
-										Object[] array = new Object[llistat.size()];
-										for (int i = 0; i < llistat.size(); i++) {
-											Object[] subArray = new Object[2];
-											subArray[0] = llistat.get(i).getColumnes().get(0).getValor();
-											subArray[1] = llistat.get(i).getColumnes().get(1).getValor();
-											array[i] = subArray;
+										List<FilaResultat> files = dominiDao.consultar(domini.getId(), arg1, parametres);
+										Object[] resultat = new Object[files.size()];
+										for (int i = 0; i < resultat.length; i++) {
+											Object[] columnes = new Object[files.get(i).getColumnes().size()];
+											for (int j = 0; j < columnes.length; j++) {
+												Object[] parella = new Object[2];
+												parella[0] = files.get(i).getColumnes().get(j).getCodi();
+												parella[1] = files.get(i).getColumnes().get(j).getValor();
+												columnes[j] = parella;
+											}
+											resultat[i] = columnes;
 										}
 										return new ArrayModel(
-												array,
+												resultat,
 												new DefaultObjectWrapper());
 									} catch (Exception e) {
 										throw new TemplateModelException(e);

@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.integracio.plugins.signatura;
 
+import java.util.List;
+
 
 /**
  * Implementació del plugin de signatura amb AFirma.
@@ -17,12 +19,9 @@ public class SignaturaPluginAfirma implements SignaturaPlugin {
 		return null;
 	}
 
-	public InfoSignatura verificarSignatura(String id) throws SignaturaPluginException {
+	public List<InfoSignatura> verificarSignatura(
+			byte[] documentsignat) throws SignaturaPluginException {
 		return null;
-	}
-
-	public boolean isVerificacioAmbId() {
-		return false;
 	}
 
 }

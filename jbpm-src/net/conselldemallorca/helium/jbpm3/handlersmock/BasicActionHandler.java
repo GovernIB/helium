@@ -28,8 +28,7 @@ public abstract class BasicActionHandler implements ActionHandler {
 
 
 
-	public void errorValidacio(String error) {
-	}
+	public void errorValidacio(String error) {}
 
 	public List<FilaResultat> consultaDomini(
 			ExecutionContext executionContext,
@@ -90,6 +89,13 @@ public abstract class BasicActionHandler implements ActionHandler {
 			String varCodi) {
 		return null;
 	}
+
+	public void terminiGuardar(
+			ExecutionContext executionContext,
+			String varName,
+			int anys,
+			int mesos,
+			int dies) {}
 
 	static final long serialVersionUID = 1L;
 

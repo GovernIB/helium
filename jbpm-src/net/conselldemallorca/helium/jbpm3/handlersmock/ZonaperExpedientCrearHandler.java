@@ -15,11 +15,9 @@ import org.jbpm.graph.exe.ExecutionContext;
 @SuppressWarnings("serial")
 public class ZonaperExpedientCrearHandler implements ActionHandler {
 
-	public void execute(ExecutionContext executionContext) throws Exception {
-	}
-	public void setDescripcio(String descripcio) {
-	}
-	public void setVarDescripcio(String varDescripcio) {
-	}
+	public void execute(ExecutionContext executionContext) throws Exception {}
+
+	public void setDescripcio(String descripcio) {}
+	public void setVarDescripcio(String varDescripcio) {}
 
 }

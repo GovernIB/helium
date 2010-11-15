@@ -26,21 +26,39 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 @SuppressWarnings("serial")
 public class JbpmIdGroupMap<K,V> extends HashMap<K,V>  {
 
+	private String filterPrefix = null;
+
+
+
 	public JbpmIdGroupMap(SessionFactory sessionFactory, String filterPrefix) {
-		queryGroups(sessionFactory, filterPrefix);
+		this.filterPrefix = filterPrefix;
+		queryGroups(sessionFactory);
 	}
 	public JbpmIdGroupMap(SessionFactory sessionFactory) {
-		queryGroups(sessionFactory, null);
+		queryGroups(sessionFactory);
 	}
 
 	public void setToOverwriteAfterQuery(Map<K,V> toOverwriteAfterQuery) {
 		putAll(toOverwriteAfterQuery);
 	}
 
+	@SuppressWarnings("unchecked")
+	public void addRole(K grup) {
+		if (filterPrefix == null || ((String)grup).startsWith(filterPrefix))
+			put(grup, (V)grup);
+	}
+	public void removeRole(K grup) {
+		remove(grup);
+	}
+	@Override
+	public V get(Object key) {
+		return super.get(key);
+	}
+
 
 
 	@SuppressWarnings("unchecked")
-	private void queryGroups(SessionFactory sessionFactory, String filterPrefix) {
+	private void queryGroups(SessionFactory sessionFactory) {
 		HibernateTemplate ht = new HibernateTemplate(sessionFactory);
 		List<K> grups = (List<K>)ht.executeWithNewSession(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -61,10 +79,8 @@ public class JbpmIdGroupMap<K,V> extends HashMap<K,V>  {
 				return query.list();
 			}
 		});
-		for (K grup: grups) {
-			if (filterPrefix == null || ((String)grup).startsWith(filterPrefix))
-				put(grup, (V)grup);
-		}
+		for (K grup: grups)
+			addRole(grup);
 	}
 
 }

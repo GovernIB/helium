@@ -28,6 +28,10 @@ import org.bouncycastle.cms.SignerInformationStore;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.encoders.Base64;
 
+import com.lowagie.text.pdf.AcroFields;
+import com.lowagie.text.pdf.PdfPKCS7;
+import com.lowagie.text.pdf.PdfReader;
+
 
 /**
  * Implementació de test del plugin de signatura. Aquest plugin
@@ -44,7 +48,7 @@ public class SignaturaPluginTest implements SignaturaPlugin {
 			byte[] signatura) throws SignaturaPluginException {
 		try {
 			InfoSignatura resposta = new InfoSignatura(signatura);
-			X509Certificate[] certificats = null;
+			Certificate[] certificats = null;
 			byte[] pkcs7Bytes = Base64.decode(signatura);
 			ASN1InputStream asn1is = new ASN1InputStream(new ByteArrayInputStream(pkcs7Bytes));
 			ContentInfo pkcs7Info = ContentInfo.getInstance(asn1is.readObject());
@@ -75,12 +79,31 @@ public class SignaturaPluginTest implements SignaturaPlugin {
 		}
 	}
 
-	public InfoSignatura verificarSignatura(String id) throws SignaturaPluginException {
-		return null;
-	}
-
-	public boolean isVerificacioAmbId() {
-		return false;
+	@SuppressWarnings("unchecked")
+	public List<InfoSignatura> verificarSignatura(
+			byte[] documentsignat) throws SignaturaPluginException {
+		try {
+			List<InfoSignatura> resposta = new ArrayList<InfoSignatura>();
+			PdfReader reader = new PdfReader(new ByteArrayInputStream(Base64.decode(documentsignat)));
+			AcroFields af = reader.getAcroFields();
+			ArrayList<String> names = af.getSignatureNames();
+			for (String name: names) {
+				/*System.out.println("Signature name: " + name);
+				System.out.println("Signature covers whole document: " + af.signatureCoversWholeDocument(name));
+				System.out.println("Document revision: " + af.getRevision(name) + " of " + af.getTotalRevisions());*/
+				PdfPKCS7 pk = af.verifySignature(name);
+				Certificate pkc[] = pk.getCertificates();
+				for (Certificate cert: pkc) {
+					InfoSignatura is = new InfoSignatura(documentsignat);
+					is.setInfoCertificat(getInfoCertificat(cert));
+					is.setValida(true);
+					resposta.add(is);
+				}
+			}
+			return resposta;
+		} catch (Exception ex) {
+			throw new SignaturaPluginException("Error en la validació de l'arxiu", ex);
+		}
 	}
 
 
@@ -98,7 +121,7 @@ public class SignaturaPluginTest implements SignaturaPlugin {
 			Security.addProvider(new BouncyCastleProvider());
     }
 	@SuppressWarnings("unchecked")
-	private InfoCertificat getInfoCertificat(X509Certificate cert) throws Exception {
+	private InfoCertificat getInfoCertificat(Certificate cert) throws Exception {
 		InfoCertificat resposta = new InfoCertificat();
 		ASN1InputStream asn1is = new ASN1InputStream(cert.getEncoded());
 		org.bouncycastle.asn1.DERObject obj = asn1is.readObject();

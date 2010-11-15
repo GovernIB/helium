@@ -16,13 +16,9 @@ public class AlertaCrearHandler implements ActionHandler {
 
 	public void execute(ExecutionContext executionContext) throws Exception {}
 
-	public void setUsuari(String usuari) {
-	}
-	public void setVarUsuari(String varUsuari) {
-	}
-	public void setText(String text) {
-	}
-	public void setVarText(String varText) {
-	}
+	public void setUsuari(String usuari) {}
+	public void setVarUsuari(String varUsuari) {}
+	public void setText(String text) {}
+	public void setVarText(String varText) {}
 
 }

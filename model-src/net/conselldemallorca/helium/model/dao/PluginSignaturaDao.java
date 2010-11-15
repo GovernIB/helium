@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.model.dao;
 
+import java.util.List;
+
 import net.conselldemallorca.helium.integracio.plugins.signatura.InfoSignatura;
 import net.conselldemallorca.helium.integracio.plugins.signatura.SignaturaPlugin;
 import net.conselldemallorca.helium.integracio.plugins.signatura.SignaturaPluginException;
@@ -30,6 +32,15 @@ public class PluginSignaturaDao {
 			byte[] signatura) throws PluginException {
 		try {
 			return getSignaturaPlugin().verificarSignatura(document, signatura);
+		} catch (SignaturaPluginException ex) {
+			logger.error("Error al verificar la signatura", ex);
+			throw new PluginException("Error al verificar la signatura", ex);
+		}
+	}
+	public List<InfoSignatura> verificarSignatura(
+			byte[] documentSignat) throws PluginException {
+		try {
+			return getSignaturaPlugin().verificarSignatura(documentSignat);
 		} catch (SignaturaPluginException ex) {
 			logger.error("Error al verificar la signatura", ex);
 			throw new PluginException("Error al verificar la signatura", ex);

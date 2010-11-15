@@ -18,10 +18,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jbpm.graph.exe.ExecutionContext;
 import org.jbpm.graph.exe.Token;
-import org.jbpm.security.SecurityHelper;
 import org.jbpm.taskmgmt.def.AssignmentHandler;
 import org.jbpm.taskmgmt.exe.Assignable;
 import org.jbpm.taskmgmt.exe.SwimlaneInstance;
+import org.springframework.security.Authentication;
+import org.springframework.security.context.SecurityContextHolder;
 
 /**
  * Implementa el següent llenguatge i resol expressions per assignar
@@ -98,7 +99,9 @@ public class HeliumExpressionAssignmentHandler implements AssignmentHandler {
 		log.debug("Analitzant primer terme: '" + terme + "'");
 		Object entitat = null;
 		if (terme.equalsIgnoreCase("previous")) {
-			String userName = SecurityHelper.getAuthenticatedActorId();
+			//String userName = SecurityHelper.getAuthenticatedActorId();
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			String userName = auth.getName();
 			entitat = getPersonaAmbCodi(userName);
 		} else if ((terme.startsWith("swimlane(")) && (terme.endsWith(")"))) {
 			String swimlaneName = terme.substring(9, terme.length()-1).trim();

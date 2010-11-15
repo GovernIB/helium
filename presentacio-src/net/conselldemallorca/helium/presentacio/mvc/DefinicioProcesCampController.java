@@ -310,6 +310,9 @@ public class DefinicioProcesCampController extends BaseController {
 		}
 		public void validate(Object target, Errors errors) {
 			Camp camp = (Camp)target;
+			if (camp.getCodi().matches("^[A-Z]{1}[a-z]{1}.*")) {
+				errors.rejectValue("codi", "error.camp.codi.maymin");
+			}
 			if (camp.getCodi().contains(".")) {
 				errors.rejectValue("codi", "error.camp.codi.char.nok");
 			}

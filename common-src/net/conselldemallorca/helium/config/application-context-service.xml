@@ -28,4 +28,33 @@
 		<dwr:convert type="bean" class="net.conselldemallorca.helium.model.hibernate.*"/>
 	</dwr:configuration>
 
+	<bean id="comprovarTerminisTask" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean">
+		<property name="targetObject" ref="terminiService" />
+		<property name="targetMethod" value="comprovarTerminisIniciats" />
+	</bean>
+	<bean id="comprovarTerminisScheduledTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
+		<property name="timerTask" ref="comprovarTerminisTask" />
+		<property name="delay" value="15000" />
+		<property name="period" value="60000" />
+	</bean>
+	
+	<bean id="syncPersonesTask" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean">
+		<property name="targetObject" ref="pluginService" />
+		<property name="targetMethod" value="personesSync" />
+	</bean>
+	<bean id="syncPersonesTaskScheduledTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
+		<property name="timerTask" ref="syncPersonesTask" />
+		<property name="delay" value="30000" />
+		<property name="period" value="86400000" />
+	</bean>
+
+	<bean class="org.springframework.scheduling.timer.TimerFactoryBean">
+		<property name="scheduledTimerTasks">
+			<list>
+				<ref local="comprovarTerminisScheduledTask" />
+				<ref local="syncPersonesTaskScheduledTask" />
+			</list>
+		</property>
+	</bean>
+
 </beans>

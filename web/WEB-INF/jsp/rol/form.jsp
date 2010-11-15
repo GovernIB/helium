@@ -23,11 +23,23 @@
 		<form:form action="form.html" cssClass="uniForm" enctype="multipart/form-data">
 			<input type="hidden" name="id" value="${command.codi}" />
 			<div class="inlineLabels">
-				<c:import url="../common/formElement.jsp">
-					<c:param name="property" value="codi"/>
-					<c:param name="required" value="true"/>
-					<c:param name="label">Codi</c:param>
-				</c:import>
+				<c:choose>
+					<c:when test="${empty command.codi}">
+						<c:import url="../common/formElement.jsp">
+							<c:param name="property" value="codi"/>
+							<c:param name="required" value="true"/>
+							<c:param name="label">Codi</c:param>
+						</c:import>
+					</c:when>
+					<c:otherwise>
+						<c:import url="../common/formElement.jsp">
+							<c:param name="property" value="codi"/>
+							<c:param name="disabled" value="true"/>
+							<c:param name="required" value="true"/>
+							<c:param name="label">Codi</c:param>
+						</c:import>
+					</c:otherwise>
+				</c:choose>
 				<c:import url="../common/formElement.jsp">
 					<c:param name="property" value="descripcio"/>
 					<c:param name="type" value="textarea"/>

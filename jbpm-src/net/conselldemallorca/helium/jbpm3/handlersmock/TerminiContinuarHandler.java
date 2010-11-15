@@ -14,14 +14,10 @@ import org.jbpm.graph.exe.ExecutionContext;
 @SuppressWarnings("serial")
 public class TerminiContinuarHandler implements ActionHandler {
 
-	public void execute(ExecutionContext executionContext) throws Exception {
-	}
+	public void execute(ExecutionContext executionContext) throws Exception {}
 
-	public void setTerminiCodi(String terminiCodi) {
-	}
-	public void setVarTerminiCodi(String varTerminiCodi) {
-	}
-	public void setVarData(String varData) {
-	}
+	public void setTerminiCodi(String terminiCodi) {}
+	public void setVarTerminiCodi(String varTerminiCodi) {}
+	public void setVarData(String varData) {}
 
 }

@@ -57,7 +57,10 @@ public class ExpedientEstatModificarHandler extends AbstractHeliumActionHandler 
 							expedient.getResponsableCodi(),
 							expedient.getDataInici(),
 							expedient.getComentari(),
-							estat.getId());
+							estat.getId(),
+							expedient.getGeoPosX(),
+							expedient.getGeoPosY(),
+							expedient.getGeoReferencia());
 				} else {
 					logger.info("Informació modificació estat: " + ec + ", " + expedient.getId() + ", " + expedient.getTipus().getId());
 					throw new JbpmException("No existeix cap estat amb el codi '" + ec + "'");

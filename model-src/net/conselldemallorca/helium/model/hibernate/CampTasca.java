@@ -18,6 +18,7 @@ import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
 /**
@@ -30,6 +31,11 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 		uniqueConstraints={
 			@UniqueConstraint(columnNames={"camp_id", "tasca_id"}),
 			@UniqueConstraint(columnNames={"tasca_id", "ordre"})})
+@org.hibernate.annotations.Table(
+		appliesTo = "hel_camp_tasca",
+		indexes = {
+				@Index(name = "hel_camptasca_camp_i", columnNames = {"camp_id"}),
+				@Index(name = "hel_camptasca_tasca_i", columnNames = {"tasca_id"})})
 public class CampTasca implements Serializable, GenericEntity<Long> {
 
 	private Long id;

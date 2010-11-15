@@ -24,7 +24,7 @@ function confirmarEsborrar(e) {
 	<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable" defaultsort="1" defaultorder="descending">
 		<display:column property="dataCreacio" title="Creada el" sortable="true" format="{0,date,dd/MM/yyyy HH:mm}"/>
 		<display:column title="Expedient" sortable="true">
-			${registre.expedient.identificador}
+			<a href="<c:url value="/expedient/info.html"><c:param name="id" value="${registre.expedient.processInstanceId}"/></c:url>">${registre.expedient.identificador}</a>
 		</display:column>
 		<display:column title="Text" sortable="true">
 			<c:choose>

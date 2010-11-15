@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.integracio.plugins.signatura;
 
+import java.util.List;
+
 
 /**
  * Interfície per accedir a la funcionalitat de signatura digital en
@@ -16,6 +18,7 @@ public interface SignaturaPlugin {
 			byte[] document,
 			byte[] signatura) throws SignaturaPluginException;
 
-	public boolean isVerificacioAmbId();
+	public List<InfoSignatura> verificarSignatura(
+			byte[] documentsignat) throws SignaturaPluginException;
 
 }

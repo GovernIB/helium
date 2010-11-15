@@ -172,7 +172,6 @@ function confirmarCanviVersio(e) {
 						<c:param name="items" value="definicionsProces"/>
 						<c:param name="itemLabel" value="descripcio"/>
 						<c:param name="itemValue" value="jbpmId"/>
-						<c:param name="itemBuit" value="<< Darrera versió >>"/>
 						<c:param name="label">Canviar a la versió</c:param>
 					</c:import>
 				</div>

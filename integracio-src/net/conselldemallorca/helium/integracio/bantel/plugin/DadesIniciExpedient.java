@@ -16,6 +16,7 @@ public class DadesIniciExpedient {
 	private String tipusCodi;
 	private String titol;
 	private String numero;
+	private String registreNumero;
 	private String transitionName;
 
 	private Map<String, Object> dadesInicials;
@@ -45,6 +46,12 @@ public class DadesIniciExpedient {
 	}
 	public void setNumero(String numero) {
 		this.numero = numero;
+	}
+	public String getRegistreNumero() {
+		return registreNumero;
+	}
+	public void setRegistreNumero(String registreNumero) {
+		this.registreNumero = registreNumero;
 	}
 	public String getTransitionName() {
 		return transitionName;

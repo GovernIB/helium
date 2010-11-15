@@ -58,5 +58,10 @@ public class AreaDao extends HibernateGenericDao<Area, Long> {
 		return findByCriteria(
 				Restrictions.eq("tipus.id", tipusAreaId));
 	}
+	public List<Area> findAmbPare(Long entornId, String pareCodi) {
+		return findByCriteria(
+				Restrictions.eq("entorn.id", entornId),
+				Restrictions.eq("pare.codi", pareCodi));
+	}
 
 }

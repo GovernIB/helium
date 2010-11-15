@@ -26,6 +26,10 @@ public class ExpedientInfo {
 	private IniciadorTipus iniciadorTipus;
 	private String iniciadorCodi;
 	private String responsableCodi;
+	private String registreNumero;
+	private Double geoPosX;
+	private Double geoPosY;
+	private String geoReferencia;
 
 	private String estatCodi;
 	private String expedientTipusCodi;
@@ -92,6 +96,30 @@ public class ExpedientInfo {
 	}
 	public void setResponsableCodi(String responsableCodi) {
 		this.responsableCodi = responsableCodi;
+	}
+	public String getRegistreNumero() {
+		return registreNumero;
+	}
+	public void setRegistreNumero(String registreNumero) {
+		this.registreNumero = registreNumero;
+	}
+	public Double getGeoPosX() {
+		return geoPosX;
+	}
+	public void setGeoPosX(Double geoPosX) {
+		this.geoPosX = geoPosX;
+	}
+	public Double getGeoPosY() {
+		return geoPosY;
+	}
+	public void setGeoPosY(Double geoPosY) {
+		this.geoPosY = geoPosY;
+	}
+	public String getGeoReferencia() {
+		return geoReferencia;
+	}
+	public void setGeoReferencia(String geoReferencia) {
+		this.geoReferencia = geoReferencia;
 	}
 	public String getEstatCodi() {
 		return estatCodi;

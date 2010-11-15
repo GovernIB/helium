@@ -20,6 +20,9 @@ public class ExpedientEditarCommand {
 	private Date dataInici;
 	private String comentari;
 	private Long estatId;
+	private Double geoPosX;
+	private Double geoPosY;
+	private String geoReferencia;
 
 
 
@@ -70,6 +73,24 @@ public class ExpedientEditarCommand {
 	}
 	public void setEstatId(Long estatId) {
 		this.estatId = estatId;
+	}
+	public Double getGeoPosX() {
+		return geoPosX;
+	}
+	public void setGeoPosX(Double geoPosX) {
+		this.geoPosX = geoPosX;
+	}
+	public Double getGeoPosY() {
+		return geoPosY;
+	}
+	public void setGeoPosY(Double geoPosY) {
+		this.geoPosY = geoPosY;
+	}
+	public String getGeoReferencia() {
+		return geoReferencia;
+	}
+	public void setGeoReferencia(String geoReferencia) {
+		this.geoReferencia = geoReferencia;
 	}
 
 }

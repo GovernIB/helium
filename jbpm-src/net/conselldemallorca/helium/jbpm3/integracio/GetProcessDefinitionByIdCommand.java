@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.jbpm3.integracio;
 
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractGetObjectBaseCommand;
+import org.jbpm.graph.def.ProcessDefinition;
 
 /**
  * Command per obtenir la definició de procés de jBPM 3 donat el seu id
@@ -24,7 +25,10 @@ public class GetProcessDefinitionByIdCommand extends AbstractGetObjectBaseComman
 	}
 
 	public Object execute(JbpmContext jbpmContext) throws Exception {
-		return retrieveProcessDefinition(jbpmContext.getGraphSession().getProcessDefinition(id));
+		ProcessDefinition pd = jbpmContext.getGraphSession().getProcessDefinition(id);
+		if (pd != null)
+			return retrieveProcessDefinition(pd);
+		return null;
 	}
 
 	public long getId() {

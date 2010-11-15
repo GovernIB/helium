@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.conselldemallorca.helium.integracio.plugins.persones.Persona;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortasignaturesPlugin;
+import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortasignaturesPluginException;
 import net.conselldemallorca.helium.model.dto.DocumentDto;
 import net.conselldemallorca.helium.model.exception.PluginException;
 import net.conselldemallorca.helium.model.hibernate.Expedient;
@@ -38,18 +39,31 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 			Expedient expedient,
 			String importancia,
 			Date dataLimit) throws Exception {
-		return getPortasignaturesPlugin().UploadDocument(
-				persona,
-				documentDto,
-				expedient,
-				importancia,
-				dataLimit);
+		try {
+			return getPortasignaturesPlugin().UploadDocument(
+					persona,
+					documentDto.getArxiuNom(),
+					documentDto.getArxiuContingut(),
+					documentDto.getTipusDocPortasignatures(),
+					expedient.getTitol(),
+					importancia,
+					dataLimit);
+		} catch (PortasignaturesPluginException ex) {
+			logger.error("Error al enviar el document al portasignatures", ex);
+			throw new PluginException("Error al enviar el document al portasignatures", ex);
+		}
 	}
 
 	public byte[] DownloadDocument(
 			Integer documentId) throws Exception {
-		return getPortasignaturesPlugin().DownloadDocument(
-				documentId);
+		try {
+			return getPortasignaturesPlugin().DownloadDocument(
+					documentId);
+		} catch (PortasignaturesPluginException ex) {
+			logger.error("Error al rebre el document del portasignatures", ex);
+			throw new PluginException("Error al rebre el document del portasignatures", ex);
+		}
+		
 	}
 
 	@SuppressWarnings("unchecked")

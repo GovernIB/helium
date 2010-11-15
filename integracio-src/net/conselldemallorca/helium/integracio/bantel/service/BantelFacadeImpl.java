@@ -76,13 +76,13 @@ public class BantelFacadeImpl implements BantelFacade {
 							null,
 							dadesIniciExpedient.getNumero(),
 							dadesIniciExpedient.getTitol(),
+							dadesIniciExpedient.getRegistreNumero(),
 							dadesIniciExpedient.getDadesInicials(),
 							dadesIniciExpedient.getTransitionName(),
 							IniciadorTipus.SISTRA,
 							Expedient.crearIniciadorCodiPerSistra(ref.getNumeroEntrada(), ref.getClaveAcceso()),
 							null);
-					
-					//Afegim els documents
+					// Afegim els documents
 					Map<String,DadesDocument> documents = dadesIniciExpedient.getDocumentsInicials();
 					if(documents != null && !documents.isEmpty()){
 						for (Map.Entry<String, DadesDocument> doc: documents.entrySet()) {

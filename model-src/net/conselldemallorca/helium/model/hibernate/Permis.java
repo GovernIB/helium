@@ -1,10 +1,13 @@
 package net.conselldemallorca.helium.model.hibernate;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -25,6 +28,8 @@ public class Permis implements Serializable, GenericEntity<String> {
 	private String codi;
 	@MaxLength(255)
 	private String descripcio;
+
+	private Set<Usuari> usuaris = new HashSet<Usuari>();
 
 
 
@@ -56,6 +61,20 @@ public class Permis implements Serializable, GenericEntity<String> {
 	}
 	public void setDescripcio(String descripcio) {
 		this.descripcio = descripcio;
+	}
+
+	@ManyToMany(mappedBy="permisos")
+	public Set<Usuari> getUsuaris() {
+		return this.usuaris;
+	}
+	public void setUsuaris(Set<Usuari> usuaris) {
+		this.usuaris = usuaris;
+	}
+	public void addUsuari(Usuari usuari) {
+		getUsuaris().add(usuari);
+	}
+	public void removeUsuari(Usuari usuari) {
+		getUsuaris().remove(usuari);
 	}
 
 

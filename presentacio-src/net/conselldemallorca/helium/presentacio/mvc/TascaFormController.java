@@ -65,7 +65,8 @@ public class TascaFormController extends BaseController {
 	private TascaService tascaService;
 	private DissenyService dissenyService;
 	private ExpedientService expedientService;
-	private Validator validator;
+	private Validator validatorGuardar;
+	private Validator validatorValidar;
 
 
 
@@ -77,7 +78,8 @@ public class TascaFormController extends BaseController {
 		this.tascaService = tascaService;
 		this.dissenyService = dissenyService;
 		this.expedientService = expedientService;
-		this.validator = new TascaFormValidator(tascaService);
+		this.validatorGuardar = new TascaFormValidator(tascaService, false);
+		this.validatorValidar = new TascaFormValidator(tascaService);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -207,6 +209,7 @@ public class TascaFormController extends BaseController {
 				}
     		}
 			if ("submit".equals(submit)) {
+				validatorGuardar.validate(command, result);
 		        if (result.hasErrors()) {
 		        	return "tasca/form";
 		        }
@@ -244,7 +247,7 @@ public class TascaFormController extends BaseController {
 	        	else
 	        		return "redirect:/tasca/form.html?id=" + id;
 			} else if ("validate".equals(submit)) {
-				validator.validate(command, result);
+				validatorValidar.validate(command, result);
 				try {
 					afegirVariablesDelProces(command, tasca);
 					TascaFormUtil.getBeanValidatorForCommand(camps).validate(command, result);

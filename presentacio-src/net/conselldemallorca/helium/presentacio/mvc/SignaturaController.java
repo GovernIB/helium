@@ -105,6 +105,9 @@ public class SignaturaController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			try {
+				/*FileOutputStream fos = new FileOutputStream("c:/signat");
+				fos.write(Base64.decode(data));
+				fos.close();*/
 				tascaService.signarDocumentAmbToken(
 						entorn.getId(),
 						token,

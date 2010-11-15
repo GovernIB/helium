@@ -10,13 +10,13 @@ import org.jbpm.graph.exe.ExecutionContext;
 import org.jbpm.graph.exe.Token;
 
 /**
- * Handler per lligar un document del procés pare al
- * procés actual.
+ * Handler per lligar un document del procés fill cap al
+ * procés pare.
  * 
  * @author Josep Gayà <josepg@limit.es>
  */
 @SuppressWarnings("serial")
-public class DocumentLligarProcesPareHandler extends AbstractHeliumActionHandler {
+public class DocumentEscriureProcesPareHandler extends AbstractHeliumActionHandler {
 
 	private String documentCodi;
 	private String varDocumentCodi;
@@ -28,11 +28,11 @@ public class DocumentLligarProcesPareHandler extends AbstractHeliumActionHandler
 		if (tokenPare != null) {
 			String dc = (String)getValorOVariable(executionContext, documentCodi, varDocumentCodi);
 			String varDocument = TascaService.PREFIX_DOCUMENT + dc;
-			Object valor = tokenPare.getProcessInstance().getContextInstance().getVariable(varDocument);
+			Object valor = executionContext.getVariable(varDocument);
 			if (valor != null) {
-				executionContext.setVariable(varDocument, valor);
+				tokenPare.getProcessInstance().getContextInstance().setVariable(varDocument, valor);
 			} else {
-				throw new JbpmException("No s'ha trobat el document(" + dc + ") al procés pare");
+				throw new JbpmException("No s'ha trobat el document(" + dc + ")");
 			}
 		} else {
 			throw new JbpmException("Aquest procés(" + executionContext.getProcessInstance().getId() + ") no té cap procés pare");

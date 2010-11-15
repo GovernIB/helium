@@ -46,7 +46,9 @@
 			${registre.nom}
 			<c:if test="${registre.delegada and registre.delegacioOriginal}"><img src="<c:url value="/img/note_go.png"/>" title="Tasca delegada" alt="Tasca delegada"/></c:if>
 		</display:column>
-		<display:column property="expedient.identificador" title="Expedient" sortable="true"/>
+		<display:column sortProperty="expedient.identificador" title="Expedient" sortable="true">
+			<a href="<c:url value="/expedient/info.html"><c:param name="id" value="${registre.processInstanceId}"/></c:url>">${registre.expedient.identificador}</a>
+		</display:column>
 		<display:column property="expedient.tipus.nom" title="Tipus d'expedient" sortable="true"/>
 		<display:column property="createTime" title="Creada el" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true"/>
 		<display:column title="Prioritat" sortable="true">

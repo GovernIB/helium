@@ -50,6 +50,8 @@ public class PortasignaturesHandler extends AbstractHeliumActionHandler {
 						(String)getValorOVariable(executionContext, document, varDocument);
 				Long documentStoreId = (Long)executionContext.getVariable(varCodi);
 				documentDto = getExpedientService().getDocument(documentStoreId);
+				//System.out.println(">>> ARXIU: " + documentDto.getId() + ", " + documentDto.getArxiuNom());
+				//System.out.println(">>> CONTINGUT: " + documentDto.getArxiuContingut().length + " bytes");
 			} else {
 				throw new JbpmException("No s'ha pogut trobar el document '" + getValorOVariable(executionContext, document, varDocument) + "'.");
 			}

@@ -26,6 +26,7 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
@@ -37,6 +38,12 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
  */
 @Entity
 @Table(name="hel_expedient")
+@org.hibernate.annotations.Table(
+		appliesTo = "hel_expedient",
+		indexes = {
+				@Index(name = "hel_expedient_estat_i", columnNames = {"estat_id"}),
+				@Index(name = "hel_expedient_entorn_i", columnNames = {"entorn_id"}),
+				@Index(name = "hel_expedient_tipus_i", columnNames = {"tipus_id"})})
 public class Expedient implements Serializable, GenericEntity<Long> {
 
 	private static final String SEPARADOR_SISTRA = "#";
@@ -68,6 +75,12 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	private String iniciadorCodi;
 	@MaxLength(64)
 	private String responsableCodi;
+	@MaxLength(64)
+	private String registreNumero;
+	private Double geoPosX;
+	private Double geoPosY;
+	@MaxLength(64)
+	private String geoReferencia;
 
 	private Estat estat;
 	@NotNull
@@ -190,6 +203,38 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 		this.responsableCodi = responsableCodi;
 	}
 
+	@Column(name="registre_num", length=64)
+	public String getRegistreNumero() {
+		return registreNumero;
+	}
+	public void setRegistreNumero(String registreNumero) {
+		this.registreNumero = registreNumero;
+	}
+
+	@Column(name="geo_posx")
+	public Double getGeoPosX() {
+		return geoPosX;
+	}
+	public void setGeoPosX(Double geoPosX) {
+		this.geoPosX = geoPosX;
+	}
+
+	@Column(name="geo_posy")
+	public Double getGeoPosY() {
+		return geoPosY;
+	}
+	public void setGeoPosY(Double geoPosY) {
+		this.geoPosY = geoPosY;
+	}
+
+	@Column(name="geo_referencia", length=64)
+	public String getGeoReferencia() {
+		return geoReferencia;
+	}
+	public void setGeoReferencia(String geoReferencia) {
+		this.geoReferencia = geoReferencia;
+	}
+
 	@ManyToOne(optional=true)
 	@JoinColumn(name="estat_id")
 	@ForeignKey(name="hel_estat_expedient_fk")
@@ -267,6 +312,12 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 		getAlertes().remove(alerta);
 	}
 
+	@Transient
+	public String getNumeroIdentificador() {
+		if (tipus.getTeNumero().booleanValue())
+			return getNumero();
+		return this.getNumeroDefault();
+	}
 	@Transient
 	public String getIdentificador() {
 		if (tipus.getTeNumero().booleanValue() && tipus.getTeTitol().booleanValue())

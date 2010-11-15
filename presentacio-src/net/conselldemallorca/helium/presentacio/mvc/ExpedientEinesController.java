@@ -228,10 +228,11 @@ public class ExpedientEinesController extends BaseController {
 					if (command.getDefinicioProcesId() != null) {
 						DefinicioProcesDto definicioProces = dissenyService.getById(command.getDefinicioProcesId());
 						expedientService.changeProcessInstanceVersion(instanciaProcesId, definicioProces.getVersio());
+						missatgeInfo(request, "El canvi de versió s'ha realitzat correctament");
 					} else {
 						expedientService.changeProcessInstanceVersion(instanciaProcesId);
+						missatgeError(request, "No s'ha especificat cap versió de procés");
 					}
-					missatgeInfo(request, "El canvi de versió s'ha realitzat correctament");
 				} catch (Exception ex) {
 					missatgeError(request, "No s'ha pogut canviar la versió de procés", ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut canviar la versió de procés", ex);

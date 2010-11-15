@@ -21,6 +21,7 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.FilaResultat;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ParellaCodiValor;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo.IniciadorTipus;
+import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
 import net.conselldemallorca.helium.model.dao.DaoProxy;
 import net.conselldemallorca.helium.model.dao.DocumentStoreDao;
@@ -233,6 +234,10 @@ public abstract class BasicActionHandler implements ActionHandler {
 				resposta.setIniciadorTipus(IniciadorTipus.SISTRA);
 			resposta.setIniciadorCodi(ex.getIniciadorCodi());
 			resposta.setResponsableCodi(ex.getResponsableCodi());
+			resposta.setRegistreNumero(ex.getRegistreNumero());
+			resposta.setGeoPosX(ex.getGeoPosX());
+			resposta.setGeoPosY(ex.getGeoPosY());
+			resposta.setGeoReferencia(ex.getGeoReferencia());
 			resposta.setExpedientTipusCodi(ex.getTipus().getCodi());
 			resposta.setEntornCodi(ex.getEntorn().getCodi());
 			if (ex.getEstat() != null)
@@ -256,6 +261,9 @@ public abstract class BasicActionHandler implements ActionHandler {
 					resposta.setIniciadorTipus(IniciadorTipus.SISTRA);
 				resposta.setIniciadorCodi(expedient.getIniciadorCodi());
 				resposta.setResponsableCodi(expedient.getResponsableCodi());
+				resposta.setGeoPosX(expedient.getGeoPosX());
+				resposta.setGeoPosY(expedient.getGeoPosY());
+				resposta.setGeoReferencia(expedient.getGeoReferencia());
 				resposta.setExpedientTipusCodi(expedient.getTipus().getCodi());
 				resposta.setEntornCodi(expedient.getEntorn().getCodi());
 				if (expedient.getEstat() != null)
@@ -433,6 +441,27 @@ public abstract class BasicActionHandler implements ActionHandler {
 			throw new JbpmException("No s'ha trobat la definició de procés per a la instància de procés " + processInstanceId);
 		}
 	
+	}
+
+	/**
+	 * Guarda un termini a dins una variable
+	 * 
+	 * @param executionContext
+	 * @param anys
+	 * @param mesos
+	 * @param dies
+	 */
+	public void terminiGuardar(
+			ExecutionContext executionContext,
+			String varName,
+			int anys,
+			int mesos,
+			int dies) {
+		Termini termini = new Termini();
+		termini.setAnys(anys);
+		termini.setMesos(mesos);
+		termini.setDies(dies);
+		executionContext.setVariable(varName, termini);
 	}
 
 

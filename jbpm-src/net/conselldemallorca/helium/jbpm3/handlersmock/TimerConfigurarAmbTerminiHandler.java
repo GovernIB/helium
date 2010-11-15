@@ -15,10 +15,8 @@ import org.jbpm.graph.exe.ExecutionContext;
 @Deprecated
 public class TimerConfigurarAmbTerminiHandler implements ActionHandler {
 
-	public void execute(ExecutionContext executionContext) throws Exception {
-	}
+	public void execute(ExecutionContext executionContext) throws Exception {}
 
-	public void setTerminiCodi(String terminiCodi) {
-	}
+	public void setTerminiCodi(String terminiCodi) {}
 
 }

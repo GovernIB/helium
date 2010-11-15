@@ -62,9 +62,9 @@ public class PluginService {
 	public Persona findPersonaAmbCodi(String codi) {
 		return pluginPersonaDao.findAmbCodiPlugin(codi);
 	}
-	public void sync() {
+	public void personesSync() {
 		if (isSyncActiu()) {
-			logger.info("Inici de la sincronització de persones");
+			logger.debug("Inici de la sincronització de persones");
 			List<Persona> persones = pluginPersonaDao.findAllPlugin();
 	    	for (Persona persona: persones) {
 	    		net.conselldemallorca.helium.model.hibernate.Persona p = pluginPersonaDao.findAmbCodi(persona.getCodi());
@@ -74,11 +74,11 @@ public class PluginService {
 	    			p.setDni(persona.getDni());
 	    			p.setEmail(persona.getEmail());
 	    		} else {
-	    			logger.info("Nova persona: " + persona.getCodi());
+	    			logger.debug("Nova persona: " + persona.getCodi());
 	    			p = new net.conselldemallorca.helium.model.hibernate.Persona();
 	    			p.setCodi(persona.getCodi());
 	    			p.setNom(persona.getNom());
-	    			p.setLlinatge1((persona.getLlinatge1() != null) ? persona.getLlinatge1(): "");
+	    			p.setLlinatge1((persona.getLlinatge1() != null) ? persona.getLlinatge1(): " ");
 	    			p.setLlinatge2(persona.getLlinatge2());
 	    			p.setDni(persona.getDni());
 	    			p.setEmail(persona.getEmail());
@@ -93,7 +93,7 @@ public class PluginService {
 	    			}
 	    		}
 	    	}
-	    	logger.info("Fi de la sincronització de persones");
+	    	logger.debug("Fi de la sincronització de persones");
 		}
 	}
 

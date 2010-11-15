@@ -20,6 +20,7 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
@@ -31,6 +32,11 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
  */
 @Entity
 @Table(name="hel_alerta")
+@org.hibernate.annotations.Table(
+		appliesTo = "hel_alerta",
+		indexes = {
+				@Index(name = "hel_alerta_entorn_i", columnNames = {"entorn_id"}),
+				@Index(name = "hel_alerta_expedient_i", columnNames = {"expedient_id"})})
 public class Alerta implements Serializable, GenericEntity<Long> {
 
 	private Long id;

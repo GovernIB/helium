@@ -14,13 +14,9 @@ import org.jbpm.graph.exe.ExecutionContext;
 @SuppressWarnings("serial")
 public class ExpedientEstatModificarHandler implements ActionHandler {
 
-	public void execute(ExecutionContext executionContext) throws Exception {
+	public void execute(ExecutionContext executionContext) throws Exception {}
 
-	}
-
-	public void setEstatCodi(String estatCodi) {
-	}
-	public void setVarEstatCodi(String varEstatCodi) {
-	}
+	public void setEstatCodi(String estatCodi) {}
+	public void setVarEstatCodi(String varEstatCodi) {}
 
 }

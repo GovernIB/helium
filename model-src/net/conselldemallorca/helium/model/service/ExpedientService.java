@@ -136,6 +136,7 @@ public class ExpedientService {
 			Long definicioProcesId,
 			String numero,
 			String titol,
+			String registreNumero,
 			Map<String, Object> variables,
 			String transitionName,
 			IniciadorTipus iniciadorTipus,
@@ -165,6 +166,7 @@ public class ExpedientService {
 		if (responsableCodiCalculat == null)
 			responsableCodiCalculat = iniciadorCodiCalculat;
 		expedient.setResponsableCodi(responsableCodiCalculat);
+		expedient.setRegistreNumero(registreNumero);
 		expedient.setNumeroDefault(
 				expedientTipus.getNumeroExpedientDefaultActual(getNumexpExpression()));
 		if (numero != null && numero.length() > 0)
@@ -211,7 +213,10 @@ public class ExpedientService {
 			String responsableCodi,
 			Date dataInici,
 			String comentari,
-			Long estatId) {
+			Long estatId,
+			Double geoPosX,
+			Double geoPosY,
+			String geoReferencia) {
 		Expedient expedient = expedientDao.findAmbEntornIId(entornId, id);
 		String informacioVella = getInformacioExpedient(expedient);
 		expedient.setNumero(numero);
@@ -224,6 +229,9 @@ public class ExpedientService {
 			expedient.setEstat(estatDao.getById(estatId, false));
 		else
 			expedient.setEstat(null);
+		expedient.setGeoPosX(geoPosX);
+		expedient.setGeoPosY(geoPosY);
+		expedient.setGeoReferencia(geoReferencia);
 		luceneDao.updateExpedient(
 				expedient,
 				getMapDefinicionsProces(expedient),
@@ -803,6 +811,11 @@ public class ExpedientService {
 		if (pluginCustodiaDao.potObtenirInfoSignatures()) {
 			return pluginCustodiaDao.infoSignatures(
 					documentStore.getReferenciaCustodia());
+		} else if (isSignaturaFileAttached()) {
+			List<byte[]> signatures = pluginCustodiaDao.obtenirSignatures(
+					documentStore.getReferenciaCustodia());
+			return pluginSignaturaDao.verificarSignatura(
+					signatures.get(0));
 		} else {
 			List<InfoSignatura> resposta = new ArrayList<InfoSignatura>();
 			List<byte[]> signatures = pluginCustodiaDao.obtenirSignatures(
@@ -1130,6 +1143,11 @@ public class ExpedientService {
 
 	private String getNumexpExpression() {
 		return GlobalProperties.getInstance().getProperty("app.numexp.expression");
+	}
+
+	private boolean isSignaturaFileAttached() {
+		String fileAttached = GlobalProperties.getInstance().getProperty("app.signatura.plugin.file.attached");
+		return "true".equalsIgnoreCase(fileAttached);
 	}
 
 	private String getVarNameFromDocumentStore(DocumentStore documentStore) {

@@ -55,6 +55,8 @@ public class DominiIntern implements DominiHelium {
 			return personesAmbArea(parametersMap);
 		} else if ("PERSONES_AMB_CARREC".equals(id)) {
 			return personesAmbCarrec(parametersMap);
+		} else  if ("AREES_AMB_PARE".equals(id)) {
+			return areesAmbPare(parametersMap);
 		} else if ("VARIABLE_REGISTRE".equals(id)) {
 			return variableRegistre(parametersMap);
 		}
@@ -108,6 +110,13 @@ public class DominiIntern implements DominiHelium {
 			Persona persona = pluginService.findPersonaAmbCodi(personaCodi);
 			if (persona != null)
 				resposta.add(novaFilaPersona(persona));
+		}
+		return resposta;
+	}
+	private List<FilaResultat> areesAmbPare(Map<String, Object> parametres) {
+		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+		for (Area area: getAreesAmbPare((String)parametres.get("entorn"), (String)parametres.get("pare"))) {
+			resposta.add(novaFilaArea(area));
 		}
 		return resposta;
 	}
@@ -193,12 +202,25 @@ public class DominiIntern implements DominiHelium {
 		resposta.addColumna(new ParellaCodiValor("nomSencer", persona.getNomSencer()));
 		return resposta;
 	}
+	
+	private FilaResultat novaFilaArea(Area area) {
+		FilaResultat resposta = new FilaResultat();
+		resposta.addColumna(new ParellaCodiValor("codi", area.getCodi()));
+		resposta.addColumna(new ParellaCodiValor("nom", area.getNom()));
+		String pareCodi = (area.getPare() != null) ? area.getPare().getCodi() : null;
+		resposta.addColumna(new ParellaCodiValor("pareCodi", pareCodi));
+		return resposta;
+	}
 
 	private List<String> getPersonesPerArea(String entornCodi, String areaCodi) {
 		if (isHeliumIdentitySource()) {
 			Entorn entorn = entornService.findAmbCodi(entornCodi);
-			Area area = organitzacioService.findAreaAmbEntornICodi(entorn.getId(), areaCodi);
-			return organitzacioService.findCodisPersonaAmbArea(area.getId());
+			if (entorn != null) {
+				Area area = organitzacioService.findAreaAmbEntornICodi(entorn.getId(), areaCodi);
+				if (area != null)
+					return organitzacioService.findCodisPersonaAmbArea(area.getId());
+			}
+			return new ArrayList<String>();
 		} else {
 			return organitzacioService.findCodisPersonaAmbJbpmIdGroup(areaCodi);
 		}
@@ -208,13 +230,20 @@ public class DominiIntern implements DominiHelium {
 		if (isHeliumIdentitySource()) {
 			List<String> resposta = new ArrayList<String>();
 			Entorn entorn = entornService.findAmbCodi(entornCodi);
-			Carrec carrec = organitzacioService.findCarrecAmbEntornICodi(entorn.getId(), carrecCodi);
-			if (carrec != null)
-				resposta.add(carrec.getPersonaCodi());
+			if (entorn != null) {
+				Carrec carrec = organitzacioService.findCarrecAmbEntornICodi(entorn.getId(), carrecCodi);
+				if (carrec != null)
+					resposta.add(carrec.getPersonaCodi());
+			}
 			return resposta;
 		} else {
 			return organitzacioService.findCodisPersonaAmbJbpmIdCarrec(carrecCodi);
 		}
+	}
+
+	private List<Area> getAreesAmbPare(String entornCodi, String areaCodi) {
+		Entorn entorn = entornService.findAmbCodi(entornCodi);
+		return organitzacioService.findAreaAmbPare(entorn.getId(), areaCodi);
 	}
 
 	private Map<String, Object> getParametersMap(List<ParellaCodiValor> parametres) {

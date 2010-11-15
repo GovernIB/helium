@@ -78,6 +78,7 @@ public class Tramitacio implements TramitacioService {
 					null,
 					numero,
 					titol,
+					null,
 					variables,
 					null,
 					IniciadorTipus.INTERN,

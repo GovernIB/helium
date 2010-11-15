@@ -333,12 +333,18 @@ public abstract class RegistreHandler extends AbstractHeliumActionHandler {
 			ExecutionContext executionContext) {
 		SeientRegistral dades = new SeientRegistral();
 		Date ara = new Date();
+		DateFormat dfData = new SimpleDateFormat("dd/MM/yyyy");
 		if (	(data == null || "".equals(data)) &&
 				(varData == null || "".equals(varData))) {
-			DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-			dades.setData(df.format(ara));
+			dades.setData(dfData.format(ara));
 		} else {
-			dades.setData((String)getValorOVariable(executionContext, data, varData));
+			Object valor = getValorOVariable(executionContext, data, varData);
+			if (valor instanceof String)
+				dades.setData((String)valor);
+			else if (valor instanceof Date)
+				dades.setData(dfData.format((Date)valor));
+			else
+				dades.setData(dfData.format(ara));
 		}
 		if (	(hora == null || "".equals(hora)) &&
 				(varHora == null || "".equals(varHora))) {
@@ -415,7 +421,7 @@ public abstract class RegistreHandler extends AbstractHeliumActionHandler {
 		resposta.setTipus((String)getValorOVariable(executionContext, documentTipus, varDocumentTipus));
 		resposta.setIdiomaDocument(getIdiomaRegistre((String)getValorOVariable(executionContext, documentIdiomaDocument, varDocumentIdiomaDocument)));
 		resposta.setIdiomaExtracte(getIdiomaRegistre((String)getValorOVariable(executionContext, documentIdiomaExtracte, varDocumentIdiomaExtracte)));
-		if (varDocument == null || varDocument.length() == 0) {
+		if (varDocument != null && varDocument.length() > 0) {
 			Long documentId = getDocumentId(executionContext);
 			if (documentId == null)
 				throw new JbpmException("No s'ha trobat el document '" + varDocument + "'");

@@ -91,6 +91,9 @@ public class OrganitzacioService {
 	public List<Area> findAreaAmbTipus(Long tipusAreaId) {
 		return areaDao.findAmbTipus(tipusAreaId);
 	}
+	public List<Area> findAreaAmbPare(Long entornId, String pareCodi) {
+		return areaDao.findAmbPare(entornId, pareCodi);
+	}
 
 	public void afegirMembre(
 			Long areaId,

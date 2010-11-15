@@ -54,6 +54,7 @@ public class DefaultIniciExpedientPlugin implements IniciExpedientPlugin {
 					dadesIniciExpedient.setTitol(tramit.getNumeroEntrada());
 				if (expedientTipus.getDemanaNumero())
 					dadesIniciExpedient.setNumero(expedientTipus.getNumeroExpedientActual());
+				dadesIniciExpedient.setRegistreNumero(tramit.getNumeroRegistro());
 				dadesIniciExpedient.setDadesInicials(getDadesInicials(expedientTipus, tramit));
 				dadesIniciExpedient.setDocumentsInicials(getDocumentsInicials(expedientTipus, tramit));
 				resposta.add(dadesIniciExpedient);

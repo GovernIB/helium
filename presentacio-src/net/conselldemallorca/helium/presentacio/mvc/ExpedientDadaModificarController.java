@@ -280,7 +280,7 @@ public class ExpedientDadaModificarController extends BaseController {
 			camp = dissenyService.findCampAmbDefinicioProcesICodi(
 					instanciaProces.getDefinicioProces().getId(),
 					var);
-			valor = expedientService.getVariable(id, var);
+			valor = instanciaProces.getVariables().get(var);
 		} else {
 			tasca = tascaService.getById(entornId, taskId);
 			instanciaProces = expedientService.getInstanciaProcesById(

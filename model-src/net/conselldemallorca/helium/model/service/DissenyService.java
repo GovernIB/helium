@@ -1011,29 +1011,32 @@ public class DissenyService {
 		// Afegeix el deploy pel jBPM
 		DefinicioProces definicioProces = definicioProcesDao.getById(definicioProcesId, false);
 		definicioProcesExportacio.setNomDeploy("export.par");
-		try {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ZipOutputStream zos = new ZipOutputStream(baos);
-			byte[] data = new byte[1024];
-			for (String resource: jbpmDao.getResourceNames(definicioProces.getJbpmId())) {
-				byte[] bytes = jbpmDao.getResourceBytes(
-						definicioProces.getJbpmId(),
-						resource);
-				if (bytes != null) {
-					InputStream is = new ByteArrayInputStream(jbpmDao.getResourceBytes(
+		Set<String> resourceNames = jbpmDao.getResourceNames(definicioProces.getJbpmId());
+		if (resourceNames != null && resourceNames.size() > 0) {
+			try {
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				ZipOutputStream zos = new ZipOutputStream(baos);
+				byte[] data = new byte[1024];
+				for (String resource: resourceNames) {
+					byte[] bytes = jbpmDao.getResourceBytes(
 							definicioProces.getJbpmId(),
-							resource));
-					zos.putNextEntry(new ZipEntry(resource));
-					int count;
-					while ((count = is.read(data, 0, 1024)) != -1)
-						zos.write(data, 0, count);
-			        zos.closeEntry();
+							resource);
+					if (bytes != null) {
+						InputStream is = new ByteArrayInputStream(jbpmDao.getResourceBytes(
+								definicioProces.getJbpmId(),
+								resource));
+						zos.putNextEntry(new ZipEntry(resource));
+						int count;
+						while ((count = is.read(data, 0, 1024)) != -1)
+							zos.write(data, 0, count);
+				        zos.closeEntry();
+					}
 				}
+				zos.close();
+				definicioProcesExportacio.setContingutDeploy(baos.toByteArray());
+			} catch (Exception ex) {
+				throw new ExportException("Error generant el contingut del desplegament", ex);
 			}
-			zos.close();
-			definicioProcesExportacio.setContingutDeploy(baos.toByteArray());
-		} catch (Exception ex) {
-			throw new ExportException("Error generant el contingut del desplegament", ex);
 		}
         return definicioProcesExportacio;
 	}
@@ -1506,7 +1509,10 @@ public class DissenyService {
 		dto.setDataCreacio(definicioProces.getDataCreacio());
 		dto.setEntorn(definicioProces.getEntorn());
 		JbpmProcessDefinition jpd = jbpmDao.getProcessDefinition(definicioProces.getJbpmId());
-		dto.setJbpmName(jpd.getName());
+		if (jpd != null)
+			dto.setJbpmName(jpd.getName());
+		else
+			dto.setJbpmName("[" + definicioProces.getJbpmKey() + "]");
 		dto.setHasStartTask(hasStartTask(definicioProces));
 		List<DefinicioProces> mateixaKeyIEntorn = definicioProcesDao.findAmbEntornIJbpmKey(
 				definicioProces.getEntorn().getId(),

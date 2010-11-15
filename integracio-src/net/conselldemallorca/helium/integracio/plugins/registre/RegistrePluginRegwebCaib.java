@@ -23,6 +23,8 @@ import es.caib.regweb.RegistroSalidaHome;
 
 public class RegistrePluginRegwebCaib implements RegistrePlugin {
 
+	private static final String SEPARADOR_ENTITAT = "-";
+
 	@SuppressWarnings("unchecked")
 	public String[] registrarEntrada(
 			SeientRegistral dadesRegistre) throws RegistrePluginException {
@@ -35,7 +37,7 @@ public class RegistrePluginRegwebCaib implements RegistrePlugin {
 			registroEntrada.setoficinafisica(dadesRegistre.getOficinaFisica());
 			if (dadesRegistre.getRemitent().getCodiEntitat() != null) {
 				String codiEntitat = dadesRegistre.getRemitent().getCodiEntitat();
-				int indexBarra = codiEntitat.indexOf("/");
+				int indexBarra = codiEntitat.indexOf(SEPARADOR_ENTITAT);
 				registroEntrada.setentidad1(codiEntitat.substring(0, indexBarra));
 				registroEntrada.setentidad2(codiEntitat.substring(indexBarra + 1));
 			}
@@ -69,7 +71,7 @@ public class RegistrePluginRegwebCaib implements RegistrePlugin {
 				sb.append("Errors de validació:\n");
 				Map<String, String> errors = registroEntrada.getErrores();
 				for (String camp: errors.keySet()) {
-					sb.append("  " + errors.get(camp));
+					sb.append(" | " + errors.get(camp));
 				}
 				throw new RegistrePluginException(sb.toString());
 			}
@@ -97,7 +99,7 @@ public class RegistrePluginRegwebCaib implements RegistrePlugin {
 				resposta.setOficinaFisica(registroEntrada.getOficinafisica());
 				RegistreFont remitent = new RegistreFont();
 				if (registroEntrada.getEntidad1() != null && !"".equals(registroEntrada.getEntidad1()))
-					remitent.setCodiEntitat(registroEntrada.getEntidad1() + "/" + registroEntrada.getEntidad2());
+					remitent.setCodiEntitat(registroEntrada.getEntidad1() + SEPARADOR_ENTITAT + registroEntrada.getEntidad2());
 				remitent.setNomEntitat(registroEntrada.getAltres());
 				remitent.setCodiGeografic(registroEntrada.getBalears());
 				remitent.setNomGeografic(registroEntrada.getFora());
@@ -135,7 +137,7 @@ public class RegistrePluginRegwebCaib implements RegistrePlugin {
 			registroSalida.setoficinafisica(dadesRegistre.getOficinaFisica());
 			if (dadesRegistre.getDestinatari().getCodiEntitat() != null) {
 				String codiEntitat = dadesRegistre.getDestinatari().getCodiEntitat();
-				int indexBarra = codiEntitat.indexOf("/");
+				int indexBarra = codiEntitat.indexOf(SEPARADOR_ENTITAT);
 				registroSalida.setentidad1(codiEntitat.substring(0, indexBarra));
 				registroSalida.setentidad2(codiEntitat.substring(indexBarra + 1));
 			}
@@ -169,7 +171,7 @@ public class RegistrePluginRegwebCaib implements RegistrePlugin {
 				sb.append("Errors de validació:\n");
 				Map<String, String> errors = registroSalida.getErrores();
 				for (String camp: errors.keySet()) {
-					sb.append("  " + errors.get(camp));
+					sb.append(" | " + errors.get(camp));
 				}
 				throw new RegistrePluginException(sb.toString());
 			}
@@ -197,7 +199,7 @@ public class RegistrePluginRegwebCaib implements RegistrePlugin {
 				resposta.setOficinaFisica(registroSalida.getOficinafisica());
 				RegistreFont destinatari = new RegistreFont();
 				if (registroSalida.getEntidad1() != null && !"".equals(registroSalida.getEntidad1()))
-					destinatari.setCodiEntitat(registroSalida.getEntidad1() + "/" + registroSalida.getEntidad2());
+					destinatari.setCodiEntitat(registroSalida.getEntidad1() + SEPARADOR_ENTITAT + registroSalida.getEntidad2());
 				destinatari.setNomEntitat(registroSalida.getAltres());
 				destinatari.setCodiGeografic(registroSalida.getBalears());
 				destinatari.setNomGeografic(registroSalida.getFora());

@@ -582,15 +582,27 @@ public class TascaService {
 					null);
 		} else {
 			DocumentStore docStore = documentStoreDao.getById(docStoreId, false);
-			nomArxiuAntic = docStore.getArxiuNom();
-			documentStoreDao.update(
-					docStoreId,
-					data,
-					arxiuNom,
-					(pluginGestioDocumentalDao.isGestioDocumentalActiu()) ? null : arxiuContingut,
-					null);
-			if (arxiuContingut != null && pluginGestioDocumentalDao.isGestioDocumentalActiu())
-				pluginGestioDocumentalDao.deleteDocument(docStore.getReferenciaFont());
+			if (docStore == null) {
+				docStoreId = documentStoreDao.create(
+						task.getProcessInstanceId(),
+						codiVariableJbpm,
+						data,
+						(pluginGestioDocumentalDao.isGestioDocumentalActiu()) ? DocumentFont.ALFRESCO : DocumentFont.INTERNA,
+						arxiuNom,
+						(pluginGestioDocumentalDao.isGestioDocumentalActiu()) ? null : arxiuContingut,
+						false,
+						null);
+			} else {
+				nomArxiuAntic = docStore.getArxiuNom();
+				documentStoreDao.update(
+						docStoreId,
+						data,
+						arxiuNom,
+						(pluginGestioDocumentalDao.isGestioDocumentalActiu()) ? null : arxiuContingut,
+						null);
+				if (arxiuContingut != null && pluginGestioDocumentalDao.isGestioDocumentalActiu())
+					pluginGestioDocumentalDao.deleteDocument(docStore.getReferenciaFont());
+			}
 		}
 		// Crea el document a dins la gestió documental
 		if (arxiuContingut != null && pluginGestioDocumentalDao.isGestioDocumentalActiu()) {
@@ -663,10 +675,9 @@ public class TascaService {
 				jbpmDao.deleteTaskInstanceVariable(
 						taskId,
 						codiVariableJbpm);
-			else
-				jbpmDao.deleteProcessInstanceVariable(
-						task.getProcessInstanceId(),
-						codiVariableJbpm);
+			jbpmDao.deleteProcessInstanceVariable(
+					task.getProcessInstanceId(),
+					codiVariableJbpm);
 		}
 		TascaDto tasca = toTascaDto(task, null, true);
 		registreDao.crearRegistreEsborrarDocumentTasca(

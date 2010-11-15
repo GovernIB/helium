@@ -255,6 +255,7 @@ public class PersonaService {
 		dto.setNom(persona.getNom());
 		dto.setLlinatge1(persona.getLlinatge1());
 		dto.setLlinatge2(persona.getLlinatge2());
+		dto.setDni(persona.getDni());
 		dto.setDataNaixement(persona.getDataNaixement());
 		dto.setEmail(persona.getEmail());
 		dto.setSexe(persona.getSexe());

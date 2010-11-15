@@ -87,7 +87,9 @@ public class JbpmDao {
 		JbpmProcessDefinition resposta = null;
 		long pdid = new Long(jbpmId).longValue();
 		GetProcessDefinitionByIdCommand command = new GetProcessDefinitionByIdCommand(pdid);
-		resposta = new JbpmProcessDefinition((ProcessDefinition)commandService.execute(command));
+		ProcessDefinition processDefinition = (ProcessDefinition)commandService.execute(command);
+		if (processDefinition != null)
+			resposta = new JbpmProcessDefinition((ProcessDefinition)commandService.execute(command));
 		return resposta;
 	}
 
@@ -116,9 +118,11 @@ public class JbpmDao {
 		long pdid = new Long(jbpmId).longValue();
 		GetProcessDefinitionByIdCommand command = new GetProcessDefinitionByIdCommand(pdid);
 		ProcessDefinition processDefinition = (ProcessDefinition)commandService.execute(command);
-		org.jbpm.taskmgmt.def.Task startTask = processDefinition.getTaskMgmtDefinition().getStartTask();
-		if (startTask != null)
-			resposta = startTask.getName();
+		if (processDefinition != null) {
+			org.jbpm.taskmgmt.def.Task startTask = processDefinition.getTaskMgmtDefinition().getStartTask();
+			if (startTask != null)
+				resposta = startTask.getName();
+		}
 		return resposta;
 	}
 
@@ -153,11 +157,15 @@ public class JbpmDao {
 		long pdid = new Long(jbpmId).longValue();
 		GetProcessDefinitionByIdCommand command = new GetProcessDefinitionByIdCommand(pdid);
 		ProcessDefinition processDefinition = (ProcessDefinition)commandService.execute(command);
-		FileDefinition fd = processDefinition.getFileDefinition();
-		if (fd != null)
-			resources = fd.getBytesMap().keySet();
-		else
+		if (processDefinition != null) {
+			FileDefinition fd = processDefinition.getFileDefinition();
+			if (fd != null)
+				resources = fd.getBytesMap().keySet();
+			else
+				resources = new HashSet<String>();
+		} else {
 			resources = new HashSet<String>();
+		}
 		return resources;
 	}
 

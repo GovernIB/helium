@@ -174,6 +174,7 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 								command.getTitol(),
 								null,
 								null,
+								null,
 								IniciadorTipus.INTERN,
 								null,
 								null);

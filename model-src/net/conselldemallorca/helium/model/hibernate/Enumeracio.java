@@ -26,6 +26,7 @@ import javax.persistence.UniqueConstraint;
 import net.conselldemallorca.helium.integracio.domini.ParellaCodiValor;
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
@@ -38,6 +39,9 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 @Entity
 @Table(	name="hel_enumeracio",
 		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "entorn_id"})})
+@org.hibernate.annotations.Table(
+		appliesTo = "hel_enumeracio",
+		indexes = @Index(name = "hel_enum_entorn_i", columnNames = {"entorn_id"}))
 public class Enumeracio implements Serializable {
 
 	private Long id;

@@ -121,6 +121,10 @@ public class DtoConverter {
 		dto.setTipus(expedient.getTipus());
 		dto.setEntorn(expedient.getEntorn());
 		dto.setEstat(expedient.getEstat());
+		dto.setRegistreNumero(expedient.getRegistreNumero());
+		dto.setGeoPosX(expedient.getGeoPosX());
+		dto.setGeoPosY(expedient.getGeoPosY());
+		dto.setGeoReferencia(expedient.getGeoReferencia());
 		if (!starting) {
 			JbpmProcessInstance processInstance = jbpmDao.getProcessInstance(expedient.getProcessInstanceId());
 			dto.setDataFi(processInstance.getEnd());
@@ -273,7 +277,6 @@ public class DtoConverter {
 				filtrarVariablesTasca(valors);
 				if (varsCommand != null)
 					valors.putAll(varsCommand);
-				dto.setVariables(valors);
 				List<Camp> camps = new ArrayList<Camp>();
 				for (CampTasca campTasca: campsTasca)
 					camps.add(campTasca.getCamp());
@@ -290,6 +293,9 @@ public class DtoConverter {
 						valors);
 				dto.setValorsMultiplesDomini(valorsMultiplesDomini);
 				dto.setVarsComText(textPerCamps(task.getId(), null, camps, valors, valorsDomini, valorsMultiplesDomini));
+				if (isOptimitzarConsultesDomini())
+					filtrarOptimitzacionsDomini(valors, camps);
+				dto.setVariables(valors);
 			}
 		}
 		return dto;
@@ -365,7 +371,6 @@ public class DtoConverter {
 					documents,
 					valors));
 			filtrarVariablesTasca(valors);
-			dto.setVariables(valors);
 			Map<String, ParellaCodiValor> valorsDomini = obtenirValorsDomini(
 					null,
 					processInstanceId,
@@ -379,6 +384,9 @@ public class DtoConverter {
 					valors);
 			dto.setValorsMultiplesDomini(valorsMultiplesDomini);
 			dto.setVarsComText(textPerCamps(null, processInstanceId, camps, valors, valorsDomini, valorsMultiplesDomini));
+			if (isOptimitzarConsultesDomini())
+				filtrarOptimitzacionsDomini(valors, camps);
+			dto.setVariables(valors);
 		}
 		return dto;
 	}
@@ -428,6 +436,7 @@ public class DtoConverter {
 					dto.setRegistreAny(document.getRegistreAny());
 					dto.setRegistreOficinaCodi(document.getRegistreOficinaCodi());
 					dto.setRegistreOficinaNom(document.getRegistreOficinaNom());
+					dto.setRegistreEntrada(document.isRegistreEntrada());
 					dto.setRegistrat(true);
 				}
 				return dto;
@@ -671,6 +680,8 @@ public class DtoConverter {
 			Camp camp,
 			Object valor,
 			boolean actualitzarJbpm) throws DominiException {
+		if (valor == null)
+			return null;
 		ParellaCodiValor resposta = null;
 		TipusCamp tipus = camp.getTipus();
 		if (tipus.equals(TipusCamp.SELECCIO) || tipus.equals(TipusCamp.SUGGEST)) {
@@ -711,7 +722,8 @@ public class DtoConverter {
 							}
 						}
 					} catch (Exception ex) {
-						throw new DominiException("No s'ha pogut consultar el domini", ex);
+						//throw new DominiException("No s'ha pogut consultar el domini", ex);
+						logger.error("No s'ha pogut consultar el domini", ex);
 					}
 				} else if (camp.getEnumeracio() != null) {
 					Enumeracio enumeracio = camp.getEnumeracio();
@@ -1073,6 +1085,15 @@ public class DtoConverter {
 
 	private boolean isOptimitzarConsultesDomini() {
 		return "true".equalsIgnoreCase((String)GlobalProperties.getInstance().get("app.optimitzar.consultes.domini"));
+	}
+	private void filtrarOptimitzacionsDomini(Map<String, Object> valors, Collection<Camp> camps) {
+		for (Camp camp: camps) {
+			if (camp.getTipus().equals(TipusCamp.SELECCIO)) {
+				Object valor = valors.get(camp.getCodi());
+				if (valor instanceof String[])
+					valors.put(camp.getCodi(), ((String[])valor)[0]);
+			}
+		}
 	}
 
 	private static final Log logger = LogFactory.getLog(DtoConverter.class);
