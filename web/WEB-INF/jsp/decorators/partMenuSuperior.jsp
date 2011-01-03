@@ -15,6 +15,9 @@
 				<li class="image persones"><a href="<c:url value="/persona/consulta.html"/>">Persones</a></li>
 				<li class="image rols"><a href="<c:url value="/rol/llistat.html"/>">Rols</a></li>
 			</c:if>
+			<c:if test="${globalProperties['app.rols.actiu']}">
+				<li class="image rols"><a href="<c:url value="/rol/llistat.html"/>">Rols</a></li>
+			</c:if>
 			<li class="image entorns"><a href="<c:url value="/entorn/llistat.html"/>">Entorns</a></li>
 			<c:if test="${globalProperties['app.jbpm.identity.source'] == 'jbpm'}">
 				<li class="image carrec"><a href="<c:url value="/carrec/jbpmConfigurats.html"/>">Càrrecs</a></li>

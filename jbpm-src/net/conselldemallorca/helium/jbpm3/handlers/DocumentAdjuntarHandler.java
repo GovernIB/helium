@@ -66,8 +66,6 @@ public class DocumentAdjuntarHandler extends AbstractHeliumActionHandler {
 			} else {
 				throw new JbpmException("No s'ha trobat el contingut del document especificat(" + dor + ")");
 			}
-		} else {
-			throw new JbpmException("No s'ha trobat el document especificat(" + dor + ")");
 		}
 	}
 

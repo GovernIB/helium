@@ -48,6 +48,7 @@ public class Tramitacio implements TramitacioService {
 
 	public String iniciExpedient(
 			String entorn,
+			String usuari,
 			String expedientTipus,
 			String numero,
 			String titol,
@@ -74,17 +75,25 @@ public class Tramitacio implements TramitacioService {
 		try {
 			ExpedientDto expedient = expedientService.iniciar(
 					e.getId(),
+					usuari,
 					et.getId(),
 					null,
 					numero,
 					titol,
 					null,
+					null,
+					false,
+					null,
+					null,
+					false,
 					variables,
 					null,
 					IniciadorTipus.INTERN,
 					null,
+					null,
+					null,
 					null);
-			return expedient.getNumeroDefault();
+			return expedient.getProcessInstanceId();
 		} catch (Exception ex) {
 			logger.error("No s'han pogut iniciar l'expedient", ex);
 			throw new TramitacioException("No s'han pogut iniciar l'expedient: " + ex.getMessage());

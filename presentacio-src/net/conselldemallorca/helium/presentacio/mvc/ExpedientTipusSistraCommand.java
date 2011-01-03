@@ -15,6 +15,7 @@ public class ExpedientTipusSistraCommand {
 	private String codiTramit;
 	private String infoMapeigCamps;
 	private String infoMapeigDocuments;
+	private String infoMapeigAdjunts;
 
 
 
@@ -47,11 +48,19 @@ public class ExpedientTipusSistraCommand {
 	public void setInfoMapeigCamps(String infoMapeigCamps) {
 		this.infoMapeigCamps = infoMapeigCamps;
 	}
+
 	public String getInfoMapeigDocuments() {
 		return infoMapeigDocuments;
 	}
 	public void setInfoMapeigDocuments(String infoMapeigDocuments) {
 		this.infoMapeigDocuments = infoMapeigDocuments;
+	}
+
+	public String getInfoMapeigAdjunts() {
+		return infoMapeigAdjunts;
+	}
+	public void setInfoMapeigAdjunts(String infoMapeigAdjunts) {
+		this.infoMapeigAdjunts = infoMapeigAdjunts;
 	}
 
 }

@@ -174,8 +174,15 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 								command.getTitol(),
 								null,
 								null,
+								false,
+								null,
+								null,
+								false,
+								null,
 								null,
 								IniciadorTipus.INTERN,
+								null,
+								null,
 								null,
 								null);
 				        missatgeInfo(request, "L'expedient s'ha iniciat correctament");

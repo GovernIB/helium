@@ -178,7 +178,7 @@ public class JbpmDao {
 		return bytes;
 	}
 
-	public JbpmProcessInstance startProcessInstanceByKey(
+	/*public JbpmProcessInstance startProcessInstanceByKey(
 			String actorId,
 			String processDefinitionKey,
 			Map<String, Object> variables,
@@ -194,24 +194,29 @@ public class JbpmDao {
 		ProcessInstance processInstance = (ProcessInstance)commandService.execute(command);
 		resultat = new JbpmProcessInstance(processInstance);
 		return resultat;
-	}
+	}*/
 	public JbpmProcessInstance startProcessInstanceById(
 			String actorId,
 			String processDefinitionId,
-			Map<String, Object> variables,
-			String transitionName) {
+			Map<String, Object> variables) {
 		JbpmProcessInstance resultat = null;
 		StartProcessInstanceCommand command = new StartProcessInstanceCommand();
 		command.setProcessDefinitionId(new Long(processDefinitionId).longValue());
 		command.setActorId(actorId);
 		if (variables != null)
 			command.setVariables(variables);
-		if (transitionName != null)
-			command.setStartTransitionName(transitionName);
 		ProcessInstance processInstance = (ProcessInstance)commandService.execute(command);
 		resultat = new JbpmProcessInstance(processInstance);
-		
 		return resultat;
+	}
+	public void signalProcessInstance(
+			String processInstanceId,
+			String transitionName) {
+		SignalProcessInstanceCommand command = new SignalProcessInstanceCommand();
+		command.setId(new Long(processInstanceId).longValue());
+		if (transitionName != null)
+			command.setStartTransitionName(transitionName);
+		commandService.execute(command);
 	}
 	public JbpmProcessInstance getRootProcessInstance(
 			String processInstanceId) {

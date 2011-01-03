@@ -3,8 +3,8 @@
  */
 package net.conselldemallorca.helium.integracio.plugins.signatura.applet;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.net.URL;
 
 import es.caib.signatura.api.SignatureException;
@@ -36,14 +36,14 @@ public class SignaturaAppletCaib extends SignaturaApplet {
 	}
 	@Override
 	public Object sign(
-			InputStream inputDocument,
+			byte[] inputDocument,
 			String certName,
 			String password,
 			String params) throws SignaturaException, ContrasenyaIncorrectaException {
 		try {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			getSigner().signPDF(
-					inputDocument,
+					new ByteArrayInputStream(inputDocument),
 					baos,
 					certName,
 					new String(password),
@@ -52,11 +52,6 @@ public class SignaturaAppletCaib extends SignaturaApplet {
 					Signer.PDF_SIGN_POSITION_NONE,
 					true);
 			return baos.toByteArray();
-			/*return getSigner().sign(
-					inputDocument,
-					certName,
-					new String(password),
-					params);*/
 		} catch (SignatureException ex) {
 			ex.printStackTrace();
 			throw new ContrasenyaIncorrectaException("Contrasenya incorrecta", ex);

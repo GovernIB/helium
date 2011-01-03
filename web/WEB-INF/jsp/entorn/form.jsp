@@ -8,6 +8,26 @@
 	<title><c:choose><c:when test="${empty command.id}">Crear nou entorn</c:when><c:otherwise>Modificar entorn</c:otherwise></c:choose></title>
 	<meta name="titolcmp" content="Configuració"/>
 	<c:import url="../common/formIncludes.jsp"/>
+<script type="text/javascript">
+// <![CDATA[
+function mostrarOcultar(img, objid) {
+	var obj = document.getElementById(objid);
+	if (obj.style.display=="none") {
+		obj.style.display = "block";
+		img.src = '<c:url value="/img/magnifier_zoom_out.png"/>';
+	} else {
+		obj.style.display = "none";
+		img.src = '<c:url value="/img/magnifier_zoom_in.png"/>';
+	}
+}
+function confirmar(e) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	if (e.stopPropagation) e.stopPropagation();
+	return confirm("Estau segur que voleu importar aquestes dades a dins l'entorn?");
+}
+// ]]>
+</script>
 </head>
 <body>
 
@@ -82,6 +102,34 @@
 	</form:form>
 
 	<p class="aclaracio">Els camps marcats amb <img src="<c:url value="/img/bullet_red.png"/>" alt="Camp obligatori" title="Camp obligatori" border="0"/> són obligatoris</p>
+
+	<br/>
+	<div class="missatgesGris">
+		<h3 class="titol-tab titol-delegacio">Importació de dades <img src="<c:url value="/img/magnifier_zoom_in.png"/>" alt="Mostrar/Ocultar" title="Mostrar/Ocultar" border="0" onclick="mostrarOcultar(this,'form-importar')"/></h3>
+		<div id="form-importar" style="display:none">
+			<form:form action="importar.html" cssClass="uniForm" enctype="multipart/form-data" commandName="commandImportacio" onsubmit="return confirmar(event)">
+				<input type="hidden" name="id" value="${command.id}"/>
+				<div class="inlineLabels">
+					<c:import url="../common/formElement.jsp">
+						<c:param name="property" value="arxiu"/>
+						<c:param name="type" value="file"/>
+						<c:param name="label">Arxiu exportat</c:param>
+					</c:import>
+					<c:import url="../common/formElement.jsp">
+						<c:param name="type" value="buttons"/>
+						<c:param name="values">submit</c:param>
+						<c:param name="titles">Importar</c:param>
+					</c:import>
+				</div>
+			</form:form>
+		</div>
+	</div>
+	<div class="missatgesGris">
+		<form action="<c:url value="/entorn/exportar.html"/>" method="post" style="display: inline">
+			<input type="hidden" name="id" value="${command.id}"/>
+			<button type="submit" class="submitButton">Exportar dades</button>
+		</form>
+	</div>
 
 </body>
 </html>

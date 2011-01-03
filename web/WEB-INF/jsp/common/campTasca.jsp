@@ -26,7 +26,7 @@
 		<c:when test="${not empty tasca.id}">taskId:${tasca.id},processInstanceId:${tasca.processInstanceId},definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}',valors:function(){return canvisSelectValorsAddicionals}</c:when>
 		<c:when test="${not empty expedientTipus}">definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}',valors:function(){return canvisSelectValorsAddicionals}</c:when>
 		<c:when test="${not empty expedient}">definicioProcesId:${tasca.definicioProces.id},processInstanceId:${param.id},campCodi:'${codiActual}',valors:function(){return canvisSelectValorsAddicionals}</c:when>
-		<c:otherwise>processInstanceId:${instanciaProces.id},definicioProcesId:${instanciaProces.definicioProces.id},campCodi:'${codiActual}'</c:otherwise>
+		<c:otherwise>processInstanceId:${instanciaProces.id},definicioProcesId:${instanciaProces.definicioProces.id},campCodi:'${codiActual}',valors:function(){return canvisSelectValorsAddicionals}</c:otherwise>
 	</c:choose>
 </c:set>
 <c:choose>
@@ -160,6 +160,11 @@
 			<c:param name="multipleIcons"><c:if test="${campActual.multiple}">true</c:if></c:param>
 			<c:param name="onchange">canviSelectTasca(this.id, this.name);</c:param>
 		</c:import>
+		<spring:bind path="${codiActual}">
+			<script type="text/javascript">
+				updateValorAddicionalSelect('${codiActual}','${status.value}');
+			</script>
+		</spring:bind>
 	</c:when>
 	<c:when test="${campActual.tipus == 'SUGGEST'}">
 		<c:set var="multipleSuggestText" value="${valorsPerSuggest[codiActual]}" scope="request"/>

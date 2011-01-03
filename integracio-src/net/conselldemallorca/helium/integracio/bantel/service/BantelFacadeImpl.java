@@ -4,21 +4,18 @@
 package net.conselldemallorca.helium.integracio.bantel.service;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.jws.WebService;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
 import net.conselldemallorca.helium.integracio.bantel.client.wsdl.BackofficeFacade;
-import net.conselldemallorca.helium.integracio.bantel.plugin.DadesDocument;
 import net.conselldemallorca.helium.integracio.bantel.plugin.DadesIniciExpedient;
 import net.conselldemallorca.helium.integracio.bantel.plugin.IniciExpedientPlugin;
 import net.conselldemallorca.helium.integracio.bantel.service.wsdl.BantelFacade;
 import net.conselldemallorca.helium.integracio.bantel.service.wsdl.BantelFacadeException_Exception;
 import net.conselldemallorca.helium.integracio.bantel.service.wsdl.ReferenciaEntrada;
 import net.conselldemallorca.helium.integracio.bantel.service.wsdl.ReferenciasEntrada;
-import net.conselldemallorca.helium.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
 import net.conselldemallorca.helium.model.hibernate.Expedient;
 import net.conselldemallorca.helium.model.hibernate.ExpedientTipus;
@@ -70,32 +67,25 @@ public class BantelFacadeImpl implements BantelFacade {
 							entorn.getId(),
 							dadesIniciExpedient.getTipusCodi());
 					EntornActual.setEntornId(entorn.getId());
-					ExpedientDto nouExpedient = expedientService.iniciar(
+					expedientService.iniciar(
 							entorn.getId(),
 							expedientTipus.getId(),
 							null,
 							dadesIniciExpedient.getNumero(),
 							dadesIniciExpedient.getTitol(),
 							dadesIniciExpedient.getRegistreNumero(),
+							dadesIniciExpedient.getRegistreData(),
+							dadesIniciExpedient.isAvisosHabilitats(),
+							dadesIniciExpedient.getAvisosEmail(),
+							dadesIniciExpedient.getAvisosMobil(),
+							dadesIniciExpedient.isNotificacioTelematicaHabilitada(),
 							dadesIniciExpedient.getDadesInicials(),
 							dadesIniciExpedient.getTransitionName(),
 							IniciadorTipus.SISTRA,
 							Expedient.crearIniciadorCodiPerSistra(ref.getNumeroEntrada(), ref.getClaveAcceso()),
-							null);
-					// Afegim els documents
-					Map<String,DadesDocument> documents = dadesIniciExpedient.getDocumentsInicials();
-					if(documents != null && !documents.isEmpty()){
-						for (Map.Entry<String, DadesDocument> doc: documents.entrySet()) {
-							if (doc.getValue() != null) {
-								expedientService.guardarDocument(
-										nouExpedient.getProcessInstanceId(), 
-										doc.getValue().getIdDocument(), 
-										doc.getValue().getData(), 
-										doc.getValue().getArxiuNom(), 
-										doc.getValue().getArxiuContingut());
-							}
-						}
-					}
+							null,
+							dadesIniciExpedient.getDocumentsInicials(),
+							dadesIniciExpedient.getDocumentsAdjunts());
 				}
 				logger.info("Nou expedient creat per al tràmit " + ref.getNumeroEntrada());
 				sistraBantelClient.establecerResultadoProceso(
@@ -125,6 +115,7 @@ public class BantelFacadeImpl implements BantelFacade {
 
 
 
+	@Autowired
 	public void setSistraBantelClient(BackofficeFacade sistraBantelClient) {
 		this.sistraBantelClient = sistraBantelClient;
 	}
@@ -140,7 +131,6 @@ public class BantelFacadeImpl implements BantelFacade {
 	public void setDissenyService(DissenyService dissenyService) {
 		this.dissenyService = dissenyService;
 	}
-
 	public void setDefaultIniciExpedientPlugin(
 			IniciExpedientPlugin defaultIniciExpedientPlugin) {
 		this.defaultIniciExpedientPlugin = defaultIniciExpedientPlugin;

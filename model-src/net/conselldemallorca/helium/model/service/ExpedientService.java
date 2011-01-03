@@ -15,7 +15,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import net.conselldemallorca.helium.integracio.bantel.plugin.DadesDocument;
 import net.conselldemallorca.helium.integracio.domini.FilaResultat;
+import net.conselldemallorca.helium.integracio.plugins.persones.Persona;
 import net.conselldemallorca.helium.integracio.plugins.signatura.InfoSignatura;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmNodePosition;
@@ -36,6 +38,7 @@ import net.conselldemallorca.helium.model.dao.LuceneDao;
 import net.conselldemallorca.helium.model.dao.PlantillaDocumentDao;
 import net.conselldemallorca.helium.model.dao.PluginCustodiaDao;
 import net.conselldemallorca.helium.model.dao.PluginGestioDocumentalDao;
+import net.conselldemallorca.helium.model.dao.PluginPersonaDao;
 import net.conselldemallorca.helium.model.dao.PluginSignaturaDao;
 import net.conselldemallorca.helium.model.dao.RegistreDao;
 import net.conselldemallorca.helium.model.dao.TerminiIniciatDao;
@@ -45,6 +48,7 @@ import net.conselldemallorca.helium.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.model.dto.TascaDto;
 import net.conselldemallorca.helium.model.dto.TokenDto;
 import net.conselldemallorca.helium.model.exception.DominiException;
+import net.conselldemallorca.helium.model.exception.ExpedientRepetitException;
 import net.conselldemallorca.helium.model.exception.IllegalArgumentsException;
 import net.conselldemallorca.helium.model.exception.NotFoundException;
 import net.conselldemallorca.helium.model.exception.TemplateException;
@@ -96,6 +100,7 @@ public class ExpedientService {
 	private TerminiIniciatDao terminiIniciatDao;
 	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
 	private PluginSignaturaDao pluginSignaturaDao;
+	private PluginPersonaDao pluginPersonaDao;
 
 	private JbpmDao jbpmDao;
 	private DtoConverter dtoConverter;
@@ -137,25 +142,76 @@ public class ExpedientService {
 			String numero,
 			String titol,
 			String registreNumero,
+			Date registreData,
+			boolean avisosHabilitats,
+			String avisosEmail,
+			String avisosMobil,
+			boolean notificacioTelematicaHabilitada,
 			Map<String, Object> variables,
 			String transitionName,
 			IniciadorTipus iniciadorTipus,
 			String iniciadorCodi,
-			String responsableCodi) {
+			String responsableCodi,
+			Map<String, DadesDocument> documents,
+			List<DadesDocument> adjunts) {
+		return iniciar(
+				entornId,
+				null,
+				expedientTipusId,
+				definicioProcesId,
+				numero,
+				titol,
+				registreNumero,
+				registreData,
+				avisosHabilitats,
+				avisosEmail,
+				avisosMobil,
+				notificacioTelematicaHabilitada,
+				variables,
+				transitionName,
+				iniciadorTipus,
+				iniciadorCodi,
+				responsableCodi,
+				documents,
+				adjunts);
+	}
+	public synchronized ExpedientDto iniciar(
+			Long entornId,
+			String usuari,
+			Long expedientTipusId,
+			Long definicioProcesId,
+			String numero,
+			String titol,
+			String registreNumero,
+			Date registreData,
+			boolean avisosHabilitats,
+			String avisosEmail,
+			String avisosMobil,
+			boolean notificacioTelematicaHabilitada,
+			Map<String, Object> variables,
+			String transitionName,
+			IniciadorTipus iniciadorTipus,
+			String iniciadorCodi,
+			String responsableCodi,
+			Map<String, DadesDocument> documents,
+			List<DadesDocument> adjunts) {
+		if (usuari != null)
+			comprovarUsuari(usuari);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String usuariBo = (usuari != null) ? usuari : auth.getName();
 		ExpedientTipus expedientTipus = expedientTipusDao.getById(expedientTipusId, false);
-		if (expedientTipus.getTeNumero().booleanValue() && expedientTipus.getDemanaNumero().booleanValue()) {
+		/*if (expedientTipus.getTeNumero().booleanValue()) {
 			if (numero == null || numero.length() == 0) {
 				if (expedientTipus.getExpressioNumero() == null)
-					throw new IllegalArgumentsException("És obligatori especificar un número per l'expedient");
+					throw new IllegalArgumentsException("És obligatori especificar un número per a l'expedient");
 			}
 		}
-		if (expedientTipus.getTeTitol().booleanValue() && expedientTipus.getDemanaTitol().booleanValue()) {
+		if (expedientTipus.getTeTitol().booleanValue()) {
 			if (titol == null || titol.length() == 0)
-				throw new IllegalArgumentsException("És obligatori especificar un títol per l'expedient");
-		}
+				throw new IllegalArgumentsException("És obligatori especificar un títol per a l'expedient");
+		}*/
 		Entorn entorn = entornDao.getById(entornId, false);
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		String iniciadorCodiCalculat = (iniciadorTipus.equals(IniciadorTipus.INTERN)) ? auth.getName() : iniciadorCodi;
+		String iniciadorCodiCalculat = (iniciadorTipus.equals(IniciadorTipus.INTERN)) ? usuariBo : iniciadorCodi;
 		Expedient expedient = new Expedient(
 				iniciadorTipus,
 				iniciadorCodiCalculat,
@@ -167,17 +223,30 @@ public class ExpedientService {
 			responsableCodiCalculat = iniciadorCodiCalculat;
 		expedient.setResponsableCodi(responsableCodiCalculat);
 		expedient.setRegistreNumero(registreNumero);
+		expedient.setRegistreData(registreData);
+		expedient.setAvisosHabilitats(avisosHabilitats);
+		expedient.setAvisosEmail(avisosEmail);
+		expedient.setAvisosMobil(avisosMobil);
+		expedient.setNotificacioTelematicaHabilitada(notificacioTelematicaHabilitada);
 		expedient.setNumeroDefault(
 				expedientTipus.getNumeroExpedientDefaultActual(getNumexpExpression()));
-		if (numero != null && numero.length() > 0)
-			expedient.setNumero(numero);
-		processarNumeroExpedient(expedientTipus, numero, expedient.getNumeroDefault());
-		/*} else {
-			String numact = expedientTipus.getNumeroExpedientActual();
-			expedient.setNumero(numact);
-			processarNumeroExpedient(expedientTipus, numact);*/
-		if (titol != null && titol.length() > 0)
-			expedient.setTitol(titol);
+		if (expedientTipus.getTeNumero()) {
+			if (numero != null && numero.length() > 0)
+				expedient.setNumero(numero);
+			processarNumeroExpedient(
+					expedientTipus,
+					expedient.getNumero(),
+					expedient.getNumeroDefault());
+		}
+		if (expedientDao.findAmbEntornTipusINumero(entornId, expedientTipusId, expedient.getNumero()) != null) {
+			throw new ExpedientRepetitException("Ja existeix un altre expedient amb el mateix número (" + expedient.getNumero() + ")");
+		}
+		if (expedientTipus.getTeTitol()) {
+			if (titol != null && titol.length() > 0)
+				expedient.setTitol(titol);
+			else
+				expedient.setTitol("[Sense títol]");
+		}
 		ExpedientIniciant.setExpedient(expedient);
 		DefinicioProces definicioProces = null;
 		if (definicioProcesId != null) {
@@ -188,12 +257,37 @@ public class ExpedientService {
 					expedientTipus.getJbpmProcessDefinitionKey());
 		}
 		JbpmProcessInstance processInstance = jbpmDao.startProcessInstanceById(
-				SecurityContextHolder.getContext().getAuthentication().getName(),
+				usuariBo,
 				definicioProces.getJbpmId(),
-				variables,
-				transitionName);
+				variables);
 		expedient.setProcessInstanceId(processInstance.getId());
 		expedientDao.saveOrUpdate(expedient);
+		// Afegim els documents
+		if (documents != null){
+			for (Map.Entry<String, DadesDocument> doc: documents.entrySet()) {
+				if (doc.getValue() != null) {
+					guardarDocument(
+							expedient.getProcessInstanceId(), 
+							doc.getValue().getIdDocument(), 
+							doc.getValue().getData(), 
+							doc.getValue().getArxiuNom(), 
+							doc.getValue().getArxiuContingut());
+				}
+			}
+		}
+		// Afegim els adjunts
+		if (adjunts != null) {
+			for (DadesDocument adjunt: adjunts) {
+				guardarAdjunt(
+						expedient.getProcessInstanceId(), 
+						null, 
+						adjunt.getTitol(),
+						adjunt.getData(), 
+						adjunt.getArxiuNom(), 
+						adjunt.getArxiuContingut());
+			}
+		}
+		jbpmDao.signalProcessInstance(expedient.getProcessInstanceId(), transitionName);
 		luceneDao.createExpedient(
 				expedient,
 				getMapDefinicionsProces(expedient),
@@ -201,7 +295,7 @@ public class ExpedientService {
 				getMapValorsJbpm(expedient));
 		registreDao.crearRegistreIniciarExpedient(
 				expedient.getId(),
-				SecurityContextHolder.getContext().getAuthentication().getName());
+				usuariBo);
 		return dtoConverter.toExpedientDto(expedient, true);
 	}
 	public void editar(
@@ -516,7 +610,7 @@ public class ExpedientService {
 				data,
 				arxiuNom,
 				arxiuContingut,
-				true);
+				false);
 		
 	}
 	public DocumentDto generarDocumentPlantilla(
@@ -557,7 +651,7 @@ public class ExpedientService {
 		}
 		return resposta;
 	}
-	public void guardarAdjunt(
+	public Long guardarAdjunt(
 			String processInstanceId,
 			String adjuntId,
 			String adjuntTitol,
@@ -565,7 +659,7 @@ public class ExpedientService {
 			String arxiuNom,
 			byte[] arxiuContingut) {
 		String adId = (adjuntId == null) ? new Long(new Date().getTime()).toString() : adjuntId;
-		createUpdateDocument(
+		return createUpdateDocument(
 				processInstanceId,
 				adId,
 				adjuntTitol,
@@ -805,7 +899,7 @@ public class ExpedientService {
 		return output.get(outputVar);
 	}
 
-	public List<InfoSignatura> verificarDocument(Long id) {
+	public List<InfoSignatura> verificarSignatura(Long id) {
 		DocumentStore documentStore = documentStoreDao.getById(id, false);
 		DocumentDto document = dtoConverter.toDocumentDto(id, true);
 		if (pluginCustodiaDao.potObtenirInfoSignatures()) {
@@ -828,6 +922,25 @@ public class ExpedientService {
 			return resposta;
 		}
 	}
+
+	/*public DocumentDto descarregarSignatura(Long id) {
+		DocumentStore documentStore = documentStoreDao.getById(id, false);
+		if (isSignaturaFileAttached()) {
+			List<byte[]> signatures = pluginCustodiaDao.obtenirSignatures(
+					documentStore.getReferenciaCustodia());
+			DocumentDto resposta = new DocumentDto();
+			String arxiuNom = documentStore.getArxiuNom();
+			int indexPunt = arxiuNom.indexOf(".");
+			if (indexPunt == -1) {
+				resposta.setArxiuNom(arxiuNom + ".pdf");
+			} else {
+				resposta.setArxiuNom(arxiuNom.substring(0, indexPunt) + ".pdf");
+			}
+			resposta.setArxiuContingut(Base64.decode(signatures.get(0)));
+			return resposta;
+		}
+		return null;
+	}*/
 
 	public void changeProcessInstanceVersion(
 			String processInstanceId,
@@ -924,6 +1037,10 @@ public class ExpedientService {
 	public void setPluginSignaturaDao(
 			PluginSignaturaDao pluginSignaturaDao) {
 		this.pluginSignaturaDao = pluginSignaturaDao;
+	}
+	@Autowired
+	public void setPluginPersonaDao(PluginPersonaDao pluginPersonaDao) {
+		this.pluginPersonaDao = pluginPersonaDao;
 	}
 
 
@@ -1156,6 +1273,12 @@ public class ExpedientService {
 			return jbpmVariable.substring(TascaService.PREFIX_ADJUNT.length());
 		else
 			return jbpmVariable.substring(TascaService.PREFIX_DOCUMENT.length());
+	}
+
+	private void comprovarUsuari(String usuari) {
+		Persona persona = pluginPersonaDao.findAmbCodiPlugin(usuari);
+		if (persona == null)
+			throw new IllegalArgumentsException("No s'ha trobat la persona amb codi '" + usuari + "'");
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientService.class);

@@ -90,8 +90,19 @@ var canvisSelectValorsAddicionals;
 var canvisSelectInicialitzat = false;
 var canvisSelectTasca = new Array();
 function canviSelectTasca(selectId, camp) {
-	var trobat = false;
 	var valor = $("select#" + selectId).val();
+	updateValorAddicionalSelect(camp, valor);
+	var sels = $("#" + selectId).parents("form").find("select");
+	for (i = 0; i < sels.length; i++) {
+		if (sels[i].id != selectId && selectDominiParams[sels[i].id] != null && selectDominiParams[sels[i].id].indexOf(camp) != -1) {
+			try { eval("initSelect_" + sels[i].id + "()"); }
+			catch (ex) {}
+		}
+	}
+	canvisSelectInicialitzat = true;
+}
+function updateValorAddicionalSelect(camp, valor) {
+	var trobat = false;
 	for (i = 0; i < canvisSelectTasca.length; i++) {
 		if (canvisSelectTasca[i][0] == camp) {
 			canvisSelectTasca[i][1] = valor;
@@ -108,14 +119,6 @@ function canviSelectTasca(selectId, camp) {
 			str = str + ",";
 	}
 	canvisSelectValorsAddicionals = str;
-	var sels = $("#" + selectId).parents("form").find("select");
-	for (i = 0; i < sels.length; i++) {
-		if (sels[i].id != selectId && selectDominiParams[sels[i].id] != null && selectDominiParams[sels[i].id].indexOf(camp) != -1) {
-			try { eval("initSelect_" + sels[i].id + "()"); }
-			catch (ex) {}
-		}
-	}
-	canvisSelectInicialitzat = true;
 }
 
 function multipleRemove(elem, index, field) {

@@ -139,14 +139,11 @@
 		<web-resource-collection>
 			<web-resource-name>All areas</web-resource-name>
 			<url-pattern>/index.jsp</url-pattern>
-			<url-pattern>/login.jsp</url-pattern>
-			<url-pattern>/logout.jsp</url-pattern>
-			<url-pattern>/loginError.jsp</url-pattern>
+			<url-pattern>/error.jsp</url-pattern>
 			<url-pattern>/css/*</url-pattern>
 			<url-pattern>/js/*</url-pattern>
 			<url-pattern>/img/*</url-pattern>
 			<url-pattern>/ws/*</url-pattern>
-			<url-pattern>/signatura/*</url-pattern>
 		</web-resource-collection>
 	</security-constraint>
 	<security-constraint>

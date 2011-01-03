@@ -65,6 +65,21 @@ public class CustodiaPluginFilesystem implements CustodiaPlugin {
 		}
 	}
 
+	public byte[] getSignaturesAmbArxiu(String id) throws CustodiaPluginException {
+		try {
+			File f = new File(getBaseDir() + ID_PREFIX + id);
+			if (f.exists()) {
+				FileInputStream fis = new FileInputStream(f);
+				ObjectInputStream inputFromApplet = new ObjectInputStream(fis);
+				return (byte[])inputFromApplet.readObject();
+			}
+			return null;
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut obtenir l'arxiu amb les signatures", ex);
+			throw new CustodiaPluginException("No s'ha pogut obtenir l'arxiu amb les signatures", ex);
+		}
+	}
+
 	public void deleteSignatures(String id) throws CustodiaPluginException {
 		try {
 			File f = new File(getBaseDir() + ID_PREFIX + id);

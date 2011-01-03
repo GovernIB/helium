@@ -3,8 +3,10 @@
  */
 package net.conselldemallorca.helium.integracio.plugins.signatura.applet;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 
 
 
@@ -31,8 +33,16 @@ public class SignaturaTest {
 					System.out.println(">>> " + cert);
 				}
 			}
+			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+			InputStream is = new FileInputStream("c:/signat1.pdf");
+			int nRead;
+			byte[] tmp = new byte[1024];
+			while ((nRead = is.read(tmp, 0, tmp.length)) != -1) {
+				buffer.write(tmp, 0, nRead);
+			}
+			buffer.flush();
 			byte[] resposta = (byte[])signaturaPlugin.sign(
-					new FileInputStream("c:/signat1.pdf"),
+					buffer.toByteArray(),
 					certList[0],
 					"12341234",
 					"");

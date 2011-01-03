@@ -31,8 +31,6 @@ public class DocumentEscriureProcesPareHandler extends AbstractHeliumActionHandl
 			Object valor = executionContext.getVariable(varDocument);
 			if (valor != null) {
 				tokenPare.getProcessInstance().getContextInstance().setVariable(varDocument, valor);
-			} else {
-				throw new JbpmException("No s'ha trobat el document(" + dc + ")");
 			}
 		} else {
 			throw new JbpmException("Aquest procés(" + executionContext.getProcessInstance().getId() + ") no té cap procés pare");

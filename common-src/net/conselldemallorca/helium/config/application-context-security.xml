@@ -12,11 +12,11 @@
 	<global-method-security secured-annotations="enabled"/>
 
 	<http entry-point-ref="preAuthenticatedProcessingFilterEntryPoint">
+		<intercept-url pattern="/index.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/error.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/css/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/js/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/img/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		<intercept-url pattern="/index.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		<intercept-url pattern="/error.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/ws/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/signatura/**" access="ROLE_ADMIN,ROLE_USER" />
 		<intercept-url pattern="/entorn/seleccio.html" access="ROLE_ADMIN,ROLE_USER" />
@@ -26,12 +26,6 @@
 		<intercept-url pattern="/entorn/**" access="ROLE_ADMIN" />
 		<intercept-url pattern="/rol/**" access="ROLE_ADMIN" />
 		<intercept-url pattern="/festiu/**" access="ROLE_ADMIN" />
-		<!--intercept-url pattern="/ws/NotificacioEntrada" access="ROLE_ADMIN,ROLE_WS" />
-		<intercept-url pattern="/ws/FormulariExtern" access="ROLE_ADMIN,ROLE_WS" />
-		<intercept-url pattern="/ws/MCGDws" access="ROLE_ADMIN,ROLE_WS" />
-		<intercept-url pattern="/ws/ConsultaDomini" access="ROLE_ADMIN,ROLE_WS" />
-		<intercept-url pattern="/ws/TramitacioService" access="ROLE_ADMIN,ROLE_WS" />
-		<intercept-url pattern="/ws/**" access="ROLE_ADMIN,ROLE_USER" /-->
 		<intercept-url pattern="/**" access="ROLE_ADMIN,ROLE_USER" />
 		<anonymous/>
 		<!--form-login/>
@@ -48,10 +42,8 @@
 		</beans:property>
 	</beans:bean>
 
-	<!--beans:bean id="jbpmIdGroupMap" class="net.conselldemallorca.helium.security.permission.JbpmIdGroupMap">
-		<beans:constructor-arg ref="sessionFactory"/>
-		<beans:constructor-arg value="${app.role.external.prefix}"/>
-		<beans:property name="toOverwriteAfterQuery">
+	<beans:bean id="attributes2GrantedAuthoritiesMapper" class="net.conselldemallorca.helium.security.j2ee.RolesBasedAttributes2GrantedAuthoritiesMapper">
+		<beans:property name="baseRoleMapping">
 			<beans:map>
 				<beans:entry key="HEL_ADMIN" value="ROLE_ADMIN"/>
 				<beans:entry key="HEL_USER" value="ROLE_USER"/>
@@ -61,28 +53,12 @@
 			</beans:map>
 		</beans:property>
 	</beans:bean>
-	<beans:bean id="attributes2GrantedAuthoritiesMapper" class="org.springframework.security.authoritymapping.MapBasedAttributes2GrantedAuthoritiesMapper">
-		<beans:property name="attributes2grantedAuthoritiesMap" ref="jbpmIdGroupMap"/>
-	</beans:bean-->
-	<beans:bean id="attributes2GrantedAuthoritiesMapper" class="net.conselldemallorca.helium.security.permission.RolesBasedAttributes2GrantedAuthoritiesMapper">
-		<beans:property name="sessionFactory" ref="sessionFactory"/>
-		<beans:property name="filterPrefix" value="${app.role.external.prefix}"/>
-		<beans:property name="toOverwriteAfterQuery">
-			<beans:map>
-				<beans:entry key="HEL_ADMIN" value="ROLE_ADMIN"/>
-				<beans:entry key="HEL_USER" value="ROLE_USER"/>
-				<beans:entry key="HEL_WS" value="ROLE_WS"/>
-				<beans:entry key="TOTHOM" value="ROLE_USER"/>
-				<beans:entry key="tothom" value="ROLE_USER"/>
-			</beans:map>
-		</beans:property>
-	</beans:bean>
-
+	<beans:bean id="mappableRolesRetriever" class="net.conselldemallorca.helium.security.j2ee.RolesBasedMappableAttributesRetriever"/>
 	<beans:bean id="j2eePreauthFilter" class="org.springframework.security.ui.preauth.j2ee.J2eePreAuthenticatedProcessingFilter">
 		<custom-filter position="PRE_AUTH_FILTER"/>
 		<beans:property name="authenticationDetailsSource">
-			<beans:bean class="org.springframework.security.ui.preauth.j2ee.J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource">
-				<beans:property name="mappableRolesRetriever" ref="attributes2GrantedAuthoritiesMapper"/>
+			<beans:bean class="net.conselldemallorca.helium.security.j2ee.RolesBasedPreAuthenticatedWebAuthenticationDetailsSource">
+				<beans:property name="mappableRolesRetriever" ref="mappableRolesRetriever"/>
 				<beans:property name="userRoles2GrantedAuthoritiesMapper" ref="attributes2GrantedAuthoritiesMapper"/>
 			</beans:bean>
 		</beans:property>

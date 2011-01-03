@@ -109,7 +109,9 @@ public class DocumentStoreDao extends HibernateGenericDao<DocumentStore, Long> {
 				"from " +
 				"    DocumentStore ds " +
 				"where " +
-				"    ds.processInstanceId=?",
+				"    ds.processInstanceId=? " +
+				"order by " +
+				"    ds.dataDocument",
 				processInstanceId);
 	}
 

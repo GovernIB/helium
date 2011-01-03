@@ -16,6 +16,7 @@ import net.conselldemallorca.helium.model.service.DissenyService;
 import net.conselldemallorca.helium.model.service.ExpedientService;
 import net.conselldemallorca.helium.model.service.TascaService;
 import net.conselldemallorca.helium.presentacio.mvc.util.BaseController;
+import net.conselldemallorca.helium.util.GlobalProperties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,7 +52,7 @@ public class SignaturaController extends BaseController {
 		this.expedientService = expedientService;
 	}
 
-	@RequestMapping(value = "/signatura/descarregarAmbToken")
+	@RequestMapping(value = {"/signatura/descarregarAmbToken", "/document/descarregarAmbToken"})
 	public String documentAmbToken(
 			HttpServletRequest request,
 			@RequestParam(value = "token", required = true) String token,
@@ -59,9 +60,46 @@ public class SignaturaController extends BaseController {
 			ModelMap model) {
 		DocumentDto document = tascaService.getDocumentAmbToken(token, true);
 		if (document != null) {
-			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, document.getArxiuNom());
-			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, document.getArxiuContingut());
-			return "arxiuView";
+			if (!document.isSignat()) {
+				String conversioActiu = (String)GlobalProperties.getInstance().get("app.conversio.signatura.actiu");
+				String extensio = (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
+				String estampaActiu = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.actiu");
+				String estampaPosX = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.posx");
+				String estampaPosY = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.posy");
+				String estampaRotation = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.rotation");
+				model.addAttribute(
+						ArxiuConvertirView.MODEL_ATTRIBUTE_FILENAME,
+						document.getArxiuNom());
+				model.addAttribute(
+						ArxiuConvertirView.MODEL_ATTRIBUTE_DATA,
+						document.getArxiuContingut());
+				boolean conversionEnabled = ("true".equalsIgnoreCase(conversioActiu));
+				model.addAttribute(
+						ArxiuConvertirView.MODEL_ATTRIBUTE_CONVERSIONENABLED,
+						conversionEnabled);
+				model.addAttribute(
+						ArxiuConvertirView.MODEL_ATTRIBUTE_OUTEXTENSION,
+						extensio);
+				if (noe == null && "true".equalsIgnoreCase(estampaActiu) && "pdf".equalsIgnoreCase(extensio)) {
+					model.addAttribute(
+							ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_MISSATGE,
+							(String)GlobalProperties.getInstance().get("app.base.url") + "/signatura/verificar.html?token=" + token);
+					model.addAttribute(
+							ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_POSX,
+							new Float(estampaPosX));
+					model.addAttribute(
+							ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_POSY,
+							new Float(estampaPosY));
+					model.addAttribute(
+							ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_ROTATION,
+							new Float(estampaRotation));
+				}
+				return "arxiuConvertirView";
+			} else {
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, document.getSignatNom());
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, document.getSignatContingut());
+				return "arxiuView";
+			}
 		}
 		return null;
 	}
@@ -125,26 +163,45 @@ public class SignaturaController extends BaseController {
 	}
 
 	@RequestMapping(value = {"/signatura/verificar", "/signatura/verificarIntern"}, method = RequestMethod.GET)
-	public String verificarDocument(
+	public String verificarSignatura(
 			HttpServletRequest request,
 			HttpServletResponse response,
-			@RequestParam("id") final String id,
+			@RequestParam(value = "id", required = false) final Long id,
+			@RequestParam(value = "token", required = false) final String token,
 			ModelMap model) throws ServletException {
 		try {
-			DocumentDto document = expedientService.getDocument(new Long(id));
+			DocumentDto document = null;
+			if (id != null)
+				document = expedientService.getDocument(id);
+			else if (token != null)
+				document = tascaService.getDocumentAmbToken(token, true);
 			model.addAttribute("document", document);
 			model.addAttribute(
 					"instanciaProces",
 					expedientService.getInstanciaProcesById(
 							document.getProcessInstanceId(),
 							false));
-			model.addAttribute("signatures", expedientService.verificarDocument(new Long(id)));
+			model.addAttribute("signatures", expedientService.verificarSignatura(document.getId()));
 			return "signatura/verificar";
 		} catch(Exception ex) {
 			logger.error("Error rebent la firma del document", ex);
 			throw new ServletException(ex);
 	    }
 	}
+
+	/*@RequestMapping(value = "/signatura/descarregar")
+	public String descarregar(
+			HttpServletRequest request,
+			@RequestParam("id") final Long id,
+			ModelMap model) {
+		DocumentDto document = expedientService.descarregarSignatura(id);
+		if (document != null) {
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, document.getArxiuNom());
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, document.getArxiuContingut());
+			return "arxiuView";
+		}
+		return null;
+	}*/
 
 
 

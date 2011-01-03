@@ -5,7 +5,6 @@ import java.util.List;
 import net.conselldemallorca.helium.model.dao.PermisDao;
 import net.conselldemallorca.helium.model.hibernate.Permis;
 import net.conselldemallorca.helium.presentacio.mvc.PermisCommand;
-import net.conselldemallorca.helium.security.permission.RolesBasedAttributes2GrantedAuthoritiesMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,12 +19,15 @@ import org.springframework.stereotype.Service;
 public class PermisService {
 
 	private PermisDao permisDao;
-	private RolesBasedAttributes2GrantedAuthoritiesMapper rolesMapper;
+	//private RolesBasedAttributes2GrantedAuthoritiesMapper rolesMapper;
 
 
 
 	public Permis getPermisByCodi(String codi) {
 		return permisDao.getByCodi(codi);
+	}
+	public List<Permis> findAll() {
+		return permisDao.findAll();
 	}
 	public int countPermisosAll() {
 		return permisDao.getCountAll();
@@ -39,16 +41,17 @@ public class PermisService {
 	}
 	public void createPermis(PermisCommand entity) {
 		permisDao.saveOrUpdate(permisFromEntity(entity));
-		rolesMapper.addRole(entity.getCodi());
+//		rolesMapper.addRole(entity.getCodi());
 	}
 	public void updatePermis(PermisCommand entity) {
 		permisDao.saveOrUpdate(permisFromEntity(entity));
+//		rolesMapper.addRole(entity.getCodi());
 	}
 	public void deletePermis(String id) {
 		Permis permis = permisDao.getById(id, false);
 		if (permis != null) {
 			permisDao.delete(permis);
-			rolesMapper.removeRole(id);
+//			rolesMapper.removeRole(id);
 		}
 	}
 
@@ -56,11 +59,11 @@ public class PermisService {
 	public void setPermisDao(PermisDao permisDao) {
 		this.permisDao = permisDao;
 	}
-	@Autowired
+	/*@Autowired
 	public void setRolesMapper(
 			RolesBasedAttributes2GrantedAuthoritiesMapper rolesMapper) {
 		this.rolesMapper = rolesMapper;
-	}
+	}*/
 
 
 

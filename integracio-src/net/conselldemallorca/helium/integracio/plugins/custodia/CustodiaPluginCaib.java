@@ -72,6 +72,24 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 		}
 	}
 
+	public byte[] getSignaturesAmbArxiu(String id) throws CustodiaPluginException {
+		try {
+			byte[] consultar = getClienteCustodia().consultarDocumento(id);
+			byte[] iniciXml = new byte[5];
+			for (int i = 0; i < 5; i++)
+				iniciXml[i] = consultar[i];
+			if ("<?xml".equals(new String(iniciXml))) {
+				CustodiaResponseCaib resposta = getClienteCustodia().parseResponse(consultar);
+				throw new CustodiaPluginException("Error en la petició de custòdia: [" + resposta.getErrorCodi() + "] " + resposta.getErrorDescripcio());
+			} else {
+				return consultar;
+			}
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut obtenir l'arxiu amb les signatures", ex);
+			throw new CustodiaPluginException("No s'ha pogut obtenir l'arxiu amb les signatures", ex);
+		}
+	}
+
 	public void deleteSignatures(String id) throws CustodiaPluginException {
 		try {
 			byte[] xml = getClienteCustodia().eliminarDocumento(id);
@@ -178,7 +196,7 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 	}
 	private String getCertSubjectToken(String certSubject, String token) {
 		int indexInici = certSubject.indexOf(token);
-		int indexFi = certSubject.indexOf(",", indexInici);
+		int indexFi = certSubject.indexOf(",", indexInici + token.length());
 		indexInici += token.length();
 		return certSubject.substring(indexInici, indexFi);
 	}

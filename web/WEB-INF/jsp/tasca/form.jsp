@@ -70,6 +70,31 @@ function confirmar(form) {
 </c:if>
 <script type="text/javascript" language="javascript">
 // <![CDATA[
+    function verificarSignatura(element) {
+		var amplada = 800;
+		var alcada = 600;
+		$('<iframe id="verificacio" src="' + element.href + '"/>').dialog({
+			title: "Verificació de signatures",
+			autoOpen: true,
+			modal: true,
+			autoResize: true,
+			width: parseInt(amplada),
+			height: parseInt(alcada)
+		}).width(amplada - 30).height(alcada - 30);
+		return false;
+	}
+	function infoRegistre(docId) {
+		var amplada = 600;
+		var alcada = 200;
+		$('<div>' + $("#registre_" + docId).html() + '</div>').dialog({
+			title: "Informació de registre",
+			autoOpen: true,
+			modal: true,
+			width: parseInt(amplada),
+			height: parseInt(alcada)
+		}).width(amplada - 30).height(alcada - 30);
+		return false;
+	}
 	function canviTermini(input) {
 		var campId = input.id.substring(0, input.id.lastIndexOf("_"));
 		var anys = document.getElementById(campId + "_anys").value;

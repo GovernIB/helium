@@ -98,16 +98,20 @@ public class TascaFormValidator implements Validator {
 				}
 				if (camp != null && camp.getCamp() != null && camp.getCamp().getTipus() != null) {
 					if (camp.getCamp().getTipus().equals(TipusCamp.STRING) || camp.getCamp().getTipus().equals(TipusCamp.TEXTAREA)) {
-						if (camp.getCamp().isMultiple()) {
-							String[] valors = (String[])PropertyUtils.getSimpleProperty(command, camp.getCamp().getCodi());
-							for (String valor: valors) {
+						try {
+							if (camp.getCamp().isMultiple()) {
+								String[] valors = (String[])PropertyUtils.getSimpleProperty(command, camp.getCamp().getCodi());
+								for (String valor: valors) {
+									if (valor != null && valor.length() > STRING_MAX_LENGTH)
+										errors.rejectValue(camp.getCamp().getCodi(), "max.length");
+								}
+							} else {
+								String valor = (String)PropertyUtils.getSimpleProperty(command, camp.getCamp().getCodi());
 								if (valor != null && valor.length() > STRING_MAX_LENGTH)
 									errors.rejectValue(camp.getCamp().getCodi(), "max.length");
 							}
-						} else {
-							String valor = (String)PropertyUtils.getSimpleProperty(command, camp.getCamp().getCodi());
-							if (valor != null && valor.length() > STRING_MAX_LENGTH)
-								errors.rejectValue(camp.getCamp().getCodi(), "max.length");
+						} catch (NoSuchMethodException ex) {
+							logger.error("No s'ha pogut trobar la propietat '" + camp.getCamp().getCodi() + "' al command de la tasca " + tasca.getId());
 						}
 					}
 				}

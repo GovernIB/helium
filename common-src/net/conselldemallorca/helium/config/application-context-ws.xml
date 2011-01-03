@@ -23,9 +23,13 @@
 		serviceClass="net.conselldemallorca.helium.integracio.zonaper.wsdl.BackofficeFacade"
 		address="${app.zonaper.service.url}"
 		username="${app.zonaper.service.username}" password="${app.zonaper.service.password}"/>
+	<jaxws:client
+		id="sistraRedoseClient"
+		serviceClass="net.conselldemallorca.helium.integracio.redose.client.wsdl.BackofficeFacade"
+		address="${app.redose.service.url}"
+		username="${app.redose.service.username}" password="${app.redose.service.password}"/>
 
 	<bean id="notificacioEntradaImpl" class="net.conselldemallorca.helium.integracio.bantel.service.BantelFacadeImpl">
-		<property name="sistraBantelClient" ref="sistraBantelClient" />
 		<property name="defaultIniciExpedientPlugin">
 			<bean class="net.conselldemallorca.helium.integracio.bantel.plugin.DefaultIniciExpedientPlugin"/>
 		</property>

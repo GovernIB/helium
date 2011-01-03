@@ -24,11 +24,11 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo.Iniciador
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
 import net.conselldemallorca.helium.model.dao.DaoProxy;
-import net.conselldemallorca.helium.model.dao.DocumentStoreDao;
 import net.conselldemallorca.helium.model.dao.DominiDao;
 import net.conselldemallorca.helium.model.dao.EntornDao;
 import net.conselldemallorca.helium.model.dao.MailDao;
 import net.conselldemallorca.helium.model.dao.PluginRegistreDao;
+import net.conselldemallorca.helium.model.dto.DocumentDto;
 import net.conselldemallorca.helium.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.model.hibernate.Camp;
@@ -127,27 +127,26 @@ public abstract class BasicActionHandler implements ActionHandler {
 			return null;
 		if (valor instanceof Long) {
 			Long id = (Long)valor;
-			DocumentStore docStore = getDocumentStoreDao().getById(id, false);
-			if (docStore == null)
+			DocumentDto document = getExpedientService().getDocument(id);
+			if (document == null)
 				return null;
 			DocumentInfo resposta = new DocumentInfo();
-			resposta.setId(docStore.getId());
-			if (docStore.isAdjunt()) {
-				resposta.setTitol(docStore.getAdjuntTitol());
+			resposta.setId(id);
+			if (document.isAdjunt()) {
+				resposta.setTitol(document.getAdjuntTitol());
 			} else {
-				InstanciaProcesDto instanciaProces = getExpedientService().getInstanciaProcesById(
-						new Long(executionContext.getProcessInstance().getId()).toString(),
-						false);
-				Document document = getDissenyService().findDocumentAmbDefinicioProcesICodi(
-						instanciaProces.getDefinicioProces().getId(),
-						docStore.getCodiDocument());
-				resposta.setTitol(document.getNom());
+				resposta.setTitol(document.getDocumentNom());
 			}
-			resposta.setArxiuNom(docStore.getArxiuNom());
-			resposta.setArxiuContingut(docStore.getArxiuContingut());
-			resposta.setDataCreacio(docStore.getDataCreacio());
-			resposta.setDataDocument(docStore.getDataDocument());
-			resposta.setSignat(docStore.isSignat());
+			resposta.setDataCreacio(document.getDataCreacio());
+			resposta.setDataDocument(document.getDataDocument());
+			resposta.setSignat(document.isSignat());
+			if (document.isSignat()) {
+				resposta.setArxiuNom(document.getSignatNom());
+				resposta.setArxiuContingut(document.getSignatContingut());
+			} else {
+				resposta.setArxiuNom(document.getArxiuNom());
+				resposta.setArxiuContingut(document.getArxiuContingut());
+			}
 			return resposta;
 		} else {
 			throw new JbpmException("La variable \"" + varCodi + "\" no es del tipus correcte");
@@ -235,6 +234,11 @@ public abstract class BasicActionHandler implements ActionHandler {
 			resposta.setIniciadorCodi(ex.getIniciadorCodi());
 			resposta.setResponsableCodi(ex.getResponsableCodi());
 			resposta.setRegistreNumero(ex.getRegistreNumero());
+			resposta.setRegistreData(ex.getRegistreData());
+			resposta.setAvisosHabilitats(ex.isAvisosHabilitats());
+			resposta.setAvisosEmail(ex.getAvisosEmail());
+			resposta.setAvisosMobil(ex.getAvisosMobil());
+			resposta.setNotificacioTelematicaHabilitada(ex.isNotificacioTelematicaHabilitada());
 			resposta.setGeoPosX(ex.getGeoPosX());
 			resposta.setGeoPosY(ex.getGeoPosY());
 			resposta.setGeoReferencia(ex.getGeoReferencia());
@@ -261,6 +265,8 @@ public abstract class BasicActionHandler implements ActionHandler {
 					resposta.setIniciadorTipus(IniciadorTipus.SISTRA);
 				resposta.setIniciadorCodi(expedient.getIniciadorCodi());
 				resposta.setResponsableCodi(expedient.getResponsableCodi());
+				resposta.setRegistreNumero(expedient.getRegistreNumero());
+				resposta.setRegistreData(expedient.getRegistreData());
 				resposta.setGeoPosX(expedient.getGeoPosX());
 				resposta.setGeoPosY(expedient.getGeoPosY());
 				resposta.setGeoReferencia(expedient.getGeoReferencia());
@@ -474,9 +480,6 @@ public abstract class BasicActionHandler implements ActionHandler {
 	}
 	private DominiDao getDominiDao() {
 		return DaoProxy.getInstance().getDominiDao();
-	}
-	private DocumentStoreDao getDocumentStoreDao() {
-		return DaoProxy.getInstance().getDocumentStoreDao();
 	}
 	private MailDao getMailDao() {
 		return DaoProxy.getInstance().getMailDao();

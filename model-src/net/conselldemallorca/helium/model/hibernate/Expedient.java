@@ -23,6 +23,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.ForeignKey;
@@ -77,10 +79,17 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	private String responsableCodi;
 	@MaxLength(64)
 	private String registreNumero;
+	private Date registreData;
 	private Double geoPosX;
 	private Double geoPosY;
 	@MaxLength(64)
 	private String geoReferencia;
+	private boolean avisosHabilitats = false;
+	@MaxLength(255)
+	private String avisosEmail;
+	@MaxLength(255)
+	private String avisosMobil;
+	private boolean notificacioTelematicaHabilitada = false;
 
 	private Estat estat;
 	@NotNull
@@ -211,6 +220,15 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 		this.registreNumero = registreNumero;
 	}
 
+	@Column(name="registre_data")
+	@Temporal(TemporalType.DATE)
+	public Date getRegistreData() {
+		return registreData;
+	}
+	public void setRegistreData(Date registreData) {
+		this.registreData = registreData;
+	}
+
 	@Column(name="geo_posx")
 	public Double getGeoPosX() {
 		return geoPosX;
@@ -233,6 +251,39 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	}
 	public void setGeoReferencia(String geoReferencia) {
 		this.geoReferencia = geoReferencia;
+	}
+
+	@Column(name="avisos_habilitat")
+	public boolean isAvisosHabilitats() {
+		return avisosHabilitats;
+	}
+	public void setAvisosHabilitats(boolean avisosHabilitats) {
+		this.avisosHabilitats = avisosHabilitats;
+	}
+
+	@Column(name="avisos_email", length=255)
+	public String getAvisosEmail() {
+		return avisosEmail;
+	}
+	public void setAvisosEmail(String avisosEmail) {
+		this.avisosEmail = avisosEmail;
+	}
+
+	@Column(name="avisos_mobil", length=255)
+	public String getAvisosMobil() {
+		return avisosMobil;
+	}
+	public void setAvisosMobil(String avisosMobil) {
+		this.avisosMobil = avisosMobil;
+	}
+
+	@Column(name="nottel_habilitat")
+	public boolean isNotificacioTelematicaHabilitada() {
+		return notificacioTelematicaHabilitada;
+	}
+	public void setNotificacioTelematicaHabilitada(
+			boolean notificacioTelematicaHabilitada) {
+		this.notificacioTelematicaHabilitada = notificacioTelematicaHabilitada;
 	}
 
 	@ManyToOne(optional=true)
@@ -302,7 +353,7 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	public Set<Alerta> getAlertes() {
 		return this.alertes;
 	}
-	public void setalertes(Set<Alerta> alertes) {
+	public void setAlertes(Set<Alerta> alertes) {
 		this.alertes = alertes;
 	}
 	public void addAlerta(Alerta alerta) {

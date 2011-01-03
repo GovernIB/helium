@@ -243,47 +243,39 @@ public class ExpedientController extends BaseController {
 		if (entorn != null) {
 			DocumentDto document = expedientService.getDocument(docId);
 			if (document != null) {
-				if (document.isArxiuConvertiblePdf() && (document.isSignat() || document.isRegistrat())) {
-					model.addAttribute(
-							ArxiuConvertirView.MODEL_ATTRIBUTE_FILENAME,
-							document.getArxiuNom());
-					model.addAttribute(
-							ArxiuConvertirView.MODEL_ATTRIBUTE_DATA,
-							document.getArxiuContingut());
+				if (isSignaturaFileAttached()) {
 					model.addAttribute(
 							ArxiuConvertirView.MODEL_ATTRIBUTE_CONVERSIONENABLED,
-							true);
-					model.addAttribute(
-							ArxiuConvertirView.MODEL_ATTRIBUTE_OUTEXTENSION,
-							"pdf");
+							false);
 					if (document.isSignat()) {
-						String estampaActiu = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.actiu");
-						if ("true".equalsIgnoreCase(estampaActiu)) {
-							String estampaPosX = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.posx");
-							String estampaPosY = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.posy");
-							String estampaRotation = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.rotation");
-							model.addAttribute(
-									ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_MISSATGE,
-									(String)GlobalProperties.getInstance().get("app.base.url") + "/signatura/verificar.html?id=" + docId);
-							model.addAttribute(
-									ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_POSX,
-									new Float(estampaPosX));
-							model.addAttribute(
-									ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_POSY,
-									new Float(estampaPosY));
-							model.addAttribute(
-									ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_ROTATION,
-									new Float(estampaRotation));
-						}
+						model.addAttribute(
+								ArxiuConvertirView.MODEL_ATTRIBUTE_FILENAME,
+								document.getSignatNom());
+						model.addAttribute(
+								ArxiuConvertirView.MODEL_ATTRIBUTE_DATA,
+								document.getSignatContingut());
+					} else {
+						model.addAttribute(
+								ArxiuConvertirView.MODEL_ATTRIBUTE_FILENAME,
+								document.getArxiuNom());
+						model.addAttribute(
+								ArxiuConvertirView.MODEL_ATTRIBUTE_DATA,
+								document.getArxiuContingut());
 					}
-					if (document.isRegistrat()) {
+					if (document.isArxiuConvertiblePdf() && document.isRegistrat()) {
+						model.addAttribute(
+								ArxiuConvertirView.MODEL_ATTRIBUTE_CONVERSIONENABLED,
+								true);
+						model.addAttribute(
+								ArxiuConvertirView.MODEL_ATTRIBUTE_OUTEXTENSION,
+								"pdf");
 						model.addAttribute(
 								ArxiuConvertirView.MODEL_ATTRIBUTE_REGISTRE_ENTITAT,
 								(String)GlobalProperties.getInstance().get("app.registre.segell.entitat"));
 						model.addAttribute(
 								ArxiuConvertirView.MODEL_ATTRIBUTE_REGISTRE_OFICINA,
 								document.getRegistreOficinaNom());
-						DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+						DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 						if (document.isRegistreEntrada()) {
 							model.addAttribute(
 									ArxiuConvertirView.MODEL_ATTRIBUTE_REGISTRE_DATA,
@@ -302,10 +294,73 @@ public class ExpedientController extends BaseController {
 					}
 					return "arxiuConvertirView";
 				} else {
-					model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, document.getArxiuNom());
-					model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, document.getArxiuContingut());
-					return "arxiuView";
+					if (document.isArxiuConvertiblePdf() && (document.isSignat() || document.isRegistrat())) {
+						model.addAttribute(
+								ArxiuConvertirView.MODEL_ATTRIBUTE_FILENAME,
+								document.getArxiuNom());
+						model.addAttribute(
+								ArxiuConvertirView.MODEL_ATTRIBUTE_DATA,
+								document.getArxiuContingut());
+						model.addAttribute(
+								ArxiuConvertirView.MODEL_ATTRIBUTE_CONVERSIONENABLED,
+								true);
+						model.addAttribute(
+								ArxiuConvertirView.MODEL_ATTRIBUTE_OUTEXTENSION,
+								"pdf");
+						if (document.isSignat()) {
+							String estampaActiu = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.actiu");
+							if ("true".equalsIgnoreCase(estampaActiu)) {
+								String estampaPosX = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.posx");
+								String estampaPosY = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.posy");
+								String estampaRotation = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.rotation");
+								model.addAttribute(
+										ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_MISSATGE,
+										(String)GlobalProperties.getInstance().get("app.base.url") + "/signatura/verificar.html?id=" + docId);
+								model.addAttribute(
+										ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_POSX,
+										new Float(estampaPosX));
+								model.addAttribute(
+										ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_POSY,
+										new Float(estampaPosY));
+								model.addAttribute(
+										ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_ROTATION,
+										new Float(estampaRotation));
+							}
+						}
+						if (document.isRegistrat()) {
+							model.addAttribute(
+									ArxiuConvertirView.MODEL_ATTRIBUTE_REGISTRE_ENTITAT,
+									(String)GlobalProperties.getInstance().get("app.registre.segell.entitat"));
+							model.addAttribute(
+									ArxiuConvertirView.MODEL_ATTRIBUTE_REGISTRE_OFICINA,
+									document.getRegistreOficinaNom());
+							DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+							if (document.isRegistreEntrada()) {
+								model.addAttribute(
+										ArxiuConvertirView.MODEL_ATTRIBUTE_REGISTRE_DATA,
+										df.format(document.getRegistreData()));
+								model.addAttribute(
+										ArxiuConvertirView.MODEL_ATTRIBUTE_REGISTRE_ENTRADA,
+										document.getRegistreNumero() + "/" + document.getRegistreAny());
+							} else {
+								model.addAttribute(
+										ArxiuConvertirView.MODEL_ATTRIBUTE_REGISTRE_DATA,
+										df.format(document.getRegistreData()));
+								model.addAttribute(
+										ArxiuConvertirView.MODEL_ATTRIBUTE_REGISTRE_SORTIDA,
+										document.getRegistreNumero() + "/" + document.getRegistreAny());
+							}
+						}
+						return "arxiuConvertirView";
+					} else {
+						model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, document.getArxiuNom());
+						model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, document.getArxiuContingut());
+						return "arxiuView";
+					}
 				}
+				
+				
+				
 			}
 			return "arxiuView";
 		} else {
@@ -499,6 +554,10 @@ public class ExpedientController extends BaseController {
 				new Permission[] {
 					ExtendedPermission.ADMINISTRATION,
 					ExtendedPermission.DELETE}) != null;
+	}
+
+	private boolean isSignaturaFileAttached() {
+		return "true".equalsIgnoreCase((String)GlobalProperties.getInstance().get("app.signatura.plugin.file.attached"));
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientController.class);

@@ -20,6 +20,8 @@ public class DocumentDto implements Serializable {
 	private String arxiuNom;
 	private byte[] arxiuContingut;
 	private boolean signat = false;
+	private String signatNom;
+	private byte[] signatContingut;
 	private boolean adjunt = false;
 	private String adjuntTitol;
 
@@ -89,6 +91,18 @@ public class DocumentDto implements Serializable {
 	}
 	public void setSignat(boolean signat) {
 		this.signat = signat;
+	}
+	public String getSignatNom() {
+		return signatNom;
+	}
+	public void setSignatNom(String signatNom) {
+		this.signatNom = signatNom;
+	}
+	public byte[] getSignatContingut() {
+		return signatContingut;
+	}
+	public void setSignatContingut(byte[] signatContingut) {
+		this.signatContingut = signatContingut;
 	}
 	public boolean isAdjunt() {
 		return adjunt;

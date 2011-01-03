@@ -168,8 +168,9 @@ function confirmarModificar(e) {
 			</button>
 		</form>
 	</security:accesscontrollist>
-	<br/>
 
+	<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="2,16,128">
+	<br/>
 	<c:set var="mostrarTasques" value="${false}"/>
 	<c:forEach var="tasca" items="${tasques}">
 		<c:if test="${tasca.completed}"><c:set var="mostrarTasques" value="${true}"/></c:if>
@@ -240,6 +241,7 @@ function confirmarModificar(e) {
 			</c:forEach>
 		</div>
 	</c:if>
+	</security:accesscontrollist>
 
 </body>
 </html>

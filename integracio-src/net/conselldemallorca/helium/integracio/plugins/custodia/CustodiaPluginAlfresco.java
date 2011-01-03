@@ -54,6 +54,11 @@ public class CustodiaPluginAlfresco implements CustodiaPlugin {
 			Reference parent = alfrescoUtils.getParent(
 					alfrescoUtils.getReferenceForUuid(docStore.getReferenciaFont()));
 			if (isSignaturaFileAttached()) {
+				try {
+					alfrescoUtils.deleteContentFromParent(parent, SIGNATURE_DATA_NAME);
+				} catch (IOException ex) {
+					// Si no existeix es llança aquesta excepció
+				}
 				alfrescoUtils.createContent(
 						parent,
 						SIGNATURE_DATA_NAME,
@@ -119,6 +124,18 @@ public class CustodiaPluginAlfresco implements CustodiaPlugin {
 			throw new CustodiaPluginException("No s'han pogut obtenir les signatures", ex);
 		} finally {
 			alfrescoUtils.endAlfrescoSession();
+		}
+	}
+
+	public byte[] getSignaturesAmbArxiu(String id) throws CustodiaPluginException {
+		try {
+			alfrescoUtils.startAlfrescoSession();
+			Reference parent = alfrescoUtils.getParent(
+					alfrescoUtils.getReferenceForUuid(id));
+			return alfrescoUtils.retrieveContentFromParent(parent, SIGNATURE_DATA_NAME);
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut obtenir l'arxiu amb les signatures", ex);
+			throw new CustodiaPluginException("No s'ha pogut obtenir l'arxiu amb les signatures", ex);
 		}
 	}
 

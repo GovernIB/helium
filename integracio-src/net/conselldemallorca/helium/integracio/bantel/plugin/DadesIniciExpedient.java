@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.integracio.bantel.plugin;
 
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,10 +19,17 @@ public class DadesIniciExpedient {
 	private String titol;
 	private String numero;
 	private String registreNumero;
+	private Date registreData;
+	private boolean avisosHabilitats = false;
+	private String avisosEmail;
+	private String avisosMobil;
+	private boolean notificacioTelematicaHabilitada = false;
 	private String transitionName;
 
 	private Map<String, Object> dadesInicials;
 	private Map<String, DadesDocument> documentsInicials;
+	private List<DadesDocument> documentsAdjunts;
+
 
 
 	public String getEntornCodi() {
@@ -53,6 +62,37 @@ public class DadesIniciExpedient {
 	public void setRegistreNumero(String registreNumero) {
 		this.registreNumero = registreNumero;
 	}
+	public Date getRegistreData() {
+		return registreData;
+	}
+	public void setRegistreData(Date registreData) {
+		this.registreData = registreData;
+	}
+	public boolean isAvisosHabilitats() {
+		return avisosHabilitats;
+	}
+	public void setAvisosHabilitats(boolean avisosHabilitats) {
+		this.avisosHabilitats = avisosHabilitats;
+	}
+	public String getAvisosEmail() {
+		return avisosEmail;
+	}
+	public void setAvisosEmail(String avisosEmail) {
+		this.avisosEmail = avisosEmail;
+	}
+	public String getAvisosMobil() {
+		return avisosMobil;
+	}
+	public void setAvisosMobil(String avisosMobil) {
+		this.avisosMobil = avisosMobil;
+	}
+	public boolean isNotificacioTelematicaHabilitada() {
+		return notificacioTelematicaHabilitada;
+	}
+	public void setNotificacioTelematicaHabilitada(
+			boolean notificacioTelematicaHabilitada) {
+		this.notificacioTelematicaHabilitada = notificacioTelematicaHabilitada;
+	}
 	public String getTransitionName() {
 		return transitionName;
 	}
@@ -70,6 +110,12 @@ public class DadesIniciExpedient {
 	}
 	public void setDocumentsInicials(Map<String, DadesDocument> documentsInicials) {
 		this.documentsInicials = documentsInicials;
+	}
+	public List<DadesDocument> getDocumentsAdjunts() {
+		return documentsAdjunts;
+	}
+	public void setDocumentsAdjunts(List<DadesDocument> documentsAdjunts) {
+		this.documentsAdjunts = documentsAdjunts;
 	}
 
 }

@@ -6,7 +6,6 @@
 	<classpathentry kind="src" path="jbpm-src"/>
 	<classpathentry kind="src" path="common-src"/>
 	<classpathentry kind="src" path="presentacio-src"/>
-	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
 	<classpathentry kind="lib" path="lib/applets/swing-layout-1.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/applets/plugin.jar"/>
@@ -25,5 +24,6 @@
 			<attribute name="owner.project.facets" value="jst.java"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

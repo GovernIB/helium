@@ -27,6 +27,11 @@ public class ExpedientInfo {
 	private String iniciadorCodi;
 	private String responsableCodi;
 	private String registreNumero;
+	private Date registreData;
+	private boolean avisosHabilitats;
+	private String avisosEmail;
+	private String avisosMobil;
+	private boolean notificacioTelematicaHabilitada;
 	private Double geoPosX;
 	private Double geoPosY;
 	private String geoReferencia;
@@ -102,6 +107,37 @@ public class ExpedientInfo {
 	}
 	public void setRegistreNumero(String registreNumero) {
 		this.registreNumero = registreNumero;
+	}
+	public Date getRegistreData() {
+		return registreData;
+	}
+	public void setRegistreData(Date registreData) {
+		this.registreData = registreData;
+	}
+	public boolean isAvisosHabilitats() {
+		return avisosHabilitats;
+	}
+	public void setAvisosHabilitats(boolean avisosHabilitats) {
+		this.avisosHabilitats = avisosHabilitats;
+	}
+	public String getAvisosEmail() {
+		return avisosEmail;
+	}
+	public void setAvisosEmail(String avisosEmail) {
+		this.avisosEmail = avisosEmail;
+	}
+	public String getAvisosMobil() {
+		return avisosMobil;
+	}
+	public void setAvisosMobil(String avisosMobil) {
+		this.avisosMobil = avisosMobil;
+	}
+	public boolean isNotificacioTelematicaHabilitada() {
+		return notificacioTelematicaHabilitada;
+	}
+	public void setNotificacioTelematicaHabilitada(
+			boolean notificacioTelematicaHabilitada) {
+		this.notificacioTelematicaHabilitada = notificacioTelematicaHabilitada;
 	}
 	public Double getGeoPosX() {
 		return geoPosX;

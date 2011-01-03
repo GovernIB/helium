@@ -56,7 +56,7 @@ function confirmar(e) {
 				<c:param name="property" value="documentId"/>
 				<c:param name="type" value="select"/>
 				<c:param name="items" value="documents"/>
-				<c:param name="itemLabel" value="nom"/>
+				<c:param name="itemLabel" value="codiNom"/>
 				<c:param name="itemValue" value="id"/>
 				<c:param name="itemBuit" value="<< Seleccioni un document >>"/>
 				<c:param name="label">Document</c:param>

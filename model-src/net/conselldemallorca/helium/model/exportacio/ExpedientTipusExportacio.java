@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.model.exportacio;
 
 import java.io.Serializable;
+import java.util.List;
 
 
 
@@ -22,6 +23,14 @@ public class ExpedientTipusExportacio implements Serializable {
 	private Boolean demanaTitol;
 	private String expressioNumero;
 	private boolean reiniciarCadaAny;
+	private String sistraTramitCodi;
+	private String sistraTramitMapeigCamps;
+	private String sistraTramitMapeigDocuments;
+	private String sistraTramitMapeigAdjunts;
+	private String formextUrl;
+	private String formextUsuari;
+	private String formextContrasenya;
+	private List<EstatExportacio> estats;
 
 
 
@@ -79,6 +88,54 @@ public class ExpedientTipusExportacio implements Serializable {
 	}
 	public void setReiniciarCadaAny(boolean reiniciarCadaAny) {
 		this.reiniciarCadaAny = reiniciarCadaAny;
+	}
+	public String getSistraTramitCodi() {
+		return sistraTramitCodi;
+	}
+	public void setSistraTramitCodi(String sistraTramitCodi) {
+		this.sistraTramitCodi = sistraTramitCodi;
+	}
+	public String getSistraTramitMapeigCamps() {
+		return sistraTramitMapeigCamps;
+	}
+	public void setSistraTramitMapeigCamps(String sistraTramitMapeigCamps) {
+		this.sistraTramitMapeigCamps = sistraTramitMapeigCamps;
+	}
+	public String getSistraTramitMapeigDocuments() {
+		return sistraTramitMapeigDocuments;
+	}
+	public void setSistraTramitMapeigDocuments(String sistraTramitMapeigDocuments) {
+		this.sistraTramitMapeigDocuments = sistraTramitMapeigDocuments;
+	}
+	public String getSistraTramitMapeigAdjunts() {
+		return sistraTramitMapeigAdjunts;
+	}
+	public void setSistraTramitMapeigAdjunts(String sistraTramitMapeigAdjunts) {
+		this.sistraTramitMapeigAdjunts = sistraTramitMapeigAdjunts;
+	}
+	public String getFormextUrl() {
+		return formextUrl;
+	}
+	public void setFormextUrl(String formextUrl) {
+		this.formextUrl = formextUrl;
+	}
+	public String getFormextUsuari() {
+		return formextUsuari;
+	}
+	public void setFormextUsuari(String formextUsuari) {
+		this.formextUsuari = formextUsuari;
+	}
+	public String getFormextContrasenya() {
+		return formextContrasenya;
+	}
+	public void setFormextContrasenya(String formextContrasenya) {
+		this.formextContrasenya = formextContrasenya;
+	}
+	public List<EstatExportacio> getEstats() {
+		return estats;
+	}
+	public void setEstats(List<EstatExportacio> estats) {
+		this.estats = estats;
 	}
 
 

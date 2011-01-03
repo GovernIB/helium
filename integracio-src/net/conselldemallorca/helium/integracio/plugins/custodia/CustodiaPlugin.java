@@ -38,6 +38,15 @@ public interface CustodiaPlugin {
 	public List<byte[]> getSignatures(String id) throws CustodiaPluginException;
 
 	/**
+	 * Retorna l'arxiu amb les signatures en el cas de que les signatures es guardin
+	 * adjuntes a dins l'arxiu que es signa
+	 * @param id
+	 * @return
+	 * @throws CustodiaPluginException
+	 */
+	public byte[] getSignaturesAmbArxiu(String id) throws CustodiaPluginException;
+
+	/**
 	 * Esborra totes les signatures d'un document
 	 * 
 	 * @param id

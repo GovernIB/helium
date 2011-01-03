@@ -80,6 +80,8 @@ import net.conselldemallorca.helium.model.hibernate.Tasca.TipusTasca;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import edu.emory.mathcs.backport.java.util.Collections;
+
 
 /**
  * Servei per gestionar les tasques de disseny
@@ -182,6 +184,8 @@ public class DissenyService {
 			if (comprovarEntorn(entornId, definicioProcesId)) {
 				DefinicioProces definicioProces = definicioProcesDao.getById(definicioProcesId, false);
 				jbpmDao.esborrarDesplegament(definicioProces.getJbpmId());
+				for (Document doc: definicioProces.getDocuments())
+					documentDao.delete(doc.getId());
 				for (Termini termini: definicioProces.getTerminis())
 					deleteTermini(termini.getId());
 				definicioProcesDao.delete(definicioProcesId);
@@ -192,6 +196,8 @@ public class DissenyService {
 			if (comprovarExpedientTipus(expedientTipusId, definicioProcesId)) {
 				DefinicioProces definicioProces = definicioProcesDao.getById(definicioProcesId, false);
 				jbpmDao.esborrarDesplegament(definicioProces.getJbpmId());
+				for (Document doc: definicioProces.getDocuments())
+					documentDao.delete(doc.getId());
 				for (Termini termini: definicioProces.getTerminis())
 					deleteTermini(termini.getId());
 				definicioProcesDao.delete(definicioProcesId);
@@ -243,6 +249,13 @@ public class DissenyService {
 			resposta.add(toDto(definicioProcesDao.findAmbJbpmId(jbpmProcessDefinition.getId())));
 		}
 		return resposta;
+	}
+
+	public DefinicioProcesDto findDarreraAmbExpedientTipus(Long expedientTipusId) {
+		ExpedientTipus expedientTipus = expedientTipusDao.getById(expedientTipusId, false);
+		return toDto(definicioProcesDao.findDarreraVersioAmbEntornIJbpmKey(
+				expedientTipus.getEntorn().getId(),
+				expedientTipus.getJbpmProcessDefinitionKey()));
 	}
 
 	public Tasca getTascaById(Long id) {
@@ -1404,9 +1417,11 @@ public class DissenyService {
 	public Accio findAccioAmbDefinicioProcesICodi(Long definicioProcesId, String codi) {
 		return accioDao.findAmbDefinicioProcesICodi(definicioProcesId, codi);
 	}
-	public List<String> findAccionsJbpm(Long id) {
+	public List<String> findAccionsJbpmOrdenades(Long id) {
 		DefinicioProces definicioProces = definicioProcesDao.getById(id, false);
-		return jbpmDao.listActions(definicioProces.getJbpmId());
+		List<String> accions = jbpmDao.listActions(definicioProces.getJbpmId());
+		Collections.sort(accions);
+		return accions;
 	}
 
 
@@ -1514,6 +1529,7 @@ public class DissenyService {
 		else
 			dto.setJbpmName("[" + definicioProces.getJbpmKey() + "]");
 		dto.setHasStartTask(hasStartTask(definicioProces));
+		dto.setStartTaskName(jbpmDao.getStartTaskName(definicioProces.getJbpmId()));
 		List<DefinicioProces> mateixaKeyIEntorn = definicioProcesDao.findAmbEntornIJbpmKey(
 				definicioProces.getEntorn().getId(),
 				definicioProces.getJbpmKey());

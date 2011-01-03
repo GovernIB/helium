@@ -20,7 +20,10 @@
 	</c:import>
 
 	<display:table name="tasques" id="registre" requestURI="" defaultsort="1" class="displaytag selectable">
-		<display:column property="jbpmName" title="Codi" sortable="true" url="/definicioProces/tascaForm.html?definicioProcesId=${param.definicioProcesId}" paramId="id" paramProperty="id"/>
+		<display:column sortProperty="jbpmName" title="Codi" sortable="true" url="/definicioProces/tascaForm.html?definicioProcesId=${param.definicioProcesId}" paramId="id" paramProperty="id">
+			<c:if test="${registre.jbpmName == definicioProces.startTaskName}"><img src="<c:url value="/img/control_play_blue.png"/>" alt="Tasca inicial" title="Tasca inicial" border="0" style="float:left;margin-right:3px;position:relative;top:-2px"/></c:if>
+			${registre.jbpmName}
+		</display:column>
 		<display:column property="nom" title="Títol" sortable="true"/>
 		<display:column>
 	    	<form action="tascaCamps.html">
@@ -30,18 +33,22 @@
 			</form>
 	    </display:column>
 		<display:column>
-	    	<form action="tascaDocuments.html">
-				<input type="hidden" name="definicioProcesId" value="${definicioProces.id}"/>
-				<input type="hidden" name="tascaId" value="${registre.id}"/>
-				<button type="submit" class="submitButton">Documents&nbsp;(${fn:length(registre.documents)})</button>
-			</form>
+			<c:if test="${registre.jbpmName != definicioProces.startTaskName}">
+		    	<form action="tascaDocuments.html">
+					<input type="hidden" name="definicioProcesId" value="${definicioProces.id}"/>
+					<input type="hidden" name="tascaId" value="${registre.id}"/>
+					<button type="submit" class="submitButton">Documents&nbsp;(${fn:length(registre.documents)})</button>
+				</form>
+			</c:if>
 	    </display:column>
 	    <display:column>
-	    	<form action="tascaFirmes.html">
-				<input type="hidden" name="definicioProcesId" value="${definicioProces.id}"/>
-				<input type="hidden" name="tascaId" value="${registre.id}"/>
-				<button type="submit" class="submitButton">Signatures&nbsp;(${fn:length(registre.firmes)})</button>
-			</form>
+			<c:if test="${registre.jbpmName != definicioProces.startTaskName}">
+		    	<form action="tascaFirmes.html">
+					<input type="hidden" name="definicioProcesId" value="${definicioProces.id}"/>
+					<input type="hidden" name="tascaId" value="${registre.id}"/>
+					<button type="submit" class="submitButton">Signatures&nbsp;(${fn:length(registre.firmes)})</button>
+				</form>
+			</c:if>
 	    </display:column>
 	    <%--display:column>
 	    	<form action="tascaValidacions.html">

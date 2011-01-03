@@ -36,7 +36,7 @@ public class RolesBasedAttributes2GrantedAuthoritiesMapper implements Attributes
 
 	private Map attributes2grantedAuthoritiesMap = null;
 	private String stringSeparator = ",";
-	private String[] mappableAttributes = null;
+	private List<String> mappableAttributes = new ArrayList<String>();
 
 	private SessionFactory sessionFactory = null;
 	private String filterPrefix = null;
@@ -50,7 +50,8 @@ public class RolesBasedAttributes2GrantedAuthoritiesMapper implements Attributes
 		attributes2grantedAuthoritiesMap.putAll(toOverwriteAfterQuery);
 		attributes2grantedAuthoritiesMap = preProcessMap(attributes2grantedAuthoritiesMap);
 		try {
-			mappableAttributes = (String[])attributes2grantedAuthoritiesMap.keySet().toArray(new String[]{});
+			for (String key: ((Map<String, Object>)attributes2grantedAuthoritiesMap).keySet())
+				mappableAttributes.add(key);
 		} catch ( ArrayStoreException ase ) {
 			throw new IllegalArgumentException("attributes2grantedAuthoritiesMap contains non-String objects as keys");
 		}
@@ -61,14 +62,22 @@ public class RolesBasedAttributes2GrantedAuthoritiesMapper implements Attributes
 	}
 	public void addRole(String role, boolean doPreProcess) {
 		if (filterPrefix == null || ((String)role).startsWith(filterPrefix)) {
-			attributes2grantedAuthoritiesMap.put(role, role);
-			if (doPreProcess)
-				attributes2grantedAuthoritiesMap = preProcessMap(attributes2grantedAuthoritiesMap);
+			if (!attributes2grantedAuthoritiesMap.containsKey(role)) {
+				attributes2grantedAuthoritiesMap.put(role, role);
+				if (doPreProcess)
+					attributes2grantedAuthoritiesMap = preProcessMap(attributes2grantedAuthoritiesMap);
+			}
+			if (!mappableAttributes.contains(role))
+				mappableAttributes.add(role);
 		}
 	}
 	public void removeRole(String role) {
-		attributes2grantedAuthoritiesMap.remove(role);
-		attributes2grantedAuthoritiesMap = preProcessMap(attributes2grantedAuthoritiesMap);
+		if (attributes2grantedAuthoritiesMap.containsKey(role)) {
+			attributes2grantedAuthoritiesMap.remove(role);
+			attributes2grantedAuthoritiesMap = preProcessMap(attributes2grantedAuthoritiesMap);
+		}
+		if (mappableAttributes.contains(role))
+			mappableAttributes.remove(role);
 	}
 
 	/**
@@ -153,7 +162,9 @@ public class RolesBasedAttributes2GrantedAuthoritiesMapper implements Attributes
 		List gaList = new ArrayList();
 		for (int i = 0; i < attributes.length; i++) {
 			Collection c = (Collection)attributes2grantedAuthoritiesMap.get(attributes[i]);
-			if ( c != null ) { gaList.addAll(c); }
+			if ( c != null ) {
+				gaList.addAll(c);
+			}
 		}
 		GrantedAuthority[] result = new GrantedAuthority[gaList.size()];
 		result = (GrantedAuthority[])gaList.toArray(result);
@@ -165,7 +176,7 @@ public class RolesBasedAttributes2GrantedAuthoritiesMapper implements Attributes
 	 * @see org.springframework.security.authoritymapping.MappableAttributesRetriever#getMappableAttributes()
 	 */
 	public String[] getMappableAttributes() {
-		return mappableAttributes;
+		return mappableAttributes.toArray(new String[mappableAttributes.size()]);
 	}
 	/**
 	 * @return Returns the stringSeparator.

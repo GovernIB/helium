@@ -114,9 +114,6 @@ function infoRegistre(docId) {
 							<c:set var="documentActual" value="${instanciaProces.varsDocuments[codi]}" scope="request"/>
 							<c:import url="../common/iconesConsultaDocument.jsp"/>
 						</c:if>
-						<c:if test="${instanciaProces.varsDocuments[codi].registrat}">
-							<img src="<c:url value="/img/book_open.png"/>" alt="Registrat" title="Registrat" border="0" style="cursor:pointer" onclick="infoRegistre(${instanciaProces.varsDocuments[codi].id})"/>
-						</c:if>
 					</c:otherwise>
 				</c:choose>
 			</display:column>
@@ -148,20 +145,6 @@ function infoRegistre(docId) {
 			</button>
 		</form>
 	</security:accesscontrollist>
-
-	<c:forEach var="reg" items="${instanciaProces.varsDocuments}">
-		<c:set var="document" value="${reg.value}"/>
-		<c:if test="${document.registrat}">
-			<div id="registre_${document.id}" style="display:none">
-				<dl class="form-info">
-					<dt>Oficina</dt><dd>${document.registreOficinaNom}</dd>
-					<dt>Data</dt><dd><fmt:formatDate value="${document.registreData}" pattern="dd/MM/yyyy HH:mm"/></dd>
-					<dt>Tipus</dt><dd><c:choose><c:when test="${document.registreEntrada}">Entrada</c:when><c:otherwise>Sortida</c:otherwise></c:choose></dd>
-					<dt>Número</dt><dd>${document.registreNumero}/${document.registreAny}</dd>
-				</dl>
-			</div>
-		</c:if>
-	</c:forEach>
 
 </body>
 </html>

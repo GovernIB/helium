@@ -69,9 +69,12 @@ public class TerminiCalcularDataFiHandler extends AbstractHeliumActionHandler {
 							termini.getDies(),
 							termini.isLaborable());
 			}
-			executionContext.setVariable(varDataFi, dataFi);
+			if (executionContext.getTaskInstance() != null)
+				executionContext.getTaskInstance().setVariableLocally(varDataFi, dataFi);
+			else
+				executionContext.setVariable(varDataFi, dataFi);
 		} else {
-			throw new JbpmException("No existeix cap termini amb aquest codi '" + terminiCodi + "'");
+			throw new JbpmException("No existeix cap termini amb aquest codi '" + (String)getValorOVariable(executionContext, terminiCodi, varTerminiCodi) + "'");
 		}
 	}
 

@@ -29,6 +29,7 @@ public interface TramitacioService {
 	 */
 	public String iniciExpedient(
 			String entorn,
+			String usuari,
 			String expedientTipus,
 			String numero,
 			String titol,

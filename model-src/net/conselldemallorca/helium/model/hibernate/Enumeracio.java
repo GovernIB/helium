@@ -51,7 +51,7 @@ public class Enumeracio implements Serializable {
 	@NotBlank
 	@MaxLength(255)
 	private String nom;
-	@MaxLength(1024)
+	@MaxLength(4000)
 	private String valors;
 
 	@NotNull
@@ -94,7 +94,7 @@ public class Enumeracio implements Serializable {
 		this.nom = nom;
 	}
 
-	@Column(name="valors", length=1024)
+	@Column(name="valors", length=4000)
 	public String getValors() {
 		return valors;
 	}

@@ -23,6 +23,7 @@ public class DefinicioProcesDto extends DefinicioProces {
 	private Boolean[] hasStartTaskWithSameKey;
 	private boolean lastVersion;
 	private boolean hasStartTask;
+	private String startTaskName;
 
 	private ExpedientTipus expedientTipus;
 
@@ -75,6 +76,13 @@ public class DefinicioProcesDto extends DefinicioProces {
 	}
 	public void setHasStartTask(boolean hasStartTask) {
 		this.hasStartTask = hasStartTask;
+	}
+
+	public String getStartTaskName() {
+		return startTaskName;
+	}
+	public void setStartTaskName(String startTaskName) {
+		this.startTaskName = startTaskName;
 	}
 
 	public int getNumIdsWithSameKey() {

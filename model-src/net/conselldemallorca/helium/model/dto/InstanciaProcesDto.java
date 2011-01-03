@@ -160,6 +160,12 @@ public class InstanciaProcesDto {
 					public int compare(String s1, String s2) {
 						DocumentDto d1 = varsDocuments.get(s1);
 						DocumentDto d2 = varsDocuments.get(s2);
+						if (d1 != null && d2 == null)
+							return -1;
+						if (d1 == null && d2 == null)
+							return 0;
+						if (d1 == null && d2 != null)
+							return 1;
 						return d1.getDataDocument().compareTo(d2.getDataDocument());
 					}
 				});

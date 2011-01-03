@@ -12,6 +12,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.model.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.model.exception.ExpedientRepetitException;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
 import net.conselldemallorca.helium.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.model.hibernate.Expedient.IniciadorTipus;
@@ -139,12 +140,23 @@ public class ExpedientIniciarController extends BaseController {
 							null,
 							null,
 							null,
+							false,
+							null,
+							null,
+							false,
+							null,
 							null,
 							IniciadorTipus.INTERN,
 							null,
+							null,
+							null,
 							null);
 					missatgeInfo(request, "L'expedient s'ha iniciat correctament");
-				} catch (Exception ex) {
+				} catch (ExpedientRepetitException ex) {
+					missatgeError(
+							request,
+							"Ja existeix un expedient amb el mateix número, torni a iniciar l'expedient");
+				}catch (Exception ex) {
 					missatgeError(
 							request,
 							"S'ha produït un error iniciant l'expedient",

@@ -63,8 +63,16 @@ function confirmarAccio(e) {
 		</dd>
 		<c:if test="${globalProperties['app.georef.actiu']}">
 			<c:choose>
-				<c:when test="${globalProperties['app.georef.tipus']=='ref'}"><dt>Georeferència</dt><dd>${expedient.geoReferencia}</dd></c:when>
-				<c:otherwise><dt>Georeferència</dt><dd>${expedient.geoPosX}, ${expedient.geoPosY}</dd></c:otherwise>
+				<c:when test="${globalProperties['app.georef.tipus']=='ref'}">
+					<c:if test="${not empty expedient.geoReferencia}">
+						<dt>Georeferència</dt><dd>${expedient.geoReferencia}</dd>
+					</c:if>
+				</c:when>
+				<c:otherwise>
+					<c:if test="${not empty expedient.geoPosX and not empty expedient.geoPosY}">
+						<dt>Georeferència</dt><dd>${expedient.geoPosX}, ${expedient.geoPosY}</dd>
+					</c:if>
+				</c:otherwise>
 			</c:choose>
 		</c:if>
 	</dl>

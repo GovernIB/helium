@@ -84,6 +84,8 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	private String sistraTramitMapeigCamps;
 	@MaxLength(2048)
 	private String sistraTramitMapeigDocuments;
+	@MaxLength(2048)
+	private String sistraTramitMapeigAdjunts;
 
 	@MaxLength(255)
 	private String formextUrl;
@@ -103,6 +105,11 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 
 
 	public ExpedientTipus() {}
+	public ExpedientTipus(String codi, String nom, Entorn entorn) {
+		this.codi = codi;
+		this.nom = nom;
+		this.entorn = entorn;
+	}
 	public ExpedientTipus(String codi, String nom, String jbpmProcessDefinitionKey, Entorn entorn) {
 		this.codi = codi;
 		this.nom = nom;
@@ -255,6 +262,14 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	}
 	public void setSistraTramitMapeigDocuments(String sistraTramitMapeigDocuments) {
 		this.sistraTramitMapeigDocuments = sistraTramitMapeigDocuments;
+	}
+
+	@Column(name="sistra_mapadj", length=2048)
+	public String getSistraTramitMapeigAdjunts() {
+		return sistraTramitMapeigAdjunts;
+	}
+	public void setSistraTramitMapeigAdjunts(String sistraTramitMapeigAdjunts) {
+		this.sistraTramitMapeigAdjunts = sistraTramitMapeigAdjunts;
 	}
 
 	@Column(name="formext_url", length=255)

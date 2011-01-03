@@ -13,11 +13,36 @@
 	<c:import url="../common/formIncludes.jsp"/>
 <script type="text/javascript">
 // <![CDATA[
-function generarDocumentAmbPlantilla(link, formId) {
-	var valData = $("#" + formId).find("input[name='data']").val();
-	window.location = link.href + "&data=" + valData;
-	return false;
-}
+	function verificarSignatura(element) {
+		var amplada = 800;
+		var alcada = 600;
+		$('<iframe id="verificacio" src="' + element.href + '"/>').dialog({
+			title: "Verificació de signatures",
+			autoOpen: true,
+			modal: true,
+			autoResize: true,
+			width: parseInt(amplada),
+			height: parseInt(alcada)
+		}).width(amplada - 30).height(alcada - 30);
+		return false;
+	}
+	function infoRegistre(docId) {
+		var amplada = 600;
+		var alcada = 200;
+		$('<div>' + $("#registre_" + docId).html() + '</div>').dialog({
+			title: "Informació de registre",
+			autoOpen: true,
+			modal: true,
+			width: parseInt(amplada),
+			height: parseInt(alcada)
+		}).width(amplada - 30).height(alcada - 30);
+		return false;
+	}
+	function generarDocumentAmbPlantilla(link, formId) {
+		var valData = $("#" + formId).find("input[name='data']").val();
+		window.location = link.href + "&data=" + valData;
+		return false;
+	}
 // ]]>
 </script>
 </head>

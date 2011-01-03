@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
@@ -182,7 +183,14 @@ public abstract class SignaturaApplet extends Applet {
 					InputStream connInputStream = conn.getInputStream();
 					if (connInputStream != null) {
 						setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-						if (signarDocument(connInputStream, filename, certName)) {
+						ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+						int nRead;
+						byte[] tmp = new byte[1024];
+						while ((nRead = connInputStream.read(tmp, 0, tmp.length)) != -1) {
+							buffer.write(tmp, 0, nRead);
+						}
+						buffer.flush();
+						if (signarDocument(buffer.toByteArray(), filename, certName)) {
 							JSObject win = JSObject.getWindow(this);
 							win.eval("location.reload()");
 						}
@@ -217,7 +225,7 @@ public abstract class SignaturaApplet extends Applet {
 				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
 	}
 
-	private boolean signarDocument(InputStream inputDocument, String filename, String certName) {
+	private boolean signarDocument(byte[] inputDocument, String filename, String certName) {
 		RespostaSignatura resposta = new RespostaSignatura();
 		resposta.setToken(getParameter("token"));
 		try {
@@ -302,7 +310,7 @@ public abstract class SignaturaApplet extends Applet {
 	public abstract void initSigner() throws NecessitaActualitzarException;
 	public abstract String[] getCertList(String params) throws ObtencioCertificatsException;
 	public abstract Object sign(
-			InputStream inputDocument,
+			byte[] inputDocument,
 			String certName,
 			String password,
 			String params) throws SignaturaException, ContrasenyaIncorrectaException;

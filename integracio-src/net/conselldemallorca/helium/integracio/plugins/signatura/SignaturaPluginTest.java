@@ -48,7 +48,7 @@ public class SignaturaPluginTest implements SignaturaPlugin {
 			byte[] signatura) throws SignaturaPluginException {
 		try {
 			InfoSignatura resposta = new InfoSignatura(signatura);
-			Certificate[] certificats = null;
+			X509Certificate[] certificats = null;
 			byte[] pkcs7Bytes = Base64.decode(signatura);
 			ASN1InputStream asn1is = new ASN1InputStream(new ByteArrayInputStream(pkcs7Bytes));
 			ContentInfo pkcs7Info = ContentInfo.getInstance(asn1is.readObject());
@@ -94,10 +94,15 @@ public class SignaturaPluginTest implements SignaturaPlugin {
 				PdfPKCS7 pk = af.verifySignature(name);
 				Certificate pkc[] = pk.getCertificates();
 				for (Certificate cert: pkc) {
-					InfoSignatura is = new InfoSignatura(documentsignat);
-					is.setInfoCertificat(getInfoCertificat(cert));
-					is.setValida(true);
-					resposta.add(is);
+					if (cert instanceof X509Certificate) {
+						InfoCertificat ic = getInfoCertificat((X509Certificate)cert);
+						if (ic != null) {
+							InfoSignatura is = new InfoSignatura(documentsignat);
+							is.setInfoCertificat(ic);
+							is.setValida(true);
+							resposta.add(is);
+						}
+					}
 				}
 			}
 			return resposta;
@@ -121,10 +126,14 @@ public class SignaturaPluginTest implements SignaturaPlugin {
 			Security.addProvider(new BouncyCastleProvider());
     }
 	@SuppressWarnings("unchecked")
-	private InfoCertificat getInfoCertificat(Certificate cert) throws Exception {
-		InfoCertificat resposta = new InfoCertificat();
+	private InfoCertificat getInfoCertificat(X509Certificate cert) throws Exception {
 		ASN1InputStream asn1is = new ASN1InputStream(cert.getEncoded());
 		org.bouncycastle.asn1.DERObject obj = asn1is.readObject();
+		/*byte[] value = cert.getExtensionValue(X509Extensions.BasicConstraints.toString());
+		BasicConstraints basicConstraints = new BasicConstraints(cert.getBasicConstraints());
+		if (basicConstraints.isCA())
+			return null;*/
+		InfoCertificat resposta = new InfoCertificat();
 		X509CertificateStructure certificate = new X509CertificateStructure((ASN1Sequence)obj);
 		X509Name name = certificate.getSubject();
 		resposta.setPersonaFisica(true);

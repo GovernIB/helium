@@ -22,6 +22,9 @@ public class AreaDao extends HibernateGenericDao<Area, Long> {
 		super(Area.class);
 	}
 
+	public List<Area> findAmbEntorn(Long entornId) {
+		return findByCriteria(Restrictions.eq("entorn.id", entornId));
+	}
 	public List<Area> findPagedAndOrderedAmbEntorn(
 			Long entornId,
 			String sort,
@@ -42,11 +45,11 @@ public class AreaDao extends HibernateGenericDao<Area, Long> {
 	public Area findAmbEntornICodi(
 			Long entornId,
 			String codi) {
-		List<Area> tipus = findByCriteria(
+		List<Area> arees = findByCriteria(
 				Restrictions.eq("entorn.id", entornId),
 				Restrictions.eq("codi", codi));
-		if (tipus.size() > 0)
-			return tipus.get(0);
+		if (arees.size() > 0)
+			return arees.get(0);
 		return null;
 	}
 	public List<Area> findLikeNom(Long entornId, String text) {

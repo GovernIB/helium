@@ -82,6 +82,7 @@ public class TascaService {
 	public static final String PREFIX_SIGNATURA = "H3l1um#signatura.";
 	public static final String PREFIX_DOCUMENT = "H3l1um#document.";
 	public static final String PREFIX_ADJUNT = "H3l1um#adjunt.";
+	public static final String PREFIX_TEXT_SUGGEST = "H3l1um#suggtext.";
 
 	public static final String DEFAULT_SECRET_KEY = "H3l1umKy";
 	public static final String DEFAULT_ENCRYPTION_SCHEME = "DES/ECB/PKCS5Padding";
@@ -165,7 +166,7 @@ public class TascaService {
 			usuariBo = auth.getName();
 		}
 		List<JbpmTask> tasques = jbpmDao.findPersonalTasks(usuariBo);
-		return tasquesFiltrades(entornId, tasques);
+		return tasquesFiltradesPerEntorn(entornId, tasques);
 	}
 	public List<TascaDto> findTasquesPersonalsFiltre(
 			Long entornId,
@@ -185,7 +186,9 @@ public class TascaService {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
 		}
+		//long t1 = System.currentTimeMillis();
 		List<JbpmTask> tasques = jbpmDao.findPersonalTasks(usuariBo);
+		//System.out.println("Consulta de tasques: " + (System.currentTimeMillis() - t1) + "ms");
 		return tasquesFiltradesValors(
 				entornId,
 				tasques, 
@@ -236,7 +239,7 @@ public class TascaService {
 			usuariBo = auth.getName();
 		}
 		List<JbpmTask> tasques = jbpmDao.findGroupTasks(usuariBo);
-		return tasquesFiltrades(entornId, tasques);
+		return tasquesFiltradesPerEntorn(entornId, tasques);
 	}
 	public List<TascaDto> findTasquesGrupFiltre(
 			Long entornId,
@@ -1044,15 +1047,19 @@ public class TascaService {
 				isDocumentsComplet(task),
 				isSignaturesComplet(task));
 	}
-	private List<TascaDto> tasquesFiltrades(
+	private List<TascaDto> tasquesFiltradesPerEntorn(
 			Long entornId,
 			List<JbpmTask> tasques) {
 		// Filtra les tasques per mostrar només les del entorn seleccionat
 		List<TascaDto> filtrades = new ArrayList<TascaDto>();
 		for (JbpmTask task: tasques) {
 			Long currentEntornId = entornPerTasca(task).getId();
-			if (currentEntornId != null && entornId.equals(currentEntornId))
-				filtrades.add(toTascaDto(task, null, false));
+			if (currentEntornId != null && entornId.equals(currentEntornId)) {
+				Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
+						task.getName(),
+						task.getProcessDefinitionId());
+				filtrades.add(dtoConverter.toTascaDtoPerOrdenacio(task, tasca, null, false));
+			}
 		}
 		return filtrades;
 	}
@@ -1071,14 +1078,41 @@ public class TascaService {
 			String ordre) {
 		// Filtra les tasques per mostrar només les del entorn seleccionat
 		List<TascaDto> filtrades = new ArrayList<TascaDto>();
+		/*long t1 = System.currentTimeMillis();
+		double mpre = 0;
+		long maxpre = 0;
+		long npre = 0;
+		double mpre2 = 0;
+		long maxpre2 = 0;
+		long npre2 = 0;
+		double mconv = 0;
+		long maxconv = 0;
+		long nconv = 0;
+		double mfilt = 0;
+		long maxfilt = 0;
+		long nfilt = 0;*/
 		for (JbpmTask task: tasques) {
+			//System.out.println(">>> Tasca: " + task.getId());
+			//long tt1 = System.currentTimeMillis();
 			Expedient expedientPerTasca = expedientDao.findAmbProcessInstanceId(
 					jbpmDao.getRootProcessInstance(task.getProcessInstanceId()).getId());
-			Long currentEntornId = expedientPerTasca.getEntorn().getId();
+			/*long tt1p = (System.currentTimeMillis() - tt1);
+			npre++; mpre += tt1p;
+			if (tt1p > maxpre) maxpre = tt1p;
+			long tt2 = System.currentTimeMillis();*/
 			Tasca t = tascaDao.findAmbActivityNameIProcessDefinitionId(
 					task.getName(),
 					task.getProcessDefinitionId());
-			TascaDto tascaDto = dtoConverter.toTascaDtoPerOrdenacio(task, t);
+			/*long tt2p = (System.currentTimeMillis() - tt2);
+			npre2++; mpre2 += tt2p;
+			if (tt2p > maxpre2) maxpre2 = tt2p;
+			long tt3 = System.currentTimeMillis();*/
+			TascaDto tascaDto = dtoConverter.toTascaDtoPerOrdenacio(task, t, expedientPerTasca, true);
+			/*long tt3p = (System.currentTimeMillis() - tt3);
+			nconv++; mconv += tt3p;
+			if (tt3p > maxconv) maxconv = tt3p;
+			long tt4 = System.currentTimeMillis();*/
+			Long currentEntornId = expedientPerTasca.getEntorn().getId();
 			if ((currentEntornId != null) && (entornId.equals(currentEntornId))) {
 				Boolean incloure = true;
 				if ((tasca != null) && (!tasca.equals(""))) {
@@ -1120,7 +1154,19 @@ public class TascaService {
 				if (incloure)
 					filtrades.add(tascaDto);
 			}
+			/*long tt4p = (System.currentTimeMillis() - tt4);
+			nfilt++; mfilt += tt4p;
+			if (tt4p > maxfilt) maxfilt = tt4p;*/
 		}
+		/*System.out.println("Filtre de tasques: " + (System.currentTimeMillis() - t1) + "ms");
+		System.out.println("Mitja PRE: " + (mpre / (double)npre) + "ms");
+		System.out.println("Max PRE: " + maxpre + "ms");
+		System.out.println("Mitja PRE2: " + (mpre2 / (double)npre2) + "ms");
+		System.out.println("Max PRE2: " + maxpre2 + "ms");
+		System.out.println("Mitja CONV: " + (mconv / (double)nconv) + "ms");
+		System.out.println("Max CONV: " + maxconv + "ms");
+		System.out.println("Mitja FILT: " + (mfilt / (double)nfilt) + "ms");
+		System.out.println("Max FILT: " + maxfilt + "ms");*/
 		final Integer col = Integer.parseInt((columna!=null) ? columna  :"0");
 		final Integer ord = Integer.parseInt((ordre!=null) ? ordre : "0");
 		Comparator<TascaDto> comparador = new Comparator<TascaDto>() {

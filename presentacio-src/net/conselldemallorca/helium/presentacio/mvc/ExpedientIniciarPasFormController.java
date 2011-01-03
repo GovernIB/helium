@@ -220,9 +220,16 @@ public class ExpedientIniciarPasFormController extends BaseController {
 								(String)request.getSession().getAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_NUMERO),
 								(String)request.getSession().getAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_TITOL),
 								null,
+								null,
+								false,
+								null,
+								null,
+								false,
 								valors,
 								null,
 								IniciadorTipus.INTERN,
+								null,
+								null,
 								null,
 								null);
 				        missatgeInfo(request, "L'expedient s'ha iniciat correctament");

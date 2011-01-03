@@ -57,7 +57,7 @@ public class HeliumExpressionAssignmentHandler implements AssignmentHandler {
 	public void assign(Assignable assignable, ExecutionContext executionContext) {
 
 		String expressio = getExpressio();
-		log.debug("Expresió a analitzar: '" + expressio + "'");
+		logger.debug("Expresió a analitzar: '" + expressio + "'");
 		String processInstanceId = new Long(executionContext.getProcessInstance().getId()).toString();
 		Long entornId = EntornActual.getEntornId();
 		if (entornId == null)
@@ -96,7 +96,7 @@ public class HeliumExpressionAssignmentHandler implements AssignmentHandler {
 
 
 	private Object resolPrimerTerme(Long entornId, String terme, ExecutionContext executionContext) {
-		log.debug("Analitzant primer terme: '" + terme + "'");
+		logger.debug("Analitzant primer terme: '" + terme + "'");
 		Object entitat = null;
 		if (terme.equalsIgnoreCase("previous")) {
 			//String userName = SecurityHelper.getAuthenticatedActorId();
@@ -132,7 +132,7 @@ public class HeliumExpressionAssignmentHandler implements AssignmentHandler {
 	}
 
 	private Object resolSeguentTerme(Long entornId, Object entitat, String terme, ExecutionContext executionContext) {
-		log.debug("Analitzant següent terme: '" + terme + "'");
+		logger.debug("Analitzant següent terme: '" + terme + "'");
 		if ((terme.startsWith("member(")) && (terme.endsWith(")")) ) {
 			String carrec = terme.substring(7, terme.length() - 1).trim();
 			Area a = (Area)entitat;
@@ -146,7 +146,10 @@ public class HeliumExpressionAssignmentHandler implements AssignmentHandler {
 	}
 
 	private Persona getPersonaAmbCodi(String codi) {
-		return DaoProxy.getInstance().getPluginPersonaDao().findAmbCodiPlugin(codi);
+		Persona p = DaoProxy.getInstance().getPluginPersonaDao().findAmbCodiPlugin(codi);
+		if (p == null)
+			logger.warn("No s'ha pogut trobar la persona amb el codi \"" + codi + "\"");
+		return p;
 	}
 
 	private Area getAreaAmbCodi(Long entornId, String codi) {
@@ -157,7 +160,9 @@ public class HeliumExpressionAssignmentHandler implements AssignmentHandler {
 		Area area = DaoProxy.getInstance().getAreaDao().findAmbEntornICodi(entornId, codi);
 		List<Persona> persones = new ArrayList<Persona>();
 		for (AreaMembre membre: area.getMembres()) {
-			persones.add(getPersonaAmbCodi(membre.getCodi()));
+			Persona p = getPersonaAmbCodi(membre.getCodi());
+			if (p != null)
+				persones.add(p);
 		}
 		if (personesAmbAreaRecursiu() && area.getFills().size() > 0) {
 			for (Area fill: area.getFills())
@@ -206,6 +211,6 @@ public class HeliumExpressionAssignmentHandler implements AssignmentHandler {
 		return "true".equalsIgnoreCase(esRecursiu);
 	}
 
-	private static final Log log = LogFactory.getLog(HeliumExpressionAssignmentHandler.class);
+	private static final Log logger = LogFactory.getLog(HeliumExpressionAssignmentHandler.class);
 
 }

@@ -1,6 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
@@ -16,7 +15,10 @@
 				<h4 class="titol-missatge">
 				${document.document.nom}&nbsp;&nbsp;
 				<c:if test="${not empty tasca.varsDocuments[document.document.codi]}">
-					<a href="<c:url value="/tasca/documentDescarregar.html"><c:param name="id" value="${tasca.id}"/><c:param name="codi" value="${document.document.codi}"/></c:url>"><img src="<c:url value="/img/page_white_put.png"/>" alt="Descarregar" title="Descarregar" border="0"/></a>
+					<c:set var="tascaActual" value="${tasca}" scope="request"/>
+					<c:set var="documentActual" value="${tasca.varsDocuments[document.document.codi]}" scope="request"/>
+					<c:set var="codiDocumentActual" value="${document.document.codi}" scope="request"/>
+					<c:import url="../common/iconesConsultaDocument.jsp"/>
 				</c:if>
 				</h4><br/>
 			</c:if>
@@ -31,6 +33,7 @@
 						<c:if test="${camp.readOnly}">
 							<c:set var="campTascaActual" value="${camp}" scope="request"/>
 							<c:import url="../common/campTasca.jsp"/>
+							<div style="clear:both"></div>
 						</c:if>
 					</c:forEach>
 				</c:if>

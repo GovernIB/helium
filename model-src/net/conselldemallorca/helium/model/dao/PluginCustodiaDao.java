@@ -65,6 +65,15 @@ public class PluginCustodiaDao {
 		}
 	}
 
+	public byte[] obtenirSignaturesAmbArxiu(String documentId) throws PluginException {
+		try {
+			return getCustodiaPlugin().getSignaturesAmbArxiu(documentId);
+		} catch (CustodiaPluginException ex) {
+			logger.error("Error al obtenir l'arxiu amb les signatures de la custòdia", ex);
+			throw new PluginException("Error al obtenir l'arxiu amb les signatures de la custòdia", ex);
+		}
+	}
+
 	public void esborrarSignatures(String documentId) throws PluginException {
 		try {
 			getCustodiaPlugin().deleteSignatures(documentId);

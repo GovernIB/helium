@@ -13,6 +13,7 @@ import java.util.Date;
 public class DadesDocument {
 
 	private String codi;
+	private String titol;
 	private Date data;
 	private String arxiuNom;
 	private byte[] arxiuContingut;
@@ -25,6 +26,12 @@ public class DadesDocument {
 	}
 	public void setCodi(String codi) {
 		this.codi = codi;
+	}
+	public String getTitol() {
+		return titol;
+	}
+	public void setTitol(String titol) {
+		this.titol = titol;
 	}
 	public Date getData() {
 		return data;

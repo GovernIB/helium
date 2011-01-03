@@ -79,6 +79,11 @@ public class Domini implements Serializable, GenericEntity<Long> {
 		this.codi = codi;
 		this.nom = nom;
 	}
+	public Domini(String codi, String nom, Entorn entorn) {
+		this.codi = codi;
+		this.nom = nom;
+		this.entorn = entorn;
+	}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.TABLE, generator="gen_domini")
