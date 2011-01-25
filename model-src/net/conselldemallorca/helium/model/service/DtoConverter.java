@@ -3,8 +3,10 @@
  */
 package net.conselldemallorca.helium.model.service;
 
+import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -62,6 +64,7 @@ import net.conselldemallorca.helium.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.util.GlobalProperties;
+import net.conselldemallorca.helium.util.PdfUtils;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
@@ -97,6 +100,8 @@ public class DtoConverter {
 	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
 	private PluginCustodiaDao pluginCustodiaDao;
 	private JbpmDao jbpmDao;
+
+	private PdfUtils pdfUtils;
 
 
 
@@ -410,7 +415,10 @@ public class DtoConverter {
 		return dto;
 	}
 
-	public DocumentDto toDocumentDto(Long documentStoreId, boolean ambContingut) {
+	public DocumentDto toDocumentDto(
+			Long documentStoreId,
+			boolean ambContingut,
+			boolean ambVista) {
 		if (documentStoreId != null) {
 			DocumentStore document = documentStoreDao.getById(documentStoreId, false);
 			if (document != null) {
@@ -442,6 +450,7 @@ public class DtoConverter {
 					}
 				}
 				if (ambContingut) {
+					// Posa el document original
 					if (document.getFont().equals(DocumentFont.INTERNA)) {
 						dto.setArxiuContingut(document.getArxiuContingut());
 					} else {
@@ -449,6 +458,7 @@ public class DtoConverter {
 								pluginGestioDocumentalDao.retrieveDocument(
 										document.getReferenciaFont()));
 					}
+					// Posa el document signat
 					if (document.isSignat() && isSignaturaFileAttached()) {
 						String arxiuNom = document.getArxiuNom();
 						int indexPunt = arxiuNom.indexOf(".");
@@ -462,6 +472,45 @@ public class DtoConverter {
 							dto.setSignatContingut(Base64.decodeBase64(signatura));
 						else
 							dto.setSignatContingut(signatura);
+					}
+					if (ambVista) {
+						// Posa la vista del document
+						if (document.isSignat() || document.isRegistrat()) {
+							String extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.extension");
+							if (extensioVista == null)
+								extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
+							String arxiuOriginalNom;
+							byte[] arxiuOriginalContingut;
+							if (document.isSignat()) {
+								arxiuOriginalNom = dto.getSignatNom();
+								arxiuOriginalContingut = dto.getSignatContingut();
+							} else {
+								arxiuOriginalNom = dto.getArxiuNom();
+								arxiuOriginalContingut = dto.getArxiuContingut();
+							}
+							dto.setVistaNom(dto.getArxiuNomSenseExtensio() + "." + extensioVista);
+							ByteArrayOutputStream vistaContingut = new ByteArrayOutputStream();
+							try {
+								String urlVerificacioSignatura = (String)GlobalProperties.getInstance().get("app.base.url") + "/signatura/verificar.html?id=" + documentStoreId;
+								DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+								String dataRegistre = df.format(document.getRegistreData());
+								getPdfUtils().estampar(
+										arxiuOriginalNom,
+										arxiuOriginalContingut,
+										false,
+										urlVerificacioSignatura,
+										document.isRegistrat(),
+										document.getRegistreNumero() + "/" + document.getRegistreAny(),
+										dataRegistre,
+										document.getRegistreOficinaNom(),
+										document.isRegistreEntrada(),
+										vistaContingut,
+										extensioVista);
+								dto.setVistaContingut(vistaContingut.toByteArray());
+							} catch (Exception ex) {
+								logger.error("No s'ha pogut generar la vista pel document '" + document.getCodiDocument() + "'", ex);
+							}
+						}
 					}
 				}
 				if (document.isRegistrat()) {
@@ -821,7 +870,7 @@ public class DtoConverter {
 			if (documentStoreId != null) {
 				resposta.put(
 						document.getDocument().getCodi(),
-						toDocumentDto(documentStoreId, false));
+						toDocumentDto(documentStoreId, false, false));
 			}
 		}
 		return resposta;
@@ -839,7 +888,7 @@ public class DtoConverter {
 				if (documentStoreId != null) {
 					resposta.put(
 							document.getCodi(),
-							toDocumentDto(documentStoreId, false));
+							toDocumentDto(documentStoreId, false, false));
 				}
 			}
 			// Afegeix els adjunts
@@ -848,7 +897,7 @@ public class DtoConverter {
 					Long documentStoreId = (Long)valors.get(var);
 					resposta.put(
 							var.substring(TascaService.PREFIX_ADJUNT.length()),
-							toDocumentDto(documentStoreId, false));
+							toDocumentDto(documentStoreId, false, false));
 				}
 			}
 		}
@@ -870,7 +919,7 @@ public class DtoConverter {
 							processInstanceId,
 							TascaService.PREFIX_DOCUMENT + signatura.getDocument().getCodi());
 				if (documentStoreId != null) {
-					DocumentDto dto = toDocumentDto(documentStoreId, false);
+					DocumentDto dto = toDocumentDto(documentStoreId, false, false);
 					if (dto != null) {
 						dto.setTokenSignatura(xifrarToken(taskId + "#" + documentStoreId.toString()));
 						Object signatEnTasca = jbpmDao.getTaskInstanceVariable(taskId, TascaService.PREFIX_SIGNATURA + dto.getDocumentCodi());
@@ -1114,12 +1163,14 @@ public class DtoConverter {
 		}
 	}
 
-	/*private boolean isOptimitzarConsultesDomini() {
-		return "true".equalsIgnoreCase((String)GlobalProperties.getInstance().get("app.optimitzar.consultes.domini"));
-	}*/
-
 	private boolean isSignaturaFileAttached() {
 		return "true".equalsIgnoreCase((String)GlobalProperties.getInstance().get("app.signatura.plugin.file.attached"));
+	}
+
+	private PdfUtils getPdfUtils() {
+		if (pdfUtils == null)
+			pdfUtils = new PdfUtils();
+		return pdfUtils;
 	}
 
 	private static final Log logger = LogFactory.getLog(DtoConverter.class);

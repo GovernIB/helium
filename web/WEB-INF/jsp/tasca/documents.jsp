@@ -126,7 +126,7 @@
 			</div>
 		</c:if>
 	</c:forEach>
-	
+
 	<p class="aclaracio">Els documents marcats amb <img src="<c:url value="/img/bullet_red.png"/>" alt="Document obligatori" title="Document obligatori" border="0"/> són obligatoris</p>
 
 	<br/><c:import url="../common/tramitacioTasca.jsp">

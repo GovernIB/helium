@@ -44,7 +44,7 @@ public class DocumentAdjuntarHandler extends AbstractHeliumActionHandler {
 				String processInstanceId = new Long(executionContext.getProcessInstance().getId()).toString();
 				String tit = (String)getValorOVariable(executionContext, titol, varTitol);
 				String adjuntTitol;
-				DocumentDto document = getExpedientService().getDocument(docStore.getId());
+				DocumentDto document = getExpedientService().getDocument(docStore.getId(), true, false);
 				if (isConcatenarTitol()) {
 					adjuntTitol = document.getDocumentNom() + " " + tit;
 				} else {

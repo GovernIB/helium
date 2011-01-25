@@ -127,7 +127,7 @@ public abstract class BasicActionHandler implements ActionHandler {
 			return null;
 		if (valor instanceof Long) {
 			Long id = (Long)valor;
-			DocumentDto document = getExpedientService().getDocument(id);
+			DocumentDto document = getExpedientService().getDocument(id, true, false);
 			if (document == null)
 				return null;
 			DocumentInfo resposta = new DocumentInfo();
@@ -298,6 +298,13 @@ public abstract class BasicActionHandler implements ActionHandler {
 			String text,
 			List<Long> attachments) {
 		try {
+			List<DocumentDto> documents = null;
+			if (attachments != null) {
+				documents = new ArrayList<DocumentDto>();
+				for (Long id: attachments) {
+					documents.add(getExpedientService().getDocument(id, true, false));
+				}
+			}
 			getMailDao().send(
 					GlobalProperties.getInstance().getProperty("app.correu.remitent"),
 					recipients,
@@ -305,7 +312,7 @@ public abstract class BasicActionHandler implements ActionHandler {
 					bccRecipients,
 					subject,
 					text,
-					attachments);
+					documents);
 		} catch (Exception ex) {
 			throw new JbpmException("No s'ha pogut enviar el missatge", ex);
 		}

@@ -9,8 +9,7 @@ import javax.mail.Message;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import net.conselldemallorca.helium.model.hibernate.DocumentStore;
-import net.conselldemallorca.helium.model.hibernate.DocumentStore.DocumentFont;
+import net.conselldemallorca.helium.model.dto.DocumentDto;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -27,8 +26,6 @@ import org.springframework.stereotype.Repository;
 public class MailDao {
 
 	private JavaMailSender mailSender;
-	private DocumentStoreDao documentStoreDao;
-	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
 
 
 
@@ -60,7 +57,7 @@ public class MailDao {
 			List<String> bccRecipients,
 			String subject,
 			String text,
-			List<Long> attachments) throws Exception {
+			List<DocumentDto> attachments) throws Exception {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         mimeMessage.setFrom(new InternetAddress(fromAddress));
 		if (recipients != null) {
@@ -87,17 +84,16 @@ public class MailDao {
 		mimeMessage.setSubject(subject);
 		if (attachments != null) {
 			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
-			for (Long documentStoreId: attachments) {
-				DocumentStore document = documentStoreDao.getById(documentStoreId, false);
-				ByteArrayResource contingut;
-				if (document.getFont().equals(DocumentFont.INTERNA)) {
-					contingut = new ByteArrayResource(
-							document.getArxiuContingut());
+			for (DocumentDto document: attachments) {
+				if (document.isSignat()) {
+					helper.addAttachment(
+							document.getSignatNom(),
+							new ByteArrayResource(document.getSignatContingut()));
 				} else {
-					contingut = new ByteArrayResource(
-							pluginGestioDocumentalDao.retrieveDocument(document.getReferenciaFont()));
+					helper.addAttachment(
+							document.getArxiuNom(),
+							new ByteArrayResource(document.getArxiuContingut()));
 				}
-				helper.addAttachment(document.getArxiuNom(), contingut);
 			}
 			helper.setText(text);
 		} else {
@@ -111,15 +107,6 @@ public class MailDao {
 	@Autowired
 	public void setMailSender(JavaMailSender mailSender) {
 		this.mailSender = mailSender;
-	}
-	@Autowired
-	public void setDocumentStoreDao(DocumentStoreDao documentStoreDao) {
-		this.documentStoreDao = documentStoreDao;
-	}
-	@Autowired
-	public void setPluginGestioDocumentalDao(
-			PluginGestioDocumentalDao pluginGestioDocumentalDao) {
-		this.pluginGestioDocumentalDao = pluginGestioDocumentalDao;
 	}
 
 }

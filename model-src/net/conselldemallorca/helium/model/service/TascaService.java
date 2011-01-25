@@ -275,9 +275,12 @@ public class TascaService {
 				ordre);
 	}
 	public TascaDto agafar(Long entornId, String taskId) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, false);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		jbpmDao.takeTaskInstance(taskId, auth.getName());
+		return agafar(entornId, auth.getName(), taskId);
+	}
+	public TascaDto agafar(Long entornId, String usuari, String taskId) {
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, false);
+		jbpmDao.takeTaskInstance(taskId, usuari);
 		TascaDto tasca = toTascaDto(task, null, true);
 		registreDao.crearRegistreIniciarTasca(
 				tasca.getExpedient().getId(),
@@ -704,7 +707,7 @@ public class TascaService {
 					PREFIX_DOCUMENT + codiVariable);
 		if (documentStoreId == null)
 			return null;
-		return dtoConverter.toDocumentDto(documentStoreId, true);
+		return dtoConverter.toDocumentDto(documentStoreId, true, false);
 	}
 
 	public DocumentDto getDocumentAmbToken(
@@ -714,7 +717,7 @@ public class TascaService {
 		String[] parts = tokenDesxifrat.split("#");
 		if (parts.length == 2) {
 			Long documentStoreId = Long.parseLong(parts[1]);
-			return dtoConverter.toDocumentDto(documentStoreId, ambContingut);
+			return dtoConverter.toDocumentDto(documentStoreId, ambContingut, false);
 		} else {
 			throw new IllegalArgumentsException("El format del token és incorrecte");
 		}
@@ -729,7 +732,7 @@ public class TascaService {
 			JbpmTask task = comprovarSeguretatTasca(entornId, parts[0], null, true);
 			TascaDto tascaDto = toTascaDto(task, null, false);
 			Long documentStoreId = Long.parseLong(parts[1]);
-			DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, true);
+			DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, false, false);
 			if (document != null) {
 				// Comprova que es tengui accés a signar el document
 				boolean trobat = false;

@@ -244,7 +244,7 @@ public class PluginService {
 	private void afegirDocumentCustodia(
 			Integer documentId,
 			Long documentStoreId) throws Exception {
-		DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, true);
+		DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, false, false);
 		if (document != null) {
 			DocumentStore docst = documentStoreDao.getById(documentStoreId, false);
 			JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(docst.getProcessInstanceId());

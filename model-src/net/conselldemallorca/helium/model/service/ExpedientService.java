@@ -591,8 +591,8 @@ public class ExpedientService {
 		}
 	}
 
-	public DocumentDto getDocument(Long documentStoreId) {
-		return dtoConverter.toDocumentDto(documentStoreId, true);
+	public DocumentDto getDocument(Long documentStoreId, boolean ambContingut, boolean ambVista) {
+		return dtoConverter.toDocumentDto(documentStoreId, ambContingut, ambVista);
 		
 	}
 	public Long guardarDocument(
@@ -901,7 +901,7 @@ public class ExpedientService {
 
 	public List<InfoSignatura> verificarSignatura(Long id) {
 		DocumentStore documentStore = documentStoreDao.getById(id, false);
-		DocumentDto document = dtoConverter.toDocumentDto(id, true);
+		DocumentDto document = dtoConverter.toDocumentDto(id, true, false);
 		if (pluginCustodiaDao.potObtenirInfoSignatures()) {
 			return pluginCustodiaDao.infoSignatures(
 					documentStore.getReferenciaCustodia());

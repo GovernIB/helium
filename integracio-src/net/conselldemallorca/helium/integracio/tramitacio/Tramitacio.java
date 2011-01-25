@@ -148,7 +148,7 @@ public class Tramitacio implements TramitacioService {
 			boolean agafada = false;
 			for (TascaDto tasca: tasques) {
 				if (tasca.getId().equals(tascaId)) {
-					tascaService.agafar(e.getId(), tascaId);
+					tascaService.agafar(e.getId(), usuari, tascaId);
 					agafada = true;
 					break;
 				}
