@@ -590,7 +590,7 @@ public class TascaController extends BaseController {
 			for (TascaDto tasca: tasques) {
 				boolean found = false;
 				for (TerminiIniciat termini: terminis) {
-					if (termini.getTaskInstanceId() == tasca.getId()) {
+					if (termini.getTaskInstanceId().equals(tasca.getId())) {
 						resposta.add(termini);
 						found = true;
 						break;

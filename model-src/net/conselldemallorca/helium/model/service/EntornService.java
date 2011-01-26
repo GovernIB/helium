@@ -225,6 +225,7 @@ public class EntornService {
 					carrec.getTractamentHome(),
 					carrec.getTractamentDona());
 			dto.setDescripcio(carrec.getDescripcio());
+			dto.setAreaCodi(carrec.getArea().getCodi());
 			carrecsDto.add(dto);
 		}
 		entornExportacio.setCarrecs(carrecsDto);
@@ -330,6 +331,7 @@ public class EntornService {
 					carrec.getTractamentDona(),
 					entorn);
 			nou.setDescripcio(carrec.getDescripcio());
+			nou.setArea(arees.get(carrec.getAreaCodi()));
 			carrecDao.saveOrUpdate(nou);
 		}
 		// Crea els dominis

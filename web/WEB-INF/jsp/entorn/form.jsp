@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
 
 <html>
 <head>
@@ -66,22 +67,6 @@ function confirmar(e) {
 				<c:param name="type" value="checkbox"/>
 				<c:param name="label">Actiu?</c:param>
 			</c:import>
-			<%--c:import url="../common/formElement.jsp">
-				<c:param name="property" value="responsable"/>
-				<c:param name="type" value="select"/>
-				<c:param name="label">Responsable</c:param>
-				<c:param name="items" value="persones"/>
-				<c:param name="itemLabel" value="nomSencer"/>
-				<c:param name="itemValue" value="id"/>
-				<c:param name="itemBuit" value="--- Sense responsable ---"/>
-			</c:import>
-			<c:import url="../common/formElement.jsp">
-				<c:param name="property" value="responsable"/>
-				<c:param name="type" value="suggest"/>
-				<c:param name="label">Responsable</c:param>
-				<c:param name="suggestUrl"><c:url value="/persona/suggest.html"/></c:param>
-				<c:param name="suggestText">${command.responsable.nomSencer}</c:param>
-			</c:import--%>
 		</div>
 		<c:choose>
 			<c:when test="${empty isAdmin || isAdmin}">
@@ -103,33 +88,44 @@ function confirmar(e) {
 
 	<p class="aclaracio">Els camps marcats amb <img src="<c:url value="/img/bullet_red.png"/>" alt="Camp obligatori" title="Camp obligatori" border="0"/> són obligatoris</p>
 
-	<br/>
-	<div class="missatgesGris">
-		<h3 class="titol-tab titol-delegacio">Importació de dades <img src="<c:url value="/img/magnifier_zoom_in.png"/>" alt="Mostrar/Ocultar" title="Mostrar/Ocultar" border="0" onclick="mostrarOcultar(this,'form-importar')"/></h3>
-		<div id="form-importar" style="display:none">
-			<form:form action="importar.html" cssClass="uniForm" enctype="multipart/form-data" commandName="commandImportacio" onsubmit="return confirmar(event)">
-				<input type="hidden" name="id" value="${command.id}"/>
-				<div class="inlineLabels">
-					<c:import url="../common/formElement.jsp">
-						<c:param name="property" value="arxiu"/>
-						<c:param name="type" value="file"/>
-						<c:param name="label">Arxiu exportat</c:param>
-					</c:import>
-					<c:import url="../common/formElement.jsp">
-						<c:param name="type" value="buttons"/>
-						<c:param name="values">submit</c:param>
-						<c:param name="titles">Importar</c:param>
-					</c:import>
+	<c:if test="${not empty command.id}">
+		<c:set var="mostrarExportacio" value="${false}"/>
+		<security:authorize ifAllGranted="ROLE_ADMIN">
+			<c:set var="mostrarExportacio" value="${true}"/>
+		</security:authorize>
+		<security:accesscontrollist domainObject="${entornActual}" hasPermission="16">
+			<c:set var="mostrarExportacio" value="${true}"/>
+		</security:accesscontrollist>
+		<c:if test="${mostrarExportacio}">
+			<br/>
+			<div class="missatgesGris">
+				<h3 class="titol-tab titol-delegacio">Importació de dades <img src="<c:url value="/img/magnifier_zoom_in.png"/>" alt="Mostrar/Ocultar" title="Mostrar/Ocultar" border="0" onclick="mostrarOcultar(this,'form-importar')"/></h3>
+				<div id="form-importar" style="display:none">
+					<form:form action="importar.html" cssClass="uniForm" enctype="multipart/form-data" commandName="commandImportacio" onsubmit="return confirmar(event)">
+						<input type="hidden" name="id" value="${command.id}"/>
+						<div class="inlineLabels">
+							<c:import url="../common/formElement.jsp">
+								<c:param name="property" value="arxiu"/>
+								<c:param name="type" value="file"/>
+								<c:param name="label">Arxiu exportat</c:param>
+							</c:import>
+							<c:import url="../common/formElement.jsp">
+								<c:param name="type" value="buttons"/>
+								<c:param name="values">submit</c:param>
+								<c:param name="titles">Importar</c:param>
+							</c:import>
+						</div>
+					</form:form>
 				</div>
-			</form:form>
-		</div>
-	</div>
-	<div class="missatgesGris">
-		<form action="<c:url value="/entorn/exportar.html"/>" method="post" style="display: inline">
-			<input type="hidden" name="id" value="${command.id}"/>
-			<button type="submit" class="submitButton">Exportar dades</button>
-		</form>
-	</div>
+			</div>
+			<div class="missatgesGris">
+				<form action="<c:url value="/entorn/exportar.html"/>" method="post" style="display: inline">
+					<input type="hidden" name="id" value="${command.id}"/>
+					<button type="submit" class="submitButton">Exportar dades</button>
+				</form>
+			</div>
+		</c:if>
+	</c:if>
 
 </body>
 </html>

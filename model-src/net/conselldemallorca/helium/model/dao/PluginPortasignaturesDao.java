@@ -6,7 +6,6 @@ import java.util.List;
 import net.conselldemallorca.helium.integracio.plugins.persones.Persona;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortasignaturesPlugin;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortasignaturesPluginException;
-import net.conselldemallorca.helium.model.dto.DocumentDto;
 import net.conselldemallorca.helium.model.exception.PluginException;
 import net.conselldemallorca.helium.model.hibernate.Expedient;
 import net.conselldemallorca.helium.model.hibernate.Portasignatures;
@@ -35,16 +34,18 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 
 	public Integer UploadDocument(
 			Persona persona,
-			DocumentDto documentDto,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			Integer tipusDocPortasignatures,
 			Expedient expedient,
 			String importancia,
 			Date dataLimit) throws Exception {
 		try {
 			return getPortasignaturesPlugin().UploadDocument(
 					persona,
-					documentDto.getArxiuNom(),
-					documentDto.getArxiuContingut(),
-					documentDto.getTipusDocPortasignatures(),
+					arxiuNom,
+					arxiuContingut,
+					tipusDocPortasignatures,
 					expedient.getTitol(),
 					importancia,
 					dataLimit);

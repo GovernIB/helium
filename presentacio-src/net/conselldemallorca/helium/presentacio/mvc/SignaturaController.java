@@ -10,13 +10,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import net.conselldemallorca.helium.integracio.plugins.signatura.applet.RespostaSignatura;
+import net.conselldemallorca.helium.model.dto.ArxiuDto;
 import net.conselldemallorca.helium.model.dto.DocumentDto;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
-import net.conselldemallorca.helium.model.service.DissenyService;
+import net.conselldemallorca.helium.model.service.DocumentService;
 import net.conselldemallorca.helium.model.service.ExpedientService;
 import net.conselldemallorca.helium.model.service.TascaService;
 import net.conselldemallorca.helium.presentacio.mvc.util.BaseController;
-import net.conselldemallorca.helium.util.GlobalProperties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,6 +40,7 @@ public class SignaturaController extends BaseController {
 
 	private TascaService tascaService;
 	private ExpedientService expedientService;
+	private DocumentService documentService;
 
 
 
@@ -47,61 +48,31 @@ public class SignaturaController extends BaseController {
 	public SignaturaController(
 			TascaService tascaService,
 			ExpedientService expedientService,
-			DissenyService dissenyService) {
+			DocumentService documentService) {
 		this.tascaService = tascaService;
 		this.expedientService = expedientService;
+		this.documentService = documentService;
 	}
 
-	@RequestMapping(value = {"/signatura/descarregarAmbToken", "/document/descarregarAmbToken"})
+	@RequestMapping(value = "/signatura/descarregarAmbToken")
 	public String documentAmbToken(
 			HttpServletRequest request,
 			@RequestParam(value = "token", required = true) String token,
-			@RequestParam(value = "noe", required = false) String noe,
+			@RequestParam(value = "noe", required = false) Boolean noe,
 			ModelMap model) {
-		DocumentDto document = tascaService.getDocumentAmbToken(token, true);
-		if (document != null) {
-			if (!document.isSignat()) {
-				String conversioActiu = (String)GlobalProperties.getInstance().get("app.conversio.signatura.actiu");
-				String extensio = (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
-				String estampaActiu = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.actiu");
-				String estampaPosX = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.posx");
-				String estampaPosY = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.posy");
-				String estampaRotation = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.rotation");
-				model.addAttribute(
-						ArxiuConvertirView.MODEL_ATTRIBUTE_FILENAME,
-						document.getArxiuNom());
-				model.addAttribute(
-						ArxiuConvertirView.MODEL_ATTRIBUTE_DATA,
-						document.getArxiuContingut());
-				boolean conversionEnabled = ("true".equalsIgnoreCase(conversioActiu));
-				model.addAttribute(
-						ArxiuConvertirView.MODEL_ATTRIBUTE_CONVERSIONENABLED,
-						conversionEnabled);
-				model.addAttribute(
-						ArxiuConvertirView.MODEL_ATTRIBUTE_OUTEXTENSION,
-						extensio);
-				if (noe == null && "true".equalsIgnoreCase(estampaActiu) && "pdf".equalsIgnoreCase(extensio)) {
-					model.addAttribute(
-							ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_MISSATGE,
-							(String)GlobalProperties.getInstance().get("app.base.url") + "/signatura/verificar.html?token=" + token);
-					model.addAttribute(
-							ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_POSX,
-							new Float(estampaPosX));
-					model.addAttribute(
-							ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_POSY,
-							new Float(estampaPosY));
-					model.addAttribute(
-							ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_ROTATION,
-							new Float(estampaRotation));
-				}
-				return "arxiuConvertirView";
-			} else {
-				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, document.getSignatNom());
-				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, document.getSignatContingut());
-				return "arxiuView";
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			boolean estampar = (noe != null) ? !noe.booleanValue() : true;
+			ArxiuDto arxiu = documentService.arxiuDocumentPerSignar(token, estampar);
+			if (arxiu != null) {
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
 			}
+			return "arxiuView";
+		} else {
+			missatgeError(request, "No hi ha cap entorn seleccionat");
+			return "redirect:/index.html";
 		}
-		return null;
 	}
 
 	@RequestMapping(value = "/signatura/signarAmbTokenCaib", method = RequestMethod.POST)

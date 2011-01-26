@@ -9,7 +9,7 @@ import javax.mail.Message;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import net.conselldemallorca.helium.model.dto.DocumentDto;
+import net.conselldemallorca.helium.model.dto.ArxiuDto;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -57,7 +57,7 @@ public class MailDao {
 			List<String> bccRecipients,
 			String subject,
 			String text,
-			List<DocumentDto> attachments) throws Exception {
+			List<ArxiuDto> attachments) throws Exception {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         mimeMessage.setFrom(new InternetAddress(fromAddress));
 		if (recipients != null) {
@@ -84,16 +84,10 @@ public class MailDao {
 		mimeMessage.setSubject(subject);
 		if (attachments != null) {
 			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
-			for (DocumentDto document: attachments) {
-				if (document.isSignat()) {
-					helper.addAttachment(
-							document.getSignatNom(),
-							new ByteArrayResource(document.getSignatContingut()));
-				} else {
-					helper.addAttachment(
-							document.getArxiuNom(),
-							new ByteArrayResource(document.getArxiuContingut()));
-				}
+			for (ArxiuDto arxiu: attachments) {
+				helper.addAttachment(
+						arxiu.getNom(),
+						new ByteArrayResource(arxiu.getContingut()));
 			}
 			helper.setText(text);
 		} else {

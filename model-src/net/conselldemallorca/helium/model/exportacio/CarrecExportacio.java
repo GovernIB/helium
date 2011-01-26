@@ -20,6 +20,7 @@ public class CarrecExportacio implements Serializable {
 	private String tractamentHome;
 	private String tractamentDona;
 	private String descripcio;
+	private String areaCodi;
 
 
 
@@ -71,6 +72,12 @@ public class CarrecExportacio implements Serializable {
 	}
 	public void setDescripcio(String descripcio) {
 		this.descripcio = descripcio;
+	}
+	public String getAreaCodi() {
+		return areaCodi;
+	}
+	public void setAreaCodi(String areaCodi) {
+		this.areaCodi = areaCodi;
 	}
 
 

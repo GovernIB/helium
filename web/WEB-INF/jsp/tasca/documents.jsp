@@ -84,7 +84,7 @@
 							<a href="<c:url value="/tasca/documentGenerar.html"><c:param name="id" value="${tasca.id}"/><c:param name="documentId" value="${document.document.id}"/></c:url>" onclick="return generarDocumentAmbPlantilla(this, 'documentCommand_${document.document.codi}')"><img src="<c:url value="/img/page_white_star.png"/>" alt="Generar" title="Generar" border="0"/></a>
 						</c:if>
 						<c:if test="${not empty variableDoc}">
-							<a href="<c:url value="/tasca/documentDescarregar.html"><c:param name="id" value="${tasca.id}"/><c:param name="codi" value="${document.document.codi}"/></c:url>"><img src="<c:url value="/img/page_white_put.png"/>" alt="Descarregar" title="Descarregar" border="0"/></a>
+							<a href="<c:url value="/document/arxiuMostrar.html"><c:param name="id" value="${variableDoc.id}"/></c:url>"><img src="<c:url value="/img/page_white_put.png"/>" alt="Descarregar" title="Descarregar" border="0"/></a>
 							<c:if test="${not document.readOnly}">
 								<a href="<c:url value="/tasca/documentEsborrar.html"><c:param name="id" value="${tasca.id}"/><c:param name="codi" value="${document.document.codi}"/></c:url>"><img src="<c:url value="/img/cross.png"/>" alt="Esborrar" title="Esborrar" border="0"/></a>
 							</c:if>

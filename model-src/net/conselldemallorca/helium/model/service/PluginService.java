@@ -99,29 +99,30 @@ public class PluginService {
 
 	public void enviarPortasignatures(
 			Persona persona,
-			DocumentDto documentDto,
+			Long documentStoreId,
 			Expedient expedient,
 			String importancia,
 			Date dataLimit,
 			Long tokenId,
 			String transicioOK,
 			String transicioKO) throws Exception {
-		
 		try {
+			DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, true, true, true);
 			Integer doc = pluginPortasignaturesDao.UploadDocument(
 							persona,
-							documentDto,
+							document.getVistaNom(),
+							document.getVistaContingut(),
+							document.getTipusDocPortasignatures(),
 							expedient,
 							importancia,
 							dataLimit);
-			
 			Calendar cal = Calendar.getInstance();
 			Portasignatures portasignatures = new Portasignatures();
 			portasignatures.setDocumentId(doc);
 			portasignatures.setTokenId(tokenId);
 			portasignatures.setDataEnviat(cal.getTime());
 			portasignatures.setEstat(TipusEstat.PENDENT);
-			portasignatures.setDocumentStoreId(documentDto.getId());
+			portasignatures.setDocumentStoreId(documentStoreId);
 			portasignatures.setTransicioOK(transicioOK);
 			portasignatures.setTransicioKO(transicioKO);
 			pluginPortasignaturesDao.saveOrUpdate(portasignatures);
@@ -244,7 +245,7 @@ public class PluginService {
 	private void afegirDocumentCustodia(
 			Integer documentId,
 			Long documentStoreId) throws Exception {
-		DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, false, false);
+		DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, false, false, false);
 		if (document != null) {
 			DocumentStore docst = documentStoreDao.getById(documentStoreId, false);
 			JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(docst.getProcessInstanceId());

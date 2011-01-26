@@ -233,11 +233,11 @@ public class ExpedientService {
 		if (expedientTipus.getTeNumero()) {
 			if (numero != null && numero.length() > 0)
 				expedient.setNumero(numero);
-			processarNumeroExpedient(
-					expedientTipus,
-					expedient.getNumero(),
-					expedient.getNumeroDefault());
 		}
+		processarNumeroExpedient(
+				expedientTipus,
+				expedient.getNumero(),
+				expedient.getNumeroDefault());
 		if (expedientDao.findAmbEntornTipusINumero(entornId, expedientTipusId, expedient.getNumero()) != null) {
 			throw new ExpedientRepetitException("Ja existeix un altre expedient amb el mateix número (" + expedient.getNumero() + ")");
 		}
@@ -592,7 +592,7 @@ public class ExpedientService {
 	}
 
 	public DocumentDto getDocument(Long documentStoreId, boolean ambContingut, boolean ambVista) {
-		return dtoConverter.toDocumentDto(documentStoreId, ambContingut, ambVista);
+		return dtoConverter.toDocumentDto(documentStoreId, ambContingut, ambVista, false);
 		
 	}
 	public Long guardarDocument(
@@ -901,7 +901,7 @@ public class ExpedientService {
 
 	public List<InfoSignatura> verificarSignatura(Long id) {
 		DocumentStore documentStore = documentStoreDao.getById(id, false);
-		DocumentDto document = dtoConverter.toDocumentDto(id, true, false);
+		DocumentDto document = dtoConverter.toDocumentDto(id, true, false, false);
 		if (pluginCustodiaDao.potObtenirInfoSignatures()) {
 			return pluginCustodiaDao.infoSignatures(
 					documentStore.getReferenciaCustodia());

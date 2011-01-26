@@ -28,6 +28,7 @@ import net.conselldemallorca.helium.model.dao.DominiDao;
 import net.conselldemallorca.helium.model.dao.EntornDao;
 import net.conselldemallorca.helium.model.dao.MailDao;
 import net.conselldemallorca.helium.model.dao.PluginRegistreDao;
+import net.conselldemallorca.helium.model.dto.ArxiuDto;
 import net.conselldemallorca.helium.model.dto.DocumentDto;
 import net.conselldemallorca.helium.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.model.dto.InstanciaProcesDto;
@@ -39,6 +40,7 @@ import net.conselldemallorca.helium.model.hibernate.Domini;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
 import net.conselldemallorca.helium.model.hibernate.Expedient;
 import net.conselldemallorca.helium.model.service.DissenyService;
+import net.conselldemallorca.helium.model.service.DocumentService;
 import net.conselldemallorca.helium.model.service.ExpedientService;
 import net.conselldemallorca.helium.model.service.ServiceProxy;
 import net.conselldemallorca.helium.model.service.TascaService;
@@ -298,11 +300,11 @@ public abstract class BasicActionHandler implements ActionHandler {
 			String text,
 			List<Long> attachments) {
 		try {
-			List<DocumentDto> documents = null;
+			List<ArxiuDto> documents = null;
 			if (attachments != null) {
-				documents = new ArrayList<DocumentDto>();
+				documents = new ArrayList<ArxiuDto>();
 				for (Long id: attachments) {
-					documents.add(getExpedientService().getDocument(id, true, false));
+					documents.add(getDocumentService().arxiuDocumentPerMostrar(id));
 				}
 			}
 			getMailDao().send(
@@ -496,6 +498,9 @@ public abstract class BasicActionHandler implements ActionHandler {
 	}
 	private ExpedientService getExpedientService() {
 		return ServiceProxy.getInstance().getExpedientService();
+	}
+	private DocumentService getDocumentService() {
+		return ServiceProxy.getInstance().getDocumentService();
 	}
 	private DissenyService getDissenyService() {
 		return ServiceProxy.getInstance().getDissenyService();
