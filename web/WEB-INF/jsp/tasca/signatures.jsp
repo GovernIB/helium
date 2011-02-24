@@ -66,11 +66,9 @@ var defaultBuild = "${globalProperties['app.signatura.afirma.default.build']}";
 function signarAFirma(form, token) {
 	initialize();
 	configuraFirma();
-	clienteFirma.setFileUri("${globalProperties['app.base.url']}/signatura/descarregarAmbToken.html?token=" + escape(token));
+	clienteFirma.setFileUri("${globalProperties['app.base.url']}/document/arxiuPerSignar.html?token=" + escape(token));
 	firmar();
 	if (!clienteFirma.isError()) {
-		//alert(clienteFirma.getSignatureBase64Encoded());
-		//return false;
 		form.data.value = clienteFirma.getSignatureBase64Encoded();
 		return true;
 	} else {

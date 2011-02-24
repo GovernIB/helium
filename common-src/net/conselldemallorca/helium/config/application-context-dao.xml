@@ -12,10 +12,10 @@
 
 	<context:component-scan base-package="net.conselldemallorca.helium.model.dao"/>
 
-	<bean name="sistraDao" class="net.conselldemallorca.helium.model.dao.SistraDao">
-		<property name="bantelBackofficeFacade" ref="sistraBantelClient" />
-		<property name="zonaperBackofficeFacade" ref="sistraZonaperClient" />
-	</bean>
+	<!--bean name="sistraDao" class="net.conselldemallorca.helium.model.dao.SistraDao">
+		<property name="v1BantelBackofficeFacade" ref="v1SistraBantelClient" />
+		<property name="v1ZonaperBackofficeFacade" ref="v1SistraZonaperClient" />
+	</bean-->
 
 	<bean name="aclServiceDao" class="net.conselldemallorca.helium.security.acl.AclServiceDao">
 		<constructor-arg ref="aclService"/>

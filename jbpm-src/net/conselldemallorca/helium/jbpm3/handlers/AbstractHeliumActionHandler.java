@@ -10,6 +10,7 @@ import net.conselldemallorca.helium.integracio.plugins.persones.Persona;
 import net.conselldemallorca.helium.model.dao.DaoProxy;
 import net.conselldemallorca.helium.model.dao.DocumentStoreDao;
 import net.conselldemallorca.helium.model.dao.PluginRegistreDao;
+import net.conselldemallorca.helium.model.dao.PluginTramitacioDao;
 import net.conselldemallorca.helium.model.dao.SistraDao;
 import net.conselldemallorca.helium.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.model.dto.ExpedientDto;
@@ -88,8 +89,11 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 	SistraDao getSistraService() {
 		return DaoProxy.getInstance().getSistraDao();
 	}
-	PluginRegistreDao getPluginRegistreService() {
+	PluginRegistreDao getPluginRegistreDao() {
 		return DaoProxy.getInstance().getPluginRegistreDao();
+	}
+	PluginTramitacioDao getPluginTramitacioDao() {
+		return DaoProxy.getInstance().getPluginTramitacioDao();
 	}
 	DocumentStoreDao getDocumentStoreDao() {
 		return DaoProxy.getInstance().getDocumentStoreDao();

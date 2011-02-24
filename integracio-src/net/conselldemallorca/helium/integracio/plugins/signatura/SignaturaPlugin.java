@@ -3,7 +3,6 @@
  */
 package net.conselldemallorca.helium.integracio.plugins.signatura;
 
-import java.util.List;
 
 
 /**
@@ -14,11 +13,9 @@ import java.util.List;
  */
 public interface SignaturaPlugin {
 
-	public InfoSignatura verificarSignatura(
+	public RespostaValidacioSignatura verificarSignatura(
 			byte[] document,
-			byte[] signatura) throws SignaturaPluginException;
-
-	public List<InfoSignatura> verificarSignatura(
-			byte[] documentsignat) throws SignaturaPluginException;
+			byte[] signatura,
+			boolean obtenirDadesCertificat) throws SignaturaPluginException;
 
 }

@@ -17,6 +17,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
 
 import net.conselldemallorca.helium.integracio.domini.FilaResultat;
+import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
@@ -30,6 +31,7 @@ import net.conselldemallorca.helium.model.dao.LuceneDao;
 import net.conselldemallorca.helium.model.dao.PlantillaDocumentDao;
 import net.conselldemallorca.helium.model.dao.PluginCustodiaDao;
 import net.conselldemallorca.helium.model.dao.PluginGestioDocumentalDao;
+import net.conselldemallorca.helium.model.dao.PluginSignaturaDao;
 import net.conselldemallorca.helium.model.dao.RegistreDao;
 import net.conselldemallorca.helium.model.dao.TascaDao;
 import net.conselldemallorca.helium.model.dto.DocumentDto;
@@ -95,6 +97,7 @@ public class TascaService {
 	private JbpmDao jbpmDao;
 	private DocumentStoreDao documentStoreDao;
 	private PlantillaDocumentDao plantillaDocumentDao;
+	private PluginSignaturaDao pluginSignaturaDao;
 	private PluginCustodiaDao pluginCustodiaDao;
 	private DtoConverter dtoConverter;
 	private LuceneDao luceneDao;
@@ -722,7 +725,7 @@ public class TascaService {
 			throw new IllegalArgumentsException("El format del token és incorrecte");
 		}
 	}
-	public void signarDocumentAmbToken(
+	public boolean signarDocumentAmbToken(
 			Long entornId,
 			String token,
 			byte[] signatura) {
@@ -732,7 +735,7 @@ public class TascaService {
 			JbpmTask task = comprovarSeguretatTasca(entornId, parts[0], null, true);
 			TascaDto tascaDto = toTascaDto(task, null, false);
 			Long documentStoreId = Long.parseLong(parts[1]);
-			DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, false, false, false);
+			DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, true, true, true);
 			if (document != null) {
 				// Comprova que es tengui accés a signar el document
 				boolean trobat = false;
@@ -743,6 +746,7 @@ public class TascaService {
 					}
 				}
 				if (trobat) {
+					boolean custodiat = false;
 					DocumentStore docst = documentStoreDao.getById(documentStoreId, false);
 					JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(docst.getProcessInstanceId());
 					Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
@@ -755,26 +759,38 @@ public class TascaService {
 									nomArxiu,
 									document.getCustodiaCodi(),
 									signatura);
+							custodiat = true;
 						} else {
-							// TODO Comprovar validesa
-							referenciaCustodia = pluginCustodiaDao.afegirSignatura(
-									docst.getId().toString(),
-									nomArxiu,
-									document.getCustodiaCodi(),
-									signatura);
+							RespostaValidacioSignatura resposta = pluginSignaturaDao.verificarSignatura(
+									document.getVistaContingut(),
+									signatura,
+									false);
+							if (resposta.isEstatOk()) {
+								referenciaCustodia = pluginCustodiaDao.afegirSignatura(
+										docst.getId().toString(),
+										nomArxiu,
+										document.getCustodiaCodi(),
+										signatura);
+								custodiat = true;
+							}
 						}
 						docst.setReferenciaCustodia(referenciaCustodia);
 					}
-					docst.setSignat(true);
-					registreDao.crearRegistreSignarDocument(
-							expedient.getId(),
-							docst.getProcessInstanceId(),
-							SecurityContextHolder.getContext().getAuthentication().getName(),
-							document.getDocumentCodi());
-					jbpmDao.setTaskInstanceVariable(
-							parts[0],
-							PREFIX_SIGNATURA + document.getDocumentCodi(),
-							documentStoreId);
+					if (custodiat) {
+						docst.setSignat(true);
+						registreDao.crearRegistreSignarDocument(
+								expedient.getId(),
+								docst.getProcessInstanceId(),
+								SecurityContextHolder.getContext().getAuthentication().getName(),
+								document.getDocumentCodi());
+						jbpmDao.setTaskInstanceVariable(
+								parts[0],
+								PREFIX_SIGNATURA + document.getDocumentCodi(),
+								documentStoreId);
+					}
+					return custodiat;
+				} else {
+					throw new IllegalStateException("Aquest document no està disponible per signar");
 				}
 			} else {
 				throw new IllegalStateException("Aquest document no està disponible per signar");
@@ -992,6 +1008,10 @@ public class TascaService {
 	@Autowired
 	public void setPluginCustodiaDao(PluginCustodiaDao pluginCustodiaDao) {
 		this.pluginCustodiaDao = pluginCustodiaDao;
+	}
+	@Autowired
+	public void setPluginSignaturaDao(PluginSignaturaDao pluginSignaturaDao) {
+		this.pluginSignaturaDao = pluginSignaturaDao;
 	}
 	@Autowired
 	public void setDtoConverter(DtoConverter dtoConverter) {

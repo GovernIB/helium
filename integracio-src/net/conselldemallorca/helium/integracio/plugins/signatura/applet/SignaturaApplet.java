@@ -276,7 +276,7 @@ public abstract class SignaturaApplet extends Applet {
 
 	private String getSourceUrl() throws Exception {
 		return getBaseUrl() +
-				"/signatura/descarregarAmbToken.html?token=" +
+				"/document/arxiuPerSignar.html?token=" +
 				URLEncoder.encode(getParameter("token"), "UTF-8");
 	}
 	private String getTargetUrl() {

@@ -225,6 +225,7 @@ public class EntornService {
 					carrec.getTractamentHome(),
 					carrec.getTractamentDona());
 			dto.setDescripcio(carrec.getDescripcio());
+			//System.out.println(">>> Area pel carrec " + carrec.getCodi() + ": " + carrec.getArea().getCodi());
 			dto.setAreaCodi(carrec.getArea().getCodi());
 			carrecsDto.add(dto);
 		}
@@ -295,51 +296,85 @@ public class EntornService {
 		// Crea els tipus d'area
 		Map<String, AreaTipus> areesTipus = new HashMap<String, AreaTipus>();
 		for (AreaTipusExportacio areaTipus: exportacio.getAreesTipus()) {
-			AreaTipus nou = new AreaTipus(
-					areaTipus.getCodi(),
-					areaTipus.getNom(),
-					entorn);
-			nou.setDescripcio(areaTipus.getDescripcio());
-			areaTipusDao.saveOrUpdate(nou);
-			areesTipus.put(areaTipus.getCodi(), nou);
+			AreaTipus nova = areaTipusDao.findAmbEntornICodi(
+					entornId,
+					areaTipus.getCodi());
+			if (nova == null) {
+				nova = new AreaTipus(
+						areaTipus.getCodi(),
+						areaTipus.getNom(),
+						entorn);
+			} else {
+				nova.setNom(areaTipus.getNom());
+			}
+			nova.setDescripcio(areaTipus.getDescripcio());
+			areaTipusDao.saveOrUpdate(nova);
+			areesTipus.put(areaTipus.getCodi(), nova);
 		}
 		// Crea les àrees
 		Map<String, Area> arees = new HashMap<String, Area>();
 		for (AreaExportacio area: exportacio.getArees()) {
-			Area nova = new Area(
-					area.getCodi(),
-					area.getNom(),
-					entorn);
+			Area nova = areaDao.findAmbEntornICodi(
+					entornId,
+					area.getCodi());
+			if (nova == null) {
+				nova = new Area(
+						area.getCodi(),
+						area.getNom(),
+						entorn);
+			} else {
+				nova.setNom(area.getNom());
+			}
 			nova.setDescripcio(area.getDescripcio());
 			nova.setTipus(areesTipus.get(area.getTipus()));
+			areaDao.saveOrUpdate(nova);
 			arees.put(area.getCodi(), nova);
 		}
 		// Actualitza les arees pare
 		for (AreaExportacio area: exportacio.getArees()) {
 			Area nova = arees.get(area.getCodi());
-			if (area.getPare() != null)
+			if (area.getPare() != null) {
 				nova.setPare(arees.get(area.getPare()));
-			areaDao.saveOrUpdate(nova);
+			} else {
+				nova.setPare(null);
+			}
 		}
 		// Crea els càrrecs
 		for (CarrecExportacio carrec: exportacio.getCarrecs()) {
-			Carrec nou = new Carrec(
-					carrec.getCodi(),
-					carrec.getNomHome(),
-					carrec.getNomDona(),
-					carrec.getTractamentHome(),
-					carrec.getTractamentDona(),
-					entorn);
+			Carrec nou = carrecDao.findAmbEntornICodi(
+					entornId,
+					carrec.getCodi());
+			if (nou == null) {
+				nou = new Carrec(
+						carrec.getCodi(),
+						carrec.getNomHome(),
+						carrec.getNomDona(),
+						carrec.getTractamentHome(),
+						carrec.getTractamentDona(),
+						entorn);
+			} else {
+				nou.setNomHome(carrec.getNomHome());
+				nou.setNomDona(carrec.getNomDona());
+				nou.setTractamentHome(carrec.getTractamentHome());
+				nou.setTractamentDona(carrec.getTractamentDona());
+			}
 			nou.setDescripcio(carrec.getDescripcio());
 			nou.setArea(arees.get(carrec.getAreaCodi()));
 			carrecDao.saveOrUpdate(nou);
 		}
 		// Crea els dominis
 		for (DominiExportacio domini: exportacio.getDominis()) {
-			Domini nou = new Domini(
-					domini.getCodi(),
-					domini.getNom(),
-					entorn);
+			Domini nou = dominiDao.findAmbEntornICodi(
+					entornId,
+					domini.getCodi());
+			if (nou == null) {
+				nou = new Domini(
+						domini.getCodi(),
+						domini.getNom(),
+						entorn);
+			} else {
+				nou.setNom(domini.getNom());
+			}
 			nou.setDescripcio(domini.getDescripcio());
 			nou.setTipus(TipusDomini.valueOf(domini.getTipus()));
 			nou.setCacheSegons(domini.getCacheSegons());
@@ -350,19 +385,33 @@ public class EntornService {
 		}
 		// Crea les enumeracions
 		for (EnumeracioExportacio enumeracio: exportacio.getEnumeracions()) {
-			Enumeracio nova = new Enumeracio(
-					entorn,
-					enumeracio.getCodi(),
-					enumeracio.getNom());
+			Enumeracio nova = enumeracioDao.findAmbEntornICodi(
+					entornId,
+					enumeracio.getCodi());
+			if (nova == null) {
+				nova = new Enumeracio(
+						entorn,
+						enumeracio.getCodi(),
+						enumeracio.getNom());
+			} else {
+				nova.setNom(enumeracio.getNom());
+			}
 			nova.setValors(enumeracio.getValors());
 			enumeracioDao.saveOrUpdate(nova);
 		}
 		// Crea els tipus d'expedient
 		for (ExpedientTipusExportacio expedientTipus: exportacio.getExpedientsTipus()) {
-			ExpedientTipus nou = new ExpedientTipus(
-					expedientTipus.getCodi(),
-					expedientTipus.getNom(),
-					entorn);
+			ExpedientTipus nou = expedientTipusDao.findAmbEntornICodi(
+					entornId, 
+					expedientTipus.getCodi());
+			if (nou == null) {
+				nou = new ExpedientTipus(
+						expedientTipus.getCodi(),
+						expedientTipus.getNom(),
+						entorn);
+			} else {
+				nou.setNom(expedientTipus.getNom());
+			}
 			nou.setTeNumero(expedientTipus.getTeNumero());
 			nou.setTeTitol(expedientTipus.getTeTitol());
 			nou.setDemanaNumero(expedientTipus.getDemanaNumero());
@@ -378,10 +427,20 @@ public class EntornService {
 			nou.setFormextContrasenya(expedientTipus.getFormextContrasenya());
 			expedientTipusDao.saveOrUpdate(nou);
 			for (EstatExportacio estat: expedientTipus.getEstats()) {
-				Estat enou = new Estat(
-						nou,
-						estat.getCodi(),
-						estat.getNom());
+				Estat enou = null;
+				if (nou.getId() != null) {
+					enou = estatDao.findAmbExpedientTipusICodi(
+						nou.getId(),
+						estat.getCodi());
+				}
+				if (enou == null) {
+					enou = new Estat(
+							nou,
+							estat.getCodi(),
+							estat.getNom());
+				} else {
+					enou.setNom(estat.getNom());
+				}
 				enou.setOrdre(estat.getOrdre());
 				estatDao.saveOrUpdate(enou);
 			}

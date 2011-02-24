@@ -5,7 +5,7 @@ package net.conselldemallorca.helium.integracio.plugins.custodia;
 
 import java.util.List;
 
-import net.conselldemallorca.helium.integracio.plugins.signatura.InfoSignatura;
+import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 
 /**
  * Interfície del plugin de custòdia documental
@@ -58,7 +58,7 @@ public interface CustodiaPlugin {
 	 * 
 	 * @param id
 	 */
-	public List<InfoSignatura> infoSignatures(String id) throws CustodiaPluginException;
+	public List<RespostaValidacioSignatura> dadesValidacioSignatura(String id) throws CustodiaPluginException;
 
 	/**
 	 * Indica si la implementació del plugin és capaç de retornar informació

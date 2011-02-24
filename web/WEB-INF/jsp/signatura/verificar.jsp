@@ -17,7 +17,7 @@
 	<c:set var="validesAll" value="${true}"/>
 	<c:set var="classeDiv" value="missatgesDocumentGris"/>
 	<c:forEach var="signatura" items="${signatures}">
-		<c:if test="${not signatura.valida}"><c:set var="validesAll" value="${false}"/><c:set var="classeDiv" value="missatgesDocumentVermell"/></c:if>
+		<c:if test="${not signatura.estatOk}"><c:set var="validesAll" value="${false}"/><c:set var="classeDiv" value="missatgesDocumentVermell"/></c:if>
 	</c:forEach>
 	<c:if test="${not validesAll}">
 		<div id="errors" class="missatgesError">
@@ -49,22 +49,22 @@
 	</div>
 
 	<c:forEach var="signatura" items="${signatures}" varStatus="status">
-		<div class="<c:choose><c:when test="${signatura.valida}">missatgesDocumentGris</c:when><c:otherwise>missatgesDocumentVermell</c:otherwise></c:choose>">
+		<div class="<c:choose><c:when test="${signatura.estatOk}">missatgesDocumentGris</c:when><c:otherwise>missatgesDocumentVermell</c:otherwise></c:choose>">
 			<h4 class="titol-missatge">
 				<c:choose>
-					<c:when test="${signatura.valida}"><img src="<c:url value="/img/tick.png"/>" alt="Signatura vàlida" title="Signatura vàlida" border="0"/></c:when>
+					<c:when test="${signatura.estatOk}"><img src="<c:url value="/img/tick.png"/>" alt="Signatura vàlida" title="Signatura vàlida" border="0"/></c:when>
 					<c:otherwise><img src="<c:url value="/img/exclamation.png"/>" alt="Signatura NO vàlida" title="Signatura NO vàlida" border="0"/></c:otherwise>
 				</c:choose>
-				Signatari ${status.index + 1}: ${signatura.infoCertificat.fullName}
+				Signatari ${status.index + 1}: ${signatura.dadesCertificat[0].nombreCompletoResponsable}
 			</h4>
 			<dl class="form-info">
-				<dt>NIF:</dt><dd>${signatura.infoCertificat.nif}</dd>
-				<c:if test="${not globalProperties['app.signatura.plugin.file.attached']}">
+				<dt>NIF:</dt><dd>${signatura.dadesCertificat[0].nifResponsable}</dd>
+				<%--c:if test="${not globalProperties['app.signatura.plugin.file.attached']}">
 					<c:set var="signaturaBytes" value="${signatura.signatura}"/>
 					<dt>Signatura:</dt><dd>
 						<form><textarea rows="10" cols="64"><%=((pageContext.getAttribute("signaturaBytes") != null) ? new String((byte[])pageContext.getAttribute("signaturaBytes")) : "")%></textarea></form>
 					</dd>
-				</c:if>
+				</c:if--%>
 			</dl><br/>
 		</div>
 	</c:forEach>

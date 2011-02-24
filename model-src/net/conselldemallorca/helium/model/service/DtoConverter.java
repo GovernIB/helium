@@ -469,16 +469,9 @@ public class DtoConverter {
 								dto.setSignatNom(arxiuNom.substring(0, indexPunt) + "." + extensio);
 						}
 						byte[] signatura = pluginCustodiaDao.obtenirSignaturesAmbArxiu(document.getReferenciaCustodia());
-						if ("afirma".equalsIgnoreCase((String)GlobalProperties.getInstance().get("app.signatura.tipus")))
-							dto.setSignatContingut(Base64.decodeBase64(signatura));
-						else
-							dto.setSignatContingut(signatura);
+						dto.setSignatContingut(signatura);
 					}
 					if (ambVista) {
-						// Posa la vista del document
-						String extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.extension");
-						if (extensioVista == null)
-							extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
 						String arxiuOriginalNom;
 						byte[] arxiuOriginalContingut;
 						if (document.isSignat() && isSignaturaFileAttached()) {
@@ -488,32 +481,43 @@ public class DtoConverter {
 							arxiuOriginalNom = dto.getArxiuNom();
 							arxiuOriginalContingut = dto.getArxiuContingut();
 						}
-						dto.setVistaNom(dto.getArxiuNomSenseExtensio() + "." + extensioVista);
-						try {
-							ByteArrayOutputStream vistaContingut = new ByteArrayOutputStream();
-							String urlVerificacioSignatura = (String)GlobalProperties.getInstance().get("app.base.url") + "/signatura/verificar.html?id=" + documentStoreId;
-							DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-							String dataRegistre = null;
-							if (document.getRegistreData() != null)
-								dataRegistre = df.format(document.getRegistreData());
-							String numeroRegistre = document.getRegistreNumero();
-							if (document.getRegistreAny() != null)
-								numeroRegistre = numeroRegistre + "/" + document.getRegistreAny();
-							getPdfUtils().estampar(
-									arxiuOriginalNom,
-									arxiuOriginalContingut,
-									(document.isSignat()) ? false : ambSegellSignatura,
-									urlVerificacioSignatura,
-									document.isRegistrat(),
-									numeroRegistre,
-									dataRegistre,
-									document.getRegistreOficinaNom(),
-									document.isRegistreEntrada(),
-									vistaContingut,
-									extensioVista);
-							dto.setVistaContingut(vistaContingut.toByteArray());
-						} catch (Exception ex) {
-							logger.error("No s'ha pogut generar la vista pel document '" + document.getCodiDocument() + "'", ex);
+						String actiuConversio = (String)GlobalProperties.getInstance().get("app.conversio.vista.actiu");
+						if (actiuConversio == null)
+							actiuConversio = (String)GlobalProperties.getInstance().get("app.conversio.signatura.actiu");
+						if ("true".equalsIgnoreCase(actiuConversio)) {
+							String extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.extension");
+							if (extensioVista == null)
+								extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
+							dto.setVistaNom(dto.getArxiuNomSenseExtensio() + "." + extensioVista);
+							try {
+								ByteArrayOutputStream vistaContingut = new ByteArrayOutputStream();
+								String urlVerificacioSignatura = (String)GlobalProperties.getInstance().get("app.base.url") + "/signatura/verificar.html?id=" + documentStoreId;
+								DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+								String dataRegistre = null;
+								if (document.getRegistreData() != null)
+									dataRegistre = df.format(document.getRegistreData());
+								String numeroRegistre = document.getRegistreNumero();
+								if (document.getRegistreAny() != null)
+									numeroRegistre = numeroRegistre + "/" + document.getRegistreAny();
+								getPdfUtils().estampar(
+										arxiuOriginalNom,
+										arxiuOriginalContingut,
+										(document.isSignat()) ? false : ambSegellSignatura,
+										urlVerificacioSignatura,
+										document.isRegistrat(),
+										numeroRegistre,
+										dataRegistre,
+										document.getRegistreOficinaNom(),
+										document.isRegistreEntrada(),
+										vistaContingut,
+										extensioVista);
+								dto.setVistaContingut(vistaContingut.toByteArray());
+							} catch (Exception ex) {
+								logger.error("No s'ha pogut generar la vista pel document '" + document.getCodiDocument() + "'", ex);
+							}
+						} else {
+							dto.setVistaNom(arxiuOriginalNom);
+							dto.setVistaContingut(arxiuOriginalContingut);
 						}
 					}
 				}

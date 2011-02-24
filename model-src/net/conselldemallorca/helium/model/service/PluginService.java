@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 import net.conselldemallorca.helium.integracio.plugins.persones.Persona;
+import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.model.dao.DocumentStoreDao;
@@ -16,9 +17,11 @@ import net.conselldemallorca.helium.model.dao.PermisDao;
 import net.conselldemallorca.helium.model.dao.PluginCustodiaDao;
 import net.conselldemallorca.helium.model.dao.PluginPersonaDao;
 import net.conselldemallorca.helium.model.dao.PluginPortasignaturesDao;
+import net.conselldemallorca.helium.model.dao.PluginSignaturaDao;
 import net.conselldemallorca.helium.model.dao.RegistreDao;
 import net.conselldemallorca.helium.model.dao.UsuariDao;
 import net.conselldemallorca.helium.model.dto.DocumentDto;
+import net.conselldemallorca.helium.model.exception.IllegalStateException;
 import net.conselldemallorca.helium.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.model.hibernate.Expedient;
 import net.conselldemallorca.helium.model.hibernate.Portasignatures;
@@ -45,6 +48,7 @@ public class PluginService {
 
 	private PluginPersonaDao pluginPersonaDao;
 	private PluginPortasignaturesDao pluginPortasignaturesDao;
+	private PluginSignaturaDao pluginSignaturaDao;
 	private PluginCustodiaDao pluginCustodiaDao;
 	private UsuariDao usuariDao;
 	private PermisDao permisDao;
@@ -220,6 +224,10 @@ public class PluginService {
 		this.pluginCustodiaDao = pluginCustodiaDao;
 	}
 	@Autowired
+	public void setPluginSignaturaDao(PluginSignaturaDao pluginSignaturaDao) {
+		this.pluginSignaturaDao = pluginSignaturaDao;
+	}
+	@Autowired
 	public void setExpedientDao(ExpedientDao expedientDao) {
 		this.expedientDao = expedientDao;
 	}
@@ -242,10 +250,14 @@ public class PluginService {
 
 
 
-	private void afegirDocumentCustodia(
+	private boolean afegirDocumentCustodia(
 			Integer documentId,
 			Long documentStoreId) throws Exception {
-		DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, false, false, false);
+		DocumentDto document = dtoConverter.toDocumentDto(
+				documentStoreId,
+				true,
+				true,
+				true);
 		if (document != null) {
 			DocumentStore docst = documentStoreDao.getById(documentStoreId, false);
 			JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(docst.getProcessInstanceId());
@@ -253,20 +265,28 @@ public class PluginService {
 			String varDocumentCodi = docst.getJbpmVariable().substring(TascaService.PREFIX_DOCUMENT.length());
 			byte[] documentPortasignatures = obtenirDocumentPortasignatures(documentId);
 			if ((documentPortasignatures != null) && !documentPortasignatures.equals("")) {
-				String referenciaCustodia = null; 
+				String referenciaCustodia = null;
+				boolean custodiat = false;
 				if (pluginCustodiaDao.isValidacioImplicita()) {
 					referenciaCustodia = pluginCustodiaDao.afegirSignatura(
 							documentStoreId.toString(),
 							document.getArxiuNom(),
 							document.getCustodiaCodi(),
 							documentPortasignatures);
+					custodiat = true;
 				} else {
-					// TODO Comprovar validesa
-					referenciaCustodia = pluginCustodiaDao.afegirSignatura(
-							documentStoreId.toString(),
-							document.getArxiuNom(),
-							document.getCustodiaCodi(),
-							documentPortasignatures);
+					RespostaValidacioSignatura resposta = pluginSignaturaDao.verificarSignatura(
+							document.getVistaContingut(),
+							null,
+							false);
+					if (resposta.isEstatOk()) {
+						referenciaCustodia = pluginCustodiaDao.afegirSignatura(
+								documentStoreId.toString(),
+								document.getArxiuNom(),
+								document.getCustodiaCodi(),
+								documentPortasignatures);
+						custodiat = true;
+					}
 				}
 				docst.setReferenciaCustodia(referenciaCustodia);
 				docst.setSignat(true);
@@ -275,10 +295,12 @@ public class PluginService {
 						docst.getProcessInstanceId(),
 						SecurityContextHolder.getContext().getAuthentication().getName(),
 						varDocumentCodi);
+				return custodiat;
 			} else {
 				throw new Exception("Error obtenint el document del Portasignautes.");
 			}
 		}
+		throw new IllegalStateException("Aquest document no està disponible per signar");
 	}
 	private byte[] obtenirDocumentPortasignatures(
 			Integer documentId) {

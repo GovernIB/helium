@@ -77,13 +77,29 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	private String iniciadorCodi;
 	@MaxLength(64)
 	private String responsableCodi;
-	@MaxLength(64)
-	private String registreNumero;
-	private Date registreData;
 	private Double geoPosX;
 	private Double geoPosY;
 	@MaxLength(64)
 	private String geoReferencia;
+
+	@MaxLength(64)
+	private String registreNumero;
+	private Date registreData;
+	private Long unitatAdministrativa;
+	private String idioma;
+	private boolean autenticat;
+	@MaxLength(16)
+	protected String tramitadorNif;
+	@MaxLength(255)
+	protected String tramitadorNom;
+	@MaxLength(16)
+	protected String interessatNif;
+	@MaxLength(255)
+	protected String interessatNom;
+	@MaxLength(16)
+	protected String representantNif;
+	@MaxLength(255)
+	protected String representantNom;
 	private boolean avisosHabilitats = false;
 	@MaxLength(255)
 	private String avisosEmail;
@@ -212,23 +228,6 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 		this.responsableCodi = responsableCodi;
 	}
 
-	@Column(name="registre_num", length=64)
-	public String getRegistreNumero() {
-		return registreNumero;
-	}
-	public void setRegistreNumero(String registreNumero) {
-		this.registreNumero = registreNumero;
-	}
-
-	@Column(name="registre_data")
-	@Temporal(TemporalType.DATE)
-	public Date getRegistreData() {
-		return registreData;
-	}
-	public void setRegistreData(Date registreData) {
-		this.registreData = registreData;
-	}
-
 	@Column(name="geo_posx")
 	public Double getGeoPosX() {
 		return geoPosX;
@@ -251,6 +250,95 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	}
 	public void setGeoReferencia(String geoReferencia) {
 		this.geoReferencia = geoReferencia;
+	}
+
+	@Column(name="registre_num", length=64)
+	public String getRegistreNumero() {
+		return registreNumero;
+	}
+	public void setRegistreNumero(String registreNumero) {
+		this.registreNumero = registreNumero;
+	}
+
+	@Column(name="registre_data")
+	@Temporal(TemporalType.TIMESTAMP)
+	public Date getRegistreData() {
+		return registreData;
+	}
+	public void setRegistreData(Date registreData) {
+		this.registreData = registreData;
+	}
+
+	@Column(name="unitat_adm")
+	public Long getUnitatAdministrativa() {
+		return unitatAdministrativa;
+	}
+	public void setUnitatAdministrativa(Long unitatAdministrativa) {
+		this.unitatAdministrativa = unitatAdministrativa;
+	}
+
+	@Column(name="idioma", length=8)
+	public String getIdioma() {
+		return idioma;
+	}
+	public void setIdioma(String idioma) {
+		this.idioma = idioma;
+	}
+
+	@Column(name="autenticat")
+	public boolean isAutenticat() {
+		return autenticat;
+	}
+	public void setAutenticat(boolean autenticat) {
+		this.autenticat = autenticat;
+	}
+
+	@Column(name="tramitador_nif", length=16)
+	public String getTramitadorNif() {
+		return tramitadorNif;
+	}
+	public void setTramitadorNif(String tramitadorNif) {
+		this.tramitadorNif = tramitadorNif;
+	}
+
+	@Column(name="tramitador_nom", length=255)
+	public String getTramitadorNom() {
+		return tramitadorNom;
+	}
+	public void setTramitadorNom(String tramitadorNom) {
+		this.tramitadorNom = tramitadorNom;
+	}
+
+	@Column(name="interessat_nif", length=16)
+	public String getInteressatNif() {
+		return interessatNif;
+	}
+	public void setInteressatNif(String interessatNif) {
+		this.interessatNif = interessatNif;
+	}
+
+	@Column(name="interessat_nom", length=255)
+	public String getInteressatNom() {
+		return interessatNom;
+	}
+	public void setInteressatNom(String interessatNom) {
+		this.interessatNom = interessatNom;
+	}
+
+	@Column(name="representant_nif", length=16)
+	public String getRepresentantNif() {
+		return representantNif;
+	}
+	public void setRepresentantNif(String representantNif) {
+		this.representantNif = representantNif;
+	}
+
+	@Column(name="representant_nom", length=255)
+	public String getRepresentantNom() {
+		return representantNom;
+	}
+	public void setRepresentantNom(String representantNom) {
+		this.representantNom = representantNom;
 	}
 
 	@Column(name="avisos_habilitat")

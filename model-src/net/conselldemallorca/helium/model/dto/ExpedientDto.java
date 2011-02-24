@@ -40,7 +40,7 @@ public class ExpedientDto extends Expedient {
 	}
 
 	public String getIdentificadorLimitat() {
-		if (getIdentificador().length() > 100)
+		if (getIdentificador() != null && getIdentificador().length() > 100)
 			return getIdentificador().substring(0, 100) + " (...)";
 		else
 			return getIdentificador();

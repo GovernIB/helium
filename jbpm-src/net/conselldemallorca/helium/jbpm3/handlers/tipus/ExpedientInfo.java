@@ -40,6 +40,8 @@ public class ExpedientInfo {
 	private String expedientTipusCodi;
 	private String entornCodi;
 
+	private long processInstanceId;
+
 
 
 	public String getTitol() {
@@ -174,6 +176,13 @@ public class ExpedientInfo {
 	}
 	public void setEntornCodi(String entornCodi) {
 		this.entornCodi = entornCodi;
+	}
+
+	public long getProcessInstanceId() {
+		return processInstanceId;
+	}
+	public void setProcessInstanceId(long processInstanceId) {
+		this.processInstanceId = processInstanceId;
 	}
 
 }

@@ -405,7 +405,7 @@ public abstract class RegistreHandler extends AbstractHeliumActionHandler {
 					numero,
 					any,
 					oficina,
-					getPluginRegistreService().getNomOficina(oficina));
+					getPluginRegistreDao().getNomOficina(oficina));
 		else
 			DaoProxy.getInstance().getDocumentStoreDao().updateRegistreSortida(
 					documentId,
@@ -413,7 +413,7 @@ public abstract class RegistreHandler extends AbstractHeliumActionHandler {
 					numero,
 					any,
 					oficina,
-					getPluginRegistreService().getNomOficina(oficina));
+					getPluginRegistreDao().getNomOficina(oficina));
 	}
 
 	private RegistreDocument getRegistreDocument(ExecutionContext executionContext) {

@@ -3,8 +3,14 @@
  */
 package net.conselldemallorca.helium.jbpm3.handlers;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentEvent;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentEventTipus;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.Event;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarEventRequest;
 import net.conselldemallorca.helium.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.model.hibernate.Document;
@@ -72,32 +78,34 @@ public class ZonaperExpedientEventHandler extends AbstractHeliumActionHandler {
 		String model = (String)getValorOVariable(executionContext, redoseModel, varRedoseModel);
 		Integer versio = getValorOVariableInteger(executionContext, redoseVersio, varRedoseVersio);
 		if (ex != null) {
-			getSistraService().zonaperExpedientEvent(
-					ex,
-					(String)getValorOVariable(executionContext, titol, varTitol),
-					(String)getValorOVariable(executionContext, text, varText),
-					(String)getValorOVariable(executionContext, textSms, varTextSms),
-					(String)getValorOVariable(executionContext, enllasConsulta, varEnllasConsulta),
-					(Date)getValorOVariable(executionContext, data, varData),
-					docTitol,
-					docArxiuNom,
-					docArxiuContingut,
-					model,
-					versio);
+			getPluginTramitacioDao().publicarEvent(
+					getPublicarEventRequest(
+							ex,
+							(String)getValorOVariable(executionContext, titol, varTitol),
+							(String)getValorOVariable(executionContext, text, varText),
+							(String)getValorOVariable(executionContext, textSms, varTextSms),
+							(String)getValorOVariable(executionContext, enllasConsulta, varEnllasConsulta),
+							(Date)getValorOVariable(executionContext, data, varData),
+							docTitol,
+							docArxiuNom,
+							docArxiuContingut,
+							model,
+							versio));
 		} else {
 			ExpedientDto expedient = getExpedient(executionContext);
-			getSistraService().zonaperExpedientEvent(
-					expedient,
-					(String)getValorOVariable(executionContext, titol, varTitol),
-					(String)getValorOVariable(executionContext, text, varText),
-					(String)getValorOVariable(executionContext, textSms, varTextSms),
-					(String)getValorOVariable(executionContext, enllasConsulta, varEnllasConsulta),
-					(Date)getValorOVariable(executionContext, data, varData),
-					docTitol,
-					docArxiuNom,
-					docArxiuContingut,
-					model,
-					versio);
+			getPluginTramitacioDao().publicarEvent(
+					getPublicarEventRequest(
+							expedient,
+							(String)getValorOVariable(executionContext, titol, varTitol),
+							(String)getValorOVariable(executionContext, text, varText),
+							(String)getValorOVariable(executionContext, textSms, varTextSms),
+							(String)getValorOVariable(executionContext, enllasConsulta, varEnllasConsulta),
+							(Date)getValorOVariable(executionContext, data, varData),
+							docTitol,
+							docArxiuNom,
+							docArxiuContingut,
+							model,
+							versio));
 		}
 	}
 
@@ -148,6 +156,40 @@ public class ZonaperExpedientEventHandler extends AbstractHeliumActionHandler {
 	}
 	public void setVarRedoseVersio(String varRedoseVersio) {
 		this.varRedoseVersio = varRedoseVersio;
+	}
+
+
+
+	private PublicarEventRequest getPublicarEventRequest(
+			Expedient expedient,
+			String titol,
+			String text,
+			String textSms,
+			String enllasConsulta,
+			Date data,
+			String adjuntTitol,
+			String adjuntArxiuNom,
+			byte[] adjuntArxiuContingut,
+			String adjuntModel,
+			Integer adjuntVersio) {
+		PublicarEventRequest requestEvent = new PublicarEventRequest();
+		requestEvent.setExpedientIdentificador(expedient.getNumeroIdentificador());
+		requestEvent.setUnitatAdministrativa(expedient.getUnitatAdministrativa());
+		Event event = new Event();
+		event.setTitol(titol);
+		event.setText(text);
+		event.setTextSMS(textSms);
+		event.setEnllasConsulta(enllasConsulta);
+		List<DocumentEvent> documents = new ArrayList<DocumentEvent>();
+		DocumentEvent document = new DocumentEvent();
+		document.setNom(adjuntTitol);
+		document.setArxiuNom(adjuntArxiuNom);
+		document.setArxiuContingut(adjuntArxiuContingut);
+		document.setTipus(DocumentEventTipus.ARXIU);
+		documents.add(document);
+		event.setDocuments(documents);
+		requestEvent.setEvent(event);
+		return requestEvent;
 	}
 
 }

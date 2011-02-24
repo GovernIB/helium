@@ -18,7 +18,7 @@ import java.util.UUID;
 import net.conselldemallorca.helium.integracio.bantel.plugin.DadesDocument;
 import net.conselldemallorca.helium.integracio.domini.FilaResultat;
 import net.conselldemallorca.helium.integracio.plugins.persones.Persona;
-import net.conselldemallorca.helium.integracio.plugins.signatura.InfoSignatura;
+import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmNodePosition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
@@ -143,6 +143,15 @@ public class ExpedientService {
 			String titol,
 			String registreNumero,
 			Date registreData,
+			Long unitatAdministrativa,
+			String idioma,
+			boolean autenticat,
+			String tramitadorNif,
+			String tramitadorNom,
+			String interessatNif,
+			String interessatNom,
+			String representantNif,
+			String representantNom,
 			boolean avisosHabilitats,
 			String avisosEmail,
 			String avisosMobil,
@@ -163,6 +172,15 @@ public class ExpedientService {
 				titol,
 				registreNumero,
 				registreData,
+				unitatAdministrativa,
+				idioma,
+				autenticat,
+				tramitadorNif,
+				tramitadorNom,
+				interessatNif,
+				interessatNom,
+				representantNif,
+				representantNom,
 				avisosHabilitats,
 				avisosEmail,
 				avisosMobil,
@@ -184,6 +202,15 @@ public class ExpedientService {
 			String titol,
 			String registreNumero,
 			Date registreData,
+			Long unitatAdministrativa,
+			String idioma,
+			boolean autenticat,
+			String tramitadorNif,
+			String tramitadorNom,
+			String interessatNif,
+			String interessatNom,
+			String representantNif,
+			String representantNom,
 			boolean avisosHabilitats,
 			String avisosEmail,
 			String avisosMobil,
@@ -224,6 +251,15 @@ public class ExpedientService {
 		expedient.setResponsableCodi(responsableCodiCalculat);
 		expedient.setRegistreNumero(registreNumero);
 		expedient.setRegistreData(registreData);
+		expedient.setUnitatAdministrativa(unitatAdministrativa);
+		expedient.setIdioma(idioma);
+		expedient.setAutenticat(autenticat);
+		expedient.setTramitadorNif(tramitadorNif);
+		expedient.setTramitadorNom(tramitadorNom);
+		expedient.setInteressatNif(interessatNif);
+		expedient.setInteressatNom(interessatNom);
+		expedient.setRepresentantNif(representantNif);
+		expedient.setRepresentantNom(representantNom);
 		expedient.setAvisosHabilitats(avisosHabilitats);
 		expedient.setAvisosEmail(avisosEmail);
 		expedient.setAvisosMobil(avisosMobil);
@@ -899,25 +935,32 @@ public class ExpedientService {
 		return output.get(outputVar);
 	}
 
-	public List<InfoSignatura> verificarSignatura(Long id) {
+	public List<RespostaValidacioSignatura> verificarSignatura(Long id) {
 		DocumentStore documentStore = documentStoreDao.getById(id, false);
 		DocumentDto document = dtoConverter.toDocumentDto(id, true, false, false);
 		if (pluginCustodiaDao.potObtenirInfoSignatures()) {
-			return pluginCustodiaDao.infoSignatures(
+			return pluginCustodiaDao.dadesValidacioSignatura(
 					documentStore.getReferenciaCustodia());
 		} else if (isSignaturaFileAttached()) {
 			List<byte[]> signatures = pluginCustodiaDao.obtenirSignatures(
 					documentStore.getReferenciaCustodia());
-			return pluginSignaturaDao.verificarSignatura(
-					signatures.get(0));
+			List<RespostaValidacioSignatura> resposta = new ArrayList<RespostaValidacioSignatura>();
+			RespostaValidacioSignatura res = pluginSignaturaDao.verificarSignatura(
+					null,
+					signatures.get(0),
+					true);
+			resposta.add(res);
+			return resposta;
 		} else {
-			List<InfoSignatura> resposta = new ArrayList<InfoSignatura>();
+			List<RespostaValidacioSignatura> resposta = new ArrayList<RespostaValidacioSignatura>();
 			List<byte[]> signatures = pluginCustodiaDao.obtenirSignatures(
 					documentStore.getReferenciaCustodia());
 			for (byte[] signatura: signatures) {
-				resposta.add(pluginSignaturaDao.verificarSignatura(
+				RespostaValidacioSignatura res = pluginSignaturaDao.verificarSignatura(
 						document.getArxiuContingut(),
-						signatura));
+						signatura,
+						true);
+				resposta.add(res);
 			}
 			return resposta;
 		}

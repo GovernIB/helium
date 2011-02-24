@@ -28,23 +28,23 @@ import org.apache.commons.logging.LogFactory;
  */
 public class SistraDao {
 
-	private net.conselldemallorca.helium.integracio.bantel.client.wsdl.BackofficeFacade bantelBackofficeFacade;
-	private net.conselldemallorca.helium.integracio.zonaper.wsdl.BackofficeFacade zonaperBackofficeFacade;
+	private net.conselldemallorca.helium.integracio.bantel.client.wsdl.BackofficeFacade v1BantelBackofficeFacade;
+	private net.conselldemallorca.helium.integracio.zonaper.wsdl.BackofficeFacade v1ZonaperBackofficeFacade;
 
 
 
 	public void zonaperExpedientIniciar(
 			Expedient expedient,
 			String descripcio) {
-		TramiteBTE tramitSistra = getTramiteSistra(expedient);
+		TramiteBTE tramitSistra = getTramitPerExpedient(expedient);
 		if (tramitSistra == null)
 			throw new SistraBackofficeException("No s'ha pogut trobar el tràmit per l'expedient " + expedient.getId());
 		try {
-			Expediente expediente = expedientPerTramitSistra(
+			Expediente expediente = expedientePerTramitSistra(
 					expedient,
 					tramitSistra,
 					descripcio);
-			zonaperBackofficeFacade.altaExpediente(expediente);
+			v1ZonaperBackofficeFacade.altaExpediente(expediente);
 			logger.info("Expedient creat a la zona personal, ref bantel: " + expedient.getNumeroEntradaSistra());
 		} catch (Exception ex) {
 			throw new SistraBackofficeException("Error iniciat l'expedient al SISTRA", ex);
@@ -63,11 +63,11 @@ public class SistraDao {
 			byte[] adjuntArxiuContingut,
 			String adjuntModel,
 			Integer adjuntVersio) {
-		TramiteBTE tramitSistra = getTramiteSistra(expedient);
+		TramiteBTE tramitSistra = getTramitPerExpedient(expedient);
 		if (tramitSistra == null)
 			throw new SistraBackofficeException("No s'ha pogut trobar el tràmit per l'expedient " + expedient.getId());
 		try {
-			Expediente expediente = expedientPerTramitSistra(
+			Expediente expediente = expedientePerTramitSistra(
 					expedient,
 					tramitSistra,
 					null);
@@ -93,7 +93,7 @@ public class SistraDao {
 				docs.getDocumento().add(doc);
 				event.setDocumentos(new JAXBElement<DocumentosExpediente>(new QName("documentos"), DocumentosExpediente.class, docs));
 			}
-			zonaperBackofficeFacade.altaEventoExpediente(
+			v1ZonaperBackofficeFacade.altaEventoExpediente(
 					expediente.getUnidadAdministrativa(),
 					expediente.getIdentificadorExpediente(),
 					expediente.getClaveExpediente(),
@@ -104,23 +104,41 @@ public class SistraDao {
 	}
 
 	public TramiteBTE getTramitPerExpedient(Expedient expedient) {
-		return getTramiteSistra(expedient);
+		return getTramit(
+				expedient.getNumeroEntradaSistra(), 
+				expedient.getClaveAccesoSistra());
+	}
+
+	public TramiteBTE getTramit(String numeroEntrada, String claveAcceso) {
+		try {
+			ReferenciaEntrada refTramit = new ReferenciaEntrada();
+			refTramit.setNumeroEntrada(numeroEntrada);
+			refTramit.setClaveAcceso(
+					new JAXBElement<String>(
+							new QName("claveAcceso"),
+							String.class,
+							claveAcceso));
+			return v1BantelBackofficeFacade.obtenerEntrada(refTramit);
+		} catch (Exception ex) {
+			logger.error("Error al obtenir la informació del tràmit (numeroEntrada: " + numeroEntrada + ", claveAcceso: " + claveAcceso + ")", ex);
+			return null;
+		}
 	}
 
 
 
-	public void setBantelBackofficeFacade(
-			net.conselldemallorca.helium.integracio.bantel.client.wsdl.BackofficeFacade bantelBackofficeFacade) {
-		this.bantelBackofficeFacade = bantelBackofficeFacade;
+	public void setV1BantelBackofficeFacade(
+			net.conselldemallorca.helium.integracio.bantel.client.wsdl.BackofficeFacade v1BantelBackofficeFacade) {
+		this.v1BantelBackofficeFacade = v1BantelBackofficeFacade;
 	}
-	public void setZonaperBackofficeFacade(
-			net.conselldemallorca.helium.integracio.zonaper.wsdl.BackofficeFacade zonaperBackofficeFacade) {
-		this.zonaperBackofficeFacade = zonaperBackofficeFacade;
+	public void setV1ZonaperBackofficeFacade(
+			net.conselldemallorca.helium.integracio.zonaper.wsdl.BackofficeFacade v1ZonaperBackofficeFacade) {
+		this.v1ZonaperBackofficeFacade = v1ZonaperBackofficeFacade;
 	}
 
 
 
-	private Expediente expedientPerTramitSistra(
+	private Expediente expedientePerTramitSistra(
 			Expedient expedient,
 			TramiteBTE tramitSistra,
 			String descripcio) {
@@ -149,17 +167,6 @@ public class SistraDao {
 			expediente.setNombreRepresentado(new JAXBElement<String>(new QName("nombreRepresentado"), String.class, representadoNombre));
 		}
 		return expediente;
-	}
-
-	private TramiteBTE getTramiteSistra(Expedient expedient) {
-		try {
-			ReferenciaEntrada refTramit = new ReferenciaEntrada();
-			refTramit.setNumeroEntrada(expedient.getNumeroEntradaSistra());
-			refTramit.setClaveAcceso(new JAXBElement<String>(new QName("claveAcceso"), String.class, expedient.getClaveAccesoSistra()));
-			return bantelBackofficeFacade.obtenerEntrada(refTramit);
-		} catch (Exception ex) {
-			return null;
-		}
 	}
 
 	private static Log logger = LogFactory.getLog(SistraDao.class);

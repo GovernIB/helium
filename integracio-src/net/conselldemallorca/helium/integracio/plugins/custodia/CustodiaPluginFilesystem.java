@@ -11,7 +11,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.conselldemallorca.helium.integracio.plugins.signatura.InfoSignatura;
+import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.model.exception.CustodiaPluginException;
 import net.conselldemallorca.helium.util.GlobalProperties;
 
@@ -91,7 +91,7 @@ public class CustodiaPluginFilesystem implements CustodiaPlugin {
 		}
 	}
 
-	public List<InfoSignatura> infoSignatures(String id) throws CustodiaPluginException {
+	public List<RespostaValidacioSignatura> dadesValidacioSignatura(String id) throws CustodiaPluginException {
 		return null;
 	}
 

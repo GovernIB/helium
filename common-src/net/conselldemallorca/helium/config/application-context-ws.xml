@@ -8,36 +8,89 @@
 		http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://cxf.apache.org/jaxws
 		http://cxf.apache.org/schemas/jaxws.xsd">
-	
+
 	<import resource="classpath:META-INF/cxf/cxf.xml" />
 	<import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
 	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
 
-	<jaxws:client
-		id="sistraBantelClient"
-		serviceClass="net.conselldemallorca.helium.integracio.bantel.client.wsdl.BackofficeFacade"
-		address="${app.bantel.entrades.url}"
-		username="${app.bantel.entrades.username}" password="${app.bantel.entrades.password}"/>
-	<jaxws:client
-		id="sistraZonaperClient"
-		serviceClass="net.conselldemallorca.helium.integracio.zonaper.wsdl.BackofficeFacade"
-		address="${app.zonaper.service.url}"
-		username="${app.zonaper.service.username}" password="${app.zonaper.service.password}"/>
-	<jaxws:client
-		id="sistraRedoseClient"
-		serviceClass="net.conselldemallorca.helium.integracio.redose.client.wsdl.BackofficeFacade"
-		address="${app.redose.service.url}"
-		username="${app.redose.service.username}" password="${app.redose.service.password}"/>
-
-	<bean id="notificacioEntradaImpl" class="net.conselldemallorca.helium.integracio.bantel.service.BantelFacadeImpl">
-		<property name="defaultIniciExpedientPlugin">
-			<bean class="net.conselldemallorca.helium.integracio.bantel.plugin.DefaultIniciExpedientPlugin"/>
-		</property>
-	</bean>
+	<bean id="bantelV1Backoffice" class="net.conselldemallorca.helium.integracio.backoffice.BantelV1Backoffice"/>
 	<jaxws:endpoint 
-		id="notificacioEntrada" 
-		implementor="#notificacioEntradaImpl" 
-		address="/NotificacioEntrada"/>
+		implementor="#bantelV1Backoffice" 
+		address="/NotificacioEntrada">
+		<jaxws:inInterceptors>
+			<!--bean class="org.apache.cxf.interceptor.LoggingInInterceptor" /-->
+			<bean class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor">
+				<constructor-arg>
+					<map>
+						<entry key="action" value="Timestamp UsernameToken" />
+						<entry key="passwordType" value="PasswordText" />
+						<entry key="passwordCallbackRef">
+							<bean
+								class="net.conselldemallorca.helium.util.ws.ServerPasswordCallback">
+								<property name="userName" value="${app.bantel.avisos.username}" />
+								<property name="password" value="${app.bantel.avisos.password}" />
+							</bean>
+						</entry>
+					</map>
+				</constructor-arg>
+			</bean>
+		</jaxws:inInterceptors>
+		<!--jaxws:outInterceptors>
+			<bean class="org.apache.cxf.interceptor.LoggingOutInterceptor" />
+		</jaxws:outInterceptors-->
+	</jaxws:endpoint>
+	<bean id="bantelV2Backoffice" class="net.conselldemallorca.helium.integracio.backoffice.BantelV2Backoffice"/>
+	<jaxws:endpoint 
+		implementor="#bantelV2Backoffice" 
+		address="/NotificacioEntradaV2">
+		<jaxws:inInterceptors>
+			<!--bean class="org.apache.cxf.interceptor.LoggingInInterceptor" /-->
+			<bean class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor">
+				<constructor-arg>
+					<map>
+						<entry key="action" value="Timestamp UsernameToken" />
+						<entry key="passwordType" value="PasswordText" />
+						<entry key="passwordCallbackRef">
+							<bean
+								class="net.conselldemallorca.helium.util.ws.ServerPasswordCallback">
+								<property name="userName" value="${app.bantel.avisos.username}" />
+								<property name="password" value="${app.bantel.avisos.password}" />
+							</bean>
+						</entry>
+					</map>
+				</constructor-arg>
+			</bean>
+		</jaxws:inInterceptors>
+		<!--jaxws:outInterceptors>
+			<bean class="org.apache.cxf.interceptor.LoggingOutInterceptor" />
+		</jaxws:outInterceptors-->
+	</jaxws:endpoint>
+	<bean id="bantelEsbCimBackoffice" class="net.conselldemallorca.helium.integracio.backoffice.EsbCimBackoffice"/>
+	<jaxws:endpoint 
+		implementor="#bantelEsbCimBackoffice" 
+		address="/NotificacioEntradaEsbCim">
+		<jaxws:inInterceptors>
+			<!--bean class="org.apache.cxf.interceptor.LoggingInInterceptor" /-->
+			<bean class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor">
+				<constructor-arg>
+					<map>
+						<entry key="action" value="Timestamp UsernameToken" />
+						<entry key="passwordType" value="PasswordText" />
+						<entry key="passwordCallbackRef">
+							<bean
+								class="net.conselldemallorca.helium.util.ws.ServerPasswordCallback">
+								<property name="userName" value="${app.bantel.avisos.username}" />
+								<property name="password" value="${app.bantel.avisos.password}" />
+							</bean>
+						</entry>
+					</map>
+				</constructor-arg>
+			</bean>
+		</jaxws:inInterceptors>
+		<!--jaxws:outInterceptors>
+			<bean class="org.apache.cxf.interceptor.LoggingOutInterceptor" />
+		</jaxws:outInterceptors-->
+	</jaxws:endpoint>
 
 	<bean id="sistraFacadeImpl" class="net.conselldemallorca.helium.integracio.domini.service.SistraFacadeImpl"/>
 	<jaxws:endpoint 

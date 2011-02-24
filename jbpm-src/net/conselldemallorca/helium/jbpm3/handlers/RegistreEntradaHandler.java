@@ -17,10 +17,10 @@ import org.jbpm.graph.exe.ExecutionContext;
 public class RegistreEntradaHandler extends RegistreHandler {
 
 	public void execute(ExecutionContext executionContext) throws Exception {
-		if (!getPluginRegistreService().isRegistreActiu())
+		if (!getPluginRegistreDao().isRegistreActiu())
 			throw new JbpmException("El plugin de registre no està configurat");
 		SeientRegistral dadesRegistre = getDadesRegistre(executionContext);
-		String[] resultat = getPluginRegistreService().registrarEntrada(dadesRegistre);
+		String[] resultat = getPluginRegistreDao().registrarEntrada(dadesRegistre);
 		guardarInfoRegistre(
 				executionContext,
 				dadesRegistre.getData(),

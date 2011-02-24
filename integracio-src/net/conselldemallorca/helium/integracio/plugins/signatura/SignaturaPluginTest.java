@@ -26,7 +26,6 @@ import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.SignerInformationStore;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.util.encoders.Base64;
 
 import com.lowagie.text.pdf.AcroFields;
 import com.lowagie.text.pdf.PdfPKCS7;
@@ -43,13 +42,14 @@ import com.lowagie.text.pdf.PdfReader;
 public class SignaturaPluginTest implements SignaturaPlugin {
 
 	@SuppressWarnings("unchecked")
-	public InfoSignatura verificarSignatura(
+	public RespostaValidacioSignatura verificarSignatura(
 			byte[] document,
-			byte[] signatura) throws SignaturaPluginException {
+			byte[] signatura,
+			boolean obtenirDadesCertificat) throws SignaturaPluginException {
 		try {
-			InfoSignatura resposta = new InfoSignatura(signatura);
+			RespostaValidacioSignatura resposta = new RespostaValidacioSignatura();
 			X509Certificate[] certificats = null;
-			byte[] pkcs7Bytes = Base64.decode(signatura);
+			byte[] pkcs7Bytes = signatura;
 			ASN1InputStream asn1is = new ASN1InputStream(new ByteArrayInputStream(pkcs7Bytes));
 			ContentInfo pkcs7Info = ContentInfo.getInstance(asn1is.readObject());
 			SignedData signedData = SignedData.getInstance(pkcs7Info.getContent());
@@ -70,8 +70,11 @@ public class SignaturaPluginTest implements SignaturaPlugin {
 				certificats = certs.toArray(new X509Certificate[certs.size()]);
 				if (certificats.length != 1)
 					throw new SignaturaPluginException("Aquesta signatura conté més d'un certificat");
-				resposta.setInfoCertificat(getInfoCertificat(certificats[0]));
-				resposta.setValida(true);
+				//resposta.setInfoCertificat(getInfoCertificat(certificats[0]));
+				List<DadesCertificat> dadesCertificats = new ArrayList<DadesCertificat>();
+				dadesCertificats.add(getDadesCertificat(certificats[0]));
+				resposta.setDadesCertificat(dadesCertificats);
+				resposta.setEstat(RespostaValidacioSignatura.ESTAT_OK);
 			}
 			return resposta;
 		} catch (Exception ex) {
@@ -80,11 +83,12 @@ public class SignaturaPluginTest implements SignaturaPlugin {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<InfoSignatura> verificarSignatura(
+	public RespostaValidacioSignatura verificarSignatura(
 			byte[] documentsignat) throws SignaturaPluginException {
+		//saveToFile("c:/pdf_signat.bin", documentsignat);
 		try {
-			List<InfoSignatura> resposta = new ArrayList<InfoSignatura>();
-			PdfReader reader = new PdfReader(new ByteArrayInputStream(Base64.decode(documentsignat)));
+			RespostaValidacioSignatura resposta = new RespostaValidacioSignatura();
+			PdfReader reader = new PdfReader(new ByteArrayInputStream(documentsignat));
 			AcroFields af = reader.getAcroFields();
 			ArrayList<String> names = af.getSignatureNames();
 			for (String name: names) {
@@ -93,17 +97,15 @@ public class SignaturaPluginTest implements SignaturaPlugin {
 				System.out.println("Document revision: " + af.getRevision(name) + " of " + af.getTotalRevisions());*/
 				PdfPKCS7 pk = af.verifySignature(name);
 				Certificate pkc[] = pk.getCertificates();
+				List<DadesCertificat> dadesCertificats = new ArrayList<DadesCertificat>();
 				for (Certificate cert: pkc) {
 					if (cert instanceof X509Certificate) {
-						InfoCertificat ic = getInfoCertificat((X509Certificate)cert);
-						if (ic != null) {
-							InfoSignatura is = new InfoSignatura(documentsignat);
-							is.setInfoCertificat(ic);
-							is.setValida(true);
-							resposta.add(is);
-						}
+						//saveToFile("c:/certificat.bin", documentsignat);
+						dadesCertificats.add(getDadesCertificat((X509Certificate)cert));
 					}
 				}
+				resposta.setDadesCertificat(dadesCertificats);
+				resposta.setEstat(RespostaValidacioSignatura.ESTAT_OK);
 			}
 			return resposta;
 		} catch (Exception ex) {
@@ -126,69 +128,76 @@ public class SignaturaPluginTest implements SignaturaPlugin {
 			Security.addProvider(new BouncyCastleProvider());
     }
 	@SuppressWarnings("unchecked")
-	private InfoCertificat getInfoCertificat(X509Certificate cert) throws Exception {
+	private DadesCertificat getDadesCertificat(X509Certificate cert) throws Exception {
 		ASN1InputStream asn1is = new ASN1InputStream(cert.getEncoded());
 		org.bouncycastle.asn1.DERObject obj = asn1is.readObject();
 		/*byte[] value = cert.getExtensionValue(X509Extensions.BasicConstraints.toString());
 		BasicConstraints basicConstraints = new BasicConstraints(cert.getBasicConstraints());
 		if (basicConstraints.isCA())
 			return null;*/
-		InfoCertificat resposta = new InfoCertificat();
+		DadesCertificat resposta = new DadesCertificat();
 		X509CertificateStructure certificate = new X509CertificateStructure((ASN1Sequence)obj);
 		X509Name name = certificate.getSubject();
-		resposta.setPersonaFisica(true);
 		Vector oids = name.getOIDs();
 		Vector values = name.getValues();
 		for (int i = 0; i < oids.size(); i++) {
 			if (oids.get(i).equals(X509Name.CN)) {
 				processName(values.get(i).toString(), resposta);
 			} else if (oids.get(i).equals(X509Name.SURNAME)) {
-				resposta.setSurname(values.get(i).toString());
+				resposta.setApellidosResponsable(values.get(i).toString());
 			} else if (oids.get(i).equals(X509Name.GIVENNAME)) {
-				resposta.setGivenName(values.get(i).toString());
+				resposta.setNombreResponsable(values.get(i).toString());
 			} else if (oids.get(i).equals(X509Name.SN)) {
-				resposta.setNif(values.get(i).toString());
+				resposta.setNifCif(values.get(i).toString());
+				resposta.setNifResponsable(values.get(i).toString());
 			} else if (oids.get(i).equals(OID_NIF_RESPONSABLE)) {
 				resposta.setNifResponsable(values.get(i).toString());
-				resposta.setPersonaFisica(false);
 			} else if (oids.get(i).equals(X509Name.EmailAddress)) {
 				resposta.setEmail(values.get(i).toString());
 			} else if (oids.get(i).equals(X509Name.C)) {
-				resposta.setPais(values.get(i).toString());
+				//resposta.setPais(values.get(i).toString());
 			} else if (oids.get(i).equals(X509Name.O)) {
-				resposta.setOrganitzacio(values.get(i).toString());
+				resposta.setRazonSocial(values.get(i).toString());
 			} else if (oids.get(i).equals(X509Name.OU)) {
-				resposta.setDepartament(values.get(i).toString());
+				//resposta.setDepartament(values.get(i).toString());
 			} else if (oids.get(i).equals(X509Name.T)) {
-				resposta.setCarrec(values.get(i).toString());
+				//resposta.setCarrec(values.get(i).toString());
 		    }
 		}
 		return resposta;
 	}
-	private void processName(String cn, InfoCertificat infoCertificat) {
+	private void processName(String cn, DadesCertificat dadesCertificat) {
 		if (cn != null && cn.startsWith("NOMBRE ")) {
 			int i = cn.indexOf(" - ");
 			if (i > 0 && cn.substring(i).startsWith(" - NIF ")) {
-				infoCertificat.setNif(cn.substring(i + 7));
-				infoCertificat.setFullName(cn.substring(7, i));
-				infoCertificat.setPersonaFisica(true);
+				dadesCertificat.setNifResponsable(cn.substring(i + 7));
+				dadesCertificat.setNombreCompletoResponsable(cn.substring(7, i));
 			}
 		} else if (cn != null && cn.startsWith("ENTIDAD ")) {
-			infoCertificat.setPersonaFisica(false);
 			int i = cn.indexOf(" - ");
 			if (i > 0 && cn.substring(i).startsWith(" - CIF ")) {
 				int j = cn.indexOf(" - ", i + 7);
 				int k = cn.indexOf(" - NIF ", i + 7);
 				if (j > 0 && k > 0) {
-					infoCertificat.setNif(cn.substring(i + 8, j));
-					infoCertificat.setFullName(cn.substring(7, i));
-					infoCertificat.setNifResponsable(cn.substring(k + 7));
+					dadesCertificat.setNifCif(cn.substring(i + 8, j));
+					dadesCertificat.setNombreCompletoResponsable(cn.substring(7, i));
+					dadesCertificat.setNifResponsable(cn.substring(k + 7));
 				}
 			}
 		} else {
-			infoCertificat.setFullName(cn);
+			dadesCertificat.setNombreCompletoResponsable(cn);
 		}
 	}
+
+	/*private void saveToFile(String filePath, byte[] content) {
+		try {
+			FileOutputStream fos = new FileOutputStream(filePath);
+			fos.write(content);
+			fos.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}*/
 
 	private static final DERObjectIdentifier OID_NIF_RESPONSABLE = new DERObjectIdentifier("1.3.6.1.4.1.18838.1.1");
 

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.conselldemallorca.helium.integracio.plugins.gesdoc.AlfrescoUtils;
-import net.conselldemallorca.helium.integracio.plugins.signatura.InfoSignatura;
+import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.model.dao.DaoProxy;
 import net.conselldemallorca.helium.model.exception.CustodiaPluginException;
 import net.conselldemallorca.helium.model.hibernate.DocumentStore;
@@ -169,7 +169,7 @@ public class CustodiaPluginAlfresco implements CustodiaPlugin {
 		}
 	}
 
-	public List<InfoSignatura> infoSignatures(String id) throws CustodiaPluginException {
+	public List<RespostaValidacioSignatura> dadesValidacioSignatura(String id) throws CustodiaPluginException {
 		throw new CustodiaPluginException("Aquest plugin no té implementada la funcionalitat de validació de signatures");
 	}
 

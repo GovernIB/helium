@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.jbpm3.handlersmock;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +39,19 @@ public abstract class BasicActionHandler implements ActionHandler {
 		return new ArrayList<FilaResultat>();
 	}
 
+	public List<ExpedientInfo> consultaExpedients(
+			ExecutionContext executionContext,
+			String titol,
+			String numero,
+			Date dataInici1,
+			Date dataInici2,
+			String expedientTipusCodi,
+			String estatCodi,
+			boolean iniciat,
+			boolean finalitzat){
+		return new ArrayList<ExpedientInfo>();
+	}
+
 	public DocumentInfo getDocument(
 			ExecutionContext executionContext,
 			String varDocument) {
@@ -48,6 +62,11 @@ public abstract class BasicActionHandler implements ActionHandler {
 			ExecutionContext executionContext,
 			String codiDocument) {
 		return new DocumentDisseny();
+	}
+
+	public void crearReferenciaDocumentInstanciaProcesPare(
+			ExecutionContext executionContext,
+			String varDocument) {
 	}
 
 	public ExpedientInfo getExpedient(ExecutionContext executionContext) {

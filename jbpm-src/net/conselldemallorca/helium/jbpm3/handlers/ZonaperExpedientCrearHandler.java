@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.jbpm3.handlers;
 
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarExpedientRequest;
 import net.conselldemallorca.helium.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.model.hibernate.Expedient;
 import net.conselldemallorca.helium.util.ExpedientIniciant;
@@ -24,16 +25,19 @@ public class ZonaperExpedientCrearHandler extends AbstractHeliumActionHandler {
 
 
 	public void execute(ExecutionContext executionContext) throws Exception {
+		String desc = (String)getValorOVariable(
+				executionContext,
+				descripcio,
+				varDescripcio);
 		Expedient ex = ExpedientIniciant.getExpedient();
 		if (ex != null) {
-			String d = (String)getValorOVariable(executionContext, descripcio, varDescripcio);
-			getSistraService().zonaperExpedientIniciar(ex, d);
+			getPluginTramitacioDao().publicarExpedient(
+					getPublicarExpedientRequest(ex, desc));
 		} else {
 			ExpedientDto expedient = getExpedient(executionContext);
-			String d = (String)getValorOVariable(executionContext, descripcio, varDescripcio);
-			getSistraService().zonaperExpedientIniciar(expedient, d);
+			getPluginTramitacioDao().publicarExpedient(
+					getPublicarExpedientRequest(expedient, desc));
 		}
-		
 	}
 
 	public void setDescripcio(String descripcio) {
@@ -41,6 +45,30 @@ public class ZonaperExpedientCrearHandler extends AbstractHeliumActionHandler {
 	}
 	public void setVarDescripcio(String varDescripcio) {
 		this.varDescripcio = varDescripcio;
+	}
+
+
+
+	private PublicarExpedientRequest getPublicarExpedientRequest(
+			Expedient expedient,
+			String descripcio) {
+		PublicarExpedientRequest request = new PublicarExpedientRequest();
+		request.setExpedientIdentificador(expedient.getNumeroIdentificador());
+		request.setIdioma(expedient.getIdioma());
+		request.setUnitatAdministrativa(expedient.getUnitatAdministrativa());
+		request.setDescripcio(descripcio);
+		request.setTramitNumero(expedient.getNumeroEntradaSistra());
+		request.setAutenticat(expedient.isAutenticat());
+		if (expedient.isAutenticat()) {
+			if (expedient.getRepresentantNif() != null) {
+				request.setRepresentantNif(expedient.getRepresentantNif());
+				request.setRepresentatNif(expedient.getInteressatNif());
+				request.setRepresentatNom(expedient.getInteressatNom());
+			} else {
+				request.setRepresentantNif(expedient.getInteressatNif());
+			}
+		}
+		return request;
 	}
 
 }

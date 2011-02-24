@@ -7,6 +7,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -14,12 +15,20 @@ import net.conselldemallorca.helium.integracio.plugins.registre.RegistreDocument
 import net.conselldemallorca.helium.integracio.plugins.registre.RegistreFont;
 import net.conselldemallorca.helium.integracio.plugins.registre.SeientRegistral;
 import net.conselldemallorca.helium.integracio.plugins.registre.RegistreDocument.IdiomaRegistre;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesTramit;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirDadesTramitRequest;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.AutenticacioTipus;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistre;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentDisseny;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentPresencial;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentTelematic;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentTramit;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.FilaResultat;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ParellaCodiValor;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.Signatura;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.Tramit;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo.IniciadorTipus;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
@@ -28,6 +37,7 @@ import net.conselldemallorca.helium.model.dao.DominiDao;
 import net.conselldemallorca.helium.model.dao.EntornDao;
 import net.conselldemallorca.helium.model.dao.MailDao;
 import net.conselldemallorca.helium.model.dao.PluginRegistreDao;
+import net.conselldemallorca.helium.model.dao.PluginTramitacioDao;
 import net.conselldemallorca.helium.model.dto.ArxiuDto;
 import net.conselldemallorca.helium.model.dto.DocumentDto;
 import net.conselldemallorca.helium.model.dto.ExpedientDto;
@@ -38,12 +48,16 @@ import net.conselldemallorca.helium.model.hibernate.Document;
 import net.conselldemallorca.helium.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.model.hibernate.Domini;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
+import net.conselldemallorca.helium.model.hibernate.Estat;
 import net.conselldemallorca.helium.model.hibernate.Expedient;
+import net.conselldemallorca.helium.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.model.service.DissenyService;
 import net.conselldemallorca.helium.model.service.DocumentService;
 import net.conselldemallorca.helium.model.service.ExpedientService;
+import net.conselldemallorca.helium.model.service.PermissionService;
 import net.conselldemallorca.helium.model.service.ServiceProxy;
 import net.conselldemallorca.helium.model.service.TascaService;
+import net.conselldemallorca.helium.security.permission.ExtendedPermission;
 import net.conselldemallorca.helium.util.ExpedientIniciant;
 import net.conselldemallorca.helium.util.GlobalProperties;
 
@@ -51,6 +65,8 @@ import org.jbpm.JbpmException;
 import org.jbpm.graph.def.ActionHandler;
 import org.jbpm.graph.exe.ExecutionContext;
 import org.jbpm.graph.exe.Token;
+import org.springframework.security.acls.Permission;
+
 
 /**
  * Handler que pot servir com a base per als handlers que s'hagin
@@ -111,6 +127,63 @@ public abstract class BasicActionHandler implements ActionHandler {
 		} catch (Exception ex) {
 			throw new JbpmException("Error en la consulta del domini amb el codi '" + codiDomini + "'", ex);
 		}
+	}
+
+	public List<ExpedientInfo> consultaExpedients(
+			ExecutionContext executionContext,
+			String titol,
+			String numero,
+			Date dataInici1,
+			Date dataInici2,
+			String expedientTipusCodi,
+			String estatCodi,
+			boolean iniciat,
+			boolean finalitzat) {
+		// Obtencio de dades per a fer la consulta
+		ExpedientInfo expedient = getExpedient(executionContext);
+		Entorn entorn = getEntornDao().findAmbCodi(expedient.getEntornCodi());
+		ExpedientTipus expedientTipus = getDissenyService().findExpedientTipusAmbEntornICodi(
+				entorn.getId(),
+				expedientTipusCodi);
+		Long estatId = null;
+		if (estatCodi != null) {
+			for (Estat estat: expedientTipus.getEstats()) {
+				if (estat.getCodi().equals(estatCodi)) {
+					estatId = estat.getId();
+					break;
+				}
+			}
+		}
+		// Consulta d'expedients
+		List<ExpedientDto> expedients = getExpedientService().findAmbEntornConsultaGeneral(
+				entorn.getId(),
+				titol,
+				numero,
+				dataInici1,
+				dataInici2,
+				expedientTipus.getId(),
+				estatId,
+				iniciat,
+				finalitzat);
+		// Filtre expedients permesos
+		List<ExpedientTipus> tipus = getDissenyService().findExpedientTipusAmbEntorn(entorn.getId());
+		getPermissionService().filterAllowed(
+				tipus,
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.ADMINISTRATION,
+					ExtendedPermission.READ});
+		Iterator<ExpedientDto> it = expedients.iterator();
+		while (it.hasNext()) {
+			ExpedientDto exp = it.next();
+			if (!tipus.contains(exp.getTipus()))
+				it.remove();
+		}
+		// Construcció de la resposta
+		List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
+		for (ExpedientDto dto: expedients)
+			resposta.add(toExpedientInfo(dto));
+		return resposta;
 	}
 
 	/**
@@ -252,34 +325,8 @@ public abstract class BasicActionHandler implements ActionHandler {
 		} else {
 			ExpedientDto expedient = getExpedientService().findExpedientAmbProcessInstanceId(
 					getProcessInstanceId(executionContext));
-			if (expedient != null) {
-				ExpedientInfo resposta = new ExpedientInfo();
-				resposta.setTitol(expedient.getTitol());
-				resposta.setNumero(expedient.getNumero());
-				resposta.setNumeroDefault(expedient.getNumeroDefault());
-				resposta.setDataInici(expedient.getDataInici());
-				resposta.setDataFi(expedient.getDataFi());
-				resposta.setComentari(expedient.getComentari());
-				resposta.setInfoAturat(expedient.getInfoAturat());
-				if (expedient.getIniciadorTipus().equals(net.conselldemallorca.helium.model.hibernate.Expedient.IniciadorTipus.INTERN))
-					resposta.setIniciadorTipus(IniciadorTipus.INTERN);
-				else if (expedient.getIniciadorTipus().equals(net.conselldemallorca.helium.model.hibernate.Expedient.IniciadorTipus.SISTRA))
-					resposta.setIniciadorTipus(IniciadorTipus.SISTRA);
-				resposta.setIniciadorCodi(expedient.getIniciadorCodi());
-				resposta.setResponsableCodi(expedient.getResponsableCodi());
-				resposta.setRegistreNumero(expedient.getRegistreNumero());
-				resposta.setRegistreData(expedient.getRegistreData());
-				resposta.setGeoPosX(expedient.getGeoPosX());
-				resposta.setGeoPosY(expedient.getGeoPosY());
-				resposta.setGeoReferencia(expedient.getGeoReferencia());
-				resposta.setExpedientTipusCodi(expedient.getTipus().getCodi());
-				resposta.setEntornCodi(expedient.getEntorn().getCodi());
-				if (expedient.getEstat() != null)
-					resposta.setEstatCodi(expedient.getEstat().getCodi());
-				return resposta;
-			}
+			return toExpedientInfo(expedient);
 		}
-		return null;
 	}
 
 	/**
@@ -479,6 +526,24 @@ public abstract class BasicActionHandler implements ActionHandler {
 		executionContext.setVariable(varName, termini);
 	}
 
+	/**
+	 * Consulta les dades d'un tràmit
+	 * 
+	 * @param executionContext
+	 * @param anys
+	 * @param mesos
+	 * @param dies
+	 */
+	public Tramit consultaTramit(
+			String numero,
+			String clau) {
+		ObtenirDadesTramitRequest request = new ObtenirDadesTramitRequest();
+		request.setNumero(numero);
+		request.setClau(clau);
+		return toTramit(
+				getPluginTramitacioDao().obtenirDadesTramit(request));
+	}
+
 
 
 	private String getProcessInstanceId(ExecutionContext executionContext) {
@@ -496,6 +561,9 @@ public abstract class BasicActionHandler implements ActionHandler {
 	private PluginRegistreDao getRegistreDao() {
 		return DaoProxy.getInstance().getPluginRegistreDao();
 	}
+	private PluginTramitacioDao getPluginTramitacioDao() {
+		return DaoProxy.getInstance().getPluginTramitacioDao();
+	}
 	private ExpedientService getExpedientService() {
 		return ServiceProxy.getInstance().getExpedientService();
 	}
@@ -504,6 +572,9 @@ public abstract class BasicActionHandler implements ActionHandler {
 	}
 	private DissenyService getDissenyService() {
 		return ServiceProxy.getInstance().getDissenyService();
+	}
+	private PermissionService getPermissionService() {
+		return ServiceProxy.getInstance().getPermissionService();
 	}
 
 	private SeientRegistral getSeientRegistral(
@@ -655,6 +726,121 @@ public abstract class BasicActionHandler implements ActionHandler {
 		if (valor instanceof Long)
 			return (Long)valor;
 		return null;
+	}
+	private ExpedientInfo toExpedientInfo(ExpedientDto expedient) {
+		if (expedient != null) {
+			ExpedientInfo resposta = new ExpedientInfo();
+			resposta.setTitol(expedient.getTitol());
+			resposta.setNumero(expedient.getNumero());
+			resposta.setNumeroDefault(expedient.getNumeroDefault());
+			resposta.setDataInici(expedient.getDataInici());
+			resposta.setDataFi(expedient.getDataFi());
+			resposta.setComentari(expedient.getComentari());
+			resposta.setInfoAturat(expedient.getInfoAturat());
+			if (expedient.getIniciadorTipus().equals(net.conselldemallorca.helium.model.hibernate.Expedient.IniciadorTipus.INTERN))
+				resposta.setIniciadorTipus(IniciadorTipus.INTERN);
+			else if (expedient.getIniciadorTipus().equals(net.conselldemallorca.helium.model.hibernate.Expedient.IniciadorTipus.SISTRA))
+				resposta.setIniciadorTipus(IniciadorTipus.SISTRA);
+			resposta.setIniciadorCodi(expedient.getIniciadorCodi());
+			resposta.setResponsableCodi(expedient.getResponsableCodi());
+			resposta.setRegistreNumero(expedient.getRegistreNumero());
+			resposta.setRegistreData(expedient.getRegistreData());
+			resposta.setGeoPosX(expedient.getGeoPosX());
+			resposta.setGeoPosY(expedient.getGeoPosY());
+			resposta.setGeoReferencia(expedient.getGeoReferencia());
+			resposta.setExpedientTipusCodi(expedient.getTipus().getCodi());
+			resposta.setEntornCodi(expedient.getEntorn().getCodi());
+			if (expedient.getEstat() != null)
+				resposta.setEstatCodi(expedient.getEstat().getCodi());
+			resposta.setProcessInstanceId(new Long(expedient.getProcessInstanceId()).longValue());
+			return resposta;
+		}
+		return null;
+	}
+
+	private Tramit toTramit(DadesTramit dadesTramit) {
+		if (dadesTramit == null)
+			return null;
+		Tramit tramit = new Tramit();
+		tramit.setNumero(dadesTramit.getNumero());
+		tramit.setClauAcces(dadesTramit.getClauAcces());
+		tramit.setIdentificador(dadesTramit.getIdentificador());
+		tramit.setUnitatAdministrativa(dadesTramit.getUnitatAdministrativa());
+		tramit.setVersio(dadesTramit.getVersio());
+		tramit.setData(dadesTramit.getData());
+		tramit.setIdioma(dadesTramit.getIdioma());
+		tramit.setRegistreNumero(dadesTramit.getRegistreNumero());
+		tramit.setRegistreData(dadesTramit.getRegistreData());
+		tramit.setPreregistreTipusConfirmacio(dadesTramit.getPreregistreTipusConfirmacio());
+		tramit.setPreregistreNumero(dadesTramit.getPreregistreNumero());
+		tramit.setPreregistreData(dadesTramit.getPreregistreData());
+		if (dadesTramit.getAutenticacioTipus() != null) {
+			if (net.conselldemallorca.helium.integracio.plugins.tramitacio.AutenticacioTipus.ANONIMA.equals(dadesTramit.getAutenticacioTipus()))
+				tramit.setAutenticacioTipus(AutenticacioTipus.ANONIMA);
+			if (net.conselldemallorca.helium.integracio.plugins.tramitacio.AutenticacioTipus.USUARI.equals(dadesTramit.getAutenticacioTipus()))
+				tramit.setAutenticacioTipus(AutenticacioTipus.USUARI);
+			if (net.conselldemallorca.helium.integracio.plugins.tramitacio.AutenticacioTipus.CERTIFICAT.equals(dadesTramit.getAutenticacioTipus()))
+				tramit.setAutenticacioTipus(AutenticacioTipus.CERTIFICAT);
+		}
+		tramit.setTramitadorNif(dadesTramit.getTramitadorNif());
+		tramit.setTramitadorNom(dadesTramit.getTramitadorNom());
+		tramit.setInteressatNif(dadesTramit.getInteressatNif());
+		tramit.setInteressatNom(dadesTramit.getInteressatNom());
+		tramit.setRepresentantNif(dadesTramit.getRepresentantNif());
+		tramit.setRepresentantNom(dadesTramit.getRepresentantNom());
+		tramit.setSignat(dadesTramit.isSignat());
+		tramit.setAvisosHabilitats(dadesTramit.isAvisosHabilitats());
+		tramit.setAvisosEmail(dadesTramit.getAvisosEmail());
+		tramit.setAvisosSms(dadesTramit.getAvisosSms());
+		tramit.setNotificacioTelematicaHabilitada(dadesTramit.isNotificacioTelematicaHabilitada());
+		if (dadesTramit.getDocuments() != null) {
+			List<DocumentTramit> documents = new ArrayList<DocumentTramit>();
+			for (net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentTramit documento: dadesTramit.getDocuments()) {
+				DocumentTramit document = new DocumentTramit();
+				document.setNom(documento.getNom());
+				document.setIdentificador(documento.getIdentificador());
+				document.setInstanciaNumero(documento.getInstanciaNumero());
+				if (documento.getDocumentPresencial() != null) {
+					DocumentPresencial documentPresencial = new DocumentPresencial();
+					documentPresencial.setDocumentCompulsar(
+							documento.getDocumentPresencial().getDocumentCompulsar());
+					documentPresencial.setSignatura(
+							documento.getDocumentPresencial().getSignatura());
+					documentPresencial.setFotocopia(
+							documento.getDocumentPresencial().getFotocopia());
+					documentPresencial.setTipus(
+							documento.getDocumentPresencial().getTipus());
+					document.setDocumentPresencial(documentPresencial);
+				}
+				if (documento.getDocumentTelematic() != null) {
+					DocumentTelematic documentTelematic = new DocumentTelematic();
+					documentTelematic.setArxiuNom(
+							documento.getDocumentTelematic().getArxiuNom());
+					documentTelematic.setArxiuExtensio(
+							documento.getDocumentTelematic().getArxiuExtensio());
+					documentTelematic.setArxiuContingut(
+							documento.getDocumentTelematic().getArxiuContingut());
+					documentTelematic.setReferenciaCodi(
+							documento.getDocumentTelematic().getReferenciaCodi());
+					documentTelematic.setReferenciaClau(
+							documento.getDocumentTelematic().getReferenciaClau());
+					if (documento.getDocumentTelematic().getSignatures() != null) {
+						List<Signatura> signatures = new ArrayList<Signatura>();
+						for (net.conselldemallorca.helium.integracio.plugins.tramitacio.Signatura firma: documento.getDocumentTelematic().getSignatures()) {
+							Signatura signatura = new Signatura();
+							signatura.setFormat(firma.getFormat());
+							signatura.setSignatura(firma.getSignatura());
+							signatures.add(signatura);
+						}
+						documentTelematic.setSignatures(signatures);
+					}
+					document.setDocumentTelematic(documentTelematic);
+				}
+				documents.add(document);
+			}
+			tramit.setDocuments(documents);
+		}
+		return tramit;
 	}
 
 	static final long serialVersionUID = 1L;

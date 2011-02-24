@@ -180,7 +180,6 @@ public class DefinicioProcesDocumentTascaController extends BaseController {
 			if (potDissenyarDefinicioProces(entorn, definicioProces)) {
 				DocumentTasca documentTasca = dissenyService.getDocumentTascaById(id);
 				try {
-					System.out.println(">>> ARA");
 					dissenyService.goUpDocumentTasca(id);
 				} catch (Exception ex) {
 		        	missatgeError(request, "No s'ha pogut canviar l'ordre del document", ex.getLocalizedMessage());

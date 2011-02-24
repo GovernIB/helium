@@ -18,6 +18,7 @@ import net.conselldemallorca.helium.model.service.ExpedientService;
 import net.conselldemallorca.helium.model.service.TascaService;
 import net.conselldemallorca.helium.presentacio.mvc.util.BaseController;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,14 +115,17 @@ public class SignaturaController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			try {
-				/*FileOutputStream fos = new FileOutputStream("c:/signat");
-				fos.write(Base64.decode(data));
-				fos.close();*/
-				tascaService.signarDocumentAmbToken(
+				boolean custodiat = tascaService.signarDocumentAmbToken(
 						entorn.getId(),
 						token,
-						data.getBytes());
-				logger.info("Firma del document amb el token " + token + " processada correctament");
+						Base64.decodeBase64(data.getBytes()));
+				if (custodiat) {
+					logger.info("Signatura del document amb el token " + token + " processada correctament");
+					missatgeInfo(request, "La signatura del document s'ha processat correctament");
+				} else {
+					logger.error("Signatura del document amb el token " + token + " processada amb error de custòdia");
+					missatgeError(request, "Error en la validació de la signatura");
+				}
 			} catch(Exception ex) {
 				logger.error("Error rebent la signatura del document", ex);
 				missatgeError(request, "Error rebent la signatura del document");
