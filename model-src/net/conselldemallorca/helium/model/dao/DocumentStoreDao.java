@@ -76,13 +76,12 @@ public class DocumentStoreDao extends HibernateGenericDao<DocumentStore, Long> {
 			Long id,
 			Date data,
 			String numero,
-			String any,
+			String organCodi,
 			String oficinaCodi,
 			String oficinaNom) {
 		DocumentStore ds = this.getById(id, false);
 		ds.setRegistreData(data);
 		ds.setRegistreNumero(numero);
-		ds.setRegistreAny(any);
 		ds.setRegistreOficinaCodi(oficinaCodi);
 		ds.setRegistreOficinaNom(oficinaNom);
 		ds.setRegistreEntrada(true);
@@ -91,13 +90,12 @@ public class DocumentStoreDao extends HibernateGenericDao<DocumentStore, Long> {
 			Long id,
 			Date data,
 			String numero,
-			String any,
+			String organCodi,
 			String oficinaCodi,
 			String oficinaNom) {
 		DocumentStore ds = this.getById(id, false);
 		ds.setRegistreData(data);
 		ds.setRegistreNumero(numero);
-		ds.setRegistreAny(any);
 		ds.setRegistreOficinaCodi(oficinaCodi);
 		ds.setRegistreOficinaNom(oficinaNom);
 		ds.setRegistreEntrada(false);

@@ -128,11 +128,26 @@ public class DtoConverter {
 		dto.setTipus(expedient.getTipus());
 		dto.setEntorn(expedient.getEntorn());
 		dto.setEstat(expedient.getEstat());
-		dto.setRegistreNumero(expedient.getRegistreNumero());
-		dto.setRegistreData(expedient.getRegistreData());
 		dto.setGeoPosX(expedient.getGeoPosX());
 		dto.setGeoPosY(expedient.getGeoPosY());
 		dto.setGeoReferencia(expedient.getGeoReferencia());
+		dto.setRegistreNumero(expedient.getRegistreNumero());
+		dto.setRegistreData(expedient.getRegistreData());
+		dto.setUnitatAdministrativa(expedient.getUnitatAdministrativa());
+		dto.setIdioma(expedient.getIdioma());
+		dto.setAutenticat(expedient.isAutenticat());
+		dto.setTramitadorNif(expedient.getTramitadorNif());
+		dto.setTramitadorNom(expedient.getTramitadorNom());
+		dto.setInteressatNif(expedient.getInteressatNif());
+		dto.setInteressatNom(expedient.getInteressatNom());
+		dto.setRepresentantNif(expedient.getRepresentantNif());
+		dto.setRepresentantNom(expedient.getRepresentantNom());
+		dto.setAvisosHabilitats(expedient.isAvisosHabilitats());
+		dto.setAvisosEmail(expedient.getAvisosEmail());
+		dto.setAvisosMobil(expedient.getAvisosMobil());
+		dto.setNotificacioTelematicaHabilitada(expedient.isNotificacioTelematicaHabilitada());
+		dto.setTramitExpedientIdentificador(expedient.getTramitExpedientIdentificador());
+		dto.setTramitExpedientClau(expedient.getTramitExpedientClau());
 		if (!starting) {
 			JbpmProcessInstance processInstance = jbpmDao.getProcessInstance(expedient.getProcessInstanceId());
 			dto.setDataFi(processInstance.getEnd());
@@ -497,8 +512,6 @@ public class DtoConverter {
 								if (document.getRegistreData() != null)
 									dataRegistre = df.format(document.getRegistreData());
 								String numeroRegistre = document.getRegistreNumero();
-								if (document.getRegistreAny() != null)
-									numeroRegistre = numeroRegistre + "/" + document.getRegistreAny();
 								getPdfUtils().estampar(
 										arxiuOriginalNom,
 										arxiuOriginalContingut,
@@ -524,7 +537,6 @@ public class DtoConverter {
 				if (document.isRegistrat()) {
 					dto.setRegistreData(document.getRegistreData());
 					dto.setRegistreNumero(document.getRegistreNumero());
-					dto.setRegistreAny(document.getRegistreAny());
 					dto.setRegistreOficinaCodi(document.getRegistreOficinaCodi());
 					dto.setRegistreOficinaNom(document.getRegistreOficinaNom());
 					dto.setRegistreEntrada(document.isRegistreEntrada());

@@ -52,6 +52,7 @@ function confirmarAccio(e) {
 			<c:otherwise><dt>Iniciat per</dt><dd>${expedient.iniciadorPersona.nomSencer}</dd></c:otherwise>
 		</c:choose>
 		<c:if test="${not empty expedient.registreNumero}"><dt>Número de registre</dt><dd>${expedient.registreNumero}</dd></c:if>
+		<c:if test="${not empty expedient.registreData}"><dt>Data de registre</dt><dd><fmt:formatDate value="${expedient.registreData}" pattern="dd/MM/yyyy"/></dd></c:if>
 		<dt>Iniciat el</dt><dd><fmt:formatDate value="${expedient.dataInici}" pattern="dd/MM/yyyy HH:mm"/></dd>
 		<c:if test="${not empty expedient.responsablePersona}"><dt>Persona responsable</dt><dd>${expedient.responsablePersona.nomSencer}</dd></c:if>
 		<c:if test="${not empty expedient.dataFi}"><dt>Finalitzat el</dt><dd><fmt:formatDate value="${expedient.dataFi}" pattern="dd/MM/yyyy HH:mm"/></dd></c:if>

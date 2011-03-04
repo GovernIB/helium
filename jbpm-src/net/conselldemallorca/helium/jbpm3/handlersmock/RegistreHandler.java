@@ -16,10 +16,6 @@ public abstract class RegistreHandler implements ActionHandler {
 
 	public abstract void execute(ExecutionContext executionContext) throws Exception;
 
-	public void setData(String data) {}
-	public void setVarData(String varData) {}
-	public void setHora(String hora) {}
-	public void setVarHora(String varHora) {}
 	public void setOficina(String oficina) {}
 	public void setVarOficina(String varOficina) {}
 	public void setOficinaFisica(String oficinaFisica) {}
@@ -59,8 +55,10 @@ public abstract class RegistreHandler implements ActionHandler {
 	public void setDocumentExtracte(String documentExtracte) {}
 	public void setVarDocumentExtracte(String varDocumentExtracte) {}
 	public void setVarDocument(String varDocument) {}
+
 	public void setVarNumeroRegistre(String varNumeroRegistre) {}
-	public void setVarAnyRegistre(String varAnyRegistre) {}
 	public void setVarNumeroAnyRegistre(String varNumeroAnyRegistre) {}
+	public void setVarDataRegistre(String varDataRegistre) {}
+	public void setVarData(String varData) {}
 
 }

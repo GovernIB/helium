@@ -25,57 +25,57 @@ form.uniForm .estret {
 }
 
 .missatgesOk {
-	background: #C8FFBF url(../img/tick.png) no-repeat scroll 4px 4px;
+	background: #C8FFBF url(../img/tick.png) no-repeat scroll 4px 6px;
 	border-color: #A2EF95;
 	border-style: solid;
 	border-width: 1px 0;
 	margin: 0 0 8px 0;
-	padding: 7px 7px 7px 24px;
+	padding: 10px 8px 2px 30px;
 	color: #666;
 }
 .missatgesInfo {
-	background: #DCF0F6 url(../img/information.png) no-repeat scroll 4px 4px;
+	background: #DCF0F6 url(../img/information.png) no-repeat scroll 4px 6px;
 	border-color: #AFD2DE;
 	border-style: solid;
 	border-width: 1px 0;
 	margin: 0 0 8px 0;
-	padding: 7px 7px 7px 24px;
+	padding: 10px 8px 2px 30px;
 	color: #666;
 }
 .missatgesWarn {
-	background: #FCF3C0 url(../img/error.png) no-repeat scroll 4px 4px;
+	background: #FCF3C0 url(../img/error.png) no-repeat scroll 4px 6px;
 	border-color: #F9C216;
 	border-style: solid;
 	border-width: 1px 0;
 	margin: 0 0 8px 0;
-	padding: 7px 7px 7px 24px;
+	padding: 10px 8px 2px 30px;
 	color: #666;
 }
 .missatgesError {
-	background: #FFDFDF url(../img/exclamation.png) no-repeat scroll 4px 4px;
+	background: #FFDFDF url(../img/exclamation.png) no-repeat scroll 4px 6px;
 	border-color: #DF7D7D;
 	border-style: solid;
 	border-width: 1px 0;
 	margin: 0 0 8px 0;
-	padding: 7px 7px 7px 24px;
+	padding: 10px 8px 2px 30px;
 	color: #666;
 }
 .missatgesComment {
-	background: #DCF0F6 url(../img/comment.png) no-repeat scroll 4px 4px;
+	background: #DCF0F6 url(../img/comment.png) no-repeat scroll 4px 6px;
 	border-color: #AFD2DE;
 	border-style: solid;
 	border-width: 1px 0;
 	margin: 0 0 8px 0;
-	padding: 7px 7px 7px 24px;
+	padding: 10px 8px 2px 30px;
 	color: #666;
 }
 .missatgesAturat {
-	background: #FFDFDF url(../img/stop.png) no-repeat scroll 4px 4px;
+	background: #FFDFDF url(../img/stop.png) no-repeat scroll 4px 6px;
 	border-color: #DF7D7D;
 	border-style: solid;
 	border-width: 1px 0;
 	margin: 0 0 8px 0;
-	padding: 7px 7px 7px 24px;
+	padding: 10px 8px 2px 30px;
 	color: #666;
 }
 .missatgesGris {
@@ -392,4 +392,8 @@ div.iconsFileInput {
 p.aclaracio {
 	color: #999;
 	font-size: 12px;
+}
+
+.missatgesOk p, .missatgesInfo p, .missatgesWarn p, .missatgesError p, .missatgesComment p, .missatgesAturat p {
+	margin-bottom: 8px;
 }

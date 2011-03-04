@@ -7,12 +7,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import net.conselldemallorca.helium.integracio.plugins.persones.Persona;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.model.dao.DaoProxy;
 import net.conselldemallorca.helium.model.dao.DocumentStoreDao;
 import net.conselldemallorca.helium.model.dao.PluginRegistreDao;
-import net.conselldemallorca.helium.model.dao.PluginTramitacioDao;
-import net.conselldemallorca.helium.model.dao.SistraDao;
 import net.conselldemallorca.helium.model.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.model.dto.DocumentDto;
 import net.conselldemallorca.helium.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.model.hibernate.Estat;
 import net.conselldemallorca.helium.model.hibernate.Termini;
@@ -22,6 +22,7 @@ import net.conselldemallorca.helium.model.service.DissenyService;
 import net.conselldemallorca.helium.model.service.ExpedientService;
 import net.conselldemallorca.helium.model.service.PluginService;
 import net.conselldemallorca.helium.model.service.ServiceProxy;
+import net.conselldemallorca.helium.model.service.TascaService;
 import net.conselldemallorca.helium.model.service.TerminiService;
 
 import org.jbpm.JbpmException;
@@ -86,14 +87,8 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 	AlertaService getAlertaService() {
 		return ServiceProxy.getInstance().getAlertaService();
 	}
-	SistraDao getSistraService() {
-		return DaoProxy.getInstance().getSistraDao();
-	}
 	PluginRegistreDao getPluginRegistreDao() {
 		return DaoProxy.getInstance().getPluginRegistreDao();
-	}
-	PluginTramitacioDao getPluginTramitacioDao() {
-		return DaoProxy.getInstance().getPluginTramitacioDao();
 	}
 	DocumentStoreDao getDocumentStoreDao() {
 		return DaoProxy.getInstance().getDocumentStoreDao();
@@ -156,6 +151,41 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 			}
 		}
 		return null;
+	}
+
+	protected Long getDocumentId(
+			ExecutionContext executionContext,
+			String varDocument) {
+		String varCodi = TascaService.PREFIX_DOCUMENT + varDocument;
+		Object valor = executionContext.getVariable(varCodi);
+		if (valor instanceof Long)
+			return (Long)valor;
+		return null;
+	}
+	protected DocumentInfo getDocumentInfo(Long id) {
+		if (id == null)
+			return null;
+		DocumentDto document = getExpedientService().getDocument(id, true, false);
+		if (document == null)
+			return null;
+		DocumentInfo resposta = new DocumentInfo();
+		resposta.setId(id);
+		if (document.isAdjunt()) {
+			resposta.setTitol(document.getAdjuntTitol());
+		} else {
+			resposta.setTitol(document.getDocumentNom());
+		}
+		resposta.setDataCreacio(document.getDataCreacio());
+		resposta.setDataDocument(document.getDataDocument());
+		resposta.setSignat(document.isSignat());
+		if (document.isSignat()) {
+			resposta.setArxiuNom(document.getSignatNom());
+			resposta.setArxiuContingut(document.getSignatContingut());
+		} else {
+			resposta.setArxiuNom(document.getArxiuNom());
+			resposta.setArxiuContingut(document.getArxiuContingut());
+		}
+		return resposta;
 	}
 
 }

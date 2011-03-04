@@ -6,8 +6,10 @@ package net.conselldemallorca.helium.jbpm3.handlers;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarExpedientRequest;
 import net.conselldemallorca.helium.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.model.hibernate.Expedient;
+import net.conselldemallorca.helium.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.util.ExpedientIniciant;
 
+import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
 
 /**
@@ -31,11 +33,13 @@ public class ZonaperExpedientCrearHandler extends AbstractHeliumActionHandler {
 				varDescripcio);
 		Expedient ex = ExpedientIniciant.getExpedient();
 		if (ex != null) {
-			getPluginTramitacioDao().publicarExpedient(
+			getExpedientService().publicarExpedient(
+					ex,
 					getPublicarExpedientRequest(ex, desc));
 		} else {
 			ExpedientDto expedient = getExpedient(executionContext);
-			getPluginTramitacioDao().publicarExpedient(
+			getExpedientService().publicarExpedient(
+					expedient,
 					getPublicarExpedientRequest(expedient, desc));
 		}
 	}
@@ -51,9 +55,12 @@ public class ZonaperExpedientCrearHandler extends AbstractHeliumActionHandler {
 
 	private PublicarExpedientRequest getPublicarExpedientRequest(
 			Expedient expedient,
-			String descripcio) {
+			String descripcio) throws JbpmException {
+		if (!IniciadorTipus.SISTRA.equals(expedient.getIniciadorTipus()))
+			throw new JbpmException("Aquest expedient no prové d'un tramit de SISTRA");
+		if (!expedient.isAvisosHabilitats())
+			throw new JbpmException("El tràmit no té els avisos habilitats");
 		PublicarExpedientRequest request = new PublicarExpedientRequest();
-		request.setExpedientIdentificador(expedient.getNumeroIdentificador());
 		request.setIdioma(expedient.getIdioma());
 		request.setUnitatAdministrativa(expedient.getUnitatAdministrativa());
 		request.setDescripcio(descripcio);
@@ -64,8 +71,10 @@ public class ZonaperExpedientCrearHandler extends AbstractHeliumActionHandler {
 				request.setRepresentantNif(expedient.getRepresentantNif());
 				request.setRepresentatNif(expedient.getInteressatNif());
 				request.setRepresentatNom(expedient.getInteressatNom());
-			} else {
+			} else if (expedient.getInteressatNif() != null) {
 				request.setRepresentantNif(expedient.getInteressatNif());
+			} else {
+				request.setRepresentantNif(expedient.getTramitadorNif());
 			}
 		}
 		return request;

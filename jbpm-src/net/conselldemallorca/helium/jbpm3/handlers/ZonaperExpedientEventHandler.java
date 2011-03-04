@@ -78,7 +78,7 @@ public class ZonaperExpedientEventHandler extends AbstractHeliumActionHandler {
 		String model = (String)getValorOVariable(executionContext, redoseModel, varRedoseModel);
 		Integer versio = getValorOVariableInteger(executionContext, redoseVersio, varRedoseVersio);
 		if (ex != null) {
-			getPluginTramitacioDao().publicarEvent(
+			getExpedientService().publicarEvent(
 					getPublicarEventRequest(
 							ex,
 							(String)getValorOVariable(executionContext, titol, varTitol),
@@ -93,7 +93,7 @@ public class ZonaperExpedientEventHandler extends AbstractHeliumActionHandler {
 							versio));
 		} else {
 			ExpedientDto expedient = getExpedient(executionContext);
-			getPluginTramitacioDao().publicarEvent(
+			getExpedientService().publicarEvent(
 					getPublicarEventRequest(
 							expedient,
 							(String)getValorOVariable(executionContext, titol, varTitol),
@@ -173,7 +173,8 @@ public class ZonaperExpedientEventHandler extends AbstractHeliumActionHandler {
 			String adjuntModel,
 			Integer adjuntVersio) {
 		PublicarEventRequest requestEvent = new PublicarEventRequest();
-		requestEvent.setExpedientIdentificador(expedient.getNumeroIdentificador());
+		requestEvent.setExpedientIdentificador(expedient.getTramitExpedientIdentificador());
+		requestEvent.setExpedientClau(expedient.getTramitExpedientClau());
 		requestEvent.setUnitatAdministrativa(expedient.getUnitatAdministrativa());
 		Event event = new Event();
 		event.setTitol(titol);

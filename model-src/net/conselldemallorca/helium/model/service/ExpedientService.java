@@ -15,10 +15,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import net.conselldemallorca.helium.integracio.bantel.plugin.DadesDocument;
+import net.conselldemallorca.helium.integracio.backoffice.DadesDocument;
 import net.conselldemallorca.helium.integracio.domini.FilaResultat;
 import net.conselldemallorca.helium.integracio.plugins.persones.Persona;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarEventRequest;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarExpedientRequest;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmNodePosition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
@@ -40,6 +42,7 @@ import net.conselldemallorca.helium.model.dao.PluginCustodiaDao;
 import net.conselldemallorca.helium.model.dao.PluginGestioDocumentalDao;
 import net.conselldemallorca.helium.model.dao.PluginPersonaDao;
 import net.conselldemallorca.helium.model.dao.PluginSignaturaDao;
+import net.conselldemallorca.helium.model.dao.PluginTramitacioDao;
 import net.conselldemallorca.helium.model.dao.RegistreDao;
 import net.conselldemallorca.helium.model.dao.TerminiIniciatDao;
 import net.conselldemallorca.helium.model.dto.DocumentDto;
@@ -99,6 +102,7 @@ public class ExpedientService {
 	private AccioDao accioDao;
 	private TerminiIniciatDao terminiIniciatDao;
 	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
+	private PluginTramitacioDao pluginTramitacioDao;
 	private PluginSignaturaDao pluginSignaturaDao;
 	private PluginPersonaDao pluginPersonaDao;
 
@@ -1005,6 +1009,23 @@ public class ExpedientService {
 				accio.getJbpmAction());
 	}
 
+	public void publicarExpedient(
+			Expedient expedient,
+			PublicarExpedientRequest request) {
+		String identificador = expedient.getNumeroIdentificador();
+		String clau = new Long(System.currentTimeMillis()).toString();
+		request.setExpedientIdentificador(identificador);
+		request.setExpedientClau(clau);
+		pluginTramitacioDao.publicarExpedient(request);
+		Expedient ex = expedientDao.getById(expedient.getId(), false);
+		ex.setTramitExpedientIdentificador(identificador);
+		ex.setTramitExpedientClau(clau);
+	}
+	public void publicarEvent(
+			PublicarEventRequest request) {
+		pluginTramitacioDao.publicarEvent(request);
+	}
+
 
 
 	@Autowired
@@ -1075,6 +1096,10 @@ public class ExpedientService {
 	public void setPluginGestioDocumentalDao(
 			PluginGestioDocumentalDao pluginGestioDocumentalDao) {
 		this.pluginGestioDocumentalDao = pluginGestioDocumentalDao;
+	}
+	@Autowired
+	public void setPluginTramitacioDao(PluginTramitacioDao pluginTramitacioDao) {
+		this.pluginTramitacioDao = pluginTramitacioDao;
 	}
 	@Autowired
 	public void setPluginSignaturaDao(

@@ -106,6 +106,10 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	@MaxLength(255)
 	private String avisosMobil;
 	private boolean notificacioTelematicaHabilitada = false;
+	@MaxLength(255)
+	private String tramitExpedientIdentificador;
+	@MaxLength(255)
+	private String tramitExpedientClau;
 
 	private Estat estat;
 	@NotNull
@@ -372,6 +376,22 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	public void setNotificacioTelematicaHabilitada(
 			boolean notificacioTelematicaHabilitada) {
 		this.notificacioTelematicaHabilitada = notificacioTelematicaHabilitada;
+	}
+
+	@Column(name="tramexp_id", length=255)
+	public String getTramitExpedientIdentificador() {
+		return tramitExpedientIdentificador;
+	}
+	public void setTramitExpedientIdentificador(String tramitExpedientIdentificador) {
+		this.tramitExpedientIdentificador = tramitExpedientIdentificador;
+	}
+
+	@Column(name="tramexp_clau", length=255)
+	public String getTramitExpedientClau() {
+		return tramitExpedientClau;
+	}
+	public void setTramitExpedientClau(String tramitExpedientClau) {
+		this.tramitExpedientClau = tramitExpedientClau;
 	}
 
 	@ManyToOne(optional=true)

@@ -3,9 +3,14 @@
  */
 package net.conselldemallorca.helium.model.dao;
 
+import net.conselldemallorca.helium.integracio.plugins.registre.RegistreEntrada;
+import net.conselldemallorca.helium.integracio.plugins.registre.RegistreNotificacio;
 import net.conselldemallorca.helium.integracio.plugins.registre.RegistrePlugin;
 import net.conselldemallorca.helium.integracio.plugins.registre.RegistrePluginException;
-import net.conselldemallorca.helium.integracio.plugins.registre.SeientRegistral;
+import net.conselldemallorca.helium.integracio.plugins.registre.RegistreSortida;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaConsulta;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
 import net.conselldemallorca.helium.model.exception.PluginException;
 import net.conselldemallorca.helium.util.GlobalProperties;
 
@@ -25,49 +30,68 @@ public class PluginRegistreDao {
 
 
 
-	public String[] registrarEntrada(
-			SeientRegistral dadesRegistre) {
+	public RespostaAnotacioRegistre registrarEntrada(
+			RegistreEntrada registreEntrada) {
 		try {
-			return getRegistrePlugin().registrarEntrada(dadesRegistre);
+			return getRegistrePlugin().registrarEntrada(registreEntrada);
 		} catch (RegistrePluginException ex) {
 			logger.error("Error al crear el registre d'entrada", ex);
 			throw new PluginException("Error al crear el registre d'entrada", ex);
 		}
 	}
-
-	public SeientRegistral consultarEntrada(String oficina, String numero, String any) {
+	public RespostaConsulta consultarEntrada(
+			String organCodi,
+			String oficinaCodi,
+			String numeroRegistre) {
 		try {
-			return getRegistrePlugin().consultarEntrada(oficina, numero, any);
+			return getRegistrePlugin().consultarEntrada(
+					organCodi,
+					oficinaCodi,
+					numeroRegistre);
 		} catch (RegistrePluginException ex) {
-			logger.error("Error al consultar el registre d'entrada", ex);
-			throw new PluginException("Error al consultar el registre d'entrada", ex);
+			logger.error("Error al consultar un registre d'entrada", ex);
+			throw new PluginException("Error al consultar un registre d'entrada", ex);
 		}
 	}
 
-	public String[] registrarSortida(SeientRegistral dadesRegistre) {
+	public RespostaAnotacioRegistre registrarSortida(RegistreSortida registreSortida) {
 		try {
-			return getRegistrePlugin().registrarSortida(dadesRegistre);
+			return getRegistrePlugin().registrarSortida(registreSortida);
 		} catch (RegistrePluginException ex) {
 			logger.error("Error al crear el registre de sortida", ex);
 			throw new PluginException("Error al crear el registre de sortida", ex);
 		}
 	}
-
-	public SeientRegistral consultarSortida(String oficina, String numero, String any) {
+	public RespostaConsulta consultarSotida(
+			String organCodi,
+			String oficinaCodi,
+			String numeroRegistre) {
 		try {
-			return getRegistrePlugin().consultarSortida(oficina, numero, any);
+			return getRegistrePlugin().consultarSortida(
+					organCodi,
+					oficinaCodi,
+					numeroRegistre);
 		} catch (RegistrePluginException ex) {
-			logger.error("Error al consultar el registre de sortida", ex);
-			throw new PluginException("Error al consultar el registre de sortida", ex);
+			logger.error("Error al consultar un registre de sortida", ex);
+			throw new PluginException("Error al consultar un registre de sortida", ex);
 		}
 	}
 
-	public String getNomOficina(String codi) {
+	public RespostaAnotacioRegistre registrarNotificacio(RegistreNotificacio registreNotificacio) {
 		try {
-			return getRegistrePlugin().getNomOficina(codi);
+			return getRegistrePlugin().registrarNotificacio(registreNotificacio);
 		} catch (RegistrePluginException ex) {
-			logger.error("Error al consultar el nom de l'oficina", ex);
-			throw new PluginException("Error al consultar el nom de l'oficina", ex);
+			logger.error("Error al crear una notificació", ex);
+			throw new PluginException("Error al crear una notificació", ex);
+		}
+	}
+	public RespostaJustificantRecepcio obtenirJustificantRecepcio(
+			String numeroRegistre) {
+		try {
+			return getRegistrePlugin().obtenirJustificantRecepcio(numeroRegistre);
+		} catch (RegistrePluginException ex) {
+			logger.error("Error al obtenir justificant de recepció", ex);
+			throw new PluginException("Error al obtenir justificant de recepció", ex);
 		}
 	}
 

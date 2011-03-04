@@ -48,21 +48,30 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 			expediente.setIdioma(request.getIdioma());
 			expediente.setDescripcion(request.getDescripcio());
 			expediente.setAutenticado(request.isAutenticat());
-			expediente.setNifRepresentado(
-					new JAXBElement<String>(
-							new QName("nifRepresentado"),
-							String.class,
-							request.getRepresentatNif()));
-			expediente.setNombreRepresentado(
-					new JAXBElement<String>(
-							new QName("nombreRepresentado"),
-							String.class,
-							request.getRepresentatNom()));
-			expediente.setNumeroEntradaBTE(
-					new JAXBElement<String>(
-							new QName("numeroEntradaBTE"),
-							String.class,
-							request.getTramitNumero()));
+			if (request.getRepresentantNif() != null)
+				expediente.setNifRepresentante(
+						new JAXBElement<String>(
+								new QName("nifRepresentante"),
+								String.class,
+								request.getRepresentantNif()));
+			if (request.getRepresentatNif() != null)
+				expediente.setNifRepresentado(
+						new JAXBElement<String>(
+								new QName("nifRepresentado"),
+								String.class,
+								request.getRepresentatNif()));
+			if (request.getRepresentatNom() != null)
+				expediente.setNombreRepresentado(
+						new JAXBElement<String>(
+								new QName("nombreRepresentado"),
+								String.class,
+								request.getRepresentatNom()));
+			if (request.getTramitNumero() != null)
+				expediente.setNumeroEntradaBTE(
+						new JAXBElement<String>(
+								new QName("numeroEntradaBTE"),
+								String.class,
+								request.getTramitNumero()));
 			ConfiguracionAvisosExpediente configuracionAvisos = new ConfiguracionAvisosExpediente();
 			configuracionAvisos.setHabilitarAvisos(
 					new JAXBElement<Boolean>(
@@ -358,10 +367,10 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 		String url = GlobalProperties.getInstance().getProperty("app.zonaper.service.url");
 		if (url == null)
 			url = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.zonaper.service.url");
-		String userName = GlobalProperties.getInstance().getProperty("app.zonaper.entrades.username");
+		String userName = GlobalProperties.getInstance().getProperty("app.zonaper.service.username");
 		if (userName == null)
 			userName = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.zonaper.service.username");
-		String password = GlobalProperties.getInstance().getProperty("app.zonaper.entrades.password");
+		String password = GlobalProperties.getInstance().getProperty("app.zonaper.service.password");
 		if (password == null)
 			password = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.zonaper.service.password");
 		Object wsClientProxy = WsClientUtils.getWsClientProxy(

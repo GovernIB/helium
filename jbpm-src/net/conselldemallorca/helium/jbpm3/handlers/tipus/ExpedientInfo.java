@@ -26,15 +26,27 @@ public class ExpedientInfo {
 	private IniciadorTipus iniciadorTipus;
 	private String iniciadorCodi;
 	private String responsableCodi;
+
+	private Double geoPosX;
+	private Double geoPosY;
+	private String geoReferencia;
 	private String registreNumero;
 	private Date registreData;
+	private Long unitatAdministrativa;
+	private String idioma;
+	private boolean autenticat;
+	private String tramitadorNif;
+	private String tramitadorNom;
+	private String interessatNif;
+	private String interessatNom;
+	private String representantNif;
+	private String representantNom;
 	private boolean avisosHabilitats;
 	private String avisosEmail;
 	private String avisosMobil;
 	private boolean notificacioTelematicaHabilitada;
-	private Double geoPosX;
-	private Double geoPosY;
-	private String geoReferencia;
+	private String tramitExpedientIdentificador;
+	private String tramitExpedientClau;
 
 	private String estatCodi;
 	private String expedientTipusCodi;
@@ -104,6 +116,24 @@ public class ExpedientInfo {
 	public void setResponsableCodi(String responsableCodi) {
 		this.responsableCodi = responsableCodi;
 	}
+	public Double getGeoPosX() {
+		return geoPosX;
+	}
+	public void setGeoPosX(Double geoPosX) {
+		this.geoPosX = geoPosX;
+	}
+	public Double getGeoPosY() {
+		return geoPosY;
+	}
+	public void setGeoPosY(Double geoPosY) {
+		this.geoPosY = geoPosY;
+	}
+	public String getGeoReferencia() {
+		return geoReferencia;
+	}
+	public void setGeoReferencia(String geoReferencia) {
+		this.geoReferencia = geoReferencia;
+	}
 	public String getRegistreNumero() {
 		return registreNumero;
 	}
@@ -115,6 +145,60 @@ public class ExpedientInfo {
 	}
 	public void setRegistreData(Date registreData) {
 		this.registreData = registreData;
+	}
+	public Long getUnitatAdministrativa() {
+		return unitatAdministrativa;
+	}
+	public void setUnitatAdministrativa(Long unitatAdministrativa) {
+		this.unitatAdministrativa = unitatAdministrativa;
+	}
+	public String getIdioma() {
+		return idioma;
+	}
+	public void setIdioma(String idioma) {
+		this.idioma = idioma;
+	}
+	public boolean isAutenticat() {
+		return autenticat;
+	}
+	public void setAutenticat(boolean autenticat) {
+		this.autenticat = autenticat;
+	}
+	public String getTramitadorNif() {
+		return tramitadorNif;
+	}
+	public void setTramitadorNif(String tramitadorNif) {
+		this.tramitadorNif = tramitadorNif;
+	}
+	public String getTramitadorNom() {
+		return tramitadorNom;
+	}
+	public void setTramitadorNom(String tramitadorNom) {
+		this.tramitadorNom = tramitadorNom;
+	}
+	public String getInteressatNif() {
+		return interessatNif;
+	}
+	public void setInteressatNif(String interessatNif) {
+		this.interessatNif = interessatNif;
+	}
+	public String getInteressatNom() {
+		return interessatNom;
+	}
+	public void setInteressatNom(String interessatNom) {
+		this.interessatNom = interessatNom;
+	}
+	public String getRepresentantNif() {
+		return representantNif;
+	}
+	public void setRepresentantNif(String representantNif) {
+		this.representantNif = representantNif;
+	}
+	public String getRepresentantNom() {
+		return representantNom;
+	}
+	public void setRepresentantNom(String representantNom) {
+		this.representantNom = representantNom;
 	}
 	public boolean isAvisosHabilitats() {
 		return avisosHabilitats;
@@ -141,23 +225,17 @@ public class ExpedientInfo {
 			boolean notificacioTelematicaHabilitada) {
 		this.notificacioTelematicaHabilitada = notificacioTelematicaHabilitada;
 	}
-	public Double getGeoPosX() {
-		return geoPosX;
+	public String getTramitExpedientIdentificador() {
+		return tramitExpedientIdentificador;
 	}
-	public void setGeoPosX(Double geoPosX) {
-		this.geoPosX = geoPosX;
+	public void setTramitExpedientIdentificador(String tramitExpedientIdentificador) {
+		this.tramitExpedientIdentificador = tramitExpedientIdentificador;
 	}
-	public Double getGeoPosY() {
-		return geoPosY;
+	public String getTramitExpedientClau() {
+		return tramitExpedientClau;
 	}
-	public void setGeoPosY(Double geoPosY) {
-		this.geoPosY = geoPosY;
-	}
-	public String getGeoReferencia() {
-		return geoReferencia;
-	}
-	public void setGeoReferencia(String geoReferencia) {
-		this.geoReferencia = geoReferencia;
+	public void setTramitExpedientClau(String tramitExpedientClau) {
+		this.tramitExpedientClau = tramitExpedientClau;
 	}
 	public String getEstatCodi() {
 		return estatCodi;

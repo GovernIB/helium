@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.conselldemallorca.helium.integracio.bantel.plugin.DadesDocument;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.AutenticacioTipus;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesTramit;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;

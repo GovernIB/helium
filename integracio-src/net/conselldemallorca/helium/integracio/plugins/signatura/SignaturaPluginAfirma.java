@@ -37,7 +37,6 @@ public class SignaturaPluginAfirma implements SignaturaPlugin {
 					Base64.encode(signatura),
 					obtenirDadesCertificat);
 			RespostaValidacioSignatura resposta = new RespostaValidacioSignatura();
-			InfoSignatura infoSignatura = new InfoSignatura(signatura);
 			if (response.isEstatOk()) {
 				resposta.setEstat(RespostaValidacioSignatura.ESTAT_OK);
 				if (response.getDadesCertificat() != null) {
@@ -62,7 +61,8 @@ public class SignaturaPluginAfirma implements SignaturaPlugin {
 					resposta.setDadesCertificat(dadesCertificats);
 				}
 			} else {
-				infoSignatura.setValida(false);
+				resposta.setEstat(RespostaValidacioSignatura.ESTAT_ERROR);
+				resposta.setErrorDescripcio(response.getErrorDescripcio());
 			}
 			return resposta;
 		} catch (Exception ex) {
