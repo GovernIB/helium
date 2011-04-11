@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.jws.WebService;
-import javax.xml.ws.Holder;
 
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.AutenticacioTipus;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesTramit;
@@ -23,19 +22,17 @@ import net.conselldemallorca.helium.integracio.plugins.tramitacio.TramitacioPlug
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import es.cim.ws.backoffice.v1.model.backoffice.ParametrosDominio;
-import es.cim.ws.backoffice.v1.model.backoffice.PeticionProcesarEntrada;
-import es.cim.ws.backoffice.v1.model.backoffice.RespuestaProcesarEntrada;
-import es.cim.ws.backoffice.v1.model.backoffice.TypeCodigoError;
+import es.cim.ws.backoffice.v1.model.backoffice.ObtenerDominioRequest;
+import es.cim.ws.backoffice.v1.model.backoffice.ObtenerDominioResponse;
+import es.cim.ws.backoffice.v1.model.backoffice.ProcesarEntradaBandejaRequest;
+import es.cim.ws.backoffice.v1.model.backoffice.ProcesarEntradaBandejaResponse;
+import es.cim.ws.backoffice.v1.model.backoffice.RealizarConsultaRequest;
+import es.cim.ws.backoffice.v1.model.backoffice.RealizarConsultaResponse;
 import es.cim.ws.backoffice.v1.model.backoffice.TypeResultadoProcesamiento;
-import es.cim.ws.backoffice.v1.model.datosdocumentotelematico.DatosDocumentoTelematico;
-import es.cim.ws.backoffice.v1.model.documentoconsulta.DocumentosConsulta;
+import es.cim.ws.backoffice.v1.model.datosdocumentotelematico.FirmaWS;
 import es.cim.ws.backoffice.v1.model.documentoentrada.DocumentoEntrada;
 import es.cim.ws.backoffice.v1.model.entrada.Entrada;
-import es.cim.ws.backoffice.v1.model.formularioconsulta.FormulariosConsulta;
-import es.cim.ws.backoffice.v1.model.valoresdominio.ValoresDominio;
 import es.cim.ws.backoffice.v1.services.Backoffice;
-import es.cim.ws.backoffice.v1.model.datosdocumentotelematico.FirmaWS;
 
 /**
  * Backoffice per a gestionar la recepció de tramits provinents
@@ -50,9 +47,10 @@ public class EsbCimBackoffice extends BaseBackoffice implements Backoffice {
 
 
 
-	public RespuestaProcesarEntrada procesarEntrada(PeticionProcesarEntrada peticion) {
-		RespuestaProcesarEntrada respuesta = new RespuestaProcesarEntrada();
-		Entrada entrada = peticion.getTramite();
+	public ProcesarEntradaBandejaResponse procesarEntradaBandeja(
+			ProcesarEntradaBandejaRequest request) {
+		ProcesarEntradaBandejaResponse response = new ProcesarEntradaBandejaResponse();
+		Entrada entrada = request.getTramite();
 		if (entrada != null) {
 			boolean error = false;
 			DadesTramit dadesTramit = toDadesTramit(entrada);
@@ -64,32 +62,25 @@ public class EsbCimBackoffice extends BaseBackoffice implements Backoffice {
 				error = true;
 			}
 			if (!error)
-				respuesta.setResultadoProcesamiento(TypeResultadoProcesamiento.PROCESADA);
+				response.setResultadoProcesamiento(TypeResultadoProcesamiento.PROCESADA);
 			else
-				respuesta.setResultadoProcesamiento(TypeResultadoProcesamiento.PROCESADA_ERROR);
+				response.setResultadoProcesamiento(TypeResultadoProcesamiento.PROCESADA_ERROR);
 		} else {
-			respuesta.setResultadoProcesamiento(TypeResultadoProcesamiento.PROCESADA);
+			response.setResultadoProcesamiento(TypeResultadoProcesamiento.PROCESADA);
 		}
-		return respuesta;
+		return response;
 	}
 
-	public void realizarConsulta(
-			String arg0,
-			FormulariosConsulta arg1,
-			Holder<TypeCodigoError> arg2,
-			Holder<String> arg3,
-			Holder<DocumentosConsulta> arg4) {
-		
+	public ObtenerDominioResponse obtenerDominio(ObtenerDominioRequest arg0) {
+		return null;
 	}
 
-	public void obtenerDominio(
-			String arg0,
-			ParametrosDominio arg1,
-			Holder<TypeCodigoError> arg2,
-			Holder<String> arg3,
-			Holder<ValoresDominio> arg4) {
-		
+	public RealizarConsultaResponse realizarConsulta(
+			RealizarConsultaRequest arg0) {
+		return null;
 	}
+
+
 
 	protected DadesVistaDocument getVistaDocumentTramit(
 			long referenciaCodi,
@@ -162,8 +153,8 @@ public class EsbCimBackoffice extends BaseBackoffice implements Backoffice {
 			List<DocumentTramit> documents = new ArrayList<DocumentTramit>();
 			for (DocumentoEntrada documento: entrada.getDocumentos().getDocumento()) {
 				DocumentTramit document = new DocumentTramit();
-				document.setNom(documento.getNombre());
 				document.setIdentificador(documento.getIdentificador());
+				document.setNom(documento.getNombre());
 				document.setInstanciaNumero(documento.getNumeroInstancia());
 				if (documento.getPresentacionPresencial() != null && documento.getPresentacionPresencial().getValue() != null) {
 					DocumentPresencial documentPresencial = new DocumentPresencial();
@@ -174,24 +165,26 @@ public class EsbCimBackoffice extends BaseBackoffice implements Backoffice {
 					documentPresencial.setFotocopia(
 							documento.getPresentacionPresencial().getValue().getFotocopia());
 					documentPresencial.setTipus(
-							documento.getPresentacionPresencial().getValue().getTipoDocumento());
+							documento.getPresentacionPresencial().getValue().getTipoDocumento().value());
 					document.setDocumentPresencial(documentPresencial);
 				}
 				if (documento.getPresentacionTelematica() != null && documento.getPresentacionTelematica().getValue() != null) {
-					DatosDocumentoTelematico documentoTelematico = documento.getPresentacionTelematica().getValue();
 					DocumentTelematic documentTelematic = new DocumentTelematic();
-					if (documentoTelematico.getExtension() != null)
-						documentTelematic.setArxiuExtensio(
-								documentoTelematico.getExtension().getValue());
-					if (documentoTelematico.getContent() != null)
-						documentTelematic.setArxiuContingut(
-								documentoTelematico.getContent().getValue());
-					if (documentoTelematico.getReferenciaGestorDocumental() != null)
+					if (documento.getPresentacionTelematica().getValue().getReferenciaGestorDocumental() != null)
 						documentTelematic.setReferenciaGestorDocumental(
-								documentoTelematico.getReferenciaGestorDocumental().getValue());
-					if (documentoTelematico.getFirmas() != null && documentoTelematico.getFirmas().getValue() != null) {
+								documento.getPresentacionTelematica().getValue().getReferenciaGestorDocumental().getValue());
+					if (documento.getPresentacionTelematica().getValue().getExtension() != null)
+						documentTelematic.setArxiuExtensio(
+								documento.getPresentacionTelematica().getValue().getExtension().getValue());
+					if (documento.getPresentacionTelematica().getValue().getContent() != null) {
+						documentTelematic.setArxiuNom(
+								documento.getNombre());
+						documentTelematic.setArxiuContingut(
+								documento.getPresentacionTelematica().getValue().getContent().getValue());
+					}
+					if (documento.getPresentacionTelematica().getValue().getFirmas() != null && documento.getPresentacionTelematica().getValue().getFirmas().getValue() != null) {
 						List<Signatura> signatures = new ArrayList<Signatura>();
-						for (FirmaWS firma: documentoTelematico.getFirmas().getValue().getFirmas()) {
+						for (FirmaWS firma: documento.getPresentacionTelematica().getValue().getFirmas().getValue().getFirma()) {
 							Signatura signatura = new Signatura();
 							signatura.setFormat(firma.getFormato());
 							signatura.setSignatura(firma.getFirma());
