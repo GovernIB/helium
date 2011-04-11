@@ -75,6 +75,10 @@ public class OpenOfficeUtils {
 			return arxiuNom + "." + outputFormat.getFileExtension();
 		}
 	}
+	public String getArxiuMimeType(String nomArxiu) {
+		DocumentFormat format = formatPerNomArxiu(nomArxiu);
+		return format.getMimeType();
+	}
 
 
 
