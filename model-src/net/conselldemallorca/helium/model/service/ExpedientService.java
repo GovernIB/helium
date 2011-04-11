@@ -132,6 +132,9 @@ public class ExpedientService {
 					entornId,
 					expedientTipus.getJbpmProcessDefinitionKey());
 		}
+		if (definicioProcesId == null && definicioProces == null) {
+			logger.error("No s'ha trobat la definició de procés (entorn=" + entornId + ", jbpmKey=" + expedientTipus.getJbpmProcessDefinitionKey() + ")");
+		}
 		String startTaskName = jbpmDao.getStartTaskName(definicioProces.getJbpmId());
 		if (startTaskName != null) {
 			return dtoConverter.toTascaInicialDto(startTaskName, definicioProces.getJbpmId(), valors);

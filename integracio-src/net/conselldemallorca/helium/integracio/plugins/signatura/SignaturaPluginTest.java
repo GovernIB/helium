@@ -14,6 +14,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
+import net.conselldemallorca.helium.util.GlobalProperties;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.ASN1Set;
@@ -41,79 +45,85 @@ import com.lowagie.text.pdf.PdfReader;
  */
 public class SignaturaPluginTest implements SignaturaPlugin {
 
-	@SuppressWarnings("unchecked")
 	public RespostaValidacioSignatura verificarSignatura(
 			byte[] document,
 			byte[] signatura,
 			boolean obtenirDadesCertificat) throws SignaturaPluginException {
-		try {
-			RespostaValidacioSignatura resposta = new RespostaValidacioSignatura();
-			X509Certificate[] certificats = null;
-			byte[] pkcs7Bytes = signatura;
-			ASN1InputStream asn1is = new ASN1InputStream(new ByteArrayInputStream(pkcs7Bytes));
-			ContentInfo pkcs7Info = ContentInfo.getInstance(asn1is.readObject());
-			SignedData signedData = SignedData.getInstance(pkcs7Info.getContent());
-			ASN1Set signerInfos = signedData.getSignerInfos();
-			int numSignatures = signerInfos.size();
-			if (numSignatures > 0) {
-				afegirProveidorBouncyCastle();
-				CMSSignedData cmsSignedData = new CMSSignedData(pkcs7Bytes);
-				SignerInformationStore signers = cmsSignedData.getSignerInfos();
-				CertStore certStore = cmsSignedData.getCertificatesAndCRLs("Collection", "BC");
-				List<X509Certificate> certs = new ArrayList<X509Certificate>();
-				for (SignerInformation signer: (Collection<SignerInformation>)signers.getSigners()) {
-					for (Certificate cert: certStore.getCertificates(signer.getSID())) {
-						if (cert instanceof X509Certificate)
-							certs.add((X509Certificate)cert);
-					}
+		RespostaValidacioSignatura resposta = new RespostaValidacioSignatura();
+		resposta.setEstat(RespostaValidacioSignatura.ESTAT_OK);
+		if (obtenirDadesCertificat) {
+			try {
+				if (isSignaturaFileAttached()) {
+					resposta.setDadesCertificat(
+							obtenirDadesCertificatPdf(signatura));
+				} else {
+					resposta.setDadesCertificat(
+							obtenirDadesCertificatNoPdf(signatura));
 				}
-				certificats = certs.toArray(new X509Certificate[certs.size()]);
-				if (certificats.length != 1)
-					throw new SignaturaPluginException("Aquesta signatura conté més d'un certificat");
-				//resposta.setInfoCertificat(getInfoCertificat(certificats[0]));
-				List<DadesCertificat> dadesCertificats = new ArrayList<DadesCertificat>();
-				dadesCertificats.add(getDadesCertificat(certificats[0]));
-				resposta.setDadesCertificat(dadesCertificats);
-				resposta.setEstat(RespostaValidacioSignatura.ESTAT_OK);
+			} catch (Exception ex) {
+				logger.error("Error en la validació de la signatura", ex);
 			}
-			return resposta;
-		} catch (Exception ex) {
-			throw new SignaturaPluginException("Error en la validació de la signatura", ex);
 		}
+		return resposta;
 	}
+
+
 
 	@SuppressWarnings("unchecked")
-	public RespostaValidacioSignatura verificarSignatura(
-			byte[] documentsignat) throws SignaturaPluginException {
-		//saveToFile("c:/pdf_signat.bin", documentsignat);
-		try {
-			RespostaValidacioSignatura resposta = new RespostaValidacioSignatura();
-			PdfReader reader = new PdfReader(new ByteArrayInputStream(documentsignat));
-			AcroFields af = reader.getAcroFields();
-			ArrayList<String> names = af.getSignatureNames();
-			for (String name: names) {
-				/*System.out.println("Signature name: " + name);
-				System.out.println("Signature covers whole document: " + af.signatureCoversWholeDocument(name));
-				System.out.println("Document revision: " + af.getRevision(name) + " of " + af.getTotalRevisions());*/
-				PdfPKCS7 pk = af.verifySignature(name);
-				Certificate pkc[] = pk.getCertificates();
-				List<DadesCertificat> dadesCertificats = new ArrayList<DadesCertificat>();
-				for (Certificate cert: pkc) {
-					if (cert instanceof X509Certificate) {
-						//saveToFile("c:/certificat.bin", documentsignat);
-						dadesCertificats.add(getDadesCertificat((X509Certificate)cert));
-					}
+	private List<DadesCertificat> obtenirDadesCertificatPdf(
+			byte[] signatura) throws Exception {
+		PdfReader reader = new PdfReader(new ByteArrayInputStream(signatura));
+		AcroFields af = reader.getAcroFields();
+		ArrayList<String> names = af.getSignatureNames();
+		for (String name: names) {
+			/*System.out.println("Signature name: " + name);
+			System.out.println("Signature covers whole document: " + af.signatureCoversWholeDocument(name));
+			System.out.println("Document revision: " + af.getRevision(name) + " of " + af.getTotalRevisions());*/
+			PdfPKCS7 pk = af.verifySignature(name);
+			Certificate pkc[] = pk.getCertificates();
+			List<DadesCertificat> dadesCertificats = new ArrayList<DadesCertificat>();
+			for (Certificate cert: pkc) {
+				if (cert instanceof X509Certificate) {
+					//saveToFile("c:/certificat.bin", documentsignat);
+					dadesCertificats.add(getDadesCertificat((X509Certificate)cert));
 				}
-				resposta.setDadesCertificat(dadesCertificats);
-				resposta.setEstat(RespostaValidacioSignatura.ESTAT_OK);
 			}
-			return resposta;
-		} catch (Exception ex) {
-			throw new SignaturaPluginException("Error en la validació de l'arxiu", ex);
+			return dadesCertificats;
 		}
+		return null;
 	}
-
-
+	@SuppressWarnings("unchecked")
+	private List<DadesCertificat> obtenirDadesCertificatNoPdf(
+			byte[] signatura) throws Exception {
+		X509Certificate[] certificats = null;
+		byte[] pkcs7Bytes = signatura;
+		ASN1InputStream asn1is = new ASN1InputStream(new ByteArrayInputStream(pkcs7Bytes));
+		ContentInfo pkcs7Info = ContentInfo.getInstance(asn1is.readObject());
+		SignedData signedData = SignedData.getInstance(pkcs7Info.getContent());
+		ASN1Set signerInfos = signedData.getSignerInfos();
+		int numSignatures = signerInfos.size();
+		if (numSignatures > 0) {
+			afegirProveidorBouncyCastle();
+			CMSSignedData cmsSignedData = new CMSSignedData(pkcs7Bytes);
+			SignerInformationStore signers = cmsSignedData.getSignerInfos();
+			CertStore certStore = cmsSignedData.getCertificatesAndCRLs("Collection", "BC");
+			List<X509Certificate> certs = new ArrayList<X509Certificate>();
+			for (SignerInformation signer: (Collection<SignerInformation>)signers.getSigners()) {
+				for (Certificate cert: certStore.getCertificates(signer.getSID())) {
+					if (cert instanceof X509Certificate)
+						certs.add((X509Certificate)cert);
+				}
+			}
+			certificats = certs.toArray(new X509Certificate[certs.size()]);
+			if (certificats.length != 1)
+				throw new SignaturaPluginException("Aquesta signatura conté més d'un certificat");
+			//resposta.setInfoCertificat(getInfoCertificat(certificats[0]));
+			List<DadesCertificat> dadesCertificats = new ArrayList<DadesCertificat>();
+			dadesCertificats.add(getDadesCertificat(certificats[0]));
+			return dadesCertificats;
+		}
+		return null;
+	}
 
 	private void afegirProveidorBouncyCastle() {
 		Provider[] proveidors = Security.getProviders();
@@ -199,6 +209,12 @@ public class SignaturaPluginTest implements SignaturaPlugin {
 		}
 	}*/
 
+	private boolean isSignaturaFileAttached() {
+		return "true".equalsIgnoreCase((String)GlobalProperties.getInstance().get("app.signatura.plugin.file.attached"));
+	}
+
 	private static final DERObjectIdentifier OID_NIF_RESPONSABLE = new DERObjectIdentifier("1.3.6.1.4.1.18838.1.1");
+
+	private static final Log logger = LogFactory.getLog(SignaturaPluginTest.class);
 
 }

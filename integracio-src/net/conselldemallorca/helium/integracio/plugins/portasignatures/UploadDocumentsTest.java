@@ -3,25 +3,22 @@
  */
 package net.conselldemallorca.helium.integracio.plugins.portasignatures;
 
-import java.util.Calendar;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Date;
+import java.util.List;
 
-import javax.activation.DataHandler;
-import javax.activation.FileDataSource;
+import net.conselldemallorca.helium.integracio.plugins.portasignatures.service.wsdl.Application;
+import net.conselldemallorca.helium.integracio.plugins.portasignatures.service.wsdl.Attributes;
+import net.conselldemallorca.helium.integracio.plugins.portasignatures.service.wsdl.CallbackRequest;
+import net.conselldemallorca.helium.integracio.plugins.portasignatures.service.wsdl.CallbackResponse;
+import net.conselldemallorca.helium.integracio.plugins.portasignatures.service.wsdl.Document;
+import net.conselldemallorca.helium.integracio.plugins.portasignatures.service.wsdl.MCGDws;
+import net.conselldemallorca.helium.integracio.plugins.portasignatures.service.wsdl.MCGDwsService;
+import net.conselldemallorca.helium.util.GlobalProperties;
 
-import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.Application;
-import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.CWSSoapBindingStub;
-import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.CwsProxy;
-import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.DocumentAttributes;
-import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.ImportanceEnum;
-import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.Sender;
-import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.SignModeEnum;
-import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.Signer;
-import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.Step;
-import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.Steps;
-import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.UploadRequest;
-import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.UploadRequestDocument;
-import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.UploadResponse;
-import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.UploadStep;
+import org.springframework.core.io.FileSystemResource;
 
 /**
  * Client de WebService per enviar un document al portasignatures
@@ -31,101 +28,66 @@ import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.Uplo
 public class UploadDocumentsTest {
 
 	public static void main(String[] args) throws Exception {
-		UploadDocumentsTest instance = new UploadDocumentsTest();
-		CwsProxy factory = new CwsProxy();
-		factory.setEndpoint("https://proves.caib.es/portafirmasws/web/services/CWS");
-		
-		DataHandler attachmentFile = new DataHandler(new FileDataSource("C:\\testLimit.pdf"));
-		CWSSoapBindingStub stub = (CWSSoapBindingStub)factory.getCws();
-		stub.addAttachment(attachmentFile);
-		
-		UploadRequest request = instance.buildRequest();
-		UploadResponse response = stub.uploadDocument(request);
-		System.out.println("Versió: " + response.getVersion());
-		System.out.println("Resultat Codi: " + response.getResult().getCode());
-		System.out.println("Resultat Missatge: " + response.getResult().getMessage());
-		System.out.println("Id del document: " + response.getDocument().getId());
+		try {
+			new GlobalProperties(new FileSystemResource("c:/tmp/helium/global.properties"));
+			UploadDocumentsTest test = new UploadDocumentsTest();
+			//test.upload();
+			//test.download();
+			test.callback();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 	}
 
-	public UploadRequest buildRequest() {
-		UploadRequest request = new UploadRequest();
-		
-		// Aplicació.
+	public void upload() throws Exception {
+		PortasignaturesPluginCaib plugin = new PortasignaturesPluginCaib();
+		String arxiuNom = "original.pdf";
+		Date dataLimit = new Date();
+		dataLimit.setTime(System.currentTimeMillis() + 24 * 60 * 60 * 1000);
+		byte[] arxiuContingut = getResourceContent(arxiuNom);
+		Integer documentId = plugin.uploadDocument(
+				"sistraoper",
+				"Document de prova d'integració",
+				arxiuNom,
+				arxiuContingut,
+				122,
+				"Gestor d'expedients administratius Helium",
+				null,
+				dataLimit);
+		System.out.println(">>> documentId: " + documentId);
+	}
+	public void download() throws Exception {
+		PortasignaturesPluginCaib plugin = new PortasignaturesPluginCaib();
+		List<byte[]> signatures = plugin.obtenirSignaturesDocument(new Integer(32));
+		System.out.println(">>> núm. signatures: " + signatures.size());
+	}
+	public void callback() throws Exception {
+		MCGDws service = new MCGDwsService(new URL("http://oficina.limit.es/helium/ws/MCGDws?wsdl")).getMCGDWS();
+		CallbackRequest request = new CallbackRequest();
 		Application application = new Application();
-		application.setUser("HELIUM");
-		application.setPassword("HELIUM");
-		request.setApplication(application);
-
-		// Document
-		UploadRequestDocument document = new UploadRequestDocument();
-
-		DocumentAttributes attributes = new DocumentAttributes();
-		
-		/*
-		 * Elements requerits.
-		 */
-		attributes.setTitle("TEST Limit");
-		attributes.setExtension("pdf");
-		
-		/*
-		 * Elementos no requerits.
-		 */
-		// Tipus de document al que pertany.
-		attributes.setType(Integer.valueOf("1"));		// Altres.
-		
-		attributes.setSubject("Test Limit");
-		attributes.setDescription("TEST Limit");
-		attributes.setUrl("");
-		
-		// Informació adicional del responsable del document.
-		Sender sender = new Sender();
-		sender.setName("proves");
-		attributes.setSender(sender);
-		
-		// Especificamos la importancia del document.
-		attributes.setImportance(ImportanceEnum.high);
-		
-		// Data límit de firma del document.
-		Calendar cal = Calendar.getInstance();
-		cal.set(2010, 10, 10);
-		attributes.setDateLimit(cal);
-		
-		cal.set(2010, 4, 10);
-		attributes.setDateNotice(cal);
-		
-		attributes.setNumberAnnexes(0);
-		attributes.setSignAnnexes(false);
-		attributes.setType(1);
-		attributes.setIsFileSign(false);
-		
-		// Afegim els atributs al document.
+		Document document = new Document();
+		document.setId(32);
+		Attributes attributes = new Attributes();
+		attributes.setState(2);
 		document.setAttributes(attributes);
-		
-		// Cream les etapes i especificam el tipus de firma.
-		Steps steps = new Steps();
-		steps.setSignMode(SignModeEnum.attached);
-		
-		// Cream una etapa amb un firmant.
-		UploadStep step = new UploadStep();
-		step.setMinimalSigners(1);
-		
-		// És necessari que el DNI del certificat coincideixi amb el DNI de l'usuari logat a Portafirmas.
-		Signer signer = new Signer();
-		signer.setId("12345678Z");
-		signer.setCheckCert(false);
-		
-		// Afegim el firmant a l'etapa.
-		step.setSigners(new Signer[]{ signer });
-		
-		steps.setStep(new Step[]{ step });
-		
-		// Afegim les etapes al document.
-		document.setSteps(steps);
-		
-		// Guardam el document al request.
-		request.setDocument(document);
+		application.setDocument(document);
+		request.setApplication(application);
+		CallbackResponse response = service.callback(request);
+		System.out.println(">>> return: " + response.getReturn());
+	}
 
-		return request;
+
+
+	private byte[] getResourceContent(String resourceName) throws Exception {
+		InputStream is = getClass().getResourceAsStream(resourceName);
+		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+		int nRead;
+		byte[] data = new byte[16384];
+		while ((nRead = is.read(data, 0, data.length)) != -1) {
+			buffer.write(data, 0, nRead);
+		}
+		buffer.flush();
+		return buffer.toByteArray();
 	}
 
 }

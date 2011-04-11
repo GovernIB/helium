@@ -1,7 +1,9 @@
 package net.conselldemallorca.helium.presentacio.mvc;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -149,6 +151,25 @@ public class PermisController extends BaseController {
 			missatgeError(request, "El rol d'administrador i el rol d'usuari no es poden esborrar");
 		}
 		return "redirect:/rol/llistat.html";
+	}
+
+	@RequestMapping(value = "test")
+	public String test(
+			HttpServletRequest request,
+			ModelMap model) {
+		List<String> roles = new ArrayList<String>();
+		if (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("HEL_ADMIN"))
+			roles.add("HEL_ADMIN");
+		if (request.isUserInRole("ROLE_USER") || request.isUserInRole("HEL_USER"))
+			roles.add("HEL_USER");
+		List<Permis> permisos = permisService.findAll();
+		for (Permis permis: permisos) {
+			if (request.isUserInRole(permis.getCodi())) {
+				roles.add(permis.getCodi());
+			}
+		}
+		model.addAttribute("roles", roles);
+		return "rol/test";
 	}
 
 	@InitBinder

@@ -680,10 +680,14 @@ public class TascaService {
 					pluginGestioDocumentalDao.deleteDocument(documentStore.getReferenciaFont());
 				documentStoreDao.delete(documentJbpm);
 			}
-			if (jbpmDao.getTaskInstanceVariable(taskId, codiVariableJbpm) != null)
+			if (jbpmDao.getTaskInstanceVariable(taskId, codiVariableJbpm) != null) {
 				jbpmDao.deleteTaskInstanceVariable(
 						taskId,
 						codiVariableJbpm);
+				jbpmDao.deleteTaskInstanceVariable(
+						taskId,
+						PREFIX_SIGNATURA + documentCodi);
+			}
 			jbpmDao.deleteProcessInstanceVariable(
 					task.getProcessInstanceId(),
 					codiVariableJbpm);

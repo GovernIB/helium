@@ -53,14 +53,15 @@ function infoRegistre(docId) {
 	return false;
 }
 <c:if test="${globalProperties['app.signatura.tipus'] == 'afirma'}">
-var baseDownloadURL = "${globalProperties['app.base.url']}/signatura/aFirma/";
-var base = "${globalProperties['app.base.url']}/signatura/aFirma/";
+var baseDownloadURL = "../signatura/aFirma";
+var base = "../signatura/aFirma";
 var signatureAlgorithm = "${globalProperties['app.signatura.afirma.signature.algorithm']}";
 var signatureFormat = "${globalProperties['app.signatura.afirma.signature.format']}";
-var showErrors = "false";
+var showErrors = 'false';
 var certFilter = "${globalProperties['app.signatura.afirma.cert.filter']}";
 var installDirectory = "${globalProperties['app.signatura.afirma.install.directory']}";
 var oldVersionsAction = ${globalProperties['app.signatura.afirma.old.versions.action']};
+var showMozillaSmartCardWarning = 'false';
 var showExpiratedCertificates = "${globalProperties['app.signatura.afirma.show.expired.certificates']}";
 var defaultBuild = "${globalProperties['app.signatura.afirma.default.build']}";
 function signarAFirma(form, token) {
@@ -86,7 +87,7 @@ function signarAFirma(form, token) {
 		<c:param name="tabActiu" value="firmes"/>
 	</c:import>
 
-	<c:if test="${globalProperties['app.signatura.tipus'] == 'afirma'}"><script type="text/javascript">cargarAppletFirma();</script></c:if>
+	<c:if test="${globalProperties['app.signatura.tipus'] == 'afirma'}"><script type="text/javascript">cargarAppletFirma(base + '/${globalProperties['app.signatura.afirma.default.build']}');</script></c:if>
 
 	<c:if test="${not tasca.documentsComplet}">
 		<div class="missatgesWarn">

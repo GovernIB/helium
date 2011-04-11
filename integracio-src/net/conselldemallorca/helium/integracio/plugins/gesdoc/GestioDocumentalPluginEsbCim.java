@@ -91,7 +91,7 @@ public class GestioDocumentalPluginEsbCim implements GestioDocumentalPlugin {
 
 
 	private ServicioGestorDocumentalPortType getGestorDocumentalClient() {
-		String url = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.apiurl");
+		String url = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.url");
 		String userName = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.user");
 		String password = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.pass");
 		Object wsClientProxy = WsClientUtils.getWsClientProxy(

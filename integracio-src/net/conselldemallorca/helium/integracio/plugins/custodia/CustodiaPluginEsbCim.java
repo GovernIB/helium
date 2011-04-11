@@ -104,7 +104,7 @@ public class CustodiaPluginEsbCim implements CustodiaPlugin {
 				GlobalProperties.getInstance().getProperty("app.custodia.plugin.esbcim.tipo.firma"));
 	}
 	private ServicioGestorDocumentalPortType getGestorDocumentalClient() {
-		String url = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.apiurl");
+		String url = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.url");
 		String userName = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.user");
 		String password = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.pass");
 		Object wsClientProxy = WsClientUtils.getWsClientProxy(

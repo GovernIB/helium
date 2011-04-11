@@ -81,7 +81,7 @@ public class PersonesPluginLdap implements PersonesPlugin {
 		LdapContext ctx = new InitialLdapContext(envDC, null);
 		String[] returnedAtts = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.attributes").split(",");
 		SearchControls searchCtls = new SearchControls();
-		searchCtls.setReturningAttributes(returnedAtts);
+		//searchCtls.setReturningAttributes(returnedAtts);
 		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 		NamingEnumeration answer = ctx.search(
 				GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.searchbase"),
@@ -91,6 +91,11 @@ public class PersonesPluginLdap implements PersonesPlugin {
 		while (answer.hasMoreElements()) {
 			SearchResult sr = (SearchResult)answer.next();
 			Attributes attrs = sr.getAttributes();
+			/*NamingEnumeration ne = attrs.getIDs();
+			while (ne.hasMore()) {
+				String name = (String)ne.next();
+				System.out.println(">>>" +name + ": " + attrs.get(name).get());
+			}*/
 			String codi = (String)attrs.get(returnedAtts[0]).get();
 			String nom = (String)attrs.get(returnedAtts[1]).get();
 			String llinatges = null;
@@ -101,7 +106,7 @@ public class PersonesPluginLdap implements PersonesPlugin {
 				dni = (String)attrs.get(returnedAtts[3]).get();
 			String email = null;
 			if (attrs.get(returnedAtts[4]) != null)
-				email = (String)attrs.get(returnedAtts[4]).get();
+				email = construirEmail((String)attrs.get(returnedAtts[4]).get());
 			Persona persona = new Persona(
 					codi,
 					nom,
@@ -132,6 +137,14 @@ public class PersonesPluginLdap implements PersonesPlugin {
 			return Sexe.SEXE_DONA;
 		else
 			return Sexe.SEXE_HOME;
+	}
+
+	private String construirEmail(String email) {
+		String dominiEmail = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.email.domini");
+		if (dominiEmail == null)
+			return email;
+		else
+			return email + "@" +  dominiEmail;
 	}
 
 }

@@ -217,6 +217,7 @@ public class PersonaService {
 		persona.setLlinatge1(entity.getLlinatge1());
 		persona.setLlinatge2(entity.getLlinatge2());
 		persona.setDataNaixement(entity.getDataNaixement());
+		persona.setDni(entity.getDni());
 		persona.setEmail(entity.getEmail());
 		persona.setSexe(entity.getSexe());
 		persona.setAvisCorreu(entity.getAvisCorreu());

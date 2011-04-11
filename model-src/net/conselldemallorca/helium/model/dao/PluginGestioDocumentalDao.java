@@ -36,14 +36,25 @@ public class PluginGestioDocumentalDao {
 			String documentArxiuNom,
 			byte[] documentArxiuContingut) {
 		try {
-			return getGestioDocumentalPlugin().createDocument(
-					expedient.getNumeroDefault(),
-					expedient.getEntorn().getCodi() + "#" + expedient.getTipus().getCodi(),
-					documentCodi,
-					documentDescripcio,
-					documentData,
-					documentArxiuNom,
-					documentArxiuContingut);
+			if (isTipusExpedientNou()) {
+				return getGestioDocumentalPlugin().createDocument(
+						expedient.getNumeroIdentificador(),
+						expedient.getEntorn().getCodi() + "_" + expedient.getTipus().getCodi(),
+						documentCodi,
+						documentDescripcio,
+						documentData,
+						documentArxiuNom,
+						documentArxiuContingut);
+			} else {
+				return getGestioDocumentalPlugin().createDocument(
+						expedient.getNumeroDefault(),
+						expedient.getEntorn().getCodi() + "#" + expedient.getTipus().getCodi(),
+						documentCodi,
+						documentDescripcio,
+						documentData,
+						documentArxiuNom,
+						documentArxiuContingut);
+			}
 		} catch (GestioDocumentalPluginException ex) {
 			logger.error("Error al guardar el document a la gestió documental", ex);
 			throw new PluginException("Error al guardar el document a la gestió documental", ex);
@@ -99,6 +110,11 @@ public class PluginGestioDocumentalDao {
 			}
 		}
 		return gestioDocumentalPlugin;
+	}
+
+	private boolean isTipusExpedientNou() {
+		return "true".equalsIgnoreCase(
+				GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.tipus.nou"));
 	}
 
 	private static final Log logger = LogFactory.getLog(PluginGestioDocumentalDao.class);

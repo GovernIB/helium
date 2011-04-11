@@ -7,8 +7,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,6 +19,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
@@ -71,6 +75,8 @@ public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 
 	@NotNull
 	private Termini termini;
+
+	private Set<Alerta> alertes = new HashSet<Alerta>();
 
 
 
@@ -242,6 +248,20 @@ public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 	}
 	public void setTermini(Termini termini) {
 		this.termini = termini;
+	}
+
+	@OneToMany(mappedBy="terminiIniciat", cascade=CascadeType.REMOVE)
+	public Set<Alerta> getAlertes() {
+		return this.alertes;
+	}
+	public void setAlertes(Set<Alerta> alertes) {
+		this.alertes = alertes;
+	}
+	public void addAlerta(Alerta alerta) {
+		getAlertes().add(alerta);
+	}
+	public void removeAlerta(Alerta alerta) {
+		getAlertes().remove(alerta);
 	}
 
 	@Transient

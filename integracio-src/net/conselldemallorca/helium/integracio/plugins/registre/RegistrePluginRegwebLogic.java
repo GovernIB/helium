@@ -53,8 +53,9 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 						params.setoficinafisica(oficinaCodi.substring(indexBarra + 1));
 					}
 				}
-				params.setdestinatari(
-						registreEntrada.getDadesOficina().getOrganCodi());
+				if (registreEntrada.getDadesOficina().getOrganCodi() != null)
+					params.setdestinatari(
+							registreEntrada.getDadesOficina().getOrganCodi());
 			}
 			if (registreEntrada.getDadesInteressat() != null) {
 				String entitatCodi = registreEntrada.getDadesInteressat().getEntitatCodi();
@@ -65,21 +66,27 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 						params.setentidad2(entitatCodi.substring(indexBarra + 1));
 					}
 				}
-				params.setaltres(
-						registreEntrada.getDadesInteressat().getNomAmbCognoms());
-				params.setbalears(
-						registreEntrada.getDadesInteressat().getMunicipiCodi());
-				params.setfora(
-						registreEntrada.getDadesInteressat().getMunicipiNom());
+				if (registreEntrada.getDadesInteressat().getNomAmbCognoms() != null)
+					params.setaltres(
+							registreEntrada.getDadesInteressat().getNomAmbCognoms());
+				if (registreEntrada.getDadesInteressat().getMunicipiCodi() != null)
+					params.setbalears(
+							registreEntrada.getDadesInteressat().getMunicipiCodi());
+				if (registreEntrada.getDadesInteressat().getMunicipiNom() != null)
+					params.setfora(
+							registreEntrada.getDadesInteressat().getMunicipiNom());
 				
 			}
 			if (registreEntrada.getDadesAssumpte() != null) {
-				params.settipo(
-						registreEntrada.getDadesAssumpte().getTipus());
-				params.setidioex(
-						convertirIdioma(registreEntrada.getDadesAssumpte().getIdiomaCodi()));
-				params.setcomentario(
-						registreEntrada.getDadesAssumpte().getAssumpte());
+				if (registreEntrada.getDadesAssumpte().getTipus() != null)
+					params.settipo(
+							registreEntrada.getDadesAssumpte().getTipus());
+				if (registreEntrada.getDadesAssumpte().getIdiomaCodi() != null)
+					params.setidioex(
+							convertirIdioma(registreEntrada.getDadesAssumpte().getIdiomaCodi()));
+				if (registreEntrada.getDadesAssumpte().getAssumpte() != null)
+					params.setcomentario(
+							registreEntrada.getDadesAssumpte().getAssumpte());
 			}
 			if (registreEntrada.getDocuments() != null && registreEntrada.getDocuments().size() > 0) {
 				if (registreEntrada.getDocuments().size() == 1) {
@@ -192,31 +199,39 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 						params.setoficinafisica(oficinaCodi.substring(indexBarra + 1));
 					}
 				}
-				params.setremitent(
-						registreSortida.getDadesOficina().getOrganCodi());
+				if (registreSortida.getDadesOficina().getOrganCodi() != null)
+					params.setremitent(
+							registreSortida.getDadesOficina().getOrganCodi());
 			}
 			if (registreSortida.getDadesInteressat() != null) {
 				String entitatCodi = registreSortida.getDadesInteressat().getEntitatCodi();
-				int indexBarra = entitatCodi.indexOf(SEPARADOR_ENTITAT);
-				if (entitatCodi != null && indexBarra != -1) {
-					params.setentidad1(entitatCodi.substring(0, indexBarra));
-					params.setentidad2(entitatCodi.substring(indexBarra + 1));
+				if (entitatCodi != null) {
+					int indexBarra = entitatCodi.indexOf(SEPARADOR_ENTITAT);
+					if (indexBarra != -1) {
+						params.setentidad1(entitatCodi.substring(0, indexBarra));
+						params.setentidad2(entitatCodi.substring(indexBarra + 1));
+					}
 				}
-				params.setaltres(
-						registreSortida.getDadesInteressat().getNomAmbCognoms());
-				params.setbalears(
-						registreSortida.getDadesInteressat().getMunicipiCodi());
-				params.setfora(
-						registreSortida.getDadesInteressat().getMunicipiNom());
-				
+				if (registreSortida.getDadesInteressat().getNomAmbCognoms() != null)
+					params.setaltres(
+							registreSortida.getDadesInteressat().getNomAmbCognoms());
+				if (registreSortida.getDadesInteressat().getMunicipiCodi() != null)
+					params.setbalears(
+							registreSortida.getDadesInteressat().getMunicipiCodi());
+				if (registreSortida.getDadesInteressat().getMunicipiNom() != null)
+					params.setfora(
+							registreSortida.getDadesInteressat().getMunicipiNom());
 			}
 			if (registreSortida.getDadesAssumpte() != null) {
-				params.settipo(
-						registreSortida.getDadesAssumpte().getTipus());
-				params.setidioex(
-						registreSortida.getDadesAssumpte().getIdiomaCodi());
-				params.setcomentario(
-						registreSortida.getDadesAssumpte().getAssumpte());
+				if (registreSortida.getDadesAssumpte().getTipus() != null)
+					params.settipo(
+							registreSortida.getDadesAssumpte().getTipus());
+				if (registreSortida.getDadesAssumpte().getIdiomaCodi() != null)
+					params.setidioex(
+							convertirIdioma(registreSortida.getDadesAssumpte().getIdiomaCodi()));
+				if (registreSortida.getDadesAssumpte().getAssumpte() != null)
+					params.setcomentario(
+							registreSortida.getDadesAssumpte().getAssumpte());
 			}
 			if (registreSortida.getDocuments() != null && registreSortida.getDocuments().size() > 0) {
 				if (registreSortida.getDocuments().size() == 1) {
@@ -224,7 +239,7 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 					params.setdata(
 							new SimpleDateFormat("dd/MM/yyyy").format(document.getData()));
 					params.setidioma(
-							document.getIdiomaCodi());
+							convertirIdioma(document.getIdiomaCodi()));
 				} else {
 					throw new RegistrePluginException("Nomes es pot registrar un document alhora");
 				}

@@ -8,16 +8,13 @@ import java.util.Date;
 import java.util.List;
 
 import net.conselldemallorca.helium.integracio.plugins.persones.Persona;
-import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.model.dao.DocumentStoreDao;
 import net.conselldemallorca.helium.model.dao.ExpedientDao;
-import net.conselldemallorca.helium.model.dao.PermisDao;
 import net.conselldemallorca.helium.model.dao.PluginCustodiaDao;
 import net.conselldemallorca.helium.model.dao.PluginPersonaDao;
 import net.conselldemallorca.helium.model.dao.PluginPortasignaturesDao;
-import net.conselldemallorca.helium.model.dao.PluginSignaturaDao;
 import net.conselldemallorca.helium.model.dao.RegistreDao;
 import net.conselldemallorca.helium.model.dao.UsuariDao;
 import net.conselldemallorca.helium.model.dto.DocumentDto;
@@ -48,10 +45,8 @@ public class PluginService {
 
 	private PluginPersonaDao pluginPersonaDao;
 	private PluginPortasignaturesDao pluginPortasignaturesDao;
-	private PluginSignaturaDao pluginSignaturaDao;
 	private PluginCustodiaDao pluginCustodiaDao;
 	private UsuariDao usuariDao;
-	private PermisDao permisDao;
 	private ExpedientDao expedientDao;
 	private RegistreDao registreDao;
 	private DocumentStoreDao documentStoreDao;
@@ -67,9 +62,11 @@ public class PluginService {
 		return pluginPersonaDao.findAmbCodiPlugin(codi);
 	}
 	public void personesSync() {
-		if (isSyncActiu()) {
-			logger.debug("Inici de la sincronització de persones");
+		if (isSyncPersonesActiu()) {
+			logger.info("Inici de la sincronització de persones");
 			List<Persona> persones = pluginPersonaDao.findAllPlugin();
+			int nsyn = 0;
+			int ncre = 0;
 	    	for (Persona persona: persones) {
 	    		net.conselldemallorca.helium.model.hibernate.Persona p = pluginPersonaDao.findAmbCodi(persona.getCodi());
 	    		if (p != null) {
@@ -78,7 +75,7 @@ public class PluginService {
 	    			p.setDni(persona.getDni());
 	    			p.setEmail(persona.getEmail());
 	    		} else {
-	    			logger.debug("Nova persona: " + persona.getCodi());
+	    			//logger.info("Nova persona: " + persona.getCodi());
 	    			p = new net.conselldemallorca.helium.model.hibernate.Persona();
 	    			p.setCodi(persona.getCodi());
 	    			p.setNom(persona.getNom());
@@ -87,17 +84,21 @@ public class PluginService {
 	    			p.setDni(persona.getDni());
 	    			p.setEmail(persona.getEmail());
 	    			pluginPersonaDao.saveOrUpdate(p);
+	    			pluginPersonaDao.flush();
 	    			Usuari usuari = usuariDao.getById(persona.getCodi(), false);
 	    			if (usuari == null) {
 	    				usuari = new Usuari();
 	    				usuari.setCodi(persona.getCodi());
 	    				usuari.setContrasenya(persona.getCodi());
-	    				usuari.addPermis(permisDao.getByCodi("HEL_USER"));
+	    				//usuari.addPermis(permisDao.getByCodi("HEL_USER"));
 	    				usuariDao.saveOrUpdate(usuari);
+	    				usuariDao.flush();
 	    			}
+	    			ncre++;
 	    		}
+	    		nsyn++;
 	    	}
-	    	logger.debug("Fi de la sincronització de persones");
+	    	logger.info("Fi de la sincronització de persones (total: " + nsyn + ", creades: " + ncre + ")");
 		}
 	}
 
@@ -112,8 +113,9 @@ public class PluginService {
 			String transicioKO) throws Exception {
 		try {
 			DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, true, true, true);
-			Integer doc = pluginPortasignaturesDao.UploadDocument(
+			Integer doc = pluginPortasignaturesDao.uploadDocument(
 							persona,
+							document.getDocumentNom(),
 							document.getVistaNom(),
 							document.getVistaContingut(),
 							document.getTipusDocPortasignatures(),
@@ -211,10 +213,6 @@ public class PluginService {
 		this.usuariDao = usuariDao;
 	}
 	@Autowired
-	public void setPermisDao(PermisDao permisDao) {
-		this.permisDao = permisDao;
-	}
-	@Autowired
 	public void setPluginPortasignaturesDao(
 			PluginPortasignaturesDao pluginPortasignaturesDao) {
 		this.pluginPortasignaturesDao = pluginPortasignaturesDao;
@@ -222,10 +220,6 @@ public class PluginService {
 	@Autowired
 	public void setPluginCustodiaDao(PluginCustodiaDao pluginCustodiaDao) {
 		this.pluginCustodiaDao = pluginCustodiaDao;
-	}
-	@Autowired
-	public void setPluginSignaturaDao(PluginSignaturaDao pluginSignaturaDao) {
-		this.pluginSignaturaDao = pluginSignaturaDao;
 	}
 	@Autowired
 	public void setExpedientDao(ExpedientDao expedientDao) {
@@ -250,7 +244,7 @@ public class PluginService {
 
 
 
-	private boolean afegirDocumentCustodia(
+	private void afegirDocumentCustodia(
 			Integer documentId,
 			Long documentStoreId) throws Exception {
 		DocumentDto document = dtoConverter.toDocumentDto(
@@ -263,30 +257,15 @@ public class PluginService {
 			JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(docst.getProcessInstanceId());
 			Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 			String varDocumentCodi = docst.getJbpmVariable().substring(TascaService.PREFIX_DOCUMENT.length());
-			byte[] documentPortasignatures = obtenirDocumentPortasignatures(documentId);
-			if ((documentPortasignatures != null) && !documentPortasignatures.equals("")) {
+			List<byte[]> signatures = obtenirSignaturesDelPortasignatures(documentId);
+			if (signatures != null) {
 				String referenciaCustodia = null;
-				boolean custodiat = false;
-				if (pluginCustodiaDao.isValidacioImplicita()) {
+				for (byte[] signatura: signatures) {
 					referenciaCustodia = pluginCustodiaDao.afegirSignatura(
 							documentStoreId.toString(),
 							document.getArxiuNom(),
 							document.getCustodiaCodi(),
-							documentPortasignatures);
-					custodiat = true;
-				} else {
-					RespostaValidacioSignatura resposta = pluginSignaturaDao.verificarSignatura(
-							document.getVistaContingut(),
-							null,
-							false);
-					if (resposta.isEstatOk()) {
-						referenciaCustodia = pluginCustodiaDao.afegirSignatura(
-								documentStoreId.toString(),
-								document.getArxiuNom(),
-								document.getCustodiaCodi(),
-								documentPortasignatures);
-						custodiat = true;
-					}
+							signatura);
 				}
 				docst.setReferenciaCustodia(referenciaCustodia);
 				docst.setSignat(true);
@@ -295,27 +274,63 @@ public class PluginService {
 						docst.getProcessInstanceId(),
 						SecurityContextHolder.getContext().getAuthentication().getName(),
 						varDocumentCodi);
-				return custodiat;
 			} else {
-				throw new Exception("Error obtenint el document del Portasignautes.");
+				throw new Exception("El portasignatures no ha retornat cap signatura");
 			}
 		}
 		throw new IllegalStateException("Aquest document no està disponible per signar");
 	}
-	private byte[] obtenirDocumentPortasignatures(
+	private List<byte[]> obtenirSignaturesDelPortasignatures(
 			Integer documentId) {
 		try {
-			return pluginPortasignaturesDao.DownloadDocument(documentId);
+			return pluginPortasignaturesDao.obtenirSignaturesDocument(documentId);
 		} catch (Exception e) {
 			logger.error("Error obtenint el document del Portasignatures", e);
 			return null;
 		}
 	}
 
-	private boolean isSyncActiu() {
+	private boolean isSyncPersonesActiu() {
 		String syncActiu = GlobalProperties.getInstance().getProperty("app.persones.plugin.sync.actiu");
 		return "true".equalsIgnoreCase(syncActiu);
 	}
+
+	/*@SuppressWarnings("unchecked")
+	private List<Persona> getPersonesSync() {
+		List<Persona> persones = (List<Persona>)deserializeFromFile();
+		if (persones != null) {
+			return persones;
+		} else {
+			persones = pluginPersonaDao.findAllPlugin();
+			serializeToFile(persones);
+			logger.info("Persones serialitzades");
+			return persones;
+		}
+	}
+	private void serializeToFile(Object obj) {
+		try {
+			FileOutputStream fout = new FileOutputStream("c:/tmp/helium/persones.dat");
+			ObjectOutputStream oos = new ObjectOutputStream(fout);
+			oos.writeObject(obj);
+			oos.close();
+			fout.close();
+		} catch (Exception ex) {
+			logger.error(ex);
+		}
+	}
+	private Object deserializeFromFile() {
+		try {
+			FileInputStream fin = new FileInputStream("c:/tmp/helium/persones.dat");
+			ObjectInputStream ois = new ObjectInputStream(fin);
+			Object obj = ois.readObject();
+			ois.close();
+			fin.close();
+			return obj;
+		} catch (Exception ex) {
+			logger.error(ex);
+		}
+		return null;
+	}*/
 
 	private static final Log logger = LogFactory.getLog(PluginService.class);
 

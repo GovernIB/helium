@@ -2,7 +2,6 @@ package net.conselldemallorca.helium.integracio.plugins.portasignatures.service;
 
 import javax.jws.WebService;
 
-import net.conselldemallorca.helium.integracio.bantel.plugin.DefaultIniciExpedientPlugin;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.service.wsdl.ArrayOfLogMessage;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.service.wsdl.CallbackRequest;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.service.wsdl.CallbackResponse;
@@ -18,20 +17,26 @@ import org.apache.commons.logging.LogFactory;
  * 
  * @author Miquel Angel Amengual <miquelaa@limit.es>
  */
-@WebService(endpointInterface = "net.conselldemallorca.helium.integracio.plugins.portasignatures.service.wsdl.MCGDws")
+@WebService(
+		name="MCGDWS",
+		targetNamespace="http://www.indra.es/portafirmasmcgdws/mcgdws",
+        serviceName="MCGDwsService",
+        portName="MCGDWS",
+        endpointInterface = "net.conselldemallorca.helium.integracio.plugins.portasignatures.service.wsdl.MCGDws")
 public class PortasignaturesPluginImpl implements MCGDws {
 
 	private static final int DOCUMENT_BLOQUEJAT = 0;
 	private static final int DOCUMENT_PENDENT = 1;
 	private static final int DOCUMENT_SIGNAT = 2;
 	private static final int DOCUMENT_REBUTJAT = 3;
-	
+
 	public CallbackResponse callback(CallbackRequest callbackRequest) {
-		
+
 		ArrayOfLogMessage arrayOfLogMessage = new ArrayOfLogMessage();
 		CallbackResponse callbackResponse = new CallbackResponse();
-		
+
 		Integer document = callbackRequest.getApplication().getDocument().getId();
+		logger.info("Rebuda petició callback portasignatures del document " + document);
 		Integer estat = -1;
 		Double resposta = -1D;
 		try {
@@ -66,16 +71,13 @@ public class PortasignaturesPluginImpl implements MCGDws {
 	        callbackResponse.setReturn(resposta);
 		} catch (Exception e) {
 			logger.error("Error obtenint l'estat del document.", e);
-
 			callbackResponse.setLogMessages(arrayOfLogMessage);
 			callbackResponse.setVersion("1.0");
 			callbackResponse.setReturn((double) -1);
 		}
-		
 		return callbackResponse;
 	}
 
-	private static final Log logger = LogFactory.getLog(DefaultIniciExpedientPlugin.class);
-	
-	
+	private static final Log logger = LogFactory.getLog(PortasignaturesPluginImpl.class);
+
 }

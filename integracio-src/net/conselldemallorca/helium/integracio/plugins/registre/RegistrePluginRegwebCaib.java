@@ -51,8 +51,9 @@ public class RegistrePluginRegwebCaib implements RegistrePlugin {
 						registroEntrada.setoficinafisica(oficinaCodi.substring(indexBarra + 1));
 					}
 				}
-				registroEntrada.setdestinatari(
-						registreEntrada.getDadesOficina().getOrganCodi());
+				if (registreEntrada.getDadesOficina().getOrganCodi() != null)
+					registroEntrada.setdestinatari(
+							registreEntrada.getDadesOficina().getOrganCodi());
 			}
 			if (registreEntrada.getDadesInteressat() != null) {
 				String entitatCodi = registreEntrada.getDadesInteressat().getEntitatCodi();
@@ -63,21 +64,27 @@ public class RegistrePluginRegwebCaib implements RegistrePlugin {
 						registroEntrada.setentidad2(entitatCodi.substring(indexBarra + 1));
 					}
 				}
-				registroEntrada.setaltres(
-						registreEntrada.getDadesInteressat().getNomAmbCognoms());
-				registroEntrada.setbalears(
-						registreEntrada.getDadesInteressat().getMunicipiCodi());
-				registroEntrada.setfora(
-						registreEntrada.getDadesInteressat().getMunicipiNom());
+				if (registreEntrada.getDadesInteressat().getNomAmbCognoms() != null)
+					registroEntrada.setaltres(
+							registreEntrada.getDadesInteressat().getNomAmbCognoms());
+				if (registreEntrada.getDadesInteressat().getMunicipiCodi() != null)
+					registroEntrada.setbalears(
+							registreEntrada.getDadesInteressat().getMunicipiCodi());
+				if (registreEntrada.getDadesInteressat().getMunicipiNom() != null)
+					registroEntrada.setfora(
+							registreEntrada.getDadesInteressat().getMunicipiNom());
 				
 			}
 			if (registreEntrada.getDadesAssumpte() != null) {
-				registroEntrada.settipo(
-						registreEntrada.getDadesAssumpte().getTipus());
-				registroEntrada.setidioex(
-						convertirIdioma(registreEntrada.getDadesAssumpte().getIdiomaCodi()));
-				registroEntrada.setcomentario(
-						registreEntrada.getDadesAssumpte().getAssumpte());
+				if (registreEntrada.getDadesAssumpte().getTipus() != null)
+					registroEntrada.settipo(
+							registreEntrada.getDadesAssumpte().getTipus());
+				if (registreEntrada.getDadesAssumpte().getIdiomaCodi() != null)
+					registroEntrada.setidioex(
+							convertirIdioma(registreEntrada.getDadesAssumpte().getIdiomaCodi()));
+				if (registreEntrada.getDadesAssumpte().getAssumpte() != null)
+					registroEntrada.setcomentario(
+							registreEntrada.getDadesAssumpte().getAssumpte());
 			}
 			if (registreEntrada.getDocuments() != null && registreEntrada.getDocuments().size() > 0) {
 				if (registreEntrada.getDocuments().size() == 1) {
@@ -192,33 +199,40 @@ public class RegistrePluginRegwebCaib implements RegistrePlugin {
 						registroSalida.setoficinafisica(oficinaCodi.substring(indexBarra + 1));
 					}
 				}
-				registroSalida.setremitent(
-						registreSortida.getDadesOficina().getOrganCodi());
+				if (registreSortida.getDadesOficina().getOrganCodi() != null)
+					registroSalida.setremitent(
+							registreSortida.getDadesOficina().getOrganCodi());
 			}
 			if (registreSortida.getDadesInteressat() != null) {
 				String entitatCodi = registreSortida.getDadesInteressat().getEntitatCodi();
-				int indexBarra = entitatCodi.indexOf(SEPARADOR_ENTITAT);
-				if (entitatCodi != null && indexBarra != -1) {
-					registroSalida.setentidad1(entitatCodi.substring(0, indexBarra));
-					registroSalida.setentidad2(entitatCodi.substring(indexBarra + 1));
+				if (entitatCodi != null) {
+					int indexBarra = entitatCodi.indexOf(SEPARADOR_ENTITAT);
+					if (indexBarra != -1) {
+						registroSalida.setentidad1(entitatCodi.substring(0, indexBarra));
+						registroSalida.setentidad2(entitatCodi.substring(indexBarra + 1));
+					}
 				}
-				registroSalida.setaltres(
-						registreSortida.getDadesInteressat().getNomAmbCognoms());
-				registroSalida.setbalears(
-						registreSortida.getDadesInteressat().getMunicipiCodi());
-				registroSalida.setfora(
-						registreSortida.getDadesInteressat().getMunicipiNom());
+				if (registreSortida.getDadesInteressat().getNomAmbCognoms() != null)
+					registroSalida.setaltres(
+							registreSortida.getDadesInteressat().getNomAmbCognoms());
+				if (registreSortida.getDadesInteressat().getMunicipiCodi() != null)
+					registroSalida.setbalears(
+							registreSortida.getDadesInteressat().getMunicipiCodi());
+				if (registreSortida.getDadesInteressat().getMunicipiNom() != null)
+					registroSalida.setfora(
+							registreSortida.getDadesInteressat().getMunicipiNom());
 				
 			}
 			if (registreSortida.getDadesAssumpte() != null) {
-				registroSalida.setremitent(
-						registreSortida.getDadesAssumpte().getUnitatAdministrativa());
-				registroSalida.settipo(
-						registreSortida.getDadesAssumpte().getTipus());
-				registroSalida.setidioex(
-						registreSortida.getDadesAssumpte().getIdiomaCodi());
-				registroSalida.setcomentario(
-						registreSortida.getDadesAssumpte().getAssumpte());
+				if (registreSortida.getDadesAssumpte().getTipus() != null)
+					registroSalida.settipo(
+							registreSortida.getDadesAssumpte().getTipus());
+				if (registreSortida.getDadesAssumpte().getIdiomaCodi() != null)
+					registroSalida.setidioex(
+							convertirIdioma(registreSortida.getDadesAssumpte().getIdiomaCodi()));
+				if (registreSortida.getDadesAssumpte().getAssumpte() != null)
+					registroSalida.setcomentario(
+							registreSortida.getDadesAssumpte().getAssumpte());
 			}
 			if (registreSortida.getDocuments() != null && registreSortida.getDocuments().size() > 0) {
 				if (registreSortida.getDocuments().size() == 1) {
@@ -226,7 +240,7 @@ public class RegistrePluginRegwebCaib implements RegistrePlugin {
 					registroSalida.setdata(
 							new SimpleDateFormat("dd/MM/yyyy").format(document.getData()));
 					registroSalida.setidioma(
-							document.getIdiomaCodi());
+							convertirIdioma(document.getIdiomaCodi()));
 				} else {
 					throw new RegistrePluginException("Nomes es pot registrar un document alhora");
 				}

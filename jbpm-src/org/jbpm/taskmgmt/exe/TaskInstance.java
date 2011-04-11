@@ -30,6 +30,7 @@ import java.util.Set;
 
 import net.conselldemallorca.helium.model.dao.DaoProxy;
 import net.conselldemallorca.helium.model.hibernate.Reassignacio;
+import net.conselldemallorca.helium.model.service.ServiceProxy;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -509,6 +510,7 @@ public class TaskInstance extends VariableContainer implements Identifiable,
 				}
 			}
 		}
+		ServiceProxy.getInstance().getAlertaService().esborrarAmbTasca(this.getId());
 	}
 
 	public boolean hasEnded() {

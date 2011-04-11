@@ -84,6 +84,7 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 			String canviEntorn = request.getParameter(VARIABLE_REQUEST_CANVI_ENTORN);
 			if (canviEntorn != null) {
 				entornActual = entornService.getById(new Long(canviEntorn));
+				request.getSession().removeAttribute(PermisosDissenyInterceptor.VARIABLE_SESSION_PERMISOS_DISSENY);
 			}
 			// Verifica que es tenguin permisos per l'entorn actual
 			if (entornActual != null) {

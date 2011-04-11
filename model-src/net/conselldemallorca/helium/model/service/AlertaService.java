@@ -7,7 +7,9 @@ import java.util.Date;
 import java.util.List;
 
 import net.conselldemallorca.helium.model.dao.AlertaDao;
+import net.conselldemallorca.helium.model.dao.TerminiIniciatDao;
 import net.conselldemallorca.helium.model.hibernate.Alerta;
+import net.conselldemallorca.helium.model.hibernate.TerminiIniciat;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.Authentication;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Service;
 public class AlertaService {
 
 	private AlertaDao alertaDao;
+	private TerminiIniciatDao terminiIniciatDao;
 
 
 
@@ -63,9 +66,25 @@ public class AlertaService {
 		alerta.setDataEliminacio(null);
 	}
 
+	public void esborrarAmbTasca(Long taskInstanceId) {
+		Date ara = new Date();
+		List<TerminiIniciat> terminis = terminiIniciatDao.findAmbTaskInstanceId(taskInstanceId);
+		for (TerminiIniciat termini: terminis) {
+			for (Alerta alerta: termini.getAlertes()) {
+				alerta.setDataEliminacio(ara);
+			}
+		}
+	}
+
+
+
 	@Autowired
 	public void setAlertaDao(AlertaDao alertaDao) {
 		this.alertaDao = alertaDao;
+	}
+	@Autowired
+	public void setTerminiIniciatDao(TerminiIniciatDao terminiIniciatDao) {
+		this.terminiIniciatDao = terminiIniciatDao;
 	}
 
 }

@@ -32,8 +32,9 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 		super(Portasignatures.class);
 	}
 
-	public Integer UploadDocument(
+	public Integer uploadDocument(
 			Persona persona,
+			String arxiuDescripcio,
 			String arxiuNom,
 			byte[] arxiuContingut,
 			Integer tipusDocPortasignatures,
@@ -41,8 +42,14 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 			String importancia,
 			Date dataLimit) throws Exception {
 		try {
-			return getPortasignaturesPlugin().UploadDocument(
-					persona,
+			String signatariId = persona.getDni();
+			if (isIdUsuariPerCodi())
+				signatariId = persona.getCodi();
+			if (isIdUsuariPerDni())
+				signatariId = persona.getDni();
+			return getPortasignaturesPlugin().uploadDocument(
+					signatariId,
+					arxiuDescripcio,
 					arxiuNom,
 					arxiuContingut,
 					tipusDocPortasignatures,
@@ -55,10 +62,10 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 		}
 	}
 
-	public byte[] DownloadDocument(
+	public List<byte[]> obtenirSignaturesDocument(
 			Integer documentId) throws Exception {
 		try {
-			return getPortasignaturesPlugin().DownloadDocument(
+			return getPortasignaturesPlugin().obtenirSignaturesDocument(
 					documentId);
 		} catch (PortasignaturesPluginException ex) {
 			logger.error("Error al rebre el document del portasignatures", ex);
@@ -96,6 +103,13 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 			}
 		}
 		return portasignaturesPlugin;
+	}
+
+	private boolean isIdUsuariPerDni() {
+		return "dni".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.usuari.id"));
+	}
+	private boolean isIdUsuariPerCodi() {
+		return "codi".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.usuari.id"));
 	}
 
 	private static final Log logger = LogFactory.getLog(PluginPortasignaturesDao.class);

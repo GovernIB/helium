@@ -3,16 +3,21 @@
  */
 package net.conselldemallorca.helium.integracio.tramitacio;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
 import javax.jws.WebService;
+import javax.xml.bind.annotation.XmlSeeAlso;
+
+import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 
 /**
  * Interfície del servei de tramitació d'expedients de Helium
  * 
  * @author Josep Gayà <josepg@limit.es>
  */
+@XmlSeeAlso({String[].class, Long[].class, Double[].class, Boolean[].class, Date[].class, BigDecimal[].class, Termini[].class, Object[].class})
 @WebService(name="TramitacioService")
 public interface TramitacioService {
 

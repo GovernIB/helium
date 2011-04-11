@@ -22,19 +22,19 @@ function confirmarEsborrar(e) {
 <body>
 
 	<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable" defaultsort="1" defaultorder="descending">
-		<display:column property="dataCreacio" title="Creada el" sortable="true" format="{0,date,dd/MM/yyyy HH:mm}"/>
+		<display:column property="dataCreacio" title="Creada el" sortable="true" format="{0,date,dd/MM/yyyy}"/>
 		<display:column title="Expedient" sortable="true">
 			<a href="<c:url value="/expedient/info.html"><c:param name="id" value="${registre.expedient.processInstanceId}"/></c:url>">${registre.expedient.identificador}</a>
 		</display:column>
 		<display:column title="Text" sortable="true">
 			<c:choose>
-				<c:when test="${not empty registre.taskInstanceId}"><a href="<c:url value="/tasca/info.html"><c:param name="id" value="${registre.taskInstanceId}"/></c:url>">${registre.text}</a></c:when>
+				<c:when test="${not empty registre.terminiIniciat.taskInstanceId}"><a href="<c:url value="/tasca/info.html"><c:param name="id" value="${registre.terminiIniciat.taskInstanceId}"/></c:url>">${registre.text}</a></c:when>
 				<c:otherwise>${registre.text}</c:otherwise>
 			</c:choose>
 		</display:column>
 		<display:column title="Data límit" sortable="true">
-			<c:if test="${not empty registre.taskInstanceId}">
-				<fmt:formatDate value="${tasques[registre.taskInstanceId].dueDate}" pattern="dd/MM/yyyy HH:mm"/>
+			<c:if test="${not empty registre.terminiIniciat}">
+				<fmt:formatDate value="${registre.terminiIniciat.dataFi}" pattern="dd/MM/yyyy"/>
 			</c:if>
 		</display:column>
 		<display:column>

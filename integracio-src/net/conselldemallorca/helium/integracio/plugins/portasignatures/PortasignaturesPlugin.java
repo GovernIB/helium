@@ -1,8 +1,7 @@
 package net.conselldemallorca.helium.integracio.plugins.portasignatures;
 
 import java.util.Date;
-
-import net.conselldemallorca.helium.integracio.plugins.persones.Persona;
+import java.util.List;
 
 /**
  * Plugin per a la integració amb portasignatures.
@@ -24,12 +23,13 @@ public interface PortasignaturesPlugin {
 	 * 
 	 * @throws Exception
 	 */
-	public Integer UploadDocument (
-			Persona persona,
+	public Integer uploadDocument (
+			String signatariId,
+			String arxiuDescripcio,
 			String arxiuNom,
 			byte[] arxiuContingut,
 			Integer tipusDocument,
-			String expedient,
+			String remitent,
 			String importancia,
 			Date dataLimit) throws PortasignaturesPluginException;
 
@@ -42,6 +42,6 @@ public interface PortasignaturesPlugin {
 	 * 
 	 * @throws Exception
 	 */
-	public byte[] DownloadDocument(Integer documentId) throws PortasignaturesPluginException;
+	public List<byte[]> obtenirSignaturesDocument(Integer documentId) throws PortasignaturesPluginException;
 
 }
