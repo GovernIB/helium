@@ -11,15 +11,11 @@ import net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentEvent;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentEventTipus;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.Event;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarEventRequest;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.model.dto.ExpedientDto;
-import net.conselldemallorca.helium.model.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.model.hibernate.Document;
-import net.conselldemallorca.helium.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.model.hibernate.Expedient;
-import net.conselldemallorca.helium.model.service.TascaService;
 import net.conselldemallorca.helium.util.ExpedientIniciant;
 
-import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
 
 /**
@@ -57,23 +53,10 @@ public class ZonaperExpedientEventHandler extends AbstractHeliumActionHandler {
 		String docArxiuNom = null;
 		byte[] docArxiuContingut = null;
 		if (dc != null) {
-			String varCodi = TascaService.PREFIX_DOCUMENT + dc;
-			Object valor = executionContext.getVariable(varCodi);
-			if (valor == null || !(valor instanceof Long))
-				throw new JbpmException("El document especificat (" + dc + ") no existeix");
-			Long id = (Long)valor;
-			DocumentStore docStore = getDocumentStoreDao().getById(id, false);
-			if (docStore == null)
-				throw new JbpmException("No s'ha trobat el contingut del document especificat(" + dc + ")");
-			InstanciaProcesDto instanciaProces = getExpedientService().getInstanciaProcesById(
-					new Long(executionContext.getProcessInstance().getId()).toString(),
-					false);
-			Document document = getDissenyService().findDocumentAmbDefinicioProcesICodi(
-					instanciaProces.getDefinicioProces().getId(),
-					docStore.getCodiDocument());
-			docTitol = document.getNom();
-			docArxiuNom = docStore.getArxiuNom();
-			docArxiuContingut = docStore.getArxiuContingut();
+			DocumentInfo document = getDocumentInfo(executionContext, dc);
+			docTitol = document.getTitol();
+			docArxiuNom = document.getArxiuNom();
+			docArxiuContingut = document.getArxiuContingut();
 		}
 		String model = (String)getValorOVariable(executionContext, redoseModel, varRedoseModel);
 		Integer versio = getValorOVariableInteger(executionContext, redoseVersio, varRedoseVersio);

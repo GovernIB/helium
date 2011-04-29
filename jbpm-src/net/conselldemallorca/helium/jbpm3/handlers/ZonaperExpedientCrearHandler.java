@@ -62,8 +62,8 @@ public class ZonaperExpedientCrearHandler extends AbstractHeliumActionHandler {
 			throw new JbpmException("El tràmit no té els avisos habilitats");
 		PublicarExpedientRequest request = new PublicarExpedientRequest();
 		request.setIdioma(expedient.getIdioma());
-		request.setUnitatAdministrativa(expedient.getUnitatAdministrativa());
 		request.setDescripcio(descripcio);
+		request.setUnitatAdministrativa(expedient.getUnitatAdministrativa());
 		request.setTramitNumero(expedient.getNumeroEntradaSistra());
 		request.setAutenticat(expedient.isAutenticat());
 		if (expedient.isAutenticat()) {

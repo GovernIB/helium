@@ -207,8 +207,8 @@ public abstract class BasicActionHandler implements ActionHandler {
 	 */
 	public DocumentInfo getDocument(
 			ExecutionContext executionContext,
-			String varDocument) {
-		String varCodi = TascaService.PREFIX_DOCUMENT + varDocument;
+			String documentCodi) {
+		String varCodi = TascaService.PREFIX_DOCUMENT + documentCodi;
 		Object valor = executionContext.getVariable(varCodi);
 		if (valor == null)
 			return null;

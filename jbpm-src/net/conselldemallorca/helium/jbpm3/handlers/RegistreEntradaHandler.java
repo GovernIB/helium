@@ -75,9 +75,8 @@ public class RegistreEntradaHandler extends AbstractHeliumActionHandler {
 	public void execute(ExecutionContext executionContext) throws Exception {
 		if (!getPluginRegistreDao().isRegistreActiu())
 			throw new JbpmException("El plugin de registre no està configurat");
-		Long documentId = getDocumentId(executionContext, varDocument);
-		if (documentId == null)
-			throw new JbpmException("No s'ha trobat el document '" + varDocument + "'");
+		if (varDocument == null || varDocument.length() == 0)
+			throw new JbpmException("És obligatori especificar un document per registrar");
 		try {
 			RegistreEntrada registreEntrada = new RegistreEntrada();
 			DadesOficina dadesOficina = new DadesOficina();
@@ -112,31 +111,27 @@ public class RegistreEntradaHandler extends AbstractHeliumActionHandler {
 					(String)getValorOVariable(executionContext, documentTipus, varDocumentTipus));
 			registreEntrada.setDadesAssumpte(dadesAssumpte);
 			List<DocumentRegistre> documents = new ArrayList<DocumentRegistre>();
-			if (varDocument != null && varDocument.length() > 0) {
-				DocumentRegistre document = new DocumentRegistre();
-				DocumentInfo documentInfo = getDocumentInfo(documentId);
-				if (documentInfo == null)
-					throw new JbpmException("No s'ha trobat la informació del document '" + varDocument + "'");
-				InstanciaProcesDto instanciaProces = getExpedientService().getInstanciaProcesById(
-						new Long(executionContext.getProcessInstance().getId()).toString(),
-						false);
-				document.setNom(documentInfo.getTitol());
-				dadesAssumpte.setAssumpte(instanciaProces.getExpedient().getIdentificador() + ": " + documentInfo.getTitol());
-				String idiomaDocument = (String)getValorOVariable(executionContext, documentIdiomaDocument, varDocumentIdiomaDocument);
-				document.setIdiomaCodi(
-						(idiomaDocument != null) ? idiomaDocument : "ca");
-				document.setData(documentInfo.getDataDocument());
-				document.setArxiuNom(documentInfo.getArxiuNom());
-				document.setArxiuContingut(documentInfo.getArxiuContingut());
-				documents.add(document);
-			} else {
-				throw new JbpmException("No s'ha especificat el document per registrar");
-			}
+			DocumentRegistre document = new DocumentRegistre();
+			DocumentInfo documentInfo = getDocumentInfo(executionContext, varDocument);
+			if (documentInfo == null)
+				throw new JbpmException("No s'ha trobat la informació del document '" + varDocument + "'");
+			InstanciaProcesDto instanciaProces = getExpedientService().getInstanciaProcesById(
+					new Long(executionContext.getProcessInstance().getId()).toString(),
+					false);
+			document.setNom(documentInfo.getTitol());
+			dadesAssumpte.setAssumpte(instanciaProces.getExpedient().getIdentificador() + ": " + documentInfo.getTitol());
+			String idiomaDocument = (String)getValorOVariable(executionContext, documentIdiomaDocument, varDocumentIdiomaDocument);
+			document.setIdiomaCodi(
+					(idiomaDocument != null) ? idiomaDocument : "ca");
+			document.setData(documentInfo.getDataDocument());
+			document.setArxiuNom(documentInfo.getArxiuNom());
+			document.setArxiuContingut(documentInfo.getArxiuContingut());
+			documents.add(document);
 			registreEntrada.setDocuments(documents);
 			RespostaAnotacioRegistre resposta = getPluginRegistreDao().registrarEntrada(registreEntrada);
 			if (resposta.isOk()) {
 				DaoProxy.getInstance().getDocumentStoreDao().updateRegistreEntrada(
-						documentId,
+						documentInfo.getId(),
 						resposta.getData(),
 						resposta.getNumero(),
 						(String)getValorOVariable(executionContext, oficina, varOficina),

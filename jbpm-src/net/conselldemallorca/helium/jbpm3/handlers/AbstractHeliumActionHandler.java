@@ -153,39 +153,39 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 		return null;
 	}
 
-	protected Long getDocumentId(
+	public DocumentInfo getDocumentInfo(
 			ExecutionContext executionContext,
-			String varDocument) {
-		String varCodi = TascaService.PREFIX_DOCUMENT + varDocument;
+			String documentCodi) {
+		String varCodi = TascaService.PREFIX_DOCUMENT + documentCodi;
 		Object valor = executionContext.getVariable(varCodi);
-		if (valor instanceof Long)
-			return (Long)valor;
-		return null;
-	}
-	protected DocumentInfo getDocumentInfo(Long id) {
-		if (id == null)
+		if (valor == null)
 			return null;
-		DocumentDto document = getExpedientService().getDocument(id, true, false);
-		if (document == null)
-			return null;
-		DocumentInfo resposta = new DocumentInfo();
-		resposta.setId(id);
-		if (document.isAdjunt()) {
-			resposta.setTitol(document.getAdjuntTitol());
+		if (valor instanceof Long) {
+			Long id = (Long)valor;
+			DocumentDto document = getExpedientService().getDocument(id, true, false);
+			if (document == null)
+				return null;
+			DocumentInfo resposta = new DocumentInfo();
+			resposta.setId(id);
+			if (document.isAdjunt()) {
+				resposta.setTitol(document.getAdjuntTitol());
+			} else {
+				resposta.setTitol(document.getDocumentNom());
+			}
+			resposta.setDataCreacio(document.getDataCreacio());
+			resposta.setDataDocument(document.getDataDocument());
+			resposta.setSignat(document.isSignat());
+			if (document.isSignat()) {
+				resposta.setArxiuNom(document.getSignatNom());
+				resposta.setArxiuContingut(document.getSignatContingut());
+			} else {
+				resposta.setArxiuNom(document.getArxiuNom());
+				resposta.setArxiuContingut(document.getArxiuContingut());
+			}
+			return resposta;
 		} else {
-			resposta.setTitol(document.getDocumentNom());
+			throw new JbpmException("La referencia al document \"" + documentCodi + "\" no es del tipus correcte");
 		}
-		resposta.setDataCreacio(document.getDataCreacio());
-		resposta.setDataDocument(document.getDataDocument());
-		resposta.setSignat(document.isSignat());
-		if (document.isSignat()) {
-			resposta.setArxiuNom(document.getSignatNom());
-			resposta.setArxiuContingut(document.getSignatContingut());
-		} else {
-			resposta.setArxiuNom(document.getArxiuNom());
-			resposta.setArxiuContingut(document.getArxiuContingut());
-		}
-		return resposta;
 	}
 
 }
