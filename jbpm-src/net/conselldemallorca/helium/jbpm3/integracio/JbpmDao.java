@@ -468,6 +468,18 @@ public class JbpmDao {
 		TaskInstanceEndCommand command = new TaskInstanceEndCommand(id, outcome);
 		commandService.execute(command);
 	}
+	public void renameTaskInstance(String taskId, String newName) {
+		long id = new Long(taskId).longValue();
+		GetTaskInstanceCommand command = new GetTaskInstanceCommand(id);
+		TaskInstance taskInstance = (TaskInstance)commandService.execute(command);
+		taskInstance.setName(newName);
+	}
+	public void describeTaskInstance(String taskId, String description) {
+		long id = new Long(taskId).longValue();
+		GetTaskInstanceCommand command = new GetTaskInstanceCommand(id);
+		TaskInstance taskInstance = (TaskInstance)commandService.execute(command);
+		taskInstance.setDescription(description);
+	}
 	public List<JbpmTask> findTaskInstancesForProcessInstance(String processInstanceId) {
 		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
 		long id = new Long(processInstanceId).longValue();

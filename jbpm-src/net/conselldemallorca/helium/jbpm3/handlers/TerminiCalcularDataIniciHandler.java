@@ -12,19 +12,19 @@ import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
 
 /**
- * Handler per iniciar un termini.
+ * Handler per calcular la data d'inici d'un termini.
  * 
  * @author Josep Gayà <josepg@limit.es>
  */
 @SuppressWarnings("serial")
-public class TerminiIniciarHandler extends AbstractHeliumActionHandler {
+public class TerminiCalcularDataIniciHandler extends AbstractHeliumActionHandler {
 
 	private String terminiCodi;
 	private String varTerminiCodi;
 	private String varData;
 	private String sumarUnDia;
 	private String varTermini;
-	private String esDataFi;
+	private String varDataInici;
 
 
 
@@ -33,28 +33,32 @@ public class TerminiIniciarHandler extends AbstractHeliumActionHandler {
 				executionContext,
 				(String)getValorOVariable(executionContext, terminiCodi, varTerminiCodi));
 		if (termini != null) {
+			Date dataInici;
 			if (varTermini != null) {
 				Object valorTermini = executionContext.getVariable(varTermini);
 				if (valorTermini == null)
 					throw new JbpmException("No s'ha pogut llegir el termini de la variable '" + varTermini + "'");
 				net.conselldemallorca.helium.jbpm3.integracio.Termini vt = (net.conselldemallorca.helium.jbpm3.integracio.Termini)valorTermini;
-				getTerminiService().iniciar(
-						termini.getId(),
-						getProcessInstanceId(executionContext),
-						getDataVariable(executionContext),
+				dataInici = getTerminiService().getDataIniciTermini(
+						getDataFi(executionContext),
 						vt.getAnys(),
 						vt.getMesos(),
 						vt.getDies(),
-						esDataFi());
+						termini.isLaborable());
 			} else {
-				getTerminiService().iniciar(
-						termini.getId(),
-						getProcessInstanceId(executionContext),
-						getDataVariable(executionContext),
-						esDataFi());
+				dataInici = getTerminiService().getDataIniciTermini(
+						getDataFi(executionContext),
+						termini.getAnys(),
+						termini.getMesos(),
+						termini.getDies(),
+						termini.isLaborable());
 			}
+			if (executionContext.getTaskInstance() != null)
+				executionContext.getTaskInstance().setVariableLocally(varDataInici, dataInici);
+			else
+				executionContext.setVariable(varDataInici, dataInici);
 		} else {
-			throw new JbpmException("No existeix cap termini amb aquest codi '" + terminiCodi + "'");
+			throw new JbpmException("No existeix cap termini amb aquest codi '" + (String)getValorOVariable(executionContext, terminiCodi, varTerminiCodi) + "'");
 		}
 	}
 
@@ -73,16 +77,13 @@ public class TerminiIniciarHandler extends AbstractHeliumActionHandler {
 	public void setVarTermini(String varTermini) {
 		this.varTermini = varTermini;
 	}
-	public void setDesdeFi(String desdeFi) {
-		this.esDataFi = desdeFi;
-	}
-	public void setEsDataFi(String esDataFi) {
-		this.esDataFi = esDataFi;
+	public void setVarDataInici(String varDataInici) {
+		this.varDataInici = varDataInici;
 	}
 
 
 
-	private Date getDataVariable(ExecutionContext executionContext) {
+	private Date getDataFi(ExecutionContext executionContext) {
 		Date data;
 		if (varData != null && varData.length() > 0) {
 			data = getVariableComData(executionContext, varData);
@@ -97,10 +98,6 @@ public class TerminiIniciarHandler extends AbstractHeliumActionHandler {
 		} else {
 			return data;
 		}
-	}
-
-	private boolean esDataFi() {
-		return (esDataFi != null && "true".equalsIgnoreCase(esDataFi));
 	}
 
 }

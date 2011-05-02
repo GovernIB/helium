@@ -32,7 +32,8 @@ public class GetPersonalTaskListCommand extends AbstractGetObjectBaseCommand imp
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		setJbpmContext(jbpmContext);
 	    List result = jbpmContext.getTaskList(actorId);
-	    return retrieveTaskInstanceDetails(result);
+	    //return retrieveTaskInstanceDetails(result);
+	    return result;
 	}
 
 	public String getActorId() {

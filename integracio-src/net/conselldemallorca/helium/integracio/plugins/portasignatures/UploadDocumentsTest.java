@@ -62,7 +62,7 @@ public class UploadDocumentsTest {
 		System.out.println(">>> núm. signatures: " + signatures.size());
 	}
 	public void callback() throws Exception {
-		MCGDws service = new MCGDwsService(new URL("http://oficina.limit.es/helium/ws/MCGDws?wsdl")).getMCGDWS();
+		MCGDws service = new MCGDwsService(new URL("http://siroco2.lanbd.conselldemallorca.net:8080/helium/ws/MCGDws?wsdl")).getMCGDWS();
 		CallbackRequest request = new CallbackRequest();
 		Application application = new Application();
 		Document document = new Document();

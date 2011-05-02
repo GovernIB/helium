@@ -39,35 +39,19 @@ public class TerminiCalcularDataFiHandler extends AbstractHeliumActionHandler {
 				if (valorTermini == null)
 					throw new JbpmException("No s'ha pogut llegir el termini de la variable '" + varTermini + "'");
 				net.conselldemallorca.helium.jbpm3.integracio.Termini vt = (net.conselldemallorca.helium.jbpm3.integracio.Termini)valorTermini;
-				if (varData != null)
-					dataFi = getTerminiService().getDataFiTermini(
-							getDataVariable(executionContext),
-							vt.getAnys(),
-							vt.getMesos(),
-							vt.getDies(),
-							termini.isLaborable());
-				else
-					dataFi = getTerminiService().getDataFiTermini(
-							new Date(),
-							vt.getAnys(),
-							vt.getMesos(),
-							vt.getDies(),
-							termini.isLaborable());
+				dataFi = getTerminiService().getDataFiTermini(
+						getDataInici(executionContext),
+						vt.getAnys(),
+						vt.getMesos(),
+						vt.getDies(),
+						termini.isLaborable());
 			} else {
-				if (varData != null)
-					dataFi = getTerminiService().getDataFiTermini(
-							getDataVariable(executionContext),
-							termini.getAnys(),
-							termini.getMesos(),
-							termini.getDies(),
-							termini.isLaborable());
-				else
-					dataFi = getTerminiService().getDataFiTermini(
-							new Date(),
-							termini.getAnys(),
-							termini.getMesos(),
-							termini.getDies(),
-							termini.isLaborable());
+				dataFi = getTerminiService().getDataFiTermini(
+						getDataInici(executionContext),
+						termini.getAnys(),
+						termini.getMesos(),
+						termini.getDies(),
+						termini.isLaborable());
 			}
 			if (executionContext.getTaskInstance() != null)
 				executionContext.getTaskInstance().setVariableLocally(varDataFi, dataFi);
@@ -99,8 +83,13 @@ public class TerminiCalcularDataFiHandler extends AbstractHeliumActionHandler {
 
 
 
-	private Date getDataVariable(ExecutionContext executionContext) {
-		Date data = getVariableComData(executionContext, varData);
+	private Date getDataInici(ExecutionContext executionContext) {
+		Date data;
+		if (varData != null && varData.length() > 0) {
+			data = getVariableComData(executionContext, varData);
+		} else {
+			data = new Date();
+		}
 		if (sumarUnDia != null && sumarUnDia.length() > 0) {
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(data);

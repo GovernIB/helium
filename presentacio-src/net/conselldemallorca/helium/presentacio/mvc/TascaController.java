@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
 import net.conselldemallorca.helium.model.dto.TascaDto;
+import net.conselldemallorca.helium.model.dto.TascaLlistatDto;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
 import net.conselldemallorca.helium.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.model.hibernate.TerminiIniciat;
@@ -131,7 +132,7 @@ public class TascaController extends BaseController {
 				tascaPersonaFiltreCommand.setOrdre(ordre);
 				request.getSession().setAttribute("commandTascaPersonaFiltre", tascaPersonaFiltreCommand);
 			}
-			List<TascaDto> tasquesPersonalsFiltre = tascaService.findTasquesPersonalsFiltre(
+			List<TascaLlistatDto> tasquesPersonalsFiltre = tascaService.findTasquesPersonalsFiltre(
 					entorn.getId(),
 					tascaPersonaFiltreCommand.getNom(),
 					tascaPersonaFiltreCommand.getExpedient(),
@@ -194,7 +195,7 @@ public class TascaController extends BaseController {
 				tascaGrupFiltreCommand.setOrdre(ordre);
 				request.getSession().setAttribute("commandTascaGrupFiltre", tascaGrupFiltreCommand);
 			}
-			List<TascaDto> tasquesGrupFiltre = tascaService.findTasquesGrupFiltre(
+			List<TascaLlistatDto> tasquesGrupFiltre = tascaService.findTasquesGrupFiltre(
 					entorn.getId(),
 					tascaGrupFiltreCommand.getNom(),
 					tascaGrupFiltreCommand.getExpedient(),
@@ -579,15 +580,15 @@ public class TascaController extends BaseController {
 
 
 
-	private List<TerminiIniciat> findTerminisIniciatsPerTasques(List<TascaDto> tasques) {
+	private List<TerminiIniciat> findTerminisIniciatsPerTasques(List<TascaLlistatDto> tasques) {
 		List<TerminiIniciat> resposta = new ArrayList<TerminiIniciat>();
 		if (tasques != null) {
 			String[] taskInstanceIds = new String[tasques.size()];
 			int i = 0;
-			for (TascaDto tasca: tasques)
+			for (TascaLlistatDto tasca: tasques)
 				taskInstanceIds[i++] = tasca.getId();
 			List<TerminiIniciat> terminis = terminiService.findIniciatsAmbTaskInstanceIds(taskInstanceIds);
-			for (TascaDto tasca: tasques) {
+			for (TascaLlistatDto tasca: tasques) {
 				boolean found = false;
 				for (TerminiIniciat termini: terminis) {
 					if (termini.getTaskInstanceId().equals(tasca.getId())) {

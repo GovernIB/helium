@@ -316,18 +316,23 @@ public class DefinicioProcesCampController extends BaseController {
 			if (camp.getCodi().contains(".")) {
 				errors.rejectValue("codi", "error.camp.codi.char.nok");
 			}
-			if (camp.getTipus().equals(TipusCamp.ACCIO)) {
-				ValidationUtils.rejectIfEmpty(errors, "jbpmAction", "not.blank");
-			}
-			if (camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST)) {
-				if (camp.getDomini() == null && camp.getEnumeracio() == null) {
-					errors.rejectValue("enumeracio", "error.camp.enumdom.buit");
-					errors.rejectValue("domini", "error.camp.enumdom.buit");
+			if (camp.getTipus() != null) {
+				if (camp.getTipus().equals(TipusCamp.ACCIO)) {
+					ValidationUtils.rejectIfEmpty(errors, "jbpmAction", "not.blank");
 				}
-				if (camp.getDomini() != null) {
-					ValidationUtils.rejectIfEmpty(errors, "dominiId", "not.blank");
-					ValidationUtils.rejectIfEmpty(errors, "dominiCampText", "not.blank");
-					ValidationUtils.rejectIfEmpty(errors, "dominiCampValor", "not.blank");
+				if (camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST)) {
+					if (camp.getDomini() == null && camp.getEnumeracio() == null) {
+						errors.rejectValue("enumeracio", "error.camp.enumdom.buit");
+						errors.rejectValue("domini", "error.camp.enumdom.buit");
+					}
+					if (camp.getDomini() != null) {
+						ValidationUtils.rejectIfEmpty(errors, "dominiCampText", "not.blank");
+						ValidationUtils.rejectIfEmpty(errors, "dominiCampValor", "not.blank");
+					}
+					if (camp.getDomini() != null && camp.getEnumeracio() != null) {
+						errors.rejectValue("enumeracio", "error.camp.enumdom.ambdos");
+						errors.rejectValue("domini", "error.camp.enumdom.ambdos");
+					}
 				}
 			}
 		}

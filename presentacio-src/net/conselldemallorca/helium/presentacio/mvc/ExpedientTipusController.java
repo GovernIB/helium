@@ -122,7 +122,7 @@ public class ExpedientTipusController extends BaseController {
 						getResponsableDefecte(expedientTipus.getResponsableDefecteCodi()));
 				model.addAttribute(
 						"definicioProcesInicial",
-						dissenyService.findDarreraDefinicioProcesForExpedientTipus(id));
+						dissenyService.findDarreraDefinicioProcesForExpedientTipus(id, false));
 				return "expedientTipus/info";
 			} else {
 				missatgeError(request, "No té permisos de disseny sobre aquest tipus d'expedient");

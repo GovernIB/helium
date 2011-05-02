@@ -34,7 +34,8 @@ public class GetGroupTaskListCommand extends AbstractGetObjectBaseCommand {
 		List actorIds = new ArrayList();
 		actorIds.add(actorId);
 	    List result = jbpmContext.getGroupTaskList(actorIds);
-	    return retrieveTaskInstanceDetails(result);
+	    return result;
+	    //return retrieveTaskInstanceDetails(result);
 	}
 
 	public String getActorId() {

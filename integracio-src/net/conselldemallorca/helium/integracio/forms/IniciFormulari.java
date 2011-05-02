@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.integracio.forms;
 import java.util.List;
 
 import javax.jws.WebService;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
 /**
  * Interfície per al servei de formularis externs
@@ -13,6 +14,7 @@ import javax.jws.WebService;
  * @author Josep Gayà <josepg@limit.es>
  */
 @WebService
+@XmlSeeAlso({Object[].class, Object[][].class})
 public interface IniciFormulari {
 
 	/**

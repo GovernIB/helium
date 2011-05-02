@@ -52,73 +52,94 @@ public class TerminiService {
 	public TerminiIniciat iniciar(
 			Long terminiId,
 			String processInstanceId,
-			Date dataInici) {
+			Date data,
+			boolean esDataFi) {
 		Termini termini = terminiDao.getById(terminiId, false);
 		TerminiIniciat terminiIniciat = terminiIniciatDao.findAmbTerminiIdIProcessInstanceId(
 				terminiId,
 				processInstanceId);
 		if (terminiIniciat == null) {
-			Date dataFi = getDataFiTermini(
-					dataInici,
+			return iniciar(
+					terminiId,
+					processInstanceId,
+					data,
 					termini.getAnys(),
 					termini.getMesos(),
 					termini.getDies(),
-					termini.isLaborable());
-			terminiIniciat = new TerminiIniciat(
-					termini,
-					processInstanceId,
-					dataInici,
-					dataFi);
+					esDataFi);
 		} else {
-			Date dataFi = getDataFiTermini(
-					dataInici,
+			return iniciar(
+					terminiId,
+					processInstanceId,
+					data,
 					terminiIniciat.getAnys(),
 					terminiIniciat.getMesos(),
 					terminiIniciat.getDies(),
-					termini.isLaborable());
-			terminiIniciat.setDataFi(dataFi);
-			terminiIniciat.setDataAturada(null);
-			terminiIniciat.setDataCancelacio(null);
-			resumeTimers(terminiIniciat);
+					esDataFi);
 		}
-		Long expedientId = getExpedientForProcessInstanceId(processInstanceId).getId();
-		if (expedientId != null) {
-			registreDao.crearRegistreIniciarTermini(
-					getExpedientForProcessInstanceId(processInstanceId).getId(),
-					processInstanceId,
-					terminiId.toString(),
-					SecurityContextHolder.getContext().getAuthentication().getName());
-		}
-		return terminiIniciatDao.saveOrUpdate(terminiIniciat);
 	}
 	public TerminiIniciat iniciar(
 			Long terminiId,
 			String processInstanceId,
-			Date dataInici,
+			Date data,
 			int anys,
 			int mesos,
-			int dies) {
+			int dies,
+			boolean esDataFi) {
 		Termini termini = terminiDao.getById(terminiId, false);
-		Date dataFi = getDataFiTermini(
-				dataInici,
-				anys,
-				mesos,
-				dies,
-				termini.isLaborable());
 		TerminiIniciat terminiIniciat = terminiIniciatDao.findAmbTerminiIdIProcessInstanceId(
 				terminiId,
 				processInstanceId);
 		if (terminiIniciat == null) {
-			terminiIniciat = new TerminiIniciat(
-					termini,
-					anys,
-					mesos,
-					dies,
-					processInstanceId,
-					dataInici,
-					dataFi);
+			if (esDataFi) {
+				Date dataFi = getDataFiTermini(
+						data,
+						anys,
+						mesos,
+						dies,
+						termini.isLaborable());
+				terminiIniciat = new TerminiIniciat(
+						termini,
+						anys,
+						mesos,
+						dies,
+						processInstanceId,
+						data,
+						dataFi);
+			} else {
+				Date dataInici = getDataIniciTermini(
+						data,
+						anys,
+						mesos,
+						dies,
+						termini.isLaborable());
+				terminiIniciat = new TerminiIniciat(
+						termini,
+						anys,
+						mesos,
+						dies,
+						processInstanceId,
+						dataInici,
+						data);
+			}
 		} else {
-			terminiIniciat.setDataFi(dataFi);
+			if (esDataFi) {
+				Date dataFi = getDataFiTermini(
+						data,
+						anys,
+						mesos,
+						dies,
+						termini.isLaborable());
+				terminiIniciat.setDataFi(dataFi);
+			} else {
+				Date dataInici = getDataIniciTermini(
+						data,
+						anys,
+						mesos,
+						dies,
+						termini.isLaborable());
+				terminiIniciat.setDataInici(dataInici);
+			}
 			terminiIniciat.setDataAturada(null);
 			terminiIniciat.setDataCancelacio(null);
 			resumeTimers(terminiIniciat);
@@ -216,6 +237,40 @@ public class TerminiService {
 			dataFi.set(Calendar.MILLISECOND, 999);
 		}
 		return dataFi.getTime();
+	}
+	public Date getDataIniciTermini(
+			Date fi,
+			int anys,
+			int mesos,
+			int dies,
+			boolean laborable) {
+		Calendar dataInici = Calendar.getInstance();
+		dataInici.setTime(fi); //inicialitzam la data final amb la data d'inici
+		// Afegim els anys i mesos
+		if (anys > 0) {
+			dataInici.add(Calendar.YEAR, -anys);
+			dataInici.add(Calendar.DAY_OF_YEAR, -1);
+		}
+		if (mesos > 0) {
+			dataInici.add(Calendar.MONTH, -mesos);
+			dataInici.add(Calendar.DAY_OF_YEAR, -1);
+		}
+		if (dies > 0) {
+			// Depenent de si el termini és laborable o no s'afegiran més o manco dies
+			if (laborable) {
+				sumarDies(dataInici, -dies);
+			} else {
+				dataInici.add(Calendar.DATE, -dies + 1);
+				// Si el darrer dia cau en festiu es passa al dia laborable següent
+				sumarDies(dataInici, -1);
+			}
+			// El termini en realitat s'inicia a les 00:00h
+			dataInici.set(Calendar.HOUR_OF_DAY, 0);
+			dataInici.set(Calendar.MINUTE, 0);
+			dataInici.set(Calendar.SECOND, 0);
+			dataInici.set(Calendar.MILLISECOND, 0);
+		}
+		return dataInici.getTime();
 	}
 	public List<TerminiIniciat> findIniciatsAmbProcessInstanceId(String processInstanceId) {
 		return terminiIniciatDao.findAmbProcessInstanceId(processInstanceId);
@@ -331,18 +386,20 @@ public class TerminiService {
 
 
 	private void sumarDies(Calendar cal, int numDies) {
+		int signe = (numDies < 0) ? -1 : 1;
+		int nd = (numDies < 0) ? -numDies : numDies;
 		cal.set(Calendar.HOUR_OF_DAY, 0);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
 		List<Festiu> festius = festiuDao.findAll();
 		int diesLabs = 0;
-		while (diesLabs < numDies) {
+		while (diesLabs < nd) {
 			if (!esFestiu(cal, festius))
 				diesLabs ++;
-			cal.add(Calendar.DATE, 1);
+			cal.add(Calendar.DATE, signe);
 		}
-		cal.add(Calendar.DATE, -1);
+		cal.add(Calendar.DATE, -signe);
 	}
 	private boolean esFestiu(
 			Calendar cal,

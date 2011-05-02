@@ -16,7 +16,7 @@ import net.conselldemallorca.helium.model.hibernate.FormulariExtern;
 import net.conselldemallorca.helium.model.service.TascaService;
 import net.conselldemallorca.helium.util.GlobalProperties;
 
-import org.apache.cxf.frontend.ClientProxyFactoryBean;
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
 
@@ -93,7 +93,7 @@ public class FormulariExternDao extends HibernateGenericDao<FormulariExtern, Lon
 			String codiFormulari,
 			String taskId,
 			List<ParellaCodiValor> valors) {
-		ClientProxyFactoryBean factory = new ClientProxyFactoryBean();
+		JaxWsProxyFactoryBean factory = new JaxWsProxyFactoryBean();
 		factory.setServiceClass(IniciFormulari.class);
 		if (expedientTipus.getFormextUrl() != null) {
 			factory.setAddress(expedientTipus.getFormextUrl());
@@ -114,7 +114,11 @@ public class FormulariExternDao extends HibernateGenericDao<FormulariExtern, Lon
 				factory.setPassword(password);
 			}
 		}
-		return ((IniciFormulari)factory.create()).iniciFormulari(codiFormulari, taskId, valors);
+		List<ParellaCodiValor> valors2 = new ArrayList<ParellaCodiValor>();
+		Object[] regval = new Object[1];
+		regval[0] = new Object[] {"a", "b"};
+		valors2.add(new ParellaCodiValor("reg", regval));
+		return ((IniciFormulari)factory.create()).iniciFormulari(codiFormulari, taskId, valors2);
 	}
 
 }

@@ -103,7 +103,11 @@ public class ExpedientTerminiController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			try {
-				terminiService.iniciar(terminiId, id, new Date());
+				terminiService.iniciar(
+						terminiId,
+						id,
+						new Date(),
+						true);
 				missatgeInfo(request, "El termini s'ha iniciat correctament");
 			} catch (Exception ex) {
 				missatgeError(request, "No s'ha pogut iniciar el termini", ex.getLocalizedMessage());

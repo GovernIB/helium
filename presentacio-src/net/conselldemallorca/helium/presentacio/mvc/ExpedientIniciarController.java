@@ -85,7 +85,7 @@ public class ExpedientIniciarController extends BaseController {
 			Iterator<ExpedientTipus> it = tipus.iterator();
 			while (it.hasNext()) {
 				ExpedientTipus expedientTipus = it.next();
-				DefinicioProcesDto darrera = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipus.getId());
+				DefinicioProcesDto darrera = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipus.getId(), true);
 				if (darrera != null)
 					definicionsProces.put(expedientTipus.getId(), darrera);
 				else
@@ -123,7 +123,7 @@ public class ExpedientIniciarController extends BaseController {
 				if (definicioProcesId != null)
 					definicioProces = dissenyService.getById(definicioProcesId);
 				else
-					definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId);
+					definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId, true);
 				if (definicioProces.isHasStartTask()) {
 					if (definicioProcesId != null)
 						return "redirect:/expedient/iniciarPasForm.html?expedientTipusId=" + expedientTipusId + "&definicioProcesId=" + definicioProcesId;

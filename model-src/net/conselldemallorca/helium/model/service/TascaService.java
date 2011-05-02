@@ -38,6 +38,7 @@ import net.conselldemallorca.helium.model.dto.DocumentDto;
 import net.conselldemallorca.helium.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.model.dto.TascaDto;
+import net.conselldemallorca.helium.model.dto.TascaLlistatDto;
 import net.conselldemallorca.helium.model.exception.DominiException;
 import net.conselldemallorca.helium.model.exception.IllegalArgumentsException;
 import net.conselldemallorca.helium.model.exception.IllegalStateException;
@@ -133,10 +134,24 @@ public class TascaService {
 		JbpmTask task = jbpmDao.getTaskById(taskId);
 		return toTascaDto(task, valorsCommand, true);
 	}
-	public List<TascaDto> findTasquesPersonals(Long entornId) {
-		return findTasquesPersonals(entornId, null);
+
+	public List<TascaLlistatDto> findTasquesPersonalsIndex(Long entornId) {
+		return findTasquesPersonalsTramitacio(entornId, null, false);
 	}
-	public List<TascaDto> findTasquesPersonalsFiltre(
+	public List<TascaLlistatDto> findTasquesPersonalsTramitacio(
+			Long entornId,
+			String usuari,
+			boolean perTramitacio) {
+		String usuariBo = usuari;
+		if (usuariBo == null) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			usuariBo = auth.getName();
+		}
+		List<JbpmTask> tasques = jbpmDao.findPersonalTasks(usuariBo);
+		return tasquesFiltradesPerEntorn(entornId, tasques, perTramitacio);
+	}
+
+	public List<TascaLlistatDto> findTasquesPersonalsFiltre(
 			Long entornId,
 			String tasca,
 			String expedient,
@@ -162,16 +177,7 @@ public class TascaService {
 				columna,
 				ordre);
 	}
-	public List<TascaDto> findTasquesPersonals(Long entornId, String usuari) {
-		String usuariBo = usuari;
-		if (usuariBo == null) {
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			usuariBo = auth.getName();
-		}
-		List<JbpmTask> tasques = jbpmDao.findPersonalTasks(usuariBo);
-		return tasquesFiltradesPerEntorn(entornId, tasques);
-	}
-	public List<TascaDto> findTasquesPersonalsFiltre(
+	public List<TascaLlistatDto> findTasquesPersonalsFiltre(
 			Long entornId,
 			String usuari,
 			String tasca,
@@ -192,7 +198,8 @@ public class TascaService {
 		//long t1 = System.currentTimeMillis();
 		List<JbpmTask> tasques = jbpmDao.findPersonalTasks(usuariBo);
 		//System.out.println("Consulta de tasques: " + (System.currentTimeMillis() - t1) + "ms");
-		return tasquesFiltradesValors(
+		//long t2 = System.currentTimeMillis();
+		List<TascaLlistatDto> resposta = tasquesLlistatFiltradesValors(
 				entornId,
 				tasques, 
 				tasca,
@@ -205,11 +212,26 @@ public class TascaService {
 				dataLimitFi,
 				columna,
 				ordre);
+		//System.out.println("Filtrat de tasques: " + (System.currentTimeMillis() - t2) + "ms");
+		return resposta;
 	}
-	public List<TascaDto> findTasquesGrup(Long entornId) {
-		return findTasquesGrup(entornId, null);
+
+	public List<TascaLlistatDto> findTasquesGrupIndex(Long entornId) {
+		return findTasquesGrupTramitacio(entornId, null, false);
 	}
-	public List<TascaDto> findTasquesGrupFiltre(
+	public List<TascaLlistatDto> findTasquesGrupTramitacio(
+			Long entornId,
+			String usuari,
+			boolean perTramitacio) {
+		String usuariBo = usuari;
+		if (usuariBo == null) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			usuariBo = auth.getName();
+		}
+		List<JbpmTask> tasques = jbpmDao.findGroupTasks(usuariBo);
+		return tasquesFiltradesPerEntorn(entornId, tasques, perTramitacio);
+	}
+	public List<TascaLlistatDto> findTasquesGrupFiltre(
 			Long entornId,
 			String tasca,
 			String expedient,
@@ -235,16 +257,8 @@ public class TascaService {
 				columna,
 				ordre);
 	}
-	public List<TascaDto> findTasquesGrup(Long entornId, String usuari) {
-		String usuariBo = usuari;
-		if (usuariBo == null) {
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			usuariBo = auth.getName();
-		}
-		List<JbpmTask> tasques = jbpmDao.findGroupTasks(usuariBo);
-		return tasquesFiltradesPerEntorn(entornId, tasques);
-	}
-	public List<TascaDto> findTasquesGrupFiltre(
+	
+	public List<TascaLlistatDto> findTasquesGrupFiltre(
 			Long entornId,
 			String usuari,
 			String tasca,
@@ -263,7 +277,7 @@ public class TascaService {
 			usuariBo = auth.getName();
 		}
 		List<JbpmTask> tasques = jbpmDao.findGroupTasks(usuariBo);
-		return tasquesFiltradesValors(
+		return tasquesLlistatFiltradesValors(
 				entornId,
 				tasques,
 				tasca,
@@ -1074,23 +1088,34 @@ public class TascaService {
 				isDocumentsComplet(task),
 				isSignaturesComplet(task));
 	}
-	private List<TascaDto> tasquesFiltradesPerEntorn(
+	private List<TascaLlistatDto> tasquesFiltradesPerEntorn(
 			Long entornId,
-			List<JbpmTask> tasques) {
+			List<JbpmTask> tasques,
+			boolean complet) {
 		// Filtra les tasques per mostrar només les del entorn seleccionat
-		List<TascaDto> filtrades = new ArrayList<TascaDto>();
+		List<TascaLlistatDto> filtrades = new ArrayList<TascaLlistatDto>();
 		for (JbpmTask task: tasques) {
 			Long currentEntornId = entornPerTasca(task).getId();
 			if (currentEntornId != null && entornId.equals(currentEntornId)) {
-				Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
-						task.getName(),
-						task.getProcessDefinitionId());
-				filtrades.add(dtoConverter.toTascaDtoPerOrdenacio(task, tasca, null, false));
+				TascaLlistatDto dto = toTascaLlistatDto(task, null);
+				if (complet) {
+					Expedient expedient = expedientDao.findAmbProcessInstanceId(
+							jbpmDao.getRootProcessInstance(task.getProcessInstanceId()).getId());
+					dto.setExpedientNumeroDefault(expedient.getNumeroDefault());
+					Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
+							task.getName(),
+							task.getProcessDefinitionId());
+					dto.setMissatgeInfo(tasca.getMissatgeInfo());
+					dto.setMissatgeWarn(tasca.getMissatgeWarn());
+					dto.setResultats(
+							jbpmDao.findTaskInstanceOutcomes(task.getId()));
+				}
+				filtrades.add(dto);
 			}
 		}
 		return filtrades;
 	}
-	private List<TascaDto> tasquesFiltradesValors(
+	private List<TascaLlistatDto> tasquesLlistatFiltradesValors(
 			Long entornId,
 			List<JbpmTask> tasques,
 			String tasca,
@@ -1104,46 +1129,18 @@ public class TascaService {
 			String columna,
 			String ordre) {
 		// Filtra les tasques per mostrar només les del entorn seleccionat
-		List<TascaDto> filtrades = new ArrayList<TascaDto>();
-		/*long t1 = System.currentTimeMillis();
-		double mpre = 0;
-		long maxpre = 0;
-		long npre = 0;
-		double mpre2 = 0;
-		long maxpre2 = 0;
-		long npre2 = 0;
-		double mconv = 0;
-		long maxconv = 0;
-		long nconv = 0;
-		double mfilt = 0;
-		long maxfilt = 0;
-		long nfilt = 0;*/
+		List<TascaLlistatDto> filtrades = new ArrayList<TascaLlistatDto>();
 		for (JbpmTask task: tasques) {
-			//System.out.println(">>> Tasca: " + task.getId());
-			//long tt1 = System.currentTimeMillis();
 			Expedient expedientPerTasca = expedientDao.findAmbProcessInstanceId(
 					jbpmDao.getRootProcessInstance(task.getProcessInstanceId()).getId());
-			/*long tt1p = (System.currentTimeMillis() - tt1);
-			npre++; mpre += tt1p;
-			if (tt1p > maxpre) maxpre = tt1p;
-			long tt2 = System.currentTimeMillis();*/
-			Tasca t = tascaDao.findAmbActivityNameIProcessDefinitionId(
-					task.getName(),
-					task.getProcessDefinitionId());
-			/*long tt2p = (System.currentTimeMillis() - tt2);
-			npre2++; mpre2 += tt2p;
-			if (tt2p > maxpre2) maxpre2 = tt2p;
-			long tt3 = System.currentTimeMillis();*/
-			TascaDto tascaDto = dtoConverter.toTascaDtoPerOrdenacio(task, t, expedientPerTasca, true);
-			/*long tt3p = (System.currentTimeMillis() - tt3);
-			nconv++; mconv += tt3p;
-			if (tt3p > maxconv) maxconv = tt3p;
-			long tt4 = System.currentTimeMillis();*/
 			Long currentEntornId = expedientPerTasca.getEntorn().getId();
 			if ((currentEntornId != null) && (entornId.equals(currentEntornId))) {
+				TascaLlistatDto dto = toTascaLlistatDto(task, expedientPerTasca);
+				dto.setTitol(
+						dtoConverter.getTitolPerTasca(task));
 				Boolean incloure = true;
 				if ((tasca != null) && (!tasca.equals(""))) {
-					String nomTasca = normalitzaText(tascaDto.getNom());
+					String nomTasca = normalitzaText(dto.getTitol());
 					String paramTasca = normalitzaText(tasca);
 					incloure = incloure && (nomTasca.indexOf(paramTasca) != -1);
 				}
@@ -1155,93 +1152,77 @@ public class TascaService {
 				if (tipusExpedient != null) {
 					incloure = incloure && (tipusExpedient.longValue() == expedientPerTasca.getTipus().getId());
 				}
+				Date dataCreacio = dto.getDataCreacio();
 				if ((dataCreacioInici != null) && (dataCreacioFi != null)) {
-					Date dataCreacio = tascaDto.getCreateTime();
 					incloure = incloure && ((dataCreacio.compareTo(dataCreacioInici) >= 0) && (dataCreacio.compareTo(dataCreacioFi) <= 0));
 				} else if (dataCreacioInici != null) {
-					Date dataCreacio = tascaDto.getCreateTime();
 					incloure = incloure && (dataCreacio.compareTo(dataCreacioInici) >= 0);
 				} else if (dataCreacioFi != null) {
-					Date dataCreacio = tascaDto.getCreateTime();
 					incloure = incloure && (dataCreacio.compareTo(dataCreacioFi) <= 0);
 				}
 				if (prioritat != null) {
-					incloure = incloure && (prioritat.intValue() == tascaDto.getPriority());
+					incloure = incloure && (prioritat.intValue() == dto.getPrioritat());
 				}
+				Date dataLimit = dto.getDataLimit();
 				if ((dataLimitInici != null) && (dataLimitFi != null)) {
-					Date dataLimit = tascaDto.getDueDate();
 					incloure = incloure && ((dataLimit != null) && (dataLimit.compareTo(dataLimitInici) >= 0) && (dataLimit.compareTo(dataLimitFi) <= 0));
 				} else if (dataLimitInici != null) {
-					Date dataLimit = tascaDto.getDueDate();
 					incloure = incloure && ((dataLimit != null) && (dataLimit.compareTo(dataLimitInici) >= 0));
 				} else if (dataLimitFi != null) {
-					Date dataLimit = tascaDto.getDueDate();
 					incloure = incloure && ((dataLimit != null) && (dataLimit.compareTo(dataLimitFi) <= 0));
 				}
 				if (incloure)
-					filtrades.add(tascaDto);
+					filtrades.add(dto);
 			}
-			/*long tt4p = (System.currentTimeMillis() - tt4);
-			nfilt++; mfilt += tt4p;
-			if (tt4p > maxfilt) maxfilt = tt4p;*/
 		}
-		/*System.out.println("Filtre de tasques: " + (System.currentTimeMillis() - t1) + "ms");
-		System.out.println("Mitja PRE: " + (mpre / (double)npre) + "ms");
-		System.out.println("Max PRE: " + maxpre + "ms");
-		System.out.println("Mitja PRE2: " + (mpre2 / (double)npre2) + "ms");
-		System.out.println("Max PRE2: " + maxpre2 + "ms");
-		System.out.println("Mitja CONV: " + (mconv / (double)nconv) + "ms");
-		System.out.println("Max CONV: " + maxconv + "ms");
-		System.out.println("Mitja FILT: " + (mfilt / (double)nfilt) + "ms");
-		System.out.println("Max FILT: " + maxfilt + "ms");*/
 		final Integer col = Integer.parseInt((columna!=null) ? columna  :"0");
 		final Integer ord = Integer.parseInt((ordre!=null) ? ordre : "0");
-		Comparator<TascaDto> comparador = new Comparator<TascaDto>() {
-			public int compare(TascaDto t1, TascaDto t2) {
+		Comparator<TascaLlistatDto> comparador = new Comparator<TascaLlistatDto>() {
+			public int compare(TascaLlistatDto t1, TascaLlistatDto t2) {
 				Integer result = 0;
 				switch (col) {
 					// Tasca
 					case 0:
 						if (ord == 1)
-							result = t1.getNom().compareTo(t2.getNom());
+							result = t1.getTitol().compareTo(t2.getTitol());
 						else if (ord == 2)
-							result = t2.getNom().compareTo(t1.getNom());
+							result = t2.getTitol().compareTo(t1.getTitol());
 						break;
 					// Expedient
 					case 1:
 						if (ord == 1)
-							result = t1.getExpedient().getIdentificadorOrdenacio().compareTo(t2.getExpedient().getIdentificadorOrdenacio());
+							result = t1.getExpedientTitolOrdenacio().compareTo(t2.getExpedientTitolOrdenacio());
 						else if (ord == 2)
-							result = t2.getExpedient().getIdentificadorOrdenacio().compareTo(t1.getExpedient().getIdentificadorOrdenacio());
+							result = t2.getExpedientTitolOrdenacio().compareTo(t1.getExpedientTitolOrdenacio());
 						break;
 					// Tipus d'expedient
 					case 2:
 						if (ord == 1)
-							result = t1.getExpedient().getTipus().getId().compareTo(t2.getExpedient().getTipus().getId());
+							result = t1.getExpedientTipusId().compareTo(t2.getExpedientTipusId());
 						else if (ord == 2)
-							result = t2.getExpedient().getTipus().getId().compareTo(t1.getExpedient().getTipus().getId());
+							result = t2.getExpedientTipusId().compareTo(t1.getExpedientTipusId());
 						break;
 					// Data creació
 					case 3:
 						if (ord == 1)
-							result = t1.getCreateTime().compareTo(t2.getCreateTime());
+							result = t1.getDataCreacio().compareTo(t2.getDataCreacio());
 						else if (ord == 2)
-							result = t2.getCreateTime().compareTo(t1.getCreateTime());
+							result = t2.getDataCreacio().compareTo(t1.getDataCreacio());
 						break;
 					// Prioritat
 					case 4:
 						if (ord == 1)
-							result = t1.getPriority() - t2.getPriority();
+							result = t1.getPrioritat() - t2.getPrioritat();
 						else if (ord == 2)
-							result = t2.getPriority() - t1.getPriority();
+							result = t2.getPrioritat() - t1.getPrioritat();
 						break;
 					// Data límit
 					case 5:
-						if ((t1.getDueDate() != null) && (t2.getDueDate() != null)) {
+						if ((t1.getDataLimit() != null) && (t2.getDataLimit() != null)) {
 							if (ord == 1)
-								result = t1.getDueDate().compareTo(t2.getDueDate());
+								result = t1.getDataLimit().compareTo(t2.getDataLimit());
 							else if (ord == 2)
-								result = t2.getDueDate().compareTo(t1.getDueDate());
+								result = t2.getDataLimit().compareTo(t1.getDataLimit());
 						}
 						break;
 					default:
@@ -1436,6 +1417,34 @@ public class TascaService {
 		} else {
 			return fileName;
 		}
+	}
+
+	private TascaLlistatDto toTascaLlistatDto(
+			JbpmTask task,
+			Expedient expedient) {
+		TascaLlistatDto dto = new TascaLlistatDto();
+		dto.setId(task.getId());
+		dto.setCodi(task.getName());
+		dto.setTitol(task.getName());
+		dto.setDataCreacio(task.getCreateTime());
+		dto.setDataInici(task.getStartTime());
+		dto.setDataFi(task.getEndTime());
+		dto.setDataLimit(task.getDueDate());
+		dto.setPrioritat(task.getPriority());
+		dto.setResponsable(task.getAssignee());
+		dto.setResponsables(task.getPooledActors());
+		dto.setOberta(task.isOpen());
+		dto.setCompletada(task.isCompleted());
+		dto.setCancelada(task.isCancelled());
+		dto.setSuspesa(task.isSuspended());
+		if (expedient != null) {
+			dto.setExpedientTitol(expedient.getIdentificador());
+			dto.setExpedientTitolOrdenacio(expedient.getIdentificadorOrdenacio());
+			dto.setExpedientTipusId(expedient.getTipus().getId());
+			dto.setExpedientTipusNom(expedient.getTipus().getNom());
+			dto.setProcessInstanceId(expedient.getProcessInstanceId());
+		}
+		return dto;
 	}
 
 	private static final Log logger = LogFactory.getLog(TascaService.class);

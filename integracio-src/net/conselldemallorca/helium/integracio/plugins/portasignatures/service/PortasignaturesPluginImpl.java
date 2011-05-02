@@ -65,7 +65,6 @@ public class PortasignaturesPluginImpl implements MCGDws {
 				default:
 					break;
 			}
-			
 			callbackResponse.setLogMessages(arrayOfLogMessage);
 	        callbackResponse.setVersion("1.0");
 	        callbackResponse.setReturn(resposta);

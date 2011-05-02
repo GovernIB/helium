@@ -15,6 +15,7 @@ import net.conselldemallorca.helium.model.dto.DocumentDto;
 import net.conselldemallorca.helium.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.model.dto.TascaDto;
+import net.conselldemallorca.helium.model.dto.TascaLlistatDto;
 import net.conselldemallorca.helium.model.hibernate.Camp;
 import net.conselldemallorca.helium.model.hibernate.Document;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
@@ -116,9 +117,9 @@ public class Tramitacio implements TramitacioService {
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
-			List<TascaDto> tasques = tascaService.findTasquesPersonals(e.getId(), usuari);
+			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), usuari, true);
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
-			for (TascaDto tasca: tasques)
+			for (TascaLlistatDto tasca: tasques)
 				resposta.add(convertirTascaTramitacio(tasca));
 			return resposta;
 		} catch (Exception ex) {
@@ -134,9 +135,9 @@ public class Tramitacio implements TramitacioService {
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
-			List<TascaDto> tasques = tascaService.findTasquesGrup(e.getId(), usuari);
+			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), usuari, true);
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
-			for (TascaDto tasca: tasques)
+			for (TascaLlistatDto tasca: tasques)
 				resposta.add(convertirTascaTramitacio(tasca));
 			return resposta;
 		} catch (Exception ex) {
@@ -153,9 +154,9 @@ public class Tramitacio implements TramitacioService {
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
-			List<TascaDto> tasques = tascaService.findTasquesGrup(e.getId(), usuari);
+			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), usuari, false);
 			boolean agafada = false;
-			for (TascaDto tasca: tasques) {
+			for (TascaLlistatDto tasca: tasques) {
 				if (tasca.getId().equals(tascaId)) {
 					tascaService.agafar(e.getId(), usuari, tascaId);
 					agafada = true;
@@ -501,26 +502,26 @@ public class Tramitacio implements TramitacioService {
 	private ExpedientTipus findExpedientTipusAmbEntornICodi(Long entornId, String codi) {
 		return dissenyService.findExpedientTipusAmbEntornICodi(entornId, codi);
 	}
-	private TascaTramitacio convertirTascaTramitacio(TascaDto tasca) {
+	private TascaTramitacio convertirTascaTramitacio(TascaLlistatDto tasca) {
 		TascaTramitacio tt = new TascaTramitacio();
 		tt.setId(tasca.getId());
-		tt.setCodi(tasca.getJbpmName());
-		tt.setTitol(tasca.getNom());
-		tt.setExpedient(tasca.getExpedient().getNumeroDefault());
+		tt.setCodi(tasca.getCodi());
+		tt.setTitol(tasca.getTitol());
+		tt.setExpedient(tasca.getExpedientNumeroDefault());
 		tt.setMissatgeInfo(tasca.getMissatgeInfo());
 		tt.setMissatgeWarn(tasca.getMissatgeWarn());
-		tt.setResponsable(tasca.getAssignee());
-		tt.setResponsables(tasca.getPooledActors());
-		tt.setDataCreacio(tasca.getCreateTime());
-		tt.setDataInici(tasca.getStartTime());
-		tt.setDataFi(tasca.getEndTime());
-		tt.setDataLimit(tasca.getDueDate());
-		tt.setPrioritat(tasca.getPriority());
-		tt.setOpen(tasca.isOpen());
-		tt.setCompleted(tasca.isCompleted());
-		tt.setCancelled(tasca.isCancelled());
-		tt.setSuspended(tasca.isSuspended());
-		tt.setTransicionsSortida(tasca.getOutcomes());
+		tt.setResponsable(tasca.getResponsable());
+		tt.setResponsables(tasca.getResponsables());
+		tt.setDataCreacio(tasca.getDataCreacio());
+		tt.setDataInici(tasca.getDataInici());
+		tt.setDataFi(tasca.getDataFi());
+		tt.setDataLimit(tasca.getDataLimit());
+		tt.setPrioritat(tasca.getPrioritat());
+		tt.setOpen(tasca.isOberta());
+		tt.setCompleted(tasca.isCompletada());
+		tt.setCancelled(tasca.isCancelada());
+		tt.setSuspended(tasca.isSuspesa());
+		tt.setTransicionsSortida(tasca.getResultats());
 		tt.setProcessInstanceId(tasca.getProcessInstanceId());
 		return tt;
 	}

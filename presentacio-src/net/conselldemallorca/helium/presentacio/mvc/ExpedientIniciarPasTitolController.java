@@ -155,7 +155,7 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 					if (definicioProcesId != null)
 						definicioProces = dissenyService.getById(definicioProcesId);
 					else
-						definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId);
+						definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId, true);
 					if (definicioProces.isHasStartTask()) {
 						request.getSession().setAttribute(CLAU_SESSIO_TITOL, command.getTitol());
 			        	request.getSession().setAttribute(CLAU_SESSIO_NUMERO, command.getNumero());

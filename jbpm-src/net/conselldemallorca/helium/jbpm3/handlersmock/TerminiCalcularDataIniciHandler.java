@@ -7,12 +7,12 @@ import org.jbpm.graph.def.ActionHandler;
 import org.jbpm.graph.exe.ExecutionContext;
 
 /**
- * Handler per iniciar un termini.
+ * Handler per calcular la data d'inici d'un termini.
  * 
  * @author Josep Gayà <josepg@limit.es>
  */
 @SuppressWarnings("serial")
-public class TerminiIniciarHandler implements ActionHandler {
+public class TerminiCalcularDataIniciHandler implements ActionHandler {
 
 	public void execute(ExecutionContext executionContext) throws Exception {}
 
@@ -21,7 +21,6 @@ public class TerminiIniciarHandler implements ActionHandler {
 	public void setVarData(String varData) {}
 	public void setSumarUnDia(String sumarUnDia) {}
 	public void setVarTermini(String varTermini) {}
-	public void setDesdeFi(String desdeFi) {}
-	public void setEsDataFi(String esDataFi) {}
+	public void setVarDataInici(String varDataInici) {}
 
 }
