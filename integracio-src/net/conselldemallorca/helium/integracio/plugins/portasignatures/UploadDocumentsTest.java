@@ -31,9 +31,9 @@ public class UploadDocumentsTest {
 		try {
 			new GlobalProperties(new FileSystemResource("c:/tmp/helium/global.properties"));
 			UploadDocumentsTest test = new UploadDocumentsTest();
-			//test.upload();
+			test.upload();
 			//test.download();
-			test.callback();
+			//test.callback();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}

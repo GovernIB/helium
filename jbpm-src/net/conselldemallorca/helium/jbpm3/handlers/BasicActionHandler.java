@@ -227,7 +227,7 @@ public abstract class BasicActionHandler implements ActionHandler {
 			resposta.setDataCreacio(document.getDataCreacio());
 			resposta.setDataDocument(document.getDataDocument());
 			resposta.setSignat(document.isSignat());
-			if (document.isSignat()) {
+			if (document.isSignat() && isSignaturaFileAttached()) {
 				resposta.setArxiuNom(document.getSignatNom());
 				resposta.setArxiuContingut(document.getSignatContingut());
 			} else {
@@ -971,6 +971,10 @@ public abstract class BasicActionHandler implements ActionHandler {
 			tramit.setDocuments(documents);
 		}
 		return tramit;
+	}
+
+	private boolean isSignaturaFileAttached() {
+		return "true".equalsIgnoreCase((String)GlobalProperties.getInstance().get("app.signatura.plugin.file.attached"));
 	}
 
 	static final long serialVersionUID = 1L;

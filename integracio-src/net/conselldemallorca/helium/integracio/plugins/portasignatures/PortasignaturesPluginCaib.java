@@ -69,93 +69,7 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 			String remitent,
 			String importancia,
 			Date dataLimit) throws PortasignaturesPluginException {
-		UploadRequest request = new UploadRequest();
-		
-		// Aplicació.
-		Application application = new Application();
-		application.setUser(getUserName());
-		application.setPassword(getPassword());
-		request.setApplication(application);
-		
-		// Document.
-		UploadRequestDocument document = new UploadRequestDocument();
 
-		// Atributs del document.
-		DocumentAttributes attributes = new DocumentAttributes();
-		
-		/*
-		 * Atributs requerits.
-		 */
-		attributes.setTitle(arxiuDescripcio);
-		attributes.setExtension(getDocumentArxiuExtensioFinal(arxiuNom));
-		
-		/*
-		 * Atributs no requerits.
-		 */
-		// Tipus de document al que pertany.
-		if (tipusDocument != null) {
-			attributes.setType(tipusDocument);
-		}
-		
-		//attributes.setSubject(arxiuDescripcio);
-		//attributes.setDescription(arxiuDescripcio);
-		
-		// Informació adicional del responsable del document.
-		Sender sender = new Sender();
-		sender.setName(remitent);
-		attributes.setSender(sender);
-		
-		// Especificamos la importancia del document.
-		if (importancia != null)
-			attributes.setImportance(ImportanceEnum.fromString(importancia));
-		else
-			attributes.setImportance(ImportanceEnum.normal);
-		
-		if (dataLimit != null) {
-			Calendar cal = Calendar.getInstance();
-			// Data d'enviament del document.
-			attributes.setDateNotice(cal);
-		
-			// Data límit de firma del document.
-			cal.setTime(dataLimit);
-			attributes.setDateLimit(cal);
-		}
-		
-		attributes.setNumberAnnexes(0);
-		attributes.setSignAnnexes(false);
-		
-		attributes.setTypeSign(getSignaturaTipus());		// 1 - PDF; 2 - P7/CMS/CADES; 3 - XADES;
-		
-		// Indica si el document a signar ja és un document de signatura i es volen afegir més signatures.
-		attributes.setIsFileSign(false);
-		
-		// Afegim els atributs al document.
-		document.setAttributes(attributes);
-		
-		// Cream les etapes i especificam el tipus de firma.
-		Steps steps = new Steps();
-		steps.setSignMode(SignModeEnum.attached);
-		
-		// Cream una etapa amb un firmant.
-		UploadStep step = new UploadStep();
-		step.setMinimalSigners(1);
-		
-		// És necessari que el DNI del certificat coincideixi amb el DNI de l'usuari logat a Portafirmas.
-		Signer signer = new Signer();
-		signer.setId(signatariId);
-		signer.setCheckCert(new Boolean(isCheckCert()));
-		
-		// Afegim el firmant a l'etapa.
-		step.setSigners(new Signer[]{ signer });
-		
-		steps.setStep(new Step[]{ step });
-		
-		// Afegim les etapes al document.
-		document.setSteps(steps);
-		
-		// Guardam el document al request.
-		request.setDocument(document);
-		
 		// Cream la connexió.
 		CwsProxy factory = new CwsProxy();
 		factory.setEndpoint((String)GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.url"));
@@ -168,12 +82,17 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 							arxiuNom,
 							arxiuContingut));
 			stub.addAttachment(attachmentFile);
-		} catch (Exception ex) {
-			throw new PortasignaturesPluginException("Error al convertir el document per enviar al portasignatures", ex);
-		}
-
-		try {
-			// Llançam la petició i obtenim la resposta.
+			UploadRequest request = new UploadRequest(
+					getRequestApplication(),
+					getRequestDocument(
+							arxiuNom,
+							arxiuDescripcio,
+							signatariId,
+							tipusDocument,
+							remitent,
+							importancia,
+							dataLimit),
+					null);
 			UploadResponse response = stub.uploadDocument(request);
 			if (response.getResult().getCode() == 0) {
 				if (response.getDocument() != null) {
@@ -184,7 +103,7 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 			} else {
 				throw new PortasignaturesPluginException("Error al enviar el document al portasignatures: " + response.getResult().getMessage());
 			}
-		} catch (IOException ex) {
+		} catch (Exception ex) {
 			throw new PortasignaturesPluginException("Error al enviar el document al portasignatures", ex);
 		}
 	}
@@ -301,15 +220,99 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 		}
 	}
 
-	/*private String getDocumentArxiuNomSenseExtensio(
-			String arxiuNom) {
-		int index = arxiuNom.lastIndexOf(".");
-		if (index != -1) {
-			return arxiuNom.substring(0, index);
-		} else {
-			return arxiuNom;
+	private Application getRequestApplication() {
+		Application application = new Application();
+		application.setUser(getUserName());
+		application.setPassword(getPassword());
+		return application;
+	}
+
+	private UploadRequestDocument getRequestDocument(
+			String arxiuNom,
+			String arxiuDescripcio,
+			String signatariId,
+			Integer tipusDocument,
+			String remitent,
+			String importancia,
+			Date dataLimit) {
+		// Document.
+		UploadRequestDocument document = new UploadRequestDocument();
+
+		// Atributs del document.
+		DocumentAttributes attributes = new DocumentAttributes();
+		
+		/*
+		 * Atributs requerits.
+		 */
+		attributes.setTitle(arxiuDescripcio);
+		attributes.setExtension(getDocumentArxiuExtensioFinal(arxiuNom));
+		
+		/*
+		 * Atributs no requerits.
+		 */
+		// Tipus de document al que pertany.
+		if (tipusDocument != null) {
+			attributes.setType(tipusDocument);
 		}
-	}*/
+		
+		//attributes.setSubject(arxiuDescripcio);
+		//attributes.setDescription(arxiuDescripcio);
+		
+		// Informació adicional del responsable del document.
+		Sender sender = new Sender();
+		sender.setName(remitent);
+		attributes.setSender(sender);
+		
+		// Especificamos la importancia del document.
+		if (importancia != null)
+			attributes.setImportance(ImportanceEnum.fromString(importancia));
+		else
+			attributes.setImportance(ImportanceEnum.normal);
+		
+		if (dataLimit != null) {
+			Calendar cal = Calendar.getInstance();
+			// Data d'enviament del document.
+			attributes.setDateNotice(cal);
+		
+			// Data límit de firma del document.
+			cal.setTime(dataLimit);
+			attributes.setDateLimit(cal);
+		}
+		
+		attributes.setNumberAnnexes(0);
+		attributes.setSignAnnexes(false);
+		
+		attributes.setTypeSign(getSignaturaTipus());		// 1 - PDF; 2 - P7/CMS/CADES; 3 - XADES;
+		
+		// Indica si el document a signar ja és un document de signatura i es volen afegir més signatures.
+		attributes.setIsFileSign(false);
+		
+		// Afegim els atributs al document.
+		document.setAttributes(attributes);
+		
+		// Cream les etapes i especificam el tipus de firma.
+		Steps steps = new Steps();
+		steps.setSignMode(SignModeEnum.attached);
+		
+		// Cream una etapa amb un firmant.
+		UploadStep step = new UploadStep();
+		step.setMinimalSigners(1);
+		
+		// És necessari que el DNI del certificat coincideixi amb el DNI de l'usuari logat a Portafirmas.
+		Signer signer = new Signer();
+		signer.setId(signatariId);
+		signer.setCheckCert(new Boolean(isCheckCert()));
+		
+		// Afegim el firmant a l'etapa.
+		step.setSigners(new Signer[]{ signer });
+		
+		steps.setStep(new Step[]{ step });
+		
+		// Afegim les etapes al document.
+		document.setSteps(steps);
+		return document;
+	}
+
 	private String getDocumentArxiuExtensioFinal(
 			String arxiuNom) {
 		if (isConvertirDocument() && getConvertirExtensio() != null) {

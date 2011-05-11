@@ -104,11 +104,11 @@
 		implementor="#dominiIntern" 
 		address="/DominiIntern"/>
 
-	<bean id="portasignaturesPluginImpl" class="net.conselldemallorca.helium.integracio.plugins.portasignatures.service.PortasignaturesPluginImpl"></bean>
+	<!--bean id="portasignaturesPluginImpl" class="net.conselldemallorca.helium.integracio.plugins.portasignatures.service.PortasignaturesPluginImpl"></bean>
 	<jaxws:endpoint 
 		id="callback" 
 		implementor="#portasignaturesPluginImpl" 
-		address="/MCGDws"/>
+		address="/MCGDws"/-->
 
 	<bean id="formulariExtern" class="net.conselldemallorca.helium.integracio.forms.GuardarFormulariImpl"/>
 	<jaxws:endpoint 

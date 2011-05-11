@@ -208,10 +208,12 @@ public class TramitacioPluginSistrav1 implements TramitacioPlugin {
 			if ("C".equalsIgnoreCase(entrada.getNivelAutenticacion()))
 				tramit.setAutenticacioTipus(AutenticacioTipus.CERTIFICAT);
 		}
-		if (entrada.getUsuarioNif() != null)
+		if (entrada.getUsuarioNif() != null) {
 			tramit.setTramitadorNif(entrada.getUsuarioNif().getValue());
-		if (entrada.getUsuarioNombre() != null)
+		}
+		if (entrada.getUsuarioNombre() != null) {
 			tramit.setTramitadorNom(entrada.getUsuarioNombre().getValue());
+		}
 		if (entrada.getRepresentadoNif() != null)
 			tramit.setInteressatNif(entrada.getRepresentadoNif().getValue());
 		if (entrada.getRepresentadoNombre() != null)

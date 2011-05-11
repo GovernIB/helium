@@ -18,6 +18,7 @@
 		<intercept-url pattern="/js/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/img/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/ws/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/services/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/rol/test.html" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/signatura/aFirma/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/signatura/caib/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />

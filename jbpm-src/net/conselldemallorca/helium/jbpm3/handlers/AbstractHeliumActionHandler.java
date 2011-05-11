@@ -24,6 +24,7 @@ import net.conselldemallorca.helium.model.service.PluginService;
 import net.conselldemallorca.helium.model.service.ServiceProxy;
 import net.conselldemallorca.helium.model.service.TascaService;
 import net.conselldemallorca.helium.model.service.TerminiService;
+import net.conselldemallorca.helium.util.GlobalProperties;
 
 import org.jbpm.JbpmException;
 import org.jbpm.graph.def.ActionHandler;
@@ -70,6 +71,41 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 					termini.getId(),
 					getProcessInstanceId(executionContext));
 		return null;
+	}
+
+	DocumentInfo getDocumentInfo(
+			ExecutionContext executionContext,
+			String documentCodi) {
+		String varCodi = TascaService.PREFIX_DOCUMENT + documentCodi;
+		Object valor = executionContext.getVariable(varCodi);
+		if (valor == null)
+			return null;
+		if (valor instanceof Long) {
+			Long id = (Long)valor;
+			DocumentDto document = getExpedientService().getDocument(id, true, false);
+			if (document == null)
+				return null;
+			DocumentInfo resposta = new DocumentInfo();
+			resposta.setId(id);
+			if (document.isAdjunt()) {
+				resposta.setTitol(document.getAdjuntTitol());
+			} else {
+				resposta.setTitol(document.getDocumentNom());
+			}
+			resposta.setDataCreacio(document.getDataCreacio());
+			resposta.setDataDocument(document.getDataDocument());
+			resposta.setSignat(document.isSignat());
+			if (document.isSignat() && isSignaturaFileAttached()) {
+				resposta.setArxiuNom(document.getSignatNom());
+				resposta.setArxiuContingut(document.getSignatContingut());
+			} else {
+				resposta.setArxiuNom(document.getArxiuNom());
+				resposta.setArxiuContingut(document.getArxiuContingut());
+			}
+			return resposta;
+		} else {
+			throw new JbpmException("La referencia al document \"" + documentCodi + "\" no es del tipus correcte");
+		}
 	}
 
 	ExpedientService getExpedientService() {
@@ -153,39 +189,8 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 		return null;
 	}
 
-	public DocumentInfo getDocumentInfo(
-			ExecutionContext executionContext,
-			String documentCodi) {
-		String varCodi = TascaService.PREFIX_DOCUMENT + documentCodi;
-		Object valor = executionContext.getVariable(varCodi);
-		if (valor == null)
-			return null;
-		if (valor instanceof Long) {
-			Long id = (Long)valor;
-			DocumentDto document = getExpedientService().getDocument(id, true, false);
-			if (document == null)
-				return null;
-			DocumentInfo resposta = new DocumentInfo();
-			resposta.setId(id);
-			if (document.isAdjunt()) {
-				resposta.setTitol(document.getAdjuntTitol());
-			} else {
-				resposta.setTitol(document.getDocumentNom());
-			}
-			resposta.setDataCreacio(document.getDataCreacio());
-			resposta.setDataDocument(document.getDataDocument());
-			resposta.setSignat(document.isSignat());
-			if (document.isSignat()) {
-				resposta.setArxiuNom(document.getSignatNom());
-				resposta.setArxiuContingut(document.getSignatContingut());
-			} else {
-				resposta.setArxiuNom(document.getArxiuNom());
-				resposta.setArxiuContingut(document.getArxiuContingut());
-			}
-			return resposta;
-		} else {
-			throw new JbpmException("La referencia al document \"" + documentCodi + "\" no es del tipus correcte");
-		}
+	private boolean isSignaturaFileAttached() {
+		return "true".equalsIgnoreCase((String)GlobalProperties.getInstance().get("app.signatura.plugin.file.attached"));
 	}
 
 }

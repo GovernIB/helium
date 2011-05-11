@@ -507,7 +507,8 @@ public class DtoConverter {
 					dto.setAdjuntId(document.getJbpmVariable().substring(TascaService.PREFIX_ADJUNT.length()));
 				} else {
 					codiDocument = document.getJbpmVariable().substring(TascaService.PREFIX_DOCUMENT.length());
-					JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(document.getProcessInstanceId());
+					JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(document.getProcessInstanceId());
+					JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(pi.getId());
 					DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(jpd.getId());
 					Document doc = documentDao.findAmbDefinicioProcesICodi(definicioProces.getId(), codiDocument);
 					if (doc != null) {

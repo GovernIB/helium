@@ -276,6 +276,9 @@ public class ExpedientService {
 		if (expedientTipus.getTeNumero()) {
 			if (numero != null && numero.length() > 0)
 				expedient.setNumero(numero);
+			else
+				expedient.setNumero(
+						expedientTipus.getNumeroExpedientActual());
 		}
 		processarNumeroExpedient(
 				expedientTipus,

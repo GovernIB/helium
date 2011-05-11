@@ -6,10 +6,6 @@
 		<param-name>contextConfigLocation</param-name>
 		<param-value>/WEB-INF/application-context.xml</param-value>
 	</context-param>
-	<context-param>
-		<param-name>log4jConfigLocation</param-name>
-		<param-value>/WEB-INF/classes/log4j.xml</param-value>
-	</context-param>
 
 	<resource-ref>
 		<description>Datasource de l'aplicació</description>
@@ -447,6 +443,10 @@
 		<servlet-class>org.apache.cxf.transport.servlet.CXFServlet</servlet-class>
 		<load-on-startup>2</load-on-startup>
 	</servlet>
+	<servlet>
+		<servlet-name>AxisServlet</servlet-name>
+		<servlet-class>org.apache.axis.transport.http.AxisServlet</servlet-class>
+	</servlet>
 	<servlet-mapping>
 		<servlet-name>helium</servlet-name>
 		<url-pattern>*.html</url-pattern>
@@ -458,6 +458,10 @@
 	<servlet-mapping>
 		<servlet-name>CXFServlet</servlet-name>
 		<url-pattern>/ws/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>AxisServlet</servlet-name>
+		<url-pattern>/services/*</url-pattern>
 	</servlet-mapping>
 
 	<login-config>
@@ -487,6 +491,7 @@
 			<url-pattern>/js/*</url-pattern>
 			<url-pattern>/img/*</url-pattern>
 			<url-pattern>/ws/*</url-pattern>
+			<url-pattern>/services/*</url-pattern>
 			<url-pattern>/signatura/aFirma/*</url-pattern>
 			<url-pattern>/signatura/caib/*</url-pattern>
 			<url-pattern>/rol/test.html</url-pattern>
@@ -518,4 +523,3 @@
 	</welcome-file-list>
 
 </web-app>
-

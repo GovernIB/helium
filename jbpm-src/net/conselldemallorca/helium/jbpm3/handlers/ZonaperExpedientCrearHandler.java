@@ -24,23 +24,41 @@ public class ZonaperExpedientCrearHandler extends AbstractHeliumActionHandler {
 	private String descripcio;
 	private String varDescripcio;
 
+	private String avisosHabilitat;
+	private String avisosEmail;
+	private String avisosSms;
+	private String varAvisosHabilitat;
+	private String varAvisosEmail;
+	private String varAvisosSms;
+
+	private String idioma;
+	private String unitatAdministrativa;
+	private String representantNif;
+	private String representatNif;
+	private String representatNom;
+	private String varIdioma;
+	private String varUnitatAdministrativa;
+	private String varRepresentantNif;
+	private String varRepresentatNif;
+	private String varRepresentatNom;
+
 
 
 	public void execute(ExecutionContext executionContext) throws Exception {
-		String desc = (String)getValorOVariable(
-				executionContext,
-				descripcio,
-				varDescripcio);
 		Expedient ex = ExpedientIniciant.getExpedient();
 		if (ex != null) {
 			getExpedientService().publicarExpedient(
 					ex,
-					getPublicarExpedientRequest(ex, desc));
+					getPublicarExpedientRequest(
+							executionContext,
+							ex));
 		} else {
 			ExpedientDto expedient = getExpedient(executionContext);
 			getExpedientService().publicarExpedient(
 					expedient,
-					getPublicarExpedientRequest(expedient, desc));
+					getPublicarExpedientRequest(
+							executionContext,
+							expedient));
 		}
 	}
 
@@ -50,32 +68,125 @@ public class ZonaperExpedientCrearHandler extends AbstractHeliumActionHandler {
 	public void setVarDescripcio(String varDescripcio) {
 		this.varDescripcio = varDescripcio;
 	}
+	public void setAvisosHabilitat(String avisosHabilitat) {
+		this.avisosHabilitat = avisosHabilitat;
+	}
+	public void setAvisosEmail(String avisosEmail) {
+		this.avisosEmail = avisosEmail;
+	}
+	public void setAvisosSms(String avisosSms) {
+		this.avisosSms = avisosSms;
+	}
+	public void setVarAvisosHabilitat(String varAvisosHabilitat) {
+		this.varAvisosHabilitat = varAvisosHabilitat;
+	}
+	public void setVarAvisosEmail(String varAvisosEmail) {
+		this.varAvisosEmail = varAvisosEmail;
+	}
+	public void setVarAvisosSms(String varAvisosSms) {
+		this.varAvisosSms = varAvisosSms;
+	}
+	public void setIdioma(String idioma) {
+		this.idioma = idioma;
+	}
+	public void setUnitatAdministrativa(String unitatAdministrativa) {
+		this.unitatAdministrativa = unitatAdministrativa;
+	}
+	public void setRepresentantNif(String representantNif) {
+		this.representantNif = representantNif;
+	}
+	public void setRepresentatNif(String representatNif) {
+		this.representatNif = representatNif;
+	}
+	public void setRepresentatNom(String representatNom) {
+		this.representatNom = representatNom;
+	}
+	public void setVarIdioma(String varIdioma) {
+		this.varIdioma = varIdioma;
+	}
+	public void setVarUnitatAdministrativa(String varUnitatAdministrativa) {
+		this.varUnitatAdministrativa = varUnitatAdministrativa;
+	}
+	public void setVarRepresentantNif(String varRepresentantNif) {
+		this.varRepresentantNif = varRepresentantNif;
+	}
+	public void setVarRepresentatNif(String varRepresentatNif) {
+		this.varRepresentatNif = varRepresentatNif;
+	}
+	public void setVarRepresentatNom(String varRepresentatNom) {
+		this.varRepresentatNom = varRepresentatNom;
+	}
 
 
 
 	private PublicarExpedientRequest getPublicarExpedientRequest(
-			Expedient expedient,
-			String descripcio) throws JbpmException {
-		if (!IniciadorTipus.SISTRA.equals(expedient.getIniciadorTipus()))
-			throw new JbpmException("Aquest expedient no prové d'un tramit de SISTRA");
-		if (!expedient.isAvisosHabilitats())
-			throw new JbpmException("El tràmit no té els avisos habilitats");
+			ExecutionContext executionContext,
+			Expedient expedient) throws JbpmException {
 		PublicarExpedientRequest request = new PublicarExpedientRequest();
-		request.setIdioma(expedient.getIdioma());
-		request.setDescripcio(descripcio);
-		request.setUnitatAdministrativa(expedient.getUnitatAdministrativa());
-		request.setTramitNumero(expedient.getNumeroEntradaSistra());
-		request.setAutenticat(expedient.isAutenticat());
-		if (expedient.isAutenticat()) {
-			if (expedient.getRepresentantNif() != null) {
-				request.setRepresentantNif(expedient.getRepresentantNif());
-				request.setRepresentatNif(expedient.getInteressatNif());
-				request.setRepresentatNom(expedient.getInteressatNom());
-			} else if (expedient.getInteressatNif() != null) {
-				request.setRepresentantNif(expedient.getInteressatNif());
-			} else {
-				request.setRepresentantNif(expedient.getTramitadorNif());
-			}
+		if (IniciadorTipus.SISTRA.equals(expedient.getIniciadorTipus())) {
+			request.setIdioma(expedient.getIdioma());
+			request.setUnitatAdministrativa(expedient.getUnitatAdministrativa());
+			request.setTramitNumero(expedient.getNumeroEntradaSistra());
+			request.setAutenticat(expedient.isAutenticat());
+			request.setRepresentantNif(expedient.getRepresentantNif());
+			request.setRepresentatNif(expedient.getInteressatNif());
+			request.setRepresentatNom(expedient.getInteressatNom());
+		} else {
+			request.setIdioma(
+					(String)getValorOVariable(
+							executionContext,
+							idioma,
+							varIdioma));
+			String ua = (String)getValorOVariable(
+						executionContext,
+						unitatAdministrativa,
+						varUnitatAdministrativa);
+			if (ua != null)
+				request.setUnitatAdministrativa(
+						Long.parseLong(ua));
+			request.setAutenticat(false);
+			request.setRepresentantNif(
+					(String)getValorOVariable(
+							executionContext,
+							representantNif,
+							varRepresentantNif));
+			request.setRepresentatNif(
+					(String)getValorOVariable(
+							executionContext,
+							representatNif,
+							varRepresentatNif));
+			request.setRepresentatNom(
+					(String)getValorOVariable(
+							executionContext,
+							representatNom,
+							varRepresentatNom));
+		}
+		String desc = (String)getValorOVariable(
+				executionContext,
+				descripcio,
+				varDescripcio);
+		request.setDescripcio(desc);
+		String ah = (String)getValorOVariable(
+				executionContext,
+				avisosHabilitat,
+				varAvisosHabilitat);
+		if (ah != null) {
+			request.setAvisosHabilitat(
+					"S".equalsIgnoreCase(ah) || "true".equalsIgnoreCase(ah));
+			request.setAvisosEmail(
+					(String)getValorOVariable(
+							executionContext,
+							avisosEmail,
+							varAvisosEmail));
+			request.setAvisosSMS(
+					(String)getValorOVariable(
+							executionContext,
+							avisosSms,
+							varAvisosSms));
+		} else {
+			request.setAvisosHabilitat(expedient.isAvisosHabilitats());
+			request.setAvisosEmail(expedient.getAvisosEmail());
+			request.setAvisosSMS(expedient.getAvisosMobil());
 		}
 		return request;
 	}

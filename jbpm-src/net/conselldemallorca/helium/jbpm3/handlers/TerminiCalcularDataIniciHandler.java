@@ -22,7 +22,7 @@ public class TerminiCalcularDataIniciHandler extends AbstractHeliumActionHandler
 	private String terminiCodi;
 	private String varTerminiCodi;
 	private String varData;
-	private String sumarUnDia;
+	private String restarUnDia;
 	private String varTermini;
 	private String varDataInici;
 
@@ -71,8 +71,8 @@ public class TerminiCalcularDataIniciHandler extends AbstractHeliumActionHandler
 	public void setVarData(String varData) {
 		this.varData = varData;
 	}
-	public void setSumarUnDia(String sumarUnDia) {
-		this.sumarUnDia = sumarUnDia;
+	public void setRestarUnDia(String restarUnDia) {
+		this.restarUnDia = restarUnDia;
 	}
 	public void setVarTermini(String varTermini) {
 		this.varTermini = varTermini;
@@ -90,10 +90,10 @@ public class TerminiCalcularDataIniciHandler extends AbstractHeliumActionHandler
 		} else {
 			data = new Date();
 		}
-		if (sumarUnDia != null && sumarUnDia.length() > 0) {
+		if (restarUnDia != null && restarUnDia.length() > 0) {
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(data);
-			cal.add(Calendar.DAY_OF_MONTH, 1);
+			cal.add(Calendar.DAY_OF_MONTH, -1);
 			return cal.getTime();
 		} else {
 			return data;
