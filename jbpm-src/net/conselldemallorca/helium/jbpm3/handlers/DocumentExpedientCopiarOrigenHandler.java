@@ -13,13 +13,13 @@ import org.jbpm.graph.exe.ExecutionContext;
 import org.jbpm.graph.exe.ProcessInstance;
 
 /**
- * Handler per lligar un document del procés pare cap al
- * procés actual.
+ * Handler per a copiar un document d'un expedient origen a l'expedient
+ * actual.
  * 
  * @author Josep Gayà <josepg@limit.es>
  */
 @SuppressWarnings("serial")
-public class DocumentExpedientCopiarHandler extends AbstractHeliumActionHandler {
+public class DocumentExpedientCopiarOrigenHandler extends AbstractHeliumActionHandler {
 
 	private String origenExpedientTipus;
 	private String varOrigenExpedientTipus;
@@ -55,21 +55,21 @@ public class DocumentExpedientCopiarHandler extends AbstractHeliumActionHandler 
 		DocumentInfo documentInfo = getDocumentInfo(
 				new ExecutionContext(pi.getRootToken()),
 				documentOrigenCodi);
-		if (documentInfo == null)
-			throw new JbpmException("No s'ha trobat el document origen amb codi " + documentOrigenCodi);
-		// El guarda a l'expedient actual
-		String documentDestiCodi = (String)getValorOVariable(executionContext, documentCodi, varDocumentCodi);
-		Document documentDesti = getDissenyService().findDocumentAmbDefinicioProcesICodi(
-				getDefinicioProces(executionContext).getId(),
-				documentDestiCodi);
-		if (expedientOrigen == null)
-			throw new JbpmException("No s'ha trobat el document amb codi " + documentDestiCodi);
-		getExpedientService().guardarDocument(
-				new Long(executionContext.getProcessInstance().getId()).toString(),
-				documentDesti.getId(),
-				documentInfo.getDataDocument(),
-				documentInfo.getArxiuNom(),
-				documentInfo.getArxiuContingut());
+		if (documentInfo != null) {
+			// El guarda a l'expedient actual
+			String documentDestiCodi = (String)getValorOVariable(executionContext, documentCodi, varDocumentCodi);
+			Document documentDesti = getDissenyService().findDocumentAmbDefinicioProcesICodi(
+					getDefinicioProces(executionContext).getId(),
+					documentDestiCodi);
+			if (expedientOrigen == null)
+				throw new JbpmException("No s'ha trobat el document amb codi " + documentDestiCodi);
+			getExpedientService().guardarDocument(
+					new Long(executionContext.getProcessInstance().getId()).toString(),
+					documentDesti.getId(),
+					documentInfo.getDataDocument(),
+					documentInfo.getArxiuNom(),
+					documentInfo.getArxiuContingut());
+		}
 	}
 
 	public void setOrigenExpedientTipus(String origenExpedientTipus) {

@@ -35,5 +35,6 @@ public class ZonaperExpedientCrearHandler implements ActionHandler {
 	public void setVarRepresentantNif(String varRepresentantNif) {}
 	public void setVarRepresentatNif(String varRepresentatNif) {}
 	public void setVarRepresentatNom(String varRepresentatNom) {}
+	public void setComprovarExistencia(String comprovarExistencia) {}
 
 }

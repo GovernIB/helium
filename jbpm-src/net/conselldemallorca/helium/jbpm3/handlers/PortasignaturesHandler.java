@@ -30,7 +30,7 @@ public class PortasignaturesHandler extends AbstractHeliumActionHandler {
 	private String transicioOK;
 	private String varTransicioKO;
 	private String transicioKO;
-	
+
 	public void execute(ExecutionContext executionContext) throws Exception {
 		try {
 			Boolean personaCodi = getValorOVariable(executionContext, responsableCodi, varResponsableCodi) != null;
@@ -103,6 +103,7 @@ public class PortasignaturesHandler extends AbstractHeliumActionHandler {
 	public void setTransicioKO(String transicioKO) {
 		this.transicioKO = transicioKO;
 	}
-	
+
 	private static final Log logger = LogFactory.getLog(PortasignaturesHandler.class);
+
 }

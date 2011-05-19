@@ -42,6 +42,8 @@ public class ZonaperExpedientCrearHandler extends AbstractHeliumActionHandler {
 	private String varRepresentatNif;
 	private String varRepresentatNom;
 
+	private String comprovarExistencia;
+
 
 
 	public void execute(ExecutionContext executionContext) throws Exception {
@@ -54,11 +56,13 @@ public class ZonaperExpedientCrearHandler extends AbstractHeliumActionHandler {
 							ex));
 		} else {
 			ExpedientDto expedient = getExpedient(executionContext);
-			getExpedientService().publicarExpedient(
-					expedient,
-					getPublicarExpedientRequest(
-							executionContext,
-							expedient));
+			if (!isComprovarExistencia() || expedient.getTramitExpedientIdentificador() == null) {
+				getExpedientService().publicarExpedient(
+						expedient,
+						getPublicarExpedientRequest(
+								executionContext,
+								expedient));
+			}
 		}
 	}
 
@@ -116,6 +120,9 @@ public class ZonaperExpedientCrearHandler extends AbstractHeliumActionHandler {
 	public void setVarRepresentatNom(String varRepresentatNom) {
 		this.varRepresentatNom = varRepresentatNom;
 	}
+	public void setComprovarExistencia(String comprovarExistencia) {
+		this.comprovarExistencia = comprovarExistencia;
+	}
 
 
 
@@ -144,7 +151,7 @@ public class ZonaperExpedientCrearHandler extends AbstractHeliumActionHandler {
 			if (ua != null)
 				request.setUnitatAdministrativa(
 						Long.parseLong(ua));
-			request.setAutenticat(false);
+			request.setAutenticat(true);
 			request.setRepresentantNif(
 					(String)getValorOVariable(
 							executionContext,
@@ -189,6 +196,10 @@ public class ZonaperExpedientCrearHandler extends AbstractHeliumActionHandler {
 			request.setAvisosSMS(expedient.getAvisosMobil());
 		}
 		return request;
+	}
+
+	private boolean isComprovarExistencia() {
+		return "true".equalsIgnoreCase(comprovarExistencia) || "S".equalsIgnoreCase(comprovarExistencia);
 	}
 
 }

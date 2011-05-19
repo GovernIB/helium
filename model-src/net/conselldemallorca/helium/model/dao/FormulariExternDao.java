@@ -114,11 +114,7 @@ public class FormulariExternDao extends HibernateGenericDao<FormulariExtern, Lon
 				factory.setPassword(password);
 			}
 		}
-		List<ParellaCodiValor> valors2 = new ArrayList<ParellaCodiValor>();
-		Object[] regval = new Object[1];
-		regval[0] = new Object[] {"a", "b"};
-		valors2.add(new ParellaCodiValor("reg", regval));
-		return ((IniciFormulari)factory.create()).iniciFormulari(codiFormulari, taskId, valors2);
+		return ((IniciFormulari)factory.create()).iniciFormulari(codiFormulari, taskId, valors);
 	}
 
 }

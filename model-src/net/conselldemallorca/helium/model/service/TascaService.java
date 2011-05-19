@@ -944,6 +944,9 @@ public class TascaService {
 					valors,
 					false);
 			formExtern.setDataRecepcioDades(new Date());
+			logger.info("Les dades del formulari amb id " + formulariId + " han estat guardades");
+		} else {
+			logger.warn("No s'ha trobat cap tasca amb l'id de formulari " + formulariId);
 		}
 	}
 

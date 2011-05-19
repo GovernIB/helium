@@ -104,6 +104,7 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 								eventosExpediente));
 			}
 			getZonaperClient().altaExpediente(expediente);
+			logger.info("Nou expedient creat a la zona personal del ciutadà " + request.getRepresentatNif() + ": [" + request.getExpedientIdentificador() + ", " + request.getExpedientClau() + "]");
 		} catch (Exception ex) {
 			logger.error("Error al crear expedient a la zona personal", ex);
 			throw new TramitacioPluginException("Error al crear expedient a la zona personal", ex);
@@ -120,6 +121,7 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 						request.getExpedientIdentificador(),
 						request.getExpedientClau(),
 						toEvento(event));
+				logger.info("Nou event creat a la zona personal del ciutadà per a l'expedient: [" + request.getExpedientIdentificador() + ", " + request.getExpedientClau() + "]");
 			} else {
 				throw new TramitacioPluginException("Error crear event: l'event es null");
 			}

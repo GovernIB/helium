@@ -7,13 +7,13 @@ import org.jbpm.graph.def.ActionHandler;
 import org.jbpm.graph.exe.ExecutionContext;
 
 /**
- * Handler per lligar un document del procés pare cap al
- * procés actual.
+ * Handler per a copiar un document d'un expedient origen a
+ * l'expedient actual.
  * 
  * @author Josep Gayà <josepg@limit.es>
  */
 @SuppressWarnings("serial")
-public class DocumentExpedientCopiarHandler implements ActionHandler {
+public class DocumentExpedientCopiarOrigenHandler implements ActionHandler {
 
 	public void execute(ExecutionContext executionContext) throws Exception {}
 
