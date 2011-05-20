@@ -20,11 +20,15 @@ public class DocumentDto implements Serializable {
 	private String arxiuNom;
 	private byte[] arxiuContingut;
 	private boolean signat = false;
+	private String signatNom;
+	private byte[] signatContingut;
 	private boolean adjunt = false;
 	private String adjuntTitol;
+	private String vistaNom;
+	private byte[] vistaContingut;
 
 	private String processInstanceId;
-	
+
 	private Long documentId;
 	private String documentCodi;
 	private String documentNom;
@@ -90,6 +94,18 @@ public class DocumentDto implements Serializable {
 	public void setSignat(boolean signat) {
 		this.signat = signat;
 	}
+	public String getSignatNom() {
+		return signatNom;
+	}
+	public void setSignatNom(String signatNom) {
+		this.signatNom = signatNom;
+	}
+	public byte[] getSignatContingut() {
+		return signatContingut;
+	}
+	public void setSignatContingut(byte[] signatContingut) {
+		this.signatContingut = signatContingut;
+	}
 	public boolean isAdjunt() {
 		return adjunt;
 	}
@@ -101,6 +117,18 @@ public class DocumentDto implements Serializable {
 	}
 	public void setAdjuntTitol(String adjuntTitol) {
 		this.adjuntTitol = adjuntTitol;
+	}
+	public String getVistaNom() {
+		return vistaNom;
+	}
+	public void setVistaNom(String vistaNom) {
+		this.vistaNom = vistaNom;
+	}
+	public byte[] getVistaContingut() {
+		return vistaContingut;
+	}
+	public void setVistaContingut(byte[] vistaContingut) {
+		this.vistaContingut = vistaContingut;
 	}
 	public String getContentType() {
 		return contentType;

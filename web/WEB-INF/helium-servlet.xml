@@ -55,4 +55,18 @@
 	<bean name="arxiuConvertirView" class="net.conselldemallorca.helium.presentacio.mvc.ArxiuConvertirView"/>
 	<bean name="serialitzarView" class="net.conselldemallorca.helium.presentacio.mvc.SerialitzarView"/>
 
+	<bean id="responseCachingFilter" class="net.conselldemallorca.helium.presentacio.mvc.interceptor.ResponseCachingFilter">
+		<property name="useCacheControlHeader" value="true" />
+		<property name="cacheMappings">
+			<props>
+				<!-- cache for one day -->
+				<prop key="/**/*.png">86400</prop>
+				<prop key="/**/*.jpg">86400</prop>
+				<prop key="/**/*.gif">86400</prop>
+				<prop key="/**/*.css">86400</prop>
+				<prop key="/**/*.js">86400</prop>
+			</props>
+		</property>
+	</bean>
+
 </beans>

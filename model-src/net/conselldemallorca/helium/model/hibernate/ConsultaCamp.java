@@ -17,6 +17,7 @@ import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
@@ -29,6 +30,9 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 @Entity
 @Table(name="hel_consulta_camp",
 		uniqueConstraints={@UniqueConstraint(columnNames={"consulta_id", "camp_codi", "defproc_jbpmkey", "defproc_versio", "tipus"})})
+@org.hibernate.annotations.Table(
+		appliesTo = "hel_consulta_camp",
+		indexes = @Index(name = "hel_consultacamp_consulta_i", columnNames = {"consulta_id"}))
 public class ConsultaCamp implements Serializable, GenericEntity<Long> {
 
 	public enum TipusConsultaCamp {

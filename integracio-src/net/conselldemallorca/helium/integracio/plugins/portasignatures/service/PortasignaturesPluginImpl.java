@@ -2,38 +2,41 @@ package net.conselldemallorca.helium.integracio.plugins.portasignatures.service;
 
 import javax.jws.WebService;
 
-import net.conselldemallorca.helium.integracio.bantel.plugin.DefaultIniciExpedientPlugin;
-import net.conselldemallorca.helium.integracio.plugins.portasignatures.service.wsdl.ArrayOfLogMessage;
-import net.conselldemallorca.helium.integracio.plugins.portasignatures.service.wsdl.CallbackRequest;
-import net.conselldemallorca.helium.integracio.plugins.portasignatures.service.wsdl.CallbackResponse;
-import net.conselldemallorca.helium.integracio.plugins.portasignatures.service.wsdl.MCGDws;
 import net.conselldemallorca.helium.model.service.PluginService;
 import net.conselldemallorca.helium.model.service.ServiceProxy;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import es.indra.portafirmasmcgdws.mcgdws.ArrayOfLogMessage;
+import es.indra.portafirmasmcgdws.mcgdws.CallbackRequest;
+import es.indra.portafirmasmcgdws.mcgdws.CallbackResponse;
+import es.indra.portafirmasmcgdws.mcgdws.MCGDws;
+
 /**
  * Implementació del servei per processar automàticament els canvis del portasignatures.
  * 
  * @author Miquel Angel Amengual <miquelaa@limit.es>
  */
-@WebService(endpointInterface = "net.conselldemallorca.helium.integracio.plugins.portasignatures.service.wsdl.MCGDws")
+@WebService(
+		name="MCGDWS",
+		targetNamespace="http://www.indra.es/portafirmasmcgdws/mcgdws",
+        serviceName="MCGDwsService",
+        portName="MCGDWS",
+        endpointInterface = "es.indra.portafirmasmcgdws.mcgdws.MCGDws")
 public class PortasignaturesPluginImpl implements MCGDws {
 
 	private static final int DOCUMENT_BLOQUEJAT = 0;
 	private static final int DOCUMENT_PENDENT = 1;
 	private static final int DOCUMENT_SIGNAT = 2;
 	private static final int DOCUMENT_REBUTJAT = 3;
-	
+
 	public CallbackResponse callback(CallbackRequest callbackRequest) {
-		
-		ArrayOfLogMessage arrayOfLogMessage = new ArrayOfLogMessage();
-		CallbackResponse callbackResponse = new CallbackResponse();
-		
 		Integer document = callbackRequest.getApplication().getDocument().getId();
+		logger.info("Rebuda petició callback portasignatures del document " + document);
 		Integer estat = -1;
 		Double resposta = -1D;
+		CallbackResponse callbackResponse = new CallbackResponse();
 		try {
 			estat = callbackRequest.getApplication().getDocument().getAttributes().getState();
 			PluginService pluginService = ServiceProxy.getInstance().getPluginService();
@@ -60,22 +63,18 @@ public class PortasignaturesPluginImpl implements MCGDws {
 				default:
 					break;
 			}
-			
-			callbackResponse.setLogMessages(arrayOfLogMessage);
+			callbackResponse.setLogMessages(new ArrayOfLogMessage());
 	        callbackResponse.setVersion("1.0");
 	        callbackResponse.setReturn(resposta);
 		} catch (Exception e) {
 			logger.error("Error obtenint l'estat del document.", e);
-
-			callbackResponse.setLogMessages(arrayOfLogMessage);
+			callbackResponse.setLogMessages(new ArrayOfLogMessage());
 			callbackResponse.setVersion("1.0");
 			callbackResponse.setReturn((double) -1);
 		}
-		
 		return callbackResponse;
 	}
 
-	private static final Log logger = LogFactory.getLog(DefaultIniciExpedientPlugin.class);
-	
-	
+	private static final Log logger = LogFactory.getLog(PortasignaturesPluginImpl.class);
+
 }

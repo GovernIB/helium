@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
@@ -26,8 +24,9 @@ import net.conselldemallorca.helium.model.hibernate.Termini;
 import net.conselldemallorca.helium.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.util.GlobalProperties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -48,80 +47,99 @@ public class TerminiService {
 	private AlertaDao alertaDao;
 	private JbpmDao jbpmDao;
 
-	private Timer terminiTimer;
-
 
 
 	public TerminiIniciat iniciar(
 			Long terminiId,
 			String processInstanceId,
-			Date dataInici) {
+			Date data,
+			boolean esDataFi) {
 		Termini termini = terminiDao.getById(terminiId, false);
 		TerminiIniciat terminiIniciat = terminiIniciatDao.findAmbTerminiIdIProcessInstanceId(
 				terminiId,
 				processInstanceId);
 		if (terminiIniciat == null) {
-			Date dataFi = getDataFiTermini(
-					dataInici,
+			return iniciar(
+					terminiId,
+					processInstanceId,
+					data,
 					termini.getAnys(),
 					termini.getMesos(),
 					termini.getDies(),
-					termini.isLaborable());
-			terminiIniciat = new TerminiIniciat(
-					termini,
-					processInstanceId,
-					dataInici,
-					dataFi);
+					esDataFi);
 		} else {
-			Date dataFi = getDataFiTermini(
-					dataInici,
+			return iniciar(
+					terminiId,
+					processInstanceId,
+					data,
 					terminiIniciat.getAnys(),
 					terminiIniciat.getMesos(),
 					terminiIniciat.getDies(),
-					termini.isLaborable());
-			terminiIniciat.setDataFi(dataFi);
-			terminiIniciat.setDataAturada(null);
-			terminiIniciat.setDataCancelacio(null);
-			resumeTimers(terminiIniciat);
+					esDataFi);
 		}
-		Long expedientId = getExpedientForProcessInstanceId(processInstanceId).getId();
-		if (expedientId != null) {
-			registreDao.crearRegistreIniciarTermini(
-					getExpedientForProcessInstanceId(processInstanceId).getId(),
-					processInstanceId,
-					terminiId.toString(),
-					SecurityContextHolder.getContext().getAuthentication().getName());
-		}
-		return terminiIniciatDao.saveOrUpdate(terminiIniciat);
 	}
 	public TerminiIniciat iniciar(
 			Long terminiId,
 			String processInstanceId,
-			Date dataInici,
+			Date data,
 			int anys,
 			int mesos,
-			int dies) {
+			int dies,
+			boolean esDataFi) {
 		Termini termini = terminiDao.getById(terminiId, false);
-		Date dataFi = getDataFiTermini(
-				dataInici,
-				anys,
-				mesos,
-				dies,
-				termini.isLaborable());
 		TerminiIniciat terminiIniciat = terminiIniciatDao.findAmbTerminiIdIProcessInstanceId(
 				terminiId,
 				processInstanceId);
 		if (terminiIniciat == null) {
-			terminiIniciat = new TerminiIniciat(
-					termini,
-					anys,
-					mesos,
-					dies,
-					processInstanceId,
-					dataInici,
-					dataFi);
+			if (esDataFi) {
+				Date dataFi = getDataFiTermini(
+						data,
+						anys,
+						mesos,
+						dies,
+						termini.isLaborable());
+				terminiIniciat = new TerminiIniciat(
+						termini,
+						anys,
+						mesos,
+						dies,
+						processInstanceId,
+						data,
+						dataFi);
+			} else {
+				Date dataInici = getDataIniciTermini(
+						data,
+						anys,
+						mesos,
+						dies,
+						termini.isLaborable());
+				terminiIniciat = new TerminiIniciat(
+						termini,
+						anys,
+						mesos,
+						dies,
+						processInstanceId,
+						dataInici,
+						data);
+			}
 		} else {
-			terminiIniciat.setDataFi(dataFi);
+			if (esDataFi) {
+				Date dataFi = getDataFiTermini(
+						data,
+						anys,
+						mesos,
+						dies,
+						termini.isLaborable());
+				terminiIniciat.setDataFi(dataFi);
+			} else {
+				Date dataInici = getDataIniciTermini(
+						data,
+						anys,
+						mesos,
+						dies,
+						termini.isLaborable());
+				terminiIniciat.setDataInici(dataInici);
+			}
 			terminiIniciat.setDataAturada(null);
 			terminiIniciat.setDataCancelacio(null);
 			resumeTimers(terminiIniciat);
@@ -186,6 +204,74 @@ public class TerminiService {
 					SecurityContextHolder.getContext().getAuthentication().getName());
 		}
 	}
+	public Date getDataFiTermini(
+			Date inici,
+			int anys,
+			int mesos,
+			int dies,
+			boolean laborable) {
+		Calendar dataFi = Calendar.getInstance();
+		dataFi.setTime(inici); //inicialitzam la data final amb la data d'inici
+		// Afegim els anys i mesos
+		if (anys > 0) {
+			dataFi.add(Calendar.YEAR, anys);
+			dataFi.add(Calendar.DAY_OF_YEAR, -1);
+		}
+		if (mesos > 0) {
+			dataFi.add(Calendar.MONTH, mesos);
+			dataFi.add(Calendar.DAY_OF_YEAR, -1);
+		}
+		if (dies > 0) {
+			// Depenent de si el termini és laborable o no s'afegiran més o manco dies
+			if (laborable) {
+				sumarDies(dataFi, dies);
+			} else {
+				dataFi.add(Calendar.DATE, dies - 1);
+				// Si el darrer dia cau en festiu es passa al dia laborable següent
+				sumarDies(dataFi, 1);
+			}
+			// El termini en realitat acaba a les 23:59 del darrer dia
+			dataFi.set(Calendar.HOUR_OF_DAY, 23);
+			dataFi.set(Calendar.MINUTE, 59);
+			dataFi.set(Calendar.SECOND, 59);
+			dataFi.set(Calendar.MILLISECOND, 999);
+		}
+		return dataFi.getTime();
+	}
+	public Date getDataIniciTermini(
+			Date fi,
+			int anys,
+			int mesos,
+			int dies,
+			boolean laborable) {
+		Calendar dataInici = Calendar.getInstance();
+		dataInici.setTime(fi); //inicialitzam la data final amb la data d'inici
+		// Afegim els anys i mesos
+		if (anys > 0) {
+			dataInici.add(Calendar.YEAR, -anys);
+			dataInici.add(Calendar.DAY_OF_YEAR, -1);
+		}
+		if (mesos > 0) {
+			dataInici.add(Calendar.MONTH, -mesos);
+			dataInici.add(Calendar.DAY_OF_YEAR, -1);
+		}
+		if (dies > 0) {
+			// Depenent de si el termini és laborable o no s'afegiran més o manco dies
+			if (laborable) {
+				sumarDies(dataInici, -dies);
+			} else {
+				dataInici.add(Calendar.DATE, -dies + 1);
+				// Si el darrer dia cau en festiu es passa al dia laborable següent
+				sumarDies(dataInici, -1);
+			}
+			// El termini en realitat s'inicia a les 00:00h
+			dataInici.set(Calendar.HOUR_OF_DAY, 0);
+			dataInici.set(Calendar.MINUTE, 0);
+			dataInici.set(Calendar.SECOND, 0);
+			dataInici.set(Calendar.MILLISECOND, 0);
+		}
+		return dataInici.getTime();
+	}
 	public List<TerminiIniciat> findIniciatsAmbProcessInstanceId(String processInstanceId) {
 		return terminiIniciatDao.findAmbProcessInstanceId(processInstanceId);
 	}
@@ -235,47 +321,37 @@ public class TerminiService {
 	}
 
 	public void comprovarTerminisIniciats() {
-		List<TerminiIniciat> expirats = terminiIniciatDao.findIniciatsActius();
-		for (TerminiIniciat terminiIniciat: expirats) {
+		logger.debug("Inici de la comprovació de terminis");
+		List<TerminiIniciat> iniciatsActius = terminiIniciatDao.findIniciatsActius();
+		for (TerminiIniciat terminiIniciat: iniciatsActius) {
 			if (terminiIniciat.getDataFiAmbAturadaActual().before(new Date())) {
-				if (terminiIniciat.getTermini().isAlertaFinal() && ! terminiIniciat.isAlertaFinal()) {
-					JbpmTask task = jbpmDao.getTaskById(terminiIniciat.getTaskInstanceId());
-					if (task.getAssignee() != null) {
-						crearAlertaFinal(terminiIniciat, task.getAssignee(), getExpedientPerTask(task));
-					} else {
-						for (String actor: task.getPooledActors())
-							crearAlertaFinal(terminiIniciat, actor, getExpedientPerTask(task));
+				if (terminiIniciat.getTaskInstanceId() != null) {
+					if (terminiIniciat.getTermini().isAlertaFinal() && ! terminiIniciat.isAlertaFinal()) {
+						JbpmTask task = jbpmDao.getTaskById(terminiIniciat.getTaskInstanceId());
+						if (task.getAssignee() != null) {
+							crearAlertaFinal(terminiIniciat, task.getAssignee(), getExpedientPerTask(task));
+						} else {
+							for (String actor: task.getPooledActors())
+								crearAlertaFinal(terminiIniciat, actor, getExpedientPerTask(task));
+						}
+						terminiIniciat.setAlertaFinal(true);
 					}
-					terminiIniciat.setAlertaFinal(true);
-				}
-				if (terminiIniciat.getTermini().isAlertaPrevia() && ! terminiIniciat.isAlertaPrevia()) {
-					JbpmTask task = jbpmDao.getTaskById(terminiIniciat.getTaskInstanceId());
-					if (task.getAssignee() != null) {
-						crearAlertaPrevia(terminiIniciat, task.getAssignee(), getExpedientPerTask(task));
-					} else {
-						for (String actor: task.getPooledActors())
-							crearAlertaPrevia(terminiIniciat, actor, getExpedientPerTask(task));
+					if (terminiIniciat.getTermini().isAlertaPrevia() && ! terminiIniciat.isAlertaPrevia()) {
+						JbpmTask task = jbpmDao.getTaskById(terminiIniciat.getTaskInstanceId());
+						if (task.getAssignee() != null) {
+							crearAlertaPrevia(terminiIniciat, task.getAssignee(), getExpedientPerTask(task));
+						} else {
+							for (String actor: task.getPooledActors())
+								crearAlertaPrevia(terminiIniciat, actor, getExpedientPerTask(task));
+						}
+						terminiIniciat.setAlertaPrevia(true);
 					}
-					terminiIniciat.setAlertaPrevia(true);
 				}
 			}
 		}
+		logger.debug("Fi de la comprovació de terminis");
 	}
 
-	public void setApplicationContext(ApplicationContext applicationContext) {
-		long periode = 10 * 1000; 
-		String syncPeriode = GlobalProperties.getInstance().getProperty("app.termini.comprovacio.periode");
-		if (syncPeriode != null) {
-			try {
-				periode = new Long(syncPeriode).longValue();
-			} catch (Exception ignored) {};
-		}
-		terminiTimer = new Timer();
-		terminiTimer.scheduleAtFixedRate(
-				new ComprovarTerminisIniciatsTask(applicationContext),
-			    0,
-			    periode);
-	}
 
 
 	@Autowired
@@ -309,54 +385,21 @@ public class TerminiService {
 
 
 
-	private Date getDataFiTermini(
-			Date inici,
-			int anys,
-			int mesos,
-			int dies,
-			boolean laborable) {
-		Calendar dataFi = Calendar.getInstance();
-		dataFi.setTime(inici); //inicialitzam la data final amb la data d'inici
-		// Afegim els anys i mesos
-		if (anys > 0) {
-			dataFi.add(Calendar.YEAR, anys);
-			dataFi.add(Calendar.DAY_OF_YEAR, -1);
-		}
-		if (mesos > 0) {
-			dataFi.add(Calendar.MONTH, mesos);
-			dataFi.add(Calendar.DAY_OF_YEAR, -1);
-		}
-		if (dies > 0) {
-			// Depenent de si el termini és laborable o no s'afegiran més o manco dies
-			if (laborable) {
-				sumarDies(dataFi, dies);
-			} else {
-				dataFi.add(Calendar.DATE, dies - 1);
-				// Si el darrer dia cau en festiu es passa al dia laborable següent
-				sumarDies(dataFi, 1);
-			}
-			// El termini en realitat acaba a les 23:59 del darrer dia
-			dataFi.set(Calendar.HOUR_OF_DAY, 23);
-			dataFi.set(Calendar.MINUTE, 59);
-			dataFi.set(Calendar.SECOND, 59);
-			dataFi.set(Calendar.MILLISECOND, 999);
-		}
-		return dataFi.getTime();
-	}
-
 	private void sumarDies(Calendar cal, int numDies) {
+		int signe = (numDies < 0) ? -1 : 1;
+		int nd = (numDies < 0) ? -numDies : numDies;
 		cal.set(Calendar.HOUR_OF_DAY, 0);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
 		List<Festiu> festius = festiuDao.findAll();
 		int diesLabs = 0;
-		while (diesLabs < numDies) {
+		while (diesLabs < nd) {
 			if (!esFestiu(cal, festius))
 				diesLabs ++;
-			cal.add(Calendar.DATE, 1);
+			cal.add(Calendar.DATE, signe);
 		}
-		cal.add(Calendar.DATE, -1);
+		cal.add(Calendar.DATE, -signe);
 	}
 	private boolean esFestiu(
 			Calendar cal,
@@ -416,35 +459,31 @@ public class TerminiService {
 			TerminiIniciat terminiIniciat,
 			String responsable,
 			Expedient expedient) {
+		logger.info("Creació alerta prèvia per al termini " + terminiIniciat.getId() + " per al responsable " + responsable);
 		Alerta alerta = new Alerta(
 				new Date(),
 				responsable,
 				"El termini \"" + terminiIniciat.getTermini().getNom() + "\" està a punt d'expirar",
 				terminiIniciat.getTermini().getDefinicioProces().getEntorn());
 		alerta.setExpedient(expedient);
+		alerta.setTerminiIniciat(terminiIniciat);
 		alertaDao.saveOrUpdate(alerta);
 	}
 	private void crearAlertaFinal(
 			TerminiIniciat terminiIniciat,
 			String responsable,
 			Expedient expedient) {
+		logger.info("Creació alerta final per al termini " + terminiIniciat.getId() + " per al responsable " + responsable);
 		Alerta alerta = new Alerta(
 				new Date(),
 				responsable,
 				"El termini \"" + terminiIniciat.getTermini().getNom() + "\" ha expirat",
 				terminiIniciat.getTermini().getDefinicioProces().getEntorn());
 		alerta.setExpedient(expedient);
+		alerta.setTerminiIniciat(terminiIniciat);
 		alertaDao.saveOrUpdate(alerta);
 	}
 
-	class ComprovarTerminisIniciatsTask extends TimerTask {
-		private ApplicationContext applicationContext;
-		public ComprovarTerminisIniciatsTask(ApplicationContext applicationContext) {
-			this.applicationContext = applicationContext;
-		}
-		public void run() {
-			((TerminiService)applicationContext.getBean("terminiService", TerminiService.class)).comprovarTerminisIniciats();
-        }
-	}
+	private static final Log logger = LogFactory.getLog(TerminiService.class);
 
 }

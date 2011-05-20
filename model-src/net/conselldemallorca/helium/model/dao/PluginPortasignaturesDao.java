@@ -5,7 +5,7 @@ import java.util.List;
 
 import net.conselldemallorca.helium.integracio.plugins.persones.Persona;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortasignaturesPlugin;
-import net.conselldemallorca.helium.model.dto.DocumentDto;
+import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortasignaturesPluginException;
 import net.conselldemallorca.helium.model.exception.PluginException;
 import net.conselldemallorca.helium.model.hibernate.Expedient;
 import net.conselldemallorca.helium.model.hibernate.Portasignatures;
@@ -32,24 +32,46 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 		super(Portasignatures.class);
 	}
 
-	public Integer UploadDocument(
+	public Integer uploadDocument(
 			Persona persona,
-			DocumentDto documentDto,
+			String arxiuDescripcio,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			Integer tipusDocPortasignatures,
 			Expedient expedient,
 			String importancia,
 			Date dataLimit) throws Exception {
-		return getPortasignaturesPlugin().UploadDocument(
-				persona,
-				documentDto,
-				expedient,
-				importancia,
-				dataLimit);
+		try {
+			String signatariId = persona.getDni();
+			if (isIdUsuariPerCodi())
+				signatariId = persona.getCodi();
+			if (isIdUsuariPerDni())
+				signatariId = persona.getDni();
+			return getPortasignaturesPlugin().uploadDocument(
+					signatariId,
+					arxiuDescripcio,
+					arxiuNom,
+					arxiuContingut,
+					tipusDocPortasignatures,
+					expedient.getTitol(),
+					importancia,
+					dataLimit);
+		} catch (PortasignaturesPluginException ex) {
+			logger.error("Error al enviar el document al portasignatures", ex);
+			throw new PluginException("Error al enviar el document al portasignatures", ex);
+		}
 	}
 
-	public byte[] DownloadDocument(
+	public List<byte[]> obtenirSignaturesDocument(
 			Integer documentId) throws Exception {
-		return getPortasignaturesPlugin().DownloadDocument(
-				documentId);
+		try {
+			return getPortasignaturesPlugin().obtenirSignaturesDocument(
+					documentId);
+		} catch (PortasignaturesPluginException ex) {
+			logger.error("Error al rebre el document del portasignatures", ex);
+			throw new PluginException("Error al rebre el document del portasignatures", ex);
+		}
+		
 	}
 
 	@SuppressWarnings("unchecked")
@@ -81,6 +103,13 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 			}
 		}
 		return portasignaturesPlugin;
+	}
+
+	private boolean isIdUsuariPerDni() {
+		return "dni".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.usuari.id"));
+	}
+	private boolean isIdUsuariPerCodi() {
+		return "codi".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.usuari.id"));
 	}
 
 	private static final Log logger = LogFactory.getLog(PluginPortasignaturesDao.class);

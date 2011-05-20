@@ -34,13 +34,9 @@ public class PersonesPluginJdbc implements PersonesPlugin {
 			String query = GlobalProperties.getInstance().getProperty("app.persones.plugin.jdbc.filter.code");
 			Map<String, Object> parametres = new HashMap<String, Object>();
 			parametres.put("codi", codi);
-			
 			List<Persona> resultat = consultaSql(query, parametres);
-			
-			if (resultat.size() > 0) {
+			if (resultat.size() > 0)
 				return resultat.get(0);
-			}
-			
 			return null;
 		} catch (Exception ex) {
 			throw new PersonaPluginException("No s'ha pogut trobar la persona", ex);
@@ -52,13 +48,9 @@ public class PersonesPluginJdbc implements PersonesPlugin {
 			String query = GlobalProperties.getInstance().getProperty("app.persones.plugin.jdbc.filter.name");
 			Map<String, Object> parametres = new HashMap<String, Object>();
 			parametres.put("nom", text);
-			
 			List<Persona> resultat = consultaSql(query, parametres);
-			
-			if (resultat.size() > 0) {
+			if (resultat.size() > 0)
 				return resultat;
-			}
-			
 			return null;
 		} catch (Exception ex) {
 			throw new PersonaPluginException("No s'ha pogut trobar cap persona", ex);
@@ -70,13 +62,9 @@ public class PersonesPluginJdbc implements PersonesPlugin {
 			String query = GlobalProperties.getInstance().getProperty("app.persones.plugin.jdbc.filter.name");
 			Map<String, Object> parametres = new HashMap<String, Object>();
 			parametres.put("nom", "");
-
 			List<Persona> resultat = consultaSql(query, parametres);
-			
-			if (resultat.size() > 0) {
+			if (resultat.size() > 0)
 				return resultat;
-			}
-			
 			return null;
 		} catch (Exception ex) {
 			throw new PersonaPluginException("No s'ha pogut trobar cap persona", ex);
@@ -129,12 +117,7 @@ public class PersonesPluginJdbc implements PersonesPlugin {
 							}
 						}
 					});
-			
-			if (resultat.size() > 0) {
-				return resultat;
-			}
-			
-			return null;
+			return resultat;
 		} catch (Exception ex) {
 			throw new DominiException("No s'han pogut consultar les persones", ex);
 		}

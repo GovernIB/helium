@@ -4,14 +4,18 @@
 package net.conselldemallorca.helium.jbpm3.handlersmock;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistre;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreEntrada;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreNotificacio;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreSortida;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentDisseny;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.FilaResultat;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaRegistre;
 
 import org.jbpm.graph.def.ActionHandler;
 import org.jbpm.graph.exe.ExecutionContext;
@@ -28,8 +32,7 @@ public abstract class BasicActionHandler implements ActionHandler {
 
 
 
-	public void errorValidacio(String error) {
-	}
+	public void errorValidacio(String error) {}
 
 	public List<FilaResultat> consultaDomini(
 			ExecutionContext executionContext,
@@ -37,6 +40,19 @@ public abstract class BasicActionHandler implements ActionHandler {
 			String id,
 			Map<String, Object> parametres) {
 		return new ArrayList<FilaResultat>();
+	}
+
+	public List<ExpedientInfo> consultaExpedients(
+			ExecutionContext executionContext,
+			String titol,
+			String numero,
+			Date dataInici1,
+			Date dataInici2,
+			String expedientTipusCodi,
+			String estatCodi,
+			boolean iniciat,
+			boolean finalitzat){
+		return new ArrayList<ExpedientInfo>();
 	}
 
 	public DocumentInfo getDocument(
@@ -49,6 +65,11 @@ public abstract class BasicActionHandler implements ActionHandler {
 			ExecutionContext executionContext,
 			String codiDocument) {
 		return new DocumentDisseny();
+	}
+
+	public void crearReferenciaDocumentInstanciaProcesPare(
+			ExecutionContext executionContext,
+			String varDocument) {
 	}
 
 	public ExpedientInfo getExpedient(ExecutionContext executionContext) {
@@ -64,24 +85,39 @@ public abstract class BasicActionHandler implements ActionHandler {
 			List<Long> attachments) {
 	}
 	
-	public String[] registreEntrada(
-			DadesRegistre dadesRegistre,
-			ExecutionContext executionContext) {
+	public RespostaRegistre registreEntrada(
+			ExecutionContext executionContext,
+			DadesRegistreEntrada dadesEntrada,
+			List<DocumentInfo> documentsEntrada) {
 		return null;
 	}
-	public DadesRegistre registreConsultarEntrada(
-			String varDocument,
-			ExecutionContext executionContext) {
+	public DadesRegistreEntrada registreConsultarEntrada(
+			ExecutionContext executionContext,
+			String organCodi,
+			String oficinaCodi,
+			String numero) {
 		return null;
 	}
-	public String[] registreSortida(
-			DadesRegistre dadesRegistre,
-			ExecutionContext executionContext) {
+	public RespostaRegistre registreSortida(
+			ExecutionContext executionContext,
+			DadesRegistreSortida dadesSortida,
+			List<DocumentInfo> documentsSortida) {
 		return null;
 	}
-	public DadesRegistre registreConsultarSortida(
-			String varDocument,
-			ExecutionContext executionContext) {
+	public DadesRegistreSortida registreConsultarSortida(
+			ExecutionContext executionContext,
+			String organCodi,
+			String oficinaCodi,
+			String numero) {
+		return null;
+	}
+	public RespostaRegistre registreNotificacio(
+			ExecutionContext executionContext,
+			DadesRegistreNotificacio dadesNotificacio,
+			List<DocumentInfo> documentsNotificacio) {
+		return null;
+	}
+	public Date registreObtenirJustificantRecepcio(String registreNumero) {
 		return null;
 	}
 
@@ -90,6 +126,24 @@ public abstract class BasicActionHandler implements ActionHandler {
 			String varCodi) {
 		return null;
 	}
+
+	public void terminiGuardar(
+			ExecutionContext executionContext,
+			String varName,
+			int anys,
+			int mesos,
+			int dies) {}
+
+	public byte[] obtenirArxiuGestorDocumental(String id) {
+		return null;
+	}
+
+	public void documentGuardar(
+			ExecutionContext executionContext,
+			String documentCodi,
+			Date data,
+			String arxiuNom,
+			byte[] arxiuContingut) {}
 
 	static final long serialVersionUID = 1L;
 

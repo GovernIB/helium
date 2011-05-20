@@ -70,7 +70,7 @@ public class DefinicioProcesFirmaTascaController extends BaseController {
 	@ModelAttribute("documents")
 	public List<Document> populateDocuments(
 			@RequestParam(value = "definicioProcesId", required = true) Long definicioProcesId) {
-		return dissenyService.findDocumentsAmbDefinicioProces(definicioProcesId);
+		return dissenyService.findDocumentsAmbDefinicioProcesOrdenatsPerCodi(definicioProcesId);
 	}
 	@ModelAttribute("tascaFirmes")
 	public List<FirmaTasca> populateTascaFirmes(

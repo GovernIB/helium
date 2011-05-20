@@ -25,6 +25,7 @@ import net.conselldemallorca.helium.model.hibernate.Domini.TipusDomini;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
+import org.apache.cxf.frontend.ClientProxyFactoryBean;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.jdbc.core.RowMapper;
@@ -113,9 +114,13 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 			Domini domini,
 			String id,
 			Map<String, Object> parametres) throws Exception {
+		if ("intern".equalsIgnoreCase(domini.getCodi())) {
+			parametres.put("entorn", domini.getEntorn().getCodi());
+		}
 		DominiHelium client = wsCache.get(domini.getId());
 		if (client == null) {
-			JaxWsProxyFactoryBean factory = new JaxWsProxyFactoryBean();
+			//ClientProxyFactoryBean factory = new ClientProxyFactoryBean();
+			ClientProxyFactoryBean factory = new JaxWsProxyFactoryBean();
 			factory.setServiceClass(DominiHelium.class);
 			factory.setAddress(domini.getUrl());
 			client = (DominiHelium)factory.create();

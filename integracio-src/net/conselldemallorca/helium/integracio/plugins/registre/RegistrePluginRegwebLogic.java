@@ -1,18 +1,22 @@
 package net.conselldemallorca.helium.integracio.plugins.registre;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Vector;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
-import net.conselldemallorca.helium.integracio.plugins.registre.RegistreDocument.IdiomaRegistre;
 import net.conselldemallorca.helium.util.GlobalProperties;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import es.caib.regweb.logic.helper.ParametrosRegistroEntrada;
 import es.caib.regweb.logic.helper.ParametrosRegistroSalida;
-import es.caib.regweb.logic.interfaces.AdminFacade;
-import es.caib.regweb.logic.interfaces.AdminFacadeHome;
 import es.caib.regweb.logic.interfaces.RegistroEntradaFacade;
 import es.caib.regweb.logic.interfaces.RegistroEntradaFacadeHome;
 import es.caib.regweb.logic.interfaces.RegistroSalidaFacade;
@@ -28,46 +32,88 @@ import es.caib.regweb.logic.interfaces.RegistroSalidaFacadeHome;
 
 public class RegistrePluginRegwebLogic implements RegistrePlugin {
 
+	private static final String SEPARADOR_ENTITAT = "-";
+	private static final String SEPARADOR_NUMERO = "/";
+
 	@SuppressWarnings("unchecked")
-	public String[] registrarEntrada(
-			SeientRegistral dadesRegistre) throws RegistrePluginException {
+	public RespostaAnotacioRegistre registrarEntrada(
+			RegistreEntrada registreEntrada) throws RegistrePluginException {
 		try {
 			ParametrosRegistroEntrada params = new ParametrosRegistroEntrada();
 			params.fijaUsuario(GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal"));
-			params.setdataentrada(dadesRegistre.getData());
-			params.sethora(dadesRegistre.getHora());
-			params.setoficina(dadesRegistre.getOficina());
-			params.setoficinafisica(dadesRegistre.getOficinaFisica());
-			if (dadesRegistre.getRemitent().getCodiEntitat() != null) {
-				String codiEntitat = dadesRegistre.getRemitent().getCodiEntitat();
-				int indexBarra = codiEntitat.indexOf("/");
-				params.setentidad1(codiEntitat.substring(0, indexBarra));
-				params.setentidad2(codiEntitat.substring(indexBarra + 1));
+			Date ara = new Date();
+			params.setdataentrada(new SimpleDateFormat("dd/MM/yyyy").format(ara));
+			params.sethora(new SimpleDateFormat("HH:mm").format(ara));
+			if (registreEntrada.getDadesOficina() != null) {
+				String oficinaCodi = registreEntrada.getDadesOficina().getOficinaCodi();
+				if (oficinaCodi != null) {
+					int indexBarra = oficinaCodi.indexOf(SEPARADOR_ENTITAT);
+					if (indexBarra != -1) {
+						params.setoficina(oficinaCodi.substring(0, indexBarra));
+						params.setoficinafisica(oficinaCodi.substring(indexBarra + 1));
+					}
+				}
+				if (registreEntrada.getDadesOficina().getOrganCodi() != null)
+					params.setdestinatari(
+							registreEntrada.getDadesOficina().getOrganCodi());
 			}
-			if (dadesRegistre.getRemitent().getNomEntitat() != null)
-				params.setaltres(dadesRegistre.getRemitent().getNomEntitat());
-			if (dadesRegistre.getRemitent().getCodiGeografic() != null)
-				params.setbalears(dadesRegistre.getRemitent().getCodiGeografic());
-			if (dadesRegistre.getRemitent().getNomGeografic() != null)
-				params.setfora(dadesRegistre.getRemitent().getNomGeografic());
-			if (dadesRegistre.getRemitent().getNumeroRegistre() != null)
-				params.setsalida1(dadesRegistre.getRemitent().getNumeroRegistre());
-			if (dadesRegistre.getRemitent().getAnyRegistre() != null)
-				params.setsalida2(dadesRegistre.getRemitent().getAnyRegistre());
-			if (dadesRegistre.getDestinatari().getCodiEntitat() != null)
-				params.setdestinatari(dadesRegistre.getDestinatari().getCodiEntitat());
-			params.setdata(dadesRegistre.getDocument().getData());
-			if (dadesRegistre.getDocument().getTipus() != null)
-				params.settipo(dadesRegistre.getDocument().getTipus());
-			params.setidioma(idioma2Str(dadesRegistre.getDocument().getIdiomaDocument()));
-			params.setidioex(idioma2Str(dadesRegistre.getDocument().getIdiomaExtracte()));
-			params.setcomentario(dadesRegistre.getDocument().getExtracte());
+			if (registreEntrada.getDadesInteressat() != null) {
+				String entitatCodi = registreEntrada.getDadesInteressat().getEntitatCodi();
+				if (entitatCodi != null) {
+					int indexBarra = entitatCodi.indexOf(SEPARADOR_ENTITAT);
+					if (indexBarra != -1) {
+						params.setentidad1(entitatCodi.substring(0, indexBarra));
+						params.setentidad2(entitatCodi.substring(indexBarra + 1));
+					}
+				}
+				if (registreEntrada.getDadesInteressat().getNomAmbCognoms() != null)
+					params.setaltres(
+							registreEntrada.getDadesInteressat().getNomAmbCognoms());
+				if (registreEntrada.getDadesInteressat().getMunicipiCodi() != null)
+					params.setbalears(
+							registreEntrada.getDadesInteressat().getMunicipiCodi());
+				if (registreEntrada.getDadesInteressat().getMunicipiNom() != null)
+					params.setfora(
+							registreEntrada.getDadesInteressat().getMunicipiNom());
+				
+			}
+			if (registreEntrada.getDadesAssumpte() != null) {
+				if (registreEntrada.getDadesAssumpte().getTipus() != null)
+					params.settipo(
+							registreEntrada.getDadesAssumpte().getTipus());
+				if (registreEntrada.getDadesAssumpte().getIdiomaCodi() != null)
+					params.setidioex(
+							convertirIdioma(registreEntrada.getDadesAssumpte().getIdiomaCodi()));
+				if (registreEntrada.getDadesAssumpte().getAssumpte() != null)
+					params.setcomentario(
+							registreEntrada.getDadesAssumpte().getAssumpte());
+			}
+			if (registreEntrada.getDocuments() != null && registreEntrada.getDocuments().size() > 0) {
+				if (registreEntrada.getDocuments().size() == 1) {
+					DocumentRegistre document = registreEntrada.getDocuments().get(0);
+					params.setdata(
+							new SimpleDateFormat("dd/MM/yyyy").format(document.getData()));
+					params.setidioma(
+							convertirIdioma(document.getIdiomaCodi()));
+				} else {
+					throw new RegistrePluginException("Nomes es pot registrar un document alhora");
+				}
+			} else {
+				throw new RegistrePluginException("S'ha d'especificar algun document per registrar");
+			}
 			RegistroEntradaFacade registroEntrada = getRegistreEntradaService();
 			ParametrosRegistroEntrada respostaValidacio = registroEntrada.validar(params);
 			if (respostaValidacio.getValidado()) {
 				ParametrosRegistroEntrada respostaGrabacio = registroEntrada.grabar(params);
+				RespostaAnotacioRegistre resposta = new RespostaAnotacioRegistre();
 				if (respostaGrabacio.getGrabado()) {
-					return new String[] {respostaGrabacio.getNumeroEntrada(), respostaGrabacio.getAnoEntrada()};
+					resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_OK);
+					resposta.setNumero(
+							respostaGrabacio.getNumeroEntrada() +
+							SEPARADOR_NUMERO +
+							respostaGrabacio.getAnoEntrada());
+					resposta.setData(ara);
+					return resposta;
 				} else {
 					throw new RegistrePluginException("No s'ha pogut guardar l'entrada");
 				}
@@ -76,97 +122,143 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 				sb.append("Errors de validació:\n");
 				Map<String, String> errors = respostaValidacio.getErrores();
 				for (String camp: errors.keySet()) {
-					sb.append("  " + errors.get(camp));
+					sb.append(" | " + errors.get(camp));
 				}
-				throw new RegistrePluginException(sb.toString());
+				throw new RegistrePluginException("S'han produit errors de validació de l'entrada: " + sb.toString());
 			}
 		} catch (Exception ex) {
-			throw new RegistrePluginException("Error creant registre d'entrada", ex);
+			logger.error("Error al registrar l'entrada", ex);
+			throw new RegistrePluginException("Error al registrar l'entrada", ex);
 		}
 	}
-
-	public SeientRegistral consultarEntrada(
-			String oficina,
-			String numero,
-			String any) throws RegistrePluginException {
+	public RespostaConsulta consultarEntrada(
+			String organCodi,
+			String oficinaCodi,
+			String registreNumero) throws RegistrePluginException {
 		try {
 			ParametrosRegistroEntrada params = new ParametrosRegistroEntrada();
 			params.fijaUsuario(GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal"));
-			params.setoficina(oficina);
-			params.setNumeroEntrada(numero);
-			params.setAnoEntrada(any);
+			params.setoficina(organCodi);
+			params.setoficinafisica(oficinaCodi);
+			int index = registreNumero.indexOf(SEPARADOR_NUMERO);
+			if (index == -1)
+				throw new RegistrePluginException("El número de registre a consultar (" + registreNumero + ") no té el format correcte");
+			params.setNumeroEntrada(registreNumero.substring(0, index));
+			params.setAnoEntrada(registreNumero.substring(index + 1));
 			RegistroEntradaFacade registroEntrada = getRegistreEntradaService();
 			ParametrosRegistroEntrada llegit = registroEntrada.leer(params);
-			SeientRegistral resposta = new SeientRegistral();
-			resposta.setData(llegit.getDataEntrada());
-			resposta.setHora(llegit.getHora());
-			resposta.setOficina(llegit.getOficina());
-			resposta.setOficinaFisica(llegit.getOficinafisica());
-			RegistreFont remitent = new RegistreFont();
+			RespostaConsulta resposta = new RespostaConsulta();
+			resposta.setRegistreNumero(registreNumero);
+			resposta.setRegistreData(new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(llegit.getDataEntrada() + " " + llegit.getHora()));
+			DadesOficina dadesOficina = new DadesOficina();
+			dadesOficina.setOrganCodi(llegit.getDestinatari());
+			dadesOficina.setOficinaCodi(llegit.getOficina() + SEPARADOR_ENTITAT + llegit.getOficinafisica());
+			resposta.setDadesOficina(dadesOficina);
+			DadesInteressat dadesInteressat = new DadesInteressat();
 			if (llegit.getEntidad1() != null && !"".equals(llegit.getEntidad1()))
-				remitent.setCodiEntitat(llegit.getEntidad1() + "/" + llegit.getEntidad2());
-			remitent.setNomEntitat(llegit.getAltres());
-			remitent.setCodiGeografic(llegit.getBalears());
-			remitent.setNomGeografic(llegit.getFora());
-			remitent.setNumeroRegistre(llegit.getSalida1());
-			remitent.setAnyRegistre(llegit.getSalida2());
-			resposta.setRemitent(remitent);
-			RegistreFont destinatari = new RegistreFont();
-			destinatari.setCodiEntitat(llegit.getDestinatari());
-			resposta.setDestinatari(destinatari);
-			RegistreDocument document = new RegistreDocument();
-			document.setData(llegit.getData());
-			document.setTipus(llegit.getTipo());
-			document.setIdiomaDocument(str2Idioma(llegit.getIdioma()));
-			document.setIdiomaExtracte(str2Idioma(llegit.getIdioex()));
-			document.setExtracte(llegit.getComentario());
-			resposta.setDocument(document);
+				dadesInteressat.setEntitatCodi(
+						llegit.getEntidad1() + SEPARADOR_ENTITAT + llegit.getEntidad2());
+			dadesInteressat.setNomAmbCognoms(llegit.getAltres());
+			dadesInteressat.setMunicipiCodi(llegit.getBalears());
+			dadesInteressat.setMunicipiNom(llegit.getFora());
+			resposta.setDadesInteressat(dadesInteressat);
+			DadesAssumpte dadesAssumpte = new DadesAssumpte();
+			dadesAssumpte.setIdiomaCodi(llegit.getIdioex());
+			dadesAssumpte.setTipus(llegit.getTipo());
+			dadesAssumpte.setAssumpte(llegit.getComentario());
+			resposta.setDadesAssumpte(dadesAssumpte);
+			List<DocumentRegistre> documents = new ArrayList<DocumentRegistre>();
+			DocumentRegistre document = new DocumentRegistre();
+			document.setIdiomaCodi(llegit.getIdioma());
+			if (llegit.getData() != null)
+				document.setData(new SimpleDateFormat("dd/MM/yyyy").parse(llegit.getData()));
+			documents.add(document);
+			resposta.setDocuments(documents);
 			return resposta;
 		} catch (Exception ex) {
-			throw new RegistrePluginException("Error al consultar registre d'entrada", ex);
+			logger.error("Error al consultar l'entrada", ex);
+			throw new RegistrePluginException("Error al consultar l'entrada", ex);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	public String[] registrarSortida(
-			SeientRegistral dadesRegistre) throws RegistrePluginException {
+	public RespostaAnotacioRegistre registrarSortida(
+			RegistreSortida registreSortida) throws RegistrePluginException {
 		try {
 			ParametrosRegistroSalida params = new ParametrosRegistroSalida();
 			params.fijaUsuario(GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal"));
-			params.setdatasalida(dadesRegistre.getData());
-			params.sethora(dadesRegistre.getHora());
-			params.setoficina(dadesRegistre.getOficina());
-			params.setoficinafisica(dadesRegistre.getOficinaFisica());
-			if (dadesRegistre.getDestinatari().getCodiEntitat() != null) {
-				String codiEntitat = dadesRegistre.getDestinatari().getCodiEntitat();
-				int indexBarra = codiEntitat.indexOf("/");
-				params.setentidad1(codiEntitat.substring(0, indexBarra));
-				params.setentidad2(codiEntitat.substring(indexBarra + 1));
+			Date ara = new Date();
+			params.setdatasalida(new SimpleDateFormat("dd/MM/yyyy").format(ara));
+			params.sethora(new SimpleDateFormat("HH:mm").format(ara));
+			if (registreSortida.getDadesOficina() != null) {
+				String oficinaCodi = registreSortida.getDadesOficina().getOficinaCodi();
+				if (oficinaCodi != null) {
+					int indexBarra = oficinaCodi.indexOf(SEPARADOR_ENTITAT);
+					if (indexBarra != -1) {
+						params.setoficina(oficinaCodi.substring(0, indexBarra));
+						params.setoficinafisica(oficinaCodi.substring(indexBarra + 1));
+					}
+				}
+				if (registreSortida.getDadesOficina().getOrganCodi() != null)
+					params.setremitent(
+							registreSortida.getDadesOficina().getOrganCodi());
 			}
-			if (dadesRegistre.getDestinatari().getNomEntitat() != null)
-				params.setaltres(dadesRegistre.getDestinatari().getNomEntitat());
-			if (dadesRegistre.getDestinatari().getCodiGeografic() != null)
-				params.setbalears(dadesRegistre.getDestinatari().getCodiGeografic());
-			if (dadesRegistre.getDestinatari().getNomGeografic() != null)
-				params.setfora(dadesRegistre.getDestinatari().getNomGeografic());
-			if (dadesRegistre.getDestinatari().getNumeroRegistre() != null)
-				params.setentrada1(dadesRegistre.getDestinatari().getNumeroRegistre());
-			if (dadesRegistre.getDestinatari().getAnyRegistre() != null)
-				params.setentrada2(dadesRegistre.getDestinatari().getAnyRegistre());
-			if (dadesRegistre.getRemitent().getCodiEntitat() != null)
-				params.setremitent(dadesRegistre.getRemitent().getCodiEntitat());
-			params.setdata(dadesRegistre.getDocument().getData());
-			if (dadesRegistre.getDocument().getTipus() != null)
-				params.settipo(dadesRegistre.getDocument().getTipus());
-			params.setidioma(idioma2Str(dadesRegistre.getDocument().getIdiomaDocument()));
-			params.setidioex(idioma2Str(dadesRegistre.getDocument().getIdiomaExtracte()));
-			params.setcomentario(dadesRegistre.getDocument().getExtracte());
+			if (registreSortida.getDadesInteressat() != null) {
+				String entitatCodi = registreSortida.getDadesInteressat().getEntitatCodi();
+				if (entitatCodi != null) {
+					int indexBarra = entitatCodi.indexOf(SEPARADOR_ENTITAT);
+					if (indexBarra != -1) {
+						params.setentidad1(entitatCodi.substring(0, indexBarra));
+						params.setentidad2(entitatCodi.substring(indexBarra + 1));
+					}
+				}
+				if (registreSortida.getDadesInteressat().getNomAmbCognoms() != null)
+					params.setaltres(
+							registreSortida.getDadesInteressat().getNomAmbCognoms());
+				if (registreSortida.getDadesInteressat().getMunicipiCodi() != null)
+					params.setbalears(
+							registreSortida.getDadesInteressat().getMunicipiCodi());
+				if (registreSortida.getDadesInteressat().getMunicipiNom() != null)
+					params.setfora(
+							registreSortida.getDadesInteressat().getMunicipiNom());
+			}
+			if (registreSortida.getDadesAssumpte() != null) {
+				if (registreSortida.getDadesAssumpte().getTipus() != null)
+					params.settipo(
+							registreSortida.getDadesAssumpte().getTipus());
+				if (registreSortida.getDadesAssumpte().getIdiomaCodi() != null)
+					params.setidioex(
+							convertirIdioma(registreSortida.getDadesAssumpte().getIdiomaCodi()));
+				if (registreSortida.getDadesAssumpte().getAssumpte() != null)
+					params.setcomentario(
+							registreSortida.getDadesAssumpte().getAssumpte());
+			}
+			if (registreSortida.getDocuments() != null && registreSortida.getDocuments().size() > 0) {
+				if (registreSortida.getDocuments().size() == 1) {
+					DocumentRegistre document = registreSortida.getDocuments().get(0);
+					params.setdata(
+							new SimpleDateFormat("dd/MM/yyyy").format(document.getData()));
+					params.setidioma(
+							convertirIdioma(document.getIdiomaCodi()));
+				} else {
+					throw new RegistrePluginException("Nomes es pot registrar un document alhora");
+				}
+			} else {
+				throw new RegistrePluginException("S'ha d'especificar algun document per registrar");
+			}
 			RegistroSalidaFacade registroSalida = getRegistreSortidaService();
 			ParametrosRegistroSalida respostaValidacio = registroSalida.validar(params);
 			if (respostaValidacio.getValidado()) {
 				ParametrosRegistroSalida respostaGrabacio = registroSalida.grabar(params);
+				RespostaAnotacioRegistre resposta = new RespostaAnotacioRegistre();
 				if (respostaGrabacio.getGrabado()) {
-					return new String[] {respostaGrabacio.getNumeroSalida(), respostaGrabacio.getAnoSalida()};
+					resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_OK);
+					resposta.setNumero(
+							respostaGrabacio.getNumeroSalida() +
+							SEPARADOR_NUMERO +
+							respostaGrabacio.getAnoSalida());
+					resposta.setData(ara);
+					return resposta;
 				} else {
 					throw new RegistrePluginException("No s'ha pogut guardar la sortida");
 				}
@@ -175,65 +267,74 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 				sb.append("Errors de validació:\n");
 				Map<String, String> errors = respostaValidacio.getErrores();
 				for (String camp: errors.keySet()) {
-					sb.append("  " + errors.get(camp));
+					sb.append(" | " + errors.get(camp));
 				}
-				throw new RegistrePluginException(sb.toString());
+				throw new RegistrePluginException("S'han produit errors de validació de l'entrada: " + sb.toString());
 			}
 		} catch (Exception ex) {
-			throw new RegistrePluginException("Error creant registre de sortida", ex);
+			logger.error("Error al registrar la sortida", ex);
+			throw new RegistrePluginException("Error al registrar la sortida", ex);
 		}
 	}
 
-	public SeientRegistral consultarSortida(
-			String oficina,
-			String numero,
-			String any) throws RegistrePluginException {
+	public RespostaConsulta consultarSortida(
+			String organCodi,
+			String oficinaCodi,
+			String registreNumero) throws RegistrePluginException {
 		try {
 			ParametrosRegistroSalida params = new ParametrosRegistroSalida();
 			params.fijaUsuario(GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal"));
-			params.setoficina(oficina);
-			params.setNumeroSalida(numero);
-			params.setAnoSalida(any);
+			params.setoficina(organCodi);
+			params.setoficinafisica(oficinaCodi);
+			int index = registreNumero.indexOf(SEPARADOR_NUMERO);
+			if (index == -1)
+				throw new RegistrePluginException("El número de registre a consultar (" + registreNumero + ") no té el format correcte");
+			params.setNumeroSalida(registreNumero.substring(0, index));
+			params.setAnoSalida(registreNumero.substring(index + 1));
 			RegistroSalidaFacade registroSalida = getRegistreSortidaService();
 			ParametrosRegistroSalida llegit = registroSalida.leer(params);
-			SeientRegistral resposta = new SeientRegistral();
-			resposta.setData(llegit.getDataSalida());
-			resposta.setHora(llegit.getHora());
-			resposta.setOficina(llegit.getOficina());
-			resposta.setOficinaFisica(llegit.getOficinafisica());
-			RegistreFont destinatari = new RegistreFont();
+			RespostaConsulta resposta = new RespostaConsulta();
+			resposta.setRegistreNumero(registreNumero);
+			resposta.setRegistreData(new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(llegit.getDataSalida() + " " + llegit.getHora()));
+			DadesOficina dadesOficina = new DadesOficina();
+			dadesOficina.setOrganCodi(llegit.getRemitent());
+			dadesOficina.setOficinaCodi(llegit.getOficina() + SEPARADOR_ENTITAT + llegit.getOficinafisica());
+			resposta.setDadesOficina(dadesOficina);
+			DadesInteressat dadesInteressat = new DadesInteressat();
 			if (llegit.getEntidad1() != null && !"".equals(llegit.getEntidad1()))
-				destinatari.setCodiEntitat(llegit.getEntidad1() + "/" + llegit.getEntidad2());
-			destinatari.setNomEntitat(llegit.getAltres());
-			destinatari.setCodiGeografic(llegit.getBalears());
-			destinatari.setNomGeografic(llegit.getFora());
-			destinatari.setNumeroRegistre(llegit.getEntrada1());
-			destinatari.setAnyRegistre(llegit.getEntrada2());
-			resposta.setDestinatari(destinatari);
-			RegistreFont remitent = new RegistreFont();
-			remitent.setCodiEntitat(llegit.getRemitent());
-			resposta.setRemitent(remitent);
-			RegistreDocument document = new RegistreDocument();
-			document.setData(llegit.getData());
-			document.setTipus(llegit.getTipo());
-			document.setIdiomaDocument(str2Idioma(llegit.getIdioma()));
-			document.setIdiomaExtracte(str2Idioma(llegit.getIdioex()));
-			document.setExtracte(llegit.getComentario());
-			resposta.setDocument(document);
+				dadesInteressat.setEntitatCodi(
+						llegit.getEntidad1() + SEPARADOR_ENTITAT + llegit.getEntidad2());
+			dadesInteressat.setNomAmbCognoms(llegit.getAltres());
+			dadesInteressat.setMunicipiCodi(llegit.getBalears());
+			dadesInteressat.setMunicipiNom(llegit.getFora());
+			resposta.setDadesInteressat(dadesInteressat);
+			DadesAssumpte dadesAssumpte = new DadesAssumpte();
+			dadesAssumpte.setUnitatAdministrativa(llegit.getRemitent());
+			dadesAssumpte.setIdiomaCodi(llegit.getIdioex());
+			dadesAssumpte.setTipus(llegit.getTipo());
+			dadesAssumpte.setAssumpte(llegit.getComentario());
+			resposta.setDadesAssumpte(dadesAssumpte);
+			List<DocumentRegistre> documents = new ArrayList<DocumentRegistre>();
+			DocumentRegistre document = new DocumentRegistre();
+			document.setIdiomaCodi(llegit.getIdioma());
+			if (llegit.getData() != null)
+				document.setData(new SimpleDateFormat("dd/MM/yyyy").parse(llegit.getData()));
+			documents.add(document);
+			resposta.setDocuments(documents);
 			return resposta;
 		} catch (Exception ex) {
-			throw new RegistrePluginException("Error al consultar registre d'entrada", ex);
+			logger.error("Error al consultar la sortida", ex);
+			throw new RegistrePluginException("Error al consultar la sortida", ex);
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	public String getNomOficina(String codi) throws RegistrePluginException {
-		try {
-			Vector resposta = getAdminService().getOficina(codi);
-			return (String)resposta.get(1);
-		} catch (Exception ex) {
-			throw new RegistrePluginException("Error consultant el nom de l'oficina", ex);
-		}
+	public RespostaAnotacioRegistre registrarNotificacio(
+			RegistreNotificacio registreNotificacio) throws RegistrePluginException {
+		throw new RegistrePluginException("Mètode no implementat en aquest plugin");
+	}
+	public RespostaJustificantRecepcio obtenirJustificantRecepcio(
+			String numeroRegistre) throws RegistrePluginException {
+		throw new RegistrePluginException("Mètode no implementat en aquest plugin");
 	}
 
 
@@ -253,15 +354,6 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 		RegistroSalidaFacadeHome home = (RegistroSalidaFacadeHome)javax.rmi.PortableRemoteObject.narrow(
 				objRef,
 				RegistroSalidaFacadeHome.class);
-		ctx.close();
-		return home.create();
-	}
-	private AdminFacade getAdminService() throws Exception {
-		Context ctx = getInitialContext();
-		Object objRef = ctx.lookup("es.caib.regweb.logic.AdminFacade");
-		AdminFacadeHome home = (AdminFacadeHome)javax.rmi.PortableRemoteObject.narrow(
-				objRef,
-				AdminFacadeHome.class);
 		ctx.close();
 		return home.create();
 	}
@@ -289,17 +381,31 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 		return new InitialContext(props);
 	}
 
-	private String idioma2Str(IdiomaRegistre idioma) {
-		if (idioma.equals(IdiomaRegistre.CA))
+	private String convertirIdioma(String iso6391) {
+		if ("es".equalsIgnoreCase(iso6391)) {
 			return "1";
-		else
+		} else if ("ca".equalsIgnoreCase(iso6391)) {
 			return "2";
+		} else if ("eu".equalsIgnoreCase(iso6391)) {
+			return "4";
+		} else if ("gl".equalsIgnoreCase(iso6391)) {
+			return "5";
+		} else if ("as".equalsIgnoreCase(iso6391)) {
+			return "6";
+		} else if ("de".equalsIgnoreCase(iso6391)) {
+			return "C";
+		} else if ("en".equalsIgnoreCase(iso6391)) {
+			return "A";
+		} else if ("fr".equalsIgnoreCase(iso6391)) {
+			return "B";
+		} else if ("it".equalsIgnoreCase(iso6391)) {
+			return "E";
+		} else if ("pt".equalsIgnoreCase(iso6391)) {
+			return "F";
+		}
+		return "1";
 	}
-	private IdiomaRegistre str2Idioma(String str) {
-		if (str.equals("1"))
-			return IdiomaRegistre.CA;
-		else
-			return IdiomaRegistre.ES;
-	}
+
+	private static final Log logger = LogFactory.getLog(RegistrePluginRegwebLogic.class);
 
 }

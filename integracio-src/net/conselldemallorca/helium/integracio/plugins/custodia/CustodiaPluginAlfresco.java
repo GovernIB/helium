@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.conselldemallorca.helium.integracio.plugins.gesdoc.AlfrescoUtils;
-import net.conselldemallorca.helium.integracio.plugins.signatura.InfoSignatura;
+import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.model.dao.DaoProxy;
 import net.conselldemallorca.helium.model.exception.CustodiaPluginException;
 import net.conselldemallorca.helium.model.hibernate.DocumentStore;
@@ -53,24 +53,38 @@ public class CustodiaPluginAlfresco implements CustodiaPlugin {
 				throw new CustodiaPluginException("El document, la signatura del qual es vol custodiar, no està guardat a dins Alfresco");
 			Reference parent = alfrescoUtils.getParent(
 					alfrescoUtils.getReferenceForUuid(docStore.getReferenciaFont()));
-			int index = 0;
-			boolean found;
-			do {
-				index++;
-				found = false;
+			if (isSignaturaFileAttached()) {
 				try {
-					alfrescoUtils.retrieveContentFromParent(parent, SIGNATURE_DATA_NAME + index);
-					found = true;
+					alfrescoUtils.deleteContentFromParent(parent, SIGNATURE_DATA_NAME);
 				} catch (IOException ex) {
 					// Si no existeix es llança aquesta excepció
 				}
-			} while (found);
-			alfrescoUtils.createContent(
-					parent,
-					SIGNATURE_DATA_NAME + index,
-					null,
-					null,
-					signatura);
+				alfrescoUtils.createContent(
+						parent,
+						SIGNATURE_DATA_NAME,
+						null,
+						null,
+						signatura);
+			} else {
+				int index = 0;
+				boolean found;
+				do {
+					index++;
+					found = false;
+					try {
+						alfrescoUtils.retrieveContentFromParent(parent, SIGNATURE_DATA_NAME + index);
+						found = true;
+					} catch (IOException ex) {
+						// Si no existeix es llança aquesta excepció
+					}
+				} while (found);
+				alfrescoUtils.createContent(
+						parent,
+						SIGNATURE_DATA_NAME + index,
+						null,
+						null,
+						signatura);
+			}
 			return docStore.getReferenciaFont();
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut custodiar la signatura", ex);
@@ -86,19 +100,24 @@ public class CustodiaPluginAlfresco implements CustodiaPlugin {
 			Reference parent = alfrescoUtils.getParent(
 					alfrescoUtils.getReferenceForUuid(id));
 			List<byte[]> resposta = new ArrayList<byte[]>();
-			int index = 0;
-			boolean found;
-			do {
-				index++;
-				found = false;
-				try {
-					byte[] sc = alfrescoUtils.retrieveContentFromParent(parent, SIGNATURE_DATA_NAME + index);
-					resposta.add(sc);
-					found = true;
-				} catch (IOException ex) {
-					// Si no existeix es llança aquesta excepció
-				}
-			} while (found);
+			if (isSignaturaFileAttached()) {
+				resposta.add(
+						alfrescoUtils.retrieveContentFromParent(parent, SIGNATURE_DATA_NAME));
+			} else {
+				int index = 0;
+				boolean found;
+				do {
+					index++;
+					found = false;
+					try {
+						byte[] sc = alfrescoUtils.retrieveContentFromParent(parent, SIGNATURE_DATA_NAME + index);
+						resposta.add(sc);
+						found = true;
+					} catch (IOException ex) {
+						// Si no existeix es llança aquesta excepció
+					}
+				} while (found);
+			}
 			return resposta;
 		} catch (Exception ex) {
 			logger.error("No s'han pogut obtenir les signatures", ex);
@@ -108,24 +127,40 @@ public class CustodiaPluginAlfresco implements CustodiaPlugin {
 		}
 	}
 
+	public byte[] getSignaturesAmbArxiu(String id) throws CustodiaPluginException {
+		try {
+			alfrescoUtils.startAlfrescoSession();
+			Reference parent = alfrescoUtils.getParent(
+					alfrescoUtils.getReferenceForUuid(id));
+			return alfrescoUtils.retrieveContentFromParent(parent, SIGNATURE_DATA_NAME);
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut obtenir l'arxiu amb les signatures", ex);
+			throw new CustodiaPluginException("No s'ha pogut obtenir l'arxiu amb les signatures", ex);
+		}
+	}
+
 	public void deleteSignatures(String id) throws CustodiaPluginException {
 		try {
 			alfrescoUtils.startAlfrescoSession();
 			Reference parent = alfrescoUtils.getParent(
 					alfrescoUtils.getReferenceForUuid(id));
-			int index = 0;
-			boolean found;
-			do {
-				index++;
-				found = false;
-				try {
-					alfrescoUtils.deleteContentFromParent(parent, SIGNATURE_DATA_NAME + index);
-					found = true;
+			if (isSignaturaFileAttached()) {
+				alfrescoUtils.deleteContentFromParent(parent, SIGNATURE_DATA_NAME);
+			} else {
+				int index = 0;
+				boolean found;
+				do {
 					index++;
-				} catch (IOException ex) {
-					// Si no existeix l'arxiu es llança aquesta excepció
-				}
-			} while (found);
+					found = false;
+					try {
+						alfrescoUtils.deleteContentFromParent(parent, SIGNATURE_DATA_NAME + index);
+						found = true;
+						index++;
+					} catch (IOException ex) {
+						// Si no existeix l'arxiu es llança aquesta excepció
+					}
+				} while (found);
+			}
 		} catch (Exception ex) {
 			logger.error("No s'han pogut esborrar les signatures", ex);
 			throw new CustodiaPluginException("No s'han pogut esborrar les signatures", ex);
@@ -134,8 +169,8 @@ public class CustodiaPluginAlfresco implements CustodiaPlugin {
 		}
 	}
 
-	public List<InfoSignatura> infoSignatures(String id) throws CustodiaPluginException {
-		return null;
+	public List<RespostaValidacioSignatura> dadesValidacioSignatura(String id) throws CustodiaPluginException {
+		throw new CustodiaPluginException("Aquest plugin no té implementada la funcionalitat de validació de signatures");
 	}
 
 	public boolean potObtenirInfoSignatures() {
@@ -146,6 +181,11 @@ public class CustodiaPluginAlfresco implements CustodiaPlugin {
 	}
 
 
+
+	private boolean isSignaturaFileAttached() {
+		String fileAttached = GlobalProperties.getInstance().getProperty("app.signatura.plugin.file.attached");
+		return "true".equalsIgnoreCase(fileAttached);
+	}
 
 	private static final Log logger = LogFactory.getLog(CustodiaPluginAlfresco.class);
 

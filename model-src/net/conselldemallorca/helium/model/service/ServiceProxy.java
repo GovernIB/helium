@@ -36,6 +36,9 @@ public class ServiceProxy implements ApplicationContextAware {
 	public ExpedientService getExpedientService() {
 		return (ExpedientService)ctx.getBean("expedientService", ExpedientService.class);
 	}
+	public DocumentService getDocumentService() {
+		return (DocumentService)ctx.getBean("documentService", DocumentService.class);
+	}
 	public OrganitzacioService getOrganitzacioService() {
 		return (OrganitzacioService)ctx.getBean("organitzacioService", OrganitzacioService.class);
 	}

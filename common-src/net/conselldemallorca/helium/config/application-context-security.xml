@@ -12,13 +12,16 @@
 	<global-method-security secured-annotations="enabled"/>
 
 	<http entry-point-ref="preAuthenticatedProcessingFilterEntryPoint">
+		<intercept-url pattern="/index.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/error.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/css/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/js/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/img/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		<intercept-url pattern="/index.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		<intercept-url pattern="/error.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/ws/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		<intercept-url pattern="/signatura/**" access="ROLE_ADMIN,ROLE_USER" />
+		<intercept-url pattern="/services/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/rol/test.html" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/signatura/aFirma/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/signatura/caib/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/entorn/seleccio.html" access="ROLE_ADMIN,ROLE_USER" />
 		<intercept-url pattern="/entorn/configDefault.html" access="ROLE_ADMIN,ROLE_USER" />
 		<intercept-url pattern="/persona/suggest.html" access="ROLE_ADMIN,ROLE_USER" />
@@ -26,12 +29,6 @@
 		<intercept-url pattern="/entorn/**" access="ROLE_ADMIN" />
 		<intercept-url pattern="/rol/**" access="ROLE_ADMIN" />
 		<intercept-url pattern="/festiu/**" access="ROLE_ADMIN" />
-		<!--intercept-url pattern="/ws/NotificacioEntrada" access="ROLE_ADMIN,ROLE_WS" />
-		<intercept-url pattern="/ws/FormulariExtern" access="ROLE_ADMIN,ROLE_WS" />
-		<intercept-url pattern="/ws/MCGDws" access="ROLE_ADMIN,ROLE_WS" />
-		<intercept-url pattern="/ws/ConsultaDomini" access="ROLE_ADMIN,ROLE_WS" />
-		<intercept-url pattern="/ws/TramitacioService" access="ROLE_ADMIN,ROLE_WS" />
-		<intercept-url pattern="/ws/**" access="ROLE_ADMIN,ROLE_USER" /-->
 		<intercept-url pattern="/**" access="ROLE_ADMIN,ROLE_USER" />
 		<anonymous/>
 		<!--form-login/>
@@ -48,33 +45,60 @@
 		</beans:property>
 	</beans:bean>
 
-	<beans:bean id="attributes2GrantedAuthoritiesMapper" class="org.springframework.security.authoritymapping.MapBasedAttributes2GrantedAuthoritiesMapper">
-		<beans:property name="attributes2grantedAuthoritiesMap">
-			<beans:bean class="net.conselldemallorca.helium.security.permission.JbpmIdGroupMap">
-				<beans:constructor-arg ref="sessionFactory"/>
-				<beans:constructor-arg value="${app.role.external.prefix}"/>
-				<beans:property name="toOverwriteAfterQuery">
-					<beans:map>
-						<beans:entry key="HEL_ADMIN" value="ROLE_ADMIN"/>
-						<beans:entry key="HEL_USER" value="ROLE_USER"/>
-						<beans:entry key="HEL_WS" value="ROLE_WS"/>
-						<beans:entry key="TOTHOM" value="ROLE_USER"/>
-						<beans:entry key="tothom" value="ROLE_USER"/>
-					</beans:map>
-				</beans:property>
-			</beans:bean>
+	<beans:bean id="attributes2GrantedAuthoritiesMapper" class="net.conselldemallorca.helium.security.j2ee.RolesBasedAttributes2GrantedAuthoritiesMapper">
+		<beans:property name="baseRoleMapping">
+			<beans:map>
+				<beans:entry key="HEL_ADMIN" value="ROLE_ADMIN"/>
+				<beans:entry key="HEL_USER" value="ROLE_USER"/>
+				<beans:entry key="HEL_WS" value="ROLE_WS"/>
+				<beans:entry key="TOTHOM" value="ROLE_USER"/>
+				<beans:entry key="tothom" value="ROLE_USER"/>
+			</beans:map>
 		</beans:property>
 	</beans:bean>
-
+	<beans:bean id="mappableRolesRetriever" class="net.conselldemallorca.helium.security.j2ee.RolesBasedMappableAttributesRetriever"/>
 	<beans:bean id="j2eePreauthFilter" class="org.springframework.security.ui.preauth.j2ee.J2eePreAuthenticatedProcessingFilter">
 		<custom-filter position="PRE_AUTH_FILTER"/>
 		<beans:property name="authenticationDetailsSource">
-			<beans:bean class="org.springframework.security.ui.preauth.j2ee.J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource">
-				<beans:property name="mappableRolesRetriever" ref="attributes2GrantedAuthoritiesMapper"/>
+			<beans:bean class="net.conselldemallorca.helium.security.j2ee.RolesBasedPreAuthenticatedWebAuthenticationDetailsSource">
+				<beans:property name="mappableRolesRetriever" ref="mappableRolesRetriever"/>
 				<beans:property name="userRoles2GrantedAuthoritiesMapper" ref="attributes2GrantedAuthoritiesMapper"/>
 			</beans:bean>
 		</beans:property>
 		<beans:property name="authenticationManager" ref="authenticationManager"/>
 	</beans:bean>
+
+
+
+	<!--authentication-manager alias="casAuthenticationManager"/>
+	<beans:bean id="serviceProperties" class="org.springframework.security.ui.cas.ServiceProperties">
+		<beans:property name="service" value="http://10.35.3.115:8080/helium"/>
+		<beans:property name="sendRenew" value="false"/>
+	</beans:bean>
+
+	<beans:bean id="casProcessingFilter" class="org.springframework.security.ui.cas.CasProcessingFilter">
+		<custom-filter after="CAS_PROCESSING_FILTER"/>
+		<beans:property name="authenticationManager" ref="casAuthenticationManager"/>
+		<beans:property name="authenticationFailureUrl" value="/casfailed.jsp"/>
+		<beans:property name="defaultTargetUrl" value="/"/>
+	</beans:bean>
+	<beans:bean id="casProcessingFilterEntryPoint" class="org.springframework.security.ui.cas.CasProcessingFilterEntryPoint">
+		<beans:property name="loginUrl" value="http://10.35.3.115:18080/sso/login"/>
+		<beans:property name="serviceProperties" ref="serviceProperties"/>
+	</beans:bean>
+	<beans:bean id="casAuthenticationProvider" class="org.springframework.security.providers.cas.CasAuthenticationProvider">
+		<custom-authentication-provider />
+		<beans:property name="userDetailsService" ref="userService"/>
+		<beans:property name="serviceProperties" ref="serviceProperties" />
+		<beans:property name="ticketValidator">
+			<beans:bean class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator">
+				<beans:constructor-arg index="0" value="http://10.35.3.115:18080/sso" />
+			</beans:bean>
+		</beans:property>
+		<beans:property name="key" value="helium"/>
+	</beans:bean>
+	<user-service id="userService">
+		<user name="admin" password="admin" authorities="ROLE_ADMIN" />
+	</user-service-->
 
 </beans:beans>

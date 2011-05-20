@@ -15,6 +15,8 @@ import net.conselldemallorca.helium.model.service.TascaService;
 import net.conselldemallorca.helium.util.EntornActual;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
@@ -26,22 +28,32 @@ import org.springframework.validation.Validator;
  * @author Josep Gayà <josepg@limit.es>
  */
 public class TascaFormValidator implements Validator {
+	private static final int STRING_MAX_LENGTH = 2048;
 	private static ThreadLocal<TascaDto> tascaThreadLocal = new ThreadLocal<TascaDto>();
 	private TascaService tascaService;
 	private ExpedientService expedientService;
 	private Map<String, List<Object>> valorsSuggest;
 	boolean inicial;
+	boolean validarObligatoris;
 	public TascaFormValidator(TascaService tascaService) {
 		this.tascaService = tascaService;
 		this.inicial = false;
+		this.validarObligatoris = true;
+	}
+	public TascaFormValidator(TascaService tascaService, boolean validarObligatoris) {
+		this.tascaService = tascaService;
+		this.inicial = false;
+		this.validarObligatoris = validarObligatoris;
 	}
 	public TascaFormValidator(ExpedientService expedientService) {
 		this.expedientService = expedientService;
 		this.inicial = true;
+		this.validarObligatoris = true;
 	}
 	public TascaFormValidator(ExpedientService expedientService, Map<String, List<Object>> valorsSuggest) {
 		this.expedientService = expedientService;
 		this.valorsSuggest = valorsSuggest;
+		this.validarObligatoris = true;
 		this.inicial = true;
 	}
 	@SuppressWarnings("unchecked")
@@ -52,7 +64,7 @@ public class TascaFormValidator implements Validator {
 		try {
 			TascaDto tasca = getTasca(command);
 			for (CampTasca camp: tasca.getCamps()) {
-				if (camp.isRequired()) {
+				if (validarObligatoris && camp.isRequired()) {
 					if (camp.getCamp().getTipus().equals(TipusCamp.REGISTRE)) {
 						if (tascaService != null) {
 							Object[] valor = (Object[])tascaService.getVariable(
@@ -84,8 +96,28 @@ public class TascaFormValidator implements Validator {
 							errors.rejectValue(camp.getCamp().getCodi(), "not.blank");
 					}
 				}
+				if (camp != null && camp.getCamp() != null && camp.getCamp().getTipus() != null) {
+					if (camp.getCamp().getTipus().equals(TipusCamp.STRING) || camp.getCamp().getTipus().equals(TipusCamp.TEXTAREA)) {
+						try {
+							if (camp.getCamp().isMultiple()) {
+								String[] valors = (String[])PropertyUtils.getSimpleProperty(command, camp.getCamp().getCodi());
+								for (String valor: valors) {
+									if (valor != null && valor.length() > STRING_MAX_LENGTH)
+										errors.rejectValue(camp.getCamp().getCodi(), "max.length");
+								}
+							} else {
+								String valor = (String)PropertyUtils.getSimpleProperty(command, camp.getCamp().getCodi());
+								if (valor != null && valor.length() > STRING_MAX_LENGTH)
+									errors.rejectValue(camp.getCamp().getCodi(), "max.length");
+							}
+						} catch (NoSuchMethodException ex) {
+							logger.error("No s'ha pogut trobar la propietat '" + camp.getCamp().getCodi() + "' al command de la tasca " + tasca.getId());
+						}
+					}
+				}
 			}
 		} catch (Exception ex) {
+			logger.error("Error en el validator", ex);
 			errors.reject("error.validator");
 		}
 	}
@@ -114,5 +146,7 @@ public class TascaFormValidator implements Validator {
 			return tascaService.getById(entornId, id);
 		}
 	}
+
+	private static final Log logger = LogFactory.getLog(TascaFormValidator.class);
 
 }

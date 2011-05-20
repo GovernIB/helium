@@ -21,16 +21,10 @@ public class StartProcessInstanceCommand extends NewProcessInstanceCommand imple
 
   private static final long serialVersionUID = -2428234069404269048L;
 
-  /**
-   * this transition name is used for signalling (if null, the default transition is used)
-   */
-  private String startTransitionName = null;
-
   public Object execute(JbpmContext jbpmContext) throws Exception
   {
     Object object = super.execute(jbpmContext);
-    if (object instanceof ProcessInstance)
-    {
+    if (object instanceof ProcessInstance) {
       ProcessInstance processInstance = (ProcessInstance)object;
       Task startTask = processInstance.getProcessDefinition().getTaskMgmtDefinition().getStartTask();
       if (startTask != null && startTask.getSwimlane() != null) {
@@ -41,37 +35,19 @@ public class StartProcessInstanceCommand extends NewProcessInstanceCommand imple
       Expedient expedientIniciant = ExpedientIniciant.getExpedient();
       if (expedientIniciant != null)
     	  expedientIniciant.setProcessInstanceId(new Long(processInstance.getId()).toString());
-      if (startTransitionName == null || startTransitionName.length() == 0)
+      /*if (startTransitionName == null || startTransitionName.length() == 0)
         processInstance.signal();
       else
-        processInstance.signal(startTransitionName);
+        processInstance.signal(startTransitionName);*/
     }
     return object;
   }
 
-  public String getStartTransitionName()
-  {
-    return startTransitionName;
-  }
-
-  public void setStartTransitionName(String startTransitionName)
-  {
-    this.startTransitionName = startTransitionName;
-  }
 
 @Override
   public String getAdditionalToStringInformation()
   {
-    return super.getAdditionalToStringInformation() 
-      + ";startTransitionName=" + startTransitionName;
-  }  
-  
-  // methods for fluent programming
-
-  public StartProcessInstanceCommand startTransitionName(String startTransitionName)
-  {
-    setStartTransitionName(startTransitionName);
-    return this;
+    return super.getAdditionalToStringInformation();
   }
 
 }

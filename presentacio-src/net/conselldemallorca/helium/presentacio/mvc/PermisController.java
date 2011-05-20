@@ -1,7 +1,9 @@
 package net.conselldemallorca.helium.presentacio.mvc;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -41,16 +43,16 @@ public class PermisController extends BaseController {
 	private PermisService permisService;
 	private Validator annotationValidator;
 	private Validator additionalValidator;
-	
+
 	private String codi = "";
-	
+
 	@Autowired
 	public PermisController(
 			PermisService permissionService) {
 		this.permisService = permissionService;
 		additionalValidator = new PermisValidator(permisService);
 	}
-	
+
 	@ModelAttribute("command")
 	public PermisCommand populateCommand(@RequestParam(value = "codi", required = false) String codi) {
 		if ((codi != null) && (!codi.equals(""))) {
@@ -66,7 +68,7 @@ public class PermisController extends BaseController {
 		}
 		return new PermisCommand();
 	}
-	
+
 	@RequestMapping(value = "llistat")
 	public String llistat(
 			HttpServletRequest request,
@@ -93,12 +95,12 @@ public class PermisController extends BaseController {
 								getObjectsPerPage(objectsPerPage))));
 		return "rol/llistat";
 	}
-	
+
 	@RequestMapping(value = "form", method = RequestMethod.GET)
 	public String formGet() {
 		return "rol/form";
 	}
-	
+
 	@RequestMapping(value = "form", method = RequestMethod.POST)
 	public String formPost(
 			HttpServletRequest request,
@@ -132,20 +134,44 @@ public class PermisController extends BaseController {
 			return "redirect:/rol/llistat.html";
 		}
 	}
-	
+
 	@RequestMapping(value = "delete")
 	public String deleteAction(
 			HttpServletRequest request,
 			@RequestParam(value = "codi", required = true) String codi) {
 		if ((!codi.equalsIgnoreCase("HEL_ADMIN")) && (!codi.equalsIgnoreCase("HEL_USER"))) {
-			permisService.deletePermis(codi);
-			missatgeInfo(request, "El rol s'ha esborrat correctament");
+			Permis permis = permisService.getPermisByCodi(codi);
+			if (permis.getUsuaris().size() > 0) {
+				missatgeError(request, "Hi ha usuaris que empren aquest rol");
+			} else {
+				permisService.deletePermis(codi);
+				missatgeInfo(request, "El rol s'ha esborrat correctament");
+			}
 		} else {
 			missatgeError(request, "El rol d'administrador i el rol d'usuari no es poden esborrar");
 		}
 		return "redirect:/rol/llistat.html";
 	}
-	
+
+	@RequestMapping(value = "test")
+	public String test(
+			HttpServletRequest request,
+			ModelMap model) {
+		List<String> roles = new ArrayList<String>();
+		if (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("HEL_ADMIN"))
+			roles.add("HEL_ADMIN");
+		if (request.isUserInRole("ROLE_USER") || request.isUserInRole("HEL_USER"))
+			roles.add("HEL_USER");
+		List<Permis> permisos = permisService.findAll();
+		for (Permis permis: permisos) {
+			if (request.isUserInRole(permis.getCodi())) {
+				roles.add(permis.getCodi());
+			}
+		}
+		model.addAttribute("roles", roles);
+		return "rol/test";
+	}
+
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 		binder.registerCustomEditor(
@@ -158,7 +184,7 @@ public class PermisController extends BaseController {
 				Permis.class,
 				new PermisTypeEditor());
 	}
-	
+
 	@Resource(name = "annotationValidator")
 	public void setAnnotationValidator(Validator annotationValidator) {
 		this.annotationValidator = annotationValidator;
@@ -186,6 +212,7 @@ public class PermisController extends BaseController {
 			}
 		}
 	}
-	
+
 	private static final Log logger = LogFactory.getLog(PersonaController.class);
+
 }

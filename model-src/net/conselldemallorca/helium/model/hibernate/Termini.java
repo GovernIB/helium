@@ -21,6 +21,7 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
@@ -34,6 +35,9 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 @Entity
 @Table(	name="hel_termini",
 		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "definicio_proces_id"})})
+@org.hibernate.annotations.Table(
+		appliesTo = "hel_termini",
+		indexes = @Index(name = "hel_termini_defproc_i", columnNames = {"definicio_proces_id"}))
 public class Termini implements Serializable, GenericEntity<Long> {
 
 	private Long id;

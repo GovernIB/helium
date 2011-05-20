@@ -53,6 +53,11 @@ function mostrarOcultar(objid) {
 					<c:param name="type" value="textarea"/>
 					<c:param name="label">Mapeig de documents</c:param>
 				</c:import>
+				<c:import url="../common/formElement.jsp">
+					<c:param name="property" value="infoMapeigAdjunts"/>
+					<c:param name="type" value="textarea"/>
+					<c:param name="label">Mapeig de documents com adjunts</c:param>
+				</c:import>
 			</div>
 		</div>
 		<c:import url="../common/formElement.jsp">

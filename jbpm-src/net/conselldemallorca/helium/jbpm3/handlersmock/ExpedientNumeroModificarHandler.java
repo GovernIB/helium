@@ -14,13 +14,9 @@ import org.jbpm.graph.exe.ExecutionContext;
 @SuppressWarnings("serial")
 public class ExpedientNumeroModificarHandler implements ActionHandler {
 
-	public void execute(ExecutionContext executionContext) throws Exception {
+	public void execute(ExecutionContext executionContext) throws Exception {}
 
-	}
-
-	public void setNumero(String numero) {
-	}
-	public void setVarNumero(String varNumero) {
-	}
+	public void setNumero(String numero) {}
+	public void setVarNumero(String varNumero) {}
 
 }

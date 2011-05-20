@@ -41,7 +41,9 @@
 			</form:form>
 			<p class="aclaracio">Els camps marcats amb <img src="<c:url value="/img/bullet_red.png"/>" alt="Camp obligatori" title="Camp obligatori" border="0"/> són obligatoris</p>
 		</c:when>
-		<c:otherwise><script type="text/javascript">parent.refresh();</script></c:otherwise>
+		<c:otherwise>
+			<script type="text/javascript">parent.refresh();</script>
+		</c:otherwise>
 	</c:choose>
 </body>
 </html>

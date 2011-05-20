@@ -317,7 +317,8 @@
 <xs:element minOccurs="0" name="arg1" type="xs:string" />
 <xs:element minOccurs="0" name="arg2" type="xs:string" />
 <xs:element minOccurs="0" name="arg3" type="xs:string" />
-<xs:element maxOccurs="unbounded" minOccurs="0" name="arg4" type="parellaCodiValor" />
+<xs:element minOccurs="0" name="arg4" type="xs:string" />
+<xs:element maxOccurs="unbounded" minOccurs="0" name="arg5" type="parellaCodiValor" />
 </xs:sequence>
 </xs:complexType>
 <xs:element name="iniciExpedientResponse" type="iniciExpedientResponse" />

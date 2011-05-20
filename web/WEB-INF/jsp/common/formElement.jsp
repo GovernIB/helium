@@ -239,6 +239,7 @@
 		</c:forEach>
 	</c:when>
 	<c:otherwise>
+		<div style="clear: both"></div>
 		<div class="buttonHolder">
 			<c:set var="buttonValues" value="${fn:split(param.values,',')}"/>
 			<c:set var="buttonTitles" value="${fn:split(param.titles,',')}"/>
@@ -249,5 +250,6 @@
 				</c:choose>
 			</c:forTokens>
 		</div>
+		<div style="clear: both"></div>
 	</c:otherwise>
 </c:choose>

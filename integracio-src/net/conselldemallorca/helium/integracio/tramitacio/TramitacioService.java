@@ -7,12 +7,14 @@ import java.util.Date;
 import java.util.List;
 
 import javax.jws.WebService;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
 /**
  * Interfície del servei de tramitació d'expedients de Helium
  * 
  * @author Josep Gayà <josepg@limit.es>
  */
+@XmlSeeAlso({Object[].class, Object[][].class})
 @WebService(name="TramitacioService")
 public interface TramitacioService {
 
@@ -29,6 +31,7 @@ public interface TramitacioService {
 	 */
 	public String iniciExpedient(
 			String entorn,
+			String usuari,
 			String expedientTipus,
 			String numero,
 			String titol,

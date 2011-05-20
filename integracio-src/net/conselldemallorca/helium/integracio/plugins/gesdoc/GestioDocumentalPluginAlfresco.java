@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.conselldemallorca.helium.model.exception.AlfrescoException;
 import net.conselldemallorca.helium.util.GlobalProperties;
 
 import org.alfresco.webservice.types.Reference;
@@ -65,7 +64,7 @@ public class GestioDocumentalPluginAlfresco implements GestioDocumentalPlugin {
 					documentArxiuContingut);
 		} catch (Exception ex) {
 			logger.error("Error al guardar l'arxiu dins el gestor documental", ex);
-			throw new AlfrescoException("Error al guardar l'arxiu dins el gestor documental", ex);
+			throw new GestioDocumentalPluginException("Error al guardar l'arxiu dins el gestor documental", ex);
 		} finally {
 			alfrescoUtils.endAlfrescoSession();
 		}
@@ -78,7 +77,7 @@ public class GestioDocumentalPluginAlfresco implements GestioDocumentalPlugin {
 					alfrescoUtils.getReferenceForUuid(documentId));
 		} catch (Exception ex) {
 			logger.error("Error al llegir l'arxiu del gestor documental", ex);
-			throw new AlfrescoException("Error al llegir l'arxiu del gestor documental", ex);
+			throw new GestioDocumentalPluginException("Error al llegir l'arxiu del gestor documental", ex);
 		} finally {
 			alfrescoUtils.endAlfrescoSession();
 		}
@@ -92,7 +91,7 @@ public class GestioDocumentalPluginAlfresco implements GestioDocumentalPlugin {
 							alfrescoUtils.getReferenceForUuid(documentId)));
 		} catch (Exception ex) {
 			logger.error("Error al esborrar l'arxiu del gestor documental", ex);
-			throw new AlfrescoException("Error al esborrar l'arxiu del gestor documental", ex);
+			throw new GestioDocumentalPluginException("Error al esborrar l'arxiu del gestor documental", ex);
 		} finally {
 			alfrescoUtils.endAlfrescoSession();
 		}

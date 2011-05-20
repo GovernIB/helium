@@ -1,13 +1,20 @@
 package net.conselldemallorca.helium.integracio.plugins.registre;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
-import net.conselldemallorca.helium.integracio.plugins.registre.RegistreDocument.IdiomaRegistre;
 import net.conselldemallorca.helium.util.GlobalProperties;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import es.caib.regweb.RegistroEntrada;
 import es.caib.regweb.RegistroEntradaHome;
 import es.caib.regweb.RegistroSalida;
@@ -23,44 +30,86 @@ import es.caib.regweb.RegistroSalidaHome;
 
 public class RegistrePluginRegwebCaib implements RegistrePlugin {
 
+	private static final String SEPARADOR_ENTITAT = "-";
+	private static final String SEPARADOR_NUMERO = "/";
+
 	@SuppressWarnings("unchecked")
-	public String[] registrarEntrada(
-			SeientRegistral dadesRegistre) throws RegistrePluginException {
+	public RespostaAnotacioRegistre registrarEntrada(
+			RegistreEntrada registreEntrada) throws RegistrePluginException {
 		try {
 			RegistroEntrada registroEntrada = getRegistreEntradaService();
 			registroEntrada.fijaUsuario(GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal"));
-			registroEntrada.setdataentrada(dadesRegistre.getData());
-			registroEntrada.sethora(dadesRegistre.getHora());
-			registroEntrada.setoficina(dadesRegistre.getOficina());
-			registroEntrada.setoficinafisica(dadesRegistre.getOficinaFisica());
-			if (dadesRegistre.getRemitent().getCodiEntitat() != null) {
-				String codiEntitat = dadesRegistre.getRemitent().getCodiEntitat();
-				int indexBarra = codiEntitat.indexOf("/");
-				registroEntrada.setentidad1(codiEntitat.substring(0, indexBarra));
-				registroEntrada.setentidad2(codiEntitat.substring(indexBarra + 1));
+			Date ara = new Date();
+			registroEntrada.setdataentrada(new SimpleDateFormat("dd/MM/yyyy").format(ara));
+			registroEntrada.sethora(new SimpleDateFormat("HH:mm").format(ara));
+			if (registreEntrada.getDadesOficina() != null) {
+				String oficinaCodi = registreEntrada.getDadesOficina().getOficinaCodi();
+				if (oficinaCodi != null) {
+					int indexBarra = oficinaCodi.indexOf(SEPARADOR_ENTITAT);
+					if (indexBarra != -1) {
+						registroEntrada.setoficina(oficinaCodi.substring(0, indexBarra));
+						registroEntrada.setoficinafisica(oficinaCodi.substring(indexBarra + 1));
+					}
+				}
+				if (registreEntrada.getDadesOficina().getOrganCodi() != null)
+					registroEntrada.setdestinatari(
+							registreEntrada.getDadesOficina().getOrganCodi());
 			}
-			if (dadesRegistre.getRemitent().getNomEntitat() != null)
-				registroEntrada.setaltres(dadesRegistre.getRemitent().getNomEntitat());
-			if (dadesRegistre.getRemitent().getCodiGeografic() != null)
-				registroEntrada.setbalears(dadesRegistre.getRemitent().getCodiGeografic());
-			if (dadesRegistre.getRemitent().getNomGeografic() != null)
-				registroEntrada.setfora(dadesRegistre.getRemitent().getNomGeografic());
-			if (dadesRegistre.getRemitent().getNumeroRegistre() != null)
-				registroEntrada.setsalida1(dadesRegistre.getRemitent().getNumeroRegistre());
-			if (dadesRegistre.getRemitent().getAnyRegistre() != null)
-				registroEntrada.setsalida2(dadesRegistre.getRemitent().getAnyRegistre());
-			if (dadesRegistre.getDestinatari().getCodiEntitat() != null)
-				registroEntrada.setdestinatari(dadesRegistre.getDestinatari().getCodiEntitat());
-			registroEntrada.setdata(dadesRegistre.getDocument().getData());
-			if (dadesRegistre.getDocument().getTipus() != null)
-				registroEntrada.settipo(dadesRegistre.getDocument().getTipus());
-			registroEntrada.setidioma(idioma2Str(dadesRegistre.getDocument().getIdiomaDocument()));
-			registroEntrada.setidioex(idioma2Str(dadesRegistre.getDocument().getIdiomaExtracte()));
-			registroEntrada.setcomentario(dadesRegistre.getDocument().getExtracte());
+			if (registreEntrada.getDadesInteressat() != null) {
+				String entitatCodi = registreEntrada.getDadesInteressat().getEntitatCodi();
+				if (entitatCodi != null) {
+					int indexBarra = entitatCodi.indexOf(SEPARADOR_ENTITAT);
+					if (indexBarra != -1) {
+						registroEntrada.setentidad1(entitatCodi.substring(0, indexBarra));
+						registroEntrada.setentidad2(entitatCodi.substring(indexBarra + 1));
+					}
+				}
+				if (registreEntrada.getDadesInteressat().getNomAmbCognoms() != null)
+					registroEntrada.setaltres(
+							registreEntrada.getDadesInteressat().getNomAmbCognoms());
+				if (registreEntrada.getDadesInteressat().getMunicipiCodi() != null)
+					registroEntrada.setbalears(
+							registreEntrada.getDadesInteressat().getMunicipiCodi());
+				if (registreEntrada.getDadesInteressat().getMunicipiNom() != null)
+					registroEntrada.setfora(
+							registreEntrada.getDadesInteressat().getMunicipiNom());
+				
+			}
+			if (registreEntrada.getDadesAssumpte() != null) {
+				if (registreEntrada.getDadesAssumpte().getTipus() != null)
+					registroEntrada.settipo(
+							registreEntrada.getDadesAssumpte().getTipus());
+				if (registreEntrada.getDadesAssumpte().getIdiomaCodi() != null)
+					registroEntrada.setidioex(
+							convertirIdioma(registreEntrada.getDadesAssumpte().getIdiomaCodi()));
+				if (registreEntrada.getDadesAssumpte().getAssumpte() != null)
+					registroEntrada.setcomentario(
+							registreEntrada.getDadesAssumpte().getAssumpte());
+			}
+			if (registreEntrada.getDocuments() != null && registreEntrada.getDocuments().size() > 0) {
+				if (registreEntrada.getDocuments().size() == 1) {
+					DocumentRegistre document = registreEntrada.getDocuments().get(0);
+					registroEntrada.setdata(
+							new SimpleDateFormat("dd/MM/yyyy").format(document.getData()));
+					registroEntrada.setidioma(
+							convertirIdioma(document.getIdiomaCodi()));
+				} else {
+					throw new RegistrePluginException("Nomes es pot registrar un document alhora");
+				}
+			} else {
+				throw new RegistrePluginException("S'ha d'especificar algun document per registrar");
+			}
 			if (registroEntrada.validar()) {
 				registroEntrada.grabar();
+				RespostaAnotacioRegistre resposta = new RespostaAnotacioRegistre();
 				if (registroEntrada.getGrabado()) {
-					return new String[] {registroEntrada.getNumeroEntrada(), registroEntrada.getAnoEntrada()};
+					resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_OK);
+					resposta.setNumero(
+							registroEntrada.getNumeroEntrada() +
+							SEPARADOR_NUMERO +
+							registroEntrada.getAnoEntrada());
+					resposta.setData(ara);
+					return resposta;
 				} else {
 					throw new RegistrePluginException("No s'ha pogut guardar l'entrada");
 				}
@@ -69,98 +118,146 @@ public class RegistrePluginRegwebCaib implements RegistrePlugin {
 				sb.append("Errors de validació:\n");
 				Map<String, String> errors = registroEntrada.getErrores();
 				for (String camp: errors.keySet()) {
-					sb.append("  " + errors.get(camp));
+					sb.append(" | " + errors.get(camp));
 				}
-				throw new RegistrePluginException(sb.toString());
+				throw new RegistrePluginException("S'han produit errors de validació de l'entrada: " + sb.toString());
 			}
 		} catch (Exception ex) {
-			throw new RegistrePluginException("Error creant registre d'entrada", ex);
+			logger.error("Error al registrar l'entrada", ex);
+			throw new RegistrePluginException("Error al registrar l'entrada", ex);
 		}
 	}
-
-	public SeientRegistral consultarEntrada(
-			String oficina,
-			String numero,
-			String any) throws RegistrePluginException {
+	public RespostaConsulta consultarEntrada(
+			String organCodi,
+			String oficinaCodi,
+			String registreNumero) throws RegistrePluginException {
 		try {
 			RegistroEntrada registroEntrada = getRegistreEntradaService();
 			registroEntrada.fijaUsuario(GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal"));
-			registroEntrada.setoficina(oficina);
-			registroEntrada.setNumeroEntrada(numero);
-			registroEntrada.setAnoEntrada(any);
+			registroEntrada.setoficina(organCodi);
+			registroEntrada.setoficinafisica(oficinaCodi);
+			int index = registreNumero.indexOf(SEPARADOR_NUMERO);
+			if (index == -1)
+				throw new RegistrePluginException("El número de registre a consultar (" + registreNumero + ") no té el format correcte");
+			registroEntrada.setNumeroEntrada(registreNumero.substring(0, index));
+			registroEntrada.setAnoEntrada(registreNumero.substring(index + 1));
 			registroEntrada.leer();
 			if (registroEntrada.getLeido()) {
-				SeientRegistral resposta = new SeientRegistral();
-				resposta.setData(registroEntrada.getDataEntrada());
-				resposta.setHora(registroEntrada.getHora());
-				resposta.setOficina(registroEntrada.getOficina());
-				resposta.setOficinaFisica(registroEntrada.getOficinafisica());
-				RegistreFont remitent = new RegistreFont();
+				RespostaConsulta resposta = new RespostaConsulta();
+				resposta.setRegistreNumero(registreNumero);
+				resposta.setRegistreData(new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(registroEntrada.getDataEntrada() + " " + registroEntrada.getHora()));
+				DadesOficina dadesOficina = new DadesOficina();
+				dadesOficina.setOrganCodi(registroEntrada.getDestinatari());
+				dadesOficina.setOficinaCodi(registroEntrada.getOficina() + SEPARADOR_ENTITAT + registroEntrada.getOficinafisica());
+				resposta.setDadesOficina(dadesOficina);
+				DadesInteressat dadesInteressat = new DadesInteressat();
 				if (registroEntrada.getEntidad1() != null && !"".equals(registroEntrada.getEntidad1()))
-					remitent.setCodiEntitat(registroEntrada.getEntidad1() + "/" + registroEntrada.getEntidad2());
-				remitent.setNomEntitat(registroEntrada.getAltres());
-				remitent.setCodiGeografic(registroEntrada.getBalears());
-				remitent.setNomGeografic(registroEntrada.getFora());
-				remitent.setNumeroRegistre(registroEntrada.getSalida1());
-				remitent.setAnyRegistre(registroEntrada.getSalida2());
-				resposta.setRemitent(remitent);
-				RegistreFont destinatari = new RegistreFont();
-				destinatari.setCodiEntitat(registroEntrada.getDestinatari());
-				resposta.setDestinatari(destinatari);
-				RegistreDocument document = new RegistreDocument();
-				document.setData(registroEntrada.getData());
-				document.setTipus(registroEntrada.getTipo());
-				document.setIdiomaDocument(str2Idioma(registroEntrada.getIdioma()));
-				document.setIdiomaExtracte(str2Idioma(registroEntrada.getIdioex()));
-				document.setExtracte(registroEntrada.getComentario());
-				resposta.setDocument(document);
+					dadesInteressat.setEntitatCodi(
+							registroEntrada.getEntidad1() + SEPARADOR_ENTITAT + registroEntrada.getEntidad2());
+				dadesInteressat.setNomAmbCognoms(registroEntrada.getAltres());
+				dadesInteressat.setMunicipiCodi(registroEntrada.getBalears());
+				dadesInteressat.setMunicipiNom(registroEntrada.getFora());
+				resposta.setDadesInteressat(dadesInteressat);
+				DadesAssumpte dadesAssumpte = new DadesAssumpte();
+				dadesAssumpte.setIdiomaCodi(registroEntrada.getIdioex());
+				dadesAssumpte.setTipus(registroEntrada.getTipo());
+				dadesAssumpte.setAssumpte(registroEntrada.getComentario());
+				resposta.setDadesAssumpte(dadesAssumpte);
+				List<DocumentRegistre> documents = new ArrayList<DocumentRegistre>();
+				DocumentRegistre document = new DocumentRegistre();
+				document.setIdiomaCodi(registroEntrada.getIdioma());
+				if (registroEntrada.getData() != null)
+					document.setData(new SimpleDateFormat("dd/MM/yyyy").parse(registroEntrada.getData()));
+				documents.add(document);
+				resposta.setDocuments(documents);
 				return resposta;
 			} else {
-				return null;
+				throw new RegistrePluginException("No s'ha trobat l'entrada " + registreNumero);
 			}
 		} catch (Exception ex) {
-			throw new RegistrePluginException("Error al consultar registre d'entrada", ex);
+			logger.error("Error al consultar l'entrada", ex);
+			throw new RegistrePluginException("Error al consultar l'entrada", ex);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	public String[] registrarSortida(
-			SeientRegistral dadesRegistre) throws RegistrePluginException {
+	public RespostaAnotacioRegistre registrarSortida(
+			RegistreSortida registreSortida) throws RegistrePluginException {
 		try {
 			RegistroSalida registroSalida = getRegistreSortidaService();
 			registroSalida.fijaUsuario(GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal"));
-			registroSalida.setdatasalida(dadesRegistre.getData());
-			registroSalida.sethora(dadesRegistre.getHora());
-			registroSalida.setoficina(dadesRegistre.getOficina());
-			registroSalida.setoficinafisica(dadesRegistre.getOficinaFisica());
-			if (dadesRegistre.getDestinatari().getCodiEntitat() != null) {
-				String codiEntitat = dadesRegistre.getDestinatari().getCodiEntitat();
-				int indexBarra = codiEntitat.indexOf("/");
-				registroSalida.setentidad1(codiEntitat.substring(0, indexBarra));
-				registroSalida.setentidad2(codiEntitat.substring(indexBarra + 1));
+			registroSalida.fijaUsuario(GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal"));
+			Date ara = new Date();
+			registroSalida.setdatasalida(new SimpleDateFormat("dd/MM/yyyy").format(ara));
+			registroSalida.sethora(new SimpleDateFormat("HH:mm").format(ara));
+			if (registreSortida.getDadesOficina() != null) {
+				String oficinaCodi = registreSortida.getDadesOficina().getOficinaCodi();
+				if (oficinaCodi != null) {
+					int indexBarra = oficinaCodi.indexOf(SEPARADOR_ENTITAT);
+					if (indexBarra != -1) {
+						registroSalida.setoficina(oficinaCodi.substring(0, indexBarra));
+						registroSalida.setoficinafisica(oficinaCodi.substring(indexBarra + 1));
+					}
+				}
+				if (registreSortida.getDadesOficina().getOrganCodi() != null)
+					registroSalida.setremitent(
+							registreSortida.getDadesOficina().getOrganCodi());
 			}
-			if (dadesRegistre.getDestinatari().getNomEntitat() != null)
-				registroSalida.setaltres(dadesRegistre.getDestinatari().getNomEntitat());
-			if (dadesRegistre.getDestinatari().getCodiGeografic() != null)
-				registroSalida.setbalears(dadesRegistre.getDestinatari().getCodiGeografic());
-			if (dadesRegistre.getDestinatari().getNomGeografic() != null)
-				registroSalida.setfora(dadesRegistre.getDestinatari().getNomGeografic());
-			if (dadesRegistre.getDestinatari().getNumeroRegistre() != null)
-				registroSalida.setentrada1(dadesRegistre.getDestinatari().getNumeroRegistre());
-			if (dadesRegistre.getDestinatari().getAnyRegistre() != null)
-				registroSalida.setentrada2(dadesRegistre.getDestinatari().getAnyRegistre());
-			if (dadesRegistre.getRemitent().getCodiEntitat() != null)
-				registroSalida.setremitent(dadesRegistre.getRemitent().getCodiEntitat());
-			registroSalida.setdata(dadesRegistre.getDocument().getData());
-			if (dadesRegistre.getDocument().getTipus() != null)
-				registroSalida.settipo(dadesRegistre.getDocument().getTipus());
-			registroSalida.setidioma(idioma2Str(dadesRegistre.getDocument().getIdiomaDocument()));
-			registroSalida.setidioex(idioma2Str(dadesRegistre.getDocument().getIdiomaExtracte()));
-			registroSalida.setcomentario(dadesRegistre.getDocument().getExtracte());
+			if (registreSortida.getDadesInteressat() != null) {
+				String entitatCodi = registreSortida.getDadesInteressat().getEntitatCodi();
+				if (entitatCodi != null) {
+					int indexBarra = entitatCodi.indexOf(SEPARADOR_ENTITAT);
+					if (indexBarra != -1) {
+						registroSalida.setentidad1(entitatCodi.substring(0, indexBarra));
+						registroSalida.setentidad2(entitatCodi.substring(indexBarra + 1));
+					}
+				}
+				if (registreSortida.getDadesInteressat().getNomAmbCognoms() != null)
+					registroSalida.setaltres(
+							registreSortida.getDadesInteressat().getNomAmbCognoms());
+				if (registreSortida.getDadesInteressat().getMunicipiCodi() != null)
+					registroSalida.setbalears(
+							registreSortida.getDadesInteressat().getMunicipiCodi());
+				if (registreSortida.getDadesInteressat().getMunicipiNom() != null)
+					registroSalida.setfora(
+							registreSortida.getDadesInteressat().getMunicipiNom());
+				
+			}
+			if (registreSortida.getDadesAssumpte() != null) {
+				if (registreSortida.getDadesAssumpte().getTipus() != null)
+					registroSalida.settipo(
+							registreSortida.getDadesAssumpte().getTipus());
+				if (registreSortida.getDadesAssumpte().getIdiomaCodi() != null)
+					registroSalida.setidioex(
+							convertirIdioma(registreSortida.getDadesAssumpte().getIdiomaCodi()));
+				if (registreSortida.getDadesAssumpte().getAssumpte() != null)
+					registroSalida.setcomentario(
+							registreSortida.getDadesAssumpte().getAssumpte());
+			}
+			if (registreSortida.getDocuments() != null && registreSortida.getDocuments().size() > 0) {
+				if (registreSortida.getDocuments().size() == 1) {
+					DocumentRegistre document = registreSortida.getDocuments().get(0);
+					registroSalida.setdata(
+							new SimpleDateFormat("dd/MM/yyyy").format(document.getData()));
+					registroSalida.setidioma(
+							convertirIdioma(document.getIdiomaCodi()));
+				} else {
+					throw new RegistrePluginException("Nomes es pot registrar un document alhora");
+				}
+			} else {
+				throw new RegistrePluginException("S'ha d'especificar algun document per registrar");
+			}
 			if (registroSalida.validar()) {
 				registroSalida.grabar();
+				RespostaAnotacioRegistre resposta = new RespostaAnotacioRegistre();
 				if (registroSalida.getGrabado()) {
-					return new String[] {registroSalida.getNumeroSalida(), registroSalida.getAnoSalida()};
+					resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_OK);
+					resposta.setNumero(
+							registroSalida.getNumeroSalida() +
+							SEPARADOR_NUMERO +
+							registroSalida.getAnoSalida());
+					resposta.setData(ara);
+					return resposta;
 				} else {
 					throw new RegistrePluginException("No s'ha pogut guardar la sortida");
 				}
@@ -169,66 +266,76 @@ public class RegistrePluginRegwebCaib implements RegistrePlugin {
 				sb.append("Errors de validació:\n");
 				Map<String, String> errors = registroSalida.getErrores();
 				for (String camp: errors.keySet()) {
-					sb.append("  " + errors.get(camp));
+					sb.append(" | " + errors.get(camp));
 				}
-				throw new RegistrePluginException(sb.toString());
+				throw new RegistrePluginException("S'han produit errors de validació de l'entrada: " + sb.toString());
 			}
 		} catch (Exception ex) {
-			throw new RegistrePluginException("Error creant registre de sortida", ex);
+			logger.error("Error al registrar la sortida", ex);
+			throw new RegistrePluginException("Error al registrar la sortida", ex);
 		}
 	}
 
-	public SeientRegistral consultarSortida(
-			String oficina,
-			String numero,
-			String any) throws RegistrePluginException {
+	public RespostaConsulta consultarSortida(
+			String organCodi,
+			String oficinaCodi,
+			String registreNumero) throws RegistrePluginException {
 		try {
 			RegistroSalida registroSalida = getRegistreSortidaService();
 			registroSalida.fijaUsuario(GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal"));
-			registroSalida.setoficina(oficina);
-			registroSalida.setNumeroSalida(numero);
-			registroSalida.setAnoSalida(any);
+			registroSalida.setoficina(organCodi);
+			registroSalida.setoficinafisica(oficinaCodi);
+			int index = registreNumero.indexOf(SEPARADOR_NUMERO);
+			if (index == -1)
+				throw new RegistrePluginException("El número de registre a consultar (" + registreNumero + ") no té el format correcte");
+			registroSalida.setNumeroSalida(registreNumero.substring(0, index));
+			registroSalida.setAnoSalida(registreNumero.substring(index + 1));
 			registroSalida.leer();
 			if (registroSalida.getLeido()) {
-				SeientRegistral resposta = new SeientRegistral();
-				resposta.setData(registroSalida.getDataSalida());
-				resposta.setHora(registroSalida.getHora());
-				resposta.setOficina(registroSalida.getOficina());
-				resposta.setOficinaFisica(registroSalida.getOficinafisica());
-				RegistreFont destinatari = new RegistreFont();
+				RespostaConsulta resposta = new RespostaConsulta();
+				resposta.setRegistreNumero(registreNumero);
+				resposta.setRegistreData(new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(registroSalida.getDataSalida() + " " + registroSalida.getHora()));
+				DadesOficina dadesOficina = new DadesOficina();
+				dadesOficina.setOrganCodi(registroSalida.getRemitent());
+				dadesOficina.setOficinaCodi(registroSalida.getOficina() + SEPARADOR_ENTITAT + registroSalida.getOficinafisica());
+				resposta.setDadesOficina(dadesOficina);
+				DadesInteressat dadesInteressat = new DadesInteressat();
 				if (registroSalida.getEntidad1() != null && !"".equals(registroSalida.getEntidad1()))
-					destinatari.setCodiEntitat(registroSalida.getEntidad1() + "/" + registroSalida.getEntidad2());
-				destinatari.setNomEntitat(registroSalida.getAltres());
-				destinatari.setCodiGeografic(registroSalida.getBalears());
-				destinatari.setNomGeografic(registroSalida.getFora());
-				destinatari.setNumeroRegistre(registroSalida.getEntrada1());
-				destinatari.setAnyRegistre(registroSalida.getEntrada2());
-				resposta.setDestinatari(destinatari);
-				RegistreFont remitent = new RegistreFont();
-				remitent.setCodiEntitat(registroSalida.getRemitent());
-				resposta.setRemitent(remitent);
-				RegistreDocument document = new RegistreDocument();
-				document.setData(registroSalida.getData());
-				document.setTipus(registroSalida.getTipo());
-				document.setIdiomaDocument(str2Idioma(registroSalida.getIdioma()));
-				document.setIdiomaExtracte(str2Idioma(registroSalida.getIdioex()));
-				document.setExtracte(registroSalida.getComentario());
-				resposta.setDocument(document);
+					dadesInteressat.setEntitatCodi(
+							registroSalida.getEntidad1() + SEPARADOR_ENTITAT + registroSalida.getEntidad2());
+				dadesInteressat.setNomAmbCognoms(registroSalida.getAltres());
+				dadesInteressat.setMunicipiCodi(registroSalida.getBalears());
+				dadesInteressat.setMunicipiNom(registroSalida.getFora());
+				resposta.setDadesInteressat(dadesInteressat);
+				DadesAssumpte dadesAssumpte = new DadesAssumpte();
+				dadesAssumpte.setIdiomaCodi(registroSalida.getIdioex());
+				dadesAssumpte.setTipus(registroSalida.getTipo());
+				dadesAssumpte.setAssumpte(registroSalida.getComentario());
+				resposta.setDadesAssumpte(dadesAssumpte);
+				List<DocumentRegistre> documents = new ArrayList<DocumentRegistre>();
+				DocumentRegistre document = new DocumentRegistre();
+				document.setIdiomaCodi(registroSalida.getIdioma());
+				if (registroSalida.getData() != null)
+					document.setData(new SimpleDateFormat("dd/MM/yyyy").parse(registroSalida.getData()));
+				documents.add(document);
+				resposta.setDocuments(documents);
 				return resposta;
 			} else {
-				return null;
+				throw new RegistrePluginException("No s'ha trobat l'entrada " + registreNumero);
 			}
 		} catch (Exception ex) {
-			throw new RegistrePluginException("Error al consultar registre d'entrada", ex);
+			logger.error("Error al consultar la sortida", ex);
+			throw new RegistrePluginException("Error al consultar la sortida", ex);
 		}
 	}
 
-	public String getNomOficina(String codi) throws RegistrePluginException {
-		try {
-			return codi;
-		} catch (Exception ex) {
-			throw new RegistrePluginException("Error consultant el nom de l'oficina", ex);
-		}
+	public RespostaAnotacioRegistre registrarNotificacio(
+			RegistreNotificacio registreNotificacio) throws RegistrePluginException {
+		throw new RegistrePluginException("Mètode no implementat en aquest plugin");
+	}
+	public RespostaJustificantRecepcio obtenirJustificantRecepcio(
+			String numeroRegistre) throws RegistrePluginException {
+		throw new RegistrePluginException("Mètode no implementat en aquest plugin");
 	}
 
 
@@ -276,17 +383,31 @@ public class RegistrePluginRegwebCaib implements RegistrePlugin {
 		lc.login();
 	}
 
-	private String idioma2Str(IdiomaRegistre idioma) {
-		if (idioma.equals(IdiomaRegistre.CA))
+	private String convertirIdioma(String iso6391) {
+		if ("es".equalsIgnoreCase(iso6391)) {
 			return "1";
-		else
+		} else if ("ca".equalsIgnoreCase(iso6391)) {
 			return "2";
+		} else if ("eu".equalsIgnoreCase(iso6391)) {
+			return "4";
+		} else if ("gl".equalsIgnoreCase(iso6391)) {
+			return "5";
+		} else if ("as".equalsIgnoreCase(iso6391)) {
+			return "6";
+		} else if ("de".equalsIgnoreCase(iso6391)) {
+			return "C";
+		} else if ("en".equalsIgnoreCase(iso6391)) {
+			return "A";
+		} else if ("fr".equalsIgnoreCase(iso6391)) {
+			return "B";
+		} else if ("it".equalsIgnoreCase(iso6391)) {
+			return "E";
+		} else if ("pt".equalsIgnoreCase(iso6391)) {
+			return "F";
+		}
+		return "1";
 	}
-	private IdiomaRegistre str2Idioma(String str) {
-		if (str.equals("1"))
-			return IdiomaRegistre.CA;
-		else
-			return IdiomaRegistre.ES;
-	}
+
+	private static final Log logger = LogFactory.getLog(RegistrePluginRegwebCaib.class);
 
 }

@@ -16,11 +16,8 @@ public class DadesNotificarHandler implements ActionHandler {
 
 	public void execute(ExecutionContext executionContext) throws Exception {}
 
-	public void setUrl(String url) {
-	}
-	public void setCodi(String codi) {
-	}
-	public void setVars(String vars) {
-	}
+	public void setUrl(String url) {}
+	public void setCodi(String codi) {}
+	public void setVars(String vars) {}
 
 }

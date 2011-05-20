@@ -20,6 +20,7 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
@@ -31,6 +32,11 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
  */
 @Entity
 @Table(name="hel_alerta")
+@org.hibernate.annotations.Table(
+		appliesTo = "hel_alerta",
+		indexes = {
+				@Index(name = "hel_alerta_entorn_i", columnNames = {"entorn_id"}),
+				@Index(name = "hel_alerta_expedient_i", columnNames = {"expedient_id"})})
 public class Alerta implements Serializable, GenericEntity<Long> {
 
 	private Long id;
@@ -41,8 +47,6 @@ public class Alerta implements Serializable, GenericEntity<Long> {
 	@NotBlank
 	@MaxLength(1024)
 	private String text;
-	@MaxLength(255)
-	private String taskInstanceId;
 
 	private Date dataLectura;
 	private Date dataEliminacio;
@@ -51,6 +55,7 @@ public class Alerta implements Serializable, GenericEntity<Long> {
 	private Entorn entorn;
 	@NotNull
 	private Expedient expedient;
+	private TerminiIniciat terminiIniciat;
 
 
 
@@ -98,14 +103,6 @@ public class Alerta implements Serializable, GenericEntity<Long> {
 		this.text = text;
 	}
 
-	@Column(name="task_instance_id", length=255)
-	public String getTaskInstanceId() {
-		return taskInstanceId;
-	}
-	public void setTaskInstanceId(String taskInstanceId) {
-		this.taskInstanceId = taskInstanceId;
-	}
-
 	@Column(name="data_lectura", nullable=true)
 	@Temporal(TemporalType.TIMESTAMP)
 	public Date getDataLectura() {
@@ -144,6 +141,16 @@ public class Alerta implements Serializable, GenericEntity<Long> {
 		this.expedient = expedient;
 	}
 
+	@ManyToOne(optional=true)
+	@JoinColumn(name="termini_iniciat_id")
+	@ForeignKey(name="hel_termini_alerta_fk")
+	public TerminiIniciat getTerminiIniciat() {
+		return terminiIniciat;
+	}
+	public void setTerminiIniciat(TerminiIniciat terminiIniciat) {
+		this.terminiIniciat = terminiIniciat;
+	}
+
 	@Transient
 	public boolean isLlegida() {
 		return dataLectura != null;
@@ -166,8 +173,6 @@ public class Alerta implements Serializable, GenericEntity<Long> {
 		result = prime * result + ((entorn == null) ? 0 : entorn.hashCode());
 		result = prime * result
 				+ ((expedient == null) ? 0 : expedient.hashCode());
-		result = prime * result
-				+ ((taskInstanceId == null) ? 0 : taskInstanceId.hashCode());
 		result = prime * result + ((text == null) ? 0 : text.hashCode());
 		return result;
 	}
@@ -199,11 +204,6 @@ public class Alerta implements Serializable, GenericEntity<Long> {
 			if (other.expedient != null)
 				return false;
 		} else if (!expedient.equals(other.expedient))
-			return false;
-		if (taskInstanceId == null) {
-			if (other.taskInstanceId != null)
-				return false;
-		} else if (!taskInstanceId.equals(other.taskInstanceId))
 			return false;
 		if (text == null) {
 			if (other.text != null)

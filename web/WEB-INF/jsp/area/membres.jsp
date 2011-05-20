@@ -54,7 +54,7 @@ function confirmar(e) {
 				<c:param name="itemLabel" value="nomHomeDona"/>
 				<c:param name="itemValue" value="id"/>
 				<c:param name="itemBuit" value="<< Seleccioni un càrrec >>"/>
-				<c:param name="label">Definició de procés</c:param>
+				<c:param name="label">Càrrec</c:param>
 			</c:import>
 		</fieldset>
 		<c:import url="../common/formElement.jsp">

@@ -11,7 +11,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.conselldemallorca.helium.integracio.plugins.signatura.InfoSignatura;
+import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.model.exception.CustodiaPluginException;
 import net.conselldemallorca.helium.util.GlobalProperties;
 
@@ -65,6 +65,21 @@ public class CustodiaPluginFilesystem implements CustodiaPlugin {
 		}
 	}
 
+	public byte[] getSignaturesAmbArxiu(String id) throws CustodiaPluginException {
+		try {
+			File f = new File(getBaseDir() + ID_PREFIX + id);
+			if (f.exists()) {
+				FileInputStream fis = new FileInputStream(f);
+				ObjectInputStream inputFromApplet = new ObjectInputStream(fis);
+				return (byte[])inputFromApplet.readObject();
+			}
+			return null;
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut obtenir l'arxiu amb les signatures", ex);
+			throw new CustodiaPluginException("No s'ha pogut obtenir l'arxiu amb les signatures", ex);
+		}
+	}
+
 	public void deleteSignatures(String id) throws CustodiaPluginException {
 		try {
 			File f = new File(getBaseDir() + ID_PREFIX + id);
@@ -76,7 +91,7 @@ public class CustodiaPluginFilesystem implements CustodiaPlugin {
 		}
 	}
 
-	public List<InfoSignatura> infoSignatures(String id) throws CustodiaPluginException {
+	public List<RespostaValidacioSignatura> dadesValidacioSignatura(String id) throws CustodiaPluginException {
 		return null;
 	}
 

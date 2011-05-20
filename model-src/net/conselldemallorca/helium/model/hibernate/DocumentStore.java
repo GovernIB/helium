@@ -66,9 +66,9 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	private String referenciaFont;
 	@MaxLength(255)
 	private String registreNumero;
-	@MaxLength(255)
-	private String registreAny;
 	private Date registreData;
+	@MaxLength(255)
+	private String registreOrganCodi;
 	@MaxLength(255)
 	private String registreOficinaCodi;
 	@MaxLength(255)
@@ -210,14 +210,6 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 		this.registreNumero = registreNumero;
 	}
 
-	@Column(name="registre_any", length=255)
-	public String getRegistreAny() {
-		return registreAny;
-	}
-	public void setRegistreAny(String registreAny) {
-		this.registreAny = registreAny;
-	}
-
 	@Column(name="registre_data")
 	@Temporal(TemporalType.TIMESTAMP)
 	public Date getRegistreData() {
@@ -225,6 +217,14 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	}
 	public void setRegistreData(Date registreData) {
 		this.registreData = registreData;
+	}
+
+	@Column(name="registre_orgcodi", length=255)
+	public String getRegistreOrganCodi() {
+		return registreOrganCodi;
+	}
+	public void setRegistreOrganCodi(String registreOrganCodi) {
+		this.registreOrganCodi = registreOrganCodi;
 	}
 
 	@Column(name="registre_ofcodi", length=255)
@@ -275,9 +275,7 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	}
 	@Transient
 	public boolean isRegistrat() {
-		return (registreNumero != null)
-			|| (registreAny != null)
-			|| (registreData != null);
+		return (registreNumero != null) || (registreData != null);
 	}
 	@Transient
 	public boolean isRegistreSortida() {

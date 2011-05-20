@@ -7,8 +7,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,6 +19,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
@@ -24,6 +28,7 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
@@ -36,6 +41,9 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 @Entity
 @Table(	name="hel_termini_iniciat",
 		uniqueConstraints={@UniqueConstraint(columnNames={"termini_id", "process_instance_id"})})
+@org.hibernate.annotations.Table(
+		appliesTo = "hel_termini_iniciat",
+		indexes = @Index(name = "hel_terminic_termini_i", columnNames = {"termini_id"}))
 public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 
 	public enum TerminiIniciatEstat {
@@ -67,6 +75,8 @@ public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 
 	@NotNull
 	private Termini termini;
+
+	private Set<Alerta> alertes = new HashSet<Alerta>();
 
 
 
@@ -238,6 +248,20 @@ public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 	}
 	public void setTermini(Termini termini) {
 		this.termini = termini;
+	}
+
+	@OneToMany(mappedBy="terminiIniciat", cascade=CascadeType.REMOVE)
+	public Set<Alerta> getAlertes() {
+		return this.alertes;
+	}
+	public void setAlertes(Set<Alerta> alertes) {
+		this.alertes = alertes;
+	}
+	public void addAlerta(Alerta alerta) {
+		getAlertes().add(alerta);
+	}
+	public void removeAlerta(Alerta alerta) {
+		getAlertes().remove(alerta);
 	}
 
 	@Transient

@@ -13,6 +13,11 @@
 		<ul>
 			<c:if test="${globalProperties['app.persones.actiu']}">
 				<li class="image persones"><a href="<c:url value="/persona/consulta.html"/>">Persones</a></li>
+				<c:if test="${empty globalProperties['app.rols.actiu'] or not globalProperties['app.rols.actiu']}">
+					<li class="image rols"><a href="<c:url value="/rol/llistat.html"/>">Rols</a></li>
+				</c:if>
+			</c:if>
+			<c:if test="${globalProperties['app.rols.actiu']}">
 				<li class="image rols"><a href="<c:url value="/rol/llistat.html"/>">Rols</a></li>
 			</c:if>
 			<li class="image entorns"><a href="<c:url value="/entorn/llistat.html"/>">Entorns</a></li>

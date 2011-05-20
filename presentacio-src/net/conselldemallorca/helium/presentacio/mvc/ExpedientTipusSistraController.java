@@ -67,7 +67,9 @@ public class ExpedientTipusSistraController extends BaseController {
 				command.setCodiTramit(expedientTipus.getSistraTramitCodi());
 				command.setInfoMapeigCamps(expedientTipus.getSistraTramitMapeigCamps());
 				command.setInfoMapeigDocuments(expedientTipus.getSistraTramitMapeigDocuments());
+				command.setInfoMapeigAdjunts(expedientTipus.getSistraTramitMapeigAdjunts());
 				command.setActiu(true);
+				
 			} else {
 				command.setActiu(false);
 			}
@@ -122,10 +124,12 @@ public class ExpedientTipusSistraController extends BaseController {
 			        		expedientTipus.setSistraTramitCodi(command.getCodiTramit());
 			        		expedientTipus.setSistraTramitMapeigCamps(command.getInfoMapeigCamps());
 			        		expedientTipus.setSistraTramitMapeigDocuments(command.getInfoMapeigDocuments());
+			        		expedientTipus.setSistraTramitMapeigAdjunts(command.getInfoMapeigAdjunts());
 			        	} else {
 			        		expedientTipus.setSistraTramitCodi(null);
 			        		expedientTipus.setSistraTramitMapeigCamps(null);
 			        		expedientTipus.setSistraTramitMapeigDocuments(null);
+			        		expedientTipus.setSistraTramitMapeigAdjunts(null);
 			        	}
 		        		dissenyService.updateExpedientTipus(expedientTipus);
 			        	missatgeInfo(request, "La informació s'ha guardat correctament");
@@ -167,6 +171,15 @@ public class ExpedientTipusSistraController extends BaseController {
 						if (repetits.get(0).getId().longValue() != command.getExpedientTipusId().longValue())
 							errors.rejectValue("codiTramit", "error.expedienttipus.sistra.repetit");
 					}
+				}
+				if (command.getInfoMapeigCamps() != null && command.getInfoMapeigCamps().length() > 2048) {
+					errors.rejectValue("infoMapeigCamps", "max.length");
+				}
+				if (command.getInfoMapeigDocuments() != null && command.getInfoMapeigDocuments().length() > 2048) {
+					errors.rejectValue("infoMapeigDocuments", "max.length");
+				}
+				if (command.getInfoMapeigAdjunts() != null && command.getInfoMapeigAdjunts().length() > 2048) {
+					errors.rejectValue("infoMapeigAdjunts", "max.length");
 				}
 			}
 		}

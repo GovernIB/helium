@@ -40,7 +40,10 @@ public class ExpedientComentariModificarHandler extends AbstractHeliumActionHand
 						expedient.getResponsableCodi(),
 						expedient.getDataInici(),
 						c,
-						expedient.getEstat().getId());
+						expedient.getEstat().getId(),
+						expedient.getGeoPosX(),
+						expedient.getGeoPosY(),
+						expedient.getGeoReferencia());
 			} else {
 				throw new JbpmException("No s'ha trobat l'expedient per canviar el comentari");
 			}

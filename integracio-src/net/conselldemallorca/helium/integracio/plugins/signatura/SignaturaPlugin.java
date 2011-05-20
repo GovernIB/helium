@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.integracio.plugins.signatura;
 
 
+
 /**
  * Interfície per accedir a la funcionalitat de signatura digital en
  * servidor.
@@ -12,10 +13,9 @@ package net.conselldemallorca.helium.integracio.plugins.signatura;
  */
 public interface SignaturaPlugin {
 
-	public InfoSignatura verificarSignatura(
+	public RespostaValidacioSignatura verificarSignatura(
 			byte[] document,
-			byte[] signatura) throws SignaturaPluginException;
-
-	public boolean isVerificacioAmbId();
+			byte[] signatura,
+			boolean obtenirDadesCertificat) throws SignaturaPluginException;
 
 }

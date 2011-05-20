@@ -87,7 +87,9 @@ public class JbpmDao {
 		JbpmProcessDefinition resposta = null;
 		long pdid = new Long(jbpmId).longValue();
 		GetProcessDefinitionByIdCommand command = new GetProcessDefinitionByIdCommand(pdid);
-		resposta = new JbpmProcessDefinition((ProcessDefinition)commandService.execute(command));
+		ProcessDefinition processDefinition = (ProcessDefinition)commandService.execute(command);
+		if (processDefinition != null)
+			resposta = new JbpmProcessDefinition((ProcessDefinition)commandService.execute(command));
 		return resposta;
 	}
 
@@ -116,9 +118,11 @@ public class JbpmDao {
 		long pdid = new Long(jbpmId).longValue();
 		GetProcessDefinitionByIdCommand command = new GetProcessDefinitionByIdCommand(pdid);
 		ProcessDefinition processDefinition = (ProcessDefinition)commandService.execute(command);
-		org.jbpm.taskmgmt.def.Task startTask = processDefinition.getTaskMgmtDefinition().getStartTask();
-		if (startTask != null)
-			resposta = startTask.getName();
+		if (processDefinition != null) {
+			org.jbpm.taskmgmt.def.Task startTask = processDefinition.getTaskMgmtDefinition().getStartTask();
+			if (startTask != null)
+				resposta = startTask.getName();
+		}
 		return resposta;
 	}
 
@@ -153,11 +157,15 @@ public class JbpmDao {
 		long pdid = new Long(jbpmId).longValue();
 		GetProcessDefinitionByIdCommand command = new GetProcessDefinitionByIdCommand(pdid);
 		ProcessDefinition processDefinition = (ProcessDefinition)commandService.execute(command);
-		FileDefinition fd = processDefinition.getFileDefinition();
-		if (fd != null)
-			resources = fd.getBytesMap().keySet();
-		else
+		if (processDefinition != null) {
+			FileDefinition fd = processDefinition.getFileDefinition();
+			if (fd != null)
+				resources = fd.getBytesMap().keySet();
+			else
+				resources = new HashSet<String>();
+		} else {
 			resources = new HashSet<String>();
+		}
 		return resources;
 	}
 
@@ -170,7 +178,7 @@ public class JbpmDao {
 		return bytes;
 	}
 
-	public JbpmProcessInstance startProcessInstanceByKey(
+	/*public JbpmProcessInstance startProcessInstanceByKey(
 			String actorId,
 			String processDefinitionKey,
 			Map<String, Object> variables,
@@ -186,24 +194,29 @@ public class JbpmDao {
 		ProcessInstance processInstance = (ProcessInstance)commandService.execute(command);
 		resultat = new JbpmProcessInstance(processInstance);
 		return resultat;
-	}
+	}*/
 	public JbpmProcessInstance startProcessInstanceById(
 			String actorId,
 			String processDefinitionId,
-			Map<String, Object> variables,
-			String transitionName) {
+			Map<String, Object> variables) {
 		JbpmProcessInstance resultat = null;
 		StartProcessInstanceCommand command = new StartProcessInstanceCommand();
 		command.setProcessDefinitionId(new Long(processDefinitionId).longValue());
 		command.setActorId(actorId);
 		if (variables != null)
 			command.setVariables(variables);
-		if (transitionName != null)
-			command.setStartTransitionName(transitionName);
 		ProcessInstance processInstance = (ProcessInstance)commandService.execute(command);
 		resultat = new JbpmProcessInstance(processInstance);
-		
 		return resultat;
+	}
+	public void signalProcessInstance(
+			String processInstanceId,
+			String transitionName) {
+		SignalProcessInstanceCommand command = new SignalProcessInstanceCommand();
+		command.setId(new Long(processInstanceId).longValue());
+		if (transitionName != null)
+			command.setStartTransitionName(transitionName);
+		commandService.execute(command);
 	}
 	public JbpmProcessInstance getRootProcessInstance(
 			String processInstanceId) {
@@ -454,6 +467,18 @@ public class JbpmDao {
 		long id = new Long(taskId).longValue();
 		TaskInstanceEndCommand command = new TaskInstanceEndCommand(id, outcome);
 		commandService.execute(command);
+	}
+	public void renameTaskInstance(String taskId, String newName) {
+		long id = new Long(taskId).longValue();
+		GetTaskInstanceCommand command = new GetTaskInstanceCommand(id);
+		TaskInstance taskInstance = (TaskInstance)commandService.execute(command);
+		taskInstance.setName(newName);
+	}
+	public void describeTaskInstance(String taskId, String description) {
+		long id = new Long(taskId).longValue();
+		GetTaskInstanceCommand command = new GetTaskInstanceCommand(id);
+		TaskInstance taskInstance = (TaskInstance)commandService.execute(command);
+		taskInstance.setDescription(description);
 	}
 	public List<JbpmTask> findTaskInstancesForProcessInstance(String processInstanceId) {
 		List<JbpmTask> resultat = new ArrayList<JbpmTask>();

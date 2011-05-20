@@ -18,22 +18,12 @@ import com.artofsolving.jodconverter.openoffice.converter.StreamOpenOfficeDocume
  * @author Miquel Angel Amengual <miquelaa@limit.es>
  */
 public class ConvertirPDF {
-	
-	public static final String HEADER_PRAGMA = "Pragma";
-	public static final String HEADER_EXPIRES = "Expires";
-	public static final String HEADER_CACHE_CONTROL = "Cache-Control";
-	public static final String MODEL_ATTRIBUTE_DATA = "data";
-	public static final String MODEL_ATTRIBUTE_FILENAME = "fileName";
-	public static final String MODEL_ATTRIBUTE_CONVERSIONENABLED = "conversionEnabled";
-	public static final String MODEL_ATTRIBUTE_OUTEXTENSION = "outputExtension";
-	public static final String MODEL_ATTRIBUTE_ESTAMPA = "estampa";
-	public static final String MODEL_ATTRIBUTE_ESTAMPA_POSX = "estampaX";
-	public static final String MODEL_ATTRIBUTE_ESTAMPA_POSY = "estampaY";
-	public static final String MODEL_ATTRIBUTE_ESTAMPA_ROTATION = "estampaRotation";
 
 	private DocumentConverter documentConverter;
 	private DocumentFormatRegistry documentFormatRegistry;
-	
+
+
+
 	public byte[] render(byte[] contingut, String nom) throws Exception {
 		Boolean conversionEnabled = "true".equalsIgnoreCase((String)GlobalProperties.getInstance().get("app.conversio.portasignatures.actiu"));
 		boolean conversion = (conversionEnabled == null) ? getPropertyEnabled() : conversionEnabled.booleanValue();
@@ -65,25 +55,26 @@ public class ConvertirPDF {
 				}
 			}
 		}
-		
 		return outputStream.toByteArray();
 	}
-	
+
 	public String getArxiuMimeType(String nomArxiu) {
 		DocumentFormat format = formatPerNomArxiu(nomArxiu);
 		return format.getMimeType();
 	}
-	
+
+
+
 	private DocumentConverter getDocumentConverter() {
 		initOpenOfficeConnection();
 		return documentConverter;
 	}
-	
+
 	private DocumentFormatRegistry getDocumentFormatRegistry() {
 		initOpenOfficeConnection();
 		return documentFormatRegistry;
 	}
-	
+
 	private void initOpenOfficeConnection() {
 		if (documentFormatRegistry == null)
 			documentFormatRegistry = new DefaultDocumentFormatRegistry();
@@ -95,7 +86,7 @@ public class ConvertirPDF {
 					documentFormatRegistry);
 		}
 	}
-	
+
 	private DocumentFormat formatPerNomArxiu(String fileName) {
 		int indexPunt = fileName.lastIndexOf(".");
 		if (indexPunt != -1) {
@@ -104,7 +95,7 @@ public class ConvertirPDF {
 		}
 		return null;
 	}
-	
+
 	@SuppressWarnings("unused")
 	private String nomArxiuConvertit(String fileName, DocumentFormat format) {
 		int indexPunt = fileName.lastIndexOf(".");
@@ -115,7 +106,7 @@ public class ConvertirPDF {
 			return fileName + "." + format.getFileExtension();
 		}
 	}
-	
+
 	private void convert(
 			InputStream in,
 			DocumentFormat inputFormat,
@@ -127,9 +118,9 @@ public class ConvertirPDF {
 				out,
 				outputFormat);
 	}
-	
+
 	private boolean getPropertyEnabled() {
-		return "true".equals(GlobalProperties.getInstance().getProperty("app.conversio.actiu"));
+		return "true".equals(GlobalProperties.getInstance().getProperty("app.conversio.portasignatures.actiu"));
 	}
 	private String getPropertyHost() {
 		return GlobalProperties.getInstance().getProperty("app.conversio.openoffice.host");
@@ -140,4 +131,5 @@ public class ConvertirPDF {
 	private String getPropertyOutputExtension() {
 		return GlobalProperties.getInstance().getProperty("app.conversio.portasignatures.extension");
 	}
+
 }

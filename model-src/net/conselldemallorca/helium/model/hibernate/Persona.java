@@ -18,6 +18,7 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.Email;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.InThePast;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
@@ -30,6 +31,9 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank
  */
 @Entity
 @Table(name="hel_persona")
+@org.hibernate.annotations.Table(
+		appliesTo = "hel_persona",
+		indexes = @Index(name = "hel_persona_relleu_i", columnNames = {"relleu_id"}))
 public class Persona implements Serializable, GenericEntity<Long> {
 
 	public enum Sexe {

@@ -23,6 +23,10 @@ public class CarrecDao extends HibernateGenericDao<Carrec, Long> {
 		super(Carrec.class);
 	}
 
+	public List<Carrec> findAmbEntorn(Long entornId) {
+		return findByCriteria(
+				Restrictions.eq("entorn", (Entorn)getSession().get(Entorn.class, entornId)));
+	}
 	public List<Carrec> findPagedAndOrderedAmbEntorn(
 			Long entornId,
 			String sort,

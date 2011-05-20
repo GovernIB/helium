@@ -35,10 +35,11 @@ import org.jbpm.identity.Group;
 import org.jbpm.identity.Membership;
 import org.jbpm.identity.User;
 import org.jbpm.identity.hibernate.IdentitySession;
-import org.jbpm.security.SecurityHelper;
 import org.jbpm.taskmgmt.def.AssignmentHandler;
 import org.jbpm.taskmgmt.exe.Assignable;
 import org.jbpm.taskmgmt.exe.SwimlaneInstance;
+import org.springframework.security.Authentication;
+import org.springframework.security.context.SecurityContextHolder;
 
 /**
  * implements an expression language for assigning actors to tasks based 
@@ -135,8 +136,10 @@ protected ExpressionSession getExpressionSession() {
     log.debug("resolving first term '"+term+"'");
     
     if (term.equalsIgnoreCase("previous")) {
-    String userName = SecurityHelper.getAuthenticatedActorId();
-    entity = getUserByName(userName);
+    	//String userName = SecurityHelper.getAuthenticatedActorId();
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String userName = auth.getName();
+		entity = getUserByName(userName);
     
     } else if ( (term.startsWith("swimlane("))
          && (term.endsWith(")")) ) {

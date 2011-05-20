@@ -63,9 +63,9 @@ public class DefinicioProcesAccioController extends BaseController {
 			@RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId,
 			@RequestParam(value = "definicioProces", required = false) Long definicioProces) {
 		if (definicioProcesId != null)
-			return dissenyService.findAccionsJbpm(definicioProcesId);
+			return dissenyService.findAccionsJbpmOrdenades(definicioProcesId);
 		if (definicioProces != null)
-			return dissenyService.findAccionsJbpm(definicioProces);
+			return dissenyService.findAccionsJbpmOrdenades(definicioProces);
 		return null;
 	}
 

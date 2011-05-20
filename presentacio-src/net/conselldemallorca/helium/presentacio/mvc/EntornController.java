@@ -3,9 +3,15 @@
  */
 package net.conselldemallorca.helium.presentacio.mvc;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.model.exportacio.EntornExportacio;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
 import net.conselldemallorca.helium.model.service.EntornService;
 import net.conselldemallorca.helium.presentacio.mvc.util.BaseController;
@@ -23,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.multipart.MultipartFile;
 
 
 
@@ -45,6 +52,11 @@ public class EntornController extends BaseController {
 			EntornService entornService) {
 		this.entornService = entornService;
 		additionalValidator = new EntornValidator(entornService);
+	}
+
+	@ModelAttribute("commandImportacio")
+	public ImportCommand populateCommandImportacio() {
+		return new ImportCommand();
 	}
 
 	@ModelAttribute("command")
@@ -142,6 +154,53 @@ public class EntornController extends BaseController {
 		return "redirect:/entorn/llistat.html";
 	}
 
+	@RequestMapping(value = "/entorn/exportar")
+	public String exportar(
+			HttpServletRequest request,
+			ModelMap model,
+			@RequestParam(value = "id", required = true) Long entornId) {
+		Entorn entorn = entornService.getById(entornId);
+		String filename = "entorn_" + entorn.getCodi() + ".exp";
+		model.addAttribute("filename", filename);
+		model.addAttribute("data", entornService.exportar(entornId));
+		return "serialitzarView";
+	}
+
+	@RequestMapping(value = "/entorn/importar")
+	public String importar(
+			HttpServletRequest request,
+			ModelMap model,
+			@RequestParam(value = "id", required = true) Long entornId,
+			@RequestParam("arxiu") final MultipartFile multipartFile) {
+		try {
+			if (multipartFile.getBytes() == null || multipartFile.getBytes().length == 0) {
+				missatgeError(request, "No s'ha especificat l'arxiu a importar");
+				return "redirect:/entorn/form.html?id=" + entornId;
+			}
+			InputStream is = new ByteArrayInputStream(multipartFile.getBytes());
+	    	ObjectInputStream input = new ObjectInputStream(is);
+	    	Object deserialitzat = input.readObject();
+	    	if (deserialitzat instanceof EntornExportacio) {
+	    		EntornExportacio exportacio = (EntornExportacio)deserialitzat;
+	    		entornService.importar(entornId, exportacio);
+	    		missatgeInfo(request, "Les dades de l'entorn s'han importat correctament");
+	        	return "redirect:/entorn/llistat.html";
+	    	} else {
+	    		missatgeError(request, "Aquest arxiu no és un arxiu d'exportació vàlid");
+	    	}
+		} catch (IOException ex) {
+			logger.error("Error llegint l'arxiu a importar", ex);
+			missatgeError(request, "Error llegint l'arxiu a importar: " + ex.getMessage());
+		} catch (ClassNotFoundException ex) {
+			logger.error("Error llegint l'arxiu a importar", ex);
+			missatgeError(request, "Error llegint l'arxiu a importar: " + ex.getMessage());
+		} catch (Exception ex) {
+			logger.error("Error en la importació de dades", ex);
+			missatgeError(request, "Error en la importació de dades: " + ex.getMessage());
+		}
+		return "redirect:/entorn/form.html?id=" + entornId;
+	}
+
 
 
 	@Resource(name = "annotationValidator")
@@ -178,6 +237,23 @@ public class EntornController extends BaseController {
 			HttpServletRequest request,
 			ModelMap model) {
 		model.addAttribute("isAdmin", isAdmin(request));
+	}
+
+	public class ImportCommand {
+		private Long id;
+		private byte[] arxiu;
+		public Long getId() {
+			return id;
+		}
+		public void setId(Long id) {
+			this.id = id;
+		}
+		public byte[] getArxiu() {
+			return arxiu;
+		}
+		public void setArxiu(byte[] arxiu) {
+			this.arxiu = arxiu;
+		}
 	}
 
 	private static final Log logger = LogFactory.getLog(EntornController.class);

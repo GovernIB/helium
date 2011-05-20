@@ -1,0 +1,86 @@
+/**
+ * 
+ */
+package net.conselldemallorca.helium.presentacio.mvc;
+
+import javax.servlet.http.HttpServletRequest;
+
+import net.conselldemallorca.helium.model.dto.ArxiuDto;
+import net.conselldemallorca.helium.model.hibernate.Entorn;
+import net.conselldemallorca.helium.model.service.DocumentService;
+import net.conselldemallorca.helium.presentacio.mvc.util.BaseController;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+
+/**
+ * Controlador per a la descàrrega d'arxius
+ * 
+ * @author Josep Gayà <josepg@limit.es>
+ */
+@Controller
+@RequestMapping("/document/*.html")
+public class DocumentArxiuController extends BaseController {
+
+	private DocumentService documentService;
+
+
+
+	@Autowired
+	public DocumentArxiuController(
+			DocumentService documentService) {
+		this.documentService  = documentService;
+	}
+
+	@RequestMapping(value = "/document/arxiuMostrar")
+	public String arxiuMostrar(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = false) Long id,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			ArxiuDto arxiu = documentService.arxiuDocumentPerMostrar(id);
+			if (arxiu != null) {
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
+			}
+			return "arxiuView";
+		} else {
+			missatgeError(request, "No hi ha cap entorn seleccionat");
+			return "redirect:/index.html";
+		}
+	}
+
+	@RequestMapping(value = "/document/arxiuPerSignar")
+	public String arxiuPerSignar(
+			HttpServletRequest request,
+			@RequestParam(value = "token", required = false) String token,
+			@RequestParam(value = "noe", required = false) Boolean noe,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			boolean estampar = (noe != null) ? !noe.booleanValue() : true;
+			ArxiuDto arxiu = documentService.arxiuDocumentPerSignar(token, estampar);
+			if (arxiu != null) {
+				/*try {
+					FileOutputStream fosB64 = new FileOutputStream("c:/original_" + System.currentTimeMillis());
+					fosB64.write(arxiu.getContingut());
+					fosB64.close();
+				} catch(Exception ex) {
+					logger.error("Error al guardar arxiu", ex);
+			    }*/
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
+			}
+			return "arxiuView";
+		} else {
+			missatgeError(request, "No hi ha cap entorn seleccionat");
+			return "redirect:/index.html";
+		}
+	}
+
+}

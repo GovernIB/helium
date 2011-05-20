@@ -14,13 +14,9 @@ import org.jbpm.graph.exe.ExecutionContext;
 @SuppressWarnings("serial")
 public class ProcesTitolModificarHandler implements ActionHandler {
 
-	public void execute(ExecutionContext executionContext) throws Exception {
+	public void execute(ExecutionContext executionContext) throws Exception {}
 
-	}
-
-	public void setTitol(String titol) {
-	}
-	public void setVarTitol(String varTitol) {
-	}
+	public void setTitol(String titol) {}
+	public void setVarTitol(String varTitol) {}
 
 }

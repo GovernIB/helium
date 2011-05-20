@@ -24,6 +24,7 @@ public class TerminiIniciarHandler extends AbstractHeliumActionHandler {
 	private String varData;
 	private String sumarUnDia;
 	private String varTermini;
+	private String esDataFi;
 
 
 
@@ -37,33 +38,20 @@ public class TerminiIniciarHandler extends AbstractHeliumActionHandler {
 				if (valorTermini == null)
 					throw new JbpmException("No s'ha pogut llegir el termini de la variable '" + varTermini + "'");
 				net.conselldemallorca.helium.jbpm3.integracio.Termini vt = (net.conselldemallorca.helium.jbpm3.integracio.Termini)valorTermini;
-				if (varData != null)
-					getTerminiService().iniciar(
-							termini.getId(),
-							getProcessInstanceId(executionContext),
-							getDataVariable(executionContext),
-							vt.getAnys(),
-							vt.getMesos(),
-							vt.getDies());
-				else
-					getTerminiService().iniciar(
-							termini.getId(),
-							getProcessInstanceId(executionContext),
-							new Date(),
-							vt.getAnys(),
-							vt.getMesos(),
-							vt.getDies());
+				getTerminiService().iniciar(
+						termini.getId(),
+						getProcessInstanceId(executionContext),
+						getDataVariable(executionContext),
+						vt.getAnys(),
+						vt.getMesos(),
+						vt.getDies(),
+						esDataFi());
 			} else {
-				if (varData != null)
-					getTerminiService().iniciar(
-							termini.getId(),
-							getProcessInstanceId(executionContext),
-							getDataVariable(executionContext));
-				else
-					getTerminiService().iniciar(
-							termini.getId(),
-							getProcessInstanceId(executionContext),
-							new Date());
+				getTerminiService().iniciar(
+						termini.getId(),
+						getProcessInstanceId(executionContext),
+						getDataVariable(executionContext),
+						esDataFi());
 			}
 		} else {
 			throw new JbpmException("No existeix cap termini amb aquest codi '" + terminiCodi + "'");
@@ -85,9 +73,22 @@ public class TerminiIniciarHandler extends AbstractHeliumActionHandler {
 	public void setVarTermini(String varTermini) {
 		this.varTermini = varTermini;
 	}
+	public void setDesdeFi(String desdeFi) {
+		this.esDataFi = desdeFi;
+	}
+	public void setEsDataFi(String esDataFi) {
+		this.esDataFi = esDataFi;
+	}
+
+
 
 	private Date getDataVariable(ExecutionContext executionContext) {
-		Date data = getVariableComData(executionContext, varData);
+		Date data;
+		if (varData != null && varData.length() > 0) {
+			data = getVariableComData(executionContext, varData);
+		} else {
+			data = new Date();
+		}
 		if (sumarUnDia != null && sumarUnDia.length() > 0) {
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(data);
@@ -96,6 +97,10 @@ public class TerminiIniciarHandler extends AbstractHeliumActionHandler {
 		} else {
 			return data;
 		}
+	}
+
+	private boolean esDataFi() {
+		return (esDataFi != null && "true".equalsIgnoreCase(esDataFi));
 	}
 
 }

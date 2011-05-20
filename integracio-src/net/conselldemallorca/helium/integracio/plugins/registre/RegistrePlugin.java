@@ -16,51 +16,63 @@ public interface RegistrePlugin {
 	 * 
 	 * @param dadesRegistre
 	 * @return
+	 * @throws RegistrePluginException
 	 */
-	public String[] registrarEntrada(
-			SeientRegistral dadesRegistre) throws RegistrePluginException;
+	public RespostaAnotacioRegistre registrarEntrada(
+			RegistreEntrada registreEntrada) throws RegistrePluginException;
 
 	/**
-	 * Consulta les dades d'un registre d'entrada
+	 * Consulta un registre d'entrada
 	 * 
-	 * @param numero
-	 * @param any
+	 * @param numeroRegistre
 	 * @return
+	 * @throws RegistrePluginException
 	 */
-	public SeientRegistral consultarEntrada(
-			String oficina,
-			String numero,
-			String any) throws RegistrePluginException;
+	public RespostaConsulta consultarEntrada(
+			String organCodi,
+			String oficinaCodi,
+			String numeroRegistre) throws RegistrePluginException;
 
 	/**
 	 * Crea un registre de sortida
 	 * 
 	 * @param dadesRegistre
 	 * @return
+	 * @throws RegistrePluginException
 	 */
-	public String[] registrarSortida(
-			SeientRegistral dadesRegistre) throws RegistrePluginException;
+	public RespostaAnotacioRegistre registrarSortida(
+			RegistreSortida registreSortida) throws RegistrePluginException;
 
 	/**
-	 * Consulta les dades d'un registre de sortida
+	 * Consulta un registre de sortida
 	 * 
-	 * @param numero
-	 * @param any
-	 * @return
-	 */
-	public SeientRegistral consultarSortida(
-			String oficina,
-			String numero,
-			String any) throws RegistrePluginException;
-
-	/**
-	 * Retorna el nom d'una oficina donat el seu codi
-	 * 
-	 * @param codi
+	 * @param numeroRegistre
 	 * @return
 	 * @throws RegistrePluginException
 	 */
-	public String getNomOficina(
-			String codi) throws RegistrePluginException;
+	public RespostaConsulta consultarSortida(
+			String organCodi,
+			String oficinaCodi,
+			String numeroRegistre) throws RegistrePluginException;
+
+	/**
+	 * Crea una notificació telemàtica
+	 * 
+	 * @param dadesRegistre
+	 * @return
+	 * @throws RegistrePluginException
+	 */
+	public RespostaAnotacioRegistre registrarNotificacio(
+			RegistreNotificacio registreNotificacio) throws RegistrePluginException;
+
+	/**
+	 * Obté l'acus de rebut per a una notificació telemàtica
+	 * 
+	 * @param numeroRegistre
+	 * @return la data del justificant de recepció o null si encara no s'ha justificat
+	 * @throws RegistrePluginException
+	 */
+	public RespostaJustificantRecepcio obtenirJustificantRecepcio(
+			String numeroRegistre) throws RegistrePluginException;
 
 }

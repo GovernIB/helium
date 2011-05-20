@@ -40,25 +40,36 @@ function verificarSignatura(element) {
 	}).width(amplada - 30).height(alcada - 30);
 	return false;
 }
+function infoRegistre(docId) {
+	var amplada = 600;
+	var alcada = 200;
+	$('<div>' + $("#registre_" + docId).html() + '</div>').dialog({
+		title: "Informació de registre",
+		autoOpen: true,
+		modal: true,
+		width: parseInt(amplada),
+		height: parseInt(alcada)
+	}).width(amplada - 30).height(alcada - 30);
+	return false;
+}
 <c:if test="${globalProperties['app.signatura.tipus'] == 'afirma'}">
-var baseDownloadURL = "${globalProperties['app.base.url']}/signatura/aFirma/";
-var base = "${globalProperties['app.base.url']}/signatura/aFirma/";
+var baseDownloadURL = "../signatura/aFirma";
+var base = "../signatura/aFirma";
 var signatureAlgorithm = "${globalProperties['app.signatura.afirma.signature.algorithm']}";
 var signatureFormat = "${globalProperties['app.signatura.afirma.signature.format']}";
-var showErrors = "false";
+var showErrors = 'false';
 var certFilter = "${globalProperties['app.signatura.afirma.cert.filter']}";
 var installDirectory = "${globalProperties['app.signatura.afirma.install.directory']}";
 var oldVersionsAction = ${globalProperties['app.signatura.afirma.old.versions.action']};
+var showMozillaSmartCardWarning = 'false';
 var showExpiratedCertificates = "${globalProperties['app.signatura.afirma.show.expired.certificates']}";
 var defaultBuild = "${globalProperties['app.signatura.afirma.default.build']}";
 function signarAFirma(form, token) {
 	initialize();
 	configuraFirma();
-	clienteFirma.setFileUri("${globalProperties['app.base.url']}/signatura/descarregarAmbToken.html?token=" + escape(token));
+	clienteFirma.setFileUri("${globalProperties['app.base.url']}/document/arxiuPerSignar.html?token=" + escape(token));
 	firmar();
 	if (!clienteFirma.isError()) {
-		//alert(clienteFirma.getSignatureBase64Encoded());
-		//return false;
 		form.data.value = clienteFirma.getSignatureBase64Encoded();
 		return true;
 	} else {
@@ -76,7 +87,7 @@ function signarAFirma(form, token) {
 		<c:param name="tabActiu" value="firmes"/>
 	</c:import>
 
-	<c:if test="${globalProperties['app.signatura.tipus'] == 'afirma'}"><script type="text/javascript">cargarAppletFirma();</script></c:if>
+	<c:if test="${globalProperties['app.signatura.tipus'] == 'afirma'}"><script type="text/javascript">cargarAppletFirma(base + '/${globalProperties['app.signatura.afirma.default.build']}');</script></c:if>
 
 	<c:if test="${not tasca.documentsComplet}">
 		<div class="missatgesWarn">
@@ -104,7 +115,9 @@ function signarAFirma(form, token) {
 					<c:set var="tascaActual" value="${tasca}" scope="request"/>
 					<c:set var="documentActual" value="${tasca.varsDocumentsPerSignar[firma.document.codi]}" scope="request"/>
 					<c:set var="codiDocumentActual" value="${firma.document.codi}" scope="request"/>
-					<c:set var="tokenActual" value="${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignatura}" scope="request"/>
+					<c:if test="${not tasca.varsDocumentsPerSignar[firma.document.codi].signatEnTasca}">
+						<c:set var="tokenActual" value="${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignatura}" scope="request"/>
+					</c:if>
 					<c:import url="../common/iconesConsultaDocument.jsp"/>
 					<c:choose>
 						<c:when test="${tasca.varsDocumentsPerSignar[firma.document.codi].signatEnTasca}">
@@ -116,16 +129,16 @@ function signarAFirma(form, token) {
 								<c:when test="${globalProperties['app.signatura.tipus'] == 'caib'}">
 									<div>
 										<object classid="clsid:CAFEEFAC-0015-0000-FFFF-ABCDEFFEDCBA" width="294" height="110" align="baseline" codebase="http://java.sun.com/update/1.5.0/jinstall-1_5_0_12-windows-i586.cab" >
-											<param name="code" value="net.conselldemallorca.helium.integracio.plugins.signatura.SignaturaAppletCaib">
-											<param name="archive" value="../signatura/caib/signatura-applet-caib.jar,../signatura/caib/signaturaapi-3.0.3-SNAPSHOT.jar,../signatura/caib/swing-layout-1.0.3.jar">
+											<param name="code" value="net.conselldemallorca.helium.integracio.plugins.signatura.applet.SignaturaAppletCaib">
+											<param name="archive" value="../signatura/caib/signatura-applet-caib.jar,../signatura/caib/signaturacaib.core-3.1.0-api-unsigned.jar,../signatura/caib/swing-layout-1.0.3.jar">
 											<param name="baseUrl" value="${globalProperties['app.base.url']}"/>
 											<param name="token" value="${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignatura}"/>
 											<param name="signaturaParams" value="${tasca.varsDocumentsPerSignar[firma.document.codi].contentType}"/>
 											<PARAM NAME="MAYSCRIPT" VALUE="true">
 											<comment>
 												<embed width="294" height="110" align="baseline" 
-													code="net.conselldemallorca.helium.integracio.plugins.signatura.SignaturaAppletCaib"
-													archive="../signatura/caib/signatura-applet-caib.jar,../signatura/caib/signaturaapi-3.0.3-SNAPSHOT.jar,../signatura/caib/swing-layout-1.0.3.jar"
+													code="net.conselldemallorca.helium.integracio.plugins.signatura.applet.SignaturaAppletCaib"
+													archive="../signatura/caib/signatura-applet-caib.jar,../signatura/caib/signaturacaib.core-3.1.0-api-unsigned.jar,../signatura/caib/swing-layout-1.0.3.jar"
 													baseUrl="${globalProperties['app.base.url']}"
 													token="${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignatura}"
 													signaturaParams="${tasca.varsDocumentsPerSignar[firma.document.codi].contentType}"

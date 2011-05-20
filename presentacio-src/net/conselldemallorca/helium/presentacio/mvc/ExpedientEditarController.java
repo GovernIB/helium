@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.security.acls.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -129,7 +130,10 @@ public class ExpedientEditarController extends BaseController {
 								command.getResponsableCodi(),
 								command.getDataInici(),
 								command.getComentari(),
-								command.getEstatId());
+								command.getEstatId(),
+								command.getGeoPosX(),
+								command.getGeoPosY(),
+								command.getGeoReferencia());
 						missatgeInfo(request, "La informació s'ha modificat correctament");
 					} catch (Exception ex) {
 						missatgeError(request, "No s'han pogut modificar les dades de l'expedient", ex.getLocalizedMessage());
@@ -154,6 +158,9 @@ public class ExpedientEditarController extends BaseController {
 		binder.registerCustomEditor(
 				Date.class,
 				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
+		binder.registerCustomEditor(
+				Double.class,
+				new CustomNumberEditor(Double.class, true));
 	}
 
 	private class ExpedientEditarValidator implements Validator {
@@ -187,6 +194,9 @@ public class ExpedientEditarController extends BaseController {
 		command.setResponsableCodi(expedient.getResponsableCodi());
 		if (expedient.getEstat() != null)
 			command.setEstatId(expedient.getEstat().getId());
+		command.setGeoPosX(expedient.getGeoPosX());
+		command.setGeoPosY(expedient.getGeoPosY());
+		command.setGeoReferencia(expedient.getGeoReferencia());
 		return command;
 	}
 

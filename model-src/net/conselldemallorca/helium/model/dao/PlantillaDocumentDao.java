@@ -19,14 +19,18 @@ import net.conselldemallorca.helium.integracio.domini.FilaResultat;
 import net.conselldemallorca.helium.integracio.plugins.persones.Persona;
 import net.conselldemallorca.helium.integracio.plugins.persones.Persona.Sexe;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
+import net.conselldemallorca.helium.model.dto.DocumentDto;
 import net.conselldemallorca.helium.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.model.dto.TascaDto;
 import net.conselldemallorca.helium.model.hibernate.Area;
 import net.conselldemallorca.helium.model.hibernate.Carrec;
 import net.conselldemallorca.helium.model.hibernate.CarrecJbpmId;
 import net.conselldemallorca.helium.model.hibernate.Document;
+import net.conselldemallorca.helium.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.model.hibernate.Domini;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
+import net.conselldemallorca.helium.model.service.DtoConverter;
+import net.conselldemallorca.helium.model.service.TascaService;
 import net.conselldemallorca.helium.util.GlobalProperties;
 import net.conselldemallorca.helium.util.NombreEnCastella;
 import net.conselldemallorca.helium.util.NombreEnCatala;
@@ -66,6 +70,9 @@ public class PlantillaDocumentDao {
 	private AreaDao areaDao;
 	private JbpmDao jbpmDao;
 	private DominiDao dominiDao;
+	private DocumentStoreDao documentStoreDao;
+	private DtoConverter dtoConverter;
+
 
 
 	public byte[] generarDocumentAmbPlantilla(
@@ -131,9 +138,19 @@ public class PlantillaDocumentDao {
 	public void setJbpmDao(JbpmDao jbpmDao) {
 		this.jbpmDao = jbpmDao;
 	}
+	@Autowired
 	public void setDominiDao(DominiDao dominiDao) {
 		this.dominiDao = dominiDao;
 	}
+	@Autowired
+	public void setDocumentStoreDao(DocumentStoreDao documentStoreDao) {
+		this.documentStoreDao = documentStoreDao;
+	}
+	@Autowired
+	public void setDtoConverter(DtoConverter dtoConverter) {
+		this.dtoConverter = dtoConverter;
+	}
+
 
 
 	private void afegirContextAlModel(
@@ -419,23 +436,79 @@ public class PlantillaDocumentDao {
 												}
 											}
 										}
-										
-										List<FilaResultat> llistat = dominiDao.consultar(domini.getId(), arg1, parametres);
-										Object[] array = new Object[llistat.size()];
-										for (int i = 0; i < llistat.size(); i++) {
-											Object[] subArray = new Object[2];
-											subArray[0] = llistat.get(i).getColumnes().get(0).getValor();
-											subArray[1] = llistat.get(i).getColumnes().get(1).getValor();
-											array[i] = subArray;
+										List<FilaResultat> files = dominiDao.consultar(domini.getId(), arg1, parametres);
+										Object[] resultat = new Object[files.size()];
+										for (int i = 0; i < resultat.length; i++) {
+											Object[] columnes = new Object[files.get(i).getColumnes().size()];
+											for (int j = 0; j < columnes.length; j++) {
+												Object[] parella = new Object[2];
+												parella[0] = files.get(i).getColumnes().get(j).getCodi();
+												parella[1] = files.get(i).getColumnes().get(j).getValor();
+												columnes[j] = parella;
+											}
+											resultat[i] = columnes;
 										}
 										return new ArrayModel(
-												array,
+												resultat,
 												new DefaultObjectWrapper());
 									} catch (Exception e) {
 										throw new TemplateModelException(e);
 									}
 								}
 							}
+						}
+						return new SimpleScalar("[Arguments incorrectes]");
+					}
+				});
+		model.put(
+				"documentInfo",
+				new TemplateMethodModel() {
+					public TemplateModel exec(List args) throws TemplateModelException {
+						if (args.size() >= 1) {
+							Object arg0 = args.get(0);
+							if ((arg0 != null) && (arg0 instanceof String)) {
+								String codi = (String)arg0;
+								List<DocumentStore> documents = documentStoreDao.findAmbProcessInstanceId(processInstanceId);
+								DocumentDto resposta = null;
+								for (int i = 0; i < documents.size(); i++) {
+									if (documents.get(i).getJbpmVariable().equals(TascaService.PREFIX_DOCUMENT + codi))
+										resposta = dtoConverter.toDocumentDto(
+											documents.get(i).getId(),
+											false,
+											false,
+											false);
+								}
+								return new BeanModel(
+										resposta,
+										new DefaultObjectWrapper());
+							}
+						}
+						return new SimpleScalar("[Arguments incorrectes]");
+					}
+				});
+		model.put(
+				"documentsProces",
+				new TemplateMethodModel() {
+					public TemplateModel exec(List args) throws TemplateModelException {
+						if (args.size() <= 1) {
+							String pid = processInstanceId;
+							if (args.size() == 1) {
+								Object arg0 = args.get(0);
+								if (arg0 != null && arg0 instanceof String)
+									pid = (String)arg0;
+							}
+							List<DocumentStore> documents = documentStoreDao.findAmbProcessInstanceId(pid);
+							DocumentDto[] resposta = new DocumentDto[documents.size()];
+							for (int i = 0; i < resposta.length; i++) {
+								resposta[i] = dtoConverter.toDocumentDto(
+										documents.get(i).getId(),
+										false,
+										false,
+										false);
+							}
+							return new ArrayModel(
+									resposta,
+									new DefaultObjectWrapper());
 						}
 						return new SimpleScalar("[Arguments incorrectes]");
 					}

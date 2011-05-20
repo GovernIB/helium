@@ -3,7 +3,6 @@ package net.conselldemallorca.helium.jbpm3.handlers;
 import java.util.Date;
 
 import net.conselldemallorca.helium.integracio.plugins.persones.Persona;
-import net.conselldemallorca.helium.model.dto.DocumentDto;
 import net.conselldemallorca.helium.model.service.TascaService;
 
 import org.apache.commons.logging.Log;
@@ -31,7 +30,7 @@ public class PortasignaturesHandler extends AbstractHeliumActionHandler {
 	private String transicioOK;
 	private String varTransicioKO;
 	private String transicioKO;
-	
+
 	public void execute(ExecutionContext executionContext) throws Exception {
 		try {
 			Boolean personaCodi = getValorOVariable(executionContext, responsableCodi, varResponsableCodi) != null;
@@ -44,19 +43,18 @@ public class PortasignaturesHandler extends AbstractHeliumActionHandler {
 			}
 			
 			Boolean documentCodi = getValorOVariable(executionContext, document, varDocument) != null;
-			DocumentDto documentDto = null;
+			Long documentStoreId = null;
 			if (documentCodi) {
 				String varCodi = TascaService.PREFIX_DOCUMENT +
 						(String)getValorOVariable(executionContext, document, varDocument);
-				Long documentStoreId = (Long)executionContext.getVariable(varCodi);
-				documentDto = getExpedientService().getDocument(documentStoreId);
+				documentStoreId = (Long)executionContext.getVariable(varCodi);
 			} else {
 				throw new JbpmException("No s'ha pogut trobar el document '" + getValorOVariable(executionContext, document, varDocument) + "'.");
 			}
 
 			getPluginService().enviarPortasignatures(
 					persona,
-					documentDto,
+					documentStoreId,
 					this.getExpedient(executionContext),
 					(String)getValorOVariable(executionContext, importancia, varImportancia),
 					(Date)getValorOVariable(executionContext, dataLimit, varDataLimit),
@@ -105,6 +103,7 @@ public class PortasignaturesHandler extends AbstractHeliumActionHandler {
 	public void setTransicioKO(String transicioKO) {
 		this.transicioKO = transicioKO;
 	}
-	
+
 	private static final Log logger = LogFactory.getLog(PortasignaturesHandler.class);
+
 }

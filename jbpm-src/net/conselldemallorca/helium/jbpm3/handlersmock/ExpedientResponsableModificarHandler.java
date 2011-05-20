@@ -14,12 +14,9 @@ import org.jbpm.graph.exe.ExecutionContext;
 @SuppressWarnings("serial")
 public class ExpedientResponsableModificarHandler implements ActionHandler {
 
-	public void execute(ExecutionContext executionContext) throws Exception {
-	}
+	public void execute(ExecutionContext executionContext) throws Exception {}
 
-	public void setResponsableCodi(String responsableCodi) {
-	}
-	public void setVarResponsableCodi(String varResponsableCodi) {
-	}
+	public void setResponsableCodi(String responsableCodi) {}
+	public void setVarResponsableCodi(String varResponsableCodi) {}
 
 }

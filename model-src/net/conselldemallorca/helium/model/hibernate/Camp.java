@@ -29,6 +29,7 @@ import javax.persistence.UniqueConstraint;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
@@ -41,6 +42,13 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 @Entity
 @Table(	name="hel_camp",
 		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "definicio_proces_id"})})
+@org.hibernate.annotations.Table(
+		appliesTo = "hel_camp",
+		indexes = {
+				@Index(name = "hel_camp_defproc_i", columnNames = {"definicio_proces_id"}),
+				@Index(name = "hel_camp_agrup_i", columnNames = {"camp_agrupacio_id"}),
+				@Index(name = "hel_camp_domini_i", columnNames = {"domini_id"}),
+				@Index(name = "hel_camp_enum_i", columnNames = {"enumeracio_id"})})
 public class Camp implements Serializable, GenericEntity<Long> {
 
 	public enum TipusCamp {

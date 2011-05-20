@@ -14,12 +14,9 @@ import org.jbpm.graph.exe.ExecutionContext;
 @SuppressWarnings("serial")
 public class ExpedientComentariModificarHandler implements ActionHandler {
 
-	public void execute(ExecutionContext executionContext) throws Exception {
-	}
+	public void execute(ExecutionContext executionContext) throws Exception {}
 
-	public void setComentari(String comentari) {
-	}
-	public void setVarComentari(String varComentari) {
-	}
+	public void setComentari(String comentari) {}
+	public void setVarComentari(String varComentari) {}
 
 }

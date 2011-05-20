@@ -47,12 +47,12 @@ function confirmarAccio(e) {
 				<c:otherwise>Finalitzat</c:otherwise>
 			</c:choose>
 		</dd>
-		<dt>Iniciat per</dt><dd>
-			<c:choose>
-				<c:when test="${expedient.iniciadorTipus == 'SISTRA'}">Entrada núm. ${expedient.bantelEntradaNum}</c:when>
-				<c:otherwise>${expedient.iniciadorPersona.nomSencer}</c:otherwise>
-			</c:choose>
-		</dd>
+		<c:choose>
+			<c:when test="${expedient.iniciadorTipus == 'SISTRA'}"><dt>Tràmit d'origen</dt><dd>${expedient.bantelEntradaNum}</dd></c:when>
+			<c:otherwise><dt>Iniciat per</dt><dd>${expedient.iniciadorPersona.nomSencer}</dd></c:otherwise>
+		</c:choose>
+		<c:if test="${not empty expedient.registreNumero}"><dt>Número de registre</dt><dd>${expedient.registreNumero}</dd></c:if>
+		<c:if test="${not empty expedient.registreData}"><dt>Data de registre</dt><dd><fmt:formatDate value="${expedient.registreData}" pattern="dd/MM/yyyy"/></dd></c:if>
 		<dt>Iniciat el</dt><dd><fmt:formatDate value="${expedient.dataInici}" pattern="dd/MM/yyyy HH:mm"/></dd>
 		<c:if test="${not empty expedient.responsablePersona}"><dt>Persona responsable</dt><dd>${expedient.responsablePersona.nomSencer}</dd></c:if>
 		<c:if test="${not empty expedient.dataFi}"><dt>Finalitzat el</dt><dd><fmt:formatDate value="${expedient.dataFi}" pattern="dd/MM/yyyy HH:mm"/></dd></c:if>
@@ -62,6 +62,20 @@ function confirmarAccio(e) {
 			${instanciaProces.definicioProces.idPerMostrar}&nbsp;
 			<c:if test="${instanciaProces.imatgeDisponible}"><a href="#imatgeProces" class="finestraProces"><img src="<c:url value="/img/map_go.png"/>" alt="Situació actual" title="Situació actual" border="0"/></a></c:if>
 		</dd>
+		<c:if test="${globalProperties['app.georef.actiu']}">
+			<c:choose>
+				<c:when test="${globalProperties['app.georef.tipus']=='ref'}">
+					<c:if test="${not empty expedient.geoReferencia}">
+						<dt>Georeferència</dt><dd>${expedient.geoReferencia}</dd>
+					</c:if>
+				</c:when>
+				<c:otherwise>
+					<c:if test="${not empty expedient.geoPosX and not empty expedient.geoPosY}">
+						<dt>Georeferència</dt><dd>${expedient.geoPosX}, ${expedient.geoPosY}</dd>
+					</c:if>
+				</c:otherwise>
+			</c:choose>
+		</c:if>
 	</dl>
 	<div style="clear: both"></div>
 	<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">

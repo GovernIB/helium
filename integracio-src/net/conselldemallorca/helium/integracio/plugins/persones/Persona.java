@@ -24,6 +24,7 @@ public class Persona implements Serializable {
 	private String email;
 	private Sexe sexe;
 	private String relleu;
+	private String contrasenya;
 
 
 
@@ -128,6 +129,12 @@ public class Persona implements Serializable {
 	}
 	public void setRelleu(String relleu) {
 		this.relleu = relleu;
+	}
+	public String getContrasenya() {
+		return contrasenya;
+	}
+	public void setContrasenya(String contrasenya) {
+		this.contrasenya = contrasenya;
 	}
 
 	public String getInicials() {

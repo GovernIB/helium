@@ -36,9 +36,17 @@ public class PluginGestioDocumentalDao {
 			String documentArxiuNom,
 			byte[] documentArxiuContingut) {
 		try {
+			String expedientTipus = null;
+			if (isTipusExpedientDirecte()) {
+				expedientTipus = expedient.getTipus().getCodi();
+			} else if (isTipusExpedientNou()) {
+				expedientTipus = expedient.getEntorn().getCodi() + "_" + expedient.getTipus().getCodi();
+			} else {
+				expedientTipus = expedient.getEntorn().getCodi() + "#" + expedient.getTipus().getCodi();
+			}
 			return getGestioDocumentalPlugin().createDocument(
-					expedient.getNumeroDefault(),
-					expedient.getEntorn().getCodi() + "#" + expedient.getTipus().getCodi(),
+					expedient.getNumeroIdentificador(),
+					expedientTipus,
 					documentCodi,
 					documentDescripcio,
 					documentData,
@@ -99,6 +107,16 @@ public class PluginGestioDocumentalDao {
 			}
 		}
 		return gestioDocumentalPlugin;
+	}
+
+	private boolean isTipusExpedientNou() {
+		return "true".equalsIgnoreCase(
+				GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.tipus.nou"));
+	}
+
+	private boolean isTipusExpedientDirecte() {
+		return "true".equalsIgnoreCase(
+				GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.tipus.directe"));
 	}
 
 	private static final Log logger = LogFactory.getLog(PluginGestioDocumentalDao.class);

@@ -5,18 +5,13 @@ package net.conselldemallorca.helium.model.dao;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import net.conselldemallorca.helium.integracio.plugins.persones.Persona;
 import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPlugin;
 import net.conselldemallorca.helium.integracio.plugins.persones.Persona.Sexe;
 import net.conselldemallorca.helium.model.exception.PersonaPluginException;
-import net.conselldemallorca.helium.model.service.PluginService;
 import net.conselldemallorca.helium.util.GlobalProperties;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -25,11 +20,10 @@ import org.springframework.stereotype.Repository;
  * @author Josep Gayà <josepg@limit.es>
  */
 @Repository
-public class PluginPersonaDao extends PersonaDao implements ApplicationContextAware {
+public class PluginPersonaDao extends PersonaDao {
 
 	private PersonesPlugin personesPlugin;
 	private boolean pluginEvaluat = false;
-	private Timer syncTimer;
 
 
 
@@ -68,28 +62,6 @@ public class PluginPersonaDao extends PersonaDao implements ApplicationContextAw
 			return resposta;
 		} else {
 			return personesPlugin.findAll();
-		}
-	}
-
-
-
-	public void setApplicationContext(ApplicationContext applicationContext) {
-		String pluginClass = GlobalProperties.getInstance().getProperty("app.persones.plugin.class");
-		if (pluginClass != null) {
-			if (isSyncActiu()) {
-				long periode = 24 * 3600 * 1000; 
-				String syncPeriode = GlobalProperties.getInstance().getProperty("app.persones.plugin.sync.periode");
-				if (syncPeriode != null) {
-					try {
-						periode = new Long(syncPeriode).longValue();
-					} catch (Exception ignored) {};
-				}
-				syncTimer = new Timer();
-				syncTimer.scheduleAtFixedRate(
-						new SyncTimerTask(applicationContext),
-					    0,
-					    periode);
-			}
 		}
 	}
 
@@ -132,18 +104,6 @@ public class PluginPersonaDao extends PersonaDao implements ApplicationContextAw
 	private boolean isSyncActiu() {
 		String syncActiu = GlobalProperties.getInstance().getProperty("app.persones.plugin.sync.actiu");
 		return "true".equalsIgnoreCase(syncActiu);
-	}
-
-
-
-	class SyncTimerTask extends TimerTask {
-		private ApplicationContext applicationContext;
-		public SyncTimerTask(ApplicationContext applicationContext) {
-			this.applicationContext = applicationContext;
-		}
-		public void run() {
-			((PluginService)applicationContext.getBean("pluginService", PluginService.class)).sync();
-        }
 	}
 
 }

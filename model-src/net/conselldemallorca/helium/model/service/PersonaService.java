@@ -217,6 +217,7 @@ public class PersonaService {
 		persona.setLlinatge1(entity.getLlinatge1());
 		persona.setLlinatge2(entity.getLlinatge2());
 		persona.setDataNaixement(entity.getDataNaixement());
+		persona.setDni(entity.getDni());
 		persona.setEmail(entity.getEmail());
 		persona.setSexe(entity.getSexe());
 		persona.setAvisCorreu(entity.getAvisCorreu());
@@ -255,6 +256,7 @@ public class PersonaService {
 		dto.setNom(persona.getNom());
 		dto.setLlinatge1(persona.getLlinatge1());
 		dto.setLlinatge2(persona.getLlinatge2());
+		dto.setDni(persona.getDni());
 		dto.setDataNaixement(persona.getDataNaixement());
 		dto.setEmail(persona.getEmail());
 		dto.setSexe(persona.getSexe());

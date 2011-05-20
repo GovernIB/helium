@@ -76,6 +76,7 @@ public class PersonaController extends BaseController {
 			command.setNom(dto.getNom());
 			command.setLlinatge1(dto.getLlinatge1());
 			command.setLlinatge2(dto.getLlinatge2());
+			command.setDni(dto.getDni());
 			command.setDataNaixement(dto.getDataNaixement());
 			command.setEmail(dto.getEmail());
 			command.setSexe(dto.getSexe());

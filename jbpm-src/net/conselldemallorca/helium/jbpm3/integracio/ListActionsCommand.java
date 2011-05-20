@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractBaseCommand;
+import org.jbpm.graph.def.ProcessDefinition;
 
 /**
  * Command per obtenir les accions globals d'una instància de procés jBPM
@@ -29,10 +30,13 @@ public class ListActionsCommand extends AbstractBaseCommand {
 
 	@SuppressWarnings("unchecked")
 	public Object execute(JbpmContext jbpmContext) throws Exception {
-		Map actions = jbpmContext.getGraphSession().getProcessDefinition(id).getActions();
 		List<String> accions = new ArrayList<String>();
-		for (String accio: (Set<String>)actions.keySet())
-			accions.add(accio);
+		ProcessDefinition processDefinition = jbpmContext.getGraphSession().getProcessDefinition(id);
+		if (processDefinition != null) {
+			Map actions = processDefinition.getActions();
+			for (String accio: (Set<String>)actions.keySet())
+				accions.add(accio);
+		}
 		return accions;
 	}
 

@@ -12,6 +12,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.model.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.model.exception.ExpedientRepetitException;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
 import net.conselldemallorca.helium.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.model.hibernate.Expedient.IniciadorTipus;
@@ -84,7 +85,7 @@ public class ExpedientIniciarController extends BaseController {
 			Iterator<ExpedientTipus> it = tipus.iterator();
 			while (it.hasNext()) {
 				ExpedientTipus expedientTipus = it.next();
-				DefinicioProcesDto darrera = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipus.getId());
+				DefinicioProcesDto darrera = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipus.getId(), true);
 				if (darrera != null)
 					definicionsProces.put(expedientTipus.getId(), darrera);
 				else
@@ -122,7 +123,7 @@ public class ExpedientIniciarController extends BaseController {
 				if (definicioProcesId != null)
 					definicioProces = dissenyService.getById(definicioProcesId);
 				else
-					definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId);
+					definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId, true);
 				if (definicioProces.isHasStartTask()) {
 					if (definicioProcesId != null)
 						return "redirect:/expedient/iniciarPasForm.html?expedientTipusId=" + expedientTipusId + "&definicioProcesId=" + definicioProcesId;
@@ -139,11 +140,32 @@ public class ExpedientIniciarController extends BaseController {
 							null,
 							null,
 							null,
+							null,
+							null,
+							false,
+							null,
+							null,
+							null,
+							null,
+							null,
+							null,
+							false,
+							null,
+							null,
+							false,
+							null,
+							null,
 							IniciadorTipus.INTERN,
+							null,
+							null,
 							null,
 							null);
 					missatgeInfo(request, "L'expedient s'ha iniciat correctament");
-				} catch (Exception ex) {
+				} catch (ExpedientRepetitException ex) {
+					missatgeError(
+							request,
+							"Ja existeix un expedient amb el mateix número, torni a iniciar l'expedient");
+				}catch (Exception ex) {
 					missatgeError(
 							request,
 							"S'ha produït un error iniciant l'expedient",

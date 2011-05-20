@@ -80,6 +80,8 @@ import net.conselldemallorca.helium.model.hibernate.Tasca.TipusTasca;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import edu.emory.mathcs.backport.java.util.Collections;
+
 
 /**
  * Servei per gestionar les tasques de disseny
@@ -111,6 +113,8 @@ public class DissenyService {
 
 	private DtoConverter dtoConverter;
 	private JbpmDao jbpmDao;
+
+	private Map<Long, Boolean> hasStartTask = new HashMap<Long, Boolean>();
 
 
 
@@ -182,6 +186,8 @@ public class DissenyService {
 			if (comprovarEntorn(entornId, definicioProcesId)) {
 				DefinicioProces definicioProces = definicioProcesDao.getById(definicioProcesId, false);
 				jbpmDao.esborrarDesplegament(definicioProces.getJbpmId());
+				for (Document doc: definicioProces.getDocuments())
+					documentDao.delete(doc.getId());
 				for (Termini termini: definicioProces.getTerminis())
 					deleteTermini(termini.getId());
 				definicioProcesDao.delete(definicioProcesId);
@@ -192,6 +198,8 @@ public class DissenyService {
 			if (comprovarExpedientTipus(expedientTipusId, definicioProcesId)) {
 				DefinicioProces definicioProces = definicioProcesDao.getById(definicioProcesId, false);
 				jbpmDao.esborrarDesplegament(definicioProces.getJbpmId());
+				for (Document doc: definicioProces.getDocuments())
+					documentDao.delete(doc.getId());
 				for (Termini termini: definicioProces.getTerminis())
 					deleteTermini(termini.getId());
 				definicioProcesDao.delete(definicioProcesId);
@@ -220,8 +228,9 @@ public class DissenyService {
 
 	public List<DefinicioProcesDto> findDarreresAmbEntorn(Long entornId) {
 		List<DefinicioProcesDto> resposta = new ArrayList<DefinicioProcesDto>();
-		for (DefinicioProces definicionProces: definicioProcesDao.findDarreresVersionsAmbEntorn(entornId))
-			resposta.add(toDto(definicionProces));
+		List<DefinicioProces> darreres = definicioProcesDao.findDarreresVersionsAmbEntorn(entornId);
+		for (DefinicioProces definicioProces: darreres)
+			resposta.add(toDto(definicioProces));
 		return resposta;
 	}
 	public List<DefinicioProcesDto> findDarreresAmbExpedientTipusIGlobalsEntorn(
@@ -243,6 +252,13 @@ public class DissenyService {
 			resposta.add(toDto(definicioProcesDao.findAmbJbpmId(jbpmProcessDefinition.getId())));
 		}
 		return resposta;
+	}
+
+	public DefinicioProcesDto findDarreraAmbExpedientTipus(Long expedientTipusId) {
+		ExpedientTipus expedientTipus = expedientTipusDao.getById(expedientTipusId, false);
+		return toDto(definicioProcesDao.findDarreraVersioAmbEntornIJbpmKey(
+				expedientTipus.getEntorn().getId(),
+				expedientTipus.getJbpmProcessDefinitionKey()));
 	}
 
 	public Tasca getTascaById(Long id) {
@@ -289,8 +305,12 @@ public class DissenyService {
 	public void deleteCamp(Long id) {
 		Camp vell = getCampById(id);
 		if (vell != null) {
-			for (CampTasca campTasca: vell.getCampsTasca())
+			for (CampTasca campTasca: vell.getCampsTasca()) {
 				campTasca.getTasca().removeCamp(campTasca);
+				int i = 0;
+				for (CampTasca ct: campTasca.getTasca().getCamps())
+					ct.setOrder(i++);
+			}
 			campDao.delete(id);
 			if (vell.getAgrupacio() != null)
 				reordenarCamps(vell.getDefinicioProces().getId(), vell.getAgrupacio().getId());
@@ -403,8 +423,15 @@ public class DissenyService {
 	}
 	public void deleteDocument(Long id) {
 		Document vell = getDocumentById(id);
-		if (vell != null)
+		if (vell != null) {
+			for (DocumentTasca documentTasca: vell.getTasques()) {
+				documentTasca.getTasca().removeDocument(documentTasca);
+				int i = 0;
+				for (DocumentTasca dt: documentTasca.getTasca().getDocuments())
+					dt.setOrder(i++);
+			}
 			documentDao.delete(id);
+		}
 	}
 	public List<Document> findDocumentsAmbDefinicioProces(Long definicioProcesId) {
 		return documentDao.findAmbDefinicioProces(definicioProcesId);
@@ -718,14 +745,16 @@ public class DissenyService {
 	public List<ExpedientTipus> findExpedientTipusAmbSistraTramitCodi(String tramitCodi) {
 		return expedientTipusDao.findAmbSistraTramitCodi(tramitCodi);
 	}
-	public DefinicioProcesDto findDarreraDefinicioProcesForExpedientTipus(Long expedientTipusId) {
+	public DefinicioProcesDto findDarreraDefinicioProcesForExpedientTipus(
+			Long expedientTipusId,
+			boolean ambTascaInicial) {
 		ExpedientTipus expedientTipus = getExpedientTipusById(expedientTipusId);
 		if (expedientTipus.getJbpmProcessDefinitionKey() != null) {
 			DefinicioProces definicioProces = definicioProcesDao.findDarreraVersioAmbEntornIJbpmKey(
 					expedientTipus.getEntorn().getId(),
 					expedientTipus.getJbpmProcessDefinitionKey());
 			if (definicioProces != null)
-				return toDto(definicioProces);
+				return toDto(definicioProces, ambTascaInicial);
 		}
 		return null;
 	}
@@ -1011,29 +1040,32 @@ public class DissenyService {
 		// Afegeix el deploy pel jBPM
 		DefinicioProces definicioProces = definicioProcesDao.getById(definicioProcesId, false);
 		definicioProcesExportacio.setNomDeploy("export.par");
-		try {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ZipOutputStream zos = new ZipOutputStream(baos);
-			byte[] data = new byte[1024];
-			for (String resource: jbpmDao.getResourceNames(definicioProces.getJbpmId())) {
-				byte[] bytes = jbpmDao.getResourceBytes(
-						definicioProces.getJbpmId(),
-						resource);
-				if (bytes != null) {
-					InputStream is = new ByteArrayInputStream(jbpmDao.getResourceBytes(
+		Set<String> resourceNames = jbpmDao.getResourceNames(definicioProces.getJbpmId());
+		if (resourceNames != null && resourceNames.size() > 0) {
+			try {
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				ZipOutputStream zos = new ZipOutputStream(baos);
+				byte[] data = new byte[1024];
+				for (String resource: resourceNames) {
+					byte[] bytes = jbpmDao.getResourceBytes(
 							definicioProces.getJbpmId(),
-							resource));
-					zos.putNextEntry(new ZipEntry(resource));
-					int count;
-					while ((count = is.read(data, 0, 1024)) != -1)
-						zos.write(data, 0, count);
-			        zos.closeEntry();
+							resource);
+					if (bytes != null) {
+						InputStream is = new ByteArrayInputStream(jbpmDao.getResourceBytes(
+								definicioProces.getJbpmId(),
+								resource));
+						zos.putNextEntry(new ZipEntry(resource));
+						int count;
+						while ((count = is.read(data, 0, 1024)) != -1)
+							zos.write(data, 0, count);
+				        zos.closeEntry();
+					}
 				}
+				zos.close();
+				definicioProcesExportacio.setContingutDeploy(baos.toByteArray());
+			} catch (Exception ex) {
+				throw new ExportException("Error generant el contingut del desplegament", ex);
 			}
-			zos.close();
-			definicioProcesExportacio.setContingutDeploy(baos.toByteArray());
-		} catch (Exception ex) {
-			throw new ExportException("Error generant el contingut del desplegament", ex);
 		}
         return definicioProcesExportacio;
 	}
@@ -1401,9 +1433,11 @@ public class DissenyService {
 	public Accio findAccioAmbDefinicioProcesICodi(Long definicioProcesId, String codi) {
 		return accioDao.findAmbDefinicioProcesICodi(definicioProcesId, codi);
 	}
-	public List<String> findAccionsJbpm(Long id) {
+	public List<String> findAccionsJbpmOrdenades(Long id) {
 		DefinicioProces definicioProces = definicioProcesDao.getById(id, false);
-		return jbpmDao.listActions(definicioProces.getJbpmId());
+		List<String> accions = jbpmDao.listActions(definicioProces.getJbpmId());
+		Collections.sort(accions);
+		return accions;
 	}
 
 
@@ -1497,6 +1531,11 @@ public class DissenyService {
 
 	private DefinicioProcesDto toDto(
 			DefinicioProces definicioProces) {
+		return toDto(definicioProces, false);
+	}
+	private DefinicioProcesDto toDto(
+			DefinicioProces definicioProces,
+			boolean ambTascaInicial) {
 		DefinicioProcesDto dto = new DefinicioProcesDto();
 		dto.setId(definicioProces.getId());
 		dto.setJbpmId(definicioProces.getJbpmId());
@@ -1505,39 +1544,54 @@ public class DissenyService {
 		dto.setEtiqueta(definicioProces.getEtiqueta());
 		dto.setDataCreacio(definicioProces.getDataCreacio());
 		dto.setEntorn(definicioProces.getEntorn());
+		dto.setExpedientTipus(definicioProces.getExpedientTipus());
 		JbpmProcessDefinition jpd = jbpmDao.getProcessDefinition(definicioProces.getJbpmId());
-		dto.setJbpmName(jpd.getName());
-		dto.setHasStartTask(hasStartTask(definicioProces));
+		if (jpd != null)
+			dto.setJbpmName(jpd.getName());
+		else
+			dto.setJbpmName("[" + definicioProces.getJbpmKey() + "]");
+
 		List<DefinicioProces> mateixaKeyIEntorn = definicioProcesDao.findAmbEntornIJbpmKey(
 				definicioProces.getEntorn().getId(),
 				definicioProces.getJbpmKey());
 		dto.setIdsWithSameKey(new Long[mateixaKeyIEntorn.size()]);
 		dto.setIdsMostrarWithSameKey(new String[mateixaKeyIEntorn.size()]);
 		dto.setJbpmIdsWithSameKey(new String[mateixaKeyIEntorn.size()]);
-		dto.setHasStartTaskWithSameKey(new Boolean[mateixaKeyIEntorn.size()]);
 		for (int i = 0; i < mateixaKeyIEntorn.size(); i++) {
 			dto.getIdsWithSameKey()[i] = mateixaKeyIEntorn.get(i).getId();
 			dto.getIdsMostrarWithSameKey()[i] = mateixaKeyIEntorn.get(i).getIdPerMostrar();
 			dto.getJbpmIdsWithSameKey()[i] = mateixaKeyIEntorn.get(i).getJbpmId();
-			dto.getHasStartTaskWithSameKey()[i] = new Boolean(
-					hasStartTask(mateixaKeyIEntorn.get(i)));
 		}
-		dto.setExpedientTipus(definicioProces.getExpedientTipus());
+		if (ambTascaInicial) {
+			dto.setHasStartTask(hasStartTask(definicioProces));
+			dto.setStartTaskName(jbpmDao.getStartTaskName(definicioProces.getJbpmId()));
+			dto.setHasStartTaskWithSameKey(new Boolean[mateixaKeyIEntorn.size()]);
+			for (int i = 0; i < mateixaKeyIEntorn.size(); i++) {
+				dto.getHasStartTaskWithSameKey()[i] = new Boolean(
+						hasStartTask(mateixaKeyIEntorn.get(i)));
+			}
+		}
 		return dto;
 	}
 	private boolean hasStartTask(DefinicioProces definicioProces) {
-		String startTaskName = jbpmDao.getStartTaskName(
-				definicioProces.getJbpmId());
-		if (startTaskName != null) {
-			Tasca tasca = tascaDao.findAmbActivityNameIDefinicioProces(
-					startTaskName,
-					definicioProces.getId());
-			if (tasca != null) {
-				List<CampTasca> camps = campTascaDao.findAmbTascaOrdenats(tasca.getId());
-				return camps.size() > 0;
+		Long definicioProcesId = definicioProces.getId();
+		Boolean result = hasStartTask.get(definicioProcesId);
+		if (result == null) {
+			result = new Boolean(false);
+			String startTaskName = jbpmDao.getStartTaskName(
+					definicioProces.getJbpmId());
+			if (startTaskName != null) {
+				Tasca tasca = tascaDao.findAmbActivityNameIDefinicioProces(
+						startTaskName,
+						definicioProces.getId());
+				if (tasca != null) {
+					List<CampTasca> camps = campTascaDao.findAmbTascaOrdenats(tasca.getId());
+					result = new Boolean(camps.size() > 0);
+				}
 			}
+			hasStartTask.put(definicioProcesId, result);
 		}
-		return false;
+		return result.booleanValue();
 	}
 
 	private void reordenarCampsTasca(Long tascaId) {

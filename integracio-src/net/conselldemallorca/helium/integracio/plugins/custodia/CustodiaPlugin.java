@@ -5,7 +5,7 @@ package net.conselldemallorca.helium.integracio.plugins.custodia;
 
 import java.util.List;
 
-import net.conselldemallorca.helium.integracio.plugins.signatura.InfoSignatura;
+import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 
 /**
  * Interfície del plugin de custòdia documental
@@ -38,6 +38,15 @@ public interface CustodiaPlugin {
 	public List<byte[]> getSignatures(String id) throws CustodiaPluginException;
 
 	/**
+	 * Retorna l'arxiu amb les signatures en el cas de que les signatures es guardin
+	 * adjuntes a dins l'arxiu que es signa
+	 * @param id
+	 * @return
+	 * @throws CustodiaPluginException
+	 */
+	public byte[] getSignaturesAmbArxiu(String id) throws CustodiaPluginException;
+
+	/**
 	 * Esborra totes les signatures d'un document
 	 * 
 	 * @param id
@@ -49,7 +58,7 @@ public interface CustodiaPlugin {
 	 * 
 	 * @param id
 	 */
-	public List<InfoSignatura> infoSignatures(String id) throws CustodiaPluginException;
+	public List<RespostaValidacioSignatura> dadesValidacioSignatura(String id) throws CustodiaPluginException;
 
 	/**
 	 * Indica si la implementació del plugin és capaç de retornar informació

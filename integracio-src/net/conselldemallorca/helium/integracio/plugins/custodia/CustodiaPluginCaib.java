@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import net.conselldemallorca.helium.integracio.plugins.signatura.InfoCertificat;
-import net.conselldemallorca.helium.integracio.plugins.signatura.InfoSignatura;
+import net.conselldemallorca.helium.integracio.plugins.signatura.DadesCertificat;
+import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.util.GlobalProperties;
 
 import org.apache.commons.logging.Log;
@@ -72,6 +72,24 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 		}
 	}
 
+	public byte[] getSignaturesAmbArxiu(String id) throws CustodiaPluginException {
+		try {
+			byte[] consultar = getClienteCustodia().consultarDocumento(id);
+			byte[] iniciXml = new byte[5];
+			for (int i = 0; i < 5; i++)
+				iniciXml[i] = consultar[i];
+			if ("<?xml".equals(new String(iniciXml))) {
+				CustodiaResponseCaib resposta = getClienteCustodia().parseResponse(consultar);
+				throw new CustodiaPluginException("Error en la petició de custòdia: [" + resposta.getErrorCodi() + "] " + resposta.getErrorDescripcio());
+			} else {
+				return consultar;
+			}
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut obtenir l'arxiu amb les signatures", ex);
+			throw new CustodiaPluginException("No s'ha pogut obtenir l'arxiu amb les signatures", ex);
+		}
+	}
+
 	public void deleteSignatures(String id) throws CustodiaPluginException {
 		try {
 			byte[] xml = getClienteCustodia().eliminarDocumento(id);
@@ -84,7 +102,7 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 		}
 	}
 
-	public List<InfoSignatura> infoSignatures(String id) throws CustodiaPluginException {
+	public List<RespostaValidacioSignatura> dadesValidacioSignatura(String id) throws CustodiaPluginException {
 		try {
 			byte[] xml = getClienteCustodia().verificarDocumento(id);
 			CustodiaResponseCaib resposta = getClienteCustodia().parseResponse(xml);
@@ -152,8 +170,8 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 	}*/
 
 	@SuppressWarnings("unchecked")
-	private List<InfoSignatura> parseSignatures(byte[] response) throws DocumentException {
-		List<InfoSignatura> resposta = new ArrayList<InfoSignatura>();
+	private List<RespostaValidacioSignatura> parseSignatures(byte[] response) throws DocumentException {
+		List<RespostaValidacioSignatura> resposta = new ArrayList<RespostaValidacioSignatura>();
 		Document document = DocumentHelper.parseText(new String(response));
 		Element resultadoFirmas = document.getRootElement().element("VerificacionUltimaCustodia").element("ResultadoFirmas");
 		Iterator<Element> it = (Iterator<Element>)resultadoFirmas.elementIterator("ResultadoFirma");
@@ -161,24 +179,48 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 			Element element = it.next();
 			Element certInfo = element.element("ValidacionCertificado");
 			boolean verificada = "true".equalsIgnoreCase(certInfo.element("verificado").getText());
+			RespostaValidacioSignatura res = new RespostaValidacioSignatura();
+			if (verificada)
+				res.setEstat(RespostaValidacioSignatura.ESTAT_OK);
+			else
+				res.setEstat(RespostaValidacioSignatura.ESTAT_ERROR);
 			//String certNumSerie = certInfo.element("numeroSerie").getText();
 			String certSubject = certInfo.element("subjectName").getText();
-			InfoSignatura infoSignatura = new InfoSignatura(null);
-			infoSignatura.setValida(verificada);
-			InfoCertificat infoCertificat = new InfoCertificat();
-			infoCertificat.setFullName(getCertSubjectToken(certSubject, "CN="));
-			infoCertificat.setGivenName(getCertSubjectToken(certSubject, "GIVENNAME="));
-			infoCertificat.setSurname(getCertSubjectToken(certSubject, "SURNAME="));
-			infoCertificat.setNif(getCertSubjectToken(certSubject, "SERIALNUMBER="));
-			infoCertificat.setEmail(getCertSubjectToken(certSubject, ",E="));
-			infoSignatura.setInfoCertificat(infoCertificat);
-			resposta.add(infoSignatura);
+			DadesCertificat dadesCertificat = new DadesCertificat();
+			//dadesCertificat.setTipoCertificado();
+			//dadesCertificat.setSubject();
+			//dadesCertificat.setNombreResponsable(getCertSubjectToken(certSubject, "CN="));
+			dadesCertificat.setNombreResponsable(getCertSubjectToken(certSubject, "GIVENNAME="));
+			String cognoms = getCertSubjectToken(certSubject, "SURNAME=");
+			String[] parts = cognoms.split(" ");
+			if (parts.length == 1) {
+				dadesCertificat.setPrimerApellidoResponsable(parts[0]);
+			} else {
+				StringBuilder sb = new StringBuilder();
+				for (int i = 1; i < parts.length; i++) {
+					sb.append(parts[i]);
+					sb.append(" ");
+				}
+				dadesCertificat.setSegundoApellidoResponsable(sb.toString());
+			}
+			dadesCertificat.setNifResponsable(getCertSubjectToken(certSubject, "SERIALNUMBER="));
+			//dadesCertificat.setIdEmisor();
+			//dadesCertificat.setNifCif();
+			dadesCertificat.setEmail(getCertSubjectToken(certSubject, ",E="));
+			//dadesCertificat.setFechaNacimiento();
+			//dadesCertificat.setRazonSocial();
+			//dadesCertificat.setClasificacion();
+			//dadesCertificat.setNumeroSerie();
+			List<DadesCertificat> dc = new ArrayList<DadesCertificat>();
+			dc.add(dadesCertificat);
+			res.setDadesCertificat(dc);
+			resposta.add(res);
 		}
 		return resposta;
 	}
 	private String getCertSubjectToken(String certSubject, String token) {
 		int indexInici = certSubject.indexOf(token);
-		int indexFi = certSubject.indexOf(",", indexInici);
+		int indexFi = certSubject.indexOf(",", indexInici + token.length());
 		indexInici += token.length();
 		return certSubject.substring(indexInici, indexFi);
 	}

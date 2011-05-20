@@ -13,7 +13,6 @@ import org.jbpm.graph.exe.ExecutionContext;
 @SuppressWarnings("serial")
 public class RegistreSortidaHandler extends RegistreHandler {
 
-	public void execute(ExecutionContext executionContext) throws Exception {
-	}
+	public void execute(ExecutionContext executionContext) throws Exception {}
 
 }

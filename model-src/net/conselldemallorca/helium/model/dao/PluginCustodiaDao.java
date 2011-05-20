@@ -7,7 +7,7 @@ import java.util.List;
 
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPlugin;
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPluginException;
-import net.conselldemallorca.helium.integracio.plugins.signatura.InfoSignatura;
+import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.model.exception.PluginException;
 import net.conselldemallorca.helium.util.GlobalProperties;
 
@@ -65,6 +65,15 @@ public class PluginCustodiaDao {
 		}
 	}
 
+	public byte[] obtenirSignaturesAmbArxiu(String documentId) throws PluginException {
+		try {
+			return getCustodiaPlugin().getSignaturesAmbArxiu(documentId);
+		} catch (CustodiaPluginException ex) {
+			logger.error("Error al obtenir l'arxiu amb les signatures de la custòdia", ex);
+			throw new PluginException("Error al obtenir l'arxiu amb les signatures de la custòdia", ex);
+		}
+	}
+
 	public void esborrarSignatures(String documentId) throws PluginException {
 		try {
 			getCustodiaPlugin().deleteSignatures(documentId);
@@ -74,9 +83,9 @@ public class PluginCustodiaDao {
 		}
 	}
 
-	public List<InfoSignatura> infoSignatures(String documentId) throws PluginException {
+	public List<RespostaValidacioSignatura> dadesValidacioSignatura(String documentId) throws PluginException {
 		try {
-			return getCustodiaPlugin().infoSignatures(documentId);
+			return getCustodiaPlugin().dadesValidacioSignatura(documentId);
 		} catch (CustodiaPluginException ex) {
 			logger.error("Error al obtenir informació de les signatures de la custòdia", ex);
 			throw new PluginException("Error al obtenir informació de les signatures de la custòdia", ex);

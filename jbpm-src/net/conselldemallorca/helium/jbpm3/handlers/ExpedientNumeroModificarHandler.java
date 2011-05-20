@@ -40,7 +40,10 @@ public class ExpedientNumeroModificarHandler extends AbstractHeliumActionHandler
 						expedient.getResponsableCodi(),
 						expedient.getDataInici(),
 						expedient.getComentari(),
-						expedient.getEstat().getId());
+						expedient.getEstat().getId(),
+						expedient.getGeoPosX(),
+						expedient.getGeoPosY(),
+						expedient.getGeoReferencia());
 			} else {
 				throw new JbpmException("No s'ha trobat l'expedient per canviar el número");
 			}

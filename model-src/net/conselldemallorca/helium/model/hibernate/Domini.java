@@ -20,6 +20,7 @@ import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
@@ -32,6 +33,11 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 @Entity
 @Table(	name="hel_domini",
 		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "entorn_id"})})
+@org.hibernate.annotations.Table(
+		appliesTo = "hel_domini",
+		indexes = {
+				@Index(name = "hel_domini_entorn_i", columnNames = {"entorn_id"}),
+				@Index(name = "hel_domini_exptip_i", columnNames = {"expedient_tipus_id"})})
 public class Domini implements Serializable, GenericEntity<Long> {
 
 	public enum TipusDomini {
@@ -72,6 +78,11 @@ public class Domini implements Serializable, GenericEntity<Long> {
 	public Domini(String codi, String nom) {
 		this.codi = codi;
 		this.nom = nom;
+	}
+	public Domini(String codi, String nom, Entorn entorn) {
+		this.codi = codi;
+		this.nom = nom;
+		this.entorn = entorn;
 	}
 
 	@Id

@@ -13,11 +13,36 @@
 	<c:import url="../common/formIncludes.jsp"/>
 <script type="text/javascript">
 // <![CDATA[
-function generarDocumentAmbPlantilla(link, formId) {
-	var valData = $("#" + formId).find("input[name='data']").val();
-	window.location = link.href + "&data=" + valData;
-	return false;
-}
+	function verificarSignatura(element) {
+		var amplada = 800;
+		var alcada = 600;
+		$('<iframe id="verificacio" src="' + element.href + '"/>').dialog({
+			title: "Verificació de signatures",
+			autoOpen: true,
+			modal: true,
+			autoResize: true,
+			width: parseInt(amplada),
+			height: parseInt(alcada)
+		}).width(amplada - 30).height(alcada - 30);
+		return false;
+	}
+	function infoRegistre(docId) {
+		var amplada = 600;
+		var alcada = 200;
+		$('<div>' + $("#registre_" + docId).html() + '</div>').dialog({
+			title: "Informació de registre",
+			autoOpen: true,
+			modal: true,
+			width: parseInt(amplada),
+			height: parseInt(alcada)
+		}).width(amplada - 30).height(alcada - 30);
+		return false;
+	}
+	function generarDocumentAmbPlantilla(link, formId) {
+		var valData = $("#" + formId).find("input[name='data']").val();
+		window.location = link.href + "&data=" + valData;
+		return false;
+	}
 // ]]>
 </script>
 </head>
@@ -59,7 +84,7 @@ function generarDocumentAmbPlantilla(link, formId) {
 							<a href="<c:url value="/tasca/documentGenerar.html"><c:param name="id" value="${tasca.id}"/><c:param name="documentId" value="${document.document.id}"/></c:url>" onclick="return generarDocumentAmbPlantilla(this, 'documentCommand_${document.document.codi}')"><img src="<c:url value="/img/page_white_star.png"/>" alt="Generar" title="Generar" border="0"/></a>
 						</c:if>
 						<c:if test="${not empty variableDoc}">
-							<a href="<c:url value="/tasca/documentDescarregar.html"><c:param name="id" value="${tasca.id}"/><c:param name="codi" value="${document.document.codi}"/></c:url>"><img src="<c:url value="/img/page_white_put.png"/>" alt="Descarregar" title="Descarregar" border="0"/></a>
+							<a href="<c:url value="/document/arxiuMostrar.html"><c:param name="id" value="${variableDoc.id}"/></c:url>"><img src="<c:url value="/img/page_white_put.png"/>" alt="Descarregar" title="Descarregar" border="0"/></a>
 							<c:if test="${not document.readOnly}">
 								<a href="<c:url value="/tasca/documentEsborrar.html"><c:param name="id" value="${tasca.id}"/><c:param name="codi" value="${document.document.codi}"/></c:url>"><img src="<c:url value="/img/cross.png"/>" alt="Esborrar" title="Esborrar" border="0"/></a>
 							</c:if>
@@ -101,7 +126,7 @@ function generarDocumentAmbPlantilla(link, formId) {
 			</div>
 		</c:if>
 	</c:forEach>
-	
+
 	<p class="aclaracio">Els documents marcats amb <img src="<c:url value="/img/bullet_red.png"/>" alt="Document obligatori" title="Document obligatori" border="0"/> són obligatoris</p>
 
 	<br/><c:import url="../common/tramitacioTasca.jsp">

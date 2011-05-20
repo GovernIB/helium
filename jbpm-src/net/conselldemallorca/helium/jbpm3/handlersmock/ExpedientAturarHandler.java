@@ -14,12 +14,9 @@ import org.jbpm.graph.exe.ExecutionContext;
 @SuppressWarnings("serial")
 public class ExpedientAturarHandler implements ActionHandler {
 
-	public void execute(ExecutionContext executionContext) throws Exception {
-	}
+	public void execute(ExecutionContext executionContext) throws Exception {}
 
-	public void setMotiu(String motiu) {
-	}
-	public void setVarMotiu(String varMotiu) {
-	}
+	public void setMotiu(String motiu) {}
+	public void setVarMotiu(String varMotiu) {}
 
 }

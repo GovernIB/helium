@@ -87,6 +87,30 @@
 				<c:param name="itemBuit" value="<< Seleccioni un estat >>"/>
 				<c:param name="label">Estat</c:param>
 			</c:import>
+			<c:if test="${globalProperties['app.georef.actiu']}">
+				<c:choose>
+					<c:when test="${globalProperties['app.georef.tipus']=='ref'}">
+						<c:import url="../common/formElement.jsp">
+							<c:param name="property" value="geoReferencia"/>
+							<c:param name="label">Codi georeferencial</c:param>
+						</c:import>
+					</c:when>
+					<c:otherwise>
+						<c:import url="../common/formElement.jsp">
+							<c:param name="property" value="geoPosX"/>
+							<c:param name="type" value="number"/>
+							<c:param name="keyfilter">/[\d\-\.]/</c:param>
+							<c:param name="label">Coordenada X</c:param>
+						</c:import>
+						<c:import url="../common/formElement.jsp">
+							<c:param name="property" value="geoPosY"/>
+							<c:param name="type" value="number"/>
+							<c:param name="keyfilter">/[\d\-\.]/</c:param>
+							<c:param name="label">Coordenada Y</c:param>
+						</c:import>
+					</c:otherwise>
+				</c:choose>
+			</c:if>
 		</div>
 		<c:import url="../common/formElement.jsp">
 			<c:param name="type" value="buttons"/>

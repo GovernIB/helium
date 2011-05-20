@@ -4,17 +4,13 @@
 package net.conselldemallorca.helium.presentacio.mvc;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.model.dto.TascaDto;
 import net.conselldemallorca.helium.model.hibernate.Alerta;
 import net.conselldemallorca.helium.model.hibernate.Entorn;
 import net.conselldemallorca.helium.model.service.AlertaService;
-import net.conselldemallorca.helium.model.service.TascaService;
 import net.conselldemallorca.helium.presentacio.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
@@ -38,16 +34,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class AlertaController extends BaseController {
 
 	private AlertaService alertaService;
-	private TascaService tascaService;
 
 
 
 	@Autowired
 	public AlertaController(
-			AlertaService alertaService,
-			TascaService tascaService) {
+			AlertaService alertaService) {
 		this.alertaService = alertaService;
-		this.tascaService = tascaService;
 	}
 
 	@RequestMapping(value = "llistat")
@@ -58,15 +51,6 @@ public class AlertaController extends BaseController {
 		if (entorn != null) {
 			List<Alerta> alertes = alertaService.findActivesAmbEntornIUsuariAutenticat(entorn.getId());
 			model.addAttribute("llistat", alertes);
-			Map<String, TascaDto> tasques = new HashMap<String, TascaDto>();
-			for (Alerta alerta: alertes) {
-				if (alerta.getTaskInstanceId() != null) {
-					tasques.put(
-							alerta.getTaskInstanceId(),
-							tascaService.getById(entorn.getId(), alerta.getTaskInstanceId()));
-				}
-			}
-			model.addAttribute("tasques", tasques);
 			return "alerta/llistat";
 		} else {
 			missatgeError(request, "No hi ha cap entorn seleccionat");

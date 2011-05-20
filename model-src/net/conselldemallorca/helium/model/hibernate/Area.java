@@ -21,6 +21,7 @@ import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
@@ -33,6 +34,12 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 @Entity
 @Table(	name="hel_area",
 		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "entorn_id"})})
+@org.hibernate.annotations.Table(
+		appliesTo = "hel_area",
+		indexes = {
+				@Index(name = "hel_area_tipus_i", columnNames = {"tipus_id"}),
+				@Index(name = "hel_area_entorn_i", columnNames = {"entorn_id"}),
+				@Index(name = "hel_area_pare_i", columnNames = {"pare_id"})})
 public class Area implements Serializable, GenericEntity<Long> {
 
 	private Long id;

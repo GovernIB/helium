@@ -103,9 +103,9 @@ public class DefinicioProcesCampController extends BaseController {
 			@RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId,
 			@RequestParam(value = "definicioProces", required = false) Long definicioProces) {
 		if (definicioProcesId != null)
-			return dissenyService.findAccionsJbpm(definicioProcesId);
+			return dissenyService.findAccionsJbpmOrdenades(definicioProcesId);
 		if (definicioProces != null)
-			return dissenyService.findAccionsJbpm(definicioProces);
+			return dissenyService.findAccionsJbpmOrdenades(definicioProces);
 		return null;
 	}
 
@@ -310,21 +310,29 @@ public class DefinicioProcesCampController extends BaseController {
 		}
 		public void validate(Object target, Errors errors) {
 			Camp camp = (Camp)target;
+			if (camp.getCodi().matches("^[A-Z]{1}[a-z]{1}.*")) {
+				errors.rejectValue("codi", "error.camp.codi.maymin");
+			}
 			if (camp.getCodi().contains(".")) {
 				errors.rejectValue("codi", "error.camp.codi.char.nok");
 			}
-			if (camp.getTipus().equals(TipusCamp.ACCIO)) {
-				ValidationUtils.rejectIfEmpty(errors, "jbpmAction", "not.blank");
-			}
-			if (camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST)) {
-				if (camp.getDomini() == null && camp.getEnumeracio() == null) {
-					errors.rejectValue("enumeracio", "error.camp.enumdom.buit");
-					errors.rejectValue("domini", "error.camp.enumdom.buit");
+			if (camp.getTipus() != null) {
+				if (camp.getTipus().equals(TipusCamp.ACCIO)) {
+					ValidationUtils.rejectIfEmpty(errors, "jbpmAction", "not.blank");
 				}
-				if (camp.getDomini() != null) {
-					ValidationUtils.rejectIfEmpty(errors, "dominiId", "not.blank");
-					ValidationUtils.rejectIfEmpty(errors, "dominiCampText", "not.blank");
-					ValidationUtils.rejectIfEmpty(errors, "dominiCampValor", "not.blank");
+				if (camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST)) {
+					if (camp.getDomini() == null && camp.getEnumeracio() == null) {
+						errors.rejectValue("enumeracio", "error.camp.enumdom.buit");
+						errors.rejectValue("domini", "error.camp.enumdom.buit");
+					}
+					if (camp.getDomini() != null) {
+						ValidationUtils.rejectIfEmpty(errors, "dominiCampText", "not.blank");
+						ValidationUtils.rejectIfEmpty(errors, "dominiCampValor", "not.blank");
+					}
+					if (camp.getDomini() != null && camp.getEnumeracio() != null) {
+						errors.rejectValue("enumeracio", "error.camp.enumdom.ambdos");
+						errors.rejectValue("domini", "error.camp.enumdom.ambdos");
+					}
 				}
 			}
 		}

@@ -3,7 +3,7 @@
  */
 package net.conselldemallorca.helium.model.dao;
 
-import net.conselldemallorca.helium.integracio.plugins.signatura.InfoSignatura;
+import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.integracio.plugins.signatura.SignaturaPlugin;
 import net.conselldemallorca.helium.integracio.plugins.signatura.SignaturaPluginException;
 import net.conselldemallorca.helium.model.exception.PluginException;
@@ -25,11 +25,15 @@ public class PluginSignaturaDao {
 
 
 
-	public InfoSignatura verificarSignatura(
+	public RespostaValidacioSignatura verificarSignatura(
 			byte[] document,
-			byte[] signatura) throws PluginException {
+			byte[] signatura,
+			boolean obtenirDadesCertificat) throws PluginException {
 		try {
-			return getSignaturaPlugin().verificarSignatura(document, signatura);
+			return getSignaturaPlugin().verificarSignatura(
+					document,
+					signatura,
+					obtenirDadesCertificat);
 		} catch (SignaturaPluginException ex) {
 			logger.error("Error al verificar la signatura", ex);
 			throw new PluginException("Error al verificar la signatura", ex);

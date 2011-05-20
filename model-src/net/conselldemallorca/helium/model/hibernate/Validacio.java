@@ -16,6 +16,7 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
@@ -26,6 +27,11 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
  */
 @Entity
 @Table(name="hel_validacio")
+@org.hibernate.annotations.Table(
+		appliesTo = "hel_validacio",
+		indexes = {
+				@Index(name = "hel_validacio_tasca_i", columnNames = {"tasca_id"}),
+				@Index(name = "hel_validacio_camp_i", columnNames = {"camp_id"})})
 public class Validacio implements Serializable, GenericEntity<Long> {
 
 	private Long id;
@@ -101,7 +107,7 @@ public class Validacio implements Serializable, GenericEntity<Long> {
 
 	@ManyToOne(optional=true)
 	@JoinColumn(name="tasca_id")
-	@ForeignKey(name="hel_tasca_vaidacio_fk")
+	@ForeignKey(name="hel_tasca_validacio_fk")
 	public Tasca getTasca() {
 		return tasca;
 	}
@@ -111,7 +117,7 @@ public class Validacio implements Serializable, GenericEntity<Long> {
 
 	@ManyToOne(optional=true)
 	@JoinColumn(name="camp_id")
-	@ForeignKey(name="hel_camp_vaidacio_fk")
+	@ForeignKey(name="hel_camp_validacio_fk")
 	public Camp getCamp() {
 		return camp;
 	}

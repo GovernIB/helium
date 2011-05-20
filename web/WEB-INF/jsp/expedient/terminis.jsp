@@ -77,7 +77,16 @@ function confirmarCancelar(e) {
 		</display:column>
 		<display:column title="Estat">
 			<c:choose>
-				<c:when test="${empty iniciat}">Pendent d'iniciar</c:when>
+				<c:when test="${empty iniciat}">
+					<c:set var="trobat" value="${false}"/>
+					<c:forEach var="ini" items="${iniciats}">
+						<c:if test="${registre.id == ini.termini.id and not empty ini.dataCancelacio}">
+							Cancel·lat
+							<c:set var="trobat" value="${true}"/>
+						</c:if>
+					</c:forEach>
+					<c:if test="${not trobat}">Pendent d'iniciar</c:if>
+				</c:when>
 				<c:otherwise>
 					<c:choose>
 						<c:when test="${not empty iniciat.dataAturada}">Aturat</c:when>

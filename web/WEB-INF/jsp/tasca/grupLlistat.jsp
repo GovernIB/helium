@@ -48,22 +48,31 @@ function confirmar(e) {
 			<c:otherwise>0</c:otherwise>
 		</c:choose>
 	</c:set>
-	
-	<display:table name="grupLlistat" id="registre" requestURI="" class="displaytag" sort="external" defaultsort="${columna}" defaultorder="${ordre}">
-		<display:column property="nom" title="Tasca" sortable="true"/>
-		<display:column property="expedient.identificador" title="Expedient" sortable="true"/>
-		<display:column property="createTime" title="Creada el" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true"/>
+
+	<display:table name="grupLlistat" id="registre" requestURI="" class="displaytag selectable" sort="external" defaultsort="${columna}" defaultorder="${ordre}">
+		<display:column property="titol" title="Tasca" sortable="true"/>
+		<display:column sortProperty="expedientTitol" title="Expedient" sortable="true">
+			<a href="<c:url value="/expedient/info.html"><c:param name="id" value="${registre.processInstanceId}"/></c:url>">${registre.expedientTitol}</a>
+		</display:column>
+		<display:column property="expedientTipusNom" title="Tipus d'expedient" sortable="true"/>
+		<display:column property="dataCreacio" title="Creada el" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true"/>
 		<display:column title="Prioritat" sortable="true">
 			<c:choose>
-				<c:when test="${registre.priority == 2}">Molt alta</c:when>
-				<c:when test="${registre.priority == 1}">Alta</c:when>
-				<c:when test="${registre.priority == 0}">Normal</c:when>
-				<c:when test="${registre.priority == -1}">Baixa</c:when>
-				<c:when test="${registre.priority == -2}">Molt baixa</c:when>
-				<c:otherwise>${registre.priority}</c:otherwise>
+				<c:when test="${registre.prioritat == 2}">Molt alta</c:when>
+				<c:when test="${registre.prioritat == 1}">Alta</c:when>
+				<c:when test="${registre.prioritat == 0}">Normal</c:when>
+				<c:when test="${registre.prioritat == -1}">Baixa</c:when>
+				<c:when test="${registre.prioritat == -2}">Molt baixa</c:when>
+				<c:otherwise>${registre.prioritat}</c:otherwise>
 			</c:choose>
 		</display:column>
-		<display:column property="dueDate" title="Data límit&nbsp;" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true"/>
+		<c:choose>
+			<c:when test="${not empty terminisIniciats[registre_rowNum - 1] and terminisIniciats[registre_rowNum - 1].estat == 'NORMAL'}"><c:set var="estilData">color:white;background-color:green</c:set></c:when>
+			<c:when test="${not empty terminisIniciats[registre_rowNum - 1] and terminisIniciats[registre_rowNum - 1].estat == 'AVIS'}"><c:set var="estilData">color:white;background-color:orange</c:set></c:when>
+			<c:when test="${not empty terminisIniciats[registre_rowNum - 1] and terminisIniciats[registre_rowNum - 1].estat == 'CADUCAT'}"><c:set var="estilData">color:white;background-color:red</c:set></c:when>
+			<c:otherwise><c:set var="estilData"></c:set></c:otherwise>
+		</c:choose>
+		<display:column property="dataLimit" title="Data límit&nbsp;" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true" style="${estilData}"/>
 		<display:column>
 	    	<form action="agafar.html" onsubmit="return confirmar(event)">
 				<input type="hidden" name="id" value="${registre.id}"/>
@@ -71,6 +80,7 @@ function confirmar(e) {
 			</form>
 	    </display:column>
 	</display:table>
+	<script type="text/javascript">initSelectable();</script>
 
 </body>
 </html>

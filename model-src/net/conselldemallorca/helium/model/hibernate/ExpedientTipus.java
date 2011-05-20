@@ -30,6 +30,7 @@ import javax.persistence.UniqueConstraint;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 import org.jbpm.jpdl.el.ELException;
 import org.jbpm.jpdl.el.ExpressionEvaluator;
 import org.jbpm.jpdl.el.VariableResolver;
@@ -45,7 +46,10 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
  */
 @Entity
 @Table(	name="hel_expedient_tipus",
-	uniqueConstraints={@UniqueConstraint(columnNames={"codi", "entorn_id"})})
+		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "entorn_id"})})
+@org.hibernate.annotations.Table(
+		appliesTo = "hel_expedient_tipus",
+		indexes = @Index(name = "hel_exptip_entorn_i", columnNames = {"entorn_id"}))
 public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 
 	private Long id;
@@ -80,6 +84,8 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	private String sistraTramitMapeigCamps;
 	@MaxLength(2048)
 	private String sistraTramitMapeigDocuments;
+	@MaxLength(2048)
+	private String sistraTramitMapeigAdjunts;
 
 	@MaxLength(255)
 	private String formextUrl;
@@ -99,6 +105,11 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 
 
 	public ExpedientTipus() {}
+	public ExpedientTipus(String codi, String nom, Entorn entorn) {
+		this.codi = codi;
+		this.nom = nom;
+		this.entorn = entorn;
+	}
 	public ExpedientTipus(String codi, String nom, String jbpmProcessDefinitionKey, Entorn entorn) {
 		this.codi = codi;
 		this.nom = nom;
@@ -117,7 +128,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 		this.id = id;
 	}
 
-	@Column(name="codi", length=64, nullable=false, unique=true)
+	@Column(name="codi", length=64, nullable=false)
 	public String getCodi() {
 		return codi;
 	}
@@ -251,6 +262,14 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	}
 	public void setSistraTramitMapeigDocuments(String sistraTramitMapeigDocuments) {
 		this.sistraTramitMapeigDocuments = sistraTramitMapeigDocuments;
+	}
+
+	@Column(name="sistra_mapadj", length=2048)
+	public String getSistraTramitMapeigAdjunts() {
+		return sistraTramitMapeigAdjunts;
+	}
+	public void setSistraTramitMapeigAdjunts(String sistraTramitMapeigAdjunts) {
+		this.sistraTramitMapeigAdjunts = sistraTramitMapeigAdjunts;
 	}
 
 	@Column(name="formext_url", length=255)

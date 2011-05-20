@@ -76,7 +76,7 @@ public class ExpedientDocumentModificarController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			DocumentExpedientCommand command = new DocumentExpedientCommand();
-			DocumentDto dto = expedientService.getDocument(docId);
+			DocumentDto dto = expedientService.getDocument(docId, false, false);
 			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, false);
 			Document document = dissenyService.findDocumentAmbDefinicioProcesICodi(
 					instanciaProces.getDefinicioProces().getId(),
@@ -102,11 +102,10 @@ public class ExpedientDocumentModificarController extends BaseController {
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (potModificarExpedient(expedient)) {
-				DocumentDto doc = expedientService.getDocument(docId);
+				DocumentDto doc = expedientService.getDocument(docId, false, false);
 				if (!doc.isSignat()) {
-					DocumentDto dto = expedientService.getDocument(docId);
 					model.addAttribute("expedient", expedient);
-					model.addAttribute("document", dto);
+					model.addAttribute("document", doc);
 					model.addAttribute(
 							"documentDisseny",
 							dissenyService.getDocumentById(docId));
@@ -142,11 +141,11 @@ public class ExpedientDocumentModificarController extends BaseController {
 					new DocumentModificarValidator().validate(command, result);
 			        if (result.hasErrors()) {
 			        	model.addAttribute("expedient", expedient);
-						model.addAttribute("document", expedientService.getDocument(command.getDocId()));
+						model.addAttribute("document", expedientService.getDocument(command.getDocId(), false, false));
 			        	return "expedient/documentForm";
 			        }
 					try {
-						DocumentDto doc = expedientService.getDocument(command.getDocId());
+						DocumentDto doc = expedientService.getDocument(command.getDocId(), false, false);
 						if (!doc.isAdjunt()) {
 							expedientService.guardarDocument(
 									id,

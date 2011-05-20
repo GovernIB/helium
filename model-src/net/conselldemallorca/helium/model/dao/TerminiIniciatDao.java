@@ -41,7 +41,7 @@ public class TerminiIniciatDao extends HibernateGenericDao<TerminiIniciat, Long>
 
 	public List<TerminiIniciat> findAmbTaskInstanceId(Long taskInstanceId) {
 		return findByCriteria(
-				Restrictions.eq("taskInstanceId", taskInstanceId));
+				Restrictions.eq("taskInstanceId", taskInstanceId.toString()));
 	}
 
 	public List<TerminiIniciat> findAmbTaskInstanceIds(String[] taskInstanceIds) {

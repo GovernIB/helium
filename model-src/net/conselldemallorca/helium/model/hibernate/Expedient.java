@@ -23,9 +23,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
@@ -37,6 +40,12 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
  */
 @Entity
 @Table(name="hel_expedient")
+@org.hibernate.annotations.Table(
+		appliesTo = "hel_expedient",
+		indexes = {
+				@Index(name = "hel_expedient_estat_i", columnNames = {"estat_id"}),
+				@Index(name = "hel_expedient_entorn_i", columnNames = {"entorn_id"}),
+				@Index(name = "hel_expedient_tipus_i", columnNames = {"tipus_id"})})
 public class Expedient implements Serializable, GenericEntity<Long> {
 
 	private static final String SEPARADOR_SISTRA = "#";
@@ -68,6 +77,39 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	private String iniciadorCodi;
 	@MaxLength(64)
 	private String responsableCodi;
+	private Double geoPosX;
+	private Double geoPosY;
+	@MaxLength(64)
+	private String geoReferencia;
+
+	@MaxLength(64)
+	private String registreNumero;
+	private Date registreData;
+	private Long unitatAdministrativa;
+	private String idioma;
+	private boolean autenticat;
+	@MaxLength(16)
+	protected String tramitadorNif;
+	@MaxLength(255)
+	protected String tramitadorNom;
+	@MaxLength(16)
+	protected String interessatNif;
+	@MaxLength(255)
+	protected String interessatNom;
+	@MaxLength(16)
+	protected String representantNif;
+	@MaxLength(255)
+	protected String representantNom;
+	private boolean avisosHabilitats = false;
+	@MaxLength(255)
+	private String avisosEmail;
+	@MaxLength(255)
+	private String avisosMobil;
+	private boolean notificacioTelematicaHabilitada = false;
+	@MaxLength(255)
+	private String tramitExpedientIdentificador;
+	@MaxLength(255)
+	private String tramitExpedientClau;
 
 	private Estat estat;
 	@NotNull
@@ -190,6 +232,168 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 		this.responsableCodi = responsableCodi;
 	}
 
+	@Column(name="geo_posx")
+	public Double getGeoPosX() {
+		return geoPosX;
+	}
+	public void setGeoPosX(Double geoPosX) {
+		this.geoPosX = geoPosX;
+	}
+
+	@Column(name="geo_posy")
+	public Double getGeoPosY() {
+		return geoPosY;
+	}
+	public void setGeoPosY(Double geoPosY) {
+		this.geoPosY = geoPosY;
+	}
+
+	@Column(name="geo_referencia", length=64)
+	public String getGeoReferencia() {
+		return geoReferencia;
+	}
+	public void setGeoReferencia(String geoReferencia) {
+		this.geoReferencia = geoReferencia;
+	}
+
+	@Column(name="registre_num", length=64)
+	public String getRegistreNumero() {
+		return registreNumero;
+	}
+	public void setRegistreNumero(String registreNumero) {
+		this.registreNumero = registreNumero;
+	}
+
+	@Column(name="registre_data")
+	@Temporal(TemporalType.TIMESTAMP)
+	public Date getRegistreData() {
+		return registreData;
+	}
+	public void setRegistreData(Date registreData) {
+		this.registreData = registreData;
+	}
+
+	@Column(name="unitat_adm")
+	public Long getUnitatAdministrativa() {
+		return unitatAdministrativa;
+	}
+	public void setUnitatAdministrativa(Long unitatAdministrativa) {
+		this.unitatAdministrativa = unitatAdministrativa;
+	}
+
+	@Column(name="idioma", length=8)
+	public String getIdioma() {
+		return idioma;
+	}
+	public void setIdioma(String idioma) {
+		this.idioma = idioma;
+	}
+
+	@Column(name="autenticat")
+	public boolean isAutenticat() {
+		return autenticat;
+	}
+	public void setAutenticat(boolean autenticat) {
+		this.autenticat = autenticat;
+	}
+
+	@Column(name="tramitador_nif", length=16)
+	public String getTramitadorNif() {
+		return tramitadorNif;
+	}
+	public void setTramitadorNif(String tramitadorNif) {
+		this.tramitadorNif = tramitadorNif;
+	}
+
+	@Column(name="tramitador_nom", length=255)
+	public String getTramitadorNom() {
+		return tramitadorNom;
+	}
+	public void setTramitadorNom(String tramitadorNom) {
+		this.tramitadorNom = tramitadorNom;
+	}
+
+	@Column(name="interessat_nif", length=16)
+	public String getInteressatNif() {
+		return interessatNif;
+	}
+	public void setInteressatNif(String interessatNif) {
+		this.interessatNif = interessatNif;
+	}
+
+	@Column(name="interessat_nom", length=255)
+	public String getInteressatNom() {
+		return interessatNom;
+	}
+	public void setInteressatNom(String interessatNom) {
+		this.interessatNom = interessatNom;
+	}
+
+	@Column(name="representant_nif", length=16)
+	public String getRepresentantNif() {
+		return representantNif;
+	}
+	public void setRepresentantNif(String representantNif) {
+		this.representantNif = representantNif;
+	}
+
+	@Column(name="representant_nom", length=255)
+	public String getRepresentantNom() {
+		return representantNom;
+	}
+	public void setRepresentantNom(String representantNom) {
+		this.representantNom = representantNom;
+	}
+
+	@Column(name="avisos_habilitat")
+	public boolean isAvisosHabilitats() {
+		return avisosHabilitats;
+	}
+	public void setAvisosHabilitats(boolean avisosHabilitats) {
+		this.avisosHabilitats = avisosHabilitats;
+	}
+
+	@Column(name="avisos_email", length=255)
+	public String getAvisosEmail() {
+		return avisosEmail;
+	}
+	public void setAvisosEmail(String avisosEmail) {
+		this.avisosEmail = avisosEmail;
+	}
+
+	@Column(name="avisos_mobil", length=255)
+	public String getAvisosMobil() {
+		return avisosMobil;
+	}
+	public void setAvisosMobil(String avisosMobil) {
+		this.avisosMobil = avisosMobil;
+	}
+
+	@Column(name="nottel_habilitat")
+	public boolean isNotificacioTelematicaHabilitada() {
+		return notificacioTelematicaHabilitada;
+	}
+	public void setNotificacioTelematicaHabilitada(
+			boolean notificacioTelematicaHabilitada) {
+		this.notificacioTelematicaHabilitada = notificacioTelematicaHabilitada;
+	}
+
+	@Column(name="tramexp_id", length=255)
+	public String getTramitExpedientIdentificador() {
+		return tramitExpedientIdentificador;
+	}
+	public void setTramitExpedientIdentificador(String tramitExpedientIdentificador) {
+		this.tramitExpedientIdentificador = tramitExpedientIdentificador;
+	}
+
+	@Column(name="tramexp_clau", length=255)
+	public String getTramitExpedientClau() {
+		return tramitExpedientClau;
+	}
+	public void setTramitExpedientClau(String tramitExpedientClau) {
+		this.tramitExpedientClau = tramitExpedientClau;
+	}
+
 	@ManyToOne(optional=true)
 	@JoinColumn(name="estat_id")
 	@ForeignKey(name="hel_estat_expedient_fk")
@@ -257,7 +461,7 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	public Set<Alerta> getAlertes() {
 		return this.alertes;
 	}
-	public void setalertes(Set<Alerta> alertes) {
+	public void setAlertes(Set<Alerta> alertes) {
 		this.alertes = alertes;
 	}
 	public void addAlerta(Alerta alerta) {
@@ -267,6 +471,12 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 		getAlertes().remove(alerta);
 	}
 
+	@Transient
+	public String getNumeroIdentificador() {
+		if (tipus.getTeNumero().booleanValue())
+			return getNumero();
+		return this.getNumeroDefault();
+	}
 	@Transient
 	public String getIdentificador() {
 		if (tipus.getTeNumero().booleanValue() && tipus.getTeTitol().booleanValue())

@@ -57,12 +57,14 @@ public class ExpedientDocumentEsborrarController extends BaseController {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (potModificarExpedient(expedient)) {
 				try {
-					DocumentDto doc = expedientService.getDocument(docId);
-					if (!doc.isSignat()) {
+					DocumentDto doc = expedientService.getDocument(docId, false, false);
+					if (!doc.isSignat() && !doc.isRegistrat()) {
 						expedientService.deleteDocument(id, docId);
 						missatgeInfo(request, "El document ha estat esborrat del procés");
-					} else {
+					} else if (doc.isSignat()) {
 						missatgeError(request, "No es pot esborrar un document signat");
+					} else if (doc.isRegistrat()) {
+						missatgeError(request, "No es pot esborrar un document registrat");
 					}
 				} catch (Exception ex) {
 					missatgeError(request, "No s'ha pogut esborrar el document del procés", ex.getLocalizedMessage());
@@ -89,7 +91,7 @@ public class ExpedientDocumentEsborrarController extends BaseController {
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
 			if (potModificarExpedient(expedient)) {
-				DocumentDto document = expedientService.getDocument(docId);
+				DocumentDto document = expedientService.getDocument(docId, false, false);
 				if (document != null) {
 					if (document.isSignat()) {
 						try {
