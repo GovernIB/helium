@@ -28,6 +28,7 @@ public class TascaLlistatDto implements Comparable<TascaLlistatDto> {
 	private Long expedientTipusId;
 	private String expedientTipusNom;
 	private String expedientNumeroDefault;
+	private String expedientProcessInstanceId;
 	private Date dataCreacio;
 	private Date dataInici;
 	private Date dataFi;
@@ -90,6 +91,12 @@ public class TascaLlistatDto implements Comparable<TascaLlistatDto> {
 	}
 	public void setExpedientNumeroDefault(String expedientNumeroDefault) {
 		this.expedientNumeroDefault = expedientNumeroDefault;
+	}
+	public String getExpedientProcessInstanceId() {
+		return expedientProcessInstanceId;
+	}
+	public void setExpedientProcessInstanceId(String expedientProcessInstanceId) {
+		this.expedientProcessInstanceId = expedientProcessInstanceId;
 	}
 	public String getProcessInstanceId() {
 		return processInstanceId;

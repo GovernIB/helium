@@ -1440,12 +1440,13 @@ public class TascaService {
 		dto.setCompletada(task.isCompleted());
 		dto.setCancelada(task.isCancelled());
 		dto.setSuspesa(task.isSuspended());
+		dto.setProcessInstanceId(task.getProcessInstanceId());
 		if (expedient != null) {
 			dto.setExpedientTitol(expedient.getIdentificador());
 			dto.setExpedientTitolOrdenacio(expedient.getIdentificadorOrdenacio());
 			dto.setExpedientTipusId(expedient.getTipus().getId());
 			dto.setExpedientTipusNom(expedient.getTipus().getNom());
-			dto.setProcessInstanceId(expedient.getProcessInstanceId());
+			dto.setExpedientProcessInstanceId(expedient.getProcessInstanceId());
 		}
 		return dto;
 	}

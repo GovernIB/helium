@@ -52,7 +52,7 @@ function confirmar(e) {
 	<display:table name="grupLlistat" id="registre" requestURI="" class="displaytag selectable" sort="external" defaultsort="${columna}" defaultorder="${ordre}">
 		<display:column property="titol" title="Tasca" sortable="true"/>
 		<display:column sortProperty="expedientTitol" title="Expedient" sortable="true">
-			<a href="<c:url value="/expedient/info.html"><c:param name="id" value="${registre.processInstanceId}"/></c:url>">${registre.expedientTitol}</a>
+			<a href="<c:url value="/expedient/info.html"><c:param name="id" value="${registre.expedientProcessInstanceId}"/></c:url>">${registre.expedientTitol}</a>
 		</display:column>
 		<display:column property="expedientTipusNom" title="Tipus d'expedient" sortable="true"/>
 		<display:column property="dataCreacio" title="Creada el" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true"/>
