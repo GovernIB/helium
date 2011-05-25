@@ -799,11 +799,13 @@ public class DtoConverter {
 		Map<String, ParellaCodiValorDto> respostaDto = new HashMap<String, ParellaCodiValorDto>();
 		for (String clau: resposta.keySet()) {
 			ParellaCodiValor parella = resposta.get(clau);
-			respostaDto.put(
-					clau,
-					new ParellaCodiValorDto(
-							parella.getCodi(),
-							parella.getValor()));
+			ParellaCodiValorDto parellaDto = null;
+			if (parella != null) {
+				parellaDto = new ParellaCodiValorDto(
+						parella.getCodi(),
+						parella.getValor());
+			}
+			respostaDto.put(clau, parellaDto);
 		}
 		return respostaDto;
 	}
@@ -828,9 +830,12 @@ public class DtoConverter {
 									Array.get(valor, i),
 									valors.get(TascaService.PREFIX_TEXT_SUGGEST + camp.getCodi()),
 									true);
-							ParellaCodiValorDto parellaDto = new ParellaCodiValorDto(
+							ParellaCodiValorDto parellaDto = null;
+							if (codiValor != null) {
+								parellaDto = new ParellaCodiValorDto(
 									codiValor.getCodi(),
 									codiValor.getValor());
+							}
 							codisValor.add(parellaDto);
 						}
 						resposta.put(camp.getCodi(), codisValor);
@@ -1072,12 +1077,16 @@ public class DtoConverter {
 													Array.get(valorRegistre, j),
 													null,
 													true);
+											ParellaCodiValorDto parellaDto = null;
+											if (codiValor != null) {
+												parellaDto = new ParellaCodiValorDto(
+														codiValor.getCodi(),
+														codiValor.getValor());
+											}
 											texts[j] = textPerCamp(
 													membreRegistre,
 													Array.get(valorRegistre, j),
-													new ParellaCodiValorDto(
-															codiValor.getCodi(),
-															codiValor.getValor()));
+													parellaDto);
 										} else {
 											texts[j] = textPerCamp(
 													membreRegistre,

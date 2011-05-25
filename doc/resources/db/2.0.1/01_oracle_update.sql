@@ -187,3 +187,6 @@ ALTER TABLE HEL_ALERTA
  DROP COLUMN TASK_INSTANCE_ID;
 ALTER TABLE HEL_ALERTA
  ADD (TERMINI_INICIAT_ID NUMBER(19));
+
+update hel_acl_class set class = 'net.conselldemallorca.helium.core.model.hibernate.Entorn' where class = 'net.conselldemallorca.helium.model.hibernate.Entorn';
+update hel_acl_class set class = 'net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus' where class = 'net.conselldemallorca.helium.model.hibernate.ExpedientTipus';
