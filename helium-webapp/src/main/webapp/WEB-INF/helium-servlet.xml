@@ -4,14 +4,11 @@
 		xmlns:context="http://www.springframework.org/schema/context"
 		xmlns:p="http://www.springframework.org/schema/p"
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xmlns:dwr="http://www.directwebremoting.org/schema/spring-dwr"
 		xsi:schemaLocation="
 				http://www.springframework.org/schema/beans
 				http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
 				http://www.springframework.org/schema/context
-				http://www.springframework.org/schema/context/spring-context-2.5.xsd
-				http://www.directwebremoting.org/schema/spring-dwr
-				http://www.directwebremoting.org/schema/spring-dwr-2.0.xsd"
+				http://www.springframework.org/schema/context/spring-context-2.5.xsd"
 		default-autowire="byName">
 
 	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -57,19 +54,6 @@
 	<bean name="arxiuView" class="net.conselldemallorca.helium.webapp.mvc.ArxiuView"/>
 	<bean name="arxiuConvertirView" class="net.conselldemallorca.helium.webapp.mvc.ArxiuConvertirView"/>
 	<bean name="serialitzarView" class="net.conselldemallorca.helium.webapp.mvc.SerialitzarView"/>
-
-	<bean id="festiuDwrService" class="net.conselldemallorca.helium.webapp.dwr.FestiuDwrService">
-		<dwr:remote javascript="festiuDwrService"/>
-	</bean>
-	<bean id="campsProcesDwrService" class="net.conselldemallorca.helium.webapp.dwr.CampsProcesDwrService">
-		<dwr:remote javascript="campsProcesDwrService"/>
-	</bean>
-	<bean id="formulariExternDwrService" class="net.conselldemallorca.helium.webapp.dwr.FormulariExternDwrService">
-		<dwr:remote javascript="formulariExternDwrService"/>
-	</bean>
-	<dwr:configuration>
-		<dwr:convert type="bean" class="net.conselldemallorca.helium.core.model.hibernate.*"/>
-	</dwr:configuration>
 
 	<bean id="responseCachingFilter" class="net.conselldemallorca.helium.webapp.mvc.interceptor.ResponseCachingFilter">
 		<property name="useCacheControlHeader" value="true" />

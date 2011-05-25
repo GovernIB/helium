@@ -2,7 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<%@ page import="java.util.*, java.util.regex.*, net.conselldemallorca.helium.model.dto.*, net.conselldemallorca.helium.model.hibernate.*"%>
+<%@ page import="java.util.*, java.util.regex.*, net.conselldemallorca.helium.core.model.dto.*, net.conselldemallorca.helium.core.model.hibernate.*"%>
 
 <%
 	Map<String, String> campsMap = new HashMap<String, String>();

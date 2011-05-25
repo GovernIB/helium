@@ -16,5 +16,6 @@
 	<import resource="classpath:net/conselldemallorca/helium/core/context/application-context-security.xml" />
 	<import resource="classpath:net/conselldemallorca/helium/core/context/application-context-service.xml" />
 	<import resource="classpath:net/conselldemallorca/helium/ws/context/application-context-ws.xml" />
+	<import resource="classpath:net/conselldemallorca/helium/webapp/context/application-context-dwr.xml" />
 
 </beans>
