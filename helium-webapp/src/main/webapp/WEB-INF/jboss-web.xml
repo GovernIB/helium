@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jboss-web>
+	<context-root>/helium</context-root>
+	<security-domain>java:/jaas/seycon</security-domain>
+	<resource-ref>
+		<res-ref-name>jdbc/HeliumDS</res-ref-name>
+		<res-type>javax.sql.DataSource</res-type>
+		<jndi-name>java:es.caib.helium.db</jndi-name>
+	</resource-ref>
+	<resource-ref>
+		<res-ref-name>mail/HeliumSession</res-ref-name>
+		<res-type>javax.mail.Session</res-type>
+		<jndi-name>java:es.caib.helium.mail</jndi-name>
+	</resource-ref>
+</jboss-web>

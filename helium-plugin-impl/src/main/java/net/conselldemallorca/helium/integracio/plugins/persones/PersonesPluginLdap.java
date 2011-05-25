@@ -1,0 +1,156 @@
+/**
+ * 
+ */
+package net.conselldemallorca.helium.integracio.plugins.persones;
+
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
+
+import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.integracio.plugins.persones.DadesPersona.Sexe;
+
+/**
+ * Implementació de la interficie PersonesPlugin amb accés a un directori LDAP
+ * 
+ * @author Limit Tecnologies <limit@limit.es>
+ */
+public class PersonesPluginLdap implements PersonesPlugin {
+
+
+
+	public DadesPersona findAmbCodi(String codi) throws PersonesPluginException {
+		try {
+			String userFilter = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.filter.user");
+			String filter = new String(userFilter).replace("###", codi);
+			List<DadesPersona> persones = findPersonesLdap(filter);
+			if (persones.size() > 0)
+				return persones.get(0);
+			return null;
+		} catch (Exception ex) {
+			throw new PersonesPluginException("No s'ha pogut trobar la persona", ex);
+		}
+	}
+
+	public List<DadesPersona> findLikeNomSencer(String text) throws PersonesPluginException {
+		try {
+			String likeFilter = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.filter.like");
+			String filter = new String(likeFilter).replace("###", text);
+			return findPersonesLdap(filter);
+		} catch (Exception ex) {
+			throw new PersonesPluginException("No s'ha pogut trobar cap persona", ex);
+		}
+	}
+
+	public List<DadesPersona> findAll() throws PersonesPluginException {
+		try {
+			String likeFilter = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.filter.like");
+			String filter = new String(likeFilter).replace("*###*", "*");
+			return findPersonesLdap(filter);
+		} catch (Exception ex) {
+			throw new PersonesPluginException("No s'ha pogut trobar cap persona", ex);
+		}
+	}
+
+
+
+	private List<DadesPersona> findPersonesLdap(String filter) throws Exception {
+		Hashtable<String, String> envDC = new Hashtable<String, String>();
+		envDC.put(
+				Context.INITIAL_CONTEXT_FACTORY,
+				"com.sun.jndi.ldap.LdapCtxFactory");
+		envDC.put(
+				Context.PROVIDER_URL,
+				GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.url"));
+		envDC.put(
+				Context.SECURITY_AUTHENTICATION,
+				"simple");
+		envDC.put(
+				Context.SECURITY_PRINCIPAL,
+				GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.principal"));
+		envDC.put(
+				Context.SECURITY_CREDENTIALS,
+				GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.credentials"));
+		LdapContext ctx = new InitialLdapContext(envDC, null);
+		String[] returnedAtts = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.attributes").split(",");
+		SearchControls searchCtls = new SearchControls();
+		//searchCtls.setReturningAttributes(returnedAtts);
+		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+		NamingEnumeration<SearchResult> answer = ctx.search(
+				GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.searchbase"),
+				filter,
+				searchCtls);
+		List<DadesPersona> resposta = new ArrayList<DadesPersona>();
+		while (answer.hasMoreElements()) {
+			SearchResult sr = (SearchResult)answer.next();
+			System.out.println(">>> " + sr.getNameInNamespace());
+			Attributes attrs = sr.getAttributes();
+			/*NamingEnumeration ne = attrs.getIDs();
+			while (ne.hasMore()) {
+				String name = (String)ne.next();
+				System.out.println(">>>" +name + ": " + attrs.get(name).get());
+			}*/
+			String codi = (String)attrs.get(returnedAtts[0]).get();
+			String nom = (String)attrs.get(returnedAtts[1]).get();
+			String llinatges = null;
+			if (returnedAtts.length > 2 && attrs.get(returnedAtts[2]) != null)
+				llinatges = (String)attrs.get(returnedAtts[2]).get();
+			String dni = null;
+			if (returnedAtts.length > 3 && attrs.get(returnedAtts[3]) != null)
+				dni = (String)attrs.get(returnedAtts[3]).get();
+			String email = null;
+			if (returnedAtts.length > 4 && attrs.get(returnedAtts[4]) != null)
+				email = construirEmail((String)attrs.get(returnedAtts[4]).get());
+			String contrasenya = null;
+			if (returnedAtts.length > 5 && attrs.get(returnedAtts[5]) != null)
+				contrasenya = new String((byte[])attrs.get(returnedAtts[5]).get());
+			DadesPersona persona = new DadesPersona(
+					codi,
+					nom,
+					llinatges,
+					email,
+					sexePerNom(nom));
+			persona.setDni(dni);
+			persona.setContrasenya(contrasenya);
+			resposta.add(persona);
+		}
+		ctx.close();
+		return resposta;
+	}
+
+	private Sexe sexePerNom(String nom) {
+		String[] parts = nom.trim().split(" ");
+		String norm = parts[0];
+		norm = norm.replaceAll("[àâ]","a");
+		norm = norm.replaceAll("[èéêë]","e");
+		norm = norm.replaceAll("[ïî]","i");
+		norm = norm.replaceAll("Ô","o");
+		norm = norm.replaceAll("[ûù]","u");
+		norm = norm.replaceAll("[ÀÂ]","A");
+		norm = norm.replaceAll("[ÈÉÊË]","E");
+		norm = norm.replaceAll("[ÏÎ]","I");
+		norm = norm.replaceAll("Ô","O");
+		norm = norm.replaceAll("[ÛÙ]","U");
+		if (norm.toLowerCase().endsWith("a"))
+			return Sexe.SEXE_DONA;
+		else
+			return Sexe.SEXE_HOME;
+	}
+
+	private String construirEmail(String email) {
+		String dominiEmail = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.email.domini");
+		if (dominiEmail == null)
+			return email;
+		else
+			return email + "@" +  dominiEmail;
+	}
+
+}

@@ -1,0 +1,231 @@
+table.displaytag {
+	border: 1px solid #ccc;
+	width: 100%;
+	margin: 0 0 8px 0;
+	border-collapse: separate;
+	border-spacing: 2px;
+	background-color: white;
+}
+table.displaytag th, table.displaytag td {
+	padding: .4em .6em .4em .6em;
+	margin: 0;
+	text-align: left;
+	vertical-align: top;
+	color: #666;
+}
+table.displaytag td {
+}
+table.displaytag thead tr {
+	background-color: #dfe0d1;
+}
+table.displaytag th.sorted {
+	background-color: #b1c198;
+}
+table.displaytag th {
+	font-weight: bold;
+}
+table.displaytag th a, table.displaytag th a:visited {
+  color: #444;
+  text-decoration: none;
+}
+table.displaytag th a:hover {
+  text-decoration: underline;
+}
+table.displaytag th.sorted a, table.displaytag th.sortable a {
+	background-position: right;
+	display: block;
+}
+table.displaytag th.sorted a {
+	color: white;
+}
+table.displaytag th.sortable a {
+	background-repeat: no-repeat;
+	background-image: url(../img/arrow_off.png);
+}
+table.displaytag th.order1 a {
+	background-repeat: no-repeat;
+	background-image: url(../img/arrow_down.png);
+}
+table.displaytag th.order2 a {
+	background-repeat: no-repeat;
+	background-image: url(../img/arrow_up.png);
+}
+table.displaytag tr.odd {
+  background-color: white;
+}
+
+table.displaytag td a {
+	color: #7d9556;
+}
+table.displaytag td a.botoform {
+	color: #444;
+}
+
+table.displaytag tr.tableRowEven, table.displaytag tr.even {
+  background-color: #eee;
+}
+
+ul#showsource {
+	float: right;
+	background-color: #eee;
+	border: 1px dotted #999;
+	padding: 2px 4px 2px 4px;
+	margin: 5px;
+	width:100px;
+	list-style-type: none;
+}
+
+
+/* test styles */
+table.its thead tr {
+  background-color: #69c;
+}
+table.its tr.even {
+  background-color: #def;
+}
+
+table.mars thead tr {
+  background-color: #9c9;
+}
+table.mars tr.even {
+  background-color: #ccb;
+}
+table.mars tr.odd {
+  background-color: #eec;
+}
+
+
+table.simple thead tr {
+  background-color: #eee;
+}
+table.simple tr.even {
+  background-color: #fff;
+}
+table.simple {
+	border: 1px solid #ccc;
+	border-collapse: collapse;
+}
+table.simple td,table.simple th{
+	border: 1px solid #ccc;
+}
+
+table.nocol tbody td,table.nocol tbody th{
+	border-left: none;
+	border-right: none;
+}
+
+
+
+
+table.report td, table.report th{
+	font:         menu;
+}
+table.report th{
+	background:   buttonface;
+	border-width: 1px;
+	border-style: solid;
+	border-color: threedhighlight threedshadow threedshadow threedhighlight;
+	cursor: pointer;
+}
+table.report idcol {
+	background: buttonface;
+}
+
+table.report tr.even{
+	background-color: #399;
+}
+table.report tbody {
+	height: 100px;
+	overflow: auto;
+}
+
+table.report {
+	height: 120px;
+	overflow: auto;
+}
+
+table.report tbody tr{
+	height: 10px;
+}
+
+
+
+
+
+table.mark td.tableCellError {
+	background-color: #d00;
+	color: #fff;
+}
+
+table.sublist {
+	margin: 0 0 0 0;
+	width: 100%;
+}
+table.sublist td, table.sublist th {
+	width: 50%;
+}
+
+div.exportlinks {
+	background-color: #eee;
+	border: 1px dotted #999;
+	padding: 2px 4px 2px 4px;
+	margin: -10px 0 10px 0;
+	width: 98%;
+}
+
+span.export {
+	padding: 0 4px 1px 20px;
+	display: inline;
+	cursor: pointer;
+	background-repeat: no-repeat;
+}
+
+span.excel {
+	background-image: url(../img/displaytag/ico_file_excel.png);
+}
+span.csv {
+	background-image: url(../img/displaytag/ico_file_csv.png);
+}
+span.xml {
+	background-image: url(../img/displaytag/ico_file_xml.png);
+}
+span.pdf {
+	background-image: url(../img/displaytag/ico_file_pdf.png);
+}
+
+span.pageBanner, span.pageLinks, span.nothingFound {
+	display: block;
+	background: #eee none repeat scroll 0 0;
+	border-color: #ccc;
+	border-style: solid;
+	border-width: 1px 0;
+	color: #666;
+}
+span.pageBanner {
+	padding: .4em .4em 0 .4em;
+	border-bottom: none;
+}
+span.pageLinks {
+	padding: .4em;
+	border-top: none;
+	margin-bottom: 1em;
+}
+span.pageLinks a {
+	color: #7d9556;
+}
+
+span.nothingFound {
+	background: #eee none repeat scroll 0 0;
+	border-color: #ccc;
+	border-style: solid;
+	border-width: 1px 0;
+	padding: .4em;
+	margin: 0 0 1em 0;
+}
+
+table.simple td.textRed {color: #b11;}
+
+table tr.over td {
+	background: #ffffcc;
+	cursor: pointer;
+}

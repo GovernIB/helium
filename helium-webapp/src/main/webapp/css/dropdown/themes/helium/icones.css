@@ -1,0 +1,70 @@
+
+ul.dropdown li.inici a {
+	background-image: url(images/house.png);
+}
+ul.dropdown li.perfil a {
+	background-image: url(images/vcard.png);
+}
+ul.dropdown li.configuracio a {
+	background-image: url(images/cog.png);
+}
+ul.dropdown li.persones a {
+	background-image: url(images/group.png);
+}
+ul.dropdown li.festius a {
+	background-image: url(images/cake.png);
+}
+ul.dropdown li.entorns a {
+	background-image: url(images/world.png);
+}
+ul.dropdown li.sortir a {
+	background-image: url(images/system-log-out.png);
+}
+ul.dropdown li.expedient-consultes a {
+	background-image: url(images/folder_explore.png);
+}
+ul.dropdown li.expedient-iniciar a {
+	background-image: url(images/folder_add.png);
+}
+ul.dropdown li.tasques a {
+	background-image: url(images/application_form.png);
+}
+ul.dropdown li.organitzacio a {
+	background-image: url(images/chart_organisation.png);
+}
+ul.dropdown li.disseny a {
+	background-image: url(images/bricks.png);
+}
+ul.dropdown li.desplegar a {
+	background-image: url(images/package_go.png);
+}
+ul.dropdown li.defproc a {
+	background-image: url(images/page_white_gear.png);
+}
+ul.dropdown li.tipexp a {
+	background-image: url(images/folder_brick.png);
+}
+ul.dropdown li.fonts a {
+	background-image: url(images/database_link.png);
+}
+ul.dropdown li.enums a {
+	background-image: url(images/text_list_bullets.png);
+}
+ul.dropdown li.consulta a {
+	background-image: url(images/magnifier.png);
+}
+ul.dropdown li.carrec a {
+	background-image: url(images/status_offline.png);
+}
+ul.dropdown li.area a {
+	background-image: url(images/chart_pie.png);
+}
+ul.dropdown li.area-tipus a {
+	background-image: url(images/chart_pie_link.png);
+}
+ul.dropdown li.rols a {
+	background-image: url(images/user_suit.png);
+}
+ul.dropdown li.reassignar a {
+	background-image: url(images/user_go.png);
+}

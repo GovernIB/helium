@@ -1,0 +1,84 @@
+/**
+ * 
+ */
+package net.conselldemallorca.helium.core.model.dao;
+
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+
+/**
+ * Proxy per accedir als DAOs des de classes del jBPM
+ * 
+ * @author Limit Tecnologies <limit@limit.es>
+ */
+public class DaoProxy implements ApplicationContextAware {
+
+	private static final DaoProxy _inst = new DaoProxy();
+	private ApplicationContext ctx;
+
+
+
+	public static DaoProxy getInstance() {
+		if (_inst == null)
+			throw new RuntimeException("Application context not initialized!");
+		return _inst;
+	}
+	public void setApplicationContext(ApplicationContext appCtx) {
+		this.ctx = appCtx;
+	}
+
+	public EntornDao getEntornDao() {
+		return (EntornDao)ctx.getBean("entornDao", EntornDao.class);
+	}
+	public DefinicioProcesDao getDefinicioProcesDao() {
+		return (DefinicioProcesDao)ctx.getBean("definicioProcesDao", DefinicioProcesDao.class);
+	}
+	public CampDao getCampDao() {
+		return (CampDao)ctx.getBean("campDao", CampDao.class);
+	}
+	public PluginPersonaDao getPluginPersonaDao() {
+		return (PluginPersonaDao)ctx.getBean("pluginPersonaDao", PluginPersonaDao.class);
+	}
+	public AreaDao getAreaDao() {
+		return (AreaDao)ctx.getBean("areaDao", AreaDao.class);
+	}
+	public CarrecDao getCarrecDao() {
+		return (CarrecDao)ctx.getBean("carrecDao", CarrecDao.class);
+	}
+	public ExpedientTipusDao getExpedientTipusDao() {
+		return (ExpedientTipusDao)ctx.getBean("expedientTipusDao", ExpedientTipusDao.class);
+	}
+	public TascaDao getTascaDao() {
+		return (TascaDao)ctx.getBean("tascaDao", TascaDao.class);
+	}
+	public DominiDao getDominiDao() {
+		return (DominiDao)ctx.getBean("dominiDao", DominiDao.class);
+	}
+	public DocumentStoreDao getDocumentStoreDao() {
+		return (DocumentStoreDao)ctx.getBean("documentStoreDao", DocumentStoreDao.class);
+	}
+	public MailDao getMailDao() {
+		return (MailDao)ctx.getBean("mailDao", MailDao.class);
+	}
+	public FestiuDao getFestiuDao() {
+		return (FestiuDao)ctx.getBean("festiuDao", FestiuDao.class);
+	}
+	public JbpmDao getJbpmDao() {
+		return (JbpmDao)ctx.getBean("jbpmDao", JbpmDao.class);
+	}
+	public PluginRegistreDao getPluginRegistreDao() {
+		return (PluginRegistreDao)ctx.getBean("pluginRegistreDao", PluginRegistreDao.class);
+	}
+	public PluginTramitacioDao getPluginTramitacioDao() {
+		return (PluginTramitacioDao)ctx.getBean("pluginTramitacioDao", PluginTramitacioDao.class);
+	}
+	public PluginGestioDocumentalDao getPluginGestioDocumentalDao() {
+		return (PluginGestioDocumentalDao)ctx.getBean("pluginGestioDocumentalDao", PluginGestioDocumentalDao.class);
+	}
+	public ReassignacioDao getReassignacioDao() {
+		return (ReassignacioDao)ctx.getBean("reassignacioDao", ReassignacioDao.class);
+	}
+
+}

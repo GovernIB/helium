@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+
+	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="${es.caib.helium.properties.path}"/>
+	</bean>
+
+	<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+				<value>classpath:net/conselldemallorca/helium/webapp/i18n/messages</value>
+				<value>classpath:net/conselldemallorca/helium/webapp/i18n/errors</value>
+				<value>classpath:net/conselldemallorca/helium/webapp/i18n/displaytag</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="resourceRef" value="true"/>
+		<property name="jndiName" value="jdbc/HeliumDS"/>
+	</bean>
+
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">${app.hibernate.dialect}</prop>
+				<prop key="hibernate.show_sql">${app.hibernate.show_sql}</prop>
+				<prop key="hibernate.hbm2ddl.auto">${app.hibernate.hbm2ddl.auto}</prop>
+			</props>
+		</property>
+		<property name="configLocations">
+			<list>
+				<value>classpath:net/conselldemallorca/helium/core/context/jbpm3.hibernate.cfg.xml</value>
+			</list>
+		</property>
+		<property name="mappingLocations">
+			<list>
+				<value>classpath:hibernate.identity.hbm.xml</value>
+			</list>
+		</property>
+		<property name="packagesToScan">
+			<list>
+				 <value>net.conselldemallorca.helium.core.model.hibernate</value>
+				 <value>net.conselldemallorca.helium.core.security.acl</value>
+				 <value>net.conselldemallorca.helium.core.security.audit</value>
+				 <value>net.conselldemallorca.helium.core.model.update</value>
+			</list>
+		</property>
+		<property name="entityInterceptor">
+			<bean name="auditLogInterceptor" class="net.conselldemallorca.helium.core.security.audit.AuditLogInterceptor">
+				<property name="actionLoggerBean" value="actionLogger"/>
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="actionLogger" class="net.conselldemallorca.helium.core.security.audit.HibernateActionLogger" lazy-init="true">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+
+	<bean id="txManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+	<tx:advice id="txAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="get*" read-only="true"/>
+			<tx:method name="find*" read-only="true"/>
+			<tx:method name="*" propagation="REQUIRED"/>
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+		<aop:pointcut id="serviceOperationCommon" expression="execution(* net.conselldemallorca.helium.core.model.service.*Service.*(..))"/>
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="serviceOperationCommon" />
+	</aop:config>
+
+	<tx:annotation-driven transaction-manager="txManager"/>
+
+	<bean id="passwordDigester" class="net.conselldemallorca.helium.core.util.PasswordDigester">
+		<constructor-arg value="MD5"/>
+	</bean>
+
+	<bean class="net.conselldemallorca.helium.core.model.update.Updater"/>
+
+	<bean id="serviceProxy" class="net.conselldemallorca.helium.core.model.service.ServiceProxy" factory-method="getInstance"/>
+	<bean id="daoProxy" class="net.conselldemallorca.helium.core.model.dao.DaoProxy" factory-method="getInstance"/>
+
+	<!--bean id="dominiCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+		<property name="cacheManager">
+			<bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
+		</property>
+		<property name="cacheName" value="dominiCache"/>
+	</bean-->
+
+	<bean id="globalProperties" class="net.conselldemallorca.helium.core.util.GlobalProperties">
+		<constructor-arg value="${es.caib.helium.properties.path}"/>
+	</bean>
+
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="session">
+			<bean id="mailSession" class="org.springframework.jndi.JndiObjectFactoryBean">
+				<property name="resourceRef" value="true"/>
+				<property name="jndiName" value="mail/HeliumSession"/>
+			</bean>
+		</property>
+	</bean>
+
+</beans>

@@ -1,0 +1,15 @@
+<decorators defaultdir="/WEB-INF/jsp/decorators">
+	<excludes>
+		<pattern>/dwr*</pattern>
+		<pattern>/spring_security_login*</pattern>
+		<pattern>/ws*</pattern>
+		<pattern>/tasca/formIframe*</pattern>
+		<pattern>/tasca/registre*</pattern>
+		<pattern>/expedient/varRegistre*</pattern>
+		<pattern>/expedient/iniciarRegistre*</pattern>
+		<pattern>/signatura/verificarIntern*</pattern>
+	</excludes>
+	<decorator name="default" page="default.jsp">
+		<pattern>/*</pattern>
+	</decorator>
+</decorators>

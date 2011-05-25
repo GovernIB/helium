@@ -1,0 +1,125 @@
+@charset "UTF-8";
+
+/** 
+ * Default CSS Drop-Down Menu Theme
+ *
+ * @file		default.css
+ * @name		Default
+ * @version		0.1
+ * @type		transitional
+ * @browsers	Windows: IE5+, Opera7+, Firefox1+
+ *				Mac OS: Safari2+, Firefox2+
+ *
+ * @link		http://www.lwis.net/
+ * @copyright	2008 Live Web Institute. All Rights Reserved.
+ *
+ * Module Classes: *.dir {} *.on {} *.open {} li.hover {} li.first {} li.last {}
+ * Expected directory tag - li
+ *
+ */
+
+@import "icones.css";
+
+
+/*-------------------------------------------------/
+ * @section		Base Drop-Down Styling
+ * @structure	ul (unordered list)
+ *				ul li (list item)
+ *				ul li a (links)
+ *				/*\.class|(li|a):hover/
+ * @level sep	ul
+ */
+
+ul.dropdown {
+	font-weight: normal;
+}
+ul.dropdown li {
+	padding: 7px 0px;
+	color: #4c4c4c;
+}
+ul.dropdown li.hover,
+ul.dropdown li:hover {
+}
+ul.dropdown a {
+	padding: 0 10px;
+	border-left: 1px solid #a1a1a1;
+}
+ul.dropdown li.image a {
+	padding-left: 32px;
+	background-repeat: no-repeat;
+	background-position: 10px 0;
+}
+ul.dropdown a:link,
+ul.dropdown a:visited	{ color: #4c4c4c; text-decoration: none; }
+ul.dropdown a:hover		{ color: #4c4c4c; text-decoration: underline; }
+ul.dropdown a:active	{ color: #4c4c4c; }
+
+/* -- level mark -- */
+ul.dropdown ul {
+	border: 1px solid #a1a1a1;
+	padding: 4px 0px;
+	width: 132px;
+	background-color: white;
+}
+ul.dropdown ul li {
+	font-weight: normal;
+	padding: 4px 0;
+}
+ul.dropdown ul a {
+	border: none;
+}
+
+/*-------------------------------------------------/
+ * @section		Support Class `dir`
+ * @level sep	ul, .class
+ */
+
+ul.dropdown *.dir {
+	background-image: url(images/link-menu-button-arrow.png);
+	background-position: 94% 50%;
+	background-repeat: no-repeat;
+}
+ul.dropdown li.dir > a {
+	padding-right: 20px;
+}
+
+/* -- Components override -- */
+
+ul.dropdown-horizontal ul *.dir {
+	padding-right: 15px;
+	background-image: url(images/nav-arrow-right.png);
+	background-position: 100% 50%;
+	background-repeat: no-repeat;
+}
+ul.dropdown-upward *.dir {
+	background-image: url(images/nav-arrow-top.png);
+}
+
+ul.dropdown-vertical *.dir,
+ul.dropdown-upward ul *.dir {
+	background-image: url(images/nav-arrow-right.png);
+}
+ul.dropdown-vertical-rtl *.dir {
+	padding-right: 10px;
+	padding-left: 15px;
+	background-image: url(images/nav-arrow-left.png);
+	background-position: 0 50%;
+}
+
+ul#menu-superior ul li {
+	z-index: 20;
+}
+ul#menu-entorn ul {
+	width: 180px;
+}
+ul#menu-entorn ul li {
+	z-index: -1;
+}
+ul#menu-entorn a:link,
+ul#menu-entorn a:visited	{ color: #ccc; text-decoration: none; }
+ul#menu-entorn a:hover		{ color: #ccc; text-decoration: underline; }
+ul#menu-entorn a:active	{ color: #ccc; }
+ul#menu-entorn ul a:link,
+ul#menu-entorn ul a:visited	{ color: #4c4c4c; text-decoration: none; }
+ul#menu-entorn ul a:hover		{ color: #4c4c4c; text-decoration: underline; }
+ul#menu-entorn ul a:active	{ color: #4c4c4c; }

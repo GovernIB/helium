@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans	xmlns="http://www.springframework.org/schema/beans"
+		xmlns:context="http://www.springframework.org/schema/context"
+		xmlns:p="http://www.springframework.org/schema/p"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:dwr="http://www.directwebremoting.org/schema/spring-dwr"
+		xsi:schemaLocation="
+				http://www.springframework.org/schema/beans
+				http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+				http://www.springframework.org/schema/context
+				http://www.springframework.org/schema/context/spring-context-2.5.xsd
+				http://www.directwebremoting.org/schema/spring-dwr
+				http://www.directwebremoting.org/schema/spring-dwr-2.0.xsd"
+		default-autowire="byName">
+
+	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="${es.caib.helium.properties.path}"/>
+	</bean>
+
+	<context:component-scan base-package="net.conselldemallorca.helium.webapp.mvc"/>
+
+	<bean id="configurationLoader" class="org.springmodules.validation.bean.conf.loader.annotation.AnnotationBeanValidationConfigurationLoader"/>
+	<bean id="errorCodeConverter" class="org.springmodules.validation.bean.converter.KeepAsIsErrorCodeConverter" />
+	<bean id="annotationValidator" class="org.springmodules.validation.bean.BeanValidator"
+		p:configurationLoader-ref="configurationLoader"
+		p:errorCodeConverter-ref="errorCodeConverter"/>
+
+	<bean id="beanNameViewResolver" class="org.springframework.web.servlet.view.BeanNameViewResolver">
+		<property name="order" value="0"/>
+	</bean>
+	<bean id="defaultViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/jsp/"/>
+		<property name="suffix" value=".jsp"/>
+		<property name="order" value="1"/>
+	</bean>
+
+	<bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
+		<property name="order" value="0"/>
+		<property name="interceptors">
+			<list>
+				<bean class="net.conselldemallorca.helium.webapp.mvc.interceptor.PersonaInterceptor"/>
+				<bean class="net.conselldemallorca.helium.webapp.mvc.interceptor.EntornInterceptor"/>
+				<bean class="net.conselldemallorca.helium.webapp.mvc.interceptor.PermisosDissenyInterceptor"/>
+				<bean class="net.conselldemallorca.helium.webapp.mvc.interceptor.GlobalPropertiesInterceptor"/>
+				<bean class="org.springframework.orm.hibernate3.support.OpenSessionInViewInterceptor">
+					<property name="singleSession" value="true"/>
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize" value="${app.fileupload.maxsize}"/><!-- Max size in bytes. -->
+	</bean>
+
+	<bean name="arxiuView" class="net.conselldemallorca.helium.webapp.mvc.ArxiuView"/>
+	<bean name="arxiuConvertirView" class="net.conselldemallorca.helium.webapp.mvc.ArxiuConvertirView"/>
+	<bean name="serialitzarView" class="net.conselldemallorca.helium.webapp.mvc.SerialitzarView"/>
+
+	<bean id="festiuDwrService" class="net.conselldemallorca.helium.webapp.dwr.FestiuDwrService">
+		<dwr:remote javascript="festiuDwrService"/>
+	</bean>
+	<bean id="campsProcesDwrService" class="net.conselldemallorca.helium.webapp.dwr.CampsProcesDwrService">
+		<dwr:remote javascript="campsProcesDwrService"/>
+	</bean>
+	<bean id="formulariExternDwrService" class="net.conselldemallorca.helium.webapp.dwr.FormulariExternDwrService">
+		<dwr:remote javascript="formulariExternDwrService"/>
+	</bean>
+	<dwr:configuration>
+		<dwr:convert type="bean" class="net.conselldemallorca.helium.core.model.hibernate.*"/>
+	</dwr:configuration>
+
+	<bean id="responseCachingFilter" class="net.conselldemallorca.helium.webapp.mvc.interceptor.ResponseCachingFilter">
+		<property name="useCacheControlHeader" value="true" />
+		<property name="cacheMappings">
+			<props>
+				<!-- cache for one day -->
+				<prop key="/**/*.png">86400</prop>
+				<prop key="/**/*.jpg">86400</prop>
+				<prop key="/**/*.gif">86400</prop>
+				<prop key="/**/*.css">86400</prop>
+				<prop key="/**/*.js">86400</prop>
+			</props>
+		</property>
+	</bean>
+
+</beans>

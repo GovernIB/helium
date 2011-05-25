@@ -1,0 +1,399 @@
+body {
+    background-color: white;
+    color: #4c4c4c;
+    text-align: left;
+    font-family: Arial,sans-serif;
+	font-size: 81%;
+}
+
+a {
+	text-decoration: none;
+}
+a:hover {
+	text-decoration: underline;
+}
+
+#content h2 {
+    padding: 0 0 1.4em 0;
+    color: black;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+form.uniForm .estret {
+	width: 600px;
+}
+
+.missatgesOk {
+	background: #C8FFBF url(../img/tick.png) no-repeat scroll 4px 6px;
+	border-color: #A2EF95;
+	border-style: solid;
+	border-width: 1px 0;
+	margin: 0 0 8px 0;
+	padding: 10px 8px 2px 30px;
+	color: #666;
+}
+.missatgesInfo {
+	background: #DCF0F6 url(../img/information.png) no-repeat scroll 4px 6px;
+	border-color: #AFD2DE;
+	border-style: solid;
+	border-width: 1px 0;
+	margin: 0 0 8px 0;
+	padding: 10px 8px 2px 30px;
+	color: #666;
+}
+.missatgesWarn {
+	background: #FCF3C0 url(../img/error.png) no-repeat scroll 4px 6px;
+	border-color: #F9C216;
+	border-style: solid;
+	border-width: 1px 0;
+	margin: 0 0 8px 0;
+	padding: 10px 8px 2px 30px;
+	color: #666;
+}
+.missatgesError {
+	background: #FFDFDF url(../img/exclamation.png) no-repeat scroll 4px 6px;
+	border-color: #DF7D7D;
+	border-style: solid;
+	border-width: 1px 0;
+	margin: 0 0 8px 0;
+	padding: 10px 8px 2px 30px;
+	color: #666;
+}
+.missatgesComment {
+	background: #DCF0F6 url(../img/comment.png) no-repeat scroll 4px 6px;
+	border-color: #AFD2DE;
+	border-style: solid;
+	border-width: 1px 0;
+	margin: 0 0 8px 0;
+	padding: 10px 8px 2px 30px;
+	color: #666;
+}
+.missatgesAturat {
+	background: #FFDFDF url(../img/stop.png) no-repeat scroll 4px 6px;
+	border-color: #DF7D7D;
+	border-style: solid;
+	border-width: 1px 0;
+	margin: 0 0 8px 0;
+	padding: 10px 8px 2px 30px;
+	color: #666;
+}
+.missatgesGris {
+	background: #F4F4F4 none repeat scroll 0 0;
+	border-color: #DDD;
+	border-style: solid;
+	border-width: 1px 0;
+	margin: 0 0 1.5em;
+	padding: .8em;
+	color: #666;
+}
+.missatgesGrisFort {
+	background: #666 none repeat scroll 0 0;
+	border-color: #DDD;
+	border-style: solid;
+	border-width: 1px 0;
+	margin: 0 0 1.5em;
+	padding: .8em;
+	color: #eee;
+}
+.missatgesGrisFort h4.titol-missatge {
+	padding: 0;
+	margin: 0 0 8px 0;
+    color: #eee;
+    font-weight: bold;
+    font-size: 16px;
+}
+.missatgesVermell {
+	background: #FFDFDF none repeat scroll 0 0;
+	border-color: #DFCDCD;
+	border-style: solid;
+	border-width: 1px 0;
+	margin: 0 0 1.5em;
+	padding: .8em;
+	color: #666;
+}
+.missatgesBlau {
+	background: #DCF0F6 none repeat scroll 0 0;
+	border-color: #AFD2DE;
+	border-style: solid;
+	border-width: 1px 0;
+	margin: 0 0 1.5em;
+	padding: .8em;
+	color: #666;
+}
+.missatgesDocumentGris {
+	background: #F4F4F4 none repeat scroll 0 0;
+	border-color: #DDD;
+	border-style: solid;
+	border-width: 1px 0;
+	margin: 0 0 1.5em;
+	padding: .8em;
+	color: #666;
+}
+.missatgesDocumentVermell {
+	background: #FFDFDF none repeat scroll 0 0;
+	border-color: #DFCDCD;
+	border-style: solid;
+	border-width: 1px 0;
+	margin: 0 0 1.5em;
+	padding: .8em;
+	color: #666;
+}
+
+img.suggestImgInfo {
+	position: relative;
+	top: 3px;
+	left: -20px;
+}
+img.suggestImgEsborrar {
+	position: relative;
+	top: 3px;
+	left: -20px;
+}
+.tascaForm img.suggestImgInfo {
+	left: -30px !important;
+}
+.tascaForm img.suggestImgEsborrar {
+	left: -30px !important;
+}
+
+button.submitButton {
+	background: transparent url(../img/gradients.png) repeat-x;
+	background-position: 0 -3960px;
+	padding: 1px 10px;
+	-moz-border-radius: 2px;
+	border: 1px solid #666;
+}
+button.submitButton:hover, button.submitButtonImage:hover {
+	background-position: 0 -540px;
+}
+button.submitButtonImage {
+	background: transparent url(../img/gradients.png) repeat-x;
+	background-position: 0 -3960px;
+	border: 1px solid #666666;
+	-moz-border-radius: 2px;
+	padding: 1px 10px 1px 4px;
+}
+
+button.submitButtonImage span {
+	padding: 8px;
+	margin-right: 4px;
+	background-repeat: no-repeat;
+	background-position: 0 8px;
+}
+button.submitButtonImage span.entorn-admin {
+	background-image: url(../img/world_edit.png);
+}
+button.submitButtonImage span.entorn-permisos {
+	background-image: url(../img/lock.png);
+}
+button.submitButtonImage span.nova-variable {
+	background-image: url(../img/page_white_add.png);
+}
+button.submitButtonImage span.filtre {
+	background-image: url(../img/magnifier.png);
+}
+
+
+
+
+h3.capsalera {
+	background-color: #e3e3e3;
+	border-bottom: 2px solid #f3f3f3;
+	font-size: 116%;
+	font-weight: bold;
+	height: 1.2em;
+	margin: 0.4em 0;
+	padding: 0.6em 0.3em 0.3em 1em;
+}
+
+dl.form-info {
+	margin: 0 0 0 16px;
+	padding: 0;
+}
+dl.form-info dt {
+	float: left;
+	clear: left;
+	width: 20em;
+	font-weight: bold;
+	margin: 0 0 0 0;
+	padding: .8em .5em;
+}
+dl.form-info dt:after {
+}
+dl.form-info dd {
+	margin: 0 0 0 0;
+	padding: .8em .5em;
+}
+
+form.accio-titol {
+	float: right;
+	margin: 2px 0 0 4px;
+}
+
+h3.titol-tab {
+	padding: 8px 0 12px 0;
+    color: #666;
+    font-weight: bold;
+    font-size: 16px;
+}
+h3.titol-info {
+	padding-left: 24px;
+	background-image: url(../img/information.png);
+	background-repeat: no-repeat;
+	background-position: 2px 6px;
+}
+h3.titol-dades-expedient {
+	padding-left: 24px;
+	background-image: url(../img/folder.png);
+	background-repeat: no-repeat;
+	background-position: 0 6px;
+}
+h3.titol-documents-expedient {
+	padding-left: 24px;
+	background-image: url(../img/page_white_stack.png);
+	background-repeat: no-repeat;
+	background-position: 0 6px;
+}
+h3.titol-adjunts-expedient {
+	padding-left: 24px;
+	background-image: url(../img/attach.png);
+	background-repeat: no-repeat;
+	background-position: 0 6px;
+}
+h3.titol-dades-tasques {
+	padding-left: 24px;
+	background-image: url(../img/application_form.png);
+	background-repeat: no-repeat;
+	background-position: 2px 8px;
+}
+h3.titol-timeline {
+	padding-left: 24px;
+	background-image: url(../img/calendar.png);
+	background-repeat: no-repeat;
+	background-position: 0 6px;
+}
+h3.titol-registre {
+	padding-left: 24px;
+	background-image: url(../img/report.png);
+	background-repeat: no-repeat;
+	background-position: 2px 8px;
+}
+h3.titol-tokens {
+	padding-left: 24px;
+	background-image: url(../img/sitemap_color.png);
+	background-repeat: no-repeat;
+	background-position: 2px 8px;
+}
+h3.amb-lupa {
+	background-position: 2px 10px;
+}
+h3.titol-dades-tasca {
+	padding-left: 24px;
+	background-image: url(../img/page_white_text.png);
+	background-repeat: no-repeat;
+	background-position: 2px 6px;
+}
+h3.titol-aturar {
+	padding-left: 24px;
+	background-image: url(../img/stop.png);
+	background-repeat: no-repeat;
+	background-position: 2px 6px;
+}
+h3.titol-reprendre {
+	padding-left: 24px;
+	background-image: url(../img/resultset_next.png);
+	background-repeat: no-repeat;
+	background-position: 2px 6px;
+}
+h3.titol-script {
+	padding-left: 24px;
+	background-image: url(../img/page_white_lightning.png);
+	background-repeat: no-repeat;
+	background-position: 2px 6px;
+}
+h3.titol-canvi-versio {
+	padding-left: 24px;
+	background-image: url(../img/cog_go.png);
+	background-repeat: no-repeat;
+	background-position: 2px 6px;
+}
+h3.titol-documents-tasca {
+	padding-left: 24px;
+	background-image: url(../img/page_white_stack.png);
+	background-repeat: no-repeat;
+	background-position: 2px 6px;
+}
+h3.titol-firmes-tasca {
+	padding-left: 24px;
+	background-image: url(../img/rosette.png);
+	background-repeat: no-repeat;
+	background-position: 2px 6px;
+}
+h3.titol-terminis {
+	padding-left: 24px;
+	background-image: url(../img/hourglass.png);
+	background-repeat: no-repeat;
+	background-position: 2px 6px;
+}
+h3.titol-delegacio {
+	padding-left: 24px;
+	background-image: url(../img/note_go.png);
+	background-repeat: no-repeat;
+	background-position: 2px 6px;
+}
+h3.titol-variables-tascadef {
+	padding-left: 24px;
+	background-image: url(../img/page_white_stack.png);
+	background-repeat: no-repeat;
+	background-position: 2px 6px;
+}
+h3.titol-documents-tascadef {
+	padding-left: 24px;
+	background-image: url(../img/page_white_stack.png);
+	background-repeat: no-repeat;
+	background-position: 2px 6px;
+}
+h3.titol-signatures-tascadef {
+	padding-left: 24px;
+	background-image: url(../img/page_white_stack.png);
+	background-repeat: no-repeat;
+	background-position: 2px 6px;
+}
+h3.titol-validacions-campdef {
+	padding-left: 24px;
+	background-image: url(../img/page_white_stack.png);
+	background-repeat: no-repeat;
+	background-position: 2px 6px;
+}
+
+h4.titol-missatge {
+	padding: 0;
+	margin: 0 0 8px 0;
+    color: #666;
+    font-weight: bold;
+    font-size: 14px;
+}
+h4.titol-consulta {
+	color: #666;
+    font-weight: bold;
+    font-size: 14px;
+	padding-left: 24px;
+	margin: 0 0 8px 0;
+	background-image: url(../img/magnifier.png);
+	background-repeat: no-repeat;
+	background-position: 0px 0px;
+}
+
+div.iconsFileInput {
+	padding: 2px 0 3px 0;
+}
+
+p.aclaracio {
+	color: #999;
+	font-size: 12px;
+}
+
+.missatgesOk p, .missatgesInfo p, .missatgesWarn p, .missatgesError p, .missatgesComment p, .missatgesAturat p {
+	margin-bottom: 8px;
+}
