@@ -470,7 +470,7 @@
 
 	<login-config>
 		<auth-method>BASIC</auth-method>
-		<realm-name>Govern de les Illes Balears</realm-name>
+		<realm-name>${web.realm.name}</realm-name>
 	</login-config>
 
 	<security-role>

@@ -29,6 +29,8 @@
 				<artifactId>maven-ear-plugin</artifactId>
 				<version>2.3.2</version>
 				<configuration>
+					<finalName>helium</finalName>
+					<applicationXml>${basedir}/src/main/application/META-INF/application.xml</applicationXml>
 					<modules>
 						<webModule>
 							<groupId>net.conselldemallorca</groupId>

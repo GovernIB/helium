@@ -14,6 +14,9 @@
 	<packaging>war</packaging>
 	<name>helium-webapp Maven Webapp</name>
 	<url>http://maven.apache.org</url>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -126,25 +129,19 @@
 		</dependency>
 	</dependencies>
 	<build>
+		<filters>
+			<filter>../build.properties</filter>
+		</filters>
 		<plugins>
-			<!--plugin>
-				<groupId>org.codehaus.mojo</groupId>
+			<!--
+				plugin> <groupId>org.codehaus.mojo</groupId>
 				<artifactId>properties-maven-plugin</artifactId>
-				<version>1.0-alpha-2</version>
-				<executions>
-					<execution>
-						<phase>initialize</phase>
-						<goals>
-							<goal>read-project-properties</goal>
-						</goals>
-						<configuration>
-							<files>
-								<file>build.properties</file>
-							</files>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin-->
+				<version>1.0-alpha-2</version> <executions> <execution>
+				<phase>initialize</phase> <goals>
+				<goal>read-project-properties</goal> </goals> <configuration>
+				<files> <file>build.properties</file> </files> </configuration>
+				</execution> </executions> </plugin
+			-->
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
@@ -159,6 +156,14 @@
 				<configuration>
 					<warName>helium</warName>
 					<webResources>
+						<webResource>
+							<directory>src/main/webapp/WEB-INF</directory>
+							<targetPath>WEB-INF</targetPath>
+							<includes>
+								<include>web.xml</include>
+							</includes>
+							<filtering>true</filtering>
+						</webResource>
 						<resource>
 							<directory>src/main/java</directory>
 							<targetPath>WEB-INF/classes</targetPath>
