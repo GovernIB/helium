@@ -95,6 +95,16 @@ public class PluginRegistreDao {
 		}
 	}
 
+	public String obtenirNomOficina(
+			String oficinaCodi) {
+		try {
+			return getRegistrePlugin().obtenirNomOficina(oficinaCodi);
+		} catch (RegistrePluginException ex) {
+			logger.error("Error al obtenir el nom de l'oficina " + oficinaCodi, ex);
+			throw new PluginException("Error al obtenir el nom de l'oficina " + oficinaCodi, ex);
+		}
+	}
+
 	public boolean isRegistreActiu() {
 		String pluginClass = GlobalProperties.getInstance().getProperty("app.registre.plugin.class");
 		return (pluginClass != null && pluginClass.length() > 0);

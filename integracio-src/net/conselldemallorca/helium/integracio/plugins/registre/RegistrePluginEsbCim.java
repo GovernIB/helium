@@ -275,6 +275,10 @@ public class RegistrePluginEsbCim implements RegistrePlugin {
 		}
 	}
 
+	public String obtenirNomOficina(String oficinaCodi) throws RegistrePluginException {
+		return "Registre General";
+	}
+
 
 
 	private ServicioRegistroPortType getRegistroClient() {

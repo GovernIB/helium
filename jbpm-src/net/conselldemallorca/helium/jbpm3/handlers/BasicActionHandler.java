@@ -411,7 +411,8 @@ public abstract class BasicActionHandler implements ActionHandler {
 							respostaAnotacio.getNumero(),
 							dadesEntrada.getOrganCodi(),
 							dadesEntrada.getOficinaCodi(),
-							"Oficina Helium");
+							getPluginRegistreDao().obtenirNomOficina(
+									dadesEntrada.getOficinaCodi()));
 				}
 				RespostaRegistre resposta = new RespostaRegistre();
 				resposta.setNumero(respostaAnotacio.getNumero());
@@ -531,7 +532,8 @@ public abstract class BasicActionHandler implements ActionHandler {
 							respostaAnotacio.getNumero(),
 							dadesSortida.getOrganCodi(),
 							dadesSortida.getOficinaCodi(),
-							"Oficina Helium");
+							getPluginRegistreDao().obtenirNomOficina(
+									dadesSortida.getOficinaCodi()));
 				}
 				RespostaRegistre resposta = new RespostaRegistre();
 				resposta.setNumero(respostaAnotacio.getNumero());
@@ -685,7 +687,8 @@ public abstract class BasicActionHandler implements ActionHandler {
 							respostaAnotacio.getNumero(),
 							dadesNotificacio.getOrganCodi(),
 							dadesNotificacio.getOficinaCodi(),
-							"Oficina Helium");
+							getPluginRegistreDao().obtenirNomOficina(
+									dadesNotificacio.getOficinaCodi()));
 				}
 				RespostaRegistre resposta = new RespostaRegistre();
 				resposta.setNumero(respostaAnotacio.getNumero());

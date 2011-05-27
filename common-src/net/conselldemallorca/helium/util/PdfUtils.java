@@ -37,7 +37,6 @@ public class PdfUtils {
 	public static final int REGISTRE_POSITION_TOP_LEFT = 3;
 
 	private static final float MARGE = 10;
-	private static final String REGISTRE_ENTITAT = "LIMIT TECNOLOGIES";
 
 	private OpenOfficeUtils openOfficeUtils;
 
@@ -183,7 +182,9 @@ public class PdfUtils {
 		Font registreFont = new Font(Font.HELVETICA, 6);
 		PdfPTable table = new PdfPTable(2);
 		PdfPCell cell = new PdfPCell();
-		Paragraph parEntitat = new Paragraph(REGISTRE_ENTITAT, registreFont);
+		Paragraph parEntitat = new Paragraph(
+				getRegistreEntitat(),
+				registreFont);
 		cell.addElement(parEntitat);
 		Paragraph parOficina = new Paragraph(registreOficina, registreFont);
 		cell.addElement(parOficina);
@@ -278,6 +279,9 @@ public class PdfUtils {
 		} else {
 			return null;
 		}
+	}
+	private String getRegistreEntitat() {
+		return GlobalProperties.getInstance().getProperty("app.registre.segell.entitat");
 	}
 
 	private String[] extensionsConvertiblesPdf = {

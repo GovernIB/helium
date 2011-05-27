@@ -24,7 +24,8 @@ public class RegistrePluginTest {
 		try {
 			new GlobalProperties(new FileSystemResource("c:/tmp/helium/global.properties"));
 			RegistrePluginTest test = new RegistrePluginTest();
-			test.notificacio();
+			//test.notificacio();
+			test.nomOficina();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -76,6 +77,13 @@ public class RegistrePluginTest {
 		RespostaAnotacioRegistre resposta = registrePlugin.registrarNotificacio(registreNotificacio);
 		System.out.println(">>> num: " + resposta.getNumero());
 	}
+	
+	public void nomOficina() throws Exception {
+		RegistrePluginAjuntament registrePlugin = new RegistrePluginAjuntament();
+		System.out.println(">>> oficina: " + registrePlugin.obtenirNomOficina("3-1"));
+	}
+
+
 
 	private byte[] getResourceContent(String resourceName) throws Exception {
 		InputStream is = getClass().getResourceAsStream(resourceName);

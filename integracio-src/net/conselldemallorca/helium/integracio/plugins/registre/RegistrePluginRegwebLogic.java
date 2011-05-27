@@ -3,9 +3,11 @@ package net.conselldemallorca.helium.integracio.plugins.registre;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Vector;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -21,6 +23,8 @@ import es.caib.regweb.logic.interfaces.RegistroEntradaFacade;
 import es.caib.regweb.logic.interfaces.RegistroEntradaFacadeHome;
 import es.caib.regweb.logic.interfaces.RegistroSalidaFacade;
 import es.caib.regweb.logic.interfaces.RegistroSalidaFacadeHome;
+import es.caib.regweb.logic.interfaces.ValoresFacade;
+import es.caib.regweb.logic.interfaces.ValoresFacadeHome;
 
 
 /**
@@ -337,6 +341,32 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 		throw new RegistrePluginException("Mètode no implementat en aquest plugin");
 	}
 
+	@SuppressWarnings({"unchecked", "unused"})
+	public String obtenirNomOficina(String oficinaCodi) throws RegistrePluginException {
+		try {
+			if (oficinaCodi != null) {
+				int indexBarra = oficinaCodi.indexOf(SEPARADOR_ENTITAT);
+				if (indexBarra != -1) {
+					Vector v = getValoresService().buscarOficinasFisicasDescripcion("tots", "totes");
+					Iterator it = v.iterator();
+					while (it.hasNext()) {
+						String codiOficina = (String)it.next();
+						String codiOficinaFisica = (String)it.next();
+						String nomOficinaFisica = (String)it.next();
+						String nomOficina = (String)it.next();
+						String textComparacio = codiOficina + SEPARADOR_ENTITAT + codiOficinaFisica;
+						if (textComparacio.equals(oficinaCodi))
+							return nomOficina;
+					}
+				}
+			}
+			return null;
+		} catch (Exception ex) {
+			logger.error("Error al obtenir el nom de l'oficina " + oficinaCodi, ex);
+			throw new RegistrePluginException("Error al obtenir el nom de l'oficina " + oficinaCodi, ex);
+		}
+	}
+
 
 
 	private RegistroEntradaFacade getRegistreEntradaService() throws Exception {
@@ -357,6 +387,16 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 		ctx.close();
 		return home.create();
 	}
+	private ValoresFacade getValoresService() throws Exception {
+		Context ctx = getInitialContext();
+		Object objRef = ctx.lookup("es.caib.regweb.logic.ValoresFacade");
+		ValoresFacadeHome home = (ValoresFacadeHome)javax.rmi.PortableRemoteObject.narrow(
+				objRef,
+				ValoresFacadeHome.class);
+		ctx.close();
+		return home.create();
+	}
+
 	private Context getInitialContext() throws Exception {
 		Properties props = new Properties();
 		props.put(
