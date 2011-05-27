@@ -111,15 +111,15 @@ public class ExpedientDocumentModificarController extends BaseController {
 							dissenyService.getDocumentById(docId));
 					return "expedient/documentForm";
 				} else {
-					missatgeError(request, "No es pot modificar un document signat");
+					missatgeError(request, getMessage("error.modificar.doc.signat") );
 					return "redirect:/expedient/documents.html?id=" + id;
 				}
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 			}
 			return "redirect:/expedient/consulta.html";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -162,19 +162,19 @@ public class ExpedientDocumentModificarController extends BaseController {
 									(multipartFile.getSize() > 0) ? multipartFile.getOriginalFilename() : null,
 									(multipartFile.getSize() > 0) ? command.getContingut() : null);
 						}
-						missatgeInfo(request, "El document s'ha guardat correctament");
+						missatgeInfo(request, getMessage("info.document.guardat") );
 			        } catch (Exception ex) {
-			        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+			        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut guardar el document", ex);
 			        }
 				}
 				return "redirect:/expedient/documents.html?id=" + id;
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -209,12 +209,12 @@ public class ExpedientDocumentModificarController extends BaseController {
 				}
 				return "arxiuConvertirView";				
 			} catch (Exception ex) {
-				missatgeError(request, "No s'ha pogut generar el document", ex.getLocalizedMessage());
+				missatgeError(request, getMessage("error.generar.document"), ex.getLocalizedMessage());
 	        	logger.error("Error generant el document " + docId + " per la instància de procés " + id, ex);
 	        	return "redirect:/expedient/documentModificar.html?id=" + id + "&docId=" + docId;
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

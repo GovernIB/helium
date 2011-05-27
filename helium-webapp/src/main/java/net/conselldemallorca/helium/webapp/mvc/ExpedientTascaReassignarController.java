@@ -80,11 +80,11 @@ public class ExpedientTascaReassignarController extends BaseController {
 	        			model);
 				return "expedient/tascaReassignar";
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -117,7 +117,7 @@ public class ExpedientTascaReassignarController extends BaseController {
 								entorn.getId(),
 								command.getTaskId(),
 								command.getExpression());
-						missatgeInfo(request, "La tasca " + command.getTaskId() + " s'ha reassignat correctament");
+						missatgeInfo(request, getMessage("info.tasca.reassignada", new Object[] { command.getTaskId() } ) );
 					} catch (Exception ex) {
 						if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
 							missatgeError(
@@ -126,7 +126,7 @@ public class ExpedientTascaReassignarController extends BaseController {
 						} else {
 							missatgeError(
 				        			request,
-				        			"No s'ha pogut reassignar la tasca " + command.getTaskId(),
+				        			getMessage("error.reassignar.tasca", new Object[] { command.getTaskId() } ),
 				        			(ex.getCause() != null) ? ex.getCause().getMessage() : ex.getMessage());
 						}
 			        	logger.error("No s'ha pogut reassignar la tasca " + command.getTaskId(), ex);
@@ -134,11 +134,11 @@ public class ExpedientTascaReassignarController extends BaseController {
 				}
 				return "redirect:/expedient/tasques.html?id=" + id;
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

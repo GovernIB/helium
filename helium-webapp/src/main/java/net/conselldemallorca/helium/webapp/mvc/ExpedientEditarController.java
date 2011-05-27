@@ -92,11 +92,11 @@ public class ExpedientEditarController extends BaseController {
 				dadesPaginaEditar(id, expedient, model);
 				return "expedient/editar";
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -134,9 +134,9 @@ public class ExpedientEditarController extends BaseController {
 								command.getGeoPosX(),
 								command.getGeoPosY(),
 								command.getGeoReferencia());
-						missatgeInfo(request, "La informació s'ha modificat correctament");
+						missatgeInfo(request, getMessage("info.informacio.modificat") );
 					} catch (Exception ex) {
-						missatgeError(request, "No s'han pogut modificar les dades de l'expedient", ex.getLocalizedMessage());
+						missatgeError(request, getMessage("error.modificar.dades.exp"), ex.getLocalizedMessage());
 			        	logger.error("No s'han pogut modificar les dades de l'expedient", ex);
 			        	dadesPaginaEditar(id, expedient, model);
 			        	return "expedient/editar";
@@ -144,11 +144,11 @@ public class ExpedientEditarController extends BaseController {
 				}
 				return "redirect:/expedient/info.html?id=" + id;
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

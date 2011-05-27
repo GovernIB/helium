@@ -128,7 +128,7 @@ public class ExpedientDadaCrearController extends BaseController {
 			model.addAttribute("expedient", expedient);
 			return "expedient/dadaCrear";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -169,7 +169,7 @@ public class ExpedientDadaCrearController extends BaseController {
 								var,
 								null);
 					}
-					missatgeInfo(request, "La dada s'ha creat correctament");
+					missatgeInfo(request, getMessage("info.dada.creat") );
 					if (command.isModificar()) {
 						if (id != null)
 							return "redirect:/expedient/dadaModificar.html?id=" + id + "&var=" + var;
@@ -179,11 +179,11 @@ public class ExpedientDadaCrearController extends BaseController {
 				}
 				return "redirect:/expedient/dades.html?id=" + getUrlParamId(entorn.getId(), id, taskId);
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

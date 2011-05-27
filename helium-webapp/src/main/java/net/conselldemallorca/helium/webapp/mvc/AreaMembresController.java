@@ -82,7 +82,7 @@ public class AreaMembresController extends BaseController {
 		if (entorn != null) {
 			return "area/membres";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -101,10 +101,10 @@ public class AreaMembresController extends BaseController {
 		        			command.getId(),
 		        			command.getPersona(),
 		        			(command.getCarrec() != null) ? command.getCarrec().getId() : null);
-		        	missatgeInfo(request, "S'ha afegit la persona a l'àrea");
+		        	missatgeInfo(request, getMessage("info.afegit.persona.area") );
 		        	status.setComplete();
 		        } catch (Exception ex) {
-		        	missatgeError(request, "No s'ha pogut afegir el membre", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.afegir.persona.area"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut guardar el registre", ex);
 		        	return "area/membres";
 		        }
@@ -113,7 +113,7 @@ public class AreaMembresController extends BaseController {
 				return "redirect:/area/llistat.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -126,15 +126,15 @@ public class AreaMembresController extends BaseController {
 		if (entorn != null) {
 			try {
 				organitzacioService.esborrarMembre(command.getId(), command.getPersona());
-	        	missatgeInfo(request, "S'ha esborrat la persona de l'àrea");
+	        	missatgeInfo(request, getMessage("info.esborrat.persona.area") );
 	        	status.setComplete();
 	        } catch (Exception ex) {
-	        	missatgeError(request, "No s'ha pogut esborrar la persona", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.esborrar.persona.area"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut esborrar la persona", ex);
 	        }
 	    	return "redirect:/area/membres.html?id=" + command.getId();
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

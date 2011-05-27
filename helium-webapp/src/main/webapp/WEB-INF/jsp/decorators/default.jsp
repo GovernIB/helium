@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://www.opensymphony.com/sitemesh/decorator" prefix="decorator"%>
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="security" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -11,7 +12,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-	<title>Helium - <decorator:title default="Benvinguts"/></title>
+	<title>Helium - <decorator:title default="<fmt:message key='decorators.default.benvinguts' />"/></title>
 	<link rel="icon" href="<c:url value="/img/favicon.ico"/>" type="image/x-icon"/>
 	<link rel="shortcut icon" href="<c:url value="/img/favicon.ico"/>" type="image/x-icon"/> 
 	<link href="<c:url value="/css/reset.css"/>" rel="stylesheet" type="text/css"/>
@@ -41,12 +42,12 @@
 				<c:choose>
 					<c:when test="${globalProperties['app.logout.actiu']}">
 						<ul id="menu-logout" class="dropdown dropdown-horizontal">
-							<li class="image sortir"><a title="Autenticat actualment amb l'usuari: ${dadesPersona.codi}" href="<c:url value="/logout.jsp"/>">Sortir</a></li>
+							<li class="image sortir"><a title="<fmt:message key='decorators.default.autenticat_amb' />: ${dadesPersona.codi}" href="<c:url value="/logout.jsp"/>"><fmt:message key='decorators.default.sortir' /></a></li>
 						</ul>
 					</c:when>
 					<c:otherwise>
 						<ul id="menu-logout" class="dropdown dropdown-horizontal">
-							<li class="image sortir"><img src="<c:url value="/img/user_suit.png"/>" alt="Usuari ${dadesPersona.codi}" title="Usuari ${dadesPersona.codi}" border="0" style="position:relative;top:3px"/> ${dadesPersona.codi}</li>
+							<li class="image sortir"><img src="<c:url value="/img/user_suit.png"/>" alt="<fmt:message key='decorators.default.usuari' /> ${dadesPersona.codi}" title="<fmt:message key='decorators.default.usuari' /> ${dadesPersona.codi}" border="0" style="position:relative;top:3px"/> ${dadesPersona.codi}</li>
 						</ul>
 					</c:otherwise>
 				</c:choose>

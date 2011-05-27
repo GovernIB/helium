@@ -1,7 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <h3 class="titol-tab">
-Definició de procés actual:
+<fmt:message key='common.tabsdef.definicio' />:
 <c:choose>
 	<c:when test="${param.tabActiu == 'info'}"><c:set var="formUrl" value="/definicioProces/info.html"/></c:when>
 	<c:when test="${param.tabActiu == 'tasques'}"><c:set var="formUrl" value="/definicioProces/tascaLlistat.html"/></c:when>
@@ -21,12 +22,12 @@ Definició de procés actual:
 </form>
 </h3>
 <ul id="tabnav">
-	<li<c:if test="${param.tabActiu == 'info'}"> class="active"</c:if>><a href="<c:url value="/definicioProces/info.html"><c:param name="definicioProcesId" value="${definicioProces.id}"/></c:url>">Detalls</a></li>
-	<li<c:if test="${param.tabActiu == 'tasques'}"> class="active"</c:if>><a href="<c:url value="/definicioProces/tascaLlistat.html"><c:param name="definicioProcesId" value="${definicioProces.id}"/></c:url>">Tasques</a></li>
-	<li<c:if test="${param.tabActiu == 'camps'}"> class="active"</c:if>><a href="<c:url value="/definicioProces/campLlistat.html"><c:param name="definicioProcesId" value="${definicioProces.id}"/></c:url>">Variables</a></li>
-	<li<c:if test="${param.tabActiu == 'documents'}"> class="active"</c:if>><a href="<c:url value="/definicioProces/documentLlistat.html"><c:param name="definicioProcesId" value="${definicioProces.id}"/></c:url>">Documents</a></li>
-	<li<c:if test="${param.tabActiu == 'terminis'}"> class="active"</c:if>><a href="<c:url value="/definicioProces/terminiLlistat.html"><c:param name="definicioProcesId" value="${definicioProces.id}"/></c:url>">Terminis</a></li>
-	<li<c:if test="${param.tabActiu == 'agrupacions'}"> class="active"</c:if>><a href="<c:url value="/definicioProces/campAgrupacioLlistat.html"><c:param name="definicioProcesId" value="${definicioProces.id}"/></c:url>">Agrupacions</a></li>
-	<li<c:if test="${param.tabActiu == 'accions'}"> class="active"</c:if>><a href="<c:url value="/definicioProces/accioLlistat.html"><c:param name="definicioProcesId" value="${definicioProces.id}"/></c:url>">Accions</a></li>
-	<li<c:if test="${param.tabActiu == 'recursos'}"> class="active"</c:if>><a href="<c:url value="/definicioProces/recursLlistat.html"><c:param name="definicioProcesId" value="${definicioProces.id}"/></c:url>">Recursos</a></li>
+	<li<c:if test="${param.tabActiu == 'info'}"> class="active"</c:if>><a href="<c:url value="/definicioProces/info.html"><c:param name="definicioProcesId" value="${definicioProces.id}"/></c:url>"><fmt:message key='common.tabsdef.detalls' /></a></li>
+	<li<c:if test="${param.tabActiu == 'tasques'}"> class="active"</c:if>><a href="<c:url value="/definicioProces/tascaLlistat.html"><c:param name="definicioProcesId" value="${definicioProces.id}"/></c:url>"><fmt:message key='comuns.tasques' /></a></li>
+	<li<c:if test="${param.tabActiu == 'camps'}"> class="active"</c:if>><a href="<c:url value="/definicioProces/campLlistat.html"><c:param name="definicioProcesId" value="${definicioProces.id}"/></c:url>"><fmt:message key='comuns.variables' /></a></li>
+	<li<c:if test="${param.tabActiu == 'documents'}"> class="active"</c:if>><a href="<c:url value="/definicioProces/documentLlistat.html"><c:param name="definicioProcesId" value="${definicioProces.id}"/></c:url>"><fmt:message key='comuns.documents' /></a></li>
+	<li<c:if test="${param.tabActiu == 'terminis'}"> class="active"</c:if>><a href="<c:url value="/definicioProces/terminiLlistat.html"><c:param name="definicioProcesId" value="${definicioProces.id}"/></c:url>"><fmt:message key='comuns.terminis' /></a></li>
+	<li<c:if test="${param.tabActiu == 'agrupacions'}"> class="active"</c:if>><a href="<c:url value="/definicioProces/campAgrupacioLlistat.html"><c:param name="definicioProcesId" value="${definicioProces.id}"/></c:url>"><fmt:message key='common.tabsdef.agrupacions' /></a></li>
+	<li<c:if test="${param.tabActiu == 'accions'}"> class="active"</c:if>><a href="<c:url value="/definicioProces/accioLlistat.html"><c:param name="definicioProcesId" value="${definicioProces.id}"/></c:url>"><fmt:message key='common.tabsdef.accions' /></a></li>
+	<li<c:if test="${param.tabActiu == 'recursos'}"> class="active"</c:if>><a href="<c:url value="/definicioProces/recursLlistat.html"><c:param name="definicioProcesId" value="${definicioProces.id}"/></c:url>"><fmt:message key='common.tabsdef.recursos' /></a></li>
 </ul>

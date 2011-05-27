@@ -7,7 +7,7 @@
 
 <html>
 <head>
-	<title>Verificació de signatures</title>
+	<title><fmt:message key='signa.verif.verificacio' /></title>
 	<link href="<c:url value="/css/reset.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/common.css"/>" rel="stylesheet" type="text/css"/>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.js"/>"></script>
@@ -21,7 +21,7 @@
 	</c:forEach>
 	<c:if test="${not validesAll}">
 		<div id="errors" class="missatgesError">
-			<p>Aquest document té signatures no vàlides</p>
+			<p><fmt:message key='signa.verif.no_valides' /></p>
 		</div>
 		<c:remove var="missatgesError" scope="session"/>
 	</c:if>
@@ -32,13 +32,13 @@
 		<c:choose>
 			<c:when test="${globalProperties['app.signatura.plugin.file.attached'] == 'true'}">
 				<h4 class="titol-missatge">
-					Document signat:&nbsp;
-					<a href="<c:url value="/signatura/descarregarAmbToken.html"><c:param name="token" value="${document.tokenSignatura}"/></c:url>"><img src="<c:url value="/img/page_white_put.png"/>" alt="Descarregar" title="Descarregar" border="0"/></a>
+					<fmt:message key='signa.verif.doc_signat' />:&nbsp;
+					<a href="<c:url value="/signatura/descarregarAmbToken.html"><c:param name="token" value="${document.tokenSignatura}"/></c:url>"><img src="<c:url value="/img/page_white_put.png"/>" alt="<fmt:message key='comuns.descarregar' />" title="<fmt:message key='comuns.descarregar' />" border="0"/></a>
 				</h4>
 			</c:when>
 			<c:otherwise>
 				<h4 class="titol-missatge">
-					Document original:&nbsp;
+					<fmt:message key='signa.verif.doc_orig' />:&nbsp;
 					<c:set var="instanciaProcesActual" value="${instanciaProces}" scope="request"/>
 					<c:set var="documentActual" value="${document}" scope="request"/>
 					<c:set var="ocultarSignatura" value="${true}" scope="request"/>
@@ -52,10 +52,10 @@
 		<div class="<c:choose><c:when test="${signatura.estatOk}">missatgesDocumentGris</c:when><c:otherwise>missatgesDocumentVermell</c:otherwise></c:choose>">
 			<h4 class="titol-missatge">
 				<c:choose>
-					<c:when test="${signatura.estatOk}"><img src="<c:url value="/img/tick.png"/>" alt="Signatura vàlida" title="Signatura vàlida" border="0"/></c:when>
-					<c:otherwise><img src="<c:url value="/img/exclamation.png"/>" alt="Signatura NO vàlida" title="Signatura NO vàlida" border="0"/></c:otherwise>
+					<c:when test="${signatura.estatOk}"><img src="<c:url value="/img/tick.png"/>" alt="<fmt:message key='signa.verif.sign_valida' />" title="<fmt:message key='signa.verif.sign_valida' />" border="0"/></c:when>
+					<c:otherwise><img src="<c:url value="/img/exclamation.png"/>" alt="<fmt:message key='signa.verif.sign_no' />" title="<fmt:message key='signa.verif.sign_no' />" border="0"/></c:otherwise>
 				</c:choose>
-				Signatari ${status.index + 1}: ${signatura.dadesCertificat[0].nombreCompletoResponsable}
+				<fmt:message key='signa.verif.signatari' /> ${status.index + 1}: ${signatura.dadesCertificat[0].nombreCompletoResponsable}
 			</h4>
 			<dl class="form-info">
 				<dt>NIF:</dt><dd>${signatura.dadesCertificat[0].nifResponsable}</dd>

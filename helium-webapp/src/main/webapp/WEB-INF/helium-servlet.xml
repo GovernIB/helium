@@ -51,6 +51,14 @@
 		<property name="maxUploadSize" value="${app.fileupload.maxsize}"/><!-- Max size in bytes. -->
 	</bean>
 
+	<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource"
+		p:basenames="/WEB-INF/classes/net/conselldemallorca/helium/webapp/i18n/messages"/>
+
+	<bean id="localeChangeInterceptor" class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+ 		<property name="paramName" value="siteLanguage"/>
+	</bean>
+	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver"/>
+
 	<bean name="arxiuView" class="net.conselldemallorca.helium.webapp.mvc.ArxiuView"/>
 	<bean name="arxiuConvertirView" class="net.conselldemallorca.helium.webapp.mvc.ArxiuConvertirView"/>
 	<bean name="serialitzarView" class="net.conselldemallorca.helium.webapp.mvc.SerialitzarView"/>

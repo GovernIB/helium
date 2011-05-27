@@ -74,23 +74,23 @@ public class TascaController extends BaseController {
 		List<HashMap<String, Object>> resposta = new ArrayList<HashMap<String,Object>>();
 		HashMap<String, Object> moltAlta = new HashMap<String, Object>();
 		moltAlta.put("value", 2);
-		moltAlta.put("label", "Molt alta");
+		moltAlta.put("label", getMessage("txt.m_alta") );
 		resposta.add(moltAlta);
 		HashMap<String, Object> alta = new HashMap<String, Object>();
 		alta.put("value", 1);
-		alta.put("label", "Alta");
+		alta.put("label", getMessage("txt.alta") );
 		resposta.add(alta);
 		HashMap<String, Object> normal = new HashMap<String, Object>();
 		normal.put("value", 0);
-		normal.put("label", "Normal");
+		normal.put("label", getMessage("txt.normal") );
 		resposta.add(normal);
 		HashMap<String, Object> baixa = new HashMap<String, Object>();
 		baixa.put("value", -1);
-		baixa.put("label", "Baixa");
+		baixa.put("label", getMessage("txt.baixa") );
 		resposta.add(baixa);
 		HashMap<String, Object> moltBaixa = new HashMap<String, Object>();
 		moltBaixa.put("value", -2);
-		moltBaixa.put("label", "Molt baixa");
+		moltBaixa.put("label", getMessage("txt.m_baixa") );
 		resposta.add(moltBaixa);
 		return resposta;
 	}
@@ -156,7 +156,7 @@ public class TascaController extends BaseController {
 			
 			return "tasca/personaLlistat";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -215,7 +215,7 @@ public class TascaController extends BaseController {
 			
 			return "tasca/grupLlistat";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -251,12 +251,12 @@ public class TascaController extends BaseController {
 						tascaService.getById(entorn.getId(), id));
 			} catch (Exception ex) {
 				logger.error("S'ha produït un error processant la seva petició", ex);
-				missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+				missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 				return "redirect:/tasca/personaLlistat.html";
 			}
 			return "tasca/info";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -270,15 +270,15 @@ public class TascaController extends BaseController {
 		if (entorn != null) {
 			try {
 				tascaService.agafar(entorn.getId(), id);
-				missatgeInfo(request, "La tasca està disponible en el seu llistat de tasques personals");
+				missatgeInfo(request, getMessage("info.tasca.disponible.personals") );
 				return "redirect:/tasca/info.html?id=" + id;
 			} catch (Exception ex) {
-	        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut agafar la tasca", ex);
 	        	return "redirect:/tasca/grupLlistat.html";
 	        }
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -305,7 +305,7 @@ public class TascaController extends BaseController {
 				if (!found) {
 					tascaService.completar(entorn.getId(), id, true);
 				}
-				missatgeInfo(request, "La tasca s'ha completat amb èxit");
+				missatgeInfo(request, getMessage("info.tasca.completat") );
 				return "redirect:/tasca/personaLlistat.html";
 			} catch (Exception ex) {
 				if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
@@ -315,7 +315,7 @@ public class TascaController extends BaseController {
 				} else {
 					missatgeError(
 		        			request,
-		        			"Error al finalitzar la tasca",
+		        			getMessage("error.finalitzar.tasca"),
 		        			(ex.getCause() != null) ? ex.getCause().getMessage() : ex.getMessage());
 				}
 	        	logger.error("No s'ha pogut finalitzar la tasca", ex);
@@ -332,7 +332,7 @@ public class TascaController extends BaseController {
 	        	}
 	        }
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -358,12 +358,12 @@ public class TascaController extends BaseController {
 						text.getBytes());
 				return "arxiuView";
 			} catch (Exception ex) {
-				missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+				missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 				logger.error("No s'ha pogut mostrar l'arxiu", ex);
 				return "redirect:/tasca/info.html?id=" + id;
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -381,14 +381,14 @@ public class TascaController extends BaseController {
 						entorn.getId(),
 						id,
 						accio);
-				missatgeInfo(request, "L'acció s'ha executat amb èxit");
+				missatgeInfo(request, getMessage("info.accio.executat") );
 			} catch (Exception ex) {
-				missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+				missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 				logger.error("No s'ha pogut mostrar l'arxiu", ex);
 			}
 			return "redirect:/tasca/form.html?id=" + id;
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

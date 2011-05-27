@@ -7,11 +7,11 @@
 	<head>
 		<title>
 			<c:choose>
-				<c:when test="${empty command.codi}">Crear nou rol</c:when>
-				<c:otherwise>Modificar rol</c:otherwise>
+				<c:when test="${empty command.codi}"><fmt:message key='rol.llistat.crear_nou' /></c:when>
+				<c:otherwise><fmt:message key='rol.llistat.modificar' /></c:otherwise>
 			</c:choose>
 		</title>
-		<meta name="titolcmp" content="Configuració"/>
+		<meta name="titolcmp" content="<fmt:message key='comuns.configuracio' />" />
 		<c:import url="../common/formIncludes.jsp"/>
 		<script type="text/javascript">
 			// <![CDATA[
@@ -28,7 +28,7 @@
 						<c:import url="../common/formElement.jsp">
 							<c:param name="property" value="codi"/>
 							<c:param name="required" value="true"/>
-							<c:param name="label">Codi</c:param>
+							<c:param name="label"><fmt:message key='comuns.codi' /></c:param>
 						</c:import>
 					</c:when>
 					<c:otherwise>
@@ -36,7 +36,7 @@
 							<c:param name="property" value="codi"/>
 							<c:param name="disabled" value="true"/>
 							<c:param name="required" value="true"/>
-							<c:param name="label">Codi</c:param>
+							<c:param name="label"><fmt:message key='comuns.codi' /></c:param>
 						</c:import>
 					</c:otherwise>
 				</c:choose>
@@ -44,16 +44,16 @@
 					<c:param name="property" value="descripcio"/>
 					<c:param name="type" value="textarea"/>
 					<c:param name="required" value="true"/>
-					<c:param name="label">Descripció</c:param>
+					<c:param name="label"><fmt:message key='comuns.descripcio' /></c:param>
 				</c:import>
 			</div>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="type" value="buttons"/>
 				<c:param name="values">submit,cancel</c:param>
-				<c:param name="titles"><c:choose><c:when test="${empty command.codi}">Crear,Cancel·lar</c:when><c:otherwise>Modificar,Cancel·lar</c:otherwise></c:choose></c:param>
+				<c:param name="titles"><c:choose><c:when test="${empty command.codi}"><fmt:message key='comuns.crear' />,<fmt:message key='comuns.cancelar' /></c:when><c:otherwise><fmt:message key='comuns.modificar' />,<fmt:message key='comuns.cancelar' /></c:otherwise></c:choose></c:param>
 			</c:import>
 		</form:form>
 		
-		<p class="aclaracio">Els camps marcats amb <img src="<c:url value="/img/bullet_red.png"/>" alt="Camp obligatori" title="Camp obligatori" border="0"/> són obligatoris</p>
+		<p class="aclaracio"><fmt:message key='comuns.camps_marcats' /> <img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='comuns.camp_oblig' />" title="<fmt:message key='comuns.camp_oblig' />" border="0"/> <fmt:message key='comuns.son_oblig' /></p>
 	</body>
 </html>

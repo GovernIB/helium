@@ -70,11 +70,11 @@ public class DefinicioProcesController extends BaseController {
 				model.addAttribute("llistat", dissenyService.findDarreresAmbEntorn(entorn.getId()));
 				return "definicioProces/llistat";
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquest entorn");
+				missatgeError(request, getMessage("error.permisos.disseny.entorn") );
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -93,11 +93,11 @@ public class DefinicioProcesController extends BaseController {
 				model.addAttribute("subDefinicionsProces", dissenyService.findSubDefinicionsProces(definicioProcesId));
 				return "definicioProces/info";
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc") );
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -115,22 +115,22 @@ public class DefinicioProcesController extends BaseController {
 					List<ExpedientDto> expedients = expedientService.findAmbDefinicioProcesId(definicioProcesId);
 					if (expedients.size() == 0) {
 						dissenyService.undeploy(entorn.getId(), null, definicioProcesId);
-			        	missatgeInfo(request, "La definició de procés s'ha esborrat correctament");
+			        	missatgeInfo(request, getMessage("info.defproc.esborrat") );
 					} else {
-						missatgeError(request, "Existeixen expedients amb aquesta definició de procés");
+						missatgeError(request, getMessage("error.exist.exp.defproc") );
 					}
 		        } catch (Exception ex) {
-		        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut esborrar la definició de procés", ex);
 		        	return "redirect:/definicioProces/info.html?definicioProcesId=" + definicioProcesId;
 		        }
 				return "redirect:/definicioProces/llistat.html";
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -153,11 +153,11 @@ public class DefinicioProcesController extends BaseController {
 				model.addAttribute("data", dissenyService.exportar(definicioProcesId));
 				return "serialitzarView";
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -180,23 +180,23 @@ public class DefinicioProcesController extends BaseController {
 		        			entorn.getId(),
 		        			definicioProcesId,
 		        			exportacio);
-		    		missatgeInfo(request, "Les dades s'han importat correctament");
+		    		missatgeInfo(request, getMessage("info.dades.importat") );
 		        	return "redirect:/definicioProces/llistat.html";
 		    	} else {
-		    		missatgeError(request, "Aquest arxiu no és un arxiu d'exportació vàlid");
+		    		missatgeError(request, getMessage("error.arxiu.no.valid") );
 		    	}
 			} catch (IOException ex) {
 				logger.error("Error llegint l'arxiu a importar", ex);
-				missatgeError(request, "Error llegint l'arxiu a importar: ");
+				missatgeError(request, getMessage("error.arxiu.importar") );
 			} catch (ClassNotFoundException ex) {
 				logger.error("Error llegint l'arxiu a importar", ex);
-				missatgeError(request, "Error llegint l'arxiu a importar: ");
+				missatgeError(request, getMessage("error.arxiu.importar") );
 			} catch (Exception ex) {
-				missatgeError(request, "Error en la importació de dades: " + ex.getMessage());
+				missatgeError(request, getMessage("error.import.dades") + ex.getMessage());
 			}
 			return "redirect:/definicioProces/info.html?definicioProcesId=" + definicioProcesId;
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -214,11 +214,11 @@ public class DefinicioProcesController extends BaseController {
 				model.addAttribute("recursos", dissenyService.findDeploymentResources(definicioProcesId));
 				return "definicioProces/recursLlistat";
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -241,11 +241,11 @@ public class DefinicioProcesController extends BaseController {
 						dissenyService.getDeploymentResource(definicioProcesId, resourceName));
 				return "arxiuView";
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

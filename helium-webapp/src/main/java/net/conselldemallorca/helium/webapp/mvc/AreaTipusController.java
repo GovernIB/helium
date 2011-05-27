@@ -88,7 +88,7 @@ public class AreaTipusController extends BaseController {
 			model.addAttribute("llistat", paginatedList);
 			return "areaTipus/llistat";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -100,7 +100,7 @@ public class AreaTipusController extends BaseController {
 		if (entorn != null) {
 			return "areaTipus/form";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -125,10 +125,10 @@ public class AreaTipusController extends BaseController {
 		        		organitzacioService.createAreaTipus(command);
 		        	else
 		        		organitzacioService.updateAreaTipus(command);
-		        	missatgeInfo(request, "El tipus d'àrea s'ha guardat correctament");
+		        	missatgeInfo(request, getMessage("info.areatipus.guardat") );
 		        	status.setComplete();
 		        } catch (Exception ex) {
-		        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut guardar el registre", ex);
 		        	return "areaTipus/form";
 		        }
@@ -137,7 +137,7 @@ public class AreaTipusController extends BaseController {
 				return "redirect:/areaTipus/llistat.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -147,13 +147,13 @@ public class AreaTipusController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) Long id) {
 		if (organitzacioService.findAreaAmbTipus(id).size() > 0) {
-			missatgeError(request, "No es pot esborrar aquest tipus perquè existeixen àrees que hi depenen");
+			missatgeError(request, getMessage("error.exist.arees.depenen") );
 		} else {
 			try {
 				organitzacioService.deleteAreaTipus(id);
-				missatgeInfo(request, "El tipus d'àrea s'ha esborrat correctament");
+				missatgeInfo(request, getMessage("info.areatipus.esborrat") );
 			} catch (Exception ex) {
-	        	missatgeError(request, "No s'ha pogut esborrar el tipus d'àrea", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.esborrar.areatipus"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut esborrar el registre", ex);
 	        	return "area/form";
 	        }

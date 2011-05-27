@@ -6,7 +6,7 @@
 <html>
 <head>
 	<title>Expedient: ${expedient.identificadorLimitat}</title>
-	<meta name="titolcmp" content="Consultes"/>
+	<meta name="titolcmp" content="<fmt:message key='comuns.consultes' />" />
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 	<c:import url="../common/formIncludes.jsp"/>
@@ -54,7 +54,7 @@
 				<c:import url="../common/formElement.jsp">
 					<c:param name="type" value="buttons"/>
 					<c:param name="values">submit,cancel</c:param>
-					<c:param name="titles">Modificar,Cancel·lar</c:param>
+					<c:param name="titles"><fmt:message key='comuns.modificar' />,<fmt:message key='comuns.cancelar' /></c:param>
 				</c:import>
 			</c:otherwise>
 		</c:choose>

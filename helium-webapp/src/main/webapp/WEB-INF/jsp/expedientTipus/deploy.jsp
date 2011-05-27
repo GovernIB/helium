@@ -6,7 +6,7 @@
 <html>
 <head>
 	<title><c:choose><c:when test="${not empty command.expedientTipusId}">Tipus d'expedient: ${expedientTipus.nom}</c:when><c:otherwise>Desplegar arxiu</c:otherwise></c:choose></title>
-	<meta name="titolcmp" content="Disseny"/>
+	<meta name="titolcmp" content="<fmt:message key='comuns.disseny' />" />
     <link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<c:import url="../common/formIncludes.jsp"/>
 </head>
@@ -46,7 +46,7 @@
 		</div>
 	</form:form>
 
-	<p class="aclaracio">Els camps marcats amb <img src="<c:url value="/img/bullet_red.png"/>" alt="Camp obligatori" title="Camp obligatori" border="0"/> són obligatoris</p>
+	<p class="aclaracio"><fmt:message key='comuns.camps_marcats' /> <img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='comuns.camp_oblig' />" title="<fmt:message key='comuns.camp_oblig' />" border="0"/> <fmt:message key='comuns.son_oblig' /></p>
 
 </body>
 </html>

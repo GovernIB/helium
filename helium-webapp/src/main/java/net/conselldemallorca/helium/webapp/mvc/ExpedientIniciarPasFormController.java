@@ -157,11 +157,11 @@ public class ExpedientIniciarPasFormController extends BaseController {
 				model.addAttribute("tasca", tasca);
 				return "expedient/iniciarPasForm";
 			} else {
-				missatgeError(request, "No té permisos per iniciar expedients d'aquest tipus");
+				missatgeError(request, getMessage("error.permisos.iniciar.tipus.exp"));
 				return "redirect:/expedient/iniciar.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -198,7 +198,7 @@ public class ExpedientIniciarPasFormController extends BaseController {
 					try {
 						TascaFormUtil.getBeanValidatorForCommand(camps).validate(command, result);
 					} catch (Exception ex) {
-						missatgeError(request, "S'han produit errors de validació", ex.getLocalizedMessage());
+						missatgeError(request, getMessage("error.validacio"), ex.getLocalizedMessage());
 			        	logger.error("S'han produit errors de validació", ex);
 			        	model.addAttribute("tasca", tascaInicial);
 			        	model.addAttribute("valorsPerSuggest", valorsSuggest);
@@ -241,13 +241,13 @@ public class ExpedientIniciarPasFormController extends BaseController {
 								null,
 								null,
 								null);
-				        missatgeInfo(request, "L'expedient s'ha iniciat correctament");
+				        missatgeInfo(request, getMessage("info.expedient.iniciat"));
 				        netejarSessioRegistres(request);
 				        return "redirect:/expedient/iniciar.html";
 			        } catch (Exception ex) {
 			        	missatgeError(
 								request,
-								"S'ha produït un error iniciant l'expedient",
+								getMessage("error.iniciar.expedient"),
 								(ex.getCause() != null) ? ex.getCause().getMessage() : ex.getMessage());
 			        	logger.error("No s'ha pogut iniciar l'expedient", ex);
 			        	return "expedient/iniciarPasForm";
@@ -260,7 +260,7 @@ public class ExpedientIniciarPasFormController extends BaseController {
 									field,
 									TascaFormUtil.addMultiple(field, command, camps));
 					} catch (Exception ex) {
-						missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+						missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 						logger.error("No s'ha pogut afegir el camp múltiple", ex);
 					}
 					model.addAttribute("tasca", tascaInicial);
@@ -274,7 +274,7 @@ public class ExpedientIniciarPasFormController extends BaseController {
 									field,
 									TascaFormUtil.deleteMultiple(field, command, camps, index));
 					} catch (Exception ex) {
-						missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+						missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 						logger.error("No s'ha pogut afegir el camp múltiple", ex);
 					}
 					model.addAttribute("tasca", tascaInicial);
@@ -290,7 +290,7 @@ public class ExpedientIniciarPasFormController extends BaseController {
 						try {
 							esborrarRegistre(request, camp.getCodi(), registreEsborrarIndex.intValue());
 						} catch (Exception ex) {
-				        	missatgeError(request, "No s'ha pogut esborrar el registre", ex.getLocalizedMessage());
+				        	missatgeError(request, getMessage("error.esborrar.registre"), ex.getLocalizedMessage());
 				        	logger.error("No s'ha pogut esborrar el registre", ex);
 				        }
 					}
@@ -298,11 +298,11 @@ public class ExpedientIniciarPasFormController extends BaseController {
 					return "redirect:/expedient/iniciarPasForm.html?expedientTipusId=" + expedientTipusId;
 				}
 			} else {
-				missatgeError(request, "No té permisos per iniciar expedients d'aquest tipus");
+				missatgeError(request, getMessage("error.permisos.iniciar.tipus.exp"));
 				return "redirect:/expedient/iniciar.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

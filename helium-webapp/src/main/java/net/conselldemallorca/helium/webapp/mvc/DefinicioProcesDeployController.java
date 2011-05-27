@@ -66,8 +66,8 @@ public class DefinicioProcesDeployController extends BaseController {
 	@ModelAttribute("desplegamentTipus")
 	public List<ParellaCodiValorDto> populateTipus() {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		resposta.add(new ParellaCodiValorDto("JBPM", "Desplegament jBPM"));
-		resposta.add(new ParellaCodiValorDto("EXPORT", "Exportació Helium"));
+		resposta.add(new ParellaCodiValorDto("JBPM", getMessage("txt.desplegament.jbpm") ));
+		resposta.add(new ParellaCodiValorDto("EXPORT", getMessage("txt.exportacio.helium") ));
 		return resposta;
 	}
 	@ModelAttribute("command")
@@ -90,11 +90,11 @@ public class DefinicioProcesDeployController extends BaseController {
 				model.addAttribute("expedientTipus", expedientTipus);
 				return "definicioProces/deploy";
 			} else {
-				missatgeError(request, "No té permisos per desplegar arxius a dins aquest entorn");
+				missatgeError(request, getMessage("error.permisos.despl.arxius.entorn"));
 				return "redirect:/definicioProces/deploy.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/definicioProces/deploy.html";
 		}
 	}
@@ -126,7 +126,7 @@ public class DefinicioProcesDeployController extends BaseController {
 				        			multipartFile.getBytes(),
 				        			command.getEtiqueta(),
 				        			true);
-				        	missatgeInfo(request, "L'arxiu s'ha desplegat amb èxit");
+				        	missatgeInfo(request, getMessage("info.arxiu.desplegat") );
 		        		} else {
 			        		InputStream is = new ByteArrayInputStream(multipartFile.getBytes());
 					    	ObjectInputStream input = new ObjectInputStream(is);
@@ -138,30 +138,30 @@ public class DefinicioProcesDeployController extends BaseController {
 					        			command.getExpedientTipusId(),
 					        			exportacio,
 					        			command.getEtiqueta());
-					    		missatgeInfo(request, "L'arxiu s'ha desplegat amb èxit");
+					    		missatgeInfo(request, getMessage("info.arxiu.desplegat") );
 					        	return "redirect:/definicioProces/llistat.html";
 					    	} else {
-					    		missatgeError(request, "Aquest arxiu no és un arxiu d'exportació vàlid");
+					    		missatgeError(request, getMessage("error.arxius.no.valid") );
 					    	}
 		        		}
 						return "redirect:/definicioProces/llistat.html";
 		        	} catch (ClassNotFoundException ex) {
-		        		missatgeError(request, "Aquest arxiu no és un arxiu d'exportació vàlid", ex.getMessage());
+		        		missatgeError(request, getMessage("error.arxius.no.valid"), ex.getMessage());
 		        	} catch (IOException ex) {
-		        		missatgeError(request, "Error desplegant l'arxiu", ex.getMessage());
+		        		missatgeError(request, getMessage("error.desplegar.arxiu"), ex.getMessage());
 		        	} catch (DeploymentException ex) {
-		        		missatgeError(request, "Error desplegant l'arxiu", ex.getMessage());
+		        		missatgeError(request, getMessage("error.desplegar.arxiu"), ex.getMessage());
 		        	}
 		        	return "redirect:/definicioProces/deploy.html";
 				} else {
 					return "redirect:/definicioProces/llistat.html";
 				}
 			} else {
-				missatgeError(request, "No té permisos per desplegar arxius a dins aquest entorn");
+				missatgeError(request, getMessage("error.permisos.despl.arxius.entorn"));
 				return "redirect:/definicioProces/deploy.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/definicioProces/deploy.html";
 		}
 	}

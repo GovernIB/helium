@@ -76,7 +76,7 @@ public class DominiController extends BaseController {
 			model.addAttribute("llistat", dissenyService.findDominiAmbEntorn(entorn.getId()));
 			return "domini/llistat";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -88,7 +88,7 @@ public class DominiController extends BaseController {
 		if (entorn != null) {
 			return "domini/form";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -113,17 +113,17 @@ public class DominiController extends BaseController {
 		        		dissenyService.createDomini(command);
 		        	else
 		        		dissenyService.updateDomini(command);
-		        	missatgeInfo(request, "El domini s'ha guardat correctament");
+		        	missatgeInfo(request, getMessage("info.domini.guardat") );
 		        	status.setComplete();
 		        } catch (Exception ex) {
-		        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut guardar el domini", ex);
 		        	return "domini/form";
 		        }
 			}
 			return "redirect:/domini/llistat.html";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -136,15 +136,15 @@ public class DominiController extends BaseController {
 		if (entorn != null) {
 			try {
 				dissenyService.deleteDomini(id);
-				missatgeInfo(request, "El domini s'ha esborrat correctament");
+				missatgeInfo(request, getMessage("info.domini.esborrat") );
 			} catch (Exception ex) {
-	        	missatgeError(request, "No s'ha pogut esborrar el domini", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.esborrar.domini"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut esborrar el domini", ex);
 	        	return "domini/form";
 	        }
 			return "redirect:/domini/llistat.html";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -160,12 +160,12 @@ public class DominiController extends BaseController {
 				model.addAttribute("domini", dissenyService.getDominiById(id));
 				model.addAttribute("resultat", dissenyService.consultaDomini(id));
 			} catch (Exception ex) {
-	        	missatgeError(request, "No s'ha pogut consultar el domini", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.consultar.domini"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut consultar el domini", ex);
 	        }
 			return "domini/consulta";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

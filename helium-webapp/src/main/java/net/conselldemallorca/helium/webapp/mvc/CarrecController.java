@@ -91,7 +91,7 @@ public class CarrecController extends BaseController {
 			model.addAttribute("llistat", paginatedList);
 			return "carrec/llistat";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -103,7 +103,7 @@ public class CarrecController extends BaseController {
 		if (entorn != null) {
 			return "carrec/form";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -128,10 +128,10 @@ public class CarrecController extends BaseController {
 		        		organitzacioService.createCarrec(command);
 		        	else
 		        		organitzacioService.updateCarrec(command);
-		        	missatgeInfo(request, "El càrrec s'ha guardat correctament");
+		        	missatgeInfo(request, getMessage("info.carrec.guardat") );
 		        	status.setComplete();
 		        } catch (Exception ex) {
-		        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.proces.peticio") , ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut guardar el registre", ex);
 		        	return "carrec/form";
 		        }
@@ -140,7 +140,7 @@ public class CarrecController extends BaseController {
 				return "redirect:/carrec/llistat.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -150,7 +150,7 @@ public class CarrecController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) Long id) {
 		organitzacioService.deleteCarrec(id);
-		missatgeInfo(request, "El càrrec s'ha esborrat correctament");
+		missatgeInfo(request, getMessage("info.carrec.esborrat") );
 		return "redirect:/carrec/llistat.html";
 	}
 

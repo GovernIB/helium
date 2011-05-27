@@ -7,7 +7,7 @@
 <html>
 <head>
 	<title>Expedient: ${expedient.identificadorLimitat}</title>
-	<meta name="titolcmp" content="Consultes"/>
+	<meta name="titolcmp" content="<fmt:message key='comuns.consultes' />" />
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 	<c:import url="../common/formIncludes.jsp"/>
@@ -129,7 +129,7 @@ function infoRegistre(docId) {
 							<a href="<c:url value="/expedient/signaturaEsborrar.html"><c:param name="processInstanceId" value="${instanciaProces.id}"/><c:param name="docId" value="${instanciaProces.varsDocuments[codi].id}"/></c:url>" onclick="return confirmarEsborrarSignatura(event)"><img src="<c:url value="/img/rosette_delete.png"/>" alt="Esborrar signatura" title="Esborrar signatura" border="0"/></a>
 						</c:when>
 						<c:otherwise>
-							<a href="<c:url value="/expedient/documentEsborrar.html"><c:param name="id" value="${instanciaProces.id}"/><c:param name="docId" value="${instanciaProces.varsDocuments[codi].id}"/></c:url>" onclick="return confirmarEsborrarProces(event)"><img src="<c:url value="/img/cross.png"/>" alt="Esborrar" title="Esborrar" border="0"/></a>
+							<a href="<c:url value="/expedient/documentEsborrar.html"><c:param name="id" value="${instanciaProces.id}"/><c:param name="docId" value="${instanciaProces.varsDocuments[codi].id}"/></c:url>" onclick="return confirmarEsborrarProces(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 						</c:otherwise>
 					</c:choose>
 				</display:column>

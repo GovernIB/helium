@@ -71,7 +71,7 @@ public class SignaturaController extends BaseController {
 			}
 			return "arxiuView";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -121,18 +121,18 @@ public class SignaturaController extends BaseController {
 						Base64.decodeBase64(data.getBytes()));
 				if (custodiat) {
 					logger.info("Signatura del document amb el token " + token + " processada correctament");
-					missatgeInfo(request, "La signatura del document s'ha processat correctament");
+					missatgeInfo(request, getMessage("info.signatura.doc.processat") );
 				} else {
 					logger.error("Signatura del document amb el token " + token + " processada amb error de custòdia");
-					missatgeError(request, "Error en la validació de la signatura");
+					missatgeError(request, getMessage("error.validar.signatura") );
 				}
 			} catch(Exception ex) {
 				logger.error("Error rebent la signatura del document", ex);
-				missatgeError(request, "Error rebent la signatura del document");
+				missatgeError(request, getMessage("error.rebre.signatura") );
 		    }
 			return "redirect:/tasca/signatures.html?id=" + taskId;
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

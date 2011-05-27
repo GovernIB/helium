@@ -7,8 +7,8 @@
 
 <html>
 	<head>
-		<title>Variables <c:choose><c:when test="${param.tipus=='FILTRE'}">del filtre</c:when><c:otherwise>de l'informe</c:otherwise></c:choose> de la consulta ${consulta.nom}</title>
-		<meta name="titolcmp" content="Disseny"/>
+		<title><fmt:message key='comuns.variables' /> <c:choose><c:when test="${param.tipus=='FILTRE'}"><fmt:message key='consulta.camps.del_filtre' /></c:when><c:otherwise><fmt:message key='consulta.camps.de_linforme' /></c:otherwise></c:choose> <fmt:message key='consulta.camps.de_consulta' /> ${consulta.nom}</title>
+		<meta name="titolcmp" content="<fmt:message key='comuns.disseny' />" />
 		<c:import url="../common/formIncludes.jsp"/>
 		<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 		<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
@@ -21,7 +21,7 @@
 	var info = null;
 	function carregarCamps(obj) {
 		DWRUtil.removeAllOptions("campCodi0");
-		DWRUtil.addOptions("campCodi0", [{id:"", nom:"<< Seleccioni una variable >>"}], "id", "nom");
+		DWRUtil.addOptions("campCodi0", [{id:"", nom:"<< <fmt:message key='consulta.camps.selec_var' /> >>"}], "id", "nom");
     	campsProcesDwrService.llistaCampsPerProces(
     		document.getElementById("id").value,
 			obj.value,
@@ -43,7 +43,7 @@
 		var e = e || window.event;
 		e.cancelBubble = true;
 		if (e.stopPropagation) e.stopPropagation();
-		return confirm("Estau segur que voleu esborrar aquest registre?");
+		return confirm("<fmt:message key='consulta.camps.confirmacio' />");
 	}
 	// ]]>
 </script>
@@ -51,31 +51,31 @@
 	
 	<body>
 		<display:table name="llistat" id="consultaCamp" requestURI="" class="displaytag selectable">
-			<display:column title="Variable" sortable="false">
+			<display:column titleKey="consulta.camps.variable" sortable="false">
 				${camps[consultaCamp_rowNum - 1].codiEtiqueta}
 			</display:column>
-			<display:column title="Tipus" sortable="false">
+			<display:column titleKey="comuns.tipus" sortable="false">
 				${camps[consultaCamp_rowNum - 1].tipus}
 			</display:column>
-			<display:column title="Definició de procés" sortable="false">
+			<display:column titleKey="comuns.def_proces" sortable="false">
 				${camps[consultaCamp_rowNum - 1].definicioProces.jbpmKey} v.${camps[consultaCamp_rowNum - 1].definicioProces.versio}
 			</display:column>
 			<display:column>
 				<a href="<c:url value="/consulta/campFiltrePujar.html"><c:param name="consultaId" value="${param.id}"/><c:param name="id" value="${consultaCamp.id}"/><c:param name="tipus" value="${param.tipus}"/></c:url>">
-					<img src="<c:url value="/img/famarrow_up.png"/>" alt="Amunt" title="Amunt" border="0"/>
+					<img src="<c:url value="/img/famarrow_up.png"/>" alt="<fmt:message key='comuns.amunt' />" title="<fmt:message key='comuns.amunt' />" border="0"/>
 				</a>
 				<a href="<c:url value="/consulta/campFiltreBaixar.html"><c:param name="consultaId" value="${param.id}"/><c:param name="id" value="${consultaCamp.id}"/><c:param name="tipus" value="${param.tipus}"/></c:url>">
-					<img src="<c:url value="/img/famarrow_down.png"/>" alt="Avall" title="Avall" border="0"/>
+					<img src="<c:url value="/img/famarrow_down.png"/>" alt="<fmt:message key='comuns.avall' />" title="<fmt:message key='comuns.avall' />" border="0"/>
 				</a>
 			</display:column>
 			<display:column>
-				<a href="<c:url value="/consulta/campDelete.html"><c:param name="consultaId" value="${param.id}"/><c:param name="id" value="${consultaCamp.id}"/><c:param name="tipus" value="${param.tipus}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="Esborrar" title="Esborrar" border="0"/></a>
+				<a href="<c:url value="/consulta/campDelete.html"><c:param name="consultaId" value="${param.id}"/><c:param name="id" value="${consultaCamp.id}"/><c:param name="tipus" value="${param.tipus}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 			</display:column>
 		</display:table>
 		
 		<form:form action="camps.html" method="post" cssClass="uniForm">
 			<fieldset class="inlineLabels">
-				<legend>Afegir variable</legend>
+				<legend><fmt:message key='consulta.camps.afegir_var' /></legend>
 				<input type="hidden" name="id" id="id" value="${param.id}" />
 				<input type="hidden" name="tipus" id="tipus" value="${param.tipus}" />
 				<input type="hidden" name="defprocVersio" id="defprocVersio" value="" />
@@ -86,8 +86,8 @@
 					<c:param name="items" value="definicionsProces"/>
 					<c:param name="itemLabel" value="jbpmKey"/>
 					<c:param name="itemValue" value="jbpmKey"/>
-					<c:param name="itemBuit" value="<< Seleccioni una definició de proces >>"/>
-					<c:param name="label">Definició de proces</c:param>
+					<c:param name="itemBuit">&lt;&lt; <fmt:message key='consulta.camps.selec_def' /> &gt;&gt;</c:param>
+					<c:param name="label"><fmt:message key='comuns.def_proces' /></c:param>
 					<c:param name="onchange" value="carregarCamps(this)"/>
 				</c:import>
 				<c:import url="../common/formElement.jsp">
@@ -97,8 +97,8 @@
 					<c:param name="items" value=""/>
 					<c:param name="itemLabel" value=""/>
 					<c:param name="itemValue" value=""/>
-					<c:param name="itemBuit" value="<< Seleccioni una definició de proces >>"/>
-					<c:param name="label">Variable</c:param>
+					<c:param name="itemBuit">&lt;&lt; <fmt:message key='consulta.camps.selec_def' /> &gt;&gt;</c:param>
+					<c:param name="label"><fmt:message key='consulta.camps.variable' /></c:param>
 					<c:param name="onchange" value="obtenirVersio(this)"/>
 				</c:import>
 			</fieldset>
@@ -106,10 +106,10 @@
 			<c:import url="../common/formElement.jsp">
 				<c:param name="type" value="buttons"/>
 				<c:param name="values">submit,cancel</c:param>
-				<c:param name="titles">Afegir,Cancel·lar</c:param>
+				<c:param name="titles"><fmt:message key='comuns.afegir' />,<fmt:message key='comuns.cancelar' /></c:param>
 			</c:import>
 		</form:form>
 		
-		<p class="aclaracio">Els camps marcats amb <img src="<c:url value="/img/bullet_red.png"/>" alt="Camp obligatori" title="Camp obligatori" border="0"/> són obligatoris</p>
+		<p class="aclaracio"><fmt:message key='comuns.camps_marcats' /> <img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='comuns.camp_oblig' />" title="<fmt:message key='comuns.camp_oblig' />" border="0"/> <fmt:message key='comuns.son_oblig' /></p>
 	</body>
 </html>

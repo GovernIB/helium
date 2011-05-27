@@ -126,10 +126,10 @@ public class PermisController extends BaseController {
 	        				command.getCodi(),
 	        				command.getDescripcio());
 	        	}
-	        	missatgeInfo(request, "El rol s'ha guardat correctament");
+	        	missatgeInfo(request, getMessage("info.rol.guardat") );
 	        	status.setComplete();
 	        } catch (Exception ex) {
-	        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut guardar el registre", ex);
 	        	return "rol/form";
 	        }
@@ -146,13 +146,13 @@ public class PermisController extends BaseController {
 		if ((!codi.equalsIgnoreCase("HEL_ADMIN")) && (!codi.equalsIgnoreCase("HEL_USER"))) {
 			Permis permis = permisService.getPermisByCodi(codi);
 			if (permis.getUsuaris().size() > 0) {
-				missatgeError(request, "Hi ha usuaris que empren aquest rol");
+				missatgeError(request, getMessage("error.exist.usuaris.rol"));
 			} else {
 				permisService.deletePermis(codi);
-				missatgeInfo(request, "El rol s'ha esborrat correctament");
+				missatgeInfo(request, getMessage("info.rol.esborrat") );
 			}
 		} else {
-			missatgeError(request, "El rol d'administrador i el rol d'usuari no es poden esborrar");
+			missatgeError(request, getMessage("error.esborrar.rols.admin.usuari") );
 		}
 		return "redirect:/rol/llistat.html";
 	}

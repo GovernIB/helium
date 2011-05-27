@@ -77,7 +77,7 @@ public class ExpedientTipusController extends BaseController {
 			model.addAttribute("llistat", llistatExpedientTipusAmbPermisos(entorn));
 			return "expedientTipus/llistat";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -92,18 +92,18 @@ public class ExpedientTipusController extends BaseController {
 			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
 				try {
 					dissenyService.deleteExpedientTipus(id);
-					missatgeInfo(request, "El tipus d'expedient s'ha esborrat correctament");
+					missatgeInfo(request, getMessage("info.tipus.exp.esborrat") );
 				} catch (Exception ex) {
-					missatgeError(request, "No s'ha pogut esborrar el tipus d'expedient", ex.getLocalizedMessage());
+					missatgeError(request, getMessage("error.esborrar.tipus.exp"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut esborrar el tipus d'expedient", ex);
 				}
 				return "redirect:/expedientTipus/llistat.html";
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquest tipus d'expedient");
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -125,11 +125,11 @@ public class ExpedientTipusController extends BaseController {
 						dissenyService.findDarreraDefinicioProcesForExpedientTipus(id, false));
 				return "expedientTipus/info";
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquest tipus d'expedient");
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -148,11 +148,11 @@ public class ExpedientTipusController extends BaseController {
 						dissenyService.findDarreresAmbExpedientTipusIGlobalsEntorn(entorn.getId(), id));
 				return "expedientTipus/definicioProcesLlistat";
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquest tipus d'expedient");
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -169,18 +169,18 @@ public class ExpedientTipusController extends BaseController {
 			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
 				try {
 					dissenyService.setDefinicioProcesInicialPerExpedientTipus(id, jbpmKey);
-					missatgeInfo(request, "La definició de procés '" + jbpmKey + "' s'ha marcat com a inicial");
+					missatgeInfo(request, getMessage("info.defporc.marcat.inicial", new Object[] {jbpmKey} ) );
 				} catch (Exception ex) {
-					missatgeError(request, "No s'ha pogut configurar la definició de procés inicial", ex.getLocalizedMessage());
+					missatgeError(request, getMessage("error.configurar.defproc.inicial"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut configurar la definició de procés inicial", ex);
 				}
 				return "redirect:/expedientTipus/definicioProcesLlistat.html?expedientTipusId=" + id;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquest tipus d'expedient");
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -201,26 +201,26 @@ public class ExpedientTipusController extends BaseController {
 						List<ExpedientDto> expedients = expedientService.findAmbDefinicioProcesId(definicioProcesId);
 						if (expedients.size() == 0) {
 							dissenyService.undeploy(entorn.getId(), null, definicioProcesId);
-				        	missatgeInfo(request, "La definició de procés s'ha esborrat correctament");
+				        	missatgeInfo(request, getMessage("info.defproc.esborrat") );
 						} else {
-							missatgeError(request, "Existeixen expedients amb aquesta definició de procés");
+							missatgeError(request, getMessage("error.exist.exp.defproc") );
 						}
 			        } catch (Exception ex) {
-			        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+			        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut esborrar la definició de procés", ex);
 			        	return "redirect:/definicioProces/info.html?definicioProcesId=" + definicioProcesId;
 			        }
 					return "redirect:/expedientTipus/definicioProcesLlistat.html?expedientTipusId=" + id;
 				} else {
-					missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+					missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 					return "redirect:/index.html";
 				}
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquest tipus d'expedient");
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

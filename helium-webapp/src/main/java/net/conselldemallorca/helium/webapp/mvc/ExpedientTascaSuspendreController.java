@@ -58,16 +58,16 @@ public class ExpedientTascaSuspendreController extends BaseController {
 				try {
 					expedientService.suspendreTasca(entorn.getId(), taskId);
 				} catch (Exception ex) {
-					missatgeError(request, "No s'ha pogut suspendre la tasca " + taskId, ex.getLocalizedMessage());
+					missatgeError(request, getMessage("error.suspendre.tasca", new Object[] {taskId} ), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut suspendre la tasca " + taskId, ex);
 				}
 				return "redirect:/expedient/tasques.html?id=" + id;
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -84,16 +84,16 @@ public class ExpedientTascaSuspendreController extends BaseController {
 				try {
 					expedientService.reprendreTasca(entorn.getId(), taskId);
 				} catch (Exception ex) {
-					missatgeError(request, "No s'ha pogut reprendre la tasca " + taskId, ex.getLocalizedMessage());
+					missatgeError(request, getMessage("error.reprendre.tasca", new Object[] {taskId} ), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut reprendre la tasca " + taskId, ex);
 				}
 				return "redirect:/expedient/tasques.html?id=" + id;
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -111,16 +111,16 @@ public class ExpedientTascaSuspendreController extends BaseController {
 				try {
 					expedientService.cancelarTasca(entorn.getId(), taskId);
 				} catch (Exception ex) {
-					missatgeError(request, "No s'ha pogut cancel·lar la tasca " + taskId, ex.getLocalizedMessage());
+					missatgeError(request, getMessage("error.cancelar.tasca", new Object[] {taskId} ), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut cancel·lar la tasca " + taskId, ex);
 				}
 				return "redirect:/expedient/tasques.html?id=" + id;
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

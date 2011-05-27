@@ -13,7 +13,8 @@
 <%-- Suggest --%>
 <script type="text/javascript" src="<c:url value="/js/jquery/jquery.autocomplete.js"/>"></script>
 <link href="<c:url value="/css/autocomplete.css"/>" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="<c:url value="/js/helforms.js"/>"></script>
+<jsp:include page="/js/helforms.jsp" />
+
 
 <script type="text/javascript" src="<c:url value="/js/jquery/jquery.meio.mask.min.js"/>"></script>
 <script type="text/javascript" src="<c:url value="/js/jquery/jquery.keyfilter-1.7.min.js"/>"></script>

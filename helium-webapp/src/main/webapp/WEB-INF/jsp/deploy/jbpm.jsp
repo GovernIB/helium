@@ -5,8 +5,8 @@
 
 <html>
 <head>
-	<title>Desplegar arxiu jBPM</title>
-	<meta name="titolcmp" content="Disseny"/>
+	<title><fmt:message key='deploy.export.despl_arxiu' /></title>
+	<meta name="titolcmp" content="<fmt:message key='comuns.disseny' />" />
     <link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<c:import url="../common/formIncludes.jsp"/>
 </head>
@@ -20,23 +20,23 @@
 		<div class="inlineLabels">
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="etiqueta"/>
-				<c:param name="label">Etiqueta</c:param>
+				<c:param name="label"><fmt:message key='comuns.etiqueta' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="arxiu"/>
 				<c:param name="required" value="true"/>
 				<c:param name="type" value="file"/>
-				<c:param name="label">Arxiu exportat</c:param>
+				<c:param name="label"><fmt:message key='deploy.export.arxiu_exp' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="type" value="buttons"/>
 				<c:param name="values">submit</c:param>
-				<c:param name="titles">Desplegar</c:param>
+				<c:param name="titles"><fmt:message key='deploy.export.desplegar' /></c:param>
 			</c:import>
 		</div>
 	</form:form>
 
-	<p class="aclaracio">Els camps marcats amb <img src="<c:url value="/img/bullet_red.png"/>" alt="Camp obligatori" title="Camp obligatori" border="0"/> són obligatoris</p>
+	<p class="aclaracio"><fmt:message key='comuns.camps_marcats' /> <img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='comuns.camp_oblig' />" title="<fmt:message key='comuns.camp_oblig' />" border="0"/> <fmt:message key='comuns.son_oblig' /></p>
 
 </body>
 </html>

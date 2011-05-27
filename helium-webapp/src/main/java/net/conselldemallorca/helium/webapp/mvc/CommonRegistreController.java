@@ -144,7 +144,7 @@ public abstract class CommonRegistreController extends BaseController {
 		if (entorn != null) {
 			return registreUrl();
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -197,7 +197,7 @@ public abstract class CommonRegistreController extends BaseController {
 			        	status.setComplete();
 			        	model.addAttribute("tancarRegistre", new Boolean(true));
 			        } catch (Exception ex) {
-			        	missatgeError(request, "No s'ha pogut guardar les dades", ex.getLocalizedMessage());
+			        	missatgeError(request, getMessage("error.guardar.dades"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut guardar les dades", ex);
 			        }
 		        }
@@ -206,7 +206,7 @@ public abstract class CommonRegistreController extends BaseController {
 			}
 			return registreUrl();
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -226,12 +226,12 @@ public abstract class CommonRegistreController extends BaseController {
 						camp.getCodi(),
 						index);
 			} catch (Exception ex) {
-	        	missatgeError(request, "No s'ha pogut esborrar el registre", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.esborrar.registre"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut esborrar el registre", ex);
 	        }
 			return redirectUrl(id, camp.getCodi());
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

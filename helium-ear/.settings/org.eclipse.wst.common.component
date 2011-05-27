@@ -2,8 +2,7 @@
 <project-modules id="moduleCoreId" project-version="1.5.0">
     <wb-module deploy-name="helium-ear">
         <wb-resource deploy-path="/" source-path="/src/main/application"/>
-        <dependent-module archiveName="helium-webapp-2.1.war" deploy-path="/" handle="module:/resource/helium-webapp/helium-webapp">
-            <dependent-object>WebModule_1306390943472</dependent-object>
+        <dependent-module archiveName="helium-webapp.war" deploy-path="/" handle="module:/resource/helium-webapp/helium-webapp">
             <dependency-type>uses</dependency-type>
         </dependent-module>
     </wb-module>

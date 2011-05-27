@@ -116,11 +116,11 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 						dissenyService.getExpedientTipusById(expedientTipusId));
 				return "expedient/iniciarPasTitol";
 			} else {
-				missatgeError(request, "No té permisos per iniciar expedients d'aquest tipus");
+				missatgeError(request, getMessage("error.permisos.iniciar.tipus.exp"));
 				return "redirect:/expedient/iniciar.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -194,12 +194,12 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 								null,
 								null,
 								null);
-				        missatgeInfo(request, "L'expedient s'ha iniciat correctament");
+				        missatgeInfo(request, getMessage("info.expedient.iniciat"));
 				        return "redirect:/expedient/iniciar.html";
 			        } catch (Exception ex) {
 			        	missatgeError(
 								request,
-								"S'ha produït un error iniciant l'expedient",
+								getMessage("error.iniciar.expedient"),
 								(ex.getCause() != null) ? ex.getCause().getMessage() : ex.getMessage());
 			        	logger.error("No s'ha pogut iniciar l'expedient", ex);
 			        	model.addAttribute("expedientTipus", dissenyService.getExpedientTipusById(command.getExpedientTipusId()));
@@ -209,11 +209,11 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 					return "redirect:/expedient/iniciar.html";
 				}
 			} else {
-				missatgeError(request, "No té permisos per iniciar expedients d'aquest tipus");
+				missatgeError(request, getMessage("error.permisos.iniciar.tipus.exp"));
 				return "redirect:/expedient/iniciar.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

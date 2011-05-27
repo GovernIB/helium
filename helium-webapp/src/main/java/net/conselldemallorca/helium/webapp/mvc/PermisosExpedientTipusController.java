@@ -110,10 +110,10 @@ public class PermisosExpedientTipusController extends BaseController {
 	        			command.getId(),
 	        			ExpedientTipus.class,
 	        			true);
-	        	missatgeInfo(request, "S'han afegit els permisos al tipus d'expedient");
+	        	missatgeInfo(request, getMessage("info.permisos.tipusexp.afegit") );
 	        	status.setComplete();
 	        } catch (Exception ex) {
-	        	missatgeError(request, "No s'han pogut afegir els permisos al tipus d'expedient", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.afegir.permisos.tipusexp"), ex.getLocalizedMessage());
 	        	logger.error("No s'han pogut afegir els permisos al tipus d'expedient", ex);
 	        }
 	        return "redirect:/permisos/expedientTipus.html?id=" + command.getId();
@@ -131,9 +131,9 @@ public class PermisosExpedientTipusController extends BaseController {
 					command.isUsuari(),
 					command.getId(),
 					ExpedientTipus.class);
-        	missatgeInfo(request, "S'han esborrat els permisos");
+        	missatgeInfo(request, getMessage("info.permisos.tipusexp.esborrat") );
         } catch (Exception ex) {
-        	missatgeError(request, "No s'han pogut esborrar els permisos", ex.getLocalizedMessage());
+        	missatgeError(request, getMessage("error.esborrar.permisos.tipusexp"), ex.getLocalizedMessage());
         	logger.error("No s'han pogut esborrar els permisos", ex);
         }
         return "redirect:/permisos/expedientTipus.html?id=" + command.getId();

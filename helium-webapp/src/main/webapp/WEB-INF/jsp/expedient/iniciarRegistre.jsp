@@ -40,7 +40,7 @@
 					<c:param name="titles">Guardar,Cancel·lar</c:param>
 				</c:import>
 			</form:form>
-			<p class="aclaracio">Els camps marcats amb <img src="<c:url value="/img/bullet_red.png"/>" alt="Camp obligatori" title="Camp obligatori" border="0"/> són obligatoris</p>
+			<p class="aclaracio"><fmt:message key='comuns.camps_marcats' /> <img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='comuns.camp_oblig' />" title="<fmt:message key='comuns.camp_oblig' />" border="0"/> <fmt:message key='comuns.son_oblig' /></p>
 		</c:when>
 		<c:otherwise><script type="text/javascript">parent.refresh();</script></c:otherwise>
 	</c:choose>

@@ -7,8 +7,8 @@
 
 <html>
 <head>
-	<title>Permisos per l'entorn ${entorn.nom}</title>
-	<meta name="titolcmp" content="Configuració"/>
+	<title><fmt:message key='permisos.entorn.perm_entorn' /> ${entorn.nom}</title>
+	<meta name="titolcmp" content="<fmt:message key='comuns.configuracio' />" />
     <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
     <c:import url="../common/formIncludes.jsp"/>
 <script type="text/javascript">
@@ -17,7 +17,7 @@ function confirmar(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Estau segur que voleu esborrar aquests permisos?");
+	return confirm("<fmt:message key='permisos.entorn.confirmacio' />");
 }
 // ]]>
 </script>
@@ -25,19 +25,19 @@ function confirmar(e) {
 <body>
 
 	<display:table name="acesGroupedBySid" id="registre" requestURI="" class="displaytag">
-		<display:column title="Tipus" sortable="true">
+		<display:column titleKey="comuns.tipus" sortable="true">
 			<c:choose>
-				<c:when test="${fn:contains(registre[0].sid.class, 'Principal')}">Usuari</c:when>
-				<c:otherwise>Rol</c:otherwise>
+				<c:when test="${fn:contains(registre[0].sid.class, 'Principal')}"><fmt:message key='permisos.entorn.usuari' /></c:when>
+				<c:otherwise><fmt:message key='permisos.entorn.rol' /></c:otherwise>
 			</c:choose>
 		</display:column>
-		<display:column title="Nom">
+		<display:column titleKey="comuns.nom">
 			<c:choose>
 				<c:when test="${fn:contains(registre[0].sid.class, 'Principal')}">${registre[0].sid.principal}</c:when>
 				<c:otherwise>${registre[0].sid.grantedAuthority}</c:otherwise>
 			</c:choose>
 		</display:column>
-		<display:column title="Permisos">
+		<display:column titleKey="permisos.entorn.permisos">
 			<c:forEach var="ace" items="${registre}">
 				<c:forEach var="permis" items="${permisos}">
 					<c:if test="${permis.value == ace.permission}">+${permis.key} </c:if>
@@ -47,10 +47,10 @@ function confirmar(e) {
 		<display:column>
 	    	<c:choose>
 				<c:when test="${fn:contains(registre[0].sid.class, 'Principal')}">
-		    		<a href="<c:url value="/permisos/entornEsborrar.html"><c:param name="id" value="${command.id}"/><c:param name="nom" value="${registre[0].sid.principal}"/><c:param name="usuari" value="on"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="Esborrar" title="Esborrar" border="0"/></a>
+		    		<a href="<c:url value="/permisos/entornEsborrar.html"><c:param name="id" value="${command.id}"/><c:param name="nom" value="${registre[0].sid.principal}"/><c:param name="usuari" value="on"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 		    	</c:when>
 		    	<c:otherwise>
-		    		<a href="<c:url value="/permisos/entornEsborrar.html"><c:param name="id" value="${command.id}"/><c:param name="nom" value="${registre[0].sid.grantedAuthority}"/><c:param name="usuari" value="off"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="Esborrar" title="Esborrar" border="0"/></a>
+		    		<a href="<c:url value="/permisos/entornEsborrar.html"><c:param name="id" value="${command.id}"/><c:param name="nom" value="${registre[0].sid.grantedAuthority}"/><c:param name="usuari" value="off"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 		    	</c:otherwise>
 		    </c:choose>
 	    </display:column>
@@ -58,18 +58,18 @@ function confirmar(e) {
 
 	<form:form action="entorn.html" cssClass="uniForm">
 		<fieldset class="inlineLabels">
-			<legend>Afegir permisos</legend>
+			<legend><fmt:message key='permisos.entorn.afegir' /></legend>
 			<form:hidden path="id"/>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="nom"/>
 				<c:param name="required">true</c:param>
-				<c:param name="label">Usuari/Rol</c:param>
+				<c:param name="label"><fmt:message key='permisos.entorn.usu_rol' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="permisos"/>
 				<c:param name="required">true</c:param>
 				<c:param name="type" value="multicheck"/>
-				<c:param name="label">Permisos</c:param>
+				<c:param name="label"><fmt:message key='permisos.entorn.permisos' /></c:param>
 				<c:param name="items" value="permisos"/>
 				<c:param name="itemLabel" value="key"/>
 				<c:param name="itemValue" value="key"/>
@@ -77,8 +77,8 @@ function confirmar(e) {
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="usuari"/>
 				<c:param name="type" value="checkbox"/>
-				<c:param name="label">Es usuari?</c:param>
-				<c:param name="comment">Si no és usuari serà un rol</c:param>
+				<c:param name="label"><fmt:message key='permisos.entorn.es_usu' /></c:param>
+				<c:param name="comment"><fmt:message key='permisos.entorn.sino' /></c:param>
 			</c:import>
 		</fieldset>
 		<c:choose>
@@ -86,14 +86,14 @@ function confirmar(e) {
 				<c:import url="../common/formElement.jsp">
 					<c:param name="type" value="buttons"/>
 					<c:param name="values">submit,cancel</c:param>
-					<c:param name="titles">Afegir,Tornar</c:param>
+					<c:param name="titles"><fmt:message key='comuns.afegir' />,<fmt:message key='comuns.tornar' /></c:param>
 				</c:import>
 			</c:when>
 			<c:otherwise>
 				<c:import url="../common/formElement.jsp">
 					<c:param name="type" value="buttons"/>
 					<c:param name="values">submit</c:param>
-					<c:param name="titles">Afegir</c:param>
+					<c:param name="titles"><fmt:message key='comuns.afegir' /></c:param>
 				</c:import>
 			</c:otherwise>
 		</c:choose>

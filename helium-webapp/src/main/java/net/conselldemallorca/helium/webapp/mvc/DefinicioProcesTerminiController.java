@@ -82,11 +82,11 @@ public class DefinicioProcesTerminiController extends BaseController {
 				model.addAttribute("llistat", dissenyService.findTerminisAmbDefinicioProces(definicioProcesId));
 				return "definicioProces/terminiLlistat";
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -103,11 +103,11 @@ public class DefinicioProcesTerminiController extends BaseController {
 				model.addAttribute("definicioProces", definicioProces);
 				return "definicioProces/terminiForm";
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -135,10 +135,10 @@ public class DefinicioProcesTerminiController extends BaseController {
 			        		dissenyService.createTermini(command);
 			        	else
 			        		dissenyService.updateTermini(command);
-			        	missatgeInfo(request, "El termini s'ha guardat correctament");
+			        	missatgeInfo(request, getMessage("info.termini.guardat") );
 			        	status.setComplete();
 			        } catch (Exception ex) {
-			        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+			        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut guardar el registre", ex);
 			        	return "definicioProces/terminiForm";
 			        }
@@ -146,11 +146,11 @@ public class DefinicioProcesTerminiController extends BaseController {
 				}
 				return "redirect:/definicioProces/terminiLlistat.html?definicioProcesId=" + definicioProcesId;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -166,18 +166,18 @@ public class DefinicioProcesTerminiController extends BaseController {
 			if (potDissenyarDefinicioProces(entorn, definicioProces)) {
 				try {
 					dissenyService.deleteTermini(id);
-					missatgeInfo(request, "El termini s'ha esborrat correctament");
+					missatgeInfo(request, getMessage("info.termini.esborrat") );
 				} catch (Exception ex) {
-		        	missatgeError(request, "No s'ha pogut esborrar el termini", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.esborrar.termini") , ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut esborrar el registre", ex);
 		        }
 				return "redirect:/definicioProces/terminiLlistat.html?definicioProcesId=" + definicioProcesId;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

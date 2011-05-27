@@ -99,8 +99,8 @@ public class PersonaController extends BaseController {
 	@ModelAttribute("sexes")
 	public ParellaCodiValor[] populateSexes() {
 		ParellaCodiValor[] resposta = new ParellaCodiValor[2];
-		resposta[0] = new ParellaCodiValor("Home", Persona.Sexe.SEXE_HOME);
-		resposta[1] = new ParellaCodiValor("Dona", Persona.Sexe.SEXE_DONA);
+		resposta[0] = new ParellaCodiValor(getMessage("txt.home"), Persona.Sexe.SEXE_HOME);
+		resposta[1] = new ParellaCodiValor(getMessage("txt.dona"), Persona.Sexe.SEXE_DONA);
 		return resposta;
 	}
 
@@ -129,10 +129,10 @@ public class PersonaController extends BaseController {
 	        		saved = personaService.updatePersonaUsuari(command);
 	        	if (saved != null && command.getContrasenya() != null && command.getContrasenya().length() > 0)
 	        		personaService.canviContrasenya(saved.getId(), command.getContrasenya());
-	        	missatgeInfo(request, "La persona s'ha guardat correctament");
+	        	missatgeInfo(request, getMessage("info.persona.guardat") );
 	        	status.setComplete();
 	        } catch (Exception ex) {
-	        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut guardar el registre", ex);
 	        	return "persona/form";
 	        }
@@ -147,7 +147,7 @@ public class PersonaController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) Long id) {
 		personaService.deletePersona(id);
-		missatgeInfo(request, "La persona s'ha esborrat correctament");
+		missatgeInfo(request, getMessage("info.persona.esborrat") );
 		return "redirect:/persona/consulta.html";
 	}
 

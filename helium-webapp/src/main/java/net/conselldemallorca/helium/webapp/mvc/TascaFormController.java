@@ -165,12 +165,12 @@ public class TascaFormController extends BaseController {
 				}
 			}
 			if (model.get("command") == null) {
-				missatgeError(request, "Aquesta tasca ja no està disponible");
+				missatgeError(request, getMessage("error.tasca.no.disponible") );
 				return "redirect:/tasca/personaLlistat.html";
 			}
 			return "tasca/form";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -193,7 +193,7 @@ public class TascaFormController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			if (model.get("command") == null) {
-				missatgeError(request, "Aquesta tasca ja no està disponible");
+				missatgeError(request, getMessage("error.tasca.no.disponible") );
 				return "redirect:/tasca/personaLlistat.html";
 			}
 			TascaDto tasca = (TascaDto)model.get("tasca");
@@ -222,9 +222,9 @@ public class TascaFormController extends BaseController {
 		        					command,
 		        					true,
 		    						false));
-		        	missatgeInfo(request, "Les dades del formulari s'han guardat correctament");
+		        	missatgeInfo(request, getMessage("info.dades.form.guardat") );
 		        } catch (Exception ex) {
-		        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut guardar les dades del formulari", ex);
 		        	return "tasca/form";
 		        }
@@ -234,10 +234,10 @@ public class TascaFormController extends BaseController {
 								entorn.getId(),
 								id,
 								accioCamp);
-						missatgeInfo(request, "L'acció s'ha executat amb èxit");
+						missatgeInfo(request, getMessage("info.accio.executat") );
 					}
 				} catch (Exception ex) {
-					missatgeError(request, "No s'ha pogut executar l'acció", ex.getLocalizedMessage());
+					missatgeError(request, getMessage("error.executar.accio"), ex.getLocalizedMessage());
 					logger.error("No s'ha pogut executar l'acció: ", ex);
 					return "tasca/form";
 				}
@@ -252,7 +252,7 @@ public class TascaFormController extends BaseController {
 					afegirVariablesDelProces(command, tasca);
 					TascaFormUtil.getBeanValidatorForCommand(camps).validate(command, result);
 				} catch (Exception ex) {
-					missatgeError(request, "S'han produit errors de validació", ex.getLocalizedMessage());
+					missatgeError(request, getMessage("error.validacio"), ex.getLocalizedMessage());
 		        	logger.error("S'han produit errors de validació", ex);
 		        	return "tasca/form";
 				}
@@ -269,14 +269,14 @@ public class TascaFormController extends BaseController {
 		        					true,
 		    						false),
 		    				true);
-		        	missatgeInfo(request, "El formulari s'ha validat correctament");
+		        	missatgeInfo(request, getMessage("info.formulari.validat") );
 		        	status.setComplete();
 		        	if (iframe != null)
 		        		return "redirect:/tasca/formIframe.html?id=" + id + "&iframe=iframe&toParent=toParent";
 		        	else
 		        		return "redirect:/tasca/form.html?id=" + id;
 		        } catch (Exception ex) {
-		        	missatgeError(request, "No s'ha pogut validar el formulari", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.validar.formulari"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut validar el formulari", ex);
 		        	return "tasca/form";
 		        }
@@ -288,11 +288,11 @@ public class TascaFormController extends BaseController {
 		        	tascaService.restaurar(
 		        			entorn.getId(),
 		        			id);
-		        	missatgeInfo(request, "El formulari s'ha restaurat correctament");
+		        	missatgeInfo(request, getMessage("info.formulari.restaurat") );
 		        	status.setComplete();
 		        	return "redirect:/tasca/form.html?id=" + id;
 		        } catch (Exception ex) {
-		        	missatgeError(request, "No s'ha pogut restaurar el formulari", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.restaurar.formulari"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut restaurar el formulari", ex);
 		        	return "tasca/form";
 		        }
@@ -304,7 +304,7 @@ public class TascaFormController extends BaseController {
 								field,
 								TascaFormUtil.addMultiple(field, command, camps));
 				} catch (Exception ex) {
-					missatgeError(request, "No s'ha pogut afegir el camp múltiple", ex.getLocalizedMessage());
+					missatgeError(request, getMessage("error.afegir.camp.multiple"), ex.getLocalizedMessage());
 					logger.error("No s'ha pogut afegir el camp múltiple", ex);
 				}
 	        	return "tasca/form";
@@ -316,7 +316,7 @@ public class TascaFormController extends BaseController {
 								field,
 								TascaFormUtil.deleteMultiple(field, command, camps, index));
 				} catch (Exception ex) {
-					missatgeError(request, "No s'ha pogut esborrar el camp múltiple", ex.getLocalizedMessage());
+					missatgeError(request, getMessage("error.esborrar.camp.multiple"), ex.getLocalizedMessage());
 					logger.error("No s'ha pogut esborrar el camp múltiple", ex);
 				}
 	        	return "tasca/form";
@@ -343,7 +343,7 @@ public class TascaFormController extends BaseController {
 					try {
 						tascaService.esborrarRegistre(id, camp.getCodi(), registreEsborrarIndex.intValue());
 					} catch (Exception ex) {
-			        	missatgeError(request, "No s'ha pogut esborrar el registre", ex.getLocalizedMessage());
+			        	missatgeError(request, getMessage("error.esborrar.registre"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut esborrar el registre", ex);
 			        }
 				}
@@ -354,7 +354,7 @@ public class TascaFormController extends BaseController {
 	        		return "redirect:/tasca/form.html?id=" + id;
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

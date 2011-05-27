@@ -8,8 +8,8 @@
 
 <html>
 <head>
-	<title>Tasques pendents</title>
-	<meta name="titolcmp" content="Tasques"/>
+	<title><fmt:message key='tasca.pllistat.tasq_pendents' /></title>
+	<meta name="titolcmp" content="<fmt:message key='comuns.tasques' />" />
 	<c:import url="../common/formIncludes.jsp"/>
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
@@ -42,21 +42,21 @@
 	</c:set>
 
 	<display:table name="personaLlistat" id="registre" requestURI="" class="displaytag selectable" sort="external" defaultsort="${columna}" defaultorder="${ordre}">
-		<display:column title="Tasca" url="/tasca/info.html" paramId="id" paramProperty="id" sortable="true">
+		<display:column titleKey="tasca.pllistat.tasca" url="/tasca/info.html" paramId="id" paramProperty="id" sortable="true">
 			${registre.titol}
 		</display:column>
-		<display:column sortProperty="expedientTitol" title="Expedient" sortable="true">
+		<display:column sortProperty="expedientTitol" titleKey="tasca.pllistat.expedient" sortable="true">
 			<a href="<c:url value="/expedient/info.html"><c:param name="id" value="${registre.expedientProcessInstanceId}"/></c:url>">${registre.expedientTitol}</a>
 		</display:column>
-		<display:column property="expedientTipusNom" title="Tipus d'expedient" sortable="true"/>
-		<display:column property="dataCreacio" title="Creada el" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true"/>
-		<display:column title="Prioritat" sortable="true">
+		<display:column property="expedientTipusNom" titleKey="comuns.tipus_exp" sortable="true"/>
+		<display:column property="dataCreacio" titleKey="tasca.pllistat.creada_el" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true"/>
+		<display:column titleKey="tasca.pllistat.prioritat" sortable="true">
 			<c:choose>
-				<c:when test="${registre.prioritat == 2}">Molt alta</c:when>
-				<c:when test="${registre.prioritat == 1}">Alta</c:when>
-				<c:when test="${registre.prioritat == 0}">Normal</c:when>
-				<c:when test="${registre.prioritat == -1}">Baixa</c:when>
-				<c:when test="${registre.prioritat == -2}">Molt baixa</c:when>
+				<c:when test="${registre.prioritat == 2}"><fmt:message key='tasca.pllistat.m_alta' /></c:when>
+				<c:when test="${registre.prioritat == 1}"><fmt:message key='tasca.pllistat.alta' /></c:when>
+				<c:when test="${registre.prioritat == 0}"><fmt:message key='tasca.pllistat.normal' /></c:when>
+				<c:when test="${registre.prioritat == -1}"><fmt:message key='tasca.pllistat.baixa' /></c:when>
+				<c:when test="${registre.prioritat == -2}"><fmt:message key='tasca.pllistat.m_baixa' /></c:when>
 				<c:otherwise>${registre.prioritat}</c:otherwise>
 			</c:choose>
 		</display:column>
@@ -66,7 +66,7 @@
 			<c:when test="${not empty terminisIniciats[registre_rowNum - 1] and terminisIniciats[registre_rowNum - 1].estat == 'CADUCAT'}"><c:set var="estilData">color:white;background-color:red</c:set></c:when>
 			<c:otherwise><c:set var="estilData"></c:set></c:otherwise>
 		</c:choose>
-		<display:column property="dataLimit" title="Data límit&nbsp;" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true" style="${estilData}"/>
+		<display:column property="dataLimit" titleKey="tasca.pllistat.data_limit" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true" style="${estilData}"/>
 	</display:table>
 	<script type="text/javascript">initSelectable();</script>
 

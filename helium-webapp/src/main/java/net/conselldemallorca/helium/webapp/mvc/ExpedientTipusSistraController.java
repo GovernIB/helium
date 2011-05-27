@@ -93,11 +93,11 @@ public class ExpedientTipusSistraController extends BaseController {
 			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
 				return "expedientTipus/sistra";
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquest tipus d'expedient");
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -132,20 +132,20 @@ public class ExpedientTipusSistraController extends BaseController {
 			        		expedientTipus.setSistraTramitMapeigAdjunts(null);
 			        	}
 		        		dissenyService.updateExpedientTipus(expedientTipus);
-			        	missatgeInfo(request, "La informació s'ha guardat correctament");
+			        	missatgeInfo(request, getMessage("info.informacio.guardat"));
 			        	status.setComplete();
 			        } catch (Exception ex) {
-			        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+			        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut guardar el registre", ex);
 			        }
 				}
 				return "redirect:/expedientTipus/sistra.html?expedientTipusId=" + expedientTipusId;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquest tipus d'expedient");
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

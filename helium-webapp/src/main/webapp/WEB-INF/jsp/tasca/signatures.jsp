@@ -7,7 +7,7 @@
 <html>
 <head>
 	<title>${tasca.nomLimitat}</title>
-	<meta name="titolcmp" content="Tasques"/>
+	<meta name="titolcmp" content="<fmt:message key='comuns.tasques' />" />
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 	<c:import url="../common/formIncludes.jsp"/>
@@ -25,13 +25,13 @@ function confirmarEsborrarSignatura(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Estau segur que voleu esborrar la signatura d'aquest document?");
+	return confirm("<fmt:message key='tasca.signa.confirmacio' />");
 }
 function verificarSignatura(element) {
 	var amplada = 800;
 	var alcada = 600;
 	$('<iframe id="verificacio" src="' + element.href + '"/>').dialog({
-		title: "Verificació de signatures",
+		title: "<fmt:message key='tasca.signa.verificacio' />",
 		autoOpen: true,
 		modal: true,
 		autoResize: true,
@@ -44,7 +44,7 @@ function infoRegistre(docId) {
 	var amplada = 600;
 	var alcada = 200;
 	$('<div>' + $("#registre_" + docId).html() + '</div>').dialog({
-		title: "Informació de registre",
+		title: "<fmt:message key='tasca.signa.informacio' />",
 		autoOpen: true,
 		modal: true,
 		width: parseInt(amplada),
@@ -73,7 +73,7 @@ function signarAFirma(form, token) {
 		form.data.value = clienteFirma.getSignatureBase64Encoded();
 		return true;
 	} else {
-		alert("No s'ha pogut signar el document: " + clienteFirma.getErrorMessage());
+		alert("<fmt:message key='tasca.signa.no_sa_pogut' />: " + clienteFirma.getErrorMessage());
 	}
 	return false;
 }
@@ -91,25 +91,25 @@ function signarAFirma(form, token) {
 
 	<c:if test="${not tasca.documentsComplet}">
 		<div class="missatgesWarn">
-			<p>No es podran signar documents si falten documents obligatoris per adjuntar</p>
+			<p><fmt:message key='tasca.signa.no_es_podran' /></p>
 		</div>
 	</c:if>
 	<c:if test="${not tasca.signaturesComplet}">
 		<div class="missatgesWarn">
-			<p>Hi ha documents amb signatura obligatòria que encara no han estat signats</p>
+			<p><fmt:message key='tasca.signa.hi_ha_docs' /></p>
 		</div>
 	</c:if>
 
 	<c:import url="../common/tascaReadOnly.jsp"/>
 
 	<h3 class="titol-tab titol-firmes-tasca">
-		Documents per signar
+		<fmt:message key='tasca.signa.docs_signar' />
 	</h3>
 
 	<c:forEach var="firma" items="${tasca.signatures}">
 		<div class="missatgesDocumentGris">
 			<h4 class="titol-missatge">
-				<c:if test="${firma.required}"><img src="<c:url value="/img/bullet_red.png"/>" alt="Firma obligatòria" title="Firma obligatòria" border="0"/></c:if>
+				<c:if test="${firma.required}"><img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='tasca.signa.signa_oblig' />" title="<fmt:message key='tasca.signa.signa_oblig' />" border="0"/></c:if>
 				${firma.document.nom}&nbsp;&nbsp;
 				<c:if test="${tasca.documentsComplet}">
 					<c:set var="tascaActual" value="${tasca}" scope="request"/>
@@ -147,7 +147,7 @@ function signarAFirma(form, token) {
 													pluginspage="http://java.sun.com/j2se/1.5.0/download.html"
 													cache_option="No" />
 													<noembed>
-														No te suport per applets Java 2 SDK, Standard Edition v 1.5 ! !
+														<fmt:message key='tasca.signa.no_te_suport' />
 													</noembed>
 												</embed>
 											</comment>
@@ -163,7 +163,7 @@ function signarAFirma(form, token) {
 									</form:form>
 								</c:when>
 								<c:otherwise>
-									[Tipus de signatura no suportat]
+									[<fmt:message key='tasca.signa.tipus_no_sup' />]
 								</c:otherwise>
 							</c:choose>
 						</c:otherwise>
@@ -173,7 +173,7 @@ function signarAFirma(form, token) {
 		</div>
 	</c:forEach>
 
-	<p class="aclaracio">Els documents marcats amb <img src="<c:url value="/img/bullet_red.png"/>" alt="Document obligatori" title="Document obligatori" border="0"/> són de signatura obligatòria</p>
+	<p class="aclaracio"><fmt:message key='tasca.signa.docs_marcats' /> <img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='tasca.signa.signa_oblig' />" title="<fmt:message key='tasca.signa.signa_oblig' />" border="0"/> <fmt:message key='tasca.signa.son_sign_oblig' /></p>
 
 	<br/><c:import url="../common/tramitacioTasca.jsp">
 		<c:param name="pipella" value="signatures"/>

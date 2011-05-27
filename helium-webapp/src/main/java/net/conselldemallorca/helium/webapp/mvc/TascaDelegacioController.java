@@ -49,7 +49,7 @@ public class TascaDelegacioController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			if (command.getActorId() == null || command.getActorId().equals("")) {
-				missatgeError(request, "No ha especificat cap destinatari per a la delegació");
+				missatgeError(request, getMessage("error.especificar.dest.delegacio") );
 			} else {
 				try {
 					tascaService.delegacioCrear(
@@ -58,15 +58,15 @@ public class TascaDelegacioController extends BaseController {
 							command.getActorId(),
 							command.getComentari(),
 							command.isSupervisada());
-					missatgeInfo(request, "La tasca ha estat delegada amb èxit");
+					missatgeInfo(request, getMessage("info.tasca.delegada") );
 				} catch (Exception ex) {
-					missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+					missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut delegar la tasca " + taskId, ex);
 				}
 			}
 			return "redirect:/tasca/info.html?id=" + taskId;
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -79,14 +79,14 @@ public class TascaDelegacioController extends BaseController {
 		if (entorn != null) {
 			try {
 				tascaService.delegacioCancelar(entorn.getId(), taskId);
-				missatgeInfo(request, "La delegació s'ha cancel·lat correctament");
+				missatgeInfo(request, getMessage("info.delegacio.cancelat") );
 			} catch (Exception ex) {
-				missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+				missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut cancel·lar la delegació de la tasca " + taskId, ex);
 			}
 			return "redirect:/tasca/info.html?id=" + taskId;
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

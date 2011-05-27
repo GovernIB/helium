@@ -76,11 +76,11 @@ public class ExpedientTipusEstatsController extends BaseController {
 				model.addAttribute("estats", dissenyService.findEstatAmbExpedientTipus(expedientTipusId));
 				return "expedientTipus/estats";
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquest tipus d'expedient");
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -105,20 +105,20 @@ public class ExpedientTipusEstatsController extends BaseController {
 			        }
 			        try {
 		        		dissenyService.createEstat(command);
-			        	missatgeInfo(request, "L'estat s'ha creat correctament");
+			        	missatgeInfo(request, getMessage("info.estat.creat") );
 			        	status.setComplete();
 			        } catch (Exception ex) {
-			        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+			        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut guardar el registre", ex);
 			        }
 				}
 				return "redirect:/expedientTipus/estats.html?expedientTipusId=" + expedientTipusId;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquest tipus d'expedient");
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -133,14 +133,14 @@ public class ExpedientTipusEstatsController extends BaseController {
 			ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
 			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
 				dissenyService.deleteEstat(id);
-				missatgeInfo(request, "L'estat s'ha esborrat correctament");
+				missatgeInfo(request, getMessage("info.estat.esborrat") );
 				return "redirect:/expedientTipus/estats.html?expedientTipusId=" + expedientTipusId;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquest tipus d'expedient");
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -157,16 +157,16 @@ public class ExpedientTipusEstatsController extends BaseController {
 				try {
 					dissenyService.goUpEstat(id);
 				} catch (Exception ex) {
-		        	missatgeError(request, "No s'ha pogut canviar l'ordre de l'estat", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.ordre.estat"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut canviar l'ordre de l'estat", ex);
 		        }
 				return "redirect:/expedientTipus/estats.html?expedientTipusId=" + expedientTipusId;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquest tipus d'expedient");
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -182,16 +182,16 @@ public class ExpedientTipusEstatsController extends BaseController {
 				try {
 					dissenyService.goDownEstat(id);
 				} catch (Exception ex) {
-		        	missatgeError(request, "No s'ha pogut canviar l'ordre de l'estat", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.ordre.estat"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut canviar l'ordre de l'estat", ex);
 		        }
 				return "redirect:/expedientTipus/estats.html?expedientTipusId=" + expedientTipusId;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquest tipus d'expedient");
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

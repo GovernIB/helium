@@ -98,7 +98,7 @@ public class DefinicioProcesRegistreMembresController extends BaseController {
 			model.addAttribute("registre", registre);
 			return "definicioProces/campRegistreMembres";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -121,10 +121,10 @@ public class DefinicioProcesRegistreMembresController extends BaseController {
 		        			command.getMembreId(),
 		        			command.isObligatori(),
 		        			command.isLlistar());
-		        	missatgeInfo(request, "S'ha afegit el membre al registre");
+		        	missatgeInfo(request, getMessage("info.membre.reg.afegit") );
 		        	status.setComplete();
 		        } catch (Exception ex) {
-		        	missatgeError(request, "No s'ha pogut afegir el membre al registre", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.afegir.membre.reg"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut afegir el membre al registre", ex);
 		        	return "definicioProces/campRegistreMembres";
 		        }
@@ -134,7 +134,7 @@ public class DefinicioProcesRegistreMembresController extends BaseController {
 			}
 			
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -148,14 +148,14 @@ public class DefinicioProcesRegistreMembresController extends BaseController {
 			CampRegistre campRegistre = dissenyService.getCampRegistreById(id);
 			try {
 				dissenyService.deleteCampRegistre(id);
-				missatgeInfo(request, "S'ha esborrat el membre del registre");
+				missatgeInfo(request, getMessage("info.membre.reg.esborrat") );
 			} catch (Exception ex) {
-	        	missatgeError(request, "No s'ha pogut esborrar el membre del registre", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.esborrar.membre.reg"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut esborrar el membre del registre", ex);
 	        }
 			return "redirect:/definicioProces/campRegistreMembres.html?registreId=" + campRegistre.getRegistre().getId() + "&definicioProcesId=" + definicioProcesId;
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -170,12 +170,12 @@ public class DefinicioProcesRegistreMembresController extends BaseController {
 			try {
 				dissenyService.goUpCampRegistre(id);
 			} catch (Exception ex) {
-	        	missatgeError(request, "No s'ha pogut canviar l'ordre dels membres del registre", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.ordre.membre.reg"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut canviar l'ordre dels membres del registre", ex);
 	        }
 			return "redirect:/definicioProces/campRegistreMembres.html?registreId=" + campRegistre.getRegistre().getId() + "&definicioProcesId=" + definicioProcesId;
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -190,12 +190,12 @@ public class DefinicioProcesRegistreMembresController extends BaseController {
 			try {
 				dissenyService.goDownCampRegistre(id);
 			} catch (Exception ex) {
-	        	missatgeError(request, "No s'ha pogut canviar l'ordre dels membres del registre", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.ordre.membre.reg"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut canviar l'ordre dels membres del registre", ex);
 	        }
 			return "redirect:/definicioProces/campRegistreMembres.html?registreId=" + campRegistre.getRegistre().getId() + "&definicioProcesId=" + definicioProcesId;
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

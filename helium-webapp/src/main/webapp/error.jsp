@@ -1,11 +1,12 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@page isErrorPage="true" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-	<title>Helium - Error</title>
+	<title>Helium - <fmt:message key='error.error' /></title>
 	<link href="<c:url value="/css/reset.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/common.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/layout.css"/>" rel="stylesheet" type="text/css"/>
@@ -43,21 +44,21 @@ function mostrarOcultar(img, objid) {
 				
 			</div>
 			<div id="page-title">
-				<h2><span>Error</span></h2>
+				<h2><span><fmt:message key='error.error' /></span></h2>
 			</div>
 		</div>
 		<div id="content">
 			<div class="missatgesError">
 				<h4 class="titol-missatge">
-					S'ha produït un error a l'aplicació
-					<img src="<c:url value="/img/magnifier_zoom_in.png"/>" alt="Mostrar/Ocultar" title="Mostrar/Ocultar" border="0" onclick="mostrarOcultar(this,'stack-error')"/>
+					<fmt:message key='error.sa_produit' />
+					<img src="<c:url value="/img/magnifier_zoom_in.png"/>" alt="<fmt:message key='error.mos_ocul' />" title="<fmt:message key='error.mos_ocul' />" border="0" onclick="mostrarOcultar(this,'stack-error')"/>
 				</h4>
 				<pre id="stack-error" style="display:none"><%exception.printStackTrace(new java.io.PrintWriter(out, true));%></pre>
 			</div>
 			<br/><br/>
-			<p style="text-align: center">Per favor, tornau <a href="javascript:back()">enrere</a> i provau novament a executar la mateixa petició en uns instants.</p>
+			<p style="text-align: center"><fmt:message key='error.tornau' /> <a href="javascript:back()"><fmt:message key='error.enrere' /></a> <fmt:message key='error.i_provau' /></p>
 			<br/>
-			<p style="text-align: center">Si l'error persisteix posau-vos en contacte amb l'administrador de l'aplicació.</p>
+			<p style="text-align: center"><fmt:message key='error.si_persist' /></p>
 		</div>
 		<div id="push"></div>
 	</div>

@@ -86,11 +86,11 @@ public class ExpedientDocumentAdjuntController extends BaseController {
 			if (potModificarExpedient(expedient)) {
 				return "expedient/documentAdjuntForm";
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 			}
 			return "redirect:/expedient/consulta.html";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -126,20 +126,20 @@ public class ExpedientDocumentAdjuntController extends BaseController {
 				        		command.getData(),
 				        		nomArxiu,
 				        		(multipartFile.getSize() > 0) ? command.getContingut() : null);
-						missatgeInfo(request, "El document s'ha adjuntat correctament");
+						missatgeInfo(request, getMessage("info.document.adjuntat") );
 						status.setComplete();
 			        } catch (Exception ex) {
-			        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+			        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut crear el document adjunt", ex);
 			        }
 				}
 				return "redirect:/expedient/documents.html?id=" + id;
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

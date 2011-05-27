@@ -76,7 +76,7 @@ public class DefinicioProcesValidacioCampController extends BaseController {
 			model.addAttribute("camp", camp);
 			return "definicioProces/campValidacions";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -92,11 +92,11 @@ public class DefinicioProcesValidacioCampController extends BaseController {
 		if (entorn != null) {
 			if ("submit".equals(submit) || submit.length() == 0) {
 				if (command.getExpressio() == null || command.getExpressio().length() == 0) {
-					missatgeError(request, "S'ha d'especificar una expressió de validació");
+					missatgeError(request, getMessage("error.especificar.expressio.validacio") );
 					return "redirect:/definicioProces/campValidacions.html?campId=" + command.getCampId() + "&definicioProcesId=" + definicioProcesId;
 				}
 				if (command.getMissatge() == null || command.getMissatge().length() == 0) {
-					missatgeError(request, "S'ha d'especificar un missatge de validació");
+					missatgeError(request, getMessage("error.especificar.missatge.validacio") );
 					return "redirect:/definicioProces/campValidacions.html?campId=" + command.getCampId() + "&definicioProcesId=" + definicioProcesId;
 				}
 				DefinicioProcesDto definicioProces = dissenyService.getByIdAmbComprovacio(entorn.getId(), definicioProcesId);
@@ -106,10 +106,10 @@ public class DefinicioProcesValidacioCampController extends BaseController {
 		        			command.getCampId(),
 		        			command.getExpressio(),
 		        			command.getMissatge());
-		        	missatgeInfo(request, "S'ha afegit la validació al camp");
+		        	missatgeInfo(request, getMessage("info.validacio.camp.afegit") );
 		        	status.setComplete();
 		        } catch (Exception ex) {
-		        	missatgeError(request, "No s'ha pogut afegir la validació al camp", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.afegir.validacio.camp"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut guardar el registre", ex);
 		        	return "definicioProces/campValidacions";
 		        }
@@ -119,7 +119,7 @@ public class DefinicioProcesValidacioCampController extends BaseController {
 			}
 			
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -133,14 +133,14 @@ public class DefinicioProcesValidacioCampController extends BaseController {
 			Validacio validacio = dissenyService.getValidacioById(id);
 			try {
 				dissenyService.deleteValidacio(id);
-				missatgeInfo(request, "S'ha esborrat la validació del camp");
+				missatgeInfo(request, getMessage("info.validacio.camp.esborrat") );
 			} catch (Exception ex) {
-	        	missatgeError(request, "No s'ha pogut esborrar la validació del camp", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.esborrar.validacio.camp"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut esborrar la validació del camp", ex);
 	        }
 			return "redirect:/definicioProces/campValidacions.html?campId=" + validacio.getCamp().getId() + "&definicioProcesId=" + definicioProcesId;
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -155,12 +155,12 @@ public class DefinicioProcesValidacioCampController extends BaseController {
 			try {
 				dissenyService.goUpValidacio(id);
 			} catch (Exception ex) {
-	        	missatgeError(request, "No s'ha pogut canviar l'ordre de la validació", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.ordre.validacio"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut canviar l'ordre de la validació", ex);
 	        }
 			return "redirect:/definicioProces/campValidacions.html?campId=" + validacio.getCamp().getId() + "&definicioProcesId=" + definicioProcesId;
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -175,12 +175,12 @@ public class DefinicioProcesValidacioCampController extends BaseController {
 			try {
 				dissenyService.goDownValidacio(id);
 			} catch (Exception ex) {
-	        	missatgeError(request, "No s'ha pogut canviar l'ordre de la validació", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.ordre.validacio"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut canviar l'ordre de la validació", ex);
 	        }
 			return "redirect:/definicioProces/campValidacions.html?campId=" + validacio.getCamp().getId() + "&definicioProcesId=" + definicioProcesId;
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

@@ -62,18 +62,18 @@ public class ExpedientDadaEsborrarController extends BaseController {
 			if (potModificarExpedient(expedient)) {
 				try {
 					expedientService.deleteVariable(id, var);
-					missatgeInfo(request, "La dada ha estat esborrada del procés");
+					missatgeInfo(request, getMessage("dada.proces.esborrada") );
 				} catch (Exception ex) {
-					missatgeError(request, "No s'ha pogut esborrar la dada del procés", ex.getLocalizedMessage());
+					missatgeError(request, getMessage("error.esborrar.dada.proces"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut esborrar la dada del procés", ex);
 				}
 				return "redirect:/expedient/dades.html?id=" + id;
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 			}
 			return "redirect:/expedient/consulta.html";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -93,18 +93,18 @@ public class ExpedientDadaEsborrarController extends BaseController {
 							entorn.getId(),
 							taskId,
 							var);
-					missatgeInfo(request, "La dada ha estat esborrada de la tasca");
+					missatgeInfo(request, getMessage("dada.tasca.esborrada") );
 				} catch (Exception ex) {
-					missatgeError(request, "No s'ha pogut esborrar la dada de la tasca", ex.getLocalizedMessage());
+					missatgeError(request, getMessage("error.esborrar.dada.tasca"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut esborrar la dada de la tasca", ex);
 				}
 				return "redirect:/expedient/dades.html?id=" + tasca.getProcessInstanceId();
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 			}
 			return "redirect:/expedient/consulta.html";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

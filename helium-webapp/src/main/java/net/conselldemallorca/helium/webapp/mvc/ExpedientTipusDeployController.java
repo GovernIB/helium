@@ -66,8 +66,8 @@ public class ExpedientTipusDeployController extends BaseController {
 	@ModelAttribute("desplegamentTipus")
 	public List<ParellaCodiValorDto> populateTipus() {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		resposta.add(new ParellaCodiValorDto("JBPM", "Desplegament jBPM"));
-		resposta.add(new ParellaCodiValorDto("EXPORT", "Exportació Helium"));
+		resposta.add(new ParellaCodiValorDto("JBPM", getMessage("txt.desplegament.jbpm") ));
+		resposta.add(new ParellaCodiValorDto("EXPORT", getMessage("txt.exportacio.helium") ));
 		return resposta;
 	}
 	@ModelAttribute("expedientTipus")
@@ -95,11 +95,11 @@ public class ExpedientTipusDeployController extends BaseController {
 			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
 				return "expedientTipus/deploy";
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquest tipus d'expedient");
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/definicioProces/deploy.html";
 		}
 	}
@@ -130,7 +130,7 @@ public class ExpedientTipusDeployController extends BaseController {
 				        			multipartFile.getBytes(),
 				        			command.getEtiqueta(),
 				        			true);
-				        	missatgeInfo(request, "L'arxiu s'ha desplegat amb èxit");
+				        	missatgeInfo(request, getMessage("info.arxiu.desplegat") );
 		        		} else {
 			        		InputStream is = new ByteArrayInputStream(multipartFile.getBytes());
 					    	ObjectInputStream input = new ObjectInputStream(is);
@@ -142,29 +142,29 @@ public class ExpedientTipusDeployController extends BaseController {
 					        			command.getExpedientTipusId(),
 					        			exportacio,
 					        			command.getEtiqueta());
-					    		missatgeInfo(request, "L'arxiu s'ha desplegat amb èxit");
+					    		missatgeInfo(request, getMessage("info.arxiu.desplegat"));
 					    	} else {
-					    		missatgeError(request, "Aquest arxiu no és un arxiu d'exportació vàlid");
+					    		missatgeError(request, getMessage("error.arxius.no.valid"));
 					    	}
 		        		}
 						return "redirect:/expedientTipus/definicioProcesLlistat.html?expedientTipusId=" + command.getExpedientTipusId();
 		        	} catch (ClassNotFoundException ex) {
-		        		missatgeError(request, "Aquest arxiu no és un arxiu d'exportació vàlid", ex.getMessage());
+		        		missatgeError(request, getMessage("error.arxius.no.valid"), ex.getMessage());
 		        	} catch (IOException ex) {
-		        		missatgeError(request, "Error desplegant l'arxiu", ex.getMessage());
+		        		missatgeError(request, getMessage("error.desplegar.arxius"), ex.getMessage());
 		        	} catch (DeploymentException ex) {
-		        		missatgeError(request, "Error desplegant l'arxiu", ex.getMessage());
+		        		missatgeError(request, getMessage("error.desplegar.arxius"), ex.getMessage());
 		        	}
 		        	return "redirect:/expedientTipus/deploy.html?expedientTipusId=" + command.getExpedientTipusId();
 				} else {
 					return "redirect:/definicioProces/llistat.html";
 				}
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquest tipus d'expedient");
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/definicioProces/deploy.html";
 		}
 	}

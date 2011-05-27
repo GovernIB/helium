@@ -148,7 +148,7 @@ public class ExpedientConsultaController extends BaseController {
 			}
 			return "expedient/consulta";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -172,7 +172,7 @@ public class ExpedientConsultaController extends BaseController {
 			}
 			return "expedient/consulta";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

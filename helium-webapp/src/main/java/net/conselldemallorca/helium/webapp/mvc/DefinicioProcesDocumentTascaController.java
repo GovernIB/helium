@@ -94,11 +94,11 @@ public class DefinicioProcesDocumentTascaController extends BaseController {
 				model.addAttribute("tasca", tasca);
 				return "definicioProces/tascaDocuments";
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -122,10 +122,10 @@ public class DefinicioProcesDocumentTascaController extends BaseController {
 			        			command.getTascaId(),
 			        			command.isRequired(),
 			        			command.isReadOnly());
-			        	missatgeInfo(request, "S'ha afegit el document a la tasca");
+			        	missatgeInfo(request, getMessage("info.doc.tasca.afegit") );
 			        	status.setComplete();
 			        } catch (Exception ex) {
-			        	missatgeError(request, "No s'ha pogut afegir el document a la tasca", ex.getLocalizedMessage());
+			        	missatgeError(request, getMessage("error.afegir.doc.tasca"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut guardar el registre", ex);
 			        	return "definicioProces/tascaDocuments";
 			        }
@@ -134,11 +134,11 @@ public class DefinicioProcesDocumentTascaController extends BaseController {
 					return "redirect:/definicioProces/tascaLlistat.html?definicioProcesId=" + definicioProcesId;
 				}
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -154,18 +154,18 @@ public class DefinicioProcesDocumentTascaController extends BaseController {
 				DocumentTasca documentTasca = dissenyService.getDocumentTascaById(id);
 				try {
 					dissenyService.deleteDocumentTasca(id);
-					missatgeInfo(request, "S'ha esborrat el document de la tasca");
+					missatgeInfo(request, getMessage("info.doc.tasca.esborrat") );
 				} catch (Exception ex) {
-		        	missatgeError(request, "No s'ha pogut esborrar el document de la tasca", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("info.doc.tasca.esborrar"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut esborrar el document de la tasca", ex);
 		        }
 				return "redirect:/definicioProces/tascaDocuments.html?tascaId=" + documentTasca.getTasca().getId() + "&definicioProcesId=" + definicioProcesId;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -182,16 +182,16 @@ public class DefinicioProcesDocumentTascaController extends BaseController {
 				try {
 					dissenyService.goUpDocumentTasca(id);
 				} catch (Exception ex) {
-		        	missatgeError(request, "No s'ha pogut canviar l'ordre del document", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.ordre.doc.tasca"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut canviar l'ordre del document", ex);
 		        }
 				return "redirect:/definicioProces/tascaDocuments.html?tascaId=" + documentTasca.getTasca().getId() + "&definicioProcesId=" + definicioProcesId;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -208,16 +208,16 @@ public class DefinicioProcesDocumentTascaController extends BaseController {
 				try {
 					dissenyService.goDownDocumentTasca(id);
 				} catch (Exception ex) {
-		        	missatgeError(request, "No s'ha pogut canviar l'ordre del document", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.ordre.doc.tasca"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut canviar l'ordre del document", ex);
 		        }
 				return "redirect:/definicioProces/tascaDocuments.html?tascaId=" + documentTasca.getTasca().getId() + "&definicioProcesId=" + definicioProcesId;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

@@ -106,10 +106,10 @@ public class ReassignacioController extends BaseController {
 	        				command.getDataFi(),
 	        				command.getDataCancelacio());
 	        	}
-	        	missatgeInfo(request, "La reassignació s'ha produït correctament");
+	        	missatgeInfo(request, getMessage("info.reassignacio.produit") );
 	        	status.setComplete();
 	        } catch (Exception ex) {
-	        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut guardar el registre", ex);
 	        	return "reassignar/form";
 	        }
@@ -124,7 +124,7 @@ public class ReassignacioController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) Long id) {
 		reassignacioService.deleteReassignacio(id);
-		missatgeInfo(request, "La reassignació s'ha cancel·lat correctament");
+		missatgeInfo(request, getMessage("info.reassignacio.cancelat") );
 		return "redirect:/reassignar/llistat.html";
 	}
 	

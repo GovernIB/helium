@@ -8,7 +8,7 @@
 <html>
 <head>
 	<title>Expedient: ${expedient.identificadorLimitat}</title>
-	<meta name="titolcmp" content="Consultes"/>
+	<meta name="titolcmp" content="<fmt:message key='comuns.consultes' />"/>
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 <script type="text/javascript">
@@ -95,7 +95,7 @@ function confirmarModificar(e) {
 						<a href="<c:url value="/expedient/dadaModificar.html"><c:param name="id" value="${instanciaProces.id}"/><c:param name="var" value="${codi}"/></c:url>" onclick="return confirmarModificar(event)"><img src="<c:url value="/img/page_white_edit.png"/>" alt="Editar" title="Editar" border="0"/></a>
 					</display:column>
 					<display:column>
-						<a href="<c:url value="/expedient/dadaProcesEsborrar.html"><c:param name="id" value="${instanciaProces.id}"/><c:param name="var" value="${codi}"/></c:url>" onclick="return confirmarEsborrarProces(event)"><img src="<c:url value="/img/cross.png"/>" alt="Esborrar" title="Esborrar" border="0"/></a>
+						<a href="<c:url value="/expedient/dadaProcesEsborrar.html"><c:param name="id" value="${instanciaProces.id}"/><c:param name="var" value="${codi}"/></c:url>" onclick="return confirmarEsborrarProces(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 					</display:column>
 				</security:accesscontrollist>
 			</display:table>
@@ -151,7 +151,7 @@ function confirmarModificar(e) {
 									<a href="<c:url value="/expedient/dadaModificar.html"><c:param name="id" value="${instanciaProces.id}"/><c:param name="var" value="${campAgrup.codi}"/></c:url>" onclick="return confirmarModificar(event)"><img src="<c:url value="/img/page_white_edit.png"/>" alt="Editar" title="Editar" border="0"/></a>
 								</display:column>
 								<display:column>
-									<a href="<c:url value="/expedient/dadaProcesEsborrar.html"><c:param name="id" value="${instanciaProces.id}"/><c:param name="var" value="${campAgrup.codi}"/></c:url>" onclick="return confirmarEsborrarProces(event)"><img src="<c:url value="/img/cross.png"/>" alt="Esborrar" title="Esborrar" border="0"/></a>
+									<a href="<c:url value="/expedient/dadaProcesEsborrar.html"><c:param name="id" value="${instanciaProces.id}"/><c:param name="var" value="${campAgrup.codi}"/></c:url>" onclick="return confirmarEsborrarProces(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 								</display:column>
 							</security:accesscontrollist>
 						</display:table>
@@ -222,7 +222,7 @@ function confirmarModificar(e) {
 											<a href="<c:url value="/expedient/dadaModificar.html"><c:param name="taskId" value="${tasca.id}"/><c:param name="var" value="${codi}"/></c:url>" onclick="return confirmarModificar(event)"><img src="<c:url value="/img/page_white_edit.png"/>" alt="Editar" title="Editar" border="0"/></a>
 										</display:column>
 										<display:column>
-											<a href="<c:url value="/expedient/dadaTascaEsborrar.html"><c:param name="taskId" value="${tasca.id}"/><c:param name="var" value="${codi}"/></c:url>" onclick="return confirmarEsborrarTasca(event)"><img src="<c:url value="/img/cross.png"/>" alt="Esborrar" title="Esborrar" border="0"/></a>
+											<a href="<c:url value="/expedient/dadaTascaEsborrar.html"><c:param name="taskId" value="${tasca.id}"/><c:param name="var" value="${codi}"/></c:url>" onclick="return confirmarEsborrarTasca(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 										</display:column>
 									</security:accesscontrollist>
 								</display:table>

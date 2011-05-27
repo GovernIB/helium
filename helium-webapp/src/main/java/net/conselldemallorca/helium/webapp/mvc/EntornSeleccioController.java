@@ -68,7 +68,7 @@ public class EntornSeleccioController extends BaseController {
 						ExtendedPermission.READ});
 			
 		} catch (Exception ex) {
-			logger.error("Error cercant entorns actius", ex);
+			logger.error(getMessage("error.cercar.entorns"), ex);
 		}
 		return entorns;
 	}

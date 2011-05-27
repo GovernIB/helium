@@ -8,7 +8,7 @@
 <html>
 <head>
 	<title>Tipus d'expedient</title>
-	<meta name="titolcmp" content="Disseny"/>
+	<meta name="titolcmp" content="<fmt:message key='comuns.disseny' />" />
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
     <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 <script type="text/javascript">
@@ -47,7 +47,7 @@ function confirmar(e) {
 				</form>
 		    </display:column>
 			<display:column>
-				<a href="<c:url value="/expedientTipus/delete.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="Esborrar" title="Esborrar" border="0"/></a>
+				<a href="<c:url value="/expedientTipus/delete.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 			</display:column>
 		</security:accesscontrollist>
 	</display:table>

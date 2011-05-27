@@ -95,11 +95,11 @@ public class DefinicioProcesFirmaTascaController extends BaseController {
 				model.addAttribute("tasca", tasca);
 				return "definicioProces/tascaFirmes";
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -122,10 +122,10 @@ public class DefinicioProcesFirmaTascaController extends BaseController {
 			        			command.getDocumentId(),
 			        			command.getTascaId(),
 			        			command.isRequired());
-			        	missatgeInfo(request, "S'ha afegit la firma a la tasca");
+			        	missatgeInfo(request, getMessage("info.firma.tasca.afegit") );
 			        	status.setComplete();
 			        } catch (Exception ex) {
-			        	missatgeError(request, "No s'ha pogut afegir la firma a la tasca", ex.getLocalizedMessage());
+			        	missatgeError(request, getMessage("error.afegir.firma.tasca"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut guardar el registre", ex);
 			        	return "definicioProces/tascaFirmes";
 			        }
@@ -134,11 +134,11 @@ public class DefinicioProcesFirmaTascaController extends BaseController {
 					return "redirect:/definicioProces/tascaLlistat.html?definicioProcesId=" + definicioProcesId;
 				}
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -154,18 +154,18 @@ public class DefinicioProcesFirmaTascaController extends BaseController {
 				FirmaTasca firmaTasca = dissenyService.getFirmaTascaById(id);
 				try {
 					dissenyService.deleteFirmaTasca(id);
-					missatgeInfo(request, "S'ha esborrat la firma de la tasca");
+					missatgeInfo(request, getMessage("info.firma.tasca.esborrat") );
 				} catch (Exception ex) {
-		        	missatgeError(request, "No s'ha pogut esborrar la firma de la tasca", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.esborrar.firma.tasca"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut esborrar el document de la tasca", ex);
 		        }
 				return "redirect:/definicioProces/tascaFirmes.html?tascaId=" + firmaTasca.getTasca().getId() + "&definicioProcesId=" + definicioProcesId;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -182,16 +182,16 @@ public class DefinicioProcesFirmaTascaController extends BaseController {
 				try {
 					dissenyService.goUpFirmaTasca(id);
 				} catch (Exception ex) {
-		        	missatgeError(request, "No s'ha pogut canviar l'ordre de la firma", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.ordre.firma.tasca"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut canviar l'ordre de la firma", ex);
 		        }
 				return "redirect:/definicioProces/tascaFirmes.html?tascaId=" + firmaTasca.getTasca().getId() + "&definicioProcesId=" + definicioProcesId;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -208,16 +208,16 @@ public class DefinicioProcesFirmaTascaController extends BaseController {
 				try {
 					dissenyService.goDownFirmaTasca(id);
 				} catch (Exception ex) {
-		        	missatgeError(request, "No s'ha pogut canviar l'ordre de la firma", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.ordre.firma.tasca"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut canviar l'ordre de la firma", ex);
 		        }
 				return "redirect:/definicioProces/tascaFirmes.html?tascaId=" + firmaTasca.getTasca().getId() + "&definicioProcesId=" + definicioProcesId;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
