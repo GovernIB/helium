@@ -174,10 +174,7 @@
 		<profile>
 			<id>servidor-tomcat</id>
 			<activation>
-				<property>
-					<name>server.type</name>
-					<value>tomcat</value>
-				</property>
+				<activeByDefault>true</activeByDefault>
 			</activation>
 			<build>
 				<resources>
