@@ -39,13 +39,13 @@ import org.springframework.web.bind.support.SessionStatus;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-public class ExpedientTipusDocumentsController extends BaseController {
+public class ExpedientTipusSistraDocumentsController extends BaseController {
 
 	private DissenyService dissenyService;
 	private PermissionService permissionService;
 
 	@Autowired
-	public ExpedientTipusDocumentsController(
+	public ExpedientTipusSistraDocumentsController(
 			DissenyService dissenyService,
 			PermissionService permissionService) {
 		this.dissenyService = dissenyService;
@@ -63,7 +63,7 @@ public class ExpedientTipusDocumentsController extends BaseController {
 		return dissenyService.getExpedientTipusById(expedientTipusId);
 	}
 
-	@RequestMapping(value = "/expedientTipus/documents", method = RequestMethod.GET)
+	@RequestMapping(value = "/expedientTipus/sistraDocuments", method = RequestMethod.GET)
 	public String formGet(
 			HttpServletRequest request,
 			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
@@ -80,7 +80,7 @@ public class ExpedientTipusDocumentsController extends BaseController {
 						model.addAttribute("codisProces", dissenyService.findDocumentsAmbDefinicioProcesOrdenatsPerCodi(proces.getId()));
 				}
 				
-				return "expedientTipus/documents";
+				return "expedientTipus/sistraDocuments";
 			} else {
 				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
@@ -91,7 +91,7 @@ public class ExpedientTipusDocumentsController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/expedientTipus/documents", method = RequestMethod.POST)
+	@RequestMapping(value = "/expedientTipus/sistraDocuments", method = RequestMethod.POST)
 	public String formPost(
 			HttpServletRequest request,
 			@RequestParam(value = "submit", required = false) String submit,
@@ -118,7 +118,7 @@ public class ExpedientTipusDocumentsController extends BaseController {
 								model.addAttribute("codisProces", dissenyService.findDocumentsAmbDefinicioProcesOrdenatsPerCodi(proces.getId()));
 						}
 						
-			        	return "expedientTipus/documents";
+			        	return "expedientTipus/sistraDocuments";
 			        }
 			        try {
 			        	dissenyService.createMapeigSistra(command.getCodiHelium(), command.getCodiSistra(), command.getTipus(), expedientTipus);
@@ -130,7 +130,7 @@ public class ExpedientTipusDocumentsController extends BaseController {
 			        	logger.error("No s'ha pogut guardar el registre", ex);
 			        }
 				}
-				return "redirect:/expedientTipus/documents.html?expedientTipusId=" + expedientTipusId;
+				return "redirect:/expedientTipus/sistraDocuments.html?expedientTipusId=" + expedientTipusId;
 			} else {
 				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
@@ -141,7 +141,7 @@ public class ExpedientTipusDocumentsController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/expedientTipus/mapeigSistraEsborrarDocument.html")
+	@RequestMapping(value = "/expedientTipus/sistraDocumentEsborrar.html")
 	public String deleteAction(
 			HttpServletRequest request,
 			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
@@ -152,7 +152,7 @@ public class ExpedientTipusDocumentsController extends BaseController {
 			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
 				dissenyService.deleteMapeigSistra(id);
 				missatgeInfo(request, getMessage("info.mapeigSistra.esborrat") );
-				return "redirect:/expedientTipus/documents.html?expedientTipusId=" + expedientTipusId;
+				return "redirect:/expedientTipus/sistraDocuments.html?expedientTipusId=" + expedientTipusId;
 			} else {
 				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
@@ -162,6 +162,8 @@ public class ExpedientTipusDocumentsController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
+
+
 
 	private class ExpedientTipusSistraDocumentValidator implements Validator {
 		private DissenyService dissenyService;
@@ -212,6 +214,6 @@ public class ExpedientTipusDocumentsController extends BaseController {
 					ExtendedPermission.DESIGN}) != null;
 	}
 
-	private static final Log logger = LogFactory.getLog(ExpedientTipusDocumentsController.class);
+	private static final Log logger = LogFactory.getLog(ExpedientTipusSistraDocumentsController.class);
 
 }

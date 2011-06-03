@@ -26,11 +26,11 @@
 		<display:column property="codiHelium" title="Codi Helium" sortable="true"/>
 		<display:column property="codiSistra" title="Codi Sistra" sortable="true"/>
 		<display:column>
-			<a href="<c:url value="/expedientTipus/mapeigSistraEsborrarVariable.html"><c:param name="id" value="${registre.id}"/><c:param name="expedientTipusId" value="${expedientTipus.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
+			<a href="<c:url value="/expedientTipus/sistraVariableEsborrar.html"><c:param name="id" value="${registre.id}"/><c:param name="expedientTipusId" value="${expedientTipus.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 		</display:column>
 	</display:table>
 
-	<form:form action="variables.html" cssClass="uniForm">
+	<form:form action="sistraVariables.html" cssClass="uniForm">
 		<fieldset class="inlineLabels">
 			<legend>Afegir nou mapeig</legend>
 			<input id="expedientTipusId" name="expedientTipusId" value="${param.expedientTipusId}" type="hidden"/>
@@ -40,7 +40,7 @@
 					<c:param name="required" value="${true}"/>
 					<c:param name="type" value="select"/>
 					<c:param name="items" value="codisProces"/>
-					<c:param name="itemLabel" value="codi"/>
+					<c:param name="itemLabel" value="codiEtiqueta"/>
 					<c:param name="itemValue" value="codi"/>
 					<c:param name="itemBuit">&lt;&lt; <fmt:message key='exptipus.sistra.selec_codi' /> &gt;&gt;</c:param>
 					<c:param name="label"><fmt:message key='exptipus.sistra.codihelium' /></c:param>

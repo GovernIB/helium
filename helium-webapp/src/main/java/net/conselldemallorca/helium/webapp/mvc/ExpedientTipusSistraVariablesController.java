@@ -41,60 +41,31 @@ import org.springframework.web.bind.support.SessionStatus;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-public class ExpedientTipusVariablesController extends BaseController {
+public class ExpedientTipusSistraVariablesController extends BaseController {
 
 	private DissenyService dissenyService;
 	private PermissionService permissionService;
 
 	@Autowired
-	public ExpedientTipusVariablesController(
+	public ExpedientTipusSistraVariablesController(
 			DissenyService dissenyService,
 			PermissionService permissionService) {
 		this.dissenyService = dissenyService;
 		this.permissionService = permissionService;
 	}
-	
-	/*@ModelAttribute("tipusMapeig")
-	public TipusMapeig[] populateTipusMapeig() {
-		return MapeigSistra.TipusMapeig.values();
-	}
-	
-	@ModelAttribute("command")
-	public ExpedientTipusSistraCommand populateCommand(
-			HttpServletRequest request,
-			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId) {
-		ExpedientTipusSistraCommand command = new ExpedientTipusSistraCommand();
-		Entorn entorn = getEntornActiu(request);
-		if (entorn != null) {
-			ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
-			command.setExpedientTipusId(expedientTipusId);
-			if (expedientTipus.getSistraTramitCodi() != null) {
-				command.setCodiTramit(expedientTipus.getSistraTramitCodi());
-				//command.setInfoMapeigCamps(expedientTipus.getSistraTramitMapeigCamps());
-				command.setMapeigSistras(expedientTipus.getMapeigSistras());
-				//command.setInfoMapeigDocuments(expedientTipus.getSistraTramitMapeigDocuments());
-				//command.setInfoMapeigAdjunts(expedientTipus.getSistraTramitMapeigAdjunts());
-				command.setActiu(true);
-				
-			} else {
-				command.setActiu(false);
-			}
-		}
-		return command;
-	}*/
-	
+
 	@ModelAttribute("command")
 	public MapeigSistra populateCommand() {
 		return new MapeigSistra();
 	}
-	
+
 	@ModelAttribute("expedientTipus")
 	public ExpedientTipus populateExpedientTipus(
 			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId) {
 		return dissenyService.getExpedientTipusById(expedientTipusId);
 	}
 
-	@RequestMapping(value = "/expedientTipus/variables", method = RequestMethod.GET)
+	@RequestMapping(value = "/expedientTipus/sistraVariables", method = RequestMethod.GET)
 	public String formGet(
 			HttpServletRequest request,
 			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
@@ -111,7 +82,7 @@ public class ExpedientTipusVariablesController extends BaseController {
 						model.addAttribute("codisProces", dissenyService.findCampsAmbDefinicioProcesOrdenatsPerCodi(proces.getId()));
 				}
 				
-				return "expedientTipus/variables";
+				return "expedientTipus/sistraVariables";
 			} else {
 				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
@@ -122,8 +93,7 @@ public class ExpedientTipusVariablesController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/expedientTipus/variables", method = RequestMethod.POST)
-//@RequestMapping({"/profile.htm", "/perfilEF.htm", "perfilCategoriaEF.htm"})
+	@RequestMapping(value = "/expedientTipus/sistraVariables", method = RequestMethod.POST)
 	public String formPost(
 			HttpServletRequest request,
 			@RequestParam(value = "submit", required = false) String submit,
@@ -150,7 +120,7 @@ public class ExpedientTipusVariablesController extends BaseController {
 								model.addAttribute("codisProces", dissenyService.findCampsAmbDefinicioProcesOrdenatsPerCodi(proces.getId()));
 						}
 						
-			        	return "expedientTipus/variables";
+			        	return "expedientTipus/sistraVariables";
 			        }
 			        try {
 			        	dissenyService.createMapeigSistra(command.getCodiHelium(), command.getCodiSistra(), command.getTipus(), expedientTipus);
@@ -163,7 +133,7 @@ public class ExpedientTipusVariablesController extends BaseController {
 			        	logger.error("No s'ha pogut guardar el registre", ex);
 			        }
 				}
-				return "redirect:/expedientTipus/variables.html?expedientTipusId=" + expedientTipusId;
+				return "redirect:/expedientTipus/sistraVariables.html?expedientTipusId=" + expedientTipusId;
 			} else {
 				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
@@ -174,7 +144,7 @@ public class ExpedientTipusVariablesController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/expedientTipus/mapeigSistraEsborrarVariable.html")
+	@RequestMapping(value = "/expedientTipus/sistraVariableEsborrar.html")
 	public String deleteAction(
 			HttpServletRequest request,
 			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
@@ -185,7 +155,7 @@ public class ExpedientTipusVariablesController extends BaseController {
 			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
 				dissenyService.deleteMapeigSistra(id);
 				missatgeInfo(request, getMessage("info.mapeigSistra.esborrat") );
-				return "redirect:/expedientTipus/variables.html?expedientTipusId=" + expedientTipusId;
+				return "redirect:/expedientTipus/sistraVariables.html?expedientTipusId=" + expedientTipusId;
 			} else {
 				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
@@ -195,6 +165,8 @@ public class ExpedientTipusVariablesController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
+
+
 
 	private class ExpedientTipusSistraVariableValidator implements Validator {
 		private DissenyService dissenyService;
@@ -245,6 +217,6 @@ public class ExpedientTipusVariablesController extends BaseController {
 					ExtendedPermission.DESIGN}) != null;
 	}
 
-	private static final Log logger = LogFactory.getLog(ExpedientTipusVariablesController.class);
+	private static final Log logger = LogFactory.getLog(ExpedientTipusSistraVariablesController.class);
 
 }

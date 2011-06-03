@@ -80,13 +80,13 @@ function mostrarOcultar(objid) {
 	
 	</form:form>
 	
-	<form name="variablesForm" action="variables.html">
+	<form name="variablesForm" action="sistraVariables.html">
 		<input type="hidden" name="expedientTipusId" value="${expedientTipus.id}"/>
 	</form>
-	<form name="documentsForm" action="documents.html">
+	<form name="documentsForm" action="sistraDocuments.html">
 		<input type="hidden" name="expedientTipusId" value="${expedientTipus.id}"/>
 	</form>
-	<form name="adjuntsForm" action="adjunts.html">
+	<form name="adjuntsForm" action="sistraAdjunts.html">
 		<input type="hidden" name="expedientTipusId" value="${expedientTipus.id}"/>
 	</form>
 	

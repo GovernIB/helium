@@ -23,6 +23,7 @@ public class DocumentExportacio implements Serializable {
 	private String codiCampData;
 	private String contentType;
 	private String custodiaCodi;
+	private Integer tipusDocPortasignatures;
 
 
 
@@ -96,6 +97,12 @@ public class DocumentExportacio implements Serializable {
 	}
 	public void setCustodiaCodi(String custodiaCodi) {
 		this.custodiaCodi = custodiaCodi;
+	}
+	public Integer getTipusDocPortasignatures() {
+		return tipusDocPortasignatures;
+	}
+	public void setTipusDocPortasignatures(Integer tipusDocPortasignatures) {
+		this.tipusDocPortasignatures = tipusDocPortasignatures;
 	}
 
 

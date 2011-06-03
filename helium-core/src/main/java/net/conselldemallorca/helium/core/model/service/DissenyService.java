@@ -1029,6 +1029,7 @@ public class DissenyService {
 					document.isPlantilla());
 			dto.setCustodiaCodi(document.getCustodiaCodi());
 			dto.setContentType(document.getContentType());
+			dto.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
 			if (document.getCampData() != null)
 				dto.setCodiCampData(document.getCampData().getCodi());
 			documentsDto.add(dto);
@@ -1804,6 +1805,7 @@ public class DissenyService {
 			nou.setPlantilla(document.isPlantilla());
 			nou.setCustodiaCodi(document.getCustodiaCodi());
 			nou.setContentType(document.getContentType());
+			nou.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
 			if (document.getCampData() != null)
 				nou.setCampData(camps.get(document.getCampData().getCodi()));
 			documentDao.saveOrUpdate(nou);
@@ -1982,6 +1984,7 @@ public class DissenyService {
 			nou.setPlantilla(document.isPlantilla());
 			nou.setCustodiaCodi(document.getCustodiaCodi());
 			nou.setContentType(document.getContentType());
+			nou.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
 			if (document.getCodiCampData() != null)
 				nou.setCampData(camps.get(document.getCodiCampData()));
 			documentDao.saveOrUpdate(nou);

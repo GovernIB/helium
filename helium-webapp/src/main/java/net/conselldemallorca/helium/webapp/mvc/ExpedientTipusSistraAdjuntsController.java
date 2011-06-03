@@ -38,13 +38,13 @@ import org.springframework.web.bind.support.SessionStatus;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-public class ExpedientTipusAdjuntsController extends BaseController {
+public class ExpedientTipusSistraAdjuntsController extends BaseController {
 
 	private DissenyService dissenyService;
 	private PermissionService permissionService;
 
 	@Autowired
-	public ExpedientTipusAdjuntsController(
+	public ExpedientTipusSistraAdjuntsController(
 			DissenyService dissenyService,
 			PermissionService permissionService) {
 		this.dissenyService = dissenyService;
@@ -62,7 +62,7 @@ public class ExpedientTipusAdjuntsController extends BaseController {
 		return dissenyService.getExpedientTipusById(expedientTipusId);
 	}
 
-	@RequestMapping(value = "/expedientTipus/adjunts", method = RequestMethod.GET)
+	@RequestMapping(value = "/expedientTipus/sistraAdjunts", method = RequestMethod.GET)
 	public String formGet(
 			HttpServletRequest request,
 			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
@@ -73,7 +73,7 @@ public class ExpedientTipusAdjuntsController extends BaseController {
 			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
 				model.addAttribute("mapeigSistras", dissenyService.findMapeigSistraAdjuntsAmbExpedientTipus(expedientTipusId));
 				
-				return "expedientTipus/adjunts";
+				return "expedientTipus/sistraAdjunts";
 			} else {
 				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
@@ -84,7 +84,7 @@ public class ExpedientTipusAdjuntsController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/expedientTipus/adjunts", method = RequestMethod.POST)
+	@RequestMapping(value = "/expedientTipus/sistraAdjunts", method = RequestMethod.POST)
 	public String formPost(
 			HttpServletRequest request,
 			@RequestParam(value = "submit", required = false) String submit,
@@ -104,7 +104,7 @@ public class ExpedientTipusAdjuntsController extends BaseController {
 			        if (result.hasErrors()) {
 						model.addAttribute("mapeigSistras", dissenyService.findMapeigSistraAdjuntsAmbExpedientTipus(expedientTipusId));
 						
-			        	return "expedientTipus/adjunts";
+			        	return "expedientTipus/sistraAdjunts";
 			        }
 			        try {
 			        	dissenyService.createMapeigSistra(command.getCodiHelium(), command.getCodiHelium(), command.getTipus(), expedientTipus);
@@ -116,7 +116,7 @@ public class ExpedientTipusAdjuntsController extends BaseController {
 			        	logger.error("No s'ha pogut guardar el registre", ex);
 			        }
 				}
-				return "redirect:/expedientTipus/adjunts.html?expedientTipusId=" + expedientTipusId;
+				return "redirect:/expedientTipus/sistraAdjunts.html?expedientTipusId=" + expedientTipusId;
 			} else {
 				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
@@ -127,7 +127,7 @@ public class ExpedientTipusAdjuntsController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/expedientTipus/mapeigSistraEsborrarAdjunt.html")
+	@RequestMapping(value = "/expedientTipus/sistraAdjuntEsborrar.html")
 	public String deleteAction(
 			HttpServletRequest request,
 			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
@@ -148,6 +148,8 @@ public class ExpedientTipusAdjuntsController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
+
+
 
 	private class ExpedientTipusSistraAdjuntValidator implements Validator {
 		private DissenyService dissenyService;
@@ -194,6 +196,6 @@ public class ExpedientTipusAdjuntsController extends BaseController {
 					ExtendedPermission.DESIGN}) != null;
 	}
 
-	private static final Log logger = LogFactory.getLog(ExpedientTipusAdjuntsController.class);
+	private static final Log logger = LogFactory.getLog(ExpedientTipusSistraAdjuntsController.class);
 
 }
