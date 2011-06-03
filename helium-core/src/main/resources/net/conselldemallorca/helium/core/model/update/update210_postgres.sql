@@ -19,7 +19,7 @@ CREATE
 -- Canvi Versio --
 ALTER TABLE hel_versio add column data_execucio TIMESTAMP(6) WITHOUT TIME ZONE;
 ALTER TABLE hel_versio add column proces_executat BOOLEAN;
+update hel_idgen set valor = valor+1 where taula = 'hel_tasca';
 update hel_versio set proces_executat = true, data_execucio = clock_timestamp()  where codi = 'inicial';
 insert into hel_versio (id, codi, ordre, proces_executat, data_execucio) values ((select valor from hel_idgen where taula = 'hel_tasca' ),'2.1.0', 210, false, clock_timestamp());
-update hel_idgen set valor = valor+1 where taula = 'hel_tasca';
 
