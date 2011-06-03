@@ -3,9 +3,11 @@ package net.conselldemallorca.helium.integracio.plugins.registre;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Vector;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -19,6 +21,8 @@ import es.caib.regweb.RegistroEntrada;
 import es.caib.regweb.RegistroEntradaHome;
 import es.caib.regweb.RegistroSalida;
 import es.caib.regweb.RegistroSalidaHome;
+import es.caib.regweb.Valores;
+import es.caib.regweb.ValoresHome;
 
 
 /**
@@ -338,6 +342,32 @@ public class RegistrePluginRegwebCaib implements RegistrePlugin {
 		throw new RegistrePluginException("Mètode no implementat en aquest plugin");
 	}
 
+	@SuppressWarnings({"unchecked", "unused"})
+	public String obtenirNomOficina(String oficinaCodi) throws RegistrePluginException {
+		try {
+			if (oficinaCodi != null) {
+				int indexBarra = oficinaCodi.indexOf(SEPARADOR_ENTITAT);
+				if (indexBarra != -1) {
+					Vector v = getValoresService().BuscarOficinasFisicasDescripcion("tots", "totes");
+					Iterator it = v.iterator();
+					while (it.hasNext()) {
+						String codiOficina = (String)it.next();
+						String codiOficinaFisica = (String)it.next();
+						String nomOficinaFisica = (String)it.next();
+						String nomOficina = (String)it.next();
+						String textComparacio = codiOficina + SEPARADOR_ENTITAT + codiOficinaFisica;
+						if (textComparacio.equals(oficinaCodi))
+							return nomOficina;
+					}
+				}
+			}
+			return null;
+		} catch (Exception ex) {
+			logger.error("Error al obtenir el nom de l'oficina " + oficinaCodi, ex);
+			throw new RegistrePluginException("Error al obtenir el nom de l'oficina " + oficinaCodi, ex);
+		}
+	}
+
 
 
 	private RegistroEntrada getRegistreEntradaService() throws Exception {
@@ -356,6 +386,16 @@ public class RegistrePluginRegwebCaib implements RegistrePlugin {
 		RegistroSalidaHome home = (RegistroSalidaHome)javax.rmi.PortableRemoteObject.narrow(
 				objRef,
 				RegistroSalidaHome.class);
+		ctx.close();
+		newLogin();
+		return home.create();
+	}
+	private Valores getValoresService() throws Exception {
+		Context ctx = getInitialContext();
+		Object objRef = ctx.lookup("es.caib.regweb.ValoresHome");
+		ValoresHome home = (ValoresHome)javax.rmi.PortableRemoteObject.narrow(
+				objRef,
+				ValoresHome.class);
 		ctx.close();
 		newLogin();
 		return home.create();

@@ -75,4 +75,13 @@ public interface RegistrePlugin {
 	public RespostaJustificantRecepcio obtenirJustificantRecepcio(
 			String numeroRegistre) throws RegistrePluginException;
 
+	/**
+	 * Obté el nom de l'oficina a partir del codi de l'oficina
+	 * 
+	 * @param oficinaCodi
+	 * @return el nom de l'oficina
+	 * @throws RegistrePluginException
+	 */
+	public String obtenirNomOficina(String oficinaCodi) throws RegistrePluginException;
+
 }

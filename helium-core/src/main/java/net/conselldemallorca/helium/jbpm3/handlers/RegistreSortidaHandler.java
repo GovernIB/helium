@@ -75,6 +75,11 @@ public class RegistreSortidaHandler extends AbstractHeliumActionHandler implemen
 		if (varDocument == null || varDocument.length() == 0)
 			throw new JbpmException("És obligatori especificar un document per registrar");
 		try {
+			String orgCodi = 
+				(String)getValorOVariable(executionContext, remitentCodiEntitat, varRemitentCodiEntitat);
+			String ofiCodi =
+				(String)getValorOVariable(executionContext, oficina, varOficina) + "-" +
+				(String)getValorOVariable(executionContext, oficinaFisica, varOficinaFisica);
 			RegistreSortida registreSortida = new RegistreSortida();
 			DadesOficina dadesOficina = new DadesOficina();
 			dadesOficina.setOrganCodi(
@@ -131,9 +136,9 @@ public class RegistreSortidaHandler extends AbstractHeliumActionHandler implemen
 						documentInfo.getId(),
 						resposta.getData(),
 						resposta.getNumero(),
-						(String)getValorOVariable(executionContext, oficina, varOficina),
-						(String)getValorOVariable(executionContext, oficinaFisica, varOficinaFisica),
-						"Oficina Helium");
+						orgCodi,
+						ofiCodi,
+						getPluginRegistreDao().obtenirNomOficina(ofiCodi));
 				if (varNumeroAnyRegistre != null)
 					executionContext.setVariable(
 							varNumeroAnyRegistre,
