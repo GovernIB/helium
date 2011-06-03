@@ -6,10 +6,12 @@
 		<param-name>contextConfigLocation</param-name>
 		<param-value>/WEB-INF/application-context.xml</param-value>
 	</context-param>
+	<!-- log4j.begin -->
 	<context-param>
 		<param-name>log4jConfigLocation</param-name>
 		<param-value>/WEB-INF/classes/log4j.xml</param-value>
 	</context-param>
+	<!-- log4j.end -->
 
 	<resource-ref>
 		<description>Datasource de l'aplicació</description>
@@ -470,7 +472,7 @@
 
 	<login-config>
 		<auth-method>BASIC</auth-method>
-		<realm-name>${web.realm.name}</realm-name>
+		<realm-name>@@web.realm.name@@</realm-name>
 	</login-config>
 
 	<security-role>

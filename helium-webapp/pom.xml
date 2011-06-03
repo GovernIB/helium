@@ -129,17 +129,6 @@
 		</dependency>
 	</dependencies>
 	<build>
-		<filters>
-			<filter>../build.properties</filter>
-		</filters>
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-				<excludes>
-					<exclude>log4j.xml</exclude>
-				</excludes>
-			</resource>
-		</resources>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -151,41 +140,64 @@
 				</configuration>
 			</plugin>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.6</version>
+				<executions>
+					<execution>
+						<id>filtrar.web.xml</id>
+						<phase>prepare-package</phase>
+						<configuration>
+							<target>
+								<property file="${basedir}/../build.properties" />
+								<copy file="${basedir}/src/main/webapp/WEB-INF/web.xml"
+									todir="${basedir}/target/replace-dir/WEB-INF" overwrite="true" />
+								<replace file="${basedir}/target/replace-dir/WEB-INF/web.xml"
+									propertyFile="${basedir}/../build.properties">
+									<replacefilter token="@@web.realm.name@@"
+										property="web.realm.name" />
+								</replace>
+								<taskdef resource="net/sf/antcontrib/antcontrib.properties"
+									classpathref="maven.plugin.classpath" />
+								<if>
+									<equals arg1="${appserv.jboss}" arg2="true" />
+									<then>
+										<replace file="${basedir}/target/replace-dir/WEB-INF/web.xml">
+											<replacefilter>
+												<replacetoken><![CDATA[<!-- log4j.begin -->]]></replacetoken>
+												<replacevalue><![CDATA[<!--]]></replacevalue>
+											</replacefilter>
+											<replacefilter>
+												<replacetoken><![CDATA[<!-- log4j.end -->]]></replacetoken>
+												<replacevalue><![CDATA[-->]]></replacevalue>
+											</replacefilter>
+										</replace>
+									</then>
+								</if>
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>ant-contrib</groupId>
+						<artifactId>ant-contrib</artifactId>
+						<version>20020829</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
 				<configuration>
 					<warName>helium</warName>
-					<webResources>
-						<webResource>
-							<directory>src/main/webapp/WEB-INF</directory>
-							<targetPath>WEB-INF</targetPath>
-							<includes>
-								<include>web.xml</include>
-							</includes>
-							<filtering>true</filtering>
-						</webResource>
-					</webResources>
+					<webXml>target/replace-dir/WEB-INF/web.xml</webXml>
 					<warSourceExcludes>META-INF/context.xml</warSourceExcludes>
 				</configuration>
 			</plugin>
 		</plugins>
 		<finalName>helium-webapp</finalName>
 	</build>
-	<profiles>
-		<profile>
-			<id>servidor-tomcat</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<build>
-				<resources>
-					<resource>
-						<directory>src/main/resources</directory>
-						<includes>
-							<include>log4j.xml</include>
-						</includes>
-					</resource>
-				</resources>
-			</build>
-		</profile>
-	</profiles>
 </project>
