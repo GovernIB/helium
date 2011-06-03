@@ -507,7 +507,7 @@ public class Tramitacio implements TramitacioService {
 		tt.setId(tasca.getId());
 		tt.setCodi(tasca.getCodi());
 		tt.setTitol(tasca.getTitol());
-		tt.setExpedient(tasca.getExpedientNumeroDefault());
+		tt.setExpedient(tasca.getExpedientNumero());
 		tt.setMissatgeInfo(tasca.getMissatgeInfo());
 		tt.setMissatgeWarn(tasca.getMissatgeWarn());
 		tt.setResponsable(tasca.getResponsable());

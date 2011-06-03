@@ -1104,7 +1104,7 @@ public class TascaService {
 				if (complet) {
 					Expedient expedient = expedientDao.findAmbProcessInstanceId(
 							jbpmDao.getRootProcessInstance(task.getProcessInstanceId()).getId());
-					dto.setExpedientNumeroDefault(expedient.getNumeroDefault());
+					dto.setExpedientNumero(expedient.getNumeroIdentificador());
 					Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
 							task.getName(),
 							task.getProcessDefinitionId());
