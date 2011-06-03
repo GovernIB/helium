@@ -16,6 +16,7 @@ import net.conselldemallorca.helium.core.model.dao.EntornDao;
 import net.conselldemallorca.helium.core.model.dao.EnumeracioDao;
 import net.conselldemallorca.helium.core.model.dao.EstatDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientTipusDao;
+import net.conselldemallorca.helium.core.model.dao.MapeigSistraDao;
 import net.conselldemallorca.helium.core.model.exception.NotFoundException;
 import net.conselldemallorca.helium.core.model.exportacio.AreaExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.AreaTipusExportacio;
@@ -25,16 +26,18 @@ import net.conselldemallorca.helium.core.model.exportacio.EntornExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.EnumeracioExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.EstatExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.ExpedientTipusExportacio;
+import net.conselldemallorca.helium.core.model.exportacio.MapeigSistraExportacio;
 import net.conselldemallorca.helium.core.model.hibernate.Area;
 import net.conselldemallorca.helium.core.model.hibernate.AreaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Carrec;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
+import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
-import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
 import net.conselldemallorca.helium.core.security.acl.AclServiceDao;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +63,7 @@ public class EntornService {
 	private EnumeracioDao enumeracioDao;
 	private ExpedientTipusDao expedientTipusDao;
 	private EstatDao estatDao;
+	private MapeigSistraDao mapeigSistraDao;
 	private AclServiceDao aclServiceDao;
 
 
@@ -271,9 +275,9 @@ public class EntornService {
 			dto.setExpressioNumero(expedientTipus.getExpressioNumero());
 			dto.setReiniciarCadaAny(expedientTipus.isReiniciarCadaAny());
 			dto.setSistraTramitCodi(expedientTipus.getSistraTramitCodi());
-			dto.setSistraTramitMapeigCamps(expedientTipus.getSistraTramitMapeigCamps());
+			/*dto.setSistraTramitMapeigCamps(expedientTipus.getSistraTramitMapeigCamps());
 			dto.setSistraTramitMapeigDocuments(expedientTipus.getSistraTramitMapeigDocuments());
-			dto.setSistraTramitMapeigAdjunts(expedientTipus.getSistraTramitMapeigAdjunts());
+			dto.setSistraTramitMapeigAdjunts(expedientTipus.getSistraTramitMapeigAdjunts());*/
 			dto.setFormextUrl(expedientTipus.getFormextUrl());
 			dto.setFormextUsuari(expedientTipus.getFormextUsuari());
 			dto.setFormextContrasenya(expedientTipus.getFormextContrasenya());
@@ -282,6 +286,12 @@ public class EntornService {
 				estats.add(new EstatExportacio(estat.getCodi(), estat.getNom(), estat.getOrdre()));
 			}
 			dto.setEstats(estats);
+			List<MapeigSistraExportacio> mapeigs = new ArrayList<MapeigSistraExportacio>();
+			for (MapeigSistra mapeig : expedientTipus.getMapeigSistras()){
+				mapeigs.add(new MapeigSistraExportacio(mapeig.getCodiHelium(), mapeig.getCodiSistra(), mapeig.getTipus()));
+			}
+			dto.setMapeigSistras(mapeigs);
+			
 			expedientsTipusDto.add(dto);
 		}
 		entornExportacio.setExpedientsTipus(expedientsTipusDto);
@@ -419,9 +429,9 @@ public class EntornService {
 			nou.setExpressioNumero(expedientTipus.getExpressioNumero());
 			nou.setReiniciarCadaAny(expedientTipus.isReiniciarCadaAny());
 			nou.setSistraTramitCodi(expedientTipus.getSistraTramitCodi());
-			nou.setSistraTramitMapeigCamps(expedientTipus.getSistraTramitMapeigCamps());
+			/*nou.setSistraTramitMapeigCamps(expedientTipus.getSistraTramitMapeigCamps());
 			nou.setSistraTramitMapeigDocuments(expedientTipus.getSistraTramitMapeigDocuments());
-			nou.setSistraTramitMapeigAdjunts(expedientTipus.getSistraTramitMapeigAdjunts());
+			nou.setSistraTramitMapeigAdjunts(expedientTipus.getSistraTramitMapeigAdjunts());*/
 			nou.setFormextUrl(expedientTipus.getFormextUrl());
 			nou.setFormextUsuari(expedientTipus.getFormextUsuari());
 			nou.setFormextContrasenya(expedientTipus.getFormextContrasenya());
@@ -443,6 +453,25 @@ public class EntornService {
 				}
 				enou.setOrdre(estat.getOrdre());
 				estatDao.saveOrUpdate(enou);
+			}
+			for (MapeigSistraExportacio mapeig: expedientTipus.getMapeigSistras()) {
+				MapeigSistra mnou = null;
+				if (nou.getId() != null) {
+					mnou = mapeigSistraDao.findAmbExpedientTipusICodi(
+						nou.getId(),
+						mapeig.getCodiHelium());
+				}
+				if (mnou == null) {
+					mnou = new MapeigSistra(
+							nou,
+							mapeig.getCodiHelium(),
+							mapeig.getCodiSistra(),
+							mapeig.getTipus());
+				} else {
+					mnou.setCodiSistra(mapeig.getCodiSistra());
+					mnou.setTipus(mapeig.getTipus());
+				}
+				mapeigSistraDao.saveOrUpdate(mnou);
 			}
 		}
 	}

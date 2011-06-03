@@ -2,12 +2,15 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 
 <html>
 <head>
 	<title>Tipus d'expedient: ${expedientTipus.nom}</title>
 	<meta name="titolcmp" content="<fmt:message key='comuns.disseny' />" />
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
+	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
+    <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 	<c:import url="../common/formIncludes.jsp"/>
 <script type="text/javascript">
 // <![CDATA[
@@ -28,6 +31,8 @@ function mostrarOcultar(objid) {
 		<c:param name="tabActiu" value="sistra"/>
 	</c:import>
 
+
+	
 	<form:form action="sistra.html" cssClass="uniForm">
 		<div class="inlineLabels">
 			<form:hidden path="expedientTipusId"/>
@@ -42,30 +47,48 @@ function mostrarOcultar(objid) {
 					<c:param name="property" value="codiTramit"/>
 					<c:param name="required" value="${true}"/>
 					<c:param name="label">Identificador del tràmit</c:param>
-				</c:import>
-				<c:import url="../common/formElement.jsp">
-					<c:param name="property" value="infoMapeigCamps"/>
-					<c:param name="type" value="textarea"/>
-					<c:param name="label">Mapeig de variables</c:param>
-				</c:import>
-				<c:import url="../common/formElement.jsp">
-					<c:param name="property" value="infoMapeigDocuments"/>
-					<c:param name="type" value="textarea"/>
-					<c:param name="label">Mapeig de documents</c:param>
-				</c:import>
-				<c:import url="../common/formElement.jsp">
-					<c:param name="property" value="infoMapeigAdjunts"/>
-					<c:param name="type" value="textarea"/>
-					<c:param name="label">Mapeig de documents com adjunts</c:param>
-				</c:import>
+				</c:import> 
+			
+				<div class="ctrlHolder" id="variables">
+					<label for="infoMapeigCamps0">Mapeig de variables</label>
+			   		<div class="btnCorto" onclick="document.variablesForm.submit();">
+						<button type="button" class="submitButton"><fmt:message key='comuns.variables' />&nbsp;(${numMapeigVariables})</button>
+					</div>
+				</div>
+				
+				<div class="ctrlHolder" id="documents">
+					<label for="infoMapeigDocuments0">Mapeig de documents</label>
+			   		<div class="btnCorto" onclick="document.documentsForm.submit();">
+						<button type="button" class="submitButton"><fmt:message key='comuns.documents' />&nbsp;(${numMapeigDocuments})</button>
+					</div>
+				</div>
+				<div class="ctrlHolder" id="adjunts.html">
+					<label for="infoMapeigAdjunts0">Mapeig de documents com adjunts</label>
+					<div class="btnCorto" onclick="document.adjuntsForm.submit();">
+						<button type="button" class="submitButton"><fmt:message key='comuns.adjunts' />&nbsp;(${numMapeigAdjunts})</button>
+					</div>
+				</div>
+				
 			</div>
+		
 		</div>
 		<c:import url="../common/formElement.jsp">
 			<c:param name="type" value="buttons"/>
 			<c:param name="values">submit</c:param>
 			<c:param name="titles">Guardar</c:param>
 		</c:import>
+	
 	</form:form>
-
+	
+	<form name="variablesForm" action="variables.html">
+		<input type="hidden" name="expedientTipusId" value="${expedientTipus.id}"/>
+	</form>
+	<form name="documentsForm" action="documents.html">
+		<input type="hidden" name="expedientTipusId" value="${expedientTipus.id}"/>
+	</form>
+	<form name="adjuntsForm" action="adjunts.html">
+		<input type="hidden" name="expedientTipusId" value="${expedientTipus.id}"/>
+	</form>
+	
 </body>
 </html>

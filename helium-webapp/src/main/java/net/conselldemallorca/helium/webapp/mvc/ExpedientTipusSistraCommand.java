@@ -13,9 +13,14 @@ public class ExpedientTipusSistraCommand {
 	private Long expedientTipusId;
 	private boolean actiu;
 	private String codiTramit;
-	private String infoMapeigCamps;
+	//private String infoMapeigCamps;
+	/*private List<MapeigSistra> mapeigSistras;
 	private String infoMapeigDocuments;
 	private String infoMapeigAdjunts;
+	
+	private String codiHelium;
+	private String codiSistra;
+	private TipusMapeig tipus;*/
 
 
 
@@ -42,11 +47,17 @@ public class ExpedientTipusSistraCommand {
 		this.codiTramit = codiTramit;
 	}
 
-	public String getInfoMapeigCamps() {
-		return infoMapeigCamps;
+	/*public List<MapeigSistra> getMapeigSistras() {
+		return this.mapeigSistras;
 	}
-	public void setInfoMapeigCamps(String infoMapeigCamps) {
-		this.infoMapeigCamps = infoMapeigCamps;
+	public void setMapeigSistras(List<MapeigSistra> mapeigSistras) {
+		this.mapeigSistras = mapeigSistras;
+	}
+	public void addMapeigSistras(MapeigSistra mapeigSistra) {
+		getMapeigSistras().add(mapeigSistra);
+	}
+	public void removeMapeigSistras(MapeigSistra mapeigSistra) {
+		getMapeigSistras().remove(mapeigSistra);
 	}
 
 	public String getInfoMapeigDocuments() {
@@ -63,4 +74,26 @@ public class ExpedientTipusSistraCommand {
 		this.infoMapeigAdjunts = infoMapeigAdjunts;
 	}
 
+	public String getCodiHelium() {
+		return codiHelium;
+	}
+	public void setCodiHelium(String codiHelium) {
+		this.codiHelium = codiHelium;
+	}
+
+	public String getCodiSistra() {
+		return codiSistra;
+	}
+	public void setCodiSistra(String codiSistra) {
+		this.codiSistra = codiSistra;
+	}
+
+	public TipusMapeig getTipus() {
+		return tipus;
+	}
+	public void setTipus(TipusMapeig tipus) {
+		this.tipus = tipus;
+	}
+*/
+	
 }

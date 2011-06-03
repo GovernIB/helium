@@ -98,10 +98,10 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	private Entorn entorn;
 
 	private List<Estat> estats = new ArrayList<Estat>();
+	private List<MapeigSistra> mapeigSistras = new ArrayList<MapeigSistra>();
 	private Set<Expedient> expedients = new HashSet<Expedient>();
 	private Set<DefinicioProces> definicionsProces = new HashSet<DefinicioProces>();
 	private Set<Consulta> consultes = new HashSet<Consulta>();
-
 
 
 	public ExpedientTipus() {}
@@ -319,6 +319,21 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	}
 	public void removeEstat(Estat estat) {
 		getEstats().remove(estat);
+	}
+	
+	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
+	@OrderBy("codiHelium asc")
+	public List<MapeigSistra> getMapeigSistras() {
+		return this.mapeigSistras;
+	}
+	public void setMapeigSistras(List<MapeigSistra> mapeigSistras) {
+		this.mapeigSistras = mapeigSistras;
+	}
+	public void addMapeigSistras(MapeigSistra mapeigSistra) {
+		getMapeigSistras().add(mapeigSistra);
+	}
+	public void removeMapeigSistras(MapeigSistra mapeigSistra) {
+		getMapeigSistras().remove(mapeigSistra);
 	}
 
 	@OneToMany(mappedBy="tipus")

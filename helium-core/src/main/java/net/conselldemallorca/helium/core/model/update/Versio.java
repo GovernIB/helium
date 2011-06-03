@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.core.model.update;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,6 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
+import javax.persistence.Transient;
 
 import net.conselldemallorca.helium.core.model.hibernate.GenericEntity;
 import net.conselldemallorca.helium.core.security.acl.SecureObject;
@@ -37,7 +39,11 @@ public class Versio implements Serializable, GenericEntity<Long>, SecureObject {
 	private Integer ordre;
 	@MaxLength(255)
 	private String descripcio;
-
+	private Date dataExecucio = new Date();
+	private boolean procesExecutat = false;
+	
+	private static String version = "";
+	private static String error = "";
 
 
 	public Versio() {}
@@ -80,9 +86,39 @@ public class Versio implements Serializable, GenericEntity<Long>, SecureObject {
 	public void setDescripcio(String descripcio) {
 		this.descripcio = descripcio;
 	}
+	
+	@Column(name="data_execucio")
+	public Date getDataExecucio() {
+		return dataExecucio;
+	}
+	public void setDataExecucio(Date dataExecucio) {
+		this.dataExecucio = dataExecucio;
+	}
 
+	@Column(name="proces_executat")
+	public boolean isProcesExecutat() {
+		return procesExecutat;
+	}
+	public void setProcesExecutat(boolean procesExecutat) {
+		this.procesExecutat = procesExecutat;
+	}
 
-
+	@Transient
+	public static String getVersion() {
+		return version;
+	}
+	public static void setVersion(String version) {
+		Versio.version = version;
+	}
+	@Transient
+	public static String getError() {
+		return error;
+	}
+	public static void setError(String error) {
+		Versio.error = error;
+	}
+	
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

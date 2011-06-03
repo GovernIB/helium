@@ -32,6 +32,7 @@ import net.conselldemallorca.helium.core.model.dao.EnumeracioDao;
 import net.conselldemallorca.helium.core.model.dao.EstatDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientTipusDao;
 import net.conselldemallorca.helium.core.model.dao.FirmaTascaDao;
+import net.conselldemallorca.helium.core.model.dao.MapeigSistraDao;
 import net.conselldemallorca.helium.core.model.dao.TascaDao;
 import net.conselldemallorca.helium.core.model.dao.TerminiDao;
 import net.conselldemallorca.helium.core.model.dao.ValidacioDao;
@@ -53,11 +54,13 @@ import net.conselldemallorca.helium.core.model.exportacio.TerminiExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.ValidacioExportacio;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
@@ -67,13 +70,13 @@ import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
+import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
+import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra.TipusMapeig;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
+import net.conselldemallorca.helium.core.model.hibernate.Tasca.TipusTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.hibernate.Validacio;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
-import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
-import net.conselldemallorca.helium.core.model.hibernate.Tasca.TipusTasca;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
@@ -104,6 +107,7 @@ public class DissenyService {
 	private EnumeracioDao enumeracioDao;
 	private TerminiDao terminiDao;
 	private EstatDao estatDao;
+	private MapeigSistraDao mapeigSistraDao;
 	private DominiDao dominiDao;
 	private CampAgrupacioDao campAgrupacioDao;
 	private ConsultaDao consultaDao;
@@ -744,6 +748,9 @@ public class DissenyService {
 	public List<ExpedientTipus> findExpedientTipusAmbSistraTramitCodi(String tramitCodi) {
 		return expedientTipusDao.findAmbSistraTramitCodi(tramitCodi);
 	}
+	public List<ExpedientTipus> findExpedientTipusTots() {
+		return expedientTipusDao.findAll();
+	}
 	public DefinicioProcesDto findDarreraDefinicioProcesForExpedientTipus(
 			Long expedientTipusId,
 			boolean ambTascaInicial) {
@@ -878,6 +885,39 @@ public class DissenyService {
 			estatDao.merge(seguent);
 			estatDao.flush();
 			estat.setOrdre(ordreActual + 1);
+		}
+	}
+
+	public MapeigSistra getMapeigSistraById(Long id) {
+		return mapeigSistraDao.getById(id, false);
+	}
+	public MapeigSistra createMapeigSistra(String codiHelium, String codiSistra, TipusMapeig tipus, ExpedientTipus expedientTipus) {
+		MapeigSistra mapeig = new MapeigSistra(expedientTipus, codiHelium, codiSistra, tipus);
+		/*mapeig.setCodiHelium(codiHelium);
+		mapeig.setCodiSistra(codiSistra);
+		mapeig.setTipus(tipus);
+		mapeig.setExpedientTipus(expedientTipus);*/
+		return mapeigSistraDao.saveOrUpdate(mapeig);
+	}
+	public List<MapeigSistra> findMapeigSistraVariablesAmbExpedientTipus(Long expedientTipusId) {
+		return mapeigSistraDao.findVariablesAmbExpedientTipusOrdenats(expedientTipusId);
+	}
+	public List<MapeigSistra> findMapeigSistraDocumentsAmbExpedientTipus(Long expedientTipusId) {
+		return mapeigSistraDao.findDocumentsAmbExpedientTipusOrdenats(expedientTipusId);
+	}
+	public List<MapeigSistra> findMapeigSistraAdjuntsAmbExpedientTipus(Long expedientTipusId) {
+		return mapeigSistraDao.findAdjuntsAmbExpedientTipusOrdenats(expedientTipusId);
+	}
+	public MapeigSistra findMapeigSistraAmbExpedientTipusICodi(Long expedientTipusId, String codiHelium) {
+		return mapeigSistraDao.findAmbExpedientTipusICodi(expedientTipusId, codiHelium);
+	}
+	public List<MapeigSistra> findMapeigSistraTots() {
+		return mapeigSistraDao.findAll();
+	}
+	public void deleteMapeigSistra(Long id) {
+		MapeigSistra vell = getMapeigSistraById(id);
+		if (vell != null) {
+			mapeigSistraDao.delete(id);
 		}
 	}
 
@@ -1496,6 +1536,10 @@ public class DissenyService {
 	@Autowired
 	public void setEstatDao(EstatDao estatDao) {
 		this.estatDao = estatDao;
+	}
+	@Autowired
+	public void setMapeigSistraDao(MapeigSistraDao mapeigSistraDao) {
+		this.mapeigSistraDao = mapeigSistraDao;
 	}
 	@Autowired
 	public void setDominiDao(DominiDao dominiDao) {

@@ -10,16 +10,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.conselldemallorca.helium.core.model.dao.MapeigSistraDao;
 import net.conselldemallorca.helium.core.model.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.util.EntornActual;
@@ -33,6 +35,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.dom4j.Node;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -44,6 +47,7 @@ public abstract class BaseBackoffice {
 
 	private ExpedientService expedientService;
 	private DissenyService dissenyService;
+	private MapeigSistraDao mapeigSistraDao;
 
 
 
@@ -99,6 +103,11 @@ public abstract class BaseBackoffice {
 	public void setDissenyService(DissenyService dissenyService) {
 		this.dissenyService = dissenyService;
 	}
+	@Autowired
+	public void setMapeigSistraDao(MapeigSistraDao mapeigSistraDao) {
+		this.mapeigSistraDao = mapeigSistraDao;
+	}
+
 
 	protected abstract DadesVistaDocument getVistaDocumentTramit(
 			long referenciaCodi,
@@ -107,12 +116,11 @@ public abstract class BaseBackoffice {
 			String idioma);
 
 
-
 	private Map<String, Object> getDadesInicials(
 			ExpedientTipus expedientTipus,
 			DadesTramit tramit) {
-		if (expedientTipus.getSistraTramitMapeigCamps() == null)
-			return null;
+		/*if (expedientTipus.getSistraTramitMapeigCamps() == null)
+			return null; 
 		Map<String, Object> resposta = new HashMap<String, Object>();
 		List<CampTasca> campsTasca = getCampsStartTask(expedientTipus);
 		String[] parts = expedientTipus.getSistraTramitMapeigCamps().split(";");
@@ -141,13 +149,48 @@ public abstract class BaseBackoffice {
 				}
 			}
 		}
-		return resposta;
+		return resposta;*/
+		List<MapeigSistra> mapeigsSistra = mapeigSistraDao.findVariablesAmbExpedientTipusOrdenats(expedientTipus.getId());
+		if (mapeigsSistra.size() == 0)
+			return null;
+		
+		boolean trobat = false;
+		Map<String, Object> resposta = new HashMap<String, Object>();
+		List<CampTasca> campsTasca = getCampsStartTask(expedientTipus);
+		
+		for (MapeigSistra mapeig : mapeigsSistra){
+			trobat = true;
+			Camp campHelium = null;
+			for (CampTasca campTasca: campsTasca) {
+				if (campTasca.getCamp().getCodi().equalsIgnoreCase(mapeig.getCodiHelium())) {
+					campHelium = campTasca.getCamp();
+					break;
+				}
+			}
+			try {
+				if (campHelium != null) {
+					resposta.put(
+							mapeig.getCodiHelium(),
+							valorVariableHelium(
+									valorVariableSistra(tramit, mapeig.getCodiSistra()),
+									campHelium));
+				}
+			} catch (Exception ex) {
+				logger.error("Error llegint dades del document de SISTRA", ex);
+			}
+		}
+		
+		if (trobat)
+			return resposta;
+		else
+			return null;
+		
 	}
 
 	private Map<String, DadesDocumentDto> getDocumentsInicials(
 			ExpedientTipus expedientTipus,
 			DadesTramit tramit) {
-		if (expedientTipus.getSistraTramitMapeigDocuments() == null)
+		/*if (expedientTipus.getSistraTramitMapeigDocuments() == null)
 			return null;
 		Map<String, DadesDocumentDto> resposta = new HashMap<String, DadesDocumentDto>();
 		List<Document> documents = getDocuments(expedientTipus);
@@ -174,13 +217,44 @@ public abstract class BaseBackoffice {
 				}
 			}
 		}
-		return resposta;
+		return resposta;*/
+		
+		List<MapeigSistra> mapeigsSistra = mapeigSistraDao.findDocumentsAmbExpedientTipusOrdenats(expedientTipus.getId());
+		if (mapeigsSistra.size() == 0)
+			return null;
+		
+		boolean trobat = false;
+		Map<String, DadesDocumentDto> resposta = new HashMap<String, DadesDocumentDto>();
+		List<Document> documents = getDocuments(expedientTipus);
+		
+		for (MapeigSistra mapeig : mapeigsSistra){
+			trobat = true;
+			Document docHelium = null;
+			for (Document document : documents){
+				if (document.getCodi().equalsIgnoreCase(mapeig.getCodiHelium())){
+					docHelium = document;
+					break;
+				}
+			}
+			try {
+				if (docHelium != null)
+					resposta.put(mapeig.getCodiHelium(), documentSistra(tramit, mapeig.getCodiSistra(), docHelium));
+			} catch (Exception ex) {
+				logger.error("Error llegint dades del document de SISTRA", ex);
+			}
+		}
+		
+		if (trobat)
+			return resposta;
+		else
+			return null;
+		
 	}
 
 	private List<DadesDocumentDto> getDocumentsAdjunts(
 			ExpedientTipus expedientTipus,
 			DadesTramit tramit) {
-		if (expedientTipus.getSistraTramitMapeigAdjunts() == null)
+		/*if (expedientTipus.getSistraTramitMapeigAdjunts() == null)
 			return null;
 		List<DadesDocumentDto> resposta = new ArrayList<DadesDocumentDto>();
 		String[] parts = expedientTipus.getSistraTramitMapeigAdjunts().split(";");
@@ -192,13 +266,37 @@ public abstract class BaseBackoffice {
 				logger.error("Error llegint dades del document de SISTRA", ex);
 			}
 		}
-		return resposta;
+		return resposta;*/
+		
+		List<MapeigSistra> mapeigsSistra = mapeigSistraDao.findAdjuntsAmbExpedientTipusOrdenats(expedientTipus.getId());
+		if (mapeigsSistra.size() == 0)
+			return null;
+		
+		boolean trobat = false;
+		List<DadesDocumentDto> resposta = new ArrayList<DadesDocumentDto>();
+
+		for (MapeigSistra mapeig : mapeigsSistra){
+			if (MapeigSistra.TipusMapeig.Adjunt.equals(mapeig.getTipus())){
+				trobat = true;
+				try {
+					resposta.addAll(documentsSistraAdjunts(tramit, mapeig.getCodiHelium()));
+				} catch (Exception ex) {
+					logger.error("Error llegint dades del document de SISTRA", ex);
+				}
+			}
+		}
+		
+		if (trobat)
+			return resposta;
+		else
+			return null;
 	}
 
 	@SuppressWarnings("unchecked")
 	private Object valorVariableSistra(
 			DadesTramit tramit,
 			String varSistra) throws Exception {
+		System.out.println(">>>>>> VARSISTRA: " + varSistra);
 		String[] parts = varSistra.split("\\.");
 		String documentCodi = parts[0];
 		int instancia = new Integer(parts[1]).intValue();
@@ -208,8 +306,13 @@ public abstract class BaseBackoffice {
 			if (	doc.getIdentificador().equalsIgnoreCase(documentCodi)
 				 && doc.getInstanciaNumero() == instancia) {
 				String content = new String(doc.getDocumentTelematic().getArxiuContingut());
+				//System.out.println(">>>>>> CONTENT: " + content);
 				org.dom4j.Document document = DocumentHelper.parseText(content);
 				String xpath = "/FORMULARIO/" + finestraCodi + "/" + campCodi;
+				//System.out.println(">>>>>> DOCUMENT: " + document.asXML()); 
+				//System.out.println(">>>>>> PATH: " + xpath);
+				//System.out.println(">>>>>> NODE: " + document.selectSingleNode(xpath).toString());
+				//Node docum = document.selectSingleNode(xpath);
 				Element node = (Element)document.selectSingleNode(xpath);
 				if (node.attribute("indice")!= null) {
 					return node.attribute("indice").getValue();

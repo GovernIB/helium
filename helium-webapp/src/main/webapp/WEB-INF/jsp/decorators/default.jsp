@@ -3,11 +3,16 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://www.opensymphony.com/sitemesh/decorator" prefix="decorator"%>
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="security" %>
+<%@page import="net.conselldemallorca.helium.core.model.update.Versio"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@page isErrorPage="true" %>
 <decorator:usePage id="pagina"/>
 
 <%--pageContext.setAttribute("requestContext", new org.springframework.web.servlet.support.RequestContext(request));--%>
+<%
+	request.setAttribute("versio", (String)Versio.getVersion());
+	request.setAttribute("error", (String)Versio.getError());
+%>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -34,8 +39,16 @@
 <body>
 	<div id="main">
 		<div id="header">
-			<div id="logo-wrapper">
-				<h1 id="logo"><span>H</span>elium</h1>
+		<c:if test="${(error != null) && (error!='')}">
+			<div id="error" style="background-color: red; padding:5px 10px 5px 24px;">
+				<span style="text-decoration: blink; color: white; font-weight: bold;">${error}</span> 
+			</div>
+		</c:if>
+			<div id="logo-wrapper" style="position: relative;">
+				<div style="width: 150px; margin: 0pt auto;">
+					<h1 id="logo"><span>H</span>elium</h1>
+					<span id="version" style="float: right; position: relative; top: 25px;">${versio}</span>
+				</div>
 			</div>
 			<div id="menu-wrapper">
 				<jsp:include page="partMenuSuperior.jsp"/>
@@ -57,6 +70,7 @@
 				<h2><span><c:if test="${not empty pagina.title}"><decorator:title/></c:if></span><decorator:getProperty property="meta.titolcmp"/></h2>
 			</div>
 		</div>
+		
 		<div id="content">
 			<jsp:include page="../common/missatgesInfoError.jsp"/>
 			<decorator:body />

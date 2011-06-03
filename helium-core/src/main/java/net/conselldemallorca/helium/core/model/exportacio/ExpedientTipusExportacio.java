@@ -24,13 +24,14 @@ public class ExpedientTipusExportacio implements Serializable {
 	private String expressioNumero;
 	private boolean reiniciarCadaAny;
 	private String sistraTramitCodi;
-	private String sistraTramitMapeigCamps;
+	/*private String sistraTramitMapeigCamps;
 	private String sistraTramitMapeigDocuments;
-	private String sistraTramitMapeigAdjunts;
+	private String sistraTramitMapeigAdjunts;*/
 	private String formextUrl;
 	private String formextUsuari;
 	private String formextContrasenya;
 	private List<EstatExportacio> estats;
+	private List<MapeigSistraExportacio> mapeigSistras;
 
 
 
@@ -95,7 +96,7 @@ public class ExpedientTipusExportacio implements Serializable {
 	public void setSistraTramitCodi(String sistraTramitCodi) {
 		this.sistraTramitCodi = sistraTramitCodi;
 	}
-	public String getSistraTramitMapeigCamps() {
+	/*public String getSistraTramitMapeigCamps() {
 		return sistraTramitMapeigCamps;
 	}
 	public void setSistraTramitMapeigCamps(String sistraTramitMapeigCamps) {
@@ -112,7 +113,7 @@ public class ExpedientTipusExportacio implements Serializable {
 	}
 	public void setSistraTramitMapeigAdjunts(String sistraTramitMapeigAdjunts) {
 		this.sistraTramitMapeigAdjunts = sistraTramitMapeigAdjunts;
-	}
+	}*/
 	public String getFormextUrl() {
 		return formextUrl;
 	}
@@ -137,7 +138,12 @@ public class ExpedientTipusExportacio implements Serializable {
 	public void setEstats(List<EstatExportacio> estats) {
 		this.estats = estats;
 	}
-
+	public List<MapeigSistraExportacio> getMapeigSistras() {
+		return mapeigSistras;
+	}
+	public void setMapeigSistras(List<MapeigSistraExportacio> mapeigSistras) {
+		this.mapeigSistras = mapeigSistras;
+	}
 
 
 	private static final long serialVersionUID = 1L;

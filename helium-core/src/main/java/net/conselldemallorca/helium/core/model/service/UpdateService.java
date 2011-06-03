@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.core.model.service;
 
+import java.util.Date;
 import java.util.List;
 
 import net.conselldemallorca.helium.core.model.dao.PermisDao;
@@ -17,6 +18,8 @@ import net.conselldemallorca.helium.core.model.update.Versio;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.stereotype.Service;
 
 
@@ -33,8 +36,12 @@ public class UpdateService {
 	private PersonaDao personaDao;
 	private UsuariDao usuariDao;
 	private PermisDao permisDao;
+	private MessageSource messageSource;
+	
+	private CanviVersioMapeigSistraService canviVersioMapeigSistraService;
 
-
+	public static final String VERSIO_ACTUAL_STR = "2.1.0";
+	public static final int VERSIO_ACTUAL_INT = 210;
 
 	public void updateToLastVersion() throws Exception {
 		List<Versio> versions = versioDao.findAll();
@@ -44,10 +51,31 @@ public class UpdateService {
 			logger.info("Actualitzant la base de dades a la versió inicial");
 			createInitialData();
 		}
+		
+		Versio darrera = versioDao.findLast(); // obtenir darrera versió
+		
+		if (darrera == null){
+			Versio versioInicial = versioDao.findAmbCodi("inicial");
+			versioInicial.setProcesExecutat(true);
+			versioInicial.setDataExecucio(new Date());
+			versioDao.saveOrUpdate(versioInicial);
+			
+			darrera = versioInicial;
+		}
+		
+		boolean correcte = true;
+		if (darrera.getOrdre().intValue() < 210 && correcte) {
+			correcte = actualitzarV210(darrera);
+		}
+		// ... afegir les modificacions de les seguents versions (if (darrera... < 211 && correcte) ...)
+		
+		
+		Versio.setVersion("v." + versioDao.findLast().getCodi());
+		if (!correcte){
+			Versio.setError(versioDao.findLast().getDescripcio());
+		}
 	}
-
-
-
+	
 	@Autowired
 	public void setVersioDao(VersioDao versioDao) {
 		this.versioDao = versioDao;
@@ -64,8 +92,15 @@ public class UpdateService {
 	public void setPermisDao(PermisDao permisDao) {
 		this.permisDao = permisDao;
 	}
-
-
+	@Autowired
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+	
+	@Autowired
+	public void setCanviVersioMapeigService(CanviVersioMapeigSistraService canviVersioMapeigSistraService) {
+		this.canviVersioMapeigSistraService = canviVersioMapeigSistraService;
+	}
 
 	private void createInitialData() throws Exception {
 		Permis permisAdmin = new Permis(
@@ -92,9 +127,59 @@ public class UpdateService {
 		Versio versioInicial = new Versio(
 				"inicial",
 				0);
+		versioInicial.setProcesExecutat(true);
+		versioInicial.setDataExecucio(new Date());
 		versioDao.saveOrUpdate(versioInicial);
 	}
 
+	private void errorVersio(Versio versioAnterior, String msg, Exception error){
+		logger.error(msg, error);
+		versioAnterior.setDescripcio(msg);
+		versioDao.saveOrUpdate(versioAnterior);		
+	}
+
+	private void actualitzarVersio(Versio versio){
+		versio.setDataExecucio(new Date());
+		versio.setProcesExecutat(true);
+		versioDao.saveOrUpdate(versio);
+	}
+	
+	private boolean actualitzarV210(Versio versioAnterior) {
+		// Comprovam si s'ha passat l'script corresponent a la versió (només si és necessari un script, si no hi ha script per aquesta versió, crear la versió desde el procés).
+		Versio versio210 = versioDao.findAmbCodi("2.1.0");
+		if (versio210 != null){
+			try {
+				canviVersioMapeigSistraService.canviarVersioMapeigSistra();
+				actualitzarVersio(versio210);
+				return true;
+			} catch (Exception e) {
+				errorVersio(versioAnterior, getMessage("error.updateService.actualitzarVersio") + " 2.1.0. " + getMessage("error.updateService.contactiAdministrador"), e);
+				return false;
+			}
+		} else {
+			// Si no s'ha executat l'script no actualitzam la versió i posam un error a la versió Anterior per mostrar-lo a l'aplicació.
+			errorVersio(versioAnterior, getMessage("error.updateService.actualitzarVersio") + " 2.1.0. " + getMessage("error.updateService.noScript") + " update210.sql. " + getMessage("error.updateService.contactiAdministrador"), null);
+			return false;
+		}
+	}
+	
+	
+	protected String getMessage(String key, Object[] vars) {
+		try {
+			return messageSource.getMessage(
+					key,
+					vars,
+					null);
+		} catch (NoSuchMessageException ex) {
+			return "???" + key + "???";
+		}
+	}
+
+	protected String getMessage(String key) {
+		return getMessage(key, null);
+	}
+	
+	
 	private static final Log logger = LogFactory.getLog(UpdateService.class);
 
 }
