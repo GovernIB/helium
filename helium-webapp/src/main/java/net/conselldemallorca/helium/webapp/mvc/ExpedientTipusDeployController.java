@@ -119,7 +119,7 @@ public class ExpedientTipusDeployController extends BaseController {
 				if ("submit".equals(submit) || submit.length() == 0) {
 					new DeployValidator().validate(command, result);
 			        if (result.hasErrors()) {
-			        	return "definicioProces/deploy";
+			        	return "expedientTipus/deploy";
 			        }
 		        	try {
 		        		if (command.getTipus().equals("JBPM")) {

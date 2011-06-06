@@ -102,13 +102,15 @@ public class DominiController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			if ("submit".equals(submit) || submit.length() == 0) {
-				command.setEntorn(entorn);
-				annotationValidator.validate(command, result);
+				
+	        	command.setEntorn(entorn);
+		        annotationValidator.validate(command, result);
 				additionalValidator.validate(command, result);
-		        if (result.hasErrors()) {
+				if (result.hasErrors()) {
 		        	return "domini/form";
 		        }
-		        try {
+				
+				try {
 		        	if (command.getId() == null)
 		        		dissenyService.createDomini(command);
 		        	else
@@ -186,12 +188,14 @@ public class DominiController extends BaseController {
 		}
 		public void validate(Object target, Errors errors) {
 			Domini domini = (Domini)target;
-			if (domini.getTipus().equals(TipusDomini.CONSULTA_WS)) {
-				ValidationUtils.rejectIfEmpty(errors, "url", "not.blank");
-			}
-			if (domini.getTipus().equals(TipusDomini.CONSULTA_SQL)) {
-				ValidationUtils.rejectIfEmpty(errors, "jndiDatasource", "not.blank");
-				ValidationUtils.rejectIfEmpty(errors, "sql", "not.blank");
+			if (domini.getTipus()!=null) {
+				if (domini.getTipus().equals(TipusDomini.CONSULTA_WS)) {
+					ValidationUtils.rejectIfEmpty(errors, "url", "not.blank");
+				}
+				if (domini.getTipus().equals(TipusDomini.CONSULTA_SQL)) {
+					ValidationUtils.rejectIfEmpty(errors, "jndiDatasource", "not.blank");
+					ValidationUtils.rejectIfEmpty(errors, "sql", "not.blank");
+				}
 			}
 		}
 	}

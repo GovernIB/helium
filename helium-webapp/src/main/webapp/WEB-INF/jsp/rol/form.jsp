@@ -7,8 +7,8 @@
 	<head>
 		<title>
 			<c:choose>
-				<c:when test="${empty command.codi}"><fmt:message key='rol.llistat.crear_nou' /></c:when>
-				<c:otherwise><fmt:message key='rol.llistat.modificar' /></c:otherwise>
+				<c:when test="${empty command.codi}"><fmt:message key='rol.form.crear_nou' /></c:when>
+				<c:otherwise><fmt:message key='rol.form.modificar' /></c:otherwise>
 			</c:choose>
 		</title>
 		<meta name="titolcmp" content="<fmt:message key='comuns.configuracio' />" />

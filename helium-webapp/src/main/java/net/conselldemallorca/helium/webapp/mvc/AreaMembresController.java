@@ -106,7 +106,7 @@ public class AreaMembresController extends BaseController {
 		        } catch (Exception ex) {
 		        	missatgeError(request, getMessage("error.afegir.persona.area"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut guardar el registre", ex);
-		        	return "area/membres";
+//		        	return "area/membres";
 		        }
 	        	return "redirect:/area/membres.html?id=" + command.getId();
 			} else {

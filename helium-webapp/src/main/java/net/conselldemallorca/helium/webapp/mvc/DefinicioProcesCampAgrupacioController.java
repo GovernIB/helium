@@ -148,7 +148,7 @@ public class DefinicioProcesCampAgrupacioController extends BaseController {
 			        } catch (Exception ex) {
 			        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut guardar el registre", ex);
-			        	return "definicioProces/campAgrupacioForm";
+			        	return "definicioProces/campAgrupacioLlistat";
 			        }
 			        return "redirect:/definicioProces/campAgrupacioLlistat.html?definicioProcesId=" + definicioProcesId;
 				}
@@ -300,7 +300,7 @@ public class DefinicioProcesCampAgrupacioController extends BaseController {
 			        } catch (Exception ex) {
 			        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut guardar el registre", ex);
-			        	return "definicioProces/assignarVariablesLlistat";
+//			        	return "definicioProces/campAgrupacioLlistat";
 			        }
 			        return "redirect:/definicioProces/campAgrupacioOrdre.html?definicioProcesId=" + definicioProcesId + "&agrupacioCodi=" + agrupacioCodi;
 				}

@@ -4,10 +4,10 @@
 	"http://java.sun.com/dtd/application_1_3.dtd">
 <application>
   <display-name>helium-ear</display-name>
-  <module id="WebModule_1307098899093">
-  	<web>
-  		<web-uri>helium.war</web-uri>
-  		<context-root>/helium</context-root>
-  	</web>
+  <module>
+    <web>
+      <web-uri>helium-webapp.war</web-uri>
+      <context-root>/helium-webapp</context-root>
+    </web>
   </module>
 </application>

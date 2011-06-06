@@ -22,7 +22,7 @@ function confirmar(e) {
 </script>
 </head>
 <body>
-
+	  
 	<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable">
 		<display:column property="codi" titleKey="comuns.codi" sortable="true" url="/carrec/form.html" paramId="id" paramProperty="id"/>
 		<display:column property="nomHome" titleKey="comuns.nom" sortable="true"/>

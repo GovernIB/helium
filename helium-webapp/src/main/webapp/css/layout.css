@@ -1,5 +1,6 @@
 html, body{
 	height: 100%;
+	min-width: 850px;
 }
 
 #main {
@@ -54,9 +55,24 @@ html, body{
 	margin: 10px 10px 0 0;
 	float: right;
 }
+#header #menu-wrapper #menu-logout a:hover {
+	text-decoration: none;
+}
+#header #menu-wrapper #menu-logout ul a:hover {
+	text-decoration: underline;
+}
+#header #menu-wrapper #menu-logout .sortir a, #header #menu-wrapper #menu-logout .usuari a {
+	border-left: none;
+}
+#header #menu-wrapper #menu-logout .idioma a {
+	background-position: 10px 3px;
+}
+#header #menu-wrapper #menu-logout li.idioma * {
+	width: auto;
+}
 #header #page-entorn-title {
 	background-color: #444;
-	padding: .5em 1em .5em 2em;
+	padding: .5em 2em .5em 2em;
 	clear: left;
 	border-bottom: 1px dotted #d4d4d4;
 	/* Original */
@@ -90,7 +106,7 @@ html, body{
 #header #page-title {
 	background-color: #666;
 	height: 2em;
-	padding: .5em 1em .5em 2em;
+	padding: .5em 2em .5em 2em;
 	clear: left;
 }
 #header #page-title h2 {
@@ -99,10 +115,31 @@ html, body{
 	font-size: 146.5%;
 	font-weight: normal;
 	margin-top: 4px;
+	float: left;
 }
 #header #page-title h2 span {
 	color: white;
 	margin-right: 6px;
+}
+#header #page-title #filtre {
+	float: right;
+	text-align: right;
+}
+#header #page-title #filtre input {
+	z-index: 100;
+	float: right;
+	visibility: hidden;
+	width: 0px;
+	margin: 1px 0px;
+	/*background-image: url('../img/magnifier.png');
+	background-position: right;
+	background-repeat: no-repeat;*/
+}
+#header #page-title #filtre a {
+	position: relative;
+	top: 5px;
+	left: 3px;
+	z-index: 200;
 }
 #menu {
 	border-top: 1px solid #d9d9d9;

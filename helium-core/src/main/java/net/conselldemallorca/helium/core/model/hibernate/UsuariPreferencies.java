@@ -25,6 +25,8 @@ public class UsuariPreferencies implements Serializable, GenericEntity<String> {
 	private String codi;
 	@MaxLength(64)
 	private String defaultEntornCodi;
+	@MaxLength(255)
+	private String idioma;
 
 
 
@@ -53,9 +55,19 @@ public class UsuariPreferencies implements Serializable, GenericEntity<String> {
 	public void setDefaultEntornCodi(String defaultEntornCodi) {
 		this.defaultEntornCodi = defaultEntornCodi;
 	}
-
-
-
+	
+	@Column(name="idioma", length=255, nullable=true)
+	public String getIdioma() {
+		return idioma;
+	}
+	public void setIdioma(String idioma) {
+		this.idioma = idioma;
+	}
+	
+	
+	
+	
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

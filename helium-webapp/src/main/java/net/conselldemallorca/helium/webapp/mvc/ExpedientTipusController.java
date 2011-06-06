@@ -169,7 +169,7 @@ public class ExpedientTipusController extends BaseController {
 			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
 				try {
 					dissenyService.setDefinicioProcesInicialPerExpedientTipus(id, jbpmKey);
-					missatgeInfo(request, getMessage("info.defporc.marcat.inicial", new Object[] {jbpmKey} ) );
+					missatgeInfo(request, getMessage("info.defproc.marcat.inicial", new Object[] {jbpmKey} ) );
 				} catch (Exception ex) {
 					missatgeError(request, getMessage("error.configurar.defproc.inicial"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut configurar la definició de procés inicial", ex);

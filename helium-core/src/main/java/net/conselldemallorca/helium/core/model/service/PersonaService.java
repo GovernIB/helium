@@ -187,6 +187,16 @@ public class PersonaService {
 		}
 		preferencies.setDefaultEntornCodi(entornCodi);
 	}
+	@Secured({"ROLE_ADMIN", "ROLE_USER"})
+	public void savePrefIdioma(String idioma) {
+		UsuariPreferencies preferencies = getUsuariPreferencies();
+		if (preferencies == null) {
+			preferencies = new UsuariPreferencies(
+					SecurityContextHolder.getContext().getAuthentication().getName());
+			usuariPreferenciesDao.saveOrUpdate(preferencies);
+		}
+		preferencies.setIdioma(idioma);
+	}
 
 
 

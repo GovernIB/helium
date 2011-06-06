@@ -56,7 +56,7 @@ function mostrarOcultar(img, objid) {
 				<pre id="stack-error" style="display:none"><%exception.printStackTrace(new java.io.PrintWriter(out, true));%></pre>
 			</div>
 			<br/><br/>
-			<p style="text-align: center"><fmt:message key='error.tornau' /> <a href="javascript:back()"><fmt:message key='error.enrere' /></a> <fmt:message key='error.i_provau' /></p>
+			<p style="text-align: center"><fmt:message key='error.tornau' /> <a href="javascript:history.back()"><fmt:message key='error.enrere' /></a> <fmt:message key='error.i_provau' /></p>
 			<br/>
 			<p style="text-align: center"><fmt:message key='error.si_persist' /></p>
 		</div>
