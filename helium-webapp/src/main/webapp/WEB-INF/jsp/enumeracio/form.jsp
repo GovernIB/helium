@@ -24,12 +24,6 @@
 				<c:param name="required" value="true"/>
 				<c:param name="label"><fmt:message key='comuns.titol' /></c:param>
 			</c:import>
-			<c:import url="../common/formElement.jsp">
-				<c:param name="property" value="valors"/>
-				<c:param name="type" value="textarea"/>
-				<c:param name="label"><fmt:message key='enumeracio.form.valors' /></c:param>
-				<c:param name="comment"><fmt:message key='enumeracio.form.comentari' /></c:param>
-			</c:import>
 		</div>
 		<c:import url="../common/formElement.jsp">
 			<c:param name="type" value="buttons"/>

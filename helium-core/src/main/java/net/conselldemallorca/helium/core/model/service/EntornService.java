@@ -14,6 +14,7 @@ import net.conselldemallorca.helium.core.model.dao.CarrecDao;
 import net.conselldemallorca.helium.core.model.dao.DominiDao;
 import net.conselldemallorca.helium.core.model.dao.EntornDao;
 import net.conselldemallorca.helium.core.model.dao.EnumeracioDao;
+import net.conselldemallorca.helium.core.model.dao.EnumeracioValorsDao;
 import net.conselldemallorca.helium.core.model.dao.EstatDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientTipusDao;
 import net.conselldemallorca.helium.core.model.dao.MapeigSistraDao;
@@ -34,6 +35,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
+import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
@@ -61,6 +63,7 @@ public class EntornService {
 	private CarrecDao carrecDao;
 	private DominiDao dominiDao;
 	private EnumeracioDao enumeracioDao;
+	private EnumeracioValorsDao enumeracioValorsDao;
 	private ExpedientTipusDao expedientTipusDao;
 	private EstatDao estatDao;
 	private MapeigSistraDao mapeigSistraDao;
@@ -257,7 +260,7 @@ public class EntornService {
 			EnumeracioExportacio dto = new EnumeracioExportacio(
 					enumeracio.getCodi(),
 					enumeracio.getNom(),
-					enumeracio.getValors());
+					enumeracioValorsDao.findAmbEnumeracio(enumeracio.getId()));
 			enumeracionsDto.add(dto);
 		}
 		entornExportacio.setEnumeracions(enumeracionsDto);
@@ -406,7 +409,15 @@ public class EntornService {
 			} else {
 				nova.setNom(enumeracio.getNom());
 			}
-			nova.setValors(enumeracio.getValors());
+			
+			for (EnumeracioValors enumValors : enumeracio.getValors()) {
+				EnumeracioValors novaEnumValors = new EnumeracioValors();
+				novaEnumValors.setCodi(enumValors.getCodi());
+				novaEnumValors.setNom(enumValors.getNom());
+				novaEnumValors.setEnumeracio(nova);
+				nova.addEnumeracioValors(novaEnumValors);
+			}
+			
 			enumeracioDao.saveOrUpdate(nova);
 		}
 		// Crea els tipus d'expedient
@@ -501,6 +512,10 @@ public class EntornService {
 	@Autowired
 	public void setEnumeracioDao(EnumeracioDao enumeracioDao) {
 		this.enumeracioDao = enumeracioDao;
+	}
+	@Autowired
+	public void setEnumeracioValorsDao(EnumeracioValorsDao enumeracioValorsDao) {
+		this.enumeracioValorsDao = enumeracioValorsDao;
 	}
 	@Autowired
 	public void setExpedientTipusDao(ExpedientTipusDao expedientTipusDao) {

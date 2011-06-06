@@ -39,6 +39,7 @@ public class UpdateService {
 	private MessageSource messageSource;
 	
 	private CanviVersioMapeigSistraService canviVersioMapeigSistraService;
+	private CanviVersioEnumeracionsService canviVersioEnumeracionsService;
 
 	public static final String VERSIO_ACTUAL_STR = "2.1.0";
 	public static final int VERSIO_ACTUAL_INT = 210;
@@ -66,6 +67,9 @@ public class UpdateService {
 		boolean correcte = true;
 		if (darrera.getOrdre().intValue() < 210 && correcte) {
 			correcte = actualitzarV210(darrera);
+		}
+		if (darrera.getOrdre().intValue() < 211 && correcte) {
+			correcte = actualitzarV211(darrera);
 		}
 		// ... afegir les modificacions de les seguents versions (if (darrera... < 211 && correcte) ...)
 		
@@ -100,6 +104,10 @@ public class UpdateService {
 	@Autowired
 	public void setCanviVersioMapeigService(CanviVersioMapeigSistraService canviVersioMapeigSistraService) {
 		this.canviVersioMapeigSistraService = canviVersioMapeigSistraService;
+	}
+	@Autowired
+	public void setCanviVersioEnumeracioService(CanviVersioEnumeracionsService canviVersioEnumeracionsService) {
+		this.canviVersioEnumeracionsService = canviVersioEnumeracionsService;
 	}
 
 	private void createInitialData() throws Exception {
@@ -159,6 +167,25 @@ public class UpdateService {
 		} else {
 			// Si no s'ha executat l'script no actualitzam la versió i posam un error a la versió Anterior per mostrar-lo a l'aplicació.
 			errorVersio(versioAnterior, getMessage("error.updateService.actualitzarVersio") + " 2.1.0. " + getMessage("error.updateService.noScript") + " update210.sql. " + getMessage("error.updateService.contactiAdministrador"), null);
+			return false;
+		}
+	}
+	
+	private boolean actualitzarV211(Versio versioAnterior) {
+		// Comprovam si s'ha passat l'script corresponent a la versió (només si és necessari un script, si no hi ha script per aquesta versió, crear la versió desde el procés).
+		Versio versio211 = versioDao.findAmbCodi("2.1.1");
+		if (versio211 != null) {
+			try {
+				canviVersioEnumeracionsService.canviarVersioEnumeracions();
+				actualitzarVersio(versio211);
+				return true;
+			} catch (Exception e) {
+				errorVersio(versioAnterior, getMessage("error.updateService.actualitzarVersio") + " 2.1.1. " + getMessage("error.updateService.contactiAdministrador"), e);
+				return false;
+			}
+		} else {
+			// Si no s'ha executat l'script no actualitzam la versió i posam un error a la versió Anterior per mostrar-lo a l'aplicació.
+			errorVersio(versioAnterior, getMessage("error.updateService.actualitzarVersio") + " 2.1.1. " + getMessage("error.updateService.noScript") + " update211.sql. " + getMessage("error.updateService.contactiAdministrador"), null);
 			return false;
 		}
 	}

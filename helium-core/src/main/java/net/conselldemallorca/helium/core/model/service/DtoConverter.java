@@ -31,6 +31,7 @@ import net.conselldemallorca.helium.core.model.dao.DocumentDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentStoreDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentTascaDao;
 import net.conselldemallorca.helium.core.model.dao.DominiDao;
+import net.conselldemallorca.helium.core.model.dao.EnumeracioValorsDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.FirmaTascaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginCustodiaDao;
@@ -98,6 +99,7 @@ public class DtoConverter {
 	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
 	private PluginCustodiaDao pluginCustodiaDao;
 	private JbpmDao jbpmDao;
+	private EnumeracioValorsDao enumeracioValorsDao;
 
 	private PdfUtils pdfUtils;
 
@@ -618,7 +620,7 @@ public class DtoConverter {
 		if (camp != null && camp.getEnumeracio() != null) {
 			Enumeracio enumeracio = camp.getEnumeracio();
 			List<FilaResultat> resultat = new ArrayList<FilaResultat>();
-			for (ParellaCodiValor parella: enumeracio.getLlistaValors()) {
+			for (ParellaCodiValor parella: enumeracioValorsDao.getLlistaValors(enumeracio.getId())) {
 				if (textInicial == null || ((String)parella.getValor()).toLowerCase().startsWith(textInicial.toLowerCase())) {
 					FilaResultat fila = new FilaResultat();
 					fila.addColumna(new ParellaCodiValor("codi", parella.getCodi()));
@@ -771,6 +773,10 @@ public class DtoConverter {
 	public void setJbpmDao(JbpmDao jbpmDao) {
 		this.jbpmDao = jbpmDao;
 	}
+	@Autowired
+	public void setEnumeracioValorsDao(EnumeracioValorsDao enumeracioValorsDao) {
+		this.enumeracioValorsDao = enumeracioValorsDao;
+	}
 
 
 
@@ -900,7 +906,7 @@ public class DtoConverter {
 				}
 			} else if (camp.getEnumeracio() != null) {
 				Enumeracio enumeracio = camp.getEnumeracio();
-				for (ParellaCodiValor parella: enumeracio.getLlistaValors()) {
+				for (ParellaCodiValor parella: enumeracioValorsDao.getLlistaValors(enumeracio.getId())) {
 					if (valor.equals(parella.getCodi())) {
 						resposta = new ParellaCodiValor(
 								parella.getCodi(),

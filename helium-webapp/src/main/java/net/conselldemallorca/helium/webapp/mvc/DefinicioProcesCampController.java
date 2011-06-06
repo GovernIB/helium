@@ -15,6 +15,7 @@ import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
+import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
@@ -289,6 +290,9 @@ public class DefinicioProcesCampController extends BaseController {
 		binder.registerCustomEditor(
 				Enumeracio.class,
 				new EnumeracioTypeEditor(dissenyService));
+		binder.registerCustomEditor(
+				EnumeracioValors.class,
+				new EnumeracioValorsTypeEditor(dissenyService));
 		binder.registerCustomEditor(
 				CampAgrupacio.class,
 				new CampAgrupacioTypeEditor(dissenyService));

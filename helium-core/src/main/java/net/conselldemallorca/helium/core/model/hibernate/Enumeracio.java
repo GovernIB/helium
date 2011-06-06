@@ -57,7 +57,7 @@ public class Enumeracio implements Serializable {
 	@NotNull
 	private Entorn entorn;
 	private Set<Camp> camps = new HashSet<Camp>();
-
+	private Set<EnumeracioValors> enumeracioValors = new HashSet<EnumeracioValors>();
 
 
 	public Enumeracio() {}
@@ -125,7 +125,7 @@ public class Enumeracio implements Serializable {
 	public void removeCamp(Camp camp) {
 		getCamps().remove(camp);
 	}
-
+	
 	@Transient
 	public List<ParellaCodiValor> getLlistaValors() {
 		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
@@ -138,6 +138,20 @@ public class Enumeracio implements Serializable {
 			}
 		}
 		return resposta;
+	}
+	
+	@OneToMany(mappedBy="enumeracio", cascade={CascadeType.ALL})
+	public Set<EnumeracioValors> getEnumeracioValors() {
+		return this.enumeracioValors;
+	}
+	public void setEnumeracioValors(Set<EnumeracioValors> enumeracioValors) {
+		this.enumeracioValors = enumeracioValors;
+	}
+	public void addEnumeracioValors(EnumeracioValors enumeracioValors) {
+		getEnumeracioValors().add(enumeracioValors);
+	}
+	public void removeEnumeracioValors(EnumeracioValors enumeracioValors) {
+		getEnumeracioValors().remove(enumeracioValors);
 	}
 
 	@Override

@@ -29,6 +29,7 @@ import net.conselldemallorca.helium.core.model.dao.DocumentTascaDao;
 import net.conselldemallorca.helium.core.model.dao.DominiDao;
 import net.conselldemallorca.helium.core.model.dao.EntornDao;
 import net.conselldemallorca.helium.core.model.dao.EnumeracioDao;
+import net.conselldemallorca.helium.core.model.dao.EnumeracioValorsDao;
 import net.conselldemallorca.helium.core.model.dao.EstatDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientTipusDao;
 import net.conselldemallorca.helium.core.model.dao.FirmaTascaDao;
@@ -67,6 +68,7 @@ import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
+import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
@@ -105,6 +107,7 @@ public class DissenyService {
 	private ValidacioDao validacioDao;
 	private ExpedientTipusDao expedientTipusDao;
 	private EnumeracioDao enumeracioDao;
+	private EnumeracioValorsDao enumeracioValorsDao;
 	private TerminiDao terminiDao;
 	private EstatDao estatDao;
 	private MapeigSistraDao mapeigSistraDao;
@@ -805,6 +808,31 @@ public class DissenyService {
 	}
 	public List<Enumeracio> findEnumeracionsAmbEntorn(Long entornId) {
 		return enumeracioDao.findAmbEntorn(entornId);
+	}
+	public List<Enumeracio> findEnumeracions() {
+		return enumeracioDao.findAll();
+	}
+	
+	public EnumeracioValors getEnumeracioValorsById(Long id) {
+		return enumeracioValorsDao.getById(id, false);
+	}
+	public EnumeracioValors createEnumeracioValors(EnumeracioValors entity) {
+		EnumeracioValors saved = enumeracioValorsDao.saveOrUpdate(entity);
+		return saved;
+	}
+	public EnumeracioValors updateEnumeracioValors(EnumeracioValors entity) {
+		return enumeracioValorsDao.merge(entity);
+	}
+	public void deleteEnumeracioValors(Long id) {
+		EnumeracioValors vell = getEnumeracioValorsById(id);
+		if (vell != null)
+			enumeracioValorsDao.delete(id);
+	}
+	public List<EnumeracioValors> findEnumeracioValorsAmbEnumeracio(Long enumeracioId) {
+		return enumeracioValorsDao.findAmbEnumeracio(enumeracioId);
+	}
+	public EnumeracioValors findEnumeracioValorsAmbCodi(String codi) {
+		return enumeracioValorsDao.findAmbCodi(codi);
 	}
 
 	public Termini getTerminiById(Long id) {
@@ -1529,6 +1557,10 @@ public class DissenyService {
 	@Autowired
 	public void setEnumeracioDao(EnumeracioDao enumeracioDao) {
 		this.enumeracioDao = enumeracioDao;
+	}
+	@Autowired
+	public void setEnumeracioValorsDao(EnumeracioValorsDao enumeracioValorsDao) {
+		this.enumeracioValorsDao = enumeracioValorsDao;
 	}
 	@Autowired
 	public void setTerminiDao(TerminiDao terminiDao) {

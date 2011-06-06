@@ -4,6 +4,9 @@
 package net.conselldemallorca.helium.core.model.exportacio;
 
 import java.io.Serializable;
+import java.util.List;
+
+import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 
 
 
@@ -16,14 +19,14 @@ public class EnumeracioExportacio implements Serializable {
 
 	private String codi;
 	private String nom;
-	private String valors;
+	private List<EnumeracioValors> valors;
 
 
 
 	public EnumeracioExportacio(
 			String codi,
 			String nom,
-			String valors) {
+			List<EnumeracioValors> valors) {
 		this.codi = codi;
 		this.nom = nom;
 		this.valors = valors;
@@ -41,10 +44,10 @@ public class EnumeracioExportacio implements Serializable {
 	public void setNom(String nom) {
 		this.nom = nom;
 	}
-	public String getValors() {
+	public List<EnumeracioValors> getValors() {
 		return valors;
 	}
-	public void setValors(String valors) {
+	public void setValors(List<EnumeracioValors> valors) {
 		this.valors = valors;
 	}
 

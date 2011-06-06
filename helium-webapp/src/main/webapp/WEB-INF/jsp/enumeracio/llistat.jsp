@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 
@@ -26,6 +27,12 @@ function confirmar(e) {
 	<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable">
 		<display:column property="codi" titleKey="comuns.codi" sortable="true" url="/enumeracio/form.html" paramId="id" paramProperty="id"/>
 		<display:column property="nom" titleKey="comuns.titol" sortable="true"/>
+		<display:column>
+			<form action="valors.html">
+				<input type="hidden" name="enumeracio" value="${registre.id}"/>
+				<button type="submit" class="submitButton"><fmt:message key='enumeracio.llistat.valors' />&nbsp;(${fn:length(registre.enumeracioValors)})</button>
+			</form>
+		</display:column>
 		<display:column>
 			<a href="<c:url value="/enumeracio/delete.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 		</display:column>
