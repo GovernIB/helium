@@ -15,13 +15,13 @@ import net.conselldemallorca.helium.core.model.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.util.EntornActual;
@@ -35,7 +35,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.dom4j.Node;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -172,7 +171,10 @@ public abstract class BaseBackoffice {
 					resposta.put(
 							mapeig.getCodiHelium(),
 							valorVariableHelium(
-									valorVariableSistra(tramit, mapeig.getCodiSistra()),
+									valorVariableSistra(
+											tramit,
+											mapeig.getCodiHelium(),
+											mapeig.getCodiSistra()),
 									campHelium));
 				}
 			} catch (Exception ex) {
@@ -295,8 +297,8 @@ public abstract class BaseBackoffice {
 	@SuppressWarnings("unchecked")
 	private Object valorVariableSistra(
 			DadesTramit tramit,
+			String varHelium,
 			String varSistra) throws Exception {
-		System.out.println(">>>>>> VARSISTRA: " + varSistra);
 		String[] parts = varSistra.split("\\.");
 		String documentCodi = parts[0];
 		int instancia = new Integer(parts[1]).intValue();
@@ -306,36 +308,34 @@ public abstract class BaseBackoffice {
 			if (	doc.getIdentificador().equalsIgnoreCase(documentCodi)
 				 && doc.getInstanciaNumero() == instancia) {
 				String content = new String(doc.getDocumentTelematic().getArxiuContingut());
-				//System.out.println(">>>>>> CONTENT: " + content);
 				org.dom4j.Document document = DocumentHelper.parseText(content);
 				String xpath = "/FORMULARIO/" + finestraCodi + "/" + campCodi;
-				//System.out.println(">>>>>> DOCUMENT: " + document.asXML()); 
-				//System.out.println(">>>>>> PATH: " + xpath);
-				//System.out.println(">>>>>> NODE: " + document.selectSingleNode(xpath).toString());
-				//Node docum = document.selectSingleNode(xpath);
+				System.out.println(">>>>>> content: " + content);
 				Element node = (Element)document.selectSingleNode(xpath);
-				if (node.attribute("indice")!= null) {
-					return node.attribute("indice").getValue();
-				} else if (node.isTextOnly()) {
-					return node.getText();
-				} else {
-					List<String[]> valorsFiles = new ArrayList<String[]>();
-					List<Element> files = node.elements();
-					for (Element fila: files) {
-						if (fila.getName().startsWith("ID")) {
-							List<Element> columnes = fila.elements();
-							String[] valors = new String[columnes.size()];
-							for (int i = 0; i < columnes.size(); i++) {
-								Element columna = columnes.get(i);
-								if (columna.attribute("indice")!= null)
-									valors[i] = columna.attribute("indice").getValue();
-								else
-									valors[i] = columna.getText();
+				if (node != null) {
+					if (node.attribute("indice")!= null) {
+						return node.attribute("indice").getValue();
+					} else if (node.isTextOnly()) {
+						return node.getText();
+					} else {
+						List<String[]> valorsFiles = new ArrayList<String[]>();
+						List<Element> files = node.elements();
+						for (Element fila: files) {
+							if (fila.getName().startsWith("ID")) {
+								List<Element> columnes = fila.elements();
+								String[] valors = new String[columnes.size()];
+								for (int i = 0; i < columnes.size(); i++) {
+									Element columna = columnes.get(i);
+									if (columna.attribute("indice")!= null)
+										valors[i] = columna.attribute("indice").getValue();
+									else
+										valors[i] = columna.getText();
+								}
+								valorsFiles.add(valors);
 							}
-							valorsFiles.add(valors);
 						}
+						return valorsFiles.toArray(new Object[valorsFiles.size()]);
 					}
-					return valorsFiles.toArray(new Object[valorsFiles.size()]);
 				}
 			}
 		}
@@ -406,34 +406,24 @@ public abstract class BaseBackoffice {
 					Object[] resposta = new Object[dadesSistra.length];
 					for (int i = 0; i < resposta.length; i++) {
 						String[] filaSistra = (String[])dadesSistra[i];
-						if (camp.getRegistreMembres().size() == filaSistra.length) {
-							Object[] filaResposta = new Object[filaSistra.length];
-							for (int j = 0; j < filaResposta.length; j++) {
-								Camp campRegistre = camp.getRegistreMembres().get(j).getMembre();
-								filaResposta[j] = valorPerHeliumSimple(filaSistra[j], campRegistre);
-							}
-							resposta[i] = filaResposta;
-						} else {
-							logger.error("No s'ha pogut mapejar el camp " + camp.getCodi() + ": el nombre de columnes no coincideix");
-							return null;
+						Object[] filaResposta = new Object[camp.getRegistreMembres().size()];
+						for (int j = 0; j < filaResposta.length && j < filaSistra.length; j++) {
+							Camp campRegistre = camp.getRegistreMembres().get(j).getMembre();
+							filaResposta[j] = valorPerHeliumSimple(filaSistra[j], campRegistre);
 						}
+						resposta[i] = filaResposta;
 					}
 					return resposta;
 				} else {
-					if (camp.getRegistreMembres().size() == dadesSistra.length) {
-						Object[] resposta = new Object[dadesSistra.length];
-						for (int i = 0; i < resposta.length; i++) {
-							Camp campRegistre = camp.getRegistreMembres().get(i).getMembre();
-							resposta[i] = valorPerHeliumSimple(((String[])dadesSistra)[i], campRegistre);
-						}
-						return resposta;
-					} else {
-						logger.error("No s'ha pogut mapejar el camp " + camp.getCodi() + ": el nombre de columnes no coincideix");
-						return null;
+					Object[] resposta = new Object[camp.getRegistreMembres().size()];
+					for (int i = 0; i < resposta.length && i < dadesSistra.length; i++) {
+						Camp campRegistre = camp.getRegistreMembres().get(i).getMembre();
+						resposta[i] = valorPerHeliumSimple(((String[])dadesSistra)[i], campRegistre);
 					}
+					return resposta;
 				}
 			} else {
-				logger.error("No s'ha pogut mapejar el camp " + camp.getCodi() + ": el camp del sistra no és de tipus registre");
+				logger.error("No s'ha pogut mapejar el camp " + camp.getCodi() + ": el camp és buit o no és de tipus registre");
 				return null;
 			}
 		} else {

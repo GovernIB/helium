@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.core.model.service;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -53,6 +54,7 @@ import net.conselldemallorca.helium.core.model.hibernate.FormulariExtern;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
@@ -105,6 +107,8 @@ public class TascaService {
 	private RegistreDao registreDao;
 	private FormulariExternDao formulariExternDao;
 	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
+
+	private OpenOfficeUtils openOfficeUtils;
 
 
 
@@ -728,7 +732,7 @@ public class TascaService {
 					PREFIX_DOCUMENT + codiVariable);
 		if (documentStoreId == null)
 			return null;
-		return dtoConverter.toDocumentDto(documentStoreId, true, false, false);
+		return dtoConverter.toDocumentDto(documentStoreId, true, false, false, false);
 	}
 
 	public DocumentDto getDocumentAmbToken(
@@ -738,7 +742,7 @@ public class TascaService {
 		String[] parts = tokenDesxifrat.split("#");
 		if (parts.length == 2) {
 			Long documentStoreId = Long.parseLong(parts[1]);
-			return dtoConverter.toDocumentDto(documentStoreId, ambContingut, false, false);
+			return dtoConverter.toDocumentDto(documentStoreId, ambContingut, false, false, false);
 		} else {
 			throw new IllegalArgumentsException("El format del token és incorrecte");
 		}
@@ -753,7 +757,7 @@ public class TascaService {
 			JbpmTask task = comprovarSeguretatTasca(entornId, parts[0], null, true);
 			TascaDto tascaDto = toTascaDto(task, null, false);
 			Long documentStoreId = Long.parseLong(parts[1]);
-			DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, true, true, true);
+			DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, true, true, true, true);
 			if (document != null) {
 				// Comprova que es tengui accés a signar el document
 				boolean trobat = false;
@@ -769,7 +773,9 @@ public class TascaService {
 					JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(docst.getProcessInstanceId());
 					Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 					if (pluginCustodiaDao.isCustodiaActiu()) {
-						String nomArxiu = nomArxiuAmbExtensioConversio(document.getArxiuNom());
+						String nomArxiu = nomArxiuAmbExtensio(
+								document.getArxiuNom(),
+								getExtensioSignatura());
 						String referenciaCustodia = null;
 						if (pluginCustodiaDao.isValidacioImplicita()) {
 							referenciaCustodia = pluginCustodiaDao.afegirSignatura(
@@ -828,6 +834,7 @@ public class TascaService {
 		resposta.setDataCreacio(new Date());
 		resposta.setDataDocument(new Date());
 		resposta.setArxiuNom(document.getNom() + ".odt");
+		resposta.setAdjuntarAuto(document.isAdjuntarAuto());
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		if (document.isPlantilla()) {
 			JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
@@ -840,13 +847,9 @@ public class TascaService {
 					true);
 			Map<String, Object> model = new HashMap<String, Object>();
 			model.putAll(instanciaProces.getVarsComText());
-			/*for (String key: model.keySet())
-				System.out.println(">P [" + key + "]" + model.get(key));*/
 			model.putAll(tasca.getVarsComText());
-			/*for (String key: model.keySet())
-				System.out.println(">PiT [" + key + "]" + model.get(key));*/
 			try {
-				resposta.setArxiuContingut(plantillaDocumentDao.generarDocumentAmbPlantilla(
+				byte[] resultat = plantillaDocumentDao.generarDocumentAmbPlantilla(
 						entornId,
 						document,
 						task.getAssignee(),
@@ -854,7 +857,31 @@ public class TascaService {
 						task.getProcessInstanceId(),
 						tasca,
 						dataDocument,
-						model));
+						model);
+				if (isActiuConversioVista()) {
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					getOpenOfficeUtils().convertir(
+							resposta.getArxiuNom(),
+							resultat,
+							getExtensioVista(),
+							baos);
+					resposta.setArxiuNom(
+							nomArxiuAmbExtensio(
+									resposta.getArxiuNom(),
+									getExtensioVista()));
+					resposta.setArxiuContingut(baos.toByteArray());
+				} else {
+					resposta.setArxiuContingut(resultat);
+				}
+				if (document.isAdjuntarAuto()) {
+					guardarDocument(
+							entornId,
+							taskId,
+							document.getCodi(),
+							resposta.getArxiuNom(),
+							dataDocument,
+							resposta.getArxiuContingut());
+				}
 			} catch (Exception ex) {
 				throw new TemplateException("No s'ha pogut generar el document", ex);
 			}
@@ -1407,19 +1434,56 @@ public class TascaService {
 		}
 	}
 
-	private String nomArxiuAmbExtensioConversio(String fileName) {
-		if ("true".equalsIgnoreCase((String)GlobalProperties.getInstance().getProperty("app.conversio.signatura.actiu"))) {
-			String extensio = (String)GlobalProperties.getInstance().getProperty("app.conversio.signatura.extension");
-			int indexPunt = fileName.lastIndexOf(".");
-			if (indexPunt != -1) {
-				String nom = fileName.substring(0, indexPunt);
-				return nom + "." + extensio;
-			} else {
-				return fileName + "." + extensio;
-			}
-		} else {
+	private String nomArxiuAmbExtensio(String fileName, String extensio) {
+		if (extensio == null || extensio.length() == 0)
 			return fileName;
+		int indexPunt = fileName.lastIndexOf(".");
+		if (indexPunt != -1) {
+			String nom = fileName.substring(0, indexPunt);
+			return nom + "." + extensio;
+		} else {
+			return fileName + "." + extensio;
 		}
+	}
+
+	private boolean isActiuConversioVista() {
+		String actiuConversio = (String)GlobalProperties.getInstance().get("app.conversio.actiu");
+		if (!"true".equalsIgnoreCase(actiuConversio))
+			return false;
+		String actiuConversioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.actiu");
+		if (actiuConversioVista == null)
+			actiuConversioVista = (String)GlobalProperties.getInstance().get("app.conversio.gentasca.actiu");
+		return "true".equalsIgnoreCase(actiuConversioVista);
+	}
+	private boolean isActiuConversioSignatura() {
+		String actiuConversio = (String)GlobalProperties.getInstance().get("app.conversio.actiu");
+		if (!"true".equalsIgnoreCase(actiuConversio))
+			return false;
+		String actiuConversioVista = (String)GlobalProperties.getInstance().get("app.conversio.signatura.actiu");
+		return "true".equalsIgnoreCase(actiuConversioVista);
+	}
+
+	private String getExtensioVista() {
+		String extensioVista = null;
+		if (isActiuConversioVista()) {
+			extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.extension");
+			if (extensioVista == null)
+				extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.gentasca.extension");
+		}
+		return extensioVista;
+	}
+	private String getExtensioSignatura() {
+		String extensioVista = null;
+		if (isActiuConversioSignatura()) {
+			extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
+		}
+		return extensioVista;
+	}
+
+	private OpenOfficeUtils getOpenOfficeUtils() {
+		if (openOfficeUtils == null)
+			openOfficeUtils = new OpenOfficeUtils();
+		return openOfficeUtils;
 	}
 
 	private TascaLlistatDto toTascaLlistatDto(

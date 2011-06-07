@@ -1,9 +1,9 @@
+-- Canvi a MAVEN --
 update hel_acl_class set class = 'net.conselldemallorca.helium.core.model.hibernate.Entorn' where class = 'net.conselldemallorca.helium.model.hibernate.Entorn';
 update hel_acl_class set class = 'net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus' where class = 'net.conselldemallorca.helium.model.hibernate.ExpedientTipus';
 
-CREATE
-    TABLE hel_map_sistra
-    (
+-- Mapejos de SISTRA --
+create table hel_map_sistra(
         id BIGINT NOT NULL,
         codihelium CHARACTER VARYING(255) NOT NULL,
         codisistra CHARACTER VARYING(255) NOT NULL,
@@ -15,11 +15,15 @@ CREATE
         UNIQUE (codihelium, expedient_tipus_id)
     );
 
-
--- Canvi Versio --
-ALTER TABLE hel_versio add column data_execucio TIMESTAMP(6) WITHOUT TIME ZONE;
-ALTER TABLE hel_versio add column proces_executat BOOLEAN;
-update hel_idgen set valor = valor+1 where taula = 'hel_tasca';
+-- Gestió de versions --
+alter table hel_versio add column data_execucio TIMESTAMP(6) WITHOUT TIME ZONE;
+alter table hel_versio add column proces_executat BOOLEAN;
 update hel_versio set proces_executat = true, data_execucio = clock_timestamp()  where codi = 'inicial';
-insert into hel_versio (id, codi, ordre, proces_executat, data_execucio) values ((select valor from hel_idgen where taula = 'hel_tasca' ),'2.1.0', 210, false, clock_timestamp());
 
+-- Annexió automática de documents generats amb plantilla --
+alter table hel_document add column adjuntar_auto boolean;
+update hel_document set adjuntar_auto = true;
+
+-- Canvi a la nova versió --
+update hel_idgen set valor = valor+1 where taula = 'hel_tasca';
+insert into hel_versio (id, codi, ordre, proces_executat, data_execucio) values ((select valor from hel_idgen where taula = 'hel_tasca' ),'2.1.0', 210, false, clock_timestamp());

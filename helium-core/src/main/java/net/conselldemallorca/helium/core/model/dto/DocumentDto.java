@@ -49,6 +49,7 @@ public class DocumentDto implements Serializable {
 
 	private String tokenSignatura;
 	private boolean signatEnTasca;
+	private boolean adjuntarAuto;
 
 
 
@@ -237,6 +238,12 @@ public class DocumentDto implements Serializable {
 	}
 	public void setRegistrat(boolean registrat) {
 		this.registrat = registrat;
+	}
+	public boolean isAdjuntarAuto() {
+		return adjuntarAuto;
+	}
+	public void setAdjuntarAuto(boolean adjuntarAuto) {
+		this.adjuntarAuto = adjuntarAuto;
 	}
 
 	public String getArxiuNomSenseExtensio() {

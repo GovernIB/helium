@@ -5,7 +5,9 @@ package net.conselldemallorca.helium.webapp.mvc;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
+import net.conselldemallorca.helium.core.model.service.ExpedientService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,7 +23,7 @@ import org.springframework.web.bind.support.SessionStatus;
 
 /**
  * Controlador per la gestió dels formularis dels camps de tipus registre
- * a dins les tasques
+ * a dins el formulari d'inici d'expedient
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -30,12 +32,38 @@ public class ExpedientIniciarRegistreController extends CommonRegistreController
 
 	public static final String PREFIX_REGISTRE_SESSIO = "ExpedientIniciarRegistreController_reg_";
 
+	private ExpedientService expedientService;
+
 
 
 	@Autowired
 	public ExpedientIniciarRegistreController(
+			ExpedientService expedientService,
 			DissenyService dissenyService) {
 		super(dissenyService);
+		this.expedientService = expedientService;
+	}
+
+	@Override
+	public void populateOthers(
+			HttpServletRequest request,
+			String id,
+			Object command,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			Long expedientTipusId = new Long(id);
+			model.addAttribute(
+					"expedientTipus",
+					dissenyService.getExpedientTipusById(expedientTipusId));
+			model.addAttribute(
+					"tasca",
+					expedientService.getStartTask(
+							entorn.getId(),
+							expedientTipusId,
+							null,
+							null));
+		}
 	}
 
 	@RequestMapping(value = "/expedient/iniciarRegistre", method = RequestMethod.GET)

@@ -39,7 +39,6 @@ function confirmar(e) {
 				<a href="<c:url value="/definicioProces/documentDownload.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/></c:url>"><img src="<c:url value="/img/page_white_put.png"/>" alt="<fmt:message key='comuns.descarregar' />" title="<fmt:message key='comuns.descarregar' />" border="0"/></a>
 			</c:if>
 		</display:column>
-		<display:column property="campData.codiEtiqueta" titleKey="defproc.docllistat.camp_data" sortable="false"/>
 	    <display:column>
     		<a href="<c:url value="/definicioProces/documentDelete.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 	    </display:column>

@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Writer;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -100,10 +101,12 @@ public class PlantillaDocumentDao {
 		documentTemplateFactory.getFreemarkerConfiguration().setTemplateExceptionHandler(new TemplateExceptionHandler() {
 		    public void handleTemplateException(TemplateException te, Environment env, Writer out) throws TemplateException {
 		        try {
-		        	if (te instanceof TemplateModelException || te instanceof NonStringException)
+		        	if (te instanceof TemplateModelException || te instanceof NonStringException) {
 		        		out.write("[exception]");
-		        	else
+		        	} else {
 		        		out.write("[???]");
+		        	}
+		        	out.write("<office:annotation><dc:creator>Helium</dc:creator><dc:date>" + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new Date()) + "</dc:date><text:p><![CDATA[" + te.getFTLInstructionStack() + "\n" + te.getMessage() + "]]></text:p></office:annotation>");
 		        } catch (IOException e) {
 		            throw new TemplateException("Failed to print error message. Cause: " + e, env);
 		        }
@@ -477,6 +480,7 @@ public class PlantillaDocumentDao {
 											documents.get(i).getId(),
 											false,
 											false,
+											false,
 											false);
 								}
 								return new BeanModel(
@@ -503,6 +507,7 @@ public class PlantillaDocumentDao {
 							for (int i = 0; i < resposta.length; i++) {
 								resposta[i] = dtoConverter.toDocumentDto(
 										documents.get(i).getId(),
+										false,
 										false,
 										false,
 										false);

@@ -38,9 +38,16 @@
 		}).width(amplada - 30).height(alcada - 30);
 		return false;
 	}
-	function generarDocumentAmbPlantilla(link, formId) {
-		var valData = $("#" + formId).find("input[name='data']").val();
-		window.location = link.href + "&data=" + valData;
+	function generarDocumentAmbPlantilla(link, formId, adjuntarAuto) {
+		var conf;
+		if (adjuntarAuto)
+			conf = confirm("<fmt:message key='tasca.document.generar.confirm' />");
+		else
+			conf = true;
+		if (conf) {
+			var valData = $("#" + formId).find("input[name='data']").val();
+			window.location = link.href + "&data=" + valData;
+		}
 		return false;
 	}
 // ]]>
@@ -81,7 +88,8 @@
 					${document.document.nom}&nbsp;&nbsp;
 					<c:if test="${tasca.validada}">
 						<c:if test="${not empty document.document.arxiuNom and not document.readOnly}">
-							<a href="<c:url value="/tasca/documentGenerar.html"><c:param name="id" value="${tasca.id}"/><c:param name="documentId" value="${document.document.id}"/></c:url>" onclick="return generarDocumentAmbPlantilla(this, 'documentCommand_${document.document.codi}')"><img src="<c:url value="/img/page_white_star.png"/>" alt="<fmt:message key='tasca.doc.generar' />" title="<fmt:message key='tasca.doc.generar' />" border="0"/></a>
+							<c:set var="adjuntarAuto" value="${document.document.adjuntarAuto}"/>
+							<a href="<c:url value="/tasca/documentGenerar.html"><c:param name="id" value="${tasca.id}"/><c:param name="documentId" value="${document.document.id}"/></c:url>" onclick="return generarDocumentAmbPlantilla(this, 'documentCommand_${document.document.codi}', ${adjuntarAuto})"><img src="<c:url value="/img/page_white_star.png"/>" alt="<fmt:message key='tasca.doc.generar' />" title="<fmt:message key='tasca.doc.generar' />" border="0"/></a>
 						</c:if>
 						<c:if test="${not empty variableDoc}">
 							<a href="<c:url value="/document/arxiuMostrar.html"><c:param name="id" value="${variableDoc.id}"/></c:url>"><img src="<c:url value="/img/page_white_put.png"/>" alt="<fmt:message key='comuns.descarregar' />" title="<fmt:message key='comuns.descarregar' />" border="0"/></a>

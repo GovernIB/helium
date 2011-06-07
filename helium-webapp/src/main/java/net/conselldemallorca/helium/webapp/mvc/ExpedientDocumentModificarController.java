@@ -18,7 +18,6 @@ import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
@@ -194,20 +193,10 @@ public class ExpedientDocumentModificarController extends BaseController {
 						id,
 						(data != null) ? data : new Date());
 				if (document != null) {
-					model.addAttribute(
-							ArxiuConvertirView.MODEL_ATTRIBUTE_FILENAME,
-							document.getArxiuNom());
-					model.addAttribute(
-							ArxiuConvertirView.MODEL_ATTRIBUTE_DATA,
-							document.getArxiuContingut());
-					model.addAttribute(
-							ArxiuConvertirView.MODEL_ATTRIBUTE_CONVERSIONENABLED,
-							"true".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.conversio.gentasca.actiu")));
-					model.addAttribute(
-							ArxiuConvertirView.MODEL_ATTRIBUTE_OUTEXTENSION,
-							GlobalProperties.getInstance().getProperty("app.conversio.gentasca.extension"));
+					model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, document.getArxiuNom());
+					model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, document.getArxiuContingut());
 				}
-				return "arxiuConvertirView";				
+				return "arxiuView";
 			} catch (Exception ex) {
 				missatgeError(request, getMessage("error.generar.document"), ex.getLocalizedMessage());
 	        	logger.error("Error generant el document " + docId + " per la instància de procés " + id, ex);

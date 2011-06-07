@@ -87,6 +87,7 @@ public class DefinicioProcesDocumentController extends BaseController {
 			document.setArxiuNom(vell.getArxiuNom());
 			document.setDescripcio(vell.getDescripcio());
 			document.setPlantilla(vell.isPlantilla());
+			document.setAdjuntarAuto(vell.isAdjuntarAuto());
 			document.setContentType(vell.getContentType());
 			document.setCustodiaCodi(vell.getCustodiaCodi());
 			document.setTipusDocPortasignatures(vell.getTipusDocPortasignatures());
@@ -95,6 +96,7 @@ public class DefinicioProcesDocumentController extends BaseController {
 			return document;
 		}
 		Document nou = new Document();
+		nou.setAdjuntarAuto(true);
 		if (definicioProcesId != null)
 			nou.setDefinicioProces(dissenyService.getById(definicioProcesId));
 		if (definicioProces != null)

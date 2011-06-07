@@ -1,9 +1,9 @@
-update HEL_ACL_CLASS set CLASS = 'net.conselldemallorca.helium.core.model.hibernate.Entorn' where CLASS = 'net.conselldemallorca.helium.model.hibernate.Entorn';
-update HEL_ACL_CLASS set CLASS = 'net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus' where CLASS = 'net.conselldemallorca.helium.model.hibernate.ExpedientTipus';
+-- Canvi a MAVEN --
+UPDATE HEL_ACL_CLASS SET CLASS = 'net.conselldemallorca.helium.core.model.hibernate.Entorn' WHERE CLASS = 'net.conselldemallorca.helium.model.hibernate.Entorn';
+UPDATE HEL_ACL_CLASS SET CLASS = 'net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus' WHERE CLASS = 'net.conselldemallorca.helium.model.hibernate.ExpedientTipus';
 
-CREATE
-    TABLE HEL_MAP_SISTRA
-    (
+-- Mapejos de SISTRA --
+CREATE TABLE HEL_MAP_SISTRA(
         ID NUMBER(19) NOT NULL,
         CODIHELIUM VARCHAR2(255 CHAR) NOT NULL,
         CODISISTRA VARCHAR2(255 CHAR) NOT NULL,
@@ -15,10 +15,16 @@ CREATE
         CONSTRAINT SYS_C0035059 UNIQUE (CODIHELIUM, EXPEDIENT_TIPUS_ID)
     );
 
--- Canvi Versio --
-ALTER TABLE HEL_VERSIO add DATA_EXECUCIO TIMESTAMP(6);
-ALTER TABLE HEL_VERSIO add PROCES_EXECUTAT NUMBER(1);
+-- Gestió de versions --
+ALTER TABLE HEL_VERSIO ADD DATA_EXECUCIO TIMESTAMP(6);
+ALTER TABLE HEL_VERSIO ADD PROCES_EXECUTAT NUMBER(1);
+UPDATE HEL_VERSIO SET PROCES_EXECUTAT = 1, DATA_EXECUCIO = SYSDATE WHERE CODI = 'inicial';
 
-update HEL_IDGEN set VALOR = VALOR+1 where TAULA = 'hel_versio';
-update HEL_VERSIO set PROCES_EXECUTAT = 1, DATA_EXECUCIO = SYSDATE where CODI = 'inicial';
-insert into HEL_VERSIO (ID, CODI, ORDRE, PROCES_EXECUTAT, DATA_EXECUCIO) values ((select VALOR from HEL_IDGEN where TAULA = 'hel_versio' ),'2.1.0', 210, 0, SYSDATE);
+-- Annexió automática de documents generats amb plantilla --
+ALTER TABLE HEL_DOCUMENT
+ ADD (ADJUNTAR_AUTO        NUMBER(1));
+UPDATE HEL_DOCUMENT SET ADJUNTAR_AUTO = 1;
+
+-- Canvi a la nova versió --
+UPDATE HEL_IDGEN SET VALOR = VALOR+1 WHERE TAULA = 'hel_versio';
+INSERT INTO HEL_VERSIO (ID, CODI, ORDRE, PROCES_EXECUTAT, DATA_EXECUCIO) VALUES ((SELECT VALOR FROM HEL_IDGEN WHERE TAULA = 'hel_versio' ),'2.1.0', 210, 0, SYSDATE);

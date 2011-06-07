@@ -8,8 +8,6 @@ import java.util.List;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -94,7 +92,5 @@ public class CanviVersioMapeigSistraService {
 	public void setDissenyService(DissenyService dissenyService) {
 		this.dissenyService = dissenyService;
 	}
-	
-	private static final Log logger = LogFactory.getLog(CanviVersioMapeigSistraService.class);
 
 }

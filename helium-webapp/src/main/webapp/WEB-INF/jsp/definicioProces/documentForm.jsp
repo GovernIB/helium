@@ -42,6 +42,11 @@ function mostrarAmagar(id) {
 				<c:param name="label"><fmt:message key='comuns.nom' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
+				<c:param name="property" value="descripcio"/>
+				<c:param name="type" value="textarea"/>
+				<c:param name="label"><fmt:message key='comuns.descripcio' /></c:param>
+			</c:import>
+			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="arxiuContingut"/>
 				<c:param name="type" value="file"/>
 				<c:param name="fileUrl"><c:url value="/definicioProces/documentDownload.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${command.id}"/></c:url></c:param>
@@ -54,9 +59,9 @@ function mostrarAmagar(id) {
 				<c:param name="label"><fmt:message key='defproc.docform.es_plantilla' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
-				<c:param name="property" value="descripcio"/>
-				<c:param name="type" value="textarea"/>
-				<c:param name="label"><fmt:message key='comuns.descripcio' /></c:param>
+				<c:param name="property" value="adjuntarAuto"/>
+				<c:param name="type" value="checkbox"/>
+				<c:param name="label"><fmt:message key='defproc.docform.adj_auto' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="campData"/>

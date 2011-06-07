@@ -1058,6 +1058,7 @@ public class DissenyService {
 			dto.setCustodiaCodi(document.getCustodiaCodi());
 			dto.setContentType(document.getContentType());
 			dto.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
+			dto.setAdjuntarAuto(document.isAdjuntarAuto());
 			if (document.getCampData() != null)
 				dto.setCodiCampData(document.getCampData().getCodi());
 			documentsDto.add(dto);
@@ -1838,6 +1839,7 @@ public class DissenyService {
 			nou.setCustodiaCodi(document.getCustodiaCodi());
 			nou.setContentType(document.getContentType());
 			nou.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
+			nou.setAdjuntarAuto(document.isAdjuntarAuto());
 			if (document.getCampData() != null)
 				nou.setCampData(camps.get(document.getCampData().getCodi()));
 			documentDao.saveOrUpdate(nou);
@@ -2017,6 +2019,7 @@ public class DissenyService {
 			nou.setCustodiaCodi(document.getCustodiaCodi());
 			nou.setContentType(document.getContentType());
 			nou.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
+			nou.setAdjuntarAuto(document.isAdjuntarAuto());
 			if (document.getCodiCampData() != null)
 				nou.setCampData(camps.get(document.getCodiCampData()));
 			documentDao.saveOrUpdate(nou);

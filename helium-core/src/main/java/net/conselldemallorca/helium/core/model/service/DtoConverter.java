@@ -417,6 +417,14 @@ public class DtoConverter {
 		dto.setValidacions(tasca.getValidacions());
 		//Camps
 		List<CampTasca> campsTasca = tasca.getCamps();
+		for (CampTasca campTasca: campsTasca) {
+			if (campTasca.getCamp().getTipus().equals(TipusCamp.REGISTRE)) {
+				campTasca.getCamp().getRegistreMembres().size();
+				/*for (CampRegistre membre: campTasca.getCamp().getRegistreMembres()) {
+					System.out.println(">>> " + campTasca.getCamp().getCodi() + ": " + membre.getMembre().getCodi());
+				}*/
+			}
+		}
 		dto.setCamps(campsTasca);
 		//Documents
 		List<DocumentTasca> documentsTasca = tasca.getDocuments();
@@ -426,8 +434,10 @@ public class DtoConverter {
 		//Configuració de valors
 		if (valors != null) {
 			List<Camp> camps = new ArrayList<Camp>();
-			for (CampTasca campTasca: campsTasca)
+			for (CampTasca campTasca: campsTasca) {
+				campTasca.getCamp().getRegistreMembres().size();
 				camps.add(campTasca.getCamp());
+			}
 			dto.setValorsDomini(obtenirValorsDomini(
 					null,
 					null,
@@ -491,6 +501,7 @@ public class DtoConverter {
 			Long documentStoreId,
 			boolean ambContingut,
 			boolean ambVista,
+			boolean perSignar,
 			boolean ambSegellSignatura) {
 		if (documentStoreId != null) {
 			DocumentStore document = documentStoreDao.getById(documentStoreId, false);
@@ -521,6 +532,7 @@ public class DtoConverter {
 						dto.setDocumentCodi(doc.getCodi());
 						dto.setDocumentNom(doc.getNom());
 						dto.setTipusDocPortasignatures(doc.getTipusDocPortasignatures());
+						dto.setAdjuntarAuto(doc.isAdjuntarAuto());
 					}
 				}
 				if (ambContingut) {
@@ -554,13 +566,15 @@ public class DtoConverter {
 							arxiuOriginalNom = dto.getArxiuNom();
 							arxiuOriginalContingut = dto.getArxiuContingut();
 						}
-						String actiuConversio = (String)GlobalProperties.getInstance().get("app.conversio.vista.actiu");
-						if (actiuConversio == null)
-							actiuConversio = (String)GlobalProperties.getInstance().get("app.conversio.signatura.actiu");
-						if ("true".equalsIgnoreCase(actiuConversio)) {
-							String extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.extension");
-							if (extensioVista == null)
+						if (isActiuConversioVista() || isActiuConversioSignatura()) {
+							String extensioVista = null;
+							if (isActiuConversioVista()) {
+								extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.extension");
+								if (extensioVista == null)
+									extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.gentasca.extension");
+							} else {
 								extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
+							}
 							dto.setVistaNom(dto.getArxiuNomSenseExtensio() + "." + extensioVista);
 							try {
 								ByteArrayOutputStream vistaContingut = new ByteArrayOutputStream();
@@ -967,7 +981,7 @@ public class DtoConverter {
 			if (documentStoreId != null) {
 				resposta.put(
 						document.getDocument().getCodi(),
-						toDocumentDto(documentStoreId, false, false, false));
+						toDocumentDto(documentStoreId, false, false, false, false));
 			}
 		}
 		return resposta;
@@ -985,7 +999,7 @@ public class DtoConverter {
 				if (documentStoreId != null) {
 					resposta.put(
 							document.getCodi(),
-							toDocumentDto(documentStoreId, false, false, false));
+							toDocumentDto(documentStoreId, false, false, false, false));
 				}
 			}
 			// Afegeix els adjunts
@@ -994,7 +1008,7 @@ public class DtoConverter {
 					Long documentStoreId = (Long)valors.get(var);
 					resposta.put(
 							var.substring(TascaService.PREFIX_ADJUNT.length()),
-							toDocumentDto(documentStoreId, false, false, false));
+							toDocumentDto(documentStoreId, false, false, false, false));
 				}
 			}
 		}
@@ -1016,7 +1030,7 @@ public class DtoConverter {
 							processInstanceId,
 							TascaService.PREFIX_DOCUMENT + signatura.getDocument().getCodi());
 				if (documentStoreId != null) {
-					DocumentDto dto = toDocumentDto(documentStoreId, false, false, false);
+					DocumentDto dto = toDocumentDto(documentStoreId, false, false, false, false);
 					if (dto != null) {
 						dto.setTokenSignatura(xifrarToken(taskId + "#" + documentStoreId.toString()));
 						Object signatEnTasca = jbpmDao.getTaskInstanceVariable(taskId, TascaService.PREFIX_SIGNATURA + dto.getDocumentCodi());
@@ -1291,6 +1305,23 @@ public class DtoConverter {
 
 	private boolean isSignaturaFileAttached() {
 		return "true".equalsIgnoreCase((String)GlobalProperties.getInstance().get("app.signatura.plugin.file.attached"));
+	}
+
+	private boolean isActiuConversioVista() {
+		String actiuConversio = (String)GlobalProperties.getInstance().get("app.conversio.actiu");
+		if (!"true".equalsIgnoreCase(actiuConversio))
+			return false;
+		String actiuConversioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.actiu");
+		if (actiuConversioVista == null)
+			actiuConversioVista = (String)GlobalProperties.getInstance().get("app.conversio.gentasca.actiu");
+		return "true".equalsIgnoreCase(actiuConversioVista);
+	}
+	private boolean isActiuConversioSignatura() {
+		String actiuConversio = (String)GlobalProperties.getInstance().get("app.conversio.actiu");
+		if (!"true".equalsIgnoreCase(actiuConversio))
+			return false;
+		String actiuConversioSignatura = (String)GlobalProperties.getInstance().get("app.conversio.signatura.actiu");
+		return "true".equalsIgnoreCase(actiuConversioSignatura);
 	}
 
 	private PdfUtils getPdfUtils() {

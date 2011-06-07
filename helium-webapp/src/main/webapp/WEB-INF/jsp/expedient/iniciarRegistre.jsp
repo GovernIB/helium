@@ -7,7 +7,6 @@
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-
 <head>
 	<title>${registre.etiqueta}</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
@@ -37,13 +36,14 @@
 				<c:import url="../common/formElement.jsp">
 					<c:param name="type" value="buttons"/>
 					<c:param name="values">submit,cancel</c:param>
-					<c:param name="titles">Guardar,Cancel·lar</c:param>
+					<c:param name="titles"><fmt:message key='tasca.reg.guardar' />,<fmt:message key='comuns.cancelar' /></c:param>
 				</c:import>
 			</form:form>
 			<p class="aclaracio"><fmt:message key='comuns.camps_marcats' /> <img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='comuns.camp_oblig' />" title="<fmt:message key='comuns.camp_oblig' />" border="0"/> <fmt:message key='comuns.son_oblig' /></p>
 		</c:when>
-		<c:otherwise><script type="text/javascript">parent.refresh();</script></c:otherwise>
+		<c:otherwise>
+			<script type="text/javascript">parent.refresh();</script>
+		</c:otherwise>
 	</c:choose>
-
 </body>
 </html>

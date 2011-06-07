@@ -3,8 +3,6 @@
  */
 package net.conselldemallorca.helium.webapp.mvc;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.List;
 
@@ -20,7 +18,6 @@ import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.TerminiService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
@@ -233,7 +230,7 @@ public class ExpedientController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
-	@RequestMapping(value = "documentConsultar")
+	/*@RequestMapping(value = "documentConsultar")
 	public String documentConsultar(
 			HttpServletRequest request,
 			@RequestParam(value = "processInstanceId", required = false) String processInstanceId,
@@ -367,7 +364,7 @@ public class ExpedientController extends BaseController {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
-	}
+	}*/
 
 	@RequestMapping(value = "timeline")
 	public String timeline(
@@ -556,9 +553,9 @@ public class ExpedientController extends BaseController {
 					ExtendedPermission.DELETE}) != null;
 	}
 
-	private boolean isSignaturaFileAttached() {
+	/*private boolean isSignaturaFileAttached() {
 		return "true".equalsIgnoreCase((String)GlobalProperties.getInstance().get("app.signatura.plugin.file.attached"));
-	}
+	}*/
 
 	private static final Log logger = LogFactory.getLog(ExpedientController.class);
 
