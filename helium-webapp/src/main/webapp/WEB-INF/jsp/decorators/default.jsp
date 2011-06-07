@@ -108,11 +108,8 @@
 				<span style="text-decoration: blink; color: white; font-weight: bold;">${error}</span> 
 			</div>
 		</c:if>
-			<div id="logo-wrapper" style="position: relative;">
-				<div style="width: 150px; margin: 0pt auto;">
+			<div id="logo-wrapper"">
 					<h1 id="logo"><span>H</span>elium</h1>
-					<span id="version" style="float: right; position: relative; top: 25px;">${versio}</span>
-				</div>
 			</div>
 			<div id="menu-wrapper">
 				<jsp:include page="partMenuSuperior.jsp"/>
@@ -159,6 +156,7 @@
 		</div>
 		<div id="push"></div>
 	</div>
-	<div id="footer">${globalProperties['app.copyright.text']}</div>
+	
+	<div id="footer"><span id="version" style="float: left;">${versio}</span> ${globalProperties['app.copyright.text']}</div>
 </body>
 </html>

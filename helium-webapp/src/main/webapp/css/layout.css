@@ -23,8 +23,8 @@ html, body{
 	width: 185px;
 }
 #header #logo-wrapper #logo {
+	width: 185px;
 	height: 40px;
-	float: left;
 	font-family: Helvetica,Arial,sans-serif;
 	font-size: 250%;
 	font-weight: normal;

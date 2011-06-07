@@ -54,7 +54,22 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 	}
 
 	public List<Domini> findAmbEntorn(Long entornId) {
-		return findByCriteria(Restrictions.eq("entorn.id", entornId));
+		return findByCriteria(Restrictions.eq("entorn.id", entornId),
+				Restrictions.isNull("expedientTipus.id"));
+	}
+	public List<Domini> findAmbEntornITipusExp(Long entornId, Long tipusExpedientId) {
+		return findByCriteria(
+				Restrictions.eq("entorn.id", entornId),
+				Restrictions.eq("expedientTipus.id", tipusExpedientId));
+	}
+	public List<Domini> findAmbEntornITipusExpONull(Long entornId, Long tipusExpedientId) {
+		List<Domini> dominis = findByCriteria(
+				Restrictions.eq("entorn.id", entornId),
+				Restrictions.isNull("expedientTipus.id"));
+		if (tipusExpedientId != null){
+			dominis.addAll(findAmbEntornITipusExp(entornId, tipusExpedientId));
+		}
+		return dominis;
 	}
 	public Domini findAmbEntornICodi(Long entornId, String codi) {
 		List<Domini> dominis = findByCriteria(

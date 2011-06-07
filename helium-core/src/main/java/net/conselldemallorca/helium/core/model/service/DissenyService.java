@@ -809,6 +809,13 @@ public class DissenyService {
 	public List<Enumeracio> findEnumeracionsAmbEntorn(Long entornId) {
 		return enumeracioDao.findAmbEntorn(entornId);
 	}
+	public List<Enumeracio> findEnumeracionsAmbEntornITipusExp(Long entornId, Long tipusExpId) {
+		return enumeracioDao.findAmbEntornITipusExp(entornId, tipusExpId);
+	}
+	public List<Enumeracio> findEnumeracionsAmbEntornITipusExpONull(Long entornId, Long tipusExpId) {
+		return enumeracioDao.findAmbEntornITipusExpONull(entornId, tipusExpId);
+	}
+	
 	public List<Enumeracio> findEnumeracions() {
 		return enumeracioDao.findAll();
 	}
@@ -1188,6 +1195,14 @@ public class DissenyService {
 	public List<Domini> findDominiAmbEntorn(Long entornId) {
 		return dominiDao.findAmbEntorn(entornId);
 	}
+	public List<Domini> findDominiAmbEntornITipusExp(Long entornId, Long tipusExpId) {
+		return dominiDao.findAmbEntornITipusExp(entornId, tipusExpId);
+	}
+	public List<Domini> findDominiAmbEntornITipusExpONull(Long entornId, Long tipusExpId) {
+		return dominiDao.findAmbEntornITipusExpONull(entornId, tipusExpId);
+	}
+	
+	
 	public Domini findDominiAmbEntornICodi(Long entornId, String codi) {
 		return dominiDao.findAmbEntornICodi(entornId, codi);
 	}

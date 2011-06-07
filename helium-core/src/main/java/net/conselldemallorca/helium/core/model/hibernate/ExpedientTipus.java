@@ -102,6 +102,8 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	private Set<Expedient> expedients = new HashSet<Expedient>();
 	private Set<DefinicioProces> definicionsProces = new HashSet<DefinicioProces>();
 	private Set<Consulta> consultes = new HashSet<Consulta>();
+	private Set<Domini> dominis = new HashSet<Domini>();
+	private Set<Enumeracio> enumeracions = new HashSet<Enumeracio>();
 
 
 	public ExpedientTipus() {}
@@ -378,6 +380,34 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 		getConsultes().remove(consulta);
 	}
 
+	@OneToMany(mappedBy="expedientTipus")
+	public Set<Domini> getDominis() {
+		return this.dominis;
+	}
+	public void setDominis(Set<Domini> dominis) {
+		this.dominis = dominis;
+	}
+	public void addDomini(Domini domini) {
+		getDominis().add(domini);
+	}
+	public void removeDomini(Enumeracio domini) {
+		getDominis().remove(domini);
+	}
+
+	@OneToMany(mappedBy="expedientTipus")
+	public Set<Enumeracio> getEnumeracions() {
+		return this.enumeracions;
+	}
+	public void setEnumeracions(Set<Enumeracio> enumeracions) {
+		this.enumeracions = enumeracions;
+	}
+	public void addEnumeracio(Enumeracio enumeracio) {
+		getEnumeracions().add(enumeracio);
+	}
+	public void removeEnumeracio(Enumeracio enumeracio) {
+		getEnumeracions().remove(enumeracio);
+	}
+	
 	@Transient
 	public String getNumeroExpedientActual() {
 		long seq = getSequencia();

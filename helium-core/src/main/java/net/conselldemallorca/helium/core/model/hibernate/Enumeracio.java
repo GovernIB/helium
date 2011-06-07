@@ -56,6 +56,8 @@ public class Enumeracio implements Serializable {
 
 	@NotNull
 	private Entorn entorn;
+	private ExpedientTipus expedientTipus;
+	
 	private Set<Camp> camps = new HashSet<Camp>();
 	private Set<EnumeracioValors> enumeracioValors = new HashSet<EnumeracioValors>();
 
@@ -112,6 +114,16 @@ public class Enumeracio implements Serializable {
 		this.entorn = entorn;
 	}
 
+	@ManyToOne
+	@JoinColumn(name="expedient_tipus_id")
+	@ForeignKey(name="hel_exptip_enumeracio_fk")
+	public ExpedientTipus getExpedientTipus() {
+		return expedientTipus;
+	}
+	public void setExpedientTipus(ExpedientTipus expedientTipus) {
+		this.expedientTipus = expedientTipus;
+	}
+	
 	@OneToMany(mappedBy="enumeracio", cascade={CascadeType.ALL})
 	public Set<Camp> getCamps() {
 		return this.camps;

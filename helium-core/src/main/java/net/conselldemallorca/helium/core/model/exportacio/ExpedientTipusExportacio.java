@@ -32,6 +32,8 @@ public class ExpedientTipusExportacio implements Serializable {
 	private String formextContrasenya;
 	private List<EstatExportacio> estats;
 	private List<MapeigSistraExportacio> mapeigSistras;
+	private List<DominiExportacio> dominis;
+	private List<EnumeracioExportacio> enumeracions;
 
 
 
@@ -144,6 +146,19 @@ public class ExpedientTipusExportacio implements Serializable {
 	public void setMapeigSistras(List<MapeigSistraExportacio> mapeigSistras) {
 		this.mapeigSistras = mapeigSistras;
 	}
+	public List<DominiExportacio> getDominis() {
+		return dominis;
+	}
+	public void setDominis(List<DominiExportacio> dominis) {
+		this.dominis = dominis;
+	}
+	public List<EnumeracioExportacio> getEnumeracions() {
+		return enumeracions;
+	}
+	public void setEnumeracions(List<EnumeracioExportacio> enumeracions) {
+		this.enumeracions = enumeracions;
+	}
+
 
 
 	private static final long serialVersionUID = 1L;

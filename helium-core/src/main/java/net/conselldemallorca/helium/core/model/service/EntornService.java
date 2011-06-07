@@ -238,7 +238,7 @@ public class EntornService {
 		}
 		entornExportacio.setCarrecs(carrecsDto);
 		// Afegeix els dominis
-		List<Domini> dominis = dominiDao.findAmbEntorn(entornId);
+		List<Domini> dominis = dominiDao.findAmbEntornITipusExpONull(entornId, null);
 		List<DominiExportacio> dominisDto = new ArrayList<DominiExportacio>();
 		for (Domini domini: dominis) {
 			DominiExportacio dto = new DominiExportacio(
@@ -254,7 +254,7 @@ public class EntornService {
 		}
 		entornExportacio.setDominis(dominisDto);
 		// Afegeix les enumeracions
-		List<Enumeracio> enumeracions = enumeracioDao.findAmbEntorn(entornId);
+		List<Enumeracio> enumeracions = enumeracioDao.findAmbEntornITipusExpONull(entornId, null);
 		List<EnumeracioExportacio> enumeracionsDto = new ArrayList<EnumeracioExportacio>();
 		for (Enumeracio enumeracio: enumeracions) {
 			EnumeracioExportacio dto = new EnumeracioExportacio(
@@ -294,6 +294,29 @@ public class EntornService {
 				mapeigs.add(new MapeigSistraExportacio(mapeig.getCodiHelium(), mapeig.getCodiSistra(), mapeig.getTipus()));
 			}
 			dto.setMapeigSistras(mapeigs);
+			List<DominiExportacio> dominisExp = new ArrayList<DominiExportacio>();
+			for (Domini domini : expedientTipus.getDominis()){
+				DominiExportacio dtoExp = new DominiExportacio(
+						domini.getCodi(),
+						domini.getNom(),
+						domini.getTipus().toString());
+				dtoExp.setDescripcio(domini.getDescripcio());
+				dtoExp.setUrl(domini.getUrl());
+				dtoExp.setJndiDatasource(domini.getJndiDatasource());
+				dtoExp.setSql(domini.getSql());
+				dtoExp.setCacheSegons(domini.getCacheSegons());
+				dominisExp.add(dtoExp);
+			}
+			dto.setDominis(dominisExp); 
+			List<EnumeracioExportacio> enumeracionsExp = new ArrayList<EnumeracioExportacio>();
+			for (Enumeracio enumeracio: expedientTipus.getEnumeracions()) {
+				EnumeracioExportacio dtoExp = new EnumeracioExportacio(
+						enumeracio.getCodi(),
+						enumeracio.getNom(),
+						enumeracioValorsDao.findAmbEnumeracio(enumeracio.getId()));
+				enumeracionsExp.add(dtoExp);
+			}
+			dto.setEnumeracions(enumeracionsExp);
 			
 			expedientsTipusDto.add(dto);
 		}
@@ -465,6 +488,7 @@ public class EntornService {
 				enou.setOrdre(estat.getOrdre());
 				estatDao.saveOrUpdate(enou);
 			}
+			// Crea els mapejos del tipus d'expedient.
 			for (MapeigSistraExportacio mapeig: expedientTipus.getMapeigSistras()) {
 				MapeigSistra mnou = null;
 				if (nou.getId() != null) {
@@ -483,6 +507,53 @@ public class EntornService {
 					mnou.setTipus(mapeig.getTipus());
 				}
 				mapeigSistraDao.saveOrUpdate(mnou);
+			}
+			// Crea els dominis del tipus d'expedient.
+			for (DominiExportacio domini: exportacio.getDominis()) {
+				Domini dnou = dominiDao.findAmbEntornICodi(
+						entornId,
+						domini.getCodi());
+				if (dnou == null) {
+					dnou = new Domini(
+							domini.getCodi(),
+							domini.getNom(),
+							entorn);
+				} else {
+					dnou.setNom(domini.getNom());
+				}
+				dnou.setExpedientTipus(nou);
+				dnou.setDescripcio(domini.getDescripcio());
+				dnou.setTipus(TipusDomini.valueOf(domini.getTipus()));
+				dnou.setCacheSegons(domini.getCacheSegons());
+				dnou.setSql(domini.getSql());
+				dnou.setJndiDatasource(domini.getJndiDatasource());
+				dnou.setUrl(domini.getUrl());
+				dominiDao.saveOrUpdate(dnou);
+			}
+			// Crea les enumeracions del tipus d'expedient.
+			for (EnumeracioExportacio enumeracio: exportacio.getEnumeracions()) {
+				Enumeracio nova = enumeracioDao.findAmbEntornICodi(
+						entornId,
+						enumeracio.getCodi());
+				if (nova == null) {
+					nova = new Enumeracio(
+							entorn,
+							enumeracio.getCodi(),
+							enumeracio.getNom());
+				} else {
+					nova.setNom(enumeracio.getNom());
+				}
+				nova.setExpedientTipus(nou);
+				
+				for (EnumeracioValors enumValors : enumeracio.getValors()) {
+					EnumeracioValors novaEnumValors = new EnumeracioValors();
+					novaEnumValors.setCodi(enumValors.getCodi());
+					novaEnumValors.setNom(enumValors.getNom());
+					novaEnumValors.setEnumeracio(nova);
+					nova.addEnumeracioValors(novaEnumValors);
+				}
+				
+				enumeracioDao.saveOrUpdate(nova);
 			}
 		}
 	}
