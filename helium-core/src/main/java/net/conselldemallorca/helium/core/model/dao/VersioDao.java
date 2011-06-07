@@ -26,10 +26,28 @@ public class VersioDao extends HibernateGenericDao<Versio, Long> {
 		List<Versio> versions = (List<Versio>)getSession().createQuery(
 				"from " +
 				"    Versio v " +
-				"where v.procesExecutat = ? " +
+				"order by " +
+				"    v.ordre desc").
+		list();
+		if (versions.size() > 0) {
+			return versions.get(0);
+		}
+		return null;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Versio findLastOK() {
+		List<Versio> versions = (List<Versio>)getSession().createQuery(
+				"from " +
+				"    Versio v " +
+				"where " +
+				"	 v.procesExecutat = ? " +
+				"and   " +
+				"	 v.scriptExecutat = ?" +
 				"order by " +
 				"    v.ordre desc").
 		setBoolean(0, true).
+		setBoolean(1, true).
 		list();
 		if (versions.size() > 0) {
 			return versions.get(0);
@@ -51,5 +69,5 @@ public class VersioDao extends HibernateGenericDao<Versio, Long> {
 		}
 		return null;
 	}
-
+	
 }

@@ -16,6 +16,6 @@ CREATE
 
 -- Canvi Versio --
 update hel_idgen set valor = valor+1 where taula = 'hel_tasca';
-update hel_versio set proces_executat = true, data_execucio = clock_timestamp()  where codi = 'inicial';
-insert into hel_versio (id, codi, ordre, proces_executat, data_execucio) values ((select valor from hel_idgen where taula = 'hel_tasca' ),'2.1.1', 211, false, clock_timestamp());
+insert into hel_versio (id, codi, ordre, script_executat, data_execucio_script, proces_executat) values ((select valor from hel_idgen where taula = 'hel_tasca' ),'2.1.1', 211, true, clock_timestamp(), false);
+update hel_versio set script_executat = true, data_execucio_script = clock_timestamp() where codi = '2.1.1';
 

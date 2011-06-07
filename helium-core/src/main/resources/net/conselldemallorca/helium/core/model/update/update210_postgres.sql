@@ -15,15 +15,32 @@ create table hel_map_sistra(
         UNIQUE (codihelium, expedient_tipus_id)
     );
 
--- Gestió de versions --
-alter table hel_versio add column data_execucio TIMESTAMP(6) WITHOUT TIME ZONE;
+CREATE
+    TABLE hel_enumeracio_valors
+    (
+        id BIGINT NOT NULL,
+        codi CHARACTER VARYING(64) NOT NULL,
+        nom CHARACTER VARYING(255) NOT NULL,
+        enumeracio_id BIGINT NOT NULL,
+        PRIMARY KEY (id),
+        CONSTRAINT hel_enumeracio_valors_fk FOREIGN KEY (enumeracio_id) REFERENCES
+        public.hel_enumeracio (id)
+    );
+
+    
+-- Gestió de versions (versió inicial)--
 alter table hel_versio add column proces_executat BOOLEAN;
-update hel_versio set proces_executat = true, data_execucio = clock_timestamp()  where codi = 'inicial';
+alter table hel_versio add column data_execucio_proces TIMESTAMP(6) WITHOUT TIME ZONE;
+alter table hel_versio add column script_executat BOOLEAN;
+alter table hel_versio add column data_execucio_script TIMESTAMP(6) WITHOUT TIME ZONE;
+alter table hel_versio add column errorversio CHARACTER VARYING(255);
+update hel_versio set proces_executat = true, data_execucio_proces = clock_timestamp(), script_executat = true, data_execucio_script = clock_timestamp()  where codi = 'inicial';
 
 -- Annexió automática de documents generats amb plantilla --
-alter table hel_document add column adjuntar_auto boolean;
+alter table hel_document add column adjuntar_auto BOOLEAN;
 update hel_document set adjuntar_auto = true;
 
--- Canvi a la nova versió --
-update hel_idgen set valor = valor+1 where taula = 'hel_tasca';
-insert into hel_versio (id, codi, ordre, proces_executat, data_execucio) values ((select valor from hel_idgen where taula = 'hel_tasca' ),'2.1.0', 210, false, clock_timestamp());
+-- Actualització a la nova versió --
+update hel_idgen set valor = valor+1 where taula = 'hel_versio';
+insert into hel_versio (id, codi, ordre, script_executat, data_execucio_script, proces_executat) values ((select valor from hel_idgen where taula = 'hel_versio' ),'2.1.0', 210, true, clock_timestamp(), false);
+update hel_versio set script_executat = true, data_execucio_script = clock_timestamp() where codi = '2.1.0';

@@ -53,30 +53,33 @@ public class UpdateService {
 			createInitialData();
 		}
 		
-		Versio darrera = versioDao.findLast(); // obtenir darrera versió
+		Versio darreraOK = versioDao.findLastOK(); // obtenir darrera versió
 		
-		if (darrera == null){
+		// Si no hi ha cap versió correctament passada, actualitzam al menys la versió inicial.
+		if (darreraOK == null){
+			//crearVersio("inicial", ordre)
 			Versio versioInicial = versioDao.findAmbCodi("inicial");
 			versioInicial.setProcesExecutat(true);
-			versioInicial.setDataExecucio(new Date());
+			versioInicial.setDataExecucioProces(new Date());
+			versioInicial.setScriptExecutat(true);
+			versioInicial.setDataExecucioScript(new Date());
 			versioDao.saveOrUpdate(versioInicial);
 			
-			darrera = versioInicial;
+			darreraOK = versioInicial;
 		}
 		
-		boolean correcte = true;
-		if (darrera.getOrdre().intValue() < 210 && correcte) {
-			correcte = actualitzarV210(darrera);
+		Versio versioAnterior = darreraOK;
+		if (darreraOK.getOrdre().intValue() < 210) {
+			versioAnterior = actualitzarV210("2.1.0", 210, versioAnterior);
 		}
-		if (darrera.getOrdre().intValue() < 211 && correcte) {
-			correcte = actualitzarV211(darrera);
-		}
-		// ... afegir les modificacions de les seguents versions (if (darrera... < 211 && correcte) ...)
-		
+		// ... afegir les modificacions de les seguents versions (if (darreraOK... < 211) ...)
+		/*if (darreraOK.getOrdre().intValue() < 211) {
+			versioAnterior = actualitzarV211("2.1.1", 211, versioAnterior);
+		}*/
 		
 		Versio.setVersion("v." + versioDao.findLast().getCodi());
-		if (!correcte){
-			Versio.setError(versioDao.findLast().getDescripcio());
+		if (versioAnterior.getErrorVersio() != null){
+			Versio.setError(versioAnterior.getErrorVersio());
 		}
 	}
 	
@@ -136,59 +139,85 @@ public class UpdateService {
 				"inicial",
 				0);
 		versioInicial.setProcesExecutat(true);
-		versioInicial.setDataExecucio(new Date());
+		versioInicial.setDataExecucioProces(new Date());
+		versioInicial.setScriptExecutat(true);
+		versioInicial.setDataExecucioScript(new Date());
 		versioDao.saveOrUpdate(versioInicial);
 	}
 
-	private void errorVersio(Versio versioAnterior, String msg, Exception error){
+	private void errorVersio(Versio versio, String msg, Exception error){
 		logger.error(msg, error);
-		versioAnterior.setDescripcio(msg);
-		versioDao.saveOrUpdate(versioAnterior);		
+		versio.setErrorVersio(msg);
+		versioDao.saveOrUpdate(versio);		
 	}
 
 	private void actualitzarVersio(Versio versio){
-		versio.setDataExecucio(new Date());
+		versio.setDataExecucioProces(new Date());
 		versio.setProcesExecutat(true);
+		versio.setErrorVersio(null);
 		versioDao.saveOrUpdate(versio);
 	}
 	
-	private boolean actualitzarV210(Versio versioAnterior) {
-		// Comprovam si s'ha passat l'script corresponent a la versió (només si és necessari un script, si no hi ha script per aquesta versió, crear la versió desde el procés).
-		Versio versio210 = versioDao.findAmbCodi("2.1.0");
-		if (versio210 != null){
-			try {
-				canviVersioMapeigSistraService.canviarVersioMapeigSistra();
-				actualitzarVersio(versio210);
-				return true;
-			} catch (Exception e) {
-				errorVersio(versioAnterior, getMessage("error.updateService.actualitzarVersio") + " 2.1.0. " + getMessage("error.updateService.contactiAdministrador"), e);
-				return false;
+	private Versio crearVersio(String codi, Integer ordre){
+		Versio versio = new Versio(codi, ordre);
+		versioDao.saveOrUpdate(versio);
+		return versio;
+	}
+	
+	private Versio getVersio(String codi, Integer ordre){
+		Versio versio = versioDao.findAmbCodi(codi);
+		if (versio == null){
+			versio = crearVersio(codi, ordre);
+		}
+		return versio;
+	}
+	
+	private Versio actualitzarV210(String codi, Integer ordre, Versio versioAnterior) {
+		// Recollim/Cream la versio corresponent. Si no es necessita script, actualitzar la variable scriptExecutat a true!!
+		Versio versio210 = getVersio(codi, ordre);
+		
+		// Comprovam que les versions anteriors han passat correctament.
+		if (versioAnterior.isProcesExecutat()){
+			// Comprovam si s'ha passat l'script corresponent a la versió
+			if (versio210.isScriptExecutat()){
+				try {
+					canviVersioMapeigSistraService.canviarVersioMapeigSistra();
+					canviVersioEnumeracionsService.canviarVersioEnumeracions();
+					actualitzarVersio(versio210);
+				} catch (Exception e) {
+					errorVersio(versio210, getMessage("error.updateService.actualitzarVersio") + " " + codi + " " + getMessage("error.updateService.contactiAdministrador"), e);
+				}
+			} else {
+				// Si no s'ha executat l'script no actualitzam la versió i 
+				// posam un error a la bbdd per mostrar-lo a l'aplicació.
+				errorVersio(versio210, getMessage("error.updateService.actualitzarVersio") + " " + codi + " " + getMessage("error.updateService.noScript") + " update210.sql. " + getMessage("error.updateService.contactiAdministrador"), null);
 			}
+			return versio210;
 		} else {
-			// Si no s'ha executat l'script no actualitzam la versió i posam un error a la versió Anterior per mostrar-lo a l'aplicació.
-			errorVersio(versioAnterior, getMessage("error.updateService.actualitzarVersio") + " 2.1.0. " + getMessage("error.updateService.noScript") + " update210.sql. " + getMessage("error.updateService.contactiAdministrador"), null);
-			return false;
+			return versioAnterior;
 		}
 	}
 	
-	private boolean actualitzarV211(Versio versioAnterior) {
-		// Comprovam si s'ha passat l'script corresponent a la versió (només si és necessari un script, si no hi ha script per aquesta versió, crear la versió desde el procés).
-		Versio versio211 = versioDao.findAmbCodi("2.1.1");
-		if (versio211 != null) {
-			try {
-				canviVersioEnumeracionsService.canviarVersioEnumeracions();
-				actualitzarVersio(versio211);
-				return true;
-			} catch (Exception e) {
-				errorVersio(versioAnterior, getMessage("error.updateService.actualitzarVersio") + " 2.1.1. " + getMessage("error.updateService.contactiAdministrador"), e);
-				return false;
+	/*private Versio actualitzarV211(String codi, Integer ordre, Versio versioAnterior) {
+		// Comprovam si s'ha passat l'script corresponent a la versió (només si és necessari un script, si no hi ha script per aquesta versió, actualitzar la variable script passat a true).
+		Versio versio211 = getVersio(codi, ordre);
+		if (versioAnterior.isProcesExecutat()){
+			if (versio211.isScriptExecutat()){
+				try {
+					canviVersioEnumeracionsService.canviarVersioEnumeracions();
+					actualitzarVersio(versio211);
+				} catch (Exception e) {
+					errorVersio(versio211, getMessage("error.updateService.actualitzarVersio") + " " + codi + " " + getMessage("error.updateService.contactiAdministrador"), e);
+				}
+			} else {
+				// Si no s'ha executat l'script no actualitzam la versió i posam un error a la versió Anterior per mostrar-lo a l'aplicació.
+				errorVersio(versio211, getMessage("error.updateService.actualitzarVersio") + " " + codi + " " + getMessage("error.updateService.noScript") + " update211.sql. " + getMessage("error.updateService.contactiAdministrador"), null);
 			}
+			return versio211;
 		} else {
-			// Si no s'ha executat l'script no actualitzam la versió i posam un error a la versió Anterior per mostrar-lo a l'aplicació.
-			errorVersio(versioAnterior, getMessage("error.updateService.actualitzarVersio") + " 2.1.1. " + getMessage("error.updateService.noScript") + " update211.sql. " + getMessage("error.updateService.contactiAdministrador"), null);
-			return false;
+			return versioAnterior;
 		}
-	}
+	}*/
 	
 	
 	protected String getMessage(String key, Object[] vars) {

@@ -39,8 +39,11 @@ public class Versio implements Serializable, GenericEntity<Long>, SecureObject {
 	private Integer ordre;
 	@MaxLength(255)
 	private String descripcio;
-	private Date dataExecucio = new Date();
 	private boolean procesExecutat = false;
+	private Date dataExecucioProces;
+	private boolean scriptExecutat = false;
+	private Date dataExecucioScript;
+	private String  errorVersio;
 	
 	private static String version = "";
 	private static String error = "";
@@ -87,14 +90,6 @@ public class Versio implements Serializable, GenericEntity<Long>, SecureObject {
 		this.descripcio = descripcio;
 	}
 	
-	@Column(name="data_execucio")
-	public Date getDataExecucio() {
-		return dataExecucio;
-	}
-	public void setDataExecucio(Date dataExecucio) {
-		this.dataExecucio = dataExecucio;
-	}
-
 	@Column(name="proces_executat")
 	public boolean isProcesExecutat() {
 		return procesExecutat;
@@ -103,6 +98,38 @@ public class Versio implements Serializable, GenericEntity<Long>, SecureObject {
 		this.procesExecutat = procesExecutat;
 	}
 
+	@Column(name="data_execucio_proces")
+	public Date getDataExecucioProces() {
+		return dataExecucioProces;
+	}
+	public void setDataExecucioProces(Date dataExecucioProces) {
+		this.dataExecucioProces = dataExecucioProces;
+	}
+
+	@Column(name="script_executat")
+	public boolean isScriptExecutat() {
+		return scriptExecutat;
+	}
+	public void setScriptExecutat(boolean scriptExecutat) {
+		this.scriptExecutat = scriptExecutat;
+	}
+	
+	@Column(name="data_execucio_script")
+	public Date getDataExecucioScript() {
+		return dataExecucioScript;
+	}
+	public void setDataExecucioScript(Date dataExecucioScript) {
+		this.dataExecucioScript = dataExecucioScript;
+	}
+	
+	@Column(name="errorVersio")
+	public String getErrorVersio() {
+		return errorVersio;
+	}
+	public void setErrorVersio(String errorVersio) {
+		this.errorVersio = errorVersio;
+	}
+	
 	@Transient
 	public static String getVersion() {
 		return version;
