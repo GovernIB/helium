@@ -12,8 +12,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Transient;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import net.conselldemallorca.helium.core.model.hibernate.GenericEntity;
 import net.conselldemallorca.helium.core.security.acl.SecureObject;
@@ -35,29 +35,27 @@ public class Versio implements Serializable, GenericEntity<Long>, SecureObject {
 	@NotBlank
 	@MaxLength(64)
 	private String codi;
-	@NotNull
-	private Integer ordre;
+	private int ordre;
 	@MaxLength(255)
 	private String descripcio;
+	@NotNull
+	private Date dataCreacio;
 	private boolean procesExecutat = false;
 	private Date dataExecucioProces;
 	private boolean scriptExecutat = false;
 	private Date dataExecucioScript;
-	private String  errorVersio;
-	
-	private static String version = "";
-	private static String error = "";
+
 
 
 	public Versio() {}
 	public Versio(String codi, Integer ordre) {
 		this.codi = codi;
 		this.ordre = ordre;
+		this.setDataCreacio(new Date());
 	}
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.TABLE, generator="gen_versio")
-	@TableGenerator(name="gen_versio", table="hel_idgen", pkColumnName="taula", valueColumnName="valor")
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name="id")
 	public Long getId() {
 		return id;
@@ -74,8 +72,8 @@ public class Versio implements Serializable, GenericEntity<Long>, SecureObject {
 		this.codi = codi;
 	}
 
-	@Column(name="ordre", length=64, nullable=false, unique=true)
-	public Integer getOrdre() {
+	@Column(name="ordre", nullable=false, unique=true)
+	public int getOrdre() {
 		return ordre;
 	}
 	public void setOrdre(Integer ordre) {
@@ -89,7 +87,16 @@ public class Versio implements Serializable, GenericEntity<Long>, SecureObject {
 	public void setDescripcio(String descripcio) {
 		this.descripcio = descripcio;
 	}
-	
+
+	@Column(name="data_creacio", nullable=false)
+	@Temporal(TemporalType.TIMESTAMP)
+	public Date getDataCreacio() {
+		return dataCreacio;
+	}
+	public void setDataCreacio(Date dataCreacio) {
+		this.dataCreacio = dataCreacio;
+	}
+
 	@Column(name="proces_executat")
 	public boolean isProcesExecutat() {
 		return procesExecutat;
@@ -99,6 +106,7 @@ public class Versio implements Serializable, GenericEntity<Long>, SecureObject {
 	}
 
 	@Column(name="data_execucio_proces")
+	@Temporal(TemporalType.TIMESTAMP)
 	public Date getDataExecucioProces() {
 		return dataExecucioProces;
 	}
@@ -113,39 +121,18 @@ public class Versio implements Serializable, GenericEntity<Long>, SecureObject {
 	public void setScriptExecutat(boolean scriptExecutat) {
 		this.scriptExecutat = scriptExecutat;
 	}
-	
+
 	@Column(name="data_execucio_script")
+	@Temporal(TemporalType.TIMESTAMP)
 	public Date getDataExecucioScript() {
 		return dataExecucioScript;
 	}
 	public void setDataExecucioScript(Date dataExecucioScript) {
 		this.dataExecucioScript = dataExecucioScript;
 	}
-	
-	@Column(name="errorVersio")
-	public String getErrorVersio() {
-		return errorVersio;
-	}
-	public void setErrorVersio(String errorVersio) {
-		this.errorVersio = errorVersio;
-	}
-	
-	@Transient
-	public static String getVersion() {
-		return version;
-	}
-	public static void setVersion(String version) {
-		Versio.version = version;
-	}
-	@Transient
-	public static String getError() {
-		return error;
-	}
-	public static void setError(String error) {
-		Versio.error = error;
-	}
-	
-	
+
+
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

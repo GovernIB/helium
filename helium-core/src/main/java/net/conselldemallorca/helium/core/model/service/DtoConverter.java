@@ -1123,21 +1123,25 @@ public class DtoConverter {
 						} else if (camp.isMultiple()) {
 							Object valor = valors.get(key);
 							if (valor != null) {
-								List<String> texts = new ArrayList<String>();
-								for (int i = 0; i < Array.getLength(valor); i++) {
-									String t = null;
-									if (camp.getTipus().equals(TipusCamp.SUGGEST) || camp.getTipus().equals(TipusCamp.SELECCIO)) {
-										if (valorsMultiplesDomini.get(key).size() > i)
-											t = textPerCamp(camp, Array.get(valor, i), valorsMultiplesDomini.get(key).get(i));
-										else
-											t = "!" + Array.get(valor, i) + "!";
-									} else {
-										t = textPerCamp(camp, Array.get(valor, i), null);
+								if (valor instanceof Object[]) {
+									List<String> texts = new ArrayList<String>();
+									for (int i = 0; i < Array.getLength(valor); i++) {
+										String t = null;
+										if (camp.getTipus().equals(TipusCamp.SUGGEST) || camp.getTipus().equals(TipusCamp.SELECCIO)) {
+											if (valorsMultiplesDomini.get(key).size() > i)
+												t = textPerCamp(camp, Array.get(valor, i), valorsMultiplesDomini.get(key).get(i));
+											else
+												t = "!" + Array.get(valor, i) + "!";
+										} else {
+											t = textPerCamp(camp, Array.get(valor, i), null);
+										}
+										if (t != null)
+											texts.add(t);
 									}
-									if (t != null)
-										texts.add(t);
+									resposta.put(key, texts);
+								} else {
+									logger.warn("No s'ha pogut convertir el camp " + camp.getCodi() + "a text: El camp és múltiple però el seu valor no és un array (" + valor.getClass().getName() + ")");
 								}
-								resposta.put(key, texts);
 							} else {
 								resposta.put(key, null);
 							}

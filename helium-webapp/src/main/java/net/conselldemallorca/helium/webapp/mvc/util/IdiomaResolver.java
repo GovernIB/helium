@@ -51,8 +51,10 @@ public class IdiomaResolver implements LocaleResolver, Serializable {
 	}
 	
 	public IdiomaResolver() {
-		setIdiomesDisponibles( GlobalProperties.getInstance().getProperty("app.idiomes.disponibles").split(",") );
-		setIdiomaDefecte( GlobalProperties.getInstance().getProperty("app.idioma.defecte") );
+		String disponibles = GlobalProperties.getInstance().getProperty("app.idiomes.disponibles");
+		if (disponibles != null)
+			setIdiomesDisponibles(disponibles.split(","));
+		setIdiomaDefecte(GlobalProperties.getInstance().getProperty("app.idioma.defecte"));
 	}
 
 	public Locale resolveLocale(HttpServletRequest request) {

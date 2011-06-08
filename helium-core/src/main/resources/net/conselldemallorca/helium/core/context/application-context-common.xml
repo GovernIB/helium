@@ -79,7 +79,6 @@
 		<aop:pointcut id="serviceOperationCommon" expression="execution(* net.conselldemallorca.helium.core.model.service.*Service.*(..))"/>
 		<aop:advisor advice-ref="txAdvice" pointcut-ref="serviceOperationCommon" />
 	</aop:config>
-
 	<tx:annotation-driven transaction-manager="txManager"/>
 
 	<bean id="passwordDigester" class="net.conselldemallorca.helium.core.util.PasswordDigester">

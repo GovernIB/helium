@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 package net.conselldemallorca.helium.webapp.mvc.interceptor;
 
 import java.util.Locale;
@@ -8,14 +11,18 @@ import javax.servlet.http.HttpServletResponse;
 
 import net.conselldemallorca.helium.core.model.service.PersonaService;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.LocaleEditor;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
+/**
+ * Interceptor per a canviar l'idioma depenent d'un paràmetre
+ * del request.
+ * 
+ * @author Limit Tecnologies <limit@limit.es>
+ */
 public class IdiomaInterceptor extends HandlerInterceptorAdapter {
 	public static final String DEFAULT_PARAM_NAME = "lang";
 	private String paramName = DEFAULT_PARAM_NAME;
@@ -47,6 +54,5 @@ public class IdiomaInterceptor extends HandlerInterceptorAdapter {
 	public void setPersonaService(PersonaService personaService) {
 		this.personaService = personaService;
 	}
-	
-	private static final Log logger = LogFactory.getLog(EntornInterceptor.class);
+
 }

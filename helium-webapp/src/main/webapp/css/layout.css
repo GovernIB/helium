@@ -16,8 +16,6 @@ html, body{
 	float: left;
 	background-color: white;
 	border-right: 1px dotted #c0c0c0;
-	
-	/* Versio ie6 */
 	margin: 0;
 	padding: 0;
 	width: 185px;
@@ -31,9 +29,6 @@ html, body{
 	text-align: center;
 	vertical-align: middle;
 	color: #666;
-	/* Original */
-	/*padding-top: 10px;*/
-	/* Versió ie6 */
 	margin: 0;
 	padding: 0;
 	position: relative;
@@ -42,6 +37,12 @@ html, body{
 }
 #header #logo-wrapper #logo span {
 	color: #ff5f01;
+}
+#header #logo-wrapper #version {
+	position: relative;
+	top: 28px;
+	left: 4px;
+	font-size: 80%;
 }
 #header #menu-wrapper {
 	background-color: #f2f2f2;
@@ -154,6 +155,9 @@ html, body{
 	border-top: 1px solid white;
 	padding: 6px;
 	height: 13px;
+}
+#footer #version {
+	float: left;
 }
 #footer {
 	background-color: #f2f2f2;

@@ -10,11 +10,11 @@
 <%@page isErrorPage="true" %>
 <decorator:usePage id="pagina"/>
 
+<c:set var="versioNom" value="${applicationScope.versioNom}"/>
+<c:set var="versioError" value="${applicationScope.versioError}"/>
+
+
 <%--pageContext.setAttribute("requestContext", new org.springframework.web.servlet.support.RequestContext(request));--%>
-<%
-	request.setAttribute("versio", (String)Versio.getVersion());
-	request.setAttribute("error", (String)Versio.getError());
-%>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -103,13 +103,13 @@
 <body>
 	<div id="main">
 		<div id="header">
-		<c:if test="${(error != null) && (error!='')}">
-			<div id="error" style="background-color: red; padding:5px 10px 5px 24px;">
-				<span style="text-decoration: blink; color: white; font-weight: bold;">${error}</span> 
-			</div>
-		</c:if>
-			<div id="logo-wrapper"">
-					<h1 id="logo"><span>H</span>elium</h1>
+			<c:if test="${not empty versioError}">
+				<div id="error" style="background-color: red; padding:5px 10px 5px 24px;">
+					<span style="text-decoration: blink; color: white; font-weight: bold;">${versioError}</span> 
+				</div>
+			</c:if>
+			<div id="logo-wrapper">
+				<h1 id="logo"><span>H</span>elium</h1>
 			</div>
 			<div id="menu-wrapper">
 				<jsp:include page="partMenuSuperior.jsp"/>
@@ -157,6 +157,6 @@
 		<div id="push"></div>
 	</div>
 	
-	<div id="footer"><span id="version" style="float: left;">${versio}</span> ${globalProperties['app.copyright.text']}</div>
+	<div id="footer"><span id="version">v.${versioNom}</span> ${globalProperties['app.copyright.text']}</div>
 </body>
 </html>

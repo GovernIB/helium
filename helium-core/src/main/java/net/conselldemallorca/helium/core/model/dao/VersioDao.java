@@ -20,41 +20,16 @@ public class VersioDao extends HibernateGenericDao<Versio, Long> {
 	public VersioDao() {
 		super(Versio.class);
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public Versio findLast() {
-		List<Versio> versions = (List<Versio>)getSession().createQuery(
+	public List<Versio> findAllOrdered() {
+		return (List<Versio>)getSession().createQuery(
 				"from " +
 				"    Versio v " +
 				"order by " +
-				"    v.ordre desc").
-		list();
-		if (versions.size() > 0) {
-			return versions.get(0);
-		}
-		return null;
+				"    v.ordre asc").list();
 	}
-	
-	@SuppressWarnings("unchecked")
-	public Versio findLastOK() {
-		List<Versio> versions = (List<Versio>)getSession().createQuery(
-				"from " +
-				"    Versio v " +
-				"where " +
-				"	 v.procesExecutat = ? " +
-				"and   " +
-				"	 v.scriptExecutat = ?" +
-				"order by " +
-				"    v.ordre desc").
-		setBoolean(0, true).
-		setBoolean(1, true).
-		list();
-		if (versions.size() > 0) {
-			return versions.get(0);
-		}
-		return null;
-	}
-	
+
 	@SuppressWarnings("unchecked")
 	public Versio findAmbCodi(String codi) {
 		List<Versio> versions = (List<Versio>)getSession().createQuery(
@@ -69,5 +44,19 @@ public class VersioDao extends HibernateGenericDao<Versio, Long> {
 		}
 		return null;
 	}
-	
+
+	@SuppressWarnings("unchecked")
+	public Versio findLast() {
+		List<Versio> versions = (List<Versio>)getSession().createQuery(
+				"from " +
+				"    Versio v " +
+				"order by " +
+				"    v.ordre desc").
+		list();
+		if (versions.size() > 0) {
+			return versions.get(0);
+		}
+		return null;
+	}
+
 }

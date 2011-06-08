@@ -40,6 +40,7 @@
 				<bean class="net.conselldemallorca.helium.webapp.mvc.interceptor.EntornInterceptor"/>
 				<bean class="net.conselldemallorca.helium.webapp.mvc.interceptor.PermisosDissenyInterceptor"/>
 				<bean class="net.conselldemallorca.helium.webapp.mvc.interceptor.GlobalPropertiesInterceptor"/>
+				<bean class="net.conselldemallorca.helium.webapp.mvc.interceptor.VersioInterceptor"/>
 				<bean class="org.springframework.orm.hibernate3.support.OpenSessionInViewInterceptor">
 					<property name="singleSession" value="true"/>
 				</bean>
