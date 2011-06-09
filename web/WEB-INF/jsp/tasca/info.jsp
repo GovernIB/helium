@@ -54,7 +54,6 @@ function confirmarDelegar(e) {
 		<dt>Expedient</dt><dd><a href="<c:url value="/expedient/info.html"><c:param name="id" value="${tasca.expedient.processInstanceId}"/></c:url>" title="Detalls de l'expedient">${tasca.expedient.identificador}</a></dd>
 		<dt>Tipus d'expedient</dt><dd>${tasca.expedient.tipus.nom}</dd>
 		<dt>Data de creació</dt><dd><fmt:formatDate value="${tasca.createTime}" pattern="dd/MM/yyyy HH:mm"/></dd>
-		<c:if test="${not empty tasca.description}"><dt>Descripció</dt><dd>${tasca.description}</dd></c:if>
 		<dt>Prioritat</dt><dd>
 			<c:choose>
 				<c:when test="${tasca.priority == 2}">Molt alta</c:when>

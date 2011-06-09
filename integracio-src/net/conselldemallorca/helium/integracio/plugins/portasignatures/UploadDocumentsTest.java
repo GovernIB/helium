@@ -50,7 +50,7 @@ public class UploadDocumentsTest {
 				"Document de prova d'integració",
 				arxiuNom,
 				arxiuContingut,
-				122,
+				999,
 				"Gestor d'expedients administratius Helium",
 				null,
 				dataLimit);

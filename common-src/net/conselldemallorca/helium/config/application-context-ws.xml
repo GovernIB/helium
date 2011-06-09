@@ -128,10 +128,10 @@
 	<jaxws:endpoint 
 		id="dadesExpedientExempleService" 
 		implementor="net.conselldemallorca.helium.integracio.dadesexp.service.DadesExpedientExempleImpl" 
-		address="/DadesExpedientExemple"/-->
+		address="/DadesExpedientExemple"/>
 	<jaxws:endpoint 
 		id="iniciFormulariExempleService" 
 		implementor="net.conselldemallorca.helium.integracio.forms.IniciFormulariExempleImpl" 
-		address="/IniciFormulariExemple"/>
+		address="/IniciFormulariExemple"/-->
 
 </beans>

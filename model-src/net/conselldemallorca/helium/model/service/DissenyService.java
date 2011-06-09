@@ -131,11 +131,16 @@ public class DissenyService {
 					entornId,
 					dpd.getKey());
 			if (darrera != null) {
-				if ((darrera.getExpedientTipus() != null && expedientTipusId == null)) {
+				if (darrera.getExpedientTipus() != null && expedientTipusId == null) {
 					throw new DeploymentException("Aquesta definició de procés ja està desplegada a dins el tipus d'expedient \"" + darrera.getExpedientTipus().getNom() + "\"");
 				}
 				if (darrera.getExpedientTipus() == null && expedientTipusId != null) {
 					throw new DeploymentException("Aquesta definició de procés ja està desplegada a dins l'entorn");
+				}
+				if (darrera.getExpedientTipus() != null && expedientTipusId != null) {
+					if (expedientTipusId.longValue() != darrera.getExpedientTipus().getId().longValue()) {
+						throw new DeploymentException("Aquesta definició de procés ja està desplegada a dins el tipus d'expedient \"" + darrera.getExpedientTipus().getNom() + "\"");
+					}
 				}
 			}
 			Entorn entorn = entornDao.getById(entornId, false);

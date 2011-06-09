@@ -728,7 +728,7 @@ public class TascaService {
 					PREFIX_DOCUMENT + codiVariable);
 		if (documentStoreId == null)
 			return null;
-		return dtoConverter.toDocumentDto(documentStoreId, true, false, false);
+		return dtoConverter.toDocumentDto(documentStoreId, true, false, false, false);
 	}
 
 	public DocumentDto getDocumentAmbToken(
@@ -738,7 +738,7 @@ public class TascaService {
 		String[] parts = tokenDesxifrat.split("#");
 		if (parts.length == 2) {
 			Long documentStoreId = Long.parseLong(parts[1]);
-			return dtoConverter.toDocumentDto(documentStoreId, ambContingut, false, false);
+			return dtoConverter.toDocumentDto(documentStoreId, ambContingut, false, false, false);
 		} else {
 			throw new IllegalArgumentsException("El format del token és incorrecte");
 		}
@@ -753,7 +753,7 @@ public class TascaService {
 			JbpmTask task = comprovarSeguretatTasca(entornId, parts[0], null, true);
 			TascaDto tascaDto = toTascaDto(task, null, false);
 			Long documentStoreId = Long.parseLong(parts[1]);
-			DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, true, true, true);
+			DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, true, true, true, true);
 			if (document != null) {
 				// Comprova que es tengui accés a signar el document
 				boolean trobat = false;

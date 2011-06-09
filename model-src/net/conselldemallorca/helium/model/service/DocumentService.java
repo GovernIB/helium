@@ -33,11 +33,11 @@ public class DocumentService {
 
 
 	public DocumentDto arxiuDocumentInfo(Long documentStoreId) {
-		return dtoConverter.toDocumentDto(documentStoreId, false, false, false);
+		return dtoConverter.toDocumentDto(documentStoreId, false, false, false, false);
 	}
 
 	public ArxiuDto arxiuDocumentOriginal(Long documentStoreId) {
-		DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, true, false, false);
+		DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, true, false, false, false);
 		if (document == null)
 			return null;
 		return new ArxiuDto(
@@ -46,7 +46,7 @@ public class DocumentService {
 	}
 
 	public ArxiuDto arxiuDocumentVista(Long documentStoreId) {
-		DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, true, true, false);
+		DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, true, true, false, false);
 		if (document == null)
 			return null;
 		return new ArxiuDto(
@@ -70,7 +70,12 @@ public class DocumentService {
 		String[] parts = tokenDesxifrat.split("#");
 		if (parts.length == 2) {
 			Long documentStoreId = Long.parseLong(parts[1]);
-			DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, true, true, estampar);
+			DocumentDto document = dtoConverter.toDocumentDto(
+					documentStoreId,
+					true,
+					true,
+					true,
+					estampar);
 			if (document == null)
 				return null;
 			return new ArxiuDto(

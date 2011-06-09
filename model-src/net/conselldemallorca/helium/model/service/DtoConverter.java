@@ -488,6 +488,7 @@ public class DtoConverter {
 			Long documentStoreId,
 			boolean ambContingut,
 			boolean ambVista,
+			boolean perSignar,
 			boolean ambSegellSignatura) {
 		if (documentStoreId != null) {
 			DocumentStore document = documentStoreDao.getById(documentStoreId, false);
@@ -551,13 +552,15 @@ public class DtoConverter {
 							arxiuOriginalNom = dto.getArxiuNom();
 							arxiuOriginalContingut = dto.getArxiuContingut();
 						}
-						String actiuConversio = (String)GlobalProperties.getInstance().get("app.conversio.vista.actiu");
-						if (actiuConversio == null)
-							actiuConversio = (String)GlobalProperties.getInstance().get("app.conversio.signatura.actiu");
-						if ("true".equalsIgnoreCase(actiuConversio)) {
-							String extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.extension");
-							if (extensioVista == null)
+						if (isActiuConversioVista() || isActiuConversioSignatura()) {
+							String extensioVista = null;
+							if (perSignar) {
 								extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
+							} else {
+								extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.extension");
+								if (extensioVista == null)
+									extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.gentasca.extension");
+							}
 							dto.setVistaNom(dto.getArxiuNomSenseExtensio() + "." + extensioVista);
 							try {
 								ByteArrayOutputStream vistaContingut = new ByteArrayOutputStream();
@@ -943,7 +946,7 @@ public class DtoConverter {
 			if (documentStoreId != null) {
 				resposta.put(
 						document.getDocument().getCodi(),
-						toDocumentDto(documentStoreId, false, false, false));
+						toDocumentDto(documentStoreId, false, false, false, false));
 			}
 		}
 		return resposta;
@@ -961,7 +964,7 @@ public class DtoConverter {
 				if (documentStoreId != null) {
 					resposta.put(
 							document.getCodi(),
-							toDocumentDto(documentStoreId, false, false, false));
+							toDocumentDto(documentStoreId, false, false, false, false));
 				}
 			}
 			// Afegeix els adjunts
@@ -970,7 +973,7 @@ public class DtoConverter {
 					Long documentStoreId = (Long)valors.get(var);
 					resposta.put(
 							var.substring(TascaService.PREFIX_ADJUNT.length()),
-							toDocumentDto(documentStoreId, false, false, false));
+							toDocumentDto(documentStoreId, false, false, false, false));
 				}
 			}
 		}
@@ -992,7 +995,7 @@ public class DtoConverter {
 							processInstanceId,
 							TascaService.PREFIX_DOCUMENT + signatura.getDocument().getCodi());
 				if (documentStoreId != null) {
-					DocumentDto dto = toDocumentDto(documentStoreId, false, false, false);
+					DocumentDto dto = toDocumentDto(documentStoreId, false, false, false, false);
 					if (dto != null) {
 						dto.setTokenSignatura(xifrarToken(taskId + "#" + documentStoreId.toString()));
 						Object signatEnTasca = jbpmDao.getTaskInstanceVariable(taskId, TascaService.PREFIX_SIGNATURA + dto.getDocumentCodi());
@@ -1079,21 +1082,25 @@ public class DtoConverter {
 						} else if (camp.isMultiple()) {
 							Object valor = valors.get(key);
 							if (valor != null) {
-								List<String> texts = new ArrayList<String>();
-								for (int i = 0; i < Array.getLength(valor); i++) {
-									String t = null;
-									if (camp.getTipus().equals(TipusCamp.SUGGEST) || camp.getTipus().equals(TipusCamp.SELECCIO)) {
-										if (valorsMultiplesDomini.get(key).size() > i)
-											t = textPerCamp(camp, Array.get(valor, i), valorsMultiplesDomini.get(key).get(i));
-										else
-											t = "!" + Array.get(valor, i) + "!";
-									} else {
-										t = textPerCamp(camp, Array.get(valor, i), null);
+								if (valor instanceof Object[]) {
+									List<String> texts = new ArrayList<String>();
+									for (int i = 0; i < Array.getLength(valor); i++) {
+										String t = null;
+										if (camp.getTipus().equals(TipusCamp.SUGGEST) || camp.getTipus().equals(TipusCamp.SELECCIO)) {
+											if (valorsMultiplesDomini.get(key).size() > i)
+												t = textPerCamp(camp, Array.get(valor, i), valorsMultiplesDomini.get(key).get(i));
+											else
+												t = "!" + Array.get(valor, i) + "!";
+										} else {
+											t = textPerCamp(camp, Array.get(valor, i), null);
+										}
+										if (t != null)
+											texts.add(t);
 									}
-									if (t != null)
-										texts.add(t);
+									resposta.put(key, texts);
+								} else {
+									logger.warn("No s'ha pogut convertir el camp " + camp.getCodi() + "a text: El camp és múltiple però el seu valor no és un array (" + valor.getClass().getName() + ")");
 								}
-								resposta.put(key, texts);
 							} else {
 								resposta.put(key, null);
 							}
@@ -1261,6 +1268,23 @@ public class DtoConverter {
 
 	private boolean isSignaturaFileAttached() {
 		return "true".equalsIgnoreCase((String)GlobalProperties.getInstance().get("app.signatura.plugin.file.attached"));
+	}
+
+	private boolean isActiuConversioVista() {
+		String actiuConversio = (String)GlobalProperties.getInstance().get("app.conversio.actiu");
+		if (!"true".equalsIgnoreCase(actiuConversio))
+			return false;
+		String actiuConversioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.actiu");
+		if (actiuConversioVista == null)
+			actiuConversioVista = (String)GlobalProperties.getInstance().get("app.conversio.gentasca.actiu");
+		return "true".equalsIgnoreCase(actiuConversioVista);
+	}
+	private boolean isActiuConversioSignatura() {
+		String actiuConversio = (String)GlobalProperties.getInstance().get("app.conversio.actiu");
+		if (!"true".equalsIgnoreCase(actiuConversio))
+			return false;
+		String actiuConversioSignatura = (String)GlobalProperties.getInstance().get("app.conversio.signatura.actiu");
+		return "true".equalsIgnoreCase(actiuConversioSignatura);
 	}
 
 	private PdfUtils getPdfUtils() {

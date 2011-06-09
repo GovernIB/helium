@@ -112,7 +112,7 @@ public class PluginService {
 			String transicioOK,
 			String transicioKO) throws Exception {
 		try {
-			DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, true, true, true);
+			DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, true, true, true, true);
 			String documentTitol = expedient.getIdentificador() + ": " + document.getDocumentNom();
 			Integer doc = pluginPortasignaturesDao.uploadDocument(
 							persona,
@@ -250,6 +250,7 @@ public class PluginService {
 			Long documentStoreId) throws Exception {
 		DocumentDto document = dtoConverter.toDocumentDto(
 				documentStoreId,
+				true,
 				true,
 				true,
 				true);

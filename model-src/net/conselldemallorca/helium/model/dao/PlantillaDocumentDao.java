@@ -476,6 +476,7 @@ public class PlantillaDocumentDao {
 											documents.get(i).getId(),
 											false,
 											false,
+											false,
 											false);
 								}
 								return new BeanModel(
@@ -502,6 +503,7 @@ public class PlantillaDocumentDao {
 							for (int i = 0; i < resposta.length; i++) {
 								resposta[i] = dtoConverter.toDocumentDto(
 										documents.get(i).getId(),
+										false,
 										false,
 										false,
 										false);
