@@ -90,11 +90,11 @@ public class ExpedientConsultaController extends BaseController {
 			List<Estat> resposta = dissenyService.findEstatAmbEntorn(entorn.getId());
 			Estat iniciat = new Estat();
 			iniciat.setId(new Long(0));
-			iniciat.setNom("Iniciat");
+			iniciat.setNom( getMessage("txt.iniciat") );
 			resposta.add(0, iniciat);
 			Estat finalitzat = new Estat();
 			finalitzat.setId(new Long(-1));
-			finalitzat.setNom("Finalitzat");
+			finalitzat.setNom( getMessage("txt.finalitzat") );
 			resposta.add(finalitzat);
 			return resposta;
 		}

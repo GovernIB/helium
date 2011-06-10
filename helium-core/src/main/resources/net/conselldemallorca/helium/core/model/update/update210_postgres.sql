@@ -58,3 +58,16 @@ SELECT
     clock_timestamp() data_execucio_script
 FROM DUAL
 WHERE (SELECT COUNT(*) FROM HEL_VERSIO WHERE ORDRE = 210) = 0;
+
+-- Camps per definir si s'ha de generar una alerta quan se completa una tasca amb un termini associat --
+alter table hel_termini add column alerta_completat BOOLEAN;
+UPDATE hel_termini set alerta_completat = false;
+
+alter table hel_termini_iniciat add column data_completat DATE;
+alter table hel_termini_iniciat add column alerta_completat BOOLEAN;
+UPDATE hel_termini_iniciat set alerta_completat = false;
+
+-- Prioritat i causa de les alertes --
+alter table hel_alerta add column prioritat INTEGER;
+alter table hel_alerta add column causa CHARACTER VARYING(255);
+

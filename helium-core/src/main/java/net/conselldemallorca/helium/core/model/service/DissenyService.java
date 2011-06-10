@@ -84,6 +84,8 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.stereotype.Service;
 
 
@@ -119,6 +121,7 @@ public class DissenyService {
 
 	private DtoConverter dtoConverter;
 	private JbpmDao jbpmDao;
+	private MessageSource messageSource;
 
 	private Map<Long, Boolean> hasStartTask = new HashMap<Long, Boolean>();
 
@@ -138,10 +141,10 @@ public class DissenyService {
 					dpd.getKey());
 			if (darrera != null) {
 				if ((darrera.getExpedientTipus() != null && expedientTipusId == null)) {
-					throw new DeploymentException("Aquesta definició de procés ja està desplegada a dins el tipus d'expedient \"" + darrera.getExpedientTipus().getNom() + "\"");
+					throw new DeploymentException( getMessage("error.dissenyService.defprocDesplTipusExp", new Object[]{darrera.getExpedientTipus().getNom()}) );
 				}
 				if (darrera.getExpedientTipus() == null && expedientTipusId != null) {
-					throw new DeploymentException("Aquesta definició de procés ja està desplegada a dins l'entorn");
+					throw new DeploymentException( getMessage("error.dissenyService.defprocDesplEntorn") );
 				}
 			}
 			Entorn entorn = entornDao.getById(entornId, false);
@@ -180,7 +183,7 @@ public class DissenyService {
 			}
 			return definicioProces;
 		} else {
-			throw new DeploymentException("L'arxiu no conté cap definició de procés.");
+			throw new DeploymentException( getMessage("error.dissenyService.noConte") );
 		}
 	}
 
@@ -198,7 +201,7 @@ public class DissenyService {
 					deleteTermini(termini.getId());
 				definicioProcesDao.delete(definicioProcesId);
 			} else {
-				throw new IllegalArgumentException("No s'ha especificat cap entorn o la definició de procés no correspon amb l'entorn especificat");
+				throw new IllegalArgumentException( getMessage("error.dissenyService.noEntorn") );
 			}
 		} else {
 			if (comprovarExpedientTipus(expedientTipusId, definicioProcesId)) {
@@ -210,7 +213,7 @@ public class DissenyService {
 					deleteTermini(termini.getId());
 				definicioProcesDao.delete(definicioProcesId);
 			} else {
-				throw new IllegalArgumentException("No s'ha especificat cap tipus d'expedient o la definició de procés no correspon amb el tipus d'expedient especificat");
+				throw new IllegalArgumentException( getMessage("error.dissenyService.noTipusExp") );
 			}
 		}
 	}
@@ -228,7 +231,7 @@ public class DissenyService {
 			DefinicioProces definicioProces = definicioProcesDao.getById(id, false);
 			return toDto(definicioProces);
 		} else {
-			throw new IllegalArgumentException("No s'ha especificat cap entorn o la definició de procés no correspon amb l'entorn especificat");
+			throw new IllegalArgumentException( getMessage("error.dissenyService.noEntorn") );
 		}
 	}
 
@@ -1140,7 +1143,7 @@ public class DissenyService {
 				zos.close();
 				definicioProcesExportacio.setContingutDeploy(baos.toByteArray());
 			} catch (Exception ex) {
-				throw new ExportException("Error generant el contingut del desplegament", ex);
+				throw new ExportException(getMessage("error.dissenyService.generantContingut"), ex);
 			}
 		}
         return definicioProcesExportacio;
@@ -1214,7 +1217,7 @@ public class DissenyService {
 		try {
 			return dominiDao.consultar(dominiId, null, params);
 		} catch (Exception ex) {
-			throw new DominiException("Error consultant el domini", ex);
+			throw new DominiException(getMessage("error.dissenyService.consultantDomini"), ex);
 		}
 	}
 
@@ -1618,6 +1621,10 @@ public class DissenyService {
 	public void setJbpmDao(JbpmDao jbpmDao) {
 		this.jbpmDao = jbpmDao;
 	}
+	@Autowired
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
 
 
 
@@ -1875,6 +1882,7 @@ public class DissenyService {
 			nou.setDiesPrevisAvis(termini.getDiesPrevisAvis());
 			nou.setAlertaPrevia(termini.isAlertaPrevia());
 			nou.setAlertaFinal(termini.isAlertaFinal());
+			nou.setAlertaCompletat(termini.isAlertaCompletat());
 			terminiDao.saveOrUpdate(nou);
 		}
 		// Propaga les dades de les tasques
@@ -1982,14 +1990,14 @@ public class DissenyService {
 				if (enumeracio != null)
 					nou.setEnumeracio(enumeracio);
 				else
-					throw new DeploymentException("L'enumeració '" + camp.getCodiEnumeracio() + "' no està definida");
+					throw new DeploymentException( getMessage("error.dissenyService.enumNoDefinida", new Object[]{camp.getCodiEnumeracio()}) );
 			}
 			if (camp.getCodiDomini() != null) {
 				Domini domini = dominiDao.findAmbEntornICodi(entornId, camp.getCodiDomini());
 				if (domini != null)
 					nou.setDomini(domini);
 				else
-					throw new DeploymentException("El domini '" + camp.getCodiDomini() + "' no està definit");
+					throw new DeploymentException( getMessage("error.dissenyService.dominiNoDefinit", new Object[]{camp.getCodiDomini()}) );
 			}
 			if (camp.getAgrupacioCodi() != null)
 				nou.setAgrupacio(agrupacions.get(camp.getAgrupacioCodi()));
@@ -2055,6 +2063,7 @@ public class DissenyService {
 			nou.setDiesPrevisAvis(termini.getDiesPrevisAvis());
 			nou.setAlertaPrevia(termini.isAlertaPrevia());
 			nou.setAlertaFinal(termini.isAlertaFinal());
+			nou.setAlertaCompletat(termini.isAlertaCompletat());
 			terminiDao.saveOrUpdate(nou);
 		}
 		// Propaga les tasques
@@ -2138,6 +2147,22 @@ public class DissenyService {
 		Integer maxOrdre = campDao.getNextOrdre(definicioProcesId, camp.getAgrupacio().getId());
 		camp.setOrdre(maxOrdre);
 		campDao.merge(camp);
+	}
+	
+	
+	protected String getMessage(String key, Object[] vars) {
+		try {
+			return messageSource.getMessage(
+					key,
+					vars,
+					null);
+		} catch (NoSuchMessageException ex) {
+			return "???" + key + "???";
+		}
+	}
+
+	protected String getMessage(String key) {
+		return getMessage(key, null);
 	}
 
 }

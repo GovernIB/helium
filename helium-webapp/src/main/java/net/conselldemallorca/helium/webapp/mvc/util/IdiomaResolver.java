@@ -51,10 +51,8 @@ public class IdiomaResolver implements LocaleResolver, Serializable {
 	}
 	
 	public IdiomaResolver() {
-		String disponibles = GlobalProperties.getInstance().getProperty("app.idiomes.disponibles");
-		if (disponibles != null)
-			setIdiomesDisponibles(disponibles.split(","));
-		setIdiomaDefecte(GlobalProperties.getInstance().getProperty("app.idioma.defecte"));
+		setIdiomesDisponibles( GlobalProperties.getInstance().getProperty("app.idiomes.disponibles") );
+		setIdiomaDefecte( GlobalProperties.getInstance().getProperty("app.idioma.defecte") );
 	}
 
 	public Locale resolveLocale(HttpServletRequest request) {
@@ -138,12 +136,13 @@ public class IdiomaResolver implements LocaleResolver, Serializable {
 		return idiomaDefecte;
 	}
 
-	public void setIdiomesDisponibles(String idiomesDisponibles[]) {
-		if ( idiomesDisponibles!=null && idiomesDisponibles.length>0 ) {
+	public void setIdiomesDisponibles(String idiomesDisponibles) {
+		if ( idiomesDisponibles!=null && idiomesDisponibles!="" ) {
 			this.idiomesDisponibles = new ArrayList<Locale>();
 			LocaleEditor localeEditor = new LocaleEditor();
-			
-			for ( String idioma: idiomesDisponibles ) {
+
+			String idiomes[] = idiomesDisponibles.split(",");
+			for ( String idioma: idiomes ) {
 				localeEditor.setAsText(idioma);
 				this.idiomesDisponibles.add( (Locale)localeEditor.getValue() );
 			}

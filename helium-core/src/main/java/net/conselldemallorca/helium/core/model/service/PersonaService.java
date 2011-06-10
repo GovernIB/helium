@@ -18,6 +18,8 @@ import net.conselldemallorca.helium.core.model.hibernate.Usuari;
 import net.conselldemallorca.helium.core.model.hibernate.UsuariPreferencies;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.security.annotation.Secured;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -35,6 +37,7 @@ public class PersonaService {
 	private UsuariDao usuariDao;
 	private PermisDao permisDao;
 	private UsuariPreferenciesDao usuariPreferenciesDao;
+	private MessageSource messageSource;
 
 
 
@@ -103,9 +106,9 @@ public class PersonaService {
 			if (usuari != null)
 				usuariDao.canviContrasenya(usuari.getId(), contrasenya);
 			else
-				throw new NotFoundException("La persona #" + id + " no té el login activat");
+				throw new NotFoundException( getMessage("error.personaService.noLogin", new Object[]{id}) );
 		} else {
-			throw new NotFoundException("La persona #" + id + " no existeix");
+			throw new NotFoundException( getMessage("error.personaService.noExisteix", new Object[]{id}) );
 		}
 	}
 	@Secured({"ROLE_ADMIN"})
@@ -216,6 +219,10 @@ public class PersonaService {
 	public void setUsuariPreferenciesDao(UsuariPreferenciesDao usuariPreferenciesDao) {
 		this.usuariPreferenciesDao = usuariPreferenciesDao;
 	}
+	@Autowired
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
 
 
 
@@ -282,4 +289,19 @@ public class PersonaService {
 		return dto;
 	}
 
+	
+	protected String getMessage(String key, Object[] vars) {
+		try {
+			return messageSource.getMessage(
+					key,
+					vars,
+					null);
+		} catch (NoSuchMessageException ex) {
+			return "???" + key + "???";
+		}
+	}
+
+	protected String getMessage(String key) {
+		return getMessage(key, null);
+	}
 }

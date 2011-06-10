@@ -26,6 +26,8 @@ import net.conselldemallorca.helium.core.model.hibernate.Carrec;
 import net.conselldemallorca.helium.core.model.hibernate.CarrecJbpmId;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.security.annotation.Secured;
 import org.springframework.stereotype.Service;
 
@@ -44,6 +46,7 @@ public class OrganitzacioService {
 	private PluginPersonaDao pluginPersonaDao;
 	private CarrecDao carrecDao;
 	private CarrecJbpmIdDao carrecJbpmIdDao;
+	private MessageSource messageSource;
 
 
 
@@ -101,14 +104,14 @@ public class OrganitzacioService {
 			Long carrecId) {
 		Area area = areaDao.getById(areaId, false);
 		if (area == null)
-			throw new NotFoundException("No s'ha trobat l'area amb id:" + areaId);
+			throw new NotFoundException( getMessage("error.orgService.trobarArea", new Object[]{areaId}) );
 		PersonaDto persona = pluginPersonaDao.findAmbCodiPlugin(personaCodi);
 		if (persona == null)
-			throw new NotFoundException("No s'ha trobat la persona amb el codi:" + personaCodi);
+			throw new NotFoundException( getMessage("error.orgService.trobarPersona", new Object[]{personaCodi}) );
 		if (carrecId != null) {
 			Carrec carrec = carrecDao.getById(carrecId, false);
 			if (carrec == null)
-				throw new NotFoundException("No s'ha trobat el càrrec amb id:" + carrecId);
+				throw new NotFoundException( getMessage("error.orgService.trobarCarrec", new Object[]{carrecId}) );
 			/*if (carrec.getPersonaCodi() != null)
 				throw new NotFoundException("No està disponible el càrrec amb id:" + carrecId);*/
 			carrec.setPersonaCodi(persona.getCodi());
@@ -126,10 +129,10 @@ public class OrganitzacioService {
 			String personaCodi) {
 		Area area = areaDao.getById(areaId, false);
 		if (area == null)
-			throw new NotFoundException("No s'ha trobat l'area amb id:" + areaId);
+			throw new NotFoundException( getMessage("error.orgService.trobarArea", new Object[]{areaId}) );
 		PersonaDto persona = pluginPersonaDao.findAmbCodiPlugin(personaCodi);
 		if (persona == null)
-			throw new NotFoundException("No s'ha trobat la persona amb el codi:" + personaCodi);
+			throw new NotFoundException( getMessage("error.orgService.trobarPersona", new Object[]{personaCodi}) );
 		List<Carrec> carrecs = carrecDao.findAmbArea(areaId);
 		for (Carrec carrec: carrecs) {
 			if (personaCodi.equals(carrec.getPersonaCodi())) {
@@ -316,6 +319,10 @@ public class OrganitzacioService {
 	public void setCarrecJbpmIdDao(CarrecJbpmIdDao carrecJbpmIdDao) {
 		this.carrecJbpmIdDao = carrecJbpmIdDao;
 	}
+	@Autowired
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
 
 
 
@@ -389,5 +396,21 @@ public class OrganitzacioService {
 		String tipusCodi = area.getTipus().getCodi();
 		return tipusCodi + "." + entornCodi + "#" + area.getCodi();
 	}*/
+	
+	
+	protected String getMessage(String key, Object[] vars) {
+		try {
+			return messageSource.getMessage(
+					key,
+					vars,
+					null);
+		} catch (NoSuchMessageException ex) {
+			return "???" + key + "???";
+		}
+	}
+
+	protected String getMessage(String key) {
+		return getMessage(key, null);
+	}
 
 }

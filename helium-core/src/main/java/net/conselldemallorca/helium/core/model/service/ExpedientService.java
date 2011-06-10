@@ -75,6 +75,8 @@ import org.apache.commons.logging.LogFactory;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -108,6 +110,7 @@ public class ExpedientService {
 
 	private JbpmDao jbpmDao;
 	private DtoConverter dtoConverter;
+	private MessageSource messageSource;
 
 
 
@@ -285,7 +288,7 @@ public class ExpedientService {
 				expedient.getNumero(),
 				expedient.getNumeroDefault());
 		if (expedientDao.findAmbEntornTipusINumero(entornId, expedientTipusId, expedient.getNumero()) != null) {
-			throw new ExpedientRepetitException("Ja existeix un altre expedient amb el mateix número (" + expedient.getNumero() + ")");
+			throw new ExpedientRepetitException(getMessage("error.expedientService.jaExisteix", new Object[]{expedient.getNumero()}) );
 		}
 		if (expedientTipus.getTeTitol()) {
 			if (titol != null && titol.length() > 0)
@@ -408,7 +411,7 @@ public class ExpedientService {
 					expedient.getId(),
 					SecurityContextHolder.getContext().getAuthentication().getName());
 		} else {
-			throw new NotFoundException("No existeix l'expedient per l'entorn");
+			throw new NotFoundException(getMessage("error.expedientService.noExisteix"));
 		}
 	}
 	public List<ExpedientDto> findAmbEntorn(Long entornId) {
@@ -690,7 +693,7 @@ public class ExpedientService {
 						dataDocument,
 						model));
 			} catch (Exception ex) {
-				throw new TemplateException("No s'ha pogut generar el document", ex);
+				throw new TemplateException(getMessage("error.expedientService.generarDocument"), ex);
 			}
 		} else {
 			resposta.setArxiuContingut(document.getArxiuContingut());
@@ -1116,6 +1119,10 @@ public class ExpedientService {
 	public void setPluginPersonaDao(PluginPersonaDao pluginPersonaDao) {
 		this.pluginPersonaDao = pluginPersonaDao;
 	}
+	@Autowired
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
 
 
 
@@ -1352,7 +1359,23 @@ public class ExpedientService {
 	private void comprovarUsuari(String usuari) {
 		PersonaDto persona = pluginPersonaDao.findAmbCodiPlugin(usuari);
 		if (persona == null)
-			throw new IllegalArgumentsException("No s'ha trobat la persona amb codi '" + usuari + "'");
+			throw new IllegalArgumentsException( getMessage("error.expedientService.trobarPersona", new Object[]{usuari}) );
+	}
+	
+	
+	protected String getMessage(String key, Object[] vars) {
+		try {
+			return messageSource.getMessage(
+					key,
+					vars,
+					null);
+		} catch (NoSuchMessageException ex) {
+			return "???" + key + "???";
+		}
+	}
+
+	protected String getMessage(String key) {
+		return getMessage(key, null);
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientService.class);

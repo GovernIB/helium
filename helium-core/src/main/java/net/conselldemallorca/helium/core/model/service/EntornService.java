@@ -43,6 +43,8 @@ import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.security.acl.AclServiceDao;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.security.acls.objectidentity.ObjectIdentity;
 import org.springframework.security.acls.objectidentity.ObjectIdentityImpl;
 import org.springframework.security.annotation.Secured;
@@ -68,6 +70,7 @@ public class EntornService {
 	private EstatDao estatDao;
 	private MapeigSistraDao mapeigSistraDao;
 	private AclServiceDao aclServiceDao;
+	private MessageSource messageSource;
 
 
 
@@ -328,7 +331,7 @@ public class EntornService {
 	public void importar(Long entornId, EntornExportacio exportacio) {
 		Entorn entorn = entornDao.getById(entornId, false);
 		if (entorn == null)
-			throw new NotFoundException("No s'ha trobat l'entorn amb id:" + entornId);
+			throw new NotFoundException( getMessage("error.entornService.entornNoTrobat", new Object[]{entornId}) );
 		// Crea els tipus d'area
 		Map<String, AreaTipus> areesTipus = new HashMap<String, AreaTipus>();
 		for (AreaTipusExportacio areaTipus: exportacio.getAreesTipus()) {
@@ -600,6 +603,10 @@ public class EntornService {
 	public void setAclServiceDao(AclServiceDao aclServiceDao) {
 		this.aclServiceDao = aclServiceDao;
 	}
+	@Autowired
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
 
 
 
@@ -651,5 +658,21 @@ public class EntornService {
 		} catch (org.springframework.security.acls.NotFoundException ignored) {}
 		return false;
 	}*/
+	
+	
+	protected String getMessage(String key, Object[] vars) {
+		try {
+			return messageSource.getMessage(
+					key,
+					vars,
+					null);
+		} catch (NoSuchMessageException ex) {
+			return "???" + key + "???";
+		}
+	}
+
+	protected String getMessage(String key) {
+		return getMessage(key, null);
+	}
 
 }

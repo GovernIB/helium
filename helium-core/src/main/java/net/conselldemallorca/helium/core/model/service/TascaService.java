@@ -18,6 +18,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
 
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
+import net.conselldemallorca.helium.core.model.dao.AlertaDao;
 import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentStoreDao;
@@ -30,6 +31,7 @@ import net.conselldemallorca.helium.core.model.dao.PluginGestioDocumentalDao;
 import net.conselldemallorca.helium.core.model.dao.PluginSignaturaDao;
 import net.conselldemallorca.helium.core.model.dao.RegistreDao;
 import net.conselldemallorca.helium.core.model.dao.TascaDao;
+import net.conselldemallorca.helium.core.model.dao.TerminiIniciatDao;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
@@ -41,6 +43,7 @@ import net.conselldemallorca.helium.core.model.exception.IllegalStateException;
 import net.conselldemallorca.helium.core.model.exception.NotFoundException;
 import net.conselldemallorca.helium.core.model.exception.PluginException;
 import net.conselldemallorca.helium.core.model.exception.TemplateException;
+import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
@@ -53,6 +56,7 @@ import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.FormulariExtern;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
+import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
@@ -66,6 +70,8 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -107,6 +113,9 @@ public class TascaService {
 	private RegistreDao registreDao;
 	private FormulariExternDao formulariExternDao;
 	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
+	private TerminiIniciatDao terminiIniciatDao;
+	private AlertaDao alertaDao;
+	private MessageSource messageSource;
 
 	private OpenOfficeUtils openOfficeUtils;
 
@@ -431,7 +440,7 @@ public class TascaService {
 			String taskId) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		if (!isTascaValidada(task))
-			throw new IllegalStateException("La tasca no ha estat validada");
+			throw new IllegalStateException( getMessage("error.tascaService.noValidada") );
 		//deleteDocumentsTasca(taskId);
 		restaurarTasca(taskId);
 		TascaDto tasca = toTascaDto(task, null, true);
@@ -463,11 +472,11 @@ public class TascaService {
 			String outcome) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, comprovarAssignacio);
 		if (!isTascaValidada(task))
-			throw new IllegalStateException("El formulari no ha estat validat");
+			throw new IllegalStateException( getMessage("error.tascaService.formNoValidat") );
 		if (!isDocumentsComplet(task))
-			throw new IllegalStateException("Falten documents per adjuntar");
+			throw new IllegalStateException( getMessage("error.tascaService.faltenAdjuntar") );
 		if (!isSignaturesComplet(task))
-			throw new IllegalStateException("Falten documents per signar");
+			throw new IllegalStateException( getMessage("error.tascaService.faltenSignar") );
 		jbpmDao.startTaskInstance(taskId);
 		jbpmDao.completeTaskInstance(task.getId(), outcome);
 		// Accions per a una tasca delegada
@@ -499,6 +508,8 @@ public class TascaService {
 				taskId,
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				"Finalitzar \"" + tasca.getNom() + "\"");
+		
+		actualitzarTerminisIniciatsIAlertes(taskId, expedient);
 	}
 
 	public Object getVariable(
@@ -584,7 +595,7 @@ public class TascaService {
 			String usuari) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);
 		if (!isTascaValidada(task))
-			throw new IllegalStateException("La tasca no ha estat validada");
+			throw new IllegalStateException( getMessage("error.tascaService.noValidada") );
 		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(task.getProcessDefinitionId());
@@ -744,7 +755,7 @@ public class TascaService {
 			Long documentStoreId = Long.parseLong(parts[1]);
 			return dtoConverter.toDocumentDto(documentStoreId, ambContingut, false, false, false);
 		} else {
-			throw new IllegalArgumentsException("El format del token és incorrecte");
+			throw new IllegalArgumentsException( getMessage("error.tascaService.tokenIncorrecte") );
 		}
 	}
 	public boolean signarDocumentAmbToken(
@@ -814,13 +825,13 @@ public class TascaService {
 					}
 					return custodiat;
 				} else {
-					throw new IllegalStateException("Aquest document no està disponible per signar");
+					throw new IllegalStateException( getMessage("error.tascaService.docNoDisponible") );
 				}
 			} else {
-				throw new IllegalStateException("Aquest document no està disponible per signar");
+				throw new IllegalStateException( getMessage("error.tascaService.docNoDisponible") );
 			}
 		} else {
-			throw new IllegalArgumentsException("El format del token és incorrecte");
+			throw new IllegalArgumentsException( getMessage("error.tascaService.tokenIncorrecte") );
 		}
 	}
 
@@ -883,7 +894,7 @@ public class TascaService {
 							resposta.getArxiuContingut());
 				}
 			} catch (Exception ex) {
-				throw new TemplateException("No s'ha pogut generar el document", ex);
+				throw new TemplateException(getMessage("error.tascaService.generarDocument"), ex);
 			}
 		} else {
 			resposta.setArxiuContingut(document.getArxiuContingut());
@@ -921,7 +932,7 @@ public class TascaService {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		DelegationInfo delegationInfo = getDelegationInfo(task);
 		if (delegationInfo == null || !taskId.equals(delegationInfo.getSourceTaskId())) {
-			throw new IllegalStateException("No es pot cancel·lar la delegació d'aquesta tasca");
+			throw new IllegalStateException( getMessage("error.tascaService.cancelarDelegacio") );
 		}
 		// Cancelar la tasca delegada
 		jbpmDao.cancelTaskInstance(delegationInfo.getTargetTaskId());
@@ -937,7 +948,7 @@ public class TascaService {
 				task.getName(),
 				task.getProcessDefinitionId());
 		if (tasca.getFormExtern() == null)
-			throw new IllegalStateException("Aquesta tasca no té definit cap formulari extern");
+			throw new IllegalStateException( getMessage("error.tascaService.noFormExtern") );
 		Map<String, Object> vars = jbpmDao.getTaskInstanceVariables(task.getId());
 		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
@@ -1082,30 +1093,44 @@ public class TascaService {
 			PluginGestioDocumentalDao pluginGestioDocumentalDao) {
 		this.pluginGestioDocumentalDao = pluginGestioDocumentalDao;
 	}
+	@Autowired
+	public void setTerminiIniciatDao(
+			TerminiIniciatDao terminiIniciatDao) {
+		this.terminiIniciatDao = terminiIniciatDao;
+	}
+	@Autowired
+	public void setAlertaDao(
+			AlertaDao alertaDao) {
+		this.alertaDao = alertaDao;
+	}
+	@Autowired
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
 
 
 
 	private JbpmTask comprovarSeguretatTasca(Long entornId, String taskId, String usuari, boolean comprovarAssignacio) {
 		JbpmTask task = jbpmDao.getTaskById(taskId);
 		if (task == null) {
-			throw new NotFoundException("No s'ha trobat la tasca");
+			throw new NotFoundException( getMessage("error.tascaService.noTrobada") );
 		}
 		Entorn entorn = entornPerTasca(task);
 		if (entorn == null || !entorn.getId().equals(entornId)) {
-			throw new NotFoundException("No s'ha trobat la tasca");
+			throw new NotFoundException( getMessage("error.tascaService.noTrobada") );
 		}
 		if (comprovarAssignacio) {
 			if (usuari == null) {
 				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 				if (!auth.getName().equals(task.getAssignee()))
-					throw new NotFoundException("Aquest usuari no té aquesta tasca assignada");
+					throw new NotFoundException( getMessage("error.tascaService.noAssignada") );
 			} else {
 				if (!usuari.equals(task.getAssignee()))
-					throw new NotFoundException("Aquest usuari no té aquesta tasca assignada");
+					throw new NotFoundException( getMessage("error.tascaService.noAssignada") );
 			}
 		}
 		if (task.isSuspended()) {
-			throw new IllegalStateException("Aquesta tasca no està disponible");
+			throw new IllegalStateException( getMessage("error.tascaService.noDisponible") );
 		}
 		return task;
 	}
@@ -1513,6 +1538,55 @@ public class TascaService {
 			dto.setExpedientProcessInstanceId(expedient.getProcessInstanceId());
 		}
 		return dto;
+	}
+	
+	private void actualitzarTerminisIniciatsIAlertes(String taskId, Expedient expedient) {
+		List<TerminiIniciat> terminisIniciats = terminiIniciatDao.findAmbTaskInstanceId( new Long(taskId) );
+		for (TerminiIniciat terminiIniciat: terminisIniciats) {
+			terminiIniciat.setDataCompletat(new Date());
+			esborrarAlertesAntigues(terminiIniciat);
+			if ( terminiIniciat.getTermini().isAlertaCompletat() && !terminiIniciat.isAlertaCompletat() ) {
+				JbpmTask task = jbpmDao.getTaskById(taskId);
+				if (task.getAssignee() != null) {
+					crearAlertaCompletat(terminiIniciat, task.getAssignee(), expedient);
+				} else {
+					for (String actor: task.getPooledActors())
+						crearAlertaCompletat(terminiIniciat, actor, expedient);
+				}
+				terminiIniciat.setAlertaCompletat(true);
+			}
+		}
+	}
+	private void crearAlertaCompletat(TerminiIniciat terminiIniciat, String destinatari, Expedient expedient) {
+		Alerta alerta = new Alerta(
+				new Date(),
+				destinatari,
+				Alerta.AlertaPrioritat.MOLT_BAIXA,
+				terminiIniciat.getTermini().getDefinicioProces().getEntorn());
+		alerta.setExpedient(expedient);
+		alerta.setTerminiIniciat(terminiIniciat);
+		alertaDao.saveOrUpdate(alerta);
+	}
+	private void esborrarAlertesAntigues(TerminiIniciat terminiIniciat) {
+		List<Alerta> antigues = alertaDao.findActivesAmbTerminiIniciatId(terminiIniciat.getId());
+		for (Alerta antiga: antigues)
+			antiga.setDataEliminacio(new Date());
+	}
+	
+	
+	protected String getMessage(String key, Object[] vars) {
+		try {
+			return messageSource.getMessage(
+					key,
+					vars,
+					null);
+		} catch (NoSuchMessageException ex) {
+			return "???" + key + "???";
+		}
+	}
+
+	protected String getMessage(String key) {
+		return getMessage(key, null);
 	}
 
 	private static final Log logger = LogFactory.getLog(TascaService.class);

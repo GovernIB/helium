@@ -74,6 +74,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.stereotype.Service;
 
 
@@ -100,6 +102,7 @@ public class DtoConverter {
 	private PluginCustodiaDao pluginCustodiaDao;
 	private JbpmDao jbpmDao;
 	private EnumeracioValorsDao enumeracioValorsDao;
+	private MessageSource messageSource;
 
 	private PdfUtils pdfUtils;
 
@@ -704,7 +707,7 @@ public class DtoConverter {
 				}
 				return resultat;
 			} catch (Exception ex) {
-				throw new DominiException("No s'ha pogut consultar el domini", ex);
+				throw new DominiException(getMessage("error.dtoConverter.consultarDomini"), ex);
 			}
 		}
 		return new ArrayList<FilaResultat>();
@@ -790,6 +793,10 @@ public class DtoConverter {
 	@Autowired
 	public void setEnumeracioValorsDao(EnumeracioValorsDao enumeracioValorsDao) {
 		this.enumeracioValorsDao = enumeracioValorsDao;
+	}
+	@Autowired
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
 	}
 
 
@@ -1332,6 +1339,22 @@ public class DtoConverter {
 		if (pdfUtils == null)
 			pdfUtils = new PdfUtils();
 		return pdfUtils;
+	}
+	
+	
+	protected String getMessage(String key, Object[] vars) {
+		try {
+			return messageSource.getMessage(
+					key,
+					vars,
+					null);
+		} catch (NoSuchMessageException ex) {
+			return "???" + key + "???";
+		}
+	}
+
+	protected String getMessage(String key) {
+		return getMessage(key, null);
 	}
 
 	private static final Log logger = LogFactory.getLog(DtoConverter.class);

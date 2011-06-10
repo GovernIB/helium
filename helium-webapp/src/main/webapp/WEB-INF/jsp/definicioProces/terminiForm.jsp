@@ -102,7 +102,7 @@ function canviPredef(input) {
 				</c:param>
 			</c:import>
 			</div>
-			<script type="text/javascript">canviPredef(document.getElementById('duradaPredefinida0'))</script>
+			<script type="text/javascript">canviPredef(document.getElementById('duradaPredefinida0'));</script>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="laborable"/>
 				<c:param name="type" value="checkbox"/>
@@ -129,6 +129,11 @@ function canviPredef(input) {
 				<c:param name="property" value="alertaFinal"/>
 				<c:param name="type" value="checkbox"/>
 				<c:param name="label"><fmt:message key='defproc.termform.gen_alert_final' /></c:param>
+			</c:import>
+			<c:import url="../common/formElement.jsp">
+				<c:param name="property" value="alertaCompletat"/>
+				<c:param name="type" value="checkbox"/>
+				<c:param name="label"><fmt:message key='defproc.termform.gen_alert_complet' /></c:param>
 			</c:import>
 		</div>
 		<c:import url="../common/formElement.jsp">

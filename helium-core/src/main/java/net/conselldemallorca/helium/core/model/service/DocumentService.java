@@ -17,6 +17,8 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.stereotype.Service;
 
 
@@ -29,6 +31,7 @@ import org.springframework.stereotype.Service;
 public class DocumentService {
 
 	private DtoConverter dtoConverter;
+	private MessageSource messageSource;
 
 
 
@@ -82,7 +85,7 @@ public class DocumentService {
 					document.getVistaNom(),
 					document.getVistaContingut());
 		} else {
-			throw new IllegalArgumentsException("El format del token és incorrecte");
+			throw new IllegalArgumentsException( getMessage("error.documentService.formatIncorrecte") );
 		}
 	}
 
@@ -91,6 +94,10 @@ public class DocumentService {
 	@Autowired
 	public void setDtoConverter(DtoConverter dtoConverter) {
 		this.dtoConverter = dtoConverter;
+	}
+	@Autowired
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
 	}
 
 
@@ -112,6 +119,22 @@ public class DocumentService {
 			logger.error("No s'ha pogut desxifrar el token", ex);
 			return token;
 		}
+	}
+	
+	
+	protected String getMessage(String key, Object[] vars) {
+		try {
+			return messageSource.getMessage(
+					key,
+					vars,
+					null);
+		} catch (NoSuchMessageException ex) {
+			return "???" + key + "???";
+		}
+	}
+
+	protected String getMessage(String key) {
+		return getMessage(key, null);
 	}
 
 	private static final Log logger = LogFactory.getLog(DocumentService.class);

@@ -5,7 +5,6 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://www.opensymphony.com/sitemesh/decorator" prefix="decorator"%>
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="security" %>
-<%@page import="net.conselldemallorca.helium.core.model.update.Versio"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@page isErrorPage="true" %>
 <decorator:usePage id="pagina"/>
@@ -26,7 +25,6 @@
 	<link href="<c:url value="/css/common.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/layout.css"/>" rel="stylesheet" type="text/css"/>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.js"/>"></script>
-	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.extend.js"/>"></script>
 <%-- menu --%>
 	<link href="<c:url value="/css/dropdown/dropdown.css"/>" media="all" rel="stylesheet" type="text/css" />
 	<link href="<c:url value="/css/dropdown/themes/helium/helium.css"/>" media="all" rel="stylesheet" type="text/css" />
@@ -55,43 +53,47 @@
 			or not empty documents or not empty agrupacions or not empty accions or not empty recursos
 			or not empty terminis or not empty tokens}'/>
 	<c:if test="${hiHaTaula}">
+		<script type="text/javascript" src="<c:url value="/js/jquery/jquery.filtrartaula.js"/>"></script>
 		<script type="text/javascript">
 			$(document).ready(function(){
-				if ( $(".displaytag").length == 0 ) {
+				if ( $(".displaytag").length == 0 )
 					$("#filtre").hide();
-				} else {
+				
+				else {
 					
 					var $anchor = $("#filtre a:first");
 					var $input = $("#filtre input:first");
 					
-					$anchor.click(function(){
+					function inputShowCallback() {
+						$input.focus();
+						$anchor.css("top", "5px");
+						$anchor.css("left", "196px");
+						$anchor.show();
+					};
+					
+					function inputHideCallback() {
+						$input.css("visibility", "hidden");
+						$anchor.css("top", "5px");
+						$anchor.css("left", "3px");
+						$anchor.show();
+					};
+					
+					$anchor.click(function(event){
+						event.preventDefault();
 						if ( $input.css("visibility")=="hidden" ) {
 							$(this).hide();
 							$input.css("visibility", "visible");
-							$input.animate({width: "194px"}, 200);
-							setTimeout(function() {
-								$input.focus();
-								$anchor.css("top", "5px");
-								$anchor.css("left", "196px");
-								$anchor.show();
-							}, 200);
+							$input.animate({width: "194px"}, 200, null, inputShowCallback);
 						} else {
 							$(this).hide();
 							$input.val("");
 							$(".displaytag").children("tbody").find("tr").show();
 							$input.blur();
-							$input.animate({width: "0px"}, 200);
-							setTimeout(function() {
-								$input.css("visibility", "hidden");
-								$anchor.css("top", "5px");
-								$anchor.css("left", "3px");
-								$anchor.show();
-							}, 200);
+							$input.animate({width: "0px"}, 200, null, inputHideCallback);
 						}
-						return false;
 					});
 					
-					$("#filtre input").keyFilter(".displaytag");
+					$("#filtre input").filtrarTaula(".displaytag");
 					
 				}
 			});
@@ -130,7 +132,7 @@
 							<ul>
 								<c:forEach var="item" items="${disponibles}">
 									<c:if test="${item.codi!=actual.codi}">
-										<li class="image idioma"><a href="?lang=${item.codi}" style="background-image: url(<c:url value="/img/locale/${item.codi}.png"/>);">${item.nom}</a></li>
+										<li class="image idioma"><a href="<c:url value="/index.html"><c:param name="lang" value="${item.codi}" /></c:url>" style="background-image: url(<c:url value="/img/locale/${item.codi}.png"/>);">${item.nom}</a></li>
 									</c:if>
 								</c:forEach>
 							</ul>
@@ -149,7 +151,6 @@
 				</c:if>
 			</div>
 		</div>
-		
 		<div id="content">
 			<jsp:include page="../common/missatgesInfoError.jsp"/>
 			<decorator:body />
