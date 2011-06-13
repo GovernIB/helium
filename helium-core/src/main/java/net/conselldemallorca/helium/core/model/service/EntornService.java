@@ -473,6 +473,7 @@ public class EntornService {
 			nou.setFormextUsuari(expedientTipus.getFormextUsuari());
 			nou.setFormextContrasenya(expedientTipus.getFormextContrasenya());
 			expedientTipusDao.saveOrUpdate(nou);
+			// Crea els estats del tipus d'expedient.
 			for (EstatExportacio estat: expedientTipus.getEstats()) {
 				Estat enou = null;
 				if (nou.getId() != null) {
@@ -512,7 +513,7 @@ public class EntornService {
 				mapeigSistraDao.saveOrUpdate(mnou);
 			}
 			// Crea els dominis del tipus d'expedient.
-			for (DominiExportacio domini: exportacio.getDominis()) {
+			for (DominiExportacio domini: expedientTipus.getDominis()) {
 				Domini dnou = dominiDao.findAmbEntornICodi(
 						entornId,
 						domini.getCodi());
@@ -534,7 +535,7 @@ public class EntornService {
 				dominiDao.saveOrUpdate(dnou);
 			}
 			// Crea les enumeracions del tipus d'expedient.
-			for (EnumeracioExportacio enumeracio: exportacio.getEnumeracions()) {
+			for (EnumeracioExportacio enumeracio: expedientTipus.getEnumeracions()) {
 				Enumeracio nova = enumeracioDao.findAmbEntornICodi(
 						entornId,
 						enumeracio.getCodi());

@@ -34,6 +34,7 @@ public class ExpedientTipusExportacio implements Serializable {
 	private List<MapeigSistraExportacio> mapeigSistras;
 	private List<DominiExportacio> dominis;
 	private List<EnumeracioExportacio> enumeracions;
+	private List<DefinicioProcesExportacio> definicionsProces;
 
 
 
@@ -157,6 +158,14 @@ public class ExpedientTipusExportacio implements Serializable {
 	}
 	public void setEnumeracions(List<EnumeracioExportacio> enumeracions) {
 		this.enumeracions = enumeracions;
+	}
+
+	public List<DefinicioProcesExportacio> getDefinicionsProces() {
+		return definicionsProces;
+	}
+	public void setDefinicionsProces(
+			List<DefinicioProcesExportacio> definicionsProces) {
+		this.definicionsProces = definicionsProces;
 	}
 
 

@@ -71,3 +71,7 @@ UPDATE hel_termini_iniciat set alerta_completat = false;
 alter table hel_alerta add column prioritat INTEGER;
 alter table hel_alerta add column causa CHARACTER VARYING(255);
 
+-- Enumeracions a nivell de tipus d'expedient --
+alter table hel_enumeracio add column expedient_tipus_id BIGINT;
+alter table hel_enumeracio add CONSTRAINT hel_exptip_enumeracio_fk FOREIGN KEY (expedient_tipus_id) REFERENCES
+        public.hel_expedient_tipus (id);

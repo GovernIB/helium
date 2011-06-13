@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.core.model.exception.DeploymentException;
 import net.conselldemallorca.helium.core.model.exportacio.DefinicioProcesExportacio;
+import net.conselldemallorca.helium.core.model.exportacio.ExpedientTipusExportacio;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
@@ -67,7 +68,8 @@ public class DefinicioProcesDeployController extends BaseController {
 	public List<ParellaCodiValorDto> populateTipus() {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		resposta.add(new ParellaCodiValorDto("JBPM", getMessage("txt.desplegament.jbpm") ));
-		resposta.add(new ParellaCodiValorDto("EXPORT", getMessage("txt.exportacio.helium") ));
+		resposta.add(new ParellaCodiValorDto("EXPORTDEFPRC", getMessage("txt.exportacio.definicioProces") ));
+		resposta.add(new ParellaCodiValorDto("EXPORTTIPEXP", getMessage("txt.exportacio.tipusExpedient") ));
 		return resposta;
 	}
 	@ModelAttribute("command")
@@ -127,7 +129,7 @@ public class DefinicioProcesDeployController extends BaseController {
 				        			command.getEtiqueta(),
 				        			true);
 				        	missatgeInfo(request, getMessage("info.arxiu.desplegat") );
-		        		} else {
+		        		} else if (command.getTipus().equals("EXPORTDEFPRC")) {
 			        		InputStream is = new ByteArrayInputStream(multipartFile.getBytes());
 					    	ObjectInputStream input = new ObjectInputStream(is);
 					    	Object deserialitzat = input.readObject();
@@ -143,6 +145,21 @@ public class DefinicioProcesDeployController extends BaseController {
 					    	} else {
 					    		missatgeError(request, getMessage("error.arxius.no.valid") );
 					    	}
+		        		} else if (command.getTipus().equals("EXPORTTIPEXP")) {
+		        			InputStream is = new ByteArrayInputStream(multipartFile.getBytes());
+		    		    	ObjectInputStream input = new ObjectInputStream(is);
+		    		    	Object deserialitzat = input.readObject();
+		    		    	if (deserialitzat instanceof ExpedientTipusExportacio) {
+		    		    		ExpedientTipusExportacio exportacio = (ExpedientTipusExportacio)deserialitzat;
+		    		    		dissenyService.importarExpedientTipus(
+		    		        			entorn.getId(), 
+		    		        			null,
+		    		        			exportacio);
+		    		    		missatgeInfo(request, getMessage("info.dades.importat") );
+		    						return "redirect:/expedientTipus/llistat.html";
+		    		    	} else {
+		    		    		missatgeError(request, getMessage("error.arxiu.no.valid") );
+		    		    	}
 		        		}
 						return "redirect:/definicioProces/llistat.html";
 		        	} catch (ClassNotFoundException ex) {

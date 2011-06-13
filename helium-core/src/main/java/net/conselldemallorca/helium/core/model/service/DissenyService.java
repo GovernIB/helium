@@ -15,6 +15,8 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import javax.persistence.NonUniqueResultException;
+
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.model.dao.AccioDao;
 import net.conselldemallorca.helium.core.model.dao.CampAgrupacioDao;
@@ -41,6 +43,7 @@ import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.core.model.exception.DeploymentException;
 import net.conselldemallorca.helium.core.model.exception.DominiException;
 import net.conselldemallorca.helium.core.model.exception.ExportException;
+import net.conselldemallorca.helium.core.model.exception.NotFoundException;
 import net.conselldemallorca.helium.core.model.exportacio.AccioExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.AgrupacioExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.CampExportacio;
@@ -48,7 +51,12 @@ import net.conselldemallorca.helium.core.model.exportacio.CampTascaExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.DefinicioProcesExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.DocumentExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.DocumentTascaExportacio;
+import net.conselldemallorca.helium.core.model.exportacio.DominiExportacio;
+import net.conselldemallorca.helium.core.model.exportacio.EnumeracioExportacio;
+import net.conselldemallorca.helium.core.model.exportacio.EstatExportacio;
+import net.conselldemallorca.helium.core.model.exportacio.ExpedientTipusExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.FirmaTascaExportacio;
+import net.conselldemallorca.helium.core.model.exportacio.MapeigSistraExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.RegistreMembreExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.TascaExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.TerminiExportacio;
@@ -62,6 +70,7 @@ import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
+import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
@@ -959,6 +968,64 @@ public class DissenyService {
 		}
 	}
 
+	public ExpedientTipusExportacio exportarTipusExpedient(Long expedientTipusId) {
+		ExpedientTipus expedientTipus = expedientTipusDao.getById(expedientTipusId, false);
+		
+		ExpedientTipusExportacio dto = new ExpedientTipusExportacio(expedientTipus.getCodi(), expedientTipus.getNom());
+		
+		dto.setTeNumero(expedientTipus.getTeNumero());
+		dto.setTeTitol(expedientTipus.getTeTitol());
+		dto.setDemanaNumero(expedientTipus.getDemanaNumero());
+		dto.setDemanaTitol(expedientTipus.getDemanaTitol());
+		dto.setExpressioNumero(expedientTipus.getExpressioNumero());
+		dto.setReiniciarCadaAny(expedientTipus.isReiniciarCadaAny());
+		dto.setSistraTramitCodi(expedientTipus.getSistraTramitCodi());
+		dto.setFormextUrl(expedientTipus.getFormextUrl());
+		dto.setFormextUsuari(expedientTipus.getFormextUsuari());
+		dto.setFormextContrasenya(expedientTipus.getFormextContrasenya());
+		List<EstatExportacio> estats = new ArrayList<EstatExportacio>();
+		for (Estat estat: expedientTipus.getEstats()) {
+			estats.add(new EstatExportacio(estat.getCodi(), estat.getNom(), estat.getOrdre()));
+		}
+		dto.setEstats(estats);
+		List<MapeigSistraExportacio> mapeigs = new ArrayList<MapeigSistraExportacio>();
+		for (MapeigSistra mapeig : expedientTipus.getMapeigSistras()){
+			mapeigs.add(new MapeigSistraExportacio(mapeig.getCodiHelium(), mapeig.getCodiSistra(), mapeig.getTipus()));
+		}
+		dto.setMapeigSistras(mapeigs);
+		List<DominiExportacio> dominisExp = new ArrayList<DominiExportacio>();
+		for (Domini domini : expedientTipus.getDominis()){
+			DominiExportacio dtoExp = new DominiExportacio(
+					domini.getCodi(),
+					domini.getNom(),
+					domini.getTipus().toString());
+			dtoExp.setDescripcio(domini.getDescripcio());
+			dtoExp.setUrl(domini.getUrl());
+			dtoExp.setJndiDatasource(domini.getJndiDatasource());
+			dtoExp.setSql(domini.getSql());
+			dtoExp.setCacheSegons(domini.getCacheSegons());
+			dominisExp.add(dtoExp);
+		}
+		dto.setDominis(dominisExp); 
+		List<EnumeracioExportacio> enumeracionsExp = new ArrayList<EnumeracioExportacio>();
+		for (Enumeracio enumeracio: expedientTipus.getEnumeracions()) {
+			EnumeracioExportacio dtoExp = new EnumeracioExportacio(
+					enumeracio.getCodi(),
+					enumeracio.getNom(),
+					enumeracioValorsDao.findAmbEnumeracio(enumeracio.getId()));
+			enumeracionsExp.add(dtoExp);
+		}
+		dto.setEnumeracions(enumeracionsExp);
+		
+		List<DefinicioProcesExportacio> definicionsProces = new ArrayList<DefinicioProcesExportacio>();
+		for (DefinicioProces definicio : expedientTipus.getDefinicionsProces()){
+			definicionsProces.add(exportar(definicio.getId()));
+		}
+		dto.setDefinicionsProces(definicionsProces);
+		
+		return dto;
+	}
+	
 	public DefinicioProcesExportacio exportar(Long definicioProcesId) {
 		DefinicioProcesExportacio definicioProcesExportacio = new DefinicioProcesExportacio();
 		// Afegeix els camps
@@ -1177,7 +1244,7 @@ public class DissenyService {
 				exportacio,
 				definicioProces);
 	}
-
+	
 	public Domini getDominiById(Long id) {
 		return dominiDao.getById(id, false);
 	}
@@ -1942,6 +2009,149 @@ public class DissenyService {
 		}
 	}
 
+	public void importarExpedientTipus(
+			Long entornId,
+			Long expedientTipusId,
+			ExpedientTipusExportacio exportacio) {
+		Entorn entorn = entornDao.getById(entornId, false);
+		if (entorn == null)
+			throw new DeploymentException("No s'ha trobat l'entorn amb id: " + entornId);
+
+		ExpedientTipus expedientTipus;
+		// Si no se pasa un Id de expediente (se le llama desde desplegar arxiu), se creará el nuevo tipo de expediente.
+		if (expedientTipusId == null){
+			// Comprobamos que no exista ya un tipo de expediente con el mismo código.
+			expedientTipus = expedientTipusDao.findAmbEntornICodi(entornId, exportacio.getCodi());
+			//if (expedientTipusDao.findAmbEntornICodi(entornId, exportacio.getCodi()) == null) {
+			if (expedientTipus == null) {
+				expedientTipus = new ExpedientTipus(exportacio.getCodi(), exportacio.getNom(), entorn);
+			} else {
+				throw new DeploymentException("Tipus d'expedient ja existent: " + exportacio.getCodi());
+			}  
+		// Si se pasa un Id, lo buscamos en BBDD.
+		} else {
+			expedientTipus = expedientTipusDao.getById(expedientTipusId, false);
+			if (expedientTipus == null)
+				throw new DeploymentException("No s'ha trobat l'expedient amb id: " + expedientTipusId);
+		}
+		
+		// Comprobamos que el codi del fichero a importar y del expediente a modificar son el mismo.
+		if (!(expedientTipus.getCodi().equals(exportacio.getCodi()))){
+			throw new DeploymentException("El codi del tipus d'expedient no correspon amb el del tipus a importar: "  + exportacio.getCodi());
+		}
+		
+		expedientTipus.setNom(exportacio.getNom());
+		expedientTipus.setTeNumero(exportacio.getTeNumero());
+		expedientTipus.setTeTitol(exportacio.getTeTitol());
+		expedientTipus.setDemanaNumero(exportacio.getDemanaNumero());
+		expedientTipus.setDemanaTitol(exportacio.getDemanaTitol());
+		expedientTipus.setExpressioNumero(exportacio.getExpressioNumero());
+		expedientTipus.setReiniciarCadaAny(exportacio.isReiniciarCadaAny());
+		expedientTipus.setSistraTramitCodi(exportacio.getSistraTramitCodi());
+		/*expedientTipus.setSistraTramitMapeigCamps(exportacio.getSistraTramitMapeigCamps());
+		expedientTipus.setSistraTramitMapeigDocuments(exportacio.getSistraTramitMapeigDocuments());
+		expedientTipus.setSistraTramitMapeigAdjunts(exportacio.getSistraTramitMapeigAdjunts());*/
+		expedientTipus.setFormextUrl(exportacio.getFormextUrl());
+		expedientTipus.setFormextUsuari(exportacio.getFormextUsuari());
+		expedientTipus.setFormextContrasenya(exportacio.getFormextContrasenya());
+		expedientTipusDao.saveOrUpdate(expedientTipus);
+		// Crea els estats del tipus d'expedient.
+		for (EstatExportacio estat: exportacio.getEstats()) {
+			Estat enou = null;
+			if (expedientTipus.getId() != null) {
+				enou = estatDao.findAmbExpedientTipusICodi(
+					expedientTipus.getId(),
+					estat.getCodi());
+			}
+			if (enou == null) {
+				enou = new Estat(
+						expedientTipus,
+						estat.getCodi(),
+						estat.getNom());
+			} else {
+				enou.setNom(estat.getNom());
+			}
+			enou.setOrdre(estat.getOrdre());
+			estatDao.saveOrUpdate(enou);
+		}
+		// Crea els mapejos del tipus d'expedient.
+		for (MapeigSistraExportacio mapeig: exportacio.getMapeigSistras()) {
+			MapeigSistra mnou = null;
+			if (expedientTipus.getId() != null) {
+				mnou = mapeigSistraDao.findAmbExpedientTipusICodi(
+						expedientTipus.getId(),
+					mapeig.getCodiHelium());
+			}
+			if (mnou == null) {
+				mnou = new MapeigSistra(
+						expedientTipus,
+						mapeig.getCodiHelium(),
+						mapeig.getCodiSistra(),
+						mapeig.getTipus());
+			} else {
+				mnou.setCodiSistra(mapeig.getCodiSistra());
+				mnou.setTipus(mapeig.getTipus());
+			}
+			mapeigSistraDao.saveOrUpdate(mnou);
+		}
+		// Crea els dominis del tipus d'expedient.
+		for (DominiExportacio domini: exportacio.getDominis()) {
+			Domini dnou = dominiDao.findAmbEntornICodi(
+					entornId,
+					domini.getCodi());
+			if (dnou == null) {
+				dnou = new Domini(
+						domini.getCodi(),
+						domini.getNom(),
+						entorn);
+				dnou.setExpedientTipus(expedientTipus);
+			} else {
+				dnou.setNom(domini.getNom());
+			}
+			dnou.setDescripcio(domini.getDescripcio());
+			dnou.setTipus(TipusDomini.valueOf(domini.getTipus()));
+			dnou.setCacheSegons(domini.getCacheSegons());
+			dnou.setSql(domini.getSql());
+			dnou.setJndiDatasource(domini.getJndiDatasource());
+			dnou.setUrl(domini.getUrl());
+			dominiDao.saveOrUpdate(dnou);
+		}
+		// Crea les enumeracions del tipus d'expedient.
+		for (EnumeracioExportacio enumeracio: exportacio.getEnumeracions()) {
+			Enumeracio nova = enumeracioDao.findAmbEntornICodi(
+					entornId,
+					enumeracio.getCodi());
+			if (nova == null) {
+				nova = new Enumeracio(
+						entorn,
+						enumeracio.getCodi(),
+						enumeracio.getNom());
+				nova.setExpedientTipus(expedientTipus);
+			} else {
+				nova.setNom(enumeracio.getNom());
+			}
+			
+			for (EnumeracioValors enumValors : enumeracio.getValors()) {
+				EnumeracioValors novaEnumValors = new EnumeracioValors();
+				novaEnumValors.setCodi(enumValors.getCodi());
+				novaEnumValors.setNom(enumValors.getNom());
+				novaEnumValors.setEnumeracio(nova);
+				nova.addEnumeracioValors(novaEnumValors);
+			}
+			
+			enumeracioDao.saveOrUpdate(nova);
+		}
+		
+		for (DefinicioProcesExportacio definicio : exportacio.getDefinicionsProces()) {
+			importar(
+				entornId,
+				expedientTipus.getId(),
+				definicio,
+				null);
+		}
+		
+	}
+	
 	private void importacio(
 			Long entornId,
 			DefinicioProcesExportacio exportacio,
