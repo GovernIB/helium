@@ -9,8 +9,6 @@ import java.util.Map;
 
 import javax.jws.WebService;
 
-import net.conselldemallorca.helium.core.extern.formulari.GuardarFormulari;
-import net.conselldemallorca.helium.core.extern.formulari.ParellaCodiValor;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@WebService(endpointInterface = "net.conselldemallorca.helium.core.extern.formulari.GuardarFormulari")
+@WebService(
+		endpointInterface = "net.conselldemallorca.helium.ws.formulari.GuardarFormulari",
+		targetNamespace = "http://forms.integracio.helium.conselldemallorca.net/")
 public class GuardarFormulariImpl implements GuardarFormulari {
 
 	private TascaService tascaService;

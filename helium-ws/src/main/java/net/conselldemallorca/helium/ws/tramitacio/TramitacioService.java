@@ -15,7 +15,9 @@ import javax.xml.bind.annotation.XmlSeeAlso;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @XmlSeeAlso({Object[].class, Object[][].class})
-@WebService(name="TramitacioService")
+@WebService(
+		name="TramitacioService",
+		targetNamespace = "http://tramitacio.integracio.helium.conselldemallorca.net/")
 public interface TramitacioService {
 
 	/**
