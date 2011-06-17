@@ -54,7 +54,6 @@ function confirmarDelegar(e) {
 		<dt><fmt:message key='tasca.info.expedient' /></dt><dd><a href="<c:url value="/expedient/info.html"><c:param name="id" value="${tasca.expedient.processInstanceId}"/></c:url>" title="<fmt:message key='tasca.info.detalls_exp' />">${tasca.expedient.identificador}</a></dd>
 		<dt><fmt:message key='comuns.tipus_exp' /></dt><dd>${tasca.expedient.tipus.nom}</dd>
 		<dt><fmt:message key='tasca.info.data_creacio' /></dt><dd><fmt:formatDate value="${tasca.createTime}" pattern="dd/MM/yyyy HH:mm"/></dd>
-		<c:if test="${not empty tasca.description}"><dt><fmt:message key='comuns.descripcio' /></dt><dd>${tasca.description}</dd></c:if>
 		<dt><fmt:message key='tasca.info.prioritat' /></dt><dd>
 			<c:choose>
 				<c:when test="${tasca.priority == 2}"><fmt:message key='tasca.info.m_alta' /></c:when>

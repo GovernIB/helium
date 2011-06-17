@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
+import com.lowagie.text.Chunk;
 import com.lowagie.text.Element;
 import com.lowagie.text.Font;
 import com.lowagie.text.Image;
@@ -106,11 +107,8 @@ public class PdfUtils {
 		Rectangle page = contentByte.getPdfDocument().getPageSize();
 		float pageWidth = page.getWidth();
 		float pageHeight = page.getHeight();
-		float ampladaTaula = pageWidth;
-		if (pageHeight < ampladaTaula)
-			ampladaTaula = pageHeight;
-		ampladaTaula -= (2 * MARGE);
 		if (posicio == BARCODE_POSITION_TOP || posicio == BARCODE_POSITION_BOTTOM) {
+			float ampladaTaulaMax = pageWidth - (2 * MARGE);
 			// Crea la cel·la del codi de barres
 			BarcodePDF417 pdf417 = new BarcodePDF417();
 			pdf417.setText(url);
@@ -118,18 +116,25 @@ public class PdfUtils {
 			PdfPCell pdf417Cell = new PdfPCell(img);
 			pdf417Cell.setBorder(0);
 			pdf417Cell.setFixedHeight(img.getHeight());
+			float imgCellWidth = img.getWidth();
 			// Crea la cel·la amb la url
-			PdfPCell urlCell = new PdfPCell(new Phrase(url, new Font(Font.HELVETICA, 6)));
+			Font urlFont = new Font(Font.HELVETICA, 6);
+			Chunk urlChunk = new Chunk(url, urlFont);
+			Phrase urlPhrase = new Phrase(urlChunk);
+			PdfPCell urlCell = new PdfPCell(urlPhrase);
 			urlCell.setPadding(0);
 			urlCell.setBorder(0);
 			urlCell.setFixedHeight(img.getHeight());
 			urlCell.setUseAscender(true);
 			urlCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			urlCell.setPaddingLeft(paddingUrl);
+			float urlWidth = urlChunk.getWidthPoint() + 5;
+			float urlCellWidth = (imgCellWidth + urlWidth > ampladaTaulaMax) ? ampladaTaulaMax - imgCellWidth : urlWidth;
 			// Estampa el codi de barres en la posició elegida
 			PdfPTable table = new PdfPTable(2);
 			table.addCell(pdf417Cell);
 			table.addCell(urlCell);
+			float ampladaTaula = imgCellWidth + urlCellWidth;
 			table.setWidths(new float[]{img.getWidth(), ampladaTaula - img.getWidth()});
 			table.setTotalWidth(ampladaTaula);
 			if (posicio == BARCODE_POSITION_TOP) {
@@ -138,6 +143,7 @@ public class PdfUtils {
 				table.writeSelectedRows(0, -1, (pageWidth / 2) - (ampladaTaula / 2), MARGE + img.getHeight(), contentByte);
 			}
 		} else {
+			float ampladaTaulaMax = pageHeight - (2 * MARGE);
 			// Crea la cel·la del codi de barres
 			BarcodePDF417 pdf417 = new BarcodePDF417();
 			pdf417.setText(url);
@@ -146,21 +152,28 @@ public class PdfUtils {
 			pdf417Cell.setBorder(1);
 			pdf417Cell.setFixedHeight(img.getWidth());
 			pdf417Cell.setRotation(90);
+			float imgCellWidth = img.getWidth();
 			// Crea la cel·la amb la url
-			PdfPCell urlCell = new PdfPCell(new Phrase(url, new Font(Font.HELVETICA, 6)));
+			Font urlFont = new Font(Font.HELVETICA, 6);
+			Chunk urlChunk = new Chunk(url, urlFont);
+			Phrase urlPhrase = new Phrase(urlChunk);
+			PdfPCell urlCell = new PdfPCell(urlPhrase);
 			urlCell.setPadding(0);
 			urlCell.setBorder(0);
-			urlCell.setFixedHeight(ampladaTaula - img.getWidth());
 			urlCell.setUseAscender(true);
 			urlCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			urlCell.setPaddingBottom(paddingUrl);
 			urlCell.setRotation(90);
+			float urlWidth = urlChunk.getWidthPoint() + 5;
+			float urlCellWidth = (imgCellWidth + urlWidth > ampladaTaulaMax) ? ampladaTaulaMax - imgCellWidth : urlWidth;
+			urlCell.setFixedHeight(urlCellWidth);
 			// Estampa el codi de barres en la posició elegida
 			PdfPTable table = new PdfPTable(1);
 			table.addCell(urlCell);
 			table.addCell(pdf417Cell);
 			table.setWidths(new float[]{img.getHeight()});
 			table.setTotalWidth(img.getHeight());
+			float ampladaTaula = imgCellWidth + urlCellWidth;
 			if (posicio == BARCODE_POSITION_LEFT) {
 				table.writeSelectedRows(0, -1, MARGE, pageHeight - (pageHeight / 2) + (ampladaTaula / 2), contentByte);
 			} else {
@@ -250,6 +263,7 @@ public class PdfUtils {
 					fileContent,
 					true,
 					"http://www.google.es/search?hl=ca&client=firefox-a&rls=org.mozilla%3Aca%3Aofficial&q=itext+pdfpcell+width&aq=f&aqi=&aql=&oq=",
+					//"Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
 					true,
 					"69/2011",
 					"23 Gen 2011",

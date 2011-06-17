@@ -13,10 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.crypto.Cipher;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.DESKeySpec;
-
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.model.dao.AlertaDao;
 import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
@@ -55,8 +51,9 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.FormulariExtern;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
+import net.conselldemallorca.helium.core.util.DocumentTokenUtils;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
@@ -65,8 +62,6 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,6 +113,7 @@ public class TascaService {
 	private MessageSource messageSource;
 
 	private OpenOfficeUtils openOfficeUtils;
+	private DocumentTokenUtils documentTokenUtils;
 
 
 
@@ -748,26 +744,22 @@ public class TascaService {
 
 	public DocumentDto getDocumentAmbToken(
 			String token,
-			boolean ambContingut) {
-		String tokenDesxifrat = desxifrarToken(token);
-		String[] parts = tokenDesxifrat.split("#");
-		if (parts.length == 2) {
-			Long documentStoreId = Long.parseLong(parts[1]);
-			return dtoConverter.toDocumentDto(documentStoreId, ambContingut, false, false, false);
-		} else {
-			throw new IllegalArgumentsException( getMessage("error.tascaService.tokenIncorrecte") );
-		}
+			boolean ambContingut) throws Exception {
+		String[] tokenDesxifrat = getDocumentTokenUtils().desxifrarTokenMultiple(token);
+		Long documentStoreId = Long.parseLong(tokenDesxifrat[0]);
+		if (tokenDesxifrat.length == 2)
+			documentStoreId = Long.parseLong(tokenDesxifrat[1]);
+		return dtoConverter.toDocumentDto(documentStoreId, ambContingut, false, false, false);
 	}
 	public boolean signarDocumentAmbToken(
 			Long entornId,
 			String token,
-			byte[] signatura) {
-		String tokenDesxifrat = desxifrarToken(token);
-		String[] parts = tokenDesxifrat.split("#");
-		if (parts.length == 2) {
-			JbpmTask task = comprovarSeguretatTasca(entornId, parts[0], null, true);
+			byte[] signatura) throws Exception {
+		String[] tokenDesxifrat = getDocumentTokenUtils().desxifrarTokenMultiple(token);
+		if (tokenDesxifrat.length == 2) {
+			JbpmTask task = comprovarSeguretatTasca(entornId, tokenDesxifrat[0], null, true);
 			TascaDto tascaDto = toTascaDto(task, null, false);
-			Long documentStoreId = Long.parseLong(parts[1]);
+			Long documentStoreId = Long.parseLong(tokenDesxifrat[1]);
 			DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, true, true, true, true);
 			if (document != null) {
 				// Comprova que es tengui accés a signar el document
@@ -819,7 +811,7 @@ public class TascaService {
 								SecurityContextHolder.getContext().getAuthentication().getName(),
 								document.getDocumentCodi());
 						jbpmDao.setTaskInstanceVariable(
-								parts[0],
+								tokenDesxifrat[0],
 								PREFIX_SIGNATURA + document.getDocumentCodi(),
 								documentStoreId);
 					}
@@ -1440,25 +1432,6 @@ public class TascaService {
 		return jbpmDao.getTaskInstanceVariables(task.getId());
 	}
 
-	private String desxifrarToken(String token) {
-		try {
-			String secretKey = GlobalProperties.getInstance().getProperty("app.signatura.secret");
-			if (secretKey == null)
-				secretKey = DEFAULT_SECRET_KEY;
-			SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance(DEFAULT_KEY_ALGORITHM);
-			Cipher cipher = Cipher.getInstance(DEFAULT_ENCRYPTION_SCHEME);
-			cipher.init(
-					Cipher.DECRYPT_MODE,
-					secretKeyFactory.generateSecret(new DESKeySpec(secretKey.getBytes())));
-			byte[] base64Bytes = Base64.decodeBase64(Hex.decodeHex(token.toCharArray()));
-			byte[] encryptedText = cipher.doFinal(base64Bytes);
-			return new String(encryptedText);
-		} catch (Exception ex) {
-			logger.error("No s'ha pogut desxifrar el token", ex);
-			return token;
-		}
-	}
-
 	private String nomArxiuAmbExtensio(String fileName, String extensio) {
 		if (extensio == null || extensio.length() == 0)
 			return fileName;
@@ -1509,6 +1482,13 @@ public class TascaService {
 		if (openOfficeUtils == null)
 			openOfficeUtils = new OpenOfficeUtils();
 		return openOfficeUtils;
+	}
+
+	private DocumentTokenUtils getDocumentTokenUtils() {
+		if (documentTokenUtils == null)
+			documentTokenUtils = new DocumentTokenUtils(
+					(String)GlobalProperties.getInstance().get("app.encriptacio.clau"));
+		return documentTokenUtils;
 	}
 
 	private TascaLlistatDto toTascaLlistatDto(

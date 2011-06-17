@@ -117,6 +117,7 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 	 * 
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unchecked")
 	public List<byte[]> obtenirSignaturesDocument(
 			Integer documentId) throws PortasignaturesPluginException {
 		
@@ -145,7 +146,6 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 			DownloadResponse response = stub.downloadDocument(request);
 			if (response.getResult().getCode() == 0) {
 				List<byte[]> resposta = new ArrayList<byte[]>();
-				@SuppressWarnings("rawtypes")
 				Iterator attachs = stub._getCall().getMessageContext().getCurrentMessage().getAttachments();
 				if (attachs.hasNext()) {
 					AttachmentPart attach = (AttachmentPart)attachs.next();

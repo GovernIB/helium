@@ -3,13 +3,14 @@
  */
 package net.conselldemallorca.helium.integracio.plugins.custodia;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.conselldemallorca.helium.integracio.plugins.util.AlfrescoUtils;
-import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
+import net.conselldemallorca.helium.integracio.plugins.util.AlfrescoUtils;
 
 import org.alfresco.webservice.types.Reference;
 import org.apache.commons.logging.Log;
@@ -43,6 +44,9 @@ public class CustodiaPluginAlfresco implements CustodiaPlugin {
 			String tipusDocument,
 			byte[] signatura) throws CustodiaPluginException {
 		try {
+			FileOutputStream fos = new FileOutputStream("c:/signatura.pdf");
+			fos.write(signatura);
+			fos.close();
 			alfrescoUtils.startAlfrescoSession();
 			Reference parent = alfrescoUtils.getParent(
 					alfrescoUtils.getReferenceForUuid(gesdocId));

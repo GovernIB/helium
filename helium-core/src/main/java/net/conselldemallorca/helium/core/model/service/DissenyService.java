@@ -155,6 +155,11 @@ public class DissenyService {
 				if (darrera.getExpedientTipus() == null && expedientTipusId != null) {
 					throw new DeploymentException( getMessage("error.dissenyService.defprocDesplEntorn") );
 				}
+				if (darrera.getExpedientTipus() != null && expedientTipusId != null) {
+					if (expedientTipusId.longValue() != darrera.getExpedientTipus().getId().longValue()) {
+						throw new DeploymentException("Aquesta definició de procés ja està desplegada a dins el tipus d'expedient \"" + darrera.getExpedientTipus().getNom() + "\"");
+					}
+				}
 			}
 			Entorn entorn = entornDao.getById(entornId, false);
 			// Crea la nova definició de procés

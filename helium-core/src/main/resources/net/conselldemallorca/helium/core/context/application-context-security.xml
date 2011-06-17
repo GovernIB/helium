@@ -56,12 +56,21 @@
 			</beans:map>
 		</beans:property>
 	</beans:bean>
-	<beans:bean id="mappableRolesRetriever" class="net.conselldemallorca.helium.core.security.j2ee.RolesBasedMappableAttributesRetriever"/>
+	<beans:bean id="mappableAttributesRetriever" class="net.conselldemallorca.helium.security.j2ee.RolesBasedMappableAttributesRetriever">
+		<beans:property name="defaultMappableAttributes">
+			<beans:list>
+				<beans:value>HEL_ADMIN</beans:value>
+				<beans:value>HEL_USER</beans:value>
+				<beans:value>TOTHOM</beans:value>
+				<beans:value>tothom</beans:value>
+			</beans:list>
+		</beans:property>
+	</beans:bean>
 	<beans:bean id="j2eePreauthFilter" class="org.springframework.security.ui.preauth.j2ee.J2eePreAuthenticatedProcessingFilter">
 		<custom-filter position="PRE_AUTH_FILTER"/>
 		<beans:property name="authenticationDetailsSource">
 			<beans:bean class="net.conselldemallorca.helium.core.security.j2ee.RolesBasedPreAuthenticatedWebAuthenticationDetailsSource">
-				<beans:property name="mappableRolesRetriever" ref="mappableRolesRetriever"/>
+				<beans:property name="mappableRolesRetriever" ref="mappableAttributesRetriever"/>
 				<beans:property name="userRoles2GrantedAuthoritiesMapper" ref="attributes2GrantedAuthoritiesMapper"/>
 			</beans:bean>
 		</beans:property>
