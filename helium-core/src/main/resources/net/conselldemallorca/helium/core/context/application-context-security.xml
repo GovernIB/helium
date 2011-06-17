@@ -56,7 +56,7 @@
 			</beans:map>
 		</beans:property>
 	</beans:bean>
-	<beans:bean id="mappableAttributesRetriever" class="net.conselldemallorca.helium.security.j2ee.RolesBasedMappableAttributesRetriever">
+	<beans:bean id="mappableAttributesRetriever" class="net.conselldemallorca.helium.core.security.j2ee.RolesBasedMappableAttributesRetriever">
 		<beans:property name="defaultMappableAttributes">
 			<beans:list>
 				<beans:value>HEL_ADMIN</beans:value>
