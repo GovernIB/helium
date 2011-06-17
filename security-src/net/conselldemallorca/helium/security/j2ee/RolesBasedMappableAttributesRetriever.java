@@ -30,15 +30,20 @@ public class RolesBasedMappableAttributesRetriever implements MappableAttributes
 	private SessionFactory sessionFactory;
 	private PermisService permisService;
 
+	private List<String> defaultMappableAttributes;
+
 	private List<String> mappableAttributes = new ArrayList<String>();
 
 
 
 	public String[] getMappableAttributes() {
-		if (permisService != null) {
+		if (permisService != null)
 			refrescarMappableAttributes();
-		}
 		return mappableAttributes.toArray(new String[mappableAttributes.size()]);
+	}
+
+	public void setDefaultMappableAttributes(List<String> defaultMappableAttributes) {
+		this.defaultMappableAttributes = defaultMappableAttributes;
 	}
 
 	@Autowired
@@ -50,15 +55,21 @@ public class RolesBasedMappableAttributesRetriever implements MappableAttributes
 		this.sessionFactory = sessionFactory;
 	}
 
+
+
 	@SuppressWarnings("unchecked")
 	private void refrescarMappableAttributes() {
+		mappableAttributes.clear();
+		if (defaultMappableAttributes != null)
+			mappableAttributes.addAll(defaultMappableAttributes);
 		String source = GlobalProperties.getInstance().getProperty("app.jbpm.identity.source");
 		if (source.equalsIgnoreCase("helium")) {
-			mappableAttributes.clear();
-			for (Permis permis: permisService.findAll())
-				mappableAttributes.add(permis.getCodi());
+			for (Permis permis: permisService.findAll()) {
+				String codi = permis.getCodi();
+				if (!mappableAttributes.contains(codi))
+					mappableAttributes.add(codi);
+			}
 		} else {
-			mappableAttributes.clear();
 			HibernateTemplate ht = new HibernateTemplate(sessionFactory);
 			List<String> grups = (List<String>)ht.executeWithNewSession(new HibernateCallback() {
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -69,7 +80,10 @@ public class RolesBasedMappableAttributesRetriever implements MappableAttributes
 					return query.list();
 				}
 			});
-			mappableAttributes.addAll(grups);
+			for (String grup: grups) {
+				if (!mappableAttributes.contains(grup))
+					mappableAttributes.add(grup);				
+			}
 		}
 	}
 

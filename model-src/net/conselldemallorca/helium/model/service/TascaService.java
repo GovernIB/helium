@@ -1098,8 +1098,8 @@ public class TascaService {
 		// Filtra les tasques per mostrar només les del entorn seleccionat
 		List<TascaLlistatDto> filtrades = new ArrayList<TascaLlistatDto>();
 		for (JbpmTask task: tasques) {
-			Long currentEntornId = entornPerTasca(task).getId();
-			if (currentEntornId != null && entornId.equals(currentEntornId)) {
+			Entorn entornTasca = entornPerTasca(task);
+			if (entornTasca != null && entornTasca.getId() != null && entornId.equals(entornTasca.getId())) {
 				TascaLlistatDto dto = toTascaLlistatDto(task, null);
 				if (complet) {
 					Expedient expedient = expedientDao.findAmbProcessInstanceId(
