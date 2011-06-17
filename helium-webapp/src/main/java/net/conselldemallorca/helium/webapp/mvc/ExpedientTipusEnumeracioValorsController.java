@@ -114,6 +114,7 @@ public class ExpedientTipusEnumeracioValorsController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "submit", required = false) String submit,
 			@RequestParam(value = "enumeracio", required = true) Long enumeracioId,
+			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
 			@ModelAttribute("command") EnumeracioValorsCommand command,
 			BindingResult result,
 			SessionStatus status,
@@ -150,8 +151,12 @@ public class ExpedientTipusEnumeracioValorsController extends BaseController {
 				        	logger.error("No s'ha pogut guardar el registre", ex);
 				        	return "expedientTipus/enumeracioValors";
 				        }
-					} 
+					} else {
+						model.addAttribute("expedientTipusId", expedientTipusId);
+						return "redirect:/expedientTipus/enumeracioLlistat.html";
+					}
 					model.addAttribute("enumeracio", enumeracioId);
+					model.addAttribute("expedientTipusId", expedientTipusId);
 					return "redirect:/expedientTipus/enumeracioValors.html";
 				} else {
 					missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));

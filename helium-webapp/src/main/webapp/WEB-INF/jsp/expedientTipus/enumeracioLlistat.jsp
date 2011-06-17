@@ -35,6 +35,7 @@ function confirmar(e) {
 		<display:column>
 			<form action="enumeracioValors.html">
 				<input type="hidden" name="enumeracio" value="${registre.id}"/>
+				<input type="hidden" name="expedientTipusId" value="${expedientTipus.id}"/>
 				<button type="submit" class="submitButton"><fmt:message key='enumeracio.llistat.valors' />&nbsp;(${fn:length(registre.enumeracioValors)})</button>
 			</form>
 		</display:column>

@@ -43,6 +43,7 @@
 		<form:form action="enumeracioValors.html" cssClass="uniForm" method="post">
 			<div class="inlineLabels">
 				<input type="hidden" name="enumeracio" value="${enumeracio}" />
+				<input type="hidden" name="expedientTipusId" value="${expedientTipus.id}"/>
 				<c:if test="${not empty command.id}">
 					<form:hidden path="id"/>
 				</c:if>
