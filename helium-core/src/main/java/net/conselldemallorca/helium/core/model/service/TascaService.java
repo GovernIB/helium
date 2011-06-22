@@ -747,9 +747,17 @@ public class TascaService {
 			boolean ambContingut) throws Exception {
 		String[] tokenDesxifrat = getDocumentTokenUtils().desxifrarTokenMultiple(token);
 		Long documentStoreId = Long.parseLong(tokenDesxifrat[0]);
-		if (tokenDesxifrat.length == 2)
+		if (tokenDesxifrat.length == 2) {
 			documentStoreId = Long.parseLong(tokenDesxifrat[1]);
-		return dtoConverter.toDocumentDto(documentStoreId, ambContingut, false, false, false);
+			return dtoConverter.toDocumentDto(
+					documentStoreId,
+					ambContingut,
+					false,
+					false,
+					false);
+		} else {
+			throw new IllegalArgumentsException( getMessage("error.documentService.formatIncorrecte") );
+		}
 	}
 	public boolean signarDocumentAmbToken(
 			Long entornId,
@@ -782,7 +790,8 @@ public class TascaService {
 						String referenciaCustodia = null;
 						if (pluginCustodiaDao.isValidacioImplicita()) {
 							referenciaCustodia = pluginCustodiaDao.afegirSignatura(
-									docst.getId().toString(),
+									docst.getId(),
+									docst.getReferenciaFont(),
 									nomArxiu,
 									document.getCustodiaCodi(),
 									signatura);
@@ -794,7 +803,8 @@ public class TascaService {
 									false);
 							if (resposta.isEstatOk()) {
 								referenciaCustodia = pluginCustodiaDao.afegirSignatura(
-										docst.getId().toString(),
+										docst.getId(),
+										docst.getReferenciaFont(),
 										nomArxiu,
 										document.getCustodiaCodi(),
 										signatura);

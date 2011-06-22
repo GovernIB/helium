@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.core.model.dto;
 
 import java.io.Serializable;
+import java.net.URLEncoder;
 import java.util.Date;
 
 /**
@@ -275,6 +276,14 @@ public class DocumentDto implements Serializable {
 			}
 		}
 		return false;
+	}
+
+	public String getTokenSignaturaUrlEncoded() {
+		try {
+			return URLEncoder.encode(tokenSignatura, "UTF-8");
+		} catch (Exception ex) {
+			return tokenSignatura;
+		}
 	}
 
 

@@ -16,13 +16,18 @@
     
 <script type="text/javascript">
 // <![CDATA[
-function confirmar(e) {
+function confirmarEsborrar(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
 	return confirm("Estau segur que voleu esborrar aquest expedient?");
 }
-
+function confirmarAnular(e) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	if (e.stopPropagation) e.stopPropagation();
+	return confirm("Estau segur que voleu anul·lar aquest expedient?");
+}
 // ]]>
 </script>
 </head>
@@ -111,8 +116,6 @@ function confirmar(e) {
 						</c:import>
 					</c:when>
 					<c:otherwise>
-					
-					
 						<c:import url="../common/formElement.jsp">
 							<c:param name="property" value="geoPosX"/>
 							<c:param name="type" value="custom"/>
@@ -136,6 +139,13 @@ function confirmar(e) {
 					</c:otherwise>
 				</c:choose>
 			</c:if>
+			<security:accesscontrollist domainObject="${entornActual}" hasPermission="16">
+				<c:import url="../common/formElement.jsp">
+					<c:param name="property" value="mostrarAnulats"/>
+					<c:param name="type" value="checkbox"/>
+					<c:param name="label">Mostrar anul·lats</c:param>
+				</c:import>
+			</security:accesscontrollist>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="type" value="buttons"/>
 				<c:param name="values">submit,clean</c:param>
@@ -147,10 +157,12 @@ function confirmar(e) {
 	<c:if test="${not empty sessionScope.consultaExpedientsCommand}">
 		
 		<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable" defaultsort="2" defaultorder="descending">
-			<display:column property="identificador" title="Expedient" sortable="true" url="/expedient/info.html" paramId="id" paramProperty="processInstanceId"/>
-			<display:column property="dataInici" title="Iniciat el" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true"/>
-			<display:column property="tipus.nom" title="Tipus"/>
-			<display:column title="Estat">
+			<c:set var="filaStyle" value=""/>
+			<c:if test="${registre.anulat}"><c:set var="filaStyle" value="text-decoration:line-through"/></c:if>
+			<display:column property="identificador" title="Expedient" sortable="true" url="/expedient/info.html" paramId="id" paramProperty="processInstanceId" style="${filaStyle}"/>
+			<display:column property="dataInici" title="Iniciat el" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true" style="${filaStyle}"/>
+			<display:column property="tipus.nom" title="Tipus" style="${filaStyle}"/>
+			<display:column title="Estat" style="${filaStyle}">
 				<c:if test="${registre.aturat}"><img src="<c:url value="/img/stop.png"/>" alt="Aturat" title="Aturat" border="0"/></c:if>
 				<c:choose>
 					<c:when test="${empty registre.dataFi}">
@@ -160,8 +172,15 @@ function confirmar(e) {
 				</c:choose>
 			</display:column>
 			<display:column>
+				<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,2">
+					<c:if test="${!registre.anulat}">
+						<a href="<c:url value="/expedient/anular.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmarAnular(event)"><img src="<c:url value="/img/delete.png"/>" alt="<fmt:message key='comuns.anular' />" title="<fmt:message key='comuns.anular' />" border="0"/></a>
+					</c:if>
+				</security:accesscontrollist>
+			</display:column>
+			<display:column>
 				<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,8">
-					<a href="<c:url value="/expedient/delete.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
+					<a href="<c:url value="/expedient/delete.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmarEsborrar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 				</security:accesscontrollist>
 			</display:column>
 		</display:table>

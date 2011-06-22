@@ -30,12 +30,13 @@ public class CustodiaPluginFilesystem implements CustodiaPlugin {
 
 
 	public String addSignature(
+			String id,
 			String gesdocId,
 			String arxiuNom,
 			String tipusDocument,
 			byte[] signatura) throws CustodiaPluginException {
 		try {
-			File f = new File(getBaseDir() + ID_PREFIX + gesdocId);
+			File f = new File(getBaseDir() + ID_PREFIX + id);
 			if (f.exists())
 				f.delete();
 			FileOutputStream fos = new FileOutputStream(f);
@@ -99,6 +100,11 @@ public class CustodiaPluginFilesystem implements CustodiaPlugin {
 	}
 	public boolean isValidacioImplicita() {
 		return false;
+	}
+
+	public String getUrlComprovacioSignatura(
+			String id) throws CustodiaPluginException {
+		return null;
 	}
 
 

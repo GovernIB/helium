@@ -32,20 +32,26 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 
 
 	public String addSignature(
+			String id,
 			String gesdocId,
 			String arxiuNom,
 			String tipusDocument,
 			byte[] signatura) throws CustodiaPluginException {
 		try {
+			System.out.println(">>> Afegir signatura id: " + id);
+			System.out.println(">>> Afegir signatura arxiuNom: " + arxiuNom);
+			System.out.println(">>> Afegir signatura tipusDocument: " + tipusDocument);
+			System.out.println(">>> Afegir signatura signatura: " + signatura.length);
 			byte[] xml = getClienteCustodia().custodiarPDFFirmado(
 					new ByteArrayInputStream(signatura),
 					arxiuNom,
-					gesdocId,
+					id,
 					tipusDocument);
+			System.out.println(">>> XML Custòdia: " + new String(xml));
 			CustodiaResponseCaib resposta = getClienteCustodia().parseResponse(xml);
 			if (resposta.isError())
 				throw new CustodiaPluginException("Error en la petició de custòdia: [" + resposta.getErrorCodi() + "] " + resposta.getErrorDescripcio());
-			return gesdocId;
+			return id;
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut custodiar la signatura", ex);
 			throw new CustodiaPluginException("No s'ha pogut custodiar la signatura", ex);
@@ -93,6 +99,7 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 	public void deleteSignatures(String id) throws CustodiaPluginException {
 		try {
 			byte[] xml = getClienteCustodia().eliminarDocumento(id);
+			System.out.println(">>> XML Custòdia: " + new String(xml));
 			CustodiaResponseCaib resposta = getClienteCustodia().parseResponse(xml);
 			if (resposta.isError())
 				throw new CustodiaPluginException("Error en la petició de custòdia: [" + resposta.getErrorCodi() + "] " + resposta.getErrorDescripcio());
@@ -105,6 +112,7 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 	public List<RespostaValidacioSignatura> dadesValidacioSignatura(String id) throws CustodiaPluginException {
 		try {
 			byte[] xml = getClienteCustodia().verificarDocumento(id);
+			System.out.println(">>> XML Custòdia: " + new String(xml));
 			CustodiaResponseCaib resposta = getClienteCustodia().parseResponse(xml);
 			if (resposta.isError())
 				throw new CustodiaPluginException("Error en la petició de custòdia: [" + resposta.getErrorCodi() + "] " + resposta.getErrorDescripcio());
@@ -120,6 +128,21 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 	}
 	public boolean isValidacioImplicita() {
 		return true;
+	}
+
+	public String getUrlComprovacioSignatura(
+			String id) throws CustodiaPluginException {
+		try {
+			System.out.println(">>> Hash signatura docid: " + id);
+			byte[] resposta = getClienteCustodia().reservarDocumento(id);
+			System.out.println(">>> Hash signatura: " + new String(resposta));
+			String hash = new String(resposta);
+			String baseUrl = GlobalProperties.getInstance().getProperty("app.custodia.plugin.caib.verificacio.baseurl");
+			return baseUrl + hash;
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut generar la url de comprovació de signatura", ex);
+			throw new CustodiaPluginException("No s'ha pogut generar la url de comprovació de signatura", ex);
+		}
 	}
 
 

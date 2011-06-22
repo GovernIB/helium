@@ -8,7 +8,6 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.Hex;
 
 /**
  * Classe per a la codificació i descodificació de tokens per a accedir als
@@ -26,10 +25,11 @@ public class DocumentTokenUtils {
 	private String encryptionScheme;
 	private String encryptionAlgorithm;
 
+	public DocumentTokenUtils() {
+	}
 	public DocumentTokenUtils(String encryptionKey) {
 		this.encryptionKey = encryptionKey;
 	}
-
 	public DocumentTokenUtils(String encryptionKey, String encryptionScheme,
 			String encryptionAlgorithm) {
 		this.encryptionKey = encryptionKey;
@@ -46,7 +46,7 @@ public class DocumentTokenUtils {
 				secretKeyFactory.generateSecret(new DESKeySpec(getEncryptionKey().getBytes())));
 		byte[] encryptedText = cipher.doFinal(token.getBytes());
 		byte[] base64Bytes = Base64.encodeBase64(encryptedText);
-		return new String(Hex.encodeHex(base64Bytes));
+		return new String(base64Bytes);
 	}
 	public String desxifrarToken(String tokenXifrat) throws Exception {
 		SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance(
@@ -55,7 +55,7 @@ public class DocumentTokenUtils {
 		cipher.init(
 				Cipher.DECRYPT_MODE,
 				secretKeyFactory.generateSecret(new DESKeySpec(getEncryptionKey().getBytes())));
-		byte[] base64Bytes = Base64.decodeBase64(Hex.decodeHex(tokenXifrat.toCharArray()));
+		byte[] base64Bytes = Base64.decodeBase64(tokenXifrat);
 		byte[] unencryptedText = cipher.doFinal(base64Bytes);
 		return new String(unencryptedText);
 	}

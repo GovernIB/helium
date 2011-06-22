@@ -66,17 +66,10 @@ public class DocumentArxiuController extends BaseController {
 			boolean estampar = (noe != null) ? !noe.booleanValue() : true;
 			ArxiuDto arxiu = documentService.arxiuDocumentPerSignar(token, estampar);
 			if (arxiu != null) {
-				/*try {
-					FileOutputStream fosB64 = new FileOutputStream("c:/original_" + System.currentTimeMillis());
-					fosB64.write(arxiu.getContingut());
-					fosB64.close();
-				} catch(Exception ex) {
-					logger.error("Error al guardar arxiu", ex);
-			    }*/
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
 			}
-			return "arxiuView";
+	        return "arxiuView";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";

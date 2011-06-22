@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
-import net.conselldemallorca.helium.core.model.exportacio.DefinicioProcesExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.ExpedientTipusExportacio;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
@@ -24,7 +23,6 @@ import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
-import net.conselldemallorca.helium.webapp.mvc.DefinicioProcesController.DeployCommand;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;

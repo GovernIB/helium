@@ -271,7 +271,8 @@ public class PluginService {
 				String referenciaCustodia = null;
 				for (byte[] signatura: signatures) {
 					referenciaCustodia = pluginCustodiaDao.afegirSignatura(
-							documentStoreId.toString(),
+							documentStoreId,
+							docst.getReferenciaFont(),
 							document.getArxiuNom(),
 							document.getCustodiaCodi(),
 							signatura);

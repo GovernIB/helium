@@ -113,6 +113,7 @@ public class DtoConverter {
 		dto.setNumeroDefault(expedient.getNumeroDefault());
 		dto.setComentari(expedient.getComentari());
 		dto.setInfoAturat(expedient.getInfoAturat());
+		dto.setAnulat(expedient.isAnulat());
 		dto.setDataInici(expedient.getDataInici());
 		dto.setIniciadorCodi(expedient.getIniciadorCodi());
 		dto.setIniciadorTipus(expedient.getIniciadorTipus());
@@ -581,7 +582,6 @@ public class DtoConverter {
 							dto.setVistaNom(dto.getArxiuNomSenseExtensio() + "." + extensioVista);
 							try {
 								ByteArrayOutputStream vistaContingut = new ByteArrayOutputStream();
-								String urlVerificacioSignatura = (String)GlobalProperties.getInstance().get("app.base.url") + "/signatura/verificar.html?token=" + dto.getTokenSignatura();
 								DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 								String dataRegistre = null;
 								if (document.getRegistreData() != null)
@@ -591,7 +591,7 @@ public class DtoConverter {
 										arxiuOriginalNom,
 										arxiuOriginalContingut,
 										(document.isSignat()) ? false : ambSegellSignatura,
-										urlVerificacioSignatura,
+										getUrlComprovacioSignatura(documentStoreId, dto.getTokenSignatura()),
 										document.isRegistrat(),
 										numeroRegistre,
 										dataRegistre,
@@ -1292,6 +1292,14 @@ public class DtoConverter {
 			return false;
 		String actiuConversioSignatura = (String)GlobalProperties.getInstance().get("app.conversio.signatura.actiu");
 		return "true".equalsIgnoreCase(actiuConversioSignatura);
+	}
+
+	private String getUrlComprovacioSignatura(Long documentStoreId, String token) {
+		String urlCustodia = pluginCustodiaDao.getUrlComprovacioSignatura(documentStoreId.toString());
+		if (urlCustodia != null)
+			return urlCustodia;
+		else
+			return (String)GlobalProperties.getInstance().get("app.base.url") + "/signatura/verificar.html?token=" + token;
 	}
 
 	private PdfUtils getPdfUtils() {

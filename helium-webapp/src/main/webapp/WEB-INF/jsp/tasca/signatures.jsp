@@ -67,7 +67,7 @@ var defaultBuild = "${globalProperties['app.signatura.afirma.default.build']}";
 function signarAFirma(form, token) {
 	initialize();
 	configuraFirma();
-	clienteFirma.setFileUri("${globalProperties['app.base.url']}/document/arxiuPerSignar.html?token=" + escape(token));
+	clienteFirma.setFileUri("${globalProperties['app.base.url']}/document/arxiuPerSignar.html?token=" + token);
 	firmar();
 	if (!clienteFirma.isError()) {
 		form.data.value = clienteFirma.getSignatureBase64Encoded();
@@ -159,7 +159,7 @@ function signarAFirma(form, token) {
 										<input type="hidden" name="taskId" value="${tasca.id}"/>
 										<input type="hidden" name="token" value="${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignatura}"/>
 										<input type="hidden" name="data"/>
-										<button class="submitButton" onclick="return signarAFirma(this.form, '${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignatura}')">Signar</button>
+										<button class="submitButton" onclick="return signarAFirma(this.form, '${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignaturaUrlEncoded}')">Signar</button>
 									</form:form>
 								</c:when>
 								<c:otherwise>

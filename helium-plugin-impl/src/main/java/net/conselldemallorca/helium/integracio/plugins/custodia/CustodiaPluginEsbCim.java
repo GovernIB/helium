@@ -34,6 +34,7 @@ import es.cim.ws.documentos.v1.services.ServicioGestorDocumentalPortType;
 public class CustodiaPluginEsbCim implements CustodiaPlugin {
 
 	public String addSignature(
+			String id,
 			String gesdocId,
 			String arxiuNom,
 			String tipusDocument,
@@ -94,6 +95,11 @@ public class CustodiaPluginEsbCim implements CustodiaPlugin {
 	}
 	public boolean isValidacioImplicita() {
 		return false;
+	}
+
+	public String getUrlComprovacioSignatura(
+			String id) throws CustodiaPluginException {
+		return null;
 	}
 
 

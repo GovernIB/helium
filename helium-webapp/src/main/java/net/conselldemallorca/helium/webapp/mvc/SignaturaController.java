@@ -164,20 +164,6 @@ public class SignaturaController extends BaseController {
 	    }
 	}
 
-	/*@RequestMapping(value = "/signatura/descarregar")
-	public String descarregar(
-			HttpServletRequest request,
-			@RequestParam("id") final Long id,
-			ModelMap model) {
-		DocumentDto document = expedientService.descarregarSignatura(id);
-		if (document != null) {
-			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, document.getArxiuNom());
-			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, document.getArxiuContingut());
-			return "arxiuView";
-		}
-		return null;
-	}*/
-
 
 
 	private static final Log logger = LogFactory.getLog(SignaturaController.class);

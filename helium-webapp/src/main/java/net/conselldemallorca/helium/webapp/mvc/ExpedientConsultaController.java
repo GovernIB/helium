@@ -137,7 +137,8 @@ public class ExpedientConsultaController extends BaseController {
 						finalitzat,
 						command.getGeoPosX(),
 						command.getGeoPosY(),
-						command.getGeoReferencia());
+						command.getGeoReferencia(),
+						command.isMostrarAnulats());
 				Iterator<ExpedientDto> it = expedients.iterator();
 				while (it.hasNext()) {
 					ExpedientDto expedient = it.next();

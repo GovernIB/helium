@@ -113,6 +113,32 @@ public class ExpedientController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "anular")
+	public String anular(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) Long id) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			ExpedientDto expedient = expedientService.getById(id);
+			if (potModificarExpedient(expedient)) {
+				try {
+					expedientService.anular(entorn.getId(), id);
+					missatgeInfo(request, getMessage("info.expedient.anulat") );
+				} catch (Exception ex) {
+					missatgeError(request, getMessage("error.anular.expedient"), ex.getLocalizedMessage());
+		        	logger.error("No s'ha pogut esborrar el registre", ex);
+				}
+				return "redirect:/expedient/consulta.html";
+			} else {
+				missatgeError(request, getMessage("error.permisos.anular.expedient"));
+				return "redirect:/expedient/consulta.html";
+			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+
 	@RequestMapping(value = "info")
 	public String info(
 			HttpServletRequest request,

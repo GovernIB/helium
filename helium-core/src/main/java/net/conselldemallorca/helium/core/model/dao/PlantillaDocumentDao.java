@@ -48,6 +48,7 @@ import freemarker.ext.beans.ArrayModel;
 import freemarker.ext.beans.BeanModel;
 import freemarker.ext.beans.BooleanModel;
 import freemarker.ext.beans.DateModel;
+import freemarker.ext.beans.NumberModel;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.SimpleNumber;
 import freemarker.template.SimpleScalar;
@@ -201,6 +202,8 @@ public class PlantillaDocumentDao {
 									return new BooleanModel((Boolean)valor, new DefaultObjectWrapper());
 								else if (valor instanceof Date)
 									return new DateModel((Date)valor, new DefaultObjectWrapper());
+								else if (valor instanceof BigDecimal)
+									return new NumberModel((BigDecimal)valor, new DefaultObjectWrapper());
 								else
 									return new BeanModel(valor, new DefaultObjectWrapper());
 							}

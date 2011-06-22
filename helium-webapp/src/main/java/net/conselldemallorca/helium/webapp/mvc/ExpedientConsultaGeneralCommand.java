@@ -23,6 +23,7 @@ public class ExpedientConsultaGeneralCommand {
 	private Double geoPosX;
 	private Double geoPosY;
 	private String geoReferencia;
+	private boolean mostrarAnulats = false;
 
 
 
@@ -83,6 +84,12 @@ public class ExpedientConsultaGeneralCommand {
 	}
 	public void setGeoReferencia(String geoReferencia) {
 		this.geoReferencia = geoReferencia;
+	}
+	public boolean isMostrarAnulats() {
+		return mostrarAnulats;
+	}
+	public void setMostrarAnulats(boolean mostrarAnulats) {
+		this.mostrarAnulats = mostrarAnulats;
 	}
 
 }

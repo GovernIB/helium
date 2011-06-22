@@ -414,6 +414,17 @@ public class ExpedientService {
 			throw new NotFoundException(getMessage("error.expedientService.noExisteix"));
 		}
 	}
+	public void anular(Long entornId, Long id) {
+		Expedient expedient = expedientDao.findAmbEntornIId(entornId, id);
+		if (expedient != null) {
+			expedient.setAnulat(true);
+			registreDao.crearRegistreAnularExpedient(
+					expedient.getId(),
+					SecurityContextHolder.getContext().getAuthentication().getName());
+		} else {
+			throw new NotFoundException(getMessage("error.expedientService.noExisteix"));
+		}
+	}
 	public List<ExpedientDto> findAmbEntorn(Long entornId) {
 		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
 		for (Expedient expedient: expedientDao.findAmbEntorn(entornId))
@@ -429,7 +440,8 @@ public class ExpedientService {
 			Long expedientTipusId,
 			Long estatId,
 			boolean iniciat,
-			boolean finalitzat) {
+			boolean finalitzat,
+			boolean mostrarAnulats) {
 		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
 		for (Expedient expedient: expedientDao.findAmbEntornConsultaGeneral(
 				entornId,
@@ -443,7 +455,8 @@ public class ExpedientService {
 				finalitzat,
 				null, 	// geoPosX
 				null, 	// geoPosX
-				null))	// geoReferencia
+				null,   // geoReferencia
+				mostrarAnulats))
 			resposta.add(dtoConverter.toExpedientDto(expedient, false));
 		return resposta;
 	}
@@ -459,7 +472,8 @@ public class ExpedientService {
 			boolean finalitzat,
 			Double geoPosX,
 			Double geoPosY,
-			String geoReferencia) {
+			String geoReferencia,
+			boolean mostrarAnulats) {
 		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
 		for (Expedient expedient: expedientDao.findAmbEntornConsultaGeneral(
 				entornId,
@@ -473,7 +487,8 @@ public class ExpedientService {
 				finalitzat,
 				geoPosX,
 				geoPosY,
-				geoReferencia))
+				geoReferencia,
+				mostrarAnulats))
 			resposta.add(dtoConverter.toExpedientDto(expedient, false));
 		return resposta;
 	}
@@ -1394,8 +1409,9 @@ public class ExpedientService {
 		if (persona == null)
 			throw new IllegalArgumentsException( getMessage("error.expedientService.trobarPersona", new Object[]{usuari}) );
 	}
-	
-	
+
+
+
 	protected String getMessage(String key, Object[] vars) {
 		try {
 			return messageSource.getMessage(
