@@ -134,7 +134,10 @@ public class ExpedientConsultaController extends BaseController {
 						(command.getExpedientTipus() != null) ? command.getExpedientTipus().getId() : null,
 						estatId,
 						iniciat,
-						finalitzat);
+						finalitzat,
+						command.getGeoPosX(),
+						command.getGeoPosY(),
+						command.getGeoReferencia());
 				Iterator<ExpedientDto> it = expedients.iterator();
 				while (it.hasNext()) {
 					ExpedientDto expedient = it.next();

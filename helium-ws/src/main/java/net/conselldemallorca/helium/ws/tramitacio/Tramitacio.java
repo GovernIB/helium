@@ -17,14 +17,17 @@ import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
+import net.conselldemallorca.helium.core.model.hibernate.Estat;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.EntornService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
+import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.util.EntornActual;
 
@@ -46,6 +49,7 @@ public class Tramitacio implements TramitacioService {
 	private DissenyService dissenyService;
 	private ExpedientService expedientService;
 	private TascaService tascaService;
+//	private PermissionService permissionService;
 
 
 
@@ -311,23 +315,25 @@ public class Tramitacio implements TramitacioService {
 		try {
 			List<CampProces> resposta = new ArrayList<CampProces>();
 			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, true);
-			for (String var: instanciaProces.getVariables().keySet()) {
-				Camp campVar = null;
-				for (Camp camp: instanciaProces.getCamps()) {
-					if (camp.getCodi().equals(var)) {
-						campVar = camp;
-						break;
+			if (instanciaProces.getVariables() != null) {
+				for (String var: instanciaProces.getVariables().keySet()) {
+					Camp campVar = null;
+					for (Camp camp: instanciaProces.getCamps()) {
+						if (camp.getCodi().equals(var)) {
+							campVar = camp;
+							break;
+						}
 					}
+					if (campVar == null) {
+						campVar = new Camp();
+						campVar.setCodi(var);
+						campVar.setEtiqueta(var);
+						campVar.setTipus(TipusCamp.STRING);
+					}
+					resposta.add(convertirCampProces(
+							campVar,
+							instanciaProces.getVariable(var)));
 				}
-				if (campVar == null) {
-					campVar = new Camp();
-					campVar.setCodi(var);
-					campVar.setEtiqueta(var);
-					campVar.setTipus(TipusCamp.STRING);
-				}
-				resposta.add(convertirCampProces(
-						campVar,
-						instanciaProces.getVariable(var)));
 			}
 			return resposta;
 		} catch (Exception ex) {
@@ -473,6 +479,85 @@ public class Tramitacio implements TramitacioService {
 			throw new TramitacioException("No s'ha pogut executar l'script: " + ex.getMessage());
 		}
 	}
+	public List<ExpedientInfo> consultaExpedients(
+			String entorn,
+			String usuari,
+			String titol,
+			String numero,
+			Date dataInici1,
+			Date dataInici2,
+			String expedientTipusCodi,
+			String estatCodi,
+			boolean iniciat,
+			boolean finalitzat,
+			Double geoPosX,
+			Double geoPosY,
+			String geoReferencia) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		
+		// Obtencio de dades per a fer la consulta
+		ExpedientTipus expedientTipus = null;
+		Long estatId = null;
+		
+		if (expedientTipusCodi != null && expedientTipusCodi.length() > 0) {
+			expedientTipus = dissenyService.findExpedientTipusAmbEntornICodi(
+				e.getId(),
+				expedientTipusCodi);
+		
+			if (estatCodi != null && estatCodi.length() > 0) {
+				for (Estat estat: expedientTipus.getEstats()) {
+					if (estat.getCodi().equals(estatCodi)) {
+						estatId = estat.getId();
+						break;
+					}
+				}
+			}
+		} else {
+			for (Estat estat: dissenyService.findEstatAmbEntorn(e.getId())) {
+				if (estat.getCodi().equals(estatCodi)) {
+					estatId = estat.getId();
+					break;
+				}
+			}
+		}
+		
+		// Consulta d'expedients
+		List<ExpedientDto> expedients = expedientService.findAmbEntornConsultaGeneral(
+				e.getId(),
+				titol,
+				numero,
+				dataInici1,
+				dataInici2,
+				(expedientTipus != null? expedientTipus.getId() : null),
+				estatId,
+				iniciat,
+				finalitzat,
+				geoPosX,
+				geoPosY,
+				geoReferencia);
+		
+//		// Filtre expedients permesos
+//		List<ExpedientTipus> tipus = dissenyService.findExpedientTipusAmbEntorn(e.getId());
+//		permissionService.filterAllowed(
+//				tipus,
+//				ExpedientTipus.class,
+//				new Permission[] {
+//					ExtendedPermission.ADMINISTRATION,
+//					ExtendedPermission.READ});
+//		Iterator<ExpedientDto> it = expedients.iterator();
+//		while (it.hasNext()) {
+//			ExpedientDto exp = it.next();
+//			if (!tipus.contains(exp.getTipus()))
+//				it.remove();
+//		}
+		// Construcció de la resposta
+		List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
+		for (ExpedientDto dto: expedients)
+			resposta.add(toExpedientInfo(dto));
+		return resposta;
+	}
 
 
 
@@ -492,6 +577,10 @@ public class Tramitacio implements TramitacioService {
 	public void setTascaService(TascaService tascaService) {
 		this.tascaService = tascaService;
 	}
+//	@Autowired
+//	public void setPermissionService(PermissionService permissionService) {
+//		this.permissionService = permissionService; 
+//	}
 
 
 
@@ -589,6 +678,51 @@ public class Tramitacio implements TramitacioService {
 		dt.setArxiu(document.getArxiuNom());
 		dt.setData(document.getDataDocument());
 		return dt;
+	}
+	private ExpedientInfo toExpedientInfo(Expedient expedient) {
+		if (expedient != null) {
+			ExpedientInfo resposta = new ExpedientInfo();
+			resposta.setTitol(expedient.getTitol());
+			resposta.setNumero(expedient.getNumero());
+			resposta.setNumeroDefault(expedient.getNumeroDefault());
+			resposta.setDataInici(expedient.getDataInici());
+			resposta.setDataFi(expedient.getDataFi());
+			resposta.setComentari(expedient.getComentari());
+			resposta.setInfoAturat(expedient.getInfoAturat());
+			if (expedient.getIniciadorTipus().equals(net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus.INTERN))
+				resposta.setIniciadorTipus(net.conselldemallorca.helium.ws.tramitacio.ExpedientInfo.IniciadorTipus.INTERN);
+			else if (expedient.getIniciadorTipus().equals(net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus.SISTRA))
+				resposta.setIniciadorTipus(net.conselldemallorca.helium.ws.tramitacio.ExpedientInfo.IniciadorTipus.SISTRA);
+			resposta.setIniciadorCodi(expedient.getIniciadorCodi());
+			resposta.setResponsableCodi(expedient.getResponsableCodi());
+			resposta.setGeoPosX(expedient.getGeoPosX());
+			resposta.setGeoPosY(expedient.getGeoPosY());
+			resposta.setGeoReferencia(expedient.getGeoReferencia());
+			resposta.setRegistreNumero(expedient.getRegistreNumero());
+			resposta.setRegistreData(expedient.getRegistreData());
+			resposta.setUnitatAdministrativa(expedient.getUnitatAdministrativa());
+			resposta.setIdioma(expedient.getIdioma());
+			resposta.setAutenticat(expedient.isAutenticat());
+			resposta.setTramitadorNif(expedient.getTramitadorNif());
+			resposta.setTramitadorNom(expedient.getTramitadorNom());
+			resposta.setInteressatNif(expedient.getInteressatNif());
+			resposta.setInteressatNom(expedient.getInteressatNom());
+			resposta.setRepresentantNif(expedient.getRepresentantNif());
+			resposta.setRepresentantNom(expedient.getRepresentantNom());
+			resposta.setAvisosHabilitats(expedient.isAvisosHabilitats());
+			resposta.setAvisosEmail(expedient.getAvisosEmail());
+			resposta.setAvisosMobil(expedient.getAvisosMobil());
+			resposta.setNotificacioTelematicaHabilitada(expedient.isNotificacioTelematicaHabilitada());
+			resposta.setTramitExpedientIdentificador(expedient.getTramitExpedientIdentificador());
+			resposta.setTramitExpedientClau(expedient.getTramitExpedientClau());
+			resposta.setExpedientTipusCodi(expedient.getTipus().getCodi());
+			resposta.setEntornCodi(expedient.getEntorn().getCodi());
+			if (expedient.getEstat() != null)
+				resposta.setEstatCodi(expedient.getEstat().getCodi());
+			resposta.setProcessInstanceId(new Long(expedient.getProcessInstanceId()).longValue());
+			return resposta;
+		}
+		return null;
 	}
 
 	private static final Log logger = LogFactory.getLog(Tramitacio.class);

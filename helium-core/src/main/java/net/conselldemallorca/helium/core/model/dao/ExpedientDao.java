@@ -39,7 +39,10 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			Long expedientTipusId,
 			Long estatId,
 			boolean iniciat,
-			boolean finalitzat) {
+			boolean finalitzat,
+			Double geoPosX,
+			Double geoPosY,
+			String geoReferencia) {
 		Criteria crit = getSession().createCriteria(
 				getPersistentClass());
 		crit.add(Restrictions.eq("entorn.id", entornId));
@@ -57,6 +60,12 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			crit.add(Restrictions.isNull("estat.id"));
 		if (finalitzat)
 			crit.add(Restrictions.isNotNull("dataFi"));
+		if (geoPosX != null)
+			crit.add(Restrictions.eq("geoPosX", geoPosX));
+		if (geoPosY != null)
+			crit.add(Restrictions.eq("geoPosY", geoPosY));
+		if (geoReferencia != null && geoReferencia.length() > 0)
+			crit.add(Restrictions.ilike("geoReferencia", "%" + geoReferencia + "%"));
 		return crit.list();
 	}
 	public Expedient findAmbEntornIId(Long entornId, Long id) {

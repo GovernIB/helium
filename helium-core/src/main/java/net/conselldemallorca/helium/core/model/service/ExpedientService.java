@@ -440,7 +440,40 @@ public class ExpedientService {
 				expedientTipusId,
 				estatId,
 				iniciat,
-				finalitzat))
+				finalitzat,
+				null, 	// geoPosX
+				null, 	// geoPosX
+				null))	// geoReferencia
+			resposta.add(dtoConverter.toExpedientDto(expedient, false));
+		return resposta;
+	}
+	public List<ExpedientDto> findAmbEntornConsultaGeneral(
+			Long entornId,
+			String titol,
+			String numero,
+			Date dataInici1,
+			Date dataInici2,
+			Long expedientTipusId,
+			Long estatId,
+			boolean iniciat,
+			boolean finalitzat,
+			Double geoPosX,
+			Double geoPosY,
+			String geoReferencia) {
+		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
+		for (Expedient expedient: expedientDao.findAmbEntornConsultaGeneral(
+				entornId,
+				titol,
+				numero,
+				dataInici1,
+				dataInici2,
+				expedientTipusId,
+				estatId,
+				iniciat,
+				finalitzat,
+				geoPosX,
+				geoPosY,
+				geoReferencia))
 			resposta.add(dtoConverter.toExpedientDto(expedient, false));
 		return resposta;
 	}

@@ -13,6 +13,7 @@
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
     <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
     <c:import url="../common/formIncludes.jsp"/>
+    
 <script type="text/javascript">
 // <![CDATA[
 function confirmar(e) {
@@ -21,6 +22,7 @@ function confirmar(e) {
 	if (e.stopPropagation) e.stopPropagation();
 	return confirm("Estau segur que voleu esborrar aquest expedient?");
 }
+
 // ]]>
 </script>
 </head>
@@ -30,21 +32,21 @@ function confirmar(e) {
 		<div class="inlineLabels col first">
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="titol"/>
-				<c:param name="label">Títol</c:param>
+				<c:param name="label"><fmt:message key='expedient.consulta.titol' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="numero"/>
-				<c:param name="label">Número</c:param>
+				<c:param name="label"><fmt:message key='expedient.consulta.numero' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="dataInici1"/>
 				<c:param name="type" value="custom"/>
-				<c:param name="label">Data d'inici</c:param>
+				<c:param name="label"><fmt:message key='expedient.consulta.datainici' /></c:param>
 				<c:param name="customClass">customField</c:param>
 				<c:param name="content">
 					<spring:bind path="dataInici1">
 						<label for="dataInici1" class="blockLabel">
-							<span>Entre</span>
+							<span><fmt:message key='expedient.consulta.entre' /></span>
 							<input id="dataInici1" name="dataInici1" value="${status.value}" type="text" class="textInput"/>
 							<script type="text/javascript">
 								// <![CDATA[
@@ -62,7 +64,7 @@ function confirmar(e) {
 					</spring:bind>
 					<spring:bind path="dataInici2">
 						<label for="dataInici2" class="blockLabel blockLabelLast">
-							<span>i</span>
+							<span><fmt:message key='expedient.consulta.i' /></span>
 							<input id="dataInici2" name="dataInici2" value="${status.value}" type="text" class="textInput"/>
 							<script type="text/javascript">
 								// <![CDATA[
@@ -88,8 +90,8 @@ function confirmar(e) {
 				<c:param name="items" value="expedientTipus"/>
 				<c:param name="itemLabel" value="nom"/>
 				<c:param name="itemValue" value="id"/>
-				<c:param name="itemBuit" value="<< Seleccioni un tipus d'expedient >>"/>
-				<c:param name="label">Tipus d'expedient</c:param>
+				<c:param name="itemBuit"><< <fmt:message key='expedient.consulta.select.tipusexpedient'/> >></c:param>
+				<c:param name="label"><fmt:message key='expedient.consulta.tipusexpedient' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="estat"/>
@@ -97,18 +99,53 @@ function confirmar(e) {
 				<c:param name="items" value="estats"/>
 				<c:param name="itemLabel" value="tipusAmbNom"/>
 				<c:param name="itemValue" value="id"/>
-				<c:param name="itemBuit" value="<< Seleccioni un estat >>"/>
-				<c:param name="label">Estat</c:param>
+				<c:param name="itemBuit"><< <fmt:message key='expedient.consulta.select.estat'/> >></c:param>
+				<c:param name="label"><fmt:message key='expedient.consulta.estat' /></c:param>
 			</c:import>
+			<c:if test="${globalProperties['app.georef.actiu']}">
+				<c:choose>
+					<c:when test="${globalProperties['app.georef.tipus']=='ref'}">
+						<c:import url="../common/formElement.jsp">
+							<c:param name="property" value="geoReferencia"/>
+							<c:param name="label"><fmt:message key='comuns.georeferencia.codi' /></c:param>
+						</c:import>
+					</c:when>
+					<c:otherwise>
+					
+					
+						<c:import url="../common/formElement.jsp">
+							<c:param name="property" value="geoPosX"/>
+							<c:param name="type" value="custom"/>
+							<c:param name="label"><fmt:message key='comuns.georeferencia.coordenades' /></c:param>
+							<c:param name="customClass">customField</c:param>
+							<c:param name="content">
+								<spring:bind path="geoPosX">
+									<label for="geoPosX" class="blockLabel">
+										<span><fmt:message key='comuns.georeferencia.coordX' /></span>
+										<input id="geoPosX" name="geoPosX" value="${status.value}" type="text" class="textInput"/>
+									</label>
+								</spring:bind>
+								<spring:bind path="geoPosY">
+									<label for="geoPosY" class="blockLabel blockLabelLast">
+										<span><fmt:message key='comuns.georeferencia.coordY' /></span>
+										<input id="geoPosY" name="geoPosY" value="${status.value}" type="text" class="textInput"/>
+									</label>
+								</spring:bind>
+							</c:param>
+						</c:import>
+					</c:otherwise>
+				</c:choose>
+			</c:if>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="type" value="buttons"/>
 				<c:param name="values">submit,clean</c:param>
-				<c:param name="titles">Consultar,Netejar</c:param>
+				<c:param name="titles"><fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' /></c:param>
 			</c:import>
 		</div>
 	</form:form><br/>
 
 	<c:if test="${not empty sessionScope.consultaExpedientsCommand}">
+		
 		<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable" defaultsort="2" defaultorder="descending">
 			<display:column property="identificador" title="Expedient" sortable="true" url="/expedient/info.html" paramId="id" paramProperty="processInstanceId"/>
 			<display:column property="dataInici" title="Iniciat el" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true"/>
@@ -133,3 +170,4 @@ function confirmar(e) {
 
 </body>
 </html>
+	
