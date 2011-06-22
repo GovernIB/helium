@@ -8,7 +8,7 @@
 
 <html>
 <head>
-	<title>Expedient: ${expedient.identificadorLimitat}</title>
+	<title><fmt:message key='common.filtres.expedient' />: ${expedient.identificadorLimitat}</title>
 	<meta name="titolcmp" content="<fmt:message key='comuns.consultes' />" />
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.DOMWindow.js"/>"></script>
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
@@ -20,7 +20,7 @@ function confirmarAccio(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Estau segur que voleu executar aquesta acció?");
+	return confirm("<fmt:message key='expedient.info.confirm_accio' />");
 }
 // ]]>
 </script>
@@ -31,47 +31,47 @@ function confirmarAccio(e) {
 		<c:param name="tabActiu" value="info"/>
 	</c:import>
 
-	<h3 class="titol-tab titol-info">Informació de l'expedient</h3>
+	<h3 class="titol-tab titol-info"><fmt:message key='expedient.info.informacio' /></h3>
 
 	<dl class="form-info">
-		<c:if test="${not empty expedient.numero}"><dt>Número</dt><dd>${expedient.numero}</dd></c:if>
-		<c:if test="${not empty expedient.titol}"><dt>Títol</dt><dd>${expedient.titol}</dd></c:if>
-		<c:if test="${empty expedient.numero and empty expedient.titol}"><dt>Identificació</dt><dd>${expedient.identificador}</dd></c:if>
-		<dt>Tipus</dt><dd>${expedient.tipus.nom}</dd>
-		<dt>Estat</dt><dd>
-			<c:if test="${expedient.aturat}"><img src="<c:url value="/img/stop.png"/>" alt="Aturat" title="Aturat" border="0"/></c:if>
+		<c:if test="${not empty expedient.numero}"><dt><fmt:message key='expedient.consulta.numero' /></dt><dd>${expedient.numero}</dd></c:if>
+		<c:if test="${not empty expedient.titol}"><dt><fmt:message key='expedient.consulta.titol' /></dt><dd>${expedient.titol}</dd></c:if>
+		<c:if test="${empty expedient.numero and empty expedient.titol}"><dt><fmt:message key='expedient.info.identificacio' /></dt><dd>${expedient.identificador}</dd></c:if>
+		<dt><fmt:message key='expedient.info.tipus' /></dt><dd>${expedient.tipus.nom}</dd>
+		<dt><fmt:message key='expedient.consulta.estat' /></dt><dd>
+			<c:if test="${expedient.aturat}"><img src="<c:url value="/img/stop.png"/>" alt="<fmt:message key='expedient.info.aturat' />" title="<fmt:message key='expedient.info.aturat' />" border="0"/></c:if>
 			<c:choose>
 				<c:when test="${empty expedient.dataFi}">
-					<c:choose><c:when test="${empty expedient.estat}">Iniciat</c:when><c:otherwise>${expedient.estat.nom}</c:otherwise></c:choose>
+					<c:choose><c:when test="${empty expedient.estat}"><fmt:message key='expedient.consulta.iniciat' /></c:when><c:otherwise>${expedient.estat.nom}</c:otherwise></c:choose>
 				</c:when>
-				<c:otherwise>Finalitzat</c:otherwise>
+				<c:otherwise><fmt:message key='expedient.consulta.finalitzat' /></c:otherwise>
 			</c:choose>
 		</dd>
 		<c:choose>
-			<c:when test="${expedient.iniciadorTipus == 'SISTRA'}"><dt>Tràmit d'origen</dt><dd>${expedient.bantelEntradaNum}</dd></c:when>
-			<c:otherwise><dt>Iniciat per</dt><dd>${expedient.iniciadorPersona.nomSencer}</dd></c:otherwise>
+			<c:when test="${expedient.iniciadorTipus == 'SISTRA'}"><dt><fmt:message key='expedient.info.tramit_origen' /></dt><dd>${expedient.bantelEntradaNum}</dd></c:when>
+			<c:otherwise><dt><fmt:message key='expedient.info.iniciat_per' /></dt><dd>${expedient.iniciadorPersona.nomSencer}</dd></c:otherwise>
 		</c:choose>
-		<c:if test="${not empty expedient.registreNumero}"><dt>Número de registre</dt><dd>${expedient.registreNumero}</dd></c:if>
-		<c:if test="${not empty expedient.registreData}"><dt>Data de registre</dt><dd><fmt:formatDate value="${expedient.registreData}" pattern="dd/MM/yyyy"/></dd></c:if>
-		<dt>Iniciat el</dt><dd><fmt:formatDate value="${expedient.dataInici}" pattern="dd/MM/yyyy HH:mm"/></dd>
-		<c:if test="${not empty expedient.responsablePersona}"><dt>Persona responsable</dt><dd>${expedient.responsablePersona.nomSencer}</dd></c:if>
-		<c:if test="${not empty expedient.dataFi}"><dt>Finalitzat el</dt><dd><fmt:formatDate value="${expedient.dataFi}" pattern="dd/MM/yyyy HH:mm"/></dd></c:if>
-		<dt>Número identificatiu intern</dt><dd>${expedient.numeroDefault}</dd>
-		<dt>Definició de procés</dt>
+		<c:if test="${not empty expedient.registreNumero}"><dt><fmt:message key='expedient.info.numero_registre' /></dt><dd>${expedient.registreNumero}</dd></c:if>
+		<c:if test="${not empty expedient.registreData}"><dt><fmt:message key='expedient.info.data_registre' /></dt><dd><fmt:formatDate value="${expedient.registreData}" pattern="dd/MM/yyyy"/></dd></c:if>
+		<dt><fmt:message key='expedient.info.iniciat_el' /></dt><dd><fmt:formatDate value="${expedient.dataInici}" pattern="dd/MM/yyyy HH:mm"/></dd>
+		<c:if test="${not empty expedient.responsablePersona}"><dt><fmt:message key='expedient.info.persona_responsable' /></dt><dd>${expedient.responsablePersona.nomSencer}</dd></c:if>
+		<c:if test="${not empty expedient.dataFi}"><dt><fmt:message key='expedient.info.finalitzat_el' /></dt><dd><fmt:formatDate value="${expedient.dataFi}" pattern="dd/MM/yyyy HH:mm"/></dd></c:if>
+		<dt><fmt:message key='expedient.info.numero_id_intern' /></dt><dd>${expedient.numeroDefault}</dd>
+		<dt><fmt:message key='expedient.info.definicio_proces' /></dt>
 		<dd>
 			${instanciaProces.definicioProces.idPerMostrar}&nbsp;
-			<c:if test="${instanciaProces.imatgeDisponible}"><a href="#imatgeProces" class="finestraProces"><img src="<c:url value="/img/map_go.png"/>" alt="Situació actual" title="Situació actual" border="0"/></a></c:if>
+			<c:if test="${instanciaProces.imatgeDisponible}"><a href="#imatgeProces" class="finestraProces"><img src="<c:url value="/img/map_go.png"/>" alt="<fmt:message key='expedient.info.situacio_actual' />" title="<fmt:message key='expedient.info.situacio_actual' />" border="0"/></a></c:if>
 		</dd>
 		<c:if test="${globalProperties['app.georef.actiu']}">
 			<c:choose>
 				<c:when test="${globalProperties['app.georef.tipus']=='ref'}">
 					<c:if test="${not empty expedient.geoReferencia}">
-						<dt>Georeferència</dt><dd>${expedient.geoReferencia}</dd>
+						<dt><fmt:message key='comuns.georeferencia' /></dt><dd>${expedient.geoReferencia}</dd>
 					</c:if>
 				</c:when>
 				<c:otherwise>
 					<c:if test="${not empty expedient.geoPosX and not empty expedient.geoPosY}">
-						<dt>Georeferència</dt><dd>${expedient.geoPosX}, ${expedient.geoPosY}</dd>
+						<dt><fmt:message key='comuns.georeferencia' /></dt><dd>${expedient.geoPosX}, ${expedient.geoPosY}</dd>
 					</c:if>
 				</c:otherwise>
 			</c:choose>
@@ -82,11 +82,11 @@ function confirmarAccio(e) {
 		<br/>
 		<form action="<c:url value="/expedient/editar.html"/>">
 			<input type="hidden" name="id" value="${param.id}"/>
-			<button type="submit" class="submitButton">Modificar informació</button>
+			<button type="submit" class="submitButton"><fmt:message key='comuns.modificar_info' /></button>
 		</form>
 		<c:if test="${not empty instanciaProces.definicioProces.accions}">
 			<br/><div class="missatgesGris">
-				<h4 class="titol-missatge">Executar acció</h4>
+				<h4 class="titol-missatge"><fmt:message key='expedient.info.executar_accio' /></h4>
 				<c:set var="accionsValor"><c:forEach var="accio" items="${instanciaProces.definicioProces.accions}" varStatus="status">${accio.codi}<c:if test="${not status.last}">,</c:if></c:forEach></c:set>
 				<c:set var="accionsNom"><c:forEach var="accio" items="${instanciaProces.definicioProces.accions}" varStatus="status">${accio.nom}<c:if test="${not status.last}">,</c:if></c:forEach></c:set>
 				<form action="accio.html" method="post" class="uniForm" onsubmit="return confirmarAccio(event)">

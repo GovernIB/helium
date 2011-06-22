@@ -8,7 +8,7 @@
 
 <html>
 <head>
-	<title>Consulta general</title>
+	<title><fmt:message key='expedient.consulta.cons_general' /></title>
 	<meta name="titolcmp" content="<fmt:message key='comuns.consultes' />" />
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
     <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
@@ -95,7 +95,7 @@ function confirmarAnular(e) {
 				<c:param name="items" value="expedientTipus"/>
 				<c:param name="itemLabel" value="nom"/>
 				<c:param name="itemValue" value="id"/>
-				<c:param name="itemBuit"><< <fmt:message key='expedient.consulta.select.tipusexpedient'/> >></c:param>
+				<c:param name="itemBuit">&lt;&lt; <fmt:message key='expedient.consulta.select.tipusexpedient'/> &gt;&gt;</c:param>
 				<c:param name="label"><fmt:message key='expedient.consulta.tipusexpedient' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
@@ -104,7 +104,7 @@ function confirmarAnular(e) {
 				<c:param name="items" value="estats"/>
 				<c:param name="itemLabel" value="tipusAmbNom"/>
 				<c:param name="itemValue" value="id"/>
-				<c:param name="itemBuit"><< <fmt:message key='expedient.consulta.select.estat'/> >></c:param>
+				<c:param name="itemBuit">&lt;&lt; <fmt:message key='expedient.consulta.select.estat'/> &gt;&gt;</c:param>
 				<c:param name="label"><fmt:message key='expedient.consulta.estat' /></c:param>
 			</c:import>
 			<c:if test="${globalProperties['app.georef.actiu']}">
@@ -166,9 +166,9 @@ function confirmarAnular(e) {
 				<c:if test="${registre.aturat}"><img src="<c:url value="/img/stop.png"/>" alt="Aturat" title="Aturat" border="0"/></c:if>
 				<c:choose>
 					<c:when test="${empty registre.dataFi}">
-						<c:choose><c:when test="${empty registre.estat}">Iniciat</c:when><c:otherwise>${registre.estat.nom}</c:otherwise></c:choose>
+						<c:choose><c:when test="${empty registre.estat}"><fmt:message key='expedient.consulta.iniciat' /></c:when><c:otherwise>${registre.estat.nom}</c:otherwise></c:choose>
 					</c:when>
-					<c:otherwise>Finalitzat</c:otherwise>
+					<c:otherwise><fmt:message key='expedient.consulta.finalitzat' /></c:otherwise>
 				</c:choose>
 			</display:column>
 			<display:column>

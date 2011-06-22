@@ -6,7 +6,7 @@
 
 <html>
 <head>
-	<title>Expedients disponibles per iniciar</title>
+	<title><fmt:message key='expedient.iniciar.disponibles' /></title>
 	<meta name="titolcmp" content="Nou expedient"/>
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
@@ -19,7 +19,7 @@ function confirmar(e, form) {
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
 	if (!comprovacio[form.expedientTipusId.value][form.definicioProcesId.selectedIndex])
-		return confirm("Estau segur que voleu iniciar un nou expedient?");
+		return confirm("<fmt:message key='expedient.iniciar.confirm_iniciar' />");
 	else
 		return true;
 }
@@ -35,12 +35,12 @@ function confirmar(e, form) {
 			<form action="<c:url value="/expedient/iniciar.html"/>" method="post" onsubmit="return confirmar(event, this)">
 				<input type="hidden" name="expedientTipusId" value="${registre.id}"/>
 				<select name="definicioProcesId">
-					<option value="${definicionsProces.id}">&lt;&lt; Darrera versió &gt;&gt;</option>
+					<option value="${definicionsProces.id}">&lt;&lt; <fmt:message key='expedient.iniciar.darrera_versio' /> &gt;&gt;</option>
 					<c:forEach var="id" items="${definicionsProces[registre.id].idsWithSameKey}" varStatus="status">
 						<option value="${id}">${definicionsProces[registre.id].idsMostrarWithSameKey[status.index]}</option>
 					</c:forEach>
 				</select>
-				<button type="submit" class="submitButton">Iniciar</button>
+				<button type="submit" class="submitButton"><fmt:message key='comuns.iniciar' /></button>
 			</form>
 		</display:column>
 	</display:table>

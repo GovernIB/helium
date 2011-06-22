@@ -6,7 +6,7 @@
 
 <html>
 <head>
-	<title>Iniciar expedient: ${expedientTipus.nom}</title>
+	<title><fmt:message key='expedient.iniciar.iniciar_expedient' />: ${expedientTipus.nom}</title>
 	<meta name="titolcmp" content="Nou expedient"/>
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
@@ -19,7 +19,7 @@
 		e.cancelBubble = true;
 		if (e.stopPropagation) e.stopPropagation();
 		if (accioInici == 'submit')
-			return confirm("Estau segur que voleu iniciar un nou expedient?");
+			return confirm("<fmt:message key='expedient.iniciar.confirm_iniciar' />");
 		return true;
 	}
 	function editarRegistre(campId, campCodi, campEtiqueta, numCamps, index) {
@@ -73,7 +73,7 @@
 		<c:import url="../common/formElement.jsp">
 			<c:param name="type" value="buttons"/>
 			<c:param name="values">submit,cancel</c:param>
-			<c:param name="titles">Iniciar,Cancel·lar</c:param>
+			<c:param name="titles"><fmt:message key='comuns.iniciar' />,<fmt:message key='comuns.cancelar' /></c:param>
 			<c:param name="onclick">accioInici=this.value</c:param>
 		</c:import>
 	</form:form>

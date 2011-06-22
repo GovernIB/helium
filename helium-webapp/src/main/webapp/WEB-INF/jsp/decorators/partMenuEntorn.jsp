@@ -11,7 +11,7 @@
 				<a href="<c:url value="/alerta/llistat.html"/>">
 					<c:choose>
 						<c:when test="${hiHaAlertesNollegides}"><img src="<c:url value="/img/email_blink.gif"/>" alt="Hi ha alertes sense llegir" title="Hi ha alertes sense llegir" border="0"/></c:when>
-						<c:otherwise><img src="<c:url value="/img/email.png"/>" alt="Hi ha alertes actives" title="Hi ha alertes actives" border="0"/></c:otherwise>
+						<c:otherwise><img src="<c:url value="/img/email.png"/>" alt="<fmt:message key='decorators.entorn.alert_activa' />" title="<fmt:message key='decorators.entorn.alert_activa' />" border="0"/></c:otherwise>
 					</c:choose>
 				</a>
 			</c:if>

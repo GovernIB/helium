@@ -9,7 +9,7 @@
 
 <html>
 <head>
-	<title>Consultes de disseny</title>
+	<title><fmt:message key='expedient.consulta.cons_disseny' /></title>
 	<meta name="titolcmp" content="<fmt:message key='comuns.consultes' />" />
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
@@ -30,7 +30,7 @@ function confirmar(e) {
 	<div class="missatgesGris">
 		<c:choose>
 			<c:when test="${empty consulta or param.canviar=='true'}">
-				<h4 class="titol-consulta">Seleccioni una consulta</h4>
+				<h4 class="titol-consulta"><fmt:message key='expedient.consulta.select.consula' /></h4>
 				<form:form action="consultaDisseny.html" commandName="commandSeleccioConsulta" cssClass="uniForm">
 					<div class="inlineLabels col first">
 						<input type="hidden" name="canviForm" id="canviForm" value="true"/>
@@ -40,8 +40,8 @@ function confirmar(e) {
 							<c:param name="items" value="expedientTipus"/>
 							<c:param name="itemLabel" value="nom"/>
 							<c:param name="itemValue" value="id"/>
-							<c:param name="itemBuit" value="<< Seleccioni un tipus d'expedient >>"/>
-							<c:param name="label">Tipus d'expedient</c:param>
+							<c:param name="itemBuit">&lt;&lt; <fmt:message key='expedient.consulta.select.tipusexpedient'/> &gt;&gt;</c:param>
+							<c:param name="label"><fmt:message key='expedient.consulta.tipusexpedient' /></c:param>
 							<c:param name="onchange">this.form.submit()</c:param>
 						</c:import>
 						<c:if test="${not empty commandSeleccioConsulta.expedientTipusId}">
@@ -51,8 +51,8 @@ function confirmar(e) {
 								<c:param name="items" value="consultes"/>
 								<c:param name="itemLabel" value="nom"/>
 								<c:param name="itemValue" value="id"/>
-								<c:param name="itemBuit" value="<< Seleccioni una consulta >>"/>
-								<c:param name="label">Consulta</c:param>
+								<c:param name="itemBuit">&lt;&lt; <fmt:message key='expedient.consulta.select.consula'/> &gt;&gt;</c:param>
+								<c:param name="label"><fmt:message key='expedient.consulta.consulta' /></c:param>
 								<c:param name="onchange">this.form.submit()</c:param>
 							</c:import>
 						</c:if>
@@ -61,7 +61,7 @@ function confirmar(e) {
 			</c:when>
 			<c:otherwise>
 				<h4 class="titol-consulta" style="display:inline">${consulta.nom}</h4>&nbsp;&nbsp;&nbsp;
-				<form action="consultaDisseny.html" method="post" style="display:inline"><input type="hidden" name="canviar" id="canviar" value="true"/><button type="submit" class="submitButton">Canviar</button></form>
+				<form action="consultaDisseny.html" method="post" style="display:inline"><input type="hidden" name="canviar" id="canviar" value="true"/><button type="submit" class="submitButton"><fmt:message key='expedient.consulta.canviar' /></button></form>
 			</c:otherwise>
 		</c:choose>
 	</div>
@@ -78,7 +78,7 @@ function confirmar(e) {
 				<c:import url="../common/formElement.jsp">
 					<c:param name="type" value="buttons"/>
 					<c:param name="values">submit,netejar</c:param>
-					<c:param name="titles">Consultar,Netejar</c:param>
+					<c:param name="titles"><fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' /></c:param>
 				</c:import>
 			</div>
 		</form:form>
@@ -91,9 +91,9 @@ function confirmar(e) {
 					<c:if test="${registre.aturat}"><img src="<c:url value="/img/stop.png"/>" alt="Aturat" title="Aturat" border="0"/></c:if>
 					<c:choose>
 						<c:when test="${empty registre.dataFi}">
-							<c:choose><c:when test="${empty registre.estat}">Iniciat</c:when><c:otherwise>${registre.estat.nom}</c:otherwise></c:choose>
+							<c:choose><c:when test="${empty registre.estat}"><fmt:message key='expedient.consulta.iniciat' /></c:when><c:otherwise>${registre.estat.nom}</c:otherwise></c:choose>
 						</c:when>
-						<c:otherwise>Finalitzat</c:otherwise>
+						<c:otherwise><fmt:message key='expedient.consulta.finalitzat' /></c:otherwise>
 					</c:choose>
 				</display:column>
 				<display:column>

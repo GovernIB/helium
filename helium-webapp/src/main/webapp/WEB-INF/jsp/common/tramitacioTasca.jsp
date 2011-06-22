@@ -32,7 +32,7 @@ function confirmarFinalitzar(e) {
 <c:if test="${not tasca.delegada or not tasca.delegacioOriginal}">
 	<div class="missatgesGrisFort">
 		<h4 class="titol-missatge"><fmt:message key='common.tram.finalitzar' /></h4>
-		<c:set var="outcomes"><c:forEach var="outcome" items="${tasca.outcomes}" varStatus="status"><c:choose><c:when test="${not empty outcome}">${outcome}</c:when><c:otherwise>Finalitzar</c:otherwise></c:choose><c:if test="${not status.last}">,</c:if></c:forEach></c:set>
+		<c:set var="outcomes"><c:forEach var="outcome" items="${tasca.outcomes}" varStatus="status"><c:choose><c:when test="${not empty outcome}">${outcome}</c:when><c:otherwise><fmt:message key='common.tram.outcome.finalitzar' /></c:otherwise></c:choose><c:if test="${not status.last}">,</c:if></c:forEach></c:set>
 		<form action="completar.html" method="post" class="uniForm" onsubmit="${tramitacioOnSubmit}">
 			<input type="hidden" name="id" value="${tasca.id}"/>
 			<c:if test="${not empty param.pipella}"><input type="hidden" name="pipella" value="${param.pipella}"/></c:if>

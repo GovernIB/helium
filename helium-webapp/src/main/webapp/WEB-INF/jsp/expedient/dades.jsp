@@ -7,7 +7,7 @@
 
 <html>
 <head>
-	<title>Expedient: ${expedient.identificadorLimitat}</title>
+	<title><fmt:message key='common.filtres.expedient' />: ${expedient.identificadorLimitat}</title>
 	<meta name="titolcmp" content="<fmt:message key='comuns.consultes' />"/>
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
@@ -51,7 +51,7 @@ function confirmarModificar(e) {
 	</c:import>
 
 	<h3 class="titol-tab titol-dades-expedient">
-		Dades del procés
+		<fmt:message key='expedient.dada.dades_proces' />
 	</h3>
 	<div id="dades-proces">
 <%
@@ -164,7 +164,7 @@ function confirmarModificar(e) {
 		<form action="<c:url value="/expedient/dadaCrear.html"/>">
 			<input type="hidden" name="id" value="${instanciaProces.id}"/>
 			<button class="submitButtonImage" type="submit">
-				<span class="nova-variable"></span>Afegir nova dada al procés
+				<span class="nova-variable"></span><fmt:message key='expedient.dada.afegir_dada_proces' />
 			</button>
 		</form>
 	</security:accesscontrollist>
@@ -177,7 +177,7 @@ function confirmarModificar(e) {
 	</c:forEach>
 	<c:if test="${mostrarTasques}">
 		<h3 class="titol-tab titol-dades-tasques amb-lupa">
-			Dades de les tasques
+			<fmt:message key='expedient.dada.dades_tasques' />
 			<img src="<c:url value="/img/magnifier_zoom_in.png"/>" alt="Mostrar/Ocultar" title="Mostrar/Ocultar" border="0" onclick="mostrarOcultar(this,'dades-tasques')"/>
 		</h3>
 		<div id="dades-tasques" style="display:none">
@@ -232,7 +232,7 @@ function confirmarModificar(e) {
 							<form action="<c:url value="/expedient/dadaCrear.html"/>">
 								<input type="hidden" name="taskId" value="${tasca.id}"/>
 								<button class="submitButtonImage" type="submit">
-									<span class="nova-variable"></span>Afegir nova dada a la tasca
+									<span class="nova-variable"></span><fmt:message key='expedient.dada.afegir_dada_tasca' />
 								</button>
 							</form>
 						</security:accesscontrollist>

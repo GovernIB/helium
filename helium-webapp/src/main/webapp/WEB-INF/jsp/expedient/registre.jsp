@@ -7,7 +7,7 @@
 
 <html>
 <head>
-	<title>Expedient: ${expedient.identificadorLimitat}</title>
+	<title><fmt:message key='alerta.llistat.expedient' />: ${expedient.identificadorLimitat}</title>
 	<meta name="titolcmp" content="<fmt:message key='comuns.consultes' />" />
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
@@ -19,16 +19,16 @@
 	</c:import>
 
 	<h3 class="titol-tab titol-registre">
-		Registre de l'expedient
+		<fmt:message key='expedient.registre' />
 	</h3>
 	<display:table name="registre" id="reg" class="displaytag">
-		<display:column property="data" title="Data" format="{0,date,dd/MM/yyyy'&nbsp;'HH:mm:ss}"/>
-		<display:column property="responsableCodi" title="Responsable"/>
-		<display:column property="accio" title="Acció"/>
-		<display:column title="Entitat">${reg.entitat}&nbsp;[${reg.entitatId}]</display:column>
-		<display:column property="missatge" title="Descripció"/>
-		<display:column property="valorVell" title="Valor antic"/>
-		<display:column property="valorNou" title="Valor nou"/>
+		<display:column property="data" titleKey="expedient.document.data" format="{0,date,dd/MM/yyyy'&nbsp;'HH:mm:ss}"/>
+		<display:column property="responsableCodi" titleKey="expedient.editar.responsable"/>
+		<display:column property="accio" titleKey="expedient.registre.accio"/>
+		<display:column titleKey="expedient.registre.entitat">${reg.entitat}&nbsp;[${reg.entitatId}]</display:column>
+		<display:column property="missatge" titleKey="expedient.registre.missatge"/>
+		<display:column property="valorVell" titleKey="expedient.registre.valorVell"/>
+		<display:column property="valorNou" titleKey="expedient.registre.valorNou"/>
 	</display:table>
 
 </body>

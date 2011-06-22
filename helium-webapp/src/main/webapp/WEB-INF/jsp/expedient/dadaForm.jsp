@@ -5,7 +5,7 @@
 
 <html>
 <head>
-	<title>Expedient: ${expedient.identificadorLimitat}</title>
+	<title><fmt:message key='common.filtres.expedient' />: ${expedient.identificadorLimitat}</title>
 	<meta name="titolcmp" content="<fmt:message key='comuns.consultes' />" />
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
@@ -52,7 +52,7 @@
 		<c:param name="tabActiu" value="dades"/>
 	</c:import>
 
-	<h3 class="titol-tab titol-dades-tasca">Modificar dada</h3>
+	<h3 class="titol-tab titol-dades-tasca"><fmt:message key='expedient.dada.modificar_dada' /></h3>
 
 	<form:form action="dadaModificar.html" cssClass="uniForm">
 		<div class="inlineLabels">
@@ -75,7 +75,7 @@
 				<c:import url="../common/formElement.jsp">
 					<c:param name="type" value="buttons"/>
 					<c:param name="values">cancel</c:param>
-					<c:param name="titles">Tornar</c:param>
+					<c:param name="titles"><fmt:message key='comuns.tornar' /></c:param>
 				</c:import>
 			</c:when>
 			<c:otherwise>
