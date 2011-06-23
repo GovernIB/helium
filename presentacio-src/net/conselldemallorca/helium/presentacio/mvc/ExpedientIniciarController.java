@@ -121,7 +121,7 @@ public class ExpedientIniciarController extends BaseController {
 				// al pas per demanar aquestes dades
 				DefinicioProcesDto definicioProces = null;
 				if (definicioProcesId != null)
-					definicioProces = dissenyService.getById(definicioProcesId);
+					definicioProces = dissenyService.getById(definicioProcesId, true);
 				else
 					definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId, true);
 				if (definicioProces.isHasStartTask()) {

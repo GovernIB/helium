@@ -49,7 +49,7 @@ import org.springframework.web.bind.support.SessionStatus;
  */
 public abstract class CommonRegistreController extends BaseController {
 
-	private DissenyService dissenyService;
+	protected DissenyService dissenyService;
 	private Validator validator;
 
 

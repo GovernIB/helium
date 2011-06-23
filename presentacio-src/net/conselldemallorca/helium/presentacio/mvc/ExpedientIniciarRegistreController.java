@@ -5,6 +5,8 @@ package net.conselldemallorca.helium.presentacio.mvc;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.model.service.DissenyService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,26 @@ public class ExpedientIniciarRegistreController extends CommonRegistreController
 	public ExpedientIniciarRegistreController(
 			DissenyService dissenyService) {
 		super(dissenyService);
+	}
+
+	@ModelAttribute("expedientTipus")
+	public ExpedientTipus populateExpedientTipus(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) Long expedientTipusId) {
+		ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
+		return expedientTipus;
+	}
+
+	@ModelAttribute("definicioProces")
+	public DefinicioProces populateDefinicioProces(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) Long expedientTipusId,
+			@RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId) {
+		if (definicioProcesId != null) {
+			return dissenyService.getById(definicioProcesId, false);
+		} else {
+			return dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId, false);
+		}
 	}
 
 	@RequestMapping(value = "/expedient/iniciarRegistre", method = RequestMethod.GET)

@@ -215,9 +215,10 @@ public class DissenyService {
 	}
 
 	public DefinicioProcesDto getById(
-			Long id) {
+			Long id,
+			boolean ambTascaInicial) {
 			DefinicioProces definicioProces = definicioProcesDao.getById(id, false);
-			return toDto(definicioProces);
+			return toDto(definicioProces, ambTascaInicial);
 	}
 
 	public DefinicioProcesDto getByIdAmbComprovacio(
@@ -225,7 +226,7 @@ public class DissenyService {
 			Long id) {
 		if (comprovarEntorn(entornId, id)) {
 			DefinicioProces definicioProces = definicioProcesDao.getById(id, false);
-			return toDto(definicioProces);
+			return toDto(definicioProces, false);
 		} else {
 			throw new IllegalArgumentException("No s'ha especificat cap entorn o la definició de procés no correspon amb l'entorn especificat");
 		}
@@ -235,7 +236,7 @@ public class DissenyService {
 		List<DefinicioProcesDto> resposta = new ArrayList<DefinicioProcesDto>();
 		List<DefinicioProces> darreres = definicioProcesDao.findDarreresVersionsAmbEntorn(entornId);
 		for (DefinicioProces definicioProces: darreres)
-			resposta.add(toDto(definicioProces));
+			resposta.add(toDto(definicioProces, false));
 		return resposta;
 	}
 	public List<DefinicioProcesDto> findDarreresAmbExpedientTipusIGlobalsEntorn(
@@ -245,7 +246,7 @@ public class DissenyService {
 		List<DefinicioProces> dps = definicioProcesDao.findDarreresVersionsAmbEntorn(entornId);
 		for (DefinicioProces definicionProces: dps)
 			if (definicionProces.getExpedientTipus() == null || definicionProces.getExpedientTipus().getId().equals(expedientTipusId))
-				resposta.add(toDto(definicionProces));
+				resposta.add(toDto(definicionProces, false));
 		return resposta;
 	}
 
@@ -254,7 +255,7 @@ public class DissenyService {
 		DefinicioProces definicioProces = definicioProcesDao.getById(id, false);
 		List<JbpmProcessDefinition> subpds = jbpmDao.getSubProcessDefinitions(definicioProces.getJbpmId());
 		for (JbpmProcessDefinition jbpmProcessDefinition: subpds) {
-			resposta.add(toDto(definicioProcesDao.findAmbJbpmId(jbpmProcessDefinition.getId())));
+			resposta.add(toDto(definicioProcesDao.findAmbJbpmId(jbpmProcessDefinition.getId()), false));
 		}
 		return resposta;
 	}
@@ -263,7 +264,7 @@ public class DissenyService {
 		ExpedientTipus expedientTipus = expedientTipusDao.getById(expedientTipusId, false);
 		return toDto(definicioProcesDao.findDarreraVersioAmbEntornIJbpmKey(
 				expedientTipus.getEntorn().getId(),
-				expedientTipus.getJbpmProcessDefinitionKey()));
+				expedientTipus.getJbpmProcessDefinitionKey()), false);
 	}
 
 	public Tasca getTascaById(Long id) {
@@ -1141,7 +1142,7 @@ public class DissenyService {
 
 	public DefinicioProcesDto findDefinicioProcesAmbProcessInstanceId(String processInstanceId) {
 		String processDefinitionId = jbpmDao.getProcessInstance(processInstanceId).getProcessDefinitionId();
-		return toDto(definicioProcesDao.findAmbJbpmId(processDefinitionId));
+		return toDto(definicioProcesDao.findAmbJbpmId(processDefinitionId), false);
 	}
 
 	public List<FilaResultat> getResultatConsultaDomini(
@@ -1534,10 +1535,6 @@ public class DissenyService {
 
 
 
-	private DefinicioProcesDto toDto(
-			DefinicioProces definicioProces) {
-		return toDto(definicioProces, false);
-	}
 	private DefinicioProcesDto toDto(
 			DefinicioProces definicioProces,
 			boolean ambTascaInicial) {
