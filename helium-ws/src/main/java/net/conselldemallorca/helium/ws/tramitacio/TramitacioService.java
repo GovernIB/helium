@@ -9,10 +9,6 @@ import java.util.List;
 import javax.jws.WebService;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
-import org.jbpm.graph.exe.ExecutionContext;
-
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-
 /**
  * Interfície del servei de tramitació d'expedients de Helium
  * 
