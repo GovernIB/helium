@@ -78,9 +78,9 @@ public class DefinicioProcesAccioController extends BaseController {
 			return dissenyService.getAccioById(id);
 		Accio nova = new Accio();
 		if (definicioProcesId != null)
-			nova.setDefinicioProces(dissenyService.getById(definicioProcesId));
+			nova.setDefinicioProces(dissenyService.getById(definicioProcesId, false));
 		if (definicioProces != null)
-			nova.setDefinicioProces(dissenyService.getById(definicioProces));
+			nova.setDefinicioProces(dissenyService.getById(definicioProces, false));
 		return nova;
 	}
 

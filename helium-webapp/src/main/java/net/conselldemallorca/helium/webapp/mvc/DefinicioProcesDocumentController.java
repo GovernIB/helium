@@ -98,9 +98,9 @@ public class DefinicioProcesDocumentController extends BaseController {
 		Document nou = new Document();
 		nou.setAdjuntarAuto(true);
 		if (definicioProcesId != null)
-			nou.setDefinicioProces(dissenyService.getById(definicioProcesId));
+			nou.setDefinicioProces(dissenyService.getById(definicioProcesId, false));
 		if (definicioProces != null)
-			nou.setDefinicioProces(dissenyService.getById(definicioProces));
+			nou.setDefinicioProces(dissenyService.getById(definicioProces, false));
 		return nou;
 	}
 

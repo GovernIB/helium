@@ -135,9 +135,9 @@ public class DefinicioProcesCampController extends BaseController {
 		}
 		Camp nou = new Camp();
 		if (definicioProcesId != null)
-			nou.setDefinicioProces(dissenyService.getById(definicioProcesId));
+			nou.setDefinicioProces(dissenyService.getById(definicioProcesId, false));
 		if (definicioProces != null)
-			nou.setDefinicioProces(dissenyService.getById(definicioProces));
+			nou.setDefinicioProces(dissenyService.getById(definicioProces, false));
 		return nou;
 	}
 

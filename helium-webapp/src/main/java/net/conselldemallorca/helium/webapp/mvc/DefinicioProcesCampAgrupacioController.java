@@ -71,9 +71,9 @@ public class DefinicioProcesCampAgrupacioController extends BaseController {
 			return dissenyService.getCampAgrupacioById(id);
 		CampAgrupacio nou = new CampAgrupacio();
 		if (definicioProcesId != null)
-			nou.setDefinicioProces(dissenyService.getById(definicioProcesId));
+			nou.setDefinicioProces(dissenyService.getById(definicioProcesId, false));
 		if (definicioProces != null)
-			nou.setDefinicioProces(dissenyService.getById(definicioProces));
+			nou.setDefinicioProces(dissenyService.getById(definicioProces, false));
 		return nou;
 	}
 

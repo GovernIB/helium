@@ -65,7 +65,7 @@ public class DefinicioProcesTerminiController extends BaseController {
 		}
 		Termini nou = new Termini();
 		if (definicioProcesId != null)
-			nou.setDefinicioProces(dissenyService.getById(definicioProcesId));
+			nou.setDefinicioProces(dissenyService.getById(definicioProcesId, false));
 		return nou;
 	}
 

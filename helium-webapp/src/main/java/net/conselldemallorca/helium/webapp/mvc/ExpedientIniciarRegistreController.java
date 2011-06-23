@@ -5,7 +5,9 @@ package net.conselldemallorca.helium.webapp.mvc;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 
@@ -42,6 +44,26 @@ public class ExpedientIniciarRegistreController extends CommonRegistreController
 			DissenyService dissenyService) {
 		super(dissenyService);
 		this.expedientService = expedientService;
+	}
+
+	@ModelAttribute("expedientTipus")
+	public ExpedientTipus populateExpedientTipus(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) Long expedientTipusId) {
+		ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
+		return expedientTipus;
+	}
+
+	@ModelAttribute("definicioProces")
+	public DefinicioProces populateDefinicioProces(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) Long expedientTipusId,
+			@RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId) {
+		if (definicioProcesId != null) {
+			return dissenyService.getById(definicioProcesId, false);
+		} else {
+			return dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId, false);
+		}
 	}
 
 	@Override

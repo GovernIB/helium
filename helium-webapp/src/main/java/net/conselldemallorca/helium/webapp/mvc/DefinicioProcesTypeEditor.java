@@ -29,7 +29,7 @@ public class DefinicioProcesTypeEditor extends ModelTypeEditor<DefinicioProces> 
 	}
 	@Override
 	public DefinicioProces valueFromString(String text) {
-		return dissenyService.getById(new Long(text));
+		return dissenyService.getById(new Long(text), false);
 	}
 
 }

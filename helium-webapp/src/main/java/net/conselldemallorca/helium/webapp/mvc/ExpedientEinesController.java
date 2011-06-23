@@ -226,7 +226,7 @@ public class ExpedientEinesController extends BaseController {
 			if (potModificarExpedient(expedient)) {
 				try {
 					if (command.getDefinicioProcesId() != null) {
-						DefinicioProcesDto definicioProces = dissenyService.getById(command.getDefinicioProcesId());
+						DefinicioProcesDto definicioProces = dissenyService.getById(command.getDefinicioProcesId(), false);
 						expedientService.changeProcessInstanceVersion(instanciaProcesId, definicioProces.getVersio());
 						missatgeInfo(request, getMessage("info.canvi.versio.realitzat") );
 					} else {
