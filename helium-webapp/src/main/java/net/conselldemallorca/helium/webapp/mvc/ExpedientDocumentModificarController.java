@@ -188,13 +188,14 @@ public class ExpedientDocumentModificarController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			try {
-				DocumentDto document = expedientService.generarDocumentPlantilla(
-						docId,
+				DocumentDto doc = expedientService.getDocument(docId, false, false);
+				DocumentDto generat = expedientService.generarDocumentPlantilla(
+						doc.getDocumentId(),
 						id,
 						(data != null) ? data : new Date());
-				if (document != null) {
-					model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, document.getArxiuNom());
-					model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, document.getArxiuContingut());
+				if (generat != null) {
+					model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, generat.getArxiuNom());
+					model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, generat.getArxiuContingut());
 				}
 				return "arxiuView";
 			} catch (Exception ex) {

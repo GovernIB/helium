@@ -13,9 +13,25 @@
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
     <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
     <c:import url="../common/formIncludes.jsp"/>
-    
 <script type="text/javascript">
 // <![CDATA[
+function refrescarEstats(element) {
+	var estatActual = $("select#estat0").val();
+	$.getJSON(
+    		"consultaEstats.html?id=" + element.value,
+    		{},
+    		function(j) {
+			    var options = '';
+			    options += '<option value="">&lt;&lt; <fmt:message key='expedient.consulta.select.estat'/> &gt;&gt;</option>';
+		        for (var i = 0; i < j.length; i++) {
+		        	if (j[i].id == estatActual)
+		        		options += '<option value="' + j[i].id + '" selected="selected">' + j[i].nom + '</option>';
+		        	else
+		        		options += '<option value="' + j[i].id + '">' + j[i].nom + '</option>';
+		        }
+		        $("select#estat0").html(options);
+			});
+}
 function confirmarEsborrar(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
@@ -97,12 +113,13 @@ function confirmarAnular(e) {
 				<c:param name="itemValue" value="id"/>
 				<c:param name="itemBuit">&lt;&lt; <fmt:message key='expedient.consulta.select.tipusexpedient'/> &gt;&gt;</c:param>
 				<c:param name="label"><fmt:message key='expedient.consulta.tipusexpedient' /></c:param>
+				<c:param name="onchange">refrescarEstats(this)</c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="estat"/>
 				<c:param name="type" value="select"/>
 				<c:param name="items" value="estats"/>
-				<c:param name="itemLabel" value="tipusAmbNom"/>
+				<c:param name="itemLabel" value="nom"/>
 				<c:param name="itemValue" value="id"/>
 				<c:param name="itemBuit">&lt;&lt; <fmt:message key='expedient.consulta.select.estat'/> &gt;&gt;</c:param>
 				<c:param name="label"><fmt:message key='expedient.consulta.estat' /></c:param>
@@ -155,7 +172,6 @@ function confirmarAnular(e) {
 	</form:form><br/>
 
 	<c:if test="${not empty sessionScope.consultaExpedientsCommand}">
-		
 		<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable" defaultsort="2" defaultorder="descending">
 			<c:set var="filaStyle" value=""/>
 			<c:if test="${registre.anulat}"><c:set var="filaStyle" value="text-decoration:line-through"/></c:if>
@@ -189,4 +205,3 @@ function confirmarAnular(e) {
 
 </body>
 </html>
-	
