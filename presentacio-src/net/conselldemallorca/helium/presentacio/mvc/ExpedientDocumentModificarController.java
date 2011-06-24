@@ -189,17 +189,18 @@ public class ExpedientDocumentModificarController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			try {
-				DocumentDto document = expedientService.generarDocumentPlantilla(
-						docId,
+				DocumentDto doc = expedientService.getDocument(docId, false, false);
+				DocumentDto generat = expedientService.generarDocumentPlantilla(
+						doc.getDocumentId(),
 						id,
 						(data != null) ? data : new Date());
-				if (document != null) {
+				if (generat != null) {
 					model.addAttribute(
 							ArxiuConvertirView.MODEL_ATTRIBUTE_FILENAME,
-							document.getArxiuNom());
+							generat.getArxiuNom());
 					model.addAttribute(
 							ArxiuConvertirView.MODEL_ATTRIBUTE_DATA,
-							document.getArxiuContingut());
+							generat.getArxiuContingut());
 					model.addAttribute(
 							ArxiuConvertirView.MODEL_ATTRIBUTE_CONVERSIONENABLED,
 							"true".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.conversio.gentasca.actiu")));
