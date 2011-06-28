@@ -341,13 +341,13 @@ public class TramitacioPluginSistrav1 implements TramitacioPlugin {
 	private es.caib.bantel.ws.v1.services.BackofficeFacade getBantelClient() {
 		String url = GlobalProperties.getInstance().getProperty("app.bantel.entrades.url");
 		if (url == null)
-			url = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.entrades.url");
+			url = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.bantel.url");
 		String userName = GlobalProperties.getInstance().getProperty("app.bantel.entrades.username");
 		if (userName == null)
-			userName = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.entrades.username");
+			userName = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.bantel.username");
 		String password = GlobalProperties.getInstance().getProperty("app.bantel.entrades.password");
 		if (password == null)
-			password = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.entrades.password");
+			password = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.bantel.password");
 		Object wsClientProxy = WsClientUtils.getWsClientProxy(
 				es.caib.bantel.ws.v1.services.BackofficeFacade.class,
 				url,
@@ -359,13 +359,13 @@ public class TramitacioPluginSistrav1 implements TramitacioPlugin {
 	private es.caib.zonaper.ws.v1.services.BackofficeFacade getZonaperClient() {
 		String url = GlobalProperties.getInstance().getProperty("app.zonaper.service.url");
 		if (url == null)
-			url = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.tramitacio.url");
+			url = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.zonaper.url");
 		String userName = GlobalProperties.getInstance().getProperty("app.zonaper.service.username");
 		if (userName == null)
-			userName = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.tramitacio.username");
+			userName = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.zonaper.username");
 		String password = GlobalProperties.getInstance().getProperty("app.zonaper.service.password");
 		if (password == null)
-			password = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.tramitacio.password");
+			password = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.zonaper.password");
 		Object wsClientProxy = WsClientUtils.getWsClientProxy(
 				es.caib.zonaper.ws.v1.services.BackofficeFacade.class,
 				url,
@@ -377,13 +377,13 @@ public class TramitacioPluginSistrav1 implements TramitacioPlugin {
 	private es.caib.redose.ws.v1.services.BackofficeFacade getRedoseClient() {
 		String url = GlobalProperties.getInstance().getProperty("app.redose.service.url");
 		if (url == null)
-			url = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.documents.url");
+			url = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.redose.url");
 		String userName = GlobalProperties.getInstance().getProperty("app.redose.service.username");
 		if (userName == null)
-			userName = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.documents.username");
+			userName = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.redose.username");
 		String password = GlobalProperties.getInstance().getProperty("app.redose.service.password");
 		if (password == null)
-			password = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.documents.password");
+			password = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.redose.password");
 		Object wsClientProxy = WsClientUtils.getWsClientProxy(
 				es.caib.redose.ws.v1.services.BackofficeFacade.class,
 				url,

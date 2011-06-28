@@ -194,13 +194,13 @@ public class TramitacioPluginEsbCim implements TramitacioPlugin {
 	private ServicioTramitacionPortType getTramitacioClient() {
 		String url = GlobalProperties.getInstance().getProperty("app.bantel.entrades.url");
 		if (url == null)
-			url = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.entrades.url");
+			url = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.bantel.url");
 		String userName = GlobalProperties.getInstance().getProperty("app.bantel.entrades.username");
 		if (userName == null)
-			userName = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.entrades.username");
+			userName = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.bantel.username");
 		String password = GlobalProperties.getInstance().getProperty("app.bantel.entrades.password");
 		if (password == null)
-			password = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.entrades.password");
+			password = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.bantel.password");
 		Object wsClientProxy = WsClientUtils.getWsClientProxy(
 				ServicioTramitacionPortType.class,
 				url,

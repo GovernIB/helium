@@ -4,6 +4,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 
+<c:set var="sourceUrl" value="${globalProperties['app.base.url']}/document/arxiuPerSignar.html"/>
+<c:set var="targetUrl" value="${globalProperties['app.base.url']}/signatura/signarAmbTokenCaib.html"/>
+
 <html>
 <head>
 	<title>${tasca.nomLimitat}</title>
@@ -67,7 +70,7 @@ var defaultBuild = "${globalProperties['app.signatura.afirma.default.build']}";
 function signarAFirma(form, token) {
 	initialize();
 	configuraFirma();
-	clienteFirma.setFileUri("${globalProperties['app.base.url']}/document/arxiuPerSignar.html?token=" + token);
+	clienteFirma.setFileUri("${sourceUrl}?token=" + token);
 	firmar();
 	if (!clienteFirma.isError()) {
 		form.data.value = clienteFirma.getSignatureBase64Encoded();
@@ -131,16 +134,18 @@ function signarAFirma(form, token) {
 										<object classid="clsid:CAFEEFAC-0015-0000-FFFF-ABCDEFFEDCBA" width="294" height="110" align="baseline" codebase="http://java.sun.com/update/1.5.0/jinstall-1_5_0_12-windows-i586.cab" >
 											<param name="code" value="net.conselldemallorca.helium.integracio.plugins.signatura.applet.SignaturaAppletCaib">
 											<param name="archive" value="../signatura/caib/signatura-applet-caib.jar,../signatura/caib/signaturacaib.core-3.1.0-api-unsigned.jar,../signatura/caib/swing-layout-1.0.3.jar">
-											<param name="baseUrl" value="${globalProperties['app.base.url']}"/>
-											<param name="token" value="${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignatura}"/>
+											<param name="token" value="${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignaturaMultiple}"/>
+											<param name="sourceUrl" value="${sourceUrl}?token=${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignaturaUrlEncoded}"/>
+											<param name="targetUrl" value="${targetUrl}?token=${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignaturaMultipleUrlEncoded}"/>
 											<param name="signaturaParams" value="${tasca.varsDocumentsPerSignar[firma.document.codi].contentType}"/>
 											<PARAM NAME="MAYSCRIPT" VALUE="true">
 											<comment>
 												<embed width="294" height="110" align="baseline" 
 													code="net.conselldemallorca.helium.integracio.plugins.signatura.applet.SignaturaAppletCaib"
 													archive="../signatura/caib/signatura-applet-caib.jar,../signatura/caib/signaturacaib.core-3.1.0-api-unsigned.jar,../signatura/caib/swing-layout-1.0.3.jar"
-													baseUrl="${globalProperties['app.base.url']}"
-													token="${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignatura}"
+													token="${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignaturaMultiple}"
+													sourceUrl="${sourceUrl}?token=${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignaturaUrlEncoded}"
+													targetUrl="${targetUrl}?token=${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignaturaMultipleUrlEncoded}"
 													signaturaParams="${tasca.varsDocumentsPerSignar[firma.document.codi].contentType}"
 													MAYSCRIPT="true"
 													type="application/x-java-applet;version=1.5"
@@ -157,7 +162,7 @@ function signarAFirma(form, token) {
 								<c:when test="${globalProperties['app.signatura.tipus'] == 'afirma'}">
 									<form:form action="../signatura/signarAmbTokenAFirma.html" cssClass="uniForm" cssStyle="display:inline">
 										<input type="hidden" name="taskId" value="${tasca.id}"/>
-										<input type="hidden" name="token" value="${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignatura}"/>
+										<input type="hidden" name="token" value="${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignaturaMultiple}"/>
 										<input type="hidden" name="data"/>
 										<button class="submitButton" onclick="return signarAFirma(this.form, '${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignaturaUrlEncoded}')">Signar</button>
 									</form:form>

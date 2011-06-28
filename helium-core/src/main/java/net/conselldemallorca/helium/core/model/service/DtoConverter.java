@@ -499,8 +499,9 @@ public class DtoConverter {
 
 	public DocumentDto toDocumentDto(
 			Long documentStoreId,
-			boolean ambContingut,
-			boolean ambVista,
+			boolean ambContingutOriginal,
+			boolean ambContingutSignat,
+			boolean ambContingutVista,
 			boolean perSignar,
 			boolean ambSegellSignatura) {
 		if (documentStoreId != null) {
@@ -519,6 +520,9 @@ public class DtoConverter {
 					dto.setTokenSignatura(getDocumentTokenUtils().xifrarToken(documentStoreId.toString()));
 				} catch (Exception ex) {
 					logger.error("No s'ha pogut generar el token pel document " + documentStoreId, ex);
+				}
+				if (document.isSignat()) {
+					dto.setUrlVerificacioCustodia(pluginCustodiaDao.getUrlComprovacioSignatura(documentStoreId.toString()));
 				}
 				String codiDocument;
 				if (document.isAdjunt()) {
@@ -539,39 +543,47 @@ public class DtoConverter {
 						dto.setAdjuntarAuto(doc.isAdjuntarAuto());
 					}
 				}
-				if (ambContingut) {
-					// Posa el document original
-					if (document.getFont().equals(DocumentFont.INTERNA)) {
-						dto.setArxiuContingut(document.getArxiuContingut());
-					} else {
-						dto.setArxiuContingut(
-								pluginGestioDocumentalDao.retrieveDocument(
-										document.getReferenciaFont()));
-					}
-					// Posa el document signat
+				if (ambContingutOriginal) {
+					dto.setArxiuContingut(
+							getContingutDocumentAmbFont(document));
+				}
+				if (ambContingutSignat && document.isSignat() && isSignaturaFileAttached()) {
+					dto.setSignatNom(
+							getNomArxiuAmbExtensioSignatura(
+									document.getArxiuNom()));
+					byte[] signatura = pluginCustodiaDao.obtenirSignaturesAmbArxiu(document.getReferenciaCustodia());
+					dto.setSignatContingut(signatura);
+				}
+				if (ambContingutVista) {
+					String arxiuOrigenNom;
+					byte[] arxiuOrigenContingut;
 					if (document.isSignat() && isSignaturaFileAttached()) {
-						String arxiuNom = document.getArxiuNom();
-						int indexPunt = arxiuNom.indexOf(".");
-						if (indexPunt != -1) {
-							String extensio = (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
-							if (extensio != null && extensio.length() > 0)
-								dto.setSignatNom(arxiuNom.substring(0, indexPunt) + "." + extensio);
-						}
-						byte[] signatura = pluginCustodiaDao.obtenirSignaturesAmbArxiu(document.getReferenciaCustodia());
-						dto.setSignatContingut(signatura);
-					}
-					if (ambVista) {
-						String arxiuOriginalNom;
-						byte[] arxiuOriginalContingut;
-						if (document.isSignat() && isSignaturaFileAttached()) {
-							arxiuOriginalNom = dto.getSignatNom();
-							arxiuOriginalContingut = dto.getSignatContingut();
+						if (ambContingutSignat) {
+							arxiuOrigenNom = dto.getSignatNom();
+							arxiuOrigenContingut = dto.getSignatContingut();
 						} else {
-							arxiuOriginalNom = dto.getArxiuNom();
-							arxiuOriginalContingut = dto.getArxiuContingut();
+							arxiuOrigenNom = getNomArxiuAmbExtensioSignatura(
+									document.getArxiuNom());
+							arxiuOrigenContingut = pluginCustodiaDao.obtenirSignaturesAmbArxiu(document.getReferenciaCustodia());
 						}
-						if (isActiuConversioVista() || isActiuConversioSignatura()) {
-							String extensioVista = null;
+					} else {
+						arxiuOrigenNom = dto.getArxiuNom();
+						if (ambContingutOriginal) {
+							arxiuOrigenContingut = dto.getArxiuContingut();
+						} else {
+							if (document.getFont().equals(DocumentFont.INTERNA)) {
+								arxiuOrigenContingut = document.getArxiuContingut();
+							} else {
+								arxiuOrigenContingut = pluginGestioDocumentalDao.retrieveDocument(
+												document.getReferenciaFont());
+							}
+						}
+					}
+					if (isActiuConversioVista() || isActiuConversioSignatura()) {
+						String extensioVista = null;
+						if (document.isSignat() && isSignaturaFileAttached()) {
+							extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
+						} else {
 							if (perSignar) {
 								extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
 							} else {
@@ -579,34 +591,34 @@ public class DtoConverter {
 								if (extensioVista == null)
 									extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.gentasca.extension");
 							}
-							dto.setVistaNom(dto.getArxiuNomSenseExtensio() + "." + extensioVista);
-							try {
-								ByteArrayOutputStream vistaContingut = new ByteArrayOutputStream();
-								DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-								String dataRegistre = null;
-								if (document.getRegistreData() != null)
-									dataRegistre = df.format(document.getRegistreData());
-								String numeroRegistre = document.getRegistreNumero();
-								getPdfUtils().estampar(
-										arxiuOriginalNom,
-										arxiuOriginalContingut,
-										(document.isSignat()) ? false : ambSegellSignatura,
-										getUrlComprovacioSignatura(documentStoreId, dto.getTokenSignatura()),
-										document.isRegistrat(),
-										numeroRegistre,
-										dataRegistre,
-										document.getRegistreOficinaNom(),
-										document.isRegistreEntrada(),
-										vistaContingut,
-										extensioVista);
-								dto.setVistaContingut(vistaContingut.toByteArray());
-							} catch (Exception ex) {
-								logger.error("No s'ha pogut generar la vista pel document '" + document.getCodiDocument() + "'", ex);
-							}
-						} else {
-							dto.setVistaNom(arxiuOriginalNom);
-							dto.setVistaContingut(arxiuOriginalContingut);
 						}
+						dto.setVistaNom(dto.getArxiuNomSenseExtensio() + "." + extensioVista);
+						try {
+							ByteArrayOutputStream vistaContingut = new ByteArrayOutputStream();
+							DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+							String dataRegistre = null;
+							if (document.getRegistreData() != null)
+								dataRegistre = df.format(document.getRegistreData());
+							String numeroRegistre = document.getRegistreNumero();
+							getPdfUtils().estampar(
+									arxiuOrigenNom,
+									arxiuOrigenContingut,
+									(document.isSignat()) ? false : ambSegellSignatura,
+									(document.isSignat()) ? null : getUrlComprovacioSignatura(documentStoreId, dto.getTokenSignatura()),
+									document.isRegistrat(),
+									numeroRegistre,
+									dataRegistre,
+									document.getRegistreOficinaNom(),
+									document.isRegistreEntrada(),
+									vistaContingut,
+									extensioVista);
+							dto.setVistaContingut(vistaContingut.toByteArray());
+						} catch (Exception ex) {
+							logger.error("No s'ha pogut generar la vista pel document '" + document.getCodiDocument() + "'", ex);
+						}
+					} else {
+						dto.setVistaNom(arxiuOrigenNom);
+						dto.setVistaContingut(arxiuOrigenContingut);
 					}
 				}
 				if (document.isRegistrat()) {
@@ -988,7 +1000,13 @@ public class DtoConverter {
 			if (documentStoreId != null) {
 				resposta.put(
 						document.getDocument().getCodi(),
-						toDocumentDto(documentStoreId, false, false, false, false));
+						toDocumentDto(
+								documentStoreId,
+								false,
+								false,
+								false,
+								false,
+								false));
 			}
 		}
 		return resposta;
@@ -1006,7 +1024,13 @@ public class DtoConverter {
 				if (documentStoreId != null) {
 					resposta.put(
 							document.getCodi(),
-							toDocumentDto(documentStoreId, false, false, false, false));
+							toDocumentDto(
+									documentStoreId,
+									false,
+									false,
+									false,
+									false,
+									false));
 				}
 			}
 			// Afegeix els adjunts
@@ -1015,7 +1039,13 @@ public class DtoConverter {
 					Long documentStoreId = (Long)valors.get(var);
 					resposta.put(
 							var.substring(TascaService.PREFIX_ADJUNT.length()),
-							toDocumentDto(documentStoreId, false, false, false, false));
+							toDocumentDto(
+									documentStoreId,
+									false,
+									false,
+									false,
+									false,
+									false));
 				}
 			}
 		}
@@ -1037,10 +1067,17 @@ public class DtoConverter {
 							processInstanceId,
 							TascaService.PREFIX_DOCUMENT + signatura.getDocument().getCodi());
 				if (documentStoreId != null) {
-					DocumentDto dto = toDocumentDto(documentStoreId, false, false, false, false);
+					DocumentDto dto = toDocumentDto(
+							documentStoreId,
+							false,
+							false,
+							false,
+							false,
+							false);
 					if (dto != null) {
 						try {
-							dto.setTokenSignatura(getDocumentTokenUtils().xifrarTokenMultiple(
+							dto.setTokenSignatura(getDocumentTokenUtils().xifrarToken(documentStoreId.toString()));
+							dto.setTokenSignaturaMultiple(getDocumentTokenUtils().xifrarTokenMultiple(
 									new String[] {
 											taskId,
 											documentStoreId.toString()}));
@@ -1292,6 +1329,26 @@ public class DtoConverter {
 			return false;
 		String actiuConversioSignatura = (String)GlobalProperties.getInstance().get("app.conversio.signatura.actiu");
 		return "true".equalsIgnoreCase(actiuConversioSignatura);
+	}
+
+	private String getNomArxiuAmbExtensioSignatura(String arxiuNomOriginal) {
+		String extensio = (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
+		if (extensio == null)
+			extensio = "";
+		int indexPunt = arxiuNomOriginal.indexOf(".");
+		if (indexPunt != -1) {
+			return arxiuNomOriginal.substring(0, indexPunt) + "." + extensio;
+		} else {
+			return arxiuNomOriginal + "." + extensio;
+		}
+	}
+
+	private byte[] getContingutDocumentAmbFont(DocumentStore document) {
+		if (document.getFont().equals(DocumentFont.INTERNA))
+			return document.getArxiuContingut();
+		else
+			return pluginGestioDocumentalDao.retrieveDocument(
+							document.getReferenciaFont());
 	}
 
 	private String getUrlComprovacioSignatura(Long documentStoreId, String token) {

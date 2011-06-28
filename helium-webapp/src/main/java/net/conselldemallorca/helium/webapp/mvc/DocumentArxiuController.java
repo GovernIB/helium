@@ -40,10 +40,15 @@ public class DocumentArxiuController extends BaseController {
 	public String arxiuMostrar(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = false) Long id,
+			@RequestParam(value = "token", required = false) String token,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			ArxiuDto arxiu = documentService.arxiuDocumentPerMostrar(id);
+			ArxiuDto arxiu = null;
+			if (id != null)
+				arxiu = documentService.arxiuDocumentPerMostrar(id);
+			else if (token != null)
+				arxiu = documentService.arxiuDocumentPerMostrar(token);
 			if (arxiu != null) {
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());

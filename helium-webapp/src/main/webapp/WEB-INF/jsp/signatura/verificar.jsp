@@ -33,7 +33,7 @@
 			<c:when test="${globalProperties['app.signatura.plugin.file.attached'] == 'true'}">
 				<h4 class="titol-missatge">
 					<fmt:message key='signa.verif.doc_signat' />:&nbsp;
-					<a href="<c:url value="/signatura/descarregarAmbToken.html"><c:param name="token" value="${document.tokenSignatura}"/></c:url>"><img src="<c:url value="/img/page_white_put.png"/>" alt="<fmt:message key='comuns.descarregar' />" title="<fmt:message key='comuns.descarregar' />" border="0"/></a>
+					<a href="<c:url value="/document/arxiuMostrar.html"><c:param name="token" value="${document.tokenSignatura}"/></c:url>"><img src="<c:url value="/img/page_white_put.png"/>" alt="<fmt:message key='comuns.descarregar' />" title="<fmt:message key='comuns.descarregar' />" border="0"/></a>
 				</h4>
 			</c:when>
 			<c:otherwise>

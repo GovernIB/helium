@@ -450,8 +450,14 @@
 	</servlet>
 	<servlet>
 		<servlet-name>CXFServlet</servlet-name>
-		<servlet-class>org.apache.cxf.transport.servlet.CXFServlet</servlet-class>
+		<!--servlet-class>org.apache.cxf.transport.servlet.CXFServlet</servlet-class-->
+		<servlet-class>net.conselldemallorca.helium.ws.HeliumCXFServlet</servlet-class>
 		<load-on-startup>2</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>EndpointPublisherServlet</servlet-name>
+		<servlet-class>net.conselldemallorca.helium.ws.EndpointPublisherServlet</servlet-class>
+		<load-on-startup>3</load-on-startup>
 	</servlet>
 	<servlet>
 		<servlet-name>AxisServlet</servlet-name>

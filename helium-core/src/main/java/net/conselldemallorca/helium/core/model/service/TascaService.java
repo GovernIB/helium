@@ -739,7 +739,13 @@ public class TascaService {
 					PREFIX_DOCUMENT + codiVariable);
 		if (documentStoreId == null)
 			return null;
-		return dtoConverter.toDocumentDto(documentStoreId, true, false, false, false);
+		return dtoConverter.toDocumentDto(
+				documentStoreId,
+				true,
+				false,
+				false,
+				false,
+				false);
 	}
 
 	public DocumentDto getDocumentAmbToken(
@@ -752,6 +758,7 @@ public class TascaService {
 			return dtoConverter.toDocumentDto(
 					documentStoreId,
 					ambContingut,
+					false,
 					false,
 					false,
 					false);
@@ -768,7 +775,13 @@ public class TascaService {
 			JbpmTask task = comprovarSeguretatTasca(entornId, tokenDesxifrat[0], null, true);
 			TascaDto tascaDto = toTascaDto(task, null, false);
 			Long documentStoreId = Long.parseLong(tokenDesxifrat[1]);
-			DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, true, true, true, true);
+			DocumentDto document = dtoConverter.toDocumentDto(
+					documentStoreId,
+					false,
+					false,
+					true,
+					true,
+					true);
 			if (document != null) {
 				// Comprova que es tengui accés a signar el document
 				boolean trobat = false;

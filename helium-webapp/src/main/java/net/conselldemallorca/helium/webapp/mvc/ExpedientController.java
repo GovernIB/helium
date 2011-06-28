@@ -8,7 +8,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
@@ -237,7 +236,7 @@ public class ExpedientController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
-	@RequestMapping(value = "documentDescarregar")
+	/*@RequestMapping(value = "documentDescarregar")
 	public String documentDescarregar(
 			HttpServletRequest request,
 			@RequestParam(value = "processInstanceId", required = false) String processInstanceId,
@@ -256,7 +255,7 @@ public class ExpedientController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
-	/*@RequestMapping(value = "documentConsultar")
+	@RequestMapping(value = "documentConsultar")
 	public String documentConsultar(
 			HttpServletRequest request,
 			@RequestParam(value = "processInstanceId", required = false) String processInstanceId,
