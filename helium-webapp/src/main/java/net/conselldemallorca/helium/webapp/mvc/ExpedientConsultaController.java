@@ -121,14 +121,19 @@ public class ExpedientConsultaController extends BaseController {
 						command.getGeoPosY(),
 						command.getGeoReferencia(),
 						command.isMostrarAnulats());
+				List<String> piis = new ArrayList<String>();
 				Iterator<ExpedientDto> it = expedients.iterator();
 				while (it.hasNext()) {
 					ExpedientDto expedient = it.next();
-					if (!tipus.contains(expedient.getTipus()))
+					if (!tipus.contains(expedient.getTipus())){
 						it.remove();
+					} else {
+						piis.add(expedient.getProcessInstanceId());
+					}
 				}
 				model.addAttribute("command", command);
 				model.addAttribute("llistat", expedients);
+				model.addAttribute("piis", piis);
 			} else {
 				model.addAttribute("command", new ExpedientConsultaGeneralCommand());
 			}

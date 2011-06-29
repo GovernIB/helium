@@ -13,6 +13,9 @@
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
     <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
     <c:import url="../common/formIncludes.jsp"/>
+    <script type="text/javascript" src="<c:url value="/dwr/engine.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/dwr/util.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/dwr/interface/gisDwrService.js"/>"></script>
 <script type="text/javascript">
 // <![CDATA[
 function refrescarEstats(element) {
@@ -43,6 +46,48 @@ function confirmarAnular(e) {
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
 	return confirm("Estau segur que voleu anul·lar aquest expedient?");
+}
+function obreVisorGis() {
+    var sUrl; //= "${globalProperties['app.gis.plugin.sitibsa.url.visor']}";
+	var piis = new Array();
+
+	<c:forEach items="${piis}" var="pii">
+		piis.push('${pii}');
+	</c:forEach>
+
+	gisDwrService.urlVisor(
+		{
+			callback: function(url) {
+				sUrl = url;
+			},
+			async: false
+		});
+	 
+    gisDwrService.xmlExpedients(piis,
+   		{
+    		callback: function(sXML) {
+    			var form = document.createElement("form");
+    			form.setAttribute("method", "post");
+    		    form.setAttribute("action", sUrl);
+    		    form.setAttribute("target", "visor");
+    		  
+    			var input = document.createElement('input');
+    		    input.type = 'hidden';
+    		    input.name = 'xmlexpedients';
+    		    input.value = sXML;
+
+    			form.appendChild(input);
+    			document.body.appendChild(form);
+    		  
+    		  	//note I am using a post.htm page since I did not want to make double request to the page 
+    		    //it might have some Page_Load call which might screw things up.
+    		    //window.open("post.htm", name, windowoption);
+    			
+    			form.submit();
+    			document.body.removeChild(form);
+    		},
+			async: true
+    	});
 }
 // ]]>
 </script>
@@ -172,6 +217,14 @@ function confirmarAnular(e) {
 	</form:form><br/>
 
 	<c:if test="${not empty sessionScope.consultaExpedientsCommand}">
+		<c:if test="${globalProperties['app.georef.actiu'] && globalProperties['app.gis.plugin.actiu']}">
+			<c:import url="../common/formElement.jsp">
+				<c:param name="type" value="buttons"/>
+				<c:param name="values">gis</c:param>
+				<c:param name="titles"><fmt:message key='expedient.consulta.gis'/></c:param>
+				<c:param name="onclick">obreVisorGis()</c:param>
+			</c:import>
+		</c:if>
 		<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable" defaultsort="2" defaultorder="descending">
 			<c:set var="filaStyle" value=""/>
 			<c:if test="${registre.anulat}"><c:set var="filaStyle" value="text-decoration:line-through"/></c:if>
