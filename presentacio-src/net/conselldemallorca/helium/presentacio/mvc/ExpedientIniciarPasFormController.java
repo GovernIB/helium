@@ -124,7 +124,7 @@ public class ExpedientIniciarPasFormController extends BaseController {
 			}
 			model.addAttribute("camps", camps);
 			model.addAttribute("valorsCommand", valorsCommand);
-			Map<String, Object> valorsRegistres = obtenirValorsRegistresSessio(request, camps);
+			/*Map<String, Object> valorsRegistres = obtenirValorsRegistresSessio(request, camps);
 			for (String codi: valorsRegistres.keySet()) {
 				try {
 					Object[] valor = (Object[])valorsRegistres.get(codi);
@@ -132,7 +132,7 @@ public class ExpedientIniciarPasFormController extends BaseController {
 				} catch (Exception ex) {
 					logger.warn(ex);
 				}
-			}
+			}*/
 			return command;
 		}
 		return null;
@@ -192,8 +192,9 @@ public class ExpedientIniciarPasFormController extends BaseController {
 						definicioProcesId,
 						(Map<String, Object>)model.get("valorsCommand"));
 				if ("submit".equals(submit)) {
-					Map<String, List<Object>> valorsSuggest = TascaFormUtil.getValorsPerSuggest(tascaInicial, command);
-					Validator validator = new TascaFormValidator(expedientService, valorsSuggest);
+					Validator validator = new TascaFormValidator(
+							expedientService,
+							obtenirValorsRegistresSessio(request, camps));
 					validator.validate(command, result);
 					try {
 						TascaFormUtil.getBeanValidatorForCommand(camps).validate(command, result);
@@ -201,12 +202,16 @@ public class ExpedientIniciarPasFormController extends BaseController {
 						missatgeError(request, "S'han produit errors de validació", ex.getLocalizedMessage());
 			        	logger.error("S'han produit errors de validació", ex);
 			        	model.addAttribute("tasca", tascaInicial);
-			        	model.addAttribute("valorsPerSuggest", valorsSuggest);
+			        	model.addAttribute(
+			        			"valorsPerSuggest",
+			        			TascaFormUtil.getValorsPerSuggest(tascaInicial, command));
 			        	return "expedient/iniciarPasForm";
 					}
 					if (result.hasErrors()) {
 						model.addAttribute("tasca", tascaInicial);
-			        	model.addAttribute("valorsPerSuggest", TascaFormUtil.getValorsPerSuggest(tascaInicial, command));
+			        	model.addAttribute(
+			        			"valorsPerSuggest",
+			        			TascaFormUtil.getValorsPerSuggest(tascaInicial, command));
 			        	return "expedient/iniciarPasForm";
 			        }
 					try {

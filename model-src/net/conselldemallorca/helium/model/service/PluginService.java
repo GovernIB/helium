@@ -112,7 +112,13 @@ public class PluginService {
 			String transicioOK,
 			String transicioKO) throws Exception {
 		try {
-			DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, true, true, true, true);
+			DocumentDto document = dtoConverter.toDocumentDto(
+					documentStoreId,
+					false,
+					false,
+					true,
+					true,
+					true);
 			String documentTitol = expedient.getIdentificador() + ": " + document.getDocumentNom();
 			Integer doc = pluginPortasignaturesDao.uploadDocument(
 							persona,
@@ -250,10 +256,11 @@ public class PluginService {
 			Long documentStoreId) throws Exception {
 		DocumentDto document = dtoConverter.toDocumentDto(
 				documentStoreId,
-				true,
-				true,
-				true,
-				true);
+				false,
+				false,
+				false,
+				false,
+				false);
 		if (document != null) {
 			DocumentStore docst = documentStoreDao.getById(documentStoreId, false);
 			JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(docst.getProcessInstanceId());

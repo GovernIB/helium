@@ -147,7 +147,7 @@ public class SignaturaController extends BaseController {
 		try {
 			DocumentDto document = null;
 			if (id != null)
-				document = expedientService.getDocument(id, false, false);
+				document = expedientService.getDocument(id, false, false, false);
 			else if (token != null)
 				document = tascaService.getDocumentAmbToken(token, true);
 			model.addAttribute("document", document);

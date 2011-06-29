@@ -214,7 +214,7 @@ public abstract class BasicActionHandler implements ActionHandler {
 			return null;
 		if (valor instanceof Long) {
 			Long id = (Long)valor;
-			DocumentDto document = getExpedientService().getDocument(id, true, false);
+			DocumentDto document = getExpedientService().getDocument(id, true, true, false);
 			if (document == null)
 				return null;
 			DocumentInfo resposta = new DocumentInfo();

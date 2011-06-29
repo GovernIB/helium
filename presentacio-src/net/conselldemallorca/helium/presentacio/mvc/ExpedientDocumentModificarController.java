@@ -76,7 +76,7 @@ public class ExpedientDocumentModificarController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			DocumentExpedientCommand command = new DocumentExpedientCommand();
-			DocumentDto dto = expedientService.getDocument(docId, false, false);
+			DocumentDto dto = expedientService.getDocument(docId, false, false, false);
 			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, false);
 			Document document = dissenyService.findDocumentAmbDefinicioProcesICodi(
 					instanciaProces.getDefinicioProces().getId(),
@@ -102,7 +102,7 @@ public class ExpedientDocumentModificarController extends BaseController {
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (potModificarExpedient(expedient)) {
-				DocumentDto doc = expedientService.getDocument(docId, false, false);
+				DocumentDto doc = expedientService.getDocument(docId, false, false, false);
 				if (!doc.isSignat()) {
 					model.addAttribute("expedient", expedient);
 					model.addAttribute("document", doc);
@@ -141,11 +141,11 @@ public class ExpedientDocumentModificarController extends BaseController {
 					new DocumentModificarValidator().validate(command, result);
 			        if (result.hasErrors()) {
 			        	model.addAttribute("expedient", expedient);
-						model.addAttribute("document", expedientService.getDocument(command.getDocId(), false, false));
+						model.addAttribute("document", expedientService.getDocument(command.getDocId(), false, false, false));
 			        	return "expedient/documentForm";
 			        }
 					try {
-						DocumentDto doc = expedientService.getDocument(command.getDocId(), false, false);
+						DocumentDto doc = expedientService.getDocument(command.getDocId(), false, false, false);
 						if (!doc.isAdjunt()) {
 							expedientService.guardarDocument(
 									id,
@@ -189,7 +189,7 @@ public class ExpedientDocumentModificarController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			try {
-				DocumentDto doc = expedientService.getDocument(docId, false, false);
+				DocumentDto doc = expedientService.getDocument(docId, false, false, false);
 				DocumentDto generat = expedientService.generarDocumentPlantilla(
 						doc.getDocumentId(),
 						id,

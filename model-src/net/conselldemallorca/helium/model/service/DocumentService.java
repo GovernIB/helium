@@ -33,11 +33,23 @@ public class DocumentService {
 
 
 	public DocumentDto arxiuDocumentInfo(Long documentStoreId) {
-		return dtoConverter.toDocumentDto(documentStoreId, false, false, false, false);
+		return dtoConverter.toDocumentDto(
+				documentStoreId,
+				false,
+				false,
+				false,
+				false,
+				false);
 	}
 
 	public ArxiuDto arxiuDocumentOriginal(Long documentStoreId) {
-		DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, true, false, false, false);
+		DocumentDto document = dtoConverter.toDocumentDto(
+				documentStoreId,
+				true,
+				false,
+				false,
+				false,
+				false);
 		if (document == null)
 			return null;
 		return new ArxiuDto(
@@ -45,8 +57,29 @@ public class DocumentService {
 				document.getArxiuContingut());
 	}
 
+	public ArxiuDto arxiuDocumentSignatura(Long documentStoreId) {
+		DocumentDto document = dtoConverter.toDocumentDto(
+				documentStoreId,
+				false,
+				true,
+				false,
+				false,
+				false);
+		if (document == null)
+			return null;
+		return new ArxiuDto(
+				document.getSignatNom(),
+				document.getSignatContingut());
+	}
+
 	public ArxiuDto arxiuDocumentVista(Long documentStoreId) {
-		DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, true, true, false, false);
+		DocumentDto document = dtoConverter.toDocumentDto(
+				documentStoreId,
+				false,
+				false,
+				true,
+				false,
+				false);
 		if (document == null)
 			return null;
 		return new ArxiuDto(
@@ -72,7 +105,8 @@ public class DocumentService {
 			Long documentStoreId = Long.parseLong(parts[1]);
 			DocumentDto document = dtoConverter.toDocumentDto(
 					documentStoreId,
-					true,
+					false,
+					false,
 					true,
 					true,
 					estampar);

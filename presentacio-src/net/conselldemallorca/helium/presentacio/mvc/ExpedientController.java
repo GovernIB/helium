@@ -222,7 +222,7 @@ public class ExpedientController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			DocumentDto document = expedientService.getDocument(docId, true, false);
+			DocumentDto document = expedientService.getDocument(docId, true, false, false);
 			if (document != null) {
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, document.getArxiuNom());
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, document.getArxiuContingut());
@@ -241,7 +241,7 @@ public class ExpedientController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			DocumentDto document = expedientService.getDocument(docId, true, false);
+			DocumentDto document = expedientService.getDocument(docId, true, true, false);
 			if (document != null) {
 				if (isSignaturaFileAttached()) {
 					model.addAttribute(

@@ -4,12 +4,11 @@
 package net.conselldemallorca.helium.presentacio.mvc;
 
 import java.lang.reflect.Array;
-import java.util.List;
 import java.util.Map;
 
 import net.conselldemallorca.helium.model.dto.TascaDto;
-import net.conselldemallorca.helium.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.model.hibernate.Camp.TipusCamp;
+import net.conselldemallorca.helium.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.model.service.ExpedientService;
 import net.conselldemallorca.helium.model.service.TascaService;
 import net.conselldemallorca.helium.util.EntornActual;
@@ -32,7 +31,7 @@ public class TascaFormValidator implements Validator {
 	private static ThreadLocal<TascaDto> tascaThreadLocal = new ThreadLocal<TascaDto>();
 	private TascaService tascaService;
 	private ExpedientService expedientService;
-	private Map<String, List<Object>> valorsSuggest;
+	private Map<String, Object> valorsRegistre;
 	boolean inicial;
 	boolean validarObligatoris;
 	public TascaFormValidator(TascaService tascaService) {
@@ -50,9 +49,11 @@ public class TascaFormValidator implements Validator {
 		this.inicial = true;
 		this.validarObligatoris = true;
 	}
-	public TascaFormValidator(ExpedientService expedientService, Map<String, List<Object>> valorsSuggest) {
+	public TascaFormValidator(
+			ExpedientService expedientService,
+			Map<String, Object> valorsRegistre) {
 		this.expedientService = expedientService;
-		this.valorsSuggest = valorsSuggest;
+		this.valorsRegistre = valorsRegistre;
 		this.validarObligatoris = true;
 		this.inicial = true;
 	}
@@ -73,9 +74,9 @@ public class TascaFormValidator implements Validator {
 									camp.getCamp().getCodi());
 							if (valor == null || valor.length == 0)
 								ValidationUtils.rejectIfEmpty(errors, camp.getCamp().getCodi(), "not.blank");
-						} else if (valorsSuggest != null) {
-							List<Object> valor = valorsSuggest.get(camp.getCamp().getCodi());
-							if (valor == null || valor.size() == 0)
+						} else if (valorsRegistre != null) {
+							Object valor = valorsRegistre.get(camp.getCamp().getCodi());
+							if (valor == null || (valor instanceof Object[] && ((Object[])valor).length == 0))
 								ValidationUtils.rejectIfEmpty(errors, camp.getCamp().getCodi(), "not.blank");
 						} else {
 							ValidationUtils.rejectIfEmpty(errors, camp.getCamp().getCodi(), "not.blank");
