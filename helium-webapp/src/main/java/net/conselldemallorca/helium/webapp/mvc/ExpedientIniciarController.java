@@ -109,9 +109,10 @@ public class ExpedientIniciarController extends BaseController {
 		if (entorn != null) {
 			ExpedientTipus tipus = dissenyService.getExpedientTipusById(expedientTipusId);
 			if (potIniciarExpedientTipus(tipus)) {
-				netejarSessioRegistres(request);
+				netejarSessio(request);
 				// Si l'expedient té titol i/o número redirigeix al pas per demanar aquestes dades
 				if (tipus.getDemanaNumero().booleanValue() || tipus.getDemanaTitol().booleanValue()) {
+					generarTaskIdSessio(request);
 					if (definicioProcesId != null)
 						return "redirect:/expedient/iniciarPasTitol.html?expedientTipusId=" + expedientTipusId + "&definicioProcesId=" + definicioProcesId;
 					else
@@ -193,14 +194,24 @@ public class ExpedientIniciarController extends BaseController {
 					ExtendedPermission.CREATE}) != null;
 	}
 
+	private void generarTaskIdSessio(HttpServletRequest request) {
+		request.getSession().setAttribute(
+				ExpedientIniciarPasTitolController.CLAU_SESSIO_TASKID,
+				"TIE_" + System.currentTimeMillis());
+	}
+
 	@SuppressWarnings("unchecked")
-	private void netejarSessioRegistres(HttpServletRequest request) {
+	private void netejarSessio(HttpServletRequest request) {
 		Enumeration<String> atributs = request.getSession().getAttributeNames();
 		while (atributs.hasMoreElements()) {
 			String atribut = atributs.nextElement();
 			if (atribut.startsWith(ExpedientIniciarRegistreController.PREFIX_REGISTRE_SESSIO))
 				request.getSession().removeAttribute(atribut);
 		}
+		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_TASKID);
+		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_NUMERO);
+		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_TITOL);
+		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_FORM_VALIDAT);
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientIniciarController.class);

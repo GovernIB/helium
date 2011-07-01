@@ -201,7 +201,7 @@ public class PermisController extends BaseController {
 			this.permisService = permisService;
 		}
 		
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(PermisCommand.class);
 		}

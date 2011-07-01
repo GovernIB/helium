@@ -149,7 +149,7 @@ public class ExpedientTipusFormextController extends BaseController {
 	private class ExpedientTipusFormextValidator implements Validator {
 		public ExpedientTipusFormextValidator() {
 		}
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(ExpedientTipusFormextCommand.class);
 		}

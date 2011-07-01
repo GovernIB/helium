@@ -232,7 +232,7 @@ public class ExpedientDocumentModificarController extends BaseController {
 	}
 
 	public class DocumentModificarValidator implements Validator {
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(Object.class);
 		}

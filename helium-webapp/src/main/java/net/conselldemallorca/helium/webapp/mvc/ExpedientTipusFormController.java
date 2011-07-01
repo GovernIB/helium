@@ -154,7 +154,7 @@ public class ExpedientTipusFormController extends BaseController {
 		public ExpedientTipusValidator(DissenyService dissenyService) {
 			this.dissenyService = dissenyService;
 		}
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(ExpedientTipus.class);
 		}

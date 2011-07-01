@@ -415,6 +415,7 @@ public class DtoConverter {
 		dto.setDefinicioProces(tasca.getDefinicioProces());
 		dto.setOutcomes(jbpmDao.findStartTaskOutcomes(jbpmId, startTaskName));
 		dto.setValidacions(tasca.getValidacions());
+		dto.setFormExtern(tasca.getFormExtern());
 		//Camps
 		List<CampTasca> campsTasca = tasca.getCamps();
 		for (CampTasca campTasca: campsTasca) {
@@ -557,6 +558,8 @@ public class DtoConverter {
 				if (ambContingutVista) {
 					String arxiuOrigenNom;
 					byte[] arxiuOrigenContingut;
+					// Obtenim l'origen per a generar la vista o bé del document original
+					// o bé del document signat
 					if (document.isSignat() && isSignaturaFileAttached()) {
 						if (ambContingutSignat) {
 							arxiuOrigenNom = dto.getSignatNom();
@@ -579,20 +582,19 @@ public class DtoConverter {
 							}
 						}
 					}
-					if (isActiuConversioVista() || isActiuConversioSignatura()) {
-						String extensioVista = null;
-						if (document.isSignat() && isSignaturaFileAttached()) {
-							extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
-						} else {
-							if (perSignar) {
-								extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
-							} else {
-								extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.extension");
-								if (extensioVista == null)
-									extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.gentasca.extension");
-							}
-						}
-						dto.setVistaNom(dto.getArxiuNomSenseExtensio() + "." + extensioVista);
+					// Calculam l'extensió del document final de la vista
+					String extensioActual = null;
+					int indexPunt = arxiuOrigenNom.indexOf(".");
+					if (indexPunt != -1)
+						extensioActual = arxiuOrigenNom.substring(0, indexPunt);
+					String extensioDesti = extensioActual;
+					if (perSignar) {
+						extensioDesti = getNomArxiuAmbExtensioSignatura(
+								arxiuOrigenNom);
+					}
+					dto.setVistaNom(dto.getArxiuNomSenseExtensio() + "." + extensioDesti);
+					if ("pdf".equalsIgnoreCase(extensioDesti)) {
+						// Si és un PDF podem estampar
 						try {
 							ByteArrayOutputStream vistaContingut = new ByteArrayOutputStream();
 							DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
@@ -611,12 +613,13 @@ public class DtoConverter {
 									document.getRegistreOficinaNom(),
 									document.isRegistreEntrada(),
 									vistaContingut,
-									extensioVista);
+									extensioDesti);
 							dto.setVistaContingut(vistaContingut.toByteArray());
 						} catch (Exception ex) {
 							logger.error("No s'ha pogut generar la vista pel document '" + document.getCodiDocument() + "'", ex);
 						}
 					} else {
+						// Si no és un pdf retornam la vista directament
 						dto.setVistaNom(arxiuOrigenNom);
 						dto.setVistaContingut(arxiuOrigenContingut);
 					}
@@ -1314,15 +1317,6 @@ public class DtoConverter {
 		return "true".equalsIgnoreCase((String)GlobalProperties.getInstance().get("app.signatura.plugin.file.attached"));
 	}
 
-	private boolean isActiuConversioVista() {
-		String actiuConversio = (String)GlobalProperties.getInstance().get("app.conversio.actiu");
-		if (!"true".equalsIgnoreCase(actiuConversio))
-			return false;
-		String actiuConversioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.actiu");
-		if (actiuConversioVista == null)
-			actiuConversioVista = (String)GlobalProperties.getInstance().get("app.conversio.gentasca.actiu");
-		return "true".equalsIgnoreCase(actiuConversioVista);
-	}
 	private boolean isActiuConversioSignatura() {
 		String actiuConversio = (String)GlobalProperties.getInstance().get("app.conversio.actiu");
 		if (!"true".equalsIgnoreCase(actiuConversio))
@@ -1332,6 +1326,8 @@ public class DtoConverter {
 	}
 
 	private String getNomArxiuAmbExtensioSignatura(String arxiuNomOriginal) {
+		if (!isActiuConversioSignatura())
+			return arxiuNomOriginal;
 		String extensio = (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
 		if (extensio == null)
 			extensio = "";

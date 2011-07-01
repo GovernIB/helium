@@ -252,7 +252,7 @@ public class ExpedientEinesController extends BaseController {
 
 
 	private class ExpedientScriptValidator implements Validator {
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(ExpedientEinesScriptCommand.class);
 		}
@@ -261,7 +261,7 @@ public class ExpedientEinesController extends BaseController {
 		}
 	}
 	private class ExpedientAturarValidator implements Validator {
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(ExpedientEinesAturarCommand.class);
 		}

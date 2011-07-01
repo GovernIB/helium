@@ -165,7 +165,7 @@ public class ExpedientTokenController extends BaseController {
 	}
 
 	public class ExpedientTokenRetrocedirValidator implements Validator {
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(Object.class);
 		}

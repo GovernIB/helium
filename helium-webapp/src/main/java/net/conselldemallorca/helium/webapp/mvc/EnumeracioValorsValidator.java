@@ -16,7 +16,7 @@ import org.springframework.validation.ValidationUtils;
  */
 public class EnumeracioValorsValidator {
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public boolean supports(Class clazz) {
 		return clazz.isAssignableFrom(EnumeracioValorsCommand.class);
 	}

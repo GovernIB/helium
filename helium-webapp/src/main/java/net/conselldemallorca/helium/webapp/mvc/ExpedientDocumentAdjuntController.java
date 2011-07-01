@@ -155,7 +155,7 @@ public class ExpedientDocumentAdjuntController extends BaseController {
 	}
 
 	public class DocumentAdjuntCrearValidator implements Validator {
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(Object.class);
 		}

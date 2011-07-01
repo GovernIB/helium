@@ -161,7 +161,7 @@ public class PerfilController extends BaseController {
 	}
 
 	public class CanviContrasenyaValidator implements Validator {
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(CanviContrasenyaCommand.class);
 		}

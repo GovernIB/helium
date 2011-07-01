@@ -42,7 +42,7 @@ public class TascaFormUtil {
 
 
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public static Object getCommandForTasca(
 			TascaDto tasca,
 			Map<String, Object> campsAddicionals,
@@ -57,7 +57,7 @@ public class TascaFormUtil {
 				campsAddicionalsClasses,
 				false);
 	}
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public static Object getCommandForFiltre(
 			List<Camp> camps,
 			Map<String, Object> valors,
@@ -70,7 +70,7 @@ public class TascaFormUtil {
 				campsAddicionalsClasses,
 				true);
 	}
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public static Object getCommandForRegistre(
 			Camp camp,
 			Map<String, Object> valors,
@@ -217,7 +217,7 @@ public class TascaFormUtil {
 			request.getSession().removeAttribute(VARIABLE_SESSIO_COMMAND_TMP);
 		return command;
 	}
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public static Object getCommandForCamps(
 			List<Camp> camps,
 			Map<String, Object> valors,

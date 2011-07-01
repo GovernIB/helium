@@ -42,7 +42,6 @@ public class TascaSignaturesController extends BaseController {
 		this.tascaService = tascaService;
 	}
 
-	@SuppressWarnings("unchecked")
 	@ModelAttribute("commandReadOnly")
 	public Object populateCommand(
 			HttpServletRequest request,
@@ -55,6 +54,7 @@ public class TascaSignaturesController extends BaseController {
 				campsAddicionals.put("id", id);
 				campsAddicionals.put("entornId", entorn.getId());
 				campsAddicionals.put("procesScope", null);
+				@SuppressWarnings("rawtypes")
 				Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
 				campsAddicionalsClasses.put("id", String.class);
 				campsAddicionalsClasses.put("entornId", Long.class);

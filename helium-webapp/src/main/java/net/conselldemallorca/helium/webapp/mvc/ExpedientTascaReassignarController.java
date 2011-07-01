@@ -154,7 +154,7 @@ public class ExpedientTascaReassignarController extends BaseController {
 					ExtendedPermission.WRITE}) != null;
 	}
 	private class TascaReassignarValidator implements Validator {
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(ExpedientTascaReassignarCommand.class);
 		}

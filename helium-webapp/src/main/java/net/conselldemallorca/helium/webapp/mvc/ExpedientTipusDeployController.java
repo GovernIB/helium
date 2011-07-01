@@ -210,7 +210,7 @@ public class ExpedientTipusDeployController extends BaseController {
 
 
 	private class DeployValidator implements Validator {
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(DeployCommand.class);
 		}

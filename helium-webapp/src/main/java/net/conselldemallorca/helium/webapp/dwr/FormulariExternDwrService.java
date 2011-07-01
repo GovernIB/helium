@@ -48,6 +48,30 @@ public class FormulariExternDwrService {
 		return null;
 	}
 
+	public String[] dadesIniciFormulariInicial(
+			HttpServletRequest request,
+			String taskId,
+			Long expedientTipusId,
+			Long definicioProcesId) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			try {
+				FormulariExtern formExtern = tascaService.iniciarFormulariExtern(
+						taskId,
+						expedientTipusId,
+						definicioProcesId);
+				String[] resposta = new String[] {
+						formExtern.getUrl(),
+						Integer.toString(formExtern.getFormWidth()),
+						Integer.toString(formExtern.getFormHeight())};
+				return resposta;
+			} catch (Exception ex) {
+				logger.error("No s'ha pogut iniciar el formulari extern", ex);
+			}
+		}
+		return null;
+	}
+
 	protected Entorn getEntornActiu(
 			HttpServletRequest request) {
 		return (Entorn)request.getSession().getAttribute(EntornInterceptor.VARIABLE_SESSIO_ENTORN_ACTUAL);

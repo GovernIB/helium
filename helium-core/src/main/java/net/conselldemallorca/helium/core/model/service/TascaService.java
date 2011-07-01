@@ -19,6 +19,7 @@ import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentStoreDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
+import net.conselldemallorca.helium.core.model.dao.ExpedientTipusDao;
 import net.conselldemallorca.helium.core.model.dao.FormulariExternDao;
 import net.conselldemallorca.helium.core.model.dao.LuceneDao;
 import net.conselldemallorca.helium.core.model.dao.PlantillaDocumentDao;
@@ -45,14 +46,15 @@ import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.FormulariExtern;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.core.util.DocumentTokenUtils;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
@@ -95,6 +97,7 @@ public class TascaService {
 	public static final String DEFAULT_KEY_ALGORITHM = "DES";
 
 	private ExpedientDao expedientDao;
+	private ExpedientTipusDao expedientTipusDao;
 	private TascaDao tascaDao;
 	private DefinicioProcesDao definicioProcesDao;
 	private DocumentDao documentDao;
@@ -114,6 +117,8 @@ public class TascaService {
 
 	private OpenOfficeUtils openOfficeUtils;
 	private DocumentTokenUtils documentTokenUtils;
+
+	private Map<String, Map<String, Object>> dadesFormulariExternInicial;
 
 
 
@@ -974,33 +979,73 @@ public class TascaService {
 				vars);
 	}
 
+	public FormulariExtern iniciarFormulariExtern(
+			String taskId,
+			Long expedientTipusId,
+			Long definicioProcesId) {
+		ExpedientTipus expedientTipus = expedientTipusDao.getById(expedientTipusId, false);
+		DefinicioProces definicioProces = null;
+		if (definicioProcesId != null) {
+			definicioProces = definicioProcesDao.getById(definicioProcesId, false);
+		} else {
+			definicioProces = definicioProcesDao.findDarreraVersioAmbEntornIJbpmKey(
+					expedientTipus.getEntorn().getId(),
+					expedientTipus.getJbpmProcessDefinitionKey());
+		}
+		if (definicioProcesId == null && definicioProces == null) {
+			logger.error("No s'ha trobat la definició de procés (entorn=" + expedientTipus.getEntorn().getCodi() + ", jbpmKey=" + expedientTipus.getJbpmProcessDefinitionKey() + ")");
+		}
+		String startTaskName = jbpmDao.getStartTaskName(definicioProces.getJbpmId());
+		Tasca tasca = tascaDao.findAmbActivityNameIDefinicioProces(
+				startTaskName,
+				definicioProces.getId());
+		return formulariExternDao.iniciarFormulariExtern(
+				expedientTipus,
+				taskId,
+				tasca.getFormExtern(),
+				null);
+	}
+
 	public void guardarFormulariExtern(
 			String formulariId,
 			Map<String, Object> variables) {
-		FormulariExtern formExtern = formulariExternDao.findAmbFormulariId(formulariId);
-		if (formExtern != null) {
-			Map<String, Object> valors = new HashMap<String, Object>();
-			JbpmTask task = jbpmDao.getTaskById(formExtern.getTaskId());
-			Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
-					task.getName(),
-					task.getProcessDefinitionId());
-			for (CampTasca camp: tasca.getCamps()) {
-				if (!camp.isReadOnly()) {
-					String codi = camp.getCamp().getCodi();
-					if (variables.keySet().contains(codi))
-						valors.put(codi, variables.get(codi));
-				}
-			}
-			validar(
-					entornPerTasca(task).getId(),
-					formExtern.getTaskId(),
-					valors,
-					false);
-			formExtern.setDataRecepcioDades(new Date());
+		if (formulariId.startsWith("TIE_")) {
+			if (dadesFormulariExternInicial == null)
+				dadesFormulariExternInicial = new HashMap<String, Map<String, Object>>();
+			dadesFormulariExternInicial.put(formulariId, variables);
 			logger.info("Les dades del formulari amb id " + formulariId + " han estat guardades");
 		} else {
-			logger.warn("No s'ha trobat cap tasca amb l'id de formulari " + formulariId);
+			FormulariExtern formExtern = formulariExternDao.findAmbFormulariId(formulariId);
+			if (formExtern != null) {
+				Map<String, Object> valors = new HashMap<String, Object>();
+				JbpmTask task = jbpmDao.getTaskById(formExtern.getTaskId());
+				Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
+						task.getName(),
+						task.getProcessDefinitionId());
+				for (CampTasca camp: tasca.getCamps()) {
+					if (!camp.isReadOnly()) {
+						String codi = camp.getCamp().getCodi();
+						if (variables.keySet().contains(codi))
+							valors.put(codi, variables.get(codi));
+					}
+				}
+				validar(
+						entornPerTasca(task).getId(),
+						formExtern.getTaskId(),
+						valors,
+						false);
+				formExtern.setDataRecepcioDades(new Date());
+				logger.info("Les dades del formulari amb id " + formulariId + " han estat guardades");
+			} else {
+				logger.warn("No s'ha trobat cap tasca amb l'id de formulari " + formulariId);
+			}
 		}
+	}
+
+	public Map<String, Object> obtenirValorsFormulariExternInicial(String formulariId) {
+		if (dadesFormulariExternInicial == null)
+			return null;
+		return dadesFormulariExternInicial.remove(formulariId);
 	}
 
 	public List<FilaResultat> getValorsCampSelect(
@@ -1054,6 +1099,10 @@ public class TascaService {
 	@Autowired
 	public void setExpedientDao(ExpedientDao expedientDao) {
 		this.expedientDao = expedientDao;
+	}
+	@Autowired
+	public void setExpedientTipusDao(ExpedientTipusDao expedientTipusDao) {
+		this.expedientTipusDao = expedientTipusDao;
 	}
 	@Autowired
 	public void setTascaDao(TascaDao tascaDao) {

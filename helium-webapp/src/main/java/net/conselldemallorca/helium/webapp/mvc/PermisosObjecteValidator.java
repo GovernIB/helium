@@ -13,7 +13,7 @@ import org.springframework.validation.ValidationUtils;
  */
 public class PermisosObjecteValidator {
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public boolean supports(Class clazz) {
 		return clazz.isAssignableFrom(PermisosObjecteCommand.class);
 	}

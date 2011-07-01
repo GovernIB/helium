@@ -53,7 +53,7 @@ public class TascaDocumentsController extends BaseController {
 		this.tascaService = tascaService;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	@ModelAttribute("commandReadOnly")
 	public Object populateCommand(
 			HttpServletRequest request,

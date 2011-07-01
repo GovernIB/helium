@@ -83,7 +83,7 @@ public class ExpedientDadaModificarController extends BaseController {
 		this.validator = new TascaFormValidator(expedientService);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	@ModelAttribute("command")
 	public Object populateCommand(
 			HttpServletRequest request,

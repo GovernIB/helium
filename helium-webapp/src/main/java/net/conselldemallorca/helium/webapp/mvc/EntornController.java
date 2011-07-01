@@ -215,7 +215,7 @@ public class EntornController extends BaseController {
 		public EntornValidator(EntornService entornService) {
 			this.entornService = entornService;
 		}
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(Entorn.class);
 		}

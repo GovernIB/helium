@@ -73,7 +73,6 @@ public abstract class CommonRegistreController extends BaseController {
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
 	@ModelAttribute("command")
 	public Object populateCommand(
 			HttpServletRequest request,
@@ -90,6 +89,7 @@ public abstract class CommonRegistreController extends BaseController {
 			campsAddicionals.put("entornId", entorn.getId());
 			campsAddicionals.put("index", index);
 			campsAddicionals.put("procesScope", null);
+			@SuppressWarnings("rawtypes")
 			Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
 			campsAddicionalsClasses.put("id", String.class);
 			campsAddicionalsClasses.put("registreId", Long.class);

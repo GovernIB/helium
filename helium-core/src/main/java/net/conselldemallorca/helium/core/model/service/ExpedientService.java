@@ -1195,7 +1195,7 @@ public class ExpedientService {
 		this.messageSource = messageSource;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	private Map<String, JbpmNodePosition> getNodePositions(String processInstanceId) {
 		Map<String, JbpmNodePosition> resposta = new HashMap<String, JbpmNodePosition>();
 		JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(processInstanceId);

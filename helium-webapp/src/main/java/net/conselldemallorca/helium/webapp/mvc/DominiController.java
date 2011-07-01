@@ -182,7 +182,7 @@ public class DominiController extends BaseController {
 
 
 	private class DominiValidator implements Validator {
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(Camp.class);
 		}

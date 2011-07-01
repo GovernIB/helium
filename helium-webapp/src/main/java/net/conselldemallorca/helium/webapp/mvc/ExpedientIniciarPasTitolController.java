@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.webapp.mvc;
 
+import java.util.Enumeration;
+
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
@@ -41,8 +43,10 @@ import org.springframework.web.bind.support.SessionStatus;
 @Controller
 public class ExpedientIniciarPasTitolController extends BaseController {
 
+	public static final String CLAU_SESSIO_TASKID = "iniciexp_taskId";
 	public static final String CLAU_SESSIO_TITOL = "iniciexp_titol";
 	public static final String CLAU_SESSIO_NUMERO = "iniciexp_numero";
+	public static final String CLAU_SESSIO_FORM_VALIDAT = "iniciexp_form_validat";
 
 	private DissenyService dissenyService;
 	private ExpedientService expedientService;
@@ -195,6 +199,7 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 								null,
 								null);
 				        missatgeInfo(request, getMessage("info.expedient.iniciat"));
+				        netejarSessio(request);
 				        return "redirect:/expedient/iniciar.html";
 			        } catch (Exception ex) {
 			        	missatgeError(
@@ -227,7 +232,7 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 			this.dissenyService = dissenyService;
 			this.expedientService = expedientService;
 		}
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(ExpedientIniciarPasTitolCommand.class);
 		}
@@ -274,6 +279,20 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 		if (codi == null)
 			return null;
 		return pluginService.findPersonaAmbCodi(codi);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void netejarSessio(HttpServletRequest request) {
+		Enumeration<String> atributs = request.getSession().getAttributeNames();
+		while (atributs.hasMoreElements()) {
+			String atribut = atributs.nextElement();
+			if (atribut.startsWith(ExpedientIniciarRegistreController.PREFIX_REGISTRE_SESSIO))
+				request.getSession().removeAttribute(atribut);
+		}
+		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_TASKID);
+		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_NUMERO);
+		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_TITOL);
+		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_FORM_VALIDAT);
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientIniciarPasTitolController.class);

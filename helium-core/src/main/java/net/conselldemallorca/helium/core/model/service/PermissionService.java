@@ -44,7 +44,7 @@ public class PermissionService {
 
 
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public void addPermissions(
 			String recipient,
 			boolean principal,
@@ -76,7 +76,7 @@ public class PermissionService {
 		}
 		aclServiceDao.updateAcl(acl);
 	}
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public void deletePermissions(
 			String recipient,
 			boolean principal,
@@ -102,7 +102,7 @@ public class PermissionService {
 						granting);
 		}
 	}
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public void deleteAllPermissionsForSid(
 			String recipient,
 			boolean principal,
@@ -120,7 +120,7 @@ public class PermissionService {
 					clazz);
 		}
 	}
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public Map<Sid, List<AccessControlEntry>> getAclEntriesGroupedBySid(
 			Serializable id,
 			Class clazz) {
@@ -142,7 +142,7 @@ public class PermissionService {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public void filterAllowed(
 			List list,
 			Class clazz,
@@ -154,7 +154,7 @@ public class PermissionService {
 				it.remove();
 		}
 	}
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public Object filterAllowed(
 			GenericEntity object,
 			Class clazz,
@@ -173,7 +173,7 @@ public class PermissionService {
 		this.aclServiceDao = aclServiceDao;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	private boolean isGrantedAny(
 			GenericEntity object,
 			Class clazz,

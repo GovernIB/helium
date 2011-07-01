@@ -23,7 +23,7 @@ public class CommonRegistreValidator implements Validator {
 	public CommonRegistreValidator(DissenyService dissenyService) {
 		this.dissenyService = dissenyService;
 	}
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public boolean supports(Class clazz) {
 		return clazz.isAssignableFrom(Object.class);
 	}

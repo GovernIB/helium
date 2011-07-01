@@ -175,7 +175,7 @@ public class CarrecController extends BaseController {
 		public CarrecValidator(OrganitzacioService organitzacioService) {
 			this.organitzacioService = organitzacioService;
 		}
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(Carrec.class);
 		}

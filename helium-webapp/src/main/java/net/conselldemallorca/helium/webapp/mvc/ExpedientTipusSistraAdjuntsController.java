@@ -156,7 +156,7 @@ public class ExpedientTipusSistraAdjuntsController extends BaseController {
 		public ExpedientTipusSistraAdjuntValidator(DissenyService dissenyService) {
 			this.dissenyService = dissenyService;
 		}
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(MapeigSistra.class);
 		}

@@ -186,7 +186,7 @@ public class PersonaController extends BaseController {
 		public PersonaUsuariValidator(PersonaService personaService) {
 			this.personaService = personaService;
 		}
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(PersonaUsuariCommand.class);
 		}

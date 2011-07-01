@@ -87,7 +87,7 @@ public class BaseController implements MessageSourceAware {
 		return (Entorn)request.getSession().getAttribute(EntornInterceptor.VARIABLE_SESSIO_ENTORN_ACTUAL);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	protected PaginatedList newPaginatedList(
 			int page,
 			String sort,

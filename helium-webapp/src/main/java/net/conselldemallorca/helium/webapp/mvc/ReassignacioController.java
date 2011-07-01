@@ -134,7 +134,7 @@ public class ReassignacioController extends BaseController {
 		public ReassignacioValidator(ReassignacioService reassignacioService) {
 			this.reassignacioService = reassignacioService;
 		}
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(ReassignacioCommand.class);
 		}

@@ -278,7 +278,7 @@ public class ExpedientTipusSistraController extends BaseController {
 		public ExpedientTipusSistraValidator(DissenyService dissenyService) {
 			this.dissenyService = dissenyService;
 		}
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(ExpedientTipusSistraCommand.class);
 		}

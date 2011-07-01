@@ -164,7 +164,7 @@ public class ExpedientEditarController extends BaseController {
 	}
 
 	private class ExpedientEditarValidator implements Validator {
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(ExpedientEditarCommand.class);
 		}

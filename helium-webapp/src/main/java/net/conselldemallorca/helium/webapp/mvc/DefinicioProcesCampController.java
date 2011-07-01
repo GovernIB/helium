@@ -323,7 +323,7 @@ public class DefinicioProcesCampController extends BaseController {
 
 
 	private class CampValidator implements Validator {
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(Camp.class);
 		}

@@ -207,7 +207,7 @@ public class AreaController extends BaseController {
 		public AreaValidator(OrganitzacioService organitzacioService) {
 			this.organitzacioService = organitzacioService;
 		}
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(Area.class);
 		}
