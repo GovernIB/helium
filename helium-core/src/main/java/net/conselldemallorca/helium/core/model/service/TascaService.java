@@ -1009,14 +1009,13 @@ public class TascaService {
 	public void guardarFormulariExtern(
 			String formulariId,
 			Map<String, Object> variables) {
-		if (formulariId.startsWith("TIE_")) {
-			if (dadesFormulariExternInicial == null)
-				dadesFormulariExternInicial = new HashMap<String, Map<String, Object>>();
-			dadesFormulariExternInicial.put(formulariId, variables);
-			logger.info("Les dades del formulari amb id " + formulariId + " han estat guardades");
-		} else {
-			FormulariExtern formExtern = formulariExternDao.findAmbFormulariId(formulariId);
-			if (formExtern != null) {
+		FormulariExtern formExtern = formulariExternDao.findAmbFormulariId(formulariId);
+		if (formExtern != null) {
+			if (formulariId.startsWith("TIE_")) {
+				if (dadesFormulariExternInicial == null)
+					dadesFormulariExternInicial = new HashMap<String, Map<String, Object>>();
+				dadesFormulariExternInicial.put(formulariId, variables);
+			} else {
 				Map<String, Object> valors = new HashMap<String, Object>();
 				JbpmTask task = jbpmDao.getTaskById(formExtern.getTaskId());
 				Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
@@ -1034,11 +1033,11 @@ public class TascaService {
 						formExtern.getTaskId(),
 						valors,
 						false);
-				formExtern.setDataRecepcioDades(new Date());
-				logger.info("Les dades del formulari amb id " + formulariId + " han estat guardades");
-			} else {
-				logger.warn("No s'ha trobat cap tasca amb l'id de formulari " + formulariId);
 			}
+			formExtern.setDataRecepcioDades(new Date());
+			logger.info("Les dades del formulari amb id " + formulariId + " han estat guardades");
+		} else {
+			logger.warn("No s'ha trobat cap tasca amb l'id de formulari " + formulariId);
 		}
 	}
 
