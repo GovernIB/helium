@@ -6,8 +6,8 @@
   <display-name>helium-ear</display-name>
   <module>
     <web>
-      <web-uri>helium-webapp.war</web-uri>
-      <context-root>/helium-webapp</context-root>
+      <web-uri>helium.war</web-uri>
+      <context-root>/helium</context-root>
     </web>
   </module>
 </application>

@@ -161,7 +161,7 @@
 					<target>1.5</target>
 				</configuration>
 			</plugin>
-			<plugin>
+			<!--plugin>
 				<artifactId>maven-jar-plugin</artifactId>
 				<executions>
 					<execution>
@@ -178,7 +178,7 @@
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin-->
 		</plugins>
 	</build>
 </project>
