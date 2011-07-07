@@ -127,6 +127,9 @@ public class TascaController extends BaseController {
 			ordre = ((ordre!=null)&&(!ordre.equals("")))?ordre:"0";
 			
 			TascaPersonaFiltreCommand tascaPersonaFiltreCommand = (TascaPersonaFiltreCommand)model.get("commandPersonaFiltre");
+			String expedient = request.getParameter("exp");
+			if (expedient != null) tascaPersonaFiltreCommand.setExpedient(expedient);
+			
 			if (!ordre.equals("0")) {
 				tascaPersonaFiltreCommand.setColumna(columna);
 				tascaPersonaFiltreCommand.setOrdre(ordre);

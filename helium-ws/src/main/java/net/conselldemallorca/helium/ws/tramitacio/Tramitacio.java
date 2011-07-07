@@ -685,6 +685,7 @@ public class Tramitacio implements TramitacioService {
 			resposta.setTitol(expedient.getTitol());
 			resposta.setNumero(expedient.getNumero());
 			resposta.setNumeroDefault(expedient.getNumeroDefault());
+			resposta.setIdentificador(expedient.getIdentificador());
 			resposta.setDataInici(expedient.getDataInici());
 			resposta.setDataFi(expedient.getDataFi());
 			resposta.setComentari(expedient.getComentari());
@@ -716,9 +717,12 @@ public class Tramitacio implements TramitacioService {
 			resposta.setTramitExpedientIdentificador(expedient.getTramitExpedientIdentificador());
 			resposta.setTramitExpedientClau(expedient.getTramitExpedientClau());
 			resposta.setExpedientTipusCodi(expedient.getTipus().getCodi());
+			resposta.setExpedientTipusNom(expedient.getTipus().getNom());
 			resposta.setEntornCodi(expedient.getEntorn().getCodi());
-			if (expedient.getEstat() != null)
+			if (expedient.getEstat() != null) {
 				resposta.setEstatCodi(expedient.getEstat().getCodi());
+				resposta.setEstatNom(expedient.getEstat().getNom());
+			}
 			resposta.setProcessInstanceId(new Long(expedient.getProcessInstanceId()).longValue());
 			return resposta;
 		}

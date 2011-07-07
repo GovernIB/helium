@@ -228,7 +228,7 @@ function obreVisorGis() {
 		<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable" defaultsort="2" defaultorder="descending">
 			<c:set var="filaStyle" value=""/>
 			<c:if test="${registre.anulat}"><c:set var="filaStyle" value="text-decoration:line-through"/></c:if>
-			<display:column property="identificador" title="Expedient" sortable="true" url="/expedient/info.html" paramId="id" paramProperty="processInstanceId" style="${filaStyle}"/>
+			<display:column property="identificador" title="Expedient" sortable="true" url="/tasca/personaLlistat.html" paramId="exp" paramProperty="identificador" style="${filaStyle}"/>
 			<display:column property="dataInici" title="Iniciat el" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true" style="${filaStyle}"/>
 			<display:column property="tipus.nom" title="Tipus" style="${filaStyle}"/>
 			<display:column title="Estat" style="${filaStyle}">
@@ -252,9 +252,15 @@ function obreVisorGis() {
 					<a href="<c:url value="/expedient/delete.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmarEsborrar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 				</security:accesscontrollist>
 			</display:column>
+			<display:column>
+				<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,2">
+					<a href="<c:url value="/expedient/info.html"><c:param name="id" value="${registre.processInstanceId}"/></c:url>"><img src="<c:url value="/img/information.png"/>" alt="<fmt:message key='comuns.informacio' />" title="<fmt:message key='comuns.informacio' />" border="0"/></a>
+				</security:accesscontrollist>
+			</display:column>
 		</display:table>
 		<script type="text/javascript">initSelectable();</script>
 	</c:if>
 
 </body>
 </html>
+				

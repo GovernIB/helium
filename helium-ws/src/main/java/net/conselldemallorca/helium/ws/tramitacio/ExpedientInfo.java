@@ -19,6 +19,7 @@ public class ExpedientInfo {
 	private String titol;
 	private String numero;
 	private String numeroDefault;
+	private String identificador;
 	private Date dataInici;
 	private Date dataFi;
 	private String comentari;
@@ -49,7 +50,9 @@ public class ExpedientInfo {
 	private String tramitExpedientClau;
 
 	private String estatCodi;
+	private String estatNom;
 	private String expedientTipusCodi;
+	private String expedientTipusNom;
 	private String entornCodi;
 
 	private long processInstanceId;
@@ -73,6 +76,12 @@ public class ExpedientInfo {
 	}
 	public void setNumeroDefault(String numeroDefault) {
 		this.numeroDefault = numeroDefault;
+	}
+	public String getIdentificador() {
+		return identificador;
+	}
+	public void setIdentificador(String identificador) {
+		this.identificador = identificador;
 	}
 	public Date getDataInici() {
 		return dataInici;
@@ -243,11 +252,23 @@ public class ExpedientInfo {
 	public void setEstatCodi(String estatCodi) {
 		this.estatCodi = estatCodi;
 	}
+	public String getEstatNom() {
+		return estatNom;
+	}
+	public void setEstatNom(String estatNom) {
+		this.estatNom = estatNom;
+	}
 	public String getExpedientTipusCodi() {
 		return expedientTipusCodi;
 	}
 	public void setExpedientTipusCodi(String expedientTipusCodi) {
 		this.expedientTipusCodi = expedientTipusCodi;
+	}
+	public String getExpedientTipusNom() {
+		return expedientTipusNom;
+	}
+	public void setExpedientTipusNom(String expedientTipusNom) {
+		this.expedientTipusNom = expedientTipusNom;
 	}
 	public String getEntornCodi() {
 		return entornCodi;
