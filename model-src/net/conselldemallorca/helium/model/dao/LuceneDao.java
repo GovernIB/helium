@@ -417,31 +417,36 @@ public class LuceneDao extends LuceneIndexSupport {
 		}
 	}
 	private String valorIndexPerCamp(Camp camp, Object valor) {
-		if (camp.getTipus().equals(TipusCamp.INTEGER)) {
-			return numberPerIndexar((Long)valor);
-		} else if (camp.getTipus().equals(TipusCamp.FLOAT)) {
-			return numberPerIndexar((Double)valor);
-		} else if (camp.getTipus().equals(TipusCamp.BOOLEAN)) {
-			return ((Boolean)valor) ? "S" : "N";
-		} else if (camp.getTipus().equals(TipusCamp.DATE)) {
-			return dataPerIndexar((Date)valor);
-		} else if (camp.getTipus().equals(TipusCamp.PRICE)) {
-			return numberPerIndexar((BigDecimal)valor);
-		} else if (camp.getTipus().equals(TipusCamp.TERMINI)) {
-			Termini term = (Termini)valor;
-			return term.getAnys() + "/" + term.getMesos() + "/" + term.getDies();
-		} else if (camp.getTipus().equals(TipusCamp.SELECCIO)) {
-			return (String)valor;
-		} else if (camp.getTipus().equals(TipusCamp.SUGGEST)) {
-			return (String)valor;
-		} else if (camp.getTipus().equals(TipusCamp.STRING)) {
-			return normalitzarILlevarAccents((String)valor);
-		} else if (camp.getTipus().equals(TipusCamp.TEXTAREA)) {
-			return normalitzarILlevarAccents((String)valor);
-		} else {
-			if (valor == null)
-				return null;
-			return valor.toString();
+		try {
+			if (camp.getTipus().equals(TipusCamp.INTEGER)) {
+				return numberPerIndexar((Long)valor);
+			} else if (camp.getTipus().equals(TipusCamp.FLOAT)) {
+				return numberPerIndexar((Double)valor);
+			} else if (camp.getTipus().equals(TipusCamp.BOOLEAN)) {
+				return ((Boolean)valor) ? "S" : "N";
+			} else if (camp.getTipus().equals(TipusCamp.DATE)) {
+				return dataPerIndexar((Date)valor);
+			} else if (camp.getTipus().equals(TipusCamp.PRICE)) {
+				return numberPerIndexar((BigDecimal)valor);
+			} else if (camp.getTipus().equals(TipusCamp.TERMINI)) {
+				Termini term = (Termini)valor;
+				return term.getAnys() + "/" + term.getMesos() + "/" + term.getDies();
+			} else if (camp.getTipus().equals(TipusCamp.SELECCIO)) {
+				return (String)valor;
+			} else if (camp.getTipus().equals(TipusCamp.SUGGEST)) {
+				return (String)valor;
+			} else if (camp.getTipus().equals(TipusCamp.STRING)) {
+				return normalitzarILlevarAccents((String)valor);
+			} else if (camp.getTipus().equals(TipusCamp.TEXTAREA)) {
+				return normalitzarILlevarAccents((String)valor);
+			} else {
+				if (valor == null)
+					return null;
+				return valor.toString();
+			}
+		} catch (Exception ex) {
+			logger.error("Error al afegir el camp al document de lucene: (" + camp.getCodi() + ", " + valor.getClass().getName() + ")", ex);
+			return null;
 		}
 	}
 

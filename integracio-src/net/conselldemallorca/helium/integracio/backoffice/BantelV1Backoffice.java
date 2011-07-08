@@ -61,6 +61,7 @@ public class BantelV1Backoffice extends BaseBackoffice implements BantelFacade {
 					requestResultat.setResultatProces(ResultatProcesTipus.PROCESSAT);
 				else
 					requestResultat.setResultatProces(ResultatProcesTipus.ERROR);
+				logger.info("Comunicant el resultat de processar el tràmit " + request + ": " + requestResultat.getResultatProces());
 				tramitacioPlugin.comunicarResultatProcesTramit(requestResultat);
 			} catch (Exception ex) {
 				logger.error("Error a l'hora de comunicar el resultat de processar el tramit " + request, ex);

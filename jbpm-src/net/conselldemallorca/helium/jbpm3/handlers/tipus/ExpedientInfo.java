@@ -49,8 +49,11 @@ public class ExpedientInfo {
 	private String tramitExpedientClau;
 
 	private String estatCodi;
+	private String estatNom;
 	private String expedientTipusCodi;
+	private String expedientTipusNom;
 	private String entornCodi;
+	private String entornNom;
 
 	private long processInstanceId;
 
@@ -243,17 +246,35 @@ public class ExpedientInfo {
 	public void setEstatCodi(String estatCodi) {
 		this.estatCodi = estatCodi;
 	}
+	public String getEstatNom() {
+		return estatNom;
+	}
+	public void setEstatNom(String estatNom) {
+		this.estatNom = estatNom;
+	}
 	public String getExpedientTipusCodi() {
 		return expedientTipusCodi;
 	}
 	public void setExpedientTipusCodi(String expedientTipusCodi) {
 		this.expedientTipusCodi = expedientTipusCodi;
 	}
+	public String getExpedientTipusNom() {
+		return expedientTipusNom;
+	}
+	public void setExpedientTipusNom(String expedientTipusNom) {
+		this.expedientTipusNom = expedientTipusNom;
+	}
 	public String getEntornCodi() {
 		return entornCodi;
 	}
 	public void setEntornCodi(String entornCodi) {
 		this.entornCodi = entornCodi;
+	}
+	public String getEntornNom() {
+		return entornNom;
+	}
+	public void setEntornNom(String entornNom) {
+		this.entornNom = entornNom;
 	}
 
 	public long getProcessInstanceId() {

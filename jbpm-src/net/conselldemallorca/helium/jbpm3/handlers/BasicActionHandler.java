@@ -882,9 +882,13 @@ public abstract class BasicActionHandler implements ActionHandler {
 			resposta.setTramitExpedientIdentificador(expedient.getTramitExpedientIdentificador());
 			resposta.setTramitExpedientClau(expedient.getTramitExpedientClau());
 			resposta.setExpedientTipusCodi(expedient.getTipus().getCodi());
+			resposta.setExpedientTipusNom(expedient.getTipus().getNom());
 			resposta.setEntornCodi(expedient.getEntorn().getCodi());
-			if (expedient.getEstat() != null)
+			resposta.setEntornNom(expedient.getEntorn().getNom());
+			if (expedient.getEstat() != null) {
 				resposta.setEstatCodi(expedient.getEstat().getCodi());
+				resposta.setEstatNom(expedient.getEstat().getNom());
+			}
 			resposta.setProcessInstanceId(new Long(expedient.getProcessInstanceId()).longValue());
 			return resposta;
 		}

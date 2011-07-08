@@ -146,6 +146,8 @@ public class PersonesPluginJdbc implements PersonesPlugin {
 	private boolean nomLlinatgesSeparat() {
 		String junt = GlobalProperties.getInstance().getProperty("app.persones.plugin.jdbc.nom.llinatges.junt");
 		if (junt == null)
+			junt = GlobalProperties.getInstance().getProperty("app.persones.plugin.jdbc.nom.llimatges.junt");
+		if (junt == null)
 			return true;
 		return junt.equalsIgnoreCase("false");
 	}

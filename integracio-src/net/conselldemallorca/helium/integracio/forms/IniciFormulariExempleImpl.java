@@ -21,8 +21,10 @@ public class IniciFormulariExempleImpl implements IniciFormulari {
 			List<ParellaCodiValor> valors) {
 		System.out.println(">>> CODI FORMULARI: " + codi);
 		System.out.println(">>> CODI TASCA: " + taskId);
-		for (ParellaCodiValor parella: valors)
-			System.out.println(">>> VALOR [" + parella.getCodi() + "]: " + parella.getValor());
+		if (valors != null) {
+			for (ParellaCodiValor parella: valors)
+				System.out.println(">>> VALOR [" + parella.getCodi() + "]: " + parella.getValor());
+		}
 		return new RespostaIniciFormulari(taskId, "http://www.limit.es");
 	}
 
