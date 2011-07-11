@@ -31,7 +31,7 @@ import org.springframework.util.StringUtils;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings("rawtypes")
 public class RolesBasedAttributes2GrantedAuthoritiesMapper implements Attributes2GrantedAuthoritiesMapper, MappableAttributesRetriever, InitializingBean {
 
 	private Map attributes2grantedAuthoritiesMap = null;
@@ -45,6 +45,7 @@ public class RolesBasedAttributes2GrantedAuthoritiesMapper implements Attributes
 	/**
 	 * Check whether all properties have been set to correct values, and do some preprocessing.
 	 */
+	@SuppressWarnings("unchecked")
 	public void afterPropertiesSet() {
 		queryGroups(sessionFactory);
 		attributes2grantedAuthoritiesMap.putAll(toOverwriteAfterQuery);
@@ -60,6 +61,7 @@ public class RolesBasedAttributes2GrantedAuthoritiesMapper implements Attributes
 	public void addRole(String role) {
 		addRole(role, true);
 	}
+	@SuppressWarnings("unchecked")
 	public void addRole(String role, boolean doPreProcess) {
 		if (filterPrefix == null || ((String)role).startsWith(filterPrefix)) {
 			if (!attributes2grantedAuthoritiesMap.containsKey(role)) {
@@ -85,6 +87,7 @@ public class RolesBasedAttributes2GrantedAuthoritiesMapper implements Attributes
 	 * @param orgMap The map to process
 	 * @return the processed Map
 	 */
+	@SuppressWarnings("unchecked")
 	private Map preProcessMap(Map orgMap) {
 		Map result = new HashMap(orgMap.size());
 		Iterator it = orgMap.entrySet().iterator();
@@ -116,6 +119,7 @@ public class RolesBasedAttributes2GrantedAuthoritiesMapper implements Attributes
 	 *            The value to convert to a GrantedAuthority Collection
 	 * @return Collection containing the GrantedAuthority Collection
 	 */
+	@SuppressWarnings("unchecked")
 	private void addGrantedAuthorityCollection(Collection result, Object value) {
 		if ( value != null ) {
 			if ( value instanceof Collection ) {
@@ -145,6 +149,7 @@ public class RolesBasedAttributes2GrantedAuthoritiesMapper implements Attributes
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void addGrantedAuthorityCollection(Collection result, String value) {
 		StringTokenizer st = new StringTokenizer(value,stringSeparator,false);
 		while ( st.hasMoreTokens() ) {
@@ -158,6 +163,7 @@ public class RolesBasedAttributes2GrantedAuthoritiesMapper implements Attributes
 	/**
 	 * Map the given array of attributes to Spring Security GrantedAuthorities.
 	 */
+	@SuppressWarnings("unchecked")
 	public GrantedAuthority[] getGrantedAuthorities(String[] attributes) {
 		List gaList = new ArrayList();
 		for (int i = 0; i < attributes.length; i++) {
@@ -209,6 +215,7 @@ public class RolesBasedAttributes2GrantedAuthoritiesMapper implements Attributes
 		this.toOverwriteAfterQuery = toOverwriteAfterQuery;
 	}
 
+	@SuppressWarnings("unchecked")
 	private void queryGroups(SessionFactory sessionFactory) {
 		HibernateTemplate ht = new HibernateTemplate(sessionFactory);
 		List<String> grups = (List<String>)ht.executeWithNewSession(new HibernateCallback() {

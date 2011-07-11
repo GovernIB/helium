@@ -28,7 +28,7 @@ public class GetGroupTaskListCommand extends AbstractGetObjectBaseCommand {
 		this.actorId = actorId;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		setJbpmContext(jbpmContext);
 		List actorIds = new ArrayList();
@@ -58,7 +58,7 @@ public class GetGroupTaskListCommand extends AbstractGetObjectBaseCommand {
 
 
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public List retrieveTaskInstanceDetails(List taskInstanceList) {
 		for (Iterator iter = taskInstanceList.iterator(); iter.hasNext();) {
 			retrieveTaskInstanceDetails((TaskInstance)iter.next());

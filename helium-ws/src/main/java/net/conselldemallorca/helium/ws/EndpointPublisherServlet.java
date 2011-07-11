@@ -38,6 +38,14 @@ public class EndpointPublisherServlet extends HttpServlet {
 		Endpoint dominiInternEndpoint = Endpoint.publish("/DominiIntern", context.getBean("dominiIntern"));
 		Endpoint formExternEndpoint = Endpoint.publish("/FormulariExtern", context.getBean("formulariExtern"));
 		Endpoint tramitacioEndpoint = Endpoint.publish("/TramitacioService", context.getBean("tramitacioService"));
+		/*Endpoint tramitacio2Endpoint = WsServerUtils.publish(
+				"/NotEnt2",
+				context.getBean("bantelV1Backoffice"),
+				"username",
+				"pass",
+				"USERNAMETOKEN",
+				true,
+				true);*/
     }
 
 }

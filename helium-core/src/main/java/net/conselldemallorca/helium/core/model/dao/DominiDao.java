@@ -80,7 +80,7 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "unused" })
 	public List<FilaResultat> consultar(
 			Long dominiId,
 			String id,

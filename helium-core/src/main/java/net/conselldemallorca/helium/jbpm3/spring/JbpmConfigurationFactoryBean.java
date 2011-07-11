@@ -51,7 +51,7 @@ public class JbpmConfigurationFactoryBean implements FactoryBean, InitializingBe
 		return jbpmConfiguration;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public Class getObjectType() {
 		return JbpmConfiguration.class;
 	}

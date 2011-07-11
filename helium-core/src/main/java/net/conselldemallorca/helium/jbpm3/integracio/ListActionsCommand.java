@@ -28,7 +28,7 @@ public class ListActionsCommand extends AbstractBaseCommand {
 		this.id = id;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		List<String> accions = new ArrayList<String>();
 		ProcessDefinition processDefinition = jbpmContext.getGraphSession().getProcessDefinition(id);

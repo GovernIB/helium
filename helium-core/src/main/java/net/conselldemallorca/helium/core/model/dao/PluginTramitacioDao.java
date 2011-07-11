@@ -83,7 +83,7 @@ public class PluginTramitacioDao {
 
 
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	private TramitacioPlugin getTramitacioPlugin() {
 		if (tramitacioPlugin == null) {
 			String pluginClass = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.class");

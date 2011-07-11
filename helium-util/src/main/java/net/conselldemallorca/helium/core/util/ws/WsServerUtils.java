@@ -8,8 +8,6 @@ import java.util.Map;
 
 import javax.xml.ws.Endpoint;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.jaxws.EndpointImpl;
@@ -25,22 +23,25 @@ import org.apache.ws.security.handler.WSHandlerConstants;
  */
 public class WsServerUtils {
 
-	public Endpoint publish(
+	public static Endpoint publish(
 			String address,
 			Object implementor,
 			String wsUserName,
-			String wsPassword) {
+			String wsPassword,
+			String authType,
+			boolean generateTimestamp,
+			boolean logCalls) {
 		Endpoint jaxwsEndpoint = Endpoint.publish(address, implementor);
 		EndpointImpl jaxwsEndpointImpl = (EndpointImpl)jaxwsEndpoint;
 		org.apache.cxf.endpoint.Server server = jaxwsEndpointImpl.getServer();
 		org.apache.cxf.endpoint.Endpoint endpoint = server.getEndpoint();
-		if (isLogCalls()) {
+		if (logCalls) {
 			endpoint.getInInterceptors().add(new LoggingInInterceptor());
 			endpoint.getOutInterceptors().add(new LoggingOutInterceptor());
 		}
-		if ("USERNAMETOKEN".equalsIgnoreCase(getAuth())) {
+		if ("USERNAMETOKEN".equalsIgnoreCase(authType)) {
 			Map<String, Object> wss4jInterceptorProps = new HashMap<String, Object>();
-			if (isGenerateTimestamp()) {
+			if (generateTimestamp) {
 				wss4jInterceptorProps.put(WSHandlerConstants.ACTION, WSHandlerConstants.TIMESTAMP + " " + WSHandlerConstants.USERNAME_TOKEN);
 			} else {
 				wss4jInterceptorProps.put(WSHandlerConstants.ACTION, WSHandlerConstants.USERNAME_TOKEN);
@@ -53,20 +54,6 @@ public class WsServerUtils {
 			endpoint.getOutInterceptors().add(new WSS4JOutInterceptor(wss4jInterceptorProps));
 		}
 		return jaxwsEndpoint;
-	}
-
-
-
-	private static String getAuth() {
-		return GlobalProperties.getInstance().getProperty("app.ws.server.auth");
-	}
-	private static boolean isLogCalls() {
-		String logCalls = GlobalProperties.getInstance().getProperty("app.ws.server.log.calls");
-		return "true".equalsIgnoreCase(logCalls);
-	}
-	private static boolean isGenerateTimestamp() {
-		String generateTimestamp = GlobalProperties.getInstance().getProperty("app.ws.server.generate.timestamp");
-		return "true".equalsIgnoreCase(generateTimestamp);
 	}
 
 }

@@ -172,7 +172,7 @@ public class PlantillaDocumentDao {
 		context.put("dataDocument", dataDocument);
 		model.put("context", context);
 	}
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	private void afegirFuncionsAlModel(
 			final Long entornId,
 			final String taskId,

@@ -13,8 +13,6 @@ import java.util.Date;
  */
 public class TokenDto {
 
-	private static final long serialVersionUID = 1L;
-
 	private String id;
 	private String name;
 	private String fullName;

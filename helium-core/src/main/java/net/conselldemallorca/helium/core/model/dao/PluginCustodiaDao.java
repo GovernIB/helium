@@ -108,7 +108,7 @@ public class PluginCustodiaDao {
 
 
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	private CustodiaPlugin getCustodiaPlugin() {
 		if (custodiaPlugin == null) {
 			String pluginClass = GlobalProperties.getInstance().getProperty("app.custodia.plugin.class");

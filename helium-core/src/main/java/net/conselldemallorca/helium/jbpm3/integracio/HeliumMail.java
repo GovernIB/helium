@@ -35,7 +35,7 @@ import org.springframework.mail.MailException;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings("rawtypes")
 public class HeliumMail implements ActionHandler {
 
 	String template = null;
@@ -104,6 +104,7 @@ public class HeliumMail implements ActionHandler {
 				getText());
 	}
 
+	@SuppressWarnings("unchecked")
 	public void send(
 			String fromAddress,
 			List recipients,
@@ -139,6 +140,7 @@ public class HeliumMail implements ActionHandler {
 	    }
 	}
 
+	@SuppressWarnings("unchecked")
 	public List getRecipients() {
 		List recipients = new ArrayList();
 		if (actors != null) {
@@ -155,6 +157,7 @@ public class HeliumMail implements ActionHandler {
 		return recipients;
 	}
 
+	@SuppressWarnings("unchecked")
 	public List getBccRecipients() {
 		List recipients = new ArrayList();
 		if (bccActors != null) {
@@ -205,6 +208,7 @@ public class HeliumMail implements ActionHandler {
 		return 5;
 	}
 
+	@SuppressWarnings("unchecked")
 	protected List tokenize(String text) {
 		if (text == null) {
 			return null;
@@ -217,6 +221,7 @@ public class HeliumMail implements ActionHandler {
 		return list;
 	}
 
+	@SuppressWarnings("unchecked")
 	protected Collection resolveAddresses(List actorIds) {
 		List emailAddresses = new ArrayList();
 		Iterator iter = actorIds.iterator();
@@ -246,6 +251,7 @@ public class HeliumMail implements ActionHandler {
 	static Map templates = null;
 	static Map templateVariables = null;
 
+	@SuppressWarnings("unchecked")
 	synchronized Properties getMailTemplateProperties(String templateName) {
 		if (templates == null) {
 			templates = new HashMap();

@@ -68,7 +68,7 @@ import org.springframework.util.Assert;
 * @author Ben Alex
 * @version $Id: BasicLookupStrategy.java 3270 2008-09-05 05:33:41Z benalex $
 */
-@SuppressWarnings("unchecked")
+@SuppressWarnings("rawtypes")
 public final class BasicLookupStrategy implements LookupStrategy {
    //~ Instance fields ================================================================================================
 
@@ -160,7 +160,8 @@ public final class BasicLookupStrategy implements LookupStrategy {
     *
     * @throws IllegalStateException DOCUMENT ME!
     */
-   private AclImpl convert(Map inputMap, Long currentIdentity) {
+   @SuppressWarnings("unchecked")
+private AclImpl convert(Map inputMap, Long currentIdentity) {
        Assert.notEmpty(inputMap, "InputMap required");
        Assert.notNull(currentIdentity, "CurrentIdentity required");
 
@@ -226,7 +227,8 @@ public final class BasicLookupStrategy implements LookupStrategy {
     * @throws SQLException if something goes wrong converting values
     * @throws IllegalStateException DOCUMENT ME!
     */
-   private void convertCurrentResultIntoObject(Map acls, ResultSet rs)
+   @SuppressWarnings("unchecked")
+private void convertCurrentResultIntoObject(Map acls, ResultSet rs)
        throws SQLException {
        Long id = new Long(rs.getLong("acl_id"));
 
@@ -316,7 +318,8 @@ public final class BasicLookupStrategy implements LookupStrategy {
     *
     * @return DOCUMENT ME!
     */
-   private Map lookupObjectIdentities(final ObjectIdentity[] objectIdentities, Sid[] sids) {
+   @SuppressWarnings("unchecked")
+private Map lookupObjectIdentities(final ObjectIdentity[] objectIdentities, Sid[] sids) {
        Assert.notEmpty(objectIdentities, "Must provide identities to lookup");
 
        final Map acls = new HashMap(); // contains Acls with StubAclParents
@@ -415,7 +418,8 @@ public final class BasicLookupStrategy implements LookupStrategy {
     *         should not throw {@link NotFoundException}, as a chain of {@link LookupStrategy}s may be used
     *         to automatically create entries if required) 
     */
-   public Map readAclsById(ObjectIdentity[] objects, Sid[] sids) {
+   @SuppressWarnings("unchecked")
+public Map readAclsById(ObjectIdentity[] objects, Sid[] sids) {
        Assert.isTrue(batchSize >= 1, "BatchSize must be >= 1");
        Assert.notEmpty(objects, "Objects to lookup required");
 
@@ -505,7 +509,8 @@ public final class BasicLookupStrategy implements LookupStrategy {
         * @throws SQLException
         * @throws DataAccessException
         */
-       public Object extractData(ResultSet rs) throws SQLException, DataAccessException {
+       @SuppressWarnings("unchecked")
+	public Object extractData(ResultSet rs) throws SQLException, DataAccessException {
            Set parentIdsToLookup = new HashSet(); // Set of parent_id Longs
 
            while (rs.next()) {

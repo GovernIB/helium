@@ -38,7 +38,7 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 	
 	/* WRAPPED OPERATIONS */
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	protected Collection acquireJobs() {
 		return (Collection) transactionTemplate.execute(new TransactionCallback() {
 			

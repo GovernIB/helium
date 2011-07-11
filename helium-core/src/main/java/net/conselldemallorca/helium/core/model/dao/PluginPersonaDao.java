@@ -94,7 +94,7 @@ public class PluginPersonaDao extends PersonaDao {
 
 
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	protected PersonesPlugin getPersonesPlugin() {
 		try {
 			if (pluginEvaluat)

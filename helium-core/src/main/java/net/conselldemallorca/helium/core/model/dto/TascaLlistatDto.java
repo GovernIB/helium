@@ -15,8 +15,6 @@ import java.util.Set;
  */
 public class TascaLlistatDto implements Comparable<TascaLlistatDto> {
 
-	private static final long serialVersionUID = 1L;
-
 	private String id;
 	private String codi;
 	private String titol;

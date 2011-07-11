@@ -16,13 +16,14 @@ import org.springframework.security.authoritymapping.Attributes2GrantedAuthoriti
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings("rawtypes")
 public class RolesBasedAttributes2GrantedAuthoritiesMapper implements Attributes2GrantedAuthoritiesMapper {
 
 	private Map baseRoleMapping = new HashMap();
 
+	@SuppressWarnings("unchecked")
 	public GrantedAuthority[] getGrantedAuthorities(String[] attributes) {
-		List<String> gaList = new ArrayList();
+		List<String> gaList = new ArrayList<String>();
 		for (int i = 0; i < attributes.length; i++) {
 			Object mapping = baseRoleMapping.get(attributes[i]);
 			if (mapping != null) {

@@ -112,7 +112,7 @@ public class PluginRegistreDao {
 
 
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	private RegistrePlugin getRegistrePlugin() {
 		if (registrePlugin == null) {
 			String pluginClass = GlobalProperties.getInstance().getProperty("app.registre.plugin.class");

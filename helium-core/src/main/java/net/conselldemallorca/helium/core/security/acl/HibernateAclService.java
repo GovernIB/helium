@@ -18,7 +18,7 @@ import org.springframework.security.acls.sid.Sid;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings("rawtypes")
 public class HibernateAclService extends HibernateDaoSupport implements AclService {
 
 	private LookupStrategy lookupStrategy;

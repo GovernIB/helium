@@ -23,7 +23,7 @@ public class RolesBasedPreAuthenticatedWebAuthenticationDetailsSource extends J2
 		super();
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	protected String[] getUserRoles(Object context, String[] mappableRoles) {
 		String[] rolesBons = mappableAttributesRetriever.getMappableAttributes();
