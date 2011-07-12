@@ -152,7 +152,7 @@ public class UpdateService {
 			try {
 				canviarMapeigSistraV210();
 				canviarMapeigEnumeracionsV210();
-				versio210.setScriptExecutat(true);
+				versio210.setProcesExecutat(true);
 				versio210.setDataExecucioProces(new Date());
 				versioDao.saveOrUpdate(versio210);
 				logger.info("Actualització a la versió " + versioCodi + " realitzada correctament");
@@ -184,12 +184,16 @@ public class UpdateService {
 					}
 				}
 				if (expedientTipus.getSistraTramitMapeigDocuments() != null) {
-					String[] parts = expedientTipus.getSistraTramitMapeigAdjunts().split(";");
+					String[] parts = expedientTipus.getSistraTramitMapeigDocuments().split(";");
 					for (int i = 0; i < parts.length; i++) {
-						String varSistra = parts[i];
-						if (varSistra != null && (!"".equalsIgnoreCase(varSistra))) {
-							if (dissenyService.findMapeigSistraAmbExpedientTipusICodi(expedientTipus.getId(), varSistra) == null) {
-								dissenyService.createMapeigSistra(varSistra, varSistra, MapeigSistra.TipusMapeig.Adjunt, expedientTipus);
+						String[] parella = parts[i].split(":");
+						if (parella.length > 1) {
+							String varSistra = parella[0];
+							String varHelium = parella[1];
+							if (varHelium != null && (!"".equalsIgnoreCase(varHelium))) {
+								if (dissenyService.findMapeigSistraAmbExpedientTipusICodi(expedientTipus.getId(), varHelium) == null) {
+									dissenyService.createMapeigSistra(varHelium, varSistra, MapeigSistra.TipusMapeig.Document, expedientTipus);
+								}
 							}
 						}
 					}
@@ -204,7 +208,7 @@ public class UpdateService {
 							}
 						}
 					}
-				}			
+				}
 			}
 		}
 	}
