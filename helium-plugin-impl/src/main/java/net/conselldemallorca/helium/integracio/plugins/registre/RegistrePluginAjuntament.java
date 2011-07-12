@@ -584,7 +584,7 @@ public class RegistrePluginAjuntament implements RegistrePlugin {
 		}
 	}
 
-	@SuppressWarnings({"unchecked", "unused"})
+	@SuppressWarnings({ "unused", "rawtypes" })
 	public String obtenirNomOficina(String oficinaCodi) throws RegistrePluginException {
 		try {
 			if (oficinaCodi != null) {
@@ -671,8 +671,37 @@ public class RegistrePluginAjuntament implements RegistrePlugin {
 				BackofficeFacade.class,
 				url,
 				userName,
-				password);
+				password,
+				getWsClientAuthType(),
+				isWsClientGenerateTimestamp(),
+				isWsClientLogCalls(),
+				isWsClientDisableCnCheck());
 		return (BackofficeFacade)wsClientProxy;
+	}
+
+	private String getWsClientAuthType() {
+		String authType = GlobalProperties.getInstance().getProperty("app.registre.plugin.ws.client.auth");
+		if (authType == null)
+			authType = GlobalProperties.getInstance().getProperty("app.ws.client.auth");
+		return authType;
+	}
+	private boolean isWsClientGenerateTimestamp() {
+		String authType = GlobalProperties.getInstance().getProperty("app.registre.plugin.ws.client.generate.timestamp");
+		if (authType == null)
+			authType = GlobalProperties.getInstance().getProperty("app.ws.client.generate.timestamp");
+		return "true".equalsIgnoreCase(authType);
+	}
+	private boolean isWsClientLogCalls() {
+		String logCalls = GlobalProperties.getInstance().getProperty("app.registre.plugin.ws.client.log.calls");
+		if (logCalls == null)
+			logCalls = GlobalProperties.getInstance().getProperty("app.ws.client.log.calls");
+		return "true".equalsIgnoreCase(logCalls);
+	}
+	private boolean isWsClientDisableCnCheck() {
+		String disableCnCheck = GlobalProperties.getInstance().getProperty("app.registre.plugin.ws.client.disable.cn.check");
+		if (disableCnCheck == null)
+			disableCnCheck = GlobalProperties.getInstance().getProperty("app.ws.client.disable.cn.check");
+		return "true".equalsIgnoreCase(disableCnCheck);
 	}
 
 	private String getModelo() {

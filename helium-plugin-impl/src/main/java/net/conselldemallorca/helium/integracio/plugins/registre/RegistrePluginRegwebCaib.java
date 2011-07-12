@@ -342,7 +342,7 @@ public class RegistrePluginRegwebCaib implements RegistrePlugin {
 		throw new RegistrePluginException("Mètode no implementat en aquest plugin");
 	}
 
-	@SuppressWarnings({"unchecked", "unused"})
+	@SuppressWarnings({"unused", "rawtypes"})
 	public String obtenirNomOficina(String oficinaCodi) throws RegistrePluginException {
 		try {
 			if (oficinaCodi != null) {

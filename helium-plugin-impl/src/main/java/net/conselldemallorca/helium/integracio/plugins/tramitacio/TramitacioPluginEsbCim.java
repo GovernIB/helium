@@ -205,7 +205,11 @@ public class TramitacioPluginEsbCim implements TramitacioPlugin {
 				ServicioTramitacionPortType.class,
 				url,
 				userName,
-				password);
+				password,
+				getWsClientAuthType(),
+				isWsClientGenerateTimestamp(),
+				isWsClientLogCalls(),
+				isWsClientDisableCnCheck());
 		return (ServicioTramitacionPortType)wsClientProxy;
 	}
 
@@ -223,8 +227,37 @@ public class TramitacioPluginEsbCim implements TramitacioPlugin {
 				ServicioGestorDocumentalPortType.class,
 				url,
 				userName,
-				password);
+				password,
+				getWsClientAuthType(),
+				isWsClientGenerateTimestamp(),
+				isWsClientLogCalls(),
+				isWsClientDisableCnCheck());
 		return (ServicioGestorDocumentalPortType)wsClientProxy;
+	}
+
+	private String getWsClientAuthType() {
+		String authType = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.auth");
+		if (authType == null)
+			authType = GlobalProperties.getInstance().getProperty("app.ws.client.auth");
+		return authType;
+	}
+	private boolean isWsClientGenerateTimestamp() {
+		String authType = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.generate.timestamp");
+		if (authType == null)
+			authType = GlobalProperties.getInstance().getProperty("app.ws.client.generate.timestamp");
+		return "true".equalsIgnoreCase(authType);
+	}
+	private boolean isWsClientLogCalls() {
+		String logCalls = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.log.calls");
+		if (logCalls == null)
+			logCalls = GlobalProperties.getInstance().getProperty("app.ws.client.log.calls");
+		return "true".equalsIgnoreCase(logCalls);
+	}
+	private boolean isWsClientDisableCnCheck() {
+		String disableCnCheck = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.disable.cn.check");
+		if (disableCnCheck == null)
+			disableCnCheck = GlobalProperties.getInstance().getProperty("app.ws.client.disable.cn.check");
+		return "true".equalsIgnoreCase(disableCnCheck);
 	}
 
 	private static final Log logger = LogFactory.getLog(TramitacioPluginEsbCim.class);

@@ -92,9 +92,39 @@ public class SignaturaPluginEsbCim implements SignaturaPlugin {
 				ServicioFirmaPortType.class,
 				url,
 				userName,
-				password);
+				password,
+				getWsClientAuthType(),
+				isWsClientGenerateTimestamp(),
+				isWsClientLogCalls(),
+				isWsClientDisableCnCheck());
 		return (ServicioFirmaPortType)wsClientProxy;
 	}
+
+	private String getWsClientAuthType() {
+		String authType = GlobalProperties.getInstance().getProperty("app.signatura.plugin.ws.client.auth");
+		if (authType == null)
+			authType = GlobalProperties.getInstance().getProperty("app.ws.client.auth");
+		return authType;
+	}
+	private boolean isWsClientGenerateTimestamp() {
+		String authType = GlobalProperties.getInstance().getProperty("app.signatura.plugin.ws.client.generate.timestamp");
+		if (authType == null)
+			authType = GlobalProperties.getInstance().getProperty("app.ws.client.generate.timestamp");
+		return "true".equalsIgnoreCase(authType);
+	}
+	private boolean isWsClientLogCalls() {
+		String logCalls = GlobalProperties.getInstance().getProperty("app.signatura.plugin.ws.client.log.calls");
+		if (logCalls == null)
+			logCalls = GlobalProperties.getInstance().getProperty("app.ws.client.log.calls");
+		return "true".equalsIgnoreCase(logCalls);
+	}
+	private boolean isWsClientDisableCnCheck() {
+		String disableCnCheck = GlobalProperties.getInstance().getProperty("app.signatura.plugin.ws.client.disable.cn.check");
+		if (disableCnCheck == null)
+			disableCnCheck = GlobalProperties.getInstance().getProperty("app.ws.client.disable.cn.check");
+		return "true".equalsIgnoreCase(disableCnCheck);
+	}
+
 	private String getFormatSignatura() {
 		return GlobalProperties.getInstance().getProperty("app.signatura.plugin.format");
 	}

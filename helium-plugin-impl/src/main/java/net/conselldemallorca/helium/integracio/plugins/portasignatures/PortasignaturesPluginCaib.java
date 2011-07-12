@@ -117,7 +117,7 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 	 * 
 	 * @throws Exception
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public List<byte[]> obtenirSignaturesDocument(
 			Integer documentId) throws PortasignaturesPluginException {
 		

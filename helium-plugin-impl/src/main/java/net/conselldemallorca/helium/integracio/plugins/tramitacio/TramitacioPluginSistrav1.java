@@ -352,7 +352,11 @@ public class TramitacioPluginSistrav1 implements TramitacioPlugin {
 				es.caib.bantel.ws.v1.services.BackofficeFacade.class,
 				url,
 				userName,
-				password);
+				password,
+				getWsClientAuthType(),
+				isWsClientGenerateTimestamp(),
+				isWsClientLogCalls(),
+				isWsClientDisableCnCheck());
 		return (es.caib.bantel.ws.v1.services.BackofficeFacade)wsClientProxy;
 	}
 
@@ -370,7 +374,11 @@ public class TramitacioPluginSistrav1 implements TramitacioPlugin {
 				es.caib.zonaper.ws.v1.services.BackofficeFacade.class,
 				url,
 				userName,
-				password);
+				password,
+				getWsClientAuthType(),
+				isWsClientGenerateTimestamp(),
+				isWsClientLogCalls(),
+				isWsClientDisableCnCheck());
 		return (es.caib.zonaper.ws.v1.services.BackofficeFacade)wsClientProxy;
 	}
 
@@ -388,8 +396,37 @@ public class TramitacioPluginSistrav1 implements TramitacioPlugin {
 				es.caib.redose.ws.v1.services.BackofficeFacade.class,
 				url,
 				userName,
-				password);
+				password,
+				getWsClientAuthType(),
+				isWsClientGenerateTimestamp(),
+				isWsClientLogCalls(),
+				isWsClientDisableCnCheck());
 		return (es.caib.redose.ws.v1.services.BackofficeFacade)wsClientProxy;
+	}
+
+	private String getWsClientAuthType() {
+		String authType = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.auth");
+		if (authType == null)
+			authType = GlobalProperties.getInstance().getProperty("app.ws.client.auth");
+		return authType;
+	}
+	private boolean isWsClientGenerateTimestamp() {
+		String authType = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.generate.timestamp");
+		if (authType == null)
+			authType = GlobalProperties.getInstance().getProperty("app.ws.client.generate.timestamp");
+		return "true".equalsIgnoreCase(authType);
+	}
+	private boolean isWsClientLogCalls() {
+		String logCalls = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.log.calls");
+		if (logCalls == null)
+			logCalls = GlobalProperties.getInstance().getProperty("app.ws.client.log.calls");
+		return "true".equalsIgnoreCase(logCalls);
+	}
+	private boolean isWsClientDisableCnCheck() {
+		String disableCnCheck = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.disable.cn.check");
+		if (disableCnCheck == null)
+			disableCnCheck = GlobalProperties.getInstance().getProperty("app.ws.client.disable.cn.check");
+		return "true".equalsIgnoreCase(disableCnCheck);
 	}
 
 	private static final Log logger = LogFactory.getLog(TramitacioPluginSistrav1.class);

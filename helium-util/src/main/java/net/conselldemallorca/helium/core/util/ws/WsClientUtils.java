@@ -6,8 +6,6 @@ package net.conselldemallorca.helium.core.util.ws;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
@@ -32,20 +30,24 @@ public class WsClientUtils {
 			Class<?> clientClass,
 			String wsUrl,
 			String wsUserName,
-			String wsPassword) {
+			String wsPassword,
+			String authType,
+			boolean generateTimestamp,
+			boolean logCalls,
+			boolean disableCnCheck) {
 		ClientProxyFactoryBean factory = new JaxWsProxyFactoryBean();
 		factory.setAddress(wsUrl);
 		factory.setServiceClass(clientClass);
-		if (isLogCalls()) {
+		if (logCalls) {
 			factory.getInInterceptors().add(new LoggingInInterceptor());
 			factory.getOutInterceptors().add(new LoggingOutInterceptor());
 		}
-		if ("BASIC".equalsIgnoreCase(getAuth())) {
+		if ("BASIC".equalsIgnoreCase(authType)) {
 			factory.setUsername(wsUserName);
 			factory.setPassword(wsPassword);
-		} else if ("USERNAMETOKEN".equalsIgnoreCase(getAuth())) {
+		} else if ("USERNAMETOKEN".equalsIgnoreCase(authType)) {
 			Map<String, Object> wss4jInterceptorProps = new HashMap<String, Object>();
-			if (isGenerateTimestamp()) {
+			if (generateTimestamp) {
 				wss4jInterceptorProps.put(WSHandlerConstants.ACTION, WSHandlerConstants.TIMESTAMP + " " + WSHandlerConstants.USERNAME_TOKEN);
 			} else {
 				wss4jInterceptorProps.put(WSHandlerConstants.ACTION, WSHandlerConstants.USERNAME_TOKEN);
@@ -57,7 +59,7 @@ public class WsClientUtils {
 			factory.getOutInterceptors().add(new WSS4JOutInterceptor(wss4jInterceptorProps));
 		}
 		Object c = factory.create();
-		if (isDisableCnCheck()) {
+		if (disableCnCheck) {
 			Client client = ClientProxy.getClient(c);
 	        HTTPConduit httpConduit = (HTTPConduit)client.getConduit();
 	        TLSClientParameters tlsParams = new TLSClientParameters();
@@ -65,24 +67,6 @@ public class WsClientUtils {
 	        httpConduit.setTlsClientParameters(tlsParams);
 		}
 		return c;
-	}
-
-
-
-	private static String getAuth() {
-		return GlobalProperties.getInstance().getProperty("app.ws.client.auth");
-	}
-	private static boolean isLogCalls() {
-		String logCalls = GlobalProperties.getInstance().getProperty("app.ws.client.log.calls");
-		return "true".equalsIgnoreCase(logCalls);
-	}
-	private static boolean isGenerateTimestamp() {
-		String generateTimestamp = GlobalProperties.getInstance().getProperty("app.ws.client.generate.timestamp");
-		return "true".equalsIgnoreCase(generateTimestamp);
-	}
-	private static boolean isDisableCnCheck() {
-		String disableCnCheck = GlobalProperties.getInstance().getProperty("app.ws.client.disable.cn.check");
-		return "true".equalsIgnoreCase(disableCnCheck);
 	}
 
 }

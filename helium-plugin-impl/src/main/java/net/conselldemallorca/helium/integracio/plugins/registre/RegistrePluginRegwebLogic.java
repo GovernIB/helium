@@ -341,7 +341,7 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 		throw new RegistrePluginException("Mètode no implementat en aquest plugin");
 	}
 
-	@SuppressWarnings({"unchecked", "unused"})
+	@SuppressWarnings({"rawtypes", "unused"})
 	public String obtenirNomOficina(String oficinaCodi) throws RegistrePluginException {
 		try {
 			if (oficinaCodi != null) {
