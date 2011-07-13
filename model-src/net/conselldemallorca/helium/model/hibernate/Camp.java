@@ -337,7 +337,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	public String getCodiEtiqueta() {
 		return codi + "/" + etiqueta;
 	}
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	@Transient
 	public Class getJavaClass() {
 		if (TipusCamp.STRING.equals(tipus)) {

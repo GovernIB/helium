@@ -262,7 +262,9 @@ public class TascaFormUtil {
 		if (campsAddicionals != null) {
 			for (String codi: campsAddicionals.keySet()) {
 				String tipusCommand = null;
-				String tipusCamp = campsAddicionals.get(codi).getClass().getName();
+				String tipusCamp = null;
+				if (campsAddicionals.get(codi) != null)
+					tipusCamp = campsAddicionals.get(codi).getClass().getName();
 				try {
 					tipusCommand = PropertyUtils.getPropertyType(command, codi).getName();
 					PropertyUtils.setSimpleProperty(command, codi, campsAddicionals.get(codi));
@@ -276,7 +278,7 @@ public class TascaFormUtil {
 			if (!camp.getTipus().equals(TipusCamp.REGISTRE)) {
 				String campCodi = getCampCodi(camp, perFiltre);
 				String tipusCommand = null;
-				String tipusCamp = (valors != null) ? valors.get(campCodi).getClass().getName() : null;
+				String tipusCamp = (valors != null && valors.get(campCodi) != null) ? valors.get(campCodi).getClass().getName() : null;
 				try {
 					tipusCommand = PropertyUtils.getPropertyType(command, campCodi).getName();
 					boolean ambArray;
