@@ -42,10 +42,15 @@ public class WsClientUtils {
 			factory.getInInterceptors().add(new LoggingInInterceptor());
 			factory.getOutInterceptors().add(new LoggingOutInterceptor());
 		}
-		if ("BASIC".equalsIgnoreCase(authType)) {
+		String authTypeBo = authType;
+		if (authTypeBo == null || authTypeBo.length() == 0) {
+			if (wsUserName != null && wsUserName.length() > 0)
+				authTypeBo = "BASIC";
+		}
+		if ("BASIC".equalsIgnoreCase(authTypeBo)) {
 			factory.setUsername(wsUserName);
 			factory.setPassword(wsPassword);
-		} else if ("USERNAMETOKEN".equalsIgnoreCase(authType)) {
+		} else if ("USERNAMETOKEN".equalsIgnoreCase(authTypeBo)) {
 			Map<String, Object> wss4jInterceptorProps = new HashMap<String, Object>();
 			if (generateTimestamp) {
 				wss4jInterceptorProps.put(WSHandlerConstants.ACTION, WSHandlerConstants.TIMESTAMP + " " + WSHandlerConstants.USERNAME_TOKEN);
