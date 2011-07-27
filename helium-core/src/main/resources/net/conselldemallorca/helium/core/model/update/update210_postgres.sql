@@ -60,6 +60,9 @@ alter table hel_enumeracio add CONSTRAINT hel_exptip_enumeracio_fk FOREIGN KEY (
 alter table hel_expedient add column anulat BOOLEAN;
 update hel_expedient set anulat = false;
 
+-- Idioma en les preferencies d'usuari --
+alter table hel_usuari_prefs add column idioma CHARACTER VARYING(255);
+
 -- Actualització a la nova versió --
 insert into hel_versio (
     id,

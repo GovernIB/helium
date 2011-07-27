@@ -70,6 +70,10 @@ ALTER TABLE HEL_EXPEDIENT
  ADD (ANULAT        NUMBER(1));
 UPDATE HEL_EXPEDIENT SET ANULAT = 0;
 
+-- Idioma en les preferencies d'usuari --
+ALTER TABLE HEL_USUARI_PREFS
+ ADD (IDIOMA          VARCHAR2(255 CHAR));
+
 -- Actualització a la nova versió --
 INSERT INTO HEL_VERSIO (
     ID,
