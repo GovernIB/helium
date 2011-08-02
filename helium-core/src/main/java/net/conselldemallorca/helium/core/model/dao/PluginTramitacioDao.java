@@ -87,6 +87,14 @@ public class PluginTramitacioDao {
 	private TramitacioPlugin getTramitacioPlugin() {
 		if (tramitacioPlugin == null) {
 			String pluginClass = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.class");
+			if (pluginClass == null) {
+				String bantelUrl = GlobalProperties.getInstance().getProperty("app.bantel.entrades.url");
+				if (bantelUrl.contains("v1")) {
+					pluginClass = "net.conselldemallorca.helium.integracio.plugins.tramitacio.TramitacioPluginSistrav1";
+				} else {
+					pluginClass = "net.conselldemallorca.helium.integracio.plugins.tramitacio.TramitacioPluginSistrav2";
+				}
+			}
 			if (pluginClass != null && pluginClass.length() > 0) {
 				try {
 					Class clazz = Class.forName(pluginClass);
