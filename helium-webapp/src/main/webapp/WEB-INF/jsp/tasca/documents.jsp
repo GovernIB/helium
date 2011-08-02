@@ -41,7 +41,7 @@
 	function generarDocumentAmbPlantilla(link, formId, adjuntarAuto) {
 		var conf;
 		if (adjuntarAuto)
-			conf = confirm("<fmt:message key='tasca.document.generar.confirm' />");
+			conf = confirm("<fmt:message key='tasca.doc.generar.auto.confirm' />");
 		else
 			conf = true;
 		if (conf) {
