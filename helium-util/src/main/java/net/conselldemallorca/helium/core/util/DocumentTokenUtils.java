@@ -55,7 +55,7 @@ public class DocumentTokenUtils {
 		cipher.init(
 				Cipher.DECRYPT_MODE,
 				secretKeyFactory.generateSecret(new DESKeySpec(getEncryptionKey().getBytes())));
-		byte[] base64Bytes = Base64.decodeBase64(tokenXifrat);
+		byte[] base64Bytes = Base64.decodeBase64(tokenXifrat.getBytes());
 		byte[] unencryptedText = cipher.doFinal(base64Bytes);
 		return new String(unencryptedText);
 	}
