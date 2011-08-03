@@ -222,34 +222,13 @@ public class ExpedientIniciarPasFormController extends BaseController {
 						Map<String, Object> valors = new HashMap<String, Object>();
 						valors.putAll((Map<String, Object>)model.get("valorsCommand"));
 						valors.putAll(TascaFormUtil.getValorsFromCommand(camps, command, true, false));
-						expedientService.iniciar(
+						iniciarExpedient(
 								entorn.getId(),
 								expedientTipusId,
 								definicioProcesId,
 								(String)request.getSession().getAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_NUMERO),
 								(String)request.getSession().getAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_TITOL),
-								null,
-								null,
-								null,
-								null,
-								false,
-								null,
-								null,
-								null,
-								null,
-								null,
-								null,
-								false,
-								null,
-								null,
-								false,
-								valors,
-								null,
-								IniciadorTipus.INTERN,
-								null,
-								null,
-								null,
-								null);
+								valors);
 				        missatgeInfo(request, getMessage("info.expedient.iniciat"));
 				        netejarSessio(request);
 				        return "redirect:/expedient/iniciar.html";
@@ -424,6 +403,43 @@ public class ExpedientIniciarPasFormController extends BaseController {
 		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_TASKID);
 		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_NUMERO);
 		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_TITOL);
+	}
+
+	private synchronized void iniciarExpedient(
+			Long entornId,
+			Long expedientTipusId,
+			Long definicioProcesId,
+			String numero,
+			String titol,
+			Map<String, Object> valors) {
+		expedientService.iniciar(
+				entornId,
+				expedientTipusId,
+				definicioProcesId,
+				numero,
+				titol,
+				null,
+				null,
+				null,
+				null,
+				false,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				false,
+				null,
+				null,
+				false,
+				valors,
+				null,
+				IniciadorTipus.INTERN,
+				null,
+				null,
+				null,
+				null);
 	}
 
 

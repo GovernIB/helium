@@ -170,34 +170,12 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 					}
 			        // Si no requereix dades inicials inicia l'expedient
 			        try {
-				        expedientService.iniciar(
+			        	iniciarExpedient(
 								entorn.getId(),
 								command.getExpedientTipusId(),
 								definicioProcesId,
 								command.getNumero(),
-								command.getTitol(),
-								null,
-								null,
-								null,
-								null,
-								false,
-								null,
-								null,
-								null,
-								null,
-								null,
-								null,
-								false,
-								null,
-								null,
-								false,
-								null,
-								null,
-								IniciadorTipus.INTERN,
-								null,
-								null,
-								null,
-								null);
+								command.getTitol());
 				        missatgeInfo(request, getMessage("info.expedient.iniciat"));
 				        netejarSessio(request);
 				        return "redirect:/expedient/iniciar.html";
@@ -293,6 +271,42 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_NUMERO);
 		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_TITOL);
 		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_FORM_VALIDAT);
+	}
+
+	private synchronized void iniciarExpedient(
+			Long entornId,
+			Long expedientTipusId,
+			Long definicioProcesId,
+			String numero,
+			String titol) {
+		expedientService.iniciar(
+				entornId,
+				expedientTipusId,
+				definicioProcesId,
+				numero,
+				titol,
+				null,
+				null,
+				null,
+				null,
+				false,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				false,
+				null,
+				null,
+				false,
+				null,
+				null,
+				IniciadorTipus.INTERN,
+				null,
+				null,
+				null,
+				null);
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientIniciarPasTitolController.class);

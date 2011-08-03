@@ -207,7 +207,7 @@ public class ExpedientService {
 				documents,
 				adjunts);
 	}
-	public synchronized ExpedientDto iniciar(
+	public ExpedientDto iniciar(
 			Long entornId,
 			String usuari,
 			Long expedientTipusId,
@@ -291,8 +291,14 @@ public class ExpedientService {
 				expedientTipus,
 				expedient.getNumero(),
 				expedient.getNumeroDefault());
-		if (expedientDao.findAmbEntornTipusINumero(entornId, expedientTipusId, expedient.getNumero()) != null) {
-			throw new ExpedientRepetitException(getMessage("error.expedientService.jaExisteix", new Object[]{expedient.getNumero()}) );
+		if (expedientDao.findAmbEntornTipusINumero(
+				entornId,
+				expedientTipusId,
+				expedient.getNumero()) != null) {
+			throw new ExpedientRepetitException(
+					getMessage(
+							"error.expedientService.jaExisteix",
+							new Object[]{expedient.getNumero()}) );
 		}
 		if (expedientTipus.getTeTitol()) {
 			if (titol != null && titol.length() > 0)

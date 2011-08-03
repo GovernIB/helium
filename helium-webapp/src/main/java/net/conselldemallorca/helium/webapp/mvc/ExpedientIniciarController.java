@@ -133,34 +133,10 @@ public class ExpedientIniciarController extends BaseController {
 				}
 				// Si no requereix cap dada inicia l'expedient directament
 				try {
-					expedientService.iniciar(
+					iniciarExpedient(
 							entorn.getId(),
 							expedientTipusId,
-							definicioProcesId,
-							null,
-							null,
-							null,
-							null,
-							null,
-							null,
-							false,
-							null,
-							null,
-							null,
-							null,
-							null,
-							null,
-							false,
-							null,
-							null,
-							false,
-							null,
-							null,
-							IniciadorTipus.INTERN,
-							null,
-							null,
-							null,
-							null);
+							definicioProcesId);
 					missatgeInfo(request, getMessage("info.expedient.iniciat") );
 				} catch (ExpedientRepetitException ex) {
 					missatgeError(
@@ -212,6 +188,40 @@ public class ExpedientIniciarController extends BaseController {
 		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_NUMERO);
 		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_TITOL);
 		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_FORM_VALIDAT);
+	}
+
+	private synchronized void iniciarExpedient(
+			Long entornId,
+			Long expedientTipusId,
+			Long definicioProcesId) {
+		expedientService.iniciar(
+				entornId,
+				expedientTipusId,
+				definicioProcesId,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				false,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				false,
+				null,
+				null,
+				false,
+				null,
+				null,
+				IniciadorTipus.INTERN,
+				null,
+				null,
+				null,
+				null);
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientIniciarController.class);
