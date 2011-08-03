@@ -588,9 +588,8 @@ public class DtoConverter {
 					if (indexPunt != -1)
 						extensioActual = arxiuOrigenNom.substring(0, indexPunt);
 					String extensioDesti = extensioActual;
-					if (perSignar) {
-						extensioDesti = getNomArxiuAmbExtensioSignatura(
-								arxiuOrigenNom);
+					if (perSignar && isActiuConversioSignatura()) {
+						extensioDesti = (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
 					}
 					dto.setVistaNom(dto.getArxiuNomSenseExtensio() + "." + extensioDesti);
 					if ("pdf".equalsIgnoreCase(extensioDesti)) {
