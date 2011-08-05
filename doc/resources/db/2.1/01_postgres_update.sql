@@ -18,14 +18,17 @@ create table hel_map_sistra(
 -- Gestió de versions (versió inicial)--
 alter table hel_versio add column data_creacio TIMESTAMP(6) WITHOUT TIME ZONE;
 alter table hel_versio add column proces_executat BOOLEAN;
+alter table hel_versio alter column proces_executat SET DEFAULT FALSE;
 alter table hel_versio add column data_execucio_proces TIMESTAMP(6) WITHOUT TIME ZONE;
 alter table hel_versio add column script_executat BOOLEAN;
+alter table hel_versio alter column script_executat SET DEFAULT FALSE;
 alter table hel_versio add column data_execucio_script TIMESTAMP(6) WITHOUT TIME ZONE;
 alter table hel_versio add column errorversio CHARACTER VARYING(255);
 update hel_versio set proces_executat = true, data_execucio_proces = clock_timestamp(), script_executat = true, data_execucio_script = clock_timestamp()  where codi = 'inicial';
 
 -- Annexió automática de documents generats amb plantilla --
 alter table hel_document add column adjuntar_auto BOOLEAN;
+alter table hel_document alter column adjuntar_auto SET DEFAULT FALSE;
 update hel_document set adjuntar_auto = true;
 
 -- Manteniment valors enumeracions --
@@ -41,10 +44,12 @@ create table hel_enumeracio_valors(
 
 -- Camps per definir si s'ha de generar una alerta quan se completa una tasca amb un termini associat --
 alter table hel_termini add column alerta_completat BOOLEAN;
+alter table hel_termini alter column alerta_completat SET DEFAULT FALSE;
 update hel_termini set alerta_completat = false;
 
 alter table hel_termini_iniciat add column data_completat DATE;
 alter table hel_termini_iniciat add column alerta_completat BOOLEAN;
+alter table hel_termini_iniciat alter column alerta_completat SET DEFAULT FALSE;
 update hel_termini_iniciat set alerta_completat = false;
 
 -- Prioritat i causa de les alertes --
@@ -58,6 +63,7 @@ alter table hel_enumeracio add CONSTRAINT hel_exptip_enumeracio_fk FOREIGN KEY (
 
 -- Anulació d'expedients --
 alter table hel_expedient add column anulat BOOLEAN;
+alter table hel_expedient alter column anulat SET DEFAULT FALSE;
 update hel_expedient set anulat = false;
 
 -- Idioma en les preferencies d'usuari --
