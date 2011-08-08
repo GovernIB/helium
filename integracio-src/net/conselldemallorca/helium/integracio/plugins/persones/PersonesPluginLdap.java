@@ -140,10 +140,14 @@ public class PersonesPluginLdap implements PersonesPlugin {
 		norm = norm.replaceAll("[ÏÎ]","I");
 		norm = norm.replaceAll("Ô","O");
 		norm = norm.replaceAll("[ÛÙ]","U");
-		if (norm.toLowerCase().endsWith("a"))
-			return Sexe.SEXE_DONA;
-		else
+		if (norm.toLowerCase().endsWith("a")) {
+			if (norm.equalsIgnoreCase("sebastia"))
+				return Sexe.SEXE_HOME;
+			else
+				return Sexe.SEXE_DONA;
+		} else {
 			return Sexe.SEXE_HOME;
+		}
 	}
 
 	private String construirEmail(String email) {
