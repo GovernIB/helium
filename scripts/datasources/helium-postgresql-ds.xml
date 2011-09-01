@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<datasources>
+	<local-tx-datasource>
+		<jndi-name>es.caib.helium.db</jndi-name>
+		<driver-class>org.postgresql.Driver</driver-class>
+		<connection-url>jdbc:postgresql://localhost:5432/helium</connection-url>
+		<user-name>helium</user-name>
+		<password>helium</password>
+	</local-tx-datasource>
+</datasources>
