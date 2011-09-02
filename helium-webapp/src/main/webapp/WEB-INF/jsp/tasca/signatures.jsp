@@ -119,7 +119,7 @@ function signarAFirma(form, token) {
 					<c:set var="documentActual" value="${tasca.varsDocumentsPerSignar[firma.document.codi]}" scope="request"/>
 					<c:set var="codiDocumentActual" value="${firma.document.codi}" scope="request"/>
 					<c:if test="${not tasca.varsDocumentsPerSignar[firma.document.codi].signatEnTasca}">
-						<c:set var="tokenActual" value="${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignatura}" scope="request"/>
+						<c:set var="tokenActual" value="${documentActual.tokenSignatura}" scope="request"/>
 					</c:if>
 					<c:import url="../common/iconesConsultaDocument.jsp"/>
 					<c:choose>

@@ -427,6 +427,12 @@ public class ExpedientService {
 	public void anular(Long entornId, Long id) {
 		Expedient expedient = expedientDao.findAmbEntornIId(entornId, id);
 		if (expedient != null) {
+			List<JbpmProcessInstance> processInstancesTree = jbpmDao.getProcessInstanceTree(expedient.getProcessInstanceId());
+			String[] ids = new String[processInstancesTree.size()];
+			int i = 0;
+			for (JbpmProcessInstance pi: processInstancesTree)
+				ids[i++] = pi.getId();
+			jbpmDao.suspendProcessInstances(ids);
 			expedient.setAnulat(true);
 			registreDao.crearRegistreAnularExpedient(
 					expedient.getId(),
