@@ -40,6 +40,7 @@ function confirmarAccio(e) {
 		<dt><fmt:message key='expedient.info.tipus' /></dt><dd>${expedient.tipus.nom}</dd>
 		<dt><fmt:message key='expedient.consulta.estat' /></dt><dd>
 			<c:if test="${expedient.aturat}"><img src="<c:url value="/img/stop.png"/>" alt="<fmt:message key='expedient.info.aturat' />" title="<fmt:message key='expedient.info.aturat' />" border="0"/></c:if>
+			<c:if test="${expedient.anulat}"><img src="<c:url value="/img/delete.png"/>" alt="<fmt:message key='expedient.info.anulat' />" title="<fmt:message key='expedient.info.anulat' />" border="0"/></c:if>
 			<c:choose>
 				<c:when test="${empty expedient.dataFi}">
 					<c:choose><c:when test="${empty expedient.estat}"><fmt:message key='expedient.consulta.iniciat' /></c:when><c:otherwise>${expedient.estat.nom}</c:otherwise></c:choose>

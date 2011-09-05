@@ -1086,8 +1086,12 @@ public class DtoConverter {
 						} catch (Exception ex) {
 							logger.error("No s'ha pogut generar el token pel document " + documentStoreId, ex);
 						}
-						Object signatEnTasca = jbpmDao.getTaskInstanceVariable(taskId, TascaService.PREFIX_SIGNATURA + dto.getDocumentCodi());
-						dto.setSignatEnTasca(signatEnTasca != null);
+						if (dto.isSignat()) {
+							Object signatEnTasca = jbpmDao.getTaskInstanceVariable(taskId, TascaService.PREFIX_SIGNATURA + dto.getDocumentCodi());
+							dto.setSignatEnTasca(signatEnTasca != null);
+						} else {
+							dto.setSignatEnTasca(false);
+						}
 						resposta.put(
 								signatura.getDocument().getCodi(),
 								dto);
