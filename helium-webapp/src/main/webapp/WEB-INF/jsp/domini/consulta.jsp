@@ -7,15 +7,15 @@
 
 <html>
 <head>
-	<title>Consulta del domini "${domini.nom}"</title>
-	<meta name="titolcmp" content="Disseny"/>
+	<title><fmt:message key='domini.consulta.cons_dom' /> "${domini.nom}"</title>
+	<meta name="titolcmp" content="<fmt:message key='comuns.disseny' />" />
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
     <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 
 	<form action="<c:url value="/domini/llistat.html"/>">
-		<button type="submit" class="submitButton">Tornar</button>
+		<button type="submit" class="submitButton"><fmt:message key='comuns.tornar' /></button>
 	</form><br/>
 
 	<display:table name="resultat" id="registre" requestURI="" class="displaytag selectable">
@@ -27,7 +27,7 @@
 	</display:table>
 
 	<form action="<c:url value="/domini/llistat.html"/>">
-		<button type="submit" class="submitButton">Tornar</button>
+		<button type="submit" class="submitButton"><fmt:message key='comuns.tornar' /></button>
 	</form>
 
 </body>

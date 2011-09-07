@@ -5,8 +5,8 @@
 
 <html>
 <head>
-	<title>Definició de procés: ${definicioProces.jbpmName}</title>
-	<meta name="titolcmp" content="Disseny"/>
+	<title><fmt:message key='comuns.def_proces' />: ${definicioProces.jbpmName}</title>
+	<meta name="titolcmp" content="<fmt:message key='comuns.disseny' />" />
 	<c:import url="../common/formIncludes.jsp"/>
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 <script type="text/javascript">
@@ -34,29 +34,34 @@ function mostrarAmagar(id) {
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="codi"/>
 				<c:param name="required" value="true"/>
-				<c:param name="label">Codi</c:param>
+				<c:param name="label"><fmt:message key='comuns.codi' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="nom"/>
 				<c:param name="required" value="true"/>
-				<c:param name="label">Nom</c:param>
+				<c:param name="label"><fmt:message key='comuns.nom' /></c:param>
+			</c:import>
+			<c:import url="../common/formElement.jsp">
+				<c:param name="property" value="descripcio"/>
+				<c:param name="type" value="textarea"/>
+				<c:param name="label"><fmt:message key='comuns.descripcio' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="arxiuContingut"/>
 				<c:param name="type" value="file"/>
 				<c:param name="fileUrl"><c:url value="/definicioProces/documentDownload.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${command.id}"/></c:url></c:param>
 				<c:param name="fileExists" value="${not empty command.arxiuNom}"/>
-				<c:param name="label">Arxiu</c:param>
+				<c:param name="label"><fmt:message key='comuns.arxiu' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="plantilla"/>
 				<c:param name="type" value="checkbox"/>
-				<c:param name="label">Es plantilla</c:param>
+				<c:param name="label"><fmt:message key='defproc.docform.es_plantilla' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
-				<c:param name="property" value="descripcio"/>
-				<c:param name="type" value="textarea"/>
-				<c:param name="label">Descripcio</c:param>
+				<c:param name="property" value="adjuntarAuto"/>
+				<c:param name="type" value="checkbox"/>
+				<c:param name="label"><fmt:message key='defproc.docform.adj_auto' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="campData"/>
@@ -64,33 +69,33 @@ function mostrarAmagar(id) {
 				<c:param name="items" value="campsTipusData"/>
 				<c:param name="itemLabel" value="codiEtiqueta"/>
 				<c:param name="itemValue" value="id"/>
-				<c:param name="itemBuit" value="<< Seleccioni un camp >>"/>
-				<c:param name="label">Camp amb la data</c:param>
+				<c:param name="itemBuit">&lt;&lt; <fmt:message key='defproc.docform.selec_camp' /> &gt;&gt;</c:param>
+				<c:param name="label"><fmt:message key='defproc.docform.camp_data' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="contentType"/>
-				<c:param name="label">Content type</c:param>
-				<c:param name="comment">Emprat en la signatura del document</c:param>
+				<c:param name="label"><fmt:message key='defproc.docform.ctype' /></c:param>
+				<c:param name="comment"><fmt:message key='defproc.docform.emprat_sign' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="custodiaCodi"/>
-				<c:param name="label">Codi per a la custòdia</c:param>
-				<c:param name="comment">Emprat en la signatura del document</c:param>
+				<c:param name="label"><fmt:message key='defproc.docform.codi_custodia' /></c:param>
+				<c:param name="comment"><fmt:message key='defproc.docform.emprat_sign' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="tipusDocPortasignatures"/>
-				<c:param name="label">Tipus de document</c:param>
-				<c:param name="comment">Codi de document pel portasignatures</c:param>
+				<c:param name="label"><fmt:message key='defproc.docform.tipus_doc' /></c:param>
+				<c:param name="comment"><fmt:message key='defproc.docform.codi_doc' /></c:param>
 			</c:import>
 		</div>
 		<c:import url="../common/formElement.jsp">
 			<c:param name="type" value="buttons"/>
 			<c:param name="values">submit,cancel</c:param>
-			<c:param name="titles"><c:choose><c:when test="${empty command.id}">Crear,Cancel·lar</c:when><c:otherwise>Modificar,Cancel·lar</c:otherwise></c:choose></c:param>
+			<c:param name="titles"><c:choose><c:when test="${empty command.id}"><fmt:message key='comuns.crear' />,<fmt:message key='comuns.cancelar' /></c:when><c:otherwise><fmt:message key='comuns.modificar' />,<fmt:message key='comuns.cancelar' /></c:otherwise></c:choose></c:param>
 		</c:import>
 	</form:form>
 
-	<p class="aclaracio">Els camps marcats amb <img src="<c:url value="/img/bullet_red.png"/>" alt="Camp obligatori" title="Camp obligatori" border="0"/> són obligatoris</p>
+	<p class="aclaracio"><fmt:message key='comuns.camps_marcats' /> <img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='comuns.camp_oblig' />" title="<fmt:message key='comuns.camp_oblig' />" border="0"/> <fmt:message key='comuns.son_oblig' /></p>
 
 </body>
 </html>

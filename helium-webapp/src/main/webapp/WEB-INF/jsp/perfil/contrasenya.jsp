@@ -5,8 +5,8 @@
 
 <html>
 <head>
-	<title>Canviar contrasenya</title>
-	<meta name="titolcmp" content="El meu perfil"/>
+	<title><fmt:message key='perfil.contrasenya.canviar' /></title>
+	<meta name="titolcmp" content="<fmt:message key='perfil.contrasenya.meu_perfil' />"/>
 	<c:import url="../common/formIncludes.jsp"/>
 </head>
 <body>
@@ -16,18 +16,18 @@
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="contrasenya"/>
 				<c:param name="type" value="password"/>
-				<c:param name="label">Contrasenya</c:param>
+				<c:param name="label"><fmt:message key='perfil.contrasenya.contrasenya' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="repeticio"/>
 				<c:param name="type" value="password"/>
-				<c:param name="label">Repetició contrasenya</c:param>
+				<c:param name="label"><fmt:message key='perfil.contrasenya.repeticio' /></c:param>
 			</c:import>
 		</fieldset>
 		<c:import url="../common/formElement.jsp">
 			<c:param name="type" value="buttons"/>
 			<c:param name="values">submit,cancel</c:param>
-			<c:param name="titles">Modificar,Cancel·lar</c:param>
+			<c:param name="titles"><fmt:message key='comuns.modificar' />,<fmt:message key='comuns.cancelar' /></c:param>
 		</c:import>
 	</form:form>
 

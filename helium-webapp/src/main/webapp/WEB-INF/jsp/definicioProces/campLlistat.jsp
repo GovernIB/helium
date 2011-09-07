@@ -7,8 +7,8 @@
 
 <html>
 <head>
-	<title>Definició de procés: ${definicioProces.jbpmName}</title>
-	<meta name="titolcmp" content="Disseny"/>
+	<title><fmt:message key='comuns.def_proces' />: ${definicioProces.jbpmName}</title>
+	<meta name="titolcmp" content="<fmt:message key='comuns.disseny' />" />
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
@@ -18,7 +18,7 @@ function confirmar(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Estau segur que voleu esborrar aquest registre?");
+	return confirm("<fmt:message key='defproc.campllistat.confirmacio' />");
 }
 // ]]>
 </script>
@@ -30,17 +30,17 @@ function confirmar(e) {
 	</c:import>
 
 	<display:table name="camps" id="registre" requestURI="" defaultsort="1" class="displaytag selectable">
-		<display:column property="codi" title="Codi" sortable="true" url="/definicioProces/campForm.html?definicioProcesId=${param.definicioProcesId}" paramId="id" paramProperty="id"/>
-		<display:column property="etiqueta" title="Etiqueta" sortable="true"/>
-		<display:column property="tipus" title="Tipus" sortable="true"/>
-		<display:column title="Multiple?">
-			<c:choose><c:when test="${registre.multiple}">Si</c:when><c:otherwise>No</c:otherwise></c:choose>
+		<display:column property="codi" titleKey="comuns.codi" sortable="true" url="/definicioProces/campForm.html?definicioProcesId=${param.definicioProcesId}" paramId="id" paramProperty="id"/>
+		<display:column property="etiqueta" titleKey="comuns.etiqueta" sortable="true"/>
+		<display:column property="tipus" titleKey="comuns.tipus" sortable="true"/>
+		<display:column titleKey="defproc.campllistat.multipleq">
+			<c:choose><c:when test="${registre.multiple}"><fmt:message key='comuns.si' /></c:when><c:otherwise><fmt:message key='comuns.no' /></c:otherwise></c:choose>
 		</display:column>
 		<display:column>
 	    	<form action="campValidacions.html">
 				<input type="hidden" name="definicioProcesId" value="${definicioProces.id}"/>
 				<input type="hidden" name="campId" value="${registre.id}"/>
-				<button type="submit" class="submitButton">Validacions&nbsp;(${fn:length(registre.validacions)})</button>
+				<button type="submit" class="submitButton"><fmt:message key='defproc.campllistat.validacions' />&nbsp;(${fn:length(registre.validacions)})</button>
 			</form>
 	    </display:column>
 	    <display:column>
@@ -48,19 +48,19 @@ function confirmar(e) {
 		    	<form action="campRegistreMembres.html">
 					<input type="hidden" name="definicioProcesId" value="${definicioProces.id}"/>
 					<input type="hidden" name="registreId" value="${registre.id}"/>
-					<button type="submit" class="submitButton">Vars&nbsp;registre&nbsp;(${fn:length(registre.registreMembres)})</button>
+					<button type="submit" class="submitButton"><fmt:message key='defproc.campllistat.vars' />&nbsp;<fmt:message key='defproc.campllistat.registre' />&nbsp;(${fn:length(registre.registreMembres)})</button>
 				</form>
 			</c:if>
 	    </display:column>
 		<display:column>
-	    	<a href="<c:url value="/definicioProces/campDelete.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="Esborrar" title="Esborrar" border="0"/></a>
+	    	<a href="<c:url value="/definicioProces/campDelete.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 	    </display:column>
 	</display:table>
 	<script type="text/javascript">initSelectable();</script>
 
 	<form action="<c:url value="/definicioProces/campForm.html"/>">
 		<input type="hidden" name="definicioProcesId" value="${definicioProces.id}"/>
-		<button type="submit" class="submitButton">Nova variable</button>
+		<button type="submit" class="submitButton"><fmt:message key='defproc.campllistat.nova_var' /></button>
 	</form>
 
 </body>

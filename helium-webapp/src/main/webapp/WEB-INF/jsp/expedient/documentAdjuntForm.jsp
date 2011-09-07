@@ -5,8 +5,8 @@
 
 <html>
 <head>
-	<title>Expedient: ${expedient.identificadorLimitat}</title>
-	<meta name="titolcmp" content="Consultes"/>
+	<title><fmt:message key='common.filtres.expedient' />: ${expedient.identificadorLimitat}</title>
+	<meta name="titolcmp" content="<fmt:message key='comuns.consultes' />" />
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 	<c:import url="../common/formIncludes.jsp"/>
@@ -17,7 +17,7 @@
 		<c:param name="tabActiu" value="documents"/>
 	</c:import>
 
-	<h3 class="titol-tab titol-dades-tasca"><c:choose><c:when test="${empty param.adjuntId}">Adjuntar nou document</c:when><c:otherwise>Modificar document adjunt</c:otherwise></c:choose></h3>
+	<h3 class="titol-tab titol-dades-tasca"><c:choose><c:when test="${empty param.adjuntId}"><fmt:message key='expedient.document.adjuntar' /></c:when><c:otherwise><fmt:message key='expedient.document.modificar_adjunt' /></c:otherwise></c:choose></h3>
 
 	<form:form action="documentAdjuntForm.html" cssClass="uniForm" enctype="multipart/form-data">
 		<div class="inlineLabels">
@@ -25,7 +25,7 @@
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="nom"/>
 				<c:param name="required" value="true"/>
-				<c:param name="label">Títol</c:param>
+				<c:param name="label"><fmt:message key='expedient.document.titol' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="contingut"/>
@@ -33,13 +33,13 @@
 				<c:param name="required" value="true"/>
 				<c:param name="fileUrl">${downloadUrl}</c:param>
 				<c:param name="fileExists" value="${not empty command.nom}"/>
-				<c:param name="label">Arxiu</c:param>
+				<c:param name="label"><fmt:message key='expedient.document.arxiu' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="data"/>
 				<c:param name="type" value="date"/>
 				<c:param name="required" value="true"/>
-				<c:param name="label">Data</c:param>
+				<c:param name="label"><fmt:message key='expedient.document.data' /></c:param>
 			</c:import>
 		</div>
 		<c:choose>
@@ -47,14 +47,14 @@
 				<c:import url="../common/formElement.jsp">
 					<c:param name="type" value="buttons"/>
 					<c:param name="values">submit,cancel</c:param>
-					<c:param name="titles">Adjuntar,Cancel·lar</c:param>
+					<c:param name="titles"><fmt:message key='comuns.adjuntar' />,<fmt:message key='comuns.cancelar' /></c:param>
 				</c:import>
 			</c:when>
 			<c:otherwise>
 				<c:import url="../common/formElement.jsp">
 					<c:param name="type" value="buttons"/>
 					<c:param name="values">submit,cancel</c:param>
-					<c:param name="titles">Modificar,Cancel·lar</c:param>
+					<c:param name="titles"><fmt:message key='comuns.modificar' />,<fmt:message key='comuns.cancelar' /></c:param>
 				</c:import>
 			</c:otherwise>
 		</c:choose>

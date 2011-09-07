@@ -6,8 +6,8 @@
 
 <html>
 <head>
-	<title>Definició de procés: ${definicioProces.jbpmName}</title>
-	<meta name="titolcmp" content="Disseny"/>
+	<title><fmt:message key='comuns.def_proces' />: ${definicioProces.jbpmName}</title>
+	<meta name="titolcmp" content="<fmt:message key='comuns.disseny' />" />
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
     <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
     <link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
@@ -18,7 +18,7 @@ function confirmar(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Estau segur que voleu esborrar aquest camp de la tasca?");
+	return confirm("<fmt:message key='defproc.campreg.confirmacio' />");
 }
 // ]]>
 </script>
@@ -30,26 +30,26 @@ function confirmar(e) {
 	</c:import>
 
 	<h3 class="titol-tab titol-variables-tascadef">
-		Camps del registre ${registre.etiqueta}
+		<fmt:message key='defproc.campreg.camps_reg' /> ${registre.etiqueta}
 	</h3>
 	<display:table name="membres" id="registre" requestURI="" class="displaytag">
-		<display:column property="membre.codiEtiqueta" title="Variable"/>
-		<display:column property="membre.tipus" title="Tipus"/>
-		<display:column title="Obligatori"><c:choose><c:when test="${registre.obligatori}">Si</c:when><c:otherwise>No</c:otherwise></c:choose></display:column>
-		<display:column title="Mostrar a la llista"><c:choose><c:when test="${registre.llistar}">Si</c:when><c:otherwise>No</c:otherwise></c:choose></display:column>
-		<display:column property="ordre" title="Ordre"/>
+		<display:column property="membre.codiEtiqueta" titleKey="defproc.campreg.variable"/>
+		<display:column property="membre.tipus" titleKey="comuns.tipus"/>
+		<display:column titleKey="defproc.campreg.obligatori"><c:choose><c:when test="${registre.obligatori}"><fmt:message key='comuns.si' /></c:when><c:otherwise><fmt:message key='comuns.no' /></c:otherwise></c:choose></display:column>
+		<display:column titleKey="defproc.campreg.mostrar_llista"><c:choose><c:when test="${registre.llistar}"><fmt:message key='comuns.si' /></c:when><c:otherwise><fmt:message key='comuns.no' /></c:otherwise></c:choose></display:column>
+		<display:column property="ordre" titleKey="comuns.ordre"/>
 		<display:column>
-			<a href="<c:url value="/definicioProces/campRegistreMembrePujar.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/></c:url>"><img src="<c:url value="/img/famarrow_up.png"/>" alt="Amunt" title="Amunt" border="0"/></a>
-			<a href="<c:url value="/definicioProces/campRegistreMembreBaixar.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/></c:url>"><img src="<c:url value="/img/famarrow_down.png"/>" alt="Avall" title="Avall" border="0"/></a>
+			<a href="<c:url value="/definicioProces/campRegistreMembrePujar.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/></c:url>"><img src="<c:url value="/img/famarrow_up.png"/>" alt="<fmt:message key='comuns.amunt' />" title="<fmt:message key='comuns.amunt' />" border="0"/></a>
+			<a href="<c:url value="/definicioProces/campRegistreMembreBaixar.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/></c:url>"><img src="<c:url value="/img/famarrow_down.png"/>" alt="<fmt:message key='comuns.avall' />" title="<fmt:message key='comuns.avall' />" border="0"/></a>
 		</display:column>
 		<display:column>
-			<a href="<c:url value="/definicioProces/campRegistreMembreEsborrar.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="Esborrar" title="Esborrar" border="0"/></a>
+			<a href="<c:url value="/definicioProces/campRegistreMembreEsborrar.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 		</display:column>
 	</display:table>
 
 	<form:form action="campRegistreMembres.html" cssClass="uniForm">
 		<fieldset class="inlineLabels">
-			<legend>Afegir variable</legend>
+			<legend><fmt:message key='defproc.campreg.afegir_var' /></legend>
 			<input id="definicioProcesId" name="definicioProcesId" value="${param.definicioProcesId}" type="hidden"/>
 			<form:hidden path="registreId"/>
 			<c:import url="../common/formElement.jsp">
@@ -58,24 +58,24 @@ function confirmar(e) {
 				<c:param name="items" value="camps"/>
 				<c:param name="itemLabel" value="codiEtiqueta"/>
 				<c:param name="itemValue" value="id"/>
-				<c:param name="itemBuit" value="<< Seleccioni una variable >>"/>
-				<c:param name="label">Variable</c:param>
+				<c:param name="itemBuit">&lt;&lt; <fmt:message key='defproc.campreg.selec_var' /> &gt;&gt;</c:param>
+				<c:param name="label"><fmt:message key='defproc.campreg.variable' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="obligatori"/>
 				<c:param name="type" value="checkbox"/>
-				<c:param name="label">Obligatori</c:param>
+				<c:param name="label"><fmt:message key='defproc.campreg.obligatori' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="llistar"/>
 				<c:param name="type" value="checkbox"/>
-				<c:param name="label">Mostrar a la llista</c:param>
+				<c:param name="label"><fmt:message key='defproc.campreg.mostrar_llista' /></c:param>
 			</c:import>
 		</fieldset>
 		<c:import url="../common/formElement.jsp">
 			<c:param name="type" value="buttons"/>
 			<c:param name="values">submit,cancel</c:param>
-			<c:param name="titles">Afegir,Tornar</c:param>
+			<c:param name="titles"><fmt:message key='comuns.afegir' />,<fmt:message key='comuns.tornar' /></c:param>
 		</c:import>
 	</form:form>
 

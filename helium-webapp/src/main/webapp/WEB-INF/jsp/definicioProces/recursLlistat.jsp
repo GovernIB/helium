@@ -6,8 +6,8 @@
 
 <html>
 <head>
-	<title>Definició de procés: ${definicioProces.jbpmName}</title>
-	<meta name="titolcmp" content="Disseny"/>
+	<title><fmt:message key='comuns.def_proces' />: ${definicioProces.jbpmName}</title>
+	<meta name="titolcmp" content="<fmt:message key='comuns.disseny' />" />
     <link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
     <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 </head>
@@ -18,9 +18,9 @@
 	</c:import>
 
 	<display:table name="recursos" id="registre" requestURI="" class="displaytag selectable">
-		<display:column title="Nom">${registre}</display:column>
+		<display:column titleKey="comuns.nom">${registre}</display:column>
 		<display:column>
-			<a href="<c:url value="/definicioProces/recursDescarregar.html"><c:param name="definicioProcesId" value="${definicioProces.id}"/><c:param name="resourceName" value="${registre}"/></c:url>"><img src="<c:url value="/img/page_white_put.png"/>" alt="Descarregar" title="Descarregar" border="0"/></a>
+			<a href="<c:url value="/definicioProces/recursDescarregar.html"><c:param name="definicioProcesId" value="${definicioProces.id}"/><c:param name="resourceName" value="${registre}"/></c:url>"><img src="<c:url value="/img/page_white_put.png"/>" alt="<fmt:message key='comuns.descarregar' />" title="<fmt:message key='comuns.descarregar' />" border="0"/></a>
 		</display:column>
 	</display:table>
 

@@ -5,8 +5,8 @@
 
 <html>
 <head>
-	<title>Expedient: ${expedient.identificadorLimitat}</title>
-	<meta name="titolcmp" content="Consultes"/>
+	<title><fmt:message key='common.filtres.expedient' />: ${expedient.identificadorLimitat}</title>
+	<meta name="titolcmp" content="<fmt:message key='comuns.consultes' />" />
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 	<c:import url="../common/formIncludes.jsp"/>
@@ -17,7 +17,7 @@
 		<c:param name="tabActiu" value="dades"/>
 	</c:import>
 
-	<h3 class="titol-tab titol-dades-tasca">Afegir dada</h3>
+	<h3 class="titol-tab titol-dades-tasca"><fmt:message key='expedient.dada.afegir_dada' /></h3>
 
 	<form:form action="dadaCrear.html" cssClass="uniForm">
 		<div class="inlineLabels">
@@ -33,26 +33,26 @@
 				<c:param name="items" value="camps"/>
 				<c:param name="itemLabel" value="codiEtiqueta"/>
 				<c:param name="itemValue" value="id"/>
-				<c:param name="itemBuit" value="<< Seleccioni una variable >>"/>
-				<c:param name="label">Variable</c:param>
+				<c:param name="itemBuit">&lt;&lt; <fmt:message key='expedient.dada.select.variable'/> &gt;&gt;</c:param>
+				<c:param name="label"><fmt:message key='expedient.dada.variable'/></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="varCodi"/>
-				<c:param name="label">Codi de la nova variable</c:param>
+				<c:param name="label"><fmt:message key='expedient.dada.nova_variable'/></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="modificar"/>
 				<c:param name="type" value="checkbox"/>
-				<c:param name="label">Anar a modificar la variable?</c:param>
+				<c:param name="label"><fmt:message key='expedient.dada.modificar_variable'/></c:param>
 			</c:import>
 		</div>
 		<c:import url="../common/formElement.jsp">
 			<c:param name="type" value="buttons"/>
 			<c:param name="values">submit,cancel</c:param>
-			<c:param name="titles">Crear,Cancel·lar</c:param>
+			<c:param name="titles"><fmt:message key='comuns.crear' />,<fmt:message key='comuns.cancelar' /></c:param>
 		</c:import>
 	</form:form>
-	<p class="aclaracio">Els camps marcats amb <img src="<c:url value="/img/bullet_red.png"/>" alt="Camp obligatori" title="Camp obligatori" border="0"/> són obligatoris</p>
+	<p class="aclaracio"><fmt:message key='comuns.camps_marcats' /> <img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='comuns.camp_oblig' />" title="<fmt:message key='comuns.camp_oblig' />" border="0"/> <fmt:message key='comuns.son_oblig' /></p>
 
 </body>
 </html>

@@ -18,7 +18,7 @@
 		</c:if>
 	</c:if>
 	<c:if test="${not isIframe}">
-		<meta name="titolcmp" content="Tasques"/>
+		<meta name="titolcmp" content="<fmt:message key='comuns.tasques' />" />
 		<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	</c:if>
 	<c:import url="../common/formIncludes.jsp">
@@ -29,7 +29,7 @@
 // <![CDATA[
 function confirmar(form) {
 	if (accio == "validate")
-		return confirm("Estau segur que voleu donar per bones les dades d'aquesta tasca?");
+		return confirm("<fmt:message key='tasca.form.confirmacio' />");
 	else
 		return true;
 }
@@ -47,7 +47,7 @@ function confirmar(form) {
 					callback: function(retval) {
 						if (retval) {
 							$('<iframe id="formExtern" src="' + retval[0] + '"/>').dialog({
-								title: 'Dades del formulari',
+								title: '<fmt:message key="tasca.form.dades_form" />',
 				                autoOpen: true,
 				                modal: true,
 				                autoResize: true,
@@ -58,7 +58,7 @@ function confirmar(form) {
 								}
 				            }).width(parseInt(retval[1]) - 30).height(parseInt(retval[2]) - 30);
 						} else {
-							alert("Error d'inici de formulari");
+							alert("<fmt:message key='tasca.form.error_ini' />");
 						}
 					},
 					async: false
@@ -74,7 +74,7 @@ function confirmar(form) {
 		var amplada = 800;
 		var alcada = 600;
 		$('<iframe id="verificacio" src="' + element.href + '"/>').dialog({
-			title: "Verificació de signatures",
+			title: "<fmt:message key='tasca.form.verif_signa' />",
 			autoOpen: true,
 			modal: true,
 			autoResize: true,
@@ -87,7 +87,7 @@ function confirmar(form) {
 		var amplada = 600;
 		var alcada = 200;
 		$('<div>' + $("#registre_" + docId).html() + '</div>').dialog({
-			title: "Informació de registre",
+			title: "<fmt:message key='tasca.form.info_reg' />",
 			autoOpen: true,
 			modal: true,
 			width: parseInt(amplada),
@@ -155,10 +155,10 @@ function confirmar(form) {
 			<div class="missatgesWarn">
 				<c:choose>
 					<c:when test="${empty tasca.formExtern}">
-						<p>Les dades de la tasca no han estat validades</p>
+						<p><fmt:message key='tasca.form.no_validades' /></p>
 					</c:when>
 					<c:otherwise>
-						<p>Per favor, obriu i completau el formulari associat a aquesta tasca</p>
+						<p><fmt:message key='tasca.form.compl_form' /></p>
 					</c:otherwise>
 				</c:choose>
 			</div>
@@ -166,7 +166,7 @@ function confirmar(form) {
 		<c:import url="../common/tascaReadOnly.jsp"/>
 		<c:if test="${tasca.campsNotReadOnly}">
 			<h3 class="titol-tab titol-dades-tasca">
-				Formulari de la tasca
+				<fmt:message key='tasca.form.form_tasca' />
 			</h3>
 		</c:if>
 	</c:if>
@@ -178,7 +178,7 @@ function confirmar(form) {
 					<c:import url="../common/formElement.jsp">
 						<c:param name="type" value="buttons"/>
 						<c:param name="values">restore</c:param>
-						<c:param name="titles">Modificar</c:param>
+						<c:param name="titles"><fmt:message key='comuns.modificar' /></c:param>
 						<c:param name="onclick" value="guardarAccio(this.value)"/>
 					</c:import>
 				</c:when>
@@ -186,7 +186,7 @@ function confirmar(form) {
 					<c:import url="../common/formElement.jsp">
 						<c:param name="type" value="buttons"/>
 						<c:param name="values">submit,validate</c:param>
-						<c:param name="titles">Guardar,Validar</c:param>
+						<c:param name="titles"><fmt:message key='tasca.form.guardar' />,<fmt:message key='tasca.form.validar' /></c:param>
 						<c:param name="onclick" value="guardarAccio(this.value)"/>
 					</c:import>
 				</c:otherwise>
@@ -214,7 +214,7 @@ function confirmar(form) {
 				</c:if>
 				<form action="form.html" onclick="return clickFormExtern(this)">
 					<input type="hidden" name="id" value="${tasca.id}"/>
-					<button type="submit" class="submitButton">Obrir formulari extern</button>
+					<button type="submit" class="submitButton"><fmt:message key='tasca.form.obrir_form' /></button>
 				</form>
 			</c:when>
 			<c:otherwise>
@@ -261,7 +261,7 @@ function confirmar(form) {
 							</c:otherwise>
 						</c:choose>
 						<c:if test="${not isIframe}">
-							<p class="aclaracio">Els camps marcats amb <img src="<c:url value="/img/bullet_red.png"/>" alt="Camp obligatori" title="Camp obligatori" border="0"/> són obligatoris</p>
+							<p class="aclaracio"><fmt:message key='comuns.camps_marcats' /> <img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='comuns.camp_oblig' />" title="<fmt:message key='comuns.camp_oblig' />" border="0"/> <fmt:message key='comuns.son_oblig' /></p>
 						</c:if>
 					</c:when>
 					<c:otherwise>

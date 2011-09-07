@@ -7,8 +7,8 @@
 
 <html>
 <head>
-	<title>Definició de procés: ${definicioProces.jbpmName}</title>
-	<meta name="titolcmp" content="Disseny"/>
+	<title><fmt:message key='comuns.def_proces' />: ${definicioProces.jbpmName}</title>
+	<meta name="titolcmp" content="<fmt:message key='comuns.disseny' />" />
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
@@ -18,7 +18,7 @@ function confirmar(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Estau segur que voleu esborrar aquesta agrupació?");
+	return confirm("<fmt:message key='defproc.agrupllistat.confirmacio' />");
 }
 // ]]>
 </script>
@@ -30,28 +30,28 @@ function confirmar(e) {
 	</c:import>
 
 	<display:table name="agrupacions" id="registre" requestURI="" defaultsort="1" class="displaytag selectable">
-		<display:column property="codi" title="Codi" sortable="true" url="/definicioProces/campAgrupacioForm.html?definicioProcesId=${param.definicioProcesId}" paramId="id" paramProperty="id"/>
-		<display:column property="nom" title="Nom" sortable="true"/>
+		<display:column property="codi" titleKey="comuns.codi" sortable="true" url="/definicioProces/campAgrupacioForm.html?definicioProcesId=${param.definicioProcesId}" paramId="id" paramProperty="id"/>
+		<display:column property="nom" titleKey="comuns.nom" sortable="true"/>
 		<display:column>
-			<a href="<c:url value="/definicioProces/campAgrupacioPujar.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/></c:url>"><img src="<c:url value="/img/famarrow_up.png"/>" alt="Amunt" title="Amunt" border="0"/></a>
-			<a href="<c:url value="/definicioProces/campAgrupacioBaixar.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/></c:url>"><img src="<c:url value="/img/famarrow_down.png"/>" alt="Avall" title="Avall" border="0"/></a>
+			<a href="<c:url value="/definicioProces/campAgrupacioPujar.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/></c:url>"><img src="<c:url value="/img/famarrow_up.png"/>" alt="<fmt:message key='comuns.amunt' />" title="<fmt:message key='comuns.amunt' />" border="0"/></a>
+			<a href="<c:url value="/definicioProces/campAgrupacioBaixar.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/></c:url>"><img src="<c:url value="/img/famarrow_down.png"/>" alt="<fmt:message key='comuns.avall' />" title="<fmt:message key='comuns.avall' />" border="0"/></a>
 		</display:column>
 	    <display:column>
 	    	<form action="campAgrupacioOrdre.html">
 				<input type="hidden" name="definicioProcesId" value="${definicioProces.id}"/>
 				<input type="hidden" name="agrupacioCodi" value="${registre.codi}"/>
-				<button type="submit" class="submitButton">Variables&nbsp;(${fn:length(registre.camps)})</button>
+				<button type="submit" class="submitButton"><fmt:message key='comuns.variables' />&nbsp;(${fn:length(registre.camps)})</button>
 			</form>
 	    </display:column>
 		<display:column>
-	    	<a href="<c:url value="/definicioProces/campAgrupacioDelete.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="Esborrar" title="Esborrar" border="0"/></a>
+	    	<a href="<c:url value="/definicioProces/campAgrupacioDelete.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 	    </display:column>
 	</display:table>
 	<script type="text/javascript">initSelectable();</script>
 
 	<form action="<c:url value="/definicioProces/campAgrupacioForm.html"/>">
 		<input type="hidden" name="definicioProcesId" value="${definicioProces.id}"/>
-		<button type="submit" class="submitButton">Nova agrupacio</button>
+		<button type="submit" class="submitButton"><fmt:message key='defproc.agrupllistat.nova' /></button>
 	</form>
 
 </body>

@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
@@ -25,7 +26,7 @@
 		</c:forEach>
 	</c:if>
 	<c:if test="${hiHaCampsReadOnly}">
-		<h4 class="titol-missatge">Dades de referència</h4>
+		<h4 class="titol-missatge"><fmt:message key='common.tascaro.dadesref' /></h4>
 		<form:form cssClass="uniForm tascaForm" commandName="commandReadOnly">
 			<div class="inlineLabels">
 				<c:if test="${not empty tasca.camps}">

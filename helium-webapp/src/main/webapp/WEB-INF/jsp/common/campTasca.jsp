@@ -13,7 +13,7 @@
 <c:if test="${not empty campRegistreActual}">
 	<c:set var="campActual" value="${campRegistreActual.membre}" scope="request"/>
 	<c:set var="readOnly" value="${false}" scope="request"/>
-	<c:set var="required" value="${campRegistreActual.obligatori}" scope="request"/>
+	<c:set var="required" value="${campRegistreActual.obligatori}" scope="request" />
 </c:if>
 <c:set var="codiActual" value="${campActual.codi}" scope="request"/>
 <c:set var="etiquetaActual" value="${campActual.etiqueta}" scope="request"/>
@@ -24,8 +24,9 @@
 <c:set var="extraParams">
 	<c:choose>
 		<c:when test="${not empty tasca.id}">taskId:${tasca.id},processInstanceId:${tasca.processInstanceId},definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}',valors:function(){return canvisSelectValorsAddicionals}</c:when>
-		<c:when test="${not empty expedientTipus}">definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}',valors:function(){return canvisSelectValorsAddicionals}</c:when>
 		<c:when test="${not empty expedient}">definicioProcesId:${tasca.definicioProces.id},processInstanceId:${param.id},campCodi:'${codiActual}',valors:function(){return canvisSelectValorsAddicionals}</c:when>
+		<c:when test="${not empty definicioProces}">definicioProcesId:${definicioProces.id},campCodi:'${codiActual}',valors:function(){return canvisSelectValorsAddicionals}</c:when>
+		<c:when test="${not empty expedientTipus}">definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}',valors:function(){return canvisSelectValorsAddicionals}</c:when>
 		<c:otherwise>processInstanceId:${instanciaProces.id},definicioProcesId:${instanciaProces.definicioProces.id},campCodi:'${codiActual}',valors:function(){return canvisSelectValorsAddicionals}</c:otherwise>
 	</c:choose>
 </c:set>
@@ -194,7 +195,7 @@
 						<li>
 							<c:set var="anys" value="${fn:split(status.value,'/')[0]}"/>
 							<label for="${codiActual}_anys" class="blockLabel">
-								<span>Anys</span>
+								<span><fmt:message key='common.camptasca.anys' /></span>
 								<select id="${codiActual}_anys" name="${codiActual}_anys" onchange="canviTermini(this)">
 									<c:forEach var="index" begin="0" end="12">
 										<option value="${index}"<c:if test="${anys==index}"> selected="selected"</c:if>>${index}</option>
@@ -205,7 +206,7 @@
 						<li>
 							<c:set var="mesos" value="${fn:split(status.value,'/')[1]}"/>
 							<label for="${codiActual}_mesos" class="blockLabel">
-								<span>Mesos</span>
+								<span><fmt:message key='common.camptasca.mesos' /></span>
 								<select id="${codiActual}_mesos" name="${codiActual}_mesos" onchange="canviTermini(this)">
 									<c:forEach var="index" begin="0" end="12">
 										<option value="${index}"<c:if test="${mesos==index}"> selected="selected"</c:if>>${index}</option>
@@ -217,7 +218,7 @@
 							<c:set var="dies" value="${fn:split(status.value,'/')[2]}"/>
 							<c:if test="${empty dies or dies == ''}"><c:set var="dies" value="0"/></c:if>
 							<label for="${codiActual}_dies" class="blockLabel">
-								<span>Dies</span>
+								<span><fmt:message key='common.camptasca.dies' /></span>
 								<input id="${codiActual}_dies" name="${codiActual}_dies" value="${dies}" class="textInput" onchange="canviTermini(this)"/>
 							</label>
 						</li>
@@ -250,14 +251,14 @@
 								</c:if>
 							</c:forEach>
 							<display:column style="width:16px">
-								<a href="#" onclick="return esborrarRegistre(event, ${campActual.id}, ${registre_rowNum - 1})"><img src="<c:url value="/img/cross.png"/>" alt="Esborrar" title="Esborrar" border="0"/></a>
+								<a href="#" onclick="return esborrarRegistre(event, ${campActual.id}, ${registre_rowNum - 1})"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 							</display:column>
 						</display:table>
 					</div>
 					<script type="text/javascript">initSelectable();</script>
 				</c:if>
 				<c:if test="${campActual.multiple || fn:length(files) < 1}">
-					<button style="font-size:11px;margin-top: 2px" type="submit" class="submitButton" onclick="return editarRegistre(${campActual.id}, '${codiActual}', '<%=toJavascript((String)request.getAttribute("etiquetaActual"))%>', ${fn:length(campActual.registreMembres)})">Afegir</button>
+					<button style="font-size:11px;margin-top: 2px" type="submit" class="submitButton" onclick="return editarRegistre(${campActual.id}, '${codiActual}', '<%=toJavascript((String)request.getAttribute("etiquetaActual"))%>', ${fn:length(campActual.registreMembres)})"><fmt:message key='comuns.afegir' /></button>
 				</c:if>
 				<div style="clear:both"></div>
 			</c:param>
@@ -271,7 +272,7 @@
 			<c:param name="type" value="custom"/>
 			<c:param name="label">${campActual.etiqueta}</c:param>
 			<c:param name="content">
-				<button class="submitButton" name="submit" type="submit" value="submit" onclick="return accioCampExecutar(this, '${campActual.jbpmAction}')">Executar</button>
+				<button class="submitButton" name="submit" type="submit" value="submit" onclick="return accioCampExecutar(this, '${campActual.jbpmAction}')"><fmt:message key='common.camptasca.executar' /></button>
 			</c:param>
 			<c:param name="comment">${campActual.observacions}</c:param>
 			<c:param name="iterateOn"><c:if test="${campActual.multiple}">valorActual</c:if></c:param>

@@ -12,9 +12,9 @@
 		$("#botoFiltres").click(function(){
 			$("#filtres").slideToggle();
 		}).toggle(function(){
-			$(this).html('<span class="filtre">&nbsp;</span>Ocultar filtre');
+			$(this).html('<span class="filtre">&nbsp;</span><fmt:message key="common.filtres.ocultar" />');
 		}, function(){
-			$(this).html('<span class="filtre">&nbsp;</span>Mostrar filtre');
+			$(this).html('<span class="filtre">&nbsp;</span><fmt:message key="common.filtres.mostrar" />');
 		});
 
 		<c:if test="${not empty command.nom
@@ -31,18 +31,18 @@
 	// ]]>
 </script>
 
-<button id="botoFiltres" class="submitButtonImage"><span class="filtre">&nbsp;</span>Mostrar filtre</button>
+<button id="botoFiltres" class="submitButtonImage"><span class="filtre">&nbsp;</span><fmt:message key='common.filtres.mostrar' /></button>
 
 <div id="filtres" style="display: none;">
 	<form:form action="${param.formulari}" cssClass="uniForm" method="post">
 		<div class="inlineLabels col first">
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="nom"/>
-				<c:param name="label">Tasca</c:param>
+				<c:param name="label"><fmt:message key='common.filtres.tasca' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="expedient"/>
-				<c:param name="label">Expedient</c:param>
+				<c:param name="label"><fmt:message key='common.filtres.expedient' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="tipusExpedient"/>
@@ -50,20 +50,20 @@
 				<c:param name="items" value="tipusExp"/>
 				<c:param name="itemLabel" value="nom"/>
 				<c:param name="itemValue" value="id"/>
-				<c:param name="itemBuit" value="&lt;&lt; Tipus d'expedient &gt;&gt;"/>
-				<c:param name="label">Tipus d'expedient</c:param>
+				<c:param name="itemBuit">&lt;&lt; <fmt:message key='comuns.tipus_exp' /> &gt;&gt;</c:param>
+				<c:param name="label"><fmt:message key='comuns.tipus_exp' /></c:param>
 			</c:import>
 		</div>
 		<div class="inlineLabels col last">
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="dataCreacioInici"/>
 				<c:param name="type" value="custom"/>
-				<c:param name="label">Data de creació</c:param>
+				<c:param name="label"><fmt:message key='common.filtres.data_creacio' /></c:param>
 				<c:param name="customClass">customField</c:param>
 				<c:param name="content">
 					<spring:bind path="dataCreacioInici">
 						<label for="dataCreacioInici" class="blockLabel">
-							<span>Entre</span>
+							<span><fmt:message key='common.filtres.entre' /></span>
 							<input id="dataCreacioInici" name="dataCreacioInici" value="${status.value}" type="text" class="textInput"/>
 							<script type="text/javascript">
 								// <![CDATA[
@@ -81,7 +81,7 @@
 					</spring:bind>
 					<spring:bind path="dataCreacioFi">
 						<label for="dataCreacioFi" class="blockLabel blockLabelLast">
-							<span>i</span>
+							<span><fmt:message key='common.filtres.i' /></span>
 							<input id="dataCreacioFi" name="dataCreacioFi" value="${status.value}" type="text" class="textInput"/>
 							<script type="text/javascript">
 								// <![CDATA[
@@ -105,18 +105,18 @@
 				<c:param name="items" value="prioritats"/>
 				<c:param name="itemLabel" value="label"/>
 				<c:param name="itemValue" value="value"/>
-				<c:param name="itemBuit" value="&lt;&lt; Prioritat &gt;&gt;"/>
-				<c:param name="label">Prioritat</c:param>
+				<c:param name="itemBuit">&lt;&lt; <fmt:message key='common.filtres.prioritat' /> &gt;&gt;</c:param>
+				<c:param name="label"><fmt:message key='common.filtres.prioritat' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="dataLimitInici"/>
 				<c:param name="type" value="custom"/>
-				<c:param name="label">Data límit</c:param>
+				<c:param name="label"><fmt:message key='common.filtres.data_limit' /></c:param>
 				<c:param name="customClass">customField</c:param>
 				<c:param name="content">
 					<spring:bind path="dataLimitInici">
 						<label for="dataLimitInici" class="blockLabel">
-							<span>Entre</span>
+							<span><fmt:message key='common.filtres.entre' /></span>
 							<input id="dataLimitInici" name="dataLimitInici" value="${status.value}" type="text" class="textInput"/>
 							<script type="text/javascript">
 								// <![CDATA[
@@ -155,7 +155,7 @@
 			<c:import url="../common/formElement.jsp">
 				<c:param name="type" value="buttons"/>
 				<c:param name="values">submit,clean</c:param>
-				<c:param name="titles">Consultar,Netejar</c:param>
+				<c:param name="titles"><fmt:message key='common.filtres.consultar' />,<fmt:message key='common.filtres.netejar' /></c:param>
 			</c:import>
 		</div>
 	</form:form>
@@ -165,7 +165,7 @@
 
 <c:if test="${param.tasques != param.total}">
 	<p class="aclaracio">
-		S'estan mostrant ${param.tasques} de ${param.total} tasques
+		<fmt:message key='common.filtres.mostrant' /> ${param.tasques} <fmt:message key='common.filtres.de' /> ${param.total} <fmt:message key='comuns.tasques' />
 	</p>
 	<br/>
 </c:if>

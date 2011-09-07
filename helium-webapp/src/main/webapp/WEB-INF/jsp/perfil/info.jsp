@@ -5,27 +5,27 @@
 
 <html>
 <head>
-	<title>El meu perfil</title>
+	<title><fmt:message key='perfil.info.meu_perfil' /></title>
 </head>
 <body>
 
-	<h3 class="capsalera">Dades personals</h3>
+	<h3 class="capsalera"><fmt:message key='perfil.info.dades_perso' /></h3>
 	<dl class="form-info">
-		<dt>Codi</dt><dd>${info.codi}</dd>
-		<dt>Nom</dt><dd>${info.nom}</dd>
-		<dt>Llinatges</dt><dd>${info.llinatges}</dd>
+		<dt><fmt:message key='comuns.codi' /></dt><dd>${info.codi}</dd>
+		<dt><fmt:message key='comuns.nom' /></dt><dd>${info.nom}</dd>
+		<dt><fmt:message key='perfil.info.llinatges' /></dt><dd>${info.llinatges}</dd>
 		<%--dt>Data naixement</dt><dd><fmt:formatDate value="${info.dataNaixement}" pattern="dd/MM/yyyy" /></dd--%>
-		<dt>DNI</dt><dd>${info.dni}&nbsp;</dd>
-		<dt>A/E</dt><dd>${info.email}</dd>
-		<dt>Sexe</dt><dd><c:choose><c:when test="${info.sexe == 'SEXE_HOME'}">Home</c:when><c:otherwise>Dona</c:otherwise></c:choose></dd>
+		<dt><fmt:message key='perfil.info.dni' /></dt><dd>${info.dni}&nbsp;</dd>
+		<dt><fmt:message key='perfil.info.ae' /></dt><dd>${info.email}</dd>
+		<dt><fmt:message key='comuns.sexe' /></dt><dd><c:choose><c:when test="${info.sexe == 'SEXE_HOME'}"><fmt:message key='perfil.info.home' /></c:when><c:otherwise><fmt:message key='perfil.info.dona' /></c:otherwise></c:choose></dd>
 		<%--dt>Notificar events per correu</dt><dd><c:choose><c:when test="${info.avisCorreu}">Si</c:when><c:otherwise>No</c:otherwise></c:choose></dd--%>
 	</dl>
 
 	<c:set var="esReadOnly" value="${globalProperties['app.persones.readonly'] == 'true'}"/>
 	<c:if test="${not esReadOnly}">
 		<div style="clear:both"></div><br/>
-		<form action="contrasenya.html"><button type="submit" class="submitButton">Canviar contrasenya</button></form><br/>
-		<form action="form.html"><button type="submit" class="submitButton">Modificar perfil</button></form>
+		<form action="contrasenya.html"><button type="submit" class="submitButton"><fmt:message key='perfil.info.canviar' /></button></form><br/>
+		<form action="form.html"><button type="submit" class="submitButton"><fmt:message key='perfil.info.modificar' /></button></form>
 	</c:if>
 
 </body>

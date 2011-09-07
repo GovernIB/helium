@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -8,7 +9,7 @@
 	<link href="<c:url value="/css/reset.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/login.css"/>" rel="stylesheet" type="text/css"/>
 	<style type="text/css" media="screen">@import "<c:url value="/css/uni-form/uni-form.css"/>";</style>
-	<title>Helium - Autenticació</title>
+	<title>Helium - <fmt:message key='login.autenticacio' /></title>
 </head>
 <body>
 	<div id="vertical">
@@ -16,15 +17,15 @@
 			<h1><span>H</span>elium</h1>
 			<form action="j_security_check" method="post" class="uniForm">
 				<div class="ctrlHolder">
-					<label for="j_username">Usuari</label>
+					<label for="j_username"><fmt:message key='login.usuari' /></label>
 					<input type="text" id="j_username" name="j_username" class="textInput"/>
 				</div>
 				<div class="ctrlHolder">
-					<label for="j_password">Contrasenya</label>
+					<label for="j_password"><fmt:message key='login.contrasenya' /></label>
 					<input type="password" name="j_password" class="textInput"/>
 				</div>
 				<div class="buttonHolder">
-					<button type="submit" name="submit" value="submit" class="submitButton">Entrar</button>
+					<button type="submit" name="submit" value="submit" class="submitButton"><fmt:message key='login.entrar' /></button>
 				</div>
 			</form>
 		</div>

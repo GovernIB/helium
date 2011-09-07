@@ -6,8 +6,8 @@
 
 <html>
 <head>
-	<title>Expedient: ${expedient.identificadorLimitat}</title>
-	<meta name="titolcmp" content="Consultes"/>
+	<title><fmt:message key='common.filtres.expedient' />: ${expedient.identificadorLimitat}</title>
+	<meta name="titolcmp" content="<fmt:message key='comuns.consultes' />" />
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 	<c:import url="../common/formIncludes.jsp"/>
@@ -29,31 +29,31 @@ function confirmarEsborrarProces(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Estau segur que voleu esborrar aquest document del procés?");
+	return confirm("<fmt:message key='expedient.document.confirm_esborrar_proces' />");
 }
 function confirmarEsborrarTasca(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Estau segur que voleu esborrar aquest document de la tasca?");
+	return confirm("<fmt:message key='expedient.document.confirm_esborrar_tasca' />");
 }
 function confirmarModificar(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Es podran modificar documents ja introduïts. Voleu continuar?");
+	return confirm("<fmt:message key='expedient.document.confirm_modificar_documents' />");
 }
 function confirmarEsborrarSignatura(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Estau segur que voleu esborrar TOTES les signatures d'aquest document?");
+	return confirm("<fmt:message key='expedient.document.confirm_esborrar_signatures' />");
 }
 function verificarSignatura(element) {
 	var amplada = 800;
 	var alcada = 600;
 	$('<iframe id="verificacio" src="' + element.href + '"/>').dialog({
-		title: "Verificació de signatures",
+		title: "<fmt:message key='expedient.document.verif_signatures' />",
 		autoOpen: true,
 		modal: true,
 		autoResize: true,
@@ -66,7 +66,7 @@ function infoRegistre(docId) {
 	var amplada = 500;
 	var alcada = 200;
 	$('<div>' + $("#registre_" + docId).html() + '</div>').dialog({
-		title: "Informació de registre",
+		title: "<fmt:message key='expedient.document.info_registre' />",
 		autoOpen: true,
 		modal: true,
 		width: parseInt(amplada),
@@ -84,15 +84,15 @@ function infoRegistre(docId) {
 	</c:import>
 
 	<h3 class="titol-tab titol-documents-expedient amb-lupa">
-		Documents del procés
+		<fmt:message key='expedient.document.documents_proces' />
 	</h3>
 	<c:if test="${not empty instanciaProces.sortedDocumentKeys}">
 		<display:table name="instanciaProces.sortedDocumentKeys" id="codi" class="displaytag">
-			<display:column title="Document">
+			<display:column title="<fmt:message key='expedient.document.document' />">
 				<c:choose>
 					<c:when test="${instanciaProces.varsDocuments[codi].adjunt}">
 						${instanciaProces.varsDocuments[codi].adjuntTitol}
-						<img src="<c:url value="/img/attach.png"/>" alt="Document adjunt" title="Document adjunt" border="0"/>
+						<img src="<c:url value="/img/attach.png"/>" alt="<fmt:message key='expedient.document.adjunt' />" title="<fmt:message key='expedient.document.adjunt' />" border="0"/>
 					</c:when>
 					<c:otherwise>
 						<c:forEach var="document" items="${instanciaProces.documents}">
@@ -107,7 +107,7 @@ function infoRegistre(docId) {
 			<display:column>
 				<c:choose>
 					<c:when test="${instanciaProces.varsDocuments[codi].adjunt}">
-						<a href="<c:url value="/expedient/documentDescarregar.html"><c:param name="processInstanceId" value="${instanciaProces.id}"/><c:param name="docId" value="${instanciaProces.varsDocuments[codi].id}"/></c:url>"><img src="<c:url value="/img/page_white_put.png"/>" alt="Descarregar" title="Descarregar" border="0"/></a>
+						<a href="<c:url value="/expedient/documentDescarregar.html"><c:param name="processInstanceId" value="${instanciaProces.id}"/><c:param name="docId" value="${instanciaProces.varsDocuments[codi].id}"/></c:url>"><img src="<c:url value="/img/page_white_put.png"/>" alt="<fmt:message key='comuns.descarregar' />" title="<fmt:message key='comuns.descarregar' />" border="0"/></a>
 					</c:when>
 					<c:otherwise>
 						<c:if test="${not empty instanciaProces.varsDocuments[codi]}">
@@ -120,16 +120,16 @@ function infoRegistre(docId) {
 			<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
 				<display:column>
 					<c:if test="${not instanciaProces.varsDocuments[codi].signat}">
-						<a href="<c:url value="/expedient/documentModificar.html"><c:param name="id" value="${instanciaProces.id}"/><c:param name="docId" value="${instanciaProces.varsDocuments[codi].id}"/></c:url>" onclick="return confirmarModificar(event)"><img src="<c:url value="/img/page_white_edit.png"/>" alt="Editar" title="Editar" border="0"/></a>
+						<a href="<c:url value="/expedient/documentModificar.html"><c:param name="id" value="${instanciaProces.id}"/><c:param name="docId" value="${instanciaProces.varsDocuments[codi].id}"/></c:url>" onclick="return confirmarModificar(event)"><img src="<c:url value="/img/page_white_edit.png"/>" alt="<fmt:message key='comuns.editar' />" title="<fmt:message key='comuns.editar' />" border="0"/></a>
 					</c:if>
 				</display:column>
 				<display:column>
 					<c:choose>
 						<c:when test="${instanciaProces.varsDocuments[codi].signat}">
-							<a href="<c:url value="/expedient/signaturaEsborrar.html"><c:param name="processInstanceId" value="${instanciaProces.id}"/><c:param name="docId" value="${instanciaProces.varsDocuments[codi].id}"/></c:url>" onclick="return confirmarEsborrarSignatura(event)"><img src="<c:url value="/img/rosette_delete.png"/>" alt="Esborrar signatura" title="Esborrar signatura" border="0"/></a>
+							<a href="<c:url value="/expedient/signaturaEsborrar.html"><c:param name="processInstanceId" value="${instanciaProces.id}"/><c:param name="docId" value="${instanciaProces.varsDocuments[codi].id}"/></c:url>" onclick="return confirmarEsborrarSignatura(event)"><img src="<c:url value="/img/rosette_delete.png"/>" alt="<fmt:message key='comuns.esborrar_signatura' />" title="<fmt:message key='comuns.esborrar_signatura' />" border="0"/></a>
 						</c:when>
 						<c:otherwise>
-							<a href="<c:url value="/expedient/documentEsborrar.html"><c:param name="id" value="${instanciaProces.id}"/><c:param name="docId" value="${instanciaProces.varsDocuments[codi].id}"/></c:url>" onclick="return confirmarEsborrarProces(event)"><img src="<c:url value="/img/cross.png"/>" alt="Esborrar" title="Esborrar" border="0"/></a>
+							<a href="<c:url value="/expedient/documentEsborrar.html"><c:param name="id" value="${instanciaProces.id}"/><c:param name="docId" value="${instanciaProces.varsDocuments[codi].id}"/></c:url>" onclick="return confirmarEsborrarProces(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 						</c:otherwise>
 					</c:choose>
 				</display:column>
@@ -141,7 +141,7 @@ function infoRegistre(docId) {
 		<form action="<c:url value="/expedient/documentAdjuntForm.html"/>">
 			<input type="hidden" name="id" value="${instanciaProces.id}"/>
 			<button class="submitButtonImage" type="submit">
-				<span class="nova-variable"></span>Adjuntar document al procés
+				<span class="nova-variable"></span><fmt:message key='expedient.document.adjuntar_document_proces' />
 			</button>
 		</form>
 	</security:accesscontrollist>

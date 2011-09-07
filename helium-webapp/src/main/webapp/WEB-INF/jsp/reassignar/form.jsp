@@ -5,8 +5,8 @@
 
 <html>
 	<head>
-		<title><c:choose><c:when test="${empty command.id}">Crear nova reassignació</c:when><c:otherwise>Modificar reassignació</c:otherwise></c:choose></title>
-		<meta name="titolcmp" content="Configuració"/>
+		<title><c:choose><c:when test="${empty command.id}"><fmt:message key='reassign.form.crear_nova' /></c:when><c:otherwise><fmt:message key='reassign.form.modificar' /></c:otherwise></c:choose></title>
+		<meta name="titolcmp" content="<fmt:message key='comuns.configuracio' />" />
 		<c:import url="../common/formIncludes.jsp"/>
 		<script type="text/javascript">
 			// <![CDATA[
@@ -30,7 +30,7 @@
 					<c:param name="property" value="usuariOrigen"/>
 					<c:param name="required" value="true"/>
 					<c:param name="type" value="suggest"/>
-					<c:param name="label">Usuari d'origen</c:param>
+					<c:param name="label"><fmt:message key='reassign.form.usu_origen' /></c:param>
 					<c:param name="suggestUrl"><c:url value="/persona/suggest.html"/></c:param>
 					<c:param name="suggestText">${command.usuariOrigen}</c:param>
 				</c:import>
@@ -39,7 +39,7 @@
 					<c:param name="property" value="usuariDesti"/>
 					<c:param name="required" value="true"/>
 					<c:param name="type" value="suggest"/>
-					<c:param name="label">Usuari destí</c:param>
+					<c:param name="label"><fmt:message key='reassign.form.usu_dest' /></c:param>
 					<c:param name="suggestUrl"><c:url value="/persona/suggest.html"/></c:param>
 					<c:param name="suggestText">${command.usuariDesti}</c:param>
 				</c:import>
@@ -48,24 +48,24 @@
 					<c:param name="property" value="dataInici"/>
 					<c:param name="required" value="true"/>
 					<c:param name="type" value="date"/>
-					<c:param name="label">Data d'inici</c:param>
+					<c:param name="label"><fmt:message key='reassign.form.data_ini' /></c:param>
 				</c:import>
 				
 				<c:import url="../common/formElement.jsp">
 					<c:param name="property" value="dataFi"/>
 					<c:param name="required" value="true"/>
 					<c:param name="type" value="date"/>
-					<c:param name="label">Data fi</c:param>
+					<c:param name="label"><fmt:message key='reassign.form.data_fi' /></c:param>
 				</c:import>
 				
 				<c:import url="../common/formElement.jsp">
 					<c:param name="type" value="buttons"/>
 					<c:param name="values">submit,cancel</c:param>
-					<c:param name="titles"><c:choose><c:when test="${empty command.id}">Crear,Cancel·lar</c:when><c:otherwise>Modificar,Cancel·lar</c:otherwise></c:choose></c:param>
+					<c:param name="titles"><c:choose><c:when test="${empty command.id}"><fmt:message key='comuns.crear' />,<fmt:message key='comuns.cancelar' /></c:when><c:otherwise><fmt:message key='comuns.modificar' />,<fmt:message key='comuns.cancelar' /></c:otherwise></c:choose></c:param>
 				</c:import>
 			</div>
 		</form:form>
 
-		<p class="aclaracio">Els camps marcats amb <img src="<c:url value="/img/bullet_red.png"/>" alt="Camp obligatori" title="Camp obligatori" border="0"/> són obligatoris</p>
+		<p class="aclaracio"><fmt:message key='comuns.camps_marcats' /> <img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='comuns.camp_oblig' />" title="<fmt:message key='comuns.camp_oblig' />" border="0"/> <fmt:message key='comuns.son_oblig' /></p>
 	</body>
 </html>

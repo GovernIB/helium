@@ -1,3 +1,7 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+
+<script type="text/javascript">
 
 function findValue(li, input) {
 	var codi = input.id.substring(input.id.indexOf("_") + 1);
@@ -42,7 +46,7 @@ var consultaActiva = new Array();
 function initSelect(selectId, valor, url, extraParams, dominiParams) {
 	//if (!$.browser.msie || parseInt(jQuery.browser.version) > 7) {
 		$.blockUI({
-			message: 'Carregant dades...' ,
+			message: '<fmt:message key="js.helforms.carreg_dades" />' ,
 			css: {
 	        	border: 'none', 
 	        	padding: '15px', 
@@ -57,13 +61,13 @@ function initSelect(selectId, valor, url, extraParams, dominiParams) {
 	consultaActiva.push(selectId);
 	var valorActual = $("select#" + selectId).val();
 	$("select#" + selectId).html(
-			'<option>Carregant...</option>');
+			'<option><fmt:message key="js.helforms.carregant" /></option>');
     $.getJSON(
     		url,
     		extraParams,
     		function(j) {
 			    var options = '';
-			    options += '<option value="">&lt;&lt; Seleccioni un valor &gt;&gt;</option>';
+			    options += '<option value="">&lt;&lt; <fmt:message key="js.helforms.selec_valor" /> &gt;&gt;</option>';
 		        for (var i = 0; i < j.length; i++) {
 		        	if (j[i].valor == valor)
 		        		options += '<option value="' + j[i].valor + '" selected="selected">' + j[i].text + '</option>';
@@ -157,7 +161,7 @@ function multipleAdd(elem, field) {
 }
 
 function accioCampExecutar(elem, field) {
-	if (confirm("L'execució d'aquesta acció provocarà que es guardin automaticament les dades de la tasca. Voleu continuar?")) {
+	if (confirm("<fmt:message key='js.helforms.confirmacio' />")) {
 		var fieldField = document.getElementById("helAccioCamp");
 		if (fieldField == null) {
 			newField = document.createElement('input');
@@ -193,3 +197,5 @@ function canviTermini(input) {
 	var dies = document.getElementById(campId + "_dies").value;
 	document.getElementById(campId).value = anys + "/" + mesos + "/" + dies;
 }
+
+</script>

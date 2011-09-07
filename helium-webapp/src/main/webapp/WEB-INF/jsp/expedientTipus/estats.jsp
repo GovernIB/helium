@@ -7,7 +7,7 @@
 <html>
 <head>
 	<title>Tipus d'expedient: ${expedientTipus.nom}</title>
-	<meta name="titolcmp" content="Disseny"/>
+	<meta name="titolcmp" content="<fmt:message key='comuns.disseny' />" />
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
     <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
@@ -35,11 +35,11 @@ function confirmar(e) {
 		<display:column property="nom" title="Nom"/>
 		<display:column property="ordre" title="Ordre"/>
 		<display:column>
-			<a href="<c:url value="/expedientTipus/estatPujar.html"><c:param name="id" value="${registre.id}"/><c:param name="expedientTipusId" value="${param.expedientTipusId}"/></c:url>"><img src="<c:url value="/img/famarrow_up.png"/>" alt="Amunt" title="Amunt" border="0"/></a>
-			<a href="<c:url value="/expedientTipus/estatBaixar.html"><c:param name="id" value="${registre.id}"/><c:param name="expedientTipusId" value="${param.expedientTipusId}"/></c:url>"><img src="<c:url value="/img/famarrow_down.png"/>" alt="Avall" title="Avall" border="0"/></a>
+			<a href="<c:url value="/expedientTipus/estatPujar.html"><c:param name="id" value="${registre.id}"/><c:param name="expedientTipusId" value="${param.expedientTipusId}"/></c:url>"><img src="<c:url value="/img/famarrow_up.png"/>" alt="<fmt:message key='comuns.amunt' />" title="<fmt:message key='comuns.amunt' />" border="0"/></a>
+			<a href="<c:url value="/expedientTipus/estatBaixar.html"><c:param name="id" value="${registre.id}"/><c:param name="expedientTipusId" value="${param.expedientTipusId}"/></c:url>"><img src="<c:url value="/img/famarrow_down.png"/>" alt="<fmt:message key='comuns.avall' />" title="<fmt:message key='comuns.avall' />" border="0"/></a>
 		</display:column>
 		<display:column>
-			<a href="<c:url value="/expedientTipus/estatEsborrar.html"><c:param name="id" value="${registre.id}"/><c:param name="expedientTipusId" value="${expedientTipus.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="Esborrar" title="Esborrar" border="0"/></a>
+			<a href="<c:url value="/expedientTipus/estatEsborrar.html"><c:param name="id" value="${registre.id}"/><c:param name="expedientTipusId" value="${expedientTipus.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 		</display:column>
 	</display:table>
 

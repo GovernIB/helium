@@ -7,8 +7,8 @@
 
 <html>
 <head>
-	<title>Definició de procés: ${definicioProces.jbpmName}</title>
-	<meta name="titolcmp" content="Disseny"/>
+	<title><fmt:message key='comuns.def_proces' />: ${definicioProces.jbpmName}</title>
+	<meta name="titolcmp" content="<fmt:message key='comuns.disseny' />" />
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
     <link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
     <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
@@ -20,16 +20,16 @@
 	</c:import>
 
 	<display:table name="tasques" id="registre" requestURI="" defaultsort="1" class="displaytag selectable">
-		<display:column sortProperty="jbpmName" title="Codi" sortable="true" url="/definicioProces/tascaForm.html?definicioProcesId=${param.definicioProcesId}" paramId="id" paramProperty="id">
-			<c:if test="${registre.jbpmName == definicioProces.startTaskName}"><img src="<c:url value="/img/control_play_blue.png"/>" alt="Tasca inicial" title="Tasca inicial" border="0" style="float:left;margin-right:3px;position:relative;top:-2px"/></c:if>
+		<display:column sortProperty="jbpmName" titleKey="comuns.codi" sortable="true" url="/definicioProces/tascaForm.html?definicioProcesId=${param.definicioProcesId}" paramId="id" paramProperty="id">
+			<c:if test="${registre.jbpmName == definicioProces.startTaskName}"><img src="<c:url value="/img/control_play_blue.png"/>" alt="<fmt:message key='defproc.tascallist.tasca_ini' />" title="<fmt:message key='defproc.tascallist.tasca_ini' />" border="0" style="float:left;margin-right:3px;position:relative;top:-2px"/></c:if>
 			${registre.jbpmName}
 		</display:column>
-		<display:column property="nom" title="Títol" sortable="true"/>
+		<display:column property="nom" titleKey="comuns.titol" sortable="true"/>
 		<display:column>
 	    	<form action="tascaCamps.html">
 				<input type="hidden" name="definicioProcesId" value="${definicioProces.id}"/>
 				<input type="hidden" name="tascaId" value="${registre.id}"/>
-				<button type="submit" class="submitButton">Variables&nbsp;(${fn:length(registre.camps)})</button>
+				<button type="submit" class="submitButton"><fmt:message key='comuns.variables' />&nbsp;(${fn:length(registre.camps)})</button>
 			</form>
 	    </display:column>
 		<display:column>
@@ -37,7 +37,7 @@
 		    	<form action="tascaDocuments.html">
 					<input type="hidden" name="definicioProcesId" value="${definicioProces.id}"/>
 					<input type="hidden" name="tascaId" value="${registre.id}"/>
-					<button type="submit" class="submitButton">Documents&nbsp;(${fn:length(registre.documents)})</button>
+					<button type="submit" class="submitButton"><fmt:message key='comuns.documents' />&nbsp;(${fn:length(registre.documents)})</button>
 				</form>
 			</c:if>
 	    </display:column>
@@ -46,7 +46,7 @@
 		    	<form action="tascaFirmes.html">
 					<input type="hidden" name="definicioProcesId" value="${definicioProces.id}"/>
 					<input type="hidden" name="tascaId" value="${registre.id}"/>
-					<button type="submit" class="submitButton">Signatures&nbsp;(${fn:length(registre.firmes)})</button>
+					<button type="submit" class="submitButton"><fmt:message key='defproc.tascallist.signatures' />&nbsp;(${fn:length(registre.firmes)})</button>
 				</form>
 			</c:if>
 	    </display:column>

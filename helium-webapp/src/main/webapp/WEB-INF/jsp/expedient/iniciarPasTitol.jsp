@@ -5,7 +5,7 @@
 
 <html>
 <head>
-	<title>Iniciar expedient: ${expedientTipus.nom}</title>
+	<title><fmt:message key='expedient.iniciar.iniciar_expedient' />: ${expedientTipus.nom}</title>
 	<meta name="titolcmp" content="Nou expedient"/>
 	<c:import url="../common/formIncludes.jsp"/>
 <script type="text/javascript">
@@ -16,8 +16,8 @@ function confirmar(e) {
 	if (e.stopPropagation) e.stopPropagation();
 	if ("cancel" == submitAction)
 		return true;
-	if (${empty tascaInicial})
-		return confirm("Estau segur que voleu iniciar un nou expedient?");
+	if (${empty tascaInicial}) 
+		return confirm("<fmt:message key='expedient.iniciar.confirm_iniciar' />");
 	else
 		return true;
 }
@@ -42,7 +42,7 @@ function confirmar(e) {
 				<c:import url="../common/formElement.jsp">
 					<c:param name="property" value="numero"/>
 					<c:param name="required" value="true"/>
-					<c:param name="label">Número</c:param>
+					<c:param name="label"><fmt:message key='expedient.consulta.numero' /></c:param>
 				</c:import>
 			</c:if>
 			<c:if test="${expedientTipus.teTitol and expedientTipus.demanaTitol}">
@@ -50,18 +50,18 @@ function confirmar(e) {
 					<c:param name="property" value="titol"/>
 					<c:param name="type" value="textarea"/>
 					<c:param name="required" value="true"/>
-					<c:param name="label">Títol</c:param>
+					<c:param name="label"><fmt:message key='expedient.consulta.titol' /></c:param>
 				</c:import>
 			</c:if>
 		</div>
 		<c:import url="../common/formElement.jsp">
 			<c:param name="type" value="buttons"/>
 			<c:param name="values">submit,cancel</c:param>
-			<c:param name="titles">Iniciar,Cancel·lar</c:param>
+			<c:param name="titles"><fmt:message key='comuns.iniciar' />,<fmt:message key='comuns.cancelar' /></c:param>
 		</c:import>
 	</form:form>
 
-	<p class="aclaracio">Els camps marcats amb <img src="<c:url value="/img/bullet_red.png"/>" alt="Camp obligatori" title="Camp obligatori" border="0"/> són obligatoris</p>
+	<p class="aclaracio"><fmt:message key='comuns.camps_marcats' /> <img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='comuns.camp_oblig' />" title="<fmt:message key='comuns.camp_oblig' />" border="0"/> <fmt:message key='comuns.son_oblig' /></p>
 
 </body>
 </html>

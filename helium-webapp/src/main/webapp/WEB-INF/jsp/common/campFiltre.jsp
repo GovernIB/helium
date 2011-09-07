@@ -26,12 +26,12 @@
 			<c:param name="label">${campActual.etiqueta}</c:param>
 			<c:param name="content">
 				<spring:bind path="${codiActual}[0]">
-					<label for="${codiActual}0" class="blockLabel">Entre
+					<label for="${codiActual}0" class="blockLabel"><fmt:message key='common.campfiltre.entre' />
 						<input id="${codiActual}0" name="${codiActual}" value="${status.value}" type="text" class="textInput" style="text-align:right"/>
 					</label>
 				</spring:bind>
 				<spring:bind path="${codiActual}[1]">
-					<label for="${codiActual}1" class="blockLabel blockLabelLast">i
+					<label for="${codiActual}1" class="blockLabel blockLabelLast"><fmt:message key='common.campfiltre.i' />
 						<input id="${codiActual}1" name="${codiActual}" value="${status.value}" type="text" class="textInput" style="text-align:right"/>
 					</label>
 				</spring:bind>
@@ -51,12 +51,12 @@
 			<c:param name="label">${campActual.etiqueta}</c:param>
 			<c:param name="content">
 				<spring:bind path="${codiActual}[0]">
-					<label for="${codiActual}0" class="blockLabel">Entre
+					<label for="${codiActual}0" class="blockLabel"><fmt:message key='common.campfiltre.entre' />
 						<input id="${codiActual}0" name="${codiActual}" value="${status.value}" type="text" class="textInput" style="text-align:right"/>
 					</label>
 				</spring:bind>
 				<spring:bind path="${codiActual}[1]">
-					<label for="${codiActual}1" class="blockLabel blockLabelLast">i
+					<label for="${codiActual}1" class="blockLabel blockLabelLast"><fmt:message key='common.campfiltre.i' />
 						<input id="${codiActual}1" name="${codiActual}" value="${status.value}" type="text" class="textInput" style="text-align:right"/>
 					</label>
 				</spring:bind>
@@ -76,7 +76,7 @@
 			<c:param name="label">${campActual.etiqueta}</c:param>
 			<c:param name="content">
 				<spring:bind path="${codiActual}[0]">
-					<label for="${codiActual}0" class="blockLabel">Entre
+					<label for="${codiActual}0" class="blockLabel"><fmt:message key='common.campfiltre.entre' />
 						<input id="${codiActual}0" name="${codiActual}" value="${status.value}" type="text" class="textInput"/>
 						<script type="text/javascript">
 							// <![CDATA[
@@ -93,7 +93,7 @@
 					</label>
 				</spring:bind>
 				<spring:bind path="${codiActual}[1]">
-					<label for="${codiActual}1" class="blockLabel blockLabelLast">i
+					<label for="${codiActual}1" class="blockLabel blockLabelLast"><fmt:message key='common.campfiltre.i' />
 						<input id="${codiActual}1" name="${codiActual}" value="${status.value}" type="text" class="textInput"/>
 						<script type="text/javascript">
 							// <![CDATA[
@@ -125,12 +125,12 @@
 			<c:param name="label">${campActual.etiqueta}</c:param>
 			<c:param name="content">
 				<spring:bind path="${codiActual}[0]">
-					<label for="${codiActual}0" class="blockLabel">Entre
+					<label for="${codiActual}0" class="blockLabel"><fmt:message key='common.campfiltre.entre' />
 						<input id="${codiActual}0" name="${codiActual}" value="${status.value}" type="text" class="textInput" style="text-align:right"/>
 					</label>
 				</spring:bind>
 				<spring:bind path="${codiActual}[1]">
-					<label for="${codiActual}1" class="blockLabel blockLabelLast">i
+					<label for="${codiActual}1" class="blockLabel blockLabelLast"><fmt:message key='common.campfiltre.i' />
 						<input id="${codiActual}1" name="${codiActual}" value="${status.value}" type="text" class="textInput" style="text-align:right"/>
 					</label>
 				</spring:bind>
@@ -151,7 +151,7 @@
 			<c:param name="items" value="valorsBoolea"/>
 			<c:param name="itemLabel" value="valor"/>
 			<c:param name="itemValue" value="codi"/>
-			<c:param name="itemBuit">&lt;&lt; Sense especificar &gt;&gt;</c:param>
+			<c:param name="itemBuit">&lt;&lt; <fmt:message key='common.campfiltre.item_buit' /> &gt;&gt;</c:param>
 		</c:import>
 	</c:when>
 	<c:when test="${campActual.tipus == 'TEXTAREA'}">

@@ -1,6 +1,7 @@
 table.displaytag {
 	border: 1px solid #ccc;
 	width: 100%;
+	/* table-layout: fixed; */
 	margin: 0 0 8px 0;
 	border-collapse: separate;
 	border-spacing: 2px;
@@ -14,6 +15,8 @@ table.displaytag th, table.displaytag td {
 	color: #666;
 }
 table.displaytag td {
+	max-width: 350px;
+	word-wrap: break-word;
 }
 table.displaytag thead tr {
 	background-color: #dfe0d1;

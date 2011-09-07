@@ -68,7 +68,7 @@
 				<c:otherwise>
 					<div class="ctrlHolder<c:if test="${not empty errorsCamp}"> error</c:if>">
 						<c:if test="${not empty errorsCamp}"><p class="errorField"><strong>${errorsCamp}</strong></p></c:if>
-						<c:set var="labelText"><c:if test="${required}"><em><img src="<c:url value="/img/bullet_red.png"/>" alt="Camp obligatori" title="Camp obligatori" border="0"/></em></c:if><c:choose><c:when test="${not empty param.labelKey}"><fmt:message key="${param.labelKey}"/></c:when><c:when test="${not empty param.label}">${param.label}</c:when></c:choose></c:set>
+						<c:set var="labelText"><c:if test="${required}"><em><img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='comuns.camp_oblig' />" title="<fmt:message key='comuns.camp_oblig' />" border="0"/></em></c:if><c:choose><c:when test="${not empty param.labelKey}"><fmt:message key="${param.labelKey}"/></c:when><c:when test="${not empty param.label}">${param.label}</c:when></c:choose></c:set>
 						<c:if test="${varStatus.index gt 0}"><c:set var="labelText" value=""/></c:if>
 						<c:choose>
 							<c:when test="${param.inputOnly == 'true'}"></c:when>
@@ -184,8 +184,8 @@
 								// ]]>
 								</script>
 								<div id="iconsFileInput_${inputId}" class="iconsFileInput"<c:if test="${not hiHaArxiu}"> style="display:none"</c:if>>
-									<a href="${param.fileUrl}"><img src="<c:url value="/img/page_white_put.png"/>" alt="Descarregar" title="Descarregar" border="0"/></a>
-									<a href="#" onclick="return mostrarAmagarFile_${inputId}()"><img src="<c:url value="/img/cross.png"/>" alt="Esborrar" title="Esborrar" border="0"/></a>
+									<a href="${param.fileUrl}"><img src="<c:url value="/img/page_white_put.png"/>" alt="<fmt:message key='comuns.descarregar' />" title="<fmt:message key='comuns.descarregar' />" border="0"/></a>
+									<a href="#" onclick="return mostrarAmagarFile_${inputId}()"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 								</div>
 								<div id="fileInput_${inputId}"<c:if test="${hiHaArxiu}"> style="display:none"</c:if>>
 									<input id="${inputId}" name="${inputName}" type="file" class="fileUpload" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>/>
@@ -197,8 +197,8 @@
 								<c:if test="${not empty param.iterateOn}"><c:set var="suggestText" value="${requestScope[param.multipleSuggestText][varStatus.index]}"/></c:if>
 								<input id="${inputId}" name="${inputName}" value="${status.value}" type="hidden"/>
 								<input name="suggest_${inputId}" id="suggest_${inputId}" type="text" class="textInput"<c:if test="${not empty suggestText}"> value="${suggestText}"</c:if><c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>/>
-								<img id="suggest_${inputId}_info" src="<c:url value="/img/page_white_magnify.png"/>" title="Suggest" alt="Suggest" class="suggestImgInfo"/>
-								<img id="suggest_${inputId}_delete" src="<c:url value="/img/page_white_delete.png"/>" title="Suggest" alt="Suggest" class="suggestImgEsborrar"/>
+								<img id="suggest_${inputId}_info" src="<c:url value="/img/page_white_magnify.png"/>" title="<fmt:message key='comuns.suggerir' />" alt="<fmt:message key='comuns.suggerir' />" class="suggestImgInfo"/>
+								<img id="suggest_${inputId}_delete" src="<c:url value="/img/page_white_delete.png"/>" title="<fmt:message key='comuns.suggerir' />" alt="<fmt:message key='comuns.suggerir' />" class="suggestImgEsborrar"/>
 								<script type="text/javascript">
 									// <![CDATA[
 									$(document).ready(function(){

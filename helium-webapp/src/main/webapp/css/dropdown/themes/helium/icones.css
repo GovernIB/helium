@@ -20,6 +20,9 @@ ul.dropdown li.entorns a {
 ul.dropdown li.sortir a {
 	background-image: url(images/system-log-out.png);
 }
+ul.dropdown li.usuari a {
+	background-image: url(images/user_suit.png);
+}
 ul.dropdown li.expedient-consultes a {
 	background-image: url(images/folder_explore.png);
 }

@@ -8,11 +8,22 @@
 <html>
 <head>
 	<title>Tipus d'expedient</title>
-	<meta name="titolcmp" content="Disseny"/>
+	<meta name="titolcmp" content="<fmt:message key='comuns.disseny' />" />
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
     <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
+	<c:import url="../common/formIncludes.jsp"/>
 <script type="text/javascript">
 // <![CDATA[
+function mostrarOcultar(img, objid) {
+	var obj = document.getElementById(objid);
+	if (obj.style.display=="none") {
+		obj.style.display = "block";
+		img.src = '<c:url value="/img/magnifier_zoom_out.png"/>';
+	} else {
+		obj.style.display = "none";
+		img.src = '<c:url value="/img/magnifier_zoom_in.png"/>';
+	}
+}
 function confirmar(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
@@ -47,7 +58,7 @@ function confirmar(e) {
 				</form>
 		    </display:column>
 			<display:column>
-				<a href="<c:url value="/expedientTipus/delete.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="Esborrar" title="Esborrar" border="0"/></a>
+				<a href="<c:url value="/expedientTipus/delete.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 			</display:column>
 		</security:accesscontrollist>
 	</display:table>
@@ -58,6 +69,29 @@ function confirmar(e) {
 			<button type="submit" class="submitButton">Nou tipus d'expedient</button>
 		</form>
 	</security:accesscontrollist>
+
+	<!-- 
+	<br /><br />
+	<div class="missatgesGris"> 
+		<h3 class="titol-tab titol-delegacio"><fmt:message key='defproc.info.import_dades' /> <img src="<c:url value="/img/magnifier_zoom_in.png"/>" alt="<fmt:message key='defproc.info.mos_ocul' />" title="<fmt:message key='defproc.info.mos_ocul' />" border="0" onclick="mostrarOcultar(this,'form-importar')"/></h3>
+		<div id="form-importar" style="display:none">
+			<form:form action="importar.html" cssClass="uniForm" enctype="multipart/form-data">
+				<input type="hidden" name="expedientTipusId" value="${expedientTipus.id}"/>
+				<div class="inlineLabels">
+					<c:import url="../common/formElement.jsp">
+						<c:param name="property" value="arxiu"/>
+						<c:param name="type" value="file"/>
+						<c:param name="label"><fmt:message key='defproc.info.arxiu_exp' /></c:param>
+					</c:import>
+					<c:import url="../common/formElement.jsp">
+						<c:param name="type" value="buttons"/>
+						<c:param name="values">submit</c:param>
+						<c:param name="titles"><fmt:message key='defproc.info.importar' /></c:param>
+					</c:import>
+				</div>
+			</form:form>
+		</div>
+	</div>-->
 
 </body>
 </html>

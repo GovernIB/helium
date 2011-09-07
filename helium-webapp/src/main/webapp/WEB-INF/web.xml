@@ -6,10 +6,12 @@
 		<param-name>contextConfigLocation</param-name>
 		<param-value>/WEB-INF/application-context.xml</param-value>
 	</context-param>
+	<!-- log4j.begin -->
 	<context-param>
 		<param-name>log4jConfigLocation</param-name>
 		<param-value>/WEB-INF/classes/log4j.xml</param-value>
 	</context-param>
+	<!-- log4j.end -->
 
 	<resource-ref>
 		<description>Datasource de l'aplicació</description>
@@ -440,12 +442,22 @@
 		<init-param>
 			<param-name>debug</param-name>
 			<param-value>true</param-value>
-		</init-param>		
+		</init-param>
+		<init-param>
+			<param-name>crossDomainSessionSecurity</param-name>
+			<param-value>false</param-value>
+		</init-param> 
 	</servlet>
 	<servlet>
 		<servlet-name>CXFServlet</servlet-name>
-		<servlet-class>org.apache.cxf.transport.servlet.CXFServlet</servlet-class>
+		<!--servlet-class>org.apache.cxf.transport.servlet.CXFServlet</servlet-class-->
+		<servlet-class>net.conselldemallorca.helium.ws.HeliumCXFServlet</servlet-class>
 		<load-on-startup>2</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>EndpointPublisherServlet</servlet-name>
+		<servlet-class>net.conselldemallorca.helium.ws.EndpointPublisherServlet</servlet-class>
+		<load-on-startup>3</load-on-startup>
 	</servlet>
 	<servlet>
 		<servlet-name>AxisServlet</servlet-name>
@@ -470,7 +482,7 @@
 
 	<login-config>
 		<auth-method>BASIC</auth-method>
-		<realm-name>${web.realm.name}</realm-name>
+		<realm-name>@@web.realm.name@@</realm-name>
 	</login-config>
 
 	<security-role>

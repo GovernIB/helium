@@ -6,13 +6,13 @@
 
 <html>
 <head>
-	<title>Seleccionar entorn</title>
+	<title><fmt:message key='entorn.seleccio.selec_entorn' /></title>
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
     <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 
-	<c:set var="missatgeTaulaBuida"><span class="nothingFound">No hi ha cap entorn disponible</span></c:set>
+	<c:set var="missatgeTaulaBuida"><span class="nothingFound"><fmt:message key='entorn.seleccio.no_hi_ha' /></span></c:set>
 	
 	<display:table name="entorns" id="registre" requestURI="" class="displaytag">
 	    <display:column>
@@ -26,13 +26,13 @@
 	    			<c:url value="/img/star_grey.png" var="urlStar"/>
 	    		</c:otherwise>
 	    	</c:choose>
-			<a href="${urlLink}"><img src="${urlStar}" alt="Per defecte" title="Per defecte" border="0"/></a>
+			<a href="${urlLink}"><img src="${urlStar}" alt="<fmt:message key='entorn.seleccio.per_defecte' />" title="<fmt:message key='entorn.seleccio.per_defecte' />" border="0"/></a>
 		</display:column>
 	    <display:column property="nom" title="Entorn" sortable="true"/>
 	    <display:column>
 	    	<form action="<c:url value="/index.html"/>">
 				<input type="hidden" name="entornCanviarAmbId" value="${registre.id}"/>
-				<button type="submit" class="submitButton">Seleccionar</button>
+				<button type="submit" class="submitButton"><fmt:message key='entorn.seleccio.seleccionar' /></button>
 			</form>
 	    </display:column>
 	    <display:setProperty name="basic.msg.empty_list" value="${missatgeTaulaBuida}" />
