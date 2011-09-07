@@ -18,13 +18,15 @@ public interface CustodiaPlugin {
 	 * Afegeix una signatura a un document
 	 * 
 	 * @param id
+	 * @param gesdocId
 	 * @param arxiuNom
 	 * @param tipusDocument
 	 * @param signatura
 	 * @return
 	 */
 	public String addSignature(
-			String documentId,
+			String id,
+			String gesdocId,
 			String arxiuNom,
 			String tipusDocument,
 			byte[] signatura) throws CustodiaPluginException;
@@ -71,5 +73,14 @@ public interface CustodiaPlugin {
 	 * de guardar la signatura o s'ha de fer expressament.
 	 */
 	public boolean isValidacioImplicita();
+
+	/**
+	 * Retorna la url de verificació de documents signats. Si retorna null
+	 * el plugin no suporta aquesta característica.
+	 * 
+	 * @return
+	 * @throws CustodiaPluginException
+	 */
+	public String getUrlComprovacioSignatura(String id) throws CustodiaPluginException;
 
 }

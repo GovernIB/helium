@@ -15,7 +15,9 @@ import javax.xml.bind.annotation.XmlSeeAlso;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @XmlSeeAlso({Object[].class, Object[][].class})
-@WebService(name="TramitacioService")
+@WebService(
+		name="TramitacioService",
+		targetNamespace = "http://tramitacio.integracio.helium.conselldemallorca.net/")
 public interface TramitacioService {
 
 	/**
@@ -289,5 +291,29 @@ public interface TramitacioService {
 			String usuari,
 			String processInstanceId,
 			String script) throws TramitacioException;
-
+	
+	/**
+	 * Mètode per fer una consulta d'expedients
+	 * 
+	 * @param entorn
+	 * @param usuari
+	 * @param processInstanceId
+	 * @param script
+	 * @throws TramitacioException
+	 */
+	public List<ExpedientInfo> consultaExpedients(
+			String entorn,
+			String usuari,
+			String titol,
+			String numero,
+			Date dataInici1,
+			Date dataInici2,
+			String expedientTipusCodi,
+			String estatCodi,
+			boolean iniciat,
+			boolean finalitzat,
+			Double geoPosX,
+			Double geoPosY,
+			String geoReferencia) throws TramitacioException;
+ 
 }

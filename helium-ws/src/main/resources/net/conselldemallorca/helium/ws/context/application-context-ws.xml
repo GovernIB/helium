@@ -14,100 +14,18 @@
 	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
 
 	<bean id="bantelV1Backoffice" class="net.conselldemallorca.helium.ws.backoffice.BantelV1Backoffice"/>
-	<jaxws:endpoint 
-		implementor="#bantelV1Backoffice" 
-		address="/NotificacioEntrada">
-		<jaxws:inInterceptors>
-			<!--bean class="org.apache.cxf.interceptor.LoggingInInterceptor" /-->
-			<bean class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor">
-				<constructor-arg>
-					<map>
-						<entry key="action" value="Timestamp UsernameToken" />
-						<entry key="passwordType" value="PasswordText" />
-						<entry key="passwordCallbackRef">
-							<bean
-								class="net.conselldemallorca.helium.core.util.ws.ServerPasswordCallback">
-								<property name="userName" value="${app.bantel.avisos.username}" />
-								<property name="password" value="${app.bantel.avisos.password}" />
-							</bean>
-						</entry>
-					</map>
-				</constructor-arg>
-			</bean>
-		</jaxws:inInterceptors>
-		<!--jaxws:outInterceptors>
-			<bean class="org.apache.cxf.interceptor.LoggingOutInterceptor" />
-		</jaxws:outInterceptors-->
-	</jaxws:endpoint>
 	<bean id="bantelV2Backoffice" class="net.conselldemallorca.helium.ws.backoffice.BantelV2Backoffice"/>
-	<jaxws:endpoint 
-		implementor="#bantelV2Backoffice" 
-		address="/NotificacioEntradaV2">
-		<jaxws:inInterceptors>
-			<!--bean class="org.apache.cxf.interceptor.LoggingInInterceptor" /-->
-			<bean class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor">
-				<constructor-arg>
-					<map>
-						<entry key="action" value="Timestamp UsernameToken" />
-						<entry key="passwordType" value="PasswordText" />
-						<entry key="passwordCallbackRef">
-							<bean
-								class="net.conselldemallorca.helium.core.util.ws.ServerPasswordCallback">
-								<property name="userName" value="${app.bantel.avisos.username}" />
-								<property name="password" value="${app.bantel.avisos.password}" />
-							</bean>
-						</entry>
-					</map>
-				</constructor-arg>
-			</bean>
-		</jaxws:inInterceptors>
-		<!--jaxws:outInterceptors>
-			<bean class="org.apache.cxf.interceptor.LoggingOutInterceptor" />
-		</jaxws:outInterceptors-->
-	</jaxws:endpoint>
 	<bean id="bantelEsbCimBackoffice" class="net.conselldemallorca.helium.ws.backoffice.EsbCimBackoffice"/>
-	<jaxws:endpoint 
-		implementor="#bantelEsbCimBackoffice" 
-		address="/NotificacioEntradaEsbCim">
-		<jaxws:inInterceptors>
-			<!--bean class="org.apache.cxf.interceptor.LoggingInInterceptor" /-->
-			<bean class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor">
-				<constructor-arg>
-					<map>
-						<entry key="action" value="Timestamp UsernameToken" />
-						<entry key="passwordType" value="PasswordText" />
-						<entry key="passwordCallbackRef">
-							<bean
-								class="net.conselldemallorca.helium.core.util.ws.ServerPasswordCallback">
-								<property name="userName" value="${app.bantel.avisos.username}" />
-								<property name="password" value="${app.bantel.avisos.password}" />
-							</bean>
-						</entry>
-					</map>
-				</constructor-arg>
-			</bean>
-		</jaxws:inInterceptors>
-		<!--jaxws:outInterceptors>
-			<bean class="org.apache.cxf.interceptor.LoggingOutInterceptor" />
-		</jaxws:outInterceptors-->
-	</jaxws:endpoint>
 
 	<bean id="dominiIntern" class="net.conselldemallorca.helium.ws.domini.DominiIntern"/>
-	<jaxws:endpoint 
-		id="dominiInternService" 
-		implementor="#dominiIntern" 
-		address="/DominiIntern"/>
 
 	<bean id="formulariExtern" class="net.conselldemallorca.helium.ws.formulari.GuardarFormulariImpl"/>
-	<jaxws:endpoint 
-		id="formulariExternService" 
-		implementor="#formulariExtern" 
-		address="/FormulariExtern"/>
 
 	<bean id="tramitacioService" class="net.conselldemallorca.helium.ws.tramitacio.Tramitacio"/>
-	<jaxws:endpoint 
-		implementor="#tramitacioService" 
-		address="/TramitacioService"/>
+
+	<!--bean id="cxfServiceDeployer" class="net.conselldemallorca.helium.ws.ServiceDeploy">
+		<property name="service" ref="tramitacioService" />
+	</bean-->
 
 	<!--jaxws:endpoint 
 		id="dominiExempleService" 

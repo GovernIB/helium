@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.conselldemallorca.helium.core.model.dao.MapeigSistraDao;
 import net.conselldemallorca.helium.core.model.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
@@ -18,6 +19,7 @@ import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
@@ -44,6 +46,7 @@ public abstract class BaseBackoffice {
 
 	private ExpedientService expedientService;
 	private DissenyService dissenyService;
+	private MapeigSistraDao mapeigSistraDao;
 
 
 
@@ -99,6 +102,11 @@ public abstract class BaseBackoffice {
 	public void setDissenyService(DissenyService dissenyService) {
 		this.dissenyService = dissenyService;
 	}
+	@Autowired
+	public void setMapeigSistraDao(MapeigSistraDao mapeigSistraDao) {
+		this.mapeigSistraDao = mapeigSistraDao;
+	}
+
 
 	protected abstract DadesVistaDocument getVistaDocumentTramit(
 			long referenciaCodi,
@@ -107,12 +115,11 @@ public abstract class BaseBackoffice {
 			String idioma);
 
 
-
 	private Map<String, Object> getDadesInicials(
 			ExpedientTipus expedientTipus,
 			DadesTramit tramit) {
-		if (expedientTipus.getSistraTramitMapeigCamps() == null)
-			return null;
+		/*if (expedientTipus.getSistraTramitMapeigCamps() == null)
+			return null; 
 		Map<String, Object> resposta = new HashMap<String, Object>();
 		List<CampTasca> campsTasca = getCampsStartTask(expedientTipus);
 		String[] parts = expedientTipus.getSistraTramitMapeigCamps().split(";");
@@ -141,13 +148,51 @@ public abstract class BaseBackoffice {
 				}
 			}
 		}
-		return resposta;
+		return resposta;*/
+		List<MapeigSistra> mapeigsSistra = mapeigSistraDao.findVariablesAmbExpedientTipusOrdenats(expedientTipus.getId());
+		if (mapeigsSistra.size() == 0)
+			return null;
+		
+		boolean trobat = false;
+		Map<String, Object> resposta = new HashMap<String, Object>();
+		List<CampTasca> campsTasca = getCampsStartTask(expedientTipus);
+		
+		for (MapeigSistra mapeig : mapeigsSistra){
+			trobat = true;
+			Camp campHelium = null;
+			for (CampTasca campTasca: campsTasca) {
+				if (campTasca.getCamp().getCodi().equalsIgnoreCase(mapeig.getCodiHelium())) {
+					campHelium = campTasca.getCamp();
+					break;
+				}
+			}
+			try {
+				if (campHelium != null) {
+					resposta.put(
+							mapeig.getCodiHelium(),
+							valorVariableHelium(
+									valorVariableSistra(
+											tramit,
+											mapeig.getCodiHelium(),
+											mapeig.getCodiSistra()),
+									campHelium));
+				}
+			} catch (Exception ex) {
+				logger.error("Error llegint dades del document de SISTRA", ex);
+			}
+		}
+		
+		if (trobat)
+			return resposta;
+		else
+			return null;
+		
 	}
 
 	private Map<String, DadesDocumentDto> getDocumentsInicials(
 			ExpedientTipus expedientTipus,
 			DadesTramit tramit) {
-		if (expedientTipus.getSistraTramitMapeigDocuments() == null)
+		/*if (expedientTipus.getSistraTramitMapeigDocuments() == null)
 			return null;
 		Map<String, DadesDocumentDto> resposta = new HashMap<String, DadesDocumentDto>();
 		List<Document> documents = getDocuments(expedientTipus);
@@ -174,13 +219,44 @@ public abstract class BaseBackoffice {
 				}
 			}
 		}
-		return resposta;
+		return resposta;*/
+		
+		List<MapeigSistra> mapeigsSistra = mapeigSistraDao.findDocumentsAmbExpedientTipusOrdenats(expedientTipus.getId());
+		if (mapeigsSistra.size() == 0)
+			return null;
+		
+		boolean trobat = false;
+		Map<String, DadesDocumentDto> resposta = new HashMap<String, DadesDocumentDto>();
+		List<Document> documents = getDocuments(expedientTipus);
+		
+		for (MapeigSistra mapeig : mapeigsSistra){
+			trobat = true;
+			Document docHelium = null;
+			for (Document document : documents){
+				if (document.getCodi().equalsIgnoreCase(mapeig.getCodiHelium())){
+					docHelium = document;
+					break;
+				}
+			}
+			try {
+				if (docHelium != null)
+					resposta.put(mapeig.getCodiHelium(), documentSistra(tramit, mapeig.getCodiSistra(), docHelium));
+			} catch (Exception ex) {
+				logger.error("Error llegint dades del document de SISTRA", ex);
+			}
+		}
+		
+		if (trobat)
+			return resposta;
+		else
+			return null;
+		
 	}
 
 	private List<DadesDocumentDto> getDocumentsAdjunts(
 			ExpedientTipus expedientTipus,
 			DadesTramit tramit) {
-		if (expedientTipus.getSistraTramitMapeigAdjunts() == null)
+		/*if (expedientTipus.getSistraTramitMapeigAdjunts() == null)
 			return null;
 		List<DadesDocumentDto> resposta = new ArrayList<DadesDocumentDto>();
 		String[] parts = expedientTipus.getSistraTramitMapeigAdjunts().split(";");
@@ -192,12 +268,36 @@ public abstract class BaseBackoffice {
 				logger.error("Error llegint dades del document de SISTRA", ex);
 			}
 		}
-		return resposta;
+		return resposta;*/
+		
+		List<MapeigSistra> mapeigsSistra = mapeigSistraDao.findAdjuntsAmbExpedientTipusOrdenats(expedientTipus.getId());
+		if (mapeigsSistra.size() == 0)
+			return null;
+		
+		boolean trobat = false;
+		List<DadesDocumentDto> resposta = new ArrayList<DadesDocumentDto>();
+
+		for (MapeigSistra mapeig : mapeigsSistra){
+			if (MapeigSistra.TipusMapeig.Adjunt.equals(mapeig.getTipus())){
+				trobat = true;
+				try {
+					resposta.addAll(documentsSistraAdjunts(tramit, mapeig.getCodiHelium()));
+				} catch (Exception ex) {
+					logger.error("Error llegint dades del document de SISTRA", ex);
+				}
+			}
+		}
+		
+		if (trobat)
+			return resposta;
+		else
+			return null;
 	}
 
 	@SuppressWarnings("unchecked")
 	private Object valorVariableSistra(
 			DadesTramit tramit,
+			String varHelium,
 			String varSistra) throws Exception {
 		String[] parts = varSistra.split("\\.");
 		String documentCodi = parts[0];
@@ -210,29 +310,32 @@ public abstract class BaseBackoffice {
 				String content = new String(doc.getDocumentTelematic().getArxiuContingut());
 				org.dom4j.Document document = DocumentHelper.parseText(content);
 				String xpath = "/FORMULARIO/" + finestraCodi + "/" + campCodi;
+				System.out.println(">>>>>> content: " + content);
 				Element node = (Element)document.selectSingleNode(xpath);
-				if (node.attribute("indice")!= null) {
-					return node.attribute("indice").getValue();
-				} else if (node.isTextOnly()) {
-					return node.getText();
-				} else {
-					List<String[]> valorsFiles = new ArrayList<String[]>();
-					List<Element> files = node.elements();
-					for (Element fila: files) {
-						if (fila.getName().startsWith("ID")) {
-							List<Element> columnes = fila.elements();
-							String[] valors = new String[columnes.size()];
-							for (int i = 0; i < columnes.size(); i++) {
-								Element columna = columnes.get(i);
-								if (columna.attribute("indice")!= null)
-									valors[i] = columna.attribute("indice").getValue();
-								else
-									valors[i] = columna.getText();
+				if (node != null) {
+					if (node.attribute("indice")!= null) {
+						return node.attribute("indice").getValue();
+					} else if (node.isTextOnly()) {
+						return node.getText();
+					} else {
+						List<String[]> valorsFiles = new ArrayList<String[]>();
+						List<Element> files = node.elements();
+						for (Element fila: files) {
+							if (fila.getName().startsWith("ID")) {
+								List<Element> columnes = fila.elements();
+								String[] valors = new String[columnes.size()];
+								for (int i = 0; i < columnes.size(); i++) {
+									Element columna = columnes.get(i);
+									if (columna.attribute("indice")!= null)
+										valors[i] = columna.attribute("indice").getValue();
+									else
+										valors[i] = columna.getText();
+								}
+								valorsFiles.add(valors);
 							}
-							valorsFiles.add(valors);
 						}
+						return valorsFiles.toArray(new Object[valorsFiles.size()]);
 					}
-					return valorsFiles.toArray(new Object[valorsFiles.size()]);
 				}
 			}
 		}
@@ -303,34 +406,24 @@ public abstract class BaseBackoffice {
 					Object[] resposta = new Object[dadesSistra.length];
 					for (int i = 0; i < resposta.length; i++) {
 						String[] filaSistra = (String[])dadesSistra[i];
-						if (camp.getRegistreMembres().size() == filaSistra.length) {
-							Object[] filaResposta = new Object[filaSistra.length];
-							for (int j = 0; j < filaResposta.length; j++) {
-								Camp campRegistre = camp.getRegistreMembres().get(j).getMembre();
-								filaResposta[j] = valorPerHeliumSimple(filaSistra[j], campRegistre);
-							}
-							resposta[i] = filaResposta;
-						} else {
-							logger.error("No s'ha pogut mapejar el camp " + camp.getCodi() + ": el nombre de columnes no coincideix");
-							return null;
+						Object[] filaResposta = new Object[camp.getRegistreMembres().size()];
+						for (int j = 0; j < filaResposta.length && j < filaSistra.length; j++) {
+							Camp campRegistre = camp.getRegistreMembres().get(j).getMembre();
+							filaResposta[j] = valorPerHeliumSimple(filaSistra[j], campRegistre);
 						}
+						resposta[i] = filaResposta;
 					}
 					return resposta;
 				} else {
-					if (camp.getRegistreMembres().size() == dadesSistra.length) {
-						Object[] resposta = new Object[dadesSistra.length];
-						for (int i = 0; i < resposta.length; i++) {
-							Camp campRegistre = camp.getRegistreMembres().get(i).getMembre();
-							resposta[i] = valorPerHeliumSimple(((String[])dadesSistra)[i], campRegistre);
-						}
-						return resposta;
-					} else {
-						logger.error("No s'ha pogut mapejar el camp " + camp.getCodi() + ": el nombre de columnes no coincideix");
-						return null;
+					Object[] resposta = new Object[camp.getRegistreMembres().size()];
+					for (int i = 0; i < resposta.length && i < dadesSistra.length; i++) {
+						Camp campRegistre = camp.getRegistreMembres().get(i).getMembre();
+						resposta[i] = valorPerHeliumSimple(((String[])dadesSistra)[i], campRegistre);
 					}
+					return resposta;
 				}
 			} else {
-				logger.error("No s'ha pogut mapejar el camp " + camp.getCodi() + ": el camp del sistra no és de tipus registre");
+				logger.error("No s'ha pogut mapejar el camp " + camp.getCodi() + ": el camp és buit o no és de tipus registre");
 				return null;
 			}
 		} else {

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.conselldemallorca.helium.jbpm3.handlers.tipus;
+package net.conselldemallorca.helium.ws.tramitacio;
 
 import java.util.Date;
 
@@ -19,6 +19,7 @@ public class ExpedientInfo {
 	private String titol;
 	private String numero;
 	private String numeroDefault;
+	private String identificador;
 	private Date dataInici;
 	private Date dataFi;
 	private String comentari;
@@ -53,7 +54,6 @@ public class ExpedientInfo {
 	private String expedientTipusCodi;
 	private String expedientTipusNom;
 	private String entornCodi;
-	private String entornNom;
 
 	private long processInstanceId;
 
@@ -76,6 +76,12 @@ public class ExpedientInfo {
 	}
 	public void setNumeroDefault(String numeroDefault) {
 		this.numeroDefault = numeroDefault;
+	}
+	public String getIdentificador() {
+		return identificador;
+	}
+	public void setIdentificador(String identificador) {
+		this.identificador = identificador;
 	}
 	public Date getDataInici() {
 		return dataInici;
@@ -269,12 +275,6 @@ public class ExpedientInfo {
 	}
 	public void setEntornCodi(String entornCodi) {
 		this.entornCodi = entornCodi;
-	}
-	public String getEntornNom() {
-		return entornNom;
-	}
-	public void setEntornNom(String entornNom) {
-		this.entornNom = entornNom;
 	}
 
 	public long getProcessInstanceId() {
