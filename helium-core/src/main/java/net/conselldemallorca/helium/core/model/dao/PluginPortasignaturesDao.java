@@ -88,7 +88,7 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	private PortasignaturesPlugin getPortasignaturesPlugin() {
 		if (portasignaturesPlugin == null) {
 			String pluginClass = GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.class");

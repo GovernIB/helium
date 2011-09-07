@@ -22,11 +22,14 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Festiu;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
+import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat.TerminiIniciatEstat;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -46,6 +49,7 @@ public class TerminiService {
 	private ExpedientDao expedientDao;
 	private AlertaDao alertaDao;
 	private JbpmDao jbpmDao;
+	private MessageSource messageSource;
 
 
 
@@ -157,7 +161,7 @@ public class TerminiService {
 	public void pausar(Long terminiIniciatId, Date data) {
 		TerminiIniciat terminiIniciat = terminiIniciatDao.getById(terminiIniciatId, false);
 		if (terminiIniciat.getDataInici() == null)
-			throw new net.conselldemallorca.helium.core.model.exception.IllegalStateException("El termini no està iniciat");
+			throw new net.conselldemallorca.helium.core.model.exception.IllegalStateException( getMessage("error.terminiService.noIniciat") );
 		terminiIniciat.setDataAturada(data);
 		suspendTimers(terminiIniciat);
 		String processInstanceId = terminiIniciat.getProcessInstanceId();
@@ -173,7 +177,7 @@ public class TerminiService {
 	public void continuar(Long terminiIniciatId, Date data) {
 		TerminiIniciat terminiIniciat = terminiIniciatDao.getById(terminiIniciatId, false);
 		if (terminiIniciat.getDataAturada() == null)
-			throw new net.conselldemallorca.helium.core.model.exception.IllegalStateException("El termini no està pausat");
+			throw new net.conselldemallorca.helium.core.model.exception.IllegalStateException( getMessage("error.terminiService.noPausat") );
 		int diesAturat = terminiIniciat.getNumDiesAturadaActual(data);
 		terminiIniciat.setDiesAturat(terminiIniciat.getDiesAturat() + diesAturat);
 		terminiIniciat.setDataAturada(null);
@@ -191,7 +195,7 @@ public class TerminiService {
 	public void cancelar(Long terminiIniciatId, Date data) {
 		TerminiIniciat terminiIniciat = terminiIniciatDao.getById(terminiIniciatId, false);
 		if (terminiIniciat.getDataInici() == null)
-			throw new net.conselldemallorca.helium.core.model.exception.IllegalStateException("El termini no està iniciat");
+			throw new net.conselldemallorca.helium.core.model.exception.IllegalStateException( getMessage("error.terminiService.noIniciat") );
 		terminiIniciat.setDataCancelacio(data);
 		suspendTimers(terminiIniciat);
 		String processInstanceId = terminiIniciat.getProcessInstanceId();
@@ -324,29 +328,31 @@ public class TerminiService {
 		logger.debug("Inici de la comprovació de terminis");
 		List<TerminiIniciat> iniciatsActius = terminiIniciatDao.findIniciatsActius();
 		for (TerminiIniciat terminiIniciat: iniciatsActius) {
-			if (terminiIniciat.getDataFiAmbAturadaActual().before(new Date())) {
-				if (terminiIniciat.getTaskInstanceId() != null) {
-					if (terminiIniciat.getTermini().isAlertaFinal() && ! terminiIniciat.isAlertaFinal()) {
-						JbpmTask task = jbpmDao.getTaskById(terminiIniciat.getTaskInstanceId());
-						if (task.getAssignee() != null) {
-							crearAlertaFinal(terminiIniciat, task.getAssignee(), getExpedientPerTask(task));
-						} else {
-							for (String actor: task.getPooledActors())
-								crearAlertaFinal(terminiIniciat, actor, getExpedientPerTask(task));
-						}
-						terminiIniciat.setAlertaFinal(true);
+			if (terminiIniciat.getTaskInstanceId() != null) {
+				if (terminiIniciat.getEstat()==TerminiIniciatEstat.CADUCAT && terminiIniciat.getTermini().isAlertaFinal() && ! terminiIniciat.isAlertaFinal()) {
+					esborrarAlertesAntigues(terminiIniciat);
+					JbpmTask task = jbpmDao.getTaskById(terminiIniciat.getTaskInstanceId());
+					if (task.getAssignee() != null) {
+						crearAlertaFinal(terminiIniciat, task.getAssignee(), getExpedientPerTask(task));
+					} else {
+						for (String actor: task.getPooledActors())
+							crearAlertaFinal(terminiIniciat, actor, getExpedientPerTask(task));
 					}
-					if (terminiIniciat.getTermini().isAlertaPrevia() && ! terminiIniciat.isAlertaPrevia()) {
-						JbpmTask task = jbpmDao.getTaskById(terminiIniciat.getTaskInstanceId());
-						if (task.getAssignee() != null) {
-							crearAlertaPrevia(terminiIniciat, task.getAssignee(), getExpedientPerTask(task));
-						} else {
-							for (String actor: task.getPooledActors())
-								crearAlertaPrevia(terminiIniciat, actor, getExpedientPerTask(task));
-						}
-						terminiIniciat.setAlertaPrevia(true);
-					}
+					terminiIniciat.setAlertaFinal(true);
 				}
+				else if (terminiIniciat.getEstat()==TerminiIniciatEstat.AVIS && terminiIniciat.getTermini().isAlertaPrevia() && ! terminiIniciat.isAlertaPrevia()) {
+					JbpmTask task = jbpmDao.getTaskById(terminiIniciat.getTaskInstanceId());
+					if (task.getAssignee() != null) {
+						crearAlertaPrevia(terminiIniciat, task.getAssignee(), getExpedientPerTask(task));
+					} else {
+						for (String actor: task.getPooledActors())
+							crearAlertaPrevia(terminiIniciat, actor, getExpedientPerTask(task));
+					}
+					terminiIniciat.setAlertaPrevia(true);
+				}
+			}
+			else {
+				esborrarAlertesAntigues(terminiIniciat);
 			}
 		}
 		logger.debug("Fi de la comprovació de terminis");
@@ -381,6 +387,10 @@ public class TerminiService {
 	@Autowired
 	public void setJbpmDao(JbpmDao jbpmDao) {
 		this.jbpmDao = jbpmDao;
+	}
+	@Autowired
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
 	}
 
 
@@ -463,8 +473,13 @@ public class TerminiService {
 		Alerta alerta = new Alerta(
 				new Date(),
 				responsable,
-				"El termini \"" + terminiIniciat.getTermini().getNom() + "\" està a punt d'expirar",
+				Alerta.AlertaPrioritat.ALTA,
 				terminiIniciat.getTermini().getDefinicioProces().getEntorn());
+//		Alerta alerta = new Alerta(
+//				new Date(),
+//				responsable,
+//				"El termini \"" + terminiIniciat.getTermini().getNom() + "\" està a punt d'expirar",
+//				terminiIniciat.getTermini().getDefinicioProces().getEntorn());
 		alerta.setExpedient(expedient);
 		alerta.setTerminiIniciat(terminiIniciat);
 		alertaDao.saveOrUpdate(alerta);
@@ -477,11 +492,37 @@ public class TerminiService {
 		Alerta alerta = new Alerta(
 				new Date(),
 				responsable,
-				"El termini \"" + terminiIniciat.getTermini().getNom() + "\" ha expirat",
+				Alerta.AlertaPrioritat.MOLT_ALTA,
 				terminiIniciat.getTermini().getDefinicioProces().getEntorn());
+//		Alerta alerta = new Alerta(
+//				new Date(),
+//				responsable,
+//				"El termini \"" + terminiIniciat.getTermini().getNom() + "\" ha expirat",
+//				terminiIniciat.getTermini().getDefinicioProces().getEntorn());
 		alerta.setExpedient(expedient);
 		alerta.setTerminiIniciat(terminiIniciat);
 		alertaDao.saveOrUpdate(alerta);
+	}
+	private void esborrarAlertesAntigues(TerminiIniciat terminiIniciat) {
+		List<Alerta> antigues = alertaDao.findActivesAmbTerminiIniciatId(terminiIniciat.getId());
+		for (Alerta antiga: antigues)
+			antiga.setDataEliminacio(new Date());
+	}
+	
+	
+	protected String getMessage(String key, Object[] vars) {
+		try {
+			return messageSource.getMessage(
+					key,
+					vars,
+					null);
+		} catch (NoSuchMessageException ex) {
+			return "???" + key + "???";
+		}
+	}
+
+	protected String getMessage(String key) {
+		return getMessage(key, null);
 	}
 
 	private static final Log logger = LogFactory.getLog(TerminiService.class);

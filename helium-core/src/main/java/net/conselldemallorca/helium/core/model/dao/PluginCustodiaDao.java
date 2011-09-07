@@ -3,13 +3,14 @@
  */
 package net.conselldemallorca.helium.core.model.dao;
 
+import java.io.FileOutputStream;
 import java.util.List;
 
+import net.conselldemallorca.helium.core.model.exception.PluginException;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPlugin;
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPluginException;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
-import net.conselldemallorca.helium.core.model.exception.PluginException;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,13 +29,16 @@ public class PluginCustodiaDao {
 
 
 	public String afegirSignatura(
-			String documentId,
+			Long documentId,
+			String gesdocId,
 			String nomArxiuSignat,
 			String codiTipusCustodia,
 			byte[] signatura) throws PluginException {
 		try {
+			saveToFile("c:/signatura.pdf", signatura);
 			return getCustodiaPlugin().addSignature(
-					documentId,
+					documentId.toString(),
+					gesdocId,
 					nomArxiuSignat,
 					codiTipusCustodia,
 					signatura);
@@ -88,6 +92,15 @@ public class PluginCustodiaDao {
 		return getCustodiaPlugin().isValidacioImplicita();
 	}
 
+	public String getUrlComprovacioSignatura(String id) throws PluginException {
+		try {
+			return getCustodiaPlugin().getUrlComprovacioSignatura(id);
+		} catch (CustodiaPluginException ex) {
+			logger.error("Error al generar la url de comprovació de document", ex);
+			throw new PluginException("Error al generar la url de comprovació de document", ex);
+		}
+	}
+
 	public boolean isCustodiaActiu() {
 		String pluginClass = GlobalProperties.getInstance().getProperty("app.custodia.plugin.class");
 		return (pluginClass != null && !"".equals(pluginClass));
@@ -95,7 +108,7 @@ public class PluginCustodiaDao {
 
 
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	private CustodiaPlugin getCustodiaPlugin() {
 		if (custodiaPlugin == null) {
 			String pluginClass = GlobalProperties.getInstance().getProperty("app.custodia.plugin.class");
@@ -110,6 +123,16 @@ public class PluginCustodiaDao {
 			}
 		}
 		return custodiaPlugin;
+	}
+
+	private void saveToFile(String fileName, byte[] content) {
+		try {
+			FileOutputStream fos = new FileOutputStream(fileName);
+			fos.write(content);
+			fos.close();
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut guardar la signatura en fitxer", ex);
+		}
 	}
 
 	private static final Log logger = LogFactory.getLog(PluginCustodiaDao.class);

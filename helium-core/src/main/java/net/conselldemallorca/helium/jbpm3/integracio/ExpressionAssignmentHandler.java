@@ -182,7 +182,6 @@ protected ExpressionSession getExpressionSession() {
     return entity;
   }
 
-  @SuppressWarnings("unchecked")
 protected Entity resolveNextTerm(String term) {
 
     log.debug("resolving next term '"+term+"'");
@@ -191,7 +190,8 @@ protected Entity resolveNextTerm(String term) {
             && (term.endsWith(")")) ) {
       String groupType = term.substring(6,term.length()-1).trim();
       User user = (User) entity;
-      Set groups = user.getGroupsForGroupType(groupType);
+      @SuppressWarnings("rawtypes")
+	Set groups = user.getGroupsForGroupType(groupType);
       if (groups.size()==0) {
         throw new ExpressionAssignmentException("no groups for group-type '"+groupType+"'");
       }

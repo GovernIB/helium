@@ -61,8 +61,6 @@ public class DocumentExpedientCopiarOrigenHandler extends AbstractHeliumActionHa
 			Document documentDesti = getDissenyService().findDocumentAmbDefinicioProcesICodi(
 					getDefinicioProces(executionContext).getId(),
 					documentDestiCodi);
-			if (expedientOrigen == null)
-				throw new JbpmException("No s'ha trobat el document amb codi " + documentDestiCodi);
 			getExpedientService().guardarDocument(
 					new Long(executionContext.getProcessInstance().getId()).toString(),
 					documentDesti.getId(),

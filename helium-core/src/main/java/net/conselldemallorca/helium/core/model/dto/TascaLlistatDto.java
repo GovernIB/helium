@@ -15,8 +15,6 @@ import java.util.Set;
  */
 public class TascaLlistatDto implements Comparable<TascaLlistatDto> {
 
-	private static final long serialVersionUID = 1L;
-
 	private String id;
 	private String codi;
 	private String titol;
@@ -27,7 +25,7 @@ public class TascaLlistatDto implements Comparable<TascaLlistatDto> {
 	private String processInstanceId;
 	private Long expedientTipusId;
 	private String expedientTipusNom;
-	private String expedientNumeroDefault;
+	private String expedientNumero;
 	private String expedientProcessInstanceId;
 	private Date dataCreacio;
 	private Date dataInici;
@@ -86,11 +84,11 @@ public class TascaLlistatDto implements Comparable<TascaLlistatDto> {
 	public void setExpedientTitolOrdenacio(String expedientTitolOrdenacio) {
 		this.expedientTitolOrdenacio = expedientTitolOrdenacio;
 	}
-	public String getExpedientNumeroDefault() {
-		return expedientNumeroDefault;
+	public String getExpedientNumero() {
+		return expedientNumero;
 	}
-	public void setExpedientNumeroDefault(String expedientNumeroDefault) {
-		this.expedientNumeroDefault = expedientNumeroDefault;
+	public void setExpedientNumero(String expedientNumero) {
+		this.expedientNumero = expedientNumero;
 	}
 	public String getExpedientProcessInstanceId() {
 		return expedientProcessInstanceId;

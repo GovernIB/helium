@@ -98,10 +98,12 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	private Entorn entorn;
 
 	private List<Estat> estats = new ArrayList<Estat>();
+	private List<MapeigSistra> mapeigSistras = new ArrayList<MapeigSistra>();
 	private Set<Expedient> expedients = new HashSet<Expedient>();
 	private Set<DefinicioProces> definicionsProces = new HashSet<DefinicioProces>();
 	private Set<Consulta> consultes = new HashSet<Consulta>();
-
+	private Set<Domini> dominis = new HashSet<Domini>();
+	private Set<Enumeracio> enumeracions = new HashSet<Enumeracio>();
 
 
 	public ExpedientTipus() {}
@@ -320,6 +322,21 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	public void removeEstat(Estat estat) {
 		getEstats().remove(estat);
 	}
+	
+	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
+	@OrderBy("codiHelium asc")
+	public List<MapeigSistra> getMapeigSistras() {
+		return this.mapeigSistras;
+	}
+	public void setMapeigSistras(List<MapeigSistra> mapeigSistras) {
+		this.mapeigSistras = mapeigSistras;
+	}
+	public void addMapeigSistras(MapeigSistra mapeigSistra) {
+		getMapeigSistras().add(mapeigSistra);
+	}
+	public void removeMapeigSistras(MapeigSistra mapeigSistra) {
+		getMapeigSistras().remove(mapeigSistra);
+	}
 
 	@OneToMany(mappedBy="tipus")
 	public Set<Expedient> getExpedients() {
@@ -363,6 +380,34 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 		getConsultes().remove(consulta);
 	}
 
+	@OneToMany(mappedBy="expedientTipus")
+	public Set<Domini> getDominis() {
+		return this.dominis;
+	}
+	public void setDominis(Set<Domini> dominis) {
+		this.dominis = dominis;
+	}
+	public void addDomini(Domini domini) {
+		getDominis().add(domini);
+	}
+	public void removeDomini(Enumeracio domini) {
+		getDominis().remove(domini);
+	}
+
+	@OneToMany(mappedBy="expedientTipus")
+	public Set<Enumeracio> getEnumeracions() {
+		return this.enumeracions;
+	}
+	public void setEnumeracions(Set<Enumeracio> enumeracions) {
+		this.enumeracions = enumeracions;
+	}
+	public void addEnumeracio(Enumeracio enumeracio) {
+		getEnumeracions().add(enumeracio);
+	}
+	public void removeEnumeracio(Enumeracio enumeracio) {
+		getEnumeracions().remove(enumeracio);
+	}
+	
 	@Transient
 	public String getNumeroExpedientActual() {
 		long seq = getSequencia();

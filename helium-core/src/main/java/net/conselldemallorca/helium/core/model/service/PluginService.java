@@ -31,6 +31,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jbpm.JbpmException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -52,6 +54,7 @@ public class PluginService {
 	private DocumentStoreDao documentStoreDao;
 	private DtoConverter dtoConverter;
 	private JbpmDao jbpmDao;
+	private MessageSource messageSource;
 
 
 
@@ -112,7 +115,13 @@ public class PluginService {
 			String transicioOK,
 			String transicioKO) throws Exception {
 		try {
-			DocumentDto document = dtoConverter.toDocumentDto(documentStoreId, true, true, true);
+			DocumentDto document = dtoConverter.toDocumentDto(
+					documentStoreId,
+					false,
+					false,
+					true,
+					true,
+					true);
 			String documentTitol = expedient.getIdentificador() + ": " + document.getDocumentNom();
 			Integer doc = pluginPortasignaturesDao.uploadDocument(
 							persona,
@@ -134,7 +143,7 @@ public class PluginService {
 			portasignatures.setTransicioKO(transicioKO);
 			pluginPortasignaturesDao.saveOrUpdate(portasignatures);
 		} catch (Exception e) {
-			throw new JbpmException("No s'ha pogut pujar el document al portasignatures", e);
+			throw new JbpmException(getMessage("error.pluginService.pujarDocument"), e);
 		}
 	}
 	public Double processarDocumentSignatPortasignatures(Integer id) throws Exception {
@@ -242,6 +251,10 @@ public class PluginService {
 	public void setJbpmDao(JbpmDao jbpmDao) {
 		this.jbpmDao = jbpmDao;
 	}
+	@Autowired
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
 
 
 
@@ -250,9 +263,11 @@ public class PluginService {
 			Long documentStoreId) throws Exception {
 		DocumentDto document = dtoConverter.toDocumentDto(
 				documentStoreId,
-				true,
-				true,
-				true);
+				false,
+				false,
+				false,
+				false,
+				false);
 		if (document != null) {
 			DocumentStore docst = documentStoreDao.getById(documentStoreId, false);
 			JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(docst.getProcessInstanceId());
@@ -263,7 +278,8 @@ public class PluginService {
 				String referenciaCustodia = null;
 				for (byte[] signatura: signatures) {
 					referenciaCustodia = pluginCustodiaDao.afegirSignatura(
-							documentStoreId.toString(),
+							documentStoreId,
+							docst.getReferenciaFont(),
 							document.getArxiuNom(),
 							document.getCustodiaCodi(),
 							signatura);
@@ -276,10 +292,10 @@ public class PluginService {
 						SecurityContextHolder.getContext().getAuthentication().getName(),
 						varDocumentCodi);
 			} else {
-				throw new Exception("El portasignatures no ha retornat cap signatura");
+				throw new Exception(getMessage("error.pluginService.capSignatura"));
 			}
 		}
-		throw new IllegalStateException("Aquest document no està disponible per signar");
+		throw new IllegalStateException(getMessage("error.pluginService.noDisponible"));
 	}
 	private List<byte[]> obtenirSignaturesDelPortasignatures(
 			Integer documentId) {
@@ -332,6 +348,22 @@ public class PluginService {
 		}
 		return null;
 	}*/
+	
+	
+	protected String getMessage(String key, Object[] vars) {
+		try {
+			return messageSource.getMessage(
+					key,
+					vars,
+					null);
+		} catch (NoSuchMessageException ex) {
+			return "???" + key + "???";
+		}
+	}
+
+	protected String getMessage(String key) {
+		return getMessage(key, null);
+	}
 
 	private static final Log logger = LogFactory.getLog(PluginService.class);
 

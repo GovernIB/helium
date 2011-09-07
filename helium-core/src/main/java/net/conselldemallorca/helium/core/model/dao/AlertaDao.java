@@ -29,4 +29,10 @@ public class AlertaDao extends HibernateGenericDao<Alerta, Long> {
 				Restrictions.isNull("dataEliminacio"));
 	}
 
+	public List<Alerta> findActivesAmbTerminiIniciatId(Long terminiIniciatId) {
+		return findByCriteria(
+				Restrictions.eq("terminiIniciat.id", terminiIniciatId),
+				Restrictions.isNull("dataEliminacio"));
+	}
+
 }

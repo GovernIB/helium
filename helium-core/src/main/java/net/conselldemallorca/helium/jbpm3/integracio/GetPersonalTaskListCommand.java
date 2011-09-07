@@ -28,7 +28,7 @@ public class GetPersonalTaskListCommand extends AbstractGetObjectBaseCommand imp
 		this.actorId = actorId;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		setJbpmContext(jbpmContext);
 	    List result = jbpmContext.getTaskList(actorId);
@@ -56,7 +56,7 @@ public class GetPersonalTaskListCommand extends AbstractGetObjectBaseCommand imp
 
 
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public List retrieveTaskInstanceDetails(List taskInstanceList) {
 		for (Iterator iter = taskInstanceList.iterator(); iter.hasNext();) {
 			retrieveTaskInstanceDetails((TaskInstance)iter.next());

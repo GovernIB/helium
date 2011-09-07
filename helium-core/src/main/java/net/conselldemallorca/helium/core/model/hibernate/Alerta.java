@@ -39,11 +39,22 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 				@Index(name = "hel_alerta_expedient_i", columnNames = {"expedient_id"})})
 public class Alerta implements Serializable, GenericEntity<Long> {
 
+	public enum AlertaPrioritat {
+		MOLT_BAIXA,
+		BAIXA,
+		NORMAL,
+		ALTA,
+		MOLT_ALTA
+	}
+
 	private Long id;
 	@NotNull
 	private Date dataCreacio;
 	@NotNull
 	private String destinatari;
+	@NotBlank
+	@MaxLength(255)
+	private String causa;
 	@NotBlank
 	@MaxLength(1024)
 	private String text;
@@ -56,6 +67,7 @@ public class Alerta implements Serializable, GenericEntity<Long> {
 	@NotNull
 	private Expedient expedient;
 	private TerminiIniciat terminiIniciat;
+	private AlertaPrioritat prioritat;
 
 
 
@@ -64,6 +76,18 @@ public class Alerta implements Serializable, GenericEntity<Long> {
 		this.dataCreacio = dataCreacio;
 		this.destinatari = destinatari;
 		this.text = text;
+		this.entorn = entorn;
+	}
+	public Alerta(Date dataCreacio, String destinatari, String causa, String text, Entorn entorn) {
+		this.dataCreacio = dataCreacio;
+		this.destinatari = destinatari;
+		this.text = text;
+		this.entorn = entorn;
+	}
+	public Alerta(Date dataCreacio, String destinatari, AlertaPrioritat prioritat, Entorn entorn) {
+		this.dataCreacio = dataCreacio;
+		this.destinatari = destinatari;
+		this.prioritat = prioritat;
 		this.entorn = entorn;
 	}
 
@@ -95,6 +119,14 @@ public class Alerta implements Serializable, GenericEntity<Long> {
 		this.destinatari = destinatari;
 	}
 
+	@Column(name="causa", length=255, nullable=true)
+	public String getCausa() {
+		return causa;
+	}
+	public void setCausa(String causa) {
+		this.causa = causa;
+	}
+	
 	@Column(name="text", length=1024, nullable=true)
 	public String getText() {
 		return text;
@@ -151,6 +183,14 @@ public class Alerta implements Serializable, GenericEntity<Long> {
 		this.terminiIniciat = terminiIniciat;
 	}
 
+	@Column(name="prioritat")
+	public AlertaPrioritat getPrioritat() {
+		return prioritat;
+	}
+	public void setPrioritat(AlertaPrioritat prioritat) {
+		this.prioritat = prioritat;
+	}
+	
 	@Transient
 	public boolean isLlegida() {
 		return dataLectura != null;

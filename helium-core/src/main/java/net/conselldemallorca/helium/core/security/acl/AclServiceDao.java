@@ -106,7 +106,7 @@ public class AclServiceDao {
 			}
 		}
 	}*/
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public void deleteAclEntry(
 			Sid recipient,
 			Serializable id,
@@ -127,7 +127,7 @@ public class AclServiceDao {
 	    	logger.debug("Deleted securedObject " + id + " ACL permissions for recipient " + recipient);
 	    }
 	}
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public void deleteAclEntriesForSid(Sid recipient, Serializable id, Class clazz) {
 		ObjectIdentity oid = new ObjectIdentityImpl(clazz.getCanonicalName(), id);
 		try {

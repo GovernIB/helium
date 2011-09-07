@@ -42,7 +42,7 @@ public class PluginSignaturaDao {
 
 
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	private SignaturaPlugin getSignaturaPlugin() {
 		if (signaturaPlugin == null) {
 			String pluginClass = GlobalProperties.getInstance().getProperty("app.signatura.plugin.class");

@@ -87,7 +87,7 @@ public class PluginGestioDocumentalDao {
 
 
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	private GestioDocumentalPlugin getGestioDocumentalPlugin() {
 		if (gestioDocumentalPlugin == null) {
 			String pluginClass = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.class");

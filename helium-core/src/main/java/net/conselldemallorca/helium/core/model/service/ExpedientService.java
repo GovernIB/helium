@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.core.model.service;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -29,6 +30,7 @@ import net.conselldemallorca.helium.core.model.dao.LuceneDao;
 import net.conselldemallorca.helium.core.model.dao.PlantillaDocumentDao;
 import net.conselldemallorca.helium.core.model.dao.PluginCustodiaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginGestioDocumentalDao;
+import net.conselldemallorca.helium.core.model.dao.PluginGisDao;
 import net.conselldemallorca.helium.core.model.dao.PluginPersonaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginSignaturaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginTramitacioDao;
@@ -52,14 +54,15 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.integracio.plugins.gis.DadesExpedient;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarEventRequest;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarExpedientRequest;
@@ -75,6 +78,8 @@ import org.apache.commons.logging.LogFactory;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -105,9 +110,11 @@ public class ExpedientService {
 	private PluginTramitacioDao pluginTramitacioDao;
 	private PluginSignaturaDao pluginSignaturaDao;
 	private PluginPersonaDao pluginPersonaDao;
+	private PluginGisDao pluginGisDao;
 
 	private JbpmDao jbpmDao;
 	private DtoConverter dtoConverter;
+	private MessageSource messageSource;
 
 
 
@@ -200,7 +207,7 @@ public class ExpedientService {
 				documents,
 				adjunts);
 	}
-	public synchronized ExpedientDto iniciar(
+	public ExpedientDto iniciar(
 			Long entornId,
 			String usuari,
 			Long expedientTipusId,
@@ -284,8 +291,14 @@ public class ExpedientService {
 				expedientTipus,
 				expedient.getNumero(),
 				expedient.getNumeroDefault());
-		if (expedientDao.findAmbEntornTipusINumero(entornId, expedientTipusId, expedient.getNumero()) != null) {
-			throw new ExpedientRepetitException("Ja existeix un altre expedient amb el mateix número (" + expedient.getNumero() + ")");
+		if (expedientDao.findAmbEntornTipusINumero(
+				entornId,
+				expedientTipusId,
+				expedient.getNumero()) != null) {
+			throw new ExpedientRepetitException(
+					getMessage(
+							"error.expedientService.jaExisteix",
+							new Object[]{expedient.getNumero()}) );
 		}
 		if (expedientTipus.getTeTitol()) {
 			if (titol != null && titol.length() > 0)
@@ -408,7 +421,24 @@ public class ExpedientService {
 					expedient.getId(),
 					SecurityContextHolder.getContext().getAuthentication().getName());
 		} else {
-			throw new NotFoundException("No existeix l'expedient per l'entorn");
+			throw new NotFoundException(getMessage("error.expedientService.noExisteix"));
+		}
+	}
+	public void anular(Long entornId, Long id) {
+		Expedient expedient = expedientDao.findAmbEntornIId(entornId, id);
+		if (expedient != null) {
+			List<JbpmProcessInstance> processInstancesTree = jbpmDao.getProcessInstanceTree(expedient.getProcessInstanceId());
+			String[] ids = new String[processInstancesTree.size()];
+			int i = 0;
+			for (JbpmProcessInstance pi: processInstancesTree)
+				ids[i++] = pi.getId();
+			jbpmDao.suspendProcessInstances(ids);
+			expedient.setAnulat(true);
+			registreDao.crearRegistreAnularExpedient(
+					expedient.getId(),
+					SecurityContextHolder.getContext().getAuthentication().getName());
+		} else {
+			throw new NotFoundException(getMessage("error.expedientService.noExisteix"));
 		}
 	}
 	public List<ExpedientDto> findAmbEntorn(Long entornId) {
@@ -426,7 +456,8 @@ public class ExpedientService {
 			Long expedientTipusId,
 			Long estatId,
 			boolean iniciat,
-			boolean finalitzat) {
+			boolean finalitzat,
+			boolean mostrarAnulats) {
 		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
 		for (Expedient expedient: expedientDao.findAmbEntornConsultaGeneral(
 				entornId,
@@ -437,7 +468,43 @@ public class ExpedientService {
 				expedientTipusId,
 				estatId,
 				iniciat,
-				finalitzat))
+				finalitzat,
+				null, 	// geoPosX
+				null, 	// geoPosX
+				null,   // geoReferencia
+				mostrarAnulats))
+			resposta.add(dtoConverter.toExpedientDto(expedient, false));
+		return resposta;
+	}
+	public List<ExpedientDto> findAmbEntornConsultaGeneral(
+			Long entornId,
+			String titol,
+			String numero,
+			Date dataInici1,
+			Date dataInici2,
+			Long expedientTipusId,
+			Long estatId,
+			boolean iniciat,
+			boolean finalitzat,
+			Double geoPosX,
+			Double geoPosY,
+			String geoReferencia,
+			boolean mostrarAnulats) {
+		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
+		for (Expedient expedient: expedientDao.findAmbEntornConsultaGeneral(
+				entornId,
+				titol,
+				numero,
+				dataInici1,
+				dataInici2,
+				expedientTipusId,
+				estatId,
+				iniciat,
+				finalitzat,
+				geoPosX,
+				geoPosY,
+				geoReferencia,
+				mostrarAnulats))
 			resposta.add(dtoConverter.toExpedientDto(expedient, false));
 		return resposta;
 	}
@@ -637,9 +704,18 @@ public class ExpedientService {
 		}
 	}
 
-	public DocumentDto getDocument(Long documentStoreId, boolean ambContingut, boolean ambVista) {
-		return dtoConverter.toDocumentDto(documentStoreId, ambContingut, ambVista, false);
-		
+	public DocumentDto getDocument(
+			Long documentStoreId,
+			boolean ambContingut,
+			boolean ambSignatura,
+			boolean ambVista) {
+		return dtoConverter.toDocumentDto(
+				documentStoreId,
+				ambContingut,
+				ambSignatura,
+				ambVista,
+				false,
+				false);
 	}
 	public Long guardarDocument(
 			String processInstanceId,
@@ -690,7 +766,7 @@ public class ExpedientService {
 						dataDocument,
 						model));
 			} catch (Exception ex) {
-				throw new TemplateException("No s'ha pogut generar el document", ex);
+				throw new TemplateException(getMessage("error.expedientService.generarDocument"), ex);
 			}
 		} else {
 			resposta.setArxiuContingut(document.getArxiuContingut());
@@ -947,7 +1023,13 @@ public class ExpedientService {
 
 	public List<RespostaValidacioSignatura> verificarSignatura(Long id) {
 		DocumentStore documentStore = documentStoreDao.getById(id, false);
-		DocumentDto document = dtoConverter.toDocumentDto(id, true, false, false);
+		DocumentDto document = dtoConverter.toDocumentDto(
+				id,
+				true,
+				false,
+				false,
+				false,
+				false);
 		if (pluginCustodiaDao.potObtenirInfoSignatures()) {
 			return pluginCustodiaDao.dadesValidacioSignatura(
 					documentStore.getReferenciaCustodia());
@@ -1116,10 +1198,16 @@ public class ExpedientService {
 	public void setPluginPersonaDao(PluginPersonaDao pluginPersonaDao) {
 		this.pluginPersonaDao = pluginPersonaDao;
 	}
+	@Autowired
+	public void setPluginGisDao(PluginGisDao pluginGisDao) {
+		this.pluginGisDao = pluginGisDao;
+	}
+	@Autowired
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
 
-
-
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	private Map<String, JbpmNodePosition> getNodePositions(String processInstanceId) {
 		Map<String, JbpmNodePosition> resposta = new HashMap<String, JbpmNodePosition>();
 		JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(processInstanceId);
@@ -1352,7 +1440,30 @@ public class ExpedientService {
 	private void comprovarUsuari(String usuari) {
 		PersonaDto persona = pluginPersonaDao.findAmbCodiPlugin(usuari);
 		if (persona == null)
-			throw new IllegalArgumentsException("No s'ha trobat la persona amb codi '" + usuari + "'");
+			throw new IllegalArgumentsException( getMessage("error.expedientService.trobarPersona", new Object[]{usuari}) );
+	}
+	
+	public String getXmlExpedients(List<DadesExpedient> expedients) {
+		return pluginGisDao.getXMLExpedientsPlugin(expedients);
+	}
+	
+	public URL getUrlVisor() {
+		return pluginGisDao.getUrlVisorPlugin();
+	}
+
+	protected String getMessage(String key, Object[] vars) {
+		try {
+			return messageSource.getMessage(
+					key,
+					vars,
+					null);
+		} catch (NoSuchMessageException ex) {
+			return "???" + key + "???";
+		}
+	}
+
+	protected String getMessage(String key) {
+		return getMessage(key, null);
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientService.class);

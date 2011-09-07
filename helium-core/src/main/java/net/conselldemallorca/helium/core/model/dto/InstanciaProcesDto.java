@@ -25,8 +25,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
  */
 public class InstanciaProcesDto {
 
-	private static final long serialVersionUID = 1L;
-
 	private String id;
 	private String instanciaProcesPareId;
 	private String titol;

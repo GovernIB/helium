@@ -49,7 +49,9 @@ public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 	public enum TerminiIniciatEstat {
 		NORMAL,
 		AVIS,
-		CADUCAT
+		COMPLETAT_TEMPS,
+		CADUCAT,
+		COMPLETAT_FORA
 	}
 
 	private Long id;
@@ -60,6 +62,7 @@ public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 	private Date dataAturada;
 	private Date dataCancelacio;
 	private Date dataFiProrroga;
+	private Date dataCompletat;
 	private int diesAturat;
 	private int anys;
 	private int mesos;
@@ -72,6 +75,7 @@ public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 	private String taskInstanceId;
 	private boolean alertaPrevia;
 	private boolean alertaFinal;
+	private boolean alertaCompletat;
 
 	@NotNull
 	private Termini termini;
@@ -156,6 +160,15 @@ public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 		this.dataFiProrroga = dataFiProrroga;
 	}
 
+	@Column(name="data_completat")
+	@Temporal(TemporalType.DATE)
+	public Date getDataCompletat() {
+		return dataCompletat;
+	}
+	public void setDataCompletat(Date dataCompletat) {
+		this.dataCompletat = dataCompletat;
+	}
+	
 	@Column(name="dies_aturat")
 	public int getDiesAturat() {
 		return diesAturat;
@@ -239,7 +252,15 @@ public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 	public void setAlertaFinal(boolean alertaFinal) {
 		this.alertaFinal = alertaFinal;
 	}
-
+	
+	@Column(name="alerta_completat")
+	public boolean isAlertaCompletat() {
+		return alertaCompletat;
+	}
+	public void setAlertaCompletat(boolean alertaCompletat) {
+		this.alertaCompletat = alertaCompletat;
+	}
+	
 	@ManyToOne(optional=false)
 	@JoinColumn(name="termini_id")
 	@ForeignKey(name="hel_termini_terminic_fk")
@@ -286,8 +307,13 @@ public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 	}
 	@Transient
 	public TerminiIniciatEstat getEstat() {
-		Date ara = new Date();
 		Date dataFi = getDataFiAmbAturadaActual();
+		if (dataCompletat != null) {
+			if (dataCompletat.before(dataFi))
+				return TerminiIniciatEstat.COMPLETAT_TEMPS;
+			return TerminiIniciatEstat.COMPLETAT_FORA;
+		}
+		Date ara = new Date();
 		if (ara.after(dataFi))
 			return TerminiIniciatEstat.CADUCAT;
 		if (termini.getDiesPrevisAvis() != null) {

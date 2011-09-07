@@ -77,6 +77,8 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	private String iniciadorCodi;
 	@MaxLength(64)
 	private String responsableCodi;
+	private boolean anulat;
+
 	private Double geoPosX;
 	private Double geoPosY;
 	@MaxLength(64)
@@ -230,6 +232,14 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	}
 	public void setResponsableCodi(String responsableCodi) {
 		this.responsableCodi = responsableCodi;
+	}
+
+	@Column(name="anulat")
+	public boolean isAnulat() {
+		return anulat;
+	}
+	public void setAnulat(boolean anulat) {
+		this.anulat = anulat;
 	}
 
 	@Column(name="geo_posx")

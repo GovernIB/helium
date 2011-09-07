@@ -58,6 +58,7 @@ public class Termini implements Serializable, GenericEntity<Long> {
 	private Integer diesPrevisAvis;
 	private boolean alertaPrevia;
 	private boolean alertaFinal;
+	private boolean alertaCompletat;
 
 	@NotNull
 	private DefinicioProces definicioProces;
@@ -196,6 +197,14 @@ public class Termini implements Serializable, GenericEntity<Long> {
 		this.alertaFinal = alertaFinal;
 	}
 
+	@Column(name="alerta_completat")
+	public boolean isAlertaCompletat() {
+		return alertaCompletat;
+	}
+	public void setAlertaCompletat(boolean alertaCompletat) {
+		this.alertaCompletat = alertaCompletat;
+	}
+	
 	@ManyToOne(optional=false)
 	@JoinColumn(name="definicio_proces_id")
 	@ForeignKey(name="hel_defproc_termini_fk")

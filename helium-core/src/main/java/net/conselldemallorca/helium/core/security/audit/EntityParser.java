@@ -99,7 +99,7 @@ public class EntityParser {
 		return pkValue;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public String extractColumnValues(){
 		StringBuffer sb = new StringBuffer();
 		//add the pk column and value

@@ -24,8 +24,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Tasca.TipusTasca;
  */
 public class TascaDto implements Comparable<TascaDto> {
 
-	private static final long serialVersionUID = 1L;
-
 	private String id;
 	private String nom;
 	private String missatgeInfo;

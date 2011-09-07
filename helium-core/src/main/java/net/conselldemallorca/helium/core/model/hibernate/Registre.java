@@ -39,7 +39,8 @@ public class Registre implements Serializable, GenericEntity<Long> {
 		ATURAR,
 		REPRENDRE,
 		FINALITZAR,
-		CANCELAR
+		CANCELAR,
+		ANULAR
 	}
 	public enum Entitat {
 		EXPEDIENT,

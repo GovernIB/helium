@@ -3,12 +3,18 @@
  */
 package net.conselldemallorca.helium.core.model.service;
 
+import java.util.Date;
 import java.util.List;
 
+import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.model.dao.PermisDao;
 import net.conselldemallorca.helium.core.model.dao.PersonaDao;
 import net.conselldemallorca.helium.core.model.dao.UsuariDao;
 import net.conselldemallorca.helium.core.model.dao.VersioDao;
+import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
+import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
 import net.conselldemallorca.helium.core.model.hibernate.Permis;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.hibernate.Usuari;
@@ -17,6 +23,8 @@ import net.conselldemallorca.helium.core.model.update.Versio;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.stereotype.Service;
 
 
@@ -29,21 +37,47 @@ import org.springframework.stereotype.Service;
 @Service
 public class UpdateService {
 
+	public static final String VERSIO_ACTUAL_STR = "2.1.0";
+
 	private VersioDao versioDao;
 	private PersonaDao personaDao;
 	private UsuariDao usuariDao;
 	private PermisDao permisDao;
 
+	private DissenyService dissenyService;
+
+	private MessageSource messageSource;
+
+	private String errorUpdate;
+
 
 
 	public void updateToLastVersion() throws Exception {
-		List<Versio> versions = versioDao.findAll();
+		List<Versio> versions = versioDao.findAllOrdered();
 		if (versions.size() == 0) {
-			// El sistema s'ha acabat de crear i s'han de crear 
-			// les dades inicials
 			logger.info("Actualitzant la base de dades a la versió inicial");
 			createInitialData();
 		}
+		for (Versio versio: versions) {
+			if (!versio.isProcesExecutat()) {
+				if (versio.getOrdre() == 210) {
+					boolean actualitzat = actualitzarV210();
+					if (!actualitzat) break;
+				}
+			}
+		}
+		Versio darrera = versioDao.findLast();
+		if (darrera.getOrdre() < 210) {
+			actualitzarV210();
+		}
+	}
+
+	public String getVersioActual() {
+		return VERSIO_ACTUAL_STR;
+	}
+
+	public String getErrorUpdate() {
+		return errorUpdate;
 	}
 
 
@@ -63,6 +97,14 @@ public class UpdateService {
 	@Autowired
 	public void setPermisDao(PermisDao permisDao) {
 		this.permisDao = permisDao;
+	}
+	@Autowired
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+	@Autowired
+	public void setDissenyService(DissenyService dissenyService) {
+		this.dissenyService = dissenyService;
 	}
 
 
@@ -92,7 +134,123 @@ public class UpdateService {
 		Versio versioInicial = new Versio(
 				"inicial",
 				0);
+		versioInicial.setProcesExecutat(true);
+		versioInicial.setDataExecucioProces(new Date());
+		versioInicial.setScriptExecutat(true);
+		versioInicial.setDataExecucioScript(new Date());
 		versioDao.saveOrUpdate(versioInicial);
+	}
+
+	private boolean actualitzarV210() {
+		boolean actualitzat = false;
+		String versioCodi = "2.1.0";
+		int versioOrdre = 210;
+		Versio versio210 = obtenirOCrearVersio(versioCodi, versioOrdre);
+		if (!versio210.isScriptExecutat()) {
+			errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + versioCodi + ": "+ getMessage("error.update.script.ko");
+		} else if (!versio210.isProcesExecutat()) {
+			try {
+				canviarMapeigSistraV210();
+				canviarMapeigEnumeracionsV210();
+				versio210.setProcesExecutat(true);
+				versio210.setDataExecucioProces(new Date());
+				versioDao.saveOrUpdate(versio210);
+				logger.info("Actualització a la versió " + versioCodi + " realitzada correctament");
+				actualitzat = true;
+			} catch (Exception ex) {
+				logger.error("Error al executar l'actualització a la versió " + versioCodi, ex);
+				errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + versioCodi + ": "+ getMessage("error.update.proces.ko");
+			}
+		}
+		return actualitzat;
+	}
+	private void canviarMapeigSistraV210() throws Exception {
+		if (dissenyService.findMapeigSistraTots().size() == 0) {
+			List<ExpedientTipus> expedientsTipus = dissenyService.findExpedientTipusTots();
+			for (ExpedientTipus expedientTipus : expedientsTipus) {
+				if (expedientTipus.getSistraTramitMapeigCamps() != null) {
+					String[] parts = expedientTipus.getSistraTramitMapeigCamps().split(";");
+					for (int i = 0; i < parts.length; i++) {
+						String[] parella = parts[i].split(":");
+						if (parella.length > 1) {
+							String varSistra = parella[0];
+							String varHelium = parella[1];
+							if (varHelium != null && (!"".equalsIgnoreCase(varHelium))) {
+								if (dissenyService.findMapeigSistraAmbExpedientTipusICodi(expedientTipus.getId(), varHelium) == null) {
+									dissenyService.createMapeigSistra(varHelium, varSistra, MapeigSistra.TipusMapeig.Variable, expedientTipus);
+								}
+							}
+						}
+					}
+				}
+				if (expedientTipus.getSistraTramitMapeigDocuments() != null) {
+					String[] parts = expedientTipus.getSistraTramitMapeigDocuments().split(";");
+					for (int i = 0; i < parts.length; i++) {
+						String[] parella = parts[i].split(":");
+						if (parella.length > 1) {
+							String varSistra = parella[0];
+							String varHelium = parella[1];
+							if (varHelium != null && (!"".equalsIgnoreCase(varHelium))) {
+								if (dissenyService.findMapeigSistraAmbExpedientTipusICodi(expedientTipus.getId(), varHelium) == null) {
+									dissenyService.createMapeigSistra(varHelium, varSistra, MapeigSistra.TipusMapeig.Document, expedientTipus);
+								}
+							}
+						}
+					}
+				}
+				if (expedientTipus.getSistraTramitMapeigAdjunts() != null) {
+					String[] parts = expedientTipus.getSistraTramitMapeigAdjunts().split(";");
+					for (int i = 0; i < parts.length; i++) {
+						String varSistra = parts[i];
+						if (varSistra != null && (!"".equalsIgnoreCase(varSistra))) {
+							if (dissenyService.findMapeigSistraAmbExpedientTipusICodi(expedientTipus.getId(), varSistra) == null) {
+								dissenyService.createMapeigSistra(varSistra, varSistra, MapeigSistra.TipusMapeig.Adjunt, expedientTipus);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	private void canviarMapeigEnumeracionsV210() throws Exception {
+		List<Enumeracio> enumeracions = dissenyService.findEnumeracions();
+		if (enumeracions.size() > 0) {
+			for (Enumeracio enumeracio : enumeracions) {
+				if ((enumeracio.getValors() != null) && (!enumeracio.getValors().equals(""))) {
+					List<ParellaCodiValor> valors = enumeracio.getLlistaValors();
+					for (ParellaCodiValor parella : valors) {
+						EnumeracioValors enumeracioValors = new EnumeracioValors();
+						enumeracioValors.setCodi(parella.getCodi());
+						enumeracioValors.setNom((String)parella.getValor());
+						enumeracioValors.setEnumeracio(enumeracio);
+						dissenyService.createEnumeracioValors(enumeracioValors);
+					}
+				}
+			}
+		}
+	}
+
+	private String getMessage(String key, Object[] vars) {
+		try {
+			return messageSource.getMessage(
+					key,
+					vars,
+					null);
+		} catch (NoSuchMessageException ex) {
+			return "???" + key + "???";
+		}
+	}
+	private String getMessage(String key) {
+		return getMessage(key, null);
+	}
+
+	private Versio obtenirOCrearVersio(String codi, Integer ordre) {
+		Versio versio = versioDao.findAmbCodi(codi);
+		if (versio == null) {
+			versio = new Versio(codi, ordre);
+			versioDao.saveOrUpdate(versio);
+		}
+		return versio;
 	}
 
 	private static final Log logger = LogFactory.getLog(UpdateService.class);

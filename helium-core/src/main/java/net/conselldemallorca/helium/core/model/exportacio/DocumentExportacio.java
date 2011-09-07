@@ -23,6 +23,8 @@ public class DocumentExportacio implements Serializable {
 	private String codiCampData;
 	private String contentType;
 	private String custodiaCodi;
+	private Integer tipusDocPortasignatures;
+	private boolean adjuntarAuto;
 
 
 
@@ -97,8 +99,18 @@ public class DocumentExportacio implements Serializable {
 	public void setCustodiaCodi(String custodiaCodi) {
 		this.custodiaCodi = custodiaCodi;
 	}
-
-
+	public Integer getTipusDocPortasignatures() {
+		return tipusDocPortasignatures;
+	}
+	public void setTipusDocPortasignatures(Integer tipusDocPortasignatures) {
+		this.tipusDocPortasignatures = tipusDocPortasignatures;
+	}
+	public boolean isAdjuntarAuto() {
+		return adjuntarAuto;
+	}
+	public void setAdjuntarAuto(boolean adjuntarAuto) {
+		this.adjuntarAuto = adjuntarAuto;
+	}
 
 	private static final long serialVersionUID = 1L;
 

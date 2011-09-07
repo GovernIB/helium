@@ -76,6 +76,18 @@ public class RegistreDao extends HibernateGenericDao<Registre, Long> {
 				getExpedientId(expedientId));
 		return saveOrUpdate(registre);
 	}
+	public Registre crearRegistreAnularExpedient(
+			Long expedientId,
+			String responsableCodi) {
+		Registre registre = new Registre(
+				new Date(),
+				expedientId,
+				responsableCodi,
+				Registre.Accio.ANULAR,
+				Registre.Entitat.EXPEDIENT,
+				getExpedientId(expedientId));
+		return saveOrUpdate(registre);
+	}
 	public Registre crearRegistreEsborrarExpedient(
 			Long expedientId,
 			String responsableCodi) {

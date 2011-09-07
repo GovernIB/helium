@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@WebService
+@WebService(targetNamespace="http://forms.integracio.helium.conselldemallorca.net/")
 @XmlSeeAlso({Object[].class, Object[][].class})
 public interface IniciFormulari {
 

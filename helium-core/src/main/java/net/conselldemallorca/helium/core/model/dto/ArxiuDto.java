@@ -33,6 +33,4 @@ public class ArxiuDto {
 		this.contingut = contingut;
 	}
 
-	private static final long serialVersionUID = 1L;
-
 }

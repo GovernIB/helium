@@ -24,13 +24,17 @@ public class ExpedientTipusExportacio implements Serializable {
 	private String expressioNumero;
 	private boolean reiniciarCadaAny;
 	private String sistraTramitCodi;
-	private String sistraTramitMapeigCamps;
+	/*private String sistraTramitMapeigCamps;
 	private String sistraTramitMapeigDocuments;
-	private String sistraTramitMapeigAdjunts;
+	private String sistraTramitMapeigAdjunts;*/
 	private String formextUrl;
 	private String formextUsuari;
 	private String formextContrasenya;
 	private List<EstatExportacio> estats;
+	private List<MapeigSistraExportacio> mapeigSistras;
+	private List<DominiExportacio> dominis;
+	private List<EnumeracioExportacio> enumeracions;
+	private List<DefinicioProcesExportacio> definicionsProces;
 
 
 
@@ -95,7 +99,7 @@ public class ExpedientTipusExportacio implements Serializable {
 	public void setSistraTramitCodi(String sistraTramitCodi) {
 		this.sistraTramitCodi = sistraTramitCodi;
 	}
-	public String getSistraTramitMapeigCamps() {
+	/*public String getSistraTramitMapeigCamps() {
 		return sistraTramitMapeigCamps;
 	}
 	public void setSistraTramitMapeigCamps(String sistraTramitMapeigCamps) {
@@ -112,7 +116,7 @@ public class ExpedientTipusExportacio implements Serializable {
 	}
 	public void setSistraTramitMapeigAdjunts(String sistraTramitMapeigAdjunts) {
 		this.sistraTramitMapeigAdjunts = sistraTramitMapeigAdjunts;
-	}
+	}*/
 	public String getFormextUrl() {
 		return formextUrl;
 	}
@@ -136,6 +140,32 @@ public class ExpedientTipusExportacio implements Serializable {
 	}
 	public void setEstats(List<EstatExportacio> estats) {
 		this.estats = estats;
+	}
+	public List<MapeigSistraExportacio> getMapeigSistras() {
+		return mapeigSistras;
+	}
+	public void setMapeigSistras(List<MapeigSistraExportacio> mapeigSistras) {
+		this.mapeigSistras = mapeigSistras;
+	}
+	public List<DominiExportacio> getDominis() {
+		return dominis;
+	}
+	public void setDominis(List<DominiExportacio> dominis) {
+		this.dominis = dominis;
+	}
+	public List<EnumeracioExportacio> getEnumeracions() {
+		return enumeracions;
+	}
+	public void setEnumeracions(List<EnumeracioExportacio> enumeracions) {
+		this.enumeracions = enumeracions;
+	}
+
+	public List<DefinicioProcesExportacio> getDefinicionsProces() {
+		return definicionsProces;
+	}
+	public void setDefinicionsProces(
+			List<DefinicioProcesExportacio> definicionsProces) {
+		this.definicionsProces = definicionsProces;
 	}
 
 

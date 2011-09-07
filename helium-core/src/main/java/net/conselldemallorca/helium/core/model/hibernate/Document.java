@@ -64,6 +64,7 @@ public class Document implements Serializable, GenericEntity<Long> {
 	@MaxLength(255)
 	private String custodiaCodi;
 	private Integer tipusDocPortasignatures;
+	private boolean adjuntarAuto;
 
 	@NotNull
 	private DefinicioProces definicioProces;
@@ -212,6 +213,14 @@ public class Document implements Serializable, GenericEntity<Long> {
 	}
 	public void setTipusDocPortasignatures(Integer tipusDocPortasignatures) {
 		this.tipusDocPortasignatures = tipusDocPortasignatures;
+	}
+
+	@Column(name="adjuntar_auto")
+	public boolean isAdjuntarAuto() {
+		return adjuntarAuto;
+	}
+	public void setAdjuntarAuto(boolean adjuntarAuto) {
+		this.adjuntarAuto = adjuntarAuto;
 	}
 
 

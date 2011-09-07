@@ -24,6 +24,7 @@ public class TerminiExportacio implements Serializable {
 	private Integer diesPrevisAvis;
 	private boolean alertaPrevia;
 	private boolean alertaFinal;
+	private boolean alertaCompletat;
 
 
 
@@ -109,6 +110,12 @@ public class TerminiExportacio implements Serializable {
 	}
 	public void setAlertaFinal(boolean alertaFinal) {
 		this.alertaFinal = alertaFinal;
+	}
+	public boolean isAlertaCompletat() {
+		return alertaCompletat;
+	}
+	public void setAlertaCompletat(boolean alertaCompletat) {
+		this.alertaCompletat = alertaCompletat;
 	}
 
 

@@ -176,7 +176,8 @@ public abstract class BasicActionHandler implements ActionHandler {
 				expedientTipus.getId(),
 				estatId,
 				iniciat,
-				finalitzat);
+				finalitzat,
+				false);
 		// Filtre expedients permesos
 		List<ExpedientTipus> tipus = getDissenyService().findExpedientTipusAmbEntorn(entorn.getId());
 		getPermissionService().filterAllowed(
@@ -214,7 +215,11 @@ public abstract class BasicActionHandler implements ActionHandler {
 			return null;
 		if (valor instanceof Long) {
 			Long id = (Long)valor;
-			DocumentDto document = getExpedientService().getDocument(id, true, false);
+			DocumentDto document = getExpedientService().getDocument(
+					id,
+					true,
+					true,
+					false);
 			if (document == null)
 				return null;
 			DocumentInfo resposta = new DocumentInfo();
@@ -882,9 +887,13 @@ public abstract class BasicActionHandler implements ActionHandler {
 			resposta.setTramitExpedientIdentificador(expedient.getTramitExpedientIdentificador());
 			resposta.setTramitExpedientClau(expedient.getTramitExpedientClau());
 			resposta.setExpedientTipusCodi(expedient.getTipus().getCodi());
+			resposta.setExpedientTipusNom(expedient.getTipus().getNom());
 			resposta.setEntornCodi(expedient.getEntorn().getCodi());
-			if (expedient.getEstat() != null)
+			resposta.setEntornNom(expedient.getEntorn().getNom());
+			if (expedient.getEstat() != null) {
 				resposta.setEstatCodi(expedient.getEstat().getCodi());
+				resposta.setEstatNom(expedient.getEstat().getNom());
+			}
 			resposta.setProcessInstanceId(new Long(expedient.getProcessInstanceId()).longValue());
 			return resposta;
 		}
