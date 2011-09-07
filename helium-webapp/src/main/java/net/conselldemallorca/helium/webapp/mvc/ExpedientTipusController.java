@@ -158,7 +158,7 @@ public class ExpedientTipusController extends BaseController {
 				}
 				filename = filename + ".exp";
 				model.addAttribute("filename", filename);
-				model.addAttribute("data", dissenyService.exportarTipusExpedient(expedientTipusId));
+				model.addAttribute("data", dissenyService.exportarExpedientTipus(expedientTipusId));
 				return "serialitzarView";
 			} else {
 				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
