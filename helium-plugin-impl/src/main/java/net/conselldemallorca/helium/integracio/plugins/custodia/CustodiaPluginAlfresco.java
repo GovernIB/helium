@@ -7,9 +7,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.conselldemallorca.helium.integracio.plugins.util.AlfrescoUtils;
-import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
+import net.conselldemallorca.helium.integracio.plugins.util.AlfrescoUtils;
 
 import org.alfresco.webservice.types.Reference;
 import org.apache.commons.logging.Log;
@@ -38,6 +38,7 @@ public class CustodiaPluginAlfresco implements CustodiaPlugin {
 	}
 
 	public String addSignature(
+			String id,
 			String gesdocId,
 			String arxiuNom,
 			String tipusDocument,
@@ -171,6 +172,11 @@ public class CustodiaPluginAlfresco implements CustodiaPlugin {
 	}
 	public boolean isValidacioImplicita() {
 		return false;
+	}
+
+	public String getUrlComprovacioSignatura(
+			String id) throws CustodiaPluginException {
+		return null;
 	}
 
 

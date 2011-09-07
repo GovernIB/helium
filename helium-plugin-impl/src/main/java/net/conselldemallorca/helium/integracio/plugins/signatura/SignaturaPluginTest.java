@@ -76,16 +76,15 @@ public class SignaturaPluginTest implements SignaturaPlugin {
 		AcroFields af = reader.getAcroFields();
 		ArrayList<String> names = af.getSignatureNames();
 		for (String name: names) {
-			/*System.out.println("Signature name: " + name);
-			System.out.println("Signature covers whole document: " + af.signatureCoversWholeDocument(name));
-			System.out.println("Document revision: " + af.getRevision(name) + " of " + af.getTotalRevisions());*/
 			PdfPKCS7 pk = af.verifySignature(name);
 			Certificate pkc[] = pk.getCertificates();
 			List<DadesCertificat> dadesCertificats = new ArrayList<DadesCertificat>();
 			for (Certificate cert: pkc) {
 				if (cert instanceof X509Certificate) {
-					//saveToFile("c:/certificat.bin", documentsignat);
-					dadesCertificats.add(getDadesCertificat((X509Certificate)cert));
+					int basicConstraints = ((X509Certificate)cert).getBasicConstraints();
+					// Només afegeix els certificats que no son de CA
+					if (basicConstraints == -1)
+						dadesCertificats.add(getDadesCertificat((X509Certificate)cert));
 				}
 			}
 			return dadesCertificats;
@@ -137,7 +136,7 @@ public class SignaturaPluginTest implements SignaturaPlugin {
 		if (!existeix)
 			Security.addProvider(new BouncyCastleProvider());
     }
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	private DadesCertificat getDadesCertificat(X509Certificate cert) throws Exception {
 		ASN1InputStream asn1is = new ASN1InputStream(cert.getEncoded());
 		org.bouncycastle.asn1.DERObject obj = asn1is.readObject();

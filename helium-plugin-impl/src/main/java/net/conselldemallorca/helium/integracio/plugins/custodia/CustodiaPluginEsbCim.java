@@ -34,6 +34,7 @@ import es.cim.ws.documentos.v1.services.ServicioGestorDocumentalPortType;
 public class CustodiaPluginEsbCim implements CustodiaPlugin {
 
 	public String addSignature(
+			String id,
 			String gesdocId,
 			String arxiuNom,
 			String tipusDocument,
@@ -96,6 +97,11 @@ public class CustodiaPluginEsbCim implements CustodiaPlugin {
 		return false;
 	}
 
+	public String getUrlComprovacioSignatura(
+			String id) throws CustodiaPluginException {
+		return null;
+	}
+
 
 
 	private TypeFormatoFirma getTipoFirma() {
@@ -110,8 +116,37 @@ public class CustodiaPluginEsbCim implements CustodiaPlugin {
 				ServicioGestorDocumentalPortType.class,
 				url,
 				userName,
-				password);
+				password,
+				getWsClientAuthType(),
+				isWsClientGenerateTimestamp(),
+				isWsClientLogCalls(),
+				isWsClientDisableCnCheck());
 		return (ServicioGestorDocumentalPortType)wsClientProxy;
+	}
+
+	private String getWsClientAuthType() {
+		String authType = GlobalProperties.getInstance().getProperty("app.custodia.plugin.ws.client.auth");
+		if (authType == null)
+			authType = GlobalProperties.getInstance().getProperty("app.ws.client.auth");
+		return authType;
+	}
+	private boolean isWsClientGenerateTimestamp() {
+		String authType = GlobalProperties.getInstance().getProperty("app.custodia.plugin.ws.client.generate.timestamp");
+		if (authType == null)
+			authType = GlobalProperties.getInstance().getProperty("app.ws.client.generate.timestamp");
+		return "true".equalsIgnoreCase(authType);
+	}
+	private boolean isWsClientLogCalls() {
+		String logCalls = GlobalProperties.getInstance().getProperty("app.custodia.plugin.ws.client.log.calls");
+		if (logCalls == null)
+			logCalls = GlobalProperties.getInstance().getProperty("app.ws.client.log.calls");
+		return "true".equalsIgnoreCase(logCalls);
+	}
+	private boolean isWsClientDisableCnCheck() {
+		String disableCnCheck = GlobalProperties.getInstance().getProperty("app.custodia.plugin.ws.client.disable.cn.check");
+		if (disableCnCheck == null)
+			disableCnCheck = GlobalProperties.getInstance().getProperty("app.ws.client.disable.cn.check");
+		return "true".equalsIgnoreCase(disableCnCheck);
 	}
 
 	private static final Log logger = LogFactory.getLog(CustodiaPluginEsbCim.class);

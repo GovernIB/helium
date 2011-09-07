@@ -15,7 +15,6 @@ import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.Locale;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
@@ -29,7 +28,6 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.UIManager;
 
-import net.conselldemallorca.helium.core.util.RespostaSignatura;
 import netscape.javascript.JSObject;
 
 import org.jdesktop.layout.GroupLayout;
@@ -227,16 +225,16 @@ public abstract class SignaturaApplet extends Applet {
 	}
 
 	private boolean signarDocument(byte[] inputDocument, String filename, String certName) {
-		RespostaSignatura resposta = new RespostaSignatura();
-		resposta.setToken(getParameter("token"));
+		Object[] resposta = new Object[3];
+		resposta[0] = getParameter("token");
 		try {
 			Object signatura = sign(
 					inputDocument,
 					certName,
 					new String(jPasswordField.getPassword()),
 					getSignaturaParams());
-			resposta.setSignatura(signatura);
-			resposta.setArxiuNom(filename);
+			resposta[1] = filename;
+			resposta[2] = signatura;
 			return enviarDocumentSignat(resposta);
 		} catch (ContrasenyaIncorrectaException ex) {
 			missatgeError("msg.error.contrasenya");
@@ -246,7 +244,7 @@ public abstract class SignaturaApplet extends Applet {
 		return false;
 	}
 
-	private boolean enviarDocumentSignat(RespostaSignatura resposta) {
+	private boolean enviarDocumentSignat(Object resposta) {
 		String TWOHYPHENS = "--";
 		String NEWLINE = "\r\n";
 		try {
@@ -276,15 +274,10 @@ public abstract class SignaturaApplet extends Applet {
 	}
 
 	private String getSourceUrl() throws Exception {
-		return getBaseUrl() +
-				"/document/arxiuPerSignar.html?token=" +
-				URLEncoder.encode(getParameter("token"), "UTF-8");
+		return getParameter("sourceUrl");
 	}
 	private String getTargetUrl() {
-		return getBaseUrl() + "/signatura/signarAmbTokenCaib.html";
-	}
-	private String getBaseUrl() {
-		return getParameter("baseUrl");
+		return getParameter("targetUrl");
 	}
 	private String getSignaturaParams() {
 		String signaturaParams = getParameter("signaturaParams");

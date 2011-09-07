@@ -169,9 +169,8 @@ public class ClienteCustodiaCaib {
 		}
 		if (resultMajorElement == null)
 			throw new DocumentException("No s'ha trobat el ResultMajor");
-		boolean hasErrors = "RequesterError".equals(resultMajorElement.getText());
+		boolean hasErrors = hasErrors(resultMajorElement.getText());
 		resposta.setError(hasErrors);
-		//System.out.println(">>> " + resultMajorElement.getText() + ":" + resultMinorElement.getText() + ":" + resultMessageElement.getText());
 		if (hasErrors) {
 			resposta.setErrorCodi(resultMinorElement.getText());
 			resposta.setErrorDescripcio(resultMessageElement.getText());
@@ -194,6 +193,12 @@ public class ClienteCustodiaCaib {
 		} catch (MalformedURLException mux) {
 			mux.printStackTrace();
 		}
+	}
+
+	private boolean hasErrors(String resultMajor) {
+		return (resultMajor.contains("error") ||
+				resultMajor.contains("Error") ||
+				resultMajor.contains("ERROR"));
 	}
 
 }

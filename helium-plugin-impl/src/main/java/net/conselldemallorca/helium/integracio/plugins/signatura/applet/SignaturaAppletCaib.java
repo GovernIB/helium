@@ -17,7 +17,6 @@ import es.caib.signatura.api.UpgradeNeededException;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@SuppressWarnings("restriction")
 public class SignaturaAppletCaib extends SignaturaApplet {
 
 	private Signer signer;

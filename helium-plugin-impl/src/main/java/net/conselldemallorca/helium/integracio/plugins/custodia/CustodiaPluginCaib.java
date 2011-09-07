@@ -5,12 +5,14 @@ package net.conselldemallorca.helium.integracio.plugins.custodia;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.signatura.DadesCertificat;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,24 +30,27 @@ import org.dom4j.Element;
 public class CustodiaPluginCaib implements CustodiaPlugin {
 
 	private ClienteCustodiaCaib clienteCustodia;
+	private Map<String, String> cacheHash = new HashMap<String, String>();
 
 
 
 	public String addSignature(
+			String id,
 			String gesdocId,
 			String arxiuNom,
 			String tipusDocument,
 			byte[] signatura) throws CustodiaPluginException {
 		try {
+			String custodiaId = getIdCustodia(id);
 			byte[] xml = getClienteCustodia().custodiarPDFFirmado(
 					new ByteArrayInputStream(signatura),
 					arxiuNom,
-					gesdocId,
+					custodiaId,
 					tipusDocument);
 			CustodiaResponseCaib resposta = getClienteCustodia().parseResponse(xml);
 			if (resposta.isError())
 				throw new CustodiaPluginException("Error en la petició de custòdia: [" + resposta.getErrorCodi() + "] " + resposta.getErrorDescripcio());
-			return gesdocId;
+			return custodiaId;
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut custodiar la signatura", ex);
 			throw new CustodiaPluginException("No s'ha pogut custodiar la signatura", ex);
@@ -120,6 +125,23 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 	}
 	public boolean isValidacioImplicita() {
 		return true;
+	}
+
+	public String getUrlComprovacioSignatura(
+			String id) throws CustodiaPluginException {
+		try {
+			String token = cacheHash.get(id);
+			if (token == null) {
+				byte[] resposta = getClienteCustodia().reservarDocumento(getIdCustodia(id));
+				token = new String(resposta);
+				cacheHash.put(id, token);
+			}
+			String baseUrl = GlobalProperties.getInstance().getProperty("app.custodia.plugin.caib.verificacio.baseurl");
+			return baseUrl + token;
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut generar la url de comprovació de signatura", ex);
+			throw new CustodiaPluginException("No s'ha pogut generar la url de comprovació de signatura", ex);
+		}
 	}
 
 
@@ -223,6 +245,10 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 		int indexFi = certSubject.indexOf(",", indexInici + token.length());
 		indexInici += token.length();
 		return certSubject.substring(indexInici, indexFi);
+	}
+
+	private String getIdCustodia(String docId) {
+		return docId;
 	}
 
 	private static final Log logger = LogFactory.getLog(CustodiaPluginCaib.class);
