@@ -165,9 +165,9 @@ public class DefinicioProcesDeployController extends BaseController {
 		        	} catch (ClassNotFoundException ex) {
 		        		missatgeError(request, getMessage("error.arxius.no.valid"), ex.getMessage());
 		        	} catch (IOException ex) {
-		        		missatgeError(request, getMessage("error.desplegar.arxiu"), ex.getMessage());
+		        		missatgeError(request, getMessage("error.desplegar.arxius"), ex.getMessage());
 		        	} catch (DeploymentException ex) {
-		        		missatgeError(request, getMessage("error.desplegar.arxiu"), ex.getMessage());
+		        		missatgeError(request, getMessage("error.desplegar.arxius"), ex.getMessage());
 		        	}
 		        	return "redirect:/definicioProces/deploy.html";
 				} else {
