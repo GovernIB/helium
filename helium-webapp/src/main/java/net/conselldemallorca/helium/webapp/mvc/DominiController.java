@@ -76,7 +76,7 @@ public class DominiController extends BaseController {
 			model.addAttribute("llistat", dissenyService.findDominiAmbEntorn(entorn.getId()));
 			return "domini/llistat";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -88,7 +88,7 @@ public class DominiController extends BaseController {
 		if (entorn != null) {
 			return "domini/form";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -102,28 +102,30 @@ public class DominiController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			if ("submit".equals(submit) || submit.length() == 0) {
-				command.setEntorn(entorn);
-				annotationValidator.validate(command, result);
+				
+	        	command.setEntorn(entorn);
+		        annotationValidator.validate(command, result);
 				additionalValidator.validate(command, result);
-		        if (result.hasErrors()) {
+				if (result.hasErrors()) {
 		        	return "domini/form";
 		        }
-		        try {
+				
+				try {
 		        	if (command.getId() == null)
 		        		dissenyService.createDomini(command);
 		        	else
 		        		dissenyService.updateDomini(command);
-		        	missatgeInfo(request, "El domini s'ha guardat correctament");
+		        	missatgeInfo(request, getMessage("info.domini.guardat") );
 		        	status.setComplete();
 		        } catch (Exception ex) {
-		        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut guardar el domini", ex);
 		        	return "domini/form";
 		        }
 			}
 			return "redirect:/domini/llistat.html";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -136,15 +138,15 @@ public class DominiController extends BaseController {
 		if (entorn != null) {
 			try {
 				dissenyService.deleteDomini(id);
-				missatgeInfo(request, "El domini s'ha esborrat correctament");
+				missatgeInfo(request, getMessage("info.domini.esborrat") );
 			} catch (Exception ex) {
-	        	missatgeError(request, "No s'ha pogut esborrar el domini", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.esborrar.domini"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut esborrar el domini", ex);
 	        	return "domini/form";
 	        }
 			return "redirect:/domini/llistat.html";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -160,12 +162,12 @@ public class DominiController extends BaseController {
 				model.addAttribute("domini", dissenyService.getDominiById(id));
 				model.addAttribute("resultat", dissenyService.consultaDomini(id));
 			} catch (Exception ex) {
-	        	missatgeError(request, "No s'ha pogut consultar el domini", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.consultar.domini"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut consultar el domini", ex);
 	        }
 			return "domini/consulta";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -180,18 +182,20 @@ public class DominiController extends BaseController {
 
 
 	private class DominiValidator implements Validator {
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(Camp.class);
 		}
 		public void validate(Object target, Errors errors) {
 			Domini domini = (Domini)target;
-			if (domini.getTipus().equals(TipusDomini.CONSULTA_WS)) {
-				ValidationUtils.rejectIfEmpty(errors, "url", "not.blank");
-			}
-			if (domini.getTipus().equals(TipusDomini.CONSULTA_SQL)) {
-				ValidationUtils.rejectIfEmpty(errors, "jndiDatasource", "not.blank");
-				ValidationUtils.rejectIfEmpty(errors, "sql", "not.blank");
+			if (domini.getTipus()!=null) {
+				if (domini.getTipus().equals(TipusDomini.CONSULTA_WS)) {
+					ValidationUtils.rejectIfEmpty(errors, "url", "not.blank");
+				}
+				if (domini.getTipus().equals(TipusDomini.CONSULTA_SQL)) {
+					ValidationUtils.rejectIfEmpty(errors, "jndiDatasource", "not.blank");
+					ValidationUtils.rejectIfEmpty(errors, "sql", "not.blank");
+				}
 			}
 		}
 	}

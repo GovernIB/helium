@@ -42,7 +42,7 @@ public class TascaFormUtil {
 
 
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public static Object getCommandForTasca(
 			TascaDto tasca,
 			Map<String, Object> campsAddicionals,
@@ -57,7 +57,7 @@ public class TascaFormUtil {
 				campsAddicionalsClasses,
 				false);
 	}
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public static Object getCommandForFiltre(
 			List<Camp> camps,
 			Map<String, Object> valors,
@@ -70,7 +70,7 @@ public class TascaFormUtil {
 				campsAddicionalsClasses,
 				true);
 	}
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public static Object getCommandForRegistre(
 			Camp camp,
 			Map<String, Object> valors,
@@ -217,7 +217,7 @@ public class TascaFormUtil {
 			request.getSession().removeAttribute(VARIABLE_SESSIO_COMMAND_TMP);
 		return command;
 	}
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public static Object getCommandForCamps(
 			List<Camp> camps,
 			Map<String, Object> valors,
@@ -259,16 +259,29 @@ public class TascaFormUtil {
 		}
 		// Omplit el command amb els valors per defecte
 		Object command = bg.create();
-		try {
-			if (campsAddicionals != null) {
-				for (String codi: campsAddicionals.keySet()) {
+		if (campsAddicionals != null) {
+			for (String codi: campsAddicionals.keySet()) {
+				String tipusCommand = null;
+				String tipusCamp = null;
+				if (campsAddicionals.get(codi) != null)
+					tipusCamp = campsAddicionals.get(codi).getClass().getName();
+				try {
+					tipusCommand = PropertyUtils.getPropertyType(command, codi).getName();
 					PropertyUtils.setSimpleProperty(command, codi, campsAddicionals.get(codi));
+				} catch (Exception ex) {
+					logger.error("No s'ha pogut afegir el camp addicional '" + codi + "' al command (" + tipusCommand + ", " + tipusCamp + ")", ex);
 				}
 			}
-			// Inicialitza els camps del command amb els valors de la tasca
-			for (Camp camp: camps) {
-				if (!camp.getTipus().equals(TipusCamp.REGISTRE)) {
-					String campCodi = getCampCodi(camp, perFiltre);
+		}
+		
+		// Inicialitza els camps del command amb els valors de la tasca
+		for (Camp camp: camps) {
+			if (!camp.getTipus().equals(TipusCamp.REGISTRE)) {
+				String campCodi = getCampCodi(camp, perFiltre);
+				String tipusCommand = null;
+				String tipusCamp = (valors != null && valors.get(campCodi) != null) ? valors.get(campCodi).getClass().getName() : null;
+				try {
+					tipusCommand = PropertyUtils.getPropertyType(command, campCodi).getName();
 					boolean ambArray;
 					if (!perFiltre) {
 						ambArray = camp.isMultiple();
@@ -298,10 +311,10 @@ public class TascaFormUtil {
 								campCodi,
 								(valors != null) ? valors.get(campCodi) : null);
 					}
+				} catch (Exception ex) {
+					logger.error("No s'ha pogut afegir el camp '" + campCodi + "' al command (" + tipusCommand + ", " + tipusCamp + ")", ex);
 				}
 			}
-		} catch (Exception ex) {
-			logger.error("No s'ha pogut afegir el camp al command", ex);
 		}
 		return command;
 	}

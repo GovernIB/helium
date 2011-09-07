@@ -78,9 +78,9 @@ public class DefinicioProcesAccioController extends BaseController {
 			return dissenyService.getAccioById(id);
 		Accio nova = new Accio();
 		if (definicioProcesId != null)
-			nova.setDefinicioProces(dissenyService.getById(definicioProcesId));
+			nova.setDefinicioProces(dissenyService.getById(definicioProcesId, false));
 		if (definicioProces != null)
-			nova.setDefinicioProces(dissenyService.getById(definicioProces));
+			nova.setDefinicioProces(dissenyService.getById(definicioProces, false));
 		return nova;
 	}
 
@@ -96,11 +96,11 @@ public class DefinicioProcesAccioController extends BaseController {
 				model.addAttribute("definicioProces", definicioProces);
 				model.addAttribute("accions", dissenyService.findAccionsAmbDefinicioProces(definicioProces.getId()));
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc") );
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 		return "definicioProces/accioLlistat";
@@ -118,11 +118,11 @@ public class DefinicioProcesAccioController extends BaseController {
 				model.addAttribute("definicioProces", definicioProces);
 				return "definicioProces/accioForm";
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc") );
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -150,21 +150,21 @@ public class DefinicioProcesAccioController extends BaseController {
 			        		dissenyService.createAccio(command);
 			        	else
 			        		dissenyService.updateAccio(command);
-			        	missatgeInfo(request, "L'acció s'ha guardat correctament");
+			        	missatgeInfo(request, getMessage("info.accio.guardat") );
 			        	status.setComplete();
 			        } catch (Exception ex) {
-			        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+			        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut guardar l'acció", ex);
 			        	return "definicioProces/accioForm";
 			        }
 				}
 				return "redirect:/definicioProces/accioLlistat.html?definicioProcesId=" + definicioProcesId;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc") );
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -181,18 +181,18 @@ public class DefinicioProcesAccioController extends BaseController {
 			if (potDissenyarDefinicioProces(entorn, definicioProces)) {
 				try {
 					dissenyService.deleteAccio(id);
-					missatgeInfo(request, "L'acció s'ha esborrat correctament");
+					missatgeInfo(request, getMessage("info.accio.guardat") );
 				} catch (Exception ex) {
-		        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut esborrar el registre", ex);
 		        }
 				return "redirect:/definicioProces/accioLlistat.html?definicioProcesId=" + definicioProcesId;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc") );
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

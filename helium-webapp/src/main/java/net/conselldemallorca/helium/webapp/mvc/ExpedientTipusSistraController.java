@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
+import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra.TipusMapeig;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
@@ -44,8 +46,6 @@ public class ExpedientTipusSistraController extends BaseController {
 	private DissenyService dissenyService;
 	private PermissionService permissionService;
 
-
-
 	@Autowired
 	public ExpedientTipusSistraController(
 			DissenyService dissenyService,
@@ -53,7 +53,12 @@ public class ExpedientTipusSistraController extends BaseController {
 		this.dissenyService = dissenyService;
 		this.permissionService = permissionService;
 	}
-
+	
+	@ModelAttribute("tipusMapeig")
+	public TipusMapeig[] populateTipusMapeig() {
+		return MapeigSistra.TipusMapeig.values();
+	}
+	
 	@ModelAttribute("command")
 	public ExpedientTipusSistraCommand populateCommand(
 			HttpServletRequest request,
@@ -65,9 +70,6 @@ public class ExpedientTipusSistraController extends BaseController {
 			command.setExpedientTipusId(expedientTipusId);
 			if (expedientTipus.getSistraTramitCodi() != null) {
 				command.setCodiTramit(expedientTipus.getSistraTramitCodi());
-				command.setInfoMapeigCamps(expedientTipus.getSistraTramitMapeigCamps());
-				command.setInfoMapeigDocuments(expedientTipus.getSistraTramitMapeigDocuments());
-				command.setInfoMapeigAdjunts(expedientTipus.getSistraTramitMapeigAdjunts());
 				command.setActiu(true);
 				
 			} else {
@@ -76,6 +78,7 @@ public class ExpedientTipusSistraController extends BaseController {
 		}
 		return command;
 	}
+	
 	@ModelAttribute("expedientTipus")
 	public ExpedientTipus populateExpedientTipus(
 			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId) {
@@ -91,16 +94,21 @@ public class ExpedientTipusSistraController extends BaseController {
 		if (entorn != null) {
 			ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
 			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
+				model.addAttribute("numMapeigVariables", dissenyService.findMapeigSistraVariablesAmbExpedientTipus(expedientTipusId).size());
+				model.addAttribute("numMapeigDocuments", dissenyService.findMapeigSistraDocumentsAmbExpedientTipus(expedientTipusId).size());
+				model.addAttribute("numMapeigAdjunts",   dissenyService.findMapeigSistraAdjuntsAmbExpedientTipus(expedientTipusId).size());
+				
 				return "expedientTipus/sistra";
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquest tipus d'expedient");
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
+
 	@RequestMapping(value = "/expedientTipus/sistra", method = RequestMethod.POST)
 	public String formPost(
 			HttpServletRequest request,
@@ -117,47 +125,160 @@ public class ExpedientTipusSistraController extends BaseController {
 				if ("submit".equals(submit) || submit.length() == 0) {
 					new ExpedientTipusSistraValidator(dissenyService).validate(command, result);
 			        if (result.hasErrors()) {
+			        	model.addAttribute("numMapeigVariables", dissenyService.findMapeigSistraVariablesAmbExpedientTipus(expedientTipusId).size());
+						model.addAttribute("numMapeigDocuments", dissenyService.findMapeigSistraDocumentsAmbExpedientTipus(expedientTipusId).size());
+						model.addAttribute("numMapeigAdjunts",   dissenyService.findMapeigSistraAdjuntsAmbExpedientTipus(expedientTipusId).size());
+						
 			        	return "expedientTipus/sistra";
 			        }
 			        try {
 			        	if (command.isActiu()) {
 			        		expedientTipus.setSistraTramitCodi(command.getCodiTramit());
-			        		expedientTipus.setSistraTramitMapeigCamps(command.getInfoMapeigCamps());
-			        		expedientTipus.setSistraTramitMapeigDocuments(command.getInfoMapeigDocuments());
-			        		expedientTipus.setSistraTramitMapeigAdjunts(command.getInfoMapeigAdjunts());
 			        	} else {
 			        		expedientTipus.setSistraTramitCodi(null);
-			        		expedientTipus.setSistraTramitMapeigCamps(null);
-			        		expedientTipus.setSistraTramitMapeigDocuments(null);
-			        		expedientTipus.setSistraTramitMapeigAdjunts(null);
 			        	}
+			        	
 		        		dissenyService.updateExpedientTipus(expedientTipus);
-			        	missatgeInfo(request, "La informació s'ha guardat correctament");
+			        	missatgeInfo(request, getMessage("info.informacio.guardat"));
 			        	status.setComplete();
 			        } catch (Exception ex) {
-			        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+			        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut guardar el registre", ex);
 			        }
 				}
 				return "redirect:/expedientTipus/sistra.html?expedientTipusId=" + expedientTipusId;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquest tipus d'expedient");
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
 
+	/*@RequestMapping(value = "/expedientTipus/mapeigSistraEsborrar.html")
+	public String deleteAction(
+			HttpServletRequest request,
+			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
+			@RequestParam(value = "id", required = true) Long id) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
+			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
+				dissenyService.deleteMapeigSistra(id);
+				missatgeInfo(request, getMessage("info.mapeigSistra.esborrat") );
+				return "redirect:/expedientTipus/sistra.html?expedientTipusId=" + expedientTipusId;
+			} else {
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
+				return "redirect:/index.html";
+			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}*/
 
-
+	@RequestMapping(value = "/expedientTipus/canviVersioMapeig.html")
+	public String mapeigSistraCanviVersio(
+			HttpServletRequest request) {
+		
+		List<ExpedientTipus> expedientsTipus = dissenyService.findExpedientTipusTots();
+		
+		try{
+			for (ExpedientTipus expedientTipus : expedientsTipus){
+				if (expedientTipus.getSistraTramitMapeigCamps() != null){
+					mapeigSistraCanviVersioVariables(expedientTipus);
+				}
+				if (expedientTipus.getSistraTramitMapeigDocuments() != null){
+					mapeigSistraCanviVersioDocuments(expedientTipus);
+				}
+				if (expedientTipus.getSistraTramitMapeigAdjunts() != null){
+					mapeigSistraCanviVersioAdjunts(expedientTipus);
+				}			
+			}
+			
+			missatgeInfo(request, getMessage("info.mapeigSistra.esborrat") );
+			return "redirect:/expedientTipus/canviVersioMapeig.html";
+			
+		} catch (Exception e) {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/expedientTipus/canviVersioMapeig.html";
+		}
+		
+    	/*missatgeInfo(request, getMessage("info.informacio.guardat"));
+    	status.setComplete();
+    	
+    	
+    	Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
+			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
+				dissenyService.deleteMapeigSistra(id);
+				missatgeInfo(request, getMessage("info.mapeigSistra.esborrat") );
+				return "redirect:/expedientTipus/variables.html?expedientTipusId=" + expedientTipusId;
+			} else {
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
+				return "redirect:/index.html";
+			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}*/
+	}
+	
+	private void mapeigSistraCanviVersioVariables(ExpedientTipus expedientTipus){
+		String[] parts = expedientTipus.getSistraTramitMapeigCamps().split(";");
+		for (int i = 0; i < parts.length; i++) {
+			String[] parella = parts[i].split(":");
+			if (parella.length > 1) {
+				String varSistra = parella[0];
+				String varHelium = parella[1];
+				if (varHelium != null && (!"".equalsIgnoreCase(varHelium))){
+					if (dissenyService.findMapeigSistraAmbExpedientTipusICodi(expedientTipus.getId(), varHelium) == null){
+						dissenyService.createMapeigSistra(varHelium, varSistra, MapeigSistra.TipusMapeig.Variable, expedientTipus);
+					}
+				}
+			}
+		}
+	}
+	
+	private void mapeigSistraCanviVersioDocuments(ExpedientTipus expedientTipus){
+		String[] parts = expedientTipus.getSistraTramitMapeigDocuments().split(";");
+		for (int i = 0; i < parts.length; i++) {
+			String[] parella = parts[i].split(":");
+			if (parella.length > 1) {
+				String varSistra = parella[0];
+				String varHelium = parella[1];
+				if (varHelium != null && (!"".equalsIgnoreCase(varHelium))){
+					if (dissenyService.findMapeigSistraAmbExpedientTipusICodi(expedientTipus.getId(), varHelium) == null){
+						dissenyService.createMapeigSistra(varHelium, varSistra, MapeigSistra.TipusMapeig.Document, expedientTipus);
+					}
+				}
+			}
+		}
+	}
+	
+	private void mapeigSistraCanviVersioAdjunts(ExpedientTipus expedientTipus){
+		String[] parts = expedientTipus.getSistraTramitMapeigAdjunts().split(";");
+		for (int i = 0; i < parts.length; i++) {
+			String varSistra = parts[i];
+				
+			if (varSistra != null && (!"".equalsIgnoreCase(varSistra))){
+				if (dissenyService.findMapeigSistraAmbExpedientTipusICodi(expedientTipus.getId(), varSistra) == null){
+					dissenyService.createMapeigSistra(varSistra, varSistra, MapeigSistra.TipusMapeig.Adjunt, expedientTipus);
+				}
+			}
+		}
+	}
+	
+		
 	private class ExpedientTipusSistraValidator implements Validator {
 		private DissenyService dissenyService;
 		public ExpedientTipusSistraValidator(DissenyService dissenyService) {
 			this.dissenyService = dissenyService;
 		}
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(ExpedientTipusSistraCommand.class);
 		}
@@ -171,15 +292,6 @@ public class ExpedientTipusSistraController extends BaseController {
 						if (repetits.get(0).getId().longValue() != command.getExpedientTipusId().longValue())
 							errors.rejectValue("codiTramit", "error.expedienttipus.sistra.repetit");
 					}
-				}
-				if (command.getInfoMapeigCamps() != null && command.getInfoMapeigCamps().length() > 2048) {
-					errors.rejectValue("infoMapeigCamps", "max.length");
-				}
-				if (command.getInfoMapeigDocuments() != null && command.getInfoMapeigDocuments().length() > 2048) {
-					errors.rejectValue("infoMapeigDocuments", "max.length");
-				}
-				if (command.getInfoMapeigAdjunts() != null && command.getInfoMapeigAdjunts().length() > 2048) {
-					errors.rejectValue("infoMapeigAdjunts", "max.length");
 				}
 			}
 		}

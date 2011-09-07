@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.webapp.mvc;
 
+import java.util.Enumeration;
+
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
@@ -41,8 +43,10 @@ import org.springframework.web.bind.support.SessionStatus;
 @Controller
 public class ExpedientIniciarPasTitolController extends BaseController {
 
+	public static final String CLAU_SESSIO_TASKID = "iniciexp_taskId";
 	public static final String CLAU_SESSIO_TITOL = "iniciexp_titol";
 	public static final String CLAU_SESSIO_NUMERO = "iniciexp_numero";
+	public static final String CLAU_SESSIO_FORM_VALIDAT = "iniciexp_form_validat";
 
 	private DissenyService dissenyService;
 	private ExpedientService expedientService;
@@ -116,11 +120,11 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 						dissenyService.getExpedientTipusById(expedientTipusId));
 				return "expedient/iniciarPasTitol";
 			} else {
-				missatgeError(request, "No té permisos per iniciar expedients d'aquest tipus");
+				missatgeError(request, getMessage("error.permisos.iniciar.tipus.exp"));
 				return "redirect:/expedient/iniciar.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -153,7 +157,7 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 			        // aquestes dades
 			        DefinicioProcesDto definicioProces = null;
 					if (definicioProcesId != null)
-						definicioProces = dissenyService.getById(definicioProcesId);
+						definicioProces = dissenyService.getById(definicioProcesId, true);
 					else
 						definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId, true);
 					if (definicioProces.isHasStartTask()) {
@@ -166,40 +170,19 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 					}
 			        // Si no requereix dades inicials inicia l'expedient
 			        try {
-				        expedientService.iniciar(
+			        	iniciarExpedient(
 								entorn.getId(),
 								command.getExpedientTipusId(),
 								definicioProcesId,
 								command.getNumero(),
-								command.getTitol(),
-								null,
-								null,
-								null,
-								null,
-								false,
-								null,
-								null,
-								null,
-								null,
-								null,
-								null,
-								false,
-								null,
-								null,
-								false,
-								null,
-								null,
-								IniciadorTipus.INTERN,
-								null,
-								null,
-								null,
-								null);
-				        missatgeInfo(request, "L'expedient s'ha iniciat correctament");
+								command.getTitol());
+				        missatgeInfo(request, getMessage("info.expedient.iniciat"));
+				        netejarSessio(request);
 				        return "redirect:/expedient/iniciar.html";
 			        } catch (Exception ex) {
 			        	missatgeError(
 								request,
-								"S'ha produït un error iniciant l'expedient",
+								getMessage("error.iniciar.expedient"),
 								(ex.getCause() != null) ? ex.getCause().getMessage() : ex.getMessage());
 			        	logger.error("No s'ha pogut iniciar l'expedient", ex);
 			        	model.addAttribute("expedientTipus", dissenyService.getExpedientTipusById(command.getExpedientTipusId()));
@@ -209,11 +192,11 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 					return "redirect:/expedient/iniciar.html";
 				}
 			} else {
-				missatgeError(request, "No té permisos per iniciar expedients d'aquest tipus");
+				missatgeError(request, getMessage("error.permisos.iniciar.tipus.exp"));
 				return "redirect:/expedient/iniciar.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -227,7 +210,7 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 			this.dissenyService = dissenyService;
 			this.expedientService = expedientService;
 		}
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(ExpedientIniciarPasTitolCommand.class);
 		}
@@ -274,6 +257,56 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 		if (codi == null)
 			return null;
 		return pluginService.findPersonaAmbCodi(codi);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void netejarSessio(HttpServletRequest request) {
+		Enumeration<String> atributs = request.getSession().getAttributeNames();
+		while (atributs.hasMoreElements()) {
+			String atribut = atributs.nextElement();
+			if (atribut.startsWith(ExpedientIniciarRegistreController.PREFIX_REGISTRE_SESSIO))
+				request.getSession().removeAttribute(atribut);
+		}
+		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_TASKID);
+		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_NUMERO);
+		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_TITOL);
+		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_FORM_VALIDAT);
+	}
+
+	private synchronized void iniciarExpedient(
+			Long entornId,
+			Long expedientTipusId,
+			Long definicioProcesId,
+			String numero,
+			String titol) {
+		expedientService.iniciar(
+				entornId,
+				expedientTipusId,
+				definicioProcesId,
+				numero,
+				titol,
+				null,
+				null,
+				null,
+				null,
+				false,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				false,
+				null,
+				null,
+				false,
+				null,
+				null,
+				IniciadorTipus.INTERN,
+				null,
+				null,
+				null,
+				null);
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientIniciarPasTitolController.class);

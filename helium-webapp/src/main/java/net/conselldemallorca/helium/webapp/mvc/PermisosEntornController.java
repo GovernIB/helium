@@ -110,10 +110,10 @@ public class PermisosEntornController extends BaseController {
 	        			command.getId(),
 	        			Entorn.class,
 	        			true);
-	        	missatgeInfo(request, "S'han afegit els permisos a l'entorn");
+	        	missatgeInfo(request, getMessage("info.permisos.entorn.afegit") );
 	        	status.setComplete();
 	        } catch (Exception ex) {
-	        	missatgeError(request, "No s'han pogut afegir els permisos a l'entorn", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.afegir.permisos.entorn"), ex.getLocalizedMessage());
 	        	logger.error("No s'han pogut afegir els permisos a l'entorn", ex);
 	        }
 	        return "redirect:/permisos/entorn.html?id=" + command.getId();
@@ -131,9 +131,9 @@ public class PermisosEntornController extends BaseController {
 					command.isUsuari(),
 					command.getId(),
 					Entorn.class);
-        	missatgeInfo(request, "S'han esborrat els permisos");
+        	missatgeInfo(request, getMessage("info.permisos.entorn.esborrar") );
         } catch (Exception ex) {
-        	missatgeError(request, "No s'han pogut esborrar els permisos", ex.getLocalizedMessage());
+        	missatgeError(request, getMessage("error.esborrar.permisos.entorn"), ex.getLocalizedMessage());
         	logger.error("No s'han pogut esborrar els permisos", ex);
         }
         return "redirect:/permisos/entorn.html?id=" + command.getId();

@@ -15,17 +15,18 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
+import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
 
@@ -59,6 +60,7 @@ public class ExpedientIniciarPasFormController extends BaseController {
 
 	private DissenyService dissenyService;
 	private ExpedientService expedientService;
+	private TascaService tascaService;
 	private PermissionService permissionService;
 
 
@@ -67,9 +69,11 @@ public class ExpedientIniciarPasFormController extends BaseController {
 	public ExpedientIniciarPasFormController(
 			DissenyService dissenyService,
 			ExpedientService expedientService,
+			TascaService tascaService,
 			PermissionService permissionService) {
 		this.dissenyService = dissenyService;
 		this.expedientService = expedientService;
+		this.tascaService = tascaService;
 		this.permissionService = permissionService;
 	}
 
@@ -79,7 +83,6 @@ public class ExpedientIniciarPasFormController extends BaseController {
 		return dissenyService.getExpedientTipusById(expedientTipusId);
 	}
 
-	@SuppressWarnings("unchecked")
 	@ModelAttribute("command")
 	public Object populateCommand(
 			HttpServletRequest request,
@@ -90,11 +93,12 @@ public class ExpedientIniciarPasFormController extends BaseController {
 		if (entorn != null) {
 			Object command = null;
 			Object commandSessio = TascaFormUtil.recuperarCommandTemporal(request, true);
-			TascaDto tascaInicial = expedientService.getStartTask(
+			TascaDto tascaInicial = obtenirTascaInicial(
 					entorn.getId(),
 					expedientTipusId,
 					definicioProcesId,
-	        		null);
+					null,
+					request);
 			List<Camp> camps = new ArrayList<Camp>();
 			for (CampTasca campTasca: tascaInicial.getCamps())
 				camps.add(campTasca.getCamp());
@@ -106,10 +110,17 @@ public class ExpedientIniciarPasFormController extends BaseController {
 				command = commandSessio;
 			} else {
 				if (tascaInicial != null) {
+					if (tascaInicial.getFormExtern() != null) {
+						guardarValorsFormExtern(
+								request,
+								tascaInicial.getId(),
+								valorsCommand);
+					}
 					Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 					campsAddicionals.put("entornId", entorn.getId());
 					campsAddicionals.put("expedientTipusId", expedientTipusId);
 					campsAddicionals.put("definicioProcesId", definicioProcesId);
+					@SuppressWarnings("rawtypes")
 					Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
 					campsAddicionalsClasses.put("entornId", Long.class);
 					campsAddicionalsClasses.put("expedientTipusId", Long.class);
@@ -124,15 +135,6 @@ public class ExpedientIniciarPasFormController extends BaseController {
 			}
 			model.addAttribute("camps", camps);
 			model.addAttribute("valorsCommand", valorsCommand);
-			Map<String, Object> valorsRegistres = obtenirValorsRegistresSessio(request, camps);
-			for (String codi: valorsRegistres.keySet()) {
-				try {
-					Object[] valor = (Object[])valorsRegistres.get(codi);
-					PropertyUtils.setSimpleProperty(command, codi, valor);
-				} catch (Exception ex) {
-					logger.warn(ex);
-				}
-			}
 			return command;
 		}
 		return null;
@@ -149,19 +151,20 @@ public class ExpedientIniciarPasFormController extends BaseController {
 		if (entorn != null) {
 			ExpedientTipus tipus = dissenyService.getExpedientTipusById(expedientTipusId);
 			if (potIniciarExpedientTipus(tipus)) {
-				TascaDto tasca = expedientService.getStartTask(
+				TascaDto tasca = obtenirTascaInicial(
 						entorn.getId(),
 						expedientTipusId,
 						definicioProcesId,
-						(Map<String, Object>)model.get("valorsCommand"));
+						(Map<String, Object>)model.get("valorsCommand"),
+						request);
 				model.addAttribute("tasca", tasca);
 				return "expedient/iniciarPasForm";
 			} else {
-				missatgeError(request, "No té permisos per iniciar expedients d'aquest tipus");
+				missatgeError(request, getMessage("error.permisos.iniciar.tipus.exp"));
 				return "redirect:/expedient/iniciar.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -186,68 +189,53 @@ public class ExpedientIniciarPasFormController extends BaseController {
 			ExpedientTipus tipus = dissenyService.getExpedientTipusById(expedientTipusId);
 			if (potIniciarExpedientTipus(tipus)) {
 				List<Camp> camps = (List<Camp>)model.get("camps");
-				TascaDto tascaInicial = expedientService.getStartTask(
+				TascaDto tascaInicial = obtenirTascaInicial(
 						entorn.getId(),
 						expedientTipusId,
 						definicioProcesId,
-						(Map<String, Object>)model.get("valorsCommand"));
+						(Map<String, Object>)model.get("valorsCommand"),
+						request);
 				if ("submit".equals(submit)) {
-					Map<String, List<Object>> valorsSuggest = TascaFormUtil.getValorsPerSuggest(tascaInicial, command);
-					Validator validator = new TascaFormValidator(expedientService, valorsSuggest);
+					Validator validator = new TascaFormValidator(
+							expedientService,
+							obtenirValorsRegistresSessio(request, camps));
 					validator.validate(command, result);
 					try {
 						TascaFormUtil.getBeanValidatorForCommand(camps).validate(command, result);
 					} catch (Exception ex) {
-						missatgeError(request, "S'han produit errors de validació", ex.getLocalizedMessage());
+						missatgeError(request, getMessage("error.validacio"), ex.getLocalizedMessage());
 			        	logger.error("S'han produit errors de validació", ex);
 			        	model.addAttribute("tasca", tascaInicial);
-			        	model.addAttribute("valorsPerSuggest", valorsSuggest);
+			        	model.addAttribute(
+			        			"valorsPerSuggest",
+			        			TascaFormUtil.getValorsPerSuggest(tascaInicial, command));
 			        	return "expedient/iniciarPasForm";
 					}
 					if (result.hasErrors()) {
 						model.addAttribute("tasca", tascaInicial);
-			        	model.addAttribute("valorsPerSuggest", TascaFormUtil.getValorsPerSuggest(tascaInicial, command));
+			        	model.addAttribute(
+			        			"valorsPerSuggest",
+			        			TascaFormUtil.getValorsPerSuggest(tascaInicial, command));
 			        	return "expedient/iniciarPasForm";
 			        }
 					try {
 						Map<String, Object> valors = new HashMap<String, Object>();
 						valors.putAll((Map<String, Object>)model.get("valorsCommand"));
 						valors.putAll(TascaFormUtil.getValorsFromCommand(camps, command, true, false));
-						expedientService.iniciar(
+						iniciarExpedient(
 								entorn.getId(),
 								expedientTipusId,
 								definicioProcesId,
 								(String)request.getSession().getAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_NUMERO),
 								(String)request.getSession().getAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_TITOL),
-								null,
-								null,
-								null,
-								null,
-								false,
-								null,
-								null,
-								null,
-								null,
-								null,
-								null,
-								false,
-								null,
-								null,
-								false,
-								valors,
-								null,
-								IniciadorTipus.INTERN,
-								null,
-								null,
-								null,
-								null);
-				        missatgeInfo(request, "L'expedient s'ha iniciat correctament");
-				        netejarSessioRegistres(request);
+								valors);
+				        missatgeInfo(request, getMessage("info.expedient.iniciat"));
+				        netejarSessio(request);
 				        return "redirect:/expedient/iniciar.html";
 			        } catch (Exception ex) {
 			        	missatgeError(
 								request,
-								"S'ha produït un error iniciant l'expedient",
+								getMessage("error.iniciar.expedient"),
 								(ex.getCause() != null) ? ex.getCause().getMessage() : ex.getMessage());
 			        	logger.error("No s'ha pogut iniciar l'expedient", ex);
 			        	return "expedient/iniciarPasForm";
@@ -260,7 +248,7 @@ public class ExpedientIniciarPasFormController extends BaseController {
 									field,
 									TascaFormUtil.addMultiple(field, command, camps));
 					} catch (Exception ex) {
-						missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+						missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 						logger.error("No s'ha pogut afegir el camp múltiple", ex);
 					}
 					model.addAttribute("tasca", tascaInicial);
@@ -274,7 +262,7 @@ public class ExpedientIniciarPasFormController extends BaseController {
 									field,
 									TascaFormUtil.deleteMultiple(field, command, camps, index));
 					} catch (Exception ex) {
-						missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+						missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 						logger.error("No s'ha pogut afegir el camp múltiple", ex);
 					}
 					model.addAttribute("tasca", tascaInicial);
@@ -290,7 +278,7 @@ public class ExpedientIniciarPasFormController extends BaseController {
 						try {
 							esborrarRegistre(request, camp.getCodi(), registreEsborrarIndex.intValue());
 						} catch (Exception ex) {
-				        	missatgeError(request, "No s'ha pogut esborrar el registre", ex.getLocalizedMessage());
+				        	missatgeError(request, getMessage("error.esborrar.registre"), ex.getLocalizedMessage());
 				        	logger.error("No s'ha pogut esborrar el registre", ex);
 				        }
 					}
@@ -298,11 +286,11 @@ public class ExpedientIniciarPasFormController extends BaseController {
 					return "redirect:/expedient/iniciarPasForm.html?expedientTipusId=" + expedientTipusId;
 				}
 			} else {
-				missatgeError(request, "No té permisos per iniciar expedients d'aquest tipus");
+				missatgeError(request, getMessage("error.permisos.iniciar.tipus.exp"));
 				return "redirect:/expedient/iniciar.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -372,14 +360,86 @@ public class ExpedientIniciarPasFormController extends BaseController {
 			}
 		}
 	}
+
+	private TascaDto obtenirTascaInicial(
+			Long entornId,
+			Long expedientTipusId,
+			Long definicioProcesId,
+			Map<String, Object> valors,
+			HttpServletRequest request) {
+		TascaDto tasca = expedientService.getStartTask(
+				entornId,
+				expedientTipusId,
+				definicioProcesId,
+				valors);
+		tasca.setId(
+				(String)request.getSession().getAttribute(
+						ExpedientIniciarPasTitolController.CLAU_SESSIO_TASKID));
+		Object validat = request.getSession().getAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_FORM_VALIDAT); 
+		if (validat != null)
+			tasca.setValidada(true);
+		return tasca;
+	}
+
+	private void guardarValorsFormExtern(
+			HttpServletRequest request,
+			String taskId,
+			Map<String, Object> valorsCommand) {
+		Map<String, Object> valors = tascaService.obtenirValorsFormulariExternInicial(taskId);
+		if (valors != null) {
+			valorsCommand.putAll(valors);
+			request.getSession().setAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_FORM_VALIDAT, new Boolean(true));
+		}
+	}
+
 	@SuppressWarnings("unchecked")
-	private void netejarSessioRegistres(HttpServletRequest request) {
+	private void netejarSessio(HttpServletRequest request) {
 		Enumeration<String> atributs = request.getSession().getAttributeNames();
 		while (atributs.hasMoreElements()) {
 			String atribut = atributs.nextElement();
 			if (atribut.startsWith(ExpedientIniciarRegistreController.PREFIX_REGISTRE_SESSIO))
 				request.getSession().removeAttribute(atribut);
 		}
+		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_TASKID);
+		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_NUMERO);
+		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_TITOL);
+	}
+
+	private synchronized void iniciarExpedient(
+			Long entornId,
+			Long expedientTipusId,
+			Long definicioProcesId,
+			String numero,
+			String titol,
+			Map<String, Object> valors) {
+		expedientService.iniciar(
+				entornId,
+				expedientTipusId,
+				definicioProcesId,
+				numero,
+				titol,
+				null,
+				null,
+				null,
+				null,
+				false,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				false,
+				null,
+				null,
+				false,
+				valors,
+				null,
+				IniciadorTipus.INTERN,
+				null,
+				null,
+				null,
+				null);
 	}
 
 

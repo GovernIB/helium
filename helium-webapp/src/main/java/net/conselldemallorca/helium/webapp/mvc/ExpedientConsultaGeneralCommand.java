@@ -20,6 +20,10 @@ public class ExpedientConsultaGeneralCommand {
 	private Date dataInici2;
 	private ExpedientTipus expedientTipus;
 	private Long estat;
+	private Double geoPosX;
+	private Double geoPosY;
+	private String geoReferencia;
+	private boolean mostrarAnulats = false;
 
 
 
@@ -62,6 +66,30 @@ public class ExpedientConsultaGeneralCommand {
 	}
 	public void setEstat(Long estat) {
 		this.estat = estat;
+	}
+	public Double getGeoPosX() {
+		return geoPosX;
+	}
+	public void setGeoPosX(Double geoPosX) {
+		this.geoPosX = geoPosX;
+	}
+	public Double getGeoPosY() {
+		return geoPosY;
+	}
+	public void setGeoPosY(Double geoPosY) {
+		this.geoPosY = geoPosY;
+	}
+	public String getGeoReferencia() {
+		return geoReferencia;
+	}
+	public void setGeoReferencia(String geoReferencia) {
+		this.geoReferencia = geoReferencia;
+	}
+	public boolean isMostrarAnulats() {
+		return mostrarAnulats;
+	}
+	public void setMostrarAnulats(boolean mostrarAnulats) {
+		this.mostrarAnulats = mostrarAnulats;
 	}
 
 }

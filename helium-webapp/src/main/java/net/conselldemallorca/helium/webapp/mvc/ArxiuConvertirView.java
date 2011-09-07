@@ -61,7 +61,7 @@ public class ArxiuConvertirView extends ArxiuView {
 
 
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public void render(
 			Map model,
 			HttpServletRequest request,

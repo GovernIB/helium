@@ -9,13 +9,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.conselldemallorca.helium.core.model.dto.ArxiuDto;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.service.DocumentService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
-import net.conselldemallorca.helium.core.util.RespostaSignatura;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.codec.binary.Base64;
@@ -55,7 +53,7 @@ public class SignaturaController extends BaseController {
 		this.documentService = documentService;
 	}
 
-	@RequestMapping(value = "/signatura/descarregarAmbToken")
+	/*@RequestMapping(value = "/signatura/arxiuPerSignar")
 	public String documentAmbToken(
 			HttpServletRequest request,
 			@RequestParam(value = "token", required = true) String token,
@@ -71,10 +69,10 @@ public class SignaturaController extends BaseController {
 			}
 			return "arxiuView";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
-	}
+	}*/
 
 	@RequestMapping(value = "/signatura/signarAmbTokenCaib", method = RequestMethod.POST)
 	public void signarDocument(
@@ -85,12 +83,12 @@ public class SignaturaController extends BaseController {
 		if (entorn != null) {
 			try {
 				ObjectInputStream inputFromApplet = new ObjectInputStream(multipartFile.getInputStream());
-				RespostaSignatura resposta = (RespostaSignatura)inputFromApplet.readObject();
+				Object[] resposta = (Object[])inputFromApplet.readObject();
 				tascaService.signarDocumentAmbToken(
 						entorn.getId(),
-						resposta.getToken(),
-						(byte[])resposta.getSignatura());
-				logger.info("Firma del document amb el token " + resposta.getToken() + " processada correctament");
+						(String)resposta[0],
+						(byte[])resposta[2]);
+				logger.info("Firma del document amb el token " + resposta[0] + " processada correctament");
 				response.getWriter().write("OK");
 			} catch(Exception ex) {
 				logger.error("Error rebent la firma del document", ex);
@@ -121,18 +119,18 @@ public class SignaturaController extends BaseController {
 						Base64.decodeBase64(data.getBytes()));
 				if (custodiat) {
 					logger.info("Signatura del document amb el token " + token + " processada correctament");
-					missatgeInfo(request, "La signatura del document s'ha processat correctament");
+					missatgeInfo(request, getMessage("info.signatura.doc.processat") );
 				} else {
 					logger.error("Signatura del document amb el token " + token + " processada amb error de custòdia");
-					missatgeError(request, "Error en la validació de la signatura");
+					missatgeError(request, getMessage("error.validar.signatura") );
 				}
 			} catch(Exception ex) {
 				logger.error("Error rebent la signatura del document", ex);
-				missatgeError(request, "Error rebent la signatura del document");
+				missatgeError(request, getMessage("error.rebre.signatura") );
 		    }
 			return "redirect:/tasca/signatures.html?id=" + taskId;
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -147,9 +145,13 @@ public class SignaturaController extends BaseController {
 		try {
 			DocumentDto document = null;
 			if (id != null)
-				document = expedientService.getDocument(id, false, false);
+				document = expedientService.getDocument(
+						id,
+						false,
+						false,
+						false);
 			else if (token != null)
-				document = tascaService.getDocumentAmbToken(token, true);
+				document = documentService.arxiuDocumentInfo(token);
 			model.addAttribute("document", document);
 			model.addAttribute(
 					"instanciaProces",
@@ -163,20 +165,6 @@ public class SignaturaController extends BaseController {
 			throw new ServletException(ex);
 	    }
 	}
-
-	/*@RequestMapping(value = "/signatura/descarregar")
-	public String descarregar(
-			HttpServletRequest request,
-			@RequestParam("id") final Long id,
-			ModelMap model) {
-		DocumentDto document = expedientService.descarregarSignatura(id);
-		if (document != null) {
-			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, document.getArxiuNom());
-			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, document.getArxiuContingut());
-			return "arxiuView";
-		}
-		return null;
-	}*/
 
 
 

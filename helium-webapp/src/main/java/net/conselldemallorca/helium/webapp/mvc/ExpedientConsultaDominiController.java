@@ -75,7 +75,7 @@ public class ExpedientConsultaDominiController extends BaseController {
 			else
 				return "domini/consultaCampSuggest";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

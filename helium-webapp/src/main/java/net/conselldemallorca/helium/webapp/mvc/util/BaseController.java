@@ -67,15 +67,19 @@ public class BaseController implements MessageSourceAware {
 			errors.add(text);
 	}
 
-	protected String getMessage(String key) {
+	protected String getMessage(String key, Object[] vars) {
 		try {
 			return messageSource.getMessage(
 					key,
-					null,
+					vars,
 					null);
 		} catch (NoSuchMessageException ex) {
 			return "???" + key + "???";
 		}
+	}
+
+	protected String getMessage(String key) {
+		return getMessage(key, null);
 	}
 
 	protected Entorn getEntornActiu(
@@ -83,7 +87,7 @@ public class BaseController implements MessageSourceAware {
 		return (Entorn)request.getSession().getAttribute(EntornInterceptor.VARIABLE_SESSIO_ENTORN_ACTUAL);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	protected PaginatedList newPaginatedList(
 			int page,
 			String sort,

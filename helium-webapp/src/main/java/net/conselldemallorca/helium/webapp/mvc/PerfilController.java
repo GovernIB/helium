@@ -60,8 +60,8 @@ public class PerfilController extends BaseController {
 	@ModelAttribute("sexes")
 	public ParellaCodiValor[] populateSexes() {
 		ParellaCodiValor[] resposta = new ParellaCodiValor[2];
-		resposta[0] = new ParellaCodiValor("Home", Persona.Sexe.SEXE_HOME);
-		resposta[1] = new ParellaCodiValor("Dona", Persona.Sexe.SEXE_DONA);
+		resposta[0] = new ParellaCodiValor(getMessage("txt.home"), Persona.Sexe.SEXE_HOME);
+		resposta[1] = new ParellaCodiValor(getMessage("txt.dona"), Persona.Sexe.SEXE_DONA);
 		return resposta;
 	}
 
@@ -96,10 +96,10 @@ public class PerfilController extends BaseController {
 	        }
 	        try {
 	        	personaService.updatePerfil(command);
-	        	missatgeInfo(request, "El perfil s'ha guardat amb èxit");
+	        	missatgeInfo(request, getMessage("info.perfil.guardat") );
 	        	status.setComplete();
 	        } catch (Exception ex) {
-	        	missatgeError(request, "No s'ha pogut guardar el perfil", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.guardar.perfil"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut guardar el registre", ex);
 	        	return "perfil/form";
 	        }
@@ -131,10 +131,10 @@ public class PerfilController extends BaseController {
 	        try {
 	        	Persona persona = getPersonaActual(request);
 	        	personaService.canviContrasenyaPerfil(persona.getId(), command.getContrasenya());
-	        	missatgeInfo(request, "La contrasenya s'ha modificat amb èxit");
+	        	missatgeInfo(request, getMessage("info.contrasenya.modificat") );
 	        	status.setComplete();
 	        } catch (Exception ex) {
-	        	missatgeError(request, "No s'ha pogut guardar el perfil", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.modificar.contrasenya"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut modificar la contrasenya", ex);
 	        	return "perfil/contrasenya";
 	        }
@@ -161,7 +161,7 @@ public class PerfilController extends BaseController {
 	}
 
 	public class CanviContrasenyaValidator implements Validator {
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(CanviContrasenyaCommand.class);
 		}

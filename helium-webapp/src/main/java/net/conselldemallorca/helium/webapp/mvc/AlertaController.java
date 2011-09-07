@@ -53,7 +53,7 @@ public class AlertaController extends BaseController {
 			model.addAttribute("llistat", alertes);
 			return "alerta/llistat";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -67,12 +67,12 @@ public class AlertaController extends BaseController {
 			try {
 				alertaService.marcarLlegida(id);
 			} catch (Exception ex) {
-	        	missatgeError(request, "No s'ha pogut marcar l'alerta com a llegida", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.marcar.alerta.llegida"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut marcar l'alerta com a llegida", ex);
 	        }
 			return "redirect:/alerta/llistat.html";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -85,12 +85,12 @@ public class AlertaController extends BaseController {
 			try {
 				alertaService.desmarcarLlegida(id);
 			} catch (Exception ex) {
-	        	missatgeError(request, "No s'ha pogut marcar l'alerta com a no llegida", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.marcar.alerta.no.llegida"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut marcar l'alerta com a no llegida", ex);
 	        }
 			return "redirect:/alerta/llistat.html";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -104,12 +104,12 @@ public class AlertaController extends BaseController {
 			try {
 				alertaService.marcarEsborrada(id);
 			} catch (Exception ex) {
-	        	missatgeError(request, "No s'ha pogut esborrar l'alerta", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.esborrar.alerta"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut esborrar l'alerta", ex);
 	        }
 			return "redirect:/alerta/llistat.html";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -123,16 +123,16 @@ public class AlertaController extends BaseController {
 				Alerta alerta = new Alerta(
 						new Date(),
 						"admin",
-						"Bon dia",
+						getMessage("salutacio"),
 						entorn);
 				alertaService.create(alerta);
 			} catch (Exception ex) {
-	        	missatgeError(request, "No s'ha pogut crear l'alerta", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.esborrar.alerta"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut crear l'alerta", ex);
 	        }
 			return "redirect:/alerta/llistat.html";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

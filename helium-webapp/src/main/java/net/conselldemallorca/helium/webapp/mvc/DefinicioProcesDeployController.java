@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.core.model.exception.DeploymentException;
 import net.conselldemallorca.helium.core.model.exportacio.DefinicioProcesExportacio;
+import net.conselldemallorca.helium.core.model.exportacio.ExpedientTipusExportacio;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
@@ -66,8 +67,9 @@ public class DefinicioProcesDeployController extends BaseController {
 	@ModelAttribute("desplegamentTipus")
 	public List<ParellaCodiValorDto> populateTipus() {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		resposta.add(new ParellaCodiValorDto("JBPM", "Desplegament jBPM"));
-		resposta.add(new ParellaCodiValorDto("EXPORT", "Exportació Helium"));
+		resposta.add(new ParellaCodiValorDto("JBPM", getMessage("txt.desplegament.jbpm") ));
+		resposta.add(new ParellaCodiValorDto("EXPORTDEFPRC", getMessage("txt.exportacio.definicioProces") ));
+		resposta.add(new ParellaCodiValorDto("EXPORTTIPEXP", getMessage("txt.exportacio.tipusExpedient") ));
 		return resposta;
 	}
 	@ModelAttribute("command")
@@ -90,11 +92,11 @@ public class DefinicioProcesDeployController extends BaseController {
 				model.addAttribute("expedientTipus", expedientTipus);
 				return "definicioProces/deploy";
 			} else {
-				missatgeError(request, "No té permisos per desplegar arxius a dins aquest entorn");
+				missatgeError(request, getMessage("error.permisos.despl.arxius.entorn"));
 				return "redirect:/definicioProces/deploy.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/definicioProces/deploy.html";
 		}
 	}
@@ -126,8 +128,8 @@ public class DefinicioProcesDeployController extends BaseController {
 				        			multipartFile.getBytes(),
 				        			command.getEtiqueta(),
 				        			true);
-				        	missatgeInfo(request, "L'arxiu s'ha desplegat amb èxit");
-		        		} else {
+				        	missatgeInfo(request, getMessage("info.arxiu.desplegat") );
+		        		} else if (command.getTipus().equals("EXPORTDEFPRC")) {
 			        		InputStream is = new ByteArrayInputStream(multipartFile.getBytes());
 					    	ObjectInputStream input = new ObjectInputStream(is);
 					    	Object deserialitzat = input.readObject();
@@ -138,30 +140,45 @@ public class DefinicioProcesDeployController extends BaseController {
 					        			command.getExpedientTipusId(),
 					        			exportacio,
 					        			command.getEtiqueta());
-					    		missatgeInfo(request, "L'arxiu s'ha desplegat amb èxit");
+					    		missatgeInfo(request, getMessage("info.arxiu.desplegat") );
 					        	return "redirect:/definicioProces/llistat.html";
 					    	} else {
-					    		missatgeError(request, "Aquest arxiu no és un arxiu d'exportació vàlid");
+					    		missatgeError(request, getMessage("error.arxius.no.valid") );
 					    	}
+		        		} else if (command.getTipus().equals("EXPORTTIPEXP")) {
+		        			InputStream is = new ByteArrayInputStream(multipartFile.getBytes());
+		    		    	ObjectInputStream input = new ObjectInputStream(is);
+		    		    	Object deserialitzat = input.readObject();
+		    		    	if (deserialitzat instanceof ExpedientTipusExportacio) {
+		    		    		ExpedientTipusExportacio exportacio = (ExpedientTipusExportacio)deserialitzat;
+		    		    		dissenyService.importarExpedientTipus(
+		    		        			entorn.getId(), 
+		    		        			null,
+		    		        			exportacio);
+		    		    		missatgeInfo(request, getMessage("info.dades.importat") );
+		    						return "redirect:/expedientTipus/llistat.html";
+		    		    	} else {
+		    		    		missatgeError(request, getMessage("error.arxiu.no.valid") );
+		    		    	}
 		        		}
 						return "redirect:/definicioProces/llistat.html";
 		        	} catch (ClassNotFoundException ex) {
-		        		missatgeError(request, "Aquest arxiu no és un arxiu d'exportació vàlid", ex.getMessage());
+		        		missatgeError(request, getMessage("error.arxius.no.valid"), ex.getMessage());
 		        	} catch (IOException ex) {
-		        		missatgeError(request, "Error desplegant l'arxiu", ex.getMessage());
+		        		missatgeError(request, getMessage("error.desplegar.arxiu"), ex.getMessage());
 		        	} catch (DeploymentException ex) {
-		        		missatgeError(request, "Error desplegant l'arxiu", ex.getMessage());
+		        		missatgeError(request, getMessage("error.desplegar.arxiu"), ex.getMessage());
 		        	}
 		        	return "redirect:/definicioProces/deploy.html";
 				} else {
 					return "redirect:/definicioProces/llistat.html";
 				}
 			} else {
-				missatgeError(request, "No té permisos per desplegar arxius a dins aquest entorn");
+				missatgeError(request, getMessage("error.permisos.despl.arxius.entorn"));
 				return "redirect:/definicioProces/deploy.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/definicioProces/deploy.html";
 		}
 	}
@@ -205,7 +222,7 @@ public class DefinicioProcesDeployController extends BaseController {
 	}
 
 	private class DeployValidator implements Validator {
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(DeployCommand.class);
 		}

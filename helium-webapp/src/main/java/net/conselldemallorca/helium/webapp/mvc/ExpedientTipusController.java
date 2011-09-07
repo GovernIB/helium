@@ -3,6 +3,10 @@
  */
 package net.conselldemallorca.helium.webapp.mvc;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
+import net.conselldemallorca.helium.core.model.exportacio.ExpedientTipusExportacio;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
@@ -29,6 +34,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 
 
@@ -75,9 +81,10 @@ public class ExpedientTipusController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			model.addAttribute("llistat", llistatExpedientTipusAmbPermisos(entorn));
+			model.addAttribute("command", new DeployCommand());
 			return "expedientTipus/llistat";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -92,18 +99,18 @@ public class ExpedientTipusController extends BaseController {
 			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
 				try {
 					dissenyService.deleteExpedientTipus(id);
-					missatgeInfo(request, "El tipus d'expedient s'ha esborrat correctament");
+					missatgeInfo(request, getMessage("info.tipus.exp.esborrat") );
 				} catch (Exception ex) {
-					missatgeError(request, "No s'ha pogut esborrar el tipus d'expedient", ex.getLocalizedMessage());
+					missatgeError(request, getMessage("error.esborrar.tipus.exp"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut esborrar el tipus d'expedient", ex);
 				}
 				return "redirect:/expedientTipus/llistat.html";
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquest tipus d'expedient");
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -117,6 +124,7 @@ public class ExpedientTipusController extends BaseController {
 		if (entorn != null) {
 			ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(id);
 			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
+				model.addAttribute("command", new DeployCommand());
 				model.addAttribute(
 						"responsableDefecte",
 						getResponsableDefecte(expedientTipus.getResponsableDefecteCodi()));
@@ -125,15 +133,98 @@ public class ExpedientTipusController extends BaseController {
 						dissenyService.findDarreraDefinicioProcesForExpedientTipus(id, false));
 				return "expedientTipus/info";
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquest tipus d'expedient");
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
 
+
+	@RequestMapping(value = "/expedientTipus/exportar")
+	public String export(
+			HttpServletRequest request,
+			ModelMap model,
+			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
+			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
+				String filename = expedientTipus.getJbpmProcessDefinitionKey();
+				if (filename == null) {
+					filename = expedientTipus.getCodi();
+				}
+				filename = filename + ".exp";
+				model.addAttribute("filename", filename);
+				model.addAttribute("data", dissenyService.exportarTipusExpedient(expedientTipusId));
+				return "serialitzarView";
+			} else {
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
+				return "redirect:/index.html";
+			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+
+	@RequestMapping(value = "/expedientTipus/importar")
+	public String importar(
+			HttpServletRequest request,
+			@RequestParam(value = "submit", required = false) String submit,
+			@RequestParam("arxiu") final MultipartFile multipartFile,
+			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			try {
+				if (multipartFile.getBytes() == null || multipartFile.getBytes().length == 0) {
+					missatgeError(request, getMessage("error.especificar.arxiu.importar") );
+					if (expedientTipusId != null) {
+						return "redirect:/expedientTipus/info.html?expedientTipusId=" + expedientTipusId;
+					} else {
+						return "redirect:/expedientTipus/llistat.html";
+					}
+				}
+				InputStream is = new ByteArrayInputStream(multipartFile.getBytes());
+		    	ObjectInputStream input = new ObjectInputStream(is);
+		    	Object deserialitzat = input.readObject();
+		    	if (deserialitzat instanceof ExpedientTipusExportacio) {
+		    		ExpedientTipusExportacio exportacio = (ExpedientTipusExportacio)deserialitzat;
+		    		dissenyService.importarExpedientTipus(
+		        			entorn.getId(), 
+		        			expedientTipusId,
+		        			exportacio);
+		    		missatgeInfo(request, getMessage("info.dades.importat") );
+		    		if (expedientTipusId != null) {
+						return "redirect:/expedientTipus/info.html?expedientTipusId=" + expedientTipusId;
+					} else {
+						return "redirect:/expedientTipus/llistat.html";
+					}
+		    	} else {
+		    		missatgeError(request, getMessage("error.arxiu.no.valid") );
+		    	}
+			} catch (IOException ex) {
+				logger.error("Error llegint l'arxiu a importar", ex);
+				missatgeError(request, getMessage("error.arxiu.importar") );
+			} catch (ClassNotFoundException ex) {
+				logger.error("Error llegint l'arxiu a importar", ex);
+				missatgeError(request, getMessage("error.arxiu.importar") );
+			} catch (Exception ex) {
+				missatgeError(request, getMessage("error.import.dades") + ex.getMessage());
+			}
+			if (expedientTipusId != null) {
+				return "redirect:/expedientTipus/info.html?expedientTipusId=" + expedientTipusId;
+			} else {
+				return "redirect:/expedientTipus/llistat.html";
+			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+	
 	@RequestMapping(value = "/expedientTipus/definicioProcesLlistat")
 	public String definicioProcesLlistat(
 			HttpServletRequest request,
@@ -148,11 +239,11 @@ public class ExpedientTipusController extends BaseController {
 						dissenyService.findDarreresAmbExpedientTipusIGlobalsEntorn(entorn.getId(), id));
 				return "expedientTipus/definicioProcesLlistat";
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquest tipus d'expedient");
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -169,18 +260,18 @@ public class ExpedientTipusController extends BaseController {
 			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
 				try {
 					dissenyService.setDefinicioProcesInicialPerExpedientTipus(id, jbpmKey);
-					missatgeInfo(request, "La definició de procés '" + jbpmKey + "' s'ha marcat com a inicial");
+					missatgeInfo(request, getMessage("info.defproc.marcat.inicial", new Object[] {jbpmKey} ) );
 				} catch (Exception ex) {
-					missatgeError(request, "No s'ha pogut configurar la definició de procés inicial", ex.getLocalizedMessage());
+					missatgeError(request, getMessage("error.configurar.defproc.inicial"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut configurar la definició de procés inicial", ex);
 				}
 				return "redirect:/expedientTipus/definicioProcesLlistat.html?expedientTipusId=" + id;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquest tipus d'expedient");
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -201,26 +292,26 @@ public class ExpedientTipusController extends BaseController {
 						List<ExpedientDto> expedients = expedientService.findAmbDefinicioProcesId(definicioProcesId);
 						if (expedients.size() == 0) {
 							dissenyService.undeploy(entorn.getId(), null, definicioProcesId);
-				        	missatgeInfo(request, "La definició de procés s'ha esborrat correctament");
+				        	missatgeInfo(request, getMessage("info.defproc.esborrat") );
 						} else {
-							missatgeError(request, "Existeixen expedients amb aquesta definició de procés");
+							missatgeError(request, getMessage("error.exist.exp.defproc") );
 						}
 			        } catch (Exception ex) {
-			        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+			        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut esborrar la definició de procés", ex);
 			        	return "redirect:/definicioProces/info.html?definicioProcesId=" + definicioProcesId;
 			        }
 					return "redirect:/expedientTipus/definicioProcesLlistat.html?expedientTipusId=" + id;
 				} else {
-					missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+					missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 					return "redirect:/index.html";
 				}
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquest tipus d'expedient");
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -275,6 +366,23 @@ public class ExpedientTipusController extends BaseController {
 					ExtendedPermission.DESIGN}) != null;
 	}
 
+	public class DeployCommand {
+		private Long expedientTipusId;
+		private byte[] arxiu;
+		public Long getExpedientTipusId() {
+			return expedientTipusId;
+		}
+		public void setExpedientTipusId(Long expedientTipusId) {
+			this.expedientTipusId = expedientTipusId;
+		}
+		public byte[] getArxiu() {
+			return arxiu;
+		}
+		public void setArxiu(byte[] arxiu) {
+			this.arxiu = arxiu;
+		}
+	}
+	
 	private static final Log logger = LogFactory.getLog(ExpedientTipusController.class);
 
 }

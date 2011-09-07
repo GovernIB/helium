@@ -112,8 +112,8 @@ public class ExpedientConsultaDissenyController extends BaseController {
 	@ModelAttribute("valorsBoolea")
 	public List<ParellaCodiValorDto> valorsBoolea() {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		resposta.add(new ParellaCodiValorDto("true", "Si"));
-		resposta.add(new ParellaCodiValorDto("false", "No"));
+		resposta.add(new ParellaCodiValorDto("true",  getMessage("txt.si") ));
+		resposta.add(new ParellaCodiValorDto("false",  getMessage("txt.no") ));
 		return resposta;
 	}
 
@@ -157,7 +157,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			}
 			return "expedient/consultaDisseny";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -187,7 +187,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			}
 			return "redirect:/expedient/consultaDisseny.html";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

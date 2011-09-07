@@ -22,6 +22,9 @@
 	<bean id="formulariExternDwrService" class="net.conselldemallorca.helium.webapp.dwr.FormulariExternDwrService">
 		<dwr:remote javascript="formulariExternDwrService"/>
 	</bean>
+	<bean id="gisDwrService" class="net.conselldemallorca.helium.webapp.dwr.GisDwrService">
+		<dwr:remote javascript="gisDwrService"/>
+	</bean>
 
 	<dwr:configuration>
 		<dwr:convert type="bean" class="net.conselldemallorca.helium.core.model.hibernate.*"/>

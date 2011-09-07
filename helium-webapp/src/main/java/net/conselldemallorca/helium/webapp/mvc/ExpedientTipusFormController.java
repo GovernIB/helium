@@ -82,11 +82,11 @@ public class ExpedientTipusFormController extends BaseController {
 						getResponsableDefecte(command.getResponsableDefecteCodi()));
 				return "expedientTipus/form";
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquest entorn");
+				missatgeError(request, getMessage("error.permisos.disseny.entorn"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -116,10 +116,10 @@ public class ExpedientTipusFormController extends BaseController {
 			        		dissenyService.createExpedientTipus(command);
 			        	else
 			        		dissenyService.updateExpedientTipus(command);
-			        	missatgeInfo(request, "El tipus d'expedient s'ha guardat correctament");
+			        	missatgeInfo(request, getMessage("info.tipus.exp.guardat"));
 			        	status.setComplete();
 			        } catch (Exception ex) {
-			        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+			        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut guardar el registre", ex);
 			        	return "expedientTipus/form";
 			        }
@@ -131,11 +131,11 @@ public class ExpedientTipusFormController extends BaseController {
 						return "redirect:/expedientTipus/llistat.html";
 				}
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquest entorn");
+				missatgeError(request, getMessage("error.permisos.disseny.entorn"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -154,7 +154,7 @@ public class ExpedientTipusFormController extends BaseController {
 		public ExpedientTipusValidator(DissenyService dissenyService) {
 			this.dissenyService = dissenyService;
 		}
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(ExpedientTipus.class);
 		}

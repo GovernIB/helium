@@ -40,17 +40,22 @@ public class DocumentArxiuController extends BaseController {
 	public String arxiuMostrar(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = false) Long id,
+			@RequestParam(value = "token", required = false) String token,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			ArxiuDto arxiu = documentService.arxiuDocumentPerMostrar(id);
+			ArxiuDto arxiu = null;
+			if (id != null)
+				arxiu = documentService.arxiuDocumentPerMostrar(id);
+			else if (token != null)
+				arxiu = documentService.arxiuDocumentPerMostrar(token);
 			if (arxiu != null) {
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
 			}
 			return "arxiuView";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -66,19 +71,12 @@ public class DocumentArxiuController extends BaseController {
 			boolean estampar = (noe != null) ? !noe.booleanValue() : true;
 			ArxiuDto arxiu = documentService.arxiuDocumentPerSignar(token, estampar);
 			if (arxiu != null) {
-				/*try {
-					FileOutputStream fosB64 = new FileOutputStream("c:/original_" + System.currentTimeMillis());
-					fosB64.write(arxiu.getContingut());
-					fosB64.close();
-				} catch(Exception ex) {
-					logger.error("Error al guardar arxiu", ex);
-			    }*/
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
 			}
-			return "arxiuView";
+	        return "arxiuView";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

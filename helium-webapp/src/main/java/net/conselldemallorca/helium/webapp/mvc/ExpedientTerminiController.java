@@ -85,11 +85,11 @@ public class ExpedientTerminiController extends BaseController {
 						terminiService.findIniciatsAmbProcessInstanceId(id));
 				return "expedient/terminis";
 			} else {
-				missatgeError(request, "No té permisos per consultar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -108,14 +108,14 @@ public class ExpedientTerminiController extends BaseController {
 						id,
 						new Date(),
 						true);
-				missatgeInfo(request, "El termini s'ha iniciat correctament");
+				missatgeInfo(request, getMessage("info.termini.iniciat") );
 			} catch (Exception ex) {
-				missatgeError(request, "No s'ha pogut iniciar el termini", ex.getLocalizedMessage());
+				missatgeError(request, getMessage("error.iniciar.termini"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut iniciar el termini", ex);
 			}
 			return "redirect:/expedient/terminis.html?id=" + id;
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -129,14 +129,14 @@ public class ExpedientTerminiController extends BaseController {
 		if (entorn != null) {
 			try {
 				terminiService.pausar(terminiId, new Date());
-				missatgeInfo(request, "El termini s'ha aturat correctament");
+				missatgeInfo(request, getMessage("info.termini.aturat") );
 			} catch (Exception ex) {
-				missatgeError(request, "No s'ha pogut aturar el termini", ex.getLocalizedMessage());
+				missatgeError(request, getMessage("error.aturar.termini"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut aturar el termini", ex);
 			}
 			return "redirect:/expedient/terminis.html?id=" + id;
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -150,14 +150,14 @@ public class ExpedientTerminiController extends BaseController {
 		if (entorn != null) {
 			try {
 				terminiService.continuar(terminiId, new Date());
-				missatgeInfo(request, "El termini s'ha continuat correctament");
+				missatgeInfo(request, getMessage("info.termini.continuat") );
 			} catch (Exception ex) {
-				missatgeError(request, "No s'ha pogut continuar el termini", ex.getLocalizedMessage());
+				missatgeError(request, getMessage("error.continuar.termini"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut continuar el termini", ex);
 			}
 			return "redirect:/expedient/terminis.html?id=" + id;
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -171,14 +171,14 @@ public class ExpedientTerminiController extends BaseController {
 		if (entorn != null) {
 			try {
 				terminiService.cancelar(terminiId, new Date());
-				missatgeInfo(request, "El termini s'ha cancel·lat correctament");
+				missatgeInfo(request, getMessage("info.termini.cancelat") );
 			} catch (Exception ex) {
-				missatgeError(request, "No s'ha pogut cancel·lar el termini", ex.getLocalizedMessage());
+				missatgeError(request, getMessage("error.cancelar.termini"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut cancel·lar el termini", ex);
 			}
 			return "redirect:/expedient/terminis.html?id=" + id;
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

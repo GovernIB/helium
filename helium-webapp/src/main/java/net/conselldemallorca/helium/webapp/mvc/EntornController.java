@@ -124,10 +124,10 @@ public class EntornController extends BaseController {
 	        		saved = entornService.create(command);
 	        	else
 	        		saved = entornService.update(command);
-	        	missatgeInfo(request, "L'entorn s'ha guardat correctament");
+	        	missatgeInfo(request, getMessage("info.entorn.guardat") );
 	        	status.setComplete();
 	        } catch (Exception ex) {
-	        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut guardar el registre", ex);
 	        	setIsAdmin(request, model);
 	        	return "entorn/form";
@@ -150,7 +150,7 @@ public class EntornController extends BaseController {
 			@RequestParam(value = "id", required = true) Long id,
 			ModelMap model) {
 		entornService.delete(id);
-		missatgeInfo(request, "L'entorn s'ha esborrat correctament");
+		missatgeInfo(request, getMessage("info.entorn.esborrat") );
 		return "redirect:/entorn/llistat.html";
 	}
 
@@ -174,7 +174,7 @@ public class EntornController extends BaseController {
 			@RequestParam("arxiu") final MultipartFile multipartFile) {
 		try {
 			if (multipartFile.getBytes() == null || multipartFile.getBytes().length == 0) {
-				missatgeError(request, "No s'ha especificat l'arxiu a importar");
+				missatgeError(request, getMessage("error.especificar.arxiu.importar") );
 				return "redirect:/entorn/form.html?id=" + entornId;
 			}
 			InputStream is = new ByteArrayInputStream(multipartFile.getBytes());
@@ -183,20 +183,20 @@ public class EntornController extends BaseController {
 	    	if (deserialitzat instanceof EntornExportacio) {
 	    		EntornExportacio exportacio = (EntornExportacio)deserialitzat;
 	    		entornService.importar(entornId, exportacio);
-	    		missatgeInfo(request, "Les dades de l'entorn s'han importat correctament");
+	    		missatgeInfo(request, getMessage("info.entorn.dades.importat") );
 	        	return "redirect:/entorn/llistat.html";
 	    	} else {
-	    		missatgeError(request, "Aquest arxiu no és un arxiu d'exportació vàlid");
+	    		missatgeError(request, getMessage("error.arxius.no.valid") );
 	    	}
 		} catch (IOException ex) {
 			logger.error("Error llegint l'arxiu a importar", ex);
-			missatgeError(request, "Error llegint l'arxiu a importar: " + ex.getMessage());
+			missatgeError(request, getMessage("error.arxiu.importar") + ex.getMessage());
 		} catch (ClassNotFoundException ex) {
 			logger.error("Error llegint l'arxiu a importar", ex);
-			missatgeError(request, "Error llegint l'arxiu a importar: " + ex.getMessage());
+			missatgeError(request, getMessage("error.arxiu.importar") + ex.getMessage());
 		} catch (Exception ex) {
 			logger.error("Error en la importació de dades", ex);
-			missatgeError(request, "Error en la importació de dades: " + ex.getMessage());
+			missatgeError(request, getMessage("error.import.dades") + ex.getMessage());
 		}
 		return "redirect:/entorn/form.html?id=" + entornId;
 	}
@@ -215,7 +215,7 @@ public class EntornController extends BaseController {
 		public EntornValidator(EntornService entornService) {
 			this.entornService = entornService;
 		}
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(Entorn.class);
 		}

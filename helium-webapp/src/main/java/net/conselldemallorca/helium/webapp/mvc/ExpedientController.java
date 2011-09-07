@@ -3,14 +3,11 @@
  */
 package net.conselldemallorca.helium.webapp.mvc;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
@@ -20,7 +17,6 @@ import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.TerminiService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
@@ -85,7 +81,7 @@ public class ExpedientController extends BaseController {
 			model.addAttribute("llistat", expedients);
 			return "expedient/llistat";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -100,18 +96,44 @@ public class ExpedientController extends BaseController {
 			if (potEsborrarExpedient(expedient)) {
 				try {
 					expedientService.delete(entorn.getId(), id);
-					missatgeInfo(request, "L'expedient s'ha esborrat correctament");
+					missatgeInfo(request, getMessage("info.expedient.esborrat") );
 				} catch (Exception ex) {
-					missatgeError(request, "No s'ha pogut esborrar l'expedient", ex.getLocalizedMessage());
+					missatgeError(request, getMessage("error.esborrar.expedient"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut esborrar el registre", ex);
 				}
 				return "redirect:/expedient/consulta.html";
 			} else {
-				missatgeError(request, "No té permisos per esborrar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.esborrar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+
+	@RequestMapping(value = "anular")
+	public String anular(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) Long id) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			ExpedientDto expedient = expedientService.getById(id);
+			if (potModificarExpedient(expedient)) {
+				try {
+					expedientService.anular(entorn.getId(), id);
+					missatgeInfo(request, getMessage("info.expedient.anulat") );
+				} catch (Exception ex) {
+					missatgeError(request, getMessage("error.anular.expedient"), ex.getLocalizedMessage());
+		        	logger.error("No s'ha pogut esborrar el registre", ex);
+				}
+				return "redirect:/expedient/consulta.html";
+			} else {
+				missatgeError(request, getMessage("error.permisos.anular.expedient"));
+				return "redirect:/expedient/consulta.html";
+			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -142,11 +164,11 @@ public class ExpedientController extends BaseController {
 				}
 				return "expedient/info";
 			} else {
-				missatgeError(request, "No té permisos per consultar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -174,11 +196,11 @@ public class ExpedientController extends BaseController {
 						expedientService.findTasquesPerInstanciaProces(id));
 				return "expedient/dades";
 			} else {
-				missatgeError(request, "No té permisos per consultar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -206,15 +228,15 @@ public class ExpedientController extends BaseController {
 						expedientService.findTasquesPerInstanciaProces(id));
 				return "expedient/documents";
 			} else {
-				missatgeError(request, "No té permisos per consultar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
-	@RequestMapping(value = "documentDescarregar")
+	/*@RequestMapping(value = "documentDescarregar")
 	public String documentDescarregar(
 			HttpServletRequest request,
 			@RequestParam(value = "processInstanceId", required = false) String processInstanceId,
@@ -229,7 +251,7 @@ public class ExpedientController extends BaseController {
 			}
 			return "arxiuView";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -364,10 +386,10 @@ public class ExpedientController extends BaseController {
 			}
 			return "arxiuView";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
-	}
+	}*/
 
 	@RequestMapping(value = "timeline")
 	public String timeline(
@@ -389,11 +411,11 @@ public class ExpedientController extends BaseController {
 						expedientService.getInstanciaProcesById(id, true));
 				return "expedient/timeline";
 			} else {
-				missatgeError(request, "No té permisos per consultar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -415,11 +437,11 @@ public class ExpedientController extends BaseController {
 						terminiService.findIniciatsAmbProcessInstanceId(id));
 				return "expedient/timelineXml";
 			} else {
-				missatgeError(request, "No té permisos per consultar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -447,11 +469,11 @@ public class ExpedientController extends BaseController {
 						expedientService.findTasquesPerInstanciaProces(id));
 				return "expedient/tasques";
 			} else {
-				missatgeError(request, "No té permisos per consultar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -476,11 +498,11 @@ public class ExpedientController extends BaseController {
 								instanciaProces.getDefinicioProces().getId()));
 				return "arxiuView";
 			} else {
-				missatgeError(request, "No té permisos per consultar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -499,11 +521,11 @@ public class ExpedientController extends BaseController {
 						expedientService.getRegistrePerExpedient(expedient.getId()));
 				return "expedient/registre";
 			} else {
-				missatgeError(request, "No té permisos per consultar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -519,14 +541,14 @@ public class ExpedientController extends BaseController {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (potModificarExpedient(expedient)) {
 				expedientService.executarAccio(id, jbpmAction);
-				missatgeInfo(request, "L'acció s'ha executat correctament");
+				missatgeInfo(request, getMessage("info.accio.executat") );
 				return "redirect:/expedient/info.html?id=" + id;
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -556,9 +578,9 @@ public class ExpedientController extends BaseController {
 					ExtendedPermission.DELETE}) != null;
 	}
 
-	private boolean isSignaturaFileAttached() {
+	/*private boolean isSignaturaFileAttached() {
 		return "true".equalsIgnoreCase((String)GlobalProperties.getInstance().get("app.signatura.plugin.file.attached"));
-	}
+	}*/
 
 	private static final Log logger = LogFactory.getLog(ExpedientController.class);
 

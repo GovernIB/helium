@@ -76,7 +76,7 @@ public class DefinicioProcesValidacioTascaController extends BaseController {
 			model.addAttribute("tasca", tasca);
 			return "definicioProces/tascaValidacions";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -92,11 +92,11 @@ public class DefinicioProcesValidacioTascaController extends BaseController {
 		if (entorn != null) {
 			if ("submit".equals(submit) || submit.length() == 0) {
 				if (command.getExpressio() == null || command.getExpressio().length() == 0) {
-					missatgeError(request, "S'ha d'especificar una expressió de validació");
+					missatgeError(request, getMessage("error.especificar.expressio.validacio") );
 					return "redirect:/definicioProces/tascaValidacions.html?tascaId=" + command.getTascaId() + "&definicioProcesId=" + definicioProcesId;
 				}
 				if (command.getMissatge() == null || command.getMissatge().length() == 0) {
-					missatgeError(request, "S'ha d'especificar un missatge de validació");
+					missatgeError(request, getMessage("error.especificar.missatge.validacio") );
 					return "redirect:/definicioProces/tascaValidacions.html?tascaId=" + command.getTascaId() + "&definicioProcesId=" + definicioProcesId;
 				}
 				DefinicioProcesDto definicioProces = dissenyService.getByIdAmbComprovacio(entorn.getId(), definicioProcesId);
@@ -106,10 +106,10 @@ public class DefinicioProcesValidacioTascaController extends BaseController {
 		        			command.getTascaId(),
 		        			command.getExpressio(),
 		        			command.getMissatge());
-		        	missatgeInfo(request, "S'ha afegit la validació a la tasca");
+		        	missatgeInfo(request, getMessage("info.validacio.tasca.afegit") );
 		        	status.setComplete();
 		        } catch (Exception ex) {
-		        	missatgeError(request, "No s'ha pogut afegir la validació a la tasca", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.afegir.validacio.tasca"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut guardar el registre", ex);
 		        	return "definicioProces/tascaValidacions";
 		        }
@@ -119,7 +119,7 @@ public class DefinicioProcesValidacioTascaController extends BaseController {
 			}
 			
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -133,14 +133,14 @@ public class DefinicioProcesValidacioTascaController extends BaseController {
 			Validacio validacio = dissenyService.getValidacioById(id);
 			try {
 				dissenyService.deleteValidacio(id);
-				missatgeInfo(request, "S'ha esborrat la validació de la tasca");
+				missatgeInfo(request, getMessage("info.validacio.tasca.esborrat") );
 			} catch (Exception ex) {
-	        	missatgeError(request, "No s'ha pogut esborrar la validació de la tasca", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.esborrar.validacio.tasca"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut esborrar la validació de la tasca", ex);
 	        }
 			return "redirect:/definicioProces/tascaValidacions.html?tascaId=" + validacio.getTasca().getId() + "&definicioProcesId=" + definicioProcesId;
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -155,12 +155,12 @@ public class DefinicioProcesValidacioTascaController extends BaseController {
 			try {
 				dissenyService.goUpValidacio(id);
 			} catch (Exception ex) {
-	        	missatgeError(request, "No s'ha pogut canviar l'ordre de la validació", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.ordre.validacio"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut canviar l'ordre de la validació", ex);
 	        }
 			return "redirect:/definicioProces/tascaValidacions.html?tascaId=" + validacio.getTasca().getId() + "&definicioProcesId=" + definicioProcesId;
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -175,12 +175,12 @@ public class DefinicioProcesValidacioTascaController extends BaseController {
 			try {
 				dissenyService.goDownValidacio(id);
 			} catch (Exception ex) {
-	        	missatgeError(request, "No s'ha pogut canviar l'ordre de la validació", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.ordre.validacio"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut canviar l'ordre de la validació", ex);
 	        }
 			return "redirect:/definicioProces/tascaValidacions.html?tascaId=" + validacio.getTasca().getId() + "&definicioProcesId=" + definicioProcesId;
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

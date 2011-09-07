@@ -79,7 +79,7 @@ public class ConsultaController extends BaseController {
 			model.addAttribute("tipusInforme", ConsultaCamp.TipusConsultaCamp.INFORME);
 			return "consulta/llistat";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -92,7 +92,7 @@ public class ConsultaController extends BaseController {
 		if (entorn != null) {
 			return "consulta/form";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -117,17 +117,17 @@ public class ConsultaController extends BaseController {
 		        		dissenyService.createConsulta(command);
 		        	else
 		        		dissenyService.updateConsulta(command);
-		        	missatgeInfo(request, "La consulta s'ha guardat correctament");
+		        	missatgeInfo(request, getMessage("info.consulta.guardat") );
 		        	status.setComplete();
 		        } catch (Exception ex) {
-		        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut guardar la consulta", ex);
 		        	return "consulta/form";
 		        }
 			}
 			return "redirect:/consulta/llistat.html";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -140,14 +140,14 @@ public class ConsultaController extends BaseController {
 		if (entorn != null) {
 			try {
 				dissenyService.deleteConsulta(id);
-				missatgeInfo(request, "La consulta s'ha esborrat correctament");
+				missatgeInfo(request, getMessage("info.consulta.guardat") );
 			} catch (Exception ex) {
-	        	missatgeError(request, "No s'ha pogut esborrar la consulta", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.esborrar.consulta"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut esborrar el registre", ex);
 	        }
 			return "redirect:/consulta/llistat.html";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

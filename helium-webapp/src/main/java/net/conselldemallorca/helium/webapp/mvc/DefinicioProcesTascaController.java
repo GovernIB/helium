@@ -91,11 +91,11 @@ public class DefinicioProcesTascaController extends BaseController {
 				model.addAttribute("tasques", dissenyService.findTasquesAmbDefinicioProces(definicioProces.getId()));
 				return "definicioProces/tascaLlistat";
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -111,11 +111,11 @@ public class DefinicioProcesTascaController extends BaseController {
 			if (potDissenyarDefinicioProces(entorn, definicioProces)) {
 				model.addAttribute("definicioProces", definicioProces);
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 		return "definicioProces/tascaForm";
@@ -141,10 +141,10 @@ public class DefinicioProcesTascaController extends BaseController {
 			        }
 			        try {
 		        		dissenyService.updateTasca(command);
-			        	missatgeInfo(request, "El camp s'ha guardat correctament");
+			        	missatgeInfo(request, getMessage("info.camp.guardat") );
 			        	status.setComplete();
 			        } catch (Exception ex) {
-			        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+			        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut guardar el registre", ex);
 			        	return "definicioProces/tascaForm";
 			        }
@@ -152,11 +152,11 @@ public class DefinicioProcesTascaController extends BaseController {
 				}
 				return "redirect:/definicioProces/tascaLlistat.html?definicioProcesId=" + definicioProcesId;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

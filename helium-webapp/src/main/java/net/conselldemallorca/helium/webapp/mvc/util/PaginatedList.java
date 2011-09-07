@@ -12,7 +12,7 @@ import org.displaytag.properties.SortOrderEnum;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings("rawtypes")
 public class PaginatedList implements org.displaytag.pagination.PaginatedList {
 
 	private List list;

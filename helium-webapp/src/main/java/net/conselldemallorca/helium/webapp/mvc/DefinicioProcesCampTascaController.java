@@ -95,11 +95,11 @@ public class DefinicioProcesCampTascaController extends BaseController {
 				model.addAttribute("tasca", tasca);
 				return "definicioProces/tascaCamps";
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -125,10 +125,10 @@ public class DefinicioProcesCampTascaController extends BaseController {
 			        			command.isWriteTo(),
 			        			command.isRequired(),
 			        			command.isReadOnly());
-			        	missatgeInfo(request, "S'ha afegit el camp a la tasca");
+			        	missatgeInfo(request, getMessage("info.camp.tasca.afegit") );
 			        	status.setComplete();
 			        } catch (Exception ex) {
-			        	missatgeError(request, "No s'ha pogut afegir el camp a la tasca", ex.getLocalizedMessage());
+			        	missatgeError(request, getMessage("error.afegir.camp.tasca"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut guardar el registre", ex);
 			        	return "definicioProces/tascaCamps";
 			        }
@@ -137,11 +137,11 @@ public class DefinicioProcesCampTascaController extends BaseController {
 					return "redirect:/definicioProces/tascaLlistat.html?definicioProcesId=" + definicioProcesId;
 				}
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -157,18 +157,18 @@ public class DefinicioProcesCampTascaController extends BaseController {
 				CampTasca campTasca = dissenyService.getCampTascaById(id);
 				try {
 					dissenyService.deleteCampTasca(id);
-					missatgeInfo(request, "S'ha esborrat el camp de la tasca");
+					missatgeInfo(request, getMessage("info.camp.tasca.esborrat") );
 				} catch (Exception ex) {
-		        	missatgeError(request, "No s'ha pogut esborrar el camp", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.esborrar.camp.tasca"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut esborrar el camp de la tasca", ex);
 		        }
 				return "redirect:/definicioProces/tascaCamps.html?tascaId=" + campTasca.getTasca().getId() + "&definicioProcesId=" + definicioProcesId;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -185,16 +185,16 @@ public class DefinicioProcesCampTascaController extends BaseController {
 				try {
 					dissenyService.goUpCampTasca(id);
 				} catch (Exception ex) {
-		        	missatgeError(request, "No s'ha pogut canviar l'ordre del camp", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.ordre.camp.tasca"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut canviar l'ordre del camp", ex);
 		        }
 				return "redirect:/definicioProces/tascaCamps.html?tascaId=" + campTasca.getTasca().getId() + "&definicioProcesId=" + definicioProcesId;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -211,16 +211,16 @@ public class DefinicioProcesCampTascaController extends BaseController {
 				try {
 					dissenyService.goDownCampTasca(id);
 				} catch (Exception ex) {
-		        	missatgeError(request, "No s'ha pogut canviar l'ordre del camp", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.ordre.camp.tasca"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut canviar l'ordre del camp", ex);
 		        }
 				return "redirect:/definicioProces/tascaCamps.html?tascaId=" + campTasca.getTasca().getId() + "&definicioProcesId=" + definicioProcesId;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

@@ -61,39 +61,39 @@ public class ConsultaCampController extends BaseController {
 		List<Camp> resposta = new ArrayList<Camp>();
 		Camp camp = new Camp();
 		camp.setCodi("expedient.id");
-		camp.setEtiqueta("Id de l'expedient");
+		camp.setEtiqueta( getMessage("etiqueta.exp.id") );
 		resposta.add(camp);
 		camp = new Camp();
 		camp.setCodi("expedient.numero");
-		camp.setEtiqueta("Número d'expedient");
+		camp.setEtiqueta( getMessage("etiqueta.exp.numero") );
 		resposta.add(camp);
 		camp = new Camp();
 		camp.setCodi("expedient.titol");
-		camp.setEtiqueta("Títol de l'expedient");
+		camp.setEtiqueta( getMessage("etiqueta.exp.titol") );
 		resposta.add(camp);
 		camp = new Camp();
 		camp.setCodi("expedient.comentari");
-		camp.setEtiqueta("Comentari de l'expedient");
+		camp.setEtiqueta( getMessage("etiqueta.exp.comentari") );
 		resposta.add(camp);
 		camp = new Camp();
 		camp.setCodi("expedient.iniciador");
-		camp.setEtiqueta("Iniciador de l'expedient");
+		camp.setEtiqueta( getMessage("etiqueta.exp.iniciador") );
 		resposta.add(camp);
 		camp = new Camp();
 		camp.setCodi("expedient.responsable");
-		camp.setEtiqueta("Responsable de l'expedient");
+		camp.setEtiqueta( getMessage("etiqueta.exp.responsable") );
 		resposta.add(camp);
 		camp = new Camp();
 		camp.setCodi("expedient.dataInici");
-		camp.setEtiqueta("Data d'inici de l'expedient");
+		camp.setEtiqueta( getMessage("etiqueta.exp.data_ini") );
 		resposta.add(camp);
 		camp = new Camp();
 		camp.setCodi("expedient.tipus");
-		camp.setEtiqueta("Tipus d'expedient");
+		camp.setEtiqueta( getMessage("etiqueta.exp.tipus") );
 		resposta.add(camp);
 		camp = new Camp();
 		camp.setCodi("expedient.estat");
-		camp.setEtiqueta("Estat de l'expedient");
+		camp.setEtiqueta( getMessage("etiqueta.exp.estat") );
 		resposta.add(camp);
 		return resposta;
 	}
@@ -117,7 +117,7 @@ public class ConsultaCampController extends BaseController {
 							consulta.getExpedientTipus().getId()));
 			return "consulta/camps";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -140,10 +140,10 @@ public class ConsultaCampController extends BaseController {
 				command.setConsulta(dissenyService.getConsultaById(id));
 				try {
 					dissenyService.createConsultaCamp(command);
-					missatgeInfo(request, "S'ha afegit el camp a la consulta");
+					missatgeInfo(request, getMessage("info.camp.consulta.afegit") );
 					status.setComplete();
 				} catch (Exception ex) {
-					missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+					missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 					logger.error("No s'ha pogut afegir el camp a la consulta", ex);
 					return "redirect:/consulta/camps.html?id=" + id + "&tipus=" + tipus;
 				}
@@ -152,7 +152,7 @@ public class ConsultaCampController extends BaseController {
 				return "redirect:/consulta/llistat.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -167,14 +167,14 @@ public class ConsultaCampController extends BaseController {
 		if (entorn != null) {
 			try {
 				dissenyService.deleteConsultaCamp(id);
-				missatgeInfo(request, "El camp de la consulta s'ha esborrat correctament");
+				missatgeInfo(request, getMessage("info.camp.consulta.esborrat") );
 			} catch (Exception ex) {
-				missatgeError(request, "No s'ha pogut esborrar el camp de la consulta", ex.getLocalizedMessage());
+				missatgeError(request, getMessage("error.esborrar.camp.consulta"), ex.getLocalizedMessage());
 				logger.error("No s'ha pogut esborrar el registre", ex);
 			}
 			return "redirect:/consulta/camps.html?id=" + consultaId + "&tipus=" + tipus;
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -190,12 +190,12 @@ public class ConsultaCampController extends BaseController {
 			try {
 				dissenyService.goUpConsultaCamp(id);
 			} catch (Exception ex) {
-				missatgeError(request, "No s'ha pogut canviar l'ordre del camp de la consulta", ex.getLocalizedMessage());
+				missatgeError(request, getMessage("error.canviar.ordre.camp.consulta"), ex.getLocalizedMessage());
 				logger.error("No s'ha pogut canviar l'ordre del camp de la consulta", ex);
 			}
 			return "redirect:/consulta/camps.html?id=" + consultaId + "&tipus=" + tipus;
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -211,12 +211,12 @@ public class ConsultaCampController extends BaseController {
 			try {
 				dissenyService.goDownConsultaCamp(id);
 			} catch (Exception ex) {
-				missatgeError(request, "No s'ha pogut canviar l'ordre del camp de la consulta", ex.getLocalizedMessage());
+				missatgeError(request, getMessage("error.canviar.ordre.camp.consulta"), ex.getLocalizedMessage());
 				logger.error("No s'ha pogut canviar l'ordre del camp de la consulta", ex);
 			}
 			return "redirect:/consulta/camps.html?id=" + consultaId + "&tipus=" + tipus;
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

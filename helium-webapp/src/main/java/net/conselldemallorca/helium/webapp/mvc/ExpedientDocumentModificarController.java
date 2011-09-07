@@ -18,7 +18,6 @@ import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
@@ -76,7 +75,11 @@ public class ExpedientDocumentModificarController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			DocumentExpedientCommand command = new DocumentExpedientCommand();
-			DocumentDto dto = expedientService.getDocument(docId, false, false);
+			DocumentDto dto = expedientService.getDocument(
+					docId,
+					false,
+					false,
+					false);
 			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, false);
 			Document document = dissenyService.findDocumentAmbDefinicioProcesICodi(
 					instanciaProces.getDefinicioProces().getId(),
@@ -102,7 +105,11 @@ public class ExpedientDocumentModificarController extends BaseController {
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (potModificarExpedient(expedient)) {
-				DocumentDto doc = expedientService.getDocument(docId, false, false);
+				DocumentDto doc = expedientService.getDocument(
+						docId,
+						false,
+						false,
+						false);
 				if (!doc.isSignat()) {
 					model.addAttribute("expedient", expedient);
 					model.addAttribute("document", doc);
@@ -111,15 +118,15 @@ public class ExpedientDocumentModificarController extends BaseController {
 							dissenyService.getDocumentById(docId));
 					return "expedient/documentForm";
 				} else {
-					missatgeError(request, "No es pot modificar un document signat");
+					missatgeError(request, getMessage("error.modificar.doc.signat") );
 					return "redirect:/expedient/documents.html?id=" + id;
 				}
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 			}
 			return "redirect:/expedient/consulta.html";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -141,11 +148,21 @@ public class ExpedientDocumentModificarController extends BaseController {
 					new DocumentModificarValidator().validate(command, result);
 			        if (result.hasErrors()) {
 			        	model.addAttribute("expedient", expedient);
-						model.addAttribute("document", expedientService.getDocument(command.getDocId(), false, false));
+						model.addAttribute(
+								"document",
+								expedientService.getDocument(
+										command.getDocId(),
+										false,
+										false,
+										false));
 			        	return "expedient/documentForm";
 			        }
 					try {
-						DocumentDto doc = expedientService.getDocument(command.getDocId(), false, false);
+						DocumentDto doc = expedientService.getDocument(
+								command.getDocId(),
+								false,
+								false,
+								false);
 						if (!doc.isAdjunt()) {
 							expedientService.guardarDocument(
 									id,
@@ -162,19 +179,19 @@ public class ExpedientDocumentModificarController extends BaseController {
 									(multipartFile.getSize() > 0) ? multipartFile.getOriginalFilename() : null,
 									(multipartFile.getSize() > 0) ? command.getContingut() : null);
 						}
-						missatgeInfo(request, "El document s'ha guardat correctament");
+						missatgeInfo(request, getMessage("info.document.guardat") );
 			        } catch (Exception ex) {
-			        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+			        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut guardar el document", ex);
 			        }
 				}
 				return "redirect:/expedient/documents.html?id=" + id;
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -189,38 +206,33 @@ public class ExpedientDocumentModificarController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			try {
-				DocumentDto document = expedientService.generarDocumentPlantilla(
+				DocumentDto doc = expedientService.getDocument(
 						docId,
+						false,
+						false,
+						false);
+				DocumentDto generat = expedientService.generarDocumentPlantilla(
+						doc.getDocumentId(),
 						id,
 						(data != null) ? data : new Date());
-				if (document != null) {
-					model.addAttribute(
-							ArxiuConvertirView.MODEL_ATTRIBUTE_FILENAME,
-							document.getArxiuNom());
-					model.addAttribute(
-							ArxiuConvertirView.MODEL_ATTRIBUTE_DATA,
-							document.getArxiuContingut());
-					model.addAttribute(
-							ArxiuConvertirView.MODEL_ATTRIBUTE_CONVERSIONENABLED,
-							"true".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.conversio.gentasca.actiu")));
-					model.addAttribute(
-							ArxiuConvertirView.MODEL_ATTRIBUTE_OUTEXTENSION,
-							GlobalProperties.getInstance().getProperty("app.conversio.gentasca.extension"));
+				if (generat != null) {
+					model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, generat.getArxiuNom());
+					model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, generat.getArxiuContingut());
 				}
-				return "arxiuConvertirView";				
+				return "arxiuView";
 			} catch (Exception ex) {
-				missatgeError(request, "No s'ha pogut generar el document", ex.getLocalizedMessage());
+				missatgeError(request, getMessage("error.generar.document"), ex.getLocalizedMessage());
 	        	logger.error("Error generant el document " + docId + " per la instància de procés " + id, ex);
 	        	return "redirect:/expedient/documentModificar.html?id=" + id + "&docId=" + docId;
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
 
 	public class DocumentModificarValidator implements Validator {
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(Object.class);
 		}

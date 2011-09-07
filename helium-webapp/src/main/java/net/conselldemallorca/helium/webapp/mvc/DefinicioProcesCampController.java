@@ -15,6 +15,7 @@ import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
+import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
@@ -71,19 +72,34 @@ public class DefinicioProcesCampController extends BaseController {
 		return Camp.TipusCamp.values();
 	}
 	@ModelAttribute("dominis")
-	public List<Domini> populateDominis(HttpServletRequest request) {
+	public List<Domini> populateDominis(HttpServletRequest request,
+			@RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			return dissenyService.findDominiAmbEntorn(entorn.getId());
+			if (definicioProcesId != null){
+				DefinicioProcesDto definicioProces = dissenyService.getByIdAmbComprovacio(entorn.getId(), definicioProcesId);
+				if (definicioProces != null && definicioProces.getExpedientTipus() != null){
+					return dissenyService.findDominiAmbEntornITipusExpONull(entorn.getId(), definicioProces.getExpedientTipus().getId());
+				}
+			}
+			return dissenyService.findDominiAmbEntornITipusExpONull(entorn.getId(), null);
 		}
 		return null;
 
 	}
 	@ModelAttribute("enumeracions")
-	public List<Enumeracio> populateEnumeracions(HttpServletRequest request) {
+	public List<Enumeracio> populateEnumeracions(HttpServletRequest request,
+			@RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId) {
 		Entorn entorn = getEntornActiu(request);
-		if (entorn != null)
-			return dissenyService.findEnumeracionsAmbEntorn(entorn.getId());
+		if (entorn != null) {
+			if (definicioProcesId != null){
+				DefinicioProcesDto definicioProces = dissenyService.getByIdAmbComprovacio(entorn.getId(), definicioProcesId);
+				if (definicioProces != null && definicioProces.getExpedientTipus() != null){
+					return dissenyService.findEnumeracionsAmbEntornITipusExpONull(entorn.getId(), definicioProces.getExpedientTipus().getId());
+				}
+			}
+			return dissenyService.findEnumeracionsAmbEntornITipusExpONull(entorn.getId(), null);
+		}
 		return null;
 	}
 	@ModelAttribute("agrupacions")
@@ -119,9 +135,9 @@ public class DefinicioProcesCampController extends BaseController {
 		}
 		Camp nou = new Camp();
 		if (definicioProcesId != null)
-			nou.setDefinicioProces(dissenyService.getById(definicioProcesId));
+			nou.setDefinicioProces(dissenyService.getById(definicioProcesId, false));
 		if (definicioProces != null)
-			nou.setDefinicioProces(dissenyService.getById(definicioProces));
+			nou.setDefinicioProces(dissenyService.getById(definicioProces, false));
 		return nou;
 	}
 
@@ -137,11 +153,11 @@ public class DefinicioProcesCampController extends BaseController {
 				model.addAttribute("definicioProces", definicioProces);
 				model.addAttribute("camps", dissenyService.findCampsAmbDefinicioProces(definicioProces.getId()));
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 		return "definicioProces/campLlistat";
@@ -158,11 +174,11 @@ public class DefinicioProcesCampController extends BaseController {
 			if (potDissenyarDefinicioProces(entorn, definicioProces)) {
 				model.addAttribute("definicioProces", definicioProces);
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 		return "definicioProces/campForm";
@@ -192,10 +208,10 @@ public class DefinicioProcesCampController extends BaseController {
 			        		dissenyService.createCamp(command);
 			        	else
 			        		dissenyService.updateCamp(command);
-			        	missatgeInfo(request, "El camp s'ha guardat correctament");
+			        	missatgeInfo(request, getMessage("info.camp.guardat") );
 			        	status.setComplete();
 			        } catch (Exception ex) {
-			        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+			        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut guardar el registre", ex);
 			        	return "definicioProces/campForm";
 			        }
@@ -203,11 +219,11 @@ public class DefinicioProcesCampController extends BaseController {
 				}
 				return "redirect:/definicioProces/campLlistat.html?definicioProcesId=" + definicioProcesId;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -223,18 +239,18 @@ public class DefinicioProcesCampController extends BaseController {
 			if (potDissenyarDefinicioProces(entorn, definicioProces)) {
 				try {
 					dissenyService.deleteCamp(id);
-					missatgeInfo(request, "El camp s'ha esborrat correctament");
+					missatgeInfo(request, getMessage("info.camp.esborrat") );
 				} catch (Exception ex) {
-		        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut esborrar el registre", ex);
 		        }
 				return "redirect:/definicioProces/campLlistat.html?definicioProcesId=" + definicioProcesId;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -269,11 +285,11 @@ public class DefinicioProcesCampController extends BaseController {
 				else
 					return "definicioProces/consultaCampSuggest";
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}*/
@@ -290,6 +306,9 @@ public class DefinicioProcesCampController extends BaseController {
 				Enumeracio.class,
 				new EnumeracioTypeEditor(dissenyService));
 		binder.registerCustomEditor(
+				EnumeracioValors.class,
+				new EnumeracioValorsTypeEditor(dissenyService));
+		binder.registerCustomEditor(
 				CampAgrupacio.class,
 				new CampAgrupacioTypeEditor(dissenyService));
 	}
@@ -304,7 +323,7 @@ public class DefinicioProcesCampController extends BaseController {
 
 
 	private class CampValidator implements Validator {
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(Camp.class);
 		}

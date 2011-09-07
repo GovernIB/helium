@@ -65,7 +65,7 @@ public class EnumeracioController extends BaseController {
 			model.addAttribute("llistat", dissenyService.findEnumeracionsAmbEntorn(entorn.getId()));
 			return "enumeracio/llistat";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -78,7 +78,7 @@ public class EnumeracioController extends BaseController {
 		if (entorn != null) {
 			return "enumeracio/form";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -103,17 +103,17 @@ public class EnumeracioController extends BaseController {
 		        		dissenyService.createEnumeracio(command);
 		        	else
 		        		dissenyService.updateEnumeracio(command);
-		        	missatgeInfo(request, "L'enumeració s'ha guardat correctament");
+		        	missatgeInfo(request, getMessage("info.enum.guardat") );
 		        	status.setComplete();
 		        } catch (Exception ex) {
-		        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut guardar el registre", ex);
 		        	return "enumeracio/form";
 		        }
 			}
 			return "redirect:/enumeracio/llistat.html";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -126,14 +126,14 @@ public class EnumeracioController extends BaseController {
 		if (entorn != null) {
 			try {
 				dissenyService.deleteEnumeracio(id);
-				missatgeInfo(request, "L'enumeració s'ha esborrat correctament");
+				missatgeInfo(request, getMessage("info.enum.esborrat") );
 			} catch (Exception ex) {
-	        	missatgeError(request, "No s'ha pogut esborrar l'enumeració", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.esborrar.enum"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut esborrar l'enumeració", ex);
 	        }
 			return "redirect:/enumeracio/llistat.html";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

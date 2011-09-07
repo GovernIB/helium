@@ -97,11 +97,11 @@ public class ExpedientEinesController extends BaseController {
 						instanciaProces);
 				return "expedient/eines";
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -126,19 +126,19 @@ public class ExpedientEinesController extends BaseController {
 							id,
 							command.getScript(),
 							null);
-					missatgeInfo(request, "L'script s'ha executat correctament");
+					missatgeInfo(request, getMessage("info.script.executat") );
 				} catch (Exception ex) {
-					missatgeError(request, "No s'ha pogut executar l'script", ex.getLocalizedMessage());
+					missatgeError(request, getMessage("error.executar.script"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut executar l'script", ex);
 		        	return "expedient/eines";
 				}
 				return "redirect:/expedient/eines.html?id=" + id;
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -163,22 +163,22 @@ public class ExpedientEinesController extends BaseController {
 						expedientService.aturar(
 								id,
 								command.getMotiu());
-						missatgeInfo(request, "L'expedient s'ha aturat correctament");
+						missatgeInfo(request, getMessage("info.expedient.aturat") );
 					} catch (Exception ex) {
-						missatgeError(request, "No s'ha pogut aturar l'expedient", ex.getLocalizedMessage());
+						missatgeError(request, getMessage("error.aturar.expedient"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut aturar l'expedient", ex);
 			        	return "expedient/eines";
 					}
 				} else {
-					missatgeError(request, "Aquest expedient ja està aturat");
+					missatgeError(request, getMessage("error.expedient.ja.aturat") );
 				}
 				return "redirect:/expedient/eines.html?id=" + id;
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -194,22 +194,22 @@ public class ExpedientEinesController extends BaseController {
 				if (expedient.isAturat()) {
 					try {
 						expedientService.reprendre(id);
-						missatgeInfo(request, "L'expedient s'ha représ correctament");
+						missatgeInfo(request, getMessage("info.expedient.repres") );
 					} catch (Exception ex) {
-						missatgeError(request, "No s'ha pogut reprendre l'expedient", ex.getLocalizedMessage());
+						missatgeError(request, getMessage("error.reprendre.expedient"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut reprendre l'expedient", ex);
 			        	return "expedient/eines";
 					}
 				} else {
-					missatgeError(request, "Aquest expedient no està aturat");
+					missatgeError(request, getMessage("error.expedient.no.aturat") );
 				}
 				return "redirect:/expedient/eines.html?id=" + id;
 			} else {
-				missatgeError(request, "No té permisos per consultar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -226,25 +226,25 @@ public class ExpedientEinesController extends BaseController {
 			if (potModificarExpedient(expedient)) {
 				try {
 					if (command.getDefinicioProcesId() != null) {
-						DefinicioProcesDto definicioProces = dissenyService.getById(command.getDefinicioProcesId());
+						DefinicioProcesDto definicioProces = dissenyService.getById(command.getDefinicioProcesId(), false);
 						expedientService.changeProcessInstanceVersion(instanciaProcesId, definicioProces.getVersio());
-						missatgeInfo(request, "El canvi de versió s'ha realitzat correctament");
+						missatgeInfo(request, getMessage("info.canvi.versio.realitzat") );
 					} else {
 						expedientService.changeProcessInstanceVersion(instanciaProcesId);
-						missatgeError(request, "No s'ha especificat cap versió de procés");
+						missatgeError(request, getMessage("error.especificar.versio.proces") );
 					}
 				} catch (Exception ex) {
-					missatgeError(request, "No s'ha pogut canviar la versió de procés", ex.getLocalizedMessage());
+					missatgeError(request, getMessage("error.canviar.versio.proces"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut canviar la versió de procés", ex);
 		        	return "expedient/eines";
 				}
 				return "redirect:/expedient/eines.html?id=" + instanciaProcesId;
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -252,7 +252,7 @@ public class ExpedientEinesController extends BaseController {
 
 
 	private class ExpedientScriptValidator implements Validator {
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(ExpedientEinesScriptCommand.class);
 		}
@@ -261,7 +261,7 @@ public class ExpedientEinesController extends BaseController {
 		}
 	}
 	private class ExpedientAturarValidator implements Validator {
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(ExpedientEinesAturarCommand.class);
 		}

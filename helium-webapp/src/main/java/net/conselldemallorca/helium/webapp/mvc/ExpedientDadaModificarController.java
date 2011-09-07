@@ -83,7 +83,7 @@ public class ExpedientDadaModificarController extends BaseController {
 		this.validator = new TascaFormValidator(expedientService);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	@ModelAttribute("command")
 	public Object populateCommand(
 			HttpServletRequest request,
@@ -131,11 +131,11 @@ public class ExpedientDadaModificarController extends BaseController {
 				model.addAttribute("valorsPerSuggest", TascaFormUtil.getValorsPerSuggest(tasca, command));
 				return "expedient/dadaForm";
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 			}
 			return "redirect:/expedient/consulta.html";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -182,9 +182,9 @@ public class ExpedientDadaModificarController extends BaseController {
 									var,
 									PropertyUtils.getSimpleProperty(command, var));
 						}
-				        missatgeInfo(request, "La dada s'ha modificat correctament");
+				        missatgeInfo(request, getMessage("info.dada.modificat") );
 			        } catch (Exception ex) {
-						missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+						missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut modificat la dada", ex);
 			        	return "expedient/dadaForm";
 					}
@@ -196,7 +196,7 @@ public class ExpedientDadaModificarController extends BaseController {
 									field,
 									TascaFormUtil.addMultiple(field, command, camps));
 					} catch (Exception ex) {
-						missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+						missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 						logger.error("No s'ha pogut afegir el camp múltiple", ex);
 					}
 					model.addAttribute("tasca", tasca);
@@ -210,7 +210,7 @@ public class ExpedientDadaModificarController extends BaseController {
 									field,
 									TascaFormUtil.deleteMultiple(field, command, camps, index));
 					} catch (Exception ex) {
-						missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+						missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 						logger.error("No s'ha pogut afegir el camp múltiple", ex);
 					}
 					model.addAttribute("tasca", tasca);
@@ -219,11 +219,11 @@ public class ExpedientDadaModificarController extends BaseController {
 				}
 				return "redirect:/expedient/dades.html?id=" + getUrlParamId(entorn.getId(), id, taskId);
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

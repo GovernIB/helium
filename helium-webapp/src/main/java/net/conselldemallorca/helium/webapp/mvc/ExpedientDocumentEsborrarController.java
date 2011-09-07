@@ -57,26 +57,30 @@ public class ExpedientDocumentEsborrarController extends BaseController {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (potModificarExpedient(expedient)) {
 				try {
-					DocumentDto doc = expedientService.getDocument(docId, false, false);
+					DocumentDto doc = expedientService.getDocument(
+							docId,
+							false,
+							false,
+							false);
 					if (!doc.isSignat() && !doc.isRegistrat()) {
 						expedientService.deleteDocument(id, docId);
-						missatgeInfo(request, "El document ha estat esborrat del procés");
+						missatgeInfo(request, getMessage("info.doc.proces.esborrat") );
 					} else if (doc.isSignat()) {
-						missatgeError(request, "No es pot esborrar un document signat");
+						missatgeError(request, getMessage("error.esborrar.doc.signat") );
 					} else if (doc.isRegistrat()) {
-						missatgeError(request, "No es pot esborrar un document registrat");
+						missatgeError(request, getMessage("error.esborrar.doc.registrat") );
 					}
 				} catch (Exception ex) {
-					missatgeError(request, "No s'ha pogut esborrar el document del procés", ex.getLocalizedMessage());
+					missatgeError(request, getMessage("error.esborrar.doc.proces"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut esborrar el document del procés", ex);
 				}
 				return "redirect:/expedient/documents.html?id=" + id;
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 			}
 			return "redirect:/expedient/consulta.html";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -91,14 +95,18 @@ public class ExpedientDocumentEsborrarController extends BaseController {
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
 			if (potModificarExpedient(expedient)) {
-				DocumentDto document = expedientService.getDocument(docId, false, false);
+				DocumentDto document = expedientService.getDocument(
+						docId,
+						false,
+						false, 
+						false);
 				if (document != null) {
 					if (document.isSignat()) {
 						try {
 							expedientService.deleteSignatura(processInstanceId, docId);
-							missatgeInfo(request, "La signatura s'ha esborrat correctament");
+							missatgeInfo(request, getMessage("info.signatura.esborrat") );
 						} catch (Exception ex) {
-							missatgeError(request, "No s'ha pogut esborrar la signatura", ex.getLocalizedMessage());
+							missatgeError(request, getMessage("error.esborrar.signatura"), ex.getLocalizedMessage());
 				        	logger.error("No s'ha pogut esborrar la signatura", ex);
 						}
 					} else {
@@ -106,11 +114,11 @@ public class ExpedientDocumentEsborrarController extends BaseController {
 					}
 				}
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 			}
 			return "redirect:/expedient/documents.html?id=" + processInstanceId;
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

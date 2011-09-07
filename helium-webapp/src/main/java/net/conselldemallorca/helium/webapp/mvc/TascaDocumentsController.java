@@ -16,7 +16,6 @@ import net.conselldemallorca.helium.core.model.exception.NotFoundException;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.service.TascaService;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
 
@@ -54,7 +53,7 @@ public class TascaDocumentsController extends BaseController {
 		this.tascaService = tascaService;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	@ModelAttribute("commandReadOnly")
 	public Object populateCommand(
 			HttpServletRequest request,
@@ -89,7 +88,7 @@ public class TascaDocumentsController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			if (model.get("commandReadOnly") == null) {
-				missatgeError(request, "Aquesta tasca ja no està disponible");
+				missatgeError(request, getMessage("error.tasca.no.disponible") );
 				return "redirect:/tasca/personaLlistat.html";
 			}
 			TascaDto tasca = tascaService.getById(entorn.getId(), id);
@@ -103,7 +102,7 @@ public class TascaDocumentsController extends BaseController {
 			}
 			return "tasca/documents";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -120,7 +119,7 @@ public class TascaDocumentsController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			if (model.get("commandReadOnly") == null) {
-				missatgeError(request, "Aquesta tasca ja no està disponible");
+				missatgeError(request, getMessage("error.tasca.no.disponible") );
 				return "redirect:/tasca/personaLlistat.html";
 			}
 			if ("submit".equals(submit) || submit.length() == 0) {
@@ -135,21 +134,21 @@ public class TascaDocumentsController extends BaseController {
 									nomArxiu,
 									command.getData(),
 									command.getContingut());
-							missatgeInfo(request, "El document s'ha guardat correctament");
+							missatgeInfo(request, getMessage("info.document.guardat") );
 				        } catch (Exception ex) {
-				        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+				        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 				        	logger.error("No s'ha pogut guardar el document", ex);
 				        }
 					} else {
-						missatgeError(request, "S'ha d'especificar un document");
+						missatgeError(request, getMessage("error.especificar.document") );
 					}
 				} else {
-					missatgeError(request, "Ha d'especificar la data");
+					missatgeError(request, getMessage("error.especificar.data") );
 				}
 			}
 			return "redirect:/tasca/documents.html?id=" + id;
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -163,7 +162,7 @@ public class TascaDocumentsController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			if (model.get("commandReadOnly") == null) {
-				missatgeError(request, "Aquesta tasca ja no està disponible");
+				missatgeError(request, getMessage("error.tasca.no.disponible") );
 				return "redirect:/tasca/personaLlistat.html";
 			}
 			try {
@@ -171,14 +170,14 @@ public class TascaDocumentsController extends BaseController {
 						entorn.getId(),
 						id,
 						codi);
-				missatgeInfo(request, "El document s'ha esborrat correctament");
+				missatgeInfo(request, getMessage("info.document.esborrat") );
 	        } catch (Exception ex) {
-	        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut esborrar el document", ex);
 	        }
 			return "redirect:/tasca/documents.html?id=" + id;
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -201,7 +200,7 @@ public class TascaDocumentsController extends BaseController {
 			}
 			return "arxiuView";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -222,27 +221,23 @@ public class TascaDocumentsController extends BaseController {
 						id,
 						(data != null) ? data : new Date());
 				if (document != null) {
-					model.addAttribute(
-							ArxiuConvertirView.MODEL_ATTRIBUTE_FILENAME,
-							document.getArxiuNom());
-					model.addAttribute(
-							ArxiuConvertirView.MODEL_ATTRIBUTE_DATA,
-							document.getArxiuContingut());
-					model.addAttribute(
-							ArxiuConvertirView.MODEL_ATTRIBUTE_CONVERSIONENABLED,
-							"true".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.conversio.gentasca.actiu")));
-					model.addAttribute(
-							ArxiuConvertirView.MODEL_ATTRIBUTE_OUTEXTENSION,
-							GlobalProperties.getInstance().getProperty("app.conversio.gentasca.extension"));
+					if (document.isAdjuntarAuto()) {
+						missatgeInfo(request, getMessage("info.document.adjuntat") );
+					} else {
+						model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, document.getArxiuNom());
+						model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, document.getArxiuContingut());
+						return "arxiuView";
+					}
+				} else {
+					missatgeError(request, getMessage("error.generar.document.buit"));
 				}
-				return "arxiuConvertirView";				
 			} catch (Exception ex) {
-				missatgeError(request, "No s'ha pogut generar el document", ex.getLocalizedMessage());
+				missatgeError(request, getMessage("error.generar.document"), ex.getLocalizedMessage());
 	        	logger.error("Error generant el document " + documentId + " per la tasca " + id, ex);
-	        	return "redirect:/tasca/documents.html?id=" + id;
 			}
+			return "redirect:/tasca/documents.html?id=" + id;
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -256,6 +251,7 @@ public class TascaDocumentsController extends BaseController {
 				Date.class,
 				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
 	}
+
 
 
 	private static final Log logger = LogFactory.getLog(TascaDocumentsController.class);

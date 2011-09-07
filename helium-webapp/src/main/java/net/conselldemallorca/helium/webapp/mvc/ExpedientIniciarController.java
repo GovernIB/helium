@@ -95,7 +95,7 @@ public class ExpedientIniciarController extends BaseController {
 			model.addAttribute("definicionsProces", definicionsProces);
 			return "expedient/iniciar";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -109,9 +109,10 @@ public class ExpedientIniciarController extends BaseController {
 		if (entorn != null) {
 			ExpedientTipus tipus = dissenyService.getExpedientTipusById(expedientTipusId);
 			if (potIniciarExpedientTipus(tipus)) {
-				netejarSessioRegistres(request);
+				netejarSessio(request);
 				// Si l'expedient té titol i/o número redirigeix al pas per demanar aquestes dades
 				if (tipus.getDemanaNumero().booleanValue() || tipus.getDemanaTitol().booleanValue()) {
+					generarTaskIdSessio(request);
 					if (definicioProcesId != null)
 						return "redirect:/expedient/iniciarPasTitol.html?expedientTipusId=" + expedientTipusId + "&definicioProcesId=" + definicioProcesId;
 					else
@@ -121,7 +122,7 @@ public class ExpedientIniciarController extends BaseController {
 				// al pas per demanar aquestes dades
 				DefinicioProcesDto definicioProces = null;
 				if (definicioProcesId != null)
-					definicioProces = dissenyService.getById(definicioProcesId);
+					definicioProces = dissenyService.getById(definicioProcesId, true);
 				else
 					definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId, true);
 				if (definicioProces.isHasStartTask()) {
@@ -132,52 +133,28 @@ public class ExpedientIniciarController extends BaseController {
 				}
 				// Si no requereix cap dada inicia l'expedient directament
 				try {
-					expedientService.iniciar(
+					iniciarExpedient(
 							entorn.getId(),
 							expedientTipusId,
-							definicioProcesId,
-							null,
-							null,
-							null,
-							null,
-							null,
-							null,
-							false,
-							null,
-							null,
-							null,
-							null,
-							null,
-							null,
-							false,
-							null,
-							null,
-							false,
-							null,
-							null,
-							IniciadorTipus.INTERN,
-							null,
-							null,
-							null,
-							null);
-					missatgeInfo(request, "L'expedient s'ha iniciat correctament");
+							definicioProcesId);
+					missatgeInfo(request, getMessage("info.expedient.iniciat") );
 				} catch (ExpedientRepetitException ex) {
 					missatgeError(
 							request,
-							"Ja existeix un expedient amb el mateix número, torni a iniciar l'expedient");
+							getMessage("error.exist.exp.mateix.numero") );
 				}catch (Exception ex) {
 					missatgeError(
 							request,
-							"S'ha produït un error iniciant l'expedient",
+							getMessage("error.iniciar.expedient"),
 							(ex.getCause() != null) ? ex.getCause().getMessage() : ex.getMessage());
 		        	logger.error("No s'ha pogut iniciar l'expedient", ex);
 				}
 			} else {
-				missatgeError(request, "No té permisos per iniciar expedients d'aquest tipus");
+				missatgeError(request, getMessage("error.permisos.iniciar.tipus.exp") );
 			}
 			return "redirect:/expedient/iniciar.html";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -193,14 +170,58 @@ public class ExpedientIniciarController extends BaseController {
 					ExtendedPermission.CREATE}) != null;
 	}
 
+	private void generarTaskIdSessio(HttpServletRequest request) {
+		request.getSession().setAttribute(
+				ExpedientIniciarPasTitolController.CLAU_SESSIO_TASKID,
+				"TIE_" + System.currentTimeMillis());
+	}
+
 	@SuppressWarnings("unchecked")
-	private void netejarSessioRegistres(HttpServletRequest request) {
+	private void netejarSessio(HttpServletRequest request) {
 		Enumeration<String> atributs = request.getSession().getAttributeNames();
 		while (atributs.hasMoreElements()) {
 			String atribut = atributs.nextElement();
 			if (atribut.startsWith(ExpedientIniciarRegistreController.PREFIX_REGISTRE_SESSIO))
 				request.getSession().removeAttribute(atribut);
 		}
+		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_TASKID);
+		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_NUMERO);
+		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_TITOL);
+		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_FORM_VALIDAT);
+	}
+
+	private synchronized void iniciarExpedient(
+			Long entornId,
+			Long expedientTipusId,
+			Long definicioProcesId) {
+		expedientService.iniciar(
+				entornId,
+				expedientTipusId,
+				definicioProcesId,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				false,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				false,
+				null,
+				null,
+				false,
+				null,
+				null,
+				IniciadorTipus.INTERN,
+				null,
+				null,
+				null,
+				null);
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientIniciarController.class);

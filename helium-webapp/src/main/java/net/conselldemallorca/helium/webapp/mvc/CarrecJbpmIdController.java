@@ -106,10 +106,10 @@ public class CarrecJbpmIdController extends BaseController {
 	        		organitzacioService.createCarrecJbpmId(command);
 	        	else
 	        		organitzacioService.updateCarrecJbpmId(command);
-	        	missatgeInfo(request, "La informació del càrrec s'ha guardat correctament");
+	        	missatgeInfo(request, getMessage("info.infocarrec.guardat") );
 	        	status.setComplete();
 	        } catch (Exception ex) {
-	        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+	        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut guardar la informació del càrrec", ex);
 	        	return "/carrec/jbpmForm";
 	        }
@@ -123,9 +123,9 @@ public class CarrecJbpmIdController extends BaseController {
 			@RequestParam(value = "id", required = true) Long id) {
 		try {
 			organitzacioService.deleteCarrecJbpmId(id);
-			missatgeInfo(request, "La informació del càrrec s'ha esborrat correctament");
+			missatgeInfo(request, getMessage("info.infocarrec.esborrat") );
 		} catch (Exception ex) {
-        	missatgeError(request, "No s'ha pogut esborrar la informació del càrrec", ex.getLocalizedMessage());
+        	missatgeError(request, getMessage("error.esborrar.infocarrec"), ex.getLocalizedMessage());
         	logger.error("No s'ha pogut esborrar la informació del càrrec", ex);
         }
 		return "redirect:/carrec/jbpmConfigurats.html";

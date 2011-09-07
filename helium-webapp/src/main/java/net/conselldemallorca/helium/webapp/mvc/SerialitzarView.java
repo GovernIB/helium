@@ -19,7 +19,7 @@ public class SerialitzarView extends AbstractView {
 	private static final String HEADER_EXPIRES = "Expires";
 	private static final String HEADER_CACHE_CONTROL = "Cache-Control";
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public void render(Map model, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		response.setHeader(HEADER_PRAGMA, "");
 		response.setHeader(HEADER_EXPIRES, "");
@@ -29,7 +29,7 @@ public class SerialitzarView extends AbstractView {
 		super.render(model, request, response);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	@Override
 	protected void renderMergedOutputModel(
 			Map model,

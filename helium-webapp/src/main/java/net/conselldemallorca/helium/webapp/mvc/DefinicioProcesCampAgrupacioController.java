@@ -71,9 +71,9 @@ public class DefinicioProcesCampAgrupacioController extends BaseController {
 			return dissenyService.getCampAgrupacioById(id);
 		CampAgrupacio nou = new CampAgrupacio();
 		if (definicioProcesId != null)
-			nou.setDefinicioProces(dissenyService.getById(definicioProcesId));
+			nou.setDefinicioProces(dissenyService.getById(definicioProcesId, false));
 		if (definicioProces != null)
-			nou.setDefinicioProces(dissenyService.getById(definicioProces));
+			nou.setDefinicioProces(dissenyService.getById(definicioProces, false));
 		return nou;
 	}
 
@@ -89,11 +89,11 @@ public class DefinicioProcesCampAgrupacioController extends BaseController {
 				model.addAttribute("definicioProces", definicioProces);
 				model.addAttribute("agrupacions", dissenyService.findCampAgrupacioAmbDefinicioProces(definicioProces.getId()));
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc") );
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 		return "definicioProces/campAgrupacioLlistat";
@@ -110,11 +110,11 @@ public class DefinicioProcesCampAgrupacioController extends BaseController {
 			if (potDissenyarDefinicioProces(entorn, definicioProces)) {
 				model.addAttribute("definicioProces", definicioProces);
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc") );
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 		return "definicioProces/campAgrupacioForm";
@@ -143,22 +143,22 @@ public class DefinicioProcesCampAgrupacioController extends BaseController {
 			        		dissenyService.createCampAgrupacio(command);
 			        	else
 			        		dissenyService.updateCampAgrupacio(command);
-			        	missatgeInfo(request, "L'agrupació s'ha guardat correctament");
+			        	missatgeInfo(request, getMessage("info.agrup.guardat") );
 			        	status.setComplete();
 			        } catch (Exception ex) {
-			        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+			        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut guardar el registre", ex);
-			        	return "definicioProces/campAgrupacioForm";
+			        	return "definicioProces/campAgrupacioLlistat";
 			        }
 			        return "redirect:/definicioProces/campAgrupacioLlistat.html?definicioProcesId=" + definicioProcesId;
 				}
 				return "redirect:/definicioProces/campAgrupacioLlistat.html?definicioProcesId=" + definicioProcesId;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc") );
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -175,18 +175,18 @@ public class DefinicioProcesCampAgrupacioController extends BaseController {
 			if (potDissenyarDefinicioProces(entorn, definicioProces)) {
 				try {
 					dissenyService.deleteCampAgrupacio(id);
-					missatgeInfo(request, "L'agrupació s'ha esborrat correctament");
+					missatgeInfo(request, getMessage("info.agrup.esborrat") );
 				} catch (Exception ex) {
-		        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut esborrar el registre", ex);
 		        }
 				return "redirect:/definicioProces/campAgrupacioLlistat.html?definicioProcesId=" + definicioProcesId;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc") );
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -203,16 +203,16 @@ public class DefinicioProcesCampAgrupacioController extends BaseController {
 				try {
 					dissenyService.goUpCampAgrupacio(id);
 				} catch (Exception ex) {
-		        	missatgeError(request, "No s'ha pogut canviar l'ordre de l'agrupació", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.canviar.ordre.agrup"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut canviar l'ordre de l'agrupació", ex);
 		        }
 				return "redirect:/definicioProces/campAgrupacioLlistat.html?definicioProcesId=" + definicioProcesId;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc") );
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -228,16 +228,16 @@ public class DefinicioProcesCampAgrupacioController extends BaseController {
 				try {
 					dissenyService.goDownCampAgrupacio(id);
 				} catch (Exception ex) {
-		        	missatgeError(request, "No s'ha pogut canviar l'ordre de l'agrupació", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.canviar.ordre.agrup"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut canviar l'ordre de l'agrupació", ex);
 		        }
 				return "redirect:/definicioProces/campAgrupacioLlistat.html?definicioProcesId=" + definicioProcesId;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc") );
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -269,11 +269,11 @@ public class DefinicioProcesCampAgrupacioController extends BaseController {
 				model.addAttribute("camps", camps);
 				model.addAttribute("variables", dissenyService.getVariablesSenseAgruapcio(definicioProcesId));
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc") );
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 		return "definicioProces/campAgrupacioOrdre";
@@ -295,22 +295,22 @@ public class DefinicioProcesCampAgrupacioController extends BaseController {
 				if ("submit".equals(submit) || submit.length() == 0) {
 			        try {
 			        	dissenyService.afegirCampAgrupacio(definicioProcesId, agrupacioCodi, id);
-			        	missatgeInfo(request, "El camp s'ha guardat correctament dins l'agrupació");
+			        	missatgeInfo(request, getMessage("info.camp.agrup.guardat"));
 			        	status.setComplete();
 			        } catch (Exception ex) {
-			        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+			        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut guardar el registre", ex);
-			        	return "definicioProces/assignarVariablesLlistat";
+//			        	return "definicioProces/campAgrupacioLlistat";
 			        }
 			        return "redirect:/definicioProces/campAgrupacioOrdre.html?definicioProcesId=" + definicioProcesId + "&agrupacioCodi=" + agrupacioCodi;
 				}
 				return "redirect:/definicioProces/campAgrupacioLlistat.html?definicioProcesId=" + definicioProcesId;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta agrupació");
+				missatgeError(request, getMessage("error.permisos.disseny.agrup") );
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -328,16 +328,16 @@ public class DefinicioProcesCampAgrupacioController extends BaseController {
 				try {
 					dissenyService.goUpCamp(id, agrupacioCodi);
 				} catch (Exception ex) {
-		        	missatgeError(request, "No s'ha pogut canviar l'ordre del camp dins l'agrupació", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.canviar.ordre.camp.agrup"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut canviar l'ordre del camp dins l'agrupació", ex);
 		        }
 				return "redirect:/definicioProces/campAgrupacioOrdre.html?definicioProcesId=" + definicioProcesId + "&agrupacioCodi=" + agrupacioCodi;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc") );
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -354,16 +354,16 @@ public class DefinicioProcesCampAgrupacioController extends BaseController {
 				try {
 					dissenyService.goDownCamp(id, agrupacioCodi);
 				} catch (Exception ex) {
-		        	missatgeError(request, "No s'ha pogut canviar l'ordre del camp dins l'agrupació", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.canviar.ordre.camp.agrup"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut canviar l'ordre del camps dins l'agrupació", ex);
 		        }
 				return "redirect:/definicioProces/campAgrupacioOrdre.html?definicioProcesId=" + definicioProcesId + "&agrupacioCodi=" + agrupacioCodi;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc") );
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -381,18 +381,18 @@ public class DefinicioProcesCampAgrupacioController extends BaseController {
 			if (potDissenyarDefinicioProces(entorn, definicioProces)) {
 				try {
 					dissenyService.deleteCampFromAgrupacio(id);
-					missatgeInfo(request, "El camp de l'agrupació s'ha esborrat correctament");
+					missatgeInfo(request, getMessage("info.camp.agrup.esborrat") );
 				} catch (Exception ex) {
-		        	missatgeError(request, "S'ha produït un error processant la seva petició", ex.getLocalizedMessage());
+		        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut esborrar el registre", ex);
 		        }
 				return "redirect:/definicioProces/campAgrupacioOrdre.html?definicioProcesId=" + definicioProcesId + "&agrupacioCodi=" + agrupacioCodi;
 			} else {
-				missatgeError(request, "No té permisos de disseny sobre aquesta definició de procés");
+				missatgeError(request, getMessage("error.permisos.disseny.defproc") );
 				return "redirect:/index.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

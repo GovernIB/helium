@@ -25,7 +25,7 @@ public class ArxiuView implements View {
 
 
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public void render(
 			Map model,
 			HttpServletRequest request,

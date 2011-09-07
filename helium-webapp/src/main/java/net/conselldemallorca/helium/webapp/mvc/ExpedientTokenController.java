@@ -82,11 +82,11 @@ public class ExpedientTokenController extends BaseController {
 						expedientService.getAllTokens(id));
 				return "expedient/tokens";
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -104,11 +104,11 @@ public class ExpedientTokenController extends BaseController {
 				setArrivingNodeNames(id, tokenId, expedient, model);
 				return "expedient/tokenRetrocedir";
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -137,7 +137,7 @@ public class ExpedientTokenController extends BaseController {
 								command.getTokenId(),
 								command.getNodeName(),
 								command.isCancelTasks());
-						missatgeInfo(request, "El token s'ha retrocedit correctament");
+						missatgeInfo(request, getMessage("info.token.retrocedit") );
 						status.setComplete();
 					} catch (Exception ex) {
 						if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
@@ -147,7 +147,7 @@ public class ExpedientTokenController extends BaseController {
 						} else {
 							missatgeError(
 				        			request,
-				        			"No s'ha pogut retrocedit el token",
+				        			getMessage("error.retrocedir.token"),
 				        			(ex.getCause() != null) ? ex.getCause().getMessage() : ex.getMessage());
 						}
 			        	logger.error("No s'ha pogut retrocedit el token", ex);
@@ -155,17 +155,17 @@ public class ExpedientTokenController extends BaseController {
 				}
 				return "redirect:/expedient/tokens.html?id=" + id;
 			} else {
-				missatgeError(request, "No té permisos per modificar aquest expedient");
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
 
 	public class ExpedientTokenRetrocedirValidator implements Validator {
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(Object.class);
 		}

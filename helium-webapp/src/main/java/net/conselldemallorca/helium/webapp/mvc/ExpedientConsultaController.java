@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.webapp.mvc;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -82,25 +83,6 @@ public class ExpedientConsultaController extends BaseController {
 		return null;
 	}
 
-	@ModelAttribute("estats")
-	public List<Estat> populateEstats(
-			HttpServletRequest request) {
-		Entorn entorn = getEntornActiu(request);
-		if (entorn != null) {
-			List<Estat> resposta = dissenyService.findEstatAmbEntorn(entorn.getId());
-			Estat iniciat = new Estat();
-			iniciat.setId(new Long(0));
-			iniciat.setNom("Iniciat");
-			resposta.add(0, iniciat);
-			Estat finalitzat = new Estat();
-			finalitzat.setId(new Long(-1));
-			finalitzat.setNom("Finalitzat");
-			resposta.add(finalitzat);
-			return resposta;
-		}
-		return null;
-	}
-
 	@RequestMapping(value = "/expedient/consulta", method = RequestMethod.GET)
 	public String consultaGet(
 			HttpServletRequest request,
@@ -134,21 +116,37 @@ public class ExpedientConsultaController extends BaseController {
 						(command.getExpedientTipus() != null) ? command.getExpedientTipus().getId() : null,
 						estatId,
 						iniciat,
-						finalitzat);
+						finalitzat,
+						command.getGeoPosX(),
+						command.getGeoPosY(),
+						command.getGeoReferencia(),
+						command.isMostrarAnulats());
+				List<String> piis = new ArrayList<String>();
 				Iterator<ExpedientDto> it = expedients.iterator();
 				while (it.hasNext()) {
 					ExpedientDto expedient = it.next();
-					if (!tipus.contains(expedient.getTipus()))
+					if (!tipus.contains(expedient.getTipus())){
 						it.remove();
+					} else {
+						piis.add(expedient.getProcessInstanceId());
+					}
 				}
 				model.addAttribute("command", command);
-				model.addAttribute("llistat",expedients);
+				model.addAttribute("llistat", expedients);
+				model.addAttribute("piis", piis);
 			} else {
 				model.addAttribute("command", new ExpedientConsultaGeneralCommand());
 			}
+			List<Estat> estats;
+			if (command != null && command.getExpedientTipus() != null)
+				estats = dissenyService.findEstatAmbExpedientTipus(command.getExpedientTipus().getId());
+			else
+				estats = new ArrayList<Estat>();
+			afegirEstatsInicialIFinal(estats);
+			model.addAttribute("estats", estats);
 			return "expedient/consulta";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -172,7 +170,27 @@ public class ExpedientConsultaController extends BaseController {
 			}
 			return "expedient/consulta";
 		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+	@RequestMapping(value = "/expedient/consultaEstats")
+	public String consultaEstats(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = false) Long id,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			List<Estat> estats;
+			if (id != null)
+				estats = dissenyService.findEstatAmbExpedientTipus(id);
+			else
+				estats = new ArrayList<Estat>();
+			afegirEstatsInicialIFinal(estats);
+			model.addAttribute("estats", estats);
+			return "expedient/consultaEstats";
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
@@ -187,7 +205,16 @@ public class ExpedientConsultaController extends BaseController {
 				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
 	}
 
-
+	public void afegirEstatsInicialIFinal(List<Estat> estats) {
+		Estat iniciat = new Estat();
+		iniciat.setId(new Long(0));
+		iniciat.setNom( getMessage("expedient.consulta.iniciat") );
+		estats.add(0, iniciat);
+		Estat finalitzat = new Estat();
+		finalitzat.setId(new Long(-1));
+		finalitzat.setNom( getMessage("expedient.consulta.finalitzat") );
+		estats.add(finalitzat);
+	}
 
 	@SuppressWarnings("unused")
 	private static final Log logger = LogFactory.getLog(ExpedientConsultaController.class);
