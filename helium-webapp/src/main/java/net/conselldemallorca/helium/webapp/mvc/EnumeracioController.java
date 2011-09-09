@@ -95,6 +95,7 @@ public class EnumeracioController extends BaseController {
 			if ("submit".equals(submit) || submit.length() == 0) {
 				command.setEntorn(entorn);
 				annotationValidator.validate(command, result);
+				new EnumeracioValidator(dissenyService).validate(command, result);
 		        if (result.hasErrors()) {
 		        	return "enumeracio/form";
 		        }
@@ -125,8 +126,13 @@ public class EnumeracioController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			try {
-				dissenyService.deleteEnumeracio(id);
-				missatgeInfo(request, getMessage("info.enum.esborrat") );
+				Enumeracio enumeracio = dissenyService.getEnumeracioById(id);
+				if (enumeracio.getCamps().size() > 0) {
+					missatgeError(request, getMessage("error.enumeracio.emprada.camp") );
+				} else {
+					dissenyService.deleteEnumeracio(id);
+					missatgeInfo(request, getMessage("info.enum.esborrat") );
+				}
 			} catch (Exception ex) {
 	        	missatgeError(request, getMessage("error.esborrar.enum"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut esborrar l'enumeració", ex);
