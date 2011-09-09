@@ -56,45 +56,47 @@
 		<script type="text/javascript" src="<c:url value="/js/jquery/jquery.filtrartaula.js"/>"></script>
 		<script type="text/javascript">
 			$(document).ready(function(){
-				if ( $(".displaytag").length == 0 )
-					$("#filtre").hide();
-				
-				else {
+				if ( $(".displaytag") != null ) {
+					if ( $(".displaytag").length == 0 )
+						$("#filtre").hide();
 					
-					var $anchor = $("#filtre a:first");
-					var $input = $("#filtre input:first");
-					
-					function inputShowCallback() {
-						$input.focus();
-						$anchor.css("top", "5px");
-						$anchor.css("left", "196px");
-						$anchor.show();
-					};
-					
-					function inputHideCallback() {
-						$input.css("visibility", "hidden");
-						$anchor.css("top", "5px");
-						$anchor.css("left", "3px");
-						$anchor.show();
-					};
-					
-					$anchor.click(function(event){
-						event.preventDefault();
-						if ( $input.css("visibility")=="hidden" ) {
-							$(this).hide();
-							$input.css("visibility", "visible");
-							$input.animate({width: "194px"}, 200, null, inputShowCallback);
-						} else {
-							$(this).hide();
-							$input.val("");
-							$(".displaytag").children("tbody").find("tr").show();
-							$input.blur();
-							$input.animate({width: "0px"}, 200, null, inputHideCallback);
-						}
-					});
-					
-					$("#filtre input").filtrarTaula(".displaytag");
-					
+					else {
+						
+						var $anchor = $("#filtre a:first");
+						var $input = $("#filtre input:first");
+						
+						function inputShowCallback() {
+							$input.focus();
+							$anchor.css("top", "5px");
+							$anchor.css("left", "196px");
+							$anchor.show();
+						};
+						
+						function inputHideCallback() {
+							$input.css("visibility", "hidden");
+							$anchor.css("top", "5px");
+							$anchor.css("left", "3px");
+							$anchor.show();
+						};
+						
+						$anchor.click(function(event){
+							event.preventDefault();
+							if ( $input.css("visibility")=="hidden" ) {
+								$(this).hide();
+								$input.css("visibility", "visible");
+								$input.animate({width: "194px"}, 200, null, inputShowCallback);
+							} else {
+								$(this).hide();
+								$input.val("");
+								$(".displaytag").children("tbody").find("tr").show();
+								$input.blur();
+								$input.animate({width: "0px"}, 200, null, inputHideCallback);
+							}
+						});
+						
+						$("#filtre input").filtrarTaula(".displaytag");
+						
+					}
 				}
 			});
 		</script>
