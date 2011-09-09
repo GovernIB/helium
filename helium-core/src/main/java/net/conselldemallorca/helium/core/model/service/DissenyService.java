@@ -830,6 +830,9 @@ public class DissenyService {
 	public List<Enumeracio> findEnumeracionsAmbEntornITipusExpONull(Long entornId, Long tipusExpId) {
 		return enumeracioDao.findAmbEntornITipusExpONull(entornId, tipusExpId);
 	}
+	public Enumeracio findEnumeracionAmbEntornICodi(Long entornId, String codi) {
+		return enumeracioDao.findAmbEntornICodi(entornId, codi);
+	}
 	
 	public List<Enumeracio> findEnumeracions() {
 		return enumeracioDao.findAll();
@@ -853,8 +856,8 @@ public class DissenyService {
 	public List<EnumeracioValors> findEnumeracioValorsAmbEnumeracio(Long enumeracioId) {
 		return enumeracioValorsDao.findAmbEnumeracio(enumeracioId);
 	}
-	public EnumeracioValors findEnumeracioValorsAmbCodi(String codi) {
-		return enumeracioValorsDao.findAmbCodi(codi);
+	public EnumeracioValors findEnumeracioValorsAmbCodi(Long enumeracioId, String codi) {
+		return enumeracioValorsDao.findAmbEnumeracioICodi(enumeracioId, codi);
 	}
 
 	public Termini getTerminiById(Long id) {
