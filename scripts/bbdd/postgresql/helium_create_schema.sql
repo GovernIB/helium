@@ -247,7 +247,7 @@ CREATE TABLE HEL_DEFINICIO_PROCES
 CREATE TABLE HEL_DOCUMENT
 (
   ID                     BIGINT             NOT NULL,
-  ARXIU_CONTINGUT        OID,
+  ARXIU_CONTINGUT        BYTEA,
   ARXIU_NOM              VARCHAR(255),
   CODI                   VARCHAR(64)      NOT NULL,
   CONTENT_TYPE           VARCHAR(255),
@@ -271,7 +271,7 @@ CREATE TABLE HEL_DOCUMENT_STORE
   ID                   BIGINT               NOT NULL,
   ADJUNT               BOOLEAN,
   ADJUNT_TITOL         VARCHAR(255),
-  ARXIU_CONTINGUT      OID,
+  ARXIU_CONTINGUT      BYTEA,
   ARXIU_NOM            VARCHAR(255)       NOT NULL,
   DATA_CREACIO         TIMESTAMP(6)             NOT NULL,
   DATA_DOCUMENT        DATE                     NOT NULL,
@@ -450,7 +450,7 @@ CREATE TABLE HEL_IDGEN
 CREATE TABLE HEL_INDEX
 (
   NAME_     VARCHAR(50)                   NOT NULL,
-  VALUE_    OID,
+  VALUE_    BYTEA,
   SIZE_     BIGINT,
   LF_       TIMESTAMP(6),
   DELETED_  BOOLEAN
@@ -666,7 +666,7 @@ CREATE TABLE JBPM_BYTEARRAY
 CREATE TABLE JBPM_BYTEBLOCK
 (
   PROCESSFILE_  BIGINT                      NOT NULL,
-  BYTES_        OID,
+  BYTES_        BYTEA,
   INDEX_        BIGINT                      NOT NULL
 )
 ;
