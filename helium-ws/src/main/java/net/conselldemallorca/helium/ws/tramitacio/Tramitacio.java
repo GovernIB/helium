@@ -478,6 +478,40 @@ public class Tramitacio implements TramitacioService {
 			throw new TramitacioException("No s'ha pogut executar l'script: " + ex.getMessage());
 		}
 	}
+	public void aturarExpedient(
+			String entorn,
+			String usuari,
+			String processInstanceId,
+			String motiu) throws TramitacioException{
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		try {
+			expedientService.aturar(
+					processInstanceId,
+					motiu,
+					usuari);
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut aturar l'expedient", ex);
+			throw new TramitacioException("No s'ha pogut aturar l'expedient: " + ex.getMessage());
+		}
+	}
+	public void reprendreExpedient(
+			String entorn,
+			String usuari,
+			String processInstanceId) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		try {
+			expedientService.reprendre(
+					processInstanceId,
+					usuari);
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut reprendre l'expedient", ex);
+			throw new TramitacioException("No s'ha pogut reprendre l'expedient: " + ex.getMessage());
+		}
+	}
 	public List<ExpedientInfo> consultaExpedients(
 			String entorn,
 			String usuari,

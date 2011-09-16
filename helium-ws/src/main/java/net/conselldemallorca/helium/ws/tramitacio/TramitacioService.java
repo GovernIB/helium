@@ -291,7 +291,35 @@ public interface TramitacioService {
 			String usuari,
 			String processInstanceId,
 			String script) throws TramitacioException;
-	
+
+	/**
+	 * Mètode per a aturar la tramitació d'un expedient
+	 * 
+	 * @param entorn
+	 * @param usuari
+	 * @param processInstanceId
+	 * @param motiu
+	 * @throws TramitacioException
+	 */
+	public void aturarExpedient(
+			String entorn,
+			String usuari,
+			String processInstanceId,
+			String motiu) throws TramitacioException;
+
+	/**
+	 * Mètode per a reprendre la tramitació d'un expedient
+	 * 
+	 * @param entorn
+	 * @param usuari
+	 * @param processInstanceId
+	 * @throws TramitacioException
+	 */
+	public void reprendreExpedient(
+			String entorn,
+			String usuari,
+			String processInstanceId) throws TramitacioException;
+
 	/**
 	 * Mètode per fer una consulta d'expedients
 	 * 
@@ -315,5 +343,5 @@ public interface TramitacioService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia) throws TramitacioException;
- 
+
 }

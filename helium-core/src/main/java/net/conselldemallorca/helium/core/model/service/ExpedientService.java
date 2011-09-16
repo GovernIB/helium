@@ -959,6 +959,12 @@ public class ExpedientService {
 	public void aturar(
 			String processInstanceId,
 			String motiu) {
+		aturar(processInstanceId, motiu, null);
+	}
+	public void aturar(
+			String processInstanceId,
+			String motiu,
+			String usuari) {
 		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(processInstanceId);
 		List<JbpmProcessInstance> processInstancesTree = jbpmDao.getProcessInstanceTree(rootProcessInstance.getId());
 		String[] ids = new String[processInstancesTree.size()];
@@ -970,11 +976,16 @@ public class ExpedientService {
 		expedient.setInfoAturat(motiu);
 		registreDao.crearRegistreAturarExpedient(
 				expedient.getId(),
-				SecurityContextHolder.getContext().getAuthentication().getName(),
+				(usuari != null) ? usuari : SecurityContextHolder.getContext().getAuthentication().getName(),
 				motiu);
 	}
 	public void reprendre(
 			String processInstanceId) {
+		reprendre(processInstanceId, null);
+	}
+	public void reprendre(
+			String processInstanceId,
+			String usuari) {
 		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(processInstanceId);
 		List<JbpmProcessInstance> processInstancesTree = jbpmDao.getProcessInstanceTree(rootProcessInstance.getId());
 		String[] ids = new String[processInstancesTree.size()];
@@ -986,7 +997,7 @@ public class ExpedientService {
 		expedient.setInfoAturat(null);
 		registreDao.crearRegistreReprendreExpedient(
 				expedient.getId(),
-				SecurityContextHolder.getContext().getAuthentication().getName());
+				(usuari != null) ? usuari : SecurityContextHolder.getContext().getAuthentication().getName());
 	}
 
 	public List<String> findArrivingNodeNames(String tokenId) {
