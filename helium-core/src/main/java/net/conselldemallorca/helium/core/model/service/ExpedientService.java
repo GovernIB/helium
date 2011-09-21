@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.core.model.service;
 
+import java.io.ByteArrayOutputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -62,6 +63,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
 import net.conselldemallorca.helium.integracio.plugins.gis.DadesExpedient;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarEventRequest;
@@ -115,6 +117,8 @@ public class ExpedientService {
 	private JbpmDao jbpmDao;
 	private DtoConverter dtoConverter;
 	private MessageSource messageSource;
+
+	private OpenOfficeUtils openOfficeUtils;
 
 
 
@@ -735,10 +739,22 @@ public class ExpedientService {
 				false);
 		
 	}
+
 	public DocumentDto generarDocumentPlantilla(
 			Long documentId,
 			String processInstanceId,
 			Date dataDocument) {
+		return generarDocumentPlantilla(
+				documentId,
+				processInstanceId,
+				dataDocument,
+				false);
+	}
+	public DocumentDto generarDocumentPlantilla(
+			Long documentId,
+			String processInstanceId,
+			Date dataDocument,
+			boolean guardarAuto) {
 		Document document = documentDao.getById(documentId, false);
 		DocumentDto resposta = new DocumentDto();
 		resposta.setDataCreacio(new Date());
@@ -756,7 +772,7 @@ public class ExpedientService {
 			model.putAll(instanciaProces.getVarsComText());
 			try {
 				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-				resposta.setArxiuContingut(plantillaDocumentDao.generarDocumentAmbPlantilla(
+				byte[] resultat = plantillaDocumentDao.generarDocumentAmbPlantilla(
 						expedient.getEntorn().getId(),
 						document,
 						auth.getName(),
@@ -764,7 +780,31 @@ public class ExpedientService {
 						processInstanceId,
 						null,
 						dataDocument,
-						model));
+						model);
+				resposta.setArxiuContingut(resultat);
+				if (isActiuConversioVista()) {
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					getOpenOfficeUtils().convertir(
+							resposta.getArxiuNom(),
+							resultat,
+							getExtensioVista(),
+							baos);
+					resposta.setArxiuNom(
+							nomArxiuAmbExtensio(
+									resposta.getArxiuNom(),
+									getExtensioVista()));
+					resposta.setArxiuContingut(baos.toByteArray());
+				} else {
+					resposta.setArxiuContingut(resultat);
+				}
+				if (guardarAuto) {
+					guardarDocument(
+							processInstanceId,
+							documentId,
+							dataDocument,
+							resposta.getArxiuNom(),
+							resposta.getArxiuContingut());
+				}
 			} catch (Exception ex) {
 				throw new TemplateException(getMessage("error.expedientService.generarDocument"), ex);
 			}
@@ -1460,6 +1500,43 @@ public class ExpedientService {
 	
 	public URL getUrlVisor() {
 		return pluginGisDao.getUrlVisorPlugin();
+	}
+
+	private String nomArxiuAmbExtensio(String fileName, String extensio) {
+		if (extensio == null || extensio.length() == 0)
+			return fileName;
+		int indexPunt = fileName.lastIndexOf(".");
+		if (indexPunt != -1) {
+			String nom = fileName.substring(0, indexPunt);
+			return nom + "." + extensio;
+		} else {
+			return fileName + "." + extensio;
+		}
+	}
+
+	private boolean isActiuConversioVista() {
+		String actiuConversio = (String)GlobalProperties.getInstance().get("app.conversio.actiu");
+		if (!"true".equalsIgnoreCase(actiuConversio))
+			return false;
+		String actiuConversioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.actiu");
+		if (actiuConversioVista == null)
+			actiuConversioVista = (String)GlobalProperties.getInstance().get("app.conversio.gentasca.actiu");
+		return "true".equalsIgnoreCase(actiuConversioVista);
+	}
+	private String getExtensioVista() {
+		String extensioVista = null;
+		if (isActiuConversioVista()) {
+			extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.extension");
+			if (extensioVista == null)
+				extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.gentasca.extension");
+		}
+		return extensioVista;
+	}
+
+	private OpenOfficeUtils getOpenOfficeUtils() {
+		if (openOfficeUtils == null)
+			openOfficeUtils = new OpenOfficeUtils();
+		return openOfficeUtils;
 	}
 
 	protected String getMessage(String key, Object[] vars) {
