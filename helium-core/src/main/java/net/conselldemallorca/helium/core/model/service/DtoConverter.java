@@ -55,6 +55,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
+import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.util.DocumentTokenUtils;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.PdfUtils;
@@ -530,9 +531,8 @@ public class DtoConverter {
 					dto.setAdjuntId(document.getJbpmVariable().substring(TascaService.PREFIX_ADJUNT.length()));
 				} else {
 					codiDocument = document.getJbpmVariable().substring(TascaService.PREFIX_DOCUMENT.length());
-					JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(document.getProcessInstanceId());
-					JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(pi.getId());
-					DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(jpd.getId());
+					JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(document.getProcessInstanceId());
+					DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmKeyIVersio(jpd.getKey(), jpd.getVersion());
 					Document doc = documentDao.findAmbDefinicioProcesICodi(definicioProces.getId(), codiDocument);
 					if (doc != null) {
 						dto.setContentType(doc.getContentType());

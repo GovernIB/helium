@@ -17,6 +17,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import net.conselldemallorca.helium.core.model.exception.DeploymentException;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 
 import org.jbpm.command.ChangeProcessInstanceVersionCommand;
 import org.jbpm.command.CommandService;
@@ -225,7 +226,9 @@ public class JbpmDao {
 		GetProcessInstanceCommand command = new GetProcessInstanceCommand(id);
 		ProcessInstance processInstance = (ProcessInstance)commandService.execute(command);
 		while (processInstance.getSuperProcessToken() != null) {
-			processInstance = processInstance.getSuperProcessToken().getProcessInstance();
+			id = processInstance.getSuperProcessToken().getProcessInstance().getId();
+			command.setProcessInstanceId(id);
+			processInstance = (ProcessInstance)commandService.execute(command);
 		}
 		resultat = new JbpmProcessInstance(processInstance);
 		return resultat;
