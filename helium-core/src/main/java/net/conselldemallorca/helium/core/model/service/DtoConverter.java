@@ -5,13 +5,10 @@ package net.conselldemallorca.helium.core.model.service;
 
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Array;
-import java.math.BigDecimal;
 import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -42,19 +39,19 @@ import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.exception.DominiException;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.util.DocumentTokenUtils;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.PdfUtils;
@@ -63,7 +60,6 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
-import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -530,9 +526,8 @@ public class DtoConverter {
 					dto.setAdjuntId(document.getJbpmVariable().substring(TascaService.PREFIX_ADJUNT.length()));
 				} else {
 					codiDocument = document.getJbpmVariable().substring(TascaService.PREFIX_DOCUMENT.length());
-					JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(document.getProcessInstanceId());
-					JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(pi.getId());
-					DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(jpd.getId());
+					JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(document.getProcessInstanceId());
+					DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmKeyIVersio(jpd.getKey(), jpd.getVersion());
 					Document doc = documentDao.findAmbDefinicioProcesICodi(definicioProces.getId(), codiDocument);
 					if (doc != null) {
 						dto.setContentType(doc.getContentType());
@@ -1223,39 +1218,15 @@ public class DtoConverter {
 	}
 	private String textPerCamp(
 			Camp camp,
-			Object value,
+			Object valor,
 			ParellaCodiValorDto valorDomini) {
-		if (value == null) return null;
-		try {
-			String text = null;
-			if (camp == null) {
-				text = value.toString();
-			} else if (camp.getTipus().equals(TipusCamp.INTEGER)) {
-				text = new DecimalFormat("#").format((Long)value);
-			} else if (camp.getTipus().equals(TipusCamp.FLOAT)) {
-				text = new DecimalFormat("#.#").format((Long)value);
-			} else if (camp.getTipus().equals(TipusCamp.PRICE)) {
-				text = new DecimalFormat("#,###.00").format((BigDecimal)value);
-			} else if (camp.getTipus().equals(TipusCamp.DATE)) {
-				text = new SimpleDateFormat("dd/MM/yyyy").format((Date)value);
-			} else if (camp.getTipus().equals(TipusCamp.BOOLEAN)) {
-				text = (((Boolean)value).booleanValue()) ? "Si" : "No";
-			} else if (camp.getTipus().equals(TipusCamp.TEXTAREA)) {
-				text = (String)value;
-			} else if (camp.getTipus().equals(TipusCamp.SELECCIO)) {
-				text = (String)valorDomini.getValor();
-			} else if (camp.getTipus().equals(TipusCamp.SUGGEST)) {
-				text = (String)valorDomini.getValor();
-			} else if (camp.getTipus().equals(TipusCamp.TERMINI)) {
-				text = ((Termini)value).toString();
-			} else {
-				text = value.toString();
-			}
-			return text;
-		} catch (Exception ex) {
-			// Error de conversió de tipus
-			return value.toString();
-		}
+		if (valor == null) return null;
+		if (camp == null)
+			return valor.toString();
+		else
+			return camp.getComText(
+					valor,
+					(valorDomini != null) ? (String)valorDomini.getValor() : null);
 	}
 
 	private Map<String, Object> getParamsConsulta(

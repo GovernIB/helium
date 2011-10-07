@@ -1587,7 +1587,14 @@ public class DissenyService {
 	public Consulta createConsulta(Consulta entity) {
 		return consultaDao.saveOrUpdate(entity);
 	}
-	public Consulta updateConsulta(Consulta entity) {
+	public Consulta updateConsulta(Consulta entity, boolean delete) {
+		Consulta vella = consultaDao.getById(entity.getId(), false);
+		if (vella != null && !delete) {
+			if (entity.getInformeContingut() == null || entity.getInformeContingut().length == 0) {
+				entity.setInformeNom(vella.getInformeNom());
+				entity.setInformeContingut(vella.getInformeContingut());
+			}
+		}
 		return consultaDao.merge(entity);
 	}
 	public void deleteConsulta(Long id) {
@@ -1601,8 +1608,11 @@ public class DissenyService {
 	public List<Consulta> findConsultesAmbEntornIExpedientTipus(Long entornId, Long expedientTipusId) {
 		return consultaDao.findAmbEntornIExpedientTipus(entornId, expedientTipusId);
 	}
-	public List<Camp> findCampsPerConsulta(Long consultaId) {
+	public List<Camp> findCampsFiltrePerConsulta(Long consultaId) {
 		return consultaDao.findCampsFiltre(consultaId);
+	}
+	public List<Camp> findCampsInformePerConsulta(Long consultaId) {
+		return consultaDao.findCampsInforme(consultaId);
 	}
 
 	public ConsultaCamp getConsultaCampById(Long id) {

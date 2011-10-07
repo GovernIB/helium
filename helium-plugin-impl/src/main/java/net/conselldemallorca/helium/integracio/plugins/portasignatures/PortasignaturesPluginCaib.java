@@ -69,12 +69,11 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 			String remitent,
 			String importancia,
 			Date dataLimit) throws PortasignaturesPluginException {
-
 		// Cream la connexió.
 		CwsProxy factory = new CwsProxy();
 		factory.setEndpoint((String)GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.url"));
 		CWSSoapBindingStub stub = (CWSSoapBindingStub)factory.getCws();
-		
+
 		// Enviam el document a convertir.
 		try {
 			DataHandler attachmentFile = new DataHandler(

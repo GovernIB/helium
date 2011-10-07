@@ -53,7 +53,7 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 					arxiuNom,
 					arxiuContingut,
 					tipusDocPortasignatures,
-					expedient.getTitol(),
+					expedient.getIdentificador(),
 					importancia,
 					dataLimit);
 		} catch (PortasignaturesPluginException ex) {

@@ -7,13 +7,16 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -50,6 +53,10 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 	private String nom;
 	@MaxLength(255)
 	private String descripcio;
+	@MaxLength(255)
+	private String informeNom;
+	private byte[] informeContingut;
+	private boolean exportarActiu;
 	private boolean generica;
 
 	@NotNull
@@ -100,6 +107,32 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 	}
 	public void setDescripcio(String descripcio) {
 		this.descripcio = descripcio;
+	}
+
+	@Column(name="informe_nom", length=255)
+	public String getInformeNom() {
+		return informeNom;
+	}
+	public void setInformeNom(String informeNom) {
+		this.informeNom = informeNom;
+	}
+
+	@Lob
+	@Basic(fetch=FetchType.LAZY)
+	@Column(name="informe_contingut")
+	public byte[] getInformeContingut() {
+		return informeContingut;
+	}
+	public void setInformeContingut(byte[] informeContingut) {
+		this.informeContingut = informeContingut;
+	}
+
+	@Column(name="exportar_actiu")
+	public boolean isExportarActiu() {
+		return exportarActiu;
+	}
+	public void setExportarActiu(boolean exportarActiu) {
+		this.exportarActiu = exportarActiu;
 	}
 
 	@Column(name="generica")

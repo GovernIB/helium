@@ -62,4 +62,25 @@ public class ConsultaDao extends HibernateGenericDao<Consulta, Long> {
 		list();
 	}
 
+	@SuppressWarnings("unchecked")
+	public List<Camp> findCampsInforme(Long consultaId) {
+		return (List<Camp>)getSession().
+		createQuery(
+				"select c " +
+				"from Camp c, " +
+				"     ConsultaCamp cc, " +
+				"     DefinicioProces dp " +
+				"where cc.consulta.id = ? " +
+				"and cc.tipus = ? " +
+				"and dp.jbpmKey = cc.defprocJbpmKey " +
+				"and dp.versio = cc.defprocVersio " +
+				"and dp.id = c.definicioProces.id " +
+				"and cc.campCodi = c.codi " +
+				"order by " +
+				"    cc.ordre").
+		setLong(0, consultaId).
+		setParameter(1, TipusConsultaCamp.INFORME).
+		list();
+	}
+
 }

@@ -12,11 +12,17 @@
     <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 <script type="text/javascript">
 // <![CDATA[
-function confirmar(e) {
+function confirmarEsborrar(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
-	return confirm("<fmt:message key='entorn.llistat.confirmacio' />");
+	return confirm("<fmt:message key='entorn.llistat.confirmacio.esborrar' />");
+}
+function confirmarReindexar(e) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	if (e.stopPropagation) e.stopPropagation();
+	return confirm("<fmt:message key='entorn.llistat.confirmacio.reindexar' />");
 }
 // ]]>
 </script>
@@ -36,7 +42,13 @@ function confirmar(e) {
 			</form>
 	    </display:column>
 	    <display:column>
-	    	<a href="<c:url value="/entorn/delete.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
+	    	<form action="reindexar.html" onsubmit="return confirmarReindexar(event)">
+				<input type="hidden" name="id" value="${registre.id}"/>
+				<button type="submit" class="submitButton"><fmt:message key='entorn.llistat.reindexar' /></button>
+			</form>
+	    </display:column>
+	    <display:column>
+	    	<a href="<c:url value="/entorn/delete.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmarEsborrar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 	    </display:column>
 	</display:table>
 	<script type="text/javascript">initSelectable();</script>

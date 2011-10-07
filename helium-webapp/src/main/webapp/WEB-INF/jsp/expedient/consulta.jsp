@@ -241,6 +241,11 @@ function obreVisorGis() {
 				</c:choose>
 			</display:column>
 			<display:column>
+				<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,1">
+					<a href="<c:url value="/expedient/info.html"><c:param name="id" value="${registre.processInstanceId}"/></c:url>"><img src="<c:url value="/img/information.png"/>" alt="<fmt:message key='comuns.informacio' />" title="<fmt:message key='comuns.informacio' />" border="0"/></a>
+				</security:accesscontrollist>
+			</display:column>
+			<display:column>
 				<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,2">
 					<c:if test="${!registre.anulat}">
 						<a href="<c:url value="/expedient/anular.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmarAnular(event)"><img src="<c:url value="/img/delete.png"/>" alt="<fmt:message key='comuns.anular' />" title="<fmt:message key='comuns.anular' />" border="0"/></a>
@@ -250,11 +255,6 @@ function obreVisorGis() {
 			<display:column>
 				<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,8">
 					<a href="<c:url value="/expedient/delete.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmarEsborrar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
-				</security:accesscontrollist>
-			</display:column>
-			<display:column>
-				<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,2">
-					<a href="<c:url value="/expedient/info.html"><c:param name="id" value="${registre.processInstanceId}"/></c:url>"><img src="<c:url value="/img/information.png"/>" alt="<fmt:message key='comuns.informacio' />" title="<fmt:message key='comuns.informacio' />" border="0"/></a>
 				</security:accesscontrollist>
 			</display:column>
 		</display:table>

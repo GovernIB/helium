@@ -29,6 +29,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
 
 
@@ -100,6 +102,8 @@ public class ConsultaController extends BaseController {
 	public String formPost(
 			HttpServletRequest request,
 			@RequestParam(value = "submit", required = false) String submit,
+			@RequestParam(value = "informeContingut", required = false) final MultipartFile multipartFile,
+			@RequestParam(value = "informeContingut_deleted", required = false) final String deleted,
 			@ModelAttribute("command") Consulta command,
 			BindingResult result,
 			SessionStatus status,
@@ -108,6 +112,15 @@ public class ConsultaController extends BaseController {
 		if (entorn != null) {
 			if ("submit".equals(submit) || submit.length() == 0) {
 				command.setEntorn(entorn);
+				if (multipartFile != null && multipartFile.getSize() > 0) {
+					try {
+						command.setInformeNom(multipartFile.getOriginalFilename());
+						command.setInformeContingut(multipartFile.getBytes());
+					} catch (Exception ignored) {}
+				} else if ("deleted".equalsIgnoreCase(deleted)) {
+					command.setInformeNom(null);
+					command.setInformeContingut(null);
+				}
 				annotationValidator.validate(command, result);
 		        if (result.hasErrors()) {
 		        	return "consulta/form";
@@ -116,7 +129,7 @@ public class ConsultaController extends BaseController {
 		        	if (command.getId() == null)
 		        		dissenyService.createConsulta(command);
 		        	else
-		        		dissenyService.updateConsulta(command);
+		        		dissenyService.updateConsulta(command, "deleted".equalsIgnoreCase(deleted));
 		        	missatgeInfo(request, getMessage("info.consulta.guardat") );
 		        	status.setComplete();
 		        } catch (Exception ex) {
@@ -152,11 +165,39 @@ public class ConsultaController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/consulta/informeDownload")
+	public String downloadAction(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) Long id,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			try {
+				Consulta consulta = dissenyService.getConsultaById(id);
+				model.addAttribute(
+						ArxiuView.MODEL_ATTRIBUTE_FILENAME,
+						consulta.getInformeNom());
+				model.addAttribute(
+						ArxiuView.MODEL_ATTRIBUTE_DATA,
+						consulta.getInformeContingut());
+				return "arxiuView";
+			} catch (Exception ignored) {
+				return "redirect:/consulta/llistat.html";
+			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 		binder.registerCustomEditor(
 				ExpedientTipus.class,
 				new ExpedientTipusTypeEditor(dissenyService));
+		binder.registerCustomEditor(
+				byte[].class,
+				new ByteArrayMultipartFileEditor());
 	}
 
 	@Resource(name = "annotationValidator")

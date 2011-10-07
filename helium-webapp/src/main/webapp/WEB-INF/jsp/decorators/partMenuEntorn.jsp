@@ -35,8 +35,8 @@
 			<li class="dir image expedient-consultes">
 				<a href="#" onclick="return false"><fmt:message key='comuns.consultes' /></a>
 				<ul>
-					<li class="image expedient-consultes"><a href="<c:url value="/expedient/consulta.html"/>"><fmt:message key='decorators.entorn.cons_general' /></a></li>
-					<li class="image expedient-consultes"><a href="<c:url value="/expedient/consultaDisseny.html"/>"><fmt:message key='decorators.entorn.cons_avansades' /></a></li>
+					<li class="image expedient-consultes"><a href="<c:url value="/expedient/consulta.html"/>"><fmt:message key='decorators.entorn.consultes.llistat' /></a></li>
+					<li class="image expedient-consultes"><a href="<c:url value="/expedient/consultaDisseny.html"/>"><fmt:message key='decorators.entorn.consultes.tipus' /></a></li>
 				</ul>
 			</li>
 			<c:if test="${hiHaTramitsPerIniciar}">
@@ -64,7 +64,7 @@
 						<li class="image tipexp"><a href="<c:url value="/expedientTipus/llistat.html"/>"><fmt:message key='comuns.tipus_exp' /></a></li>
 						<li class="image enums"><a href="<c:url value="/enumeracio/llistat.html"/>"><fmt:message key='decorators.entorn.enumeracions' /></a></li>
 						<li class="image fonts"><a href="<c:url value="/domini/llistat.html"/>"><fmt:message key='decorators.entorn.dominis' /></a></li>
-						<li class="image consulta"><a href="<c:url value="/consulta/llistat.html"/>"><fmt:message key='comuns.consultes' /></a></li>
+						<li class="image consulta"><a href="<c:url value="/consulta/llistat.html"/>"><fmt:message key='decorators.entorn.consultes.tipus' /></a></li>
 					</ul>
 				</li>
 				<c:set var="esDissenyador" value="${true}"/>

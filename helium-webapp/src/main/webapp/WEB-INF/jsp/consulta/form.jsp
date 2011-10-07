@@ -11,7 +11,7 @@
 </head>
 <body>
 
-	<form:form action="form.html" cssClass="uniForm">
+	<form:form action="form.html" cssClass="uniForm" enctype="multipart/form-data">
 		<div class="inlineLabels">
 			<c:if test="${not empty command.id}"><form:hidden path="id"/></c:if>
 			<c:import url="../common/formElement.jsp">
@@ -38,6 +38,18 @@
 				<c:param name="itemValue" value="id"/>
 				<c:param name="itemBuit">&lt;&lt; <fmt:message key='consulta.form.selec_tipus' /> &gt;&gt;</c:param>
 				<c:param name="label"><fmt:message key='comuns.tipus_exp' /></c:param>
+			</c:import>
+			<c:import url="../common/formElement.jsp">
+				<c:param name="property" value="informeContingut"/>
+				<c:param name="type" value="file"/>
+				<c:param name="fileUrl"><c:url value="/consulta/informeDownload.html"><c:param name="id" value="${command.id}"/></c:url></c:param>
+				<c:param name="fileExists" value="${not empty command.informeNom}"/>
+				<c:param name="label"><fmt:message key='consulta.form.informe' /></c:param>
+			</c:import>
+			<c:import url="../common/formElement.jsp">
+				<c:param name="property" value="exportarActiu"/>
+				<c:param name="type" value="checkbox"/>
+				<c:param name="label"><fmt:message key='consulta.form.exportar' /></c:param>
 			</c:import>
 		</div>
 		<c:import url="../common/formElement.jsp">

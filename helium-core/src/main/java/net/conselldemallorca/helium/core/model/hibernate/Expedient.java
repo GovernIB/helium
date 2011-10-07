@@ -489,13 +489,17 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	}
 	@Transient
 	public String getIdentificador() {
+		String identificador = null;
 		if (tipus.getTeNumero().booleanValue() && tipus.getTeTitol().booleanValue())
-			return "[" + getNumero() + "] " + getTitol();
+			identificador = "[" + getNumero() + "] " + getTitol();
 		else if (tipus.getTeNumero().booleanValue() && !tipus.getTeTitol().booleanValue())
-			return getNumero();
+			identificador = getNumero();
 		else if (!tipus.getTeNumero().booleanValue() && tipus.getTeTitol().booleanValue())
-			return getTitol();
-		return this.getNumeroDefault();
+			identificador = getTitol();
+		if (identificador == null)
+			return this.getNumeroDefault();
+		else
+			return identificador;
 	}
 	@Transient
 	public String getIdentificadorOrdenacio() {

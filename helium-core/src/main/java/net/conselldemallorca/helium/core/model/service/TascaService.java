@@ -68,7 +68,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.context.NoSuchMessageException;
 import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -116,6 +115,7 @@ public class TascaService {
 	private MessageSource messageSource;
 
 	private OpenOfficeUtils openOfficeUtils;
+	private ServiceUtils serviceUtils;
 	private DocumentTokenUtils documentTokenUtils;
 
 	private Map<String, Map<String, Object>> dadesFormulariExternInicial;
@@ -441,7 +441,8 @@ public class TascaService {
 			String taskId) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		if (!isTascaValidada(task))
-			throw new IllegalStateException( getMessage("error.tascaService.noValidada") );
+			throw new IllegalStateException(
+					getServiceUtils().getMessage("error.tascaService.noValidada"));
 		//deleteDocumentsTasca(taskId);
 		restaurarTasca(taskId);
 		TascaDto tasca = toTascaDto(task, null, true);
@@ -473,11 +474,14 @@ public class TascaService {
 			String outcome) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, comprovarAssignacio);
 		if (!isTascaValidada(task))
-			throw new IllegalStateException( getMessage("error.tascaService.formNoValidat") );
+			throw new IllegalStateException(
+					getServiceUtils().getMessage("error.tascaService.formNoValidat"));
 		if (!isDocumentsComplet(task))
-			throw new IllegalStateException( getMessage("error.tascaService.faltenAdjuntar") );
+			throw new IllegalStateException(
+					getServiceUtils().getMessage("error.tascaService.faltenAdjuntar"));
 		if (!isSignaturesComplet(task))
-			throw new IllegalStateException( getMessage("error.tascaService.faltenSignar") );
+			throw new IllegalStateException(
+					getServiceUtils().getMessage("error.tascaService.faltenSignar"));
 		jbpmDao.startTaskInstance(taskId);
 		jbpmDao.completeTaskInstance(task.getId(), outcome);
 		// Accions per a una tasca delegada
@@ -498,11 +502,14 @@ public class TascaService {
 		}
 		JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
+		Map<String, Set<Camp>> mapCamps = getServiceUtils().getMapCamps(expedient);
+		Map<String, Map<String, Object>> mapValors = getServiceUtils().getMapValors(expedient);
 		luceneDao.updateExpedient(
 				expedient,
-				getMapDefinicionsProces(expedient),
-				getMapCamps(expedient),
-				getMapValorsJbpm(expedient));
+				getServiceUtils().getMapDefinicionsProces(expedient),
+				mapCamps,
+				mapValors,
+				getServiceUtils().getMapValorsDomini(mapCamps, mapValors));
 		TascaDto tasca = toTascaDto(task, null, true);
 		registreDao.crearRegistreFinalitzarTasca(
 				tasca.getExpedient().getId(),
@@ -596,7 +603,8 @@ public class TascaService {
 			String usuari) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);
 		if (!isTascaValidada(task))
-			throw new IllegalStateException( getMessage("error.tascaService.noValidada") );
+			throw new IllegalStateException(
+					getServiceUtils().getMessage("error.tascaService.noValidada"));
 		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(task.getProcessDefinitionId());
@@ -768,7 +776,8 @@ public class TascaService {
 					false,
 					false);
 		} else {
-			throw new IllegalArgumentsException( getMessage("error.documentService.formatIncorrecte") );
+			throw new IllegalArgumentsException(
+					getServiceUtils().getMessage("error.documentService.formatIncorrecte"));
 		}
 	}
 	public boolean signarDocumentAmbToken(
@@ -845,13 +854,16 @@ public class TascaService {
 					}
 					return custodiat;
 				} else {
-					throw new IllegalStateException( getMessage("error.tascaService.docNoDisponible") );
+					throw new IllegalStateException(
+							getServiceUtils().getMessage("error.tascaService.docNoDisponible"));
 				}
 			} else {
-				throw new IllegalStateException( getMessage("error.tascaService.docNoDisponible") );
+				throw new IllegalStateException(
+						getServiceUtils().getMessage("error.tascaService.docNoDisponible"));
 			}
 		} else {
-			throw new IllegalArgumentsException( getMessage("error.tascaService.tokenIncorrecte") );
+			throw new IllegalArgumentsException(
+					getServiceUtils().getMessage("error.tascaService.tokenIncorrecte"));
 		}
 	}
 
@@ -914,7 +926,8 @@ public class TascaService {
 							resposta.getArxiuContingut());
 				}
 			} catch (Exception ex) {
-				throw new TemplateException(getMessage("error.tascaService.generarDocument"), ex);
+				throw new TemplateException(
+						getServiceUtils().getMessage("error.tascaService.generarDocument"), ex);
 			}
 		} else {
 			resposta.setArxiuContingut(document.getArxiuContingut());
@@ -952,7 +965,8 @@ public class TascaService {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		DelegationInfo delegationInfo = getDelegationInfo(task);
 		if (delegationInfo == null || !taskId.equals(delegationInfo.getSourceTaskId())) {
-			throw new IllegalStateException( getMessage("error.tascaService.cancelarDelegacio") );
+			throw new IllegalStateException(
+					getServiceUtils().getMessage("error.tascaService.cancelarDelegacio"));
 		}
 		// Cancelar la tasca delegada
 		jbpmDao.cancelTaskInstance(delegationInfo.getTargetTaskId());
@@ -968,7 +982,8 @@ public class TascaService {
 				task.getName(),
 				task.getProcessDefinitionId());
 		if (tasca.getFormExtern() == null)
-			throw new IllegalStateException( getMessage("error.tascaService.noFormExtern") );
+			throw new IllegalStateException(
+					getServiceUtils().getMessage("error.tascaService.noFormExtern"));
 		Map<String, Object> vars = jbpmDao.getTaskInstanceVariables(task.getId());
 		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
@@ -1176,24 +1191,29 @@ public class TascaService {
 	private JbpmTask comprovarSeguretatTasca(Long entornId, String taskId, String usuari, boolean comprovarAssignacio) {
 		JbpmTask task = jbpmDao.getTaskById(taskId);
 		if (task == null) {
-			throw new NotFoundException( getMessage("error.tascaService.noTrobada") );
+			throw new NotFoundException(
+					getServiceUtils().getMessage("error.tascaService.noTrobada"));
 		}
 		Entorn entorn = entornPerTasca(task);
 		if (entorn == null || !entorn.getId().equals(entornId)) {
-			throw new NotFoundException( getMessage("error.tascaService.noTrobada") );
+			throw new NotFoundException(
+					getServiceUtils().getMessage("error.tascaService.noTrobada"));
 		}
 		if (comprovarAssignacio) {
 			if (usuari == null) {
 				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 				if (!auth.getName().equals(task.getAssignee()))
-					throw new NotFoundException( getMessage("error.tascaService.noAssignada") );
+					throw new NotFoundException(
+							getServiceUtils().getMessage("error.tascaService.noAssignada"));
 			} else {
 				if (!usuari.equals(task.getAssignee()))
-					throw new NotFoundException( getMessage("error.tascaService.noAssignada") );
+					throw new NotFoundException(
+							getServiceUtils().getMessage("error.tascaService.noAssignada"));
 			}
 		}
 		if (task.isSuspended()) {
-			throw new IllegalStateException( getMessage("error.tascaService.noDisponible") );
+			throw new IllegalStateException(
+					getServiceUtils().getMessage("error.tascaService.noDisponible"));
 		}
 		return task;
 	}
@@ -1443,34 +1463,7 @@ public class TascaService {
 		}
 	}*/
 
-	private Map<String, DefinicioProces> getMapDefinicionsProces(Expedient expedient) {
-		Map<String, DefinicioProces> resposta = new HashMap<String, DefinicioProces>();
-		List<JbpmProcessInstance> tree = jbpmDao.getProcessInstanceTree(expedient.getProcessInstanceId());
-		for (JbpmProcessInstance pi: tree)
-			resposta.put(
-					pi.getId(),
-					definicioProcesDao.findAmbJbpmId(pi.getProcessDefinitionId()));
-		return resposta;
-	}
-	private Map<String, Set<Camp>> getMapCamps(Expedient expedient) {
-		Map<String, Set<Camp>> resposta = new HashMap<String, Set<Camp>>();
-		List<JbpmProcessInstance> tree = jbpmDao.getProcessInstanceTree(expedient.getProcessInstanceId());
-		for (JbpmProcessInstance pi: tree) {
-			resposta.put(
-					pi.getId(),
-					definicioProcesDao.findAmbJbpmId(pi.getProcessDefinitionId()).getCamps());
-		}
-		return resposta;
-	}
-	private Map<String, Map<String, Object>> getMapValorsJbpm(Expedient expedient) {
-		Map<String, Map<String, Object>> resposta = new HashMap<String, Map<String, Object>>();
-		List<JbpmProcessInstance> tree = jbpmDao.getProcessInstanceTree(expedient.getProcessInstanceId());
-		for (JbpmProcessInstance pi: tree)
-			resposta.put(
-					pi.getId(),
-					jbpmDao.getProcessInstanceVariables(pi.getId()));
-		return resposta;
-	}
+	
 
 	private void createDelegationInfo(
 			JbpmTask task,
@@ -1549,19 +1542,6 @@ public class TascaService {
 		return extensioVista;
 	}
 
-	private OpenOfficeUtils getOpenOfficeUtils() {
-		if (openOfficeUtils == null)
-			openOfficeUtils = new OpenOfficeUtils();
-		return openOfficeUtils;
-	}
-
-	private DocumentTokenUtils getDocumentTokenUtils() {
-		if (documentTokenUtils == null)
-			documentTokenUtils = new DocumentTokenUtils(
-					(String)GlobalProperties.getInstance().get("app.encriptacio.clau"));
-		return documentTokenUtils;
-	}
-
 	private TascaLlistatDto toTascaLlistatDto(
 			JbpmTask task,
 			Expedient expedient) {
@@ -1623,21 +1603,27 @@ public class TascaService {
 		for (Alerta antiga: antigues)
 			antiga.setDataEliminacio(new Date());
 	}
-	
-	
-	protected String getMessage(String key, Object[] vars) {
-		try {
-			return messageSource.getMessage(
-					key,
-					vars,
-					null);
-		} catch (NoSuchMessageException ex) {
-			return "???" + key + "???";
-		}
-	}
 
-	protected String getMessage(String key) {
-		return getMessage(key, null);
+	private OpenOfficeUtils getOpenOfficeUtils() {
+		if (openOfficeUtils == null)
+			openOfficeUtils = new OpenOfficeUtils();
+		return openOfficeUtils;
+	}
+	private ServiceUtils getServiceUtils() {
+		if (serviceUtils == null) {
+			serviceUtils = new ServiceUtils(
+					definicioProcesDao,
+					dtoConverter,
+					jbpmDao,
+					messageSource);
+		}
+		return serviceUtils;
+	}
+	private DocumentTokenUtils getDocumentTokenUtils() {
+		if (documentTokenUtils == null)
+			documentTokenUtils = new DocumentTokenUtils(
+					(String)GlobalProperties.getInstance().get("app.encriptacio.clau"));
+		return documentTokenUtils;
 	}
 
 	private static final Log logger = LogFactory.getLog(TascaService.class);

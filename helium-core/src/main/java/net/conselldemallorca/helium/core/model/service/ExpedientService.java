@@ -37,12 +37,14 @@ import net.conselldemallorca.helium.core.model.dao.PluginSignaturaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginTramitacioDao;
 import net.conselldemallorca.helium.core.model.dao.RegistreDao;
 import net.conselldemallorca.helium.core.model.dao.TerminiIniciatDao;
+import net.conselldemallorca.helium.core.model.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.core.model.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
+import net.conselldemallorca.helium.core.model.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.dto.TokenDto;
 import net.conselldemallorca.helium.core.model.exception.DominiException;
@@ -52,6 +54,7 @@ import net.conselldemallorca.helium.core.model.exception.NotFoundException;
 import net.conselldemallorca.helium.core.model.exception.TemplateException;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
@@ -81,8 +84,8 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.context.NoSuchMessageException;
 import org.springframework.security.Authentication;
+import org.springframework.security.annotation.Secured;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -119,6 +122,7 @@ public class ExpedientService {
 	private MessageSource messageSource;
 
 	private OpenOfficeUtils openOfficeUtils;
+	private ServiceUtils serviceUtils;
 
 
 
@@ -300,7 +304,7 @@ public class ExpedientService {
 				expedientTipusId,
 				expedient.getNumero()) != null) {
 			throw new ExpedientRepetitException(
-					getMessage(
+					getServiceUtils().getMessage(
 							"error.expedientService.jaExisteix",
 							new Object[]{expedient.getNumero()}) );
 		}
@@ -351,11 +355,14 @@ public class ExpedientService {
 			}
 		}
 		jbpmDao.signalProcessInstance(expedient.getProcessInstanceId(), transitionName);
+		Map<String, Set<Camp>> mapCamps = getServiceUtils().getMapCamps(expedient);
+		Map<String, Map<String, Object>> mapValors = getServiceUtils().getMapValors(expedient);
 		luceneDao.createExpedient(
 				expedient,
-				getMapDefinicionsProces(expedient),
-				getMapCamps(expedient),
-				getMapValorsJbpm(expedient));
+				getServiceUtils().getMapDefinicionsProces(expedient),
+				mapCamps,
+				mapValors,
+				getServiceUtils().getMapValorsDomini(mapCamps, mapValors));
 		registreDao.crearRegistreIniciarExpedient(
 				expedient.getId(),
 				usuariBo);
@@ -389,11 +396,14 @@ public class ExpedientService {
 		expedient.setGeoPosX(geoPosX);
 		expedient.setGeoPosY(geoPosY);
 		expedient.setGeoReferencia(geoReferencia);
+		Map<String, Set<Camp>> mapCamps = getServiceUtils().getMapCamps(expedient);
+		Map<String, Map<String, Object>> mapValors = getServiceUtils().getMapValors(expedient);
 		luceneDao.updateExpedient(
 				expedient,
-				getMapDefinicionsProces(expedient),
-				getMapCamps(expedient),
-				getMapValorsJbpm(expedient));
+				getServiceUtils().getMapDefinicionsProces(expedient),
+				mapCamps,
+				mapValors,
+				getServiceUtils().getMapValorsDomini(mapCamps, mapValors));
 		String informacioNova = getInformacioExpedient(expedient);
 		registreDao.crearRegistreModificarExpedient(
 				expedient.getId(),
@@ -420,12 +430,12 @@ public class ExpedientService {
 				documentStoreDao.delete(documentStore.getId());
 			}
 			expedientDao.delete(expedient);
-			luceneDao.deleteDocument(expedient);
+			luceneDao.deleteExpedient(expedient);
 			registreDao.crearRegistreEsborrarExpedient(
 					expedient.getId(),
 					SecurityContextHolder.getContext().getAuthentication().getName());
 		} else {
-			throw new NotFoundException(getMessage("error.expedientService.noExisteix"));
+			throw new NotFoundException(getServiceUtils().getMessage("error.expedientService.noExisteix"));
 		}
 	}
 	public void anular(Long entornId, Long id) {
@@ -442,7 +452,7 @@ public class ExpedientService {
 					expedient.getId(),
 					SecurityContextHolder.getContext().getAuthentication().getName());
 		} else {
-			throw new NotFoundException(getMessage("error.expedientService.noExisteix"));
+			throw new NotFoundException(getServiceUtils().getMessage("error.expedientService.noExisteix"));
 		}
 	}
 	public List<ExpedientDto> findAmbEntorn(Long entornId) {
@@ -512,19 +522,6 @@ public class ExpedientService {
 			resposta.add(dtoConverter.toExpedientDto(expedient, false));
 		return resposta;
 	}
-	public List<ExpedientDto> findAmbEntornConsultaFiltre(
-			Long entornId,
-			Long consultaId,
-			Map<String, Object> valors) {
-		List<Camp> camps = consultaDao.findCampsFiltre(consultaId);
-		List<Long> idsResultat = luceneDao.find(valors, camps);
-		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
-		for (Long id: idsResultat) {
-			Expedient expedient = expedientDao.getById(id, false);
-			resposta.add(dtoConverter.toExpedientDto(expedient, false));
-		}
-		return resposta;
-	}
 	public List<ExpedientDto> findAmbDefinicioProcesId(Long definicioProcesId) {
 		DefinicioProces definicioProces = definicioProcesDao.getById(definicioProcesId, false);
 		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
@@ -562,6 +559,53 @@ public class ExpedientService {
 		return dtoConverter.toExpedientDto(expedient, false);
 	}
 
+	/*public List<ExpedientDto> findAmbEntornConsultaDisseny(
+			Long entornId,
+			Long consultaId,
+			Map<String, Object> valors) {
+		Consulta consulta = consultaDao.getById(consultaId, false);
+		List<Long> idsResultat = luceneDao.findNomesIds(
+				consulta.getExpedientTipus().getCodi(),
+				consultaDao.findCampsFiltre(consultaId),
+				valors);
+		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
+		for (Long id: idsResultat) {
+			Expedient expedient = expedientDao.getById(id, false);
+			resposta.add(dtoConverter.toExpedientDto(expedient, false));
+		}
+		return resposta;
+	}*/
+
+	public List<ExpedientConsultaDissenyDto> findAmbEntornConsultaDisseny(
+			Long entornId,
+			Long consultaId,
+			Map<String, Object> valors) {
+		Consulta consulta = consultaDao.getById(consultaId, false);
+		List<Long> idsExpedients = luceneDao.findNomesIds(
+				consulta.getExpedientTipus().getCodi(),
+				consultaDao.findCampsFiltre(consultaId),
+				valors);
+		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
+		if (idsExpedients.size() > 0) {
+			List<Map<String, DadaIndexadaDto>> dadesExpedients = luceneDao.findAmbDadesExpedient(
+					consulta.getExpedientTipus().getCodi(),
+					consultaDao.findCampsFiltre(consultaId),
+					valors,
+					consultaDao.findCampsInforme(consultaId));
+			int index = 0;
+			for (Long id: idsExpedients) {
+				ExpedientConsultaDissenyDto fila = new ExpedientConsultaDissenyDto();
+				fila.setExpedient(
+						dtoConverter.toExpedientDto(
+								expedientDao.getById(id, false),
+								false));
+				fila.setDadesExpedient(dadesExpedients.get(index++));
+				resposta.add(fila);
+			}
+		}
+		return resposta;
+	}
+
 	public List<TascaDto> findTasquesPerInstanciaProces(String processInstanceId) {
 		List<TascaDto> resposta = new ArrayList<TascaDto>();
 		List<JbpmTask> tasks = jbpmDao.findTaskInstancesForProcessInstance(processInstanceId);
@@ -588,6 +632,42 @@ public class ExpedientService {
 		return resposta;
 	}
 
+	public List<Map<String, DadaIndexadaDto>> luceneGetDades(String processInstanceId) {
+		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(processInstanceId);
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
+		List<Camp> informeCamps = new ArrayList<Camp>();
+		Map<String, Set<Camp>> camps = getServiceUtils().getMapCamps(expedient);
+		for (String clau: camps.keySet()) {
+			for (Camp camp: camps.get(clau))
+				informeCamps.add(camp);
+		}
+		return luceneDao.getDadesExpedient(
+				expedient,
+				informeCamps);
+	}
+	public void luceneReindexarExpedient(String processInstanceId) {
+		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(processInstanceId);
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
+		luceneDao.deleteExpedient(expedient);
+		Map<String, Set<Camp>> mapCamps = getServiceUtils().getMapCamps(expedient);
+		Map<String, Map<String, Object>> mapValors = getServiceUtils().getMapValors(expedient);
+		luceneDao.createExpedient(
+				expedient,
+				getServiceUtils().getMapDefinicionsProces(expedient),
+				mapCamps,
+				mapValors,
+				getServiceUtils().getMapValorsDomini(mapCamps, mapValors));
+	}
+	@Secured({"ROLE_ADMIN"})
+	public void luceneReindexarEntorn(Long entornId) {
+		Entorn entorn = entornDao.getById(entornId, false);
+		logger.info("Reindexant els expedients de l'entorn " + entorn.getNom());
+		for (Expedient expedient: expedientDao.findAmbEntorn(entornId)) {
+			logger.info("Reindexant expedient " + expedient.getIdentificador() + "...");
+			luceneReindexarExpedient(expedient.getProcessInstanceId());
+		}
+	}
+
 	public Entorn getEntornAmbProcessInstanceId(String processInstanceId) {
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(processInstanceId);
 		if (expedient != null)
@@ -602,11 +682,14 @@ public class ExpedientService {
 		jbpmDao.setProcessInstanceVariable(processInstanceId, varName, value);
 		JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(processInstanceId);
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
+		Map<String, Set<Camp>> mapCamps = getServiceUtils().getMapCamps(expedient);
+		Map<String, Map<String, Object>> mapValors = getServiceUtils().getMapValors(expedient);
 		luceneDao.updateExpedient(
 				expedient,
-				getMapDefinicionsProces(expedient),
-				getMapCamps(expedient),
-				getMapValorsJbpm(expedient));
+				getServiceUtils().getMapDefinicionsProces(expedient),
+				mapCamps,
+				mapValors,
+				getServiceUtils().getMapValorsDomini(mapCamps, mapValors));
 		registreDao.crearRegistreCrearVariableInstanciaProces(
 				getExpedientPerProcessInstanceId(processInstanceId).getId(),
 				processInstanceId,
@@ -619,11 +702,14 @@ public class ExpedientService {
 		jbpmDao.setProcessInstanceVariable(processInstanceId, varName, value);
 		JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(processInstanceId);
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
+		Map<String, Set<Camp>> mapCamps = getServiceUtils().getMapCamps(expedient);
+		Map<String, Map<String, Object>> mapValors = getServiceUtils().getMapValors(expedient);
 		luceneDao.updateExpedient(
 				expedient,
-				getMapDefinicionsProces(expedient),
-				getMapCamps(expedient),
-				getMapValorsJbpm(expedient));
+				getServiceUtils().getMapDefinicionsProces(expedient),
+				mapCamps,
+				mapValors,
+				getServiceUtils().getMapValorsDomini(mapCamps, mapValors));
 		registreDao.crearRegistreModificarVariableInstanciaProces(
 				getExpedientPerProcessInstanceId(processInstanceId).getId(),
 				processInstanceId,
@@ -636,11 +722,14 @@ public class ExpedientService {
 		jbpmDao.deleteProcessInstanceVariable(processInstanceId, varName);
 		JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(processInstanceId);
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
+		Map<String, Set<Camp>> mapCamps = getServiceUtils().getMapCamps(expedient);
+		Map<String, Map<String, Object>> mapValors = getServiceUtils().getMapValors(expedient);
 		luceneDao.updateExpedient(
 				expedient,
-				getMapDefinicionsProces(expedient),
-				getMapCamps(expedient),
-				getMapValorsJbpm(expedient));
+				getServiceUtils().getMapDefinicionsProces(expedient),
+				mapCamps,
+				mapValors,
+				getServiceUtils().getMapValorsDomini(mapCamps, mapValors));
 		registreDao.crearRegistreEsborrarVariableInstanciaProces(
 				getExpedientPerProcessInstanceId(processInstanceId).getId(),
 				processInstanceId,
@@ -806,7 +895,8 @@ public class ExpedientService {
 							resposta.getArxiuContingut());
 				}
 			} catch (Exception ex) {
-				throw new TemplateException(getMessage("error.expedientService.generarDocument"), ex);
+				throw new TemplateException(
+						getServiceUtils().getMessage("error.expedientService.generarDocument"), ex);
 			}
 		} else {
 			resposta.setArxiuContingut(document.getArxiuContingut());
@@ -1368,34 +1458,7 @@ public class ExpedientService {
 		return expedientDao.findAmbProcessInstanceId(pi.getId());
 	}
 
-	private Map<String, DefinicioProces> getMapDefinicionsProces(Expedient expedient) {
-		Map<String, DefinicioProces> resposta = new HashMap<String, DefinicioProces>();
-		List<JbpmProcessInstance> tree = jbpmDao.getProcessInstanceTree(expedient.getProcessInstanceId());
-		for (JbpmProcessInstance pi: tree)
-			resposta.put(
-					pi.getId(),
-					definicioProcesDao.findAmbJbpmId(pi.getProcessDefinitionId()));
-		return resposta;
-	}
-	private Map<String, Set<Camp>> getMapCamps(Expedient expedient) {
-		Map<String, Set<Camp>> resposta = new HashMap<String, Set<Camp>>();
-		List<JbpmProcessInstance> tree = jbpmDao.getProcessInstanceTree(expedient.getProcessInstanceId());
-		for (JbpmProcessInstance pi: tree) {
-			resposta.put(
-					pi.getId(),
-					definicioProcesDao.findAmbJbpmId(pi.getProcessDefinitionId()).getCamps());
-		}
-		return resposta;
-	}
-	private Map<String, Map<String, Object>> getMapValorsJbpm(Expedient expedient) {
-		Map<String, Map<String, Object>> resposta = new HashMap<String, Map<String, Object>>();
-		List<JbpmProcessInstance> tree = jbpmDao.getProcessInstanceTree(expedient.getProcessInstanceId());
-		for (JbpmProcessInstance pi: tree)
-			resposta.put(
-					pi.getId(),
-					jbpmDao.getProcessInstanceVariables(pi.getId()));
-		return resposta;
-	}
+	
 
 	private Long createUpdateDocument(
 				String processInstanceId,
@@ -1492,7 +1555,9 @@ public class ExpedientService {
 	private void comprovarUsuari(String usuari) {
 		PersonaDto persona = pluginPersonaDao.findAmbCodiPlugin(usuari);
 		if (persona == null)
-			throw new IllegalArgumentsException( getMessage("error.expedientService.trobarPersona", new Object[]{usuari}) );
+			throw new IllegalArgumentsException(
+					getServiceUtils().getMessage("error.expedientService.trobarPersona",
+							new Object[]{usuari}));
 	}
 	
 	public String getXmlExpedients(List<DadesExpedient> expedients) {
@@ -1540,20 +1605,17 @@ public class ExpedientService {
 		return openOfficeUtils;
 	}
 
-	protected String getMessage(String key, Object[] vars) {
-		try {
-			return messageSource.getMessage(
-					key,
-					vars,
-					null);
-		} catch (NoSuchMessageException ex) {
-			return "???" + key + "???";
+	private ServiceUtils getServiceUtils() {
+		if (serviceUtils == null) {
+			serviceUtils = new ServiceUtils(
+					definicioProcesDao,
+					dtoConverter,
+					jbpmDao,
+					messageSource);
 		}
+		return serviceUtils;
 	}
 
-	protected String getMessage(String key) {
-		return getMessage(key, null);
-	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientService.class);
 

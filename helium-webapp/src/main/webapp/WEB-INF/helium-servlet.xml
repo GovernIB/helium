@@ -62,6 +62,7 @@
 	<bean name="arxiuView" class="net.conselldemallorca.helium.webapp.mvc.ArxiuView"/>
 	<bean name="arxiuConvertirView" class="net.conselldemallorca.helium.webapp.mvc.ArxiuConvertirView"/>
 	<bean name="serialitzarView" class="net.conselldemallorca.helium.webapp.mvc.SerialitzarView"/>
+	<bean name="jasperReportsView" class="net.conselldemallorca.helium.webapp.mvc.JasperReportsView"/>
 
 	<bean id="responseCachingFilter" class="net.conselldemallorca.helium.webapp.mvc.interceptor.ResponseCachingFilter">
 		<property name="useCacheControlHeader" value="true" />

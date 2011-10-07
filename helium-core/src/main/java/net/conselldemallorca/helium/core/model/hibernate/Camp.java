@@ -5,6 +5,8 @@ package net.conselldemallorca.helium.core.model.hibernate;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -363,6 +365,37 @@ public class Camp implements Serializable, GenericEntity<Long> {
 		}
 	}
 
+	public String getComText(
+			Object valor,
+			String valorDomini) {
+		if (valor == null)
+			return null;
+		try {
+			String text = null;
+			if (getTipus().equals(TipusCamp.INTEGER)) {
+				text = new DecimalFormat("#").format((Long)valor);
+			} else if (getTipus().equals(TipusCamp.FLOAT)) {
+				text = new DecimalFormat("#.#").format((Long)valor);
+			} else if (getTipus().equals(TipusCamp.PRICE)) {
+				text = new DecimalFormat("#,###.00").format((BigDecimal)valor);
+			} else if (getTipus().equals(TipusCamp.DATE)) {
+				text = new SimpleDateFormat("dd/MM/yyyy").format((Date)valor);
+			} else if (getTipus().equals(TipusCamp.BOOLEAN)) {
+				text = (((Boolean)valor).booleanValue()) ? "Si" : "No";
+			} else if (getTipus().equals(TipusCamp.SELECCIO)) {
+				text = valorDomini;
+			} else if (getTipus().equals(TipusCamp.SUGGEST)) {
+				text = valorDomini;
+			} else if (getTipus().equals(TipusCamp.TERMINI)) {
+				text = ((Termini)valor).toString();
+			} else {
+				text = valor.toString();
+			}
+			return text;
+		} catch (Exception ex) {
+			return valor.toString();
+		}
+	}
 
 
 	@Override

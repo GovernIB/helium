@@ -37,7 +37,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class UpdateService {
 
-	public static final String VERSIO_ACTUAL_STR = "2.1.0";
+	public static final String VERSIO_210_STR = "2.1.0";
+	public static final int VERSIO_210_ORDRE = 210;
+	public static final String VERSIO_211_STR = "2.1.1";
+	public static final int VERSIO_211_ORDRE = 211;
+	public static final String VERSIO_220_STR = "2.2.0";
+	public static final int VERSIO_220_ORDRE = 220;
+	public static final String VERSIO_ACTUAL_STR = "2.2.0";
+	public static final int VERSIO_ACTUAL_ORDRE = 220;
 
 	private VersioDao versioDao;
 	private PersonaDao personaDao;
@@ -60,15 +67,19 @@ public class UpdateService {
 		}
 		for (Versio versio: versions) {
 			if (!versio.isProcesExecutat()) {
-				if (versio.getOrdre() == 210) {
+				if (versio.getOrdre() == VERSIO_210_ORDRE) {
 					boolean actualitzat = actualitzarV210();
+					if (!actualitzat) break;
+				}
+				if (versio.getOrdre() == VERSIO_220_ORDRE) {
+					boolean actualitzat = actualitzarV220();
 					if (!actualitzat) break;
 				}
 			}
 		}
 		Versio darrera = versioDao.findLast();
-		if (darrera.getOrdre() < 210) {
-			actualitzarV210();
+		if (darrera.getOrdre() < 220) {
+			actualitzarV220();
 		}
 	}
 
@@ -143,11 +154,9 @@ public class UpdateService {
 
 	private boolean actualitzarV210() {
 		boolean actualitzat = false;
-		String versioCodi = "2.1.0";
-		int versioOrdre = 210;
-		Versio versio210 = obtenirOCrearVersio(versioCodi, versioOrdre);
+		Versio versio210 = obtenirOCrearVersio(VERSIO_210_STR, VERSIO_210_ORDRE);
 		if (!versio210.isScriptExecutat()) {
-			errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + versioCodi + ": "+ getMessage("error.update.script.ko");
+			errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_210_STR + ": " + getMessage("error.update.script.ko");
 		} else if (!versio210.isProcesExecutat()) {
 			try {
 				canviarMapeigSistraV210();
@@ -155,11 +164,11 @@ public class UpdateService {
 				versio210.setProcesExecutat(true);
 				versio210.setDataExecucioProces(new Date());
 				versioDao.saveOrUpdate(versio210);
-				logger.info("Actualització a la versió " + versioCodi + " realitzada correctament");
+				logger.info("Actualització a la versió " + VERSIO_210_STR + " realitzada correctament");
 				actualitzat = true;
 			} catch (Exception ex) {
-				logger.error("Error al executar l'actualització a la versió " + versioCodi, ex);
-				errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + versioCodi + ": "+ getMessage("error.update.proces.ko");
+				logger.error("Error al executar l'actualització a la versió " + VERSIO_210_STR, ex);
+				errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_210_STR + ": " + getMessage("error.update.proces.ko");
 			}
 		}
 		return actualitzat;
@@ -228,6 +237,26 @@ public class UpdateService {
 				}
 			}
 		}
+	}
+
+	private boolean actualitzarV220() {
+		boolean actualitzat = false;
+		Versio versio220 = obtenirOCrearVersio(VERSIO_210_STR, VERSIO_220_ORDRE);
+		if (!versio220.isScriptExecutat()) {
+			errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_220_STR + ": " + getMessage("error.update.script.ko");
+		} else if (!versio220.isProcesExecutat()) {
+			try {
+				versio220.setProcesExecutat(true);
+				versio220.setDataExecucioProces(new Date());
+				versioDao.saveOrUpdate(versio220);
+				logger.info("Actualització a la versió " + VERSIO_220_STR + " realitzada correctament");
+				actualitzat = true;
+			} catch (Exception ex) {
+				logger.error("Error al executar l'actualització a la versió " + VERSIO_220_STR, ex);
+				errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_220_STR + ": " + getMessage("error.update.proces.ko");
+			}
+		}
+		return actualitzat;
 	}
 
 	private String getMessage(String key, Object[] vars) {
