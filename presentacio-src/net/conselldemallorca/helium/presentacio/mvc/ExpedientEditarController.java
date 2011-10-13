@@ -126,7 +126,6 @@ public class ExpedientEditarController extends BaseController {
 								command.getExpedientId(),
 								command.getNumero(),
 								command.getTitol(),
-								command.getIniciadorCodi(),
 								command.getResponsableCodi(),
 								command.getDataInici(),
 								command.getComentari(),
@@ -171,13 +170,11 @@ public class ExpedientEditarController extends BaseController {
 		public void validate(Object target, Errors errors) {
 			ExpedientEditarCommand command = (ExpedientEditarCommand)target;
 			ExpedientDto expedient = expedientService.getById(command.getExpedientId());
-			if (expedient.getTipus().getTeTitol() && expedient.getTipus().getDemanaTitol())
+			if (expedient.getTipus().getTeTitol())
 				ValidationUtils.rejectIfEmpty(errors, "titol", "not.blank");
-			if (expedient.getTipus().getTeNumero() && expedient.getTipus().getDemanaNumero())
+			if (expedient.getTipus().getTeNumero())
 				ValidationUtils.rejectIfEmpty(errors, "numero", "not.blank");
 			ValidationUtils.rejectIfEmpty(errors, "dataInici", "not.blank");
-			ValidationUtils.rejectIfEmpty(errors, "iniciadorCodi", "not.blank");
-			ValidationUtils.rejectIfEmpty(errors, "responsableCodi", "not.blank");
 		}
 	}
 

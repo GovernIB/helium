@@ -41,7 +41,6 @@ public class ExpedientResponsableModificarHandler extends AbstractHeliumActionHa
 							expedient.getId(),
 							expedient.getNumero(),
 							expedient.getTitol(),
-							expedient.getIniciadorCodi(),
 							persona.getCodi(),
 							expedient.getDataInici(),
 							expedient.getComentari(),

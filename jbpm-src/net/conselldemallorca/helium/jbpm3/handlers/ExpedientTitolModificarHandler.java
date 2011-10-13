@@ -36,7 +36,6 @@ public class ExpedientTitolModificarHandler extends AbstractHeliumActionHandler 
 						expedient.getId(),
 						expedient.getNumero(),
 						t,
-						expedient.getIniciadorCodi(),
 						expedient.getResponsableCodi(),
 						expedient.getDataInici(),
 						expedient.getComentari(),

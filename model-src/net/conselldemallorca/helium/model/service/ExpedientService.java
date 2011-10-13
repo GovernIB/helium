@@ -349,7 +349,6 @@ public class ExpedientService {
 			Long id,
 			String numero,
 			String titol,
-			String iniciadorCodi,
 			String responsableCodi,
 			Date dataInici,
 			String comentari,
@@ -359,9 +358,10 @@ public class ExpedientService {
 			String geoReferencia) {
 		Expedient expedient = expedientDao.findAmbEntornIId(entornId, id);
 		String informacioVella = getInformacioExpedient(expedient);
-		expedient.setNumero(numero);
-		expedient.setTitol(titol);
-		expedient.setIniciadorCodi(iniciadorCodi);
+		if (expedient.getTipus().getTeNumero())
+			expedient.setNumero(numero);
+		if (expedient.getTipus().getTeTitol())
+			expedient.setTitol(titol);
 		expedient.setResponsableCodi(responsableCodi);
 		expedient.setDataInici(dataInici);
 		expedient.setComentari(comentari);

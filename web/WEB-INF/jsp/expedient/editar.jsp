@@ -43,40 +43,17 @@
 				<c:param name="type" value="date"/>
 				<c:param name="label">Data d'inici</c:param>
 			</c:import>
-			<c:choose>
-				<c:when test="${expedient.iniciadorTipus == 'SISTRA'}">
-					<c:import url="../common/formElement.jsp">
-						<c:param name="property" value="iniciadorCodi"/>
-						<c:param name="type" value="custom"/>
-						<c:param name="label">Iniciador</c:param>
-						<c:param name="content">
-							<span class="staticField">Entrada núm. ${expedient.bantelEntradaNum}</span>
-							<input id="iniciadorCodi" name="iniciadorCodi" value="${command.iniciadorCodi}" type="hidden"/>
-						</c:param>
-					</c:import>
-				</c:when>
-				<c:otherwise>
-					<c:import url="../common/formElement.jsp">
-						<c:param name="property" value="iniciadorCodi"/>
-						<c:param name="type" value="suggest"/>
-						<c:param name="required" value="true"/>
-						<c:param name="label">Iniciador</c:param>
-						<c:param name="suggestUrl"><c:url value="/persona/suggest.html"/></c:param>
-						<c:param name="suggestText">${iniciador.nomSencer}</c:param>
-					</c:import>
-				</c:otherwise>
-			</c:choose>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="responsableCodi"/>
 				<c:param name="type" value="suggest"/>
-				<c:param name="required" value="true"/>
-				<c:param name="label">Responsable</c:param>
+				<c:param name="label"><fmt:message key='expedient.editar.responsable' /></c:param>
 				<c:param name="suggestUrl"><c:url value="/persona/suggest.html"/></c:param>
 				<c:param name="suggestText">${responsable.nomSencer}</c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="comentari"/>
-				<c:param name="label">Comentari</c:param>
+				<c:param name="type" value="textarea"/>
+				<c:param name="label"><fmt:message key='expedient.editar.comentari' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="estatId"/>
