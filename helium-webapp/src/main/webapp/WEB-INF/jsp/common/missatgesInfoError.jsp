@@ -24,6 +24,6 @@
 			<p><c:out value="${info}" escapeXml="false"/></p>
 		</c:forEach>
 	</div>
-	<script type="text/javascript">setTimeout(function(){$("#infos").fadeOut(1000)}, 2000);</script>
+	<!--script type="text/javascript">setTimeout(function(){$("#infos").fadeOut(1000)}, 2000);</script-->
 	<c:remove var="missatgesInfo" scope="session"/>
 </c:if>
