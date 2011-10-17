@@ -210,6 +210,7 @@ public class TascaController extends BaseController {
 					tascaGrupFiltreCommand.getDataLimitFi(),
 					tascaGrupFiltreCommand.getColumna(),
 					tascaGrupFiltreCommand.getOrdre());
+			model.addAttribute("terminisIniciats", findTerminisIniciatsPerTasques(tasquesGrupFiltre));
 			model.addAttribute("grupLlistat", tasquesGrupFiltre);
 			model.addAttribute("grupLlistatAll", tascaService.getTotalTasquesGrup(entorn.getId()));
 			
