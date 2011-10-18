@@ -8,6 +8,7 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.conselldemallorca.helium.core.model.hibernate.UsuariPreferencies;
 import net.conselldemallorca.helium.core.model.service.PersonaService;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 
@@ -60,23 +61,25 @@ public class IdiomaResolver implements LocaleResolver, Serializable {
 		LocaleEditor localeEditor = new LocaleEditor();
 		
 		ParellaCodiNom parella = (ParellaCodiNom)WebUtils.getSessionAttribute(request, SESSION_IDIOMA_ACTUAL);
-		if ( parella != null ) {
+		if (parella != null) {
 			localeEditor.setAsText(parella.getCodi());
 			locale = (Locale)localeEditor.getValue();
-		}
-		else {
-			if ( personaService!=null && personaService.getUsuariPreferencies()!=null && personaService.getUsuariPreferencies().getIdioma()!=null ) {
-				String idioma = personaService.getUsuariPreferencies().getIdioma();
-				localeEditor.setAsText(idioma);
-				locale = (Locale)localeEditor.getValue();
-			}
-			
-			if ( locale==null || !esIdiomaDisponible(locale) )
+		} else {
+			if (request.getUserPrincipal() != null) {
+				UsuariPreferencies preferencies = personaService.getUsuariPreferencies();
+				if (preferencies != null && preferencies.getIdioma() != null) {
+					String idioma = preferencies.getIdioma();
+					localeEditor.setAsText(idioma);
+					locale = (Locale)localeEditor.getValue();
+				}
+				if (locale == null || !esIdiomaDisponible(locale)) {
+					locale = determinarIdiomaDefecte(request);
+				}
+			} else {
 				locale = determinarIdiomaDefecte(request);
-			
+			}
 			setLocale(request, locale);
 		}
-
 		return locale;
 	}
 
@@ -104,9 +107,8 @@ public class IdiomaResolver implements LocaleResolver, Serializable {
 		if ( esIdiomaDisponible(idioma) ) {
 			ParellaCodiNom parella = new ParellaCodiNom( idioma.toString(), capitalize(idioma.getDisplayLanguage(idioma)) );
 			WebUtils.setSessionAttribute(request, SESSION_IDIOMA_ACTUAL, parella);
-			
 			List<ParellaCodiNom> parelles = new ArrayList<ParellaCodiNom>();
-			for ( Locale disponible: getIdiomesDisponibles() )
+			for (Locale disponible: getIdiomesDisponibles())
 				parelles.add(new ParellaCodiNom( disponible.toString(), capitalize(disponible.getDisplayLanguage(idioma)) ));
 			WebUtils.setSessionAttribute(request, SESSION_IDIOMES_DISPONIBLES, parelles);
 		}

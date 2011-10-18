@@ -30,7 +30,9 @@ public class DocumentTokenUtils {
 	public DocumentTokenUtils(String encryptionKey) {
 		this.encryptionKey = encryptionKey;
 	}
-	public DocumentTokenUtils(String encryptionKey, String encryptionScheme,
+	public DocumentTokenUtils(
+			String encryptionKey,
+			String encryptionScheme,
 			String encryptionAlgorithm) {
 		this.encryptionKey = encryptionKey;
 		this.encryptionScheme = encryptionScheme;

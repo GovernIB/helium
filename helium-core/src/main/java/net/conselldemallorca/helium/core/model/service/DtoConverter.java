@@ -519,7 +519,9 @@ public class DtoConverter {
 					logger.error("No s'ha pogut generar el token pel document " + documentStoreId, ex);
 				}
 				if (document.isSignat()) {
-					dto.setUrlVerificacioCustodia(pluginCustodiaDao.getUrlComprovacioSignatura(documentStoreId.toString()));
+					dto.setUrlVerificacioCustodia(
+							pluginCustodiaDao.getUrlComprovacioSignatura(
+									documentStoreId.toString()));
 				}
 				String codiDocument;
 				if (document.isAdjunt()) {
@@ -1323,10 +1325,14 @@ public class DtoConverter {
 
 	private String getUrlComprovacioSignatura(Long documentStoreId, String token) {
 		String urlCustodia = pluginCustodiaDao.getUrlComprovacioSignatura(documentStoreId.toString());
-		if (urlCustodia != null)
+		if (urlCustodia != null) {
 			return urlCustodia;
-		else
-			return (String)GlobalProperties.getInstance().get("app.base.url") + "/signatura/verificar.html?token=" + token;
+		} else {
+			String baseUrl = (String)GlobalProperties.getInstance().get("app.base.verificacio.url");
+			if (baseUrl == null)
+				baseUrl = (String)GlobalProperties.getInstance().get("app.base.url");
+			return baseUrl + "/signatura/verificarExtern.html?token=" + token;
+		}
 	}
 
 	private PdfUtils getPdfUtils() {

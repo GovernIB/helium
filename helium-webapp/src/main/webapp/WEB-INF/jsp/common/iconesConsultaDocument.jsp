@@ -10,7 +10,7 @@
 <c:if test="${documentActual.signat and empty ocultarSignatura}">
 	<c:choose>
 		<c:when test="${not empty documentActual.urlVerificacioCustodia}"><a href="${documentActual.urlVerificacioCustodia}" onclick="return verificarSignatura(this)"><img src="<c:url value="/img/rosette.png"/>" alt="<fmt:message key='common.icon.verif_signa' />" title="<fmt:message key='common.icon.verif_signa' />" border="0"/></a></c:when>
-		<c:otherwise><a href="<c:url value="/signatura/verificarIntern.html"><c:param name="token" value="${documentActual.tokenSignatura}"/></c:url>" onclick="return verificarSignatura(this)"><img src="<c:url value="/img/rosette.png"/>" alt="<fmt:message key='common.icon.verif_signa' />" title="<fmt:message key='common.icon.verif_signa' />" border="0"/></a></c:otherwise>
+		<c:otherwise><a href="<c:url value="/signatura/verificar.html"><c:param name="token" value="${documentActual.tokenSignatura}"/></c:url>" onclick="return verificarSignatura(this)"><img src="<c:url value="/img/rosette.png"/>" alt="<fmt:message key='common.icon.verif_signa' />" title="<fmt:message key='common.icon.verif_signa' />" border="0"/></a></c:otherwise>
 	</c:choose>
 </c:if>
 <c:if test="${documentActual.registrat}">
