@@ -110,9 +110,9 @@ public class ExpedientIniciarController extends BaseController {
 			ExpedientTipus tipus = dissenyService.getExpedientTipusById(expedientTipusId);
 			if (potIniciarExpedientTipus(tipus)) {
 				netejarSessio(request);
+				generarTaskIdSessio(request);
 				// Si l'expedient té titol i/o número redirigeix al pas per demanar aquestes dades
 				if (tipus.getDemanaNumero().booleanValue() || tipus.getDemanaTitol().booleanValue()) {
-					generarTaskIdSessio(request);
 					if (definicioProcesId != null)
 						return "redirect:/expedient/iniciarPasTitol.html?expedientTipusId=" + expedientTipusId + "&definicioProcesId=" + definicioProcesId;
 					else
