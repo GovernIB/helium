@@ -21,6 +21,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca.TipusTasca;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
@@ -296,6 +297,7 @@ public class ExpedientDadaModificarController extends BaseController {
 		}
 		if (camp == null) {
 			camp = new Camp();
+			camp.setTipus(TipusCamp.STRING);
 			camp.setCodi(var);
 			camp.setEtiqueta(var);
 		}
