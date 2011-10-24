@@ -40,36 +40,45 @@ public class GisPluginSitibsa implements GisPlugin {
 	        Element root = document.addElement("msgExpedients");
 	        Element exps = root.addElement("expedients");
 	        Element estats = root.addElement("estats");
-	        Element tipus = root.addElement("tipusExpedients");
+	        Element tipus = root.addElement("expedientsTipus");
 	        
 	        for (DadesExpedient exp : expedients){
-		        Element expedient = exps.addElement("expedient");
-		        expedient.addElement("refCatastral").addText(exp.getRefCatastral() != null ? exp.getRefCatastral() : "");
-		        expedient.addElement("numero").addText(exp.getNumero() != null ? exp.getNumero() : "");
-		        expedient.addElement("titol").addText(exp.getTitol() != null ? exp.getTitol() : "");
-		        expedient.addElement("expedientTipusCodi").addText(exp.getExpedientTipusCodi() != null ? exp.getExpedientTipusCodi() : "");
-		        expedient.addElement("estatCodi").addText(exp.getEstatCodi() != null ? exp.getEstatCodi() : "");
-		        expedient.addElement("url").addText(urlBase + "/expedient/info.html?id=" + exp.getProcessInstanceId()); 
-		        
-		        if (exp.getExpedientTipusCodi() != null) {
-			        // comprovam que no existeixi el tipus d'expedient en el document		        
-			        Node node = document.selectSingleNode( "//msgExpedients/tipusExpedients/tipus[contains(codi, '" + exp.getExpedientTipusCodi() + "')]" );
-			        if (node == null || !node.hasContent()){
-				        Element tipusExp = tipus.addElement("tipus");
-				        tipusExp.addElement("codi").addText(exp.getExpedientTipusCodi());
-				        tipusExp.addElement("nom").addText(exp.getExpedientTipusNom());
-			        }
+	        	if (exp.getRefCatastral() != null && !exp.getRefCatastral().equals("")) {
+			        Element expedient = exps.addElement("expedient");
+			        expedient.addElement("refCatastral").addText(exp.getRefCatastral());
+			        expedient.addElement("numero").addText(exp.getNumero() != null ? exp.getNumero() : " ");
+			        expedient.addElement("titol").addText(exp.getTitol() != null ? exp.getTitol() : " ");
+			        expedient.addElement("expedientTipusCodi").addText(exp.getExpedientTipusCodi() != null ? exp.getExpedientTipusCodi() : " ");
+			        expedient.addElement("estatCodi").addText(exp.getEstatCodi() != null ? exp.getEstatCodi() : "INDEFINIT");
+			        expedient.addElement("url").addText(urlBase + "/expedient/info.html?id=" + exp.getProcessInstanceId()); 
 			        
-			        // comprovam que no existeixi l'estat en el document
-			        if (exp.getEstatCodi() != null) {
-				        node = document.selectSingleNode( "//msgExpedients/estats/estat[@tipusExpedient='" + exp.getExpedientTipusCodi() +"' and contains(codi, '" + exp.getEstatCodi() + "')]" );
+			        if (exp.getExpedientTipusCodi() != null) {
+				        // comprovam que no existeixi el tipus d'expedient en el document		        
+				        Node node = document.selectSingleNode( "//msgExpedients/expedientsTipus/expedientTipus[contains(codi, '" + exp.getExpedientTipusCodi() + "')]" );
 				        if (node == null || !node.hasContent()){
-					        Element estat = estats.addElement("estat").addAttribute("tipusExpedient", exp.getExpedientTipusCodi());
-					        estat.addElement("codi").addText(exp.getEstatCodi());
-					        estat.addElement("nom").addText(exp.getEstatNom());
+					        Element tipusExp = tipus.addElement("expedientTipus");
+					        tipusExp.addElement("codi").addText(exp.getExpedientTipusCodi());
+					        tipusExp.addElement("nom").addText(exp.getExpedientTipusNom());
+				        }
+				        
+				        // comprovam que no existeixi l'estat en el document
+				        if (exp.getEstatCodi() != null) {
+					        node = document.selectSingleNode( "//msgExpedients/estats/estat[@expedientTipus='" + exp.getExpedientTipusCodi() +"' and contains(codi, '" + exp.getEstatCodi() + "')]" );
+					        if (node == null || !node.hasContent()){
+						        Element estat = estats.addElement("estat").addAttribute("expedientTipus", exp.getExpedientTipusCodi());
+						        estat.addElement("codi").addText(exp.getEstatCodi());
+						        estat.addElement("nom").addText(exp.getEstatNom());
+					        }
+				        } else {
+				        	node = document.selectSingleNode( "//msgExpedients/estats/estat[@expedientTipus='" + exp.getExpedientTipusCodi() +"' and contains(codi, 'INDEFINIT')]" );
+					        if (node == null || !node.hasContent()){
+						        Element estat = estats.addElement("estat").addAttribute("expedientTipus", exp.getExpedientTipusCodi());
+						        estat.addElement("codi").addText("INDEFINIT");
+						        estat.addElement("nom").addText("Indefinit");
+					        }
 				        }
 			        }
-		        }
+	        	}
 			}
 			
 			return document.asXML();
