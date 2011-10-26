@@ -1,7 +1,6 @@
 package net.conselldemallorca.helium.webapp.mvc;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,9 +30,10 @@ public class JasperReportsView implements View {
 	public static final String HEADER_EXPIRES = "Expires";
 	public static final String HEADER_CACHE_CONTROL = "Cache-Control";
 
-	public static final String MODEL_ATTRIBUTE_MAPCOLLECTIONDATA = "mapCollectionData";
-	public static final String MODEL_ATTRIBUTE_REPORTFILE = "reportFile";
+	public static final String MODEL_ATTRIBUTE_REPORTDATA = "mapCollectionData";
 	public static final String MODEL_ATTRIBUTE_REPORTCONTENT = "reportContent";
+	public static final String MODEL_ATTRIBUTE_SUBREPORTS = "subreports";
+	public static final String MODEL_ATTRIBUTE_SUBREPORTDATA_PREFIX = "subreportFile_";
 
 
 
@@ -46,26 +46,28 @@ public class JasperReportsView implements View {
 		response.setHeader(HEADER_EXPIRES, "");
 		response.setHeader(HEADER_CACHE_CONTROL, "");
 
-		JRDataSource dataSource = null;
-		if (model.get(MODEL_ATTRIBUTE_MAPCOLLECTIONDATA) != null)
-			dataSource = new JRMapCollectionDataSource(
-					(List<Map<String, Object>>)model.get(MODEL_ATTRIBUTE_MAPCOLLECTIONDATA));
-		if (dataSource != null) {
+		JRDataSource datasource = null;
+		if (model.get(MODEL_ATTRIBUTE_REPORTDATA) != null)
+			datasource = new JRMapCollectionDataSource(
+					(List<Map<String, Object>>)model.get(MODEL_ATTRIBUTE_REPORTDATA));
+		if (datasource != null) {
 			JasperReport report = null;
-			if (model.get(MODEL_ATTRIBUTE_REPORTFILE) != null) {
-				report = JasperCompileManager.compileReport(
-						new FileInputStream(
-								(String)model.get(MODEL_ATTRIBUTE_REPORTFILE)));
-			} else {
-				report = JasperCompileManager.compileReport(
-						new ByteArrayInputStream(
-								(byte[])model.get(MODEL_ATTRIBUTE_REPORTCONTENT)));
-			}
+			report = JasperCompileManager.compileReport(
+					new ByteArrayInputStream(
+							(byte[])model.get(MODEL_ATTRIBUTE_REPORTCONTENT)));
 			Map<String, Object> params = new HashMap<String, Object>();
+			String[] subreports = (String[])model.get(MODEL_ATTRIBUTE_SUBREPORTS);
+			if (subreports != null) {
+				for (String subreportCodi: subreports) {
+					JRDataSource subDatasource = new JRMapCollectionDataSource(
+							(List<Map<String, Object>>)model.get(MODEL_ATTRIBUTE_REPORTDATA));
+					params.put("helds$" + subreportCodi, subDatasource);
+				}
+			}
 			JasperPrint jasperPrint = JasperFillManager.fillReport(
 					report,
 					params,
-					dataSource);
+					datasource);
 			response.setHeader("Content-Disposition","attachment; filename=\"informe.pdf\"");
 			response.setContentType(new MimetypesFileTypeMap().getContentType("informe.pdf"));
 			response.getOutputStream().write(

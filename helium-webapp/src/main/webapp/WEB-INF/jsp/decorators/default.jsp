@@ -29,13 +29,13 @@
 	<link href="<c:url value="/css/dropdown/dropdown.css"/>" media="all" rel="stylesheet" type="text/css" />
 	<link href="<c:url value="/css/dropdown/themes/helium/helium.css"/>" media="all" rel="stylesheet" type="text/css" />
 <!--[if lt IE 7]>
+<script type="text/javascript">
+</script>
 <script type="text/javascript" src="<c:url value="/js/dropdown/jquery/jquery.dropdown.js"/>"></script>
-<%--script type="text/javascript">var clear="<c:url value="/js/unitpngfix/clear.gif"/>";</script>
-<script type="text/javascript" src="<c:url value="/js/unitpngfix/unitpngfix.js"/>"></script--%>
 <![endif]-->
 <%-- /menu --%>
 	
-	<!-- script type="text/javascript" src="<c:url value="/js/msdropdown/jquery-1.3.2.min.js"/>"></script>
+	<%-- script type="text/javascript" src="<c:url value="/js/msdropdown/jquery-1.3.2.min.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/msdropdown/jquery.dd.js"/>"></script>
 	<link href="<c:url value="/css/msdropdown/dd.css"/>" rel="stylesheet" type="text/css" />
 	<script language="javascript">
@@ -46,12 +46,13 @@
 				alert(e.message);
 			}
 		});
-	</script -->
-	<c:set var="hiHaTaula" value='${not empty llistat or not empty personaLlistat or not empty grupLlistat
+	</script --%>
+	<%--c:set var="hiHaTaula" value='${not empty llistat or not empty personaLlistat or not empty grupLlistat
 			or not empty variablesProcesSenseAgrupar or not empty instanciaProces.sortedDocumentKeys
 			or not empty registre or not empty estats or not empty tasques or not empty camps
 			or not empty documents or not empty agrupacions or not empty accions or not empty recursos
 			or not empty terminis or not empty tokens}'/>
+	<c:set var="hiHaTaula" value="${false}"/>
 	<c:if test="${hiHaTaula}">
 		<script type="text/javascript" src="<c:url value="/js/jquery/jquery.filtrartaula.js"/>"></script>
 		<script type="text/javascript">
@@ -100,7 +101,7 @@
 				}
 			});
 		</script>
-	</c:if>
+	</c:if--%>
 	
 	<decorator:head />
 </head>
@@ -160,6 +161,15 @@
 		<div id="push"></div>
 	</div>
 	
-	<div id="footer"><span id="version">v.${versioNom}</span> ${globalProperties['app.copyright.text']}</div>
+	<div id="footer">
+		<span id="version">v.${versioNom}</span>
+		<c:choose>
+			<c:when test="${empty globalProperties['app.copyright.text']}">
+				<jsp:useBean id="ara" class="java.util.Date" />
+				&copy; <fmt:formatDate value="${ara}" pattern="yyyy"/> Govern de les Illes Balears
+			</c:when>
+			<c:otherwise>${globalProperties['app.copyright.text']}</c:otherwise>
+		</c:choose>
+	</div>
 </body>
 </html>

@@ -60,15 +60,18 @@ import net.conselldemallorca.helium.core.model.exportacio.TerminiExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.ValidacioExportacio;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
+import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
@@ -76,22 +79,18 @@ import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
+import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra.TipusMapeig;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
+import net.conselldemallorca.helium.core.model.hibernate.Tasca.TipusTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.hibernate.Validacio;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
-import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
-import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
-import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra.TipusMapeig;
-import net.conselldemallorca.helium.core.model.hibernate.Tasca.TipusTasca;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.context.NoSuchMessageException;
 import org.springframework.stereotype.Service;
 
 
@@ -128,6 +127,7 @@ public class DissenyService {
 	private DtoConverter dtoConverter;
 	private JbpmDao jbpmDao;
 	private MessageSource messageSource;
+	private ServiceUtils serviceUtils;
 
 	private Map<Long, Boolean> hasStartTask = new HashMap<Long, Boolean>();
 
@@ -147,10 +147,12 @@ public class DissenyService {
 					dpd.getKey());
 			if (darrera != null) {
 				if ((darrera.getExpedientTipus() != null && expedientTipusId == null)) {
-					throw new DeploymentException( getMessage("error.dissenyService.defprocDesplTipusExp", new Object[]{darrera.getExpedientTipus().getNom()}) );
+					throw new DeploymentException(
+							getServiceUtils().getMessage("error.dissenyService.defprocDesplTipusExp", new Object[]{darrera.getExpedientTipus().getNom()}));
 				}
 				if (darrera.getExpedientTipus() == null && expedientTipusId != null) {
-					throw new DeploymentException( getMessage("error.dissenyService.defprocDesplEntorn") );
+					throw new DeploymentException(
+							getServiceUtils().getMessage("error.dissenyService.defprocDesplEntorn"));
 				}
 				if (darrera.getExpedientTipus() != null && expedientTipusId != null) {
 					if (expedientTipusId.longValue() != darrera.getExpedientTipus().getId().longValue()) {
@@ -194,7 +196,8 @@ public class DissenyService {
 			}
 			return definicioProces;
 		} else {
-			throw new DeploymentException( getMessage("error.dissenyService.noConte") );
+			throw new DeploymentException(
+					getServiceUtils().getMessage("error.dissenyService.noConte"));
 		}
 	}
 
@@ -212,7 +215,8 @@ public class DissenyService {
 					deleteTermini(termini.getId());
 				definicioProcesDao.delete(definicioProcesId);
 			} else {
-				throw new IllegalArgumentException( getMessage("error.dissenyService.noEntorn") );
+				throw new IllegalArgumentException(
+						getServiceUtils().getMessage("error.dissenyService.noEntorn"));
 			}
 		} else {
 			if (comprovarExpedientTipus(expedientTipusId, definicioProcesId)) {
@@ -224,7 +228,8 @@ public class DissenyService {
 					deleteTermini(termini.getId());
 				definicioProcesDao.delete(definicioProcesId);
 			} else {
-				throw new IllegalArgumentException( getMessage("error.dissenyService.noTipusExp") );
+				throw new IllegalArgumentException(
+						getServiceUtils().getMessage("error.dissenyService.noTipusExp"));
 			}
 		}
 	}
@@ -243,7 +248,8 @@ public class DissenyService {
 			DefinicioProces definicioProces = definicioProcesDao.getById(id, false);
 			return toDto(definicioProces, false);
 		} else {
-			throw new IllegalArgumentException( getMessage("error.dissenyService.noEntorn") );
+			throw new IllegalArgumentException(
+					getServiceUtils().getMessage("error.dissenyService.noEntorn"));
 		}
 	}
 
@@ -1158,7 +1164,8 @@ public class DissenyService {
 				zos.close();
 				definicioProcesExportacio.setContingutDeploy(baos.toByteArray());
 			} catch (Exception ex) {
-				throw new ExportException(getMessage("error.dissenyService.generantContingut"), ex);
+				throw new ExportException(
+						getServiceUtils().getMessage("error.dissenyService.generantContingut"), ex);
 			}
 		}
         return definicioProcesExportacio;
@@ -1423,7 +1430,8 @@ public class DissenyService {
 		try {
 			return dominiDao.consultar(dominiId, null, params);
 		} catch (Exception ex) {
-			throw new DominiException(getMessage("error.dissenyService.consultantDomini"), ex);
+			throw new DominiException(
+					getServiceUtils().getMessage("error.dissenyService.consultantDomini"), ex);
 		}
 	}
 
@@ -1608,12 +1616,6 @@ public class DissenyService {
 	public List<Consulta> findConsultesAmbEntornIExpedientTipus(Long entornId, Long expedientTipusId) {
 		return consultaDao.findAmbEntornIExpedientTipus(entornId, expedientTipusId);
 	}
-	public List<Camp> findCampsFiltrePerConsulta(Long consultaId) {
-		return consultaDao.findCampsFiltre(consultaId);
-	}
-	public List<Camp> findCampsInformePerConsulta(Long consultaId) {
-		return consultaDao.findCampsInforme(consultaId);
-	}
 
 	public ConsultaCamp getConsultaCampById(Long id) {
 		return consultaCampDao.getById(id, false);
@@ -1657,17 +1659,7 @@ public class DissenyService {
 		return consultaCampDao.findCampsConsulta(consultaId, tipus);
 	}
 	public List<Camp> findCampsPerCampsConsulta(Long consultaId, TipusConsultaCamp tipus) {
-		List<Camp> resposta = new ArrayList<Camp>();
-		List<ConsultaCamp> camps = consultaCampDao.findCampsConsulta(consultaId, tipus);
-		for (ConsultaCamp camp: camps) {
-			DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmKeyIVersio(
-					camp.getDefprocJbpmKey(),
-					camp.getDefprocVersio());
-			resposta.add(campDao.findAmbDefinicioProcesICodi(
-					definicioProces.getId(),
-					camp.getCampCodi()));
-		}
-		return resposta;
+		return getServiceUtils().findCampsPerCampsConsulta(consultaId, tipus);
 	}
 	public void goUpConsultaCamp(Long id) {
 		ConsultaCamp consultaCamp = getConsultaCampById(id);
@@ -1712,6 +1704,17 @@ public class DissenyService {
 			if (agrupacio != null)
 				reordenarCamps(camp.getDefinicioProces().getId(), agrupacio.getId());
 		}
+	}
+
+	public void consultaAfegirSubconsulta(Long consultaId, Long subconsultaId) {
+		Consulta consulta = consultaDao.getById(consultaId, false);
+		Consulta subconsulta = consultaDao.getById(subconsultaId, false);
+		consulta.addSubConsulta(subconsulta);
+	}
+	public void consultaEsborrarSubconsulta(Long consultaId, Long subconsultaId) {
+		Consulta consulta = consultaDao.getById(consultaId, false);
+		Consulta subconsulta = consultaDao.getById(subconsultaId, false);
+		consulta.removeSubConsulta(subconsulta);
 	}
 
 	public Accio getAccioById(Long id) {
@@ -2202,14 +2205,16 @@ public class DissenyService {
 				if (enumeracio != null)
 					nou.setEnumeracio(enumeracio);
 				else
-					throw new DeploymentException( getMessage("error.dissenyService.enumNoDefinida", new Object[]{camp.getCodiEnumeracio()}) );
+					throw new DeploymentException(
+							getServiceUtils().getMessage("error.dissenyService.enumNoDefinida", new Object[]{camp.getCodiEnumeracio()}));
 			}
 			if (camp.getCodiDomini() != null) {
 				Domini domini = dominiDao.findAmbEntornICodi(entornId, camp.getCodiDomini());
 				if (domini != null)
 					nou.setDomini(domini);
 				else
-					throw new DeploymentException( getMessage("error.dissenyService.dominiNoDefinit", new Object[]{camp.getCodiDomini()}) );
+					throw new DeploymentException(
+							getServiceUtils().getMessage("error.dissenyService.dominiNoDefinit", new Object[]{camp.getCodiDomini()}));
 			}
 			if (camp.getAgrupacioCodi() != null)
 				nou.setAgrupacio(agrupacions.get(camp.getAgrupacioCodi()));
@@ -2360,21 +2365,20 @@ public class DissenyService {
 		camp.setOrdre(maxOrdre);
 		campDao.merge(camp);
 	}
-	
-	
-	protected String getMessage(String key, Object[] vars) {
-		try {
-			return messageSource.getMessage(
-					key,
-					vars,
-					null);
-		} catch (NoSuchMessageException ex) {
-			return "???" + key + "???";
-		}
-	}
 
-	protected String getMessage(String key) {
-		return getMessage(key, null);
+
+
+	private ServiceUtils getServiceUtils() {
+		if (serviceUtils == null) {
+			serviceUtils = new ServiceUtils(
+					definicioProcesDao,
+					campDao,
+					consultaCampDao,
+					dtoConverter,
+					jbpmDao,
+					messageSource);
+		}
+		return serviceUtils;
 	}
 
 }

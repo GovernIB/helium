@@ -19,6 +19,8 @@ import java.util.UUID;
 
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.model.dao.AccioDao;
+import net.conselldemallorca.helium.core.model.dao.CampDao;
+import net.conselldemallorca.helium.core.model.dao.ConsultaCampDao;
 import net.conselldemallorca.helium.core.model.dao.ConsultaDao;
 import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentDao;
@@ -40,11 +42,11 @@ import net.conselldemallorca.helium.core.model.dao.TerminiIniciatDao;
 import net.conselldemallorca.helium.core.model.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.core.model.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
+import net.conselldemallorca.helium.core.model.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
-import net.conselldemallorca.helium.core.model.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.dto.TokenDto;
 import net.conselldemallorca.helium.core.model.exception.DominiException;
@@ -55,6 +57,7 @@ import net.conselldemallorca.helium.core.model.exception.TemplateException;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
@@ -107,6 +110,8 @@ public class ExpedientService {
 	private EstatDao estatDao;
 	private LuceneDao luceneDao;
 	private ConsultaDao consultaDao;
+	private CampDao campDao;
+	private ConsultaCampDao consultaCampDao;
 	private PluginCustodiaDao pluginCustodiaDao;
 	private RegistreDao registreDao;
 	private AccioDao accioDao;
@@ -362,7 +367,8 @@ public class ExpedientService {
 				getServiceUtils().getMapDefinicionsProces(expedient),
 				mapCamps,
 				mapValors,
-				getServiceUtils().getMapValorsDomini(mapCamps, mapValors));
+				getServiceUtils().getMapValorsDomini(mapCamps, mapValors),
+				isExpedientFinalitzat(expedient));
 		registreDao.crearRegistreIniciarExpedient(
 				expedient.getId(),
 				usuariBo);
@@ -403,7 +409,8 @@ public class ExpedientService {
 				getServiceUtils().getMapDefinicionsProces(expedient),
 				mapCamps,
 				mapValors,
-				getServiceUtils().getMapValorsDomini(mapCamps, mapValors));
+				getServiceUtils().getMapValorsDomini(mapCamps, mapValors),
+				isExpedientFinalitzat(expedient));
 		String informacioNova = getInformacioExpedient(expedient);
 		registreDao.crearRegistreModificarExpedient(
 				expedient.getId(),
@@ -583,24 +590,27 @@ public class ExpedientService {
 		Consulta consulta = consultaDao.getById(consultaId, false);
 		List<Long> idsExpedients = luceneDao.findNomesIds(
 				consulta.getExpedientTipus().getCodi(),
-				consultaDao.findCampsFiltre(consultaId),
+				getServiceUtils().findCampsPerCampsConsulta(consultaId, TipusConsultaCamp.FILTRE),
 				valors);
 		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
 		if (idsExpedients.size() > 0) {
 			List<Map<String, DadaIndexadaDto>> dadesExpedients = luceneDao.findAmbDadesExpedient(
 					consulta.getExpedientTipus().getCodi(),
-					consultaDao.findCampsFiltre(consultaId),
+					getServiceUtils().findCampsPerCampsConsulta(consultaId, TipusConsultaCamp.FILTRE),
 					valors,
-					consultaDao.findCampsInforme(consultaId));
+					getServiceUtils().findCampsPerCampsConsulta(consultaId, TipusConsultaCamp.INFORME));
 			int index = 0;
 			for (Long id: idsExpedients) {
 				ExpedientConsultaDissenyDto fila = new ExpedientConsultaDissenyDto();
-				fila.setExpedient(
-						dtoConverter.toExpedientDto(
-								expedientDao.getById(id, false),
-								false));
-				fila.setDadesExpedient(dadesExpedients.get(index++));
-				resposta.add(fila);
+				Expedient expedient = expedientDao.getById(id, false);
+				if (expedient != null) {
+					fila.setExpedient(
+							dtoConverter.toExpedientDto(
+									expedientDao.getById(id, false),
+									false));
+					fila.setDadesExpedient(dadesExpedients.get(index++));
+					resposta.add(fila);
+				}
 			}
 		}
 		return resposta;
@@ -641,6 +651,7 @@ public class ExpedientService {
 			for (Camp camp: camps.get(clau))
 				informeCamps.add(camp);
 		}
+		informeCamps.addAll(getServiceUtils().findAllCampsExpedientConsulta());
 		return luceneDao.getDadesExpedient(
 				expedient,
 				informeCamps);
@@ -656,15 +667,20 @@ public class ExpedientService {
 				getServiceUtils().getMapDefinicionsProces(expedient),
 				mapCamps,
 				mapValors,
-				getServiceUtils().getMapValorsDomini(mapCamps, mapValors));
+				getServiceUtils().getMapValorsDomini(mapCamps, mapValors),
+				isExpedientFinalitzat(expedient));
 	}
 	@Secured({"ROLE_ADMIN"})
 	public void luceneReindexarEntorn(Long entornId) {
 		Entorn entorn = entornDao.getById(entornId, false);
 		logger.info("Reindexant els expedients de l'entorn " + entorn.getNom());
 		for (Expedient expedient: expedientDao.findAmbEntorn(entornId)) {
-			logger.info("Reindexant expedient " + expedient.getIdentificador() + "...");
-			luceneReindexarExpedient(expedient.getProcessInstanceId());
+			try {
+				logger.info("Reindexant expedient " + expedient.getIdentificador() + "...");
+				luceneReindexarExpedient(expedient.getProcessInstanceId());
+			} catch (Exception ex) {
+				logger.error("Error al reindexar l'expedient " + expedient.getIdentificador(), ex);
+			}
 		}
 	}
 
@@ -689,7 +705,8 @@ public class ExpedientService {
 				getServiceUtils().getMapDefinicionsProces(expedient),
 				mapCamps,
 				mapValors,
-				getServiceUtils().getMapValorsDomini(mapCamps, mapValors));
+				getServiceUtils().getMapValorsDomini(mapCamps, mapValors),
+				isExpedientFinalitzat(expedient));
 		registreDao.crearRegistreCrearVariableInstanciaProces(
 				getExpedientPerProcessInstanceId(processInstanceId).getId(),
 				processInstanceId,
@@ -709,7 +726,8 @@ public class ExpedientService {
 				getServiceUtils().getMapDefinicionsProces(expedient),
 				mapCamps,
 				mapValors,
-				getServiceUtils().getMapValorsDomini(mapCamps, mapValors));
+				getServiceUtils().getMapValorsDomini(mapCamps, mapValors),
+				isExpedientFinalitzat(expedient));
 		registreDao.crearRegistreModificarVariableInstanciaProces(
 				getExpedientPerProcessInstanceId(processInstanceId).getId(),
 				processInstanceId,
@@ -729,7 +747,8 @@ public class ExpedientService {
 				getServiceUtils().getMapDefinicionsProces(expedient),
 				mapCamps,
 				mapValors,
-				getServiceUtils().getMapValorsDomini(mapCamps, mapValors));
+				getServiceUtils().getMapValorsDomini(mapCamps, mapValors),
+				isExpedientFinalitzat(expedient));
 		registreDao.crearRegistreEsborrarVariableInstanciaProces(
 				getExpedientPerProcessInstanceId(processInstanceId).getId(),
 				processInstanceId,
@@ -1291,6 +1310,16 @@ public class ExpedientService {
 		this.luceneDao = luceneDao;
 	}
 	@Autowired
+	public void setCampDao(
+			CampDao campDao) {
+		this.campDao = campDao;
+	}
+	@Autowired
+	public void setConsultaCampDao(
+			ConsultaCampDao consultaCampDao) {
+		this.consultaCampDao = consultaCampDao;
+	}
+	@Autowired
 	public void setConsultaDao(ConsultaDao consultaDao) {
 		this.consultaDao = consultaDao;
 	}
@@ -1599,6 +1628,14 @@ public class ExpedientService {
 		return extensioVista;
 	}
 
+	private boolean isExpedientFinalitzat(Expedient expedient) {
+		if (expedient.getProcessInstanceId() != null) {
+			JbpmProcessInstance processInstance = jbpmDao.getProcessInstance(expedient.getProcessInstanceId());
+			return processInstance.getEnd() != null;
+		}
+		return false;
+	}
+
 	private OpenOfficeUtils getOpenOfficeUtils() {
 		if (openOfficeUtils == null)
 			openOfficeUtils = new OpenOfficeUtils();
@@ -1609,6 +1646,8 @@ public class ExpedientService {
 		if (serviceUtils == null) {
 			serviceUtils = new ServiceUtils(
 					definicioProcesDao,
+					campDao,
+					consultaCampDao,
 					dtoConverter,
 					jbpmDao,
 					messageSource);

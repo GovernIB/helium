@@ -89,6 +89,9 @@ function confirmarAnular(e) {
 			</div>
 		</form:form>
 		<c:if test="${not empty sessionScope.expedientTipusConsultaFiltreCommand}">
+			<div class="missatgesGris">
+				<p><fmt:message key="expedient.consulta.trobats"><fmt:param value="${fn:length(expedients)}"/></fmt:message></p>
+			</div>
 			<display:table name="expedients" id="registre" requestURI="" class="displaytag selectable" export="${consulta.exportarActiu}">
 				<c:set var="filaStyle" value=""/>
 				<c:if test="${registre.expedient.anulat}"><c:set var="filaStyle" value="text-decoration:line-through"/></c:if>
@@ -110,10 +113,16 @@ function confirmarAnular(e) {
 					<c:otherwise>
 						<c:forEach var="camp" items="${campsInforme}">
 							<c:set var="tipusCamp" value="${camp.tipus}"/>
-							<c:set var="clauCamp" value="${camp.definicioProces.jbpmKey}/${camp.codi}"/>
+							<c:choose>
+								<c:when test="${not empty camp.definicioProces}"><c:set var="clauCamp" value="${camp.definicioProces.jbpmKey}/${camp.codi}"/></c:when>
+								<c:otherwise><c:set var="clauCamp" value="${camp.codi}"/></c:otherwise>
+							</c:choose>
 							<c:set var="valorCamp" value="${registre.dadesExpedient[clauCamp].valor}"/>
 							<c:set var="textCamp" value="${registre.dadesExpedient[clauCamp].valorMostrar}"/>
 							<c:choose>
+								<c:when test="${tipusCamp == 'DATE' && clauCamp == 'expedient$dataInici'}">
+									<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true" style="${filaStyle}"/>
+								</c:when>
 								<c:when test="${tipusCamp == 'DATE'}">
 									<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,date,dd/MM/yyyy}" sortable="true" style="${filaStyle}"/>
 								</c:when>
@@ -125,6 +134,17 @@ function confirmarAnular(e) {
 								</c:when>
 								<c:when test="${tipusCamp == 'PRICE'}">
 									<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,number,#,###.00}" sortable="true" style="${filaStyle}"/>
+								</c:when>
+								<c:when test="${tipusCamp == 'SELECCIO' && clauCamp == 'expedient$estat'}">
+									<display:column title="${camp.etiqueta}" sortable="true" style="${filaStyle}">
+										<c:if test="${registre.expedient.aturat}"><img src="<c:url value="/img/stop.png"/>" alt="Aturat" title="Aturat" border="0"/></c:if>
+										<c:choose>
+											<c:when test="${empty registre.expedient.dataFi}">
+												<c:choose><c:when test="${empty registre.expedient.estat}"><fmt:message key='expedient.consulta.iniciat' /></c:when><c:otherwise>${registre.expedient.estat.nom}</c:otherwise></c:choose>
+											</c:when>
+											<c:otherwise><fmt:message key='expedient.consulta.finalitzat' /></c:otherwise>
+										</c:choose>
+									</display:column>
 								</c:when>
 								<c:otherwise>
 									<display:column property="dadesExpedient(${clauCamp}).valorMostrar" title="${camp.etiqueta}" sortable="true" style="${filaStyle}"/>

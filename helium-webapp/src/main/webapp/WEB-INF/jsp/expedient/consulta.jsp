@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
@@ -14,7 +15,6 @@
     <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
     <c:import url="../common/formIncludes.jsp"/>
     <script type="text/javascript" src="<c:url value="/dwr/engine.js"/>"></script>
-	<script type="text/javascript" src="<c:url value="/dwr/util.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/dwr/interface/gisDwrService.js"/>"></script>
 <script type="text/javascript">
 // <![CDATA[
@@ -225,6 +225,9 @@ function obreVisorGis() {
 				<c:param name="onclick">obreVisorGis()</c:param>
 			</c:import>
 		</c:if>
+		<div class="missatgesGris">
+			<p><fmt:message key="expedient.consulta.trobats"><fmt:param value="${fn:length(llistat)}"/></fmt:message></p>
+		</div>
 		<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable" defaultsort="2" defaultorder="descending">
 			<c:set var="filaStyle" value=""/>
 			<c:if test="${registre.anulat}"><c:set var="filaStyle" value="text-decoration:line-through"/></c:if>
@@ -257,10 +260,14 @@ function obreVisorGis() {
 					<a href="<c:url value="/expedient/delete.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmarEsborrar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 				</security:accesscontrollist>
 			</display:column>
+			<display:setProperty name="paging.banner.item_name">pais</display:setProperty>
+				<display:setProperty name="paging.banner.items_name">pais</display:setProperty>
+				<display:setProperty name="basic.msg.empty_list">
+					<span class="nothingFound">No s'ha trobat cap pais</span>
+				</display:setProperty>
 		</display:table>
 		<script type="text/javascript">initSelectable();</script>
 	</c:if>
 
 </body>
 </html>
-				

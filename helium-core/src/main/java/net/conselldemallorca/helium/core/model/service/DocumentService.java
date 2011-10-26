@@ -114,15 +114,6 @@ public class DocumentService {
 				document.getVistaNom(),
 				document.getVistaContingut());
 	}
-	public ArxiuDto arxiuDocumentVista(String token) {
-		try {
-			String tokenDesxifrat = getDocumentTokenUtils().desxifrarToken(token);
-			return arxiuDocumentVista(Long.parseLong(tokenDesxifrat));
-		} catch (Exception ex) {
-			logger.error("Error al obtenir el document amb token " + token, ex);
-			throw new IllegalArgumentsException(getMessage("error.documentService.formatIncorrecte") );
-		}
-	}
 
 	public ArxiuDto arxiuDocumentPerMostrar(Long documentStoreId) {
 		DocumentDto document = arxiuDocumentInfo(documentStoreId);

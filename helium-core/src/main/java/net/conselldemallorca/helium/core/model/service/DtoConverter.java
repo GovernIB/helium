@@ -547,8 +547,9 @@ public class DtoConverter {
 				}
 				if (ambContingutSignat && document.isSignat() && isSignaturaFileAttached()) {
 					dto.setSignatNom(
-							getNomArxiuAmbExtensioSignatura(
-									document.getArxiuNom()));
+							getNomArxiuAmbExtensio(
+									document.getArxiuNom(),
+									getExtensioArxiuSignat()));
 					byte[] signatura = pluginCustodiaDao.obtenirSignaturesAmbArxiu(document.getReferenciaCustodia());
 					dto.setSignatContingut(signatura);
 				}
@@ -562,8 +563,9 @@ public class DtoConverter {
 							arxiuOrigenNom = dto.getSignatNom();
 							arxiuOrigenContingut = dto.getSignatContingut();
 						} else {
-							arxiuOrigenNom = getNomArxiuAmbExtensioSignatura(
-									document.getArxiuNom());
+							arxiuOrigenNom = getNomArxiuAmbExtensio(
+									document.getArxiuNom(),
+									getExtensioArxiuSignat());
 							arxiuOrigenContingut = pluginCustodiaDao.obtenirSignaturesAmbArxiu(document.getReferenciaCustodia());
 						}
 					} else {
@@ -586,7 +588,9 @@ public class DtoConverter {
 						extensioActual = arxiuOrigenNom.substring(0, indexPunt);
 					String extensioDesti = extensioActual;
 					if (perSignar && isActiuConversioSignatura()) {
-						extensioDesti = (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
+						extensioDesti = getExtensioArxiuSignat();
+					} else if (document.isRegistrat()) {
+						extensioDesti = getExtensioArxiuRegistrat();
 					}
 					dto.setVistaNom(dto.getArxiuNomSenseExtensio() + "." + extensioDesti);
 					if ("pdf".equalsIgnoreCase(extensioDesti)) {
@@ -601,8 +605,8 @@ public class DtoConverter {
 							getPdfUtils().estampar(
 									arxiuOrigenNom,
 									arxiuOrigenContingut,
-									(document.isSignat()) ? false : ambSegellSignatura,
-									(document.isSignat()) ? null : getUrlComprovacioSignatura(documentStoreId, dto.getTokenSignatura()),
+									(document.isSignat()) ? ambSegellSignatura : false,
+									(document.isSignat()) ? getUrlComprovacioSignatura(documentStoreId, dto.getTokenSignatura()): null,
 									document.isRegistrat(),
 									numeroRegistre,
 									dataRegistre,
@@ -1301,10 +1305,11 @@ public class DtoConverter {
 		return "true".equalsIgnoreCase(actiuConversioSignatura);
 	}
 
-	private String getNomArxiuAmbExtensioSignatura(String arxiuNomOriginal) {
+	private String getNomArxiuAmbExtensio(
+			String arxiuNomOriginal,
+			String extensio) {
 		if (!isActiuConversioSignatura())
 			return arxiuNomOriginal;
-		String extensio = (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
 		if (extensio == null)
 			extensio = "";
 		int indexPunt = arxiuNomOriginal.indexOf(".");
@@ -1313,6 +1318,12 @@ public class DtoConverter {
 		} else {
 			return arxiuNomOriginal + "." + extensio;
 		}
+	}
+	private String getExtensioArxiuSignat() {
+		return (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
+	}
+	private String getExtensioArxiuRegistrat() {
+		return (String)GlobalProperties.getInstance().get("app.conversio.registre.extension");
 	}
 
 	private byte[] getContingutDocumentAmbFont(DocumentStore document) {

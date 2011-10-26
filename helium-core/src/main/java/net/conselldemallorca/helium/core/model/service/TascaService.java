@@ -15,6 +15,8 @@ import java.util.Set;
 
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.model.dao.AlertaDao;
+import net.conselldemallorca.helium.core.model.dao.CampDao;
+import net.conselldemallorca.helium.core.model.dao.ConsultaCampDao;
 import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentStoreDao;
@@ -112,6 +114,8 @@ public class TascaService {
 	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
 	private TerminiIniciatDao terminiIniciatDao;
 	private AlertaDao alertaDao;
+	private CampDao campDao;
+	private ConsultaCampDao consultaCampDao;
 	private MessageSource messageSource;
 
 	private OpenOfficeUtils openOfficeUtils;
@@ -509,7 +513,8 @@ public class TascaService {
 				getServiceUtils().getMapDefinicionsProces(expedient),
 				mapCamps,
 				mapValors,
-				getServiceUtils().getMapValorsDomini(mapCamps, mapValors));
+				getServiceUtils().getMapValorsDomini(mapCamps, mapValors),
+				isExpedientFinalitzat(expedient));
 		TascaDto tasca = toTascaDto(task, null, true);
 		registreDao.crearRegistreFinalitzarTasca(
 				tasca.getExpedient().getId(),
@@ -1182,6 +1187,16 @@ public class TascaService {
 		this.alertaDao = alertaDao;
 	}
 	@Autowired
+	public void setCampDao(
+			CampDao campDao) {
+		this.campDao = campDao;
+	}
+	@Autowired
+	public void setConsultaCampDao(
+			ConsultaCampDao consultaCampDao) {
+		this.consultaCampDao = consultaCampDao;
+	}
+	@Autowired
 	public void setMessageSource(MessageSource messageSource) {
 		this.messageSource = messageSource;
 	}
@@ -1613,6 +1628,8 @@ public class TascaService {
 		if (serviceUtils == null) {
 			serviceUtils = new ServiceUtils(
 					definicioProcesDao,
+					campDao,
+					consultaCampDao,
 					dtoConverter,
 					jbpmDao,
 					messageSource);
@@ -1624,6 +1641,14 @@ public class TascaService {
 			documentTokenUtils = new DocumentTokenUtils(
 					(String)GlobalProperties.getInstance().get("app.encriptacio.clau"));
 		return documentTokenUtils;
+	}
+
+	private boolean isExpedientFinalitzat(Expedient expedient) {
+		if (expedient.getProcessInstanceId() != null) {
+			JbpmProcessInstance processInstance = jbpmDao.getProcessInstance(expedient.getProcessInstanceId());
+			return processInstance.getEnd() != null;
+		}
+		return false;
 	}
 
 	private static final Log logger = LogFactory.getLog(TascaService.class);

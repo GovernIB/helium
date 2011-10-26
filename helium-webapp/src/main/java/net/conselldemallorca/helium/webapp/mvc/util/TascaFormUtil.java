@@ -18,6 +18,7 @@ import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
+import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.sf.cglib.beans.BeanGenerator;
 
 import org.apache.commons.beanutils.PropertyUtils;
@@ -345,10 +346,15 @@ public class TascaFormUtil {
 	}
 
 	private static String getCampCodi(Camp camp, boolean perFiltre) {
-		if (perFiltre)
-			return camp.getDefinicioProces().getJbpmKey() + "_" + camp.getCodi();
-		else
+		if (perFiltre) {
+			if (camp.getCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
+				return camp.getCodi();
+			} else {
+				return camp.getDefinicioProces().getJbpmKey() + "_" + camp.getCodi();
+			}
+		} else {
 			return camp.getCodi();
+		}
 	}
 
 	private static final Log logger = LogFactory.getLog(TascaFormUtil.class);

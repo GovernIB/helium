@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +20,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 
 import org.apache.commons.logging.Log;
@@ -48,28 +50,6 @@ import org.springmodules.lucene.search.core.LuceneSearchTemplate;
 @Repository
 public class LuceneDao extends LuceneIndexSupport {
 
-	private static final String EXPEDIENT_CAMP_ID = "expedient.id";
-	private static final String EXPEDIENT_CAMP_NUMERO = "expedient.numero";
-	private static final String EXPEDIENT_CAMP_TITOL = "expedient.titol";
-	private static final String EXPEDIENT_CAMP_COMENTARI = "expedient.comentari";
-	private static final String EXPEDIENT_CAMP_INFOATUR = "expedient.infoatur";
-	private static final String EXPEDIENT_CAMP_INICIADOR = "expedient.iniciador";
-	private static final String EXPEDIENT_CAMP_RESPONSABLE = "expedient.responsable";
-	private static final String EXPEDIENT_CAMP_GEOX = "expedient.geox";
-	private static final String EXPEDIENT_CAMP_GEOY = "expedient.geoy";
-	private static final String EXPEDIENT_CAMP_GEOREF = "expedient.georef";
-	private static final String EXPEDIENT_CAMP_REGNUM = "expedient.regnum";
-	private static final String EXPEDIENT_CAMP_REGDATA = "expedient.regdata";
-	private static final String EXPEDIENT_CAMP_UNIADM = "expedient.uniadm";
-	private static final String EXPEDIENT_CAMP_IDIOMA = "expedient.idioma";
-	private static final String EXPEDIENT_CAMP_TRAMIT = "expedient.idioma";
-	private static final String EXPEDIENT_CAMP_DATA_INICI = "expedient.dataInici";
-	private static final String EXPEDIENT_CAMP_TIPUS = "expedient.tipus";
-	private static final String EXPEDIENT_CAMP_ESTAT = "expedient.estat";
-
-	private static final String ESTAT_EXPEDIENT_INICIAT = "H3l1um#estat.iniciat";
-	private static final String ESTAT_EXPEDIENT_FINALITZAT = "H3l1um#estat.finalitzat";
-
 	private static final int NUMDIGITS_PART_SENCERA = 15;
 	private static final int NUMDIGITS_PART_DECIMAL = 6;
 	private static final String PATRO_DATES_INDEX = "yyyyMMddHHmmSS";
@@ -86,14 +66,16 @@ public class LuceneDao extends LuceneIndexSupport {
 			Map<String, DefinicioProces> definicionsProces,
 			Map<String, Set<Camp>> camps,
 			Map<String, Map<String, Object>> valors,
-			Map<String, Map<String, String>> textDominis) {
+			Map<String, Map<String, String>> textDominis,
+			boolean finalitzat) {
 		checkIndexOk();
 		Document document = createDocumentFromExpedient(
 				expedient,
 				definicionsProces,
 				camps,
 				valors,
-				textDominis);
+				textDominis,
+				finalitzat);
 		getLuceneIndexTemplate().addDocument(document);
 	}
 	@SuppressWarnings("unchecked")
@@ -102,14 +84,15 @@ public class LuceneDao extends LuceneIndexSupport {
 			final Map<String, DefinicioProces> definicionsProces,
 			final Map<String, Set<Camp>> camps,
 			final Map<String, Map<String, Object>> valors,
-			final Map<String, Map<String, String>> textDominis) {
+			final Map<String, Map<String, String>> textDominis,
+			final boolean finalitzat) {
 		checkIndexOk();
 		try {
 			List<Long> resposta = searchTemplate.search(
 					new TermQuery(termIdFromExpedient(expedient)),
 					new HitExtractor() {
 					    public Object mapHit(int id, Document document, float score) {
-				    		return new Long(document.get(EXPEDIENT_CAMP_ID));
+				    		return new Long(document.get(ExpedientCamps.EXPEDIENT_CAMP_ID));
 					    }
 					});
 			if (resposta.size() > 0) {
@@ -122,7 +105,8 @@ public class LuceneDao extends LuceneIndexSupport {
 										definicionsProces,
 										camps,
 										valors,
-										textDominis);
+										textDominis,
+										finalitzat);
 							}
 						});
 			} else {
@@ -131,7 +115,8 @@ public class LuceneDao extends LuceneIndexSupport {
 						definicionsProces,
 						camps,
 						valors,
-						textDominis);
+						textDominis,
+						finalitzat);
 			}
 			return true;
 		} catch (Exception ex) {
@@ -174,7 +159,7 @@ public class LuceneDao extends LuceneIndexSupport {
 				query,
 				new HitExtractor() {
 				    public Object mapHit(int id, Document document, float score) {
-			    		return new Long(document.get(EXPEDIENT_CAMP_ID));
+			    		return new Long(document.get(ExpedientCamps.EXPEDIENT_CAMP_ID));
 				    }
 				});
 		return resposta;
@@ -199,7 +184,7 @@ public class LuceneDao extends LuceneIndexSupport {
 			List<Camp> informeCamps) {
 		checkIndexOk();
 		Query query = queryFromCampFiltre(
-				EXPEDIENT_CAMP_ID,
+				ExpedientCamps.EXPEDIENT_CAMP_ID,
 				expedient.getId().toString(),
 				null);
 		return getDadesExpedientPerConsulta(
@@ -221,67 +206,74 @@ public class LuceneDao extends LuceneIndexSupport {
 			Map<String, DefinicioProces> definicionsProces,
 			Map<String, Set<Camp>> camps,
 			Map<String, Map<String, Object>> valors,
-			Map<String, Map<String, String>> textDominis) {
-		Document doc = new Document();
-		doc.add(new Field(
-				EXPEDIENT_CAMP_ID,
+			Map<String, Map<String, String>> textDominis,
+			boolean finalitzat) {
+		Document document = new Document();
+		document.add(new Field(
+				ExpedientCamps.EXPEDIENT_CAMP_ID,
 	    		expedient.getId().toString(),
 				Field.Store.YES,
 				Field.Index.NOT_ANALYZED));
-		doc.add(new Field(
-				EXPEDIENT_CAMP_NUMERO,
+		document.add(new Field(
+				ExpedientCamps.EXPEDIENT_CAMP_NUMERO,
 	    		(expedient.getNumero() != null) ? expedient.getNumero() : VALOR_CAMP_BUIT,
 				Field.Store.YES,
-				Field.Index.NOT_ANALYZED));
-		doc.add(new Field(
-				EXPEDIENT_CAMP_TITOL,
+				Field.Index.ANALYZED));
+		document.add(new Field(
+				ExpedientCamps.EXPEDIENT_CAMP_TITOL,
 				(expedient.getTitol() != null) ? normalitzarILlevarAccents(expedient.getTitol()) : VALOR_CAMP_BUIT,
 				Field.Store.YES,
 				(expedient.getTitol() != null) ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED));
-		doc.add(new Field(
-				EXPEDIENT_CAMP_COMENTARI,
+		document.add(new Field(
+				ExpedientCamps.EXPEDIENT_CAMP_COMENTARI,
 				(expedient.getComentari() != null) ? normalitzarILlevarAccents(expedient.getComentari()) : VALOR_CAMP_BUIT,
 				Field.Store.YES,
 				(expedient.getComentari() != null) ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED));
-		doc.add(new Field(
-				EXPEDIENT_CAMP_INICIADOR,
+		document.add(new Field(
+				ExpedientCamps.EXPEDIENT_CAMP_INICIADOR,
 	    		(expedient.getIniciadorCodi() != null) ? expedient.getIniciadorCodi() : VALOR_CAMP_BUIT,
 				Field.Store.YES,
 				Field.Index.NOT_ANALYZED));
-		doc.add(new Field(
-				EXPEDIENT_CAMP_RESPONSABLE,
+		document.add(new Field(
+				ExpedientCamps.EXPEDIENT_CAMP_RESPONSABLE,
 	    		expedient.getResponsableCodi(),
 				Field.Store.YES,
 				Field.Index.NOT_ANALYZED));
-		doc.add(new Field(
-				EXPEDIENT_CAMP_DATA_INICI,
+		document.add(new Field(
+				ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI,
 	    		dataPerIndexar(expedient.getDataInici()),
 				Field.Store.YES,
 				Field.Index.NOT_ANALYZED));
-		doc.add(new Field(
-				EXPEDIENT_CAMP_TIPUS,
+		document.add(new Field(
+				ExpedientCamps.EXPEDIENT_CAMP_TIPUS,
 	    		expedient.getTipus().getCodi(),
 				Field.Store.YES,
 				Field.Index.NOT_ANALYZED));
 		if (expedient.getEstat() != null) {
-			doc.add(new Field(
-					EXPEDIENT_CAMP_ESTAT,
-		    		expedient.getEstat().getCodi(),
+			document.add(new Field(
+					ExpedientCamps.EXPEDIENT_CAMP_ESTAT,
+					expedient.getEstat().getCodi(),
+					Field.Store.YES,
+					Field.Index.NOT_ANALYZED));
+			document.add(new Field(
+					ExpedientCamps.EXPEDIENT_CAMP_ESTAT + VALOR_DOMINI_SUFIX + expedient.getEstat().getCodi(),
+					expedient.getEstat().getCodi(),
 					Field.Store.YES,
 					Field.Index.NOT_ANALYZED));
 		} else {
-			if (expedient.getDataFi() == null)
-				doc.add(new Field(
-						EXPEDIENT_CAMP_ESTAT,
-			    		ESTAT_EXPEDIENT_INICIAT,
+			if (!finalitzat) {
+				document.add(new Field(
+						ExpedientCamps.EXPEDIENT_CAMP_ESTAT,
+			    		"0",
 						Field.Store.YES,
 						Field.Index.NOT_ANALYZED));
-			else
-				doc.add(new Field(
-						EXPEDIENT_CAMP_ESTAT,
-			    		ESTAT_EXPEDIENT_FINALITZAT,
+			} else {
+				document.add(new Field(
+						ExpedientCamps.EXPEDIENT_CAMP_ESTAT,
+			    		"-1",
 						Field.Store.YES,
 						Field.Index.NOT_ANALYZED));
+			}
 		}
 		for (String clau: definicionsProces.keySet()) {
 			DefinicioProces definicioProces = definicionsProces.get(clau);
@@ -289,7 +281,7 @@ public class LuceneDao extends LuceneIndexSupport {
 			if (valorsProces != null) {
 				for (Camp camp: camps.get(clau)) {
 					addFieldToDocument(
-							doc,
+							document,
 							definicioProces,
 							camp,
 							valorsProces.get(camp.getCodi()),
@@ -298,7 +290,7 @@ public class LuceneDao extends LuceneIndexSupport {
 				}
 			}
 		}
-		return doc;
+		return document;
 	}
 
 	private Query queryPerFiltre(
@@ -309,7 +301,7 @@ public class LuceneDao extends LuceneIndexSupport {
 		bquery.add(
 				new BooleanClause(
 						queryFromCampFiltre(
-								EXPEDIENT_CAMP_TIPUS,
+								ExpedientCamps.EXPEDIENT_CAMP_TIPUS,
 								tipusCodi,
 								null),
 						BooleanClause.Occur.MUST));
@@ -328,81 +320,57 @@ public class LuceneDao extends LuceneIndexSupport {
 			Object valorFiltre,
 			List<Camp> camps) {
 		if (valorFiltre != null) {
-			if (EXPEDIENT_CAMP_ID.equals(codiCamp)) {
-				return new TermQuery(new Term(
-						codiCamp,
-						(String)valorFiltre));
-			} else if (EXPEDIENT_CAMP_NUMERO.equals(codiCamp)) {
-				return queryPerStringAmbWildcards(
-						codiCamp,
-						(String)valorFiltre);
-			} else if (EXPEDIENT_CAMP_TITOL.equals(codiCamp)) {
-				return queryPerStringAmbWildcards(
-						codiCamp,
-						(String)valorFiltre);
-			} else if (EXPEDIENT_CAMP_COMENTARI.equals(codiCamp)) {
-				return queryPerStringAmbWildcards(
-						codiCamp,
-						(String)valorFiltre);
-			} else if (EXPEDIENT_CAMP_INFOATUR.equals(codiCamp)) {
-				return queryPerStringAmbWildcards(
-						codiCamp,
-						(String)valorFiltre);
-			} else if (EXPEDIENT_CAMP_INICIADOR.equals(codiCamp)) {
-				return new TermQuery(new Term(
-						codiCamp,
-						(String)valorFiltre));
-			} else if (EXPEDIENT_CAMP_RESPONSABLE.equals(codiCamp)) {
-				return new TermQuery(new Term(
-						codiCamp,
-						(String)valorFiltre));
-			} else if (EXPEDIENT_CAMP_GEOX.equals(codiCamp)) {
-				return new TermQuery(new Term(
-						codiCamp,
-						numberPerIndexar((Number)valorFiltre)));
-			} else if (EXPEDIENT_CAMP_GEOY.equals(codiCamp)) {
-				return new TermQuery(new Term(
-						codiCamp,
-						numberPerIndexar((Number)valorFiltre)));
-			} else if (EXPEDIENT_CAMP_GEOREF.equals(codiCamp)) {
-				return new TermQuery(new Term(
-						codiCamp,
-						(String)valorFiltre));
-			} else if (EXPEDIENT_CAMP_REGNUM.equals(codiCamp)) {
-				return new TermQuery(new Term(
-						codiCamp,
-						(String)valorFiltre));
-			} else if (EXPEDIENT_CAMP_REGDATA.equals(codiCamp)) {
-				return new TermQuery(new Term(
-						codiCamp,
-						(String)valorFiltre));
-			} else if (EXPEDIENT_CAMP_UNIADM.equals(codiCamp)) {
-				return new TermQuery(new Term(
-						codiCamp,
-						(String)valorFiltre));
-			} else if (EXPEDIENT_CAMP_IDIOMA.equals(codiCamp)) {
-				return new TermQuery(new Term(
-						codiCamp,
-						(String)valorFiltre));
-			} else if (EXPEDIENT_CAMP_TRAMIT.equals(codiCamp)) {
-				return new TermQuery(new Term(
-						codiCamp,
-						(String)valorFiltre));
-			} else if (EXPEDIENT_CAMP_DATA_INICI.equals(codiCamp)) {
-				return new TermRangeQuery(
-						codiCamp,
-						dataPerIndexar(((Date[])valorFiltre)[0]),
-						dataPerIndexar(((Date[])valorFiltre)[1]),
-						true,
-						true);
-			} else if (EXPEDIENT_CAMP_TIPUS.equals(codiCamp)) {
-				return new TermQuery(new Term(
-						codiCamp,
-						(String)valorFiltre));
-			} else if (EXPEDIENT_CAMP_ESTAT.equals(codiCamp)) {
-				return new TermQuery(new Term(
-						codiCamp,
-						(String)valorFiltre));
+			if (codiCamp.startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
+				if (	ExpedientCamps.EXPEDIENT_CAMP_ID.equals(codiCamp) ||
+						ExpedientCamps.EXPEDIENT_CAMP_INICIADOR.equals(codiCamp) ||
+						ExpedientCamps.EXPEDIENT_CAMP_RESPONSABLE.equals(codiCamp) ||
+						ExpedientCamps.EXPEDIENT_CAMP_GEOX.equals(codiCamp) ||
+						ExpedientCamps.EXPEDIENT_CAMP_GEOY.equals(codiCamp) ||
+						ExpedientCamps.EXPEDIENT_CAMP_GEOREF.equals(codiCamp) ||
+						ExpedientCamps.EXPEDIENT_CAMP_REGNUM.equals(codiCamp) ||
+						ExpedientCamps.EXPEDIENT_CAMP_REGDATA.equals(codiCamp) ||
+						ExpedientCamps.EXPEDIENT_CAMP_UNIADM.equals(codiCamp) ||
+						ExpedientCamps.EXPEDIENT_CAMP_IDIOMA.equals(codiCamp) ||
+						ExpedientCamps.EXPEDIENT_CAMP_TRAMIT.equals(codiCamp) ||
+						ExpedientCamps.EXPEDIENT_CAMP_TIPUS.equals(codiCamp) ||
+						ExpedientCamps.EXPEDIENT_CAMP_ESTAT.equals(codiCamp)) {
+					String valorIndex = valorFiltre.toString();
+					if (valorIndex != null && valorIndex.length() > 0) {
+						//System.out.println(">>> TermQuery " + codiCamp + ": " + valorIndex);
+						return new TermQuery(new Term(
+								codiCamp,
+								valorIndex));
+					}
+				} else if (ExpedientCamps.EXPEDIENT_CAMP_NUMERO.equals(codiCamp) ||
+						ExpedientCamps.EXPEDIENT_CAMP_TITOL.equals(codiCamp) ||
+						ExpedientCamps.EXPEDIENT_CAMP_COMENTARI.equals(codiCamp) ||
+						ExpedientCamps.EXPEDIENT_CAMP_INFOATUR.equals(codiCamp)
+						) {
+					String valorIndex = (String)valorFiltre;
+					if (valorIndex != null && valorIndex.length() > 0) {
+						//System.out.println(">>> WildcardQuery " + codiCamp + ": " + valorIndex);
+						return queryPerStringAmbWildcards(
+								codiCamp,
+								valorIndex);
+					}
+				} else if (ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI.equals(codiCamp)) {
+					Date valorInicial = ((Date[])valorFiltre)[0];
+					Date valorFinal = ((Date[])valorFiltre)[1];
+					if (valorInicial != null && valorFinal != null) {
+						Calendar calFinal = Calendar.getInstance();
+						calFinal.setTime(valorFinal);
+						calFinal.set(Calendar.HOUR, 23);
+						calFinal.set(Calendar.MINUTE, 59);
+						calFinal.set(Calendar.SECOND, 99);
+						//System.out.println(">>> TermRangeQuery " + codiCamp + ": " + dataPerIndexar(valorInicial) + ", " + dataPerIndexar(calFinal.getTime()));
+						return new TermRangeQuery(
+								codiCamp,
+								dataPerIndexar(valorInicial),
+								dataPerIndexar(calFinal.getTime()),
+								true,
+								true);
+					}
+				}
 			} else {
 				String[] parts = codiCamp.split("\\.");
 				if (parts.length == 2) {
@@ -470,7 +438,7 @@ public class LuceneDao extends LuceneIndexSupport {
 
 	private Term termIdFromExpedient(Expedient expedient) {
 		return new Term(
-				EXPEDIENT_CAMP_ID,
+				ExpedientCamps.EXPEDIENT_CAMP_ID,
 				expedient.getId().toString());
 	}
 
@@ -507,24 +475,58 @@ public class LuceneDao extends LuceneIndexSupport {
 			for (Map<String, List<String>> fila: resultats) {
 				List<DadaIndexadaDto> dadesFila = new ArrayList<DadaIndexadaDto>();
 				for (String codi: fila.keySet()) {
-					if (codi.startsWith("expedient")) {
-						DadaIndexadaDto dadaCamp = new DadaIndexadaDto(
-								codi,
-								codi);
-						dadaCamp.setMultiple(false);
-						dadaCamp.setValor(fila.get(codi));
-						dadaCamp.setValorIndex(fila.get(codi).get(0));
-						if (!VALOR_CAMP_BUIT.equals(fila.get(codi))) {
-							dadaCamp.setValorMostrar(fila.get(codi).get(0));
-						}
-						dadesFila.add(dadaCamp);
-					}
-				}
-				for (String codi: fila.keySet()) {
-					if (!codi.startsWith("expedient")) {
+					for (Camp camp: campsInforme) {
+						boolean coincideix;
 						String[] partsCodi = codi.split("\\.");
-						for (Camp camp: campsInforme) {
-							if (	partsCodi[0].equals(camp.getDefinicioProces().getJbpmKey()) &&
+						if (codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
+							coincideix = codi.equals(camp.getCodi());
+						} else {
+							coincideix = 
+									camp.getDefinicioProces() != null &&
+									partsCodi[0].equals(camp.getDefinicioProces().getJbpmKey()) &&
+									partsCodi[1].equals(camp.getCodi());
+						}
+						if (coincideix) {
+							for (String valorIndex: fila.get(codi)) {
+								try {
+									Object valor = valorCampPerIndex(camp, valorIndex);
+									if (valor != null) {
+										DadaIndexadaDto dadaCamp;
+										if (codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
+											dadaCamp = new DadaIndexadaDto(
+													camp.getCodi(),
+													camp.getEtiqueta());
+										} else {
+											dadaCamp = new DadaIndexadaDto(
+													partsCodi[0],
+													partsCodi[1],
+													camp.getEtiqueta());
+										}
+										dadaCamp.setMultiple(false);
+										dadaCamp.setValorIndex(valorIndex);
+										dadaCamp.setValor(valor);
+										String textDomini = null;
+										List<String> textDominiIndex = fila.get(codi + VALOR_DOMINI_SUFIX + valor);
+										if (textDominiIndex != null)
+											textDomini = textDominiIndex.get(0);
+										if (textDomini == null)
+											textDomini = (valor != null && valor.toString().length() > 0) ? "¿" + valor.toString() + "?" : null;
+										dadaCamp.setValorMostrar(
+												camp.getComText(
+														valor,
+														textDomini));
+										dadesFila.add(dadaCamp);
+									}
+								} catch (Exception ex) {
+									logger.error("Error al obtenir el valor de l'índex pel camp " + codi, ex);
+								}
+							}
+							break;
+						}
+						/*if (!codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
+							String[] partsCodi = codi.split("\\.");
+							if (	camp.getDefinicioProces() != null &&
+									partsCodi[0].equals(camp.getDefinicioProces().getJbpmKey()) &&
 									partsCodi[1].equals(camp.getCodi())) {
 								for (String valorIndex: fila.get(codi)) {
 									try {
@@ -555,7 +557,37 @@ public class LuceneDao extends LuceneIndexSupport {
 								}
 								break;
 							}
-						}
+						} else {
+							if (codi.equals(camp.getCodi())) {
+								for (String valorIndex: fila.get(codi)) {
+									try {
+										Object valor = valorCampPerIndex(camp, valorIndex);
+										if (valor != null) {
+											DadaIndexadaDto dadaCamp = new DadaIndexadaDto(
+													camp.getCodi(),
+													camp.getEtiqueta());
+											dadaCamp.setMultiple(false);
+											dadaCamp.setValorIndex(valorIndex);
+											dadaCamp.setValor(valor);
+											String textDomini = null;
+											List<String> textDominiIndex = fila.get(codi + VALOR_DOMINI_SUFIX + valor);
+											if (textDominiIndex != null)
+												textDomini = textDominiIndex.get(0);
+											if (textDomini == null)
+												textDomini = (valor != null && valor.toString().length() > 0) ? "¿" + valor.toString() + "?" : null;
+											dadaCamp.setValorMostrar(
+													camp.getComText(
+															valor,
+															textDomini));
+											dadesFila.add(dadaCamp);
+										}
+									} catch (Exception ex) {
+										logger.error("Error al obtenir el valor de l'índex pel camp " + codi, ex);
+									}
+								}
+								break;
+							}
+						}*/
 					}
 				}
 				Map<String, DadaIndexadaDto> mapFila = new HashMap<String, DadaIndexadaDto>();
@@ -683,7 +715,7 @@ public class LuceneDao extends LuceneIndexSupport {
 			return valor.toString();
 		}
 	}
-	
+
 	private Object valorCampPerIndex(Camp camp, String valor) throws Exception {
 		if (camp.getTipus().equals(TipusCamp.INTEGER)) {
 			return Long.parseLong(valor.split("\\.")[0]);

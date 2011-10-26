@@ -14,13 +14,13 @@
 	</c:choose>
 </c:if>
 <c:if test="${documentActual.registrat}">
-	<img src="<c:url value="/img/book_open.png"/>" alt="<fmt:message key='common.icon.registrat' />" title="<fmt:message key='common.icon.registrat' />" border="0" style="cursor:pointer" onclick="infoRegistre(${documentActual.id})"/>
+	<img src="<c:url value="/img/book_open.png"/>" alt="<fmt:message key="common.icon.registrat"/>" title="<fmt:message key="common.icon.registrat"/>" border="0" style="cursor:pointer" onclick="infoRegistre(${documentActual.id})"/>
 	<div id="registre_${documentActual.id}" style="display:none">
 		<dl class="form-info">
-			<dt><fmt:message key='common.icon.oficina' /></dt><dd>${documentActual.registreOficinaNom}&nbsp;</dd>
-			<dt><fmt:message key='common.icon.data' /></dt><dd><fmt:formatDate value="${documentActual.registreData}" pattern="dd/MM/yyyy HH:mm"/>&nbsp;</dd>
-			<dt><fmt:message key='comuns.tipus' /></dt><dd><c:choose><c:when test="${documentActual.registreEntrada}"><fmt:message key='common.icon.entrada' /></c:when><c:otherwise><fmt:message key='common.icon.sortida' /></c:otherwise></c:choose>&nbsp;</dd>
-			<dt><fmt:message key='common.icon.numero' /></dt><dd>${documentActual.registreNumero}/${documentActual.registreAny}&nbsp;</dd>
+			<dt><fmt:message key="common.icon.oficina"/></dt><dd>${documentActual.registreOficinaNom}&nbsp;</dd>
+			<dt><fmt:message key="common.icon.data"/></dt><dd><fmt:formatDate value="${documentActual.registreData}" pattern="dd/MM/yyyy HH:mm"/>&nbsp;</dd>
+			<dt><fmt:message key="comuns.tipus"/></dt><dd><c:choose><c:when test="${documentActual.registreEntrada}"><fmt:message key="common.icon.entrada"/></c:when><c:otherwise><fmt:message key="common.icon.sortida"/></c:otherwise></c:choose>&nbsp;</dd>
+			<dt><fmt:message key="common.icon.numero"/></dt><dd>${documentActual.registreNumero}<c:if test="${not empty documentActual.registreAny}">/${documentActual.registreAny}</c:if>&nbsp;</dd>
 		</dl>
 	</div>
 </c:if>

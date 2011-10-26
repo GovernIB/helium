@@ -46,6 +46,18 @@
 		if (e.stopPropagation) e.stopPropagation();
 		return confirm("<fmt:message key='consulta.camps.confirmacio' />");
 	}
+	function removeAllOptions(ele) {
+		  ele = getElementById(ele);
+		  if (ele == null) return;
+		  if (useOptions) {
+		    ele.options.length = 0;
+		  }
+		  else {
+		    while (ele.childNodes.length > 0) {
+		      ele.removeChild(ele.firstChild);
+		    }
+		  }
+		};
 	// ]]>
 </script>
 </head>
@@ -63,7 +75,9 @@
 			${camps[consultaCamp_rowNum - 1].tipus}
 		</display:column>
 		<display:column titleKey="comuns.def_proces" sortable="false">
+			<c:if test="${not empty camps[consultaCamp_rowNum - 1].definicioProces}">
 			${camps[consultaCamp_rowNum - 1].definicioProces.jbpmKey} v.${camps[consultaCamp_rowNum - 1].definicioProces.versio}
+			</c:if>
 		</display:column>
 		<display:column>
 			<a href="<c:url value="/consulta/campFiltrePujar.html"><c:param name="consultaId" value="${param.id}"/><c:param name="id" value="${consultaCamp.id}"/><c:param name="tipus" value="${param.tipus}"/></c:url>">
@@ -106,6 +120,7 @@
 				<c:param name="label"><fmt:message key='consulta.camps.variable' /></c:param>
 				<c:param name="onchange" value="obtenirVersio(this)"/>
 			</c:import>
+			<script type="text/javascript">carregarCamps(document.getElementById('defprocJbpmKey0'))</script>
 		</fieldset>
 		
 		<c:import url="../common/formElement.jsp">

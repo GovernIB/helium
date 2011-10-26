@@ -9,7 +9,10 @@
 	<c:set var="readOnly" value="${campTascaActual.readOnly}" scope="request"/>
 	<c:set var="required" value="${campTascaActual.required}" scope="request"/>
 </c:if>
-<c:set var="codiActual" value="${campActual.definicioProces.jbpmKey}_${campActual.codi}" scope="request"/>
+<c:choose>
+	<c:when test="${not empty campActual.definicioProces}"><c:set var="codiActual" value="${campActual.definicioProces.jbpmKey}_${campActual.codi}" scope="request"/></c:when>
+	<c:otherwise><c:set var="codiActual" value="${campActual.codi}" scope="request"/></c:otherwise>
+</c:choose>
 <c:set var="valorActual" value="${command[codiActual]}" scope="request"/>
 <c:set var="extraParams">definicioProcesId:${campActual.definicioProces.id},campCodi:'${campActual.codi}'</c:set>
 <c:choose>
@@ -75,9 +78,13 @@
 			<c:param name="type" value="custom"/>
 			<c:param name="label">${campActual.etiqueta}</c:param>
 			<c:param name="content">
+				<c:choose>
+					<c:when test="${not fn:contains(codiActual, '$')}"><c:set var="codiActualJquery" value="${codiActual}"/></c:when>
+					<c:otherwise><c:set var="codiActualJquery" value="${fn:replace(codiActual,'$','_')}"/></c:otherwise>
+				</c:choose>
 				<spring:bind path="${codiActual}[0]">
 					<label for="${codiActual}0" class="blockLabel"><fmt:message key='common.campfiltre.entre' />
-						<input id="${codiActual}0" name="${codiActual}" value="${status.value}" type="text" class="textInput"/>
+						<input id="${codiActualJquery}0" name="${codiActual}" value="${status.value}" type="text" class="textInput"/>
 						<script type="text/javascript">
 							// <![CDATA[
 							$(function() {
@@ -86,7 +93,8 @@
 									changeMonth: true,
 									changeYear: true
 								}));
-								$("#${codiActual}0").datepicker();
+								
+								$("#${codiActualJquery}0").datepicker();
 							});
 							// ]]>
 						</script>
@@ -94,7 +102,7 @@
 				</spring:bind>
 				<spring:bind path="${codiActual}[1]">
 					<label for="${codiActual}1" class="blockLabel blockLabelLast"><fmt:message key='common.campfiltre.i' />
-						<input id="${codiActual}1" name="${codiActual}" value="${status.value}" type="text" class="textInput"/>
+						<input id="${codiActualJquery}1" name="${codiActual}" value="${status.value}" type="text" class="textInput"/>
 						<script type="text/javascript">
 							// <![CDATA[
 							$(function() {
@@ -103,7 +111,7 @@
 									changeMonth: true,
 									changeYear: true
 								}));
-								$("#${codiActual}1").datepicker();
+								$("#${codiActualJquery}1").datepicker();
 							});
 							// ]]>
 						</script>
@@ -111,8 +119,8 @@
 				</spring:bind>
 				<script type="text/javascript">
 					// <![CDATA[
-					$(function() {$("#${codiActual}0").setMask({mask:'39/19/9999',autoTab:false});});
-					$(function() {$("#${codiActual}1").setMask({mask:'39/19/9999',autoTab:false});});
+					$(function() {$("#${codiActualJquery}0").setMask({mask:'39/19/9999',autoTab:false});});
+					$(function() {$("#${codiActualJquery}1").setMask({mask:'39/19/9999',autoTab:false});});
 					// ]]>
 				</script>
 			</c:param>
@@ -161,13 +169,28 @@
 		</c:import>
 	</c:when>
 	<c:when test="${campActual.tipus == 'SELECCIO'}">
-		<c:import url="../common/formElement.jsp">
-			<c:param name="property">${codiActual}</c:param>
-			<c:param name="type" value="select"/>
-			<c:param name="label">${campActual.etiqueta}</c:param>
-			<c:param name="selectUrl"><c:url value="/domini/consultaExpedient.html"/></c:param>
-			<c:param name="selectExtraParams">${extraParams},tipus:'select'</c:param>
-		</c:import>
+		<c:choose>
+			<c:when test="${codiActual == 'expedient$estat'}">
+				<c:import url="../common/formElement.jsp">
+					<c:param name="property" value="${codiActual}"/>
+					<c:param name="type" value="select"/>
+					<c:param name="label">${campActual.etiqueta}</c:param>
+					<c:param name="items" value="estats"/>
+					<c:param name="itemLabel" value="nom"/>
+					<c:param name="itemValue" value="id"/>
+					<c:param name="itemBuit">&lt;&lt; <fmt:message key='expedient.consulta.select.estat'/> &gt;&gt;</c:param>
+				</c:import>
+			</c:when>
+			<c:otherwise>
+				<c:import url="../common/formElement.jsp">
+					<c:param name="property">${codiActual}</c:param>
+					<c:param name="type" value="select"/>
+					<c:param name="label">${campActual.etiqueta}</c:param>
+					<c:param name="selectUrl"><c:url value="/domini/consultaExpedient.html"/></c:param>
+					<c:param name="selectExtraParams">${extraParams},tipus:'select'</c:param>
+				</c:import>
+			</c:otherwise>
+		</c:choose>
 	</c:when>
 	<c:when test="${campActual.tipus == 'SUGGEST'}">
 		<c:set var="multipleSuggestText" value="${valorsPerSuggest[codiActual]}" scope="request"/>
