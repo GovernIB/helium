@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.jws.WebService;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
@@ -73,9 +74,14 @@ public class Tramitacio implements TramitacioService {
 		if (valorsFormulari != null) {
 			variables = new HashMap<String, Object>();
 			for (ParellaCodiValor parella: valorsFormulari) {
-				variables.put(
-						parella.getCodi(),
-						parella.getValor());
+				if (parella.getValor() instanceof XMLGregorianCalendar)
+					variables.put(
+							parella.getCodi(),
+							((XMLGregorianCalendar)parella.getValor()).toGregorianCalendar().getTime());
+				else
+					variables.put(
+							parella.getCodi(),
+							parella.getValor());
 			}
 		}
 		try {
@@ -204,9 +210,14 @@ public class Tramitacio implements TramitacioService {
 		if (valors != null) {
 			variables = new HashMap<String, Object>();
 			for (ParellaCodiValor parella: valors) {
-				variables.put(
-						parella.getCodi(),
-						parella.getValor());
+				if (parella.getValor() instanceof XMLGregorianCalendar)
+					variables.put(
+							parella.getCodi(),
+							((XMLGregorianCalendar)parella.getValor()).toGregorianCalendar().getTime());
+				else
+					variables.put(
+							parella.getCodi(),
+							parella.getValor());
 			}
 		}
 		try {
@@ -350,10 +361,16 @@ public class Tramitacio implements TramitacioService {
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
-			expedientService.updateVariable(
-					processInstanceId,
-					varCodi,
-					valor);
+			if (valor instanceof XMLGregorianCalendar)
+				expedientService.updateVariable(
+						processInstanceId,
+						varCodi,
+						((XMLGregorianCalendar)valor).toGregorianCalendar().getTime());
+			else
+				expedientService.updateVariable(
+						processInstanceId,
+						varCodi,
+						valor);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar la variable al procés", ex);
 			throw new TramitacioException("No s'ha pogut guardar la variable al procés: " + ex.getMessage());
