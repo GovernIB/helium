@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.jws.WebService;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
@@ -17,19 +18,18 @@ import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.EntornService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.util.EntornActual;
-import net.conselldemallorca.helium.ws.tramitacio.TramitacioException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -74,9 +74,14 @@ public class Tramitacio implements TramitacioService {
 		if (valorsFormulari != null) {
 			variables = new HashMap<String, Object>();
 			for (ParellaCodiValor parella: valorsFormulari) {
-				variables.put(
-						parella.getCodi(),
-						parella.getValor());
+				if (parella.getValor() instanceof XMLGregorianCalendar)
+					variables.put(
+							parella.getCodi(),
+							((XMLGregorianCalendar)parella.getValor()).toGregorianCalendar().getTime());
+				else
+					variables.put(
+							parella.getCodi(),
+							parella.getValor());
 			}
 		}
 		try {
@@ -205,9 +210,14 @@ public class Tramitacio implements TramitacioService {
 		if (valors != null) {
 			variables = new HashMap<String, Object>();
 			for (ParellaCodiValor parella: valors) {
-				variables.put(
-						parella.getCodi(),
-						parella.getValor());
+				if (parella.getValor() instanceof XMLGregorianCalendar)
+					variables.put(
+							parella.getCodi(),
+							((XMLGregorianCalendar)parella.getValor()).toGregorianCalendar().getTime());
+				else
+					variables.put(
+							parella.getCodi(),
+							parella.getValor());
 			}
 		}
 		try {
@@ -351,10 +361,17 @@ public class Tramitacio implements TramitacioService {
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
-			expedientService.updateVariable(
-					processInstanceId,
-					varCodi,
-					valor);
+			if (valor instanceof XMLGregorianCalendar)
+				expedientService.updateVariable(
+						processInstanceId,
+						varCodi,
+						((XMLGregorianCalendar)valor).toGregorianCalendar().getTime());
+			else
+				expedientService.updateVariable(
+						processInstanceId,
+						varCodi,
+						valor);
+			
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar la variable al procés", ex);
 			throw new TramitacioException("No s'ha pogut guardar la variable al procés: " + ex.getMessage());
