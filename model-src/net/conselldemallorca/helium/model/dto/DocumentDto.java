@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.model.dto;
 
 import java.io.Serializable;
+import java.net.URLEncoder;
 import java.util.Date;
 
 /**
@@ -48,6 +49,7 @@ public class DocumentDto implements Serializable {
 	private String adjuntId;
 
 	private String tokenSignatura;
+	private String tokenSignaturaMultiple;
 	private boolean signatEnTasca;
 
 
@@ -178,6 +180,12 @@ public class DocumentDto implements Serializable {
 	public void setTokenSignatura(String tokenSignatura) {
 		this.tokenSignatura = tokenSignatura;
 	}
+	public String getTokenSignaturaMultiple() {
+		return tokenSignaturaMultiple;
+	}
+	public void setTokenSignaturaMultiple(String tokenSignaturaMultiple) {
+		this.tokenSignaturaMultiple = tokenSignaturaMultiple;
+	}
 	public boolean isSignatEnTasca() {
 		return signatEnTasca;
 	}
@@ -268,6 +276,21 @@ public class DocumentDto implements Serializable {
 			}
 		}
 		return false;
+	}
+
+	public String getTokenSignaturaUrlEncoded() {
+		try {
+			return URLEncoder.encode(tokenSignatura, "UTF-8");
+		} catch (Exception ex) {
+			return tokenSignatura;
+		}
+	}
+	public String getTokenSignaturaMultipleUrlEncoded() {
+		try {
+			return URLEncoder.encode(tokenSignaturaMultiple, "UTF-8");
+		} catch (Exception ex) {
+			return tokenSignaturaMultiple;
+		}
 	}
 
 

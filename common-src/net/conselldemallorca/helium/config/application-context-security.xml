@@ -22,6 +22,8 @@
 		<intercept-url pattern="/rol/test.html" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/signatura/aFirma/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/signatura/caib/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/signatura/verificarExtern.html" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/signatura/arxiu.html" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/entorn/seleccio.html" access="ROLE_ADMIN,ROLE_USER" />
 		<intercept-url pattern="/entorn/configDefault.html" access="ROLE_ADMIN,ROLE_USER" />
 		<intercept-url pattern="/persona/suggest.html" access="ROLE_ADMIN,ROLE_USER" />

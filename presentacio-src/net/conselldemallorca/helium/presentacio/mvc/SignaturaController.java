@@ -17,6 +17,7 @@ import net.conselldemallorca.helium.model.service.DocumentService;
 import net.conselldemallorca.helium.model.service.ExpedientService;
 import net.conselldemallorca.helium.model.service.TascaService;
 import net.conselldemallorca.helium.presentacio.mvc.util.BaseController;
+import net.conselldemallorca.helium.util.GlobalProperties;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
@@ -53,27 +54,6 @@ public class SignaturaController extends BaseController {
 		this.tascaService = tascaService;
 		this.expedientService = expedientService;
 		this.documentService = documentService;
-	}
-
-	@RequestMapping(value = "/signatura/descarregarAmbToken")
-	public String documentAmbToken(
-			HttpServletRequest request,
-			@RequestParam(value = "token", required = true) String token,
-			@RequestParam(value = "noe", required = false) Boolean noe,
-			ModelMap model) {
-		Entorn entorn = getEntornActiu(request);
-		if (entorn != null) {
-			boolean estampar = (noe != null) ? !noe.booleanValue() : true;
-			ArxiuDto arxiu = documentService.arxiuDocumentPerSignar(token, estampar);
-			if (arxiu != null) {
-				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
-				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
-			}
-			return "arxiuView";
-		} else {
-			missatgeError(request, "No hi ha cap entorn seleccionat");
-			return "redirect:/index.html";
-		}
 	}
 
 	@RequestMapping(value = "/signatura/signarAmbTokenCaib", method = RequestMethod.POST)
@@ -137,7 +117,7 @@ public class SignaturaController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = {"/signatura/verificar", "/signatura/verificarIntern"}, method = RequestMethod.GET)
+	@RequestMapping(value = "/signatura/verificar", method = RequestMethod.GET)
 	public String verificarSignatura(
 			HttpServletRequest request,
 			HttpServletResponse response,
@@ -147,9 +127,13 @@ public class SignaturaController extends BaseController {
 		try {
 			DocumentDto document = null;
 			if (id != null)
-				document = expedientService.getDocument(id, false, false, false);
+				document = expedientService.getDocument(
+						id,
+						false,
+						false,
+						false);
 			else if (token != null)
-				document = tascaService.getDocumentAmbToken(token, true);
+				document = documentService.arxiuDocumentInfo(token);
 			model.addAttribute("document", document);
 			model.addAttribute(
 					"instanciaProces",
@@ -164,21 +148,67 @@ public class SignaturaController extends BaseController {
 	    }
 	}
 
-	/*@RequestMapping(value = "/signatura/descarregar")
+	@RequestMapping(value = "/signatura/verificarExtern", method = RequestMethod.GET)
+	public String verificarExtern(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			@RequestParam(value = "token", required = true) final String token,
+			ModelMap model) throws ServletException {
+		if (isVerificacioExternaActiva()) {
+			try {
+				DocumentDto document = documentService.arxiuDocumentInfo(token);
+				if (document != null) {
+					model.addAttribute("document", document);
+					model.addAttribute(
+							"instanciaProces",
+							expedientService.getInstanciaProcesById(
+									document.getProcessInstanceId(),
+									false));
+					model.addAttribute("signatures", expedientService.verificarSignatura(document.getId()));
+				}
+				return "signatura/verificar";
+			} catch(Exception ex) {
+				logger.error("Error rebent la firma del document", ex);
+				throw new ServletException(ex);
+		    }
+		} else {
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			return null;
+		}
+	}
+
+	@RequestMapping(value = "/signatura/arxiu")
 	public String descarregar(
 			HttpServletRequest request,
-			@RequestParam("id") final Long id,
-			ModelMap model) {
-		DocumentDto document = expedientService.descarregarSignatura(id);
-		if (document != null) {
-			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, document.getArxiuNom());
-			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, document.getArxiuContingut());
-			return "arxiuView";
+			HttpServletResponse response,
+			@RequestParam(value = "token", required = true) String token,
+			ModelMap model) throws ServletException {
+		if (request.getUserPrincipal() != null || isVerificacioExternaActiva()) {
+			try {
+				DocumentDto document = documentService.arxiuDocumentInfo(token);
+				if (document != null && document.isSignat()) {
+					ArxiuDto arxiu = documentService.arxiuDocumentPerMostrar(token);
+					if (arxiu != null) {
+						model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
+						model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
+					}
+				}
+				return "arxiuView";
+			} catch(Exception ex) {
+				logger.error("Error al descarregar el document", ex);
+				throw new ServletException(ex);
+		    }
+		} else {
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			return null;
 		}
-		return null;
-	}*/
+	}
 
 
+
+	private boolean isVerificacioExternaActiva() {
+		return "true".equalsIgnoreCase((String)GlobalProperties.getInstance().get("app.verificacio.externa.activa"));
+	}
 
 	private static final Log logger = LogFactory.getLog(SignaturaController.class);
 

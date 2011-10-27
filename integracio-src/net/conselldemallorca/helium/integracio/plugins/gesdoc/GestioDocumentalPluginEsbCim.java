@@ -66,7 +66,7 @@ public class GestioDocumentalPluginEsbCim implements GestioDocumentalPlugin {
 			if (TypeCodigoError.OK.equals(response.getCodigoError())) {
 				return response.getContenidoDocumento();
 			} else {
-				throw new GestioDocumentalPluginException("Error al guardar l'arxiu " + documentId + " dins el gestor documental: " + response.getDescripcionError());
+				throw new GestioDocumentalPluginException("Error al llegir l'arxiu " + documentId + " del gestor documental: " + response.getDescripcionError());
 			}
 		} catch (Exception ex) {
 			logger.error("Error al llegir l'arxiu " + documentId + " del gestor documental", ex);

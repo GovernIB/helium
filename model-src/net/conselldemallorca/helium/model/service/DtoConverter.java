@@ -18,10 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.crypto.Cipher;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.DESKeySpec;
-
 import net.conselldemallorca.helium.integracio.domini.FilaResultat;
 import net.conselldemallorca.helium.integracio.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.integracio.plugins.persones.Persona;
@@ -50,24 +46,23 @@ import net.conselldemallorca.helium.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.model.dto.TascaDto;
 import net.conselldemallorca.helium.model.exception.DominiException;
 import net.conselldemallorca.helium.model.hibernate.Camp;
+import net.conselldemallorca.helium.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.model.hibernate.Document;
 import net.conselldemallorca.helium.model.hibernate.DocumentStore;
+import net.conselldemallorca.helium.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.model.hibernate.Domini;
 import net.conselldemallorca.helium.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.model.hibernate.Expedient;
+import net.conselldemallorca.helium.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.model.hibernate.Tasca;
-import net.conselldemallorca.helium.model.hibernate.Camp.TipusCamp;
-import net.conselldemallorca.helium.model.hibernate.DocumentStore.DocumentFont;
-import net.conselldemallorca.helium.model.hibernate.Expedient.IniciadorTipus;
+import net.conselldemallorca.helium.util.DocumentTokenUtils;
 import net.conselldemallorca.helium.util.GlobalProperties;
 import net.conselldemallorca.helium.util.PdfUtils;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
@@ -99,6 +94,7 @@ public class DtoConverter {
 	private JbpmDao jbpmDao;
 
 	private PdfUtils pdfUtils;
+	private DocumentTokenUtils documentTokenUtils;
 
 
 
@@ -503,7 +499,11 @@ public class DtoConverter {
 				dto.setSignat(document.isSignat());
 				dto.setAdjunt(document.isAdjunt());
 				dto.setAdjuntTitol(document.getAdjuntTitol());
-				dto.setTokenSignatura(xifrarToken("0001#" + documentStoreId.toString()));
+				try {
+					dto.setTokenSignatura(getDocumentTokenUtils().xifrarToken(documentStoreId.toString()));
+				} catch (Exception ex) {
+					logger.error("No s'ha pogut generar el token pel document " + documentStoreId, ex);
+				}
 				String codiDocument;
 				if (document.isAdjunt()) {
 					dto.setAdjuntId(document.getJbpmVariable().substring(TascaService.PREFIX_ADJUNT.length()));
@@ -568,6 +568,8 @@ public class DtoConverter {
 					String extensioDesti = extensioActual;
 					if (perSignar && isActiuConversioSignatura()) {
 						extensioDesti = (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
+					} else if (document.isRegistrat()) {
+						extensioDesti = (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
 					}
 					dto.setVistaNom(dto.getArxiuNomSenseExtensio() + "." + extensioDesti);
 					if ("pdf".equalsIgnoreCase(extensioDesti)) {
@@ -575,7 +577,6 @@ public class DtoConverter {
 						try {
 							ByteArrayOutputStream vistaContingut = new ByteArrayOutputStream();
 							DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-							String urlVerificacioSignatura = (String)GlobalProperties.getInstance().get("app.base.url") + "/signatura/verificar.html?id=" + documentStoreId;
 							String dataRegistre = null;
 							if (document.getRegistreData() != null)
 								dataRegistre = df.format(document.getRegistreData());
@@ -583,8 +584,8 @@ public class DtoConverter {
 							getPdfUtils().estampar(
 									arxiuOrigenNom,
 									arxiuOrigenContingut,
-									(document.isSignat()) ? false : ambSegellSignatura,
-									(document.isSignat()) ? null : urlVerificacioSignatura,
+									(ambSegellSignatura) ? !document.isSignat() : false,
+											(ambSegellSignatura) ? getUrlComprovacioSignatura(documentStoreId, dto.getTokenSignatura()): null,
 									document.isRegistrat(),
 									numeroRegistre,
 									dataRegistre,
@@ -1031,7 +1032,15 @@ public class DtoConverter {
 							false,
 							false);
 					if (dto != null) {
-						dto.setTokenSignatura(xifrarToken(taskId + "#" + documentStoreId.toString()));
+						try {
+							dto.setTokenSignatura(getDocumentTokenUtils().xifrarToken(documentStoreId.toString()));
+							dto.setTokenSignaturaMultiple(getDocumentTokenUtils().xifrarTokenMultiple(
+									new String[] {
+											taskId,
+											documentStoreId.toString()}));
+						} catch (Exception ex) {
+							logger.error("No s'ha pogut generar el token pel document " + documentStoreId, ex);
+						}
 						Object signatEnTasca = jbpmDao.getTaskInstanceVariable(taskId, TascaService.PREFIX_SIGNATURA + dto.getDocumentCodi());
 						dto.setSignatEnTasca(signatEnTasca != null);
 						resposta.put(
@@ -1281,25 +1290,6 @@ public class DtoConverter {
 		return task.getDescription() != null && task.getDescription().startsWith("@");
 	}
 
-	private String xifrarToken(String token) {
-		try {
-			String secretKey = GlobalProperties.getInstance().getProperty("app.signatura.secret");
-			if (secretKey == null)
-				secretKey = TascaService.DEFAULT_SECRET_KEY;
-			SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance(TascaService.DEFAULT_KEY_ALGORITHM);
-			Cipher cipher = Cipher.getInstance(TascaService.DEFAULT_ENCRYPTION_SCHEME);
-			cipher.init(
-					Cipher.ENCRYPT_MODE,
-					secretKeyFactory.generateSecret(new DESKeySpec(secretKey.getBytes())));
-			byte[] encryptedText = cipher.doFinal(token.getBytes());
-			byte[] base64Bytes = Base64.encodeBase64(encryptedText);
-			return new String(Hex.encodeHex(base64Bytes));
-		} catch (Exception ex) {
-			logger.error("No s'ha pogut xifrar el token", ex);
-			return token;
-		}
-	}
-
 	private boolean isSignaturaFileAttached() {
 		return "true".equalsIgnoreCase((String)GlobalProperties.getInstance().get("app.signatura.plugin.file.attached"));
 	}
@@ -1334,10 +1324,24 @@ public class DtoConverter {
 							document.getReferenciaFont());
 	}
 
+	private String getUrlComprovacioSignatura(Long documentStoreId, String token) {
+		String baseUrl = (String)GlobalProperties.getInstance().get("app.base.verificacio.url");
+		if (baseUrl == null)
+			baseUrl = (String)GlobalProperties.getInstance().get("app.base.url");
+		return baseUrl + "/signatura/verificarExtern.html?token=" + token;
+	}
+
 	private PdfUtils getPdfUtils() {
 		if (pdfUtils == null)
 			pdfUtils = new PdfUtils();
 		return pdfUtils;
+	}
+
+	private DocumentTokenUtils getDocumentTokenUtils() {
+		if (documentTokenUtils == null)
+			documentTokenUtils = new DocumentTokenUtils(
+					(String)GlobalProperties.getInstance().get("app.encriptacio.clau"));
+		return documentTokenUtils;
 	}
 
 	private static final Log logger = LogFactory.getLog(DtoConverter.class);

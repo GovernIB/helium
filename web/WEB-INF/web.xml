@@ -498,6 +498,8 @@
 			<url-pattern>/services/*</url-pattern>
 			<url-pattern>/signatura/aFirma/*</url-pattern>
 			<url-pattern>/signatura/caib/*</url-pattern>
+			<url-pattern>/signatura/verificarExtern.html</url-pattern>
+			<url-pattern>/signatura/arxiu.html</url-pattern>
 			<url-pattern>/rol/test.html</url-pattern>
 		</web-resource-collection>
 	</security-constraint>

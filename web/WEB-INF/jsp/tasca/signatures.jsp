@@ -67,15 +67,14 @@ var defaultBuild = "${globalProperties['app.signatura.afirma.default.build']}";
 function signarAFirma(form, token) {
 	initialize();
 	configuraFirma();
-	clienteFirma.setFileUri("${globalProperties['app.base.url']}/document/arxiuPerSignar.html?token=" + escape(token));
+	clienteFirma.setFileUri("${globalProperties['app.base.url']}/document/arxiuPerSignar.html?token=" + token);
 	firmar();
 	if (!clienteFirma.isError()) {
 		form.data.value = clienteFirma.getSignatureBase64Encoded();
-		return true;
+		form.submit();
 	} else {
 		alert("No s'ha pogut signar el document: " + clienteFirma.getErrorMessage());
 	}
-	return false;
 }
 </c:if>
 // ]]>
@@ -155,11 +154,11 @@ function signarAFirma(form, token) {
 									</div>
 								</c:when>
 								<c:when test="${globalProperties['app.signatura.tipus'] == 'afirma'}">
-									<form:form action="../signatura/signarAmbTokenAFirma.html" cssClass="uniForm" cssStyle="display:inline">
+									<form:form action="../signatura/signarAmbTokenAFirma.html" cssClass="uniForm" cssStyle="display:inline" onsubmit="return false">
 										<input type="hidden" name="taskId" value="${tasca.id}"/>
-										<input type="hidden" name="token" value="${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignatura}"/>
+										<input type="hidden" name="token" value="${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignaturaMultiple}"/>
 										<input type="hidden" name="data"/>
-										<button class="submitButton" onclick="return signarAFirma(this.form, '${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignatura}')">Signar</button>
+										<button class="submitButton" onclick="signarAFirma(this.form, '${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignatura}');return false">Signar</button>
 									</form:form>
 								</c:when>
 								<c:otherwise>
