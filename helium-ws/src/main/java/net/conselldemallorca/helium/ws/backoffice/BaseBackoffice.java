@@ -310,7 +310,6 @@ public abstract class BaseBackoffice {
 				String content = new String(doc.getDocumentTelematic().getArxiuContingut());
 				org.dom4j.Document document = DocumentHelper.parseText(content);
 				String xpath = "/FORMULARIO/" + finestraCodi + "/" + campCodi;
-				System.out.println(">>>>>> content: " + content);
 				Element node = (Element)document.selectSingleNode(xpath);
 				if (node != null) {
 					if (node.attribute("indice")!= null) {

@@ -1,13 +1,17 @@
 package net.conselldemallorca.helium.core.model.dao;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.exception.PluginException;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.integracio.plugins.portasignatures.DocumentPortasignatures;
+import net.conselldemallorca.helium.integracio.plugins.portasignatures.PasSignatura;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortasignaturesPlugin;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortasignaturesPluginException;
 
@@ -33,26 +37,31 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 	}
 
 	public Integer uploadDocument(
+			DocumentDto document,
+			List<DocumentDto> annexos,
 			PersonaDto persona,
-			String arxiuDescripcio,
-			String arxiuNom,
-			byte[] arxiuContingut,
-			Integer tipusDocPortasignatures,
+			List<PersonaDto> personesPas1,
+			int minSignatarisPas1,
+			List<PersonaDto> personesPas2,
+			int minSignatarisPas2,
+			List<PersonaDto> personesPas3,
+			int minSignatarisPas3,
 			Expedient expedient,
 			String importancia,
 			Date dataLimit) throws Exception {
 		try {
-			String signatariId = persona.getDni();
-			if (isIdUsuariPerCodi())
-				signatariId = persona.getCodi();
-			if (isIdUsuariPerDni())
-				signatariId = persona.getDni();
 			return getPortasignaturesPlugin().uploadDocument(
-					signatariId,
-					arxiuDescripcio,
-					arxiuNom,
-					arxiuContingut,
-					tipusDocPortasignatures,
+					getDocumentPortasignatures(document, expedient),
+					getAnnexosPortasignatures(annexos, expedient),
+					false,
+					getPassesSignatura(
+							getSignatariIdPerPersona(persona),
+							personesPas1,
+							minSignatarisPas1,
+							personesPas2,
+							minSignatarisPas2,
+							personesPas3,
+							minSignatarisPas3),
 					expedient.getIdentificador(),
 					importancia,
 					dataLimit);
@@ -71,7 +80,6 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 			logger.error("Error al rebre el document del portasignatures", ex);
 			throw new PluginException("Error al rebre el document del portasignatures", ex);
 		}
-		
 	}
 
 	@SuppressWarnings("unchecked")
@@ -105,6 +113,89 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 		return portasignaturesPlugin;
 	}
 
+	private DocumentPortasignatures getDocumentPortasignatures(
+			DocumentDto document,
+			Expedient expedient) {
+		DocumentPortasignatures documentPs = new DocumentPortasignatures();
+		documentPs.setTitol(
+				expedient.getIdentificador() + ": " + document.getDocumentNom());
+		documentPs.setArxiuNom(document.getVistaNom());
+		documentPs.setArxiuContingut(document.getVistaContingut());
+		documentPs.setTipus(document.getTipusDocPortasignatures());
+		documentPs.setSignat(document.isSignat());
+		return documentPs;
+	}
+	private List<DocumentPortasignatures> getAnnexosPortasignatures(
+			List<DocumentDto> annexos,
+			Expedient expedient) {
+		if (annexos == null)
+			return null;
+		List<DocumentPortasignatures> resposta = new ArrayList<DocumentPortasignatures>();
+		for (DocumentDto document: annexos)
+			resposta.add(getDocumentPortasignatures(document, expedient));
+		return resposta;
+	}
+
+	private PasSignatura[] getPassesSignatura(
+			String signatariId,
+			List<PersonaDto> personesPas1,
+			int minSignatarisPas1,
+			List<PersonaDto> personesPas2,
+			int minSignatarisPas2,
+			List<PersonaDto> personesPas3,
+			int minSignatarisPas3) {
+		if (personesPas1 != null && personesPas1.size() > 0) {
+			List<PasSignatura> passes = new ArrayList<PasSignatura>();
+			PasSignatura pas = new PasSignatura();
+			List<String> signataris = getSignatariIdsPerPersones(personesPas1);
+			pas.setSignataris(signataris.toArray(new String[signataris.size()]));
+			pas.setMinSignataris(minSignatarisPas1);
+			passes.add(pas);
+			if (personesPas2 != null && personesPas2.size() > 0) {
+				pas = new PasSignatura();
+				signataris = getSignatariIdsPerPersones(personesPas2);
+				pas.setSignataris(signataris.toArray(new String[signataris.size()]));
+				pas.setMinSignataris(minSignatarisPas2);
+				passes.add(pas);
+			}
+			if (personesPas3 != null && personesPas3.size() > 0) {
+				pas = new PasSignatura();
+				signataris = getSignatariIdsPerPersones(personesPas3);
+				pas.setSignataris(signataris.toArray(new String[signataris.size()]));
+				pas.setMinSignataris(minSignatarisPas3);
+				passes.add(pas);
+			}
+			return passes.toArray(new PasSignatura[passes.size()]);
+		} else if (signatariId != null) {
+			PasSignatura[] passes = new PasSignatura[1];
+			PasSignatura pas = new PasSignatura();
+			pas.setMinSignataris(1);
+			pas.setSignataris(new String[] {signatariId});
+			passes[0] = pas;
+			return passes;
+		} else {
+			PasSignatura[] passes = new PasSignatura[0];
+			return passes;
+		}
+	}
+
+	private List<String> getSignatariIdsPerPersones(List<PersonaDto> persones) {
+		List<String> signatariIds = new ArrayList<String>();
+		for (PersonaDto persona: persones) {
+			String signatariId = getSignatariIdPerPersona(persona);
+			if (signatariId != null)
+				signatariIds.add(signatariId);
+		}
+		return signatariIds;
+	}
+	private String getSignatariIdPerPersona(PersonaDto persona) {
+		String signatariId = persona.getDni();
+		if (isIdUsuariPerCodi())
+			signatariId = persona.getCodi();
+		if (isIdUsuariPerDni())
+			signatariId = persona.getDni();
+		return signatariId;
+	}
 	private boolean isIdUsuariPerDni() {
 		return "dni".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.usuari.id"));
 	}

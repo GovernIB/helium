@@ -7,10 +7,11 @@
 
 package net.conselldemallorca.helium.ws.callback;
 
-@SuppressWarnings(value = {"serial", "unchecked"})
+@SuppressWarnings(value = {"serial", "unchecked", "rawtypes"})
 public class MCGDwsSkeleton implements es.indra.www.portafirmasmcgdws.mcgdws.MCGDws, org.apache.axis.wsdl.Skeleton {
     private es.indra.www.portafirmasmcgdws.mcgdws.MCGDws impl;
     
+	
 	private static java.util.Map _myOperations = new java.util.Hashtable();
     private static java.util.Collection _myOperationsList = new java.util.ArrayList();
 

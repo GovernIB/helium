@@ -44,7 +44,7 @@ import org.jbpm.logging.log.ProcessLog;
 /**
  * are the graph related database operations.
  */
-@SuppressWarnings({"deprecation", "unchecked"})
+@SuppressWarnings({"deprecation", "unchecked", "rawtypes"})
 public class GraphSession
 {
 

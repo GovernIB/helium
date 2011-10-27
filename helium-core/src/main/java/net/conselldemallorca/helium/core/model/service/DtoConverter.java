@@ -605,8 +605,8 @@ public class DtoConverter {
 							getPdfUtils().estampar(
 									arxiuOrigenNom,
 									arxiuOrigenContingut,
-									(document.isSignat()) ? ambSegellSignatura : false,
-									(document.isSignat()) ? getUrlComprovacioSignatura(documentStoreId, dto.getTokenSignatura()): null,
+									(ambSegellSignatura) ? !document.isSignat() : false,
+									(ambSegellSignatura) ? getUrlComprovacioSignatura(documentStoreId, dto.getTokenSignatura()): null,
 									document.isRegistrat(),
 									numeroRegistre,
 									dataRegistre,

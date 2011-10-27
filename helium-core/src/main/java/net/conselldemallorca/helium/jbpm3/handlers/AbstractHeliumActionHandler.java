@@ -161,7 +161,7 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 			Object value, String var) {
 		if (value != null)
 			return value;
-		if (var != null)
+		if (var != null && var.length() > 0)
 			return executionContext.getVariable(var);
 		return null;
 	}
@@ -179,7 +179,7 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 				}
 			}
 		}
-		if (var != null) {
+		if (var != null && var.length() > 0) {
 			Object valor = executionContext.getVariable(var);
 			if (valor instanceof Date) {
 				return (Date) valor;
@@ -203,7 +203,7 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 				return new Integer(value.toString());
 			}
 		}
-		if (var != null) {
+		if (var != null && var.length() > 0) {
 			Object valor = executionContext.getVariable(var);
 			if (valor instanceof Integer) {
 				return (Integer) valor;

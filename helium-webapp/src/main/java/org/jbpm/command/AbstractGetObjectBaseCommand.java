@@ -98,7 +98,7 @@ public abstract class AbstractGetObjectBaseCommand extends AbstractBaseCommand
     return pi;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
 public ProcessDefinition retrieveProcessDefinition(ProcessDefinition pd)
   {
     try
@@ -118,7 +118,7 @@ public ProcessDefinition retrieveProcessDefinition(ProcessDefinition pd)
     }
     return pd;
   }
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   protected void retrieveToken(Token t)
   {
     retrieveNode(t.getNode());

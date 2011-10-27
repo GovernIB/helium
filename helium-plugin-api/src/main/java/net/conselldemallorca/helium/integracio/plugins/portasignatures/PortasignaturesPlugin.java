@@ -24,11 +24,10 @@ public interface PortasignaturesPlugin {
 	 * @throws Exception
 	 */
 	public Integer uploadDocument (
-			String signatariId,
-			String arxiuDescripcio,
-			String arxiuNom,
-			byte[] arxiuContingut,
-			Integer tipusDocument,
+			DocumentPortasignatures document,
+			List<DocumentPortasignatures> annexos,
+			boolean isSignarAnnexos,
+			PasSignatura[] passesSignatura,
 			String remitent,
 			String importancia,
 			Date dataLimit) throws PortasignaturesPluginException;

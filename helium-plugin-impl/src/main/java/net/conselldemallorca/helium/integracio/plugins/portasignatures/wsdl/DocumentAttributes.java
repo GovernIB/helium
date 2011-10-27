@@ -7,7 +7,7 @@
 
 package net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl;
 
-@SuppressWarnings({"serial", "unchecked"})
+@SuppressWarnings({"serial", "unused", "rawtypes"})
 public class DocumentAttributes  implements java.io.Serializable {
     private StateEnum state;
 

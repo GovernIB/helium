@@ -91,7 +91,7 @@ public class PersonesPluginLdap implements PersonesPlugin {
 		List<DadesPersona> resposta = new ArrayList<DadesPersona>();
 		while (answer.hasMoreElements()) {
 			SearchResult sr = (SearchResult)answer.next();
-			System.out.println(">>> " + sr.getNameInNamespace());
+			// System.out.println(">>> " + sr.getNameInNamespace());
 			Attributes attrs = sr.getAttributes();
 			/*NamingEnumeration ne = attrs.getIDs();
 			while (ne.hasMore()) {

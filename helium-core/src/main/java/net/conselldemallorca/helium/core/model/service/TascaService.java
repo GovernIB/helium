@@ -1470,15 +1470,6 @@ public class TascaService {
 		}
 		return ok;
 	}
-	/*private void deleteDocumentsTasca(String taskId) {
-		Map<String, Object> valors = jbpmDao.getTaskInstanceVariables(taskId);
-		for (String codi: valors.keySet()) {
-			if (codi.startsWith(PREFIX_DOCUMENT))
-				jbpmDao.deleteTaskInstanceVariable(taskId, codi);
-		}
-	}*/
-
-	
 
 	private void createDelegationInfo(
 			JbpmTask task,
@@ -1587,11 +1578,12 @@ public class TascaService {
 	}
 	
 	private void actualitzarTerminisIniciatsIAlertes(String taskId, Expedient expedient) {
-		List<TerminiIniciat> terminisIniciats = terminiIniciatDao.findAmbTaskInstanceId( new Long(taskId) );
+		List<TerminiIniciat> terminisIniciats = terminiIniciatDao.findAmbTaskInstanceId(
+				new Long(taskId));
 		for (TerminiIniciat terminiIniciat: terminisIniciats) {
 			terminiIniciat.setDataCompletat(new Date());
 			esborrarAlertesAntigues(terminiIniciat);
-			if ( terminiIniciat.getTermini().isAlertaCompletat() && !terminiIniciat.isAlertaCompletat() ) {
+			if (terminiIniciat.getTermini().isAlertaCompletat()) {
 				JbpmTask task = jbpmDao.getTaskById(taskId);
 				if (task.getAssignee() != null) {
 					crearAlertaCompletat(terminiIniciat, task.getAssignee(), expedient);
@@ -1603,11 +1595,14 @@ public class TascaService {
 			}
 		}
 	}
-	private void crearAlertaCompletat(TerminiIniciat terminiIniciat, String destinatari, Expedient expedient) {
+	private void crearAlertaCompletat(
+			TerminiIniciat terminiIniciat,
+			String destinatari,
+			Expedient expedient) {
 		Alerta alerta = new Alerta(
 				new Date(),
 				destinatari,
-				Alerta.AlertaPrioritat.MOLT_BAIXA,
+				Alerta.AlertaPrioritat.NORMAL,
 				terminiIniciat.getTermini().getDefinicioProces().getEntorn());
 		alerta.setExpedient(expedient);
 		alerta.setTerminiIniciat(terminiIniciat);

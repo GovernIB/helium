@@ -7,7 +7,7 @@
 
 package net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl;
 
-@SuppressWarnings({"serial", "unchecked"})
+@SuppressWarnings({"serial", "unused", "rawtypes"})
 public class UpdateStep  extends Step  implements java.io.Serializable {
     private Signer[] signers;
 

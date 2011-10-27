@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.core.model.service;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -20,9 +21,9 @@ import net.conselldemallorca.helium.core.model.exception.IllegalStateException;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
-import net.conselldemallorca.helium.core.model.hibernate.Usuari;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
+import net.conselldemallorca.helium.core.model.hibernate.Usuari;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
@@ -106,8 +107,15 @@ public class PluginService {
 	}
 
 	public void enviarPortasignatures(
+			Long documentId,
+			List<Long> annexosId,
 			PersonaDto persona,
-			Long documentStoreId,
+			List<PersonaDto> personesPas1,
+			int minSignatarisPas1,
+			List<PersonaDto> personesPas2,
+			int minSignatarisPas2,
+			List<PersonaDto> personesPas3,
+			int minSignatarisPas3,
 			Expedient expedient,
 			String importancia,
 			Date dataLimit,
@@ -116,29 +124,45 @@ public class PluginService {
 			String transicioKO) throws Exception {
 		try {
 			DocumentDto document = dtoConverter.toDocumentDto(
-					documentStoreId,
+					documentId,
 					false,
 					false,
 					true,
 					true,
 					true);
-			String documentTitol = expedient.getIdentificador() + ": " + document.getDocumentNom();
+			List<DocumentDto> annexos = null;
+			if (annexosId != null) {
+				annexos = new ArrayList<DocumentDto>();
+				for (Long docId: annexosId) {
+					annexos.add(dtoConverter.toDocumentDto(
+							docId,
+							false,
+							false,
+							true,
+							true,
+							true));
+				}
+			}
 			Integer doc = pluginPortasignaturesDao.uploadDocument(
-							persona,
-							documentTitol,
-							document.getVistaNom(),
-							document.getVistaContingut(),
-							document.getTipusDocPortasignatures(),
-							expedient,
-							importancia,
-							dataLimit);
+					document,
+					annexos,
+					persona,
+					personesPas1,
+					minSignatarisPas1,
+					personesPas2,
+					minSignatarisPas2,
+					personesPas3,
+					minSignatarisPas3,
+					expedient,
+					importancia,
+					dataLimit);
 			Calendar cal = Calendar.getInstance();
 			Portasignatures portasignatures = new Portasignatures();
 			portasignatures.setDocumentId(doc);
 			portasignatures.setTokenId(tokenId);
 			portasignatures.setDataEnviat(cal.getTime());
 			portasignatures.setEstat(TipusEstat.PENDENT);
-			portasignatures.setDocumentStoreId(documentStoreId);
+			portasignatures.setDocumentStoreId(documentId);
 			portasignatures.setTransicioOK(transicioOK);
 			portasignatures.setTransicioKO(transicioKO);
 			pluginPortasignaturesDao.saveOrUpdate(portasignatures);

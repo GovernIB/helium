@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.conselldemallorca</groupId>
 	<artifactId>helium</artifactId>
-	<version>2.1</version>
+	<version>2.2</version>
 	<packaging>pom</packaging>
 	<modules>
 		<module>helium-core</module>

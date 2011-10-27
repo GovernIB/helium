@@ -7,7 +7,7 @@
 
 package net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl;
 
-@SuppressWarnings({"serial", "unchecked"})
+@SuppressWarnings({"serial", "unused", "rawtypes"})
 public class ListRequest  implements java.io.Serializable {
     private Application application;
 
