@@ -123,6 +123,7 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 		documentPs.setArxiuContingut(document.getVistaContingut());
 		documentPs.setTipus(document.getTipusDocPortasignatures());
 		documentPs.setSignat(document.isSignat());
+		documentPs.setReference(document.getId().toString());
 		return documentPs;
 	}
 	private List<DocumentPortasignatures> getAnnexosPortasignatures(

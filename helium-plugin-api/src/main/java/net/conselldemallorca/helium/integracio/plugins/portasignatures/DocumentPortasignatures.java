@@ -11,11 +11,11 @@ package net.conselldemallorca.helium.integracio.plugins.portasignatures;
 public class DocumentPortasignatures {
 
 	private String titol;
-	private String descripcio;
 	private String arxiuNom;
 	private byte[] arxiuContingut;
 	private Integer tipus;
 	private boolean isSignat;
+	private String reference;
 
 
 
@@ -24,12 +24,6 @@ public class DocumentPortasignatures {
 	}
 	public void setTitol(String titol) {
 		this.titol = titol;
-	}
-	public String getDescripcio() {
-		return descripcio;
-	}
-	public void setDescripcio(String descripcio) {
-		this.descripcio = descripcio;
 	}
 	public String getArxiuNom() {
 		return arxiuNom;
@@ -54,6 +48,12 @@ public class DocumentPortasignatures {
 	}
 	public void setSignat(boolean isSignat) {
 		this.isSignat = isSignat;
+	}
+	public String getReference() {
+		return reference;
+	}
+	public void setReference(String reference) {
+		this.reference = reference;
 	}
 
 }

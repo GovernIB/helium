@@ -73,11 +73,20 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 		factory.setEndpoint((String)GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.url"));
 		CWSSoapBindingStub stub = (CWSSoapBindingStub)factory.getCws();
 		try {
-			DataHandler attachmentFile = new DataHandler(
-					getDocumentDataSource(
-							document.getArxiuNom(),
-							document.getArxiuContingut()));
-			stub.addAttachment(attachmentFile);
+			// Afegeix el document a signar (sempre és el primer document que s'adjunta)
+			afegirAttachmentSoap(
+					stub,
+					document.getArxiuNom(),
+					document.getArxiuContingut());
+			// Afegeix els annexos
+			if (annexos != null) {
+				for (DocumentPortasignatures annex: annexos) {
+					afegirAttachmentSoap(
+							stub,
+							annex.getArxiuNom(),
+							annex.getArxiuContingut());
+				}
+			}
 			UploadRequest request = new UploadRequest(
 					getRequestApplication(),
 					getRequestDocument(
@@ -194,9 +203,11 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 			return new Integer(1);
 	}
 
-	private DataSource getDocumentDataSource(
+	private void afegirAttachmentSoap(
+			CWSSoapBindingStub stub,
 			String arxiuNom,
 			byte[] arxiuContingut) throws Exception {
+		DataSource ds = null;
 		if (isConvertirDocument()) {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			getOpenOfficeUtils().convertir(
@@ -204,16 +215,18 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 					arxiuContingut,
 					getConvertirExtensio(),
 					baos);
-			return new ByteArrayDataSource(
+			ds = new ByteArrayDataSource(
 					baos.toByteArray(),
 					getOpenOfficeUtils().nomArxiuConvertit(arxiuNom, getConvertirExtensio()),
 					getOpenOfficeUtils().getArxiuMimeType(arxiuNom));
 		} else {
-			return new ByteArrayDataSource(
+			ds = new ByteArrayDataSource(
 					arxiuContingut,
 					arxiuNom,
 					getOpenOfficeUtils().getArxiuMimeType(arxiuNom));
 		}
+		DataHandler attachmentFile = new DataHandler(ds);
+		stub.addAttachment(attachmentFile);
 	}
 
 	private Application getRequestApplication() {
@@ -235,10 +248,10 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 		UploadRequestDocument documentRequest = new UploadRequestDocument();
 		DocumentAttributes attributes = new DocumentAttributes();
 		// Atributs obligatoris
-		attributes.setTitle(document.getTitol());
+		attributes.setTitle(limitarString(document.getTitol(), 100));
 		attributes.setExtension(getDocumentArxiuExtensioFinal(document.getArxiuNom()));
 		// Atributs opcionals
-		attributes.setDescription(document.getDescripcio());
+		attributes.setDescription(document.getTitol());
 		//attributes.setSubject(arxiuDescripcio);
 		if (document.getTipus() != null)
 			attributes.setType(document.getTipus());
@@ -272,7 +285,7 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 				Annex anx = new Annex();
 				anx.setDescription(annex.getTitol());
 				anx.setExtension(getDocumentArxiuExtensioFinal(annex.getArxiuNom()));
-				anx.setReference("");
+				anx.setReference(annex.getReference());
 				anxs.add(anx);
 				Sender anxSender = new Sender();
 				anxSender.setName(remitent);
@@ -357,6 +370,15 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 		}
 		public String getContentType() {
 			return contentType;
+		}
+	}
+
+	private String limitarString(String str, int maxChars) {
+		String textFinal = "[...]";
+		if (str.length() > maxChars) {
+			return str.substring(0, maxChars - textFinal.length()) + textFinal;
+		} else {
+			return str;
 		}
 	}
 
