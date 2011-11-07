@@ -68,7 +68,7 @@ function confirmar(form) {
 // ]]>
 </script>
 </c:if>
-<script type="text/javascript" language="javascript">
+<script type="text/javascript">
 // <![CDATA[
     function verificarSignatura(element) {
 		var amplada = 800;
