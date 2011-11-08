@@ -3,22 +3,27 @@
  */
 package net.conselldemallorca.helium.webapp.mvc;
 
-import java.util.Enumeration;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
+import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,11 +47,6 @@ import org.springframework.web.bind.support.SessionStatus;
  */
 @Controller
 public class ExpedientIniciarPasTitolController extends BaseController {
-
-	public static final String CLAU_SESSIO_TASKID = "iniciexp_taskId";
-	public static final String CLAU_SESSIO_TITOL = "iniciexp_titol";
-	public static final String CLAU_SESSIO_NUMERO = "iniciexp_numero";
-	public static final String CLAU_SESSIO_FORM_VALIDAT = "iniciexp_form_validat";
 
 	private DissenyService dissenyService;
 	private ExpedientService expedientService;
@@ -86,7 +86,7 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 		return null;
 	}
 
-	@ModelAttribute("tascaInicial")
+	/*@ModelAttribute("tascaInicial")
 	public TascaDto populateStartTask(
 			HttpServletRequest request,
 			@RequestParam(value = "expedientTipusId", required = false) Long expedientTipusId,
@@ -100,7 +100,7 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 	        		null);
 		}
 		return null;
-	}
+	}*/
 
 	@RequestMapping(value = "/expedient/iniciarPasTitol", method = RequestMethod.GET)
 	public String iniciarPasTitolGet(
@@ -146,47 +146,48 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 				if ("submit".equals(submit) || submit.length() == 0) {
 					command.setEntornId(entorn.getId());
 					validator.validate(command, result);
-			        if (result.hasErrors()) {
-			        	model.addAttribute(
+					if (result.hasErrors()) {
+						model.addAttribute(
 								"responsable",
 								getPersonaAmbCodi(command.getResponsableCodi()));
-			        	model.addAttribute("expedientTipus", dissenyService.getExpedientTipusById(expedientTipusId));
-			        	return "expedient/iniciarPasTitol";
-			        }
-			        // Si l'expedient requereix dades inicials redirigeix al pas per demanar 
-			        // aquestes dades
-			        DefinicioProcesDto definicioProces = null;
+						model.addAttribute("expedientTipus", dissenyService.getExpedientTipusById(expedientTipusId));
+						return "expedient/iniciarPasTitol";
+					}
+					/*// Si l'expedient requereix dades inicials redirigeix al pas per demanar 
+					// aquestes dades
+					DefinicioProcesDto definicioProces = null;
 					if (definicioProcesId != null)
 						definicioProces = dissenyService.getById(definicioProcesId, true);
 					else
 						definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId, true);
 					if (definicioProces.isHasStartTask()) {
-						request.getSession().setAttribute(CLAU_SESSIO_TITOL, command.getTitol());
-			        	request.getSession().setAttribute(CLAU_SESSIO_NUMERO, command.getNumero());
+						request.getSession().setAttribute(ExpedientIniciarController.CLAU_SESSIO_TITOL, command.getTitol());
+						request.getSession().setAttribute(ExpedientIniciarController.CLAU_SESSIO_NUMERO, command.getNumero());
 						if (definicioProcesId != null)
 							return "redirect:/expedient/iniciarPasForm.html?expedientTipusId=" + expedientTipusId + "&definicioProcesId=" + definicioProcesId;
 						else
 							return "redirect:/expedient/iniciarPasForm.html?expedientTipusId=" + expedientTipusId;
 					}
-			        // Si no requereix dades inicials inicia l'expedient
-			        try {
-			        	iniciarExpedient(
+					// Si no requereix dades inicials inicia l'expedient*/
+					try {
+						iniciarExpedient(
+								request,
 								entorn.getId(),
 								command.getExpedientTipusId(),
 								definicioProcesId,
 								command.getNumero(),
 								command.getTitol());
-				        missatgeInfo(request, getMessage("info.expedient.iniciat"));
-				        netejarSessio(request);
-				        return "redirect:/expedient/iniciar.html";
-			        } catch (Exception ex) {
-			        	missatgeError(
+					    missatgeInfo(request, getMessage("info.expedient.iniciat"));
+					    ExpedientIniciarController.netejarSessio(request);
+					    return "redirect:/expedient/iniciar.html";
+					} catch (Exception ex) {
+						missatgeError(
 								request,
 								getMessage("error.iniciar.expedient"),
 								(ex.getCause() != null) ? ex.getCause().getMessage() : ex.getMessage());
-			        	logger.error("No s'ha pogut iniciar l'expedient", ex);
-			        	model.addAttribute("expedientTipus", dissenyService.getExpedientTipusById(command.getExpedientTipusId()));
-			        	return "expedient/iniciarPasTitol";
+						logger.error("No s'ha pogut iniciar l'expedient", ex);
+						model.addAttribute("expedientTipus", dissenyService.getExpedientTipusById(command.getExpedientTipusId()));
+						return "expedient/iniciarPasTitol";
 					}
 				} else {
 					return "redirect:/expedient/iniciar.html";
@@ -260,25 +261,38 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void netejarSessio(HttpServletRequest request) {
-		Enumeration<String> atributs = request.getSession().getAttributeNames();
-		while (atributs.hasMoreElements()) {
-			String atribut = atributs.nextElement();
-			if (atribut.startsWith(ExpedientIniciarRegistreController.PREFIX_REGISTRE_SESSIO))
-				request.getSession().removeAttribute(atribut);
-		}
-		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_TASKID);
-		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_NUMERO);
-		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_TITOL);
-		request.getSession().removeAttribute(ExpedientIniciarPasTitolController.CLAU_SESSIO_FORM_VALIDAT);
-	}
-
 	private synchronized void iniciarExpedient(
+			HttpServletRequest request,
 			Long entornId,
 			Long expedientTipusId,
 			Long definicioProcesId,
 			String numero,
 			String titol) {
+		Map<String, Object> valors = null;
+		Map<String, Object> valorsSessio = (Map<String, Object>)request.getSession().getAttribute(
+				ExpedientIniciarController.CLAU_SESSIO_FORM_VALORS);
+		Object command = request.getSession().getAttribute(
+				ExpedientIniciarController.CLAU_SESSIO_FORM_COMMAND);
+		if (valorsSessio != null || command != null) {
+			valors = new HashMap<String, Object>();
+			if (valorsSessio != null)
+				valors.putAll(valorsSessio);
+			if (command != null) {
+				TascaDto tascaInicial = expedientService.getStartTask(
+						entornId,
+						expedientTipusId,
+						definicioProcesId,
+						null);
+				List<Camp> camps = new ArrayList<Camp>();
+				for (CampTasca campTasca: tascaInicial.getCamps())
+					camps.add(campTasca.getCamp());
+				valors.putAll(TascaFormUtil.getValorsFromCommand(
+						camps,
+						command,
+						true,
+						false));
+			}
+		}
 		expedientService.iniciar(
 				entornId,
 				expedientTipusId,
@@ -300,7 +314,7 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 				null,
 				null,
 				false,
-				null,
+				valors,
 				null,
 				IniciadorTipus.INTERN,
 				null,

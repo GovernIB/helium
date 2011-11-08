@@ -16,10 +16,7 @@ function confirmar(e) {
 	if (e.stopPropagation) e.stopPropagation();
 	if ("cancel" == submitAction)
 		return true;
-	if (${empty tascaInicial}) 
-		return confirm("<fmt:message key='expedient.iniciar.confirm_iniciar' />");
-	else
-		return true;
+	return confirm("<fmt:message key='expedient.iniciar.confirm_iniciar' />");
 }
 // ]]>
 </script>

@@ -32,8 +32,6 @@ import org.springframework.web.bind.support.SessionStatus;
 @Controller
 public class ExpedientIniciarRegistreController extends CommonRegistreController {
 
-	public static final String PREFIX_REGISTRE_SESSIO = "ExpedientIniciarRegistreController_reg_";
-
 	private ExpedientService expedientService;
 
 
@@ -112,7 +110,8 @@ public class ExpedientIniciarRegistreController extends CommonRegistreController
 	}
 	@Override
 	public Object[] getValorRegistre(HttpServletRequest request, Long entornId, String id, String campCodi) {
-		return (Object[])request.getSession().getAttribute(PREFIX_REGISTRE_SESSIO + campCodi);
+		return (Object[])request.getSession().getAttribute(
+				ExpedientIniciarController.getClauSessioCampRegistre(campCodi));
 	}
 	@Override
 	public void guardarRegistre(HttpServletRequest request, String id, String campCodi, Object[] valors,
@@ -139,17 +138,18 @@ public class ExpedientIniciarRegistreController extends CommonRegistreController
 			String campCodi,
 			Object[] valors,
 			int index) {
-		Object valor = request.getSession().getAttribute(PREFIX_REGISTRE_SESSIO + campCodi);
+		Object valor = request.getSession().getAttribute(
+				ExpedientIniciarController.getClauSessioCampRegistre(campCodi));
 		if (valor == null) {
 			request.getSession().setAttribute(
-					PREFIX_REGISTRE_SESSIO + campCodi,
+					ExpedientIniciarController.getClauSessioCampRegistre(campCodi),
 					new Object[]{valors});
 		} else {
 			Object[] valorMultiple = (Object[])valor;
 			if (index != -1) {
 				valorMultiple[index] = valors;
 				request.getSession().setAttribute(
-						PREFIX_REGISTRE_SESSIO + campCodi,
+						ExpedientIniciarController.getClauSessioCampRegistre(campCodi),
 						valor);
 			} else {
 				Object[] valorNou = new Object[valorMultiple.length + 1];
@@ -157,7 +157,7 @@ public class ExpedientIniciarRegistreController extends CommonRegistreController
 					valorNou[i] = valorMultiple[i];
 				valorNou[valorMultiple.length] = valors;
 				request.getSession().setAttribute(
-						PREFIX_REGISTRE_SESSIO + campCodi,
+						ExpedientIniciarController.getClauSessioCampRegistre(campCodi),
 						valorNou);
 			}
 		}
@@ -166,7 +166,8 @@ public class ExpedientIniciarRegistreController extends CommonRegistreController
 			HttpServletRequest request,
 			String campCodi,
 			int index) {
-		Object valor = request.getSession().getAttribute(PREFIX_REGISTRE_SESSIO + campCodi);
+		Object valor = request.getSession().getAttribute(
+				ExpedientIniciarController.getClauSessioCampRegistre(campCodi));
 		if (valor != null) {
 			Object[] valorMultiple = (Object[])valor;
 			if (valorMultiple.length > 0) {
@@ -174,7 +175,7 @@ public class ExpedientIniciarRegistreController extends CommonRegistreController
 				for (int i = 0; i < valorNou.length; i++)
 					valorNou[i] = (i < index) ? valorMultiple[i] : valorMultiple[i + 1];
 					request.getSession().setAttribute(
-							PREFIX_REGISTRE_SESSIO + campCodi,
+							ExpedientIniciarController.getClauSessioCampRegistre(campCodi),
 							valorNou);
 			}
 		}

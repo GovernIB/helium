@@ -1057,7 +1057,6 @@ public class TascaService {
 			logger.warn("No s'ha trobat cap tasca amb l'id de formulari " + formulariId);
 		}
 	}
-
 	public Map<String, Object> obtenirValorsFormulariExternInicial(String formulariId) {
 		if (dadesFormulariExternInicial == null)
 			return null;
