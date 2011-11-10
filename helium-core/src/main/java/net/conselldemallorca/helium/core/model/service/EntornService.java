@@ -601,6 +601,10 @@ public class EntornService {
 		this.estatDao = estatDao;
 	}
 	@Autowired
+	public void setMapeigSistraDao(MapeigSistraDao mapeigSistraDao) {
+		this.mapeigSistraDao = mapeigSistraDao;
+	}
+	@Autowired
 	public void setAclServiceDao(AclServiceDao aclServiceDao) {
 		this.aclServiceDao = aclServiceDao;
 	}

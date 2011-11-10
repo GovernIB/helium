@@ -13,13 +13,14 @@ import java.util.List;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class FieldValue {
+public class FieldValue implements Comparable<FieldValue> {
 
 	private String definicioProcesCodi;
 	private String campCodi;
 	private String etiqueta;
 	private Object valor;
 	private String valorMostrar;
+	private String valorOrdre;
 
 	private boolean multiple;
 	private List<Object> valorMultiple;
@@ -71,6 +72,12 @@ public class FieldValue {
 	}
 	public void setValorMostrar(String valorMostrar) {
 		this.valorMostrar = valorMostrar;
+	}
+	public String getValorOrdre() {
+		return valorOrdre;
+	}
+	public void setValorOrdre(String valorOrdre) {
+		this.valorOrdre = valorOrdre;
 	}
 	public boolean isMultiple() {
 		return multiple;
@@ -144,6 +151,13 @@ public class FieldValue {
 			else
 				return null;
 		}
+	}
+
+	public int compareTo(FieldValue f) {
+		if (isMultiple())
+			return toString().compareTo(f.toString());
+		else
+			return getValorOrdre().compareTo(f.getValorOrdre());
 	}
 
 }

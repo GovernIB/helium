@@ -96,21 +96,6 @@ public class TerminiService {
 				processInstanceId);
 		if (terminiIniciat == null) {
 			if (esDataFi) {
-				Date dataFi = getDataFiTermini(
-						data,
-						anys,
-						mesos,
-						dies,
-						termini.isLaborable());
-				terminiIniciat = new TerminiIniciat(
-						termini,
-						anys,
-						mesos,
-						dies,
-						processInstanceId,
-						data,
-						dataFi);
-			} else {
 				Date dataInici = getDataIniciTermini(
 						data,
 						anys,
@@ -125,17 +110,24 @@ public class TerminiService {
 						processInstanceId,
 						dataInici,
 						data);
-			}
-		} else {
-			if (esDataFi) {
+			} else {
 				Date dataFi = getDataFiTermini(
 						data,
 						anys,
 						mesos,
 						dies,
 						termini.isLaborable());
-				terminiIniciat.setDataFi(dataFi);
-			} else {
+				terminiIniciat = new TerminiIniciat(
+						termini,
+						anys,
+						mesos,
+						dies,
+						processInstanceId,
+						data,
+						dataFi);
+			}
+		} else {
+			if (esDataFi) {
 				Date dataInici = getDataIniciTermini(
 						data,
 						anys,
@@ -143,6 +135,16 @@ public class TerminiService {
 						dies,
 						termini.isLaborable());
 				terminiIniciat.setDataInici(dataInici);
+				terminiIniciat.setDataFi(data);
+			} else {
+				Date dataFi = getDataFiTermini(
+						data,
+						anys,
+						mesos,
+						dies,
+						termini.isLaborable());
+				terminiIniciat.setDataInici(data);
+				terminiIniciat.setDataFi(dataFi);
 			}
 			terminiIniciat.setDataAturada(null);
 			terminiIniciat.setDataCancelacio(null);

@@ -181,13 +181,15 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 		}
 		if (var != null && var.length() > 0) {
 			Object valor = executionContext.getVariable(var);
-			if (valor instanceof Date) {
-				return (Date) valor;
-			} else {
-				try {
-					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-					return sdf.parse(valor.toString());
-				} catch (Exception ignored) {
+			if (valor != null) {
+				if (valor instanceof Date) {
+					return (Date) valor;
+				} else {
+					try {
+						SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+						return sdf.parse(valor.toString());
+					} catch (Exception ignored) {
+					}
 				}
 			}
 		}
@@ -205,10 +207,12 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 		}
 		if (var != null && var.length() > 0) {
 			Object valor = executionContext.getVariable(var);
-			if (valor instanceof Integer) {
-				return (Integer) valor;
-			} else {
-				return new Integer(valor.toString());
+			if (valor != null) {
+				if (valor instanceof Integer) {
+					return (Integer) valor;
+				} else {
+					return new Integer(valor.toString());
+				}
 			}
 		}
 		return null;

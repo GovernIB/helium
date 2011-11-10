@@ -226,47 +226,53 @@ function obreVisorGis() {
 			</c:import>
 		</c:if>
 		<div class="missatgesGris">
-			<p><fmt:message key="expedient.consulta.trobats"><fmt:param value="${fn:length(llistat)}"/></fmt:message></p>
+			<c:choose>
+				<c:when test="${empty llistat}"><p><fmt:message key="expedient.consulta.notrobats"/></p></c:when>
+				<c:when test="${fn:length(llistat) == 1}"><p><fmt:message key="expedient.consulta.trobatun"/></p></c:when>
+				<c:otherwise><p><fmt:message key="expedient.consulta.trobats"><fmt:param value="${fn:length(llistat)}"/></fmt:message></p></c:otherwise>
+			</c:choose>
 		</div>
-		<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable" defaultsort="2" defaultorder="descending">
-			<c:set var="filaStyle" value=""/>
-			<c:if test="${registre.anulat}"><c:set var="filaStyle" value="text-decoration:line-through"/></c:if>
-			<display:column property="identificador" title="Expedient" sortable="true" url="/tasca/personaLlistat.html" paramId="exp" paramProperty="identificador" style="${filaStyle}"/>
-			<display:column property="dataInici" title="Iniciat el" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true" style="${filaStyle}"/>
-			<display:column property="tipus.nom" title="Tipus" style="${filaStyle}"/>
-			<display:column title="Estat" style="${filaStyle}">
-				<c:if test="${registre.aturat}"><img src="<c:url value="/img/stop.png"/>" alt="Aturat" title="Aturat" border="0"/></c:if>
-				<c:choose>
-					<c:when test="${empty registre.dataFi}">
-						<c:choose><c:when test="${empty registre.estat}"><fmt:message key='expedient.consulta.iniciat' /></c:when><c:otherwise>${registre.estat.nom}</c:otherwise></c:choose>
-					</c:when>
-					<c:otherwise><fmt:message key='expedient.consulta.finalitzat' /></c:otherwise>
-				</c:choose>
-			</display:column>
-			<display:column>
-				<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,1">
-					<a href="<c:url value="/expedient/info.html"><c:param name="id" value="${registre.processInstanceId}"/></c:url>"><img src="<c:url value="/img/information.png"/>" alt="<fmt:message key='comuns.informacio' />" title="<fmt:message key='comuns.informacio' />" border="0"/></a>
-				</security:accesscontrollist>
-			</display:column>
-			<display:column>
-				<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,2">
-					<c:if test="${!registre.anulat}">
-						<a href="<c:url value="/expedient/anular.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmarAnular(event)"><img src="<c:url value="/img/delete.png"/>" alt="<fmt:message key='comuns.anular' />" title="<fmt:message key='comuns.anular' />" border="0"/></a>
-					</c:if>
-				</security:accesscontrollist>
-			</display:column>
-			<display:column>
-				<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,8">
-					<a href="<c:url value="/expedient/delete.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmarEsborrar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
-				</security:accesscontrollist>
-			</display:column>
-			<display:setProperty name="paging.banner.item_name">pais</display:setProperty>
-				<display:setProperty name="paging.banner.items_name">pais</display:setProperty>
-				<display:setProperty name="basic.msg.empty_list">
-					<span class="nothingFound">No s'ha trobat cap pais</span>
-				</display:setProperty>
-		</display:table>
-		<script type="text/javascript">initSelectable();</script>
+		<c:if test="${not empty llistat}">
+			<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable" defaultsort="2" defaultorder="descending">
+				<c:set var="filaStyle" value=""/>
+				<c:if test="${registre.anulat}"><c:set var="filaStyle" value="text-decoration:line-through"/></c:if>
+				<display:column property="identificador" title="Expedient" sortable="true" url="/tasca/personaLlistat.html" paramId="exp" paramProperty="identificador" style="${filaStyle}"/>
+				<display:column property="dataInici" title="Iniciat el" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true" style="${filaStyle}"/>
+				<display:column property="tipus.nom" title="Tipus" style="${filaStyle}"/>
+				<display:column title="Estat" style="${filaStyle}">
+					<c:if test="${registre.aturat}"><img src="<c:url value="/img/stop.png"/>" alt="Aturat" title="Aturat" border="0"/></c:if>
+					<c:choose>
+						<c:when test="${empty registre.dataFi}">
+							<c:choose><c:when test="${empty registre.estat}"><fmt:message key='expedient.consulta.iniciat' /></c:when><c:otherwise>${registre.estat.nom}</c:otherwise></c:choose>
+						</c:when>
+						<c:otherwise><fmt:message key='expedient.consulta.finalitzat' /></c:otherwise>
+					</c:choose>
+				</display:column>
+				<display:column>
+					<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,1">
+						<a href="<c:url value="/expedient/info.html"><c:param name="id" value="${registre.processInstanceId}"/></c:url>"><img src="<c:url value="/img/information.png"/>" alt="<fmt:message key='comuns.informacio' />" title="<fmt:message key='comuns.informacio' />" border="0"/></a>
+					</security:accesscontrollist>
+				</display:column>
+				<display:column>
+					<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,2">
+						<c:if test="${!registre.anulat}">
+							<a href="<c:url value="/expedient/anular.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmarAnular(event)"><img src="<c:url value="/img/delete.png"/>" alt="<fmt:message key='comuns.anular' />" title="<fmt:message key='comuns.anular' />" border="0"/></a>
+						</c:if>
+					</security:accesscontrollist>
+				</display:column>
+				<display:column>
+					<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,8">
+						<a href="<c:url value="/expedient/delete.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmarEsborrar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
+					</security:accesscontrollist>
+				</display:column>
+				<display:setProperty name="paging.banner.item_name">pais</display:setProperty>
+					<display:setProperty name="paging.banner.items_name">pais</display:setProperty>
+					<display:setProperty name="basic.msg.empty_list">
+						<span class="nothingFound">No s'ha trobat cap pais</span>
+					</display:setProperty>
+			</display:table>
+			<script type="text/javascript">initSelectable();</script>
+		</c:if>
 	</c:if>
 
 </body>

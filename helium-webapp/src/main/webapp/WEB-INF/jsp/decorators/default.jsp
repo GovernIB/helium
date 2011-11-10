@@ -47,12 +47,11 @@
 			}
 		});
 	</script --%>
-	<%--c:set var="hiHaTaula" value='${not empty llistat or not empty personaLlistat or not empty grupLlistat
+	<c:set var="hiHaTaula" value='${not empty llistat or not empty personaLlistat or not empty grupLlistat
 			or not empty variablesProcesSenseAgrupar or not empty instanciaProces.sortedDocumentKeys
 			or not empty registre or not empty estats or not empty tasques or not empty camps
 			or not empty documents or not empty agrupacions or not empty accions or not empty recursos
 			or not empty terminis or not empty tokens}'/>
-	<c:set var="hiHaTaula" value="${false}"/>
 	<c:if test="${hiHaTaula}">
 		<script type="text/javascript" src="<c:url value="/js/jquery/jquery.filtrartaula.js"/>"></script>
 		<script type="text/javascript">
@@ -101,7 +100,7 @@
 				}
 			});
 		</script>
-	</c:if--%>
+	</c:if>
 	
 	<decorator:head />
 </head>
@@ -129,7 +128,7 @@
 					</c:choose>
 					<c:set var="actual" value='${sessionScope["idiomaActual"]}'/>
 					<c:set var="disponibles" value='${sessionScope["idiomesDisponibles"]}'/>
-					<c:if test="${(not empty disponibles) && not(fn:length(disponibles)==1 && disponibles[0].codi==actual.codi)}">
+					<c:if test="${(not empty disponibles) && not (fn:length(disponibles)==1 && disponibles[0].codi==actual.codi)}">
 						<li class="dir image rtl idioma">
 							<a style="background-image: url(<c:url value='/img/locale/${actual.codi}.png' />);">${actual.nom}</a>
 							<ul>
@@ -147,10 +146,10 @@
 			<div id="page-title">
 				<h2><span><c:if test="${not empty pagina.title}"><decorator:title/></c:if></span><decorator:getProperty property="meta.titolcmp"/></h2>
 				<c:if test="${hiHaTaula}">
-					<span id="filtre">
-						<input type="text" title="<fmt:message key='decorators.default.cerca' />" />
+					<form id="filtre" class="uniForm">
+						<input type="text" title="<fmt:message key='decorators.default.cerca' />" class="textInput"/>
 						<a href=""><img src="<c:url value="/img/magnifier.png"/>" /></a>
-					</span>
+					</form>
 				</c:if>
 			</div>
 		</div>

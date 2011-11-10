@@ -74,7 +74,7 @@ public class PdfUtils {
 			if (outputExtension.equalsIgnoreCase("pdf"))
 				pdfReader = new PdfReader(arxiuContingut);
 		}
-		if (outputExtension.equalsIgnoreCase("pdf")) {
+		if (outputExtension.equalsIgnoreCase("pdf") && (segellSignatura || segellRegistre)) {
 			PdfStamper pdfStamper = new PdfStamper(pdfReader, output);
 			for (int i = 0; i < pdfReader.getNumberOfPages(); i++) {
 				PdfContentByte over = pdfStamper.getOverContent(i + 1);

@@ -1132,47 +1132,49 @@ public class DtoConverter {
 							if (valor != null && valor instanceof Object[]) {
 								List<String[]> grid = new ArrayList<String[]>();
 								for (int i = 0; i < Array.getLength(valor); i++) {
-									String[] texts = new String[camp.getRegistreMembres().size()];
 									Object valorRegistre = Array.get(valor, i);
-									Map<String, Object> valorsAddicionalsConsulta = new HashMap<String, Object>();
-									for (int j = 0; j < camp.getRegistreMembres().size(); j++) {
-										if (j < Array.getLength(valorRegistre)) {
-											valorsAddicionalsConsulta.put(
-													camp.getRegistreMembres().get(j).getMembre().getCodi(),
-													Array.get(valorRegistre, j));
-										}
-									}
-									for (int j = 0; j < Array.getLength(valorRegistre); j++) {
-										if (j == camp.getRegistreMembres().size())
-											break;
-										Camp membreRegistre = camp.getRegistreMembres().get(j).getMembre();
-										if (membreRegistre.getTipus().equals(TipusCamp.SUGGEST) || membreRegistre.getTipus().equals(TipusCamp.SELECCIO)) {
-											ParellaCodiValor codiValor = obtenirValorDomini(
-													taskId,
-													processInstanceId,
-													valorsAddicionalsConsulta,
-													membreRegistre,
-													Array.get(valorRegistre, j),
-													null,
-													true);
-											ParellaCodiValorDto parellaDto = null;
-											if (codiValor != null) {
-												parellaDto = new ParellaCodiValorDto(
-														codiValor.getCodi(),
-														codiValor.getValor());
+									if (valorRegistre != null) {
+										String[] texts = new String[camp.getRegistreMembres().size()];
+										Map<String, Object> valorsAddicionalsConsulta = new HashMap<String, Object>();
+										for (int j = 0; j < camp.getRegistreMembres().size(); j++) {
+											if (j < Array.getLength(valorRegistre)) {
+												valorsAddicionalsConsulta.put(
+														camp.getRegistreMembres().get(j).getMembre().getCodi(),
+														Array.get(valorRegistre, j));
 											}
-											texts[j] = textPerCamp(
-													membreRegistre,
-													Array.get(valorRegistre, j),
-													parellaDto);
-										} else {
-											texts[j] = textPerCamp(
-													membreRegistre,
-													Array.get(valorRegistre, j),
-													null);
 										}
+										for (int j = 0; j < Array.getLength(valorRegistre); j++) {
+											if (j == camp.getRegistreMembres().size())
+												break;
+											Camp membreRegistre = camp.getRegistreMembres().get(j).getMembre();
+											if (membreRegistre.getTipus().equals(TipusCamp.SUGGEST) || membreRegistre.getTipus().equals(TipusCamp.SELECCIO)) {
+												ParellaCodiValor codiValor = obtenirValorDomini(
+														taskId,
+														processInstanceId,
+														valorsAddicionalsConsulta,
+														membreRegistre,
+														Array.get(valorRegistre, j),
+														null,
+														true);
+												ParellaCodiValorDto parellaDto = null;
+												if (codiValor != null) {
+													parellaDto = new ParellaCodiValorDto(
+															codiValor.getCodi(),
+															codiValor.getValor());
+												}
+												texts[j] = textPerCamp(
+														membreRegistre,
+														Array.get(valorRegistre, j),
+														parellaDto);
+											} else {
+												texts[j] = textPerCamp(
+														membreRegistre,
+														Array.get(valorRegistre, j),
+														null);
+											}
+										}
+										grid.add(texts);
 									}
-									grid.add(texts);
 								}
 								resposta.put(key, grid);
 							} else {

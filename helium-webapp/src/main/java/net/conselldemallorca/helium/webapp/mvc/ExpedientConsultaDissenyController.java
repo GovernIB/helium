@@ -166,6 +166,13 @@ public class ExpedientConsultaDissenyController extends BaseController {
 					if (dadesExpedient.getExpedient().isAnulat())
 						it.remove();
 				}
+
+				// ------ //
+				/*for (ExpedientConsultaDissenyDto dadesExpedient: dadesExpedients) {
+					mostrarDadesExpedient(dadesExpedient);
+				}*/
+				// ------ //
+
 				model.addAttribute(
 						"expedients",
 						dadesExpedients);
@@ -390,6 +397,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 				dadaIndex.getEtiqueta());
 		if (!dadaIndex.isMultiple()) {
 			field.setValor(dadaIndex.getValor());
+			field.setValorOrdre(dadaIndex.getValorIndex());
 			field.setValorMostrar(dadaIndex.getValorMostrar());
 		} else {
 			field.setValorMultiple(dadaIndex.getValorMultiple());
@@ -423,5 +431,15 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		}
 		return dadesDataSource;
 	}
+
+	/*private void mostrarDadesExpedient(ExpedientConsultaDissenyDto dadesExpedient) {
+		System.out.println(">>>>>> (" + dadesExpedient.getExpedient().getId() + ") " + dadesExpedient.getExpedient().getIdentificador());
+		if (dadesExpedient.getDadesExpedient() != null) {
+			for (String clau: dadesExpedient.getDadesExpedient().keySet()) {
+				DadaIndexadaDto dada = dadesExpedient.getDadesExpedient().get(clau);
+				System.out.println(">>> " + dada.getCampCodi() + ": (" + dada.getValorIndex() + ") " + dada.getValorMostrar());
+			}
+		}
+	}*/
 
 }

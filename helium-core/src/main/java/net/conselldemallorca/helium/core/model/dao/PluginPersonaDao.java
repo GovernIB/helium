@@ -59,15 +59,16 @@ public class PluginPersonaDao extends PersonaDao {
 	}
 
 	public PersonaDto findAmbCodiPlugin(String codi) {
+		String codiPerConsulta = (isIgnoreCase()) ? codi.toLowerCase() : codi;
 		try {
 			if (getPersonesPlugin() == null || isSyncActiu()) {
-				return toPersonaPlugin(findAmbCodi(codi));
+				return toPersonaPlugin(findAmbCodi(codiPerConsulta));
 			} else {
-				return toPersonaPlugin(personesPlugin.findAmbCodi(codi));
+				return toPersonaPlugin(personesPlugin.findAmbCodi(codiPerConsulta));
 			}
 		} catch (PersonesPluginException ex) {
-			logger.error("Error al cercar les persones amb el codi", ex);
-			throw new PluginException("Error al cercar les persones amb el codi", ex);
+			logger.error("Error al cercar les persones amb el codi " + codi, ex);
+			throw new PluginException("Error al cercar les persones amb el codi" + codi, ex);
 		}
 	}
 
@@ -148,6 +149,10 @@ public class PluginPersonaDao extends PersonaDao {
 
 	private boolean isSyncActiu() {
 		String syncActiu = GlobalProperties.getInstance().getProperty("app.persones.plugin.sync.actiu");
+		return "true".equalsIgnoreCase(syncActiu);
+	}
+	private boolean isIgnoreCase() {
+		String syncActiu = GlobalProperties.getInstance().getProperty("app.persones.plugin.ignore.case");
 		return "true".equalsIgnoreCase(syncActiu);
 	}
 

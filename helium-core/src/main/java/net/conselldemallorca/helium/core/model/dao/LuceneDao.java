@@ -32,6 +32,8 @@ import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TermRangeQuery;
 import org.apache.lucene.search.WildcardQuery;
@@ -49,6 +51,8 @@ import org.springmodules.lucene.search.core.LuceneSearchTemplate;
  */
 @Repository
 public class LuceneDao extends LuceneIndexSupport {
+
+	public static final String CLAU_EXPEDIENT_ID = "H3l1um#expedient.id";
 
 	private static final int NUMDIGITS_PART_SENCERA = 15;
 	private static final int NUMDIGITS_PART_DECIMAL = 6;
@@ -145,8 +149,8 @@ public class LuceneDao extends LuceneIndexSupport {
 		getLuceneIndexTemplate().optimize();
 	}
 
-	@SuppressWarnings("unchecked")
-	public List<Long> findNomesIds(
+	/*@SuppressWarnings("unchecked")
+	public List<Long> findNomesIds1(
 			String tipusCodi,
 			List<Camp> filtreCamps,
 			Map<String, Object> filtreValors) {
@@ -163,7 +167,7 @@ public class LuceneDao extends LuceneIndexSupport {
 				    }
 				});
 		return resposta;
-	}
+	}*/
 	public List<Map<String, DadaIndexadaDto>> findAmbDadesExpedient(
 			String tipusCodi,
 			List<Camp> filtreCamps,
@@ -176,7 +180,8 @@ public class LuceneDao extends LuceneIndexSupport {
 				filtreValors);
 		return getDadesExpedientPerConsulta(
 				query,
-				informeCamps);
+				informeCamps,
+				true);
 	}
 
 	public List<Map<String, DadaIndexadaDto>> getDadesExpedient(
@@ -189,7 +194,8 @@ public class LuceneDao extends LuceneIndexSupport {
 				null);
 		return getDadesExpedientPerConsulta(
 				query,
-				informeCamps);
+				informeCamps,
+				false);
 	}
 
 
@@ -449,7 +455,8 @@ public class LuceneDao extends LuceneIndexSupport {
 	@SuppressWarnings("unchecked")
 	private List<Map<String, DadaIndexadaDto>> getDadesExpedientPerConsulta(
 			Query query,
-			List<Camp> campsInforme) {
+			List<Camp> campsInforme,
+			boolean incloureId) {
 		List<Map<String, List<String>>> resultats = searchTemplate.search(
 				query,
 				new HitExtractor() {
@@ -469,7 +476,8 @@ public class LuceneDao extends LuceneIndexSupport {
 				    	}
 			    		return valorsDocument;
 				    }
-				});
+				},
+				new Sort(new SortField(ExpedientCamps.EXPEDIENT_CAMP_ID, SortField.STRING, true)));
 		List<Map<String, DadaIndexadaDto>> resposta = new ArrayList<Map<String, DadaIndexadaDto>>();
 		if (resultats.size() > 0) {
 			for (Map<String, List<String>> fila: resultats) {
@@ -591,6 +599,14 @@ public class LuceneDao extends LuceneIndexSupport {
 					}
 				}
 				Map<String, DadaIndexadaDto> mapFila = new HashMap<String, DadaIndexadaDto>();
+				if (incloureId) {
+					/* Incorpora l'id de l'expedient */
+					DadaIndexadaDto dadaExpedientId = new DadaIndexadaDto(
+							ExpedientCamps.EXPEDIENT_CAMP_ID,
+							"expedientId");
+					dadaExpedientId.setValorIndex(fila.get(ExpedientCamps.EXPEDIENT_CAMP_ID).get(0));
+					mapFila.put(CLAU_EXPEDIENT_ID, dadaExpedientId);
+				}
 				for (DadaIndexadaDto dada: dadesFila) {
 					if (mapFila.containsKey(dada.getReportFieldName())) {
 						DadaIndexadaDto dadaMultiple = mapFila.get(dada.getReportFieldName());

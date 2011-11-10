@@ -58,9 +58,13 @@ public class DocumentExpedientCopiarOrigenHandler extends AbstractHeliumActionHa
 		if (documentInfo != null) {
 			// El guarda a l'expedient actual
 			String documentDestiCodi = (String)getValorOVariable(executionContext, documentCodi, varDocumentCodi);
+			if (documentDestiCodi == null)
+				throw new JbpmException("No s'ha especificat el codi del document destí");
 			Document documentDesti = getDissenyService().findDocumentAmbDefinicioProcesICodi(
 					getDefinicioProces(executionContext).getId(),
 					documentDestiCodi);
+			if (documentDesti == null)
+				throw new JbpmException("No existeix el document amb codi " + documentDestiCodi + " a l'expedient destí");
 			getExpedientService().guardarDocument(
 					new Long(executionContext.getProcessInstance().getId()).toString(),
 					documentDesti.getId(),

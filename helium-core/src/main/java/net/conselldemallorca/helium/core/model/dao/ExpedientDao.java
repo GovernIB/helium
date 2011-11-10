@@ -3,13 +3,14 @@
  */
 package net.conselldemallorca.helium.core.model.dao;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 
-import org.hibernate.Criteria;
+import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
 
@@ -29,7 +30,6 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 		return findByCriteria(
 				Restrictions.eq("entorn.id", entornId));
 	}
-	@SuppressWarnings("unchecked")
 	public List<Expedient> findAmbEntornConsultaGeneral(
 			Long entornId,
 			String titol,
@@ -44,8 +44,7 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			Double geoPosY,
 			String geoReferencia,
 			boolean mostrarAnulats) {
-		Criteria crit = getSession().createCriteria(
-				getPersistentClass());
+		List<Criterion> crit = new ArrayList<Criterion>();
 		crit.add(Restrictions.eq("entorn.id", entornId));
 		if (titol != null && titol.length() > 0)
 			crit.add(Restrictions.ilike("titol", "%" + titol + "%"));
@@ -70,7 +69,7 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 		if (!mostrarAnulats) {
 			crit.add(Restrictions.eq("anulat", false));
 		}
-		return crit.list();
+		return findByCriteria(crit.toArray(new Criterion[crit.size()]));
 	}
 	public Expedient findAmbEntornIId(Long entornId, Long id) {
 		List<Expedient> expedients = findByCriteria(
@@ -112,8 +111,16 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 				Restrictions.eq("entorn.id", entornId),
 				Restrictions.eq("tipus.id", expedientTipusId),
 				Restrictions.eq("numero", numero));
-		if (expedients.size() > 0)
+		if (expedients.size() > 0) {
 			return expedients.get(0);
+		} else {
+			expedients = findByCriteria(
+					Restrictions.eq("entorn.id", entornId),
+					Restrictions.eq("tipus.id", expedientTipusId),
+					Restrictions.eq("numeroDefault", numero));
+			if (expedients.size() > 0)
+				return expedients.get(0);
+		}
 		return null;
 	}
 

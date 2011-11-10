@@ -67,42 +67,45 @@ public class PluginService {
 	}
 	public void personesSync() {
 		if (isSyncPersonesActiu()) {
-			logger.info("Inici de la sincronització de persones");
 			List<PersonaDto> persones = pluginPersonaDao.findAllPlugin();
 			int nsyn = 0;
 			int ncre = 0;
+			logger.info("Inici de la sincronització de persones (" + persones.size() + " registres)");
 	    	for (PersonaDto persona: persones) {
-	    		net.conselldemallorca.helium.core.model.hibernate.Persona p = pluginPersonaDao.findAmbCodi(persona.getCodi());
-	    		if (p != null) {
-	    			p.setNom(persona.getNom());
-	    			p.setLlinatges(persona.getLlinatges());
-	    			p.setDni(persona.getDni());
-	    			p.setEmail(persona.getEmail());
-	    		} else {
-	    			//logger.info("Nova persona: " + persona.getCodi());
-	    			p = new net.conselldemallorca.helium.core.model.hibernate.Persona();
-	    			p.setCodi(persona.getCodi());
-	    			p.setNom(persona.getNom());
-	    			p.setLlinatge1((persona.getLlinatge1() != null) ? persona.getLlinatge1(): " ");
-	    			p.setLlinatge2(persona.getLlinatge2());
-	    			p.setDni(persona.getDni());
-	    			p.setEmail(persona.getEmail());
-	    			pluginPersonaDao.saveOrUpdate(p);
-	    			pluginPersonaDao.flush();
-	    			Usuari usuari = usuariDao.getById(persona.getCodi(), false);
-	    			if (usuari == null) {
-	    				usuari = new Usuari();
-	    				usuari.setCodi(persona.getCodi());
-	    				usuari.setContrasenya(persona.getCodi());
-	    				//usuari.addPermis(permisDao.getByCodi("HEL_USER"));
-	    				usuariDao.saveOrUpdate(usuari);
-	    				usuariDao.flush();
-	    			}
-	    			ncre++;
+	    		try {
+		    		net.conselldemallorca.helium.core.model.hibernate.Persona p = pluginPersonaDao.findAmbCodi(persona.getCodi());
+		    		if (p != null) {
+		    			p.setNom(persona.getNom());
+		    			p.setLlinatges(persona.getLlinatges());
+		    			p.setDni(persona.getDni());
+		    			p.setEmail(persona.getEmail());
+		    		} else {
+		    			p = new net.conselldemallorca.helium.core.model.hibernate.Persona();
+		    			String codiPerCreacio = (isIgnoreCase()) ? persona.getCodi().toLowerCase() : persona.getCodi();
+	    				p.setCodi(codiPerCreacio);
+		    			p.setNom(persona.getNom());
+		    			p.setLlinatge1((persona.getLlinatge1() != null) ? persona.getLlinatge1(): " ");
+		    			p.setLlinatge2(persona.getLlinatge2());
+		    			p.setDni(persona.getDni());
+		    			p.setEmail(persona.getEmail());
+		    			pluginPersonaDao.saveOrUpdate(p);
+		    			pluginPersonaDao.flush();
+		    			Usuari usuari = usuariDao.getById(codiPerCreacio, false);
+		    			if (usuari == null) {
+		    				usuari = new Usuari();
+		    				usuari.setCodi(codiPerCreacio);
+		    				usuari.setContrasenya(codiPerCreacio);
+		    				usuariDao.saveOrUpdate(usuari);
+		    				usuariDao.flush();
+		    			}
+		    			ncre++;
+		    		}
+	    		} catch (Exception ex) {
+	    			logger.error("Error en la importació de la persona amb codi " + persona.getCodi(), ex);
 	    		}
 	    		nsyn++;
 	    	}
-	    	logger.info("Fi de la sincronització de persones (total: " + nsyn + ", creades: " + ncre + ")");
+	    	logger.info("Fi de la sincronització de persones (processades: " + nsyn + ", creades: " + ncre + ")");
 		}
 	}
 
@@ -139,8 +142,8 @@ public class PluginService {
 							false,
 							false,
 							true,
-							true,
-							true));
+							false,
+							false));
 				}
 			}
 			Integer doc = pluginPortasignaturesDao.uploadDocument(
@@ -333,6 +336,10 @@ public class PluginService {
 
 	private boolean isSyncPersonesActiu() {
 		String syncActiu = GlobalProperties.getInstance().getProperty("app.persones.plugin.sync.actiu");
+		return "true".equalsIgnoreCase(syncActiu);
+	}
+	private boolean isIgnoreCase() {
+		String syncActiu = GlobalProperties.getInstance().getProperty("app.persones.plugin.ignore.case");
 		return "true".equalsIgnoreCase(syncActiu);
 	}
 
