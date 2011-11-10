@@ -10,18 +10,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.conselldemallorca.helium.core.model.dao.MapeigSistraDao;
 import net.conselldemallorca.helium.core.model.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.util.EntornActual;
@@ -46,7 +46,6 @@ public abstract class BaseBackoffice {
 
 	private ExpedientService expedientService;
 	private DissenyService dissenyService;
-	private MapeigSistraDao mapeigSistraDao;
 
 
 
@@ -60,8 +59,9 @@ public abstract class BaseBackoffice {
 			if (expedientTipus.getTeNumero())
 				expedientNumero = expedientTipus.getNumeroExpedientActual();
 			EntornActual.setEntornId(expedientTipus.getEntorn().getId());
-			expedientService.iniciar(
+			ExpedientDto expedientNou = expedientService.iniciar(
 					expedientTipus.getEntorn().getId(),
+					null,
 					expedientTipus.getId(),
 					null,
 					expedientNumero,
@@ -90,9 +90,12 @@ public abstract class BaseBackoffice {
 					null,
 					getDocumentsInicials(expedientTipus, tramit),
 					getDocumentsAdjunts(expedientTipus, tramit));
+			logger.info("S'ha creat un expedient del tipus " + expedientTipus.getCodi() + ": " + expedientNou.getIdentificador());
 		}
 		return candidats.size();
 	}
+
+
 
 	@Autowired
 	public void setExpedientService(ExpedientService expedientService) {
@@ -102,10 +105,7 @@ public abstract class BaseBackoffice {
 	public void setDissenyService(DissenyService dissenyService) {
 		this.dissenyService = dissenyService;
 	}
-	@Autowired
-	public void setMapeigSistraDao(MapeigSistraDao mapeigSistraDao) {
-		this.mapeigSistraDao = mapeigSistraDao;
-	}
+
 
 
 	protected abstract DadesVistaDocument getVistaDocumentTramit(
@@ -149,7 +149,7 @@ public abstract class BaseBackoffice {
 			}
 		}
 		return resposta;*/
-		List<MapeigSistra> mapeigsSistra = mapeigSistraDao.findVariablesAmbExpedientTipusOrdenats(expedientTipus.getId());
+		List<MapeigSistra> mapeigsSistra = dissenyService.findMapeigSistraVariablesAmbExpedientTipus(expedientTipus.getId());
 		if (mapeigsSistra.size() == 0)
 			return null;
 		
@@ -221,7 +221,7 @@ public abstract class BaseBackoffice {
 		}
 		return resposta;*/
 		
-		List<MapeigSistra> mapeigsSistra = mapeigSistraDao.findDocumentsAmbExpedientTipusOrdenats(expedientTipus.getId());
+		List<MapeigSistra> mapeigsSistra = dissenyService.findMapeigSistraDocumentsAmbExpedientTipus(expedientTipus.getId());
 		if (mapeigsSistra.size() == 0)
 			return null;
 		
@@ -270,7 +270,7 @@ public abstract class BaseBackoffice {
 		}
 		return resposta;*/
 		
-		List<MapeigSistra> mapeigsSistra = mapeigSistraDao.findAdjuntsAmbExpedientTipusOrdenats(expedientTipus.getId());
+		List<MapeigSistra> mapeigsSistra = dissenyService.findMapeigSistraAdjuntsAmbExpedientTipus(expedientTipus.getId());
 		if (mapeigsSistra.size() == 0)
 			return null;
 		

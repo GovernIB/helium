@@ -212,6 +212,7 @@ public class ExpedientIniciarController extends BaseController {
 			Long definicioProcesId) {
 		expedientService.iniciar(
 				entornId,
+				null,
 				expedientTipusId,
 				definicioProcesId,
 				null,

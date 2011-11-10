@@ -164,64 +164,6 @@ public class ExpedientService {
 
 	public ExpedientDto iniciar(
 			Long entornId,
-			Long expedientTipusId,
-			Long definicioProcesId,
-			String numero,
-			String titol,
-			String registreNumero,
-			Date registreData,
-			Long unitatAdministrativa,
-			String idioma,
-			boolean autenticat,
-			String tramitadorNif,
-			String tramitadorNom,
-			String interessatNif,
-			String interessatNom,
-			String representantNif,
-			String representantNom,
-			boolean avisosHabilitats,
-			String avisosEmail,
-			String avisosMobil,
-			boolean notificacioTelematicaHabilitada,
-			Map<String, Object> variables,
-			String transitionName,
-			IniciadorTipus iniciadorTipus,
-			String iniciadorCodi,
-			String responsableCodi,
-			Map<String, DadesDocumentDto> documents,
-			List<DadesDocumentDto> adjunts) {
-		return iniciar(
-				entornId,
-				null,
-				expedientTipusId,
-				definicioProcesId,
-				numero,
-				titol,
-				registreNumero,
-				registreData,
-				unitatAdministrativa,
-				idioma,
-				autenticat,
-				tramitadorNif,
-				tramitadorNom,
-				interessatNif,
-				interessatNom,
-				representantNif,
-				representantNom,
-				avisosHabilitats,
-				avisosEmail,
-				avisosMobil,
-				notificacioTelematicaHabilitada,
-				variables,
-				transitionName,
-				iniciadorTipus,
-				iniciadorCodi,
-				responsableCodi,
-				documents,
-				adjunts);
-	}
-	public ExpedientDto iniciar(
-			Long entornId,
 			String usuari,
 			Long expedientTipusId,
 			Long definicioProcesId,
@@ -372,7 +314,8 @@ public class ExpedientService {
 		registreDao.crearRegistreIniciarExpedient(
 				expedient.getId(),
 				usuariBo);
-		return dtoConverter.toExpedientDto(expedient, true);
+		ExpedientDto dto = dtoConverter.toExpedientDto(expedient, true);
+		return dto;
 	}
 	public void editar(
 			Long entornId,
@@ -587,31 +530,27 @@ public class ExpedientService {
 			Long entornId,
 			Long consultaId,
 			Map<String, Object> valors) {
+		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
 		Consulta consulta = consultaDao.getById(consultaId, false);
-		List<Long> idsExpedients = luceneDao.findNomesIds(
+		List<Map<String, DadaIndexadaDto>> dadesExpedients = luceneDao.findAmbDadesExpedient(
 				consulta.getExpedientTipus().getCodi(),
 				getServiceUtils().findCampsPerCampsConsulta(consultaId, TipusConsultaCamp.FILTRE),
-				valors);
-		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
-		if (idsExpedients.size() > 0) {
-			List<Map<String, DadaIndexadaDto>> dadesExpedients = luceneDao.findAmbDadesExpedient(
-					consulta.getExpedientTipus().getCodi(),
-					getServiceUtils().findCampsPerCampsConsulta(consultaId, TipusConsultaCamp.FILTRE),
-					valors,
-					getServiceUtils().findCampsPerCampsConsulta(consultaId, TipusConsultaCamp.INFORME));
-			int index = 0;
-			for (Long id: idsExpedients) {
-				ExpedientConsultaDissenyDto fila = new ExpedientConsultaDissenyDto();
-				Expedient expedient = expedientDao.getById(id, false);
-				if (expedient != null) {
-					fila.setExpedient(
-							dtoConverter.toExpedientDto(
-									expedientDao.getById(id, false),
-									false));
-					fila.setDadesExpedient(dadesExpedients.get(index++));
-					resposta.add(fila);
-				}
+				valors,
+				getServiceUtils().findCampsPerCampsConsulta(consultaId, TipusConsultaCamp.INFORME));
+		for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
+			DadaIndexadaDto dadaExpedientId = dadesExpedient.get(LuceneDao.CLAU_EXPEDIENT_ID);
+			Long expedientId = new Long(dadaExpedientId.getValorIndex());
+			ExpedientConsultaDissenyDto fila = new ExpedientConsultaDissenyDto();
+			Expedient expedient = expedientDao.getById(expedientId, false);
+			if (expedient != null) {
+				fila.setExpedient(
+						dtoConverter.toExpedientDto(
+								expedient,
+								false));
+				fila.setDadesExpedient(dadesExpedient);
+				resposta.add(fila);
 			}
+			dadesExpedient.remove(LuceneDao.CLAU_EXPEDIENT_ID);
 		}
 		return resposta;
 	}

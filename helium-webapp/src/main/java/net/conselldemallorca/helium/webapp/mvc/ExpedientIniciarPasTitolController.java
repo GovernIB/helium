@@ -295,6 +295,7 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 		}
 		expedientService.iniciar(
 				entornId,
+				null,
 				expedientTipusId,
 				definicioProcesId,
 				numero,

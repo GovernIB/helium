@@ -40,10 +40,10 @@ public class BantelV2Backoffice extends BaseBackoffice implements BantelFacade {
 			ObtenirDadesTramitRequest request = new ObtenirDadesTramitRequest();
 			request.setNumero(referenciaEntrada.getNumeroEntrada());
 			request.setClau(referenciaEntrada.getClaveAcceso());
-			logger.info("Petició de processament tramit " + request);
 			boolean error = false;
 			try {
 				DadesTramit dadesTramit = DaoProxy.getInstance().getPluginTramitacioDao().obtenirDadesTramit(request);
+				logger.info("Petició de processament tramit " + request + " amb identificador " + dadesTramit.getIdentificador());
 				int numExpedients = processarTramit(dadesTramit);
 				logger.info("El tramit " + request + " ha creat " + numExpedients + " expedients");
 			} catch (Exception ex) {

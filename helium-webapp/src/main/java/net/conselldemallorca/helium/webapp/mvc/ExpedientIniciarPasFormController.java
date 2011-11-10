@@ -440,6 +440,7 @@ public class ExpedientIniciarPasFormController extends BaseController {
 			Map<String, Object> valors) {
 		expedientService.iniciar(
 				entornId,
+				null,
 				expedientTipusId,
 				definicioProcesId,
 				numero,
