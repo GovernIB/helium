@@ -62,17 +62,20 @@ public class PortasignaturesHandler extends AbstractHeliumActionHandler implemen
 				documentStoreId = (Long)executionContext.getVariable(
 						TascaService.PREFIX_DOCUMENT + documentCodi);
 			} else {
-				throw new JbpmException("No s'ha pogut trobar el document '" + getValorOVariable(executionContext, document, varDocument) + "'.");
+				throw new JbpmException("No s'ha especificat el codi del document per enviar al portasignatures");
 			}
+			if (documentStoreId == null)
+				throw new JbpmException("No s'ha pogut trobar el document amb el codi '" + documentCodi + "'");
 			List<Long> anxs = null;
 			String anxsCodis = (String)getValorOVariable(executionContext, annexos, varAnnexos);
 			if (anxsCodis != null) {
 				anxs = new ArrayList<Long>();
 				String[] codis = anxsCodis.split(",");
 				for (String codi: codis) {
-					anxs.add(
-							(Long)executionContext.getVariable(
-									TascaService.PREFIX_DOCUMENT + codi.trim()));
+					Long anxId = (Long)executionContext.getVariable(
+							TascaService.PREFIX_DOCUMENT + codi.trim());
+					if (anxId != null)
+						anxs.add(anxId);
 				}
 			}
 			getPluginService().enviarPortasignatures(
@@ -197,16 +200,19 @@ public class PortasignaturesHandler extends AbstractHeliumActionHandler implemen
 		}
 		return resposta;
 	}
-	private Integer getMinSignatarisPas(ExecutionContext executionContext, int pas) {
-		Integer minSignataris = null;
+	private int getMinSignatarisPas(ExecutionContext executionContext, int pas) {
+		Integer min = null;
 		if (pas == 1) {
-			minSignataris = getValorOVariableInteger(executionContext, pas1MinSignataris, varPas1MinSignataris);
+			min = getValorOVariableInteger(executionContext, pas1MinSignataris, varPas1MinSignataris);
 		} else if (pas == 2) {
-			minSignataris = getValorOVariableInteger(executionContext, pas2MinSignataris, varPas2MinSignataris);
+			min = getValorOVariableInteger(executionContext, pas2MinSignataris, varPas2MinSignataris);
 		} else if (pas == 3) {
-			minSignataris = getValorOVariableInteger(executionContext, pas3MinSignataris, varPas3MinSignataris);
+			min = getValorOVariableInteger(executionContext, pas3MinSignataris, varPas3MinSignataris);
 		}
-		return minSignataris;
+		if (min != null)
+			return min.intValue();
+		else
+			return 0;
 	}
 
 	private static final Log logger = LogFactory.getLog(PortasignaturesHandler.class);

@@ -31,6 +31,8 @@ public class PortasignaturesHandler implements ActionHandler, PortasignaturesHan
 	public void setVarPas3MinSignataris(String varPas3MinSignataris) {}
 	public void setVarDocument(String varDocument) {}
 	public void setDocument(String document) {}
+	public void setVarAnnexos(String varAnnexos) {}
+	public void setAnnexos(String annexos) {}
 	public void setVarImportancia(String varImportancia) {}
 	public void setImportancia(String importancia) {}
 	public void setVarDataLimit(String varDataLimit) {}
