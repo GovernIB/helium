@@ -74,12 +74,17 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 
 	@ModelAttribute("command")
 	public ExpedientIniciarPasTitolCommand populateCommand(
+			HttpServletRequest request,
 			@RequestParam(value = "expedientTipusId", required = false) Long expedientTipusId) {
+		Entorn entorn = getEntornActiu(request);
 		if (expedientTipusId != null) {
 			ExpedientIniciarPasTitolCommand command = new ExpedientIniciarPasTitolCommand();
 			command.setExpedientTipusId(expedientTipusId);
 			ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
-			command.setNumero(expedientTipus.getNumeroExpedientActual());
+			command.setNumero(
+					expedientService.getNumeroExpedientActual(
+							entorn.getId(),
+							expedientTipusId));
 			command.setResponsableCodi(expedientTipus.getResponsableDefecteCodi());
 			return command;
 		}

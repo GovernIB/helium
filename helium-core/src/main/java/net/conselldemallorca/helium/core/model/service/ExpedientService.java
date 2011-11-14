@@ -68,6 +68,8 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipu
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
+import net.conselldemallorca.helium.core.security.acl.AclServiceDao;
+import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
 import net.conselldemallorca.helium.integracio.plugins.gis.DadesExpedient;
@@ -88,6 +90,7 @@ import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.Authentication;
+import org.springframework.security.acls.Permission;
 import org.springframework.security.annotation.Secured;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -123,6 +126,7 @@ public class ExpedientService {
 	private PluginGisDao pluginGisDao;
 
 	private JbpmDao jbpmDao;
+	private AclServiceDao aclServiceDao;
 	private DtoConverter dtoConverter;
 	private MessageSource messageSource;
 
@@ -196,16 +200,6 @@ public class ExpedientService {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String usuariBo = (usuari != null) ? usuari : auth.getName();
 		ExpedientTipus expedientTipus = expedientTipusDao.getById(expedientTipusId, false);
-		/*if (expedientTipus.getTeNumero().booleanValue()) {
-			if (numero == null || numero.length() == 0) {
-				if (expedientTipus.getExpressioNumero() == null)
-					throw new IllegalArgumentsException("És obligatori especificar un número per a l'expedient");
-			}
-		}
-		if (expedientTipus.getTeTitol().booleanValue()) {
-			if (titol == null || titol.length() == 0)
-				throw new IllegalArgumentsException("És obligatori especificar un títol per a l'expedient");
-		}*/
 		Entorn entorn = entornDao.getById(entornId, false);
 		String iniciadorCodiCalculat = (iniciadorTipus.equals(IniciadorTipus.INTERN)) ? usuariBo : iniciadorCodi;
 		Expedient expedient = new Expedient(
@@ -234,18 +228,16 @@ public class ExpedientService {
 		expedient.setAvisosMobil(avisosMobil);
 		expedient.setNotificacioTelematicaHabilitada(notificacioTelematicaHabilitada);
 		expedient.setNumeroDefault(
-				expedientTipus.getNumeroExpedientDefaultActual(getNumexpExpression()));
+				expedientTipusDao.getNumeroExpedientDefaultActual(expedientTipusId));
 		if (expedientTipus.getTeNumero()) {
-			if (numero != null && numero.length() > 0)
+			if (numero != null && numero.length() > 0) {
 				expedient.setNumero(numero);
-			else
+			} else {
 				expedient.setNumero(
-						expedientTipus.getNumeroExpedientActual());
+						getNumeroExpedientActual(entornId, expedientTipusId));
+			}
 		}
-		processarNumeroExpedient(
-				expedientTipus,
-				expedient.getNumero(),
-				expedient.getNumeroDefault());
+		// Verifica si l'expedient té el número repetit
 		if (expedientDao.findAmbEntornTipusINumero(
 				entornId,
 				expedientTipusId,
@@ -255,12 +247,32 @@ public class ExpedientService {
 							"error.expedientService.jaExisteix",
 							new Object[]{expedient.getNumero()}) );
 		}
+		// Actualitza l'any actual de l'expedient
+		int any = Calendar.getInstance().get(Calendar.YEAR);
+		if (expedientTipus.getAnyActual() == 0) {
+			expedientTipus.setAnyActual(any);
+		} else if (expedientTipus.getAnyActual() != any) {
+			if (expedientTipus.isReiniciarCadaAny())
+				expedientTipus.setSequencia(1);
+			expedientTipus.setSequenciaDefault(1);
+			expedientTipus.setAnyActual(any);
+		}
+		// Actualitza la seqüència del número d'expedient
+		if (expedientTipus.getExpressioNumero() != null && !"".equals(expedientTipus.getExpressioNumero())) {
+			if (numero != null && numero.equals(getNumeroExpedientActual(entornId, expedientTipusId)))
+				expedientTipus.setSequencia(expedientTipus.getSequencia() + 1);
+		}
+		// Actualitza la seqüència del número d'expedient per defecte
+		if (expedient.getNumeroDefault().equals(expedientTipusDao.getNumeroExpedientDefaultActual(expedientTipusId)))
+			expedientTipus.setSequenciaDefault(expedientTipus.getSequenciaDefault() + 1);
+		// Configura el títol de l'expedient
 		if (expedientTipus.getTeTitol()) {
 			if (titol != null && titol.length() > 0)
 				expedient.setTitol(titol);
 			else
 				expedient.setTitol("[Sense títol]");
 		}
+		// Inicia l'instància de procés jBPM
 		ExpedientIniciantDto.setExpedient(expedient);
 		DefinicioProces definicioProces = null;
 		if (definicioProcesId != null) {
@@ -275,6 +287,7 @@ public class ExpedientService {
 				definicioProces.getJbpmId(),
 				variables);
 		expedient.setProcessInstanceId(processInstance.getId());
+		// Emmagatzema el nou expedient
 		expedientDao.saveOrUpdate(expedient);
 		// Afegim els documents
 		if (documents != null){
@@ -301,6 +314,7 @@ public class ExpedientService {
 						adjunt.getArxiuContingut());
 			}
 		}
+		// Actualitza les variables del procés
 		jbpmDao.signalProcessInstance(expedient.getProcessInstanceId(), transitionName);
 		Map<String, Set<Camp>> mapCamps = getServiceUtils().getMapCamps(expedient);
 		Map<String, Map<String, Object>> mapValors = getServiceUtils().getMapValors(expedient);
@@ -311,12 +325,34 @@ public class ExpedientService {
 				mapValors,
 				getServiceUtils().getMapValorsDomini(mapCamps, mapValors),
 				isExpedientFinalitzat(expedient));
+		// Registra l'inici de l'expedient
 		registreDao.crearRegistreIniciarExpedient(
 				expedient.getId(),
 				usuariBo);
+		// Retorna la informació de l'expedient que s'ha iniciat
 		ExpedientDto dto = dtoConverter.toExpedientDto(expedient, true);
 		return dto;
 	}
+
+	public String getNumeroExpedientActual(
+			Long entornId,
+			Long expedientTipusId) {
+		long increment = 0;
+		String numero = null;
+		Expedient expedient = null;
+		do {
+			numero = expedientTipusDao.getNumeroExpedientActual(
+					expedientTipusId,
+					increment);
+			expedient = expedientDao.findAmbEntornTipusINumero(
+					entornId,
+					expedientTipusId,
+					numero);
+			increment++;
+		} while (expedient != null);
+		return numero;
+	}
+
 	public void editar(
 			Long entornId,
 			Long id,
@@ -398,6 +434,7 @@ public class ExpedientService {
 				ids[i++] = pi.getId();
 			jbpmDao.suspendProcessInstances(ids);
 			expedient.setAnulat(true);
+			luceneDao.deleteExpedient(expedient);
 			registreDao.crearRegistreAnularExpedient(
 					expedient.getId(),
 					SecurityContextHolder.getContext().getAuthentication().getName());
@@ -411,7 +448,8 @@ public class ExpedientService {
 			resposta.add(dtoConverter.toExpedientDto(expedient, false));
 		return resposta;
 	}
-	public List<ExpedientDto> findAmbEntornConsultaGeneral(
+
+	public int countAmbEntornConsultaGeneral(
 			Long entornId,
 			String titol,
 			String numero,
@@ -421,24 +459,25 @@ public class ExpedientService {
 			Long estatId,
 			boolean iniciat,
 			boolean finalitzat,
+			Double geoPosX,
+			Double geoPosY,
+			String geoReferencia,
 			boolean mostrarAnulats) {
-		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
-		for (Expedient expedient: expedientDao.findAmbEntornConsultaGeneral(
+		return expedientDao.countAmbEntornConsultaGeneral(
 				entornId,
 				titol,
 				numero,
 				dataInici1,
 				dataInici2,
 				expedientTipusId,
+				getExpedientTipusIdPermesos(entornId),
 				estatId,
 				iniciat,
 				finalitzat,
-				null, 	// geoPosX
-				null, 	// geoPosX
-				null,   // geoReferencia
-				mostrarAnulats))
-			resposta.add(dtoConverter.toExpedientDto(expedient, false));
-		return resposta;
+				geoPosX,
+				geoPosY,
+				geoReferencia,
+				mostrarAnulats);
 	}
 	public List<ExpedientDto> findAmbEntornConsultaGeneral(
 			Long entornId,
@@ -462,6 +501,7 @@ public class ExpedientService {
 				dataInici1,
 				dataInici2,
 				expedientTipusId,
+				getExpedientTipusIdPermesos(entornId),
 				estatId,
 				iniciat,
 				finalitzat,
@@ -472,6 +512,55 @@ public class ExpedientService {
 			resposta.add(dtoConverter.toExpedientDto(expedient, false));
 		return resposta;
 	}
+	public List<ExpedientDto> findAmbEntornConsultaGeneralPaginat(
+			Long entornId,
+			String titol,
+			String numero,
+			Date dataInici1,
+			Date dataInici2,
+			Long expedientTipusId,
+			Long estatId,
+			boolean iniciat,
+			boolean finalitzat,
+			Double geoPosX,
+			Double geoPosY,
+			String geoReferencia,
+			boolean mostrarAnulats,
+			int firstRow,
+			int maxResults,
+			String sort,
+			boolean asc) {
+		List<ExpedientTipus> tipus = expedientTipusDao.findAmbEntorn(entornId);
+		serviceUtils.filterAllowed(
+						tipus,
+						ExpedientTipus.class,
+						new Permission[] {
+							ExtendedPermission.ADMINISTRATION,
+							ExtendedPermission.READ});
+		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
+		for (Expedient expedient: expedientDao.findAmbEntornConsultaGeneralPagedAndOrdered(
+				entornId,
+				titol,
+				numero,
+				dataInici1,
+				dataInici2,
+				expedientTipusId,
+				getExpedientTipusIdPermesos(entornId),
+				estatId,
+				iniciat,
+				finalitzat,
+				geoPosX,
+				geoPosY,
+				geoReferencia,
+				mostrarAnulats,
+				firstRow,
+				maxResults,
+				sort,
+				asc))
+			resposta.add(dtoConverter.toExpedientDto(expedient, false));
+		return resposta;
+	}
+
 	public List<ExpedientDto> findAmbDefinicioProcesId(Long definicioProcesId) {
 		DefinicioProces definicioProces = definicioProcesDao.getById(definicioProcesId, false);
 		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
@@ -509,34 +598,51 @@ public class ExpedientService {
 		return dtoConverter.toExpedientDto(expedient, false);
 	}
 
-	/*public List<ExpedientDto> findAmbEntornConsultaDisseny(
+	public int countAmbEntornConsultaDisseny(
 			Long entornId,
 			Long consultaId,
 			Map<String, Object> valors) {
 		Consulta consulta = consultaDao.getById(consultaId, false);
-		List<Long> idsResultat = luceneDao.findNomesIds(
+		List<Long> idExpedients = luceneDao.findNomesIds(
 				consulta.getExpedientTipus().getCodi(),
-				consultaDao.findCampsFiltre(consultaId),
+				getServiceUtils().findCampsPerCampsConsulta(consultaId, TipusConsultaCamp.FILTRE),
 				valors);
-		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
-		for (Long id: idsResultat) {
-			Expedient expedient = expedientDao.getById(id, false);
-			resposta.add(dtoConverter.toExpedientDto(expedient, false));
-		}
-		return resposta;
-	}*/
-
+		return idExpedients.size();
+	}
 	public List<ExpedientConsultaDissenyDto> findAmbEntornConsultaDisseny(
 			Long entornId,
 			Long consultaId,
-			Map<String, Object> valors) {
+			Map<String, Object> valors,
+			String sort,
+			boolean asc) {
+		return findAmbEntornConsultaDisseny(
+				entornId,
+				consultaId,
+				valors,
+				sort,
+				asc,
+				0,
+				-1);
+	}
+	public List<ExpedientConsultaDissenyDto> findAmbEntornConsultaDisseny(
+			Long entornId,
+			Long consultaId,
+			Map<String, Object> valors,
+			String sort,
+			boolean asc,
+			int firstRow,
+			int maxResults) {
 		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
 		Consulta consulta = consultaDao.getById(consultaId, false);
 		List<Map<String, DadaIndexadaDto>> dadesExpedients = luceneDao.findAmbDadesExpedient(
 				consulta.getExpedientTipus().getCodi(),
 				getServiceUtils().findCampsPerCampsConsulta(consultaId, TipusConsultaCamp.FILTRE),
 				valors,
-				getServiceUtils().findCampsPerCampsConsulta(consultaId, TipusConsultaCamp.INFORME));
+				getServiceUtils().findCampsPerCampsConsulta(consultaId, TipusConsultaCamp.INFORME),
+				sort,
+				asc,
+				firstRow,
+				maxResults);
 		for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
 			DadaIndexadaDto dadaExpedientId = dadesExpedient.get(LuceneDao.CLAU_EXPEDIENT_ID);
 			Long expedientId = new Long(dadaExpedientId.getValorIndex());
@@ -615,8 +721,10 @@ public class ExpedientService {
 		logger.info("Reindexant els expedients de l'entorn " + entorn.getNom());
 		for (Expedient expedient: expedientDao.findAmbEntorn(entornId)) {
 			try {
-				logger.info("Reindexant expedient " + expedient.getIdentificador() + "...");
-				luceneReindexarExpedient(expedient.getProcessInstanceId());
+				if (!expedient.isAnulat()) {
+					logger.info("Reindexant expedient " + expedient.getIdentificador() + "...");
+					luceneReindexarExpedient(expedient.getProcessInstanceId());
+				}
 			} catch (Exception ex) {
 				logger.error("Error al reindexar l'expedient " + expedient.getIdentificador(), ex);
 			}
@@ -1271,6 +1379,10 @@ public class ExpedientService {
 		this.jbpmDao = jbpmDao;
 	}
 	@Autowired
+	public void setAclServiceDao(AclServiceDao aclServiceDao) {
+		this.aclServiceDao = aclServiceDao;
+	}
+	@Autowired
 	public void setDocumentStoreDao(DocumentStoreDao documentStoreDao) {
 		this.documentStoreDao = documentStoreDao;
 	}
@@ -1356,24 +1468,6 @@ public class ExpedientService {
 			}
 		}
 		return null;
-	}
-
-	private void processarNumeroExpedient(ExpedientTipus expedientTipus, String numero, String numeroDefault) {
-		int any = Calendar.getInstance().get(Calendar.YEAR);
-		if (expedientTipus.getAnyActual() == 0) {
-			expedientTipus.setAnyActual(any);
-		} else if (expedientTipus.getAnyActual() != any) {
-			if (expedientTipus.isReiniciarCadaAny())
-				expedientTipus.setSequencia(1);
-			expedientTipus.setSequenciaDefault(1);
-			expedientTipus.setAnyActual(any);
-		}
-		if (expedientTipus.getExpressioNumero() != null && !"".equals(expedientTipus.getExpressioNumero())) {
-			if (numero != null && numero.equals(expedientTipus.getNumeroExpedientActual()))
-				expedientTipus.setSequencia(expedientTipus.getSequencia() + 1);
-		}
-		if (numeroDefault.equals(expedientTipus.getNumeroExpedientDefaultActual(getNumexpExpression())))
-			expedientTipus.setSequenciaDefault(expedientTipus.getSequenciaDefault() + 1);
 	}
 
 	private String getInformacioExpedient(Expedient expedient) {
@@ -1503,9 +1597,7 @@ public class ExpedientService {
 		return docStoreId;
 	}
 
-	private String getNumexpExpression() {
-		return GlobalProperties.getInstance().getProperty("app.numexp.expression");
-	}
+	
 
 	private boolean isSignaturaFileAttached() {
 		String fileAttached = GlobalProperties.getInstance().getProperty("app.signatura.plugin.file.attached");
@@ -1575,6 +1667,20 @@ public class ExpedientService {
 		return false;
 	}
 
+	private Long[] getExpedientTipusIdPermesos(Long entornId) {
+		List<ExpedientTipus> tipus = expedientTipusDao.findAmbEntorn(entornId);
+		getServiceUtils().filterAllowed(
+						tipus,
+						ExpedientTipus.class,
+						new Permission[] {
+							ExtendedPermission.ADMINISTRATION,
+							ExtendedPermission.READ});
+		Long[] resposta = new Long[tipus.size()];
+		for (int i = 0; i < resposta.length; i++)
+			resposta[i] = tipus.get(i).getId();
+		return resposta;
+	}
+
 	private OpenOfficeUtils getOpenOfficeUtils() {
 		if (openOfficeUtils == null)
 			openOfficeUtils = new OpenOfficeUtils();
@@ -1589,10 +1695,12 @@ public class ExpedientService {
 					consultaCampDao,
 					dtoConverter,
 					jbpmDao,
+					aclServiceDao,
 					messageSource);
 		}
 		return serviceUtils;
 	}
+
 
 
 	private static final Log logger = LogFactory.getLog(ExpedientService.class);

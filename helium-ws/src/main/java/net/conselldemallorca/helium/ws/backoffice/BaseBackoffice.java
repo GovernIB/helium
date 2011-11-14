@@ -57,7 +57,9 @@ public abstract class BaseBackoffice {
 				expedientTitol = tramit.getNumero();
 			String expedientNumero = null;
 			if (expedientTipus.getTeNumero())
-				expedientNumero = expedientTipus.getNumeroExpedientActual();
+				expedientNumero = expedientService.getNumeroExpedientActual(
+						expedientTipus.getEntorn().getId(),
+						expedientTipus.getId());
 			EntornActual.setEntornId(expedientTipus.getEntorn().getId());
 			ExpedientDto expedientNou = expedientService.iniciar(
 					expedientTipus.getEntorn().getId(),

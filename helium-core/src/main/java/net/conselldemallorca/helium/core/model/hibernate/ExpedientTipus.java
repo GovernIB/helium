@@ -5,11 +5,8 @@ package net.conselldemallorca.helium.core.model.hibernate;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -24,17 +21,10 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
-import org.jbpm.jpdl.el.ELException;
-import org.jbpm.jpdl.el.ExpressionEvaluator;
-import org.jbpm.jpdl.el.VariableResolver;
-import org.jbpm.jpdl.el.impl.ExpressionEvaluatorImpl;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
@@ -407,18 +397,6 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	public void removeEnumeracio(Enumeracio enumeracio) {
 		getEnumeracions().remove(enumeracio);
 	}
-	
-	@Transient
-	public String getNumeroExpedientActual() {
-		long seq = getSequencia();
-		return getNumeroExpedientExpressio(getExpressioNumero(), seq, isReiniciarCadaAny());
-	}
-
-	@Transient
-	public String getNumeroExpedientDefaultActual(String expressio) {
-		long seq = getSequenciaDefault();
-		return getNumeroExpedientExpressio(expressio, seq,  true);
-	}
 
 
 
@@ -448,39 +426,6 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 
 
 
-	private String getNumeroExpedientExpressio(String expressio, long seq, boolean reiniciarCadaAny) {
-		if (expressio != null) {
-			try {
-				final Map<String, Object> context = new HashMap<String, Object>();
-				context.put("entorn_cod", entorn.getCodi());
-				context.put("tipexp_cod", codi);
-				int any = Calendar.getInstance().get(Calendar.YEAR);
-				context.put("any", any);
-				if (any != 0 && any != getAnyActual() && reiniciarCadaAny)
-					seq = 1;
-				context.put("seq", seq);
-				ExpressionEvaluator evaluator = new ExpressionEvaluatorImpl();
-				String resultat = (String)evaluator.evaluate(
-						expressio,
-						String.class,
-						new VariableResolver() {
-							public Object resolveVariable(String name)
-									throws ELException {
-								return context.get(name);
-							}
-						},
-						null);
-				return resultat;
-			} catch (Exception ex) {
-				logger.error("Error evaluant l'expressió per calcular el número d'expedient", ex);
-				return "#invalid expression#";
-			}
-		} else {
-			return "" + getSequencia();
-		}
-	}
-
 	private static final long serialVersionUID = 1L;
-	private static final Log logger = LogFactory.getLog(ExpedientTipus.class);
 
 }

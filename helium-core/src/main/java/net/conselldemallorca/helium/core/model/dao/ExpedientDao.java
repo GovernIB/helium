@@ -30,47 +30,6 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 		return findByCriteria(
 				Restrictions.eq("entorn.id", entornId));
 	}
-	public List<Expedient> findAmbEntornConsultaGeneral(
-			Long entornId,
-			String titol,
-			String numero,
-			Date dataInici1,
-			Date dataInici2,
-			Long expedientTipusId,
-			Long estatId,
-			boolean iniciat,
-			boolean finalitzat,
-			Double geoPosX,
-			Double geoPosY,
-			String geoReferencia,
-			boolean mostrarAnulats) {
-		List<Criterion> crit = new ArrayList<Criterion>();
-		crit.add(Restrictions.eq("entorn.id", entornId));
-		if (titol != null && titol.length() > 0)
-			crit.add(Restrictions.ilike("titol", "%" + titol + "%"));
-		if (numero != null && numero.length() > 0)
-			crit.add(Restrictions.eq("numero", numero));
-		if (dataInici1 != null && dataInici2 != null)
-			crit.add(Restrictions.between("dataInici", dataInici1, dataInici2));
-		if (expedientTipusId != null)
-			crit.add(Restrictions.eq("tipus.id", expedientTipusId));
-		if (estatId != null && !finalitzat)
-			crit.add(Restrictions.eq("estat.id", estatId));
-		if (iniciat)
-			crit.add(Restrictions.isNull("estat.id"));
-		if (finalitzat)
-			crit.add(Restrictions.isNotNull("dataFi"));
-		if (geoPosX != null)
-			crit.add(Restrictions.eq("geoPosX", geoPosX));
-		if (geoPosY != null)
-			crit.add(Restrictions.eq("geoPosY", geoPosY));
-		if (geoReferencia != null && geoReferencia.length() > 0)
-			crit.add(Restrictions.ilike("geoReferencia", "%" + geoReferencia + "%"));
-		if (!mostrarAnulats) {
-			crit.add(Restrictions.eq("anulat", false));
-		}
-		return findByCriteria(crit.toArray(new Criterion[crit.size()]));
-	}
 	public Expedient findAmbEntornIId(Long entornId, Long id) {
 		List<Expedient> expedients = findByCriteria(
 				Restrictions.eq("id", id),
@@ -113,15 +72,168 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 				Restrictions.eq("numero", numero));
 		if (expedients.size() > 0) {
 			return expedients.get(0);
-		} else {
-			expedients = findByCriteria(
-					Restrictions.eq("entorn.id", entornId),
-					Restrictions.eq("tipus.id", expedientTipusId),
-					Restrictions.eq("numeroDefault", numero));
-			if (expedients.size() > 0)
-				return expedients.get(0);
 		}
 		return null;
+	}
+
+	public int countAmbEntornConsultaGeneral(
+			Long entornId,
+			String titol,
+			String numero,
+			Date dataInici1,
+			Date dataInici2,
+			Long expedientTipusId,
+			Long[] expedientTipusIdPermesos,
+			Long estatId,
+			boolean iniciat,
+			boolean finalitzat,
+			Double geoPosX,
+			Double geoPosY,
+			String geoReferencia,
+			boolean mostrarAnulats) {
+		return getCountByCriteria(getCriteriaForConsultaGeneral(
+				entornId,
+				titol,
+				numero,
+				dataInici1,
+				dataInici2,
+				expedientTipusId,
+				expedientTipusIdPermesos,
+				estatId,
+				iniciat,
+				finalitzat,
+				geoPosX,
+				geoPosY,
+				geoReferencia,
+				mostrarAnulats));
+	}
+	public List<Expedient> findAmbEntornConsultaGeneral(
+			Long entornId,
+			String titol,
+			String numero,
+			Date dataInici1,
+			Date dataInici2,
+			Long expedientTipusId,
+			Long[] expedientTipusIdPermesos,
+			Long estatId,
+			boolean iniciat,
+			boolean finalitzat,
+			Double geoPosX,
+			Double geoPosY,
+			String geoReferencia,
+			boolean mostrarAnulats) {
+		return findByCriteria(getCriteriaForConsultaGeneral(
+				entornId,
+				titol,
+				numero,
+				dataInici1,
+				dataInici2,
+				expedientTipusId,
+				expedientTipusIdPermesos,
+				estatId,
+				iniciat,
+				finalitzat,
+				geoPosX,
+				geoPosY,
+				geoReferencia,
+				mostrarAnulats));
+	}
+	public List<Expedient> findAmbEntornConsultaGeneralPagedAndOrdered(
+			Long entornId,
+			String titol,
+			String numero,
+			Date dataInici1,
+			Date dataInici2,
+			Long expedientTipusId,
+			Long[] expedientTipusIdPermesos,
+			Long estatId,
+			boolean iniciat,
+			boolean finalitzat,
+			Double geoPosX,
+			Double geoPosY,
+			String geoReferencia,
+			boolean mostrarAnulats,
+			int firstRow,
+			int maxResults,
+			String sort,
+			boolean asc) {
+		String sorts[] = null;
+		if ("identificador".equals(sort)) {
+			sorts = new String[] {
+					"numero",
+					"titol"};
+		} else if (sort == null) {
+			sorts = new String[] {"id"};
+		} else {
+			sorts = new String[] {sort};
+		}
+		return findPagedAndOrderedByCriteria(
+				firstRow,
+				maxResults,
+				sorts,
+				asc,
+				getCriteriaForConsultaGeneral(
+						entornId,
+						titol,
+						numero,
+						dataInici1,
+						dataInici2,
+						expedientTipusId,
+						expedientTipusIdPermesos,
+						estatId,
+						iniciat,
+						finalitzat,
+						geoPosX,
+						geoPosY,
+						geoReferencia,
+						mostrarAnulats));
+	}
+
+
+
+	private Criterion[] getCriteriaForConsultaGeneral(
+			Long entornId,
+			String titol,
+			String numero,
+			Date dataInici1,
+			Date dataInici2,
+			Long expedientTipusId,
+			Long[] expedientTipusIdPermesos,
+			Long estatId,
+			boolean iniciat,
+			boolean finalitzat,
+			Double geoPosX,
+			Double geoPosY,
+			String geoReferencia,
+			boolean mostrarAnulats) {
+		List<Criterion> crit = new ArrayList<Criterion>();
+		crit.add(Restrictions.eq("entorn.id", entornId));
+		if (titol != null && titol.length() > 0)
+			crit.add(Restrictions.ilike("titol", "%" + titol + "%"));
+		if (numero != null && numero.length() > 0)
+			crit.add(Restrictions.eq("numero", numero));
+		if (dataInici1 != null && dataInici2 != null)
+			crit.add(Restrictions.between("dataInici", dataInici1, dataInici2));
+		if (expedientTipusId != null)
+			crit.add(Restrictions.eq("tipus.id", expedientTipusId));
+		if (expedientTipusIdPermesos != null)
+			crit.add(Restrictions.in("tipus.id", expedientTipusIdPermesos));
+		if (estatId != null && !finalitzat)
+			crit.add(Restrictions.eq("estat.id", estatId));
+		if (iniciat)
+			crit.add(Restrictions.isNull("estat.id"));
+		if (finalitzat)
+			crit.add(Restrictions.isNotNull("dataFi"));
+		if (geoPosX != null)
+			crit.add(Restrictions.eq("geoPosX", geoPosX));
+		if (geoPosY != null)
+			crit.add(Restrictions.eq("geoPosY", geoPosY));
+		if (geoReferencia != null && geoReferencia.length() > 0)
+			crit.add(Restrictions.ilike("geoReferencia", "%" + geoReferencia + "%"));
+		if (!mostrarAnulats) {
+			crit.add(Restrictions.eq("anulat", false));
+		}
+		return crit.toArray(new Criterion[crit.size()]);
 	}
 
 }
