@@ -149,8 +149,8 @@ public class LuceneDao extends LuceneIndexSupport {
 		getLuceneIndexTemplate().optimize();
 	}
 
-	/*@SuppressWarnings("unchecked")
-	public List<Long> findNomesIds1(
+	@SuppressWarnings("unchecked")
+	public List<Long> findNomesIds(
 			String tipusCodi,
 			List<Camp> filtreCamps,
 			Map<String, Object> filtreValors) {
@@ -165,14 +165,19 @@ public class LuceneDao extends LuceneIndexSupport {
 				    public Object mapHit(int id, Document document, float score) {
 			    		return new Long(document.get(ExpedientCamps.EXPEDIENT_CAMP_ID));
 				    }
-				});
+				},
+				new Sort(new SortField(ExpedientCamps.EXPEDIENT_CAMP_ID, SortField.STRING, true)));
 		return resposta;
-	}*/
+	}
 	public List<Map<String, DadaIndexadaDto>> findAmbDadesExpedient(
 			String tipusCodi,
 			List<Camp> filtreCamps,
 			Map<String, Object> filtreValors,
-			List<Camp> informeCamps) {
+			List<Camp> informeCamps,
+			String sort,
+			boolean asc,
+			int firstRow,
+			int maxResults) {
 		checkIndexOk();
 		Query query = queryPerFiltre(
 				tipusCodi,
@@ -181,7 +186,11 @@ public class LuceneDao extends LuceneIndexSupport {
 		return getDadesExpedientPerConsulta(
 				query,
 				informeCamps,
-				true);
+				true,
+				sort,
+				asc,
+				firstRow,
+				maxResults);
 	}
 
 	public List<Map<String, DadaIndexadaDto>> getDadesExpedient(
@@ -195,7 +204,11 @@ public class LuceneDao extends LuceneIndexSupport {
 		return getDadesExpedientPerConsulta(
 				query,
 				informeCamps,
-				false);
+				false,
+				ExpedientCamps.EXPEDIENT_CAMP_ID,
+				true,
+				0,
+				-1);
 	}
 
 
@@ -456,94 +469,75 @@ public class LuceneDao extends LuceneIndexSupport {
 	private List<Map<String, DadaIndexadaDto>> getDadesExpedientPerConsulta(
 			Query query,
 			List<Camp> campsInforme,
-			boolean incloureId) {
-		List<Map<String, List<String>>> resultats = searchTemplate.search(
+			boolean incloureId,
+			String sort,
+			boolean asc,
+			final int firstRow,
+			final int maxResults) {
+		Sort luceneSort = null;
+		if (sort != null && sort.length() > 0)
+			luceneSort = new Sort(new SortField(sort, SortField.STRING, !asc));
+		else
+			luceneSort = new Sort(new SortField(ExpedientCamps.EXPEDIENT_CAMP_ID, SortField.STRING, !asc));
+		final List<Map<String, List<String>>> resultats = searchTemplate.search(
 				query,
 				new HitExtractor() {
+					private int count = 0;
 				    public Object mapHit(int id, Document document, float score) {
-				    	Map<String, List<String>> valorsDocument = new HashMap<String, List<String>>();
-				    	for (Field field: (List<Field>)document.getFields()) {
-				    		if (valorsDocument.get(field.name()) == null) {
-				    			List<String> valors = new ArrayList<String>();
-				    			valors.add(field.stringValue());
-				    			valorsDocument.put(
-					    				field.name(),
-					    				valors);
-				    		} else {
-				    			List<String> valors = valorsDocument.get(field.name());
-				    			valors.add(field.stringValue());
-				    		}
+				    	Map<String, List<String>> valorsDocument = null;
+				    	if (maxResults == -1 || (count >= firstRow && count < firstRow + maxResults)) {
+					    	valorsDocument = new HashMap<String, List<String>>();
+					    	for (Field field: (List<Field>)document.getFields()) {
+					    		if (valorsDocument.get(field.name()) == null) {
+					    			List<String> valors = new ArrayList<String>();
+					    			valors.add(field.stringValue());
+					    			valorsDocument.put(
+						    				field.name(),
+						    				valors);
+					    		} else {
+					    			List<String> valors = valorsDocument.get(field.name());
+					    			valors.add(field.stringValue());
+					    		}
+					    	}
 				    	}
-			    		return valorsDocument;
+				    	count++;
+				    	return valorsDocument;
 				    }
 				},
-				new Sort(new SortField(ExpedientCamps.EXPEDIENT_CAMP_ID, SortField.STRING, true)));
+				luceneSort);
 		List<Map<String, DadaIndexadaDto>> resposta = new ArrayList<Map<String, DadaIndexadaDto>>();
 		if (resultats.size() > 0) {
 			for (Map<String, List<String>> fila: resultats) {
-				List<DadaIndexadaDto> dadesFila = new ArrayList<DadaIndexadaDto>();
-				for (String codi: fila.keySet()) {
-					for (Camp camp: campsInforme) {
-						boolean coincideix;
-						String[] partsCodi = codi.split("\\.");
-						if (codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
-							coincideix = codi.equals(camp.getCodi());
-						} else {
-							coincideix = 
-									camp.getDefinicioProces() != null &&
-									partsCodi[0].equals(camp.getDefinicioProces().getJbpmKey()) &&
-									partsCodi[1].equals(camp.getCodi());
-						}
-						if (coincideix) {
-							for (String valorIndex: fila.get(codi)) {
-								try {
-									Object valor = valorCampPerIndex(camp, valorIndex);
-									if (valor != null) {
-										DadaIndexadaDto dadaCamp;
-										if (codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
-											dadaCamp = new DadaIndexadaDto(
-													camp.getCodi(),
-													camp.getEtiqueta());
-										} else {
-											dadaCamp = new DadaIndexadaDto(
-													partsCodi[0],
-													partsCodi[1],
-													camp.getEtiqueta());
-										}
-										dadaCamp.setMultiple(false);
-										dadaCamp.setValorIndex(valorIndex);
-										dadaCamp.setValor(valor);
-										String textDomini = null;
-										List<String> textDominiIndex = fila.get(codi + VALOR_DOMINI_SUFIX + valor);
-										if (textDominiIndex != null)
-											textDomini = textDominiIndex.get(0);
-										if (textDomini == null)
-											textDomini = (valor != null && valor.toString().length() > 0) ? "¿" + valor.toString() + "?" : null;
-										dadaCamp.setValorMostrar(
-												camp.getComText(
-														valor,
-														textDomini));
-										dadesFila.add(dadaCamp);
-									}
-								} catch (Exception ex) {
-									logger.error("Error al obtenir el valor de l'índex pel camp " + codi, ex);
-								}
-							}
-							break;
-						}
-						/*if (!codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
+				if (fila != null) {
+					List<DadaIndexadaDto> dadesFila = new ArrayList<DadaIndexadaDto>();
+					for (String codi: fila.keySet()) {
+						for (Camp camp: campsInforme) {
+							boolean coincideix;
 							String[] partsCodi = codi.split("\\.");
-							if (	camp.getDefinicioProces() != null &&
-									partsCodi[0].equals(camp.getDefinicioProces().getJbpmKey()) &&
-									partsCodi[1].equals(camp.getCodi())) {
+							if (codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
+								coincideix = codi.equals(camp.getCodi());
+							} else {
+								coincideix = 
+										camp.getDefinicioProces() != null &&
+										partsCodi[0].equals(camp.getDefinicioProces().getJbpmKey()) &&
+										partsCodi[1].equals(camp.getCodi());
+							}
+							if (coincideix) {
 								for (String valorIndex: fila.get(codi)) {
 									try {
 										Object valor = valorCampPerIndex(camp, valorIndex);
 										if (valor != null) {
-											DadaIndexadaDto dadaCamp = new DadaIndexadaDto(
-													partsCodi[0],
-													partsCodi[1],
-													camp.getEtiqueta());
+											DadaIndexadaDto dadaCamp;
+											if (codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
+												dadaCamp = new DadaIndexadaDto(
+														camp.getCodi(),
+														camp.getEtiqueta());
+											} else {
+												dadaCamp = new DadaIndexadaDto(
+														partsCodi[0],
+														partsCodi[1],
+														camp.getEtiqueta());
+											}
 											dadaCamp.setMultiple(false);
 											dadaCamp.setValorIndex(valorIndex);
 											dadaCamp.setValor(valor);
@@ -565,68 +559,38 @@ public class LuceneDao extends LuceneIndexSupport {
 								}
 								break;
 							}
-						} else {
-							if (codi.equals(camp.getCodi())) {
-								for (String valorIndex: fila.get(codi)) {
-									try {
-										Object valor = valorCampPerIndex(camp, valorIndex);
-										if (valor != null) {
-											DadaIndexadaDto dadaCamp = new DadaIndexadaDto(
-													camp.getCodi(),
-													camp.getEtiqueta());
-											dadaCamp.setMultiple(false);
-											dadaCamp.setValorIndex(valorIndex);
-											dadaCamp.setValor(valor);
-											String textDomini = null;
-											List<String> textDominiIndex = fila.get(codi + VALOR_DOMINI_SUFIX + valor);
-											if (textDominiIndex != null)
-												textDomini = textDominiIndex.get(0);
-											if (textDomini == null)
-												textDomini = (valor != null && valor.toString().length() > 0) ? "¿" + valor.toString() + "?" : null;
-											dadaCamp.setValorMostrar(
-													camp.getComText(
-															valor,
-															textDomini));
-											dadesFila.add(dadaCamp);
-										}
-									} catch (Exception ex) {
-										logger.error("Error al obtenir el valor de l'índex pel camp " + codi, ex);
-									}
-								}
-								break;
-							}
-						}*/
-					}
-				}
-				Map<String, DadaIndexadaDto> mapFila = new HashMap<String, DadaIndexadaDto>();
-				if (incloureId) {
-					/* Incorpora l'id de l'expedient */
-					DadaIndexadaDto dadaExpedientId = new DadaIndexadaDto(
-							ExpedientCamps.EXPEDIENT_CAMP_ID,
-							"expedientId");
-					dadaExpedientId.setValorIndex(fila.get(ExpedientCamps.EXPEDIENT_CAMP_ID).get(0));
-					mapFila.put(CLAU_EXPEDIENT_ID, dadaExpedientId);
-				}
-				for (DadaIndexadaDto dada: dadesFila) {
-					if (mapFila.containsKey(dada.getReportFieldName())) {
-						DadaIndexadaDto dadaMultiple = mapFila.get(dada.getReportFieldName());
-						if (!dadaMultiple.isMultiple()) {
-							dadaMultiple.addValorMultiple(dadaMultiple.getValor());
-							dadaMultiple.addValorIndexMultiple(dadaMultiple.getValorIndex());
-							dadaMultiple.addValorMostrarMultiple(dadaMultiple.getValorMostrar());
-							dadaMultiple.setValor(null);
-							dadaMultiple.setValorIndex(null);
-							dadaMultiple.setValorMostrar(null);
-							dadaMultiple.setMultiple(true);
 						}
-						dadaMultiple.addValorMultiple(dada.getValor());
-						dadaMultiple.addValorIndexMultiple(dada.getValorIndex());
-						dadaMultiple.addValorMostrarMultiple(dada.getValorMostrar());
-					} else {
-						mapFila.put(dada.getReportFieldName(), dada);
 					}
+					Map<String, DadaIndexadaDto> mapFila = new HashMap<String, DadaIndexadaDto>();
+					if (incloureId) {
+						/* Incorpora l'id de l'expedient */
+						DadaIndexadaDto dadaExpedientId = new DadaIndexadaDto(
+								ExpedientCamps.EXPEDIENT_CAMP_ID,
+								"expedientId");
+						dadaExpedientId.setValorIndex(fila.get(ExpedientCamps.EXPEDIENT_CAMP_ID).get(0));
+						mapFila.put(CLAU_EXPEDIENT_ID, dadaExpedientId);
+					}
+					for (DadaIndexadaDto dada: dadesFila) {
+						if (mapFila.containsKey(dada.getReportFieldName())) {
+							DadaIndexadaDto dadaMultiple = mapFila.get(dada.getReportFieldName());
+							if (!dadaMultiple.isMultiple()) {
+								dadaMultiple.addValorMultiple(dadaMultiple.getValor());
+								dadaMultiple.addValorIndexMultiple(dadaMultiple.getValorIndex());
+								dadaMultiple.addValorMostrarMultiple(dadaMultiple.getValorMostrar());
+								dadaMultiple.setValor(null);
+								dadaMultiple.setValorIndex(null);
+								dadaMultiple.setValorMostrar(null);
+								dadaMultiple.setMultiple(true);
+							}
+							dadaMultiple.addValorMultiple(dada.getValor());
+							dadaMultiple.addValorIndexMultiple(dada.getValorIndex());
+							dadaMultiple.addValorMostrarMultiple(dada.getValorMostrar());
+						} else {
+							mapFila.put(dada.getReportFieldName(), dada);
+						}
+					}
+					resposta.add(mapFila);
 				}
-				resposta.add(mapFila);
 			}
 		}
 		return resposta;

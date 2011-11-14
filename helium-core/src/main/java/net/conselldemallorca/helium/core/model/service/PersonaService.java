@@ -117,7 +117,10 @@ public class PersonaService {
 	}
 	@Secured({"ROLE_ADMIN"})
 	public List<PersonaUsuariDto> findPersonaUsuariOrderedAll(String sort, boolean asc) {
-		return toPersonaUsuariDto(personaDao.findOrderedAll(sort, asc));
+		return toPersonaUsuariDto(
+				personaDao.findOrderedAll(
+						new String[] {sort},
+						asc));
 	}
 	@Secured({"ROLE_ADMIN"})
 	public List<PersonaUsuariDto> findPersonaUsuariPagedAndOrderedAll(
@@ -126,7 +129,7 @@ public class PersonaService {
 			int firstRow,
 			int maxResults) {
 		return toPersonaUsuariDto(personaDao.findPagedAndOrderedAll(
-				sort,
+				new String[] {sort},
 				asc,
 				firstRow,
 				maxResults));

@@ -111,7 +111,11 @@ public class EntornService {
 			boolean asc,
 			int firstRow,
 			int maxResults) {
-		return entornDao.findPagedAndOrderedAll(sort, asc, firstRow, maxResults);
+		return entornDao.findPagedAndOrderedAll(
+				new String[] {sort},
+				asc,
+				firstRow,
+				maxResults);
 	}
 
 	public Entorn findAmbCodi(String codi) {

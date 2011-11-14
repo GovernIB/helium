@@ -89,18 +89,19 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 		return findByCriteria();
 	}
 	public List<T> findOrderedAll(
-			String sort,
+			String sort[],
 			boolean asc) {
 		return findOrderedByCriteria(
 				sort,
 				asc);
 	}
 	public List<T> findPagedAndOrderedAll(
-			String sort,
+			String sort[],
 			boolean asc,
 			int firstRow,
 			int maxResults) {
-		return findPagedAndOrderedByCriteria(firstRow,
+		return findPagedAndOrderedByCriteria(
+				firstRow,
 				maxResults,
 				sort,
 				asc);
@@ -119,7 +120,7 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 	}
 	public List<T> findOrderedByExample(
 			T p_exampleInstance,
-			String sort,
+			String[] sort,
 			boolean asc) {
 		return findOrderedByCriteria(
 				sort,
@@ -128,7 +129,7 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 	}
 	public List<T> findPagedAndOrderedByExample(
 			T p_exampleInstance,
-			String sort,
+			String[] sort,
 			boolean asc,
 			int firstRow,
 			int maxResults) {
@@ -158,7 +159,7 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 	}
 	@SuppressWarnings("unchecked")
 	public List<T> findOrderedByCriteria(
-			String sort,
+			String[] sort,
 			boolean asc,
 			Criterion... p_criterion) {
 		Criteria crit = getSession().createCriteria(
@@ -166,15 +167,17 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 		for (Criterion c: p_criterion) {
 			crit.add(c);
 		}
-		if (sort != null)
-			crit.addOrder(getOrder(sort, asc));
+		if (sort != null) {
+			for (String s: sort)
+				addSort(crit, s, asc);
+		}
 		return crit.list();
 	}
 	@SuppressWarnings("unchecked")
 	public List<T> findPagedAndOrderedByCriteria(
 			int firstRow,
 			int maxResults,
-			String sort,
+			String[] sort,
 			boolean asc,
 			Criterion... p_criterion) {
 		Criteria crit = getSession().createCriteria(
@@ -182,8 +185,10 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 		for (Criterion c: p_criterion) {
 			crit.add(c);
 		}
-		if (sort != null)
-			crit.addOrder(getOrder(sort, asc));
+		if (sort != null) {
+			for (String s: sort)
+				addSort(crit, s, asc);
+		}
 		if (firstRow >= 0)
 			crit.setFirstResult(firstRow);
 		if (maxResults >= 0)
@@ -220,13 +225,22 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 
 
 
-	protected Order getOrder(
-			String column,
-			boolean sortAsc) {
-		if (sortAsc)
-			return Order.asc(column);
-		else
-			return Order.desc(column);
+	protected void addSort(Criteria crit, String sort, boolean asc) {
+		if (sort != null) {
+			String column = null;
+			if (sort.contains(".")) {
+				String[] sortParts = sort.split("\\.");
+				String sortAlias = sortParts[0].substring(0, 1);
+				crit.createAlias(sortParts[0], sortAlias);
+				column = sortAlias + "." + sortParts[1];
+			} else {
+				column = sort;
+			}
+			if (asc)
+				crit.addOrder(Order.asc(column));
+			else
+				crit.addOrder(Order.desc(column));
+		}
 	}
 
 }

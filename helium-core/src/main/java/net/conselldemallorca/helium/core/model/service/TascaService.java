@@ -56,6 +56,7 @@ import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.FormulariExtern;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
+import net.conselldemallorca.helium.core.security.acl.AclServiceDao;
 import net.conselldemallorca.helium.core.util.DocumentTokenUtils;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
@@ -102,6 +103,7 @@ public class TascaService {
 	private DefinicioProcesDao definicioProcesDao;
 	private DocumentDao documentDao;
 	private JbpmDao jbpmDao;
+	private AclServiceDao aclServiceDao;
 	private DocumentStoreDao documentStoreDao;
 	private PlantillaDocumentDao plantillaDocumentDao;
 	private PluginSignaturaDao pluginSignaturaDao;
@@ -1136,6 +1138,10 @@ public class TascaService {
 		this.jbpmDao = jbpmDao;
 	}
 	@Autowired
+	public void setAclServiceDao(AclServiceDao aclServiceDao) {
+		this.aclServiceDao = aclServiceDao;
+	}
+	@Autowired
 	public void setDocumentStoreDao(DocumentStoreDao documentStoreDao) {
 		this.documentStoreDao = documentStoreDao;
 	}
@@ -1614,6 +1620,7 @@ public class TascaService {
 					consultaCampDao,
 					dtoConverter,
 					jbpmDao,
+					aclServiceDao,
 					messageSource);
 		}
 		return serviceUtils;

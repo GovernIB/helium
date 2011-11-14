@@ -85,6 +85,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Tasca.TipusTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.hibernate.Validacio;
+import net.conselldemallorca.helium.core.security.acl.AclServiceDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
@@ -126,6 +127,7 @@ public class DissenyService {
 
 	private DtoConverter dtoConverter;
 	private JbpmDao jbpmDao;
+	private AclServiceDao aclServiceDao;
 	private MessageSource messageSource;
 	private ServiceUtils serviceUtils;
 
@@ -1841,6 +1843,10 @@ public class DissenyService {
 		this.jbpmDao = jbpmDao;
 	}
 	@Autowired
+	public void setAclServiceDao(AclServiceDao aclServiceDao) {
+		this.aclServiceDao = aclServiceDao;
+	}
+	@Autowired
 	public void setMessageSource(MessageSource messageSource) {
 		this.messageSource = messageSource;
 	}
@@ -2376,6 +2382,7 @@ public class DissenyService {
 					consultaCampDao,
 					dtoConverter,
 					jbpmDao,
+					aclServiceDao,
 					messageSource);
 		}
 		return serviceUtils;

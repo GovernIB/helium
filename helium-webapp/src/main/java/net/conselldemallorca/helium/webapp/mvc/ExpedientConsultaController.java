@@ -6,7 +6,6 @@ package net.conselldemallorca.helium.webapp.mvc;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,9 +20,11 @@ import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
+import net.conselldemallorca.helium.webapp.mvc.util.PaginatedList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.displaytag.properties.SortOrderEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.security.acls.Permission;
@@ -37,7 +38,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
-
 
 
 /**
@@ -83,56 +83,32 @@ public class ExpedientConsultaController extends BaseController {
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/expedient/consulta", method = RequestMethod.GET)
 	public String consultaGet(
 			HttpServletRequest request,
+			@RequestParam(value = "page", required = false) String page,
+			@RequestParam(value = "sort", required = false) String sort,
+			@RequestParam(value = "dir", required = false) String dir,
+			@RequestParam(value = "objectsPerPage", required = false) String objectsPerPage,
 			HttpSession session,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			ExpedientConsultaGeneralCommand command = (ExpedientConsultaGeneralCommand)session.getAttribute(VARIABLE_SESSIO_COMMAND);
 			if (command != null) {
-				List<ExpedientTipus> tipus = dissenyService.findExpedientTipusAmbEntorn(entorn.getId());
-				permissionService.filterAllowed(
-						tipus,
-						ExpedientTipus.class,
-						new Permission[] {
-							ExtendedPermission.ADMINISTRATION,
-							ExtendedPermission.READ});
-				boolean iniciat = false;
-				boolean finalitzat = false;
-				Long estatId = null;
-				if (command.getEstat() != null) {
-					iniciat = (command.getEstat() == 0);
-					finalitzat = (command.getEstat() == -1);
-					estatId = (!iniciat && !finalitzat) ? command.getEstat() : null;
-				}
-				List<ExpedientDto> expedients = expedientService.findAmbEntornConsultaGeneral(
-						entorn.getId(),
-						command.getTitol(),
-						command.getNumero(),
-						command.getDataInici1(),
-						command.getDataInici2(),
-						(command.getExpedientTipus() != null) ? command.getExpedientTipus().getId() : null,
-						estatId,
-						iniciat,
-						finalitzat,
-						command.getGeoPosX(),
-						command.getGeoPosY(),
-						command.getGeoReferencia(),
-						command.isMostrarAnulats());
+				PaginatedList pagina = getPaginaExpedients(
+						entorn,
+						command,
+						page,
+						sort,
+						dir,
+						objectsPerPage);
 				List<String> piis = new ArrayList<String>();
-				Iterator<ExpedientDto> it = expedients.iterator();
-				while (it.hasNext()) {
-					ExpedientDto expedient = it.next();
-					if (!tipus.contains(expedient.getTipus())){
-						it.remove();
-					} else {
-						piis.add(expedient.getProcessInstanceId());
-					}
-				}
+				for (ExpedientDto expedient: (List<ExpedientDto>)pagina.getList())
+					piis.add(expedient.getProcessInstanceId());
 				model.addAttribute("command", command);
-				model.addAttribute("llistat", expedients);
+				model.addAttribute("llistat", pagina);
 				model.addAttribute("piis", piis);
 			} else {
 				model.addAttribute("command", new ExpedientConsultaGeneralCommand());
@@ -214,6 +190,72 @@ public class ExpedientConsultaController extends BaseController {
 		finalitzat.setId(new Long(-1));
 		finalitzat.setNom( getMessage("expedient.consulta.finalitzat") );
 		estats.add(finalitzat);
+	}
+
+
+
+	private PaginatedList getPaginaExpedients(
+			Entorn entorn,
+			ExpedientConsultaGeneralCommand command,
+			String page,
+			String sort,
+			String dir,
+			String objectsPerPage) {
+		boolean iniciat = false;
+		boolean finalitzat = false;
+		Long estatId = null;
+		if (command.getEstat() != null) {
+			iniciat = (command.getEstat() == 0);
+			finalitzat = (command.getEstat() == -1);
+			estatId = (!iniciat && !finalitzat) ? command.getEstat() : null;
+		}
+		int maxResults = getObjectsPerPage(objectsPerPage);
+		int pagina = (page != null) ? new Integer(page).intValue() : 1;
+		int firstRow = (pagina - 1) * maxResults;
+		boolean isAsc = (dir == null) || "asc".equals(dir);
+		// Si no s'especifica columna per cercar ordena en sentit descendent
+		if (sort == null || sort.length() == 0)
+			isAsc = false;
+		//
+		PaginatedList paginatedList = new PaginatedList();
+		paginatedList.setFullListSize(expedientService.countAmbEntornConsultaGeneral(
+				entorn.getId(),
+				command.getTitol(),
+				command.getNumero(),
+				command.getDataInici1(),
+				command.getDataInici2(),
+				(command.getExpedientTipus() != null) ? command.getExpedientTipus().getId() : null,
+				estatId,
+				iniciat,
+				finalitzat,
+				command.getGeoPosX(),
+				command.getGeoPosY(),
+				command.getGeoReferencia(),
+				command.isMostrarAnulats()));
+		paginatedList.setObjectsPerPage(maxResults);
+		paginatedList.setPageNumber(pagina);
+		paginatedList.setSortCriterion(sort);
+		paginatedList.setSortDirection((isAsc) ? SortOrderEnum.ASCENDING : SortOrderEnum.DESCENDING);
+		List<ExpedientDto> expedients = expedientService.findAmbEntornConsultaGeneralPaginat(
+				entorn.getId(),
+				command.getTitol(),
+				command.getNumero(),
+				command.getDataInici1(),
+				command.getDataInici2(),
+				(command.getExpedientTipus() != null) ? command.getExpedientTipus().getId() : null,
+				estatId,
+				iniciat,
+				finalitzat,
+				command.getGeoPosX(),
+				command.getGeoPosY(),
+				command.getGeoReferencia(),
+				command.isMostrarAnulats(),
+				firstRow,
+				maxResults,
+				sort,
+				isAsc);
+		paginatedList.setList(expedients);
+		return paginatedList;
 	}
 
 	@SuppressWarnings("unused")

@@ -32,7 +32,7 @@ public class AreaTipusDao extends HibernateGenericDao<AreaTipus, Long> {
 		return findPagedAndOrderedByCriteria(
 				firstRow,
 				maxResults,
-				sort,
+				new String[] {sort},
 				asc,
 				Restrictions.eq("entorn.id", entornId));
 	}

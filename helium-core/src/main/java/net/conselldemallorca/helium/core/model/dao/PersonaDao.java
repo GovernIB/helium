@@ -56,7 +56,7 @@ public class PersonaDao extends HibernateGenericDao<Persona, Long> {
 		return findPagedAndOrderedByCriteria(
 				firstRow,
 				maxResults,
-				sort,
+				new String[] {sort},
 				asc,
 				getCriterionPerFiltre(codi, nomLike, emailLike));
 	}

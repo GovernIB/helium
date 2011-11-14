@@ -21,19 +21,22 @@ import net.conselldemallorca.helium.core.model.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
-import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.report.FieldValue;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
+import net.conselldemallorca.helium.webapp.mvc.util.PaginatedList;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
 
+import org.displaytag.properties.SortOrderEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -128,6 +131,10 @@ public class ExpedientConsultaDissenyController extends BaseController {
 	@RequestMapping(value = "/expedient/consultaDisseny")
 	public String consultaDisseny(
 			HttpServletRequest request,
+			@RequestParam(value = "page", required = false) String page,
+			@RequestParam(value = "sort", required = false) String sort,
+			@RequestParam(value = "dir", required = false) String dir,
+			@RequestParam(value = "objectsPerPage", required = false) String objectsPerPage,
 			HttpSession session,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
@@ -156,26 +163,16 @@ public class ExpedientConsultaDissenyController extends BaseController {
 							clauPerService,
 							valor);
 				}
-				List<ExpedientConsultaDissenyDto> dadesExpedients = expedientService.findAmbEntornConsultaDisseny(
-						entorn.getId(),
-						commandSeleccio.getConsultaId(),
-						valorsPerService);
-				// Esborram els expedients anul·lats
-				for (Iterator<ExpedientConsultaDissenyDto> it = dadesExpedients.iterator(); it.hasNext();) {
-					ExpedientConsultaDissenyDto dadesExpedient = (ExpedientConsultaDissenyDto)it.next();
-					if (dadesExpedient.getExpedient().isAnulat())
-						it.remove();
-				}
-
-				// ------ //
-				/*for (ExpedientConsultaDissenyDto dadesExpedient: dadesExpedients) {
-					mostrarDadesExpedient(dadesExpedient);
-				}*/
-				// ------ //
-
 				model.addAttribute(
 						"expedients",
-						dadesExpedients);
+						getPaginaExpedients(
+								entorn.getId(),
+								commandSeleccio.getConsultaId(),
+								valorsPerService,
+								page,
+								sort,
+								dir,
+								objectsPerPage));
 			}
 			return "expedient/consultaDisseny";
 		} else {
@@ -216,6 +213,8 @@ public class ExpedientConsultaDissenyController extends BaseController {
 				} else {
 					session.setAttribute(VARIABLE_SESSIO_FILTRE_COMMAND, command);
 				}
+			} else if ("informe".equals(submit)) {
+				return "redirect:/expedient/consultaDissenyInforme.html";
 			} else if ("netejar".equals(submit)) {
 				session.removeAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);
 			}
@@ -258,7 +257,9 @@ public class ExpedientConsultaDissenyController extends BaseController {
 					List<ExpedientConsultaDissenyDto> expedients = expedientService.findAmbEntornConsultaDisseny(
 							entorn.getId(),
 							commandSeleccio.getConsultaId(),
-							valorsPerService);
+							valorsPerService,
+							ExpedientCamps.EXPEDIENT_CAMP_ID,
+							true);
 					model.addAttribute(
 							JasperReportsView.MODEL_ATTRIBUTE_REPORTDATA,
 							getDadesDatasource(expedients));
@@ -274,7 +275,9 @@ public class ExpedientConsultaDissenyController extends BaseController {
 							List<ExpedientConsultaDissenyDto> expedientsSub = expedientService.findAmbEntornConsultaDisseny(
 									entorn.getId(),
 									subconsulta.getId(),
-									valorsPerService);
+									valorsPerService,
+									ExpedientCamps.EXPEDIENT_CAMP_ID,
+									true);
 							model.addAttribute(
 									JasperReportsView.MODEL_ATTRIBUTE_SUBREPORTDATA_PREFIX + subreportCodi,
 									getDadesDatasource(expedientsSub));
@@ -430,6 +433,50 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			dadesDataSource.add(mapFila);
 		}
 		return dadesDataSource;
+	}
+
+	private PaginatedList getPaginaExpedients(
+			Long entornId,
+			Long consultaId,
+			Map<String, Object> valors,
+			String page,
+			String sort,
+			String dir,
+			String objectsPerPage) {
+		int maxResults = getObjectsPerPage(objectsPerPage);
+		int pagina = (page != null) ? new Integer(page).intValue() : 1;
+		int firstRow = (pagina - 1) * maxResults;
+		boolean isAsc = (dir == null) || "asc".equals(dir);
+		// Si no s'especifica columna per cercar ordena en sentit descendent
+		if (sort == null || sort.length() == 0)
+			isAsc = false;
+		//
+		PaginatedList paginatedList = new PaginatedList();
+		paginatedList.setFullListSize(
+				expedientService.countAmbEntornConsultaDisseny(
+						entornId,
+						consultaId,
+						valors));
+		paginatedList.setObjectsPerPage(maxResults);
+		paginatedList.setPageNumber(pagina);
+		String sortOk = (sort != null && sort.length() > 0) ? sort : "dataInici";
+		paginatedList.setSortCriterion(sortOk);
+		paginatedList.setSortDirection((isAsc) ? SortOrderEnum.ASCENDING : SortOrderEnum.DESCENDING);
+		List<ExpedientConsultaDissenyDto> dadesExpedients = expedientService.findAmbEntornConsultaDisseny(
+				entornId,
+				consultaId,
+				valors,
+				sort,
+				isAsc,
+				firstRow,
+				maxResults);
+		paginatedList.setList(dadesExpedients);
+		// ------ //
+		/*for (ExpedientConsultaDissenyDto dadesExpedient: dadesExpedients) {
+			mostrarDadesExpedient(dadesExpedient);
+		}*/
+		// ------ //
+		return paginatedList;
 	}
 
 	/*private void mostrarDadesExpedient(ExpedientConsultaDissenyDto dadesExpedient) {

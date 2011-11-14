@@ -81,31 +81,40 @@ function confirmarAnular(e) {
 					<c:set var="required" value="${false}" scope="request"/>
 					<c:import url="../common/campFiltre.jsp"/>
 				</c:forEach>
-				<c:import url="../common/formElement.jsp">
-					<c:param name="type" value="buttons"/>
-					<c:param name="values">submit,netejar</c:param>
-					<c:param name="titles"><fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' /></c:param>
-				</c:import>
+				<c:choose>
+					<c:when test="${not empty consulta.informeNom and not empty campsInforme}">
+						<c:import url="../common/formElement.jsp">
+							<c:param name="type" value="buttons"/>
+							<c:param name="values">informe,submit,netejar</c:param>
+							<c:param name="titles"><fmt:message key='expedient.consulta.informe' />,<fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' /></c:param>
+						</c:import>
+					</c:when>
+					<c:otherwise>
+						<c:import url="../common/formElement.jsp">
+							<c:param name="type" value="buttons"/>
+							<c:param name="values">submit,netejar</c:param>
+							<c:param name="titles"><fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' /></c:param>
+						</c:import>
+					</c:otherwise>
+				</c:choose>
 			</div>
 		</form:form>
 		<c:if test="${not empty sessionScope.expedientTipusConsultaFiltreCommand}">
-			<div class="missatgesGris">
+			<%--div class="missatgesGris">
 				<c:choose>
 					<c:when test="${empty expedients}"><p><fmt:message key="expedient.consulta.notrobats"/></p></c:when>
 					<c:when test="${fn:length(expedients) == 1}"><p><fmt:message key="expedient.consulta.trobatun"/></p></c:when>
 					<c:otherwise><p><fmt:message key="expedient.consulta.trobats"><fmt:param value="${fn:length(expedients)}"/></fmt:message></p></c:otherwise>
 				</c:choose>
-			</div>
+			</div--%>
 			<c:if test="${not empty expedients}">
-				<display:table name="expedients" id="registre" requestURI="" class="displaytag selectable" export="${consulta.exportarActiu}">
-					<c:set var="filaStyle" value=""/>
-					<c:if test="${registre.expedient.anulat}"><c:set var="filaStyle" value="text-decoration:line-through"/></c:if>
-					<display:column property="expedient.identificador" title="Expedient" sortable="true" url="/tasca/personaLlistat.html" paramId="exp" paramProperty="expedient.identificador" style="${filaStyle}"/>
+				<display:table name="expedients" id="registre" requestURI="" class="displaytag selectable" export="${consulta.exportarActiu}" sort="external">
+					<display:column property="expedient.identificador" title="Expedient" url="/tasca/personaLlistat.html" paramId="exp"/>
 					<c:choose>
 						<c:when test="${empty campsInforme}">
-							<display:column property="expedient.dataInici" title="Iniciat el" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true" style="${filaStyle}"/>
-							<display:column property="expedient.tipus.nom" title="Tipus" style="${filaStyle}"/>
-							<display:column title="Estat" style="${filaStyle}">
+							<display:column property="expedient.dataInici" title="Iniciat el" format="{0,date,dd/MM/yyyy HH:mm}"/>
+							<display:column property="expedient.tipus.nom" title="Tipus"/>
+							<display:column title="Estat">
 								<c:if test="${registre.expedient.aturat}"><img src="<c:url value="/img/stop.png"/>" alt="Aturat" title="Aturat" border="0"/></c:if>
 								<c:choose>
 									<c:when test="${empty registre.expedient.dataFi}">
@@ -126,22 +135,22 @@ function confirmarAnular(e) {
 								<c:set var="textCamp" value="${registre.dadesExpedient[clauCamp].valorMostrar}"/>
 								<c:choose>
 									<c:when test="${tipusCamp == 'DATE' && clauCamp == 'expedient$dataInici'}">
-										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true" style="${filaStyle}"/>
+										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,date,dd/MM/yyyy HH:mm}"/>
 									</c:when>
 									<c:when test="${tipusCamp == 'DATE'}">
-										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,date,dd/MM/yyyy}" sortable="true" style="${filaStyle}"/>
+										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,date,dd/MM/yyyy}"/>
 									</c:when>
 									<c:when test="${tipusCamp == 'INTEGER'}">
-										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,number,#}" sortable="true" style="${filaStyle}"/>
+										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,number,#}"/>
 									</c:when>
 									<c:when test="${tipusCamp == 'FLOAT'}">
-										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,number,#.#}" sortable="true" style="${filaStyle}"/>
+										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,number,#.#}"/>
 									</c:when>
 									<c:when test="${tipusCamp == 'PRICE'}">
-										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,number,#,###.00}" sortable="true" style="${filaStyle}"/>
+										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,number,#,###.00}"/>
 									</c:when>
 									<c:when test="${tipusCamp == 'SELECCIO' && clauCamp == 'expedient$estat'}">
-										<display:column title="${camp.etiqueta}" sortable="true" style="${filaStyle}">
+										<display:column title="${camp.etiqueta}">
 											<c:if test="${registre.expedient.aturat}"><img src="<c:url value="/img/stop.png"/>" alt="Aturat" title="Aturat" border="0"/></c:if>
 											<c:choose>
 												<c:when test="${empty registre.expedient.dataFi}">
@@ -152,7 +161,7 @@ function confirmarAnular(e) {
 										</display:column>
 									</c:when>
 									<c:otherwise>
-										<display:column property="dadesExpedient(${clauCamp}).valorMostrar" title="${camp.etiqueta}" sortable="true" style="${filaStyle}"/>
+										<display:column property="dadesExpedient(${clauCamp}).valorMostrar" title="${camp.etiqueta}"/>
 									</c:otherwise>
 								</c:choose>
 							</c:forEach>
@@ -179,14 +188,10 @@ function confirmarAnular(e) {
 					<display:setProperty name="export.xml" value="false" />
 					<display:setProperty name="export.decorated" value="false" />
 					<display:setProperty name="export.excel.filename" value="informe_${consulta.codi}.xls" />
+					<display:setProperty name="paging.banner.item_name">expedient</display:setProperty>
+					<display:setProperty name="paging.banner.items_name">expedients</display:setProperty>
 				</display:table>
 				<script type="text/javascript">initSelectable();</script>
-				<c:if test="${not empty consulta.informeNom and not empty campsInforme}">
-					<form action="<c:url value="consultaDissenyInforme.html"/>">
-						<input type="hidden" name="caonsultaId" id="caonsultaId" value="${consulta.id}"/>
-						<button type="submit" class="submitButton"><fmt:message key='expedient.consulta.informe' /></button>
-					</form>
-				</c:if>
 			</c:if>
 		</c:if>
 	</c:if>

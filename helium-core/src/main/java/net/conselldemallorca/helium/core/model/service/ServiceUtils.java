@@ -5,6 +5,8 @@ package net.conselldemallorca.helium.core.model.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,6 +21,8 @@ import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.GenericEntity;
+import net.conselldemallorca.helium.core.security.acl.AclServiceDao;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
@@ -26,6 +30,16 @@ import net.conselldemallorca.helium.jbpm3.integracio.Registre;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
+import org.springframework.security.Authentication;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.acls.Acl;
+import org.springframework.security.acls.NotFoundException;
+import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.objectidentity.ObjectIdentityImpl;
+import org.springframework.security.acls.sid.GrantedAuthoritySid;
+import org.springframework.security.acls.sid.PrincipalSid;
+import org.springframework.security.acls.sid.Sid;
+import org.springframework.security.context.SecurityContextHolder;
 
 /**
  * Utilitats comunes pels serveis
@@ -39,6 +53,7 @@ public class ServiceUtils {
 	private ConsultaCampDao consultaCampDao;
 	private DtoConverter dtoConverter;
 	private JbpmDao jbpmDao;
+	private AclServiceDao aclServiceDao;
 	private MessageSource messageSource;
 
 
@@ -49,12 +64,14 @@ public class ServiceUtils {
 			ConsultaCampDao consultaCampDao,
 			DtoConverter dtoConverter,
 			JbpmDao jbpmDao,
+			AclServiceDao aclServiceDao,
 			MessageSource messageSource) {
 		this.definicioProcesDao = definicioProcesDao;
 		this.campDao = campDao;
 		this.consultaCampDao = consultaCampDao;
 		this.dtoConverter = dtoConverter;
 		this.jbpmDao = jbpmDao;
+		this.aclServiceDao = aclServiceDao;
 		this.messageSource = messageSource;
 	}
 
@@ -262,6 +279,33 @@ public class ServiceUtils {
 		return getMessage(key, null);
 	}
 
+	/*
+	 * Comprovació de permisos
+	 */
+	@SuppressWarnings("rawtypes")
+	public void filterAllowed(
+			List list,
+			Class clazz,
+			Permission[] permissions) {
+		Iterator it = list.iterator();
+		while (it.hasNext()) {
+			Object entry = it.next();
+			if (!isGrantedAny((GenericEntity)entry, clazz, permissions))
+				it.remove();
+		}
+	}
+	@SuppressWarnings("rawtypes")
+	public Object filterAllowed(
+			GenericEntity object,
+			Class clazz,
+			Permission[] permissions) {
+		if (isGrantedAny(object, clazz, permissions)) {
+			return object;
+		} else {
+			return null;
+		}
+	}
+
 
 
 	private void guardarValorDominiPerCamp(
@@ -282,6 +326,39 @@ public class ServiceUtils {
 							valorDomini);
 				}
 			}
+		}
+	}
+
+	@SuppressWarnings("rawtypes")
+	private boolean isGrantedAny(
+			GenericEntity object,
+			Class clazz,
+			Permission[] permissions) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		Set<Sid> sids = new HashSet<Sid>();
+		sids.add(new PrincipalSid(auth.getName()));
+		for (GrantedAuthority ga: auth.getAuthorities()) {
+			sids.add(new GrantedAuthoritySid(ga.getAuthority()));
+		}
+		try {
+			Acl acl = aclServiceDao.readAclById(new ObjectIdentityImpl(clazz, object.getId()));
+			boolean[] granted = new boolean[permissions.length];
+			for (int i = 0; i < permissions.length; i++) {
+				granted[i] = false;
+				try {
+					granted[i] = acl.isGranted(
+							new Permission[]{permissions[i]},
+							(Sid[])sids.toArray(new Sid[sids.size()]),
+							false);
+				} catch (NotFoundException ex) {}
+			}
+			for (int i = 0; i < granted.length; i++) {
+				if (granted[i])
+					return true;
+			}
+			return false;
+		} catch (NotFoundException ex) {
+			return false;
 		}
 	}
 
