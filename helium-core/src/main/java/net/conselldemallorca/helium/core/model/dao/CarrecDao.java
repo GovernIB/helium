@@ -69,5 +69,17 @@ public class CarrecDao extends HibernateGenericDao<Carrec, Long> {
 			return carrecs.get(0);
 		return null;
 	}
+	public Carrec findAmbEntornAreaICodi(
+			Long entornId,
+			String areaCodi,
+			String carrecCodi) {
+		List<Carrec> carrecs = findByCriteria(
+				Restrictions.eq("entorn.id", entornId),
+				Restrictions.eq("area.codi", areaCodi),
+				Restrictions.eq("codi", carrecCodi));
+		if (carrecs.size() > 0)
+			return carrecs.get(0);
+		return null;
+	}
 
 }

@@ -20,9 +20,10 @@ import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
-import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto.Sexe;
+import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Area;
+import net.conselldemallorca.helium.core.model.hibernate.AreaJbpmId;
 import net.conselldemallorca.helium.core.model.hibernate.Carrec;
 import net.conselldemallorca.helium.core.model.hibernate.CarrecJbpmId;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
@@ -71,6 +72,7 @@ public class PlantillaDocumentDao {
 	private CarrecDao carrecDao;
 	private CarrecJbpmIdDao carrecJbpmIdDao;
 	private AreaDao areaDao;
+	private AreaJbpmIdDao areaJbpmIdDao;
 	private JbpmDao jbpmDao;
 	private DominiDao dominiDao;
 	private DocumentStoreDao documentStoreDao;
@@ -140,6 +142,10 @@ public class PlantillaDocumentDao {
 		this.areaDao = areaDao;
 	}
 	@Autowired
+	public void setAreaJbpmIdDao(AreaJbpmIdDao areaJbpmIdDao) {
+		this.areaJbpmIdDao = areaJbpmIdDao;
+	}
+	@Autowired
 	public void setJbpmDao(JbpmDao jbpmDao) {
 		this.jbpmDao = jbpmDao;
 	}
@@ -186,7 +192,6 @@ public class PlantillaDocumentDao {
 							Object arg0 = args.get(0);
 							if (arg0 != null && arg0 instanceof String) {
 								String codi = (String)arg0;
-								//System.out.println(">>> valor " + codi);
 								Object valor = null;
 								if (taskId != null)
 									valor = jbpmDao.getTaskInstanceVariable(taskId, codi);
@@ -219,7 +224,6 @@ public class PlantillaDocumentDao {
 							Object arg0 = args.get(0);
 							if (arg0 != null && arg0 instanceof String) {
 								String codi = (String)arg0;
-								//System.out.println(">>> persona " + codi);
 								PersonaDto persona = pluginPersonaDao.findAmbCodiPlugin(codi);
 								if (persona == null)
 									return new BeanModel(
@@ -242,7 +246,6 @@ public class PlantillaDocumentDao {
 							Object arg0 = args.get(0);
 							if (arg0 != null && arg0 instanceof String) {
 								String codi = (String)arg0;
-								//System.out.println(">>> personaAmbCarrec " + codi);
 								if (esIdentitySourceHelium()) {
 									Carrec carrec = carrecDao.findAmbEntornICodi(entornId, codi);
 									if (carrec != null) {
@@ -276,6 +279,49 @@ public class PlantillaDocumentDao {
 					}
 				});
 		model.put(
+				"personaAmbCarrecArea",
+				new TemplateMethodModel() {
+					public TemplateModel exec(List args) throws TemplateModelException {
+						if (args.size() == 1) {
+							Object arg0 = args.get(0);
+							Object arg1 = args.get(1);
+							if (arg0 != null && arg0 instanceof String && arg1 != null && arg1 instanceof String) {
+								String codiCarrec = (String)arg0;
+								String codiArea = (String)arg1;
+								if (esIdentitySourceHelium()) {
+									Carrec carrec = carrecDao.findAmbEntornAreaICodi(
+											entornId,
+											codiArea,
+											codiCarrec);
+									if (carrec != null) {
+										if (carrec.getPersonaCodi() != null) {
+											PersonaDto persona = pluginPersonaDao.findAmbCodiPlugin(carrec.getPersonaCodi());
+											return new BeanModel(
+													persona,
+													new DefaultObjectWrapper());
+										}
+									}
+								} else {
+									String personaCodi = carrecJbpmIdDao.findPersonaAmbGroupICarrec(
+											codiArea,
+											codiCarrec);
+									if (personaCodi != null) {
+										PersonaDto persona = pluginPersonaDao.findAmbCodiPlugin(personaCodi);
+										if (persona != null)
+											return new BeanModel(
+													persona,
+													new DefaultObjectWrapper());
+									}
+								}
+								return new BeanModel(
+										new PersonaDto("???", "???", "???", Sexe.SEXE_HOME),
+										new DefaultObjectWrapper());
+							}
+						}
+						return new SimpleScalar("[Arguments incorrectes]");
+					}
+				});
+		model.put(
 				"carrec",
 				new TemplateMethodModel() {
 					public TemplateModel exec(List args) throws TemplateModelException {
@@ -283,7 +329,6 @@ public class PlantillaDocumentDao {
 							Object arg0 = args.get(0);
 							if (arg0 != null && arg0 instanceof String) {
 								String codi = (String)arg0;
-								//System.out.println(">>> carrec " + codi);
 								if (esIdentitySourceHelium()) {
 									Carrec carrec = carrecDao.findAmbEntornICodi(entornId, codi);
 									if (carrec == null)
@@ -314,7 +359,6 @@ public class PlantillaDocumentDao {
 							if (arg0 != null && arg0 instanceof String && arg1 != null && arg1 instanceof String) {
 								String codiPersona = (String)arg0;
 								String codiArea = (String)arg1;
-								//System.out.println(">>> carrecsAmbPersonaArea " + codiPersona + " " + codiArea);
 								if (esIdentitySourceHelium()) {
 									Area area = areaDao.findAmbEntornICodi(entornId, codiArea);
 									List<Carrec> carrecs = new ArrayList<Carrec>();
@@ -354,6 +398,34 @@ public class PlantillaDocumentDao {
 												new CarrecJbpmId[0],
 												new DefaultObjectWrapper());
 									}
+								}
+							}
+						}
+						return new SimpleScalar("[Arguments incorrectes]");
+					}
+				});
+		model.put(
+				"area",
+				new TemplateMethodModel() {
+					public TemplateModel exec(List args) throws TemplateModelException {
+						if (args.size() == 1) {
+							Object arg0 = args.get(0);
+							if (arg0 != null && arg0 instanceof String) {
+								String codi = (String)arg0;
+								if (esIdentitySourceHelium()) {
+									Area area = areaDao.findAmbEntornICodi(entornId, codi);
+									if (area == null)
+										area = new Area("???", "???", new Entorn());
+									return new BeanModel(
+											area,
+											new DefaultObjectWrapper());
+								} else {
+									AreaJbpmId area = areaJbpmIdDao.findAmbCodi(codi);
+									if (area == null)
+										area = new AreaJbpmId("???", "???");
+									return new BeanModel(
+											area,
+											new DefaultObjectWrapper());
 								}
 							}
 						}

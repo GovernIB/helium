@@ -231,6 +231,12 @@ public class OrganitzacioService {
 			String codi) {
 		return carrecDao.findAmbEntornICodi(entornId, codi);
 	}
+	public Carrec findCarrecAmbEntornAreaICodi(
+			Long entornId,
+			String areaCodi,
+			String carrecCodi) {
+		return carrecDao.findAmbEntornAreaICodi(entornId, areaCodi, carrecCodi);
+	}
 	public List<Carrec> findCarrecsAmbArea(
 			Long areaId) {
 		return carrecDao.findAmbArea(areaId);
@@ -291,6 +297,11 @@ public class OrganitzacioService {
 	}
 	public List<String> findCodisPersonaAmbJbpmIdCarrec(String carrecCodi) {
 		return carrecJbpmIdDao.findPersonesAmbCarrecCodi(carrecCodi);
+	}
+	public String findCodiPersonaAmbJbpmIdGroupCarrec(
+			String groupCodi,
+			String carrecCodi) {
+		return carrecJbpmIdDao.findPersonaAmbGroupICarrec(groupCodi, carrecCodi);
 	}
 
 

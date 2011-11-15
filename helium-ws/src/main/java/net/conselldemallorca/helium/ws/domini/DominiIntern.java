@@ -19,11 +19,11 @@ import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Area;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Carrec;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.service.EntornService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.OrganitzacioService;
@@ -59,6 +59,8 @@ public class DominiIntern implements DominiHelium {
 			return personesAmbArea(parametersMap);
 		} else if ("PERSONES_AMB_CARREC".equals(id)) {
 			return personesAmbCarrec(parametersMap);
+		} else if ("PERSONA_AMB_CARREC_AREA".equals(id)) {
+			return personaAmbCarrecArea(parametersMap);
 		} else  if ("AREES_AMB_PARE".equals(id)) {
 			return areesAmbPare(parametersMap);
 		} else if ("VARIABLE_REGISTRE".equals(id)) {
@@ -111,6 +113,19 @@ public class DominiIntern implements DominiHelium {
 	private List<FilaResultat> personesAmbCarrec(Map<String, Object> parametres) {
 		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
 		for (String personaCodi: getPersonesPerCarrec((String)parametres.get("entorn"), (String)parametres.get("carrec"))) {
+			PersonaDto persona = pluginService.findPersonaAmbCodi(personaCodi);
+			if (persona != null)
+				resposta.add(novaFilaPersona(persona));
+		}
+		return resposta;
+	}
+	private List<FilaResultat> personaAmbCarrecArea(Map<String, Object> parametres) {
+		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+		String personaCodi = getPersonaPerAreaCarrec(
+				(String)parametres.get("entorn"),
+				(String)parametres.get("area"),
+				(String)parametres.get("carrec"));
+		if (personaCodi != null) {
 			PersonaDto persona = pluginService.findPersonaAmbCodi(personaCodi);
 			if (persona != null)
 				resposta.add(novaFilaPersona(persona));
@@ -242,6 +257,26 @@ public class DominiIntern implements DominiHelium {
 			return resposta;
 		} else {
 			return organitzacioService.findCodisPersonaAmbJbpmIdCarrec(carrecCodi);
+		}
+	}
+
+	private String getPersonaPerAreaCarrec(
+			String entornCodi,
+			String areaCodi,
+			String carrecCodi) {
+		if (isHeliumIdentitySource()) {
+			Entorn entorn = entornService.findAmbCodi(entornCodi);
+			if (entorn != null) {
+				Carrec carrec = organitzacioService.findCarrecAmbEntornAreaICodi(
+						entorn.getId(),
+						areaCodi,
+						carrecCodi);
+				if (carrec != null)
+					return carrec.getPersonaCodi();
+			}
+			return null;
+		} else {
+			return organitzacioService.findCodiPersonaAmbJbpmIdGroupCarrec(areaCodi, carrecCodi);
 		}
 	}
 
