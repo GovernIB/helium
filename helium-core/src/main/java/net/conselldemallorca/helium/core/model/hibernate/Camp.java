@@ -365,28 +365,29 @@ public class Camp implements Serializable, GenericEntity<Long> {
 		}
 	}
 
-	public String getComText(
+	public static String getComText(
+			TipusCamp tipus,
 			Object valor,
 			String valorDomini) {
 		if (valor == null)
 			return null;
 		try {
 			String text = null;
-			if (getTipus().equals(TipusCamp.INTEGER)) {
+			if (tipus.equals(TipusCamp.INTEGER)) {
 				text = new DecimalFormat("#").format((Long)valor);
-			} else if (getTipus().equals(TipusCamp.FLOAT)) {
-				text = new DecimalFormat("#.#").format((Long)valor);
-			} else if (getTipus().equals(TipusCamp.PRICE)) {
+			} else if (tipus.equals(TipusCamp.FLOAT)) {
+				text = new DecimalFormat("#.#").format((Double)valor);
+			} else if (tipus.equals(TipusCamp.PRICE)) {
 				text = new DecimalFormat("#,###.00").format((BigDecimal)valor);
-			} else if (getTipus().equals(TipusCamp.DATE)) {
+			} else if (tipus.equals(TipusCamp.DATE)) {
 				text = new SimpleDateFormat("dd/MM/yyyy").format((Date)valor);
-			} else if (getTipus().equals(TipusCamp.BOOLEAN)) {
+			} else if (tipus.equals(TipusCamp.BOOLEAN)) {
 				text = (((Boolean)valor).booleanValue()) ? "Si" : "No";
-			} else if (getTipus().equals(TipusCamp.SELECCIO)) {
+			} else if (tipus.equals(TipusCamp.SELECCIO)) {
 				text = valorDomini;
-			} else if (getTipus().equals(TipusCamp.SUGGEST)) {
+			} else if (tipus.equals(TipusCamp.SUGGEST)) {
 				text = valorDomini;
-			} else if (getTipus().equals(TipusCamp.TERMINI)) {
+			} else if (tipus.equals(TipusCamp.TERMINI)) {
 				text = ((Termini)valor).toString();
 			} else {
 				text = valor.toString();
@@ -394,6 +395,45 @@ public class Camp implements Serializable, GenericEntity<Long> {
 			return text;
 		} catch (Exception ex) {
 			return valor.toString();
+		}
+	}
+
+	public static Object getComObject(
+			TipusCamp tipus,
+			String text) {
+		if (text == null)
+			return null;
+		try {
+			Object obj = null;
+			if (tipus.equals(TipusCamp.INTEGER)) {
+				obj = new Long(text);
+			} else if (tipus.equals(TipusCamp.FLOAT)) {
+				obj = new Double(text);
+			} else if (tipus.equals(TipusCamp.PRICE)) {
+				obj = new BigDecimal(text);
+			} else if (tipus.equals(TipusCamp.DATE)) {
+				obj = new SimpleDateFormat("dd/MM/yyyy").parse(text);
+			} else if (tipus.equals(TipusCamp.BOOLEAN)) {
+				obj = new Boolean("S".equals(text));
+			} else if (tipus.equals(TipusCamp.SELECCIO)) {
+				obj = text;
+			} else if (tipus.equals(TipusCamp.SUGGEST)) {
+				obj = text;
+			} else if (tipus.equals(TipusCamp.TERMINI)) {
+				String[] parts = text.split("/");
+				Termini termini = new Termini();
+				if (parts.length == 3) {
+					termini.setAnys(new Integer(parts[0]));
+					termini.setMesos(new Integer(parts[1]));
+					termini.setDies(new Integer(parts[2]));
+				}
+				obj = termini;
+			} else {
+				obj = text;
+			}
+			return obj;
+		} catch (Exception ex) {
+			return text;
 		}
 	}
 

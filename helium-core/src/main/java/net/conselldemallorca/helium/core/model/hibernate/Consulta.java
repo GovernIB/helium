@@ -55,6 +55,8 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 	private String nom;
 	@MaxLength(255)
 	private String descripcio;
+	@MaxLength(1024)
+	private String valorsPredefinits;
 	@MaxLength(255)
 	private String informeNom;
 	private byte[] informeContingut;
@@ -112,6 +114,14 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 	}
 	public void setDescripcio(String descripcio) {
 		this.descripcio = descripcio;
+	}
+
+	@Column(name="valors_predef", length=1024)
+	public String getValorsPredefinits() {
+		return valorsPredefinits;
+	}
+	public void setValorsPredefinits(String valorsPredefinits) {
+		this.valorsPredefinits = valorsPredefinits;
 	}
 
 	@Column(name="informe_nom", length=255)
@@ -188,6 +198,7 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 			joinColumns=@JoinColumn(name="pare_id", referencedColumnName="id"),
 			inverseJoinColumns=@JoinColumn(name="fill_id", referencedColumnName="id")
 	)
+	@ForeignKey(name="hel_fill_consultasub_fk", inverseName="hel_pare_consultasub_fk")
 	public Set<Consulta> getSubConsultes() {
 		return this.subConsultes;
 	}

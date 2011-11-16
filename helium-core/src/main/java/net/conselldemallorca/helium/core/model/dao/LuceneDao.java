@@ -548,7 +548,8 @@ public class LuceneDao extends LuceneIndexSupport {
 											if (textDomini == null)
 												textDomini = (valor != null && valor.toString().length() > 0) ? "¿" + valor.toString() + "?" : null;
 											dadaCamp.setValorMostrar(
-													camp.getComText(
+													Camp.getComText(
+															camp.getTipus(),
 															valor,
 															textDomini));
 											dadesFila.add(dadaCamp);

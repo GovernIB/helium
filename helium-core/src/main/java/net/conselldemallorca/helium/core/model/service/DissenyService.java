@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1660,8 +1661,14 @@ public class DissenyService {
 	public List<ConsultaCamp> findCampsConsulta(Long consultaId, TipusConsultaCamp tipus) {
 		return consultaCampDao.findCampsConsulta(consultaId, tipus);
 	}
-	public List<Camp> findCampsPerCampsConsulta(Long consultaId, TipusConsultaCamp tipus) {
-		return getServiceUtils().findCampsPerCampsConsulta(consultaId, tipus);
+	public List<Camp> findCampsPerCampsConsulta(
+			Long consultaId,
+			TipusConsultaCamp tipus,
+			boolean filtrarValorsPredefinits) {
+		List<Camp> camps = getServiceUtils().findCampsPerCampsConsulta(consultaId, tipus);
+		if (filtrarValorsPredefinits && tipus.equals(TipusConsultaCamp.FILTRE))
+			filtrarCampsConsultaFiltre(consultaId, camps);
+		return camps;
 	}
 	public void goUpConsultaCamp(Long id) {
 		ConsultaCamp consultaCamp = getConsultaCampById(id);
@@ -2374,6 +2381,25 @@ public class DissenyService {
 
 
 
+	private void filtrarCampsConsultaFiltre(
+			Long consultaId,
+			List<Camp> camps) {
+		Consulta consulta = consultaDao.getById(consultaId, false);
+		if (consulta.getValorsPredefinits() != null) {
+			String[] parelles = consulta.getValorsPredefinits().split(",");
+			for (int i = 0; i < parelles.length; i++) {
+				String[] parella = parelles[i].split(":");
+				if (parella.length == 2) {
+					String campCodi = parella[0];
+					Iterator<Camp> it = camps.iterator();
+					while (it.hasNext()) {
+						if (it.next().getCodi().equals(campCodi))
+							it.remove();
+					}
+				}
+			}
+		}
+	}
 	private ServiceUtils getServiceUtils() {
 		if (serviceUtils == null) {
 			serviceUtils = new ServiceUtils(

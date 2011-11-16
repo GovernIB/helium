@@ -150,13 +150,13 @@ public class ExpedientController extends BaseController {
 				model.addAttribute(
 						"expedient",
 						expedient);
-				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, true);
+				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, false);
 				model.addAttribute(
 						"instanciaProces",
 						instanciaProces);
 				model.addAttribute(
 						"arbreProcessos",
-						expedientService.getArbreInstanciesProces(id, false));
+						expedientService.getArbreInstanciesProces(id));
 				if (instanciaProces.isImatgeDisponible()) {
 					model.addAttribute(
 							"activeTokens",
@@ -187,7 +187,7 @@ public class ExpedientController extends BaseController {
 						expedient);
 				model.addAttribute(
 						"arbreProcessos",
-						expedientService.getArbreInstanciesProces(id, false));
+						expedientService.getArbreInstanciesProces(id));
 				model.addAttribute(
 						"instanciaProces",
 						expedientService.getInstanciaProcesById(id, true));
@@ -219,7 +219,7 @@ public class ExpedientController extends BaseController {
 						expedient);
 				model.addAttribute(
 						"arbreProcessos",
-						expedientService.getArbreInstanciesProces(id, false));
+						expedientService.getArbreInstanciesProces(id));
 				model.addAttribute(
 						"instanciaProces",
 						expedientService.getInstanciaProcesById(id, true));
@@ -251,7 +251,7 @@ public class ExpedientController extends BaseController {
 						expedient);
 				model.addAttribute(
 						"arbreProcessos",
-						expedientService.getArbreInstanciesProces(id, false));
+						expedientService.getArbreInstanciesProces(id));
 				model.addAttribute(
 						"instanciaProces",
 						expedientService.getInstanciaProcesById(id, true));
@@ -306,10 +306,10 @@ public class ExpedientController extends BaseController {
 						expedient);
 				model.addAttribute(
 						"arbreProcessos",
-						expedientService.getArbreInstanciesProces(id, false));
+						expedientService.getArbreInstanciesProces(id));
 				model.addAttribute(
 						"instanciaProces",
-						expedientService.getInstanciaProcesById(id, true));
+						expedientService.getInstanciaProcesById(id, false));
 				model.addAttribute(
 						"tasques",
 						expedientService.findTasquesPerInstanciaProces(id));
@@ -333,7 +333,7 @@ public class ExpedientController extends BaseController {
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (potConsultarExpedient(expedient)) {
-				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, true);
+				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, false);
 				String resourceName = "processimage.jpg";
 				model.addAttribute(
 						ArxiuView.MODEL_ATTRIBUTE_FILENAME,

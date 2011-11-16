@@ -14,6 +14,8 @@ public class DadesAnotacio {
 	private String tipus;
 	private String assumpte;
 	private String unitatAdministrativa;
+	private String registreNumero;
+	private String registreAny;
 
 	public String getIdiomaCodi() {
 		return idiomaCodi;
@@ -38,6 +40,18 @@ public class DadesAnotacio {
 	}
 	public void setUnitatAdministrativa(String unitatAdministrativa) {
 		this.unitatAdministrativa = unitatAdministrativa;
+	}
+	public String getRegistreNumero() {
+		return registreNumero;
+	}
+	public void setRegistreNumero(String registreNumero) {
+		this.registreNumero = registreNumero;
+	}
+	public String getRegistreAny() {
+		return registreAny;
+	}
+	public void setRegistreAny(String registreAny) {
+		this.registreAny = registreAny;
 	}
 
 }

@@ -47,6 +47,11 @@
 				<c:param name="label"><fmt:message key='consulta.form.informe' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
+				<c:param name="property" value="valorsPredefinits"/>
+				<c:param name="type" value="textarea"/>
+				<c:param name="label"><fmt:message key='consulta.form.valors' /></c:param>
+			</c:import>
+			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="exportarActiu"/>
 				<c:param name="type" value="checkbox"/>
 				<c:param name="label"><fmt:message key='consulta.form.exportar' /></c:param>

@@ -110,7 +110,10 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		ExpedientConsultaDissenyCommand commandSeleccioConsulta =
 			(ExpedientConsultaDissenyCommand)session.getAttribute(VARIABLE_SESSIO_SELCON_COMMAND);
 		if (commandSeleccioConsulta != null && commandSeleccioConsulta.getConsultaId() != null) {
-			List<Camp> camps = dissenyService.findCampsPerCampsConsulta(commandSeleccioConsulta.getConsultaId(), TipusConsultaCamp.FILTRE);
+			List<Camp> camps = dissenyService.findCampsPerCampsConsulta(
+					commandSeleccioConsulta.getConsultaId(),
+					TipusConsultaCamp.FILTRE,
+					true);
 			Object command = TascaFormUtil.getCommandForFiltre(
 					camps,
 					null,
@@ -145,7 +148,10 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			Object commandFiltre = session.getAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);
 			if (commandFiltre != null && commandSeleccio != null && commandSeleccio.getConsultaId() != null) {
 				model.addAttribute("commandFiltre", commandFiltre);
-				List<Camp> camps = dissenyService.findCampsPerCampsConsulta(commandSeleccio.getConsultaId(), TipusConsultaCamp.FILTRE);
+				List<Camp> camps = dissenyService.findCampsPerCampsConsulta(
+						commandSeleccio.getConsultaId(),
+						TipusConsultaCamp.FILTRE,
+						true);
 				Map<String, Object> valors = TascaFormUtil.getValorsFromCommand(
 						camps,
 						commandFiltre,
@@ -240,7 +246,10 @@ public class ExpedientConsultaDissenyController extends BaseController {
 				Consulta consulta = dissenyService.getConsultaById(commandSeleccio.getConsultaId());
 				if (consulta.getInformeNom() != null) {
 					model.addAttribute("commandFiltre", commandFiltre);
-					List<Camp> camps = dissenyService.findCampsPerCampsConsulta(commandSeleccio.getConsultaId(), TipusConsultaCamp.FILTRE);
+					List<Camp> camps = dissenyService.findCampsPerCampsConsulta(
+							commandSeleccio.getConsultaId(),
+							TipusConsultaCamp.FILTRE,
+							true);
 					Map<String, Object> valors = TascaFormUtil.getValorsFromCommand(
 							camps,
 							commandFiltre,
@@ -380,10 +389,16 @@ public class ExpedientConsultaDissenyController extends BaseController {
 						dissenyService.getConsultaById(commandSeleccio.getConsultaId()));
 				model.addAttribute(
 						"campsFiltre",
-						dissenyService.findCampsPerCampsConsulta(commandSeleccio.getConsultaId(), TipusConsultaCamp.FILTRE));
+						dissenyService.findCampsPerCampsConsulta(
+								commandSeleccio.getConsultaId(),
+								TipusConsultaCamp.FILTRE,
+								true));
 				model.addAttribute(
 						"campsInforme",
-						dissenyService.findCampsPerCampsConsulta(commandSeleccio.getConsultaId(), TipusConsultaCamp.INFORME));
+						dissenyService.findCampsPerCampsConsulta(
+								commandSeleccio.getConsultaId(),
+								TipusConsultaCamp.INFORME,
+								true));
 			}
 			if (commandSeleccio.getExpedientTipusId() != null) {
 				List<Estat> estats = dissenyService.findEstatAmbExpedientTipus(commandSeleccio.getExpedientTipusId());

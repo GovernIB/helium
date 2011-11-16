@@ -440,6 +440,7 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 			joinColumns=@JoinColumn(name="origen_id", referencedColumnName="id"),
 			inverseJoinColumns=@JoinColumn(name="desti_id", referencedColumnName="id")
 	)
+	@ForeignKey(name="hel_origen_exprel_fk", inverseName="hel_desti_exprel_fk")
 	public Set<Expedient> getRelacionsOrigen() {
 		return this.relacionsOrigen;
 	}

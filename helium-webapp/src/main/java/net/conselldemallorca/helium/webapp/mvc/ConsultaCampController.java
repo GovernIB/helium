@@ -61,7 +61,10 @@ public class ConsultaCampController extends BaseController {
 		if (entorn != null) {
 			Consulta consulta = dissenyService.getConsultaById(id);
 			model.addAttribute("llistat", dissenyService.findCampsConsulta(id, tipus));
-			model.addAttribute("camps", dissenyService.findCampsPerCampsConsulta(id, tipus));
+			model.addAttribute("camps", dissenyService.findCampsPerCampsConsulta(
+					id,
+					tipus,
+					false));
 			model.addAttribute("consulta", consulta);
 			model.addAttribute(
 					"definicionsProces",

@@ -603,9 +603,13 @@ public class ExpedientService {
 			Long consultaId,
 			Map<String, Object> valors) {
 		Consulta consulta = consultaDao.getById(consultaId, false);
+		List<Camp> campsFiltre = getServiceUtils().findCampsPerCampsConsulta(
+				consultaId,
+				TipusConsultaCamp.FILTRE);
+		afegirValorsPredefinits(consulta, valors, campsFiltre);
 		List<Long> idExpedients = luceneDao.findNomesIds(
 				consulta.getExpedientTipus().getCodi(),
-				getServiceUtils().findCampsPerCampsConsulta(consultaId, TipusConsultaCamp.FILTRE),
+				campsFiltre,
 				valors);
 		return idExpedients.size();
 	}
@@ -634,11 +638,18 @@ public class ExpedientService {
 			int maxResults) {
 		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
 		Consulta consulta = consultaDao.getById(consultaId, false);
+		List<Camp> campsFiltre = getServiceUtils().findCampsPerCampsConsulta(
+				consultaId,
+				TipusConsultaCamp.FILTRE);
+		List<Camp> campsInforme = getServiceUtils().findCampsPerCampsConsulta(
+				consultaId,
+				TipusConsultaCamp.INFORME);
+		afegirValorsPredefinits(consulta, valors, campsFiltre);
 		List<Map<String, DadaIndexadaDto>> dadesExpedients = luceneDao.findAmbDadesExpedient(
 				consulta.getExpedientTipus().getCodi(),
-				getServiceUtils().findCampsPerCampsConsulta(consultaId, TipusConsultaCamp.FILTRE),
+				campsFiltre,
 				valors,
-				getServiceUtils().findCampsPerCampsConsulta(consultaId, TipusConsultaCamp.INFORME),
+				campsInforme,
 				sort,
 				asc,
 				firstRow,
@@ -676,13 +687,12 @@ public class ExpedientService {
 		return dtoConverter.toInstanciaProcesDto(processInstanceId, ambVariables);
 	}
 	public List<InstanciaProcesDto> getArbreInstanciesProces(
-			String processInstanceId,
-			boolean ambVariables) {
+			String processInstanceId) {
 		List<InstanciaProcesDto> resposta = new ArrayList<InstanciaProcesDto>();
 		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(processInstanceId);
 		List<JbpmProcessInstance> piTree = jbpmDao.getProcessInstanceTree(rootProcessInstance.getId());
 		for (JbpmProcessInstance jpi: piTree) {
-			resposta.add(dtoConverter.toInstanciaProcesDto(jpi.getId(), ambVariables));
+			resposta.add(dtoConverter.toInstanciaProcesDto(jpi.getId(), false));
 		}
 		return resposta;
 	}
@@ -1681,6 +1691,32 @@ public class ExpedientService {
 		return resposta;
 	}
 
+	private void afegirValorsPredefinits(
+			Consulta consulta,
+			Map<String, Object> valors,
+			List<Camp> camps) {
+		if (consulta.getValorsPredefinits() != null && consulta.getValorsPredefinits().length() > 0) {
+			String[] parelles = consulta.getValorsPredefinits().split(",");
+			for (int i = 0; i < parelles.length; i++) {
+				String[] parella = parelles[i].split(":");
+				if (parella.length == 2) {
+					String campCodi = parella[0];
+					String valor = parella[1];
+					for (Camp camp: camps) {
+						if (camp.getCodi().equals(campCodi)) {
+							valors.put(
+									camp.getDefinicioProces().getJbpmKey() + "." + campCodi,
+									Camp.getComObject(
+											camp.getTipus(),
+											valor));
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
 	private OpenOfficeUtils getOpenOfficeUtils() {
 		if (openOfficeUtils == null)
 			openOfficeUtils = new OpenOfficeUtils();
@@ -1700,8 +1736,6 @@ public class ExpedientService {
 		}
 		return serviceUtils;
 	}
-
-
 
 	private static final Log logger = LogFactory.getLog(ExpedientService.class);
 

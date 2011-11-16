@@ -1232,7 +1232,8 @@ public class DtoConverter {
 		if (camp == null)
 			return valor.toString();
 		else
-			return camp.getComText(
+			return Camp.getComText(
+					camp.getTipus(),
 					valor,
 					(valorDomini != null) ? (String)valorDomini.getValor() : null);
 	}
