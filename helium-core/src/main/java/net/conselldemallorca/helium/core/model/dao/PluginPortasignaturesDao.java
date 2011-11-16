@@ -190,6 +190,8 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 		return signatariIds;
 	}
 	private String getSignatariIdPerPersona(PersonaDto persona) {
+		if (persona == null)
+			return null;
 		String signatariId = persona.getDni();
 		if (isIdUsuariPerCodi())
 			signatariId = persona.getCodi();
