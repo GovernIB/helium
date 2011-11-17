@@ -621,6 +621,7 @@ public class LuceneDao extends LuceneIndexSupport {
 			boolean checkMultiple) {
 		if (valor != null) {
 			if (checkMultiple && camp.isMultiple()) {
+				// System.out.println(">>> Multiple " + camp.getCodi());
 				Object[] valors = (Object[])valor;
 				for (Object o: valors) {
 					addFieldToDocument(
@@ -631,7 +632,9 @@ public class LuceneDao extends LuceneIndexSupport {
 							textDominis,
 							false);
 				}
+				// System.out.println(">>> /Multiple " + camp.getCodi());
 			} else if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
+				// System.out.println(">>> Registre " + camp.getCodi());
 				Object[] valorsMembres = (Object[])valor;
 				int index = 0;
 				for (CampRegistre campRegistre: camp.getRegistreMembres()) {
@@ -644,12 +647,14 @@ public class LuceneDao extends LuceneIndexSupport {
 							textDominis,
 							false);
 				}
+				// System.out.println(">>> /Registre " + camp.getCodi());
 			} else {
 				String clauIndex = definicioProces.getJbpmKey() + "." + camp.getCodi();
 				String valorIndex = valorIndexPerCamp(camp, valor);
 				boolean analyzed = 
 					camp.getTipus().equals(TipusCamp.STRING) ||
 					camp.getTipus().equals(TipusCamp.TEXTAREA);
+				// System.out.println(">>>>>> " + clauIndex + ": " + valorIndex);
 				document.add(new Field(
 						clauIndex,
 						valorIndex,

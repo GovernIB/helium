@@ -88,6 +88,7 @@ public class RegistrePluginAjuntament implements RegistrePlugin {
 					if (indexBarra != -1) {
 						params.setentidad1(entitatCodi.substring(0, indexBarra));
 						params.setentidad2(entitatCodi.substring(indexBarra + 1));
+						params.setaltres(".");
 					}
 				}
 				if (registreEntrada.getDadesInteressat().getNomAmbCognoms() != null)
@@ -104,6 +105,12 @@ public class RegistrePluginAjuntament implements RegistrePlugin {
 				if (registreEntrada.getDadesAssumpte().getTipus() != null)
 					params.settipo(
 							registreEntrada.getDadesAssumpte().getTipus());
+				if (registreEntrada.getDadesAssumpte().getRegistreNumero() != null) {
+					params.setsalida1(
+							registreEntrada.getDadesAssumpte().getRegistreNumero());
+					params.setsalida2(
+							registreEntrada.getDadesAssumpte().getRegistreAny());
+				}
 				if (registreEntrada.getDadesAssumpte().getIdiomaCodi() != null)
 					params.setidioex(
 							idiomaIso2Regweb(registreEntrada.getDadesAssumpte().getIdiomaCodi()));
@@ -233,8 +240,9 @@ public class RegistrePluginAjuntament implements RegistrePlugin {
 				if (entitatCodi != null) {
 					int indexBarra = entitatCodi.indexOf(SEPARADOR_ENTITAT);
 					if (entitatCodi != null && indexBarra != -1) {
-						params.setentidad1(entitatCodi.substring(0, indexBarra));
-						params.setentidad2(entitatCodi.substring(indexBarra + 1));
+						//params.setentidad1(entitatCodi.substring(0, indexBarra));
+						//params.setentidad2(entitatCodi.substring(indexBarra + 1));
+						params.setaltres(".");
 					}
 				}
 				if (registreSortida.getDadesInteressat().getNomAmbCognoms() != null)
@@ -251,6 +259,12 @@ public class RegistrePluginAjuntament implements RegistrePlugin {
 				if (registreSortida.getDadesAssumpte().getTipus() != null)
 					params.settipo(
 							registreSortida.getDadesAssumpte().getTipus());
+				if (registreSortida.getDadesAssumpte().getRegistreNumero() != null) {
+					params.setentrada1(
+							registreSortida.getDadesAssumpte().getRegistreNumero());
+					params.setentrada2(
+							registreSortida.getDadesAssumpte().getRegistreAny());
+				}
 				if (registreSortida.getDadesAssumpte().getIdiomaCodi() != null)
 					params.setidioex(
 							idiomaIso2Regweb(registreSortida.getDadesAssumpte().getIdiomaCodi()));

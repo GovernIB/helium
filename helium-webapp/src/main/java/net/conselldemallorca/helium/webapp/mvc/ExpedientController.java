@@ -177,6 +177,7 @@ public class ExpedientController extends BaseController {
 	public String dades(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) String id,
+			@RequestParam(value = "ambTasques", required = false) Boolean ambTasques,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
@@ -191,9 +192,11 @@ public class ExpedientController extends BaseController {
 				model.addAttribute(
 						"instanciaProces",
 						expedientService.getInstanciaProcesById(id, true));
-				model.addAttribute(
-						"tasques",
-						expedientService.findTasquesPerInstanciaProces(id));
+				if (ambTasques != null && ambTasques.booleanValue()) {
+					model.addAttribute(
+							"tasques",
+							expedientService.findTasquesPerInstanciaProces(id, true));
+				}
 				return "expedient/dades";
 			} else {
 				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
@@ -209,6 +212,7 @@ public class ExpedientController extends BaseController {
 	public String documents(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) String id,
+			@RequestParam(value = "ambTasques", required = false) Boolean ambTasques,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
@@ -223,9 +227,11 @@ public class ExpedientController extends BaseController {
 				model.addAttribute(
 						"instanciaProces",
 						expedientService.getInstanciaProcesById(id, true));
-				model.addAttribute(
-						"tasques",
-						expedientService.findTasquesPerInstanciaProces(id));
+				if (ambTasques != null && ambTasques.booleanValue()) {
+					model.addAttribute(
+							"tasques",
+							expedientService.findTasquesPerInstanciaProces(id, true));
+				}
 				return "expedient/documents";
 			} else {
 				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
@@ -312,7 +318,7 @@ public class ExpedientController extends BaseController {
 						expedientService.getInstanciaProcesById(id, false));
 				model.addAttribute(
 						"tasques",
-						expedientService.findTasquesPerInstanciaProces(id));
+						expedientService.findTasquesPerInstanciaProces(id, false));
 				return "expedient/tasques";
 			} else {
 				missatgeError(request, getMessage("error.permisos.consultar.expedient"));

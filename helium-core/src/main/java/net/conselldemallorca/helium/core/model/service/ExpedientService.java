@@ -672,11 +672,13 @@ public class ExpedientService {
 		return resposta;
 	}
 
-	public List<TascaDto> findTasquesPerInstanciaProces(String processInstanceId) {
+	public List<TascaDto> findTasquesPerInstanciaProces(
+			String processInstanceId,
+			boolean ambVariables) {
 		List<TascaDto> resposta = new ArrayList<TascaDto>();
 		List<JbpmTask> tasks = jbpmDao.findTaskInstancesForProcessInstance(processInstanceId);
 		for (JbpmTask task: tasks)
-			resposta.add(dtoConverter.toTascaDto(task, null, true, true, true, true));
+			resposta.add(dtoConverter.toTascaDto(task, null, ambVariables, true, true, true));
 		Collections.sort(resposta);
 		return resposta;
 	}

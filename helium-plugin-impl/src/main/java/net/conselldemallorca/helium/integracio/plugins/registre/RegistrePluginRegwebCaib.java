@@ -77,12 +77,17 @@ public class RegistrePluginRegwebCaib implements RegistrePlugin {
 				if (registreEntrada.getDadesInteressat().getMunicipiNom() != null)
 					registroEntrada.setfora(
 							registreEntrada.getDadesInteressat().getMunicipiNom());
-				
 			}
 			if (registreEntrada.getDadesAssumpte() != null) {
 				if (registreEntrada.getDadesAssumpte().getTipus() != null)
 					registroEntrada.settipo(
 							registreEntrada.getDadesAssumpte().getTipus());
+				if (registreEntrada.getDadesAssumpte().getRegistreNumero() != null) {
+					registroEntrada.setsalida1(
+							registreEntrada.getDadesAssumpte().getRegistreNumero());
+					registroEntrada.setsalida2(
+							registreEntrada.getDadesAssumpte().getRegistreAny());
+				}
 				if (registreEntrada.getDadesAssumpte().getIdiomaCodi() != null)
 					registroEntrada.setidioex(
 							convertirIdioma(registreEntrada.getDadesAssumpte().getIdiomaCodi()));
@@ -231,6 +236,12 @@ public class RegistrePluginRegwebCaib implements RegistrePlugin {
 				if (registreSortida.getDadesAssumpte().getTipus() != null)
 					registroSalida.settipo(
 							registreSortida.getDadesAssumpte().getTipus());
+				if (registreSortida.getDadesAssumpte().getRegistreNumero() != null) {
+					registroSalida.setentrada1(
+							registreSortida.getDadesAssumpte().getRegistreNumero());
+					registroSalida.setentrada2(
+							registreSortida.getDadesAssumpte().getRegistreAny());
+				}
 				if (registreSortida.getDadesAssumpte().getIdiomaCodi() != null)
 					registroSalida.setidioex(
 							convertirIdioma(registreSortida.getDadesAssumpte().getIdiomaCodi()));
@@ -411,16 +422,33 @@ public class RegistrePluginRegwebCaib implements RegistrePlugin {
 		props.put(
 				Context.PROVIDER_URL,
 				GlobalProperties.getInstance().getProperty("app.registre.plugin.provider.url"));
+		if (isNotJbossContainer()) {
+			String principal = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal");
+			if (principal != null && principal.length() > 0)
+				props.put(
+						Context.SECURITY_PRINCIPAL,
+						principal);
+			String credentials = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.credentials");
+			if (credentials != null && credentials.length() > 0)
+				props.put(
+						Context.SECURITY_CREDENTIALS,
+						credentials);
+		}
 		return new InitialContext(props);
 	}
 	private void newLogin() throws Exception {
-		String principal = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal");
-		String credentials = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.credentials");
-		org.jboss.security.auth.callback.UsernamePasswordHandler handler = new org.jboss.security.auth.callback.UsernamePasswordHandler(
-				principal,
-				credentials.toCharArray());
-		javax.security.auth.login.LoginContext lc = new javax.security.auth.login.LoginContext("client-login", handler);
-		lc.login();
+		if (!isNotJbossContainer()) {
+			String principal = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal");
+			String credentials = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.credentials");
+			org.jboss.security.auth.callback.UsernamePasswordHandler handler = new org.jboss.security.auth.callback.UsernamePasswordHandler(
+					principal,
+					credentials.toCharArray());
+			javax.security.auth.login.LoginContext lc = new javax.security.auth.login.LoginContext("client-login", handler);
+			lc.login();
+		}
+	}
+	private boolean isNotJbossContainer() {
+		return "false".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.registre.plugin.container.jboss"));
 	}
 
 	private String convertirIdioma(String iso6391) {
