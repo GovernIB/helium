@@ -312,7 +312,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	public void removeEstat(Estat estat) {
 		getEstats().remove(estat);
 	}
-	
+
 	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
 	@OrderBy("codiHelium asc")
 	public List<MapeigSistra> getMapeigSistras() {
@@ -342,7 +342,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 		getExpedients().remove(expedient);
 	}
 
-	@OneToMany(mappedBy="expedientTipus")
+	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
 	public Set<DefinicioProces> getDefinicionsProces() {
 		return this.definicionsProces;
 	}
@@ -356,7 +356,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 		getDefinicionsProces().remove(definicioProces);
 	}
 
-	@OneToMany(mappedBy="expedientTipus")
+	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
 	public Set<Consulta> getConsultes() {
 		return this.consultes;
 	}
@@ -370,7 +370,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 		getConsultes().remove(consulta);
 	}
 
-	@OneToMany(mappedBy="expedientTipus")
+	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
 	public Set<Domini> getDominis() {
 		return this.dominis;
 	}
@@ -384,7 +384,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 		getDominis().remove(domini);
 	}
 
-	@OneToMany(mappedBy="expedientTipus")
+	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
 	public Set<Enumeracio> getEnumeracions() {
 		return this.enumeracions;
 	}
