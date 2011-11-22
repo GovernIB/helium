@@ -1238,8 +1238,9 @@ public class DissenyService {
 		}
 		dto.setEnumeracions(enumeracionsExp);
 		List<DefinicioProcesExportacio> definicionsProces = new ArrayList<DefinicioProcesExportacio>();
-		for (DefinicioProces definicio : expedientTipus.getDefinicionsProces()){
-			definicionsProces.add(exportar(definicio.getId()));
+		for (DefinicioProces definicioProces : definicioProcesDao.findDarreresVersionsAmbEntorn(expedientTipus.getEntorn().getId())) {
+			if (expedientTipus.getId().equals(definicioProces.getExpedientTipus().getId()))
+				definicionsProces.add(exportar(definicioProces.getId()));
 		}
 		dto.setDefinicionsProces(definicionsProces);
 		return dto;
