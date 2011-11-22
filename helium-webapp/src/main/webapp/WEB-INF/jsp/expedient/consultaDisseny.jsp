@@ -72,7 +72,7 @@ function confirmarAnular(e) {
 		</c:choose>
 	</div>
 
-	<c:if test="${not empty campsFiltre}">
+	<c:if test="${not empty consulta}">
 		<form:form action="consultaDissenyResultat.html" commandName="commandFiltre" cssClass="uniForm">
 			<div class="inlineLabels col first">
 				<c:forEach var="camp" items="${campsFiltre}">
@@ -85,8 +85,8 @@ function confirmarAnular(e) {
 					<c:when test="${not empty consulta.informeNom and not empty campsInforme}">
 						<c:import url="../common/formElement.jsp">
 							<c:param name="type" value="buttons"/>
-							<c:param name="values">informe,submit,netejar</c:param>
-							<c:param name="titles"><fmt:message key='expedient.consulta.informe' />,<fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' /></c:param>
+							<c:param name="values">informe,netejar</c:param>
+							<c:param name="titles"><fmt:message key='expedient.consulta.informe' />,<fmt:message key='expedient.consulta.netejar' /></c:param>
 						</c:import>
 					</c:when>
 					<c:otherwise>
@@ -100,13 +100,6 @@ function confirmarAnular(e) {
 			</div>
 		</form:form>
 		<c:if test="${not empty sessionScope.expedientTipusConsultaFiltreCommand}">
-			<%--div class="missatgesGris">
-				<c:choose>
-					<c:when test="${empty expedients}"><p><fmt:message key="expedient.consulta.notrobats"/></p></c:when>
-					<c:when test="${fn:length(expedients) == 1}"><p><fmt:message key="expedient.consulta.trobatun"/></p></c:when>
-					<c:otherwise><p><fmt:message key="expedient.consulta.trobats"><fmt:param value="${fn:length(expedients)}"/></fmt:message></p></c:otherwise>
-				</c:choose>
-			</div--%>
 			<c:if test="${not empty expedients}">
 				<display:table name="expedients" id="registre" requestURI="" class="displaytag selectable" export="${consulta.exportarActiu}" sort="external">
 					<display:column property="expedient.identificador" title="Expedient" url="/tasca/personaLlistat.html" paramId="exp"/>
@@ -126,30 +119,36 @@ function confirmarAnular(e) {
 						</c:when>
 						<c:otherwise>
 							<c:forEach var="camp" items="${campsInforme}">
-								<c:set var="tipusCamp" value="${camp.tipus}"/>
 								<c:choose>
 									<c:when test="${not empty camp.definicioProces}"><c:set var="clauCamp" value="${camp.definicioProces.jbpmKey}/${camp.codi}"/></c:when>
 									<c:otherwise><c:set var="clauCamp" value="${camp.codi}"/></c:otherwise>
 								</c:choose>
-								<c:set var="valorCamp" value="${registre.dadesExpedient[clauCamp].valor}"/>
-								<c:set var="textCamp" value="${registre.dadesExpedient[clauCamp].valorMostrar}"/>
 								<c:choose>
-									<c:when test="${tipusCamp == 'DATE' && clauCamp == 'expedient$dataInici'}">
+									<c:when test="${registre.dadesExpedient[clauCamp].multiple}">
+										<%--display:column title="${camp.etiqueta}">
+											<table class="displaytag">
+												<c:forEach var="text" items="${registre.dadesExpedient[clauCamp].valorMostrarMultiple}" varStatus="status">
+													<tr><td>${text}</td></tr>
+												</c:forEach>
+											</table>
+										</display:column--%>
+									</c:when>
+									<c:when test="${camp.tipus == 'DATE' && clauCamp == 'expedient$dataInici'}">
 										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,date,dd/MM/yyyy HH:mm}"/>
 									</c:when>
-									<c:when test="${tipusCamp == 'DATE'}">
+									<c:when test="${camp.tipus == 'DATE'}">
 										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,date,dd/MM/yyyy}"/>
 									</c:when>
-									<c:when test="${tipusCamp == 'INTEGER'}">
+									<c:when test="${camp.tipus == 'INTEGER'}">
 										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,number,#}"/>
 									</c:when>
-									<c:when test="${tipusCamp == 'FLOAT'}">
+									<c:when test="${camp.tipus == 'FLOAT'}">
 										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,number,#.#}"/>
 									</c:when>
-									<c:when test="${tipusCamp == 'PRICE'}">
+									<c:when test="${camp.tipus == 'PRICE'}">
 										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,number,#,###.00}"/>
 									</c:when>
-									<c:when test="${tipusCamp == 'SELECCIO' && clauCamp == 'expedient$estat'}">
+									<c:when test="${camp.tipus == 'SELECCIO' && clauCamp == 'expedient$estat'}">
 										<display:column title="${camp.etiqueta}">
 											<c:if test="${registre.expedient.aturat}"><img src="<c:url value="/img/stop.png"/>" alt="Aturat" title="Aturat" border="0"/></c:if>
 											<c:choose>

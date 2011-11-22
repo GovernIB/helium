@@ -25,6 +25,7 @@ public class FieldValue implements Comparable<FieldValue> {
 	private boolean multiple;
 	private List<Object> valorMultiple;
 	private List<String> valorMostrarMultiple;
+	private List<String> valorOrdreMultiple;
 
 
 
@@ -97,6 +98,12 @@ public class FieldValue implements Comparable<FieldValue> {
 	public void setValorMostrarMultiple(List<String> valorMostrarMultiple) {
 		this.valorMostrarMultiple = valorMostrarMultiple;
 	}
+	public List<String> getValorOrdreMultiple() {
+		return valorOrdreMultiple;
+	}
+	public void setValorOrdreMultiple(List<String> valorOrdreMultiple) {
+		this.valorOrdreMultiple = valorOrdreMultiple;
+	}
 
 	public void addValorMultiple(Object valor) {
 		if (valorMultiple == null)
@@ -107,6 +114,11 @@ public class FieldValue implements Comparable<FieldValue> {
 		if (valorMostrarMultiple == null)
 			valorMostrarMultiple = new ArrayList<String>();
 		valorMostrarMultiple.add(valor);
+	}
+	public void addValorOrdreMultiple(String valor) {
+		if (valorOrdreMultiple == null)
+			valorOrdreMultiple = new ArrayList<String>();
+		valorOrdreMultiple.add(valor);
 	}
 
 	public boolean isDadaExpedient() {
@@ -140,6 +152,54 @@ public class FieldValue implements Comparable<FieldValue> {
 		return sb.toString();
 	}
 
+	public int multipleCount() {
+		int count = 0;
+		if (isMultiple() && valorMultiple != null)
+			count = valorMultiple.size();
+		return count;
+	}
+	public int multipleCountEquals(Object value) {
+		int count = 0;
+		if (isMultiple() && valorMultiple != null) {
+			for (Object obj: valorMultiple) {
+				if (obj == null && value == null)
+					count++;
+				else if (obj != null && obj.equals(value))
+					count++;
+			}
+		}
+		return count;
+	}
+
+	public int compareTo(FieldValue other) {
+		int retval = 0;
+		if (other == null) {
+			retval = 1;
+		} else {
+			String thisValorOrdre = getValorOrdre();
+			if (isMultiple()) {
+				if (getValorOrdreMultiple() != null && getValorOrdreMultiple().size() > 0)
+					thisValorOrdre = getValorOrdreMultiple().get(0);
+			}
+			String otherValorOrdre = other.getValorOrdre();
+			if (other.isMultiple()) {
+				if (other.getValorOrdreMultiple() != null && other.getValorOrdreMultiple().size() > 0)
+					otherValorOrdre = other.getValorOrdreMultiple().get(0);
+			}
+			if (thisValorOrdre == null) {
+				if (otherValorOrdre == null)
+					retval = 0;
+				else
+					retval = -1;
+			} else if (otherValorOrdre == null) {
+				retval = 1;
+			} else {
+				retval = thisValorOrdre.compareTo(otherValorOrdre);
+			}
+		}
+		return retval;
+	}
+
 	public String toString() {
 		if (isMultiple()) {
 			return getValorMostrarMultipleComText();
@@ -151,13 +211,6 @@ public class FieldValue implements Comparable<FieldValue> {
 			else
 				return null;
 		}
-	}
-
-	public int compareTo(FieldValue f) {
-		if (isMultiple())
-			return toString().compareTo(f.toString());
-		else
-			return getValorOrdre().compareTo(f.getValorOrdre());
 	}
 
 }

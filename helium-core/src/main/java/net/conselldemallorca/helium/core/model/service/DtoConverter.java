@@ -452,7 +452,6 @@ public class DtoConverter {
 	}
 
 	public InstanciaProcesDto toInstanciaProcesDto(String processInstanceId, boolean ambVariables) {
-		//MesurarTemps.reiniciarInstant("IPDTO");
 		JbpmProcessInstance pi = jbpmDao.getProcessInstance(processInstanceId);
 		JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(processInstanceId);
 		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(jpd.getId());
@@ -464,44 +463,34 @@ public class DtoConverter {
 		dto.setDefinicioProces(definicioProces);
 		if (pi.getDescription() != null && pi.getDescription().length() > 0)
 			dto.setTitol(pi.getDescription());
-		//MesurarTemps.imprimirInstantStdoutIReiniciar("IPDTO", "1");
 		Set<String> resourceNames = jbpmDao.getResourceNames(jpd.getId());
 		dto.setImatgeDisponible(resourceNames.contains("processimage.jpg"));
 		Set<Camp> camps = definicioProces.getCamps();
 		dto.setCamps(camps);
-		//MesurarTemps.imprimirInstantStdoutIReiniciar("IPDTO", "2");
 		List<Document> documents = documentDao.findAmbDefinicioProces(definicioProces.getId());
 		dto.setDocuments(documents);
-		//MesurarTemps.imprimirInstantStdoutIReiniciar("IPDTO", "3");
 		dto.setAgrupacions(campAgrupacioDao.findAmbDefinicioProcesOrdenats(definicioProces.getId()));
-		//MesurarTemps.imprimirInstantStdoutIReiniciar("IPDTO", "4");
 		if (ambVariables) {
-			//MesurarTemps.reiniciarInstant("IPDTO2");
 			Map<String, Object> valors = jbpmDao.getProcessInstanceVariables(processInstanceId);
 			dto.setVarsDocuments(obtenirVarsDocumentsProces(
 					documents,
 					valors));
 			filtrarVariablesTasca(valors);
-			//MesurarTemps.imprimirInstantStdoutIReiniciar("IPDTO2", "1");
 			Map<String, ParellaCodiValorDto> valorsDomini = obtenirValorsDomini(
 					null,
 					processInstanceId,
 					camps,
 					valors);
 			dto.setValorsDomini(valorsDomini);
-			//MesurarTemps.imprimirInstantStdoutIReiniciar("IPDTO2", "2");
 			Map<String, List<ParellaCodiValorDto>> valorsMultiplesDomini = obtenirValorsMultiplesDomini(
 					null,
 					processInstanceId,
 					camps,
 					valors);
-			//MesurarTemps.imprimirInstantStdoutIReiniciar("IPDTO2", "3");
 			dto.setValorsMultiplesDomini(valorsMultiplesDomini);
 			dto.setVarsComText(textPerCamps(null, processInstanceId, camps, valors, valorsDomini, valorsMultiplesDomini));
 			dto.setVariables(valors);
-			//MesurarTemps.imprimirInstantStdoutIReiniciar("IPDTO2", "4");
 		}
-		//MesurarTemps.imprimirInstantStdoutIReiniciar("IPDTO", "5");
 		return dto;
 	}
 

@@ -29,9 +29,9 @@ function confirmar(e) {
 		<c:param name="tabActiu" value="agrupacions"/>
 	</c:import>
 
-	<display:table name="agrupacions" id="registre" requestURI="" defaultsort="1" class="displaytag selectable">
-		<display:column property="codi" titleKey="comuns.codi" sortable="true" url="/definicioProces/campAgrupacioForm.html?definicioProcesId=${param.definicioProcesId}" paramId="id" paramProperty="id"/>
-		<display:column property="nom" titleKey="comuns.nom" sortable="true"/>
+	<display:table name="agrupacions" id="registre" requestURI="" class="displaytag selectable">
+		<display:column property="codi" titleKey="comuns.codi" url="/definicioProces/campAgrupacioForm.html?definicioProcesId=${param.definicioProcesId}" paramId="id" paramProperty="id"/>
+		<display:column property="nom" titleKey="comuns.nom"/>
 		<display:column>
 			<a href="<c:url value="/definicioProces/campAgrupacioPujar.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/></c:url>"><img src="<c:url value="/img/famarrow_up.png"/>" alt="<fmt:message key='comuns.amunt' />" title="<fmt:message key='comuns.amunt' />" border="0"/></a>
 			<a href="<c:url value="/definicioProces/campAgrupacioBaixar.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/></c:url>"><img src="<c:url value="/img/famarrow_down.png"/>" alt="<fmt:message key='comuns.avall' />" title="<fmt:message key='comuns.avall' />" border="0"/></a>

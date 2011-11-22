@@ -212,16 +212,32 @@ public class HeliumHssfExportView implements BinaryExportView {
             return null;
         }
         String returnString = ObjectUtils.toString(rawValue);
-        // escape the String to get the tabs, returns, newline explicit as \t \r \n
-        returnString = StringEscapeUtils.escapeJava(StringUtils.trimToEmpty(returnString));
-        // remove tabs, insert four whitespaces instead
-        returnString = StringUtils.replace(StringUtils.trim(returnString), "\\t", "    ");
-        // remove the return, only newline valid in excel
-        returnString = StringUtils.replace(StringUtils.trim(returnString), "\\r", " ");
-        // unescape so that \n gets back to newline
-        returnString = StringEscapeUtils.unescapeJava(returnString);
+        boolean containsHtml = returnString.contains("<") && returnString.contains("/>");
+		if (!containsHtml) {
+	        // escape the String to get the tabs, returns, newline explicit as \t \r \n
+	        returnString = StringEscapeUtils.escapeJava(StringUtils.trimToEmpty(returnString));
+	        // remove tabs, insert four whitespaces instead
+	        returnString = StringUtils.replace(StringUtils.trim(returnString), "\\t", "    ");
+	        // remove the return, only newline valid in excel
+	        returnString = StringUtils.replace(StringUtils.trim(returnString), "\\r", " ");
+	        // unescape so that \n gets back to newline
+	        returnString = StringEscapeUtils.unescapeJava(returnString);
+		} else {
+			returnString = StringEscapeUtils.escapeJava(StringUtils.trimToEmpty(returnString));
+			returnString = StringUtils.replace(StringUtils.trim(returnString), "\\t", "");
+	        returnString = StringUtils.replace(StringUtils.trim(returnString), "\\r", "");
+	        returnString = StringUtils.replace(StringUtils.trim(returnString), "\\n", "");
+	        returnString = StringUtils.replace(returnString, "<br\\/>", "\n");
+	        returnString = StringUtils.replace(returnString, "<BR\\/>", "\n");
+	        returnString = StringUtils.replace(returnString, "<br \\/>", "\n");
+	        returnString = StringUtils.replace(returnString, "<BR \\/>", "\n");
+	        returnString = StringUtils.replace(returnString, "<\\/tr>", "\n");
+	        returnString = StringUtils.replace(returnString, "<\\/TR>", "\n");
+	        returnString = returnString.replaceAll("<(.|\n)*?>", "");
+		}
         return returnString;
-    }
+    }	
+
 
     /**
      * Wraps IText-generated exceptions.

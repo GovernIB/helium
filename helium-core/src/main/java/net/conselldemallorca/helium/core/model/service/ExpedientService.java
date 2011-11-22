@@ -1700,7 +1700,7 @@ public class ExpedientService {
 		if (consulta.getValorsPredefinits() != null && consulta.getValorsPredefinits().length() > 0) {
 			String[] parelles = consulta.getValorsPredefinits().split(",");
 			for (int i = 0; i < parelles.length; i++) {
-				String[] parella = parelles[i].split(":");
+				String[] parella = (parelles[i].contains(":")) ? parelles[i].split(":") : parelles[i].split("=");
 				if (parella.length == 2) {
 					String campCodi = parella[0];
 					String valor = parella[1];

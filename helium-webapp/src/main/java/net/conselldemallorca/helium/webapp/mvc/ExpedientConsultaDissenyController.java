@@ -420,6 +420,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		} else {
 			field.setValorMultiple(dadaIndex.getValorMultiple());
 			field.setValorMostrarMultiple(dadaIndex.getValorMostrarMultiple());
+			field.setValorOrdreMultiple(dadaIndex.getValorIndexMultiple());
 		}
 		field.setMultiple(dadaIndex.isMultiple());
 		return field;
