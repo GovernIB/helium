@@ -422,7 +422,7 @@ public class RegistrePluginRegwebCaib implements RegistrePlugin {
 		props.put(
 				Context.PROVIDER_URL,
 				GlobalProperties.getInstance().getProperty("app.registre.plugin.provider.url"));
-		if (isNotJbossContainer()) {
+		if (!isJbossContainer()) {
 			String principal = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal");
 			if (principal != null && principal.length() > 0)
 				props.put(
@@ -437,7 +437,7 @@ public class RegistrePluginRegwebCaib implements RegistrePlugin {
 		return new InitialContext(props);
 	}
 	private void newLogin() throws Exception {
-		if (!isNotJbossContainer()) {
+		if (isJbossContainer()) {
 			String principal = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal");
 			String credentials = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.credentials");
 			org.jboss.security.auth.callback.UsernamePasswordHandler handler = new org.jboss.security.auth.callback.UsernamePasswordHandler(
@@ -447,8 +447,9 @@ public class RegistrePluginRegwebCaib implements RegistrePlugin {
 			lc.login();
 		}
 	}
-	private boolean isNotJbossContainer() {
-		return "false".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.registre.plugin.container.jboss"));
+	private boolean isJbossContainer() {
+		//return !"false".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.registre.plugin.container.jboss"));
+		return false;
 	}
 
 	private String convertirIdioma(String iso6391) {
