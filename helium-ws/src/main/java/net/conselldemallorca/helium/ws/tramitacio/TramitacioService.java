@@ -228,6 +228,16 @@ public interface TramitacioService {
 			String processInstanceId) throws TramitacioException;
 
 	/**
+	 * Mètode per a obtenir el contingut d'un document de l'expedient
+	 * 
+	 * @param documentId
+	 * @return
+	 * @throws TramitacioException
+	 */
+	public ArxiuProces getArxiuProces(
+			Long documentId) throws TramitacioException;
+
+	/**
 	 * Mètode per a modificar documents del procés
 	 * 
 	 * @param entorn

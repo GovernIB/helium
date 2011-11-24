@@ -12,6 +12,7 @@ import java.util.Map;
 import javax.jws.WebService;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import net.conselldemallorca.helium.core.model.dto.ArxiuDto;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
@@ -26,6 +27,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
+import net.conselldemallorca.helium.core.model.service.DocumentService;
 import net.conselldemallorca.helium.core.model.service.EntornService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
@@ -49,7 +51,7 @@ public class Tramitacio implements TramitacioService {
 	private DissenyService dissenyService;
 	private ExpedientService expedientService;
 	private TascaService tascaService;
-//	private PermissionService permissionService;
+	private DocumentService documentService;
 
 
 
@@ -410,8 +412,26 @@ public class Tramitacio implements TramitacioService {
 			}
 			return resposta;
 		} catch (Exception ex) {
-			logger.error("No s'ha pogut guardar la variable al procés", ex);
-			throw new TramitacioException("No s'ha pogut guardar la variable al procés: " + ex.getMessage());
+			logger.error("No s'han pogut consultar el documents del procés", ex);
+			throw new TramitacioException("No s'han pogut consultar el documents del procés: " + ex.getMessage());
+		}
+	}
+	public ArxiuProces getArxiuProces(
+			Long documentId) throws TramitacioException {
+		try {
+			ArxiuProces resposta = null;
+			if (documentId != null) {
+				ArxiuDto arxiu = documentService.arxiuDocumentPerMostrar(documentId);
+				if (arxiu != null) {
+					resposta = new ArxiuProces();
+					resposta.setNom(arxiu.getNom());
+					resposta.setContingut(arxiu.getContingut());
+				}
+			}
+			return resposta;
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut obtenir l'arxiu del procés", ex);
+			throw new TramitacioException("No s'ha pogut obtenir l'arxiu del procés: " + ex.getMessage());
 		}
 	}
 	public Long setDocumentProces(
@@ -474,8 +494,8 @@ public class Tramitacio implements TramitacioService {
 		try {
 			expedientService.executarAccio(processInstanceId, accio);
 		} catch (Exception ex) {
-			logger.error("No s'ha pogut executar l'script", ex);
-			throw new TramitacioException("No s'ha pogut executar l'script: " + ex.getMessage());
+			logger.error("No s'ha pogut executar l'acció", ex);
+			throw new TramitacioException("No s'ha pogut executar l'acció: " + ex.getMessage());
 		}
 	}
 	public void executarScriptProces(
@@ -589,21 +609,6 @@ public class Tramitacio implements TramitacioService {
 				geoPosY,
 				geoReferencia,
 				false);
-		
-//		// Filtre expedients permesos
-//		List<ExpedientTipus> tipus = dissenyService.findExpedientTipusAmbEntorn(e.getId());
-//		permissionService.filterAllowed(
-//				tipus,
-//				ExpedientTipus.class,
-//				new Permission[] {
-//					ExtendedPermission.ADMINISTRATION,
-//					ExtendedPermission.READ});
-//		Iterator<ExpedientDto> it = expedients.iterator();
-//		while (it.hasNext()) {
-//			ExpedientDto exp = it.next();
-//			if (!tipus.contains(exp.getTipus()))
-//				it.remove();
-//		}
 		// Construcció de la resposta
 		List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
 		for (ExpedientDto dto: expedients)
@@ -629,10 +634,10 @@ public class Tramitacio implements TramitacioService {
 	public void setTascaService(TascaService tascaService) {
 		this.tascaService = tascaService;
 	}
-//	@Autowired
-//	public void setPermissionService(PermissionService permissionService) {
-//		this.permissionService = permissionService; 
-//	}
+	@Autowired
+	public void setDocumentService(DocumentService documentService) {
+		this.documentService = documentService;
+	}
 
 
 
