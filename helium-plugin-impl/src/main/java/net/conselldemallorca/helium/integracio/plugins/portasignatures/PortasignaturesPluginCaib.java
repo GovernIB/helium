@@ -257,7 +257,7 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 			attributes.setType(document.getTipus());
 		// Informació adicional del responsable del document
 		Sender sender = new Sender();
-		sender.setName(remitent);
+		sender.setName(limitarString(remitent, 50));
 		attributes.setSender(sender);
 		// Importancia del document
 		if (importancia != null)
