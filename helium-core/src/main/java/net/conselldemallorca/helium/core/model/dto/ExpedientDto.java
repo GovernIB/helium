@@ -3,6 +3,9 @@
  */
 package net.conselldemallorca.helium.core.model.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 
 
@@ -16,6 +19,7 @@ public class ExpedientDto extends Expedient {
 	private PersonaDto iniciadorPersona;
 	private PersonaDto responsablePersona;
 	private String bantelEntradaNum;
+	private List<ExpedientDto> relacionats;
 
 
 
@@ -36,6 +40,18 @@ public class ExpedientDto extends Expedient {
 	}
 	public void setBantelEntradaNum(String bantelEntradaNum) {
 		this.bantelEntradaNum = bantelEntradaNum;
+	}
+	public List<ExpedientDto> getRelacionats() {
+		return relacionats;
+	}
+	public void setRelacionats(List<ExpedientDto> relacionats) {
+		this.relacionats = relacionats;
+	}
+
+	public void addExpedientRelacionat(ExpedientDto relacionat) {
+		if (relacionats == null)
+			relacionats = new ArrayList<ExpedientDto>();
+		relacionats.add(relacionat);
 	}
 
 	public String getIdentificadorLimitat() {

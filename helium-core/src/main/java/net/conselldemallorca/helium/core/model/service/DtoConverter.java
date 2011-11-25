@@ -148,6 +148,16 @@ public class DtoConverter {
 			JbpmProcessInstance processInstance = jbpmDao.getProcessInstance(expedient.getProcessInstanceId());
 			dto.setDataFi(processInstance.getEnd());
 		}
+		for (Expedient relacionat: expedient.getRelacionsOrigen()) {
+			ExpedientDto relacionatDto = new ExpedientDto();
+			relacionatDto.setTitol(relacionat.getTitol());
+			relacionatDto.setNumero(relacionat.getNumero());
+			relacionatDto.setDataInici(relacionat.getDataInici());
+			relacionatDto.setTipus(relacionat.getTipus());
+			relacionatDto.setEstat(relacionat.getEstat());
+			relacionatDto.setProcessInstanceId(relacionat.getProcessInstanceId());
+			dto.addExpedientRelacionat(relacionatDto);
+		}
 		return dto;
 	}
 

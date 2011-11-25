@@ -188,6 +188,20 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 						geoReferencia,
 						mostrarAnulats));
 	}
+	public List<Expedient> findAmbEntornLikeIdentificador(
+			Long entornId,
+			String text) {
+		Criterion[] criteris = new Criterion[2];
+		criteris[0] = Restrictions.ilike("titol", "%" + text + "%");
+		criteris[1] = Restrictions.ilike("numero", "%" + text + "%");
+		return findOrderedByCriteria(
+				new String[] {"numero", "titol"},
+				true,
+				Restrictions.eq("entorn.id", entornId),
+				Restrictions.or(
+						Restrictions.ilike("titol", "%" + text + "%"),
+						Restrictions.ilike("numero", "%" + text + "%")));
+	}
 
 
 

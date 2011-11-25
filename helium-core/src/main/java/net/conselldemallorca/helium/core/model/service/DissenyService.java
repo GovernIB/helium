@@ -1643,19 +1643,24 @@ public class DissenyService {
 	}
 	public List<Camp> findCampsProces(Long consultaId, String defprocJbpmKey) {
 		List<Camp> list = new ArrayList<Camp>();
-		for (Camp camp: consultaCampDao.findCampsProces(consultaId, defprocJbpmKey)) {
-			Camp c = new Camp();
-			c.setId(camp.getId());
-			c.setCodi(camp.getCodi());
-			c.setEtiqueta(camp.getEtiqueta());
-			c.setTipus(camp.getTipus());
-			DefinicioProces dp = new DefinicioProces();
-			dp.setId(camp.getDefinicioProces().getId());
-			dp.setJbpmId(camp.getDefinicioProces().getJbpmId());
-			dp.setJbpmKey(camp.getDefinicioProces().getJbpmKey());
-			dp.setVersio(camp.getDefinicioProces().getVersio());
-			c.setDefinicioProces(dp);
-			list.add(c);
+		Consulta consulta = consultaDao.getById(consultaId, false);
+		if (consulta != null) {
+			for (Camp camp: consultaCampDao.findCampsDefinicioProcesAmbJbpmKey(
+					consulta.getEntorn().getId(),
+					defprocJbpmKey)) {
+				Camp c = new Camp();
+				c.setId(camp.getId());
+				c.setCodi(camp.getCodi());
+				c.setEtiqueta(camp.getEtiqueta());
+				c.setTipus(camp.getTipus());
+				DefinicioProces dp = new DefinicioProces();
+				dp.setId(camp.getDefinicioProces().getId());
+				dp.setJbpmId(camp.getDefinicioProces().getJbpmId());
+				dp.setJbpmKey(camp.getDefinicioProces().getJbpmKey());
+				dp.setVersio(camp.getDefinicioProces().getVersio());
+				c.setDefinicioProces(dp);
+				list.add(c);
+			}
 		}
 		return list;
 	}

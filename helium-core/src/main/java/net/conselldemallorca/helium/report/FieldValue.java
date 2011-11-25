@@ -152,13 +152,15 @@ public class FieldValue implements Comparable<FieldValue> {
 		return sb.toString();
 	}
 
-	public int multipleCount() {
+	public int count() {
 		int count = 0;
 		if (isMultiple() && valorMultiple != null)
 			count = valorMultiple.size();
+		else if (!isMultiple() && valor != null)
+			count = 1;
 		return count;
 	}
-	public int multipleCountEquals(Object value) {
+	public int countEquals(Object value) {
 		int count = 0;
 		if (isMultiple() && valorMultiple != null) {
 			for (Object obj: valorMultiple) {
@@ -167,6 +169,30 @@ public class FieldValue implements Comparable<FieldValue> {
 				else if (obj != null && obj.equals(value))
 					count++;
 			}
+		} else if (!isMultiple()) {
+			if (valor == null && value == null)
+				count++;
+			else if (valor != null && valor.equals(value))
+				count++;
+		}
+		return count;
+	}
+	public int countNotEquals(Object value) {
+		int count = 0;
+		if (isMultiple() && valorMultiple != null) {
+			for (Object obj: valorMultiple) {
+				if ((obj == null && value != null) || (obj != null && value == null))
+					count++;
+				else if (obj != null && !obj.equals(value))
+					count++;
+			}
+		} else if (!isMultiple()) {
+			if ((valor == null && value != null) || (valor != null && value == null))
+				count++;
+			else if (valor != null && !valor.equals(value))
+				count++;
+			if (!valor.equals(value))
+				count++;
 		}
 		return count;
 	}

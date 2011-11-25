@@ -28,12 +28,12 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 		SIGNAT,
 		REBUTJAT
 	}
-	
+
 	public enum Transicio {
 		SIGNAT,
 		REBUTJAT
 	}
-	
+
 	private Long id;
 	private Integer documentId;
 	private Long tokenId;
@@ -66,7 +66,7 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 		this.transicioOK = transicioOK;
 		this.transicioKO = transicioKO;
 	}
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.TABLE, generator="gen_portasignatures")
 	@TableGenerator(name="gen_portasignatures", table="hel_idgen", pkColumnName="taula", valueColumnName="valor")
@@ -77,7 +77,7 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	
+
 	@Column(name="document_id", nullable=false)
 	public Integer getDocumentId() {
 		return documentId;
@@ -85,7 +85,7 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 	public void setDocumentId(Integer documentId) {
 		this.documentId = documentId;
 	}
-	
+
 	@Column(name="token_id", nullable=false)
 	public Long getTokenId() {
 		return tokenId;
@@ -93,7 +93,7 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 	public void setTokenId(Long tokenId) {
 		this.tokenId = tokenId;
 	}
-	
+
 	@Column(name="data_enviat")
 	public Date getDataEnviat() {
 		return dataEnviat;
@@ -109,7 +109,7 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 	public void setEstat(TipusEstat estat) {
 		this.estat = estat;
 	}
-	
+
 	@Column(name="transicio")
 	public Transicio getTransition() {
 		return transition;
@@ -117,7 +117,7 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 	public void setTransition(Transicio transition) {
 		this.transition = transition;
 	}
-	
+
 	@Column(name="document_store_id")
 	public Long getDocumentStoreId() {
 		return documentStoreId;
@@ -125,7 +125,7 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 	public void setDocumentStoreId(Long documentStoreId) {
 		this.documentStoreId = documentStoreId;
 	}
-	
+
 	@Column(name="motiu_rebuig")
 	public String getMotiuRebuig() {
 		return motiuRebuig;
@@ -133,7 +133,7 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 	public void setMotiuRebuig(String motiuRebuig) {
 		this.motiuRebuig = motiuRebuig;
 	}
-	
+
 	@Column(name="transicio_ok")
 	public String getTransicioOK() {
 		return transicioOK;
@@ -141,7 +141,7 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 	public void setTransicioOK(String transicioOK) {
 		this.transicioOK = transicioOK;
 	}
-	
+
 	@Column(name="transicio_ko")
 	public String getTransicioKO() {
 		return transicioKO;
@@ -149,7 +149,7 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 	public void setTransicioKO(String transicioKO) {
 		this.transicioKO = transicioKO;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -193,6 +193,7 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 			return false;
 		return true;
 	}
-	
+
 	private static final long serialVersionUID = 1L;
+
 }
