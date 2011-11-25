@@ -27,22 +27,38 @@ public class ExpedientNumeroModificarHandler extends AbstractHeliumActionHandler
 		Expedient ex = ExpedientIniciantDto.getExpedient();
 		String n = (String)getValorOVariable(executionContext, numero, varNumero);
 		if (ex != null) {
-			ex.setNumero(n);
+			ExpedientDto expedientRepetit = getExpedientService().findExpedientAmbEntornTipusINumero(
+					ex.getEntorn().getId(),
+					ex.getTipus().getId(),
+					n);
+			if (expedientRepetit == null) {
+				ex.setNumero(n);
+			} else {
+				throw new JbpmException("Ja existeix un altre expedient del tipus " + ex.getTipus().getCodi() + " amb el número " + n);
+			}
 		} else {
 			ExpedientDto expedient = getExpedient(executionContext);
 			if (expedient != null) {
-				getExpedientService().editar(
+				ExpedientDto expedientRepetit = getExpedientService().findExpedientAmbEntornTipusINumero(
 						expedient.getEntorn().getId(),
-						expedient.getId(),
-						n,
-						expedient.getTitol(),
-						expedient.getResponsableCodi(),
-						expedient.getDataInici(),
-						expedient.getComentari(),
-						expedient.getEstat().getId(),
-						expedient.getGeoPosX(),
-						expedient.getGeoPosY(),
-						expedient.getGeoReferencia());
+						expedient.getTipus().getId(),
+						n);
+				if (expedientRepetit == null) {
+					getExpedientService().editar(
+							expedient.getEntorn().getId(),
+							expedient.getId(),
+							n,
+							expedient.getTitol(),
+							expedient.getResponsableCodi(),
+							expedient.getDataInici(),
+							expedient.getComentari(),
+							expedient.getEstat().getId(),
+							expedient.getGeoPosX(),
+							expedient.getGeoPosY(),
+							expedient.getGeoReferencia());
+				} else {
+					throw new JbpmException("Ja existeix un altre expedient del tipus " + expedient.getTipus().getCodi() + " amb el número " + n);
+				}
 			} else {
 				throw new JbpmException("No s'ha trobat l'expedient per canviar el número");
 			}

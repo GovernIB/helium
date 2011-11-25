@@ -259,7 +259,7 @@ public class ExpedientService {
 		}
 		// Actualitza la seqüència del número d'expedient
 		if (expedientTipus.getExpressioNumero() != null && !"".equals(expedientTipus.getExpressioNumero())) {
-			if (numero != null && numero.equals(getNumeroExpedientActual(entornId, expedientTipusId)))
+			if (expedient.getNumero().equals(getNumeroExpedientActual(entornId, expedientTipusId)))
 				expedientTipus.setSequencia(expedientTipus.getSequencia() + 1);
 		}
 		// Actualitza la seqüència del número d'expedient per defecte
@@ -558,6 +558,16 @@ public class ExpedientService {
 				sort,
 				asc))
 			resposta.add(dtoConverter.toExpedientDto(expedient, false));
+		return resposta;
+	}
+	public List<ExpedientDto> findAmbEntornLikeIdentificador(
+			Long entornId,
+			String text) {
+		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
+		List<Expedient> expedients = expedientDao.findAmbEntornLikeIdentificador(entornId, text);
+		for (Expedient expedient: expedients) {
+			resposta.add(dtoConverter.toExpedientDto(expedient, false));
+		}
 		return resposta;
 	}
 
@@ -1315,6 +1325,14 @@ public class ExpedientService {
 		jbpmDao.executeActionInstanciaProces(
 				processInstanceId,
 				accio.getJbpmAction());
+	}
+
+	public void relacionarExpedient(
+			Long expedientIdOrigen,
+			Long expedientIdDesti) {
+		Expedient origen = expedientDao.getById(expedientIdOrigen, false);
+		Expedient desti = expedientDao.getById(expedientIdDesti, false);
+		origen.addRelacioOrigen(desti);
 	}
 
 	public void publicarExpedient(
