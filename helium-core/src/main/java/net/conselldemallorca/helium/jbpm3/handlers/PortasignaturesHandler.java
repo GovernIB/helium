@@ -50,12 +50,7 @@ public class PortasignaturesHandler extends AbstractHeliumActionHandler implemen
 	public void execute(ExecutionContext executionContext) throws Exception {
 		try {
 			String personaCodi = (String)getValorOVariable(executionContext, responsableCodi, varResponsableCodi);
-			PersonaDto persona = null;
-			if (personaCodi != null) {
-				persona = getPersonaAmbCodi(personaCodi);
-			} else {
-				throw new JbpmException("No s'ha pogut trobar la persona amb codi '" + getValorOVariable(executionContext, responsableCodi, varResponsableCodi) + "'");
-			}
+			PersonaDto persona = getPersonaAmbCodi(personaCodi);
 			String documentCodi = (String)getValorOVariable(executionContext, document, varDocument);
 			Long documentStoreId = null;
 			if (documentCodi != null) {
