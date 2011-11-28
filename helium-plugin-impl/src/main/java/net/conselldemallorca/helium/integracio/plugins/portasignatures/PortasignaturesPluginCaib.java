@@ -183,12 +183,6 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 	private boolean isCheckCert() {
 		return "true".equals(GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.checkcerts"));
 	}
-	private boolean isConvertirDocument() {
-		return "true".equals(GlobalProperties.getInstance().getProperty("app.conversio.portasignatures.actiu"));
-	}
-	private String getConvertirExtensio() {
-		return GlobalProperties.getInstance().getProperty("app.conversio.portasignatures.extension");
-	}
 	private String getUserName() {
 		return GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.usuari");
 	}
@@ -207,24 +201,10 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 			CWSSoapBindingStub stub,
 			String arxiuNom,
 			byte[] arxiuContingut) throws Exception {
-		DataSource ds = null;
-		if (isConvertirDocument()) {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			getOpenOfficeUtils().convertir(
-					arxiuNom,
-					arxiuContingut,
-					getConvertirExtensio(),
-					baos);
-			ds = new ByteArrayDataSource(
-					baos.toByteArray(),
-					getOpenOfficeUtils().nomArxiuConvertit(arxiuNom, getConvertirExtensio()),
-					getOpenOfficeUtils().getArxiuMimeType(arxiuNom));
-		} else {
-			ds = new ByteArrayDataSource(
-					arxiuContingut,
-					arxiuNom,
-					getOpenOfficeUtils().getArxiuMimeType(arxiuNom));
-		}
+		DataSource ds = new ByteArrayDataSource(
+				arxiuContingut,
+				arxiuNom,
+				getOpenOfficeUtils().getArxiuMimeType(arxiuNom));
 		DataHandler attachmentFile = new DataHandler(ds);
 		stub.addAttachment(attachmentFile);
 	}
@@ -249,7 +229,7 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 		DocumentAttributes attributes = new DocumentAttributes();
 		// Atributs obligatoris
 		attributes.setTitle(limitarString(document.getTitol(), 100));
-		attributes.setExtension(getDocumentArxiuExtensioFinal(document.getArxiuNom()));
+		attributes.setExtension(getDocumentArxiuExtensio(document.getArxiuNom()));
 		// Atributs opcionals
 		attributes.setDescription(document.getTitol());
 		//attributes.setSubject(arxiuDescripcio);
@@ -284,7 +264,7 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 			for (DocumentPortasignatures annex: annexos) {
 				Annex anx = new Annex();
 				anx.setDescription(annex.getTitol());
-				anx.setExtension(getDocumentArxiuExtensioFinal(annex.getArxiuNom()));
+				anx.setExtension(getDocumentArxiuExtensio(annex.getArxiuNom()));
 				anx.setReference(annex.getReference());
 				anxs.add(anx);
 				Sender anxSender = new Sender();
@@ -327,17 +307,12 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 		return documentRequest;
 	}
 
-	private String getDocumentArxiuExtensioFinal(
-			String arxiuNom) {
-		if (isConvertirDocument() && getConvertirExtensio() != null) {
-			return getConvertirExtensio();
+	private String getDocumentArxiuExtensio(String arxiuNom) {
+		int index = arxiuNom.lastIndexOf(".");
+		if (index != -1) {
+			return arxiuNom.substring(index + 1);
 		} else {
-			int index = arxiuNom.lastIndexOf(".");
-			if (index != -1) {
-				return arxiuNom.substring(index + 1);
-			} else {
-				return null;
-			}
+			return null;
 		}
 	}
 
