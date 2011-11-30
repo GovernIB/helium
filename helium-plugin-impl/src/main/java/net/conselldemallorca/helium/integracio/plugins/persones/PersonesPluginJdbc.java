@@ -20,7 +20,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 /**
  * Implementació de la interficie PersonesPlugin amb accés per JDBC.
  * 
- * @author Miquel Angel Amengual <miquelaa@limit.es>
+ * @author Limit Tecnologies <limit@limit.es>
  */
 
 public class PersonesPluginJdbc implements PersonesPlugin {

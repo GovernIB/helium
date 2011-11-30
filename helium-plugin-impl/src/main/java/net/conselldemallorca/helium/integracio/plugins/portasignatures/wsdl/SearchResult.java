@@ -7,7 +7,7 @@
 
 package net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl;
 
-@SuppressWarnings({"serial", "unused", "unchecked"})
+@SuppressWarnings({"serial", "unused", "rawtypes"})
 public abstract class SearchResult  implements java.io.Serializable {
     public SearchResult() {
     }

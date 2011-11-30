@@ -7,10 +7,10 @@
 
 package net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl;
 
-@SuppressWarnings({"serial", "unchecked"})
+@SuppressWarnings({"serial", "unchecked", "rawtypes"})
 public class ImportanceEnum implements java.io.Serializable {
     private java.lang.String _value_;
-    private static java.util.HashMap _table_ = new java.util.HashMap();
+	private static java.util.HashMap _table_ = new java.util.HashMap();
 
     // Constructor
     protected ImportanceEnum(java.lang.String value) {

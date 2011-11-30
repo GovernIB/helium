@@ -7,7 +7,7 @@
 
 package net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl;
 
-@SuppressWarnings({"serial", "unchecked"})
+@SuppressWarnings({"serial", "unchecked", "rawtypes"})
 public class CwsServiceLocator extends org.apache.axis.client.Service implements CwsService {
 
     public CwsServiceLocator() {

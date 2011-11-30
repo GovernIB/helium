@@ -20,7 +20,6 @@ public interface TerminiIniciarHandlerInterface extends ActionHandler {
 	public void setVarData(String varData);
 	public void setSumarUnDia(String sumarUnDia);
 	public void setVarTermini(String varTermini);
-	public void setDesdeFi(String desdeFi);
 	public void setEsDataFi(String esDataFi);
 
 }

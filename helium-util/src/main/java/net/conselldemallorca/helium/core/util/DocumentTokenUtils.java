@@ -8,6 +8,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Hex;
 
 /**
  * Classe per a la codificació i descodificació de tokens per a accedir als
@@ -30,7 +31,9 @@ public class DocumentTokenUtils {
 	public DocumentTokenUtils(String encryptionKey) {
 		this.encryptionKey = encryptionKey;
 	}
-	public DocumentTokenUtils(String encryptionKey, String encryptionScheme,
+	public DocumentTokenUtils(
+			String encryptionKey,
+			String encryptionScheme,
 			String encryptionAlgorithm) {
 		this.encryptionKey = encryptionKey;
 		this.encryptionScheme = encryptionScheme;
@@ -38,15 +41,19 @@ public class DocumentTokenUtils {
 	}
 
 	public String xifrarToken(String token) throws Exception {
+		String tokenPad = null;
+		if (isTokenLlarg() && token.length() < 15)
+			tokenPad = String.format("%1$#" + (15 - token.length() + 2) + "s", token);
+		else
+			tokenPad = token;
 		SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance(
 				getEncryptionAlgorithm());
 		Cipher cipher = Cipher.getInstance(getEncryptionScheme());
 		cipher.init(
 				Cipher.ENCRYPT_MODE,
 				secretKeyFactory.generateSecret(new DESKeySpec(getEncryptionKey().getBytes())));
-		byte[] encryptedText = cipher.doFinal(token.getBytes());
-		byte[] base64Bytes = Base64.encodeBase64(encryptedText);
-		return new String(base64Bytes);
+		byte[] encryptedText = cipher.doFinal(tokenPad.getBytes());
+		return encodeToken(encryptedText);
 	}
 	public String desxifrarToken(String tokenXifrat) throws Exception {
 		SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance(
@@ -55,9 +62,11 @@ public class DocumentTokenUtils {
 		cipher.init(
 				Cipher.DECRYPT_MODE,
 				secretKeyFactory.generateSecret(new DESKeySpec(getEncryptionKey().getBytes())));
-		byte[] base64Bytes = Base64.decodeBase64(tokenXifrat.getBytes());
-		byte[] unencryptedText = cipher.doFinal(base64Bytes);
-		return new String(unencryptedText);
+		byte[] unencryptedText = cipher.doFinal(decodeToken(tokenXifrat));
+		if (!isTokenLlarg())
+			return new String(unencryptedText);
+		else
+			return new String(unencryptedText).trim();
 	}
 	public String xifrarTokenMultiple(String[] tokens) throws Exception {
 		StringBuilder concat = new StringBuilder();
@@ -88,6 +97,32 @@ public class DocumentTokenUtils {
 		if (encryptionAlgorithm != null && encryptionAlgorithm.length() > 0)
 			return encryptionAlgorithm;
 		return DEFAULT_ENCRYPTION_ALGORITHM;
+	}
+
+	private String encodeToken(byte[] tokenData) {
+		if (!isTokenLlarg()) {
+			byte[] base64Bytes = Base64.encodeBase64(tokenData);
+			return new String(base64Bytes);
+		} else {
+			String hex = new String(Hex.encodeHex(tokenData)).toUpperCase();
+			StringBuilder sb = new StringBuilder(hex);
+			for (int i = hex.length() - 1; i > 0; i--) {
+				if (i % 8 == 0)
+					sb.insert(i, "-");
+			}
+			return sb.toString();
+		}
+	}
+	private byte[] decodeToken(String tokenData) throws Exception {
+		if (!isTokenLlarg()) {
+			return Base64.decodeBase64(tokenData.getBytes());
+		} else {
+			return Hex.decodeHex(tokenData.replace("-", "").toCharArray());
+		}
+	}
+
+	private boolean isTokenLlarg() {
+		return "true".equals(GlobalProperties.getInstance().getProperty("app.signatura.token.llarg"));
 	}
 
 }

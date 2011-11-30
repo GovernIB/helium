@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>helium</artifactId>
 		<groupId>net.conselldemallorca</groupId>
-		<version>2.1</version>
+		<version>2.2</version>
 	</parent>
 	<artifactId>helium-plugin-impl</artifactId>
 	<properties>
@@ -16,56 +16,56 @@
 			<artifactId>signaturacaib</artifactId>
 			<version>3.1.0</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/libext/signaturacaib.core-3.1.0-api-unsigned.jar</systemPath>
+			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/signaturacaib.core-3.1.0-api-unsigned.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>es.caib</groupId>
 			<artifactId>valcert-client-axis</artifactId>
 			<version>1.5</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/libext/valcert-client-axis-1.5.jar</systemPath>
+			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/valcert-client-axis-1.5.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>es.caib</groupId>
 			<artifactId>valcert-sar-axis</artifactId>
 			<version>1.5</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/libext/valcert-sar-axis-1.5-HELIUM.jar</systemPath>
+			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/valcert-sar-axis-1.5-HELIUM.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>org.alfresco</groupId>
 			<artifactId>webservice-client</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/libext/alfresco-web-service-client.jar</systemPath>
+			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/alfresco-web-service-client.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>es.caib</groupId>
 			<artifactId>sistra-wsdl</artifactId>
 			<version>1.1.0</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/libext/sistra-wsdl-1.1.0.jar</systemPath>
+			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/sistra-wsdl-1.1.0.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>esbcim-wsdl</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/libext/esbcim-wsdl-1.0.jar</systemPath>
+			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/esbcim-wsdl-1.0.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>es.caib</groupId>
 			<artifactId>regweb-client</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/libext/regweb-client.jar</systemPath>
+			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/regweb-client.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>es.caib</groupId>
 			<artifactId>regweb-logic</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/libext/logic-1.0-client.jar</systemPath>
+			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/logic-1.0-client.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>netscape</groupId>
@@ -131,14 +131,14 @@
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-plugin-api</artifactId>
-			<version>2.1</version>
+			<version>2.2</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-util</artifactId>
-			<version>2.1</version>
+			<version>2.2</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>

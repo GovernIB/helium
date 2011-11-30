@@ -16,6 +16,7 @@ import javax.activation.DataSource;
 
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
+import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.Annex;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.Application;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.CWSSoapBindingStub;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.CwsProxy;
@@ -39,7 +40,7 @@ import org.apache.axis.attachments.AttachmentPart;
 /**
  * Implementació del plugin de portasignatures per la CAIB.
  * 
- * @author Miquel Angel Amengual <miquelaa@limit.es>
+ * @author Limit Tecnologies <limit@limit.es>
  */
 public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 
@@ -61,34 +62,38 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 	 * @throws Exception
 	 */
 	public Integer uploadDocument (
-			String signatariId,
-			String arxiuDescripcio,
-			String arxiuNom,
-			byte[] arxiuContingut,
-			Integer tipusDocument,
+			DocumentPortasignatures document,
+			List<DocumentPortasignatures> annexos,
+			boolean isSignarAnnexos,
+			PasSignatura[] passesSignatura,
 			String remitent,
 			String importancia,
 			Date dataLimit) throws PortasignaturesPluginException {
-
-		// Cream la connexió.
 		CwsProxy factory = new CwsProxy();
 		factory.setEndpoint((String)GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.url"));
 		CWSSoapBindingStub stub = (CWSSoapBindingStub)factory.getCws();
-		
-		// Enviam el document a convertir.
 		try {
-			DataHandler attachmentFile = new DataHandler(
-					getDocumentDataSource(
-							arxiuNom,
-							arxiuContingut));
-			stub.addAttachment(attachmentFile);
+			// Afegeix el document a signar (sempre és el primer document que s'adjunta)
+			afegirAttachmentSoap(
+					stub,
+					document.getArxiuNom(),
+					document.getArxiuContingut());
+			// Afegeix els annexos
+			if (annexos != null) {
+				for (DocumentPortasignatures annex: annexos) {
+					afegirAttachmentSoap(
+							stub,
+							annex.getArxiuNom(),
+							annex.getArxiuContingut());
+				}
+			}
 			UploadRequest request = new UploadRequest(
 					getRequestApplication(),
 					getRequestDocument(
-							arxiuNom,
-							arxiuDescripcio,
-							signatariId,
-							tipusDocument,
+							document,
+							annexos,
+							isSignarAnnexos,
+							passesSignatura,
 							remitent,
 							importancia,
 							dataLimit),
@@ -178,12 +183,6 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 	private boolean isCheckCert() {
 		return "true".equals(GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.checkcerts"));
 	}
-	private boolean isConvertirDocument() {
-		return "true".equals(GlobalProperties.getInstance().getProperty("app.conversio.portasignatures.actiu"));
-	}
-	private String getConvertirExtensio() {
-		return GlobalProperties.getInstance().getProperty("app.conversio.portasignatures.extension");
-	}
 	private String getUserName() {
 		return GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.usuari");
 	}
@@ -198,26 +197,16 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 			return new Integer(1);
 	}
 
-	private DataSource getDocumentDataSource(
+	private void afegirAttachmentSoap(
+			CWSSoapBindingStub stub,
 			String arxiuNom,
 			byte[] arxiuContingut) throws Exception {
-		if (isConvertirDocument()) {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			getOpenOfficeUtils().convertir(
-					arxiuNom,
-					arxiuContingut,
-					getConvertirExtensio(),
-					baos);
-			return new ByteArrayDataSource(
-					baos.toByteArray(),
-					getOpenOfficeUtils().nomArxiuConvertit(arxiuNom, getConvertirExtensio()),
-					getOpenOfficeUtils().getArxiuMimeType(arxiuNom));
-		} else {
-			return new ByteArrayDataSource(
-					arxiuContingut,
-					arxiuNom,
-					getOpenOfficeUtils().getArxiuMimeType(arxiuNom));
-		}
+		DataSource ds = new ByteArrayDataSource(
+				arxiuContingut,
+				arxiuNom,
+				getOpenOfficeUtils().getArxiuMimeType(arxiuNom));
+		DataHandler attachmentFile = new DataHandler(ds);
+		stub.addAttachment(attachmentFile);
 	}
 
 	private Application getRequestApplication() {
@@ -228,102 +217,102 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 	}
 
 	private UploadRequestDocument getRequestDocument(
-			String arxiuNom,
-			String arxiuDescripcio,
-			String signatariId,
-			Integer tipusDocument,
+			DocumentPortasignatures document,
+			List<DocumentPortasignatures> annexos,
+			boolean isSignarAnnexos,
+			PasSignatura[] passesSignatura,
 			String remitent,
 			String importancia,
 			Date dataLimit) {
 		// Document.
-		UploadRequestDocument document = new UploadRequestDocument();
-
-		// Atributs del document.
+		UploadRequestDocument documentRequest = new UploadRequestDocument();
 		DocumentAttributes attributes = new DocumentAttributes();
-		
-		/*
-		 * Atributs requerits.
-		 */
-		attributes.setTitle(arxiuDescripcio);
-		attributes.setExtension(getDocumentArxiuExtensioFinal(arxiuNom));
-		
-		/*
-		 * Atributs no requerits.
-		 */
-		// Tipus de document al que pertany.
-		if (tipusDocument != null) {
-			attributes.setType(tipusDocument);
-		}
-		
+		// Atributs obligatoris
+		attributes.setTitle(limitarString(document.getTitol(), 100));
+		attributes.setExtension(getDocumentArxiuExtensio(document.getArxiuNom()));
+		// Atributs opcionals
+		attributes.setDescription(document.getTitol());
 		//attributes.setSubject(arxiuDescripcio);
-		//attributes.setDescription(arxiuDescripcio);
-		
-		// Informació adicional del responsable del document.
+		if (document.getTipus() != null)
+			attributes.setType(document.getTipus());
+		// Informació adicional del responsable del document
 		Sender sender = new Sender();
-		sender.setName(remitent);
+		sender.setName(limitarString(remitent, 50));
 		attributes.setSender(sender);
-		
-		// Especificamos la importancia del document.
+		// Importancia del document
 		if (importancia != null)
 			attributes.setImportance(ImportanceEnum.fromString(importancia));
 		else
 			attributes.setImportance(ImportanceEnum.normal);
-		
 		if (dataLimit != null) {
 			Calendar cal = Calendar.getInstance();
-			// Data d'enviament del document.
+			// Data d'enviament del document
 			attributes.setDateNotice(cal);
-		
-			// Data límit de firma del document.
+			// Data límit per signar el document
 			cal.setTime(dataLimit);
 			attributes.setDateLimit(cal);
 		}
-		
-		attributes.setNumberAnnexes(0);
-		attributes.setSignAnnexes(false);
-		
-		attributes.setTypeSign(getSignaturaTipus());		// 1 - PDF; 2 - P7/CMS/CADES; 3 - XADES;
-		
-		// Indica si el document a signar ja és un document de signatura i es volen afegir més signatures.
-		attributes.setIsFileSign(false);
-		
+		// 1 - PDF; 2 - P7/CMS/CADES; 3 - XADES;
+		attributes.setTypeSign(getSignaturaTipus());
+		// Indica si el document ja està signat i es volen afegir més signatures.
+		attributes.setIsFileSign(document.isSignat());
 		// Afegim els atributs al document.
-		document.setAttributes(attributes);
-		
+		documentRequest.setAttributes(attributes);
+		// Afegim els annexos
+		if (annexos != null) {
+			List<Annex> anxs = new ArrayList<Annex>();
+			for (DocumentPortasignatures annex: annexos) {
+				Annex anx = new Annex();
+				anx.setDescription(annex.getTitol());
+				anx.setExtension(getDocumentArxiuExtensio(annex.getArxiuNom()));
+				anx.setReference(annex.getReference());
+				anxs.add(anx);
+				Sender anxSender = new Sender();
+				anxSender.setName(remitent);
+				anx.setSender(anxSender);
+			}
+			documentRequest.setAnnexes(
+					anxs.toArray(new Annex[anxs.size()]));
+			attributes.setNumberAnnexes(anxs.size());
+		} else {
+			attributes.setNumberAnnexes(0);
+		}
+		attributes.setSignAnnexes(isSignarAnnexos);
 		// Cream les etapes i especificam el tipus de firma.
 		Steps steps = new Steps();
 		steps.setSignMode(SignModeEnum.attached);
-		
-		// Cream una etapa amb un firmant.
-		UploadStep step = new UploadStep();
-		step.setMinimalSigners(1);
-		
-		// És necessari que el DNI del certificat coincideixi amb el DNI de l'usuari logat a Portafirmas.
-		Signer signer = new Signer();
-		signer.setId(signatariId);
-		signer.setCheckCert(new Boolean(isCheckCert()));
-		
-		// Afegim el firmant a l'etapa.
-		step.setSigners(new Signer[]{ signer });
-		
-		steps.setStep(new Step[]{ step });
-		
+		List<Step> stepList = new ArrayList<Step>();
+		for (PasSignatura pas: passesSignatura) {
+			// Cream una etapa amb un firmant.
+			UploadStep step = new UploadStep();
+			step.setMinimalSigners(pas.getMinSignataris());
+			List<Signer> signerList = new ArrayList<Signer>();
+			for (String signatari: pas.getSignataris()) {
+				// És necessari que el DNI del certificat coincideixi amb el DNI de l'usuari logat a Portafirmas.
+				Signer signer = new Signer();
+				signer.setId(signatari);
+				signer.setCheckCert(new Boolean(isCheckCert()));
+				signerList.add(signer);
+			}
+			step.setSigners(
+					signerList.toArray(
+							new Signer[pas.getSignataris().length]));
+			stepList.add(step);
+		}
+		steps.setStep(
+				stepList.toArray(
+						new Step[passesSignatura.length]));
 		// Afegim les etapes al document.
-		document.setSteps(steps);
-		return document;
+		documentRequest.setSteps(steps);
+		return documentRequest;
 	}
 
-	private String getDocumentArxiuExtensioFinal(
-			String arxiuNom) {
-		if (isConvertirDocument() && getConvertirExtensio() != null) {
-			return getConvertirExtensio();
+	private String getDocumentArxiuExtensio(String arxiuNom) {
+		int index = arxiuNom.lastIndexOf(".");
+		if (index != -1) {
+			return arxiuNom.substring(index + 1);
 		} else {
-			int index = arxiuNom.lastIndexOf(".");
-			if (index != -1) {
-				return arxiuNom.substring(index + 1);
-			} else {
-				return null;
-			}
+			return null;
 		}
 	}
 
@@ -356,6 +345,15 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 		}
 		public String getContentType() {
 			return contentType;
+		}
+	}
+
+	private String limitarString(String str, int maxChars) {
+		String textFinal = "[...]";
+		if (str.length() > maxChars) {
+			return str.substring(0, maxChars - textFinal.length()) + textFinal;
+		} else {
+			return str;
 		}
 	}
 

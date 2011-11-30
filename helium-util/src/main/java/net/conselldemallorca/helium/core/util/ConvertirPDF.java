@@ -41,15 +41,11 @@ public class ConvertirPDF {
 					throw new IllegalArgumentException("format de sortida no suportat");
 				// No s'afegeix res al pdf.
 				if (!outputFormat.getFileExtension().equals(inputFormat.getFileExtension())) {
-					try {
-						convert(
-								inputStream,
-								inputFormat,
-								outputStream,
-								outputFormat);
-					} catch (Exception e) {
-						System.out.println("ERROR de conversio: " + e.getMessage());
-					}
+					convert(
+							inputStream,
+							inputFormat,
+							outputStream,
+							outputFormat);
 				} else {
 					return contingut;
 				}

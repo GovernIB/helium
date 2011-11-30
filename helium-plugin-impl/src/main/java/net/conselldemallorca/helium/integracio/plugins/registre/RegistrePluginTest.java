@@ -25,14 +25,33 @@ public class RegistrePluginTest {
 			new GlobalProperties(new FileSystemResource("c:/tmp/helium/global.properties"));
 			RegistrePluginTest test = new RegistrePluginTest();
 			//test.notificacio();
-			test.nomOficina();
+			//test.nomOficina();
+			test.entrada();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 	}
 
+	public void entrada() throws Exception {
+		RegistreEntrada registreEntrada = new RegistreEntrada();
+		DadesOficina dadesOficina = new DadesOficina();
+		dadesOficina.setOficinaCodi("1-1");
+		dadesOficina.setOrganCodi("6");
+		registreEntrada.setDadesOficina(dadesOficina);
+		DadesInteressat dadesInteressat = new DadesInteressat();
+		dadesInteressat.setNomAmbCognoms("Josep Gayà Proves");
+		dadesInteressat.setMunicipiNom("Tegucigalpa");
+		registreEntrada.setDadesInteressat(dadesInteressat);
+		DadesAssumpte dadesAssumpte = new DadesAssumpte();
+		dadesAssumpte.setIdiomaCodi("2");
+		dadesAssumpte.setTipus("OF");
+		dadesAssumpte.setAssumpte("123 provant 123");
+		registreEntrada.setDadesAssumpte(dadesAssumpte);
+		RespostaAnotacioRegistre resposta = getRegistrePlugin().registrarEntrada(registreEntrada);
+		System.out.println(">>> num: " + resposta.getNumero());
+	}
+
 	public void notificacio() throws Exception {
-		RegistrePluginAjuntament registrePlugin = new RegistrePluginAjuntament();
 		RegistreNotificacio registreNotificacio = new RegistreNotificacio();
 		DadesExpedient dadesExpedient = new DadesExpedient();
 		dadesExpedient.setIdentificador("13/2011");
@@ -74,16 +93,19 @@ public class RegistrePluginTest {
 		doc.setArxiuContingut(getResourceContent("test.doc"));
 		documents.add(doc);
 		registreNotificacio.setDocuments(documents);
-		RespostaAnotacioRegistre resposta = registrePlugin.registrarNotificacio(registreNotificacio);
+		RespostaAnotacioRegistre resposta = getRegistrePlugin().registrarNotificacio(registreNotificacio);
 		System.out.println(">>> num: " + resposta.getNumero());
 	}
-	
+
 	public void nomOficina() throws Exception {
-		RegistrePluginAjuntament registrePlugin = new RegistrePluginAjuntament();
-		System.out.println(">>> oficina: " + registrePlugin.obtenirNomOficina("3-1"));
+		System.out.println(">>> oficina: " + getRegistrePlugin().obtenirNomOficina("3-1"));
 	}
 
 
+
+	private RegistrePlugin getRegistrePlugin() {
+		return new RegistrePluginRegwebCaib();
+	}
 
 	private byte[] getResourceContent(String resourceName) throws Exception {
 		InputStream is = getClass().getResourceAsStream(resourceName);
