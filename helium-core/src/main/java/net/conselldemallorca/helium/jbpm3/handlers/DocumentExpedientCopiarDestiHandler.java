@@ -36,6 +36,8 @@ public class DocumentExpedientCopiarDestiHandler extends AbstractHeliumActionHan
 	public void execute(ExecutionContext executionContext) throws Exception {
 		// Obté el document de l'expedient actual
 		String documentOrigenCodi = (String)getValorOVariable(executionContext, documentCodi, varDocumentCodi);
+		if (documentOrigenCodi == null)
+			throw new JbpmException("No s'ha especificat el codi del document a copiar");
 		DocumentInfo documentInfo = getDocumentInfo(
 				executionContext,
 				documentOrigenCodi);
@@ -54,12 +56,14 @@ public class DocumentExpedientCopiarDestiHandler extends AbstractHeliumActionHan
 					expedientTipus.getId(),
 					expedientNumero);
 			if (expedientDesti == null)
-				throw new JbpmException("No s'ha trobat l'expedient origen [" + expedientTipusCodi + ", " + expedientNumero + "]");
+				throw new JbpmException("No s'ha trobat l'expedient destí [" + expedientTipusCodi + ", " + expedientNumero + "]");
 			ProcessInstance pi = executionContext.getJbpmContext().getProcessInstance(
 					new Long(expedientDesti.getProcessInstanceId()));
 			Document documentDesti = getDissenyService().findDocumentAmbDefinicioProcesICodi(
 					getDefinicioProces(new ExecutionContext(pi.getRootToken())).getId(),
 					documentDestiCodi);
+			if (documentDesti == null)
+				throw new JbpmException("No existeix el document amb codi " + documentDestiCodi + " a l'expedient destí");
 			getExpedientService().guardarDocument(
 					new Long(pi.getId()).toString(),
 					documentDesti.getId(),

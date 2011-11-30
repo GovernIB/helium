@@ -5,13 +5,10 @@ package net.conselldemallorca.helium.core.model.service;
 
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Array;
-import java.math.BigDecimal;
 import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -42,19 +39,19 @@ import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.exception.DominiException;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.util.DocumentTokenUtils;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.PdfUtils;
@@ -63,7 +60,6 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
-import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -151,6 +147,16 @@ public class DtoConverter {
 		if (!starting) {
 			JbpmProcessInstance processInstance = jbpmDao.getProcessInstance(expedient.getProcessInstanceId());
 			dto.setDataFi(processInstance.getEnd());
+		}
+		for (Expedient relacionat: expedient.getRelacionsOrigen()) {
+			ExpedientDto relacionatDto = new ExpedientDto();
+			relacionatDto.setTitol(relacionat.getTitol());
+			relacionatDto.setNumero(relacionat.getNumero());
+			relacionatDto.setDataInici(relacionat.getDataInici());
+			relacionatDto.setTipus(relacionat.getTipus());
+			relacionatDto.setEstat(relacionat.getEstat());
+			relacionatDto.setProcessInstanceId(relacionat.getProcessInstanceId());
+			dto.addExpedientRelacionat(relacionatDto);
 		}
 		return dto;
 	}
@@ -523,16 +529,17 @@ public class DtoConverter {
 					logger.error("No s'ha pogut generar el token pel document " + documentStoreId, ex);
 				}
 				if (document.isSignat()) {
-					dto.setUrlVerificacioCustodia(pluginCustodiaDao.getUrlComprovacioSignatura(documentStoreId.toString()));
+					dto.setUrlVerificacioCustodia(
+							pluginCustodiaDao.getUrlComprovacioSignatura(
+									documentStoreId.toString()));
 				}
 				String codiDocument;
 				if (document.isAdjunt()) {
 					dto.setAdjuntId(document.getJbpmVariable().substring(TascaService.PREFIX_ADJUNT.length()));
 				} else {
 					codiDocument = document.getJbpmVariable().substring(TascaService.PREFIX_DOCUMENT.length());
-					JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(document.getProcessInstanceId());
-					JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(pi.getId());
-					DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(jpd.getId());
+					JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(document.getProcessInstanceId());
+					DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmKeyIVersio(jpd.getKey(), jpd.getVersion());
 					Document doc = documentDao.findAmbDefinicioProcesICodi(definicioProces.getId(), codiDocument);
 					if (doc != null) {
 						dto.setContentType(doc.getContentType());
@@ -550,8 +557,9 @@ public class DtoConverter {
 				}
 				if (ambContingutSignat && document.isSignat() && isSignaturaFileAttached()) {
 					dto.setSignatNom(
-							getNomArxiuAmbExtensioSignatura(
-									document.getArxiuNom()));
+							getNomArxiuAmbExtensio(
+									document.getArxiuNom(),
+									getExtensioArxiuSignat()));
 					byte[] signatura = pluginCustodiaDao.obtenirSignaturesAmbArxiu(document.getReferenciaCustodia());
 					dto.setSignatContingut(signatura);
 				}
@@ -565,8 +573,9 @@ public class DtoConverter {
 							arxiuOrigenNom = dto.getSignatNom();
 							arxiuOrigenContingut = dto.getSignatContingut();
 						} else {
-							arxiuOrigenNom = getNomArxiuAmbExtensioSignatura(
-									document.getArxiuNom());
+							arxiuOrigenNom = getNomArxiuAmbExtensio(
+									document.getArxiuNom(),
+									getExtensioArxiuSignat());
 							arxiuOrigenContingut = pluginCustodiaDao.obtenirSignaturesAmbArxiu(document.getReferenciaCustodia());
 						}
 					} else {
@@ -589,7 +598,9 @@ public class DtoConverter {
 						extensioActual = arxiuOrigenNom.substring(0, indexPunt);
 					String extensioDesti = extensioActual;
 					if (perSignar && isActiuConversioSignatura()) {
-						extensioDesti = (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
+						extensioDesti = getExtensioArxiuSignat();
+					} else if (document.isRegistrat()) {
+						extensioDesti = getExtensioArxiuRegistrat();
 					}
 					dto.setVistaNom(dto.getArxiuNomSenseExtensio() + "." + extensioDesti);
 					if ("pdf".equalsIgnoreCase(extensioDesti)) {
@@ -604,8 +615,8 @@ public class DtoConverter {
 							getPdfUtils().estampar(
 									arxiuOrigenNom,
 									arxiuOrigenContingut,
-									(document.isSignat()) ? false : ambSegellSignatura,
-									(document.isSignat()) ? null : getUrlComprovacioSignatura(documentStoreId, dto.getTokenSignatura()),
+									(ambSegellSignatura) ? !document.isSignat() : false,
+									(ambSegellSignatura) ? getUrlComprovacioSignatura(documentStoreId, dto.getTokenSignatura()): null,
 									document.isRegistrat(),
 									numeroRegistre,
 									dataRegistre,
@@ -1131,47 +1142,49 @@ public class DtoConverter {
 							if (valor != null && valor instanceof Object[]) {
 								List<String[]> grid = new ArrayList<String[]>();
 								for (int i = 0; i < Array.getLength(valor); i++) {
-									String[] texts = new String[camp.getRegistreMembres().size()];
 									Object valorRegistre = Array.get(valor, i);
-									Map<String, Object> valorsAddicionalsConsulta = new HashMap<String, Object>();
-									for (int j = 0; j < camp.getRegistreMembres().size(); j++) {
-										if (j < Array.getLength(valorRegistre)) {
-											valorsAddicionalsConsulta.put(
-													camp.getRegistreMembres().get(j).getMembre().getCodi(),
-													Array.get(valorRegistre, j));
-										}
-									}
-									for (int j = 0; j < Array.getLength(valorRegistre); j++) {
-										if (j == camp.getRegistreMembres().size())
-											break;
-										Camp membreRegistre = camp.getRegistreMembres().get(j).getMembre();
-										if (membreRegistre.getTipus().equals(TipusCamp.SUGGEST) || membreRegistre.getTipus().equals(TipusCamp.SELECCIO)) {
-											ParellaCodiValor codiValor = obtenirValorDomini(
-													taskId,
-													processInstanceId,
-													valorsAddicionalsConsulta,
-													membreRegistre,
-													Array.get(valorRegistre, j),
-													null,
-													true);
-											ParellaCodiValorDto parellaDto = null;
-											if (codiValor != null) {
-												parellaDto = new ParellaCodiValorDto(
-														codiValor.getCodi(),
-														codiValor.getValor());
+									if (valorRegistre != null) {
+										String[] texts = new String[camp.getRegistreMembres().size()];
+										Map<String, Object> valorsAddicionalsConsulta = new HashMap<String, Object>();
+										for (int j = 0; j < camp.getRegistreMembres().size(); j++) {
+											if (j < Array.getLength(valorRegistre)) {
+												valorsAddicionalsConsulta.put(
+														camp.getRegistreMembres().get(j).getMembre().getCodi(),
+														Array.get(valorRegistre, j));
 											}
-											texts[j] = textPerCamp(
-													membreRegistre,
-													Array.get(valorRegistre, j),
-													parellaDto);
-										} else {
-											texts[j] = textPerCamp(
-													membreRegistre,
-													Array.get(valorRegistre, j),
-													null);
 										}
+										for (int j = 0; j < Array.getLength(valorRegistre); j++) {
+											if (j == camp.getRegistreMembres().size())
+												break;
+											Camp membreRegistre = camp.getRegistreMembres().get(j).getMembre();
+											if (membreRegistre.getTipus().equals(TipusCamp.SUGGEST) || membreRegistre.getTipus().equals(TipusCamp.SELECCIO)) {
+												ParellaCodiValor codiValor = obtenirValorDomini(
+														taskId,
+														processInstanceId,
+														valorsAddicionalsConsulta,
+														membreRegistre,
+														Array.get(valorRegistre, j),
+														null,
+														true);
+												ParellaCodiValorDto parellaDto = null;
+												if (codiValor != null) {
+													parellaDto = new ParellaCodiValorDto(
+															codiValor.getCodi(),
+															codiValor.getValor());
+												}
+												texts[j] = textPerCamp(
+														membreRegistre,
+														Array.get(valorRegistre, j),
+														parellaDto);
+											} else {
+												texts[j] = textPerCamp(
+														membreRegistre,
+														Array.get(valorRegistre, j),
+														null);
+											}
+										}
+										grid.add(texts);
 									}
-									grid.add(texts);
 								}
 								resposta.put(key, grid);
 							} else {
@@ -1223,39 +1236,16 @@ public class DtoConverter {
 	}
 	private String textPerCamp(
 			Camp camp,
-			Object value,
+			Object valor,
 			ParellaCodiValorDto valorDomini) {
-		if (value == null) return null;
-		try {
-			String text = null;
-			if (camp == null) {
-				text = value.toString();
-			} else if (camp.getTipus().equals(TipusCamp.INTEGER)) {
-				text = new DecimalFormat("#").format((Long)value);
-			} else if (camp.getTipus().equals(TipusCamp.FLOAT)) {
-				text = new DecimalFormat("#.#").format((Long)value);
-			} else if (camp.getTipus().equals(TipusCamp.PRICE)) {
-				text = new DecimalFormat("#,###.00").format((BigDecimal)value);
-			} else if (camp.getTipus().equals(TipusCamp.DATE)) {
-				text = new SimpleDateFormat("dd/MM/yyyy").format((Date)value);
-			} else if (camp.getTipus().equals(TipusCamp.BOOLEAN)) {
-				text = (((Boolean)value).booleanValue()) ? "Si" : "No";
-			} else if (camp.getTipus().equals(TipusCamp.TEXTAREA)) {
-				text = (String)value;
-			} else if (camp.getTipus().equals(TipusCamp.SELECCIO)) {
-				text = (String)valorDomini.getValor();
-			} else if (camp.getTipus().equals(TipusCamp.SUGGEST)) {
-				text = (String)valorDomini.getValor();
-			} else if (camp.getTipus().equals(TipusCamp.TERMINI)) {
-				text = ((Termini)value).toString();
-			} else {
-				text = value.toString();
-			}
-			return text;
-		} catch (Exception ex) {
-			// Error de conversió de tipus
-			return value.toString();
-		}
+		if (valor == null) return null;
+		if (camp == null)
+			return valor.toString();
+		else
+			return Camp.getComText(
+					camp.getTipus(),
+					valor,
+					(valorDomini != null) ? (String)valorDomini.getValor() : null);
 	}
 
 	private Map<String, Object> getParamsConsulta(
@@ -1283,9 +1273,9 @@ public class DtoConverter {
 			} else {
 				if (valorsAddicionals != null && valorsAddicionals.size() > 0)
 					value = valorsAddicionals.get(campCodi);
-				else if (taskId != null)
+				if (value == null && taskId != null)
 					value = jbpmDao.getTaskInstanceVariable(taskId, campCodi);
-				else if (processInstanceId != null)
+				if (value == null && processInstanceId != null)
 					value = jbpmDao.getProcessInstanceVariable(processInstanceId, campCodi);
 			}
 			if (value != null)
@@ -1328,10 +1318,11 @@ public class DtoConverter {
 		return "true".equalsIgnoreCase(actiuConversioSignatura);
 	}
 
-	private String getNomArxiuAmbExtensioSignatura(String arxiuNomOriginal) {
+	private String getNomArxiuAmbExtensio(
+			String arxiuNomOriginal,
+			String extensio) {
 		if (!isActiuConversioSignatura())
 			return arxiuNomOriginal;
-		String extensio = (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
 		if (extensio == null)
 			extensio = "";
 		int indexPunt = arxiuNomOriginal.indexOf(".");
@@ -1340,6 +1331,12 @@ public class DtoConverter {
 		} else {
 			return arxiuNomOriginal + "." + extensio;
 		}
+	}
+	private String getExtensioArxiuSignat() {
+		return (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
+	}
+	private String getExtensioArxiuRegistrat() {
+		return (String)GlobalProperties.getInstance().get("app.conversio.registre.extension");
 	}
 
 	private byte[] getContingutDocumentAmbFont(DocumentStore document) {
@@ -1352,10 +1349,14 @@ public class DtoConverter {
 
 	private String getUrlComprovacioSignatura(Long documentStoreId, String token) {
 		String urlCustodia = pluginCustodiaDao.getUrlComprovacioSignatura(documentStoreId.toString());
-		if (urlCustodia != null)
+		if (urlCustodia != null) {
 			return urlCustodia;
-		else
-			return (String)GlobalProperties.getInstance().get("app.base.url") + "/signatura/verificar.html?token=" + token;
+		} else {
+			String baseUrl = (String)GlobalProperties.getInstance().get("app.base.verificacio.url");
+			if (baseUrl == null)
+				baseUrl = (String)GlobalProperties.getInstance().get("app.base.url");
+			return baseUrl + "/signatura/verificarExtern.html?token=" + token;
+		}
 	}
 
 	private PdfUtils getPdfUtils() {

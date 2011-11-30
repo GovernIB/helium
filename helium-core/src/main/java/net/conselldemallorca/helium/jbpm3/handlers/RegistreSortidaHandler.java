@@ -111,6 +111,10 @@ public class RegistreSortidaHandler extends AbstractHeliumActionHandler implemen
 					(idiomaExtracte != null) ? idiomaExtracte : "ca");
 			dadesAssumpte.setTipus(
 					(String)getValorOVariable(executionContext, documentTipus, varDocumentTipus));
+			dadesAssumpte.setRegistreNumero(
+					(String)getValorOVariable(executionContext, remitentRegistreNumero, varRemitentRegistreNumero));
+			dadesAssumpte.setRegistreAny(
+					(String)getValorOVariable(executionContext, remitentRegistreAny, varRemitentRegistreAny));
 			registreSortida.setDadesAssumpte(dadesAssumpte);
 			List<DocumentRegistre> documents = new ArrayList<DocumentRegistre>();
 			DocumentRegistre document = new DocumentRegistre();

@@ -60,7 +60,7 @@ import org.jbpm.util.EqualsUtil;
  * task list) and that can trigger the coninuation of execution of the token
  * upon completion.
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class TaskInstance extends VariableContainer implements Identifiable,
 		Assignable {
 

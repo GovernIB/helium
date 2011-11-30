@@ -3,17 +3,13 @@
  */
 package net.conselldemallorca.helium.webapp.mvc;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
@@ -35,7 +31,7 @@ import org.springframework.web.bind.support.SessionStatus;
 /**
  * Controlador per la gestió dels camps de les consultes
  * 
- * @author Miquel Àngel Amengual <miquelaa@limit.es>
+ * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
 public class ConsultaCampController extends BaseController {
@@ -55,49 +51,6 @@ public class ConsultaCampController extends BaseController {
 		return new ConsultaCamp();
 	}
 
-	@ModelAttribute("campsExpedient")
-	public List<Camp> populateCampsExpedient(
-			HttpServletRequest request) {
-		List<Camp> resposta = new ArrayList<Camp>();
-		Camp camp = new Camp();
-		camp.setCodi("expedient.id");
-		camp.setEtiqueta( getMessage("etiqueta.exp.id") );
-		resposta.add(camp);
-		camp = new Camp();
-		camp.setCodi("expedient.numero");
-		camp.setEtiqueta( getMessage("etiqueta.exp.numero") );
-		resposta.add(camp);
-		camp = new Camp();
-		camp.setCodi("expedient.titol");
-		camp.setEtiqueta( getMessage("etiqueta.exp.titol") );
-		resposta.add(camp);
-		camp = new Camp();
-		camp.setCodi("expedient.comentari");
-		camp.setEtiqueta( getMessage("etiqueta.exp.comentari") );
-		resposta.add(camp);
-		camp = new Camp();
-		camp.setCodi("expedient.iniciador");
-		camp.setEtiqueta( getMessage("etiqueta.exp.iniciador") );
-		resposta.add(camp);
-		camp = new Camp();
-		camp.setCodi("expedient.responsable");
-		camp.setEtiqueta( getMessage("etiqueta.exp.responsable") );
-		resposta.add(camp);
-		camp = new Camp();
-		camp.setCodi("expedient.dataInici");
-		camp.setEtiqueta( getMessage("etiqueta.exp.data_ini") );
-		resposta.add(camp);
-		camp = new Camp();
-		camp.setCodi("expedient.tipus");
-		camp.setEtiqueta( getMessage("etiqueta.exp.tipus") );
-		resposta.add(camp);
-		camp = new Camp();
-		camp.setCodi("expedient.estat");
-		camp.setEtiqueta( getMessage("etiqueta.exp.estat") );
-		resposta.add(camp);
-		return resposta;
-	}
-
 	@RequestMapping(value = "/consulta/camps", method = RequestMethod.GET)
 	public String get(
 			HttpServletRequest request,
@@ -108,7 +61,10 @@ public class ConsultaCampController extends BaseController {
 		if (entorn != null) {
 			Consulta consulta = dissenyService.getConsultaById(id);
 			model.addAttribute("llistat", dissenyService.findCampsConsulta(id, tipus));
-			model.addAttribute("camps", dissenyService.findCampsPerCampsConsulta(id, tipus));
+			model.addAttribute("camps", dissenyService.findCampsPerCampsConsulta(
+					id,
+					tipus,
+					false));
 			model.addAttribute("consulta", consulta);
 			model.addAttribute(
 					"definicionsProces",

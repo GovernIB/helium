@@ -5,6 +5,8 @@ package net.conselldemallorca.helium.core.model.hibernate;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -363,6 +365,77 @@ public class Camp implements Serializable, GenericEntity<Long> {
 		}
 	}
 
+	public static String getComText(
+			TipusCamp tipus,
+			Object valor,
+			String valorDomini) {
+		if (valor == null)
+			return null;
+		try {
+			String text = null;
+			if (tipus.equals(TipusCamp.INTEGER)) {
+				text = new DecimalFormat("#").format((Long)valor);
+			} else if (tipus.equals(TipusCamp.FLOAT)) {
+				text = new DecimalFormat("#.#").format((Double)valor);
+			} else if (tipus.equals(TipusCamp.PRICE)) {
+				text = new DecimalFormat("#,###.00").format((BigDecimal)valor);
+			} else if (tipus.equals(TipusCamp.DATE)) {
+				text = new SimpleDateFormat("dd/MM/yyyy").format((Date)valor);
+			} else if (tipus.equals(TipusCamp.BOOLEAN)) {
+				text = (((Boolean)valor).booleanValue()) ? "Si" : "No";
+			} else if (tipus.equals(TipusCamp.SELECCIO)) {
+				text = valorDomini;
+			} else if (tipus.equals(TipusCamp.SUGGEST)) {
+				text = valorDomini;
+			} else if (tipus.equals(TipusCamp.TERMINI)) {
+				text = ((Termini)valor).toString();
+			} else {
+				text = valor.toString();
+			}
+			return text;
+		} catch (Exception ex) {
+			return valor.toString();
+		}
+	}
+
+	public static Object getComObject(
+			TipusCamp tipus,
+			String text) {
+		if (text == null)
+			return null;
+		try {
+			Object obj = null;
+			if (tipus.equals(TipusCamp.INTEGER)) {
+				obj = new Long(text);
+			} else if (tipus.equals(TipusCamp.FLOAT)) {
+				obj = new Double(text);
+			} else if (tipus.equals(TipusCamp.PRICE)) {
+				obj = new BigDecimal(text);
+			} else if (tipus.equals(TipusCamp.DATE)) {
+				obj = new SimpleDateFormat("dd/MM/yyyy").parse(text);
+			} else if (tipus.equals(TipusCamp.BOOLEAN)) {
+				obj = new Boolean("S".equals(text));
+			} else if (tipus.equals(TipusCamp.SELECCIO)) {
+				obj = text;
+			} else if (tipus.equals(TipusCamp.SUGGEST)) {
+				obj = text;
+			} else if (tipus.equals(TipusCamp.TERMINI)) {
+				String[] parts = text.split("/");
+				Termini termini = new Termini();
+				if (parts.length == 3) {
+					termini.setAnys(new Integer(parts[0]));
+					termini.setMesos(new Integer(parts[1]));
+					termini.setDies(new Integer(parts[2]));
+				}
+				obj = termini;
+			} else {
+				obj = text;
+			}
+			return obj;
+		} catch (Exception ex) {
+			return text;
+		}
+	}
 
 
 	@Override

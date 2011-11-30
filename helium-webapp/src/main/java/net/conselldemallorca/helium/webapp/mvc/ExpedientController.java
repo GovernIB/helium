@@ -150,13 +150,13 @@ public class ExpedientController extends BaseController {
 				model.addAttribute(
 						"expedient",
 						expedient);
-				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, true);
+				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, false);
 				model.addAttribute(
 						"instanciaProces",
 						instanciaProces);
 				model.addAttribute(
 						"arbreProcessos",
-						expedientService.getArbreInstanciesProces(id, false));
+						expedientService.getArbreInstanciesProces(id));
 				if (instanciaProces.isImatgeDisponible()) {
 					model.addAttribute(
 							"activeTokens",
@@ -177,6 +177,7 @@ public class ExpedientController extends BaseController {
 	public String dades(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) String id,
+			@RequestParam(value = "ambTasques", required = false) Boolean ambTasques,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
@@ -187,13 +188,15 @@ public class ExpedientController extends BaseController {
 						expedient);
 				model.addAttribute(
 						"arbreProcessos",
-						expedientService.getArbreInstanciesProces(id, false));
+						expedientService.getArbreInstanciesProces(id));
 				model.addAttribute(
 						"instanciaProces",
 						expedientService.getInstanciaProcesById(id, true));
-				model.addAttribute(
-						"tasques",
-						expedientService.findTasquesPerInstanciaProces(id));
+				if (ambTasques != null && ambTasques.booleanValue()) {
+					model.addAttribute(
+							"tasques",
+							expedientService.findTasquesPerInstanciaProces(id, true));
+				}
 				return "expedient/dades";
 			} else {
 				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
@@ -209,6 +212,7 @@ public class ExpedientController extends BaseController {
 	public String documents(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) String id,
+			@RequestParam(value = "ambTasques", required = false) Boolean ambTasques,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
@@ -219,13 +223,15 @@ public class ExpedientController extends BaseController {
 						expedient);
 				model.addAttribute(
 						"arbreProcessos",
-						expedientService.getArbreInstanciesProces(id, false));
+						expedientService.getArbreInstanciesProces(id));
 				model.addAttribute(
 						"instanciaProces",
 						expedientService.getInstanciaProcesById(id, true));
-				model.addAttribute(
-						"tasques",
-						expedientService.findTasquesPerInstanciaProces(id));
+				if (ambTasques != null && ambTasques.booleanValue()) {
+					model.addAttribute(
+							"tasques",
+							expedientService.findTasquesPerInstanciaProces(id, true));
+				}
 				return "expedient/documents";
 			} else {
 				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
@@ -236,160 +242,6 @@ public class ExpedientController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
-	/*@RequestMapping(value = "documentDescarregar")
-	public String documentDescarregar(
-			HttpServletRequest request,
-			@RequestParam(value = "processInstanceId", required = false) String processInstanceId,
-			@RequestParam(value = "docId", required = false) Long docId,
-			ModelMap model) {
-		Entorn entorn = getEntornActiu(request);
-		if (entorn != null) {
-			DocumentDto document = expedientService.getDocument(docId, true, false);
-			if (document != null) {
-				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, document.getArxiuNom());
-				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, document.getArxiuContingut());
-			}
-			return "arxiuView";
-		} else {
-			missatgeError(request, getMessage("error.no.entorn.selec") );
-			return "redirect:/index.html";
-		}
-	}
-	@RequestMapping(value = "documentConsultar")
-	public String documentConsultar(
-			HttpServletRequest request,
-			@RequestParam(value = "processInstanceId", required = false) String processInstanceId,
-			@RequestParam(value = "docId", required = false) Long docId,
-			ModelMap model) {
-		Entorn entorn = getEntornActiu(request);
-		if (entorn != null) {
-			DocumentDto document = expedientService.getDocument(docId, true, false);
-			if (document != null) {
-				if (isSignaturaFileAttached()) {
-					model.addAttribute(
-							ArxiuConvertirView.MODEL_ATTRIBUTE_CONVERSIONENABLED,
-							false);
-					if (document.isSignat()) {
-						model.addAttribute(
-								ArxiuConvertirView.MODEL_ATTRIBUTE_FILENAME,
-								document.getSignatNom());
-						model.addAttribute(
-								ArxiuConvertirView.MODEL_ATTRIBUTE_DATA,
-								document.getSignatContingut());
-					} else {
-						model.addAttribute(
-								ArxiuConvertirView.MODEL_ATTRIBUTE_FILENAME,
-								document.getArxiuNom());
-						model.addAttribute(
-								ArxiuConvertirView.MODEL_ATTRIBUTE_DATA,
-								document.getArxiuContingut());
-					}
-					if (document.isArxiuConvertiblePdf() && document.isRegistrat()) {
-						model.addAttribute(
-								ArxiuConvertirView.MODEL_ATTRIBUTE_CONVERSIONENABLED,
-								true);
-						model.addAttribute(
-								ArxiuConvertirView.MODEL_ATTRIBUTE_OUTEXTENSION,
-								"pdf");
-						model.addAttribute(
-								ArxiuConvertirView.MODEL_ATTRIBUTE_REGISTRE_ENTITAT,
-								(String)GlobalProperties.getInstance().get("app.registre.segell.entitat"));
-						model.addAttribute(
-								ArxiuConvertirView.MODEL_ATTRIBUTE_REGISTRE_OFICINA,
-								document.getRegistreOficinaNom());
-						DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-						if (document.isRegistreEntrada()) {
-							model.addAttribute(
-									ArxiuConvertirView.MODEL_ATTRIBUTE_REGISTRE_DATA,
-									df.format(document.getRegistreData()));
-							model.addAttribute(
-									ArxiuConvertirView.MODEL_ATTRIBUTE_REGISTRE_ENTRADA,
-									document.getRegistreNumero() + "/" + document.getRegistreAny());
-						} else {
-							model.addAttribute(
-									ArxiuConvertirView.MODEL_ATTRIBUTE_REGISTRE_DATA,
-									df.format(document.getRegistreData()));
-							model.addAttribute(
-									ArxiuConvertirView.MODEL_ATTRIBUTE_REGISTRE_SORTIDA,
-									document.getRegistreNumero() + "/" + document.getRegistreAny());
-						}
-					}
-					return "arxiuConvertirView";
-				} else {
-					if (document.isArxiuConvertiblePdf() && (document.isSignat() || document.isRegistrat())) {
-						model.addAttribute(
-								ArxiuConvertirView.MODEL_ATTRIBUTE_FILENAME,
-								document.getArxiuNom());
-						model.addAttribute(
-								ArxiuConvertirView.MODEL_ATTRIBUTE_DATA,
-								document.getArxiuContingut());
-						model.addAttribute(
-								ArxiuConvertirView.MODEL_ATTRIBUTE_CONVERSIONENABLED,
-								true);
-						model.addAttribute(
-								ArxiuConvertirView.MODEL_ATTRIBUTE_OUTEXTENSION,
-								"pdf");
-						if (document.isSignat()) {
-							String estampaActiu = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.actiu");
-							if ("true".equalsIgnoreCase(estampaActiu)) {
-								String estampaPosX = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.posx");
-								String estampaPosY = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.posy");
-								String estampaRotation = (String)GlobalProperties.getInstance().get("app.conversio.signatura.estampa.rotation");
-								model.addAttribute(
-										ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_MISSATGE,
-										(String)GlobalProperties.getInstance().get("app.base.url") + "/signatura/verificar.html?id=" + docId);
-								model.addAttribute(
-										ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_POSX,
-										new Float(estampaPosX));
-								model.addAttribute(
-										ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_POSY,
-										new Float(estampaPosY));
-								model.addAttribute(
-										ArxiuConvertirView.MODEL_ATTRIBUTE_ESTAMPA_ROTATION,
-										new Float(estampaRotation));
-							}
-						}
-						if (document.isRegistrat()) {
-							model.addAttribute(
-									ArxiuConvertirView.MODEL_ATTRIBUTE_REGISTRE_ENTITAT,
-									(String)GlobalProperties.getInstance().get("app.registre.segell.entitat"));
-							model.addAttribute(
-									ArxiuConvertirView.MODEL_ATTRIBUTE_REGISTRE_OFICINA,
-									document.getRegistreOficinaNom());
-							DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-							if (document.isRegistreEntrada()) {
-								model.addAttribute(
-										ArxiuConvertirView.MODEL_ATTRIBUTE_REGISTRE_DATA,
-										df.format(document.getRegistreData()));
-								model.addAttribute(
-										ArxiuConvertirView.MODEL_ATTRIBUTE_REGISTRE_ENTRADA,
-										document.getRegistreNumero() + "/" + document.getRegistreAny());
-							} else {
-								model.addAttribute(
-										ArxiuConvertirView.MODEL_ATTRIBUTE_REGISTRE_DATA,
-										df.format(document.getRegistreData()));
-								model.addAttribute(
-										ArxiuConvertirView.MODEL_ATTRIBUTE_REGISTRE_SORTIDA,
-										document.getRegistreNumero() + "/" + document.getRegistreAny());
-							}
-						}
-						return "arxiuConvertirView";
-					} else {
-						model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, document.getArxiuNom());
-						model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, document.getArxiuContingut());
-						return "arxiuView";
-					}
-				}
-				
-				
-				
-			}
-			return "arxiuView";
-		} else {
-			missatgeError(request, getMessage("error.no.entorn.selec") );
-			return "redirect:/index.html";
-		}
-	}*/
 
 	@RequestMapping(value = "timeline")
 	public String timeline(
@@ -405,7 +257,7 @@ public class ExpedientController extends BaseController {
 						expedient);
 				model.addAttribute(
 						"arbreProcessos",
-						expedientService.getArbreInstanciesProces(id, false));
+						expedientService.getArbreInstanciesProces(id));
 				model.addAttribute(
 						"instanciaProces",
 						expedientService.getInstanciaProcesById(id, true));
@@ -460,13 +312,13 @@ public class ExpedientController extends BaseController {
 						expedient);
 				model.addAttribute(
 						"arbreProcessos",
-						expedientService.getArbreInstanciesProces(id, false));
+						expedientService.getArbreInstanciesProces(id));
 				model.addAttribute(
 						"instanciaProces",
-						expedientService.getInstanciaProcesById(id, true));
+						expedientService.getInstanciaProcesById(id, false));
 				model.addAttribute(
 						"tasques",
-						expedientService.findTasquesPerInstanciaProces(id));
+						expedientService.findTasquesPerInstanciaProces(id, false));
 				return "expedient/tasques";
 			} else {
 				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
@@ -487,7 +339,7 @@ public class ExpedientController extends BaseController {
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (potConsultarExpedient(expedient)) {
-				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, true);
+				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, false);
 				String resourceName = "processimage.jpg";
 				model.addAttribute(
 						ArxiuView.MODEL_ATTRIBUTE_FILENAME,

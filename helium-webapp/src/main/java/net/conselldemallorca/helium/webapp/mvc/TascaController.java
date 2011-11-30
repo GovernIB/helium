@@ -147,16 +147,12 @@ public class TascaController extends BaseController {
 					tascaPersonaFiltreCommand.getDataLimitFi(),
 					tascaPersonaFiltreCommand.getColumna(),
 					tascaPersonaFiltreCommand.getOrdre());
-
 			model.addAttribute("terminisIniciats", findTerminisIniciatsPerTasques(tasquesPersonalsFiltre));
 			model.addAttribute("personaLlistat", tasquesPersonalsFiltre);
 			model.addAttribute("personaLlistatAll", tascaService.getTotalTasquesPersona(entorn.getId()));
-			
 			model.addAttribute("grupLlistatAll", tascaService.getTotalTasquesGrup(entorn.getId()));
-			
 			model.addAttribute("command", tascaPersonaFiltreCommand);
 			model.addAttribute("tipusExp", llistatExpedientTipusAmbPermisos(entorn));
-			
 			return "tasca/personaLlistat";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
@@ -210,6 +206,7 @@ public class TascaController extends BaseController {
 					tascaGrupFiltreCommand.getDataLimitFi(),
 					tascaGrupFiltreCommand.getColumna(),
 					tascaGrupFiltreCommand.getOrdre());
+			model.addAttribute("terminisIniciats", findTerminisIniciatsPerTasques(tasquesGrupFiltre));
 			model.addAttribute("grupLlistat", tasquesGrupFiltre);
 			model.addAttribute("grupLlistatAll", tascaService.getTotalTasquesGrup(entorn.getId()));
 			

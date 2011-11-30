@@ -177,6 +177,9 @@ public abstract class BasicActionHandler implements ActionHandler {
 				estatId,
 				iniciat,
 				finalitzat,
+				null,
+				null,
+				null,
 				false);
 		// Filtre expedients permesos
 		List<ExpedientTipus> tipus = getDissenyService().findExpedientTipusAmbEntorn(entorn.getId());

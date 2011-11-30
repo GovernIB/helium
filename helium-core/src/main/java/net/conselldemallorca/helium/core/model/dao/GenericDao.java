@@ -24,18 +24,18 @@ public interface GenericDao<T, ID extends Serializable> {
 	void delete(ID id);
 
 	List<T> findAll();
-	List<T> findOrderedAll(String sort, boolean asc);
-	public List<T> findPagedAndOrderedAll(String sort, boolean asc, int firstRow, int maxResults);
+	List<T> findOrderedAll(String[] sort, boolean asc);
+	public List<T> findPagedAndOrderedAll(String[] sort, boolean asc, int firstRow, int maxResults);
 	int getCountAll();
 
 	List<T> findByExample(T exampleInstance);
-	public List<T> findOrderedByExample(T p_exampleInstance, String sort, boolean asc);
-	public List<T> findPagedAndOrderedByExample(T p_exampleInstance, String sort, boolean asc, int firstRow, int maxResults);
+	public List<T> findOrderedByExample(T p_exampleInstance, String[] sort, boolean asc);
+	public List<T> findPagedAndOrderedByExample(T p_exampleInstance, String[] sort, boolean asc, int firstRow, int maxResults);
 	public int getCountByExample(final T p_exampleInstance);
 
 	List<T> findByCriteria(Criterion... p_criterion);
-	public List<T> findOrderedByCriteria(String sort, boolean asc, Criterion... p_criterion);
-	public List<T> findPagedAndOrderedByCriteria(int firstRow, int maxResults, String sort, boolean asc, Criterion... p_criterion);
+	public List<T> findOrderedByCriteria(String[] sort, boolean asc, Criterion... p_criterion);
+	public List<T> findPagedAndOrderedByCriteria(int firstRow, int maxResults, String[] sort, boolean asc, Criterion... p_criterion);
 	public int getCountByCriteria(Criterion... p_criterion);
 
 	void setPersistentClass(Class<T> persistentClass);

@@ -59,7 +59,7 @@ import org.jbpm.taskmgmt.def.TaskController;
 import org.jbpm.taskmgmt.def.TaskMgmtDefinition;
 import org.xml.sax.InputSource;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class JpdlXmlReader implements ProblemListener {
   
   private static final long serialVersionUID = 1L;

@@ -16,11 +16,17 @@
 	<c:import url="../common/formIncludes.jsp"/>
 <script type="text/javascript">
 // <![CDATA[
-function confirmar(e) {
+function confirmarEsborrar(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
 	return confirm("Estau segur que voleu esborrar aquest expedient?");
+}
+function confirmarAnular(e) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	if (e.stopPropagation) e.stopPropagation();
+	return confirm("Estau segur que voleu anul·lar aquest expedient?");
 }
 // ]]>
 </script>
@@ -29,11 +35,11 @@ function confirmar(e) {
 
 	<div class="missatgesGris">
 		<c:choose>
-			<c:when test="${empty consulta or param.canviar=='true'}">
+			<c:when test="${empty consulta}">
 				<h4 class="titol-consulta"><fmt:message key='expedient.consulta.select.consula' /></h4>
 				<form:form action="consultaDisseny.html" commandName="commandSeleccioConsulta" cssClass="uniForm">
 					<div class="inlineLabels col first">
-						<input type="hidden" name="canviForm" id="canviForm" value="true"/>
+						<input type="hidden" name="canviar" id="canviar" value="true"/>
 						<c:import url="../common/formElement.jsp">
 							<c:param name="property" value="expedientTipusId"/>
 							<c:param name="type" value="select"/>
@@ -66,43 +72,126 @@ function confirmar(e) {
 		</c:choose>
 	</div>
 
-	<c:if test="${not empty camps}">
+	<c:if test="${not empty consulta}">
 		<form:form action="consultaDissenyResultat.html" commandName="commandFiltre" cssClass="uniForm">
 			<div class="inlineLabels col first">
-				<c:forEach var="camp" items="${camps}">
+				<c:forEach var="camp" items="${campsFiltre}">
 					<c:set var="campActual" value="${camp}" scope="request"/>
 					<c:set var="readonly" value="${false}" scope="request"/>
 					<c:set var="required" value="${false}" scope="request"/>
 					<c:import url="../common/campFiltre.jsp"/>
 				</c:forEach>
-				<c:import url="../common/formElement.jsp">
-					<c:param name="type" value="buttons"/>
-					<c:param name="values">submit,netejar</c:param>
-					<c:param name="titles"><fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' /></c:param>
-				</c:import>
+				<c:choose>
+					<c:when test="${not empty consulta.informeNom and not empty campsInforme}">
+						<c:import url="../common/formElement.jsp">
+							<c:param name="type" value="buttons"/>
+							<c:param name="values">informe,netejar</c:param>
+							<c:param name="titles"><fmt:message key='expedient.consulta.informe' />,<fmt:message key='expedient.consulta.netejar' /></c:param>
+						</c:import>
+					</c:when>
+					<c:otherwise>
+						<c:import url="../common/formElement.jsp">
+							<c:param name="type" value="buttons"/>
+							<c:param name="values">submit,netejar</c:param>
+							<c:param name="titles"><fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' /></c:param>
+						</c:import>
+					</c:otherwise>
+				</c:choose>
 			</div>
 		</form:form>
 		<c:if test="${not empty sessionScope.expedientTipusConsultaFiltreCommand}">
-			<display:table name="expedients" id="registre" requestURI="" class="displaytag selectable" defaultsort="2" defaultorder="descending">
-				<display:column property="identificador" title="Expedient" sortable="true" url="/expedient/info.html" paramId="id" paramProperty="processInstanceId"/>
-				<display:column property="dataInici" title="Iniciat el" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true"/>
-				<display:column property="tipus.nom" title="Tipus"/>
-				<display:column title="Estat">
-					<c:if test="${registre.aturat}"><img src="<c:url value="/img/stop.png"/>" alt="Aturat" title="Aturat" border="0"/></c:if>
+			<c:if test="${not empty expedients}">
+				<display:table name="expedients" id="registre" requestURI="" class="displaytag selectable" export="${consulta.exportarActiu}" sort="external">
+					<display:column property="expedient.identificador" title="Expedient" url="/tasca/personaLlistat.html" paramId="exp"/>
 					<c:choose>
-						<c:when test="${empty registre.dataFi}">
-							<c:choose><c:when test="${empty registre.estat}"><fmt:message key='expedient.consulta.iniciat' /></c:when><c:otherwise>${registre.estat.nom}</c:otherwise></c:choose>
+						<c:when test="${empty campsInforme}">
+							<display:column property="expedient.dataInici" title="Iniciat el" format="{0,date,dd/MM/yyyy HH:mm}"/>
+							<display:column property="expedient.tipus.nom" title="Tipus"/>
+							<display:column title="Estat">
+								<c:if test="${registre.expedient.aturat}"><img src="<c:url value="/img/stop.png"/>" alt="Aturat" title="Aturat" border="0"/></c:if>
+								<c:choose>
+									<c:when test="${empty registre.expedient.dataFi}">
+										<c:choose><c:when test="${empty registre.expedient.estat}"><fmt:message key='expedient.consulta.iniciat' /></c:when><c:otherwise>${registre.expedient.estat.nom}</c:otherwise></c:choose>
+									</c:when>
+									<c:otherwise><fmt:message key='expedient.consulta.finalitzat' /></c:otherwise>
+								</c:choose>
+							</display:column>
 						</c:when>
-						<c:otherwise><fmt:message key='expedient.consulta.finalitzat' /></c:otherwise>
+						<c:otherwise>
+							<c:forEach var="camp" items="${campsInforme}">
+								<c:choose>
+									<c:when test="${not empty camp.definicioProces}"><c:set var="clauCamp" value="${camp.definicioProces.jbpmKey}/${camp.codi}"/></c:when>
+									<c:otherwise><c:set var="clauCamp" value="${camp.codi}"/></c:otherwise>
+								</c:choose>
+								<c:choose>
+									<c:when test="${registre.dadesExpedient[clauCamp].multiple}">
+										<%--display:column title="${camp.etiqueta}">
+											<table class="displaytag">
+												<c:forEach var="text" items="${registre.dadesExpedient[clauCamp].valorMostrarMultiple}" varStatus="status">
+													<tr><td>${text}</td></tr>
+												</c:forEach>
+											</table>
+										</display:column--%>
+									</c:when>
+									<c:when test="${camp.tipus == 'DATE' && clauCamp == 'expedient$dataInici'}">
+										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,date,dd/MM/yyyy HH:mm}"/>
+									</c:when>
+									<c:when test="${camp.tipus == 'DATE'}">
+										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,date,dd/MM/yyyy}"/>
+									</c:when>
+									<c:when test="${camp.tipus == 'INTEGER'}">
+										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,number,#}"/>
+									</c:when>
+									<c:when test="${camp.tipus == 'FLOAT'}">
+										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,number,#.#}"/>
+									</c:when>
+									<c:when test="${camp.tipus == 'PRICE'}">
+										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,number,#,###.00}"/>
+									</c:when>
+									<c:when test="${camp.tipus == 'SELECCIO' && clauCamp == 'expedient$estat'}">
+										<display:column title="${camp.etiqueta}">
+											<c:if test="${registre.expedient.aturat}"><img src="<c:url value="/img/stop.png"/>" alt="Aturat" title="Aturat" border="0"/></c:if>
+											<c:choose>
+												<c:when test="${empty registre.expedient.dataFi}">
+													<c:choose><c:when test="${empty registre.expedient.estat}"><fmt:message key='expedient.consulta.iniciat' /></c:when><c:otherwise>${registre.expedient.estat.nom}</c:otherwise></c:choose>
+												</c:when>
+												<c:otherwise><fmt:message key='expedient.consulta.finalitzat' /></c:otherwise>
+											</c:choose>
+										</display:column>
+									</c:when>
+									<c:otherwise>
+										<display:column property="dadesExpedient(${clauCamp}).valorMostrar" title="${camp.etiqueta}"/>
+									</c:otherwise>
+								</c:choose>
+							</c:forEach>
+						</c:otherwise>
 					</c:choose>
-				</display:column>
-				<display:column>
-					<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,8">
-						<a href="<c:url value="/expedient/delete.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
+					<security:accesscontrollist domainObject="${consulta.expedientTipus}" hasPermission="16,1">
+						<display:column media="html">
+							<a href="<c:url value="/expedient/info.html"><c:param name="id" value="${registre.expedient.processInstanceId}"/></c:url>"><img src="<c:url value="/img/information.png"/>" alt="<fmt:message key='comuns.informacio' />" title="<fmt:message key='comuns.informacio' />" border="0"/></a>
+						</display:column>
 					</security:accesscontrollist>
-				</display:column>
-			</display:table>
-			<script type="text/javascript">initSelectable();</script>
+					<security:accesscontrollist domainObject="${consulta.expedientTipus}" hasPermission="16,2">
+						<display:column media="html">
+							<c:if test="${!registre.expedient.anulat}">
+								<a href="<c:url value="/expedient/anular.html"><c:param name="id" value="${registre.expedient.id}"/></c:url>" onclick="return confirmarAnular(event)"><img src="<c:url value="/img/delete.png"/>" alt="<fmt:message key='comuns.anular' />" title="<fmt:message key='comuns.anular' />" border="0"/></a>
+							</c:if>
+						</display:column>
+					</security:accesscontrollist>
+					<security:accesscontrollist domainObject="${consulta.expedientTipus}" hasPermission="16,8">
+						<display:column media="html">
+							<a href="<c:url value="/expedient/delete.html"><c:param name="id" value="${registre.expedient.id}"/></c:url>" onclick="return confirmarEsborrar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
+						</display:column>
+					</security:accesscontrollist>
+					<display:setProperty name="export.csv" value="false" />
+					<display:setProperty name="export.xml" value="false" />
+					<display:setProperty name="export.decorated" value="false" />
+					<display:setProperty name="export.excel.filename" value="informe_${consulta.codi}.xls" />
+					<display:setProperty name="paging.banner.item_name">expedient</display:setProperty>
+					<display:setProperty name="paging.banner.items_name">expedients</display:setProperty>
+				</display:table>
+				<script type="text/javascript">initSelectable();</script>
+			</c:if>
 		</c:if>
 	</c:if>
 

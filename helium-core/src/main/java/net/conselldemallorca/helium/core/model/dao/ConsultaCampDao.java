@@ -65,40 +65,27 @@ public class ConsultaCampDao extends HibernateGenericDao<ConsultaCamp, Long> {
 				setParameter(1, tipus).
 				setInteger(2, ordre).
 				uniqueResult();
-	}/*
+	}
 
 	@SuppressWarnings("unchecked")
-	public List<Object> findProcessosExpedient(Long consultaId) {
+	public List<Camp> findCampsDefinicioProcesAmbJbpmKey(Long entornId, String defprocJbpmKey) {
 		return getSession().createQuery(
-				"select distinct dp.jbpmKey " +
-				"from Consulta c, " +
-				"	DefinicioProces dp " +
-				"where c.id = ? " +
-				"and c.expedientTipus = dp.expedientTipus ")
-				.setLong(0, consultaId)
-				.list();
-	}*/
-
-	@SuppressWarnings("unchecked")
-	public List<Camp> findCampsProces(Long consultaId, String defprocJbpmKey) {
-		return getSession().createQuery(
-				"select ca " +
-				"from Camp ca " +
-				"	left join ca.definicioProces dp, " +
-				"	Consulta c " +
-				"	left join c.expedientTipus et " +
-				"where c.id = ? " +
-				"and ((dp.expedientTipus.id = et.id) or (dp.expedientTipus.id is null)) " +
-				"and ca.definicioProces.id = dp.id " +
-				"and (ca.codi, dp.id) " +
-				"	in ( " +
-				"		select cm.codi, max(cm.definicioProces.id) " +
-				"		from Camp cm " +
-				"		group by cm.codi, cm.tipus " +
-				"	) " +
-				"and dp.jbpmKey = ? " +
-				"order by ca.codi asc ")
-				.setLong(0, consultaId)
+				"from" +
+				"    Camp camp " +
+				"where (camp.codi, camp.tipus, camp.definicioProces.id) in (" +
+				"        select c.codi, c.tipus, max(dp.id) " + 
+				"        from " +
+				"            Camp c " +
+				"            left join c.definicioProces dp " +
+				"        where " +
+				"            dp.entorn.id = ? " +
+				"        and dp.jbpmKey = ? " +
+				"        group by " +
+				"            c.codi, " +
+				"            c.tipus) " +
+				"order by " +
+				"    camp.codi asc ")
+				.setLong(0, entornId)
 				.setString(1, defprocJbpmKey)
 				.list();
 	}

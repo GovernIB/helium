@@ -26,98 +26,15 @@ import org.springframework.stereotype.Service;
 public class DocumentService {
 
 	private DtoConverter dtoConverter;
-
 	private MessageSource messageSource;
-
 	private DocumentTokenUtils documentTokenUtils;
 
 
 
-	public DocumentDto arxiuDocumentInfo(Long documentStoreId) {
-		return dtoConverter.toDocumentDto(
-				documentStoreId,
-				false,
-				false,
-				false,
-				false,
-				false);
-	}
 	public DocumentDto arxiuDocumentInfo(String token) {
 		try {
 			String tokenDesxifrat = getDocumentTokenUtils().desxifrarToken(token);
-			return arxiuDocumentInfo(Long.parseLong(tokenDesxifrat));
-		} catch (Exception ex) {
-			logger.error("Error al obtenir el document amb token " + token, ex);
-			throw new IllegalArgumentsException(getMessage("error.documentService.formatIncorrecte") );
-		}
-	}
-
-	public ArxiuDto arxiuDocumentOriginal(Long documentStoreId) {
-		DocumentDto document = dtoConverter.toDocumentDto(
-				documentStoreId,
-				true,
-				false,
-				false,
-				false,
-				false);
-		if (document == null)
-			return null;
-		return new ArxiuDto(
-				document.getArxiuNom(),
-				document.getArxiuContingut());
-	}
-	public ArxiuDto arxiuDocumentOriginal(String token) {
-		try {
-			String tokenDesxifrat = getDocumentTokenUtils().desxifrarToken(token);
-			return arxiuDocumentOriginal(Long.parseLong(tokenDesxifrat));
-		} catch (Exception ex) {
-			logger.error("Error al obtenir el document amb token " + token, ex);
-			throw new IllegalArgumentsException(getMessage("error.documentService.formatIncorrecte") );
-		}
-	}
-
-	public ArxiuDto arxiuDocumentSignat(Long documentStoreId) {
-		DocumentDto document = dtoConverter.toDocumentDto(
-				documentStoreId,
-				false,
-				true,
-				false,
-				false,
-				false);
-		if (document == null)
-			return null;
-		return new ArxiuDto(
-				document.getSignatNom(),
-				document.getSignatContingut());
-	}
-	public ArxiuDto arxiuDocumentSignat(String token) {
-		try {
-			String tokenDesxifrat = getDocumentTokenUtils().desxifrarToken(token);
-			return arxiuDocumentSignat(Long.parseLong(tokenDesxifrat));
-		} catch (Exception ex) {
-			logger.error("Error al obtenir el document amb token " + token, ex);
-			throw new IllegalArgumentsException(getMessage("error.documentService.formatIncorrecte") );
-		}
-	}
-
-	public ArxiuDto arxiuDocumentVista(Long documentStoreId) {
-		DocumentDto document = dtoConverter.toDocumentDto(
-				documentStoreId,
-				false,
-				false,
-				true,
-				false,
-				false);
-		if (document == null)
-			return null;
-		return new ArxiuDto(
-				document.getVistaNom(),
-				document.getVistaContingut());
-	}
-	public ArxiuDto arxiuDocumentVista(String token) {
-		try {
-			String tokenDesxifrat = getDocumentTokenUtils().desxifrarToken(token);
-			return arxiuDocumentVista(Long.parseLong(tokenDesxifrat));
+			return getDocumentInfo(Long.parseLong(tokenDesxifrat));
 		} catch (Exception ex) {
 			logger.error("Error al obtenir el document amb token " + token, ex);
 			throw new IllegalArgumentsException(getMessage("error.documentService.formatIncorrecte") );
@@ -125,13 +42,13 @@ public class DocumentService {
 	}
 
 	public ArxiuDto arxiuDocumentPerMostrar(Long documentStoreId) {
-		DocumentDto document = arxiuDocumentInfo(documentStoreId);
+		DocumentDto document = getDocumentInfo(documentStoreId);
 		if (document == null)
 			return null;
 		if (document.isSignat() || document.isRegistrat()) {
-			return arxiuDocumentVista(documentStoreId);
+			return getArxiuDocumentVista(documentStoreId);
 		} else {
-			return arxiuDocumentOriginal(documentStoreId);
+			return getArxiuDocumentOriginal(documentStoreId);
 		}
 	}
 	public ArxiuDto arxiuDocumentPerMostrar(String token) {
@@ -177,6 +94,44 @@ public class DocumentService {
 	}
 
 
+
+	private DocumentDto getDocumentInfo(Long documentStoreId) {
+		return dtoConverter.toDocumentDto(
+				documentStoreId,
+				false,
+				false,
+				false,
+				false,
+				false);
+	}
+	private ArxiuDto getArxiuDocumentOriginal(Long documentStoreId) {
+		DocumentDto document = dtoConverter.toDocumentDto(
+				documentStoreId,
+				true,
+				false,
+				false,
+				false,
+				false);
+		if (document == null)
+			return null;
+		return new ArxiuDto(
+				document.getArxiuNom(),
+				document.getArxiuContingut());
+	}
+	private ArxiuDto getArxiuDocumentVista(Long documentStoreId) {
+		DocumentDto document = dtoConverter.toDocumentDto(
+				documentStoreId,
+				false,
+				false,
+				true,
+				false,
+				false);
+		if (document == null)
+			return null;
+		return new ArxiuDto(
+				document.getVistaNom(),
+				document.getVistaContingut());
+	}
 
 	private DocumentTokenUtils getDocumentTokenUtils() {
 		if (documentTokenUtils == null)

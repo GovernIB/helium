@@ -3,7 +3,6 @@
  */
 package net.conselldemallorca.helium.core.model.dao;
 
-import java.io.FileOutputStream;
 import java.util.List;
 
 import net.conselldemallorca.helium.core.model.exception.PluginException;
@@ -35,7 +34,6 @@ public class PluginCustodiaDao {
 			String codiTipusCustodia,
 			byte[] signatura) throws PluginException {
 		try {
-			saveToFile("c:/signatura.pdf", signatura);
 			return getCustodiaPlugin().addSignature(
 					documentId.toString(),
 					gesdocId,
@@ -123,16 +121,6 @@ public class PluginCustodiaDao {
 			}
 		}
 		return custodiaPlugin;
-	}
-
-	private void saveToFile(String fileName, byte[] content) {
-		try {
-			FileOutputStream fos = new FileOutputStream(fileName);
-			fos.write(content);
-			fos.close();
-		} catch (Exception ex) {
-			logger.error("No s'ha pogut guardar la signatura en fitxer", ex);
-		}
 	}
 
 	private static final Log logger = LogFactory.getLog(PluginCustodiaDao.class);

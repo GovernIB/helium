@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.core.model.service;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -20,9 +21,9 @@ import net.conselldemallorca.helium.core.model.exception.IllegalStateException;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
-import net.conselldemallorca.helium.core.model.hibernate.Usuari;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
+import net.conselldemallorca.helium.core.model.hibernate.Usuari;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
@@ -66,48 +67,58 @@ public class PluginService {
 	}
 	public void personesSync() {
 		if (isSyncPersonesActiu()) {
-			logger.info("Inici de la sincronització de persones");
 			List<PersonaDto> persones = pluginPersonaDao.findAllPlugin();
 			int nsyn = 0;
 			int ncre = 0;
+			logger.info("Inici de la sincronització de persones (" + persones.size() + " registres)");
 	    	for (PersonaDto persona: persones) {
-	    		net.conselldemallorca.helium.core.model.hibernate.Persona p = pluginPersonaDao.findAmbCodi(persona.getCodi());
-	    		if (p != null) {
-	    			p.setNom(persona.getNom());
-	    			p.setLlinatges(persona.getLlinatges());
-	    			p.setDni(persona.getDni());
-	    			p.setEmail(persona.getEmail());
-	    		} else {
-	    			//logger.info("Nova persona: " + persona.getCodi());
-	    			p = new net.conselldemallorca.helium.core.model.hibernate.Persona();
-	    			p.setCodi(persona.getCodi());
-	    			p.setNom(persona.getNom());
-	    			p.setLlinatge1((persona.getLlinatge1() != null) ? persona.getLlinatge1(): " ");
-	    			p.setLlinatge2(persona.getLlinatge2());
-	    			p.setDni(persona.getDni());
-	    			p.setEmail(persona.getEmail());
-	    			pluginPersonaDao.saveOrUpdate(p);
-	    			pluginPersonaDao.flush();
-	    			Usuari usuari = usuariDao.getById(persona.getCodi(), false);
-	    			if (usuari == null) {
-	    				usuari = new Usuari();
-	    				usuari.setCodi(persona.getCodi());
-	    				usuari.setContrasenya(persona.getCodi());
-	    				//usuari.addPermis(permisDao.getByCodi("HEL_USER"));
-	    				usuariDao.saveOrUpdate(usuari);
-	    				usuariDao.flush();
-	    			}
-	    			ncre++;
+	    		try {
+		    		net.conselldemallorca.helium.core.model.hibernate.Persona p = pluginPersonaDao.findAmbCodi(persona.getCodi());
+		    		if (p != null) {
+		    			p.setNom(persona.getNom());
+		    			p.setLlinatges(persona.getLlinatges());
+		    			p.setDni(persona.getDni());
+		    			p.setEmail(persona.getEmail());
+		    		} else {
+		    			p = new net.conselldemallorca.helium.core.model.hibernate.Persona();
+		    			String codiPerCreacio = (isIgnoreCase()) ? persona.getCodi().toLowerCase() : persona.getCodi();
+	    				p.setCodi(codiPerCreacio);
+		    			p.setNom(persona.getNom());
+		    			p.setLlinatge1((persona.getLlinatge1() != null) ? persona.getLlinatge1(): " ");
+		    			p.setLlinatge2(persona.getLlinatge2());
+		    			p.setDni(persona.getDni());
+		    			p.setEmail(persona.getEmail());
+		    			pluginPersonaDao.saveOrUpdate(p);
+		    			pluginPersonaDao.flush();
+		    			Usuari usuari = usuariDao.getById(codiPerCreacio, false);
+		    			if (usuari == null) {
+		    				usuari = new Usuari();
+		    				usuari.setCodi(codiPerCreacio);
+		    				usuari.setContrasenya(codiPerCreacio);
+		    				usuariDao.saveOrUpdate(usuari);
+		    				usuariDao.flush();
+		    			}
+		    			ncre++;
+		    		}
+	    		} catch (Exception ex) {
+	    			logger.error("Error en la importació de la persona amb codi " + persona.getCodi(), ex);
 	    		}
 	    		nsyn++;
 	    	}
-	    	logger.info("Fi de la sincronització de persones (total: " + nsyn + ", creades: " + ncre + ")");
+	    	logger.info("Fi de la sincronització de persones (processades: " + nsyn + ", creades: " + ncre + ")");
 		}
 	}
 
 	public void enviarPortasignatures(
+			Long documentId,
+			List<Long> annexosId,
 			PersonaDto persona,
-			Long documentStoreId,
+			List<PersonaDto> personesPas1,
+			int minSignatarisPas1,
+			List<PersonaDto> personesPas2,
+			int minSignatarisPas2,
+			List<PersonaDto> personesPas3,
+			int minSignatarisPas3,
 			Expedient expedient,
 			String importancia,
 			Date dataLimit,
@@ -116,29 +127,45 @@ public class PluginService {
 			String transicioKO) throws Exception {
 		try {
 			DocumentDto document = dtoConverter.toDocumentDto(
-					documentStoreId,
+					documentId,
 					false,
 					false,
 					true,
 					true,
 					true);
-			String documentTitol = expedient.getIdentificador() + ": " + document.getDocumentNom();
+			List<DocumentDto> annexos = null;
+			if (annexosId != null) {
+				annexos = new ArrayList<DocumentDto>();
+				for (Long docId: annexosId) {
+					annexos.add(dtoConverter.toDocumentDto(
+							docId,
+							false,
+							false,
+							true,
+							false,
+							false));
+				}
+			}
 			Integer doc = pluginPortasignaturesDao.uploadDocument(
-							persona,
-							documentTitol,
-							document.getVistaNom(),
-							document.getVistaContingut(),
-							document.getTipusDocPortasignatures(),
-							expedient,
-							importancia,
-							dataLimit);
+					document,
+					annexos,
+					persona,
+					personesPas1,
+					minSignatarisPas1,
+					personesPas2,
+					minSignatarisPas2,
+					personesPas3,
+					minSignatarisPas3,
+					expedient,
+					importancia,
+					dataLimit);
 			Calendar cal = Calendar.getInstance();
 			Portasignatures portasignatures = new Portasignatures();
 			portasignatures.setDocumentId(doc);
 			portasignatures.setTokenId(tokenId);
 			portasignatures.setDataEnviat(cal.getTime());
 			portasignatures.setEstat(TipusEstat.PENDENT);
-			portasignatures.setDocumentStoreId(documentStoreId);
+			portasignatures.setDocumentStoreId(documentId);
 			portasignatures.setTransicioOK(transicioOK);
 			portasignatures.setTransicioKO(transicioKO);
 			pluginPortasignaturesDao.saveOrUpdate(portasignatures);
@@ -309,6 +336,10 @@ public class PluginService {
 
 	private boolean isSyncPersonesActiu() {
 		String syncActiu = GlobalProperties.getInstance().getProperty("app.persones.plugin.sync.actiu");
+		return "true".equalsIgnoreCase(syncActiu);
+	}
+	private boolean isIgnoreCase() {
+		String syncActiu = GlobalProperties.getInstance().getProperty("app.persones.plugin.ignore.case");
 		return "true".equalsIgnoreCase(syncActiu);
 	}
 

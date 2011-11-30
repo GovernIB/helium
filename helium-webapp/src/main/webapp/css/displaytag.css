@@ -196,7 +196,7 @@ span.pdf {
 	background-image: url(../img/displaytag/ico_file_pdf.png);
 }
 
-span.pageBanner, span.pageLinks, span.nothingFound {
+span.pageBanner, span.pageLinks, span.nothingFound, div.exportLinks {
 	display: block;
 	background: #eee none repeat scroll 0 0;
 	border-color: #ccc;
@@ -214,6 +214,14 @@ span.pageLinks {
 	margin-bottom: 1em;
 }
 span.pageLinks a {
+	color: #7d9556;
+}
+
+div.exportLinks {
+	padding: .4em;
+	margin-bottom: 1em;
+}
+div.exportLinks a {
 	color: #7d9556;
 }
 

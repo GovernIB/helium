@@ -440,6 +440,7 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 			joinColumns=@JoinColumn(name="origen_id", referencedColumnName="id"),
 			inverseJoinColumns=@JoinColumn(name="desti_id", referencedColumnName="id")
 	)
+	@ForeignKey(name="hel_origen_exprel_fk", inverseName="hel_desti_exprel_fk")
 	public Set<Expedient> getRelacionsOrigen() {
 		return this.relacionsOrigen;
 	}
@@ -489,13 +490,17 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	}
 	@Transient
 	public String getIdentificador() {
+		String identificador = null;
 		if (tipus.getTeNumero().booleanValue() && tipus.getTeTitol().booleanValue())
-			return "[" + getNumero() + "] " + getTitol();
+			identificador = "[" + getNumero() + "] " + getTitol();
 		else if (tipus.getTeNumero().booleanValue() && !tipus.getTeTitol().booleanValue())
-			return getNumero();
+			identificador = getNumero();
 		else if (!tipus.getTeNumero().booleanValue() && tipus.getTeTitol().booleanValue())
-			return getTitol();
-		return this.getNumeroDefault();
+			identificador = getTitol();
+		if (identificador == null)
+			return this.getNumeroDefault();
+		else
+			return identificador;
 	}
 	@Transient
 	public String getIdentificadorOrdenacio() {

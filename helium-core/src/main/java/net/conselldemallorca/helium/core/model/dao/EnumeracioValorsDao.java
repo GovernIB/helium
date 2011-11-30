@@ -28,14 +28,23 @@ public class EnumeracioValorsDao extends HibernateGenericDao<EnumeracioValors, L
 		return findByCriteria(
 				Restrictions.eq("enumeracio.id", enumeracioId));
 	}
-	
+
 	public EnumeracioValors findAmbCodi(String codi) {
 		List<EnumeracioValors> list =  findByCriteria(Restrictions.eq("codi", codi));
 		if (list.size() > 0)
 			return list.get(0);
 		return null;
 	}
-	
+
+	public EnumeracioValors findAmbEnumeracioICodi(Long enumeracioId, String codi) {
+		List<EnumeracioValors> list = findByCriteria(
+				Restrictions.eq("enumeracio.id", enumeracioId),
+				Restrictions.eq("codi", codi));
+		if (list.size() > 0)
+			return list.get(0);
+		return null;
+	}
+
 	public List<ParellaCodiValor> getLlistaValors(Long enumeracioId) {
 		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
 		List<EnumeracioValors> valors = findAmbEnumeracio(enumeracioId);
@@ -48,4 +57,5 @@ public class EnumeracioValorsDao extends HibernateGenericDao<EnumeracioValors, L
 		}
 		return resposta;
 	}
+
 }

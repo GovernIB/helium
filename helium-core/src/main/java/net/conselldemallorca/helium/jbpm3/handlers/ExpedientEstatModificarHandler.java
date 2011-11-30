@@ -53,7 +53,6 @@ public class ExpedientEstatModificarHandler extends AbstractHeliumActionHandler 
 							expedient.getId(),
 							expedient.getNumero(),
 							expedient.getTitol(),
-							expedient.getIniciadorCodi(),
 							expedient.getResponsableCodi(),
 							expedient.getDataInici(),
 							expedient.getComentari(),

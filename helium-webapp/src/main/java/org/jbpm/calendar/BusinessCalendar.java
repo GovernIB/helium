@@ -42,7 +42,7 @@ import org.jbpm.JbpmException;
 /**
  * a calendar that knows about business hours.
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings("rawtypes")
 public class BusinessCalendar implements Serializable {
   
   private static final long serialVersionUID = 1L;
@@ -51,7 +51,7 @@ public class BusinessCalendar implements Serializable {
   
   private Day[] weekDays = null;
   
-  private List holidays = null;
+private List holidays = null;
 
   public static synchronized Properties getBusinessCalendarProperties() {
 	  FestiuDao festiuDao = DaoProxy.getInstance().getFestiuDao();

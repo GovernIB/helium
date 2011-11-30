@@ -22,11 +22,10 @@ import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.model.exception.DominiException;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
+import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
-import org.apache.cxf.frontend.ClientProxyFactoryBean;
-import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -80,7 +79,7 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 		return null;
 	}
 
-	@SuppressWarnings({ "unchecked", "unused" })
+	@SuppressWarnings("unchecked")
 	public List<FilaResultat> consultar(
 			Long dominiId,
 			String id,
@@ -90,7 +89,7 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 		String cacheKey = getCacheKey(domini.getId(), parametres);
 		Element element = null;
 		if (dominiCache != null)
-			dominiCache.get(cacheKey);
+			element = dominiCache.get(cacheKey);
 		if (element == null) {
 			if (domini.getTipus().equals(TipusDomini.CONSULTA_WS))
 				resultat = consultaWs(domini, id, parametres);
@@ -99,13 +98,14 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 			if (domini.getCacheSegons() > 0) {
 				element = new Element(cacheKey, resultat);
 				element.setTimeToLive(domini.getCacheSegons());
-				if (dominiCache != null)
+				if (dominiCache != null) {
 					dominiCache.put(element);
-				logger.info("Cache domini '" + cacheKey + "': " + resultat.size() + " registres");
+					//logger.info("Cache domini '" + cacheKey + "': " + resultat.size() + " registres");
+				}
 			}
 		} else {
 			resultat = (List<FilaResultat>)element.getValue();
-			logger.info("Resultat en cache");
+			//logger.info("Resultat en cache");
 		}
 		if (resultat == null)
 			resultat = new ArrayList<FilaResultat>();
@@ -132,7 +132,16 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 		if ("intern".equalsIgnoreCase(domini.getCodi())) {
 			parametres.put("entorn", domini.getEntorn().getCodi());
 		}
-		DominiHelium client = wsCache.get(domini.getId());
+		DominiHelium client = (DominiHelium)WsClientUtils.getWsClientProxy(
+				DominiHelium.class,
+				domini.getUrl(),
+				null,
+				null,
+				"NONE",
+				false,
+				false,
+				true);
+		/*DominiHelium client = wsCache.get(domini.getId());
 		if (client == null) {
 			//ClientProxyFactoryBean factory = new ClientProxyFactoryBean();
 			ClientProxyFactoryBean factory = new JaxWsProxyFactoryBean();
@@ -140,7 +149,7 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 			factory.setAddress(domini.getUrl());
 			client = (DominiHelium)factory.create();
 			wsCache.put(domini.getId(), client);
-		}
+		}*/
 		List<ParellaCodiValor> paramsConsulta = new ArrayList<ParellaCodiValor>();
 		if (parametres != null) {
 			for (String codi: parametres.keySet()) {

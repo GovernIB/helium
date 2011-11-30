@@ -90,7 +90,7 @@ public class ExpedientEinesController extends BaseController {
 						expedient);
 				model.addAttribute(
 						"arbreProcessos",
-						expedientService.getArbreInstanciesProces(id, false));
+						expedientService.getArbreInstanciesProces(id));
 				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, true);
 				model.addAttribute(
 						"instanciaProces",

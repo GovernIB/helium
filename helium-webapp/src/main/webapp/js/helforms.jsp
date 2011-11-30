@@ -44,19 +44,17 @@ function initSuggest(codi, url, callback, extraParams) {
 var selectDominiParams = new Array();
 var consultaActiva = new Array();
 function initSelect(selectId, valor, url, extraParams, dominiParams) {
-	//if (!$.browser.msie || parseInt(jQuery.browser.version) > 7) {
-		$.blockUI({
-			message: '<fmt:message key="js.helforms.carreg_dades" />' ,
-			css: {
-	        	border: 'none', 
-	        	padding: '15px', 
-	        	backgroundColor: '#000', 
-	        	'-webkit-border-radius': '10px', 
-	        	'-moz-border-radius': '10px', 
-	        	opacity: .5, 
-	        	color: '#fff'}
-		});
-	//}
+	$.blockUI({
+		message: '<fmt:message key="js.helforms.carreg_dades" />' ,
+		css: {
+        	border: 'none', 
+        	padding: '15px', 
+        	backgroundColor: '#000', 
+        	'-webkit-border-radius': '10px', 
+        	'-moz-border-radius': '10px', 
+        	opacity: .5, 
+        	color: '#fff'}
+	});
 	selectDominiParams[selectId] = dominiParams;
 	consultaActiva.push(selectId);
 	var valorActual = $("select#" + selectId).val();
@@ -100,7 +98,9 @@ function canviSelectTasca(selectId, camp) {
 	for (i = 0; i < sels.length; i++) {
 		if (sels[i].id != selectId && selectDominiParams[sels[i].id] != null && selectDominiParams[sels[i].id].indexOf(camp) != -1) {
 			try { eval("initSelect_" + sels[i].id + "()"); }
-			catch (ex) {}
+			catch (ex) {
+				alert(ex);
+			}
 		}
 	}
 	canvisSelectInicialitzat = true;

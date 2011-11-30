@@ -16,19 +16,27 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import net.conselldemallorca.helium.core.model.dto.DadaIndexadaDto;
+import net.conselldemallorca.helium.core.model.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
+import net.conselldemallorca.helium.report.FieldValue;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
+import net.conselldemallorca.helium.webapp.mvc.util.PaginatedList;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
 
+import org.displaytag.properties.SortOrderEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -74,21 +82,24 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		this.permissionService = permissionService;
 	}
 
-
 	@ModelAttribute("commandSeleccioConsulta")
 	public ExpedientConsultaDissenyCommand populateCommandSeleccioConsulta(
 			HttpSession session,
 			@RequestParam(value = "expedientTipusId", required = false) Long expedientTipusId,
 			@RequestParam(value = "consultaId", required = false) Long consultaId,
-			@RequestParam(value = "canviForm", required = false) Boolean canviForm) {
+			@RequestParam(value = "canviar", required = false) Boolean canviar) {
 		ExpedientConsultaDissenyCommand command = (ExpedientConsultaDissenyCommand)session.getAttribute(VARIABLE_SESSIO_SELCON_COMMAND);
 		if (command == null)
 			command = new ExpedientConsultaDissenyCommand();
-		if (canviForm != null && canviForm.booleanValue()) {
+		if (consultaId != null && expedientTipusId == null) {
 			command.setConsultaId(consultaId);
-			if (expedientTipusId == null || !expedientTipusId.equals(command.getExpedientTipusId()))
-				command.setConsultaId(null);
+			command.setExpedientTipusId(dissenyService.getConsultaById(consultaId).getExpedientTipus().getId());
+		}
+		if (canviar != null && canviar.booleanValue()) {
 			command.setExpedientTipusId(expedientTipusId);
+			command.setConsultaId(consultaId);
+			if (command.getExpedientTipusId() != null && !command.getExpedientTipusId().equals(expedientTipusId))
+				command.setConsultaId(null);
 			session.removeAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);
 		}
 		session.setAttribute(VARIABLE_SESSIO_SELCON_COMMAND, command);
@@ -99,7 +110,10 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		ExpedientConsultaDissenyCommand commandSeleccioConsulta =
 			(ExpedientConsultaDissenyCommand)session.getAttribute(VARIABLE_SESSIO_SELCON_COMMAND);
 		if (commandSeleccioConsulta != null && commandSeleccioConsulta.getConsultaId() != null) {
-			List<Camp> camps = dissenyService.findCampsPerConsulta(commandSeleccioConsulta.getConsultaId());
+			List<Camp> camps = dissenyService.findCampsPerCampsConsulta(
+					commandSeleccioConsulta.getConsultaId(),
+					TipusConsultaCamp.FILTRE,
+					true);
 			Object command = TascaFormUtil.getCommandForFiltre(
 					camps,
 					null,
@@ -112,14 +126,18 @@ public class ExpedientConsultaDissenyController extends BaseController {
 	@ModelAttribute("valorsBoolea")
 	public List<ParellaCodiValorDto> valorsBoolea() {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		resposta.add(new ParellaCodiValorDto("true",  getMessage("txt.si") ));
-		resposta.add(new ParellaCodiValorDto("false",  getMessage("txt.no") ));
+		resposta.add(new ParellaCodiValorDto("true",  getMessage("comuns.si") ));
+		resposta.add(new ParellaCodiValorDto("false",  getMessage("comuns.no") ));
 		return resposta;
 	}
 
 	@RequestMapping(value = "/expedient/consultaDisseny")
 	public String consultaDisseny(
 			HttpServletRequest request,
+			@RequestParam(value = "page", required = false) String page,
+			@RequestParam(value = "sort", required = false) String sort,
+			@RequestParam(value = "dir", required = false) String dir,
+			@RequestParam(value = "objectsPerPage", required = false) String objectsPerPage,
 			HttpSession session,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
@@ -128,9 +146,12 @@ public class ExpedientConsultaDissenyController extends BaseController {
 				(ExpedientConsultaDissenyCommand)model.get("commandSeleccioConsulta");
 			populateModelCommon(entorn, model, commandSeleccio);
 			Object commandFiltre = session.getAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);
-			if (commandFiltre != null) {
+			if (commandFiltre != null && commandSeleccio != null && commandSeleccio.getConsultaId() != null) {
 				model.addAttribute("commandFiltre", commandFiltre);
-				List<Camp> camps = dissenyService.findCampsPerConsulta(commandSeleccio.getConsultaId());
+				List<Camp> camps = dissenyService.findCampsPerCampsConsulta(
+						commandSeleccio.getConsultaId(),
+						TipusConsultaCamp.FILTRE,
+						true);
 				Map<String, Object> valors = TascaFormUtil.getValorsFromCommand(
 						camps,
 						commandFiltre,
@@ -150,14 +171,18 @@ public class ExpedientConsultaDissenyController extends BaseController {
 				}
 				model.addAttribute(
 						"expedients",
-						expedientService.findAmbEntornConsultaFiltre(
+						getPaginaExpedients(
 								entorn.getId(),
 								commandSeleccio.getConsultaId(),
-								valorsPerService));
+								valorsPerService,
+								page,
+								sort,
+								dir,
+								objectsPerPage));
 			}
 			return "expedient/consultaDisseny";
 		} else {
-			missatgeError(request, getMessage("error.no.entorn.selec") );
+			missatgeError(request, getMessage("error.no.entorn.selec"));
 			return "redirect:/index.html";
 		}
 	}
@@ -175,6 +200,18 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		if (entorn != null) {
 			ExpedientConsultaDissenyCommand commandSeleccio =
 				(ExpedientConsultaDissenyCommand)model.get("commandSeleccioConsulta");
+			if (commandSeleccio.getConsultaId() != null) {
+				Consulta consulta = dissenyService.getConsultaById(commandSeleccio.getConsultaId());
+				if (permissionService.filterAllowed(
+						consulta.getExpedientTipus(),
+						ExpedientTipus.class,
+						new Permission[] {
+							ExtendedPermission.ADMINISTRATION,
+							ExtendedPermission.READ}) == null) {
+					missatgeError(request, getMessage("error.consulta.tipexp.noaut"));
+					return "redirect:/expedient/consultaDisseny.html";
+				}
+			}
 			if ("submit".equals(submit) || submit.length() == 0) {
 				if (result.hasErrors()) {
 					populateModelCommon(entorn, model, commandSeleccio);
@@ -182,12 +219,92 @@ public class ExpedientConsultaDissenyController extends BaseController {
 				} else {
 					session.setAttribute(VARIABLE_SESSIO_FILTRE_COMMAND, command);
 				}
+			} else if ("informe".equals(submit)) {
+				return "redirect:/expedient/consultaDissenyInforme.html";
 			} else if ("netejar".equals(submit)) {
 				session.removeAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);
 			}
 			return "redirect:/expedient/consultaDisseny.html";
 		} else {
-			missatgeError(request, getMessage("error.no.entorn.selec") );
+			missatgeError(request, getMessage("error.no.entorn.selec"));
+			return "redirect:/index.html";
+		}
+	}
+
+	@RequestMapping(value = "/expedient/consultaDissenyInforme")
+	public String consultaDissenyInforme(
+			HttpServletRequest request,
+			HttpSession session,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			ExpedientConsultaDissenyCommand commandSeleccio =
+				(ExpedientConsultaDissenyCommand)model.get("commandSeleccioConsulta");
+			populateModelCommon(entorn, model, commandSeleccio);
+			Object commandFiltre = model.get("commandFiltre");
+			if (commandFiltre != null) {
+				Consulta consulta = dissenyService.getConsultaById(commandSeleccio.getConsultaId());
+				if (consulta.getInformeNom() != null) {
+					model.addAttribute("commandFiltre", commandFiltre);
+					List<Camp> camps = dissenyService.findCampsPerCampsConsulta(
+							commandSeleccio.getConsultaId(),
+							TipusConsultaCamp.FILTRE,
+							true);
+					Map<String, Object> valors = TascaFormUtil.getValorsFromCommand(
+							camps,
+							commandFiltre,
+							true,
+							true);
+					Map<String, Object> valorsPerService = new HashMap<String, Object>();
+					for (String clau: valors.keySet()) {
+						String clauPerService = clau.replaceFirst("_", ".");
+						Object valor = valors.get(clau);
+						valorsPerService.put(
+								clauPerService,
+								valor);
+					}
+					List<ExpedientConsultaDissenyDto> expedients = expedientService.findAmbEntornConsultaDisseny(
+							entorn.getId(),
+							commandSeleccio.getConsultaId(),
+							valorsPerService,
+							ExpedientCamps.EXPEDIENT_CAMP_ID,
+							true);
+					model.addAttribute(
+							JasperReportsView.MODEL_ATTRIBUTE_REPORTDATA,
+							getDadesDatasource(expedients));
+					model.addAttribute(
+							JasperReportsView.MODEL_ATTRIBUTE_REPORTCONTENT,
+							consulta.getInformeContingut());
+					if (consulta.getSubConsultes().size() > 0) {
+						String[] subreports = new String[consulta.getSubConsultes().size()];
+						int index = 0;
+						for (Consulta subconsulta: consulta.getSubConsultes())  {
+							String subreportCodi = subconsulta.getCodi();
+							subreports[index++] = subreportCodi;
+							List<ExpedientConsultaDissenyDto> expedientsSub = expedientService.findAmbEntornConsultaDisseny(
+									entorn.getId(),
+									subconsulta.getId(),
+									valorsPerService,
+									ExpedientCamps.EXPEDIENT_CAMP_ID,
+									true);
+							model.addAttribute(
+									JasperReportsView.MODEL_ATTRIBUTE_SUBREPORTDATA_PREFIX + subreportCodi,
+									getDadesDatasource(expedientsSub));
+						}
+						model.addAttribute(
+								JasperReportsView.MODEL_ATTRIBUTE_SUBREPORTS,
+								subreports);
+					}
+					return "jasperReportsView";
+				} else {
+					missatgeError(request, getMessage("error.consulta.informe.nonhiha"));
+				}
+			} else {
+				missatgeError(request, getMessage("error.consulta.informe.nofiltre"));
+			}
+			return "redirect:/expedient/consultaDisseny.html";
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec"));
 			return "redirect:/index.html";
 		}
 	}
@@ -268,13 +385,124 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			model.addAttribute("consultes", consultes);
 			if (commandSeleccio.getConsultaId() != null) {
 				model.addAttribute(
-						"camps",
-						dissenyService.findCampsPerConsulta(commandSeleccio.getConsultaId()));
-				model.addAttribute(
 						"consulta",
 						dissenyService.getConsultaById(commandSeleccio.getConsultaId()));
+				model.addAttribute(
+						"campsFiltre",
+						dissenyService.findCampsPerCampsConsulta(
+								commandSeleccio.getConsultaId(),
+								TipusConsultaCamp.FILTRE,
+								true));
+				model.addAttribute(
+						"campsInforme",
+						dissenyService.findCampsPerCampsConsulta(
+								commandSeleccio.getConsultaId(),
+								TipusConsultaCamp.INFORME,
+								true));
+			}
+			if (commandSeleccio.getExpedientTipusId() != null) {
+				List<Estat> estats = dissenyService.findEstatAmbExpedientTipus(commandSeleccio.getExpedientTipusId());
+				afegirEstatsInicialIFinal(estats);
+				model.addAttribute("estats", estats);
 			}
 		}
 	}
+
+	private FieldValue toReportField(DadaIndexadaDto dadaIndex) {
+		FieldValue field = new FieldValue(
+				dadaIndex.getDefinicioProcesCodi(),
+				dadaIndex.getCampCodi(),
+				dadaIndex.getEtiqueta());
+		if (!dadaIndex.isMultiple()) {
+			field.setValor(dadaIndex.getValor());
+			field.setValorOrdre(dadaIndex.getValorIndex());
+			field.setValorMostrar(dadaIndex.getValorMostrar());
+		} else {
+			field.setValorMultiple(dadaIndex.getValorMultiple());
+			field.setValorMostrarMultiple(dadaIndex.getValorMostrarMultiple());
+			field.setValorOrdreMultiple(dadaIndex.getValorIndexMultiple());
+		}
+		field.setMultiple(dadaIndex.isMultiple());
+		return field;
+	}
+	private void afegirEstatsInicialIFinal(List<Estat> estats) {
+		Estat iniciat = new Estat();
+		iniciat.setId(new Long(0));
+		iniciat.setNom( getMessage("expedient.consulta.iniciat") );
+		estats.add(0, iniciat);
+		Estat finalitzat = new Estat();
+		finalitzat.setId(new Long(-1));
+		finalitzat.setNom( getMessage("expedient.consulta.finalitzat") );
+		estats.add(finalitzat);
+	}
+
+	private List<Map<String, FieldValue>> getDadesDatasource(List<ExpedientConsultaDissenyDto> expedients) {
+		List<Map<String, FieldValue>> dadesDataSource = new ArrayList<Map<String, FieldValue>>();
+		for (ExpedientConsultaDissenyDto dadesExpedient: expedients) {
+			Map<String, FieldValue> mapFila = new HashMap<String, FieldValue>();
+			for (String clau: dadesExpedient.getDadesExpedient().keySet()) {
+				DadaIndexadaDto dada = dadesExpedient.getDadesExpedient().get(clau);
+				mapFila.put(
+						dada.getReportFieldName(),
+						toReportField(dada));
+			}
+			dadesDataSource.add(mapFila);
+		}
+		return dadesDataSource;
+	}
+
+	private PaginatedList getPaginaExpedients(
+			Long entornId,
+			Long consultaId,
+			Map<String, Object> valors,
+			String page,
+			String sort,
+			String dir,
+			String objectsPerPage) {
+		int maxResults = getObjectsPerPage(objectsPerPage);
+		int pagina = (page != null) ? new Integer(page).intValue() : 1;
+		int firstRow = (pagina - 1) * maxResults;
+		boolean isAsc = (dir == null) || "asc".equals(dir);
+		// Si no s'especifica columna per cercar ordena en sentit descendent
+		if (sort == null || sort.length() == 0)
+			isAsc = false;
+		//
+		PaginatedList paginatedList = new PaginatedList();
+		paginatedList.setFullListSize(
+				expedientService.countAmbEntornConsultaDisseny(
+						entornId,
+						consultaId,
+						valors));
+		paginatedList.setObjectsPerPage(maxResults);
+		paginatedList.setPageNumber(pagina);
+		String sortOk = (sort != null && sort.length() > 0) ? sort : "dataInici";
+		paginatedList.setSortCriterion(sortOk);
+		paginatedList.setSortDirection((isAsc) ? SortOrderEnum.ASCENDING : SortOrderEnum.DESCENDING);
+		List<ExpedientConsultaDissenyDto> dadesExpedients = expedientService.findAmbEntornConsultaDisseny(
+				entornId,
+				consultaId,
+				valors,
+				sort,
+				isAsc,
+				firstRow,
+				maxResults);
+		paginatedList.setList(dadesExpedients);
+		// ------ //
+		/*for (ExpedientConsultaDissenyDto dadesExpedient: dadesExpedients) {
+			mostrarDadesExpedient(dadesExpedient);
+		}*/
+		// ------ //
+		return paginatedList;
+	}
+
+	/*private void mostrarDadesExpedient(ExpedientConsultaDissenyDto dadesExpedient) {
+		System.out.println(">>>>>> (" + dadesExpedient.getExpedient().getId() + ") " + dadesExpedient.getExpedient().getIdentificador());
+		if (dadesExpedient.getDadesExpedient() != null) {
+			for (String clau: dadesExpedient.getDadesExpedient().keySet()) {
+				DadaIndexadaDto dada = dadesExpedient.getDadesExpedient().get(clau);
+				System.out.println(">>> " + dada.getCampCodi() + ": (" + dada.getValorIndex() + ") " + dada.getValorMostrar());
+			}
+		}
+	}*/
 
 }

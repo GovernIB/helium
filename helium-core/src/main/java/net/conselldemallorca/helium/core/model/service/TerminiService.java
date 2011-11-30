@@ -96,21 +96,6 @@ public class TerminiService {
 				processInstanceId);
 		if (terminiIniciat == null) {
 			if (esDataFi) {
-				Date dataFi = getDataFiTermini(
-						data,
-						anys,
-						mesos,
-						dies,
-						termini.isLaborable());
-				terminiIniciat = new TerminiIniciat(
-						termini,
-						anys,
-						mesos,
-						dies,
-						processInstanceId,
-						data,
-						dataFi);
-			} else {
 				Date dataInici = getDataIniciTermini(
 						data,
 						anys,
@@ -125,17 +110,24 @@ public class TerminiService {
 						processInstanceId,
 						dataInici,
 						data);
-			}
-		} else {
-			if (esDataFi) {
+			} else {
 				Date dataFi = getDataFiTermini(
 						data,
 						anys,
 						mesos,
 						dies,
 						termini.isLaborable());
-				terminiIniciat.setDataFi(dataFi);
-			} else {
+				terminiIniciat = new TerminiIniciat(
+						termini,
+						anys,
+						mesos,
+						dies,
+						processInstanceId,
+						data,
+						dataFi);
+			}
+		} else {
+			if (esDataFi) {
 				Date dataInici = getDataIniciTermini(
 						data,
 						anys,
@@ -143,6 +135,16 @@ public class TerminiService {
 						dies,
 						termini.isLaborable());
 				terminiIniciat.setDataInici(dataInici);
+				terminiIniciat.setDataFi(data);
+			} else {
+				Date dataFi = getDataFiTermini(
+						data,
+						anys,
+						mesos,
+						dies,
+						termini.isLaborable());
+				terminiIniciat.setDataInici(data);
+				terminiIniciat.setDataFi(dataFi);
 			}
 			terminiIniciat.setDataAturada(null);
 			terminiIniciat.setDataCancelacio(null);
@@ -469,17 +471,12 @@ public class TerminiService {
 			TerminiIniciat terminiIniciat,
 			String responsable,
 			Expedient expedient) {
-		logger.info("Creació alerta prèvia per al termini " + terminiIniciat.getId() + " per al responsable " + responsable);
+		//logger.info("Creació alerta prèvia per al termini " + terminiIniciat.getId() + " per al responsable " + responsable);
 		Alerta alerta = new Alerta(
 				new Date(),
 				responsable,
-				Alerta.AlertaPrioritat.ALTA,
+				Alerta.AlertaPrioritat.NORMAL,
 				terminiIniciat.getTermini().getDefinicioProces().getEntorn());
-//		Alerta alerta = new Alerta(
-//				new Date(),
-//				responsable,
-//				"El termini \"" + terminiIniciat.getTermini().getNom() + "\" està a punt d'expirar",
-//				terminiIniciat.getTermini().getDefinicioProces().getEntorn());
 		alerta.setExpedient(expedient);
 		alerta.setTerminiIniciat(terminiIniciat);
 		alertaDao.saveOrUpdate(alerta);
@@ -488,17 +485,12 @@ public class TerminiService {
 			TerminiIniciat terminiIniciat,
 			String responsable,
 			Expedient expedient) {
-		logger.info("Creació alerta final per al termini " + terminiIniciat.getId() + " per al responsable " + responsable);
+		//logger.info("Creació alerta final per al termini " + terminiIniciat.getId() + " per al responsable " + responsable);
 		Alerta alerta = new Alerta(
 				new Date(),
 				responsable,
-				Alerta.AlertaPrioritat.MOLT_ALTA,
+				Alerta.AlertaPrioritat.NORMAL,
 				terminiIniciat.getTermini().getDefinicioProces().getEntorn());
-//		Alerta alerta = new Alerta(
-//				new Date(),
-//				responsable,
-//				"El termini \"" + terminiIniciat.getTermini().getNom() + "\" ha expirat",
-//				terminiIniciat.getTermini().getDefinicioProces().getEntorn());
 		alerta.setExpedient(expedient);
 		alerta.setTerminiIniciat(terminiIniciat);
 		alertaDao.saveOrUpdate(alerta);

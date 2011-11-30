@@ -35,7 +35,11 @@ public class PermisService {
 			boolean asc,
 			int firstRow,
 			int maxResults) {
-		return permisDao.findPagedAndOrderedAll(sort, asc, firstRow, maxResults);
+		return permisDao.findPagedAndOrderedAll(
+				new String[] {sort},
+				asc,
+				firstRow,
+				maxResults);
 	}
 	public void createPermis(String codi, String descripcio) {
 		permisDao.saveOrUpdate(

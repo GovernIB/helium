@@ -41,7 +41,7 @@ public class DefinicioProcesDao extends HibernateGenericDao<DefinicioProces, Lon
 			Long entornId,
 			String jbpmKey) {
 		return findOrderedByCriteria(
-				"id",
+				new String[] {"id"},
 				false,
 				Restrictions.eq("entorn.id", entornId),
 				Restrictions.eq("jbpmKey", jbpmKey));
@@ -80,7 +80,7 @@ public class DefinicioProcesDao extends HibernateGenericDao<DefinicioProces, Lon
 			Long entornId,
 			String jbpmName) {
 		List<DefinicioProces> llistat = findOrderedByCriteria(
-				"versio",
+				new String[] {"versio"},
 				false,
 				Restrictions.eq("entorn.id", entornId),
 				Restrictions.eq("jbpmKey", jbpmName));

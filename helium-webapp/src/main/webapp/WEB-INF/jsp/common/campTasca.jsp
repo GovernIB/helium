@@ -23,7 +23,16 @@
 <c:set var="valorTextActual" value="${tasca.varsComText[codiActual]}" scope="request"/>
 <c:set var="extraParams">
 	<c:choose>
-		<c:when test="${not empty tasca.id}">taskId:${tasca.id},processInstanceId:${tasca.processInstanceId},definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}',valors:function(){return canvisSelectValorsAddicionals}</c:when>
+		<c:when test="${not empty tasca.id}">
+			<c:choose>
+				<c:when test="${fn:startsWith(tasca.id, 'TIE')}">
+					taskId:'${tasca.id}',definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}',valors:function(){return canvisSelectValorsAddicionals}
+				</c:when>
+				<c:otherwise>
+					taskId:${tasca.id},processInstanceId:${tasca.processInstanceId},definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}',valors:function(){return canvisSelectValorsAddicionals}
+				</c:otherwise>
+			</c:choose>
+		</c:when>
 		<c:when test="${not empty expedient}">definicioProcesId:${tasca.definicioProces.id},processInstanceId:${param.id},campCodi:'${codiActual}',valors:function(){return canvisSelectValorsAddicionals}</c:when>
 		<c:when test="${not empty definicioProces}">definicioProcesId:${definicioProces.id},campCodi:'${codiActual}',valors:function(){return canvisSelectValorsAddicionals}</c:when>
 		<c:when test="${not empty expedientTipus}">definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}',valors:function(){return canvisSelectValorsAddicionals}</c:when>

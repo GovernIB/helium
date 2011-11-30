@@ -10,21 +10,24 @@ import java.util.List;
 import java.util.Map;
 
 import javax.jws.WebService;
+import javax.xml.datatype.XMLGregorianCalendar;
 
+import net.conselldemallorca.helium.core.model.dto.ArxiuDto;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
+import net.conselldemallorca.helium.core.model.service.DocumentService;
 import net.conselldemallorca.helium.core.model.service.EntornService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
@@ -48,7 +51,7 @@ public class Tramitacio implements TramitacioService {
 	private DissenyService dissenyService;
 	private ExpedientService expedientService;
 	private TascaService tascaService;
-//	private PermissionService permissionService;
+	private DocumentService documentService;
 
 
 
@@ -73,9 +76,14 @@ public class Tramitacio implements TramitacioService {
 		if (valorsFormulari != null) {
 			variables = new HashMap<String, Object>();
 			for (ParellaCodiValor parella: valorsFormulari) {
-				variables.put(
-						parella.getCodi(),
-						parella.getValor());
+				if (parella.getValor() instanceof XMLGregorianCalendar)
+					variables.put(
+							parella.getCodi(),
+							((XMLGregorianCalendar)parella.getValor()).toGregorianCalendar().getTime());
+				else
+					variables.put(
+							parella.getCodi(),
+							parella.getValor());
 			}
 		}
 		try {
@@ -204,9 +212,14 @@ public class Tramitacio implements TramitacioService {
 		if (valors != null) {
 			variables = new HashMap<String, Object>();
 			for (ParellaCodiValor parella: valors) {
-				variables.put(
-						parella.getCodi(),
-						parella.getValor());
+				if (parella.getValor() instanceof XMLGregorianCalendar)
+					variables.put(
+							parella.getCodi(),
+							((XMLGregorianCalendar)parella.getValor()).toGregorianCalendar().getTime());
+				else
+					variables.put(
+							parella.getCodi(),
+							parella.getValor());
 			}
 		}
 		try {
@@ -350,10 +363,17 @@ public class Tramitacio implements TramitacioService {
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
-			expedientService.updateVariable(
-					processInstanceId,
-					varCodi,
-					valor);
+			if (valor instanceof XMLGregorianCalendar)
+				expedientService.updateVariable(
+						processInstanceId,
+						varCodi,
+						((XMLGregorianCalendar)valor).toGregorianCalendar().getTime());
+			else
+				expedientService.updateVariable(
+						processInstanceId,
+						varCodi,
+						valor);
+			
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar la variable al procés", ex);
 			throw new TramitacioException("No s'ha pogut guardar la variable al procés: " + ex.getMessage());
@@ -392,8 +412,26 @@ public class Tramitacio implements TramitacioService {
 			}
 			return resposta;
 		} catch (Exception ex) {
-			logger.error("No s'ha pogut guardar la variable al procés", ex);
-			throw new TramitacioException("No s'ha pogut guardar la variable al procés: " + ex.getMessage());
+			logger.error("No s'han pogut consultar el documents del procés", ex);
+			throw new TramitacioException("No s'han pogut consultar el documents del procés: " + ex.getMessage());
+		}
+	}
+	public ArxiuProces getArxiuProces(
+			Long documentId) throws TramitacioException {
+		try {
+			ArxiuProces resposta = null;
+			if (documentId != null) {
+				ArxiuDto arxiu = documentService.arxiuDocumentPerMostrar(documentId);
+				if (arxiu != null) {
+					resposta = new ArxiuProces();
+					resposta.setNom(arxiu.getNom());
+					resposta.setContingut(arxiu.getContingut());
+				}
+			}
+			return resposta;
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut obtenir l'arxiu del procés", ex);
+			throw new TramitacioException("No s'ha pogut obtenir l'arxiu del procés: " + ex.getMessage());
 		}
 	}
 	public Long setDocumentProces(
@@ -456,8 +494,8 @@ public class Tramitacio implements TramitacioService {
 		try {
 			expedientService.executarAccio(processInstanceId, accio);
 		} catch (Exception ex) {
-			logger.error("No s'ha pogut executar l'script", ex);
-			throw new TramitacioException("No s'ha pogut executar l'script: " + ex.getMessage());
+			logger.error("No s'ha pogut executar l'acció", ex);
+			throw new TramitacioException("No s'ha pogut executar l'acció: " + ex.getMessage());
 		}
 	}
 	public void executarScriptProces(
@@ -476,6 +514,40 @@ public class Tramitacio implements TramitacioService {
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut executar l'script", ex);
 			throw new TramitacioException("No s'ha pogut executar l'script: " + ex.getMessage());
+		}
+	}
+	public void aturarExpedient(
+			String entorn,
+			String usuari,
+			String processInstanceId,
+			String motiu) throws TramitacioException{
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		try {
+			expedientService.aturar(
+					processInstanceId,
+					motiu,
+					usuari);
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut aturar l'expedient", ex);
+			throw new TramitacioException("No s'ha pogut aturar l'expedient: " + ex.getMessage());
+		}
+	}
+	public void reprendreExpedient(
+			String entorn,
+			String usuari,
+			String processInstanceId) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		try {
+			expedientService.reprendre(
+					processInstanceId,
+					usuari);
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut reprendre l'expedient", ex);
+			throw new TramitacioException("No s'ha pogut reprendre l'expedient: " + ex.getMessage());
 		}
 	}
 	public List<ExpedientInfo> consultaExpedients(
@@ -537,21 +609,6 @@ public class Tramitacio implements TramitacioService {
 				geoPosY,
 				geoReferencia,
 				false);
-		
-//		// Filtre expedients permesos
-//		List<ExpedientTipus> tipus = dissenyService.findExpedientTipusAmbEntorn(e.getId());
-//		permissionService.filterAllowed(
-//				tipus,
-//				ExpedientTipus.class,
-//				new Permission[] {
-//					ExtendedPermission.ADMINISTRATION,
-//					ExtendedPermission.READ});
-//		Iterator<ExpedientDto> it = expedients.iterator();
-//		while (it.hasNext()) {
-//			ExpedientDto exp = it.next();
-//			if (!tipus.contains(exp.getTipus()))
-//				it.remove();
-//		}
 		// Construcció de la resposta
 		List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
 		for (ExpedientDto dto: expedients)
@@ -577,10 +634,10 @@ public class Tramitacio implements TramitacioService {
 	public void setTascaService(TascaService tascaService) {
 		this.tascaService = tascaService;
 	}
-//	@Autowired
-//	public void setPermissionService(PermissionService permissionService) {
-//		this.permissionService = permissionService; 
-//	}
+	@Autowired
+	public void setDocumentService(DocumentService documentService) {
+		this.documentService = documentService;
+	}
 
 
 

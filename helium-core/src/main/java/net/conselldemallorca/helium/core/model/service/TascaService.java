@@ -15,6 +15,8 @@ import java.util.Set;
 
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.model.dao.AlertaDao;
+import net.conselldemallorca.helium.core.model.dao.CampDao;
+import net.conselldemallorca.helium.core.model.dao.ConsultaCampDao;
 import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentStoreDao;
@@ -48,13 +50,13 @@ import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.FormulariExtern;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
+import net.conselldemallorca.helium.core.security.acl.AclServiceDao;
 import net.conselldemallorca.helium.core.util.DocumentTokenUtils;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
@@ -68,7 +70,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.context.NoSuchMessageException;
 import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -102,6 +103,7 @@ public class TascaService {
 	private DefinicioProcesDao definicioProcesDao;
 	private DocumentDao documentDao;
 	private JbpmDao jbpmDao;
+	private AclServiceDao aclServiceDao;
 	private DocumentStoreDao documentStoreDao;
 	private PlantillaDocumentDao plantillaDocumentDao;
 	private PluginSignaturaDao pluginSignaturaDao;
@@ -113,12 +115,17 @@ public class TascaService {
 	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
 	private TerminiIniciatDao terminiIniciatDao;
 	private AlertaDao alertaDao;
+	private CampDao campDao;
+	private ConsultaCampDao consultaCampDao;
 	private MessageSource messageSource;
 
 	private OpenOfficeUtils openOfficeUtils;
+	private ServiceUtils serviceUtils;
 	private DocumentTokenUtils documentTokenUtils;
 
 	private Map<String, Map<String, Object>> dadesFormulariExternInicial;
+
+	private Map<String, DadesExpedientTasca> dadesExpedientTasques;
 
 
 
@@ -209,10 +216,7 @@ public class TascaService {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
 		}
-		//long t1 = System.currentTimeMillis();
 		List<JbpmTask> tasques = jbpmDao.findPersonalTasks(usuariBo);
-		//System.out.println("Consulta de tasques: " + (System.currentTimeMillis() - t1) + "ms");
-		//long t2 = System.currentTimeMillis();
 		List<TascaLlistatDto> resposta = tasquesLlistatFiltradesValors(
 				entornId,
 				tasques, 
@@ -226,7 +230,6 @@ public class TascaService {
 				dataLimitFi,
 				columna,
 				ordre);
-		//System.out.println("Filtrat de tasques: " + (System.currentTimeMillis() - t2) + "ms");
 		return resposta;
 	}
 
@@ -441,7 +444,8 @@ public class TascaService {
 			String taskId) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		if (!isTascaValidada(task))
-			throw new IllegalStateException( getMessage("error.tascaService.noValidada") );
+			throw new IllegalStateException(
+					getServiceUtils().getMessage("error.tascaService.noValidada"));
 		//deleteDocumentsTasca(taskId);
 		restaurarTasca(taskId);
 		TascaDto tasca = toTascaDto(task, null, true);
@@ -473,11 +477,14 @@ public class TascaService {
 			String outcome) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, comprovarAssignacio);
 		if (!isTascaValidada(task))
-			throw new IllegalStateException( getMessage("error.tascaService.formNoValidat") );
+			throw new IllegalStateException(
+					getServiceUtils().getMessage("error.tascaService.formNoValidat"));
 		if (!isDocumentsComplet(task))
-			throw new IllegalStateException( getMessage("error.tascaService.faltenAdjuntar") );
+			throw new IllegalStateException(
+					getServiceUtils().getMessage("error.tascaService.faltenAdjuntar"));
 		if (!isSignaturesComplet(task))
-			throw new IllegalStateException( getMessage("error.tascaService.faltenSignar") );
+			throw new IllegalStateException(
+					getServiceUtils().getMessage("error.tascaService.faltenSignar"));
 		jbpmDao.startTaskInstance(taskId);
 		jbpmDao.completeTaskInstance(task.getId(), outcome);
 		// Accions per a una tasca delegada
@@ -498,19 +505,23 @@ public class TascaService {
 		}
 		JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
+		Map<String, Set<Camp>> mapCamps = getServiceUtils().getMapCamps(expedient);
+		Map<String, Map<String, Object>> mapValors = getServiceUtils().getMapValors(expedient);
 		luceneDao.updateExpedient(
 				expedient,
-				getMapDefinicionsProces(expedient),
-				getMapCamps(expedient),
-				getMapValorsJbpm(expedient));
+				getServiceUtils().getMapDefinicionsProces(expedient),
+				mapCamps,
+				mapValors,
+				getServiceUtils().getMapValorsDomini(mapCamps, mapValors),
+				isExpedientFinalitzat(expedient));
 		TascaDto tasca = toTascaDto(task, null, true);
 		registreDao.crearRegistreFinalitzarTasca(
 				tasca.getExpedient().getId(),
 				taskId,
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				"Finalitzar \"" + tasca.getNom() + "\"");
-		
 		actualitzarTerminisIniciatsIAlertes(taskId, expedient);
+		dadesExpedientTasques.remove(task.getId());
 	}
 
 	public Object getVariable(
@@ -596,7 +607,8 @@ public class TascaService {
 			String usuari) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);
 		if (!isTascaValidada(task))
-			throw new IllegalStateException( getMessage("error.tascaService.noValidada") );
+			throw new IllegalStateException(
+					getServiceUtils().getMessage("error.tascaService.noValidada"));
 		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(task.getProcessDefinitionId());
@@ -768,7 +780,8 @@ public class TascaService {
 					false,
 					false);
 		} else {
-			throw new IllegalArgumentsException( getMessage("error.documentService.formatIncorrecte") );
+			throw new IllegalArgumentsException(
+					getServiceUtils().getMessage("error.documentService.formatIncorrecte"));
 		}
 	}
 	public boolean signarDocumentAmbToken(
@@ -845,13 +858,16 @@ public class TascaService {
 					}
 					return custodiat;
 				} else {
-					throw new IllegalStateException( getMessage("error.tascaService.docNoDisponible") );
+					throw new IllegalStateException(
+							getServiceUtils().getMessage("error.tascaService.docNoDisponible"));
 				}
 			} else {
-				throw new IllegalStateException( getMessage("error.tascaService.docNoDisponible") );
+				throw new IllegalStateException(
+						getServiceUtils().getMessage("error.tascaService.docNoDisponible"));
 			}
 		} else {
-			throw new IllegalArgumentsException( getMessage("error.tascaService.tokenIncorrecte") );
+			throw new IllegalArgumentsException(
+					getServiceUtils().getMessage("error.tascaService.tokenIncorrecte"));
 		}
 	}
 
@@ -914,7 +930,8 @@ public class TascaService {
 							resposta.getArxiuContingut());
 				}
 			} catch (Exception ex) {
-				throw new TemplateException(getMessage("error.tascaService.generarDocument"), ex);
+				throw new TemplateException(
+						getServiceUtils().getMessage("error.tascaService.generarDocument"), ex);
 			}
 		} else {
 			resposta.setArxiuContingut(document.getArxiuContingut());
@@ -952,7 +969,8 @@ public class TascaService {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		DelegationInfo delegationInfo = getDelegationInfo(task);
 		if (delegationInfo == null || !taskId.equals(delegationInfo.getSourceTaskId())) {
-			throw new IllegalStateException( getMessage("error.tascaService.cancelarDelegacio") );
+			throw new IllegalStateException(
+					getServiceUtils().getMessage("error.tascaService.cancelarDelegacio"));
 		}
 		// Cancelar la tasca delegada
 		jbpmDao.cancelTaskInstance(delegationInfo.getTargetTaskId());
@@ -968,7 +986,8 @@ public class TascaService {
 				task.getName(),
 				task.getProcessDefinitionId());
 		if (tasca.getFormExtern() == null)
-			throw new IllegalStateException( getMessage("error.tascaService.noFormExtern") );
+			throw new IllegalStateException(
+					getServiceUtils().getMessage("error.tascaService.noFormExtern"));
 		Map<String, Object> vars = jbpmDao.getTaskInstanceVariables(task.getId());
 		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
@@ -1029,7 +1048,7 @@ public class TascaService {
 					}
 				}
 				validar(
-						entornPerTasca(task).getId(),
+						getDadesExpedientPerTasca(task).getEntornId(),
 						formExtern.getTaskId(),
 						valors,
 						false);
@@ -1040,7 +1059,6 @@ public class TascaService {
 			logger.warn("No s'ha trobat cap tasca amb l'id de formulari " + formulariId);
 		}
 	}
-
 	public Map<String, Object> obtenirValorsFormulariExternInicial(String formulariId) {
 		if (dadesFormulariExternInicial == null)
 			return null;
@@ -1076,7 +1094,7 @@ public class TascaService {
 		List<JbpmTask> tasques = jbpmDao.findPersonalTasks(usuariBo);
 		Integer total = 0;
 		for (JbpmTask task: tasques) {
-			Long currentEntornId = entornPerTasca(task).getId();
+			Long currentEntornId = getDadesExpedientPerTasca(task).getEntornId();
 			if (currentEntornId != null && entornId.equals(currentEntornId))
 				total++;
 		}
@@ -1088,7 +1106,7 @@ public class TascaService {
 		List<JbpmTask> tasques = jbpmDao.findGroupTasks(usuariBo);
 		Integer total = 0;
 		for (JbpmTask task: tasques) {
-			Long currentEntornId = entornPerTasca(task).getId();
+			Long currentEntornId = getDadesExpedientPerTasca(task).getEntornId();;
 			if (currentEntornId != null && entornId.equals(currentEntornId))
 				total++;
 		}
@@ -1118,6 +1136,10 @@ public class TascaService {
 	@Autowired
 	public void setJbpmDao(JbpmDao jbpmDao) {
 		this.jbpmDao = jbpmDao;
+	}
+	@Autowired
+	public void setAclServiceDao(AclServiceDao aclServiceDao) {
+		this.aclServiceDao = aclServiceDao;
 	}
 	@Autowired
 	public void setDocumentStoreDao(DocumentStoreDao documentStoreDao) {
@@ -1167,6 +1189,16 @@ public class TascaService {
 		this.alertaDao = alertaDao;
 	}
 	@Autowired
+	public void setCampDao(
+			CampDao campDao) {
+		this.campDao = campDao;
+	}
+	@Autowired
+	public void setConsultaCampDao(
+			ConsultaCampDao consultaCampDao) {
+		this.consultaCampDao = consultaCampDao;
+	}
+	@Autowired
 	public void setMessageSource(MessageSource messageSource) {
 		this.messageSource = messageSource;
 	}
@@ -1176,24 +1208,29 @@ public class TascaService {
 	private JbpmTask comprovarSeguretatTasca(Long entornId, String taskId, String usuari, boolean comprovarAssignacio) {
 		JbpmTask task = jbpmDao.getTaskById(taskId);
 		if (task == null) {
-			throw new NotFoundException( getMessage("error.tascaService.noTrobada") );
+			throw new NotFoundException(
+					getServiceUtils().getMessage("error.tascaService.noTrobada"));
 		}
-		Entorn entorn = entornPerTasca(task);
-		if (entorn == null || !entorn.getId().equals(entornId)) {
-			throw new NotFoundException( getMessage("error.tascaService.noTrobada") );
+		Long tascaEntornId = getDadesExpedientPerTasca(task).getEntornId();
+		if (!tascaEntornId.equals(entornId)) {
+			throw new NotFoundException(
+					getServiceUtils().getMessage("error.tascaService.noTrobada"));
 		}
 		if (comprovarAssignacio) {
 			if (usuari == null) {
 				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 				if (!auth.getName().equals(task.getAssignee()))
-					throw new NotFoundException( getMessage("error.tascaService.noAssignada") );
+					throw new NotFoundException(
+							getServiceUtils().getMessage("error.tascaService.noAssignada"));
 			} else {
 				if (!usuari.equals(task.getAssignee()))
-					throw new NotFoundException( getMessage("error.tascaService.noAssignada") );
+					throw new NotFoundException(
+							getServiceUtils().getMessage("error.tascaService.noAssignada"));
 			}
 		}
 		if (task.isSuspended()) {
-			throw new IllegalStateException( getMessage("error.tascaService.noDisponible") );
+			throw new IllegalStateException(
+					getServiceUtils().getMessage("error.tascaService.noDisponible"));
 		}
 		return task;
 	}
@@ -1213,13 +1250,12 @@ public class TascaService {
 		// Filtra les tasques per mostrar només les del entorn seleccionat
 		List<TascaLlistatDto> filtrades = new ArrayList<TascaLlistatDto>();
 		for (JbpmTask task: tasques) {
-			Long currentEntornId = entornPerTasca(task).getId();
+			Long currentEntornId = getDadesExpedientPerTasca(task).getEntornId();
 			if (currentEntornId != null && entornId.equals(currentEntornId)) {
 				TascaLlistatDto dto = toTascaLlistatDto(task, null);
 				if (complet) {
-					Expedient expedient = expedientDao.findAmbProcessInstanceId(
-							jbpmDao.getRootProcessInstance(task.getProcessInstanceId()).getId());
-					dto.setExpedientNumero(expedient.getNumeroIdentificador());
+					DadesExpedientTasca dadesExpedientPerTasca = getDadesExpedientPerTasca(task);
+					dto.setExpedientNumero(dadesExpedientPerTasca.getNumeroIdentificador());
 					Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
 							task.getName(),
 							task.getProcessDefinitionId());
@@ -1249,11 +1285,10 @@ public class TascaService {
 		// Filtra les tasques per mostrar només les del entorn seleccionat
 		List<TascaLlistatDto> filtrades = new ArrayList<TascaLlistatDto>();
 		for (JbpmTask task: tasques) {
-			Expedient expedientPerTasca = expedientDao.findAmbProcessInstanceId(
-					jbpmDao.getRootProcessInstance(task.getProcessInstanceId()).getId());
-			Long currentEntornId = expedientPerTasca.getEntorn().getId();
+			DadesExpedientTasca dadesExpedientPerTasca = getDadesExpedientPerTasca(task);
+			Long currentEntornId = dadesExpedientPerTasca.getEntornId();
 			if ((currentEntornId != null) && (entornId.equals(currentEntornId))) {
-				TascaLlistatDto dto = toTascaLlistatDto(task, expedientPerTasca);
+				TascaLlistatDto dto = toTascaLlistatDto(task, dadesExpedientPerTasca);
 				dto.setTitol(
 						dtoConverter.getTitolPerTasca(task));
 				Boolean incloure = true;
@@ -1263,12 +1298,12 @@ public class TascaService {
 					incloure = incloure && (nomTasca.indexOf(paramTasca) != -1);
 				}
 				if ((expedient != null) && (!expedient.equals(""))) {
-					String expedientTasca = normalitzaText(expedientPerTasca.getIdentificador());
+					String expedientTasca = normalitzaText(dadesExpedientPerTasca.getIdentificador());
 					String paramExpedient = normalitzaText(expedient);
 					incloure = incloure && (expedientTasca.indexOf(paramExpedient) != -1);
 				}
 				if (tipusExpedient != null) {
-					incloure = incloure && (tipusExpedient.longValue() == expedientPerTasca.getTipus().getId());
+					incloure = incloure && (tipusExpedient.longValue() == dadesExpedientPerTasca.getExpedientTipusId());
 				}
 				Date dataCreacio = dto.getDataCreacio();
 				if ((dataCreacioInici != null) && (dataCreacioFi != null)) {
@@ -1366,13 +1401,6 @@ public class TascaService {
 			.replaceAll("Ú", "U")
 			.replaceAll("Ü", "U");
 	}
-	private Entorn entornPerTasca(JbpmTask tasca) {
-		Expedient expedient = expedientDao.findAmbProcessInstanceId(
-				jbpmDao.getRootProcessInstance(tasca.getProcessInstanceId()).getId());
-		if (expedient != null)
-			return expedient.getEntorn();
-		return null;
-	}
 
 	private void validarTasca(String taskId) {
 		jbpmDao.setTaskInstanceVariable(
@@ -1434,42 +1462,6 @@ public class TascaService {
 			}
 		}
 		return ok;
-	}
-	/*private void deleteDocumentsTasca(String taskId) {
-		Map<String, Object> valors = jbpmDao.getTaskInstanceVariables(taskId);
-		for (String codi: valors.keySet()) {
-			if (codi.startsWith(PREFIX_DOCUMENT))
-				jbpmDao.deleteTaskInstanceVariable(taskId, codi);
-		}
-	}*/
-
-	private Map<String, DefinicioProces> getMapDefinicionsProces(Expedient expedient) {
-		Map<String, DefinicioProces> resposta = new HashMap<String, DefinicioProces>();
-		List<JbpmProcessInstance> tree = jbpmDao.getProcessInstanceTree(expedient.getProcessInstanceId());
-		for (JbpmProcessInstance pi: tree)
-			resposta.put(
-					pi.getId(),
-					definicioProcesDao.findAmbJbpmId(pi.getProcessDefinitionId()));
-		return resposta;
-	}
-	private Map<String, Set<Camp>> getMapCamps(Expedient expedient) {
-		Map<String, Set<Camp>> resposta = new HashMap<String, Set<Camp>>();
-		List<JbpmProcessInstance> tree = jbpmDao.getProcessInstanceTree(expedient.getProcessInstanceId());
-		for (JbpmProcessInstance pi: tree) {
-			resposta.put(
-					pi.getId(),
-					definicioProcesDao.findAmbJbpmId(pi.getProcessDefinitionId()).getCamps());
-		}
-		return resposta;
-	}
-	private Map<String, Map<String, Object>> getMapValorsJbpm(Expedient expedient) {
-		Map<String, Map<String, Object>> resposta = new HashMap<String, Map<String, Object>>();
-		List<JbpmProcessInstance> tree = jbpmDao.getProcessInstanceTree(expedient.getProcessInstanceId());
-		for (JbpmProcessInstance pi: tree)
-			resposta.put(
-					pi.getId(),
-					jbpmDao.getProcessInstanceVariables(pi.getId()));
-		return resposta;
 	}
 
 	private void createDelegationInfo(
@@ -1549,22 +1541,9 @@ public class TascaService {
 		return extensioVista;
 	}
 
-	private OpenOfficeUtils getOpenOfficeUtils() {
-		if (openOfficeUtils == null)
-			openOfficeUtils = new OpenOfficeUtils();
-		return openOfficeUtils;
-	}
-
-	private DocumentTokenUtils getDocumentTokenUtils() {
-		if (documentTokenUtils == null)
-			documentTokenUtils = new DocumentTokenUtils(
-					(String)GlobalProperties.getInstance().get("app.encriptacio.clau"));
-		return documentTokenUtils;
-	}
-
 	private TascaLlistatDto toTascaLlistatDto(
 			JbpmTask task,
-			Expedient expedient) {
+			DadesExpedientTasca dadesExpedientPerTasca) {
 		TascaLlistatDto dto = new TascaLlistatDto();
 		dto.setId(task.getId());
 		dto.setCodi(task.getName());
@@ -1581,22 +1560,23 @@ public class TascaService {
 		dto.setCancelada(task.isCancelled());
 		dto.setSuspesa(task.isSuspended());
 		dto.setProcessInstanceId(task.getProcessInstanceId());
-		if (expedient != null) {
-			dto.setExpedientTitol(expedient.getIdentificador());
-			dto.setExpedientTitolOrdenacio(expedient.getIdentificadorOrdenacio());
-			dto.setExpedientTipusId(expedient.getTipus().getId());
-			dto.setExpedientTipusNom(expedient.getTipus().getNom());
-			dto.setExpedientProcessInstanceId(expedient.getProcessInstanceId());
+		if (dadesExpedientPerTasca != null) {
+			dto.setExpedientTitol(dadesExpedientPerTasca.getIdentificador());
+			dto.setExpedientTitolOrdenacio(dadesExpedientPerTasca.getIdentificadorOrdenacio());
+			dto.setExpedientTipusId(dadesExpedientPerTasca.getExpedientTipusId());
+			dto.setExpedientTipusNom(dadesExpedientPerTasca.getExpedientTipusNom());
+			dto.setExpedientProcessInstanceId(dadesExpedientPerTasca.getProcessInstanceId());
 		}
 		return dto;
 	}
 	
 	private void actualitzarTerminisIniciatsIAlertes(String taskId, Expedient expedient) {
-		List<TerminiIniciat> terminisIniciats = terminiIniciatDao.findAmbTaskInstanceId( new Long(taskId) );
+		List<TerminiIniciat> terminisIniciats = terminiIniciatDao.findAmbTaskInstanceId(
+				new Long(taskId));
 		for (TerminiIniciat terminiIniciat: terminisIniciats) {
 			terminiIniciat.setDataCompletat(new Date());
 			esborrarAlertesAntigues(terminiIniciat);
-			if ( terminiIniciat.getTermini().isAlertaCompletat() && !terminiIniciat.isAlertaCompletat() ) {
+			if (terminiIniciat.getTermini().isAlertaCompletat()) {
 				JbpmTask task = jbpmDao.getTaskById(taskId);
 				if (task.getAssignee() != null) {
 					crearAlertaCompletat(terminiIniciat, task.getAssignee(), expedient);
@@ -1608,11 +1588,14 @@ public class TascaService {
 			}
 		}
 	}
-	private void crearAlertaCompletat(TerminiIniciat terminiIniciat, String destinatari, Expedient expedient) {
+	private void crearAlertaCompletat(
+			TerminiIniciat terminiIniciat,
+			String destinatari,
+			Expedient expedient) {
 		Alerta alerta = new Alerta(
 				new Date(),
 				destinatari,
-				Alerta.AlertaPrioritat.MOLT_BAIXA,
+				Alerta.AlertaPrioritat.NORMAL,
 				terminiIniciat.getTermini().getDefinicioProces().getEntorn());
 		alerta.setExpedient(expedient);
 		alerta.setTerminiIniciat(terminiIniciat);
@@ -1623,21 +1606,104 @@ public class TascaService {
 		for (Alerta antiga: antigues)
 			antiga.setDataEliminacio(new Date());
 	}
-	
-	
-	protected String getMessage(String key, Object[] vars) {
-		try {
-			return messageSource.getMessage(
-					key,
-					vars,
-					null);
-		} catch (NoSuchMessageException ex) {
-			return "???" + key + "???";
+
+	private OpenOfficeUtils getOpenOfficeUtils() {
+		if (openOfficeUtils == null)
+			openOfficeUtils = new OpenOfficeUtils();
+		return openOfficeUtils;
+	}
+	private ServiceUtils getServiceUtils() {
+		if (serviceUtils == null) {
+			serviceUtils = new ServiceUtils(
+					definicioProcesDao,
+					campDao,
+					consultaCampDao,
+					dtoConverter,
+					jbpmDao,
+					aclServiceDao,
+					messageSource);
 		}
+		return serviceUtils;
+	}
+	private DocumentTokenUtils getDocumentTokenUtils() {
+		if (documentTokenUtils == null)
+			documentTokenUtils = new DocumentTokenUtils(
+					(String)GlobalProperties.getInstance().get("app.encriptacio.clau"));
+		return documentTokenUtils;
 	}
 
-	protected String getMessage(String key) {
-		return getMessage(key, null);
+	private boolean isExpedientFinalitzat(Expedient expedient) {
+		if (expedient.getProcessInstanceId() != null) {
+			JbpmProcessInstance processInstance = jbpmDao.getProcessInstance(expedient.getProcessInstanceId());
+			return processInstance.getEnd() != null;
+		}
+		return false;
+	}
+
+	private DadesExpedientTasca getDadesExpedientPerTasca(JbpmTask task) {
+		if (dadesExpedientTasques == null)
+			dadesExpedientTasques = new HashMap<String, DadesExpedientTasca>();
+		DadesExpedientTasca dades = dadesExpedientTasques.get(task.getId());
+		if (dades == null) {
+			String rootProcessInstanceId = jbpmDao.getRootProcessInstance(task.getProcessInstanceId()).getId();
+			Expedient expedientPerTasca = expedientDao.findAmbProcessInstanceId(rootProcessInstanceId);
+			dades = new DadesExpedientTasca(
+					expedientPerTasca.getEntorn().getId(),
+					expedientPerTasca.getIdentificador(),
+					expedientPerTasca.getIdentificadorOrdenacio(),
+					expedientPerTasca.getNumeroIdentificador(),
+					expedientPerTasca.getTipus().getId(),
+					expedientPerTasca.getTipus().getNom(),
+					expedientPerTasca.getProcessInstanceId());
+			dadesExpedientTasques.put(task.getId(), dades);
+		}
+		return dades;
+	}
+	private class DadesExpedientTasca {
+		private Long entornId;
+		private String identificador;
+		private String identificadorOrdenacio;
+		private String numeroIdentificador;
+		private Long expedientTipusId;
+		private String expedientTipusNom;
+		private String processInstanceId;
+		public DadesExpedientTasca(
+				Long entornId,
+				String identificador,
+				String identificadorOrdenacio,
+				String numeroIdentificador,
+				Long expedientTipusId,
+				String expedientTipusNom,
+				String processInstanceId) {
+			this.entornId = entornId;
+			this.identificador = identificador;
+			this.identificadorOrdenacio = identificadorOrdenacio;
+			this.numeroIdentificador = numeroIdentificador;
+			this.expedientTipusId = expedientTipusId;
+			this.expedientTipusNom = expedientTipusNom;
+			this.processInstanceId = processInstanceId;
+		}
+		public Long getEntornId() {
+			return entornId;
+		}
+		public String getIdentificador() {
+			return identificador;
+		}
+		public String getIdentificadorOrdenacio() {
+			return identificadorOrdenacio;
+		}
+		public String getNumeroIdentificador() {
+			return numeroIdentificador;
+		}
+		public Long getExpedientTipusId() {
+			return expedientTipusId;
+		}
+		public String getExpedientTipusNom() {
+			return expedientTipusNom;
+		}
+		public String getProcessInstanceId() {
+			return processInstanceId;
+		}
 	}
 
 	private static final Log logger = LogFactory.getLog(TascaService.class);

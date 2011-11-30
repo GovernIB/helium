@@ -29,13 +29,13 @@
 	<link href="<c:url value="/css/dropdown/dropdown.css"/>" media="all" rel="stylesheet" type="text/css" />
 	<link href="<c:url value="/css/dropdown/themes/helium/helium.css"/>" media="all" rel="stylesheet" type="text/css" />
 <!--[if lt IE 7]>
+<script type="text/javascript">
+</script>
 <script type="text/javascript" src="<c:url value="/js/dropdown/jquery/jquery.dropdown.js"/>"></script>
-<%--script type="text/javascript">var clear="<c:url value="/js/unitpngfix/clear.gif"/>";</script>
-<script type="text/javascript" src="<c:url value="/js/unitpngfix/unitpngfix.js"/>"></script--%>
 <![endif]-->
 <%-- /menu --%>
 	
-	<!-- script type="text/javascript" src="<c:url value="/js/msdropdown/jquery-1.3.2.min.js"/>"></script>
+	<%-- script type="text/javascript" src="<c:url value="/js/msdropdown/jquery-1.3.2.min.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/msdropdown/jquery.dd.js"/>"></script>
 	<link href="<c:url value="/css/msdropdown/dd.css"/>" rel="stylesheet" type="text/css" />
 	<script language="javascript">
@@ -46,7 +46,7 @@
 				alert(e.message);
 			}
 		});
-	</script -->
+	</script --%>
 	<c:set var="hiHaTaula" value='${not empty llistat or not empty personaLlistat or not empty grupLlistat
 			or not empty variablesProcesSenseAgrupar or not empty instanciaProces.sortedDocumentKeys
 			or not empty registre or not empty estats or not empty tasques or not empty camps
@@ -56,45 +56,47 @@
 		<script type="text/javascript" src="<c:url value="/js/jquery/jquery.filtrartaula.js"/>"></script>
 		<script type="text/javascript">
 			$(document).ready(function(){
-				if ( $(".displaytag").length == 0 )
-					$("#filtre").hide();
-				
-				else {
+				if ( $(".displaytag") != null ) {
+					if ( $(".displaytag").length == 0 )
+						$("#filtre").hide();
 					
-					var $anchor = $("#filtre a:first");
-					var $input = $("#filtre input:first");
-					
-					function inputShowCallback() {
-						$input.focus();
-						$anchor.css("top", "5px");
-						$anchor.css("left", "196px");
-						$anchor.show();
-					};
-					
-					function inputHideCallback() {
-						$input.css("visibility", "hidden");
-						$anchor.css("top", "5px");
-						$anchor.css("left", "3px");
-						$anchor.show();
-					};
-					
-					$anchor.click(function(event){
-						event.preventDefault();
-						if ( $input.css("visibility")=="hidden" ) {
-							$(this).hide();
-							$input.css("visibility", "visible");
-							$input.animate({width: "194px"}, 200, null, inputShowCallback);
-						} else {
-							$(this).hide();
-							$input.val("");
-							$(".displaytag").children("tbody").find("tr").show();
-							$input.blur();
-							$input.animate({width: "0px"}, 200, null, inputHideCallback);
-						}
-					});
-					
-					$("#filtre input").filtrarTaula(".displaytag");
-					
+					else {
+						
+						var $anchor = $("#filtre a:first");
+						var $input = $("#filtre input:first");
+						
+						function inputShowCallback() {
+							$input.focus();
+							$anchor.css("top", "5px");
+							$anchor.css("left", "196px");
+							$anchor.show();
+						};
+						
+						function inputHideCallback() {
+							$input.css("visibility", "hidden");
+							$anchor.css("top", "5px");
+							$anchor.css("left", "3px");
+							$anchor.show();
+						};
+						
+						$anchor.click(function(event){
+							event.preventDefault();
+							if ( $input.css("visibility")=="hidden" ) {
+								$(this).hide();
+								$input.css("visibility", "visible");
+								$input.animate({width: "194px"}, 200, null, inputShowCallback);
+							} else {
+								$(this).hide();
+								$input.val("");
+								$(".displaytag").children("tbody").find("tr").show();
+								$input.blur();
+								$input.animate({width: "0px"}, 200, null, inputHideCallback);
+							}
+						});
+						
+						$("#filtre input").filtrarTaula(".displaytag");
+						
+					}
 				}
 			});
 		</script>
@@ -126,7 +128,7 @@
 					</c:choose>
 					<c:set var="actual" value='${sessionScope["idiomaActual"]}'/>
 					<c:set var="disponibles" value='${sessionScope["idiomesDisponibles"]}'/>
-					<c:if test="${(not empty disponibles) && not(fn:length(disponibles)==1 && disponibles[0].codi==actual.codi)}">
+					<c:if test="${(not empty disponibles) && not (fn:length(disponibles)==1 && disponibles[0].codi==actual.codi)}">
 						<li class="dir image rtl idioma">
 							<a style="background-image: url(<c:url value='/img/locale/${actual.codi}.png' />);">${actual.nom}</a>
 							<ul>
@@ -144,10 +146,10 @@
 			<div id="page-title">
 				<h2><span><c:if test="${not empty pagina.title}"><decorator:title/></c:if></span><decorator:getProperty property="meta.titolcmp"/></h2>
 				<c:if test="${hiHaTaula}">
-					<span id="filtre">
-						<input type="text" title="<fmt:message key='decorators.default.cerca' />" />
+					<form id="filtre" class="uniForm">
+						<input type="text" title="<fmt:message key='decorators.default.cerca' />" class="textInput"/>
 						<a href=""><img src="<c:url value="/img/magnifier.png"/>" /></a>
-					</span>
+					</form>
 				</c:if>
 			</div>
 		</div>
@@ -158,6 +160,15 @@
 		<div id="push"></div>
 	</div>
 	
-	<div id="footer"><span id="version">v.${versioNom}</span> ${globalProperties['app.copyright.text']}</div>
+	<div id="footer">
+		<span id="version">v.${versioNom}</span>
+		<c:choose>
+			<c:when test="${empty globalProperties['app.copyright.text']}">
+				<jsp:useBean id="ara" class="java.util.Date" />
+				&copy; <fmt:formatDate value="${ara}" pattern="yyyy"/> Govern de les Illes Balears
+			</c:when>
+			<c:otherwise>${globalProperties['app.copyright.text']}</c:otherwise>
+		</c:choose>
+	</div>
 </body>
 </html>

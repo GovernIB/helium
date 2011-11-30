@@ -78,5 +78,30 @@
 		</div>
 	</c:if>
 
+	<%--c:if test="${not empty param.showDsStatus}">
+<%
+try {
+	javax.naming.Context initCtx = new javax.naming.InitialContext();
+	javax.naming.Context envCtx = (javax.naming.Context)initCtx.lookup("java:comp/env");
+	pageContext.setAttribute("heliumDs", envCtx.lookup("jdbc/HeliumDS"));
+} catch (Exception ex) {
+	ex.printStackTrace();
+}
+%>
+		<br/><br/>
+		<div class="missatgesGris">
+		<h4 class="titol-missatge">Informació del datasource</h4>
+		<ul>
+			<li><b>Class del datasource:</b> ${heliumDs.class.name}</li>
+			<c:if test="${heliumDs.class.name == 'org.apache.tomcat.dbcp.dbcp.BasicDataSource'}">
+			<li><b>Connexions actives:</b> ${heliumDs.numActive}</li>
+			<li><b>Connexions en espera:</b> ${heliumDs.numIdle}</li>
+			<li><b>Màxim de connexions actives:</b> ${heliumDs.maxActive}</li>
+			<li><b>Màxim de connexions en espera:</b> ${heliumDs.maxIdle}</li>
+			</c:if>
+		</ul>
+		</div>
+	</c:if--%>
+
 </body>
 </html>

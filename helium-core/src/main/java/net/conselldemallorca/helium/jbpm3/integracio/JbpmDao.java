@@ -225,7 +225,9 @@ public class JbpmDao {
 		GetProcessInstanceCommand command = new GetProcessInstanceCommand(id);
 		ProcessInstance processInstance = (ProcessInstance)commandService.execute(command);
 		while (processInstance.getSuperProcessToken() != null) {
-			processInstance = processInstance.getSuperProcessToken().getProcessInstance();
+			id = processInstance.getSuperProcessToken().getProcessInstance().getId();
+			command.setProcessInstanceId(id);
+			processInstance = (ProcessInstance)commandService.execute(command);
 		}
 		resultat = new JbpmProcessInstance(processInstance);
 		return resultat;

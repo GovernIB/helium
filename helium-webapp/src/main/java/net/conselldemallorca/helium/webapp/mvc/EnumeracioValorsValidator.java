@@ -20,7 +20,7 @@ public class EnumeracioValorsValidator {
 	public boolean supports(Class clazz) {
 		return clazz.isAssignableFrom(EnumeracioValorsCommand.class);
 	}
-	
+
 	private DissenyService dissenyService;
 	public EnumeracioValorsValidator(DissenyService dissenyService) {
 		this.dissenyService = dissenyService;
@@ -28,14 +28,17 @@ public class EnumeracioValorsValidator {
 
 	public void validate(Object command, Errors errors) {
 		EnumeracioValorsCommand enumeracioValorsCommand = (EnumeracioValorsCommand)command;
-		
+
 		ValidationUtils.rejectIfEmpty(errors, "codi", "not.blank");
 		ValidationUtils.rejectIfEmpty(errors, "nom", "not.blank");
-		
-		EnumeracioValors enumeracioValors = dissenyService.findEnumeracioValorsAmbCodi(enumeracioValorsCommand.getCodi());
+
+		EnumeracioValors enumeracioValors = dissenyService.findEnumeracioValorsAmbCodi(
+				enumeracioValorsCommand.getEnumeracioId(),
+				enumeracioValorsCommand.getCodi());
 		if (enumeracioValors != null) {
 			errors.rejectValue("codi", "error.enumeracio.valor.codi.repetit");
 		}
+
 	}
 
 }

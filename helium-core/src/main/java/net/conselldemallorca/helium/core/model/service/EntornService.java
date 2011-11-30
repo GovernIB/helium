@@ -111,7 +111,11 @@ public class EntornService {
 			boolean asc,
 			int firstRow,
 			int maxResults) {
-		return entornDao.findPagedAndOrderedAll(sort, asc, firstRow, maxResults);
+		return entornDao.findPagedAndOrderedAll(
+				new String[] {sort},
+				asc,
+				firstRow,
+				maxResults);
 	}
 
 	public Entorn findAmbCodi(String codi) {
@@ -599,6 +603,10 @@ public class EntornService {
 	@Autowired
 	public void setEstatDao(EstatDao estatDao) {
 		this.estatDao = estatDao;
+	}
+	@Autowired
+	public void setMapeigSistraDao(MapeigSistraDao mapeigSistraDao) {
+		this.mapeigSistraDao = mapeigSistraDao;
 	}
 	@Autowired
 	public void setAclServiceDao(AclServiceDao aclServiceDao) {

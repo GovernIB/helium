@@ -89,7 +89,7 @@ public class EnumeracioValorsController extends BaseController {
 		if ((enumeracioId != null) && !(enumeracioId.equals(""))) {
 			if ("submit".equals(submit) || submit.length() == 0) {
 				Enumeracio enumeracio = dissenyService.getEnumeracioById(Long.parseLong(enumeracioId));
-				command.setEnumeracioId(enumeracio.getId());
+				command.setEnumeracioId(new Long(enumeracioId));
 				annotationValidator.validate(command, result);
 				new EnumeracioValorsValidator(dissenyService).validate(command, result);
 		        if (result.hasErrors()) {

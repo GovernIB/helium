@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
@@ -14,7 +15,6 @@
     <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
     <c:import url="../common/formIncludes.jsp"/>
     <script type="text/javascript" src="<c:url value="/dwr/engine.js"/>"></script>
-	<script type="text/javascript" src="<c:url value="/dwr/util.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/dwr/interface/gisDwrService.js"/>"></script>
 <script type="text/javascript">
 // <![CDATA[
@@ -225,42 +225,52 @@ function obreVisorGis() {
 				<c:param name="onclick">obreVisorGis()</c:param>
 			</c:import>
 		</c:if>
-		<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable" defaultsort="2" defaultorder="descending">
-			<c:set var="filaStyle" value=""/>
-			<c:if test="${registre.anulat}"><c:set var="filaStyle" value="text-decoration:line-through"/></c:if>
-			<display:column property="identificador" title="Expedient" sortable="true" url="/tasca/personaLlistat.html" paramId="exp" paramProperty="identificador" style="${filaStyle}"/>
-			<display:column property="dataInici" title="Iniciat el" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true" style="${filaStyle}"/>
-			<display:column property="tipus.nom" title="Tipus" style="${filaStyle}"/>
-			<display:column title="Estat" style="${filaStyle}">
-				<c:if test="${registre.aturat}"><img src="<c:url value="/img/stop.png"/>" alt="Aturat" title="Aturat" border="0"/></c:if>
-				<c:choose>
-					<c:when test="${empty registre.dataFi}">
-						<c:choose><c:when test="${empty registre.estat}"><fmt:message key='expedient.consulta.iniciat' /></c:when><c:otherwise>${registre.estat.nom}</c:otherwise></c:choose>
-					</c:when>
-					<c:otherwise><fmt:message key='expedient.consulta.finalitzat' /></c:otherwise>
-				</c:choose>
-			</display:column>
-			<display:column>
-				<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,2">
-					<c:if test="${!registre.anulat}">
-						<a href="<c:url value="/expedient/anular.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmarAnular(event)"><img src="<c:url value="/img/delete.png"/>" alt="<fmt:message key='comuns.anular' />" title="<fmt:message key='comuns.anular' />" border="0"/></a>
-					</c:if>
-				</security:accesscontrollist>
-			</display:column>
-			<display:column>
-				<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,8">
-					<a href="<c:url value="/expedient/delete.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmarEsborrar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
-				</security:accesscontrollist>
-			</display:column>
-			<display:column>
-				<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,2">
-					<a href="<c:url value="/expedient/info.html"><c:param name="id" value="${registre.processInstanceId}"/></c:url>"><img src="<c:url value="/img/information.png"/>" alt="<fmt:message key='comuns.informacio' />" title="<fmt:message key='comuns.informacio' />" border="0"/></a>
-				</security:accesscontrollist>
-			</display:column>
-		</display:table>
-		<script type="text/javascript">initSelectable();</script>
+		<%--div class="missatgesGris">
+			<c:choose>
+				<c:when test="${empty llistat}"><p><fmt:message key="expedient.consulta.notrobats"/></p></c:when>
+				<c:when test="${fn:length(llistat) == 1}"><p><fmt:message key="expedient.consulta.trobatun"/></p></c:when>
+				<c:otherwise><p><fmt:message key="expedient.consulta.trobats"><fmt:param value="${fn:length(llistat)}"/></fmt:message></p></c:otherwise>
+			</c:choose>
+		</div--%>
+		<c:if test="${not empty llistat}">
+			<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable" sort="external">
+				<c:set var="filaStyle" value=""/>
+				<c:if test="${registre.anulat}"><c:set var="filaStyle" value="text-decoration:line-through"/></c:if>
+				<display:column property="identificador" title="Expedient" url="/tasca/personaLlistat.html" paramId="exp" paramProperty="identificador" sortable="true" style="${filaStyle}"/>
+				<display:column property="dataInici" title="Iniciat el" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true" style="${filaStyle}"/>
+				<display:column property="tipus.nom" title="Tipus" sortable="true" style="${filaStyle}"/>
+				<display:column title="Estat" style="${filaStyle}" sortable="true" sortProperty="estat.nom">
+					<c:if test="${registre.aturat}"><img src="<c:url value="/img/stop.png"/>" alt="Aturat" title="Aturat" border="0"/></c:if>
+					<c:choose>
+						<c:when test="${empty registre.dataFi}">
+							<c:choose><c:when test="${empty registre.estat}"><fmt:message key='expedient.consulta.iniciat' /></c:when><c:otherwise>${registre.estat.nom}</c:otherwise></c:choose>
+						</c:when>
+						<c:otherwise><fmt:message key='expedient.consulta.finalitzat' /></c:otherwise>
+					</c:choose>
+				</display:column>
+				<display:column>
+					<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,1">
+						<a href="<c:url value="/expedient/info.html"><c:param name="id" value="${registre.processInstanceId}"/></c:url>"><img src="<c:url value="/img/information.png"/>" alt="<fmt:message key='comuns.informacio' />" title="<fmt:message key='comuns.informacio' />" border="0"/></a>
+					</security:accesscontrollist>
+				</display:column>
+				<display:column>
+					<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,2">
+						<c:if test="${!registre.anulat}">
+							<a href="<c:url value="/expedient/anular.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmarAnular(event)"><img src="<c:url value="/img/delete.png"/>" alt="<fmt:message key='comuns.anular' />" title="<fmt:message key='comuns.anular' />" border="0"/></a>
+						</c:if>
+					</security:accesscontrollist>
+				</display:column>
+				<display:column>
+					<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,8">
+						<a href="<c:url value="/expedient/delete.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmarEsborrar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
+					</security:accesscontrollist>
+				</display:column>
+				<display:setProperty name="paging.banner.item_name">expedient</display:setProperty>
+				<display:setProperty name="paging.banner.items_name">expedients</display:setProperty>
+			</display:table>
+			<script type="text/javascript">initSelectable();</script>
+		</c:if>
 	</c:if>
 
 </body>
 </html>
-				

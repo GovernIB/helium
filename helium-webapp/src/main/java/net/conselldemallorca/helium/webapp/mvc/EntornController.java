@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.core.model.exportacio.EntornExportacio;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.service.EntornService;
+import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
@@ -42,6 +43,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class EntornController extends BaseController {
 
 	private EntornService entornService;
+	private ExpedientService expedientService;
+
 	private Validator annotationValidator;
 	private Validator additionalValidator;
 
@@ -49,8 +52,10 @@ public class EntornController extends BaseController {
 
 	@Autowired
 	public EntornController(
-			EntornService entornService) {
+			EntornService entornService,
+			ExpedientService expedientService) {
 		this.entornService = entornService;
+		this.expedientService = expedientService;
 		additionalValidator = new EntornValidator(entornService);
 	}
 
@@ -199,6 +204,16 @@ public class EntornController extends BaseController {
 			missatgeError(request, getMessage("error.import.dades") + ex.getMessage());
 		}
 		return "redirect:/entorn/form.html?id=" + entornId;
+	}
+
+	@RequestMapping(value = "/entorn/reindexar")
+	public String reindexar(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) Long id,
+			ModelMap model) {
+		expedientService.luceneReindexarEntorn(id);
+		missatgeInfo(request, getMessage("info.entorn.reindexat") );
+		return "redirect:/entorn/llistat.html";
 	}
 
 

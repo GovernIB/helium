@@ -81,6 +81,31 @@ public class CarrecJbpmIdDao extends HibernateGenericDao<CarrecJbpmId, Long> {
 			}
 		});
 	}
+	
+	@SuppressWarnings("unchecked")
+	public String findPersonaAmbGroupICarrec(
+			final String codiGroup,
+			final String codiCarrec) {
+		return (String)getHibernateTemplate().execute(
+				new HibernateCallback() {
+					public Object doInHibernate(Session session) throws HibernateException, SQLException {
+						Query query = session.createQuery(
+								"select " +
+								"    m.user.name " +
+								"from " +
+								"    org.jbpm.identity.Membership m " +
+								"where " +
+								"    m.group.name = :codiGroup " +
+								"and m.role = :codiCarrec");
+						query.setString("codiGroup", codiGroup);
+						query.setString("codiCarrec", codiCarrec);
+						List<String> files = query.list();
+						if (files.size() > 0)
+							return files.get(0);
+						return null;
+					}
+				});
+	}
 
 	@SuppressWarnings("unchecked")
 	public List<String> findCarrecsCodiAmbPersonaArea(final String codiPersona, final String codiArea) {

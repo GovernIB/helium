@@ -122,6 +122,7 @@ public class ExpedientTipusEnumeracioController extends BaseController {
 					command.setEntorn(entorn);
 					command.setExpedientTipus(expedientTipus);
 					annotationValidator.validate(command, result);
+					new EnumeracioValidator(dissenyService).validate(command, result);
 			        if (result.hasErrors()) {
 			        	return "expedientTipus/enumeracioForm";
 			        }
@@ -142,7 +143,7 @@ public class ExpedientTipusEnumeracioController extends BaseController {
 			} else {
 				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
-			}			
+			}
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
@@ -159,8 +160,13 @@ public class ExpedientTipusEnumeracioController extends BaseController {
 			ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
 			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
 				try {
-					dissenyService.deleteEnumeracio(enumeracioId);
-					missatgeInfo(request, getMessage("info.enum.esborrat") );
+					Enumeracio enumeracio = dissenyService.getEnumeracioById(enumeracioId);
+					if (enumeracio.getCamps().size() > 0) {
+						missatgeError(request, getMessage("error.enumeracio.emprada.camp") );
+					} else {
+						dissenyService.deleteEnumeracio(enumeracioId);
+						missatgeInfo(request, getMessage("info.enum.esborrat") );
+					}
 				} catch (Exception ex) {
 					missatgeError(request, getMessage("error.esborrar.enum"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut esborrar l'enumeració", ex);
@@ -175,6 +181,15 @@ public class ExpedientTipusEnumeracioController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
+
+
+
+	@Resource(name = "annotationValidator")
+	public void setAnnotationValidator(Validator annotationValidator) {
+		this.annotationValidator = annotationValidator;
+	}
+
+
 
 	private boolean potDissenyarExpedientTipus(Entorn entorn, ExpedientTipus expedientTipus) {
 		if (potDissenyarEntorn(entorn))
@@ -193,11 +208,6 @@ public class ExpedientTipusEnumeracioController extends BaseController {
 				new Permission[] {
 					ExtendedPermission.ADMINISTRATION,
 					ExtendedPermission.DESIGN}) != null;
-	}
-	
-	@Resource(name = "annotationValidator")
-	public void setAnnotationValidator(Validator annotationValidator) {
-		this.annotationValidator = annotationValidator;
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientTipusEnumeracioController.class);

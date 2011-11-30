@@ -7,13 +7,18 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -50,6 +55,12 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 	private String nom;
 	@MaxLength(255)
 	private String descripcio;
+	@MaxLength(1024)
+	private String valorsPredefinits;
+	@MaxLength(255)
+	private String informeNom;
+	private byte[] informeContingut;
+	private boolean exportarActiu;
 	private boolean generica;
 
 	@NotNull
@@ -58,6 +69,9 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 	private ExpedientTipus expedientTipus;
 
 	private Set<ConsultaCamp> camps = new HashSet<ConsultaCamp>();
+
+	private Set<Consulta> subConsultes = new HashSet<Consulta>();
+	private Set<Consulta> superConsultes = new HashSet<Consulta>();
 
 
 
@@ -102,6 +116,40 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 		this.descripcio = descripcio;
 	}
 
+	@Column(name="valors_predef", length=1024)
+	public String getValorsPredefinits() {
+		return valorsPredefinits;
+	}
+	public void setValorsPredefinits(String valorsPredefinits) {
+		this.valorsPredefinits = valorsPredefinits;
+	}
+
+	@Column(name="informe_nom", length=255)
+	public String getInformeNom() {
+		return informeNom;
+	}
+	public void setInformeNom(String informeNom) {
+		this.informeNom = informeNom;
+	}
+
+	@Lob
+	@Basic(fetch=FetchType.LAZY)
+	@Column(name="informe_contingut")
+	public byte[] getInformeContingut() {
+		return informeContingut;
+	}
+	public void setInformeContingut(byte[] informeContingut) {
+		this.informeContingut = informeContingut;
+	}
+
+	@Column(name="exportar_actiu")
+	public boolean isExportarActiu() {
+		return exportarActiu;
+	}
+	public void setExportarActiu(boolean exportarActiu) {
+		this.exportarActiu = exportarActiu;
+	}
+
 	@Column(name="generica")
 	public boolean isGenerica() {
 		return generica;
@@ -142,6 +190,40 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 	}
 	public void removeCamp(ConsultaCamp camp) {
 		getCamps().remove(camp);
+	}
+
+	@ManyToMany()
+	@JoinTable(
+			name="hel_consulta_sub",
+			joinColumns=@JoinColumn(name="pare_id", referencedColumnName="id"),
+			inverseJoinColumns=@JoinColumn(name="fill_id", referencedColumnName="id")
+	)
+	@ForeignKey(name="hel_fill_consultasub_fk", inverseName="hel_pare_consultasub_fk")
+	public Set<Consulta> getSubConsultes() {
+		return this.subConsultes;
+	}
+	public void setSubConsultes(Set<Consulta> subConsultes) {
+		this.subConsultes = subConsultes;
+	}
+	public void addSubConsulta(Consulta consulta) {
+		getSubConsultes().add(consulta);
+	}
+	public void removeSubConsulta(Consulta consulta) {
+		getSubConsultes().remove(consulta);
+	}
+
+	@ManyToMany(mappedBy="subConsultes")
+	public Set<Consulta> getSuperConsultes() {
+		return this.superConsultes;
+	}
+	public void setSuperConsultes(Set<Consulta> superConsultes) {
+		this.superConsultes = superConsultes;
+	}
+	public void addSuperConsulta(Consulta consulta) {
+		getSuperConsultes().add(consulta);
+	}
+	public void removeSuperConsulta(Consulta consulta) {
+		getSuperConsultes().remove(consulta);
 	}
 
 

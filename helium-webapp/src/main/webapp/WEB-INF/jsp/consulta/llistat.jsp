@@ -7,7 +7,7 @@
 
 <html>
 <head>
-	<title><fmt:message key='comuns.consultes' /></title>
+	<title><fmt:message key='decorators.entorn.consultes.tipus' /></title>
 	<meta name="titolcmp" content="<fmt:message key='comuns.disseny' />" />
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
     <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
@@ -39,7 +39,7 @@ function confirmar(e) {
 				<button type="submit" class="submitButton"><fmt:message key='consulta.llistat.vars_filtre' />&nbsp;(${numCampsFiltre})</button>
 			</form>
 	    </display:column>
-	    <%--display:column>
+	    <display:column>
 	    	<c:set var="numCampsInforme" value="${0}"/>
 	    	<c:forEach var="camp" items="${registre.camps}">
     			<c:if test="${camp.tipus=='INFORME'}"><c:set var="numCampsInforme" value="${numCampsInforme+1}"/></c:if>
@@ -48,6 +48,12 @@ function confirmar(e) {
 				<input type="hidden" name="id" value="${registre.id}"/>
 				<input type="hidden" name="tipus" value="${tipusInforme}"/>
 				<button type="submit" class="submitButton">Variables de l'informe&nbsp;(${numCampsInforme})</button>
+			</form>
+	    </display:column>
+	    <%--display:column>
+	    	<form action="subconsultes.html">
+				<input type="hidden" name="id" value="${registre.id}"/>
+				<button type="submit" class="submitButton">Subconsultes&nbsp;(${fn:length(registre.subConsultes)})</button>
 			</form>
 	    </display:column--%>
 		<display:column>

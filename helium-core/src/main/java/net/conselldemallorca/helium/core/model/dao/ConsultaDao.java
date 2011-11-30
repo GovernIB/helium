@@ -5,9 +5,7 @@ package net.conselldemallorca.helium.core.model.dao;
 
 import java.util.List;
 
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
-import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
@@ -41,7 +39,7 @@ public class ConsultaDao extends HibernateGenericDao<Consulta, Long> {
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
+	/*@SuppressWarnings("unchecked")
 	public List<Camp> findCampsFiltre(Long consultaId) {
 		return (List<Camp>)getSession().
 		createQuery(
@@ -61,5 +59,26 @@ public class ConsultaDao extends HibernateGenericDao<Consulta, Long> {
 		setParameter(1, TipusConsultaCamp.FILTRE).
 		list();
 	}
+
+	@SuppressWarnings("unchecked")
+	public List<Camp> findCampsInforme(Long consultaId) {
+		return (List<Camp>)getSession().
+		createQuery(
+				"select c " +
+				"from Camp c, " +
+				"     ConsultaCamp cc, " +
+				"     DefinicioProces dp " +
+				"where cc.consulta.id = ? " +
+				"and cc.tipus = ? " +
+				"and dp.jbpmKey = cc.defprocJbpmKey " +
+				"and dp.versio = cc.defprocVersio " +
+				"and dp.id = c.definicioProces.id " +
+				"and cc.campCodi = c.codi " +
+				"order by " +
+				"    cc.ordre").
+		setLong(0, consultaId).
+		setParameter(1, TipusConsultaCamp.INFORME).
+		list();
+	}*/
 
 }

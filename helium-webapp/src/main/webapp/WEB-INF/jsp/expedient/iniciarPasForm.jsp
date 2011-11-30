@@ -18,9 +18,12 @@
 		if (!e) var e = window.event;
 		e.cancelBubble = true;
 		if (e.stopPropagation) e.stopPropagation();
-		if (accioInici == 'submit')
-			return confirm("<fmt:message key='expedient.iniciar.confirm_iniciar' />");
-		return true;
+		if ("cancel" == submitAction)
+			return true;
+<c:choose>
+	<c:when test="${not ((expedientTipus.teNumero and expedientTipus.demanaNumero) or (expedientTipus.teTitol and expedientTipus.demanaTitol))}">return confirm("<fmt:message key='expedient.iniciar.confirm_iniciar' />");</c:when>
+	<c:otherwise>return true</c:otherwise>
+</c:choose>
 	}
 	function editarRegistre(campId, campCodi, campEtiqueta, numCamps, index) {
 		var amplada = 686;

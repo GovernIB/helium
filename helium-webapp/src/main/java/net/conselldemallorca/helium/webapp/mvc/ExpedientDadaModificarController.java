@@ -18,6 +18,7 @@ import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
@@ -296,6 +297,7 @@ public class ExpedientDadaModificarController extends BaseController {
 		}
 		if (camp == null) {
 			camp = new Camp();
+			camp.setTipus(TipusCamp.STRING);
 			camp.setCodi(var);
 			camp.setEtiqueta(var);
 		}

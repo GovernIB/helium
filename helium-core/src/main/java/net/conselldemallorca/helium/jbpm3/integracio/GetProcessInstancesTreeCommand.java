@@ -67,7 +67,8 @@ public class GetProcessInstancesTreeCommand extends AbstractGetObjectBaseCommand
 				list();
 		for (ProcessInstance pi: fills) {
 			pi.getProcessDefinition().getName();
-			pi.getSuperProcessToken().getNode().getName();
+			if (pi.getSuperProcessToken() != null && pi.getSuperProcessToken().getNode() != null)
+				pi.getSuperProcessToken().getNode().getName();
 			// Per a cada subprocés també hi afegeix els seus subprocessos
 			afegirProcessInstanceAmbFills(session, pi, llista);
 		}

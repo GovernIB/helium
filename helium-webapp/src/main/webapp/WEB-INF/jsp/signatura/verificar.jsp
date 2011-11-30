@@ -29,23 +29,10 @@
 	<h3 class="titol-tab titol-firmes-tasca">${document.documentNom}</h3><br/>
 
 	<div class="missatgesBlau">
-		<c:choose>
-			<c:when test="${globalProperties['app.signatura.plugin.file.attached'] == 'true'}">
-				<h4 class="titol-missatge">
-					<fmt:message key='signa.verif.doc_signat' />:&nbsp;
-					<a href="<c:url value="/document/arxiuMostrar.html"><c:param name="token" value="${document.tokenSignatura}"/></c:url>"><img src="<c:url value="/img/page_white_put.png"/>" alt="<fmt:message key='comuns.descarregar' />" title="<fmt:message key='comuns.descarregar' />" border="0"/></a>
-				</h4>
-			</c:when>
-			<c:otherwise>
-				<h4 class="titol-missatge">
-					<fmt:message key='signa.verif.doc_orig' />:&nbsp;
-					<c:set var="instanciaProcesActual" value="${instanciaProces}" scope="request"/>
-					<c:set var="documentActual" value="${document}" scope="request"/>
-					<c:set var="ocultarSignatura" value="${true}" scope="request"/>
-					<c:import url="../common/iconesConsultaDocument.jsp"/>
-				</h4>
-			</c:otherwise>
-		</c:choose>
+		<h4 class="titol-missatge">
+			<fmt:message key='signa.verif.doc_signat' />:&nbsp;
+			<a href="<c:url value="/signatura/arxiu.html"><c:param name="token" value="${document.tokenSignatura}"/></c:url>"><img src="<c:url value="/img/page_white_put.png"/>" alt="<fmt:message key='comuns.descarregar' />" title="<fmt:message key='comuns.descarregar' />" border="0"/></a>
+		</h4>
 	</div>
 
 	<c:forEach var="signatura" items="${signatures}" varStatus="status">
@@ -55,9 +42,10 @@
 					<c:when test="${signatura.estatOk}"><img src="<c:url value="/img/tick.png"/>" alt="<fmt:message key='signa.verif.sign_valida' />" title="<fmt:message key='signa.verif.sign_valida' />" border="0"/></c:when>
 					<c:otherwise><img src="<c:url value="/img/exclamation.png"/>" alt="<fmt:message key='signa.verif.sign_no' />" title="<fmt:message key='signa.verif.sign_no' />" border="0"/></c:otherwise>
 				</c:choose>
-				<fmt:message key='signa.verif.signatari' /> ${status.index + 1}: ${signatura.dadesCertificat[0].nombreCompletoResponsable}
+				<fmt:message key='signa.verif.signatari' /> ${status.index + 1}:
 			</h4>
 			<dl class="form-info">
+				<dt>Nom:</dt><dd>${signatura.dadesCertificat[0].nombreCompletoResponsable}</dd>
 				<dt>NIF:</dt><dd>${signatura.dadesCertificat[0].nifResponsable}</dd>
 				<%--c:if test="${not globalProperties['app.signatura.plugin.file.attached']}">
 					<c:set var="signaturaBytes" value="${signatura.signatura}"/>

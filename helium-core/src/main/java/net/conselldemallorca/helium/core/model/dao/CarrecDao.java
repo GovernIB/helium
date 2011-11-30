@@ -36,7 +36,7 @@ public class CarrecDao extends HibernateGenericDao<Carrec, Long> {
 		return findPagedAndOrderedByCriteria(
 				firstRow,
 				maxResults,
-				sort,
+				new String[] {sort},
 				asc,
 				Restrictions.eq("entorn.id", entornId));
 	}
@@ -68,6 +68,22 @@ public class CarrecDao extends HibernateGenericDao<Carrec, Long> {
 		if (carrecs.size() > 0)
 			return carrecs.get(0);
 		return null;
+	}
+	public Carrec findAmbEntornAreaICodi(
+			Long entornId,
+			String areaCodi,
+			String carrecCodi) {
+		return (Carrec)getSession().createQuery(
+				"from " +
+				"    Carrec c " +
+				"where " +
+				"    c.entorn.id=? " +
+				"and c.area.codi=? " +
+				"and c.codi=?").
+				setLong(0, entornId).
+				setString(1, areaCodi).
+				setString(2, carrecCodi).
+				uniqueResult();
 	}
 
 }

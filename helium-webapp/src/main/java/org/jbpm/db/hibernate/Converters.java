@@ -37,7 +37,7 @@ import org.jbpm.util.ClassLoaderUtil;
 /**
  * provides access to the list of converters and ensures that the converter objects are unique.
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public abstract class Converters {
   
   static final int CONVERTERS_BY_CLASS_NAMES = 0;
