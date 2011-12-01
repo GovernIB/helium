@@ -123,6 +123,7 @@ html, body{
 	margin-right: 6px;
 }
 #header #page-title #filtre {
+	width: 220px;
 	float: right;
 	text-align: right;
 }
@@ -137,6 +138,7 @@ html, body{
 	background-repeat: no-repeat;*/
 }
 #header #page-title #filtre a {
+	float: right;
 	position: relative;
 	top: 5px;
 	left: 3px;

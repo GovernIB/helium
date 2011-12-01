@@ -39,13 +39,13 @@ function confirmarEsborrar(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Estau segur que voleu esborrar aquest expedient?");
+	return confirm("<fmt:message key='expedient.consulta.confirm.esborrar'/>");
 }
 function confirmarAnular(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Estau segur que voleu anul·lar aquest expedient?");
+	return confirm("<fmt:message key='expedient.consulta.confirm.anular'/>");
 }
 function obreVisorGis() {
     var sUrl; //= "${globalProperties['app.gis.plugin.sitibsa.url.visor']}";
@@ -214,7 +214,7 @@ function obreVisorGis() {
 				<c:param name="titles"><fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' /></c:param>
 			</c:import>
 		</div>
-	</form:form><br/>
+	</form:form><div style="clear:both"></div><br/>
 
 	<c:if test="${not empty sessionScope.consultaExpedientsCommand}">
 		<c:if test="${globalProperties['app.georef.actiu'] && globalProperties['app.gis.plugin.actiu']}">
