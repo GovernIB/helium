@@ -39,7 +39,6 @@ public class DocumentDto implements Serializable {
 	private Integer tipusDocPortasignatures;
 
 	private String registreNumero;
-	private String registreAny;
 	private Date registreData;
 	private String registreOficinaCodi;
 	private String registreOficinaNom;
@@ -212,12 +211,6 @@ public class DocumentDto implements Serializable {
 	}
 	public void setRegistreNumero(String registreNumero) {
 		this.registreNumero = registreNumero;
-	}
-	public String getRegistreAny() {
-		return registreAny;
-	}
-	public void setRegistreAny(String registreAny) {
-		this.registreAny = registreAny;
 	}
 	public Date getRegistreData() {
 		return registreData;
