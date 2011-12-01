@@ -415,12 +415,19 @@ public class ExpedientConsultaDissenyController extends BaseController {
 				dadaIndex.getEtiqueta());
 		if (!dadaIndex.isMultiple()) {
 			field.setValor(dadaIndex.getValor());
-			field.setValorOrdre(dadaIndex.getValorIndex());
 			field.setValorMostrar(dadaIndex.getValorMostrar());
+			if (dadaIndex.isOrdenarPerValorMostrar())
+				field.setValorOrdre(dadaIndex.getValorMostrar());
+			else
+				field.setValorOrdre(dadaIndex.getValorIndex());
 		} else {
 			field.setValorMultiple(dadaIndex.getValorMultiple());
 			field.setValorMostrarMultiple(dadaIndex.getValorMostrarMultiple());
 			field.setValorOrdreMultiple(dadaIndex.getValorIndexMultiple());
+			if (dadaIndex.isOrdenarPerValorMostrar())
+				field.setValorOrdreMultiple(dadaIndex.getValorMostrarMultiple());
+			else
+				field.setValorOrdreMultiple(dadaIndex.getValorIndexMultiple());
 		}
 		field.setMultiple(dadaIndex.isMultiple());
 		return field;

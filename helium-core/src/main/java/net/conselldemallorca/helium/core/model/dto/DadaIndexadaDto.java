@@ -18,6 +18,8 @@ public class DadaIndexadaDto {
 	private String definicioProcesCodi;
 	private String campCodi;
 	private String etiqueta;
+	private boolean ordenarPerValorMostrar = false;
+
 	private Object valor;
 	private String valorIndex;
 	private String valorMostrar;
@@ -61,6 +63,12 @@ public class DadaIndexadaDto {
 	}
 	public void setEtiqueta(String etiqueta) {
 		this.etiqueta = etiqueta;
+	}
+	public boolean isOrdenarPerValorMostrar() {
+		return ordenarPerValorMostrar;
+	}
+	public void setOrdenarPerValorMostrar(boolean ordenarPerValorMostrar) {
+		this.ordenarPerValorMostrar = ordenarPerValorMostrar;
 	}
 	public Object getValor() {
 		return valor;

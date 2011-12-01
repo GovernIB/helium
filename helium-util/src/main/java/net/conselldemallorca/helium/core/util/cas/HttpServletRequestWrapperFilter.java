@@ -13,7 +13,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.Filter;
@@ -43,6 +42,11 @@ public class HttpServletRequestWrapperFilter implements Filter {
 
 	private static final String SCOPE_ATTRIBUTE_ROLES = "HEL_SESSION_ROLES";
 
+	private String dsJndiName;
+	private String rolesQuery;
+
+
+
 	public void destroy() {
 	}
 
@@ -69,6 +73,14 @@ public class HttpServletRequestWrapperFilter implements Filter {
 	}
 
 	public void init(FilterConfig filterConfig) throws ServletException {
+		dsJndiName = getPropertyFromInitParams(
+				filterConfig,
+				"dsJndiName",
+				"java:comp/env/jdbc/HeliumDS");
+		rolesQuery = getPropertyFromInitParams(
+				filterConfig,
+				"rolesQuery",
+				"select permis from hel_usuari_permis where codi=?");
 	}
 
 	public String[] getAdditionalRoles(String userName) {
@@ -78,8 +90,7 @@ public class HttpServletRequestWrapperFilter implements Filter {
     		PreparedStatement ps = null;
     		ResultSet rs = null;
     		try {
-    			ps = conn.prepareStatement(
-    					"select permis from hel_usuari_permis where codi=?");
+    			ps = conn.prepareStatement(rolesQuery);
     			ps.setString(1, userName);
     			rs = ps.executeQuery();
     			while (rs.next()) {
@@ -149,8 +160,7 @@ public class HttpServletRequestWrapperFilter implements Filter {
 		Connection connection = null;
 		try {
 			InitialContext initialContext = new InitialContext();
-			Context context = (Context)initialContext.lookup("java:comp/env");
-			DataSource dataSource = (DataSource)context.lookup("jdbc/HeliumDS");
+			DataSource dataSource = (DataSource)initialContext.lookup(dsJndiName);
 			connection = dataSource.getConnection();
 		} catch (NamingException e) {
 			e.printStackTrace();
@@ -158,6 +168,20 @@ public class HttpServletRequestWrapperFilter implements Filter {
 			e.printStackTrace();
 		}
 		return connection;
+	}
+
+	private String getPropertyFromInitParams(
+			FilterConfig filterConfig,
+			String propertyName,
+			String defaultValue) {
+		String value = filterConfig.getInitParameter(propertyName);
+		if (value == null || value.length() == 0) {
+			value = filterConfig.getServletContext().getInitParameter(propertyName);
+		}
+		if (value != null && value.length() > 0)
+			return value;
+		else
+			return defaultValue;
 	}
 
 	private static final Log logger = LogFactory.getLog(HttpServletRequestWrapperFilter.class);

@@ -42,6 +42,7 @@ public class InstanciaProcesDto {
 	private Map<String, ParellaCodiValorDto> valorsDomini;
 	private Map<String, List<ParellaCodiValorDto>> valorsMultiplesDomini;
 	private Map<String, Object> varsComText;
+	private Map<String, Boolean> varsOcultes;
 
 
 
@@ -134,6 +135,12 @@ public class InstanciaProcesDto {
 	}
 	public void setVarsComText(Map<String, Object> varsComText) {
 		this.varsComText = varsComText;
+	}
+	public Map<String, Boolean> getVarsOcultes() {
+		return varsOcultes;
+	}
+	public void setVarsOcultes(Map<String, Boolean> varsOcultes) {
+		this.varsOcultes = varsOcultes;
 	}
 
 	public Set<String> getVariableKeys() {

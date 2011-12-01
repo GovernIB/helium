@@ -46,6 +46,8 @@ import net.conselldemallorca.helium.core.model.exportacio.AccioExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.AgrupacioExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.CampExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.CampTascaExportacio;
+import net.conselldemallorca.helium.core.model.exportacio.ConsultaCampExportacio;
+import net.conselldemallorca.helium.core.model.exportacio.ConsultaExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.DefinicioProcesExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.DocumentExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.DocumentTascaExportacio;
@@ -1237,6 +1239,38 @@ public class DissenyService {
 			enumeracionsExp.add(dtoExp);
 		}
 		dto.setEnumeracions(enumeracionsExp);
+		List<ConsultaExportacio> consultes = new ArrayList<ConsultaExportacio>();
+		for (Consulta consulta: expedientTipus.getConsultes()) {
+			ConsultaExportacio consultaExp = new ConsultaExportacio(
+					consulta.getCodi(),
+					consulta.getNom());
+			consultaExp.setDescripcio(consulta.getDescripcio());
+			consultaExp.setValorsPredefinits(consulta.getValorsPredefinits());
+			consultaExp.setExportarActiu(consulta.isExportarActiu());
+			if (consulta.getInformeContingut() != null && consulta.getInformeContingut().length > 0) {
+				consultaExp.setInformeNom(consulta.getInformeNom());
+				consultaExp.setInformeContingut(consulta.getInformeContingut());
+			}
+			List<Camp> campsConsulta = getServiceUtils().findCampsPerCampsConsulta(consulta, null);
+			List<ConsultaCampExportacio> consultaCampsExp = new ArrayList<ConsultaCampExportacio>();
+			for (ConsultaCamp consultaCamp: consulta.getCamps()) {
+				for (Camp camp: campsConsulta) {
+					if (camp.getCodi().equals(consultaCamp.getCampCodi())) {
+						ConsultaCampExportacio consultaCampExp = new ConsultaCampExportacio(
+								consultaCamp.getCampCodi(),
+								consultaCamp.getDefprocJbpmKey(),
+								consultaCamp.getTipus(),
+								camp.getTipus(),
+								consultaCamp.getOrdre());
+						consultaCampsExp.add(consultaCampExp);
+						break;
+					}
+				}
+			}
+			consultaExp.setCamps(consultaCampsExp);
+			consultes.add(consultaExp);
+		}
+		dto.setConsultes(consultes);
 		List<DefinicioProcesExportacio> definicionsProces = new ArrayList<DefinicioProcesExportacio>();
 		for (DefinicioProces definicioProces : definicioProcesDao.findDarreresVersionsAmbEntorn(expedientTipus.getEntorn().getId())) {
 			if (expedientTipus.getId().equals(definicioProces.getExpedientTipus().getId()))
@@ -1364,7 +1398,6 @@ public class DissenyService {
 			} else {
 				nova.setNom(enumeracio.getNom());
 			}
-			
 			for (EnumeracioValors enumValors : enumeracio.getValors()) {
 				EnumeracioValors novaEnumValors = new EnumeracioValors();
 				novaEnumValors.setCodi(enumValors.getCodi());
@@ -1372,15 +1405,58 @@ public class DissenyService {
 				novaEnumValors.setEnumeracio(nova);
 				nova.addEnumeracioValors(novaEnumValors);
 			}
-			
 			enumeracioDao.saveOrUpdate(nova);
 		}
+		// Importa les definicions de procés
 		for (DefinicioProcesExportacio definicio : exportacio.getDefinicionsProces()) {
 			importar(
 				entornId,
 				expedientTipus.getId(),
 				definicio,
 				null);
+		}
+		// Crea les consultes del tipus d'expedient
+		for (ConsultaExportacio consulta: exportacio.getConsultes()) {
+			Consulta nova = consultaDao.findAmbEntornExpedientTipusICodi(
+					entornId,
+					expedientTipus.getId(),
+					consulta.getCodi());
+			if (nova == null) {
+				nova = new Consulta(
+						consulta.getCodi(),
+						consulta.getNom());
+			} else {
+				nova.setNom(consulta.getNom());
+			}
+			nova.setDescripcio(consulta.getDescripcio());
+			nova.setValorsPredefinits(consulta.getValorsPredefinits());
+			if (consulta.getInformeContingut() != null) {
+				nova.setInformeNom(consulta.getInformeNom());
+				nova.setInformeContingut(consulta.getInformeContingut());
+			}
+			nova.setExportarActiu(consulta.isExportarActiu());
+			nova.setEntorn(entorn);
+			nova.setExpedientTipus(expedientTipus);
+			for (ConsultaCampExportacio consultaCamp: consulta.getCamps()) {
+				ConsultaCamp campNou = new ConsultaCamp(
+						consultaCamp.getCodi(),
+						consultaCamp.getTipusConsultaCamp());
+				campNou.setConsulta(nova);
+				campNou.setDefprocJbpmKey(consultaCamp.getJbpmKey());
+				for (Camp camp: consultaCampDao.findCampsDefinicioProcesAmbJbpmKey(
+						entornId,
+						consultaCamp.getJbpmKey())) {
+					if (camp.getCodi().equals(consultaCamp.getCodi())) {
+						if (camp.getTipus().equals(consultaCamp.getTipusCamp())) {
+							campNou.setDefprocVersio(camp.getDefinicioProces().getVersio());
+							break;
+						}
+					}
+				}
+				campNou.setOrdre(consultaCamp.getOrdre());
+				nova.addCamp(campNou);
+			}
+			consultaDao.saveOrUpdate(nova);
 		}
 	}
 
@@ -1671,7 +1747,9 @@ public class DissenyService {
 			Long consultaId,
 			TipusConsultaCamp tipus,
 			boolean filtrarValorsPredefinits) {
-		List<Camp> camps = getServiceUtils().findCampsPerCampsConsulta(consultaId, tipus);
+		List<Camp> camps = getServiceUtils().findCampsPerCampsConsulta(
+				consultaDao.getById(consultaId, false),
+				tipus);
 		if (filtrarValorsPredefinits && tipus.equals(TipusConsultaCamp.FILTRE))
 			filtrarCampsConsultaFiltre(consultaId, camps);
 		return camps;

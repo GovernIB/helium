@@ -230,7 +230,7 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			crit.add(Restrictions.between("dataInici", dataInici1, dataInici2));
 		if (expedientTipusId != null)
 			crit.add(Restrictions.eq("tipus.id", expedientTipusId));
-		if (expedientTipusIdPermesos != null)
+		if (expedientTipusIdPermesos != null && expedientTipusIdPermesos.length > 0)
 			crit.add(Restrictions.in("tipus.id", expedientTipusIdPermesos));
 		if (estatId != null && !finalitzat)
 			crit.add(Restrictions.eq("estat.id", estatId));

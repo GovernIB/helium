@@ -20,8 +20,6 @@ public class FormulariExternDwrService {
 
 	private TascaService tascaService;
 
-
-
 	@Autowired
 	public FormulariExternDwrService(TascaService tascaService) {
 		this.tascaService = tascaService;

@@ -162,6 +162,9 @@ public class ExpedientController extends BaseController {
 							"activeTokens",
 							expedientService.getActiveTokens(id, true));
 				}
+				model.addAttribute(
+						"relacionarCommand",
+						new ExpedientRelacionarCommand());
 				return "expedient/info";
 			} else {
 				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
