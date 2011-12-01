@@ -16,6 +16,7 @@ public class ExpedientInfo {
 		INTERN,
 		SISTRA}
 
+	private Long id;
 	private String titol;
 	private String numero;
 	private String numeroDefault;
@@ -59,6 +60,12 @@ public class ExpedientInfo {
 
 
 
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
 	public String getTitol() {
 		return titol;
 	}

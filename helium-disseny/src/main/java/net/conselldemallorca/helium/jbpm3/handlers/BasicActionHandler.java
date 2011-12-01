@@ -16,6 +16,7 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.FilaResultat;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaRegistre;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.Tramit;
 
 import org.jbpm.graph.def.ActionHandler;
 import org.jbpm.graph.exe.ExecutionContext;
@@ -133,6 +134,16 @@ public abstract class BasicActionHandler implements ActionHandler {
 			int anys,
 			int mesos,
 			int dies) {}
+
+	public Tramit consultaTramit(
+			String numero,
+			String clau) {
+		return null;
+	}
+
+	public void expedientRelacionar(
+			ExecutionContext executionContext,
+			long expedientId) {}
 
 	public byte[] obtenirArxiuGestorDocumental(String id) {
 		return null;

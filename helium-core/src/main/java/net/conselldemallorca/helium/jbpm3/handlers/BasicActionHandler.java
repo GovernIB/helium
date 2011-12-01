@@ -792,6 +792,23 @@ public abstract class BasicActionHandler implements ActionHandler {
 				getPluginTramitacioDao().obtenirDadesTramit(request));
 	}
 
+	/**
+	 * Relaciona aquest expedient amb un altre
+	 * 
+	 * @param executionContext
+	 * @param anys
+	 * @param mesos
+	 * @param dies
+	 */
+	public void expedientRelacionar(
+			ExecutionContext executionContext,
+			long expedientId) {
+		ExpedientInfo expedient = getExpedient(executionContext);
+		getExpedientService().createRelacioExpedient(
+				expedient.getId(),
+				expedientId);
+	}
+
 	public byte[] obtenirArxiuGestorDocumental(String id) {
 		return getPluginGestioDocumentalDao().retrieveDocument(id);
 	}
@@ -856,6 +873,7 @@ public abstract class BasicActionHandler implements ActionHandler {
 	private ExpedientInfo toExpedientInfo(Expedient expedient) {
 		if (expedient != null) {
 			ExpedientInfo resposta = new ExpedientInfo();
+			resposta.setId(expedient.getId());
 			resposta.setTitol(expedient.getTitol());
 			resposta.setNumero(expedient.getNumero());
 			resposta.setNumeroDefault(expedient.getNumeroDefault());

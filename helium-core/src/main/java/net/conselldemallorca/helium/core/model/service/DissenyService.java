@@ -1437,6 +1437,7 @@ public class DissenyService {
 			nova.setExportarActiu(consulta.isExportarActiu());
 			nova.setEntorn(entorn);
 			nova.setExpedientTipus(expedientTipus);
+			nova.getCamps().clear();
 			for (ConsultaCampExportacio consultaCamp: consulta.getCamps()) {
 				ConsultaCamp campNou = new ConsultaCamp(
 						consultaCamp.getCodi(),
