@@ -614,7 +614,7 @@ public class ExpedientService {
 			Map<String, Object> valors) {
 		Consulta consulta = consultaDao.getById(consultaId, false);
 		List<Camp> campsFiltre = getServiceUtils().findCampsPerCampsConsulta(
-				consultaId,
+				consulta,
 				TipusConsultaCamp.FILTRE);
 		afegirValorsPredefinits(consulta, valors, campsFiltre);
 		List<Long> idExpedients = luceneDao.findNomesIds(
@@ -649,10 +649,10 @@ public class ExpedientService {
 		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
 		Consulta consulta = consultaDao.getById(consultaId, false);
 		List<Camp> campsFiltre = getServiceUtils().findCampsPerCampsConsulta(
-				consultaId,
+				consulta,
 				TipusConsultaCamp.FILTRE);
 		List<Camp> campsInforme = getServiceUtils().findCampsPerCampsConsulta(
-				consultaId,
+				consulta,
 				TipusConsultaCamp.INFORME);
 		afegirValorsPredefinits(consulta, valors, campsFiltre);
 		List<Map<String, DadaIndexadaDto>> dadesExpedients = luceneDao.findAmbDadesExpedient(
@@ -913,7 +913,42 @@ public class ExpedientService {
 				data,
 				arxiuNom,
 				arxiuContingut,
+				false,
+				false,
+				null,
+				null,
+				null,
+				null,
 				false);
+	}
+	public Long guardarDocumentAmbDadesRegistre(
+			String processInstanceId,
+			Long documentId,
+			Date data,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			boolean registrat,
+			String registreNumero,
+			Date registreData,
+			String registreOficinaCodi,
+			String registreOficinaNom,
+			boolean registreEntrada) {
+		Document document = documentDao.getById(documentId, false);
+		return createUpdateDocument(
+				processInstanceId,
+				document.getCodi(),
+				document.getNom(),
+				TascaService.PREFIX_DOCUMENT + document.getCodi(),
+				data,
+				arxiuNom,
+				arxiuContingut,
+				false,
+				registrat,
+				registreNumero,
+				registreData,
+				registreOficinaCodi,
+				registreOficinaNom,
+				registreEntrada);
 		
 	}
 
@@ -1008,7 +1043,13 @@ public class ExpedientService {
 				data,
 				arxiuNom,
 				arxiuContingut,
-				true);
+				true,
+				false,
+				null,
+				null,
+				null,
+				null,
+				false);
 	}
 	public void deleteDocument(String processInstanceId, Long documentStoreId) {
 		DocumentStore documentStore = documentStoreDao.getById(documentStoreId, false);
@@ -1288,25 +1329,6 @@ public class ExpedientService {
 		}
 	}
 
-	/*public DocumentDto descarregarSignatura(Long id) {
-		DocumentStore documentStore = documentStoreDao.getById(id, false);
-		if (isSignaturaFileAttached()) {
-			List<byte[]> signatures = pluginCustodiaDao.obtenirSignatures(
-					documentStore.getReferenciaCustodia());
-			DocumentDto resposta = new DocumentDto();
-			String arxiuNom = documentStore.getArxiuNom();
-			int indexPunt = arxiuNom.indexOf(".");
-			if (indexPunt == -1) {
-				resposta.setArxiuNom(arxiuNom + ".pdf");
-			} else {
-				resposta.setArxiuNom(arxiuNom.substring(0, indexPunt) + ".pdf");
-			}
-			resposta.setArxiuContingut(Base64.decode(signatures.get(0)));
-			return resposta;
-		}
-		return null;
-	}*/
-
 	public void changeProcessInstanceVersion(
 			String processInstanceId,
 			int newVersion) {
@@ -1327,12 +1349,21 @@ public class ExpedientService {
 				accio.getJbpmAction());
 	}
 
-	public void relacionarExpedient(
+	public void createRelacioExpedient(
 			Long expedientIdOrigen,
 			Long expedientIdDesti) {
 		Expedient origen = expedientDao.getById(expedientIdOrigen, false);
 		Expedient desti = expedientDao.getById(expedientIdDesti, false);
 		origen.addRelacioOrigen(desti);
+		desti.addRelacioOrigen(origen);
+	}
+	public void deleteRelacioExpedient(
+			Long expedientIdOrigen,
+			Long expedientIdDesti) {
+		Expedient origen = expedientDao.getById(expedientIdOrigen, false);
+		Expedient desti = expedientDao.getById(expedientIdDesti, false);
+		origen.removeRelacioOrigen(desti);
+		desti.removeRelacioOrigen(origen);
 	}
 
 	public void publicarExpedient(
@@ -1560,7 +1591,13 @@ public class ExpedientService {
 				Date data,
 				String arxiuNom,
 				byte[] arxiuContingut,
-				boolean adjunt) {
+				boolean adjunt,
+				boolean registrat,
+				String registreNumero,
+				Date registreData,
+				String registreOficinaCodi,
+				String registreOficinaNom,
+				boolean registreEntrada) {
 		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(processInstanceId);
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 		String nomArxiuAntic = null;
