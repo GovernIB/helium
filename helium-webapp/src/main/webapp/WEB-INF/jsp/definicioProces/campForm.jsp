@@ -81,6 +81,11 @@ function canviTipus(input) {
 				<c:param name="type" value="checkbox"/>
 				<c:param name="label"><fmt:message key='comuns.multiple' /></c:param>
 			</c:import>
+			<c:import url="../common/formElement.jsp">
+				<c:param name="property" value="ocult"/>
+				<c:param name="type" value="checkbox"/>
+				<c:param name="label"><fmt:message key='defproc.campform.ocult' /></c:param>
+			</c:import>
 		</div>
 		<div class="inlineLabels col last">
 			<h3><fmt:message key='defproc.campform.dades_cons' /></h3>
