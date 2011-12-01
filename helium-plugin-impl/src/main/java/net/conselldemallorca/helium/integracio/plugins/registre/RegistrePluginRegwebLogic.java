@@ -16,6 +16,8 @@ import net.conselldemallorca.helium.core.util.GlobalProperties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.security.Authentication;
+import org.springframework.security.context.SecurityContextHolder;
 
 import es.caib.regweb.logic.helper.ParametrosRegistroEntrada;
 import es.caib.regweb.logic.helper.ParametrosRegistroSalida;
@@ -44,7 +46,7 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 			RegistreEntrada registreEntrada) throws RegistrePluginException {
 		try {
 			ParametrosRegistroEntrada params = new ParametrosRegistroEntrada();
-			params.fijaUsuario(GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal"));
+			params.fijaUsuario(getUsuariRegistre());
 			Date ara = new Date();
 			params.setdataentrada(new SimpleDateFormat("dd/MM/yyyy").format(ara));
 			params.sethora(new SimpleDateFormat("HH:mm").format(ara));
@@ -148,7 +150,7 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 			String registreNumero) throws RegistrePluginException {
 		try {
 			ParametrosRegistroEntrada params = new ParametrosRegistroEntrada();
-			params.fijaUsuario(GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal"));
+			params.fijaUsuario(getUsuariRegistre());
 			params.setoficina(organCodi);
 			params.setoficinafisica(oficinaCodi);
 			int index = registreNumero.indexOf(SEPARADOR_NUMERO);
@@ -197,7 +199,7 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 			RegistreSortida registreSortida) throws RegistrePluginException {
 		try {
 			ParametrosRegistroSalida params = new ParametrosRegistroSalida();
-			params.fijaUsuario(GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal"));
+			params.fijaUsuario(getUsuariRegistre());
 			Date ara = new Date();
 			params.setdatasalida(new SimpleDateFormat("dd/MM/yyyy").format(ara));
 			params.sethora(new SimpleDateFormat("HH:mm").format(ara));
@@ -301,7 +303,7 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 			String registreNumero) throws RegistrePluginException {
 		try {
 			ParametrosRegistroSalida params = new ParametrosRegistroSalida();
-			params.fijaUsuario(GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal"));
+			params.fijaUsuario(getUsuariRegistre());
 			params.setoficina(organCodi);
 			params.setoficinafisica(oficinaCodi);
 			int index = registreNumero.indexOf(SEPARADOR_NUMERO);
@@ -390,6 +392,8 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 				objRef,
 				RegistroEntradaFacadeHome.class);
 		ctx.close();
+		//if (false)
+		//	newLogin();
 		return home.create();
 	}
 	private RegistroSalidaFacade getRegistreSortidaService() throws Exception {
@@ -399,6 +403,8 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 				objRef,
 				RegistroSalidaFacadeHome.class);
 		ctx.close();
+		//if (false)
+		//	newLogin();
 		return home.create();
 	}
 	private ValoresFacade getValoresService() throws Exception {
@@ -408,7 +414,8 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 				objRef,
 				ValoresFacadeHome.class);
 		ctx.close();
-		newLogin();
+		//if (false)
+		//	newLogin();
 		return home.create();
 	}
 
@@ -423,34 +430,37 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 		props.put(
 				Context.PROVIDER_URL,
 				GlobalProperties.getInstance().getProperty("app.registre.plugin.provider.url"));
-		if (!isJbossContainer()) {
-			String principal = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal");
-			if (principal != null && principal.length() > 0)
-				props.put(
-						Context.SECURITY_PRINCIPAL,
-						principal);
-			String credentials = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.credentials");
-			if (credentials != null && credentials.length() > 0)
-				props.put(
-						Context.SECURITY_CREDENTIALS,
-						credentials);
-		}
+		//if (true) {
+		String principal = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal");
+		if (principal != null && principal.length() > 0)
+			props.put(
+					Context.SECURITY_PRINCIPAL,
+					principal);
+		String credentials = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.credentials");
+		if (credentials != null && credentials.length() > 0)
+			props.put(
+					Context.SECURITY_CREDENTIALS,
+					credentials);
+		//}
 		return new InitialContext(props);
 	}
-	private void newLogin() throws Exception {
-		if (isJbossContainer()) {
-			String principal = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal");
-			String credentials = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.credentials");
-			org.jboss.security.auth.callback.UsernamePasswordHandler handler = new org.jboss.security.auth.callback.UsernamePasswordHandler(
-					principal,
-					credentials.toCharArray());
-			javax.security.auth.login.LoginContext lc = new javax.security.auth.login.LoginContext("client-login", handler);
-			lc.login();
+	/*private void newLogin() throws Exception {
+		String principal = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal");
+		String credentials = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.credentials");
+		org.jboss.security.auth.callback.UsernamePasswordHandler handler = new org.jboss.security.auth.callback.UsernamePasswordHandler(
+				principal,
+				credentials.toCharArray());
+		javax.security.auth.login.LoginContext lc = new javax.security.auth.login.LoginContext("client-login", handler);
+		lc.login();
+	}*/
+
+	private String getUsuariRegistre() {
+		String usuari = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal");
+		if (usuari == null || usuari.length() == 0) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			usuari = auth.getName();
 		}
-	}
-	private boolean isJbossContainer() {
-		//return !"false".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.registre.plugin.container.jboss"));
-		return false;
+		return usuari;
 	}
 
 	private String convertirIdioma(String iso6391) {
