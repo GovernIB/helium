@@ -77,6 +77,8 @@ public class OpenOfficeUtils {
 	}
 	public String getArxiuMimeType(String nomArxiu) {
 		DocumentFormat format = formatPerNomArxiu(nomArxiu);
+		if (format == null)
+			return null;
 		return format.getMimeType();
 	}
 
