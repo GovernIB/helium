@@ -1354,8 +1354,24 @@ public class ExpedientService {
 			Long expedientIdDesti) {
 		Expedient origen = expedientDao.getById(expedientIdOrigen, false);
 		Expedient desti = expedientDao.getById(expedientIdDesti, false);
-		origen.addRelacioOrigen(desti);
-		desti.addRelacioOrigen(origen);
+		boolean existeix = false;
+		for (Expedient relacionat: origen.getRelacionsOrigen()) {
+			if (relacionat.getId().longValue() == expedientIdDesti.longValue()) {
+				existeix = true;
+				break;
+			}
+		}
+		if (!existeix)
+			origen.addRelacioOrigen(desti);
+		existeix = false;
+		for (Expedient relacionat: desti.getRelacionsOrigen()) {
+			if (relacionat.getId().longValue() == expedientIdOrigen.longValue()) {
+				existeix = true;
+				break;
+			}
+		}
+		if (!existeix)
+			desti.addRelacioOrigen(origen);
 	}
 	public void deleteRelacioExpedient(
 			Long expedientIdOrigen,
