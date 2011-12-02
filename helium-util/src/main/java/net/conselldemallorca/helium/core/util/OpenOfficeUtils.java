@@ -7,6 +7,8 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.activation.MimetypesFileTypeMap;
+
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 
 import com.artofsolving.jodconverter.DefaultDocumentFormatRegistry;
@@ -78,8 +80,9 @@ public class OpenOfficeUtils {
 	public String getArxiuMimeType(String nomArxiu) {
 		DocumentFormat format = formatPerNomArxiu(nomArxiu);
 		if (format == null)
-			return null;
-		return format.getMimeType();
+			return new MimetypesFileTypeMap().getContentType(nomArxiu);
+		else
+			return format.getMimeType();
 	}
 
 
