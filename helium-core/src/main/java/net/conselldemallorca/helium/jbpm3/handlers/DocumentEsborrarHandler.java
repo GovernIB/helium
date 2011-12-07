@@ -38,8 +38,6 @@ public class DocumentEsborrarHandler extends AbstractHeliumActionHandler impleme
 			} else {
 				throw new JbpmException("No s'ha trobat el contingut del document especificat(" + dc + ")");
 			}
-		} else {
-			throw new JbpmException("No s'ha trobat el document especificat(" + dc + ")");
 		}
 	}
 

@@ -85,8 +85,8 @@ function confirmarAnular(e) {
 					<c:when test="${not empty consulta.informeNom and not empty campsInforme}">
 						<c:import url="../common/formElement.jsp">
 							<c:param name="type" value="buttons"/>
-							<c:param name="values">informe,netejar</c:param>
-							<c:param name="titles"><fmt:message key='expedient.consulta.informe' />,<fmt:message key='expedient.consulta.netejar' /></c:param>
+							<c:param name="values">informe,submit,netejar</c:param>
+							<c:param name="titles"><fmt:message key='expedient.consulta.informe' />,<fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' /></c:param>
 						</c:import>
 					</c:when>
 					<c:otherwise>
