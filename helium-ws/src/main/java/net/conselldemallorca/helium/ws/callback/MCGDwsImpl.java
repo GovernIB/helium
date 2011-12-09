@@ -32,10 +32,10 @@ public class MCGDwsImpl implements es.indra.www.portafirmasmcgdws.mcgdws.MCGDws{
 
 	public CallbackResponse callback(CallbackRequest callbackRequest) throws java.rmi.RemoteException {
 		Integer document = callbackRequest.getApplication().getDocument().getId();
-		logger.info("Rebuda petició callback portasignatures del document " + document);
+		AttributesState estat = callbackRequest.getApplication().getDocument().getAttributes().getState();
+		logger.info("Rebuda petició callback portasignatures del document amb id " + document + " i estat " + estat.getValue());
 		CallbackResponse callbackResponse = new CallbackResponse();
 		try {
-			AttributesState estat = callbackRequest.getApplication().getDocument().getAttributes().getState();
 			PluginService pluginService = ServiceProxy.getInstance().getPluginService();
 			Double resposta = -1D;
 			switch (estat.getValue()) {
