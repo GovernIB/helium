@@ -545,7 +545,7 @@
 	</error-page>
 
 	<session-config>
-		<session-timeout>30</session-timeout>
+		<!-- session-timeout.begin --><!--@@web.session.timeout@@--><session-timeout>30</session-timeout><!-- session-timeout.end -->
 	</session-config>
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>

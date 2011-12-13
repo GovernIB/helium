@@ -208,6 +208,16 @@
 									<replacefilter token="@@cas.sso.roles.query.sql@@" property="cas.sso.roles.query.sql" />
 									<replacefilter token="@@web.session.timeout@@" property="web.session.timeout" />
 								</replace>
+								<replace file="${basedir}/target/replace-dir/WEB-INF/web.xml">
+									<replacefilter>
+										<replacetoken><![CDATA[<!-- session-timeout.begin --><!--]]></replacetoken>
+										<replacevalue><![CDATA[<session-timeout>]]></replacevalue>
+									</replacefilter>
+									<replacefilter>
+										<replacetoken><![CDATA[--><session-timeout>30</session-timeout><!-- session-timeout.end -->]]></replacetoken>
+										<replacevalue><![CDATA[</session-timeout>]]></replacevalue>
+									</replacefilter>
+								</replace>
 								<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.plugin.classpath" />
 								<if>
 									<equals arg1="${appserv.jboss}" arg2="true" />
