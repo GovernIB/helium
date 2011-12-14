@@ -580,6 +580,9 @@ public class ExpedientService {
 		}
 		return resposta;
 	}
+	public int countAmbExpedientTipusId(Long expedientTipusId) {
+		return expedientDao.countAmbExpedientTipusId(expedientTipusId);
+	}
 	public ExpedientDto findExpedientAmbEntornTipusITitol(
 			Long entornId,
 			Long expedientTipusId,

@@ -630,13 +630,14 @@ public class LuceneDao extends LuceneIndexSupport {
 				int index = 0;
 				for (CampRegistre campRegistre: camp.getRegistreMembres()) {
 					Camp membre = campRegistre.getMembre();
-					addFieldToDocument(
-							document,
-							definicioProces,
-							membre,
-							valorsMembres[index++],
-							textDominis,
-							false);
+					if (index < valorsMembres.length)
+						addFieldToDocument(
+								document,
+								definicioProces,
+								membre,
+								valorsMembres[index++],
+								textDominis,
+								false);
 				}
 				// System.out.println(">>> /Registre " + camp.getCodi());
 			} else {

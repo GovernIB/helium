@@ -50,6 +50,10 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 		}
 		return null;
 	}
+	public int countAmbExpedientTipusId(Long expedientTipusId) {
+		return getCountByCriteria(
+				Restrictions.eq("tipus.id", expedientTipusId));
+	}
 	public Expedient findAmbEntornTipusITitol(
 			Long entornId,
 			Long expedientTipusId,

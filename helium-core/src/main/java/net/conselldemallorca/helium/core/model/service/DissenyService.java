@@ -759,7 +759,10 @@ public class DissenyService {
 	public void deleteExpedientTipus(Long id) {
 		ExpedientTipus vell = getExpedientTipusById(id);
 		if (vell != null) {
-			for (DefinicioProces definicioProces: vell.getDefinicionsProces()) {
+			Iterator<DefinicioProces> it = vell.getDefinicionsProces().iterator();
+			while (it.hasNext()) {
+				DefinicioProces definicioProces = it.next();
+				it.remove();
 				undeploy(
 						definicioProces.getEntorn().getId(),
 						vell.getId(),
@@ -1448,6 +1451,10 @@ public class DissenyService {
 				nova.setExportarActiu(consulta.isExportarActiu());
 				nova.setEntorn(entorn);
 				nova.setExpedientTipus(expedientTipus);
+				for (ConsultaCamp consultaCamp: nova.getCamps()) {
+					consultaCamp.setConsulta(null);
+					consultaCampDao.delete(consultaCamp);
+				}
 				nova.getCamps().clear();
 				for (ConsultaCampExportacio consultaCamp: consulta.getCamps()) {
 					ConsultaCamp campNou = new ConsultaCamp(

@@ -275,7 +275,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 					model.addAttribute(
 							JasperReportsView.MODEL_ATTRIBUTE_REPORTCONTENT,
 							consulta.getInformeContingut());
-					if (consulta.getSubConsultes().size() > 0) {
+					/*if (consulta.getSubConsultes().size() > 0) {
 						String[] subreports = new String[consulta.getSubConsultes().size()];
 						int index = 0;
 						for (Consulta subconsulta: consulta.getSubConsultes())  {
@@ -294,7 +294,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 						model.addAttribute(
 								JasperReportsView.MODEL_ATTRIBUTE_SUBREPORTS,
 								subreports);
-					}
+					}*/
 					return "jasperReportsView";
 				} else {
 					missatgeError(request, getMessage("error.consulta.informe.nonhiha"));
