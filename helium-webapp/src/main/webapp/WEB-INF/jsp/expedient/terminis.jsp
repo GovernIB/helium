@@ -46,16 +46,14 @@ function confirmarCancelar(e) {
 		<c:param name="tabActiu" value="terminis"/>
 	</c:import>
 
-	<h3 class="titol-tab titol-terminis">
-		Terminis del procés
-	</h3>
+	<h3 class="titol-tab titol-terminis"><fmt:message key="expedient.termini.terminis"/></h3>
 	<display:table name="terminis" id="registre" class="displaytag">
 		<c:set var="iniciat" value=""/>
 		<c:forEach var="ini" items="${iniciats}">
 			<c:if test="${registre.id == ini.termini.id and empty ini.dataCancelacio}"><c:set var="iniciat" value="${ini}"/></c:if>
 		</c:forEach>
-		<display:column title="Nom" property="nom"/>
-		<display:column title="Durada">
+		<display:column titleKey="expedient.termini.nom" property="nom"/>
+		<display:column titleKey="expedient.termini.durada">
 			<c:choose>
 				<c:when test="${not empty iniciat}">${iniciat.durada}</c:when>
 				<c:otherwise>
@@ -66,31 +64,31 @@ function confirmarCancelar(e) {
 				</c:otherwise>
 			</c:choose>
 		</display:column>
-		<display:column title="Iniciat el">
+		<display:column titleKey="expedient.termini.iniciat.el">
 			<c:if test="${not empty iniciat}"><fmt:formatDate value="${iniciat.dataInici}" pattern="dd/MM/yyyy"/></c:if>
 		</display:column>
-		<display:column title="Aturat el">
+		<display:column titleKey="expedient.termini.aturat.el">
 			<c:if test="${not empty iniciat and not empty iniciat.dataAturada}"><fmt:formatDate value="${iniciat.dataAturada}" pattern="dd/MM/yyyy"/></c:if>
 		</display:column>
-		<display:column title="Data de fi de termini">
+		<display:column titleKey="expedient.termini.data.de.fi">
 			<c:if test="${not empty iniciat}"><fmt:formatDate value="${iniciat.dataFi}" pattern="dd/MM/yyyy"/></c:if>
 		</display:column>
-		<display:column title="Estat">
+		<display:column titleKey="expedient.termini.estat">
 			<c:choose>
 				<c:when test="${empty iniciat}">
 					<c:set var="trobat" value="${false}"/>
 					<c:forEach var="ini" items="${iniciats}">
 						<c:if test="${registre.id == ini.termini.id and not empty ini.dataCancelacio}">
-							Cancel·lat
+							<fmt:message key="expedient.termini.estat.cancelat"/>
 							<c:set var="trobat" value="${true}"/>
 						</c:if>
 					</c:forEach>
-					<c:if test="${not trobat}">Pendent d'iniciar</c:if>
+					<c:if test="${not trobat}"><fmt:message key="expedient.termini.estat.pendent"/></c:if>
 				</c:when>
 				<c:otherwise>
 					<c:choose>
-						<c:when test="${not empty iniciat.dataAturada}">Aturat</c:when>
-						<c:otherwise>Actiu</c:otherwise>
+						<c:when test="${not empty iniciat.dataAturada}"><fmt:message key="expedient.termini.estat.aturat"/></c:when>
+						<c:otherwise><fmt:message key="expedient.termini.estat.actiu"/></c:otherwise>
 					</c:choose>
 				</c:otherwise>
 			</c:choose>
@@ -101,37 +99,42 @@ function confirmarCancelar(e) {
 					<c:when test="${not registre.manual or not empty iniciat}">
 						<c:choose>
 							<c:when test="${not registre.manual or empty iniciat.dataAturada}">
-								<img src="<c:url value="/img/control_play.png"/>" alt="Iniciar" title="Iniciar" border="0"/>
+								<img src="<c:url value="/img/control_play.png"/>" alt="<fmt:message key="expedient.termini.accio.iniciar"/>" title="<fmt:message key="expedient.termini.accio.iniciar"/>" border="0"/>
 							</c:when>
 							<c:otherwise>
-								<a href="<c:url value="/expedient/terminiContinuar.html"><c:param name="id" value="${param.id}"/><c:param name="terminiId" value="${iniciat.id}"/></c:url>" onclick="return confirmarContinuar(event)"><img src="<c:url value="/img/control_play_blue.png"/>" alt="Continuar" title="Continuar" border="0"/></a>
+								<a href="<c:url value="/expedient/terminiContinuar.html"><c:param name="id" value="${param.id}"/><c:param name="terminiId" value="${iniciat.id}"/></c:url>" onclick="return confirmarContinuar(event)"><img src="<c:url value="/img/control_play_blue.png"/>" alt="<fmt:message key="expedient.termini.accio.continuar"/>" title="<fmt:message key="expedient.termini.accio.continuar"/>" border="0"/></a>
 							</c:otherwise>
 						</c:choose>
 					</c:when>
 					<c:otherwise>
-						<a href="<c:url value="/expedient/terminiIniciar.html"><c:param name="id" value="${param.id}"/><c:param name="terminiId" value="${registre.id}"/></c:url>" onclick="return confirmarIniciar(event)"><img src="<c:url value="/img/control_play_blue.png"/>" alt="Iniciar" title="Iniciar" border="0"/></a>
+						<a href="<c:url value="/expedient/terminiIniciar.html"><c:param name="id" value="${param.id}"/><c:param name="terminiId" value="${registre.id}"/></c:url>" onclick="return confirmarIniciar(event)"><img src="<c:url value="/img/control_play_blue.png"/>" alt="<fmt:message key="expedient.termini.accio.iniciar"/>" title="<fmt:message key="expedient.termini.accio.iniciar"/>" border="0"/></a>
 					</c:otherwise>
 				</c:choose>
 			</display:column>
 			<display:column>
 				<c:choose>
 					<c:when test="${not registre.manual or empty iniciat or not empty iniciat.dataAturada}">
-						<img src="<c:url value="/img/control_pause.png"/>" alt="Aturar" title="Aturar" border="0"/>
+						<img src="<c:url value="/img/control_pause.png"/>" alt="<fmt:message key="expedient.termini.accio.aturar"/>" title="<fmt:message key="expedient.termini.accio.aturar"/>" border="0"/>
 					</c:when>
 					<c:otherwise>
-						<a href="<c:url value="/expedient/terminiPausar.html"><c:param name="id" value="${param.id}"/><c:param name="terminiId" value="${iniciat.id}"/></c:url>" onclick="return confirmarAturar(event)"><img src="<c:url value="/img/control_pause_blue.png"/>" alt="Aturar" title="Aturar" border="0"/></a>
+						<a href="<c:url value="/expedient/terminiPausar.html"><c:param name="id" value="${param.id}"/><c:param name="terminiId" value="${iniciat.id}"/></c:url>" onclick="return confirmarAturar(event)"><img src="<c:url value="/img/control_pause_blue.png"/>" alt="<fmt:message key="expedient.termini.accio.aturar"/>" title="<fmt:message key="expedient.termini.accio.aturar"/>" border="0"/></a>
 					</c:otherwise>
 				</c:choose>
 			</display:column>
 			<display:column>
 				<c:choose>
 					<c:when test="${empty iniciat}">
-						<img src="<c:url value="/img/control_stop.png"/>" alt="Cancel·lar" title="Cancel·lar" border="0"/>
+						<img src="<c:url value="/img/control_stop.png"/>" alt="<fmt:message key="expedient.termini.accio.cancelar"/>" title="<fmt:message key="expedient.termini.accio.cancelar"/>" border="0"/>
 					</c:when>
 					<c:otherwise>
-						<a href="<c:url value="/expedient/terminiCancelar.html"><c:param name="id" value="${param.id}"/><c:param name="terminiId" value="${iniciat.id}"/></c:url>" onclick="return confirmarCancelar(event)"><img src="<c:url value="/img/control_stop_blue.png"/>" alt="Cancel·lar" title="Cancel·lar" border="0"/></a>
+						<a href="<c:url value="/expedient/terminiCancelar.html"><c:param name="id" value="${param.id}"/><c:param name="terminiId" value="${iniciat.id}"/></c:url>" onclick="return confirmarCancelar(event)"><img src="<c:url value="/img/control_stop_blue.png"/>" alt="<fmt:message key="expedient.termini.accio.cancelar"/>" title="<fmt:message key="expedient.termini.accio.cancelar"/>" border="0"/></a>
 					</c:otherwise>
 				</c:choose>
+			</display:column>
+			<display:column>
+				<c:if test="${not empty iniciat}">
+					<a href="<c:url value="/expedient/terminiModificar.html"><c:param name="id" value="${param.id}"/><c:param name="terminiId" value="${iniciat.id}"/></c:url>"><img src="<c:url value="/img/page_white_edit.png"/>" alt="<fmt:message key="expedient.termini.accio.modificar"/>" title="<fmt:message key="expedient.termini.accio.modificar"/>" border="0"/></a>
+				</c:if>
 			</display:column>
 		</security:accesscontrollist>
 	</display:table>

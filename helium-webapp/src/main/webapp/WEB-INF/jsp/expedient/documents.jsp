@@ -88,7 +88,7 @@ function infoRegistre(docId) {
 	</h3>
 	<c:if test="${not empty instanciaProces.sortedDocumentKeys}">
 		<display:table name="instanciaProces.sortedDocumentKeys" id="codi" class="displaytag">
-			<display:column title="<fmt:message key='expedient.document.document' />">
+			<display:column titleKey="expedient.document.document">
 				<c:choose>
 					<c:when test="${instanciaProces.varsDocuments[codi].adjunt}">
 						${instanciaProces.varsDocuments[codi].adjuntTitol}
