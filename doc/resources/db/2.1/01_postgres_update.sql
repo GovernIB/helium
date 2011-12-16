@@ -69,7 +69,7 @@ update hel_expedient set anulat = false;
 -- Idioma en les preferencies d'usuari --
 alter table hel_usuari_prefs add column idioma CHARACTER VARYING(255);
 
--- Actualització a la nova versió --
+-- Actualitzaciï¿½ a la nova versiï¿½ --
 insert into hel_versio (
     id,
     codi,
@@ -83,7 +83,7 @@ select
     '2.1.0' codi,
     210 ordre,
     'now' data_creacio,
-    true proces_executat,
+    false proces_executat,
     true script_executat,
     'now' data_execucio_script
 where (select count(*) from hel_versio where ordre = 210) = 0;

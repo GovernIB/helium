@@ -856,6 +856,7 @@ public class DissenyService {
 		return enumeracioValorsDao.getById(id, false);
 	}
 	public EnumeracioValors createEnumeracioValors(EnumeracioValors entity) {
+		entity.setOrdre(enumeracioValorsDao.getNextOrder(entity.getEnumeracio().getId()));
 		EnumeracioValors saved = enumeracioValorsDao.saveOrUpdate(entity);
 		return saved;
 	}
@@ -864,14 +865,46 @@ public class DissenyService {
 	}
 	public void deleteEnumeracioValors(Long id) {
 		EnumeracioValors vell = getEnumeracioValorsById(id);
-		if (vell != null)
+		if (vell != null) {
 			enumeracioValorsDao.delete(id);
+			reordenarEnumeracioValors(vell.getEnumeracio().getId());
+		}
 	}
 	public List<EnumeracioValors> findEnumeracioValorsAmbEnumeracio(Long enumeracioId) {
-		return enumeracioValorsDao.findAmbEnumeracio(enumeracioId);
+		return enumeracioValorsDao.findAmbEnumeracioOrdenat(enumeracioId);
 	}
 	public EnumeracioValors findEnumeracioValorsAmbCodi(Long enumeracioId, String codi) {
 		return enumeracioValorsDao.findAmbEnumeracioICodi(enumeracioId, codi);
+	}
+	public void goUpEnumeracioValor(Long id) {
+		EnumeracioValors valor = enumeracioValorsDao.getById(id, false);
+		int ordreActual = valor.getOrdre();
+		EnumeracioValors anterior = enumeracioValorsDao.getAmbOrdre(
+				valor.getEnumeracio().getId(),
+				ordreActual - 1);
+		if (anterior != null) {
+			valor.setOrdre(-1);
+			anterior.setOrdre(ordreActual);
+			enumeracioValorsDao.merge(valor);
+			enumeracioValorsDao.merge(anterior);
+			enumeracioValorsDao.flush();
+			valor.setOrdre(ordreActual - 1);
+		}
+	}
+	public void goDownEnumeracioValor(Long id) {
+		EnumeracioValors valor = enumeracioValorsDao.getById(id, false);
+		int ordreActual = valor.getOrdre();
+		EnumeracioValors seguent = enumeracioValorsDao.getAmbOrdre(
+				valor.getEnumeracio().getId(),
+				ordreActual + 1);
+		if (seguent != null) {
+			valor.setOrdre(-1);
+			seguent.setOrdre(ordreActual);
+			enumeracioValorsDao.merge(valor);
+			enumeracioValorsDao.merge(seguent);
+			enumeracioValorsDao.flush();
+			valor.setOrdre(ordreActual + 1);
+		}
 	}
 
 	public Termini getTerminiById(Long id) {
@@ -1238,7 +1271,7 @@ public class DissenyService {
 			EnumeracioExportacio dtoExp = new EnumeracioExportacio(
 					enumeracio.getCodi(),
 					enumeracio.getNom(),
-					enumeracioValorsDao.findAmbEnumeracio(enumeracio.getId()));
+					enumeracioValorsDao.findAmbEnumeracioOrdenat(enumeracio.getId()));
 			enumeracionsExp.add(dtoExp);
 		}
 		dto.setEnumeracions(enumeracionsExp);
@@ -2087,6 +2120,12 @@ public class DissenyService {
 		int i = 0;
 		for (ConsultaCamp camps: consultaCamp)
 			camps.setOrdre(i++);
+	}
+	private void reordenarEnumeracioValors(Long enumeracioId) {
+		List<EnumeracioValors> valors = enumeracioValorsDao.findAmbEnumeracioOrdenat(enumeracioId);
+		int i = 0;
+		for (EnumeracioValors valor: valors)
+			valor.setOrdre(i++);
 	}
 
 	private boolean comprovarEntorn(Long entornId, Long definicioProcesId) {

@@ -34,6 +34,10 @@
 			<display:column property="codi" titleKey="comuns.codi" sortable="true" url="/enumeracio/valors.html" paramId="enumeracioId" paramProperty="enumeracio.id"/>
 			<display:column property="nom" titleKey="comuns.titol" sortable="true"/>
 			<display:column>
+				<a href="<c:url value="/enumeracio/valorsPujar.html"><c:param name="id" value="${registre.id}"/></c:url>"><img src="<c:url value="/img/famarrow_up.png"/>" alt="<fmt:message key='comuns.amunt' />" title="<fmt:message key='comuns.amunt' />" border="0"/></a>
+				<a href="<c:url value="/enumeracio/valorsBaixar.html"><c:param name="id" value="${registre.id}"/></c:url>"><img src="<c:url value="/img/famarrow_down.png"/>" alt="<fmt:message key='comuns.avall' />" title="<fmt:message key='comuns.avall' />" border="0"/></a>
+			</display:column>
+			<display:column>
 				<a href="<c:url value="/enumeracio/deleteValors.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 			</display:column>
 		</display:table>

@@ -82,9 +82,8 @@ select
     nextval('hibernate_sequence') id,
     '2.1.0' codi,
     210 ordre,
-    clock_timestamp() data_creacio,
-    0 proces_executat,
-    1 script_executat,
-    clock_timestamp() data_execucio_script
-from dual
+    'now' data_creacio,
+    false proces_executat,
+    true script_executat,
+    'now' data_execucio_script
 where (select count(*) from hel_versio where ordre = 210) = 0;
