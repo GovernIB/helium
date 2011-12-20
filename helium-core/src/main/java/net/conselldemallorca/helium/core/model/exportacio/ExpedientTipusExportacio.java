@@ -24,9 +24,6 @@ public class ExpedientTipusExportacio implements Serializable {
 	private String expressioNumero;
 	private boolean reiniciarCadaAny;
 	private String sistraTramitCodi;
-	/*private String sistraTramitMapeigCamps;
-	private String sistraTramitMapeigDocuments;
-	private String sistraTramitMapeigAdjunts;*/
 	private String formextUrl;
 	private String formextUsuari;
 	private String formextContrasenya;
@@ -35,6 +32,7 @@ public class ExpedientTipusExportacio implements Serializable {
 	private List<DominiExportacio> dominis;
 	private List<EnumeracioExportacio> enumeracions;
 	private List<DefinicioProcesExportacio> definicionsProces;
+	private List<ConsultaExportacio> consultes;
 
 
 
@@ -99,24 +97,6 @@ public class ExpedientTipusExportacio implements Serializable {
 	public void setSistraTramitCodi(String sistraTramitCodi) {
 		this.sistraTramitCodi = sistraTramitCodi;
 	}
-	/*public String getSistraTramitMapeigCamps() {
-		return sistraTramitMapeigCamps;
-	}
-	public void setSistraTramitMapeigCamps(String sistraTramitMapeigCamps) {
-		this.sistraTramitMapeigCamps = sistraTramitMapeigCamps;
-	}
-	public String getSistraTramitMapeigDocuments() {
-		return sistraTramitMapeigDocuments;
-	}
-	public void setSistraTramitMapeigDocuments(String sistraTramitMapeigDocuments) {
-		this.sistraTramitMapeigDocuments = sistraTramitMapeigDocuments;
-	}
-	public String getSistraTramitMapeigAdjunts() {
-		return sistraTramitMapeigAdjunts;
-	}
-	public void setSistraTramitMapeigAdjunts(String sistraTramitMapeigAdjunts) {
-		this.sistraTramitMapeigAdjunts = sistraTramitMapeigAdjunts;
-	}*/
 	public String getFormextUrl() {
 		return formextUrl;
 	}
@@ -166,6 +146,13 @@ public class ExpedientTipusExportacio implements Serializable {
 	public void setDefinicionsProces(
 			List<DefinicioProcesExportacio> definicionsProces) {
 		this.definicionsProces = definicionsProces;
+	}
+
+	public List<ConsultaExportacio> getConsultes() {
+		return consultes;
+	}
+	public void setConsultes(List<ConsultaExportacio> consultes) {
+		this.consultes = consultes;
 	}
 
 

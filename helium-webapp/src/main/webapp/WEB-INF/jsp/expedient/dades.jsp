@@ -59,8 +59,8 @@ function confirmarModificar(e) {
 	request.setAttribute(
 			"variablesProcesSenseAgrupar",
 			getVariablesProcesSenseAgrupar(
-					instanciaProces.getVarsComText(),
-					instanciaProces.getCamps()));
+					instanciaProces.getCamps(),
+					instanciaProces.getVarsComText()));
 %>
 		<c:if test="${not empty variablesProcesSenseAgrupar}">
 			<display:table name="variablesProcesSenseAgrupar" id="codi" class="displaytag">
@@ -103,7 +103,7 @@ function confirmarModificar(e) {
 		<c:forEach var="agrupacio" items="${instanciaProces.agrupacions}">
 			<c:set var="agrupacioBuida" value="${true}"/>
 			<c:forEach var="campAgrupacio" items="${agrupacio.camps}">
-				<c:if test="${not empty instanciaProces.varsComText[campAgrupacio.codi]}"><c:set var="agrupacioBuida" value="${false}"/></c:if>
+				<c:if test="${not empty instanciaProces.varsComText[campAgrupacio.codi] and not instanciaProces.varsOcultes[campAgrupacio.codi]}"><c:set var="agrupacioBuida" value="${false}"/></c:if>
 			</c:forEach>
 			<c:if test="${not agrupacioBuida}">
 				<div class="missatgesGris">
@@ -248,14 +248,14 @@ function confirmarModificar(e) {
 
 <%!
 public java.util.List<String> getVariablesProcesSenseAgrupar(
-		java.util.Map<String, Object> varsComText,
-		java.util.Set<net.conselldemallorca.helium.core.model.hibernate.Camp> camps) {
+		java.util.Set<net.conselldemallorca.helium.core.model.hibernate.Camp> camps,
+		java.util.Map<String, Object> varsComText) {
 	java.util.List<String> resposta = new java.util.ArrayList<String>();
 	for (String codi: varsComText.keySet()) {
 		boolean trobat = false;
 		for (net.conselldemallorca.helium.core.model.hibernate.Camp camp: camps) {
 			if (camp.getCodi().equals(codi)) {
-				if (camp.getAgrupacio() == null)
+				if (camp.getAgrupacio() == null && !camp.isOcult())
 					resposta.add(codi);
 				trobat = true;
 				break;
@@ -271,8 +271,8 @@ public java.util.List<net.conselldemallorca.helium.core.model.hibernate.Camp> ge
 		java.util.Map<String, Object> varsComText) {
 	java.util.List<net.conselldemallorca.helium.core.model.hibernate.Camp> resposta = new java.util.ArrayList<net.conselldemallorca.helium.core.model.hibernate.Camp>();
 	for (net.conselldemallorca.helium.core.model.hibernate.Camp camp: campsAgrupacio) {
-		if (varsComText.containsKey(camp.getCodi()))
-				resposta.add(camp);
+		if (varsComText.containsKey(camp.getCodi()) && !camp.isOcult())
+			resposta.add(camp);
 	}
 	return resposta;
 }

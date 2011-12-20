@@ -199,13 +199,26 @@
 								<property file="${basedir}/../build.properties" />
 								<copy file="${basedir}/src/main/webapp/WEB-INF/web.xml"
 									todir="${basedir}/target/replace-dir/WEB-INF" overwrite="true" />
-								<replace file="${basedir}/target/replace-dir/WEB-INF/web.xml"
-									propertyFile="${basedir}/../build.properties">
-									<replacefilter token="@@web.realm.name@@"
-										property="web.realm.name" />
+								<replace file="${basedir}/target/replace-dir/WEB-INF/web.xml" propertyFile="${basedir}/../build.properties">
+									<replacefilter token="@@web.realm.name@@" property="web.realm.name" />
+									<replacefilter token="@@cas.sso.server.base.url@@" property="cas.sso.server.base.url" />
+									<replacefilter token="@@cas.sso.service@@" property="cas.sso.service" />
+									<replacefilter token="@@cas.sso.server.name@@" property="cas.sso.server.name" />
+									<replacefilter token="@@cas.sso.roles.query.jndi@@" property="cas.sso.roles.query.jndi" />
+									<replacefilter token="@@cas.sso.roles.query.sql@@" property="cas.sso.roles.query.sql" />
+									<replacefilter token="@@web.session.timeout@@" property="web.session.timeout" />
 								</replace>
-								<taskdef resource="net/sf/antcontrib/antcontrib.properties"
-									classpathref="maven.plugin.classpath" />
+								<replace file="${basedir}/target/replace-dir/WEB-INF/web.xml">
+									<replacefilter>
+										<replacetoken><![CDATA[<!-- session-timeout.begin --><!--]]></replacetoken>
+										<replacevalue><![CDATA[<session-timeout>]]></replacevalue>
+									</replacefilter>
+									<replacefilter>
+										<replacetoken><![CDATA[--><session-timeout>30</session-timeout><!-- session-timeout.end -->]]></replacetoken>
+										<replacevalue><![CDATA[</session-timeout>]]></replacevalue>
+									</replacefilter>
+								</replace>
+								<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.plugin.classpath" />
 								<if>
 									<equals arg1="${appserv.jboss}" arg2="true" />
 									<then>
@@ -219,6 +232,67 @@
 												<replacevalue><![CDATA[-->]]></replacevalue>
 											</replacefilter>
 										</replace>
+									</then>
+								</if>
+								<if>
+									<equals arg1="${cas.sso.active}" arg2="true" />
+									<then>
+										<replace file="${basedir}/target/replace-dir/WEB-INF/web.xml">
+											<replacefilter>
+												<replacetoken><![CDATA[<!-- cas.sso.begin ]]></replacetoken>
+												<replacevalue><![CDATA[<]]></replacevalue>
+											</replacefilter>
+											<replacefilter>
+												<replacetoken><![CDATA[ cas.sso.end -->]]></replacetoken>
+												<replacevalue><![CDATA[>]]></replacevalue>
+											</replacefilter>
+											<replacefilter>
+												<replacetoken><![CDATA[<!-- login-config.begin -->]]></replacetoken>
+												<replacevalue><![CDATA[<!--]]></replacevalue>
+											</replacefilter>
+											<replacefilter>
+												<replacetoken><![CDATA[<!-- login-config.end -->]]></replacetoken>
+												<replacevalue><![CDATA[-->]]></replacevalue>
+											</replacefilter>
+											<replacefilter>
+												<replacetoken><![CDATA[<!-- security-constraint.begin -->]]></replacetoken>
+												<replacevalue><![CDATA[<!--]]></replacevalue>
+											</replacefilter>
+											<replacefilter>
+												<replacetoken><![CDATA[<!-- security-constraint.end -->]]></replacetoken>
+												<replacevalue><![CDATA[-->]]></replacevalue>
+											</replacefilter>
+										</replace>
+										<if>
+											<equals arg1="${cas.sso.roles.source}" arg2="internal" />
+											<then>
+												<replace file="${basedir}/target/replace-dir/WEB-INF/web.xml">
+													<replacefilter>
+														<replacetoken><![CDATA[<- cas.sso.custom.sql.begin ->]]></replacetoken>
+														<replacevalue><![CDATA[<!--]]></replacevalue>
+													</replacefilter>
+													<replacefilter>
+														<replacetoken><![CDATA[<- cas.sso.custom.sql.end ->]]></replacetoken>
+														<replacevalue><![CDATA[-->]]></replacevalue>
+													</replacefilter>
+												</replace>
+											</then>
+										</if>
+										<if>
+											<equals arg1="${cas.sso.roles.source}" arg2="custom-sql" />
+											<then>
+												<replace file="${basedir}/target/replace-dir/WEB-INF/web.xml">
+													<replacefilter>
+														<replacetoken><![CDATA[<- cas.sso.custom.sql.begin ->]]></replacetoken>
+														<replacevalue><![CDATA[<!-- cas.sso.custom.sql.begin -->]]></replacevalue>
+													</replacefilter>
+													<replacefilter>
+														<replacetoken><![CDATA[<- cas.sso.custom.sql.end ->]]></replacetoken>
+														<replacevalue><![CDATA[<!-- cas.sso.custom.sql.end -->]]></replacevalue>
+													</replacefilter>
+												</replace>
+											</then>
+										</if>
 									</then>
 								</if>
 							</target>

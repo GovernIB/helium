@@ -23,6 +23,9 @@
 	<link rel="shortcut icon" href="<c:url value="/img/favicon.ico"/>" type="image/x-icon"/> 
 	<link href="<c:url value="/css/reset.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/common.css"/>" rel="stylesheet" type="text/css"/>
+<!--[if IE]>
+	<link href="<c:url value="/css/common-ie.css"/>"  rel="stylesheet" type="text/css"/>
+<![endif]-->
 	<link href="<c:url value="/css/layout.css"/>" rel="stylesheet" type="text/css"/>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.js"/>"></script>
 <%-- menu --%>
@@ -146,9 +149,9 @@
 			<div id="page-title">
 				<h2><span><c:if test="${not empty pagina.title}"><decorator:title/></c:if></span><decorator:getProperty property="meta.titolcmp"/></h2>
 				<c:if test="${hiHaTaula}">
-					<form id="filtre" class="uniForm">
-						<input type="text" title="<fmt:message key='decorators.default.cerca' />" class="textInput"/>
-						<a href=""><img src="<c:url value="/img/magnifier.png"/>" /></a>
+					<form id="filtre">
+						<input type="text" title="<fmt:message key="decorators.default.cerca"/>"/>
+						<a href="#"><img src="<c:url value="/img/magnifier.png"/>"/></a>
 					</form>
 				</c:if>
 			</div>

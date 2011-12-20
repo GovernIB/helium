@@ -18,12 +18,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class GisDwrService {
 
 	private ExpedientService expedientService;
-	
+
 	@Autowired
 	public GisDwrService(ExpedientService expedientService) {
 		this.expedientService = expedientService;
 	}
-	
+
 	public String xmlExpedients(String[] processInstanceId) {
 		// Passar de processInstanceId a DadesExpedient
 		List<DadesExpedient> expedients = new ArrayList<DadesExpedient>();
@@ -44,7 +44,7 @@ public class GisDwrService {
 		String xml = expedientService.getXmlExpedients(expedients); 
 		return xml;
 	}
-	
+
 	public String urlVisor() {
 		URL url = expedientService.getUrlVisor();
 		return url.toString();

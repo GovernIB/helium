@@ -176,66 +176,53 @@ public class PluginService {
 	public Double processarDocumentSignatPortasignatures(Integer id) throws Exception {
 		Double resposta = -1D;
 		String transicio = "";
-		
 		try {
 			Portasignatures portasignatures = pluginPortasignaturesDao.findByDocument(id);
-			
 			if (portasignatures != null) {
 				DocumentStore documentStore = documentStoreDao.getById(portasignatures.getDocumentStoreId(), false);
-				
 				transicio = portasignatures.getTransicioOK();
-				
-				if ((portasignatures.getEstat() != TipusEstat.SIGNAT)
-						&& (portasignatures.getTransition() != Transicio.SIGNAT)
-						&& (!documentStore.isSignat())
-						) {
+				if (	(portasignatures.getEstat() != TipusEstat.SIGNAT) &&
+						(portasignatures.getTransition() != Transicio.SIGNAT) &&
+						(!documentStore.isSignat())) {
 					afegirDocumentCustodia(
 							portasignatures.getDocumentId(),
 							portasignatures.getDocumentStoreId());
 				}
-				
 				portasignatures.setEstat(TipusEstat.SIGNAT);
 				portasignatures.setTransition(Transicio.SIGNAT);
 				pluginPortasignaturesDao.saveOrUpdate(portasignatures);
-				
 				Long token = portasignatures.getTokenId();
 				jbpmDao.signalToken(token.longValue(), transicio);
-				
 				resposta = 1D;
+			} else {
+				logger.error("El document rebut al callback (id=" + id + ") no s'ha trobat en els documents pendents pel portasignatures");
 			}
-			
 		} catch (Exception e) {
-			logger.error("Error processant el document signat.", e);
+			logger.error("Error processant el document signat", e);
 			resposta = -1D;
 		}
-		
 		return resposta;
 	}
 	public Double processarDocumentRebutjatPortasignatures(Integer id, String motiuRebuig) throws Exception {
 		Double resposta = -1D;
 		String transicio = "";
-		
 		try {
 			Portasignatures portasignatures = pluginPortasignaturesDao.findByDocument(id);
-			
 			if (portasignatures != null) {
 				transicio = portasignatures.getTransicioKO();
-				
 				portasignatures.setEstat(TipusEstat.REBUTJAT);
 				portasignatures.setTransition(Transicio.REBUTJAT);
 				portasignatures.setMotiuRebuig(motiuRebuig);
 				pluginPortasignaturesDao.saveOrUpdate(portasignatures);
-				
 				Long token = portasignatures.getTokenId();
 				jbpmDao.signalToken(token.longValue(), transicio);
-				
 				resposta = 1D;
+			} else {
+				logger.error("El document rebut al callback (id=" + id + ") no s'ha trobat en els documents pendents pel portasignatures");
 			}
-			
 		} catch (Exception e) {
 			logger.error("Error processant el document rebutjat.", e);
 		}
-		
 		return resposta;
 	}
 

@@ -56,25 +56,25 @@ public class PdfUtils {
 			OutputStream output,
 			String outputExtension) throws Exception {
 		String extensioOrigen = getArxiuExtensio(arxiuNom);
-		PdfReader pdfReader = null;
+		ByteArrayOutputStream outputConversio = null;
 		if (!outputExtension.equalsIgnoreCase(extensioOrigen)) {
 			if (isArxiuConvertiblePdf(arxiuNom)) {
-				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				outputConversio = new ByteArrayOutputStream();
 				getOpenOfficeUtils().convertir(
 						arxiuNom,
 						arxiuContingut,
 						outputExtension,
-						baos);
-				if (outputExtension.equalsIgnoreCase("pdf"))
-					pdfReader = new PdfReader(baos.toByteArray());
+						outputConversio);
 			} else {
 				throw new Exception("L'arxiu '" + arxiuNom + "' no es pot convertir a format PDF");
 			}
-		} else {
-			if (outputExtension.equalsIgnoreCase("pdf"))
-				pdfReader = new PdfReader(arxiuContingut);
 		}
 		if (outputExtension.equalsIgnoreCase("pdf") && (segellSignatura || segellRegistre)) {
+			PdfReader pdfReader;
+			if (outputConversio != null)
+				pdfReader = new PdfReader(outputConversio.toByteArray());
+			else
+				pdfReader = new PdfReader(arxiuContingut);
 			PdfStamper pdfStamper = new PdfStamper(pdfReader, output);
 			for (int i = 0; i < pdfReader.getNumberOfPages(); i++) {
 				PdfContentByte over = pdfStamper.getOverContent(i + 1);
@@ -95,6 +95,11 @@ public class PdfUtils {
 				}
 			}
 			pdfStamper.close();
+		} else {
+			if (outputConversio != null)
+				output.write(outputConversio.toByteArray());
+			else
+				output.write(arxiuContingut);
 		}
 	}
 

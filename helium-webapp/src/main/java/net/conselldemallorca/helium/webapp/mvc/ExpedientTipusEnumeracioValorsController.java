@@ -203,6 +203,59 @@ public class ExpedientTipusEnumeracioValorsController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/expedientTipus/enumeracioValorsPujar")
+	public String pujarValor(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) Long id,
+			@RequestParam(value = "enumeracioId", required = true) Long enumeracioId) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			Enumeracio enumeracio = dissenyService.getEnumeracioById(enumeracioId);
+			if (potDissenyarExpedientTipus(entorn, enumeracio.getExpedientTipus())) {
+				try {
+					dissenyService.goUpEnumeracioValor(id);
+				} catch (Exception ex) {
+		        	missatgeError(request, getMessage("error.ordre.enumeracio"), ex.getLocalizedMessage());
+		        	logger.error("No s'ha pogut canviar l'ordre del valor de l'enumeració", ex);
+		        }
+				return "redirect:/expedientTipus/enumeracioValors.html?enumeracio=" + enumeracioId;
+			} else {
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
+				return "redirect:/index.html";
+			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+	@RequestMapping(value = "/expedientTipus/enumeracioValorsBaixar")
+	public String baixarValor(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) Long id,
+			@RequestParam(value = "enumeracioId", required = true) Long enumeracioId) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			Enumeracio enumeracio = dissenyService.getEnumeracioById(enumeracioId);
+			if (potDissenyarExpedientTipus(entorn, enumeracio.getExpedientTipus())) {
+				try {
+					dissenyService.goDownEnumeracioValor(id);
+				} catch (Exception ex) {
+		        	missatgeError(request, getMessage("error.ordre.enumeracio"), ex.getLocalizedMessage());
+		        	logger.error("No s'ha pogut canviar l'ordre del valor de l'enumeració", ex);
+		        }
+				return "redirect:/expedientTipus/enumeracioValors.html?enumeracio=" + enumeracioId;
+			} else {
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
+				return "redirect:/index.html";
+			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+
+
+
 	private boolean potDissenyarExpedientTipus(Entorn entorn, ExpedientTipus expedientTipus) {
 		if (potDissenyarEntorn(entorn))
 			return true;

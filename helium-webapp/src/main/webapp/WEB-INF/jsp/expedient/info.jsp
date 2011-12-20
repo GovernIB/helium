@@ -13,14 +13,21 @@
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.DOMWindow.js"/>"></script>
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<c:import url="../common/formIncludes.jsp"/>
+	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
+    <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 <script type="text/javascript">
 // <![CDATA[
-
+function confirmarEsborrarRelacio(e) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	if (e.stopPropagation) e.stopPropagation();
+	return confirm("<fmt:message key='expedient.info.confirm.relacio.esborrar'/>");
+}
 function confirmarAccio(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
-	return confirm("<fmt:message key='expedient.info.confirm_accio' />");
+	return confirm("<fmt:message key='expedient.info.confirm.accio.executar'/>");
 }
 // ]]>
 </script>
@@ -79,12 +86,59 @@ function confirmarAccio(e) {
 		</c:if>
 	</dl>
 	<div style="clear: both"></div>
+
 	<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
 		<br/>
 		<form action="<c:url value="/expedient/editar.html"/>">
 			<input type="hidden" name="id" value="${param.id}"/>
 			<button type="submit" class="submitButton"><fmt:message key='comuns.modificar_info' /></button>
 		</form>
+	</security:accesscontrollist>
+
+	<c:if test="${not empty expedient.relacionats}">
+		<br/><div class="missatgesGris">
+			<h4 class="titol-missatge"><fmt:message key="expedient.info.relacionats"/></h4>
+			<c:set var="relacionats" value="${expedient.relacionats}" scope="request"/>
+			<display:table name="relacionats" id="registre" requestURI="" class="displaytag selectable">
+				<c:set var="filaStyle" value=""/>
+				<c:if test="${registre.anulat}"><c:set var="filaStyle" value="text-decoration:line-through"/></c:if>
+				<display:column property="identificador" title="Expedient" url="/expedient/info.html" paramId="id" paramProperty="processInstanceId" style="${filaStyle}"/>
+				<display:column property="dataInici" title="Iniciat el" format="{0,date,dd/MM/yyyy HH:mm}" style="${filaStyle}"/>
+				<display:column property="tipus.nom" title="Tipus" style="${filaStyle}"/>
+				<display:column title="Estat" style="${filaStyle}" sortProperty="estat.nom">
+					<c:if test="${registre.aturat}"><img src="<c:url value="/img/stop.png"/>" alt="Aturat" title="Aturat" border="0"/></c:if>
+					<c:choose>
+						<c:when test="${empty registre.dataFi}">
+							<c:choose><c:when test="${empty registre.estat}"><fmt:message key='expedient.consulta.iniciat' /></c:when><c:otherwise>${registre.estat.nom}</c:otherwise></c:choose>
+						</c:when>
+						<c:otherwise><fmt:message key='expedient.consulta.finalitzat' /></c:otherwise>
+					</c:choose>
+				</display:column>
+				<display:column>
+					<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,8">
+						<a href="<c:url value="/expedient/relacioDelete.html"><c:param name="expedientIdOrigen" value="${expedient.id}"/><c:param name="expedientIdDesti" value="${registre.id}"/></c:url>" onclick="return confirmarEsborrarRelacio(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
+					</security:accesscontrollist>
+				</display:column>
+			</display:table>
+			<script type="text/javascript">initSelectable();</script>
+			<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
+				<form action="<c:url value="/expedient/relacionar.html"/>">
+					<input type="hidden" name="id" value="${param.id}"/>
+					<button type="submit" class="submitButton"><fmt:message key="expedient.info.relacionar.afegir"/></button>
+				</form>
+			</security:accesscontrollist>
+		</div>
+	</c:if>
+	<c:if test="${empty expedient.relacionats}">
+		<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
+			<br/><form action="<c:url value="/expedient/relacionar.html"/>">
+				<input type="hidden" name="id" value="${param.id}"/>
+				<button type="submit" class="submitButton"><fmt:message key="expedient.info.relacionar.afegir"/></button>
+			</form>
+		</security:accesscontrollist>
+	</c:if>
+
+	<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
 		<c:if test="${not empty instanciaProces.definicioProces.accions}">
 			<br/><div class="missatgesGris">
 				<h4 class="titol-missatge"><fmt:message key='expedient.info.executar_accio' /></h4>
@@ -119,6 +173,38 @@ function confirmarAccio(e) {
 			</div>
 		</div>
 	</c:if>
+	<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
+		<script type="text/javascript">
+			$('.accioRelacionar').openDOMWindow({
+				eventType: 'click',
+				width: 800,
+				height: 200,
+				loader: 1,
+				loaderHeight: 32,
+				loaderWidth: 32,
+				windowPadding: 0,
+				draggable: 1});
+		</script>
+		<div id="formulariRelacionar" style="display:none">
+			<form:form action="relacionar.html" cssClass="uniForm" commandName="relacionarCommand" onsubmit="return confirmarReprendre(event)">
+				<div class="inlineLabels">
+					<input type="hidden" name="instanciaProcesId" value="${param.id}"/>
+					<input type="hidden" name="expedientIdOrigen" value="${expedient.id}"/>
+					<c:import url="../common/formElement.jsp">
+						<c:param name="property" value="expedientIdDesti"/>
+						<c:param name="type" value="suggest"/>
+						<c:param name="label"><fmt:message key="expedient.info.relacionar.amb"/></c:param>
+						<c:param name="suggestUrl"><c:url value="/expedient/suggest.html"/></c:param>
+					</c:import>
+					<c:import url="../common/formElement.jsp">
+						<c:param name="type" value="buttons"/>
+						<c:param name="values">submit</c:param>
+						<c:param name="titles"><fmt:message key="expedient.info.relacionar"/></c:param>
+					</c:import>
+				</div>
+			</form:form>
+		</div>
+	</security:accesscontrollist>
 
 </body>
 </html>

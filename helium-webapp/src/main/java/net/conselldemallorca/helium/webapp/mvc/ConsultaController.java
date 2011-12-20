@@ -112,14 +112,13 @@ public class ConsultaController extends BaseController {
 		if (entorn != null) {
 			if ("submit".equals(submit) || submit.length() == 0) {
 				command.setEntorn(entorn);
+				command.setInformeNom(null);
+				command.setInformeContingut(null);
 				if (multipartFile != null && multipartFile.getSize() > 0) {
 					try {
-						command.setInformeNom(multipartFile.getOriginalFilename());
 						command.setInformeContingut(multipartFile.getBytes());
+						command.setInformeNom(multipartFile.getOriginalFilename());
 					} catch (Exception ignored) {}
-				} else if ("deleted".equalsIgnoreCase(deleted)) {
-					command.setInformeNom(null);
-					command.setInformeContingut(null);
 				}
 				annotationValidator.validate(command, result);
 		        if (result.hasErrors()) {

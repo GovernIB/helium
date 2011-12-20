@@ -18,6 +18,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Transient;
@@ -57,9 +58,10 @@ public class Enumeracio implements Serializable {
 	@NotNull
 	private Entorn entorn;
 	private ExpedientTipus expedientTipus;
-	
+
 	private Set<Camp> camps = new HashSet<Camp>();
-	private Set<EnumeracioValors> enumeracioValors = new HashSet<EnumeracioValors>();
+	private List<EnumeracioValors> enumeracioValors = new ArrayList<EnumeracioValors>();
+
 
 
 	public Enumeracio() {}
@@ -123,7 +125,7 @@ public class Enumeracio implements Serializable {
 	public void setExpedientTipus(ExpedientTipus expedientTipus) {
 		this.expedientTipus = expedientTipus;
 	}
-	
+
 	@OneToMany(mappedBy="enumeracio", cascade={CascadeType.ALL})
 	public Set<Camp> getCamps() {
 		return this.camps;
@@ -137,7 +139,7 @@ public class Enumeracio implements Serializable {
 	public void removeCamp(Camp camp) {
 		getCamps().remove(camp);
 	}
-	
+
 	@Transient
 	public List<ParellaCodiValor> getLlistaValors() {
 		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
@@ -151,12 +153,13 @@ public class Enumeracio implements Serializable {
 		}
 		return resposta;
 	}
-	
+
 	@OneToMany(mappedBy="enumeracio", cascade={CascadeType.ALL})
-	public Set<EnumeracioValors> getEnumeracioValors() {
+	@OrderBy("ordre asc, id asc")
+	public List<EnumeracioValors> getEnumeracioValors() {
 		return this.enumeracioValors;
 	}
-	public void setEnumeracioValors(Set<EnumeracioValors> enumeracioValors) {
+	public void setEnumeracioValors(List<EnumeracioValors> enumeracioValors) {
 		this.enumeracioValors = enumeracioValors;
 	}
 	public void addEnumeracioValors(EnumeracioValors enumeracioValors) {

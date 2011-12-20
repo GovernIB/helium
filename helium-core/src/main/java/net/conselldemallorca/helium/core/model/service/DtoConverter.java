@@ -150,6 +150,7 @@ public class DtoConverter {
 		}
 		for (Expedient relacionat: expedient.getRelacionsOrigen()) {
 			ExpedientDto relacionatDto = new ExpedientDto();
+			relacionatDto.setId(relacionat.getId());
 			relacionatDto.setTitol(relacionat.getTitol());
 			relacionatDto.setNumero(relacionat.getNumero());
 			relacionatDto.setDataInici(relacionat.getDataInici());
@@ -498,7 +499,15 @@ public class DtoConverter {
 					camps,
 					valors);
 			dto.setValorsMultiplesDomini(valorsMultiplesDomini);
-			dto.setVarsComText(textPerCamps(null, processInstanceId, camps, valors, valorsDomini, valorsMultiplesDomini));
+			dto.setVarsComText(
+					textPerCamps(
+							null,
+							processInstanceId,
+							camps,
+							valors,
+							valorsDomini,
+							valorsMultiplesDomini));
+			dto.setVarsOcultes(obtenirVarsOcultes(camps));
 			dto.setVariables(valors);
 		}
 		return dto;
@@ -1246,6 +1255,15 @@ public class DtoConverter {
 					camp.getTipus(),
 					valor,
 					(valorDomini != null) ? (String)valorDomini.getValor() : null);
+	}
+	private Map<String, Boolean> obtenirVarsOcultes(
+			Collection<Camp> camps) {
+		Map<String, Boolean> resposta = new HashMap<String, Boolean>();
+		for (Camp camp: camps)
+			resposta.put(
+					camp.getCodi(),
+					new Boolean(camp.isOcult()));
+		return resposta;
 	}
 
 	private Map<String, Object> getParamsConsulta(

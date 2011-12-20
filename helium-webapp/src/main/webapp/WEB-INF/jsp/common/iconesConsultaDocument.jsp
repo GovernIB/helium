@@ -20,7 +20,7 @@
 			<dt><fmt:message key="common.icon.oficina"/></dt><dd>${documentActual.registreOficinaNom}&nbsp;</dd>
 			<dt><fmt:message key="common.icon.data"/></dt><dd><fmt:formatDate value="${documentActual.registreData}" pattern="dd/MM/yyyy HH:mm"/>&nbsp;</dd>
 			<dt><fmt:message key="comuns.tipus"/></dt><dd><c:choose><c:when test="${documentActual.registreEntrada}"><fmt:message key="common.icon.entrada"/></c:when><c:otherwise><fmt:message key="common.icon.sortida"/></c:otherwise></c:choose>&nbsp;</dd>
-			<dt><fmt:message key="common.icon.numero"/></dt><dd>${documentActual.registreNumero}<c:if test="${not empty documentActual.registreAny}">/${documentActual.registreAny}</c:if>&nbsp;</dd>
+			<dt><fmt:message key="common.icon.numero"/></dt><dd>${documentActual.registreNumero}&nbsp;</dd>
 		</dl>
 	</div>
 </c:if>

@@ -360,6 +360,51 @@ public class TerminiService {
 		logger.debug("Fi de la comprovació de terminis");
 	}
 
+	public void modificarTerminiIniciat(
+			Long terminiIniciatId,
+			Date dataInici,
+			int anys,
+			int mesos,
+			int dies) {
+		TerminiIniciat terminiIniciat = terminiIniciatDao.getById(terminiIniciatId, false);
+		if (terminiIniciat != null) {
+			boolean modificat = false;
+			if (terminiIniciat.getDataInici().getTime() != dataInici.getTime()) {
+				terminiIniciat.setDataInici(dataInici);
+				modificat = true;
+			}
+			if (terminiIniciat.getAnys() != anys || terminiIniciat.getMesos() != mesos || terminiIniciat.getDies() != dies) {
+				terminiIniciat.setAnys(anys);
+				terminiIniciat.setMesos(mesos);
+				terminiIniciat.setDies(dies);
+				modificat = true;
+			}
+			if (modificat) {
+				terminiIniciat.setDataFi(
+					getDataFiTermini(
+							terminiIniciat.getDataInici(),
+							terminiIniciat.getAnys(),
+							terminiIniciat.getMesos(),
+							terminiIniciat.getDies(),
+							terminiIniciat.getTermini().isLaborable()));
+				String processInstanceId = terminiIniciat.getProcessInstanceId();
+				Long expedientId = getExpedientForProcessInstanceId(processInstanceId).getId();
+				if (expedientId != null) {
+					registreDao.crearRegistreAturarTermini(
+							getExpedientForProcessInstanceId(processInstanceId).getId(),
+							processInstanceId,
+							terminiIniciat.getTermini().getId().toString(),
+							SecurityContextHolder.getContext().getAuthentication().getName());
+					registreDao.crearRegistreIniciarTermini(
+							getExpedientForProcessInstanceId(processInstanceId).getId(),
+							processInstanceId,
+							terminiIniciat.getTermini().getId().toString(),
+							SecurityContextHolder.getContext().getAuthentication().getName());
+				}
+			}
+		}
+	}
+
 
 
 	@Autowired

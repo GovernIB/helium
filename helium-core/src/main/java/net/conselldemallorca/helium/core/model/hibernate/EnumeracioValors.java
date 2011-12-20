@@ -40,6 +40,8 @@ public class EnumeracioValors implements Serializable {
 	@NotBlank
 	@MaxLength(255)
 	private String nom;
+	int ordre;
+
 	@NotNull
 	private Enumeracio enumeracio;
 
@@ -75,6 +77,14 @@ public class EnumeracioValors implements Serializable {
 	}
 	public void setNom(String nom) {
 		this.nom = nom;
+	}
+
+	@Column(name="ordre", nullable=false)
+	public int getOrdre() {
+		return ordre;
+	}
+	public void setOrdre(int ordre) {
+		this.ordre = ordre;
 	}
 
 	@ManyToOne(optional=false)

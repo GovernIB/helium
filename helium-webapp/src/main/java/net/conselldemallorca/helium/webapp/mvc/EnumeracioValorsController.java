@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.webapp.mvc;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
@@ -142,6 +143,45 @@ public class EnumeracioValorsController extends BaseController {
         	logger.error("No s'ha pogut esborrar l'enumeració", ex);
         }
 		return "redirect:/enumeracio/valors.html?enumeracio=" + enumeracioId;
+	}
+
+	@RequestMapping(value = "/enumeracio/valorsPujar")
+	public String pujarValor(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) Long id) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			EnumeracioValors enumeracioValors = dissenyService.getEnumeracioValorsById(id);
+			try {
+				dissenyService.goUpEnumeracioValor(id);
+			} catch (Exception ex) {
+	        	missatgeError(request, getMessage("error.ordre.enumeracio"), ex.getLocalizedMessage());
+	        	logger.error("No s'ha pogut canviar l'ordre del valor de l'enumeració", ex);
+	        }
+			return "redirect:/enumeracio/valors.html?enumeracio=" + enumeracioValors.getEnumeracio().getId();
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+	@RequestMapping(value = "/enumeracio/valorsBaixar")
+	public String baixarValor(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) Long id) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			EnumeracioValors enumeracioValors = dissenyService.getEnumeracioValorsById(id);
+			try {
+				dissenyService.goDownEnumeracioValor(id);
+			} catch (Exception ex) {
+	        	missatgeError(request, getMessage("error.ordre.enumeracio"), ex.getLocalizedMessage());
+	        	logger.error("No s'ha pogut canviar l'ordre del valor de l'enumeració", ex);
+	        }
+			return "redirect:/enumeracio/valors.html?enumeracio=" + enumeracioValors.getEnumeracio().getId();
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
 	}
 
 	@Resource(name = "annotationValidator")

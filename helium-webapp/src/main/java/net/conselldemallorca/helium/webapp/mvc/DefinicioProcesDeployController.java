@@ -51,6 +51,10 @@ import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 @Controller
 public class DefinicioProcesDeployController extends BaseController {
 
+	public static final String TIPUS_EXPORTACIO_JBPM = "JBPM";
+	public static final String TIPUS_EXPORTACIO_DEFPRC = "EXPORTDEFPRC";
+	public static final String TIPUS_EXPORTACIO_TIPEXP = "EXPORTTIPEXP";
+
 	private DissenyService dissenyService;
 	private PermissionService permissionService;
 
@@ -67,9 +71,9 @@ public class DefinicioProcesDeployController extends BaseController {
 	@ModelAttribute("desplegamentTipus")
 	public List<ParellaCodiValorDto> populateTipus() {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		resposta.add(new ParellaCodiValorDto("JBPM", getMessage("txt.desplegament.jbpm") ));
-		resposta.add(new ParellaCodiValorDto("EXPORTDEFPRC", getMessage("txt.exportacio.definicioProces") ));
-		resposta.add(new ParellaCodiValorDto("EXPORTTIPEXP", getMessage("txt.exportacio.tipusExpedient") ));
+		resposta.add(new ParellaCodiValorDto(TIPUS_EXPORTACIO_JBPM, getMessage("txt.desplegament.jbpm") ));
+		resposta.add(new ParellaCodiValorDto(TIPUS_EXPORTACIO_DEFPRC, getMessage("txt.exportacio.definicioProces") ));
+		resposta.add(new ParellaCodiValorDto(TIPUS_EXPORTACIO_TIPEXP, getMessage("txt.exportacio.tipusExpedient") ));
 		return resposta;
 	}
 	@ModelAttribute("command")
@@ -120,7 +124,7 @@ public class DefinicioProcesDeployController extends BaseController {
 			        	return "definicioProces/deploy";
 			        }
 		        	try {
-		        		if (command.getTipus().equals("JBPM")) {
+		        		if (command.getTipus().equals(TIPUS_EXPORTACIO_JBPM)) {
 		        			dissenyService.deploy(
 				        			entorn.getId(),
 				        			command.getExpedientTipusId(),
@@ -129,7 +133,7 @@ public class DefinicioProcesDeployController extends BaseController {
 				        			command.getEtiqueta(),
 				        			true);
 				        	missatgeInfo(request, getMessage("info.arxiu.desplegat") );
-		        		} else if (command.getTipus().equals("EXPORTDEFPRC")) {
+		        		} else if (command.getTipus().equals(TIPUS_EXPORTACIO_DEFPRC)) {
 			        		InputStream is = new ByteArrayInputStream(multipartFile.getBytes());
 					    	ObjectInputStream input = new ObjectInputStream(is);
 					    	Object deserialitzat = input.readObject();
@@ -145,7 +149,7 @@ public class DefinicioProcesDeployController extends BaseController {
 					    	} else {
 					    		missatgeError(request, getMessage("error.arxius.no.valid") );
 					    	}
-		        		} else if (command.getTipus().equals("EXPORTTIPEXP")) {
+		        		} else if (command.getTipus().equals(TIPUS_EXPORTACIO_TIPEXP)) {
 		        			InputStream is = new ByteArrayInputStream(multipartFile.getBytes());
 		    		    	ObjectInputStream input = new ObjectInputStream(is);
 		    		    	Object deserialitzat = input.readObject();

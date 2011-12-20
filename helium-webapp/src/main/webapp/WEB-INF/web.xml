@@ -26,21 +26,20 @@
 		<res-auth>Container</res-auth>
 	</resource-ref>
 
-	<!-- CAS-SSO -->
-	<!--filter>
+	<!-- cas.sso.beginfilter>
 		<filter-name>CAS Authentication Filter</filter-name>
 		<filter-class>org.jasig.cas.client.authentication.AuthenticationFilter</filter-class>
 		<init-param>
 			<param-name>casServerLoginUrl</param-name>
-			<param-value>https://ssoserver/sso/login</param-value>
+			<param-value>@@cas.sso.server.base.url@@/login</param-value>
 		</init-param>
 		<init-param>
 			<param-name>service</param-name>
-			<param-value>https://heliumserver/helium/</param-value>
+			<param-value>@@cas.sso.service@@</param-value>
 		</init-param>
 		<init-param>
 			<param-name>serverName</param-name>
-			<param-value>https://heliumserver</param-value>
+			<param-value>@@cas.sso.server.name@@</param-value>
 		</init-param>
 	</filter>
 	<filter>
@@ -48,16 +47,26 @@
 		<filter-class>org.jasig.cas.client.validation.Cas10TicketValidationFilter</filter-class>
 		<init-param>
 			<param-name>casServerUrlPrefix</param-name>
-			<param-value>http://ssoserver/sso</param-value>
+			<param-value>@@cas.sso.server.base.url@@</param-value>
 		</init-param>
 		<init-param>
 			<param-name>serverName</param-name>
-			<param-value>http://heliumserver</param-value>
+			<param-value>@@cas.sso.server.name@@</param-value>
 		</init-param>
 	</filter>
 	<filter>
 		<filter-name>CAS HttpServletRequest Wrapper Filter</filter-name>
 		<filter-class>net.conselldemallorca.helium.core.util.cas.HttpServletRequestWrapperFilter</filter-class>
+		<- cas.sso.custom.sql.begin ->
+		<init-param>
+			<param-name>dsJndiName</param-name>
+			<param-value>@@cas.sso.roles.query.jndi@@</param-value>
+		</init-param>
+		<init-param>
+			<param-name>rolesQuery</param-name>
+			<param-value>@@cas.sso.roles.query.sql@@</param-value>
+		</init-param>
+		<- cas.sso.custom.sql.end ->
 	</filter>
 	<filter-mapping>
 		<filter-name>CAS Authentication Filter</filter-name>
@@ -384,8 +393,7 @@
 	<filter-mapping>
 		<filter-name>CAS HttpServletRequest Wrapper Filter</filter-name>
 		<url-pattern>/tasca/*</url-pattern>
-	</filter-mapping-->
-	<!-- /CAS-SSO -->
+	</filter-mappingcas.sso.end -->
 
 
 
@@ -450,7 +458,6 @@
 	</servlet>
 	<servlet>
 		<servlet-name>CXFServlet</servlet-name>
-		<!--servlet-class>org.apache.cxf.transport.servlet.CXFServlet</servlet-class-->
 		<servlet-class>net.conselldemallorca.helium.ws.HeliumCXFServlet</servlet-class>
 		<load-on-startup>2</load-on-startup>
 	</servlet>
@@ -480,10 +487,12 @@
 		<url-pattern>/services/*</url-pattern>
 	</servlet-mapping>
 
+	<!-- login-config.begin -->
 	<login-config>
 		<auth-method>BASIC</auth-method>
 		<realm-name>@@web.realm.name@@</realm-name>
 	</login-config>
+	<!-- login-config.end -->
 
 	<security-role>
 		<role-name>HEL_ADMIN</role-name>
@@ -498,6 +507,7 @@
 		<role-name>tothom</role-name>
 	</security-role>
 
+	<!-- security-constraint.begin -->
 	<security-constraint>
 		<web-resource-collection>
 			<web-resource-name>All areas</web-resource-name>
@@ -527,6 +537,7 @@
 			<role-name>tothom</role-name>
 		</auth-constraint>
 	</security-constraint>
+	<!-- security-constraint.end -->
 
 	<error-page>
 		<exception-type>java.lang.Exception</exception-type>
@@ -534,7 +545,7 @@
 	</error-page>
 
 	<session-config>
-		<session-timeout>30</session-timeout>
+		<!-- session-timeout.begin --><!--@@web.session.timeout@@--><session-timeout>30</session-timeout><!-- session-timeout.end -->
 	</session-config>
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
