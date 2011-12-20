@@ -19,6 +19,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
+import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.GenericEntity;
@@ -161,9 +162,13 @@ public class ServiceUtils {
 	/*
 	 * Mètodes per a obtenir els camps de les consultes per tipus
 	 */
-	public List<Camp> findCampsPerCampsConsulta(Long consultaId, TipusConsultaCamp tipus) {
+	public List<Camp> findCampsPerCampsConsulta(Consulta consulta, TipusConsultaCamp tipus) {
 		List<Camp> resposta = new ArrayList<Camp>();
-		List<ConsultaCamp> camps = consultaCampDao.findCampsConsulta(consultaId, tipus);
+		List<ConsultaCamp> camps = null;
+		if (tipus != null)
+			camps = consultaCampDao.findCampsConsulta(consulta.getId(), tipus);
+		else
+			camps = new ArrayList<ConsultaCamp>(consulta.getCamps());
 		for (ConsultaCamp camp: camps) {
 			if (!camp.getCampCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
 				DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmKeyIVersio(

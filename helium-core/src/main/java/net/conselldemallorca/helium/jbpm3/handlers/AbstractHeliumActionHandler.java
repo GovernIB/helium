@@ -108,6 +108,14 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 				resposta.setArxiuNom(document.getArxiuNom());
 				resposta.setArxiuContingut(document.getArxiuContingut());
 			}
+			if (document.isRegistrat()) {
+				resposta.setRegistrat(true);
+				resposta.setRegistreNumero(document.getRegistreNumero());
+				resposta.setRegistreData(document.getRegistreData());
+				resposta.setRegistreOficinaCodi(document.getRegistreOficinaCodi());
+				resposta.setRegistreOficinaNom(document.getRegistreOficinaNom());
+				resposta.setRegistreEntrada(document.isRegistreEntrada());
+			}
 			return resposta;
 		} else {
 			throw new JbpmException("La referencia al document \""

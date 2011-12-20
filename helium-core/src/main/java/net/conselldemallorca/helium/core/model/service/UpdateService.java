@@ -43,8 +43,10 @@ public class UpdateService {
 	public static final int VERSIO_211_ORDRE = 211;
 	public static final String VERSIO_220_STR = "2.2.0";
 	public static final int VERSIO_220_ORDRE = 220;
-	public static final String VERSIO_ACTUAL_STR = "2.2.0";
-	public static final int VERSIO_ACTUAL_ORDRE = 220;
+	public static final String VERSIO_221_STR = "2.2.1";
+	public static final int VERSIO_221_ORDRE = 221;
+	public static final String VERSIO_ACTUAL_STR = "2.2.1";
+	public static final int VERSIO_ACTUAL_ORDRE = 221;
 
 	private VersioDao versioDao;
 	private PersonaDao personaDao;
@@ -75,11 +77,15 @@ public class UpdateService {
 					boolean actualitzat = actualitzarV220();
 					if (!actualitzat) break;
 				}
+				if (versio.getOrdre() == VERSIO_221_ORDRE) {
+					boolean actualitzat = actualitzarV221();
+					if (!actualitzat) break;
+				}
 			}
 		}
 		Versio darrera = versioDao.findLast();
-		if (darrera.getOrdre() < 220) {
-			actualitzarV220();
+		if (darrera.getOrdre() < 221) {
+			actualitzarV221();
 		}
 	}
 
@@ -257,6 +263,36 @@ public class UpdateService {
 			}
 		}
 		return actualitzat;
+	}
+
+	private boolean actualitzarV221() {
+		boolean actualitzat = false;
+		Versio versio221 = obtenirOCrearVersio(VERSIO_221_STR, VERSIO_221_ORDRE);
+		if (!versio221.isScriptExecutat()) {
+			errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_221_STR + ": " + getMessage("error.update.script.ko");
+		} else if (!versio221.isProcesExecutat()) {
+			try {
+				actualitzarOrdreValorsEnumeracionsV221();
+				versio221.setProcesExecutat(true);
+				versio221.setDataExecucioProces(new Date());
+				versioDao.saveOrUpdate(versio221);
+				logger.info("Actualització a la versió " + VERSIO_221_STR + " realitzada correctament");
+				actualitzat = true;
+			} catch (Exception ex) {
+				logger.error("Error al executar l'actualització a la versió " + VERSIO_221_STR, ex);
+				errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_221_STR + ": " + getMessage("error.update.proces.ko");
+			}
+		}
+		return actualitzat;
+	}
+	private void actualitzarOrdreValorsEnumeracionsV221() {
+		List<Enumeracio> enumeracions = dissenyService.findEnumeracions();
+		for (Enumeracio enumeracio: enumeracions) {
+			int i = 0;
+			for (EnumeracioValors valor: enumeracio.getEnumeracioValors()) {
+				valor.setOrdre(i++);
+			}
+		}
 	}
 
 	private String getMessage(String key, Object[] vars) {

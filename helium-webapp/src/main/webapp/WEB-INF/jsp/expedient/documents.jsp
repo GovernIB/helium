@@ -88,7 +88,7 @@ function infoRegistre(docId) {
 	</h3>
 	<c:if test="${not empty instanciaProces.sortedDocumentKeys}">
 		<display:table name="instanciaProces.sortedDocumentKeys" id="codi" class="displaytag">
-			<display:column title="<fmt:message key='expedient.document.document' />">
+			<display:column titleKey="expedient.document.document">
 				<c:choose>
 					<c:when test="${instanciaProces.varsDocuments[codi].adjunt}">
 						${instanciaProces.varsDocuments[codi].adjuntTitol}
@@ -107,7 +107,7 @@ function infoRegistre(docId) {
 			<display:column>
 				<c:choose>
 					<c:when test="${instanciaProces.varsDocuments[codi].adjunt}">
-						<a href="<c:url value="/expedient/documentDescarregar.html"><c:param name="processInstanceId" value="${instanciaProces.id}"/><c:param name="docId" value="${instanciaProces.varsDocuments[codi].id}"/></c:url>"><img src="<c:url value="/img/page_white_put.png"/>" alt="<fmt:message key='comuns.descarregar' />" title="<fmt:message key='comuns.descarregar' />" border="0"/></a>
+						<a href="<c:url value="/document/arxiuMostrar.html"><c:param name="token" value="${instanciaProces.varsDocuments[codi].tokenSignatura}"/></c:url>"><img src="<c:url value="/img/page_white_put.png"/>" alt="<fmt:message key='comuns.descarregar' />" title="<fmt:message key='comuns.descarregar' />" border="0"/></a>
 					</c:when>
 					<c:otherwise>
 						<c:if test="${not empty instanciaProces.varsDocuments[codi]}">

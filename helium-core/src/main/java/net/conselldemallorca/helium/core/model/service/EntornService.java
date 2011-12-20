@@ -267,7 +267,7 @@ public class EntornService {
 			EnumeracioExportacio dto = new EnumeracioExportacio(
 					enumeracio.getCodi(),
 					enumeracio.getNom(),
-					enumeracioValorsDao.findAmbEnumeracio(enumeracio.getId()));
+					enumeracioValorsDao.findAmbEnumeracioOrdenat(enumeracio.getId()));
 			enumeracionsDto.add(dto);
 		}
 		entornExportacio.setEnumeracions(enumeracionsDto);
@@ -320,7 +320,7 @@ public class EntornService {
 				EnumeracioExportacio dtoExp = new EnumeracioExportacio(
 						enumeracio.getCodi(),
 						enumeracio.getNom(),
-						enumeracioValorsDao.findAmbEnumeracio(enumeracio.getId()));
+						enumeracioValorsDao.findAmbEnumeracioOrdenat(enumeracio.getId()));
 				enumeracionsExp.add(dtoExp);
 			}
 			dto.setEnumeracions(enumeracionsExp);

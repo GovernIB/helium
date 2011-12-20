@@ -137,10 +137,12 @@ public ProcessDefinition retrieveProcessDefinition(ProcessDefinition pd)
 
   protected void retrieveNode(Node n)
   {
-    n.getName();
-    n.getLeavingTransitions();
-    if (n.getSuperState() != null)
-      retrieveNode(n.getSuperState());
+	if (n != null) {
+	    n.getName();
+	    n.getLeavingTransitions();
+	    if (n.getSuperState() != null)
+	      retrieveNode(n.getSuperState());
+	}
   }
 
   public void retrieveVariables(ProcessInstance pi)

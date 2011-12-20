@@ -633,6 +633,8 @@ public class RegistrePluginAjuntament implements RegistrePlugin {
 				objRef,
 				RegistroEntradaFacadeHome.class);
 		ctx.close();
+		//if (false)
+		//	newLogin();
 		return home.create();
 	}
 	private RegistroSalidaFacade getRegistreSortidaService() throws Exception {
@@ -642,6 +644,8 @@ public class RegistrePluginAjuntament implements RegistrePlugin {
 				objRef,
 				RegistroSalidaFacadeHome.class);
 		ctx.close();
+		//if (false)
+		//	newLogin();
 		return home.create();
 	}
 	private ValoresFacade getValoresService() throws Exception {
@@ -651,7 +655,8 @@ public class RegistrePluginAjuntament implements RegistrePlugin {
 				objRef,
 				ValoresFacadeHome.class);
 		ctx.close();
-		newLogin();
+		//if (false)
+		//	newLogin();
 		return home.create();
 	}
 
@@ -666,7 +671,7 @@ public class RegistrePluginAjuntament implements RegistrePlugin {
 		props.put(
 				Context.PROVIDER_URL,
 				GlobalProperties.getInstance().getProperty("app.registre.plugin.provider.url"));
-		if (!isJbossContainer()) {
+		//if (true) {
 			String principal = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal");
 			if (principal != null && principal.length() > 0)
 				props.put(
@@ -677,24 +682,18 @@ public class RegistrePluginAjuntament implements RegistrePlugin {
 				props.put(
 						Context.SECURITY_CREDENTIALS,
 						credentials);
-		}
+		//}
 		return new InitialContext(props);
 	}
-	private void newLogin() throws Exception {
-		if (isJbossContainer()) {
-			String principal = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal");
-			String credentials = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.credentials");
-			org.jboss.security.auth.callback.UsernamePasswordHandler handler = new org.jboss.security.auth.callback.UsernamePasswordHandler(
-					principal,
-					credentials.toCharArray());
-			javax.security.auth.login.LoginContext lc = new javax.security.auth.login.LoginContext("client-login", handler);
-			lc.login();
-		}
-	}
-	private boolean isJbossContainer() {
-		//return !"false".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.registre.plugin.container.jboss"));
-		return false;
-	}
+	/*private void newLogin() throws Exception {
+		String principal = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal");
+		String credentials = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.credentials");
+		org.jboss.security.auth.callback.UsernamePasswordHandler handler = new org.jboss.security.auth.callback.UsernamePasswordHandler(
+				principal,
+				credentials.toCharArray());
+		javax.security.auth.login.LoginContext lc = new javax.security.auth.login.LoginContext("client-login", handler);
+		lc.login();
+	}*/
 
 	private BackofficeFacade getRegtelClient() {
 		String url = GlobalProperties.getInstance().getProperty("app.registre.plugin.url");

@@ -24,8 +24,36 @@ public class EnumeracioValorsDao extends HibernateGenericDao<EnumeracioValors, L
 		super(EnumeracioValors.class);
 	}
 
-	public List<EnumeracioValors> findAmbEnumeracio(Long enumeracioId) {
-		return findByCriteria(
+	public int getNextOrder(Long enumeracioId) {
+		Object result = getSession().createQuery(
+				"select " +
+				"	 max(ev.ordre) " +
+				"from " +
+				"    EnumeracioValors ev " +
+				"where " +
+				"    ev.enumeracio.id=?").
+				setLong(0, enumeracioId).uniqueResult();
+		if (result == null)
+			return 0;
+		return ((Integer)result).intValue() + 1;
+	}
+
+	public EnumeracioValors getAmbOrdre(Long enumeracioId, int ordre) {
+		return (EnumeracioValors)getSession().createQuery(
+				"from " +
+				"    EnumeracioValors ev " +
+				"where " +
+				"    ev.enumeracio.id=? " +
+				"and ev.ordre=?").
+				setLong(0, enumeracioId).
+				setInteger(1, ordre).
+				uniqueResult();
+	}
+
+	public List<EnumeracioValors> findAmbEnumeracioOrdenat(Long enumeracioId) {
+		return findOrderedByCriteria(
+				new String[] {"ordre", "id"},
+				true,
 				Restrictions.eq("enumeracio.id", enumeracioId));
 	}
 
@@ -47,7 +75,7 @@ public class EnumeracioValorsDao extends HibernateGenericDao<EnumeracioValors, L
 
 	public List<ParellaCodiValor> getLlistaValors(Long enumeracioId) {
 		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
-		List<EnumeracioValors> valors = findAmbEnumeracio(enumeracioId);
+		List<EnumeracioValors> valors = findAmbEnumeracioOrdenat(enumeracioId);
 		if (valors != null) {
 			for (int i = 0; i < valors.size(); i++) {
 				EnumeracioValors enumValors = valors.get(i);

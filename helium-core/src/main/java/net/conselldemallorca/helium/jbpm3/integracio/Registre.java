@@ -40,8 +40,12 @@ public class Registre implements Serializable {
 	}
 	public Object getValor(String columna) {
 		for (int i = 0; i < columnes.length; i++) {
-			if (columnes[i].equals(columna))
-				return valors[i];
+			if (columnes[i].equals(columna)) {
+				if (i < valors.length)
+					return valors[i];
+				else
+					return null;
+			}
 		}
 		return null;
 	}

@@ -34,6 +34,11 @@
 		<display:table name="llistat" id="registre" requestURI="" class="displaytag">
 			<display:column property="codi" titleKey="comuns.codi" sortable="true" />
 			<display:column property="nom" titleKey="comuns.titol" sortable="true"/>
+			<display:column property="ordre" titleKey="comuns.ordre"/>
+			<display:column>
+				<a href="<c:url value="/expedientTipus/enumeracioValorsPujar.html"><c:param name="id" value="${registre.id}"/><c:param name="enumeracioId" value="${registre.enumeracio.id}"/></c:url>"><img src="<c:url value="/img/famarrow_up.png"/>" alt="<fmt:message key='comuns.amunt' />" title="<fmt:message key='comuns.amunt' />" border="0"/></a>
+				<a href="<c:url value="/expedientTipus/enumeracioValorsBaixar.html"><c:param name="id" value="${registre.id}"/><c:param name="enumeracioId" value="${registre.enumeracio.id}"/></c:url>"><img src="<c:url value="/img/famarrow_down.png"/>" alt="<fmt:message key='comuns.avall' />" title="<fmt:message key='comuns.avall' />" border="0"/></a>
+			</display:column>
 			<display:column>
 				<a href="<c:url value="/expedientTipus/enumeracioValorsEsborrar.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 			</display:column>

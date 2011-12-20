@@ -53,8 +53,8 @@ function confirmarEsborrar(e) {
 			</c:choose>
 		</display:column>
 		<c:choose>
-			<c:when test="${empty registre.prioritat || registre.prioritat=='MOLT_BAIXA'}"><c:set var="textPrioritat"><fmt:message key='alerta.llistat.m_baixa' /></c:set><c:set var="estilPrioritat">background-color:lightyellow</c:set></c:when>
-			<c:when test="${registre.prioritat=='BAIXA'}"><c:set var="textPrioritat"><fmt:message key='alerta.llistat.baixa' /></c:set><c:set var="estilPrioritat">background-color:yellow</c:set></c:when>
+			<c:when test="${empty registre.prioritat || registre.prioritat=='MOLT_BAIXA'}"><c:set var="textPrioritat"><fmt:message key='alerta.llistat.m_baixa' /></c:set><c:set var="estilPrioritat">background-color:lightgreen</c:set></c:when>
+			<c:when test="${registre.prioritat=='BAIXA'}"><c:set var="textPrioritat"><fmt:message key='alerta.llistat.baixa' /></c:set><c:set var="estilPrioritat">background-color:green</c:set></c:when>
 			<c:when test="${registre.prioritat=='NORMAL'}"><c:set var="textPrioritat"><fmt:message key='alerta.llistat.normal' /></c:set><c:set var="estilPrioritat">color:white;background-color:orange</c:set></c:when>
 			<c:when test="${registre.prioritat=='ALTA'}"><c:set var="textPrioritat"><fmt:message key='alerta.llistat.alta' /></c:set><c:set var="estilPrioritat">color:white;background-color:red</c:set></c:when>
 			<c:when test="${registre.prioritat=='MOLT_ALTA'}"><c:set var="textPrioritat"><fmt:message key='alerta.llistat.m_alta' /></c:set><c:set var="estilPrioritat">color:white;background-color:darkred</c:set></c:when>

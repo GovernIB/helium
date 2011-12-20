@@ -30,55 +30,17 @@ public class ConsultaDao extends HibernateGenericDao<Consulta, Long> {
 				Restrictions.eq("entorn.id", entornId),
 				Restrictions.eq("expedientTipus.id", expedientTipusId));
 	}
-	public Consulta findAmbEntornICodi(Long entornId, String codi) {
+	public Consulta findAmbEntornExpedientTipusICodi(
+			Long entornId,
+			Long expedientTipusId,
+			String codi) {
 		List<Consulta> consultes = findByCriteria(
 				Restrictions.eq("entorn.id", entornId),
+				Restrictions.eq("expedientTipus.id", expedientTipusId),
 				Restrictions.eq("codi", codi));
 		if (consultes.size() > 0)
 			return consultes.get(0);
 		return null;
 	}
-
-	/*@SuppressWarnings("unchecked")
-	public List<Camp> findCampsFiltre(Long consultaId) {
-		return (List<Camp>)getSession().
-		createQuery(
-				"select c " +
-				"from Camp c, " +
-				"     ConsultaCamp cc, " +
-				"     DefinicioProces dp " +
-				"where cc.consulta.id = ? " +
-				"and cc.tipus = ? " +
-				"and dp.jbpmKey = cc.defprocJbpmKey " +
-				"and dp.versio = cc.defprocVersio " +
-				"and dp.id = c.definicioProces.id " +
-				"and cc.campCodi = c.codi " +
-				"order by " +
-				"    cc.ordre").
-		setLong(0, consultaId).
-		setParameter(1, TipusConsultaCamp.FILTRE).
-		list();
-	}
-
-	@SuppressWarnings("unchecked")
-	public List<Camp> findCampsInforme(Long consultaId) {
-		return (List<Camp>)getSession().
-		createQuery(
-				"select c " +
-				"from Camp c, " +
-				"     ConsultaCamp cc, " +
-				"     DefinicioProces dp " +
-				"where cc.consulta.id = ? " +
-				"and cc.tipus = ? " +
-				"and dp.jbpmKey = cc.defprocJbpmKey " +
-				"and dp.versio = cc.defprocVersio " +
-				"and dp.id = c.definicioProces.id " +
-				"and cc.campCodi = c.codi " +
-				"order by " +
-				"    cc.ordre").
-		setLong(0, consultaId).
-		setParameter(1, TipusConsultaCamp.INFORME).
-		list();
-	}*/
 
 }

@@ -98,8 +98,13 @@ public class ExpedientTipusController extends BaseController {
 			ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(id);
 			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
 				try {
-					dissenyService.deleteExpedientTipus(id);
-					missatgeInfo(request, getMessage("info.tipus.exp.esborrat") );
+					int numExpedients = expedientService.countAmbExpedientTipusId(id);
+					if (numExpedients == 0) {
+						dissenyService.deleteExpedientTipus(id);
+						missatgeInfo(request, getMessage("info.tipus.exp.esborrat") );
+					} else {
+						missatgeError(request, getMessage("error.exist.exp.tipexp") );
+					}
 				} catch (Exception ex) {
 					missatgeError(request, getMessage("error.esborrar.tipus.exp"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut esborrar el tipus d'expedient", ex);

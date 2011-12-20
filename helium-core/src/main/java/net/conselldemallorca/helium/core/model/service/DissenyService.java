@@ -46,6 +46,8 @@ import net.conselldemallorca.helium.core.model.exportacio.AccioExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.AgrupacioExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.CampExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.CampTascaExportacio;
+import net.conselldemallorca.helium.core.model.exportacio.ConsultaCampExportacio;
+import net.conselldemallorca.helium.core.model.exportacio.ConsultaExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.DefinicioProcesExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.DocumentExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.DocumentTascaExportacio;
@@ -757,7 +759,10 @@ public class DissenyService {
 	public void deleteExpedientTipus(Long id) {
 		ExpedientTipus vell = getExpedientTipusById(id);
 		if (vell != null) {
-			for (DefinicioProces definicioProces: vell.getDefinicionsProces()) {
+			Iterator<DefinicioProces> it = vell.getDefinicionsProces().iterator();
+			while (it.hasNext()) {
+				DefinicioProces definicioProces = it.next();
+				it.remove();
 				undeploy(
 						definicioProces.getEntorn().getId(),
 						vell.getId(),
@@ -851,6 +856,7 @@ public class DissenyService {
 		return enumeracioValorsDao.getById(id, false);
 	}
 	public EnumeracioValors createEnumeracioValors(EnumeracioValors entity) {
+		entity.setOrdre(enumeracioValorsDao.getNextOrder(entity.getEnumeracio().getId()));
 		EnumeracioValors saved = enumeracioValorsDao.saveOrUpdate(entity);
 		return saved;
 	}
@@ -859,14 +865,46 @@ public class DissenyService {
 	}
 	public void deleteEnumeracioValors(Long id) {
 		EnumeracioValors vell = getEnumeracioValorsById(id);
-		if (vell != null)
+		if (vell != null) {
 			enumeracioValorsDao.delete(id);
+			reordenarEnumeracioValors(vell.getEnumeracio().getId());
+		}
 	}
 	public List<EnumeracioValors> findEnumeracioValorsAmbEnumeracio(Long enumeracioId) {
-		return enumeracioValorsDao.findAmbEnumeracio(enumeracioId);
+		return enumeracioValorsDao.findAmbEnumeracioOrdenat(enumeracioId);
 	}
 	public EnumeracioValors findEnumeracioValorsAmbCodi(Long enumeracioId, String codi) {
 		return enumeracioValorsDao.findAmbEnumeracioICodi(enumeracioId, codi);
+	}
+	public void goUpEnumeracioValor(Long id) {
+		EnumeracioValors valor = enumeracioValorsDao.getById(id, false);
+		int ordreActual = valor.getOrdre();
+		EnumeracioValors anterior = enumeracioValorsDao.getAmbOrdre(
+				valor.getEnumeracio().getId(),
+				ordreActual - 1);
+		if (anterior != null) {
+			valor.setOrdre(-1);
+			anterior.setOrdre(ordreActual);
+			enumeracioValorsDao.merge(valor);
+			enumeracioValorsDao.merge(anterior);
+			enumeracioValorsDao.flush();
+			valor.setOrdre(ordreActual - 1);
+		}
+	}
+	public void goDownEnumeracioValor(Long id) {
+		EnumeracioValors valor = enumeracioValorsDao.getById(id, false);
+		int ordreActual = valor.getOrdre();
+		EnumeracioValors seguent = enumeracioValorsDao.getAmbOrdre(
+				valor.getEnumeracio().getId(),
+				ordreActual + 1);
+		if (seguent != null) {
+			valor.setOrdre(-1);
+			seguent.setOrdre(ordreActual);
+			enumeracioValorsDao.merge(valor);
+			enumeracioValorsDao.merge(seguent);
+			enumeracioValorsDao.flush();
+			valor.setOrdre(ordreActual + 1);
+		}
 	}
 
 	public Termini getTerminiById(Long id) {
@@ -1233,10 +1271,42 @@ public class DissenyService {
 			EnumeracioExportacio dtoExp = new EnumeracioExportacio(
 					enumeracio.getCodi(),
 					enumeracio.getNom(),
-					enumeracioValorsDao.findAmbEnumeracio(enumeracio.getId()));
+					enumeracioValorsDao.findAmbEnumeracioOrdenat(enumeracio.getId()));
 			enumeracionsExp.add(dtoExp);
 		}
 		dto.setEnumeracions(enumeracionsExp);
+		List<ConsultaExportacio> consultes = new ArrayList<ConsultaExportacio>();
+		for (Consulta consulta: expedientTipus.getConsultes()) {
+			ConsultaExportacio consultaExp = new ConsultaExportacio(
+					consulta.getCodi(),
+					consulta.getNom());
+			consultaExp.setDescripcio(consulta.getDescripcio());
+			consultaExp.setValorsPredefinits(consulta.getValorsPredefinits());
+			consultaExp.setExportarActiu(consulta.isExportarActiu());
+			if (consulta.getInformeContingut() != null && consulta.getInformeContingut().length > 0) {
+				consultaExp.setInformeNom(consulta.getInformeNom());
+				consultaExp.setInformeContingut(consulta.getInformeContingut());
+			}
+			List<Camp> campsConsulta = getServiceUtils().findCampsPerCampsConsulta(consulta, null);
+			List<ConsultaCampExportacio> consultaCampsExp = new ArrayList<ConsultaCampExportacio>();
+			for (ConsultaCamp consultaCamp: consulta.getCamps()) {
+				for (Camp camp: campsConsulta) {
+					if (camp.getCodi().equals(consultaCamp.getCampCodi())) {
+						ConsultaCampExportacio consultaCampExp = new ConsultaCampExportacio(
+								consultaCamp.getCampCodi(),
+								consultaCamp.getDefprocJbpmKey(),
+								consultaCamp.getTipus(),
+								camp.getTipus(),
+								consultaCamp.getOrdre());
+						consultaCampsExp.add(consultaCampExp);
+						break;
+					}
+				}
+			}
+			consultaExp.setCamps(consultaCampsExp);
+			consultes.add(consultaExp);
+		}
+		dto.setConsultes(consultes);
 		List<DefinicioProcesExportacio> definicionsProces = new ArrayList<DefinicioProcesExportacio>();
 		for (DefinicioProces definicioProces : definicioProcesDao.findDarreresVersionsAmbEntorn(expedientTipus.getEntorn().getId())) {
 			if (expedientTipus.getId().equals(definicioProces.getExpedientTipus().getId()))
@@ -1289,98 +1359,157 @@ public class DissenyService {
 		expedientTipus.setFormextUsuari(exportacio.getFormextUsuari());
 		expedientTipus.setFormextContrasenya(exportacio.getFormextContrasenya());
 		expedientTipusDao.saveOrUpdate(expedientTipus);
-		// Crea els estats del tipus d'expedient.
-		for (EstatExportacio estat: exportacio.getEstats()) {
-			Estat enou = null;
-			if (expedientTipus.getId() != null) {
-				enou = estatDao.findAmbExpedientTipusICodi(
-					expedientTipus.getId(),
-					estat.getCodi());
-			}
-			if (enou == null) {
-				enou = new Estat(
-						expedientTipus,
-						estat.getCodi(),
-						estat.getNom());
-			} else {
-				enou.setNom(estat.getNom());
-			}
-			enou.setOrdre(estat.getOrdre());
-			estatDao.saveOrUpdate(enou);
-		}
-		// Crea els mapejos del tipus d'expedient.
-		for (MapeigSistraExportacio mapeig: exportacio.getMapeigSistras()) {
-			MapeigSistra mnou = null;
-			if (expedientTipus.getId() != null) {
-				mnou = mapeigSistraDao.findAmbExpedientTipusICodi(
+		// Crea els estats del tipus d'expedient
+		if (exportacio.getEstats() != null) {
+			for (EstatExportacio estat: exportacio.getEstats()) {
+				Estat enou = null;
+				if (expedientTipus.getId() != null) {
+					enou = estatDao.findAmbExpedientTipusICodi(
 						expedientTipus.getId(),
-					mapeig.getCodiHelium());
+						estat.getCodi());
+				}
+				if (enou == null) {
+					enou = new Estat(
+							expedientTipus,
+							estat.getCodi(),
+							estat.getNom());
+				} else {
+					enou.setNom(estat.getNom());
+				}
+				enou.setOrdre(estat.getOrdre());
+				estatDao.saveOrUpdate(enou);
 			}
-			if (mnou == null) {
-				mnou = new MapeigSistra(
-						expedientTipus,
-						mapeig.getCodiHelium(),
-						mapeig.getCodiSistra(),
-						mapeig.getTipus());
-			} else {
-				mnou.setCodiSistra(mapeig.getCodiSistra());
-				mnou.setTipus(mapeig.getTipus());
-			}
-			mapeigSistraDao.saveOrUpdate(mnou);
 		}
-		// Crea els dominis del tipus d'expedient.
-		for (DominiExportacio domini: exportacio.getDominis()) {
-			Domini dnou = dominiDao.findAmbEntornICodi(
-					entornId,
-					domini.getCodi());
-			if (dnou == null) {
-				dnou = new Domini(
-						domini.getCodi(),
-						domini.getNom(),
-						entorn);
-				dnou.setExpedientTipus(expedientTipus);
-			} else {
-				dnou.setNom(domini.getNom());
+		// Crea els mapejos del tipus d'expedient
+		if (exportacio.getMapeigSistras() != null) {
+			for (MapeigSistraExportacio mapeig: exportacio.getMapeigSistras()) {
+				MapeigSistra mnou = null;
+				if (expedientTipus.getId() != null) {
+					mnou = mapeigSistraDao.findAmbExpedientTipusICodi(
+							expedientTipus.getId(),
+						mapeig.getCodiHelium());
+				}
+				if (mnou == null) {
+					mnou = new MapeigSistra(
+							expedientTipus,
+							mapeig.getCodiHelium(),
+							mapeig.getCodiSistra(),
+							mapeig.getTipus());
+				} else {
+					mnou.setCodiSistra(mapeig.getCodiSistra());
+					mnou.setTipus(mapeig.getTipus());
+				}
+				mapeigSistraDao.saveOrUpdate(mnou);
 			}
-			dnou.setDescripcio(domini.getDescripcio());
-			dnou.setTipus(TipusDomini.valueOf(domini.getTipus()));
-			dnou.setCacheSegons(domini.getCacheSegons());
-			dnou.setSql(domini.getSql());
-			dnou.setJndiDatasource(domini.getJndiDatasource());
-			dnou.setUrl(domini.getUrl());
-			dominiDao.saveOrUpdate(dnou);
 		}
-		// Crea les enumeracions del tipus d'expedient.
-		for (EnumeracioExportacio enumeracio: exportacio.getEnumeracions()) {
-			Enumeracio nova = enumeracioDao.findAmbEntornICodi(
+		// Crea els dominis del tipus d'expedient
+		if (exportacio.getDominis() != null) {
+			for (DominiExportacio domini: exportacio.getDominis()) {
+				Domini dnou = dominiDao.findAmbEntornICodi(
+						entornId,
+						domini.getCodi());
+				if (dnou == null) {
+					dnou = new Domini(
+							domini.getCodi(),
+							domini.getNom(),
+							entorn);
+					dnou.setExpedientTipus(expedientTipus);
+				} else {
+					dnou.setNom(domini.getNom());
+				}
+				dnou.setDescripcio(domini.getDescripcio());
+				dnou.setTipus(TipusDomini.valueOf(domini.getTipus()));
+				dnou.setCacheSegons(domini.getCacheSegons());
+				dnou.setSql(domini.getSql());
+				dnou.setJndiDatasource(domini.getJndiDatasource());
+				dnou.setUrl(domini.getUrl());
+				dominiDao.saveOrUpdate(dnou);
+			}
+		}
+		// Crea les enumeracions del tipus d'expedient
+		if (exportacio.getEnumeracions() != null) {
+			for (EnumeracioExportacio enumeracio: exportacio.getEnumeracions()) {
+				Enumeracio nova = enumeracioDao.findAmbEntornICodi(
+						entornId,
+						enumeracio.getCodi());
+				if (nova == null) {
+					nova = new Enumeracio(
+							entorn,
+							enumeracio.getCodi(),
+							enumeracio.getNom());
+					nova.setExpedientTipus(expedientTipus);
+				} else {
+					nova.setNom(enumeracio.getNom());
+				}
+				for (EnumeracioValors enumValors : enumeracio.getValors()) {
+					EnumeracioValors novaEnumValors = new EnumeracioValors();
+					novaEnumValors.setCodi(enumValors.getCodi());
+					novaEnumValors.setNom(enumValors.getNom());
+					novaEnumValors.setEnumeracio(nova);
+					nova.addEnumeracioValors(novaEnumValors);
+				}
+				enumeracioDao.saveOrUpdate(nova);
+			}
+		}
+		// Importa les definicions de procés
+		if (exportacio.getDefinicionsProces() != null) {
+			for (DefinicioProcesExportacio definicio : exportacio.getDefinicionsProces()) {
+				importar(
 					entornId,
-					enumeracio.getCodi());
-			if (nova == null) {
-				nova = new Enumeracio(
-						entorn,
-						enumeracio.getCodi(),
-						enumeracio.getNom());
+					expedientTipus.getId(),
+					definicio,
+					null);
+			}
+		}
+		// Crea les consultes del tipus d'expedient
+		if (exportacio.getConsultes() != null) {
+			for (ConsultaExportacio consulta: exportacio.getConsultes()) {
+				Consulta nova = consultaDao.findAmbEntornExpedientTipusICodi(
+						entornId,
+						expedientTipus.getId(),
+						consulta.getCodi());
+				if (nova == null) {
+					nova = new Consulta(
+							consulta.getCodi(),
+							consulta.getNom());
+				} else {
+					nova.setNom(consulta.getNom());
+				}
+				nova.setDescripcio(consulta.getDescripcio());
+				nova.setValorsPredefinits(consulta.getValorsPredefinits());
+				if (consulta.getInformeContingut() != null) {
+					nova.setInformeNom(consulta.getInformeNom());
+					nova.setInformeContingut(consulta.getInformeContingut());
+				}
+				nova.setExportarActiu(consulta.isExportarActiu());
+				nova.setEntorn(entorn);
 				nova.setExpedientTipus(expedientTipus);
-			} else {
-				nova.setNom(enumeracio.getNom());
+				for (ConsultaCamp consultaCamp: nova.getCamps()) {
+					consultaCamp.setConsulta(null);
+					consultaCampDao.delete(consultaCamp);
+				}
+				nova.getCamps().clear();
+				for (ConsultaCampExportacio consultaCamp: consulta.getCamps()) {
+					ConsultaCamp campNou = new ConsultaCamp(
+							consultaCamp.getCodi(),
+							consultaCamp.getTipusConsultaCamp());
+					campNou.setConsulta(nova);
+					campNou.setDefprocJbpmKey(consultaCamp.getJbpmKey());
+					for (Camp camp: consultaCampDao.findCampsDefinicioProcesAmbJbpmKey(
+							entornId,
+							consultaCamp.getJbpmKey())) {
+						if (camp.getCodi().equals(consultaCamp.getCodi())) {
+							if (camp.getTipus().equals(consultaCamp.getTipusCamp())) {
+								campNou.setDefprocVersio(camp.getDefinicioProces().getVersio());
+								break;
+							}
+						}
+					}
+					campNou.setOrdre(consultaCamp.getOrdre());
+					nova.addCamp(campNou);
+				}
+				consultaDao.saveOrUpdate(nova);
 			}
-			
-			for (EnumeracioValors enumValors : enumeracio.getValors()) {
-				EnumeracioValors novaEnumValors = new EnumeracioValors();
-				novaEnumValors.setCodi(enumValors.getCodi());
-				novaEnumValors.setNom(enumValors.getNom());
-				novaEnumValors.setEnumeracio(nova);
-				nova.addEnumeracioValors(novaEnumValors);
-			}
-			
-			enumeracioDao.saveOrUpdate(nova);
-		}
-		for (DefinicioProcesExportacio definicio : exportacio.getDefinicionsProces()) {
-			importar(
-				entornId,
-				expedientTipus.getId(),
-				definicio,
-				null);
 		}
 	}
 
@@ -1671,7 +1800,9 @@ public class DissenyService {
 			Long consultaId,
 			TipusConsultaCamp tipus,
 			boolean filtrarValorsPredefinits) {
-		List<Camp> camps = getServiceUtils().findCampsPerCampsConsulta(consultaId, tipus);
+		List<Camp> camps = getServiceUtils().findCampsPerCampsConsulta(
+				consultaDao.getById(consultaId, false),
+				tipus);
 		if (filtrarValorsPredefinits && tipus.equals(TipusConsultaCamp.FILTRE))
 			filtrarCampsConsultaFiltre(consultaId, camps);
 		return camps;
@@ -1989,6 +2120,12 @@ public class DissenyService {
 		int i = 0;
 		for (ConsultaCamp camps: consultaCamp)
 			camps.setOrdre(i++);
+	}
+	private void reordenarEnumeracioValors(Long enumeracioId) {
+		List<EnumeracioValors> valors = enumeracioValorsDao.findAmbEnumeracioOrdenat(enumeracioId);
+		int i = 0;
+		for (EnumeracioValors valor: valors)
+			valor.setOrdre(i++);
 	}
 
 	private boolean comprovarEntorn(Long entornId, Long definicioProcesId) {

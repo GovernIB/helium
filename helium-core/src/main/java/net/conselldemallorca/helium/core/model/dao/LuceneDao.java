@@ -542,6 +542,8 @@ public class LuceneDao extends LuceneIndexSupport {
 														partsCodi[1],
 														camp.getEtiqueta());
 											}
+											if (camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST))
+												dadaCamp.setOrdenarPerValorMostrar(true);
 											dadaCamp.setMultiple(false);
 											dadaCamp.setValorIndex(valorIndex);
 											dadaCamp.setValor(valor);
@@ -601,21 +603,6 @@ public class LuceneDao extends LuceneIndexSupport {
 		return resposta;
 	}
 
-	private String normalitzarILlevarAccents(String str) {
-		String resultat = str.toLowerCase().
-	    replaceAll("[àâ]","a").
-		replaceAll("[èéêë]","e").
-		replaceAll("[ïî]","i").
-	    replaceAll("Ô","o").
-	    replaceAll("[ûù]","u").
-	    replaceAll("[ÀÂ]","A").
-	    replaceAll("[ÈÉÊË]","E").
-	    replaceAll("[ÏÎ]","I").
-	    replaceAll("Ô","O").
-	    replaceAll("[ÛÙ]","U");
-		return resultat;
-	}
-
 	private void addFieldToDocument(
 			Document document,
 			DefinicioProces definicioProces,
@@ -643,13 +630,14 @@ public class LuceneDao extends LuceneIndexSupport {
 				int index = 0;
 				for (CampRegistre campRegistre: camp.getRegistreMembres()) {
 					Camp membre = campRegistre.getMembre();
-					addFieldToDocument(
-							document,
-							definicioProces,
-							membre,
-							valorsMembres[index++],
-							textDominis,
-							false);
+					if (index < valorsMembres.length)
+						addFieldToDocument(
+								document,
+								definicioProces,
+								membre,
+								valorsMembres[index++],
+								textDominis,
+								false);
 				}
 				// System.out.println(">>> /Registre " + camp.getCodi());
 			} else {
@@ -756,6 +744,22 @@ public class LuceneDao extends LuceneIndexSupport {
 	private String dataPerIndexar(Date data) {
 		DateFormat sdf = new SimpleDateFormat(PATRO_DATES_INDEX);
 		return sdf.format(data);
+	}
+
+	private String normalitzarILlevarAccents(String str) {
+		return str;
+		/*String resultat = str.toLowerCase().
+	    replaceAll("[àâ]","a").
+		replaceAll("[èéêë]","e").
+		replaceAll("[ïî]","i").
+	    replaceAll("Ô","o").
+	    replaceAll("[ûù]","u").
+	    replaceAll("[ÀÂ]","A").
+	    replaceAll("[ÈÉÊË]","E").
+	    replaceAll("[ÏÎ]","I").
+	    replaceAll("Ô","O").
+	    replaceAll("[ÛÙ]","U");
+		return resultat;*/
 	}
 
 	private static Log logger = LogFactory.getLog(LuceneDao.class);

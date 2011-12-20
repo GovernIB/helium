@@ -85,8 +85,8 @@ function confirmarAnular(e) {
 					<c:when test="${not empty consulta.informeNom and not empty campsInforme}">
 						<c:import url="../common/formElement.jsp">
 							<c:param name="type" value="buttons"/>
-							<c:param name="values">informe,netejar</c:param>
-							<c:param name="titles"><fmt:message key='expedient.consulta.informe' />,<fmt:message key='expedient.consulta.netejar' /></c:param>
+							<c:param name="values">informe,submit,netejar</c:param>
+							<c:param name="titles"><fmt:message key='expedient.consulta.informe' />,<fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' /></c:param>
 						</c:import>
 					</c:when>
 					<c:otherwise>
@@ -125,13 +125,13 @@ function confirmarAnular(e) {
 								</c:choose>
 								<c:choose>
 									<c:when test="${registre.dadesExpedient[clauCamp].multiple}">
-										<%--display:column title="${camp.etiqueta}">
+										<display:column title="${camp.etiqueta}">
 											<table class="displaytag">
 												<c:forEach var="text" items="${registre.dadesExpedient[clauCamp].valorMostrarMultiple}" varStatus="status">
 													<tr><td>${text}</td></tr>
 												</c:forEach>
 											</table>
-										</display:column--%>
+										</display:column>
 									</c:when>
 									<c:when test="${camp.tipus == 'DATE' && clauCamp == 'expedient$dataInici'}">
 										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,date,dd/MM/yyyy HH:mm}"/>
