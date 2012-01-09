@@ -8,9 +8,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.core.model.dao.AlertaDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.FestiuDao;
@@ -18,12 +15,16 @@ import net.conselldemallorca.helium.core.model.dao.RegistreDao;
 import net.conselldemallorca.helium.core.model.dao.TerminiDao;
 import net.conselldemallorca.helium.core.model.dao.TerminiIniciatDao;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
+import net.conselldemallorca.helium.core.model.hibernate.Alerta.AlertaPrioritat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Festiu;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat.TerminiIniciatEstat;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -331,24 +332,24 @@ public class TerminiService {
 		List<TerminiIniciat> iniciatsActius = terminiIniciatDao.findIniciatsActius();
 		for (TerminiIniciat terminiIniciat: iniciatsActius) {
 			if (terminiIniciat.getTaskInstanceId() != null) {
-				if (terminiIniciat.getEstat()==TerminiIniciatEstat.CADUCAT && terminiIniciat.getTermini().isAlertaFinal() && ! terminiIniciat.isAlertaFinal()) {
+				if (terminiIniciat.getEstat() == TerminiIniciatEstat.CADUCAT && terminiIniciat.getTermini().isAlertaFinal() && ! terminiIniciat.isAlertaFinal()) {
 					esborrarAlertesAntigues(terminiIniciat);
 					JbpmTask task = jbpmDao.getTaskById(terminiIniciat.getTaskInstanceId());
 					if (task.getAssignee() != null) {
-						crearAlertaFinal(terminiIniciat, task.getAssignee(), getExpedientPerTask(task));
+						crearAlertaAmbTerminiAssociat(terminiIniciat, task.getAssignee(), getExpedientPerTask(task));
 					} else {
 						for (String actor: task.getPooledActors())
-							crearAlertaFinal(terminiIniciat, actor, getExpedientPerTask(task));
+							crearAlertaAmbTerminiAssociat(terminiIniciat, actor, getExpedientPerTask(task));
 					}
 					terminiIniciat.setAlertaFinal(true);
 				}
-				else if (terminiIniciat.getEstat()==TerminiIniciatEstat.AVIS && terminiIniciat.getTermini().isAlertaPrevia() && ! terminiIniciat.isAlertaPrevia()) {
+				else if (terminiIniciat.getEstat() == TerminiIniciatEstat.AVIS && terminiIniciat.getTermini().isAlertaPrevia() && ! terminiIniciat.isAlertaPrevia()) {
 					JbpmTask task = jbpmDao.getTaskById(terminiIniciat.getTaskInstanceId());
 					if (task.getAssignee() != null) {
-						crearAlertaPrevia(terminiIniciat, task.getAssignee(), getExpedientPerTask(task));
+						crearAlertaAmbTerminiAssociat(terminiIniciat, task.getAssignee(), getExpedientPerTask(task));
 					} else {
 						for (String actor: task.getPooledActors())
-							crearAlertaPrevia(terminiIniciat, actor, getExpedientPerTask(task));
+							crearAlertaAmbTerminiAssociat(terminiIniciat, actor, getExpedientPerTask(task));
 					}
 					terminiIniciat.setAlertaPrevia(true);
 				}
@@ -512,29 +513,25 @@ public class TerminiService {
 		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
 		return expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 	}
-	private void crearAlertaPrevia(
+	private void crearAlertaAmbTerminiAssociat(
 			TerminiIniciat terminiIniciat,
 			String responsable,
 			Expedient expedient) {
-		//logger.info("Creació alerta prèvia per al termini " + terminiIniciat.getId() + " per al responsable " + responsable);
+		//logger.info("Creació alerta per al termini " + terminiIniciat.getId() + " per al responsable " + responsable);
+		AlertaPrioritat prioritat;
+		if (TerminiIniciatEstat.AVIS.equals(terminiIniciat.getEstat())) {
+			prioritat = AlertaPrioritat.NORMAL;
+		} else if (TerminiIniciatEstat.COMPLETAT_FORA.equals(terminiIniciat.getEstat())) {
+			prioritat = AlertaPrioritat.ALTA;
+		} else if (TerminiIniciatEstat.CADUCAT.equals(terminiIniciat.getEstat())) {
+			prioritat = AlertaPrioritat.MOLT_ALTA;
+		} else {
+			prioritat = AlertaPrioritat.BAIXA;
+		}
 		Alerta alerta = new Alerta(
 				new Date(),
 				responsable,
-				Alerta.AlertaPrioritat.NORMAL,
-				terminiIniciat.getTermini().getDefinicioProces().getEntorn());
-		alerta.setExpedient(expedient);
-		alerta.setTerminiIniciat(terminiIniciat);
-		alertaDao.saveOrUpdate(alerta);
-	}
-	private void crearAlertaFinal(
-			TerminiIniciat terminiIniciat,
-			String responsable,
-			Expedient expedient) {
-		//logger.info("Creació alerta final per al termini " + terminiIniciat.getId() + " per al responsable " + responsable);
-		Alerta alerta = new Alerta(
-				new Date(),
-				responsable,
-				Alerta.AlertaPrioritat.NORMAL,
+				prioritat,
 				terminiIniciat.getTermini().getDefinicioProces().getEntorn());
 		alerta.setExpedient(expedient);
 		alerta.setTerminiIniciat(terminiIniciat);
