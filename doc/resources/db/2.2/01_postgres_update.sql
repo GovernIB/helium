@@ -28,10 +28,10 @@ insert into hel_versio (
     data_execucio_script)
 select
     nextval('hibernate_sequence') id,
-    '2.2.0' codi,
-    220 ordre,
+    '2.2.1' codi,
+    221 ordre,
     'now' data_creacio,
     false proces_executat,
     true script_executat,
     'now' data_execucio_script
-where (select count(*) from hel_versio where ordre = 220) = 0;
+where (select count(*) from hel_versio where ordre = 221) = 0;
