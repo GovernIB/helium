@@ -159,8 +159,9 @@ protected ExpressionSession getExpressionSession() {
         throw new ExpressionAssignmentException("variable '"+variableName+"' is null");
         
       } else if (value instanceof String) {
-        entity = getUserByName((String) value);
-        
+        entity = expressionSession.getUserByName((String) value);
+        if (entity == null)
+        	entity = expressionSession.getGroupByName((String) value);
       } else if (value instanceof Entity) {
         entity = (Entity) value;
       }
