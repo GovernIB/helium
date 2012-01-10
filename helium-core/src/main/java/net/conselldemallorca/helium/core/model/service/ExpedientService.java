@@ -393,7 +393,7 @@ public class ExpedientService {
 		String informacioNova = getInformacioExpedient(expedient);
 		registreDao.crearRegistreModificarExpedient(
 				expedient.getId(),
-				SecurityContextHolder.getContext().getAuthentication().getName(),
+				getUsuariPerRegistre(),
 				informacioVella,
 				informacioNova);
 	}
@@ -1791,6 +1791,13 @@ public class ExpedientService {
 				}
 			}
 		}
+	}
+
+	private String getUsuariPerRegistre() {
+		if (SecurityContextHolder.getContext() != null && SecurityContextHolder.getContext().getAuthentication() != null)
+			return SecurityContextHolder.getContext().getAuthentication().getName();
+		else
+			return "Procés automàtic";
 	}
 
 	private OpenOfficeUtils getOpenOfficeUtils() {
