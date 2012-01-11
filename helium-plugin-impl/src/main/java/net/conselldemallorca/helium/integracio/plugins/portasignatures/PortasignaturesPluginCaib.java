@@ -264,7 +264,7 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 			List<Annex> anxs = new ArrayList<Annex>();
 			for (DocumentPortasignatures annex: annexos) {
 				Annex anx = new Annex();
-				anx.setDescription(annex.getTitol());
+				anx.setDescription(limitarString(annex.getTitol(), 250));
 				anx.setExtension(getDocumentArxiuExtensio(annex.getArxiuNom()));
 				anx.setReference(annex.getReference());
 				anxs.add(anx);
