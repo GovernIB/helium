@@ -44,7 +44,7 @@ public class ExpedientResponsableModificarHandler extends AbstractHeliumActionHa
 							persona.getCodi(),
 							expedient.getDataInici(),
 							expedient.getComentari(),
-							expedient.getEstat().getId(),
+							(expedient.getEstat() != null) ? expedient.getEstat().getId() : null,
 							expedient.getGeoPosX(),
 							expedient.getGeoPosY(),
 							expedient.getGeoReferencia());

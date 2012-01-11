@@ -50,7 +50,7 @@ public class ExpedientGeorefModificarHandler extends AbstractHeliumActionHandler
 						expedient.getResponsableCodi(),
 						expedient.getDataInici(),
 						expedient.getComentari(),
-						expedient.getEstat().getId(),
+						(expedient.getEstat() != null) ? expedient.getEstat().getId() : null,
 						(posx != null) ? new Double(posx) : null,
 						(posy != null) ? new Double(posy) : null,
 						referencia);
