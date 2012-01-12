@@ -1343,7 +1343,7 @@ public class DtoConverter {
 			return arxiuNomOriginal;
 		if (extensio == null)
 			extensio = "";
-		int indexPunt = arxiuNomOriginal.indexOf(".");
+		int indexPunt = arxiuNomOriginal.lastIndexOf(".");
 		if (indexPunt != -1) {
 			return arxiuNomOriginal.substring(0, indexPunt) + "." + extensio;
 		} else {
