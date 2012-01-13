@@ -1281,7 +1281,9 @@ public class DtoConverter {
 			String paramCodi = parts[0];
 			String campCodi = parts[1];
 			Object value = null;
-			if (campCodi.startsWith("#{")) {
+			if (campCodi.startsWith("@")) {
+				value = (String)GlobalProperties.getInstance().get(campCodi.substring(1));
+			} else if (campCodi.startsWith("#{")) {
 				if (processInstanceId != null) {
 					value = jbpmDao.evaluateExpression(taskId, processInstanceId, campCodi, null);
 				} else if (taskId != null) {
