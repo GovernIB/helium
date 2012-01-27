@@ -162,14 +162,26 @@ public class TascaDocumentsController extends BaseController {
 				if (command.getData() != null && command.getContingut() != null) {
 					if (multipartFile.getSize() > 0) {
 						String nomArxiu = multipartFile.getOriginalFilename();
-						accioDocumentGuardar(
-								request,
+						int indexPunt = nomArxiu.lastIndexOf(".");
+						String extensio = null;
+						if (indexPunt != -1 && nomArxiu.length() > indexPunt + 1)
+							extensio = nomArxiu.substring(indexPunt + 1);
+						if (!tascaService.isExtensioDocumentPermesa(
 								entorn.getId(),
 								id,
 								codi,
-								nomArxiu,
-								command.getData(),
-								command.getContingut());
+								extensio)) {
+							missatgeError(request, getMessage("error.extensio.document"));
+						} else {
+							accioDocumentGuardar(
+									request,
+									entorn.getId(),
+									id,
+									codi,
+									nomArxiu,
+									command.getData(),
+									command.getContingut());
+						}
 						/*try {
 							String nomArxiu = multipartFile.getOriginalFilename();
 							tascaService.guardarDocument(
@@ -301,6 +313,8 @@ public class TascaDocumentsController extends BaseController {
 				Date.class,
 				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
 	}
+
+
 
 	private boolean accioDocumentGuardar(
 			HttpServletRequest request,

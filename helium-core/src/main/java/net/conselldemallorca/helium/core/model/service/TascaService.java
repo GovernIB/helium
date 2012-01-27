@@ -927,12 +927,12 @@ public class TascaService {
 					getOpenOfficeUtils().convertir(
 							resposta.getArxiuNom(),
 							resultat,
-							getExtensioVista(),
+							getExtensioVista(document),
 							baos);
 					resposta.setArxiuNom(
 							nomArxiuAmbExtensio(
 									resposta.getArxiuNom(),
-									getExtensioVista()));
+									getExtensioVista(document)));
 					resposta.setArxiuContingut(baos.toByteArray());
 				} else {
 					resposta.setArxiuContingut(resultat);
@@ -954,6 +954,22 @@ public class TascaService {
 			resposta.setArxiuContingut(document.getArxiuContingut());
 		}
 		return resposta;
+	}
+
+	public boolean isExtensioDocumentPermesa(
+			Long entornId,
+			String taskId,
+			String documentCodi,
+			String extensio) {
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
+		if (!isTascaValidada(task))
+			throw new IllegalStateException(
+					getServiceUtils().getMessage("error.tascaService.noValidada"));
+		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(task.getProcessDefinitionId());
+		Document document = documentDao.findAmbDefinicioProcesICodi(
+				definicioProces.getId(),
+				documentCodi);
+		return document.isExtensioPermesa(extensio);
 	}
 
 	public void delegacioCrear(
@@ -1561,12 +1577,16 @@ public class TascaService {
 		return "true".equalsIgnoreCase(actiuConversioVista);
 	}
 
-	private String getExtensioVista() {
+	private String getExtensioVista(Document document) {
 		String extensioVista = null;
 		if (isActiuConversioVista()) {
-			extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.extension");
-			if (extensioVista == null)
-				extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.gentasca.extension");
+			if (document.getConvertirExtensio() != null && document.getConvertirExtensio().length() > 0) {
+				extensioVista = document.getConvertirExtensio();
+			} else {
+				extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.extension");
+				if (extensioVista == null)
+					extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.gentasca.extension");
+			}
 		}
 		return extensioVista;
 	}

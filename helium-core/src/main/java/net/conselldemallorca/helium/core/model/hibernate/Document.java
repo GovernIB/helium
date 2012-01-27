@@ -65,6 +65,10 @@ public class Document implements Serializable, GenericEntity<Long> {
 	private String custodiaCodi;
 	private Integer tipusDocPortasignatures;
 	private boolean adjuntarAuto;
+	@MaxLength(10)
+	private String convertirExtensio;
+	@MaxLength(255)
+	private String extensionsPermeses;
 
 	@NotNull
 	private DefinicioProces definicioProces;
@@ -159,6 +163,38 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.custodiaCodi = custodiaCodi;
 	}
 
+	@Column(name="tipus_portasignatures")
+	public Integer getTipusDocPortasignatures() {
+		return tipusDocPortasignatures;
+	}
+	public void setTipusDocPortasignatures(Integer tipusDocPortasignatures) {
+		this.tipusDocPortasignatures = tipusDocPortasignatures;
+	}
+
+	@Column(name="adjuntar_auto")
+	public boolean isAdjuntarAuto() {
+		return adjuntarAuto;
+	}
+	public void setAdjuntarAuto(boolean adjuntarAuto) {
+		this.adjuntarAuto = adjuntarAuto;
+	}
+
+	@Column(name="convertir_ext", length=10)
+	public String getConvertirExtensio() {
+		return convertirExtensio;
+	}
+	public void setConvertirExtensio(String convertirExtensio) {
+		this.convertirExtensio = convertirExtensio;
+	}
+
+	@Column(name="extensions_permeses", length=255)
+	public String getExtensionsPermeses() {
+		return extensionsPermeses;
+	}
+	public void setExtensionsPermeses(String extensionsPermeses) {
+		this.extensionsPermeses = extensionsPermeses;
+	}
+
 	@ManyToOne(optional=false)
 	@JoinColumn(name="definicio_proces_id")
 	@ForeignKey(name="hel_defproc_document_fk")
@@ -207,27 +243,26 @@ public class Document implements Serializable, GenericEntity<Long> {
 		getFirmes().remove(firma);
 	}
 
-	@Column(name="tipus_portasignatures")
-	public Integer getTipusDocPortasignatures() {
-		return tipusDocPortasignatures;
-	}
-	public void setTipusDocPortasignatures(Integer tipusDocPortasignatures) {
-		this.tipusDocPortasignatures = tipusDocPortasignatures;
-	}
-
-	@Column(name="adjuntar_auto")
-	public boolean isAdjuntarAuto() {
-		return adjuntarAuto;
-	}
-	public void setAdjuntarAuto(boolean adjuntarAuto) {
-		this.adjuntarAuto = adjuntarAuto;
-	}
-
-
-
 	@Transient
 	public String getCodiNom() {
 		return codi + "/" + nom;
+	}
+	@Transient
+	public boolean isExtensioPermesa(String ext) {
+		if (extensionsPermeses != null) {
+			String[] extPermeses = extensionsPermeses.split(",");
+			if (extPermeses.length > 0) {
+				boolean hiEs = false;
+				for (int i = 0; i < extPermeses.length; i++) {
+					if (extPermeses[i].trim().equalsIgnoreCase(ext.trim())) {
+						hiEs = true;
+						break;
+					}
+				}
+				return hiEs;
+			}
+		}
+		return true;
 	}
 
 	@Override
