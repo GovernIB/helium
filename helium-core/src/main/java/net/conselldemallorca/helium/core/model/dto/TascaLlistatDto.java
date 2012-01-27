@@ -32,6 +32,7 @@ public class TascaLlistatDto implements Comparable<TascaLlistatDto> {
 	private Date dataFi;
 	private Date dataLimit;
 	private int prioritat;
+	private boolean tramitacioMassiva;
 	private String responsable;
 	private Set<String> responsables;
 	private boolean oberta;
@@ -143,6 +144,12 @@ public class TascaLlistatDto implements Comparable<TascaLlistatDto> {
 	}
 	public void setPrioritat(int prioritat) {
 		this.prioritat = prioritat;
+	}
+	public boolean isTramitacioMassiva() {
+		return tramitacioMassiva;
+	}
+	public void setTramitacioMassiva(boolean tramitacioMassiva) {
+		this.tramitacioMassiva = tramitacioMassiva;
 	}
 	public String getResponsable() {
 		return responsable;

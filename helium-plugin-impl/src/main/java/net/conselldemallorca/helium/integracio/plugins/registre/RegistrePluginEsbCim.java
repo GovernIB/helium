@@ -22,14 +22,13 @@ import es.cim.ws.registro.v1.model.documento.Documentos;
 import es.cim.ws.registro.v1.model.documento.TypeDocumentoRegistro;
 import es.cim.ws.registro.v1.model.oficinaregistral.OficinaRegistral;
 import es.cim.ws.registro.v1.model.oficioremision.OficioRemision;
-import es.cim.ws.registro.v1.model.oficioremision.ParametroTramite;
 import es.cim.ws.registro.v1.model.oficioremision.OficioRemision.TramiteSubsanacion;
 import es.cim.ws.registro.v1.model.oficioremision.OficioRemision.TramiteSubsanacion.ParametrosTramite;
+import es.cim.ws.registro.v1.model.oficioremision.ParametroTramite;
 import es.cim.ws.registro.v1.model.registro.RegistroSalida;
 import es.cim.ws.registro.v1.model.registro.RegistroSalidaResponse;
 import es.cim.ws.registro.v1.model.registro.TypeCodigoError;
 import es.cim.ws.registro.v1.services.ServicioRegistroPortType;
-import es.cim.ws.tramitacion.v1.services.ServicioTramitacionPortType;
 
 
 /**
@@ -286,7 +285,7 @@ public class RegistrePluginEsbCim implements RegistrePlugin {
 		String userName = GlobalProperties.getInstance().getProperty("app.registre.plugin.username");
 		String password = GlobalProperties.getInstance().getProperty("app.registre.plugin.password");
 		Object wsClientProxy = WsClientUtils.getWsClientProxy(
-				ServicioTramitacionPortType.class,
+				ServicioRegistroPortType.class,
 				url,
 				userName,
 				password,

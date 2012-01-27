@@ -67,6 +67,11 @@
 			<c:otherwise><c:set var="estilData"></c:set></c:otherwise>
 		</c:choose>
 		<display:column property="dataLimit" titleKey="tasca.pllistat.data_limit" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true" style="${estilData}"/>
+		<display:column>
+			<c:if test="${registre.tramitacioMassiva}">
+				<a href="<c:url value="/tasca/massivaSeleccio.html"><c:param name="id" value="${registre.id}"/></c:url>"><img src="<c:url value="/img/application_cascade.png"/>" alt="<fmt:message key="tasca.tramitacio.massiva"/>" title="<fmt:message key="tasca.pllistat.massiva"/>" border="0"/></a>
+			</c:if>
+		</display:column>
 	</display:table>
 	<script type="text/javascript">initSelectable();</script>
 

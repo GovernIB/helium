@@ -31,14 +31,6 @@
 				<c:param name="required" value="true"/>
 				<c:param name="label"><fmt:message key='comuns.titol' /></c:param>
 			</c:import>
-			<%--c:import url="../common/formElement.jsp">
-				<c:param name="property" value="tipus"/>
-				<c:param name="required" value="true"/>
-				<c:param name="type" value="select"/>
-				<c:param name="items" value="tipusTasca"/>
-				<c:param name="itemBuit" value="<< Seleccioni un tipus >>"/>
-				<c:param name="label">Tipus</c:param>
-			</c:import--%>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="missatgeInfo"/>
 				<c:param name="label"><fmt:message key='defproc.tascaform.msg_info' /></c:param>
@@ -68,6 +60,11 @@
 				<c:param name="type" value="checkbox"/>
 				<c:param name="checkAsText" value="true"/>
 				<c:param name="label"><fmt:message key='defproc.tascaform.delegableq' /></c:param>
+			</c:import>
+			<c:import url="../common/formElement.jsp">
+				<c:param name="property" value="tramitacioMassiva"/>
+				<c:param name="type" value="checkbox"/>
+				<c:param name="label"><fmt:message key='defproc.tascaform.tramitacio.massiva' /></c:param>
 			</c:import>
 		</div>
 		<c:import url="../common/formElement.jsp">

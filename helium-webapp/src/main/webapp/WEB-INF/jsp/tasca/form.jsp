@@ -27,6 +27,16 @@
 	<c:if test="${isIframe}"><style>.ui-widget {font-size: 81%;}</style></c:if>
 <script type="text/javascript">
 // <![CDATA[
+function mostrarOcultar(img, objid) {
+	var obj = document.getElementById(objid);
+	if (obj.style.display=="none") {
+		obj.style.display = "block";
+		img.src = '<c:url value="/img/magnifier_zoom_out.png"/>';
+	} else {
+		obj.style.display = "none";
+		img.src = '<c:url value="/img/magnifier_zoom_in.png"/>';
+	}
+}
 function confirmar(form) {
 	if (accio == "validate")
 		return confirm("<fmt:message key='tasca.form.confirmacio' />");

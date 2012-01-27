@@ -13,6 +13,16 @@
 	<c:import url="../common/formIncludes.jsp"/>
 <script type="text/javascript">
 // <![CDATA[
+	function mostrarOcultar(img, objid) {
+		var obj = document.getElementById(objid);
+		if (obj.style.display=="none") {
+			obj.style.display = "block";
+			img.src = '<c:url value="/img/magnifier_zoom_out.png"/>';
+		} else {
+			obj.style.display = "none";
+			img.src = '<c:url value="/img/magnifier_zoom_in.png"/>';
+		}
+	}
 	function verificarSignatura(element) {
 		var amplada = 800;
 		var alcada = 600;

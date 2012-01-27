@@ -7,11 +7,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
@@ -22,7 +22,9 @@ import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.model.service.TerminiService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
+import net.conselldemallorca.helium.webapp.mvc.util.TramitacioMassiva;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,6 +50,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class TascaController extends BaseController {
 
+	public static final String SESSIO_TRAMITACIO_MASSIVA = "HEL_TRAM_MASS";
+
 	private String TAG_FORM_INICI = "<!--helium:form-inici-->";
 	private String TAG_FORM_FI = "<!--helium:form-fi-->";
 
@@ -55,6 +59,7 @@ public class TascaController extends BaseController {
 	private TerminiService terminiService;
 	private DissenyService dissenyService;
 	private PermissionService permissionService;
+
 
 
 	@Autowired
@@ -68,7 +73,7 @@ public class TascaController extends BaseController {
 		this.dissenyService = dissenyService;
 		this.permissionService = permissionService;
 	}
-	
+
 	@ModelAttribute("prioritats")
 	public List<HashMap<String, Object>> populateEstats(HttpServletRequest request) {
 		List<HashMap<String, Object>> resposta = new ArrayList<HashMap<String,Object>>();
@@ -103,7 +108,7 @@ public class TascaController extends BaseController {
 		else
 			return new TascaPersonaFiltreCommand();
 	}
-	
+
 	@ModelAttribute("commandGrupFiltre")
 	public TascaGrupFiltreCommand populateCommandGrupFiltre(HttpServletRequest request) {
 		Object tascaGrupFiltreCommand = request.getSession().getAttribute("commandTascaGrupFiltre");
@@ -112,7 +117,39 @@ public class TascaController extends BaseController {
 		else
 			return new TascaGrupFiltreCommand();
 	}
-	
+
+	@ModelAttribute("seleccioMassiva")
+	public List<TascaLlistatDto> populateSeleccioMassiva(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = false) String id) {
+		if (id != null) {
+			Entorn entorn = getEntornActiu(request);
+			if (entorn != null) {
+				String[] ids = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
+				if (ids != null) {
+					List<TascaLlistatDto> tasquesTramitacioMassiva = tascaService.findTasquesPerTramitacioMassiva(
+							entorn.getId(),
+							null,
+							id);
+					for (Iterator<TascaLlistatDto> it = tasquesTramitacioMassiva.iterator(); it.hasNext();) {
+						TascaLlistatDto tasca = it.next();
+						boolean trobada = false;
+						for (String tascaId: ids) {
+							if (tascaId.equals(tasca.getId())) {
+								trobada = true;
+								break;
+							}
+						}
+						if (!trobada)
+							it.remove();
+					}
+					return tasquesTramitacioMassiva;
+				}
+			}
+		}
+		return null;
+	}
+
 	@RequestMapping(value = "/tasca/personaLlistat", method = RequestMethod.GET)
 	public String personaLlistat(
 			HttpServletRequest request,
@@ -159,7 +196,7 @@ public class TascaController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
-	
+
 	@RequestMapping(value = "/tasca/personaLlistat", method = RequestMethod.POST)
 	public String personaLlistatPost(
 			HttpServletRequest request,
@@ -219,7 +256,7 @@ public class TascaController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
-	
+
 	@RequestMapping(value = "/tasca/grupLlistat", method = RequestMethod.POST)
 	public String grupLlistatPost(
 			HttpServletRequest request,
@@ -233,13 +270,65 @@ public class TascaController extends BaseController {
 		return "redirect:/tasca/grupLlistat.html";
 	}
 
-	@RequestMapping(value = "/tasca/info")
-	public String info(
+	@RequestMapping(value = "/tasca/massivaSeleccio", method = RequestMethod.GET)
+	public String massivaSeleccio(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) String id,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
+			if (!TramitacioMassiva.isTramitacioMassivaActiu(request, id)) {
+				TramitacioMassiva.netejarTramitacioMassiva(request);
+			}
+			List<TascaLlistatDto> tasquesTramitacioMassiva = tascaService.findTasquesPerTramitacioMassiva(
+					entorn.getId(),
+					null,
+					id);
+			model.addAttribute("terminisIniciats", findTerminisIniciatsPerTasques(tasquesTramitacioMassiva));
+			model.addAttribute("personaLlistat", tasquesTramitacioMassiva);
+			model.addAttribute("personaLlistatAll", tascaService.getTotalTasquesPersona(entorn.getId()));
+			model.addAttribute("grupLlistatAll", tascaService.getTotalTasquesGrup(entorn.getId()));
+			model.addAttribute("tipusExp", llistatExpedientTipusAmbPermisos(entorn));
+			return "tasca/massivaSeleccio";
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec"));
+			return "redirect:/index.html";
+		}
+	}
+
+	@RequestMapping(value = "/tasca/massivaTramitacio", method = RequestMethod.POST)
+	public String massivaTramitacio(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) String id,
+			@RequestParam(value = "tascaId", required = false) String[] tascaId,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			if (tascaId == null || tascaId.length == 0) {
+				missatgeError(request, getMessage("error.no.tasques.selec"));
+				return "redirect:/tasca/massivaSeleccio.html?id=" + id;
+			} else {
+				TramitacioMassiva.iniciarTramitacioMassiva(request, id, tascaId);
+				return "redirect:/tasca/info.html?id=" + id + "&massiva=s";
+			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec"));
+			return "redirect:/index.html";
+		}
+	}
+
+	@RequestMapping(value = "/tasca/info")
+	public String info(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) String id,
+			@RequestParam(value = "massiva", required = false) String massiva,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			if (massiva == null || !massiva.equalsIgnoreCase("s")) {
+				TramitacioMassiva.netejarTramitacioMassiva(request);
+				model.remove("seleccioMassiva");
+			}
 			TascaDelegacioCommand command = new TascaDelegacioCommand();
 			command.setTaskId(id);
 			model.addAttribute(
@@ -292,45 +381,26 @@ public class TascaController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			TascaDto tasca = tascaService.getById(entorn.getId(), id);
-			try {
-				boolean found = false;
-				for (String outcome: tasca.getOutcomes()) {
-					if (outcome != null && outcome.equals(submit)) {
-						tascaService.completar(entorn.getId(), id, true, null, outcome);
-						found = true;
-						break;
-					}
-				}
-				if (!found) {
-					tascaService.completar(entorn.getId(), id, true);
-				}
-				missatgeInfo(request, getMessage("info.tasca.completat") );
+			boolean ok = accioCompletarTasca(
+					request,
+					entorn.getId(),
+					id,
+					submit);
+			if (ok) {
 				return "redirect:/tasca/personaLlistat.html";
-			} catch (Exception ex) {
-				if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
-					missatgeError(
-		        			request,
-		        			ex.getCause().getMessage());
-				} else {
-					missatgeError(
-		        			request,
-		        			getMessage("error.finalitzar.tasca"),
-		        			(ex.getCause() != null) ? ex.getCause().getMessage() : ex.getMessage());
-				}
-	        	logger.error("No s'ha pogut finalitzar la tasca", ex);
-	        	if ("info".equals(pipella)) {
-	        		return "redirect:/tasca/info.html?id=" + tasca.getId();
+			} else {
+				if ("info".equals(pipella)) {
+	        		return "redirect:/tasca/info.html?id=" + id;
 	        	} else if ("form".equals(pipella)) {
-	        		return "redirect:/tasca/form.html?id=" + tasca.getId();
+	        		return "redirect:/tasca/form.html?id=" + id;
 	        	} else if ("documents".equals(pipella)) {
-	        		return "redirect:/tasca/documents.html?id=" + tasca.getId();
+	        		return "redirect:/tasca/documents.html?id=" + id;
 	        	} else if ("signatures".equals(pipella)) {
-	        		return "redirect:/tasca/signatures.html?id=" + tasca.getId();
+	        		return "redirect:/tasca/signatures.html?id=" + id;
 	        	} else {
-	        		return "redirect:/tasca/info.html?id=" + tasca.getId();
+	        		return "redirect:/tasca/info.html?id=" + id;
 	        	}
-	        }
+			}
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
@@ -368,7 +438,7 @@ public class TascaController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/tasca/executarAccio")
+	/*@RequestMapping(value = "/tasca/executarAccio")
 	public String executarAccio(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) String id,
@@ -391,7 +461,7 @@ public class TascaController extends BaseController {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
-	}
+	}*/
 
 	private String textFormRecursProcessat(TascaDto tasca, String text) {
 		int indexFormInici = text.indexOf(TAG_FORM_INICI);
@@ -602,6 +672,59 @@ public class TascaController extends BaseController {
 			}
 		}
 		return resposta;
+	}
+
+	private boolean accioCompletarTasca(
+			HttpServletRequest request,
+			Long entornId,
+			String id,
+			String submit) {
+		TascaDto tasca = tascaService.getById(entornId, id);
+		String transicio = null;
+		for (String outcome: tasca.getOutcomes()) {
+			if (outcome != null && outcome.equals(submit)) {
+				transicio = outcome;
+				break;
+			}
+		}
+		boolean massivaActiu = TramitacioMassiva.isTramitacioMassivaActiu(request, id);
+		String[] tascaIds;
+		if (massivaActiu)
+			tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
+		else
+			tascaIds = new String[]{id};
+		boolean error = false;
+		for (String tascaId: tascaIds) {
+			try {
+				tascaService.completar(entornId, tascaId, true, null, transicio);
+			} catch (Exception ex) {
+				String tascaIdLog = getIdTascaPerLogs(entornId, tascaId);
+				if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
+					missatgeError(
+		        			request,
+		        			getMessage("error.finalitzar.tasca") + " " + tascaIdLog + ": " + ex.getCause().getMessage());
+				} else {
+					missatgeError(
+		        			request,
+		        			getMessage("error.finalitzar.tasca") + " " + tascaIdLog,
+		        			(ex.getCause() != null) ? ex.getCause().getMessage() : ex.getMessage());
+				}
+		    	logger.error("No s'ha pogut finalitzar la tasca " + tascaIdLog, ex);
+	        	error = true;
+	        }
+		}
+		if (!error) {
+			if (massivaActiu)
+				missatgeInfo(request, getMessage("info.tasca.completades"));
+			else
+				missatgeInfo(request, getMessage("info.tasca.completat"));
+		}
+		return !error;
+	}
+
+	private String getIdTascaPerLogs(Long entornId, String tascaId) {
+		TascaDto tascaActual = tascaService.getById(entornId, tascaId);
+		return tascaActual.getNom() + " - " + tascaActual.getExpedient().getIdentificador();
 	}
 
 	private static final Log logger = LogFactory.getLog(TascaController.class);

@@ -1523,7 +1523,7 @@ public class DissenyService {
 				exportacio,
 				definicioProces);
 	}
-	
+
 	public Domini getDominiById(Long id) {
 		return dominiDao.getById(id, false);
 	}
@@ -1550,8 +1550,9 @@ public class DissenyService {
 	public List<Domini> findDominiAmbEntornITipusExpONull(Long entornId, Long tipusExpId) {
 		return dominiDao.findAmbEntornITipusExpONull(entornId, tipusExpId);
 	}
-	
-	
+
+
+
 	public Domini findDominiAmbEntornICodi(Long entornId, String codi) {
 		return dominiDao.findAmbEntornICodi(entornId, codi);
 	}

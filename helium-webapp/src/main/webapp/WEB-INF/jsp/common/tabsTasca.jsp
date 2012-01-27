@@ -2,7 +2,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib uri="http://displaytag.sf.net/el" prefix="display"%>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 
 <script type="text/javascript">
 // <![CDATA[
@@ -14,6 +15,48 @@ function confirmarDelegacioCancel(e) {
 }
 // ]]>
 </script>
+
+<c:if test="${not empty seleccioMassiva}">
+	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
+	<div class="missatgesBlau">
+		<h3 class="titol-tab titol-massiva"><fmt:message key="tasca.info.massiva"/> <img src="<c:url value="/img/magnifier_zoom_in.png"/>" alt="<fmt:message key="tasca.info.mos_ocul"/>" title="<fmt:message key="tasca.info.mos_ocul"/>" border="0" onclick="mostrarOcultar(this,'info-massiva')"/></h3>
+		<div id="info-massiva" style="display:none">
+			<display:table name="seleccioMassiva" id="registre" requestURI="" class="displaytag selectable">
+				<display:column property="titol" titleKey="tasca.pllistat.tasca"/>
+				<display:column sortProperty="expedientTitol" titleKey="tasca.pllistat.expedient" sortable="true">
+					<a href="<c:url value="/expedient/info.html"><c:param name="id" value="${registre.expedientProcessInstanceId}"/></c:url>">${registre.expedientTitol}</a>
+				</display:column>
+				<display:column property="expedientTipusNom" titleKey="comuns.tipus_exp" sortable="true"/>
+				<display:column property="dataCreacio" titleKey="tasca.pllistat.creada_el" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true"/>
+				<display:column titleKey="tasca.pllistat.prioritat" sortable="true">
+					<c:choose>
+						<c:when test="${registre.prioritat == 2}"><fmt:message key='tasca.pllistat.m_alta' /></c:when>
+						<c:when test="${registre.prioritat == 1}"><fmt:message key='tasca.pllistat.alta' /></c:when>
+						<c:when test="${registre.prioritat == 0}"><fmt:message key='tasca.pllistat.normal' /></c:when>
+						<c:when test="${registre.prioritat == -1}"><fmt:message key='tasca.pllistat.baixa' /></c:when>
+						<c:when test="${registre.prioritat == -2}"><fmt:message key='tasca.pllistat.m_baixa' /></c:when>
+						<c:otherwise>${registre.prioritat}</c:otherwise>
+					</c:choose>
+				</display:column>
+				<c:choose>
+					<c:when test="${not empty terminisIniciats[registre_rowNum - 1] and terminisIniciats[registre_rowNum - 1].estat == 'NORMAL'}"><c:set var="estilData">color:white;background-color:green</c:set></c:when>
+					<c:when test="${not empty terminisIniciats[registre_rowNum - 1] and terminisIniciats[registre_rowNum - 1].estat == 'AVIS'}"><c:set var="estilData">color:white;background-color:orange</c:set></c:when>
+					<c:when test="${not empty terminisIniciats[registre_rowNum - 1] and terminisIniciats[registre_rowNum - 1].estat == 'CADUCAT'}"><c:set var="estilData">color:white;background-color:red</c:set></c:when>
+					<c:otherwise><c:set var="estilData"></c:set></c:otherwise>
+				</c:choose>
+				<display:column property="dataLimit" titleKey="tasca.pllistat.data_limit" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true" style="${estilData}"/>
+			</display:table>
+			<form action="massivaSeleccio.html" class="uniForm">
+				<input type="hidden" name="id" value="${param.id}"/>
+				<c:import url="../common/formElement.jsp">
+					<c:param name="type" value="buttons"/>
+					<c:param name="values">submit</c:param>
+					<c:param name="titles"><fmt:message key="common.tabstasca.massiva.canvi"/></c:param>
+				</c:import>
+			</form>
+		</div>
+	</div>
+</c:if>
 
 <c:if test="${tasca.delegada}">
 	<div class="missatgesGris">
