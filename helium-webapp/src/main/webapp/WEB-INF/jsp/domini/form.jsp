@@ -28,6 +28,13 @@ function canviTipus(input) {
 		disable("camps_sql");
 	}
 }
+function canviTipusAuth(input) {
+	if (input.value == "NONE") {
+		disable("camps_usupass");
+	} else {
+		enable("camps_usupass");
+	}
+}
 // ]]>
 </script>
 </head>
@@ -35,7 +42,7 @@ function canviTipus(input) {
 
 	<form:form action="form.html" cssClass="uniForm">
 		<div class="inlineLabels col first">
-			<h3><fmt:message key='domini.form.dades_dom' /></h3>
+			<h3><fmt:message key="domini.form.dades_dom"/></h3>
 			<c:if test="${not empty command.id}"><form:hidden path="id"/></c:if>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="codi"/>
@@ -81,29 +88,24 @@ function canviTipus(input) {
 					<c:param name="type" value="select"/>
 					<c:param name="items" value="tipusAuth"/>
 					<c:param name="label"><fmt:message key="domini.form.tipus.auth"/></c:param>
+					<c:param name="onchange">canviTipusAuth(this)</c:param>
 				</c:import>
-				<c:import url="../common/formElement.jsp">
-					<c:param name="property" value="origenCredencials"/>
-					<c:param name="type" value="select"/>
-					<c:param name="items" value="origenCredencials"/>
-					<c:param name="label"><fmt:message key="domini.form.origen.creds"/></c:param>
-				</c:import>
-				<c:import url="../common/formElement.jsp">
-					<c:param name="property" value="usuari"/>
-					<c:param name="label"><fmt:message key="domini.form.usuari"/></c:param>
-				</c:import>
-				<c:import url="../common/formElement.jsp">
-					<c:param name="property" value="usuari"/>
-					<c:param name="label"><fmt:message key="domini.form.contrasenya"/></c:param>
-				</c:import>
-				<c:import url="../common/formElement.jsp">
-					<c:param name="property" value="usuari"/>
-					<c:param name="label"><fmt:message key="domini.form.param.usuari"/></c:param>
-				</c:import>
-				<c:import url="../common/formElement.jsp">
-					<c:param name="property" value="usuari"/>
-					<c:param name="label"><fmt:message key="domini.form.param.contrasenya"/></c:param>
-				</c:import>
+				<div id="camps_usupass">
+					<c:import url="../common/formElement.jsp">
+						<c:param name="property" value="origenCredencials"/>
+						<c:param name="type" value="select"/>
+						<c:param name="items" value="origenCredencials"/>
+						<c:param name="label"><fmt:message key="domini.form.origen.creds"/></c:param>
+					</c:import>
+					<c:import url="../common/formElement.jsp">
+						<c:param name="property" value="usuari"/>
+						<c:param name="label"><fmt:message key="domini.form.usuari"/></c:param>
+					</c:import>
+					<c:import url="../common/formElement.jsp">
+						<c:param name="property" value="contrasenya"/>
+						<c:param name="label"><fmt:message key="domini.form.contrasenya"/></c:param>
+					</c:import>
+				</div>
 			</div>
 			<h3><fmt:message key="domini.form.dades_sql"/></h3>
 			<div id="camps_sql">
@@ -128,6 +130,7 @@ function canviTipus(input) {
 	<p class="aclaracio"><fmt:message key="comuns.camps_marcats"/> <img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key="comuns.camp_oblig"/>" title="<fmt:message key="comuns.camp_oblig"/>" border="0"/> <fmt:message key="comuns.son_oblig"/></p>
 
 	<script type="text/javascript">$(document).ready(canviTipus(document.getElementById("tipus0")));</script>
+	<script type="text/javascript">$(document).ready(canviTipusAuth(document.getElementById("tipusAuth0")));</script>
 
 </body>
 </html>

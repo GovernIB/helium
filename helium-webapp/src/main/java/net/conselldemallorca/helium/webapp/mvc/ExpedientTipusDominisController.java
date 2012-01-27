@@ -7,6 +7,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
+import net.conselldemallorca.helium.core.model.hibernate.Domini.OrigenCredencials;
+import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusAuthDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
@@ -63,6 +65,7 @@ public class ExpedientTipusDominisController extends BaseController {
 	}
 
 
+
 	@ModelAttribute("command")
 	public Domini populateCommand(
 			@RequestParam(value = "id", required = false) Long id) {
@@ -83,6 +86,14 @@ public class ExpedientTipusDominisController extends BaseController {
 	@ModelAttribute("tipusDomini")
 	public TipusDomini[] populateTipusDomini() {
 		return Domini.TipusDomini.values();
+	}
+	@ModelAttribute("tipusAuth")
+	public TipusAuthDomini[] populateTipusAuthDomini() {
+		return Domini.TipusAuthDomini.values();
+	}
+	@ModelAttribute("origenCredencials")
+	public OrigenCredencials[] populateOrigenCredencials() {
+		return Domini.OrigenCredencials.values();
 	}
 	
 	@RequestMapping(value = "/expedientTipus/dominiLlistat")
@@ -229,6 +240,10 @@ public class ExpedientTipusDominisController extends BaseController {
 			if (domini.getTipus().equals(TipusDomini.CONSULTA_SQL)) {
 				ValidationUtils.rejectIfEmpty(errors, "jndiDatasource", "not.blank");
 				ValidationUtils.rejectIfEmpty(errors, "sql", "not.blank");
+			}
+			if (!domini.getTipusAuth().equals(TipusAuthDomini.NONE)) {
+				ValidationUtils.rejectIfEmpty(errors, "usuari", "not.blank");
+				ValidationUtils.rejectIfEmpty(errors, "contrasenya", "not.blank");
 			}
 		}
 	}
