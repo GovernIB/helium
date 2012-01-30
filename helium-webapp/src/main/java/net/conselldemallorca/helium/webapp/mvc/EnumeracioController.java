@@ -25,8 +25,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
-
-
 /**
  * Controlador per la gestió d'enumeracions
  * 
@@ -148,8 +146,6 @@ public class EnumeracioController extends BaseController {
 	public void setAnnotationValidator(Validator annotationValidator) {
 		this.annotationValidator = annotationValidator;
 	}
-
-
 
 	private static final Log logger = LogFactory.getLog(EnumeracioController.class);
 

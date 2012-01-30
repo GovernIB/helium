@@ -3,6 +3,9 @@
  */
 package net.conselldemallorca.helium.webapp.mvc;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Controlador per la gestió d'enumeracions
@@ -36,6 +40,8 @@ public class EnumeracioValorsController extends BaseController {
 
 	private DissenyService dissenyService;
 	private Validator annotationValidator;
+
+
 
 	@Autowired
 	public EnumeracioValorsController(
@@ -49,35 +55,29 @@ public class EnumeracioValorsController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = false) Long id) {
 		EnumeracioValorsCommand command = new EnumeracioValorsCommand();
-		if (id != null) {
-			EnumeracioValors enumeracioValors = dissenyService.getEnumeracioValorsById(id);
-			if (enumeracioValors != null) {
-				command.setId(enumeracioValors.getId());
-				command.setCodi(enumeracioValors.getCodi());
-				command.setNom(enumeracioValors.getNom());
-				command.setEnumeracioId(enumeracioValors.getEnumeracio().getId());
-			}
-			return command;
-		} else {
-			return command;
-		}
+		if (id != null)
+			command.setEnumeracioId(id);
+		return command;
 	}
-	
+
 	@RequestMapping(value = "/enumeracio/valors", method = RequestMethod.GET)
 	public String formValorsGet(
 			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) Long id,
 			ModelMap model) {
-		String enumeracio = request.getParameter("enumeracio");
-		if ((enumeracio != null) && !(enumeracio.equals(""))) {
-			model.addAttribute("llistat", dissenyService.findEnumeracioValorsAmbEnumeracio(Long.parseLong(enumeracio)));
-			model.addAttribute("enumeracio", enumeracio);
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			model.addAttribute("llistat", dissenyService.findEnumeracioValorsAmbEnumeracio(id));
+			ImportCommand commandImportacio = new ImportCommand();
+			commandImportacio.setEnumeracioId(id);
+			model.addAttribute("commandImportacio", commandImportacio);
 			return "enumeracio/valors";
 		} else {
-			missatgeError(request, getMessage("error.no.enumeracio.selec") );
-			return "redirect:/enumeracio/llistat.html";
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
 		}
 	}
-	
+
 	@RequestMapping(value = "/enumeracio/valors", method = RequestMethod.POST)
 	public String formValorsPost(
 			HttpServletRequest request,
@@ -86,25 +86,22 @@ public class EnumeracioValorsController extends BaseController {
 			BindingResult result,
 			SessionStatus status,
 			ModelMap model) {
-		String enumeracioId = request.getParameter("enumeracio");
-		if ((enumeracioId != null) && !(enumeracioId.equals(""))) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
 			if ("submit".equals(submit) || submit.length() == 0) {
-				Enumeracio enumeracio = dissenyService.getEnumeracioById(Long.parseLong(enumeracioId));
-				command.setEnumeracioId(new Long(enumeracioId));
+				Enumeracio enumeracio = dissenyService.getEnumeracioById(command.getEnumeracioId());
 				annotationValidator.validate(command, result);
 				new EnumeracioValorsValidator(dissenyService).validate(command, result);
 		        if (result.hasErrors()) {
-		        	model.addAttribute("llistat", dissenyService.findEnumeracioValorsAmbEnumeracio(Long.parseLong(enumeracioId)));
-		        	model.addAttribute("enumeracio", enumeracioId);
+		        	model.addAttribute("llistat", dissenyService.findEnumeracioValorsAmbEnumeracio(command.getEnumeracioId()));
 		        	return "enumeracio/valors";
 		        }
 		        try {
 		        	EnumeracioValors enumeracioValors = new EnumeracioValors();
-		        	enumeracioValors.setId(command.getId());
+		        	enumeracioValors.setId(null);
 		        	enumeracioValors.setCodi(command.getCodi());
 		        	enumeracioValors.setNom(command.getNom());
 		        	enumeracioValors.setEnumeracio(enumeracio);
-		        	
 		        	if (command.getId() == null)
 		        		dissenyService.createEnumeracioValors(enumeracioValors);
 		        	else
@@ -114,35 +111,37 @@ public class EnumeracioValorsController extends BaseController {
 		        } catch (Exception ex) {
 		        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut guardar el registre", ex);
-		        	model.addAttribute("enumeracio", enumeracioId);
 		        	return "enumeracio/valors";
 		        }
-		        model.addAttribute("enumeracio", enumeracioId);
-				return "redirect:/enumeracio/valors.html";
+				return "redirect:/enumeracio/valors.html?id=" + command.getEnumeracioId();
 			} else {
 				return "redirect:/enumeracio/llistat.html";
 			}
 		} else {
-			missatgeError(request, getMessage("error.no.enumeracio.selec") );
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
-	
+
 	@RequestMapping(value = "/enumeracio/deleteValors")
 	public String deleteValorsAction(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) Long id) {
-		String enumeracioId = "";
-		try {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
 			EnumeracioValors enumeracioValors = dissenyService.getEnumeracioValorsById(id);
-			enumeracioId = "" + enumeracioValors.getEnumeracio().getId();
-			dissenyService.deleteEnumeracioValors(id);
-			missatgeInfo(request, getMessage("info.enum.esborrat") );
-		} catch (Exception ex) {
-        	missatgeError(request, getMessage("error.esborrar.enum"), ex.getLocalizedMessage());
-        	logger.error("No s'ha pogut esborrar l'enumeració", ex);
-        }
-		return "redirect:/enumeracio/valors.html?enumeracio=" + enumeracioId;
+			try {
+				dissenyService.deleteEnumeracioValors(id);
+				missatgeInfo(request, getMessage("info.enum.esborrat"));
+			} catch (Exception ex) {
+	        	missatgeError(request, getMessage("error.esborrar.enum"), ex.getLocalizedMessage());
+	        	logger.error("No s'ha pogut esborrar l'enumeració", ex);
+	        }
+			return "redirect:/enumeracio/valors.html?id=" + enumeracioValors.getEnumeracio().getId();
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
 	}
 
 	@RequestMapping(value = "/enumeracio/valorsPujar")
@@ -158,7 +157,7 @@ public class EnumeracioValorsController extends BaseController {
 	        	missatgeError(request, getMessage("error.ordre.enumeracio"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut canviar l'ordre del valor de l'enumeració", ex);
 	        }
-			return "redirect:/enumeracio/valors.html?enumeracio=" + enumeracioValors.getEnumeracio().getId();
+			return "redirect:/enumeracio/valors.html?id=" + enumeracioValors.getEnumeracio().getId();
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
@@ -177,7 +176,49 @@ public class EnumeracioValorsController extends BaseController {
 	        	missatgeError(request, getMessage("error.ordre.enumeracio"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut canviar l'ordre del valor de l'enumeració", ex);
 	        }
-			return "redirect:/enumeracio/valors.html?enumeracio=" + enumeracioValors.getEnumeracio().getId();
+			return "redirect:/enumeracio/valors.html?id=" + enumeracioValors.getEnumeracio().getId();
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+
+	@RequestMapping(value = "/enumeracio/importar")
+	public String importar(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) Long id,
+			@RequestParam(value = "arxiu", required = true) final MultipartFile multipartFile) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			try {
+				if (multipartFile.getBytes() == null || multipartFile.getBytes().length == 0) {
+					missatgeError(request, getMessage("error.especificar.arxiu.importar"));
+				} else {
+					Enumeracio enumeracio = dissenyService.getEnumeracioById(id);
+					BufferedReader br = new BufferedReader(
+							new InputStreamReader(multipartFile.getInputStream()));
+					String linia = br.readLine();
+					while (linia != null) {
+						String[] columnes = linia.split(";");
+						if (columnes.length == 0)
+							columnes = linia.split(",");
+						if (columnes.length > 1) {
+							EnumeracioValors enumeracioValors = new EnumeracioValors();
+				        	enumeracioValors.setId(null);
+				        	enumeracioValors.setCodi(columnes[0]);
+				        	enumeracioValors.setNom(columnes[1]);
+				        	enumeracioValors.setEnumeracio(enumeracio);
+			        		dissenyService.createEnumeracioValors(enumeracioValors);
+						}
+						linia = br.readLine();
+					}
+					missatgeInfo(request, getMessage("info.enum.valors.importats"));
+				}
+			} catch (Exception ex) {
+	        	missatgeError(request, getMessage("error.ordre.enumeracio"), ex.getLocalizedMessage());
+	        	logger.error("No s'han pogut importar els valors de l'enumeració " + id, ex);
+	        }
+			return "redirect:/enumeracio/valors.html?id=" + id;
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
@@ -188,6 +229,27 @@ public class EnumeracioValorsController extends BaseController {
 	public void setAnnotationValidator(Validator annotationValidator) {
 		this.annotationValidator = annotationValidator;
 	}
+
+
+
+	public class ImportCommand {
+		private Long enumeracioId;
+		private byte[] arxiu;
+		public Long getEnumeracioId() {
+			return enumeracioId;
+		}
+		public void setEnumeracioId(Long enumeracioId) {
+			this.enumeracioId = enumeracioId;
+		}
+		public byte[] getArxiu() {
+			return arxiu;
+		}
+		public void setArxiu(byte[] arxiu) {
+			this.arxiu = arxiu;
+		}
+	}
+
+
 
 	private static final Log logger = LogFactory.getLog(EnumeracioValorsController.class);
 }
