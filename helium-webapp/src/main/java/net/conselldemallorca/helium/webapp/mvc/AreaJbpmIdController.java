@@ -6,7 +6,7 @@ package net.conselldemallorca.helium.webapp.mvc;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.model.hibernate.CarrecJbpmId;
+import net.conselldemallorca.helium.core.model.hibernate.AreaJbpmId;
 import net.conselldemallorca.helium.core.model.hibernate.Persona.Sexe;
 import net.conselldemallorca.helium.core.model.service.OrganitzacioService;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
@@ -27,13 +27,13 @@ import org.springframework.web.bind.support.SessionStatus;
 
 
 /**
- * Controlador per la gestió de la informació dels càrrecs
+ * Controlador per la gestió de la informació dels grups
  * per a les taules jbpm_id
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-public class CarrecJbpmIdController extends BaseController {
+public class AreaJbpmIdController extends BaseController {
 
 	private OrganitzacioService organitzacioService;
 	private Validator annotationValidator;
@@ -41,25 +41,23 @@ public class CarrecJbpmIdController extends BaseController {
 
 
 	@Autowired
-	public CarrecJbpmIdController(
+	public AreaJbpmIdController(
 			OrganitzacioService organitzacioService) {
 		this.organitzacioService  = organitzacioService;
 	}
 
 	@ModelAttribute("command")
-	public CarrecJbpmId populateCommand(
+	public AreaJbpmId populateCommand(
 			@RequestParam(value = "id", required = false) Long id,
-			@RequestParam(value = "codi", required = false) String codi,
-			@RequestParam(value = "grup", required = false) String grup) {
+			@RequestParam(value = "codi", required = false) String codi) {
 		if (id != null) {
-			return organitzacioService.getCarrecJbpmIdById(id);
+			return organitzacioService.getAreaJbpmIdById(id);
 		} else if (codi != null) {
-			CarrecJbpmId command = new CarrecJbpmId();
+			AreaJbpmId command = new AreaJbpmId();
 			command.setCodi(codi);
-			command.setGrup(grup);
 			return command;
 		}
-		return new CarrecJbpmId();
+		return new AreaJbpmId();
 	}
 	@ModelAttribute("sexes")
 	public Sexe[] populateSexes() {
@@ -67,70 +65,70 @@ public class CarrecJbpmIdController extends BaseController {
 
 	}
 
-	@RequestMapping(value = "/carrec/jbpmConfigurats")
+	@RequestMapping(value = "/area/jbpmConfigurats")
 	public String jbpmConfigurats(
 			HttpServletRequest request,
 			ModelMap model) {
 		model.addAttribute(
 				"llistat",
-				organitzacioService.findCarrecJbpmIdAll());
-		return "/carrec/jbpmConfigurats";
+				organitzacioService.findAreaJbpmIdAll());
+		return "/area/jbpmConfigurats";
 	}
 
-	@RequestMapping(value = "/carrec/jbpmBuits")
+	@RequestMapping(value = "/area/jbpmBuits")
 	public String jbpmBuits(
 			HttpServletRequest request,
 			ModelMap model) {
 		model.addAttribute(
 				"llistat",
-				organitzacioService.findCarrecJbpmIdSenseAssignar());
-		return "/carrec/jbpmBuits";
+				organitzacioService.findAreaJbpmIdSenseAssignar());
+		return "/area/jbpmBuits";
 	}
 
-	@RequestMapping(value = "/carrec/jbpmForm", method = RequestMethod.GET)
+	@RequestMapping(value = "/area/jbpmForm", method = RequestMethod.GET)
 	public String jbpmFormGet(
 			HttpServletRequest request) {
-		return "/carrec/jbpmForm";
+		return "/area/jbpmForm";
 	}
-	@RequestMapping(value = "/carrec/jbpmForm", method = RequestMethod.POST)
+	@RequestMapping(value = "/area/jbpmForm", method = RequestMethod.POST)
 	public String jbpmFormPost(
 			HttpServletRequest request,
 			@RequestParam(value = "submit", required = false) String submit,
-			@ModelAttribute("command") CarrecJbpmId command,
+			@ModelAttribute("command") AreaJbpmId command,
 			BindingResult result,
 			SessionStatus status) {
 		if ("submit".equals(submit) || submit.length() == 0) {
 			annotationValidator.validate(command, result);
 	        if (result.hasErrors())
-	        	return "/carrec/jbpmForm";
+	        	return "/area/jbpmForm";
 	        try {
 	        	if (command.getId() == null)
-	        		organitzacioService.createCarrecJbpmId(command);
+	        		organitzacioService.createAreaJbpmId(command);
 	        	else
-	        		organitzacioService.updateCarrecJbpmId(command);
-	        	missatgeInfo(request, getMessage("info.infocarrec.guardat") );
+	        		organitzacioService.updateAreaJbpmId(command);
+	        	missatgeInfo(request, getMessage("info.infoarea.guardat"));
 	        	status.setComplete();
 	        } catch (Exception ex) {
 	        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
-	        	logger.error("No s'ha pogut guardar la informació del càrrec", ex);
-	        	return "/carrec/jbpmForm";
+	        	logger.error("No s'ha pogut guardar la informació de l'area", ex);
+	        	return "/area/jbpmForm";
 	        }
 		}
-		return "redirect:/carrec/jbpmConfigurats.html";
+		return "redirect:/area/jbpmConfigurats.html";
 	}
 
-	@RequestMapping(value = "/carrec/jbpmDelete")
+	@RequestMapping(value = "/area/jbpmDelete")
 	public String jbpmDelete(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) Long id) {
 		try {
-			organitzacioService.deleteCarrecJbpmId(id);
-			missatgeInfo(request, getMessage("info.infocarrec.esborrat") );
+			organitzacioService.deleteAreaJbpmId(id);
+			missatgeInfo(request, getMessage("info.area.esborrat"));
 		} catch (Exception ex) {
-        	missatgeError(request, getMessage("error.esborrar.infocarrec"), ex.getLocalizedMessage());
-        	logger.error("No s'ha pogut esborrar la informació del càrrec", ex);
+        	missatgeError(request, getMessage("error.esborrar.infoarea"), ex.getLocalizedMessage());
+        	logger.error("No s'ha pogut esborrar la informació de l'àrea", ex);
         }
-		return "redirect:/carrec/jbpmConfigurats.html";
+		return "redirect:/area/jbpmConfigurats.html";
 	}
 
 
@@ -142,6 +140,6 @@ public class CarrecJbpmIdController extends BaseController {
 
 
 
-	private static final Log logger = LogFactory.getLog(CarrecJbpmIdController.class);
+	private static final Log logger = LogFactory.getLog(AreaJbpmIdController.class);
 
 }

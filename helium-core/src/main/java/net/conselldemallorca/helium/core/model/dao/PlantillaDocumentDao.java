@@ -239,7 +239,7 @@ public class PlantillaDocumentDao {
 					}
 				});
 		model.put(
-				"personaAmbCarrec",
+				"area",
 				new TemplateMethodModel() {
 					public TemplateModel exec(List args) throws TemplateModelException {
 						if (args.size() == 1) {
@@ -247,37 +247,56 @@ public class PlantillaDocumentDao {
 							if (arg0 != null && arg0 instanceof String) {
 								String codi = (String)arg0;
 								if (esIdentitySourceHelium()) {
-									Carrec carrec = carrecDao.findAmbEntornICodi(entornId, codi);
-									if (carrec != null) {
-										if (carrec.getPersonaCodi() != null) {
-											PersonaDto persona = pluginPersonaDao.findAmbCodiPlugin(carrec.getPersonaCodi());
-											return new BeanModel(
-													persona,
-													new DefaultObjectWrapper());
-										}
-									}
+									Area area = areaDao.findAmbEntornICodi(entornId, codi);
+									if (area == null)
+										area = new Area("???", "???", new Entorn());
+									return new BeanModel(
+											area,
+											new DefaultObjectWrapper());
 								} else {
-									CarrecJbpmId carrec = carrecJbpmIdDao.findAmbCodi(codi);
-									if (carrec != null) {
-										List<String> persones = carrecJbpmIdDao.findPersonesAmbCarrecCodi(codi);
-										if (persones != null && persones.size() > 0) {
-											PersonaDto persona = pluginPersonaDao.findAmbCodiPlugin(persones.get(0));
-											if (persona == null)
-												persona = new PersonaDto("???", "???", "???", Sexe.SEXE_HOME);
-											return new BeanModel(
-													persona,
-													new DefaultObjectWrapper());
-										}
-									}
+									AreaJbpmId area = areaJbpmIdDao.findAmbCodi(codi);
+									if (area == null)
+										area = new AreaJbpmId("???", "???");
+									return new BeanModel(
+											area,
+											new DefaultObjectWrapper());
 								}
-								return new BeanModel(
-										new PersonaDto("???", "???", "???", Sexe.SEXE_HOME),
-										new DefaultObjectWrapper());
 							}
 						}
 						return new SimpleScalar("[Arguments incorrectes]");
 					}
 				});
+		model.put(
+				"carrec",
+				new TemplateMethodModel() {
+					public TemplateModel exec(List args) throws TemplateModelException {
+						if (args.size() == 1) {
+							Object arg0 = args.get(0);
+							Object arg1 = args.get(1);
+							if (arg0 != null && arg0 instanceof String && arg1 != null && arg1 instanceof String) {
+								String carrecCodi = (String)arg0;
+								String areaCodi = (String)arg1;
+								if (esIdentitySourceHelium()) {
+									Carrec carrec = carrecDao.findAmbEntornICodi(entornId, carrecCodi);
+									if (carrec == null)
+										carrec = new Carrec("???", "???", "???", "???", "???", new Entorn());
+									return new BeanModel(
+											carrec,
+											new DefaultObjectWrapper());
+								} else {
+									CarrecJbpmId carrec = carrecJbpmIdDao.findAmbCodiGrup(carrecCodi, areaCodi);
+									if (carrec == null)
+										carrec = new CarrecJbpmId("???", "???", "???", "???", "???", Persona.Sexe.SEXE_HOME);
+									return new BeanModel(
+											carrec,
+											new DefaultObjectWrapper());
+								}
+							}
+						}
+						return new SimpleScalar("[Arguments incorrectes]");
+					}
+				});
+
 		model.put(
 				"personaAmbCarrecArea",
 				new TemplateMethodModel() {
@@ -302,7 +321,7 @@ public class PlantillaDocumentDao {
 										}
 									}
 								} else {
-									String personaCodi = carrecJbpmIdDao.findPersonaAmbGroupICarrec(
+									String personaCodi = carrecJbpmIdDao.findPersonaAmbGrupICarrec(
 											codiArea,
 											codiCarrec);
 									if (personaCodi != null) {
@@ -316,34 +335,6 @@ public class PlantillaDocumentDao {
 								return new BeanModel(
 										new PersonaDto("???", "???", "???", Sexe.SEXE_HOME),
 										new DefaultObjectWrapper());
-							}
-						}
-						return new SimpleScalar("[Arguments incorrectes]");
-					}
-				});
-		model.put(
-				"carrec",
-				new TemplateMethodModel() {
-					public TemplateModel exec(List args) throws TemplateModelException {
-						if (args.size() == 1) {
-							Object arg0 = args.get(0);
-							if (arg0 != null && arg0 instanceof String) {
-								String codi = (String)arg0;
-								if (esIdentitySourceHelium()) {
-									Carrec carrec = carrecDao.findAmbEntornICodi(entornId, codi);
-									if (carrec == null)
-										carrec = new Carrec("???", "???", "???", "???", "???", new Entorn());
-									return new BeanModel(
-											carrec,
-											new DefaultObjectWrapper());
-								} else {
-									CarrecJbpmId carrec = carrecJbpmIdDao.findAmbCodi(codi);
-									if (carrec == null)
-										carrec = new CarrecJbpmId("???", "???", "???", "???", "???", Persona.Sexe.SEXE_HOME);
-									return new BeanModel(
-											carrec,
-											new DefaultObjectWrapper());
-								}
 							}
 						}
 						return new SimpleScalar("[Arguments incorrectes]");
@@ -379,13 +370,13 @@ public class PlantillaDocumentDao {
 												new DefaultObjectWrapper());
 									}
 								} else {
-									List<String> carrecCodis = carrecJbpmIdDao.findCarrecsCodiAmbPersonaArea(
+									List<String> carrecCodis = carrecJbpmIdDao.findCarrecsCodiAmbPersonaGrup(
 											codiPersona,
 											codiArea);
 									if (carrecCodis != null && carrecCodis.size() > 0) {
 										CarrecJbpmId[] array = new CarrecJbpmId[carrecCodis.size()];
 										for (int i = 0; i < carrecCodis.size(); i++) {
-											CarrecJbpmId carrec = carrecJbpmIdDao.findAmbCodi(carrecCodis.get(i));
+											CarrecJbpmId carrec = carrecJbpmIdDao.findAmbCodiGrup(carrecCodis.get(i), codiArea);
 											if (carrec == null)
 												carrec = new CarrecJbpmId("???", "???", "???", "???", "???", Persona.Sexe.SEXE_HOME);
 											array[i] = carrec;
@@ -404,8 +395,9 @@ public class PlantillaDocumentDao {
 						return new SimpleScalar("[Arguments incorrectes]");
 					}
 				});
+		/* Per suprimir */
 		model.put(
-				"area",
+				"personaAmbCarrec",
 				new TemplateMethodModel() {
 					public TemplateModel exec(List args) throws TemplateModelException {
 						if (args.size() == 1) {
@@ -413,20 +405,32 @@ public class PlantillaDocumentDao {
 							if (arg0 != null && arg0 instanceof String) {
 								String codi = (String)arg0;
 								if (esIdentitySourceHelium()) {
-									Area area = areaDao.findAmbEntornICodi(entornId, codi);
-									if (area == null)
-										area = new Area("???", "???", new Entorn());
-									return new BeanModel(
-											area,
-											new DefaultObjectWrapper());
+									Carrec carrec = carrecDao.findAmbEntornICodi(entornId, codi);
+									if (carrec != null) {
+										if (carrec.getPersonaCodi() != null) {
+											PersonaDto persona = pluginPersonaDao.findAmbCodiPlugin(carrec.getPersonaCodi());
+											return new BeanModel(
+													persona,
+													new DefaultObjectWrapper());
+										}
+									}
 								} else {
-									AreaJbpmId area = areaJbpmIdDao.findAmbCodi(codi);
-									if (area == null)
-										area = new AreaJbpmId("???", "???");
-									return new BeanModel(
-											area,
-											new DefaultObjectWrapper());
+									CarrecJbpmId carrec = carrecJbpmIdDao.findAmbCodi(codi);
+									if (carrec != null) {
+										List<String> persones = carrecJbpmIdDao.findPersonesAmbCarrecCodi(codi);
+										if (persones != null && persones.size() > 0) {
+											PersonaDto persona = pluginPersonaDao.findAmbCodiPlugin(persones.get(0));
+											if (persona == null)
+												persona = new PersonaDto("???", "???", "???", Sexe.SEXE_HOME);
+											return new BeanModel(
+													persona,
+													new DefaultObjectWrapper());
+										}
+									}
 								}
+								return new BeanModel(
+										new PersonaDto("???", "???", "???", Sexe.SEXE_HOME),
+										new DefaultObjectWrapper());
 							}
 						}
 						return new SimpleScalar("[Arguments incorrectes]");

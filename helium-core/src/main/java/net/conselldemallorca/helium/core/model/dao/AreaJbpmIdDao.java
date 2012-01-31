@@ -45,7 +45,7 @@ public class AreaJbpmIdDao extends HibernateGenericDao<AreaJbpmId, Long> {
 				List<AreaJbpmId> resposta = new ArrayList<AreaJbpmId>();
 				Query query = session.createQuery(
 						"select " +
-						"    group.name " +
+						"    g.name " +
 						"from " +
 						"    org.jbpm.identity.Group g " +
 						"where " +

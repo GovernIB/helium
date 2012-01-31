@@ -57,14 +57,15 @@ public class DominiIntern implements DominiHelium {
 			return personaAmbCodi(parametersMap);
 		} else if ("PERSONES_AMB_AREA".equals(id)) {
 			return personesAmbArea(parametersMap);
-		} else if ("PERSONES_AMB_CARREC".equals(id)) {
-			return personesAmbCarrec(parametersMap);
 		} else if ("PERSONA_AMB_CARREC_AREA".equals(id)) {
 			return personaAmbCarrecArea(parametersMap);
 		} else  if ("AREES_AMB_PARE".equals(id)) {
 			return areesAmbPare(parametersMap);
 		} else if ("VARIABLE_REGISTRE".equals(id)) {
 			return variableRegistre(parametersMap);
+		/* Per suprimir */
+		} else if ("PERSONES_AMB_CARREC".equals(id)) {
+			return personesAmbCarrec(parametersMap);
 		}
 		return new ArrayList<FilaResultat>();
 	}
@@ -104,15 +105,6 @@ public class DominiIntern implements DominiHelium {
 	private List<FilaResultat> personesAmbArea(Map<String, Object> parametres) {
 		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
 		for (String personaCodi: getPersonesPerArea((String)parametres.get("entorn"), (String)parametres.get("area"))) {
-			PersonaDto persona = pluginService.findPersonaAmbCodi(personaCodi);
-			if (persona != null)
-				resposta.add(novaFilaPersona(persona));
-		}
-		return resposta;
-	}
-	private List<FilaResultat> personesAmbCarrec(Map<String, Object> parametres) {
-		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
-		for (String personaCodi: getPersonesPerCarrec((String)parametres.get("entorn"), (String)parametres.get("carrec"))) {
 			PersonaDto persona = pluginService.findPersonaAmbCodi(personaCodi);
 			if (persona != null)
 				resposta.add(novaFilaPersona(persona));
@@ -205,6 +197,17 @@ public class DominiIntern implements DominiHelium {
 					resposta.add(fila);
 				}
 			}
+		}
+		return resposta;
+	}
+
+	/* Per suprimir */
+	private List<FilaResultat> personesAmbCarrec(Map<String, Object> parametres) {
+		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+		for (String personaCodi: getPersonesPerCarrec((String)parametres.get("entorn"), (String)parametres.get("carrec"))) {
+			PersonaDto persona = pluginService.findPersonaAmbCodi(personaCodi);
+			if (persona != null)
+				resposta.add(novaFilaPersona(persona));
 		}
 		return resposta;
 	}

@@ -24,6 +24,7 @@
 			<li class="image entorns"><a href="<c:url value="/entorn/llistat.html"/>"><fmt:message key='decorators.superior.entorns' /></a></li>
 			<c:if test="${globalProperties['app.jbpm.identity.source'] == 'jbpm'}">
 				<li class="image carrec"><a href="<c:url value="/carrec/jbpmConfigurats.html"/>"><fmt:message key='comuns.carrecs' /></a></li>
+				<li class="image organitzacio"><a href="<c:url value="/area/jbpmConfigurats.html"/>"><fmt:message key='comuns.arees' /></a></li>
 			</c:if>
 			<li class="image festius"><a href="<c:url value="/festiu/calendari.html"/>"><fmt:message key='decorators.superior.festius' /></a></li>
 			<li class="image reassignar"><a href="<c:url value="/reassignar/llistat.html"/>"><fmt:message key='decorators.superior.reassignacions' /></a></li>

@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.conselldemallorca.helium.core.model.dao.AreaDao;
+import net.conselldemallorca.helium.core.model.dao.AreaJbpmIdDao;
 import net.conselldemallorca.helium.core.model.dao.AreaMembreDao;
 import net.conselldemallorca.helium.core.model.dao.AreaTipusDao;
 import net.conselldemallorca.helium.core.model.dao.CarrecDao;
@@ -20,6 +21,7 @@ import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto.Sexe;
 import net.conselldemallorca.helium.core.model.exception.NotFoundException;
 import net.conselldemallorca.helium.core.model.hibernate.Area;
+import net.conselldemallorca.helium.core.model.hibernate.AreaJbpmId;
 import net.conselldemallorca.helium.core.model.hibernate.AreaMembre;
 import net.conselldemallorca.helium.core.model.hibernate.AreaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Carrec;
@@ -46,6 +48,7 @@ public class OrganitzacioService {
 	private PluginPersonaDao pluginPersonaDao;
 	private CarrecDao carrecDao;
 	private CarrecJbpmIdDao carrecJbpmIdDao;
+	private AreaJbpmIdDao areaJbpmIdDao;
 	private MessageSource messageSource;
 
 
@@ -54,17 +57,12 @@ public class OrganitzacioService {
 		return areaDao.getById(id, false);
 	}
 	public Area createArea(Area entity) {
-		//createGroupIfNotExists(entity);
 		return areaDao.saveOrUpdate(entity);
 	}
 	public Area updateArea(Area entity) {
-		//createGroupIfNotExists(entity);
 		return areaDao.merge(entity);
 	}
 	public void deleteArea(Long id) {
-		/*Area area = getAreaById(id);
-		if (area != null)
-			deleteGroupIfExists(area);*/
 		areaDao.delete(id);
 	}
 	public List<Area> findAreaPagedAndOrderedAmbEntorn(
@@ -286,7 +284,7 @@ public class OrganitzacioService {
 	}
 
 	public List<String> findCodisPersonaAmbJbpmIdGroup(String group) {
-		return carrecJbpmIdDao.findPersonesAmbGroup(group);
+		return carrecJbpmIdDao.findPersonesAmbGrup(group);
 	}
 	public List<String> findCodisPersonaAmbArea(Long areaId) {
 		Area area = getAreaById(areaId);
@@ -295,13 +293,41 @@ public class OrganitzacioService {
 			resposta.add(membre.getCodi());
 		return resposta;
 	}
-	public List<String> findCodisPersonaAmbJbpmIdCarrec(String carrecCodi) {
-		return carrecJbpmIdDao.findPersonesAmbCarrecCodi(carrecCodi);
-	}
 	public String findCodiPersonaAmbJbpmIdGroupCarrec(
 			String groupCodi,
 			String carrecCodi) {
-		return carrecJbpmIdDao.findPersonaAmbGroupICarrec(groupCodi, carrecCodi);
+		return carrecJbpmIdDao.findPersonaAmbGrupICarrec(groupCodi, carrecCodi);
+	}
+	/* Per suprimir */
+	public List<String> findCodisPersonaAmbJbpmIdCarrec(String carrecCodi) {
+		return carrecJbpmIdDao.findPersonesAmbCarrecCodi(carrecCodi);
+	}
+
+	@Secured({"ROLE_ADMIN"})
+	public AreaJbpmId getAreaJbpmIdById(Long id) {
+		return areaJbpmIdDao.getById(id, false);
+	}
+	@Secured({"ROLE_ADMIN"})
+	public AreaJbpmId createAreaJbpmId(AreaJbpmId entity) {
+		return areaJbpmIdDao.saveOrUpdate(entity);
+	}
+	@Secured({"ROLE_ADMIN"})
+	public AreaJbpmId updateAreaJbpmId(AreaJbpmId entity) {
+		return areaJbpmIdDao.merge(entity);
+	}
+	@Secured({"ROLE_ADMIN"})
+	public void deleteAreaJbpmId(Long id) {
+		AreaJbpmId vella = getAreaJbpmIdById(id);
+		if (vella != null)
+			areaJbpmIdDao.delete(id);
+	}
+	@Secured({"ROLE_ADMIN"})
+	public List<AreaJbpmId> findAreaJbpmIdAll() {
+		return areaJbpmIdDao.findAll();
+	}
+	@Secured({"ROLE_ADMIN"})
+	public List<AreaJbpmId> findAreaJbpmIdSenseAssignar() {
+		return areaJbpmIdDao.findSenseAssignar();
 	}
 
 
@@ -329,6 +355,10 @@ public class OrganitzacioService {
 	@Autowired
 	public void setCarrecJbpmIdDao(CarrecJbpmIdDao carrecJbpmIdDao) {
 		this.carrecJbpmIdDao = carrecJbpmIdDao;
+	}
+	@Autowired
+	public void setAreaJbpmIdDao(AreaJbpmIdDao areaJbpmIdDao) {
+		this.areaJbpmIdDao = areaJbpmIdDao;
 	}
 	@Autowired
 	public void setMessageSource(MessageSource messageSource) {
