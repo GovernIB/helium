@@ -702,14 +702,14 @@ public class TascaController extends BaseController {
 				if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
 					missatgeError(
 		        			request,
-		        			getMessage("error.finalitzar.tasca") + " " + tascaIdLog + ": " + ex.getCause().getMessage());
+		        			getMessage("error.validacio.tasca") + " " + tascaIdLog + ": " + ex.getCause().getMessage());
 				} else {
 					missatgeError(
 		        			request,
 		        			getMessage("error.finalitzar.tasca") + " " + tascaIdLog,
 		        			(ex.getCause() != null) ? ex.getCause().getMessage() : ex.getMessage());
+					logger.error("No s'ha pogut finalitzar la tasca " + tascaIdLog, ex);
 				}
-		    	logger.error("No s'ha pogut finalitzar la tasca " + tascaIdLog, ex);
 	        	error = true;
 	        }
 		}
