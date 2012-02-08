@@ -1440,8 +1440,11 @@ public class DissenyService {
 					nova.setExpedientTipus(expedientTipus);
 				} else {
 					nova.setNom(enumeracio.getNom());
+					nova.getEnumeracioValors().clear();
+					for (EnumeracioValors enumValor: nova.getEnumeracioValors())
+						enumValor.setEnumeracio(null);
 				}
-				for (EnumeracioValors enumValors : enumeracio.getValors()) {
+				for (EnumeracioValors enumValors: enumeracio.getValors()) {
 					EnumeracioValors novaEnumValors = new EnumeracioValors();
 					novaEnumValors.setCodi(enumValors.getCodi());
 					novaEnumValors.setNom(enumValors.getNom());
