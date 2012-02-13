@@ -36,6 +36,8 @@ public class DocumentGenerarHandler extends AbstractHeliumActionHandler implemen
 		if (docDisseny == null)
 			throw new JbpmException("No s'ha trobat cap document amb el codi " + docCodi);
 		Date docData = getValorOVariableData(executionContext, data, varData);
+		if (docData == null)
+			docData = new Date();
 		getExpedientService().generarDocumentPlantilla(
 				docDisseny.getId(),
 				Long.toString(executionContext.getProcessInstance().getId()),
