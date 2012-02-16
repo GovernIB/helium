@@ -281,7 +281,7 @@
 			<c:param name="type" value="custom"/>
 			<c:param name="label">${campActual.etiqueta}</c:param>
 			<c:param name="content">
-				<button class="submitButton" name="submit" type="submit" value="submit" onclick="return accioCampExecutar(this, '${campActual.jbpmAction}')"><fmt:message key='common.camptasca.executar' /></button>
+				<button class="submitButton" name="submit" type="submit" value="submit" onclick="saveAction(this, 'submit');return accioCampExecutar(this, '${campActual.jbpmAction}')"><fmt:message key='common.camptasca.executar' /></button>
 			</c:param>
 			<c:param name="comment">${campActual.observacions}</c:param>
 			<c:param name="iterateOn"><c:if test="${campActual.multiple}">valorActual</c:if></c:param>

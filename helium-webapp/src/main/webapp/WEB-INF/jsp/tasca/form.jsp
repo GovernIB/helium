@@ -38,7 +38,7 @@ function mostrarOcultar(img, objid) {
 	}
 }
 function confirmar(form) {
-	if (accio == "validate")
+	if ( submitAction == "validate")
 		return confirm("<fmt:message key='tasca.form.confirmacio' />");
 	else
 		return true;

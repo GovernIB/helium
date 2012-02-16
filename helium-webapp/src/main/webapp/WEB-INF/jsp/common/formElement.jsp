@@ -226,10 +226,10 @@
 							</script>
 						</c:if>
 						<c:if test="${repeticions gt 0 and not empty param.multipleIcons}">
-							<button type="submit" class="submitButton" name="submit" value="multipleRemove" onclick="multipleRemove(this, '${varStatus.index}', '${inputName}')">-</button>
+							<button type="submit" class="submitButton" name="submit" value="multipleRemove" onclick="saveAction(this, 'multipleRemove');multipleRemove(this, '${varStatus.index}', '${inputName}')">-</button>
 						</c:if>
 						<c:if test="${varStatus.last and not empty param.multipleIcons}">
-							<button type="submit" class="submitButton" name="submit" value="multipleAdd" onclick="multipleAdd(this, '${inputName}')">+</button>
+							<button type="submit" class="submitButton" name="submit" value="multipleAdd" onclick="saveAction(this, 'multipleAdd');multipleAdd(this, '${inputName}')">+</button>
 						</c:if>
 						<c:if test="${not empty param.comment and varStatus.last}"><p class="formHint">${param.comment}</p></c:if>
 					</div>
