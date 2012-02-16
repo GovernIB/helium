@@ -1526,6 +1526,42 @@ public class DissenyService {
 				exportacio,
 				definicioProces);
 	}
+	public void goUpConsulta(Long expedientTipusId, Long consultaId) {
+		
+		Consulta valor = consultaDao.getById(consultaId, false);
+		int ordreActual = valor.getOrdre();
+		Consulta anterior = consultaDao.getAmbOrdre(
+				expedientTipusId,
+				ordreActual - 1);
+		
+		if (anterior != null) {
+			valor.setOrdre(-1);
+			anterior.setOrdre(ordreActual);
+			consultaDao.merge(valor);
+			consultaDao.merge(anterior);
+			consultaDao.flush();
+			valor.setOrdre(ordreActual - 1);
+		}
+	}
+	public void goDownConsulta(Long expedientTipusId, Long consultaId) {
+		
+		Consulta valor = consultaDao.getById(consultaId, false);
+		int ordreActual = valor.getOrdre();
+		Consulta seguent = consultaDao.getAmbOrdre(
+				expedientTipusId,
+				ordreActual + 1);
+		
+		if (seguent != null) {
+			valor.setOrdre(+1);
+			seguent.setOrdre(ordreActual);
+			consultaDao.merge(valor);
+			consultaDao.merge(seguent);
+			consultaDao.flush();
+			valor.setOrdre(ordreActual + 1);
+		}
+	}
+	
+	
 
 	public Domini getDominiById(Long id) {
 		return dominiDao.getById(id, false);
@@ -1730,6 +1766,7 @@ public class DissenyService {
 		return consultaDao.getById(id, false);
 	}
 	public Consulta createConsulta(Consulta entity) {
+		entity.setOrdre(consultaDao.getNextOrder(entity.getExpedientTipus().getId()));
 		return consultaDao.saveOrUpdate(entity);
 	}
 	public Consulta updateConsulta(Consulta entity, boolean delete) {
@@ -1744,14 +1781,21 @@ public class DissenyService {
 	}
 	public void deleteConsulta(Long id) {
 		Consulta vell = getConsultaById(id);
-		if (vell != null)
+		Long expedientTipusId = vell.getExpedientTipus().getId();
+		Long entornId = vell.getEntorn().getId();
+		if (vell != null){
 			consultaDao.delete(id);
+			reordenarConsultes(entornId, expedientTipusId); //TODO
+		}
 	}
 	public List<Consulta> findConsultesAmbEntorn(Long entornId) {
 		return consultaDao.findAmbEntorn(entornId);
 	}
 	public List<Consulta> findConsultesAmbEntornIExpedientTipus(Long entornId, Long expedientTipusId) {
 		return consultaDao.findAmbEntornIExpedientTipus(entornId, expedientTipusId);
+	}
+	public List<Consulta> findConsultesAmbEntornIExpedientTipusOrdenat(Long entornId, Long expedientTipusId) {
+		return consultaDao.findAmbEntornIExpedientTipusOrdenat(entornId, expedientTipusId);
 	}
 
 	public ConsultaCamp getConsultaCampById(Long id) {
@@ -2125,6 +2169,18 @@ public class DissenyService {
 		for (ConsultaCamp camps: consultaCamp)
 			camps.setOrdre(i++);
 	}
+	
+	private void reordenarConsultes(Long entornId, Long expedientTipusId) {//TODO
+		
+		List<Consulta> consultes = this.findConsultesAmbEntornIExpedientTipusOrdenat(
+				entornId,
+				expedientTipusId);
+		
+		int i = 0;
+		for (Consulta consulta: consultes)
+			consulta.setOrdre(i++);
+	}
+	
 	private void reordenarEnumeracioValors(Long enumeracioId) {
 		List<EnumeracioValors> valors = enumeracioValorsDao.findAmbEnumeracioOrdenat(enumeracioId);
 		int i = 0;

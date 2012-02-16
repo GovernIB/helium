@@ -72,6 +72,7 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 
 	private Set<Consulta> subConsultes = new HashSet<Consulta>();
 	private Set<Consulta> superConsultes = new HashSet<Consulta>();
+	private Integer ordre;
 
 
 
@@ -225,8 +226,14 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 	public void removeSuperConsulta(Consulta consulta) {
 		getSuperConsultes().remove(consulta);
 	}
-
-
+	
+	@Column(name="ordre")
+	public Integer getOrdre() {
+		return ordre;
+	}
+	public void setOrdre(Integer ordre) {
+		this.ordre = ordre;
+	}
 
 	@Override
 	public int hashCode() {

@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
@@ -197,6 +198,44 @@ public class ExpedientTipusConsultaController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/consulta/valorsPujar")
+	public String pujarValor(
+			HttpServletRequest request,
+			@RequestParam(value = "consultaId", required = true) Long consultaId,
+			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			try {
+				dissenyService.goUpConsulta(expedientTipusId, consultaId);
+			} catch (Exception ex) {
+	        	missatgeError(request, getMessage("error.ordre.consulta"), ex.getLocalizedMessage());
+	        	logger.error("No s'ha pogut canviar l'ordre del valor de la consulta", ex);
+	        }
+			return "redirect:/expedientTipus/consultaLlistat.html?expedientTipusId=" + expedientTipusId;
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+	@RequestMapping(value = "/consulta/valorsBaixar")
+	public String baixarValor(
+			HttpServletRequest request,
+			@RequestParam(value = "consultaId", required = true) Long consultaId,
+			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			try {
+				dissenyService.goDownConsulta(expedientTipusId, consultaId);
+			} catch (Exception ex) {
+	        	missatgeError(request, getMessage("error.ordre.consulta"), ex.getLocalizedMessage());
+	        	logger.error("No s'ha pogut canviar l'ordre del valor de la consulta", ex);
+	        }
+			return "redirect:/expedientTipus/consultaLlistat.html?expedientTipusId=" + expedientTipusId;
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
 
 
 	@InitBinder

@@ -372,7 +372,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 					ExtendedPermission.READ});
 		model.addAttribute("expedientTipus", tipus);
 		if (commandSeleccio != null) {
-			List<Consulta> consultes = dissenyService.findConsultesAmbEntornIExpedientTipus(
+			List<Consulta> consultes = dissenyService.findConsultesAmbEntornIExpedientTipusOrdenat(
 					entorn.getId(),
 					commandSeleccio.getExpedientTipusId());
 			Iterator<Consulta> it = consultes.iterator();
