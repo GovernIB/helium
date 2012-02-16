@@ -43,7 +43,9 @@
 
 	<display:table name="personaLlistat" id="registre" requestURI="" class="displaytag selectable" sort="external" defaultsort="${columna}" defaultorder="${ordre}">
 		<display:column titleKey="tasca.pllistat.tasca" url="/tasca/info.html" paramId="id" paramProperty="id" sortable="true">
+			<c:if test="${registre.delegada and not registre.delegacioOriginal}"><img src="<c:url value="/img/note_go.png"/>" title="Tasca assignada" alt="Tasca assignada"/></c:if>
 			${registre.titol}
+			<c:if test="${registre.delegada and registre.delegacioOriginal}"><img src="<c:url value="/img/note_go.png"/>" title="Tasca delegada" alt="Tasca delegada"/></c:if>
 		</display:column>
 		<display:column sortProperty="expedientTitol" titleKey="tasca.pllistat.expedient" sortable="true">
 			<a href="<c:url value="/expedient/info.html"><c:param name="id" value="${registre.expedientProcessInstanceId}"/></c:url>">${registre.expedientTitol}</a>

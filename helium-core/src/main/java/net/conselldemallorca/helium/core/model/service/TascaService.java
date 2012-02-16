@@ -27,6 +27,7 @@ import net.conselldemallorca.helium.core.model.dao.LuceneDao;
 import net.conselldemallorca.helium.core.model.dao.PlantillaDocumentDao;
 import net.conselldemallorca.helium.core.model.dao.PluginCustodiaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginGestioDocumentalDao;
+import net.conselldemallorca.helium.core.model.dao.PluginPersonaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginSignaturaDao;
 import net.conselldemallorca.helium.core.model.dao.RegistreDao;
 import net.conselldemallorca.helium.core.model.dao.TascaDao;
@@ -109,6 +110,7 @@ public class TascaService {
 	private PluginSignaturaDao pluginSignaturaDao;
 	private PluginCustodiaDao pluginCustodiaDao;
 	private DtoConverter dtoConverter;
+	private PluginPersonaDao pluginPersonaDao;
 	private LuceneDao luceneDao;
 	private RegistreDao registreDao;
 	private FormulariExternDao formulariExternDao;
@@ -1191,6 +1193,10 @@ public class TascaService {
 		this.pluginSignaturaDao = pluginSignaturaDao;
 	}
 	@Autowired
+	public void setPluginPersonaDao(PluginPersonaDao pluginPersonaDao) {
+		this.pluginPersonaDao = pluginPersonaDao;
+	}
+	@Autowired
 	public void setDtoConverter(DtoConverter dtoConverter) {
 		this.dtoConverter = dtoConverter;
 	}
@@ -1617,6 +1623,28 @@ public class TascaService {
 		dto.setCancelada(task.isCancelled());
 		dto.setSuspesa(task.isSuspended());
 		dto.setProcessInstanceId(task.getProcessInstanceId());
+		Map<String, Object> valorsTasca = jbpmDao.getTaskInstanceVariables(task.getId());
+		DelegationInfo delegationInfo = (DelegationInfo)valorsTasca.get(
+				TascaService.VAR_TASCA_DELEGACIO);
+		if (delegationInfo != null) {
+			boolean original = task.getId().equals(delegationInfo.getSourceTaskId());
+			dto.setDelegada(true);
+			dto.setDelegacioOriginal(original);
+			dto.setDelegacioData(delegationInfo.getStart());
+			dto.setDelegacioSupervisada(delegationInfo.isSupervised());
+			dto.setDelegacioComentari(delegationInfo.getComment());
+			try { 
+				if (original) {
+					JbpmTask tascaDelegacio = jbpmDao.getTaskById(delegationInfo.getTargetTaskId());
+					dto.setDelegacioPersona(pluginPersonaDao.findAmbCodiPlugin(tascaDelegacio.getAssignee()));
+				} else {
+					JbpmTask tascaDelegacio = jbpmDao.getTaskById(delegationInfo.getSourceTaskId());
+					dto.setDelegacioPersona(pluginPersonaDao.findAmbCodiPlugin(tascaDelegacio.getAssignee()));
+				}
+			} finally {
+				logger.error("Error en assignar DelegacioPersona a TascaLlistatDto");
+			}
+		}
 		if (dadesCacheTasca != null) {
 			dto.setExpedientTitol(dadesCacheTasca.getIdentificador());
 			dto.setExpedientTitolOrdenacio(dadesCacheTasca.getIdentificadorOrdenacio());
