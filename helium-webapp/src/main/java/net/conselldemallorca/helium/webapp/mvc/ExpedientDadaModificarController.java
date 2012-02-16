@@ -200,6 +200,7 @@ public class ExpedientDadaModificarController extends BaseController {
 						missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 						logger.error("No s'ha pogut afegir el camp múltiple", ex);
 					}
+					model.addAttribute("expedient", expedient);
 					model.addAttribute("tasca", tasca);
 		        	model.addAttribute("valorsPerSuggest", TascaFormUtil.getValorsPerSuggest(tasca, command));
 		        	return "expedient/dadaForm";
@@ -214,6 +215,7 @@ public class ExpedientDadaModificarController extends BaseController {
 						missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 						logger.error("No s'ha pogut afegir el camp múltiple", ex);
 					}
+					model.addAttribute("expedient", expedient);
 					model.addAttribute("tasca", tasca);
 		        	model.addAttribute("valorsPerSuggest", TascaFormUtil.getValorsPerSuggest(tasca, command));
 		        	return "expedient/dadaForm";
