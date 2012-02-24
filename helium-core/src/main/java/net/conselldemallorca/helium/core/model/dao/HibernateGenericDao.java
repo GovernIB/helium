@@ -10,11 +10,19 @@ import javax.sql.DataSource;
 
 import org.hibernate.Criteria;
 import org.hibernate.LockMode;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Example;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
+import org.hibernate.engine.SessionFactoryImplementor;
+import org.hibernate.engine.SessionImplementor;
+import org.hibernate.impl.AbstractQueryImpl;
+import org.hibernate.impl.CriteriaImpl;
+import org.hibernate.loader.criteria.CriteriaJoinWalker;
+import org.hibernate.loader.criteria.CriteriaQueryTranslator;
+import org.hibernate.persister.entity.OuterJoinLoadable;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -221,6 +229,39 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 	}
 	public NamedParameterJdbcTemplate getJdbcTemplate() {
 		return this.jdbcTemplate;
+	}
+
+	public String getCriteriaSql(Criteria criteria) {
+		CriteriaImpl criteriaImpl = (CriteriaImpl)criteria;
+		SessionImplementor session = criteriaImpl.getSession();
+		SessionFactoryImplementor factory = session.getFactory();
+		CriteriaQueryTranslator translator = new CriteriaQueryTranslator(
+				factory,
+				criteriaImpl,
+				criteriaImpl.getEntityOrClassName(),
+				CriteriaQueryTranslator.ROOT_SQL_ALIAS);
+		String[] implementors = factory.getImplementors(
+				criteriaImpl.getEntityOrClassName());
+		CriteriaJoinWalker walker = new CriteriaJoinWalker(
+				(OuterJoinLoadable)factory.getEntityPersister(implementors[0]),
+				translator,
+				factory,
+				criteriaImpl,
+				criteriaImpl.getEntityOrClassName(),
+				session.getEnabledFilters());
+		return walker.getSQLString();
+	}
+	public static String getQuerySql(Query query) {
+		String result = query.getQueryString();
+		if(query instanceof AbstractQueryImpl) {
+			Object[] values = ((AbstractQueryImpl)query).valueArray();
+			for(Object value : values) {
+				result = result.replaceFirst(
+						"\\\\?",
+						(value instanceof String) ? "'" + value + "'" : "" + value);
+			}
+		}
+		return result;
 	}
 
 

@@ -9,7 +9,7 @@ create table hel_consulta_sub (
     fill_id bigint not null
 );
 alter table hel_consulta_sub
-    add constraint hel_consulta_sub_pkey primary_key (pare_id, fill_id);
+    add primary_key (pare_id, fill_id);
 alter table hel_consulta_sub
     add constraint hel_pare_consultasub_fk foreign key (pare_id) references hel_consulta(id);
 alter table hel_consulta_sub

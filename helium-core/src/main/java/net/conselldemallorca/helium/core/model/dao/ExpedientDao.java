@@ -10,6 +10,7 @@ import java.util.List;
 import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 
+import org.hibernate.Query;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
@@ -70,16 +71,17 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			Long entornId,
 			Long expedientTipusId,
 			String numero) {
-		List<Expedient> expedients = findByCriteria(
-				Restrictions.eq("entorn.id", entornId),
-				Restrictions.eq("tipus.id", expedientTipusId),
-				Restrictions.eq("numero", numero));
-		System.out.println(">>> Consulta expedient: " + entornId + ", " + expedientTipusId + ", " + numero);
-		if (expedients.size() > 0) {
-			System.out.println(">>> Resultats trobats: " + expedients.size());
-			return expedients.get(0);
-		}
-		return null;
+		Query query = getSession().createQuery(
+				"from " +
+				"    Expedient e " +
+				"where " +
+				"    e.entorn.id=? " +
+				"and e.tipus.id=? " +
+				"and e.numero=? ").
+				setLong(0, entornId).
+				setLong(1, expedientTipusId).
+				setString(2, numero);
+		return (Expedient)query.uniqueResult();
 	}
 
 	public int countAmbEntornConsultaGeneral(
