@@ -39,14 +39,14 @@ public class UpdateService {
 
 	public static final String VERSIO_210_STR = "2.1.0";
 	public static final int VERSIO_210_ORDRE = 210;
-	public static final String VERSIO_211_STR = "2.1.1";
-	public static final int VERSIO_211_ORDRE = 211;
 	public static final String VERSIO_220_STR = "2.2.0";
 	public static final int VERSIO_220_ORDRE = 220;
 	public static final String VERSIO_221_STR = "2.2.1";
 	public static final int VERSIO_221_ORDRE = 221;
-	public static final String VERSIO_ACTUAL_STR = "2.2.1";
-	public static final int VERSIO_ACTUAL_ORDRE = 221;
+	public static final String VERSIO_230_STR = "2.3.0";
+	public static final int VERSIO_230_ORDRE = 230;
+	public static final String VERSIO_ACTUAL_STR = "2.3.0";
+	public static final int VERSIO_ACTUAL_ORDRE = 230;
 
 	private VersioDao versioDao;
 	private PersonaDao personaDao;
@@ -81,11 +81,25 @@ public class UpdateService {
 					boolean actualitzat = actualitzarV221();
 					if (!actualitzat) break;
 				}
+				if (versio.getOrdre() == VERSIO_230_ORDRE) {
+					boolean actualitzat = actualitzarV230();
+					if (!actualitzat) break;
+				}
 			}
 		}
 		Versio darrera = versioDao.findLast();
-		if (darrera.getOrdre() < 221) {
-			actualitzarV221();
+		boolean actualitzat = true;
+		if (actualitzat && darrera.getOrdre() < 210) {
+			actualitzat = actualitzarV210();
+		}
+		if (actualitzat && darrera.getOrdre() < 220) {
+			actualitzat = actualitzarV220();
+		}
+		if (actualitzat && darrera.getOrdre() < 221) {
+			actualitzat = actualitzarV221();
+		}
+		if (actualitzat && darrera.getOrdre() < 230) {
+			actualitzarV230();
 		}
 	}
 
@@ -247,7 +261,7 @@ public class UpdateService {
 
 	private boolean actualitzarV220() {
 		boolean actualitzat = false;
-		Versio versio220 = obtenirOCrearVersio(VERSIO_210_STR, VERSIO_220_ORDRE);
+		Versio versio220 = obtenirOCrearVersio(VERSIO_220_STR, VERSIO_220_ORDRE);
 		if (!versio220.isScriptExecutat()) {
 			errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_220_STR + ": " + getMessage("error.update.script.ko");
 		} else if (!versio220.isProcesExecutat()) {
@@ -293,6 +307,26 @@ public class UpdateService {
 				valor.setOrdre(i++);
 			}
 		}
+	}
+
+	private boolean actualitzarV230() {
+		boolean actualitzat = false;
+		Versio versio230 = obtenirOCrearVersio(VERSIO_230_STR, VERSIO_230_ORDRE);
+		if (!versio230.isScriptExecutat()) {
+			errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_230_STR + ": " + getMessage("error.update.script.ko");
+		} else if (!versio230.isProcesExecutat()) {
+			try {
+				versio230.setProcesExecutat(true);
+				versio230.setDataExecucioProces(new Date());
+				versioDao.saveOrUpdate(versio230);
+				logger.info("Actualització a la versió " + VERSIO_230_STR + " realitzada correctament");
+				actualitzat = true;
+			} catch (Exception ex) {
+				logger.error("Error al executar l'actualització a la versió " + VERSIO_230_STR, ex);
+				errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_230_STR + ": " + getMessage("error.update.proces.ko");
+			}
+		}
+		return actualitzat;
 	}
 
 	private String getMessage(String key, Object[] vars) {
