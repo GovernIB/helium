@@ -44,16 +44,12 @@ public abstract class RegistreHandler implements ActionHandler {
 	public void setVarDestinatariRegistreNumero(String varDestinatariRegistreNumero) {}
 	public void setDestinatariRegistreAny(String destinatariRegistreAny) {}
 	public void setVarDestinatariRegistreAny(String varDestinatariRegistreAny) {}
-	public void setDocumentData(String documentData) {}
-	public void setVarDocumentData(String varDocumentData) {}
 	public void setDocumentTipus(String documentTipus) {}
 	public void setVarDocumentTipus(String varDocumentTipus) {}
 	public void setDocumentIdiomaDocument(String documentIdiomaDocument) {}
 	public void setVarDocumentIdiomaDocument(String varDocumentIdiomaDocument) {}
 	public void setDocumentIdiomaExtracte(String documentIdiomaExtracte) {}
 	public void setVarDocumentIdiomaExtracte(String varDocumentIdiomaExtracte) {}
-	public void setDocumentExtracte(String documentExtracte) {}
-	public void setVarDocumentExtracte(String varDocumentExtracte) {}
 	public void setVarDocument(String varDocument) {}
 
 	public void setVarNumeroRegistre(String varNumeroRegistre) {}

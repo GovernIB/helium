@@ -3,12 +3,15 @@
  */
 package net.conselldemallorca.helium.webapp.mvc;
 
+import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -267,6 +270,54 @@ public class TascaDocumentsController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/tasca/documentDescarregarZip")
+	public String documentDescarregarZip(
+			HttpServletRequest request,
+			ModelMap model,
+			@RequestParam(value = "id", required = true) String id,
+			@RequestParam(value = "codi", required = true) String codi) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			boolean massivaActiu = TramitacioMassiva.isTramitacioMassivaActiu(request, id);
+			if (massivaActiu) {
+				String[] tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
+				try {
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					ZipOutputStream out = new ZipOutputStream(baos);
+					for (String tascaId: tascaIds) {
+						DocumentDto document = tascaService.getDocument(
+								entorn.getId(),
+								tascaId,
+								codi);
+						int indexPunt = document.getArxiuNom().lastIndexOf(".");
+						StringBuilder nomEntrada = new StringBuilder();
+						nomEntrada.append(document.getArxiuNom().substring(0, indexPunt));
+						TascaDto tascaActual = tascaService.getById(entorn.getId(), tascaId);
+						nomEntrada.append("(" + tascaActual.getExpedient().getIdentificador().replace("/", "|") + ")");
+						nomEntrada.append(document.getArxiuNom().substring(indexPunt));
+						ZipEntry ze = new ZipEntry(nomEntrada.toString());
+						out.putNextEntry(ze);
+						out.write(document.getArxiuContingut());
+						out.closeEntry();
+					}
+					out.close();
+					model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, "documents.zip");
+					model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, baos.toByteArray());
+					return "arxiuView";
+				} catch (Exception ex) {
+					missatgeError(request, getMessage("error.generacio.zip"), ex.getLocalizedMessage());
+					logger.error("Error al generar el zip amb els arxius", ex);
+					return "redirect:/tasca/documents.html?id=" + id;
+				}
+			} else {
+				return "redirect:/tasca/documents.html?id=" + id;
+			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+
 	@RequestMapping(value = "/tasca/documentGenerar")
 	public String documentGenerar(
 			HttpServletRequest request,
@@ -276,28 +327,32 @@ public class TascaDocumentsController extends BaseController {
 			@RequestParam(value = "data", required = false) Date data) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			try {
+			boolean adjuntarAuto = false;
+			TascaDto tasca = tascaService.getById(entorn.getId(), id);
+			for (DocumentTasca document: tasca.getDocuments()) {
+				if (document.getDocument().getId().longValue() == documentId.longValue()) {
+					adjuntarAuto = document.getDocument().isAdjuntarAuto();
+					break;
+				}
+			}
+			if (adjuntarAuto) {
+				accioDocumentGenerar(
+						request,
+						entorn.getId(),
+						id,
+						documentId,
+						data);
+				return "redirect:/tasca/documents.html?id=" + id;
+			} else {
 				DocumentDto document = tascaService.generarDocumentPlantilla(
 						entorn.getId(),
 						documentId,
 						id,
 						(data != null) ? data : new Date());
-				if (document != null) {
-					if (document.isAdjuntarAuto()) {
-						missatgeInfo(request, getMessage("info.document.adjuntat") );
-					} else {
-						model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, document.getArxiuNom());
-						model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, document.getArxiuContingut());
-						return "arxiuView";
-					}
-				} else {
-					missatgeError(request, getMessage("error.generar.document.buit"));
-				}
-			} catch (Exception ex) {
-				missatgeError(request, getMessage("error.generar.document"), ex.getLocalizedMessage());
-	        	logger.error("Error generant el document " + documentId + " per la tasca " + id, ex);
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, document.getArxiuNom());
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, document.getArxiuContingut());
+				return "arxiuView";
 			}
-			return "redirect:/tasca/documents.html?id=" + id;
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
@@ -391,6 +446,44 @@ public class TascaDocumentsController extends BaseController {
 				missatgeInfo(request, getMessage("info.document.esborrats"));
 			else
 				missatgeInfo(request, getMessage("info.document.esborrat"));
+		}
+		return !error;
+	}
+	private boolean accioDocumentGenerar(
+			HttpServletRequest request,
+			Long entornId,
+			String id,
+			Long documentId,
+			Date data) {
+		boolean massivaActiu = TramitacioMassiva.isTramitacioMassivaActiu(request, id);
+		String[] tascaIds;
+		if (massivaActiu)
+			tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
+		else
+			tascaIds = new String[]{id};
+		boolean error = false;
+		for (String tascaId: tascaIds) {
+			try {
+				tascaService.generarDocumentPlantilla(
+						entornId,
+						documentId,
+						tascaId,
+						(data != null) ? data : new Date());
+			} catch (Exception ex) {
+				String tascaIdLog = getIdTascaPerLogs(entornId, tascaId);
+				missatgeError(
+		    			request,
+		    			getMessage("error.generar.document") + " " + tascaIdLog,
+		    			ex.getLocalizedMessage());
+	        	logger.error("Error al generar el document (documentId=" + documentId + ") a la tasca " + tascaIdLog, ex);
+	        	error = true;
+			}
+		}
+		if (!error) {
+			if (massivaActiu)
+				missatgeInfo(request, getMessage("info.document.adjuntats"));
+			else
+				missatgeInfo(request, getMessage("info.document.adjuntat"));
 		}
 		return !error;
 	}

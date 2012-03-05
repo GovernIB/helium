@@ -222,7 +222,7 @@ public abstract class BasicActionHandler implements ActionHandler {
 					id,
 					true,
 					true,
-					false);
+					true);
 			if (document == null)
 				return null;
 			DocumentInfo resposta = new DocumentInfo();
@@ -239,8 +239,13 @@ public abstract class BasicActionHandler implements ActionHandler {
 				resposta.setArxiuNom(document.getSignatNom());
 				resposta.setArxiuContingut(document.getSignatContingut());
 			} else {
-				resposta.setArxiuNom(document.getArxiuNom());
-				resposta.setArxiuContingut(document.getArxiuContingut());
+				if (document.isRegistrat()) {
+					resposta.setArxiuNom(document.getVistaNom());
+					resposta.setArxiuContingut(document.getVistaContingut());
+				} else {
+					resposta.setArxiuNom(document.getArxiuNom());
+					resposta.setArxiuContingut(document.getArxiuContingut());
+				}
 			}
 			return resposta;
 		} else {

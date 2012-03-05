@@ -143,8 +143,7 @@ function signarCaib(token, form, contentType) {
 				alert("<fmt:message key="tasca.signa.alert.error"/>");
 			} else {
 				form.data.value = signaturaB64;
-				alert('Ok');
-				//form.submit();
+				form.submit();
 			}
 		}
 	}
