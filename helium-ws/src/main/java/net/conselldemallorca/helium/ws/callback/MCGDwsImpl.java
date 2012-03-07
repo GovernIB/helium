@@ -16,6 +16,7 @@ import org.apache.commons.logging.LogFactory;
 import es.indra.www.portafirmasmcgdws.mcgdws.AttributesState;
 import es.indra.www.portafirmasmcgdws.mcgdws.CallbackRequest;
 import es.indra.www.portafirmasmcgdws.mcgdws.CallbackResponse;
+import es.indra.www.portafirmasmcgdws.mcgdws.LogMessage;
 
 /**
  * Implementació amb Axis del servei per processar automàticament els canvis
@@ -61,13 +62,13 @@ public class MCGDwsImpl implements es.indra.www.portafirmasmcgdws.mcgdws.MCGDws{
 				default:
 					break;
 			}
-			//callbackResponse.setLogMessages(logMessages)setLogMessages(new ArrayOfLogMessage());
 	        callbackResponse.setVersion("1.0");
+	        callbackResponse.setLogMessages(new LogMessage[] {new LogMessage()});
 	        callbackResponse.set_return(resposta.doubleValue());
 		} catch (Exception e) {
 			logger.error("Error obtenint l'estat del document.", e);
-			//callbackResponse.setLogMessages(new ArrayOfLogMessage());
 			callbackResponse.setVersion("1.0");
+			callbackResponse.setLogMessages(new LogMessage[] {new LogMessage()});
 			callbackResponse.set_return((double)-1);
 		}
 		return callbackResponse;
