@@ -74,9 +74,9 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 				Restrictions.eq("entorn.id", entornId),
 				Restrictions.eq("tipus.id", expedientTipusId),
 				Restrictions.eq("numero", numero));
-		System.out.println(">>> Consulta expedient: " + entornId + ", " + expedientTipusId + ", " + numero);
+		//System.out.println(">>> Consulta expedient: " + entornId + ", " + expedientTipusId + ", " + numero);
 		if (expedients.size() > 0) {
-			System.out.println(">>> Resultats trobats: " + expedients.size());
+			//System.out.println(">>> Resultats trobats: " + expedients.size());
 			return expedients.get(0);
 		}
 		return null;
