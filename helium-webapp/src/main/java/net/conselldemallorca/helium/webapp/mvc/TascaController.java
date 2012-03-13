@@ -337,7 +337,13 @@ public class TascaController extends BaseController {
 			try {
 				model.addAttribute(
 						"tasca",
-						tascaService.getById(entorn.getId(), id));
+						tascaService.getById(
+								entorn.getId(),
+								id,
+								null,
+								null,
+								false,
+								false));
 			} catch (Exception ex) {
 				logger.error("S'ha produït un error processant la seva petició", ex);
 				missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
@@ -415,7 +421,13 @@ public class TascaController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			try {
-				TascaDto tasca = tascaService.getById(entorn.getId(), id);
+				TascaDto tasca = tascaService.getById(
+						entorn.getId(),
+						id,
+						null,
+						null,
+						false,
+						false);
 				byte[] contingut = dissenyService.getDeploymentResource(
 						tasca.getDefinicioProces().getId(),
 						tasca.getRecursForm());
@@ -679,7 +691,13 @@ public class TascaController extends BaseController {
 			Long entornId,
 			String id,
 			String submit) {
-		TascaDto tasca = tascaService.getById(entornId, id);
+		TascaDto tasca = tascaService.getById(
+				entornId,
+				id,
+				null,
+				null,
+				false,
+				false);
 		String transicio = null;
 		for (String outcome: tasca.getOutcomes()) {
 			if (outcome != null && outcome.equals(submit)) {
@@ -723,7 +741,13 @@ public class TascaController extends BaseController {
 	}
 
 	private String getIdTascaPerLogs(Long entornId, String tascaId) {
-		TascaDto tascaActual = tascaService.getById(entornId, tascaId);
+		TascaDto tascaActual = tascaService.getById(
+				entornId,
+				tascaId,
+				null,
+				null,
+				false,
+				false);
 		return tascaActual.getNom() + " - " + tascaActual.getExpedient().getIdentificador();
 	}
 

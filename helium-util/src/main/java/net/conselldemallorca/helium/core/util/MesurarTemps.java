@@ -35,7 +35,7 @@ public class MesurarTemps {
 		String perAfegir = "";
 		if (text != null)
 			perAfegir += " " + text + " ";
-		System.out.println("---> [" + clau + "]" + perAfegir + ": " + obtenirDiferencia(clau));
+		System.out.println("---> [" + clau + "]" + perAfegir + ": " + obtenirDiferencia(clau) + "ms");
 	}
 	public static void imprimirInstantStdoutIReiniciar(String clau) {
 		imprimirInstantStdout(clau, null);

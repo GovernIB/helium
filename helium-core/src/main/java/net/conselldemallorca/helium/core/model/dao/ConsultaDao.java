@@ -6,7 +6,6 @@ package net.conselldemallorca.helium.core.model.dao;
 import java.util.List;
 
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
-import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;

@@ -87,6 +87,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	private String dominiCampText;
 	@MaxLength(64)
 	private String dominiCampValor;
+	private boolean dominiCacheText;
 	@MaxLength(255)
 	private String jbpmAction;
 	private boolean multiple;
@@ -189,6 +190,14 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 	public void setDominiCampValor(String dominiCampValor) {
 		this.dominiCampValor = dominiCampValor;
+	}
+
+	@Column(name="domini_cache_text")
+	public boolean isDominiCacheText() {
+		return dominiCacheText;
+	}
+	public void setDominiCacheText(boolean dominiCacheText) {
+		this.dominiCacheText = dominiCacheText;
 	}
 
 	@Column(name="jbpm_action", length=255)

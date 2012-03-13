@@ -100,7 +100,13 @@ public class TascaDocumentsController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			try {
-				TascaDto tasca = tascaService.getById(entorn.getId(), id);
+				TascaDto tasca = tascaService.getById(
+						entorn.getId(),
+						id,
+						null,
+						null,
+						true,
+						false);
 				Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 				campsAddicionals.put("id", id);
 				campsAddicionals.put("entornId", entorn.getId());
@@ -130,7 +136,13 @@ public class TascaDocumentsController extends BaseController {
 				missatgeError(request, getMessage("error.tasca.no.disponible") );
 				return "redirect:/tasca/personaLlistat.html";
 			}
-			TascaDto tasca = tascaService.getById(entorn.getId(), id);
+			TascaDto tasca = tascaService.getById(
+					entorn.getId(),
+					id,
+					null,
+					null,
+					true,
+					false);
 			model.addAttribute("tasca", tasca);
 			for (DocumentTasca document: tasca.getDocuments()) {
 				DocumentExpedientCommand command = new DocumentExpedientCommand();
@@ -292,7 +304,13 @@ public class TascaDocumentsController extends BaseController {
 						int indexPunt = document.getArxiuNom().lastIndexOf(".");
 						StringBuilder nomEntrada = new StringBuilder();
 						nomEntrada.append(document.getArxiuNom().substring(0, indexPunt));
-						TascaDto tascaActual = tascaService.getById(entorn.getId(), tascaId);
+						TascaDto tascaActual = tascaService.getById(
+								entorn.getId(),
+								tascaId,
+								null,
+								null,
+								true,
+								false);
 						nomEntrada.append("(" + tascaActual.getExpedient().getIdentificador().replace("/", "|") + ")");
 						nomEntrada.append(document.getArxiuNom().substring(indexPunt));
 						ZipEntry ze = new ZipEntry(nomEntrada.toString());
@@ -328,7 +346,13 @@ public class TascaDocumentsController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			boolean adjuntarAuto = false;
-			TascaDto tasca = tascaService.getById(entorn.getId(), id);
+			TascaDto tasca = tascaService.getById(
+					entorn.getId(),
+					id,
+					null,
+					null,
+					true,
+					false);
 			for (DocumentTasca document: tasca.getDocuments()) {
 				if (document.getDocument().getId().longValue() == documentId.longValue()) {
 					adjuntarAuto = document.getDocument().isAdjuntarAuto();
@@ -489,7 +513,13 @@ public class TascaDocumentsController extends BaseController {
 	}
 
 	private String getIdTascaPerLogs(Long entornId, String tascaId) {
-		TascaDto tascaActual = tascaService.getById(entornId, tascaId);
+		TascaDto tascaActual = tascaService.getById(
+				entornId,
+				tascaId,
+				null,
+				null,
+				true,
+				false);
 		return tascaActual.getNom() + " - " + tascaActual.getExpedient().getIdentificador();
 	}
 

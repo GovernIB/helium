@@ -39,6 +39,10 @@ ALTER TABLE HEL_ACCIO
 ALTER TABLE HEL_ACCIO
  ADD (CRON VARCHAR2(255 CHAR));
 
+-- Nou camp per a optimitzar les consultes a domini
+ALTER TABLE HEL_CAMP
+ ADD (DOMINI_CACHE_TEXT NUMBER(1) DEFAULT 0 NOT NULL);
+
 -- Actualització a la nova versió --
 INSERT INTO HEL_VERSIO (
     ID,

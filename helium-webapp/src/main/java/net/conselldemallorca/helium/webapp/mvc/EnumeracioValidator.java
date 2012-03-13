@@ -27,8 +27,7 @@ public class EnumeracioValidator {
 
 	public void validate(Object command, Errors errors) {
 		Enumeracio enumeracio = (Enumeracio)command;
-
-		Enumeracio e = dissenyService.findEnumeracionAmbEntornICodi(
+		Enumeracio e = dissenyService.findAmbEntornSenseTipusExpICodi(
 				enumeracio.getEntorn().getId(),
 				enumeracio.getCodi());
 		if (e != null)

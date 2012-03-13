@@ -57,7 +57,13 @@ public class TascaRegistreController extends CommonRegistreController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			TascaDto tasca = tascaService.getById(entorn.getId(), id);
+			TascaDto tasca = tascaService.getById(
+					entorn.getId(),
+					id,
+					null,
+					null,
+					false,
+					false);
 			List<Camp> camps = new ArrayList<Camp>();
     		for (CampTasca campTasca: tasca.getCamps())
     			camps.add(campTasca.getCamp());
@@ -66,11 +72,14 @@ public class TascaRegistreController extends CommonRegistreController {
 					tascaService.getById(
 							entorn.getId(),
 							id,
+							null,
 							TascaFormUtil.getValorsFromCommand(
 		        					camps,
 		        					command,
 		        					true,
-		    						false)));
+		    						false),
+		    				true,
+		    				false));
 		}
 	}
 

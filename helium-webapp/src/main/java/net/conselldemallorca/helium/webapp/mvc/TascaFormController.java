@@ -126,9 +126,15 @@ public class TascaFormController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			TascaDto tasca = tascaService.getById(entorn.getId(), id);
 			Object command = null;
 			Object commandSessio = TascaFormUtil.recuperarCommandTemporal(request, true);
+			TascaDto tasca = tascaService.getById(
+					entorn.getId(),
+					id,
+					null,
+					null,
+					false,
+					false);
 			if (commandSessio != null) {
 				List<Camp> camps = new ArrayList<Camp>();
 	    		for (CampTasca campTasca: tasca.getCamps())
@@ -136,18 +142,27 @@ public class TascaFormController extends BaseController {
 				tasca = tascaService.getById(
 						entorn.getId(),
 						id,
+						null,
 						TascaFormUtil.getValorsFromCommand(
 	        					camps,
 	        					commandSessio,
 	        					true,
-	    						false));
+	    						false),
+	    				true,
+	    				true);
 				model.addAttribute(
 						"valorsPerSuggest",
 						TascaFormUtil.getValorsPerSuggest(tasca, commandSessio));
 				model.addAttribute("commandReadOnly", commandSessio);
 				command = commandSessio;
 			} else {
-				tasca = tascaService.getById(entorn.getId(), id);
+				tasca = tascaService.getById(
+						entorn.getId(),
+						id,
+						null,
+						null,
+						true,
+						true);
 				try {
 					Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 					campsAddicionals.put("id", id);
@@ -624,7 +639,13 @@ public class TascaFormController extends BaseController {
 	}
 
 	private String getIdTascaPerLogs(Long entornId, String tascaId) {
-		TascaDto tascaActual = tascaService.getById(entornId, tascaId);
+		TascaDto tascaActual = tascaService.getById(
+				entornId,
+				tascaId,
+				null,
+				null,
+				false,
+				false);
 		return tascaActual.getNom() + " - " + tascaActual.getExpedient().getIdentificador();
 	}
 

@@ -36,6 +36,7 @@ import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.NombreEnCastella;
 import net.conselldemallorca.helium.core.util.NombreEnCatala;
+import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.sf.jooreports.templates.DocumentTemplate;
 import net.sf.jooreports.templates.DocumentTemplateFactory;
@@ -209,6 +210,8 @@ public class PlantillaDocumentDao {
 									return new DateModel((Date)valor, new DefaultObjectWrapper());
 								else if (valor instanceof BigDecimal)
 									return new NumberModel((BigDecimal)valor, new DefaultObjectWrapper());
+								else if (valor instanceof DominiCodiDescripcio)
+									return new SimpleScalar(((DominiCodiDescripcio)valor).getCodi());
 								else
 									return new BeanModel(valor, new DefaultObjectWrapper());
 							}

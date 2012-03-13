@@ -60,7 +60,7 @@ public class EnumeracioController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			model.addAttribute("llistat", dissenyService.findEnumeracionsAmbEntorn(entorn.getId()));
+			model.addAttribute("llistat", dissenyService.findEnumeracionsAmbEntornSenseTipusExp(entorn.getId()));
 			return "enumeracio/llistat";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );

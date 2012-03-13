@@ -25,6 +25,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.GenericEntity;
 import net.conselldemallorca.helium.core.security.acl.AclServiceDao;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
+import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.Registre;
@@ -106,7 +107,7 @@ public class ServiceUtils {
 		for (JbpmProcessInstance pi: tree)
 			resposta.put(
 					pi.getId(),
-					jbpmDao.getProcessInstanceVariables(pi.getId()));
+					getVariablesJbpmProcesValor(pi.getId()));
 		return resposta;
 	}
 	public Map<String, Map<String, String>> getMapValorsDomini(
@@ -326,6 +327,53 @@ public class ServiceUtils {
 		}
 	}
 
+	/*
+	 * Obtenció de valors i descripcions de variables emmagatzemades
+	 * a dins els processos jBPM
+	 */
+	public Object getVariableJbpmTascaValor(
+			String taskId,
+			String varCodi) {
+		Object valor = jbpmDao.getTaskInstanceVariable(taskId, varCodi);
+		return valorVariableJbpmRevisat(valor);
+	}
+	public Map<String, Object> getVariablesJbpmTascaValor(
+			String taskId) {
+		Map<String, Object> valors = jbpmDao.getTaskInstanceVariables(taskId);
+		Map<String, Object> valorsRevisats = new HashMap<String, Object>();
+		for (String varCodi: valors.keySet()) {
+			Object valor = valors.get(varCodi);
+			valorsRevisats.put(varCodi, valorVariableJbpmRevisat(valor));
+		}
+		return valorsRevisats;
+	}
+	public Object getVariableJbpmProcesValor(
+			String processInstanceId,
+			String varCodi) {
+		Object valor = jbpmDao.getProcessInstanceVariable(processInstanceId, varCodi);
+		if (valor instanceof DominiCodiDescripcio) {
+			return ((DominiCodiDescripcio)valor).getCodi();
+		} else {
+			return valor;
+		}
+	}
+	public Map<String, Object> getVariablesJbpmProcesValor(
+			String processInstanceId) {
+		Map<String, Object> valors = jbpmDao.getProcessInstanceVariables(processInstanceId);
+		Map<String, Object> valorsRevisats = new HashMap<String, Object>();
+		for (String varCodi: valors.keySet()) {
+			Object valor = valors.get(varCodi);
+			valorsRevisats.put(varCodi, valorVariableJbpmRevisat(valor));
+		}
+		return valorsRevisats;
+	}
+	public void revisarVariablesJbpm(Map<String, Object> variables) {
+		for (String varCodi: variables.keySet()) {
+			Object valor = variables.get(varCodi);
+			variables.put(varCodi, valorVariableJbpmRevisat(valor));
+		}
+	}
+
 
 
 	private void guardarValorDominiPerCamp(
@@ -336,7 +384,7 @@ public class ServiceUtils {
 		if (!(valor instanceof String) || ((String)valor).length() > 0) {
 			if (camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST)) {
 				if (valor != null) {
-					String valorDomini = dtoConverter.getTextConsultaDomini(
+					String valorDomini = dtoConverter.getCampText(
 							null,
 							processInstanceId,
 							camp,
@@ -379,6 +427,14 @@ public class ServiceUtils {
 			return false;
 		} catch (NotFoundException ex) {
 			return false;
+		}
+	}
+
+	private Object valorVariableJbpmRevisat(Object valor) {
+		if (valor instanceof DominiCodiDescripcio) {
+			return ((DominiCodiDescripcio)valor).getCodi();
+		} else {
+			return valor;
 		}
 	}
 

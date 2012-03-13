@@ -285,7 +285,13 @@ public class ExpedientDadaModificarController extends BaseController {
 					var);
 			valor = instanciaProces.getVariables().get(var);
 		} else {
-			tasca = tascaService.getById(entornId, taskId);
+			tasca = tascaService.getById(
+					entornId,
+					taskId,
+					null,
+					null,
+					true,
+					true);
 			instanciaProces = expedientService.getInstanciaProcesById(
 					tasca.getProcessInstanceId(),
 					true);
@@ -337,7 +343,13 @@ public class ExpedientDadaModificarController extends BaseController {
 		if (id != null)
 			return expedientService.findExpedientAmbProcessInstanceId(id);
 		if (taskId != null) {
-			TascaDto tasca = tascaService.getById(entornId, taskId);
+			TascaDto tasca = tascaService.getById(
+					entornId,
+					taskId,
+					null,
+					null,
+					false,
+					false);
 			return expedientService.findExpedientAmbProcessInstanceId(tasca.getProcessInstanceId());
 		}
 		return null;
@@ -347,7 +359,13 @@ public class ExpedientDadaModificarController extends BaseController {
 		if (id != null)
 			return id;
 		if (taskId != null) {
-			TascaDto tasca = tascaService.getById(entornId, taskId);
+			TascaDto tasca = tascaService.getById(
+					entornId,
+					taskId,
+					null,
+					null,
+					false,
+					false);
 			if (tasca != null)
 				return tasca.getProcessInstanceId();
 		}

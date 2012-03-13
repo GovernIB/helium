@@ -835,21 +835,17 @@ public class DissenyService {
 		if (vell != null)
 			enumeracioDao.delete(id);
 	}
-	public List<Enumeracio> findEnumeracionsAmbEntorn(Long entornId) {
-		return enumeracioDao.findAmbEntorn(entornId);
+	public List<Enumeracio> findEnumeracionsAmbEntornSenseTipusExp(Long entornId) {
+		return enumeracioDao.findAmbEntornSenseTipusExp(entornId);
 	}
 	public List<Enumeracio> findEnumeracionsAmbEntornITipusExp(Long entornId, Long tipusExpId) {
 		return enumeracioDao.findAmbEntornITipusExp(entornId, tipusExpId);
 	}
-	public List<Enumeracio> findEnumeracionsAmbEntornITipusExpONull(Long entornId, Long tipusExpId) {
-		return enumeracioDao.findAmbEntornITipusExpONull(entornId, tipusExpId);
+	public List<Enumeracio> findEnumeracionsAmbEntornAmbOSenseTipusExp(Long entornId, Long tipusExpId) {
+		return enumeracioDao.findAmbEntornAmbOSenseTipusExp(entornId, tipusExpId);
 	}
-	public Enumeracio findEnumeracionAmbEntornICodi(Long entornId, String codi) {
-		return enumeracioDao.findAmbEntornICodi(entornId, codi);
-	}
-	
-	public List<Enumeracio> findEnumeracions() {
-		return enumeracioDao.findAll();
+	public Enumeracio findAmbEntornSenseTipusExpICodi(Long entornId, String codi) {
+		return enumeracioDao.findAmbEntornSenseTipusExpICodi(entornId, codi);
 	}
 	
 	public EnumeracioValors getEnumeracioValorsById(Long id) {
@@ -1309,8 +1305,10 @@ public class DissenyService {
 		dto.setConsultes(consultes);
 		List<DefinicioProcesExportacio> definicionsProces = new ArrayList<DefinicioProcesExportacio>();
 		for (DefinicioProces definicioProces : definicioProcesDao.findDarreresVersionsAmbEntorn(expedientTipus.getEntorn().getId())) {
-			if (expedientTipus.getId().equals(definicioProces.getExpedientTipus().getId()))
-				definicionsProces.add(exportar(definicioProces.getId()));
+			if (definicioProces.getExpedientTipus() != null) {
+				if (expedientTipus.getId().equals(definicioProces.getExpedientTipus().getId()))
+					definicionsProces.add(exportar(definicioProces.getId()));
+			}
 		}
 		dto.setDefinicionsProces(definicionsProces);
 		return dto;
@@ -1429,8 +1427,9 @@ public class DissenyService {
 		// Crea les enumeracions del tipus d'expedient
 		if (exportacio.getEnumeracions() != null) {
 			for (EnumeracioExportacio enumeracio: exportacio.getEnumeracions()) {
-				Enumeracio nova = enumeracioDao.findAmbEntornICodi(
+				Enumeracio nova = enumeracioDao.findAmbEntornAmbTipusExpICodi(
 						entornId,
+						expedientTipus.getId(),
 						enumeracio.getCodi());
 				if (nova == null) {
 					nova = new Enumeracio(
@@ -2417,7 +2416,9 @@ public class DissenyService {
 			nou.setJbpmAction(camp.getJbpmAction());
 			nou.setOrdre(camp.getOrdre());
 			if (camp.getCodiEnumeracio() != null) {
-				Enumeracio enumeracio = enumeracioDao.findAmbEntornICodi(entornId, camp.getCodiEnumeracio());
+				Enumeracio enumeracio = enumeracioDao.findAmbEntornSenseTipusExpICodi(
+						entornId,
+						camp.getCodiEnumeracio());
 				if (enumeracio != null)
 					nou.setEnumeracio(enumeracio);
 				else

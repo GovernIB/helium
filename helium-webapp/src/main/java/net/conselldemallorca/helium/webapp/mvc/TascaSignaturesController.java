@@ -49,7 +49,13 @@ public class TascaSignaturesController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			try {
-				TascaDto tasca = tascaService.getById(entorn.getId(), id);
+				TascaDto tasca = tascaService.getById(
+						entorn.getId(),
+						id,
+						null,
+						null,
+						false,
+						false);
 				Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 				campsAddicionals.put("id", id);
 				campsAddicionals.put("entornId", entorn.getId());
@@ -80,7 +86,13 @@ public class TascaSignaturesController extends BaseController {
 				missatgeError(request, getMessage("error.tasca.no.disponible") );
 				return "redirect:/tasca/personaLlistat.html";
 			}
-			TascaDto tasca = tascaService.getById(entorn.getId(), id);
+			TascaDto tasca = tascaService.getById(
+					entorn.getId(),
+					id,
+					null,
+					null,
+					false,
+					false);
 			model.addAttribute("tasca", tasca);
 			return "tasca/signatures";
 		} else {

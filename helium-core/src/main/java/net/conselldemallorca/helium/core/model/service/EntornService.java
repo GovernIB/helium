@@ -261,7 +261,7 @@ public class EntornService {
 		}
 		entornExportacio.setDominis(dominisDto);
 		// Afegeix les enumeracions
-		List<Enumeracio> enumeracions = enumeracioDao.findAmbEntornITipusExpONull(entornId, null);
+		List<Enumeracio> enumeracions = enumeracioDao.findAmbEntornSenseTipusExp(entornId);
 		List<EnumeracioExportacio> enumeracionsDto = new ArrayList<EnumeracioExportacio>();
 		for (Enumeracio enumeracio: enumeracions) {
 			EnumeracioExportacio dto = new EnumeracioExportacio(
@@ -428,7 +428,7 @@ public class EntornService {
 		}
 		// Crea les enumeracions
 		for (EnumeracioExportacio enumeracio: exportacio.getEnumeracions()) {
-			Enumeracio nova = enumeracioDao.findAmbEntornICodi(
+			Enumeracio nova = enumeracioDao.findAmbEntornSenseTipusExpICodi(
 					entornId,
 					enumeracio.getCodi());
 			if (nova == null) {
@@ -540,7 +540,7 @@ public class EntornService {
 			}
 			// Crea les enumeracions del tipus d'expedient.
 			for (EnumeracioExportacio enumeracio: expedientTipus.getEnumeracions()) {
-				Enumeracio nova = enumeracioDao.findAmbEntornICodi(
+				Enumeracio nova = enumeracioDao.findAmbEntornSenseTipusExpICodi(
 						entornId,
 						enumeracio.getCodi());
 				if (nova == null) {

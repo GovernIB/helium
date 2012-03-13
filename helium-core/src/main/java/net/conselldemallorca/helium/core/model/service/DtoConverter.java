@@ -18,7 +18,9 @@ import java.util.Set;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.model.dao.CampAgrupacioDao;
+import net.conselldemallorca.helium.core.model.dao.CampDao;
 import net.conselldemallorca.helium.core.model.dao.CampTascaDao;
+import net.conselldemallorca.helium.core.model.dao.ConsultaCampDao;
 import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentStoreDao;
@@ -52,10 +54,12 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
+import net.conselldemallorca.helium.core.security.acl.AclServiceDao;
 import net.conselldemallorca.helium.core.util.DocumentTokenUtils;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
+import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
@@ -66,7 +70,6 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.context.NoSuchMessageException;
 import org.springframework.stereotype.Service;
 
 
@@ -93,9 +96,13 @@ public class DtoConverter {
 	private PluginCustodiaDao pluginCustodiaDao;
 	private JbpmDao jbpmDao;
 	private EnumeracioValorsDao enumeracioValorsDao;
+	private CampDao campDao;
+	private ConsultaCampDao consultaCampDao;
+	private AclServiceDao aclServiceDao;
 	private MessageSource messageSource;
 
 	private PdfUtils pdfUtils;
+	private ServiceUtils serviceUtils;
 	private DocumentTokenUtils documentTokenUtils;
 
 
@@ -185,6 +192,7 @@ public class DtoConverter {
 						null,
 						campsTasca,
 						valorsTasca);
+				getServiceUtils().revisarVariablesJbpm(valorsTasca);
 				Map<String, Object> textPerCamps = textPerCamps(
 						task.getId(),
 						null,
@@ -204,6 +212,7 @@ public class DtoConverter {
 						task.getProcessInstanceId(),
 						campsProces,
 						valorsProces);
+				getServiceUtils().revisarVariablesJbpm(valorsProces);
 				textPerCamps.putAll(textPerCamps(
 						null,
 						task.getProcessInstanceId(),
@@ -305,6 +314,7 @@ public class DtoConverter {
 							null,
 							campsTasca,
 							valorsTasca);
+					getServiceUtils().revisarVariablesJbpm(valorsTasca);
 					Map<String, Object> textPerCamps = textPerCamps(
 							task.getId(),
 							null,
@@ -324,6 +334,7 @@ public class DtoConverter {
 							task.getProcessInstanceId(),
 							campsProces,
 							valorsProces);
+					getServiceUtils().revisarVariablesJbpm(valorsProces);
 					textPerCamps.putAll(textPerCamps(
 							null,
 							task.getProcessInstanceId(),
@@ -347,6 +358,7 @@ public class DtoConverter {
 			JbpmTask task,
 			Map<String, Object> varsCommand,
 			boolean ambVariables,
+			boolean ambTexts,
 			boolean validada,
 			boolean documentsComplet,
 			boolean signaturesComplet) {
@@ -359,10 +371,6 @@ public class DtoConverter {
 			dto.setDocumentsComplet(documentsComplet);
 			dto.setSignaturesComplet(signaturesComplet);
 			List<CampTasca> campsTasca = campTascaDao.findAmbTascaOrdenats(tasca.getId());
-			// (1) Per evitar error de lazy initialization en la validació del formulari de tasca
-			for (CampTasca camp: campsTasca)
-				camp.getCamp().getValidacions().size();
-			// (/1)
 			dto.setCamps(campsTasca);
 			List<DocumentTasca> documentsTasca = documentTascaDao.findAmbTascaOrdenats(tasca.getId());
 			dto.setDocuments(documentsTasca);
@@ -386,19 +394,22 @@ public class DtoConverter {
 				List<Camp> camps = new ArrayList<Camp>();
 				for (CampTasca campTasca: campsTasca)
 					camps.add(campTasca.getCamp());
-				Map<String, ParellaCodiValorDto> valorsDomini = obtenirValorsDomini(
-						task.getId(),
-						null,
-						camps,
-						valors);
-				dto.setValorsDomini(valorsDomini);
-				Map<String, List<ParellaCodiValorDto>> valorsMultiplesDomini = obtenirValorsMultiplesDomini(
-						task.getId(),
-						null,
-						camps,
-						valors);
-				dto.setValorsMultiplesDomini(valorsMultiplesDomini);
-				dto.setVarsComText(textPerCamps(task.getId(), null, camps, valors, valorsDomini, valorsMultiplesDomini));
+				if (ambTexts) {
+					Map<String, ParellaCodiValorDto> valorsDomini = obtenirValorsDomini(
+							task.getId(),
+							null,
+							camps,
+							valors);
+					dto.setValorsDomini(valorsDomini);
+					Map<String, List<ParellaCodiValorDto>> valorsMultiplesDomini = obtenirValorsMultiplesDomini(
+							task.getId(),
+							null,
+							camps,
+							valors);
+					dto.setValorsMultiplesDomini(valorsMultiplesDomini);
+					getServiceUtils().revisarVariablesJbpm(valors);
+					dto.setVarsComText(textPerCamps(task.getId(), null, camps, valors, valorsDomini, valorsMultiplesDomini));
+				}
 				dto.setVariables(valors);
 			}
 		}
@@ -499,6 +510,7 @@ public class DtoConverter {
 					camps,
 					valors);
 			dto.setValorsMultiplesDomini(valorsMultiplesDomini);
+			getServiceUtils().revisarVariablesJbpm(valors);
 			dto.setVarsComText(
 					textPerCamps(
 							null,
@@ -704,11 +716,6 @@ public class DtoConverter {
 					processInstanceId,
 					camp,
 					valorsAddicionals);
-			/*if (valorsAddicionals != null) {
-				if (params == null)
-					params = new HashMap<String, Object>();
-				params.putAll(valorsAddicionals);
-			}*/
 			return getResultatConsultaDominiPerCamp(camp, params, textInicial);
 		}
 		return new ArrayList<FilaResultat>();
@@ -741,28 +748,45 @@ public class DtoConverter {
 				}
 				return resultat;
 			} catch (Exception ex) {
-				throw new DominiException(getMessage("error.dtoConverter.consultarDomini"), ex);
+				throw new DominiException(
+						getServiceUtils().getMessage("error.dtoConverter.consultarDomini"),
+						ex);
 			}
 		}
 		return new ArrayList<FilaResultat>();
 	}
 
-	public String getTextConsultaDomini(
+	public String getCampText(
 			String taskId,
 			String processInstanceId,
 			Camp camp,
 			Object valor) {
-		ParellaCodiValor resultat = obtenirValorDomini(
-				taskId,
-				processInstanceId,
-				null,
-				camp,
-				valor,
-				null,
-				false);
-		if (resultat != null && resultat.getValor() != null)
-			return resultat.getValor().toString();
-		return null;
+		if (valor == null) return null;
+		if (camp == null) {
+			return valor.toString();
+		} else {
+			String textDomini = null;
+			if (	camp.getTipus().equals(TipusCamp.SELECCIO) ||
+					camp.getTipus().equals(TipusCamp.SUGGEST)) {
+				if (valor instanceof DominiCodiDescripcio) {
+					textDomini = ((DominiCodiDescripcio)valor).getDescripcio();
+				} else {
+					ParellaCodiValor resultat = obtenirValorDomini(
+							taskId,
+							processInstanceId,
+							null,
+							camp,
+							valor,
+							false);
+					if (resultat != null && resultat.getValor() != null)
+						textDomini = resultat.getValor().toString();
+				}
+			}
+			return Camp.getComText(
+					camp.getTipus(),
+					valor,
+					textDomini);
+		}
 	}
 
 
@@ -829,6 +853,18 @@ public class DtoConverter {
 		this.enumeracioValorsDao = enumeracioValorsDao;
 	}
 	@Autowired
+	public void setCampDao(CampDao campDao) {
+		this.campDao = campDao;
+	}
+	@Autowired
+	public void setConsultaCampDao(ConsultaCampDao consultaCampDao) {
+		this.consultaCampDao = consultaCampDao;
+	}
+	@Autowired
+	public void setAclServiceDao(AclServiceDao aclServiceDao) {
+		this.aclServiceDao = aclServiceDao;
+	}
+	@Autowired
 	public void setMessageSource(MessageSource messageSource) {
 		this.messageSource = messageSource;
 	}
@@ -851,7 +887,6 @@ public class DtoConverter {
 							null,
 							camp,
 							valor,
-							valors.get(TascaService.PREFIX_TEXT_SUGGEST + camp.getCodi()),
 							true);
 					resposta.put(camp.getCodi(), codiValor);
 				}
@@ -889,7 +924,6 @@ public class DtoConverter {
 									null,
 									camp,
 									Array.get(valor, i),
-									valors.get(TascaService.PREFIX_TEXT_SUGGEST + camp.getCodi()),
 									true);
 							ParellaCodiValorDto parellaDto = null;
 							if (codiValor != null) {
@@ -912,29 +946,29 @@ public class DtoConverter {
 			Map<String, Object> valorsAddicionals,
 			Camp camp,
 			Object valor,
-			Object valorText,
 			boolean actualitzarJbpm) throws DominiException {
 		if (valor == null)
 			return null;
-		ParellaCodiValor resposta = null;
-		if (valorText != null) {
-			resposta = new ParellaCodiValor(
-					(String)valor,
-					valorText);
+		if (valor instanceof DominiCodiDescripcio) {
+			return new ParellaCodiValor(
+					((DominiCodiDescripcio)valor).getCodi(),
+					((DominiCodiDescripcio)valor).getDescripcio());
 		}
+		ParellaCodiValor resposta = null;
 		TipusCamp tipus = camp.getTipus();
 		if (tipus.equals(TipusCamp.SELECCIO) || tipus.equals(TipusCamp.SUGGEST)) {
 			if (camp.getDomini() != null) {
 				Domini domini = camp.getDomini();
 				try {
+					Map<String, Object> paramsConsulta = getParamsConsulta(
+							taskId,
+							processInstanceId,
+							camp,
+							valorsAddicionals);
 					List<FilaResultat> resultat = dominiDao.consultar(
 							domini.getId(),
 							camp.getDominiId(),
-							getParamsConsulta(
-									taskId,
-									processInstanceId,
-									camp,
-									valorsAddicionals));
+							paramsConsulta);
 					String columnaCodi = camp.getDominiCampValor();
 					String columnaValor = camp.getDominiCampText();
 					Iterator<FilaResultat> it = resultat.iterator();
@@ -997,8 +1031,7 @@ public class DtoConverter {
 			for (String codi: variables.keySet()) {
 				if (	codi.startsWith(TascaService.PREFIX_DOCUMENT) ||
 						codi.startsWith(TascaService.PREFIX_SIGNATURA) ||
-						codi.startsWith(TascaService.PREFIX_ADJUNT) ||
-						codi.startsWith(TascaService.PREFIX_TEXT_SUGGEST))
+						codi.startsWith(TascaService.PREFIX_ADJUNT))
 					codisEsborrar.add(codi);
 			}
 			for (String codi: codisEsborrar)
@@ -1173,7 +1206,6 @@ public class DtoConverter {
 														valorsAddicionalsConsulta,
 														membreRegistre,
 														Array.get(valorRegistre, j),
-														null,
 														true);
 												ParellaCodiValorDto parellaDto = null;
 												if (codiValor != null) {
@@ -1181,12 +1213,12 @@ public class DtoConverter {
 															codiValor.getCodi(),
 															codiValor.getValor());
 												}
-												texts[j] = textPerCamp(
+												texts[j] = textPerCampDonatValorDomini(
 														membreRegistre,
 														Array.get(valorRegistre, j),
 														parellaDto);
 											} else {
-												texts[j] = textPerCamp(
+												texts[j] = textPerCampDonatValorDomini(
 														membreRegistre,
 														Array.get(valorRegistre, j),
 														null);
@@ -1208,11 +1240,11 @@ public class DtoConverter {
 										String t = null;
 										if (camp.getTipus().equals(TipusCamp.SUGGEST) || camp.getTipus().equals(TipusCamp.SELECCIO)) {
 											if (valorsMultiplesDomini.get(key).size() > i)
-												t = textPerCamp(camp, Array.get(valor, i), valorsMultiplesDomini.get(key).get(i));
+												t = textPerCampDonatValorDomini(camp, Array.get(valor, i), valorsMultiplesDomini.get(key).get(i));
 											else
 												t = "!" + Array.get(valor, i) + "!";
 										} else {
-											t = textPerCamp(camp, Array.get(valor, i), null);
+											t = textPerCampDonatValorDomini(camp, Array.get(valor, i), null);
 										}
 										if (t != null)
 											texts.add(t);
@@ -1227,7 +1259,7 @@ public class DtoConverter {
 						} else {
 							resposta.put(
 									key,
-									textPerCamp(camp, valors.get(key), valorsDomini.get(key)));
+									textPerCampDonatValorDomini(camp, valors.get(key), valorsDomini.get(key)));
 						}
 						found = true;
 						break;
@@ -1243,7 +1275,7 @@ public class DtoConverter {
 		}
 		return resposta;
 	}
-	private String textPerCamp(
+	private String textPerCampDonatValorDomini(
 			Camp camp,
 			Object valor,
 			ParellaCodiValorDto valorDomini) {
@@ -1294,9 +1326,9 @@ public class DtoConverter {
 				if (valorsAddicionals != null && valorsAddicionals.size() > 0)
 					value = valorsAddicionals.get(campCodi);
 				if (value == null && taskId != null)
-					value = jbpmDao.getTaskInstanceVariable(taskId, campCodi);
+					value = getServiceUtils().getVariableJbpmTascaValor(taskId, campCodi);
 				if (value == null && processInstanceId != null)
-					value = jbpmDao.getProcessInstanceVariable(processInstanceId, campCodi);
+					value = getServiceUtils().getVariableJbpmProcesValor(processInstanceId, campCodi);
 			}
 			if (value != null)
 				params.put(paramCodi, value);
@@ -1384,26 +1416,24 @@ public class DtoConverter {
 			pdfUtils = new PdfUtils();
 		return pdfUtils;
 	}
-
+	private ServiceUtils getServiceUtils() {
+		if (serviceUtils == null) {
+			serviceUtils = new ServiceUtils(
+					definicioProcesDao,
+					campDao,
+					consultaCampDao,
+					this,
+					jbpmDao,
+					aclServiceDao,
+					messageSource);
+		}
+		return serviceUtils;
+	}
 	private DocumentTokenUtils getDocumentTokenUtils() {
 		if (documentTokenUtils == null)
 			documentTokenUtils = new DocumentTokenUtils(
 					(String)GlobalProperties.getInstance().get("app.encriptacio.clau"));
 		return documentTokenUtils;
-	}
-
-	private String getMessage(String key, Object[] vars) {
-		try {
-			return messageSource.getMessage(
-					key,
-					vars,
-					null);
-		} catch (NoSuchMessageException ex) {
-			return "???" + key + "???";
-		}
-	}
-	private String getMessage(String key) {
-		return getMessage(key, null);
 	}
 
 	private static final Log logger = LogFactory.getLog(DtoConverter.class);

@@ -12,6 +12,7 @@ import java.util.Map;
 import net.conselldemallorca.helium.core.model.dao.DaoProxy;
 import net.conselldemallorca.helium.core.model.dao.DominiDao;
 import net.conselldemallorca.helium.core.model.dao.EntornDao;
+import net.conselldemallorca.helium.core.model.dao.EnumeracioDao;
 import net.conselldemallorca.helium.core.model.dao.MailDao;
 import net.conselldemallorca.helium.core.model.dao.PluginGestioDocumentalDao;
 import net.conselldemallorca.helium.core.model.dao.PluginRegistreDao;
@@ -26,6 +27,8 @@ import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
+import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
@@ -64,12 +67,13 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentPresencial;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentTelematic;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentTramit;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo.IniciadorTipus;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.FilaResultat;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ParellaCodiValor;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaRegistre;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.Signatura;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.Tramit;
-import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo.IniciadorTipus;
+import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
 
@@ -114,12 +118,11 @@ public abstract class BasicActionHandler implements ActionHandler {
 			String codiDomini,
 			String id,
 			Map<String, Object> parametres) {
-		ExpedientInfo expedient = getExpedient(executionContext);
+		Expedient expedient = getExpedientActual(executionContext);
 		if (expedient == null)
 			throw new JbpmException("No s'ha trobat cap expedient que correspongui amb aquesta instància de procés (" + executionContext.getProcessInstance().getId() + ")");
-		Entorn entorn = getEntornDao().findAmbCodi(expedient.getEntornCodi());
 		Domini domini = getDominiDao().findAmbEntornICodi(
-				entorn.getId(),
+				expedient.getEntorn().getId(),
 				codiDomini);
 		if (domini == null)
 			throw new JbpmException("No s'ha trobat el domini amb el codi '" + codiDomini + "'");
@@ -141,6 +144,49 @@ public abstract class BasicActionHandler implements ActionHandler {
 		}
 	}
 
+	/**
+	 * Retorna tots els valors d'una enumeració
+	 * 
+	 * @param executionContext
+	 * @param codiEnumeracio
+	 * @return
+	 */
+	public List<ParellaCodiValor> consultaEnumeracio(
+			ExecutionContext executionContext,
+			String codiEnumeracio) {
+		Expedient expedient = getExpedientActual(executionContext);
+		if (expedient == null)
+			throw new JbpmException("No s'ha trobat cap expedient que correspongui amb aquesta instància de procés (" + executionContext.getProcessInstance().getId() + ")");
+		Enumeracio enm = getEnumeracioDao().findAmbEntornAmbOSenseTipusExpICodi(
+				expedient.getEntorn().getId(),
+				expedient.getTipus().getId(),
+				codiEnumeracio);
+		if (enm == null)
+			throw new JbpmException("No s'ha trobat el domini amb el codi '" + codiEnumeracio + "'");
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
+		for (EnumeracioValors valor: enm.getEnumeracioValors()) {
+			resposta.add(
+					new ParellaCodiValor(
+							valor.getCodi(),
+							valor.getNom()));
+		}
+		return resposta;
+	}
+
+	/**
+	 * Retorna el resultat d'una consulta d'expedients
+	 * 
+	 * @param executionContext
+	 * @param titol
+	 * @param numero
+	 * @param dataInici1
+	 * @param dataInici2
+	 * @param expedientTipusCodi
+	 * @param estatCodi
+	 * @param iniciat
+	 * @param finalitzat
+	 * @return
+	 */
 	public List<ExpedientInfo> consultaExpedients(
 			ExecutionContext executionContext,
 			String titol,
@@ -317,14 +363,7 @@ public abstract class BasicActionHandler implements ActionHandler {
 	 * @return
 	 */
 	public ExpedientInfo getExpedient(ExecutionContext executionContext) {
-		Expedient ex = ExpedientIniciantDto.getExpedient();
-		if (ex != null) {
-			return toExpedientInfo(ex);
-		} else {
-			ExpedientDto expedient = getExpedientService().findExpedientAmbProcessInstanceId(
-					getProcessInstanceId(executionContext));
-			return toExpedientInfo(expedient);
-		}
+		return toExpedientInfo(getExpedientActual(executionContext));
 	}
 
 	/**
@@ -728,14 +767,30 @@ public abstract class BasicActionHandler implements ActionHandler {
 	}
 
 	/**
-	 * Retorna el text que es correspon amb el valor d'una variable
-	 * provinent d'una consulta de domini o d'una enumeració.
+	 * Retorna el valor d'una variable
 	 * 
 	 * @param executionContext
 	 * @param varCodi
 	 * @return
 	 */
-	public String getTextPerVariableAmbDomini(
+	public Object getVariableValor(
+			ExecutionContext executionContext,
+			String varCodi) {
+		Object valor = executionContext.getVariable(varCodi);
+		if (valor instanceof DominiCodiDescripcio) {
+			return ((DominiCodiDescripcio)valor).getCodi();
+		} else {
+			return valor;
+		}
+	}
+	/**
+	 * Retorna el text d'una variable per a mostrar a l'usuari
+	 * 
+	 * @param executionContext
+	 * @param varCodi
+	 * @return
+	 */
+	public String getVariableText(
 			ExecutionContext executionContext,
 			String varCodi) {
 		long processInstanceId = executionContext.getProcessInstance().getId();
@@ -744,7 +799,7 @@ public abstract class BasicActionHandler implements ActionHandler {
 		if (definicioProces != null) {
 			Camp camp = DaoProxy.getInstance().getCampDao().findAmbDefinicioProcesICodi(definicioProces.getId(), varCodi);
 			if (camp != null) {
-				return ServiceProxy.getInstance().getDtoConverter().getTextConsultaDomini(
+				return ServiceProxy.getInstance().getDtoConverter().getCampText(
 						null,
 						new Long(processInstanceId).toString(),
 						camp,
@@ -755,7 +810,6 @@ public abstract class BasicActionHandler implements ActionHandler {
 		} else {
 			throw new JbpmException("No s'ha trobat la definició de procés per a la instància de procés " + processInstanceId);
 		}
-	
 	}
 
 	/**
@@ -849,6 +903,9 @@ public abstract class BasicActionHandler implements ActionHandler {
 	}
 	private DominiDao getDominiDao() {
 		return DaoProxy.getInstance().getDominiDao();
+	}
+	private EnumeracioDao getEnumeracioDao() {
+		return DaoProxy.getInstance().getEnumeracioDao();
 	}
 	private MailDao getMailDao() {
 		return DaoProxy.getInstance().getMailDao();
@@ -1009,6 +1066,16 @@ public abstract class BasicActionHandler implements ActionHandler {
 			tramit.setDocuments(documents);
 		}
 		return tramit;
+	}
+
+	public Expedient getExpedientActual(ExecutionContext executionContext) {
+		Expedient ex = ExpedientIniciantDto.getExpedient();
+		if (ex != null) {
+			return ex;
+		} else {
+			return getExpedientService().findExpedientAmbProcessInstanceId(
+					getProcessInstanceId(executionContext));
+		}
 	}
 
 	private boolean isSignaturaFileAttached() {

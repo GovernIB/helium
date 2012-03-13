@@ -94,11 +94,10 @@ public class DefinicioProcesCampController extends BaseController {
 		if (entorn != null) {
 			if (definicioProcesId != null){
 				DefinicioProcesDto definicioProces = dissenyService.getByIdAmbComprovacio(entorn.getId(), definicioProcesId);
-				if (definicioProces != null && definicioProces.getExpedientTipus() != null){
-					return dissenyService.findEnumeracionsAmbEntornITipusExpONull(entorn.getId(), definicioProces.getExpedientTipus().getId());
-				}
+				if (definicioProces != null && definicioProces.getExpedientTipus() != null)
+					return dissenyService.findEnumeracionsAmbEntornAmbOSenseTipusExp(entorn.getId(), definicioProces.getExpedientTipus().getId());
 			}
-			return dissenyService.findEnumeracionsAmbEntornITipusExpONull(entorn.getId(), null);
+			return dissenyService.findEnumeracionsAmbEntornAmbOSenseTipusExp(entorn.getId(), null);
 		}
 		return null;
 	}

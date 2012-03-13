@@ -28,6 +28,9 @@ alter table hel_accio add column publica boolean not null default false;
 alter table hel_accio add column oculta boolean not null default false;
 alter table hel_accio add column cron character varying(255);
 
+-- Nou camp per a optimitzar les consultes a domini
+alter table hel_accio add column domini_cache_text boolean not null default false;
+
 -- Actualització a la nova versió --
 insert into hel_versio (
     id,

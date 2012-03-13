@@ -16,6 +16,7 @@ import java.util.Set;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.model.dao.AlertaDao;
 import net.conselldemallorca.helium.core.model.dao.CampDao;
+import net.conselldemallorca.helium.core.model.dao.CampTascaDao;
 import net.conselldemallorca.helium.core.model.dao.ConsultaCampDao;
 import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentDao;
@@ -45,6 +46,7 @@ import net.conselldemallorca.helium.core.model.exception.PluginException;
 import net.conselldemallorca.helium.core.model.exception.TemplateException;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
@@ -63,6 +65,7 @@ import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
+import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
@@ -92,7 +95,6 @@ public class TascaService {
 	public static final String PREFIX_SIGNATURA = "H3l1um#signatura.";
 	public static final String PREFIX_DOCUMENT = "H3l1um#document.";
 	public static final String PREFIX_ADJUNT = "H3l1um#adjunt.";
-	public static final String PREFIX_TEXT_SUGGEST = "H3l1um#suggtext.";
 
 	public static final String DEFAULT_SECRET_KEY = "H3l1umKy";
 	public static final String DEFAULT_ENCRYPTION_SCHEME = "DES/ECB/PKCS5Padding";
@@ -118,6 +120,7 @@ public class TascaService {
 	private TerminiIniciatDao terminiIniciatDao;
 	private AlertaDao alertaDao;
 	private CampDao campDao;
+	private CampTascaDao campTascaDao;
 	private ConsultaCampDao consultaCampDao;
 	private MessageSource messageSource;
 
@@ -131,18 +134,16 @@ public class TascaService {
 
 
 
-	public TascaDto getById(Long entornId, String taskId) {
-		return getById(entornId, taskId, null, null);
-	}
-	public TascaDto getById(Long entornId, String taskId, Map<String, Object> valorsCommand) {
-		return getById(entornId, taskId, null, valorsCommand);
-	}
-	public TascaDto getById(Long entornId, String taskId, String usuari) {
-		return getById(entornId, taskId, usuari, null);
-	}
-	public TascaDto getById(Long entornId, String taskId, String usuari, Map<String, Object> valorsCommand) {
+	public TascaDto getById(
+			Long entornId,
+			String taskId,
+			String usuari,
+			Map<String, Object> valorsCommand,
+			boolean ambVariables,
+			boolean ambTexts) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);
-		return toTascaDto(task, valorsCommand, true);
+		TascaDto resposta = toTascaDto(task, valorsCommand, ambVariables, ambTexts);
+		return resposta;
 	}
 	public TascaDto getByIdSenseComprovacio(String taskId) {
 		return getByIdSenseComprovacio(taskId, null, null);
@@ -155,7 +156,7 @@ public class TascaService {
 	}
 	public TascaDto getByIdSenseComprovacio(String taskId, String usuari, Map<String, Object> valorsCommand) {
 		JbpmTask task = jbpmDao.getTaskById(taskId);
-		return toTascaDto(task, valorsCommand, true);
+		return toTascaDto(task, valorsCommand, true, true);
 	}
 
 	public List<TascaLlistatDto> findTasquesPersonalsIndex(Long entornId) {
@@ -246,7 +247,7 @@ public class TascaService {
 		}
 		List<JbpmTask> tasques = jbpmDao.findPersonalTasks(usuariBo);
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);
-		TascaDto tasca = toTascaDto(task, null, true);
+		TascaDto tasca = toTascaDto(task, null, true, true);
 		String codi = task.getName();
 		String jbpmKey = tasca.getDefinicioProces().getJbpmKey();
 		List<TascaLlistatDto> resposta = tasquesPerTramitacioMasiva(
@@ -340,7 +341,7 @@ public class TascaService {
 	public TascaDto agafar(Long entornId, String usuari, String taskId) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, false);
 		jbpmDao.takeTaskInstance(taskId, usuari);
-		TascaDto tasca = toTascaDto(task, null, true);
+		TascaDto tasca = toTascaDto(task, null, true, true);
 		registreDao.crearRegistreIniciarTasca(
 				tasca.getExpedient().getId(),
 				taskId,
@@ -361,9 +362,10 @@ public class TascaService {
 			String usuari) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);
 		boolean iniciada = task.getStartTime() == null;
+		optimitzarConsultesDomini(task, variables);
 		jbpmDao.startTaskInstance(taskId);
 		jbpmDao.setTaskInstanceVariables(taskId, variables);
-		TascaDto tasca = toTascaDto(task, null, true);
+		TascaDto tasca = toTascaDto(task, null, true, true);
 		if (iniciada) {
 			registreDao.crearRegistreModificarTasca(
 					tasca.getExpedient().getId(),
@@ -371,11 +373,6 @@ public class TascaService {
 					SecurityContextHolder.getContext().getAuthentication().getName(),
 					"Iniciar tasca \"" + tasca.getNom() + "\"");
 		}
-		/*registreDao.crearRegistreModificarTasca(
-				tasca.getExpedient().getId(),
-				taskId,
-				SecurityContextHolder.getContext().getAuthentication().getName(),
-				"Guardar variables \"" + tasca.getNom() + "\"");*/
 		return tasca;
 	}
 
@@ -453,10 +450,11 @@ public class TascaService {
 			boolean comprovarAssignacio,
 			String usuari) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, comprovarAssignacio);
+		optimitzarConsultesDomini(task, variables);
 		jbpmDao.startTaskInstance(taskId);
 		jbpmDao.setTaskInstanceVariables(taskId, variables);
 		validarTasca(taskId);
-		TascaDto tasca = toTascaDto(task, null, true);
+		TascaDto tasca = toTascaDto(task, null, true, true);
 		registreDao.crearRegistreModificarTasca(
 				tasca.getExpedient().getId(),
 				taskId,
@@ -473,7 +471,7 @@ public class TascaService {
 					getServiceUtils().getMessage("error.tascaService.noValidada"));
 		//deleteDocumentsTasca(taskId);
 		restaurarTasca(taskId);
-		TascaDto tasca = toTascaDto(task, null, true);
+		TascaDto tasca = toTascaDto(task, null, true, true);
 		registreDao.crearRegistreModificarTasca(
 				tasca.getExpedient().getId(),
 				taskId,
@@ -533,7 +531,7 @@ public class TascaService {
 				mapValors,
 				getServiceUtils().getMapValorsDomini(mapCamps, mapValors),
 				isExpedientFinalitzat(expedient));
-		TascaDto tasca = toTascaDto(task, null, true);
+		TascaDto tasca = toTascaDto(task, null, true, true);
 		registreDao.crearRegistreFinalitzarTasca(
 				tasca.getExpedient().getId(),
 				taskId,
@@ -548,7 +546,7 @@ public class TascaService {
 			String taskId,
 			String codiVariable) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
-		return jbpmDao.getTaskInstanceVariable(task.getId(), codiVariable);
+		return getServiceUtils().getVariableJbpmTascaValor(task.getId(), codiVariable);
 	}
 	public void createVariable(
 			Long entornId,
@@ -558,8 +556,9 @@ public class TascaService {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		Map<String, Object> variables = new HashMap<String, Object>();
 		variables.put(codiVariable, valor);
+		optimitzarConsultesDomini(task, variables);
 		jbpmDao.setTaskInstanceVariables(task.getId(), variables);
-		TascaDto tasca = toTascaDto(task, null, true);
+		TascaDto tasca = toTascaDto(task, null, true, true);
 		registreDao.crearRegistreCrearVariableTasca(
 				tasca.getExpedient().getId(),
 				taskId,
@@ -573,11 +572,11 @@ public class TascaService {
 			String codiVariable,
 			Object valor) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
-		Object valorVell = jbpmDao.getTaskInstanceVariable(taskId, codiVariable);
+		Object valorVell = getServiceUtils().getVariableJbpmTascaValor(task.getId(), codiVariable);
 		Map<String, Object> variables = new HashMap<String, Object>();
 		variables.put(codiVariable, valor);
 		jbpmDao.setTaskInstanceVariables(task.getId(), variables);
-		TascaDto tasca = toTascaDto(task, null, true);
+		TascaDto tasca = toTascaDto(task, null, true, true);
 		registreDao.crearRegistreModificarVariableTasca(
 				tasca.getExpedient().getId(),
 				taskId,
@@ -592,7 +591,7 @@ public class TascaService {
 			String codiVariable) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		jbpmDao.deleteTaskInstanceVariable(task.getId(), codiVariable);
-		TascaDto tasca = toTascaDto(task, null, true);
+		TascaDto tasca = toTascaDto(task, null, true, true);
 		registreDao.crearRegistreEsborrarVariableTasca(
 				tasca.getExpedient().getId(),
 				taskId,
@@ -692,7 +691,7 @@ public class TascaService {
 				task.getId(),
 				codiVariableJbpm,
 				docStoreId);
-		TascaDto tasca = toTascaDto(task, null, true);
+		TascaDto tasca = toTascaDto(task, null, true, true);
 		// Registra l'acció
 		if (creat) {
 			registreDao.crearRegistreCrearDocumentTasca(
@@ -753,7 +752,7 @@ public class TascaService {
 					task.getProcessInstanceId(),
 					codiVariableJbpm);
 		}
-		TascaDto tasca = toTascaDto(task, null, true);
+		TascaDto tasca = toTascaDto(task, null, true, true);
 		registreDao.crearRegistreEsborrarDocumentTasca(
 				tasca.getExpedient().getId(),
 				taskId,
@@ -810,7 +809,7 @@ public class TascaService {
 		String[] tokenDesxifrat = getDocumentTokenUtils().desxifrarTokenMultiple(token);
 		if (tokenDesxifrat.length == 2) {
 			JbpmTask task = comprovarSeguretatTasca(entornId, tokenDesxifrat[0], null, true);
-			TascaDto tascaDto = toTascaDto(task, null, false);
+			TascaDto tascaDto = toTascaDto(task, null, false, false);
 			Long documentStoreId = Long.parseLong(tokenDesxifrat[1]);
 			DocumentDto document = dtoConverter.toDocumentDto(
 					documentStoreId,
@@ -907,7 +906,7 @@ public class TascaService {
 			ExpedientDto expedient = dtoConverter.toExpedientDto(
 					expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId()),
 					false);
-			TascaDto tasca = toTascaDto(task, null, true);
+			TascaDto tasca = toTascaDto(task, null, true, true);
 			InstanciaProcesDto instanciaProces = dtoConverter.toInstanciaProcesDto(
 					task.getProcessInstanceId(),
 					true);
@@ -1023,7 +1022,7 @@ public class TascaService {
 		if (tasca.getFormExtern() == null)
 			throw new IllegalStateException(
 					getServiceUtils().getMessage("error.tascaService.noFormExtern"));
-		Map<String, Object> vars = jbpmDao.getTaskInstanceVariables(task.getId());
+		Map<String, Object> vars = getServiceUtils().getVariablesJbpmTascaValor(task.getId());
 		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 		return formulariExternDao.iniciarFormulariExtern(
@@ -1233,6 +1232,11 @@ public class TascaService {
 		this.campDao = campDao;
 	}
 	@Autowired
+	public void setCampTascaDao(
+			CampTascaDao campTascaDao) {
+		this.campTascaDao = campTascaDao;
+	}
+	@Autowired
 	public void setConsultaCampDao(
 			ConsultaCampDao consultaCampDao) {
 		this.consultaCampDao = consultaCampDao;
@@ -1273,11 +1277,12 @@ public class TascaService {
 		}
 		return task;
 	}
-	private TascaDto toTascaDto(JbpmTask task, Map<String, Object> varsCommand, boolean ambVariables) {
+	private TascaDto toTascaDto(JbpmTask task, Map<String, Object> varsCommand, boolean ambVariables, boolean ambTexts) {
 		return dtoConverter.toTascaDto(
 				task,
 				varsCommand,
 				ambVariables,
+				ambTexts,
 				isTascaValidada(task),
 				isDocumentsComplet(task),
 				isSignaturesComplet(task));
@@ -1724,6 +1729,35 @@ public class TascaService {
 			return processInstance.getEnd() != null;
 		}
 		return false;
+	}
+
+	private void optimitzarConsultesDomini(
+			JbpmTask task,
+			Map<String, Object> variables) {
+		Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
+				task.getName(),
+				task.getProcessDefinitionId());
+		List<CampTasca> campsTasca = campTascaDao.findAmbTascaOrdenats(tasca.getId());
+		for (CampTasca campTasca: campsTasca) {
+			if (campTasca.getCamp().isDominiCacheText()) {
+				Object campValor = variables.get(campTasca.getCamp().getCodi());
+				if (campValor != null) {
+					if (	campTasca.getCamp().getTipus().equals(TipusCamp.SELECCIO) ||
+							campTasca.getCamp().getTipus().equals(TipusCamp.SUGGEST)) {
+						String text = dtoConverter.getCampText(
+								task.getId(),
+								null,
+								campTasca.getCamp(),
+								campValor);
+						variables.put(
+								campTasca.getCamp().getCodi(),
+								new DominiCodiDescripcio(
+										(String)campValor,
+										text));
+					}
+				}
+			}
+		}
 	}
 
 	private DadesCacheTasca getDadesCacheTasca(JbpmTask task) {

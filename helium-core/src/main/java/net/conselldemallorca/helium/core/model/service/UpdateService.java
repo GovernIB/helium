@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
+import net.conselldemallorca.helium.core.model.dao.EnumeracioDao;
 import net.conselldemallorca.helium.core.model.dao.PermisDao;
 import net.conselldemallorca.helium.core.model.dao.PersonaDao;
 import net.conselldemallorca.helium.core.model.dao.UsuariDao;
@@ -52,6 +53,7 @@ public class UpdateService {
 	private PersonaDao personaDao;
 	private UsuariDao usuariDao;
 	private PermisDao permisDao;
+	private EnumeracioDao enumeracioDao;
 
 	private DissenyService dissenyService;
 
@@ -128,6 +130,10 @@ public class UpdateService {
 	@Autowired
 	public void setPermisDao(PermisDao permisDao) {
 		this.permisDao = permisDao;
+	}
+	@Autowired
+	public void setEnumeracioDao(EnumeracioDao enumeracioDao) {
+		this.enumeracioDao = enumeracioDao;
 	}
 	@Autowired
 	public void setMessageSource(MessageSource messageSource) {
@@ -242,7 +248,7 @@ public class UpdateService {
 		}
 	}
 	private void canviarMapeigEnumeracionsV210() throws Exception {
-		List<Enumeracio> enumeracions = dissenyService.findEnumeracions();
+		List<Enumeracio> enumeracions = enumeracioDao.findAll();
 		if (enumeracions.size() > 0) {
 			for (Enumeracio enumeracio : enumeracions) {
 				if ((enumeracio.getValors() != null) && (!enumeracio.getValors().equals(""))) {
@@ -300,7 +306,7 @@ public class UpdateService {
 		return actualitzat;
 	}
 	private void actualitzarOrdreValorsEnumeracionsV221() {
-		List<Enumeracio> enumeracions = dissenyService.findEnumeracions();
+		List<Enumeracio> enumeracions = enumeracioDao.findAll();
 		for (Enumeracio enumeracio: enumeracions) {
 			int i = 0;
 			for (EnumeracioValors valor: enumeracio.getEnumeracioValors()) {

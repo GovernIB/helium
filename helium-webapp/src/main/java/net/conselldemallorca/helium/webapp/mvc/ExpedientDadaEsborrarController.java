@@ -85,7 +85,13 @@ public class ExpedientDadaEsborrarController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			TascaDto tasca = tascaService.getById(entorn.getId(), taskId);
+			TascaDto tasca = tascaService.getById(
+					entorn.getId(),
+					taskId,
+					null,
+					null,
+					false,
+					false);
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(tasca.getProcessInstanceId());
 			if (potModificarExpedient(expedient)) {
 				try {

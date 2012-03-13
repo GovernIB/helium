@@ -421,10 +421,11 @@ public class JbpmDao {
 		long id = new Long(taskId).longValue();
 		GetTaskInstanceCommand command = new GetTaskInstanceCommand(id);
 		TaskInstance taskInstance = (TaskInstance)commandService.execute(command);
-		for (String key: variables.keySet())
+		for (String key: variables.keySet()) {
 			taskInstance.setVariableLocally(
 					key,
 					variables.get(key));
+		}
 	}
 	public void setTaskInstanceVariable(String taskId, String codi, Object valor) {
 		Map<String, Object> vars = new HashMap<String, Object>();
