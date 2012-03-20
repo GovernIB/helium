@@ -31,6 +31,9 @@ alter table hel_accio add column cron character varying(255);
 -- Nou camp per a optimitzar les consultes a domini
 alter table hel_accio add column domini_cache_text boolean not null default false;
 
+-- Orddenacions per a les consultes avançades
+alter table hel_consulta add column ordre int not null default 0;
+
 -- Actualització a la nova versió --
 insert into hel_versio (
     id,

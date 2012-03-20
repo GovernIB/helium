@@ -133,8 +133,8 @@ public class TascaFormController extends BaseController {
 					id,
 					null,
 					null,
-					false,
-					false);
+					true,
+					true);
 			if (commandSessio != null) {
 				List<Camp> camps = new ArrayList<Camp>();
 	    		for (CampTasca campTasca: tasca.getCamps())

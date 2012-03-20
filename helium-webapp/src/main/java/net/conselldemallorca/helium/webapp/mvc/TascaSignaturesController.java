@@ -54,8 +54,8 @@ public class TascaSignaturesController extends BaseController {
 						id,
 						null,
 						null,
-						false,
-						false);
+						true,
+						true);
 				Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 				campsAddicionals.put("id", id);
 				campsAddicionals.put("entornId", entorn.getId());

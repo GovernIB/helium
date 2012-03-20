@@ -142,7 +142,7 @@ public class TascaDocumentsController extends BaseController {
 					null,
 					null,
 					true,
-					false);
+					true);
 			model.addAttribute("tasca", tasca);
 			for (DocumentTasca document: tasca.getDocuments()) {
 				DocumentExpedientCommand command = new DocumentExpedientCommand();
