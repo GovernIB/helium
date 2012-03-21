@@ -7,7 +7,7 @@ import java.util.List;
 
 import javax.jws.WebService;
 
-import net.conselldemallorca.helium.core.model.dao.DaoProxy;
+import net.conselldemallorca.helium.core.model.service.ServiceProxy;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesTramit;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirDadesTramitRequest;
@@ -42,7 +42,7 @@ public class BantelV2Backoffice extends BaseBackoffice implements BantelFacade {
 			request.setClau(referenciaEntrada.getClaveAcceso());
 			boolean error = false;
 			try {
-				DadesTramit dadesTramit = DaoProxy.getInstance().getPluginTramitacioDao().obtenirDadesTramit(request);
+				DadesTramit dadesTramit = ServiceProxy.getInstance().getPluginService().obtenirDadesTramit(request);
 				logger.info("Petició de processament tramit " + request + " amb identificador " + dadesTramit.getIdentificador());
 				int numExpedients = processarTramit(dadesTramit);
 				logger.info("El tramit " + request + " ha creat " + numExpedients + " expedients");
@@ -59,7 +59,7 @@ public class BantelV2Backoffice extends BaseBackoffice implements BantelFacade {
 				else
 					requestResultat.setResultatProces(ResultatProcesTipus.ERROR);
 				logger.info("Comunicant el resultat de processar el tràmit " + request + ": " + requestResultat.getResultatProces());
-				DaoProxy.getInstance().getPluginTramitacioDao().comunicarResultatProcesTramit(requestResultat);
+				ServiceProxy.getInstance().getPluginService().comunicarResultatProcesTramit(requestResultat);
 			} catch (Exception ex) {
 				logger.error("Error a l'hora de comunicar el resultat de processar el tramit " + request, ex);
 			}
@@ -77,7 +77,7 @@ public class BantelV2Backoffice extends BaseBackoffice implements BantelFacade {
 		request.setPlantillaTipus(plantillaTipus);
 		request.setIdioma(idioma);
 		try {
-			return DaoProxy.getInstance().getPluginTramitacioDao().obtenirVistaDocument(request);
+			return ServiceProxy.getInstance().getPluginService().obtenirVistaDocument(request);
 		} catch (Exception ex) {
 			return null;
 		}
