@@ -91,7 +91,7 @@ public class TascaSignaturesController extends BaseController {
 					id,
 					null,
 					null,
-					false,
+					true,
 					false);
 			model.addAttribute("tasca", tasca);
 			return "tasca/signatures";

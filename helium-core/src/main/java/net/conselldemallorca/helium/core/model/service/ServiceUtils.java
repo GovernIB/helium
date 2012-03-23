@@ -361,16 +361,20 @@ public class ServiceUtils {
 			String processInstanceId) {
 		Map<String, Object> valors = jbpmDao.getProcessInstanceVariables(processInstanceId);
 		Map<String, Object> valorsRevisats = new HashMap<String, Object>();
-		for (String varCodi: valors.keySet()) {
-			Object valor = valors.get(varCodi);
-			valorsRevisats.put(varCodi, valorVariableJbpmRevisat(valor));
+		if (valors != null) {
+			for (String varCodi: valors.keySet()) {
+				Object valor = valors.get(varCodi);
+				valorsRevisats.put(varCodi, valorVariableJbpmRevisat(valor));
+			}
 		}
 		return valorsRevisats;
 	}
 	public void revisarVariablesJbpm(Map<String, Object> variables) {
-		for (String varCodi: variables.keySet()) {
-			Object valor = variables.get(varCodi);
-			variables.put(varCodi, valorVariableJbpmRevisat(valor));
+		if (variables != null) {
+			for (String varCodi: variables.keySet()) {
+				Object valor = variables.get(varCodi);
+				variables.put(varCodi, valorVariableJbpmRevisat(valor));
+			}
 		}
 	}
 
