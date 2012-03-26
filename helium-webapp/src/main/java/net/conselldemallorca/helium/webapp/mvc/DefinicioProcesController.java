@@ -192,7 +192,11 @@ public class DefinicioProcesController extends BaseController {
 				logger.error("Error llegint l'arxiu a importar", ex);
 				missatgeError(request, getMessage("error.arxiu.importar") );
 			} catch (Exception ex) {
-				missatgeError(request, getMessage("error.import.dades") + ex.getMessage());
+				logger.error("Error al importar les dades", ex);
+				if (ex.getMessage() != null)
+					missatgeError(request, getMessage("error.import.dades") + ex.getMessage());
+				else
+					missatgeError(request, getMessage("error.import.dades"));
 			}
 			return "redirect:/definicioProces/info.html?definicioProcesId=" + definicioProcesId;
 		} else {

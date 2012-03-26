@@ -1221,6 +1221,7 @@ public class DissenyService {
 			false);
 		importacio(
 				entornId,
+				expedientTipusId,
 				exportacio,
 				definicioProces);
 	}
@@ -1522,6 +1523,7 @@ public class DissenyService {
 		DefinicioProces definicioProces = definicioProcesDao.getById(definicioProcesId, false);
 		importacio(
 				entornId,
+				(definicioProces.getExpedientTipus() != null) ? definicioProces.getExpedientTipus().getId() : null,
 				exportacio,
 				definicioProces);
 	}
@@ -2374,38 +2376,63 @@ public class DissenyService {
 
 	private void importacio(
 			Long entornId,
+			Long expedientTipusId,
 			DefinicioProcesExportacio exportacio,
 			DefinicioProces definicioProces) {
 		// Propaga les agrupacions
 		Map<String, CampAgrupacio> agrupacions = new HashMap<String, CampAgrupacio>();
 		for (AgrupacioExportacio agrupacio: exportacio.getAgrupacions()) {
-			CampAgrupacio nova = new CampAgrupacio(
-					definicioProces,
-					agrupacio.getCodi(),
-					agrupacio.getNom(),
-					agrupacio.getOrdre());
+			CampAgrupacio nova = campAgrupacioDao.findAmbDefinicioProcesICodi(
+					definicioProces.getId(),
+					agrupacio.getCodi());
+			if (nova != null) {
+				nova.setNom(agrupacio.getNom());
+				nova.setOrdre(agrupacio.getOrdre());
+			} else {
+				nova = new CampAgrupacio(
+						definicioProces,
+						agrupacio.getCodi(),
+						agrupacio.getNom(),
+						agrupacio.getOrdre());
+			}
 			nova.setDescripcio(agrupacio.getDescripcio());
 			campAgrupacioDao.saveOrUpdate(nova);
 			agrupacions.put(agrupacio.getCodi(), nova);
 		}
 		// Propaga les accions
 		for (AccioExportacio accio: exportacio.getAccions()) {
-			Accio nova = new Accio(
-					definicioProces,
-					accio.getCodi(),
-					accio.getNom(),
-					accio.getJbpmAction());
+			Accio nova = accioDao.findAmbDefinicioProcesICodi(
+					definicioProces.getId(),
+					accio.getCodi());
+			if (nova != null) {
+				nova.setNom(accio.getNom());
+				nova.setJbpmAction(accio.getJbpmAction());
+			} else {
+				nova = new Accio(
+						definicioProces,
+						accio.getCodi(),
+						accio.getNom(),
+						accio.getJbpmAction());
+			}
 			nova.setDescripcio(accio.getDescripcio());
 			accioDao.saveOrUpdate(nova);
 		}
 		// Propaga els camps
 		Map<String, Camp> camps = new HashMap<String, Camp>();
 		for (CampExportacio camp: exportacio.getCamps()) {
-			Camp nou = new Camp(
-					definicioProces,
-					camp.getCodi(),
-					camp.getTipus(),
-					camp.getEtiqueta());
+			Camp nou = campDao.findAmbDefinicioProcesICodi(
+					definicioProces.getId(),
+					camp.getCodi());
+			if (nou != null) {
+				nou.setTipus(camp.getTipus());
+				nou.setEtiqueta(camp.getEtiqueta());
+			} else {
+				nou = new Camp(
+						definicioProces,
+						camp.getCodi(),
+						camp.getTipus(),
+						camp.getEtiqueta());
+			}
 			nou.setObservacions(camp.getObservacions());
 			nou.setDominiId(camp.getDominiId());
 			nou.setDominiParams(camp.getDominiParams());
@@ -2419,23 +2446,39 @@ public class DissenyService {
 				Enumeracio enumeracio = enumeracioDao.findAmbEntornSenseTipusExpICodi(
 						entornId,
 						camp.getCodiEnumeracio());
-				if (enumeracio != null)
+				if (enumeracio != null) {
 					nou.setEnumeracio(enumeracio);
-				else
-					throw new DeploymentException(
-							getServiceUtils().getMessage("error.dissenyService.enumNoDefinida", new Object[]{camp.getCodiEnumeracio()}));
+				} else {
+					enumeracio = new Enumeracio();
+					enumeracio.setEntorn(entornDao.getById(entornId, false));
+					enumeracio.setCodi(camp.getCodiEnumeracio());
+					enumeracio.setNom(camp.getCodiEnumeracio());
+					if (expedientTipusId != null)
+						enumeracio.setExpedientTipus(
+								expedientTipusDao.getById(expedientTipusId, false));
+					enumeracioDao.saveOrUpdate(enumeracio);
+				}
 			}
 			if (camp.getCodiDomini() != null) {
 				Domini domini = dominiDao.findAmbEntornICodi(entornId, camp.getCodiDomini());
-				if (domini != null)
+				if (domini != null) {
 					nou.setDomini(domini);
-				else
-					throw new DeploymentException(
-							getServiceUtils().getMessage("error.dissenyService.dominiNoDefinit", new Object[]{camp.getCodiDomini()}));
+				} else {
+					domini = new Domini();
+					domini.setEntorn(entornDao.getById(entornId, false));
+					domini.setCodi(camp.getCodiDomini());
+					domini.setNom(camp.getCodiDomini());
+					domini.setTipus(TipusDomini.CONSULTA_SQL);
+					if (expedientTipusId != null)
+						domini.setExpedientTipus(
+								expedientTipusDao.getById(expedientTipusId, false));
+					dominiDao.saveOrUpdate(domini);
+				}
 			}
 			if (camp.getAgrupacioCodi() != null)
 				nou.setAgrupacio(agrupacions.get(camp.getAgrupacioCodi()));
 			// Propaga les validacions del camp
+			nou.getValidacions().clear();
 			for (ValidacioExportacio validacio: camp.getValidacions()) {
 				Validacio nova = new Validacio(
 						nou,
@@ -2448,6 +2491,18 @@ public class DissenyService {
 			camps.put(nou.getCodi(), nou);
 		}
 		// Propaga els membres dels camps de tipus registre
+		for (Camp camp: camps.values()) {
+			if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
+				for (CampRegistre campRegistre: camp.getRegistreMembres()) {
+					campRegistre.getMembre().getRegistrePares().remove(campRegistre);
+					campRegistre.setMembre(null);
+					campRegistre.setRegistre(null);
+					campRegistreDao.delete(campRegistre);
+				}
+				camp.getRegistreMembres().clear();
+				campRegistreDao.flush();
+			}
+		}
 		for (CampExportacio camp: exportacio.getCamps()) {
 			if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
 				for (RegistreMembreExportacio membre: camp.getRegistreMembres()) {
@@ -2464,10 +2519,17 @@ public class DissenyService {
 		// Propaga els documents
 		Map<String, Document> documents = new HashMap<String, Document>();
 		for (DocumentExportacio document: exportacio.getDocuments()) {
-			Document nou = new Document(
-					definicioProces,
-					document.getCodi(),
-					document.getNom());
+			Document nou = documentDao.findAmbDefinicioProcesICodi(
+					definicioProces.getId(),
+					document.getCodi());
+			if (nou != null) {
+				nou.setNom(document.getNom());
+			} else {
+				nou = new Document(
+						definicioProces,
+						document.getCodi(),
+						document.getNom());
+			}
 			documentDao.saveOrUpdate(nou);
 			nou.setDescripcio(document.getDescripcio());
 			nou.setArxiuNom(document.getArxiuNom());
@@ -2485,14 +2547,25 @@ public class DissenyService {
 		}
 		// Propaga els terminis
 		for (TerminiExportacio termini: exportacio.getTerminis()) {
-			Termini nou = new Termini(
-					definicioProces,
-					termini.getCodi(),
-					termini.getNom(),
-					termini.getAnys(),
-					termini.getMesos(),
-					termini.getDies(),
-					termini.isLaborable());
+			Termini nou = terminiDao.findAmbDefinicioProcesICodi(
+					definicioProces.getId(),
+					termini.getCodi());
+			if (nou != null) {
+				nou.setNom(termini.getNom());
+				nou.setAnys(termini.getAnys());
+				nou.setMesos(termini.getMesos());
+				nou.setDies(termini.getDies());
+				nou.setLaborable(termini.isLaborable());
+			} else {
+				nou = new Termini(
+						definicioProces,
+						termini.getCodi(),
+						termini.getNom(),
+						termini.getAnys(),
+						termini.getMesos(),
+						termini.getDies(),
+						termini.isLaborable());
+			}
 			nou.setDescripcio(termini.getDescripcio());
 			nou.setDiesPrevisAvis(termini.getDiesPrevisAvis());
 			nou.setAlertaPrevia(termini.isAlertaPrevia());
@@ -2513,6 +2586,14 @@ public class DissenyService {
 					nova.setRecursForm(vella.getRecursForm());
 					nova.setFormExtern(vella.getFormExtern());
 					// Propaga els camps de la tasca
+					for (CampTasca campTasca: nova.getCamps()) {
+						campTasca.getCamp().getCampsTasca().remove(campTasca);
+						campTasca.setCamp(null);
+						campTasca.setTasca(null);
+						campTascaDao.delete(campTasca);
+					}
+					nova.getCamps().clear();
+					campTascaDao.flush();
 					for (CampTascaExportacio campTasca: vella.getCamps()) {
 						CampTasca nouct = new CampTasca(
 								camps.get(campTasca.getCampCodi()),
@@ -2526,6 +2607,14 @@ public class DissenyService {
 						campTascaDao.saveOrUpdate(nouct);
 					}
 					// Propaga els documents de la tasca
+					for (DocumentTasca documentTasca: nova.getDocuments()) {
+						documentTasca.getDocument().getTasques().remove(documentTasca);
+						documentTasca.setDocument(null);
+						documentTasca.setTasca(null);
+						documentTascaDao.delete(documentTasca);
+					}
+					nova.getDocuments().clear();
+					documentTascaDao.flush();
 					for (DocumentTascaExportacio documentTasca: vella.getDocuments()) {
 						DocumentTasca noudt = new DocumentTasca(
 								documents.get(documentTasca.getDocumentCodi()),
@@ -2537,7 +2626,8 @@ public class DissenyService {
 						documentTascaDao.saveOrUpdate(noudt);
 					}
 					// Propaga les firmes de la tasca
-					for (FirmaTascaExportacio firmaTasca: vella.getFirmes()) {
+					nova.getFirmes().clear();
+					/*for (FirmaTascaExportacio firmaTasca: vella.getFirmes()) {
 						FirmaTasca nouft = new FirmaTasca(
 								documents.get(firmaTasca.getDocumentCodi()),
 								nova,
@@ -2545,7 +2635,7 @@ public class DissenyService {
 								firmaTasca.getOrder());
 						nova.addFirma(nouft);
 						firmaTascaDao.saveOrUpdate(nouft);
-					}
+					}*/
 					// Propaga les validacions de la tasca
 					for (ValidacioExportacio validacio: vella.getValidacions()) {
 						Validacio novav = new Validacio(
