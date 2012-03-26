@@ -23,7 +23,7 @@
 			<artifactId>valcert-client-axis</artifactId>
 			<version>1.5</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/valcert-client-axis-1.5.jar</systemPath>
+			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/valcert-client-axis-1.9.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>es.caib</groupId>
