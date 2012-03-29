@@ -1338,7 +1338,6 @@ public class DissenyService {
 			if (expedientTipus == null)
 				throw new DeploymentException("No s'ha trobat l'expedient amb id: " + expedientTipusId);
 		}
-		
 		// Comprobamos que el codi del fichero a importar y del expediente a modificar son el mismo.
 		if (!(expedientTipus.getCodi().equals(exportacio.getCodi()))){
 			throw new DeploymentException("El codi del tipus d'expedient no correspon amb el del tipus a importar: "  + exportacio.getCodi());
@@ -1358,7 +1357,6 @@ public class DissenyService {
 		expedientTipus.setFormextUsuari(exportacio.getFormextUsuari());
 		expedientTipus.setFormextContrasenya(exportacio.getFormextContrasenya());
 		expedientTipusDao.saveOrUpdate(expedientTipus);
-		expedientTipusDao.flush();
 		// Crea els estats del tipus d'expedient
 		if (exportacio.getEstats() != null) {
 			for (EstatExportacio estat: exportacio.getEstats()) {
@@ -1380,7 +1378,6 @@ public class DissenyService {
 				estatDao.saveOrUpdate(enou);
 			}
 		}
-		estatDao.flush();
 		// Crea els mapejos del tipus d'expedient
 		if (exportacio.getMapeigSistras() != null) {
 			for (MapeigSistraExportacio mapeig: exportacio.getMapeigSistras()) {
@@ -1403,7 +1400,6 @@ public class DissenyService {
 				mapeigSistraDao.saveOrUpdate(mnou);
 			}
 		}
-		mapeigSistraDao.flush();
 		// Crea els dominis del tipus d'expedient
 		if (exportacio.getDominis() != null) {
 			for (DominiExportacio domini: exportacio.getDominis()) {
@@ -1428,7 +1424,6 @@ public class DissenyService {
 				dominiDao.saveOrUpdate(dnou);
 			}
 		}
-		dominiDao.flush();
 		// Crea les enumeracions del tipus d'expedient
 		if (exportacio.getEnumeracions() != null) {
 			for (EnumeracioExportacio enumeracio: exportacio.getEnumeracions()) {
@@ -1458,7 +1453,6 @@ public class DissenyService {
 				enumeracioDao.saveOrUpdate(nova);
 			}
 		}
-		enumeracioDao.flush();
 		// Crea les consultes del tipus d'expedient
 		if (exportacio.getConsultes() != null) {
 			for (ConsultaExportacio consulta: exportacio.getConsultes()) {
@@ -1509,7 +1503,6 @@ public class DissenyService {
 				consultaDao.saveOrUpdate(nova);
 			}
 		}
-		consultaDao.flush();
 		// Importa les definicions de procés
 		if (exportacio.getDefinicionsProces() != null) {
 			for (DefinicioProcesExportacio definicio : exportacio.getDefinicionsProces()) {
@@ -2445,7 +2438,7 @@ public class DissenyService {
 			nou.setJbpmAction(camp.getJbpmAction());
 			nou.setOrdre(camp.getOrdre());
 			if (camp.getCodiEnumeracio() != null) {
-				Enumeracio enumeracio = enumeracioDao.findAmbEntornSenseTipusExpICodi(
+				Enumeracio enumeracio = enumeracioDao.findAmbEntornICodi(
 						entornId,
 						camp.getCodiEnumeracio());
 				if (enumeracio != null) {
@@ -2463,6 +2456,9 @@ public class DissenyService {
 			}
 			if (camp.getCodiDomini() != null) {
 				Domini domini = dominiDao.findAmbEntornICodi(entornId, camp.getCodiDomini());
+				if (domini == null) {
+					
+				}
 				if (domini != null) {
 					nou.setDomini(domini);
 				} else {

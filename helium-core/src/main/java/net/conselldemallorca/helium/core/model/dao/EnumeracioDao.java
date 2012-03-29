@@ -40,6 +40,14 @@ public class EnumeracioDao extends HibernateGenericDao<Enumeracio, Long> {
 			enumeracions.addAll(findAmbEntornITipusExp(entornId, tipusExpedientId));
 		return enumeracions;
 	}
+	public Enumeracio findAmbEntornICodi(Long entornId, String codi) {
+		List<Enumeracio> enumeracions = findByCriteria(
+				Restrictions.eq("entorn.id", entornId),
+				Restrictions.eq("codi", codi));
+		if (enumeracions.size() > 0)
+			return enumeracions.get(0);
+		return null;
+	}
 
 	public Enumeracio findAmbEntornSenseTipusExpICodi(
 			Long entornId,
