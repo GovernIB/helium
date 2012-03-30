@@ -32,5 +32,27 @@ commit;
 INSERT INTO HEL_IDGEN ( TAULA, VALOR ) VALUES ( 
 'hel_persona', 1); 
 INSERT INTO HEL_IDGEN ( TAULA, VALOR ) VALUES ( 
-'hel_versio', 1); 
+'hel_versio', 1);
+
+
+-- Actualització a la nova versió --
+insert into hel_versio (
+    id,
+    codi,
+    ordre,
+    data_creacio,
+    proces_executat,
+    script_executat,
+    data_execucio_script)
+select
+    nextval('hibernate_sequence') id,
+    '2.3.0' codi,
+    230 ordre,
+    'now' data_creacio,
+    false proces_executat,
+    true script_executat,
+    'now' data_execucio_script
+where (select count(*) from hel_versio where ordre = 230) = 0;
+
+
 commit;
