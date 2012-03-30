@@ -146,14 +146,14 @@
 			<version>1.5.5</version>
 		</dependency>
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-jdk14</artifactId>
-			<version>1.4.3</version>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
 			<version>3.7</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-jcl</artifactId>
+			<version>1.4.3</version>
 		</dependency>
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
@@ -228,21 +228,6 @@
 									</replacefilter>
 								</replace>
 								<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.plugin.classpath" />
-								<if>
-									<equals arg1="${appserv.jboss}" arg2="true" />
-									<then>
-										<replace file="${basedir}/target/replace-dir/WEB-INF/web.xml">
-											<replacefilter>
-												<replacetoken><![CDATA[<!-- log4j.begin -->]]></replacetoken>
-												<replacevalue><![CDATA[<!--]]></replacevalue>
-											</replacefilter>
-											<replacefilter>
-												<replacetoken><![CDATA[<!-- log4j.end -->]]></replacetoken>
-												<replacevalue><![CDATA[-->]]></replacevalue>
-											</replacefilter>
-										</replace>
-									</then>
-								</if>
 								<if>
 									<equals arg1="${cas.sso.active}" arg2="true" />
 									<then>
