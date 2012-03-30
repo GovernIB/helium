@@ -1427,9 +1427,8 @@ public class DissenyService {
 		// Crea les enumeracions del tipus d'expedient
 		if (exportacio.getEnumeracions() != null) {
 			for (EnumeracioExportacio enumeracio: exportacio.getEnumeracions()) {
-				Enumeracio nova = enumeracioDao.findAmbEntornAmbTipusExpICodi(
+				Enumeracio nova = enumeracioDao.findAmbEntornICodi(
 						entornId,
-						expedientTipus.getId(),
 						enumeracio.getCodi());
 				if (nova == null) {
 					nova = new Enumeracio(
@@ -1439,9 +1438,11 @@ public class DissenyService {
 					nova.setExpedientTipus(expedientTipus);
 				} else {
 					nova.setNom(enumeracio.getNom());
-					nova.getEnumeracioValors().clear();
-					for (EnumeracioValors enumValor: nova.getEnumeracioValors())
+					for (EnumeracioValors enumValor: nova.getEnumeracioValors()) {
 						enumValor.setEnumeracio(null);
+						enumeracioValorsDao.delete(enumValor);
+					}
+					nova.getEnumeracioValors().clear();
 				}
 				for (EnumeracioValors enumValors: enumeracio.getValors()) {
 					EnumeracioValors novaEnumValors = new EnumeracioValors();
@@ -1456,9 +1457,8 @@ public class DissenyService {
 		// Crea les consultes del tipus d'expedient
 		if (exportacio.getConsultes() != null) {
 			for (ConsultaExportacio consulta: exportacio.getConsultes()) {
-				Consulta nova = consultaDao.findAmbEntornExpedientTipusICodi(
+				Consulta nova = consultaDao.findAmbEntornICodi(
 						entornId,
-						expedientTipus.getId(),
 						consulta.getCodi());
 				if (nova == null) {
 					nova = new Consulta(

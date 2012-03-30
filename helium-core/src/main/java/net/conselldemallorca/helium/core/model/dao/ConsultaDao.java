@@ -41,8 +41,17 @@ public class ConsultaDao extends HibernateGenericDao<Consulta, Long> {
 		return consultes;
 		
 	}
-	
-	
+
+	public Consulta findAmbEntornICodi(
+			Long entornId,
+			String codi) {
+		List<Consulta> consultes = findByCriteria(
+				Restrictions.eq("entorn.id", entornId),
+				Restrictions.eq("codi", codi));
+		if (consultes.size() > 0)
+			return consultes.get(0);
+		return null;
+	}
 	public Consulta findAmbEntornExpedientTipusICodi(
 			Long entornId,
 			Long expedientTipusId,
