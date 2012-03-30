@@ -81,6 +81,8 @@ public class RegistrePluginEsbCim implements RegistrePlugin {
 			}
 			if (registreNotificacio.getDadesInteressat() != null) {
 				DatosInteresado datosInteresado = new DatosInteresado();
+				datosInteresado.setAutenticado(
+						registreNotificacio.getDadesInteressat().isAutenticat());
 				datosInteresado.setNombreApellidos(
 						registreNotificacio.getDadesInteressat().getNomAmbCognoms());
 				datosInteresado.setNif(
