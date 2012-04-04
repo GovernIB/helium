@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <faceted-project>
+  <runtime name="Apache Tomcat v6.0 (JDK 1.5)"/>
   <fixed facet="wst.jsdt.web"/>
   <installed facet="jst.java" version="5.0"/>
   <installed facet="wst.jsdt.web" version="1.0"/>

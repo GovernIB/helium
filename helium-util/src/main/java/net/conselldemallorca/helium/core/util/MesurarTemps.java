@@ -15,35 +15,69 @@ public class MesurarTemps {
 
 	public static Map<String, Long> instants;
 
+	public static Map<String, Double> mitjaValors;
+	public static Map<String, Integer> mitjaContadors;
 
 
-	public static void reiniciarInstant(String clau) {
+
+	public static void diferenciaReiniciar(String clau) {
 		getInstants().put(
 				clau,
 				new Long(System.currentTimeMillis()));
 	}
-	public static long obtenirDiferencia(String clau) {
+	public static long diferenciaCalcular(String clau) {
 		Long instant = getInstants().get(clau);
 		if (instant == null)
 			return 0;
 		return System.currentTimeMillis() - instant.longValue();
 	}
-	public static void imprimirInstantStdout(String clau) {
-		imprimirInstantStdout(clau, null);
+	public static void diferenciaImprimirStdout(String clau) {
+		diferenciaImprimirStdout(clau, null);
 	}
-	public static void imprimirInstantStdout(String clau, String text) {
+	public static void diferenciaImprimirStdout(String clau, String text) {
 		String perAfegir = "";
 		if (text != null)
 			perAfegir += " " + text + " ";
-		System.out.println("---> [" + clau + "]" + perAfegir + ": " + obtenirDiferencia(clau) + "ms");
+		System.out.println("---> [" + clau + "]" + perAfegir + ": " + diferenciaCalcular(clau) + "ms");
 	}
-	public static void imprimirInstantStdoutIReiniciar(String clau) {
-		imprimirInstantStdout(clau, null);
-		reiniciarInstant(clau);
+	public static void diferenciaImprimirStdoutIReiniciar(String clau) {
+		diferenciaImprimirStdout(clau, null);
+		diferenciaReiniciar(clau);
 	}
-	public static void imprimirInstantStdoutIReiniciar(String clau, String text) {
-		imprimirInstantStdout(clau, text);
-		reiniciarInstant(clau);
+	public static void diferenciaImprimirStdoutIReiniciar(String clau, String text) {
+		diferenciaImprimirStdout(clau, text);
+		diferenciaReiniciar(clau);
+	}
+
+	public static void mitjaReiniciar(String clau) {
+		getMitjaValors().put(
+				clau,
+				new Double(0));
+		getMitjaContadors().put(
+				clau,
+				new Integer(0));
+	}
+	public static void mitjaCalcular(String clauMitja, String clauDiferencia) {
+		double mitjaAntiga = getMitjaValors().get(clauMitja).doubleValue();
+		int contador = getMitjaContadors().get(clauMitja).intValue();
+		long diferencia = diferenciaCalcular(clauDiferencia);
+		diferenciaReiniciar(clauDiferencia);
+		double mitja = (mitjaAntiga * contador + diferencia) / (contador + 1);
+		getMitjaValors().put(
+				clauMitja,
+				new Double(mitja));
+		getMitjaContadors().put(
+				clauMitja,
+				new Integer(contador + 1));
+	}
+	public static void mitjaImprimirStdout(String clau) {
+		diferenciaImprimirStdout(clau, null);
+	}
+	public static void mitjaImprimirStdout(String clau, String text) {
+		String perAfegir = "";
+		if (text != null)
+			perAfegir += " " + text;
+		System.out.println("---> [" + clau + "]" + perAfegir + ": " + getMitjaValors().get(clau) + "ms (n=" + getMitjaContadors().get(clau) + ")");
 	}
 
 
@@ -52,6 +86,16 @@ public class MesurarTemps {
 		if (instants == null)
 			instants = new HashMap<String, Long>();
 		return instants;
+	}
+	private static Map<String, Double> getMitjaValors() {
+		if (mitjaValors == null)
+			mitjaValors = new HashMap<String, Double>();
+		return mitjaValors;
+	}
+	private static Map<String, Integer> getMitjaContadors() {
+		if (mitjaContadors == null)
+			mitjaContadors = new HashMap<String, Integer>();
+		return mitjaContadors;
 	}
 
 }

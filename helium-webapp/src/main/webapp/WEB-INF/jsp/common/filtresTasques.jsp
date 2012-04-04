@@ -162,10 +162,9 @@
 </div>
 
 <br/><br/>
-
-<c:if test="${param.tasques != param.total}">
+<%--c:if test="${param.tasques != param.total}">
 	<p class="aclaracio">
 		<fmt:message key='common.filtres.mostrant' /> ${param.tasques} <fmt:message key='common.filtres.de' /> ${param.total} <fmt:message key='comuns.tasques' />
 	</p>
 	<br/>
-</c:if>
+</c:if--%>

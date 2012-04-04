@@ -170,57 +170,34 @@ public class DtoConverter {
 	}
 
 	public String getTitolPerTasca(
-			JbpmTask task) {
+			JbpmTask task,
+			Tasca tasca) {
 		String titol = null;
 		if (!isTascaEvaluada(task)) {
-			Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
-					task.getName(),
-					task.getProcessDefinitionId());
 			if (tasca != null) {
-				Map<String, Object> valorsTasca = jbpmDao.getTaskInstanceVariables(task.getId());
-				List<CampTasca> cts = campTascaDao.findAmbTascaOrdenats(tasca.getId());
-				List<Camp> campsTasca = new ArrayList<Camp>();
-				for (CampTasca campTasca: cts)
-					campsTasca.add(campTasca.getCamp());
-				Map<String, ParellaCodiValorDto> valorsDominiTasca = obtenirValorsDomini(
-						task.getId(),
-						null,
-						campsTasca,
-						valorsTasca);
-				Map<String, List<ParellaCodiValorDto>> valorsMultiplesDominiTasca = obtenirValorsMultiplesDomini(
-						task.getId(),
-						null,
-						campsTasca,
-						valorsTasca);
-				getServiceUtils().revisarVariablesJbpm(valorsTasca);
-				Map<String, Object> textPerCamps = textPerCamps(
-						task.getId(),
-						null,
-						campsTasca,
-						valorsTasca,
-						valorsDominiTasca,
-						valorsMultiplesDominiTasca);
-				Set<Camp> campsProces = tasca.getDefinicioProces().getCamps();
-				Map<String, Object> valorsProces = jbpmDao.getProcessInstanceVariables(task.getProcessInstanceId());
-				Map<String, ParellaCodiValorDto> valorsDominiProces = obtenirValorsDomini(
-						null,
-						task.getProcessInstanceId(),
-						campsProces,
-						valorsProces);
-				Map<String, List<ParellaCodiValorDto>> valorsMultiplesDominiProces = obtenirValorsMultiplesDomini(
-						null,
-						task.getProcessInstanceId(),
-						campsProces,
-						valorsProces);
-				getServiceUtils().revisarVariablesJbpm(valorsProces);
-				textPerCamps.putAll(textPerCamps(
-						null,
-						task.getProcessInstanceId(),
-						campsProces,
-						valorsProces,
-						valorsDominiProces,
-						valorsMultiplesDominiProces));
-				titol = evaluarTasca(task, tasca, textPerCamps);
+				Map<String, Object> textPerCamps = new HashMap<String, Object>(); 
+				if (tasca.getNomScript() != null && tasca.getNomScript().length() > 0) {
+					List<String> campsExpressio = getCampsExpressioTitol(tasca.getNomScript());
+					Map<String, Object> valors = jbpmDao.getTaskInstanceVariables(task.getId());
+					valors.putAll(jbpmDao.getProcessInstanceVariables(task.getProcessInstanceId()));
+					for (String campCodi: campsExpressio) {
+						Set<Camp> campsDefinicioProces = tasca.getDefinicioProces().getCamps();
+						for (Camp camp: campsDefinicioProces) {
+							if (camp.getCodi().equals(campCodi)) {
+								textPerCamps.put(
+										campCodi,
+										getCampText(
+												task.getId(),
+												task.getProcessInstanceId(),
+												camp,
+												valors.get(campCodi)));
+								break;
+							}
+						}
+					}
+				}
+				evaluarTasca(task, tasca, textPerCamps);
+				titol = getTascaEvaluadaTitol(task, tasca);
 			} else {
 				titol = task.getName();
 			}
@@ -235,8 +212,6 @@ public class DtoConverter {
 			Tasca tasca,
 			Expedient expedient,
 			boolean processar) {
-		//System.out.println(">>> Tasca: " + task.getId());
-		//long t1 = System.currentTimeMillis();
 		TascaDto dto = new TascaDto();
 		dto.setId(task.getId());
 		dto.setDescription(task.getDescription());
@@ -272,10 +247,6 @@ public class DtoConverter {
 		else
 			dto.setExpedient(expedientDao.findAmbProcessInstanceId(
 					jbpmDao.getRootProcessInstance(task.getProcessInstanceId()).getId()));
-		//System.out.println("Temps 1: " + (System.currentTimeMillis() - t1) + "ms");
-		//long t2 = System.currentTimeMillis();
-		//System.out.println("Temps 2: " + (System.currentTimeMillis() - t2) + "ms");
-		//long t3 = System.currentTimeMillis();
 		if (processar) {
 			dto.setOutcomes(jbpmDao.findTaskInstanceOutcomes(task.getId()));
 			Map<String, Object> valorsTasca = jbpmDao.getTaskInstanceVariables(task.getId());
@@ -296,8 +267,6 @@ public class DtoConverter {
 					dto.setDelegacioPersona(pluginPersonaDao.findAmbCodiPlugin(tascaDelegacio.getAssignee()));
 				}
 			}
-			//System.out.println("Temps 3: " + (System.currentTimeMillis() - t3) + "ms");
-			//long t4 = System.currentTimeMillis();
 			if (tasca != null) {
 				if (!isTascaEvaluada(task)) {
 					List<CampTasca> cts = campTascaDao.findAmbTascaOrdenats(tasca.getId());
@@ -342,14 +311,14 @@ public class DtoConverter {
 							valorsProces,
 							valorsDominiProces,
 							valorsMultiplesDominiProces));
-					String titolNou = evaluarTasca(task, tasca, textPerCamps);
+					evaluarTasca(task, tasca, textPerCamps);
+					String titolNou = getTascaEvaluadaTitol(task, tasca);
 					if (titolNou != null)
 						dto.setNom(titolNou);
 				} else {
 					dto.setNom(task.getDescription().substring(1));
 				}
 			}
-			//System.out.println("Temps 4: " + (System.currentTimeMillis() - t4) + "ms");
 		}
 		return dto;
 	}
@@ -1336,7 +1305,7 @@ public class DtoConverter {
 		return params;
 	}
 
-	private String evaluarTasca(JbpmTask task, Tasca tasca, Map<String, Object> textos) {
+	private void evaluarTasca(JbpmTask task, Tasca tasca, Map<String, Object> textos) {
 		String titolTasca = null;
 		if (tasca.getNomScript() != null && tasca.getNomScript().length() > 0) {
 			try {
@@ -1351,8 +1320,19 @@ public class DtoConverter {
 		} else {
 			titolTasca = tasca.getNom();
 		}
-		jbpmDao.describeTaskInstance(task.getId(), "@" + titolTasca);
-		return titolTasca;
+		String description = "@" + tasca.getId() + "@" + titolTasca;
+		task.getTask().setDescription(description);
+		jbpmDao.describeTaskInstance(task.getId(), description);
+	}
+	private String getTascaEvaluadaTitol(JbpmTask task, Tasca tasca) {
+		if (isTascaEvaluada(task)) {
+			int index = task.getDescription().lastIndexOf("@");
+			if (index != -1)
+				return task.getDescription().substring(index + 1);
+			else
+				return task.getName();
+		} else
+			return tasca.getNom();
 	}
 	private boolean isTascaEvaluada(JbpmTask task) {
 		return task.getDescription() != null && task.getDescription().startsWith("@");
@@ -1409,6 +1389,17 @@ public class DtoConverter {
 				baseUrl = (String)GlobalProperties.getInstance().get("app.base.url");
 			return baseUrl + "/signatura/verificarExtern.html?token=" + token;
 		}
+	}
+
+	private List<String> getCampsExpressioTitol(String expressio) {
+		List<String> resposta = new ArrayList<String>();
+		String[] parts = expressio.split("\\$\\{");
+		for (String part: parts) {
+			int index = part.indexOf("}");
+			if (index != -1)
+				resposta.add(part.substring(0, index));
+		}
+		return resposta;
 	}
 
 	private PdfUtils getPdfUtils() {

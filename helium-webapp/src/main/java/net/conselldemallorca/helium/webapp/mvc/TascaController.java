@@ -15,24 +15,18 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
-import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.model.service.TerminiService;
-import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TramitacioMassiva;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.displaytag.tags.TableTagParameters;
-import org.displaytag.util.ParamEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
-import org.springframework.security.acls.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.WebDataBinder;
@@ -58,7 +52,6 @@ public class TascaController extends BaseController {
 	private TascaService tascaService;
 	private TerminiService terminiService;
 	private DissenyService dissenyService;
-	private PermissionService permissionService;
 
 
 
@@ -66,12 +59,10 @@ public class TascaController extends BaseController {
 	public TascaController(
 			TascaService tascaService,
 			TerminiService terminiService,
-			DissenyService dissenyService,
-			PermissionService permissionService) {
+			DissenyService dissenyService) {
 		this.tascaService = tascaService;
 		this.terminiService = terminiService;
 		this.dissenyService = dissenyService;
-		this.permissionService = permissionService;
 	}
 
 	@ModelAttribute("prioritats")
@@ -98,24 +89,6 @@ public class TascaController extends BaseController {
 		moltBaixa.put("label", getMessage("txt.m_baixa") );
 		resposta.add(moltBaixa);
 		return resposta;
-	}
-
-	@ModelAttribute("commandPersonaFiltre")
-	public TascaPersonaFiltreCommand populateCommandPersonaFiltre(HttpServletRequest request) {
-		Object tascaPersonaFiltreCommand = request.getSession().getAttribute("commandTascaPersonaFiltre");
-		if (tascaPersonaFiltreCommand != null)
-			return (TascaPersonaFiltreCommand)tascaPersonaFiltreCommand;
-		else
-			return new TascaPersonaFiltreCommand();
-	}
-
-	@ModelAttribute("commandGrupFiltre")
-	public TascaGrupFiltreCommand populateCommandGrupFiltre(HttpServletRequest request) {
-		Object tascaGrupFiltreCommand = request.getSession().getAttribute("commandTascaGrupFiltre");
-		if (tascaGrupFiltreCommand != null)
-			return (TascaGrupFiltreCommand)tascaGrupFiltreCommand;
-		else
-			return new TascaGrupFiltreCommand();
 	}
 
 	@ModelAttribute("seleccioMassiva")
@@ -150,126 +123,6 @@ public class TascaController extends BaseController {
 		return null;
 	}
 
-	@RequestMapping(value = "/tasca/personaLlistat", method = RequestMethod.GET)
-	public String personaLlistat(
-			HttpServletRequest request,
-			ModelMap model) {
-		Entorn entorn = getEntornActiu(request);
-		if (entorn != null) {
-			String paramColumna = new ParamEncoder("registre").encodeParameterName(TableTagParameters.PARAMETER_SORT);
-			String columna = request.getParameter(paramColumna);
-			columna = ((columna!=null)&&(!columna.equals("")))?columna:"0";
-			String paramOrdre = new ParamEncoder("registre").encodeParameterName(TableTagParameters.PARAMETER_ORDER);
-			String ordre = request.getParameter(paramOrdre);	// Descending is 2, Ascending is 1.
-			ordre = ((ordre!=null)&&(!ordre.equals("")))?ordre:"0";
-			
-			TascaPersonaFiltreCommand tascaPersonaFiltreCommand = (TascaPersonaFiltreCommand)model.get("commandPersonaFiltre");
-			String expedient = request.getParameter("exp");
-			if (expedient != null) tascaPersonaFiltreCommand.setExpedient(expedient);
-			
-			if (!ordre.equals("0")) {
-				tascaPersonaFiltreCommand.setColumna(columna);
-				tascaPersonaFiltreCommand.setOrdre(ordre);
-				request.getSession().setAttribute("commandTascaPersonaFiltre", tascaPersonaFiltreCommand);
-			}
-			List<TascaLlistatDto> tasquesPersonalsFiltre = tascaService.findTasquesPersonalsFiltre(
-					entorn.getId(),
-					tascaPersonaFiltreCommand.getNom(),
-					tascaPersonaFiltreCommand.getExpedient(),
-					tascaPersonaFiltreCommand.getTipusExpedient(),
-					tascaPersonaFiltreCommand.getDataCreacioInici(),
-					tascaPersonaFiltreCommand.getDataCreacioFi(),
-					tascaPersonaFiltreCommand.getPrioritat(),
-					tascaPersonaFiltreCommand.getDataLimitInici(),
-					tascaPersonaFiltreCommand.getDataLimitFi(),
-					tascaPersonaFiltreCommand.getColumna(),
-					tascaPersonaFiltreCommand.getOrdre());
-			model.addAttribute("terminisIniciats", findTerminisIniciatsPerTasques(tasquesPersonalsFiltre));
-			model.addAttribute("personaLlistat", tasquesPersonalsFiltre);
-			model.addAttribute("personaLlistatAll", tascaService.getTotalTasquesPersona(entorn.getId()));
-			model.addAttribute("grupLlistatAll", tascaService.getTotalTasquesGrup(entorn.getId()));
-			model.addAttribute("command", tascaPersonaFiltreCommand);
-			model.addAttribute("tipusExp", llistatExpedientTipusAmbPermisos(entorn));
-			return "tasca/personaLlistat";
-		} else {
-			missatgeError(request, getMessage("error.no.entorn.selec") );
-			return "redirect:/index.html";
-		}
-	}
-
-	@RequestMapping(value = "/tasca/personaLlistat", method = RequestMethod.POST)
-	public String personaLlistatPost(
-			HttpServletRequest request,
-			@RequestParam(value = "submit", required = false) String submit,
-			@ModelAttribute("commandPersonaFiltre") TascaPersonaFiltreCommand command) {
-		if ("submit".equals(submit)) {
-			request.getSession().setAttribute("commandTascaPersonaFiltre", command);
-		} else if ("clean".equals(submit)) {
-			request.getSession().removeAttribute("commandTascaPersonaFiltre");
-		}
-		return "redirect:/tasca/personaLlistat.html";
-	}
-
-	@RequestMapping(value = "/tasca/grupLlistat", method = RequestMethod.GET)
-	public String grupLlistat(
-			HttpServletRequest request,
-			ModelMap model) {
-		Entorn entorn = getEntornActiu(request);
-		if (entorn != null) {
-			model.addAttribute("personaLlistatAll", tascaService.getTotalTasquesPersona(entorn.getId()));
-			
-			String paramColumna = new ParamEncoder("registre").encodeParameterName(TableTagParameters.PARAMETER_SORT);
-			String columna = request.getParameter(paramColumna);
-			columna = ((columna!=null)&&(!columna.equals("")))?columna:"0";
-			String paramOrdre = new ParamEncoder("registre").encodeParameterName(TableTagParameters.PARAMETER_ORDER);
-			String ordre = request.getParameter(paramOrdre);	// Descending is 2, Ascending is 1.
-			ordre = ((ordre!=null)&&(!ordre.equals("")))?ordre:"0";
-			
-			TascaGrupFiltreCommand tascaGrupFiltreCommand = (TascaGrupFiltreCommand)model.get("commandGrupFiltre");
-			if (!ordre.equals("0")) {
-				tascaGrupFiltreCommand.setColumna(columna);
-				tascaGrupFiltreCommand.setOrdre(ordre);
-				request.getSession().setAttribute("commandTascaGrupFiltre", tascaGrupFiltreCommand);
-			}
-			List<TascaLlistatDto> tasquesGrupFiltre = tascaService.findTasquesGrupFiltre(
-					entorn.getId(),
-					tascaGrupFiltreCommand.getNom(),
-					tascaGrupFiltreCommand.getExpedient(),
-					tascaGrupFiltreCommand.getTipusExpedient(),
-					tascaGrupFiltreCommand.getDataCreacioInici(),
-					tascaGrupFiltreCommand.getDataCreacioFi(),
-					tascaGrupFiltreCommand.getPrioritat(),
-					tascaGrupFiltreCommand.getDataLimitInici(),
-					tascaGrupFiltreCommand.getDataLimitFi(),
-					tascaGrupFiltreCommand.getColumna(),
-					tascaGrupFiltreCommand.getOrdre());
-			model.addAttribute("terminisIniciats", findTerminisIniciatsPerTasques(tasquesGrupFiltre));
-			model.addAttribute("grupLlistat", tasquesGrupFiltre);
-			model.addAttribute("grupLlistatAll", tascaService.getTotalTasquesGrup(entorn.getId()));
-			
-			model.addAttribute("command", tascaGrupFiltreCommand);
-			model.addAttribute("tipusExp", llistatExpedientTipusAmbPermisos(entorn));
-			
-			return "tasca/grupLlistat";
-		} else {
-			missatgeError(request, getMessage("error.no.entorn.selec") );
-			return "redirect:/index.html";
-		}
-	}
-
-	@RequestMapping(value = "/tasca/grupLlistat", method = RequestMethod.POST)
-	public String grupLlistatPost(
-			HttpServletRequest request,
-			@RequestParam(value = "submit", required = false) String submit,
-			@ModelAttribute("commandGrupFiltre") TascaGrupFiltreCommand command) {
-		if ("submit".equals(submit)) {
-			request.getSession().setAttribute("commandTascaGrupFiltre", command);
-		} else if ("clean".equals(submit)) {
-			request.getSession().removeAttribute("commandTascaGrupFiltre");
-		}
-		return "redirect:/tasca/grupLlistat.html";
-	}
-
 	@RequestMapping(value = "/tasca/massivaSeleccio", method = RequestMethod.GET)
 	public String massivaSeleccio(
 			HttpServletRequest request,
@@ -286,9 +139,16 @@ public class TascaController extends BaseController {
 					id);
 			model.addAttribute("terminisIniciats", findTerminisIniciatsPerTasques(tasquesTramitacioMassiva));
 			model.addAttribute("personaLlistat", tasquesTramitacioMassiva);
-			model.addAttribute("personaLlistatAll", tascaService.getTotalTasquesPersona(entorn.getId()));
-			model.addAttribute("grupLlistatAll", tascaService.getTotalTasquesGrup(entorn.getId()));
-			model.addAttribute("tipusExp", llistatExpedientTipusAmbPermisos(entorn));
+			model.addAttribute(
+					"personaLlistatCount",
+					tascaService.countTasquesPersonalsEntorn(
+							entorn.getId(),
+							null));
+			model.addAttribute(
+					"grupLlistatCount",
+					tascaService.countTasquesGrupEntorn(
+							entorn.getId(),
+							null));
 			return "tasca/massivaSeleccio";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec"));
@@ -484,25 +344,6 @@ public class TascaController extends BaseController {
 					indexFormFi);
 		}
 		return null;
-	}
-	
-	private List<ExpedientTipus> llistatExpedientTipusAmbPermisos(Entorn entorn) {
-		List<ExpedientTipus> resposta = new ArrayList<ExpedientTipus>();
-		List<ExpedientTipus> llistat = dissenyService.findExpedientTipusAmbEntorn(entorn.getId());
-		for (ExpedientTipus expedientTipus: llistat) {
-			if (potDissenyarExpedientTipus(entorn, expedientTipus))
-				resposta.add(expedientTipus);
-		}
-		return resposta;
-	}
-	
-	private boolean potDissenyarExpedientTipus(Entorn entorn, ExpedientTipus expedientTipus) {
-		return permissionService.filterAllowed(
-				expedientTipus,
-				ExpedientTipus.class,
-				new Permission[] {
-					ExtendedPermission.ADMINISTRATION,
-					ExtendedPermission.DESIGN}) != null;
 	}
 	
 	public class TascaPersonaFiltreCommand {
