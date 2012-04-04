@@ -1668,6 +1668,7 @@ public class TascaService {
 			}
 		}
 		if (dadesCacheTasca != null) {
+			dto.setTitol(dadesCacheTasca.getTitol());
 			dto.setExpedientTitol(dadesCacheTasca.getIdentificador());
 			dto.setExpedientTitolOrdenacio(dadesCacheTasca.getIdentificadorOrdenacio());
 			dto.setExpedientTipusId(dadesCacheTasca.getExpedientTipusId());
