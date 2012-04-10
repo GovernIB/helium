@@ -275,10 +275,8 @@ public class PlantillaDocumentDao {
 					public TemplateModel exec(List args) throws TemplateModelException {
 						if (args.size() == 1) {
 							Object arg0 = args.get(0);
-							Object arg1 = args.get(1);
-							if (arg0 != null && arg0 instanceof String && arg1 != null && arg1 instanceof String) {
+							if (arg0 != null && arg0 instanceof String) {
 								String carrecCodi = (String)arg0;
-								String areaCodi = (String)arg1;
 								if (esIdentitySourceHelium()) {
 									Carrec carrec = carrecDao.findAmbEntornICodi(entornId, carrecCodi);
 									if (carrec == null)
@@ -287,6 +285,8 @@ public class PlantillaDocumentDao {
 											carrec,
 											new DefaultObjectWrapper());
 								} else {
+									Object arg1 = args.get(1);
+									String areaCodi = (String)arg1;
 									CarrecJbpmId carrec = carrecJbpmIdDao.findAmbCodiGrup(carrecCodi, areaCodi);
 									if (carrec == null)
 										carrec = new CarrecJbpmId("???", "???", "???", "???", "???", Persona.Sexe.SEXE_HOME);

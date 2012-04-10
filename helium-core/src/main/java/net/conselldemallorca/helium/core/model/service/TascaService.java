@@ -133,8 +133,6 @@ public class TascaService {
 
 	private Map<String, Map<String, Object>> dadesFormulariExternInicial;
 
-	private Map<String, DadesCacheTasca> dadesCacheTasques;
-
 
 
 	public TascaDto getById(
@@ -215,12 +213,12 @@ public class TascaService {
 			int maxResults,
 			String sort,
 			boolean asc) {
+		//MesurarTemps.diferenciaReiniciar("LT_PERSONA_FLT");
 		String usuariBo = usuari;
 		if (usuariBo == null) {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
 		}
-		//MesurarTemps.diferenciaReiniciar("LT_PERSONA_FLT");
 		List<JbpmTask> tasques = jbpmDao.findPersonalTasks(usuariBo);
 		//MesurarTemps.diferenciaImprimirStdoutIReiniciar("LT_PERSONA_FLT", "1");
 		PaginaLlistatDto resposta = tasquesLlistatFiltradesValors(
@@ -544,7 +542,6 @@ public class TascaService {
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				"Finalitzar \"" + tasca.getNom() + "\"");
 		actualitzarTerminisIniciatsIAlertes(taskId, expedient);
-		dadesCacheTasques.remove(task.getId());
 	}
 
 	public Object getVariable(
@@ -1283,7 +1280,11 @@ public class TascaService {
 		}
 		return task;
 	}
-	private TascaDto toTascaDto(JbpmTask task, Map<String, Object> varsCommand, boolean ambVariables, boolean ambTexts) {
+	private TascaDto toTascaDto(
+			JbpmTask task,
+			Map<String, Object> varsCommand,
+			boolean ambVariables,
+			boolean ambTexts) {
 		return dtoConverter.toTascaDto(
 				task,
 				varsCommand,
@@ -1423,7 +1424,10 @@ public class TascaService {
 					else
 						result = t2.getPrioritat() - t1.getPrioritat();
 				} else if ("dataLimit".equals(finalSort)) {
-					result = nullComparator.compare(t1.getDataLimit(), t2.getDataLimit());
+					if (finalAsc)
+						result = nullComparator.compare(t1.getDataLimit(), t2.getDataLimit());
+					else
+						result = nullComparator.compare(t2.getDataLimit(), t1.getDataLimit());
 				}
 				return result;
 			}
@@ -1779,10 +1783,8 @@ public class TascaService {
 	}
 
 	private DadesCacheTasca getDadesCacheTasca(JbpmTask task) {
-		if (dadesCacheTasques == null)
-			dadesCacheTasques = new HashMap<String, DadesCacheTasca>();
-		DadesCacheTasca dades = dadesCacheTasques.get(task.getId());
-		if (dades == null) {
+		DadesCacheTasca dadesCache = null;
+		if (!task.isCacheActiu()) {
 			String rootProcessInstanceId = jbpmDao.getRootProcessInstance(task.getProcessInstanceId()).getId();
 			Expedient expedientPerTasca = expedientDao.findAmbProcessInstanceId(rootProcessInstanceId);
 			Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
@@ -1790,21 +1792,54 @@ public class TascaService {
 					task.getProcessDefinitionId());
 			String titol = tasca.getNom();
 			if (tasca.getNomScript() != null && tasca.getNomScript().length() > 0)
-				dtoConverter.getTitolPerTasca(task, tasca);
-			dades = new DadesCacheTasca(
-					expedientPerTasca.getEntorn().getId(),
-					titol,
-					expedientPerTasca.getIdentificador(),
-					expedientPerTasca.getIdentificadorOrdenacio(),
-					expedientPerTasca.getNumeroIdentificador(),
-					expedientPerTasca.getTipus().getId(),
-					expedientPerTasca.getTipus().getNom(),
-					expedientPerTasca.getProcessInstanceId(),
-					tasca.isTramitacioMassiva(),
+				titol = dtoConverter.getTitolPerTasca(task, tasca);
+			task.setFieldFromDescription(
+					"entornId",
+					expedientPerTasca.getEntorn().getId().toString());
+			task.setFieldFromDescription(
+					"titol",
+					titol);
+			task.setFieldFromDescription(
+					"identificador",
+					expedientPerTasca.getIdentificador());
+			task.setFieldFromDescription(
+					"identificadorOrdenacio",
+					expedientPerTasca.getIdentificadorOrdenacio());
+			task.setFieldFromDescription(
+					"numeroIdentificador",
+					expedientPerTasca.getNumeroIdentificador());
+			task.setFieldFromDescription(
+					"expedientTipusId",
+					expedientPerTasca.getTipus().getId().toString());
+			task.setFieldFromDescription(
+					"expedientTipusNom",
+					expedientPerTasca.getTipus().getNom());
+			task.setFieldFromDescription(
+					"processInstanceId",
+					expedientPerTasca.getProcessInstanceId());
+			task.setFieldFromDescription(
+					"tramitacioMassiva",
+					new Boolean(tasca.isTramitacioMassiva()).toString());
+			task.setFieldFromDescription(
+					"definicioProcesJbpmKey",
 					tasca.getDefinicioProces().getJbpmKey());
-			dadesCacheTasques.put(task.getId(), dades);
+			task.setCacheActiu();
+			jbpmDao.describeTaskInstance(
+					task.getId(),
+					task.getDescriptionWithFields());
 		}
-		return dades;
+		dadesCache = new DadesCacheTasca(
+				new Long(task.getFieldFromDescription("entornId")),
+				task.getFieldFromDescription("titol"),
+				task.getFieldFromDescription("identificador"),
+				task.getFieldFromDescription("identificadorOrdenacio"),
+				task.getFieldFromDescription("numeroIdentificador"),
+				new Long(task.getFieldFromDescription("expedientTipusId")),
+				task.getFieldFromDescription("expedientTipusNom"),
+				task.getFieldFromDescription("processInstanceId"),
+				new Boolean(task.getFieldFromDescription("tramitacioMassiva")).booleanValue(),
+				task.getFieldFromDescription("definicioProcesJbpmKey"));
+		return dadesCache;
 	}
 	private class DadesCacheTasca {
 		private Long entornId;

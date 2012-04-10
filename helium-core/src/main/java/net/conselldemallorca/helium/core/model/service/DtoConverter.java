@@ -173,45 +173,55 @@ public class DtoConverter {
 			JbpmTask task,
 			Tasca tasca) {
 		String titol = null;
-		if (!isTascaEvaluada(task)) {
-			if (tasca != null) {
-				Map<String, Object> textPerCamps = new HashMap<String, Object>(); 
-				if (tasca.getNomScript() != null && tasca.getNomScript().length() > 0) {
-					List<String> campsExpressio = getCampsExpressioTitol(tasca.getNomScript());
-					Map<String, Object> valors = jbpmDao.getTaskInstanceVariables(task.getId());
-					valors.putAll(jbpmDao.getProcessInstanceVariables(task.getProcessInstanceId()));
-					for (String campCodi: campsExpressio) {
-						Set<Camp> campsDefinicioProces = tasca.getDefinicioProces().getCamps();
-						for (Camp camp: campsDefinicioProces) {
-							if (camp.getCodi().equals(campCodi)) {
-								textPerCamps.put(
-										campCodi,
-										getCampText(
-												task.getId(),
-												task.getProcessInstanceId(),
-												camp,
-												valors.get(campCodi)));
-								break;
-							}
+		if (tasca != null) {
+			Map<String, Object> textPerCamps = new HashMap<String, Object>();
+			titol = tasca.getNom();
+			if (tasca.getNomScript() != null && tasca.getNomScript().length() > 0) {
+				List<String> campsExpressio = getCampsExpressioTitol(tasca.getNomScript());
+				Map<String, Object> valors = jbpmDao.getTaskInstanceVariables(task.getId());
+				valors.putAll(jbpmDao.getProcessInstanceVariables(task.getProcessInstanceId()));
+				for (String campCodi: campsExpressio) {
+					Set<Camp> campsDefinicioProces = tasca.getDefinicioProces().getCamps();
+					for (Camp camp: campsDefinicioProces) {
+						if (camp.getCodi().equals(campCodi)) {
+							textPerCamps.put(
+									campCodi,
+									getCampText(
+											task.getId(),
+											task.getProcessInstanceId(),
+											camp,
+											valors.get(campCodi)));
+							break;
 						}
 					}
 				}
-				evaluarTasca(task, tasca, textPerCamps);
-				titol = getTascaEvaluadaTitol(task, tasca);
-			} else {
-				titol = task.getName();
+				try {
+					titol = (String)jbpmDao.evaluateExpression(
+							task.getId(),
+							task.getProcessInstanceId(),
+							tasca.getNomScript(),
+							textPerCamps);
+				} catch (Exception ex) {
+					logger.error("No s'ha pogut evaluar l'script per canviar el titol de la tasca", ex);
+				}
 			}
 		} else {
-			titol = task.getDescription().substring(1);
+			titol = task.getName();
 		}
 		return titol;
 	}
 
-	public TascaDto toTascaDtoPerOrdenacio(
+	public TascaDto toTascaDto(
 			JbpmTask task,
-			Tasca tasca,
-			Expedient expedient,
-			boolean processar) {
+			Map<String, Object> varsCommand,
+			boolean ambVariables,
+			boolean ambTexts,
+			boolean validada,
+			boolean documentsComplet,
+			boolean signaturesComplet) {
+		Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
+				task.getName(),
+				task.getProcessDefinitionId());
 		TascaDto dto = new TascaDto();
 		dto.setId(task.getId());
 		dto.setDescription(task.getDescription());
@@ -228,8 +238,37 @@ public class DtoConverter {
 		dto.setCancelled(task.isCancelled());
 		dto.setSuspended(task.isSuspended());
 		dto.setProcessInstanceId(task.getProcessInstanceId());
+		dto.setExpedient(
+				expedientDao.findAmbProcessInstanceId(
+						jbpmDao.getRootProcessInstance(task.getProcessInstanceId()).getId()));
+		dto.setOutcomes(jbpmDao.findTaskInstanceOutcomes(task.getId()));
+		DelegationInfo delegationInfo = (DelegationInfo)jbpmDao.getTaskInstanceVariable(
+				task.getId(),
+				TascaService.VAR_TASCA_DELEGACIO);
+		if (delegationInfo != null) {
+			boolean original = task.getId().equals(delegationInfo.getSourceTaskId());
+			dto.setDelegada(true);
+			dto.setDelegacioOriginal(original);
+			dto.setDelegacioData(delegationInfo.getStart());
+			dto.setDelegacioSupervisada(delegationInfo.isSupervised());
+			dto.setDelegacioComentari(delegationInfo.getComment());
+			if (original) {
+				JbpmTask tascaDelegacio = jbpmDao.getTaskById(delegationInfo.getTargetTaskId());
+				dto.setDelegacioPersona(pluginPersonaDao.findAmbCodiPlugin(tascaDelegacio.getAssignee()));
+			} else {
+				JbpmTask tascaDelegacio = jbpmDao.getTaskById(delegationInfo.getSourceTaskId());
+				dto.setDelegacioPersona(pluginPersonaDao.findAmbCodiPlugin(tascaDelegacio.getAssignee()));
+			}
+		}
+		if (task.isCacheActiu()) {
+			dto.setNom(task.getFieldFromDescription("titol"));
+		} else {
+			if (tasca != null)
+				dto.setNom(tasca.getNom());
+			else
+				dto.setNom(task.getName());
+		}
 		if (tasca != null) {
-			dto.setNom(tasca.getNom());
 			dto.setMissatgeInfo(tasca.getMissatgeInfo());
 			dto.setMissatgeWarn(tasca.getMissatgeWarn());
 			dto.setDelegable(tasca.getExpressioDelegacio() != null);
@@ -239,103 +278,6 @@ public class DtoConverter {
 			dto.setValidacions(tasca.getValidacions());
 			dto.setRecursForm(tasca.getRecursForm());
 			dto.setFormExtern(tasca.getFormExtern());
-		} else {
-			dto.setNom(task.getName());
-		}
-		if (expedient != null)
-			dto.setExpedient(expedient);
-		else
-			dto.setExpedient(expedientDao.findAmbProcessInstanceId(
-					jbpmDao.getRootProcessInstance(task.getProcessInstanceId()).getId()));
-		if (processar) {
-			dto.setOutcomes(jbpmDao.findTaskInstanceOutcomes(task.getId()));
-			Map<String, Object> valorsTasca = jbpmDao.getTaskInstanceVariables(task.getId());
-			DelegationInfo delegationInfo = (DelegationInfo)valorsTasca.get(
-					TascaService.VAR_TASCA_DELEGACIO);
-			if (delegationInfo != null) {
-				boolean original = task.getId().equals(delegationInfo.getSourceTaskId());
-				dto.setDelegada(true);
-				dto.setDelegacioOriginal(original);
-				dto.setDelegacioData(delegationInfo.getStart());
-				dto.setDelegacioSupervisada(delegationInfo.isSupervised());
-				dto.setDelegacioComentari(delegationInfo.getComment());
-				if (original) {
-					JbpmTask tascaDelegacio = jbpmDao.getTaskById(delegationInfo.getTargetTaskId());
-					dto.setDelegacioPersona(pluginPersonaDao.findAmbCodiPlugin(tascaDelegacio.getAssignee()));
-				} else {
-					JbpmTask tascaDelegacio = jbpmDao.getTaskById(delegationInfo.getSourceTaskId());
-					dto.setDelegacioPersona(pluginPersonaDao.findAmbCodiPlugin(tascaDelegacio.getAssignee()));
-				}
-			}
-			if (tasca != null) {
-				if (!isTascaEvaluada(task)) {
-					List<CampTasca> cts = campTascaDao.findAmbTascaOrdenats(tasca.getId());
-					List<Camp> campsTasca = new ArrayList<Camp>();
-					for (CampTasca campTasca: cts)
-						campsTasca.add(campTasca.getCamp());
-					Map<String, ParellaCodiValorDto> valorsDominiTasca = obtenirValorsDomini(
-							task.getId(),
-							null,
-							campsTasca,
-							valorsTasca);
-					Map<String, List<ParellaCodiValorDto>> valorsMultiplesDominiTasca = obtenirValorsMultiplesDomini(
-							task.getId(),
-							null,
-							campsTasca,
-							valorsTasca);
-					getServiceUtils().revisarVariablesJbpm(valorsTasca);
-					Map<String, Object> textPerCamps = textPerCamps(
-							task.getId(),
-							null,
-							campsTasca,
-							valorsTasca,
-							valorsDominiTasca,
-							valorsMultiplesDominiTasca);
-					Set<Camp> campsProces = tasca.getDefinicioProces().getCamps();
-					Map<String, Object> valorsProces = jbpmDao.getProcessInstanceVariables(task.getProcessInstanceId());
-					Map<String, ParellaCodiValorDto> valorsDominiProces = obtenirValorsDomini(
-							null,
-							task.getProcessInstanceId(),
-							campsProces,
-							valorsProces);
-					Map<String, List<ParellaCodiValorDto>> valorsMultiplesDominiProces = obtenirValorsMultiplesDomini(
-							null,
-							task.getProcessInstanceId(),
-							campsProces,
-							valorsProces);
-					getServiceUtils().revisarVariablesJbpm(valorsProces);
-					textPerCamps.putAll(textPerCamps(
-							null,
-							task.getProcessInstanceId(),
-							campsProces,
-							valorsProces,
-							valorsDominiProces,
-							valorsMultiplesDominiProces));
-					evaluarTasca(task, tasca, textPerCamps);
-					String titolNou = getTascaEvaluadaTitol(task, tasca);
-					if (titolNou != null)
-						dto.setNom(titolNou);
-				} else {
-					dto.setNom(task.getDescription().substring(1));
-				}
-			}
-		}
-		return dto;
-	}
-
-	public TascaDto toTascaDto(
-			JbpmTask task,
-			Map<String, Object> varsCommand,
-			boolean ambVariables,
-			boolean ambTexts,
-			boolean validada,
-			boolean documentsComplet,
-			boolean signaturesComplet) {
-		Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
-				task.getName(),
-				task.getProcessDefinitionId());
-		TascaDto dto = toTascaDtoPerOrdenacio(task, tasca, null, true);
-		if (tasca != null) {
 			dto.setValidada(validada);
 			dto.setDocumentsComplet(documentsComplet);
 			dto.setSignaturesComplet(signaturesComplet);
@@ -1303,39 +1245,6 @@ public class DtoConverter {
 				params.put(paramCodi, value);
 		}
 		return params;
-	}
-
-	private void evaluarTasca(JbpmTask task, Tasca tasca, Map<String, Object> textos) {
-		String titolTasca = null;
-		if (tasca.getNomScript() != null && tasca.getNomScript().length() > 0) {
-			try {
-				titolTasca = (String)jbpmDao.evaluateExpression(
-						task.getId(),
-						task.getProcessInstanceId(),
-						tasca.getNomScript(),
-						textos);
-			} catch (Exception ex) {
-				logger.error("No s'ha pogut evaluar l'script per canviar el titol de la tasca", ex);
-			}
-		} else {
-			titolTasca = tasca.getNom();
-		}
-		String description = "@" + tasca.getId() + "@" + titolTasca;
-		task.getTask().setDescription(description);
-		jbpmDao.describeTaskInstance(task.getId(), description);
-	}
-	private String getTascaEvaluadaTitol(JbpmTask task, Tasca tasca) {
-		if (isTascaEvaluada(task)) {
-			int index = task.getDescription().lastIndexOf("@");
-			if (index != -1)
-				return task.getDescription().substring(index + 1);
-			else
-				return task.getName();
-		} else
-			return tasca.getNom();
-	}
-	private boolean isTascaEvaluada(JbpmTask task) {
-		return task.getDescription() != null && task.getDescription().startsWith("@");
 	}
 
 	private boolean isSignaturaFileAttached() {
