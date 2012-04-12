@@ -56,7 +56,7 @@ public class RolesBasedMappableAttributesRetriever implements MappableAttributes
 		this.sessionFactory = sessionFactory;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void refrescarMappableAttributes() {
 		mappableAttributes.clear();
 		if (defaultMappableAttributes != null)

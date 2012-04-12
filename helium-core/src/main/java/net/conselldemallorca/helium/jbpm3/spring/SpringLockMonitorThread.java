@@ -23,6 +23,7 @@ public class SpringLockMonitorThread extends LockMonitorThread {
 	}
 
 	/** Needs to be wrapped in a transaction */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	protected void unlockOverdueJobs() {
 		transactionTemplate.execute(new TransactionCallback() {

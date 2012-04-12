@@ -45,7 +45,7 @@ import org.springframework.web.bind.support.SessionStatus;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/persona/*.html")
+@RequestMapping("/persona")
 public class PersonaController extends BaseController {
 
 	public static final String VARIABLE_SESSIO_COMMAND = "consultaPersonesCommand";

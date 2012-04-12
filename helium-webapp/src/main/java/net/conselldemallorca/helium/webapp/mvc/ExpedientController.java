@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/expedient/*.html")
+@RequestMapping("/expedient")
 public class ExpedientController extends BaseController {
 
 	private DissenyService dissenyService;

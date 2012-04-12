@@ -38,7 +38,7 @@ import org.springframework.web.bind.support.SessionStatus;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/carrec/*.html")
+@RequestMapping("/carrec")
 public class CarrecController extends BaseController {
 
 	private OrganitzacioService organitzacioService;

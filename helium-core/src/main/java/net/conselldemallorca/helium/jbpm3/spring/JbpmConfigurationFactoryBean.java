@@ -23,6 +23,7 @@ import org.springframework.context.event.ContextClosedEvent;
  * 
  * @author Joram Barrez
  */
+@SuppressWarnings("rawtypes")
 public class JbpmConfigurationFactoryBean implements FactoryBean, InitializingBean, ApplicationListener {
 	
 	/** Logger for this class. */
@@ -51,7 +52,6 @@ public class JbpmConfigurationFactoryBean implements FactoryBean, InitializingBe
 		return jbpmConfiguration;
 	}
 
-	@SuppressWarnings("rawtypes")
 	public Class getObjectType() {
 		return JbpmConfiguration.class;
 	}

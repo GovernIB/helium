@@ -115,6 +115,7 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 				asc);
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public int getCountAll() {
 		return ((Integer)getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
@@ -148,6 +149,7 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 				asc,
 				Example.create(p_exampleInstance));
 	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public int getCountByExample(final T p_exampleInstance) {
 		return ((Integer)getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) {

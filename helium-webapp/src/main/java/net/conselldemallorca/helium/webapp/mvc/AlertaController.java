@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/alerta/*.html")
+@RequestMapping("/alerta")
 public class AlertaController extends BaseController {
 
 	private AlertaService alertaService;

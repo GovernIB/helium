@@ -35,17 +35,16 @@ public class EndpointPublisherServlet extends HttpServlet {
 		ApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(servletConfig.getServletContext());
 		Bus bus = cxfServlet.getBus();
 		BusFactory.setDefaultBus(bus); 
-		
+
 		String user = GlobalProperties.getInstance().getProperty("app.bantel.avisos.username");
 		String pass = GlobalProperties.getInstance().getProperty("app.bantel.avisos.password");
 		String auth = GlobalProperties.getInstance().getProperty("app.bantel.avisos.auth");
 		String ts = GlobalProperties.getInstance().getProperty("app.bantel.avisos.generate.timestamp");
 		String log = GlobalProperties.getInstance().getProperty("app.bantel.avisos.log.calls");
 		String versio = GlobalProperties.getInstance().getProperty("app.bantel.avisos.versio");
-		
 		if ("1".equalsIgnoreCase(versio)){
 			Endpoint bantelV1Endpoint = WsServerUtils.publish(
-					"/NotificacioEntrada", 
+					"/NotificacioEntrada",
 					context.getBean("bantelV1Backoffice"),
 					user != null ? user : "",
 					pass != null ? pass : "",
@@ -54,16 +53,16 @@ public class EndpointPublisherServlet extends HttpServlet {
 					"true".equalsIgnoreCase(log) ? true : false);
 		} else if ("esbcim".equalsIgnoreCase(versio)){
 			Endpoint bantelEsbEndpoint = WsServerUtils.publish(
-					"/NotificacioEntradaEsbCim", 
+					"/NotificacioEntradaEsbCim",
 					context.getBean("bantelEsbCimBackoffice"),
 					user != null ? user : "",
 					pass != null ? pass : "",
 					auth != null ? auth : "",
 					"true".equalsIgnoreCase(ts) ? true : false,
 					"true".equalsIgnoreCase(log) ? true : false);
-		} else {	//if ("2".equalsIgnoreCase(versio)) --> Per defecte posarem la V2
+		} else {
 			Endpoint bantelV2Endpoint = WsServerUtils.publish(
-					"/NotificacioEntradaV2", 
+					"/NotificacioEntradaV2",
 					context.getBean("bantelV2Backoffice"),
 					user != null ? user : "",
 					pass != null ? pass : "",
@@ -71,46 +70,51 @@ public class EndpointPublisherServlet extends HttpServlet {
 					"true".equalsIgnoreCase(ts) ? true : false,
 					"true".equalsIgnoreCase(log) ? true : false);
 		}
-		
+
 		user = GlobalProperties.getInstance().getProperty("app.domini.intern.username");
 		pass = GlobalProperties.getInstance().getProperty("app.domini.intern.password");
 		auth = GlobalProperties.getInstance().getProperty("app.domini.intern.auth");
 		ts = GlobalProperties.getInstance().getProperty("app.domini.intern.generate.timestamp");
 		log = GlobalProperties.getInstance().getProperty("app.domini.intern.log.calls");
-		
 		Endpoint dominiInternEndpoint = WsServerUtils.publish(
-				"/DominiIntern", 
+				"/DominiIntern",
 				context.getBean("dominiIntern"),
 				user != null ? user : "",
 				pass != null ? pass : "",
 				auth != null ? auth : "",
 				"true".equalsIgnoreCase(ts) ? true : false,
 				"true".equalsIgnoreCase(log) ? true : false);
-		
+
 		user = GlobalProperties.getInstance().getProperty("app.form.guardar.username");
 		pass = GlobalProperties.getInstance().getProperty("app.form.guardar.password");
 		auth = GlobalProperties.getInstance().getProperty("app.form.guardar.auth");
 		ts = GlobalProperties.getInstance().getProperty("app.form.guardar.generate.timestamp");
 		log = GlobalProperties.getInstance().getProperty("app.form.guardar.log.calls");
-		
 		Endpoint formExternEndpoint = WsServerUtils.publish(
-				"/FormulariExtern", 
+				"/FormulariExtern",
 				context.getBean("formulariExtern"),
 				user != null ? user : "",
 				pass != null ? pass : "",
 				auth != null ? auth : "",
 				"true".equalsIgnoreCase(ts) ? true : false,
 				"true".equalsIgnoreCase(log) ? true : false);
-		
+
 		user = GlobalProperties.getInstance().getProperty("app.tramitacio.servei.username");
 		pass = GlobalProperties.getInstance().getProperty("app.tramitacio.servei.password");
 		auth = GlobalProperties.getInstance().getProperty("app.tramitacio.servei.auth");
 		ts = GlobalProperties.getInstance().getProperty("app.tramitacio.servei.generate.timestamp");
 		log = GlobalProperties.getInstance().getProperty("app.tramitacio.servei.log.calls");
-				
 		Endpoint tramitacioEndpoint = WsServerUtils.publish(
-				"/TramitacioService", 
+				"/TramitacioService",
 				context.getBean("tramitacioService"),
+				user != null ? user : "",
+				pass != null ? pass : "",
+				auth != null ? auth : "",
+				"true".equalsIgnoreCase(ts) ? true : false,
+				"true".equalsIgnoreCase(log) ? true : false);
+		Endpoint tramitacioSeguraEndpoint = WsServerUtils.publish(
+				"/v1/Tramitacio",
+				context.getBean("tramitacioV1"),
 				user != null ? user : "",
 				pass != null ? pass : "",
 				auth != null ? auth : "",

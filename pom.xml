@@ -6,6 +6,9 @@
 	<artifactId>helium</artifactId>
 	<version>2.3</version>
 	<packaging>pom</packaging>
+	<properties>
+		<spring.version>3.1.1.RELEASE</spring.version>
+	</properties>
 	<modules>
 		<module>helium-core</module>
 		<module>helium-disseny</module>

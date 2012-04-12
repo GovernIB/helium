@@ -1352,6 +1352,11 @@ public class ExpedientService {
 				accio.getJbpmAction());
 	}
 
+	public DefinicioProces getDefinicioProcesPerProcessInstanceId(String processInstanceId) {
+		JbpmProcessInstance processInstance = jbpmDao.getProcessInstance(processInstanceId);
+		return definicioProcesDao.findAmbJbpmId(processInstance.getProcessDefinitionId());
+	}
+
 	public void createRelacioExpedient(
 			Long expedientIdOrigen,
 			Long expedientIdDesti) {

@@ -38,7 +38,7 @@ import org.springframework.web.bind.support.SessionStatus;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/domini/*.html")
+@RequestMapping("/domini")
 public class DominiController extends BaseController {
 
 	private DissenyService dissenyService;

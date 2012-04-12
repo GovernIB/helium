@@ -40,7 +40,7 @@ import org.springframework.web.bind.support.SessionStatus;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/area/*.html")
+@RequestMapping("/area")
 public class AreaController extends BaseController {
 
 	private OrganitzacioService organitzacioService;

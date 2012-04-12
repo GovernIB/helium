@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/document/*.html")
+@RequestMapping("/document")
 public class DocumentArxiuController extends BaseController {
 
 	private DocumentService documentService;

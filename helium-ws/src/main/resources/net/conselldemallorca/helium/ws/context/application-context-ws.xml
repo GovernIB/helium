@@ -21,23 +21,7 @@
 
 	<bean id="formulariExtern" class="net.conselldemallorca.helium.ws.formulari.GuardarFormulariImpl"/>
 
-	<bean id="tramitacioService" class="net.conselldemallorca.helium.ws.tramitacio.Tramitacio"/>
-
-	<!--bean id="cxfServiceDeployer" class="net.conselldemallorca.helium.ws.ServiceDeploy">
-		<property name="service" ref="tramitacioService" />
-	</bean-->
-
-	<!--jaxws:endpoint 
-		id="dominiExempleService" 
-		implementor="net.conselldemallorca.helium.integracio.domini.DominiExempleImpl" 
-		address="/DominiExemple"/>
-	<jaxws:endpoint 
-		id="dadesExpedientExempleService" 
-		implementor="net.conselldemallorca.helium.integracio.dadesexp.service.DadesExpedientExempleImpl" 
-		address="/DadesExpedientExemple"/>
-	<jaxws:endpoint 
-		id="iniciFormulariExempleService" 
-		implementor="net.conselldemallorca.helium.integracio.forms.IniciFormulariExempleImpl" 
-		address="/IniciFormulariExemple"/-->
+	<bean id="tramitacioService" class="net.conselldemallorca.helium.ws.tramitacio.TramitacioServiceImpl"/>
+	<bean id="tramitacioV1" class="net.conselldemallorca.helium.ws.tramitacio.v1.TramitacioServiceImpl"/>
 
 </beans>

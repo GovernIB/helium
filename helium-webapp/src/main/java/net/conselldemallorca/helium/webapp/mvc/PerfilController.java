@@ -43,7 +43,7 @@ import org.springframework.web.bind.support.SessionStatus;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/perfil/*.html")
+@RequestMapping("/perfil")
 public class PerfilController extends BaseController {
 
 	private PersonaService personaService;

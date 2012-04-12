@@ -57,7 +57,7 @@ public class JbpmIdGroupMap<K,V> extends HashMap<K,V>  {
 
 
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void queryGroups(SessionFactory sessionFactory) {
 		HibernateTemplate ht = new HibernateTemplate(sessionFactory);
 		List<K> grups = (List<K>)ht.executeWithNewSession(new HibernateCallback() {

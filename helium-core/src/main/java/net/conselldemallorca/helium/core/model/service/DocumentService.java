@@ -34,9 +34,17 @@ public class DocumentService {
 	public DocumentDto arxiuDocumentInfo(String token) {
 		try {
 			String tokenDesxifrat = getDocumentTokenUtils().desxifrarToken(token);
-			return getDocumentInfo(Long.parseLong(tokenDesxifrat));
+			return arxiuDocumentInfo(Long.parseLong(tokenDesxifrat));
 		} catch (Exception ex) {
 			logger.error("Error al obtenir el document amb token " + token, ex);
+			throw new IllegalArgumentsException(getMessage("error.document.obtenir"));
+		}
+	}
+	public DocumentDto arxiuDocumentInfo(Long documentStoreId) {
+		try {
+			return getDocumentInfo(documentStoreId);
+		} catch (Exception ex) {
+			logger.error("Error al obtenir el document amb id " + documentStoreId, ex);
 			throw new IllegalArgumentsException(getMessage("error.document.obtenir"));
 		}
 	}
