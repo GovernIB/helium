@@ -1341,6 +1341,14 @@ public class ExpedientService {
 		jbpmDao.changeProcessInstanceVersion(processInstanceId, -1);
 	}
 
+	public boolean isAccioPublica(
+			String processInstanceId,
+			String accioCodi) {
+		JbpmProcessInstance processInstance = jbpmDao.getProcessInstance(processInstanceId);
+		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(processInstance.getProcessDefinitionId());
+		Accio accio = accioDao.findAmbDefinicioProcesICodi(definicioProces.getId(), accioCodi);
+		return accio.isPublica();
+	}
 	public void executarAccio(
 			String processInstanceId,
 			String accioCodi) {

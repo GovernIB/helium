@@ -394,7 +394,7 @@ public class ExpedientController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
-			if (potModificarExpedient(expedient)) {
+			if (expedientService.isAccioPublica(id, jbpmAction) || potModificarExpedient(expedient)) {
 				expedientService.executarAccio(id, jbpmAction);
 				missatgeInfo(request, getMessage("info.accio.executat") );
 				return "redirect:/expedient/info.html?id=" + id;
