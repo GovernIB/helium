@@ -146,12 +146,17 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 				contrasenya = domini.getContrasenya();
 			}
 		}
+		String auth = "NONE";
+		if (TipusAuthDomini.HTTP_BASIC.equals(domini.getTipusAuth()))
+			auth = "BASIC";
+		if (TipusAuthDomini.USERNAMETOKEN.equals(domini.getTipusAuth()))
+			auth = "USERNAMETOKEN";
 		DominiHelium client = (DominiHelium)WsClientUtils.getWsClientProxy(
 				DominiHelium.class,
 				domini.getUrl(),
 				usuari,
 				contrasenya,
-				(domini.getTipusAuth() != null) ? domini.getTipusAuth().toString() : "NONE",
+				auth,
 				false,
 				false,
 				true);

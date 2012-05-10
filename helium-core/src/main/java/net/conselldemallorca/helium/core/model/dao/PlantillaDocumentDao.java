@@ -120,6 +120,14 @@ public class PlantillaDocumentDao {
 		DocumentTemplate template = documentTemplateFactory.getTemplate(
 				new ByteArrayInputStream(document.getArxiuContingut()));
 		ByteArrayOutputStream resultat = new ByteArrayOutputStream();
+		template.setContentWrapper(new DocumentTemplate.ContentWrapper() {
+			public String wrapContent(String content) {
+				return "[#ftl]\n"
+						+ "[#escape any as any?xml?replace(\"\\n\",\"</text:p> <text:p>\")]\n"
+						+ content
+						+ "[/#escape]";
+			}
+		});
 		template.createDocument(model, resultat);
 		return resultat.toByteArray();
 	}
