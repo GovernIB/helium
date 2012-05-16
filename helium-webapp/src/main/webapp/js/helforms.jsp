@@ -91,12 +91,14 @@ function initSelect(selectId, valor, url, extraParams, dominiParams) {
 var canvisSelectValorsAddicionals;
 var canvisSelectInicialitzat = false;
 var canvisSelectTasca = new Array();
-function canviSelectTasca(selectId, camp) {
+function canviSelectTasca(selectId, camp, prefix) {
 	var valor = $("select#" + selectId).val();
-	updateValorAddicionalSelect(camp, valor);
+	var campSensePrefix = camp;
+	if (prefix) campSensePrefix = camp.substring(prefix.length);
+	updateValorAddicionalSelect(campSensePrefix, valor);
 	var sels = $("#" + selectId).parents("form").find("select");
 	for (i = 0; i < sels.length; i++) {
-		if (sels[i].id != selectId && selectDominiParams[sels[i].id] != null && selectDominiParams[sels[i].id].indexOf(camp) != -1) {
+		if (sels[i].id != selectId && selectDominiParams[sels[i].id] != null && selectDominiParams[sels[i].id].indexOf(campSensePrefix) != -1) {
 			try { eval("initSelect_" + sels[i].id + "()"); }
 			catch (ex) {
 				alert(ex);
