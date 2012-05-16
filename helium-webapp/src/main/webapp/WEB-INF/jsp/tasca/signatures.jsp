@@ -15,10 +15,10 @@
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 	<c:import url="../common/formIncludes.jsp"/>
 <c:if test="${globalProperties['app.signatura.tipus'] == 'afirma'}">
-	<script type="text/javascript" language="javascript" src="<c:url value="/signatura/aFirma/common-js/deployJava.js"/>"></script>
-	<script type="text/javascript" language="javascript" src="<c:url value="/signatura/aFirma/common-js/firma.js"/>"></script>
-	<script type="text/javascript" language="javascript" src="<c:url value="/signatura/aFirma/common-js/instalador.js"/>"></script>
-	<script type="text/javascript" language="javascript" src="<c:url value="/signatura/aFirma/common-js/time.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/signatura/aFirma/common-js/deployJava.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/signatura/aFirma/common-js/firma.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/signatura/aFirma/common-js/instalador.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/signatura/aFirma/common-js/time.js"/>"></script>
 </c:if>
 <script type="text/javascript" src="<c:url value="/js/jquery/ui/ui.core.js"/>"></script>
 <script  type="text/javascript" src="<c:url value="/js/jquery/ui/jquery-ui-1.7.2.custom.js"/>"></script>

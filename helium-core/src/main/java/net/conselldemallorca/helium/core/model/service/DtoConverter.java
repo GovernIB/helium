@@ -3,10 +3,7 @@
  */
 package net.conselldemallorca.helium.core.model.service;
 
-import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Array;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,14 +20,11 @@ import net.conselldemallorca.helium.core.model.dao.CampTascaDao;
 import net.conselldemallorca.helium.core.model.dao.ConsultaCampDao;
 import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentDao;
-import net.conselldemallorca.helium.core.model.dao.DocumentStoreDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentTascaDao;
 import net.conselldemallorca.helium.core.model.dao.DominiDao;
 import net.conselldemallorca.helium.core.model.dao.EnumeracioValorsDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.FirmaTascaDao;
-import net.conselldemallorca.helium.core.model.dao.PluginCustodiaDao;
-import net.conselldemallorca.helium.core.model.dao.PluginGestioDocumentalDao;
 import net.conselldemallorca.helium.core.model.dao.PluginPersonaDao;
 import net.conselldemallorca.helium.core.model.dao.TascaDao;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
@@ -45,8 +39,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
@@ -55,9 +47,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipu
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.security.acl.AclServiceDao;
-import net.conselldemallorca.helium.core.util.DocumentTokenUtils;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
@@ -84,7 +74,6 @@ public class DtoConverter {
 	private ExpedientDao expedientDao;
 	private DocumentTascaDao documentTascaDao;
 	private DocumentDao documentDao;
-	private DocumentStoreDao documentStoreDao;
 	private CampTascaDao campTascaDao;
 	private CampAgrupacioDao campAgrupacioDao;
 	private FirmaTascaDao firmaTascaDao;
@@ -92,8 +81,6 @@ public class DtoConverter {
 	private DefinicioProcesDao definicioProcesDao;
 	private DominiDao dominiDao;
 	private PluginPersonaDao pluginPersonaDao;
-	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
-	private PluginCustodiaDao pluginCustodiaDao;
 	private JbpmDao jbpmDao;
 	private EnumeracioValorsDao enumeracioValorsDao;
 	private CampDao campDao;
@@ -101,9 +88,9 @@ public class DtoConverter {
 	private AclServiceDao aclServiceDao;
 	private MessageSource messageSource;
 
-	private PdfUtils pdfUtils;
+	private DocumentHelper documentHelper;
+
 	private ServiceUtils serviceUtils;
-	private DocumentTokenUtils documentTokenUtils;
 
 
 
@@ -396,6 +383,8 @@ public class DtoConverter {
 		dto.setDefinicioProces(definicioProces);
 		if (pi.getDescription() != null && pi.getDescription().length() > 0)
 			dto.setTitol(pi.getDescription());
+		dto.setDataInici(pi.getStart());
+		dto.setDataFi(pi.getEnd());
 		Set<String> resourceNames = jbpmDao.getResourceNames(jpd.getId());
 		dto.setImatgeDisponible(resourceNames.contains("processimage.jpg"));
 		Set<Camp> camps = definicioProces.getCamps();
@@ -406,6 +395,7 @@ public class DtoConverter {
 		if (ambVariables) {
 			Map<String, Object> valors = jbpmDao.getProcessInstanceVariables(processInstanceId);
 			dto.setVarsDocuments(obtenirVarsDocumentsProces(
+					processInstanceId,
 					documents,
 					valors));
 			filtrarVariablesTasca(valors);
@@ -436,7 +426,7 @@ public class DtoConverter {
 		return dto;
 	}
 
-	public DocumentDto toDocumentDto(
+	/*public DocumentDto toDocumentDto(
 			Long documentStoreId,
 			boolean ambContingutOriginal,
 			boolean ambContingutSignat,
@@ -467,9 +457,9 @@ public class DtoConverter {
 				}
 				String codiDocument;
 				if (document.isAdjunt()) {
-					dto.setAdjuntId(document.getJbpmVariable().substring(TascaService.PREFIX_ADJUNT.length()));
+					dto.setAdjuntId(document.getJbpmVariable().substring(DocumentHelper.PREFIX_ADJUNT.length()));
 				} else {
-					codiDocument = document.getJbpmVariable().substring(TascaService.PREFIX_DOCUMENT.length());
+					codiDocument = document.getJbpmVariable().substring(DocumentHelper.PREFIX_VAR_DOCUMENT.length());
 					JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(document.getProcessInstanceId());
 					DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmKeyIVersio(jpd.getKey(), jpd.getVersion());
 					Document doc = documentDao.findAmbDefinicioProcesICodi(definicioProces.getId(), codiDocument);
@@ -578,7 +568,7 @@ public class DtoConverter {
 			}
 		}
 		return null;
-	}
+	}*/
 
 	public List<FilaResultat> getResultatConsultaEnumeracio(
 			DefinicioProces definicioProces,
@@ -719,10 +709,6 @@ public class DtoConverter {
 		this.documentDao = documentDao;
 	}
 	@Autowired
-	public void setDocumentStoreDao(DocumentStoreDao documentStoreDao) {
-		this.documentStoreDao = documentStoreDao;
-	}
-	@Autowired
 	public void setCampTascaDao(CampTascaDao campTascaDao) {
 		this.campTascaDao = campTascaDao;
 	}
@@ -747,15 +733,6 @@ public class DtoConverter {
 		this.pluginPersonaDao = pluginPersonaDao;
 	}
 	@Autowired
-	public void setPluginGestioDocumentalDao(
-			PluginGestioDocumentalDao pluginGestioDocumentalDao) {
-		this.pluginGestioDocumentalDao = pluginGestioDocumentalDao;
-	}
-	@Autowired
-	public void setPluginCustodiaDao(PluginCustodiaDao pluginCustodiaDao) {
-		this.pluginCustodiaDao = pluginCustodiaDao;
-	}
-	@Autowired
 	public void setJbpmDao(JbpmDao jbpmDao) {
 		this.jbpmDao = jbpmDao;
 	}
@@ -778,6 +755,10 @@ public class DtoConverter {
 	@Autowired
 	public void setMessageSource(MessageSource messageSource) {
 		this.messageSource = messageSource;
+	}
+	@Autowired
+	public void setDocumentHelper(DocumentHelper documentHelper) {
+		this.documentHelper = documentHelper;
 	}
 
 
@@ -816,6 +797,7 @@ public class DtoConverter {
 		}
 		return respostaDto;
 	}
+
 	private Map<String, List<ParellaCodiValorDto>> obtenirValorsMultiplesDomini(
 			String taskId,
 			String processInstanceId,
@@ -940,9 +922,9 @@ public class DtoConverter {
 			variables.remove(TascaService.VAR_TASCA_DELEGACIO);
 			List<String> codisEsborrar = new ArrayList<String>();
 			for (String codi: variables.keySet()) {
-				if (	codi.startsWith(TascaService.PREFIX_DOCUMENT) ||
-						codi.startsWith(TascaService.PREFIX_SIGNATURA) ||
-						codi.startsWith(TascaService.PREFIX_ADJUNT))
+				if (	codi.startsWith(DocumentHelper.PREFIX_VAR_DOCUMENT) ||
+						codi.startsWith(DocumentHelper.PREFIX_SIGNATURA) ||
+						codi.startsWith(DocumentHelper.PREFIX_ADJUNT))
 					codisEsborrar.add(codi);
 			}
 			for (String codi: codisEsborrar)
@@ -956,62 +938,42 @@ public class DtoConverter {
 			List<DocumentTasca> documents) {
 		Map<String, DocumentDto> resposta = new HashMap<String, DocumentDto>();
 		for (DocumentTasca document: documents) {
-			Long documentStoreId = (Long)jbpmDao.getTaskInstanceVariable(
+			DocumentDto dto = documentHelper.getDocumentSenseContingut(
 					taskId,
-					TascaService.PREFIX_DOCUMENT + document.getDocument().getCodi());
-			if (documentStoreId == null)
-				documentStoreId = (Long)jbpmDao.getProcessInstanceVariable(
-						processInstanceId,
-						TascaService.PREFIX_DOCUMENT + document.getDocument().getCodi());
-			if (documentStoreId != null) {
-				resposta.put(
-						document.getDocument().getCodi(),
-						toDocumentDto(
-								documentStoreId,
-								false,
-								false,
-								false,
-								false,
-								false));
-			}
+					processInstanceId,
+					document.getDocument().getCodi(),
+					false);
+			if (dto != null)
+				resposta.put(document.getDocument().getCodi(), dto);
 		}
 		return resposta;
 	}
 
 	private Map<String, DocumentDto> obtenirVarsDocumentsProces(
+			String processInstanceId,
 			List<Document> documents,
 			Map<String, Object> valors) {
 		Map<String, DocumentDto> resposta = new HashMap<String, DocumentDto>();
 		if (valors != null) {
 			// Afegeix els documents
 			for (Document document: documents) {
-				Long documentStoreId = (Long)valors.get(
-						TascaService.PREFIX_DOCUMENT + document.getCodi());
-				if (documentStoreId != null) {
+				DocumentDto dto = documentHelper.getDocumentSenseContingut(
+						null,
+						processInstanceId,
+						document.getCodi(),
+						false);
+				if (dto != null)
 					resposta.put(
 							document.getCodi(),
-							toDocumentDto(
-									documentStoreId,
-									false,
-									false,
-									false,
-									false,
-									false));
-				}
+							dto);
 			}
 			// Afegeix els adjunts
 			for (String var: valors.keySet()) {
-				if (var.startsWith(TascaService.PREFIX_ADJUNT)) {
+				if (var.startsWith(DocumentHelper.PREFIX_ADJUNT)) {
 					Long documentStoreId = (Long)valors.get(var);
 					resposta.put(
-							var.substring(TascaService.PREFIX_ADJUNT.length()),
-							toDocumentDto(
-									documentStoreId,
-									false,
-									false,
-									false,
-									false,
-									false));
+							var.substring(DocumentHelper.PREFIX_ADJUNT.length()),
+							documentHelper.getDocumentSenseContingut(documentStoreId));
 				}
 			}
 		}
@@ -1025,42 +987,15 @@ public class DtoConverter {
 		Map<String, DocumentDto> resposta = new HashMap<String, DocumentDto>();
 		if (signatures != null) {
 			for (FirmaTasca signatura: signatures) {
-				Long documentStoreId = (Long)jbpmDao.getTaskInstanceVariable(
+				DocumentDto dto = documentHelper.getDocumentSenseContingut(
 						taskId,
-						TascaService.PREFIX_DOCUMENT + signatura.getDocument().getCodi());
-				if (documentStoreId == null)
-					documentStoreId = (Long)jbpmDao.getProcessInstanceVariable(
-							processInstanceId,
-							TascaService.PREFIX_DOCUMENT + signatura.getDocument().getCodi());
-				if (documentStoreId != null) {
-					DocumentDto dto = toDocumentDto(
-							documentStoreId,
-							false,
-							false,
-							false,
-							false,
-							false);
-					if (dto != null) {
-						try {
-							dto.setTokenSignatura(getDocumentTokenUtils().xifrarToken(documentStoreId.toString()));
-							dto.setTokenSignaturaMultiple(getDocumentTokenUtils().xifrarTokenMultiple(
-									new String[] {
-											taskId,
-											documentStoreId.toString()}));
-						} catch (Exception ex) {
-							logger.error("No s'ha pogut generar el token pel document " + documentStoreId, ex);
-						}
-						if (dto.isSignat()) {
-							Object signatEnTasca = jbpmDao.getTaskInstanceVariable(taskId, TascaService.PREFIX_SIGNATURA + dto.getDocumentCodi());
-							dto.setSignatEnTasca(signatEnTasca != null);
-						} else {
-							dto.setSignatEnTasca(false);
-						}
-						resposta.put(
-								signatura.getDocument().getCodi(),
-								dto);
-					}
-				}
+						processInstanceId,
+						signatura.getDocument().getCodi(),
+						true);
+				if (dto != null)
+					resposta.put(
+							signatura.getDocument().getCodi(),
+							dto);
 			}
 		}
 		return resposta;
@@ -1247,59 +1182,6 @@ public class DtoConverter {
 		return params;
 	}
 
-	private boolean isSignaturaFileAttached() {
-		return "true".equalsIgnoreCase((String)GlobalProperties.getInstance().get("app.signatura.plugin.file.attached"));
-	}
-
-	private boolean isActiuConversioSignatura() {
-		String actiuConversio = (String)GlobalProperties.getInstance().get("app.conversio.actiu");
-		if (!"true".equalsIgnoreCase(actiuConversio))
-			return false;
-		String actiuConversioSignatura = (String)GlobalProperties.getInstance().get("app.conversio.signatura.actiu");
-		return "true".equalsIgnoreCase(actiuConversioSignatura);
-	}
-
-	private String getNomArxiuAmbExtensio(
-			String arxiuNomOriginal,
-			String extensio) {
-		if (!isActiuConversioSignatura())
-			return arxiuNomOriginal;
-		if (extensio == null)
-			extensio = "";
-		int indexPunt = arxiuNomOriginal.lastIndexOf(".");
-		if (indexPunt != -1) {
-			return arxiuNomOriginal.substring(0, indexPunt) + "." + extensio;
-		} else {
-			return arxiuNomOriginal + "." + extensio;
-		}
-	}
-	private String getExtensioArxiuSignat() {
-		return (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
-	}
-	private String getExtensioArxiuRegistrat() {
-		return (String)GlobalProperties.getInstance().get("app.conversio.registre.extension");
-	}
-
-	private byte[] getContingutDocumentAmbFont(DocumentStore document) {
-		if (document.getFont().equals(DocumentFont.INTERNA))
-			return document.getArxiuContingut();
-		else
-			return pluginGestioDocumentalDao.retrieveDocument(
-							document.getReferenciaFont());
-	}
-
-	private String getUrlComprovacioSignatura(Long documentStoreId, String token) {
-		String urlCustodia = pluginCustodiaDao.getUrlComprovacioSignatura(documentStoreId.toString());
-		if (urlCustodia != null) {
-			return urlCustodia;
-		} else {
-			String baseUrl = (String)GlobalProperties.getInstance().get("app.base.verificacio.url");
-			if (baseUrl == null)
-				baseUrl = (String)GlobalProperties.getInstance().get("app.base.url");
-			return baseUrl + "/signatura/verificarExtern.html?token=" + token;
-		}
-	}
-
 	private List<String> getCampsExpressioTitol(String expressio) {
 		List<String> resposta = new ArrayList<String>();
 		String[] parts = expressio.split("\\$\\{");
@@ -1311,11 +1193,6 @@ public class DtoConverter {
 		return resposta;
 	}
 
-	private PdfUtils getPdfUtils() {
-		if (pdfUtils == null)
-			pdfUtils = new PdfUtils();
-		return pdfUtils;
-	}
 	private ServiceUtils getServiceUtils() {
 		if (serviceUtils == null) {
 			serviceUtils = new ServiceUtils(
@@ -1328,12 +1205,6 @@ public class DtoConverter {
 					messageSource);
 		}
 		return serviceUtils;
-	}
-	private DocumentTokenUtils getDocumentTokenUtils() {
-		if (documentTokenUtils == null)
-			documentTokenUtils = new DocumentTokenUtils(
-					(String)GlobalProperties.getInstance().get("app.encriptacio.clau"));
-		return documentTokenUtils;
 	}
 
 	private static final Log logger = LogFactory.getLog(DtoConverter.class);

@@ -11,7 +11,7 @@
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
 	<c:import url="../common/formIncludes.jsp"/>
-<script type="text/javascript" language="javascript">
+<script type="text/javascript">
 // <![CDATA[
 	function canviTermini(input) {
 		var campId = input.id.substring(0, input.id.lastIndexOf("_"));

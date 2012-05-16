@@ -20,7 +20,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
-import net.conselldemallorca.helium.core.model.service.TascaService;
+import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
@@ -271,7 +271,7 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	public String getCodiDocument() {
 		if (getJbpmVariable() == null)
 			return null;
-		return getJbpmVariable().substring(TascaService.PREFIX_DOCUMENT.length());
+		return getJbpmVariable().substring(DocumentHelper.PREFIX_VAR_DOCUMENT.length());
 	}
 	@Transient
 	public boolean isRegistrat() {

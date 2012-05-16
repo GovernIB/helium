@@ -21,6 +21,7 @@ import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
 import net.conselldemallorca.helium.core.model.exception.NotFoundException;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.service.DocumentService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
@@ -51,13 +52,16 @@ import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 public class TascaDocumentsController extends BaseController {
 
 	private TascaService tascaService;
+	private DocumentService documentService;
 
 
 
 	@Autowired
 	public TascaDocumentsController(
-			TascaService tascaService) {
+			TascaService tascaService,
+			DocumentService documentService) {
 		this.tascaService = tascaService;
+		this.documentService = documentService;
 	}
 
 	@ModelAttribute("seleccioMassiva")
@@ -181,8 +185,7 @@ public class TascaDocumentsController extends BaseController {
 						String extensio = null;
 						if (indexPunt != -1 && nomArxiu.length() > indexPunt + 1)
 							extensio = nomArxiu.substring(indexPunt + 1);
-						if (!tascaService.isExtensioDocumentPermesa(
-								entorn.getId(),
+						if (!documentService.isExtensioDocumentPermesa(
 								id,
 								codi,
 								extensio)) {
@@ -259,7 +262,7 @@ public class TascaDocumentsController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/tasca/documentDescarregar")
+	/*@RequestMapping(value = "/tasca/documentDescarregar")
 	public String documentDescarregar(
 			HttpServletRequest request,
 			ModelMap model,
@@ -267,10 +270,10 @@ public class TascaDocumentsController extends BaseController {
 			@RequestParam(value = "codi", required = true) String codi) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			DocumentDto document = tascaService.getDocument(
-					entorn.getId(),
+			DocumentDto document = documentService.documentPerTasca(
 					id,
-					codi);
+					codi,
+					false);
 			if (document != null) {
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, document.getArxiuNom());
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, document.getArxiuContingut());
@@ -280,7 +283,7 @@ public class TascaDocumentsController extends BaseController {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
-	}
+	}*/
 
 	@RequestMapping(value = "/tasca/documentDescarregarZip")
 	public String documentDescarregarZip(
@@ -297,10 +300,10 @@ public class TascaDocumentsController extends BaseController {
 					ByteArrayOutputStream baos = new ByteArrayOutputStream();
 					ZipOutputStream out = new ZipOutputStream(baos);
 					for (String tascaId: tascaIds) {
-						DocumentDto document = tascaService.getDocument(
-								entorn.getId(),
+						DocumentDto document = documentService.documentPerTasca(
 								tascaId,
-								codi);
+								codi,
+								false);
 						int indexPunt = document.getArxiuNom().lastIndexOf(".");
 						StringBuilder nomEntrada = new StringBuilder();
 						nomEntrada.append(document.getArxiuNom().substring(0, indexPunt));
@@ -368,11 +371,13 @@ public class TascaDocumentsController extends BaseController {
 						data);
 				return "redirect:/tasca/documents.html?id=" + id;
 			} else {
-				DocumentDto document = tascaService.generarDocumentPlantilla(
+				DocumentDto document = documentService.generarDocumentPlantilla(
 						entorn.getId(),
 						documentId,
 						id,
-						(data != null) ? data : new Date());
+						null,
+						(data != null) ? data : new Date(),
+						false);
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, document.getArxiuNom());
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, document.getArxiuContingut());
 				return "arxiuView";
@@ -412,12 +417,13 @@ public class TascaDocumentsController extends BaseController {
 		boolean error = false;
 		for (String tascaId: tascaIds) {
 			try {
-				tascaService.guardarDocument(
+				tascaService.comprovarTascaAssignadaIValidada(entornId, tascaId, null);
+				documentService.guardarDocumentTasca(
 						entornId,
 						tascaId,
 						codi,
-						nomArxiu,
 						data,
+						nomArxiu,
 						contingut);
 	        } catch (Exception ex) {
 	        	String tascaIdLog = getIdTascaPerLogs(entornId, tascaId);
@@ -451,9 +457,10 @@ public class TascaDocumentsController extends BaseController {
 		boolean error = false;
 		for (String tascaId: tascaIds) {
 			try {
-				tascaService.esborrarDocument(
-						entornId,
+				tascaService.comprovarTascaAssignadaIValidada(entornId, tascaId, null);
+				documentService.esborrarDocument(
 						tascaId,
+						null,
 						codi);
 	        } catch (Exception ex) {
 	        	String tascaIdLog = getIdTascaPerLogs(entornId, tascaId);
@@ -488,11 +495,13 @@ public class TascaDocumentsController extends BaseController {
 		boolean error = false;
 		for (String tascaId: tascaIds) {
 			try {
-				tascaService.generarDocumentPlantilla(
+				documentService.generarDocumentPlantilla(
 						entornId,
 						documentId,
 						tascaId,
-						(data != null) ? data : new Date());
+						null,
+						(data != null) ? data : new Date(),
+						false);
 			} catch (Exception ex) {
 				String tascaIdLog = getIdTascaPerLogs(entornId, tascaId);
 				missatgeError(

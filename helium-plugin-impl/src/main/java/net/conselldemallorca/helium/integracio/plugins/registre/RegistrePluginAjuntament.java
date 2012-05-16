@@ -765,7 +765,7 @@ public class RegistrePluginAjuntament implements RegistrePlugin {
 		} else if ("pt".equalsIgnoreCase(iso6391)) {
 			return "F";
 		}
-		return "1";
+		return "2";
 	}
 	private String idiomaRegweb2iso(String regweb) {
 		if ("1".equalsIgnoreCase(regweb)) {

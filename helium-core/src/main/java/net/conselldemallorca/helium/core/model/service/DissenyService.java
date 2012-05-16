@@ -178,7 +178,7 @@ public class DissenyService {
 				definicioProces.setExpedientTipus(expedientTipusDao.getById(expedientTipusId, false));
 			definicioProcesDao.saveOrUpdate(definicioProces);
 			// Crea les tasques de la definició de procés
-			for (String nomTasca: jbpmDao.TaskNamesFromDeployedProcessDefinition(dpd)) {
+			for (String nomTasca: jbpmDao.getTaskNamesFromDeployedProcessDefinition(dpd)) {
 				Tasca tasca = new Tasca(
 						definicioProces,
 						nomTasca,

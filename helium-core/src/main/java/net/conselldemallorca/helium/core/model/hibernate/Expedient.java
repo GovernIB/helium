@@ -5,9 +5,11 @@ package net.conselldemallorca.helium.core.model.hibernate;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -21,6 +23,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
@@ -121,8 +124,8 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 
 	private Set<Expedient> relacionsOrigen = new HashSet<Expedient>();
 	private Set<Expedient> relacionsDesti = new HashSet<Expedient>();
-
 	private Set<Alerta> alertes = new HashSet<Alerta>();
+	private List<ExpedientLog> logs = new ArrayList<ExpedientLog>();
 
 
 
@@ -480,6 +483,21 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	}
 	public void removeAlerta(Alerta alerta) {
 		getAlertes().remove(alerta);
+	}
+
+	@OneToMany(mappedBy="expedient", cascade={CascadeType.ALL})
+	@OrderBy("data asc, id asc")
+	public List<ExpedientLog> getLogs() {
+		return logs;
+	}
+	public void setLogs(List<ExpedientLog> logs) {
+		this.logs = logs;
+	}
+	public void addLogs(ExpedientLog logs) {
+		getLogs().add(logs);
+	}
+	public void removeLogs(ExpedientLog logs) {
+		getLogs().remove(logs);
 	}
 
 	@Transient

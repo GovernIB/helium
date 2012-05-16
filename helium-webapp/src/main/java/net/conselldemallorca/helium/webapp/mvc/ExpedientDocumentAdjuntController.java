@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.service.DocumentService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
@@ -47,6 +48,7 @@ import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 @Controller
 public class ExpedientDocumentAdjuntController extends BaseController {
 
+	private DocumentService documentService;
 	private ExpedientService expedientService;
 	private PermissionService permissionService;
 
@@ -54,8 +56,10 @@ public class ExpedientDocumentAdjuntController extends BaseController {
 
 	@Autowired
 	public ExpedientDocumentAdjuntController(
+			DocumentService documentService,
 			ExpedientService expedientService,
 			PermissionService permissionService) {
+		this.documentService = documentService;
 		this.expedientService = expedientService;
 		this.permissionService = permissionService;
 	}
@@ -119,7 +123,7 @@ public class ExpedientDocumentAdjuntController extends BaseController {
 						} catch (Exception ignored) {}
 					}
 			        try {
-				        expedientService.guardarAdjunt(
+			        	documentService.guardarAdjunt(
 				        		id,
 				        		null,
 				        		command.getNom(),

@@ -9,6 +9,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
+import net.conselldemallorca.helium.core.model.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
@@ -371,10 +372,16 @@ public class ExpedientController extends BaseController {
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (potConsultarExpedient(expedient)) {
-				model.addAttribute(
-						"registre",
-						expedientService.getRegistrePerExpedient(expedient.getId()));
-				return "expedient/registre";
+				List<ExpedientLogDto> logs = expedientService.getLogsOrdenatsPerData(expedient.getId());
+				if (logs == null || logs.size() == 0) {
+					model.addAttribute(
+							"registre",
+							expedientService.getRegistrePerExpedient(expedient.getId()));
+					return "expedient/registre";
+				} else {
+					model.addAttribute("logs", logs);
+					return "expedient/log";
+				}
 			} else {
 				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
 				return "redirect:/expedient/consulta.html";
@@ -394,7 +401,7 @@ public class ExpedientController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
-			if (potModificarExpedient(expedient)) {
+			if (expedientService.isAccioPublica(id, jbpmAction) || potModificarExpedient(expedient)) {
 				expedientService.executarAccio(id, jbpmAction);
 				missatgeInfo(request, getMessage("info.accio.executat") );
 				return "redirect:/expedient/info.html?id=" + id;
@@ -402,6 +409,21 @@ public class ExpedientController extends BaseController {
 				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+
+	@RequestMapping(value = "retrocedir")
+	public String retrocedir(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) String id,
+			@RequestParam(value = "logId", required = true) Long logId) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			expedientService.retrocedir(logId);
+			return "redirect:/expedient/registre.html?id=" + id;
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";

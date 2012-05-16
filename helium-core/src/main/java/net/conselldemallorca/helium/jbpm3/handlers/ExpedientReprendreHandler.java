@@ -20,7 +20,9 @@ public class ExpedientReprendreHandler extends AbstractHeliumActionHandler imple
 		ExpedientDto expedient = getExpedient(executionContext);
 		if (expedient != null) {
 			try {
-				getExpedientService().reprendre(expedient.getProcessInstanceId());
+				getExpedientService().reprendre(
+						expedient.getProcessInstanceId(),
+						null);
 			} catch (Exception ex) {
 				throw new JbpmException("No s'ha pogut reprendre l'expedient", ex);
 			}

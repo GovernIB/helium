@@ -3,7 +3,6 @@
  */
 package net.conselldemallorca.helium.core.model.service;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -20,52 +19,35 @@ import net.conselldemallorca.helium.core.model.dao.CampDao;
 import net.conselldemallorca.helium.core.model.dao.CampTascaDao;
 import net.conselldemallorca.helium.core.model.dao.ConsultaCampDao;
 import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
-import net.conselldemallorca.helium.core.model.dao.DocumentDao;
-import net.conselldemallorca.helium.core.model.dao.DocumentStoreDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientTipusDao;
 import net.conselldemallorca.helium.core.model.dao.FormulariExternDao;
 import net.conselldemallorca.helium.core.model.dao.LuceneDao;
-import net.conselldemallorca.helium.core.model.dao.PlantillaDocumentDao;
-import net.conselldemallorca.helium.core.model.dao.PluginCustodiaDao;
-import net.conselldemallorca.helium.core.model.dao.PluginGestioDocumentalDao;
 import net.conselldemallorca.helium.core.model.dao.PluginPersonaDao;
-import net.conselldemallorca.helium.core.model.dao.PluginSignaturaDao;
 import net.conselldemallorca.helium.core.model.dao.RegistreDao;
 import net.conselldemallorca.helium.core.model.dao.TascaDao;
 import net.conselldemallorca.helium.core.model.dao.TerminiIniciatDao;
-import net.conselldemallorca.helium.core.model.dto.DocumentDto;
-import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
-import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.dto.PaginaLlistatDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
 import net.conselldemallorca.helium.core.model.exception.DominiException;
-import net.conselldemallorca.helium.core.model.exception.IllegalArgumentsException;
 import net.conselldemallorca.helium.core.model.exception.IllegalStateException;
 import net.conselldemallorca.helium.core.model.exception.NotFoundException;
-import net.conselldemallorca.helium.core.model.exception.PluginException;
-import net.conselldemallorca.helium.core.model.exception.TemplateException;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.FormulariExtern;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.acl.AclServiceDao;
-import net.conselldemallorca.helium.core.util.DocumentTokenUtils;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
-import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
@@ -95,10 +77,6 @@ public class TascaService {
 	public static final String VAR_TASCA_VALIDADA = "H3l1um#tasca.validada";
 	public static final String VAR_TASCA_DELEGACIO = "H3l1um#tasca.delegacio";
 
-	public static final String PREFIX_SIGNATURA = "H3l1um#signatura.";
-	public static final String PREFIX_DOCUMENT = "H3l1um#document.";
-	public static final String PREFIX_ADJUNT = "H3l1um#adjunt.";
-
 	public static final String DEFAULT_SECRET_KEY = "H3l1umKy";
 	public static final String DEFAULT_ENCRYPTION_SCHEME = "DES/ECB/PKCS5Padding";
 	public static final String DEFAULT_KEY_ALGORITHM = "DES";
@@ -107,19 +85,13 @@ public class TascaService {
 	private ExpedientTipusDao expedientTipusDao;
 	private TascaDao tascaDao;
 	private DefinicioProcesDao definicioProcesDao;
-	private DocumentDao documentDao;
 	private JbpmDao jbpmDao;
 	private AclServiceDao aclServiceDao;
-	private DocumentStoreDao documentStoreDao;
-	private PlantillaDocumentDao plantillaDocumentDao;
-	private PluginSignaturaDao pluginSignaturaDao;
-	private PluginCustodiaDao pluginCustodiaDao;
 	private DtoConverter dtoConverter;
 	private PluginPersonaDao pluginPersonaDao;
 	private LuceneDao luceneDao;
 	private RegistreDao registreDao;
 	private FormulariExternDao formulariExternDao;
-	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
 	private TerminiIniciatDao terminiIniciatDao;
 	private AlertaDao alertaDao;
 	private CampDao campDao;
@@ -127,9 +99,8 @@ public class TascaService {
 	private ConsultaCampDao consultaCampDao;
 	private MessageSource messageSource;
 
-	private OpenOfficeUtils openOfficeUtils;
 	private ServiceUtils serviceUtils;
-	private DocumentTokenUtils documentTokenUtils;
+	private ExpedientLogHelper expedientLogHelper;
 
 	private Map<String, Map<String, Object>> dadesFormulariExternInicial;
 
@@ -344,7 +315,14 @@ public class TascaService {
 	}
 	public TascaDto agafar(Long entornId, String usuari, String taskId) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, false);
+		String previousActors = expedientLogHelper.getActorsPerReassignacioTasca(taskId);
+		ExpedientLog expedientLog = expedientLogHelper.afegirLogExpedientPerTasca(
+				taskId,
+				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
+				previousActors);
 		jbpmDao.takeTaskInstance(taskId, usuari);
+		String currentActors = expedientLogHelper.getActorsPerReassignacioTasca(taskId);
+		expedientLog.setAccioParams(previousActors + "::" + currentActors);
 		TascaDto tasca = toTascaDto(task, null, true, true);
 		registreDao.crearRegistreIniciarTasca(
 				tasca.getExpedient().getId(),
@@ -352,6 +330,15 @@ public class TascaService {
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				"Agafar tasca \"" + tasca.getNom() + "\"");
 		return tasca;
+	}
+	public TascaDto guardarVariable(
+			Long entornId,
+			String taskId,
+			String variable,
+			Object valor) {
+		Map<String, Object> variables = new HashMap<String, Object>();
+		variables.put(variable, valor);
+		return guardarVariables(entornId, taskId, variables, null);
 	}
 	public TascaDto guardarVariables(
 			Long entornId,
@@ -365,6 +352,15 @@ public class TascaService {
 			Map<String, Object> variables,
 			String usuari) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);
+		StringBuilder accioParams = new StringBuilder();
+		for (String varName: variables.keySet()) {
+			accioParams.append(varName);
+			accioParams.append(",");
+		}
+		expedientLogHelper.afegirLogExpedientPerTasca(
+				taskId,
+				ExpedientLogAccioTipus.TASCA_FORM_GUARDAR,
+				(accioParams.length() > 0) ? accioParams.substring(0, accioParams.length() - 1) : null);
 		boolean iniciada = task.getStartTime() == null;
 		optimitzarConsultesDomini(task, variables);
 		jbpmDao.startTaskInstance(taskId);
@@ -381,47 +377,66 @@ public class TascaService {
 	}
 
 	public void guardarRegistre(
+			Long entornId,
 			String taskId,
 			String campCodi,
 			Object[] valors) {
 		guardarRegistre(
+				entornId,
 				taskId,
 				campCodi,
 				valors,
 				-1);
 	}
 	public void guardarRegistre(
+			Long entornId,
 			String taskId,
 			String campCodi,
 			Object[] valors,
 			int index) {
 		Object valor = jbpmDao.getTaskInstanceVariable(taskId, campCodi);
 		if (valor == null) {
-			jbpmDao.setTaskInstanceVariable(
+			guardarVariable(
+					entornId,
 					taskId,
 					campCodi,
 					new Object[]{valors});
+			/*jbpmDao.setTaskInstanceVariable(
+					taskId,
+					campCodi,
+					new Object[]{valors});*/
 		} else {
 			Object[] valorMultiple = (Object[])valor;
 			if (index != -1) {
 				valorMultiple[index] = valors;
-				jbpmDao.setTaskInstanceVariable(
+				guardarVariable(
+						entornId,
 						taskId,
 						campCodi,
 						valor);
+				/*jbpmDao.setTaskInstanceVariable(
+						taskId,
+						campCodi,
+						valor);*/
 			} else {
 				Object[] valorNou = new Object[valorMultiple.length + 1];
 				for (int i = 0; i < valorMultiple.length; i++)
 					valorNou[i] = valorMultiple[i];
 				valorNou[valorMultiple.length] = valors;
-				jbpmDao.setTaskInstanceVariable(
+				guardarVariable(
+						entornId,
 						taskId,
 						campCodi,
 						valorNou);
+				/*jbpmDao.setTaskInstanceVariable(
+						taskId,
+						campCodi,
+						valorNou);*/
 			}
 		}
 	}
 	public void esborrarRegistre(
+			Long entornId,
 			String taskId,
 			String campCodi,
 			int index) {
@@ -432,10 +447,15 @@ public class TascaService {
 				Object[] valorNou = new Object[valorMultiple.length - 1];
 				for (int i = 0; i < valorNou.length; i++)
 					valorNou[i] = (i < index) ? valorMultiple[i] : valorMultiple[i + 1];
-				jbpmDao.setTaskInstanceVariable(
+				guardarVariable(
+						entornId,
 						taskId,
 						campCodi,
 						valorNou);
+				/*jbpmDao.setTaskInstanceVariable(
+						taskId,
+						campCodi,
+						valorNou);*/
 			}
 		}
 	}
@@ -454,6 +474,10 @@ public class TascaService {
 			boolean comprovarAssignacio,
 			String usuari) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, comprovarAssignacio);
+		expedientLogHelper.afegirLogExpedientPerTasca(
+				taskId,
+				ExpedientLogAccioTipus.TASCA_FORM_VALIDAR,
+				null);
 		optimitzarConsultesDomini(task, variables);
 		jbpmDao.startTaskInstance(taskId);
 		jbpmDao.setTaskInstanceVariables(taskId, variables);
@@ -470,6 +494,10 @@ public class TascaService {
 			Long entornId,
 			String taskId) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
+		expedientLogHelper.afegirLogExpedientPerTasca(
+				taskId,
+				ExpedientLogAccioTipus.TASCA_FORM_RESTAURAR,
+				null);
 		if (!isTascaValidada(task))
 			throw new IllegalStateException(
 					getServiceUtils().getMessage("error.tascaService.noValidada"));
@@ -506,8 +534,12 @@ public class TascaService {
 		if (!isSignaturesComplet(task))
 			throw new IllegalStateException(
 					getServiceUtils().getMessage("error.tascaService.faltenSignar"));
+		expedientLogHelper.afegirLogExpedientPerTasca(
+				taskId,
+				ExpedientLogAccioTipus.TASCA_COMPLETAR,
+				outcome);
 		jbpmDao.startTaskInstance(taskId);
-		jbpmDao.completeTaskInstance(task.getId(), outcome);
+		jbpmDao.endTaskInstance(task.getId(), outcome);
 		// Accions per a una tasca delegada
 		DelegationInfo delegationInfo = getDelegationInfo(task);
 		if (delegationInfo != null) {
@@ -602,297 +634,7 @@ public class TascaService {
 				codiVariable);
 	}
 
-	public void guardarDocument(
-			Long entornId,
-			String taskId,
-			String documentCodi,
-			String nom,
-			Date data,
-			byte[] contingut) {
-		guardarDocument(
-				entornId,
-				taskId,
-				documentCodi,
-				nom,
-				data,
-				contingut,
-				null);
-	}
-	public void guardarDocument(
-			Long entornId,
-			String taskId,
-			String documentCodi,
-			String arxiuNom,
-			Date data,
-			byte[] arxiuContingut,
-			String usuari) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);
-		if (!isTascaValidada(task))
-			throw new IllegalStateException(
-					getServiceUtils().getMessage("error.tascaService.noValidada"));
-		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
-		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
-		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(task.getProcessDefinitionId());
-		Document document = documentDao.findAmbDefinicioProcesICodi(
-				definicioProces.getId(),
-				documentCodi);
-		String codiVariableJbpm = PREFIX_DOCUMENT + document.getCodi();
-		// Obté la referencia al documentStore del jBPM
-		Long docStoreId = (Long)jbpmDao.getProcessInstanceVariable(task.getProcessInstanceId(), codiVariableJbpm);
-		String nomArxiuAntic = null;
-		boolean creat = (docStoreId == null);
-		// Crea el document al store
-		if (docStoreId == null) {
-			docStoreId = documentStoreDao.create(
-					task.getProcessInstanceId(),
-					codiVariableJbpm,
-					data,
-					(pluginGestioDocumentalDao.isGestioDocumentalActiu()) ? DocumentFont.ALFRESCO : DocumentFont.INTERNA,
-					arxiuNom,
-					(pluginGestioDocumentalDao.isGestioDocumentalActiu()) ? null : arxiuContingut,
-					false,
-					null);
-		} else {
-			DocumentStore docStore = documentStoreDao.getById(docStoreId, false);
-			if (docStore == null) {
-				docStoreId = documentStoreDao.create(
-						task.getProcessInstanceId(),
-						codiVariableJbpm,
-						data,
-						(pluginGestioDocumentalDao.isGestioDocumentalActiu()) ? DocumentFont.ALFRESCO : DocumentFont.INTERNA,
-						arxiuNom,
-						(pluginGestioDocumentalDao.isGestioDocumentalActiu()) ? null : arxiuContingut,
-						false,
-						null);
-			} else {
-				nomArxiuAntic = docStore.getArxiuNom();
-				documentStoreDao.update(
-						docStoreId,
-						data,
-						arxiuNom,
-						(pluginGestioDocumentalDao.isGestioDocumentalActiu()) ? null : arxiuContingut,
-						null);
-				if (arxiuContingut != null && pluginGestioDocumentalDao.isGestioDocumentalActiu())
-					pluginGestioDocumentalDao.deleteDocument(docStore.getReferenciaFont());
-			}
-		}
-		// Crea el document a dins la gestió documental
-		if (arxiuContingut != null && pluginGestioDocumentalDao.isGestioDocumentalActiu()) {
-			String referenciaFont = pluginGestioDocumentalDao.createDocument(
-					expedient,
-					docStoreId.toString(),
-					document.getNom(),
-					data,
-					arxiuNom,
-					arxiuContingut);
-			documentStoreDao.updateReferenciaFont(
-					docStoreId,
-					referenciaFont);
-		}
-		// Guarda la referència al nou document a dins el jBPM
-		jbpmDao.setTaskInstanceVariable(
-				task.getId(),
-				codiVariableJbpm,
-				docStoreId);
-		TascaDto tasca = toTascaDto(task, null, true, true);
-		// Registra l'acció
-		if (creat) {
-			registreDao.crearRegistreCrearDocumentTasca(
-					tasca.getExpedient().getId(),
-					taskId,
-					SecurityContextHolder.getContext().getAuthentication().getName(),
-					document.getCodi(),
-					arxiuNom);
-		} else {
-			registreDao.crearRegistreModificarDocumentTasca(
-					tasca.getExpedient().getId(),
-					taskId,
-					SecurityContextHolder.getContext().getAuthentication().getName(),
-					document.getCodi(),
-					nomArxiuAntic,
-					arxiuNom);
-		}
-	}
-	public void esborrarDocument(
-			Long entornId,
-			String taskId,
-			String documentCodi) {
-		esborrarDocument(entornId, taskId, documentCodi, null);
-	}
-	public void esborrarDocument(
-			Long entornId,
-			String taskId,
-			String documentCodi,
-			String usuari) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);
-		String codiVariableJbpm = PREFIX_DOCUMENT + documentCodi;
-		Long documentJbpm = (Long)jbpmDao.getTaskInstanceVariable(taskId, codiVariableJbpm);
-		if (documentJbpm == null)
-			documentJbpm = (Long)jbpmDao.getProcessInstanceVariable(task.getProcessInstanceId(), codiVariableJbpm);
-		if (documentJbpm != null) {
-			DocumentStore documentStore = documentStoreDao.getById(documentJbpm, false);
-			if (documentStore != null) {
-				if (documentStore.isSignat()) {
-					if (pluginCustodiaDao.isCustodiaActiu()) {
-						try {
-							pluginCustodiaDao.esborrarSignatures(documentStore.getReferenciaCustodia());
-						} catch (PluginException ignored) {}
-					}
-				}
-				if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
-					pluginGestioDocumentalDao.deleteDocument(documentStore.getReferenciaFont());
-				documentStoreDao.delete(documentJbpm);
-			}
-			if (jbpmDao.getTaskInstanceVariable(taskId, codiVariableJbpm) != null) {
-				jbpmDao.deleteTaskInstanceVariable(
-						taskId,
-						codiVariableJbpm);
-				jbpmDao.deleteTaskInstanceVariable(
-						taskId,
-						PREFIX_SIGNATURA + documentCodi);
-			}
-			jbpmDao.deleteProcessInstanceVariable(
-					task.getProcessInstanceId(),
-					codiVariableJbpm);
-		}
-		TascaDto tasca = toTascaDto(task, null, true, true);
-		registreDao.crearRegistreEsborrarDocumentTasca(
-				tasca.getExpedient().getId(),
-				taskId,
-				SecurityContextHolder.getContext().getAuthentication().getName(),
-				documentCodi);
-	}
-	public DocumentDto getDocument(
-			Long entornId,
-			String taskId,
-			String codiVariable) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
-		String codiVariableJbpm = PREFIX_DOCUMENT + codiVariable;
-		Long documentStoreId = (Long)jbpmDao.getTaskInstanceVariable(
-				taskId,
-				codiVariableJbpm);
-		if (documentStoreId == null)
-			documentStoreId = (Long)jbpmDao.getProcessInstanceVariable(
-					task.getProcessInstanceId(),
-					PREFIX_DOCUMENT + codiVariable);
-		if (documentStoreId == null)
-			return null;
-		return dtoConverter.toDocumentDto(
-				documentStoreId,
-				true,
-				false,
-				false,
-				false,
-				false);
-	}
-
-	public DocumentDto getDocumentAmbToken(
-			String token,
-			boolean ambContingut) throws Exception {
-		String[] tokenDesxifrat = getDocumentTokenUtils().desxifrarTokenMultiple(token);
-		Long documentStoreId = Long.parseLong(tokenDesxifrat[0]);
-		if (tokenDesxifrat.length == 2) {
-			documentStoreId = Long.parseLong(tokenDesxifrat[1]);
-			return dtoConverter.toDocumentDto(
-					documentStoreId,
-					ambContingut,
-					false,
-					false,
-					false,
-					false);
-		} else {
-			throw new IllegalArgumentsException(
-					getServiceUtils().getMessage("error.documentService.formatIncorrecte"));
-		}
-	}
-	public boolean signarDocumentAmbToken(
-			Long entornId,
-			String token,
-			byte[] signatura) throws Exception {
-		String[] tokenDesxifrat = getDocumentTokenUtils().desxifrarTokenMultiple(token);
-		if (tokenDesxifrat.length == 2) {
-			JbpmTask task = comprovarSeguretatTasca(entornId, tokenDesxifrat[0], null, true);
-			TascaDto tascaDto = toTascaDto(task, null, false, false);
-			Long documentStoreId = Long.parseLong(tokenDesxifrat[1]);
-			DocumentDto document = dtoConverter.toDocumentDto(
-					documentStoreId,
-					false,
-					false,
-					true,
-					true,
-					true);
-			if (document != null) {
-				// Comprova que es tengui accés a signar el document
-				boolean trobat = false;
-				for (FirmaTasca firmaTasca: tascaDto.getSignatures()) {
-					if (document.getDocumentCodi().equals(firmaTasca.getDocument().getCodi())) {
-						trobat = true;
-						break;
-					}
-				}
-				if (trobat) {
-					boolean custodiat = false;
-					DocumentStore docst = documentStoreDao.getById(documentStoreId, false);
-					JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(docst.getProcessInstanceId());
-					Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
-					if (pluginCustodiaDao.isCustodiaActiu()) {
-						String nomArxiu = nomArxiuAmbExtensio(
-								document.getArxiuNom(),
-								getExtensioSignatura());
-						String referenciaCustodia = null;
-						if (pluginCustodiaDao.isValidacioImplicita()) {
-							referenciaCustodia = pluginCustodiaDao.afegirSignatura(
-									docst.getId(),
-									docst.getReferenciaFont(),
-									nomArxiu,
-									document.getCustodiaCodi(),
-									signatura);
-							custodiat = true;
-						} else {
-							RespostaValidacioSignatura resposta = pluginSignaturaDao.verificarSignatura(
-									document.getVistaContingut(),
-									signatura,
-									false);
-							if (resposta.isEstatOk()) {
-								referenciaCustodia = pluginCustodiaDao.afegirSignatura(
-										docst.getId(),
-										docst.getReferenciaFont(),
-										nomArxiu,
-										document.getCustodiaCodi(),
-										signatura);
-								custodiat = true;
-							}
-						}
-						docst.setReferenciaCustodia(referenciaCustodia);
-					}
-					if (custodiat) {
-						docst.setSignat(true);
-						registreDao.crearRegistreSignarDocument(
-								expedient.getId(),
-								docst.getProcessInstanceId(),
-								SecurityContextHolder.getContext().getAuthentication().getName(),
-								document.getDocumentCodi());
-						jbpmDao.setTaskInstanceVariable(
-								tokenDesxifrat[0],
-								PREFIX_SIGNATURA + document.getDocumentCodi(),
-								documentStoreId);
-					}
-					return custodiat;
-				} else {
-					throw new IllegalStateException(
-							getServiceUtils().getMessage("error.tascaService.docNoDisponible"));
-				}
-			} else {
-				throw new IllegalStateException(
-						getServiceUtils().getMessage("error.tascaService.docNoDisponible"));
-			}
-		} else {
-			throw new IllegalArgumentsException(
-					getServiceUtils().getMessage("error.tascaService.tokenIncorrecte"));
-		}
-	}
-
-	public DocumentDto generarDocumentPlantilla(
+	/*public DocumentDto generarDocumentPlantilla(
 			Long entornId,
 			Long documentId,
 			String taskId,
@@ -942,13 +684,15 @@ public class TascaService {
 					resposta.setArxiuContingut(resultat);
 				}
 				if (document.isAdjuntarAuto()) {
-					guardarDocument(
-							entornId,
+					documentHelper.actualitzarDocument(
 							taskId,
+							null,
 							document.getCodi(),
-							resposta.getArxiuNom(),
+							null,
 							dataDocument,
-							resposta.getArxiuContingut());
+							resposta.getArxiuNom(),
+							resposta.getArxiuContingut(),
+							false);
 				}
 			} catch (Exception ex) {
 				throw new TemplateException(
@@ -958,23 +702,7 @@ public class TascaService {
 			resposta.setArxiuContingut(document.getArxiuContingut());
 		}
 		return resposta;
-	}
-
-	public boolean isExtensioDocumentPermesa(
-			Long entornId,
-			String taskId,
-			String documentCodi,
-			String extensio) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
-		if (!isTascaValidada(task))
-			throw new IllegalStateException(
-					getServiceUtils().getMessage("error.tascaService.noValidada"));
-		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(task.getProcessDefinitionId());
-		Document document = documentDao.findAmbDefinicioProcesICodi(
-				definicioProces.getId(),
-				documentCodi);
-		return document.isExtensioPermesa(extensio);
-	}
+	}*/
 
 	public void delegacioCrear(
 			Long entornId,
@@ -1125,6 +853,16 @@ public class TascaService {
 		jbpmDao.executeActionInstanciaTasca(taskId, accio);
 	}
 
+	public void comprovarTascaAssignadaIValidada(
+			Long entornId,
+			String taskInstanceId,
+			String usuari) {
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskInstanceId, usuari, true);
+		if (!isTascaValidada(task))
+			throw new IllegalStateException(
+					getServiceUtils().getMessage("error.tascaService.noValidada"));
+	}
+
 	/*public Integer getTotalTasquesPersona(Long entornId) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String usuariBo = auth.getName();
@@ -1167,32 +905,12 @@ public class TascaService {
 		this.definicioProcesDao = definicioProcesDao;
 	}
 	@Autowired
-	public void setDocumentDao(DocumentDao documentDao) {
-		this.documentDao = documentDao;
-	}
-	@Autowired
 	public void setJbpmDao(JbpmDao jbpmDao) {
 		this.jbpmDao = jbpmDao;
 	}
 	@Autowired
 	public void setAclServiceDao(AclServiceDao aclServiceDao) {
 		this.aclServiceDao = aclServiceDao;
-	}
-	@Autowired
-	public void setDocumentStoreDao(DocumentStoreDao documentStoreDao) {
-		this.documentStoreDao = documentStoreDao;
-	}
-	@Autowired
-	public void setPlantillaDocumentDao(PlantillaDocumentDao plantillaDocumentDao) {
-		this.plantillaDocumentDao = plantillaDocumentDao;
-	}
-	@Autowired
-	public void setPluginCustodiaDao(PluginCustodiaDao pluginCustodiaDao) {
-		this.pluginCustodiaDao = pluginCustodiaDao;
-	}
-	@Autowired
-	public void setPluginSignaturaDao(PluginSignaturaDao pluginSignaturaDao) {
-		this.pluginSignaturaDao = pluginSignaturaDao;
 	}
 	@Autowired
 	public void setPluginPersonaDao(PluginPersonaDao pluginPersonaDao) {
@@ -1213,11 +931,6 @@ public class TascaService {
 	@Autowired
 	public void setFormulariExternDao(FormulariExternDao formulariExternDao) {
 		this.formulariExternDao = formulariExternDao;
-	}
-	@Autowired
-	public void setPluginGestioDocumentalDao(
-			PluginGestioDocumentalDao pluginGestioDocumentalDao) {
-		this.pluginGestioDocumentalDao = pluginGestioDocumentalDao;
 	}
 	@Autowired
 	public void setTerminiIniciatDao(
@@ -1247,6 +960,10 @@ public class TascaService {
 	@Autowired
 	public void setMessageSource(MessageSource messageSource) {
 		this.messageSource = messageSource;
+	}
+	@Autowired
+	public void setExpedientLogHelper(ExpedientLogHelper expedientLogHelper) {
+		this.expedientLogHelper = expedientLogHelper;
 	}
 
 
@@ -1525,7 +1242,7 @@ public class TascaService {
 				task.getProcessDefinitionId());
 		for (DocumentTasca docTasca: tasca.getDocuments()) {
 			if (docTasca.isRequired()) {
-				String codiJbpm = PREFIX_DOCUMENT + docTasca.getDocument().getCodi();
+				String codiJbpm = DocumentHelper.PREFIX_VAR_DOCUMENT + docTasca.getDocument().getCodi();
 				Object valor = jbpmDao.getTaskInstanceVariable(
 						task.getId(),
 						codiJbpm);
@@ -1544,7 +1261,7 @@ public class TascaService {
 				task.getProcessDefinitionId());
 		for (FirmaTasca firmaTasca: tasca.getFirmes()) {
 			if (firmaTasca.isRequired()) {
-				String codiJbpm = PREFIX_SIGNATURA + firmaTasca.getDocument().getCodi();
+				String codiJbpm = DocumentHelper.PREFIX_SIGNATURA + firmaTasca.getDocument().getCodi();
 				Object valor = jbpmDao.getTaskInstanceVariable(task.getId(), codiJbpm);
 				if (valor == null)
 					ok = false;
@@ -1582,56 +1299,6 @@ public class TascaService {
 	}
 	private Map<String, Object> getVariablesDelegacio(JbpmTask task) {
 		return jbpmDao.getTaskInstanceVariables(task.getId());
-	}
-
-	private String nomArxiuAmbExtensio(String fileName, String extensio) {
-		if (extensio == null || extensio.length() == 0)
-			return fileName;
-		int indexPunt = fileName.lastIndexOf(".");
-		if (indexPunt != -1) {
-			String nom = fileName.substring(0, indexPunt);
-			return nom + "." + extensio;
-		} else {
-			return fileName + "." + extensio;
-		}
-	}
-
-	private boolean isActiuConversioVista() {
-		String actiuConversio = (String)GlobalProperties.getInstance().get("app.conversio.actiu");
-		if (!"true".equalsIgnoreCase(actiuConversio))
-			return false;
-		String actiuConversioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.actiu");
-		if (actiuConversioVista == null)
-			actiuConversioVista = (String)GlobalProperties.getInstance().get("app.conversio.gentasca.actiu");
-		return "true".equalsIgnoreCase(actiuConversioVista);
-	}
-	private boolean isActiuConversioSignatura() {
-		String actiuConversio = (String)GlobalProperties.getInstance().get("app.conversio.actiu");
-		if (!"true".equalsIgnoreCase(actiuConversio))
-			return false;
-		String actiuConversioVista = (String)GlobalProperties.getInstance().get("app.conversio.signatura.actiu");
-		return "true".equalsIgnoreCase(actiuConversioVista);
-	}
-
-	private String getExtensioVista(Document document) {
-		String extensioVista = null;
-		if (isActiuConversioVista()) {
-			if (document.getConvertirExtensio() != null && document.getConvertirExtensio().length() > 0) {
-				extensioVista = document.getConvertirExtensio();
-			} else {
-				extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.extension");
-				if (extensioVista == null)
-					extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.gentasca.extension");
-			}
-		}
-		return extensioVista;
-	}
-	private String getExtensioSignatura() {
-		String extensioVista = null;
-		if (isActiuConversioSignatura()) {
-			extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
-		}
-		return extensioVista;
 	}
 
 	private TascaLlistatDto toTascaLlistatDto(
@@ -1720,11 +1387,6 @@ public class TascaService {
 			antiga.setDataEliminacio(new Date());
 	}
 
-	private OpenOfficeUtils getOpenOfficeUtils() {
-		if (openOfficeUtils == null)
-			openOfficeUtils = new OpenOfficeUtils();
-		return openOfficeUtils;
-	}
 	private ServiceUtils getServiceUtils() {
 		if (serviceUtils == null) {
 			serviceUtils = new ServiceUtils(
@@ -1737,12 +1399,6 @@ public class TascaService {
 					messageSource);
 		}
 		return serviceUtils;
-	}
-	private DocumentTokenUtils getDocumentTokenUtils() {
-		if (documentTokenUtils == null)
-			documentTokenUtils = new DocumentTokenUtils(
-					(String)GlobalProperties.getInstance().get("app.encriptacio.clau"));
-		return documentTokenUtils;
 	}
 
 	private boolean isExpedientFinalitzat(Expedient expedient) {

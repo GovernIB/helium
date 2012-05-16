@@ -38,8 +38,10 @@ public class DocumentGenerarHandler extends AbstractHeliumActionHandler implemen
 		Date docData = getValorOVariableData(executionContext, data, varData);
 		if (docData == null)
 			docData = new Date();
-		getExpedientService().generarDocumentPlantilla(
+		getDocumentService().generarDocumentPlantilla(
+				docDisseny.getDefinicioProces().getEntorn().getId(),
 				docDisseny.getId(),
+				null,
 				Long.toString(executionContext.getProcessInstance().getId()),
 				docData,
 				true);

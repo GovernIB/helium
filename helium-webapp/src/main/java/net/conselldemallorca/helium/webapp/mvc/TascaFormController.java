@@ -411,7 +411,11 @@ public class TascaFormController extends BaseController {
 				if (registreEsborrarId != null && registreEsborrarIndex != null) {
 					Camp camp = dissenyService.getCampById(registreEsborrarId);
 					try {
-						tascaService.esborrarRegistre(id, camp.getCodi(), registreEsborrarIndex.intValue());
+						tascaService.esborrarRegistre(
+								entorn.getId(),
+								id,
+								camp.getCodi(),
+								registreEsborrarIndex.intValue());
 					} catch (Exception ex) {
 			        	missatgeError(request, getMessage("error.esborrar.registre"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut esborrar el registre", ex);

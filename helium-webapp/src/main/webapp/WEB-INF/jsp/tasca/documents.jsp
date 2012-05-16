@@ -102,7 +102,7 @@
 							<a href="<c:url value="/tasca/documentGenerar.html"><c:param name="id" value="${tasca.id}"/><c:param name="documentId" value="${document.document.id}"/></c:url>" onclick="return generarDocumentAmbPlantilla(this, 'documentCommand_${document.document.codi}', ${adjuntarAuto})"><img src="<c:url value="/img/page_white_star.png"/>" alt="<fmt:message key="tasca.doc.generar"/>" title="<fmt:message key="tasca.doc.generar"/>" border="0"/></a>
 						</c:if>
 						<c:if test="${not empty variableDoc}">
-							<a href="<c:url value="/document/arxiuMostrar.html"><c:param name="id" value="${variableDoc.id}"/></c:url>"><img src="<c:url value="/img/page_white_put.png"/>" alt="<fmt:message key="comuns.descarregar"/>" title="<fmt:message key="comuns.descarregar"/>" border="0"/></a>
+							<a href="<c:url value="/document/arxiuMostrar.html"><c:param name="token" value="${variableDoc.tokenSignatura}"/></c:url>"><img src="<c:url value="/img/page_white_put.png"/>" alt="<fmt:message key="comuns.descarregar"/>" title="<fmt:message key="comuns.descarregar"/>" border="0"/></a>
 							<c:if test="${not empty seleccioMassiva}">
 								<a href="<c:url value="/tasca/documentDescarregarZip.html"><c:param name="id" value="${tasca.id}"/><c:param name="codi" value="${document.document.codi}"/></c:url>"><img src="<c:url value="/img/package_green.png"/>" alt="<fmt:message key="tasca.doc.zip"/>" title="<fmt:message key="tasca.doc.zip"/>" border="0"/></a>
 							</c:if>

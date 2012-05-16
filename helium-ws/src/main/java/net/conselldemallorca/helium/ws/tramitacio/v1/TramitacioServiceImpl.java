@@ -292,12 +292,13 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
 		try {
-			tascaService.guardarDocument(
+			tascaService.comprovarTascaAssignadaIValidada(e.getId(), tascaId, null);
+			documentService.guardarDocumentTasca(
 					e.getId(),
 					tascaId,
 					arxiu,
-					nom,
 					data,
+					nom,
 					contingut);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar el document a la tasca", ex);
@@ -314,9 +315,10 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
 		try {
-			tascaService.esborrarDocument(
-					e.getId(),
+			tascaService.comprovarTascaAssignadaIValidada(e.getId(), tascaId, null);
+			documentService.esborrarDocument(
 					tascaId,
+					null,
 					document);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut esborrar el document de la tasca", ex);
@@ -465,7 +467,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		try {
 			ArxiuProces resposta = null;
 			if (documentId != null) {
-				DocumentDto docInfo = documentService.arxiuDocumentInfo(documentId);
+				DocumentDto docInfo = documentService.documentInfo(documentId);
 				String processInstanceId = docInfo.getProcessInstanceId();
 				Expedient expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
 				if (!validarPermisExpedientTipusRead(expedient.getTipus()))
@@ -507,12 +509,14 @@ public class TramitacioServiceImpl implements TramitacioService {
 					documentCodi);
 			if (document == null)
 				throw new TramitacioException("No s'ha pogut trobar el document amb codi " + documentCodi);
-			return expedientService.guardarDocument(
+			return documentService.guardarDocumentProces(
 					processInstanceId,
-					document.getId(),
+					documentCodi,
+					null,
 					data,
 					arxiu,
-					contingut);
+					contingut,
+					false);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar el document al procés", ex);
 			throw new TramitacioException("No s'ha pogut guardar el document al procés: " + ex.getMessage());
@@ -531,9 +535,10 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (!validarPermisExpedientTipusWrite(expedient.getTipus()))
 			throw new TramitacioException("No té permisos per modificar les dades del proces '" + processInstanceId + "'");
 		try {
-			expedientService.deleteDocument(
+			documentService.esborrarDocument(
+					null,
 					processInstanceId,
-					documentId);
+					documentService.getDocumentCodiPerDocumentStoreId(documentId));
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut esborrar el document del procés", ex);
 			throw new TramitacioException("No s'ha pogut esborrar el document del procés: " + ex.getMessage());
@@ -605,7 +610,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 		try {
 			expedientService.aturar(
 					processInstanceId,
-					motiu);
+					motiu,
+					null);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut aturar l'expedient", ex);
 			throw new TramitacioException("No s'ha pogut aturar l'expedient: " + ex.getMessage());
@@ -624,7 +630,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			throw new TramitacioException("No té permisos per modificar les dades del proces '" + processInstanceId + "'");
 		try {
 			expedientService.reprendre(
-					processInstanceId);
+					processInstanceId,
+					null);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut reprendre l'expedient", ex);
 			throw new TramitacioException("No s'ha pogut reprendre l'expedient: " + ex.getMessage());

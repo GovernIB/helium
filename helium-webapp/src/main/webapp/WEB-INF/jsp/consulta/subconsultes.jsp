@@ -12,7 +12,7 @@
 	<c:import url="../common/formIncludes.jsp"/>
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" language="javascript">
+<script type="text/javascript">
 	// <![CDATA[
 	function confirmar(e) {
 		var e = e || window.event;

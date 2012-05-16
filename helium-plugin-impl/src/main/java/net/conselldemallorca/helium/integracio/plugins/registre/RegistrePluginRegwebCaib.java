@@ -471,7 +471,7 @@ public class RegistrePluginRegwebCaib implements RegistrePlugin {
 		} else if ("pt".equalsIgnoreCase(iso6391)) {
 			return "F";
 		}
-		return "1";
+		return "2";
 	}
 
 	private static final Log logger = LogFactory.getLog(RegistrePluginRegwebCaib.class);

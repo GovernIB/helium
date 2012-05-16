@@ -18,8 +18,6 @@ public class SignalProcessInstanceCommand extends AbstractGetObjectBaseCommand {
 	private long id;
 	private String startTransitionName;
 
-	public SignalProcessInstanceCommand() {}
-
 	public SignalProcessInstanceCommand(long id){
 		super();
 		this.id = id;
@@ -53,13 +51,6 @@ public class SignalProcessInstanceCommand extends AbstractGetObjectBaseCommand {
 	@Override
 	public String getAdditionalToStringInformation() {
 	    return "id=" + id;
-	}
-
-	// methods for fluent programming
-	public SignalProcessInstanceCommand id(long id, String startTransitionName) {
-		setId(id);
-		setStartTransitionName(startTransitionName);
-	    return this;
 	}
 
 }

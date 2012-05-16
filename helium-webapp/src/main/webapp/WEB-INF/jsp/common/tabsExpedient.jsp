@@ -4,7 +4,13 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
 
-<c:if test="${fn:length(arbreProcessos) gt 1}">
+<c:set var="hiHaProcessos" value="${false}"/>
+<c:forEach var="proces" items="${arbreProcessos}">
+	<c:if test="${not proces.finalitzat}">
+		<c:set var="hiHaProcessos" value="${true}"/>
+	</c:if>
+</c:forEach>
+<c:if test="${hiHaProcessos}">
 <h3 class="titol-tab">
 <fmt:message key='common.tabsexp.proc_actual' />:
 <c:choose>
@@ -34,14 +40,16 @@
 				<c:otherwise>
 				</c:otherwise>
 			</c:choose>
-			<option value="${proces.id}"<c:if test="${param.id == proces.id}"> selected="selected"</c:if>>
-				<c:choose>
-					<c:when test="${proces.id == expedient.processInstanceId}">&lt;&lt; <fmt:message key='common.tabsexp.proc_princip' /> &gt;&gt;</c:when>
-					<c:otherwise>
-						<c:forEach begin="0" end="${nivell}">&nbsp;&nbsp;</c:forEach>${proces.titol}
-					</c:otherwise>
-				</c:choose>
-			</option>
+			<c:if test="${not proces.finalitzat}">
+				<option value="${proces.id}"<c:if test="${param.id == proces.id}"> selected="selected"</c:if>>
+					<c:choose>
+						<c:when test="${proces.id == expedient.processInstanceId}">&lt;&lt; <fmt:message key='common.tabsexp.proc_princip' /> &gt;&gt;</c:when>
+						<c:otherwise>
+							<c:forEach begin="0" end="${nivell}">&nbsp;&nbsp;</c:forEach>${proces.titol}
+						</c:otherwise>
+					</c:choose>
+				</option>
+			</c:if>
 		</c:forEach>
 	</select>
 </form>

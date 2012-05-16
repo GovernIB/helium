@@ -31,8 +31,7 @@ import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
-import net.conselldemallorca.helium.core.model.service.DtoConverter;
-import net.conselldemallorca.helium.core.model.service.TascaService;
+import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.NombreEnCastella;
 import net.conselldemallorca.helium.core.util.NombreEnCatala;
@@ -77,7 +76,8 @@ public class PlantillaDocumentDao {
 	private JbpmDao jbpmDao;
 	private DominiDao dominiDao;
 	private DocumentStoreDao documentStoreDao;
-	private DtoConverter dtoConverter;
+	private DocumentHelper documentHelper;
+	
 
 
 
@@ -120,6 +120,14 @@ public class PlantillaDocumentDao {
 		DocumentTemplate template = documentTemplateFactory.getTemplate(
 				new ByteArrayInputStream(document.getArxiuContingut()));
 		ByteArrayOutputStream resultat = new ByteArrayOutputStream();
+		template.setContentWrapper(new DocumentTemplate.ContentWrapper() {
+			public String wrapContent(String content) {
+				return "[#ftl]\n"
+						+ "[#escape any as any?xml?replace(\"\\n\",\"</text:p> <text:p>\")]\n"
+						+ content
+						+ "[/#escape]";
+			}
+		});
 		template.createDocument(model, resultat);
 		return resultat.toByteArray();
 	}
@@ -159,8 +167,8 @@ public class PlantillaDocumentDao {
 		this.documentStoreDao = documentStoreDao;
 	}
 	@Autowired
-	public void setDtoConverter(DtoConverter dtoConverter) {
-		this.dtoConverter = dtoConverter;
+	public void setDocumentHelper(DocumentHelper documentHelper) {
+		this.documentHelper = documentHelper;
 	}
 
 
@@ -557,14 +565,8 @@ public class PlantillaDocumentDao {
 								List<DocumentStore> documents = documentStoreDao.findAmbProcessInstanceId(processInstanceId);
 								DocumentDto resposta = null;
 								for (int i = 0; i < documents.size(); i++) {
-									if (documents.get(i).getJbpmVariable().equals(TascaService.PREFIX_DOCUMENT + codi))
-										resposta = dtoConverter.toDocumentDto(
-											documents.get(i).getId(),
-											false,
-											false,
-											false,
-											false,
-											false);
+									if (documents.get(i).getJbpmVariable().equals(DocumentHelper.PREFIX_VAR_DOCUMENT + codi))
+										resposta = documentHelper.getDocumentSenseContingut(documents.get(i).getId());
 								}
 								return new BeanModel(
 										resposta,
@@ -588,13 +590,7 @@ public class PlantillaDocumentDao {
 							List<DocumentStore> documents = documentStoreDao.findAmbProcessInstanceId(pid);
 							DocumentDto[] resposta = new DocumentDto[documents.size()];
 							for (int i = 0; i < resposta.length; i++) {
-								resposta[i] = dtoConverter.toDocumentDto(
-										documents.get(i).getId(),
-										false,
-										false,
-										false,
-										false,
-										false);
+								resposta[i] = documentHelper.getDocumentSenseContingut(documents.get(i).getId());
 							}
 							return new ArrayModel(
 									resposta,

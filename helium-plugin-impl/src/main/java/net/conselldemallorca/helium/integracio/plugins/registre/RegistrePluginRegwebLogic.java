@@ -489,7 +489,7 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 		} else if ("pt".equalsIgnoreCase(iso6391)) {
 			return "F";
 		}
-		return "1";
+		return "2";
 	}
 
 	/*private void imprimirDadesRegistreEntrada(

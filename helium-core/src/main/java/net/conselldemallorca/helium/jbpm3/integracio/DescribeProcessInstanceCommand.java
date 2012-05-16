@@ -18,11 +18,10 @@ public class DescribeProcessInstanceCommand extends AbstractGetObjectBaseCommand
 	private long id;
 	private String description;
 
-	public DescribeProcessInstanceCommand() {}
-
-	public DescribeProcessInstanceCommand(long id){
+	public DescribeProcessInstanceCommand(long id, String description){
 		super();
 		this.id = id;
+		this.description = description;
 	}
 
 	public Object execute(JbpmContext jbpmContext) throws Exception {
@@ -38,7 +37,6 @@ public class DescribeProcessInstanceCommand extends AbstractGetObjectBaseCommand
 	public void setId(long id) {
 		this.id = id;
 	}
-
 	public String getDescription() {
 		return description;
 	}
@@ -49,13 +47,6 @@ public class DescribeProcessInstanceCommand extends AbstractGetObjectBaseCommand
 	@Override
 	public String getAdditionalToStringInformation() {
 	    return "id=" + id;
-	}
-
-	// methods for fluent programming
-	public DescribeProcessInstanceCommand id(long id, String description) {
-		setId(id);
-		setDescription(description);
-	    return this;
 	}
 
 }
