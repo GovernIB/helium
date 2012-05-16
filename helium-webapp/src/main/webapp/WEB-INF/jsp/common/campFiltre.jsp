@@ -14,7 +14,8 @@
 	<c:otherwise><c:set var="codiActual" value="${campActual.codi}" scope="request"/></c:otherwise>
 </c:choose>
 <c:set var="valorActual" value="${command[codiActual]}" scope="request"/>
-<c:set var="extraParams">definicioProcesId:${campActual.definicioProces.id},campCodi:'${campActual.codi}'</c:set>
+<c:set var="dominiParamsActual" value="${campActual.dominiParams}" scope="request"/>
+<c:set var="extraParams">definicioProcesId:${campActual.definicioProces.id},campCodi:'${campActual.codi}',valors:function(){return canvisSelectValorsAddicionals}</c:set>
 <c:choose>
 	<c:when test="${campActual.tipus == 'STRING'}">
 		<c:import url="../common/formElement.jsp">
@@ -188,6 +189,8 @@
 					<c:param name="label">${campActual.etiqueta}</c:param>
 					<c:param name="selectUrl"><c:url value="/domini/consultaExpedient.html"/></c:param>
 					<c:param name="selectExtraParams">${extraParams},tipus:'select'</c:param>
+					<c:param name="selectDominiParams"><%=toJavascript((String)request.getAttribute("dominiParamsActual"))%></c:param>
+					<c:param name="onchange">canviSelectTasca(this.id, this.name, '${fn:substringBefore(codiActual, '_')}_');</c:param>
 				</c:import>
 			</c:otherwise>
 		</c:choose>
@@ -248,3 +251,13 @@
 		</c:import>
 	</c:otherwise>
 </c:choose>
+<%!
+private String toJavascript(String str) {
+	if (str == null)
+		return null;
+	return str.replace("'", "\\'");
+		/*replace("{", "").
+		replace("}", "").
+		replace("#", "");*/
+}
+%>
