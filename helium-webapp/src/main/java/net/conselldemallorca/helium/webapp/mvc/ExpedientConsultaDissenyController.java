@@ -37,6 +37,7 @@ import net.conselldemallorca.helium.webapp.mvc.util.PaginatedList;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
 
 import org.displaytag.properties.SortOrderEnum;
+import org.displaytag.tags.TableTagParameters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -169,6 +170,8 @@ public class ExpedientConsultaDissenyController extends BaseController {
 							clauPerService,
 							valor);
 				}
+				boolean export = request.getParameter(TableTagParameters.PARAMETER_EXPORTING) != null;
+				
 				model.addAttribute(
 						"expedients",
 						getPaginaExpedients(
@@ -178,7 +181,8 @@ public class ExpedientConsultaDissenyController extends BaseController {
 								page,
 								sort,
 								dir,
-								objectsPerPage));
+								objectsPerPage,
+								export));
 			}
 			return "expedient/consultaDisseny";
 		} else {
@@ -471,7 +475,8 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			String page,
 			String sort,
 			String dir,
-			String objectsPerPage) {
+			String objectsPerPage,
+			boolean export) {
 		int maxResults = getObjectsPerPage(objectsPerPage);
 		int pagina = (page != null) ? new Integer(page).intValue() : 1;
 		int firstRow = (pagina - 1) * maxResults;
@@ -481,13 +486,13 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			isAsc = false;
 		//
 		PaginatedList paginatedList = new PaginatedList();
-		paginatedList.setFullListSize(
-				expedientService.countAmbEntornConsultaDisseny(
-						entornId,
-						consultaId,
-						valors));
-		paginatedList.setObjectsPerPage(maxResults);
-		paginatedList.setPageNumber(pagina);
+		int fullsize = expedientService.countAmbEntornConsultaDisseny(
+				entornId,
+				consultaId,
+				valors); 
+		paginatedList.setFullListSize(fullsize);
+		paginatedList.setObjectsPerPage(export? fullsize : maxResults);
+		paginatedList.setPageNumber(export? 1 : pagina);
 		String sortOk = (sort != null && sort.length() > 0) ? sort : "dataInici";
 		paginatedList.setSortCriterion(sortOk);
 		paginatedList.setSortDirection((isAsc) ? SortOrderEnum.ASCENDING : SortOrderEnum.DESCENDING);
@@ -497,8 +502,8 @@ public class ExpedientConsultaDissenyController extends BaseController {
 				valors,
 				sort,
 				isAsc,
-				firstRow,
-				maxResults);
+				(export? 0 : firstRow),
+				(export? fullsize : maxResults));
 		paginatedList.setList(dadesExpedients);
 		// ------ //
 		/*for (ExpedientConsultaDissenyDto dadesExpedient: dadesExpedients) {
