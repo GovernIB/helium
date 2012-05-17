@@ -166,7 +166,7 @@ public class ExpedientService {
 		return null;
 	}
 
-	public ExpedientDto iniciar(
+	public synchronized ExpedientDto iniciar(
 			Long entornId,
 			String usuari,
 			Long expedientTipusId,
