@@ -1821,18 +1821,20 @@ public class DissenyService {
 			for (Camp camp: consultaCampDao.findCampsDefinicioProcesAmbJbpmKey(
 					consulta.getEntorn().getId(),
 					defprocJbpmKey)) {
-				Camp c = new Camp();
-				c.setId(camp.getId());
-				c.setCodi(camp.getCodi());
-				c.setEtiqueta(camp.getEtiqueta());
-				c.setTipus(camp.getTipus());
-				DefinicioProces dp = new DefinicioProces();
-				dp.setId(camp.getDefinicioProces().getId());
-				dp.setJbpmId(camp.getDefinicioProces().getJbpmId());
-				dp.setJbpmKey(camp.getDefinicioProces().getJbpmKey());
-				dp.setVersio(camp.getDefinicioProces().getVersio());
-				c.setDefinicioProces(dp);
-				list.add(c);
+				if (!camp.getTipus().equals(TipusCamp.REGISTRE)) {
+					Camp c = new Camp();
+					c.setId(camp.getId());
+					c.setCodi(camp.getCodi());
+					c.setEtiqueta(camp.getEtiqueta());
+					c.setTipus(camp.getTipus());
+					DefinicioProces dp = new DefinicioProces();
+					dp.setId(camp.getDefinicioProces().getId());
+					dp.setJbpmId(camp.getDefinicioProces().getJbpmId());
+					dp.setJbpmKey(camp.getDefinicioProces().getJbpmKey());
+					dp.setVersio(camp.getDefinicioProces().getVersio());
+					c.setDefinicioProces(dp);
+					list.add(c);
+				}
 			}
 		}
 		return list;
