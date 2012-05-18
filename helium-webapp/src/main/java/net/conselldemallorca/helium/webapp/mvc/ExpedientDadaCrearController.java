@@ -212,6 +212,10 @@ public class ExpedientDadaCrearController extends BaseController {
 				if (edcCommand.getVarCodi() == null || edcCommand.getVarCodi().equals("")) {
 					errors.rejectValue("varCodi", "not.blank");
 				}
+				String varCodi = edcCommand.getVarCodi();
+				if (!varCodi.matches("^[a-z]{1}[a-zA-Z0-9]*$")) {
+					errors.rejectValue("varCodi", "error.codi.var.incorrecte");
+				}
 			}
 		}
 	}
