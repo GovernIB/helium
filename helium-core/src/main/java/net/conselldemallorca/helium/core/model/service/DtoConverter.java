@@ -1232,6 +1232,10 @@ public class DtoConverter {
 				} else if (taskId != null) {
 					JbpmTask task = jbpmDao.getTaskById(taskId);
 					value = jbpmDao.evaluateExpression(taskId, task.getProcessInstanceId(), campCodi, null);
+				} else if (campCodi.startsWith("#{'")) {
+					int index = campCodi.lastIndexOf("'");
+					if (index != -1 && index > 2)
+						value = campCodi.substring(3, campCodi.lastIndexOf("'"));
 				}
 			} else {
 				if (valorsAddicionals != null && valorsAddicionals.size() > 0)

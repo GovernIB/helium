@@ -811,6 +811,11 @@ public abstract class BasicActionHandler implements ActionHandler {
 			throw new JbpmException("No s'ha trobat la definició de procés per a la instància de procés " + processInstanceId);
 		}
 	}
+	public String getTextPerVariableAmbDomini(
+			ExecutionContext executionContext,
+			String varCodi) {
+		return getVariableText(executionContext, varCodi);
+	}
 
 	/**
 	 * Guarda un termini a dins una variable
