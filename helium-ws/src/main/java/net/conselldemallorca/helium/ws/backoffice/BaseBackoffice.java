@@ -307,7 +307,8 @@ public abstract class BaseBackoffice {
 		String finestraCodi = parts[2];
 		String campCodi = parts[3];
 		for (DocumentTramit doc: tramit.getDocuments()) {
-			if (	doc.getIdentificador().equalsIgnoreCase(documentCodi)
+			if (	doc != null && doc.getIdentificador() != null
+				 &&	doc.getIdentificador().equalsIgnoreCase(documentCodi)
 				 && doc.getInstanciaNumero() == instancia) {
 				String content = new String(doc.getDocumentTelematic().getArxiuContingut());
 				org.dom4j.Document document = DocumentHelper.parseText(content);
