@@ -307,9 +307,7 @@ public abstract class BaseBackoffice {
 		String finestraCodi = parts[2];
 		String campCodi = parts[3];
 		for (DocumentTramit doc: tramit.getDocuments()) {
-			if (	doc != null && doc.getIdentificador() != null
-				 &&	doc.getIdentificador().equalsIgnoreCase(documentCodi)
-				 && doc.getInstanciaNumero() == instancia) {
+			if (documentCodi.equalsIgnoreCase(doc.getIdentificador()) && doc.getInstanciaNumero() == instancia) {
 				String content = new String(doc.getDocumentTelematic().getArxiuContingut());
 				org.dom4j.Document document = DocumentHelper.parseText(content);
 				String xpath = "/FORMULARIO/" + finestraCodi + "/" + campCodi;
@@ -350,7 +348,7 @@ public abstract class BaseBackoffice {
 			Document varHelium) throws Exception {
 		DadesDocumentDto resposta = null;
 		for (DocumentTramit document: tramit.getDocuments()) {
-			if (document.getIdentificador().equalsIgnoreCase(varSistra)) {
+			if (varSistra.equalsIgnoreCase(document.getIdentificador())) {
 				resposta = new DadesDocumentDto();
 				resposta.setIdDocument(varHelium.getId());
 				resposta.setCodi(varHelium.getCodi());
