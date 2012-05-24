@@ -95,6 +95,28 @@ public class CarrecJbpmIdDao extends HibernateGenericDao<CarrecJbpmId, Long> {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<String> findPersonesAmbGrupICarrec(
+			final String grup,
+			final String carrec) {
+		return (List<String>)getHibernateTemplate().execute(
+				new HibernateCallback() {
+					public Object doInHibernate(Session session) throws HibernateException, SQLException {
+						Query query = session.createQuery(
+								"select " +
+								"    m.user.name " +
+								"from " +
+								"    org.jbpm.identity.Membership m " +
+								"where " +
+								"    m.group.name = :codiGroup " +
+								"and m.role = :codiCarrec");
+						query.setString("codiGroup", grup);
+						query.setString("codiCarrec", carrec);
+						return query.list();
+					}
+				});
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<String> findCarrecsCodiAmbPersonaGrup(final String codiPersona, final String codiArea) {
 		return (List<String>)getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException, SQLException {

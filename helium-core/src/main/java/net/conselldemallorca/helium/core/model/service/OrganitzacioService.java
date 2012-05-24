@@ -293,10 +293,10 @@ public class OrganitzacioService {
 			resposta.add(membre.getCodi());
 		return resposta;
 	}
-	public String findCodiPersonaAmbJbpmIdGroupCarrec(
+	public List<String> findCodisPersonaAmbJbpmIdGroupCarrec(
 			String groupCodi,
 			String carrecCodi) {
-		return carrecJbpmIdDao.findPersonaAmbGrupICarrec(groupCodi, carrecCodi);
+		return carrecJbpmIdDao.findPersonesAmbGrupICarrec(groupCodi, carrecCodi);
 	}
 	/* Per suprimir */
 	public List<String> findCodisPersonaAmbJbpmIdCarrec(String carrecCodi) {
