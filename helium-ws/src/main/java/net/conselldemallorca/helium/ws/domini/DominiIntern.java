@@ -58,7 +58,9 @@ public class DominiIntern implements DominiHelium {
 		} else if ("PERSONES_AMB_AREA".equals(id)) {
 			return personesAmbArea(parametersMap);
 		} else if ("PERSONA_AMB_CARREC_AREA".equals(id)) {
-			return personaAmbCarrecArea(parametersMap);
+			return personesAmbCarrecArea(parametersMap, true);
+		} else if ("PERSONES_AMB_CARREC_AREA".equals(id)) {
+			return personesAmbCarrecArea(parametersMap, false);
 		} else  if ("AREES_AMB_PARE".equals(id)) {
 			return areesAmbPare(parametersMap);
 		} else if ("VARIABLE_REGISTRE".equals(id)) {
@@ -111,16 +113,21 @@ public class DominiIntern implements DominiHelium {
 		}
 		return resposta;
 	}
-	private List<FilaResultat> personaAmbCarrecArea(Map<String, Object> parametres) {
+	private List<FilaResultat> personesAmbCarrecArea(Map<String, Object> parametres, boolean nomesUna) {
 		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
-		String personaCodi = getPersonaPerAreaCarrec(
+		List<String> personaCodis = getPersonesPerAreaCarrec(
 				(String)parametres.get("entorn"),
 				(String)parametres.get("area"),
 				(String)parametres.get("carrec"));
-		if (personaCodi != null) {
-			PersonaDto persona = pluginService.findPersonaAmbCodi(personaCodi);
-			if (persona != null)
-				resposta.add(novaFilaPersona(persona));
+		if (personaCodis != null) {
+			for (String personaCodi: personaCodis) {
+				PersonaDto persona = pluginService.findPersonaAmbCodi(personaCodi);
+				if (persona != null) {
+					resposta.add(novaFilaPersona(persona));
+					if (nomesUna)
+						break;
+				}
+			}
 		}
 		return resposta;
 	}
@@ -263,7 +270,7 @@ public class DominiIntern implements DominiHelium {
 		}
 	}
 
-	private String getPersonaPerAreaCarrec(
+	private List<String> getPersonesPerAreaCarrec(
 			String entornCodi,
 			String areaCodi,
 			String carrecCodi) {
@@ -274,12 +281,15 @@ public class DominiIntern implements DominiHelium {
 						entorn.getId(),
 						areaCodi,
 						carrecCodi);
-				if (carrec != null)
-					return carrec.getPersonaCodi();
+				if (carrec != null) {
+					List<String> resposta = new ArrayList<String>();
+					resposta.add(carrec.getPersonaCodi());
+					return resposta;
+				}
 			}
 			return null;
 		} else {
-			return organitzacioService.findCodiPersonaAmbJbpmIdGroupCarrec(areaCodi, carrecCodi);
+			return organitzacioService.findCodisPersonaAmbJbpmIdGroupCarrec(areaCodi, carrecCodi);
 		}
 	}
 
