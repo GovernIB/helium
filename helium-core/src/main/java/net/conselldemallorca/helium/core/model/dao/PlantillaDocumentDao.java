@@ -281,21 +281,28 @@ public class PlantillaDocumentDao {
 				"carrec",
 				new TemplateMethodModel() {
 					public TemplateModel exec(List args) throws TemplateModelException {
-						if (args.size() == 1) {
+						if (args.size() == 1 || args.size() == 2 ) {
 							Object arg0 = args.get(0);
 							if (arg0 != null && arg0 instanceof String) {
 								String carrecCodi = (String)arg0;
 								if (esIdentitySourceHelium()) {
-									Carrec carrec = carrecDao.findAmbEntornICodi(entornId, carrecCodi);
-									if (carrec == null)
-										carrec = new Carrec("???", "???", "???", "???", "???", new Entorn());
-									return new BeanModel(
-											carrec,
-											new DefaultObjectWrapper());
+									if (args.size() == 1) {
+										Carrec carrec = carrecDao.findAmbEntornICodi(entornId, carrecCodi);
+										if (carrec == null)
+											carrec = new Carrec("???", "???", "???", "???", "???", new Entorn());
+										return new BeanModel(
+												carrec,
+												new DefaultObjectWrapper());
+									}
 								} else {
-									Object arg1 = args.get(1);
-									String areaCodi = (String)arg1;
-									CarrecJbpmId carrec = carrecJbpmIdDao.findAmbCodiGrup(carrecCodi, areaCodi);
+									CarrecJbpmId carrec = null;
+									if (args.size() == 1) {
+										carrec = carrecJbpmIdDao.findAmbCodi(carrecCodi);
+									} else {
+										Object arg1 = args.get(1);
+										String areaCodi = (String)arg1;
+										carrec = carrecJbpmIdDao.findAmbCodiGrup(carrecCodi, areaCodi);
+									}
 									if (carrec == null)
 										carrec = new CarrecJbpmId("???", "???", "???", "???", "???", Persona.Sexe.SEXE_HOME);
 									return new BeanModel(
@@ -307,7 +314,6 @@ public class PlantillaDocumentDao {
 						return new SimpleScalar("[Arguments incorrectes]");
 					}
 				});
-
 		model.put(
 				"personaAmbCarrecArea",
 				new TemplateMethodModel() {
