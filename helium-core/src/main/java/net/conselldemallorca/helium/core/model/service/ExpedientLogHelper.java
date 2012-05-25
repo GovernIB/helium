@@ -399,12 +399,12 @@ public class ExpedientLogHelper {
 			}
 		}*/
 		// Marca les accions com a retrocedides
-		Collections.reverse(expedientLogs);
+		//Collections.reverse(expedientLogs);
 		boolean found = false;
 		for (ExpedientLog elog: expedientLogs) {
 			if (elog.equals(expedientLog))
 				found = true;
-			if (found)
+			if (found && ExpedientLogEstat.NORMAL.equals(elog.getEstat()))
 				elog.setEstat(ExpedientLogEstat.RETROCEDIT);
 		}
 	}
@@ -425,6 +425,37 @@ public class ExpedientLogHelper {
 			}
 		}
 		return actors;
+	}
+
+	public List<ExpedientLog> findLogsRetrocedits(Long expedientLogId) {
+		List<ExpedientLog> resposta = new ArrayList<ExpedientLog>();
+		ExpedientLog expedientLog = expedientLogDao.getById(expedientLogId, false);
+		if (ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR.equals(expedientLog.getAccioTipus())) {
+			List<ExpedientLog> expedientLogs = expedientLogDao.findAmbExpedientIdOrdenatsPerData(
+					expedientLog.getExpedient().getId());
+			Long idInicialExclos = null;
+			Long idFinalExclos = null;
+			for (ExpedientLog elog: expedientLogs) {
+				if (elog.getId().equals(expedientLogId))
+					break;
+				if (ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR.equals(elog.getAccioTipus())) {
+					idInicialExclos = new Long(elog.getAccioParams());
+					idFinalExclos = elog.getId();
+				}
+			}
+			Long idInicial = new Long(expedientLog.getAccioParams());
+			for (ExpedientLog elog: expedientLogs) {
+				if (elog.getId().equals(expedientLogId))
+					break;
+				if (elog.getId().longValue() >= idInicial.longValue() && ExpedientLogEstat.RETROCEDIT.equals(elog.getEstat())) {
+					if (idInicialExclos == null || elog.getId().longValue() < idInicialExclos)
+						resposta.add(elog);
+					else if (idFinalExclos == null || elog.getId().longValue() > idFinalExclos)
+						resposta.add(elog);
+				}
+			}
+		}
+		return resposta;
 	}
 
 	public void printProcessInstanceLogs(String processInstanceId) {

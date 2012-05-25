@@ -4,13 +4,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
 
-<c:set var="hiHaProcessos" value="${false}"/>
-<c:forEach var="proces" items="${arbreProcessos}">
-	<c:if test="${not proces.finalitzat}">
-		<c:set var="hiHaProcessos" value="${true}"/>
-	</c:if>
-</c:forEach>
-<c:if test="${hiHaProcessos}">
+<c:if test="${fn:length(arbreProcessos) > 1}">
 <h3 class="titol-tab">
 <fmt:message key='common.tabsexp.proc_actual' />:
 <c:choose>

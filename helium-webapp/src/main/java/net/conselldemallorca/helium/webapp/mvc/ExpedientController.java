@@ -372,6 +372,15 @@ public class ExpedientController extends BaseController {
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (potConsultarExpedient(expedient)) {
+				model.addAttribute(
+						"expedient",
+						expedient);
+				model.addAttribute(
+						"arbreProcessos",
+						expedientService.getArbreInstanciesProces(id));
+				model.addAttribute(
+						"instanciaProces",
+						expedientService.getInstanciaProcesById(id, false));
 				List<ExpedientLogDto> logs = expedientService.getLogsOrdenatsPerData(expedient.getId());
 				if (logs == null || logs.size() == 0) {
 					model.addAttribute(
@@ -379,9 +388,48 @@ public class ExpedientController extends BaseController {
 							expedientService.getRegistrePerExpedient(expedient.getId()));
 					return "expedient/registre";
 				} else {
+					// Llevam els logs retrocedits
+					Iterator<ExpedientLogDto> itLogs = logs.iterator();
+					while (itLogs.hasNext()) {
+						ExpedientLogDto log = itLogs.next();
+						if ("RETROCEDIT".equals(log.getEstat()))
+							itLogs.remove();
+					}
 					model.addAttribute("logs", logs);
+					model.addAttribute(
+							"tasques",
+							expedientService.getTasquesPerLogExpedient(expedient.getId()));
 					return "expedient/log";
 				}
+			} else {
+				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
+				return "redirect:/expedient/consulta.html";
+			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+
+	@RequestMapping(value = "logRetrocedit")
+	public String logRetrocedit(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) String id,
+			@RequestParam(value = "logId", required = true) Long logId,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
+			if (potConsultarExpedient(expedient)) {
+				model.addAttribute(
+						"instanciaProces",
+						expedientService.getInstanciaProcesById(id, false));
+				List<ExpedientLogDto> logs = expedientService.findLogsRetroceditsOrdenatsPerData(logId);
+				model.addAttribute("logs", logs);
+				model.addAttribute(
+						"tasques",
+						expedientService.getTasquesPerLogExpedient(expedient.getId()));
+				return "expedient/logRetrocedit";
 			} else {
 				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
 				return "redirect:/expedient/consulta.html";
@@ -422,7 +470,7 @@ public class ExpedientController extends BaseController {
 			@RequestParam(value = "logId", required = true) Long logId) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			expedientService.retrocedir(logId);
+			expedientService.retrocedirFinsLog(logId);
 			return "redirect:/expedient/registre.html?id=" + id;
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );

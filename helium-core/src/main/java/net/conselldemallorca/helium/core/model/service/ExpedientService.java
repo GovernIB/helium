@@ -1181,9 +1181,8 @@ public class ExpedientService {
 			String taskId,
 			String expression) {
 		String previousActors = expedientLogHelper.getActorsPerReassignacioTasca(taskId);
-		JbpmTask task = jbpmDao.getTaskById(taskId);
 		ExpedientLog expedientLog = expedientLogHelper.afegirLogExpedientPerProces(
-				task.getProcessInstanceId(),
+				taskId,
 				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
 				null);
 		jbpmDao.reassignTaskInstance(taskId, expression);
@@ -1482,8 +1481,7 @@ public class ExpedientService {
 		}
 		return resposta;
 	}
-
-	public void retrocedir(Long expedientLogId) {
+	public void retrocedirFinsLog(Long expedientLogId) {
 		ExpedientLog log = expedientLogDao.getById(expedientLogId, false);
 		ExpedientLog logRetroces = expedientLogHelper.afegirLogExpedientPerExpedient(
 				log.getExpedient().getId(),
@@ -1491,6 +1489,46 @@ public class ExpedientService {
 				expedientLogId.toString());
 		expedientLogHelper.retrocedirFinsLog(expedientLogId);
 		logRetroces.setEstat(ExpedientLogEstat.IGNORAR);
+	}
+	public Map<String, TascaDto> getTasquesPerLogExpedient(Long expedientId) {
+		List<ExpedientLog> logs = expedientLogDao.findAmbExpedientIdOrdenatsPerData(expedientId);
+		Map<String, TascaDto> tasquesPerLogs = new HashMap<String, TascaDto>();
+		for (ExpedientLog log: logs) {
+			if (log.isTargetTasca()) {
+				JbpmTask task = jbpmDao.getTaskById(log.getTargetId());
+				if (task != null)
+					tasquesPerLogs.put(
+							log.getTargetId(),
+							dtoConverter.toTascaDto(
+									task,
+									null,
+									false,
+									false,
+									true,
+									true,
+									true));
+			}
+		}
+		return tasquesPerLogs;
+	}
+	public List<ExpedientLogDto> findLogsRetroceditsOrdenatsPerData(Long expedientLogId) {
+		List<ExpedientLog> logs = expedientLogHelper.findLogsRetrocedits(expedientLogId);
+		List<ExpedientLogDto> resposta = new ArrayList<ExpedientLogDto>();
+		for (ExpedientLog log: logs) {
+			ExpedientLogDto dto = new ExpedientLogDto();
+			dto.setId(log.getId());
+			dto.setData(log.getData());
+			dto.setUsuari(log.getUsuari());
+			dto.setEstat(log.getEstat().name());
+			dto.setAccioTipus(log.getAccioTipus().name());
+			dto.setAccioParams(log.getAccioParams());
+			dto.setTargetId(log.getTargetId());
+			dto.setTargetTasca(log.isTargetTasca());
+			dto.setTargetProces(log.isTargetProces());
+			dto.setTargetExpedient(log.isTargetExpedient());
+			resposta.add(dto);
+		}
+		return resposta;
 	}
 
 

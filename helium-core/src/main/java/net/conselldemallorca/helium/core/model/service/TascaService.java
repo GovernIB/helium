@@ -343,24 +343,13 @@ public class TascaService {
 	public TascaDto guardarVariables(
 			Long entornId,
 			String taskId,
-			Map<String, Object> variables) {
-		return guardarVariables(entornId, taskId, variables, null);
-	}
-	public TascaDto guardarVariables(
-			Long entornId,
-			String taskId,
 			Map<String, Object> variables,
 			String usuari) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);
-		StringBuilder accioParams = new StringBuilder();
-		for (String varName: variables.keySet()) {
-			accioParams.append(varName);
-			accioParams.append(",");
-		}
 		expedientLogHelper.afegirLogExpedientPerTasca(
 				taskId,
 				ExpedientLogAccioTipus.TASCA_FORM_GUARDAR,
-				(accioParams.length() > 0) ? accioParams.substring(0, accioParams.length() - 1) : null);
+				null);
 		boolean iniciada = task.getStartTime() == null;
 		optimitzarConsultesDomini(task, variables);
 		jbpmDao.startTaskInstance(taskId);
@@ -849,6 +838,10 @@ public class TascaService {
 			Long entornId,
 			String taskId,
 			String accio) throws DominiException {
+		expedientLogHelper.afegirLogExpedientPerTasca(
+				taskId,
+				ExpedientLogAccioTipus.TASCA_ACCIO_EXECUTAR,
+				accio);
 		comprovarSeguretatTasca(entornId, taskId, null, true);
 		jbpmDao.executeActionInstanciaTasca(taskId, accio);
 	}

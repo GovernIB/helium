@@ -331,7 +331,9 @@ public class JbpmDao {
 		JbpmTask resposta = null;
 		long id = new Long(taskId).longValue();
 		GetTaskInstanceCommand command = new GetTaskInstanceCommand(id);
-		resposta = new JbpmTask((TaskInstance)commandService.execute(command));
+		TaskInstance ti = (TaskInstance)commandService.execute(command);
+		if (ti != null)
+			resposta = new JbpmTask(ti);
 		return resposta;
 	}
 

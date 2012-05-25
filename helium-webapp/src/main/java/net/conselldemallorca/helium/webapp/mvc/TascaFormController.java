@@ -507,7 +507,8 @@ public class TascaFormController extends BaseController {
 	        					camps,
 	        					command,
 	        					true,
-	    						false));
+	    						false),
+	    				null);
 	        } catch (Exception ex) {
 	        	String tascaIdLog = getIdTascaPerLogs(entornId, tascaId);
 				missatgeError(
