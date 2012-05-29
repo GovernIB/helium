@@ -88,6 +88,11 @@
 					</c:otherwise>
 				</c:choose>
 			</c:if>
+			<c:import url="../common/formElement.jsp">
+				<c:param name="property" value="grupCodi"/>
+				<c:param name="required" value="false"/>
+				<c:param name="label"><fmt:message key='expedient.editar.grup_codi' /></c:param>
+			</c:import>
 		</div>
 		<c:import url="../common/formElement.jsp">
 			<c:param name="type" value="buttons"/>

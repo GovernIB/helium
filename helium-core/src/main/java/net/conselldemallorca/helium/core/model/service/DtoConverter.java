@@ -108,6 +108,7 @@ public class DtoConverter {
 		dto.setIniciadorCodi(expedient.getIniciadorCodi());
 		dto.setIniciadorTipus(expedient.getIniciadorTipus());
 		dto.setResponsableCodi(expedient.getResponsableCodi());
+		dto.setGrupCodi(expedient.getGrupCodi());
 		if (expedient.getIniciadorTipus().equals(IniciadorTipus.INTERN)) {
 			dto.setIniciadorPersona(pluginPersonaDao.findAmbCodiPlugin(expedient.getIniciadorCodi()));
 			if (expedient.getResponsableCodi() != null)

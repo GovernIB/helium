@@ -55,7 +55,8 @@ public class ExpedientNumeroModificarHandler extends AbstractHeliumActionHandler
 							(expedient.getEstat() != null) ? expedient.getEstat().getId() : null,
 							expedient.getGeoPosX(),
 							expedient.getGeoPosY(),
-							expedient.getGeoReferencia());
+							expedient.getGeoReferencia(),
+							expedient.getGrupCodi());
 				} else {
 					throw new JbpmException("Ja existeix un altre expedient d'aquest tipus (" + expedient.getTipus().getCodi() + ") amb el número " + n);
 				}

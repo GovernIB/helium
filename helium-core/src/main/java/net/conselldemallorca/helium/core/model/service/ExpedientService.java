@@ -18,6 +18,8 @@ import java.util.UUID;
 
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.model.dao.AccioDao;
+import net.conselldemallorca.helium.core.model.dao.AreaJbpmIdDao;
+import net.conselldemallorca.helium.core.model.dao.AreaMembreDao;
 import net.conselldemallorca.helium.core.model.dao.CampDao;
 import net.conselldemallorca.helium.core.model.dao.ConsultaCampDao;
 import net.conselldemallorca.helium.core.model.dao.ConsultaDao;
@@ -53,6 +55,7 @@ import net.conselldemallorca.helium.core.model.exception.ExpedientRepetitExcepti
 import net.conselldemallorca.helium.core.model.exception.IllegalArgumentsException;
 import net.conselldemallorca.helium.core.model.exception.NotFoundException;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
+import net.conselldemallorca.helium.core.model.hibernate.AreaMembre;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
@@ -121,6 +124,8 @@ public class ExpedientService {
 	private PluginPersonaDao pluginPersonaDao;
 	private PluginGisDao pluginGisDao;
 	private ExpedientLogDao expedientLogDao;
+	private AreaMembreDao areaMembreDao;
+	private AreaJbpmIdDao areaJbpmIdDao;
 
 	private JbpmDao jbpmDao;
 	private AclServiceDao aclServiceDao;
@@ -375,7 +380,8 @@ public class ExpedientService {
 			Long estatId,
 			Double geoPosX,
 			Double geoPosY,
-			String geoReferencia) {
+			String geoReferencia,
+			String grupCodi) {
 		ExpedientLog elog = expedientLogHelper.afegirLogExpedientPerExpedient(
 				id,
 				ExpedientLogAccioTipus.EXPEDIENT_MODIFICAR,
@@ -397,6 +403,7 @@ public class ExpedientService {
 		expedient.setGeoPosX(geoPosX);
 		expedient.setGeoPosY(geoPosY);
 		expedient.setGeoReferencia(geoReferencia);
+		expedient.setGrupCodi(grupCodi);
 		Map<String, Set<Camp>> mapCamps = getServiceUtils().getMapCamps(expedient);
 		Map<String, Map<String, Object>> mapValors = getServiceUtils().getMapValors(expedient);
 		luceneDao.updateExpedient(
@@ -493,7 +500,8 @@ public class ExpedientService {
 				geoPosX,
 				geoPosY,
 				geoReferencia,
-				mostrarAnulats);
+				mostrarAnulats,
+				getAreesOGrupsPerUsuari());
 	}
 	public List<ExpedientDto> findAmbEntornConsultaGeneral(
 			Long entornId,
@@ -524,7 +532,8 @@ public class ExpedientService {
 				geoPosX,
 				geoPosY,
 				geoReferencia,
-				mostrarAnulats))
+				mostrarAnulats,
+				getAreesOGrupsPerUsuari()))
 			resposta.add(dtoConverter.toExpedientDto(expedient, false));
 		return resposta;
 	}
@@ -569,6 +578,7 @@ public class ExpedientService {
 				geoPosY,
 				geoReferencia,
 				mostrarAnulats,
+				getAreesOGrupsPerUsuari(),
 				firstRow,
 				maxResults,
 				sort,
@@ -1641,6 +1651,16 @@ public class ExpedientService {
 	public void setExpedientLogDao(ExpedientLogDao expedientLogDao) {
 		this.expedientLogDao = expedientLogDao;
 	}
+	@Autowired
+	public void setAreaMembreDao(AreaMembreDao areaMembreDao) {
+		this.areaMembreDao = areaMembreDao;
+	}
+	@Autowired
+	public void setAreaJbpmIdDao(AreaJbpmIdDao areaJbpmIdDao) {
+		this.areaJbpmIdDao = areaJbpmIdDao;
+	}
+
+
 
 	@SuppressWarnings("rawtypes")
 	private Map<String, JbpmNodePosition> getNodePositions(String processInstanceId) {
@@ -1900,6 +1920,27 @@ public class ExpedientService {
 			return SecurityContextHolder.getContext().getAuthentication().getName();
 		else
 			return "Procés automàtic";
+	}
+
+	private String[] getAreesOGrupsPerUsuari() {
+		String usuariCodi = SecurityContextHolder.getContext().getAuthentication().getName();
+		if (esIdentitySourceHelium()) {
+			List<AreaMembre> membres = areaMembreDao.findAmbUsuariCodi(usuariCodi);
+			List<String> codisArea = new ArrayList<String>();
+			for (AreaMembre membre: membres) {
+				codisArea.add(membre.getArea().getCodi());
+			}
+			String[] resposta = codisArea.toArray(new String[membres.size()]);
+			return resposta;
+		} else {
+			List<String> codisArea = areaJbpmIdDao.findAmbUsuariCodi(usuariCodi);
+			String[] resposta = codisArea.toArray(new String[codisArea.size()]);
+			return resposta;
+		}
+	}
+	private boolean esIdentitySourceHelium() {
+		String identitySource = GlobalProperties.getInstance().getProperty("app.jbpm.identity.source");
+		return (identitySource.equalsIgnoreCase("helium"));
 	}
 
 	private ServiceUtils getServiceUtils() {

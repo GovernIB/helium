@@ -11,23 +11,23 @@ import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
 
 /**
- * Handler per modificar el títol d'un expedient.
+ * Handler per modificar l'estat d'un expedient.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
 @SuppressWarnings("serial")
-public class ExpedientTitolModificarHandler extends AbstractHeliumActionHandler implements ExpedientTitolModificarHandlerInterface {
+public class ExpedientGrupModificarHandler extends AbstractHeliumActionHandler implements ExpedientGrupModificarHandlerInterface {
 
-	private String titol;
-	private String varTitol;
+	private String grup;
+	private String varGrup;
 
 
 
 	public void execute(ExecutionContext executionContext) throws Exception {
 		Expedient ex = ExpedientIniciantDto.getExpedient();
-		String t = (String)getValorOVariable(executionContext, titol, varTitol);
+		String gc = (String)getValorOVariable(executionContext, grup, varGrup);
 		if (ex != null) {
-			ex.setTitol(t);
+			ex.setGrupCodi(gc);
 		} else {
 			ExpedientDto expedient = getExpedient(executionContext);
 			if (expedient != null) {
@@ -35,26 +35,26 @@ public class ExpedientTitolModificarHandler extends AbstractHeliumActionHandler 
 						expedient.getEntorn().getId(),
 						expedient.getId(),
 						expedient.getNumero(),
-						t,
+						expedient.getTitol(),
 						expedient.getResponsableCodi(),
 						expedient.getDataInici(),
 						expedient.getComentari(),
-						(expedient.getEstat() != null) ? expedient.getEstat().getId() : null,
+						expedient.getEstat().getId(),
 						expedient.getGeoPosX(),
 						expedient.getGeoPosY(),
 						expedient.getGeoReferencia(),
-						expedient.getGrupCodi());
+						gc);
 			} else {
-				throw new JbpmException("No s'ha trobat l'expedient per canviar el títol");
+				throw new JbpmException("No s'ha trobat l'expedient per canviar l'estat");
 			}
 		}
 	}
 
-	public void setTitol(String titol) {
-		this.titol = titol;
+	public void setGrup(String grup) {
+		this.grup = grup;
 	}
-	public void setVarTitol(String varTitol) {
-		this.varTitol = varTitol;
+	public void setVarGrup(String varGrup) {
+		this.varGrup = varGrup;
 	}
 
 }

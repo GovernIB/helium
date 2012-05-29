@@ -23,6 +23,7 @@ public class ExpedientEditarCommand {
 	private Double geoPosX;
 	private Double geoPosY;
 	private String geoReferencia;
+	private String grupCodi;
 
 
 
@@ -91,6 +92,12 @@ public class ExpedientEditarCommand {
 	}
 	public void setGeoReferencia(String geoReferencia) {
 		this.geoReferencia = geoReferencia;
+	}
+	public String getGrupCodi() {
+		return grupCodi;
+	}
+	public void setGrupCodi(String grupCodi) {
+		this.grupCodi = grupCodi;
 	}
 
 }
