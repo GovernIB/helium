@@ -49,14 +49,14 @@
 			</plugin>
 			<!-- Comentar el següent plugin si es vol generar la llibreria helium-disseny.jar --> 
 			<!--  per a emprar al disseny d'expedients -->
-			<!--plugin>
+			<plugin>
 				<artifactId>maven-jar-plugin</artifactId>
 				<configuration>
 					<excludes>
 						<exclude>**/*Handler.*</exclude>
 					</excludes>
 				</configuration>
-			</plugin-->
+			</plugin>
 			<!--  -->
 		</plugins>
 	</build>

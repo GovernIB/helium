@@ -1129,6 +1129,8 @@ public class DissenyService {
 			dto.setAdjuntarAuto(document.isAdjuntarAuto());
 			if (document.getCampData() != null)
 				dto.setCodiCampData(document.getCampData().getCodi());
+			dto.setConvertirExtensio(document.getConvertirExtensio());
+			dto.setExtensionsPermeses(document.getExtensionsPermeses());
 			documentsDto.add(dto);
 		}
 		definicioProcesExportacio.setDocuments(documentsDto);
@@ -1444,11 +1446,20 @@ public class DissenyService {
 					}
 					nova.getEnumeracioValors().clear();
 				}
-				for (EnumeracioValors enumValors: enumeracio.getValors()) {
-					EnumeracioValors novaEnumValors = new EnumeracioValors();
-					novaEnumValors.setCodi(enumValors.getCodi());
-					novaEnumValors.setNom(enumValors.getNom());
-					novaEnumValors.setEnumeracio(nova);
+				for (EnumeracioValors enumValor: enumeracio.getValors()) {
+					EnumeracioValors novaEnumValors = null;
+					for (EnumeracioValors novaValor: nova.getEnumeracioValors()) {
+						if (novaValor.getCodi().equals(enumValor.getCodi())) {
+							novaEnumValors = novaValor;
+							break;
+						}
+					}
+					if (novaEnumValors == null) {
+						novaEnumValors = new EnumeracioValors();
+						novaEnumValors.setCodi(enumValor.getCodi());
+						novaEnumValors.setEnumeracio(nova);
+					}
+					novaEnumValors.setNom(enumValor.getNom());
 					nova.addEnumeracioValors(novaEnumValors);
 				}
 				enumeracioDao.saveOrUpdate(nova);
@@ -2541,6 +2552,8 @@ public class DissenyService {
 			nou.setAdjuntarAuto(document.isAdjuntarAuto());
 			if (document.getCodiCampData() != null)
 				nou.setCampData(camps.get(document.getCodiCampData()));
+			nou.setConvertirExtensio(document.getConvertirExtensio());
+			nou.setExtensionsPermeses(document.getExtensionsPermeses());
 			documentDao.saveOrUpdate(nou);
 			documentDao.flush();
 			documents.put(nou.getCodi(), nou);

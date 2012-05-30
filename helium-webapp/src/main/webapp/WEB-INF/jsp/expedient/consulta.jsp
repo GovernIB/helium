@@ -7,6 +7,7 @@
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
 
+<c:set var="sessionCommand" value="${sessionScope.consultaExpedientsCommand}"/>
 <html>
 <head>
 	<title><fmt:message key='expedient.consulta.cons_general' /></title>
@@ -216,7 +217,7 @@ function obreVisorGis() {
 		</div>
 	</form:form><div style="clear:both"></div><br/>
 
-	<c:if test="${not empty sessionScope.consultaExpedientsCommand}">
+	<c:if test="${not empty sessionCommand}">
 		<c:if test="${globalProperties['app.georef.actiu'] && globalProperties['app.gis.plugin.actiu']}">
 			<c:import url="../common/formElement.jsp">
 				<c:param name="type" value="buttons"/>
