@@ -1492,6 +1492,7 @@ public class DissenyService {
 					consultaCampDao.delete(consultaCamp);
 				}
 				nova.getCamps().clear();
+				consultaCampDao.flush();
 				for (ConsultaCampExportacio consultaCamp: consulta.getCamps()) {
 					ConsultaCamp campNou = new ConsultaCamp(
 							consultaCamp.getCodi(),
