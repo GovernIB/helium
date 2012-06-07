@@ -234,16 +234,18 @@ public class ExpedientTipusDominisController extends BaseController {
 		}
 		public void validate(Object target, Errors errors) {
 			Domini domini = (Domini)target;
-			if (domini.getTipus().equals(TipusDomini.CONSULTA_WS)) {
-				ValidationUtils.rejectIfEmpty(errors, "url", "not.blank");
-			}
-			if (domini.getTipus().equals(TipusDomini.CONSULTA_SQL)) {
-				ValidationUtils.rejectIfEmpty(errors, "jndiDatasource", "not.blank");
-				ValidationUtils.rejectIfEmpty(errors, "sql", "not.blank");
-			}
-			if (!domini.getTipusAuth().equals(TipusAuthDomini.NONE)) {
-				ValidationUtils.rejectIfEmpty(errors, "usuari", "not.blank");
-				ValidationUtils.rejectIfEmpty(errors, "contrasenya", "not.blank");
+			if (domini.getTipus()!=null) {
+				if (domini.getTipus().equals(TipusDomini.CONSULTA_WS)) {
+					ValidationUtils.rejectIfEmpty(errors, "url", "not.blank");
+					if (!TipusAuthDomini.NONE.equals(domini.getTipusAuth())) {
+						ValidationUtils.rejectIfEmpty(errors, "usuari", "not.blank");
+						ValidationUtils.rejectIfEmpty(errors, "contrasenya", "not.blank");
+					}
+				}
+				if (domini.getTipus().equals(TipusDomini.CONSULTA_SQL)) {
+					ValidationUtils.rejectIfEmpty(errors, "jndiDatasource", "not.blank");
+					ValidationUtils.rejectIfEmpty(errors, "sql", "not.blank");
+				}
 			}
 		}
 	}
