@@ -198,7 +198,7 @@ public class DominiController extends BaseController {
 			if (domini.getTipus()!=null) {
 				if (domini.getTipus().equals(TipusDomini.CONSULTA_WS)) {
 					ValidationUtils.rejectIfEmpty(errors, "url", "not.blank");
-					if (!domini.getTipusAuth().equals(TipusAuthDomini.NONE)) {
+					if (!TipusAuthDomini.NONE.equals(domini.getTipusAuth())) {
 						ValidationUtils.rejectIfEmpty(errors, "usuari", "not.blank");
 						ValidationUtils.rejectIfEmpty(errors, "contrasenya", "not.blank");
 					}
