@@ -7,7 +7,7 @@
 	<div id="page-entorn-title">
 		<h2>
 			<span>${entornActual.nom}</span> <fmt:message key='decorators.entorn.entorn' />
-			<c:if test="${hiHaAlertesActives}">
+			<c:if test="${true}"><%--c:if test="${hiHaAlertesActives}"--%>
 				<a href="<c:url value="/alerta/llistat.html"/>">
 					<c:choose>
 						<c:when test="${hiHaAlertesNollegides}"><img src="<c:url value="/img/email_blink.gif"/>" alt="Hi ha alertes sense llegir" title="Hi ha alertes sense llegir" border="0"/></c:when>

@@ -48,6 +48,11 @@ public class AlertaService {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		return alertaDao.findActivesAmbEntornIUsuari(entornId, auth.getName());
 	}
+	public List<Alerta> findActivesAmbEntornITipusExpedient(
+			Long entornId,
+			Long expedientTipusId) {
+		return alertaDao.findActivesAmbEntornITipusExpedient(entornId, expedientTipusId);
+	}
 
 	public void marcarLlegida(Long alertaId) {
 		Alerta alerta = getById(alertaId);
