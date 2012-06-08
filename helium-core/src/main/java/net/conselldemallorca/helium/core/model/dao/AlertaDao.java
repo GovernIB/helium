@@ -7,6 +7,7 @@ import java.util.List;
 
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 
+import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
 
@@ -27,6 +28,18 @@ public class AlertaDao extends HibernateGenericDao<Alerta, Long> {
 				Restrictions.eq("entorn.id", entornId),
 				Restrictions.eq("destinatari", usuariCodi),
 				Restrictions.isNull("dataEliminacio"));
+	}
+
+	public List<Alerta> findActivesAmbEntornITipusExpedient(
+			Long entornId,
+			Long expedientTipusId) {
+		Criteria crit = getSession().createCriteria(
+				getPersistentClass());
+		crit.createAlias("expedient.tipus", "tip");
+		crit.add(Restrictions.eq("entorn.id", entornId));
+		crit.add(Restrictions.eq("tip.id", expedientTipusId));
+		crit.add(Restrictions.isNull("dataEliminacio"));
+		return findByCriteria(crit);
 	}
 
 	public List<Alerta> findActivesAmbTerminiIniciatId(Long terminiIniciatId) {
