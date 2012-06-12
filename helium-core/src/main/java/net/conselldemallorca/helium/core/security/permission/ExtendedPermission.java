@@ -23,6 +23,7 @@ public class ExtendedPermission extends BasePermission {
 	public static final Permission DESIGN = new ExtendedPermission(1 << 5, 'G'); // 32
 	public static final Permission ORGANIZATION = new ExtendedPermission(1 << 6, 'O'); // 64
 	public static final Permission SUPERVISION = new ExtendedPermission(1 << 7, 'S'); // 128
+	public static final Permission MANAGE = new ExtendedPermission(1 << 8, 'M'); // 256
 
 	/**
 	 * Registers the public static permissions defined on this class. This is

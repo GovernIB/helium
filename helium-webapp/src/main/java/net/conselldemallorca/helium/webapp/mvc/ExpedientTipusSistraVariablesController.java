@@ -76,7 +76,7 @@ public class ExpedientTipusSistraVariablesController extends BaseController {
 			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
 				model.addAttribute("mapeigSistras", dissenyService.findMapeigSistraVariablesAmbExpedientTipus(expedientTipusId));
 				
-				List<DefinicioProcesDto> processos = dissenyService.findDarreresAmbExpedientTipusIGlobalsEntorn(entorn.getId(), expedientTipusId);
+				List<DefinicioProcesDto> processos = dissenyService.findDarreresAmbExpedientTipusEntorn(entorn.getId(), expedientTipusId, true);
 				for (DefinicioProcesDto proces : processos){
 					if (proces.getJbpmKey().equalsIgnoreCase(expedientTipus.getJbpmProcessDefinitionKey()))
 						model.addAttribute("codisProces", dissenyService.findCampsAmbDefinicioProcesOrdenatsPerCodi(proces.getId()));
@@ -114,7 +114,7 @@ public class ExpedientTipusSistraVariablesController extends BaseController {
 			        if (result.hasErrors()) {
 						model.addAttribute("mapeigSistras", dissenyService.findMapeigSistraVariablesAmbExpedientTipus(expedientTipusId));
 						
-						List<DefinicioProcesDto> processos = dissenyService.findDarreresAmbExpedientTipusIGlobalsEntorn(entorn.getId(), expedientTipusId);
+						List<DefinicioProcesDto> processos = dissenyService.findDarreresAmbExpedientTipusEntorn(entorn.getId(), expedientTipusId, true);
 						for (DefinicioProcesDto proces : processos){
 							if (proces.getJbpmKey().equalsIgnoreCase(expedientTipus.getJbpmProcessDefinitionKey()))
 								model.addAttribute("codisProces", dissenyService.findCampsAmbDefinicioProcesOrdenatsPerCodi(proces.getId()));

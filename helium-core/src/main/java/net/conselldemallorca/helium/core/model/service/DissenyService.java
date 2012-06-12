@@ -265,14 +265,18 @@ public class DissenyService {
 			resposta.add(toDto(definicioProces, false));
 		return resposta;
 	}
-	public List<DefinicioProcesDto> findDarreresAmbExpedientTipusIGlobalsEntorn(
+	public List<DefinicioProcesDto> findDarreresAmbExpedientTipusEntorn(
 			Long entornId,
-			Long expedientTipusId) {
+			Long expedientTipusId,
+			boolean incloureGlobals) {
 		List<DefinicioProcesDto> resposta = new ArrayList<DefinicioProcesDto>();
 		List<DefinicioProces> dps = definicioProcesDao.findDarreresVersionsAmbEntorn(entornId);
-		for (DefinicioProces definicionProces: dps)
-			if (definicionProces.getExpedientTipus() == null || definicionProces.getExpedientTipus().getId().equals(expedientTipusId))
+		for (DefinicioProces definicionProces: dps) {
+			
+			if (	(definicionProces.getExpedientTipus() != null && expedientTipusId.equals(definicionProces.getExpedientTipus().getId())) ||
+					(incloureGlobals && definicionProces.getExpedientTipus() == null))
 				resposta.add(toDto(definicionProces, false));
+		}
 		return resposta;
 	}
 

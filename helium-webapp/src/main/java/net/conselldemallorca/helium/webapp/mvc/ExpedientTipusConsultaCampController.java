@@ -77,9 +77,10 @@ public class ExpedientTipusConsultaCampController extends BaseController {
 			model.addAttribute("consulta", consulta);
 			model.addAttribute(
 					"definicionsProces",
-					dissenyService.findDarreresAmbExpedientTipusIGlobalsEntorn(
+					dissenyService.findDarreresAmbExpedientTipusEntorn(
 							entorn.getId(),
-							consulta.getExpedientTipus().getId()));
+							consulta.getExpedientTipus().getId(),
+							true));
 			return "expedientTipus/consultaCamps";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
