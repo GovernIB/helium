@@ -46,8 +46,10 @@ public class UpdateService {
 	public static final int VERSIO_221_ORDRE = 221;
 	public static final String VERSIO_230_STR = "2.3.0";
 	public static final int VERSIO_230_ORDRE = 230;
-	public static final String VERSIO_ACTUAL_STR = "2.3.0";
-	public static final int VERSIO_ACTUAL_ORDRE = 230;
+	public static final String VERSIO_240_STR = "2.4.0";
+	public static final int VERSIO_240_ORDRE = 240;
+	public static final String VERSIO_ACTUAL_STR = "2.4.0";
+	public static final int VERSIO_ACTUAL_ORDRE = 240;
 
 	private VersioDao versioDao;
 	private PersonaDao personaDao;
@@ -87,6 +89,10 @@ public class UpdateService {
 					boolean actualitzat = actualitzarV230();
 					if (!actualitzat) break;
 				}
+				if (versio.getOrdre() == VERSIO_240_ORDRE) {
+					boolean actualitzat = actualitzarV240();
+					if (!actualitzat) break;
+				}
 			}
 		}
 		Versio darrera = versioDao.findLast();
@@ -102,6 +108,9 @@ public class UpdateService {
 		}
 		if (actualitzat && darrera.getOrdre() < 230) {
 			actualitzarV230();
+		}
+		if (actualitzat && darrera.getOrdre() < 240) {
+			actualitzarV240();
 		}
 	}
 
@@ -330,6 +339,26 @@ public class UpdateService {
 			} catch (Exception ex) {
 				logger.error("Error al executar l'actualització a la versió " + VERSIO_230_STR, ex);
 				errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_230_STR + ": " + getMessage("error.update.proces.ko");
+			}
+		}
+		return actualitzat;
+	}
+
+	private boolean actualitzarV240() {
+		boolean actualitzat = false;
+		Versio versio240 = obtenirOCrearVersio(VERSIO_240_STR, VERSIO_240_ORDRE);
+		if (!versio240.isScriptExecutat()) {
+			errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_240_STR + ": " + getMessage("error.update.script.ko");
+		} else if (!versio240.isProcesExecutat()) {
+			try {
+				versio240.setProcesExecutat(true);
+				versio240.setDataExecucioProces(new Date());
+				versioDao.saveOrUpdate(versio240);
+				logger.info("Actualització a la versió " + VERSIO_240_STR + " realitzada correctament");
+				actualitzat = true;
+			} catch (Exception ex) {
+				logger.error("Error al executar l'actualització a la versió " + VERSIO_240_STR, ex);
+				errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_240_STR + ": " + getMessage("error.update.proces.ko");
 			}
 		}
 		return actualitzat;
