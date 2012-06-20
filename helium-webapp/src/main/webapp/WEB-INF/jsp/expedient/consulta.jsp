@@ -33,7 +33,7 @@ function refrescarEstats(element) {
 		        	else
 		        		options += '<option value="' + j[i].id + '">' + j[i].nom + '</option>';
 		        }
-		        $("select#estat0").html(options);
+		        $("select#estat0").html(options).attr('class', 'inlineLabels');
 			});
 }
 function confirmarEsborrar(e) {
