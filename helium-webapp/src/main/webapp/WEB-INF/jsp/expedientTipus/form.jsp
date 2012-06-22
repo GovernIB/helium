@@ -34,17 +34,17 @@
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="nom"/>
 				<c:param name="required" value="true"/>
-				<c:param name="label"><fmt:message key="expedient.tipus.form.titol"/>Títol</c:param>
+				<c:param name="label"><fmt:message key="expedient.tipus.form.titol"/></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="teTitol"/>
 				<c:param name="type" value="checkbox"/>
-				<c:param name="label"><fmt:message key="expedient.tipus.form.amb_titol"/>Amb títol</c:param>
+				<c:param name="label"><fmt:message key="expedient.tipus.form.amb_titol"/></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="demanaTitol"/>
 				<c:param name="type" value="checkbox"/>
-				<c:param name="label"><fmt:message key="expedient.tipus.form.demana_titol"/>Demana títol</c:param>
+				<c:param name="label"><fmt:message key="expedient.tipus.form.demana_titol"/></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="teNumero"/>
