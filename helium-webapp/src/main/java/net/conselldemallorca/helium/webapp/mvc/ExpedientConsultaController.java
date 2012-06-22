@@ -137,16 +137,28 @@ public class ExpedientConsultaController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			if ("submit".equals(submit)) {
+			if ("massiva".equals(submit)) {
+				command.setMassivaActiu(true);
+			} else if ("nomassiva".equals(submit)) {
+				command.setMassivaActiu(false);
+				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS);
+			}
+			if (command.isMassivaActiu() && command.getExpedientTipus() == null) {
+				command.setMassivaActiu(false);
+				missatgeError(request, getMessage("error.no.tiexep.selec"));
+				return "redirect:/expedient/consulta.html";
+			}
+			if ("submit".equals(submit) || "massiva".equals(submit) || "nomassiva".equals(submit)) {
 				session.setAttribute(VARIABLE_SESSIO_COMMAND, command);
 				return "redirect:/expedient/consulta.html";
 			} else if ("clean".equals(submit)) {
 				session.removeAttribute(VARIABLE_SESSIO_COMMAND);
+				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS);
 				return "redirect:/expedient/consulta.html";
 			}
 			return "expedient/consulta";
 		} else {
-			missatgeError(request, getMessage("error.no.entorn.selec") );
+			missatgeError(request, getMessage("error.no.entorn.selec"));
 			return "redirect:/index.html";
 		}
 	}

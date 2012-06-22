@@ -608,6 +608,7 @@ CREATE TABLE hel_expedient_tipus (
     te_numero boolean,
     te_titol boolean,
     restringir_grup boolean,
+    tram_massiva boolean,
     entorn_id bigint NOT NULL
 );
 

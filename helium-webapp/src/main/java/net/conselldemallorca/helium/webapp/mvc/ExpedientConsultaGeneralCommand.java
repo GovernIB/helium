@@ -24,6 +24,7 @@ public class ExpedientConsultaGeneralCommand {
 	private Double geoPosY;
 	private String geoReferencia;
 	private boolean mostrarAnulats = false;
+	private boolean massivaActiu = false;
 
 
 
@@ -90,6 +91,12 @@ public class ExpedientConsultaGeneralCommand {
 	}
 	public void setMostrarAnulats(boolean mostrarAnulats) {
 		this.mostrarAnulats = mostrarAnulats;
+	}
+	public boolean isMassivaActiu() {
+		return massivaActiu;
+	}
+	public void setMassivaActiu(boolean massivaActiu) {
+		this.massivaActiu = massivaActiu;
 	}
 
 }

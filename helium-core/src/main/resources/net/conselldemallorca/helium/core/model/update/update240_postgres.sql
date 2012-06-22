@@ -15,7 +15,10 @@ create table hel_expedient_log(
 
 -- Permisos per grup
 alter table hel_expedient_tipus add column restringir_grup boolean default false;
-alter table hel_expedient  add colum grup_codi character varying(64);
+alter table hel_expedient add colum grup_codi character varying(64);
+
+-- Tramitació massiva d'expedients
+alter table hel_expedient_tipus add column tram_massiva boolean default false;
 
 -- Actualització a la nova versió --
 insert into hel_versio (

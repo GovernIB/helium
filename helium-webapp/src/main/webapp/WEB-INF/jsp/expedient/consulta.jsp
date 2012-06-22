@@ -10,8 +10,8 @@
 <c:set var="sessionCommand" value="${sessionScope.consultaExpedientsCommand}"/>
 <html>
 <head>
-	<title><fmt:message key='expedient.consulta.cons_general' /></title>
-	<meta name="titolcmp" content="<fmt:message key='comuns.consultes' />" />
+	<title><fmt:message key="expedient.consulta.cons_general"/></title>
+	<meta name="titolcmp" content="<fmt:message key="comuns.consultes"/>" />
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
     <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
     <c:import url="../common/formIncludes.jsp"/>
@@ -26,7 +26,7 @@ function refrescarEstats(element) {
     		{},
     		function(j) {
 			    var options = '';
-			    options += '<option value="">&lt;&lt; <fmt:message key='expedient.consulta.select.estat'/> &gt;&gt;</option>';
+			    options += '<option value="">&lt;&lt; <fmt:message key="expedient.consulta.select.estat"/> &gt;&gt;</option>';
 		        for (var i = 0; i < j.length; i++) {
 		        	if (j[i].id == estatActual)
 		        		options += '<option value="' + j[i].id + '" selected="selected">' + j[i].nom + '</option>';
@@ -40,33 +40,29 @@ function confirmarEsborrar(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
-	return confirm("<fmt:message key='expedient.consulta.confirm.esborrar'/>");
+	return confirm("<fmt:message key="expedient.consulta.confirm.esborrar"/>");
 }
 function confirmarAnular(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
-	return confirm("<fmt:message key='expedient.consulta.confirm.anular'/>");
+	return confirm("<fmt:message key="expedient.consulta.confirm.anular"/>");
 }
 function obreVisorGis() {
-    var sUrl; //= "${globalProperties['app.gis.plugin.sitibsa.url.visor']}";
+    var sUrl;
 	var piis = new Array();
-
 	<c:forEach items="${piis}" var="pii">
 		piis.push('${pii}');
 	</c:forEach>
-
 	gisDwrService.urlVisor(
-		{
-			callback: function(url) {
+			{callback: function(url) {
 				sUrl = url;
 			},
 			async: false
 		});
-	 
-    gisDwrService.xmlExpedients(piis,
-   		{
-    		callback: function(sXML) {
+    gisDwrService.xmlExpedients(
+    		piis,
+    		{callback: function(sXML) {
     			var form = document.createElement("form");
     			form.setAttribute("method", "post");
     		    form.setAttribute("action", sUrl);
@@ -90,6 +86,15 @@ function obreVisorGis() {
 			async: true
     	});
 }
+function clicCheckMassiu(e) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	if (e.stopPropagation) e.stopPropagation();
+	$.get(	"massivaIds.html",
+			{	expedientTipusId: "${command.expedientTipus.id}",
+				expedientId: e.target.value,
+				checked: e.target.checked});
+}
 // ]]>
 </script>
 </head>
@@ -99,21 +104,21 @@ function obreVisorGis() {
 		<div class="inlineLabels col first">
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="titol"/>
-				<c:param name="label"><fmt:message key='expedient.consulta.titol' /></c:param>
+				<c:param name="label"><fmt:message key="expedient.consulta.titol"/></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="numero"/>
-				<c:param name="label"><fmt:message key='expedient.consulta.numero' /></c:param>
+				<c:param name="label"><fmt:message key="expedient.consulta.numero"/></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="dataInici1"/>
 				<c:param name="type" value="custom"/>
-				<c:param name="label"><fmt:message key='expedient.consulta.datainici' /></c:param>
+				<c:param name="label"><fmt:message key="expedient.consulta.datainici"/></c:param>
 				<c:param name="customClass">customField</c:param>
 				<c:param name="content">
 					<spring:bind path="dataInici1">
 						<label for="dataInici1" class="blockLabel">
-							<span><fmt:message key='expedient.consulta.entre' /></span>
+							<span><fmt:message key="expedient.consulta.entre"/></span>
 							<input id="dataInici1" name="dataInici1" value="${status.value}" type="text" class="textInput"/>
 							<script type="text/javascript">
 								// <![CDATA[
@@ -131,7 +136,7 @@ function obreVisorGis() {
 					</spring:bind>
 					<spring:bind path="dataInici2">
 						<label for="dataInici2" class="blockLabel blockLabelLast">
-							<span><fmt:message key='expedient.consulta.i' /></span>
+							<span><fmt:message key="expedient.consulta.i"/></span>
 							<input id="dataInici2" name="dataInici2" value="${status.value}" type="text" class="textInput"/>
 							<script type="text/javascript">
 								// <![CDATA[
@@ -157,8 +162,8 @@ function obreVisorGis() {
 				<c:param name="items" value="expedientTipus"/>
 				<c:param name="itemLabel" value="nom"/>
 				<c:param name="itemValue" value="id"/>
-				<c:param name="itemBuit">&lt;&lt; <fmt:message key='expedient.consulta.select.tipusexpedient'/> &gt;&gt;</c:param>
-				<c:param name="label"><fmt:message key='expedient.consulta.tipusexpedient' /></c:param>
+				<c:param name="itemBuit">&lt;&lt; <fmt:message key="expedient.consulta.select.tipusexpedient"/> &gt;&gt;</c:param>
+				<c:param name="label"><fmt:message key="expedient.consulta.tipusexpedient"/></c:param>
 				<c:param name="onchange">refrescarEstats(this)</c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
@@ -167,33 +172,33 @@ function obreVisorGis() {
 				<c:param name="items" value="estats"/>
 				<c:param name="itemLabel" value="nom"/>
 				<c:param name="itemValue" value="id"/>
-				<c:param name="itemBuit">&lt;&lt; <fmt:message key='expedient.consulta.select.estat'/> &gt;&gt;</c:param>
-				<c:param name="label"><fmt:message key='expedient.consulta.estat' /></c:param>
+				<c:param name="itemBuit">&lt;&lt; <fmt:message key="expedient.consulta.select.estat"/> &gt;&gt;</c:param>
+				<c:param name="label"><fmt:message key="expedient.consulta.estat"/></c:param>
 			</c:import>
 			<c:if test="${globalProperties['app.georef.actiu']}">
 				<c:choose>
 					<c:when test="${globalProperties['app.georef.tipus']=='ref'}">
 						<c:import url="../common/formElement.jsp">
 							<c:param name="property" value="geoReferencia"/>
-							<c:param name="label"><fmt:message key='comuns.georeferencia.codi' /></c:param>
+							<c:param name="label"><fmt:message key="comuns.georeferencia.codi"/></c:param>
 						</c:import>
 					</c:when>
 					<c:otherwise>
 						<c:import url="../common/formElement.jsp">
 							<c:param name="property" value="geoPosX"/>
 							<c:param name="type" value="custom"/>
-							<c:param name="label"><fmt:message key='comuns.georeferencia.coordenades' /></c:param>
+							<c:param name="label"><fmt:message key="comuns.georeferencia.coordenades"/></c:param>
 							<c:param name="customClass">customField</c:param>
 							<c:param name="content">
 								<spring:bind path="geoPosX">
 									<label for="geoPosX" class="blockLabel">
-										<span><fmt:message key='comuns.georeferencia.coordX' /></span>
+										<span><fmt:message key="comuns.georeferencia.coordX"/></span>
 										<input id="geoPosX" name="geoPosX" value="${status.value}" type="text" class="textInput"/>
 									</label>
 								</spring:bind>
 								<spring:bind path="geoPosY">
 									<label for="geoPosY" class="blockLabel blockLabelLast">
-										<span><fmt:message key='comuns.georeferencia.coordY' /></span>
+										<span><fmt:message key="comuns.georeferencia.coordY"/></span>
 										<input id="geoPosY" name="geoPosY" value="${status.value}" type="text" class="textInput"/>
 									</label>
 								</spring:bind>
@@ -209,11 +214,20 @@ function obreVisorGis() {
 					<c:param name="label">Mostrar anul·lats</c:param>
 				</c:import>
 			</security:accesscontrollist>
-			<c:import url="../common/formElement.jsp">
-				<c:param name="type" value="buttons"/>
-				<c:param name="values">submit,clean</c:param>
-				<c:param name="titles"><fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' /></c:param>
-			</c:import>
+			<c:if test="${not command.massivaActiu}">
+				<c:import url="../common/formElement.jsp">
+					<c:param name="type" value="buttons"/>
+					<c:param name="values">massiva,submit,clean</c:param>
+					<c:param name="titles"><fmt:message key="expedient.consulta.massiva.activar"/>,<fmt:message key="expedient.consulta.consultar"/>,<fmt:message key="expedient.consulta.netejar"/></c:param>
+				</c:import>
+			</c:if>
+			<c:if test="${command.massivaActiu}">
+				<c:import url="../common/formElement.jsp">
+					<c:param name="type" value="buttons"/>
+					<c:param name="values">nomassiva,submit,clean</c:param>
+					<c:param name="titles"><fmt:message key="expedient.consulta.massiva.desactivar"/>,<fmt:message key="expedient.consulta.consultar"/>,<fmt:message key="expedient.consulta.netejar"/></c:param>
+				</c:import>
+			</c:if>
 		</div>
 	</form:form><div style="clear:both"></div><br/>
 
@@ -222,7 +236,7 @@ function obreVisorGis() {
 			<c:import url="../common/formElement.jsp">
 				<c:param name="type" value="buttons"/>
 				<c:param name="values">gis</c:param>
-				<c:param name="titles"><fmt:message key='expedient.consulta.gis'/></c:param>
+				<c:param name="titles"><fmt:message key="expedient.consulta.gis"/></c:param>
 				<c:param name="onclick">obreVisorGis()</c:param>
 			</c:import>
 		</c:if>
@@ -237,6 +251,15 @@ function obreVisorGis() {
 			<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable" sort="external">
 				<c:set var="filaStyle" value=""/>
 				<c:if test="${registre.anulat}"><c:set var="filaStyle" value="text-decoration:line-through"/></c:if>
+				<c:if test="${command.massivaActiu}">
+					<display:column>
+						<c:set var="expedientSeleccionat" value="${false}"/>
+						<c:forEach var="eid" items="${sessionScope.consultaExpedientsIdsMassius}" varStatus="status">
+							<c:if test="${status.index gt 0 and eid == registre.id}"><c:set var="expedientSeleccionat" value="${true}"/></c:if>
+						</c:forEach>
+						<input type="checkbox" name="expedientId" value="${registre.id}"<c:if test="${expedientSeleccionat}"> checked="checked"</c:if> onclick="clicCheckMassiu(event)"/>
+					</display:column>
+				</c:if>
 				<display:column property="identificador" title="Expedient" url="/tasca/personaLlistat.html" paramId="exp" paramProperty="identificador" sortable="true" style="${filaStyle}"/>
 				<display:column property="dataInici" title="Iniciat el" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true" style="${filaStyle}"/>
 				<display:column property="tipus.nom" title="Tipus" sortable="true" style="${filaStyle}"/>
@@ -244,30 +267,35 @@ function obreVisorGis() {
 					<c:if test="${registre.aturat}"><img src="<c:url value="/img/stop.png"/>" alt="Aturat" title="Aturat" border="0"/></c:if>
 					<c:choose>
 						<c:when test="${empty registre.dataFi}">
-							<c:choose><c:when test="${empty registre.estat}"><fmt:message key='expedient.consulta.iniciat' /></c:when><c:otherwise>${registre.estat.nom}</c:otherwise></c:choose>
+							<c:choose><c:when test="${empty registre.estat}"><fmt:message key="expedient.consulta.iniciat"/></c:when><c:otherwise>${registre.estat.nom}</c:otherwise></c:choose>
 						</c:when>
-						<c:otherwise><fmt:message key='expedient.consulta.finalitzat' /></c:otherwise>
+						<c:otherwise><fmt:message key="expedient.consulta.finalitzat"/></c:otherwise>
 					</c:choose>
 				</display:column>
 				<display:column>
 					<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,1">
-						<a href="<c:url value="/expedient/info.html"><c:param name="id" value="${registre.processInstanceId}"/></c:url>"><img src="<c:url value="/img/information.png"/>" alt="<fmt:message key='comuns.informacio' />" title="<fmt:message key='comuns.informacio' />" border="0"/></a>
+						<a href="<c:url value="/expedient/info.html"><c:param name="id" value="${registre.processInstanceId}"/></c:url>"><img src="<c:url value="/img/information.png"/>" alt="<fmt:message key="comuns.informacio"/>" title="<fmt:message key="comuns.informacio"/>" border="0"/></a>
 					</security:accesscontrollist>
 				</display:column>
 				<display:column>
 					<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,2">
 						<c:if test="${!registre.anulat}">
-							<a href="<c:url value="/expedient/anular.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmarAnular(event)"><img src="<c:url value="/img/delete.png"/>" alt="<fmt:message key='comuns.anular' />" title="<fmt:message key='comuns.anular' />" border="0"/></a>
+							<a href="<c:url value="/expedient/anular.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmarAnular(event)"><img src="<c:url value="/img/delete.png"/>" alt="<fmt:message key="comuns.anular"/>" title="<fmt:message key="comuns.anular"/>" border="0"/></a>
 						</c:if>
 					</security:accesscontrollist>
 				</display:column>
 				<display:column>
 					<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,8">
-						<a href="<c:url value="/expedient/delete.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmarEsborrar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
+						<a href="<c:url value="/expedient/delete.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmarEsborrar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key="comuns.esborrar"/>" title="<fmt:message key="comuns.esborrar"/>" border="0"/></a>
 					</security:accesscontrollist>
 				</display:column>
 			</display:table>
 			<script type="text/javascript">initSelectable();</script>
+			<c:if test="${command.massivaActiu}">
+				<form action="<c:url value="/expedient/massivaInfo.html"/>">
+					<button type="submit" class="submitButton"><fmt:message key="expedient.consulta.massiva.accions"/></button>
+				</form>
+			</c:if>
 		</c:if>
 	</c:if>
 

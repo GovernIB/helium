@@ -68,6 +68,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	@MaxLength(64)
 	private String responsableDefecteCodi;
 	private boolean restringirPerGrup;
+	private boolean tramitacioMassiva;
 
 	@MaxLength(64)
 	private String sistraTramitCodi;
@@ -239,6 +240,14 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	}
 	public void setRestringirPerGrup(boolean restringirPerGrup) {
 		this.restringirPerGrup = restringirPerGrup;
+	}
+
+	@Column(name="tram_massiva")
+	public boolean isTramitacioMassiva() {
+		return tramitacioMassiva;
+	}
+	public void setTramitacioMassiva(boolean tramitacioMassiva) {
+		this.tramitacioMassiva = tramitacioMassiva;
 	}
 
 	@Column(name="sistra_codtra", length=64, unique=true)

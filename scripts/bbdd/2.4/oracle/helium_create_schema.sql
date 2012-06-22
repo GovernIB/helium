@@ -459,6 +459,7 @@ CREATE TABLE HEL_EXPEDIENT_TIPUS
   TE_NUMERO            NUMBER(1),
   TE_TITOL             NUMBER(1),
   RESTRINGIR_GRUP      NUMBER(1),
+  TRAM_MASSIVA         NUMBER(1),
   ENTORN_ID            NUMBER(19)               NOT NULL
 );
 
