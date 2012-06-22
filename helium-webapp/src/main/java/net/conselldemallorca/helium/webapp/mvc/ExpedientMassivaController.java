@@ -135,7 +135,6 @@ public class ExpedientMassivaController extends BaseController {
 				try {
 					DefinicioProcesDto definicioProces = dissenyService.getById(command.getDefinicioProcesId(), false);
 					expedientService.changeProcessInstanceVersion(expedient.getProcessInstanceId(), definicioProces.getVersio());
-					missatgeInfo(request, getMessage("info.canvi.versio.realitzat"));
 				} catch (Exception ex) {
 					missatgeError(
 			    			request,
