@@ -32,6 +32,8 @@ import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.report.FieldValue;
+import net.conselldemallorca.helium.webapp.mvc.JasperReportsView;
+import net.conselldemallorca.helium.webapp.mvc.ExpedientConsultaDissenyController.ExpedientConsultaDissenyCommand;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.PaginatedList;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
@@ -220,7 +222,13 @@ public class ExpedientConsultaDissenyController extends BaseController {
 					session.setAttribute(VARIABLE_SESSIO_FILTRE_COMMAND, command);
 				}
 			} else if ("informe".equals(submit)) {
-				return "redirect:/expedient/consultaDissenyInforme.html";
+				if (result.hasErrors()) {
+					populateModelCommon(entorn, model, commandSeleccio);
+					return "expedient/consultaDisseny";
+				} else {
+					session.setAttribute(VARIABLE_SESSIO_FILTRE_COMMAND, command);
+					return "redirect:/expedient/consultaDissenyInforme.html";
+				}
 			} else if ("netejar".equals(submit)) {
 				session.removeAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);
 			}
@@ -241,7 +249,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			ExpedientConsultaDissenyCommand commandSeleccio =
 				(ExpedientConsultaDissenyCommand)model.get("commandSeleccioConsulta");
 			populateModelCommon(entorn, model, commandSeleccio);
-			Object commandFiltre = model.get("commandFiltre");
+			Object commandFiltre = session.getAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);
 			if (commandFiltre != null) {
 				Consulta consulta = dissenyService.getConsultaById(commandSeleccio.getConsultaId());
 				if (consulta.getInformeNom() != null) {

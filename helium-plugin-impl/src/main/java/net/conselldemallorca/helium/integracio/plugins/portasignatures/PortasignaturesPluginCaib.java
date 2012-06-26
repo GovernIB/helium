@@ -156,20 +156,21 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 					AttachmentPart attach = (AttachmentPart)attachs.next();
 					DataHandler dataHandler = attach.getActivationDataHandler();
 					if (dataHandler != null) {
-						attach.detachAttachmentFile();
+						//attach.detachAttachmentFile();
 						byte[] bytes = new byte[dataHandler.getInputStream().available()];
 						dataHandler.getInputStream().read(bytes);
 						if (bytes.length == 0) {
 							throw new PortasignaturesPluginException("El contingut de la signatura es buit");
 						}
 						resposta.add(bytes);
-						return resposta;
 					} else {
 						throw new PortasignaturesPluginException("El contingut de la signatura es null");
 					}
+					attach.dispose();
 				} else {
 					throw new PortasignaturesPluginException("La resposta no ha retornat cap signatura");
 				}
+				return resposta;
 			} else {
 				throw new PortasignaturesPluginException("Error obtenint les signatures del portasignatures: " + response.getResult().getMessage());
 			}
@@ -263,7 +264,7 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 			List<Annex> anxs = new ArrayList<Annex>();
 			for (DocumentPortasignatures annex: annexos) {
 				Annex anx = new Annex();
-				anx.setDescription(annex.getTitol());
+				anx.setDescription(limitarString(annex.getTitol(), 250));
 				anx.setExtension(getDocumentArxiuExtensio(annex.getArxiuNom()));
 				anx.setReference(annex.getReference());
 				anxs.add(anx);

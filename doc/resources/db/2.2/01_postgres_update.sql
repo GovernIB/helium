@@ -9,7 +9,7 @@ create table hel_consulta_sub (
     fill_id bigint not null
 );
 alter table hel_consulta_sub
-    add constraint hel_consulta_sub_pkey primary_key (pare_id, fill_id);
+    add constraint hel_consulta_sub_pkey primary key (pare_id, fill_id);
 alter table hel_consulta_sub
     add constraint hel_pare_consultasub_fk foreign key (pare_id) references hel_consulta(id);
 alter table hel_consulta_sub
@@ -28,10 +28,10 @@ insert into hel_versio (
     data_execucio_script)
 select
     nextval('hibernate_sequence') id,
-    '2.2.0' codi,
-    220 ordre,
+    '2.2.1' codi,
+    221 ordre,
     'now' data_creacio,
     false proces_executat,
     true script_executat,
     'now' data_execucio_script
-where (select count(*) from hel_versio where ordre = 220) = 0;
+where (select count(*) from hel_versio where ordre = 221) = 0;

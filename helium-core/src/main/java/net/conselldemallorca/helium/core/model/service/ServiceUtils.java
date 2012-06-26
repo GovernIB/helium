@@ -178,11 +178,26 @@ public class ServiceUtils {
 					resposta.add(campDao.findAmbDefinicioProcesICodi(
 							definicioProces.getId(),
 							camp.getCampCodi()));
+				} else {
+					resposta.add(
+							new Camp(
+									null,
+									camp.getCampCodi(),
+									TipusCamp.STRING,
+									camp.getCampCodi()));
 				}
 			} else {
 				Camp campExpedient = getCampExpedient(camp.getCampCodi());
-				if (campExpedient != null)
+				if (campExpedient != null) {
 					resposta.add(campExpedient);
+				} else {
+					resposta.add(
+							new Camp(
+									null,
+									camp.getCampCodi(),
+									TipusCamp.STRING,
+									camp.getCampCodi()));
+				}
 			}
 		}
 		return resposta;

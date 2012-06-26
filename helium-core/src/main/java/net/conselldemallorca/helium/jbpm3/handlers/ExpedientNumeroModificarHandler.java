@@ -52,12 +52,12 @@ public class ExpedientNumeroModificarHandler extends AbstractHeliumActionHandler
 							expedient.getResponsableCodi(),
 							expedient.getDataInici(),
 							expedient.getComentari(),
-							expedient.getEstat().getId(),
+							(expedient.getEstat() != null) ? expedient.getEstat().getId() : null,
 							expedient.getGeoPosX(),
 							expedient.getGeoPosY(),
 							expedient.getGeoReferencia());
 				} else {
-					throw new JbpmException("Ja existeix un altre expedient del tipus " + expedient.getTipus().getCodi() + " amb el número " + n);
+					throw new JbpmException("Ja existeix un altre expedient d'aquest tipus (" + expedient.getTipus().getCodi() + ") amb el número " + n);
 				}
 			} else {
 				throw new JbpmException("No s'ha trobat l'expedient per canviar el número");

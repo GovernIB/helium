@@ -317,8 +317,8 @@ public class TascaController extends BaseController {
 		        			request,
 		        			getMessage("error.finalitzar.tasca"),
 		        			(ex.getCause() != null) ? ex.getCause().getMessage() : ex.getMessage());
+					logger.error("No s'ha pogut finalitzar la tasca", ex);
 				}
-	        	logger.error("No s'ha pogut finalitzar la tasca", ex);
 	        	if ("info".equals(pipella)) {
 	        		return "redirect:/tasca/info.html?id=" + tasca.getId();
 	        	} else if ("form".equals(pipella)) {

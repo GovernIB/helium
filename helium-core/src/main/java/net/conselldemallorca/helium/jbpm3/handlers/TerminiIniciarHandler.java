@@ -89,7 +89,7 @@ public class TerminiIniciarHandler extends AbstractHeliumActionHandler implement
 		} else {
 			data = new Date();
 		}
-		if (sumarUnDia != null && sumarUnDia.length() > 0) {
+		if (!esDataFi() && sumarUnDia != null && sumarUnDia.length() > 0) {
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(data);
 			cal.add(Calendar.DAY_OF_MONTH, 1);

@@ -39,8 +39,6 @@ public class UpdateService {
 
 	public static final String VERSIO_210_STR = "2.1.0";
 	public static final int VERSIO_210_ORDRE = 210;
-	public static final String VERSIO_211_STR = "2.1.1";
-	public static final int VERSIO_211_ORDRE = 211;
 	public static final String VERSIO_220_STR = "2.2.0";
 	public static final int VERSIO_220_ORDRE = 220;
 	public static final String VERSIO_221_STR = "2.2.1";
@@ -84,8 +82,15 @@ public class UpdateService {
 			}
 		}
 		Versio darrera = versioDao.findLast();
-		if (darrera.getOrdre() < 221) {
-			actualitzarV221();
+		boolean actualitzat = true;
+		if (actualitzat && darrera.getOrdre() < 210) {
+			actualitzat = actualitzarV210();
+		}
+		if (actualitzat && darrera.getOrdre() < 220) {
+			actualitzat = actualitzarV220();
+		}
+		if (actualitzat && darrera.getOrdre() < 221) {
+			actualitzat = actualitzarV221();
 		}
 	}
 
@@ -162,7 +167,8 @@ public class UpdateService {
 		boolean actualitzat = false;
 		Versio versio210 = obtenirOCrearVersio(VERSIO_210_STR, VERSIO_210_ORDRE);
 		if (!versio210.isScriptExecutat()) {
-			errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_210_STR + ": " + getMessage("error.update.script.ko");
+			if (errorUpdate == null)
+				errorUpdate = getMessage("error.update.actualitzar.versio") + " " + VERSIO_210_STR + ": " + getMessage("error.update.script.ko");
 		} else if (!versio210.isProcesExecutat()) {
 			try {
 				canviarMapeigSistraV210();
@@ -247,9 +253,10 @@ public class UpdateService {
 
 	private boolean actualitzarV220() {
 		boolean actualitzat = false;
-		Versio versio220 = obtenirOCrearVersio(VERSIO_210_STR, VERSIO_220_ORDRE);
+		Versio versio220 = obtenirOCrearVersio(VERSIO_220_STR, VERSIO_220_ORDRE);
 		if (!versio220.isScriptExecutat()) {
-			errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_220_STR + ": " + getMessage("error.update.script.ko");
+			if (errorUpdate == null)
+				errorUpdate = getMessage("error.update.actualitzar.versio") + " " + VERSIO_220_STR + ": " + getMessage("error.update.script.ko");
 		} else if (!versio220.isProcesExecutat()) {
 			try {
 				versio220.setProcesExecutat(true);
@@ -269,7 +276,8 @@ public class UpdateService {
 		boolean actualitzat = false;
 		Versio versio221 = obtenirOCrearVersio(VERSIO_221_STR, VERSIO_221_ORDRE);
 		if (!versio221.isScriptExecutat()) {
-			errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_221_STR + ": " + getMessage("error.update.script.ko");
+			if (errorUpdate == null)
+				errorUpdate = getMessage("error.update.actualitzar.versio") + " " + VERSIO_221_STR + ": " + getMessage("error.update.script.ko");
 		} else if (!versio221.isProcesExecutat()) {
 			try {
 				actualitzarOrdreValorsEnumeracionsV221();
