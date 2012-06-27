@@ -102,21 +102,40 @@ public class TascaRegistreController extends CommonRegistreController {
 	}
 
 	@Override
-	public void esborrarRegistre(HttpServletRequest request, String id, String campCodi, int index) {
-		tascaService.esborrarRegistre(id, campCodi, index);
+	public void esborrarRegistre(
+			HttpServletRequest request,
+			String id,
+			String campCodi,
+			int index) {
+		Entorn entorn = getEntornActiu(request);
+		tascaService.esborrarRegistre(entorn.getId(), id, campCodi, index);
 	}
 	@Override
-	public Object[] getValorRegistre(HttpServletRequest request, Long entornId, String id, String campCodi) {
+	public Object[] getValorRegistre(
+			HttpServletRequest request,
+			Long entornId,
+			String id,
+			String campCodi) {
 		return (Object[])tascaService.getVariable(entornId, id, campCodi);
 	}
 	@Override
-	public void guardarRegistre(HttpServletRequest request, String id, String campCodi, Object[] valors,
+	public void guardarRegistre(
+			HttpServletRequest request,
+			String id,
+			String campCodi,
+			Object[] valors,
 			int index) {
-		tascaService.guardarRegistre(id, campCodi, valors, index);
+		Entorn entorn = getEntornActiu(request);
+		tascaService.guardarRegistre(entorn.getId(), id, campCodi, valors, index);
 	}
 	@Override
-	public void guardarRegistre(HttpServletRequest request, String id, String campCodi, Object[] valors) {
-		tascaService.guardarRegistre(id, campCodi, valors);
+	public void guardarRegistre(
+			HttpServletRequest request,
+			String id,
+			String campCodi,
+			Object[] valors) {
+		Entorn entorn = getEntornActiu(request);
+		tascaService.guardarRegistre(entorn.getId(), id, campCodi, valors);
 	}
 	@Override
 	public String redirectUrl(String id, String campCodi) {

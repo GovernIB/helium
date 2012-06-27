@@ -3,6 +3,12 @@
  */
 package net.conselldemallorca.helium.jbpm3.integracio;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import net.conselldemallorca.helium.jbpm3.handlers.AccioExternaRetrocedirHandler;
+
+import org.jbpm.JbpmConfiguration;
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractBaseCommand;
 import org.jbpm.graph.def.Action;
@@ -21,6 +27,7 @@ public class ExecuteActionCommand extends AbstractBaseCommand {
 	private long id;
 	private String actionName;
 	private boolean isTaskInstance = false;
+	private boolean goBack = false;
 
 	public ExecuteActionCommand(
 			long id,
@@ -31,16 +38,28 @@ public class ExecuteActionCommand extends AbstractBaseCommand {
 	}
 
 	public Object execute(JbpmContext jbpmContext) throws Exception {
-		if (!isTaskInstance) {
-			ProcessInstance pi = jbpmContext.getProcessInstance(id);
-			Action action = pi.getProcessDefinition().getAction(actionName);
-			action.execute(new ExecutionContext(pi.getRootToken()));
+		Action action = null;
+		TaskInstance ti = null;
+		ProcessInstance pi = null;
+		if (isTaskInstance) {
+			ti = jbpmContext.getTaskInstance(id);
+			action = ti.getTaskMgmtInstance().getProcessInstance().getProcessDefinition().getAction(actionName);
 		} else {
-			TaskInstance ti = jbpmContext.getTaskInstance(id);
-			ExecutionContext ec = new ExecutionContext(ti.getToken());
-			ec.setTaskInstance(ti);
-			Action action = ti.getProcessInstance().getProcessDefinition().getAction(actionName);
-			action.execute(ec);
+			pi = jbpmContext.getProcessInstance(id);
+			action = pi.getProcessDefinition().getAction(actionName);
+		}
+		if (!goBack) {
+			if (isTaskInstance) {
+				ExecutionContext ec = new ExecutionContext(ti.getToken());
+				ec.setTaskInstance(ti);
+				ti.getTask().executeAction(action, ec);
+			} else {
+				pi.getProcessDefinition().executeAction(
+						action,
+						new ExecutionContext(pi.getRootToken()));
+			}
+		} else {
+			executeGoBack(action, new ExecutionContext(pi.getRootToken()));
 		}
 		return null;
 	}
@@ -63,16 +82,32 @@ public class ExecuteActionCommand extends AbstractBaseCommand {
 	public void setTaskInstance(boolean isTaskInstance) {
 		this.isTaskInstance = isTaskInstance;
 	}
+	public boolean isGoBack() {
+		return goBack;
+	}
+	public void setGoBack(boolean goBack) {
+		this.goBack = goBack;
+	}
 
 	@Override
 	public String getAdditionalToStringInformation() {
-	    return "id=" + id;
+	    return "id=" + id + ", actionName=" + actionName;
 	}
 
-	//methods for fluent programming
-	public ExecuteActionCommand id(long id) {
-		setId(id);
-	    return this;
+	public void executeGoBack(Action action, ExecutionContext context) throws Exception {
+		if (action.getActionDelegation() != null) {
+			ClassLoader surroundingClassLoader = Thread.currentThread().getContextClassLoader();
+			try {
+				Thread.currentThread().setContextClassLoader(JbpmConfiguration.getProcessClassLoader(context.getProcessDefinition()));
+				Object actionHandler = action.getActionDelegation().getInstance();
+				if (actionHandler instanceof AccioExternaRetrocedirHandler) {
+					List<String> params = new ArrayList<String>();
+					((AccioExternaRetrocedirHandler)actionHandler).retrocedir(params);
+				}
+			} finally {
+				Thread.currentThread().setContextClassLoader(surroundingClassLoader);
+			}
+		}
 	}
 
 }

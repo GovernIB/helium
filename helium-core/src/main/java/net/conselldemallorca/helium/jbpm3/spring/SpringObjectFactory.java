@@ -26,7 +26,7 @@ public class SpringObjectFactory implements ObjectFactory, ApplicationContextAwa
 	}
 
 	public Object createObject(String objectName) {
-		if (applicationContext.containsBean(objectName)) {
+		if (applicationContext.containsBean(objectName)) { 
 			return applicationContext.getBean(objectName);
 		} else if (jbpmObjectFactory.hasObject(objectName)) {
 			return jbpmObjectFactory.createObject(objectName);

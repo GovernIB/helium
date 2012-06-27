@@ -14,7 +14,6 @@ import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.service.DocumentService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
-import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
@@ -39,7 +38,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Controller
 public class SignaturaController extends BaseController {
 
-	private TascaService tascaService;
 	private ExpedientService expedientService;
 	private DocumentService documentService;
 
@@ -47,10 +45,8 @@ public class SignaturaController extends BaseController {
 
 	@Autowired
 	public SignaturaController(
-			TascaService tascaService,
 			ExpedientService expedientService,
 			DocumentService documentService) {
-		this.tascaService = tascaService;
 		this.expedientService = expedientService;
 		this.documentService = documentService;
 	}
@@ -65,12 +61,17 @@ public class SignaturaController extends BaseController {
 			try {
 				ObjectInputStream inputFromApplet = new ObjectInputStream(multipartFile.getInputStream());
 				Object[] resposta = (Object[])inputFromApplet.readObject();
-				tascaService.signarDocumentAmbToken(
-						entorn.getId(),
-						(String)resposta[0],
+				String token = (String)resposta[0];
+				boolean signat = documentService.signarDocumentTascaAmbToken(
+						token,
 						(byte[])resposta[2]);
-				logger.info("Firma del document amb el token " + resposta[0] + " processada correctament");
-				response.getWriter().write("OK");
+				if (signat) {
+					logger.info("Signatura del document amb el token " + token + " processada correctament");
+					response.getWriter().write("OK");
+				} else {
+					logger.error("Signatura del document amb el token " + token + " processada amb error");
+					response.getWriter().write("KO");
+				}
 			} catch(Exception ex) {
 				logger.error("Error rebent la firma del document", ex);
 				throw new ServletException(ex);
@@ -94,11 +95,10 @@ public class SignaturaController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			try {
-				boolean custodiat = tascaService.signarDocumentAmbToken(
-						entorn.getId(),
+				boolean signat = documentService.signarDocumentTascaAmbToken(
 						token,
 						Base64.decodeBase64(data.getBytes()));
-				if (custodiat) {
+				if (signat) {
 					logger.info("Signatura del document amb el token " + token + " processada correctament");
 					missatgeInfo(request, getMessage("info.signatura.doc.processat") );
 				} else {
@@ -126,13 +126,9 @@ public class SignaturaController extends BaseController {
 		try {
 			DocumentDto document = null;
 			if (id != null)
-				document = expedientService.getDocument(
-						id,
-						false,
-						false,
-						false);
+				document = documentService.documentInfo(id);
 			else if (token != null)
-				document = documentService.arxiuDocumentInfo(token);
+				document = documentService.documentInfoPerToken(token);
 			model.addAttribute("document", document);
 			model.addAttribute(
 					"instanciaProces",
@@ -155,7 +151,7 @@ public class SignaturaController extends BaseController {
 			ModelMap model) throws ServletException {
 		if (isVerificacioExternaActiva()) {
 			try {
-				DocumentDto document = documentService.arxiuDocumentInfo(token);
+				DocumentDto document = documentService.documentInfoPerToken(token);
 				if (document != null) {
 					model.addAttribute("document", document);
 					model.addAttribute(
@@ -184,7 +180,7 @@ public class SignaturaController extends BaseController {
 			ModelMap model) throws ServletException {
 		if (request.getUserPrincipal() != null || isVerificacioExternaActiva()) {
 			try {
-				DocumentDto document = documentService.arxiuDocumentInfo(token);
+				DocumentDto document = documentService.documentInfoPerToken(token);
 				if (document != null && document.isSignat()) {
 					ArxiuDto arxiu = documentService.arxiuDocumentPerMostrar(token);
 					if (arxiu != null) {

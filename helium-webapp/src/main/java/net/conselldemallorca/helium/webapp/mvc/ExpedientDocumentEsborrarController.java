@@ -9,6 +9,7 @@ import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.service.DocumentService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
@@ -34,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class ExpedientDocumentEsborrarController extends BaseController {
 
 	private ExpedientService expedientService;
+	private DocumentService documentService;
 	private PermissionService permissionService;
 
 
@@ -41,8 +43,10 @@ public class ExpedientDocumentEsborrarController extends BaseController {
 	@Autowired
 	public ExpedientDocumentEsborrarController(
 			ExpedientService expedientService,
+			DocumentService documentService,
 			PermissionService permissionService) {
 		this.expedientService = expedientService;
+		this.documentService = documentService;
 		this.permissionService = permissionService;
 	}
 
@@ -57,13 +61,12 @@ public class ExpedientDocumentEsborrarController extends BaseController {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (potModificarExpedient(expedient)) {
 				try {
-					DocumentDto doc = expedientService.getDocument(
-							docId,
-							false,
-							false,
-							false);
+					DocumentDto doc = documentService.documentInfo(docId);
 					if (!doc.isSignat() && !doc.isRegistrat()) {
-						expedientService.deleteDocument(id, docId);
+						documentService.esborrarDocument(
+								null,
+								id,
+								doc.getDocumentCodi());
 						missatgeInfo(request, getMessage("info.doc.proces.esborrat") );
 					} else if (doc.isSignat()) {
 						missatgeError(request, getMessage("error.esborrar.doc.signat") );
@@ -95,11 +98,7 @@ public class ExpedientDocumentEsborrarController extends BaseController {
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
 			if (potModificarExpedient(expedient)) {
-				DocumentDto document = expedientService.getDocument(
-						docId,
-						false,
-						false, 
-						false);
+				DocumentDto document = documentService.documentInfo(docId);
 				if (document != null) {
 					if (document.isSignat()) {
 						try {

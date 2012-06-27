@@ -5,9 +5,10 @@ package net.conselldemallorca.helium.jbpm3.handlers;
 
 import java.util.Date;
 
+import net.conselldemallorca.helium.core.model.dto.ArxiuDto;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
-import net.conselldemallorca.helium.core.model.service.TascaService;
+import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 
 import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
@@ -35,7 +36,7 @@ public class DocumentAdjuntarHandler extends AbstractHeliumActionHandler impleme
 		String dor = (String)getValorOVariable(executionContext, documentOrigen, varDocumentOrigen);
 		if (dor == null)
 			throw new JbpmException("No s'ha especificat cap document origen");
-		String varCodi = TascaService.PREFIX_DOCUMENT + dor;
+		String varCodi = DocumentHelper.PREFIX_VAR_DOCUMENT + dor;
 		Object valor = executionContext.getVariable(varCodi);
 		if (valor != null && valor instanceof Long) {
 			Long id = (Long)valor;
@@ -44,28 +45,26 @@ public class DocumentAdjuntarHandler extends AbstractHeliumActionHandler impleme
 				String processInstanceId = new Long(executionContext.getProcessInstance().getId()).toString();
 				String tit = (String)getValorOVariable(executionContext, titol, varTitol);
 				String adjuntTitol;
-				DocumentDto document = getExpedientService().getDocument(
-						docStore.getId(),
-						true,
-						false,
-						false);
+				DocumentDto document = getDocumentService().documentInfo(docStore.getId());
 				if (isConcatenarTitol()) {
 					adjuntTitol = document.getDocumentNom() + " " + tit;
 				} else {
 					adjuntTitol = tit;
 				}
 				Date adjuntData = getValorOVariableData(executionContext, data, varData);
-				getExpedientService().guardarAdjunt(
+				ArxiuDto arxiu = getDocumentService().arxiuDocumentPerMostrar(docStore.getId());
+				getDocumentService().guardarAdjunt(
 						processInstanceId,
 						null,
 						adjuntTitol,
 						(adjuntData != null) ? adjuntData : docStore.getDataDocument(),
-						document.getArxiuNom(),
-						document.getArxiuContingut());
+						arxiu.getNom(),
+						arxiu.getContingut());
 				if (isEsborrarDocument()) {
-					getExpedientService().deleteDocument(
+					getDocumentService().esborrarDocument(
+							null,
 							processInstanceId,
-							docStore.getId());
+							document.getDocumentCodi());
 				}
 			} else {
 				throw new JbpmException("No s'ha trobat el contingut del document especificat(" + dor + ")");

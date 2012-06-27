@@ -15,6 +15,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
+import net.conselldemallorca.helium.core.model.service.DocumentService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
@@ -52,6 +53,7 @@ import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 public class ExpedientDocumentModificarController extends BaseController {
 
 	private DissenyService dissenyService;
+	private DocumentService documentService;
 	private ExpedientService expedientService;
 	private PermissionService permissionService;
 
@@ -60,9 +62,11 @@ public class ExpedientDocumentModificarController extends BaseController {
 	@Autowired
 	public ExpedientDocumentModificarController(
 			DissenyService dissenyService,
+			DocumentService documentService,
 			ExpedientService expedientService,
 			PermissionService permissionService) {
 		this.dissenyService = dissenyService;
+		this.documentService = documentService;
 		this.expedientService = expedientService;
 		this.permissionService = permissionService;
 	}
@@ -75,11 +79,7 @@ public class ExpedientDocumentModificarController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			DocumentExpedientCommand command = new DocumentExpedientCommand();
-			DocumentDto dto = expedientService.getDocument(
-					docId,
-					false,
-					false,
-					false);
+			DocumentDto dto = documentService.documentInfo(docId);
 			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, false);
 			Document document = dissenyService.findDocumentAmbDefinicioProcesICodi(
 					instanciaProces.getDefinicioProces().getId(),
@@ -105,17 +105,13 @@ public class ExpedientDocumentModificarController extends BaseController {
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (potModificarExpedient(expedient)) {
-				DocumentDto doc = expedientService.getDocument(
-						docId,
-						false,
-						false,
-						false);
+				DocumentDto doc = documentService.documentInfo(docId);
 				if (!doc.isSignat()) {
 					model.addAttribute("expedient", expedient);
 					model.addAttribute("document", doc);
 					model.addAttribute(
 							"documentDisseny",
-							dissenyService.getDocumentById(docId));
+							dissenyService.getDocumentById(doc.getDocumentId()));
 					return "expedient/documentForm";
 				} else {
 					missatgeError(request, getMessage("error.modificar.doc.signat") );
@@ -150,28 +146,22 @@ public class ExpedientDocumentModificarController extends BaseController {
 			        	model.addAttribute("expedient", expedient);
 						model.addAttribute(
 								"document",
-								expedientService.getDocument(
-										command.getDocId(),
-										false,
-										false,
-										false));
+								documentService.documentInfo(command.getDocId()));
 			        	return "expedient/documentForm";
 			        }
 					try {
-						DocumentDto doc = expedientService.getDocument(
-								command.getDocId(),
-								false,
-								false,
-								false);
+						DocumentDto doc = documentService.documentInfo(command.getDocId());
 						if (!doc.isAdjunt()) {
-							expedientService.guardarDocument(
+							documentService.guardarDocumentProces(
 									id,
-									doc.getDocumentId(),
+									doc.getDocumentCodi(),
+									null,
 									command.getData(),
 									(multipartFile.getSize() > 0) ? multipartFile.getOriginalFilename() : null,
-									(multipartFile.getSize() > 0) ? command.getContingut() : null);
+									(multipartFile.getSize() > 0) ? command.getContingut() : null,
+									false);
 						} else {
-							expedientService.guardarAdjunt(
+							documentService.guardarAdjunt(
 									id,
 									doc.getAdjuntId(),
 									command.getNom(),
@@ -206,15 +196,14 @@ public class ExpedientDocumentModificarController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			try {
-				DocumentDto doc = expedientService.getDocument(
-						docId,
-						false,
-						false,
-						false);
-				DocumentDto generat = expedientService.generarDocumentPlantilla(
+				DocumentDto doc = documentService.documentInfo(docId);
+				DocumentDto generat = documentService.generarDocumentPlantilla(
+						entorn.getId(),
 						doc.getDocumentId(),
+						null,
 						id,
-						(data != null) ? data : new Date());
+						(data != null) ? data : new Date(),
+						false);
 				if (generat != null) {
 					model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, generat.getArxiuNom());
 					model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, generat.getArxiuContingut());

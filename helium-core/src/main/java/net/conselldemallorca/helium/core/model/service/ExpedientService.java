@@ -3,7 +3,6 @@
  */
 package net.conselldemallorca.helium.core.model.service;
 
-import java.io.ByteArrayOutputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -19,18 +18,19 @@ import java.util.UUID;
 
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.model.dao.AccioDao;
+import net.conselldemallorca.helium.core.model.dao.AreaJbpmIdDao;
+import net.conselldemallorca.helium.core.model.dao.AreaMembreDao;
 import net.conselldemallorca.helium.core.model.dao.CampDao;
 import net.conselldemallorca.helium.core.model.dao.ConsultaCampDao;
 import net.conselldemallorca.helium.core.model.dao.ConsultaDao;
 import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
-import net.conselldemallorca.helium.core.model.dao.DocumentDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentStoreDao;
 import net.conselldemallorca.helium.core.model.dao.EntornDao;
 import net.conselldemallorca.helium.core.model.dao.EstatDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
+import net.conselldemallorca.helium.core.model.dao.ExpedientLogDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientTipusDao;
 import net.conselldemallorca.helium.core.model.dao.LuceneDao;
-import net.conselldemallorca.helium.core.model.dao.PlantillaDocumentDao;
 import net.conselldemallorca.helium.core.model.dao.PluginCustodiaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginGestioDocumentalDao;
 import net.conselldemallorca.helium.core.model.dao.PluginGisDao;
@@ -45,6 +45,7 @@ import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
+import net.conselldemallorca.helium.core.model.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
@@ -53,25 +54,26 @@ import net.conselldemallorca.helium.core.model.exception.DominiException;
 import net.conselldemallorca.helium.core.model.exception.ExpedientRepetitException;
 import net.conselldemallorca.helium.core.model.exception.IllegalArgumentsException;
 import net.conselldemallorca.helium.core.model.exception.NotFoundException;
-import net.conselldemallorca.helium.core.model.exception.TemplateException;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
+import net.conselldemallorca.helium.core.model.hibernate.AreaMembre;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.acl.AclServiceDao;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
 import net.conselldemallorca.helium.integracio.plugins.gis.DadesExpedient;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarEventRequest;
@@ -85,7 +87,6 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -107,8 +108,6 @@ public class ExpedientService {
 	private ExpedientTipusDao expedientTipusDao;
 	private DefinicioProcesDao definicioProcesDao;
 	private EntornDao entornDao;
-	private DocumentDao documentDao;
-	private PlantillaDocumentDao plantillaDocumentDao;
 	private DocumentStoreDao documentStoreDao;
 	private EstatDao estatDao;
 	private LuceneDao luceneDao;
@@ -124,13 +123,18 @@ public class ExpedientService {
 	private PluginSignaturaDao pluginSignaturaDao;
 	private PluginPersonaDao pluginPersonaDao;
 	private PluginGisDao pluginGisDao;
+	private ExpedientLogDao expedientLogDao;
+	private AreaMembreDao areaMembreDao;
+	private AreaJbpmIdDao areaJbpmIdDao;
 
 	private JbpmDao jbpmDao;
 	private AclServiceDao aclServiceDao;
 	private DtoConverter dtoConverter;
 	private MessageSource messageSource;
 
-	private OpenOfficeUtils openOfficeUtils;
+	private DocumentHelper documentHelper;
+	private ExpedientLogHelper expedientLogHelper;
+
 	private ServiceUtils serviceUtils;
 
 
@@ -293,27 +297,39 @@ public class ExpedientService {
 		if (documents != null){
 			for (Map.Entry<String, DadesDocumentDto> doc: documents.entrySet()) {
 				if (doc.getValue() != null) {
-					guardarDocument(
-							expedient.getProcessInstanceId(), 
-							doc.getValue().getIdDocument(), 
+					documentHelper.actualitzarDocument(
+							null,
+							expedient.getProcessInstanceId(),
+							doc.getValue().getCodi(), 
+							null,
 							doc.getValue().getData(), 
 							doc.getValue().getArxiuNom(), 
-							doc.getValue().getArxiuContingut());
+							doc.getValue().getArxiuContingut(),
+							false);
 				}
 			}
 		}
 		// Afegim els adjunts
 		if (adjunts != null) {
 			for (DadesDocumentDto adjunt: adjunts) {
-				guardarAdjunt(
-						expedient.getProcessInstanceId(), 
-						null, 
+				String documentCodi = new Long(new Date().getTime()).toString();
+				documentHelper.actualitzarDocument(
+						null,
+						expedient.getProcessInstanceId(),
+						documentCodi,
 						adjunt.getTitol(),
 						adjunt.getData(), 
 						adjunt.getArxiuNom(), 
-						adjunt.getArxiuContingut());
+						adjunt.getArxiuContingut(),
+						true);
 			}
 		}
+		// Verificar la ultima vegada que l'expedient va modificar el seu estat
+		ExpedientLog log = expedientLogHelper.afegirLogExpedientPerProces(
+				processInstance.getId(),
+				ExpedientLogAccioTipus.EXPEDIENT_INICIAR,
+				null);
+		log.setEstat(ExpedientLogEstat.IGNORAR);
 		// Actualitza les variables del procés
 		jbpmDao.signalProcessInstance(expedient.getProcessInstanceId(), transitionName);
 		Map<String, Set<Camp>> mapCamps = getServiceUtils().getMapCamps(expedient);
@@ -364,7 +380,13 @@ public class ExpedientService {
 			Long estatId,
 			Double geoPosX,
 			Double geoPosY,
-			String geoReferencia) {
+			String geoReferencia,
+			String grupCodi) {
+		ExpedientLog elog = expedientLogHelper.afegirLogExpedientPerExpedient(
+				id,
+				ExpedientLogAccioTipus.EXPEDIENT_MODIFICAR,
+				null);
+		elog.setEstat(ExpedientLogEstat.IGNORAR);
 		Expedient expedient = expedientDao.findAmbEntornIId(entornId, id);
 		String informacioVella = getInformacioExpedient(expedient);
 		if (expedient.getTipus().getTeNumero())
@@ -381,6 +403,7 @@ public class ExpedientService {
 		expedient.setGeoPosX(geoPosX);
 		expedient.setGeoPosY(geoPosY);
 		expedient.setGeoReferencia(geoReferencia);
+		expedient.setGrupCodi(grupCodi);
 		Map<String, Set<Camp>> mapCamps = getServiceUtils().getMapCamps(expedient);
 		Map<String, Map<String, Object>> mapValors = getServiceUtils().getMapValors(expedient);
 		luceneDao.updateExpedient(
@@ -477,7 +500,8 @@ public class ExpedientService {
 				geoPosX,
 				geoPosY,
 				geoReferencia,
-				mostrarAnulats);
+				mostrarAnulats,
+				getAreesOGrupsPerUsuari());
 	}
 	public List<ExpedientDto> findAmbEntornConsultaGeneral(
 			Long entornId,
@@ -508,7 +532,8 @@ public class ExpedientService {
 				geoPosX,
 				geoPosY,
 				geoReferencia,
-				mostrarAnulats))
+				mostrarAnulats,
+				getAreesOGrupsPerUsuari()))
 			resposta.add(dtoConverter.toExpedientDto(expedient, false));
 		return resposta;
 	}
@@ -553,6 +578,7 @@ public class ExpedientService {
 				geoPosY,
 				geoReferencia,
 				mostrarAnulats,
+				getAreesOGrupsPerUsuari(),
 				firstRow,
 				maxResults,
 				sort,
@@ -767,6 +793,10 @@ public class ExpedientService {
 		return getServiceUtils().getVariableJbpmProcesValor(processInstanceId, varName);
 	}
 	public void createVariable(String processInstanceId, String varName, Object value) {
+		expedientLogHelper.afegirLogExpedientPerProces(
+				processInstanceId,
+				ExpedientLogAccioTipus.PROCES_VARIABLE_CREAR,
+				varName);
 		jbpmDao.setProcessInstanceVariable(processInstanceId, varName, value);
 		JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(processInstanceId);
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
@@ -787,6 +817,10 @@ public class ExpedientService {
 				value);
 	}
 	public void updateVariable(String processInstanceId, String varName, Object value) {
+		expedientLogHelper.afegirLogExpedientPerProces(
+				processInstanceId,
+				ExpedientLogAccioTipus.PROCES_VARIABLE_MODIFICAR,
+				varName);
 		Object valorVell = getServiceUtils().getVariableJbpmProcesValor(processInstanceId, varName);
 		jbpmDao.setProcessInstanceVariable(processInstanceId, varName, value);
 		JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(processInstanceId);
@@ -809,6 +843,10 @@ public class ExpedientService {
 				value);
 	}
 	public void deleteVariable(String processInstanceId, String varName) {
+		expedientLogHelper.afegirLogExpedientPerProces(
+				processInstanceId,
+				ExpedientLogAccioTipus.PROCES_VARIABLE_ESBORRAR,
+				varName);
 		jbpmDao.deleteProcessInstanceVariable(processInstanceId, varName);
 		JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(processInstanceId);
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
@@ -888,20 +926,7 @@ public class ExpedientService {
 		}
 	}
 
-	public DocumentDto getDocument(
-			Long documentStoreId,
-			boolean ambContingut,
-			boolean ambSignatura,
-			boolean ambVista) {
-		return dtoConverter.toDocumentDto(
-				documentStoreId,
-				ambContingut,
-				ambSignatura,
-				ambVista,
-				false,
-				false);
-	}
-	public Long guardarDocument(
+	/*public Long guardarDocument(
 			String processInstanceId,
 			Long documentId,
 			Date data,
@@ -912,7 +937,7 @@ public class ExpedientService {
 				processInstanceId,
 				document.getCodi(),
 				document.getNom(),
-				TascaService.PREFIX_DOCUMENT + document.getCodi(),
+				DocumentHelper.PREFIX_VAR_DOCUMENT + document.getCodi(),
 				data,
 				arxiuNom,
 				arxiuContingut,
@@ -941,7 +966,7 @@ public class ExpedientService {
 				processInstanceId,
 				document.getCodi(),
 				document.getNom(),
-				TascaService.PREFIX_DOCUMENT + document.getCodi(),
+				DocumentHelper.PREFIX_VAR_DOCUMENT + document.getCodi(),
 				data,
 				arxiuNom,
 				arxiuContingut,
@@ -953,9 +978,9 @@ public class ExpedientService {
 				registreOficinaNom,
 				registreEntrada);
 		
-	}
+	}*/
 
-	public DocumentDto generarDocumentPlantilla(
+	/*public DocumentDto generarDocumentPlantilla(
 			Long documentId,
 			String processInstanceId,
 			Date dataDocument) {
@@ -1028,9 +1053,9 @@ public class ExpedientService {
 			resposta.setArxiuContingut(document.getArxiuContingut());
 		}
 		return resposta;
-	}
+	}*/
 
-	public Long guardarAdjunt(
+	/*public Long guardarAdjunt(
 			String processInstanceId,
 			String adjuntId,
 			String adjuntTitol,
@@ -1042,7 +1067,7 @@ public class ExpedientService {
 				processInstanceId,
 				adId,
 				adjuntTitol,
-				TascaService.PREFIX_ADJUNT + adId,
+				DocumentHelper.PREFIX_ADJUNT + adId,
 				data,
 				arxiuNom,
 				arxiuContingut,
@@ -1053,8 +1078,8 @@ public class ExpedientService {
 				null,
 				null,
 				false);
-	}
-	public void deleteDocument(String processInstanceId, Long documentStoreId) {
+	}*/
+	/*public void deleteDocument(String processInstanceId, Long documentStoreId) {
 		DocumentStore documentStore = documentStoreDao.getById(documentStoreId, false);
 		if (documentStore != null) {
 			String jbpmVariable = documentStore.getJbpmVariable();
@@ -1074,7 +1099,7 @@ public class ExpedientService {
 					SecurityContextHolder.getContext().getAuthentication().getName(),
 					getVarNameFromDocumentStore(documentStore));
 		}
-	}
+	}*/
 
 	public void deleteSignatura(
 			String processInstanceId,
@@ -1165,7 +1190,14 @@ public class ExpedientService {
 			Long entornId,
 			String taskId,
 			String expression) {
+		String previousActors = expedientLogHelper.getActorsPerReassignacioTasca(taskId);
+		ExpedientLog expedientLog = expedientLogHelper.afegirLogExpedientPerProces(
+				taskId,
+				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
+				null);
 		jbpmDao.reassignTaskInstance(taskId, expression);
+		String currentActors = expedientLogHelper.getActorsPerReassignacioTasca(taskId);
+		expedientLog.setAccioParams(previousActors + "::" + currentActors);
 		registreDao.crearRegistreRedirigirTasca(
 				getExpedientPerTaskInstanceId(taskId).getId(),
 				taskId,
@@ -1175,6 +1207,11 @@ public class ExpedientService {
 	public void suspendreTasca(
 			Long entornId,
 			String taskId) {
+		JbpmTask task = jbpmDao.getTaskById(taskId);
+		expedientLogHelper.afegirLogExpedientPerProces(
+				task.getProcessInstanceId(),
+				ExpedientLogAccioTipus.TASCA_SUSPENDRE,
+				null);
 		jbpmDao.suspendTaskInstance(taskId);
 		registreDao.crearRegistreSuspendreTasca(
 				getExpedientPerTaskInstanceId(taskId).getId(),
@@ -1184,6 +1221,11 @@ public class ExpedientService {
 	public void reprendreTasca(
 			Long entornId,
 			String taskId) {
+		JbpmTask task = jbpmDao.getTaskById(taskId);
+		expedientLogHelper.afegirLogExpedientPerProces(
+				task.getProcessInstanceId(),
+				ExpedientLogAccioTipus.TASCA_CONTINUAR,
+				null);
 		jbpmDao.resumeTaskInstance(taskId);
 		registreDao.crearRegistreReprendreTasca(
 				getExpedientPerTaskInstanceId(taskId).getId(),
@@ -1193,6 +1235,11 @@ public class ExpedientService {
 	public void cancelarTasca(
 			Long entornId,
 			String taskId) {
+		JbpmTask task = jbpmDao.getTaskById(taskId);
+		expedientLogHelper.afegirLogExpedientPerProces(
+				task.getProcessInstanceId(),
+				ExpedientLogAccioTipus.TASCA_CANCELAR,
+				null);
 		jbpmDao.cancelTaskInstance(taskId);
 		registreDao.crearRegistreCancelarTasca(
 				getExpedientPerTaskInstanceId(taskId).getId(),
@@ -1221,21 +1268,22 @@ public class ExpedientService {
 
 	public void aturar(
 			String processInstanceId,
-			String motiu) {
-		aturar(processInstanceId, motiu, null);
-	}
-	public void aturar(
-			String processInstanceId,
 			String motiu,
 			String usuari) {
 		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(processInstanceId);
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
+		ExpedientLog expedientLog = expedientLogHelper.afegirLogExpedientPerExpedient(
+				expedient.getId(),
+				ExpedientLogAccioTipus.EXPEDIENT_ATURAR,
+				motiu);
+		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
 		List<JbpmProcessInstance> processInstancesTree = jbpmDao.getProcessInstanceTree(rootProcessInstance.getId());
 		String[] ids = new String[processInstancesTree.size()];
 		int i = 0;
 		for (JbpmProcessInstance pi: processInstancesTree)
 			ids[i++] = pi.getId();
 		jbpmDao.suspendProcessInstances(ids);
-		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
+		
 		expedient.setInfoAturat(motiu);
 		registreDao.crearRegistreAturarExpedient(
 				expedient.getId(),
@@ -1243,20 +1291,21 @@ public class ExpedientService {
 				motiu);
 	}
 	public void reprendre(
-			String processInstanceId) {
-		reprendre(processInstanceId, null);
-	}
-	public void reprendre(
 			String processInstanceId,
 			String usuari) {
 		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(processInstanceId);
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
+		ExpedientLog expedientLog = expedientLogHelper.afegirLogExpedientPerExpedient(
+				expedient.getId(),
+				ExpedientLogAccioTipus.EXPEDIENT_REPRENDRE,
+				null);
+		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
 		List<JbpmProcessInstance> processInstancesTree = jbpmDao.getProcessInstanceTree(rootProcessInstance.getId());
 		String[] ids = new String[processInstancesTree.size()];
 		int i = 0;
 		for (JbpmProcessInstance pi: processInstancesTree)
 			ids[i++] = pi.getId();
 		jbpmDao.resumeProcessInstances(ids);
-		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 		expedient.setInfoAturat(null);
 		registreDao.crearRegistreReprendreExpedient(
 				expedient.getId(),
@@ -1274,7 +1323,7 @@ public class ExpedientService {
 		String nodeNameVell = token.getNodeName();
 		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(token.getProcessInstanceId());
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
-		jbpmDao.tokenRedirect(tokenId, nodeName, cancelTasks);
+		jbpmDao.tokenRedirect(new Long(tokenId).longValue(), nodeName, cancelTasks);
 		registreDao.crearRegistreRedirigirToken(
 				expedient.getId(),
 				token.getProcessInstanceId(),
@@ -1297,13 +1346,7 @@ public class ExpedientService {
 
 	public List<RespostaValidacioSignatura> verificarSignatura(Long id) {
 		DocumentStore documentStore = documentStoreDao.getById(id, false);
-		DocumentDto document = dtoConverter.toDocumentDto(
-				id,
-				true,
-				false,
-				false,
-				false,
-				false);
+		DocumentDto document = documentHelper.getDocumentOriginal(id, true);
 		if (pluginCustodiaDao.potObtenirInfoSignatures()) {
 			return pluginCustodiaDao.dadesValidacioSignatura(
 					documentStore.getReferenciaCustodia());
@@ -1355,14 +1398,28 @@ public class ExpedientService {
 		JbpmProcessInstance processInstance = jbpmDao.getProcessInstance(processInstanceId);
 		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(processInstance.getProcessDefinitionId());
 		Accio accio = accioDao.findAmbDefinicioProcesICodi(definicioProces.getId(), accioCodi);
+		expedientLogHelper.afegirLogExpedientPerProces(
+				processInstance.getId(),
+				ExpedientLogAccioTipus.EXPEDIENT_ACCIO,
+				accio.getJbpmAction());
 		jbpmDao.executeActionInstanciaProces(
 				processInstanceId,
 				accio.getJbpmAction());
 	}
 
+	public DefinicioProces getDefinicioProcesPerProcessInstanceId(String processInstanceId) {
+		JbpmProcessInstance processInstance = jbpmDao.getProcessInstance(processInstanceId);
+		return definicioProcesDao.findAmbJbpmId(processInstance.getProcessDefinitionId());
+	}
+
 	public void createRelacioExpedient(
 			Long expedientIdOrigen,
 			Long expedientIdDesti) {
+		ExpedientLog expedientLog = expedientLogHelper.afegirLogExpedientPerExpedient(
+				expedientIdOrigen,
+				ExpedientLogAccioTipus.EXPEDIENT_RELACIO_AFEGIR,
+				expedientIdDesti.toString());
+		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
 		Expedient origen = expedientDao.getById(expedientIdOrigen, false);
 		Expedient desti = expedientDao.getById(expedientIdDesti, false);
 		boolean existeix = false;
@@ -1387,6 +1444,11 @@ public class ExpedientService {
 	public void deleteRelacioExpedient(
 			Long expedientIdOrigen,
 			Long expedientIdDesti) {
+		ExpedientLog expedientLog = expedientLogHelper.afegirLogExpedientPerExpedient(
+				expedientIdOrigen,
+				ExpedientLogAccioTipus.EXPEDIENT_RELACIO_ESBORRAR,
+				expedientIdDesti.toString());
+		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
 		Expedient origen = expedientDao.getById(expedientIdOrigen, false);
 		Expedient desti = expedientDao.getById(expedientIdDesti, false);
 		origen.removeRelacioOrigen(desti);
@@ -1410,6 +1472,75 @@ public class ExpedientService {
 		pluginTramitacioDao.publicarEvent(request);
 	}
 
+	public List<ExpedientLogDto> getLogsOrdenatsPerData(Long expedientId) {
+		List<ExpedientLogDto> resposta = new ArrayList<ExpedientLogDto>();
+		List<ExpedientLog> logs = expedientLogDao.findAmbExpedientIdOrdenatsPerData(expedientId);
+		for (ExpedientLog log: logs) {
+			ExpedientLogDto dto = new ExpedientLogDto();
+			dto.setId(log.getId());
+			dto.setData(log.getData());
+			dto.setUsuari(log.getUsuari());
+			dto.setEstat(log.getEstat().name());
+			dto.setAccioTipus(log.getAccioTipus().name());
+			dto.setAccioParams(log.getAccioParams());
+			dto.setTargetId(log.getTargetId());
+			dto.setTargetTasca(log.isTargetTasca());
+			dto.setTargetProces(log.isTargetProces());
+			dto.setTargetExpedient(log.isTargetExpedient());
+			resposta.add(dto);
+		}
+		return resposta;
+	}
+	public void retrocedirFinsLog(Long expedientLogId) {
+		ExpedientLog log = expedientLogDao.getById(expedientLogId, false);
+		ExpedientLog logRetroces = expedientLogHelper.afegirLogExpedientPerExpedient(
+				log.getExpedient().getId(),
+				ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR,
+				expedientLogId.toString());
+		expedientLogHelper.retrocedirFinsLog(expedientLogId);
+		logRetroces.setEstat(ExpedientLogEstat.IGNORAR);
+	}
+	public Map<String, TascaDto> getTasquesPerLogExpedient(Long expedientId) {
+		List<ExpedientLog> logs = expedientLogDao.findAmbExpedientIdOrdenatsPerData(expedientId);
+		Map<String, TascaDto> tasquesPerLogs = new HashMap<String, TascaDto>();
+		for (ExpedientLog log: logs) {
+			if (log.isTargetTasca()) {
+				JbpmTask task = jbpmDao.getTaskById(log.getTargetId());
+				if (task != null)
+					tasquesPerLogs.put(
+							log.getTargetId(),
+							dtoConverter.toTascaDto(
+									task,
+									null,
+									false,
+									false,
+									true,
+									true,
+									true));
+			}
+		}
+		return tasquesPerLogs;
+	}
+	public List<ExpedientLogDto> findLogsRetroceditsOrdenatsPerData(Long expedientLogId) {
+		List<ExpedientLog> logs = expedientLogHelper.findLogsRetrocedits(expedientLogId);
+		List<ExpedientLogDto> resposta = new ArrayList<ExpedientLogDto>();
+		for (ExpedientLog log: logs) {
+			ExpedientLogDto dto = new ExpedientLogDto();
+			dto.setId(log.getId());
+			dto.setData(log.getData());
+			dto.setUsuari(log.getUsuari());
+			dto.setEstat(log.getEstat().name());
+			dto.setAccioTipus(log.getAccioTipus().name());
+			dto.setAccioParams(log.getAccioParams());
+			dto.setTargetId(log.getTargetId());
+			dto.setTargetTasca(log.isTargetTasca());
+			dto.setTargetProces(log.isTargetProces());
+			dto.setTargetExpedient(log.isTargetExpedient());
+			resposta.add(dto);
+		}
+		return resposta;
+	}
+
 
 
 	@Autowired
@@ -1427,14 +1558,6 @@ public class ExpedientService {
 	@Autowired
 	public void setEntornDao(EntornDao entornDao) {
 		this.entornDao = entornDao;
-	}
-	@Autowired
-	public void setDocumentDao(DocumentDao documentDao) {
-		this.documentDao = documentDao;
-	}
-	@Autowired
-	public void setPlantillaDocumentDao(PlantillaDocumentDao plantillaDocumentDao) {
-		this.plantillaDocumentDao = plantillaDocumentDao;
 	}
 	@Autowired
 	public void setEstatDao(EstatDao estatDao) {
@@ -1516,6 +1639,28 @@ public class ExpedientService {
 	public void setMessageSource(MessageSource messageSource) {
 		this.messageSource = messageSource;
 	}
+	@Autowired
+	public void setExpedientLogHelper(ExpedientLogHelper expedientLogHelper) {
+		this.expedientLogHelper = expedientLogHelper;
+	}
+	@Autowired
+	public void setDocumentHelper(DocumentHelper documentHelper) {
+		this.documentHelper = documentHelper;
+	}
+	@Autowired
+	public void setExpedientLogDao(ExpedientLogDao expedientLogDao) {
+		this.expedientLogDao = expedientLogDao;
+	}
+	@Autowired
+	public void setAreaMembreDao(AreaMembreDao areaMembreDao) {
+		this.areaMembreDao = areaMembreDao;
+	}
+	@Autowired
+	public void setAreaJbpmIdDao(AreaJbpmIdDao areaJbpmIdDao) {
+		this.areaJbpmIdDao = areaJbpmIdDao;
+	}
+
+
 
 	@SuppressWarnings("rawtypes")
 	private Map<String, JbpmNodePosition> getNodePositions(String processInstanceId) {
@@ -1524,7 +1669,7 @@ public class ExpedientService {
 		byte[] gpdBytes = jbpmDao.getResourceBytes(jpd.getId(), "gpd.xml");
 		if (gpdBytes != null) {
 			try {
-				Element root = DocumentHelper.parseText(new String(gpdBytes)).getRootElement();
+				Element root = org.dom4j.DocumentHelper.parseText(new String(gpdBytes)).getRootElement();
 				Iterator it = root.elementIterator("node");
 				while (it.hasNext()) {
 					Element node = (Element)it.next();
@@ -1547,7 +1692,7 @@ public class ExpedientService {
 		byte[] gpdBytes = jbpmDao.getResourceBytes(jpd.getId(), "gpd.xml");
 		if (gpdBytes != null) {
 			try {
-				Element root = DocumentHelper.parseText(new String(gpdBytes)).getRootElement();
+				Element root = org.dom4j.DocumentHelper.parseText(new String(gpdBytes)).getRootElement();
 				return new int[] {
 						Integer.parseInt(root.attributeValue("width")),
 						Integer.parseInt(root.attributeValue("height"))};
@@ -1610,7 +1755,7 @@ public class ExpedientService {
 
 	
 
-	private Long createUpdateDocument(
+	/*private Long createUpdateDocument(
 				String processInstanceId,
 				String documentCodi,
 				String documentNom,
@@ -1689,7 +1834,7 @@ public class ExpedientService {
 					arxiuNom);
 		}
 		return docStoreId;
-	}
+	}*/
 
 	
 
@@ -1701,9 +1846,9 @@ public class ExpedientService {
 	private String getVarNameFromDocumentStore(DocumentStore documentStore) {
 		String jbpmVariable = documentStore.getJbpmVariable();
 		if (documentStore.isAdjunt())
-			return jbpmVariable.substring(TascaService.PREFIX_ADJUNT.length());
+			return jbpmVariable.substring(DocumentHelper.PREFIX_ADJUNT.length());
 		else
-			return jbpmVariable.substring(TascaService.PREFIX_DOCUMENT.length());
+			return jbpmVariable.substring(DocumentHelper.PREFIX_VAR_DOCUMENT.length());
 	}
 
 	private void comprovarUsuari(String usuari) {
@@ -1720,37 +1865,6 @@ public class ExpedientService {
 	
 	public URL getUrlVisor() {
 		return pluginGisDao.getUrlVisorPlugin();
-	}
-
-	private String nomArxiuAmbExtensio(String fileName, String extensio) {
-		if (extensio == null || extensio.length() == 0)
-			return fileName;
-		int indexPunt = fileName.lastIndexOf(".");
-		if (indexPunt != -1) {
-			String nom = fileName.substring(0, indexPunt);
-			return nom + "." + extensio;
-		} else {
-			return fileName + "." + extensio;
-		}
-	}
-
-	private boolean isActiuConversioVista() {
-		String actiuConversio = (String)GlobalProperties.getInstance().get("app.conversio.actiu");
-		if (!"true".equalsIgnoreCase(actiuConversio))
-			return false;
-		String actiuConversioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.actiu");
-		if (actiuConversioVista == null)
-			actiuConversioVista = (String)GlobalProperties.getInstance().get("app.conversio.gentasca.actiu");
-		return "true".equalsIgnoreCase(actiuConversioVista);
-	}
-	private String getExtensioVista() {
-		String extensioVista = null;
-		if (isActiuConversioVista()) {
-			extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.extension");
-			if (extensioVista == null)
-				extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.gentasca.extension");
-		}
-		return extensioVista;
 	}
 
 	private boolean isExpedientFinalitzat(Expedient expedient) {
@@ -1808,10 +1922,25 @@ public class ExpedientService {
 			return "Procés automàtic";
 	}
 
-	private OpenOfficeUtils getOpenOfficeUtils() {
-		if (openOfficeUtils == null)
-			openOfficeUtils = new OpenOfficeUtils();
-		return openOfficeUtils;
+	private String[] getAreesOGrupsPerUsuari() {
+		String usuariCodi = SecurityContextHolder.getContext().getAuthentication().getName();
+		if (esIdentitySourceHelium()) {
+			List<AreaMembre> membres = areaMembreDao.findAmbUsuariCodi(usuariCodi);
+			List<String> codisArea = new ArrayList<String>();
+			for (AreaMembre membre: membres) {
+				codisArea.add(membre.getArea().getCodi());
+			}
+			String[] resposta = codisArea.toArray(new String[membres.size()]);
+			return resposta;
+		} else {
+			List<String> codisArea = areaJbpmIdDao.findAmbUsuariCodi(usuariCodi);
+			String[] resposta = codisArea.toArray(new String[codisArea.size()]);
+			return resposta;
+		}
+	}
+	private boolean esIdentitySourceHelium() {
+		String identitySource = GlobalProperties.getInstance().getProperty("app.jbpm.identity.source");
+		return (identitySource.equalsIgnoreCase("helium"));
 	}
 
 	private ServiceUtils getServiceUtils() {

@@ -3,6 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 
 <html>
@@ -28,9 +29,21 @@ function confirmar(e) {
 	<c:import url="../common/tabsExpedientTipus.jsp">
 		<c:param name="tabActiu" value="enum"/>
 	</c:import>
+
+	<c:set var="tePermisosGestionar" value="${false}"/>
+	<security:accesscontrollist domainObject="${expedientTipus}" hasPermission="16,32">
+		<c:set var="tePermisosGestionar" value="${true}"/>
+	</security:accesscontrollist>
 	
 	<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable">
-		<display:column property="codi" titleKey="comuns.codi" sortable="true" url="/expedientTipus/enumeracioForm.html?expedientTipusId=${expedientTipus.id}" paramId="id" paramProperty="id"/>
+		<c:choose>
+			<c:when test="${tePermisosGestionar}">
+				<display:column property="codi" titleKey="comuns.codi" sortable="true" url="/expedientTipus/enumeracioForm.html?expedientTipusId=${expedientTipus.id}" paramId="id" paramProperty="id"/>
+			</c:when>
+			<c:otherwise>
+				<display:column property="codi" titleKey="comuns.codi" sortable="true"/>
+			</c:otherwise>
+		</c:choose>
 		<display:column property="nom" titleKey="comuns.titol" sortable="true"/>
 		<display:column>
 			<form action="enumeracioValors.html">
@@ -39,16 +52,20 @@ function confirmar(e) {
 				<button type="submit" class="submitButton"><fmt:message key="enumeracio.llistat.valors"/>&nbsp;(${fn:length(registre.enumeracioValors)})</button>
 			</form>
 		</display:column>
-		<display:column>
-			<a href="<c:url value="/expedientTipus/enumeracioEsborrar.html"><c:param name="expedientTipusId" value="${expedientTipus.id}"/><c:param name="enumeracioId" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key="comuns.esborrar"/>" title="<fmt:message key="comuns.esborrar"/>" border="0"/></a>
-		</display:column>
+		<c:if test="${tePermisosGestionar}">
+			<display:column>
+				<a href="<c:url value="/expedientTipus/enumeracioEsborrar.html"><c:param name="expedientTipusId" value="${expedientTipus.id}"/><c:param name="enumeracioId" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key="comuns.esborrar"/>" title="<fmt:message key="comuns.esborrar"/>" border="0"/></a>
+			</display:column>
+		</c:if>
 	</display:table>
 	<script type="text/javascript">initSelectable(7);</script>
 
-	<form action="<c:url value="/expedientTipus/enumeracioForm.html"/>">
-		<input type="hidden" name="expedientTipusId" value="${expedientTipus.id}"/>
-		<button type="submit" class="submitButton"><fmt:message key="enumeracio.llistat.nova"/></button>
-	</form>
+	<security:accesscontrollist domainObject="${expedientTipus}" hasPermission="16,32">
+		<form action="<c:url value="/expedientTipus/enumeracioForm.html"/>">
+			<input type="hidden" name="expedientTipusId" value="${expedientTipus.id}"/>
+			<button type="submit" class="submitButton"><fmt:message key="enumeracio.llistat.nova"/></button>
+		</form>
+	</security:accesscontrollist>
 
 </body>
 </html>

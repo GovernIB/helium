@@ -17,7 +17,7 @@
 	<script type="text/javascript" src="<c:url value="/dwr/util.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/dwr/interface/campsProcesDwrService.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.DOMWindow.js"/>"></script>
-<script type="text/javascript" language="javascript">
+<script type="text/javascript">
 	// <![CDATA[
 	var info = null;
 	function carregarCamps(obj) {
@@ -64,7 +64,8 @@
 <body>
 	<c:if test="${param.tipus == 'INFORME'}">
 		<div style="text-align: right; margin: 0 0 2px 0">
-			<a href="#codiXml" class="mostrarCodiXml"><img src="<c:url value="/img/page_white_code.png"/>" alt="<fmt:message key='consulta.camps.mostrarxml' />" title="<fmt:message key='consulta.camps.mostrarxml' />" border="0"/></a>
+			<!-- a href="#codiXml" class="mostrarCodiXml"><img src="<c:url value="/img/page_white_code.png"/>" alt="<fmt:message key='consulta.camps.mostrarxml' />" title="<fmt:message key='consulta.camps.mostrarxml' />" border="0"/></a-->
+			<a href="<c:url value="/consulta/reportDownload.html"><c:param name="consultaId" value="${param.id}"/><c:param name="id" value="${consultaCamp.id}"/><c:param name="tipus" value="${param.tipus}"/></c:url>"><img src="<c:url value="/img/page_white_code.png"/>" alt="<fmt:message key='consulta.camps.mostrarxml' />" title="<fmt:message key='consulta.camps.mostrarxml' />" border="0"/></a>
 		</div>
 	</c:if>
 	<display:table name="llistat" id="consultaCamp" requestURI="" class="displaytag selectable">
@@ -128,6 +129,7 @@
 			<c:param name="values">submit,cancel</c:param>
 			<c:param name="titles"><fmt:message key='comuns.afegir' />,<fmt:message key='comuns.cancelar' /></c:param>
 		</c:import>
+
 	</form:form>
 	
 	<p class="aclaracio"><fmt:message key='comuns.camps_marcats' /> <img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='comuns.camp_oblig' />" title="<fmt:message key='comuns.camp_oblig' />" border="0"/> <fmt:message key='comuns.son_oblig' /></p>
@@ -147,7 +149,7 @@
 		<div id="codiXml" style="display:none">
 <pre style="padding: 1em"><c:forEach var="camp" items="${llistat}" varStatus="status">
 &lt;field name="${camps[status.index].definicioProces.jbpmKey}/${camps[status.index].codi}" class="net.conselldemallorca.helium.report.FieldValue"/&gt;
-</c:forEach></pre>
+</c:forEach></pre><br/><br/><pre style="padding: 1em">${report}</pre>
 		</div>
 	</c:if>
 

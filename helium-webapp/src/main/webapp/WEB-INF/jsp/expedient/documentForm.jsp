@@ -19,7 +19,7 @@
 
 	<h3 class="titol-tab titol-dades-tasca"><fmt:message key='expedient.document.modificar' /></h3>
 
-	<c:url value="/expedient/documentDescarregar.html" var="downloadUrl"><c:param name="processInstanceId" value="${param.id}"/><c:param name="docId" value="${command.docId}"/></c:url>
+	<c:url value="/document/arxiuMostrar.html" var="downloadUrl"><c:param name="token" value="${document.tokenSignatura}"/></c:url>
 
 	<div class="missatgesDocumentGris">
 		<h4 class="titol-missatge">

@@ -33,11 +33,11 @@ import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
+import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 import net.conselldemallorca.helium.core.model.service.DocumentService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.ServiceProxy;
-import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.registre.DadesAssumpte;
@@ -258,17 +258,13 @@ public abstract class BasicActionHandler implements ActionHandler {
 	public DocumentInfo getDocument(
 			ExecutionContext executionContext,
 			String documentCodi) {
-		String varCodi = TascaService.PREFIX_DOCUMENT + documentCodi;
+		String varCodi = DocumentHelper.PREFIX_VAR_DOCUMENT + documentCodi;
 		Object valor = executionContext.getVariable(varCodi);
 		if (valor == null)
 			return null;
 		if (valor instanceof Long) {
 			Long id = (Long)valor;
-			DocumentDto document = getExpedientService().getDocument(
-					id,
-					true,
-					true,
-					true);
+			DocumentDto document = getDocumentService().documentInfo(id);
 			if (document == null)
 				return null;
 			DocumentInfo resposta = new DocumentInfo();
@@ -281,18 +277,9 @@ public abstract class BasicActionHandler implements ActionHandler {
 			resposta.setDataCreacio(document.getDataCreacio());
 			resposta.setDataDocument(document.getDataDocument());
 			resposta.setSignat(document.isSignat());
-			if (document.isSignat() && isSignaturaFileAttached()) {
-				resposta.setArxiuNom(document.getSignatNom());
-				resposta.setArxiuContingut(document.getSignatContingut());
-			} else {
-				if (document.isRegistrat()) {
-					resposta.setArxiuNom(document.getVistaNom());
-					resposta.setArxiuContingut(document.getVistaContingut());
-				} else {
-					resposta.setArxiuNom(document.getArxiuNom());
-					resposta.setArxiuContingut(document.getArxiuContingut());
-				}
-			}
+			ArxiuDto arxiu = getDocumentService().arxiuDocumentPerMostrar(id);
+			resposta.setArxiuNom(arxiu.getNom());
+			resposta.setArxiuContingut(arxiu.getContingut());
 			return resposta;
 		} else {
 			throw new JbpmException("La variable \"" + varCodi + "\" no es del tipus correcte");
@@ -341,7 +328,7 @@ public abstract class BasicActionHandler implements ActionHandler {
 			String varDocument) {
 		Token tokenPare = executionContext.getProcessInstance().getRootToken().getParent();
 		if (tokenPare != null) {
-			String varCodi = TascaService.PREFIX_DOCUMENT + varDocument;
+			String varCodi = DocumentHelper.PREFIX_VAR_DOCUMENT + varDocument;
 			Object valor = tokenPare.getProcessInstance().getContextInstance().getVariable(varCodi);
 			if (valor != null) {
 				if (valor instanceof Long) {
@@ -890,12 +877,14 @@ public abstract class BasicActionHandler implements ActionHandler {
 		Document document = getDissenyService().findDocumentAmbDefinicioProcesICodi(
 				instanciaProces.getDefinicioProces().getId(),
 				documentCodi);
-		getExpedientService().guardarDocument(
+		getDocumentService().guardarDocumentProces(
 				new Long(processInstanceId).toString(),
-				document.getId(),
+				document.getCodi(),
+				null,
 				data,
 				arxiuNom,
-				arxiuContingut);
+				arxiuContingut,
+				false);
 	}
 
 
@@ -1081,10 +1070,6 @@ public abstract class BasicActionHandler implements ActionHandler {
 			return getExpedientService().findExpedientAmbProcessInstanceId(
 					getProcessInstanceId(executionContext));
 		}
-	}
-
-	private boolean isSignaturaFileAttached() {
-		return "true".equalsIgnoreCase((String)GlobalProperties.getInstance().get("app.signatura.plugin.file.attached"));
 	}
 
 	static final long serialVersionUID = 1L;

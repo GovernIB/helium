@@ -10,31 +10,38 @@ import org.jbpm.taskmgmt.exe.Assignable;
 import org.jbpm.taskmgmt.exe.TaskInstance;
 
 /**
- * Command per cancel·lar una tasca jBPM
+ * Command per reassignar una taskInstance de jBPM
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class ReassignTaskInstanceCommand extends AbstractBaseCommand {
 
 	private long id;
+	private String actorId;
+	private String[] pooledActors;
 	private String expression;
 
 
 
 	public ReassignTaskInstanceCommand(
-			long id,
-			String expression) {
+			long id) {
 		super();
 		this.id = id;
-		this.expression = expression;
 	}
 
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		TaskInstance taskInstance = jbpmContext.getTaskInstance(id);
-		String exprTxt = "<expression>" + expression + "</expression>";
-		ExpressionAssignmentHandler assignmentHandler = new ExpressionAssignmentHandler();
-		assignmentHandler.setExpression(exprTxt);
-		assignmentHandler.assign(new ProxyAssignable(taskInstance), new ExecutionContext(taskInstance.getToken()));
+		if (actorId != null) {
+			taskInstance.setActorId(actorId);
+		} else if (pooledActors != null) {
+			taskInstance.setActorId(null);
+			taskInstance.setPooledActors(pooledActors);
+		} else if (expression != null) {
+			String exprTxt = "<expression>" + expression + "</expression>";
+			ExpressionAssignmentHandler assignmentHandler = new ExpressionAssignmentHandler();
+			assignmentHandler.setExpression(exprTxt);
+			assignmentHandler.assign(new ProxyAssignable(taskInstance), new ExecutionContext(taskInstance.getToken()));
+		}
 		return taskInstance;
 	}
 
@@ -43,6 +50,18 @@ public class ReassignTaskInstanceCommand extends AbstractBaseCommand {
 	}
 	public void setId(long id) {
 		this.id = id;
+	}
+	public String getActorId() {
+		return actorId;
+	}
+	public void setActorId(String actorId) {
+		this.actorId = actorId;
+	}
+	public String[] getPooledActors() {
+		return pooledActors;
+	}
+	public void setPooledActors(String[] pooledActors) {
+		this.pooledActors = pooledActors;
 	}
 	public String getExpression() {
 		return expression;
@@ -54,12 +73,6 @@ public class ReassignTaskInstanceCommand extends AbstractBaseCommand {
 	@Override
 	public String getAdditionalToStringInformation() {
 	    return "id=" + id;
-	}
-
-	//methods for fluent programming
-	public ReassignTaskInstanceCommand id(long id) {
-		setId(id);
-	    return this;
 	}
 
 	@SuppressWarnings("serial")

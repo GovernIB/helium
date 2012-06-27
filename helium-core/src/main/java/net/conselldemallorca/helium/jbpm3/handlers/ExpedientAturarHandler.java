@@ -28,7 +28,8 @@ public class ExpedientAturarHandler extends AbstractHeliumActionHandler implemen
 			try {
 				getExpedientService().aturar(
 						expedient.getProcessInstanceId(),
-						m);
+						m,
+						null);
 			} catch (Exception ex) {
 				throw new JbpmException("No s'ha pogut aturar l'expedient", ex);
 			}

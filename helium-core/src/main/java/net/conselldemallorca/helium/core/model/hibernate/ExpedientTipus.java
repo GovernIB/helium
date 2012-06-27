@@ -67,6 +67,8 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	private int anyActual = 0;
 	@MaxLength(64)
 	private String responsableDefecteCodi;
+	private boolean restringirPerGrup;
+	private boolean tramitacioMassiva;
 
 	@MaxLength(64)
 	private String sistraTramitCodi;
@@ -163,7 +165,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	public void setTeTitol(Boolean teTitol) {
 		this.teTitol = teTitol;
 	}
-	
+
 	@Column(name="demana_numero")
 	public Boolean getDemanaNumero() {
 		if (demanaNumero == null)
@@ -173,7 +175,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	public void setDemanaNumero(Boolean demanaNumero) {
 		this.demanaNumero = demanaNumero;
 	}
-	
+
 	@Column(name="demana_titol")
 	public Boolean getDemanaTitol() {
 		if (demanaTitol == null)
@@ -230,6 +232,22 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	}
 	public void setResponsableDefecteCodi(String responsableDefecteCodi) {
 		this.responsableDefecteCodi = responsableDefecteCodi;
+	}
+
+	@Column(name="restringir_grup")
+	public boolean isRestringirPerGrup() {
+		return restringirPerGrup;
+	}
+	public void setRestringirPerGrup(boolean restringirPerGrup) {
+		this.restringirPerGrup = restringirPerGrup;
+	}
+
+	@Column(name="tram_massiva")
+	public boolean isTramitacioMassiva() {
+		return tramitacioMassiva;
+	}
+	public void setTramitacioMassiva(boolean tramitacioMassiva) {
+		this.tramitacioMassiva = tramitacioMassiva;
 	}
 
 	@Column(name="sistra_codtra", length=64, unique=true)

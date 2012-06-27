@@ -42,7 +42,8 @@ public class ExpedientTitolModificarHandler extends AbstractHeliumActionHandler 
 						(expedient.getEstat() != null) ? expedient.getEstat().getId() : null,
 						expedient.getGeoPosX(),
 						expedient.getGeoPosY(),
-						expedient.getGeoReferencia());
+						expedient.getGeoReferencia(),
+						expedient.getGrupCodi());
 			} else {
 				throw new JbpmException("No s'ha trobat l'expedient per canviar el títol");
 			}

@@ -16,7 +16,6 @@ public class CancelTaskInstanceCommand extends AbstractBaseCommand {
 
 	private static final long serialVersionUID = -1908847549444051495L;
 	private long id;
-	
 
 	public CancelTaskInstanceCommand(
 			long id) {
@@ -43,12 +42,6 @@ public class CancelTaskInstanceCommand extends AbstractBaseCommand {
 	@Override
 	public String getAdditionalToStringInformation() {
 	    return "id=" + id;
-	}
-
-	//methods for fluent programming
-	public CancelTaskInstanceCommand id(long id) {
-		setId(id);
-	    return this;
 	}
 
 }

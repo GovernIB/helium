@@ -18,7 +18,7 @@
 	<script type="text/javascript" src="<c:url value="/dwr/util.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/dwr/interface/campsProcesDwrService.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.DOMWindow.js"/>"></script>
-<script type="text/javascript" language="javascript">
+<script type="text/javascript">
 	// <![CDATA[
 	var info = null;
 	function carregarCamps(obj) {

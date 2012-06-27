@@ -3,6 +3,9 @@
  */
 package net.conselldemallorca.helium.webapp.mvc;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
@@ -27,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Controlador per la gestió dels camps de les consultes
@@ -68,9 +72,10 @@ public class ConsultaCampController extends BaseController {
 			model.addAttribute("consulta", consulta);
 			model.addAttribute(
 					"definicionsProces",
-					dissenyService.findDarreresAmbExpedientTipusIGlobalsEntorn(
+					dissenyService.findDarreresAmbExpedientTipusEntorn(
 							entorn.getId(),
-							consulta.getExpedientTipus().getId()));
+							consulta.getExpedientTipus().getId(),
+							true));
 			return "consulta/camps";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
@@ -83,6 +88,7 @@ public class ConsultaCampController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) Long id,
 			@RequestParam(value = "tipus", required = true) TipusConsultaCamp tipus,
+//			@RequestParam(value = "informeContingut", required = false) final MultipartFile multipartFile,
 			@RequestParam(value = "submit", required = false) String submit,
 			@ModelAttribute("command") ConsultaCamp command,
 			BindingResult result,
@@ -93,7 +99,17 @@ public class ConsultaCampController extends BaseController {
 			if (("submit".equals(submit)) || (submit.length() == 0)) {
 				command.setId(null);
 				command.setTipus(tipus);
-				command.setConsulta(dissenyService.getConsultaById(id));
+				Consulta consulta = dissenyService.getConsultaById(id);
+//				consulta.setInformeNom(null);
+//				consulta.setInformeContingut(null);
+//				if (multipartFile != null && multipartFile.getSize() > 0) {
+//					try {
+//						consulta.setInformeContingut(multipartFile.getBytes());
+//						consulta.setInformeNom(multipartFile.getOriginalFilename());
+//					} catch (Exception ignored) {}
+//				}
+				command.setConsulta(consulta);
+				
 				try {
 					dissenyService.createConsultaCamp(command);
 					missatgeInfo(request, getMessage("info.camp.consulta.afegit") );
@@ -171,6 +187,124 @@ public class ConsultaCampController extends BaseController {
 				logger.error("No s'ha pogut canviar l'ordre del camp de la consulta", ex);
 			}
 			return "redirect:/consulta/camps.html?id=" + consultaId + "&tipus=" + tipus;
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+	
+	@RequestMapping(value = "/consulta/reportDownload")
+	public String downloadAction(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) Long id,
+			@RequestParam(value = "consultaId", required = true) Long consultaId,
+			@RequestParam(value = "tipus", required = true) TipusConsultaCamp tipus,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			try {
+				Consulta consulta = dissenyService.getConsultaById(consultaId);
+				
+				List<ConsultaCamp> campsConsulta = dissenyService.findCampsConsulta(consultaId, tipus);
+				List<String> fieldNames = new ArrayList<String>();
+				for (ConsultaCamp camp: campsConsulta) {
+					String definicioProces = camp.getDefprocJbpmKey();
+					String codiVariable = camp.getCampCodi();
+					if (definicioProces!=null && codiVariable!=null)
+						fieldNames.add(definicioProces + "/"+ codiVariable);
+					else if (codiVariable!=null)
+						fieldNames.add("/"+codiVariable);
+				}
+				
+				String jasperReport = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+								"<jasperReport xmlns=\"http://jasperreports.sourceforge.net/jasperreports\" " + 
+									"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " + 
+									"xsi:schemaLocation=\"http://jasperreports.sourceforge.net/jasperreports " + 
+									"http://jasperreports.sourceforge.net/xsd/jasperreport.xsd\" " + 
+									"name=\"report_basic\" language=\"groovy\" pageWidth=\"842\" pageHeight=\"595\" " + 
+									"orientation=\"Landscape\" columnWidth=\"802\" leftMargin=\"20\" " +
+									"rightMargin=\"20\" topMargin=\"20\" bottomMargin=\"20\">" +
+									"\n<property name=\"ireport.zoom\" value=\"1.0\"/>" +
+									"\n<property name=\"ireport.x\" value=\"0\"/>" +
+									"\n<property name=\"ireport.y\" value=\"0\"/>";
+									
+				
+				for (String fieldName: fieldNames) {
+					jasperReport = jasperReport + "\n<field name=\"" + fieldName +"\" class=\"net.conselldemallorca.helium.report.FieldValue\"/>";
+				}
+				jasperReport = jasperReport + 
+					"\n<title>" +
+						"\n<band height=\"30\" splitType=\"Stretch\">" +
+							"\n<staticText>" +
+								"\n<reportElement x=\"0\" y=\"0\" width=\"750\" height=\"26\"/>" +
+								"\n<textElement>" +
+									"\n<font size=\"18\" isBold=\"true\"/>" +
+								"\n</textElement>" +
+								"\n<text>" + consulta.getNom() +"</text>" +
+							"\n</staticText>" +
+						"\n</band>" +
+					"\n</title>" +
+					"\n<pageHeader>" +
+						"\n<band height=\"30\" splitType=\"Stretch\"/> " +
+					"\n</pageHeader>" +
+					"\n<columnHeader>" +
+						"\n<band height=\"25\" splitType=\"Stretch\">";
+				
+				int widthField = 0;
+				if (fieldNames.size()>0) widthField = 800/fieldNames.size();
+				int xPosition = 0;
+				for (String fieldName: fieldNames) {
+					jasperReport = jasperReport + 
+							"\n<staticText>" + 
+								"\n<reportElement x=\""+xPosition+"\" y=\"2\" width=\""+widthField+"\" height=\"20\"/>" +
+								"\n<textElement/>" +
+								"\n<text><![CDATA["+fieldName+"]]></text>" +
+							"\n</staticText>";
+					xPosition = xPosition + widthField;
+				}
+				
+				jasperReport = jasperReport +
+							"\n</band>" +
+						"\n</columnHeader>" +
+						"\n<detail>" +
+							"\n<band height=\"24\" splitType=\"Stretch\">";
+				
+				xPosition = 0;
+				for (String fieldName: fieldNames) {
+					jasperReport = jasperReport + 		
+						"\n<textField>" +
+							"\n<reportElement x=\""+xPosition+"\" y=\"4\" width=\""+widthField+"\" height=\"20\"/>" +
+							"\n<textElement/>" +
+							"\n<textFieldExpression><![CDATA[$F{"+fieldName+"}]]></textFieldExpression>" +
+						"\n</textField>";
+					xPosition = xPosition + widthField;
+				}
+				
+				jasperReport=jasperReport +
+						"\n</band>" +
+					"\n</detail>" +
+					"\n<columnFooter>" +
+						"\n<band height=\"25\" splitType=\"Stretch\"/>" +
+					"\n</columnFooter>" +
+					"\n<pageFooter>" +
+						"\n<band height=\"30\" splitType=\"Stretch\"/>" +
+					"\n</pageFooter>" +
+				 "\n</jasperReport>";
+				
+				String nomInforme = consulta.getInformeNom();
+				if (nomInforme==null) nomInforme = "report_"+consulta.getCodi()+".jrxml";
+				byte[] byteArray = jasperReport.getBytes();
+				model.addAttribute(
+						ArxiuView.MODEL_ATTRIBUTE_FILENAME,
+						nomInforme);
+				model.addAttribute(
+						ArxiuView.MODEL_ATTRIBUTE_DATA,
+						byteArray);
+				return "arxiuView";
+			} catch (Exception e) {
+				e.printStackTrace();
+				return "redirect:/consulta/llistat.html";
+			}
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";

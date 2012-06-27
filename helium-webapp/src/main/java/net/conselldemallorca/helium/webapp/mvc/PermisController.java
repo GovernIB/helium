@@ -37,7 +37,7 @@ import org.springframework.web.bind.support.SessionStatus;
  */
 
 @Controller
-@RequestMapping("/rol/*.html")
+@RequestMapping("/rol")
 public class PermisController extends BaseController {
 
 	private PermisService permisService;

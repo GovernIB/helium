@@ -62,8 +62,8 @@ public class PluginService {
 	private ExpedientDao expedientDao;
 	private RegistreDao registreDao;
 	private DocumentStoreDao documentStoreDao;
-	private DtoConverter dtoConverter;
 	private JbpmDao jbpmDao;
+	private DocumentHelper documentHelper;
 	private MessageSource messageSource;
 
 
@@ -135,22 +135,16 @@ public class PluginService {
 			String transicioOK,
 			String transicioKO) throws Exception {
 		try {
-			DocumentDto document = dtoConverter.toDocumentDto(
+			DocumentDto document = documentHelper.getDocumentVista(
 					documentId,
-					false,
-					false,
-					true,
 					true,
 					true);
 			List<DocumentDto> annexos = null;
 			if (annexosId != null) {
 				annexos = new ArrayList<DocumentDto>();
 				for (Long docId: annexosId) {
-					annexos.add(dtoConverter.toDocumentDto(
+					annexos.add(documentHelper.getDocumentVista(
 							docId,
-							false,
-							false,
-							true,
 							false,
 							false));
 				}
@@ -292,8 +286,8 @@ public class PluginService {
 		this.documentStoreDao = documentStoreDao;
 	}
 	@Autowired
-	public void setDtoConverter(DtoConverter dtoConverter) {
-		this.dtoConverter = dtoConverter;
+	public void setDocumentHelper(DocumentHelper documentHelper) {
+		this.documentHelper = documentHelper;
 	}
 	@Autowired
 	public void setJbpmDao(JbpmDao jbpmDao) {
@@ -309,18 +303,12 @@ public class PluginService {
 	private void afegirDocumentCustodia(
 			Integer documentId,
 			Long documentStoreId) throws Exception {
-		DocumentDto document = dtoConverter.toDocumentDto(
-				documentStoreId,
-				false,
-				false,
-				false,
-				false,
-				false);
+		DocumentDto document = documentHelper.getDocumentSenseContingut(documentStoreId);
 		if (document != null) {
 			DocumentStore docst = documentStoreDao.getById(documentStoreId, false);
 			JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(docst.getProcessInstanceId());
 			Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
-			String varDocumentCodi = docst.getJbpmVariable().substring(TascaService.PREFIX_DOCUMENT.length());
+			String varDocumentCodi = docst.getJbpmVariable().substring(DocumentHelper.PREFIX_VAR_DOCUMENT.length());
 			List<byte[]> signatures = obtenirSignaturesDelPortasignatures(documentId);
 			if (signatures != null) {
 				String referenciaCustodia = null;

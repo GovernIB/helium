@@ -171,7 +171,7 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 		List<FilaResultat> resposta = client.consultaDomini(id, paramsConsulta);
 		return resposta;
 	}
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List<FilaResultat> consultaSql(
 			Domini domini,
 			Map<String, Object> parametres) throws DominiException {

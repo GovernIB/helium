@@ -249,7 +249,7 @@ public class Document implements Serializable, GenericEntity<Long> {
 	}
 	@Transient
 	public boolean isExtensioPermesa(String ext) {
-		if (extensionsPermeses != null) {
+		if (extensionsPermeses != null && extensionsPermeses.trim().length() > 0) {
 			String[] extPermeses = extensionsPermeses.split(",");
 			if (extPermeses.length > 0) {
 				boolean hiEs = false;

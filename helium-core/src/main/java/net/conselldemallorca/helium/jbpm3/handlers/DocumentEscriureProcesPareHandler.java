@@ -3,7 +3,7 @@
  */
 package net.conselldemallorca.helium.jbpm3.handlers;
 
-import net.conselldemallorca.helium.core.model.service.TascaService;
+import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 
 import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
@@ -27,7 +27,7 @@ public class DocumentEscriureProcesPareHandler extends AbstractHeliumActionHandl
 		Token tokenPare = executionContext.getProcessInstance().getSuperProcessToken();
 		if (tokenPare != null) {
 			String dc = (String)getValorOVariable(executionContext, documentCodi, varDocumentCodi);
-			String varDocument = TascaService.PREFIX_DOCUMENT + dc;
+			String varDocument = DocumentHelper.PREFIX_VAR_DOCUMENT + dc;
 			Object valor = executionContext.getVariable(varDocument);
 			if (valor != null) {
 				tokenPare.getProcessInstance().getContextInstance().setVariable(varDocument, valor);

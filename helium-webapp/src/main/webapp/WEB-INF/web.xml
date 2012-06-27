@@ -451,12 +451,12 @@
 	<servlet>
 		<servlet-name>CXFServlet</servlet-name>
 		<servlet-class>net.conselldemallorca.helium.ws.HeliumCXFServlet</servlet-class>
-		<load-on-startup>2</load-on-startup>
+		<load-on-startup>3</load-on-startup>
 	</servlet>
 	<servlet>
 		<servlet-name>EndpointPublisherServlet</servlet-name>
 		<servlet-class>net.conselldemallorca.helium.ws.EndpointPublisherServlet</servlet-class>
-		<load-on-startup>3</load-on-startup>
+		<load-on-startup>4</load-on-startup>
 	</servlet>
 	<servlet>
 		<servlet-name>AxisServlet</servlet-name>
@@ -503,23 +503,6 @@
 	<security-constraint>
 		<web-resource-collection>
 			<web-resource-name>All areas</web-resource-name>
-			<url-pattern>/index.jsp</url-pattern>
-			<url-pattern>/error.jsp</url-pattern>
-			<url-pattern>/css/*</url-pattern>
-			<url-pattern>/js/*</url-pattern>
-			<url-pattern>/img/*</url-pattern>
-			<url-pattern>/ws/*</url-pattern>
-			<url-pattern>/services/*</url-pattern>
-			<url-pattern>/signatura/aFirma/*</url-pattern>
-			<url-pattern>/signatura/caib/*</url-pattern>
-			<url-pattern>/signatura/verificarExtern.html</url-pattern>
-			<url-pattern>/signatura/arxiu.html</url-pattern>
-			<url-pattern>/rol/test.html</url-pattern>
-		</web-resource-collection>
-	</security-constraint>
-	<security-constraint>
-		<web-resource-collection>
-			<web-resource-name>All areas</web-resource-name>
 			<url-pattern>/*</url-pattern>
 		</web-resource-collection>
 		<auth-constraint>
@@ -528,6 +511,29 @@
 			<role-name>TOTHOM</role-name>
 			<role-name>tothom</role-name>
 		</auth-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>All areas</web-resource-name>
+			<url-pattern>/index.jsp</url-pattern>
+			<url-pattern>/error.jsp</url-pattern>
+			<url-pattern>/css/*</url-pattern>
+			<url-pattern>/js/*</url-pattern>
+			<url-pattern>/img/*</url-pattern>
+			<url-pattern>/ws</url-pattern>
+			<url-pattern>/ws/</url-pattern>
+			<url-pattern>/ws/NotificacioEntradaV1</url-pattern>
+			<url-pattern>/ws/NotificacioEntradaV2</url-pattern>
+			<url-pattern>/ws/DominiIntern</url-pattern>
+			<url-pattern>/ws/FormulariExtern</url-pattern>
+			<url-pattern>/ws/TramitacioService</url-pattern>
+			<url-pattern>/services/*</url-pattern>
+			<url-pattern>/signatura/aFirma/*</url-pattern>
+			<url-pattern>/signatura/caib/*</url-pattern>
+			<url-pattern>/signatura/verificarExtern.html</url-pattern>
+			<url-pattern>/signatura/arxiu.html</url-pattern>
+			<url-pattern>/rol/test.html</url-pattern>
+		</web-resource-collection>
 	</security-constraint>
 	<!-- security-constraint.end -->
 

@@ -162,7 +162,8 @@ public class ExpedientEinesController extends BaseController {
 					try {
 						expedientService.aturar(
 								id,
-								command.getMotiu());
+								command.getMotiu(),
+								null);
 						missatgeInfo(request, getMessage("info.expedient.aturat") );
 					} catch (Exception ex) {
 						missatgeError(request, getMessage("error.aturar.expedient"), ex.getLocalizedMessage());
@@ -193,7 +194,9 @@ public class ExpedientEinesController extends BaseController {
 			if (potModificarExpedient(expedient)) {
 				if (expedient.isAturat()) {
 					try {
-						expedientService.reprendre(id);
+						expedientService.reprendre(
+								id,
+								null);
 						missatgeInfo(request, getMessage("info.expedient.repres") );
 					} catch (Exception ex) {
 						missatgeError(request, getMessage("error.reprendre.expedient"), ex.getLocalizedMessage());

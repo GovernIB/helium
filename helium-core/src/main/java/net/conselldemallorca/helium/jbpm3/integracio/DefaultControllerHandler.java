@@ -9,7 +9,7 @@ import net.conselldemallorca.helium.core.model.dao.DaoProxy;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
-import net.conselldemallorca.helium.core.model.service.TascaService;
+import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 
 import org.jbpm.context.exe.ContextInstance;
 import org.jbpm.graph.exe.Token;
@@ -36,9 +36,9 @@ public class DefaultControllerHandler implements TaskControllerHandler {
 			}
 		}
 		for (DocumentTasca document: getDocumentsPerTaskInstance(taskInstance)) {
-			String codi = TascaService.PREFIX_DOCUMENT + document.getDocument().getCodi();
+			String codi = DocumentHelper.PREFIX_VAR_DOCUMENT + document.getDocument().getCodi();
 			if (!document.isReadOnly()) {
-				Object valor = contextInstance.getVariable(TascaService.PREFIX_DOCUMENT + document.getDocument().getCodi());
+				Object valor = contextInstance.getVariable(DocumentHelper.PREFIX_VAR_DOCUMENT + document.getDocument().getCodi());
 				if (valor != null)
 					taskInstance.setVariableLocally(
 							codi,
@@ -61,7 +61,7 @@ public class DefaultControllerHandler implements TaskControllerHandler {
 			}
 		}
 		for (DocumentTasca document: getDocumentsPerTaskInstance(taskInstance)) {
-			String codi = TascaService.PREFIX_DOCUMENT + document.getDocument().getCodi();
+			String codi = DocumentHelper.PREFIX_VAR_DOCUMENT + document.getDocument().getCodi();
 			Long docId = (Long)taskInstance.getVariableLocally(codi);
 			if (docId != null && !document.isReadOnly()) {
 				contextInstance.setVariable(

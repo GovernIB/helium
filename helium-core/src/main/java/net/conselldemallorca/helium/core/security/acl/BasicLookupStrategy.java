@@ -377,7 +377,8 @@ private Map lookupObjectIdentities(final ObjectIdentity[] objectIdentities, Sid[
     * @param findNow Long-based primary keys to retrieve
     * @param sids DOCUMENT ME!
     */
-   private void lookupPrimaryKeys(final Map acls, final Set findNow, final Sid[] sids) {
+   @SuppressWarnings("unchecked")
+private void lookupPrimaryKeys(final Map acls, final Set findNow, final Sid[] sids) {
        Assert.notNull(acls, "ACLs are required");
        Assert.notEmpty(findNow, "Items to find now required");
 

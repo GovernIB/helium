@@ -128,7 +128,7 @@ public class ExpedientTipusController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(id);
-			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
+			if (potDissenyarExpedientTipus(entorn, expedientTipus) || potGestionarExpedientTipus(entorn, expedientTipus)) {
 				model.addAttribute("command", new DeployCommand());
 				model.addAttribute(
 						"responsableDefecte",
@@ -146,7 +146,6 @@ public class ExpedientTipusController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
-
 
 	@RequestMapping(value = "/expedientTipus/exportar")
 	public String export(
@@ -229,7 +228,7 @@ public class ExpedientTipusController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
-	
+
 	@RequestMapping(value = "/expedientTipus/definicioProcesLlistat")
 	public String definicioProcesLlistat(
 			HttpServletRequest request,
@@ -241,7 +240,7 @@ public class ExpedientTipusController extends BaseController {
 			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
 				model.addAttribute(
 						"llistat",
-						dissenyService.findDarreresAmbExpedientTipusIGlobalsEntorn(entorn.getId(), id));
+						dissenyService.findDarreresAmbExpedientTipusEntorn(entorn.getId(), id, true));
 				return "expedientTipus/definicioProcesLlistat";
 			} else {
 				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
@@ -333,7 +332,7 @@ public class ExpedientTipusController extends BaseController {
 		List<ExpedientTipus> resposta = new ArrayList<ExpedientTipus>();
 		List<ExpedientTipus> llistat = dissenyService.findExpedientTipusAmbEntorn(entorn.getId());
 		for (ExpedientTipus expedientTipus: llistat) {
-			if (potDissenyarExpedientTipus(entorn, expedientTipus))
+			if (potDissenyarExpedientTipus(entorn, expedientTipus) || potGestionarExpedientTipus(entorn, expedientTipus))
 				resposta.add(expedientTipus);
 		}
 		return resposta;
@@ -348,6 +347,16 @@ public class ExpedientTipusController extends BaseController {
 				new Permission[] {
 					ExtendedPermission.ADMINISTRATION,
 					ExtendedPermission.DESIGN}) != null;
+	}
+	private boolean potGestionarExpedientTipus(Entorn entorn, ExpedientTipus expedientTipus) {
+		if (potDissenyarEntorn(entorn))
+			return true;
+		return permissionService.filterAllowed(
+				expedientTipus,
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.ADMINISTRATION,
+					ExtendedPermission.MANAGE}) != null;
 	}
 	private boolean potDissenyarDefinicioProces(Entorn entorn, DefinicioProcesDto definicioProces) {
 		if (potDissenyarEntorn(entorn))

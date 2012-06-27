@@ -437,8 +437,7 @@ public class OrganitzacioService {
 		String tipusCodi = area.getTipus().getCodi();
 		return tipusCodi + "." + entornCodi + "#" + area.getCodi();
 	}*/
-	
-	
+
 	protected String getMessage(String key, Object[] vars) {
 		try {
 			return messageSource.getMessage(

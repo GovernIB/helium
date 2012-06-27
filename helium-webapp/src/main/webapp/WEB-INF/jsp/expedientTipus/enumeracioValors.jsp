@@ -3,6 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+<%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 
 <html>
@@ -78,30 +79,32 @@ function confirmar(e) {
 			<c:param name="titles"><fmt:message key="comuns.afegir"/>,<fmt:message key="comuns.cancelar"/></c:param>
 		</c:import>
 	</form:form>
-	
+
 	<p class="aclaracio"><fmt:message key="comuns.camps_marcats"/> <img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key="comuns.camp_oblig"/>" title="<fmt:message key="comuns.camp_oblig"/>" border="0"/> <fmt:message key="comuns.son_oblig"/></p>
 
-	<br/>
-	<div class="missatgesGris">
-		<h3 class="titol-tab titol-delegacio"><fmt:message key="enumeracio.valors.import_dades"/> <img src="<c:url value="/img/magnifier_zoom_in.png"/>" alt="<fmt:message key="enumeracio.valors.mostrar_ocultar"/>" title="<fmt:message key="enumeracio.valors.mostrar_ocultar"/>" border="0" onclick="mostrarOcultar(this,'form-importar')"/></h3>
-		<div id="form-importar" style="display:none">
-			<form:form action="enumeracioImportar.html" cssClass="uniForm" enctype="multipart/form-data" commandName="commandImportacio">
-				<input type="hidden" name="id" value="${command.enumeracioId}"/>
-				<div class="inlineLabels">
-					<c:import url="../common/formElement.jsp">
-						<c:param name="property" value="arxiu"/>
-						<c:param name="type" value="file"/>
-						<c:param name="label"><fmt:message key="enumeracio.valors.arxiu_exp"/></c:param>
-					</c:import>
-					<c:import url="../common/formElement.jsp">
-						<c:param name="type" value="buttons"/>
-						<c:param name="values">submit</c:param>
-						<c:param name="titles"><fmt:message key="enumeracio.valors.importar"/></c:param>
-					</c:import>
-				</div>
-			</form:form>
+	<security:accesscontrollist domainObject="${expedientTipus}" hasPermission="16,32">
+		<br/>
+		<div class="missatgesGris">
+			<h3 class="titol-tab titol-delegacio"><fmt:message key="enumeracio.valors.import_dades"/> <img src="<c:url value="/img/magnifier_zoom_in.png"/>" alt="<fmt:message key="enumeracio.valors.mostrar_ocultar"/>" title="<fmt:message key="enumeracio.valors.mostrar_ocultar"/>" border="0" onclick="mostrarOcultar(this,'form-importar')"/></h3>
+			<div id="form-importar" style="display:none">
+				<form:form action="enumeracioImportar.html" cssClass="uniForm" enctype="multipart/form-data" commandName="commandImportacio">
+					<input type="hidden" name="id" value="${command.enumeracioId}"/>
+					<div class="inlineLabels">
+						<c:import url="../common/formElement.jsp">
+							<c:param name="property" value="arxiu"/>
+							<c:param name="type" value="file"/>
+							<c:param name="label"><fmt:message key="enumeracio.valors.arxiu_exp"/></c:param>
+						</c:import>
+						<c:import url="../common/formElement.jsp">
+							<c:param name="type" value="buttons"/>
+							<c:param name="values">submit</c:param>
+							<c:param name="titles"><fmt:message key="enumeracio.valors.importar"/></c:param>
+						</c:import>
+					</div>
+				</form:form>
+			</div>
 		</div>
-	</div>
+	</security:accesscontrollist>
 
 </body>
 </html>

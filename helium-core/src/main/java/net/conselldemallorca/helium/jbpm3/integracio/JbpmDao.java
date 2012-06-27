@@ -18,6 +18,7 @@ import java.util.zip.ZipOutputStream;
 
 import net.conselldemallorca.helium.core.model.exception.DeploymentException;
 
+import org.jbpm.command.CancelTokenCommand;
 import org.jbpm.command.ChangeProcessInstanceVersionCommand;
 import org.jbpm.command.CommandService;
 import org.jbpm.command.DeleteProcessDefinitionCommand;
@@ -25,10 +26,7 @@ import org.jbpm.command.DeployProcessCommand;
 import org.jbpm.command.GetProcessInstanceCommand;
 import org.jbpm.command.GetProcessInstancesCommand;
 import org.jbpm.command.GetTaskInstanceCommand;
-import org.jbpm.command.ResumeProcessInstanceCommand;
 import org.jbpm.command.SignalCommand;
-import org.jbpm.command.StartProcessInstanceCommand;
-import org.jbpm.command.SuspendProcessInstanceCommand;
 import org.jbpm.command.TaskInstanceEndCommand;
 import org.jbpm.file.def.FileDefinition;
 import org.jbpm.graph.def.ProcessDefinition;
@@ -36,6 +34,7 @@ import org.jbpm.graph.def.Transition;
 import org.jbpm.graph.exe.ProcessInstance;
 import org.jbpm.graph.exe.Token;
 import org.jbpm.job.Timer;
+import org.jbpm.logging.log.ProcessLog;
 import org.jbpm.taskmgmt.def.Task;
 import org.jbpm.taskmgmt.exe.TaskInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,7 +126,7 @@ public class JbpmDao {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<String> TaskNamesFromDeployedProcessDefinition(JbpmProcessDefinition dpd) {
+	public List<String> getTaskNamesFromDeployedProcessDefinition(JbpmProcessDefinition dpd) {
 		List<String> taskNames = new ArrayList<String>();
 		ProcessDefinition pd = dpd.getProcessDefinition();
 		Map<String,Object> tasks = pd.getTaskMgmtDefinition().getTasks();
@@ -212,11 +211,15 @@ public class JbpmDao {
 	public void signalProcessInstance(
 			String processInstanceId,
 			String transitionName) {
-		SignalProcessInstanceCommand command = new SignalProcessInstanceCommand();
-		command.setId(new Long(processInstanceId).longValue());
+		long id = new Long(processInstanceId).longValue();
+		SignalProcessInstanceCommand command = new SignalProcessInstanceCommand(id);
 		if (transitionName != null)
 			command.setStartTransitionName(transitionName);
-		commandService.execute(command);
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		commandService.execute(autoSaveCommand);
 	}
 	public JbpmProcessInstance getRootProcessInstance(
 			String processInstanceId) {
@@ -251,47 +254,55 @@ public class JbpmDao {
 		long id = new Long(processInstanceId).longValue();
 		DeleteProcessInstanceCommand command = new DeleteProcessInstanceCommand(id);
 		commandService.execute(command);
+		/*AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		commandService.execute(autoSaveCommand);*/
 	}
 
 	public void suspendProcessInstance(
 			String processInstanceId) {
-		long id = new Long(processInstanceId).longValue();
-		SuspendProcessInstanceCommand command = new SuspendProcessInstanceCommand();
-		command.setProcessInstanceId(id);
-		commandService.execute(command);
+		suspendProcessInstances(new String[] {processInstanceId});
 	}
 	public void suspendProcessInstances(
 			String[] processInstanceIds) {
 		long[] ids = new long[processInstanceIds.length];
 		for (int i = 0; i < processInstanceIds.length; i++)
 			ids[i] = new Long(processInstanceIds[i]).longValue();
-		SuspendProcessInstanceCommand command = new SuspendProcessInstanceCommand();
-		command.setProcessInstanceIds(ids);
-		commandService.execute(command);
+		SuspendProcessInstancesCommand command = new SuspendProcessInstancesCommand(ids);
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				ids,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		commandService.execute(autoSaveCommand);
 	}
 	public void resumeProcessInstance(
 			String processInstanceId) {
-		long id = new Long(processInstanceId).longValue();
-		ResumeProcessInstanceCommand command = new ResumeProcessInstanceCommand();
-		command.setProcessInstanceId(id);
-		commandService.execute(command);
+		resumeProcessInstances(new String[] {processInstanceId});
 	}
 	public void resumeProcessInstances(
 			String[] processInstanceIds) {
 		long[] ids = new long[processInstanceIds.length];
 		for (int i = 0; i < processInstanceIds.length; i++)
 			ids[i] = new Long(processInstanceIds[i]).longValue();
-		ResumeProcessInstanceCommand command = new ResumeProcessInstanceCommand();
-		command.setProcessInstanceIds(ids);
-		commandService.execute(command);
+		ResumeProcessInstancesCommand command = new ResumeProcessInstancesCommand(ids);
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				ids,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		commandService.execute(autoSaveCommand);
 	}
 	public void describeProcessInstance(
 			String processInstanceId,
 			String description) {
 		long id = new Long(processInstanceId).longValue();
-		DescribeProcessInstanceCommand command = new DescribeProcessInstanceCommand(id);
-		command.setDescription(description);
-		commandService.execute(command);
+		DescribeProcessInstanceCommand command = new DescribeProcessInstanceCommand(id, description);
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		commandService.execute(autoSaveCommand);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -320,7 +331,9 @@ public class JbpmDao {
 		JbpmTask resposta = null;
 		long id = new Long(taskId).longValue();
 		GetTaskInstanceCommand command = new GetTaskInstanceCommand(id);
-		resposta = new JbpmTask((TaskInstance)commandService.execute(command));
+		TaskInstance ti = (TaskInstance)commandService.execute(command);
+		if (ti != null)
+			resposta = new JbpmTask(ti);
 		return resposta;
 	}
 
@@ -367,9 +380,12 @@ public class JbpmDao {
 	}
 	public void takeTaskInstance(String taskId, String actorId) {
 		long id = new Long(taskId).longValue();
-		GetTaskInstanceCommand command = new GetTaskInstanceCommand(id);
-		TaskInstance taskInstance = (TaskInstance)commandService.execute(command);
-		taskInstance.setActorId(actorId);
+		TakeTaskInstanceCommand command = new TakeTaskInstanceCommand(id, actorId);
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		commandService.execute(autoSaveCommand);
 	}
 	public JbpmTask cloneTaskInstance(String taskId, String actorId, Map<String, Object> variables) {
 		JbpmTask resposta = null;
@@ -386,59 +402,94 @@ public class JbpmDao {
 		JbpmTask resposta = null;
 		long id = new Long(taskId).longValue();
 		StartTaskInstanceCommand command = new StartTaskInstanceCommand(id);
-		resposta = new JbpmTask((TaskInstance)commandService.execute(command));
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		resposta = new JbpmTask((TaskInstance)commandService.execute(autoSaveCommand));
 		return resposta;
 	}
 	public JbpmTask cancelTaskInstance(String taskId) {
 		JbpmTask resposta = null;
 		long id = new Long(taskId).longValue();
 		CancelTaskInstanceCommand command = new CancelTaskInstanceCommand(id);
-		resposta = new JbpmTask((TaskInstance)commandService.execute(command));
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		resposta = new JbpmTask((TaskInstance)commandService.execute(autoSaveCommand));
 		return resposta;
 	}
 	public JbpmTask suspendTaskInstance(String taskId) {
 		JbpmTask resposta = null;
 		long id = new Long(taskId).longValue();
 		SuspendTaskInstanceCommand command = new SuspendTaskInstanceCommand(id);
-		resposta = new JbpmTask((TaskInstance)commandService.execute(command));
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		resposta = new JbpmTask((TaskInstance)commandService.execute(autoSaveCommand));
 		return resposta;
 	}
 	public JbpmTask resumeTaskInstance(String taskId) {
 		JbpmTask resposta = null;
 		long id = new Long(taskId).longValue();
 		ResumeTaskInstanceCommand command = new ResumeTaskInstanceCommand(id);
-		resposta = new JbpmTask((TaskInstance)commandService.execute(command));
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		resposta = new JbpmTask((TaskInstance)commandService.execute(autoSaveCommand));
 		return resposta;
 	}
 	public JbpmTask reassignTaskInstance(String taskId, String expression) {
 		JbpmTask resposta = null;
 		long id = new Long(taskId).longValue();
-		ReassignTaskInstanceCommand command = new ReassignTaskInstanceCommand(id, expression);
-		resposta = new JbpmTask((TaskInstance)commandService.execute(command));
+		ReassignTaskInstanceCommand command = new ReassignTaskInstanceCommand(id);
+		command.setExpression(expression);
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		resposta = new JbpmTask((TaskInstance)commandService.execute(autoSaveCommand));
 		return resposta;
 	}
-	public void setTaskInstanceVariables(String taskId, Map<String, Object> variables) {
-		long id = new Long(taskId).longValue();
-		GetTaskInstanceCommand command = new GetTaskInstanceCommand(id);
-		TaskInstance taskInstance = (TaskInstance)commandService.execute(command);
-		for (String key: variables.keySet()) {
-			taskInstance.setVariableLocally(
-					key,
-					variables.get(key));
-		}
+	public void setTaskInstanceActorId(String taskInstanceId, String actorId) {
+		long id = new Long(taskInstanceId).longValue();
+		ReassignTaskInstanceCommand command = new ReassignTaskInstanceCommand(id);
+		command.setActorId(actorId);
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		commandService.execute(autoSaveCommand);
+	}
+	public void setTaskInstancePooledActors(String taskInstanceId, String[] pooledActors) {
+		long id = new Long(taskInstanceId).longValue();
+		ReassignTaskInstanceCommand command = new ReassignTaskInstanceCommand(id);
+		command.setPooledActors(pooledActors);
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		commandService.execute(autoSaveCommand);
 	}
 	public void setTaskInstanceVariable(String taskId, String codi, Object valor) {
 		Map<String, Object> vars = new HashMap<String, Object>();
 		vars.put(codi, valor);
 		setTaskInstanceVariables(taskId, vars);
 	}
-	public void deleteTaskInstanceVariable(String taskId, String varName) {
+	public void setTaskInstanceVariables(String taskId, Map<String, Object> variables) {
 		long id = new Long(taskId).longValue();
-		DeleteTaskInstanceVariablesCommand command = new DeleteTaskInstanceVariablesCommand(
+		SaveTaskInstanceVariablesCommand command = new SaveTaskInstanceVariablesCommand(
 				id,
-				new String[] {varName});
+				variables);
 		command.setLocally(true);
-		commandService.execute(command);
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		commandService.execute(autoSaveCommand);
 	}
 	public Object getTaskInstanceVariable(String taskId, String varName) {
 		Object resultat = null;
@@ -457,7 +508,20 @@ public class JbpmDao {
 		resultat = (Map<String, Object>)taskInstance.getVariablesLocally();
 		return resultat;
 	}
-	@SuppressWarnings("unchecked")
+	public void deleteTaskInstanceVariable(String taskId, String varName) {
+		setTaskInstanceVariable(taskId, varName, null);
+		long id = new Long(taskId).longValue();
+		DeleteTaskInstanceVariablesCommand command = new DeleteTaskInstanceVariablesCommand(
+				id,
+				new String[] {varName});
+		command.setLocally(true);
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		commandService.execute(autoSaveCommand);
+	}
+	/*@SuppressWarnings("unchecked")
 	public void deleteTaskInstanceVariablesAll(String taskId) {
 		long id = new Long(taskId).longValue();
 		GetTaskInstanceCommand command = new GetTaskInstanceCommand(id);
@@ -465,23 +529,30 @@ public class JbpmDao {
 		Map<String, Object> vars = taskInstance.getVariablesLocally();
 		for (String codi: vars.keySet())
 			taskInstance.deleteVariable(codi);
-	}
-	public void completeTaskInstance(String taskId, String outcome) {
+	}*/
+	public void endTaskInstance(String taskId, String outcome) {
 		long id = new Long(taskId).longValue();
 		TaskInstanceEndCommand command = new TaskInstanceEndCommand(id, outcome);
-		commandService.execute(command);
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		commandService.execute(autoSaveCommand);
 	}
-	public void renameTaskInstance(String taskId, String newName) {
+	/*public void renameTaskInstance(String taskId, String newName) {
 		long id = new Long(taskId).longValue();
 		GetTaskInstanceCommand command = new GetTaskInstanceCommand(id);
 		TaskInstance taskInstance = (TaskInstance)commandService.execute(command);
 		taskInstance.setName(newName);
-	}
+	}*/
 	public void describeTaskInstance(String taskId, String description) {
 		long id = new Long(taskId).longValue();
-		GetTaskInstanceCommand command = new GetTaskInstanceCommand(id);
-		TaskInstance taskInstance = (TaskInstance)commandService.execute(command);
-		taskInstance.setDescription(description);
+		DescribeTaskInstanceCommand command = new DescribeTaskInstanceCommand(id, description);
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		commandService.execute(autoSaveCommand);
 	}
 	public List<JbpmTask> findTaskInstancesForProcessInstance(String processInstanceId) {
 		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
@@ -493,6 +564,7 @@ public class JbpmDao {
 			resultat.add(new JbpmTask(ti));
 		return resultat;
 	}
+
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> getProcessInstanceVariables(String processInstanceId) {
 		Map<String, Object> resultat = null;
@@ -512,17 +584,29 @@ public class JbpmDao {
 		resultat = pi.getContextInstance().getVariable(varName);
 		return resultat;
 	}
-	public void setProcessInstanceVariable(String processInstanceId, String varName, Object value) {
+	public void setProcessInstanceVariable(
+			String processInstanceId,
+			String varName,
+			Object value) {
 		long id = new Long(processInstanceId).longValue();
-		GetProcessInstanceCommand command = new GetProcessInstanceCommand(id);
-		ProcessInstance processInstance = (ProcessInstance)commandService.execute(command);
-		processInstance.getContextInstance().setVariable(varName, value);
+		Map<String, Object> vars = new HashMap<String, Object>();
+		vars.put(varName, value);
+		SaveProcessInstanceVariablesCommand command = new SaveProcessInstanceVariablesCommand(id, vars);
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		commandService.execute(autoSaveCommand);
 	}
 	public void deleteProcessInstanceVariable(String processInstanceId, String varName) {
+		setProcessInstanceVariable(processInstanceId, varName, null);
 		long id = new Long(processInstanceId).longValue();
-		GetProcessInstanceCommand command = new GetProcessInstanceCommand(id);
-		ProcessInstance processInstance = (ProcessInstance)commandService.execute(command);
-		processInstance.getContextInstance().deleteVariable(varName);
+		DeleteProcessInstanceVariablesCommand command = new DeleteProcessInstanceVariablesCommand(id, new String[] {varName});
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		commandService.execute(autoSaveCommand);
 	}
 
 	public JbpmToken getTokenById(String tokenId) {
@@ -567,11 +651,18 @@ public class JbpmDao {
 		return (List<String>)commandService.execute(command);
 	}
 
-	public void tokenRedirect(String tokenId, String nodeName, boolean cancelTasks) {
+	public void tokenRedirect(
+			long tokenId,
+			String nodeName,
+			boolean cancelTasks) {
 		long id = new Long(tokenId).longValue();
 		TokenRedirectCommand command = new TokenRedirectCommand(id, nodeName);
 		command.setCancelTasks(cancelTasks);
-		commandService.execute(command);
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_TOKEN);
+		commandService.execute(autoSaveCommand);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -585,7 +676,11 @@ public class JbpmDao {
 				id,
 				script,
 				outputNames);
-		resultat = (Map<String,Object>)commandService.execute(command);
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		resultat = (Map<String,Object>)commandService.execute(autoSaveCommand);
 		return resultat;
 	}
 
@@ -594,15 +689,19 @@ public class JbpmDao {
 			String processInstanceId,
 			String expression,
 			Map<String, Object> valors) {
-		long pid = new Long(processInstanceId).longValue();
+		long id = new Long(processInstanceId).longValue();
 		EvaluateExpressionCommand command = new EvaluateExpressionCommand(
-				pid,
+				id,
 				expression);
 		if (taskInstanceInstanceId != null)
 			command.setTid(new Long(taskInstanceInstanceId).longValue());
 		if (valors != null)
 			command.setValors(valors);
-		return commandService.execute(command);
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		return commandService.execute(autoSaveCommand);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -618,7 +717,11 @@ public class JbpmDao {
 		ExecuteActionCommand command = new ExecuteActionCommand(
 				id,
 				actionName);
-		commandService.execute(command);
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		commandService.execute(autoSaveCommand);
 	}
 	public void executeActionInstanciaTasca(
 			String taskInstanceId,
@@ -628,7 +731,25 @@ public class JbpmDao {
 				id,
 				actionName);
 		command.setTaskInstance(true);
-		commandService.execute(command);
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		commandService.execute(autoSaveCommand);
+	}
+	public void retrocedirAccio(
+			String processInstanceId,
+			String actionName) {
+		long id = new Long(processInstanceId).longValue();
+		ExecuteActionCommand command = new ExecuteActionCommand(
+				id,
+				actionName);
+		command.setGoBack(true);
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		commandService.execute(autoSaveCommand);
 	}
 
 	public void changeProcessInstanceVersion(
@@ -638,14 +759,22 @@ public class JbpmDao {
 		ChangeProcessInstanceVersionCommand command = new ChangeProcessInstanceVersionCommand(
 				id,
 				newVersion);
-		commandService.execute(command);
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		commandService.execute(autoSaveCommand);
 	}
 
 	public void signalToken(
 			long tokenId,
 			String transitionName) {
 		SignalCommand command = new SignalCommand(tokenId, transitionName);
-		commandService.execute(command);
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				tokenId,
+				AddToAutoSaveCommand.TIPUS_TOKEN);
+		commandService.execute(autoSaveCommand);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -669,6 +798,74 @@ public class JbpmDao {
 		ResumeProcessInstanceTimerCommand command = new ResumeProcessInstanceTimerCommand(timerId);
 		command.setDueDate(dueDate);
 		commandService.execute(command);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public Map<Token, List<ProcessLog>> getProcessInstanceLogs(String processInstanceId) {
+		long id = new Long(processInstanceId).longValue();
+		FindProcessInstanceLogsCommand command = new FindProcessInstanceLogsCommand(id);
+		return (Map)commandService.execute(command);
+	}
+
+	public long addProcessInstanceMessageLog(String processInstanceId, String message) {
+		long id = new Long(processInstanceId).longValue();
+		AddProcessInstanceMessageLogCommand command = new AddProcessInstanceMessageLogCommand(id, message);
+		return ((Long)commandService.execute(command)).longValue();
+	}
+	public long addTaskInstanceMessageLog(String taskInstanceId, String message) {
+		long id = new Long(taskInstanceId).longValue();
+		AddTaskInstanceMessageLogCommand command = new AddTaskInstanceMessageLogCommand(id, message);
+		return ((Long)commandService.execute(command)).longValue();
+	}
+
+	public Long getVariableIdFromVariableLog(long variableLogId) {
+		GetVariableIdFromVariableLogCommand command = new GetVariableIdFromVariableLogCommand(variableLogId);
+		return (Long)commandService.execute(command);
+	}
+	public Long getTaskIdFromVariableLog(long variableLogId) {
+		GetTaskIdFromVariableLogCommand command = new GetTaskIdFromVariableLogCommand(variableLogId);
+		return (Long)commandService.execute(command);
+	}
+
+	public void cancelProcessInstance(long id) {
+		CancelProcessInstanceCommand command = new CancelProcessInstanceCommand(id);
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		commandService.execute(autoSaveCommand);
+	}
+	public void revertProcessInstanceEnd(long id) {
+		RevertProcessInstanceEndCommand command = new RevertProcessInstanceEndCommand(id);
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		commandService.execute(autoSaveCommand);
+	}
+
+	public void cancelToken(long id) {
+		CancelTokenCommand command = new CancelTokenCommand(id);
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_TOKEN);
+		commandService.execute(autoSaveCommand);
+	}
+	public void revertTokenEnd(long id) {
+		RevertTokenEndCommand command = new RevertTokenEndCommand(id);
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_TOKEN);
+		commandService.execute(autoSaveCommand);
+	}
+
+	public JbpmTask findEquivalentTaskInstance(long tokenId, long taskInstanceId) {
+		GetTaskInstanceCommand commandGetTask = new GetTaskInstanceCommand(taskInstanceId);
+		TaskInstance ti = (TaskInstance)commandService.execute(commandGetTask);
+		FindTaskInstanceForTokenAndTaskCommand command = new FindTaskInstanceForTokenAndTaskCommand(tokenId, ti.getTask().getId());
+		return new JbpmTask((TaskInstance)commandService.execute(command));
 	}
 
 

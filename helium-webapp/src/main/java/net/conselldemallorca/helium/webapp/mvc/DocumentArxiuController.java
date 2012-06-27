@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/document/*.html")
 public class DocumentArxiuController extends BaseController {
 
 	private DocumentService documentService;
@@ -39,15 +38,12 @@ public class DocumentArxiuController extends BaseController {
 	@RequestMapping(value = "/document/arxiuMostrar")
 	public String arxiuMostrar(
 			HttpServletRequest request,
-			@RequestParam(value = "id", required = false) Long id,
-			@RequestParam(value = "token", required = false) String token,
+			@RequestParam(value = "token", required = true) String token,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			ArxiuDto arxiu = null;
-			if (id != null)
-				arxiu = documentService.arxiuDocumentPerMostrar(id);
-			else if (token != null)
+			if (token != null)
 				arxiu = documentService.arxiuDocumentPerMostrar(token);
 			if (arxiu != null) {
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
@@ -63,7 +59,7 @@ public class DocumentArxiuController extends BaseController {
 	@RequestMapping(value = "/document/arxiuPerSignar")
 	public String arxiuPerSignar(
 			HttpServletRequest request,
-			@RequestParam(value = "token", required = false) String token,
+			@RequestParam(value = "token", required = true) String token,
 			@RequestParam(value = "noe", required = false) Boolean noe,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);

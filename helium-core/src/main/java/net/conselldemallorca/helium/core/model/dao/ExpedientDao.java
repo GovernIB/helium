@@ -3,13 +3,13 @@
  */
 package net.conselldemallorca.helium.core.model.dao;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 
+import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
@@ -98,7 +98,8 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean mostrarAnulats) {
+			boolean mostrarAnulats,
+			String[] grupsUsuari) {
 		return getCountByCriteria(getCriteriaForConsultaGeneral(
 				entornId,
 				titol,
@@ -113,7 +114,8 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 				geoPosX,
 				geoPosY,
 				geoReferencia,
-				mostrarAnulats));
+				mostrarAnulats,
+				grupsUsuari));
 	}
 	public List<Expedient> findAmbEntornConsultaGeneral(
 			Long entornId,
@@ -129,7 +131,8 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean mostrarAnulats) {
+			boolean mostrarAnulats,
+			String[] grupsUsuari) {
 		return findByCriteria(getCriteriaForConsultaGeneral(
 				entornId,
 				titol,
@@ -144,7 +147,8 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 				geoPosX,
 				geoPosY,
 				geoReferencia,
-				mostrarAnulats));
+				mostrarAnulats,
+				grupsUsuari));
 	}
 	public List<Expedient> findAmbEntornConsultaGeneralPagedAndOrdered(
 			Long entornId,
@@ -161,6 +165,7 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			Double geoPosY,
 			String geoReferencia,
 			boolean mostrarAnulats,
+			String[] grupsUsuari,
 			int firstRow,
 			int maxResults,
 			String sort,
@@ -194,7 +199,8 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 						geoPosX,
 						geoPosY,
 						geoReferencia,
-						mostrarAnulats));
+						mostrarAnulats,
+						grupsUsuari));
 	}
 	public List<Expedient> findAmbEntornLikeIdentificador(
 			Long entornId,
@@ -213,7 +219,7 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 
 
 
-	private Criterion[] getCriteriaForConsultaGeneral(
+	private Criteria getCriteriaForConsultaGeneral(
 			Long entornId,
 			String titol,
 			String numero,
@@ -227,8 +233,11 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean mostrarAnulats) {
-		List<Criterion> crit = new ArrayList<Criterion>();
+			boolean mostrarAnulats,
+			String[] grupsUsuari) {
+		Criteria crit = getSession().createCriteria(
+				getPersistentClass());
+		crit.createAlias("tipus", "tip");
 		crit.add(Restrictions.eq("entorn.id", entornId));
 		if (titol != null && titol.length() > 0)
 			crit.add(Restrictions.ilike("titol", "%" + titol + "%"));
@@ -255,7 +264,14 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 		if (!mostrarAnulats) {
 			crit.add(Restrictions.eq("anulat", false));
 		}
-		return crit.toArray(new Criterion[crit.size()]);
+		if (grupsUsuari != null && grupsUsuari.length > 0) {
+			crit.add(Restrictions.or(
+					Restrictions.eq("tip.restringirPerGrup", false),
+					Restrictions.in("grupCodi", grupsUsuari)));
+		} else {
+			crit.add(Restrictions.eq("tip.restringirPerGrup", false));
+		}
+		return crit;
 	}
 
 }

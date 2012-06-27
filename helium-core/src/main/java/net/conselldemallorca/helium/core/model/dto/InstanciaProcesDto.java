@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.core.model.dto;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,8 @@ public class InstanciaProcesDto {
 	private String id;
 	private String instanciaProcesPareId;
 	private String titol;
+	private Date dataInici;
+	private Date dataFi;
 	private boolean imatgeDisponible;
 
 	private DefinicioProces definicioProces;
@@ -65,6 +68,18 @@ public class InstanciaProcesDto {
 	}
 	public void setTitol(String titol) {
 		this.titol = titol;
+	}
+	public Date getDataInici() {
+		return dataInici;
+	}
+	public void setDataInici(Date dataInici) {
+		this.dataInici = dataInici;
+	}
+	public Date getDataFi() {
+		return dataFi;
+	}
+	public void setDataFi(Date dataFi) {
+		this.dataFi = dataFi;
 	}
 	public boolean isImatgeDisponible() {
 		return imatgeDisponible;
@@ -174,6 +189,10 @@ public class InstanciaProcesDto {
 					}
 				});
 		return resposta;
+	}
+
+	public boolean isFinalitzat() {
+		return dataFi != null;
 	}
 
 }

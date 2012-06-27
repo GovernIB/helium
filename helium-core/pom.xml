@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>helium</artifactId>
 		<groupId>net.conselldemallorca</groupId>
-		<version>2.3</version>
+		<version>2.4</version>
 	</parent>
 	<artifactId>helium-core</artifactId>
 	<properties>
@@ -38,28 +38,28 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-orm</artifactId>
-			<version>2.5.6.SEC02</version>
+			<version>${spring.version}</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context-support</artifactId>
-			<version>2.5.6.SEC02</version>
+			<version>${spring.version}</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
-			<version>2.5.6.SEC02</version>
+			<version>${spring.version}</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-aop</artifactId>
-			<version>2.5.6.SEC02</version>
+			<version>${spring.version}</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
@@ -256,19 +256,19 @@
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-plugin-api</artifactId>
-			<version>2.3</version>
+			<version>2.4</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-util</artifactId>
-			<version>2.3</version>
+			<version>2.4</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-disseny</artifactId>
-			<version>2.3</version>
+			<version>2.4</version>
 			<type>jar</type>
 		</dependency>
 	</dependencies>

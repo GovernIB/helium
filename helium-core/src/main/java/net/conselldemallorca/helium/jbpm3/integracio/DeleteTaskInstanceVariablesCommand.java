@@ -8,7 +8,7 @@ import org.jbpm.command.AbstractBaseCommand;
 import org.jbpm.taskmgmt.exe.TaskInstance;
 
 /**
- * Command per esborrar una instància de procés
+ * Command per esborrar variables d'una instància de tasca
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */

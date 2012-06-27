@@ -132,7 +132,8 @@ public class ExpedientEditarController extends BaseController {
 								command.getEstatId(),
 								command.getGeoPosX(),
 								command.getGeoPosY(),
-								command.getGeoReferencia());
+								command.getGeoReferencia(),
+								command.getGrupCodi());
 						missatgeInfo(request, getMessage("info.informacio.modificat") );
 					} catch (Exception ex) {
 						missatgeError(request, getMessage("error.modificar.dades.exp"), ex.getLocalizedMessage());
@@ -194,6 +195,7 @@ public class ExpedientEditarController extends BaseController {
 		command.setGeoPosX(expedient.getGeoPosX());
 		command.setGeoPosY(expedient.getGeoPosY());
 		command.setGeoReferencia(expedient.getGeoReferencia());
+		command.setGrupCodi(expedient.getGrupCodi());
 		return command;
 	}
 

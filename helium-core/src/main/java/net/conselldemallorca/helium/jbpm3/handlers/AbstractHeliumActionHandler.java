@@ -9,6 +9,7 @@ import java.util.Date;
 import net.conselldemallorca.helium.core.model.dao.DaoProxy;
 import net.conselldemallorca.helium.core.model.dao.DocumentStoreDao;
 import net.conselldemallorca.helium.core.model.dao.PluginRegistreDao;
+import net.conselldemallorca.helium.core.model.dto.ArxiuDto;
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
@@ -18,12 +19,12 @@ import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.service.AlertaService;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
+import net.conselldemallorca.helium.core.model.service.DocumentHelper;
+import net.conselldemallorca.helium.core.model.service.DocumentService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.core.model.service.ServiceProxy;
-import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.model.service.TerminiService;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 
 import org.jbpm.JbpmException;
@@ -78,17 +79,13 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 
 	DocumentInfo getDocumentInfo(ExecutionContext executionContext,
 			String documentCodi) {
-		String varCodi = TascaService.PREFIX_DOCUMENT + documentCodi;
+		String varCodi = DocumentHelper.PREFIX_VAR_DOCUMENT + documentCodi;
 		Object valor = executionContext.getVariable(varCodi);
 		if (valor == null)
 			return null;
 		if (valor instanceof Long) {
 			Long id = (Long) valor;
-			DocumentDto document = getExpedientService().getDocument(
-					id,
-					true,
-					true,
-					false);
+			DocumentDto document = getDocumentService().documentInfo(id);
 			if (document == null)
 				return null;
 			DocumentInfo resposta = new DocumentInfo();
@@ -101,13 +98,6 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 			resposta.setDataCreacio(document.getDataCreacio());
 			resposta.setDataDocument(document.getDataDocument());
 			resposta.setSignat(document.isSignat());
-			if (document.isSignat() && isSignaturaFileAttached()) {
-				resposta.setArxiuNom(document.getSignatNom());
-				resposta.setArxiuContingut(document.getSignatContingut());
-			} else {
-				resposta.setArxiuNom(document.getArxiuNom());
-				resposta.setArxiuContingut(document.getArxiuContingut());
-			}
 			if (document.isRegistrat()) {
 				resposta.setRegistrat(true);
 				resposta.setRegistreNumero(document.getRegistreNumero());
@@ -116,6 +106,9 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 				resposta.setRegistreOficinaNom(document.getRegistreOficinaNom());
 				resposta.setRegistreEntrada(document.isRegistreEntrada());
 			}
+			ArxiuDto arxiu = getDocumentService().arxiuDocumentPerMostrar(id);
+			resposta.setArxiuNom(arxiu.getNom());
+			resposta.setArxiuContingut(arxiu.getContingut());
 			return resposta;
 		} else {
 			throw new JbpmException("La referencia al document \""
@@ -125,6 +118,10 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 
 	ExpedientService getExpedientService() {
 		return ServiceProxy.getInstance().getExpedientService();
+	}
+
+	DocumentService getDocumentService() {
+		return ServiceProxy.getInstance().getDocumentService();
 	}
 
 	PluginService getPluginService() {
@@ -224,11 +221,6 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 			}
 		}
 		return null;
-	}
-
-	private boolean isSignaturaFileAttached() {
-		return "true".equalsIgnoreCase((String) GlobalProperties.getInstance()
-				.get("app.signatura.plugin.file.attached"));
 	}
 
 }

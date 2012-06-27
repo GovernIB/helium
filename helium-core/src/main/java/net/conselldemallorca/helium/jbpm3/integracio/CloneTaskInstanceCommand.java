@@ -47,6 +47,7 @@ public class CloneTaskInstanceCommand extends AbstractBaseCommand {
 				clone.setVariableLocally(codi, variables.get(codi));
 			}
 		}
+		jbpmContext.addAutoSaveTaskInstance(clone);
 		return clone;
 	}
 

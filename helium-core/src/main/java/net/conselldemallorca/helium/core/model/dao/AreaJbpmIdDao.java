@@ -38,7 +38,25 @@ public class AreaJbpmIdDao extends HibernateGenericDao<AreaJbpmId, Long> {
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<String> findAmbUsuariCodi(final String usuariCodi) {
+		return (List<String>)getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query query = session.createQuery(
+						"select " +
+						"    m.group.name " +
+						"from " +
+						"    org.jbpm.identity.Membership m " +
+						"where " +
+						"    m.user.name = :usuariCodi");
+				query.setString("usuariCodi", usuariCodi);
+				List<String> resposta = query.list();
+				return resposta;
+			}
+		});
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<AreaJbpmId> findSenseAssignar() {
 		return (List<AreaJbpmId>)getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException, SQLException {

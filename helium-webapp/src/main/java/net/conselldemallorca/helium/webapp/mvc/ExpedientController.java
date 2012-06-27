@@ -9,6 +9,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
+import net.conselldemallorca.helium.core.model.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
@@ -36,7 +37,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/expedient/*.html")
+@RequestMapping("/expedient")
 public class ExpedientController extends BaseController {
 
 	private DissenyService dissenyService;
@@ -372,9 +373,63 @@ public class ExpedientController extends BaseController {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (potConsultarExpedient(expedient)) {
 				model.addAttribute(
-						"registre",
-						expedientService.getRegistrePerExpedient(expedient.getId()));
-				return "expedient/registre";
+						"expedient",
+						expedient);
+				model.addAttribute(
+						"arbreProcessos",
+						expedientService.getArbreInstanciesProces(id));
+				model.addAttribute(
+						"instanciaProces",
+						expedientService.getInstanciaProcesById(id, false));
+				List<ExpedientLogDto> logs = expedientService.getLogsOrdenatsPerData(expedient.getId());
+				if (logs == null || logs.size() == 0) {
+					model.addAttribute(
+							"registre",
+							expedientService.getRegistrePerExpedient(expedient.getId()));
+					return "expedient/registre";
+				} else {
+					// Llevam els logs retrocedits
+					Iterator<ExpedientLogDto> itLogs = logs.iterator();
+					while (itLogs.hasNext()) {
+						ExpedientLogDto log = itLogs.next();
+						if ("RETROCEDIT".equals(log.getEstat()))
+							itLogs.remove();
+					}
+					model.addAttribute("logs", logs);
+					model.addAttribute(
+							"tasques",
+							expedientService.getTasquesPerLogExpedient(expedient.getId()));
+					return "expedient/log";
+				}
+			} else {
+				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
+				return "redirect:/expedient/consulta.html";
+			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+
+	@RequestMapping(value = "logRetrocedit")
+	public String logRetrocedit(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) String id,
+			@RequestParam(value = "logId", required = true) Long logId,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
+			if (potConsultarExpedient(expedient)) {
+				model.addAttribute(
+						"instanciaProces",
+						expedientService.getInstanciaProcesById(id, false));
+				List<ExpedientLogDto> logs = expedientService.findLogsRetroceditsOrdenatsPerData(logId);
+				model.addAttribute("logs", logs);
+				model.addAttribute(
+						"tasques",
+						expedientService.getTasquesPerLogExpedient(expedient.getId()));
+				return "expedient/logRetrocedit";
 			} else {
 				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
 				return "redirect:/expedient/consulta.html";
@@ -402,6 +457,21 @@ public class ExpedientController extends BaseController {
 				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 				return "redirect:/expedient/consulta.html";
 			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+
+	@RequestMapping(value = "retrocedir")
+	public String retrocedir(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) String id,
+			@RequestParam(value = "logId", required = true) Long logId) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			expedientService.retrocedirFinsLog(logId);
+			return "redirect:/expedient/registre.html?id=" + id;
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";

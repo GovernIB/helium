@@ -11,7 +11,7 @@
 	<link href="<c:url value="/css/calendari.css"/>" rel="stylesheet" type="text/css"/>
 	<script type="text/javascript" src="<c:url value="/dwr/interface/festiuDwrService.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/dwr/engine.js"/>"></script>
-<script type="text/javascript" language="javascript">
+<script type="text/javascript">
 // <![CDATA[
 	var hihaCanvis = false;
 	function clickFestiu(elem) {

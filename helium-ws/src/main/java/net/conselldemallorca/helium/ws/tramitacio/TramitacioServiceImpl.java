@@ -45,7 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @WebService(
 		endpointInterface = "net.conselldemallorca.helium.ws.tramitacio.TramitacioService",
 		targetNamespace = "http://tramitacio.integracio.helium.conselldemallorca.net/")
-public class Tramitacio implements TramitacioService {
+public class TramitacioServiceImpl implements TramitacioService {
 
 	private EntornService entornService;
 	private DissenyService dissenyService;
@@ -275,14 +275,14 @@ public class Tramitacio implements TramitacioService {
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
-			tascaService.guardarDocument(
+			tascaService.comprovarTascaAssignadaIValidada(e.getId(), tascaId, usuari);
+			documentService.guardarDocumentTasca(
 					e.getId(),
 					tascaId,
 					arxiu,
-					nom,
 					data,
-					contingut,
-					usuari);
+					nom,
+					contingut);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar el document a la tasca", ex);
 			throw new TramitacioException("No s'ha pogut guardar el document a la tasca: " + ex.getMessage());
@@ -297,11 +297,11 @@ public class Tramitacio implements TramitacioService {
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
-			tascaService.esborrarDocument(
-					e.getId(),
+			tascaService.comprovarTascaAssignadaIValidada(e.getId(), tascaId, usuari);
+			documentService.esborrarDocument(
 					tascaId,
-					document,
-					usuari);
+					null,
+					document);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut esborrar el document de la tasca", ex);
 			throw new TramitacioException("No s'ha pogut esborrar el document de la tasca: " + ex.getMessage());
@@ -466,12 +466,14 @@ public class Tramitacio implements TramitacioService {
 					documentCodi);
 			if (document == null)
 				throw new TramitacioException("No s'ha pogut trobar el document amb codi " + documentCodi);
-			return expedientService.guardarDocument(
+			return documentService.guardarDocumentProces(
 					processInstanceId,
-					document.getId(),
+					documentCodi,
+					null,
 					data,
 					arxiu,
-					contingut);
+					contingut,
+					false);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar el document al procés", ex);
 			throw new TramitacioException("No s'ha pogut guardar el document al procés: " + ex.getMessage());
@@ -486,9 +488,10 @@ public class Tramitacio implements TramitacioService {
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
-			expedientService.deleteDocument(
+			documentService.esborrarDocument(
+					null,
 					processInstanceId,
-					documentId);
+					documentService.getDocumentCodiPerDocumentStoreId(documentId));
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut esborrar el document del procés", ex);
 			throw new TramitacioException("No s'ha pogut esborrar el document del procés: " + ex.getMessage());
@@ -798,6 +801,6 @@ public class Tramitacio implements TramitacioService {
 		return null;
 	}
 
-	private static final Log logger = LogFactory.getLog(Tramitacio.class);
+	private static final Log logger = LogFactory.getLog(TramitacioServiceImpl.class);
 
 }

@@ -41,7 +41,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/definicioProces/*.html")
+@RequestMapping("/definicioProces")
 public class DefinicioProcesController extends BaseController {
 
 	private DissenyService dissenyService;

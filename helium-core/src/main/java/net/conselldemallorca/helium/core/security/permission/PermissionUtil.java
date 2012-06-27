@@ -28,6 +28,7 @@ public class PermissionUtil {
 		permissionMap.put("DESIGN", ExtendedPermission.DESIGN);
 		permissionMap.put("ORGANIZATION", ExtendedPermission.ORGANIZATION);
 		permissionMap.put("SUPERVISION", ExtendedPermission.SUPERVISION);
+		permissionMap.put("MANAGE", ExtendedPermission.MANAGE);
 	}
 
 	public static Permission getPermissionForName(String name) {

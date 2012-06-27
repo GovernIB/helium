@@ -64,18 +64,23 @@ public class DocumentExpedientCopiarDestiHandler extends AbstractHeliumActionHan
 					documentDestiCodi);
 			if (documentDesti == null)
 				throw new JbpmException("No existeix el document amb codi " + documentDestiCodi + " a l'expedient destí");
-			getExpedientService().guardarDocumentAmbDadesRegistre(
+			Long documentStoreId = getDocumentService().guardarDocumentProces(
 					new Long(pi.getId()).toString(),
-					documentDesti.getId(),
+					documentDesti.getCodi(),
+					null,
 					documentInfo.getDataDocument(),
 					documentInfo.getArxiuNom(),
 					documentInfo.getArxiuContingut(),
-					documentInfo.isRegistrat(),
-					documentInfo.getRegistreNumero(),
-					documentInfo.getRegistreData(),
-					documentInfo.getRegistreOficinaCodi(),
-					documentInfo.getRegistreOficinaNom(),
-					documentInfo.isRegistreEntrada());
+					false);
+			if (documentInfo.isRegistrat()) {
+				getDocumentService().guardarDadesRegistre(
+						documentStoreId,
+						documentInfo.getRegistreNumero(),
+						documentInfo.getRegistreData(),
+						documentInfo.getRegistreOficinaCodi(),
+						documentInfo.getRegistreOficinaNom(),
+						documentInfo.isRegistreEntrada());
+			}
 		}
 	}
 

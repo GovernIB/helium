@@ -86,7 +86,7 @@ public class ExpedientTipusEnumeracioValorsController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			Enumeracio enumeracio = dissenyService.getEnumeracioById(id);
-			if (potDissenyarExpedientTipus(entorn, enumeracio.getExpedientTipus())) {
+			if (potGestionarExpedientTipus(entorn, enumeracio.getExpedientTipus())) {
 				model.addAttribute("llistat", dissenyService.findEnumeracioValorsAmbEnumeracio(id));
 				ImportCommand commandImportacio = new ImportCommand();
 				commandImportacio.setEnumeracioId(id);
@@ -114,7 +114,7 @@ public class ExpedientTipusEnumeracioValorsController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			Enumeracio enumeracio = dissenyService.getEnumeracioById(command.getEnumeracioId());
-			if (potDissenyarExpedientTipus(entorn, enumeracio.getExpedientTipus())) {
+			if (potGestionarExpedientTipus(entorn, enumeracio.getExpedientTipus())) {
 				if ("submit".equals(submit) || submit.length() == 0) {
 					command.setEnumeracioId(enumeracio.getId());
 					annotationValidator.validate(command, result);
@@ -162,7 +162,7 @@ public class ExpedientTipusEnumeracioValorsController extends BaseController {
 		if (entorn != null) {
 			EnumeracioValors enumeracioValors = dissenyService.getEnumeracioValorsById(id);
 			if (enumeracioValors != null){
-				if (potDissenyarExpedientTipus(entorn, enumeracioValors.getEnumeracio().getExpedientTipus())) {
+				if (potGestionarExpedientTipus(entorn, enumeracioValors.getEnumeracio().getExpedientTipus())) {
 					try {
 						dissenyService.deleteEnumeracioValors(id);
 						missatgeInfo(request, getMessage("info.enum.esborrat") );
@@ -193,7 +193,7 @@ public class ExpedientTipusEnumeracioValorsController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			Enumeracio enumeracio = dissenyService.getEnumeracioById(enumeracioId);
-			if (potDissenyarExpedientTipus(entorn, enumeracio.getExpedientTipus())) {
+			if (potGestionarExpedientTipus(entorn, enumeracio.getExpedientTipus())) {
 				try {
 					dissenyService.goUpEnumeracioValor(id);
 				} catch (Exception ex) {
@@ -218,7 +218,7 @@ public class ExpedientTipusEnumeracioValorsController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			Enumeracio enumeracio = dissenyService.getEnumeracioById(enumeracioId);
-			if (potDissenyarExpedientTipus(entorn, enumeracio.getExpedientTipus())) {
+			if (potGestionarExpedientTipus(entorn, enumeracio.getExpedientTipus())) {
 				try {
 					dissenyService.goDownEnumeracioValor(id);
 				} catch (Exception ex) {
@@ -304,7 +304,7 @@ public class ExpedientTipusEnumeracioValorsController extends BaseController {
 
 
 
-	private boolean potDissenyarExpedientTipus(Entorn entorn, ExpedientTipus expedientTipus) {
+	private boolean potGestionarExpedientTipus(Entorn entorn, ExpedientTipus expedientTipus) {
 		if (potDissenyarEntorn(entorn))
 			return true;
 		return permissionService.filterAllowed(
@@ -312,7 +312,8 @@ public class ExpedientTipusEnumeracioValorsController extends BaseController {
 				ExpedientTipus.class,
 				new Permission[] {
 					ExtendedPermission.ADMINISTRATION,
-					ExtendedPermission.DESIGN}) != null;
+					ExtendedPermission.DESIGN,
+					ExtendedPermission.MANAGE}) != null;
 	}
 	private boolean potDissenyarEntorn(Entorn entorn) {
 		return permissionService.filterAllowed(

@@ -6,6 +6,9 @@ package net.conselldemallorca.helium.jbpm3.handlers;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.conselldemallorca.helium.core.model.dao.DaoProxy;
+import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 import net.conselldemallorca.helium.integracio.plugins.registre.DadesAssumpte;
 import net.conselldemallorca.helium.integracio.plugins.registre.DadesInteressat;
 import net.conselldemallorca.helium.integracio.plugins.registre.DadesOficina;
@@ -13,9 +16,6 @@ import net.conselldemallorca.helium.integracio.plugins.registre.DocumentRegistre
 import net.conselldemallorca.helium.integracio.plugins.registre.RegistreSortida;
 import net.conselldemallorca.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
-import net.conselldemallorca.helium.core.model.dao.DaoProxy;
-import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.core.model.service.TascaService;
 
 import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
@@ -290,7 +290,7 @@ public class RegistreSortidaHandler extends AbstractHeliumActionHandler implemen
 
 
 	private Long getDocumentId(ExecutionContext executionContext) {
-		String varCodi = TascaService.PREFIX_DOCUMENT + varDocument;
+		String varCodi = DocumentHelper.PREFIX_VAR_DOCUMENT + varDocument;
 		Object valor = executionContext.getVariable(varCodi);
 		if (valor instanceof Long)
 			return (Long)valor;

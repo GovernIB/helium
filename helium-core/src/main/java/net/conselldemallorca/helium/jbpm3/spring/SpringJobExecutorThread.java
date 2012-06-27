@@ -38,7 +38,7 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 	
 	/* WRAPPED OPERATIONS */
 	
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected Collection acquireJobs() {
 		return (Collection) transactionTemplate.execute(new TransactionCallback() {
 			
@@ -49,6 +49,7 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 		});
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected void executeJob(final Job job) {
 		transactionTemplate.execute(new TransactionCallback() {
 			
@@ -60,6 +61,7 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 		});
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected Date getNextDueDate() {
 		return (Date) transactionTemplate.execute(new TransactionCallback() {
 			

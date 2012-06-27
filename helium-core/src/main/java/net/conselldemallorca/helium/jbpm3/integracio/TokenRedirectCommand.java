@@ -6,11 +6,10 @@ package net.conselldemallorca.helium.jbpm3.integracio;
 import java.util.Map;
 
 import org.jbpm.JbpmContext;
-import org.jbpm.JbpmException;
 import org.jbpm.command.AbstractGetObjectBaseCommand;
 import org.jbpm.graph.def.Node;
-import org.jbpm.graph.def.Transition;
 import org.jbpm.graph.def.Node.NodeType;
+import org.jbpm.graph.exe.ExecutionContext;
 import org.jbpm.graph.exe.Token;
 import org.jbpm.taskmgmt.exe.TaskInstance;
 
@@ -38,7 +37,7 @@ public class TokenRedirectCommand extends AbstractGetObjectBaseCommand {
 		Token token = jbpmContext.getToken(id);
 		Map<String, Token> children = token.getChildren();
 		Node desti = token.getProcessInstance().getProcessDefinition().getNode(nodeName);
-		// Verifica que es pugui fer la redirecció
+		/*/ Verifica que es pugui fer la redirecció
 		if (token.getEnd() != null)
 			throw new JbpmException("Aquest token ja està finalitzat");
 		if (	(!token.isRoot() && token.getNode().equals(token.getParent().getNode())) 
@@ -47,7 +46,7 @@ public class TokenRedirectCommand extends AbstractGetObjectBaseCommand {
 		for (String key: children.keySet()) {
 			if (!children.get(key).hasEnded() && !children.get(key).getNode().equals(token.getNode()))
 				throw new JbpmException("Retrocedeixi primer els fills d'aquest token");
-		}
+		}*/
 		// Si el token té fills actius els desactiva
 		for (String key: children.keySet()) {
 			Token child = children.get(key);
@@ -67,7 +66,14 @@ public class TokenRedirectCommand extends AbstractGetObjectBaseCommand {
 			}
 		}
 		// Fa la redirecció
+		token.setNode(desti);
 		if (desti.getNodeType().equals(NodeType.Task)) {
+			ExecutionContext exc = new ExecutionContext(token);
+			desti.enter(exc);
+		} else {
+			token.setNode(desti);
+		}
+		/*if (desti.getNodeType().equals(NodeType.Task)) {
 			Node origen = token.getNode();
 			Transition transition = new Transition();
 			transition.setFrom(origen);
@@ -75,7 +81,7 @@ public class TokenRedirectCommand extends AbstractGetObjectBaseCommand {
 			token.signal(transition);
 		} else {
 			token.setNode(desti);
-		}
+		}*/
 		return null;
 	}
 

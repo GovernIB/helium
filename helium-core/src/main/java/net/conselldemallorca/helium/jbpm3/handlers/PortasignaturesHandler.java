@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
-import net.conselldemallorca.helium.core.model.service.TascaService;
+import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,7 +55,7 @@ public class PortasignaturesHandler extends AbstractHeliumActionHandler implemen
 			Long documentStoreId = null;
 			if (documentCodi != null) {
 				documentStoreId = (Long)executionContext.getVariable(
-						TascaService.PREFIX_DOCUMENT + documentCodi);
+						DocumentHelper.PREFIX_VAR_DOCUMENT + documentCodi);
 			} else {
 				throw new JbpmException("No s'ha especificat el codi del document per enviar al portasignatures");
 			}
@@ -68,7 +68,7 @@ public class PortasignaturesHandler extends AbstractHeliumActionHandler implemen
 				String[] codis = anxsCodis.split(",");
 				for (String codi: codis) {
 					Long anxId = (Long)executionContext.getVariable(
-							TascaService.PREFIX_DOCUMENT + codi.trim());
+							DocumentHelper.PREFIX_VAR_DOCUMENT + codi.trim());
 					if (anxId != null)
 						anxs.add(anxId);
 				}
