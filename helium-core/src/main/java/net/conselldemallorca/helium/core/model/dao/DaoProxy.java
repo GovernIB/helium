@@ -56,6 +56,9 @@ public class DaoProxy implements ApplicationContextAware {
 	public DominiDao getDominiDao() {
 		return (DominiDao)ctx.getBean("dominiDao", DominiDao.class);
 	}
+	public EnumeracioDao getEnumeracioDao() {
+		return (EnumeracioDao)ctx.getBean("enumeracioDao", EnumeracioDao.class);
+	}
 	public DocumentStoreDao getDocumentStoreDao() {
 		return (DocumentStoreDao)ctx.getBean("documentStoreDao", DocumentStoreDao.class);
 	}

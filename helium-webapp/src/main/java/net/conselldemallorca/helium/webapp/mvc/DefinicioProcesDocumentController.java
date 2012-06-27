@@ -93,6 +93,8 @@ public class DefinicioProcesDocumentController extends BaseController {
 			document.setTipusDocPortasignatures(vell.getTipusDocPortasignatures());
 			document.setDefinicioProces(vell.getDefinicioProces());
 			document.setCampData(vell.getCampData());
+			document.setExtensionsPermeses(vell.getExtensionsPermeses());
+			document.setConvertirExtensio(vell.getConvertirExtensio());
 			return document;
 		}
 		Document nou = new Document();

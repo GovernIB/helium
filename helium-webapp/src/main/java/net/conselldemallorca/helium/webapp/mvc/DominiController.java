@@ -8,8 +8,10 @@ import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.Domini.OrigenCredencials;
+import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusAuthDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
@@ -64,7 +66,14 @@ public class DominiController extends BaseController {
 	@ModelAttribute("tipusDomini")
 	public TipusDomini[] populateTipusDomini() {
 		return Domini.TipusDomini.values();
-
+	}
+	@ModelAttribute("tipusAuth")
+	public TipusAuthDomini[] populateTipusAuthDomini() {
+		return Domini.TipusAuthDomini.values();
+	}
+	@ModelAttribute("origenCredencials")
+	public OrigenCredencials[] populateOrigenCredencials() {
+		return Domini.OrigenCredencials.values();
 	}
 
 	@RequestMapping(value = "llistat")
@@ -102,14 +111,12 @@ public class DominiController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			if ("submit".equals(submit) || submit.length() == 0) {
-				
 	        	command.setEntorn(entorn);
 		        annotationValidator.validate(command, result);
 				additionalValidator.validate(command, result);
 				if (result.hasErrors()) {
 		        	return "domini/form";
 		        }
-				
 				try {
 		        	if (command.getId() == null)
 		        		dissenyService.createDomini(command);
@@ -191,6 +198,10 @@ public class DominiController extends BaseController {
 			if (domini.getTipus()!=null) {
 				if (domini.getTipus().equals(TipusDomini.CONSULTA_WS)) {
 					ValidationUtils.rejectIfEmpty(errors, "url", "not.blank");
+					if (!TipusAuthDomini.NONE.equals(domini.getTipusAuth())) {
+						ValidationUtils.rejectIfEmpty(errors, "usuari", "not.blank");
+						ValidationUtils.rejectIfEmpty(errors, "contrasenya", "not.blank");
+					}
 				}
 				if (domini.getTipus().equals(TipusDomini.CONSULTA_SQL)) {
 					ValidationUtils.rejectIfEmpty(errors, "jndiDatasource", "not.blank");

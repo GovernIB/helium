@@ -25,8 +25,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
-
-
 /**
  * Controlador per la gestió d'enumeracions
  * 
@@ -62,7 +60,7 @@ public class EnumeracioController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			model.addAttribute("llistat", dissenyService.findEnumeracionsAmbEntorn(entorn.getId()));
+			model.addAttribute("llistat", dissenyService.findEnumeracionsAmbEntornSenseTipusExp(entorn.getId()));
 			return "enumeracio/llistat";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
@@ -148,8 +146,6 @@ public class EnumeracioController extends BaseController {
 	public void setAnnotationValidator(Validator annotationValidator) {
 		this.annotationValidator = annotationValidator;
 	}
-
-
 
 	private static final Log logger = LogFactory.getLog(EnumeracioController.class);
 

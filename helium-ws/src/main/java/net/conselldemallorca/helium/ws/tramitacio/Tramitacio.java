@@ -191,7 +191,13 @@ public class Tramitacio implements TramitacioService {
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
-		TascaDto tasca = tascaService.getById(e.getId(), tascaId, usuari);
+		TascaDto tasca = tascaService.getById(
+				e.getId(),
+				tascaId,
+				usuari,
+				null,
+				true,
+				false);
 		List<CampTasca> resposta = new ArrayList<CampTasca>();
 		for (net.conselldemallorca.helium.core.model.hibernate.CampTasca campTasca: tasca.getCamps())
 			resposta.add(convertirCampTasca(
@@ -242,7 +248,13 @@ public class Tramitacio implements TramitacioService {
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
-		TascaDto tasca = tascaService.getById(e.getId(), tascaId, usuari);
+		TascaDto tasca = tascaService.getById(
+				e.getId(),
+				tascaId,
+				usuari,
+				null,
+				true,
+				false);
 		List<DocumentTasca> resposta = new ArrayList<DocumentTasca>();
 		for (net.conselldemallorca.helium.core.model.hibernate.DocumentTasca documentTasca: tasca.getDocuments())
 			resposta.add(convertirDocumentTasca(

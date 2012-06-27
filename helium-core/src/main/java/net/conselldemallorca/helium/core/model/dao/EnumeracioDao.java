@@ -22,7 +22,7 @@ public class EnumeracioDao extends HibernateGenericDao<Enumeracio, Long> {
 		super(Enumeracio.class);
 	}
 
-	public List<Enumeracio> findAmbEntorn(Long entornId) {
+	public List<Enumeracio> findAmbEntornSenseTipusExp(Long entornId) {
 		return findByCriteria(
 				Restrictions.eq("entorn.id", entornId),
 				Restrictions.isNull("expedientTipus.id"));
@@ -32,19 +32,15 @@ public class EnumeracioDao extends HibernateGenericDao<Enumeracio, Long> {
 				Restrictions.eq("entorn.id", entornId),
 				Restrictions.eq("expedientTipus.id", tipusExpedientId));
 	}
-	public List<Enumeracio> findAmbEntornITipusExpONull(Long entornId, Long tipusExpedientId) {
+	public List<Enumeracio> findAmbEntornAmbOSenseTipusExp(Long entornId, Long tipusExpedientId) {
 		List<Enumeracio> enumeracions = findByCriteria(
 				Restrictions.eq("entorn.id", entornId),
 				Restrictions.isNull("expedientTipus.id"));
-		if (tipusExpedientId != null){
+		if (tipusExpedientId != null)
 			enumeracions.addAll(findAmbEntornITipusExp(entornId, tipusExpedientId));
-		}
 		return enumeracions;
 	}
-
-	public Enumeracio findAmbEntornICodi(
-			Long entornId,
-			String codi) {
+	public Enumeracio findAmbEntornICodi(Long entornId, String codi) {
 		List<Enumeracio> enumeracions = findByCriteria(
 				Restrictions.eq("entorn.id", entornId),
 				Restrictions.eq("codi", codi));
@@ -53,4 +49,37 @@ public class EnumeracioDao extends HibernateGenericDao<Enumeracio, Long> {
 		return null;
 	}
 
+	public Enumeracio findAmbEntornSenseTipusExpICodi(
+			Long entornId,
+			String codi) {
+		List<Enumeracio> enumeracions = findByCriteria(
+				Restrictions.eq("entorn.id", entornId),
+				Restrictions.isNull("expedientTipus.id"),
+				Restrictions.eq("codi", codi));
+		if (enumeracions.size() > 0)
+			return enumeracions.get(0);
+		return null;
+	}
+	public Enumeracio findAmbEntornAmbTipusExpICodi(
+			Long entornId,
+			Long tipusExpedientId,
+			String codi) {
+		List<Enumeracio> enumeracions = findByCriteria(
+				Restrictions.eq("entorn.id", entornId),
+				Restrictions.eq("expedientTipus.id", tipusExpedientId),
+				Restrictions.eq("codi", codi));
+		if (enumeracions.size() > 0)
+			return enumeracions.get(0);
+		return null;
+	}
+	public Enumeracio findAmbEntornAmbOSenseTipusExpICodi(
+			Long entornId,
+			Long tipusExpedientId,
+			String codi) {
+		Enumeracio e = findAmbEntornSenseTipusExpICodi(entornId, codi);
+		if (e != null)
+			return e;
+		else
+			return findAmbEntornAmbTipusExpICodi(entornId, tipusExpedientId, codi);
+	}
 }

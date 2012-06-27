@@ -84,8 +84,8 @@ public class SignaturaController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/signatura/signarAmbTokenAFirma", method = RequestMethod.POST)
-	public String signarDocumentAFirma(
+	@RequestMapping(value = "/signatura/signarAmbToken", method = RequestMethod.POST)
+	public String signarDocumentAmbToken(
 			HttpServletRequest request,
 			HttpServletResponse response,
 			@RequestParam(value="taskId", required = true) String taskId,

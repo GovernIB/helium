@@ -48,6 +48,18 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 			expediente.setIdioma(request.getIdioma());
 			expediente.setDescripcion(request.getDescripcio());
 			expediente.setAutenticado(request.isAutenticat());
+			/*
+			- Amb delegat
+			BANTEL			HELIUM			ZONAPER
+			Usuario			Tramitador		-
+			Representado	Interessat		Representado
+			Delegado		Representant	Representante
+			- Sense delegat
+			BANTEL			HELIUM			ZONAPER
+			Usuario			Tramitador		-
+			Representado	Interessat		Representado
+			Usuario			Representant	Representante
+			 */
 			if (request.getRepresentantNif() != null)
 				expediente.setNifRepresentante(
 						new JAXBElement<String>(
@@ -227,7 +239,8 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 			tramit.setInteressatNif(entrada.getRepresentadoNif().getValue());
 		if (entrada.getRepresentadoNombre() != null)
 			tramit.setInteressatNom(entrada.getRepresentadoNombre().getValue());
-		if (entrada.getDelegadoNif() != null && entrada.getDelegadoNif().getValue() != null) {
+		/* */
+		/*if (entrada.getDelegadoNif() != null && entrada.getDelegadoNif().getValue() != null) {
 			tramit.setRepresentantNif(entrada.getDelegadoNif().getValue());
 			if (entrada.getDelegadoNombre() != null)
 				tramit.setRepresentantNom(entrada.getDelegadoNombre().getValue());
@@ -236,7 +249,12 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 				tramit.setRepresentantNif(entrada.getUsuarioNif().getValue());
 			if (entrada.getUsuarioNombre() != null)
 				tramit.setRepresentantNom(entrada.getUsuarioNombre().getValue());
-		}
+		}*/
+		if (entrada.getUsuarioNif() != null)
+			tramit.setRepresentantNif(entrada.getUsuarioNif().getValue());
+		if (entrada.getUsuarioNombre() != null)
+			tramit.setRepresentantNom(entrada.getUsuarioNombre().getValue());
+		/* */
 		tramit.setSignat(entrada.isFirmadaDigitalmente());
 		if (entrada.getHabilitarAvisos() != null)
 			tramit.setAvisosHabilitats(

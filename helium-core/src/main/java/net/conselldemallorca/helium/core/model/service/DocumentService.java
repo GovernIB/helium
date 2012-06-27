@@ -37,7 +37,7 @@ public class DocumentService {
 			return getDocumentInfo(Long.parseLong(tokenDesxifrat));
 		} catch (Exception ex) {
 			logger.error("Error al obtenir el document amb token " + token, ex);
-			throw new IllegalArgumentsException(getMessage("error.documentService.formatIncorrecte") );
+			throw new IllegalArgumentsException(getMessage("error.document.obtenir"));
 		}
 	}
 
@@ -57,7 +57,7 @@ public class DocumentService {
 			return arxiuDocumentPerMostrar(Long.parseLong(tokenDesxifrat));
 		} catch (Exception ex) {
 			logger.error("Error al obtenir el document amb token " + token, ex);
-			throw new IllegalArgumentsException(getMessage("error.documentService.formatIncorrecte") );
+			throw new IllegalArgumentsException(getMessage("error.document.obtenir"));
 		}
 	}
 
@@ -78,7 +78,7 @@ public class DocumentService {
 					document.getVistaContingut());
 		} catch (Exception ex) {
 			logger.error("Error al obtenir el document amb token " + token, ex);
-			throw new IllegalArgumentsException( getMessage("error.documentService.formatIncorrecte") );
+			throw new IllegalArgumentsException(getMessage("error.document.obtenir"));
 		}
 	}
 

@@ -49,7 +49,7 @@ public class CampTascaDao extends HibernateGenericDao<CampTasca, Long> {
 
 	@SuppressWarnings("unchecked")
 	public List<CampTasca> findAmbTascaOrdenats(Long tascaId) {
-		return getSession().createQuery(
+		List<CampTasca> resposta = (List<CampTasca>)getSession().createQuery(
 				"from " +
 				"    CampTasca ct " +
 				"where " +
@@ -58,6 +58,9 @@ public class CampTascaDao extends HibernateGenericDao<CampTasca, Long> {
 				"    ct.order").
 				setLong(0, tascaId).
 				list();
+		for (CampTasca camp: resposta)
+			camp.getCamp().getValidacions().size();
+		return resposta;
 	}
 
 	public CampTasca findAmbTascaCamp(Long tascaId, Long campId) {

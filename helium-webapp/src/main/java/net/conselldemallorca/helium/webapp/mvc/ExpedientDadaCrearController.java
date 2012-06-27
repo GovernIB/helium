@@ -102,7 +102,13 @@ public class ExpedientDadaCrearController extends BaseController {
 				}
 				return camps;
 			} else {
-				TascaDto tasca = tascaService.getById(entorn.getId(), taskId);
+				TascaDto tasca = tascaService.getById(
+						entorn.getId(),
+						taskId,
+						null,
+						null,
+						false,
+						false);
 				List<Camp> camps = dissenyService.findCampsAmbDefinicioProcesOrdenatsPerCodi(tasca.getDefinicioProces().getId());
 				Iterator<Camp> it = camps.iterator();
 				while (it.hasNext()) {
@@ -206,6 +212,10 @@ public class ExpedientDadaCrearController extends BaseController {
 				if (edcCommand.getVarCodi() == null || edcCommand.getVarCodi().equals("")) {
 					errors.rejectValue("varCodi", "not.blank");
 				}
+				String varCodi = edcCommand.getVarCodi();
+				if (!varCodi.matches("^[a-z]{1}[a-zA-Z0-9]*$")) {
+					errors.rejectValue("varCodi", "error.codi.var.incorrecte");
+				}
 			}
 		}
 	}
@@ -224,7 +234,13 @@ public class ExpedientDadaCrearController extends BaseController {
 		if (id != null)
 			return expedientService.findExpedientAmbProcessInstanceId(id);
 		if (taskId != null) {
-			TascaDto tasca = tascaService.getById(entornId, taskId);
+			TascaDto tasca = tascaService.getById(
+					entornId,
+					taskId,
+					null,
+					null,
+					false,
+					false);
 			return expedientService.findExpedientAmbProcessInstanceId(tasca.getProcessInstanceId());
 		}
 		return null;
@@ -233,7 +249,13 @@ public class ExpedientDadaCrearController extends BaseController {
 		if (id != null)
 			return id;
 		if (taskId != null) {
-			TascaDto tasca = tascaService.getById(entornId, taskId);
+			TascaDto tasca = tascaService.getById(
+					entornId,
+					taskId,
+					null,
+					null,
+					false,
+					false);
 			if (tasca != null)
 				return tasca.getProcessInstanceId();
 		}

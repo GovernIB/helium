@@ -24,7 +24,7 @@ import es.indra.www.portafirmasmcgdws.mcgdws.LogMessage;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class MCGDwsImpl implements es.indra.www.portafirmasmcgdws.mcgdws.MCGDws{
+public class MCGDwsImpl implements es.indra.www.portafirmasmcgdws.mcgdws.MCGDws {
 
 	private static final int DOCUMENT_BLOQUEJAT = 0;
 	private static final int DOCUMENT_PENDENT = 1;
@@ -62,9 +62,9 @@ public class MCGDwsImpl implements es.indra.www.portafirmasmcgdws.mcgdws.MCGDws{
 				default:
 					break;
 			}
-	        callbackResponse.setVersion("1.0");
-	        callbackResponse.setLogMessages(new LogMessage[] {new LogMessage()});
-	        callbackResponse.set_return(resposta.doubleValue());
+			callbackResponse.setVersion("1.0");
+			callbackResponse.setLogMessages(new LogMessage[] {new LogMessage()});
+			callbackResponse.set_return(resposta.doubleValue());
 		} catch (Exception e) {
 			logger.error("Error obtenint l'estat del document.", e);
 			callbackResponse.setVersion("1.0");

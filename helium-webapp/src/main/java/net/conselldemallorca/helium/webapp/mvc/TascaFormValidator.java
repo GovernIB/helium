@@ -144,7 +144,13 @@ public class TascaFormValidator implements Validator {
 		} else {
 			String id = (String)PropertyUtils.getSimpleProperty(command, "id");
 			Long entornId = (Long)PropertyUtils.getSimpleProperty(command, "entornId");
-			return tascaService.getById(entornId, id);
+			return tascaService.getById(
+					entornId,
+					id,
+					null,
+					null,
+					false,
+					false);
 		}
 	}
 

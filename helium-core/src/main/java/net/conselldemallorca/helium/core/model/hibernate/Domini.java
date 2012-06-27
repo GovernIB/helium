@@ -44,6 +44,15 @@ public class Domini implements Serializable, GenericEntity<Long> {
 		CONSULTA_SQL,
 		CONSULTA_WS
 	}
+	public enum TipusAuthDomini {
+		NONE,
+		HTTP_BASIC,
+		USERNAMETOKEN
+	}
+	public enum OrigenCredencials {
+		ATRIBUTS,
+		PROPERTIES
+	}
 
 	private Long id;
 	@NotBlank
@@ -56,6 +65,12 @@ public class Domini implements Serializable, GenericEntity<Long> {
 	private TipusDomini tipus;
 	@MaxLength(255)
 	private String url;
+	private TipusAuthDomini tipusAuth;
+	private OrigenCredencials origenCredencials;
+	@MaxLength(255)
+	private String usuari;
+	@MaxLength(255)
+	private String contrasenya;
 	@MaxLength(1024)
 	private String sql;
 	@MaxLength(255)
@@ -112,7 +127,7 @@ public class Domini implements Serializable, GenericEntity<Long> {
 		this.nom = nom;
 	}
 
-	@Column(name="tipus", length=255, nullable=false)
+	@Column(name="tipus", nullable=false)
 	public TipusDomini getTipus() {
 		return tipus;
 	}
@@ -126,6 +141,38 @@ public class Domini implements Serializable, GenericEntity<Long> {
 	}
 	public void setUrl(String url) {
 		this.url = url;
+	}
+
+	@Column(name="tipus_auth")
+	public TipusAuthDomini getTipusAuth() {
+		return tipusAuth;
+	}
+	public void setTipusAuth(TipusAuthDomini tipusAuth) {
+		this.tipusAuth = tipusAuth;
+	}
+
+	@Column(name="origen_creds")
+	public OrigenCredencials getOrigenCredencials() {
+		return origenCredencials;
+	}
+	public void setOrigenCredencials(OrigenCredencials origenCredencials) {
+		this.origenCredencials = origenCredencials;
+	}
+
+	@Column(name="usuari")
+	public String getUsuari() {
+		return usuari;
+	}
+	public void setUsuari(String usuari) {
+		this.usuari = usuari;
+	}
+
+	@Column(name="contrasenya")
+	public String getContrasenya() {
+		return contrasenya;
+	}
+	public void setContrasenya(String contrasenya) {
+		this.contrasenya = contrasenya;
 	}
 
 	@Column(name="sqlexpr", length=1024)

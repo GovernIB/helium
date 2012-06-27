@@ -49,12 +49,14 @@ public class CarrecJbpmIdController extends BaseController {
 	@ModelAttribute("command")
 	public CarrecJbpmId populateCommand(
 			@RequestParam(value = "id", required = false) Long id,
-			@RequestParam(value = "codi", required = false) String codi) {
+			@RequestParam(value = "codi", required = false) String codi,
+			@RequestParam(value = "grup", required = false) String grup) {
 		if (id != null) {
 			return organitzacioService.getCarrecJbpmIdById(id);
 		} else if (codi != null) {
 			CarrecJbpmId command = new CarrecJbpmId();
 			command.setCodi(codi);
+			command.setGrup(grup);
 			return command;
 		}
 		return new CarrecJbpmId();

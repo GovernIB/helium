@@ -51,7 +51,9 @@ function confirmarDelegar(e) {
 	<h3 class="titol-tab titol-info"><fmt:message key='tasca.info.info_tasca' /></h3>
 	<dl class="form-info">
 		<dt><fmt:message key='comuns.titol' /></dt><dd>${tasca.nom}</dd>
-		<dt><fmt:message key='tasca.info.expedient' /></dt><dd><a href="<c:url value="/expedient/info.html"><c:param name="id" value="${tasca.expedient.processInstanceId}"/></c:url>" title="<fmt:message key='tasca.info.detalls_exp' />">${tasca.expedient.identificador}</a></dd>
+		<c:if test="${empty seleccioMassiva}">
+			<dt><fmt:message key='tasca.info.expedient' /></dt><dd><a href="<c:url value="/expedient/info.html"><c:param name="id" value="${tasca.expedient.processInstanceId}"/></c:url>" title="<fmt:message key='tasca.info.detalls_exp' />">${tasca.expedient.identificador}</a></dd>
+		</c:if>
 		<dt><fmt:message key='comuns.tipus_exp' /></dt><dd>${tasca.expedient.tipus.nom}</dd>
 		<dt><fmt:message key='tasca.info.data_creacio' /></dt><dd><fmt:formatDate value="${tasca.createTime}" pattern="dd/MM/yyyy HH:mm"/></dd>
 		<dt><fmt:message key='tasca.info.prioritat' /></dt><dd>

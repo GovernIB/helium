@@ -34,6 +34,9 @@ public class CarrecJbpmId implements Serializable, GenericEntity<Long> {
 	@MaxLength(64)
 	private String codi;
 	@NotBlank
+	@MaxLength(64)
+	private String grup;
+	@NotBlank
 	@MaxLength(255)
 	private String nomHome;
 	@NotBlank
@@ -79,6 +82,14 @@ public class CarrecJbpmId implements Serializable, GenericEntity<Long> {
 	}
 	public void setCodi(String codi) {
 		this.codi = codi;
+	}
+
+	@Column(name="grup", length=64, nullable=false)
+	public String getGrup() {
+		return grup;
+	}
+	public void setGrup(String grup) {
+		this.grup = grup;
 	}
 
 	@Column(name="nom_home", length=255, nullable=false)

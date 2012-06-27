@@ -22,14 +22,14 @@
 		<div class="inlineLabels">
 			<input type="hidden" name="id" value="${param.id}"/>
 			<form:hidden path="expedientId"/>
-			<c:if test="${expedient.tipus.teNumero and expedient.tipus.demanaNumero}">
+			<c:if test="${expedient.tipus.teNumero}">
 				<c:import url="../common/formElement.jsp">
 					<c:param name="property" value="numero"/>
 					<c:param name="required" value="true"/>
 					<c:param name="label"><fmt:message key='expedient.consulta.numero' /></c:param>
 				</c:import>
 				</c:if>
-			<c:if test="${expedient.tipus.teTitol and expedient.tipus.demanaTitol}">
+			<c:if test="${expedient.tipus.teTitol}">
 				<c:import url="../common/formElement.jsp">
 					<c:param name="property" value="titol"/>
 					<c:param name="type" value="textarea"/>

@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +17,7 @@ import java.util.Set;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.model.dao.AlertaDao;
 import net.conselldemallorca.helium.core.model.dao.CampDao;
+import net.conselldemallorca.helium.core.model.dao.CampTascaDao;
 import net.conselldemallorca.helium.core.model.dao.ConsultaCampDao;
 import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentDao;
@@ -27,6 +29,7 @@ import net.conselldemallorca.helium.core.model.dao.LuceneDao;
 import net.conselldemallorca.helium.core.model.dao.PlantillaDocumentDao;
 import net.conselldemallorca.helium.core.model.dao.PluginCustodiaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginGestioDocumentalDao;
+import net.conselldemallorca.helium.core.model.dao.PluginPersonaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginSignaturaDao;
 import net.conselldemallorca.helium.core.model.dao.RegistreDao;
 import net.conselldemallorca.helium.core.model.dao.TascaDao;
@@ -34,6 +37,7 @@ import net.conselldemallorca.helium.core.model.dao.TerminiIniciatDao;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.core.model.dto.PaginaLlistatDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
 import net.conselldemallorca.helium.core.model.exception.DominiException;
@@ -44,6 +48,7 @@ import net.conselldemallorca.helium.core.model.exception.PluginException;
 import net.conselldemallorca.helium.core.model.exception.TemplateException;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
@@ -62,10 +67,12 @@ import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
+import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 
+import org.apache.commons.collections.comparators.NullComparator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,7 +98,6 @@ public class TascaService {
 	public static final String PREFIX_SIGNATURA = "H3l1um#signatura.";
 	public static final String PREFIX_DOCUMENT = "H3l1um#document.";
 	public static final String PREFIX_ADJUNT = "H3l1um#adjunt.";
-	public static final String PREFIX_TEXT_SUGGEST = "H3l1um#suggtext.";
 
 	public static final String DEFAULT_SECRET_KEY = "H3l1umKy";
 	public static final String DEFAULT_ENCRYPTION_SCHEME = "DES/ECB/PKCS5Padding";
@@ -109,6 +115,7 @@ public class TascaService {
 	private PluginSignaturaDao pluginSignaturaDao;
 	private PluginCustodiaDao pluginCustodiaDao;
 	private DtoConverter dtoConverter;
+	private PluginPersonaDao pluginPersonaDao;
 	private LuceneDao luceneDao;
 	private RegistreDao registreDao;
 	private FormulariExternDao formulariExternDao;
@@ -116,6 +123,7 @@ public class TascaService {
 	private TerminiIniciatDao terminiIniciatDao;
 	private AlertaDao alertaDao;
 	private CampDao campDao;
+	private CampTascaDao campTascaDao;
 	private ConsultaCampDao consultaCampDao;
 	private MessageSource messageSource;
 
@@ -125,22 +133,18 @@ public class TascaService {
 
 	private Map<String, Map<String, Object>> dadesFormulariExternInicial;
 
-	private Map<String, DadesExpedientTasca> dadesExpedientTasques;
 
 
-
-	public TascaDto getById(Long entornId, String taskId) {
-		return getById(entornId, taskId, null, null);
-	}
-	public TascaDto getById(Long entornId, String taskId, Map<String, Object> valorsCommand) {
-		return getById(entornId, taskId, null, valorsCommand);
-	}
-	public TascaDto getById(Long entornId, String taskId, String usuari) {
-		return getById(entornId, taskId, usuari, null);
-	}
-	public TascaDto getById(Long entornId, String taskId, String usuari, Map<String, Object> valorsCommand) {
+	public TascaDto getById(
+			Long entornId,
+			String taskId,
+			String usuari,
+			Map<String, Object> valorsCommand,
+			boolean ambVariables,
+			boolean ambTexts) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);
-		return toTascaDto(task, valorsCommand, true);
+		TascaDto resposta = toTascaDto(task, valorsCommand, ambVariables, ambTexts);
+		return resposta;
 	}
 	public TascaDto getByIdSenseComprovacio(String taskId) {
 		return getByIdSenseComprovacio(taskId, null, null);
@@ -153,7 +157,7 @@ public class TascaService {
 	}
 	public TascaDto getByIdSenseComprovacio(String taskId, String usuari, Map<String, Object> valorsCommand) {
 		JbpmTask task = jbpmDao.getTaskById(taskId);
-		return toTascaDto(task, valorsCommand, true);
+		return toTascaDto(task, valorsCommand, true, true);
 	}
 
 	public List<TascaLlistatDto> findTasquesPersonalsIndex(Long entornId) {
@@ -172,33 +176,29 @@ public class TascaService {
 		return tasquesFiltradesPerEntorn(entornId, tasques, perTramitacio);
 	}
 
-	public List<TascaLlistatDto> findTasquesPersonalsFiltre(
+	public int countTasquesPersonalsEntorn(
 			Long entornId,
-			String tasca,
-			String expedient,
-			Long tipusExpedient,
-			Date dataCreacioInici,
-			Date dataCreacioFi,
-			Integer prioritat,
-			Date dataLimitInici,
-			Date dataLimitFi,
-			String columna,
-			String ordre) {
-		return findTasquesPersonalsFiltre(
-				entornId,
-				null,
-				tasca,
-				expedient,
-				tipusExpedient,
-				dataCreacioInici,
-				dataCreacioFi,
-				prioritat,
-				dataLimitInici,
-				dataLimitFi,
-				columna,
-				ordre);
+			String usuari) {
+		//MesurarTemps.diferenciaReiniciar("LT_PERSONA_CNT");
+		String usuariBo = usuari;
+		if (usuariBo == null) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			usuariBo = auth.getName();
+		}
+		int count = 0;
+		//MesurarTemps.diferenciaImprimirStdoutIReiniciar("LT_PERSONA_CNT", "1");
+		List<JbpmTask> tasques = jbpmDao.findPersonalTasks(usuariBo);
+		if (tasques != null) {
+			for (JbpmTask task: tasques) {
+				Long currentEntornId = getDadesCacheTasca(task).getEntornId();
+				if (currentEntornId != null && entornId.equals(currentEntornId))
+					count++;
+			}
+		}
+		//MesurarTemps.diferenciaImprimirStdoutIReiniciar("LT_PERSONA_CNT", "2");
+		return count;
 	}
-	public List<TascaLlistatDto> findTasquesPersonalsFiltre(
+	public PaginaLlistatDto findTasquesPersonalsFiltre(
 			Long entornId,
 			String usuari,
 			String tasca,
@@ -209,15 +209,19 @@ public class TascaService {
 			Integer prioritat,
 			Date dataLimitInici,
 			Date dataLimitFi,
-			String columna,
-			String ordre) {
+			int firstRow,
+			int maxResults,
+			String sort,
+			boolean asc) {
+		//MesurarTemps.diferenciaReiniciar("LT_PERSONA_FLT");
 		String usuariBo = usuari;
 		if (usuariBo == null) {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
 		}
 		List<JbpmTask> tasques = jbpmDao.findPersonalTasks(usuariBo);
-		List<TascaLlistatDto> resposta = tasquesLlistatFiltradesValors(
+		//MesurarTemps.diferenciaImprimirStdoutIReiniciar("LT_PERSONA_FLT", "1");
+		PaginaLlistatDto resposta = tasquesLlistatFiltradesValors(
 				entornId,
 				tasques, 
 				tasca,
@@ -228,8 +232,93 @@ public class TascaService {
 				prioritat,
 				dataLimitInici,
 				dataLimitFi,
-				columna,
-				ordre);
+				firstRow,
+				maxResults,
+				sort,
+				asc);
+		//MesurarTemps.diferenciaImprimirStdoutIReiniciar("LT_PERSONA_FLT", "2");
+		return resposta;
+	}
+
+	public int countTasquesGrupEntorn(
+			Long entornId,
+			String usuari) {
+		//MesurarTemps.diferenciaReiniciar("LT_GRUP_CNT");
+		String usuariBo = usuari;
+		if (usuariBo == null) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			usuariBo = auth.getName();
+		}
+		int count = 0;
+		//MesurarTemps.diferenciaImprimirStdoutIReiniciar("LT_GRUP_CNT", "1");
+		List<JbpmTask> tasques = jbpmDao.findGroupTasks(usuariBo);
+		if (tasques != null) {
+			for (JbpmTask task: tasques) {
+				Long currentEntornId = getDadesCacheTasca(task).getEntornId();
+				if (currentEntornId != null && entornId.equals(currentEntornId))
+					count++;
+			}
+		}
+		//MesurarTemps.diferenciaImprimirStdoutIReiniciar("LT_GRUP_CNT", "2");
+		return count;
+	}
+	public PaginaLlistatDto findTasquesGrupFiltre(
+			Long entornId,
+			String usuari,
+			String tasca,
+			String expedient,
+			Long tipusExpedient,
+			Date dataCreacioInici,
+			Date dataCreacioFi,
+			Integer prioritat,
+			Date dataLimitInici,
+			Date dataLimitFi,
+			int firstRow,
+			int maxResults,
+			String sort,
+			boolean asc) {
+		String usuariBo = usuari;
+		if (usuariBo == null) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			usuariBo = auth.getName();
+		}
+		List<JbpmTask> tasques = jbpmDao.findGroupTasks(usuariBo);
+		return tasquesLlistatFiltradesValors(
+				entornId,
+				tasques,
+				tasca,
+				expedient,
+				tipusExpedient,
+				dataCreacioInici,
+				dataCreacioFi,
+				prioritat,
+				dataLimitInici,
+				dataLimitFi,
+				firstRow,
+				maxResults,
+				sort,
+				asc);
+	}
+
+	public List<TascaLlistatDto> findTasquesPerTramitacioMassiva(
+			Long entornId,
+			String usuari,
+			String taskId) {
+		String usuariBo = usuari;
+		if (usuariBo == null) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			usuariBo = auth.getName();
+		}
+		List<JbpmTask> tasques = jbpmDao.findPersonalTasks(usuariBo);
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);
+		TascaDto tasca = toTascaDto(task, null, true, true);
+		String codi = task.getName();
+		String jbpmKey = tasca.getDefinicioProces().getJbpmKey();
+		List<TascaLlistatDto> resposta = tasquesPerTramitacioMasiva(
+				entornId,
+				tasques, 
+				codi,
+				jbpmKey);
 		return resposta;
 	}
 
@@ -248,66 +337,7 @@ public class TascaService {
 		List<JbpmTask> tasques = jbpmDao.findGroupTasks(usuariBo);
 		return tasquesFiltradesPerEntorn(entornId, tasques, perTramitacio);
 	}
-	public List<TascaLlistatDto> findTasquesGrupFiltre(
-			Long entornId,
-			String tasca,
-			String expedient,
-			Long tipusExpedient,
-			Date dataCreacioInici,
-			Date dataCreacioFi,
-			Integer prioritat,
-			Date dataLimitInici,
-			Date dataLimitFi,
-			String columna,
-			String ordre) {
-		return findTasquesGrupFiltre(
-				entornId,
-				null,
-				tasca,
-				expedient,
-				tipusExpedient,
-				dataCreacioInici,
-				dataCreacioFi,
-				prioritat,
-				dataLimitInici,
-				dataLimitFi,
-				columna,
-				ordre);
-	}
-	
-	public List<TascaLlistatDto> findTasquesGrupFiltre(
-			Long entornId,
-			String usuari,
-			String tasca,
-			String expedient,
-			Long tipusExpedient,
-			Date dataCreacioInici,
-			Date dataCreacioFi,
-			Integer prioritat,
-			Date dataLimitInici,
-			Date dataLimitFi,
-			String columna,
-			String ordre) {
-		String usuariBo = usuari;
-		if (usuariBo == null) {
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			usuariBo = auth.getName();
-		}
-		List<JbpmTask> tasques = jbpmDao.findGroupTasks(usuariBo);
-		return tasquesLlistatFiltradesValors(
-				entornId,
-				tasques,
-				tasca,
-				expedient,
-				tipusExpedient,
-				dataCreacioInici,
-				dataCreacioFi,
-				prioritat,
-				dataLimitInici,
-				dataLimitFi,
-				columna,
-				ordre);
-	}
+
 	public TascaDto agafar(Long entornId, String taskId) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		return agafar(entornId, auth.getName(), taskId);
@@ -315,7 +345,7 @@ public class TascaService {
 	public TascaDto agafar(Long entornId, String usuari, String taskId) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, false);
 		jbpmDao.takeTaskInstance(taskId, usuari);
-		TascaDto tasca = toTascaDto(task, null, true);
+		TascaDto tasca = toTascaDto(task, null, true, true);
 		registreDao.crearRegistreIniciarTasca(
 				tasca.getExpedient().getId(),
 				taskId,
@@ -336,9 +366,10 @@ public class TascaService {
 			String usuari) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);
 		boolean iniciada = task.getStartTime() == null;
+		optimitzarConsultesDomini(task, variables);
 		jbpmDao.startTaskInstance(taskId);
 		jbpmDao.setTaskInstanceVariables(taskId, variables);
-		TascaDto tasca = toTascaDto(task, null, true);
+		TascaDto tasca = toTascaDto(task, null, true, true);
 		if (iniciada) {
 			registreDao.crearRegistreModificarTasca(
 					tasca.getExpedient().getId(),
@@ -346,11 +377,6 @@ public class TascaService {
 					SecurityContextHolder.getContext().getAuthentication().getName(),
 					"Iniciar tasca \"" + tasca.getNom() + "\"");
 		}
-		/*registreDao.crearRegistreModificarTasca(
-				tasca.getExpedient().getId(),
-				taskId,
-				SecurityContextHolder.getContext().getAuthentication().getName(),
-				"Guardar variables \"" + tasca.getNom() + "\"");*/
 		return tasca;
 	}
 
@@ -428,10 +454,11 @@ public class TascaService {
 			boolean comprovarAssignacio,
 			String usuari) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, comprovarAssignacio);
+		optimitzarConsultesDomini(task, variables);
 		jbpmDao.startTaskInstance(taskId);
 		jbpmDao.setTaskInstanceVariables(taskId, variables);
 		validarTasca(taskId);
-		TascaDto tasca = toTascaDto(task, null, true);
+		TascaDto tasca = toTascaDto(task, null, true, true);
 		registreDao.crearRegistreModificarTasca(
 				tasca.getExpedient().getId(),
 				taskId,
@@ -448,19 +475,13 @@ public class TascaService {
 					getServiceUtils().getMessage("error.tascaService.noValidada"));
 		//deleteDocumentsTasca(taskId);
 		restaurarTasca(taskId);
-		TascaDto tasca = toTascaDto(task, null, true);
+		TascaDto tasca = toTascaDto(task, null, true, true);
 		registreDao.crearRegistreModificarTasca(
 				tasca.getExpedient().getId(),
 				taskId,
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				"Restaurar \"" + tasca.getNom() + "\"");
 		return tasca;
-	}
-	public void completar(
-			Long entornId,
-			String taskId,
-			boolean comprovarAssignacio) {
-		completar(entornId, taskId, comprovarAssignacio, null, null);
 	}
 	public void completar(
 			Long entornId,
@@ -514,14 +535,13 @@ public class TascaService {
 				mapValors,
 				getServiceUtils().getMapValorsDomini(mapCamps, mapValors),
 				isExpedientFinalitzat(expedient));
-		TascaDto tasca = toTascaDto(task, null, true);
+		TascaDto tasca = toTascaDto(task, null, true, true);
 		registreDao.crearRegistreFinalitzarTasca(
 				tasca.getExpedient().getId(),
 				taskId,
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				"Finalitzar \"" + tasca.getNom() + "\"");
 		actualitzarTerminisIniciatsIAlertes(taskId, expedient);
-		dadesExpedientTasques.remove(task.getId());
 	}
 
 	public Object getVariable(
@@ -529,7 +549,7 @@ public class TascaService {
 			String taskId,
 			String codiVariable) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
-		return jbpmDao.getTaskInstanceVariable(task.getId(), codiVariable);
+		return getServiceUtils().getVariableJbpmTascaValor(task.getId(), codiVariable);
 	}
 	public void createVariable(
 			Long entornId,
@@ -539,8 +559,9 @@ public class TascaService {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		Map<String, Object> variables = new HashMap<String, Object>();
 		variables.put(codiVariable, valor);
+		optimitzarConsultesDomini(task, variables);
 		jbpmDao.setTaskInstanceVariables(task.getId(), variables);
-		TascaDto tasca = toTascaDto(task, null, true);
+		TascaDto tasca = toTascaDto(task, null, true, true);
 		registreDao.crearRegistreCrearVariableTasca(
 				tasca.getExpedient().getId(),
 				taskId,
@@ -554,11 +575,11 @@ public class TascaService {
 			String codiVariable,
 			Object valor) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
-		Object valorVell = jbpmDao.getTaskInstanceVariable(taskId, codiVariable);
+		Object valorVell = getServiceUtils().getVariableJbpmTascaValor(task.getId(), codiVariable);
 		Map<String, Object> variables = new HashMap<String, Object>();
 		variables.put(codiVariable, valor);
 		jbpmDao.setTaskInstanceVariables(task.getId(), variables);
-		TascaDto tasca = toTascaDto(task, null, true);
+		TascaDto tasca = toTascaDto(task, null, true, true);
 		registreDao.crearRegistreModificarVariableTasca(
 				tasca.getExpedient().getId(),
 				taskId,
@@ -573,7 +594,7 @@ public class TascaService {
 			String codiVariable) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		jbpmDao.deleteTaskInstanceVariable(task.getId(), codiVariable);
-		TascaDto tasca = toTascaDto(task, null, true);
+		TascaDto tasca = toTascaDto(task, null, true, true);
 		registreDao.crearRegistreEsborrarVariableTasca(
 				tasca.getExpedient().getId(),
 				taskId,
@@ -673,7 +694,7 @@ public class TascaService {
 				task.getId(),
 				codiVariableJbpm,
 				docStoreId);
-		TascaDto tasca = toTascaDto(task, null, true);
+		TascaDto tasca = toTascaDto(task, null, true, true);
 		// Registra l'acció
 		if (creat) {
 			registreDao.crearRegistreCrearDocumentTasca(
@@ -734,7 +755,7 @@ public class TascaService {
 					task.getProcessInstanceId(),
 					codiVariableJbpm);
 		}
-		TascaDto tasca = toTascaDto(task, null, true);
+		TascaDto tasca = toTascaDto(task, null, true, true);
 		registreDao.crearRegistreEsborrarDocumentTasca(
 				tasca.getExpedient().getId(),
 				taskId,
@@ -791,7 +812,7 @@ public class TascaService {
 		String[] tokenDesxifrat = getDocumentTokenUtils().desxifrarTokenMultiple(token);
 		if (tokenDesxifrat.length == 2) {
 			JbpmTask task = comprovarSeguretatTasca(entornId, tokenDesxifrat[0], null, true);
-			TascaDto tascaDto = toTascaDto(task, null, false);
+			TascaDto tascaDto = toTascaDto(task, null, false, false);
 			Long documentStoreId = Long.parseLong(tokenDesxifrat[1]);
 			DocumentDto document = dtoConverter.toDocumentDto(
 					documentStoreId,
@@ -888,7 +909,7 @@ public class TascaService {
 			ExpedientDto expedient = dtoConverter.toExpedientDto(
 					expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId()),
 					false);
-			TascaDto tasca = toTascaDto(task, null, true);
+			TascaDto tasca = toTascaDto(task, null, true, true);
 			InstanciaProcesDto instanciaProces = dtoConverter.toInstanciaProcesDto(
 					task.getProcessInstanceId(),
 					true);
@@ -910,12 +931,12 @@ public class TascaService {
 					getOpenOfficeUtils().convertir(
 							resposta.getArxiuNom(),
 							resultat,
-							getExtensioVista(),
+							getExtensioVista(document),
 							baos);
 					resposta.setArxiuNom(
 							nomArxiuAmbExtensio(
 									resposta.getArxiuNom(),
-									getExtensioVista()));
+									getExtensioVista(document)));
 					resposta.setArxiuContingut(baos.toByteArray());
 				} else {
 					resposta.setArxiuContingut(resultat);
@@ -937,6 +958,22 @@ public class TascaService {
 			resposta.setArxiuContingut(document.getArxiuContingut());
 		}
 		return resposta;
+	}
+
+	public boolean isExtensioDocumentPermesa(
+			Long entornId,
+			String taskId,
+			String documentCodi,
+			String extensio) {
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
+		if (!isTascaValidada(task))
+			throw new IllegalStateException(
+					getServiceUtils().getMessage("error.tascaService.noValidada"));
+		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(task.getProcessDefinitionId());
+		Document document = documentDao.findAmbDefinicioProcesICodi(
+				definicioProces.getId(),
+				documentCodi);
+		return document.isExtensioPermesa(extensio);
 	}
 
 	public void delegacioCrear(
@@ -988,7 +1025,7 @@ public class TascaService {
 		if (tasca.getFormExtern() == null)
 			throw new IllegalStateException(
 					getServiceUtils().getMessage("error.tascaService.noFormExtern"));
-		Map<String, Object> vars = jbpmDao.getTaskInstanceVariables(task.getId());
+		Map<String, Object> vars = getServiceUtils().getVariablesJbpmTascaValor(task.getId());
 		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 		return formulariExternDao.iniciarFormulariExtern(
@@ -1048,7 +1085,7 @@ public class TascaService {
 					}
 				}
 				validar(
-						getDadesExpedientPerTasca(task).getEntornId(),
+						getDadesCacheTasca(task).getEntornId(),
 						formExtern.getTaskId(),
 						valors,
 						false);
@@ -1088,13 +1125,13 @@ public class TascaService {
 		jbpmDao.executeActionInstanciaTasca(taskId, accio);
 	}
 
-	public Integer getTotalTasquesPersona(Long entornId) {
+	/*public Integer getTotalTasquesPersona(Long entornId) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String usuariBo = auth.getName();
 		List<JbpmTask> tasques = jbpmDao.findPersonalTasks(usuariBo);
 		Integer total = 0;
 		for (JbpmTask task: tasques) {
-			Long currentEntornId = getDadesExpedientPerTasca(task).getEntornId();
+			Long currentEntornId = getDadesCacheTasca(task).getEntornId();
 			if (currentEntornId != null && entornId.equals(currentEntornId))
 				total++;
 		}
@@ -1106,12 +1143,12 @@ public class TascaService {
 		List<JbpmTask> tasques = jbpmDao.findGroupTasks(usuariBo);
 		Integer total = 0;
 		for (JbpmTask task: tasques) {
-			Long currentEntornId = getDadesExpedientPerTasca(task).getEntornId();;
+			Long currentEntornId = getDadesCacheTasca(task).getEntornId();;
 			if (currentEntornId != null && entornId.equals(currentEntornId))
 				total++;
 		}
 		return total;
-	}
+	}*/
 
 	@Autowired
 	public void setExpedientDao(ExpedientDao expedientDao) {
@@ -1158,6 +1195,10 @@ public class TascaService {
 		this.pluginSignaturaDao = pluginSignaturaDao;
 	}
 	@Autowired
+	public void setPluginPersonaDao(PluginPersonaDao pluginPersonaDao) {
+		this.pluginPersonaDao = pluginPersonaDao;
+	}
+	@Autowired
 	public void setDtoConverter(DtoConverter dtoConverter) {
 		this.dtoConverter = dtoConverter;
 	}
@@ -1194,6 +1235,11 @@ public class TascaService {
 		this.campDao = campDao;
 	}
 	@Autowired
+	public void setCampTascaDao(
+			CampTascaDao campTascaDao) {
+		this.campTascaDao = campTascaDao;
+	}
+	@Autowired
 	public void setConsultaCampDao(
 			ConsultaCampDao consultaCampDao) {
 		this.consultaCampDao = consultaCampDao;
@@ -1211,7 +1257,7 @@ public class TascaService {
 			throw new NotFoundException(
 					getServiceUtils().getMessage("error.tascaService.noTrobada"));
 		}
-		Long tascaEntornId = getDadesExpedientPerTasca(task).getEntornId();
+		Long tascaEntornId = getDadesCacheTasca(task).getEntornId();
 		if (!tascaEntornId.equals(entornId)) {
 			throw new NotFoundException(
 					getServiceUtils().getMessage("error.tascaService.noTrobada"));
@@ -1234,11 +1280,16 @@ public class TascaService {
 		}
 		return task;
 	}
-	private TascaDto toTascaDto(JbpmTask task, Map<String, Object> varsCommand, boolean ambVariables) {
+	private TascaDto toTascaDto(
+			JbpmTask task,
+			Map<String, Object> varsCommand,
+			boolean ambVariables,
+			boolean ambTexts) {
 		return dtoConverter.toTascaDto(
 				task,
 				varsCommand,
 				ambVariables,
+				ambTexts,
 				isTascaValidada(task),
 				isDocumentsComplet(task),
 				isSignaturesComplet(task));
@@ -1250,12 +1301,12 @@ public class TascaService {
 		// Filtra les tasques per mostrar només les del entorn seleccionat
 		List<TascaLlistatDto> filtrades = new ArrayList<TascaLlistatDto>();
 		for (JbpmTask task: tasques) {
-			Long currentEntornId = getDadesExpedientPerTasca(task).getEntornId();
+			DadesCacheTasca dadesCacheTasca = getDadesCacheTasca(task);
+			Long currentEntornId = dadesCacheTasca.getEntornId();
 			if (currentEntornId != null && entornId.equals(currentEntornId)) {
 				TascaLlistatDto dto = toTascaLlistatDto(task, null);
 				if (complet) {
-					DadesExpedientTasca dadesExpedientPerTasca = getDadesExpedientPerTasca(task);
-					dto.setExpedientNumero(dadesExpedientPerTasca.getNumeroIdentificador());
+					dto.setExpedientNumero(dadesCacheTasca.getNumeroIdentificador());
 					Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
 							task.getName(),
 							task.getProcessDefinitionId());
@@ -1269,7 +1320,7 @@ public class TascaService {
 		}
 		return filtrades;
 	}
-	private List<TascaLlistatDto> tasquesLlistatFiltradesValors(
+	private PaginaLlistatDto tasquesLlistatFiltradesValors(
 			Long entornId,
 			List<JbpmTask> tasques,
 			String tasca,
@@ -1280,113 +1331,151 @@ public class TascaService {
 			Integer prioritat,
 			Date dataLimitInici,
 			Date dataLimitFi,
-			String columna,
-			String ordre) {
-		// Filtra les tasques per mostrar només les del entorn seleccionat
-		List<TascaLlistatDto> filtrades = new ArrayList<TascaLlistatDto>();
-		for (JbpmTask task: tasques) {
-			DadesExpedientTasca dadesExpedientPerTasca = getDadesExpedientPerTasca(task);
-			Long currentEntornId = dadesExpedientPerTasca.getEntornId();
-			if ((currentEntornId != null) && (entornId.equals(currentEntornId))) {
-				TascaLlistatDto dto = toTascaLlistatDto(task, dadesExpedientPerTasca);
-				dto.setTitol(
-						dtoConverter.getTitolPerTasca(task));
-				Boolean incloure = true;
-				if ((tasca != null) && (!tasca.equals(""))) {
-					String nomTasca = normalitzaText(dto.getTitol());
-					String paramTasca = normalitzaText(tasca);
-					incloure = incloure && (nomTasca.indexOf(paramTasca) != -1);
-				}
-				if ((expedient != null) && (!expedient.equals(""))) {
-					String expedientTasca = normalitzaText(dadesExpedientPerTasca.getIdentificador());
-					String paramExpedient = normalitzaText(expedient);
-					incloure = incloure && (expedientTasca.indexOf(paramExpedient) != -1);
-				}
-				if (tipusExpedient != null) {
-					incloure = incloure && (tipusExpedient.longValue() == dadesExpedientPerTasca.getExpedientTipusId());
-				}
-				Date dataCreacio = dto.getDataCreacio();
-				if ((dataCreacioInici != null) && (dataCreacioFi != null)) {
-					incloure = incloure && ((dataCreacio.compareTo(dataCreacioInici) >= 0) && (dataCreacio.compareTo(dataCreacioFi) <= 0));
-				} else if (dataCreacioInici != null) {
-					incloure = incloure && (dataCreacio.compareTo(dataCreacioInici) >= 0);
-				} else if (dataCreacioFi != null) {
-					incloure = incloure && (dataCreacio.compareTo(dataCreacioFi) <= 0);
-				}
-				if (prioritat != null) {
-					incloure = incloure && (prioritat.intValue() == dto.getPrioritat());
-				}
-				Date dataLimit = dto.getDataLimit();
-				if ((dataLimitInici != null) && (dataLimitFi != null)) {
-					incloure = incloure && ((dataLimit != null) && (dataLimit.compareTo(dataLimitInici) >= 0) && (dataLimit.compareTo(dataLimitFi) <= 0));
-				} else if (dataLimitInici != null) {
-					incloure = incloure && ((dataLimit != null) && (dataLimit.compareTo(dataLimitInici) >= 0));
-				} else if (dataLimitFi != null) {
-					incloure = incloure && ((dataLimit != null) && (dataLimit.compareTo(dataLimitFi) <= 0));
-				}
-				if (incloure)
-					filtrades.add(dto);
-			}
+			int firstRow,
+			int maxResults,
+			String sort,
+			boolean asc) {
+		//MesurarTemps.diferenciaReiniciar("LT_TASQUES_FLT");
+		// Filtra primer els camps dels tasks
+		Iterator<JbpmTask> it = tasques.iterator();
+		while (it.hasNext()) {
+			JbpmTask task = it.next();
+			if (dataCreacioInici != null && task.getCreateTime().before(dataCreacioInici))
+				it.remove();
+			if (dataCreacioFi != null && task.getCreateTime().after(dataCreacioFi))
+				it.remove();
+			if (dataLimitInici != null && task.getDueDate().before(dataLimitInici))
+				it.remove();
+			if (dataLimitFi != null && task.getDueDate().after(dataLimitFi))
+				it.remove();
+			if (prioritat != null && prioritat.intValue() != task.getPriority())
+				it.remove();
 		}
-		final Integer col = Integer.parseInt((columna!=null) ? columna  :"0");
-		final Integer ord = Integer.parseInt((ordre!=null) ? ordre : "0");
-		Comparator<TascaLlistatDto> comparador = new Comparator<TascaLlistatDto>() {
-			public int compare(TascaLlistatDto t1, TascaLlistatDto t2) {
-				Integer result = 0;
-				switch (col) {
-					// Tasca
-					case 0:
-						if (ord == 1)
-							result = t1.getTitol().compareTo(t2.getTitol());
-						else if (ord == 2)
-							result = t2.getTitol().compareTo(t1.getTitol());
-						break;
-					// Expedient
-					case 1:
-						if (ord == 1)
-							result = t1.getExpedientTitolOrdenacio().compareTo(t2.getExpedientTitolOrdenacio());
-						else if (ord == 2)
-							result = t2.getExpedientTitolOrdenacio().compareTo(t1.getExpedientTitolOrdenacio());
-						break;
-					// Tipus d'expedient
-					case 2:
-						if (ord == 1)
-							result = t1.getExpedientTipusId().compareTo(t2.getExpedientTipusId());
-						else if (ord == 2)
-							result = t2.getExpedientTipusId().compareTo(t1.getExpedientTipusId());
-						break;
-					// Data creació
-					case 3:
-						if (ord == 1)
-							result = t1.getDataCreacio().compareTo(t2.getDataCreacio());
-						else if (ord == 2)
-							result = t2.getDataCreacio().compareTo(t1.getDataCreacio());
-						break;
-					// Prioritat
-					case 4:
-						if (ord == 1)
-							result = t1.getPrioritat() - t2.getPrioritat();
-						else if (ord == 2)
-							result = t2.getPrioritat() - t1.getPrioritat();
-						break;
-					// Data límit
-					case 5:
-						if ((t1.getDataLimit() != null) && (t2.getDataLimit() != null)) {
-							if (ord == 1)
-								result = t1.getDataLimit().compareTo(t2.getDataLimit());
-							else if (ord == 2)
-								result = t2.getDataLimit().compareTo(t1.getDataLimit());
-						}
-						break;
-					default:
-						break;
+		//MesurarTemps.diferenciaImprimirStdoutIReiniciar("LT_TASQUES_FLT", "1");
+		// Després filtra els altres camps
+		List<DadesTascaOrdenacio> filtrades = new ArrayList<DadesTascaOrdenacio>();
+		//MesurarTemps.mitjaReiniciar("LT_TASQUES_DIF1");
+		//MesurarTemps.mitjaReiniciar("LT_TASQUES_DIF2");
+		for (JbpmTask task: tasques) {
+			//MesurarTemps.diferenciaReiniciar("LT_TASQUES_DIF");
+			DadesCacheTasca dadesCacheTasca = getDadesCacheTasca(task);
+			//MesurarTemps.mitjaCalcular("LT_TASQUES_DIF1", "LT_TASQUES_DIF");
+			Long currentEntornId = dadesCacheTasca.getEntornId();
+			if ((currentEntornId != null) && (entornId.equals(currentEntornId))) {
+				Boolean incloure = true;
+				if (tasca != null && tasca.length() > 0) {
+					String titolTasca = normalitzaText(dadesCacheTasca.getTitol());
+					String titolFiltre = normalitzaText(tasca);
+					incloure = incloure && titolTasca.contains(titolFiltre);
+				}
+				if (expedient != null && expedient.length() > 0) {
+					String expedientTasca = normalitzaText(dadesCacheTasca.getIdentificador());
+					String expedientFiltre = normalitzaText(expedient);
+					incloure = incloure && expedientTasca.contains(expedientFiltre);
+				}
+				if (tipusExpedient != null)
+					incloure = incloure && tipusExpedient.longValue() == dadesCacheTasca.getExpedientTipusId();
+				if (incloure) {
+					filtrades.add(
+							new DadesTascaOrdenacio(
+									task.getId(),
+									dadesCacheTasca.getTitol(),
+									dadesCacheTasca.getIdentificadorOrdenacio(),
+									dadesCacheTasca.getExpedientTipusNom(),
+									task.getCreateTime(),
+									task.getPriority(),
+									task.getDueDate()));
+				}
+			}
+			//MesurarTemps.mitjaCalcular("LT_TASQUES_DIF2", "LT_TASQUES_DIF");
+		}
+		//MesurarTemps.mitjaImprimirStdout("LT_TASQUES_DIF1", "A");
+		//MesurarTemps.mitjaImprimirStdout("LT_TASQUES_DIF2", "A");
+		//MesurarTemps.diferenciaImprimirStdoutIReiniciar("LT_TASQUES_FLT", "2");
+		final String finalSort = sort;
+		final boolean finalAsc = asc;
+		Comparator<DadesTascaOrdenacio> comparador = new Comparator<DadesTascaOrdenacio>() {
+			public int compare(DadesTascaOrdenacio t1, DadesTascaOrdenacio t2) {
+				int result = 0;
+				NullComparator nullComparator = new NullComparator();
+				if ("titol".equals(finalSort)) {
+					if (finalAsc)
+						result = nullComparator.compare(t1.getTitol(), t2.getTitol());
+					else
+						result = nullComparator.compare(t2.getTitol(), t1.getTitol());
+				} else if ("expedientTitol".equals(finalSort)) {
+					if (finalAsc)
+						result = nullComparator.compare(t1.getExpedientTitol(), t2.getExpedientTitol());
+					else 
+						result = nullComparator.compare(t2.getExpedientTitol(), t1.getExpedientTitol());
+				} else if ("expedientTipusNom".equals(finalSort)) {
+					if (finalAsc)
+						result = nullComparator.compare(t1.getExpedientTipusNom(), t2.getExpedientTipusNom());
+					else
+						result = nullComparator.compare(t2.getExpedientTipusNom(), t1.getExpedientTipusNom());
+				} else if ("dataCreacio".equals(finalSort)) {
+					if (finalAsc)
+						result = nullComparator.compare(t1.getDataCreacio(), t2.getDataCreacio());
+					else
+						result = nullComparator.compare(t2.getDataCreacio(), t1.getDataCreacio());
+				} else if ("prioritat".equals(finalSort)) {
+					if (finalAsc)
+						result = t1.getPrioritat() - t2.getPrioritat();
+					else
+						result = t2.getPrioritat() - t1.getPrioritat();
+				} else if ("dataLimit".equals(finalSort)) {
+					if (finalAsc)
+						result = nullComparator.compare(t1.getDataLimit(), t2.getDataLimit());
+					else
+						result = nullComparator.compare(t2.getDataLimit(), t1.getDataLimit());
 				}
 				return result;
 			}
 		};
 		Collections.sort(filtrades, comparador);
-		return filtrades;
+		List<DadesTascaOrdenacio> respostaDades;
+		if (filtrades.size() <= firstRow + maxResults)
+			respostaDades = filtrades.subList(firstRow, filtrades.size());
+		else
+			respostaDades = filtrades.subList(firstRow, firstRow + maxResults);
+		List<TascaLlistatDto> respostaLlistat = new ArrayList<TascaLlistatDto>();
+		//MesurarTemps.diferenciaImprimirStdoutIReiniciar("LT_TASQUES_FLT", "3");
+		for (DadesTascaOrdenacio dades: respostaDades) {
+			for (JbpmTask task: tasques) {
+				if (task.getId().equals(dades.getTaskId())) {
+					respostaLlistat.add(
+							toTascaLlistatDto(
+									task,
+									getDadesCacheTasca(task)));
+					break;
+				}
+			}
+		}
+		//MesurarTemps.diferenciaImprimirStdoutIReiniciar("LT_TASQUES_FLT", "4");
+		return new PaginaLlistatDto(
+				filtrades.size(),
+				respostaLlistat);
 	}
+	private List<TascaLlistatDto> tasquesPerTramitacioMasiva(
+			Long entornId,
+			List<JbpmTask> tasques,
+			String codi,
+			String jbpmKey) {
+		// Filtra les tasques per mostrar només les del entorn seleccionat
+		List<TascaLlistatDto> resposta = new ArrayList<TascaLlistatDto>();
+		for (JbpmTask task: tasques) {
+			DadesCacheTasca dadesCacheTasca = getDadesCacheTasca(task);
+			Long currentEntornId = dadesCacheTasca.getEntornId();
+			if (currentEntornId != null && entornId.equals(currentEntornId)) {
+				TascaLlistatDto dto = toTascaLlistatDto(task, dadesCacheTasca);
+				if (codi.equals(task.getName()) && jbpmKey.equals(dadesCacheTasca.getDefinicioProcesJbpmKey())) {
+					resposta.add(dto);
+				}
+			}
+		}
+		return resposta;
+	}
+
 	private String normalitzaText(String text) {
 		return text
 			.toUpperCase()
@@ -1524,12 +1613,16 @@ public class TascaService {
 		return "true".equalsIgnoreCase(actiuConversioVista);
 	}
 
-	private String getExtensioVista() {
+	private String getExtensioVista(Document document) {
 		String extensioVista = null;
 		if (isActiuConversioVista()) {
-			extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.extension");
-			if (extensioVista == null)
-				extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.gentasca.extension");
+			if (document.getConvertirExtensio() != null && document.getConvertirExtensio().length() > 0) {
+				extensioVista = document.getConvertirExtensio();
+			} else {
+				extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.extension");
+				if (extensioVista == null)
+					extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.gentasca.extension");
+			}
 		}
 		return extensioVista;
 	}
@@ -1543,7 +1636,7 @@ public class TascaService {
 
 	private TascaLlistatDto toTascaLlistatDto(
 			JbpmTask task,
-			DadesExpedientTasca dadesExpedientPerTasca) {
+			DadesCacheTasca dadesCacheTasca) {
 		TascaLlistatDto dto = new TascaLlistatDto();
 		dto.setId(task.getId());
 		dto.setCodi(task.getName());
@@ -1560,16 +1653,36 @@ public class TascaService {
 		dto.setCancelada(task.isCancelled());
 		dto.setSuspesa(task.isSuspended());
 		dto.setProcessInstanceId(task.getProcessInstanceId());
-		if (dadesExpedientPerTasca != null) {
-			dto.setExpedientTitol(dadesExpedientPerTasca.getIdentificador());
-			dto.setExpedientTitolOrdenacio(dadesExpedientPerTasca.getIdentificadorOrdenacio());
-			dto.setExpedientTipusId(dadesExpedientPerTasca.getExpedientTipusId());
-			dto.setExpedientTipusNom(dadesExpedientPerTasca.getExpedientTipusNom());
-			dto.setExpedientProcessInstanceId(dadesExpedientPerTasca.getProcessInstanceId());
+		Map<String, Object> valorsTasca = jbpmDao.getTaskInstanceVariables(task.getId());
+		DelegationInfo delegationInfo = (DelegationInfo)valorsTasca.get(
+				TascaService.VAR_TASCA_DELEGACIO);
+		if (delegationInfo != null) {
+			boolean original = task.getId().equals(delegationInfo.getSourceTaskId());
+			dto.setDelegada(true);
+			dto.setDelegacioOriginal(original);
+			dto.setDelegacioData(delegationInfo.getStart());
+			dto.setDelegacioSupervisada(delegationInfo.isSupervised());
+			dto.setDelegacioComentari(delegationInfo.getComment());
+			if (original) {
+				JbpmTask tascaDelegacio = jbpmDao.getTaskById(delegationInfo.getTargetTaskId());
+				dto.setDelegacioPersona(pluginPersonaDao.findAmbCodiPlugin(tascaDelegacio.getAssignee()));
+			} else {
+				JbpmTask tascaDelegacio = jbpmDao.getTaskById(delegationInfo.getSourceTaskId());
+				dto.setDelegacioPersona(pluginPersonaDao.findAmbCodiPlugin(tascaDelegacio.getAssignee()));
+			}
+		}
+		if (dadesCacheTasca != null) {
+			dto.setTitol(dadesCacheTasca.getTitol());
+			dto.setExpedientTitol(dadesCacheTasca.getIdentificador());
+			dto.setExpedientTitolOrdenacio(dadesCacheTasca.getIdentificadorOrdenacio());
+			dto.setExpedientTipusId(dadesCacheTasca.getExpedientTipusId());
+			dto.setExpedientTipusNom(dadesCacheTasca.getExpedientTipusNom());
+			dto.setExpedientProcessInstanceId(dadesCacheTasca.getProcessInstanceId());
+			dto.setTramitacioMassiva(dadesCacheTasca.isTramitacioMassiva());
 		}
 		return dto;
 	}
-	
+
 	private void actualitzarTerminisIniciatsIAlertes(String taskId, Expedient expedient) {
 		List<TerminiIniciat> terminisIniciats = terminiIniciatDao.findAmbTaskInstanceId(
 				new Long(taskId));
@@ -1640,51 +1753,132 @@ public class TascaService {
 		return false;
 	}
 
-	private DadesExpedientTasca getDadesExpedientPerTasca(JbpmTask task) {
-		if (dadesExpedientTasques == null)
-			dadesExpedientTasques = new HashMap<String, DadesExpedientTasca>();
-		DadesExpedientTasca dades = dadesExpedientTasques.get(task.getId());
-		if (dades == null) {
+	private void optimitzarConsultesDomini(
+			JbpmTask task,
+			Map<String, Object> variables) {
+		Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
+				task.getName(),
+				task.getProcessDefinitionId());
+		List<CampTasca> campsTasca = campTascaDao.findAmbTascaOrdenats(tasca.getId());
+		for (CampTasca campTasca: campsTasca) {
+			if (campTasca.getCamp().isDominiCacheText()) {
+				Object campValor = variables.get(campTasca.getCamp().getCodi());
+				if (campValor != null) {
+					if (	campTasca.getCamp().getTipus().equals(TipusCamp.SELECCIO) ||
+							campTasca.getCamp().getTipus().equals(TipusCamp.SUGGEST)) {
+						String text = dtoConverter.getCampText(
+								task.getId(),
+								null,
+								campTasca.getCamp(),
+								campValor);
+						variables.put(
+								campTasca.getCamp().getCodi(),
+								new DominiCodiDescripcio(
+										(String)campValor,
+										text));
+					}
+				}
+			}
+		}
+	}
+
+	private DadesCacheTasca getDadesCacheTasca(JbpmTask task) {
+		DadesCacheTasca dadesCache = null;
+		if (!task.isCacheActiu()) {
 			String rootProcessInstanceId = jbpmDao.getRootProcessInstance(task.getProcessInstanceId()).getId();
 			Expedient expedientPerTasca = expedientDao.findAmbProcessInstanceId(rootProcessInstanceId);
-			dades = new DadesExpedientTasca(
-					expedientPerTasca.getEntorn().getId(),
-					expedientPerTasca.getIdentificador(),
-					expedientPerTasca.getIdentificadorOrdenacio(),
-					expedientPerTasca.getNumeroIdentificador(),
-					expedientPerTasca.getTipus().getId(),
-					expedientPerTasca.getTipus().getNom(),
+			Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
+					task.getName(),
+					task.getProcessDefinitionId());
+			String titol = tasca.getNom();
+			if (tasca.getNomScript() != null && tasca.getNomScript().length() > 0)
+				titol = dtoConverter.getTitolPerTasca(task, tasca);
+			task.setFieldFromDescription(
+					"entornId",
+					expedientPerTasca.getEntorn().getId().toString());
+			task.setFieldFromDescription(
+					"titol",
+					titol);
+			task.setFieldFromDescription(
+					"identificador",
+					expedientPerTasca.getIdentificador());
+			task.setFieldFromDescription(
+					"identificadorOrdenacio",
+					expedientPerTasca.getIdentificadorOrdenacio());
+			task.setFieldFromDescription(
+					"numeroIdentificador",
+					expedientPerTasca.getNumeroIdentificador());
+			task.setFieldFromDescription(
+					"expedientTipusId",
+					expedientPerTasca.getTipus().getId().toString());
+			task.setFieldFromDescription(
+					"expedientTipusNom",
+					expedientPerTasca.getTipus().getNom());
+			task.setFieldFromDescription(
+					"processInstanceId",
 					expedientPerTasca.getProcessInstanceId());
-			dadesExpedientTasques.put(task.getId(), dades);
+			task.setFieldFromDescription(
+					"tramitacioMassiva",
+					new Boolean(tasca.isTramitacioMassiva()).toString());
+			task.setFieldFromDescription(
+					"definicioProcesJbpmKey",
+					tasca.getDefinicioProces().getJbpmKey());
+			task.setCacheActiu();
+			jbpmDao.describeTaskInstance(
+					task.getId(),
+					task.getDescriptionWithFields());
 		}
-		return dades;
+		dadesCache = new DadesCacheTasca(
+				new Long(task.getFieldFromDescription("entornId")),
+				task.getFieldFromDescription("titol"),
+				task.getFieldFromDescription("identificador"),
+				task.getFieldFromDescription("identificadorOrdenacio"),
+				task.getFieldFromDescription("numeroIdentificador"),
+				new Long(task.getFieldFromDescription("expedientTipusId")),
+				task.getFieldFromDescription("expedientTipusNom"),
+				task.getFieldFromDescription("processInstanceId"),
+				new Boolean(task.getFieldFromDescription("tramitacioMassiva")).booleanValue(),
+				task.getFieldFromDescription("definicioProcesJbpmKey"));
+		return dadesCache;
 	}
-	private class DadesExpedientTasca {
+	private class DadesCacheTasca {
 		private Long entornId;
+		private String titol;
 		private String identificador;
 		private String identificadorOrdenacio;
 		private String numeroIdentificador;
 		private Long expedientTipusId;
 		private String expedientTipusNom;
 		private String processInstanceId;
-		public DadesExpedientTasca(
+		private boolean tramitacioMassiva;
+		private String definicioProcesJbpmKey;
+		public DadesCacheTasca(
 				Long entornId,
+				String titol,
 				String identificador,
 				String identificadorOrdenacio,
 				String numeroIdentificador,
 				Long expedientTipusId,
 				String expedientTipusNom,
-				String processInstanceId) {
+				String processInstanceId,
+				boolean tramitacioMassiva,
+				String definicioProcesJbpmKey) {
 			this.entornId = entornId;
+			this.titol = titol;
 			this.identificador = identificador;
 			this.identificadorOrdenacio = identificadorOrdenacio;
 			this.numeroIdentificador = numeroIdentificador;
 			this.expedientTipusId = expedientTipusId;
 			this.expedientTipusNom = expedientTipusNom;
 			this.processInstanceId = processInstanceId;
+			this.tramitacioMassiva = tramitacioMassiva;
+			this.definicioProcesJbpmKey = definicioProcesJbpmKey;
 		}
 		public Long getEntornId() {
 			return entornId;
+		}
+		public String getTitol() {
+			return titol;
 		}
 		public String getIdentificador() {
 			return identificador;
@@ -1703,6 +1897,58 @@ public class TascaService {
 		}
 		public String getProcessInstanceId() {
 			return processInstanceId;
+		}
+		public boolean isTramitacioMassiva() {
+			return tramitacioMassiva;
+		}
+		public String getDefinicioProcesJbpmKey() {
+			return definicioProcesJbpmKey;
+		}
+	}
+	private class DadesTascaOrdenacio {
+		private String taskId;
+		private String titol;
+		private String expedientTitol;
+		private String expedientTipusNom;
+		private Date dataCreacio;
+		private int prioritat;
+		private Date dataLimit;
+		public DadesTascaOrdenacio(
+				String taskId,
+				String titol,
+				String expedientTitol,
+				String expedientTipusNom,
+				Date dataCreacio,
+				int prioritat,
+				Date dataLimit) {
+			this.taskId = taskId;
+			this.titol = titol;
+			this.expedientTitol = expedientTitol;
+			this.expedientTipusNom = expedientTipusNom;
+			this.dataCreacio = dataCreacio;
+			this.prioritat = prioritat;
+			this.dataLimit = dataLimit;
+		}
+		public String getTaskId() {
+			return taskId;
+		}
+		public String getTitol() {
+			return titol;
+		}
+		public String getExpedientTitol() {
+			return expedientTitol;
+		}
+		public String getExpedientTipusNom() {
+			return expedientTipusNom;
+		}
+		public Date getDataCreacio() {
+			return dataCreacio;
+		}
+		public int getPrioritat() {
+			return prioritat;
+		}
+		public Date getDataLimit() {
+			return dataLimit;
 		}
 	}
 

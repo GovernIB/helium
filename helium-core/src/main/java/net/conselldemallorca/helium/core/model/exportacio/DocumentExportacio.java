@@ -25,6 +25,8 @@ public class DocumentExportacio implements Serializable {
 	private String custodiaCodi;
 	private Integer tipusDocPortasignatures;
 	private boolean adjuntarAuto;
+	private String convertirExtensio;
+	private String extensionsPermeses;
 
 
 
@@ -110,6 +112,18 @@ public class DocumentExportacio implements Serializable {
 	}
 	public void setAdjuntarAuto(boolean adjuntarAuto) {
 		this.adjuntarAuto = adjuntarAuto;
+	}
+	public String getConvertirExtensio() {
+		return convertirExtensio;
+	}
+	public void setConvertirExtensio(String convertirExtensio) {
+		this.convertirExtensio = convertirExtensio;
+	}
+	public String getExtensionsPermeses() {
+		return extensionsPermeses;
+	}
+	public void setExtensionsPermeses(String extensionsPermeses) {
+		this.extensionsPermeses = extensionsPermeses;
 	}
 
 	private static final long serialVersionUID = 1L;

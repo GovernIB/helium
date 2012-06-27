@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
+import net.conselldemallorca.helium.core.model.dao.EnumeracioDao;
 import net.conselldemallorca.helium.core.model.dao.PermisDao;
 import net.conselldemallorca.helium.core.model.dao.PersonaDao;
 import net.conselldemallorca.helium.core.model.dao.UsuariDao;
@@ -43,13 +44,16 @@ public class UpdateService {
 	public static final int VERSIO_220_ORDRE = 220;
 	public static final String VERSIO_221_STR = "2.2.1";
 	public static final int VERSIO_221_ORDRE = 221;
-	public static final String VERSIO_ACTUAL_STR = "2.2.1";
-	public static final int VERSIO_ACTUAL_ORDRE = 221;
+	public static final String VERSIO_230_STR = "2.3.0";
+	public static final int VERSIO_230_ORDRE = 230;
+	public static final String VERSIO_ACTUAL_STR = "2.3.0";
+	public static final int VERSIO_ACTUAL_ORDRE = 230;
 
 	private VersioDao versioDao;
 	private PersonaDao personaDao;
 	private UsuariDao usuariDao;
 	private PermisDao permisDao;
+	private EnumeracioDao enumeracioDao;
 
 	private DissenyService dissenyService;
 
@@ -79,6 +83,10 @@ public class UpdateService {
 					boolean actualitzat = actualitzarV221();
 					if (!actualitzat) break;
 				}
+				if (versio.getOrdre() == VERSIO_230_ORDRE) {
+					boolean actualitzat = actualitzarV230();
+					if (!actualitzat) break;
+				}
 			}
 		}
 		Versio darrera = versioDao.findLast();
@@ -91,6 +99,9 @@ public class UpdateService {
 		}
 		if (actualitzat && darrera.getOrdre() < 221) {
 			actualitzat = actualitzarV221();
+		}
+		if (actualitzat && darrera.getOrdre() < 230) {
+			actualitzarV230();
 		}
 	}
 
@@ -119,6 +130,10 @@ public class UpdateService {
 	@Autowired
 	public void setPermisDao(PermisDao permisDao) {
 		this.permisDao = permisDao;
+	}
+	@Autowired
+	public void setEnumeracioDao(EnumeracioDao enumeracioDao) {
+		this.enumeracioDao = enumeracioDao;
 	}
 	@Autowired
 	public void setMessageSource(MessageSource messageSource) {
@@ -167,8 +182,7 @@ public class UpdateService {
 		boolean actualitzat = false;
 		Versio versio210 = obtenirOCrearVersio(VERSIO_210_STR, VERSIO_210_ORDRE);
 		if (!versio210.isScriptExecutat()) {
-			if (errorUpdate == null)
-				errorUpdate = getMessage("error.update.actualitzar.versio") + " " + VERSIO_210_STR + ": " + getMessage("error.update.script.ko");
+			errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_210_STR + ": " + getMessage("error.update.script.ko");
 		} else if (!versio210.isProcesExecutat()) {
 			try {
 				canviarMapeigSistraV210();
@@ -234,7 +248,7 @@ public class UpdateService {
 		}
 	}
 	private void canviarMapeigEnumeracionsV210() throws Exception {
-		List<Enumeracio> enumeracions = dissenyService.findEnumeracions();
+		List<Enumeracio> enumeracions = enumeracioDao.findAll();
 		if (enumeracions.size() > 0) {
 			for (Enumeracio enumeracio : enumeracions) {
 				if ((enumeracio.getValors() != null) && (!enumeracio.getValors().equals(""))) {
@@ -255,8 +269,7 @@ public class UpdateService {
 		boolean actualitzat = false;
 		Versio versio220 = obtenirOCrearVersio(VERSIO_220_STR, VERSIO_220_ORDRE);
 		if (!versio220.isScriptExecutat()) {
-			if (errorUpdate == null)
-				errorUpdate = getMessage("error.update.actualitzar.versio") + " " + VERSIO_220_STR + ": " + getMessage("error.update.script.ko");
+			errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_220_STR + ": " + getMessage("error.update.script.ko");
 		} else if (!versio220.isProcesExecutat()) {
 			try {
 				versio220.setProcesExecutat(true);
@@ -276,8 +289,7 @@ public class UpdateService {
 		boolean actualitzat = false;
 		Versio versio221 = obtenirOCrearVersio(VERSIO_221_STR, VERSIO_221_ORDRE);
 		if (!versio221.isScriptExecutat()) {
-			if (errorUpdate == null)
-				errorUpdate = getMessage("error.update.actualitzar.versio") + " " + VERSIO_221_STR + ": " + getMessage("error.update.script.ko");
+			errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_221_STR + ": " + getMessage("error.update.script.ko");
 		} else if (!versio221.isProcesExecutat()) {
 			try {
 				actualitzarOrdreValorsEnumeracionsV221();
@@ -294,13 +306,33 @@ public class UpdateService {
 		return actualitzat;
 	}
 	private void actualitzarOrdreValorsEnumeracionsV221() {
-		List<Enumeracio> enumeracions = dissenyService.findEnumeracions();
+		List<Enumeracio> enumeracions = enumeracioDao.findAll();
 		for (Enumeracio enumeracio: enumeracions) {
 			int i = 0;
 			for (EnumeracioValors valor: enumeracio.getEnumeracioValors()) {
 				valor.setOrdre(i++);
 			}
 		}
+	}
+
+	private boolean actualitzarV230() {
+		boolean actualitzat = false;
+		Versio versio230 = obtenirOCrearVersio(VERSIO_230_STR, VERSIO_230_ORDRE);
+		if (!versio230.isScriptExecutat()) {
+			errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_230_STR + ": " + getMessage("error.update.script.ko");
+		} else if (!versio230.isProcesExecutat()) {
+			try {
+				versio230.setProcesExecutat(true);
+				versio230.setDataExecucioProces(new Date());
+				versioDao.saveOrUpdate(versio230);
+				logger.info("Actualització a la versió " + VERSIO_230_STR + " realitzada correctament");
+				actualitzat = true;
+			} catch (Exception ex) {
+				logger.error("Error al executar l'actualització a la versió " + VERSIO_230_STR, ex);
+				errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_230_STR + ": " + getMessage("error.update.proces.ko");
+			}
+		}
+		return actualitzat;
 	}
 
 	private String getMessage(String key, Object[] vars) {

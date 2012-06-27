@@ -57,12 +57,13 @@ public class GestioDocumentalPluginAlfresco implements GestioDocumentalPlugin {
 			Map<String, String> properties = new HashMap<String, String>();
 			properties.put(Constants.PROP_DESCRIPTION, documentDescripcio);
 			alfrescoUtils.updateNodeProperties(ref, properties);
-			return alfrescoUtils.createContent(
+			String uuid = alfrescoUtils.createContent(
 					ref,
 					CONTENT_DATA_NAME,
 					documentArxiuNom,
 					"Data: " + new SimpleDateFormat("dd/MM/yyyy").format(documentData),
 					documentArxiuContingut);
+			return uuid;
 		} catch (Exception ex) {
 			logger.error("Error al guardar l'arxiu dins el gestor documental", ex);
 			throw new GestioDocumentalPluginException("Error al guardar l'arxiu dins el gestor documental", ex);

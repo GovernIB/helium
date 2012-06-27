@@ -166,7 +166,7 @@ public class ExpedientService {
 		return null;
 	}
 
-	public ExpedientDto iniciar(
+	public synchronized ExpedientDto iniciar(
 			Long entornId,
 			String usuari,
 			Long expedientTipusId,
@@ -531,7 +531,7 @@ public class ExpedientService {
 			String sort,
 			boolean asc) {
 		List<ExpedientTipus> tipus = expedientTipusDao.findAmbEntorn(entornId);
-		serviceUtils.filterAllowed(
+		getServiceUtils().filterAllowed(
 						tipus,
 						ExpedientTipus.class,
 						new Permission[] {
@@ -691,7 +691,7 @@ public class ExpedientService {
 		List<TascaDto> resposta = new ArrayList<TascaDto>();
 		List<JbpmTask> tasks = jbpmDao.findTaskInstancesForProcessInstance(processInstanceId);
 		for (JbpmTask task: tasks)
-			resposta.add(dtoConverter.toTascaDto(task, null, ambVariables, true, true, true));
+			resposta.add(dtoConverter.toTascaDto(task, null, ambVariables, true, true, true, true));
 		Collections.sort(resposta);
 		return resposta;
 	}
@@ -764,7 +764,7 @@ public class ExpedientService {
 	}
 
 	public Object getVariable(String processInstanceId, String varName) {
-		return jbpmDao.getProcessInstanceVariable(processInstanceId, varName);
+		return getServiceUtils().getVariableJbpmProcesValor(processInstanceId, varName);
 	}
 	public void createVariable(String processInstanceId, String varName, Object value) {
 		jbpmDao.setProcessInstanceVariable(processInstanceId, varName, value);
@@ -787,7 +787,7 @@ public class ExpedientService {
 				value);
 	}
 	public void updateVariable(String processInstanceId, String varName, Object value) {
-		Object valorVell = jbpmDao.getProcessInstanceVariable(processInstanceId, varName);
+		Object valorVell = getServiceUtils().getVariableJbpmProcesValor(processInstanceId, varName);
 		jbpmDao.setProcessInstanceVariable(processInstanceId, varName, value);
 		JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(processInstanceId);
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
@@ -1341,6 +1341,14 @@ public class ExpedientService {
 		jbpmDao.changeProcessInstanceVersion(processInstanceId, -1);
 	}
 
+	public boolean isAccioPublica(
+			String processInstanceId,
+			String accioCodi) {
+		JbpmProcessInstance processInstance = jbpmDao.getProcessInstance(processInstanceId);
+		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(processInstance.getProcessDefinitionId());
+		Accio accio = accioDao.findAmbDefinicioProcesICodi(definicioProces.getId(), accioCodi);
+		return accio.isPublica();
+	}
 	public void executarAccio(
 			String processInstanceId,
 			String accioCodi) {

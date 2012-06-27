@@ -31,19 +31,19 @@ public class ExpedientNumeroModificarHandler extends AbstractHeliumActionHandler
 					ex.getEntorn().getId(),
 					ex.getTipus().getId(),
 					n);
-			if (expedientRepetit == null) {
+			if (expedientRepetit == null || expedientRepetit.getId().longValue() == ex.getId().longValue()) {
 				ex.setNumero(n);
 			} else {
 				throw new JbpmException("Ja existeix un altre expedient del tipus " + ex.getTipus().getCodi() + " amb el número " + n);
 			}
 		} else {
-			ExpedientDto expedient = getExpedient(executionContext);
+			Expedient expedient = getExpedient(executionContext);
 			if (expedient != null) {
 				ExpedientDto expedientRepetit = getExpedientService().findExpedientAmbEntornTipusINumero(
 						expedient.getEntorn().getId(),
 						expedient.getTipus().getId(),
 						n);
-				if (expedientRepetit == null) {
+				if (expedientRepetit == null || expedientRepetit.getId().longValue() == expedient.getId().longValue()) {
 					getExpedientService().editar(
 							expedient.getEntorn().getId(),
 							expedient.getId(),

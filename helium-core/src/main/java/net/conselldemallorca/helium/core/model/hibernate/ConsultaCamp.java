@@ -105,7 +105,7 @@ public class ConsultaCamp implements Serializable, GenericEntity<Long> {
 		this.tipus = tipus;
 	}
 
-	@Column(name="ordre")
+	@Column(name="ordre", nullable=false)
 	public int getOrdre() {
 		return ordre;
 	}

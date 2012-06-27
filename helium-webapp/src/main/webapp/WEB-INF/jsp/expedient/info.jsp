@@ -138,23 +138,31 @@ function confirmarAccio(e) {
 		</security:accesscontrollist>
 	</c:if>
 
-	<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
-		<c:if test="${not empty instanciaProces.definicioProces.accions}">
-			<br/><div class="missatgesGris">
-				<h4 class="titol-missatge"><fmt:message key='expedient.info.executar_accio' /></h4>
-				<c:set var="accionsValor"><c:forEach var="accio" items="${instanciaProces.definicioProces.accions}" varStatus="status">${accio.codi}<c:if test="${not status.last}">,</c:if></c:forEach></c:set>
-				<c:set var="accionsNom"><c:forEach var="accio" items="${instanciaProces.definicioProces.accions}" varStatus="status">${accio.nom}<c:if test="${not status.last}">,</c:if></c:forEach></c:set>
-				<form action="accio.html" method="post" class="uniForm" onsubmit="return confirmarAccio(event)">
-					<input type="hidden" name="id" value="${instanciaProces.id}"/>
-					<c:import url="../common/formElement.jsp">
-						<c:param name="type" value="buttons"/>
-						<c:param name="values">${accionsValor}</c:param>
-						<c:param name="titles">${accionsNom}</c:param>
-					</c:import>
-				</form>
-			</div>
+	<c:set var="hiHaAccions" value="${false}"/>
+	<c:set var="hiHaAccionsPubliques" value="${false}"/>
+	<c:forEach var="accio" items="${instanciaProces.definicioProces.accions}">
+		<c:if test="${not accio.oculta}">
+			<c:set var="hiHaAccions" value="${true}"/>
+			<c:if test="${accio.publica}"><c:set var="hiHaAccionsPubliques" value="${true}"/></c:if>
 		</c:if>
-	</security:accesscontrollist>
+	</c:forEach>
+	<c:set var="tePermisAccions" value="${false}"/>
+	<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2"><c:set var="tePermisAccions" value="${true}"/></security:accesscontrollist>
+	<c:if test="${hiHaAccionsPubliques || (hiHaAccions && tePermisAccions)}">
+		<br/><div class="missatgesGris">
+			<h4 class="titol-missatge"><fmt:message key='expedient.info.executar_accio' /></h4>
+			<c:set var="accionsCodi"><c:forEach var="accio" items="${instanciaProces.definicioProces.accions}" varStatus="status"><c:if test="${not accio.oculta}"><c:choose><c:when test="${accio.publica}">${accio.codi}<c:if test="${not status.last}">,</c:if></c:when><c:otherwise><c:if test="${tePermisAccions}">${accio.codi}<c:if test="${not status.last}">,</c:if></c:if></c:otherwise></c:choose></c:if></c:forEach></c:set>
+			<c:set var="accionsNom"><c:forEach var="accio" items="${instanciaProces.definicioProces.accions}" varStatus="status"><c:if test="${not accio.oculta}"><c:choose><c:when test="${accio.publica}">${accio.nom}<c:if test="${not status.last}">,</c:if></c:when><c:otherwise><c:if test="${tePermisAccions}">${accio.nom}<c:if test="${not status.last}">,</c:if></c:if></c:otherwise></c:choose></c:if></c:forEach></c:set>
+			<form action="accio.html" method="post" class="uniForm" onsubmit="return confirmarAccio(event)">
+				<input type="hidden" name="id" value="${instanciaProces.id}"/>
+				<c:import url="../common/formElement.jsp">
+					<c:param name="type" value="buttons"/>
+					<c:param name="values">${accionsCodi}</c:param>
+					<c:param name="titles">${accionsNom}</c:param>
+				</c:import>
+			</form>
+		</div>
+	</c:if>
 	<c:if test="${instanciaProces.imatgeDisponible}">
 		<script type="text/javascript">
 			$('.finestraProces').openDOMWindow({

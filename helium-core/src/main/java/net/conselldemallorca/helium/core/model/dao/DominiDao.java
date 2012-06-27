@@ -21,7 +21,10 @@ import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.model.exception.DominiException;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
+import net.conselldemallorca.helium.core.model.hibernate.Domini.OrigenCredencials;
+import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusAuthDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -132,24 +135,31 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 		if ("intern".equalsIgnoreCase(domini.getCodi())) {
 			parametres.put("entorn", domini.getEntorn().getCodi());
 		}
+		String usuari = null;
+		String contrasenya = null;
+		if (domini.getTipusAuth() != null && !TipusAuthDomini.NONE.equals(domini.getTipusAuth())) {
+			if (OrigenCredencials.PROPERTIES.equals(domini.getOrigenCredencials())) {
+				usuari = GlobalProperties.getInstance().getProperty(domini.getUsuari());
+				contrasenya = GlobalProperties.getInstance().getProperty(domini.getContrasenya());
+			} else {
+				usuari = domini.getUsuari();
+				contrasenya = domini.getContrasenya();
+			}
+		}
+		String auth = "NONE";
+		if (TipusAuthDomini.HTTP_BASIC.equals(domini.getTipusAuth()))
+			auth = "BASIC";
+		if (TipusAuthDomini.USERNAMETOKEN.equals(domini.getTipusAuth()))
+			auth = "USERNAMETOKEN";
 		DominiHelium client = (DominiHelium)WsClientUtils.getWsClientProxy(
 				DominiHelium.class,
 				domini.getUrl(),
-				null,
-				null,
-				"NONE",
+				usuari,
+				contrasenya,
+				auth,
 				false,
 				false,
 				true);
-		/*DominiHelium client = wsCache.get(domini.getId());
-		if (client == null) {
-			//ClientProxyFactoryBean factory = new ClientProxyFactoryBean();
-			ClientProxyFactoryBean factory = new JaxWsProxyFactoryBean();
-			factory.setServiceClass(DominiHelium.class);
-			factory.setAddress(domini.getUrl());
-			client = (DominiHelium)factory.create();
-			wsCache.put(domini.getId(), client);
-		}*/
 		List<ParellaCodiValor> paramsConsulta = new ArrayList<ParellaCodiValor>();
 		if (parametres != null) {
 			for (String codi: parametres.keySet()) {

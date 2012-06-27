@@ -48,6 +48,11 @@ public class Accio implements Serializable, GenericEntity<Long> {
 	@NotBlank
 	@MaxLength(255)
 	private String jbpmAction;
+	private boolean publica;
+	private boolean oculta;
+	private String cron;
+
+
 
 	@NotNull
 	private DefinicioProces definicioProces;
@@ -103,6 +108,30 @@ public class Accio implements Serializable, GenericEntity<Long> {
 	}
 	public void setJbpmAction(String jbpmAction) {
 		this.jbpmAction = jbpmAction;
+	}
+
+	@Column(name="publica")
+	public boolean isPublica() {
+		return publica;
+	}
+	public void setPublica(boolean publica) {
+		this.publica = publica;
+	}
+
+	@Column(name="oculta")
+	public boolean isOculta() {
+		return oculta;
+	}
+	public void setOculta(boolean oculta) {
+		this.oculta = oculta;
+	}
+
+	@Column(name="cron", length=255)
+	public String getCron() {
+		return cron;
+	}
+	public void setCron(String cron) {
+		this.cron = cron;
 	}
 
 	@ManyToOne(optional=false)

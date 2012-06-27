@@ -62,6 +62,7 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 	private byte[] informeContingut;
 	private boolean exportarActiu;
 	private boolean generica;
+	private int ordre;
 
 	@NotNull
 	private Entorn entorn;
@@ -158,6 +159,14 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 		this.generica = generica;
 	}
 
+	@Column(name="ordre", nullable=false)
+	public int getOrdre() {
+		return ordre;
+	}
+	public void setOrdre(int ordre) {
+		this.ordre = ordre;
+	}
+
 	@ManyToOne(optional=false)
 	@JoinColumn(name="entorn_id")
 	@ForeignKey(name="hel_entorn_consulta_fk")
@@ -225,8 +234,6 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 	public void removeSuperConsulta(Consulta consulta) {
 		getSuperConsultes().remove(consulta);
 	}
-
-
 
 	@Override
 	public int hashCode() {

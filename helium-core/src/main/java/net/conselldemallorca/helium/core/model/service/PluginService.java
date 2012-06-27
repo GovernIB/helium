@@ -13,6 +13,7 @@ import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.PluginCustodiaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginPersonaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginPortasignaturesDao;
+import net.conselldemallorca.helium.core.model.dao.PluginTramitacioDao;
 import net.conselldemallorca.helium.core.model.dao.RegistreDao;
 import net.conselldemallorca.helium.core.model.dao.UsuariDao;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
@@ -25,6 +26,13 @@ import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEs
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.model.hibernate.Usuari;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesTramit;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirDadesTramitRequest;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirVistaDocumentRequest;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarEventRequest;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarExpedientRequest;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.ResultatProcesTramitRequest;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 
@@ -49,6 +57,7 @@ public class PluginService {
 	private PluginPersonaDao pluginPersonaDao;
 	private PluginPortasignaturesDao pluginPortasignaturesDao;
 	private PluginCustodiaDao pluginCustodiaDao;
+	private PluginTramitacioDao pluginTramitacioDao;
 	private UsuariDao usuariDao;
 	private ExpedientDao expedientDao;
 	private RegistreDao registreDao;
@@ -226,6 +235,27 @@ public class PluginService {
 		return resposta;
 	}
 
+	public void publicarExpedient(
+			PublicarExpedientRequest request) {
+		pluginTramitacioDao.publicarExpedient(request);
+	}
+	public void publicarEvent(
+			PublicarEventRequest request) {
+		pluginTramitacioDao.publicarEvent(request);
+	}
+	public DadesTramit obtenirDadesTramit(
+			ObtenirDadesTramitRequest request) {
+		return pluginTramitacioDao.obtenirDadesTramit(request);
+	}
+	public DadesVistaDocument obtenirVistaDocument(
+			ObtenirVistaDocumentRequest request) {
+		return pluginTramitacioDao.obtenirVistaDocument(request);
+	}
+	public void comunicarResultatProcesTramit(
+			ResultatProcesTramitRequest request) {
+		pluginTramitacioDao.comunicarResultatProcesTramit(request);
+	}
+
 
 
 	@Autowired
@@ -244,6 +274,10 @@ public class PluginService {
 	@Autowired
 	public void setPluginCustodiaDao(PluginCustodiaDao pluginCustodiaDao) {
 		this.pluginCustodiaDao = pluginCustodiaDao;
+	}
+	@Autowired
+	public void setPluginTramitacioDao(PluginTramitacioDao pluginTramitacioDao) {
+		this.pluginTramitacioDao = pluginTramitacioDao;
 	}
 	@Autowired
 	public void setExpedientDao(ExpedientDao expedientDao) {

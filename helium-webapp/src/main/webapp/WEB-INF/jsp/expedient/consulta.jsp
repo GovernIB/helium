@@ -265,8 +265,6 @@ function obreVisorGis() {
 						<a href="<c:url value="/expedient/delete.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmarEsborrar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 					</security:accesscontrollist>
 				</display:column>
-				<display:setProperty name="paging.banner.item_name">expedient</display:setProperty>
-				<display:setProperty name="paging.banner.items_name">expedients</display:setProperty>
 			</display:table>
 			<script type="text/javascript">initSelectable();</script>
 		</c:if>

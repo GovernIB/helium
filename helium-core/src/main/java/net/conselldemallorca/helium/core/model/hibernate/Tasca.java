@@ -70,6 +70,7 @@ public class Tasca implements Serializable, GenericEntity<Long> {
 	private String recursForm;
 	@MaxLength(255)
 	private String formExtern;
+	private boolean tramitacioMassiva = false;
 
 	@NotNull
 	private DefinicioProces definicioProces;
@@ -170,6 +171,14 @@ public class Tasca implements Serializable, GenericEntity<Long> {
 	}
 	public void setFormExtern(String formExtern) {
 		this.formExtern = formExtern;
+	}
+
+	@Column(name="tram_massiva")
+	public boolean isTramitacioMassiva() {
+		return tramitacioMassiva;
+	}
+	public void setTramitacioMassiva(boolean tramitacioMassiva) {
+		this.tramitacioMassiva = tramitacioMassiva;
 	}
 
 	@ManyToOne(optional=false)

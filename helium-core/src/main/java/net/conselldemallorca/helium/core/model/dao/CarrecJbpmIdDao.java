@@ -30,14 +30,6 @@ public class CarrecJbpmIdDao extends HibernateGenericDao<CarrecJbpmId, Long> {
 
 
 
-	public CarrecJbpmId findAmbCodi(String codi) {
-		List<CarrecJbpmId> carrecs = findByCriteria(
-				Restrictions.eq("codi", codi));
-		if (carrecs.size() > 0)
-			return carrecs.get(0);
-		return null;
-	}
-
 	@SuppressWarnings("unchecked")
 	public List<CarrecJbpmId> findSenseAssignar() {
 		return (List<CarrecJbpmId>)getHibernateTemplate().execute(new HibernateCallback() {
@@ -45,19 +37,22 @@ public class CarrecJbpmIdDao extends HibernateGenericDao<CarrecJbpmId, Long> {
 				List<CarrecJbpmId> resposta = new ArrayList<CarrecJbpmId>();
 				Query query = session.createQuery(
 						"select " +
-						"    distinct m.role " +
+						"    distinct m.role," +
+						"    m.group.name " +
 						"from " +
 						"    org.jbpm.identity.Membership m " +
 						"where " +
-						"    m.role not in (" +
+						"    (m.role, m.group.name) not in (" +
 						"        select " +
-						"            c.codi " +
+						"            c.codi," +
+						"            c.grup " +
 						"        from " +
 						"            CarrecJbpmId c) ");
-				List<String> files = query.list();
-				for (String rol: files) {
+				List<Object[]> files = query.list();
+				for (Object[] fila: files) {
 					CarrecJbpmId carrec = new CarrecJbpmId();
-					carrec.setCodi(rol);
+					carrec.setCodi((String)fila[0]);
+					carrec.setGrup((String)fila[1]);
 					resposta.add(carrec);
 				}
 				return resposta;
@@ -65,27 +60,19 @@ public class CarrecJbpmIdDao extends HibernateGenericDao<CarrecJbpmId, Long> {
 		});
 	}
 
-	@SuppressWarnings("unchecked")
-	public List<String> findPersonesAmbCarrecCodi(final String codi) {
-		return (List<String>)getHibernateTemplate().execute(new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException, SQLException {
-				Query query = session.createQuery(
-						"select " +
-						"    m.user.name " +
-						"from " +
-						"    org.jbpm.identity.Membership m " +
-						"where " +
-						"    m.role = :role");
-				query.setString("role", codi);
-				return query.list();
-			}
-		});
+	public CarrecJbpmId findAmbCodiGrup(String codi, String grup) {
+		List<CarrecJbpmId> carrecs = findByCriteria(
+				Restrictions.eq("codi", codi),
+				Restrictions.eq("grup", grup));
+		if (carrecs.size() > 0)
+			return carrecs.get(0);
+		return null;
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public String findPersonaAmbGroupICarrec(
-			final String codiGroup,
-			final String codiCarrec) {
+	public String findPersonaAmbGrupICarrec(
+			final String grup,
+			final String carrec) {
 		return (String)getHibernateTemplate().execute(
 				new HibernateCallback() {
 					public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -97,8 +84,8 @@ public class CarrecJbpmIdDao extends HibernateGenericDao<CarrecJbpmId, Long> {
 								"where " +
 								"    m.group.name = :codiGroup " +
 								"and m.role = :codiCarrec");
-						query.setString("codiGroup", codiGroup);
-						query.setString("codiCarrec", codiCarrec);
+						query.setString("codiGroup", grup);
+						query.setString("codiCarrec", carrec);
 						List<String> files = query.list();
 						if (files.size() > 0)
 							return files.get(0);
@@ -107,8 +94,30 @@ public class CarrecJbpmIdDao extends HibernateGenericDao<CarrecJbpmId, Long> {
 				});
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<String> findPersonesAmbGrupICarrec(
+			final String grup,
+			final String carrec) {
+		return (List<String>)getHibernateTemplate().execute(
+				new HibernateCallback() {
+					public Object doInHibernate(Session session) throws HibernateException, SQLException {
+						Query query = session.createQuery(
+								"select " +
+								"    m.user.name " +
+								"from " +
+								"    org.jbpm.identity.Membership m " +
+								"where " +
+								"    m.group.name = :codiGroup " +
+								"and m.role = :codiCarrec");
+						query.setString("codiGroup", grup);
+						query.setString("codiCarrec", carrec);
+						return query.list();
+					}
+				});
+	}
+
 	@SuppressWarnings("unchecked")
-	public List<String> findCarrecsCodiAmbPersonaArea(final String codiPersona, final String codiArea) {
+	public List<String> findCarrecsCodiAmbPersonaGrup(final String codiPersona, final String codiArea) {
 		return (List<String>)getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException, SQLException {
 				Query query = session.createQuery(
@@ -127,7 +136,7 @@ public class CarrecJbpmIdDao extends HibernateGenericDao<CarrecJbpmId, Long> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<String> findPersonesAmbGroup(final String group) {
+	public List<String> findPersonesAmbGrup(final String group) {
 		return (List<String>)getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException, SQLException {
 				Query query = session.createQuery(
@@ -141,6 +150,31 @@ public class CarrecJbpmIdDao extends HibernateGenericDao<CarrecJbpmId, Long> {
 				return query.list();
 			}
 		});
+	}
+
+	/* Per suprimir */
+	@SuppressWarnings("unchecked")
+	public List<String> findPersonesAmbCarrecCodi(final String codi) {
+		return (List<String>)getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query query = session.createQuery(
+						"select " +
+						"    m.user.name " +
+						"from " +
+						"    org.jbpm.identity.Membership m " +
+						"where " +
+						"    m.role = :role");
+				query.setString("role", codi);
+				return query.list();
+			}
+		});
+	}
+	public CarrecJbpmId findAmbCodi(String codi) {
+		List<CarrecJbpmId> carrecs = findByCriteria(
+				Restrictions.eq("codi", codi));
+		if (carrecs.size() > 0)
+			return carrecs.get(0);
+		return null;
 	}
 
 }

@@ -32,6 +32,7 @@ public class TascaLlistatDto implements Comparable<TascaLlistatDto> {
 	private Date dataFi;
 	private Date dataLimit;
 	private int prioritat;
+	private boolean tramitacioMassiva;
 	private String responsable;
 	private Set<String> responsables;
 	private boolean oberta;
@@ -39,9 +40,59 @@ public class TascaLlistatDto implements Comparable<TascaLlistatDto> {
 	private boolean cancelada;
 	private boolean suspesa;
 	private List<String> resultats;
+	
+	private boolean delegable;
+	private boolean delegada;
+	private boolean delegacioOriginal;
+	private Date delegacioData;
+	private String delegacioComentari;
+	private boolean delegacioSupervisada;
+	private PersonaDto delegacioPersona;
 
 
 
+	public boolean isDelegable() {
+		return delegable;
+	}
+	public void setDelegable(boolean delegable) {
+		this.delegable = delegable;
+	}
+	public boolean isDelegada() {
+		return delegada;
+	}
+	public void setDelegada(boolean delegada) {
+		this.delegada = delegada;
+	}
+	public boolean isDelegacioOriginal() {
+		return delegacioOriginal;
+	}
+	public void setDelegacioOriginal(boolean delegacioOriginal) {
+		this.delegacioOriginal = delegacioOriginal;
+	}
+	public Date getDelegacioData() {
+		return delegacioData;
+	}
+	public void setDelegacioData(Date delegacioData) {
+		this.delegacioData = delegacioData;
+	}
+	public String getDelegacioComentari() {
+		return delegacioComentari;
+	}
+	public void setDelegacioComentari(String delegacioComentari) {
+		this.delegacioComentari = delegacioComentari;
+	}
+	public boolean isDelegacioSupervisada() {
+		return delegacioSupervisada;
+	}
+	public void setDelegacioSupervisada(boolean delegacioSupervisada) {
+		this.delegacioSupervisada = delegacioSupervisada;
+	}
+	public PersonaDto getDelegacioPersona() {
+		return delegacioPersona;
+	}
+	public void setDelegacioPersona(PersonaDto delegacioPersona) {
+		this.delegacioPersona = delegacioPersona;
+	}
 	public String getId() {
 		return id;
 	}
@@ -143,6 +194,12 @@ public class TascaLlistatDto implements Comparable<TascaLlistatDto> {
 	}
 	public void setPrioritat(int prioritat) {
 		this.prioritat = prioritat;
+	}
+	public boolean isTramitacioMassiva() {
+		return tramitacioMassiva;
+	}
+	public void setTramitacioMassiva(boolean tramitacioMassiva) {
+		this.tramitacioMassiva = tramitacioMassiva;
 	}
 	public String getResponsable() {
 		return responsable;

@@ -29,10 +29,16 @@ function confirmar(e) {
 		<c:param name="tabActiu" value="consultes"/>
 	</c:import>
 
-	<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable">
-		<display:column property="codi" titleKey="comuns.codi" sortable="true" url="/expedientTipus/consultaForm.html?expedientTipusId=${expedientTipus.id}" paramId="id" paramProperty="id"/>
-		<display:column property="nom" titleKey="comuns.titol" sortable="true"/>
-		<display:column property="expedientTipus.nom" titleKey="comuns.tipus_exp" sortable="true"/>
+	<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable" defaultsort="1" defaultorder="ascending">
+		<display:column property="ordre" titleKey="comuns.ordre"  />
+		<display:column property="codi" titleKey="comuns.codi" sortable="false" url="/expedientTipus/consultaForm.html?expedientTipusId=${expedientTipus.id}" paramId="id" paramProperty="id"/>
+		<display:column property="nom" titleKey="comuns.titol" sortable="false"/>
+		<display:column property="expedientTipus.nom" titleKey="comuns.tipus_exp" sortable="false" />
+		
+		<display:column>
+			<a href="<c:url value="/consulta/valorsPujar.html"><c:param name="expedientTipusId" value="${expedientTipus.id}"/><c:param name="consultaId" value="${registre.id}"/></c:url>"><img src="<c:url value="/img/famarrow_up.png"/>" alt="<fmt:message key="comuns.amunt"/>" title="<fmt:message key="comuns.amunt"/>" border="0"/></a>
+			<a href="<c:url value="/consulta/valorsBaixar.html"><c:param name="expedientTipusId" value="${expedientTipus.id}"/><c:param name="consultaId" value="${registre.id}"/></c:url>"><img src="<c:url value="/img/famarrow_down.png"/>" alt="<fmt:message key="comuns.avall"/>" title="<fmt:message key="comuns.avall"/>" border="0"/></a>
+		</display:column>
 		<display:column>
 			<c:set var="numCampsFiltre" value="${0}"/>
 	    	<c:forEach var="camp" items="${registre.camps}">

@@ -16,6 +16,7 @@ import net.conselldemallorca.helium.integracio.plugins.tramitacio.Event;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarEventRequest;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 
+import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
 
 /**
@@ -54,6 +55,8 @@ public class ZonaperExpedientEventHandler extends AbstractHeliumActionHandler im
 		byte[] docArxiuContingut = null;
 		if (dc != null) {
 			DocumentInfo document = getDocumentInfo(executionContext, dc);
+			if (document == null)
+				throw new JbpmException("No s'ha pogut obtenir el document de l'expedient amb el codi " + dc);
 			docTitol = document.getTitol();
 			docArxiuNom = document.getArxiuNom();
 			docArxiuContingut = document.getArxiuContingut();
@@ -69,6 +72,7 @@ public class ZonaperExpedientEventHandler extends AbstractHeliumActionHandler im
 							(String)getValorOVariable(executionContext, textSms, varTextSms),
 							(String)getValorOVariable(executionContext, enllasConsulta, varEnllasConsulta),
 							(Date)getValorOVariable(executionContext, data, varData),
+							dc != null,
 							docTitol,
 							docArxiuNom,
 							docArxiuContingut,
@@ -84,6 +88,7 @@ public class ZonaperExpedientEventHandler extends AbstractHeliumActionHandler im
 							(String)getValorOVariable(executionContext, textSms, varTextSms),
 							(String)getValorOVariable(executionContext, enllasConsulta, varEnllasConsulta),
 							(Date)getValorOVariable(executionContext, data, varData),
+							dc != null,
 							docTitol,
 							docArxiuNom,
 							docArxiuContingut,
@@ -150,6 +155,7 @@ public class ZonaperExpedientEventHandler extends AbstractHeliumActionHandler im
 			String textSms,
 			String enllasConsulta,
 			Date data,
+			boolean hiHaDocument,
 			String adjuntTitol,
 			String adjuntArxiuNom,
 			byte[] adjuntArxiuContingut,
@@ -164,14 +170,16 @@ public class ZonaperExpedientEventHandler extends AbstractHeliumActionHandler im
 		event.setText(text);
 		event.setTextSMS(textSms);
 		event.setEnllasConsulta(enllasConsulta);
-		List<DocumentEvent> documents = new ArrayList<DocumentEvent>();
-		DocumentEvent document = new DocumentEvent();
-		document.setNom(adjuntTitol);
-		document.setArxiuNom(adjuntArxiuNom);
-		document.setArxiuContingut(adjuntArxiuContingut);
-		document.setTipus(DocumentEventTipus.ARXIU);
-		documents.add(document);
-		event.setDocuments(documents);
+		if (hiHaDocument) {
+			List<DocumentEvent> documents = new ArrayList<DocumentEvent>();
+			DocumentEvent document = new DocumentEvent();
+			document.setNom(adjuntTitol);
+			document.setArxiuNom(adjuntArxiuNom);
+			document.setArxiuContingut(adjuntArxiuContingut);
+			document.setTipus(DocumentEventTipus.ARXIU);
+			documents.add(document);
+			event.setDocuments(documents);
+		}
 		requestEvent.setEvent(event);
 		return requestEvent;
 	}

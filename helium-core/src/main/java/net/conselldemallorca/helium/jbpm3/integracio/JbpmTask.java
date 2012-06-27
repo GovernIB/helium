@@ -18,6 +18,8 @@ import org.jbpm.taskmgmt.exe.TaskInstance;
  */
 public class JbpmTask {
 
+	private static final String DESCRIPTION_FIELD_SEPARATOR = "@#@";
+
 	private TaskInstance task;
 
 
@@ -49,7 +51,17 @@ public class JbpmTask {
 		return task.getName();
 	}
 	public String getDescription() {
-		return task.getDescription();
+		if (task.getDescription() == null)
+			return null;
+		if (task.getDescription().contains(DESCRIPTION_FIELD_SEPARATOR)) {
+			int index = task.getDescription().lastIndexOf(DESCRIPTION_FIELD_SEPARATOR);
+			if (index + 1 < task.getDescription().length())
+				return task.getDescription().substring(index + 1);
+			else
+				return "";
+		} else {
+			return task.getDescription();
+		}
 	}
 	public String getAssignee() {
 		return task.getActorId();
@@ -87,6 +99,44 @@ public class JbpmTask {
 	}
 	public boolean isCancelled() {
 		return task.isCancelled();
+	}
+
+	public void setCacheActiu() {
+		setFieldFromDescription("cache", "true");
+	}
+	public boolean isCacheActiu() {
+		return "true".equalsIgnoreCase(getFieldFromDescription("cache"));
+	}
+
+	public String getDescriptionWithFields() {
+		return task.getDescription();
+	}
+	public String getFieldFromDescription(String name) {
+		String text = getDescriptionWithFields();
+		if (text == null)
+			return null;
+		String fieldHeader = DESCRIPTION_FIELD_SEPARATOR + name + DESCRIPTION_FIELD_SEPARATOR;
+		int indexInici = text.indexOf(fieldHeader);
+		if (indexInici != -1) {
+			int indexFi = text.indexOf(DESCRIPTION_FIELD_SEPARATOR, indexInici + fieldHeader.length());
+			return text.substring(indexInici + fieldHeader.length(), indexFi);
+		} else {
+			return null;
+		}
+	}
+	public void setFieldFromDescription(String name, String value) {
+		String currentFieldValue = getFieldFromDescription(name);
+		if (currentFieldValue != null) {
+			String currentFieldText = DESCRIPTION_FIELD_SEPARATOR + name + DESCRIPTION_FIELD_SEPARATOR + currentFieldValue;
+			String newFieldText = DESCRIPTION_FIELD_SEPARATOR + name + DESCRIPTION_FIELD_SEPARATOR + value;
+			getDescriptionWithFields().replace(currentFieldText, newFieldText);
+		} else {
+			String newFieldText = DESCRIPTION_FIELD_SEPARATOR + name + DESCRIPTION_FIELD_SEPARATOR + value;
+			String fields = getDescriptionWithFields();
+			if (fields == null || !fields.startsWith(DESCRIPTION_FIELD_SEPARATOR))
+				newFieldText += DESCRIPTION_FIELD_SEPARATOR;
+			task.setDescription(newFieldText + getDescriptionWithFields());
+		}
 	}
 
 }

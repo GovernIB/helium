@@ -125,6 +125,11 @@ function canviTipus(input) {
 					<c:param name="property" value="dominiCampText"/>
 					<c:param name="label"><fmt:message key='defproc.campform.camp_text' /></c:param>
 				</c:import>
+				<c:import url="../common/formElement.jsp">
+					<c:param name="property" value="dominiCacheText"/>
+					<c:param name="type" value="checkbox"/>
+					<c:param name="label"><fmt:message key="defproc.campform.cache_text"/></c:param>
+				</c:import>
 			</div>
 			<h3><fmt:message key='defproc.campform.dades_accio' /></h3>
 			<div id="camps_accio">

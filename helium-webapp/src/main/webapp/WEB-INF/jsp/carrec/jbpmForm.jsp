@@ -5,8 +5,8 @@
 
 <html>
 <head>
-	<title><fmt:message key='carrec.jbpmform.informacio' /></title>
-	<meta name="titolcmp" content="<fmt:message key='comuns.configuracio' />" />
+	<title><fmt:message key="carrec.jbpmid.informacio"/></title>
+	<meta name="titolcmp" content="<fmt:message key="comuns.configuracio"/>" />
 	<c:import url="../common/formIncludes.jsp"/>
 </head>
 <body>
@@ -17,44 +17,49 @@
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="codi"/>
 				<c:param name="type" value="static"/>
-				<c:param name="label"><fmt:message key='comuns.codi' /></c:param>
+				<c:param name="label"><fmt:message key="comuns.codi"/></c:param>
+			</c:import>
+			<c:import url="../common/formElement.jsp">
+				<c:param name="property" value="grup"/>
+				<c:param name="type" value="static"/>
+				<c:param name="label"><fmt:message key="comuns.grup"/></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="nomHome"/>
 				<c:param name="required" value="true"/>
-				<c:param name="label"><fmt:message key='comuns.nom_home' /></c:param>
+				<c:param name="label"><fmt:message key="comuns.nom_home"/></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="nomDona"/>
 				<c:param name="required" value="true"/>
-				<c:param name="label"><fmt:message key='comuns.nom_dona' /></c:param>
+				<c:param name="label"><fmt:message key="comuns.nom_dona"/></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="tractamentHome"/>
 				<c:param name="required" value="true"/>
-				<c:param name="label"><fmt:message key='comuns.tract_home' /></c:param>
+				<c:param name="label"><fmt:message key="comuns.tract_home"/></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="tractamentDona"/>
 				<c:param name="required" value="true"/>
-				<c:param name="label"><fmt:message key='comuns.tract_dona' /></c:param>
+				<c:param name="label"><fmt:message key="comuns.tract_dona"/></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="personaSexe"/>
 				<c:param name="type" value="select"/>
 				<c:param name="items" value="sexes"/>
-				<c:param name="label"><fmt:message key='comuns.sexe' /></c:param>
+				<c:param name="label"><fmt:message key="comuns.sexe"/></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="descripcio"/>
 				<c:param name="type" value="textarea"/>
-				<c:param name="label"><fmt:message key='comuns.descripcio' /></c:param>
+				<c:param name="label"><fmt:message key="comuns.descripcio"/></c:param>
 			</c:import>
 		</div>
 		<c:import url="../common/formElement.jsp">
 			<c:param name="type" value="buttons"/>
 			<c:param name="values">submit,cancel</c:param>
-			<c:param name="titles"><fmt:message key='comuns.configurar' />,<fmt:message key='comuns.cancelar' /></c:param>
+			<c:param name="titles"><fmt:message key="comuns.configurar"/>,<fmt:message key="comuns.cancelar"/></c:param>
 		</c:import>
 	</form:form>
 
