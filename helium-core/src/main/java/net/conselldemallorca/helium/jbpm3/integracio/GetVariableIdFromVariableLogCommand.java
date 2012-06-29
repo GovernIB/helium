@@ -27,11 +27,14 @@ public class GetVariableIdFromVariableLogCommand extends AbstractBaseCommand {
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		SQLQuery q = jbpmContext.getSession().createSQLQuery("select l.variableinstance_ from jbpm_log l where l.id_=?");
 		q.setLong(0, id);
-		BigInteger result = (BigInteger)q.uniqueResult();
-		if (result != null)
-			return new Long(result.longValue());
-		else
+		Object result = q.uniqueResult();
+		if (result == null)
 			return null;
+		if (result instanceof BigInteger) {
+			return new Long(((BigInteger)result).longValue());
+		} else {
+			return new Long(((Number)result).longValue());
+		}
 	}
 
 	public long getId() {
