@@ -400,7 +400,7 @@ public class DocumentService {
 				if (forsarAdjuntarAuto || document.isAdjuntarAuto()) {
 					documentHelper.actualitzarDocument(
 							taskInstanceId,
-							processInstanceId,
+							(processInstanceId != null) ? processInstanceId : tasca.getProcessInstanceId(),
 							document.getCodi(),
 							null,
 							dataDocument,

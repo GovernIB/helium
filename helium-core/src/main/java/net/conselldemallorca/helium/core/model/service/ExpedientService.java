@@ -1191,8 +1191,9 @@ public class ExpedientService {
 			String taskId,
 			String expression) {
 		String previousActors = expedientLogHelper.getActorsPerReassignacioTasca(taskId);
+		JbpmTask task = jbpmDao.getTaskById(taskId);
 		ExpedientLog expedientLog = expedientLogHelper.afegirLogExpedientPerProces(
-				taskId,
+				task.getProcessInstanceId(),
 				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
 				null);
 		jbpmDao.reassignTaskInstance(taskId, expression);
