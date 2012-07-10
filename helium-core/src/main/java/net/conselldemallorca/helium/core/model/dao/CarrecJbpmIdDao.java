@@ -64,8 +64,14 @@ public class CarrecJbpmIdDao extends HibernateGenericDao<CarrecJbpmId, Long> {
 		List<CarrecJbpmId> carrecs = findByCriteria(
 				Restrictions.eq("codi", codi),
 				Restrictions.eq("grup", grup));
-		if (carrecs.size() > 0)
+		if (carrecs.size() > 0) {
 			return carrecs.get(0);
+		} else {
+			for (CarrecJbpmId carrec: findSenseAssignar()) {
+				if (carrec.getCodi().equals(codi) && carrec.getGrup().equals(grup))
+					return carrec;
+			}
+		}
 		return null;
 	}
 
