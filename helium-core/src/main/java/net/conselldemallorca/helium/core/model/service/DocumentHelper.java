@@ -404,19 +404,18 @@ public class DocumentHelper {
 			String taskInstanceId,
 			String processInstanceId,
 			String documentCodi) {
+		Object value = null;
 		if (taskInstanceId != null) {
-			return (Long)jbpmDao.getTaskInstanceVariable(
-			taskInstanceId,
-			getVarPerDocumentCodi(documentCodi, false));
-			/*JbpmTask taskInstance = jbpmDao.getTaskById(taskInstanceId);
-			return (Long)jbpmDao.getProcessInstanceVariable(
-					taskInstance.getProcessInstanceId(),
-					getVarPerDocumentCodi(documentCodi));*/
-		} else {
-			return (Long)jbpmDao.getProcessInstanceVariable(
+			value = jbpmDao.getTaskInstanceVariable(
+					taskInstanceId,
+					getVarPerDocumentCodi(documentCodi, false));
+		}
+		if (value == null && processInstanceId != null) {
+			value = jbpmDao.getProcessInstanceVariable(
 					processInstanceId,
 					getVarPerDocumentCodi(documentCodi, false));
 		}
+		return (Long)value;
 	}
 	
 	private Document getDocumentDisseny(
