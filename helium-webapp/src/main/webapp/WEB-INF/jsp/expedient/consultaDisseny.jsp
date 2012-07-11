@@ -102,12 +102,12 @@ function confirmarAnular(e) {
 		<c:if test="${not empty sessionScope.expedientTipusConsultaFiltreCommand}">
 			<c:if test="${not empty expedients}">
 				<display:table name="expedients" id="registre" requestURI="" class="displaytag selectable" export="${consulta.exportarActiu}" sort="external">
-					<display:column property="expedient.identificador" title="Expedient" url="/tasca/personaLlistat.html" paramId="exp"/>
+					<display:column property="expedient.identificador" title="Expedient" url="/tasca/personaLlistat.html" paramId="exp" sortable="true" sortProperty="expedient$identificador" />
 					<c:choose>
 						<c:when test="${empty campsInforme}">
-							<display:column property="expedient.dataInici" title="Iniciat el" format="{0,date,dd/MM/yyyy HH:mm}"/>
-							<display:column property="expedient.tipus.nom" title="Tipus"/>
-							<display:column title="Estat">
+							<display:column property="expedient.dataInici" title="Iniciat el" sortable="true" sortProperty="expedient.dataInici" format="{0,date,dd/MM/yyyy HH:mm}" />
+							<display:column property="expedient.tipus.nom" title="Tipus" sortable="true" sortProperty="expedient.tipus.nom"/>
+							<display:column title="Estat" sortable="true" sortProperty="estat.nom">
 								<c:if test="${registre.expedient.aturat}"><img src="<c:url value="/img/stop.png"/>" alt="Aturat" title="Aturat" border="0"/></c:if>
 								<c:choose>
 									<c:when test="${empty registre.expedient.dataFi}">
@@ -134,22 +134,28 @@ function confirmarAnular(e) {
 										</display:column>
 									</c:when>
 									<c:when test="${camp.tipus == 'DATE' && clauCamp == 'expedient$dataInici'}">
-										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,date,dd/MM/yyyy HH:mm}"/>
+										<display:column property="dadesExpedient(${clauCamp}).valor" sortable="true" sortProperty="${fn:replace(clauCamp,'/','.')}" title="${camp.etiqueta}" format="{0,date,dd/MM/yyyy HH:mm}"/>
 									</c:when>
 									<c:when test="${camp.tipus == 'DATE'}">
-										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,date,dd/MM/yyyy}"/>
+										<display:column property="dadesExpedient(${clauCamp}).valor" sortable="true" sortProperty="${fn:replace(clauCamp,'/','.')}" title="${camp.etiqueta}" format="{0,date,dd/MM/yyyy}"/>
 									</c:when>
 									<c:when test="${camp.tipus == 'INTEGER'}">
-										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,number,#}"/>
+										<display:column property="dadesExpedient(${clauCamp}).valor" sortable="true" sortProperty="${fn:replace(clauCamp,'/','.')}" title="${camp.etiqueta}" format="{0,number,#}"/>
 									</c:when>
 									<c:when test="${camp.tipus == 'FLOAT'}">
-										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,number,#.#}"/>
+										<display:column property="dadesExpedient(${clauCamp}).valor" sortable="true" sortProperty="${fn:replace(clauCamp,'/','.')}" title="${camp.etiqueta}" format="{0,number,#.#}"/>
 									</c:when>
 									<c:when test="${camp.tipus == 'PRICE'}">
-										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,number,#,###.00}"/>
+										<display:column property="dadesExpedient(${clauCamp}).valor" sortable="true" sortProperty="${fn:replace(clauCamp,'/','.')}" title="${camp.etiqueta}" format="{0,number,#,###.00}"/>
+									</c:when>
+									<c:when test="${camp.tipus == 'TEXTAREA'}">
+										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}"/>
+									</c:when>
+									<c:when test="${camp.tipus == 'STRING'}">
+										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}"/>
 									</c:when>
 									<c:when test="${camp.tipus == 'SELECCIO' && clauCamp == 'expedient$estat'}">
-										<display:column title="${camp.etiqueta}">
+										<display:column title="${camp.etiqueta}" sortable="true" sortProperty="${fn:replace(clauCamp,'/','.')}" >
 											<c:if test="${registre.expedient.aturat}"><img src="<c:url value="/img/stop.png"/>" alt="Aturat" title="Aturat" border="0"/></c:if>
 											<c:choose>
 												<c:when test="${empty registre.expedient.dataFi}">
@@ -160,7 +166,7 @@ function confirmarAnular(e) {
 										</display:column>
 									</c:when>
 									<c:otherwise>
-										<display:column property="dadesExpedient(${clauCamp}).valorMostrar" title="${camp.etiqueta}"/>
+										<display:column property="dadesExpedient(${clauCamp}).valorMostrar" sortable="true" sortProperty="${fn:replace(clauCamp,'/','.')}" title="${camp.etiqueta}"/>
 									</c:otherwise>
 								</c:choose>
 							</c:forEach>
