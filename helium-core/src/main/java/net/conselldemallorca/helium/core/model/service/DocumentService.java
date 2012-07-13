@@ -219,6 +219,11 @@ public class DocumentService {
 			String taskInstanceId,
 			String processInstanceId,
 			String documentCodi) {
+		String piid = processInstanceId;
+		if (piid == null && taskInstanceId != null) {
+			JbpmTask task = jbpmDao.getTaskById(taskInstanceId);
+			piid = task.getProcessInstanceId();
+		}
 		if (taskInstanceId != null) {
 			expedientLogHelper.afegirLogExpedientPerTasca(
 					taskInstanceId,
@@ -226,17 +231,16 @@ public class DocumentService {
 					documentCodi);
 		} else {
 			expedientLogHelper.afegirLogExpedientPerProces(
-					processInstanceId,
+					piid,
 					ExpedientLogAccioTipus.PROCES_DOCUMENT_ESBORRAR,
 					documentCodi);
 		}
-		JbpmTask task = jbpmDao.getTaskById(taskInstanceId);
 		documentHelper.esborrarDocument(
 				taskInstanceId,
-				task.getProcessInstanceId(),
+				piid,
 				documentCodi);
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(
-				jbpmDao.getRootProcessInstance(task.getProcessInstanceId()).getId());
+				jbpmDao.getRootProcessInstance(piid).getId());
 		if (taskInstanceId != null) {
 			registreDao.crearRegistreEsborrarDocumentTasca(
 					expedient.getId(),
@@ -246,7 +250,7 @@ public class DocumentService {
 		} else {
 			registreDao.crearRegistreEsborrarDocumentInstanciaProces(
 					expedient.getId(),
-					processInstanceId,
+					piid,
 					SecurityContextHolder.getContext().getAuthentication().getName(),
 					documentCodi);
 		}
