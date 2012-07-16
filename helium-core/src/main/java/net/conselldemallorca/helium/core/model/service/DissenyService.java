@@ -1076,6 +1076,7 @@ public class DissenyService {
 			dto.setExpressioDelegacio(tasca.getExpressioDelegacio());
 			dto.setRecursForm(tasca.getRecursForm());
 			dto.setFormExtern(tasca.getFormExtern());
+			dto.setTramitacioMassiva(tasca.isTramitacioMassiva());
 			// Afegeix els camps de la tasca
 			for (CampTasca camp: tasca.getCamps()) {
 				CampTascaExportacio ctdto = new CampTascaExportacio(
@@ -2342,6 +2343,7 @@ public class DissenyService {
 					nova.setRecursForm(vella.getRecursForm());
 					nova.setFormExtern(vella.getFormExtern());
 					nova.setExpressioDelegacio(vella.getExpressioDelegacio());
+					nova.setTramitacioMassiva(vella.isTramitacioMassiva());
 					// Copia els camps de les tasques
 					for (CampTasca camp: vella.getCamps()) {
 						CampTasca nouCamp = new CampTasca(
@@ -2603,6 +2605,7 @@ public class DissenyService {
 					nova.setExpressioDelegacio(vella.getExpressioDelegacio());
 					nova.setRecursForm(vella.getRecursForm());
 					nova.setFormExtern(vella.getFormExtern());
+					nova.setTramitacioMassiva(vella.isTramitacioMassiva());
 					// Propaga els camps de la tasca
 					for (CampTasca campTasca: nova.getCamps()) {
 						campTasca.getCamp().getCampsTasca().remove(campTasca);
