@@ -156,6 +156,8 @@ public abstract class BasicActionHandler implements ActionHandler {
 			String arxiuNom,
 			byte[] arxiuContingut) {}
 
+	public void tokenRedirigir(long tokenId, String nodeName, boolean cancelarTasques) {}
+
 	static final long serialVersionUID = 1L;
 
 }

@@ -74,6 +74,7 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaRegistre;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.Signatura;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.Tramit;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
 
@@ -887,6 +888,10 @@ public abstract class BasicActionHandler implements ActionHandler {
 				false);
 	}
 
+	public void tokenRedirigir(long tokenId, String nodeName, boolean cancelarTasques) {
+		getJbpmDao().tokenRedirect(tokenId, nodeName, cancelarTasques);
+	}
+
 
 
 	private String getProcessInstanceId(ExecutionContext executionContext) {
@@ -912,6 +917,9 @@ public abstract class BasicActionHandler implements ActionHandler {
 	}
 	private PluginGestioDocumentalDao getPluginGestioDocumentalDao() {
 		return DaoProxy.getInstance().getPluginGestioDocumentalDao();
+	}
+	private JbpmDao getJbpmDao() {
+		return DaoProxy.getInstance().getJbpmDao();
 	}
 	private ExpedientService getExpedientService() {
 		return ServiceProxy.getInstance().getExpedientService();
@@ -1062,7 +1070,7 @@ public abstract class BasicActionHandler implements ActionHandler {
 		return tramit;
 	}
 
-	public Expedient getExpedientActual(ExecutionContext executionContext) {
+	private Expedient getExpedientActual(ExecutionContext executionContext) {
 		Expedient ex = ExpedientIniciantDto.getExpedient();
 		if (ex != null) {
 			return ex;
