@@ -56,12 +56,12 @@ function confirmarCanviVersio(e) {
 				<script type="text/javascript">
 					$('.aturarLink').openDOMWindow({
 						eventType: 'click',
-						width: 600,
+						width: 620,
 						height: 260,
 						loader: 1,
 						loaderHeight: 32,
 						loaderWidth: 32,
-						windowPadding: 0,
+						windowPadding: 10,
 						draggable: 1});
 				</script>
 				<div id="aturarForm" style="display:none">
@@ -91,12 +91,12 @@ function confirmarCanviVersio(e) {
 				<script type="text/javascript">
 					$('.reprendreLink').openDOMWindow({
 						eventType: 'click',
-						width: 600,
+						width: 620,
 						height: 80,
 						loader: 1,
 						loaderHeight: 32,
 						loaderWidth: 32,
-						windowPadding: 0,
+						windowPadding: 10,
 						draggable: 1});
 				</script>
 				<div id="reprendreForm" style="display:none">
@@ -119,12 +119,12 @@ function confirmarCanviVersio(e) {
 		<script type="text/javascript">
 			$('.scriptLink').openDOMWindow({
 				eventType: 'click',
-				width: 600,
+				width: 620,
 				height: 260,
 				loader: 1,
 				loaderHeight: 32,
 				loaderWidth: 32,
-				windowPadding: 0,
+				windowPadding: 10,
 				draggable: 1});
 		</script>
 		<div id="scriptForm" style="display:none">
@@ -153,12 +153,12 @@ function confirmarCanviVersio(e) {
 		<script type="text/javascript">
 			$('.canviVersioLink').openDOMWindow({
 				eventType: 'click',
-				width: 600,
+				width: 620,
 				height: 80,
 				loader: 1,
 				loaderHeight: 32,
 				loaderWidth: 32,
-				windowPadding: 0,
+				windowPadding: 10,
 				draggable: 1});
 		</script>
 		<div id="canviVersioForm" style="display:none">
