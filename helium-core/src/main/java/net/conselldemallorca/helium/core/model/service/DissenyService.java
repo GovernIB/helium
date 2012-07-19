@@ -1609,7 +1609,7 @@ public class DissenyService {
 	}
 
 	public List<FilaResultat> consultaDomini(Long dominiId) {
-		return consultaDomini(dominiId, null);
+		return consultaDomini(dominiId, null, null);
 	}
 	public List<FilaResultat> consultaDomini(Long dominiId, Map<String, Object> params) {
 		try {
@@ -1619,6 +1619,21 @@ public class DissenyService {
 					getServiceUtils().getMessage("error.dissenyService.consultantDomini"), ex);
 		}
 	}
+	
+	public List<FilaResultat> consultaDomini(Long dominiId, String dominiWsId) {
+		return consultaDomini(dominiId, dominiWsId, null);
+	}
+	
+	public List<FilaResultat> consultaDomini(Long dominiId, String dominiWsId, Map<String, Object> params) {
+		try {
+			return dominiDao.consultar(dominiId, dominiWsId, params);
+		} catch (Exception ex) {
+			throw new DominiException(
+					getServiceUtils().getMessage("error.dissenyService.consultantDomini"), ex);
+		}
+	}
+	
+	
 
 	public DefinicioProcesDto findDefinicioProcesAmbProcessInstanceId(String processInstanceId) {
 		String processDefinitionId = jbpmDao.getProcessInstance(processInstanceId).getProcessDefinitionId();
