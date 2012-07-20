@@ -47,11 +47,13 @@ public class TokenRedirectCommand extends AbstractGetObjectBaseCommand {
 				throw new JbpmException("Retrocedeixi primer els fills d'aquest token");
 		}*/
 		// Si el token té fills actius els desactiva
-		for (String key: children.keySet()) {
-			Token child = children.get(key);
-			child.setAbleToReactivateParent(false);
-			if (child.getEnd() == null && child.getId() != token.getId())
-				child.end(false);
+		if (token.getChildren() != null) {
+			for (String key: children.keySet()) {
+				Token child = children.get(key);
+				child.setAbleToReactivateParent(false);
+				if (child.getEnd() == null && child.getId() != token.getId())
+					child.end(false);
+			}
 		}
 		// Cancel·la les tasques si s'ha de fer
 		if (cancelTasks) {
