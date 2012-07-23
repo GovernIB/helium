@@ -42,11 +42,38 @@ function confirmarEsborrar(e) {
 	if (e.stopPropagation) e.stopPropagation();
 	return confirm("<fmt:message key="expedient.consulta.confirm.esborrar"/>");
 }
-function confirmarAnular(e) {
+function confirmarAnular(e, registre) {
+	var resposta="";
+	$("#id").val(registre);
 	var e = e || window.event;
 	e.cancelBubble = true;
+	
+	//if (e.stopPropagation) e.stopPropagation();
+	//return confirm("<fmt:message key="expedient.consulta.confirm.anular"/>"); 
+	var confirmaAnula = confirm("<fmt:message key="expedient.consulta.confirm.anular"/>"); 
+ 	if (confirmaAnula){	
+ 		resposta = prompt("Introdueix el motiu de l'anul·lació",'');
+ 		$("#motiu").val(resposta);
+ 	}
+ 	
+ 	if(resposta!="null"){
+ 		document.forms["anularMot"].submit();
+ 		//return;
+ 	}
+ 	if (e.stopPropagation) e.stopPropagation();
+ 		
+}
+
+
+
+
+
+function confirmarDesAnular(e) {
+var e = e || window.event;
+	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
-	return confirm("<fmt:message key="expedient.consulta.confirm.anular"/>");
+	return confirm("<fmt:message key="expedient.consulta.confirm.desanular"/>");
+	
 }
 function obreVisorGis() {
     var sUrl;
@@ -280,7 +307,10 @@ function clicCheckMassiu(e) {
 				<display:column>
 					<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,2">
 						<c:if test="${!registre.anulat}">
-							<a href="<c:url value="/expedient/anular.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmarAnular(event)"><img src="<c:url value="/img/delete.png"/>" alt="<fmt:message key="comuns.anular"/>" title="<fmt:message key="comuns.anular"/>" border="0"/></a>
+							<a href="javascript:void(0);" onclick="confirmarAnular(event, ${registre.id})"><img src="<c:url value="/img/delete.png"/>" alt="<fmt:message key="comuns.anular"/>" title="<fmt:message key="comuns.anular"/>" border="0"/></a>
+						</c:if>
+						<c:if test="${registre.anulat}">
+							<a href="<c:url value="/expedient/desanular.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmarDesAnular(event)"><img src="<c:url value="/img/arrow_undo.png"/>" alt="<fmt:message key="comuns.desanular"/>" title="<fmt:message key="comuns.desanular"/>" border="0"/></a>
 						</c:if>
 					</security:accesscontrollist>
 				</display:column>
@@ -298,6 +328,9 @@ function clicCheckMassiu(e) {
 			</c:if>
 		</c:if>
 	</c:if>
-
+	<form:form  method="GET" name="anularMot" id="anularMot" action="/helium/expedient/anular.html?id=${registreId}&motiu=${param.motiu}"  cssClass="uniForm">
+		<input type="hidden" id="id" name="id" value=""></input>
+		<input type="hidden" id="motiu" name="motiu" value=""></input>
+	</form:form>
 </body>
 </html>

@@ -447,7 +447,7 @@ public class ExpedientService {
 			throw new NotFoundException(getServiceUtils().getMessage("error.expedientService.noExisteix"));
 		}
 	}
-	public void anular(Long entornId, Long id) {
+	public void anular(Long entornId, Long id, String motiu) { 
 		Expedient expedient = expedientDao.findAmbEntornIId(entornId, id);
 		if (expedient != null) {
 			List<JbpmProcessInstance> processInstancesTree = jbpmDao.getProcessInstanceTree(expedient.getProcessInstanceId());
@@ -457,6 +457,7 @@ public class ExpedientService {
 				ids[i++] = pi.getId();
 			jbpmDao.suspendProcessInstances(ids);
 			expedient.setAnulat(true);
+			expedient.setComentariAnulat(motiu);
 			luceneDao.deleteExpedient(expedient);
 			registreDao.crearRegistreAnularExpedient(
 					expedient.getId(),
@@ -465,6 +466,28 @@ public class ExpedientService {
 			throw new NotFoundException(getServiceUtils().getMessage("error.expedientService.noExisteix"));
 		}
 	}
+	
+	public void desanular(Long entornId, Long id) {
+		Expedient expedient = expedientDao.findAmbEntornIId(entornId, id);
+		if (expedient != null) {
+			List<JbpmProcessInstance> processInstancesTree = jbpmDao.getProcessInstanceTree(expedient.getProcessInstanceId());
+			String[] ids = new String[processInstancesTree.size()];
+			int i = 0;
+			for (JbpmProcessInstance pi: processInstancesTree)
+				ids[i++] = pi.getId();
+			jbpmDao.resumeProcessInstances(ids);
+			expedient.setAnulat(false);
+			//luceneDao.deleteExpedient(expedient);
+			/*registreDao.crearRegistreReprendreExpedient(
+					expedient.getId(),
+					SecurityContextHolder.getContext().getAuthentication().getName());*/
+		} else {
+			throw new NotFoundException(getServiceUtils().getMessage("error.expedientService.noExisteix"));
+		}
+	}
+	
+	
+	
 	public List<ExpedientDto> findAmbEntorn(Long entornId) {
 		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
 		for (Expedient expedient: expedientDao.findAmbEntorn(entornId))

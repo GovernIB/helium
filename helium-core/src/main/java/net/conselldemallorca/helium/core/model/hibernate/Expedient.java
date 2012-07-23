@@ -82,6 +82,7 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	private String responsableCodi;
 	private boolean anulat;
 	private String grupCodi;
+	private String comentariAnulat;
 
 	private Double geoPosX;
 	private Double geoPosY;
@@ -564,8 +565,12 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 		return infoAturat != null;
 	}
 
-
-
+	public String getComentariAnulat() {
+		return comentariAnulat;
+	}
+	public void setComentariAnulat(String comentariAnulat) {
+		this.comentariAnulat = comentariAnulat;
+	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;
