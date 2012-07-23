@@ -285,7 +285,7 @@ function clicCheckMassiu(e) {
 					</security:accesscontrollist>
 				</display:column>
 				<display:column>
-					<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,8">
+					<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="8">
 						<a href="<c:url value="/expedient/delete.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmarEsborrar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key="comuns.esborrar"/>" title="<fmt:message key="comuns.esborrar"/>" border="0"/></a>
 					</security:accesscontrollist>
 				</display:column>
