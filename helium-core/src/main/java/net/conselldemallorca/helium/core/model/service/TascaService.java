@@ -549,7 +549,7 @@ public class TascaService {
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
 		Map<String, Set<Camp>> mapCamps = getServiceUtils().getMapCamps(expedient);
 		Map<String, Map<String, Object>> mapValors = getServiceUtils().getMapValors(expedient);
-		luceneDao.updateExpedient(
+		luceneDao.updateExpedientCamps(
 				expedient,
 				getServiceUtils().getMapDefinicionsProces(expedient),
 				mapCamps,

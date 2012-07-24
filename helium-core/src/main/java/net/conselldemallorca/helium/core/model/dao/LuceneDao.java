@@ -73,7 +73,8 @@ public class LuceneDao extends LuceneIndexSupport {
 			Map<String, Map<String, String>> textDominis,
 			boolean finalitzat) {
 		checkIndexOk();
-		Document document = createDocumentFromExpedient(
+		Document document = updateDocumentFromExpedient(
+				null,
 				expedient,
 				definicionsProces,
 				camps,
@@ -82,8 +83,20 @@ public class LuceneDao extends LuceneIndexSupport {
 				finalitzat);
 		getLuceneIndexTemplate().addDocument(document);
 	}
+
+	public synchronized boolean updateExpedientCapsalera(
+			final Expedient expedient,
+			final boolean finalitzat) {
+		return updateExpedientCamps(
+				expedient,
+				null,
+				null,
+				null,
+				null,
+				finalitzat);
+	}
 	@SuppressWarnings("unchecked")
-	public synchronized boolean updateExpedient(
+	public synchronized boolean updateExpedientCamps(
 			final Expedient expedient,
 			final Map<String, DefinicioProces> definicionsProces,
 			final Map<String, Set<Camp>> camps,
@@ -104,7 +117,8 @@ public class LuceneDao extends LuceneIndexSupport {
 						termIdFromExpedient(expedient),
 						new DocumentModifier() {
 							public Document updateDocument(Document document) {
-								return createDocumentFromExpedient(
+								return updateDocumentFromExpedient(
+										document,
 										expedient,
 										definicionsProces,
 										camps,
@@ -220,96 +234,146 @@ public class LuceneDao extends LuceneIndexSupport {
 
 
 
-	private Document createDocumentFromExpedient(
+	private Document updateDocumentFromExpedient(
+			Document docLucene,
 			Expedient expedient,
 			Map<String, DefinicioProces> definicionsProces,
 			Map<String, Set<Camp>> camps,
 			Map<String, Map<String, Object>> valors,
 			Map<String, Map<String, String>> textDominis,
 			boolean finalitzat) {
-		Document document = new Document();
-		document.add(new Field(
-				ExpedientCamps.EXPEDIENT_CAMP_ID,
-	    		expedient.getId().toString(),
-				Field.Store.YES,
-				Field.Index.NOT_ANALYZED));
-		document.add(new Field(
-				ExpedientCamps.EXPEDIENT_CAMP_NUMERO,
-	    		(expedient.getNumero() != null) ? expedient.getNumero() : VALOR_CAMP_BUIT,
-				Field.Store.YES,
-				Field.Index.ANALYZED));
-		document.add(new Field(
-				ExpedientCamps.EXPEDIENT_CAMP_TITOL,
-				(expedient.getTitol() != null) ? normalitzarILlevarAccents(expedient.getTitol()) : VALOR_CAMP_BUIT,
-				Field.Store.YES,
-				(expedient.getTitol() != null) ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED));
-		document.add(new Field(
-				ExpedientCamps.EXPEDIENT_CAMP_COMENTARI,
-				(expedient.getComentari() != null) ? normalitzarILlevarAccents(expedient.getComentari()) : VALOR_CAMP_BUIT,
-				Field.Store.YES,
-				(expedient.getComentari() != null) ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED));
-		document.add(new Field(
-				ExpedientCamps.EXPEDIENT_CAMP_INICIADOR,
-	    		(expedient.getIniciadorCodi() != null) ? expedient.getIniciadorCodi() : VALOR_CAMP_BUIT,
-				Field.Store.YES,
-				Field.Index.NOT_ANALYZED));
-		document.add(new Field(
-				ExpedientCamps.EXPEDIENT_CAMP_RESPONSABLE,
-	    		expedient.getResponsableCodi(),
-				Field.Store.YES,
-				Field.Index.NOT_ANALYZED));
-		document.add(new Field(
-				ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI,
-	    		dataPerIndexar(expedient.getDataInici()),
-				Field.Store.YES,
-				Field.Index.NOT_ANALYZED));
-		document.add(new Field(
-				ExpedientCamps.EXPEDIENT_CAMP_TIPUS,
-	    		expedient.getTipus().getCodi(),
-				Field.Store.YES,
-				Field.Index.NOT_ANALYZED));
+		boolean isUpdate = (docLucene != null);
+		Document document = (isUpdate) ? docLucene : new Document();
+		createOrUpdateDocumentField(
+				document,
+				new Field(
+						ExpedientCamps.EXPEDIENT_CAMP_ID,
+			    		expedient.getId().toString(),
+						Field.Store.YES,
+						Field.Index.NOT_ANALYZED),
+				isUpdate);
+		createOrUpdateDocumentField(
+				document,
+				new Field(
+						ExpedientCamps.EXPEDIENT_CAMP_NUMERO,
+			    		(expedient.getNumero() != null) ? expedient.getNumero() : VALOR_CAMP_BUIT,
+						Field.Store.YES,
+						Field.Index.ANALYZED),
+				isUpdate);
+		createOrUpdateDocumentField(
+				document,
+				new Field(
+						ExpedientCamps.EXPEDIENT_CAMP_TITOL,
+						(expedient.getTitol() != null) ? normalitzarILlevarAccents(expedient.getTitol()) : VALOR_CAMP_BUIT,
+						Field.Store.YES,
+						(expedient.getTitol() != null) ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED),
+				isUpdate);
+		createOrUpdateDocumentField(
+				document,
+				new Field(
+						ExpedientCamps.EXPEDIENT_CAMP_COMENTARI,
+						(expedient.getComentari() != null) ? normalitzarILlevarAccents(expedient.getComentari()) : VALOR_CAMP_BUIT,
+						Field.Store.YES,
+						(expedient.getComentari() != null) ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED),
+				isUpdate);
+		createOrUpdateDocumentField(
+				document,
+				new Field(
+						ExpedientCamps.EXPEDIENT_CAMP_INICIADOR,
+			    		(expedient.getIniciadorCodi() != null) ? expedient.getIniciadorCodi() : VALOR_CAMP_BUIT,
+						Field.Store.YES,
+						Field.Index.NOT_ANALYZED),
+				isUpdate);
+		createOrUpdateDocumentField(
+				document,
+				new Field(
+						ExpedientCamps.EXPEDIENT_CAMP_RESPONSABLE,
+			    		expedient.getResponsableCodi(),
+						Field.Store.YES,
+						Field.Index.NOT_ANALYZED),
+				isUpdate);
+		createOrUpdateDocumentField(
+				document,
+				new Field(
+						ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI,
+			    		dataPerIndexar(expedient.getDataInici()),
+						Field.Store.YES,
+						Field.Index.NOT_ANALYZED),
+				isUpdate);
+		createOrUpdateDocumentField(
+				document,
+				new Field(
+						ExpedientCamps.EXPEDIENT_CAMP_TIPUS,
+			    		expedient.getTipus().getCodi(),
+						Field.Store.YES,
+						Field.Index.NOT_ANALYZED),
+				isUpdate);
 		if (expedient.getEstat() != null) {
-			document.add(new Field(
-					ExpedientCamps.EXPEDIENT_CAMP_ESTAT,
-					expedient.getEstat().getCodi(),
-					Field.Store.YES,
-					Field.Index.NOT_ANALYZED));
-			document.add(new Field(
-					ExpedientCamps.EXPEDIENT_CAMP_ESTAT + VALOR_DOMINI_SUFIX + expedient.getEstat().getCodi(),
-					expedient.getEstat().getCodi(),
-					Field.Store.YES,
-					Field.Index.NOT_ANALYZED));
+			createOrUpdateDocumentField(
+					document,
+					new Field(
+							ExpedientCamps.EXPEDIENT_CAMP_ESTAT,
+							expedient.getEstat().getCodi(),
+							Field.Store.YES,
+							Field.Index.NOT_ANALYZED),
+					isUpdate);
+			createOrUpdateDocumentField(
+					document,
+					new Field(
+							ExpedientCamps.EXPEDIENT_CAMP_ESTAT + VALOR_DOMINI_SUFIX + expedient.getEstat().getCodi(),
+							expedient.getEstat().getCodi(),
+							Field.Store.YES,
+							Field.Index.NOT_ANALYZED),
+					isUpdate);
 		} else {
 			if (!finalitzat) {
-				document.add(new Field(
-						ExpedientCamps.EXPEDIENT_CAMP_ESTAT,
-			    		"0",
-						Field.Store.YES,
-						Field.Index.NOT_ANALYZED));
+				createOrUpdateDocumentField(
+						document,
+						new Field(
+								ExpedientCamps.EXPEDIENT_CAMP_ESTAT,
+					    		"0",
+								Field.Store.YES,
+								Field.Index.NOT_ANALYZED),
+						isUpdate);
 			} else {
-				document.add(new Field(
-						ExpedientCamps.EXPEDIENT_CAMP_ESTAT,
-			    		"-1",
-						Field.Store.YES,
-						Field.Index.NOT_ANALYZED));
+				createOrUpdateDocumentField(
+						document,
+						new Field(
+								ExpedientCamps.EXPEDIENT_CAMP_ESTAT,
+					    		"-1",
+								Field.Store.YES,
+								Field.Index.NOT_ANALYZED),
+						isUpdate);
 			}
 		}
-		for (String clau: definicionsProces.keySet()) {
-			DefinicioProces definicioProces = definicionsProces.get(clau);
-			Map<String, Object> valorsProces = valors.get(clau);
-			if (valorsProces != null) {
-				for (Camp camp: camps.get(clau)) {
-					addFieldToDocument(
-							document,
-							definicioProces,
-							camp,
-							valorsProces.get(camp.getCodi()),
-							textDominis.get(clau),
-							true);
+		if (camps != null && camps.size() > 0) {
+			for (String clau: definicionsProces.keySet()) {
+				DefinicioProces definicioProces = definicionsProces.get(clau);
+				Map<String, Object> valorsProces = valors.get(clau);
+				if (valorsProces != null) {
+					for (Camp camp: camps.get(clau)) {
+						updateDocumentCamp(
+								document,
+								definicioProces,
+								camp,
+								valorsProces.get(camp.getCodi()),
+								textDominis.get(clau),
+								true,
+								isUpdate);
+					}
 				}
 			}
 		}
 		return document;
+	}
+
+	private void createOrUpdateDocumentField(
+			Document document,
+			Field field,
+			boolean isUpdate) {
+		if (isUpdate)
+			document.removeFields(ExpedientCamps.EXPEDIENT_CAMP_ID);
+		document.add(field);
 	}
 
 	private Query queryPerFiltre(
@@ -603,25 +667,27 @@ public class LuceneDao extends LuceneIndexSupport {
 		return resposta;
 	}
 
-	private void addFieldToDocument(
+	private void updateDocumentCamp(
 			Document document,
 			DefinicioProces definicioProces,
 			Camp camp,
 			Object valor,
 			Map<String, String> textDominis,
-			boolean checkMultiple) {
+			boolean checkMultiple,
+			boolean isUpdate) {
 		if (valor != null) {
 			if (checkMultiple && camp.isMultiple()) {
 				// System.out.println(">>> Multiple " + camp.getCodi());
 				Object[] valors = (Object[])valor;
 				for (Object o: valors) {
-					addFieldToDocument(
+					updateDocumentCamp(
 							document,
 							definicioProces,
 							camp,
 							o,
 							textDominis,
-							false);
+							false,
+							isUpdate);
 				}
 				// System.out.println(">>> /Multiple " + camp.getCodi());
 			} else if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
@@ -631,13 +697,14 @@ public class LuceneDao extends LuceneIndexSupport {
 				for (CampRegistre campRegistre: camp.getRegistreMembres()) {
 					Camp membre = campRegistre.getMembre();
 					if (index < valorsMembres.length)
-						addFieldToDocument(
+						updateDocumentCamp(
 								document,
 								definicioProces,
 								membre,
 								valorsMembres[index++],
 								textDominis,
-								false);
+								false,
+								isUpdate);
 				}
 				// System.out.println(">>> /Registre " + camp.getCodi());
 			} else {
@@ -648,20 +715,26 @@ public class LuceneDao extends LuceneIndexSupport {
 						camp.getTipus().equals(TipusCamp.STRING) ||
 						camp.getTipus().equals(TipusCamp.TEXTAREA);
 					// System.out.println(">>>>>> " + clauIndex + ": " + valorIndex);
-					document.add(new Field(
-							clauIndex,
-							valorIndex,
-							Field.Store.YES,
-							(analyzed) ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED));
+					createOrUpdateDocumentField(
+							document,
+							new Field(
+									clauIndex,
+									valorIndex,
+									Field.Store.YES,
+									(analyzed) ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED),
+							isUpdate);
 					String textDomini = textDominis.get(camp.getCodi() + "@" + valorIndex);
 					if (	textDomini != null &&
 							(camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST)) &&
 							document.get(clauIndex + VALOR_DOMINI_SUFIX + valorIndex) == null) {
-							document.add(new Field(
-									clauIndex + VALOR_DOMINI_SUFIX + valorIndex,
-									textDomini,
-									Field.Store.YES,
-									Field.Index.ANALYZED));
+						createOrUpdateDocumentField(
+								document,
+								new Field(
+											clauIndex + VALOR_DOMINI_SUFIX + valorIndex,
+										textDomini,
+										Field.Store.YES,
+										Field.Index.ANALYZED),
+								isUpdate);
 					}
 				} catch (Exception ex) {
 					logger.error("No s'ha pogut afegir el camp " + clauIndex + " al document per indexar", ex);

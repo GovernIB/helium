@@ -74,6 +74,7 @@ import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.acl.AclServiceDao;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.core.util.MesurarTemps;
 import net.conselldemallorca.helium.integracio.plugins.gis.DadesExpedient;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarEventRequest;
@@ -382,6 +383,7 @@ public class ExpedientService {
 			Double geoPosY,
 			String geoReferencia,
 			String grupCodi) {
+		MesurarTemps.diferenciaReiniciar("EDIT");
 		ExpedientLog elog = expedientLogHelper.afegirLogExpedientPerExpedient(
 				id,
 				ExpedientLogAccioTipus.EXPEDIENT_MODIFICAR,
@@ -404,21 +406,18 @@ public class ExpedientService {
 		expedient.setGeoPosY(geoPosY);
 		expedient.setGeoReferencia(geoReferencia);
 		expedient.setGrupCodi(grupCodi);
-		Map<String, Set<Camp>> mapCamps = getServiceUtils().getMapCamps(expedient);
-		Map<String, Map<String, Object>> mapValors = getServiceUtils().getMapValors(expedient);
-		luceneDao.updateExpedient(
+		MesurarTemps.diferenciaImprimirStdoutIReiniciar("0", "EDIT");
+		luceneDao.updateExpedientCapsalera(
 				expedient,
-				getServiceUtils().getMapDefinicionsProces(expedient),
-				mapCamps,
-				mapValors,
-				getServiceUtils().getMapValorsDomini(mapCamps, mapValors),
 				isExpedientFinalitzat(expedient));
+		MesurarTemps.diferenciaImprimirStdoutIReiniciar("1", "EDIT");
 		String informacioNova = getInformacioExpedient(expedient);
 		registreDao.crearRegistreModificarExpedient(
 				expedient.getId(),
 				getUsuariPerRegistre(),
 				informacioVella,
 				informacioNova);
+		MesurarTemps.diferenciaImprimirStdoutIReiniciar("2", "EDIT");
 	}
 	public void delete(Long entornId, Long id) {
 		Expedient expedient = expedientDao.findAmbEntornIId(entornId, id);
@@ -804,7 +803,7 @@ public class ExpedientService {
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
 		Map<String, Set<Camp>> mapCamps = getServiceUtils().getMapCamps(expedient);
 		Map<String, Map<String, Object>> mapValors = getServiceUtils().getMapValors(expedient);
-		luceneDao.updateExpedient(
+		luceneDao.updateExpedientCamps(
 				expedient,
 				getServiceUtils().getMapDefinicionsProces(expedient),
 				mapCamps,
@@ -829,7 +828,7 @@ public class ExpedientService {
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
 		Map<String, Set<Camp>> mapCamps = getServiceUtils().getMapCamps(expedient);
 		Map<String, Map<String, Object>> mapValors = getServiceUtils().getMapValors(expedient);
-		luceneDao.updateExpedient(
+		luceneDao.updateExpedientCamps(
 				expedient,
 				getServiceUtils().getMapDefinicionsProces(expedient),
 				mapCamps,
@@ -854,7 +853,7 @@ public class ExpedientService {
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
 		Map<String, Set<Camp>> mapCamps = getServiceUtils().getMapCamps(expedient);
 		Map<String, Map<String, Object>> mapValors = getServiceUtils().getMapValors(expedient);
-		luceneDao.updateExpedient(
+		luceneDao.updateExpedientCamps(
 				expedient,
 				getServiceUtils().getMapDefinicionsProces(expedient),
 				mapCamps,

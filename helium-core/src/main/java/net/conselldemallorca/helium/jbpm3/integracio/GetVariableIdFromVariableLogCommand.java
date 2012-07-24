@@ -3,8 +3,6 @@
  */
 package net.conselldemallorca.helium.jbpm3.integracio;
 
-import java.math.BigInteger;
-
 import org.hibernate.SQLQuery;
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractBaseCommand;
@@ -27,14 +25,11 @@ public class GetVariableIdFromVariableLogCommand extends AbstractBaseCommand {
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		SQLQuery q = jbpmContext.getSession().createSQLQuery("select l.variableinstance_ from jbpm_log l where l.id_=?");
 		q.setLong(0, id);
-		Object result = q.uniqueResult();
-		if (result == null)
+		Number result = (Number)q.uniqueResult();
+		if (result != null)
+			return new Long(result.longValue());
+		else
 			return null;
-		if (result instanceof BigInteger) {
-			return new Long(((BigInteger)result).longValue());
-		} else {
-			return new Long(((Number)result).longValue());
-		}
 	}
 
 	public long getId() {
