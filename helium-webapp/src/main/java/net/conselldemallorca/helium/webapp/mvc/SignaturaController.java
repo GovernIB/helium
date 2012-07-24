@@ -134,7 +134,7 @@ public class SignaturaController extends BaseController {
 					"instanciaProces",
 					expedientService.getInstanciaProcesById(
 							document.getProcessInstanceId(),
-							false));
+							false, false, false));
 			model.addAttribute("signatures", expedientService.verificarSignatura(document.getId()));
 			return "signatura/verificar";
 		} catch(Exception ex) {
@@ -158,7 +158,7 @@ public class SignaturaController extends BaseController {
 							"instanciaProces",
 							expedientService.getInstanciaProcesById(
 									document.getProcessInstanceId(),
-									false));
+									false, false, false));
 					model.addAttribute("signatures", expedientService.verificarSignatura(document.getId()));
 				}
 				return "signatura/verificar";

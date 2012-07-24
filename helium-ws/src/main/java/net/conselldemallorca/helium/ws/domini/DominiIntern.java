@@ -160,7 +160,7 @@ public class DominiIntern implements DominiHelium {
 				}
 			}
 		} else if (processInstanceId != null) {
-			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId.toString(), true);
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId.toString(), true, true, true);
 			valor = instanciaProces.getVariable(variable);
 			valorText = instanciaProces.getVarsComText().get(variable);
 			for (Camp c: instanciaProces.getCamps()) {

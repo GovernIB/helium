@@ -194,7 +194,7 @@ public class ExpedientTokenController extends BaseController {
 				expedientService.getArbreInstanciesProces(id));
 		model.addAttribute(
 				"instanciaProces",
-				expedientService.getInstanciaProcesById(id, true));
+				expedientService.getInstanciaProcesById(id, false, false, false));
 	}
 	
 	private void setArrivingNodeNames(

@@ -360,6 +360,8 @@ public class DocumentService {
 						false);
 				InstanciaProcesDto instanciaProces = dtoConverter.toInstanciaProcesDto(
 						task.getProcessInstanceId(),
+						true,
+						true,
 						true);
 				model.putAll(instanciaProces.getVarsComText());
 				model.putAll(tasca.getVarsComText());
@@ -373,6 +375,8 @@ public class DocumentService {
 				responsableCodi = auth.getName();
 				InstanciaProcesDto instanciaProces = dtoConverter.toInstanciaProcesDto(
 						processInstanceId,
+						true,
+						true,
 						true);
 				model.putAll(instanciaProces.getVarsComText());
 			}

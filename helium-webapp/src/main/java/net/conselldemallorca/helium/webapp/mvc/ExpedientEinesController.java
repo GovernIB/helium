@@ -88,13 +88,13 @@ public class ExpedientEinesController extends BaseController {
 				model.addAttribute(
 						"expedient",
 						expedient);
-				model.addAttribute(
-						"arbreProcessos",
-						expedientService.getArbreInstanciesProces(id));
-				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, true);
-				model.addAttribute(
-						"instanciaProces",
-						instanciaProces);
+//				model.addAttribute(
+//						"arbreProcessos",
+//						expedientService.getArbreInstanciesProces(id));
+//				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, true);
+//				model.addAttribute(
+//						"instanciaProces",
+//						instanciaProces);
 				return "expedient/eines";
 			} else {
 				missatgeError(request, getMessage("error.permisos.modificar.expedient"));

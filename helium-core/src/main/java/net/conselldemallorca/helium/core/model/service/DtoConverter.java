@@ -372,7 +372,7 @@ public class DtoConverter {
 		return dto;
 	}
 
-	public InstanciaProcesDto toInstanciaProcesDto(String processInstanceId, boolean ambVariables) {
+	public InstanciaProcesDto toInstanciaProcesDto(String processInstanceId , boolean ambImatgeProces, boolean ambVariables, boolean ambDocuments) {
 		JbpmProcessInstance pi = jbpmDao.getProcessInstance(processInstanceId);
 		JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(processInstanceId);
 		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(jpd.getId());
@@ -386,19 +386,25 @@ public class DtoConverter {
 			dto.setTitol(pi.getDescription());
 		dto.setDataInici(pi.getStart());
 		dto.setDataFi(pi.getEnd());
-		Set<String> resourceNames = jbpmDao.getResourceNames(jpd.getId());
-		dto.setImatgeDisponible(resourceNames.contains("processimage.jpg"));
+		if (ambImatgeProces) {
+			Set<String> resourceNames = jbpmDao.getResourceNames(jpd.getId());
+			dto.setImatgeDisponible(resourceNames.contains("processimage.jpg"));
+		}
 		Set<Camp> camps = definicioProces.getCamps();
 		dto.setCamps(camps);
-		List<Document> documents = documentDao.findAmbDefinicioProces(definicioProces.getId());
-		dto.setDocuments(documents);
-		dto.setAgrupacions(campAgrupacioDao.findAmbDefinicioProcesOrdenats(definicioProces.getId()));
-		if (ambVariables) {
+		List<Document> documents = new ArrayList<Document>();
+		if (ambDocuments) {
 			Map<String, Object> valors = jbpmDao.getProcessInstanceVariables(processInstanceId);
+			documents = documentDao.findAmbDefinicioProces(definicioProces.getId());
+			dto.setDocuments(documents);
 			dto.setVarsDocuments(obtenirVarsDocumentsProces(
 					processInstanceId,
 					documents,
 					valors));
+		}
+		dto.setAgrupacions(campAgrupacioDao.findAmbDefinicioProcesOrdenats(definicioProces.getId()));
+		if (ambVariables) {
+			Map<String, Object> valors = jbpmDao.getProcessInstanceVariables(processInstanceId);
 			filtrarVariablesTasca(valors);
 			Map<String, ParellaCodiValorDto> valorsDomini = obtenirValorsDomini(
 					null,

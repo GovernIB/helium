@@ -45,7 +45,7 @@ public class ExpedientRegistreController extends CommonRegistreController {
 	@ModelAttribute("instanciaProces")
 	public InstanciaProcesDto populateInstanciaProces(
 			@RequestParam(value = "id", required = true) String id) {
-		return expedientService.getInstanciaProcesById(id, true);
+		return expedientService.getInstanciaProcesById(id, true, true, true);
 	}
 
 	@RequestMapping(value = "/expedient/varRegistre", method = RequestMethod.GET)

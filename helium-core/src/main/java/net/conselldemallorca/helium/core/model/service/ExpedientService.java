@@ -724,8 +724,10 @@ public class ExpedientService {
 
 	public InstanciaProcesDto getInstanciaProcesById(
 			String processInstanceId,
-			boolean ambVariables) {
-		return dtoConverter.toInstanciaProcesDto(processInstanceId, ambVariables);
+			boolean ambImatgeProces,
+			boolean ambVariables,
+			boolean ambDocuments) {
+		return dtoConverter.toInstanciaProcesDto(processInstanceId, ambImatgeProces, ambVariables, ambDocuments);
 	}
 	public List<InstanciaProcesDto> getArbreInstanciesProces(
 			String processInstanceId) {
@@ -733,7 +735,7 @@ public class ExpedientService {
 		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(processInstanceId);
 		List<JbpmProcessInstance> piTree = jbpmDao.getProcessInstanceTree(rootProcessInstance.getId());
 		for (JbpmProcessInstance jpi: piTree) {
-			resposta.add(dtoConverter.toInstanciaProcesDto(jpi.getId(), false));
+			resposta.add(dtoConverter.toInstanciaProcesDto(jpi.getId(), false, false, false));
 		}
 		return resposta;
 	}

@@ -65,7 +65,7 @@ public class ExpedientRelacionarController extends BaseController {
 				model.addAttribute(
 						"expedient",
 						expedient);
-				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, false);
+				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, false, false, false);
 				model.addAttribute(
 						"instanciaProces",
 						instanciaProces);

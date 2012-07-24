@@ -477,7 +477,7 @@ public class TascaFormController extends BaseController {
 	private void afegirVariablesDelProces(Object command, TascaDto tasca) throws Exception {
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(
 				tasca.getProcessInstanceId(),
-				true);
+				false, true, true);
 		PropertyUtils.setSimpleProperty(
 				command,
 				"procesScope",

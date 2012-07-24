@@ -299,6 +299,8 @@ public abstract class BasicActionHandler implements ActionHandler {
 			String codiDocument) {
 		InstanciaProcesDto instanciaProces = getExpedientService().getInstanciaProcesById(
 				new Long(executionContext.getProcessInstance().getId()).toString(),
+				false,
+				false,
 				false);
 		Document document = getDissenyService().findDocumentAmbDefinicioProcesICodi(
 				instanciaProces.getDefinicioProces().getId(),
@@ -874,6 +876,8 @@ public abstract class BasicActionHandler implements ActionHandler {
 		long processInstanceId = executionContext.getProcessInstance().getId();
 		InstanciaProcesDto instanciaProces = getExpedientService().getInstanciaProcesById(
 				new Long(processInstanceId).toString(),
+				false,
+				false,
 				false);
 		Document document = getDissenyService().findDocumentAmbDefinicioProcesICodi(
 				instanciaProces.getDefinicioProces().getId(),

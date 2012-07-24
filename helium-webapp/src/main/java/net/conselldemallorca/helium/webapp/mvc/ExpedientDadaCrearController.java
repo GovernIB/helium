@@ -92,7 +92,9 @@ public class ExpedientDadaCrearController extends BaseController {
 			if (taskId == null) {
 				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(
 						id,
-						true);
+						false, 
+						true,
+						false);
 				List<Camp> camps = dissenyService.findCampsAmbDefinicioProcesOrdenatsPerCodi(instanciaProces.getDefinicioProces().getId());
 				Iterator<Camp> it = camps.iterator();
 				while (it.hasNext()) {

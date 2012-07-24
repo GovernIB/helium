@@ -68,7 +68,9 @@ function confirmarAccio(e) {
 		<dt><fmt:message key='expedient.info.definicio_proces' /></dt>
 		<dd>
 			${instanciaProces.definicioProces.idPerMostrar}&nbsp;
-			<c:if test="${instanciaProces.imatgeDisponible}"><a href="#imatgeProces" class="finestraProces"><img src="<c:url value="/img/map_go.png"/>" alt="<fmt:message key='expedient.info.situacio_actual' />" title="<fmt:message key='expedient.info.situacio_actual' />" border="0"/></a></c:if>
+			<!--  c:if test="${instanciaProces.imatgeDisponible}"-->
+			<a href="#imatgeProces" class="finestraProces"><img src="<c:url value="/img/map_go.png"/>" alt="<fmt:message key='expedient.info.situacio_actual' />" title="<fmt:message key='expedient.info.situacio_actual' />" border="0"/></a>
+			<!--/c:if-->
 		</dd>
 		<c:if test="${globalProperties['app.georef.actiu']}">
 			<c:choose>
@@ -163,7 +165,7 @@ function confirmarAccio(e) {
 			</form>
 		</div>
 	</c:if>
-	<c:if test="${instanciaProces.imatgeDisponible}">
+	<!--c:if test="${instanciaProces.imatgeDisponible}"-->
 		<script type="text/javascript">
 			$('.finestraProces').openDOMWindow({
 				eventType: 'click',
@@ -180,7 +182,7 @@ function confirmarAccio(e) {
 				<img style="position:absolute;left:0;top:0" src="<c:url value="/expedient/imatgeProces.html"><c:param name="id" value="${instanciaProces.id}"/></c:url>"/><c:forEach var="token" items="${activeTokens}"><div style="position:absolute;left:${token.nodePosX}px;top:${token.nodePosY}px;width:${token.nodeWidth - 4}px;height:${token.nodeHeight - 4}px;border: 2px solid red"></div></c:forEach>
 			</div>
 		</div>
-	</c:if>
+	<!--/c:if-->
 	<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
 		<script type="text/javascript">
 			$('.accioRelacionar').openDOMWindow({
