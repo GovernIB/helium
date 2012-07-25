@@ -72,8 +72,11 @@ public class DocumentHelper {
 			String arxiuNom,
 			byte[] arxiuContingut,
 			boolean isAdjunt) {
+		DocumentStore documentStore = null;
 		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(taskInstanceId, processInstanceId, documentCodi);
-		if (documentStoreId == null) {
+		if (documentStoreId != null)
+			documentStore = documentStoreDao.getById(documentStoreId, false);
+		if (documentStore == null) {
 			// Si el document no existeix el crea
 			documentStoreId = documentStoreDao.create(
 					processInstanceId,
@@ -92,7 +95,6 @@ public class DocumentHelper {
 					arxiuNom,
 					(pluginGestioDocumentalDao.isGestioDocumentalActiu()) ? null : arxiuContingut,
 					documentNom);
-			DocumentStore documentStore = documentStoreDao.getById(documentStoreId, false);
 			if (arxiuContingut != null && pluginGestioDocumentalDao.isGestioDocumentalActiu())
 				pluginGestioDocumentalDao.deleteDocument(documentStore.getReferenciaFont());
 		}
@@ -156,7 +158,8 @@ public class DocumentHelper {
 				jbpmDao.deleteTaskInstanceVariable(
 						taskInstanceId,
 						PREFIX_SIGNATURA + documentCodi);
-			} else {
+			}
+			if (processInstanceId != null) {
 				jbpmDao.deleteProcessInstanceVariable(
 						processInstanceId,
 						getVarPerDocumentCodi(documentCodi, false));
