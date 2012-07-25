@@ -243,7 +243,7 @@ public class LuceneDao extends LuceneIndexSupport {
 			Map<String, Map<String, String>> textDominis,
 			boolean finalitzat) {
 		boolean isUpdate = (docLucene != null);
-		Document document = (isUpdate) ? docLucene : new Document();
+		Document document = (docLucene != null) ? docLucene : new Document();
 		createOrUpdateDocumentField(
 				document,
 				new Field(
@@ -346,7 +346,7 @@ public class LuceneDao extends LuceneIndexSupport {
 						isUpdate);
 			}
 		}
-		if (camps != null && camps.size() > 0) {
+		if (definicionsProces != null) {
 			for (String clau: definicionsProces.keySet()) {
 				DefinicioProces definicioProces = definicionsProces.get(clau);
 				Map<String, Object> valorsProces = valors.get(clau);
@@ -372,7 +372,7 @@ public class LuceneDao extends LuceneIndexSupport {
 			Field field,
 			boolean isUpdate) {
 		if (isUpdate)
-			document.removeFields(ExpedientCamps.EXPEDIENT_CAMP_ID);
+			document.removeFields(field.name());
 		document.add(field);
 	}
 
