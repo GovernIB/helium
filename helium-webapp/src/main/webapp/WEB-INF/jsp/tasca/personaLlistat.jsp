@@ -25,8 +25,8 @@
 		<c:param name="formulari" value="personaLlistat.html"/>
 	</c:import>
 
-	<display:table name="personaLlistat" id="registre" requestURI="" class="displaytag selectable" sort="external" defaultsort="4" defaultorder="descending">
-		<display:column titleKey="tasca.pllistat.tasca" url="/tasca/info.html" paramId="id" paramProperty="id" sortable="true" sortName="titol">
+	<display:table name="personaLlistat" id="registre" requestURI="" class="displaytag selectable" sort="external" defaultsort="4" defaultorder="descending" >
+		<display:column titleKey="tasca.pllistat.tasca" url="/tasca/info.html?ini=s" paramId="id" paramProperty="id" sortable="true" sortName="titol">
 			<c:if test="${registre.delegada and not registre.delegacioOriginal}"><img src="<c:url value="/img/note_go.png"/>" title="Tasca assignada" alt="Tasca assignada"/></c:if>
 			${registre.titol}
 			<c:if test="${registre.delegada and registre.delegacioOriginal}"><img src="<c:url value="/img/note_go.png"/>" title="Tasca delegada" alt="Tasca delegada"/></c:if>

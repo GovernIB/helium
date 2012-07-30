@@ -182,6 +182,7 @@ public class TascaController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) String id,
 			@RequestParam(value = "massiva", required = false) String massiva,
+			@RequestParam(value = "ini", required = false) String ini,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
@@ -209,6 +210,25 @@ public class TascaController extends BaseController {
 				missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 				return "redirect:/tasca/personaLlistat.html";
 			}
+			
+			if("s".equals(ini)){
+				TascaDto tasca = tascaService.getByIdSenseComprovacio(id);
+				if(!tasca.getCamps().isEmpty())
+				{
+					return "redirect:/tasca/form.html?id="+id;
+					
+				}else if(!tasca.getDocuments().isEmpty()){
+					return "redirect:/tasca/documents.html?id="+id;
+				}
+				else if (!tasca.getSignatures().isEmpty()) {
+					return "redirect:/tasca/signatures.html?id="+id;
+					
+				}	
+			}
+			else{
+				return "tasca/info";
+			}
+			
 			return "tasca/info";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
