@@ -217,15 +217,15 @@ function clicCheckMassiu(e) {
 			<c:if test="${not command.massivaActiu}">
 				<c:import url="../common/formElement.jsp">
 					<c:param name="type" value="buttons"/>
-					<c:param name="values">massiva,submit,clean</c:param>
-					<c:param name="titles"><fmt:message key="expedient.consulta.massiva.activar"/>,<fmt:message key="expedient.consulta.consultar"/>,<fmt:message key="expedient.consulta.netejar"/></c:param>
+					<c:param name="values">submit,clean,massiva</c:param>
+					<c:param name="titles"><fmt:message key="expedient.consulta.consultar"/>,<fmt:message key="expedient.consulta.netejar"/>,<fmt:message key="expedient.consulta.massiva.activar"/></c:param>
 				</c:import>
 			</c:if>
 			<c:if test="${command.massivaActiu}">
 				<c:import url="../common/formElement.jsp">
 					<c:param name="type" value="buttons"/>
-					<c:param name="values">nomassiva,submit,clean</c:param>
-					<c:param name="titles"><fmt:message key="expedient.consulta.massiva.desactivar"/>,<fmt:message key="expedient.consulta.consultar"/>,<fmt:message key="expedient.consulta.netejar"/></c:param>
+					<c:param name="values">submit,clean,nomassiva</c:param>
+					<c:param name="titles"><fmt:message key="expedient.consulta.consultar"/>,<fmt:message key="expedient.consulta.netejar"/>,<fmt:message key="expedient.consulta.massiva.desactivar"/></c:param>
 				</c:import>
 			</c:if>
 		</div>
