@@ -17,6 +17,7 @@ import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
+import net.conselldemallorca.helium.core.model.service.EntornService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.model.service.TerminiService;
 import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
@@ -52,17 +53,19 @@ public class TascaController extends BaseController {
 	private TascaService tascaService;
 	private TerminiService terminiService;
 	private DissenyService dissenyService;
-
+	private EntornService entornService;
 
 
 	@Autowired
 	public TascaController(
 			TascaService tascaService,
 			TerminiService terminiService,
-			DissenyService dissenyService) {
+			DissenyService dissenyService,
+			EntornService entornService) {
 		this.tascaService = tascaService;
 		this.terminiService = terminiService;
 		this.dissenyService = dissenyService;
+		this.entornService = entornService;
 	}
 
 	@ModelAttribute("prioritats")
@@ -226,9 +229,10 @@ public class TascaController extends BaseController {
 				}	
 			}
 			else{
+				model.addAttribute("usuaris", entornService.findTotsMembresEntorn(entorn.getId()));
 				return "tasca/info";
 			}
-			
+			model.addAttribute("usuaris", entornService.findTotsMembresEntorn(entorn.getId()));
 			return "tasca/info";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
@@ -263,7 +267,7 @@ public class TascaController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) String id,
 			@RequestParam(value = "pipella", required = false) String pipella,
-			@RequestParam(value = "submit", required = false) String submit,
+			@RequestParam(value = "submitar", required = false) String submit,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
@@ -329,32 +333,7 @@ public class TascaController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
-
-	/*@RequestMapping(value = "/tasca/executarAccio")
-	public String executarAccio(
-			HttpServletRequest request,
-			@RequestParam(value = "id", required = true) String id,
-			@RequestParam(value = "accio", required = true) String accio,
-			ModelMap model) {
-		Entorn entorn = getEntornActiu(request);
-		if (entorn != null) {
-			try {
-				tascaService.executarAccio(
-						entorn.getId(),
-						id,
-						accio);
-				missatgeInfo(request, getMessage("info.accio.executat") );
-			} catch (Exception ex) {
-				missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
-				logger.error("No s'ha pogut mostrar l'arxiu", ex);
-			}
-			return "redirect:/tasca/form.html?id=" + id;
-		} else {
-			missatgeError(request, getMessage("error.no.entorn.selec") );
-			return "redirect:/index.html";
-		}
-	}*/
-
+	
 	private String textFormRecursProcessat(TascaDto tasca, String text) {
 		int indexFormInici = text.indexOf(TAG_FORM_INICI);
 		int indexFormFi = text.indexOf(TAG_FORM_FI);

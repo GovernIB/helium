@@ -3,7 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-
+<c:set var="usuarisEntorn" value="${sessionScope.commandUsuarisEntorn}"/>
 <html>
 <head>
 	<title>${tasca.nomLimitat}</title>
@@ -21,6 +21,7 @@ function mostrarOcultar(img, objid) {
 		obj.style.display = "none";
 		img.src = '<c:url value="/img/magnifier_zoom_in.png"/>';
 	}
+	
 }
 function confirmarDelegar(e) {
 	var e = e || window.event;
@@ -80,11 +81,15 @@ function confirmarDelegar(e) {
 							<form:hidden path="taskId"/>
 							<c:import url="../common/formElement.jsp">
 								<c:param name="property" value="actorId"/>
-								<c:param name="required" value="true"/>
-								<c:param name="type" value="suggest"/>
-								<c:param name="label"><fmt:message key='tasca.info.destinatari' /></c:param>
-								<c:param name="suggestUrl"><c:url value="/persona/suggest.html"/></c:param>
+								<c:param name="type" value="select"/>
+								<c:param name="items" value="usuaris"/>
+								<c:param name="itemLabel" value="nomSencer"/>
+								<c:param name="itemValue" value="id"/>
+								<c:param name="itemBuit">&lt;&lt; <fmt:message key="tasca.delegar.select"/> &gt;&gt;</c:param>
+								<c:param name="label"><fmt:message key='tasca.info.destinatari'/></c:param>
 							</c:import>
+								
+							
 							<c:import url="../common/formElement.jsp">
 								<c:param name="property" value="comentari"/>
 								<c:param name="type" value="textarea"/>
@@ -94,6 +99,7 @@ function confirmarDelegar(e) {
 								<c:param name="property" value="supervisada"/>
 								<c:param name="type" value="checkbox"/>
 								<c:param name="label"><fmt:message key='tasca.info.supervisarq' /></c:param>
+								<c:param name="checkAsText" value="off"/>
 							</c:import>
 							<c:import url="../common/formElement.jsp">
 								<c:param name="type" value="buttons"/>

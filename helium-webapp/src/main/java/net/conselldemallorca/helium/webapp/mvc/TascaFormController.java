@@ -70,6 +70,7 @@ public class TascaFormController extends BaseController {
 	private ExpedientService expedientService;
 	private Validator validatorGuardar;
 	private Validator validatorValidar;
+	private TascaController tascaController;
 
 
 
@@ -77,12 +78,14 @@ public class TascaFormController extends BaseController {
 	public TascaFormController(
 			TascaService tascaService,
 			DissenyService dissenyService,
-			ExpedientService expedientService) {
+			ExpedientService expedientService, 
+			TascaController tascaController) {
 		this.tascaService = tascaService;
 		this.dissenyService = dissenyService;
 		this.expedientService = expedientService;
 		this.validatorGuardar = new TascaFormValidator(tascaService, false);
 		this.validatorValidar = new TascaFormValidator(tascaService);
+		this.tascaController = new TascaController(tascaService, null, dissenyService,null);
 	}
 
 
@@ -273,21 +276,6 @@ public class TascaFormController extends BaseController {
 						command);
 				if (!ok)
 					return "tasca/form";
-				/*try {
-					tascaService.guardarVariables(
-							entorn.getId(),
-							id,
-							TascaFormUtil.getValorsFromCommand(
-									camps,
-									command,
-									true,
-									false));
-					missatgeInfo(request, getMessage("info.dades.form.guardat") );
-				} catch (Exception ex) {
-					missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
-					logger.error("No s'ha pogut guardar les dades del formulari", ex);
-					return "tasca/form";
-				}*/
 				if (accioCamp != null && accioCamp.length() > 0) {
 					ok = accioExecutarAccio(
 							request,
@@ -297,20 +285,7 @@ public class TascaFormController extends BaseController {
 					if (!ok)
 						return "tasca/form";
 				}
-		        /*try {
-					if (accioCamp != null && accioCamp.length() > 0) {
-						tascaService.executarAccio(
-								entorn.getId(),
-								id,
-								accioCamp);
-						missatgeInfo(request, getMessage("info.accio.executat") );
-					}
-				} catch (Exception ex) {
-					missatgeError(request, getMessage("error.executar.accio"), ex.getLocalizedMessage());
-					logger.error("No s'ha pogut executar l'acció: ", ex);
-					return "tasca/form";
-				}*/
-		        status.setComplete();
+				status.setComplete();
 	        	if (iframe != null)
 	        		return "redirect:/tasca/formIframe.html?id=" + id + "&iframe=iframe";
 	        	else
@@ -336,22 +311,6 @@ public class TascaFormController extends BaseController {
 						command);
 				if (!ok)
 					return "tasca/form";
-		        /*try {
-		        	tascaService.validar(
-		        			entorn.getId(),
-		        			id,
-		        			TascaFormUtil.getValorsFromCommand(
-		        					camps,
-		        					command,
-		        					true,
-		    						false),
-		    				true);
-		        	missatgeInfo(request, getMessage("info.formulari.validat"));
-		        } catch (Exception ex) {
-		        	missatgeError(request, getMessage("error.validar.formulari"), ex.getLocalizedMessage());
-		        	logger.error("No s'ha pogut validar el formulari", ex);
-		        	return "tasca/form";
-		        }*/
 		        status.setComplete();
 	        	if (iframe != null)
 	        		return "redirect:/tasca/formIframe.html?id=" + id + "&iframe=iframe&toParent=toParent";
@@ -370,18 +329,6 @@ public class TascaFormController extends BaseController {
 				} else {
 					return "tasca/form";
 				}
-		        /*try {
-		        	tascaService.restaurar(
-		        			entorn.getId(),
-		        			id);
-		        	missatgeInfo(request, getMessage("info.formulari.restaurat") );
-		        	status.setComplete();
-		        	return "redirect:/tasca/form.html?id=" + id;
-		        } catch (Exception ex) {
-		        	missatgeError(request, getMessage("error.restaurar.formulari"), ex.getLocalizedMessage());
-		        	logger.error("No s'ha pogut restaurar el formulari", ex);
-		        	return "tasca/form";
-		        }*/
 			} else if ("multipleAdd".equals(submit)) {
 				try {
 					if (field != null)
@@ -477,7 +424,7 @@ public class TascaFormController extends BaseController {
 	private void afegirVariablesDelProces(Object command, TascaDto tasca) throws Exception {
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(
 				tasca.getProcessInstanceId(),
-				false, true, true);
+				false, false, false);
 		PropertyUtils.setSimpleProperty(
 				command,
 				"procesScope",
