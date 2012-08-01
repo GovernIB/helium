@@ -80,6 +80,7 @@ function confirmarDelegar(e) {
 						<div class="inlineLabels">
 							<form:hidden path="taskId"/>
 							<c:import url="../common/formElement.jsp">
+								<c:param name="required" value="true"/>
 								<c:param name="property" value="actorId"/>
 								<c:param name="type" value="select"/>
 								<c:param name="items" value="usuaris"/>
