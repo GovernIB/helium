@@ -5,13 +5,18 @@ package net.conselldemallorca.helium.core.model.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import net.conselldemallorca.helium.core.model.dao.CarrecJbpmIdDao;
 import net.conselldemallorca.helium.core.model.dao.PermisDao;
 import net.conselldemallorca.helium.core.model.dao.PersonaDao;
+import net.conselldemallorca.helium.core.model.dao.PluginPersonaDao;
 import net.conselldemallorca.helium.core.model.dao.UsuariDao;
 import net.conselldemallorca.helium.core.model.dao.UsuariPreferenciesDao;
+import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaUsuariDto;
 import net.conselldemallorca.helium.core.model.exception.NotFoundException;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Permis;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.hibernate.Usuari;
@@ -20,6 +25,10 @@ import net.conselldemallorca.helium.core.model.hibernate.UsuariPreferencies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
+import org.springframework.security.acls.AccessControlEntry;
+import org.springframework.security.acls.sid.GrantedAuthoritySid;
+import org.springframework.security.acls.sid.PrincipalSid;
+import org.springframework.security.acls.sid.Sid;
 import org.springframework.security.annotation.Secured;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -37,6 +46,9 @@ public class PersonaService {
 	private UsuariDao usuariDao;
 	private PermisDao permisDao;
 	private UsuariPreferenciesDao usuariPreferenciesDao;
+	private PermissionService permissionService;
+	private CarrecJbpmIdDao carrecJbpmIdDao;
+	private PluginPersonaDao pluginPersonaDao;
 	private MessageSource messageSource;
 
 
@@ -204,6 +216,31 @@ public class PersonaService {
 		preferencies.setIdioma(idioma);
 	}
 
+	@Secured({"ROLE_ADMIN", "ROLE_USER"})
+	public List<PersonaDto> findPersonesAmbPermisosPerExpedientTipus(Long expedientTipusId) {
+		List<PersonaDto> resposta = new ArrayList<PersonaDto>();
+		Map<Sid, List<AccessControlEntry>> permisos = permissionService.getAclEntriesGroupedBySid(
+				expedientTipusId,
+				ExpedientTipus.class);
+		for (Sid sid: permisos.keySet()) {
+			// TODO verificar permisos de lectura i/o administració
+			if (sid instanceof PrincipalSid) {
+				PrincipalSid psid = (PrincipalSid)sid;
+				String userName = psid.getPrincipal();
+				resposta.add(pluginPersonaDao.findAmbCodiPlugin(userName));
+			} else {
+				GrantedAuthoritySid gsid = (GrantedAuthoritySid)sid;
+				String groupName = gsid.getGrantedAuthority();
+				List<String> personesPerGrup = carrecJbpmIdDao.findPersonesAmbGrup(groupName);
+				if (personesPerGrup != null) {
+					for (String userName: personesPerGrup)
+						resposta.add(pluginPersonaDao.findAmbCodiPlugin(userName));
+				}
+			}
+		}
+		return resposta;
+	}
+
 
 
 	@Autowired
@@ -217,6 +254,18 @@ public class PersonaService {
 	@Autowired
 	public void setPermisDao(PermisDao permisDao) {
 		this.permisDao = permisDao;
+	}
+	@Autowired
+	public void setPermissionService(PermissionService permissionService) {
+		this.permissionService = permissionService;
+	}
+	@Autowired
+	public void setCarrecJbpmIdDao(CarrecJbpmIdDao carrecJbpmIdDao) {
+		this.carrecJbpmIdDao = carrecJbpmIdDao;
+	}
+	@Autowired
+	public void setPluginPersonaDao(PluginPersonaDao pluginPersonaDao) {
+		this.pluginPersonaDao = pluginPersonaDao;
 	}
 	@Autowired
 	public void setUsuariPreferenciesDao(UsuariPreferenciesDao usuariPreferenciesDao) {
@@ -292,7 +341,6 @@ public class PersonaService {
 		return dto;
 	}
 
-	
 	protected String getMessage(String key, Object[] vars) {
 		try {
 			return messageSource.getMessage(

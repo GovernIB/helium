@@ -3,7 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<c:set var="usuarisEntorn" value="${sessionScope.commandUsuarisEntorn}"/>
+<c:set var="usuaris" value="${sessionScope.usuaris}"/>
 <html>
 <head>
 	<title>${tasca.nomLimitat}</title>
@@ -79,13 +79,14 @@ function confirmarDelegar(e) {
 					<form:form action="delegacioCrear.html" cssClass="uniForm" onsubmit="return confirmarDelegar(event)">
 						<div class="inlineLabels">
 							<form:hidden path="taskId"/>
+							
 							<c:import url="../common/formElement.jsp">
 								<c:param name="required" value="true"/>
 								<c:param name="property" value="actorId"/>
 								<c:param name="type" value="select"/>
-								<c:param name="items" value="usuaris"/>
+								<c:param name="items" value="destinataris"/>
 								<c:param name="itemLabel" value="nomSencer"/>
-								<c:param name="itemValue" value="id"/>
+								<c:param name="itemValue" value="codi"/>
 								<c:param name="itemBuit">&lt;&lt; <fmt:message key="tasca.delegar.select"/> &gt;&gt;</c:param>
 								<c:param name="label"><fmt:message key='tasca.info.destinatari'/></c:param>
 							</c:import>

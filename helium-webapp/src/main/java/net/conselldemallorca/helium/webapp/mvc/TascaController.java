@@ -7,17 +7,21 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.core.extern.domini.DominiHeliumException;
+import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
-import net.conselldemallorca.helium.core.model.service.EntornService;
+import net.conselldemallorca.helium.core.model.service.PersonaService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.model.service.TerminiService;
 import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
@@ -53,19 +57,18 @@ public class TascaController extends BaseController {
 	private TascaService tascaService;
 	private TerminiService terminiService;
 	private DissenyService dissenyService;
-	private EntornService entornService;
-
-
+	private PersonaService  personaService;
+	
 	@Autowired
 	public TascaController(
 			TascaService tascaService,
 			TerminiService terminiService,
 			DissenyService dissenyService,
-			EntornService entornService) {
+			PersonaService  personaService) {
 		this.tascaService = tascaService;
 		this.terminiService = terminiService;
 		this.dissenyService = dissenyService;
-		this.entornService = entornService;
+		this.personaService = personaService;
 	}
 
 	@ModelAttribute("prioritats")
@@ -180,14 +183,17 @@ public class TascaController extends BaseController {
 		}
 	}
 
+	@SuppressWarnings("null")
 	@RequestMapping(value = "/tasca/info")
 	public String info(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) String id,
 			@RequestParam(value = "massiva", required = false) String massiva,
 			@RequestParam(value = "ini", required = false) String ini,
-			ModelMap model) {
+			ModelMap model) throws DominiHeliumException {
 		Entorn entorn = getEntornActiu(request);
+		TascaDto tasca = tascaService.getByIdSenseComprovacio(id);
+		Long tid = tasca.getExpedient().getTipus().getId();
 		if (entorn != null) {
 			if (massiva == null || !massiva.equalsIgnoreCase("s")) {
 				TramitacioMassiva.netejarTramitacioMassiva(request);
@@ -213,27 +219,23 @@ public class TascaController extends BaseController {
 				missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 				return "redirect:/tasca/personaLlistat.html";
 			}
-			
-			if("s".equals(ini)){
-				TascaDto tasca = tascaService.getByIdSenseComprovacio(id);
-				if(!tasca.getCamps().isEmpty())
-				{
+			if ("s".equals(ini)) {
+				if (!tasca.getCamps().isEmpty()) {
 					return "redirect:/tasca/form.html?id="+id;
-					
-				}else if(!tasca.getDocuments().isEmpty()){
+				} else if(!tasca.getDocuments().isEmpty()) {
 					return "redirect:/tasca/documents.html?id="+id;
-				}
-				else if (!tasca.getSignatures().isEmpty()) {
+				} else if (!tasca.getSignatures().isEmpty()) {
 					return "redirect:/tasca/signatures.html?id="+id;
 					
 				}	
 			}
-			else{
-				model.addAttribute("usuaris", entornService.findTotsMembresEntorn(entorn.getId()));
-				return "tasca/info";
-			}
-			model.addAttribute("usuaris", entornService.findTotsMembresEntorn(entorn.getId()));
-			return "tasca/info";
+			List<PersonaDto> destinataris = personaService.findPersonesAmbPermisosPerExpedientTipus(tid);
+			Set<PersonaDto> destinatarisDistinct = new HashSet<PersonaDto>();
+			destinatarisDistinct.addAll(destinataris);
+			model.addAttribute(
+					 "destinataris",
+					 destinatarisDistinct);
+	        return "tasca/info";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
