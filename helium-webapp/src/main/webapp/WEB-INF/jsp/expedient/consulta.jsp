@@ -95,6 +95,16 @@ function clicCheckMassiu(e) {
 				expedientId: e.target.value,
 				checked: e.target.checked});
 }
+
+function selTots(){
+	
+	if($("#selTots").is(":checked")){
+		$("#registre input[type=checkbox]").attr("checked",true);
+	}else{
+		$("#registre input[type=checkbox]").attr("checked",false);
+	}
+}
+
 // ]]>
 </script>
 </head>
@@ -250,10 +260,12 @@ function clicCheckMassiu(e) {
 		<c:if test="${not empty llistat}">
 			<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable" sort="external">
 				<c:set var="filaStyle" value=""/>
+				<input type="hidden" id="tots" value=""/>
 				<c:if test="${registre.anulat}"><c:set var="filaStyle" value="text-decoration:line-through"/></c:if>
 				<c:if test="${command.massivaActiu}">
-					<display:column>
+					<display:column title="<input id='selTots' type='checkbox' value='false' onclick='selTots()'>Tots" style="${filaStyle}" >
 						<c:set var="expedientSeleccionat" value="${false}"/>
+						<c:set var="tots" value="${session.tots}"/>
 						<c:forEach var="eid" items="${sessionScope.consultaExpedientsIdsMassius}" varStatus="status">
 							<c:if test="${status.index gt 0 and eid == registre.id}"><c:set var="expedientSeleccionat" value="${true}"/></c:if>
 						</c:forEach>
