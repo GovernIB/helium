@@ -129,7 +129,7 @@ public class ExpedientLogHelper {
 	}
 
 	public void retrocedirFinsLog(Long expedientLogId) {
-		boolean debugRetroces = false;
+		boolean debugRetroces = true;
 		ExpedientLog expedientLog = expedientLogDao.getById(expedientLogId, false);
 		List<ExpedientLog> expedientLogs = expedientLogDao.findAmbExpedientIdOrdenatsPerData(
 				expedientLog.getExpedient().getId());
@@ -209,7 +209,7 @@ public class ExpedientLogHelper {
 					if (!started) {
 						if (debugRetroces)
 							System.out.println(">>> [RETLOG] Retornar token (" + logo.getName() + ") al node (" + logo.getValorInicial() + ")");
-						jbpmDao.tokenRedirect(logo.getObjectId(), (String)logo.getValorInicial(), true);
+						jbpmDao.tokenRedirect(logo.getObjectId(), (String)logo.getValorInicial(), true, false);
 					}
 					break;
 				case LogObject.LOG_OBJECT_TASK:
@@ -727,7 +727,7 @@ public class ExpedientLogHelper {
 			List<ExpedientLog> expedientLogs,
 			long jbpmLogId) {
 		for (ExpedientLog elog: expedientLogs) {
-			if (elog.getJbpmLogId().longValue() == jbpmLogId)
+			if (elog.getJbpmLogId() != null && elog.getJbpmLogId().longValue() == jbpmLogId)
 				return elog;
 		}
 		return null;

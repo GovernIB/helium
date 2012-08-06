@@ -654,10 +654,12 @@ public class JbpmDao {
 	public void tokenRedirect(
 			long tokenId,
 			String nodeName,
-			boolean cancelTasks) {
+			boolean cancelTasks,
+			boolean enterNodeIfTask) {
 		long id = new Long(tokenId).longValue();
 		TokenRedirectCommand command = new TokenRedirectCommand(id, nodeName);
 		command.setCancelTasks(cancelTasks);
+		command.setEnterNodeIfTask(enterNodeIfTask);
 		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,

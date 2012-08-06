@@ -893,7 +893,7 @@ public abstract class BasicActionHandler implements ActionHandler {
 	}
 
 	public void tokenRedirigir(long tokenId, String nodeName, boolean cancelarTasques) {
-		getJbpmDao().tokenRedirect(tokenId, nodeName, cancelarTasques);
+		getJbpmDao().tokenRedirect(tokenId, nodeName, cancelarTasques, true);
 	}
 
 

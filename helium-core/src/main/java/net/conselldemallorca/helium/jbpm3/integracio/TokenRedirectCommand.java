@@ -8,6 +8,7 @@ import java.util.Map;
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractGetObjectBaseCommand;
 import org.jbpm.graph.def.Node;
+import org.jbpm.graph.def.Node.NodeType;
 import org.jbpm.graph.exe.ExecutionContext;
 import org.jbpm.graph.exe.Token;
 import org.jbpm.taskmgmt.exe.TaskInstance;
@@ -23,6 +24,7 @@ public class TokenRedirectCommand extends AbstractGetObjectBaseCommand {
 	private long id;
 	private String nodeName;
 	private boolean cancelTasks = true;
+	private boolean enterNodeIfTask = true;
 
 	public TokenRedirectCommand() {}
 
@@ -68,8 +70,12 @@ public class TokenRedirectCommand extends AbstractGetObjectBaseCommand {
 		}
 		// Fa la redirecció
 		// v.2
-		ExecutionContext exc = new ExecutionContext(token);
-		desti.enter(exc);
+		if (enterNodeIfTask && desti.getNodeType().equals(NodeType.Task)) {
+			ExecutionContext exc = new ExecutionContext(token);
+			desti.enter(exc);
+		} else {
+			token.setNode(desti);
+		}
 		// v.1
 		/*token.setNode(desti);
 		if (desti.getNodeType().equals(NodeType.Task)) {
@@ -108,6 +114,12 @@ public class TokenRedirectCommand extends AbstractGetObjectBaseCommand {
 	}
 	public void setCancelTasks(boolean cancelTasks) {
 		this.cancelTasks = cancelTasks;
+	}
+	public boolean isEnterNodeIfTask() {
+		return enterNodeIfTask;
+	}
+	public void setEnterNodeIfTask(boolean enterNodeIfTask) {
+		this.enterNodeIfTask = enterNodeIfTask;
 	}
 
 	@Override
