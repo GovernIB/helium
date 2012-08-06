@@ -4,8 +4,10 @@
 package net.conselldemallorca.helium.core.model.service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.conselldemallorca.helium.core.model.dao.CarrecJbpmIdDao;
 import net.conselldemallorca.helium.core.model.dao.PermisDao;
@@ -217,8 +219,8 @@ public class PersonaService {
 	}
 
 	@Secured({"ROLE_ADMIN", "ROLE_USER"})
-	public List<PersonaDto> findPersonesAmbPermisosPerExpedientTipus(Long expedientTipusId) {
-		List<PersonaDto> resposta = new ArrayList<PersonaDto>();
+	public Set<PersonaDto> findPersonesAmbPermisosPerExpedientTipus(Long expedientTipusId) {
+		Set<PersonaDto> resposta = new HashSet<PersonaDto>();
 		Map<Sid, List<AccessControlEntry>> permisos = permissionService.getAclEntriesGroupedBySid(
 				expedientTipusId,
 				ExpedientTipus.class);
