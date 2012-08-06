@@ -183,7 +183,6 @@ public class TascaController extends BaseController {
 		}
 	}
 
-	@SuppressWarnings("null")
 	@RequestMapping(value = "/tasca/info")
 	public String info(
 			HttpServletRequest request,
@@ -220,21 +219,26 @@ public class TascaController extends BaseController {
 				return "redirect:/tasca/personaLlistat.html";
 			}
 			if ("s".equals(ini)) {
-				if (!tasca.getCamps().isEmpty()) {
-					return "redirect:/tasca/form.html?id="+id;
-				} else if(!tasca.getDocuments().isEmpty()) {
-					return "redirect:/tasca/documents.html?id="+id;
-				} else if (!tasca.getSignatures().isEmpty()) {
-					return "redirect:/tasca/signatures.html?id="+id;
+				
+				if(tasca.isDelegacioOriginal()){
+					return "redirect:/tasca/info.html?id="+id;
+				}else{
 					
-				}	
+					if (!tasca.getCamps().isEmpty()) {
+						return "redirect:/tasca/form.html?id="+id;
+					} else if(!tasca.getDocuments().isEmpty()) {
+						return "redirect:/tasca/documents.html?id="+id;
+					} else if (!tasca.getSignatures().isEmpty()) {
+						return "redirect:/tasca/signatures.html?id="+id;
+						
+					}	
+					
+				}
 			}
-			List<PersonaDto> destinataris = personaService.findPersonesAmbPermisosPerExpedientTipus(tid);
-			Set<PersonaDto> destinatarisDistinct = new HashSet<PersonaDto>();
-			destinatarisDistinct.addAll(destinataris);
+			Set<PersonaDto> destinataris =  personaService.findPersonesAmbPermisosPerExpedientTipus(tid);
 			model.addAttribute(
 					 "destinataris",
-					 destinatarisDistinct);
+					 destinataris);
 	        return "tasca/info";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
