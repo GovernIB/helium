@@ -7,7 +7,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -252,16 +251,31 @@ public class TascaController extends BaseController {
 			@RequestParam(value = "id", required = true) String id,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
+		TascaDto tasca = tascaService.getByIdSenseComprovacio(id);
 		if (entorn != null) {
 			try {
 				tascaService.agafar(entorn.getId(), id);
 				missatgeInfo(request, getMessage("info.tasca.disponible.personals") );
-				return "redirect:/tasca/info.html?id=" + id;
+				
+				if(tasca.isDelegacioOriginal()){
+					return "redirect:/tasca/info.html?id="+id;
+				}else{
+					
+					if (!tasca.getCamps().isEmpty()) {
+						return "redirect:/tasca/form.html?id="+id;
+					} else if(!tasca.getDocuments().isEmpty()) {
+						return "redirect:/tasca/documents.html?id="+id;
+					} else if (!tasca.getSignatures().isEmpty()) {
+						return "redirect:/tasca/signatures.html?id="+id;
+					}	
+				}
+				
 			} catch (Exception ex) {
 	        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut agafar la tasca", ex);
 	        	return "redirect:/tasca/grupLlistat.html";
 	        }
+			return "redirect:/tasca/info.html?id=" + id;
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
