@@ -99,9 +99,18 @@ function clicCheckMassiu(e) {
 function selTots(){
 	
 	if($("#selTots").is(":checked")){
-		$("#registre input[type=checkbox]").attr("checked",true);
+		$("#registre input[type=checkbox]").each(function(){
+			if(this.checked){
+				this.click();
+			}
+			}).attr("checked",true);
 	}else{
-		$("#registre input[type=checkbox]").attr("checked",false);
+		$("#registre input[type=checkbox]").each(function(){
+			if(!this.checked){
+				this.click();
+			}
+			
+		}).attr("checked",false);
 	}
 }
 
@@ -265,7 +274,6 @@ function selTots(){
 				<c:if test="${command.massivaActiu}">
 					<display:column title="<input id='selTots' type='checkbox' value='false' onclick='selTots()'>Tots" style="${filaStyle}" >
 						<c:set var="expedientSeleccionat" value="${false}"/>
-						<c:set var="tots" value="${session.tots}"/>
 						<c:forEach var="eid" items="${sessionScope.consultaExpedientsIdsMassius}" varStatus="status">
 							<c:if test="${status.index gt 0 and eid == registre.id}"><c:set var="expedientSeleccionat" value="${true}"/></c:if>
 						</c:forEach>
