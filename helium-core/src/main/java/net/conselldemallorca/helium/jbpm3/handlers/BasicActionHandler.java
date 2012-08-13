@@ -863,6 +863,27 @@ public abstract class BasicActionHandler implements ActionHandler {
 				expedientId);
 	}
 
+	/**
+	 * Redirigeix un token cap a un altre node.
+	 * 
+	 * @param tokenId
+	 * @param nodeName
+	 * @param cancelarTasques
+	 */
+	public void tokenRedirigir(long tokenId, String nodeName, boolean cancelarTasques) {
+		getJbpmDao().tokenRedirect(tokenId, nodeName, cancelarTasques, true);
+	}
+
+	/**
+	 * Reindexa l'expedient corresponent a una instància de procés.
+	 * 
+	 * @param processInstanceId
+	 */
+	public void instanciaProcesReindexar(long processInstanceId) {
+		getExpedientService().luceneReindexarExpedient(
+				new Long(processInstanceId).toString());
+	}
+
 	public byte[] obtenirArxiuGestorDocumental(String id) {
 		return getPluginGestioDocumentalDao().retrieveDocument(id);
 	}
@@ -890,10 +911,6 @@ public abstract class BasicActionHandler implements ActionHandler {
 				arxiuNom,
 				arxiuContingut,
 				false);
-	}
-
-	public void tokenRedirigir(long tokenId, String nodeName, boolean cancelarTasques) {
-		getJbpmDao().tokenRedirect(tokenId, nodeName, cancelarTasques, true);
 	}
 
 

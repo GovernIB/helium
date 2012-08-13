@@ -145,6 +145,10 @@ public abstract class BasicActionHandler implements ActionHandler {
 			ExecutionContext executionContext,
 			long expedientId) {}
 
+	public void tokenRedirigir(long tokenId, String nodeName, boolean cancelarTasques) {}
+
+	public void instanciaProcesReindexar(long processInstanceId) {}
+
 	public byte[] obtenirArxiuGestorDocumental(String id) {
 		return null;
 	}
@@ -155,8 +159,6 @@ public abstract class BasicActionHandler implements ActionHandler {
 			Date data,
 			String arxiuNom,
 			byte[] arxiuContingut) {}
-
-	public void tokenRedirigir(long tokenId, String nodeName, boolean cancelarTasques) {}
 
 	static final long serialVersionUID = 1L;
 
