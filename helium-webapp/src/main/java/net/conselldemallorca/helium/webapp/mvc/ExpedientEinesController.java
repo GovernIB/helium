@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
-import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
@@ -88,9 +87,9 @@ public class ExpedientEinesController extends BaseController {
 				model.addAttribute(
 						"expedient",
 						expedient);
-//				model.addAttribute(
-//						"arbreProcessos",
-//						expedientService.getArbreInstanciesProces(id));
+				model.addAttribute(
+						"arbreProcessos",
+						expedientService.getArbreInstanciesProces(id));
 //				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, true);
 //				model.addAttribute(
 //						"instanciaProces",

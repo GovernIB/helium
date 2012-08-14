@@ -80,9 +80,9 @@ public class ExpedientTerminiController extends BaseController {
 				model.addAttribute(
 						"expedient",
 						expedient);
-//				model.addAttribute(
-//						"arbreProcessos",
-//						expedientService.getArbreInstanciesProces(id));
+				model.addAttribute(
+						"arbreProcessos",
+						expedientService.getArbreInstanciesProces(id));
 				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, false, false, false);
 				model.addAttribute(
 						"instanciaProces",

@@ -151,13 +151,17 @@ public class ExpedientController extends BaseController {
 				model.addAttribute(
 						"expedient",
 						expedient);
-				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, false, false, false);
+				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(
+						id,
+						true,
+						false,
+						false);
 				model.addAttribute(
 						"instanciaProces",
 						instanciaProces);
-//				model.addAttribute(
-//						"arbreProcessos",
-//						expedientService.getArbreInstanciesProces(id));
+				model.addAttribute(
+						"arbreProcessos",
+						expedientService.getArbreInstanciesProces(id));
 				if (instanciaProces.isImatgeDisponible()) {
 					model.addAttribute(
 							"activeTokens",
@@ -190,9 +194,9 @@ public class ExpedientController extends BaseController {
 				model.addAttribute(
 						"expedient",
 						expedient);
-//				model.addAttribute(
-//						"arbreProcessos",
-//						expedientService.getArbreInstanciesProces(id));
+				model.addAttribute(
+						"arbreProcessos",
+						expedientService.getArbreInstanciesProces(id));
 				model.addAttribute(
 						"instanciaProces",
 						expedientService.getInstanciaProcesById(id, false, true, false));
@@ -225,9 +229,9 @@ public class ExpedientController extends BaseController {
 				model.addAttribute(
 						"expedient",
 						expedient);
-//				model.addAttribute(
-//						"arbreProcessos",
-//						expedientService.getArbreInstanciesProces(id));
+				model.addAttribute(
+						"arbreProcessos",
+						expedientService.getArbreInstanciesProces(id));
 				model.addAttribute(
 						"instanciaProces",
 						expedientService.getInstanciaProcesById(id, false, false, true));
@@ -259,9 +263,9 @@ public class ExpedientController extends BaseController {
 				model.addAttribute(
 						"expedient",
 						expedient);
-//				model.addAttribute(
-//						"arbreProcessos",
-//						expedientService.getArbreInstanciesProces(id));
+				model.addAttribute(
+						"arbreProcessos",
+						expedientService.getArbreInstanciesProces(id));
 				model.addAttribute(
 						"instanciaProces",
 						expedientService.getInstanciaProcesById(id, false, false, false));
@@ -314,9 +318,9 @@ public class ExpedientController extends BaseController {
 				model.addAttribute(
 						"expedient",
 						expedient);
-//				model.addAttribute(
-//						"arbreProcessos",
-//						expedientService.getArbreInstanciesProces(id));
+				model.addAttribute(
+						"arbreProcessos",
+						expedientService.getArbreInstanciesProces(id));
 //				model.addAttribute(
 //						"instanciaProces",
 //						expedientService.getInstanciaProcesById(id, false, false, false, false));
@@ -380,9 +384,9 @@ public class ExpedientController extends BaseController {
 				model.addAttribute(
 						"expedient",
 						expedient);
-//				model.addAttribute(
-//						"arbreProcessos",
-//						expedientService.getArbreInstanciesProces(id));
+				model.addAttribute(
+						"arbreProcessos",
+						expedientService.getArbreInstanciesProces(id));
 //				model.addAttribute(
 //						"instanciaProces",
 //						expedientService.getInstanciaProcesById(id, false, false, false, false));

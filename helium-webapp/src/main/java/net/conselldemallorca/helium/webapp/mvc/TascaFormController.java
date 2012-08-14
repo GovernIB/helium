@@ -70,7 +70,6 @@ public class TascaFormController extends BaseController {
 	private ExpedientService expedientService;
 	private Validator validatorGuardar;
 	private Validator validatorValidar;
-	private TascaController tascaController;
 
 
 
@@ -85,7 +84,6 @@ public class TascaFormController extends BaseController {
 		this.expedientService = expedientService;
 		this.validatorGuardar = new TascaFormValidator(tascaService, false);
 		this.validatorValidar = new TascaFormValidator(tascaService);
-		this.tascaController = new TascaController(tascaService, null, dissenyService,null);
 	}
 
 
