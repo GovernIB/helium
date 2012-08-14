@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.model.dao.AlertaDao;
@@ -34,7 +33,6 @@ import net.conselldemallorca.helium.core.model.exception.DominiException;
 import net.conselldemallorca.helium.core.model.exception.IllegalStateException;
 import net.conselldemallorca.helium.core.model.exception.NotFoundException;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
@@ -545,23 +543,15 @@ public class TascaService {
 				deleteDelegationInfo(taskOriginal);
 			}
 		}
-		JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
-		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
-		Map<String, Set<Camp>> mapCamps = getServiceUtils().getMapCamps(expedient);
-		Map<String, Map<String, Object>> mapValors = getServiceUtils().getMapValors(expedient);
-		luceneDao.updateExpedientCamps(
-				expedient,
-				getServiceUtils().getMapDefinicionsProces(expedient),
-				mapCamps,
-				mapValors,
-				getServiceUtils().getMapValorsDomini(mapCamps, mapValors),
-				isExpedientFinalitzat(expedient));
+		getServiceUtils().expedientIndexLuceneUpdate(task.getProcessInstanceId());
 		TascaDto tasca = toTascaDto(task, null, true, true);
 		registreDao.crearRegistreFinalitzarTasca(
 				tasca.getExpedient().getId(),
 				taskId,
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				"Finalitzar \"" + tasca.getNom() + "\"");
+		JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
 		actualitzarTerminisIniciatsIAlertes(taskId, expedient);
 	}
 
@@ -1383,23 +1373,17 @@ public class TascaService {
 	private ServiceUtils getServiceUtils() {
 		if (serviceUtils == null) {
 			serviceUtils = new ServiceUtils(
+					expedientDao,
 					definicioProcesDao,
 					campDao,
 					consultaCampDao,
+					luceneDao,
 					dtoConverter,
 					jbpmDao,
 					aclServiceDao,
 					messageSource);
 		}
 		return serviceUtils;
-	}
-
-	private boolean isExpedientFinalitzat(Expedient expedient) {
-		if (expedient.getProcessInstanceId() != null) {
-			JbpmProcessInstance processInstance = jbpmDao.getProcessInstance(expedient.getProcessInstanceId());
-			return processInstance.getEnd() != null;
-		}
-		return false;
 	}
 
 	private void optimitzarConsultesDomini(

@@ -32,8 +32,10 @@ import net.conselldemallorca.helium.core.model.dao.EntornDao;
 import net.conselldemallorca.helium.core.model.dao.EnumeracioDao;
 import net.conselldemallorca.helium.core.model.dao.EnumeracioValorsDao;
 import net.conselldemallorca.helium.core.model.dao.EstatDao;
+import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientTipusDao;
 import net.conselldemallorca.helium.core.model.dao.FirmaTascaDao;
+import net.conselldemallorca.helium.core.model.dao.LuceneDao;
 import net.conselldemallorca.helium.core.model.dao.MapeigSistraDao;
 import net.conselldemallorca.helium.core.model.dao.TascaDao;
 import net.conselldemallorca.helium.core.model.dao.TerminiDao;
@@ -117,6 +119,7 @@ public class DissenyService {
 	private FirmaTascaDao firmaTascaDao;
 	private ValidacioDao validacioDao;
 	private ExpedientTipusDao expedientTipusDao;
+	private ExpedientDao expedientDao;
 	private EnumeracioDao enumeracioDao;
 	private EnumeracioValorsDao enumeracioValorsDao;
 	private TerminiDao terminiDao;
@@ -130,8 +133,10 @@ public class DissenyService {
 
 	private DtoConverter dtoConverter;
 	private JbpmDao jbpmDao;
+	private LuceneDao luceneDao;
 	private AclServiceDao aclServiceDao;
 	private MessageSource messageSource;
+
 	private ServiceUtils serviceUtils;
 
 	private Map<Long, Boolean> hasStartTask = new HashMap<Long, Boolean>();
@@ -2002,6 +2007,10 @@ public class DissenyService {
 		this.expedientTipusDao = expedientTipusDao;
 	}
 	@Autowired
+	public void setExpedientDao(ExpedientDao expedientDao) {
+		this.expedientDao = expedientDao;
+	}
+	@Autowired
 	public void setEnumeracioDao(EnumeracioDao enumeracioDao) {
 		this.enumeracioDao = enumeracioDao;
 	}
@@ -2048,6 +2057,10 @@ public class DissenyService {
 	@Autowired
 	public void setJbpmDao(JbpmDao jbpmDao) {
 		this.jbpmDao = jbpmDao;
+	}
+	@Autowired
+	public void setLuceneDao(LuceneDao luceneDao) {
+		this.luceneDao = luceneDao;
 	}
 	@Autowired
 	public void setAclServiceDao(AclServiceDao aclServiceDao) {
@@ -2718,9 +2731,11 @@ public class DissenyService {
 	private ServiceUtils getServiceUtils() {
 		if (serviceUtils == null) {
 			serviceUtils = new ServiceUtils(
+					expedientDao,
 					definicioProcesDao,
 					campDao,
 					consultaCampDao,
+					luceneDao,
 					dtoConverter,
 					jbpmDao,
 					aclServiceDao,

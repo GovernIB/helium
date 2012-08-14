@@ -332,15 +332,8 @@ public class ExpedientService {
 		log.setEstat(ExpedientLogEstat.IGNORAR);
 		// Actualitza les variables del procés
 		jbpmDao.signalProcessInstance(expedient.getProcessInstanceId(), transitionName);
-		Map<String, Set<Camp>> mapCamps = getServiceUtils().getMapCamps(expedient);
-		Map<String, Map<String, Object>> mapValors = getServiceUtils().getMapValors(expedient);
-		luceneDao.createExpedient(
-				expedient,
-				getServiceUtils().getMapDefinicionsProces(expedient),
-				mapCamps,
-				mapValors,
-				getServiceUtils().getMapValorsDomini(mapCamps, mapValors),
-				isExpedientFinalitzat(expedient));
+		// Indexam l'expedient
+		getServiceUtils().expedientIndexLuceneCreate(expedient.getProcessInstanceId());
 		// Registra l'inici de l'expedient
 		registreDao.crearRegistreIniciarExpedient(
 				expedient.getId(),
@@ -406,7 +399,7 @@ public class ExpedientService {
 		expedient.setGrupCodi(grupCodi);
 		luceneDao.updateExpedientCapsalera(
 				expedient,
-				isExpedientFinalitzat(expedient));
+				getServiceUtils().isExpedientFinalitzat(expedient));
 		String informacioNova = getInformacioExpedient(expedient);
 		registreDao.crearRegistreModificarExpedient(
 				expedient.getId(),
@@ -735,33 +728,15 @@ public class ExpedientService {
 	}
 
 	public List<Map<String, DadaIndexadaDto>> luceneGetDades(String processInstanceId) {
-		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(processInstanceId);
-		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
-		List<Camp> informeCamps = new ArrayList<Camp>();
-		Map<String, Set<Camp>> camps = getServiceUtils().getMapCamps(expedient);
-		for (String clau: camps.keySet()) {
-			for (Camp camp: camps.get(clau))
-				informeCamps.add(camp);
-		}
-		informeCamps.addAll(getServiceUtils().findAllCampsExpedientConsulta());
-		return luceneDao.getDadesExpedient(
-				expedient,
-				informeCamps);
+		return getServiceUtils().expedientIndexLucenGetDades(processInstanceId);
+	}
+	public void luceneUpdateIndexExpedient(String processInstanceId) {
+		getServiceUtils().expedientIndexLuceneUpdate(processInstanceId);
 	}
 	public void luceneReindexarExpedient(String processInstanceId) {
-		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(processInstanceId);
-		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
-		luceneDao.deleteExpedient(expedient);
-		Map<String, Set<Camp>> mapCamps = getServiceUtils().getMapCamps(expedient);
-		Map<String, Map<String, Object>> mapValors = getServiceUtils().getMapValors(expedient);
-		luceneDao.createExpedient(
-				expedient,
-				getServiceUtils().getMapDefinicionsProces(expedient),
-				mapCamps,
-				mapValors,
-				getServiceUtils().getMapValorsDomini(mapCamps, mapValors),
-				isExpedientFinalitzat(expedient));
+		getServiceUtils().expedientIndexLuceneRecrear(processInstanceId);
 	}
+
 	@Secured({"ROLE_ADMIN"})
 	public void luceneReindexarEntorn(Long entornId) {
 		Entorn entorn = entornDao.getById(entornId, false);
@@ -794,7 +769,7 @@ public class ExpedientService {
 				ExpedientLogAccioTipus.PROCES_VARIABLE_CREAR,
 				varName);
 		jbpmDao.setProcessInstanceVariable(processInstanceId, varName, value);
-		luceneReindexarExpedient(processInstanceId);
+		getServiceUtils().expedientIndexLuceneUpdate(processInstanceId);
 		registreDao.crearRegistreCrearVariableInstanciaProces(
 				getExpedientPerProcessInstanceId(processInstanceId).getId(),
 				processInstanceId,
@@ -809,7 +784,7 @@ public class ExpedientService {
 				varName);
 		Object valorVell = getServiceUtils().getVariableJbpmProcesValor(processInstanceId, varName);
 		jbpmDao.setProcessInstanceVariable(processInstanceId, varName, value);
-		luceneReindexarExpedient(processInstanceId);
+		getServiceUtils().expedientIndexLuceneUpdate(processInstanceId);
 		registreDao.crearRegistreModificarVariableInstanciaProces(
 				getExpedientPerProcessInstanceId(processInstanceId).getId(),
 				processInstanceId,
@@ -824,7 +799,7 @@ public class ExpedientService {
 				ExpedientLogAccioTipus.PROCES_VARIABLE_ESBORRAR,
 				varName);
 		jbpmDao.deleteProcessInstanceVariable(processInstanceId, varName);
-		luceneReindexarExpedient(processInstanceId);
+		getServiceUtils().expedientIndexLuceneUpdate(processInstanceId);
 		registreDao.crearRegistreEsborrarVariableInstanciaProces(
 				getExpedientPerProcessInstanceId(processInstanceId).getId(),
 				processInstanceId,
@@ -872,7 +847,7 @@ public class ExpedientService {
 						valorNou);
 			}
 		}
-		luceneReindexarExpedient(processInstanceId);
+		getServiceUtils().expedientIndexLuceneUpdate(processInstanceId);
 	}
 	public void esborrarRegistre(
 			String processInstanceId,
@@ -891,7 +866,7 @@ public class ExpedientService {
 						valorNou);
 			}
 		}
-		luceneReindexarExpedient(processInstanceId);
+		getServiceUtils().expedientIndexLuceneUpdate(processInstanceId);
 	}
 
 	/*public Long guardarDocument(
@@ -1309,7 +1284,7 @@ public class ExpedientService {
 		if (outputVar != null)
 			outputVars.add(outputVar);
 		Map<String, Object> output =  jbpmDao.evaluateScript(processInstanceId, script, outputVars);
-		luceneReindexarExpedient(processInstanceId);
+		getServiceUtils().expedientIndexLuceneUpdate(processInstanceId);
 		return output.get(outputVar);
 	}
 
@@ -1374,7 +1349,7 @@ public class ExpedientService {
 		jbpmDao.executeActionInstanciaProces(
 				processInstanceId,
 				accio.getJbpmAction());
-		luceneReindexarExpedient(processInstanceId);
+		getServiceUtils().expedientIndexLuceneUpdate(processInstanceId);
 	}
 
 	public DefinicioProces getDefinicioProcesPerProcessInstanceId(String processInstanceId) {
@@ -1469,7 +1444,7 @@ public class ExpedientService {
 				expedientLogId.toString());
 		expedientLogHelper.retrocedirFinsLog(expedientLogId);
 		logRetroces.setEstat(ExpedientLogEstat.IGNORAR);
-		luceneReindexarExpedient(
+		getServiceUtils().expedientIndexLuceneUpdate(
 				log.getExpedient().getProcessInstanceId());
 	}
 	public Map<String, TascaDto> getTasquesPerLogExpedient(Long expedientId) {
@@ -1839,14 +1814,6 @@ public class ExpedientService {
 		return pluginGisDao.getUrlVisorPlugin();
 	}
 
-	private boolean isExpedientFinalitzat(Expedient expedient) {
-		if (expedient.getProcessInstanceId() != null) {
-			JbpmProcessInstance processInstance = jbpmDao.getProcessInstance(expedient.getProcessInstanceId());
-			return processInstance.getEnd() != null;
-		}
-		return false;
-	}
-
 	private Long[] getExpedientTipusIdPermesos(Long entornId) {
 		List<ExpedientTipus> tipus = expedientTipusDao.findAmbEntorn(entornId);
 		getServiceUtils().filterAllowed(
@@ -1918,9 +1885,11 @@ public class ExpedientService {
 	private ServiceUtils getServiceUtils() {
 		if (serviceUtils == null) {
 			serviceUtils = new ServiceUtils(
+					expedientDao,
 					definicioProcesDao,
 					campDao,
 					consultaCampDao,
+					luceneDao,
 					dtoConverter,
 					jbpmDao,
 					aclServiceDao,

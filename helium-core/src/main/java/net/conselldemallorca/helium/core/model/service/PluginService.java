@@ -8,8 +8,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import net.conselldemallorca.helium.core.model.dao.CampDao;
+import net.conselldemallorca.helium.core.model.dao.ConsultaCampDao;
+import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentStoreDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
+import net.conselldemallorca.helium.core.model.dao.LuceneDao;
 import net.conselldemallorca.helium.core.model.dao.PluginCustodiaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginPersonaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginPortasignaturesDao;
@@ -25,6 +29,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.model.hibernate.Usuari;
+import net.conselldemallorca.helium.core.security.acl.AclServiceDao;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesTramit;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;
@@ -41,7 +46,6 @@ import org.apache.commons.logging.LogFactory;
 import org.jbpm.JbpmException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.context.NoSuchMessageException;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -64,6 +68,15 @@ public class PluginService {
 	private DocumentStoreDao documentStoreDao;
 	private JbpmDao jbpmDao;
 	private DocumentHelper documentHelper;
+
+	private DefinicioProcesDao definicioProcesDao;
+	private CampDao campDao;
+	private ConsultaCampDao consultaCampDao;
+	private LuceneDao luceneDao;
+	private DtoConverter dtoConverter;
+	private AclServiceDao aclServiceDao;
+
+	private ServiceUtils serviceUtils;
 	private MessageSource messageSource;
 
 
@@ -173,7 +186,7 @@ public class PluginService {
 			portasignatures.setTransicioKO(transicioKO);
 			pluginPortasignaturesDao.saveOrUpdate(portasignatures);
 		} catch (Exception e) {
-			throw new JbpmException(getMessage("error.pluginService.pujarDocument"), e);
+			throw new JbpmException(getServiceUtils().getMessage("error.pluginService.pujarDocument"), e);
 		}
 	}
 	public Double processarDocumentSignatPortasignatures(Integer id) throws Exception {
@@ -196,6 +209,8 @@ public class PluginService {
 				pluginPortasignaturesDao.saveOrUpdate(portasignatures);
 				Long token = portasignatures.getTokenId();
 				jbpmDao.signalToken(token.longValue(), transicio);
+				getServiceUtils().expedientIndexLuceneUpdate(
+						jbpmDao.getTokenById(token.toString()).getProcessInstanceId());
 				resposta = 1D;
 			} else {
 				logger.error("El document rebut al callback (id=" + id + ") no s'ha trobat en els documents pendents pel portasignatures");
@@ -219,6 +234,8 @@ public class PluginService {
 				pluginPortasignaturesDao.saveOrUpdate(portasignatures);
 				Long token = portasignatures.getTokenId();
 				jbpmDao.signalToken(token.longValue(), transicio);
+				getServiceUtils().expedientIndexLuceneUpdate(
+						jbpmDao.getTokenById(token.toString()).getProcessInstanceId());
 				resposta = 1D;
 			} else {
 				logger.error("El document rebut al callback (id=" + id + ") no s'ha trobat en els documents pendents pel portasignatures");
@@ -294,6 +311,30 @@ public class PluginService {
 		this.jbpmDao = jbpmDao;
 	}
 	@Autowired
+	public void setDefinicioProcesDao(DefinicioProcesDao definicioProcesDao) {
+		this.definicioProcesDao = definicioProcesDao;
+	}
+	@Autowired
+	public void setCampDao(CampDao campDao) {
+		this.campDao = campDao;
+	}
+	@Autowired
+	public void setConsultaCampDao(ConsultaCampDao consultaCampDao) {
+		this.consultaCampDao = consultaCampDao;
+	}
+	@Autowired
+	public void setLuceneDao(LuceneDao luceneDao) {
+		this.luceneDao = luceneDao;
+	}
+	@Autowired
+	public void setDtoConverter(DtoConverter dtoConverter) {
+		this.dtoConverter = dtoConverter;
+	}
+	@Autowired
+	public void setAclServiceDao(AclServiceDao aclServiceDao) {
+		this.aclServiceDao = aclServiceDao;
+	}
+	@Autowired
 	public void setMessageSource(MessageSource messageSource) {
 		this.messageSource = messageSource;
 	}
@@ -328,10 +369,10 @@ public class PluginService {
 						SecurityContextHolder.getContext().getAuthentication().getName(),
 						varDocumentCodi);
 			} else {
-				throw new Exception(getMessage("error.pluginService.capSignatura"));
+				throw new Exception(getServiceUtils().getMessage("error.pluginService.capSignatura"));
 			}
 		}
-		throw new IllegalStateException(getMessage("error.pluginService.noDisponible"));
+		throw new IllegalStateException(getServiceUtils().getMessage("error.pluginService.noDisponible"));
 	}
 	private List<byte[]> obtenirSignaturesDelPortasignatures(
 			Integer documentId) {
@@ -352,57 +393,20 @@ public class PluginService {
 		return "true".equalsIgnoreCase(syncActiu);
 	}
 
-	/*@SuppressWarnings("unchecked")
-	private List<Persona> getPersonesSync() {
-		List<Persona> persones = (List<Persona>)deserializeFromFile();
-		if (persones != null) {
-			return persones;
-		} else {
-			persones = pluginPersonaDao.findAllPlugin();
-			serializeToFile(persones);
-			logger.info("Persones serialitzades");
-			return persones;
+	private ServiceUtils getServiceUtils() {
+		if (serviceUtils == null) {
+			serviceUtils = new ServiceUtils(
+					expedientDao,
+					definicioProcesDao,
+					campDao,
+					consultaCampDao,
+					luceneDao,
+					dtoConverter,
+					jbpmDao,
+					aclServiceDao,
+					messageSource);
 		}
-	}
-	private void serializeToFile(Object obj) {
-		try {
-			FileOutputStream fout = new FileOutputStream("c:/tmp/helium/persones.dat");
-			ObjectOutputStream oos = new ObjectOutputStream(fout);
-			oos.writeObject(obj);
-			oos.close();
-			fout.close();
-		} catch (Exception ex) {
-			logger.error(ex);
-		}
-	}
-	private Object deserializeFromFile() {
-		try {
-			FileInputStream fin = new FileInputStream("c:/tmp/helium/persones.dat");
-			ObjectInputStream ois = new ObjectInputStream(fin);
-			Object obj = ois.readObject();
-			ois.close();
-			fin.close();
-			return obj;
-		} catch (Exception ex) {
-			logger.error(ex);
-		}
-		return null;
-	}*/
-	
-	
-	protected String getMessage(String key, Object[] vars) {
-		try {
-			return messageSource.getMessage(
-					key,
-					vars,
-					null);
-		} catch (NoSuchMessageException ex) {
-			return "???" + key + "???";
-		}
-	}
-
-	protected String getMessage(String key) {
-		return getMessage(key, null);
+		return serviceUtils;
 	}
 
 	private static final Log logger = LogFactory.getLog(PluginService.class);

@@ -14,12 +14,15 @@ import java.util.Set;
 import net.conselldemallorca.helium.core.model.dao.CampDao;
 import net.conselldemallorca.helium.core.model.dao.ConsultaCampDao;
 import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
+import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
+import net.conselldemallorca.helium.core.model.dao.LuceneDao;
+import net.conselldemallorca.helium.core.model.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
+import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
-import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.GenericEntity;
@@ -50,9 +53,11 @@ import org.springframework.security.context.SecurityContextHolder;
  */
 public class ServiceUtils {
 
+	private ExpedientDao expedientDao;
 	private DefinicioProcesDao definicioProcesDao;
 	private CampDao campDao;
 	private ConsultaCampDao consultaCampDao;
+	private LuceneDao luceneDao;
 	private DtoConverter dtoConverter;
 	private JbpmDao jbpmDao;
 	private AclServiceDao aclServiceDao;
@@ -61,16 +66,20 @@ public class ServiceUtils {
 
 
 	public ServiceUtils(
+			ExpedientDao expedientDao,
 			DefinicioProcesDao definicioProcesDao,
 			CampDao campDao,
 			ConsultaCampDao consultaCampDao,
+			LuceneDao luceneDao,
 			DtoConverter dtoConverter,
 			JbpmDao jbpmDao,
 			AclServiceDao aclServiceDao,
 			MessageSource messageSource) {
+		this.expedientDao = expedientDao;
 		this.definicioProcesDao = definicioProcesDao;
 		this.campDao = campDao;
 		this.consultaCampDao = consultaCampDao;
+		this.luceneDao = luceneDao;
 		this.dtoConverter = dtoConverter;
 		this.jbpmDao = jbpmDao;
 		this.aclServiceDao = aclServiceDao;
@@ -80,84 +89,61 @@ public class ServiceUtils {
 
 
 	/*
-	 * Mètodes per a la  construcció d'estructures per a l'indexació d'expedients
+	 * Mètodes per a la reindexació d'expedients
 	 */
-	public Map<String, DefinicioProces> getMapDefinicionsProces(Expedient expedient) {
-		Map<String, DefinicioProces> resposta = new HashMap<String, DefinicioProces>();
-		List<JbpmProcessInstance> tree = jbpmDao.getProcessInstanceTree(expedient.getProcessInstanceId());
-		for (JbpmProcessInstance pi: tree)
-			resposta.put(
-					pi.getId(),
-					definicioProcesDao.findAmbJbpmId(pi.getProcessDefinitionId()));
-		return resposta;
+	public void expedientIndexLuceneCreate(String processInstanceId) {
+		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(processInstanceId);
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
+		Map<String, Set<Camp>> mapCamps = getMapCamps(expedient.getProcessInstanceId());
+		Map<String, Map<String, Object>> mapValors = getMapValors(expedient.getProcessInstanceId());
+		luceneDao.createExpedient(
+				expedient,
+				getMapDefinicionsProces(expedient.getProcessInstanceId()),
+				mapCamps,
+				mapValors,
+				getMapValorsDomini(mapCamps, mapValors),
+				isExpedientFinalitzat(expedient));
 	}
-	public Map<String, Set<Camp>> getMapCamps(Expedient expedient) {
-		Map<String, Set<Camp>> resposta = new HashMap<String, Set<Camp>>();
-		List<JbpmProcessInstance> tree = jbpmDao.getProcessInstanceTree(expedient.getProcessInstanceId());
-		for (JbpmProcessInstance pi: tree) {
-			resposta.put(
-					pi.getId(),
-					definicioProcesDao.findAmbJbpmId(pi.getProcessDefinitionId()).getCamps());
+	public void expedientIndexLuceneUpdate(String processInstanceId) {
+		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(processInstanceId);
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
+		Map<String, Set<Camp>> mapCamps = getMapCamps(rootProcessInstance.getId());
+		Map<String, Map<String, Object>> mapValors = getMapValors(rootProcessInstance.getId());
+		luceneDao.updateExpedientCamps(
+				expedient,
+				getMapDefinicionsProces(rootProcessInstance.getId()),
+				mapCamps,
+				mapValors,
+				getMapValorsDomini(mapCamps, mapValors),
+				isExpedientFinalitzat(expedient));
+	}
+	public void expedientIndexLuceneRecrear(String processInstanceId) {
+		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(processInstanceId);
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
+		luceneDao.deleteExpedient(expedient);
+		Map<String, Set<Camp>> mapCamps = getMapCamps(rootProcessInstance.getId());
+		Map<String, Map<String, Object>> mapValors = getMapValors(rootProcessInstance.getId());
+		luceneDao.createExpedient(
+				expedient,
+				getMapDefinicionsProces(rootProcessInstance.getId()),
+				mapCamps,
+				mapValors,
+				getMapValorsDomini(mapCamps, mapValors),
+				isExpedientFinalitzat(expedient));
+	}
+	public List<Map<String, DadaIndexadaDto>> expedientIndexLucenGetDades(String processInstanceId) {
+		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(processInstanceId);
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
+		List<Camp> informeCamps = new ArrayList<Camp>();
+		Map<String, Set<Camp>> camps = getMapCamps(rootProcessInstance.getId());
+		for (String clau: camps.keySet()) {
+			for (Camp camp: camps.get(clau))
+				informeCamps.add(camp);
 		}
-		return resposta;
-	}
-	public Map<String, Map<String, Object>> getMapValors(Expedient expedient) {
-		Map<String, Map<String, Object>> resposta = new HashMap<String, Map<String, Object>>();
-		List<JbpmProcessInstance> tree = jbpmDao.getProcessInstanceTree(expedient.getProcessInstanceId());
-		for (JbpmProcessInstance pi: tree)
-			resposta.put(
-					pi.getId(),
-					getVariablesJbpmProcesValor(pi.getId()));
-		return resposta;
-	}
-	public Map<String, Map<String, String>> getMapValorsDomini(
-			Map<String, Set<Camp>> mapCamps,
-			Map<String, Map<String, Object>> mapValors) {
-		Map<String, Map<String, String>> resposta = new HashMap<String, Map<String, String>>();
-		for (String clau: mapCamps.keySet()) {
-			Map<String, String> textDominis = new HashMap<String, String>();
-			for (Camp camp: mapCamps.get(clau)) {
-				if (mapValors.get(clau) != null) {
-					Object valor = mapValors.get(clau).get(camp.getCodi());
-					if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
-						if (valor != null) {
-							String[] columnesRegistre = new String[camp.getRegistreMembres().size()];
-							for (int i = 0; i < camp.getRegistreMembres().size(); i++) {
-								columnesRegistre[i] = camp.getRegistreMembres().get(i).getMembre().getCodi();
-							}
-							List<Registre> registres = new ArrayList<Registre>();
-							if (camp.isMultiple()) {
-								Object[] filesValor = (Object[])valor;
-								for (int i = 0; i < filesValor.length; i++) {
-									registres.add(
-											new Registre(columnesRegistre, (Object[])filesValor[i]));
-								}
-							} else {
-								registres.add(
-										new Registre(columnesRegistre, (Object[])valor));
-							}
-							for (Registre registre: registres) {
-								for (CampRegistre campRegistre: camp.getRegistreMembres()) {
-									guardarValorDominiPerCamp(
-											textDominis,
-											clau,
-											campRegistre.getMembre(),
-											registre.getValor(campRegistre.getMembre().getCodi()));
-								}
-							}
-						}
-					} else {
-						guardarValorDominiPerCamp(
-								textDominis,
-								clau,
-								camp,
-								valor);
-					}
-				}
-			}
-			resposta.put(clau, textDominis);
-		}
-		return resposta;
+		informeCamps.addAll(findAllCampsExpedientConsulta());
+		return luceneDao.getDadesExpedient(
+				expedient,
+				informeCamps);
 	}
 
 	/*
@@ -378,8 +364,96 @@ public class ServiceUtils {
 		}
 	}
 
+	/*
+	 * Varis
+	 */
+	public boolean isExpedientFinalitzat(Expedient expedient) {
+		if (expedient.getProcessInstanceId() != null) {
+			JbpmProcessInstance processInstance = jbpmDao.getProcessInstance(expedient.getProcessInstanceId());
+			return processInstance.getEnd() != null;
+		}
+		return false;
+	}
 
 
+
+	private Map<String, DefinicioProces> getMapDefinicionsProces(String processInstanceId) {
+		Map<String, DefinicioProces> resposta = new HashMap<String, DefinicioProces>();
+		List<JbpmProcessInstance> tree = jbpmDao.getProcessInstanceTree(processInstanceId);
+		for (JbpmProcessInstance pi: tree)
+			resposta.put(
+					pi.getId(),
+					definicioProcesDao.findAmbJbpmId(pi.getProcessDefinitionId()));
+		return resposta;
+	}
+	private Map<String, Set<Camp>> getMapCamps(String processInstanceId) {
+		Map<String, Set<Camp>> resposta = new HashMap<String, Set<Camp>>();
+		List<JbpmProcessInstance> tree = jbpmDao.getProcessInstanceTree(processInstanceId);
+		for (JbpmProcessInstance pi: tree) {
+			resposta.put(
+					pi.getId(),
+					definicioProcesDao.findAmbJbpmId(pi.getProcessDefinitionId()).getCamps());
+		}
+		return resposta;
+	}
+	private Map<String, Map<String, Object>> getMapValors(String processInstanceId) {
+		Map<String, Map<String, Object>> resposta = new HashMap<String, Map<String, Object>>();
+		List<JbpmProcessInstance> tree = jbpmDao.getProcessInstanceTree(processInstanceId);
+		for (JbpmProcessInstance pi: tree)
+			resposta.put(
+					pi.getId(),
+					getVariablesJbpmProcesValor(pi.getId()));
+		return resposta;
+	}
+	private Map<String, Map<String, String>> getMapValorsDomini(
+			Map<String, Set<Camp>> mapCamps,
+			Map<String, Map<String, Object>> mapValors) {
+		Map<String, Map<String, String>> resposta = new HashMap<String, Map<String, String>>();
+		for (String clau: mapCamps.keySet()) {
+			Map<String, String> textDominis = new HashMap<String, String>();
+			for (Camp camp: mapCamps.get(clau)) {
+				if (mapValors.get(clau) != null) {
+					Object valor = mapValors.get(clau).get(camp.getCodi());
+					if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
+						if (valor != null) {
+							String[] columnesRegistre = new String[camp.getRegistreMembres().size()];
+							for (int i = 0; i < camp.getRegistreMembres().size(); i++) {
+								columnesRegistre[i] = camp.getRegistreMembres().get(i).getMembre().getCodi();
+							}
+							List<Registre> registres = new ArrayList<Registre>();
+							if (camp.isMultiple()) {
+								Object[] filesValor = (Object[])valor;
+								for (int i = 0; i < filesValor.length; i++) {
+									registres.add(
+											new Registre(columnesRegistre, (Object[])filesValor[i]));
+								}
+							} else {
+								registres.add(
+										new Registre(columnesRegistre, (Object[])valor));
+							}
+							for (Registre registre: registres) {
+								for (CampRegistre campRegistre: camp.getRegistreMembres()) {
+									guardarValorDominiPerCamp(
+											textDominis,
+											clau,
+											campRegistre.getMembre(),
+											registre.getValor(campRegistre.getMembre().getCodi()));
+								}
+							}
+						}
+					} else {
+						guardarValorDominiPerCamp(
+								textDominis,
+								clau,
+								camp,
+								valor);
+					}
+				}
+			}
+			resposta.put(clau, textDominis);
+		}
+		return resposta;
+	}
 	private void guardarValorDominiPerCamp(
 			Map<String, String> textDominis,
 			String processInstanceId,

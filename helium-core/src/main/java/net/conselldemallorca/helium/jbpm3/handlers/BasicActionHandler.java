@@ -880,7 +880,7 @@ public abstract class BasicActionHandler implements ActionHandler {
 	 * @param processInstanceId
 	 */
 	public void instanciaProcesReindexar(long processInstanceId) {
-		getExpedientService().luceneReindexarExpedient(
+		getExpedientService().luceneUpdateIndexExpedient(
 				new Long(processInstanceId).toString());
 	}
 

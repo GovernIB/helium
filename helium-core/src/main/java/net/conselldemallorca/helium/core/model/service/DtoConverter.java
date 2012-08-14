@@ -25,6 +25,7 @@ import net.conselldemallorca.helium.core.model.dao.DominiDao;
 import net.conselldemallorca.helium.core.model.dao.EnumeracioValorsDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.FirmaTascaDao;
+import net.conselldemallorca.helium.core.model.dao.LuceneDao;
 import net.conselldemallorca.helium.core.model.dao.PluginPersonaDao;
 import net.conselldemallorca.helium.core.model.dao.TascaDao;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
@@ -85,6 +86,7 @@ public class DtoConverter {
 	private EnumeracioValorsDao enumeracioValorsDao;
 	private CampDao campDao;
 	private ConsultaCampDao consultaCampDao;
+	private LuceneDao luceneDao;
 	private AclServiceDao aclServiceDao;
 	private MessageSource messageSource;
 
@@ -1207,9 +1209,11 @@ public class DtoConverter {
 	private ServiceUtils getServiceUtils() {
 		if (serviceUtils == null) {
 			serviceUtils = new ServiceUtils(
+					expedientDao,
 					definicioProcesDao,
 					campDao,
 					consultaCampDao,
+					luceneDao,
 					this,
 					jbpmDao,
 					aclServiceDao,
