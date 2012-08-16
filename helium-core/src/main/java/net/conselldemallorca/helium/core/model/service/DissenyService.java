@@ -1182,7 +1182,9 @@ public class DissenyService {
 					accio.getCodi(),
 					accio.getNom(),
 					accio.getDescripcio(),
-					accio.getJbpmAction());
+					accio.getJbpmAction(),
+					accio.isPublica(),
+					accio.isOculta());
 			accionsDto.add(dto);
 		}
 		definicioProcesExportacio.setAccions(accionsDto);
@@ -2256,6 +2258,8 @@ public class DissenyService {
 					accio.getNom(),
 					accio.getJbpmAction());
 			nova.setDescripcio(accio.getDescripcio());
+			nova.setOculta(accio.isOculta());
+			nova.setPublica(accio.isPublica());
 			accioDao.saveOrUpdate(nova);
 		}
 		// Propaga els camps
@@ -2443,6 +2447,8 @@ public class DissenyService {
 						accio.getJbpmAction());
 			}
 			nova.setDescripcio(accio.getDescripcio());
+			nova.setPublica(accio.isPublica());
+			nova.setOculta(accio.isOculta());
 			accioDao.saveOrUpdate(nova);
 		}
 		// Propaga els camps

@@ -3,6 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
+<%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 
 <html>
@@ -27,6 +28,12 @@ function confirmarCanviVersio(e) {
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
 	return confirm("<fmt:message key="expedient.massiva.confirm_canviar_versio_proces"/>");
+}
+function confirmarExecutarAccio(e) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	if (e.stopPropagation) e.stopPropagation();
+	return confirm("<fmt:message key="expedient.massiva.confirm_exec_accio"/>");
 }
 // ]]>
 </script>
@@ -83,6 +90,31 @@ function confirmarCanviVersio(e) {
 			<c:param name="titles"><fmt:message key="comuns.canviar_versio"/></c:param>
 		</c:import>
 	</form:form>
+
+	<h3 class="titol-tab titol-canvi-versio">
+		<fmt:message key="expedient.massiva.accions"/>
+	</h3>
+	<c:set var="hiHaAccions" value="${false}"/>
+	<c:set var="hiHaAccionsPubliques" value="${false}"/>
+	<c:forEach var="accio" items="${instanciaProces.definicioProces.accions}">
+		<c:if test="${not accio.oculta}">
+			<c:set var="hiHaAccions" value="${true}"/>
+			<c:if test="${accio.publica}"><c:set var="hiHaAccionsPubliques" value="${true}"/></c:if>
+		</c:if>
+	</c:forEach>
+	<c:set var="tePermisAccions" value="${false}"/>
+	<security:accesscontrollist domainObject="${instanciaProces.expedient.tipus}" hasPermission="16,2"><c:set var="tePermisAccions" value="${true}"/></security:accesscontrollist>
+	<c:if test="${hiHaAccionsPubliques || (hiHaAccions && tePermisAccions)}">
+		<form action="massivaExecutarAccio.html" method="post" onsubmit="return confirmarExecutarAccio(event)">
+			<dl class="form-info">
+				<c:forEach var="accio" items="${instanciaProces.definicioProces.accions}">
+					<c:if test="${not accio.oculta && (accio.publica || tePermisAccions)}">
+						<dt>${accio.nom}:</dt><dd><button type="submit" class="submitButton" name="submit" value="${accio.codi}" onclick="saveAction(this, 'prova2');"><fmt:message key="expedient.massiva.exec_accio"/></button></dd>
+					</c:if>
+				</c:forEach>
+			</dl>
+		</form>
+	</c:if>
 
 </body>
 </html>

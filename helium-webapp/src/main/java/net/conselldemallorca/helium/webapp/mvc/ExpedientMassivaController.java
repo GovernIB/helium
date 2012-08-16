@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
+import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
@@ -104,9 +105,19 @@ public class ExpedientMassivaController extends BaseController {
 			model.addAttribute("expedients", expedients);
 			if (expedients.size() > 0) {
 				String piid = expedients.get(0).getProcessInstanceId();
+				// Definicions de procés per al canvi de versió
 				model.addAttribute(
 						"definicioProces",
 						dissenyService.findDefinicioProcesAmbProcessInstanceId(piid));
+				// Accions per a executar
+				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(
+						piid,
+						false,
+						false,
+						false);
+				model.addAttribute(
+						"instanciaProces",
+						instanciaProces);
 			}
 			return "/expedient/massivaInfo";
 		} else {
@@ -131,10 +142,12 @@ public class ExpedientMassivaController extends BaseController {
 			List<ExpedientDto> expedients = getExpedientsMassius(
 					ids.subList(1, ids.size()));
 			boolean error = false;
+			int numOk = 0;
 			for (ExpedientDto expedient: expedients) {
 				try {
 					DefinicioProcesDto definicioProces = dissenyService.getById(command.getDefinicioProcesId(), false);
 					expedientService.changeProcessInstanceVersion(expedient.getProcessInstanceId(), definicioProces.getVersio());
+					numOk++;
 				} catch (Exception ex) {
 					missatgeError(
 			    			request,
@@ -144,8 +157,55 @@ public class ExpedientMassivaController extends BaseController {
 					error = true;
 				}
 			}
-			if (!error)
-				missatgeInfo(request, getMessage("info.canvi.versio.realitzat"));
+			if (numOk > 0) {
+				if (!error)
+					missatgeInfo(request, getMessage("info.canvi.versio.realitzat"));
+				else
+					missatgeInfo(request, getMessage("info.canvi.versio.realitzat.nprimers", new Object[] {new Integer(numOk)}));
+			}
+			return "redirect:/expedient/massivaInfo.html";
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec"));
+			return "redirect:/index.html";
+		}
+	}
+
+	@RequestMapping(value = "/expedient/massivaExecutarAccio")
+	public String accioExecutarAccio(
+			HttpServletRequest request,
+			@RequestParam(value = "submit", required = true) String jbpmAction,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			@SuppressWarnings("unchecked")
+			List<Long> ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
+			if (ids == null || ids.size() == 0) {
+				missatgeError(request, getMessage("error.no.exp.selec"));
+				return "redirect:/expedient/consulta.html";
+			}
+			List<ExpedientDto> expedients = getExpedientsMassius(
+					ids.subList(1, ids.size()));
+			boolean error = false;
+			int numOk = 0;
+			for (ExpedientDto expedient: expedients) {
+				try {
+					expedientService.executarAccio(expedient.getProcessInstanceId(), jbpmAction);
+					numOk++;
+				} catch (Exception ex) {
+					missatgeError(
+			    			request,
+			    			getMessage("error.expedient.accio.masiva") + " " + expedient.getIdentificador(),
+			    			ex.getLocalizedMessage());
+					logger.error("No s'ha pogut excutar l'acció " + jbpmAction + " del procés " + expedient.getProcessInstanceId(), ex);
+					error = true;
+				}
+			}
+			if (numOk > 0) {
+				if (!error)
+					missatgeInfo(request, getMessage("info.accio.executat"));
+				else
+					missatgeInfo(request, getMessage("info.accio.executat.nprimers", new Object[] {new Integer(numOk)}));
+			}
 			return "redirect:/expedient/massivaInfo.html";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec"));

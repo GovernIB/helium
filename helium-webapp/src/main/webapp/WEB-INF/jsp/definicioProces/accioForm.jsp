@@ -53,10 +53,6 @@
 				<c:param name="type" value="checkbox"/>
 				<c:param name="label"><fmt:message key="defproc.accform.oculta"/></c:param>
 			</c:import>
-			<c:import url="../common/formElement.jsp">
-				<c:param name="property" value="cron"/>
-				<c:param name="label"><fmt:message key="defproc.accform.cron"/></c:param>
-			</c:import>
 		</div>
 		<c:import url="../common/formElement.jsp">
 			<c:param name="type" value="buttons"/>
