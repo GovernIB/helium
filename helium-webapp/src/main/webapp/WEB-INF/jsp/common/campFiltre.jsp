@@ -256,8 +256,8 @@ private String toJavascript(String str) {
 	if (str == null)
 		return null;
 	return str.replace("'", "\\'");
-		/*replace("{", "").
-		replace("}", "").
-		replace("#", "");*/
+// 		replace("{", "").
+// 		replace("}", "").
+// 		replace("#", "");
 }
 %>
