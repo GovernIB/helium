@@ -39,28 +39,34 @@ public class MCGDwsImpl implements es.indra.www.portafirmasmcgdws.mcgdws.MCGDws 
 		try {
 			PluginService pluginService = ServiceProxy.getInstance().getPluginService();
 			Double resposta = -1D;
-			switch (estat.getValue()) {
-				case DOCUMENT_BLOQUEJAT:
-					resposta = 1D;
-					logger.info("Document " + document + " bloquejat (" + resposta + ").");
-					break;
-				case DOCUMENT_PENDENT:
-					resposta = 1D;
-					logger.info("Document " + document + " pendent (" + resposta + ").");
-					break;
-				case DOCUMENT_SIGNAT:
-					resposta = pluginService.processarDocumentSignatPortasignatures(
-							document);
-					logger.info("Document " + document + " signat (" + resposta + ").");
-					break;
-				case DOCUMENT_REBUTJAT:
-					resposta = pluginService.processarDocumentRebutjatPortasignatures(
-							document,
-							callbackRequest.getApplication().getDocument().getSigner().getRejection().getDescription());
-					logger.info("Document " + document + " rebutjat (" + resposta + ").");
-					break;
-				default:
-					break;
+			try {
+				switch (estat.getValue()) {
+					case DOCUMENT_BLOQUEJAT:
+						resposta = 1D;
+						logger.info("Document " + document + " bloquejat (" + resposta + ").");
+						break;
+					case DOCUMENT_PENDENT:
+						resposta = 1D;
+						logger.info("Document " + document + " pendent (" + resposta + ").");
+						break;
+					case DOCUMENT_SIGNAT:
+						resposta = pluginService.processarDocumentSignatPortasignatures(
+								document);
+						logger.info("Document " + document + " signat (" + resposta + ").");
+						break;
+					case DOCUMENT_REBUTJAT:
+						resposta = pluginService.processarDocumentRebutjatPortasignatures(
+								document,
+								callbackRequest.getApplication().getDocument().getSigner().getRejection().getDescription());
+						logger.info("Document " + document + " rebutjat (" + resposta + ").");
+						break;
+					default:
+						break;
+				}
+			} catch (Exception ex) {
+				logger.error(
+						"Error processant callback portasignatures del document amb id " + document + " i estat " + estat.getValue(),
+						ex);
 			}
 			callbackResponse.setVersion("1.0");
 			callbackResponse.setLogMessages(new LogMessage[] {new LogMessage()});

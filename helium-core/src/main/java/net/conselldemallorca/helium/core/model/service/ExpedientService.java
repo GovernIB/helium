@@ -811,6 +811,10 @@ public class ExpedientService {
 			String processInstanceId,
 			String campCodi,
 			Object[] valors) {
+		expedientLogHelper.afegirLogExpedientPerProces(
+				processInstanceId,
+				ExpedientLogAccioTipus.PROCES_VARIABLE_MODIFICAR,
+				campCodi);
 		guardarRegistre(
 				processInstanceId,
 				campCodi,
@@ -822,6 +826,10 @@ public class ExpedientService {
 			String campCodi,
 			Object[] valors,
 			int index) {
+		expedientLogHelper.afegirLogExpedientPerProces(
+				processInstanceId,
+				ExpedientLogAccioTipus.PROCES_VARIABLE_MODIFICAR,
+				campCodi);
 		Object valor = jbpmDao.getProcessInstanceVariable(processInstanceId, campCodi);
 		if (valor == null) {
 			jbpmDao.setProcessInstanceVariable(
@@ -853,6 +861,10 @@ public class ExpedientService {
 			String processInstanceId,
 			String campCodi,
 			int index) {
+		expedientLogHelper.afegirLogExpedientPerProces(
+				processInstanceId,
+				ExpedientLogAccioTipus.PROCES_VARIABLE_MODIFICAR,
+				campCodi);
 		Object valor = jbpmDao.getProcessInstanceVariable(processInstanceId, campCodi);
 		if (valor != null) {
 			Object[] valorMultiple = (Object[])valor;

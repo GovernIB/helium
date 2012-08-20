@@ -63,7 +63,8 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 		EXPEDIENT_RELACIO_AFEGIR,
 		EXPEDIENT_RELACIO_ESBORRAR,
 		EXPEDIENT_ACCIO,
-		EXPEDIENT_RETROCEDIR}
+		EXPEDIENT_RETROCEDIR,
+		PROCES_DOCUMENT_SIGNAR}
 
 	public enum ExpedientLogEstat {
 		NORMAL,

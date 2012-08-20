@@ -287,7 +287,7 @@ public class TascaController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) String id,
 			@RequestParam(value = "pipella", required = false) String pipella,
-			@RequestParam(value = "submitar", required = false) String submit,
+			@RequestParam(value = "submit", required = false) String submit,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
