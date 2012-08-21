@@ -8,9 +8,10 @@ import java.util.Map;
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractGetObjectBaseCommand;
 import org.jbpm.graph.def.Node;
-import org.jbpm.graph.def.Node.NodeType;
 import org.jbpm.graph.exe.ExecutionContext;
 import org.jbpm.graph.exe.Token;
+import org.jbpm.graph.node.ProcessState;
+import org.jbpm.graph.node.TaskNode;
 import org.jbpm.taskmgmt.exe.TaskInstance;
 
 /**
@@ -70,10 +71,12 @@ public class TokenRedirectCommand extends AbstractGetObjectBaseCommand {
 		}
 		// Fa la redirecció
 		// v.2
-		if (enterNodeIfTask && desti.getNodeType().equals(NodeType.Task)) {
+		if (enterNodeIfTask && (desti instanceof TaskNode || desti instanceof ProcessState)) {
+			System.out.println(">>> enter");
 			ExecutionContext exc = new ExecutionContext(token);
 			desti.enter(exc);
 		} else {
+			System.out.println(">>> redir");
 			token.setNode(desti);
 		}
 		// v.1
