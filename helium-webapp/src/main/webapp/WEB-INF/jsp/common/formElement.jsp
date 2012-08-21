@@ -124,7 +124,7 @@
 									<c:forEach var="item" items="${items}">
 										<c:choose>
 											<c:when test="${not empty param.itemLabel && not empty param.itemValue}">
-												<option value="${item[param.itemValue]}"<c:if test="${item[param.itemValue]==status.value}"> selected="selected"</c:if>>${item[param.itemLabel]}</option>
+												<option value="${item[param.itemValue]}"<c:if test="${not empty status.value and item[param.itemValue]==status.value}"> selected="selected"</c:if>>${item[param.itemLabel]}</option>
 											</c:when>
 											<c:otherwise>
 												<option value="${item}"<c:if test="${item==status.value}"> selected="selected"</c:if>>${item}</option>
@@ -140,8 +140,12 @@
 													"${inputId}",
 													"${status.value}",
 													"${param.selectUrl}",
-													<c:choose><c:when test="${empty param.selectExtraParams}">null</c:when><c:otherwise>{${param.selectExtraParams}}</c:otherwise></c:choose>,
-													<c:choose><c:when test="${empty param.selectDominiParams}">null</c:when><c:otherwise>"${param.selectDominiParams}"</c:otherwise></c:choose>);
+													<c:choose>
+														<c:when test="${empty param.selectExtraParams}">null</c:when><c:otherwise>{${param.selectExtraParams}}</c:otherwise>
+													</c:choose>,
+													<c:choose>
+														<c:when test="${empty param.selectDominiParams}">null</c:when><c:otherwise>"${param.selectDominiParams}"</c:otherwise>
+													</c:choose>);
 										}
 										$(document).ready(function() {initSelect_${inputId}()});
 										// ]]>
