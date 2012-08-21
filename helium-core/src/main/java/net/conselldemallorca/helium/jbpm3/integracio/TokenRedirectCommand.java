@@ -72,11 +72,9 @@ public class TokenRedirectCommand extends AbstractGetObjectBaseCommand {
 		// Fa la redirecció
 		// v.2
 		if (enterNodeIfTask && (desti instanceof TaskNode || desti instanceof ProcessState)) {
-			System.out.println(">>> enter");
 			ExecutionContext exc = new ExecutionContext(token);
 			desti.enter(exc);
 		} else {
-			System.out.println(">>> redir");
 			token.setNode(desti);
 		}
 		// v.1
