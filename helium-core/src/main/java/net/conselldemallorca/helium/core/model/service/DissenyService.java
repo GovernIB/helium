@@ -2515,6 +2515,8 @@ public class DissenyService {
 			if (camp.getAgrupacioCodi() != null)
 				nou.setAgrupacio(agrupacions.get(camp.getAgrupacioCodi()));
 			// Propaga les validacions del camp
+			for (Validacio validacio: nou.getValidacions())
+				validacioDao.delete(validacio);
 			nou.getValidacions().clear();
 			for (ValidacioExportacio validacio: camp.getValidacions()) {
 				Validacio nova = new Validacio(
