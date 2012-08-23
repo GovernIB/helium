@@ -16,6 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.bind.ValidationException;
 
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
@@ -70,6 +71,7 @@ public class TascaFormController extends BaseController {
 	private ExpedientService expedientService;
 	private Validator validatorGuardar;
 	private Validator validatorValidar;
+	private TascaController tascaController;
 
 
 
@@ -84,6 +86,7 @@ public class TascaFormController extends BaseController {
 		this.expedientService = expedientService;
 		this.validatorGuardar = new TascaFormValidator(tascaService, false);
 		this.validatorValidar = new TascaFormValidator(tascaService);
+		this.tascaController = new TascaController(tascaService, null, dissenyService,null);
 	}
 
 
@@ -232,6 +235,7 @@ public class TascaFormController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) String id,
 			@RequestParam(value = "submit", required = false) String submit,
+			@RequestParam(value = "submitar", required = false) String submitar,
 			@RequestParam(value = "helMultipleIndex", required = false) Integer index,
 			@RequestParam(value = "helMultipleField", required = false) String field,
 			@RequestParam(value = "iframe", required = false) String iframe,
@@ -239,6 +243,9 @@ public class TascaFormController extends BaseController {
 			@RequestParam(value = "registreEsborrarIndex", required = false) Integer registreEsborrarIndex,
 			@RequestParam(value = "helAccioCamp", required = false) String accioCamp,
 			@RequestParam(value = "helCampFocus", required = false) String campFocus,
+			@RequestParam(value = "finalitzar", required = false) String finalitzar,
+			@RequestParam(value = "pipella", required = false) String pipella,
+			@RequestParam(value = "usuari", required = false) String usuari,
 			@ModelAttribute("command") Object command,
 			BindingResult result,
 			SessionStatus status,
@@ -261,7 +268,70 @@ public class TascaFormController extends BaseController {
 					request.getSession().setAttribute(VARIABLE_SESSIO_CAMP_FOCUS, campFocus);
 				}
     		}
-			if ("submit".equals(submit)) {
+    		
+    		if("finalitzar".equals(finalitzar) || "finalitzar".equals(submit) || "finalitzar".equals(submitar) )
+    		{
+    			
+    			//comprovar que la tasca estigui validada
+    			
+    			if (!tasca.isValidada()){
+    				//si no està validada, la validam
+    				
+    				validatorValidar.validate(command, result);
+    				try {
+    					afegirVariablesDelProces(command, tasca);
+    					TascaFormUtil.getBeanValidatorForCommand(camps).validate(command, result);
+    				} catch (Exception ex) {
+    					missatgeError(request, getMessage("error.validacio"), ex.getLocalizedMessage());
+    		        	logger.error("S'han produit errors de validació", ex);
+    		        	return "tasca/form";
+    				}
+    		        if (result.hasErrors()) {
+    		        	return "tasca/form";
+    		        }
+    		        boolean ok = accioValidarForm(
+    		        		request,
+    						entorn.getId(),
+    						id,
+    						camps,
+    						command);
+    				if (!ok){
+    					return "tasca/form";
+    				}
+    		        status.setComplete();
+    	        	if (iframe != null){
+    	        		return "redirect:/tasca/formIframe.html?id=" + id + "&iframe=iframe&toParent=toParent";
+    	        	}	
+  				
+    			}
+    			
+    			//i la finalitzam
+    			boolean okC = accioCompletarTasca(
+    				request,
+    				entorn.getId(),
+    				id,
+    				submit);
+    			if (okC) {
+    				return "redirect:/tasca/personaLlistat.html";
+    			} else {
+    				if ("info".equals(pipella)) {
+    		       		return "redirect:/tasca/info.html?id=" + id;
+    		       	} else if ("form".equals(pipella)) {
+    		       		return "redirect:/tasca/form.html?id=" + id;
+    		       	} else if ("documents".equals(pipella)) {
+    		       		return "redirect:/tasca/documents.html?id=" + id;
+    		       	} else if ("signatures".equals(pipella)) {
+    		       		return "redirect:/tasca/signatures.html?id=" + id;
+    		       	} else {
+    		       		return "redirect:/tasca/info.html?id=" + id;
+    		       	}
+    			}
+  			
+   		}
+    		
+    		
+			if ("submit".equals(submit) || "submit".equals(submitar)) {
+				
 				validatorGuardar.validate(command, result);
 				if (result.hasErrors()) {
 					return "tasca/form";
@@ -288,7 +358,7 @@ public class TascaFormController extends BaseController {
 	        		return "redirect:/tasca/formIframe.html?id=" + id + "&iframe=iframe";
 	        	else
 	        		return "redirect:/tasca/form.html?id=" + id;
-			} else if ("validate".equals(submit)) {
+			} else if ("validate".equals(submit) || "validate".equals(submitar)) {
 				validatorValidar.validate(command, result);
 				try {
 					afegirVariablesDelProces(command, tasca);
@@ -314,7 +384,7 @@ public class TascaFormController extends BaseController {
 	        		return "redirect:/tasca/formIframe.html?id=" + id + "&iframe=iframe&toParent=toParent";
 	        	else
 	        		return "redirect:/tasca/form.html?id=" + id;
-			} else if ("restore".equals(submit)) {
+			} else if ("restore".equals(submit) || "restore".equals(submitar)) {
 				boolean ok = accioRestaurarForm(
 		        		request,
 						entorn.getId(),
@@ -599,6 +669,101 @@ public class TascaFormController extends BaseController {
 		return tascaActual.getNom() + " - " + tascaActual.getExpedient().getIdentificador();
 	}
 
+	public String  validarTasca( Object command, 
+			BindingResult result, 
+			TascaDto tasca, 
+			List<Camp> camps, 
+			Entorn entorn,
+			HttpServletRequest request,
+			SessionStatus status,
+			String id){
+		
+		validatorValidar.validate(command, result);
+		try {
+			afegirVariablesDelProces(command, tasca);
+			TascaFormUtil.getBeanValidatorForCommand(camps).validate(command, result);
+		} catch (Exception ex) {
+			missatgeError(request, getMessage("error.validacio"), ex.getLocalizedMessage());
+        	logger.error("S'han produit errors de validació", ex);
+        	return "redirect:/tasca/form.html?id=" + id;
+
+		}
+        if (result.hasErrors()) {
+        	return "tasca/form";
+
+        }
+        boolean ok = accioValidarForm(
+        		request,
+				entorn.getId(),
+				id,
+				camps,
+				command);
+		if (!ok){
+			return "tasca/form";
+
+		}
+        status.setComplete();
+    	
+        return "true";
+ 	
+	}
+	
+	private boolean accioCompletarTasca(
+			HttpServletRequest request,
+			Long entornId,
+			String id,
+			String submit) {
+		TascaDto tasca = tascaService.getById(
+				entornId,
+				id,
+				null,
+				null,
+				false,
+				false);
+		String transicio = null;
+		for (String outcome: tasca.getOutcomes()) {
+			if (outcome != null && outcome.equals(submit)) {
+				transicio = outcome;
+				break;
+			}
+		}
+		boolean massivaActiu = TramitacioMassiva.isTramitacioMassivaActiu(request, id);
+		String[] tascaIds;
+		if (massivaActiu)
+			tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
+		else
+			tascaIds = new String[]{id};
+		boolean error = false;
+		for (String tascaId: tascaIds) {
+			try {
+				tascaService.completar(entornId, tascaId, true, null, transicio);
+			} catch (Exception ex) {
+				String tascaIdLog = getIdTascaPerLogs(entornId, tascaId);
+				if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
+					missatgeError(
+		        			request,
+		        			getMessage("error.validacio.tasca") + " " + tascaIdLog + ": " + ex.getCause().getMessage());
+				} else {
+					missatgeError(
+		        			request,
+		        			getMessage("error.finalitzar.tasca") + " " + tascaIdLog,
+		        			(ex.getCause() != null) ? ex.getCause().getMessage() : ex.getMessage());
+					logger.error("No s'ha pogut finalitzar la tasca " + tascaIdLog, ex);
+				}
+	        	error = true;
+	        }
+		}
+		if (!error) {
+			if (massivaActiu)
+				missatgeInfo(request, getMessage("info.tasca.completades"));
+			else
+				missatgeInfo(request, getMessage("info.tasca.completat"));
+		}
+		return !error;
+	}
+	
+	
+	
 
 
 	private static final Log logger = LogFactory.getLog(TascaFormController.class);
