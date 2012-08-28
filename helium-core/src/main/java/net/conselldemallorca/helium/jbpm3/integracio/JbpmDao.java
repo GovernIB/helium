@@ -509,7 +509,7 @@ public class JbpmDao {
 		return resultat;
 	}
 	public void deleteTaskInstanceVariable(String taskId, String varName) {
-		setTaskInstanceVariable(taskId, varName, null);
+		//setTaskInstanceVariable(taskId, varName, null);
 		long id = new Long(taskId).longValue();
 		DeleteTaskInstanceVariablesCommand command = new DeleteTaskInstanceVariablesCommand(
 				id,
@@ -599,7 +599,7 @@ public class JbpmDao {
 		commandService.execute(autoSaveCommand);
 	}
 	public void deleteProcessInstanceVariable(String processInstanceId, String varName) {
-		setProcessInstanceVariable(processInstanceId, varName, null);
+		//setProcessInstanceVariable(processInstanceId, varName, null);
 		long id = new Long(processInstanceId).longValue();
 		DeleteProcessInstanceVariablesCommand command = new DeleteProcessInstanceVariablesCommand(id, new String[] {varName});
 		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
@@ -866,7 +866,7 @@ public class JbpmDao {
 	public JbpmTask findEquivalentTaskInstance(long tokenId, long taskInstanceId) {
 		GetTaskInstanceCommand commandGetTask = new GetTaskInstanceCommand(taskInstanceId);
 		TaskInstance ti = (TaskInstance)commandService.execute(commandGetTask);
-		FindTaskInstanceForTokenAndTaskCommand command = new FindTaskInstanceForTokenAndTaskCommand(tokenId, ti.getTask().getId());
+		FindTaskInstanceForTokenAndTaskCommand command = new FindTaskInstanceForTokenAndTaskCommand(tokenId, ti.getTask().getName());
 		return new JbpmTask((TaskInstance)commandService.execute(command));
 	}
 
