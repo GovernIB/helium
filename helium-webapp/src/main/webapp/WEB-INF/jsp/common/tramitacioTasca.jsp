@@ -5,10 +5,7 @@
 <script type="text/javascript">
 // <![CDATA[
             
-            
-            
-            
-$(document).ready(function() {
+/*$(document).ready(function() {
 	outKomes();
 });
 
@@ -34,8 +31,8 @@ function outKomes(){
 				</c:choose>
 			</c:forEach>
 	}
-}
-            
+}*/
+
 function confirmarFinalitzar(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
@@ -79,9 +76,8 @@ function finalitzar(){
 		<h4 class="titol-missatge"><fmt:message key='common.tram.finalitzar' /></h4>
 		<c:set var="outcomes"><c:forEach var="outcome" items="${tasca.outcomes}" varStatus="status"><c:choose><c:when test="${not empty outcome}">${outcome}</c:when><c:otherwise><fmt:message key='common.tram.outcome.finalitzar' /></c:otherwise></c:choose><c:if test="${not status.last}">,</c:if></c:forEach></c:set>
 		
-<%-- 		<form action="completar.html" method="post" class="uniForm" onsubmit="<c:out value="${tramitacioOnSubmit}"/>"> --%>
-
-		<form id="formFinalitzar" action="javascript:finalitzar()" method="post"  class="uniForm"  onclick="javascript:confirmarFinalitzar(this)">
+		<form action="completar.html" method="post" class="uniForm" onsubmit="<c:out value="${tramitacioOnSubmit}"/>">
+		<%--form id="formFinalitzar" action="javascript:finalitzar()" method="post"  class="uniForm"  onclick="javascript:confirmarFinalitzar(this)"--%>
 			<input type="hidden" name="id" value="${tasca.id}"/>
 			<input type="hidden" name="readOnly" value="${hiHaCampsReadOnly}"/>
 			<input type="hidden" name="finalitzar" value="finalitzar"/>

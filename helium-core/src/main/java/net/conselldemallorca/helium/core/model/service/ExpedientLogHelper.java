@@ -209,7 +209,7 @@ public class ExpedientLogHelper {
 					if (!started) {
 						if (debugRetroces)
 							System.out.println(">>> [RETLOG] Retornar token (" + logo.getName() + ") al node (" + logo.getValorInicial() + ")");
-						jbpmDao.tokenRedirect(logo.getObjectId(), (String)logo.getValorInicial(), true, false);
+						jbpmDao.tokenRedirect(logo.getObjectId(), (String)logo.getValorInicial(), true, false, true);
 					}
 					break;
 				case LogObject.LOG_OBJECT_TASK:
