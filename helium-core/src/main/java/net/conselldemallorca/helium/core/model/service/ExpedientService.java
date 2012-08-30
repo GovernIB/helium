@@ -1278,7 +1278,7 @@ public class ExpedientService {
 		String nodeNameVell = token.getNodeName();
 		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(token.getProcessInstanceId());
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
-		jbpmDao.tokenRedirect(new Long(tokenId).longValue(), nodeName, cancelTasks, true);
+		jbpmDao.tokenRedirect(new Long(tokenId).longValue(), nodeName, cancelTasks, true, false);
 		registreDao.crearRegistreRedirigirToken(
 				expedient.getId(),
 				token.getProcessInstanceId(),

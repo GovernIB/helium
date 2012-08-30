@@ -26,6 +26,7 @@ public class TokenRedirectCommand extends AbstractGetObjectBaseCommand {
 	private String nodeName;
 	private boolean cancelTasks = true;
 	private boolean enterNodeIfTask = true;
+	private boolean executeNode = true;
 
 	public TokenRedirectCommand() {}
 
@@ -75,7 +76,12 @@ public class TokenRedirectCommand extends AbstractGetObjectBaseCommand {
 			ExecutionContext exc = new ExecutionContext(token);
 			desti.enter(exc);
 		} else {
-			token.setNode(desti);
+			if (executeNode) {
+				ExecutionContext exc = new ExecutionContext(token);
+				desti.execute(exc);
+			} else {
+				token.setNode(desti);
+			}
 		}
 		// v.1
 		/*token.setNode(desti);
@@ -121,6 +127,12 @@ public class TokenRedirectCommand extends AbstractGetObjectBaseCommand {
 	}
 	public void setEnterNodeIfTask(boolean enterNodeIfTask) {
 		this.enterNodeIfTask = enterNodeIfTask;
+	}
+	public boolean isExecuteNode() {
+		return executeNode;
+	}
+	public void setExecuteNode(boolean executeNode) {
+		this.executeNode = executeNode;
 	}
 
 	@Override
