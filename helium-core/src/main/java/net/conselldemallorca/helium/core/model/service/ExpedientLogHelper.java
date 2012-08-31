@@ -179,7 +179,7 @@ public class ExpedientLogHelper {
 			// Executa les accions necessàries per a retrocedir l'expedient
 			for (LogObject logo: logObjects) {
 				boolean created = logo.getAccions().contains(LogObject.LOG_ACTION_CREATE);
-				//boolean update = logo.getAccions().contains(LogObject.LOG_ACTION_UPDATE);
+				// boolean update = logo.getAccions().contains(LogObject.LOG_ACTION_UPDATE);
 				boolean deleted = logo.getAccions().contains(LogObject.LOG_ACTION_DELETE);
 				boolean started = logo.getAccions().contains(LogObject.LOG_ACTION_START);
 				boolean ended = logo.getAccions().contains(LogObject.LOG_ACTION_END);
@@ -207,9 +207,18 @@ public class ExpedientLogHelper {
 						jbpmDao.revertTokenEnd(logo.getObjectId());
 					}
 					if (!started) {
+						// Només ha d'executar el node si no és una instància de procés
+						boolean executeNode = !jbpmDao.isProcessStateNode(
+								logo.getProcessInstanceId(),
+								(String)logo.getValorInicial());
 						if (debugRetroces)
-							System.out.println(">>> [RETLOG] Retornar token (" + logo.getName() + ") al node (" + logo.getValorInicial() + ")");
-						jbpmDao.tokenRedirect(logo.getObjectId(), (String)logo.getValorInicial(), true, false, true);
+							System.out.println(">>> [RETLOG] Retornar token (name=" + logo.getName() + ") al node (name=" + logo.getValorInicial() + ", execute=" + executeNode + ")");
+						jbpmDao.tokenRedirect(
+								logo.getObjectId(),
+								(String)logo.getValorInicial(),
+								true,
+								false,
+								executeNode);
 					}
 					break;
 				case LogObject.LOG_OBJECT_TASK:

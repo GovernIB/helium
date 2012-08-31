@@ -876,6 +876,13 @@ public class JbpmDao {
 		return new JbpmTask((TaskInstance)commandService.execute(command));
 	}
 
+	public boolean isProcessStateNode(long processInstanceId, String nodeName) {
+		GetProcessInstanceCommand command = new GetProcessInstanceCommand(processInstanceId);
+		ProcessInstance pi = (ProcessInstance)commandService.execute(command);
+		String nodeClassName = pi.getProcessDefinition().getNode(nodeName).getClass().getName();
+		return nodeClassName.contains("ProcessState");
+	}
+
 
 
 	@Autowired
