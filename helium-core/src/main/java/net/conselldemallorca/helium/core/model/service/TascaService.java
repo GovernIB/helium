@@ -351,7 +351,7 @@ public class TascaService {
 		boolean iniciada = task.getStartTime() == null;
 		optimitzarConsultesDomini(task, variables);
 		jbpmDao.startTaskInstance(taskId);
-		jbpmDao.setTaskInstanceVariables(taskId, variables);
+		jbpmDao.setTaskInstanceVariables(taskId, variables, false);
 		TascaDto tasca = toTascaDto(task, null, true, true);
 		if (iniciada) {
 			registreDao.crearRegistreModificarTasca(
@@ -467,7 +467,7 @@ public class TascaService {
 				null);
 		optimitzarConsultesDomini(task, variables);
 		jbpmDao.startTaskInstance(taskId);
-		jbpmDao.setTaskInstanceVariables(taskId, variables);
+		jbpmDao.setTaskInstanceVariables(taskId, variables, false);
 		validarTasca(taskId);
 		TascaDto tasca = toTascaDto(task, null, true, true);
 		registreDao.crearRegistreModificarTasca(
@@ -534,7 +534,8 @@ public class TascaService {
 				// Copia les variables de la tasca delegada a la original
 				jbpmDao.setTaskInstanceVariables(
 						delegationInfo.getSourceTaskId(),
-						getVariablesDelegacio(task));
+						getVariablesDelegacio(task),
+						false);
 				JbpmTask taskOriginal = jbpmDao.getTaskById(delegationInfo.getSourceTaskId());
 				if (!delegationInfo.isSupervised()) {
 					// Si no es supervisada també finalitza la tasca original
@@ -571,7 +572,7 @@ public class TascaService {
 		Map<String, Object> variables = new HashMap<String, Object>();
 		variables.put(codiVariable, valor);
 		optimitzarConsultesDomini(task, variables);
-		jbpmDao.setTaskInstanceVariables(task.getId(), variables);
+		jbpmDao.setTaskInstanceVariables(task.getId(), variables, false);
 		TascaDto tasca = toTascaDto(task, null, true, true);
 		registreDao.crearRegistreCrearVariableTasca(
 				tasca.getExpedient().getId(),
@@ -589,7 +590,7 @@ public class TascaService {
 		Object valorVell = getServiceUtils().getVariableJbpmTascaValor(task.getId(), codiVariable);
 		Map<String, Object> variables = new HashMap<String, Object>();
 		variables.put(codiVariable, valor);
-		jbpmDao.setTaskInstanceVariables(task.getId(), variables);
+		jbpmDao.setTaskInstanceVariables(task.getId(), variables, false);
 		TascaDto tasca = toTascaDto(task, null, true, true);
 		registreDao.crearRegistreModificarVariableTasca(
 				tasca.getExpedient().getId(),

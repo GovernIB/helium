@@ -76,11 +76,10 @@ public class TokenRedirectCommand extends AbstractGetObjectBaseCommand {
 			ExecutionContext exc = new ExecutionContext(token);
 			desti.enter(exc);
 		} else {
+			token.setNode(desti);
 			if (executeNode) {
 				ExecutionContext exc = new ExecutionContext(token);
 				desti.execute(exc);
-			} else {
-				token.setNode(desti);
 			}
 		}
 		// v.1

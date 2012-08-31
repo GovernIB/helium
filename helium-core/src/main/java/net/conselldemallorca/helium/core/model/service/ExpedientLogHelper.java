@@ -129,7 +129,7 @@ public class ExpedientLogHelper {
 	}
 
 	public void retrocedirFinsLog(Long expedientLogId) {
-		boolean debugRetroces = true;
+		boolean debugRetroces = false;
 		ExpedientLog expedientLog = expedientLogDao.getById(expedientLogId, false);
 		List<ExpedientLog> expedientLogs = expedientLogDao.findAmbExpedientIdOrdenatsPerData(
 				expedientLog.getExpedient().getId());
@@ -228,6 +228,12 @@ public class ExpedientLogHelper {
 									task.getId(),
 									valor);
 						}
+					} else if (!started && ended) {
+						JbpmTask task = jbpmDao.findEquivalentTaskInstance(logo.getTokenId(), logo.getObjectId());
+						if (debugRetroces)
+							System.out.println(">>> [RETLOG] Copiar variables de la tasca (id=" + logo.getObjectId() + ") a la tasca (id=" + task.getId() + ")");
+						Map<String, Object> vars = jbpmDao.getTaskInstanceVariables(new Long(logo.getObjectId()).toString());
+						jbpmDao.setTaskInstanceVariables(task.getId(), vars, true);
 					}
 					break;
 				case LogObject.LOG_OBJECT_VARPROCES:

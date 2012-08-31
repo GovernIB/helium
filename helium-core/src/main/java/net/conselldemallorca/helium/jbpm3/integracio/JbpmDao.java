@@ -477,14 +477,18 @@ public class JbpmDao {
 	public void setTaskInstanceVariable(String taskId, String codi, Object valor) {
 		Map<String, Object> vars = new HashMap<String, Object>();
 		vars.put(codi, valor);
-		setTaskInstanceVariables(taskId, vars);
+		setTaskInstanceVariables(taskId, vars, false);
 	}
-	public void setTaskInstanceVariables(String taskId, Map<String, Object> variables) {
+	public void setTaskInstanceVariables(
+			String taskId,
+			Map<String, Object> variables,
+			boolean deleteFirst) {
 		long id = new Long(taskId).longValue();
 		SaveTaskInstanceVariablesCommand command = new SaveTaskInstanceVariablesCommand(
 				id,
 				variables);
 		command.setLocally(true);
+		command.setDeleteFirst(deleteFirst);
 		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
