@@ -302,12 +302,14 @@ public class TascaFormController extends BaseController {
     	        	}	
   				
     			}
+    			
+    			
     			// i la finalitzam
     			boolean okC = accioCompletarTasca(
     				request,
     				entorn.getId(),
     				id,
-    				submit);
+    				submitar);
     			if (okC) {
     				return "redirect:/tasca/personaLlistat.html";
     			} else {
