@@ -43,6 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @WebService(
+		serviceName="TramitacioService",
 		endpointInterface = "net.conselldemallorca.helium.ws.tramitacio.TramitacioService",
 		targetNamespace = "http://tramitacio.integracio.helium.conselldemallorca.net/")
 public class TramitacioServiceImpl implements TramitacioService {
