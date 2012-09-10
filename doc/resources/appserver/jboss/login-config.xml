@@ -1,13 +1,10 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<policy>
-	<application-policy name="seycon">
-		<authentication>
-			<login-module code="org.jboss.security.auth.spi.DatabaseServerLoginModule" flag="required">
-				<module-option name="dsJndiName">java:/es.caib.helium.db</module-option>
-				<module-option name="principalsQuery">select hel_usuari.contrasenya from hel_usuari where hel_usuari.codi=?</module-option>
-				<module-option name="rolesQuery">select hel_usuari_permis.permis,'Roles' from hel_usuari_permis where hel_usuari_permis.codi=?</module-option>
-				<module-option name="unauthenticatedIdentity">guest</module-option>
-			</login-module>
-		</authentication>
-	</application-policy>
-</policy>
+<application-policy name="seycon">
+	<authentication>
+		<login-module code="org.jboss.security.auth.spi.DatabaseServerLoginModule" flag="required">
+			<module-option name="dsJndiName">java:/es.caib.helium.db</module-option>
+			<module-option name="principalsQuery">select hel_usuari.contrasenya from hel_usuari where hel_usuari.codi=?</module-option>
+			<module-option name="rolesQuery">select hel_usuari_permis.permis,'Roles' from hel_usuari_permis where hel_usuari_permis.codi=?</module-option>
+			<module-option name="unauthenticatedIdentity">guest</module-option>
+		</login-module>
+	</authentication>
+</application-policy>
