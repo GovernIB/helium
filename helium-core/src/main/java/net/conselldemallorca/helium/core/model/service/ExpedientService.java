@@ -1296,6 +1296,7 @@ public class ExpedientService {
 		if (outputVar != null)
 			outputVars.add(outputVar);
 		Map<String, Object> output =  jbpmDao.evaluateScript(processInstanceId, script, outputVars);
+		actualitzarDataFiExpedient(processInstanceId);
 		getServiceUtils().expedientIndexLuceneUpdate(processInstanceId);
 		return output.get(outputVar);
 	}
@@ -1361,6 +1362,7 @@ public class ExpedientService {
 		jbpmDao.executeActionInstanciaProces(
 				processInstanceId,
 				accio.getJbpmAction());
+		actualitzarDataFiExpedient(processInstanceId);
 		getServiceUtils().expedientIndexLuceneUpdate(processInstanceId);
 	}
 
@@ -1892,6 +1894,13 @@ public class ExpedientService {
 	private boolean esIdentitySourceHelium() {
 		String identitySource = GlobalProperties.getInstance().getProperty("app.jbpm.identity.source");
 		return (identitySource.equalsIgnoreCase("helium"));
+	}
+
+	private void actualitzarDataFiExpedient(String processInstanceId) {
+		JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(processInstanceId);
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
+		if (pi.getEnd() != null)
+			expedient.setDataFi(pi.getEnd());
 	}
 
 	private ServiceUtils getServiceUtils() {

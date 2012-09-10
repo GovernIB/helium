@@ -544,6 +544,10 @@ public class TascaService {
 				deleteDelegationInfo(taskOriginal);
 			}
 		}
+		JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
+		actualitzarTerminisIAlertes(taskId, expedient);
+		actualitzarDataFiExpedient(expedient, pi);
 		getServiceUtils().expedientIndexLuceneUpdate(task.getProcessInstanceId());
 		TascaDto tasca = toTascaDto(task, null, true, true);
 		registreDao.crearRegistreFinalitzarTasca(
@@ -551,9 +555,6 @@ public class TascaService {
 				taskId,
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				"Finalitzar \"" + tasca.getNom() + "\"");
-		JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
-		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
-		actualitzarTerminisIniciatsIAlertes(taskId, expedient);
 	}
 
 	public Object getVariable(
@@ -1334,7 +1335,9 @@ public class TascaService {
 		return dto;
 	}
 
-	private void actualitzarTerminisIniciatsIAlertes(String taskId, Expedient expedient) {
+	private void actualitzarTerminisIAlertes(
+			String taskId,
+			Expedient expedient) {
 		List<TerminiIniciat> terminisIniciats = terminiIniciatDao.findAmbTaskInstanceId(
 				new Long(taskId));
 		for (TerminiIniciat terminiIniciat: terminisIniciats) {
@@ -1369,6 +1372,13 @@ public class TascaService {
 		List<Alerta> antigues = alertaDao.findActivesAmbTerminiIniciatId(terminiIniciat.getId());
 		for (Alerta antiga: antigues)
 			antiga.setDataEliminacio(new Date());
+	}
+
+	private void actualitzarDataFiExpedient(
+			Expedient expedient,
+			JbpmProcessInstance pi) {
+		if (pi.getEnd() != null)
+			expedient.setDataFi(pi.getEnd());
 	}
 
 	private ServiceUtils getServiceUtils() {
