@@ -65,8 +65,7 @@ public class MCGDwsImpl implements es.indra.www.portafirmasmcgdws.mcgdws.MCGDws 
 				}
 			} catch (Exception ex) {
 				logger.error(
-						"Error processant callback portasignatures del document amb id " + document + " i estat " + estat.getValue(),
-						ex);
+						"Error processant callback portasignatures del document amb id " + document + " i estat " + estat.getValue() + ": " + ex.getMessage());
 			}
 			callbackResponse.setVersion("1.0");
 			callbackResponse.setLogMessages(new LogMessage[] {new LogMessage()});
