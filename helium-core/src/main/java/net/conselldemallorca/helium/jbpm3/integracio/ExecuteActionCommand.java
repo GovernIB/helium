@@ -59,6 +59,7 @@ public class ExecuteActionCommand extends AbstractBaseCommand {
 						new ExecutionContext(pi.getRootToken()));
 			}
 		} else {
+			System.out.println(">>> Executant acció (codi=" + actionName + ", p-t-id=" + id + "): " + action);
 			executeGoBack(action, new ExecutionContext(pi.getRootToken()));
 		}
 		return null;

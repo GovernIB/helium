@@ -93,6 +93,10 @@ import org.springframework.security.acls.Permission;
  */
 public abstract class BasicActionHandler implements ActionHandler {
 
+	
+	public static final String PARAMS_RETROCEDIR_VARIABLE = "";
+	public static final String PARAMS_RETROCEDIR_SEPARADOR = "#";
+
 	public abstract void execute(ExecutionContext executionContext) throws Exception;
 
 
@@ -872,6 +876,26 @@ public abstract class BasicActionHandler implements ActionHandler {
 	 */
 	public void tokenRedirigir(long tokenId, String nodeName, boolean cancelarTasques) {
 		getJbpmDao().tokenRedirect(tokenId, nodeName, cancelarTasques, true, false);
+	}
+
+	/**
+	 * Emmagatzema els paràmetres per a retrocedir l'acció.
+	 * 
+	 * @param executionContext
+	 * @param parametres
+	 */
+	public void guardarParametresPerRetrocedir(
+			ExecutionContext executionContext,
+			List<String> parametres) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < parametres.size(); i++) {
+			sb.append(parametres.get(i));
+			if (i < parametres.size() - 1)
+				sb.append(PARAMS_RETROCEDIR_SEPARADOR);
+		}
+		executionContext.setVariable(
+				PARAMS_RETROCEDIR_VARIABLE,
+				sb.toString());
 	}
 
 	/**

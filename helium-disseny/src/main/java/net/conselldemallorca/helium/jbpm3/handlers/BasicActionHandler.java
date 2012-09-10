@@ -147,6 +147,10 @@ public abstract class BasicActionHandler implements ActionHandler {
 
 	public void tokenRedirigir(long tokenId, String nodeName, boolean cancelarTasques) {}
 
+	public void guardarParametresPerRetrocedir(
+			ExecutionContext executionContext,
+			List<String> parametres) {}
+
 	public void instanciaProcesReindexar(long processInstanceId) {}
 
 	public byte[] obtenirArxiuGestorDocumental(String id) {

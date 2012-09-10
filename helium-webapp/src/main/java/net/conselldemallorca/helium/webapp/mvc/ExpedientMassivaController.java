@@ -189,7 +189,9 @@ public class ExpedientMassivaController extends BaseController {
 			int numOk = 0;
 			for (ExpedientDto expedient: expedients) {
 				try {
+					System.out.println(">>> Executant acció (codi=" + jbpmAction + ") en l'expedient " + expedient.getIdentificador());
 					expedientService.executarAccio(expedient.getProcessInstanceId(), jbpmAction);
+					System.out.println(">>> Acció executada (codi=" + jbpmAction + ") en l'expedient " + expedient.getIdentificador());
 					numOk++;
 				} catch (Exception ex) {
 					missatgeError(
