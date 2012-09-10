@@ -129,7 +129,7 @@ public class ExpedientLogHelper {
 	}
 
 	public void retrocedirFinsLog(Long expedientLogId) {
-		boolean debugRetroces = false;
+		boolean debugRetroces = true;
 		ExpedientLog expedientLog = expedientLogDao.getById(expedientLogId, false);
 		List<ExpedientLog> expedientLogs = expedientLogDao.findAmbExpedientIdOrdenatsPerData(
 				expedientLog.getExpedient().getId());
