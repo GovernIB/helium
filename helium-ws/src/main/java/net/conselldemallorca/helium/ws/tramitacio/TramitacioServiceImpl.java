@@ -44,6 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 @WebService(
 		serviceName="TramitacioService",
+		portName="TramitacioPort",
 		endpointInterface = "net.conselldemallorca.helium.ws.tramitacio.TramitacioService",
 		targetNamespace = "http://tramitacio.integracio.helium.conselldemallorca.net/")
 public class TramitacioServiceImpl implements TramitacioService {
