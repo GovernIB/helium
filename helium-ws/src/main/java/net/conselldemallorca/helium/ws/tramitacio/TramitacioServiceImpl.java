@@ -633,6 +633,17 @@ public class TramitacioServiceImpl implements TramitacioService {
 		return resposta;
 	}
 
+	public void deleteExpedient(
+			String entorn,
+			String usuari,
+			String processInstanceId) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+		expedientService.delete(e.getId(), expedient.getId());
+	}
+
 
 
 	@Autowired

@@ -9,6 +9,8 @@ import java.util.List;
 import javax.jws.WebService;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
+import net.conselldemallorca.helium.ws.tramitacio.TramitacioException;
+
 /**
  * Interfície del servei de tramitació d'expedients de Helium
  * 
@@ -332,5 +334,17 @@ public interface TramitacioService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia) throws TramitacioException;
+
+	/**
+	 * Mètode per a esborrar un expedient
+	 * 
+	 * @param entorn
+	 * @param usuari
+	 * @param processInstanceId
+	 * @throws TramitacioException
+	 */
+	public void deleteExpedient(
+			String entorn,
+			String processInstanceId) throws TramitacioException;
 
 }

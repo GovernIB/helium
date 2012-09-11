@@ -382,7 +382,9 @@ public abstract class BasicActionHandler implements ActionHandler {
 			if (attachments != null) {
 				documents = new ArrayList<ArxiuDto>();
 				for (Long id: attachments) {
-					documents.add(getDocumentService().arxiuDocumentPerMostrar(id));
+					ArxiuDto arxiu = getDocumentService().arxiuDocumentPerMostrar(id);
+					if (arxiu != null)
+						documents.add(arxiu);
 				}
 			}
 			getMailDao().send(

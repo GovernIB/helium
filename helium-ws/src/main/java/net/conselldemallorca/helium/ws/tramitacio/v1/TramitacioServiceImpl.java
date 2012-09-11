@@ -36,6 +36,7 @@ import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.EntornActual;
+import net.conselldemallorca.helium.ws.tramitacio.TramitacioException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,6 +54,8 @@ import org.springframework.security.context.SecurityContextHolder;
 		endpointInterface = "net.conselldemallorca.helium.ws.tramitacio.v1.TramitacioService",
 		targetNamespace = "http://conselldemallorca.net/helium/ws/tramitacio/v1")
 public class TramitacioServiceImpl implements TramitacioService {
+
+	private static final boolean PRINT_USUARI = false;
 
 	private EntornService entornService;
 	private DissenyService dissenyService;
@@ -700,6 +703,23 @@ public class TramitacioServiceImpl implements TramitacioService {
 		return resposta;
 	}
 
+	public void deleteExpedient(
+			String entorn,
+			String processInstanceId) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		if (!validarPermisEntornRead(e))
+			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
+		ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(
+				processInstanceId);
+		if (!validarPermisExpedientTipusDelete(expedient.getTipus()))
+			throw new TramitacioException("No té permisos per a esborrar l'expedient del proces '" + processInstanceId + "'");
+		expedientService.delete(
+				e.getId(),
+				expedient.getId());
+	}
+
 
 
 	@Autowired
@@ -911,9 +931,20 @@ public class TramitacioServiceImpl implements TramitacioService {
 					ExtendedPermission.ADMINISTRATION,
 					ExtendedPermission.WRITE}) != null;
 	}
+	private boolean validarPermisExpedientTipusDelete(ExpedientTipus expedientTipus) {
+		printUsuari();
+		return permissionService.filterAllowed(
+				expedientTipus,
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.ADMINISTRATION,
+					ExtendedPermission.DELETE}) != null;
+	}
 	private void printUsuari() {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		System.out.println(">>> " + auth.getName());
+		if (PRINT_USUARI) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			System.out.println(">>> " + auth.getName());
+		}
 	}
 
 	private static final Log logger = LogFactory.getLog(TramitacioServiceImpl.class);
