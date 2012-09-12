@@ -207,6 +207,8 @@ public class PluginService {
 			if (	(portasignatures.getEstat() != TipusEstat.SIGNAT) &&
 					(portasignatures.getTransition() != Transicio.SIGNAT) &&
 					(!documentStore.isSignat())) {
+				if (documentStore.getReferenciaCustodia() != null)
+					logger.warn("El document rebut al callback (id=" + id + ") ja ha estat custodiat amb anterioritat (però es segueix amb el seu procés)");
 				afegirDocumentCustodia(
 						portasignatures.getDocumentId(),
 						portasignatures.getDocumentStoreId());
@@ -362,6 +364,8 @@ public class PluginService {
 			String varDocumentCodi = docst.getJbpmVariable().substring(DocumentHelper.PREFIX_VAR_DOCUMENT.length());
 			List<byte[]> signatures = obtenirSignaturesDelPortasignatures(documentId);
 			if (signatures != null) {
+				if (docst.getReferenciaCustodia() != null)
+					pluginCustodiaDao.esborrarSignatures(docst.getReferenciaCustodia());
 				String referenciaCustodia = null;
 				for (byte[] signatura: signatures) {
 					referenciaCustodia = pluginCustodiaDao.afegirSignatura(
