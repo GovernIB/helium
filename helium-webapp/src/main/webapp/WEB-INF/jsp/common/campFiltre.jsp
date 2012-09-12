@@ -178,7 +178,7 @@
 					<c:param name="label">${campActual.etiqueta}</c:param>
 					<c:param name="items" value="estats"/>
 					<c:param name="itemLabel" value="nom"/>
-					<c:param name="itemValue" value="id"/>
+					<c:param name="itemValue" value="codi"/>
 					<c:param name="itemBuit">&lt;&lt; <fmt:message key='expedient.consulta.select.estat'/> &gt;&gt;</c:param>
 				</c:import>
 			</c:when>
@@ -256,8 +256,8 @@ private String toJavascript(String str) {
 	if (str == null)
 		return null;
 	return str.replace("'", "\\'");
-// 		replace("{", "").
-// 		replace("}", "").
-// 		replace("#", "");
+//		replace("{", "").
+//		replace("}", "").
+//		replace("#", "");
 }
 %>
