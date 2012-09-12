@@ -381,8 +381,9 @@ public class PluginService {
 			} else {
 				throw new Exception(getServiceUtils().getMessage("error.pluginService.capSignatura"));
 			}
+		} else {
+			throw new IllegalStateException(getServiceUtils().getMessage("error.pluginService.noDisponible"));
 		}
-		throw new IllegalStateException(getServiceUtils().getMessage("error.pluginService.noDisponible"));
 	}
 	private List<byte[]> obtenirSignaturesDelPortasignatures(
 			Integer documentId) {
