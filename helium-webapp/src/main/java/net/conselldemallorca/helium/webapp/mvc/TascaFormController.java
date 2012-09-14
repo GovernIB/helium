@@ -16,7 +16,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.xml.bind.ValidationException;
 
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
@@ -29,6 +28,7 @@ import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
+import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
 import net.conselldemallorca.helium.webapp.mvc.util.TramitacioMassiva;
@@ -640,11 +640,17 @@ public class TascaFormController extends BaseController {
 						accio);
 	        } catch (Exception ex) {
 	        	String tascaIdLog = getIdTascaPerLogs(entornId, tascaId);
-				missatgeError(
-		    			request,
-		    			getMessage("error.executar.accio") + " " + tascaIdLog,
-		    			ex.getLocalizedMessage());
-	        	logger.error("No s'ha pogut executar l'acció '" + accio + "' en la tasca " + tascaIdLog, ex);
+	        	if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
+					missatgeError(
+		        			request,
+		        			getMessage("error.validacio.tasca") + " " + tascaIdLog + ": " + ex.getCause().getMessage());
+				} else {
+					missatgeError(
+			    			request,
+			    			getMessage("error.executar.accio") + " " + tascaIdLog,
+			    			ex.getLocalizedMessage());
+		        	logger.error("No s'ha pogut executar l'acció '" + accio + "' en la tasca " + tascaIdLog, ex);
+				}
 	        	error = true;
 	        }
 		}
