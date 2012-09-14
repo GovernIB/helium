@@ -38,10 +38,11 @@ function mostrarOcultar(img, objid) {
 	}
 }
 function confirmar(form) {
-	if ( submitAction == "validate")
+	/*if ( submitAction == "validate")
 		return confirm("<fmt:message key='tasca.form.confirmacio' />");
 	else
-		return true;
+		return true;*/
+	return true;
 }
 // ]]>
 </script>
@@ -208,7 +209,8 @@ function confirmar(form) {
 					<form:form action="form.html" cssClass="uniForm tascaForm zebraForm" onsubmit="return confirmar(this)">
 						<form:hidden path="id"/>
 						<form:hidden path="entornId"/>
-						<input type="hidden" name="helCampFocus"/>
+						<input type="hidden" id="helFinalitzarAmbOutcome" name="helFinalitzarAmbOutcome"/>
+						<input type="hidden" id="helCampFocus" name="helCampFocus"/>
 						<div class="inlineLabels">
 							<c:if test="${not empty tasca.camps}">
 								<c:forEach var="camp" items="${tasca.camps}">
@@ -235,6 +237,7 @@ function confirmar(form) {
 								<form:form action="form.html" cssClass="uniForm tascaForm zebraForm" onsubmit="return confirmar(this)">
 									<form:hidden path="id"/>
 									<form:hidden path="entornId"/>
+									<input type="hidden" id="helFinalitzarAmbOutcome" name="helFinalitzarAmbOutcome"/>
 									<input type="hidden" name="helCampFocus"/>
 									<div class="inlineLabels">
 										<c:if test="${not empty tasca.camps}">
