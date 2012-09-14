@@ -207,8 +207,8 @@ public class PluginService {
 			if (	(portasignatures.getEstat() != TipusEstat.SIGNAT) &&
 					(portasignatures.getTransition() != Transicio.SIGNAT) &&
 					(!documentStore.isSignat())) {
-				if (documentStore.getReferenciaCustodia() != null)
-					logger.warn("El document rebut al callback (id=" + id + ") ja ha estat custodiat amb anterioritat (però es segueix amb el seu procés)");
+				/*if (documentStore.getReferenciaCustodia() != null)
+					logger.warn("El document rebut al callback (id=" + id + ") ja ha estat custodiat amb anterioritat (però es segueix amb el seu procés)");*/
 				afegirDocumentCustodia(
 						portasignatures.getDocumentId(),
 						portasignatures.getDocumentStoreId());
@@ -368,12 +368,29 @@ public class PluginService {
 					pluginCustodiaDao.esborrarSignatures(docst.getReferenciaCustodia());
 				String referenciaCustodia = null;
 				for (byte[] signatura: signatures) {
-					referenciaCustodia = pluginCustodiaDao.afegirSignatura(
-							documentStoreId,
-							docst.getReferenciaFont(),
-							document.getArxiuNom(),
-							document.getCustodiaCodi(),
-							signatura);
+					try {
+						referenciaCustodia = pluginCustodiaDao.afegirSignatura(
+								documentStoreId,
+								docst.getReferenciaFont(),
+								document.getArxiuNom(),
+								document.getCustodiaCodi(),
+								signatura);
+					} catch (Exception ex) {
+						// Si dona error perquè el document ja està arxivat l'esborra
+						// i el torna a crear.
+						System.out.println(">>> Error de custòdia: " + ex.getMessage());
+						if (ex.getMessage().contains("ERROR_DOCUMENTO_ARCHIVADO")) {
+							pluginCustodiaDao.esborrarSignatures(documentStoreId.toString());
+							referenciaCustodia = pluginCustodiaDao.afegirSignatura(
+									documentStoreId,
+									docst.getReferenciaFont(),
+									document.getArxiuNom(),
+									document.getCustodiaCodi(),
+									signatura);
+						} else {
+							throw ex;
+						}
+					}
 				}
 				docst.setReferenciaCustodia(referenciaCustodia);
 				docst.setSignat(true);
