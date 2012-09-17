@@ -9,6 +9,8 @@
 		<c:set var="missatgeAlertaFinalitzar"><fmt:message key="common.tram.docs_sense_sign"/></c:set>
 	</c:when>
 </c:choose>
+<c:choose>
+	<c:when test="${param.tabActiu == 'form'}">
 <script type="text/javascript">
 // <![CDATA[
 function confirmarFinalitzar(e) {
@@ -36,6 +38,28 @@ $(document).ready(function() {
 </c:if>
 // ]]>
 </script>
+	</c:when>
+	<c:otherwise>
+<script type="text/javascript">
+// <![CDATA[
+function confirmarFinalitzar(e) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	if (e.stopPropagation) e.stopPropagation();
+	<c:choose>
+		<c:when test="${not empty missatgeAlertaFinalitzar}">
+			alert('${missatgeAlertaFinalitzar}');
+			return false;
+		</c:when>
+		<c:otherwise>
+			return confirm("<fmt:message key="common.tram.confirmacio"/>");
+		</c:otherwise>
+	</c:choose>
+}
+// ]]>
+</script>
+	</c:otherwise>
+</c:choose>
 <c:if test="${not tasca.delegada or not tasca.delegacioOriginal}">
 	<div class="missatgesGrisFort">
 		<h4 class="titol-missatge"><fmt:message key="common.tram.finalitzar"/></h4>
