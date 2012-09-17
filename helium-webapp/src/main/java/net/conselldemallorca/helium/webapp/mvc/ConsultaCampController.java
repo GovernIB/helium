@@ -3,11 +3,11 @@
  */
 package net.conselldemallorca.helium.webapp.mvc;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
@@ -203,8 +203,11 @@ public class ConsultaCampController extends BaseController {
 		if (entorn != null) {
 			try {
 				Consulta consulta = dissenyService.getConsultaById(consultaId);
-				
-				List<ConsultaCamp> campsConsulta = dissenyService.findCampsConsulta(consultaId, tipus);
+				List<Camp> camps = dissenyService.findCampsPerCampsConsulta(
+						consultaId,
+						tipus,
+						false);
+				/*List<ConsultaCamp> campsConsulta = dissenyService.findCampsConsulta(consultaId, tipus);
 				List<String> fieldNames = new ArrayList<String>();
 				for (ConsultaCamp camp: campsConsulta) {
 					String definicioProces = camp.getDefprocJbpmKey();
@@ -212,9 +215,8 @@ public class ConsultaCampController extends BaseController {
 					if (definicioProces!=null && codiVariable!=null)
 						fieldNames.add(definicioProces + "/"+ codiVariable);
 					else if (codiVariable!=null)
-						fieldNames.add("/"+codiVariable);
-				}
-				
+						fieldNames.add(codiVariable);
+				}*/
 				String jasperReport = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
 								"<jasperReport xmlns=\"http://jasperreports.sourceforge.net/jasperreports\" " + 
 									"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " + 
@@ -226,10 +228,8 @@ public class ConsultaCampController extends BaseController {
 									"\n<property name=\"ireport.zoom\" value=\"1.0\"/>" +
 									"\n<property name=\"ireport.x\" value=\"0\"/>" +
 									"\n<property name=\"ireport.y\" value=\"0\"/>";
-									
-				
-				for (String fieldName: fieldNames) {
-					jasperReport = jasperReport + "\n<field name=\"" + fieldName +"\" class=\"net.conselldemallorca.helium.report.FieldValue\"/>";
+				for (Camp camp: camps) {
+					jasperReport = jasperReport + "\n<field name=\"" + camp.getCodiPerInforme() +"\" class=\"net.conselldemallorca.helium.report.FieldValue\"/>";
 				}
 				jasperReport = jasperReport + 
 					"\n<title>" +
@@ -248,16 +248,15 @@ public class ConsultaCampController extends BaseController {
 					"\n</pageHeader>" +
 					"\n<columnHeader>" +
 						"\n<band height=\"25\" splitType=\"Stretch\">";
-				
 				int widthField = 0;
-				if (fieldNames.size()>0) widthField = 800/fieldNames.size();
+				if (camps.size()>0) widthField = 800/camps.size();
 				int xPosition = 0;
-				for (String fieldName: fieldNames) {
+				for (Camp camp: camps) {
 					jasperReport = jasperReport + 
 							"\n<staticText>" + 
 								"\n<reportElement x=\""+xPosition+"\" y=\"2\" width=\""+widthField+"\" height=\"20\"/>" +
 								"\n<textElement/>" +
-								"\n<text><![CDATA["+fieldName+"]]></text>" +
+								"\n<text><![CDATA[" + camp.getEtiqueta() + "]]></text>" +
 							"\n</staticText>";
 					xPosition = xPosition + widthField;
 				}
@@ -269,12 +268,12 @@ public class ConsultaCampController extends BaseController {
 							"\n<band height=\"24\" splitType=\"Stretch\">";
 				
 				xPosition = 0;
-				for (String fieldName: fieldNames) {
+				for (Camp camp: camps) {
 					jasperReport = jasperReport + 		
 						"\n<textField>" +
 							"\n<reportElement x=\""+xPosition+"\" y=\"4\" width=\""+widthField+"\" height=\"20\"/>" +
 							"\n<textElement/>" +
-							"\n<textFieldExpression><![CDATA[$F{"+fieldName+"}]]></textFieldExpression>" +
+							"\n<textFieldExpression><![CDATA[$F{"+camp.getCodiPerInforme()+"}]]></textFieldExpression>" +
 						"\n</textField>";
 					xPosition = xPosition + widthField;
 				}

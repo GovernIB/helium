@@ -134,10 +134,11 @@ public class DadaIndexadaDto {
 	}
 
 	public String getReportFieldName() {
-		if (definicioProcesCodi != null)
+		if (definicioProcesCodi != null) {
 			return definicioProcesCodi + "/" + campCodi;
-		else
-			return campCodi;
+		} else {
+			return campCodi.replace('$', '%');
+		}
 	}
 
 	public String getValorMostrarMultipleComText() {

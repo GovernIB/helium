@@ -421,7 +421,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 	private FieldValue toReportField(DadaIndexadaDto dadaIndex) {
 		FieldValue field = new FieldValue(
 				dadaIndex.getDefinicioProcesCodi(),
-				dadaIndex.getCampCodi(),
+				dadaIndex.getReportFieldName(),
 				dadaIndex.getEtiqueta());
 		if (!dadaIndex.isMultiple()) {
 			field.setValor(dadaIndex.getValor());

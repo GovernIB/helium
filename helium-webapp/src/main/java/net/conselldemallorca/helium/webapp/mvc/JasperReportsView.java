@@ -69,7 +69,8 @@ public class JasperReportsView implements View {
 					params,
 					datasource);
 			response.setHeader("Content-Disposition","attachment; filename=\"informe.pdf\"");
-			response.setContentType(new MimetypesFileTypeMap().getContentType("informe.pdf"));
+			//response.setContentType(new MimetypesFileTypeMap().getContentType("informe.pdf"));
+			response.setContentType("application/pdf");
 			response.getOutputStream().write(
 					JasperExportManager.exportReportToPdf(jasperPrint));
 		}

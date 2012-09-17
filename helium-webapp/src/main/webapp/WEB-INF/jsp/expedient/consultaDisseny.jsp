@@ -121,7 +121,7 @@ function confirmarAnular(e) {
 							<c:forEach var="camp" items="${campsInforme}">
 								<c:choose>
 									<c:when test="${not empty camp.definicioProces}"><c:set var="clauCamp" value="${camp.definicioProces.jbpmKey}/${camp.codi}"/></c:when>
-									<c:otherwise><c:set var="clauCamp" value="${camp.codi}"/></c:otherwise>
+									<c:otherwise><c:set var="clauCamp" value="${fn:replace(camp.codi, '$', '%')}"/></c:otherwise>
 								</c:choose>
 								<c:choose>
 									<c:when test="${registre.dadesExpedient[clauCamp].multiple}">
@@ -148,7 +148,7 @@ function confirmarAnular(e) {
 									<c:when test="${camp.tipus == 'PRICE'}">
 										<display:column property="dadesExpedient(${clauCamp}).valor" title="${camp.etiqueta}" format="{0,number,#,###.00}"/>
 									</c:when>
-									<c:when test="${camp.tipus == 'SELECCIO' && clauCamp == 'expedient$estat'}">
+									<c:when test="${camp.tipus == 'SELECCIO' && clauCamp == 'expedient%estat'}">
 										<display:column title="${camp.etiqueta}">
 											<c:if test="${registre.expedient.aturat}"><img src="<c:url value="/img/stop.png"/>" alt="Aturat" title="Aturat" border="0"/></c:if>
 											<c:choose>
