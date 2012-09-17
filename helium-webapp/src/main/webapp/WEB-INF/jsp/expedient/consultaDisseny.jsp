@@ -119,10 +119,11 @@ function confirmarAnular(e) {
 						</c:when>
 						<c:otherwise>
 							<c:forEach var="camp" items="${campsInforme}">
-								<c:choose>
+								<c:set var="clauCamp" value="${camp.codiPerInforme}"/>
+								<%--c:choose>
 									<c:when test="${not empty camp.definicioProces}"><c:set var="clauCamp" value="${camp.definicioProces.jbpmKey}/${camp.codi}"/></c:when>
 									<c:otherwise><c:set var="clauCamp" value="${fn:replace(camp.codi, '$', '%')}"/></c:otherwise>
-								</c:choose>
+								</c:choose--%>
 								<c:choose>
 									<c:when test="${registre.dadesExpedient[clauCamp].multiple}">
 										<display:column title="${camp.etiqueta}">
