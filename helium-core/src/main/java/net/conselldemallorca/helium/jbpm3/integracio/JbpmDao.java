@@ -747,12 +747,14 @@ public class JbpmDao {
 	}
 	public void retrocedirAccio(
 			String processInstanceId,
-			String actionName) {
+			String actionName,
+			List<String> params) {
 		long id = new Long(processInstanceId).longValue();
 		ExecuteActionCommand command = new ExecuteActionCommand(
 				id,
 				actionName);
 		command.setGoBack(true);
+		command.setParams(params);
 		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,

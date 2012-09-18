@@ -781,7 +781,7 @@ public class LuceneDao extends LuceneIndexSupport {
 		} else if (camp.getTipus().equals(TipusCamp.DATE)) {
 			return new SimpleDateFormat(PATRO_DATES_INDEX).parse(valor);
 		} else if (camp.getTipus().equals(TipusCamp.PRICE)) {
-			return numberPerIndexar(new BigDecimal(valor));
+			return new BigDecimal(valor);
 		} else if (camp.getTipus().equals(TipusCamp.TERMINI)) {
 			String[] parts = valor.split("/");
 			Termini term = new Termini();

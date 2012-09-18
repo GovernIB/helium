@@ -49,6 +49,7 @@ import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.security.acl.AclServiceDao;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
 import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
@@ -933,7 +934,8 @@ public class DtoConverter {
 			for (String codi: variables.keySet()) {
 				if (	codi.startsWith(DocumentHelper.PREFIX_VAR_DOCUMENT) ||
 						codi.startsWith(DocumentHelper.PREFIX_SIGNATURA) ||
-						codi.startsWith(DocumentHelper.PREFIX_ADJUNT))
+						codi.startsWith(DocumentHelper.PREFIX_ADJUNT) ||
+						codi.startsWith(BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX))
 					codisEsborrar.add(codi);
 			}
 			for (String codi: codisEsborrar)

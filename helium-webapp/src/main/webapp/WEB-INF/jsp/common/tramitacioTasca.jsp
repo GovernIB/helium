@@ -10,7 +10,7 @@
 	</c:when>
 </c:choose>
 <c:choose>
-	<c:when test="${param.tabActiu == 'form'}">
+	<c:when test="${param.pipella == 'form' and not tasca.validada}">
 <script type="text/javascript">
 // <![CDATA[
 function confirmarFinalitzar(e) {
@@ -29,7 +29,7 @@ function confirmarFinalitzar(e) {
 	</c:choose>
 	return false;
 }
-<c:if test="${not empty missatgeAlertaFinalitzar}">
+<c:if test="${empty missatgeAlertaFinalitzar}">
 $(document).ready(function() {
 	$('#formFinalitzar button').click(function() {
 		$('#helFinalitzarAmbOutcome').val(this.value);
