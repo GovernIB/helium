@@ -199,9 +199,7 @@ public class EnumeracioValorsController extends BaseController {
 							new InputStreamReader(multipartFile.getInputStream()));
 					String linia = br.readLine();
 					while (linia != null) {
-						String[] columnes = linia.split(";");
-						if (columnes.length == 0)
-							columnes = linia.split(",");
+						String[] columnes = linia.contains(";") ? linia.split(";") : linia.split(",");
 						if (columnes.length > 1) {
 							EnumeracioValors enumeracioValors = new EnumeracioValors();
 				        	enumeracioValors.setId(null);
