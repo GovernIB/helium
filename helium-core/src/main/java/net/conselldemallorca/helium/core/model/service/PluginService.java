@@ -424,6 +424,7 @@ public class PluginService {
 						} else {
 							throw ex;
 						}*/
+						logger.info(">>> [PSIGN] Processant error custòdia (" + getMissageFinalCadenaExcepcions(ex) + ", " + cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex) + ") (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
 						if (cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex)) {
 							referenciaCustodia = documentStoreId.toString();
 						} else {
