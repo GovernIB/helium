@@ -496,7 +496,7 @@ public class PluginService {
 	}
 	private String getMissageFinalCadenaExcepcions(Throwable ex) {
 		if (ex.getCause() == null) {
-			return ex.getMessage();
+			return ex.getClass().getName() + ": " + ex.getMessage();
 		} else {
 			return getMissageFinalCadenaExcepcions(ex.getCause());
 		}
