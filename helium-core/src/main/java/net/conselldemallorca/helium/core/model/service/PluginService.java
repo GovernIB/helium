@@ -197,37 +197,58 @@ public class PluginService {
 		Double resposta = -1D;
 		Portasignatures portasignatures = pluginPortasignaturesDao.findByDocument(id);
 		if (portasignatures != null) {
+			DocumentStore documentStore = null;
 			Long tokenId = portasignatures.getTokenId();
-			JbpmToken token = jbpmDao.getTokenById(tokenId.toString());
-			expedientLogHelper.afegirLogExpedientPerProces(
-					token.getProcessInstanceId(),
-					ExpedientLogAccioTipus.PROCES_DOCUMENT_SIGNAR,
-					new Boolean(true).toString());
-			DocumentStore documentStore = documentStoreDao.getById(portasignatures.getDocumentStoreId(), false);
-			//logger.info(">>> [PSIGN] Processant document signat (id=" + portasignatures.getId() + ", psignaId=" + portasignatures.getDocumentId() + ", docStoreId=" + portasignatures.getDocumentStoreId() + ", trobat=" + documentStore != null + ")");
-			if (	(portasignatures.getEstat() != TipusEstat.SIGNAT) &&
-					(portasignatures.getTransition() != Transicio.SIGNAT) &&
-					(!documentStore.isSignat())) {
-				/*if (documentStore.getReferenciaCustodia() != null)
-					logger.warn("El document rebut al callback (id=" + id + ") ja ha estat custodiat amb anterioritat (però es segueix amb el seu procés)");*/
-				//logger.info(">>> [PSIGN] Abans funció custòdia (id=" + portasignatures.getId() + ", psignaId=" + portasignatures.getDocumentId() + ", docStoreId=" + portasignatures.getDocumentStoreId() + ")");
-				afegirDocumentCustodia(
-						portasignatures.getDocumentId(),
-						portasignatures.getDocumentStoreId());
-				//logger.info(">>> [PSIGN] Després funció custòdia (id=" + portasignatures.getId() + ", psignaId=" + portasignatures.getDocumentId() + ", docStoreId=" + portasignatures.getDocumentStoreId() + ")");
+			try {
+				JbpmToken token = jbpmDao.getTokenById(tokenId.toString());
+				expedientLogHelper.afegirLogExpedientPerProces(
+						token.getProcessInstanceId(),
+						ExpedientLogAccioTipus.PROCES_DOCUMENT_SIGNAR,
+						new Boolean(true).toString());
+				documentStore = documentStoreDao.getById(portasignatures.getDocumentStoreId(), false);
+			} catch (Exception ex) {
+				logger.error("Error al obtenir el document per al callback (id=" + id + ")", ex);
+				throw ex;
 			}
-			portasignatures.setEstat(TipusEstat.SIGNAT);
-			portasignatures.setTransition(Transicio.SIGNAT);
-			pluginPortasignaturesDao.saveOrUpdate(portasignatures);
-			jbpmDao.signalToken(
-					tokenId.longValue(),
-				portasignatures.getTransicioOK());
-			getServiceUtils().expedientIndexLuceneUpdate(
-					jbpmDao.getTokenById(tokenId.toString()).getProcessInstanceId());
-			resposta = 1D;
+			try {
+				//logger.info(">>> [PSIGN] Processant document signat (id=" + portasignatures.getId() + ", psignaId=" + portasignatures.getDocumentId() + ", docStoreId=" + portasignatures.getDocumentStoreId() + ", trobat=" + documentStore != null + ")");
+				if (	(portasignatures.getEstat() != TipusEstat.SIGNAT) &&
+						(portasignatures.getTransition() != Transicio.SIGNAT) &&
+						(!documentStore.isSignat())) {
+					/*if (documentStore.getReferenciaCustodia() != null)
+						logger.warn("El document rebut al callback (id=" + id + ") ja ha estat custodiat amb anterioritat (però es segueix amb el seu procés)");*/
+					//logger.info(">>> [PSIGN] Abans funció custòdia (id=" + portasignatures.getId() + ", psignaId=" + portasignatures.getDocumentId() + ", docStoreId=" + portasignatures.getDocumentStoreId() + ")");
+					afegirDocumentCustodia(
+							portasignatures.getDocumentId(),
+							portasignatures.getDocumentStoreId());
+					//logger.info(">>> [PSIGN] Després funció custòdia (id=" + portasignatures.getId() + ", psignaId=" + portasignatures.getDocumentId() + ", docStoreId=" + portasignatures.getDocumentStoreId() + ")");
+				}
+			} catch (Exception ex) {
+				logger.error("Error al custodiar el document del callback (id=" + id + "): " + getMissageFinalCadenaExcepcions(ex), ex);
+				throw ex;
+			}
+			try {
+				/*Date ara = new Date();
+				if (portasignatures.getDataCallbackPrimer() == null)
+					portasignatures.setDataCallbackPrimer(ara);
+				portasignatures.setDataCallbackDarrer(ara);*/
+				portasignatures.setEstat(TipusEstat.SIGNAT);
+				portasignatures.setTransition(Transicio.SIGNAT);
+				jbpmDao.signalToken(
+						tokenId.longValue(),
+					portasignatures.getTransicioOK());
+				getServiceUtils().expedientIndexLuceneUpdate(
+						jbpmDao.getTokenById(tokenId.toString()).getProcessInstanceId());
+				resposta = 1D;
+			} catch (Exception ex) {
+				logger.error("Error al avançar l'expedient pel callback (id=" + id + "): " + getMissageFinalCadenaExcepcions(ex), ex);
+				//portasignatures.setErrorCallbackProcessant(getMissageFinalCadenaExcepcions(ex));
+				throw ex;
+			} finally {
+				pluginPortasignaturesDao.saveOrUpdate(portasignatures);
+			}
 		} else {
-			logger.error("El document rebut al callback (id=" + id + ") no s'ha trobat en els documents pendents pel portasignatures");
-			resposta = -1D;
+			logger.error("El document rebut al callback (id=" + id + ") no s'ha trobat entre els documents enviats al portasignatures");
 		}
 		return resposta;
 	}
@@ -472,6 +493,13 @@ public class PluginService {
 			return cercarMissatgeDinsCadenaExcepcions(missatge, ex.getCause());
 		else
 			return false;
+	}
+	private String getMissageFinalCadenaExcepcions(Throwable ex) {
+		if (ex.getCause() == null) {
+			return ex.getMessage();
+		} else {
+			return getMissageFinalCadenaExcepcions(ex.getCause());
+		}
 	}
 
 	private static final Log logger = LogFactory.getLog(PluginService.class);
