@@ -93,9 +93,8 @@ import org.springframework.security.acls.Permission;
  */
 public abstract class BasicActionHandler implements ActionHandler {
 
-	
-	public static final String PARAMS_RETROCEDIR_VARIABLE = "";
-	public static final String PARAMS_RETROCEDIR_SEPARADOR = "#";
+	public static final String PARAMS_RETROCEDIR_VARIABLE_PREFIX = "H3l1um#params.retroces.";
+	public static final String PARAMS_RETROCEDIR_SEPARADOR = "#@#";
 
 	public abstract void execute(ExecutionContext executionContext) throws Exception;
 
@@ -896,7 +895,7 @@ public abstract class BasicActionHandler implements ActionHandler {
 				sb.append(PARAMS_RETROCEDIR_SEPARADOR);
 		}
 		executionContext.setVariable(
-				PARAMS_RETROCEDIR_VARIABLE,
+				PARAMS_RETROCEDIR_VARIABLE_PREFIX + executionContext.getAction().getId(),
 				sb.toString());
 	}
 

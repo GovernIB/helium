@@ -18,6 +18,7 @@ import javax.servlet.http.HttpSession;
 
 import net.conselldemallorca.helium.core.model.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientConsultaDissenyDto;
+import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
@@ -418,14 +419,52 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		}
 	}
 
-	private FieldValue toReportField(DadaIndexadaDto dadaIndex) {
+	private void afegirEstatsInicialIFinal(List<Estat> estats) {
+		Estat iniciat = new Estat();
+		iniciat.setId(new Long(0));
+		iniciat.setNom( getMessage("expedient.consulta.iniciat") );
+		estats.add(0, iniciat);
+		Estat finalitzat = new Estat();
+		finalitzat.setId(new Long(-1));
+		finalitzat.setNom( getMessage("expedient.consulta.finalitzat") );
+		estats.add(finalitzat);
+	}
+
+	private List<Map<String, FieldValue>> getDadesDatasource(List<ExpedientConsultaDissenyDto> expedients) {
+		List<Map<String, FieldValue>> dadesDataSource = new ArrayList<Map<String, FieldValue>>();
+		for (ExpedientConsultaDissenyDto dadesExpedient: expedients) {
+			ExpedientDto expedient = dadesExpedient.getExpedient();
+			Map<String, FieldValue> mapFila = new HashMap<String, FieldValue>();
+			for (String clau: dadesExpedient.getDadesExpedient().keySet()) {
+				DadaIndexadaDto dada = dadesExpedient.getDadesExpedient().get(clau);
+				mapFila.put(
+						dada.getReportFieldName(),
+						toReportField(expedient, dada));
+			}
+			dadesDataSource.add(mapFila);
+		}
+		return dadesDataSource;
+	}
+
+	private FieldValue toReportField(ExpedientDto expedient, DadaIndexadaDto dadaIndex) {
 		FieldValue field = new FieldValue(
 				dadaIndex.getDefinicioProcesCodi(),
-				dadaIndex.getCampCodi(),
+				dadaIndex.getReportFieldName(),
 				dadaIndex.getEtiqueta());
 		if (!dadaIndex.isMultiple()) {
 			field.setValor(dadaIndex.getValor());
-			field.setValorMostrar(dadaIndex.getValorMostrar());
+			if ("expedient%estat".equals(field.getCampCodi())) {
+				if (expedient.getDataFi() != null) {
+					field.setValorMostrar(this.getMessage("expedient.consulta.finalitzat"));
+				} else {
+					if (expedient.getEstat() != null)
+						field.setValorMostrar(expedient.getEstat().getNom());
+					else
+						field.setValorMostrar(this.getMessage("expedient.consulta.iniciat"));
+				}
+			} else {
+				field.setValorMostrar(dadaIndex.getValorMostrar());
+			}
 			if (dadaIndex.isOrdenarPerValorMostrar())
 				field.setValorOrdre(dadaIndex.getValorMostrar());
 			else
@@ -441,31 +480,6 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		}
 		field.setMultiple(dadaIndex.isMultiple());
 		return field;
-	}
-	private void afegirEstatsInicialIFinal(List<Estat> estats) {
-		Estat iniciat = new Estat();
-		iniciat.setId(new Long(0));
-		iniciat.setNom( getMessage("expedient.consulta.iniciat") );
-		estats.add(0, iniciat);
-		Estat finalitzat = new Estat();
-		finalitzat.setId(new Long(-1));
-		finalitzat.setNom( getMessage("expedient.consulta.finalitzat") );
-		estats.add(finalitzat);
-	}
-
-	private List<Map<String, FieldValue>> getDadesDatasource(List<ExpedientConsultaDissenyDto> expedients) {
-		List<Map<String, FieldValue>> dadesDataSource = new ArrayList<Map<String, FieldValue>>();
-		for (ExpedientConsultaDissenyDto dadesExpedient: expedients) {
-			Map<String, FieldValue> mapFila = new HashMap<String, FieldValue>();
-			for (String clau: dadesExpedient.getDadesExpedient().keySet()) {
-				DadaIndexadaDto dada = dadesExpedient.getDadesExpedient().get(clau);
-				mapFila.put(
-						dada.getReportFieldName(),
-						toReportField(dada));
-			}
-			dadesDataSource.add(mapFila);
-		}
-		return dadesDataSource;
 	}
 
 	private PaginatedList getPaginaExpedients(

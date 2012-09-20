@@ -3,7 +3,6 @@
  */
 package net.conselldemallorca.helium.jbpm3.integracio;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.conselldemallorca.helium.jbpm3.handlers.AccioExternaRetrocedirHandler;
@@ -28,6 +27,7 @@ public class ExecuteActionCommand extends AbstractBaseCommand {
 	private String actionName;
 	private boolean isTaskInstance = false;
 	private boolean goBack = false;
+	private List<String> params;
 
 	public ExecuteActionCommand(
 			long id,
@@ -59,7 +59,7 @@ public class ExecuteActionCommand extends AbstractBaseCommand {
 						new ExecutionContext(pi.getRootToken()));
 			}
 		} else {
-			System.out.println(">>> Executant acció (codi=" + actionName + ", p-t-id=" + id + "): " + action);
+			//System.out.println(">>> Executant acció (codi=" + actionName + ", p-t-id=" + id + "): " + action);
 			executeGoBack(action, new ExecutionContext(pi.getRootToken()));
 		}
 		return null;
@@ -89,6 +89,12 @@ public class ExecuteActionCommand extends AbstractBaseCommand {
 	public void setGoBack(boolean goBack) {
 		this.goBack = goBack;
 	}
+	public List<String> getParams() {
+		return params;
+	}
+	public void setParams(List<String> params) {
+		this.params = params;
+	}
 
 	@Override
 	public String getAdditionalToStringInformation() {
@@ -102,7 +108,6 @@ public class ExecuteActionCommand extends AbstractBaseCommand {
 				Thread.currentThread().setContextClassLoader(JbpmConfiguration.getProcessClassLoader(context.getProcessDefinition()));
 				Object actionHandler = action.getActionDelegation().getInstance();
 				if (actionHandler instanceof AccioExternaRetrocedirHandler) {
-					List<String> params = new ArrayList<String>();
 					((AccioExternaRetrocedirHandler)actionHandler).retrocedir(params);
 				}
 			} finally {

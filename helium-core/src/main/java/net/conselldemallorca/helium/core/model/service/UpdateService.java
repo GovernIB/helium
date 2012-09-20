@@ -48,8 +48,8 @@ public class UpdateService {
 	public static final int VERSIO_230_ORDRE = 230;
 	public static final String VERSIO_240_STR = "2.4.0";
 	public static final int VERSIO_240_ORDRE = 240;
-	public static final String VERSIO_ACTUAL_STR = "2.4.1";
-	public static final int VERSIO_ACTUAL_ORDRE = 241;
+	public static final String VERSIO_ACTUAL_STR = "2.4.2";
+	public static final int VERSIO_ACTUAL_ORDRE = 242;
 
 	private VersioDao versioDao;
 	private PersonaDao personaDao;

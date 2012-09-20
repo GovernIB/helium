@@ -781,7 +781,7 @@ public class LuceneDao extends LuceneIndexSupport {
 		} else if (camp.getTipus().equals(TipusCamp.DATE)) {
 			return new SimpleDateFormat(PATRO_DATES_INDEX).parse(valor);
 		} else if (camp.getTipus().equals(TipusCamp.PRICE)) {
-			return numberPerIndexar(new BigDecimal(valor));
+			return new BigDecimal(valor);
 		} else if (camp.getTipus().equals(TipusCamp.TERMINI)) {
 			String[] parts = valor.split("/");
 			Termini term = new Termini();
@@ -799,7 +799,11 @@ public class LuceneDao extends LuceneIndexSupport {
 	}
 
 	private String numberPerIndexar(Number number) {
-		String[] parts = number.toString().split("\\.");
+		String numberStr = number.toString();
+		boolean negative = numberStr.startsWith("-");
+		if (negative)
+			numberStr = numberStr.substring(1);
+		String[] parts = numberStr.split("\\.");
 		StringBuffer partSencera = new StringBuffer(parts[0]);
 		while (partSencera.length() < NUMDIGITS_PART_SENCERA)
 			partSencera.insert(0, "0");
@@ -809,9 +813,9 @@ public class LuceneDao extends LuceneIndexSupport {
 		while (partDecimal.length() < NUMDIGITS_PART_DECIMAL)
 			partDecimal.append("0");
 		if (partDecimal.length() > NUMDIGITS_PART_DECIMAL)
-			return partSencera.toString() + "." + partDecimal.substring(0, NUMDIGITS_PART_DECIMAL).toString();
+			return ((negative) ? "-" : "") + partSencera.toString() + "." + partDecimal.substring(0, NUMDIGITS_PART_DECIMAL).toString();
 		else
-			return partSencera.toString() + "." + partDecimal.toString();
+			return ((negative) ? "-" : "") + partSencera.toString() + "." + partDecimal.toString();
 	}
 
 	private String dataPerIndexar(Date data) {

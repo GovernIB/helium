@@ -22,6 +22,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
+import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
@@ -129,7 +130,7 @@ public class ExpedientLogHelper {
 	}
 
 	public void retrocedirFinsLog(Long expedientLogId) {
-		boolean debugRetroces = true;
+		boolean debugRetroces = false;
 		ExpedientLog expedientLog = expedientLogDao.getById(expedientLogId, false);
 		List<ExpedientLog> expedientLogs = expedientLogDao.findAmbExpedientIdOrdenatsPerData(
 				expedientLog.getExpedient().getId());
@@ -174,6 +175,17 @@ public class ExpedientLogHelper {
 					for (String accio: logo.getAccions())
 						System.out.print(accio);
 					System.out.println();
+				}
+			}
+			// Emmagatzema els paràmetres per a retrocedir cada acció
+			Map<Long, String> paramsAccio = new HashMap<Long, String>();
+			for (LogObject logo: logObjects) {
+				if (logo.getTipus() == LogObject.LOG_OBJECT_ACTION) {
+					String varName = BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX + new Long(logo.getObjectId());
+					String params = (String)jbpmDao.getProcessInstanceVariable(
+							new Long(logo.getProcessInstanceId()).toString(),
+							varName);
+					paramsAccio.put(new Long(logo.getObjectId()), params);
 				}
 			}
 			// Executa les accions necessàries per a retrocedir l'expedient
@@ -395,7 +407,20 @@ public class ExpedientLogHelper {
 					if (debugRetroces)
 						System.out.println(">>> [RETLOG] Executar accio inversa " + logo.getObjectId());
 					String pid = new Long(logo.getProcessInstanceId()).toString();
-					jbpmDao.retrocedirAccio(pid, logo.getName());
+					List<String> params = null;
+					String paramsStr = paramsAccio.get(new Long(logo.getObjectId()));
+					if (paramsStr != null) {
+						params = new ArrayList<String>();
+						String[] parts = paramsStr.split(BasicActionHandler.PARAMS_RETROCEDIR_SEPARADOR);
+						for (String part: parts) {
+							if (part.length() > 0)
+								params.add(part);
+						}
+					}
+					jbpmDao.retrocedirAccio(
+							pid,
+							logo.getName(),
+							params);
 					break;
 				}
 			}

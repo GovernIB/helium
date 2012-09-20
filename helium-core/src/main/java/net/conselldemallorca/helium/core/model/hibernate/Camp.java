@@ -28,6 +28,7 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 
 import org.hibernate.annotations.ForeignKey;
@@ -346,8 +347,20 @@ public class Camp implements Serializable, GenericEntity<Long> {
 
 	@Transient
 	public String getCodiEtiqueta() {
-		return codi + "/" + etiqueta;
+		if (codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX))
+			return etiqueta;
+		else
+			return codi + "/" + etiqueta;
 	}
+
+	@Transient
+	public String getCodiPerInforme() {
+		if (codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX))
+			return codi.replace('$', '%');
+		else
+			return definicioProces.getJbpmKey() + "/" + codi;
+	}
+
 	@SuppressWarnings("rawtypes")
 	@Transient
 	public Class getJavaClass() {
