@@ -211,6 +211,7 @@ public class ExpedientMassivaController extends BaseController {
 	}
 	
 
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/expedient/massivaCanviVersio")
 	public String accioCanviVersio(
 			HttpServletRequest request,
@@ -219,8 +220,14 @@ public class ExpedientMassivaController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			@SuppressWarnings("unchecked")
-			List<Long> ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
+			List<Long> ids = new ArrayList<Long>();
+			if(request.getParameter("target").equals("disseny")){
+				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS_TE);
+			}
+			else{
+				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
+			}
+
 			if (ids == null || ids.size() == 0) {
 				missatgeError(request, getMessage("error.no.exp.selec"));
 				return "redirect:/expedient/consulta.html";
