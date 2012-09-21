@@ -214,6 +214,7 @@ public class PluginService {
 					if (	(portasignatures.getEstat() != TipusEstat.SIGNAT) &&
 							(portasignatures.getTransition() != Transicio.SIGNAT) &&
 							(!documentStore.isSignat())) {
+						logger.info("Afegint document a la custòdia pel callback (id=" + id + ")");
 						afegirDocumentCustodia(
 								portasignatures.getDocumentId(),
 								portasignatures.getDocumentStoreId());
