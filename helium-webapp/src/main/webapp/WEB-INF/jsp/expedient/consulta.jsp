@@ -6,8 +6,10 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
-
+<%@ page import="java.net.URLEncoder"%>
+<%@ page import="java.util.List"%>
 <c:set var="sessionCommand" value="${sessionScope.consultaExpedientsCommand}"/>
+
 <html>
 <head>
 	<title><fmt:message key="expedient.consulta.cons_general"/></title>
@@ -252,13 +254,33 @@ function selTots(){
 
 	<c:if test="${not empty sessionCommand}">
 		<c:if test="${globalProperties['app.georef.actiu'] && globalProperties['app.gis.plugin.actiu']}">
-			<c:import url="../common/formElement.jsp">
-				<c:param name="type" value="buttons"/>
-				<c:param name="values">gis</c:param>
-				<c:param name="titles"><fmt:message key="expedient.consulta.gis"/></c:param>
-				<c:param name="onclick">obreVisorGis()</c:param>
-			</c:import>
+			<div>
+			<table>
+				<tr id="consTR">
+					<td>
+						<c:import url="../common/formElement.jsp">
+							<c:param name="type" value="buttons"/>
+							<c:param name="values">gis</c:param>
+							<c:param name="titles"><fmt:message key="expedient.consulta.gis"/></c:param>
+							<c:param name="onclick">obreVisorGis()</c:param>
+						</c:import>
+					</td>
+					<td>
+						<c:if test="${command.massivaActiu}">
+							<form action="<c:url value="/expedient/massivaInfo.html"/>">
+								<button type="submit" class="submitButton"><fmt:message key="expedient.consulta.massiva.accions"/></button>
+							</form>
+						</c:if>
+					</td>
+				</tr>
+			</table>
+			</div>
+
 		</c:if>
+		<br>
+		
+		
+		
 		<%--div class="missatgesGris">
 			<c:choose>
 				<c:when test="${empty llistat}"><p><fmt:message key="expedient.consulta.notrobats"/></p></c:when>
@@ -272,7 +294,7 @@ function selTots(){
 				<input type="hidden" id="tots" value=""/>
 				<c:if test="${registre.anulat}"><c:set var="filaStyle" value="text-decoration:line-through"/></c:if>
 				<c:if test="${command.massivaActiu}">
-					<display:column title="<input id='selTots' type='checkbox' value='false' onclick='selTots()'>Tots" style="${filaStyle}" >
+					<display:column title="<input id='selTots' type='checkbox' value='false' onclick='selTots()'>" style="${filaStyle}" >
 						<c:set var="expedientSeleccionat" value="${false}"/>
 						<c:forEach var="eid" items="${sessionScope.consultaExpedientsIdsMassius}" varStatus="status">
 							<c:if test="${status.index gt 0 and eid == registre.id}"><c:set var="expedientSeleccionat" value="${true}"/></c:if>
@@ -280,6 +302,8 @@ function selTots(){
 						<input type="checkbox" name="expedientId" value="${registre.id}"<c:if test="${expedientSeleccionat}"> checked="checked"</c:if> onclick="clicCheckMassiu(event)"/>
 					</display:column>
 				</c:if>
+				
+				
 				<display:column property="identificador" title="Expedient" url="/tasca/personaLlistat.html" paramId="exp" paramProperty="identificador" sortable="true" style="${filaStyle}"/>
 				<display:column property="dataInici" title="Iniciat el" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true" style="${filaStyle}"/>
 				<display:column property="tipus.nom" title="Tipus" sortable="true" style="${filaStyle}"/>
@@ -311,11 +335,6 @@ function selTots(){
 				</display:column>
 			</display:table>
 			<script type="text/javascript">initSelectable();</script>
-			<c:if test="${command.massivaActiu}">
-				<form action="<c:url value="/expedient/massivaInfo.html"/>">
-					<button type="submit" class="submitButton"><fmt:message key="expedient.consulta.massiva.accions"/></button>
-				</form>
-			</c:if>
 		</c:if>
 	</c:if>
 

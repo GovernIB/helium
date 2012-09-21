@@ -5,6 +5,7 @@
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<c:set var="sessionCommand" value="${sessionScope.expedientTipusConsultaDissenyCommandTE}"/>
 
 <html>
 <head>
@@ -35,6 +36,23 @@ function confirmarExecutarAccio(e) {
 	if (e.stopPropagation) e.stopPropagation();
 	return confirm("<fmt:message key="expedient.massiva.confirm_exec_accio"/>");
 }
+
+
+
+function massiva(e){
+
+	if("<%=request.getAttribute("javax.servlet.forward.request_uri")%>" == "/helium/expedient/massivaInfoTE.html" )
+	{
+			$("#massiva").attr("action","consultaDisseny.html");
+			$("#target").val("disseny");		
+	}
+	else if("<%=request.getAttribute("javax.servlet.forward.request_uri")%>" == "/helium/expedient/massivaInfo.html"){
+		$("#massiva").attr("action","consulta.html");
+		$("#target").val("consulta");
+	}
+}
+
+
 // ]]>
 </script>
 </head>
@@ -59,7 +77,7 @@ function confirmarExecutarAccio(e) {
 					</c:choose>
 				</display:column>
 			</display:table>
-			<form action="consulta.html" class="uniForm">
+			<form id="massiva" action="consulta.html" class="uniForm" onclick="javascript:massiva(event)">
 				<c:import url="../common/formElement.jsp">
 					<c:param name="type" value="buttons"/>
 					<c:param name="values">submit</c:param>
@@ -72,7 +90,8 @@ function confirmarExecutarAccio(e) {
 	<h3 class="titol-tab titol-canvi-versio">
 		<fmt:message key="expedient.massiva.actualitzar"/>
 	</h3>
-	<form:form action="massivaCanviVersio.html" cssClass="uniForm" commandName="canviVersioProcesCommand" onsubmit="return confirmarCanviVersio(event)">
+	<form:form action="massivaCanviVersio.html" cssClass="uniForm" commandName="canviVersioProcesCommand" onsubmit="return confirmarCanviVersio(event)" onclick="javascript:massiva(event)">
+		<input type="hidden" id="target" name="target" value="">
 		<div class="inlineLabels">
 			<c:set var="definicionsProces" value="${definicioProces.jbpmIdsAmbDescripcio}" scope="request"/>
 			<c:import url="../common/formElement.jsp">
