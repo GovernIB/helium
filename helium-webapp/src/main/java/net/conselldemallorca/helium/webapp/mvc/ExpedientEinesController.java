@@ -125,10 +125,9 @@ public class ExpedientEinesController extends BaseController {
 							id,
 							command.getScript(),
 							null);
-					missatgeInfo(request, getMessage("info.script.executat") );
+					missatgeInfo(request, getMessage("info.script.executat"));
 				} catch (Exception ex) {
-					missatgeError(request, getMessage("error.executar.script"), ex.getLocalizedMessage());
-		        	logger.error("No s'ha pogut executar l'script", ex);
+					missatgeError(request, getMessage("error.executar.script"), getMissageFinalCadenaExcepcions(ex));
 		        	return "expedient/eines";
 				}
 				return "redirect:/expedient/eines.html?id=" + id;
@@ -272,6 +271,13 @@ public class ExpedientEinesController extends BaseController {
 		}
 	}
 
+	private String getMissageFinalCadenaExcepcions(Throwable ex) {
+		if (ex.getCause() == null) {
+			return ex.getClass().getName() + ": " + ex.getMessage();
+		} else {
+			return getMissageFinalCadenaExcepcions(ex.getCause());
+		}
+	}
 
 	private boolean potModificarExpedient(ExpedientDto expedient) {
 		return permissionService.filterAllowed(
