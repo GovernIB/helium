@@ -35,6 +35,7 @@ import net.conselldemallorca.helium.core.model.dao.PluginCustodiaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginGestioDocumentalDao;
 import net.conselldemallorca.helium.core.model.dao.PluginGisDao;
 import net.conselldemallorca.helium.core.model.dao.PluginPersonaDao;
+import net.conselldemallorca.helium.core.model.dao.PluginPortasignaturesDao;
 import net.conselldemallorca.helium.core.model.dao.PluginSignaturaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginTramitacioDao;
 import net.conselldemallorca.helium.core.model.dao.RegistreDao;
@@ -48,6 +49,7 @@ import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
+import net.conselldemallorca.helium.core.model.dto.PortasignaturesPendentDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.dto.TokenDto;
 import net.conselldemallorca.helium.core.model.exception.DominiException;
@@ -69,6 +71,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.acl.AclServiceDao;
@@ -119,6 +122,7 @@ public class ExpedientService {
 	private AccioDao accioDao;
 	private TerminiIniciatDao terminiIniciatDao;
 	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
+	private PluginPortasignaturesDao pluginPortasignaturesDao;
 	private PluginTramitacioDao pluginTramitacioDao;
 	private PluginSignaturaDao pluginSignaturaDao;
 	private PluginPersonaDao pluginPersonaDao;
@@ -571,6 +575,39 @@ public class ExpedientService {
 				sort,
 				asc))
 			resposta.add(dtoConverter.toExpedientDto(expedient, false));
+		return resposta;
+	}
+	public List<PortasignaturesPendentDto> findAmbEntornPendentPsigna(
+			Long entornId) {
+		List<Portasignatures> pendents = pluginPortasignaturesDao.findPendents();
+		List<PortasignaturesPendentDto> resposta = new ArrayList<PortasignaturesPendentDto>();
+		for (Portasignatures pendent: pendents) {
+			DocumentStore docStore = documentStoreDao.getById(pendent.getDocumentStoreId(), false);
+			if (docStore != null) {
+				Expedient expedient = expedientDao.findAmbProcessInstanceId(docStore.getProcessInstanceId());
+				if (expedient != null && expedient.getEntorn().getId().equals(entornId)) {
+					if (getServiceUtils().filterAllowed(
+							expedient.getTipus(),
+							ExpedientTipus.class,
+							new Permission[] {
+								ExtendedPermission.ADMINISTRATION,
+								ExtendedPermission.READ}) != null) {
+						PortasignaturesPendentDto dto = new PortasignaturesPendentDto();
+						dto.setId(pendent.getId());
+						dto.setPortasignaturesId(pendent.getDocumentId());
+						dto.setEstat(pendent.getEstat().toString());
+						dto.setDataEnviat(pendent.getDataEnviat());
+						dto.setDataCallbackPrimer(pendent.getDataCallbackPrimer());
+						dto.setDataCallbackDarrer(pendent.getDataCallbackDarrer());
+						dto.setErrorCallback(pendent.getErrorCallbackProcessant());
+						dto.setExpedient(dtoConverter.toExpedientDto(expedient, false));
+						DocumentDto document = documentHelper.getDocumentSenseContingut(pendent.getDocumentStoreId());
+						dto.setDocument(document);
+						resposta.add(dto);
+					}
+				}
+			}
+		}
 		return resposta;
 	}
 	public List<ExpedientDto> findAmbEntornLikeIdentificador(
@@ -1587,6 +1624,10 @@ public class ExpedientService {
 	public void setPluginSignaturaDao(
 			PluginSignaturaDao pluginSignaturaDao) {
 		this.pluginSignaturaDao = pluginSignaturaDao;
+	}
+	@Autowired
+	public void setPluginPortasignaturesDao(PluginPortasignaturesDao pluginPortasignaturesDao) {
+		this.pluginPortasignaturesDao = pluginPortasignaturesDao;
 	}
 	@Autowired
 	public void setPluginPersonaDao(PluginPersonaDao pluginPersonaDao) {

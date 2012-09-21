@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.core.model.service;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -198,10 +200,10 @@ public class PluginService {
 		Double resposta = -1D;
 		Portasignatures portasignatures = pluginPortasignaturesDao.findByDocument(id);
 		if (portasignatures != null) {
-			/*Date ara = new Date();
+			Date ara = new Date();
 			if (portasignatures.getDataCallbackPrimer() == null)
 				portasignatures.setDataCallbackPrimer(ara);
-			portasignatures.setDataCallbackDarrer(ara);*/
+			portasignatures.setDataCallbackDarrer(ara);
 			if (TipusEstat.PENDENT.equals(portasignatures.getEstat())) {
 				try {
 					Long tokenId = portasignatures.getTokenId();
@@ -229,11 +231,11 @@ public class PluginService {
 							jbpmDao.getTokenById(tokenId.toString()).getProcessInstanceId());
 					resposta = 1D;
 				} catch (PluginException pex) {
-					//portasignatures.setErrorCallbackProcessant(getMissageFinalCadenaExcepcions(pex));
-					logger.error("Error al processar el document per al callback (id=" + id + "): " + getMissageFinalCadenaExcepcions(pex));
+					portasignatures.setErrorCallbackProcessant(getMissageFinalCadenaExcepcions(pex));
+					logger.error("Error al processar el document pel callback (id=" + id + "): " + getMissageFinalCadenaExcepcions(pex), pex);
 				} catch (Exception ex) {
-					//portasignatures.setErrorCallbackProcessant(getMissageFinalCadenaExcepcions(ex));
-					logger.error("Error al processar el document per al callback (id=" + id + ")", ex);
+					portasignatures.setErrorCallbackProcessant(getMissageFinalCadenaExcepcions(ex));
+					logger.error("Error al processar el document pel callback (id=" + id + ")", ex);
 				} finally {
 					pluginPortasignaturesDao.saveOrUpdate(portasignatures);
 				}
@@ -493,7 +495,10 @@ public class PluginService {
 	}
 	private String getMissageFinalCadenaExcepcions(Throwable ex) {
 		if (ex.getCause() == null) {
-			return ex.getClass().getName() + ": " + ex.getMessage();
+			StringWriter sw = new StringWriter();
+		    PrintWriter pw = new PrintWriter(sw);
+		    ex.printStackTrace(pw);
+		    return sw.toString();
 		} else {
 			return getMissageFinalCadenaExcepcions(ex.getCause());
 		}

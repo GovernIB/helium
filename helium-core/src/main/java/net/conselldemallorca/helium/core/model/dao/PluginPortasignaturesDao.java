@@ -9,6 +9,7 @@ import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.exception.PluginException;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
+import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.DocumentPortasignatures;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PasSignatura;
@@ -93,6 +94,14 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 			return list.get(0);
 		}
 		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<Portasignatures> findPendents() {
+		return getSession()
+			.createCriteria(getPersistentClass())
+			.add(Restrictions.ne("estat", TipusEstat.SIGNAT))
+			.list();
 	}
 
 	@SuppressWarnings("rawtypes")

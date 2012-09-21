@@ -239,7 +239,8 @@ public class DocumentHelper {
 			String taskInstanceId,
 			String processInstanceId,
 			String documentCodi,
-			boolean perSignarEnTasca) {
+			boolean perSignarEnTasca,
+			boolean ambInfoPsigna) {
 		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(taskInstanceId, processInstanceId, documentCodi);
 		if (documentStoreId != null) {
 			DocumentDto dto = toDocumentDto(

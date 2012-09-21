@@ -953,6 +953,7 @@ public class DtoConverter {
 					taskId,
 					processInstanceId,
 					document.getDocument().getCodi(),
+					false,
 					false);
 			if (dto != null)
 				resposta.put(document.getDocument().getCodi(), dto);
@@ -972,7 +973,8 @@ public class DtoConverter {
 						null,
 						processInstanceId,
 						document.getCodi(),
-						false);
+						false,
+						true);
 				if (dto != null)
 					resposta.put(
 							document.getCodi(),
@@ -1002,7 +1004,8 @@ public class DtoConverter {
 						taskId,
 						processInstanceId,
 						signatura.getDocument().getCodi(),
-						true);
+						true,
+						false);
 				if (dto != null)
 					resposta.put(
 							signatura.getDocument().getCodi(),

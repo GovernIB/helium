@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
@@ -44,7 +45,10 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 	private String motiuRebuig;
 	private String transicioOK;
 	private String transicioKO;
-	
+	private Date dataCallbackPrimer;
+	private Date dataCallbackDarrer;
+	private String errorCallbackProcessant;
+
 	public Portasignatures() {}
 	public Portasignatures(
 			Integer documentId,
@@ -148,6 +152,31 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 	}
 	public void setTransicioKO(String transicioKO) {
 		this.transicioKO = transicioKO;
+	}
+
+	@Column(name="data_cb_pri")
+	public Date getDataCallbackPrimer() {
+		return dataCallbackPrimer;
+	}
+	public void setDataCallbackPrimer(Date dataCallbackPrimer) {
+		this.dataCallbackPrimer = dataCallbackPrimer;
+	}
+
+	@Column(name="data_cb_dar")
+	public Date getDataCallbackDarrer() {
+		return dataCallbackDarrer;
+	}
+	public void setDataCallbackDarrer(Date dataCallbackDarrer) {
+		this.dataCallbackDarrer = dataCallbackDarrer;
+	}
+
+	@Lob
+	@Column(name="error_cb_proces")
+	public String getErrorCallbackProcessant() {
+		return errorCallbackProcessant;
+	}
+	public void setErrorCallbackProcessant(String errorCallbackProcessant) {
+		this.errorCallbackProcessant = errorCallbackProcessant;
 	}
 
 	@Override

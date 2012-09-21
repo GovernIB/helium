@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
+import net.conselldemallorca.helium.core.model.dto.PortasignaturesPendentDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
@@ -177,6 +178,22 @@ public class ExpedientConsultaController extends BaseController {
 			afegirEstatsInicialIFinal(estats);
 			model.addAttribute("estats", estats);
 			return "expedient/consultaEstats";
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+	@RequestMapping(value = "/expedient/pendentPsigna")
+	public String consultaPendentPsigna(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = false) Long id,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			List<PortasignaturesPendentDto> pendents = expedientService.findAmbEntornPendentPsigna(
+					entorn.getId());
+			model.addAttribute("llistat", pendents);
+			return "expedient/pendentPsigna";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
