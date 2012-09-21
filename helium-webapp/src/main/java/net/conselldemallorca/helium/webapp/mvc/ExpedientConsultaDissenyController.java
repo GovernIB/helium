@@ -67,13 +67,14 @@ public class ExpedientConsultaDissenyController extends BaseController {
 
 	private static final String VARIABLE_SESSIO_SELCON_COMMAND = "expedientTipusConsultaDissenyCommand";
 	private static final String VARIABLE_SESSIO_FILTRE_COMMAND = "expedientTipusConsultaFiltreCommand";
+	public static final String VARIABLE_SESSIO_IDS_MASSIUS_TE = "consultaExpedientsIdsMassiusTE";
+	private static final String VARIABLE_SESSIO_SELCON_COMMAND_TE = "expedientTipusConsultaDissenyCommandTE";
+	public static final String VARIABLE_SESSIO_IDS_MASSIUS = "consultaExpedientsIdsMassius";
+	
 
 	private DissenyService dissenyService;
 	private ExpedientService expedientService;
 	private PermissionService permissionService;
-
-
-
 	@Autowired
 	public ExpedientConsultaDissenyController(
 			DissenyService dissenyService,
@@ -86,26 +87,30 @@ public class ExpedientConsultaDissenyController extends BaseController {
 
 	@ModelAttribute("commandSeleccioConsulta")
 	public ExpedientConsultaDissenyCommand populateCommandSeleccioConsulta(
+			HttpServletRequest request,
 			HttpSession session,
 			@RequestParam(value = "expedientTipusId", required = false) Long expedientTipusId,
 			@RequestParam(value = "consultaId", required = false) Long consultaId,
 			@RequestParam(value = "canviar", required = false) Boolean canviar) {
 		ExpedientConsultaDissenyCommand command = (ExpedientConsultaDissenyCommand)session.getAttribute(VARIABLE_SESSIO_SELCON_COMMAND);
-		if (command == null)
+
+		if (command == null){
 			command = new ExpedientConsultaDissenyCommand();
+		}
 		if (consultaId != null && expedientTipusId == null) {
-			command.setConsultaId(consultaId);
+			command.setConsultaId(command.getConsultaId());
 			command.setExpedientTipusId(dissenyService.getConsultaById(consultaId).getExpedientTipus().getId());
 		}
 		if (canviar != null && canviar.booleanValue()) {
 			command.setExpedientTipusId(expedientTipusId);
 			command.setConsultaId(consultaId);
-			if (command.getExpedientTipusId() != null && !command.getExpedientTipusId().equals(expedientTipusId))
+			if (command.getExpedientTipusId() != null && !command.getExpedientTipusId().equals(expedientTipusId) ){
 				command.setConsultaId(null);
-			session.removeAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);
+				session.removeAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);}
 		}
 		session.setAttribute(VARIABLE_SESSIO_SELCON_COMMAND, command);
-		return command;
+			return command;
+		
 	}
 	@ModelAttribute("commandFiltre")
 	public Object populateCommandFiltre(HttpSession session) {
@@ -125,6 +130,8 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		}
 		return null;
 	}
+	
+	
 	@ModelAttribute("valorsBoolea")
 	public List<ParellaCodiValorDto> valorsBoolea() {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
@@ -132,10 +139,11 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		resposta.add(new ParellaCodiValorDto("false",  getMessage("comuns.no") ));
 		return resposta;
 	}
-
+	
 	@RequestMapping(value = "/expedient/consultaDisseny")
 	public String consultaDisseny(
 			HttpServletRequest request,
+			@RequestParam(value = "submit", required = false) String submit,
 			@RequestParam(value = "page", required = false) String page,
 			@RequestParam(value = "sort", required = false) String sort,
 			@RequestParam(value = "dir", required = false) String dir,
@@ -148,6 +156,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 				(ExpedientConsultaDissenyCommand)model.get("commandSeleccioConsulta");
 			populateModelCommon(entorn, model, commandSeleccio);
 			Object commandFiltre = session.getAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);
+		
 			if (commandFiltre != null && commandSeleccio != null && commandSeleccio.getConsultaId() != null) {
 				model.addAttribute("commandFiltre", commandFiltre);
 				List<Camp> camps = dissenyService.findCampsPerCampsConsulta(
@@ -196,7 +205,12 @@ public class ExpedientConsultaDissenyController extends BaseController {
 	public String consultaDissenyResultat(
 			HttpServletRequest request,
 			HttpSession session,
+			@RequestParam(value = "idsExp", required = false) List<String> idsExp,
 			@RequestParam(value = "submit", required = false) String submit,
+			@RequestParam(value = "page", required = false) String page,
+			@RequestParam(value = "sort", required = false) String sort,
+			@RequestParam(value = "dir", required = false) String dir,
+			@RequestParam(value = "objectsPerPage", required = false) String objectsPerPage,
 			@ModelAttribute("commandFiltre") Object command,
 			BindingResult result,
 			SessionStatus status,
@@ -207,6 +221,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 				(ExpedientConsultaDissenyCommand)model.get("commandSeleccioConsulta");
 			if (commandSeleccio.getConsultaId() != null) {
 				Consulta consulta = dissenyService.getConsultaById(commandSeleccio.getConsultaId());
+				
 				if (permissionService.filterAllowed(
 						consulta.getExpedientTipus(),
 						ExpedientTipus.class,
@@ -222,6 +237,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 					populateModelCommon(entorn, model, commandSeleccio);
 					return "expedient/consultaDisseny";
 				} else {
+					request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS_TE);
 					session.setAttribute(VARIABLE_SESSIO_FILTRE_COMMAND, command);
 				}
 			} else if ("informe".equals(submit)) {
@@ -230,11 +246,32 @@ public class ExpedientConsultaDissenyController extends BaseController {
 					return "expedient/consultaDisseny";
 				} else {
 					session.setAttribute(VARIABLE_SESSIO_FILTRE_COMMAND, command);
+					model.addAttribute("idsSeleccionats",request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS_TE));
 					return "redirect:/expedient/consultaDissenyInforme.html";
 				}
 			} else if ("netejar".equals(submit)) {
 				session.removeAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);
+				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS);
+				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS_TE);
+			
+			} 
+
+			//***********************
+			
+			if ("massiva".equals(submit)) {
+				session.setAttribute(VARIABLE_SESSIO_SELCON_COMMAND_TE, commandSeleccio);
+				commandSeleccio.setMassivaActiu(true);
+				
+			} else if ("nomassiva".equals(submit)) {
+				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS_TE);
+				session.removeAttribute(VARIABLE_SESSIO_SELCON_COMMAND_TE);
 			}
+			else if ("clean".equals(submit)) {
+				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS);
+				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS_TE);
+			}
+			//***********************
+
 			return "redirect:/expedient/consultaDisseny.html";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec"));
@@ -242,12 +279,18 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		}
 	}
 
+	
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/expedient/consultaDissenyInforme")
 	public String consultaDissenyInforme(
 			HttpServletRequest request,
 			HttpSession session,
-			ModelMap model) {
+			ModelMap model){
 		Entorn entorn = getEntornActiu(request);
+		List<Long> ids = new ArrayList<Long>();
+		if(request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS_TE)!=null){
+			ids = (List<Long>) request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS_TE);
+		}
 		if (entorn != null) {
 			ExpedientConsultaDissenyCommand commandSeleccio =
 				(ExpedientConsultaDissenyCommand)model.get("commandSeleccioConsulta");
@@ -266,6 +309,13 @@ public class ExpedientConsultaDissenyController extends BaseController {
 							commandFiltre,
 							true,
 							true);
+					
+					//si no s'ha seleccionat cap expedient mostra missatge d'errror
+					if(valors.size()==0){
+						missatgeError(request, getMessage("error.no.exp.selec"));
+						
+						return "redirect:/expedient/consultaDisseny.html";}
+					
 					Map<String, Object> valorsPerService = new HashMap<String, Object>();
 					for (String clau: valors.keySet()) {
 						String clauPerService = clau.replaceFirst("_", ".");
@@ -274,15 +324,43 @@ public class ExpedientConsultaDissenyController extends BaseController {
 								clauPerService,
 								valor);
 					}
+
+					
 					List<ExpedientConsultaDissenyDto> expedients = expedientService.findAmbEntornConsultaDisseny(
 							entorn.getId(),
 							commandSeleccio.getConsultaId(),
 							valorsPerService,
 							ExpedientCamps.EXPEDIENT_CAMP_ID,
 							true);
-					model.addAttribute(
-							JasperReportsView.MODEL_ATTRIBUTE_REPORTDATA,
-							getDadesDatasource(expedients));
+					
+					List<ExpedientConsultaDissenyDto> expedientsTE = new ArrayList<ExpedientConsultaDissenyDto>();
+					
+					if(ids.size()>0){
+						for(int c=0;c<=expedients.size()-1;c++){
+							
+							for(int b=1;b<=ids.size()-1;b++){
+							
+								if(expedients.get(c).getExpedient().getId().equals(ids.get(b))){
+									expedientsTE.add(expedients.get(c));
+								}
+							}
+						}
+
+					}
+					
+					
+					if(expedientsTE.size()>0){
+						model.addAttribute(
+								JasperReportsView.MODEL_ATTRIBUTE_REPORTDATA,
+								getDadesDatasource(expedientsTE));
+					}else{
+
+						model.addAttribute(
+								JasperReportsView.MODEL_ATTRIBUTE_REPORTDATA,
+								getDadesDatasource(expedients));
+						
+					}
+					
 					model.addAttribute(
 							JasperReportsView.MODEL_ATTRIBUTE_REPORTCONTENT,
 							consulta.getInformeContingut());
@@ -348,6 +426,9 @@ public class ExpedientConsultaDissenyController extends BaseController {
 	public class ExpedientConsultaDissenyCommand {
 		private Long expedientTipusId;
 		private Long consultaId;
+		private boolean massivaActiu = false;
+		
+		
 		public Long getExpedientTipusId() {
 			return expedientTipusId;
 		}
@@ -359,6 +440,12 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		}
 		public void setConsultaId(Long consultaId) {
 			this.consultaId = consultaId;
+		}
+		public boolean isMassivaActiu() {
+			return massivaActiu;
+		}
+		public void setMassivaActiu(boolean massivaActiu) {
+			this.massivaActiu = massivaActiu;
 		}
 	}
 
@@ -377,45 +464,48 @@ public class ExpedientConsultaDissenyController extends BaseController {
 					ExtendedPermission.READ});
 		model.addAttribute("expedientTipus", tipus);
 		if (commandSeleccio != null) {
-			List<Consulta> consultes = dissenyService.findConsultesAmbEntornIExpedientTipusOrdenat(
-					entorn.getId(),
-					commandSeleccio.getExpedientTipusId());
-			Iterator<Consulta> it = consultes.iterator();
-			while (it.hasNext()) {
-				Consulta consulta = it.next();
-				boolean hiEs = false;
-				for (ExpedientTipus expedientTipus: tipus) {
-					if (consulta.getExpedientTipus().equals(expedientTipus)) {
-						hiEs = true;
-						break;
+			
+			
+				List<Consulta> consultes = dissenyService.findConsultesAmbEntornIExpedientTipusOrdenat(
+						entorn.getId(),
+						commandSeleccio.getExpedientTipusId());
+				Iterator<Consulta> it = consultes.iterator();
+				while (it.hasNext()) {
+					Consulta consulta = it.next();
+					boolean hiEs = false;
+					for (ExpedientTipus expedientTipus: tipus) {
+						if (consulta.getExpedientTipus().equals(expedientTipus)) {
+							hiEs = true;
+							break;
+						}
 					}
+					if (!hiEs)
+						it.remove();
 				}
-				if (!hiEs)
-					it.remove();
-			}
-			model.addAttribute("consultes", consultes);
-			if (commandSeleccio.getConsultaId() != null) {
-				model.addAttribute(
-						"consulta",
-						dissenyService.getConsultaById(commandSeleccio.getConsultaId()));
-				model.addAttribute(
-						"campsFiltre",
-						dissenyService.findCampsPerCampsConsulta(
-								commandSeleccio.getConsultaId(),
-								TipusConsultaCamp.FILTRE,
-								true));
-				model.addAttribute(
-						"campsInforme",
-						dissenyService.findCampsPerCampsConsulta(
-								commandSeleccio.getConsultaId(),
-								TipusConsultaCamp.INFORME,
-								true));
-			}
-			if (commandSeleccio.getExpedientTipusId() != null) {
-				List<Estat> estats = dissenyService.findEstatAmbExpedientTipus(commandSeleccio.getExpedientTipusId());
-				afegirEstatsInicialIFinal(estats);
-				model.addAttribute("estats", estats);
-			}
+				model.addAttribute("consultes", consultes);
+				if (commandSeleccio.getConsultaId() != null) {
+					model.addAttribute(
+							"consulta",
+							dissenyService.getConsultaById(commandSeleccio.getConsultaId()));
+					model.addAttribute(
+							"campsFiltre",
+							dissenyService.findCampsPerCampsConsulta(
+									commandSeleccio.getConsultaId(),
+									TipusConsultaCamp.FILTRE,
+									true));
+					model.addAttribute(
+							"campsInforme",
+							dissenyService.findCampsPerCampsConsulta(
+									commandSeleccio.getConsultaId(),
+									TipusConsultaCamp.INFORME,
+									true));
+				}
+				if (commandSeleccio.getExpedientTipusId() != null) {
+					List<Estat> estats = dissenyService.findEstatAmbExpedientTipus(commandSeleccio.getExpedientTipusId());
+					afegirEstatsInicialIFinal(estats);
+					model.addAttribute("estats", estats);
+				}
+
 		}
 	}
 
@@ -445,6 +535,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		}
 		return dadesDataSource;
 	}
+
 
 	private FieldValue toReportField(ExpedientDto expedient, DadaIndexadaDto dadaIndex) {
 		FieldValue field = new FieldValue(
@@ -526,7 +617,9 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		// ------ //
 		return paginatedList;
 	}
-
+	
+	
+	
 	/*private void mostrarDadesExpedient(ExpedientConsultaDissenyDto dadesExpedient) {
 		System.out.println(">>>>>> (" + dadesExpedient.getExpedient().getId() + ") " + dadesExpedient.getExpedient().getIdentificador());
 		if (dadesExpedient.getDadesExpedient() != null) {
@@ -536,5 +629,5 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			}
 		}
 	}*/
-
+	
 }
