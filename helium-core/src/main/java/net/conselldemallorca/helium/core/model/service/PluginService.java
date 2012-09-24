@@ -220,7 +220,6 @@ public class PluginService {
 						afegirDocumentCustodia(
 								portasignatures.getDocumentId(),
 								portasignatures.getDocumentStoreId());
-						//logger.info(">>> [PSIGN] Després funció custòdia (id=" + portasignatures.getId() + ", psignaId=" + portasignatures.getDocumentId() + ", docStoreId=" + portasignatures.getDocumentStoreId() + ")");
 					}
 					portasignatures.setEstat(TipusEstat.SIGNAT);
 					portasignatures.setTransition(Transicio.SIGNAT);
@@ -236,15 +235,17 @@ public class PluginService {
 				} catch (Exception ex) {
 					portasignatures.setErrorCallbackProcessant(getMissageFinalCadenaExcepcions(ex));
 					logger.error("Error al processar el document pel callback (id=" + id + ")", ex);
-				} finally {
-					pluginPortasignaturesDao.saveOrUpdate(portasignatures);
 				}
 			} else {
 				logger.error("El document rebut al callback (id=" + id + ") no està en estat PENDENT (estat=" + portasignatures.getEstat() + ")");
 				if (TipusEstat.SIGNAT.equals(portasignatures.getEstat())) {
+					logger.error("El document rebut al callback (id=" + id + ") ja està en estat SIGNAT (estat=" + portasignatures.getEstat() + ")");
 					resposta = 1D;
 				}
 			}
+			logger.info(">>> [PSIGN] Abans guardar info psigna (id=" + portasignatures.getId() + ", psignaId=" + portasignatures.getDocumentId() + ", docStoreId=" + portasignatures.getDocumentStoreId() + ")");
+			pluginPortasignaturesDao.saveOrUpdate(portasignatures);
+			logger.info(">>> [PSIGN] Després guardar info psigna (id=" + portasignatures.getId() + ", psignaId=" + portasignatures.getDocumentId() + ", docStoreId=" + portasignatures.getDocumentStoreId() + ")");
 		} else {
 			logger.error("El document rebut al callback (id=" + id + ") no s'ha trobat entre els documents enviats al portasignatures");
 		}

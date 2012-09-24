@@ -101,6 +101,7 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 		return getSession()
 			.createCriteria(getPersistentClass())
 			.add(Restrictions.ne("estat", TipusEstat.SIGNAT))
+			.add(Restrictions.ne("estat", TipusEstat.REBUTJAT))
 			.list();
 	}
 

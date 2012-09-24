@@ -36,7 +36,6 @@
 				<c:otherwise><fmt:message key="expedient.consulta.finalitzat"/></c:otherwise>
 			</c:choose>
 		</display:column>
-		
 	</display:table>
 	<script type="text/javascript">initSelectable();</script>
 
