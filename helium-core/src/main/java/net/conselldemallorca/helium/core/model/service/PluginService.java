@@ -204,10 +204,10 @@ public class PluginService {
 			if (portasignatures.getDataCallbackPrimer() == null)
 				portasignatures.setDataCallbackPrimer(ara);
 			portasignatures.setDataCallbackDarrer(ara);
+			Long tokenId = portasignatures.getTokenId();
+			JbpmToken token = jbpmDao.getTokenById(tokenId.toString());
 			if (TipusEstat.PENDENT.equals(portasignatures.getEstat())) {
 				try {
-					Long tokenId = portasignatures.getTokenId();
-					JbpmToken token = jbpmDao.getTokenById(tokenId.toString());
 					expedientLogHelper.afegirLogExpedientPerProces(
 							token.getProcessInstanceId(),
 							ExpedientLogAccioTipus.PROCES_DOCUMENT_SIGNAR,
@@ -225,7 +225,7 @@ public class PluginService {
 					portasignatures.setTransition(Transicio.SIGNAT);
 					jbpmDao.signalToken(
 							tokenId.longValue(),
-						portasignatures.getTransicioOK());
+							portasignatures.getTransicioOK());
 					getServiceUtils().expedientIndexLuceneUpdate(
 							jbpmDao.getTokenById(tokenId.toString()).getProcessInstanceId());
 					resposta = 1D;
@@ -237,10 +237,24 @@ public class PluginService {
 					logger.error("Error al processar el document pel callback (id=" + id + ")", ex);
 				}
 			} else {
-				logger.error("El document rebut al callback (id=" + id + ") no està en estat PENDENT (estat=" + portasignatures.getEstat() + ")");
+				logger.warn("El document rebut al callback (id=" + id + ") no està en estat PENDENT (estat=" + portasignatures.getEstat() + ")");
 				if (TipusEstat.SIGNAT.equals(portasignatures.getEstat())) {
-					logger.error("El document rebut al callback (id=" + id + ") ja està en estat SIGNAT (estat=" + portasignatures.getEstat() + ")");
-					resposta = 1D;
+					logger.info("El document rebut al callback (id=" + id + ") ja està en estat SIGNAT (estat=" + portasignatures.getEstat() + ")");
+					String nodeClass = token.getNodeClass();
+					logger.info("El document rebut al callback (id=" + id + ") té el token en un node (class=" + nodeClass + ")");
+					/*if (nodeClass != null && nodeClass.contains("")) {
+						logger.info("El document rebut al callback (id=" + id + ") s'ha avançat donat que està en un node de tipus State");
+						jbpmDao.signalToken(
+								tokenId.longValue(),
+								portasignatures.getTransicioOK());
+						getServiceUtils().expedientIndexLuceneUpdate(
+								jbpmDao.getTokenById(tokenId.toString()).getProcessInstanceId());
+					}
+					resposta = 1D;*/
+				} else if (TipusEstat.REBUTJAT.equals(portasignatures.getEstat())) {
+					logger.info("El document rebut al callback (id=" + id + ") ja està en estat REBUTJAT (estat=" + portasignatures.getEstat() + ")");
+					String nodeClass = token.getNodeClass();
+					logger.info("El document rebut al callback (id=" + id + ") té el token en un node (class=" + nodeClass + ")");
 				}
 			}
 			logger.info(">>> [PSIGN] Abans guardar info psigna (id=" + portasignatures.getId() + ", psignaId=" + portasignatures.getDocumentId() + ", docStoreId=" + portasignatures.getDocumentStoreId() + ")");
