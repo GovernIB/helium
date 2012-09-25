@@ -16,8 +16,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.conselldemallorca.helium.core.model.dao.CampDao;
+import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientLogDao;
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
@@ -66,8 +70,9 @@ public class ExpedientLogHelper {
 	private ExpedientLogDao expedientLogDao;
 	private ExpedientDao expedientDao;
 	private DocumentHelper documentHelper;
-
-
+	private CampDao campDao;
+	private DefinicioProcesDao definicioProcesDao;
+	
 
 	public ExpedientLog afegirLogExpedientPerTasca(
 			String taskInstanceId,
@@ -605,6 +610,25 @@ public class ExpedientLogHelper {
 			return null;
 		}
 	}
+	
+	@Autowired
+	public CampDao getCampDao() {
+		return campDao;
+	}
+	@Autowired
+	public void setCampDao(CampDao campDao) {
+		this.campDao = campDao;
+	}
+	@Autowired
+	public DefinicioProcesDao getDefinicioProcesDao() {
+		return definicioProcesDao;
+	}
+	@Autowired
+	public void setDefinicioProcesDao(DefinicioProcesDao definicioProcesDao) {
+		this.definicioProcesDao = definicioProcesDao;
+	}
+	
+	
 
 	private Collection<LogObject> getAccionsJbpmPerRetrocedir(
 			List<ExpedientLog> expedientLogs,
@@ -646,45 +670,57 @@ public class ExpedientLogHelper {
 				// Hi ha logs de variables que ténen el nom null i el valor null 
 				// No sé molt bé el motiu
 				// El següent if els descarta
-				if (variableInstance.getName() != null || variableInstance.getValue() != null) {
-					Long variableInstanceId = jbpmDao.getVariableIdFromVariableLog(plog.getId());
-					Long taskInstanceId = jbpmDao.getTaskIdFromVariableLog(plog.getId());
-					/*String idAddicional = null;
-					if (variableInstance.getProcessInstance() != null)
-						idAddicional = new Long(variableInstance.getProcessInstance().getId()).toString();
-					if (taskInstanceId != null)
-						idAddicional = taskInstanceId.toString();*/
-					Long objId = new Long(variableInstanceId);
-					LogObject lobj = logObjects.get(objId);
-					if (lobj == null) {
-						lobj = new LogObject(
-								objId.longValue(),
-								plog.getId(),
-								variableInstance.getName(),
-								(taskInstanceId != null) ? LogObject.LOG_OBJECT_VARTASCA : LogObject.LOG_OBJECT_VARPROCES,
-								plog.getToken().getProcessInstance().getId(),
-								plog.getToken().getId());
-						if (taskInstanceId != null) {
-							lobj.setTaskInstanceId(taskInstanceId.longValue());
-							/*// El següent és per tractar els casos en que s'esborra una variable
-							// a dins una instància de tasca i el nom de la variableInstance queda
-							// amb valor null.
-							if (lobj.getName() == null) {
-								if (expedientLog.getAccioTipus().equals(ExpedientLogAccioTipus.TASCA_DOCUMENT_ESBORRAR))
-									lobj.setName(DocumentHelper.PREFIX_VAR_DOCUMENT + expedientLog.getAccioParams());
-							}*/
+				if(variableInstance.getProcessInstance()!=null){
+				
+				
+					String codi = variableInstance.getName();
+					DefinicioProces pDef = definicioProcesDao.findAmbJbpmId(String.valueOf(variableInstance.getProcessInstance().getProcessDefinition().getId()));
+					Camp camp = campDao.findAmbDefinicioProcesICodi(
+							pDef.getId(),
+							codi);		
+					if(camp != null && !camp.isIgnored()){
+						
+						if (variableInstance.getName() != null || variableInstance.getValue() != null) {
+							Long variableInstanceId = jbpmDao.getVariableIdFromVariableLog(plog.getId());
+							Long taskInstanceId = jbpmDao.getTaskIdFromVariableLog(plog.getId());
+							/*String idAddicional = null;
+							if (variableInstance.getProcessInstance() != null)
+								idAddicional = new Long(variableInstance.getProcessInstance().getId()).toString();
+							if (taskInstanceId != null)
+								idAddicional = taskInstanceId.toString();*/
+							Long objId = new Long(variableInstanceId);
+							LogObject lobj = logObjects.get(objId);
+							if (lobj == null) {
+								lobj = new LogObject(
+										objId.longValue(),
+										plog.getId(),
+										variableInstance.getName(),
+										(taskInstanceId != null) ? LogObject.LOG_OBJECT_VARTASCA : LogObject.LOG_OBJECT_VARPROCES,
+										plog.getToken().getProcessInstance().getId(),
+										plog.getToken().getId());
+								if (taskInstanceId != null) {
+									lobj.setTaskInstanceId(taskInstanceId.longValue());
+									/*// El següent és per tractar els casos en que s'esborra una variable
+									// a dins una instància de tasca i el nom de la variableInstance queda
+									// amb valor null.
+									if (lobj.getName() == null) {
+										if (expedientLog.getAccioTipus().equals(ExpedientLogAccioTipus.TASCA_DOCUMENT_ESBORRAR))
+											lobj.setName(DocumentHelper.PREFIX_VAR_DOCUMENT + expedientLog.getAccioParams());
+									}*/
+								}
+								logObjects.put(objId, lobj);
+							}
+							if (plog instanceof VariableCreateLog)
+								lobj.addAccio(LogObject.LOG_ACTION_CREATE);
+							if (plog instanceof VariableUpdateLog) {
+								VariableUpdateLog vulog = (VariableUpdateLog)plog;
+								lobj.addAccio(LogObject.LOG_ACTION_UPDATE);
+								lobj.setValorInicial(vulog.getOldValue());
+							}
+							if (plog instanceof VariableDeleteLog)
+								lobj.addAccio(LogObject.LOG_ACTION_DELETE);
 						}
-						logObjects.put(objId, lobj);
 					}
-					if (plog instanceof VariableCreateLog)
-						lobj.addAccio(LogObject.LOG_ACTION_CREATE);
-					if (plog instanceof VariableUpdateLog) {
-						VariableUpdateLog vulog = (VariableUpdateLog)plog;
-						lobj.addAccio(LogObject.LOG_ACTION_UPDATE);
-						lobj.setValorInicial(vulog.getOldValue());
-					}
-					if (plog instanceof VariableDeleteLog)
-						lobj.addAccio(LogObject.LOG_ACTION_DELETE);
 				}
 			} else if (plog instanceof TokenCreateLog || plog instanceof TokenEndLog || plog instanceof TransitionLog) {
 				Token token = plog.getToken();
@@ -748,6 +784,7 @@ public class ExpedientLogHelper {
 				}
 				lobj.addAccio(LogObject.LOG_ACTION_EXEC);
 			}
+		//}
 		}
 		List<LogObject> logsOrdenats = new ArrayList<LogObject>(logObjects.values());
 		Collections.sort(

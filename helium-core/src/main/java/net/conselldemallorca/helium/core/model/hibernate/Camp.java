@@ -93,6 +93,8 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	private String jbpmAction;
 	private boolean multiple;
 	private boolean ocult;
+	private boolean isIgnored;
+
 
 	private Domini domini;
 	private Enumeracio enumeracio;
@@ -224,6 +226,15 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	public void setOcult(boolean ocult) {
 		this.ocult = ocult;
 	}
+	
+	@Column(name="ignored")
+	public boolean isIgnored() {
+		return isIgnored;
+	}
+	public void setIgnored(boolean isIgnored) {
+		this.isIgnored = isIgnored;
+	}
+	
 
 	@ManyToOne(optional=false)
 	@JoinColumn(name="definicio_proces_id")
