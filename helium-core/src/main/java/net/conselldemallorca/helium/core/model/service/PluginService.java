@@ -16,6 +16,7 @@ import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentStoreDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.LuceneDao;
+import net.conselldemallorca.helium.core.model.dao.MailDao;
 import net.conselldemallorca.helium.core.model.dao.PluginCustodiaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginPersonaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginPortasignaturesDao;
@@ -72,6 +73,7 @@ public class PluginService {
 	private RegistreDao registreDao;
 	private DocumentStoreDao documentStoreDao;
 	private JbpmDao jbpmDao;
+	private MailDao mailDao;
 
 	private DocumentHelper documentHelper;
 	private ExpedientLogHelper expedientLogHelper;
@@ -232,9 +234,17 @@ public class PluginService {
 				} catch (PluginException pex) {
 					portasignatures.setErrorCallbackProcessant(getMissageFinalCadenaExcepcions(pex));
 					logger.error("Error al processar el document pel callback (id=" + id + "): " + getMissageFinalCadenaExcepcions(pex), pex);
+					enviarCorreuErrorPsigna(
+							"Error al processar el document pel callback (id=" + id + ")",
+							"S'ha produit un error al custodiar el document:",
+							pex);
 				} catch (Exception ex) {
 					portasignatures.setErrorCallbackProcessant(getMissageFinalCadenaExcepcions(ex));
 					logger.error("Error al processar el document pel callback (id=" + id + ")", ex);
+					enviarCorreuErrorPsigna(
+							"Error al processar el document pel callback (id=" + id + ")",
+							"S'ha produit un error:",
+							ex);
 				}
 			} else {
 				logger.warn("El document rebut al callback (id=" + id + ") no està en estat PENDENT (estat=" + portasignatures.getEstat() + ")");
@@ -256,12 +266,20 @@ public class PluginService {
 					String nodeClass = token.getNodeClass();
 					logger.info("El document rebut al callback (id=" + id + ") té el token en un node (class=" + nodeClass + ")");
 				}
+				enviarCorreuErrorPsigna(
+						"El document rebut al callback (id=" + id + ") no està en estat PENDENT",
+						"L'estat actual és: " + portasignatures.getEstat(),
+						null);
 			}
 			logger.info(">>> [PSIGN] Abans guardar info psigna (id=" + portasignatures.getId() + ", psignaId=" + portasignatures.getDocumentId() + ", docStoreId=" + portasignatures.getDocumentStoreId() + ")");
 			pluginPortasignaturesDao.saveOrUpdate(portasignatures);
 			logger.info(">>> [PSIGN] Després guardar info psigna (id=" + portasignatures.getId() + ", psignaId=" + portasignatures.getDocumentId() + ", docStoreId=" + portasignatures.getDocumentStoreId() + ")");
 		} else {
 			logger.error("El document rebut al callback (id=" + id + ") no s'ha trobat entre els documents enviats al portasignatures");
+			enviarCorreuErrorPsigna(
+					"El document rebut al callback (id=" + id + ") no s'ha trobat entre els documents enviats al portasignatures",
+					"",
+					null);
 		}
 		return resposta;
 	}
@@ -358,6 +376,10 @@ public class PluginService {
 	@Autowired
 	public void setJbpmDao(JbpmDao jbpmDao) {
 		this.jbpmDao = jbpmDao;
+	}
+	@Autowired
+	public void setMailDao(MailDao mailDao) {
+		this.mailDao = mailDao;
 	}
 	@Autowired
 	public void setDefinicioProcesDao(DefinicioProcesDao definicioProcesDao) {
@@ -516,6 +538,31 @@ public class PluginService {
 		    return sw.toString();
 		} else {
 			return getMissageFinalCadenaExcepcions(ex.getCause());
+		}
+	}
+
+	private void enviarCorreuErrorPsigna(
+			String subject,
+			String text,
+			Throwable tr) {
+		List<String> recipients = new ArrayList<String>();
+		recipients.add("psignacb@limit.es");
+		StringBuilder sb = new StringBuilder();
+		sb.append(text);
+		if (tr != null) {
+			sb.append(text);
+			sb.append(getMissageFinalCadenaExcepcions(tr));
+		}
+		try {
+			mailDao.send(
+					GlobalProperties.getInstance().getProperty("app.correu.remitent"),
+					recipients,
+					null,
+					null,
+					subject,
+					sb.toString());
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut enviar el correu d'error del portasignatures: " + subject, ex);
 		}
 	}
 
