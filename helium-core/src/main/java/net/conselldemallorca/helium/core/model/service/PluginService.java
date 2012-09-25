@@ -545,25 +545,38 @@ public class PluginService {
 			String subject,
 			String text,
 			Throwable tr) {
-		List<String> recipients = new ArrayList<String>();
-		recipients.add("psignacb@limit.es");
-		StringBuilder sb = new StringBuilder();
-		sb.append(text);
-		if (tr != null) {
+		String propRecipients = GlobalProperties.getInstance().getProperty("app.portasignatures.debug.email");
+		if (propRecipients != null && propRecipients.trim().length() > 0) {
+			List<String> recipients = new ArrayList<String>();
+			if (propRecipients.contains(",")) {
+				String[] recs = propRecipients.trim().split(",");
+				for (String rec: recs) {
+					if (rec.trim().length() > 0)
+						recipients.add(rec.trim());
+				}
+			} else {
+				recipients.add(propRecipients.trim());
+			}
+			StringBuilder sb = new StringBuilder();
 			sb.append(text);
-			sb.append(getMissageFinalCadenaExcepcions(tr));
+			if (tr != null) {
+				sb.append(text);
+				sb.append(getMissageFinalCadenaExcepcions(tr));
+			}
+			try {
+				mailDao.send(
+						GlobalProperties.getInstance().getProperty("app.correu.remitent"),
+						recipients,
+						null,
+						null,
+						subject,
+						sb.toString());
+			} catch (Exception ex) {
+				logger.error("No s'ha pogut enviar el correu d'error del portasignatures: " + subject, ex);
+			}
 		}
-		try {
-			mailDao.send(
-					GlobalProperties.getInstance().getProperty("app.correu.remitent"),
-					recipients,
-					null,
-					null,
-					subject,
-					sb.toString());
-		} catch (Exception ex) {
-			logger.error("No s'ha pogut enviar el correu d'error del portasignatures: " + subject, ex);
-		}
+		
+		
 	}
 
 	private static final Log logger = LogFactory.getLog(PluginService.class);
