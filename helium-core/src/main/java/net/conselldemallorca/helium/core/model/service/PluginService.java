@@ -301,7 +301,7 @@ public class PluginService {
 					tokenId.longValue(),
 					portasignatures.getTransicioKO());
 			getServiceUtils().expedientIndexLuceneUpdate(
-					jbpmDao.getTokenById(token.toString()).getProcessInstanceId());
+					token.getProcessInstanceId());
 			resposta = 1D;
 		} else {
 			logger.error("El document rebut al callback (id=" + id + ") no s'ha trobat en els documents pendents pel portasignatures");
