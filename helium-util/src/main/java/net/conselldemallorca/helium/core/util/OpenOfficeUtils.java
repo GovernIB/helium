@@ -9,12 +9,11 @@ import java.io.OutputStream;
 
 import javax.activation.MimetypesFileTypeMap;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-
 import com.artofsolving.jodconverter.DefaultDocumentFormatRegistry;
 import com.artofsolving.jodconverter.DocumentConverter;
 import com.artofsolving.jodconverter.DocumentFormat;
 import com.artofsolving.jodconverter.DocumentFormatRegistry;
+import com.artofsolving.jodconverter.openoffice.connection.OpenOfficeConnection;
 import com.artofsolving.jodconverter.openoffice.connection.SocketOpenOfficeConnection;
 import com.artofsolving.jodconverter.openoffice.converter.StreamOpenOfficeDocumentConverter;
 
@@ -25,7 +24,6 @@ import com.artofsolving.jodconverter.openoffice.converter.StreamOpenOfficeDocume
  */
 public class OpenOfficeUtils {
 
-	private DocumentConverter documentConverter;
 	private DocumentFormatRegistry documentFormatRegistry;
 
 
@@ -91,13 +89,26 @@ public class OpenOfficeUtils {
 			InputStream in,
 			DocumentFormat inputFormat,
 			OutputStream out,
-			DocumentFormat outputFormat) {
-		getDocumentConverter().convert(
-				in,
-				inputFormat,
-				out,
-				outputFormat);
+			DocumentFormat outputFormat) throws Exception {
+		String host = getPropertyHost();
+		int port = getPropertyPort();
+		OpenOfficeConnection connection = null;
+		try {
+			connection = new SocketOpenOfficeConnection(host, port);
+			connection.connect();
+			DocumentConverter converter = new StreamOpenOfficeDocumentConverter(
+					connection,
+					getDocumentFormatRegistry());
+			converter.convert(
+					in,
+					inputFormat,
+					out,
+					outputFormat);
+		} finally {
+			if (connection != null) connection.disconnect();
+		}
 	}
+
 	private DocumentFormat formatPerNomArxiu(String fileName) {
 		int indexPunt = fileName.lastIndexOf(".");
 		if (indexPunt != -1) {
@@ -108,23 +119,9 @@ public class OpenOfficeUtils {
 	}
 
 	private DocumentFormatRegistry getDocumentFormatRegistry() {
-		initOpenOfficeConnection();
-		return documentFormatRegistry;
-	}
-	private DocumentConverter getDocumentConverter() {
-		initOpenOfficeConnection();
-		return documentConverter;
-	}
-	private void initOpenOfficeConnection() {
 		if (documentFormatRegistry == null)
 			documentFormatRegistry = new DefaultDocumentFormatRegistry();
-		if (documentConverter == null) {
-			String host = getPropertyHost();
-			int port = getPropertyPort();
-			documentConverter = new StreamOpenOfficeDocumentConverter(
-					new SocketOpenOfficeConnection(host, port),
-					documentFormatRegistry);
-		}
+		return documentFormatRegistry;
 	}
 
 	private String getPropertyHost() {

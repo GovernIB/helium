@@ -313,7 +313,7 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 		if (index != -1) {
 			return arxiuNom.substring(index + 1);
 		} else {
-			return null;
+			return "";
 		}
 	}
 
