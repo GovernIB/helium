@@ -277,6 +277,13 @@ function selTots(){
 			</div>
 
 		</c:if>
+		<c:if test="${!globalProperties['app.gis.plugin.actiu']}">
+			<c:if test="${command.massivaActiu}">
+					<form action="<c:url value="/expedient/massivaInfo.html"/>">
+						<button type="submit" class="submitButton"><fmt:message key="expedient.consulta.massiva.accions"/></button>
+					</form>
+			</c:if>
+		</c:if>
 		<br>
 		
 		
