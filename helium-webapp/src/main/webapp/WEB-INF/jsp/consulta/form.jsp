@@ -56,6 +56,11 @@
 				<c:param name="type" value="checkbox"/>
 				<c:param name="label"><fmt:message key='consulta.form.exportar' /></c:param>
 			</c:import>
+			<c:import url="../common/formElement.jsp">
+				<c:param name="property" value="ocultarActiu"/>
+				<c:param name="type" value="checkbox"/>
+				<c:param name="label"><fmt:message key='consulta.form.ocultar' /></c:param>
+			</c:import>
 		</div>
 		<c:import url="../common/formElement.jsp">
 			<c:param name="type" value="buttons"/>

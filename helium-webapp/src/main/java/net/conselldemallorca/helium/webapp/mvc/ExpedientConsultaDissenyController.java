@@ -91,12 +91,13 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			HttpSession session,
 			@RequestParam(value = "expedientTipusId", required = false) Long expedientTipusId,
 			@RequestParam(value = "consultaId", required = false) Long consultaId,
-			@RequestParam(value = "canviar", required = false) Boolean canviar) {
+			@RequestParam(value = "canviar", required = false) Boolean canviar){
 		ExpedientConsultaDissenyCommand command = (ExpedientConsultaDissenyCommand)session.getAttribute(VARIABLE_SESSIO_SELCON_COMMAND);
-
+		
 		if (command == null){
 			command = new ExpedientConsultaDissenyCommand();
 		}
+
 		if (consultaId != null && expedientTipusId == null) {
 			command.setConsultaId(command.getConsultaId());
 			command.setExpedientTipusId(dissenyService.getConsultaById(consultaId).getExpedientTipus().getId());
@@ -107,7 +108,8 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			if (command.getExpedientTipusId() != null && !command.getExpedientTipusId().equals(expedientTipusId) ){
 				command.setConsultaId(null);
 				session.removeAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);}
-		}
+		}	
+
 		session.setAttribute(VARIABLE_SESSIO_SELCON_COMMAND, command);
 			return command;
 		
@@ -479,7 +481,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 							break;
 						}
 					}
-					if (!hiEs)
+					if (!hiEs || consulta.isOcultarActiu())
 						it.remove();
 				}
 				model.addAttribute("consultes", consultes);
