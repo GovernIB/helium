@@ -5,3 +5,7 @@ alter table hel_portasignatures add column error_cb_proces text;
 
 ----nou camp check per evitar esborrar el contingut de la variable en cas de retrocedir expedient
 alter table hel_camp add column ignored BOOLEAN SET DEFAULT 0;
+
+
+--assignació de tasques per tipus d'expedient
+alter table hel_redir add column tipusExpedientId type int8;

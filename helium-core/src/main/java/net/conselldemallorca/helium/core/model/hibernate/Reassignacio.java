@@ -34,13 +34,15 @@ public class Reassignacio implements Serializable, GenericEntity<Long> {
 	@NotBlank
 	private Date dataFi;
 	private Date dataCancelacio;
+	private Long tipusExpedientId;
 	
 	public Reassignacio() {}
-	public Reassignacio(String usuariOrigen, String usuariDesti, Date dataInici, Date dataFi) {
+	public Reassignacio(String usuariOrigen, String usuariDesti, Date dataInici, Date dataFi, Long tipusExpedientId) {
 		this.usuariOrigen = usuariOrigen;
 		this.usuariDesti = usuariDesti;
 		this.dataInici = dataInici;
 		this.dataFi = dataFi;
+		this.tipusExpedientId=tipusExpedientId;
 	}
 	
 	@Id
@@ -92,6 +94,15 @@ public class Reassignacio implements Serializable, GenericEntity<Long> {
 	}
 	public void setDataCancelacio(Date dataCancelacio) {
 		this.dataCancelacio = dataCancelacio;
+	}
+	
+	
+	@Column(name="tipusExpedientId")
+	public Long getTipusExpedientId() {
+		return tipusExpedientId;
+	}
+	public void setTipusExpedientId(Long tipusExpedientId) {
+		this.tipusExpedientId = tipusExpedientId;
 	}
 	
 	@Override
