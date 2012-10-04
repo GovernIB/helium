@@ -44,13 +44,16 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @Controller
 public class TascaLlistatController extends BaseController {
-
+	
+	private static final String SESSION_ATTRIBUTE_CURRENT_SORT_PERSONA = "TascaLlistatController.persona.current.sort";
+	private static final String SESSION_ATTRIBUTE_CURRENT_DIR_PERSONA = "TascaLlistatController.persona.current.dir";
+	private static final String SESSION_ATTRIBUTE_CURRENT_SORT_GRUP = "TascaLlistatController.grup.current.sort";
+	private static final String SESSION_ATTRIBUTE_CURRENT_DIR_GRUP = "TascaLlistatController.grup.current.dir";
+	
 	private TascaService tascaService;
 	private TerminiService terminiService;
 	private DissenyService dissenyService;
 	private PermissionService permissionService;
-
-
 
 	@Autowired
 	public TascaLlistatController(
@@ -107,7 +110,7 @@ public class TascaLlistatController extends BaseController {
 		else
 			return new TascaFiltreCommand();
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/tasca/personaLlistat", method = RequestMethod.GET)
 	public String personaLlistatGet(
@@ -119,6 +122,27 @@ public class TascaLlistatController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
+			String sortCalculat = sort;
+			if (sort != null && sort.length() > 0) {
+				request.getSession().setAttribute(
+						SESSION_ATTRIBUTE_CURRENT_SORT_PERSONA,
+						sort);
+			} else {
+				String sortSessio = (String)request.getSession().getAttribute(SESSION_ATTRIBUTE_CURRENT_SORT_PERSONA);
+				if (sortSessio != null)
+					sortCalculat = sortSessio;
+			}
+			
+			String dirCalculat = dir;
+			if (dir != null && dir.length() > 0) {
+				request.getSession().setAttribute(
+						SESSION_ATTRIBUTE_CURRENT_DIR_PERSONA,
+						dir);
+			} else {
+				String dirSessio = (String)request.getSession().getAttribute(SESSION_ATTRIBUTE_CURRENT_DIR_PERSONA);
+				if (dirSessio != null)
+					dirCalculat = dirSessio;
+			}
 			TascaFiltreCommand tascaPersonaFiltreCommand = (TascaFiltreCommand)model.get("commandPersonaFiltre");
 			request.getSession().setAttribute("commandTascaPersonaFiltre", tascaPersonaFiltreCommand);
 			String expedient = request.getParameter("exp");
@@ -127,8 +151,8 @@ public class TascaLlistatController extends BaseController {
 					entorn,
 					tascaPersonaFiltreCommand,
 					page,
-					sort,
-					dir,
+					sortCalculat,
+					dirCalculat,
 					objectsPerPage);
 			model.addAttribute("personaLlistat", pagina);
 			model.addAttribute("personaLlistatCount", pagina.getFullListSize());
@@ -174,14 +198,35 @@ public class TascaLlistatController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
+			String sortCalculat = sort;
+			if (sort != null && sort.length() > 0) {
+				request.getSession().setAttribute(
+						SESSION_ATTRIBUTE_CURRENT_SORT_GRUP,
+						sort);
+			} else {
+				String sortSessio = (String)request.getSession().getAttribute(SESSION_ATTRIBUTE_CURRENT_SORT_GRUP);
+				if (sortSessio != null)
+					sortCalculat = sortSessio;
+			}
+			
+			String dirCalculat = dir;
+			if (dir != null && dir.length() > 0) {
+				request.getSession().setAttribute(
+						SESSION_ATTRIBUTE_CURRENT_DIR_GRUP,
+						dir);
+			} else {
+				String dirSessio = (String)request.getSession().getAttribute(SESSION_ATTRIBUTE_CURRENT_DIR_GRUP);
+				if (dirSessio != null)
+					dirCalculat = dirSessio;
+			}
 			TascaFiltreCommand tascaGrupFiltreCommand = (TascaFiltreCommand)model.get("commandGrupFiltre");
 			request.getSession().setAttribute("commandTascaGrupFiltre", tascaGrupFiltreCommand);
 			PaginatedList pagina = getPaginaTasquesGrup(
 					entorn,
 					tascaGrupFiltreCommand,
 					page,
-					sort,
-					dir,
+					sortCalculat,
+					dirCalculat,
 					objectsPerPage);
 			model.addAttribute("grupLlistat", pagina);
 			model.addAttribute("grupLlistatCount", pagina.getFullListSize());
