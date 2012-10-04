@@ -269,15 +269,23 @@ public class ExpedientMassivaController extends BaseController {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/expedient/massivaExecutarAccio")
 	public String accioExecutarAccio(
 			HttpServletRequest request,
+			@RequestParam(value="target2",required=false) String target2,
 			@RequestParam(value = "submit", required = true) String jbpmAction,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			@SuppressWarnings("unchecked")
-			List<Long> ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
+			List<Long> ids = new ArrayList<Long>();
+			if(request.getParameter("target2").equals("disseny")){
+				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS_TE);
+			}
+			else{
+			
+				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
+			}
 			if (ids == null || ids.size() == 0) {
 				missatgeError(request, getMessage("error.no.exp.selec"));
 				return "redirect:/expedient/consulta.html";
@@ -306,6 +314,11 @@ public class ExpedientMassivaController extends BaseController {
 					missatgeInfo(request, getMessage("info.accio.executat"));
 				else
 					missatgeInfo(request, getMessage("info.accio.executat.nprimers", new Object[] {new Integer(numOk)}));
+			}
+			if(request.getParameter("target2").equals("disseny")){
+				return "redirect:/expedient/massivaInfoTE.html";
+			}else if(request.getParameter("target2").equals("consulta")){
+				return "redirect:/expedient/massivaInfo.html";
 			}
 			return "redirect:/expedient/massivaInfo.html";
 		} else {

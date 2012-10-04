@@ -44,7 +44,9 @@ function massiva(e){
 	if("<%=request.getAttribute("javax.servlet.forward.request_uri")%>" == "/helium/expedient/massivaInfoTE.html" )
 	{
 			$("#massiva").attr("action","consultaDisseny.html");
-			$("#target").val("disseny");		
+			$("#target").val("disseny");
+			$("#target2").val("disseny");
+
 	}
 	else if("<%=request.getAttribute("javax.servlet.forward.request_uri")%>" == "/helium/expedient/massivaInfo.html"){
 		$("#massiva").attr("action","consulta.html");
@@ -124,7 +126,8 @@ function massiva(e){
 	<c:set var="tePermisAccions" value="${false}"/>
 	<security:accesscontrollist domainObject="${instanciaProces.expedient.tipus}" hasPermission="16,2"><c:set var="tePermisAccions" value="${true}"/></security:accesscontrollist>
 	<c:if test="${hiHaAccionsPubliques || (hiHaAccions && tePermisAccions)}">
-		<form action="massivaExecutarAccio.html" method="post" onsubmit="return confirmarExecutarAccio(event)">
+		<form id="executarAccio" action="massivaExecutarAccio.html" method="post" onsubmit="return confirmarExecutarAccio(event)" onclick="javascript:massiva(event)">
+			<input type="hidden" id="target2" name="target2" value="">
 			<dl class="form-info">
 				<c:forEach var="accio" items="${instanciaProces.definicioProces.accions}">
 					<c:if test="${not accio.oculta && (accio.publica || tePermisAccions)}">
