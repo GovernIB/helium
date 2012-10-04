@@ -26,6 +26,22 @@ public class ReassignacioDao extends HibernateGenericDao<Reassignacio, Long> {
 				Restrictions.ge("dataFi", Calendar.getInstance().getTime()),
 				Restrictions.isNull("dataCancelacio"));
 	}
+	
+	public List<Reassignacio> findLlistaActius(Long tipusExpedientId) {
+		return findByCriteria(
+				Restrictions.ge("dataFi", Calendar.getInstance().getTime()),
+				Restrictions.isNull("dataCancelacio"),
+				Restrictions.eq("tipusExpedientId",tipusExpedientId));
+	}
+	
+	public List<Reassignacio> findLlistaActiusModificacio(Long id) {
+		return findByCriteria(
+				Restrictions.ge("dataFi", Calendar.getInstance().getTime()),
+				Restrictions.isNull("dataCancelacio"),
+				Restrictions.eq("id", id));
+	}
+	
+	
 
 	public Reassignacio findByUsuari(String responsable) {
 		List<Reassignacio> reassignacions = findByCriteria(
