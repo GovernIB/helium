@@ -93,26 +93,20 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			@RequestParam(value = "consultaId", required = false) Long consultaId,
 			@RequestParam(value = "canviar", required = false) Boolean canviar){
 		ExpedientConsultaDissenyCommand command = (ExpedientConsultaDissenyCommand)session.getAttribute(VARIABLE_SESSIO_SELCON_COMMAND);
-		
-		if (command == null){
+		if (command == null) {
 			command = new ExpedientConsultaDissenyCommand();
 		}
-
-		if (consultaId != null && expedientTipusId == null) {
-			command.setConsultaId(command.getConsultaId());
-			command.setExpedientTipusId(dissenyService.getConsultaById(consultaId).getExpedientTipus().getId());
-		}
+		command.setExpedientTipusId(expedientTipusId);
 		if (canviar != null && canviar.booleanValue()) {
-			command.setExpedientTipusId(expedientTipusId);
 			command.setConsultaId(consultaId);
-			if (command.getExpedientTipusId() != null && !command.getExpedientTipusId().equals(expedientTipusId) ){
-				command.setConsultaId(null);
-				session.removeAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);}
-		}	
-
+			if (consultaId != null && expedientTipusId == null) {
+				command.setExpedientTipusId(
+						dissenyService.getConsultaById(consultaId).getExpedientTipus().getId());
+			}
+			session.removeAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);
+		}
 		session.setAttribute(VARIABLE_SESSIO_SELCON_COMMAND, command);
-			return command;
-		
+		return command;
 	}
 	@ModelAttribute("commandFiltre")
 	public Object populateCommandFiltre(HttpSession session) {
