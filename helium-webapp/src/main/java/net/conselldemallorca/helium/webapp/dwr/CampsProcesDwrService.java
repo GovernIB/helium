@@ -116,8 +116,32 @@ public class CampsProcesDwrService implements MessageSourceAware {
 	public void setMessageSource(MessageSource messageSource) {
 		this.messageSource = messageSource;
 	}
-
-
+	
+	
+//	public void goToCampTasca(Long IdTasca, int pos) {
+//		dissenyService.goToCampTasca(IdTasca, pos);		
+//	}
+//
+//	public void goToCampEstat(Long tipusExpId, int pos) {
+//		dissenyService.goToCampEstat(tipusExpId, pos);		
+//	}
+//	
+//	public void goToCampAgrupacio(Long tipusExpId, int pos) {
+//		dissenyService.goToCampAgrupacio(tipusExpId, pos);		
+//	}
+//	public void goToCampConsLlistat(Long tipusExpId, int pos) {
+//		dissenyService.goToCampConsLlistat(tipusExpId, pos);		
+//	}
+//	
+	
+	public void updateCampTasca(Long IdTasca,Long campId, boolean readFrom, boolean writeTo, boolean required, boolean readOnly) {
+		dissenyService.addCampTasca(IdTasca, campId, readFrom, writeTo, required, readOnly);		
+	}
+	
+	public void updateDocumentsTasca(Long IdTasca,Long campId, boolean required, boolean readOnly) {
+		dissenyService.addDocumentTasca(IdTasca, campId, required, readOnly);		
+	}
+	
 
 	protected String getMessage(String key) {
 		return getMessage(key, null);
