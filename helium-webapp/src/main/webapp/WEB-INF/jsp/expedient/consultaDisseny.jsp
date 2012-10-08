@@ -101,7 +101,7 @@ function selTots(){
 				<h4 class="titol-consulta" style="display:inline">${consulta.nom}</h4>&nbsp;&nbsp;&nbsp;
 				<form action="consultaDisseny.html" method="post" style="display:inline">
 					<input type="hidden" name="canviar" id="canviar" value="true"/>
-<%-- 					<input type="hidden" name="expedientTipusId" id="expedientTipusId" value="${consulta.expedientTipus.id}"/> --%>
+					<input type="hidden" name="expedientTipusId" id="expedientTipusId" value="${consulta.expedientTipus.id}"/>
 					<button type="submit" class="submitButton"><fmt:message key='expedient.consulta.canviar' /></button>
 				</form>
 			</c:otherwise>
