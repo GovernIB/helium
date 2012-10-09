@@ -305,13 +305,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 							commandFiltre,
 							true,
 							true);
-					
-					//si no s'ha seleccionat cap expedient mostra missatge d'errror
-					if(valors.size()==0){
-						missatgeError(request, getMessage("error.no.exp.selec"));
-						
-						return "redirect:/expedient/consultaDisseny.html";}
-					
+	
 					Map<String, Object> valorsPerService = new HashMap<String, Object>();
 					for (String clau: valors.keySet()) {
 						String clauPerService = clau.replaceFirst("_", ".");
