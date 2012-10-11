@@ -59,6 +59,7 @@ import net.conselldemallorca.helium.core.model.exception.NotFoundException;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.AreaMembre;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
@@ -81,6 +82,7 @@ import net.conselldemallorca.helium.integracio.plugins.gis.DadesExpedient;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarEventRequest;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarExpedientRequest;
+import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmNodePosition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
@@ -814,13 +816,20 @@ public class ExpedientService {
 				varName,
 				value);
 	}
-	public void updateVariable(String processInstanceId, String varName, Object value) {
+	public void updateVariable(
+			String processInstanceId,
+			String varName,
+			Object value) {
 		expedientLogHelper.afegirLogExpedientPerProces(
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_VARIABLE_MODIFICAR,
 				varName);
 		Object valorVell = getServiceUtils().getVariableJbpmProcesValor(processInstanceId, varName);
-		jbpmDao.setProcessInstanceVariable(processInstanceId, varName, value);
+		Object valorOptimitzat = optimitzarValorPerConsultesDomini(
+				processInstanceId,
+				varName,
+				value);
+		jbpmDao.setProcessInstanceVariable(processInstanceId, varName, valorOptimitzat);
 		getServiceUtils().expedientIndexLuceneUpdate(processInstanceId);
 		registreDao.crearRegistreModificarVariableInstanciaProces(
 				getExpedientPerProcessInstanceId(processInstanceId).getId(),
@@ -1942,6 +1951,33 @@ public class ExpedientService {
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
 		if (pi.getEnd() != null)
 			expedient.setDataFi(pi.getEnd());
+	}
+
+	private Object optimitzarValorPerConsultesDomini(
+			String processInstanceId,
+			String varName,
+			Object varValue) {
+		JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(processInstanceId);
+		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(jpd.getId());
+		Camp camp = campDao.findAmbDefinicioProcesICodi(
+				definicioProces.getId(),
+				varName);
+		if (camp.isDominiCacheText()) {
+			if (varValue != null) {
+				if (	camp.getTipus().equals(TipusCamp.SELECCIO) ||
+						camp.getTipus().equals(TipusCamp.SUGGEST)) {
+					String text = dtoConverter.getCampText(
+							null,
+							processInstanceId,
+							camp,
+							varValue);
+					return new DominiCodiDescripcio(
+							(String)varValue,
+							text);
+				}
+			}
+		}
+		return varValue;
 	}
 
 	private ServiceUtils getServiceUtils() {
