@@ -67,22 +67,27 @@ function confirmar(e) {
 			<div class="inlineLabels">
 				<c:if test="${not empty command.id}"><form:hidden path="id"/></c:if>
 				<input type="hidden" id="expedientTipusId" name="expedientTipusId" value="${expedientTipus.id}">
+			
 				<c:import url="../common/formElement.jsp">
-					<c:param name="property" value="usuariOrigen"/>
-					<c:param name="required" value="true"/>
-					<c:param name="type" value="suggest"/>
-					<c:param name="label"><fmt:message key='reassign.form.usu_origen' /></c:param>
-					<c:param name="suggestUrl"><c:url value="/persona/suggest.html"/></c:param>
-					<c:param name="suggestText">${command.usuariOrigen}</c:param>
+				<c:param name="required" value="true"/>
+				<c:param name="property" value="usuariOrigen"/>
+				<c:param name="type" value="select"/>
+				<c:param name="items" value="destinataris"/>
+				<c:param name="itemLabel" value="nomSencer"/>
+				<c:param name="itemValue" value="codi"/>
+				<c:param name="itemBuit">&lt;&lt; <fmt:message key='reassign.form.usu_origen' /> &gt;&gt;</c:param>
+				<c:param name="label"><fmt:message key='reassign.form.usu_origen' /></c:param>
 				</c:import>
 				
 				<c:import url="../common/formElement.jsp">
-					<c:param name="property" value="usuariDesti"/>
-					<c:param name="required" value="true"/>
-					<c:param name="type" value="suggest"/>
-					<c:param name="label"><fmt:message key='reassign.form.usu_dest' /></c:param>
-					<c:param name="suggestUrl"><c:url value="/persona/suggest.html"/></c:param>
-					<c:param name="suggestText">${command.usuariDesti}</c:param>
+				<c:param name="required" value="true"/>
+				<c:param name="property" value="usuariDesti"/>
+				<c:param name="type" value="select"/>
+				<c:param name="items" value="destinataris"/>
+				<c:param name="itemLabel" value="nomSencer"/>
+				<c:param name="itemValue" value="codi"/>
+				<c:param name="itemBuit">&lt;&lt; <fmt:message key='reassign.form.usu_dest' /> &gt;&gt;</c:param>
+				<c:param name="label"><fmt:message key='reassign.form.usu_dest' /></c:param>
 				</c:import>
 				
 				<c:import url="../common/formElement.jsp">

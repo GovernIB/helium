@@ -8,6 +8,10 @@
 	<security:accesscontrollist domainObject="${expedientTipus}" hasPermission="16,32,256">
 		<c:set var="tePermisGestioTipusExpedient" value="${true}"/>
 	</security:accesscontrollist>
+	<c:set var="tePermisGestionar" value="${false}"/>
+	<security:accesscontrollist domainObject="${expedientTipus}" hasPermission="16,32">
+		<c:set var="tePermisGestionar" value="${true}"/>
+	</security:accesscontrollist>
 	<c:set var="tePermisDissenyTipusExpedient" value="${false}"/>
 	<security:accesscontrollist domainObject="${expedientTipus}" hasPermission="16,32">
 		<c:set var="tePermisDissenyTipusExpedient" value="${true}"/>
@@ -32,6 +36,8 @@
 	<c:if test="${tePermisDissenyTipusExpedient || tePermisDissenyEntorn}">
 		<li<c:if test="${param.tabActiu == 'dominis'}"> class="active"</c:if>><a href="<c:url value="/expedientTipus/dominiLlistat.html"><c:param name="expedientTipusId" value="${expedientTipus.id}"/></c:url>"><fmt:message key='common.tabsexptipus.dominis' /></a></li>
 		<li<c:if test="${param.tabActiu == 'consultes'}"> class="active"</c:if>><a href="<c:url value="/expedientTipus/consultaLlistat.html"><c:param name="expedientTipusId" value="${expedientTipus.id}"/></c:url>"><fmt:message key='common.tabsexptipus.consultes' /></a></li>
+	</c:if>
+	<c:if test="${tePermisGestionar}">
 		<li<c:if test="${param.tabActiu == 'redireccio'}"> class="active"</c:if>><a href="<c:url value="/expedientTipus/redireccioLlistat.html"><c:param name="expedientTipusId" value="${expedientTipus.id}"/></c:url>"><fmt:message key='common.tabsexptipus.redireccio' /></a></li>
 	</c:if>
 </ul>

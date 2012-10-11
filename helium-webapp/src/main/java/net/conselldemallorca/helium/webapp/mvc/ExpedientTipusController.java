@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -24,6 +25,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
+import net.conselldemallorca.helium.core.model.service.PersonaService;
 import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.core.model.service.ReassignacioService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
@@ -63,7 +65,7 @@ public class ExpedientTipusController extends BaseController {
 	private PluginService pluginService;
 	private ReassignacioService reassignacioService;
 	private Validator additionalValidator;
-
+	private PersonaService  personaService;
 	@Autowired
 	public ExpedientTipusController(
 			DissenyService dissenyService,
@@ -76,6 +78,14 @@ public class ExpedientTipusController extends BaseController {
 		this.pluginService = pluginService;
 	}
 	
+	public PersonaService getPersonaService() {
+		return personaService;
+	}
+
+	public void setPersonaService(PersonaService personaService) {
+		this.personaService = personaService;
+	}
+
 	@Autowired
 	public Validator getAdditionalValidator() {
 		return additionalValidator;
@@ -377,6 +387,11 @@ public class ExpedientTipusController extends BaseController {
 		if("cancel".equals(submit)){
 			return "expedientTipus/redireccioLlistat";
 		}
+		Set<PersonaDto> destinataris =  personaService.findPersonesAmbPermisosPerExpedientTipus(expedientTipusId.longValue());
+		model.addAttribute(
+				 "destinataris",
+				 destinataris);
+		
 		
 		List<Reassignacio> reassignacions = reassignacioService.llistaReassignacions(expedientTipusId);
 		model.addAttribute("llistat", reassignacions);
@@ -402,6 +417,7 @@ public class ExpedientTipusController extends BaseController {
 //	        if (result.hasErrors()) {
 //	        	return "expedientTipus/redireccioLlistat";
 //	        }
+			
 	        try {
 	        	if (command.getId() == null) {
 	        		reassignacioService.createReassignacio(
