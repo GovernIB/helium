@@ -85,7 +85,7 @@ public class ExpedientTipusConsultaController extends BaseController {
 		if (entorn != null) {
 			model.addAttribute(
 					"llistat",
-					dissenyService.findConsultesAmbEntornIExpedientTipus(
+					dissenyService.findConsultesAmbEntornIExpedientTipusOrdenat(
 							entorn.getId(),
 							expedientTipusId));
 			model.addAttribute("tipusFiltre", ConsultaCamp.TipusConsultaCamp.FILTRE);

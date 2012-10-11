@@ -118,13 +118,13 @@ public class CampsProcesDwrService implements MessageSourceAware {
 	}
 	
 	
-//	public void goToCampTasca(Long IdTasca, int pos) {
-//		dissenyService.goToCampTasca(IdTasca, pos);		
-//	}
-//
-//	public void goToCampEstat(Long tipusExpId, int pos) {
-//		dissenyService.goToCampEstat(tipusExpId, pos);		
-//	}
+	public void goToCampTasca(Long IdTasca, int pos) {
+		dissenyService.goToCampTasca(IdTasca, pos);		
+	}
+
+	public void goToCampEstat(Long tipusExpId, int pos) {
+		dissenyService.goToCampEstat(tipusExpId, pos);		
+	}
 //	
 //	public void goToCampAgrupacio(Long tipusExpId, int pos) {
 //		dissenyService.goToCampAgrupacio(tipusExpId, pos);		
