@@ -280,6 +280,19 @@ public class DtoConverter {
 			dto.setSignatures(signaturesTasca);
 			if (ambVariables) {
 				Map<String, Object> valors = jbpmDao.getTaskInstanceVariables(task.getId());
+				for (CampTasca variableCamp: campsTasca) {
+					if (variableCamp.isReadOnly()) {
+						Object valor = getServiceUtils().getVariableJbpmProcesValor(
+								task.getProcessInstanceId(),
+								variableCamp.getCamp().getCodi());
+						if (valor != null)
+							valors.put(
+								variableCamp.getCamp().getCodi(),
+								valor);
+						else
+							valors.remove(variableCamp.getCamp().getCodi());
+					}
+				}
 				dto.setVarsDocuments(
 						obtenirVarsDocumentsTasca(
 								task.getId(),
