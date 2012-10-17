@@ -69,7 +69,7 @@
 				</li>
 				<c:set var="esDissenyador" value="${true}"/>
 			</security:accesscontrollist>
-			<c:if test="${!esDissenyador and potDissenyarExpedientTipus}">
+			<c:if test="${!esDissenyador and (potDissenyarExpedientTipus or potGestionarExpedientTipus)}">
 				<li class="dir image disseny">
 					<a href="#" onclick="return false"><fmt:message key='comuns.disseny' /></a>
 					<ul>

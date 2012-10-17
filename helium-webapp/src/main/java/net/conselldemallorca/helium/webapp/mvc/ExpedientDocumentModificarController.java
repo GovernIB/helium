@@ -80,7 +80,7 @@ public class ExpedientDocumentModificarController extends BaseController {
 		if (entorn != null) {
 			DocumentExpedientCommand command = new DocumentExpedientCommand();
 			DocumentDto dto = documentService.documentInfo(docId);
-			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, false);
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, false, false, false);
 			Document document = dissenyService.findDocumentAmbDefinicioProcesICodi(
 					instanciaProces.getDefinicioProces().getId(),
 					dto.getDocumentCodi());

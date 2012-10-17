@@ -176,7 +176,7 @@ public class ExpedientTascaReassignarController extends BaseController {
 				expedientService.getArbreInstanciesProces(id));
 		model.addAttribute(
 				"instanciaProces",
-				expedientService.getInstanciaProcesById(id, true));
+				expedientService.getInstanciaProcesById(id, true, true, true));
 		for (TascaDto tasca: expedientService.findTasquesPerInstanciaProces(id, false)) {
 			if (tasca.getId().equals(taskId)) {
 				model.addAttribute("tasca", tasca);

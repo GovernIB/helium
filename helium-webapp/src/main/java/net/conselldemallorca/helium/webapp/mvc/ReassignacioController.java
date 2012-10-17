@@ -96,7 +96,8 @@ public class ReassignacioController extends BaseController {
 	        				command.getUsuariDesti(),
 	        				command.getDataInici(),
 	        				command.getDataFi(),
-	        				command.getDataCancelacio());
+	        				command.getDataCancelacio(),
+	        				command.getTipusExpedientId());
 	        	} else {
 	        		reassignacioService.updateReassignacio(
 	        				command.getId(),
@@ -104,7 +105,8 @@ public class ReassignacioController extends BaseController {
 	        				command.getUsuariDesti(),
 	        				command.getDataInici(),
 	        				command.getDataFi(),
-	        				command.getDataCancelacio());
+	        				command.getDataCancelacio(),
+	        				command.getTipusExpedientId());
 	        	}
 	        	missatgeInfo(request, getMessage("info.reassignacio.produit") );
 	        	status.setComplete();

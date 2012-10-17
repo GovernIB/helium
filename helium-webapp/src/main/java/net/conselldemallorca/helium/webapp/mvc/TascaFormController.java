@@ -28,6 +28,7 @@ import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
+import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
 import net.conselldemallorca.helium.webapp.mvc.util.TramitacioMassiva;
@@ -77,7 +78,8 @@ public class TascaFormController extends BaseController {
 	public TascaFormController(
 			TascaService tascaService,
 			DissenyService dissenyService,
-			ExpedientService expedientService) {
+			ExpedientService expedientService, 
+			TascaController tascaController) {
 		this.tascaService = tascaService;
 		this.dissenyService = dissenyService;
 		this.expedientService = expedientService;
@@ -231,6 +233,7 @@ public class TascaFormController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) String id,
 			@RequestParam(value = "submit", required = false) String submit,
+			@RequestParam(value = "submitar", required = false) String submitar,
 			@RequestParam(value = "helMultipleIndex", required = false) Integer index,
 			@RequestParam(value = "helMultipleField", required = false) String field,
 			@RequestParam(value = "iframe", required = false) String iframe,
@@ -238,6 +241,7 @@ public class TascaFormController extends BaseController {
 			@RequestParam(value = "registreEsborrarIndex", required = false) Integer registreEsborrarIndex,
 			@RequestParam(value = "helAccioCamp", required = false) String accioCamp,
 			@RequestParam(value = "helCampFocus", required = false) String campFocus,
+			@RequestParam(value = "helFinalitzarAmbOutcome", required = false) String finalitzarAmbOutcome,
 			@ModelAttribute("command") Object command,
 			BindingResult result,
 			SessionStatus status,
@@ -260,7 +264,7 @@ public class TascaFormController extends BaseController {
 					request.getSession().setAttribute(VARIABLE_SESSIO_CAMP_FOCUS, campFocus);
 				}
     		}
-			if ("submit".equals(submit)) {
+			if ("submit".equals(submit) || "submit".equals(submitar) || "validate".equals(submit) || "validate".equals(submitar)) {
 				validatorGuardar.validate(command, result);
 				if (result.hasErrors()) {
 					return "tasca/form";
@@ -273,21 +277,6 @@ public class TascaFormController extends BaseController {
 						command);
 				if (!ok)
 					return "tasca/form";
-				/*try {
-					tascaService.guardarVariables(
-							entorn.getId(),
-							id,
-							TascaFormUtil.getValorsFromCommand(
-									camps,
-									command,
-									true,
-									false));
-					missatgeInfo(request, getMessage("info.dades.form.guardat") );
-				} catch (Exception ex) {
-					missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
-					logger.error("No s'ha pogut guardar les dades del formulari", ex);
-					return "tasca/form";
-				}*/
 				if (accioCamp != null && accioCamp.length() > 0) {
 					ok = accioExecutarAccio(
 							request,
@@ -297,67 +286,38 @@ public class TascaFormController extends BaseController {
 					if (!ok)
 						return "tasca/form";
 				}
-		        /*try {
-					if (accioCamp != null && accioCamp.length() > 0) {
-						tascaService.executarAccio(
-								entorn.getId(),
-								id,
-								accioCamp);
-						missatgeInfo(request, getMessage("info.accio.executat") );
+				if ("validate".equals(submit) || "validate".equals(submitar)) {
+					validatorValidar.validate(command, result);
+					try {
+						afegirVariablesDelProces(command, tasca);
+						TascaFormUtil.getBeanValidatorForCommand(camps).validate(command, result);
+					} catch (Exception ex) {
+						missatgeError(request, getMessage("error.validacio"), ex.getLocalizedMessage());
+			        	logger.error("S'han produit errors de validació", ex);
+			        	return "tasca/form";
 					}
-				} catch (Exception ex) {
-					missatgeError(request, getMessage("error.executar.accio"), ex.getLocalizedMessage());
-					logger.error("No s'ha pogut executar l'acció: ", ex);
-					return "tasca/form";
-				}*/
-		        status.setComplete();
-	        	if (iframe != null)
-	        		return "redirect:/tasca/formIframe.html?id=" + id + "&iframe=iframe";
-	        	else
-	        		return "redirect:/tasca/form.html?id=" + id;
-			} else if ("validate".equals(submit)) {
-				validatorValidar.validate(command, result);
-				try {
-					afegirVariablesDelProces(command, tasca);
-					TascaFormUtil.getBeanValidatorForCommand(camps).validate(command, result);
-				} catch (Exception ex) {
-					missatgeError(request, getMessage("error.validacio"), ex.getLocalizedMessage());
-		        	logger.error("S'han produit errors de validació", ex);
-		        	return "tasca/form";
+			        if (result.hasErrors()) {
+			        	return "tasca/form";
+			        }
+			        ok = accioValidarForm(
+			        		request,
+							entorn.getId(),
+							id,
+							camps,
+							command);
+			        if (!ok)
+						return "tasca/form";
 				}
-		        if (result.hasErrors()) {
-		        	return "tasca/form";
-		        }
-		        boolean ok = accioValidarForm(
-		        		request,
-						entorn.getId(),
-						id,
-						camps,
-						command);
-				if (!ok)
-					return "tasca/form";
-		        /*try {
-		        	tascaService.validar(
-		        			entorn.getId(),
-		        			id,
-		        			TascaFormUtil.getValorsFromCommand(
-		        					camps,
-		        					command,
-		        					true,
-		    						false),
-		    				true);
-		        	missatgeInfo(request, getMessage("info.formulari.validat"));
-		        } catch (Exception ex) {
-		        	missatgeError(request, getMessage("error.validar.formulari"), ex.getLocalizedMessage());
-		        	logger.error("No s'ha pogut validar el formulari", ex);
-		        	return "tasca/form";
-		        }*/
-		        status.setComplete();
-	        	if (iframe != null)
-	        		return "redirect:/tasca/formIframe.html?id=" + id + "&iframe=iframe&toParent=toParent";
-	        	else
-	        		return "redirect:/tasca/form.html?id=" + id;
-			} else if ("restore".equals(submit)) {
+				status.setComplete();
+				if (finalitzarAmbOutcome != null && !finalitzarAmbOutcome.equals("@#@")) {
+					return "redirect:/tasca/completar.html?id=" + id + "&pipella=form&submit=" + finalitzarAmbOutcome;
+				} else {
+		        	if (iframe != null)
+		        		return "redirect:/tasca/formIframe.html?id=" + id + "&iframe=iframe";
+		        	else
+		        		return "redirect:/tasca/form.html?id=" + id;
+				}
+			} else if ("restore".equals(submit) || "restore".equals(submitar)) {
 				boolean ok = accioRestaurarForm(
 		        		request,
 						entorn.getId(),
@@ -370,18 +330,6 @@ public class TascaFormController extends BaseController {
 				} else {
 					return "tasca/form";
 				}
-		        /*try {
-		        	tascaService.restaurar(
-		        			entorn.getId(),
-		        			id);
-		        	missatgeInfo(request, getMessage("info.formulari.restaurat") );
-		        	status.setComplete();
-		        	return "redirect:/tasca/form.html?id=" + id;
-		        } catch (Exception ex) {
-		        	missatgeError(request, getMessage("error.restaurar.formulari"), ex.getLocalizedMessage());
-		        	logger.error("No s'ha pogut restaurar el formulari", ex);
-		        	return "tasca/form";
-		        }*/
 			} else if ("multipleAdd".equals(submit)) {
 				try {
 					if (field != null)
@@ -477,7 +425,7 @@ public class TascaFormController extends BaseController {
 	private void afegirVariablesDelProces(Object command, TascaDto tasca) throws Exception {
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(
 				tasca.getProcessInstanceId(),
-				true);
+				false, false, false);
 		PropertyUtils.setSimpleProperty(
 				command,
 				"procesScope",
@@ -551,7 +499,6 @@ public class TascaFormController extends BaseController {
 	        					true,
 	    						false),
 	    				true);
-	        	
 	        } catch (Exception ex) {
 	        	String tascaIdLog = getIdTascaPerLogs(entornId, tascaId);
 				missatgeError(
@@ -626,11 +573,17 @@ public class TascaFormController extends BaseController {
 						accio);
 	        } catch (Exception ex) {
 	        	String tascaIdLog = getIdTascaPerLogs(entornId, tascaId);
-				missatgeError(
-		    			request,
-		    			getMessage("error.executar.accio") + " " + tascaIdLog,
-		    			ex.getLocalizedMessage());
-	        	logger.error("No s'ha pogut executar l'acció '" + accio + "' en la tasca " + tascaIdLog, ex);
+	        	if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
+					missatgeError(
+		        			request,
+		        			getMessage("error.validacio.tasca") + " " + tascaIdLog + ": " + ex.getCause().getMessage());
+				} else {
+					missatgeError(
+			    			request,
+			    			getMessage("error.executar.accio") + " " + tascaIdLog,
+			    			ex.getLocalizedMessage());
+		        	logger.error("No s'ha pogut executar l'acció '" + accio + "' en la tasca " + tascaIdLog, ex);
+				}
 	        	error = true;
 	        }
 		}
@@ -653,8 +606,6 @@ public class TascaFormController extends BaseController {
 				false);
 		return tascaActual.getNom() + " - " + tascaActual.getExpedient().getIdentificador();
 	}
-
-
 
 	private static final Log logger = LogFactory.getLog(TascaFormController.class);
 

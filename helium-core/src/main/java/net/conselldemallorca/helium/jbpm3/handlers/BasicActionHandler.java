@@ -74,6 +74,7 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaRegistre;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.Signatura;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.Tramit;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
 
@@ -91,6 +92,9 @@ import org.springframework.security.acls.Permission;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public abstract class BasicActionHandler implements ActionHandler {
+
+	public static final String PARAMS_RETROCEDIR_VARIABLE_PREFIX = "H3l1um#params.retroces.";
+	public static final String PARAMS_RETROCEDIR_SEPARADOR = "#@#";
 
 	public abstract void execute(ExecutionContext executionContext) throws Exception;
 
@@ -298,6 +302,8 @@ public abstract class BasicActionHandler implements ActionHandler {
 			String codiDocument) {
 		InstanciaProcesDto instanciaProces = getExpedientService().getInstanciaProcesById(
 				new Long(executionContext.getProcessInstance().getId()).toString(),
+				false,
+				false,
 				false);
 		Document document = getDissenyService().findDocumentAmbDefinicioProcesICodi(
 				instanciaProces.getDefinicioProces().getId(),
@@ -375,7 +381,9 @@ public abstract class BasicActionHandler implements ActionHandler {
 			if (attachments != null) {
 				documents = new ArrayList<ArxiuDto>();
 				for (Long id: attachments) {
-					documents.add(getDocumentService().arxiuDocumentPerMostrar(id));
+					ArxiuDto arxiu = getDocumentService().arxiuDocumentPerMostrar(id);
+					if (arxiu != null)
+						documents.add(arxiu);
 				}
 			}
 			getMailDao().send(
@@ -860,6 +868,47 @@ public abstract class BasicActionHandler implements ActionHandler {
 				expedientId);
 	}
 
+	/**
+	 * Redirigeix un token cap a un altre node.
+	 * 
+	 * @param tokenId
+	 * @param nodeName
+	 * @param cancelarTasques
+	 */
+	public void tokenRedirigir(long tokenId, String nodeName, boolean cancelarTasques) {
+		getJbpmDao().tokenRedirect(tokenId, nodeName, cancelarTasques, true, false);
+	}
+
+	/**
+	 * Emmagatzema els paràmetres per a retrocedir l'acció.
+	 * 
+	 * @param executionContext
+	 * @param parametres
+	 */
+	public void guardarParametresPerRetrocedir(
+			ExecutionContext executionContext,
+			List<String> parametres) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < parametres.size(); i++) {
+			sb.append(parametres.get(i));
+			if (i < parametres.size() - 1)
+				sb.append(PARAMS_RETROCEDIR_SEPARADOR);
+		}
+		executionContext.setVariable(
+				PARAMS_RETROCEDIR_VARIABLE_PREFIX + executionContext.getAction().getId(),
+				sb.toString());
+	}
+
+	/**
+	 * Reindexa l'expedient corresponent a una instància de procés.
+	 * 
+	 * @param processInstanceId
+	 */
+	public void instanciaProcesReindexar(long processInstanceId) {
+		getExpedientService().luceneUpdateIndexExpedient(
+				new Long(processInstanceId).toString());
+	}
+
 	public byte[] obtenirArxiuGestorDocumental(String id) {
 		return getPluginGestioDocumentalDao().retrieveDocument(id);
 	}
@@ -873,6 +922,8 @@ public abstract class BasicActionHandler implements ActionHandler {
 		long processInstanceId = executionContext.getProcessInstance().getId();
 		InstanciaProcesDto instanciaProces = getExpedientService().getInstanciaProcesById(
 				new Long(processInstanceId).toString(),
+				false,
+				false,
 				false);
 		Document document = getDissenyService().findDocumentAmbDefinicioProcesICodi(
 				instanciaProces.getDefinicioProces().getId(),
@@ -912,6 +963,9 @@ public abstract class BasicActionHandler implements ActionHandler {
 	}
 	private PluginGestioDocumentalDao getPluginGestioDocumentalDao() {
 		return DaoProxy.getInstance().getPluginGestioDocumentalDao();
+	}
+	private JbpmDao getJbpmDao() {
+		return DaoProxy.getInstance().getJbpmDao();
 	}
 	private ExpedientService getExpedientService() {
 		return ServiceProxy.getInstance().getExpedientService();
@@ -1062,7 +1116,7 @@ public abstract class BasicActionHandler implements ActionHandler {
 		return tramit;
 	}
 
-	public Expedient getExpedientActual(ExecutionContext executionContext) {
+	private Expedient getExpedientActual(ExecutionContext executionContext) {
 		Expedient ex = ExpedientIniciantDto.getExpedient();
 		if (ex != null) {
 			return ex;

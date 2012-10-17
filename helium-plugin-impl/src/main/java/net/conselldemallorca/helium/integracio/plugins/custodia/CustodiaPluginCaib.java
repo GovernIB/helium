@@ -14,8 +14,6 @@ import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.signatura.DadesCertificat;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
@@ -52,7 +50,7 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 				throw new CustodiaPluginException("Error en la petició de custòdia: [" + resposta.getErrorCodi() + "] " + resposta.getErrorDescripcio());
 			return custodiaId;
 		} catch (Exception ex) {
-			logger.error("No s'ha pogut custodiar la signatura", ex);
+			//logger.error("No s'ha pogut custodiar la signatura: " + ex.getMessage());
 			throw new CustodiaPluginException("No s'ha pogut custodiar la signatura", ex);
 		}
 	}
@@ -72,7 +70,7 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 				return resposta;
 			}
 		} catch (Exception ex) {
-			logger.error("No s'han pogut obtenir les signatures", ex);
+			//logger.error("No s'han pogut obtenir les signatures: " + ex.getMessage());
 			throw new CustodiaPluginException("No s'han pogut obtenir les signatures", ex);
 		}
 	}
@@ -90,7 +88,7 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 				return consultar;
 			}
 		} catch (Exception ex) {
-			logger.error("No s'ha pogut obtenir l'arxiu amb les signatures", ex);
+			//logger.error("No s'ha pogut obtenir l'arxiu amb les signatures: " + ex.getMessage());
 			throw new CustodiaPluginException("No s'ha pogut obtenir l'arxiu amb les signatures", ex);
 		}
 	}
@@ -102,7 +100,7 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 			if (resposta.isError())
 				throw new CustodiaPluginException("Error en la petició de custòdia: [" + resposta.getErrorCodi() + "] " + resposta.getErrorDescripcio());
 		} catch (Exception ex) {
-			logger.error("No s'han pogut esborrar les signatures", ex);
+			//logger.error("No s'han pogut esborrar les signatures: " + ex.getMessage());
 			throw new CustodiaPluginException("No s'han pogut esborrar les signatures", ex);
 		}
 	}
@@ -115,7 +113,7 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 				throw new CustodiaPluginException("Error en la petició de custòdia: [" + resposta.getErrorCodi() + "] " + resposta.getErrorDescripcio());
 			return parseSignatures(xml);
 		} catch (Exception ex) {
-			logger.error("No s'han pogut verificar les signatures", ex);
+			//logger.error("No s'han pogut verificar les signatures: " + ex.getMessage());
 			throw new CustodiaPluginException("No s'han pogut verificar les signatures", ex);
 		}
 	}
@@ -139,7 +137,7 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 			String baseUrl = GlobalProperties.getInstance().getProperty("app.custodia.plugin.caib.verificacio.baseurl");
 			return baseUrl + token;
 		} catch (Exception ex) {
-			logger.error("No s'ha pogut generar la url de comprovació de signatura", ex);
+			//logger.error("No s'ha pogut generar la url de comprovació de signatura: " + ex.getMessage());
 			throw new CustodiaPluginException("No s'ha pogut generar la url de comprovació de signatura", ex);
 		}
 	}
@@ -250,7 +248,5 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 	private String getIdCustodia(String docId) {
 		return docId;
 	}
-
-	private static final Log logger = LogFactory.getLog(CustodiaPluginCaib.class);
 
 }

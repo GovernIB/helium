@@ -477,14 +477,18 @@ public class JbpmDao {
 	public void setTaskInstanceVariable(String taskId, String codi, Object valor) {
 		Map<String, Object> vars = new HashMap<String, Object>();
 		vars.put(codi, valor);
-		setTaskInstanceVariables(taskId, vars);
+		setTaskInstanceVariables(taskId, vars, false);
 	}
-	public void setTaskInstanceVariables(String taskId, Map<String, Object> variables) {
+	public void setTaskInstanceVariables(
+			String taskId,
+			Map<String, Object> variables,
+			boolean deleteFirst) {
 		long id = new Long(taskId).longValue();
 		SaveTaskInstanceVariablesCommand command = new SaveTaskInstanceVariablesCommand(
 				id,
 				variables);
 		command.setLocally(true);
+		command.setDeleteFirst(deleteFirst);
 		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
@@ -509,7 +513,7 @@ public class JbpmDao {
 		return resultat;
 	}
 	public void deleteTaskInstanceVariable(String taskId, String varName) {
-		setTaskInstanceVariable(taskId, varName, null);
+		//setTaskInstanceVariable(taskId, varName, null);
 		long id = new Long(taskId).longValue();
 		DeleteTaskInstanceVariablesCommand command = new DeleteTaskInstanceVariablesCommand(
 				id,
@@ -599,7 +603,7 @@ public class JbpmDao {
 		commandService.execute(autoSaveCommand);
 	}
 	public void deleteProcessInstanceVariable(String processInstanceId, String varName) {
-		setProcessInstanceVariable(processInstanceId, varName, null);
+		//setProcessInstanceVariable(processInstanceId, varName, null);
 		long id = new Long(processInstanceId).longValue();
 		DeleteProcessInstanceVariablesCommand command = new DeleteProcessInstanceVariablesCommand(id, new String[] {varName});
 		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
@@ -654,10 +658,14 @@ public class JbpmDao {
 	public void tokenRedirect(
 			long tokenId,
 			String nodeName,
-			boolean cancelTasks) {
+			boolean cancelTasks,
+			boolean enterNodeIfTask,
+			boolean executeNode) {
 		long id = new Long(tokenId).longValue();
 		TokenRedirectCommand command = new TokenRedirectCommand(id, nodeName);
 		command.setCancelTasks(cancelTasks);
+		command.setEnterNodeIfTask(enterNodeIfTask);
+		command.setExecuteNode(executeNode);
 		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
@@ -739,12 +747,14 @@ public class JbpmDao {
 	}
 	public void retrocedirAccio(
 			String processInstanceId,
-			String actionName) {
+			String actionName,
+			List<String> params) {
 		long id = new Long(processInstanceId).longValue();
 		ExecuteActionCommand command = new ExecuteActionCommand(
 				id,
 				actionName);
 		command.setGoBack(true);
+		command.setParams(params);
 		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
@@ -864,8 +874,15 @@ public class JbpmDao {
 	public JbpmTask findEquivalentTaskInstance(long tokenId, long taskInstanceId) {
 		GetTaskInstanceCommand commandGetTask = new GetTaskInstanceCommand(taskInstanceId);
 		TaskInstance ti = (TaskInstance)commandService.execute(commandGetTask);
-		FindTaskInstanceForTokenAndTaskCommand command = new FindTaskInstanceForTokenAndTaskCommand(tokenId, ti.getTask().getId());
+		FindTaskInstanceForTokenAndTaskCommand command = new FindTaskInstanceForTokenAndTaskCommand(tokenId, ti.getTask().getName());
 		return new JbpmTask((TaskInstance)commandService.execute(command));
+	}
+
+	public boolean isProcessStateNode(long processInstanceId, String nodeName) {
+		GetProcessInstanceCommand command = new GetProcessInstanceCommand(processInstanceId);
+		ProcessInstance pi = (ProcessInstance)commandService.execute(command);
+		String nodeClassName = pi.getProcessDefinition().getNode(nodeName).getClass().getName();
+		return nodeClassName.contains("ProcessState");
 	}
 
 

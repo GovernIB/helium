@@ -219,7 +219,7 @@ public class ExpedientEditarController extends BaseController {
 		model.addAttribute(
 				"arbreProcessos",
 				expedientService.getArbreInstanciesProces(id));
-		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, true);
+		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, false, false, false);
 		model.addAttribute(
 				"instanciaProces",
 				instanciaProces);

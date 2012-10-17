@@ -61,6 +61,7 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 	private String informeNom;
 	private byte[] informeContingut;
 	private boolean exportarActiu;
+	private boolean ocultarActiu;
 	private boolean generica;
 	private int ordre;
 
@@ -149,6 +150,14 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 	}
 	public void setExportarActiu(boolean exportarActiu) {
 		this.exportarActiu = exportarActiu;
+	}
+
+	@Column(name="ocultar_actiu")
+	public boolean isOcultarActiu() {
+		return ocultarActiu;
+	}
+	public void setOcultarActiu(boolean ocultarActiu) {
+		this.ocultarActiu = ocultarActiu;
 	}
 
 	@Column(name="generica")

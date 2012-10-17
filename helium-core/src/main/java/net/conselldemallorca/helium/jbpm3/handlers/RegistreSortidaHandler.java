@@ -123,6 +123,8 @@ public class RegistreSortidaHandler extends AbstractHeliumActionHandler implemen
 				throw new JbpmException("No s'ha trobat la informació del document '" + varDocument + "'");
 			InstanciaProcesDto instanciaProces = getExpedientService().getInstanciaProcesById(
 					new Long(executionContext.getProcessInstance().getId()).toString(),
+					false,
+					false,
 					false);
 			document.setNom(documentInfo.getTitol());
 			dadesAssumpte.setAssumpte(instanciaProces.getExpedient().getIdentificador() + ": " + documentInfo.getTitol());

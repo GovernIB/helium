@@ -20,6 +20,7 @@ public class SaveTaskInstanceVariablesCommand extends AbstractBaseCommand {
 	private long id;
 	private Map<String, Object> variables;
 	private boolean locally = false;
+	private boolean deleteFirst = false;
 	
 
 	public SaveTaskInstanceVariablesCommand(
@@ -32,6 +33,14 @@ public class SaveTaskInstanceVariablesCommand extends AbstractBaseCommand {
 
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		TaskInstance taskInstance = jbpmContext.getTaskInstance(id);
+		if (deleteFirst) {
+			for (String key: variables.keySet()) {
+				if (locally)
+					taskInstance.deleteVariableLocally(key);
+				else
+					taskInstance.deleteVariable(key);
+			}
+		}
 		for (String key: variables.keySet()) {
 			if (locally)
 				taskInstance.setVariableLocally(
@@ -56,6 +65,12 @@ public class SaveTaskInstanceVariablesCommand extends AbstractBaseCommand {
 	}
 	public void setLocally(boolean locally) {
 		this.locally = locally;
+	}
+	public boolean isDeleteFirst() {
+		return deleteFirst;
+	}
+	public void setDeleteFirst(boolean deleteFirst) {
+		this.deleteFirst = deleteFirst;
 	}
 	public Map<String, Object> getVariables() {
 		return variables;

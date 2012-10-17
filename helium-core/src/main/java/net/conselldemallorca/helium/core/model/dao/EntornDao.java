@@ -52,4 +52,23 @@ public class EntornDao extends HibernateGenericDao<Entorn, Long> {
 				list();
 	}
 
+	@SuppressWarnings("unchecked")
+	public List<Persona> findTotsMembresEntorn(Long entornId) {
+		return (List<Persona>)getSession().
+				createQuery(
+						"select p " +
+						"from " +
+						" Entorn e, Persona p " +
+						"where " +
+						"    e.id=? " +
+						"order by " +
+						"    p.nomSencer").
+				setLong(0, entornId).
+				list();
+	}
+	
+	
+	
+	
+	
 }

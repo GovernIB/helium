@@ -27,6 +27,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 public class PermisosDissenyInterceptor extends HandlerInterceptorAdapter {
 
 	public static final String VARIABLE_SESSION_PERMISOS_DISSENY = "potDissenyarExpedientTipus";
+	public static final String VARIABLE_SESSION_PERMISOS_GESTIO = "potGestionarExpedientTipus";
 
 	private DissenyService dissenyService;
 	private PermissionService permissionService;
@@ -40,6 +41,7 @@ public class PermisosDissenyInterceptor extends HandlerInterceptorAdapter {
 		if (request.getSession().getAttribute(VARIABLE_SESSION_PERMISOS_DISSENY) == null) {
 			Entorn entorn = getEntornActiu(request);
 			boolean permisosDisseny = false;
+			boolean permisosGestio = false;
 			if (entorn != null) {
 				List<ExpedientTipus> llistat = dissenyService.findExpedientTipusAmbEntorn(entorn.getId());
 				for (ExpedientTipus expedientTipus: llistat) {
@@ -47,9 +49,14 @@ public class PermisosDissenyInterceptor extends HandlerInterceptorAdapter {
 						permisosDisseny = true;
 						break;
 					}
+					if (potGestionarExpedientTipus(entorn, expedientTipus)) {
+						permisosGestio = true;
+						break;
+					}
 				}			
 			}
 			request.getSession().setAttribute(VARIABLE_SESSION_PERMISOS_DISSENY, new Boolean(permisosDisseny));
+			request.getSession().setAttribute(VARIABLE_SESSION_PERMISOS_GESTIO, new Boolean(permisosGestio));
 		}
 		return true;
 	}
@@ -77,6 +84,14 @@ public class PermisosDissenyInterceptor extends HandlerInterceptorAdapter {
 				new Permission[] {
 					ExtendedPermission.ADMINISTRATION,
 					ExtendedPermission.DESIGN}) != null;
+	}
+	private boolean potGestionarExpedientTipus(Entorn entorn, ExpedientTipus expedientTipus) {
+		return permissionService.filterAllowed(
+				expedientTipus,
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.ADMINISTRATION,
+					ExtendedPermission.MANAGE}) != null;
 	}
 
 }

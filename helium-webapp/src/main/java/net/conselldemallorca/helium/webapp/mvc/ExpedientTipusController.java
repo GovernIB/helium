@@ -7,8 +7,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,22 +21,32 @@ import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.exportacio.ExpedientTipusExportacio;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
+import net.conselldemallorca.helium.core.model.service.PersonaService;
 import net.conselldemallorca.helium.core.model.service.PluginService;
+import net.conselldemallorca.helium.core.model.service.ReassignacioService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.security.acls.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Validator;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
 
 
@@ -50,9 +63,9 @@ public class ExpedientTipusController extends BaseController {
 	private ExpedientService expedientService;
 	private PermissionService permissionService;
 	private PluginService pluginService;
-
-
-
+	private ReassignacioService reassignacioService;
+	private Validator additionalValidator;
+	private PersonaService  personaService;
 	@Autowired
 	public ExpedientTipusController(
 			DissenyService dissenyService,
@@ -63,6 +76,23 @@ public class ExpedientTipusController extends BaseController {
 		this.expedientService = expedientService;
 		this.permissionService = permissionService;
 		this.pluginService = pluginService;
+	}
+	
+	public PersonaService getPersonaService() {
+		return personaService;
+	}
+
+	public void setPersonaService(PersonaService personaService) {
+		this.personaService = personaService;
+	}
+
+	@Autowired
+	public Validator getAdditionalValidator() {
+		return additionalValidator;
+	}
+	@Autowired
+	public void setAdditionalValidator(Validator additionalValidator) {
+		this.additionalValidator = additionalValidator;
 	}
 
 	@ModelAttribute("expedientTipus")
@@ -320,7 +350,120 @@ public class ExpedientTipusController extends BaseController {
 		}
 	}
 
+	@Autowired
+	public ReassignacioService getReassignacioService() {
+		return reassignacioService;
+	}
+	@Autowired
+	public void setReassignacioService(ReassignacioService reassignacioService) {
+		this.reassignacioService = reassignacioService;
+	}
 
+	
+	@RequestMapping(value = "/expedientTipus/modificar", method = RequestMethod.GET)
+	public String formGet(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = false) Long id,
+			@ModelAttribute("command") ReassignacioCommand command,
+			BindingResult result,
+			SessionStatus status,
+			ModelMap model) {
+			List<Reassignacio> reassignacions = reassignacioService.llistaReassignacionsMod(id);
+			Long id2 = reassignacions.get(0).getTipusExpedientId();
+			model.addAttribute("llistat", reassignacions);
+			return "redirect:/expedientTipus/redireccioLlistat.html?expedientTipusId="+id2;
+	}
+	
+	
+	@RequestMapping(value = "/expedientTipus/redireccioLlistat", method = RequestMethod.GET)
+	public String reassignarGet(
+			HttpServletRequest request,
+			@RequestParam(value = "submit", required = false) String submit, 
+			@RequestParam(value = "expedientTipusId", required = false) Long expedientTipusId,
+			@RequestParam(value = "id", required = false) String id,
+			@ModelAttribute("command") ReassignacioCommand command,
+			ModelMap model) {
+		
+		if("cancel".equals(submit)){
+			return "expedientTipus/redireccioLlistat";
+		}
+		Set<PersonaDto> destinataris =  personaService.findPersonesAmbPermisosPerExpedientTipus(expedientTipusId.longValue());
+		model.addAttribute(
+				 "destinataris",
+				 destinataris);
+		
+		
+		List<Reassignacio> reassignacions = reassignacioService.llistaReassignacions(expedientTipusId);
+		model.addAttribute("llistat", reassignacions);
+		return "expedientTipus/redireccioLlistat";
+	}
+	
+	
+	
+	@RequestMapping(value = "/expedientTipus/redireccioLlistat", method = RequestMethod.POST)
+	public String formPost(
+			HttpServletRequest request,
+			@RequestParam(value = "submit", required = false) String submit,
+			@RequestParam(value = "expedientTipusId", required = false) Long id,
+			@ModelAttribute("command") ReassignacioCommand command,
+			BindingResult result,
+			SessionStatus status) {
+			if(id!=null){
+				ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(id);
+				command.setTipusExpedientId(expedientTipus.getId());
+			}
+		if ("submit".equals(submit) || submit.length() == 0) {
+//			additionalValidator.validate(command, result);
+//	        if (result.hasErrors()) {
+//	        	return "expedientTipus/redireccioLlistat";
+//	        }
+			
+	        try {
+	        	if (command.getId() == null) {
+	        		reassignacioService.createReassignacio(
+	        				command.getUsuariOrigen(),
+	        				command.getUsuariDesti(),
+	        				command.getDataInici(),
+	        				command.getDataFi(),
+	        				command.getDataCancelacio(),
+	        				command.getTipusExpedientId());
+	        	} else {
+	        		reassignacioService.updateReassignacio(
+	        				command.getId(),
+	        				command.getUsuariOrigen(),
+	        				command.getUsuariDesti(),
+	        				command.getDataInici(),
+	        				command.getDataFi(),
+	        				command.getDataCancelacio(),
+	        				command.getTipusExpedientId());
+	        	}
+	        	missatgeInfo(request, getMessage("info.reassignacio.produit") );
+	        	status.setComplete();
+	        } catch (Exception ex) {
+	        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
+	        	logger.error("No s'ha pogut guardar el registre", ex);
+	        	return "expedientTipus/redireccioLlistat";
+	        }
+	        return "redirect:/expedientTipus/redireccioLlistat.html?expedientTipusId="+command.getTipusExpedientId();
+		}else if("cancel".equals(submit)){
+			return "redirect:/expedientTipus/llistat.html";
+		}
+		else {
+			return "redirect:/expedientTipus/redireccioLlistat.html?expedientTipusId="+command.getTipusExpedientId();
+		}
+	}
+	
+	
+	@RequestMapping(value = "/expedientTipus/cancelar")
+	public String deleteAction(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) Long id,
+			@RequestParam(value = "expedientTipusId", required = false) String expedientTipusId) {
+		reassignacioService.deleteReassignacio(id);
+		missatgeInfo(request, getMessage("info.reassignacio.cancelat") );
+		return "redirect:/expedientTipus/redireccioLlistat.html?expedientTipusId="+expedientTipusId;
+	}
+	
 
 	private PersonaDto getResponsableDefecte(String codi) {
 		if (codi == null)
@@ -395,6 +538,13 @@ public class ExpedientTipusController extends BaseController {
 		public void setArxiu(byte[] arxiu) {
 			this.arxiu = arxiu;
 		}
+	}
+	
+	@InitBinder
+	public void initBinder(WebDataBinder binder) {
+		binder.registerCustomEditor(
+				Date.class,
+				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
 	}
 	
 	private static final Log logger = LogFactory.getLog(ExpedientTipusController.class);

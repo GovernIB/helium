@@ -3,7 +3,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
+<%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<c:set var="sessionCommand" value="${sessionScope.expedientTipusConsultaDissenyCommandTE}"/>
 
 <html>
 <head>
@@ -28,6 +30,31 @@ function confirmarCanviVersio(e) {
 	if (e.stopPropagation) e.stopPropagation();
 	return confirm("<fmt:message key="expedient.massiva.confirm_canviar_versio_proces"/>");
 }
+function confirmarExecutarAccio(e) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	if (e.stopPropagation) e.stopPropagation();
+	return confirm("<fmt:message key="expedient.massiva.confirm_exec_accio"/>");
+}
+
+
+
+function massiva(e){
+
+	if("<%=request.getAttribute("javax.servlet.forward.request_uri")%>" == "/helium/expedient/massivaInfoTE.html" )
+	{
+			$("#massiva").attr("action","consultaDisseny.html");
+			$("#target").val("disseny");
+			$("#target2").val("disseny");
+
+	}
+	else if("<%=request.getAttribute("javax.servlet.forward.request_uri")%>" == "/helium/expedient/massivaInfo.html"){
+		$("#massiva").attr("action","consulta.html");
+		$("#target").val("consulta");
+	}
+}
+
+
 // ]]>
 </script>
 </head>
@@ -52,7 +79,7 @@ function confirmarCanviVersio(e) {
 					</c:choose>
 				</display:column>
 			</display:table>
-			<form action="consulta.html" class="uniForm">
+			<form id="massiva" action="consulta.html" class="uniForm" onclick="javascript:massiva(event)">
 				<c:import url="../common/formElement.jsp">
 					<c:param name="type" value="buttons"/>
 					<c:param name="values">submit</c:param>
@@ -65,7 +92,8 @@ function confirmarCanviVersio(e) {
 	<h3 class="titol-tab titol-canvi-versio">
 		<fmt:message key="expedient.massiva.actualitzar"/>
 	</h3>
-	<form:form action="massivaCanviVersio.html" cssClass="uniForm" commandName="canviVersioProcesCommand" onsubmit="return confirmarCanviVersio(event)">
+	<form:form action="massivaCanviVersio.html" cssClass="uniForm" commandName="canviVersioProcesCommand" onsubmit="return confirmarCanviVersio(event)" onclick="javascript:massiva(event)">
+		<input type="hidden" id="target" name="target" value="">
 		<div class="inlineLabels">
 			<c:set var="definicionsProces" value="${definicioProces.jbpmIdsAmbDescripcio}" scope="request"/>
 			<c:import url="../common/formElement.jsp">
@@ -83,6 +111,32 @@ function confirmarCanviVersio(e) {
 			<c:param name="titles"><fmt:message key="comuns.canviar_versio"/></c:param>
 		</c:import>
 	</form:form>
+
+	<h3 class="titol-tab titol-canvi-versio">
+		<fmt:message key="expedient.massiva.accions"/>
+	</h3>
+	<c:set var="hiHaAccions" value="${false}"/>
+	<c:set var="hiHaAccionsPubliques" value="${false}"/>
+	<c:forEach var="accio" items="${instanciaProces.definicioProces.accions}">
+		<c:if test="${not accio.oculta}">
+			<c:set var="hiHaAccions" value="${true}"/>
+			<c:if test="${accio.publica}"><c:set var="hiHaAccionsPubliques" value="${true}"/></c:if>
+		</c:if>
+	</c:forEach>
+	<c:set var="tePermisAccions" value="${false}"/>
+	<security:accesscontrollist domainObject="${instanciaProces.expedient.tipus}" hasPermission="16,2"><c:set var="tePermisAccions" value="${true}"/></security:accesscontrollist>
+	<c:if test="${hiHaAccionsPubliques || (hiHaAccions && tePermisAccions)}">
+		<form id="executarAccio" action="massivaExecutarAccio.html" method="post" onsubmit="return confirmarExecutarAccio(event)" onclick="javascript:massiva(event)">
+			<input type="hidden" id="target2" name="target2" value="">
+			<dl class="form-info">
+				<c:forEach var="accio" items="${instanciaProces.definicioProces.accions}">
+					<c:if test="${not accio.oculta && (accio.publica || tePermisAccions)}">
+						<dt>${accio.nom}:</dt><dd><button type="submit" class="submitButton" name="submit" value="${accio.codi}" onclick="saveAction(this, 'prova2');"><fmt:message key="expedient.massiva.exec_accio"/></button></dd>
+					</c:if>
+				</c:forEach>
+			</dl>
+		</form>
+	</c:if>
 
 </body>
 </html>

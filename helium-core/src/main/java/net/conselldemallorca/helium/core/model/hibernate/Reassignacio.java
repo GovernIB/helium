@@ -34,15 +34,17 @@ public class Reassignacio implements Serializable, GenericEntity<Long> {
 	@NotBlank
 	private Date dataFi;
 	private Date dataCancelacio;
-	
+	private Long tipusExpedientId;
+
 	public Reassignacio() {}
-	public Reassignacio(String usuariOrigen, String usuariDesti, Date dataInici, Date dataFi) {
+	public Reassignacio(String usuariOrigen, String usuariDesti, Date dataInici, Date dataFi, Long tipusExpedientId) {
 		this.usuariOrigen = usuariOrigen;
 		this.usuariDesti = usuariDesti;
 		this.dataInici = dataInici;
 		this.dataFi = dataFi;
+		this.tipusExpedientId=tipusExpedientId;
 	}
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.TABLE, generator="gen_reassignar")
 	@TableGenerator(name="gen_reassignar", table="hel_idgen", pkColumnName="taula", valueColumnName="valor")
@@ -53,7 +55,7 @@ public class Reassignacio implements Serializable, GenericEntity<Long> {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	
+
 	@Column(name="usuari_origen", nullable=false)
 	public String getUsuariOrigen() {
 		return usuariOrigen;
@@ -61,7 +63,7 @@ public class Reassignacio implements Serializable, GenericEntity<Long> {
 	public void setUsuariOrigen(String usuariOrigen) {
 		this.usuariOrigen = usuariOrigen;
 	}
-	
+
 	@Column(name="usuari_desti", nullable=false)
 	public String getUsuariDesti() {
 		return usuariDesti;
@@ -69,7 +71,7 @@ public class Reassignacio implements Serializable, GenericEntity<Long> {
 	public void setUsuariDesti(String usuariDesti) {
 		this.usuariDesti = usuariDesti;
 	}
-	
+
 	@Column(name="data_inici", nullable=false)
 	public Date getDataInici() {
 		return dataInici;
@@ -77,7 +79,7 @@ public class Reassignacio implements Serializable, GenericEntity<Long> {
 	public void setDataInici(Date dataInici) {
 		this.dataInici = dataInici;
 	}
-	
+
 	@Column(name="data_fi", nullable=false)
 	public Date getDataFi() {
 		return dataFi;
@@ -85,7 +87,7 @@ public class Reassignacio implements Serializable, GenericEntity<Long> {
 	public void setDataFi(Date dataFi) {
 		this.dataFi = dataFi;
 	}
-	
+
 	@Column(name="data_cancelacio")
 	public Date getDataCancelacio() {
 		return dataCancelacio;
@@ -93,7 +95,15 @@ public class Reassignacio implements Serializable, GenericEntity<Long> {
 	public void setDataCancelacio(Date dataCancelacio) {
 		this.dataCancelacio = dataCancelacio;
 	}
-	
+
+	@Column(name="expedient_tipus_id")
+	public Long getTipusExpedientId() {
+		return tipusExpedientId;
+	}
+	public void setTipusExpedientId(Long tipusExpedientId) {
+		this.tipusExpedientId = tipusExpedientId;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -108,7 +118,7 @@ public class Reassignacio implements Serializable, GenericEntity<Long> {
 				+ ((usuariOrigen == null) ? 0 : usuariOrigen.hashCode());
 		return result;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -145,4 +155,5 @@ public class Reassignacio implements Serializable, GenericEntity<Long> {
 			return false;
 		return true;
 	}
+
 }

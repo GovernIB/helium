@@ -28,19 +28,29 @@ public class ReassignacioService {
 		return reassignacioDao.findLlistaActius();
 	}
 
+	public List<Reassignacio> llistaReassignacions(Long expedientTipusId) {
+		return reassignacioDao.findLlistaActius(expedientTipusId);
+	}
+	
+	public List<Reassignacio> llistaReassignacionsMod(Long id) {
+		return reassignacioDao.findLlistaActiusModificacio(id);
+	}
+	
 	@Secured({"ROLE_ADMIN"})
 	public void createReassignacio(
 			String usuariOrigen,
 			String usuariDesti,
 			Date dataInici,
 			Date dataFi,
-			Date dataCancelacio) {
+			Date dataCancelacio,
+			Long tipusExpedientId) {
 		Reassignacio reassignacio = new Reassignacio();
 		reassignacio.setUsuariOrigen(usuariOrigen);
 		reassignacio.setUsuariDesti(usuariDesti);
 		reassignacio.setDataInici(dataInici);
 		reassignacio.setDataFi(dataFi);
 		reassignacio.setDataCancelacio(dataCancelacio);
+		reassignacio.setTipusExpedientId(tipusExpedientId);
 		reassignacioDao.saveOrUpdate(reassignacio);
 	}
 
@@ -51,13 +61,15 @@ public class ReassignacioService {
 			String usuariDesti,
 			Date dataInici,
 			Date dataFi,
-			Date dataCancelacio) {
+			Date dataCancelacio,
+			Long tipusExpedientId) {
 		Reassignacio reassignacio = reassignacioDao.getById(id, false);
 		reassignacio.setUsuariOrigen(usuariOrigen);
 		reassignacio.setUsuariDesti(usuariDesti);
 		reassignacio.setDataInici(dataInici);
 		reassignacio.setDataFi(dataFi);
 		reassignacio.setDataCancelacio(dataCancelacio);
+		reassignacio.setTipusExpedientId(tipusExpedientId);
 		reassignacioDao.saveOrUpdate(reassignacio);
 	}
 

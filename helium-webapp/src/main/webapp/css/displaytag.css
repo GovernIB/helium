@@ -1,3 +1,15 @@
+table.displaytag td.showDragHandle {
+    background-image: url(/helium/img/updown.png);
+    background-repeat: no-repeat;
+    background-position: left 3px; 
+    cursor: move;
+}
+
+table.displaytag tr.drag td {
+    color: yellow;
+    background-color: black;
+}
+
 table.displaytag {
 	border: 1px solid #ccc;
 	width: 100%;

@@ -32,8 +32,10 @@ import net.conselldemallorca.helium.core.model.dao.EntornDao;
 import net.conselldemallorca.helium.core.model.dao.EnumeracioDao;
 import net.conselldemallorca.helium.core.model.dao.EnumeracioValorsDao;
 import net.conselldemallorca.helium.core.model.dao.EstatDao;
+import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientTipusDao;
 import net.conselldemallorca.helium.core.model.dao.FirmaTascaDao;
+import net.conselldemallorca.helium.core.model.dao.LuceneDao;
 import net.conselldemallorca.helium.core.model.dao.MapeigSistraDao;
 import net.conselldemallorca.helium.core.model.dao.TascaDao;
 import net.conselldemallorca.helium.core.model.dao.TerminiDao;
@@ -96,6 +98,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
+import java.util.Comparator;
 
 
 /**
@@ -117,6 +120,7 @@ public class DissenyService {
 	private FirmaTascaDao firmaTascaDao;
 	private ValidacioDao validacioDao;
 	private ExpedientTipusDao expedientTipusDao;
+	private ExpedientDao expedientDao;
 	private EnumeracioDao enumeracioDao;
 	private EnumeracioValorsDao enumeracioValorsDao;
 	private TerminiDao terminiDao;
@@ -130,8 +134,10 @@ public class DissenyService {
 
 	private DtoConverter dtoConverter;
 	private JbpmDao jbpmDao;
+	private LuceneDao luceneDao;
 	private AclServiceDao aclServiceDao;
 	private MessageSource messageSource;
+
 	private ServiceUtils serviceUtils;
 
 	private Map<Long, Boolean> hasStartTask = new HashMap<Long, Boolean>();
@@ -1076,6 +1082,7 @@ public class DissenyService {
 			dto.setExpressioDelegacio(tasca.getExpressioDelegacio());
 			dto.setRecursForm(tasca.getRecursForm());
 			dto.setFormExtern(tasca.getFormExtern());
+			dto.setTramitacioMassiva(tasca.isTramitacioMassiva());
 			// Afegeix els camps de la tasca
 			for (CampTasca camp: tasca.getCamps()) {
 				CampTascaExportacio ctdto = new CampTascaExportacio(
@@ -1176,7 +1183,9 @@ public class DissenyService {
 					accio.getCodi(),
 					accio.getNom(),
 					accio.getDescripcio(),
-					accio.getJbpmAction());
+					accio.getJbpmAction(),
+					accio.isPublica(),
+					accio.isOculta());
 			accionsDto.add(dto);
 		}
 		definicioProcesExportacio.setAccions(accionsDto);
@@ -2016,6 +2025,10 @@ public class DissenyService {
 		this.expedientTipusDao = expedientTipusDao;
 	}
 	@Autowired
+	public void setExpedientDao(ExpedientDao expedientDao) {
+		this.expedientDao = expedientDao;
+	}
+	@Autowired
 	public void setEnumeracioDao(EnumeracioDao enumeracioDao) {
 		this.enumeracioDao = enumeracioDao;
 	}
@@ -2062,6 +2075,10 @@ public class DissenyService {
 	@Autowired
 	public void setJbpmDao(JbpmDao jbpmDao) {
 		this.jbpmDao = jbpmDao;
+	}
+	@Autowired
+	public void setLuceneDao(LuceneDao luceneDao) {
+		this.luceneDao = luceneDao;
 	}
 	@Autowired
 	public void setAclServiceDao(AclServiceDao aclServiceDao) {
@@ -2257,6 +2274,8 @@ public class DissenyService {
 					accio.getNom(),
 					accio.getJbpmAction());
 			nova.setDescripcio(accio.getDescripcio());
+			nova.setOculta(accio.isOculta());
+			nova.setPublica(accio.isPublica());
 			accioDao.saveOrUpdate(nova);
 		}
 		// Propaga els camps
@@ -2357,6 +2376,7 @@ public class DissenyService {
 					nova.setRecursForm(vella.getRecursForm());
 					nova.setFormExtern(vella.getFormExtern());
 					nova.setExpressioDelegacio(vella.getExpressioDelegacio());
+					nova.setTramitacioMassiva(vella.isTramitacioMassiva());
 					// Copia els camps de les tasques
 					for (CampTasca camp: vella.getCamps()) {
 						CampTasca nouCamp = new CampTasca(
@@ -2443,6 +2463,8 @@ public class DissenyService {
 						accio.getJbpmAction());
 			}
 			nova.setDescripcio(accio.getDescripcio());
+			nova.setPublica(accio.isPublica());
+			nova.setOculta(accio.isOculta());
 			accioDao.saveOrUpdate(nova);
 		}
 		// Propaga els camps
@@ -2509,6 +2531,8 @@ public class DissenyService {
 			if (camp.getAgrupacioCodi() != null)
 				nou.setAgrupacio(agrupacions.get(camp.getAgrupacioCodi()));
 			// Propaga les validacions del camp
+			for (Validacio validacio: nou.getValidacions())
+				validacioDao.delete(validacio);
 			nou.getValidacions().clear();
 			for (ValidacioExportacio validacio: camp.getValidacions()) {
 				Validacio nova = new Validacio(
@@ -2618,6 +2642,7 @@ public class DissenyService {
 					nova.setExpressioDelegacio(vella.getExpressioDelegacio());
 					nova.setRecursForm(vella.getRecursForm());
 					nova.setFormExtern(vella.getFormExtern());
+					nova.setTramitacioMassiva(vella.isTramitacioMassiva());
 					// Propaga els camps de la tasca
 					for (CampTasca campTasca: nova.getCamps()) {
 						campTasca.getCamp().getCampsTasca().remove(campTasca);
@@ -2730,9 +2755,11 @@ public class DissenyService {
 	private ServiceUtils getServiceUtils() {
 		if (serviceUtils == null) {
 			serviceUtils = new ServiceUtils(
+					expedientDao,
 					definicioProcesDao,
 					campDao,
 					consultaCampDao,
+					luceneDao,
 					dtoConverter,
 					jbpmDao,
 					aclServiceDao,
@@ -2740,5 +2767,309 @@ public class DissenyService {
 		}
 		return serviceUtils;
 	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void goToCampTasca(Long id, int NouOrd) {
+		CampTasca campTasca = getCampTascaById(id);
+		int ordreAntic = campTasca.getOrder();
+		campTasca.setOrder(-1);
+		
+		// Si no s'ha canviat l'ordre, sortim sense fer res.
+		if (ordreAntic == NouOrd) return;
+				
+		Tasca tasca = campTasca.getTasca();
+		List<CampTasca> camps = tasca.getCamps();
+		//List<CampTasca> camps = (List<CampTasca>) campTascaDao.findAmbTascaOrdenats(tasca.getId());
+		
+		if (ordreAntic < NouOrd) {
+			//Collections.reverse(camps);
+			Collections.sort(
+					camps,
+					new Comparator() {
+					public int compare(Object o1, Object o2) {
+						if (o1 == null && o2 == null) return 0;
+						return (((CampTasca)o1).getOrder()<((CampTasca)o2).getOrder() ? -1 : ((CampTasca)o1).getOrder()==((CampTasca)o2).getOrder() ? 0 : 1);
+					}
+					});
+			
+			for (CampTasca ct : camps){
+				int ordre = ct.getOrder();
+				if (ordre > ordreAntic) {
+					if (ordre <= NouOrd) {
+						ct.setOrder(ordre - 1);
+						campTascaDao.saveOrUpdate(ct);
+						campTascaDao.flush();
+					}
+				}
+			}
+	
+		} else {
+			
+			Collections.sort(
+					camps,
+					new Comparator() {
+					public int compare(Object o1, Object o2) {
+						if (o1 == null && o2 == null) return 0;
+						return (((CampTasca)o1).getOrder()>((CampTasca)o2).getOrder() ? -1 : ((CampTasca)o1).getOrder()==((CampTasca)o2).getOrder() ? 0 : 1);
+					}
+					});
+			
+			for (CampTasca ct : camps){
+			
+				int ordre = ct.getOrder();
+				if (ordre < ordreAntic)  {
+					if (ordre >= NouOrd) {
+						ct.setOrder(ordre + 1);
+						campTascaDao.saveOrUpdate(ct);
+						campTascaDao.flush();
+					}
+				}
+			}
+		}
+		campTasca.setOrder(NouOrd);
+		campTascaDao.saveOrUpdate(campTasca);
+		tascaDao.merge(tasca);
+	}
+	
+	
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void goToCampEstat(Long id, int NouOrd) {
+		Estat estat = getEstatById(id);
+		int ordreAntic = estat.getOrdre();
+		estat.setOrdre(-1);
+		ExpedientTipus expTip = estat.getExpedientTipus();
+		List<Estat> estats = findEstatAmbExpedientTipus(expTip.getId());
+		
+		// Si no s'ha canviat l'ordre, sortim sense fer res.
+		if (ordreAntic == NouOrd) return;
+				
+		
+				
+		if (ordreAntic < NouOrd) {
+			//Collections.reverse(camps);
+			Collections.sort(
+					estats,
+					new Comparator() {
+					public int compare(Object o1, Object o2) {
+						if (o1 == null && o2 == null) return 0;
+						return (((Estat)o1).getOrdre()<((Estat)o2).getOrdre() ? -1 : ((Estat)o1).getOrdre()==((Estat)o2).getOrdre() ? 0 : 1);
+					}
+					});
+			
+			for (Estat ce : estats){
+				int ordre = ce.getOrdre();
+				if (ordre > ordreAntic) {
+					if (ordre <= NouOrd) {
+						ce.setOrdre(ordre - 1);
+						estatDao.saveOrUpdate(ce);
+						estatDao.flush();
+					}
+				}
+			}
+	
+		} else {
+			
+			Collections.sort(
+					estats,
+					new Comparator() {
+					public int compare(Object o1, Object o2) {
+						if (o1 == null && o2 == null) return 0;
+						return (((Estat)o1).getOrdre()>((Estat)o2).getOrdre() ? -1 : ((Estat)o1).getOrdre()==((Estat)o2).getOrdre() ? 0 : 1);
+					}
+					});
+			
+			for (Estat ct : estats){
+			
+				int ordre = ct.getOrdre();
+				if (ordre < ordreAntic)  {
+					if (ordre >= NouOrd) {
+						ct.setOrdre(ordre + 1);
+						estatDao.saveOrUpdate(ct);
+						estatDao.flush();
+					}
+				}
+			}
+		}
+		estat.setOrdre(NouOrd);
+		estatDao.saveOrUpdate(estat);
+		estatDao.merge(estat);
+	}
+	
+	
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void goToCampAgrupacio(Long id, int NouOrd) {
+		CampAgrupacio campAgrupacio = getCampAgrupacioById(id);
+		int ordreAntic = campAgrupacio.getOrdre();
+		Long idProces = campAgrupacio.getDefinicioProces().getId();
+		campAgrupacio.setOrdre(-1);
+		
+		// Si no s'ha canviat l'ordre, sortim sense fer res.
+		if (ordreAntic == NouOrd) return;
+				
+		List<CampAgrupacio> campsAgrupacio =  campAgrupacioDao.findAmbDefinicioProcesOrdenats(idProces);
+		
+		if (ordreAntic < NouOrd) {
+			Collections.sort(
+					campsAgrupacio,
+					new Comparator() {
+					public int compare(Object o1, Object o2) {
+						if (o1 == null && o2 == null) return 0;
+						return (((CampAgrupacio)o1).getOrdre()<((CampAgrupacio)o2).getOrdre() ? -1 : ((CampAgrupacio)o1).getOrdre()==((CampAgrupacio)o2).getOrdre() ? 0 : 1);
+					}
+					});
+			
+			for (CampAgrupacio ca : campsAgrupacio){
+				int ordre = ca.getOrdre();
+				if (ordre > ordreAntic) {
+					if (ordre <= NouOrd) {
+						ca.setOrdre(ordre - 1);
+						campAgrupacioDao.saveOrUpdate(campAgrupacio);
+						campAgrupacioDao.flush();
+					}
+				}
+			}
+	
+		} else {
+			
+			Collections.sort(
+					campsAgrupacio,
+					new Comparator() {
+					public int compare(Object o1, Object o2) {
+						if (o1 == null && o2 == null) return 0;
+						return (((CampAgrupacio)o1).getOrdre()>((CampAgrupacio)o2).getOrdre() ? -1 : ((CampAgrupacio)o1).getOrdre()==((CampAgrupacio)o2).getOrdre() ? 0 : 1);
+					}
+					});
+			
+			for (CampAgrupacio ca : campsAgrupacio){
+			
+				int ordre = ca.getOrdre();
+				if (ordre < ordreAntic)  {
+					if (ordre >= NouOrd) {
+						ca.setOrdre(ordre + 1);
+						campAgrupacioDao.saveOrUpdate(campAgrupacio);
+						campAgrupacioDao.flush();
+					}
+				}
+			}
+		}
+		campAgrupacio.setOrdre(NouOrd);
+		campAgrupacioDao.saveOrUpdate(campAgrupacio);
+		campAgrupacioDao.merge(campAgrupacio);
+	}
+	
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void goToCampConsLlistat(Long id, int NouOrd) {
+		Consulta consulta = getConsultaById(id);
+		Long idEntorn  = consulta.getEntorn().getId(); 
+		Long idExpedientTipus = consulta.getExpedientTipus().getId();
+		int ordreAntic = consulta.getOrdre();
+		
+		
+		consulta.setOrdre(-1);
+		if (ordreAntic == NouOrd) return;
+		// Si no s'ha canviat l'ordre, sortim sense fer res.
+
+				
+		List<Consulta> codisConsulta =  (List<Consulta>) consultaDao.findAmbEntornIExpedientTipus(idEntorn,idExpedientTipus);
+		
+		if (ordreAntic < NouOrd) {
+			Collections.sort(
+					codisConsulta,
+					new Comparator() {
+					public int compare(Object o1, Object o2) {
+						if (o1 == null && o2 == null) return 0;
+						return (((Consulta)o1).getOrdre()<((Consulta)o2).getOrdre() ? -1 : ((Consulta)o1).getOrdre()==((Consulta)o2).getOrdre() ? 0 : 1);
+					}
+					});
+			
+			for (Consulta ca : codisConsulta){
+				int ordre = ca.getOrdre();
+				if (ordre > ordreAntic) {
+					if (ordre <= NouOrd) {
+						ca.setOrdre(ordre - 1);
+						consultaDao.saveOrUpdate(ca);
+						consultaDao.flush();
+					}
+				}
+			}
+	
+		} else {
+			
+			Collections.sort(
+					codisConsulta,
+					new Comparator() {
+					public int compare(Object o1, Object o2) {
+						if (o1 == null && o2 == null) return 0;
+						return (((Consulta)o1).getOrdre()>((Consulta)o2).getOrdre() ? -1 : ((Consulta)o1).getOrdre()==((Consulta)o2).getOrdre() ? 0 : 1);
+					}
+					});
+			
+			for (Consulta ca : codisConsulta){
+			
+				int ordre = ca.getOrdre();
+				if (ordre < ordreAntic)  {
+					if (ordre >= NouOrd) {
+						ca.setOrdre(ordre + 1);
+						consultaDao.saveOrUpdate(ca);
+						consultaDao.flush();
+					}
+				}
+			}
+		}
+		consulta.setOrdre(NouOrd);
+		consultaDao.saveOrUpdate(consulta);
+		consultaDao.merge(consulta);
+	}
+	
+	
+	
+	
+	
+	
+	
+	 
+	public void goToCampProces(Long id, int NouOrd) {
+		CampTasca campTasca = getCampTascaById(id);
+		int ordreAntic = campTasca.getOrder();
+		try{
+		// Si no s'ha canviat l'ordre, sortim sense fer res.
+		if (ordreAntic == NouOrd) return;
+				
+		Tasca tasca = campTasca.getTasca();
+		List<CampTasca> camps = tasca.getCamps();
+				
+		if (ordreAntic < NouOrd) {
+			for (CampTasca ct : camps){
+				int ordre = ct.getOrder();
+				if (ordre > ordreAntic) {
+					if (ordre <= NouOrd) {
+						ct.setOrder(ordre - 1);
+						campTascaDao.merge(ct);
+						//campTascaDao.saveOrUpdate(ct);
+					}
+				}
+			}
+		} else {
+			for (CampTasca ct : camps){
+				int ordre = ct.getOrder();
+				if (ordre < ordreAntic)  {
+					if (ordre >= NouOrd) {
+						ct.setOrder(ordre + 1);
+						//campTascaDao.merge(ct);
+					}
+				}
+			}
+		}
+		campTasca.setOrder(NouOrd);
+		//campTascaDao.saveOrUpdate(campTasca);
+		campTascaDao.merge(campTasca);
+		//campTascaDao.flush();
+		}
+		catch(Exception e){e.getMessage();}
+	}
+	
 
 }

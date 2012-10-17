@@ -22,6 +22,7 @@ public class ConsultaExportacio implements Serializable {
 	private String informeNom;
 	private byte[] informeContingut;
 	private boolean exportarActiu;
+	private boolean ocultarActiu;
 	private List<ConsultaCampExportacio> camps;
 
 
@@ -74,6 +75,12 @@ public class ConsultaExportacio implements Serializable {
 	}
 	public void setExportarActiu(boolean exportarActiu) {
 		this.exportarActiu = exportarActiu;
+	}
+	public boolean isOcultarActiu() {
+		return ocultarActiu;
+	}
+	public void setOcultarActiu(boolean ocultarActiu) {
+		this.ocultarActiu = ocultarActiu;
 	}
 	public List<ConsultaCampExportacio> getCamps() {
 		return camps;

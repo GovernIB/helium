@@ -18,6 +18,8 @@ public class AccioExportacio implements Serializable {
 	private String nom;
 	private String descripcio;
 	private String jbpmAction;
+	private boolean publica;
+	private boolean oculta;
 
 
 
@@ -25,11 +27,15 @@ public class AccioExportacio implements Serializable {
 			String codi,
 			String nom,
 			String descripcio,
-			String jbpmAction) {
+			String jbpmAction,
+			boolean publica,
+			boolean oculta) {
 		this.codi = codi;
 		this.nom = nom;
 		this.descripcio = descripcio;
 		this.jbpmAction = jbpmAction;
+		this.publica = publica;
+		this.oculta = oculta;
 	}
 
 	public String getCodi() {
@@ -55,6 +61,18 @@ public class AccioExportacio implements Serializable {
 	}
 	public void setJbpmAction(String jbpmAction) {
 		this.jbpmAction = jbpmAction;
+	}
+	public boolean isPublica() {
+		return publica;
+	}
+	public void setPublica(boolean publica) {
+		this.publica = publica;
+	}
+	public boolean isOculta() {
+		return oculta;
+	}
+	public void setOculta(boolean oculta) {
+		this.oculta = oculta;
 	}
 
 

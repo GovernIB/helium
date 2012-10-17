@@ -34,16 +34,14 @@
 				<c:otherwise>
 				</c:otherwise>
 			</c:choose>
-			<c:if test="${not proces.finalitzat}">
-				<option value="${proces.id}"<c:if test="${param.id == proces.id}"> selected="selected"</c:if>>
-					<c:choose>
-						<c:when test="${proces.id == expedient.processInstanceId}">&lt;&lt; <fmt:message key='common.tabsexp.proc_princip' /> &gt;&gt;</c:when>
-						<c:otherwise>
-							<c:forEach begin="0" end="${nivell}">&nbsp;&nbsp;</c:forEach>${proces.titol}
-						</c:otherwise>
-					</c:choose>
-				</option>
-			</c:if>
+			<option value="${proces.id}"<c:if test="${param.id == proces.id}"> selected="selected"</c:if>>
+				<c:choose>
+					<c:when test="${proces.id == expedient.processInstanceId}">&lt;&lt; <fmt:message key='common.tabsexp.proc_princip' /> &gt;&gt;</c:when>
+					<c:otherwise>
+						<c:forEach begin="0" end="${nivell}">&nbsp;&nbsp;</c:forEach>${proces.titol}
+					</c:otherwise>
+				</c:choose>
+			</option>
 		</c:forEach>
 	</select>
 </form>

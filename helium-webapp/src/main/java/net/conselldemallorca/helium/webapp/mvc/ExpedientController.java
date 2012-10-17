@@ -180,7 +180,11 @@ public class ExpedientController extends BaseController {
 				model.addAttribute(
 						"expedient",
 						expedient);
-				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, false);
+				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(
+						id,
+						true,
+						false,
+						false);
 				model.addAttribute(
 						"instanciaProces",
 						instanciaProces);
@@ -224,7 +228,7 @@ public class ExpedientController extends BaseController {
 						expedientService.getArbreInstanciesProces(id));
 				model.addAttribute(
 						"instanciaProces",
-						expedientService.getInstanciaProcesById(id, true));
+						expedientService.getInstanciaProcesById(id, false, true, false));
 				if (ambTasques != null && ambTasques.booleanValue()) {
 					model.addAttribute(
 							"tasques",
@@ -259,7 +263,7 @@ public class ExpedientController extends BaseController {
 						expedientService.getArbreInstanciesProces(id));
 				model.addAttribute(
 						"instanciaProces",
-						expedientService.getInstanciaProcesById(id, true));
+						expedientService.getInstanciaProcesById(id, false, false, true));
 				if (ambTasques != null && ambTasques.booleanValue()) {
 					model.addAttribute(
 							"tasques",
@@ -293,7 +297,7 @@ public class ExpedientController extends BaseController {
 						expedientService.getArbreInstanciesProces(id));
 				model.addAttribute(
 						"instanciaProces",
-						expedientService.getInstanciaProcesById(id, true));
+						expedientService.getInstanciaProcesById(id, false, false, false));
 				return "expedient/timeline";
 			} else {
 				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
@@ -316,7 +320,7 @@ public class ExpedientController extends BaseController {
 			if (potConsultarExpedient(expedient)) {
 				model.addAttribute(
 						"instanciaProces",
-						expedientService.getInstanciaProcesById(id, true));
+						expedientService.getInstanciaProcesById(id, false, false, false));
 				model.addAttribute(
 						"terminisIniciats",
 						terminiService.findIniciatsAmbProcessInstanceId(id));
@@ -346,9 +350,9 @@ public class ExpedientController extends BaseController {
 				model.addAttribute(
 						"arbreProcessos",
 						expedientService.getArbreInstanciesProces(id));
-				model.addAttribute(
-						"instanciaProces",
-						expedientService.getInstanciaProcesById(id, false));
+//				model.addAttribute(
+//						"instanciaProces",
+//						expedientService.getInstanciaProcesById(id, false, false, false, false));
 				model.addAttribute(
 						"tasques",
 						expedientService.findTasquesPerInstanciaProces(id, false));
@@ -372,16 +376,21 @@ public class ExpedientController extends BaseController {
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (potConsultarExpedient(expedient)) {
-				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, false);
-				String resourceName = "processimage.jpg";
-				model.addAttribute(
-						ArxiuView.MODEL_ATTRIBUTE_FILENAME,
-						resourceName);
-				model.addAttribute(
-						ArxiuView.MODEL_ATTRIBUTE_DATA,
-						dissenyService.getImatgeDefinicioProces(
-								instanciaProces.getDefinicioProces().getId()));
-				return "arxiuView";
+				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, true, false, false);
+				if (instanciaProces.isImatgeDisponible()) {
+					String resourceName = "processimage.jpg";
+					model.addAttribute(
+							ArxiuView.MODEL_ATTRIBUTE_FILENAME,
+							resourceName);
+					model.addAttribute(
+							ArxiuView.MODEL_ATTRIBUTE_DATA,
+							dissenyService.getImatgeDefinicioProces(
+									instanciaProces.getDefinicioProces().getId()));
+					return "arxiuView";
+				} else {
+					missatgeError(request, getMessage("error.info.expedient.imatgeproces"));
+					return "redirect:/expedient/consulta.html";
+				}
 			} else {
 				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
 				return "redirect:/expedient/consulta.html";
@@ -407,9 +416,9 @@ public class ExpedientController extends BaseController {
 				model.addAttribute(
 						"arbreProcessos",
 						expedientService.getArbreInstanciesProces(id));
-				model.addAttribute(
-						"instanciaProces",
-						expedientService.getInstanciaProcesById(id, false));
+//				model.addAttribute(
+//						"instanciaProces",
+//						expedientService.getInstanciaProcesById(id, false, false, false, false));
 				List<ExpedientLogDto> logs = expedientService.getLogsOrdenatsPerData(expedient.getId());
 				if (logs == null || logs.size() == 0) {
 					model.addAttribute(
@@ -452,7 +461,7 @@ public class ExpedientController extends BaseController {
 			if (potConsultarExpedient(expedient)) {
 				model.addAttribute(
 						"instanciaProces",
-						expedientService.getInstanciaProcesById(id, false));
+						expedientService.getInstanciaProcesById(id, false, false, false));
 				List<ExpedientLogDto> logs = expedientService.findLogsRetroceditsOrdenatsPerData(logId);
 				model.addAttribute("logs", logs);
 				model.addAttribute(
@@ -480,7 +489,7 @@ public class ExpedientController extends BaseController {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (expedientService.isAccioPublica(id, jbpmAction) || potModificarExpedient(expedient)) {
 				expedientService.executarAccio(id, jbpmAction);
-				missatgeInfo(request, getMessage("info.accio.executat") );
+				missatgeInfo(request, getMessage("info.accio.executat"));
 				return "redirect:/expedient/info.html?id=" + id;
 			} else {
 				missatgeError(request, getMessage("error.permisos.modificar.expedient"));

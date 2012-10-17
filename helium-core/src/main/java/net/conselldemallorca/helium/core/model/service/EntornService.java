@@ -126,79 +126,16 @@ public class EntornService {
 		return entornDao.findMembresEntorn(entornId);
 	}
 
-	/*@Secured({"ROLE_ADMIN"})
-	public void afegirMembre(Long entornId, Long personaId, Set<Permission> permisos) {
-		Entorn entorn = getById(entornId);
-		if (entorn == null)
-			throw new NotFoundException("No s'ha trobat l'entorn amb id:" + entornId);
-		Persona persona = personaDao.getById(personaId, false);
-		if (persona == null)
-			throw new NotFoundException("No s'ha trobat la persona amb id:" + personaId);
-		if (!entorn.getMembres().contains(persona))
-			entorn.addMembre(persona);
-		if (permisos != null) {
-			aclServiceDao.deleteAclEntriesForSid(
-					new PrincipalSid(persona.getCodi()),
-					entorn.getId(),
-					Entorn.class);
-			for (Permission perm: permisos) {
-				aclServiceDao.addAclEntry(
-						new PrincipalSid(persona.getCodi()),
-						entorn.getId(),
-						Entorn.class,
-						perm,
-						true);
-			}
-		}
+	
+	public List<Persona> findTotsMembresEntorn(Long entornId) {
+		return entornDao.findTotsMembresEntorn(entornId);
 	}
-	@Secured({"ROLE_ADMIN"})
-	public void esborrarMembre(Long entornId, Long personaId) {
-		Entorn entorn = getById(entornId);
-		if (entorn == null)
-			throw new NotFoundException("No s'ha trobat l'entorn amb id:" + entornId);
-		Persona persona = personaDao.getById(personaId, false);
-		if (persona == null)
-			throw new NotFoundException("No s'ha trobat la persona amb id:" + entornId);
-		// Esborra la persona com a membre
-		entorn.removeMembre(persona);
-		// Esborra tots els permisos d'aquesta persona per aquest entorn
-		aclServiceDao.deleteAclEntriesForSid(
-				new PrincipalSid(persona.getCodi()),
-				entorn.getId(),
-				Entorn.class);
-	}
-	@Secured({"ROLE_ADMIN", "ROLE_USER"})
-	public Acl permisosMembresEntorn(Long entornId) {
-		ObjectIdentity oid = new ObjectIdentityImpl(Entorn.class, entornId);
-		try {
-			return aclServiceDao.readAclById(oid);
-		} catch (NotFoundException ex) {
-			return aclServiceDao.createAcl(oid);
-		}
-	}*/
-
+	
 	@Secured({"ROLE_ADMIN", "ROLE_USER"})
 	public List<Entorn> findActius() {
 		return entornDao.findActius();
 	}
 
-	/*@Secured({"ROLE_ADMIN", "ROLE_USER"})
-	public List<Entorn> findAccessibles() {
-		List<Entorn> entorns = entornDao.findActius();
-		List<Entorn> resposta = new ArrayList<Entorn>();
-		for (Entorn entorn: entorns) {
-			if (isAccessible(entorn))
-				resposta.add(entorn);
-		}
-		return resposta;
-	}
-	@Secured({"ROLE_ADMIN", "ROLE_USER"})
-	public Entorn getByIdIfAccessible(Long id) {
-		Entorn entorn = entornDao.getById(id, false);
-		if (entorn != null && entorn.isActiu() && isAccessible(entorn))
-			return entorn;
-		return null;
-	}*/
 
 	@Secured({"ROLE_ADMIN", "ROLE_USER"})
 	public EntornExportacio exportar(Long entornId) {
@@ -616,59 +553,6 @@ public class EntornService {
 	public void setMessageSource(MessageSource messageSource) {
 		this.messageSource = messageSource;
 	}
-
-
-
-	/*private boolean isAccessible(Entorn entorn) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		Set<Sid> sids = new HashSet<Sid>();
-		sids.add(new PrincipalSid(auth.getName()));
-		for (GrantedAuthority ga: auth.getAuthorities()) {
-			sids.add(new GrantedAuthoritySid(ga.getAuthority()));
-		}
-		try {
-			Acl acl = aclServiceDao.readAclById(new ObjectIdentityImpl(Entorn.class, entorn.getId()));
-			boolean grantedRead = false;
-			try {
-				grantedRead = acl.isGranted(
-						new Permission[]{ExtendedPermission.READ},
-						(Sid[])sids.toArray(new Sid[sids.size()]),
-						false);
-			} catch (NotFoundException ex) {}
-			boolean grantedAdmin = false;
-			try {
-				grantedAdmin = acl.isGranted(
-						new Permission[]{ExtendedPermission.ADMINISTRATION},
-						(Sid[])sids.toArray(new Sid[sids.size()]),
-						false);
-			} catch (NotFoundException ex) {}
-			return grantedRead || grantedAdmin;
-		} catch (NotFoundException ex) {
-			return false;
-		}
-	}
-	private boolean isAccessible(Entorn entorn) {
-		return isAccessible(entorn, null);
-	}
-	private boolean isAccessible(Entorn entorn, String usuari) {
-		Sid sid = null;
-		if (usuari == null) {
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			sid = new PrincipalSid(auth.getName());
-		} else {
-			sid = new PrincipalSid(usuari);
-		}
-		try {
-			Acl acl = aclServiceDao.readAclById(new ObjectIdentityImpl(Entorn.class, entorn.getId()));
-			return acl.isGranted(
-					new Permission[]{ExtendedPermission.READ},
-					new Sid[]{sid},
-					false);
-		} catch (org.springframework.security.acls.NotFoundException ignored) {}
-		return false;
-	}*/
-	
-	
 	protected String getMessage(String key, Object[] vars) {
 		try {
 			return messageSource.getMessage(

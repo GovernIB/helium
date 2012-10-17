@@ -40,7 +40,16 @@ public class JbpmToken {
 		return token.getFullName();
 	}
 	public String getNodeName() {
-		return token.getNode().getName();
+		if (token.getNode() == null)
+			return null;
+		else
+			return token.getNode().getName();
+	}
+	public String getNodeClass() {
+		if (token.getNode() == null)
+			return null;
+		else
+			return token.getNode().getClass().getName();
 	}
 	public Date getStart() {
 		return token.getStart();

@@ -20,19 +20,19 @@ public class FindTaskInstanceForTokenAndTaskCommand extends AbstractGetObjectBas
 
 	private static final long serialVersionUID = -1908847549444051495L;
 	private long tokenId;
-	private long taskId;
+	private String taskName;
 
-	public FindTaskInstanceForTokenAndTaskCommand(long tokenId, long taskId){
+	public FindTaskInstanceForTokenAndTaskCommand(long tokenId, String taskName){
 		super();
 		this.tokenId = tokenId;
-		this.taskId = taskId;
+		this.taskName = taskName;
 	}
 
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		Token token = jbpmContext.getToken(tokenId);
 		Collection<TaskInstance> unfinishedTasks = jbpmContext.getProcessInstance(token.getProcessInstance().getId()).getTaskMgmtInstance().getUnfinishedTasks(token);
 		for (TaskInstance task: unfinishedTasks) {
-			if (task.getTask().getId() == taskId)
+			if (task.getTask().getName().equals(taskName))
 				return task;
 		}
 		return null;
@@ -44,16 +44,16 @@ public class FindTaskInstanceForTokenAndTaskCommand extends AbstractGetObjectBas
 	public void setTokenId(long tokenId) {
 		this.tokenId = tokenId;
 	}
-	public long getTaskId() {
-		return taskId;
+	public String getTaskName() {
+		return taskName;
 	}
-	public void setTaskId(long taskId) {
-		this.taskId = taskId;
+	public void setTaskName(String taskName) {
+		this.taskName = taskName;
 	}
 
 	@Override
 	public String getAdditionalToStringInformation() {
-	    return "tokenId=" + tokenId + ", taskId=" + taskId;
+	    return "tokenId=" + tokenId + ", taskName=" + taskName;
 	}
 
 }

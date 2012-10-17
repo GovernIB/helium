@@ -356,4 +356,17 @@ public interface TramitacioService {
 			Double geoPosY,
 			String geoReferencia) throws TramitacioException;
 
+	/**
+	 * Mètode per a esborrar un expedient
+	 * 
+	 * @param entorn
+	 * @param usuari
+	 * @param processInstanceId
+	 * @throws TramitacioException
+	 */
+	public void deleteExpedient(
+			String entorn,
+			String usuari,
+			String processInstanceId) throws TramitacioException;
+
 }

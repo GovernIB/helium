@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
-import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
@@ -91,10 +90,10 @@ public class ExpedientEinesController extends BaseController {
 				model.addAttribute(
 						"arbreProcessos",
 						expedientService.getArbreInstanciesProces(id));
-				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, true);
-				model.addAttribute(
-						"instanciaProces",
-						instanciaProces);
+//				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, true);
+//				model.addAttribute(
+//						"instanciaProces",
+//						instanciaProces);
 				return "expedient/eines";
 			} else {
 				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
@@ -126,10 +125,9 @@ public class ExpedientEinesController extends BaseController {
 							id,
 							command.getScript(),
 							null);
-					missatgeInfo(request, getMessage("info.script.executat") );
+					missatgeInfo(request, getMessage("info.script.executat"));
 				} catch (Exception ex) {
-					missatgeError(request, getMessage("error.executar.script"), ex.getLocalizedMessage());
-		        	logger.error("No s'ha pogut executar l'script", ex);
+					missatgeError(request, getMessage("error.executar.script"), getMissageFinalCadenaExcepcions(ex));
 		        	return "expedient/eines";
 				}
 				return "redirect:/expedient/eines.html?id=" + id;
@@ -273,6 +271,13 @@ public class ExpedientEinesController extends BaseController {
 		}
 	}
 
+	private String getMissageFinalCadenaExcepcions(Throwable ex) {
+		if (ex.getCause() == null) {
+			return ex.getClass().getName() + ": " + ex.getMessage();
+		} else {
+			return getMissageFinalCadenaExcepcions(ex.getCause());
+		}
+	}
 
 	private boolean potModificarExpedient(ExpedientDto expedient) {
 		return permissionService.filterAllowed(

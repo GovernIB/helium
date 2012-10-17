@@ -9,14 +9,18 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.core.extern.domini.DominiHeliumException;
+import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
+import net.conselldemallorca.helium.core.model.service.PersonaService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.model.service.TerminiService;
 import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
@@ -52,17 +56,18 @@ public class TascaController extends BaseController {
 	private TascaService tascaService;
 	private TerminiService terminiService;
 	private DissenyService dissenyService;
-
-
-
+	private PersonaService  personaService;
+	
 	@Autowired
 	public TascaController(
 			TascaService tascaService,
 			TerminiService terminiService,
-			DissenyService dissenyService) {
+			DissenyService dissenyService,
+			PersonaService  personaService) {
 		this.tascaService = tascaService;
 		this.terminiService = terminiService;
 		this.dissenyService = dissenyService;
+		this.personaService = personaService;
 	}
 
 	@ModelAttribute("prioritats")
@@ -182,8 +187,11 @@ public class TascaController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) String id,
 			@RequestParam(value = "massiva", required = false) String massiva,
-			ModelMap model) {
+			@RequestParam(value = "ini", required = false) String ini,
+			ModelMap model) throws DominiHeliumException {
 		Entorn entorn = getEntornActiu(request);
+		TascaDto tasca = tascaService.getByIdSenseComprovacio(id);
+		Long tid = tasca.getExpedient().getTipus().getId();
 		if (entorn != null) {
 			if (massiva == null || !massiva.equalsIgnoreCase("s")) {
 				TramitacioMassiva.netejarTramitacioMassiva(request);
@@ -209,7 +217,28 @@ public class TascaController extends BaseController {
 				missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 				return "redirect:/tasca/personaLlistat.html";
 			}
-			return "tasca/info";
+			if ("s".equals(ini)) {
+				
+				if(tasca.isDelegacioOriginal()){
+					return "redirect:/tasca/info.html?id="+id;
+				}else{
+					
+					if (!tasca.getCamps().isEmpty()) {
+						return "redirect:/tasca/form.html?id="+id;
+					} else if(!tasca.getDocuments().isEmpty()) {
+						return "redirect:/tasca/documents.html?id="+id;
+					} else if (!tasca.getSignatures().isEmpty()) {
+						return "redirect:/tasca/signatures.html?id="+id;
+						
+					}	
+					
+				}
+			}
+			Set<PersonaDto> destinataris =  personaService.findPersonesAmbPermisosPerExpedientTipus(tid);
+			model.addAttribute(
+					 "destinataris",
+					 destinataris);
+	        return "tasca/info";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
@@ -222,16 +251,31 @@ public class TascaController extends BaseController {
 			@RequestParam(value = "id", required = true) String id,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
+		TascaDto tasca = tascaService.getByIdSenseComprovacio(id);
 		if (entorn != null) {
 			try {
 				tascaService.agafar(entorn.getId(), id);
 				missatgeInfo(request, getMessage("info.tasca.disponible.personals") );
-				return "redirect:/tasca/info.html?id=" + id;
+				
+				if(tasca.isDelegacioOriginal()){
+					return "redirect:/tasca/info.html?id="+id;
+				}else{
+					
+					if (!tasca.getCamps().isEmpty()) {
+						return "redirect:/tasca/form.html?id="+id;
+					} else if(!tasca.getDocuments().isEmpty()) {
+						return "redirect:/tasca/documents.html?id="+id;
+					} else if (!tasca.getSignatures().isEmpty()) {
+						return "redirect:/tasca/signatures.html?id="+id;
+					}	
+				}
+				
 			} catch (Exception ex) {
 	        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut agafar la tasca", ex);
 	        	return "redirect:/tasca/grupLlistat.html";
 	        }
+			return "redirect:/tasca/info.html?id=" + id;
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
@@ -309,32 +353,7 @@ public class TascaController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
-
-	/*@RequestMapping(value = "/tasca/executarAccio")
-	public String executarAccio(
-			HttpServletRequest request,
-			@RequestParam(value = "id", required = true) String id,
-			@RequestParam(value = "accio", required = true) String accio,
-			ModelMap model) {
-		Entorn entorn = getEntornActiu(request);
-		if (entorn != null) {
-			try {
-				tascaService.executarAccio(
-						entorn.getId(),
-						id,
-						accio);
-				missatgeInfo(request, getMessage("info.accio.executat") );
-			} catch (Exception ex) {
-				missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
-				logger.error("No s'ha pogut mostrar l'arxiu", ex);
-			}
-			return "redirect:/tasca/form.html?id=" + id;
-		} else {
-			missatgeError(request, getMessage("error.no.entorn.selec") );
-			return "redirect:/index.html";
-		}
-	}*/
-
+	
 	private String textFormRecursProcessat(TascaDto tasca, String text) {
 		int indexFormInici = text.indexOf(TAG_FORM_INICI);
 		int indexFormFi = text.indexOf(TAG_FORM_FI);

@@ -78,7 +78,7 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 			return getPortasignaturesPlugin().obtenirSignaturesDocument(
 					documentId);
 		} catch (PortasignaturesPluginException ex) {
-			logger.error("Error al rebre el document del portasignatures", ex);
+			//logger.error("Error al rebre el document del portasignatures", ex);
 			throw new PluginException("Error al rebre el document del portasignatures", ex);
 		}
 	}
@@ -88,12 +88,21 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 		List<Portasignatures> list = getSession()
 			.createCriteria(getPersistentClass())
 			.add(Restrictions.eq("documentId", id))
-			.add(Restrictions.eq("estat", TipusEstat.PENDENT))
+			//.add(Restrictions.eq("estat", TipusEstat.PENDENT))
 			.list();
 		if (list.size() > 0) {
 			return list.get(0);
 		}
 		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<Portasignatures> findPendents() {
+		return getSession()
+			.createCriteria(getPersistentClass())
+			.add(Restrictions.ne("estat", TipusEstat.SIGNAT))
+			.add(Restrictions.ne("estat", TipusEstat.REBUTJAT))
+			.list();
 	}
 
 	@SuppressWarnings("rawtypes")

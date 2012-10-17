@@ -8,9 +8,10 @@ import java.util.Map;
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractGetObjectBaseCommand;
 import org.jbpm.graph.def.Node;
-import org.jbpm.graph.def.Node.NodeType;
 import org.jbpm.graph.exe.ExecutionContext;
 import org.jbpm.graph.exe.Token;
+import org.jbpm.graph.node.ProcessState;
+import org.jbpm.graph.node.TaskNode;
 import org.jbpm.taskmgmt.exe.TaskInstance;
 
 /**
@@ -24,6 +25,8 @@ public class TokenRedirectCommand extends AbstractGetObjectBaseCommand {
 	private long id;
 	private String nodeName;
 	private boolean cancelTasks = true;
+	private boolean enterNodeIfTask = true;
+	private boolean executeNode = true;
 
 	public TokenRedirectCommand() {}
 
@@ -48,11 +51,13 @@ public class TokenRedirectCommand extends AbstractGetObjectBaseCommand {
 				throw new JbpmException("Retrocedeixi primer els fills d'aquest token");
 		}*/
 		// Si el token té fills actius els desactiva
-		for (String key: children.keySet()) {
-			Token child = children.get(key);
-			child.setAbleToReactivateParent(false);
-			if (child.getEnd() == null && child.getId() != token.getId())
-				child.end(false);
+		if (token.getChildren() != null) {
+			for (String key: children.keySet()) {
+				Token child = children.get(key);
+				child.setAbleToReactivateParent(false);
+				if (child.getEnd() == null && child.getId() != token.getId())
+					child.end(false);
+			}
 		}
 		// Cancel·la les tasques si s'ha de fer
 		if (cancelTasks) {
@@ -66,13 +71,26 @@ public class TokenRedirectCommand extends AbstractGetObjectBaseCommand {
 			}
 		}
 		// Fa la redirecció
-		token.setNode(desti);
+		// v.2
+		if (enterNodeIfTask && (desti instanceof TaskNode || desti instanceof ProcessState)) {
+			ExecutionContext exc = new ExecutionContext(token);
+			desti.enter(exc);
+		} else {
+			token.setNode(desti);
+			if (executeNode) {
+				ExecutionContext exc = new ExecutionContext(token);
+				desti.execute(exc);
+			}
+		}
+		// v.1
+		/*token.setNode(desti);
 		if (desti.getNodeType().equals(NodeType.Task)) {
 			ExecutionContext exc = new ExecutionContext(token);
 			desti.enter(exc);
 		} else {
 			token.setNode(desti);
-		}
+		}*/
+		// v.0
 		/*if (desti.getNodeType().equals(NodeType.Task)) {
 			Node origen = token.getNode();
 			Transition transition = new Transition();
@@ -102,6 +120,18 @@ public class TokenRedirectCommand extends AbstractGetObjectBaseCommand {
 	}
 	public void setCancelTasks(boolean cancelTasks) {
 		this.cancelTasks = cancelTasks;
+	}
+	public boolean isEnterNodeIfTask() {
+		return enterNodeIfTask;
+	}
+	public void setEnterNodeIfTask(boolean enterNodeIfTask) {
+		this.enterNodeIfTask = enterNodeIfTask;
+	}
+	public boolean isExecuteNode() {
+		return executeNode;
+	}
+	public void setExecuteNode(boolean executeNode) {
+		this.executeNode = executeNode;
 	}
 
 	@Override

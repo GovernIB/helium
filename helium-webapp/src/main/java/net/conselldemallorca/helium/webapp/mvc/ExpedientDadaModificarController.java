@@ -279,7 +279,7 @@ public class ExpedientDadaModificarController extends BaseController {
 		if (taskId == null) {
 			instanciaProces = expedientService.getInstanciaProcesById(
 					id,
-					true);
+					false, true, false);
 			camp = dissenyService.findCampAmbDefinicioProcesICodi(
 					instanciaProces.getDefinicioProces().getId(),
 					var);
@@ -294,7 +294,7 @@ public class ExpedientDadaModificarController extends BaseController {
 					true);
 			instanciaProces = expedientService.getInstanciaProcesById(
 					tasca.getProcessInstanceId(),
-					true);
+					false, true, false);
 			for (CampTasca campTasca: tasca.getCamps()) {
 				if (campTasca.getCamp().getCodi().equals(var)) {
 					camp = campTasca.getCamp();

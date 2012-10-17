@@ -43,6 +43,8 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @WebService(
+		serviceName="TramitacioService",
+		portName="TramitacioPort",
 		endpointInterface = "net.conselldemallorca.helium.ws.tramitacio.TramitacioService",
 		targetNamespace = "http://tramitacio.integracio.helium.conselldemallorca.net/")
 public class TramitacioServiceImpl implements TramitacioService {
@@ -338,7 +340,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
 			List<CampProces> resposta = new ArrayList<CampProces>();
-			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, true);
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, true, true, true);
 			if (instanciaProces.getVariables() != null) {
 				for (String var: instanciaProces.getVariables().keySet()) {
 					Camp campVar = null;
@@ -418,7 +420,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
 			List<DocumentProces> resposta = new ArrayList<DocumentProces>();
-			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, true);
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, true, true, true);
 			for (DocumentDto document: instanciaProces.getVarsDocuments().values()) {
 				resposta.add(convertirDocumentProces(document));
 			}
@@ -458,7 +460,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
-			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, false);
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, false, false, false);
 			if (instanciaProces == null)
 				throw new TramitacioException("No s'ha pogut trobar la instancia de proces amb id " + processInstanceId);
 			Document document = dissenyService.findDocumentAmbDefinicioProcesICodi(
@@ -629,6 +631,17 @@ public class TramitacioServiceImpl implements TramitacioService {
 		for (ExpedientDto dto: expedients)
 			resposta.add(toExpedientInfo(dto));
 		return resposta;
+	}
+
+	public void deleteExpedient(
+			String entorn,
+			String usuari,
+			String processInstanceId) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+		expedientService.delete(e.getId(), expedient.getId());
 	}
 
 

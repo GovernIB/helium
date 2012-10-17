@@ -25,6 +25,7 @@ import net.conselldemallorca.helium.core.model.dao.DominiDao;
 import net.conselldemallorca.helium.core.model.dao.EnumeracioValorsDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.FirmaTascaDao;
+import net.conselldemallorca.helium.core.model.dao.LuceneDao;
 import net.conselldemallorca.helium.core.model.dao.PluginPersonaDao;
 import net.conselldemallorca.helium.core.model.dao.TascaDao;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
@@ -48,6 +49,7 @@ import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.security.acl.AclServiceDao;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
 import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
@@ -85,6 +87,7 @@ public class DtoConverter {
 	private EnumeracioValorsDao enumeracioValorsDao;
 	private CampDao campDao;
 	private ConsultaCampDao consultaCampDao;
+	private LuceneDao luceneDao;
 	private AclServiceDao aclServiceDao;
 	private MessageSource messageSource;
 
@@ -277,6 +280,23 @@ public class DtoConverter {
 			dto.setSignatures(signaturesTasca);
 			if (ambVariables) {
 				Map<String, Object> valors = jbpmDao.getTaskInstanceVariables(task.getId());
+				
+//		Aquesta funcionalitat s'ha llevat p.o. de la DGTIC en conversa amb en Andreu Font, el 17/10/2012
+//				
+//				for (CampTasca variableCamp: campsTasca) {
+//					if (variableCamp.isReadOnly()) {
+//						Object valor = getServiceUtils().getVariableJbpmProcesValor(
+//								task.getProcessInstanceId(),
+//								variableCamp.getCamp().getCodi());
+//						if (valor != null)
+//							valors.put(
+//								variableCamp.getCamp().getCodi(),
+//								valor);
+//						else
+//							valors.remove(variableCamp.getCamp().getCodi());
+//					}
+//				}
+
 				dto.setVarsDocuments(
 						obtenirVarsDocumentsTasca(
 								task.getId(),
@@ -372,7 +392,7 @@ public class DtoConverter {
 		return dto;
 	}
 
-	public InstanciaProcesDto toInstanciaProcesDto(String processInstanceId, boolean ambVariables) {
+	public InstanciaProcesDto toInstanciaProcesDto(String processInstanceId , boolean ambImatgeProces, boolean ambVariables, boolean ambDocuments) {
 		JbpmProcessInstance pi = jbpmDao.getProcessInstance(processInstanceId);
 		JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(processInstanceId);
 		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(jpd.getId());
@@ -386,19 +406,25 @@ public class DtoConverter {
 			dto.setTitol(pi.getDescription());
 		dto.setDataInici(pi.getStart());
 		dto.setDataFi(pi.getEnd());
-		Set<String> resourceNames = jbpmDao.getResourceNames(jpd.getId());
-		dto.setImatgeDisponible(resourceNames.contains("processimage.jpg"));
+		if (ambImatgeProces) {
+			Set<String> resourceNames = jbpmDao.getResourceNames(jpd.getId());
+			dto.setImatgeDisponible(resourceNames.contains("processimage.jpg"));
+		}
 		Set<Camp> camps = definicioProces.getCamps();
 		dto.setCamps(camps);
-		List<Document> documents = documentDao.findAmbDefinicioProces(definicioProces.getId());
-		dto.setDocuments(documents);
-		dto.setAgrupacions(campAgrupacioDao.findAmbDefinicioProcesOrdenats(definicioProces.getId()));
-		if (ambVariables) {
+		List<Document> documents = new ArrayList<Document>();
+		if (ambDocuments) {
 			Map<String, Object> valors = jbpmDao.getProcessInstanceVariables(processInstanceId);
+			documents = documentDao.findAmbDefinicioProces(definicioProces.getId());
+			dto.setDocuments(documents);
 			dto.setVarsDocuments(obtenirVarsDocumentsProces(
 					processInstanceId,
 					documents,
 					valors));
+		}
+		dto.setAgrupacions(campAgrupacioDao.findAmbDefinicioProcesOrdenats(definicioProces.getId()));
+		if (ambVariables) {
+			Map<String, Object> valors = jbpmDao.getProcessInstanceVariables(processInstanceId);
 			filtrarVariablesTasca(valors);
 			Map<String, ParellaCodiValorDto> valorsDomini = obtenirValorsDomini(
 					null,
@@ -925,7 +951,8 @@ public class DtoConverter {
 			for (String codi: variables.keySet()) {
 				if (	codi.startsWith(DocumentHelper.PREFIX_VAR_DOCUMENT) ||
 						codi.startsWith(DocumentHelper.PREFIX_SIGNATURA) ||
-						codi.startsWith(DocumentHelper.PREFIX_ADJUNT))
+						codi.startsWith(DocumentHelper.PREFIX_ADJUNT) ||
+						codi.startsWith(BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX))
 					codisEsborrar.add(codi);
 			}
 			for (String codi: codisEsborrar)
@@ -943,6 +970,7 @@ public class DtoConverter {
 					taskId,
 					processInstanceId,
 					document.getDocument().getCodi(),
+					false,
 					false);
 			if (dto != null)
 				resposta.put(document.getDocument().getCodi(), dto);
@@ -962,7 +990,8 @@ public class DtoConverter {
 						null,
 						processInstanceId,
 						document.getCodi(),
-						false);
+						false,
+						true);
 				if (dto != null)
 					resposta.put(
 							document.getCodi(),
@@ -992,7 +1021,8 @@ public class DtoConverter {
 						taskId,
 						processInstanceId,
 						signatura.getDocument().getCodi(),
-						true);
+						true,
+						false);
 				if (dto != null)
 					resposta.put(
 							signatura.getDocument().getCodi(),
@@ -1201,9 +1231,11 @@ public class DtoConverter {
 	private ServiceUtils getServiceUtils() {
 		if (serviceUtils == null) {
 			serviceUtils = new ServiceUtils(
+					expedientDao,
 					definicioProcesDao,
 					campDao,
 					consultaCampDao,
+					luceneDao,
 					this,
 					jbpmDao,
 					aclServiceDao,
