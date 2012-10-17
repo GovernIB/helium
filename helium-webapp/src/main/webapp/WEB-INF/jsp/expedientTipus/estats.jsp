@@ -82,6 +82,17 @@ function obtenirId(pos){
 	return id2[1] ;
 }
 
+function mostrarOcultar(img, objid) {
+	var obj = document.getElementById(objid);
+	if (obj.style.display=="none") {
+		obj.style.display = "block";
+		img.src = '<c:url value="/img/magnifier_zoom_out.png"/>';
+	} else {
+		obj.style.display = "none";
+		img.src = '<c:url value="/img/magnifier_zoom_in.png"/>';
+	}
+}
+
 // ]]>
 </script>
 </head>
@@ -123,6 +134,27 @@ function obtenirId(pos){
 			<c:param name="titles">Afegir</c:param>
 		</c:import>
 	</form:form>
-
+	<security:accesscontrollist domainObject="${expedientTipus}" hasPermission="16,32">
+		<div class="missatgesGris">
+			<h3 class="titol-tab titol-delegacio"><fmt:message key="enumeracio.valors.import_dades"/> <img src="<c:url value="/img/magnifier_zoom_in.png"/>" alt="<fmt:message key="enumeracio.valors.mostrar_ocultar"/>" title="<fmt:message key="enumeracio.valors.mostrar_ocultar"/>" border="0" onclick="mostrarOcultar(this,'form-importar')"/></h3>
+			<div id="form-importar" style="display:none">
+				<form:form action="importarEstats.html" cssClass="uniForm" enctype="multipart/form-data" commandName="commandImportacio">
+					<input type="hidden" name="expedientTipusId" value="${param.expedientTipusId}">
+					<div class="inlineLabels">
+						<c:import url="../common/formElement.jsp">
+							<c:param name="property" value="arxiu"/>
+							<c:param name="type" value="file"/>
+							<c:param name="label"><fmt:message key="enumeracio.valors.arxiu_exp"/></c:param>
+						</c:import>
+						<c:import url="../common/formElement.jsp">
+							<c:param name="type" value="buttons"/>
+							<c:param name="values">submit</c:param>
+							<c:param name="titles"><fmt:message key="enumeracio.valors.importar"/></c:param>
+						</c:import>
+					</div>
+				</form:form>
+			</div>
+		</div>
+	</security:accesscontrollist>
 </body>
 </html>
