@@ -5,8 +5,6 @@ package net.conselldemallorca.helium.webapp.mvc;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -132,11 +130,6 @@ public class ExpedientTipusEstatsController extends BaseController {
 		}
 	}
 
-	
-	
-
-	
-	@SuppressWarnings("unused")
 	//importar estats amb arxius csv
 	//format de l'arxiu:codi;nom /// codi,nom
 	//exemple:test;test

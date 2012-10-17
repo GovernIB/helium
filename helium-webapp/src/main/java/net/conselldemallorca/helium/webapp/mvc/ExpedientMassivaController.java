@@ -8,15 +8,12 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.model.dao.LuceneDao;
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
-import net.conselldemallorca.helium.core.model.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
-import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
@@ -41,8 +38,7 @@ public class ExpedientMassivaController extends BaseController {
 	public static final String VARIABLE_SESSIO_IDS_MASSIUS_TE = "consultaExpedientsIdsMassiusTE";
 	private ExpedientService expedientService;
 	private DissenyService dissenyService;
-	private LuceneDao luceneDao;
-	private ExpedientConsultaDissenyController expedientConsultaDissenyController;
+
 	@Autowired
 	public ExpedientMassivaController(
 			ExpedientService expedientService,
