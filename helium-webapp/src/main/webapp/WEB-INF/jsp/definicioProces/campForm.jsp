@@ -111,6 +111,11 @@ function mostraEnumeracio() {
 				<c:param name="type" value="checkbox"/>
 				<c:param name="label"><fmt:message key='defproc.campform.ocult' /></c:param>
 			</c:import>
+			<c:import url="../common/formElement.jsp">
+				<c:param name="property" value="ignored"/>
+				<c:param name="type" value="checkbox"/>
+				<c:param name="label"><fmt:message key='defproc.campform.ignored' /></c:param>
+			</c:import>
 		</div>
 		<div class="inlineLabels col last">
 			<h3><fmt:message key='defproc.campform.dades_cons' /></h3>
