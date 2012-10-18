@@ -28,6 +28,7 @@ import net.conselldemallorca.helium.core.model.dao.FirmaTascaDao;
 import net.conselldemallorca.helium.core.model.dao.LuceneDao;
 import net.conselldemallorca.helium.core.model.dao.PluginPersonaDao;
 import net.conselldemallorca.helium.core.model.dao.TascaDao;
+import net.conselldemallorca.helium.core.model.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
@@ -38,6 +39,8 @@ import net.conselldemallorca.helium.core.model.exception.DominiException;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
+import net.conselldemallorca.helium.core.model.hibernate.Consulta;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
@@ -85,9 +88,9 @@ public class DtoConverter {
 	private PluginPersonaDao pluginPersonaDao;
 	private JbpmDao jbpmDao;
 	private EnumeracioValorsDao enumeracioValorsDao;
+	private LuceneDao luceneDao;
 	private CampDao campDao;
 	private ConsultaCampDao consultaCampDao;
-	private LuceneDao luceneDao;
 	private AclServiceDao aclServiceDao;
 	private MessageSource messageSource;
 
@@ -623,7 +626,83 @@ public class DtoConverter {
 		}
 		return new ArrayList<FilaResultat>();
 	}
-
+	public List<FilaResultat> getResultatConsultaConsulta(
+			DefinicioProces definicioProces,
+			String taskId,
+			String processInstanceId,
+			String campCodi,
+			String textInicial,
+			Map<String, Object> valorsAddicionals) throws DominiException {
+		List<FilaResultat> resultat = new ArrayList<FilaResultat>();
+		Camp camp = null;
+		for (Camp c: definicioProces.getCamps()) {
+			if (c.getCodi().equals(campCodi)) {
+				camp = c;
+				break;
+			}
+		}
+		if (camp != null && camp.getConsulta() != null) {
+			Consulta consulta = camp.getConsulta();
+			List<Camp> campsFiltre = getServiceUtils().findCampsPerCampsConsulta(
+					consulta,
+					TipusConsultaCamp.FILTRE);
+			List<Camp> campsInforme = getServiceUtils().findCampsPerCampsConsulta(
+					consulta,
+					TipusConsultaCamp.INFORME);
+			afegirValorsPredefinits(consulta, valorsAddicionals, campsFiltre);
+			List<Map<String, DadaIndexadaDto>> dadesExpedients = luceneDao.findAmbDadesExpedient(
+					consulta.getExpedientTipus().getCodi(),
+					campsFiltre,
+					valorsAddicionals,
+					campsInforme,
+					null,
+					true,
+					0,
+					-1);
+			for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
+				FilaResultat fila = new FilaResultat();
+				for (String clau: dadesExpedient.keySet()) {
+					// Les claus son de la forma [TipusExpedient]/[campCodi] i hem
+					// de llevar el tipus d'expedient.
+					int indexBarra = clau.indexOf("/");
+					String clauSenseBarra = (indexBarra != -1) ? clau.substring(indexBarra + 1) : clau;
+					fila.addColumna(
+							new ParellaCodiValor(
+									clauSenseBarra,
+									dadesExpedient.get(clau)));
+				}
+				resultat.add(fila);
+			}
+		}
+		return resultat;
+	}
+	
+	private void afegirValorsPredefinits(
+			Consulta consulta,
+			Map<String, Object> valors,
+			List<Camp> camps) {
+		if (consulta.getValorsPredefinits() != null && consulta.getValorsPredefinits().length() > 0) {
+			String[] parelles = consulta.getValorsPredefinits().split(",");
+			for (int i = 0; i < parelles.length; i++) {
+				String[] parella = (parelles[i].contains(":")) ? parelles[i].split(":") : parelles[i].split("=");
+				if (parella.length == 2) {
+					String campCodi = parella[0];
+					String valor = parella[1];
+					for (Camp camp: camps) {
+						if (camp.getCodi().equals(campCodi)) {
+							valors.put(
+									camp.getDefinicioProces().getJbpmKey() + "." + campCodi,
+									Camp.getComObject(
+											camp.getTipus(),
+											valor));
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	
 	public List<FilaResultat> getResultatConsultaDomini(
 			DefinicioProces definicioProces,
 			String taskId,
@@ -758,6 +837,10 @@ public class DtoConverter {
 	@Autowired
 	public void setPluginPersonaDao(PluginPersonaDao pluginPersonaDao) {
 		this.pluginPersonaDao = pluginPersonaDao;
+	}
+	@Autowired
+	public void setLuceneDao(LuceneDao luceneDao) {
+		this.luceneDao = luceneDao;
 	}
 	@Autowired
 	public void setJbpmDao(JbpmDao jbpmDao) {
@@ -1243,7 +1326,7 @@ public class DtoConverter {
 		}
 		return serviceUtils;
 	}
-
+	
 	private static final Log logger = LogFactory.getLog(DtoConverter.class);
 
 }

@@ -29,6 +29,31 @@ function canviTipus(input) {
 		disable("camps_consulta");
 	}
 }
+function mostraDomini() {
+	disable("enumeracio");
+	disable("consulta");
+	divD = document.getElementById("params_domini");
+    divD.style.display = "";
+    divC = document.getElementById("params_consulta");
+    divC.style.display = "none";
+}
+function mostraConsulta() {	
+	disable("domini");
+	disable("enumeracio");
+	divD = document.getElementById("params_domini");
+    divD.style.display = "none";
+    divC = document.getElementById("params_consulta");
+    divC.style.display = "";
+}
+function mostraEnumeracio() {
+	disable("domini");
+	disable("consulta");
+	divD = document.getElementById("params_domini");
+    divD.style.display = "none";
+    divC = document.getElementById("params_consulta");
+    divC.style.display = "none";
+}
+
 // ]]>
 </script>
 </head>
@@ -37,7 +62,7 @@ function canviTipus(input) {
 	<c:import url="../common/tabsDefinicioProces.jsp">
 		<c:param name="tabActiu" value="camps"/>
 	</c:import>
-
+	
 	<form:form action="campForm.html" cssClass="uniForm">
 		<div class="inlineLabels col first">
 			<h3><fmt:message key='defproc.campform.dades_camp' /></h3>
@@ -90,46 +115,83 @@ function canviTipus(input) {
 		<div class="inlineLabels col last">
 			<h3><fmt:message key='defproc.campform.dades_cons' /></h3>
 			<div id="camps_consulta">
-				<c:import url="../common/formElement.jsp">
-					<c:param name="property" value="enumeracio"/>
-					<c:param name="type" value="select"/>
-					<c:param name="items" value="enumeracions"/>
-					<c:param name="itemLabel" value="nom"/>
-					<c:param name="itemValue" value="id"/>
-					<c:param name="itemBuit">&lt;&lt; <fmt:message key='defproc.campform.selec_enum' /> &gt;&gt;</c:param>
-					<c:param name="label"><fmt:message key='defproc.campform.enumeracio' /></c:param>
-				</c:import>
-				<c:import url="../common/formElement.jsp">
-					<c:param name="property" value="domini"/>
-					<c:param name="type" value="select"/>
-					<c:param name="items" value="dominis"/>
-					<c:param name="itemLabel" value="nom"/>
-					<c:param name="itemValue" value="id"/>
-					<c:param name="itemBuit">&lt;&lt; <fmt:message key='defproc.campform.selec_domini' /> &gt;&gt;</c:param>
-					<c:param name="label"><fmt:message key='defproc.campform.domini' /></c:param>
-				</c:import>
-				<c:import url="../common/formElement.jsp">
-					<c:param name="property" value="dominiId"/>
-					<c:param name="label"><fmt:message key='defproc.campform.id_domini' /></c:param>
-				</c:import>
-				<c:import url="../common/formElement.jsp">
-					<c:param name="property" value="dominiParams"/>
-					<c:param name="type" value="textarea"/>
-					<c:param name="label"><fmt:message key='defproc.campform.param_domini' /></c:param>
-				</c:import>
-				<c:import url="../common/formElement.jsp">
-					<c:param name="property" value="dominiCampValor"/>
-					<c:param name="label"><fmt:message key='defproc.campform.camp_valor' /></c:param>
-				</c:import>
-				<c:import url="../common/formElement.jsp">
-					<c:param name="property" value="dominiCampText"/>
-					<c:param name="label"><fmt:message key='defproc.campform.camp_text' /></c:param>
-				</c:import>
-				<c:import url="../common/formElement.jsp">
-					<c:param name="property" value="dominiCacheText"/>
-					<c:param name="type" value="checkbox"/>
-					<c:param name="label"><fmt:message key="defproc.campform.cache_text"/></c:param>
-				</c:import>
+				<div id="enumeracio">
+					<c:import url="../common/formElement.jsp">
+						<c:param name="property" value="enumeracio"/>
+						<c:param name="type" value="select"/>
+						<c:param name="items" value="enumeracions"/>
+						<c:param name="itemLabel" value="nom"/>
+						<c:param name="itemValue" value="id"/>
+						<c:param name="itemBuit">&lt;&lt; <fmt:message key='defproc.campform.selec_enum' /> &gt;&gt;</c:param>
+						<c:param name="label"><fmt:message key='defproc.campform.enumeracio' /></c:param>
+						<c:param name="onchange">mostraEnumeracio()</c:param>
+					</c:import>
+				</div>
+				<div id="domini">
+					<c:import url="../common/formElement.jsp">
+						<c:param name="property" value="domini"/>
+						<c:param name="type" value="select"/>
+						<c:param name="items" value="dominis"/>
+						<c:param name="itemLabel" value="nom"/>
+						<c:param name="itemValue" value="id"/>
+						<c:param name="itemBuit">&lt;&lt; <fmt:message key='defproc.campform.selec_domini' /> &gt;&gt;</c:param>
+						<c:param name="label"><fmt:message key='defproc.campform.domini' /></c:param>
+						<c:param name="onchange">mostraDomini()</c:param>
+					</c:import>
+				</div>
+				<div id="consulta">					
+					<c:import url="../common/formElement.jsp">
+						<c:param name="property" value="consulta"/>
+						<c:param name="type" value="select"/>
+						<c:param name="items" value="consultes"/>
+						<c:param name="itemLabel" value="nom"/>
+						<c:param name="itemValue" value="id"/>
+						<c:param name="itemBuit">&lt;&lt; <fmt:message key='defproc.campform.selec_consulta' /> &gt;&gt;</c:param>
+						<c:param name="label"><fmt:message key='defproc.campform.consultes.tipus' /></c:param>
+						<c:param name="onchange">mostraConsulta()</c:param>
+					</c:import>
+				</div>
+				<div id="params_domini" <c:if test="${empty command.domini}"> style="display:none;"</c:if>>
+					<c:import url="../common/formElement.jsp">
+						<c:param name="property" value="dominiId"/>
+						<c:param name="label"><fmt:message key='defproc.campform.id_domini' /></c:param>
+					</c:import>
+					<c:import url="../common/formElement.jsp">
+						<c:param name="property" value="dominiParams"/>
+						<c:param name="type" value="textarea"/>
+						<c:param name="label"><fmt:message key='defproc.campform.param_domini' /></c:param>
+					</c:import>
+					<c:import url="../common/formElement.jsp">
+						<c:param name="property" value="dominiCampValor"/>
+						<c:param name="label"><fmt:message key='defproc.campform.camp_valor' /></c:param>
+					</c:import>	
+					<c:import url="../common/formElement.jsp">
+						<c:param name="property" value="dominiCampText"/>
+						<c:param name="type" value="textarea"/>
+						<c:param name="label"><fmt:message key='defproc.campform.camp_text' /></c:param>
+					</c:import>
+					<c:import url="../common/formElement.jsp">
+						<c:param name="property" value="dominiCacheText"/>
+						<c:param name="type" value="checkbox"/>
+						<c:param name="label"><fmt:message key="defproc.campform.cache_text"/></c:param>
+					</c:import>
+				</div>
+				<div id="params_consulta" <c:if test="${empty command.consulta}">style="display:none;"</c:if>>		
+					<c:import url="../common/formElement.jsp">
+						<c:param name="property" value="consultaParams"/>
+						<c:param name="type" value="textarea"/>
+						<c:param name="label"><fmt:message key='defproc.campform.param_consulta' /></c:param>
+					</c:import>
+					<c:import url="../common/formElement.jsp">
+						<c:param name="property" value="consultaCampValor"/>
+						<c:param name="label"><fmt:message key='defproc.campform.camp_valor' /></c:param>
+					</c:import>	
+					<c:import url="../common/formElement.jsp">
+						<c:param name="property" value="consultaCampText"/>
+						<c:param name="type" value="textarea"/>
+						<c:param name="label"><fmt:message key='defproc.campform.camp_text' /></c:param>
+					</c:import>
+				</div>
 			</div>
 			<h3><fmt:message key='defproc.campform.dades_accio' /></h3>
 			<div id="camps_accio">

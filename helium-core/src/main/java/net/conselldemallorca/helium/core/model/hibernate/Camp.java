@@ -88,6 +88,14 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	private String dominiCampText;
 	@MaxLength(64)
 	private String dominiCampValor;
+	@MaxLength(255)
+	private String consultaParams;
+	@MaxLength(64)
+	private String consultaCampText;
+	@MaxLength(64)
+	private String consultaCampValor;
+	
+	
 	private boolean dominiCacheText;
 	@MaxLength(255)
 	private String jbpmAction;
@@ -98,6 +106,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 
 	private Domini domini;
 	private Enumeracio enumeracio;
+	private Consulta consulta;
 	@NotNull
 	private DefinicioProces definicioProces;
 	private CampAgrupacio agrupacio;
@@ -500,6 +509,40 @@ public class Camp implements Serializable, GenericEntity<Long> {
 		} else if (!definicioProces.equals(other.definicioProces))
 			return false;
 		return true;
+	}
+
+	public Consulta getConsulta() {
+		return consulta;
+	}
+	public void setConsulta(Consulta consulta) {
+		this.consulta = consulta;
+	}
+
+	@Column(name="consulta_params", length=255)
+	public String getConsultaParams() {
+		return consultaParams;
+	}
+	
+	public void setConsultaParams(String consultaParams) {
+		this.consultaParams = consultaParams;
+	}
+
+	@Column(name="consulta_camp_text", length=64)
+	public String getConsultaCampText() {
+		return consultaCampText;
+	}
+	
+	public void setConsultaCampText(String consultaCampText) {
+		this.consultaCampText = consultaCampText;
+	}
+
+	@Column(name="consulta_camp_valor", length=64)
+	public String getConsultaCampValor() {
+		return consultaCampValor;
+	}
+	
+	public void setConsultaCampValor(String consultaCampValor) {
+		this.consultaCampValor = consultaCampValor;
 	}
 
 	private static final long serialVersionUID = 1L;

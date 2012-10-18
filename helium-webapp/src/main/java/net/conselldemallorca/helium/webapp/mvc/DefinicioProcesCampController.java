@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
+import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
@@ -87,9 +88,28 @@ public class DefinicioProcesCampController extends BaseController {
 		return null;
 
 	}
+	@ModelAttribute("consultes")
+	public List<Consulta> populateConsultes(HttpServletRequest request,
+			@RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId,
+			@RequestParam(value = "definicioProces", required = false) Long definicioProces) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			if (definicioProcesId != null){		
+				DefinicioProcesDto definicioProcesDto = dissenyService.getByIdAmbComprovacio(entorn.getId(), definicioProcesId);
+				if (definicioProcesDto != null && definicioProcesDto.getExpedientTipus() != null)
+					return dissenyService.findConsultesAmbEntornIExpedientTipus(entorn.getId(), definicioProcesDto.getExpedientTipus().getId());
+			}
+			if (definicioProces != null){
+				DefinicioProcesDto definicioProcesDto = dissenyService.getByIdAmbComprovacio(entorn.getId(), definicioProces);
+				if (definicioProcesDto != null && definicioProcesDto.getExpedientTipus() != null)
+					return dissenyService.findConsultesAmbEntornIExpedientTipus(entorn.getId(), definicioProcesDto.getExpedientTipus().getId());
+			}
+		}
+		return null;
+	}
 	@ModelAttribute("enumeracions")
 	public List<Enumeracio> populateEnumeracions(HttpServletRequest request,
-			@RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId) {
+			@RequestParam(value = "definicioProces", required = false) Long definicioProcesId) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			if (definicioProcesId != null){
@@ -165,13 +185,14 @@ public class DefinicioProcesCampController extends BaseController {
 	@RequestMapping(value = "/definicioProces/campForm", method = RequestMethod.GET)
 	public String formGet(
 			HttpServletRequest request,
-			@RequestParam(value = "definicioProcesId", required = true) Long definicioProcesId,
+			@RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId,
+			@RequestParam(value = "definicioProces", required = false) Long definicioProces,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			DefinicioProcesDto definicioProces = dissenyService.getByIdAmbComprovacio(entorn.getId(), definicioProcesId);
-			if (potDissenyarDefinicioProces(entorn, definicioProces)) {
-				model.addAttribute("definicioProces", definicioProces);
+			DefinicioProcesDto definicioProcesDto = dissenyService.getByIdAmbComprovacio(entorn.getId(), definicioProcesId);
+			if (potDissenyarDefinicioProces(entorn, definicioProcesDto)) {
+				model.addAttribute("definicioProces", definicioProcesDto);
 			} else {
 				missatgeError(request, getMessage("error.permisos.disseny.defproc"));
 				return "redirect:/index.html";
@@ -185,7 +206,8 @@ public class DefinicioProcesCampController extends BaseController {
 	@RequestMapping(value = "/definicioProces/campForm", method = RequestMethod.POST)
 	public String formPost(
 			HttpServletRequest request,
-			@RequestParam(value = "definicioProces", required = true) Long definicioProcesId,
+			@RequestParam(value = "definicioProces", required = false) Long definicioProcesId,
+			@RequestParam(value = "definicioProcesId", required = false) Long definicioProces,
 			@RequestParam(value = "submit", required = false) String submit,
 			@ModelAttribute("command") Camp command,
 			BindingResult result,
@@ -193,9 +215,9 @@ public class DefinicioProcesCampController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			DefinicioProcesDto definicioProces = dissenyService.getByIdAmbComprovacio(entorn.getId(), definicioProcesId);
-			if (potDissenyarDefinicioProces(entorn, definicioProces)) {
-				model.addAttribute("definicioProces", definicioProces);
+			DefinicioProcesDto definicioProcesDto = dissenyService.getByIdAmbComprovacio(entorn.getId(), definicioProcesId);
+			if (potDissenyarDefinicioProces(entorn, definicioProcesDto)) {
+				model.addAttribute("definicioProces", definicioProcesDto);
 				if ("submit".equals(submit) || submit.length() == 0) {
 					annotationValidator.validate(command, result);
 					additionalValidator.validate(command, result);
@@ -305,6 +327,9 @@ public class DefinicioProcesCampController extends BaseController {
 				Enumeracio.class,
 				new EnumeracioTypeEditor(dissenyService));
 		binder.registerCustomEditor(
+				Consulta.class,
+				new ConsultaTypeEditor(dissenyService));
+		binder.registerCustomEditor(
 				EnumeracioValors.class,
 				new EnumeracioValorsTypeEditor(dissenyService));
 		binder.registerCustomEditor(
@@ -339,17 +364,28 @@ public class DefinicioProcesCampController extends BaseController {
 					ValidationUtils.rejectIfEmpty(errors, "jbpmAction", "not.blank");
 				}
 				if (camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST)) {
-					if (camp.getDomini() == null && camp.getEnumeracio() == null) {
-						errors.rejectValue("enumeracio", "error.camp.enumdom.buit");
-						errors.rejectValue("domini", "error.camp.enumdom.buit");
+					if (camp.getDomini() == null && camp.getEnumeracio() == null && camp.getConsulta() == null) {
+						errors.rejectValue("enumeracio", "error.camp.enumdomcons.buit");
+						errors.rejectValue("domini", "error.camp.enumdomcons.buit");
+						errors.rejectValue("consulta", "error.camp.enumdomcons.buit");
 					}
 					if (camp.getDomini() != null) {
 						ValidationUtils.rejectIfEmpty(errors, "dominiCampText", "not.blank");
 						ValidationUtils.rejectIfEmpty(errors, "dominiCampValor", "not.blank");
 					}
-					if (camp.getDomini() != null && camp.getEnumeracio() != null) {
-						errors.rejectValue("enumeracio", "error.camp.enumdom.ambdos");
-						errors.rejectValue("domini", "error.camp.enumdom.ambdos");
+					if (camp.getDomini() != null && camp.getEnumeracio() != null && camp.getConsulta() != null) {
+						errors.rejectValue("enumeracio", "error.camp.enumdomcons.tots");
+						errors.rejectValue("domini", "error.camp.enumdomcons.tots");
+						errors.rejectValue("consulta", "error.camp.enumdomcons.tots");
+					} else if (camp.getDomini() != null && camp.getEnumeracio() != null) {
+						errors.rejectValue("enumeracio", "error.camp.enumdomcons.tots");
+						errors.rejectValue("domini", "error.camp.enumdomcons.tots");
+					} else if (camp.getDomini() != null && camp.getConsulta() != null) {
+						errors.rejectValue("domini", "error.camp.enumdomcons.tots");
+						errors.rejectValue("consulta", "error.camp.enumdomcons.tots");
+					} else if(camp.getEnumeracio() != null && camp.getConsulta() != null) {
+						errors.rejectValue("enumeracio", "error.camp.enumdomcons.tots");
+						errors.rejectValue("consulta", "error.camp.enumdomcons.tots");
 					}
 				}
 			}

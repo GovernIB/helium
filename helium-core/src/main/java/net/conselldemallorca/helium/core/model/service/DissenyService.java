@@ -1042,6 +1042,9 @@ public class DissenyService {
 					camp.getDominiParams(),
 					camp.getDominiCampText(),
 					camp.getDominiCampValor(),
+					camp.getConsultaParams(),
+					camp.getConsultaCampText(),
+					camp.getConsultaCampValor(),
 					camp.isMultiple(),
 					camp.isOcult(),
 					(camp.getEnumeracio() != null) ? camp.getEnumeracio().getCodi() : null,
@@ -1675,8 +1678,16 @@ public class DissenyService {
 			}
 			if (camp != null && camp.getEnumeracio() != null) {
 				return dtoConverter.getResultatConsultaEnumeracio(definicioProces, campCodi, textInicial);
-			} else {
+			} else if (camp != null && camp.getDomini() != null) {
 				return dtoConverter.getResultatConsultaDomini(
+						definicioProces,
+						taskId,
+						processInstanceId,
+						campCodi,
+						textInicial,
+						valorsAddicionals);
+			} else {
+				return dtoConverter.getResultatConsultaConsulta(
 						definicioProces,
 						taskId,
 						processInstanceId,
