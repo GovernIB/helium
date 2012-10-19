@@ -25,9 +25,9 @@
 	<bean id="gisDwrService" class="net.conselldemallorca.helium.webapp.dwr.GisDwrService">
 		<dwr:remote javascript="gisDwrService"/>
 	</bean>
-	<bean id="campsLlistatProcesDwrService" class="net.conselldemallorca.helium.webapp.dwr.CampsLlistatProcesDwrService">
-		<dwr:remote javascript="campsLlistatProcesDwrService"/>
-	</bean>
+<!-- 	<bean id="campsLlistatProcesDwrService" class="net.conselldemallorca.helium.webapp.dwr.CampsLlistatProcesDwrService"> -->
+<!-- 		<dwr:remote javascript="campsLlistatProcesDwrService"/> -->
+<!-- 	</bean> -->
 	<bean id="dominiDwrService" class="net.conselldemallorca.helium.webapp.dwr.DominiDwrService">
 		<dwr:remote javascript="dominiDwrService"/>
 	</bean>
