@@ -163,8 +163,8 @@ public class TascaFormUtil {
 						camp.getCodi(),
 						validationRule);
 			}
-			if (	camp.getTipus().equals(TipusCamp.STRING) ||
-					camp.getTipus().equals(TipusCamp.TEXTAREA)) {
+			if (	camp.getTipus().equals(TipusCamp.STRING)) {// ||
+					//camp.getTipus().equals(TipusCamp.TEXTAREA)) {
 				ExpressionValidationRule validationRule = new ExpressionValidationRule(
 						new ValangConditionExpressionParser(),
 						camp.getCodi() + " is null or length(" + camp.getCodi() + ") < 2049");

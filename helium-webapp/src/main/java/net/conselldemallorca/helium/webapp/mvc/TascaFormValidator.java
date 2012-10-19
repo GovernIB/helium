@@ -98,7 +98,7 @@ public class TascaFormValidator implements Validator {
 					}
 				}
 				if (camp != null && camp.getCamp() != null && camp.getCamp().getTipus() != null) {
-					if (camp.getCamp().getTipus().equals(TipusCamp.STRING) || camp.getCamp().getTipus().equals(TipusCamp.TEXTAREA)) {
+					if (camp.getCamp().getTipus().equals(TipusCamp.STRING)) { // || camp.getCamp().getTipus().equals(TipusCamp.TEXTAREA)) {
 						try {
 							if (camp.getCamp().isMultiple()) {
 								String[] valors = (String[])PropertyUtils.getSimpleProperty(command, camp.getCamp().getCodi());
