@@ -2783,11 +2783,10 @@ public class DissenyService {
 	public void goToCampTasca(Long id, int NouOrd) {
 		CampTasca campTasca = getCampTascaById(id);
 		int ordreAntic = campTasca.getOrder();
-		campTasca.setOrder(-1);
 		
 		// Si no s'ha canviat l'ordre, sortim sense fer res.
 		if (ordreAntic == NouOrd) return;
-				
+		campTasca.setOrder(-1);				
 		Tasca tasca = campTasca.getTasca();
 		List<CampTasca> camps = tasca.getCamps();
 		//List<CampTasca> camps = (List<CampTasca>) campTascaDao.findAmbTascaOrdenats(tasca.getId());
@@ -2848,14 +2847,12 @@ public class DissenyService {
 	public void goToCampEstat(Long id, int NouOrd) {
 		Estat estat = getEstatById(id);
 		int ordreAntic = estat.getOrdre();
-		estat.setOrdre(-1);
 		ExpedientTipus expTip = estat.getExpedientTipus();
 		List<Estat> estats = findEstatAmbExpedientTipus(expTip.getId());
 		
 		// Si no s'ha canviat l'ordre, sortim sense fer res.
 		if (ordreAntic == NouOrd) return;
-				
-		
+		estat.setOrdre(-1);				
 				
 		if (ordreAntic < NouOrd) {
 			//Collections.reverse(camps);
@@ -2914,11 +2911,10 @@ public class DissenyService {
 		CampAgrupacio campAgrupacio = getCampAgrupacioById(id);
 		int ordreAntic = campAgrupacio.getOrdre();
 		Long idProces = campAgrupacio.getDefinicioProces().getId();
-		campAgrupacio.setOrdre(-1);
 		
 		// Si no s'ha canviat l'ordre, sortim sense fer res.
 		if (ordreAntic == NouOrd) return;
-				
+		campAgrupacio.setOrdre(-1);				
 		List<CampAgrupacio> campsAgrupacio =  campAgrupacioDao.findAmbDefinicioProcesOrdenats(idProces);
 		
 		if (ordreAntic < NouOrd) {
@@ -2979,10 +2975,9 @@ public class DissenyService {
 		int ordreAntic = consulta.getOrdre();
 		
 		
-		consulta.setOrdre(-1);
+		// Si no s'ha canviat l'ordre, sortim sense fer res.		
 		if (ordreAntic == NouOrd) return;
-		// Si no s'ha canviat l'ordre, sortim sense fer res.
-
+		consulta.setOrdre(-1);
 				
 		List<Consulta> codisConsulta =  (List<Consulta>) consultaDao.findAmbEntornIExpedientTipus(idEntorn,idExpedientTipus);
 		
