@@ -25,7 +25,10 @@
 	<bean id="gisDwrService" class="net.conselldemallorca.helium.webapp.dwr.GisDwrService">
 		<dwr:remote javascript="gisDwrService"/>
 	</bean>
-
+<!-- 	<bean id="campsLlistatProcesDwrService" class="net.conselldemallorca.helium.webapp.dwr.CampsLlistatProcesDwrService"> -->
+<!-- 		<dwr:remote javascript="campsLlistatProcesDwrService"/> -->
+<!-- 	</bean> -->
+	
 	<dwr:configuration>
 		<dwr:convert type="bean" class="net.conselldemallorca.helium.core.model.hibernate.*"/>
 	</dwr:configuration>
