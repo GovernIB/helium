@@ -1,3 +1,9 @@
+ALTER TABLE helium.public.jbpm_variableinstance ADD COLUMN aux_clob TEXT;
+UPDATE helium.public.jbpm_variableinstance SET aux_clob = stringvalue_;
+ALTER TABLE helium.public.jbpm_variableinstance DROP COLUMN stringvalue_;
+ALTER TABLE helium.public.jbpm_variableinstance RENAME COLUMN aux_clob TO stringvalue_;	
+
+
 -- Actualització a la nova versió --
 insert into hel_versio (
     id,
