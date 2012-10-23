@@ -184,6 +184,84 @@ public class ExpedientTipusEnumeracioValorsController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
+	
+	@RequestMapping(value = "/expedientTipus/enumeracioValorsForm", method = RequestMethod.GET)
+	public String formGetValors(	
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) Long id,
+			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
+			@RequestParam(value = "enumeracioId", required = true) Long enumeracioId,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			Enumeracio enumeracio = dissenyService.getEnumeracioById(enumeracioId);
+			if (potGestionarExpedientTipus(entorn, enumeracio.getExpedientTipus())) {	
+				EnumeracioValors enumeracioValors = dissenyService.findEnumeracioValorsAmbId(enumeracioId, id);
+				model.addAttribute("expedientTipus", enumeracio.getExpedientTipus());
+				model.addAttribute("command", enumeracioValors);
+				model.addAttribute("enumeracioId", enumeracioId);
+				return "expedientTipus/enumeracioValorsForm";
+			} else {
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
+				return "redirect:/index.html";
+			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec"));
+			return "redirect:/index.html";
+		}
+	}			
+	
+	@RequestMapping(value = "/expedientTipus/enumeracioValorsForm", method = RequestMethod.POST)
+	public String formPostValors(
+			HttpServletRequest request,
+			@RequestParam(value = "submit", required = false) String submit,
+			@RequestParam(value = "id", required = true) Long id,
+			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
+			@RequestParam(value = "enumeracioId", required = true) Long enumeracioId,
+			@RequestParam(value = "ordre", required = false) Integer ordre,
+			@ModelAttribute("command") EnumeracioValorsCommand command,
+			BindingResult result,
+			SessionStatus status,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {	
+			Enumeracio enumeracio = dissenyService.getEnumeracioById(enumeracioId);
+			if (potGestionarExpedientTipus(entorn, enumeracio.getExpedientTipus())) {
+				if ("submit".equals(submit) || submit.length() == 0) {
+			        try {
+			        	EnumeracioValors enumeracioValors = new EnumeracioValors();
+			        	enumeracioValors.setId(command.getId());
+			        	enumeracioValors.setCodi(command.getCodi());
+			        	enumeracioValors.setNom(command.getNom());
+			        	enumeracioValors.setEnumeracio(enumeracio);
+			        	enumeracioValors.setOrdre(ordre);
+			        	if (command.getId() == null){
+			        		dissenyService.createEnumeracioValors(enumeracioValors);
+			        		missatgeInfo(request, getMessage("info.enum.creat") );
+			        		status.setComplete();
+			        	} else {
+			        		dissenyService.updateEnumeracioValors(enumeracioValors);
+			        		missatgeInfo(request, getMessage("info.enum.guardat"));		
+			        		status.setComplete();
+			        	}
+			        } catch (Exception ex) {
+			        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
+			        	logger.error("No s'ha pogut guardar el registre", ex);
+			        	return "expedientTipus/enumeracioValorsForm";
+			       }
+			        return "redirect:/expedientTipus/enumeracioValors.html?id=" + command.getEnumeracioId();
+				} else {
+					return "redirect:/expedientTipus/enumeracioValors.html?expedientTipusId=" + expedientTipusId;
+				}
+			} else {
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
+				return "redirect:/index.html";
+			}	
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
 
 	@RequestMapping(value = "/expedientTipus/enumeracioValorsPujar")
 	public String pujarValor(

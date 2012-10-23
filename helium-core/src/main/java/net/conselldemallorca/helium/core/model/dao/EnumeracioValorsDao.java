@@ -86,4 +86,13 @@ public class EnumeracioValorsDao extends HibernateGenericDao<EnumeracioValors, L
 		return resposta;
 	}
 
+	public EnumeracioValors findAmbEnumeracioIId(Long enumeracioId, Long id) {
+		List <EnumeracioValors> list = findByCriteria(
+				Restrictions.eq("enumeracio.id", enumeracioId),
+				Restrictions.eq("id", id));
+		if (list.size() > 0)
+			return list.get(0);
+		return null;
+	}
+
 }

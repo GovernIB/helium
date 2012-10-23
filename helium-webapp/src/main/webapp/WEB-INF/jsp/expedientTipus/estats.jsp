@@ -103,7 +103,7 @@ function mostrarOcultar(img, objid) {
 	</c:import>
 	<display:table name="estats" id="registre" requestURI="" class="displaytag">
 		
-		<display:column property="codi" title="Codi"/>
+		<display:column property="codi" title="Codi" url="/expedientTipus/estatsForm.html?expedientTipusId=${expedientTipus.id}" paramId="id" paramProperty="id"/>
 		<display:column property="nom" title="Nom"/>
 
 		<display:column>

@@ -59,7 +59,11 @@ public class ExpedientTipusEstatsController extends BaseController {
 	}
 
 	@ModelAttribute("command")
-	public Estat populateCommand() {
+	public Estat populateCommand(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = false) Long id) {
+		if (id != null)
+			return dissenyService.getEstatById(id);
 		return new Estat();
 	}
 	@ModelAttribute("expedientTipus")
@@ -117,6 +121,71 @@ public class ExpedientTipusEstatsController extends BaseController {
 			        } catch (Exception ex) {
 			        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut guardar el registre", ex);
+			        }
+				}
+				return "redirect:/expedientTipus/estats.html?expedientTipusId=" + expedientTipusId;
+			} else {
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
+				return "redirect:/index.html";
+			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+	
+	@RequestMapping(value = "/expedientTipus/estatsForm", method = RequestMethod.GET)
+	public String formGetValors(
+			HttpServletRequest request,
+			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);			
+			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
+				return "expedientTipus/estatsForm";
+			} else {
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
+				return "redirect:/index.html";
+			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+	@RequestMapping(value = "/expedientTipus/estatsForm", method = RequestMethod.POST)
+	public String formPostValors(
+			HttpServletRequest request,
+			@RequestParam(value = "submit", required = false) String submit,
+			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
+			@ModelAttribute("command") Estat command,
+			BindingResult result,
+			SessionStatus status,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
+			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
+				if ("submit".equals(submit) || submit.length() == 0) {
+				
+					annotationValidator.validate(command, result);
+			        if (result.hasErrors()) {
+			        	model.addAttribute("estats", dissenyService.findEstatAmbExpedientTipus(expedientTipusId));
+			        	return "expedientTipus/estats";
+			        }
+			        try {
+			        	if (command.getId() == null){		        	
+			        		dissenyService.createEstat(command);
+			        		missatgeInfo(request, getMessage("info.estat.creat") );
+				        	status.setComplete();
+			        	} else
+			        		dissenyService.updateEstat(command);		        	
+		        			missatgeInfo(request, getMessage("info.estat.guardat") );
+		        			status.setComplete();
+			        } catch (Exception ex) {
+			        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
+			        	logger.error("No s'ha pogut guardar el registre", ex);
+			        	return "expedientTipus/estatsForm";
 			        }
 				}
 				return "redirect:/expedientTipus/estats.html?expedientTipusId=" + expedientTipusId;

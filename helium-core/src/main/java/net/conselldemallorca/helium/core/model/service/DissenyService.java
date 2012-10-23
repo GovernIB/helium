@@ -882,6 +882,7 @@ public class DissenyService {
 	public EnumeracioValors findEnumeracioValorsAmbCodi(Long enumeracioId, String codi) {
 		return enumeracioValorsDao.findAmbEnumeracioICodi(enumeracioId, codi);
 	}
+	
 	public void goUpEnumeracioValor(Long id) {
 		EnumeracioValors valor = enumeracioValorsDao.getById(id, false);
 		int ordreActual = valor.getOrdre();
@@ -947,6 +948,11 @@ public class DissenyService {
 		entity.setOrdre(estatDao.getSeguentOrdre(entity.getExpedientTipus().getId()));
 		return estatDao.saveOrUpdate(entity);
 	}
+	
+	public Estat updateEstat(Estat entity) {
+		return estatDao.merge(entity);
+	}	
+	
 	public void deleteEstat(Long id) {
 		Estat vell = getEstatById(id);
 		if (vell != null) {
@@ -3076,6 +3082,9 @@ public class DissenyService {
 		}
 		catch(Exception e){e.getMessage();}
 	}
-	
+
+	public EnumeracioValors findEnumeracioValorsAmbId(Long enumeracioId, Long id) {
+		return enumeracioValorsDao.findAmbEnumeracioIId(enumeracioId, id);
+	}	
 
 }
