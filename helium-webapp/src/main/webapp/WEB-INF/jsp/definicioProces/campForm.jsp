@@ -30,24 +30,18 @@ function canviTipus(input) {
 	}
 }
 function mostraDomini() {
-	disable("enumeracio");
-	disable("consulta");
 	divD = document.getElementById("params_domini");
     divD.style.display = "";
     divC = document.getElementById("params_consulta");
     divC.style.display = "none";
 }
 function mostraConsulta() {	
-	disable("domini");
-	disable("enumeracio");
 	divD = document.getElementById("params_domini");
     divD.style.display = "none";
     divC = document.getElementById("params_consulta");
     divC.style.display = "";
 }
 function mostraEnumeracio() {
-	disable("domini");
-	disable("consulta");
 	divD = document.getElementById("params_domini");
     divD.style.display = "none";
     divC = document.getElementById("params_consulta");
@@ -175,11 +169,6 @@ function mostraEnumeracio() {
 						<c:param name="type" value="textarea"/>
 						<c:param name="label"><fmt:message key='defproc.campform.camp_text' /></c:param>
 					</c:import>
-					<c:import url="../common/formElement.jsp">
-						<c:param name="property" value="dominiCacheText"/>
-						<c:param name="type" value="checkbox"/>
-						<c:param name="label"><fmt:message key="defproc.campform.cache_text"/></c:param>
-					</c:import>
 				</div>
 				<div id="params_consulta" <c:if test="${empty command.consulta}">style="display:none;"</c:if>>		
 					<c:import url="../common/formElement.jsp">
@@ -195,6 +184,13 @@ function mostraEnumeracio() {
 						<c:param name="property" value="consultaCampText"/>
 						<c:param name="type" value="textarea"/>
 						<c:param name="label"><fmt:message key='defproc.campform.camp_text' /></c:param>
+					</c:import>
+				</div>
+				<div id="cache_text">
+					<c:import url="../common/formElement.jsp">
+						<c:param name="property" value="dominiCacheText"/>
+						<c:param name="type" value="checkbox"/>
+						<c:param name="label"><fmt:message key="defproc.campform.cache_text"/></c:param>
 					</c:import>
 				</div>
 			</div>
