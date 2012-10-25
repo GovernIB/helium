@@ -305,7 +305,6 @@ public class ExpedientConsultaDissenyController extends BaseController {
 							commandFiltre,
 							true,
 							true);
-	
 					Map<String, Object> valorsPerService = new HashMap<String, Object>();
 					for (String clau: valors.keySet()) {
 						String clauPerService = clau.replaceFirst("_", ".");
@@ -314,66 +313,34 @@ public class ExpedientConsultaDissenyController extends BaseController {
 								clauPerService,
 								valor);
 					}
-
-					
 					List<ExpedientConsultaDissenyDto> expedients = expedientService.findAmbEntornConsultaDisseny(
 							entorn.getId(),
 							commandSeleccio.getConsultaId(),
 							valorsPerService,
 							ExpedientCamps.EXPEDIENT_CAMP_ID,
 							true);
-					
 					List<ExpedientConsultaDissenyDto> expedientsTE = new ArrayList<ExpedientConsultaDissenyDto>();
-					
-					if(ids.size()>0){
-						for(int c=0;c<=expedients.size()-1;c++){
-							
-							for(int b=1;b<=ids.size()-1;b++){
-							
-								if(expedients.get(c).getExpedient().getId().equals(ids.get(b))){
+					if (ids.size() > 0) {
+						for (int c = 0; c <= expedients.size() -1 ; c++) {
+							for (int b = 1; b <= ids.size() - 1; b++) {
+								if (expedients.get(c).getExpedient().getId().equals(ids.get(b))) {
 									expedientsTE.add(expedients.get(c));
 								}
 							}
 						}
-
 					}
-					
-					
-					if(expedientsTE.size()>0){
+					if (expedientsTE.size() > 0) {
 						model.addAttribute(
 								JasperReportsView.MODEL_ATTRIBUTE_REPORTDATA,
 								getDadesDatasource(expedientsTE));
-					}else{
-
+					} else {
 						model.addAttribute(
 								JasperReportsView.MODEL_ATTRIBUTE_REPORTDATA,
 								getDadesDatasource(expedients));
-						
 					}
-					
 					model.addAttribute(
 							JasperReportsView.MODEL_ATTRIBUTE_REPORTCONTENT,
 							consulta.getInformeContingut());
-					/*if (consulta.getSubConsultes().size() > 0) {
-						String[] subreports = new String[consulta.getSubConsultes().size()];
-						int index = 0;
-						for (Consulta subconsulta: consulta.getSubConsultes())  {
-							String subreportCodi = subconsulta.getCodi();
-							subreports[index++] = subreportCodi;
-							List<ExpedientConsultaDissenyDto> expedientsSub = expedientService.findAmbEntornConsultaDisseny(
-									entorn.getId(),
-									subconsulta.getId(),
-									valorsPerService,
-									ExpedientCamps.EXPEDIENT_CAMP_ID,
-									true);
-							model.addAttribute(
-									JasperReportsView.MODEL_ATTRIBUTE_SUBREPORTDATA_PREFIX + subreportCodi,
-									getDadesDatasource(expedientsSub));
-						}
-						model.addAttribute(
-								JasperReportsView.MODEL_ATTRIBUTE_SUBREPORTS,
-								subreports);
-					}*/
 					return "jasperReportsView";
 				} else {
 					missatgeError(request, getMessage("error.consulta.informe.nonhiha"));

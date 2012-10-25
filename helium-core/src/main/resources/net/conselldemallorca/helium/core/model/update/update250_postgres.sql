@@ -1,8 +1,19 @@
-ALTER TABLE helium.public.jbpm_variableinstance ADD COLUMN aux_clob TEXT;
-UPDATE helium.public.jbpm_variableinstance SET aux_clob = stringvalue_;
-ALTER TABLE helium.public.jbpm_variableinstance DROP COLUMN stringvalue_;
-ALTER TABLE helium.public.jbpm_variableinstance RENAME COLUMN aux_clob TO stringvalue_;	
+-- Tipus de dada dels camps tipus textarea
+alter table jbpm_variableinstance add column aux_clob text;
+update jbpm_variableinstance set aux_clob = stringvalue_;
+alter table jbpm_variableinstance drop column stringvalue_;
+alter table jbpm_variableinstance rename column aux_clob TO stringvalue_;	
 
+-- Select de consultes per tipus
+alter table hel_camp add column consulta_camp_text character varying(64);
+alter table hel_camp add column consulta_camp_valor character varying(64);
+alter table hel_camp add column consulta_params character varying(255);
+
+-- Millora missatges errors integracions
+alter table hel_portasignatures add process_instance_id character varying(255);
+alter table hel_portasignatures add expedient_id number(19);
+alter table hel_portasignatures add constraint hel_expedient_psigna_fk foreign key (expedient_id) references public.hel_expedient (id);
+alter table hel_expedient add errors_integs boolean not null set default 0;
 
 -- Actualització a la nova versió --
 insert into hel_versio (
@@ -22,8 +33,3 @@ select
     true script_executat,
     'now' data_execucio_script
 where (select count(*) from hel_versio where ordre = 250) = 0;
-
---select de consultes per tipus
-ALTER TABLE hel_camp ADD COLUMN consulta_camp_text CHARACTER VARYING(64);
-ALTER TABLE hel_camp ADD COLUMN consulta_camp_valor CHARACTER VARYING(64);
-ALTER TABLE hel_camp ADD COLUMN consulta_params CHARACTER VARYING(255);

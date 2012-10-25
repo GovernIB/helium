@@ -62,6 +62,7 @@ function confirmarEsborrar(e) {
 			</c:choose>
 		</display:column>
 		<c:choose>
+			<c:when test="${empty registre.terminiIniciat}"><c:set var="estilPrioritat"></c:set></c:when>
 			<c:when test="${registre.terminiIniciat.estat=='AVIS'}"><c:set var="estilPrioritat">background-color:orange</c:set></c:when>
 			<c:when test="${registre.terminiIniciat.estat=='CADUCAT'}"><c:set var="estilPrioritat">color:white;background-color:darkred</c:set></c:when>
 			<c:when test="${registre.terminiIniciat.estat=='COMPLETAT_FORA'}"><c:set var="estilPrioritat">color:white;background-color:red</c:set></c:when>

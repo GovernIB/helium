@@ -145,6 +145,7 @@ public class DtoConverter {
 		dto.setNotificacioTelematicaHabilitada(expedient.isNotificacioTelematicaHabilitada());
 		dto.setTramitExpedientIdentificador(expedient.getTramitExpedientIdentificador());
 		dto.setTramitExpedientClau(expedient.getTramitExpedientClau());
+		dto.setErrorsIntegracions(expedient.isErrorsIntegracions());
 		if (!starting) {
 			JbpmProcessInstance processInstance = jbpmDao.getProcessInstance(expedient.getProcessInstanceId());
 			dto.setDataFi(processInstance.getEnd());

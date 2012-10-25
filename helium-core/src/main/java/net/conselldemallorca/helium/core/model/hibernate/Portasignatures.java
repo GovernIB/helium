@@ -8,10 +8,14 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.ForeignKey;
 
 /**
  * Objecte de domini que representa un document del portasignatures.
@@ -25,9 +29,13 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 
 	public enum TipusEstat {
 		BLOQUEJAT,
-		PENDENT,
-		SIGNAT,
-		REBUTJAT
+		PENDENT,	// El document s'ha enviat però encara no s'ha rebut al callback cap resposta
+		SIGNAT,		// S'ha rebut petició al callback indicant que el document ha estat signat
+		REBUTJAT,	// S'ha rebut petició al callback indicant que el document ha estat rebujat
+		PROCESSAT,	// El document signat o rebujat s'ha processat correctament
+		CANCELAT,	// El document s'ha esborrat de l'expedient
+		ERROR,		// El document s'ha intentat processar i ha produit un error
+		ESBORRAT	// S'ha esborrat l'expedient al qual pertany el document
 	}
 
 	public enum Transicio {
@@ -48,6 +56,8 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 	private Date dataCallbackPrimer;
 	private Date dataCallbackDarrer;
 	private String errorCallbackProcessant;
+	private String processInstanceId;
+	private Expedient expedient;
 
 	public Portasignatures() {}
 	public Portasignatures(
@@ -177,6 +187,24 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 	}
 	public void setErrorCallbackProcessant(String errorCallbackProcessant) {
 		this.errorCallbackProcessant = errorCallbackProcessant;
+	}
+
+	@Column(name="process_instance_id", length=255, nullable=false)
+	public String getProcessInstanceId() {
+		return processInstanceId;
+	}
+	public void setProcessInstanceId(String processInstanceId) {
+		this.processInstanceId = processInstanceId;
+	}
+
+	@ManyToOne(optional=false)
+	@JoinColumn(name="expedient_id")
+	@ForeignKey(name="hel_expedient_psigna_fk")
+	public Expedient getExpedient() {
+		return expedient;
+	}
+	public void setExpedient(Expedient expedient) {
+		this.expedient = expedient;
 	}
 
 	@Override

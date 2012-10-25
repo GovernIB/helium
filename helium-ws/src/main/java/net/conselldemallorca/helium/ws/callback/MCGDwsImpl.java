@@ -34,37 +34,43 @@ public class MCGDwsImpl implements es.indra.www.portafirmasmcgdws.mcgdws.MCGDws 
 	public CallbackResponse callback(CallbackRequest callbackRequest) throws java.rmi.RemoteException {
 		Integer document = callbackRequest.getApplication().getDocument().getId();
 		AttributesState estat = callbackRequest.getApplication().getDocument().getAttributes().getState();
-		logger.info("Rebuda petició callback portasignatures del document amb id " + document + " i estat " + estat.getValue());
+		logger.info("Inici procés petició callback portasignatures (id=" + document + ", estat=" + estat.getValue() + ")");
 		CallbackResponse callbackResponse = new CallbackResponse();
 		try {
 			PluginService pluginService = ServiceProxy.getInstance().getPluginService();
 			Double resposta = -1D;
+			boolean processamentOk;
 			try {
 				switch (estat.getValue()) {
 					case DOCUMENT_BLOQUEJAT:
 						resposta = 1D;
-						logger.info("Processat document amb estat bloquejat(0) (id=" + document + ", resposta=" + resposta + ")");
+						logger.info("Fi procés petició callback portasignatures (id=" + document + ", estat=" + estat.getValue() + "-Bloquejat, resposta=" + resposta + ")");
 						break;
 					case DOCUMENT_PENDENT:
 						resposta = 1D;
-						logger.info("Processat document amb estat pendent(1) (id=" + document + ", resposta=" + resposta + ")");
+						logger.info("Fi procés petició callback portasignatures (id=" + document + ", estat=" + estat.getValue() + "-Pendent, resposta=" + resposta + ")");
 						break;
 					case DOCUMENT_SIGNAT:
-						resposta = pluginService.processarDocumentSignatPortasignatures(
-								document);
-						logger.info("Processat document amb estat signat(2) (id=" + document + ", resposta=" + resposta + ")");
+						processamentOk = pluginService.processarDocumentCallbackPortasignatures(
+								document,
+								false,
+								null);
+						resposta = (processamentOk) ? 1D : -1D;
+						logger.info("Fi procés petició callback portasignatures (id=" + document + ", estat=" + estat.getValue() + "-Signat, resposta=" + resposta + ")");
 						break;
 					case DOCUMENT_REBUTJAT:
-						resposta = pluginService.processarDocumentRebutjatPortasignatures(
+						processamentOk = pluginService.processarDocumentCallbackPortasignatures(
 								document,
+								true,
 								callbackRequest.getApplication().getDocument().getSigner().getRejection().getDescription());
-						logger.info("Processat document amb estat rebutjat(3) (id=" + document + ", resposta=" + resposta + ")");
+						resposta = (processamentOk) ? 1D : -1D;
+						logger.info("Fi procés petició callback portasignatures (id=" + document + ", estat=" + estat.getValue() + "-Rebutjat, resposta=" + resposta + ")");
 						break;
 					default:
 						break;
 				}
 			} catch (Exception ex) {
-				logger.error("Error processant callback portasignatures del document amb id " + document + " i estat " + estat.getValue(), ex);
+				logger.error("Error procés petició callback portasignatures (id=" + document + ", estat=" + estat.getValue() + ", resposta=" + resposta + ")", ex);
 			}
 			callbackResponse.setVersion("1.0");
 			callbackResponse.setLogMessages(new LogMessage[] {new LogMessage()});

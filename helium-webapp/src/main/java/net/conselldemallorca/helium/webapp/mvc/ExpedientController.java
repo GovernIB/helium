@@ -16,6 +16,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
+import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.core.model.service.TerminiService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
@@ -44,6 +45,7 @@ public class ExpedientController extends BaseController {
 	private DissenyService dissenyService;
 	private ExpedientService expedientService;
 	private TerminiService terminiService;
+	private PluginService pluginService;
 	private PermissionService permissionService;
 
 
@@ -53,10 +55,12 @@ public class ExpedientController extends BaseController {
 			DissenyService dissenyService,
 			ExpedientService expedientService,
 			TerminiService terminiService,
+			PluginService pluginService,
 			PermissionService permissionService) {
 		this.dissenyService = dissenyService;
 		this.expedientService = expedientService;
 		this.terminiService = terminiService;
+		this.pluginService = pluginService;
 		this.permissionService = permissionService;
 	}
 
@@ -151,7 +155,7 @@ public class ExpedientController extends BaseController {
 			if (potModificarExpedient(expedient)) {
 				try {
 					expedientService.desanular(entorn.getId(), id);
-					missatgeInfo(request, getMessage("info.expedient.desanulat") );
+					missatgeInfo(request, getMessage("info.expedient.desanulat"));
 				} catch (Exception ex) {
 					missatgeError(request, getMessage("error.activar.expedient"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut activar el registre", ex);
@@ -271,12 +275,40 @@ public class ExpedientController extends BaseController {
 				model.addAttribute(
 						"instanciaProces",
 						expedientService.getInstanciaProcesById(id, false, false, true));
+				model.addAttribute(
+						"portasignaturesPendent",
+						expedientService.findDocumentsPendentsPortasignatures(id));
 				if (ambTasques != null && ambTasques.booleanValue()) {
 					model.addAttribute(
 							"tasques",
 							expedientService.findTasquesPerInstanciaProces(id, true));
 				}
 				return "expedient/documents";
+			} else {
+				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
+				return "redirect:/expedient/consulta.html";
+			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+
+	@RequestMapping(value = "documentPsignaReintentar")
+	public String documentPsignaReintentar(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) String id,
+			@RequestParam(value = "psignaId", required = true) Integer psignaId,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
+			if (potModificarExpedient(expedient)) {
+				if (pluginService.processarDocumentPendentPortasignatures(psignaId))
+					missatgeInfo(request, getMessage("expedient.psigna.reintentar.ok"));
+				else
+					missatgeError(request, getMessage("expedient.psigna.reintentar.error"));
+				return "redirect:/expedient/documents.html?id=" + id;
 			} else {
 				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
 				return "redirect:/expedient/consulta.html";

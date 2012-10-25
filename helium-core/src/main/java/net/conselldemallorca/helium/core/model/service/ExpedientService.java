@@ -49,6 +49,7 @@ import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
+import net.conselldemallorca.helium.core.model.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.core.model.dto.PortasignaturesPendentDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.dto.TokenDto;
@@ -71,8 +72,10 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipu
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
+import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
+import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.acl.AclServiceDao;
@@ -430,6 +433,9 @@ public class ExpedientService {
 				if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
 					pluginGestioDocumentalDao.deleteDocument(documentStore.getReferenciaFont());
 				documentStoreDao.delete(documentStore.getId());
+			}
+			for (Portasignatures psigna: expedient.getPortasignatures()) {
+				psigna.setEstat(TipusEstat.ESBORRAT);
 			}
 			expedientDao.delete(expedient);
 			luceneDao.deleteExpedient(expedient);
@@ -1566,6 +1572,40 @@ public class ExpedientService {
 			dto.setTargetTasca(log.isTargetTasca());
 			dto.setTargetProces(log.isTargetProces());
 			dto.setTargetExpedient(log.isTargetExpedient());
+			resposta.add(dto);
+		}
+		return resposta;
+	}
+
+	public List<PortasignaturesDto> findDocumentsPendentsPortasignatures(String processInstanceId) {
+		List<PortasignaturesDto> resposta = new ArrayList<PortasignaturesDto>();
+		List<Portasignatures> pendents = pluginPortasignaturesDao.findPendentsPerProcessInstanceId(processInstanceId);
+		for (Portasignatures pendent: pendents) {
+			PortasignaturesDto dto = new PortasignaturesDto();
+			dto.setId(pendent.getId());
+			dto.setDocumentId(pendent.getDocumentId());
+			dto.setTokenId(pendent.getTokenId());
+			dto.setDataEnviat(pendent.getDataEnviat());
+			if (TipusEstat.ERROR.equals(pendent.getEstat())) {
+				if (Transicio.SIGNAT.equals(pendent.getTransition()))
+					dto.setEstat(TipusEstat.SIGNAT.toString());
+				else
+					dto.setEstat(TipusEstat.REBUTJAT.toString());
+				dto.setError(true);
+			} else {
+				dto.setEstat(pendent.getEstat().toString());
+				dto.setError(false);
+			}
+			if (pendent.getTransition() != null)
+				dto.setTransicio(pendent.getTransition().toString());
+			dto.setDocumentStoreId(pendent.getDocumentStoreId());
+			dto.setMotiuRebuig(pendent.getMotiuRebuig());
+			dto.setTransicioOK(pendent.getTransicioOK());
+			dto.setTransicioKO(pendent.getTransicioKO());
+			dto.setDataProcesPrimer(pendent.getDataCallbackPrimer());
+			dto.setDataProcesDarrer(pendent.getDataCallbackDarrer());
+			dto.setErrorProcessant(pendent.getErrorCallbackProcessant());
+			dto.setProcessInstanceId(pendent.getProcessInstanceId());
 			resposta.add(dto);
 		}
 		return resposta;

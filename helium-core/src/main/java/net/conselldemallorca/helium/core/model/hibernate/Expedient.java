@@ -118,6 +118,8 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	@MaxLength(255)
 	private String tramitExpedientClau;
 
+	private boolean errorsIntegracions;
+
 	private Estat estat;
 	@NotNull
 	private ExpedientTipus tipus;
@@ -128,6 +130,7 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	private Set<Expedient> relacionsDesti = new HashSet<Expedient>();
 	private Set<Alerta> alertes = new HashSet<Alerta>();
 	private List<ExpedientLog> logs = new ArrayList<ExpedientLog>();
+	private List<Portasignatures> portasignatures = new ArrayList<Portasignatures>();
 
 
 
@@ -417,6 +420,14 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 		this.tramitExpedientClau = tramitExpedientClau;
 	}
 
+	@Column(name="errors_integs")
+	public boolean isErrorsIntegracions() {
+		return errorsIntegracions;
+	}
+	public void setErrorsIntegracions(boolean errorsIntegracions) {
+		this.errorsIntegracions = errorsIntegracions;
+	}
+
 	@ManyToOne(optional=true)
 	@JoinColumn(name="estat_id")
 	@ForeignKey(name="hel_estat_expedient_fk")
@@ -508,6 +519,21 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	}
 	public void removeLogs(ExpedientLog logs) {
 		getLogs().remove(logs);
+	}
+
+	@OneToMany(mappedBy="expedient", cascade={CascadeType.ALL})
+	@OrderBy("dataEnviat asc")
+	public List<Portasignatures> getPortasignatures() {
+		return portasignatures;
+	}
+	public void setPortasignatures(List<Portasignatures> portasignatures) {
+		this.portasignatures = portasignatures;
+	}
+	public void addPortasignatures(Portasignatures portasignatures) {
+		getPortasignatures().add(portasignatures);
+	}
+	public void removePortasignatures(Portasignatures portasignatures) {
+		getPortasignatures().remove(portasignatures);
 	}
 
 	@Transient

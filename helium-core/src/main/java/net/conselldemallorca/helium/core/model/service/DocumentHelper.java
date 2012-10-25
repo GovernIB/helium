@@ -14,6 +14,7 @@ import net.conselldemallorca.helium.core.model.dao.DocumentStoreDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.PluginCustodiaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginGestioDocumentalDao;
+import net.conselldemallorca.helium.core.model.dao.PluginPortasignaturesDao;
 import net.conselldemallorca.helium.core.model.dao.PluginSignaturaDao;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.exception.IllegalArgumentsException;
@@ -21,7 +22,9 @@ import net.conselldemallorca.helium.core.model.exception.PluginException;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
+import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
+import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.util.DocumentTokenUtils;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
@@ -53,6 +56,7 @@ public class DocumentHelper {
 	private DefinicioProcesDao definicioProcesDao;
 	private ExpedientDao expedientDao;
 	private DocumentDao documentDao;
+	private PluginPortasignaturesDao pluginPortasignaturesDao;
 	private DocumentStoreDao documentStoreDao;
 	private PluginSignaturaDao pluginSignaturaDao;
 	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
@@ -149,6 +153,14 @@ public class DocumentHelper {
 				}
 				if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
 					pluginGestioDocumentalDao.deleteDocument(documentStore.getReferenciaFont());
+				if (processInstanceId != null) {
+					for (Portasignatures psigna: pluginPortasignaturesDao.findPendentsPerProcessInstanceId(processInstanceId)) {
+						if (psigna.getDocumentStoreId().longValue() == documentStore.getId().longValue()) {
+							psigna.setEstat(TipusEstat.ESBORRAT);
+							pluginPortasignaturesDao.saveOrUpdate(psigna);
+						}
+					}
+				}
 				documentStoreDao.delete(documentStoreId);
 			}
 			if (taskInstanceId != null) {
@@ -386,6 +398,12 @@ public class DocumentHelper {
 	public void setDocumentDao(DocumentDao documentDao) {
 		this.documentDao = documentDao;
 	}
+	@Autowired
+	public void setPluginPortasignaturesDao(
+			PluginPortasignaturesDao pluginPortasignaturesDao) {
+		this.pluginPortasignaturesDao = pluginPortasignaturesDao;
+	}
+	@Autowired
 	public void setDocumentStoreDao(DocumentStoreDao documentStoreDao) {
 		this.documentStoreDao = documentStoreDao;
 	}

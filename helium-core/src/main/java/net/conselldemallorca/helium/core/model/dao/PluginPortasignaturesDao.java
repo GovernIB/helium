@@ -2,6 +2,7 @@ package net.conselldemallorca.helium.core.model.dao;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
@@ -104,6 +105,38 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 			.add(Restrictions.ne("estat", TipusEstat.REBUTJAT))
 			.list();
 	}
+
+	@SuppressWarnings("unchecked")
+	public List<Portasignatures> findPendentsPerProcessInstanceId(
+			String processInstanceId) {
+		List<Portasignatures> psignas = getSession()
+			.createCriteria(getPersistentClass())
+			.add(Restrictions.eq("processInstanceId", processInstanceId))
+			.list();
+		Iterator<Portasignatures> it = psignas.iterator();
+		while (it.hasNext()) {
+			Portasignatures psigna = it.next();
+			if (	!TipusEstat.PENDENT.equals(psigna.getEstat()) &&
+					!TipusEstat.SIGNAT.equals(psigna.getEstat()) &&
+					!TipusEstat.REBUTJAT.equals(psigna.getEstat()) &&
+					!TipusEstat.ERROR.equals(psigna.getEstat())) {
+				it.remove();
+			}
+		}
+		return psignas;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<Portasignatures> findAmbErrorsPerExpedientId(
+			Long expedientId) {
+		return getSession()
+			.createCriteria(getPersistentClass())
+			.add(Restrictions.eq("expedient.id", expedientId))
+			.add(Restrictions.eq("estat", TipusEstat.ERROR))
+			.list();
+	}
+
+
 
 	@SuppressWarnings("rawtypes")
 	private PortasignaturesPlugin getPortasignaturesPlugin() {

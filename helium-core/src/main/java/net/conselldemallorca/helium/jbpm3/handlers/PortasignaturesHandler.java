@@ -87,6 +87,7 @@ public class PortasignaturesHandler extends AbstractHeliumActionHandler implemen
 					(String)getValorOVariable(executionContext, importancia, varImportancia),
 					(Date)getValorOVariable(executionContext, dataLimit, varDataLimit),
 					executionContext.getToken().getId(),
+					executionContext.getProcessInstance().getId(),
 					(String)getValorOVariable(executionContext, transicioOK, varTransicioOK),
 					(String)getValorOVariable(executionContext, transicioKO, varTransicioKO));
 		} catch (Exception e) {
