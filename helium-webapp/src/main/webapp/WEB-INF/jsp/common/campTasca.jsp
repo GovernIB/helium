@@ -26,7 +26,7 @@
 		<c:when test="${not empty tasca.id}">
 			<c:choose>
 				<c:when test="${fn:startsWith(tasca.id, 'TIE')}">
-					taskId:'${tasca.id}',definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}',valors:function(){return canvisSelectValorsAddicionals}
+					/*taskId:'${tasca.id}',*/definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}',valors:function(){return canvisSelectValorsAddicionals}
 				</c:when>
 				<c:otherwise>
 					taskId:${tasca.id},processInstanceId:${tasca.processInstanceId},definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}',valors:function(){return canvisSelectValorsAddicionals}
