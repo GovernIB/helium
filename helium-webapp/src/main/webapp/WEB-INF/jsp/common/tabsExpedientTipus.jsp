@@ -9,7 +9,7 @@
 		<c:set var="tePermisGestioTipusExpedient" value="${true}"/>
 	</security:accesscontrollist>
 	<c:set var="tePermisGestionar" value="${false}"/>
-	<security:accesscontrollist domainObject="${expedientTipus}" hasPermission="16,32">
+	<security:accesscontrollist domainObject="${expedientTipus}" hasPermission="16,32,256">
 		<c:set var="tePermisGestionar" value="${true}"/>
 	</security:accesscontrollist>
 	<c:set var="tePermisDissenyTipusExpedient" value="${false}"/>
