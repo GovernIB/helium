@@ -22,3 +22,8 @@ select
     true script_executat,
     'now' data_execucio_script
 where (select count(*) from hel_versio where ordre = 250) = 0;
+
+--select de consultes per tipus
+ALTER TABLE hel_camp ADD COLUMN consulta_camp_text CHARACTER VARYING(64);
+ALTER TABLE hel_camp ADD COLUMN consulta_camp_valor CHARACTER VARYING(64);
+ALTER TABLE hel_camp ADD COLUMN consulta_params CHARACTER VARYING(255);

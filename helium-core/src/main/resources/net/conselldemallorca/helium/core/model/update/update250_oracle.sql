@@ -23,3 +23,8 @@ SELECT
     SYSDATE DATA_EXECUCIO_SCRIPT
 FROM DUAL
 WHERE (SELECT COUNT(*) FROM HEL_VERSIO WHERE ORDRE = 250) = 0;
+
+--select de consultes per tipus
+ALTER TABLE hel_camp ADD consulta_camp_text VARCHAR2(64 CHAR);
+ALTER TABLE hel_camp ADD consulta_camp_valor VARCHAR2(64 CHAR);
+ALTER TABLE hel_camp ADD consulta_params VARCHAR2(255 CHAR);
