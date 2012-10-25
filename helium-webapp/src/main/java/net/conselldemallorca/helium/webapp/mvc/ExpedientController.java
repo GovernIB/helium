@@ -22,6 +22,7 @@ import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jbpm.JbpmException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.Permission;
 import org.springframework.stereotype.Controller;
@@ -196,10 +197,16 @@ public class ExpedientController extends BaseController {
 							"activeTokens",
 							expedientService.getActiveTokens(id, true));
 				}
-				model.addAttribute(
-						"relacionarCommand",
-						new ExpedientRelacionarCommand());
-				return "expedient/info";
+				try {
+					model.addAttribute(
+							"relacionarCommand",
+							new ExpedientRelacionarCommand());
+					return "expedient/info";					
+				} catch (Exception ex) {
+					logger.error("S'ha produït un error processant la seva petició", ex);
+					missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
+					return "redirect:/tasca/personaLlistat.html";
+				}				
 			} else {
 				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
 				return "redirect:/expedient/consulta.html";
@@ -488,13 +495,18 @@ public class ExpedientController extends BaseController {
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (expedientService.isAccioPublica(id, jbpmAction) || potModificarExpedient(expedient)) {
-				expedientService.executarAccio(id, jbpmAction);
-				missatgeInfo(request, getMessage("info.accio.executat"));
+				try {
+					expedientService.executarAccio(id, jbpmAction);
+					missatgeInfo(request, getMessage("info.accio.executat"));
+				} catch (JbpmException ex ) {
+					missatgeError(request, getMessage("error.executar.accio") +" "+ jbpmAction + ": "+ ex.getCause().getMessage());
+				}
+
 				return "redirect:/expedient/info.html?id=" + id;
 			} else {
 				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 				return "redirect:/expedient/consulta.html";
-			}
+			}			
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
