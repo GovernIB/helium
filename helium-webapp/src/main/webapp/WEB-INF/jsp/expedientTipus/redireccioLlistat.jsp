@@ -62,7 +62,7 @@ function confirmar(e) {
 		</script>
 		<br>
 		<h2><fmt:message key='reassign.llistat.titol'/></h2>				
-		<form:form action="redireccioLlistat.html" cssClass="uniForm">
+		<form:form action="/helium/expedientTipus/redireccioLlistat.html" cssClass="uniForm">
 			
 			<div class="inlineLabels">
 				<c:if test="${not empty command.id}"><form:hidden path="id"/></c:if>
