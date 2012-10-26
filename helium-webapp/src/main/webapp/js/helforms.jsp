@@ -91,8 +91,10 @@ function initSelect(selectId, valor, url, extraParams, dominiParams) {
 var canvisSelectValorsAddicionals;
 var canvisSelectInicialitzat = false;
 var canvisSelectTasca = new Array();
-function canviSelectTasca(selectId, camp, prefix) {
-	var valor = $("select#" + selectId).val();
+function canviSelectTasca(selectId, camp, prefix, tipus) {
+	if(tipus!="string"){
+		valor = $("select#" + selectId).val();
+	}else{valor = $("#"+selectId).val();}
 	var campSensePrefix = camp;
 	if (prefix) campSensePrefix = camp.substring(prefix.length);
 	updateValorAddicionalSelect(campSensePrefix, valor);
