@@ -3,8 +3,10 @@
  */
 package net.conselldemallorca.helium.core.model.service;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -13,14 +15,17 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.conselldemallorca.helium.core.model.dao.CampDao;
 import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientLogDao;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
@@ -30,16 +35,21 @@ import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jbpm.bytes.ByteArray;
 import org.jbpm.context.exe.VariableInstance;
 import org.jbpm.context.log.VariableCreateLog;
 import org.jbpm.context.log.VariableDeleteLog;
 import org.jbpm.context.log.VariableLog;
 import org.jbpm.context.log.VariableUpdateLog;
+import org.jbpm.graph.def.Node;
+import org.jbpm.graph.def.Node.NodeType;
 import org.jbpm.graph.exe.Token;
 import org.jbpm.graph.log.ActionLog;
+import org.jbpm.graph.log.NodeLog;
 import org.jbpm.graph.log.ProcessInstanceCreateLog;
 import org.jbpm.graph.log.ProcessInstanceEndLog;
 import org.jbpm.graph.log.TokenCreateLog;
@@ -134,18 +144,20 @@ public class ExpedientLogHelper {
 		return expedientLog;
 	}
 
-	public void retrocedirFinsLog(Long expedientLogId) {
-		boolean debugRetroces = false;
+	public void retrocedirFinsLog(Long expedientLogId, boolean retrocedirPerTasques, Long iniciadorId) {
+		boolean debugRetroces = true;
 		ExpedientLog expedientLog = expedientLogDao.getById(expedientLogId, false);
 		List<ExpedientLog> expedientLogs = expedientLogDao.findAmbExpedientIdOrdenatsPerData(
 				expedientLog.getExpedient().getId());
+		expedientLogs = filtraExpedientsLogPerRetrocedir(expedientLogs, expedientLogId, retrocedirPerTasques);
+
 		// Retrocedeix els canvis al jBPM relacionats amb els logs
-		List<ProcessLog> logsJbpm = getLogsJbpmPerRetrocedir(expedientLogs, expedientLogId);
+		List<ProcessLog> logsJbpm = getLogsJbpmPerRetrocedir(expedientLogs); //, expedientLogId);
 		if (debugRetroces)
 			printLogs(logsJbpm);
 		jbpmDao.addProcessInstanceMessageLog(
 				expedientLog.getExpedient().getProcessInstanceId(),
-				getMessageLogPerTipus(ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR));
+				getMessageLogPerTipus(retrocedirPerTasques ? ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR_TASQUES : ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR));
 		if (logsJbpm != null && !logsJbpm.isEmpty()) {
 			// Recull totes les accions executades a jBPM relacionats amb els logs
 			Collection<LogObject> logObjects = getAccionsJbpmPerRetrocedir(
@@ -211,31 +223,69 @@ public class ExpedientLogHelper {
 						if (debugRetroces)
 							System.out.println(">>> [RETLOG] Desfer finalitzar procés (" + logo.getName() + ")");
 						jbpmDao.revertProcessInstanceEnd(logo.getObjectId());
+						JbpmProcessInstance jpi = jbpmDao.getProcessInstance(String.valueOf(logo.getProcessInstanceId()));
+						if (debugRetroces)
+							System.out.println(">>> [RETLOG] Desfer finalitzar token (" + jpi.getProcessInstance().getRootToken().getFullName() + ")");
+						jbpmDao.revertTokenEnd(jpi.getProcessInstance().getRootToken().getId());
 					}
 					break;
 				case LogObject.LOG_OBJECT_TOKEN:
+					if (debugRetroces) {
+						JbpmToken jtok = jbpmDao.getTokenById(String.valueOf(logo.getObjectId()));
+						System.out.println(">>> [LOGTOKEN] Inici Retroces token (" + logo.getName() + ") - End: " + jtok.getToken().getEnd());
+					}
 					if (started && !ended) {
 						if (debugRetroces)
 							System.out.println(">>> [RETLOG] Cancel·lar token (" + logo.getName() + ")");
 						jbpmDao.cancelToken(logo.getObjectId());
+						
+						if (debugRetroces) {
+							JbpmToken jtok = jbpmDao.getTokenById(String.valueOf(logo.getObjectId()));
+							System.out.println(">>> [LOGTOKEN] Retroces token cancelat (" + logo.getName() + ") - End: " + jtok.getToken().getEnd());
+						}
 					} else if (!started && ended) {
 						if (debugRetroces)
 							System.out.println(">>> [RETLOG] Desfer finalitzar token (" + logo.getName() + ")");
 						jbpmDao.revertTokenEnd(logo.getObjectId());
+						
+						if (debugRetroces) {
+							JbpmToken jtok = jbpmDao.getTokenById(String.valueOf(logo.getObjectId()));
+							System.out.println(">>> [LOGTOKEN] Retroces revert token end (" + logo.getName() + ") - End: " + jtok.getToken().getEnd());
+						}
 					}
 					if (!started) {
 						// Només ha d'executar el node si no és una instància de procés
-						boolean executeNode = !jbpmDao.isProcessStateNode(
+						// o un join o un fork
+						String desti = (String)logo.getValorInicial();
+						if (jbpmDao.isJoinNode(logo.getProcessInstanceId(), (String)logo.getValorInicial())) {
+							Node joinNode = jbpmDao.getNodeByName(logo.getProcessInstanceId(), desti);
+							Node forkNode = getForkNode(logo.getProcessInstanceId(), joinNode);
+							if (forkNode != null)
+								desti = forkNode.getName();
+						}
+						
+						if (debugRetroces) {
+							JbpmToken jtok = jbpmDao.getTokenById(String.valueOf(logo.getObjectId()));
+							System.out.println(">>> [LOGTOKEN] Retroces abans token redirect (" + logo.getName() + ") - End: " + jtok.getToken().getEnd());
+						}
+						
+						boolean executeNode = (!jbpmDao.isProcessStateNodeJoinOrFork( //(!jbpmDao.isProcessStateNode(
 								logo.getProcessInstanceId(),
-								(String)logo.getValorInicial());
+								(String)logo.getValorInicial()));
 						if (debugRetroces)
-							System.out.println(">>> [RETLOG] Retornar token (name=" + logo.getName() + ") al node (name=" + logo.getValorInicial() + ", execute=" + executeNode + ")");
+							System.out.println(">>> [RETLOG] Retornar token (name=" + logo.getName() + ") al node (name=" + desti + ", execute=" + executeNode + ")");
 						jbpmDao.tokenRedirect(
 								logo.getObjectId(),
-								(String)logo.getValorInicial(),
+								//(String)logo.getValorInicial(),
+								desti,
 								true,
 								false,
 								executeNode);
+						
+						if (debugRetroces) {
+							JbpmToken jtok = jbpmDao.getTokenById(String.valueOf(logo.getObjectId()));
+							System.out.println(">>> [LOGTOKEN] Retroces després token redirect (" + logo.getName() + ") - End: " + jtok.getToken().getEnd());
+						}
 					}
 					break;
 				case LogObject.LOG_OBJECT_TASK:
@@ -444,13 +494,14 @@ public class ExpedientLogHelper {
 			}
 		}*/
 		// Marca les accions com a retrocedides
-		//Collections.reverse(expedientLogs);
-		boolean found = false;
 		for (ExpedientLog elog: expedientLogs) {
-			if (elog.equals(expedientLog))
-				found = true;
-			if (found && ExpedientLogEstat.NORMAL.equals(elog.getEstat()))
-				elog.setEstat(ExpedientLogEstat.RETROCEDIT);
+			if (ExpedientLogEstat.NORMAL.equals(elog.getEstat()))
+				if (retrocedirPerTasques) {
+					elog.setEstat(ExpedientLogEstat.RETROCEDIT_TASQUES);
+				} else {
+					elog.setEstat(ExpedientLogEstat.RETROCEDIT);
+				}
+			if (elog.getId() != iniciadorId) elog.setIniciadorRetroces(iniciadorId);
 		}
 	}
 
@@ -475,32 +526,47 @@ public class ExpedientLogHelper {
 	public List<ExpedientLog> findLogsRetrocedits(Long expedientLogId) {
 		List<ExpedientLog> resposta = new ArrayList<ExpedientLog>();
 		ExpedientLog expedientLog = expedientLogDao.getById(expedientLogId, false);
-		if (ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR.equals(expedientLog.getAccioTipus())) {
-			List<ExpedientLog> expedientLogs = expedientLogDao.findAmbExpedientIdOrdenatsPerData(
-					expedientLog.getExpedient().getId());
-			Long idInicialExclos = null;
-			Long idFinalExclos = null;
-			for (ExpedientLog elog: expedientLogs) {
-				if (elog.getId().equals(expedientLogId))
-					break;
-				if (ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR.equals(elog.getAccioTipus())) {
-					idInicialExclos = new Long(elog.getAccioParams());
-					idFinalExclos = elog.getId();
+		if (ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR.equals(expedientLog.getAccioTipus()) ||
+			ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR_TASQUES.equals(expedientLog.getAccioTipus())) {
+			List<ExpedientLog> logs = expedientLogDao.findAmbExpedientRetroceditIdOrdenatsPerData(
+					expedientLog.getId());
+			
+			if (logs != null && logs.size() > 0) {
+				resposta = logs;
+			} else {
+				// Aquí no ha d'entrar al retrocedir per tasques, degut a que sempre tindrà la
+				// referència al log iniciador del retrocés
+				List<ExpedientLog> expedientLogs = expedientLogDao.findAmbExpedientIdOrdenatsPerData(
+						expedientLog.getExpedient().getId());
+				Long idInicialExclos = null;
+				Long idFinalExclos = null;
+				for (ExpedientLog elog: expedientLogs) {
+					if (elog.getId().equals(expedientLogId))
+						break;
+					if (ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR.equals(elog.getAccioTipus())) {
+						idInicialExclos = new Long(elog.getAccioParams());
+						idFinalExclos = elog.getId();
+					}
 				}
-			}
-			Long idInicial = new Long(expedientLog.getAccioParams());
-			for (ExpedientLog elog: expedientLogs) {
-				if (elog.getId().equals(expedientLogId))
-					break;
-				if (elog.getId().longValue() >= idInicial.longValue() && ExpedientLogEstat.RETROCEDIT.equals(elog.getEstat())) {
-					if (idInicialExclos == null || elog.getId().longValue() < idInicialExclos)
-						resposta.add(elog);
-					else if (idFinalExclos == null || elog.getId().longValue() > idFinalExclos)
-						resposta.add(elog);
+				Long idInicial = new Long(expedientLog.getAccioParams());
+				for (ExpedientLog elog: expedientLogs) {
+					if (elog.getId().equals(expedientLogId))
+						break;
+					if (elog.getId().longValue() >= idInicial.longValue() && ExpedientLogEstat.RETROCEDIT.equals(elog.getEstat())) {
+						if (idInicialExclos == null || elog.getId().longValue() < idInicialExclos)
+							resposta.add(elog);
+						else if (idFinalExclos == null || elog.getId().longValue() > idFinalExclos)
+							resposta.add(elog);
+					}
 				}
 			}
 		}
 		return resposta;
+	}
+	
+	public JbpmToken getTokenByJbpmLogId(Long jbpmLogId){
+		ProcessLog pl = jbpmDao.getProcessLogById(jbpmLogId);
+		return new JbpmToken(pl.getToken());
 	}
 
 	public void printProcessInstanceLogs(String processInstanceId) {
@@ -549,51 +615,51 @@ public class ExpedientLogHelper {
 		return MESSAGE_LOG_PREFIX + tipus.name();
 	}
 
-	private List<ProcessLog> getLogsJbpmPerRetrocedir(
-			List<ExpedientLog> expedientLogs,
-			Long expedientLogId) {
+	private List<ProcessLog> getLogsJbpmPerRetrocedir(List<ExpedientLog> expedientLogs) {
 		List<ProcessLog> logsJbpm = new ArrayList<ProcessLog>();
-		boolean found = false;
+		
+		// Utilitzam un set per a evitar repetits
+		Set<ProcessLog> setlogsJbpm = new HashSet<ProcessLog>();		
 		for (ExpedientLog elog: expedientLogs) {
-			if (elog.getId().equals(expedientLogId))
-				found = true;
-			if (found) {
-				List<ProcessLog> logsJbpmPerAfegir = getLogsJbpmPerExpedientLog(elog);
-				if (logsJbpmPerAfegir != null)
-					logsJbpm.addAll(logsJbpmPerAfegir);
-			}
+			List<ProcessLog> logsJbpmPerAfegir = getLogsJbpmPerExpedientLog(elog);
+			if (logsJbpmPerAfegir != null)
+				setlogsJbpm.addAll(logsJbpmPerAfegir);
 		}
+		// Passam els logs a una llista, i la ordenam
+		logsJbpm.addAll(setlogsJbpm);
+		Collections.sort(
+				logsJbpm,
+				new Comparator<ProcessLog>() {
+					public int compare(ProcessLog l1, ProcessLog l2) {
+						return new Long(l1.getId()).compareTo(new Long(l2.getId()));
+					}
+				});
+		
 		return logsJbpm;
 	}
+	
 	private List<ProcessLog> getLogsJbpmPerExpedientLog(ExpedientLog expedientLog) {
 		List<ProcessLog> logsJbpm = new ArrayList<ProcessLog>();
+		List<ProcessLog> logsJbpmAfegir = new ArrayList<ProcessLog>();
 		if (expedientLog.getJbpmLogId() != null && expedientLog.getEstat().equals(ExpedientLogEstat.NORMAL)) {
 			// Obtenim els logs jBPM associats a la instància de procés i als seus
 			// subprocessos
-			JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(expedientLog.getProcessInstanceId().toString());
-			List<JbpmProcessInstance> processos = jbpmDao.getProcessInstanceTree(pi.getId());
-			for (JbpmProcessInstance proces: processos) {
-				Map<Token, List<ProcessLog>> logsPerInstanciaProces = jbpmDao.getProcessInstanceLogs(
-						proces.getId());
-				for (Token token: logsPerInstanciaProces.keySet()) {
-					for (ProcessLog plog: logsPerInstanciaProces.get(token))
-						logsJbpm.add(plog);
-				}
-			}
-			Collections.sort(
-					logsJbpm,
-					new Comparator<ProcessLog>() {
-						public int compare(ProcessLog l1, ProcessLog l2) {
-							return new Long(l1.getId()).compareTo(new Long(l2.getId()));
-						}
-					});
+			logsJbpm = getJbpmLogsPerInstanciaProces(expedientLog.getProcessInstanceId(), true);
+			
 			int indexInici = -1;
 			int indexFi = -1;
 			int index = 0;
+			Node join = null;
 			for (ProcessLog plog: logsJbpm) {
 				// L'índex inicial correspon al lloc a on es troba el log marcat per jbpmLogId
 				if (plog.getId() == expedientLog.getJbpmLogId()) {
 					indexInici = index;
+				} else if (indexInici != -1 && plog instanceof TransitionLog) {
+					// Comprovam si hi ha hagut una transició a un join
+					TransitionLog trlog = (TransitionLog)plog;
+					if (trlog.getDestinationNode().getNodeType() == Node.NodeType.Join) {
+						join = trlog.getDestinationNode();
+					}
 				} else if (indexInici != -1 && plog instanceof MessageLog) {
 					String message = ((MessageLog)plog).getMessage();
 					if (message.startsWith(MESSAGE_LOG_PREFIX)) {
@@ -605,10 +671,198 @@ public class ExpedientLogHelper {
 			}
 			if (indexFi == -1)
 				indexFi = logsJbpm.size();
-			return logsJbpm.subList(indexInici, indexFi);
+			logsJbpmAfegir = logsJbpm.subList(indexInici, indexFi);
+			
+			// Si hi ha hagut una transició cap a un join, obtenim els logs de la continuació del join
+			if (join == null) {
+				return logsJbpmAfegir;
+			} else {
+				indexInici = -1;
+				indexFi = -1;
+				index = 0;
+				for (ProcessLog plog: logsJbpm) {
+					// L'índex inicial correspon al log del node del Join
+					if (plog instanceof NodeLog) {
+						NodeLog nlog = (NodeLog)plog;
+						if (nlog.getNode().getId() == join.getId())
+						indexInici = index;
+					} else if (indexInici != -1 && plog instanceof MessageLog) {
+						String message = ((MessageLog)plog).getMessage();
+						if (message.startsWith(MESSAGE_LOG_PREFIX)) {
+							indexFi = index;
+							break;
+						}
+					}
+					index++;
+				}
+				
+				if (indexInici != -1) {
+					if (indexFi == -1)
+						indexFi = logsJbpm.size();
+					logsJbpmAfegir.addAll(logsJbpm.subList(indexInici, indexFi));
+				}
+				return logsJbpmAfegir;
+			}
 		} else {
 			return null;
 		}
+	}
+	
+	private Node getForkNode(long processInstanceId, Node joinNode) {
+		List<ProcessLog> logsJbpm = getJbpmLogsPerInstanciaProces(processInstanceId, false);
+		if (logsJbpm != null && logsJbpm.size() > 0) {
+			boolean trobat = false;
+			Token token = null;
+			for (ProcessLog plog: logsJbpm) {
+				if (plog instanceof TransitionLog 
+						&& ((TransitionLog) plog).getSourceNode().equals(joinNode)) {
+					token = plog.getToken();
+					trobat = true;
+					continue;
+				}
+				if (trobat) {
+					if (plog instanceof TransitionLog 
+							&& ((TransitionLog) plog).getDestinationNode().getNodeType() == NodeType.Fork 
+							&& ((TransitionLog) plog).getToken().equals(token)) {
+						return ((TransitionLog) plog).getDestinationNode();
+					}
+				}
+			}
+			
+		} 
+		return null;
+	}
+	
+	private List<ProcessLog> getJbpmLogsPerInstanciaProces(Long processInstanceId, boolean asc) {
+		 
+		List<ProcessLog> logsJbpm = new ArrayList<ProcessLog>();
+		 
+		JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(processInstanceId.toString());
+		List<JbpmProcessInstance> processos = jbpmDao.getProcessInstanceTree(pi.getId());
+		for (JbpmProcessInstance proces: processos) {
+			Map<Token, List<ProcessLog>> logsPerInstanciaProces = jbpmDao.getProcessInstanceLogs(
+					proces.getId());
+			for (Token token: logsPerInstanciaProces.keySet()) {
+				for (ProcessLog plog: logsPerInstanciaProces.get(token))
+					logsJbpm.add(plog);
+			}
+		}
+		
+		if (asc) {
+			Collections.sort(
+				logsJbpm,
+				new Comparator<ProcessLog>() {
+					public int compare(ProcessLog l1, ProcessLog l2) {
+						return new Long(l1.getId()).compareTo(new Long(l2.getId()));
+					}
+				});
+		} else {
+			Collections.sort(
+				logsJbpm,
+				new Comparator<ProcessLog>() {
+					public int compare(ProcessLog l1, ProcessLog l2) {
+						return new Long(l2.getId()).compareTo(new Long(l1.getId()));
+					}
+				});
+		}
+		
+		return logsJbpm;
+	}
+	
+	private List<ExpedientLog> filtraExpedientsLogPerRetrocedir(
+			List<ExpedientLog> expedientLogs, 
+			Long expedientLogId,
+			boolean retrocedirPerTasques) {
+		Token tokenRetroces = null;
+		boolean incloure = false;
+		boolean found = false;
+//		Map<Long, Token> processos = new HashMap<Long, Token>();
+		
+		List<ExpedientLog> expedientLogsRetrocedir = new ArrayList<ExpedientLog>();
+		for (ExpedientLog elog: expedientLogs) {
+//			if (processos.isEmpty()) {
+//				JbpmToken jt = getTokenByJbpmLogId(elog.getJbpmLogId());
+//				if (jt != null)
+//					processos.put(elog.getProcessInstanceId(), null);
+//			} else 
+			// Obtenim la ruta de tokens per a arribar al token seleccionat
+//			if(retrocedirPerTasques && !found && !processos.containsKey(elog.getProcessInstanceId())) {
+//				JbpmToken jt = getTokenByJbpmLogId(elog.getJbpmLogId());
+//				if (jt != null)
+//					processos.put(elog.getProcessInstanceId(), jt.getToken().getProcessInstance().getSuperProcessToken());
+//			}
+			// Obtenim el log seleccionat
+			if (elog.getId().equals(expedientLogId)) {
+				found = true;
+				incloure = true;
+				if (retrocedirPerTasques  && elog.isTargetTasca()) {
+					JbpmToken jbpmTokenRetroces = getTokenByJbpmLogId(elog.getJbpmLogId());
+					if (jbpmTokenRetroces != null) tokenRetroces = jbpmTokenRetroces.getToken();
+				}
+			}
+			// Obtenim els logs a retrocedir
+			if (found) {
+				if (retrocedirPerTasques) {
+					 if (elog.isTargetTasca() && tokenRetroces != null) {
+						 // Si la tasca seleccionada es del token arrel, llavors 
+						 // totes les tasques posteriors s'han de incloure
+						 if (tokenRetroces.isRoot() && tokenRetroces.getProcessInstance().getSuperProcessToken() == null) { //processos.get(tokenRetroces.getProcessInstance().getId()) == null) { 
+							 incloure = true;
+						 } else {
+							Token tokenActual = null;
+							JbpmToken jbpmTokenActual = getTokenByJbpmLogId(elog.getJbpmLogId());
+							if (jbpmTokenActual != null) {
+								tokenActual = jbpmTokenActual.getToken();
+							
+								if ((tokenActual.isRoot() && tokenActual.getProcessInstance().getSuperProcessToken() == null) 
+										|| tokenActual.equals(tokenRetroces)) {
+									// Incloem el token arrel "/" i els tokens iguals al token de la tasca seleccionada
+									incloure = true;
+								} else {
+									// Incloem tots els tokens pare del token de la tasca seleccionada
+									Token subTokenRetroces = getTokenPare(tokenRetroces);
+//									while (subTokenRetroces != null) {
+										while (subTokenRetroces != null) {
+											if (tokenActual.equals(subTokenRetroces)) {
+												incloure = true;
+												break;
+											}
+											subTokenRetroces = getTokenPare(subTokenRetroces);
+										}
+//									}
+									// Incloem tots els tokens fills del token de la tasca seleccionada
+									if (!incloure) {
+										Token subTokenActual = getTokenPare(tokenActual);
+										while (subTokenActual != null) {
+											if (tokenRetroces.equals(subTokenActual)) {
+												incloure = true;
+												break;
+											}
+											subTokenActual = getTokenPare(subTokenActual);
+										}
+									}
+								}
+							}
+						 }
+					 }
+					 if (incloure) {
+						expedientLogsRetrocedir.add(elog);
+						incloure = false;
+					}
+				} else {
+					expedientLogsRetrocedir.add(elog);
+				}
+			}
+		}
+		return expedientLogsRetrocedir;
+	}
+
+	private Token getTokenPare(Token token) {
+		Token t = token.getParent();
+		if (t == null) {
+			t = token.getProcessInstance().getSuperProcessToken();
+		}
+		return t;
 	}
 	
 	@Autowired
@@ -660,26 +914,27 @@ public class ExpedientLogHelper {
 					lobj.addAccio(LogObject.LOG_ACTION_ASSIGN);
 					lobj.setValorInicial(((TaskAssignLog)plog).getTaskOldActorId());
 					ExpedientLog expedientLog = getExpedientLogPerJbpmLogId(expedientLogs, currentMessageLogId);
-					if (expedientLog.getAccioTipus().equals(ExpedientLogAccioTipus.TASCA_REASSIGNAR)) {
+					if (expedientLog != null && expedientLog.getAccioTipus().equals(ExpedientLogAccioTipus.TASCA_REASSIGNAR)) {
 						String params = expedientLog.getAccioParams();
 						lobj.setValorInicial(params.substring(0, params.indexOf("::")));
 					}
 				}
 			} else if (plog instanceof VariableLog) {
 				VariableInstance variableInstance = ((VariableLog)plog).getVariableInstance();
+				boolean ignored = false;
 				// Hi ha logs de variables que ténen el nom null i el valor null 
 				// No sé molt bé el motiu
 				// El següent if els descarta
 				if(variableInstance.getProcessInstance()!=null){
-				
-				
 					String codi = variableInstance.getName();
 					DefinicioProces pDef = definicioProcesDao.findAmbJbpmId(String.valueOf(variableInstance.getProcessInstance().getProcessDefinition().getId()));
 					Camp camp = campDao.findAmbDefinicioProcesICodi(
 							pDef.getId(),
 							codi);		
-					if(camp != null && !camp.isIgnored()){
-						
+					if(camp != null){
+						ignored = camp.isIgnored();
+					}
+					if (!ignored) {
 						if (variableInstance.getName() != null || variableInstance.getValue() != null) {
 							Long variableInstanceId = jbpmDao.getVariableIdFromVariableLog(plog.getId());
 							Long taskInstanceId = jbpmDao.getTaskIdFromVariableLog(plog.getId());
@@ -715,7 +970,17 @@ public class ExpedientLogHelper {
 							if (plog instanceof VariableUpdateLog) {
 								VariableUpdateLog vulog = (VariableUpdateLog)plog;
 								lobj.addAccio(LogObject.LOG_ACTION_UPDATE);
-								lobj.setValorInicial(vulog.getOldValue());
+								Object oldValue = vulog.getOldValue();
+								if (oldValue instanceof ByteArray) {
+									try {
+										oldValue = new ObjectInputStream(new ByteArrayInputStream(((ByteArray)vulog.getNewValue()).getBytes())).readObject();
+									} catch (Exception e) {
+										logger.error("Error obtenint el valor del ByteArray de la variable " + vulog.getVariableInstance().getName(), e);
+									}
+								} else if (oldValue instanceof String && camp != null && camp.getTipus() == TipusCamp.BOOLEAN) {
+									oldValue =  oldValue.equals("T") ? new Boolean(true) : new Boolean(false);
+								}
+								lobj.setValorInicial(oldValue);
 							}
 							if (plog instanceof VariableDeleteLog)
 								lobj.addAccio(LogObject.LOG_ACTION_DELETE);

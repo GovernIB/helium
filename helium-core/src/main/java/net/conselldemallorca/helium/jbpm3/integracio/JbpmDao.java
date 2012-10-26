@@ -18,6 +18,7 @@ import java.util.zip.ZipOutputStream;
 
 import net.conselldemallorca.helium.core.model.exception.DeploymentException;
 
+import org.hibernate.SessionFactory;
 import org.jbpm.command.CancelTokenCommand;
 import org.jbpm.command.ChangeProcessInstanceVersionCommand;
 import org.jbpm.command.CommandService;
@@ -29,10 +30,13 @@ import org.jbpm.command.GetTaskInstanceCommand;
 import org.jbpm.command.SignalCommand;
 import org.jbpm.command.TaskInstanceEndCommand;
 import org.jbpm.file.def.FileDefinition;
+import org.jbpm.graph.def.Node;
+import org.jbpm.graph.def.Node.NodeType;
 import org.jbpm.graph.def.ProcessDefinition;
 import org.jbpm.graph.def.Transition;
 import org.jbpm.graph.exe.ProcessInstance;
 import org.jbpm.graph.exe.Token;
+import org.jbpm.graph.node.ProcessState;
 import org.jbpm.job.Timer;
 import org.jbpm.logging.log.ProcessLog;
 import org.jbpm.taskmgmt.def.Task;
@@ -618,7 +622,6 @@ public class JbpmDao {
 		GetTokenByIdCommand command = new GetTokenByIdCommand(id);
 		return new JbpmToken((Token)commandService.execute(command));
 	}
-	@SuppressWarnings("unchecked")
 	public Map<String, JbpmToken> getActiveTokens(String processInstanceId) {
 		Map<String, JbpmToken> resposta = new HashMap<String, JbpmToken>();
 		long id = new Long(processInstanceId).longValue();
@@ -627,11 +630,22 @@ public class JbpmDao {
 		Token root = processInstance.getRootToken();
 		if (!root.hasEnded())
 			resposta.put(root.getName(), new JbpmToken(root));
-		Map<String, Token> activeTokens = processInstance.getRootToken().getActiveChildren();
+		Map<String, Token> activeTokens = getActiveTokens(processInstance.getRootToken());
 		for (String tokenName: activeTokens.keySet()) {
 			resposta.put(tokenName, new JbpmToken(activeTokens.get(tokenName)));
 		}
 		return resposta;
+	}
+	@SuppressWarnings("unchecked")
+	private  Map<String, Token> getActiveTokens(Token token){
+		Map<String, Token> activeTokens = new HashMap<String, Token>();
+		if (token.hasActiveChildren()) {
+			activeTokens = token.getActiveChildren();
+			for (Token t: activeTokens.values()){
+				activeTokens.putAll(getActiveTokens(t));
+			}
+		}
+		return activeTokens;
 	}
 	public Map<String, JbpmToken> getAllTokens(String processInstanceId) {
 		Map<String, JbpmToken> resposta = new HashMap<String, JbpmToken>();
@@ -863,12 +877,15 @@ public class JbpmDao {
 		commandService.execute(autoSaveCommand);
 	}
 	public void revertTokenEnd(long id) {
-		RevertTokenEndCommand command = new RevertTokenEndCommand(id);
+		JbpmToken jtoken = getTokenById(String.valueOf(id));
+		RevertTokenEndCommand command = new RevertTokenEndCommand(jtoken.getToken().getId());
 		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_TOKEN);
 		commandService.execute(autoSaveCommand);
+		this.sessionFactory.getCurrentSession().refresh(jtoken.getToken());
+		jtoken.getToken().setAbleToReactivateParent(true);
 	}
 
 	public JbpmTask findEquivalentTaskInstance(long tokenId, long taskInstanceId) {
@@ -878,18 +895,42 @@ public class JbpmDao {
 		return new JbpmTask((TaskInstance)commandService.execute(command));
 	}
 
-	public boolean isProcessStateNode(long processInstanceId, String nodeName) {
+	public boolean isProcessStateNodeJoinOrFork(long processInstanceId, String nodeName) {
 		GetProcessInstanceCommand command = new GetProcessInstanceCommand(processInstanceId);
 		ProcessInstance pi = (ProcessInstance)commandService.execute(command);
-		String nodeClassName = pi.getProcessDefinition().getNode(nodeName).getClass().getName();
-		return nodeClassName.contains("ProcessState");
+		Node node = pi.getProcessDefinition().getNode(nodeName);
+		String nodeClassName = node.toString();
+		NodeType nodeType = node.getNodeType();
+		return (nodeClassName.contains("ProcessState") || nodeType == NodeType.Fork || nodeType == NodeType.Join);
 	}
 
+	public boolean isJoinNode(long processInstanceId, String nodeName) {
+		GetProcessInstanceCommand command = new GetProcessInstanceCommand(processInstanceId);
+		ProcessInstance pi = (ProcessInstance)commandService.execute(command);
+		NodeType nodeType = pi.getProcessDefinition().getNode(nodeName).getNodeType();
+		return nodeType == NodeType.Join;
+	}
+	
+	public ProcessLog getProcessLogById(Long id){
+		GetProcessLogByIdCommand command = new GetProcessLogByIdCommand(id.longValue());
+		return (ProcessLog)commandService.execute(command);
+	}
 
+	public Node getNodeByName(long processInstanceId, String nodeName) {
+		GetProcessInstanceCommand command = new GetProcessInstanceCommand(processInstanceId);
+		ProcessInstance pi = (ProcessInstance)commandService.execute(command);
+		return pi.getProcessDefinition().getNode(nodeName);
+	}
 
 	@Autowired
 	public void setCommandService(CommandService commandService) {
 		this.commandService = commandService;
 	}
-
+	
+	@Autowired
+    public void setSessionFactory(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+	
+	private SessionFactory sessionFactory;
 }

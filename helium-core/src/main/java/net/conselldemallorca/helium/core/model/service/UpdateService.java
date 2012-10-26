@@ -48,8 +48,10 @@ public class UpdateService {
 	public static final int VERSIO_230_ORDRE = 230;
 	public static final String VERSIO_240_STR = "2.4.0";
 	public static final int VERSIO_240_ORDRE = 240;
-	public static final String VERSIO_ACTUAL_STR = "2.4.2";
-	public static final int VERSIO_ACTUAL_ORDRE = 242;
+	public static final String VERSIO_250_STR = "2.5.0";
+	public static final int VERSIO_250_ORDRE = 250;
+	public static final String VERSIO_ACTUAL_STR = "2.5.0";
+	public static final int VERSIO_ACTUAL_ORDRE = 250;
 
 	private VersioDao versioDao;
 	private PersonaDao personaDao;
@@ -93,6 +95,10 @@ public class UpdateService {
 					boolean actualitzat = actualitzarV240();
 					if (!actualitzat) break;
 				}
+				if (versio.getOrdre() == VERSIO_250_ORDRE) {
+					boolean actualitzat = actualitzarV250();
+					if (!actualitzat) break;
+				}
 			}
 		}
 		Versio darrera = versioDao.findLast();
@@ -111,6 +117,9 @@ public class UpdateService {
 		}
 		if (actualitzat && darrera.getOrdre() < 240) {
 			actualitzarV240();
+		}
+		if (actualitzat && darrera.getOrdre() < 250) {
+			actualitzarV250();
 		}
 	}
 
@@ -154,7 +163,7 @@ public class UpdateService {
 	}
 
 
-
+/*---------- ACTUALITZACIÓ INICIAL -----------------------------------------------*/
 	private void createInitialData() throws Exception {
 		Permis permisAdmin = new Permis(
 				"HEL_ADMIN",
@@ -187,6 +196,7 @@ public class UpdateService {
 		versioDao.saveOrUpdate(versioInicial);
 	}
 
+	/*---------- ACTUALITZACIÓ V. 2.1.0 -----------------------------------------------*/
 	private boolean actualitzarV210() {
 		boolean actualitzat = false;
 		Versio versio210 = obtenirOCrearVersio(VERSIO_210_STR, VERSIO_210_ORDRE);
@@ -274,6 +284,7 @@ public class UpdateService {
 		}
 	}
 
+	/*---------- ACTUALITZACIÓ V. 2.2.0 -----------------------------------------------*/
 	private boolean actualitzarV220() {
 		boolean actualitzat = false;
 		Versio versio220 = obtenirOCrearVersio(VERSIO_220_STR, VERSIO_220_ORDRE);
@@ -294,6 +305,7 @@ public class UpdateService {
 		return actualitzat;
 	}
 
+	/*---------- ACTUALITZACIÓ V. 2.2.1 -----------------------------------------------*/
 	private boolean actualitzarV221() {
 		boolean actualitzat = false;
 		Versio versio221 = obtenirOCrearVersio(VERSIO_221_STR, VERSIO_221_ORDRE);
@@ -324,6 +336,7 @@ public class UpdateService {
 		}
 	}
 
+	/*---------- ACTUALITZACIÓ V. 2.3.0 -----------------------------------------------*/
 	private boolean actualitzarV230() {
 		boolean actualitzat = false;
 		Versio versio230 = obtenirOCrearVersio(VERSIO_230_STR, VERSIO_230_ORDRE);
@@ -344,6 +357,7 @@ public class UpdateService {
 		return actualitzat;
 	}
 
+	/*---------- ACTUALITZACIÓ V. 2.4.0 -----------------------------------------------*/
 	private boolean actualitzarV240() {
 		boolean actualitzat = false;
 		Versio versio240 = obtenirOCrearVersio(VERSIO_240_STR, VERSIO_240_ORDRE);
@@ -359,6 +373,27 @@ public class UpdateService {
 			} catch (Exception ex) {
 				logger.error("Error al executar l'actualització a la versió " + VERSIO_240_STR, ex);
 				errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_240_STR + ": " + getMessage("error.update.proces.ko");
+			}
+		}
+		return actualitzat;
+	}
+	
+	/*---------- ACTUALITZACIÓ V. 2.5.0 -----------------------------------------------*/
+	private boolean actualitzarV250() {
+		boolean actualitzat = false;
+		Versio versio250 = obtenirOCrearVersio(VERSIO_250_STR, VERSIO_250_ORDRE);
+		if (!versio250.isScriptExecutat()) {
+			errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_250_STR + ": " + getMessage("error.update.script.ko");
+		} else if (!versio250.isProcesExecutat()) {
+			try {
+				versio250.setProcesExecutat(true);
+				versio250.setDataExecucioProces(new Date());
+				versioDao.saveOrUpdate(versio250);
+				logger.info("Actualització a la versió " + VERSIO_250_STR + " realitzada correctament");
+				actualitzat = true;
+			} catch (Exception ex) {
+				logger.error("Error al executar l'actualització a la versió " + VERSIO_250_STR, ex);
+				errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_250_STR + ": " + getMessage("error.update.proces.ko");
 			}
 		}
 		return actualitzat;

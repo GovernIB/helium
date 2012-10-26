@@ -64,13 +64,15 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 		EXPEDIENT_RELACIO_ESBORRAR,
 		EXPEDIENT_ACCIO,
 		EXPEDIENT_RETROCEDIR,
-		PROCES_DOCUMENT_SIGNAR}
+		PROCES_DOCUMENT_SIGNAR,
+		EXPEDIENT_RETROCEDIR_TASQUES}
 
 	public enum ExpedientLogEstat {
 		NORMAL,
 		RETROCEDIT,
 		IGNORAR,
-		BLOCAR}
+		BLOCAR,
+		RETROCEDIT_TASQUES}
 
 	private Long id;
 	@NotBlank
@@ -91,6 +93,7 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 
 	@NotNull
 	private Expedient expedient;
+	private Long iniciadorRetroces;
 
 
 
@@ -192,6 +195,14 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 		this.expedient = expedient;
 	}
 
+	@Column(name="ini_retroces", nullable=true)
+	public Long getIniciadorRetroces() {
+		return iniciadorRetroces;
+	}
+	public void setIniciadorRetroces(Long iniciadorRetroces) {
+		this.iniciadorRetroces = iniciadorRetroces;
+	}
+	
 	@Transient
 	public boolean isTargetTasca() {
 		return	accioTipus.equals(ExpedientLogAccioTipus.TASCA_REASSIGNAR) ||
@@ -216,6 +227,7 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 				accioTipus.equals(ExpedientLogAccioTipus.PROCES_DOCUMENT_MODIFICAR) ||
 				accioTipus.equals(ExpedientLogAccioTipus.PROCES_DOCUMENT_ESBORRAR) ||
 				accioTipus.equals(ExpedientLogAccioTipus.PROCES_DOCUMENT_ADJUNTAR) ||
+				accioTipus.equals(ExpedientLogAccioTipus.PROCES_DOCUMENT_SIGNAR) ||
 				accioTipus.equals(ExpedientLogAccioTipus.PROCES_SCRIPT_EXECUTAR) ||
 				accioTipus.equals(ExpedientLogAccioTipus.PROCES_ACTUALITZAR);
 	}
@@ -228,7 +240,8 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 				accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_RELACIO_AFEGIR) ||
 				accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_RELACIO_ESBORRAR) ||
 				accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_ACCIO) ||
-				accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR);
+				accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR) ||
+				accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR_TASQUES);
 	}
 
 	@Override

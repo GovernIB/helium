@@ -1,7 +1,8 @@
 -- Tipus de dada dels camps tipus textarea
 alter table jbpm_variableinstance add column aux_clob text;
 update jbpm_variableinstance set aux_clob = stringvalue_;
-alter table jbpm_variableinstance drop column stringvalue_;
+--alter table jbpm_variableinstance drop column stringvalue_;
+alter table jbpm_variableinstance rename column stringvalue_ TO stringvalue_old;
 alter table jbpm_variableinstance rename column aux_clob TO stringvalue_;	
 
 -- Select de consultes per tipus

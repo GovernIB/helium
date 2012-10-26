@@ -20,7 +20,8 @@ public class ExpedientLogDto {
 	private String accioParams;
 	private String estat;
 	private String targetId;
-
+	private String tokenName;
+	
 	private boolean targetTasca;
 	private boolean targetProces;
 	private boolean targetExpedient;
@@ -68,6 +69,12 @@ public class ExpedientLogDto {
 	}
 	public void setTargetId(String targetId) {
 		this.targetId = targetId;
+	}
+	public String getTokenName() {
+		return tokenName;
+	}
+	public void setTokenName(String tokenName) {
+		this.tokenName = tokenName;
 	}
 	public boolean isTargetTasca() {
 		return targetTasca;

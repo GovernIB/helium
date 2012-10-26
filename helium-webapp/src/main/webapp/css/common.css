@@ -409,3 +409,7 @@ p.aclaracio {
 .missatgesOk p, .missatgesInfo p, .missatgesWarn p, .missatgesError p, .missatgesComment p, .missatgesAturat p {
 	margin-bottom: 8px;
 }
+
+.right {
+	float:	right;
+}

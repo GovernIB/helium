@@ -252,3 +252,8 @@ table tr.over td {
 	background: #ffffcc;
 	cursor: pointer;
 }
+
+table.displaytag tbody tr.registre_a_retrocedir {
+	background: #ffffcc;
+	color: #666;
+}

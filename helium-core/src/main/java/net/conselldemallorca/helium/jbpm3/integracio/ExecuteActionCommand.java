@@ -102,7 +102,7 @@ public class ExecuteActionCommand extends AbstractBaseCommand {
 	}
 
 	public void executeGoBack(Action action, ExecutionContext context) throws Exception {
-		if (action.getActionDelegation() != null) {
+		if (action != null && action.getActionDelegation() != null) {
 			ClassLoader surroundingClassLoader = Thread.currentThread().getContextClassLoader();
 			try {
 				Thread.currentThread().setContextClassLoader(JbpmConfiguration.getProcessClassLoader(context.getProcessDefinition()));

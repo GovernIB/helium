@@ -8,6 +8,7 @@
 		<pattern>/expedient/varRegistre*</pattern>
 		<pattern>/expedient/iniciarRegistre*</pattern>
 		<pattern>/expedient/logRetrocedit*</pattern>
+		<pattern>/expedient/logAccionsTasca*</pattern>
 		<pattern>/signatura/verificar*</pattern>
 	</excludes>
 	<decorator name="default" page="default.jsp">
