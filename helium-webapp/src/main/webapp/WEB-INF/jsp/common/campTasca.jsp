@@ -83,6 +83,7 @@
 			<c:param name="comment">${campActual.observacions}</c:param>
 			<c:param name="iterateOn"><c:if test="${campActual.multiple}">valorActual</c:if></c:param>
 			<c:param name="multipleIcons"><c:if test="${campActual.multiple}">true</c:if></c:param>
+			<c:param name="onchange">canviSelectTasca(this.id, this.name, false ,'string');</c:param>
 		</c:import>
 	</c:when>
 	<c:when test="${campActual.tipus == 'INTEGER'}">
