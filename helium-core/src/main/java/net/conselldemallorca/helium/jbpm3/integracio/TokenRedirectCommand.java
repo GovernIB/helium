@@ -10,7 +10,6 @@ import org.jbpm.command.AbstractGetObjectBaseCommand;
 import org.jbpm.graph.def.Node;
 import org.jbpm.graph.exe.ExecutionContext;
 import org.jbpm.graph.exe.Token;
-import org.jbpm.graph.node.ProcessState;
 import org.jbpm.graph.node.TaskNode;
 import org.jbpm.taskmgmt.exe.TaskInstance;
 
@@ -71,8 +70,7 @@ public class TokenRedirectCommand extends AbstractGetObjectBaseCommand {
 			}
 		}
 		// Fa la redirecció
-		// v.2
-		if (enterNodeIfTask && (desti instanceof TaskNode || desti instanceof ProcessState)) {
+		if (enterNodeIfTask && isTaskOrProcessState(desti)) {
 			ExecutionContext exc = new ExecutionContext(token);
 			desti.enter(exc);
 		} else {
@@ -82,24 +80,6 @@ public class TokenRedirectCommand extends AbstractGetObjectBaseCommand {
 				desti.execute(exc);
 			}
 		}
-		// v.1
-		/*token.setNode(desti);
-		if (desti.getNodeType().equals(NodeType.Task)) {
-			ExecutionContext exc = new ExecutionContext(token);
-			desti.enter(exc);
-		} else {
-			token.setNode(desti);
-		}*/
-		// v.0
-		/*if (desti.getNodeType().equals(NodeType.Task)) {
-			Node origen = token.getNode();
-			Transition transition = new Transition();
-			transition.setFrom(origen);
-			transition.setTo(desti);
-			token.signal(transition);
-		} else {
-			token.setNode(desti);
-		}*/
 		return null;
 	}
 
@@ -144,6 +124,11 @@ public class TokenRedirectCommand extends AbstractGetObjectBaseCommand {
 		setId(id);
 		setNodeName(nodeName);
 	    return this;
+	}
+
+	private boolean isTaskOrProcessState(Node node) {
+		String nodeClassName = node.toString();
+		return (node instanceof TaskNode || nodeClassName.contains("ProcessState"));
 	}
 
 }
