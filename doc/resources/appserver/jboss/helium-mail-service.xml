@@ -1,11 +1,13 @@
 <!DOCTYPE server>
 <server>
   <mbean code="org.jboss.mail.MailService" name="jboss:service=HeliumMail">
-    <attribute name="JNDIName">java:es.caib.helium.mail</attribute>    
+    <attribute name="JNDIName">java:es.caib.helium.mail</attribute>
+	<attribute name="User">FALTA FALTA FALTA FALTA</attribute>
+    <attribute name="Password">FALTA FALTA FALTA FALTA</attribute>
     <attribute name="Configuration">
         <configuration>
             <property name="mail.transport.protocol" value="smtp"/>
-            <property name="mail.smtp.host" value="mail.helium.org"/>            
+            <property name="mail.smtp.host" value="FALTA FALTA FALTA FALTA"/>             
             <property name="mail.debug" value="false"/>
             <property name="mail.smtp.auth" value="true"/> 
         </configuration>
