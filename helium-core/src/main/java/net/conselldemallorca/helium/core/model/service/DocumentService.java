@@ -592,4 +592,10 @@ public class DocumentService {
 
 	private static final Log logger = LogFactory.getLog(DocumentService.class);
 
+
+	public void esborrarVariableInstance(String processInstanceId, String adjuntId) {
+		documentHelper.esborrarVariableInstance(
+				processInstanceId,
+				adjuntId);
+	}
 }

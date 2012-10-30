@@ -13,6 +13,7 @@ import net.conselldemallorca.helium.core.model.service.DocumentService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
@@ -66,7 +67,10 @@ public class ExpedientDocumentEsborrarController extends BaseController {
 						documentService.esborrarDocument(
 								null,
 								id,
-								doc.getDocumentCodi());
+								docId.toString());
+						if(doc.isAdjunt()){
+							documentService.esborrarVariableInstance(id, doc.getAdjuntId());
+						}
 						missatgeInfo(request, getMessage("info.doc.proces.esborrat") );
 					} else if (doc.isSignat()) {
 						missatgeError(request, getMessage("error.esborrar.doc.signat") );
