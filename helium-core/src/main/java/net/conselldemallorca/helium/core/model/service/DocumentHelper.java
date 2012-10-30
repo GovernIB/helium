@@ -707,10 +707,7 @@ public class DocumentHelper {
 	public void esborrarVariableInstance(
 			String processInstanceId,
 			String adjuntId) {
-		
-			/*documentStoreDao.delete(documentStoreId);
-			.delete(adjuntId);
-			*/
+
 			jbpmDao.deleteProcessInstanceVariable(
 						processInstanceId,
 						getVarPerDocumentCodi(adjuntId, true));
