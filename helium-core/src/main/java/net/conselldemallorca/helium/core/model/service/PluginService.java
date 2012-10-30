@@ -221,10 +221,6 @@ public class PluginService {
 							null);
 				}
 				try {
-					expedientLogHelper.afegirLogExpedientPerProces(
-							token.getProcessInstanceId(),
-							ExpedientLogAccioTipus.PROCES_DOCUMENT_SIGNAR,
-							new Boolean(true).toString());
 					if (	(portasignatures.getEstat() != TipusEstat.SIGNAT) &&
 							(portasignatures.getTransition() != Transicio.SIGNAT) &&
 							(!documentStore.isSignat())) {
@@ -235,6 +231,10 @@ public class PluginService {
 					}
 					portasignatures.setEstat(TipusEstat.SIGNAT);
 					portasignatures.setTransition(Transicio.SIGNAT);
+					expedientLogHelper.afegirLogExpedientPerProces(
+							token.getProcessInstanceId(),
+							ExpedientLogAccioTipus.PROCES_DOCUMENT_SIGNAR,
+							new Boolean(true).toString());
 					jbpmDao.signalToken(
 							tokenId.longValue(),
 							portasignatures.getTransicioOK());
