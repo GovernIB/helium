@@ -96,7 +96,10 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		if (command == null) {
 			command = new ExpedientConsultaDissenyCommand();
 		}
-		command.setExpedientTipusId(expedientTipusId);
+		Long expTipId = command.getExpedientTipusId();
+		if(expTipId==null && expedientTipusId !=null) {
+			command.setExpedientTipusId(expedientTipusId);
+		}
 		if (canviar != null && canviar.booleanValue()) {
 			command.setConsultaId(consultaId);
 			if (consultaId != null && expedientTipusId == null) {
@@ -155,6 +158,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		
 			if (commandFiltre != null && commandSeleccio != null && commandSeleccio.getConsultaId() != null) {
 				model.addAttribute("commandFiltre", commandFiltre);
+				model.addAttribute("expedietTipusId", commandSeleccio.getExpedientTipusId());
 				List<Camp> camps = dissenyService.findCampsPerCampsConsulta(
 						commandSeleccio.getConsultaId(),
 						TipusConsultaCamp.FILTRE,
@@ -217,7 +221,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 				(ExpedientConsultaDissenyCommand)model.get("commandSeleccioConsulta");
 			if (commandSeleccio.getConsultaId() != null) {
 				Consulta consulta = dissenyService.getConsultaById(commandSeleccio.getConsultaId());
-				
+				commandSeleccio.setMassivaActiu(false);
 				if (permissionService.filterAllowed(
 						consulta.getExpedientTipus(),
 						ExpedientTipus.class,
@@ -249,6 +253,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 				session.removeAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);
 				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS);
 				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS_TE);
+				commandSeleccio.setMassivaActiu(false);
 			
 			} 
 
@@ -280,6 +285,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 	@RequestMapping(value = "/expedient/consultaDissenyInforme")
 	public String consultaDissenyInforme(
 			HttpServletRequest request,
+			@RequestParam(value = "expedientTipId", required = false) Long expedientTipId,
 			HttpSession session,
 			ModelMap model){
 		Entorn entorn = getEntornActiu(request);
@@ -292,7 +298,9 @@ public class ExpedientConsultaDissenyController extends BaseController {
 				(ExpedientConsultaDissenyCommand)model.get("commandSeleccioConsulta");
 			populateModelCommon(entorn, model, commandSeleccio);
 			Object commandFiltre = session.getAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);
+			if(commandSeleccio.getExpedientTipusId()==null){commandSeleccio.setExpedientTipusId(expedientTipId);}
 			if (commandFiltre != null) {
+				populateModelCommon(entorn, model, commandSeleccio);
 				Consulta consulta = dissenyService.getConsultaById(commandSeleccio.getConsultaId());
 				if (consulta.getInformeNom() != null) {
 					model.addAttribute("commandFiltre", commandFiltre);
@@ -354,26 +362,6 @@ public class ExpedientConsultaDissenyController extends BaseController {
 					model.addAttribute(
 							JasperReportsView.MODEL_ATTRIBUTE_REPORTCONTENT,
 							consulta.getInformeContingut());
-					/*if (consulta.getSubConsultes().size() > 0) {
-						String[] subreports = new String[consulta.getSubConsultes().size()];
-						int index = 0;
-						for (Consulta subconsulta: consulta.getSubConsultes())  {
-							String subreportCodi = subconsulta.getCodi();
-							subreports[index++] = subreportCodi;
-							List<ExpedientConsultaDissenyDto> expedientsSub = expedientService.findAmbEntornConsultaDisseny(
-									entorn.getId(),
-									subconsulta.getId(),
-									valorsPerService,
-									ExpedientCamps.EXPEDIENT_CAMP_ID,
-									true);
-							model.addAttribute(
-									JasperReportsView.MODEL_ATTRIBUTE_SUBREPORTDATA_PREFIX + subreportCodi,
-									getDadesDatasource(expedientsSub));
-						}
-						model.addAttribute(
-								JasperReportsView.MODEL_ATTRIBUTE_SUBREPORTS,
-								subreports);
-					}*/
 					return "jasperReportsView";
 				} else {
 					missatgeError(request, getMessage("error.consulta.informe.nonhiha"));
