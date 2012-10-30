@@ -70,6 +70,7 @@ function selTots(){
 			<c:when test="${empty consulta}">
 				<h4 class="titol-consulta"><fmt:message key='expedient.consulta.select.consula' /></h4>
 				<form:form action="consultaDisseny.html" commandName="commandSeleccioConsulta" cssClass="uniForm">
+					<input type="hidden" name="expedientTipId" id="expedientTipId" value="${consulta.expedientTipus.id}">
 					<div class="inlineLabels col first">
 						<input type="hidden" name="canviar" id="canviar" value="true"/>
 						<c:import url="../common/formElement.jsp">
@@ -101,7 +102,6 @@ function selTots(){
 				<h4 class="titol-consulta" style="display:inline">${consulta.nom}</h4>&nbsp;&nbsp;&nbsp;
 				<form action="consultaDisseny.html" method="post" style="display:inline">
 					<input type="hidden" name="canviar" id="canviar" value="true"/>
-					<input type="hidden" name="expedientTipusId" id="expedientTipusId" value="${consulta.expedientTipus.id}"/>
 					<button type="submit" class="submitButton"><fmt:message key='expedient.consulta.canviar' /></button>
 				</form>
 			</c:otherwise>
@@ -112,6 +112,7 @@ function selTots(){
 
 			<form:form action="consultaDissenyResultat.html" commandName="commandFiltre" cssClass="uniForm">
 			<input type="hidden" name="idsExp" id="idsExp" value="${sessionScope.consultaExpedientsIdsMassiusTE}">
+			<input type="hidden" name="expedientTipusId" id="expedientTipusId" value="${consulta.expedientTipus.id}">
 					<div class="inlineLabels col first">
 						<c:forEach var="camp" items="${campsFiltre}">
 							<c:set var="campActual" value="${camp}" scope="request"/>
@@ -120,7 +121,7 @@ function selTots(){
 							<c:import url="../common/campFiltre.jsp"/>
 						</c:forEach>
 						<c:choose>
-							<c:when test="${not empty expedients}">
+							<c:when test="${fn:length(expedients.list) > 0}">	
 								<c:if test="${sessionCommand.massivaActiu}">
 									<c:import url="../common/formElement.jsp">
 										<c:param name="type" value="buttons"/>
@@ -135,6 +136,7 @@ function selTots(){
 										<c:param name="titles"><fmt:message key='expedient.consulta.informe' />,<fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' />,<fmt:message key="expedient.consulta.massiva.seleccio.activar"/></c:param>
 									</c:import>
 								</c:if>
+								
 							</c:when>
 							<c:otherwise>
 								<c:import url="../common/formElement.jsp">
