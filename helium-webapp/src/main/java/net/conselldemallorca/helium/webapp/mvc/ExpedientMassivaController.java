@@ -144,6 +144,7 @@ public class ExpedientMassivaController extends BaseController {
 		}
 	}
 	
+	
 	//aturar massivament els expedients seleccionats
 	@RequestMapping(value = "/expedient/aturarMas", method = RequestMethod.POST)
 	public String aturar(
@@ -198,6 +199,7 @@ public class ExpedientMassivaController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
+
 	
 	
 	

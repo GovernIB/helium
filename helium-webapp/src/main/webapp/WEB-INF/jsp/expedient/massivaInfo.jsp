@@ -204,6 +204,7 @@ function editarRegistre(campId, campCodi, campEtiqueta, numCamps, index) {
 				</c:import>
 			</form:form>
 	</c:if>
+	
 	<h3 class="titol-tab titol-canvi-versio"><fmt:message key='expedient.eines.aturar_tramitacio' /></h3>
 		<form:form action="/helium/expedient/aturarMas.html" cssClass="uniForm" commandName="aturarCommandMas" onsubmit="return confirmarAturar(event)">
 			<div class="inlineLabels">
