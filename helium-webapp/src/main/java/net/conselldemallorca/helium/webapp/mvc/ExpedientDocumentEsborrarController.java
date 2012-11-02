@@ -66,7 +66,10 @@ public class ExpedientDocumentEsborrarController extends BaseController {
 						documentService.esborrarDocument(
 								null,
 								id,
-								doc.getDocumentCodi());
+								docId.toString());
+						if(doc.isAdjunt()){
+							documentService.esborrarVariableInstance(id, doc.getAdjuntId());
+						}
 						missatgeInfo(request, getMessage("info.doc.proces.esborrat") );
 					} else if (doc.isSignat()) {
 						missatgeError(request, getMessage("error.esborrar.doc.signat") );

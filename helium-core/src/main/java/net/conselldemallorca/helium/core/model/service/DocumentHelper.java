@@ -137,7 +137,9 @@ public class DocumentHelper {
 			String processInstanceId,
 			String documentCodi) {
 		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(taskInstanceId, processInstanceId, documentCodi);
-		if (documentStoreId != null) {
+		if (documentStoreId == null){
+			documentStoreId = Long.parseLong(documentCodi.trim());
+		} else {
 			DocumentStore documentStore = documentStoreDao.getById(documentStoreId, false);
 			if (documentStore != null) {
 				if (documentStore.isSignat()) {
@@ -682,5 +684,14 @@ public class DocumentHelper {
 	}
 
 	private static final Log logger = LogFactory.getLog(DocumentHelper.class);
+	
+	public void esborrarVariableInstance(
+			String processInstanceId,
+			String adjuntId) {
+
+			jbpmDao.deleteProcessInstanceVariable(
+						processInstanceId,
+						getVarPerDocumentCodi(adjuntId, true));
+	}
 
 }
