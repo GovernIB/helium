@@ -8,9 +8,9 @@ import java.util.Map;
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractGetObjectBaseCommand;
 import org.jbpm.graph.def.Node;
+import org.jbpm.graph.def.Node.NodeType;
 import org.jbpm.graph.exe.ExecutionContext;
 import org.jbpm.graph.exe.Token;
-import org.jbpm.graph.node.ProcessState;
 import org.jbpm.graph.node.TaskNode;
 import org.jbpm.taskmgmt.exe.TaskInstance;
 
@@ -72,7 +72,7 @@ public class TokenRedirectCommand extends AbstractGetObjectBaseCommand {
 		}
 		// Fa la redirecció
 		// v.2
-		if (enterNodeIfTask && (desti instanceof TaskNode || desti instanceof ProcessState)) {
+		if (enterNodeIfTask && isTaskOrProcessState(desti)) {
 			ExecutionContext exc = new ExecutionContext(token);
 			desti.enter(exc);
 		} else {
@@ -144,6 +144,13 @@ public class TokenRedirectCommand extends AbstractGetObjectBaseCommand {
 		setId(id);
 		setNodeName(nodeName);
 	    return this;
+	}
+
+	private boolean isTaskOrProcessState(Node node) {
+		String nodeClassName = node.toString();
+		return (node instanceof TaskNode || 
+				nodeClassName.contains("ProcessState") || 
+				node.getNodeType() == NodeType.State);
 	}
 
 }
