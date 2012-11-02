@@ -3,6 +3,9 @@
  */
 package net.conselldemallorca.helium.webapp.mvc;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -12,6 +15,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -344,9 +349,25 @@ public class ExpedientConsultaDissenyController extends BaseController {
 								JasperReportsView.MODEL_ATTRIBUTE_REPORTDATA,
 								getDadesDatasource(expedients));
 					}
-					model.addAttribute(
-							JasperReportsView.MODEL_ATTRIBUTE_REPORTCONTENT,
-							consulta.getInformeContingut());
+					String extensio = consulta.getInformeNom().substring(
+							consulta.getInformeNom().lastIndexOf(".") + 1);
+					String nom = consulta.getInformeNom().substring(0,
+							consulta.getInformeNom().lastIndexOf("."));
+					if ("zip".equals(extensio)) {
+						HashMap<String, byte[]> reports = unZipReports(consulta
+								.getInformeContingut());
+						model.addAttribute(
+								JasperReportsView.MODEL_ATTRIBUTE_REPORTCONTENT,
+								reports.get(nom + ".jrxml"));
+						reports.remove(nom + ".jrxml");
+						model.addAttribute(
+								JasperReportsView.MODEL_ATTRIBUTE_SUBREPORTS,
+								reports);
+						return "jasperReportsView";
+					} else
+						model.addAttribute(
+								JasperReportsView.MODEL_ATTRIBUTE_REPORTCONTENT,
+								consulta.getInformeContingut());
 					return "jasperReportsView";
 				} else {
 					missatgeError(request, getMessage("error.consulta.informe.nonhiha"));
@@ -581,6 +602,49 @@ public class ExpedientConsultaDissenyController extends BaseController {
 	}
 	
 	
+	public HashMap<String, byte[]> unZipReports(byte[] zipContent) {
+
+		byte[] buffer = new byte[4096];
+		HashMap<String, byte[]> docs = new HashMap<String, byte[]>();
+
+		try {
+
+			// get the zip file content
+			ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(
+					zipContent));
+			// get the zipped file list entry
+			ZipEntry ze = zis.getNextEntry();
+
+			while (ze != null) {
+
+				String fileName = ze.getName();
+				byte[] fileContent;
+
+				// System.out.print("\n >>>> "+ fileName);
+
+				ByteArrayOutputStream fos = new ByteArrayOutputStream();
+
+				int len;
+				while ((len = zis.read(buffer)) > 0) {
+					fos.write(buffer, 0, len);
+				}
+
+				fos.close();
+				fileContent = fos.toByteArray();
+				docs.put(fileName, fileContent);
+				ze = zis.getNextEntry();
+			}
+
+			zis.closeEntry();
+			zis.close();
+
+			// System.out.println("\nDone");
+
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		return docs;
+	}
 	
 	/*private void mostrarDadesExpedient(ExpedientConsultaDissenyDto dadesExpedient) {
 		System.out.println(">>>>>> (" + dadesExpedient.getExpedient().getId() + ") " + dadesExpedient.getExpedient().getIdentificador());

@@ -2,18 +2,19 @@ package net.conselldemallorca.helium.webapp.mvc;
 
 import java.io.ByteArrayInputStream;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.data.JRMapCollectionDataSource;
 
 import org.springframework.web.servlet.View;
@@ -45,24 +46,41 @@ public class JasperReportsView implements View {
 		response.setHeader(HEADER_EXPIRES, "");
 		response.setHeader(HEADER_CACHE_CONTROL, "");
 
-		JRDataSource datasource = null;
+		JRBeanCollectionDataSource datasource = null;
 		if (model.get(MODEL_ATTRIBUTE_REPORTDATA) != null)
-			datasource = new JRMapCollectionDataSource(
+			datasource = new JRBeanCollectionDataSource(
 					(List<Map<String, Object>>)model.get(MODEL_ATTRIBUTE_REPORTDATA));
 		if (datasource != null) {
 			JasperReport report = null;
 			report = JasperCompileManager.compileReport(
 					new ByteArrayInputStream(
 							(byte[])model.get(MODEL_ATTRIBUTE_REPORTCONTENT)));
+			
 			Map<String, Object> params = new HashMap<String, Object>();
-			String[] subreports = (String[])model.get(MODEL_ATTRIBUTE_SUBREPORTS);
-			if (subreports != null) {
-				for (String subreportCodi: subreports) {
-					JRDataSource subDatasource = new JRMapCollectionDataSource(
-							(List<Map<String, Object>>)model.get(MODEL_ATTRIBUTE_REPORTDATA));
-					params.put("helds$" + subreportCodi, subDatasource);
+			
+			JasperReport subreport = null;
+			HashMap<String, byte[]> subreports = (HashMap<String, byte[]>)model.get(MODEL_ATTRIBUTE_SUBREPORTS);
+			
+			if (!subreports.isEmpty()) {
+				Iterator it = subreports.entrySet().iterator();
+				while (it.hasNext()) {
+					Map.Entry e = (Map.Entry)it.next();
+					subreport = JasperCompileManager.compileReport(
+							new ByteArrayInputStream(
+									(byte[]) e.getValue()));
+					String nom = (String) e.getKey();
+					nom = nom.substring(0, nom.lastIndexOf("."));
+					params.put(nom, subreport);
 				}
+				//params.put("datasource",datasource);
 			}
+//			if (subreports != null) {
+//				for (String subreportCodi: subreports) {
+//					JRDataSource subDatasource = new JRMapCollectionDataSource(
+//							(List<Map<String, Object>>)model.get(MODEL_ATTRIBUTE_REPORTDATA));
+//					params.put("helds$" + subreportCodi, subDatasource);
+//				}
+//			}
 			JasperPrint jasperPrint = JasperFillManager.fillReport(
 					report,
 					params,
