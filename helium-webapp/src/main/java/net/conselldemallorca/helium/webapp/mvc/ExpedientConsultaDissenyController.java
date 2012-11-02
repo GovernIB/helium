@@ -96,9 +96,8 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		if (command == null) {
 			command = new ExpedientConsultaDissenyCommand();
 		}
-		Long expTipId = command.getExpedientTipusId();
-		if(expTipId==null && expedientTipusId !=null) {
-			command.setExpedientTipusId(expedientTipusId);
+		if(expedientTipusId != null){
+			command.setExpedientTipusId(expedientTipusId); 
 		}
 		if (canviar != null && canviar.booleanValue()) {
 		command.setConsultaId(consultaId);
@@ -157,7 +156,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			Object commandFiltre = session.getAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);
 			if (commandFiltre != null && commandSeleccio != null && commandSeleccio.getConsultaId() != null) {
 				model.addAttribute("commandFiltre", commandFiltre);
-				model.addAttribute("expedietTipusId", commandSeleccio.getExpedientTipusId());
+				model.addAttribute("expedientTipusId", commandSeleccio.getExpedientTipusId());
 				List<Camp> camps = dissenyService.findCampsPerCampsConsulta(
 						commandSeleccio.getConsultaId(),
 						TipusConsultaCamp.FILTRE,

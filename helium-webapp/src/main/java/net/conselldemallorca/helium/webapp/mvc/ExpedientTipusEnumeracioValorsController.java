@@ -237,22 +237,19 @@ public class ExpedientTipusEnumeracioValorsController extends BaseController {
 			        	enumeracioValors.setOrdre(ordre);
 			        	if (command.getId() == null){
 			        		dissenyService.createEnumeracioValors(enumeracioValors);
-			        		missatgeInfo(request, getMessage("info.enum.creat") );
-			        		status.setComplete();
+			        		missatgeInfo(request, getMessage("info.enum.creat") );			        		
 			        	} else {
 			        		dissenyService.updateEnumeracioValors(enumeracioValors);
-			        		missatgeInfo(request, getMessage("info.enum.guardat"));		
-			        		status.setComplete();
+			        		missatgeInfo(request, getMessage("info.enum.guardat"));					        		
 			        	}
+			        	status.setComplete();
 			        } catch (Exception ex) {
 			        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut guardar el registre", ex);
 			        	return "expedientTipus/enumeracioValorsForm";
 			       }
-			        return "redirect:/expedientTipus/enumeracioValors.html?id=" + command.getEnumeracioId();
-				} else {
-					return "redirect:/expedientTipus/enumeracioValors.html?expedientTipusId=" + expedientTipusId;
 				}
+				return "redirect:/expedientTipus/enumeracioValors.html?id=" + command.getEnumeracioId();
 			} else {
 				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";

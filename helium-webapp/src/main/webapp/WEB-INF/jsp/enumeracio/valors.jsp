@@ -37,7 +37,7 @@ function confirmar(e) {
 
 <body>
 	<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable">
-		<display:column property="codi" titleKey="comuns.codi" sortable="true" url="/enumeracio/valors.html" paramId="id" paramProperty="enumeracio.id"/>
+		<display:column property="codi" titleKey="comuns.codi" sortable="true" url="/enumeracio/valorsForm.html?enumeracioId=${registre.enumeracio.id}" paramId="id" paramProperty="id"/>
 		<display:column property="nom" titleKey="comuns.titol" sortable="true"/>
 		<display:column>
 			<a href="<c:url value="/enumeracio/valorsPujar.html"><c:param name="id" value="${registre.id}"/></c:url>"><img src="<c:url value="/img/famarrow_up.png"/>" alt="<fmt:message key="comuns.amunt"/>" title="<fmt:message key="comuns.amunt"/>" border="0"/></a>
