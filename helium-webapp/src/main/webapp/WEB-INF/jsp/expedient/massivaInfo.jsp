@@ -37,6 +37,26 @@ function confirmarExecutarAccio(e) {
 	return confirm("<fmt:message key="expedient.massiva.confirm_exec_accio"/>");
 }
 
+function confirmarScript(e) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	if (e.stopPropagation) e.stopPropagation();
+	return confirm("<fmt:message key='expedient.eines.confirm_executar_script_proces' />");
+}
+function confirmarAturar(e) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	if (e.stopPropagation) e.stopPropagation();
+	return confirm("<fmt:message key='expedient.eines.confirm_aturar_tramitacio' />");
+}
+
+
+function confirmarModificarVariables(e) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	if (e.stopPropagation) e.stopPropagation();
+	return confirm("<fmt:message key='expedient.eines.confirm_modificar_variable' />");
+}
 
 
 function massiva(e){
@@ -52,6 +72,23 @@ function massiva(e){
 		$("#massiva").attr("action","consulta.html");
 		$("#target").val("consulta");
 	}
+}
+
+function editarRegistre(campId, campCodi, campEtiqueta, numCamps, index) {
+	var amplada = 686;
+	var alcada = 64 * numCamps + 80;
+	var url = "registre.html?id=${tasca.id}&registreId=" + campId;
+	if (index != null)
+		url = url + "&index=" + index;
+	$('<iframe id="' + campCodi + '" src="' + url + '" frameborder="0" marginheight="0" marginwidth="0"/>').dialog({
+		title: campEtiqueta,
+		autoOpen: true,
+		modal: true,
+		autoResize: true,
+		width: parseInt(amplada),
+		height: parseInt(alcada)
+	}).width(amplada - 30).height(alcada - 30);
+	return false;
 }
 
 
@@ -112,31 +149,129 @@ function massiva(e){
 		</c:import>
 	</form:form>
 
-	<h3 class="titol-tab titol-canvi-versio">
-		<fmt:message key="expedient.massiva.accions"/>
-	</h3>
-	<c:set var="hiHaAccions" value="${false}"/>
-	<c:set var="hiHaAccionsPubliques" value="${false}"/>
-	<c:forEach var="accio" items="${instanciaProces.definicioProces.accions}">
-		<c:if test="${not accio.oculta}">
-			<c:set var="hiHaAccions" value="${true}"/>
-			<c:if test="${accio.publica}"><c:set var="hiHaAccionsPubliques" value="${true}"/></c:if>
-		</c:if>
-	</c:forEach>
-	<c:set var="tePermisAccions" value="${false}"/>
-	<security:accesscontrollist domainObject="${instanciaProces.expedient.tipus}" hasPermission="16,2"><c:set var="tePermisAccions" value="${true}"/></security:accesscontrollist>
-	<c:if test="${hiHaAccionsPubliques || (hiHaAccions && tePermisAccions)}">
-		<form id="executarAccio" action="massivaExecutarAccio.html" method="post" onsubmit="return confirmarExecutarAccio(event)" onclick="javascript:massiva(event)">
-			<input type="hidden" id="target2" name="target2" value="">
-			<dl class="form-info">
-				<c:forEach var="accio" items="${instanciaProces.definicioProces.accions}">
-					<c:if test="${not accio.oculta && (accio.publica || tePermisAccions)}">
-						<dt>${accio.nom}:</dt><dd><button type="submit" class="submitButton" name="submit" value="${accio.codi}" onclick="saveAction(this, 'prova2');"><fmt:message key="expedient.massiva.exec_accio"/></button></dd>
-					</c:if>
-				</c:forEach>
-			</dl>
-		</form>
-	</c:if>
 
+
+	<c:set var="hiHaAccions" value="${false}"/>
+	<c:set var="hiHaAccions" value="${fn:length(instanciaProces.definicioProces.accions) > 0}"/>
+	<c:if test="${hiHaAccions}">
+		<h3 class="titol-tab titol-canvi-versio">
+			<fmt:message key="expedient.massiva.accions"/>
+		</h3>
+	
+		<c:set var="hiHaAccionsPubliques" value="${false}"/>
+		<c:forEach var="accio" items="${instanciaProces.definicioProces.accions}">
+			<c:if test="${not accio.oculta}">
+				<c:set var="hiHaAccions" value="${true}"/>
+				<c:if test="${accio.publica}"><c:set var="hiHaAccionsPubliques" value="${true}"/></c:if>
+			</c:if>
+		</c:forEach>
+		<c:set var="tePermisAccions" value="${false}"/>
+		<security:accesscontrollist domainObject="${instanciaProces.expedient.tipus}" hasPermission="16,2"><c:set var="tePermisAccions" value="${true}"/></security:accesscontrollist>
+		<c:if test="${hiHaAccionsPubliques || (hiHaAccions && tePermisAccions)}">
+			<form id="executarAccio" action="massivaExecutarAccio.html" method="post" onsubmit="return confirmarExecutarAccio(event)" onclick="javascript:massiva(event)">
+				<input type="hidden" id="target2" name="target2" value="">
+				<dl class="form-info">
+					<c:forEach var="accio" items="${instanciaProces.definicioProces.accions}">
+						<c:if test="${not accio.oculta && (accio.publica || tePermisAccions)}">
+							<dt>${accio.nom}:</dt><dd><button type="submit" class="submitButton" name="submit" value="${accio.codi}" onclick="saveAction(this, 'prova2');"><fmt:message key="expedient.massiva.exec_accio"/></button></dd>
+						</c:if>
+					</c:forEach>
+				</dl>
+			</form>
+		</c:if>
+	</c:if>
+	
+	<h3 class="titol-tab titol-canvi-versio">
+		<fmt:message key="expedient.massiva.executarScriptMas"/>
+	</h3>
+	<c:set var="tePermisExecutarScript" value="${false}"/>
+	<security:accesscontrollist domainObject="${instanciaProces.expedient.tipus}" hasPermission="16,2"><c:set var="tePermisAccions" value="${true}"/></security:accesscontrollist>
+	<c:if test="${tePermisAccions}">
+		<form:form action="/helium/expedient/scriptMas.html" cssClass="uniForm" commandName="scriptCommandMas" onsubmit="return confirmarScript(event)">
+				<div class="inlineLabels">
+					<input type="hidden" name="id" value="${instanciaProces.id}"/>
+					<c:import url="../common/formElement.jsp">
+						<c:param name="property">script</c:param>
+						<c:param name="required">${true}</c:param>
+						<c:param name="type" value="textarea"/>
+						<c:param name="label"><fmt:message key='expedient.eines.script' /></c:param>
+					</c:import>
+				</div>
+				<c:import url="../common/formElement.jsp">
+					<c:param name="type" value="buttons"/>
+					<c:param name="values">submit</c:param>
+					<c:param name="titles"><fmt:message key='comuns.executar' /></c:param>
+				</c:import>
+			</form:form>
+	</c:if>
+	<h3 class="titol-tab titol-canvi-versio"><fmt:message key='expedient.eines.aturar_tramitacio' /></h3>
+		<form:form action="/helium/expedient/aturarMas.html" cssClass="uniForm" commandName="aturarCommandMas" onsubmit="return confirmarAturar(event)">
+			<div class="inlineLabels">
+				<input type="hidden" name="id" value="${instanciaProces.id}"/>
+				<c:import url="../common/formElement.jsp">
+					<c:param name="property">motiu</c:param>
+					<c:param name="required">${true}</c:param>
+					<c:param name="type" value="textarea"/>
+					<c:param name="label"><fmt:message key='expedient.eines.motiu' /></c:param>
+				</c:import>
+			</div>
+				<c:import url="../common/formElement.jsp">
+					<c:param name="type" value="buttons"/>
+					<c:param name="values">submit</c:param>
+					<c:param name="titles"><fmt:message key='comuns.aturar' /></c:param>
+				</c:import>
+		</form:form>
+		
+		
+		
+<%-- 	<h3 class="titol-tab titol-canvi-versio"><fmt:message key='expedient.massiva.modificar_variables' /></h3> --%>
+<%-- 		<form:form action="/helium/expedient/modificarVariablesMas.html" cssClass="uniForm" commandName="modificarVariablesMasCommand" onsubmit="return confirmarModificarVariables(event)"> --%>
+			
+<!-- 			<div class="inlineLabels"> -->
+<%-- 				<input type="hidden" name="id" value="${instanciaProces.id}"/> --%>
+<%-- 				<c:set var="variables" value="${instanciaProces.camps}" scope="request"/> --%>
+<%-- 				<c:import url="../common/formElement.jsp"> --%>
+<%-- 					<c:param name="property">definicioProcesIdVar</c:param> --%>
+<%-- 					<c:param name="type" value="select"/> --%>
+<%-- 					<c:param name="items" value="variables"/> --%>
+<%-- 					<c:param name="itemLabel" value="codi"/> --%>
+<%-- 					<c:param name="itemValue" value="codi"/> --%>
+<%-- 					<c:param name="itemBuit">&lt;&lt; <fmt:message key='expedient.consulta.select.variable'/> &gt;&gt;</c:param> --%>
+<%-- 					<c:param name="label"><fmt:message key="expedient.eines.modificar_variables"/></c:param> --%>
+<%-- 				</c:import> --%>
+<%-- 			<c:choose> --%>
+<%-- 				<c:when test="${campActual.tipus == 'STRING'}"> --%>
+<%-- 					<c:import url="../common/formElement.jsp"> --%>
+<%-- 						<c:param name="property">definicioProcesIdVarValor</c:param> --%>
+<%-- 						<c:param name="required">${true}</c:param> --%>
+<%-- 						<c:param name="type" value="text"/> --%>
+<%-- 						<c:param name="label"><fmt:message key='comuns.modificar.valor' /></c:param> --%>
+<%-- 					</c:import> --%>
+				
+<%-- 				</c:when> --%>
+<%-- 				<c:when test="${campActual.tipus == 'PRICE'}"> --%>
+<%-- 					<c:import url="../common/formElement.jsp"> --%>
+<%-- 						<c:param name="property">definicioProcesIdVarValor</c:param> --%>
+<%-- 						<c:param name="required">${true}</c:param> --%>
+<%-- 						<c:param name="type" value="text"/> --%>
+<%-- 						<c:param name="label"><fmt:message key='comuns.modificar.valor' /></c:param> --%>
+<%-- 					</c:import> --%>
+<%-- 				</c:when> --%>
+<%-- 				<c:when test=""> --%>
+<%-- 				</c:when> --%>
+<%-- 				<c:when test=""> --%>
+<%-- 				</c:when> --%>
+				
+<%-- 			</c:choose>	 --%>
+<!-- 			</div> -->
+<%-- 				<c:import url="../common/formElement.jsp"> --%>
+<%-- 					<c:param name="type" value="buttons"/> --%>
+<%-- 					<c:param name="values">submit</c:param> --%>
+<%-- 					<c:param name="titles"><fmt:message key='comuns.modificar'/></c:param> --%>
+<%-- 				</c:import> --%>
+<%-- 		</form:form> --%>
+					
 </body>
+
+
 </html>
