@@ -36,7 +36,6 @@ import org.jbpm.graph.def.ProcessDefinition;
 import org.jbpm.graph.def.Transition;
 import org.jbpm.graph.exe.ProcessInstance;
 import org.jbpm.graph.exe.Token;
-import org.jbpm.graph.node.ProcessState;
 import org.jbpm.job.Timer;
 import org.jbpm.logging.log.ProcessLog;
 import org.jbpm.taskmgmt.def.Task;

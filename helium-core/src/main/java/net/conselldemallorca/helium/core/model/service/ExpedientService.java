@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.core.model.service;
 
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -72,9 +73,10 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipu
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.LogInfo;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
+import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
@@ -93,6 +95,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Element;
@@ -384,28 +387,129 @@ public class ExpedientService {
 			Double geoPosY,
 			String geoReferencia,
 			String grupCodi) {
-		ExpedientLog elog = expedientLogHelper.afegirLogExpedientPerExpedient(
+		editar(entornId,
+				id,
+				numero,
+				titol,
+				responsableCodi,
+				dataInici,
+				comentari,
+				estatId,
+				geoPosX,
+				geoPosY,
+				geoReferencia,
+				grupCodi, 
+				false);
+	}
+	public void editar(
+			Long entornId,
+			Long id,
+			String numero,
+			String titol,
+			String responsableCodi,
+			Date dataInici,
+			String comentari,
+			Long estatId,
+			Double geoPosX,
+			Double geoPosY,
+			String geoReferencia,
+			String grupCodi,
+			boolean executatEnHandler) {
+		Expedient expedient = expedientDao.findAmbEntornIId(entornId, id);
+		
+		if (!executatEnHandler) {
+			ExpedientLog elog = expedientLogHelper.afegirLogExpedientPerExpedient(
 				id,
 				ExpedientLogAccioTipus.EXPEDIENT_MODIFICAR,
 				null);
-		elog.setEstat(ExpedientLogEstat.IGNORAR);
-		Expedient expedient = expedientDao.findAmbEntornIId(entornId, id);
+			elog.setEstat(ExpedientLogEstat.IGNORAR);
+		}
+
 		String informacioVella = getInformacioExpedient(expedient);
-		if (expedient.getTipus().getTeNumero())
-			expedient.setNumero(numero);
-		if (expedient.getTipus().getTeTitol())
-			expedient.setTitol(titol);
-		expedient.setResponsableCodi(responsableCodi);
-		expedient.setDataInici(dataInici);
-		expedient.setComentari(comentari);
-		if (estatId != null)
-			expedient.setEstat(estatDao.getById(estatId, false));
-		else
+		
+		// Numero
+		if (expedient.getTipus().getTeNumero()) {
+			if (!StringUtils.equals(expedient.getNumero(), numero)) {
+				expedientLogHelper.afegirProcessLogInfoExpedient(
+						expedient.getProcessInstanceId(), 
+						LogInfo.NUMERO + "#@#" + expedient.getNumero());
+				expedient.setNumero(numero);
+			}
+		}
+		// Titol
+		if (expedient.getTipus().getTeTitol()) {
+			if (!StringUtils.equals(expedient.getTitol(), titol)) {
+				expedientLogHelper.afegirProcessLogInfoExpedient(
+						expedient.getProcessInstanceId(), 
+						LogInfo.TITOL + "#@#" + expedient.getTitol());
+				expedient.setTitol(titol);
+			}
+		}
+		// Responsable
+		if (!StringUtils.equals(expedient.getResponsableCodi(), responsableCodi)) {
+			expedientLogHelper.afegirProcessLogInfoExpedient(
+					expedient.getProcessInstanceId(), 
+					LogInfo.RESPONSABLE + "#@#" + expedient.getResponsableCodi());
+			expedient.setResponsableCodi(responsableCodi);
+		}
+		// Data d'inici
+		if (expedient.getDataInici() != dataInici) {
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+			String inici = sdf.format(dataInici);
+			expedientLogHelper.afegirProcessLogInfoExpedient(
+					expedient.getProcessInstanceId(), 
+					LogInfo.INICI + "#@#" + inici);
+			expedient.setDataInici(dataInici);
+		}
+		// Comentari
+		if (!StringUtils.equals(expedient.getComentari(), comentari)) {
+			expedientLogHelper.afegirProcessLogInfoExpedient(
+					expedient.getProcessInstanceId(), 
+					LogInfo.COMENTARI + "#@#" + expedient.getComentari());
+			expedient.setComentari(comentari);
+		}
+		// Estat
+		if (estatId != null) {
+			if (expedient.getEstat() == null || expedient.getEstat().getId() != estatId) {
+				expedientLogHelper.afegirProcessLogInfoExpedient(
+						expedient.getProcessInstanceId(), 
+						LogInfo.ESTAT + "#@#" + "---");
+				expedient.setEstat(estatDao.getById(estatId, false));
+			}
+		} else if (expedient.getEstat() != null) {
+			expedientLogHelper.afegirProcessLogInfoExpedient(
+					expedient.getProcessInstanceId(), 
+					LogInfo.ESTAT + "#@#" + expedient.getEstat().getId());
 			expedient.setEstat(null);
-		expedient.setGeoPosX(geoPosX);
-		expedient.setGeoPosY(geoPosY);
-		expedient.setGeoReferencia(geoReferencia);
-		expedient.setGrupCodi(grupCodi);
+		}
+		// Geoposició
+		if (expedient.getGeoPosX() != geoPosX) {
+			expedientLogHelper.afegirProcessLogInfoExpedient(
+					expedient.getProcessInstanceId(), 
+					LogInfo.GEOPOSICIOX + "#@#" + expedient.getGeoPosX());
+			expedient.setGeoPosX(geoPosX);
+		}
+		if (expedient.getGeoPosY() != geoPosY) {
+			expedientLogHelper.afegirProcessLogInfoExpedient(
+					expedient.getProcessInstanceId(), 
+					LogInfo.GEOPOSICIOY + "#@#" + expedient.getGeoPosY());
+			expedient.setGeoPosY(geoPosY);
+		}
+		// Georeferencia
+		if (!StringUtils.equals(expedient.getGeoReferencia(), geoReferencia)) {
+			expedientLogHelper.afegirProcessLogInfoExpedient(
+					expedient.getProcessInstanceId(), 
+					LogInfo.GEOREFERENCIA + "#@#" + expedient.getGeoReferencia());
+			expedient.setGeoReferencia(geoReferencia);
+		}
+		// Grup
+		if (!StringUtils.equals(expedient.getGrupCodi(), grupCodi)) {
+			expedientLogHelper.afegirProcessLogInfoExpedient(
+					expedient.getProcessInstanceId(), 
+					LogInfo.GRUP + "#@#" + expedient.getGrupCodi());
+			expedient.setGrupCodi(grupCodi);
+		}
+		
 		luceneDao.updateExpedientCapsalera(
 				expedient,
 				getServiceUtils().isExpedientFinalitzat(expedient));

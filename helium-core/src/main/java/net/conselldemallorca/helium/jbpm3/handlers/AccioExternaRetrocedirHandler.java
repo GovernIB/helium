@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.jbpm3.handlers;
 import java.util.List;
 
 import org.jbpm.graph.def.ActionHandler;
+import org.jbpm.graph.exe.ExecutionContext;
 
 /**
  * Interfície a implementar per a retrocedir un expedient
@@ -14,6 +15,6 @@ import org.jbpm.graph.def.ActionHandler;
  */
 public interface AccioExternaRetrocedirHandler extends ActionHandler {
 
-	void retrocedir(List<String> parametres) throws Exception;
+	void retrocedir(ExecutionContext executionContext, List<String> parametres) throws Exception;
 
 }

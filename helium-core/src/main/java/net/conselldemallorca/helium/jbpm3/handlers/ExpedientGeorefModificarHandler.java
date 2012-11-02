@@ -54,7 +54,8 @@ public class ExpedientGeorefModificarHandler extends AbstractHeliumActionHandler
 						(posx != null) ? new Double(posx) : null,
 						(posy != null) ? new Double(posy) : null,
 						referencia,
-						expedient.getGrupCodi());
+						expedient.getGrupCodi(),
+						true);
 			} else {
 				throw new JbpmException("No s'ha trobat l'expedient per canviar el número");
 			}

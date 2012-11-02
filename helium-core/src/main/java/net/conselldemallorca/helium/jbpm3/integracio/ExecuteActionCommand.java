@@ -108,7 +108,7 @@ public class ExecuteActionCommand extends AbstractBaseCommand {
 				Thread.currentThread().setContextClassLoader(JbpmConfiguration.getProcessClassLoader(context.getProcessDefinition()));
 				Object actionHandler = action.getActionDelegation().getInstance();
 				if (actionHandler instanceof AccioExternaRetrocedirHandler) {
-					((AccioExternaRetrocedirHandler)actionHandler).retrocedir(params);
+					((AccioExternaRetrocedirHandler)actionHandler).retrocedir(context, params);
 				}
 			} finally {
 				Thread.currentThread().setContextClassLoader(surroundingClassLoader);

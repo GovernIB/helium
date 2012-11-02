@@ -24,13 +24,16 @@ import net.conselldemallorca.helium.core.model.dao.CampDao;
 import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientLogDao;
+import net.conselldemallorca.helium.core.model.dao.EstatDao;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.LogInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
@@ -75,6 +78,7 @@ import org.springframework.stereotype.Component;
 public class ExpedientLogHelper {
 
 	private static final String MESSAGE_LOG_PREFIX = "[H3l1um]";
+	private static final String MESSAGE_LOGINFO_PREFIX = "[H3l1nf0]";
 
 	private JbpmDao jbpmDao;
 	private ExpedientLogDao expedientLogDao;
@@ -82,7 +86,7 @@ public class ExpedientLogHelper {
 	private DocumentHelper documentHelper;
 	private CampDao campDao;
 	private DefinicioProcesDao definicioProcesDao;
-	
+	private EstatDao estatDao;
 
 	public ExpedientLog afegirLogExpedientPerTasca(
 			String taskInstanceId,
@@ -125,7 +129,6 @@ public class ExpedientLogHelper {
 		expedientLogDao.saveOrUpdate(expedientLog);
 		return expedientLog;
 	}
-
 	public ExpedientLog afegirLogExpedientPerExpedient(
 			Long expedientId,
 			ExpedientLogAccioTipus tipus,
@@ -143,7 +146,15 @@ public class ExpedientLogHelper {
 		expedientLogDao.saveOrUpdate(expedientLog);
 		return expedientLog;
 	}
-
+	public long afegirProcessLogInfoExpedient(
+			String processInstanceId,
+			String message) {
+		long jbpmLogId = jbpmDao.addProcessInstanceMessageLog(
+				processInstanceId,
+				MESSAGE_LOGINFO_PREFIX + "::" + message);
+		return jbpmLogId;
+	}
+	
 	public void retrocedirFinsLog(Long expedientLogId, boolean retrocedirPerTasques, Long iniciadorId) {
 		boolean debugRetroces = true;
 		ExpedientLog expedientLog = expedientLogDao.getById(expedientLogId, false);
@@ -184,6 +195,9 @@ public class ExpedientLogHelper {
 						break;
 					case LogObject.LOG_OBJECT_ACTION:
 						System.out.print("ACTION ");
+						break;
+					case LogObject.LOG_OBJECT_INFO:
+						System.out.print("INFO ");
 						break;
 					default:
 						System.out.print("??? ");
@@ -292,17 +306,19 @@ public class ExpedientLogHelper {
 					if (!started && assigned) {
 						JbpmTask task = jbpmDao.findEquivalentTaskInstance(logo.getTokenId(), logo.getObjectId());
 						String valor = (String)logo.getValorInicial();
-						if (debugRetroces)
-							System.out.println(">>> [RETLOG] Reassignar tasca (" + task.getId() + ") a " + valor);
-						if (valor.contains(",")) {
-							String[] actors = valor.split(",");
-							jbpmDao.setTaskInstancePooledActors(
-									task.getId(),
-									actors);
-						} else {
-							jbpmDao.setTaskInstanceActorId(
-									task.getId(),
-									valor);
+						if (valor != null && !"".equals(valor)) {
+							if (debugRetroces)
+								System.out.println(">>> [RETLOG] Reassignar tasca (" + task.getId() + ") a " + valor);
+							if (valor.contains(",")) {
+								String[] actors = valor.split(",");
+								jbpmDao.setTaskInstancePooledActors(
+										task.getId(),
+										actors);
+							} else {
+								jbpmDao.setTaskInstanceActorId(
+										task.getId(),
+										valor);
+							}
 						}
 					} else if (!started && ended) {
 						JbpmTask task = jbpmDao.findEquivalentTaskInstance(logo.getTokenId(), logo.getObjectId());
@@ -477,6 +493,45 @@ public class ExpedientLogHelper {
 							logo.getName(),
 							params);
 					break;
+				case LogObject.LOG_OBJECT_INFO:
+					Expedient expedient = getExpedientPerProcessInstanceId(String.valueOf(logo.getProcessInstanceId()));
+					
+					LogInfo li = LogInfo.valueOf(logo.getName());
+					switch (li) {
+						case NUMERO:
+							expedient.setNumero((String)logo.getValorInicial());
+							break;
+						case TITOL:
+							expedient.setTitol((String)logo.getValorInicial());
+							break;
+						case RESPONSABLE:
+							expedient.setResponsableCodi((String)logo.getValorInicial());
+							break;
+						case COMENTARI:
+							expedient.setComentari((String)logo.getValorInicial());
+							break;
+						case GEOREFERENCIA:
+							expedient.setGeoReferencia((String)logo.getValorInicial());
+							break;
+						case GRUP:
+							expedient.setGrupCodi((String)logo.getValorInicial());
+							break;
+						case INICI:
+							expedient.setDataInici((Date)logo.getValorInicial());
+							break;
+						case ESTAT:
+							expedient.setEstat((Estat)logo.getValorInicial());
+							break;
+						case GEOPOSICIOX:
+							expedient.setGeoPosX((Double)logo.getValorInicial());
+							break;
+						case GEOPOSICIOY:
+							expedient.setGeoPosY((Double)logo.getValorInicial());
+							break;
+						default:
+							break;
+					}
+					break;
 				}
 			}
 		}
@@ -493,8 +548,9 @@ public class ExpedientLogHelper {
 				
 			}
 		}*/
-		// Marca les accions com a retrocedides
+		
 		for (ExpedientLog elog: expedientLogs) {
+			// Marca les accions com a retrocedides
 			if (ExpedientLogEstat.NORMAL.equals(elog.getEstat()))
 				if (retrocedirPerTasques) {
 					elog.setEstat(ExpedientLogEstat.RETROCEDIT_TASQUES);
@@ -502,6 +558,7 @@ public class ExpedientLogHelper {
 					elog.setEstat(ExpedientLogEstat.RETROCEDIT);
 				}
 			if (elog.getId() != iniciadorId) elog.setIniciadorRetroces(iniciadorId);
+			// Retrocediex la informació de l'expedient
 		}
 	}
 
@@ -517,7 +574,7 @@ public class ExpedientLogHelper {
 					sb.append(actorId);
 					sb.append(",");
 				}
-				actors = sb.substring(0, sb.length() -1);
+				actors = "[" + sb.substring(0, sb.length() -1) + "]";
 			}
 		}
 		return actors;
@@ -881,9 +938,11 @@ public class ExpedientLogHelper {
 	public void setDefinicioProcesDao(DefinicioProcesDao definicioProcesDao) {
 		this.definicioProcesDao = definicioProcesDao;
 	}
+	@Autowired
+	public void setEstatDao(EstatDao estatDao) {
+		this.estatDao = estatDao;
+	}
 	
-	
-
 	private Collection<LogObject> getAccionsJbpmPerRetrocedir(
 			List<ExpedientLog> expedientLogs,
 			List<ProcessLog> logsSorted) {
@@ -891,7 +950,65 @@ public class ExpedientLogHelper {
 		long currentMessageLogId = -1;
 		for (ProcessLog plog: logsSorted) {
 			if (plog instanceof MessageLog) {
-				currentMessageLogId = plog.getId();
+				MessageLog mlog = (MessageLog)plog;
+				if (mlog.getMessage().startsWith(MESSAGE_LOGINFO_PREFIX)) {
+					
+					Long objId = new Long(plog.getToken().getProcessInstance().getId());
+					LogObject lobj = logObjects.get(objId);
+					
+					if (lobj == null) {
+						String sTipus = mlog.getMessage().substring(mlog.getMessage().indexOf("::") + 2, mlog.getMessage().indexOf("#@#"));
+						String info = mlog.getMessage().substring(mlog.getMessage().indexOf("#@#") + 3);
+						
+						LogInfo li = LogInfo.valueOf(sTipus);
+						
+						lobj = new LogObject(
+								objId.longValue(),
+								plog.getId(),
+								//objId.toString(),
+								li.name(),
+								LogObject.LOG_OBJECT_INFO,
+								plog.getToken().getProcessInstance().getId(),
+								plog.getToken().getId());
+						
+						try{
+							switch (li) {
+								case NUMERO:
+								case TITOL:
+								case RESPONSABLE:
+								case COMENTARI:
+								case GEOREFERENCIA:
+								case GRUP:
+									lobj.setValorInicial(info);
+									break;
+								case INICI:
+									SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+									lobj.setValorInicial(sdf.parse(info));
+									break;
+								case ESTAT:
+									if (info.equals("---")) {
+										lobj.setValorInicial(null);
+									} else {
+										Long estatId = Long.parseLong(info);
+										lobj.setValorInicial(estatDao.getById(estatId, false));
+									}
+									break;
+								case GEOPOSICIOX:
+								case GEOPOSICIOY:
+									lobj.setValorInicial(Double.parseDouble(info));
+									break;
+								default:
+									break;
+							}
+							logObjects.put(objId, lobj);
+							
+						} catch (Exception e) { 
+							logger.error("ERROR: Error al obtenir el tipus de informació de l'expedient dels logs", e);
+						}
+					}
+				} else {
+					currentMessageLogId = plog.getId();
+				}
 			} else if (plog instanceof TaskLog) {
 				TaskInstance taskInstance = ((TaskLog)plog).getTaskInstance();
 				Long objId = new Long(taskInstance.getId());
@@ -1117,6 +1234,7 @@ public class ExpedientLogHelper {
 		public static final int LOG_OBJECT_VARTASCA = 3;
 		public static final int LOG_OBJECT_VARPROCES = 4;
 		public static final int LOG_OBJECT_ACTION = 5;
+		public static final int LOG_OBJECT_INFO = 6;
 		public static final String LOG_ACTION_CREATE = "C";
 		public static final String LOG_ACTION_UPDATE = "U";
 		public static final String LOG_ACTION_DELETE = "D";

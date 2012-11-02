@@ -48,7 +48,8 @@ public class ExpedientResponsableModificarHandler extends AbstractHeliumActionHa
 							expedient.getGeoPosX(),
 							expedient.getGeoPosY(),
 							expedient.getGeoReferencia(),
-							expedient.getGrupCodi());
+							expedient.getGrupCodi(),
+							true);
 				} else {
 					throw new JbpmException("No s'ha trobat l'expedient per canviar l'estat");
 				}

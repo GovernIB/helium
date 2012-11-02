@@ -34,37 +34,37 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 public class ExpedientLog implements Serializable, GenericEntity<Long> {
 
 	public enum ExpedientLogAccioTipus {
-		PROCES_VARIABLE_CREAR,
+		PROCES_VARIABLE_CREAR,			// 0
 		PROCES_VARIABLE_MODIFICAR,
 		PROCES_VARIABLE_ESBORRAR,
 		PROCES_DOCUMENT_AFEGIR,
 		PROCES_DOCUMENT_MODIFICAR,
-		PROCES_DOCUMENT_ESBORRAR,
+		PROCES_DOCUMENT_ESBORRAR,		// 5
 		PROCES_DOCUMENT_ADJUNTAR,
 		PROCES_SCRIPT_EXECUTAR,
 		PROCES_ACTUALITZAR,
 		TASCA_REASSIGNAR,
-		TASCA_FORM_GUARDAR,
+		TASCA_FORM_GUARDAR,				// 10
 		TASCA_FORM_VALIDAR,
 		TASCA_FORM_RESTAURAR,
 		TASCA_ACCIO_EXECUTAR,
 		TASCA_DOCUMENT_AFEGIR,
-		TASCA_DOCUMENT_MODIFICAR,
+		TASCA_DOCUMENT_MODIFICAR,		// 15
 		TASCA_DOCUMENT_ESBORRAR,
 		TASCA_DOCUMENT_SIGNAR,
 		TASCA_COMPLETAR,
 		TASCA_SUSPENDRE,
-		TASCA_CONTINUAR,
+		TASCA_CONTINUAR,				// 20
 		TASCA_CANCELAR,
 		EXPEDIENT_INICIAR,
 		EXPEDIENT_MODIFICAR,
 		EXPEDIENT_ATURAR,
-		EXPEDIENT_REPRENDRE,
+		EXPEDIENT_REPRENDRE,			// 25
 		EXPEDIENT_RELACIO_AFEGIR,
 		EXPEDIENT_RELACIO_ESBORRAR,
 		EXPEDIENT_ACCIO,
 		EXPEDIENT_RETROCEDIR,
-		PROCES_DOCUMENT_SIGNAR,
+		PROCES_DOCUMENT_SIGNAR,			// 30
 		EXPEDIENT_RETROCEDIR_TASQUES}
 
 	public enum ExpedientLogEstat {
@@ -73,6 +73,18 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 		IGNORAR,
 		BLOCAR,
 		RETROCEDIT_TASQUES}
+	
+	public enum LogInfo {
+		NUMERO,
+		TITOL,
+		RESPONSABLE,
+		INICI,
+		COMENTARI,
+		ESTAT,
+		GEOPOSICIOX,
+		GEOPOSICIOY,
+		GEOREFERENCIA,
+		GRUP}
 
 	private Long id;
 	@NotBlank
@@ -94,8 +106,6 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 	@NotNull
 	private Expedient expedient;
 	private Long iniciadorRetroces;
-
-
 
 	public ExpedientLog() {}
 	public ExpedientLog(
