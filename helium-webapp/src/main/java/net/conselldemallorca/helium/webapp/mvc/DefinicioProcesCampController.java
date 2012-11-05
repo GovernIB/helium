@@ -90,20 +90,15 @@ public class DefinicioProcesCampController extends BaseController {
 	}
 	@ModelAttribute("consultes")
 	public List<Consulta> populateConsultes(HttpServletRequest request,
-			@RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId,
-			@RequestParam(value = "definicioProces", required = false) Long definicioProces) {
+			@RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			if (definicioProcesId != null){		
-				DefinicioProcesDto definicioProcesDto = dissenyService.getByIdAmbComprovacio(entorn.getId(), definicioProcesId);
-				if (definicioProcesDto != null && definicioProcesDto.getExpedientTipus() != null)
-					return dissenyService.findConsultesAmbEntornIExpedientTipus(entorn.getId(), definicioProcesDto.getExpedientTipus().getId());
-			}
-			if (definicioProces != null){
-				DefinicioProcesDto definicioProcesDto = dissenyService.getByIdAmbComprovacio(entorn.getId(), definicioProces);
-				if (definicioProcesDto != null && definicioProcesDto.getExpedientTipus() != null)
-					return dissenyService.findConsultesAmbEntornIExpedientTipus(entorn.getId(), definicioProcesDto.getExpedientTipus().getId());
-			}
+				DefinicioProcesDto definicioProces = dissenyService.getByIdAmbComprovacio(entorn.getId(), definicioProcesId);
+				if (definicioProces != null && definicioProces.getExpedientTipus() != null)
+					return dissenyService.findConsultesAmbEntornAmbOSenseTipusExp(entorn.getId(), definicioProces.getExpedientTipus().getId());
+			}	
+			return dissenyService.findConsultesAmbEntornAmbOSenseTipusExp(entorn.getId(), null);
 		}
 		return null;
 	}
@@ -345,7 +340,58 @@ public class DefinicioProcesCampController extends BaseController {
 	}
 
 
-
+/*
+	private class CampValidator implements Validator {
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public boolean supports(Class clazz) {
+			return clazz.isAssignableFrom(Camp.class);
+		}
+		public void validate(Object target, Errors errors) {
+			Camp camp = (Camp)target;
+			if (camp.getCodi().matches("^[A-Z]{1}[a-z]{1}.*")) {
+				errors.rejectValue("codi", "error.camp.codi.maymin");
+			}
+			if (camp.getCodi().contains(".")) {
+				errors.rejectValue("codi", "error.camp.codi.char.nok");
+			}
+			if (camp.getTipus() != null) {
+				if (camp.getTipus().equals(TipusCamp.ACCIO)) {
+					ValidationUtils.rejectIfEmpty(errors, "jbpmAction", "not.blank");
+				}
+				if (camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST)) {
+					if ((camp.getDomini() == null && !camp.isDominiIntern()) && camp.getEnumeracio() == null && camp.getConsulta() == null) {
+						errors.rejectValue("enumeracio", "error.camp.enumdomcons.buit");
+						errors.rejectValue("domini", "error.camp.enumdomcons.buit");
+						errors.rejectValue("consulta", "error.camp.enumdomcons.buit");
+					}
+					if ((camp.getDomini() != null || camp.isDominiIntern()) && camp.getEnumeracio() != null && camp.getConsulta() != null) {
+						errors.rejectValue("enumeracio", "error.camp.enumdomcons.tots");
+						errors.rejectValue("domini", "error.camp.enumdomcons.tots");
+						errors.rejectValue("consulta", "error.camp.enumdomcons.tots");
+					} else if ((camp.getDomini() != null || camp.isDominiIntern()) && camp.getEnumeracio() != null) {
+						errors.rejectValue("enumeracio", "error.camp.enumdomcons.tots");
+						errors.rejectValue("domini", "error.camp.enumdomcons.tots");
+					} else if ((camp.getDomini() != null || camp.isDominiIntern()) && camp.getConsulta() != null) {
+						errors.rejectValue("domini", "error.camp.enumdomcons.tots");
+						errors.rejectValue("consulta", "error.camp.enumdomcons.tots");
+					} else if(camp.getEnumeracio() != null && camp.getConsulta() != null) {
+						errors.rejectValue("enumeracio", "error.camp.enumdomcons.tots");
+						errors.rejectValue("consulta", "error.camp.enumdomcons.tots");
+					}
+					
+					if (camp.getDomini() != null && camp.isDominiIntern()){
+						errors.rejectValue("domini", "error.camp.domini");
+						errors.rejectValue("dominiIntern", "error.camp.domini");
+					} else if (camp.getDomini() != null) {
+						ValidationUtils.rejectIfEmpty(errors, "dominiId", "not.blank");
+						ValidationUtils.rejectIfEmpty(errors, "dominiCampText", "not.blank");
+						ValidationUtils.rejectIfEmpty(errors, "dominiCampValor", "not.blank");
+					}
+				}
+			}
+		}
+	}
+*/	
 	private class CampValidator implements Validator {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
@@ -391,7 +437,7 @@ public class DefinicioProcesCampController extends BaseController {
 			}
 		}
 	}
-
+	
 	private boolean potDissenyarDefinicioProces(Entorn entorn, DefinicioProcesDto definicioProces) {
 		if (potDissenyarEntorn(entorn))
 			return true;

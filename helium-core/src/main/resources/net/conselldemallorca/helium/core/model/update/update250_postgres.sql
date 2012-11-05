@@ -6,6 +6,7 @@ alter table jbpm_variableinstance rename column stringvalue_ TO stringvalue_old;
 alter table jbpm_variableinstance rename column aux_clob TO stringvalue_;	
 
 -- Select de consultes per tipus
+alter table hel_camp add column consulta_id BIGINT;
 alter table hel_camp add column consulta_camp_text character varying(64);
 alter table hel_camp add column consulta_camp_valor character varying(64);
 alter table hel_camp add column consulta_params character varying(255);
@@ -35,3 +36,6 @@ select
     true script_executat,
     'now' data_execucio_script
 where (select count(*) from hel_versio where ordre = 250) = 0;
+
+-- Nou camp pel domini intern --
+alter table hel_camp add column domini_intern boolean not null set default 0;

@@ -97,6 +97,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	
 	
 	private boolean dominiCacheText;
+	private boolean dominiIntern;
 	@MaxLength(255)
 	private String jbpmAction;
 	private boolean multiple;
@@ -104,6 +105,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	private boolean isIgnored;
 
 
+	private Consulta consulta;
 	private Domini domini;
 	private Enumeracio enumeracio;
 	@NotNull
@@ -536,6 +538,24 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	public void setConsultaCampValor(String consultaCampValor) {
 		this.consultaCampValor = consultaCampValor;
 	}
+
+	@Column(name="domini_intern")
+	public boolean isDominiIntern() {
+		return dominiIntern;
+	}
+	public void setDominiIntern(boolean dominiIntern) {
+		this.dominiIntern = dominiIntern;
+	}
+	
+	@ManyToOne(optional=true)
+    @JoinColumn(name="consulta_id")
+    @ForeignKey(name="hel_consulta_camp_fk")
+    public Consulta getConsulta() {
+        return consulta;
+    }
+    public void setConsulta(Consulta consulta) {
+        this.consulta = consulta;
+    }
 
 	private static final long serialVersionUID = 1L;
 

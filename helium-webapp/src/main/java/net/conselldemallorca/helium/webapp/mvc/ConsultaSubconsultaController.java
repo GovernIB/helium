@@ -56,7 +56,7 @@ public class ConsultaSubconsultaController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			Consulta consulta = dissenyService.getConsultaById(id);
-			List<Consulta> consultes = dissenyService.findConsultesAmbEntornIExpedientTipus(
+			List<Consulta> consultes = dissenyService.findConsultesAmbEntornAmbOSenseTipusExp(
 					entorn.getId(),
 					consulta.getExpedientTipus().getId());
 			consultes.remove(consulta);

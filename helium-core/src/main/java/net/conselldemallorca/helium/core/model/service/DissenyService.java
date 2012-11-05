@@ -1845,8 +1845,8 @@ public class DissenyService {
 	public List<Consulta> findConsultesAmbEntorn(Long entornId) {
 		return consultaDao.findAmbEntorn(entornId);
 	}
-	public List<Consulta> findConsultesAmbEntornIExpedientTipus(Long entornId, Long expedientTipusId) {
-		return consultaDao.findAmbEntornIExpedientTipus(entornId, expedientTipusId);
+	public List<Consulta> findConsultesAmbEntornAmbOSenseTipusExp(Long entornId, Long expedientTipusId) {
+		return consultaDao.findAmbEntornAmbOSenseTipusExp(entornId, expedientTipusId);
 	}
 	public List<Consulta> findConsultesAmbEntornIExpedientTipusOrdenat(Long entornId, Long expedientTipusId) {
 		return consultaDao.findAmbEntornIExpedientTipusOrdenat(entornId, expedientTipusId);
