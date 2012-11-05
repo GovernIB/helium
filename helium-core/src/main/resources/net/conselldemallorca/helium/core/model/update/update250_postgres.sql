@@ -15,6 +15,7 @@ alter table hel_portasignatures add process_instance_id character varying(255);
 alter table hel_portasignatures add expedient_id number(19);
 alter table hel_portasignatures add constraint hel_expedient_psigna_fk foreign key (expedient_id) references public.hel_expedient (id);
 alter table hel_expedient add errors_integs boolean not null set default 0;
+alter table hel_expedient add comentarianulat character varying(255);
 
 -- Actualització a la nova versió --
 insert into hel_versio (
