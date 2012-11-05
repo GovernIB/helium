@@ -106,7 +106,6 @@ public class Camp implements Serializable, GenericEntity<Long> {
 
 	private Domini domini;
 	private Enumeracio enumeracio;
-	private Consulta consulta;
 	@NotNull
 	private DefinicioProces definicioProces;
 	private CampAgrupacio agrupacio;
@@ -509,13 +508,6 @@ public class Camp implements Serializable, GenericEntity<Long> {
 		} else if (!definicioProces.equals(other.definicioProces))
 			return false;
 		return true;
-	}
-
-	public Consulta getConsulta() {
-		return consulta;
-	}
-	public void setConsulta(Consulta consulta) {
-		this.consulta = consulta;
 	}
 
 	@Column(name="consulta_params", length=255)
