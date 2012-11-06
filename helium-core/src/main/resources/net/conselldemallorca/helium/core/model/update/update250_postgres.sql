@@ -17,6 +17,10 @@ alter table hel_portasignatures add expedient_id number(19);
 alter table hel_portasignatures add constraint hel_expedient_psigna_fk foreign key (expedient_id) references public.hel_expedient (id);
 alter table hel_expedient add errors_integs boolean not null set default 0;
 alter table hel_expedient add comentarianulat character varying(255);
+alter table hel_expedient_log add ini_retroces bigint;
+
+-- Nou camp pel domini intern --
+alter table hel_camp add column domini_intern boolean not null set default 0;
 
 -- Actualització a la nova versió --
 insert into hel_versio (
@@ -36,6 +40,3 @@ select
     true script_executat,
     'now' data_execucio_script
 where (select count(*) from hel_versio where ordre = 250) = 0;
-
--- Nou camp pel domini intern --
-alter table hel_camp add column domini_intern boolean not null set default 0;
