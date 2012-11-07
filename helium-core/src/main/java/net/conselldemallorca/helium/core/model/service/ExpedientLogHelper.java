@@ -309,8 +309,8 @@ public class ExpedientLogHelper {
 						if (valor != null && !"".equals(valor)) {
 							if (debugRetroces)
 								System.out.println(">>> [RETLOG] Reassignar tasca (" + task.getId() + ") a " + valor);
-							if (valor.contains(",")) {
-								String[] actors = valor.split(",");
+							if (valor.startsWith("[") && valor.endsWith("]")) {
+								String[] actors = valor.substring(1, valor.length()-1).split(",");
 								jbpmDao.setTaskInstancePooledActors(
 										task.getId(),
 										actors);
