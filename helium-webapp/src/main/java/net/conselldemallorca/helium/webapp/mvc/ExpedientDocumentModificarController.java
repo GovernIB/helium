@@ -111,7 +111,7 @@ public class ExpedientDocumentModificarController extends BaseController {
 					model.addAttribute("document", doc);
 					model.addAttribute(
 							"documentDisseny",
-							dissenyService.getDocumentById(doc.getDocumentId()));
+							dissenyService.getDocumentById(docId));
 					return "expedient/documentForm";
 				} else {
 					missatgeError(request, getMessage("error.modificar.doc.signat") );
