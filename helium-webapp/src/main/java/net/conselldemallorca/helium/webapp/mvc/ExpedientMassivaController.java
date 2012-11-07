@@ -92,6 +92,11 @@ public class ExpedientMassivaController extends BaseController {
 		return new ExpedientEinesAturarCommand();
 	}
 	
+	@ModelAttribute("execucioAccioCommand")
+	public ExecucioAccioCommand populateExecucioAccioCommand() {
+		return new ExecucioAccioCommand();
+	}
+	
 //	@ModelAttribute("modificarVariablesMasCommand")
 //	public ModificarVariablesCommand populateModificarVariablesCommand() {
 //		return new ModificarVariablesCommand();
@@ -569,7 +574,7 @@ public class ExpedientMassivaController extends BaseController {
 	public String accioExecutarAccio(
 			HttpServletRequest request,
 			@RequestParam(value="target2",required=false) String target2,
-			@RequestParam(value = "submit", required = true) String jbpmAction,
+			@ModelAttribute("execucioAccioCommand") ExecucioAccioCommand command,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
@@ -591,16 +596,16 @@ public class ExpedientMassivaController extends BaseController {
 			int numOk = 0;
 			for (ExpedientDto expedient: expedients) {
 				try {
-					System.out.println(">>> Executant acció (codi=" + jbpmAction + ") en l'expedient " + expedient.getIdentificador());
-					expedientService.executarAccio(expedient.getProcessInstanceId(), jbpmAction);
-					System.out.println(">>> Acció executada (codi=" + jbpmAction + ") en l'expedient " + expedient.getIdentificador());
+					System.out.println(">>> Executant acció (codi=" + command.getAccioId() + ") en l'expedient " + expedient.getIdentificador());
+					expedientService.executarAccio(expedient.getProcessInstanceId(), command.getAccioId());
+					System.out.println(">>> Acció executada (codi=" + command.getAccioId() + ") en l'expedient " + expedient.getIdentificador());
 					numOk++;
 				} catch (Exception ex) {
 					missatgeError(
 			    			request,
 			    			getMessage("error.expedient.accio.masiva") + " " + expedient.getIdentificador(),
 			    			ex.getLocalizedMessage());
-					logger.error("No s'ha pogut excutar l'acció " + jbpmAction + " del procés " + expedient.getProcessInstanceId(), ex);
+					logger.error("No s'ha pogut excutar l'acció " + command.getAccioId() + " del procés " + expedient.getProcessInstanceId(), ex);
 					error = true;
 				}
 			}

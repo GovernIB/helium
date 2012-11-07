@@ -413,3 +413,8 @@ p.aclaracio {
 .right {
 	float:	right;
 }
+.mass {
+	width: 96% !important;
+	padding-left: 24px !important;
+	padding-right: 0px !important;
+}
