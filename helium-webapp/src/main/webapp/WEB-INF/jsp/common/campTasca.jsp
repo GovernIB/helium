@@ -5,8 +5,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
-<c:if test="${not empty campTascaActual}">
-	<c:set var="campActual" value="${campTascaActual.camp}" scope="request"/>
+<c:if test="${not empty campTascaActual}">	<c:set var="campActual" value="${campTascaActual.camp}" scope="request"/>
 	<c:set var="readOnly" value="${campTascaActual.readOnly}" scope="request"/>
 	<c:set var="required" value="${campTascaActual.required}" scope="request"/>
 </c:if>
@@ -167,6 +166,7 @@
 			<c:param name="selectUrl"><c:url value="/domini/consultaExpedient.html"/></c:param>
 			<c:param name="selectExtraParams">${extraParams},tipus:'select'</c:param>
 			<c:param name="selectDominiParams"><%=toJavascript((String)request.getAttribute("dominiParamsActual"))%></c:param>
+			<c:param name="selectConsultaParams"><%=toJavascript((String)request.getAttribute("consultaParamsActual"))%></c:param>
 			<c:param name="iterateOn"><c:if test="${campActual.multiple}">valorActual</c:if></c:param>
 			<c:param name="multipleIcons"><c:if test="${campActual.multiple}">true</c:if></c:param>
 			<c:param name="onchange">canviSelectTasca(this.id, this.name);</c:param>

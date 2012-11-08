@@ -30,6 +30,7 @@ import net.conselldemallorca.helium.core.model.dao.PluginPersonaDao;
 import net.conselldemallorca.helium.core.model.dao.TascaDao;
 import net.conselldemallorca.helium.core.model.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
+import net.conselldemallorca.helium.core.model.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
@@ -50,6 +51,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
+import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.security.acl.AclServiceDao;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
@@ -97,6 +99,8 @@ public class DtoConverter {
 	private DocumentHelper documentHelper;
 
 	private ServiceUtils serviceUtils;
+	
+	private ExpedientService expedientService;
 
 
 
@@ -798,7 +802,10 @@ public class DtoConverter {
 	}
 
 
-
+	@Autowired
+	public void setExpedientService(ExpedientService expedientService) {
+		this.expedientService = expedientService;
+	}	
 	@Autowired
 	public void setExpedientDao(ExpedientDao expedientDao) {
 		this.expedientDao = expedientDao;
@@ -1004,6 +1011,36 @@ public class DtoConverter {
 						resposta = new ParellaCodiValor(
 								parella.getCodi(),
 								parella.getValor());
+					}
+				}
+			} else if (camp.getConsulta() != null) {
+				Consulta consulta = camp.getConsulta();
+				List<ExpedientConsultaDissenyDto> dadesExpedients = expedientService.findAmbEntornConsultaDisseny(
+						consulta.getEntorn().getId(),
+						consulta.getId(),
+						new HashMap<String, Object>(),
+						null,
+						true);
+				
+				Iterator<ExpedientConsultaDissenyDto> it = dadesExpedients.iterator();
+				while(it.hasNext()){
+					ExpedientConsultaDissenyDto exp = it.next();
+					DadaIndexadaDto valorDto = exp.getDadesExpedient().get(camp.getConsultaCampValor());
+					if(valorDto == null){
+						valorDto = exp.getDadesExpedient().get(consulta.getExpedientTipus().getJbpmProcessDefinitionKey()+"/"+camp.getConsultaCampValor());
+					}
+					if(valorDto != null){
+						if(valorDto.getValor().toString().equals(valor)){
+							DadaIndexadaDto textDto = exp.getDadesExpedient().get(camp.getConsultaCampText());
+							if(textDto == null){
+								textDto = exp.getDadesExpedient().get(consulta.getExpedientTipus().getJbpmProcessDefinitionKey()+"/"+camp.getConsultaCampText());
+							}
+							resposta = new ParellaCodiValor(
+									valorDto.getValorMostrar(),
+									textDto.getValorMostrar()
+									);
+							break;
+						}
 					}
 				}
 			}
