@@ -11,6 +11,7 @@
 <head>
 	<title><fmt:message key="expedient.massiva.titol"/></title>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
+	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
 	<c:import url="../common/formIncludes.jsp"/>
 <script type="text/javascript">
 // <![CDATA[
@@ -76,24 +77,6 @@ function massiva(e){
 		$("#target").val("consulta");
 	}
 }
-
-function editarRegistre(campId, campCodi, campEtiqueta, numCamps, index) {
-	var amplada = 686;
-	var alcada = 64 * numCamps + 80;
-	var url = "registre.html?id=${tasca.id}&registreId=" + campId;
-	if (index != null)
-		url = url + "&index=" + index;
-	$('<iframe id="' + campCodi + '" src="' + url + '" frameborder="0" marginheight="0" marginwidth="0"/>').dialog({
-		title: campEtiqueta,
-		autoOpen: true,
-		modal: true,
-		autoResize: true,
-		width: parseInt(amplada),
-		height: parseInt(alcada)
-	}).width(amplada - 30).height(alcada - 30);
-	return false;
-}
-
 
 // ]]>
 </script>
@@ -228,32 +211,53 @@ function editarRegistre(campId, campCodi, campEtiqueta, numCamps, index) {
 					</form:form>
 				</c:if>
 			</c:if>
-		</div>
-	<%-- 	<div class="inlineLabels uniForm col last">
-			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key="expedient.massiva.documents"/></h3>
-			<form:form action="massivaDocument.html" cssClass="uniForm" commandName="documentCommand" onsubmit="return confirmarModificarDocument(event)">
-				<input type="hidden" name="id" value="${instanciaProces.id}"/>
-				<c:set var="variables" value="${instanciaProces.documents}" scope="request"/>
+			
+			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key='expedient.massiva.modificar_variables' /></h3>
+			<form:form action="/helium/expedient/dadaModificarMas.html" method="GET" cssClass="uniForm" commandName="modificarVariablesMasCommand" onsubmit="return confirmarModificarVariables(event)">
 				<div class="inlineLabels">
-					<c:set var="accions" value="${instanciaProces.definicioProces.accions}" scope="request"/>
-					<c:import url="../common/formElement.jsp">
-						<c:param name="property" value="accioId"/>
-						<c:param name="type" value="select"/>
-						<c:param name="items" value="variables"/>
-						<c:param name="itemLabel" value="nom"/>
-						<c:param name="itemValue" value="codi"/>
-						<c:param name="label"><fmt:message key="expedient.massiva.documents"/></c:param>
-					</c:import>
+					<input type="hidden" name="id" value="${instanciaProces.id}"/>
+					<c:set var="variables" value="${instanciaProces.camps}" scope="request"/>
+						<c:import url="../common/formElement.jsp">
+							<c:param name="property">var</c:param>
+							<c:param name="type" value="select"/>
+							<c:param name="items" value="variables"/>
+							<c:param name="itemLabel" value="codi"/>
+							<c:param name="itemValue" value="codi"/>
+							<c:param name="itemBuit">&lt;&lt; <fmt:message key='expedient.consulta.select.variable'/> &gt;&gt;</c:param>
+							<c:param name="label"><fmt:message key="expedient.eines.modificar_variables"/></c:param>
+						</c:import>
+						<c:import url="../common/formElement.jsp">
+							<c:param name="type" value="buttons"/>
+							<c:param name="values">submit</c:param>
+							<c:param name="titles"><fmt:message key='comuns.modificar'/></c:param>
+						</c:import>
 				</div>
-				<c:import url="../common/formElement.jsp">
-					<c:param name="type" value="buttons"/>
-					<c:param name="values">submit</c:param>
-					<c:param name="titles"><fmt:message key='comuns.modificar' /></c:param>
-				</c:import>
 			</form:form>
+<%-- 			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key="expedient.massiva.documents"/></h3> --%>
+<%-- 			<form:form action="documentModificarMas.html" cssClass="uniForm" method="GET" commandName="execucioAccioCommand" onsubmit="return confirmarModificarDocument(event)"> --%>
+<%-- 				<input type="hidden" name="id" value="${instanciaProces.id}"/> --%>
+<%-- 				<c:set var="documents" value="${instanciaProces.documents}" scope="request"/> --%>
+<!-- 				<div class="inlineLabels"> -->
+<%-- 					<c:set var="accions" value="${instanciaProces.definicioProces.accions}" scope="request"/> --%>
+<%-- 					<c:import url="../common/formElement.jsp"> --%>
+<%-- 						<c:param name="property">accioId</c:param> --%>
+<%-- 						<c:param name="type" value="select"/> --%>
+<%-- 						<c:param name="items" value="documents"/> --%>
+<%-- 						<c:param name="itemLabel" value="nom"/> --%>
+<%-- 						<c:param name="itemValue" value="codi"/> --%>
+<%-- 						<c:param name="itemBuit">&lt;&lt; <fmt:message key='expedient.consulta.select.variable'/> &gt;&gt;</c:param> --%>
+<%-- 						<c:param name="label"><fmt:message key="expedient.massiva.documents"/></c:param> --%>
+<%-- 					</c:import> --%>
+<!-- 				</div> -->
+<%-- 				<c:import url="../common/formElement.jsp"> --%>
+<%-- 					<c:param name="type" value="buttons"/> --%>
+<%-- 					<c:param name="values">submit</c:param> --%>
+<%-- 					<c:param name="titles"><fmt:message key='comuns.modificar' /></c:param> --%>
+<%-- 				</c:import> --%>
+
+<%-- 			</form:form> --%>
 		</div>
-	 </div>
-	--%>
+
 					
 </body>
 
