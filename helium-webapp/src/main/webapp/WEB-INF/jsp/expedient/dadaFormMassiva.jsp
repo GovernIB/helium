@@ -23,7 +23,7 @@
 	function editarRegistre(campId, campCodi, campEtiqueta, numCamps, index) {
 		var amplada = 686;
 		var alcada = 64 * numCamps + 80;
-		var url = "varRegistreMas.html?id=${param.id}&registreId=" + campId;
+		var url = "varRegistre.html?id=${param.id}&registreId=" + campId;
 		if (index != null)
 			url = url + "&index=" + index;
 		$('<iframe id="' + campCodi + '" src="' + url + '" frameborder="0" marginheight="0" marginwidth="0"/>').dialog({
