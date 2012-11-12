@@ -103,19 +103,21 @@ public class DefinicioProcesCampController extends BaseController {
 		return null;
 	}
 	@ModelAttribute("enumeracions")
-	public List<Enumeracio> populateEnumeracions(HttpServletRequest request,
-			@RequestParam(value = "definicioProces", required = false) Long definicioProcesId) {
-		Entorn entorn = getEntornActiu(request);
-		if (entorn != null) {
-			if (definicioProcesId != null){
-				DefinicioProcesDto definicioProces = dissenyService.getByIdAmbComprovacio(entorn.getId(), definicioProcesId);
-				if (definicioProces != null && definicioProces.getExpedientTipus() != null)
-					return dissenyService.findEnumeracionsAmbEntornAmbOSenseTipusExp(entorn.getId(), definicioProces.getExpedientTipus().getId());
-			}
-			return dissenyService.findEnumeracionsAmbEntornAmbOSenseTipusExp(entorn.getId(), null);
-		}
-		return null;
-	}
+    public List<Enumeracio> populateEnumeracions(HttpServletRequest request,
+            @RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId,
+            @RequestParam(value = "definicioProces", required = false) Long definicioProces) {
+        Entorn entorn = getEntornActiu(request);
+        if (entorn != null) {
+            Long id = (definicioProcesId != null) ? definicioProcesId : definicioProces;
+            if (id != null){
+                DefinicioProcesDto definicioProcesDto = dissenyService.getByIdAmbComprovacio(entorn.getId(), id);
+                if (definicioProcesDto != null && definicioProcesDto.getExpedientTipus() != null)
+                    return dissenyService.findEnumeracionsAmbEntornAmbOSenseTipusExp(entorn.getId(), definicioProcesDto.getExpedientTipus().getId());
+            }
+            return dissenyService.findEnumeracionsAmbEntornAmbOSenseTipusExp(entorn.getId(), null);
+        }
+        return null;
+    } 
 	@ModelAttribute("agrupacions")
 	public List<CampAgrupacio> populateAgrupacions(
 			HttpServletRequest request,
