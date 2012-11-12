@@ -589,10 +589,14 @@ public class ExpedientController extends BaseController {
 			@RequestParam(value = "logId", required = true) Long logId) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			if (tipus_retroces == null || tipus_retroces != 0) {
-				expedientService.retrocedirFinsLog(logId, true);
-			} else {
-				expedientService.retrocedirFinsLog(logId, false);
+			try {
+				if (tipus_retroces == null || tipus_retroces != 0) {
+					expedientService.retrocedirFinsLog(logId, true);
+				} else {
+					expedientService.retrocedirFinsLog(logId, false);
+				}
+			}catch (JbpmException ex ) {
+				missatgeError(request, getMessage("error.executar.retroces") + ": "+ ex.getCause().getMessage());
 			}
 			return "redirect:/expedient/registre.html?id=" + id;
 		} else {
