@@ -25,11 +25,7 @@
 			<c:if test="${not empty command.ordre}">
 				<input type="hidden" name="ordre" value="${command.ordre}"/>
 			</c:if>
-			<c:import url="../common/formElement.jsp">
-				<c:param name="property" value="codi"/>
-				<c:param name="required" value="true"/>
-				<c:param name="label"><fmt:message key="comuns.codi"/></c:param>
-			</c:import>
+			<input type="hidden" name="codi" value="${command.codi}"/>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="nom"/>
 				<c:param name="required" value="true"/>
