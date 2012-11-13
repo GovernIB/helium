@@ -32,6 +32,8 @@ import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusAuthDomini;
+import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 import net.conselldemallorca.helium.core.model.service.DocumentService;
@@ -125,13 +127,30 @@ public abstract class BasicActionHandler implements ActionHandler {
 		Expedient expedient = getExpedientActual(executionContext);
 		if (expedient == null)
 			throw new JbpmException("No s'ha trobat cap expedient que correspongui amb aquesta instància de procés (" + executionContext.getProcessInstance().getId() + ")");
-		Domini domini = getDominiDao().findAmbEntornICodi(
+		Domini domini;
+		if(codiDomini.equalsIgnoreCase("intern")){
+			domini = new Domini();
+			domini.setId((long) 0);
+			domini.setCacheSegons(30);
+			domini.setCodi("intern");
+			domini.setNom("Domini intern");
+			domini.setTipus(TipusDomini.CONSULTA_WS);
+			domini.setTipusAuth(TipusAuthDomini.NONE);
+			domini.setEntorn(expedient.getEntorn());
+			domini.setUrl(GlobalProperties.getInstance().getProperty("app.domini.intern.url","http://localhost:8080/helium/ws/DominiIntern"));
+		} else {
+			domini = getDominiDao().findAmbEntornICodi(
 				expedient.getEntorn().getId(),
 				codiDomini);
+		}
 		if (domini == null)
 			throw new JbpmException("No s'ha trobat el domini amb el codi '" + codiDomini + "'");
 		try {
-			List<net.conselldemallorca.helium.core.extern.domini.FilaResultat> resultatConsulta = getDominiDao().consultar(domini.getId(), id, parametres);
+			List<net.conselldemallorca.helium.core.extern.domini.FilaResultat> resultatConsulta = getDominiDao().consultar(
+					expedient.getEntorn().getId(),
+					domini.getId(),
+					id,
+					parametres);
 			List<FilaResultat> resposta = new ArrayList<FilaResultat>();
 			for (net.conselldemallorca.helium.core.extern.domini.FilaResultat fila: resultatConsulta) {
 				FilaResultat fres = new FilaResultat();

@@ -28,10 +28,12 @@ public class DominiDwrService {
 	// Domini SQL sense paràmetres
 	// -----------------------------------------------------------------
 	public String ping(String domini ) throws DominiHeliumException {
-
 		try{
 			Long dominiId = Long.parseLong(domini);
-			List<FilaResultat> resultat= dissenyService.consultaDomini(dominiId, (Map<String, Object>)null);
+			List<FilaResultat> resultat= dissenyService.consultaDomini(
+					null,
+					dominiId,
+					(Map<String, Object>)null);
 			StringBuilder sb = new StringBuilder();
 			for (FilaResultat fila: resultat) {
 				sb.append("[");
@@ -58,7 +60,7 @@ public class DominiDwrService {
 		}
 		try{
 			Long dominiId = Long.parseLong(domini);
-			List<FilaResultat> resultat= dissenyService.consultaDomini(dominiId, parametres);
+			List<FilaResultat> resultat= dissenyService.consultaDomini(null, dominiId, parametres);
 			StringBuilder sb = new StringBuilder();
 			for (FilaResultat fila: resultat) {
 				sb.append("[");
@@ -115,7 +117,7 @@ public class DominiDwrService {
 
 		try{
 			Long dominiId = Long.parseLong(domini);
-			List<FilaResultat> resultat= dissenyService.consultaDomini(dominiId, idWS, parametres);
+			List<FilaResultat> resultat= dissenyService.consultaDomini(null, dominiId, idWS, parametres);
 			StringBuilder sb = new StringBuilder();
 			for (FilaResultat fila: resultat) {
 				sb.append("[");
@@ -137,7 +139,7 @@ public class DominiDwrService {
 	public String pingWS(String domini, String idWS ) throws DominiHeliumException {
 		try{
 			Long dominiId = Long.parseLong(domini);
-			List<FilaResultat> resultat= dissenyService.consultaDomini(dominiId, idWS);
+			List<FilaResultat> resultat= dissenyService.consultaDomini(null, dominiId, idWS);
 			StringBuilder sb = new StringBuilder();
 			for (FilaResultat fila: resultat) {
 				sb.append("[");

@@ -722,7 +722,7 @@ public class DtoConverter {
 				break;
 			}
 		}
-		if (camp != null && camp.getDomini() != null) {
+		if (camp != null && (camp.getDomini() != null || camp.isDominiIntern())) {
 			Map<String, Object> params = getParamsConsulta(
 					taskId,
 					processInstanceId,
@@ -737,11 +737,16 @@ public class DtoConverter {
 			Camp camp,
 			Map<String, Object> params,
 			String textInicial) throws DominiException {
-		if (camp != null && camp.getDomini() != null) {
-			Domini domini = camp.getDomini();
+		if (camp != null && (camp.getDomini() != null || camp.isDominiIntern())) {
+			Long dominiId = (long) 0;
+			if (camp.getDomini() != null){
+				Domini domini = camp.getDomini();
+				dominiId = domini.getId();
+			}	
 			try {
 				List<FilaResultat> resultat = dominiDao.consultar(
-						domini.getId(),
+						camp.getDefinicioProces().getEntorn().getId(),
+						dominiId,
 						camp.getDominiId(),
 						params);
 				// Filtra els resultats amb el textInicial (si n'hi ha)
@@ -968,8 +973,12 @@ public class DtoConverter {
 		ParellaCodiValor resposta = null;
 		TipusCamp tipus = camp.getTipus();
 		if (tipus.equals(TipusCamp.SELECCIO) || tipus.equals(TipusCamp.SUGGEST)) {
-			if (camp.getDomini() != null) {
-				Domini domini = camp.getDomini();
+			if (camp.getDomini() != null || camp.isDominiIntern()) {
+				Long dominiId = (long) 0;
+				if (camp.getDomini() != null){
+					Domini domini = camp.getDomini();
+					dominiId = domini.getId();
+				}				
 				try {
 					Map<String, Object> paramsConsulta = getParamsConsulta(
 							taskId,
@@ -977,7 +986,8 @@ public class DtoConverter {
 							camp,
 							valorsAddicionals);
 					List<FilaResultat> resultat = dominiDao.consultar(
-							domini.getId(),
+							camp.getDefinicioProces().getEntorn().getId(),
+							dominiId,
 							camp.getDominiId(),
 							paramsConsulta);
 					String columnaCodi = camp.getDominiCampValor();

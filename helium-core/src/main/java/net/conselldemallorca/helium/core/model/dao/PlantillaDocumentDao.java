@@ -536,7 +536,11 @@ public class PlantillaDocumentDao {
 												}
 											}
 										}
-										List<FilaResultat> files = dominiDao.consultar(domini.getId(), arg1, parametres);
+										List<FilaResultat> files = dominiDao.consultar(
+												entornId,
+												domini.getId(),
+												arg1,
+												parametres);
 										Object[] resultat = new Object[files.size()];
 										for (int i = 0; i < resultat.length; i++) {
 											Object[] columnes = new Object[files.get(i).getColumnes().size()];

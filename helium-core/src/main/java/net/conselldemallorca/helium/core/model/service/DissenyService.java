@@ -1627,25 +1627,25 @@ public class DissenyService {
 		return dominiDao.findAmbEntornICodi(entornId, codi);
 	}
 
-	public List<FilaResultat> consultaDomini(Long dominiId) {
-		return consultaDomini(dominiId, null, null);
+	public List<FilaResultat> consultaDomini(Long entornId, Long dominiId) {
+		return consultaDomini(entornId, dominiId, null, null);
 	}
-	public List<FilaResultat> consultaDomini(Long dominiId, Map<String, Object> params) {
+	public List<FilaResultat> consultaDomini(Long entornId, Long dominiId, Map<String, Object> params) {
 		try {
-			return dominiDao.consultar(dominiId, null, params);
+			return dominiDao.consultar(entornId, dominiId, null, params);
 		} catch (Exception ex) {
 			throw new DominiException(
 					getServiceUtils().getMessage("error.dissenyService.consultantDomini"), ex);
 		}
 	}
 	
-	public List<FilaResultat> consultaDomini(Long dominiId, String dominiWsId) {
-		return consultaDomini(dominiId, dominiWsId, null);
+	public List<FilaResultat> consultaDomini(Long entornId, Long dominiId, String dominiWsId) {
+		return consultaDomini(entornId, dominiId, dominiWsId, null);
 	}
 	
-	public List<FilaResultat> consultaDomini(Long dominiId, String dominiWsId, Map<String, Object> params) {
+	public List<FilaResultat> consultaDomini(Long entornId, Long dominiId, String dominiWsId, Map<String, Object> params) {
 		try {
-			return dominiDao.consultar(dominiId, dominiWsId, params);
+			return dominiDao.consultar(entornId, dominiId, dominiWsId, params);
 		} catch (Exception ex) {
 			throw new DominiException(
 					getServiceUtils().getMessage("error.dissenyService.consultantDomini"), ex);
@@ -1685,7 +1685,7 @@ public class DissenyService {
 			}
 			if (camp != null && camp.getEnumeracio() != null) {
 				return dtoConverter.getResultatConsultaEnumeracio(definicioProces, campCodi, textInicial);
-			} else if (camp != null && camp.getDomini() != null) {
+			} else if (camp != null && (camp.getDomini() != null || camp.isDominiIntern())) {
 				return dtoConverter.getResultatConsultaDomini(
 						definicioProces,
 						taskId,

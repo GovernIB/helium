@@ -334,15 +334,11 @@ public class DefinicioProcesCampController extends BaseController {
 				new CampAgrupacioTypeEditor(dissenyService));
 	}
 
-
-
 	@Resource(name = "annotationValidator")
 	public void setAnnotationValidator(Validator annotationValidator) {
 		this.annotationValidator = annotationValidator;
 	}
-
-
-/*
+	
 	private class CampValidator implements Validator {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
@@ -365,75 +361,45 @@ public class DefinicioProcesCampController extends BaseController {
 						errors.rejectValue("enumeracio", "error.camp.enumdomcons.buit");
 						errors.rejectValue("domini", "error.camp.enumdomcons.buit");
 						errors.rejectValue("consulta", "error.camp.enumdomcons.buit");
-					}
-					if ((camp.getDomini() != null || camp.isDominiIntern()) && camp.getEnumeracio() != null && camp.getConsulta() != null) {
-						errors.rejectValue("enumeracio", "error.camp.enumdomcons.tots");
-						errors.rejectValue("domini", "error.camp.enumdomcons.tots");
-						errors.rejectValue("consulta", "error.camp.enumdomcons.tots");
-					} else if ((camp.getDomini() != null || camp.isDominiIntern()) && camp.getEnumeracio() != null) {
-						errors.rejectValue("enumeracio", "error.camp.enumdomcons.tots");
-						errors.rejectValue("domini", "error.camp.enumdomcons.tots");
-					} else if ((camp.getDomini() != null || camp.isDominiIntern()) && camp.getConsulta() != null) {
-						errors.rejectValue("domini", "error.camp.enumdomcons.tots");
-						errors.rejectValue("consulta", "error.camp.enumdomcons.tots");
-					} else if(camp.getEnumeracio() != null && camp.getConsulta() != null) {
-						errors.rejectValue("enumeracio", "error.camp.enumdomcons.tots");
-						errors.rejectValue("consulta", "error.camp.enumdomcons.tots");
-					}
-					
-					if (camp.getDomini() != null && camp.isDominiIntern()){
-						errors.rejectValue("domini", "error.camp.domini");
-						errors.rejectValue("dominiIntern", "error.camp.domini");
-					} else if (camp.getDomini() != null) {
-						ValidationUtils.rejectIfEmpty(errors, "dominiId", "not.blank");
-						ValidationUtils.rejectIfEmpty(errors, "dominiCampText", "not.blank");
-						ValidationUtils.rejectIfEmpty(errors, "dominiCampValor", "not.blank");
-					}
-				}
-			}
-		}
-	}
-*/	
-	private class CampValidator implements Validator {
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public boolean supports(Class clazz) {
-			return clazz.isAssignableFrom(Camp.class);
-		}
-		public void validate(Object target, Errors errors) {
-			Camp camp = (Camp)target;
-			if (camp.getCodi().matches("^[A-Z]{1}[a-z]{1}.*")) {
-				errors.rejectValue("codi", "error.camp.codi.maymin");
-			}
-			if (camp.getCodi().contains(".")) {
-				errors.rejectValue("codi", "error.camp.codi.char.nok");
-			}
-			if (camp.getTipus() != null) {
-				if (camp.getTipus().equals(TipusCamp.ACCIO)) {
-					ValidationUtils.rejectIfEmpty(errors, "jbpmAction", "not.blank");
-				}
-				if (camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST)) {
-					if (camp.getDomini() == null && camp.getEnumeracio() == null && camp.getConsulta() == null) {
-						errors.rejectValue("enumeracio", "error.camp.enumdomcons.buit");
-						errors.rejectValue("domini", "error.camp.enumdomcons.buit");
-						errors.rejectValue("consulta", "error.camp.enumdomcons.buit");
-					}
-					if (camp.getDomini() != null) {
-						ValidationUtils.rejectIfEmpty(errors, "dominiCampText", "not.blank");
-						ValidationUtils.rejectIfEmpty(errors, "dominiCampValor", "not.blank");
-					}
-					if (camp.getDomini() != null && camp.getEnumeracio() != null && camp.getConsulta() != null) {
-						errors.rejectValue("enumeracio", "error.camp.enumdomcons.tots");
-						errors.rejectValue("domini", "error.camp.enumdomcons.tots");
-						errors.rejectValue("consulta", "error.camp.enumdomcons.tots");
-					} else if (camp.getDomini() != null && camp.getEnumeracio() != null) {
-						errors.rejectValue("enumeracio", "error.camp.enumdomcons.tots");
-						errors.rejectValue("domini", "error.camp.enumdomcons.tots");
-					} else if (camp.getDomini() != null && camp.getConsulta() != null) {
-						errors.rejectValue("domini", "error.camp.enumdomcons.tots");
-						errors.rejectValue("consulta", "error.camp.enumdomcons.tots");
-					} else if(camp.getEnumeracio() != null && camp.getConsulta() != null) {
-						errors.rejectValue("enumeracio", "error.camp.enumdomcons.tots");
-						errors.rejectValue("consulta", "error.camp.enumdomcons.tots");
+					} else	if (camp.getDomini() != null && camp.isDominiIntern()){
+							errors.rejectValue("domini", "error.camp.domini");
+							errors.rejectValue("dominiIntern", "error.camp.domini");
+					} else {
+						if(camp.getDomini() != null){
+							if (camp.getEnumeracio() != null && camp.getConsulta() != null) {
+								errors.rejectValue("enumeracio", "error.camp.enumdomcons.tots");
+								errors.rejectValue("domini", "error.camp.enumdomcons.tots");
+								errors.rejectValue("consulta", "error.camp.enumdomcons.tots");
+							} else if (camp.getEnumeracio() != null) {
+								errors.rejectValue("enumeracio", "error.camp.enumdomcons.tots");
+								errors.rejectValue("domini", "error.camp.enumdomcons.tots");
+							} else if (camp.getConsulta() != null) {
+								errors.rejectValue("domini", "error.camp.enumdomcons.tots");
+								errors.rejectValue("consulta", "error.camp.enumdomcons.tots");
+							}
+						} else {
+							if(camp.isDominiIntern()){
+								if (camp.getEnumeracio() != null && camp.getConsulta() != null) {
+									errors.rejectValue("enumeracio", "error.camp.enumdomcons.tots");
+									errors.rejectValue("dominiIntern", "error.camp.enumdomcons.tots");
+									errors.rejectValue("consulta", "error.camp.enumdomcons.tots");
+								} else if (camp.getEnumeracio() != null) {
+									errors.rejectValue("enumeracio", "error.camp.enumdomcons.tots");
+									errors.rejectValue("dominiIntern", "error.camp.enumdomcons.tots");
+								} else if (camp.getConsulta() != null) {
+									errors.rejectValue("dominiIntern", "error.camp.enumdomcons.tots");
+									errors.rejectValue("consulta", "error.camp.enumdomcons.tots");
+								} 
+							} else 	if(camp.getEnumeracio() != null && camp.getConsulta() != null) {
+								errors.rejectValue("enumeracio", "error.camp.enumdomcons.tots");
+								errors.rejectValue("consulta", "error.camp.enumdomcons.tots");
+							}
+						}
+						if (camp.getDomini() != null) {
+							ValidationUtils.rejectIfEmpty(errors, "dominiId", "not.blank");
+							ValidationUtils.rejectIfEmpty(errors, "dominiCampText", "not.blank");
+							ValidationUtils.rejectIfEmpty(errors, "dominiCampValor", "not.blank");
+						}
 					}
 				}
 			}

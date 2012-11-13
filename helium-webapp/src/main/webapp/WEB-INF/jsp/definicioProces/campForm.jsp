@@ -136,6 +136,12 @@ function mostraEnumeracio() {
 						<c:param name="itemBuit">&lt;&lt; <fmt:message key='defproc.campform.selec_domini' /> &gt;&gt;</c:param>
 						<c:param name="label"><fmt:message key='defproc.campform.domini' /></c:param>
 						<c:param name="onchange">mostraDomini()</c:param>
+					</c:import> 
+					<c:import url="../common/formElement.jsp">
+						<c:param name="property" value="dominiIntern"/>
+						<c:param name="type" value="checkbox"/>
+						<c:param name="label"><fmt:message key="defproc.campform.domini_intern"/></c:param>
+						<c:param name="onclick">mostraDomini()</c:param>
 					</c:import>
 				</div>
 				<div id="consulta">					
@@ -167,7 +173,7 @@ function mostraEnumeracio() {
 					<c:import url="../common/formElement.jsp">
 						<c:param name="property" value="dominiCampText"/>
 						<c:param name="type" value="textarea"/>
-						<c:param name="label"><fmt:message key='defproc.campform.camp_text' /></c:param>
+						<c:param name="label"><fmt:message key='defproc.campform.camp_text' /></c:param>						
 					</c:import>
 				</div>
 				<div id="params_consulta" <c:if test="${empty command.consulta}">style="display:none;"</c:if>>		

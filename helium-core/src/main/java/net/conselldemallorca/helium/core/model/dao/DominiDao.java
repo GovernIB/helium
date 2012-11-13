@@ -24,6 +24,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.OrigenCredencials;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusAuthDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
 import net.sf.ehcache.Ehcache;
@@ -74,21 +75,49 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 		return dominis;
 	}
 	public Domini findAmbEntornICodi(Long entornId, String codi) {
-		List<Domini> dominis = findByCriteria(
-				Restrictions.eq("entorn.id", entornId),
-				Restrictions.eq("codi", codi));
-		if (dominis.size() > 0)
-			return dominis.get(0);
-		return null;
+		if(codi.equalsIgnoreCase("intern")){
+			Domini domini = new Domini();
+			domini.setId((long) 0);
+			domini.setCacheSegons(30);
+			domini.setCodi("intern");
+			domini.setNom("Domini intern");
+			domini.setTipus(TipusDomini.CONSULTA_WS);
+			domini.setTipusAuth(TipusAuthDomini.NONE);
+			domini.setEntorn((Entorn)getSession().load(Entorn.class, entornId));
+			domini.setUrl(GlobalProperties.getInstance().getProperty("app.domini.intern.url","http://localhost:8080/helium/ws/DominiIntern"));
+			return domini;
+		} else {
+			List<Domini> dominis = findByCriteria(
+					Restrictions.eq("entorn.id", entornId),
+					Restrictions.eq("codi", codi));
+			if (dominis.size() > 0)
+				return dominis.get(0);
+			return null;
+		}
 	}
 
 	@SuppressWarnings("unchecked")
 	public List<FilaResultat> consultar(
+			Long entornId,
 			Long dominiId,
 			String id,
 			Map<String, Object> parametres) throws Exception {
 		List<FilaResultat> resultat = null;
-		Domini domini = getById(dominiId, false);
+		Domini domini = new Domini();
+		if(dominiId == 0){
+			domini.setId((long) 0);
+			domini.setCacheSegons(30);
+			domini.setCodi("intern");
+			domini.setNom("Domini intern");
+			domini.setTipus(TipusDomini.CONSULTA_WS);
+			domini.setTipusAuth(TipusAuthDomini.NONE);
+			domini.setEntorn((Entorn)getSession().load(Entorn.class, entornId));
+			domini.setUrl(GlobalProperties.getInstance().getProperty("app.domini.intern.url","http://localhost:8080/helium/ws/DominiIntern"));
+		} else {
+			if(dominiId != null){
+				domini = getById(dominiId, false);
+			}
+		}
 		String cacheKey = getCacheKey(domini.getId(), parametres);
 		Element element = null;
 		if (dominiCache != null)

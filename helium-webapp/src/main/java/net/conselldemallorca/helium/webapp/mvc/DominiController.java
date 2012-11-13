@@ -167,7 +167,9 @@ public class DominiController extends BaseController {
 		if (entorn != null) {
 			try {
 				model.addAttribute("domini", dissenyService.getDominiById(id));
-				model.addAttribute("resultat", dissenyService.consultaDomini(id));
+				model.addAttribute("resultat", dissenyService.consultaDomini(
+						entorn.getId(),
+						id));
 			} catch (Exception ex) {
 	        	missatgeError(request, getMessage("error.consultar.domini"), ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut consultar el domini", ex);
