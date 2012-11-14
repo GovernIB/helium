@@ -3,7 +3,9 @@
  */
 package net.conselldemallorca.helium.webapp.mvc;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +13,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.core.model.dao.DocumentStoreDao;
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
@@ -19,17 +22,19 @@ import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca.TipusTasca;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
+import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 import net.conselldemallorca.helium.core.model.service.DocumentService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
-import net.conselldemallorca.helium.webapp.mvc.ExpedientDocumentModificarController.DocumentModificarValidator;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
 
@@ -37,6 +42,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.security.acls.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -44,12 +50,15 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
 
 /**
@@ -71,7 +80,18 @@ public class ExpedientMassivaController extends BaseController {
 	private CommonRegistreController commonRegistreController;
 	private ExpedientRegistreController expedientRegistreController;
 	private DocumentService documentService;
-	
+	private DocumentHelper documentHelper;
+	private DocumentStoreDao documentStoreDao;
+	public DocumentStoreDao getDocumentStoreDao() {
+		return documentStoreDao;
+	}
+
+
+	public void setDocumentStoreDao(DocumentStoreDao documentStoreDao) {
+		this.documentStoreDao = documentStoreDao;
+	}
+
+
 	public ExpedientRegistreController getExpedientRegistreController() {
 		return expedientRegistreController;
 	}
@@ -99,14 +119,18 @@ public class ExpedientMassivaController extends BaseController {
 			ExpedientService expedientService,
 			PermissionService permissionService,
 			DissenyService dissenyService,
-			TascaService tascaService) {
+			TascaService tascaService,
+			DocumentService documentService,
+			DocumentHelper documentHelper) {
 		this.expedientService = expedientService;
 		this.permissionService = permissionService;
 		this.dissenyService = dissenyService;
 		this.tascaService = tascaService;
+		this.documentService = documentService;
+		this.documentHelper = documentHelper;
 		this.validator = new TascaFormValidator(expedientService);
 	}
-	
+
 	@ModelAttribute("execucioAccioCommand")
 	public ExecucioAccioCommand populateExecucioAccioCommand() {
 		return new ExecucioAccioCommand();
@@ -130,6 +154,12 @@ public class ExpedientMassivaController extends BaseController {
 	@ModelAttribute("modificarVariablesMasCommand")
 	public ModificarVariablesCommand populateModificarVariablesCommand(){
 		return new ModificarVariablesCommand();
+	}
+	
+	
+	@ModelAttribute("documentCommandForm")
+	public DocumentExpedientCommand populateDocumentExpedientCommand(){
+		return new DocumentExpedientCommand();
 	}
 	
 	
@@ -170,143 +200,184 @@ public class ExpedientMassivaController extends BaseController {
 
 	
 	
-//	@ModelAttribute("documentCommand")
-//	public DocumentExpedientCommand populateCommand(
-//			HttpServletRequest request,
-//			@RequestParam(value = "id", required = false) String id,
-//			@RequestParam(value = "docId", required = false) Long docId) {
-//		Entorn entorn = getEntornActiu(request);
-//		if (entorn != null) {
-//			if(id!=null && docId!=null){
-//				DocumentExpedientCommand command = new DocumentExpedientCommand();
-//				DocumentDto dto = documentService.documentInfo(docId);
-//				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, false, false, true);
-//				Document document = dissenyService.findDocumentAmbDefinicioProcesICodi(
-//						instanciaProces.getDefinicioProces().getId(),
-//						dto.getDocumentCodi());
-//				command.setDocId(docId);
-//				if (dto.isAdjunt())
-//					command.setNom(dto.getAdjuntTitol());
-//				else
-//					command.setNom(document.getNom());
-//				command.setData(dto.getDataDocument());
-//				return command;
-//			}
-//		}
-//		return null;
-//	}
+	@ModelAttribute("documentCommandMas")
+	public DocumentExpedientCommand populateCommand(
+			HttpServletRequest request,
+			@RequestParam(value = "procesInstanceId", required = false) String procesInstanceId,
+			@RequestParam(value = "docId", required = false) Long docId) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			if(procesInstanceId!=null && docId!=null){
+				DocumentExpedientCommand command = new DocumentExpedientCommand();
+				DocumentDto dto = documentService.documentInfo(docId);
+				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesInstanceId, false, false, true);
+				Document document = dissenyService.findDocumentAmbDefinicioProcesICodi(
+						instanciaProces.getDefinicioProces().getId(),
+						dto.getDocumentCodi());
+				command.setDocId(docId);
+				if (dto.isAdjunt())
+					command.setNom(dto.getAdjuntTitol());
+				else
+					command.setNom(document.getNom());
+				command.setData(dto.getDataDocument());
+				return command;
+			}
+		}
+		return null;
+	}
 	
 	
-//	//modificar documents massivament als expedients seleccionats
-//	@RequestMapping(value = "/expedient/documentModificarMas", method = RequestMethod.GET)
-//	public String documentModificarGet(
-//			HttpServletRequest request,
-//			@RequestParam(value = "id", required = true) String id,
-//			@RequestParam(value = "docId", required = true) Long docId,
-//			ModelMap model) {
-//		Entorn entorn = getEntornActiu(request);
-//		if (entorn != null) {
-//			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
-//			if (potModificarExpedient(expedient)) {
-//				DocumentDto doc = documentService.documentInfo(docId);
-//				if (!doc.isSignat()) {
-//					model.addAttribute("expedient", expedient);
-//					model.addAttribute("document", doc);
-//					model.addAttribute(
-//							"documentDisseny",
-//							dissenyService.getDocumentById(docId));
-//					return "/expedient/documentFormMassiva";
-//				} else {
-//					missatgeError(request, getMessage("error.modificar.doc.signat") );
-//					return "redirect:/expedient/documents.html?id=" + id;
-//				}
-//			} else {
-//				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
-//			}
-//			return "/expedient/massivaInfo";
-//		} else {
-//			missatgeError(request, getMessage("error.no.entorn.selec") );
-//			return "redirect:/index.html";
-//		}
-//	}
-//	@SuppressWarnings("unchecked")
-//	@RequestMapping(value = "/expedient/documentModificarMas", method = RequestMethod.POST)
-//	public String documentModificarPost(
-//			HttpServletRequest request,
-//			@RequestParam(value = "id", required = true) String id,
-//			@RequestParam(value = "submit", required = false) String submit,
-//			@RequestParam("contingut") final MultipartFile multipartFile,
-//			@ModelAttribute("command") DocumentExpedientCommand command,
-//			BindingResult result,
-//			SessionStatus status,
-//			ModelMap model) {
-//		Entorn entorn = getEntornActiu(request);
-//		if (entorn != null) {
-//			List<Long> ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
-//			if (ids == null || ids.size() == 0) {
-//				missatgeError(request, getMessage("error.no.exp.selec"));
-//				return "redirect:/expedient/massivaInfo.html";
-//			}
-//			List<ExpedientDto> expedients = getExpedientsMassius(
-//					ids.subList(1, ids.size()));
-//			for(ExpedientDto exp: expedients){
-//			if (potModificarExpedient(exp)) {
-//				if ("submit".equals(submit) || submit.length() == 0) {
-//					new DocumentModificarValidator().validate(command, result);
-//			        if (result.hasErrors()) {
-//			        	model.addAttribute("expedient", exp);
-//						model.addAttribute(
-//								"document",
-//								documentService.documentInfo(command.getDocId()));
-//			        	return "expedient/documentForm";
-//			        }
-//					try {
-//						DocumentDto doc = documentService.documentInfo(command.getDocId());
-//						if (!doc.isAdjunt()) {
-//							documentService.guardarDocumentProces(
-//									id,
-//									doc.getDocumentCodi(),
-//									null,
-//									command.getData(),
-//									(multipartFile.getSize() > 0) ? multipartFile.getOriginalFilename() : null,
-//									(multipartFile.getSize() > 0) ? command.getContingut() : null,
-//									false);
-//						} else {
-//							documentService.guardarAdjunt(
-//									id,
-//									doc.getAdjuntId(),
-//									command.getNom(),
-//									command.getData(),
-//									(multipartFile.getSize() > 0) ? multipartFile.getOriginalFilename() : null,
-//									(multipartFile.getSize() > 0) ? command.getContingut() : null);
-//						}
-//						missatgeInfo(request, getMessage("info.document.guardat") );
-//			        } catch (Exception ex) {
-//			        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
-//			        	logger.error("No s'ha pogut guardar el document", ex);
-//			        }
-//				}
-//			} else {
-//				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
-//				return "redirect:/expedient/consulta.html";
-//			}
-//			}//final For expedients
-//			return "redirect:/expedient/documents.html?id=" + id;
-//		} else {
-//			missatgeError(request, getMessage("error.no.entorn.selec") );
-//			return "redirect:/index.html";
-//		}
-//	}
-//	
-//	public class DocumentModificarValidator implements Validator {
-//		@SuppressWarnings({ "unchecked", "rawtypes" })
-//		public boolean supports(Class clazz) {
-//			return clazz.isAssignableFrom(Object.class);
-//		}
-//		public void validate(Object command, Errors errors) {
-//			ValidationUtils.rejectIfEmpty(errors, "data", "not.blank");
-//		}
-//	}
+	//modificar documents massivament als expedients seleccionats
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/expedient/documentModificarMas", method = RequestMethod.GET)
+	public String documentModificarGet(
+			HttpServletRequest request,
+			@RequestParam(value = "docId", required = true) Long docId,
+			@RequestParam(value = "nom", required = true) String nom,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			List<Long> ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
+			List<ExpedientDto> expedients = getExpedientsMassius(
+					ids.subList(1, ids.size()));
+			String procesInstanceId = expedients.get(0).getProcessInstanceId();
+			model.addAttribute("expedients", expedients);
+			for(ExpedientDto exp: expedients){
+				if (potModificarExpedient(exp)) {
+							DocumentDto doc = documentService.documentInfo(docId);
+							if(doc.getAdjuntTitol().equals(nom)){
+								if (!doc.isSignat()) {
+									model.addAttribute("expedient", exp);
+									model.addAttribute("document", doc);
+									model.addAttribute(
+											"documentDisseny",
+											dissenyService.getDocumentById(docId));
+									return "/expedient/documentFormMassiva";
+								} else {
+									missatgeError(request, getMessage("error.modificar.doc.signat") );
+									return "redirect:/expedient/documents.html?id=" + procesInstanceId;
+								}
+							}
+							else{
+								missatgeError(request, getMessage("error.modificar.document.tipus") );
+								InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(
+										procesInstanceId,
+										false,
+										true,
+										true);
+								List<Document> documents = instanciaProces.getDocuments();
+								model.addAttribute(
+										"documents",
+										documents);
+								return "redirect:/expedient/massivaInfo.html";
+							}
+					
+				} else {
+					missatgeError(request, getMessage("error.permisos.modificar.expedient"));
+				}
+			}
+			
+			return "/expedient/massivaInfo";
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+	
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/expedient/documentModificarMas", method = RequestMethod.POST)
+	public String documentModificarPost(
+			HttpServletRequest request,
+			@RequestParam(value = "submit", required = false) String submit,
+			@RequestParam("contingut") final MultipartFile multipartFile,
+			@ModelAttribute("command") DocumentExpedientCommand command,
+			BindingResult result,
+			SessionStatus status,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			List<Long> ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
+			if (ids == null || ids.size() == 0) {
+				missatgeError(request, getMessage("error.no.exp.selec"));
+				return "redirect:/expedient/massivaInfo.html";
+			}
+			List<ExpedientDto> expedients = getExpedientsMassius(
+					ids.subList(1, ids.size()));
+			for(ExpedientDto exp: expedients){
+				if (potModificarExpedient(exp)) {
+					if ("submit".equals(submit) || submit.length() == 0) {
+						
+						new DocumentAdjuntCrearValidator().validate(command, result);
+				        if (result.hasErrors())
+				        	return "expedient/documentAdjuntForm";
+				        String nomArxiu = "arxiu";
+				        if (multipartFile.getSize() > 0) {
+							try {
+								nomArxiu = multipartFile.getOriginalFilename();
+							} catch (Exception ignored) {}
+						}
+						try{
+							new DocumentModificarValidator().validate(command, result);
+						        if (result.hasErrors()) {
+						        	model.addAttribute("expedient", exp);
+									model.addAttribute(
+											"document",
+											documentService.documentInfo(command.getDocId()));
+						        	return "expedient/documentFormMassiva";
+						        }
+				        }catch(Exception ex){
+				        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
+				        }
+						try {
+							DocumentDto doc = documentService.documentInfo(command.getDocId());
+							String idExp = exp.getProcessInstanceId();
+							if (!doc.isAdjunt() ) {
+								documentService.guardarDocumentProces(
+										idExp,
+										doc.getDocumentCodi(),
+										null,
+										command.getData(),
+										(multipartFile.getSize() > 0) ? multipartFile.getOriginalFilename() : null,
+										(multipartFile.getSize() > 0) ? command.getContingut() : null,
+										false);
+								}else{
+										documentService.guardarAdjunt(
+										idExp,
+										doc.getAdjuntId(),
+										command.getNom(),
+										command.getData(),
+										(multipartFile.getSize() > 0) ? multipartFile.getOriginalFilename() : null,
+										(multipartFile.getSize() > 0) ? command.getContingut() : null);
+							}
+							
+				        } catch (Exception ex) {
+				        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
+				        	logger.error("No s'ha pogut guardar el document", ex);
+				        }
+					}
+				} else {
+					missatgeError(request, getMessage("error.permisos.modificar.expedient"));
+					return "redirect:/expedient/consulta.html";
+				}
+			}//final For expedients
+			missatgeInfo(request, getMessage("info.document.guardat") );
+			return "redirect:/expedient/massivaInfo.html";
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+	
+	public class DocumentModificarValidator implements Validator {
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public boolean supports(Class clazz) {
+			return clazz.isAssignableFrom(Object.class);
+		}
+		public void validate(Object command, Errors errors) {
+			ValidationUtils.rejectIfEmpty(errors, "data", "not.blank");
+		}
+	}
 	
 	
 	
@@ -632,12 +703,27 @@ public class ExpedientMassivaController extends BaseController {
 			List<ExpedientDto> expedients = getExpedientsMassius(
 					ids.subList(1, ids.size()));
 			model.addAttribute("expedients", expedients);
+			boolean teDocuments = false;
 			if (expedients.size() > 0) {
 				String piid = expedients.get(0).getProcessInstanceId();
 				// Definicions de procés per al canvi de versió
 				model.addAttribute(
 						"definicioProces",
 						dissenyService.findDefinicioProcesAmbProcessInstanceId(piid));
+				
+				for(ExpedientDto exp: expedients){
+					String pi = exp.getProcessInstanceId();
+					List<DocumentStore> storeList = documentStoreDao.findAmbProcessInstanceId(pi);
+					for(DocumentStore docS: storeList){
+						if(!docS.isSignat() && docS.isAdjunt()){
+							teDocuments = true;
+							model.addAttribute(
+									"docStoreId",
+									docS.getId());
+						}
+					}
+					storeList.clear();
+				}
 				// Accions per a executar
 				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(
 						piid,
@@ -647,8 +733,12 @@ public class ExpedientMassivaController extends BaseController {
 				model.addAttribute(
 						"instanciaProces",
 						instanciaProces);
+				
+				List<Document> documents = instanciaProces.getDocuments();
+				model.addAttribute(
+						"documents",
+						documents);
 			}
-			
 			return "expedient/massivaInfo";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec"));
@@ -968,31 +1058,28 @@ public class ExpedientMassivaController extends BaseController {
 		return null;
 	}
 	
-//	//guardar expedients registre
-//	
-//	@RequestMapping(value = "/expedient/varRegistreMas", method = RequestMethod.GET)
-//	public String registreGet(HttpServletRequest request) {
-//		return commonRegistreController.registreGet(request);
-//	}
-//	@RequestMapping(value = "/expedient/varRegistreMas", method = RequestMethod.POST)
-//	public String registrePost(
-//			HttpServletRequest request,
-//			@RequestParam(value = "id", required = true) String id,
-//			@RequestParam(value = "registreId", required = true) Long registreId,
-//			@RequestParam(value = "index", required = false) Integer index,
-//			@RequestParam(value = "submit", required = true) String submit,
-//			@ModelAttribute("commandRegistreMas") Object command,
-//			BindingResult result,
-//			SessionStatus status,
-//			ModelMap model) {
-//		return commonRegistreController.registrePost(request, id, registreId, index, submit, command, result, status, model);
-//	}
-//	
-//	//final guardar expedients registre
-//	
+	@InitBinder
+	public void initBinder(WebDataBinder binder) {
+		binder.registerCustomEditor(
+				byte[].class,
+				new ByteArrayMultipartFileEditor());
+		binder.registerCustomEditor(
+				Date.class,
+				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
+	}
 	
 	
-	
+	public class DocumentAdjuntCrearValidator implements Validator {
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public boolean supports(Class clazz) {
+			return clazz.isAssignableFrom(Object.class);
+		}
+		public void validate(Object command, Errors errors) {
+			ValidationUtils.rejectIfEmpty(errors, "nom", "not.blank");
+			ValidationUtils.rejectIfEmpty(errors, "data", "not.blank");
+			ValidationUtils.rejectIfEmpty(errors, "contingut", "not.blank");
+		}
+	}
 	
 	
 	private static final Log logger = LogFactory.getLog(ExpedientMassivaController.class);
