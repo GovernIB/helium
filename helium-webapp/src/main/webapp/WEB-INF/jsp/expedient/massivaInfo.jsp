@@ -138,7 +138,7 @@ function massiva(e){
 			<c:set var="tePermisExecutarScript" value="${false}"/>
 			<security:accesscontrollist domainObject="${instanciaProces.expedient.tipus}" hasPermission="16,2"><c:set var="tePermisAccions" value="${true}"/></security:accesscontrollist>
 			<c:if test="${tePermisAccions}">
-				<form:form action="/helium/expedient/scriptMas.html" cssClass="uniForm" commandName="scriptCommandMas" onsubmit="return confirmarScript(event)">
+				<form:form action="scriptMas.html" cssClass="uniForm" commandName="scriptCommandMas" onsubmit="return confirmarScript(event)">
 						<div class="inlineLabels">
 							<input type="hidden" name="id" value="${instanciaProces.id}"/>
 							<c:import url="../common/formElement.jsp">
@@ -157,7 +157,7 @@ function massiva(e){
 			</c:if>
 		
 			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key='expedient.eines.aturar_tramitacio' /></h3>
-			<form:form action="/helium/expedient/aturarMas.html" cssClass="uniForm" commandName="aturarCommandMas" onsubmit="return confirmarAturar(event)">
+			<form:form action="aturarMas.html" cssClass="uniForm" commandName="aturarCommandMas" onsubmit="return confirmarAturar(event)">
 				<div class="inlineLabels">
 					<input type="hidden" name="id" value="${instanciaProces.id}"/>
 					<c:import url="../common/formElement.jsp">
@@ -218,7 +218,7 @@ function massiva(e){
 			</c:if>
 			
 			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key='expedient.massiva.modificar_variables' /></h3>
-			<form:form action="/helium/expedient/dadaModificarMas.html" method="GET" cssClass="uniForm" commandName="modificarVariablesMasCommand" onsubmit="return confirmarModificarVariables(event)">
+			<form:form action="dadaModificarMas.html" method="GET" cssClass="uniForm" commandName="modificarVariablesMasCommand" onsubmit="return confirmarModificarVariables(event)">
 				<div class="inlineLabels">
 					<input type="hidden" name="id" value="${instanciaProces.id}"/>
 					<c:set var="variables" value="${instanciaProces.camps}" scope="request"/>

@@ -399,7 +399,7 @@ public class ExpedientMassivaController extends BaseController {
 			}
 				new ExpedientScriptValidator().validate(command, result);
 				if (result.hasErrors()) {
-		        	return "expedient/massivaInfo.html";
+					return "redirect:/expedient/massivaInfo.html";
 		        }
 				List<ExpedientDto> expedients = getExpedientsMassius(
 						ids.subList(1, ids.size()));
@@ -413,7 +413,7 @@ public class ExpedientMassivaController extends BaseController {
 							
 						} catch (Exception ex) {
 							missatgeError(request, getMessage("error.executar.script"), getMissageFinalCadenaExcepcions(ex));
-				        	return "expedient/massivaInfo.html";
+							return "redirect:/expedient/massivaInfo.html";
 						}
 					}else {
 						missatgeError(request, getMessage("error.permisos.modificar.expedient"));
