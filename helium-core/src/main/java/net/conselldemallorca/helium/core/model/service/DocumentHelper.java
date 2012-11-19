@@ -142,9 +142,7 @@ public class DocumentHelper {
 			String documentCodi) {
 		
 		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(taskInstanceId, processInstanceId, documentCodi);
-		if (documentStoreId == null){
-			documentStoreId = Long.parseLong(documentCodi.trim());
-		} else {
+		if (documentStoreId != null){
 			DocumentStore documentStore = documentStoreDao.getById(documentStoreId, false);
 			if (documentStore != null) {
 				if (documentStore.isSignat()) {
