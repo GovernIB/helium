@@ -226,7 +226,8 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 				accioTipus.equals(ExpedientLogAccioTipus.TASCA_COMPLETAR) ||
 				accioTipus.equals(ExpedientLogAccioTipus.TASCA_SUSPENDRE) ||
 				accioTipus.equals(ExpedientLogAccioTipus.TASCA_CONTINUAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.TASCA_CANCELAR);
+				accioTipus.equals(ExpedientLogAccioTipus.TASCA_CANCELAR) ||
+				accioTipus.equals(ExpedientLogAccioTipus.TASCA_ACCIO_EXECUTAR);
 	}
 	@Transient
 	public boolean isTargetProces() {

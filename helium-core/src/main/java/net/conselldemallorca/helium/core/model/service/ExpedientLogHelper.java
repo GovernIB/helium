@@ -833,21 +833,9 @@ public class ExpedientLogHelper {
 		Token tokenRetroces = null;
 		boolean incloure = false;
 		boolean found = false;
-//		Map<Long, Token> processos = new HashMap<Long, Token>();
 		
 		List<ExpedientLog> expedientLogsRetrocedir = new ArrayList<ExpedientLog>();
 		for (ExpedientLog elog: expedientLogs) {
-//			if (processos.isEmpty()) {
-//				JbpmToken jt = getTokenByJbpmLogId(elog.getJbpmLogId());
-//				if (jt != null)
-//					processos.put(elog.getProcessInstanceId(), null);
-//			} else 
-			// Obtenim la ruta de tokens per a arribar al token seleccionat
-//			if(retrocedirPerTasques && !found && !processos.containsKey(elog.getProcessInstanceId())) {
-//				JbpmToken jt = getTokenByJbpmLogId(elog.getJbpmLogId());
-//				if (jt != null)
-//					processos.put(elog.getProcessInstanceId(), jt.getToken().getProcessInstance().getSuperProcessToken());
-//			}
 			// Obtenim el log seleccionat
 			if (elog.getId().equals(expedientLogId)) {
 				found = true;
@@ -878,7 +866,6 @@ public class ExpedientLogHelper {
 								} else {
 									// Incloem tots els tokens pare del token de la tasca seleccionada
 									Token subTokenRetroces = getTokenPare(tokenRetroces);
-//									while (subTokenRetroces != null) {
 										while (subTokenRetroces != null) {
 											if (tokenActual.equals(subTokenRetroces)) {
 												incloure = true;
@@ -886,7 +873,6 @@ public class ExpedientLogHelper {
 											}
 											subTokenRetroces = getTokenPare(subTokenRetroces);
 										}
-//									}
 									// Incloem tots els tokens fills del token de la tasca seleccionada
 									if (!incloure) {
 										Token subTokenActual = getTokenPare(tokenActual);
