@@ -164,6 +164,23 @@ public abstract class BasicActionHandler implements ActionHandler {
 			String arxiuNom,
 			byte[] arxiuContingut) {}
 
+	public Object getVariableGlobal(
+			ExecutionContext executionContext,
+			String varCodi) {
+		return null;
+	}
+	
+	public void setVariableGlobal(
+			ExecutionContext executionContext,
+			String varCodi,
+			Object varValor) {}
+	
+	public Object getVariableGlobalValor(
+			ExecutionContext executionContext,
+			String varCodi) {
+		return null;
+	}
+	
 	static final long serialVersionUID = 1L;
 
 }

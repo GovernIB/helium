@@ -81,6 +81,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
 
 import org.jbpm.JbpmException;
+import org.jbpm.context.exe.ContextInstance;
 import org.jbpm.graph.def.ActionHandler;
 import org.jbpm.graph.exe.ExecutionContext;
 import org.jbpm.graph.exe.Token;
@@ -957,6 +958,72 @@ public abstract class BasicActionHandler implements ActionHandler {
 				false);
 	}
 
+	/**
+	 * Retorna el valor d'una variable global
+	 * 
+	 * @param executionContext
+	 * @param varCodi
+	 * @return
+	 */
+	public Object getVariableGlobal(
+			ExecutionContext executionContext,
+			String varCodi) {
+		ContextInstance ci = executionContext.getContextInstance();
+		if (executionContext.getToken() != null) {
+			ci = executionContext.getToken().getProcessInstance().getContextInstance();
+			while (ci.getProcessInstance().getSuperProcessToken() != null) {
+				ci = ci.getProcessInstance().getSuperProcessToken().getProcessInstance().getContextInstance();
+			}
+		} 
+		
+		return ci.getVariable(varCodi);
+	}
+	/**
+	 * Retorna el valor d'una variable global
+	 * 
+	 * @param executionContext
+	 * @param varCodi
+	 * @return
+	 */
+	public void setVariableGlobal(
+			ExecutionContext executionContext,
+			String varCodi,
+			Object varValor) {
+		ContextInstance ci = executionContext.getContextInstance();
+		if (executionContext.getToken() != null) {
+			ci = executionContext.getToken().getProcessInstance().getContextInstance();
+			while (ci.getProcessInstance().getSuperProcessToken() != null) {
+				ci = ci.getProcessInstance().getSuperProcessToken().getProcessInstance().getContextInstance();
+			}
+		} 
+		
+		ci.setVariable(varCodi, varValor);
+	}
+	/**
+	 * Retorna el valor d'una variable global
+	 * 
+	 * @param executionContext
+	 * @param varCodi
+	 * @return
+	 */
+	public Object getVariableGlobalValor(
+			ExecutionContext executionContext,
+			String varCodi) {
+		ContextInstance ci = executionContext.getContextInstance();
+		if (executionContext.getToken() != null) {
+			ci = executionContext.getToken().getProcessInstance().getContextInstance();
+			while (ci.getProcessInstance().getSuperProcessToken() != null) {
+				ci = ci.getProcessInstance().getSuperProcessToken().getProcessInstance().getContextInstance();
+			}
+		} 
+		
+		Object valor = ci.getVariable(varCodi);
+		if (valor instanceof DominiCodiDescripcio) {
+			return ((DominiCodiDescripcio)valor).getCodi();
+		} else {
+			return valor;
+		}
+	}
 
 
 	private String getProcessInstanceId(ExecutionContext executionContext) {
