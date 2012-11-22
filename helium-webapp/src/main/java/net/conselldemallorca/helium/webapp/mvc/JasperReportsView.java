@@ -60,7 +60,7 @@ public class JasperReportsView implements View {
 			
 			JasperReport subreport = null;
 			HashMap<String, byte[]> subreports = (HashMap<String, byte[]>)model.get(MODEL_ATTRIBUTE_SUBREPORTS);
-			
+			if (subreports!=null)
 			if (!subreports.isEmpty()) {
 				Iterator it = subreports.entrySet().iterator();
 				while (it.hasNext()) {
