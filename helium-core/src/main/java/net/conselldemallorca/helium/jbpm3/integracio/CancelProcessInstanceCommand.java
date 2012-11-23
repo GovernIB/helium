@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.jbpm3.integracio;
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractGetObjectBaseCommand;
 import org.jbpm.graph.exe.ProcessInstance;
+import org.jbpm.util.Clock;
 
 /**
  * Command per cancel·lar una instància de procés
@@ -25,7 +26,8 @@ public class CancelProcessInstanceCommand extends AbstractGetObjectBaseCommand {
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		ProcessInstance processInstance = jbpmContext.getProcessInstance(id);
 		if (processInstance != null) {
-			processInstance.end();
+			processInstance.setEnd(Clock.getCurrentTime());
+			//processInstance.end();
 			//jbpmContext.getGraphSession().deleteProcessInstance(processInstance);
 		}
 		return null;
