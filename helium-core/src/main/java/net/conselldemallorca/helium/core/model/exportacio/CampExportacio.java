@@ -38,9 +38,9 @@ public class CampExportacio implements Serializable {
 	private Integer ordre;
 	private Set<ValidacioExportacio> validacions = new HashSet<ValidacioExportacio>();
 	private Set<RegistreMembreExportacio> registreMembres = new HashSet<RegistreMembreExportacio>();
-
-
-
+	private boolean isIgnored;
+	
+	
 	public CampExportacio(
 			String codi,
 			TipusCamp tipus,
@@ -59,7 +59,8 @@ public class CampExportacio implements Serializable {
 			String codiDomini,
 			String agrupacioCodi,
 			String jbpmAction,
-			Integer ordre) {
+			Integer ordre,
+			boolean isIgnored) {
 		this.codi = codi;
 		this.tipus = tipus;
 		this.etiqueta = etiqueta;
@@ -78,6 +79,7 @@ public class CampExportacio implements Serializable {
 		this.agrupacioCodi = agrupacioCodi;
 		this.jbpmAction = jbpmAction;
 		this.ordre = ordre;
+		this.isIgnored = isIgnored;
 	}
 
 	public String getCodi() {
@@ -205,6 +207,14 @@ public class CampExportacio implements Serializable {
 	}
 	public void setConsultaCampText(String consultaCampText) {
 		this.consultaCampText = consultaCampText;
+	}
+
+	public boolean isIgnored() {
+		return isIgnored;
+	}
+
+	public void setIgnored(boolean isIgnored) {
+		this.isIgnored = isIgnored;
 	}
 
 

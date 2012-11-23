@@ -1057,7 +1057,8 @@ public class DissenyService {
 					(camp.getDomini() != null) ? camp.getDomini().getCodi() : null,
 					(camp.getAgrupacio() != null) ? camp.getAgrupacio().getCodi() : null,
 					camp.getJbpmAction(),
-					camp.getOrdre());
+					camp.getOrdre(),
+					camp.isIgnored());
 			// Afegeix les validacions del camp
 			for (Validacio validacio: camp.getValidacions()) {
 				dto.addValidacio(new ValidacioExportacio(
@@ -2315,6 +2316,7 @@ public class DissenyService {
 			nou.setEnumeracio(camp.getEnumeracio());
 			nou.setJbpmAction(camp.getJbpmAction());
 			nou.setOrdre(camp.getOrdre());
+			nou.setIgnored(camp.isIgnored());
 			campDao.saveOrUpdate(nou);
 			camps.put(nou.getCodi(), nou);
 			// Copia les validacions dels camps
@@ -2492,6 +2494,7 @@ public class DissenyService {
 			Camp nou = campDao.findAmbDefinicioProcesICodi(
 					definicioProces.getId(),
 					camp.getCodi());
+			
 			if (nou != null) {
 				nou.setTipus(camp.getTipus());
 				nou.setEtiqueta(camp.getEtiqueta());
@@ -2502,6 +2505,7 @@ public class DissenyService {
 						camp.getTipus(),
 						camp.getEtiqueta());
 			}
+			nou.setIgnored(camp.isIgnored());
 			nou.setObservacions(camp.getObservacions());
 			nou.setDominiId(camp.getDominiId());
 			nou.setDominiParams(camp.getDominiParams());
