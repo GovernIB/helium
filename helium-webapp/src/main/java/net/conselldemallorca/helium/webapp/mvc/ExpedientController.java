@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.webapp.mvc;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -11,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
@@ -392,9 +394,15 @@ public class ExpedientController extends BaseController {
 //				model.addAttribute(
 //						"instanciaProces",
 //						expedientService.getInstanciaProcesById(id, false, false, false, false));
+				List<TascaDto> tasques = expedientService.findTasquesPerInstanciaProces(id, false);
+				List<Object> logsId = new ArrayList<Object>();
+				for (TascaDto tasca: tasques){
+					logsId.add(expedientService.findLogIdTascaById(tasca.getId(),tasca.getId()));
+				}
+				model.addAttribute("expedientLogIds", logsId);
 				model.addAttribute(
 						"tasques",
-						expedientService.findTasquesPerInstanciaProces(id, false));
+						tasques);
 				return "expedient/tasques";
 			} else {
 				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
@@ -586,7 +594,8 @@ public class ExpedientController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) String id,
 			@RequestParam(value = "tipus_retroces", required = false) Integer tipus_retroces,
-			@RequestParam(value = "logId", required = true) Long logId) {
+			@RequestParam(value = "logId", required = true) Long logId,
+			@RequestParam(value = "retorn", required = true) String retorn) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			try {
@@ -598,7 +607,13 @@ public class ExpedientController extends BaseController {
 			}catch (JbpmException ex ) {
 				missatgeError(request, getMessage("error.executar.retroces") + ": "+ ex.getCause().getMessage());
 			}
-			return "redirect:/expedient/registre.html?id=" + id;
+			
+			if(retorn.equals("t")){
+				return "redirect:/expedient/tasques.html?id=" + id;
+			}else{
+				return "redirect:/expedient/registre.html?id=" + id;
+			}
+			
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";

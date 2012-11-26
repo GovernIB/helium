@@ -43,6 +43,7 @@ function confirmarCancelar(e) {
 	<h3 class="titol-tab titol-dades-tasques">
 		Tasques del procés
 	</h3>
+	<c:set var="cont" value="0"/>
 	<display:table name="tasques" id="registre" class="displaytag">
 		<display:column property="id" title="Id"/>
 		<display:column title="Títol">
@@ -77,6 +78,7 @@ function confirmarCancelar(e) {
 		<display:column title="Flags">
 			<c:if test="${registre.cancelled}">C</c:if>
 			<c:if test="${registre.suspended}">S</c:if>
+			<c:if test="${expedientLogIds[cont][1] eq 'RETROCEDIT_TASQUES'}">R</c:if>
 		</display:column>
 		<display:column>
 			<c:if test="${registre.open}">
@@ -106,9 +108,17 @@ function confirmarCancelar(e) {
 				</security:accesscontrollist>
 			</c:if>
 		</display:column>
+		<display:column>
+			<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="128">
+				<c:if test="${((not registre.cancelled) and (not registre.suspended) and ( expedientLogIds[cont][1] ne 'RETROCEDIT_TASQUES') and expedientLogIds[cont][0] !=null)}"> 
+						<a href="<c:url value="/expedient/retrocedir.html"><c:param name="id" value="${param.id}"/><c:param name="logId" value="${expedientLogIds[cont][0]}"/><c:param name="tipus_retroces" value="${param.tipus_retroces}"/><c:param name="retorn" value="t"/></c:url>" onclick="return confirmarRetrocedir(event)" class="retroces"><img src="<c:url value="/img/arrow_undo.png"/>" alt="<fmt:message key="expedient.log.retrocedir"/>" title="<fmt:message key="expedient.log.retrocedir"/>" border="0"/></a>
+				</c:if>
+			</security:accesscontrollist>
+		</display:column>
+		<c:set var="cont" value="${cont + 1}"/>
 	</display:table>
 
-	<p align="right" class="aclaracio">Llegenda dels flags: [C] Tasca cancel·lada, [S] Tasca suspesa</p>
+	<p align="right" class="aclaracio">Llegenda dels flags: [C] Tasca cancel·lada, [S] Tasca suspesa, [R] Tasca retrocedida</p>
 
 </body>
 </html>

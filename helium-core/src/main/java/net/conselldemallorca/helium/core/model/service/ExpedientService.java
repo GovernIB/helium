@@ -1755,6 +1755,31 @@ public class ExpedientService {
 		return resposta;
 	}
 
+	
+	public List<ExpedientLogDto> findLogsTascaById(String logId) {
+		List<ExpedientLog> logs = expedientLogDao.findLogsTascaById(logId);
+		List<ExpedientLogDto> resposta = new ArrayList<ExpedientLogDto>();
+		for (ExpedientLog log: logs) {
+			ExpedientLogDto dto = new ExpedientLogDto();
+			dto.setId(log.getId());
+			dto.setData(log.getData());
+			dto.setUsuari(log.getUsuari());
+			dto.setEstat(log.getEstat().name());
+			dto.setAccioTipus(log.getAccioTipus().name());
+			dto.setAccioParams(log.getAccioParams());
+			dto.setTargetId(log.getTargetId());
+			dto.setTargetTasca(log.isTargetTasca());
+			dto.setTargetProces(log.isTargetProces());
+			dto.setTargetExpedient(log.isTargetExpedient());
+			resposta.add(dto);
+		}
+		return resposta;
+	}
+	
+	public Object findLogIdTascaById(String logId, String estat) {
+		return expedientLogDao.findLogIdTascaById(logId, logId);
+	}
+	
 	public List<PortasignaturesDto> findDocumentsPendentsPortasignatures(String processInstanceId) {
 		List<PortasignaturesDto> resposta = new ArrayList<PortasignaturesDto>();
 		List<Portasignatures> pendents = pluginPortasignaturesDao.findPendentsPerProcessInstanceId(processInstanceId);
