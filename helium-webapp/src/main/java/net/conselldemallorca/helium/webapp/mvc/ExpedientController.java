@@ -80,6 +80,7 @@ public class ExpedientController extends BaseController {
 					ExpedientTipus.class,
 					new Permission[] {
 						ExtendedPermission.ADMINISTRATION,
+						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.READ});
 			List<ExpedientDto> expedients = expedientService.findAmbEntorn(entorn.getId());
 			Iterator<ExpedientDto> it = expedients.iterator();
@@ -642,6 +643,7 @@ public class ExpedientController extends BaseController {
 				ExpedientTipus.class,
 				new Permission[] {
 					ExtendedPermission.ADMINISTRATION,
+					ExtendedPermission.SUPERVISION,
 					ExtendedPermission.READ}) != null;
 	}
 	private boolean potModificarExpedient(ExpedientDto expedient) {

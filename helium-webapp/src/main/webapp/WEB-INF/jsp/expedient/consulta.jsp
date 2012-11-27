@@ -352,7 +352,7 @@ function selTots(){
 					</c:choose>
 				</display:column>
 				<display:column>
-					<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,1">
+					<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,1,128">
 						<a href="<c:url value="/expedient/info.html"><c:param name="id" value="${registre.processInstanceId}"/></c:url>"><img src="<c:url value="/img/information.png"/>" alt="<fmt:message key="comuns.informacio"/>" title="<fmt:message key="comuns.informacio"/>" border="0"/></a>
 					</security:accesscontrollist>
 				</display:column>

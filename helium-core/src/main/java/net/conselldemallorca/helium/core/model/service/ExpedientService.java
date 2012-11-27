@@ -687,6 +687,7 @@ public class ExpedientService {
 						ExpedientTipus.class,
 						new Permission[] {
 							ExtendedPermission.ADMINISTRATION,
+							ExtendedPermission.SUPERVISION,
 							ExtendedPermission.READ});
 		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
 		for (Expedient expedient: expedientDao.findAmbEntornConsultaGeneralPagedAndOrdered(
@@ -726,6 +727,7 @@ public class ExpedientService {
 							ExpedientTipus.class,
 							new Permission[] {
 								ExtendedPermission.ADMINISTRATION,
+								ExtendedPermission.SUPERVISION,
 								ExtendedPermission.READ}) != null) {
 						PortasignaturesPendentDto dto = new PortasignaturesPendentDto();
 						dto.setId(pendent.getId());
@@ -2150,6 +2152,7 @@ public class ExpedientService {
 						ExpedientTipus.class,
 						new Permission[] {
 							ExtendedPermission.ADMINISTRATION,
+							ExtendedPermission.SUPERVISION,
 							ExtendedPermission.READ});
 		Long[] resposta = new Long[tipus.size()];
 		for (int i = 0; i < resposta.length; i++)

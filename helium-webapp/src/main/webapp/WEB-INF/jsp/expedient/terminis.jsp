@@ -93,7 +93,7 @@ function confirmarCancelar(e) {
 				</c:otherwise>
 			</c:choose>
 		</display:column>
-		<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
+		<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2,128">
 			<display:column>
 				<c:choose>
 					<c:when test="${not registre.manual or not empty iniciat}">

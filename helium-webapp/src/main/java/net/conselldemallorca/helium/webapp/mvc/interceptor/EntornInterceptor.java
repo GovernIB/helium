@@ -113,6 +113,7 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 						ExpedientTipus.class,
 						new Permission[] {
 							ExtendedPermission.ADMINISTRATION,
+							ExtendedPermission.SUPERVISION,
 							ExtendedPermission.CREATE});
 				request.getSession().setAttribute(
 						VARIABLE_SESSIO_TRAMITS_PER_INICIAR,

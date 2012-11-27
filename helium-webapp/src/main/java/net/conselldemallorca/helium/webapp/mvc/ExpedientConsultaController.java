@@ -78,6 +78,7 @@ public class ExpedientConsultaController extends BaseController {
 					ExpedientTipus.class,
 					new Permission[] {
 						ExtendedPermission.ADMINISTRATION,
+						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.READ});
 			return tipus;
 		}

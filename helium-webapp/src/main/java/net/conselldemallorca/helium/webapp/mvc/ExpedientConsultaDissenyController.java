@@ -230,6 +230,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 						ExpedientTipus.class,
 						new Permission[] {
 							ExtendedPermission.ADMINISTRATION,
+							ExtendedPermission.SUPERVISION,
 							ExtendedPermission.READ}) == null) {
 					missatgeError(request, getMessage("error.consulta.tipexp.noaut"));
 					return "redirect:/expedient/consultaDisseny.html";
@@ -445,6 +446,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 				ExpedientTipus.class,
 				new Permission[] {
 					ExtendedPermission.ADMINISTRATION,
+					ExtendedPermission.SUPERVISION,
 					ExtendedPermission.READ});
 		model.addAttribute("expedientTipus", tipus);
 		if (commandSeleccio != null) {

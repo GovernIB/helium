@@ -335,6 +335,7 @@ public class ExpedientTerminiController extends BaseController {
 				ExpedientTipus.class,
 				new Permission[] {
 					ExtendedPermission.ADMINISTRATION,
+					ExtendedPermission.SUPERVISION,
 					ExtendedPermission.READ}) != null;
 	}
 	private boolean potModificarExpedient(ExpedientDto expedient) {
