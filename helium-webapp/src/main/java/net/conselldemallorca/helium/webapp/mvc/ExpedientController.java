@@ -6,13 +6,15 @@ package net.conselldemallorca.helium.webapp.mvc;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
+import java.util.Collections;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
+
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
+import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
@@ -192,6 +194,20 @@ public class ExpedientController extends BaseController {
 						true,
 						false,
 						false);
+				List <String> llista = new ArrayList<String>();
+				for(Accio accio: instanciaProces.getDefinicioProces().getAccions()){
+					llista.add(accio.getCodi());
+				}
+				Collections.sort(llista);
+				List <Accio> accions = new ArrayList<Accio>();
+				for(String s: llista){
+					for(Accio accio: instanciaProces.getDefinicioProces().getAccions()){
+						if(accio.getCodi().equals(s)){
+							accions.add(accio);
+						}
+					}
+				}
+				model.addAttribute("accions", accions);
 				model.addAttribute(
 						"instanciaProces",
 						instanciaProces);
@@ -644,7 +660,7 @@ public class ExpedientController extends BaseController {
 					ExtendedPermission.ADMINISTRATION,
 					ExtendedPermission.DELETE}) != null;
 	}
-
+	
 	/*private boolean isSignaturaFileAttached() {
 		return "true".equalsIgnoreCase((String)GlobalProperties.getInstance().get("app.signatura.plugin.file.attached"));
 	}*/
