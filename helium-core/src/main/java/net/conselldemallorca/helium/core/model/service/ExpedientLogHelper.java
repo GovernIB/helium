@@ -21,12 +21,15 @@ import java.util.Map;
 import java.util.Set;
 
 import net.conselldemallorca.helium.core.model.dao.CampDao;
+import net.conselldemallorca.helium.core.model.dao.CampTascaDao;
 import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
+import net.conselldemallorca.helium.core.model.dao.EstatDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientLogDao;
-import net.conselldemallorca.helium.core.model.dao.EstatDao;
+import net.conselldemallorca.helium.core.model.dao.TascaDao;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
+import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
@@ -34,6 +37,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.LogInfo;
+import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
@@ -85,6 +89,8 @@ public class ExpedientLogHelper {
 	private ExpedientDao expedientDao;
 	private DocumentHelper documentHelper;
 	private CampDao campDao;
+	private TascaDao tascaDao;
+	private CampTascaDao campTascaDao;
 	private DefinicioProcesDao definicioProcesDao;
 	private EstatDao estatDao;
 
@@ -416,6 +422,20 @@ public class ExpedientLogHelper {
 								jbpmDao.deleteTaskInstanceVariable(
 										task.getId(),
 										logo.getName());
+								// Si la variable ha estat creada mitjançant el DefaultControllerHandler fa un setVariableLocally
+								Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
+										task.getName(),
+										task.getProcessDefinitionId());
+								CampTasca campTasca = campTascaDao.findAmbTascaCodi(
+										tasca.getId(),
+										logo.getName());
+								if (campTasca != null) {
+									jbpmDao.setTaskInstanceVariable(
+											task.getId(),
+											logo.getName(),
+											null);
+								}
+								// Si la variable correspon a un document vol dir que també l'hem d'esborrar
 								if (logo.getName().startsWith(DocumentHelper.PREFIX_VAR_DOCUMENT)) {
 									documentHelper.esborrarDocument(
 											task.getId(),
@@ -659,6 +679,26 @@ public class ExpedientLogHelper {
 	@Autowired
 	public void setDocumentHelper(DocumentHelper documentHelper) {
 		this.documentHelper = documentHelper;
+	}
+	@Autowired
+	public void setCampDao(CampDao campDao) {
+		this.campDao = campDao;
+	}
+	@Autowired
+	public void setTascaDao(TascaDao tascaDao) {
+		this.tascaDao = tascaDao;
+	}
+	@Autowired
+	public void setCampTascaDao(CampTascaDao campTascaDao) {
+		this.campTascaDao = campTascaDao;
+	}
+	@Autowired
+	public void setDefinicioProcesDao(DefinicioProcesDao definicioProcesDao) {
+		this.definicioProcesDao = definicioProcesDao;
+	}
+	@Autowired
+	public void setEstatDao(EstatDao estatDao) {
+		this.estatDao = estatDao;
 	}
 
 
@@ -906,27 +946,6 @@ public class ExpedientLogHelper {
 			t = token.getProcessInstance().getSuperProcessToken();
 		}
 		return t;
-	}
-	
-	@Autowired
-	public CampDao getCampDao() {
-		return campDao;
-	}
-	@Autowired
-	public void setCampDao(CampDao campDao) {
-		this.campDao = campDao;
-	}
-	@Autowired
-	public DefinicioProcesDao getDefinicioProcesDao() {
-		return definicioProcesDao;
-	}
-	@Autowired
-	public void setDefinicioProcesDao(DefinicioProcesDao definicioProcesDao) {
-		this.definicioProcesDao = definicioProcesDao;
-	}
-	@Autowired
-	public void setEstatDao(EstatDao estatDao) {
-		this.estatDao = estatDao;
 	}
 	
 	private Collection<LogObject> getAccionsJbpmPerRetrocedir(
