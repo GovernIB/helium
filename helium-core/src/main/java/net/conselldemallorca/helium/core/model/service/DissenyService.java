@@ -1840,7 +1840,7 @@ public class DissenyService {
 		Long entornId = vell.getEntorn().getId();
 		if (vell != null){
 			consultaDao.delete(id);
-			reordenarConsultes(entornId, expedientTipusId); //TODO
+			reordenarConsultes(entornId, expedientTipusId); 
 		}
 	}
 	public List<Consulta> findConsultesAmbEntorn(Long entornId) {
@@ -2235,7 +2235,7 @@ public class DissenyService {
 			camps.setOrdre(i++);
 	}
 
-	private void reordenarConsultes(Long entornId, Long expedientTipusId) {//TODO
+	private void reordenarConsultes(Long entornId, Long expedientTipusId) {
 		
 		List<Consulta> consultes = this.findConsultesAmbEntornIExpedientTipusOrdenat(
 				entornId,
@@ -2667,44 +2667,51 @@ public class DissenyService {
 					nova.setFormExtern(vella.getFormExtern());
 					nova.setTramitacioMassiva(vella.isTramitacioMassiva());
 					// Propaga els camps de la tasca
-					for (CampTasca campTasca: nova.getCamps()) {
-						campTasca.getCamp().getCampsTasca().remove(campTasca);
-						campTasca.setCamp(null);
-						campTasca.setTasca(null);
-						campTascaDao.delete(campTasca);
-					}
-					nova.getCamps().clear();
-					campTascaDao.flush();
+					int ordreCamp = 0;
 					for (CampTascaExportacio campTasca: vella.getCamps()) {
-						CampTasca nouct = new CampTasca(
-								camps.get(campTasca.getCampCodi()),
-								nova,
-								campTasca.isReadFrom(),
-								campTasca.isWriteTo(),
-								campTasca.isRequired(),
-								campTasca.isReadOnly(),
-								campTasca.getOrder());
-						nova.addCamp(nouct);
-						campTascaDao.saveOrUpdate(nouct);
+						boolean trobat = false;
+						for (CampTasca ct: nova.getCamps()){
+							if(ct.getCamp().getCodi().equals(campTasca.getCampCodi())){
+								trobat = true;
+							}
+							ordreCamp++;
+						}
+						if(!trobat){
+							CampTasca nouct = new CampTasca(
+									camps.get(campTasca.getCampCodi()),
+									nova,
+									campTasca.isReadFrom(),
+									campTasca.isWriteTo(),
+									campTasca.isRequired(),
+									campTasca.isReadOnly(),
+									ordreCamp);
+							nova.addCamp(nouct);
+							campTascaDao.saveOrUpdate(nouct);
+							ordreCamp++;
+						}
 					}
 					// Propaga els documents de la tasca
-					for (DocumentTasca documentTasca: nova.getDocuments()) {
-						documentTasca.getDocument().getTasques().remove(documentTasca);
-						documentTasca.setDocument(null);
-						documentTasca.setTasca(null);
-						documentTascaDao.delete(documentTasca);
-					}
-					nova.getDocuments().clear();
-					documentTascaDao.flush();
+					int ordreTasca = 0;
 					for (DocumentTascaExportacio documentTasca: vella.getDocuments()) {
-						DocumentTasca noudt = new DocumentTasca(
-								documents.get(documentTasca.getDocumentCodi()),
-								nova,
-								documentTasca.isRequired(),
-								documentTasca.isReadOnly(),
-								documentTasca.getOrder());
-						nova.addDocument(noudt);
-						documentTascaDao.saveOrUpdate(noudt);
+						boolean trobat = false;
+						for (DocumentTasca dt: nova.getDocuments()) {
+							if (dt.getDocument().getCodi().equals(documentTasca.getDocumentCodi())) {
+								trobat = true;
+							}
+							ordreTasca++;
+						}
+						if (!trobat){
+							DocumentTasca noudt = new DocumentTasca(
+									documents.get(documentTasca.getDocumentCodi()),
+									nova,
+									documentTasca.isRequired(),
+									documentTasca.isReadOnly(),
+									ordreTasca
+									);
+							nova.addDocument(noudt);
+							documentTascaDao.saveOrUpdate(noudt);
+							ordreTasca++;
+						}			
 					}
 					// Propaga les firmes de la tasca
 					nova.getFirmes().clear();
