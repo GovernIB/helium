@@ -2534,21 +2534,20 @@ public class DissenyService {
 			}
 			if (camp.getCodiDomini() != null) {
 				Domini domini = dominiDao.findAmbEntornICodi(entornId, camp.getCodiDomini());
-				if (domini == null) {
-					
-				}
-				if (domini != null) {
-					nou.setDomini(domini);
-				} else {
-					domini = new Domini();
-					domini.setEntorn(entornDao.getById(entornId, false));
-					domini.setCodi(camp.getCodiDomini());
-					domini.setNom(camp.getCodiDomini());
-					domini.setTipus(TipusDomini.CONSULTA_SQL);
-					if (expedientTipusId != null)
-						domini.setExpedientTipus(
-								expedientTipusDao.getById(expedientTipusId, false));
-					dominiDao.saveOrUpdate(domini);
+				if (!camp.getCodiDomini().equalsIgnoreCase("intern")) {	
+					if (domini != null) {
+						nou.setDomini(domini);
+					} else {
+						domini = new Domini();
+						domini.setEntorn(entornDao.getById(entornId, false));
+						domini.setCodi(camp.getCodiDomini());
+						domini.setNom(camp.getCodiDomini());
+						domini.setTipus(TipusDomini.CONSULTA_SQL);
+						if (expedientTipusId != null)
+							domini.setExpedientTipus(
+									expedientTipusDao.getById(expedientTipusId, false));
+						dominiDao.saveOrUpdate(domini);
+					}
 				}
 			}
 			if (camp.getAgrupacioCodi() != null)
