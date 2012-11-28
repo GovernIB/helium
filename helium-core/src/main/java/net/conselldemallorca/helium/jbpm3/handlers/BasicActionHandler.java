@@ -798,6 +798,7 @@ public abstract class BasicActionHandler implements ActionHandler {
 			return valor;
 		}
 	}
+
 	/**
 	 * Retorna el text d'una variable per a mostrar a l'usuari
 	 * 

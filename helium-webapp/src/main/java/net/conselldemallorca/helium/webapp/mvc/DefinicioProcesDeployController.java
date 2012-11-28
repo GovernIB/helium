@@ -16,13 +16,17 @@ import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.core.model.exception.DeploymentException;
 import net.conselldemallorca.helium.core.model.exportacio.DefinicioProcesExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.ExpedientTipusExportacio;
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
+import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.Permission;
 import org.springframework.stereotype.Controller;
@@ -56,6 +60,7 @@ public class DefinicioProcesDeployController extends BaseController {
 	public static final String TIPUS_EXPORTACIO_TIPEXP = "EXPORTTIPEXP";
 
 	private DissenyService dissenyService;
+	private ExpedientService expedientService;
 	private PermissionService permissionService;
 
 
@@ -63,8 +68,10 @@ public class DefinicioProcesDeployController extends BaseController {
 	@Autowired
 	public DefinicioProcesDeployController(
 			DissenyService dissenyService,
+			ExpedientService expedientService,
 			PermissionService permissionService) {
 		this.dissenyService = dissenyService;
+		this.expedientService = expedientService;
 		this.permissionService = permissionService;
 	}
 
@@ -125,14 +132,24 @@ public class DefinicioProcesDeployController extends BaseController {
 			        }
 		        	try {
 		        		if (command.getTipus().equals(TIPUS_EXPORTACIO_JBPM)) {
-		        			dissenyService.deploy(
+		        			DefinicioProces dp = dissenyService.deploy(
 				        			entorn.getId(),
 				        			command.getExpedientTipusId(),
 				        			multipartFile.getOriginalFilename(),
 				        			multipartFile.getBytes(),
 				        			command.getEtiqueta(),
 				        			true);
-				        	missatgeInfo(request, getMessage("info.arxiu.desplegat") );
+				        	missatgeInfo(request, getMessage("info.arxiu.desplegat"));
+				        	if (command.getExpedientTipusId() != null && command.isActualitzarProcessosActius()) {
+				        		try {
+					        		expedientService.actualitzarProcessInstancesADarreraVersio(
+					        				dp.getJbpmKey());
+					        		missatgeInfo(request, getMessage("info.arxiu.desplegat.actualitzat"));
+				        		} catch (Exception ex) {
+				        			missatgeError(request, getMessage("info.arxiu.desplegat.actualitzat.error"));
+				        			logger.error("Error al actualitzar les versions de procés", ex);
+				        		}
+				        	}
 		        		} else if (command.getTipus().equals(TIPUS_EXPORTACIO_DEFPRC)) {
 			        		InputStream is = new ByteArrayInputStream(multipartFile.getBytes());
 					    	ObjectInputStream input = new ObjectInputStream(is);
@@ -199,6 +216,7 @@ public class DefinicioProcesDeployController extends BaseController {
 		private String etiqueta;
 		private String tipus;
 		private byte[] arxiu;
+		private boolean actualitzarProcessosActius;
 		public Long getExpedientTipusId() {
 			return expedientTipusId;
 		}
@@ -222,6 +240,12 @@ public class DefinicioProcesDeployController extends BaseController {
 		}
 		public void setArxiu(byte[] arxiu) {
 			this.arxiu = arxiu;
+		}
+		public boolean isActualitzarProcessosActius() {
+			return actualitzarProcessosActius;
+		}
+		public void setActualitzarProcessosActius(boolean actualitzarProcessosActius) {
+			this.actualitzarProcessosActius = actualitzarProcessosActius;
 		}
 	}
 
@@ -268,5 +292,7 @@ public class DefinicioProcesDeployController extends BaseController {
 					ExtendedPermission.ADMINISTRATION,
 					ExtendedPermission.DESIGN}) != null;
 	}
+
+	private static final Log logger = LogFactory.getLog(DefinicioProcesDeployController.class);
 
 }

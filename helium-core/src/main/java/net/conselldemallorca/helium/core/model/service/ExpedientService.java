@@ -1522,6 +1522,14 @@ public class ExpedientService {
 		jbpmDao.changeProcessInstanceVersion(processInstanceId, -1);
 	}
 
+	public void actualitzarProcessInstancesADarreraVersio(
+			String jbpmKey) {
+		List<JbpmProcessInstance> processInstances = jbpmDao.findProcessInstancesWithProcessDefinitionName(jbpmKey);
+		for (JbpmProcessInstance pi: processInstances) {
+			jbpmDao.changeProcessInstanceVersion(pi.getId(), -1);
+		}
+	}
+
 	public boolean isAccioPublica(
 			String processInstanceId,
 			String accioCodi) {

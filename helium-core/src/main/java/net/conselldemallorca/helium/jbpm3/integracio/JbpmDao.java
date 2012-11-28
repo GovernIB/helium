@@ -319,6 +319,16 @@ public class JbpmDao {
 		return resultat;
 	}
 
+	@SuppressWarnings("unchecked")
+	public List<JbpmProcessInstance> findProcessInstancesWithProcessDefinitionName(String processName) {
+		List<JbpmProcessInstance> resultat = new ArrayList<JbpmProcessInstance>();
+		GetProcessInstancesCommand command = new GetProcessInstancesCommand();
+		command.setProcessDefinitionName(processName);
+		for (ProcessInstance pi : (List<ProcessInstance>)commandService.execute(command))
+			resultat.add(new JbpmProcessInstance(pi));
+		return resultat;
+	}
+
 	public JbpmProcessDefinition findProcessDefinitionWithProcessInstanceId(String processInstanceId) {
 		JbpmProcessDefinition resultat = null;
 		long id = new Long(processInstanceId).longValue();

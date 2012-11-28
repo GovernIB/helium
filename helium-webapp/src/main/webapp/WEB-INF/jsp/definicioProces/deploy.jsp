@@ -49,6 +49,11 @@
 				<c:param name="label"><fmt:message key='comuns.etiqueta' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
+				<c:param name="property" value="actualitzarProcessosActius"/>
+				<c:param name="type" value="checkbox"/>
+				<c:param name="label"><fmt:message key='defproc.deploy.expedients.actualitzar' /></c:param>
+			</c:import>
+			<c:import url="../common/formElement.jsp">
 				<c:param name="type" value="buttons"/>
 				<c:param name="values">submit,cancel</c:param>
 				<c:param name="titles"><fmt:message key='defproc.deploy.desplegar' />,<fmt:message key='comuns.cancelar' /></c:param>

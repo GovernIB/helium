@@ -3,7 +3,6 @@
  */
 package net.conselldemallorca.helium.webapp.mvc;
 
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
 
 /**
  * Command pel canvi de versió d'un procés

@@ -300,7 +300,8 @@ public class DissenyService {
 		ExpedientTipus expedientTipus = expedientTipusDao.getById(expedientTipusId, false);
 		return toDto(definicioProcesDao.findDarreraVersioAmbEntornIJbpmKey(
 				expedientTipus.getEntorn().getId(),
-				expedientTipus.getJbpmProcessDefinitionKey()), false);
+				expedientTipus.getJbpmProcessDefinitionKey()),
+				false);
 	}
 
 	public Tasca getTascaById(Long id) {
