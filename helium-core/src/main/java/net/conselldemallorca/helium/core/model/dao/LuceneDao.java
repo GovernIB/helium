@@ -263,6 +263,14 @@ public class LuceneDao extends LuceneIndexSupport {
 		createOrUpdateDocumentField(
 				document,
 				new Field(
+						ExpedientCamps.EXPEDIENT_CAMP_NUMERO+"_no_analyzed",
+			    		(expedient.getNumero() != null) ? expedient.getNumero() : VALOR_CAMP_BUIT,
+						Field.Store.NO,
+						Field.Index.NOT_ANALYZED),
+				isUpdate);
+		createOrUpdateDocumentField(
+				document,
+				new Field(
 						ExpedientCamps.EXPEDIENT_CAMP_TITOL,
 						(expedient.getTitol() != null) ? normalitzarILlevarAccents(expedient.getTitol()) : VALOR_CAMP_BUIT,
 						Field.Store.YES,
@@ -271,10 +279,26 @@ public class LuceneDao extends LuceneIndexSupport {
 		createOrUpdateDocumentField(
 				document,
 				new Field(
+						ExpedientCamps.EXPEDIENT_CAMP_TITOL+"_no_analyzed",
+						(expedient.getTitol() != null) ? normalitzarILlevarAccents(expedient.getTitol()) : VALOR_CAMP_BUIT,
+						Field.Store.NO,
+						Field.Index.NOT_ANALYZED),
+				isUpdate);
+		createOrUpdateDocumentField(
+				document,
+				new Field(
 						ExpedientCamps.EXPEDIENT_CAMP_COMENTARI,
 						(expedient.getComentari() != null) ? normalitzarILlevarAccents(expedient.getComentari()) : VALOR_CAMP_BUIT,
 						Field.Store.YES,
 						(expedient.getComentari() != null) ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED),
+				isUpdate);
+		createOrUpdateDocumentField(
+				document,
+				new Field(
+						ExpedientCamps.EXPEDIENT_CAMP_COMENTARI+"_no_analyzed",
+						(expedient.getComentari() != null) ? normalitzarILlevarAccents(expedient.getComentari()) : VALOR_CAMP_BUIT,
+						Field.Store.NO,
+						Field.Index.NOT_ANALYZED),
 				isUpdate);
 		createOrUpdateDocumentField(
 				document,
@@ -543,9 +567,21 @@ public class LuceneDao extends LuceneIndexSupport {
 			final int firstRow,
 			final int maxResults) {
 		Sort luceneSort = null;
-		if (sort != null && sort.length() > 0)
+		if (sort != null && sort.length() > 0) {
+			if (ExpedientCamps.EXPEDIENT_CAMP_TITOL.equals(sort)) sort = sort + "_no_analyzed";
+			else if (ExpedientCamps.EXPEDIENT_CAMP_NUMERO.equals(sort)) sort = sort + "_no_analyzed";
+			else if (ExpedientCamps.EXPEDIENT_CAMP_COMENTARI.equals(sort)) sort = sort + "_no_analyzed";
+			else
+				for (Camp camp : campsInforme) {
+					if (sort.endsWith(camp.getCodi())
+							&& (camp.getTipus().equals(TipusCamp.STRING) || 
+								camp.getTipus().equals(TipusCamp.TEXTAREA))) {
+						sort = sort + "_no_analyzed";
+						break;
+					}
+				}
 			luceneSort = new Sort(new SortField(sort, SortField.STRING, !asc));
-		else
+		} else
 			luceneSort = new Sort(new SortField(ExpedientCamps.EXPEDIENT_CAMP_ID, SortField.STRING, !asc));
 		final List<Map<String, List<String>>> resultats = searchTemplate.search(
 				query,
@@ -722,6 +758,14 @@ public class LuceneDao extends LuceneIndexSupport {
 									valorIndex,
 									Field.Store.YES,
 									(analyzed) ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED),
+							isUpdate);
+					createOrUpdateDocumentField(
+							document,
+							new Field(
+									clauIndex+"_no_analyzed",
+									valorIndex,
+									Field.Store.NO,
+									Field.Index.NOT_ANALYZED),
 							isUpdate);
 					String textDomini = textDominis.get(camp.getCodi() + "@" + valorIndex);
 					if (	textDomini != null &&
