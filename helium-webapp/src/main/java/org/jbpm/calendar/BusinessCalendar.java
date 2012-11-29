@@ -54,8 +54,7 @@ public class BusinessCalendar implements Serializable {
 private List holidays = null;
 
   public static synchronized Properties getBusinessCalendarProperties() {
-	  FestiuDao festiuDao = DaoProxy.getInstance().getFestiuDao();
-	  if (businessCalendarProperties == null || festiuDao.isModificatFestius(dataActualitzacio)) {
+	  if (businessCalendarProperties == null) {
 		  Properties props = new Properties();
 		  props.put("day.format", "dd/MM/yyyy");
 		  props.put("hour.format", "HH:mm");
@@ -66,13 +65,6 @@ private List holidays = null;
 		  props.put("weekday.friday", horariDia(5));
 		  props.put("weekday.saturday", horariDia(6));
 		  props.put("weekday.sunday", horariDia(7));
-		  List<Festiu> festius = festiuDao.findAll();
-		  int i = 0;
-		  SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-		  for (Festiu festiu: festius) {
-			  i++;
-			  props.put("holiday." + i, sdf.format(festiu.getData()));
-		  }
 		  props.put(
 				  "business.day.expressed.in.hours",
 				  GlobalProperties.getInstance().getProperty("app.calendari.horeslab.dia"));
@@ -86,8 +78,19 @@ private List holidays = null;
 				  "business.year.expressed.in.business.days",
 				  GlobalProperties.getInstance().getProperty("app.calendari.dieslab.any"));
 		  businessCalendarProperties = props;
+		  logger.info("Actualitzant propietats");
+	  }
+	  FestiuDao festiuDao = DaoProxy.getInstance().getFestiuDao();
+	  if (festiuDao != null && festiuDao.isModificatFestius(dataActualitzacio)) {
+		  List<Festiu> festius = festiuDao.findAll();
+		  int i = 0;
+		  SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		  for (Festiu festiu: festius) {
+			  i++;
+			  businessCalendarProperties.put("holiday." + i, sdf.format(festiu.getData()));
+		  }
 		  dataActualitzacio = new Date();
-		  logger.info("Actualitzant calendari");
+		  logger.info("Actualitzant festius");
 	  }
 	  return businessCalendarProperties;
   }
