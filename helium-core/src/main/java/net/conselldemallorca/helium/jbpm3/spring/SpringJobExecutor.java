@@ -1,5 +1,7 @@
 package net.conselldemallorca.helium.jbpm3.spring;
 
+import net.conselldemallorca.helium.core.util.GlobalProperties;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jbpm.job.executor.JobExecutor;
@@ -19,6 +21,9 @@ public class SpringJobExecutor extends JobExecutor {
 	
 	/** Used to wrap jBPM calls in an ongoing transaction */
 	private TransactionTemplate transactionTemplate;
+
+	@SuppressWarnings("unused")
+	private GlobalProperties globalProperties;
 	
 	/** 
 	 * Need to override the start method of the {@link org.jbpm.job.executor.JobExecutor},
@@ -50,6 +55,10 @@ public class SpringJobExecutor extends JobExecutor {
 
 	public void setTransactionTemplate(TransactionTemplate transactionTemplate) {
 		this.transactionTemplate = transactionTemplate;
+	}
+
+	public void setGlobalProperties(GlobalProperties globalProperties) {
+		this.globalProperties = globalProperties;
 	}
 
 }

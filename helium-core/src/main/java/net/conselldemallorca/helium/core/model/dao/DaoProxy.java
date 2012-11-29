@@ -66,6 +66,9 @@ public class DaoProxy implements ApplicationContextAware {
 		return (MailDao)ctx.getBean("mailDao", MailDao.class);
 	}
 	public FestiuDao getFestiuDao() {
+		// Per evitar errors en el SpringJbpmJobExecutor
+		if (ctx == null) return null;
+		//
 		return (FestiuDao)ctx.getBean("festiuDao", FestiuDao.class);
 	}
 	public JbpmDao getJbpmDao() {

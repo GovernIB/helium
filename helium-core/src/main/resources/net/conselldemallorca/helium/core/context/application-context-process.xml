@@ -31,6 +31,7 @@
 		<property name="maxLockTime" value="600000" /><!-- 10 minutes -->
 		<property name="lockMonitorInterval" value="5000" /><!-- 5 seconds -->
 		<property name="lockBufferTime" value="5000" /><!-- 5 seconds -->
+		<property name="globalProperties" ref="globalProperties" />
 	</bean>
 
 	<bean id="jbpmDao" class="net.conselldemallorca.helium.jbpm3.integracio.JbpmDao">
