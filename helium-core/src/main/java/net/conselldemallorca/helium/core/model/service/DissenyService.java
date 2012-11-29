@@ -2667,14 +2667,22 @@ public class DissenyService {
 					nova.setFormExtern(vella.getFormExtern());
 					nova.setTramitacioMassiva(vella.isTramitacioMassiva());
 					// Propaga els camps de la tasca
-					int ordreCamp = 0;
+					int ordreCamp = vella.getCamps().size() + nova.getDocuments().size();
+					for (CampTasca ct: nova.getCamps()){
+						CampTasca c = campTascaDao.findAmbTascaCodi(ct.getTasca().getId(), ct.getCamp().getCodi());
+						c.setOrder(ordreCamp);
+						campTascaDao.saveOrUpdate(c);
+						ordreCamp++;
+					}					
 					for (CampTascaExportacio campTasca: vella.getCamps()) {
 						boolean trobat = false;
 						for (CampTasca ct: nova.getCamps()){
+							CampTasca c = campTascaDao.findAmbTascaCodi(ct.getTasca().getId(), ct.getCamp().getCodi());
 							if(ct.getCamp().getCodi().equals(campTasca.getCampCodi())){
 								trobat = true;
-							}
-							ordreCamp++;
+								c.setOrder(campTasca.getOrder());
+								campTascaDao.saveOrUpdate(c);
+							} 
 						}
 						if(!trobat){
 							CampTasca nouct = new CampTasca(
@@ -2684,21 +2692,38 @@ public class DissenyService {
 									campTasca.isWriteTo(),
 									campTasca.isRequired(),
 									campTasca.isReadOnly(),
-									ordreCamp);
+									campTasca.getOrder());
 							nova.addCamp(nouct);
 							campTascaDao.saveOrUpdate(nouct);
-							ordreCamp++;
 						}
 					}
+					ordreCamp = vella.getCamps().size();
+					for(CampTasca ct: nova.getCamps()){
+						CampTasca c = campTascaDao.findAmbTascaCodi(ct.getTasca().getId(), ct.getCamp().getCodi());
+						if(c.getOrder() >= ordreCamp){
+							c.setOrder(ordreCamp);
+							campTascaDao.saveOrUpdate(c);
+							ordreCamp++;
+						}						
+					}
 					// Propaga els documents de la tasca
-					int ordreTasca = 0;
+					int ordreDocument = vella.getDocuments().size() + nova.getDocuments().size();
+					for (DocumentTasca dt: nova.getDocuments()){
+						DocumentTasca d = documentTascaDao.findAmbDocumentTasca(dt.getDocument().getId(), dt.getTasca().getId());
+						d.setOrder(ordreDocument);
+						documentTascaDao.saveOrUpdate(d);
+						ordreDocument++;
+					}
 					for (DocumentTascaExportacio documentTasca: vella.getDocuments()) {
 						boolean trobat = false;
 						for (DocumentTasca dt: nova.getDocuments()) {
+							DocumentTasca d = documentTascaDao.findAmbDocumentTasca(dt.getDocument().getId(), dt.getTasca().getId());
 							if (dt.getDocument().getCodi().equals(documentTasca.getDocumentCodi())) {
 								trobat = true;
+								d.setOrder(documentTasca.getOrder());
+								documentTascaDao.saveOrUpdate(d);
 							}
-							ordreTasca++;
+							ordreDocument++;
 						}
 						if (!trobat){
 							DocumentTasca noudt = new DocumentTasca(
@@ -2706,12 +2731,20 @@ public class DissenyService {
 									nova,
 									documentTasca.isRequired(),
 									documentTasca.isReadOnly(),
-									ordreTasca
+									documentTasca.getOrder()
 									);
 							nova.addDocument(noudt);
 							documentTascaDao.saveOrUpdate(noudt);
-							ordreTasca++;
 						}			
+					}
+					ordreDocument = vella.getDocuments().size();
+					for(DocumentTasca dt: nova.getDocuments()){
+						DocumentTasca d = documentTascaDao.findAmbDocumentTasca(dt.getDocument().getId(), dt.getTasca().getId());
+						if(d.getOrder() >= ordreDocument){
+							d.setOrder(ordreDocument);
+							documentTascaDao.saveOrUpdate(d);
+							ordreDocument++;
+						}						
 					}
 					// Propaga les firmes de la tasca
 					nova.getFirmes().clear();
