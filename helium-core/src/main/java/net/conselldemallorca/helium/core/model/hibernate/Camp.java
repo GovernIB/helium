@@ -16,6 +16,7 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -31,6 +32,8 @@ import javax.persistence.UniqueConstraint;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
@@ -343,8 +346,9 @@ public class Camp implements Serializable, GenericEntity<Long> {
 		getRegistrePares().remove(registrePare);
 	}
 
-	@OneToMany(mappedBy="registre", cascade={CascadeType.ALL})
+	@OneToMany(mappedBy="registre", cascade={CascadeType.ALL}, fetch=FetchType.EAGER)
 	@OrderBy("ordre asc")
+	@Fetch(value = FetchMode.SUBSELECT)
 	public List<CampRegistre> getRegistreMembres() {
 		return this.registreMembres;
 	}
