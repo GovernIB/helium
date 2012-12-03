@@ -20,7 +20,7 @@
 		<constructor-arg ref="txManager" />
 	</bean>
 
-	<bean id="jbpm.job.executor" class="net.conselldemallorca.helium.jbpm3.spring.SpringJobExecutor">
+	<bean id="jbpm.job.executor" class="net.conselldemallorca.helium.jbpm3.spring.SpringJobExecutor" depends-on="festiuDao">
 		<property name="transactionTemplate" ref="jbpm3TransactionTemplate" />
 		<property name="jbpmConfiguration" ref="jbpm3Configuration" />
 		<property name="name" value="SpringJbpmJobExecutor" />
