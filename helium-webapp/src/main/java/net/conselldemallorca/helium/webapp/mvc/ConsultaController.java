@@ -111,11 +111,14 @@ public class ConsultaController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			if ("submit".equals(submit) || submit.length() == 0) {
-				command.setEntorn(entorn);
-				command.setInformeNom(null);
-				command.setInformeContingut(null);
+				if("deleted".equalsIgnoreCase(deleted)){
+					command.setEntorn(entorn);
+					command.setInformeNom(null);
+					command.setInformeContingut(null);
+				}
 				if (multipartFile != null && multipartFile.getSize() > 0) {
 					try {
+						command.setEntorn(entorn);
 						command.setInformeContingut(multipartFile.getBytes());
 						command.setInformeNom(multipartFile.getOriginalFilename());
 					} catch (Exception ignored) {}
