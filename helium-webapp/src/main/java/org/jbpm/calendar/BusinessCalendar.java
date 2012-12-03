@@ -80,7 +80,21 @@ private List holidays = null;
 		  businessCalendarProperties = props;
 		  logger.info("Actualitzant propietats");
 	  }
-	  FestiuDao festiuDao = DaoProxy.getInstance().getFestiuDao();
+	  
+	  FestiuDao festiuDao = null;
+	  int maxRetry = 50;
+	  do {
+		  try{
+			  festiuDao = DaoProxy.getInstance().getFestiuDao();
+		  } catch (Exception e) {
+			  try {
+				  maxRetry--;
+				  Thread.sleep(100);
+			  } catch (Exception ex) {} 
+		  }
+	  } while (festiuDao == null && maxRetry > 0);
+	  
+//	  FestiuDao festiuDao = DaoProxy.getInstance().getFestiuDao();
 	  if (festiuDao != null && festiuDao.isModificatFestius(dataActualitzacio)) {
 		  List<Festiu> festius = festiuDao.findAll();
 		  int i = 0;
@@ -91,6 +105,8 @@ private List holidays = null;
 		  }
 		  dataActualitzacio = new Date();
 		  logger.info("Actualitzant festius");
+	  } else {
+		  logger.warn("No s'han actualitzat els festius");
 	  }
 	  return businessCalendarProperties;
   }
