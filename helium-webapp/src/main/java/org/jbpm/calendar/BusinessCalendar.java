@@ -82,17 +82,18 @@ private List holidays = null;
 	  }
 	  
 	  FestiuDao festiuDao = null;
+	  try{
+		  festiuDao = DaoProxy.getInstance().getFestiuDao();
+	  } catch (Exception e) {}
+	  
 	  int maxRetry = 50;
-	  do {
-		  try{
+	  while (festiuDao == null && maxRetry > 0){
+		  maxRetry--;
+		  try { 
+			  Thread.sleep(100);
 			  festiuDao = DaoProxy.getInstance().getFestiuDao();
-		  } catch (Exception e) {
-			  try {
-				  maxRetry--;
-				  Thread.sleep(100);
-			  } catch (Exception ex) {} 
-		  }
-	  } while (festiuDao == null && maxRetry > 0);
+		  } catch (Exception ex) {} 
+	  }
 	  
 //	  FestiuDao festiuDao = DaoProxy.getInstance().getFestiuDao();
 	  if (festiuDao != null && festiuDao.isModificatFestius(dataActualitzacio)) {
