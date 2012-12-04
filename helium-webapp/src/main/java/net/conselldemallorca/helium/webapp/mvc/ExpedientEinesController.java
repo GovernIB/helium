@@ -127,6 +127,9 @@ public class ExpedientEinesController extends BaseController {
 							null);
 					missatgeInfo(request, getMessage("info.script.executat"));
 				} catch (Exception ex) {
+					Long entornId = entorn.getId();
+					String numeroExpedient = id;
+					logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'ha pogut executar l'script", ex);
 					missatgeError(request, getMessage("error.executar.script"), getMissageFinalCadenaExcepcions(ex));
 		        	return "expedient/eines";
 				}
@@ -164,8 +167,10 @@ public class ExpedientEinesController extends BaseController {
 								null);
 						missatgeInfo(request, getMessage("info.expedient.aturat") );
 					} catch (Exception ex) {
+						Long entornId = entorn.getId();
+						String numeroExpedient = id;
+						logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'ha pogut aturar l'expedient", ex);	
 						missatgeError(request, getMessage("error.aturar.expedient"), ex.getLocalizedMessage());
-			        	logger.error("No s'ha pogut aturar l'expedient", ex);
 			        	return "expedient/eines";
 					}
 				} else {
@@ -197,8 +202,10 @@ public class ExpedientEinesController extends BaseController {
 								null);
 						missatgeInfo(request, getMessage("info.expedient.repres") );
 					} catch (Exception ex) {
+						Long entornId = entorn.getId();
+						String numeroExpedient = id;
+						logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'ha pogut reprendre l'expedient", ex);	
 						missatgeError(request, getMessage("error.reprendre.expedient"), ex.getLocalizedMessage());
-			        	logger.error("No s'ha pogut reprendre l'expedient", ex);
 			        	return "expedient/eines";
 					}
 				} else {
@@ -235,8 +242,10 @@ public class ExpedientEinesController extends BaseController {
 						missatgeError(request, getMessage("error.especificar.versio.proces") );
 					}
 				} catch (Exception ex) {
+					Long entornId = entorn.getId();
+					String numeroExpedient = expedient.getIdentificador();
+					logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'ha pogut canviar la versió de procés", ex);
 					missatgeError(request, getMessage("error.canviar.versio.proces"), ex.getLocalizedMessage());
-		        	logger.error("No s'ha pogut canviar la versió de procés", ex);
 		        	return "expedient/eines";
 				}
 				return "redirect:/expedient/eines.html?id=" + instanciaProcesId;

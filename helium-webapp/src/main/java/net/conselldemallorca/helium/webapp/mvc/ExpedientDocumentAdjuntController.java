@@ -133,8 +133,10 @@ public class ExpedientDocumentAdjuntController extends BaseController {
 						missatgeInfo(request, getMessage("info.document.adjuntat") );
 						status.setComplete();
 			        } catch (Exception ex) {
+			        	Long entornId = entorn.getId();
+						String numeroExpedient = id;
+						logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'ha pogut crear el document adjunt", ex);
 			        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
-			        	logger.error("No s'ha pogut crear el document adjunt", ex);
 			        }
 				}
 				return "redirect:/expedient/documents.html?id=" + id;

@@ -77,8 +77,10 @@ public class ExpedientDocumentEsborrarController extends BaseController {
 						missatgeError(request, getMessage("error.esborrar.doc.registrat") );
 					}
 				} catch (Exception ex) {
+					Long entornId = entorn.getId();
+					String numeroExpedient = id;
+					logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'ha pogut esborrar el document del procés", ex);
 					missatgeError(request, getMessage("error.esborrar.doc.proces"), ex.getLocalizedMessage());
-		        	logger.error("No s'ha pogut esborrar el document del procés", ex);
 				}
 				return "redirect:/expedient/documents.html?id=" + id;
 			} else {

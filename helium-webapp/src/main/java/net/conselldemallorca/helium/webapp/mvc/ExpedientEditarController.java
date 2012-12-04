@@ -136,8 +136,10 @@ public class ExpedientEditarController extends BaseController {
 								command.getGrupCodi());
 						missatgeInfo(request, getMessage("info.informacio.modificat") );
 					} catch (Exception ex) {
+						Long entornId = entorn.getId();
+						String numeroExpedient = expedient.getIdentificador();
+						logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'han pogut modificar les dades de l'expedient", ex);
 						missatgeError(request, getMessage("error.modificar.dades.exp"), ex.getLocalizedMessage());
-			        	logger.error("No s'han pogut modificar les dades de l'expedient", ex);
 			        	dadesPaginaEditar(id, expedient, model);
 			        	return "expedient/editar";
 					}

@@ -64,8 +64,10 @@ public class ExpedientDadaEsborrarController extends BaseController {
 					expedientService.deleteVariable(id, var);
 					missatgeInfo(request, getMessage("dada.proces.esborrada") );
 				} catch (Exception ex) {
+					Long entornId = entorn.getId();
+					String numeroExpedient = id;
+					logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'ha pogut esborrar la dada del procés", ex);	
 					missatgeError(request, getMessage("error.esborrar.dada.proces"), ex.getLocalizedMessage());
-		        	logger.error("No s'ha pogut esborrar la dada del procés", ex);
 				}
 				return "redirect:/expedient/dades.html?id=" + id;
 			} else {

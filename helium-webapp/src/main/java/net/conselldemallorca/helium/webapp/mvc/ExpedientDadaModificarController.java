@@ -185,8 +185,10 @@ public class ExpedientDadaModificarController extends BaseController {
 						}
 				        missatgeInfo(request, getMessage("info.dada.modificat") );
 			        } catch (Exception ex) {
+			        	Long entornId = entorn.getId();
+						String numeroExpedient = expedient.getIdentificador();
+						logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'ha pogut modificat la dada", ex);
 						missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
-			        	logger.error("No s'ha pogut modificat la dada", ex);
 			        	return "expedient/dadaForm";
 					}
 				} else if ("multipleAdd".equals(submit)) {

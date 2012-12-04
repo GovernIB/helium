@@ -327,6 +327,9 @@ public class ExpedientMassivaController extends BaseController {
 						        	return "expedient/documentFormMassiva";
 						        }
 				        }catch(Exception ex){
+				        	Long entornId = entorn.getId();
+							String numeroExpedient = exp.getIdentificador();
+							logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'ha pogut crear el document adjunt", ex);
 				        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 				        }
 						try {
@@ -412,6 +415,9 @@ public class ExpedientMassivaController extends BaseController {
 									null);
 							
 						} catch (Exception ex) {
+							Long entornId = entorn.getId();
+							String numeroExpedient = id;
+							logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'ha pogut executar l'script", ex);
 							missatgeError(request, getMessage("error.executar.script"), getMissageFinalCadenaExcepcions(ex));
 							return "redirect:/expedient/massivaInfo.html";
 						}

@@ -592,9 +592,11 @@ public class ExpedientController extends BaseController {
 					expedientService.executarAccio(id, jbpmAction);
 					missatgeInfo(request, getMessage("info.accio.executat"));
 				} catch (JbpmException ex ) {
+					Long numeroExpedient = expedient.getId();
+					Long entornId = expedient.getEntorn().getId();
 					missatgeError(request, getMessage("error.executar.accio") +" "+ jbpmAction + ": "+ ex.getCause().getMessage());
+		        	logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" Error al executar la accio", ex);
 				}
-
 				return "redirect:/expedient/info.html?id=" + id;
 			} else {
 				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
@@ -622,7 +624,10 @@ public class ExpedientController extends BaseController {
 					expedientService.retrocedirFinsLog(logId, false);
 				}
 			}catch (JbpmException ex ) {
+				Long entornId = entorn.getId();
+				String numeroExpedient = id;
 				missatgeError(request, getMessage("error.executar.retroces") + ": "+ ex.getCause().getMessage());
+				logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'ha pogut executar el retrocés", ex);
 			}
 			
 			if(retorn.equals("t")){
