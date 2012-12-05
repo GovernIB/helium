@@ -1307,6 +1307,7 @@ public class DissenyService {
 			consultaExp.setDescripcio(consulta.getDescripcio());
 			consultaExp.setValorsPredefinits(consulta.getValorsPredefinits());
 			consultaExp.setExportarActiu(consulta.isExportarActiu());
+			consultaExp.setOcultarActiu(consulta.isOcultarActiu());
 			if (consulta.getInformeContingut() != null && consulta.getInformeContingut().length > 0) {
 				consultaExp.setInformeNom(consulta.getInformeNom());
 				consultaExp.setInformeContingut(consulta.getInformeContingut());
@@ -1510,6 +1511,7 @@ public class DissenyService {
 					nova.setInformeContingut(consulta.getInformeContingut());
 				}
 				nova.setExportarActiu(consulta.isExportarActiu());
+				nova.setOcultarActiu(consulta.isOcultarActiu());
 				nova.setEntorn(entorn);
 				nova.setExpedientTipus(expedientTipus);
 				for (ConsultaCamp consultaCamp: nova.getCamps()) {
