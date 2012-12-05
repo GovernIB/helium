@@ -43,7 +43,7 @@ public class CustodiaPluginFilesystem implements CustodiaPlugin {
 			ObjectOutputStream oout = new ObjectOutputStream(fos);
 			oout.writeObject(signatura);
 			fos.close();
-			return gesdocId;
+			return id;
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut custodiar la signatura", ex);
 			throw new CustodiaPluginException("No s'ha pogut custodiar la signatura", ex);
