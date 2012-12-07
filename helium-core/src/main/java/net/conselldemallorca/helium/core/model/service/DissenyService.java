@@ -1308,6 +1308,7 @@ public class DissenyService {
 			consultaExp.setValorsPredefinits(consulta.getValorsPredefinits());
 			consultaExp.setExportarActiu(consulta.isExportarActiu());
 			consultaExp.setOcultarActiu(consulta.isOcultarActiu());
+			consultaExp.setOrdre(consulta.getOrdre());
 			if (consulta.getInformeContingut() != null && consulta.getInformeContingut().length > 0) {
 				consultaExp.setInformeNom(consulta.getInformeNom());
 				consultaExp.setInformeContingut(consulta.getInformeContingut());
@@ -1493,6 +1494,7 @@ public class DissenyService {
 		}
 		// Crea les consultes del tipus d'expedient
 		if (exportacio.getConsultes() != null) {
+			List<Consulta> llista = consultaDao.findAmbEntornIExpedientTipusOrdenat(entornId, expedientTipusId);
 			for (ConsultaExportacio consulta: exportacio.getConsultes()) {
 				Consulta nova = consultaDao.findAmbEntornICodi(
 						entornId,
@@ -1503,6 +1505,7 @@ public class DissenyService {
 							consulta.getNom());
 				} else {
 					nova.setNom(consulta.getNom());
+					llista.remove(nova);
 				}
 				nova.setDescripcio(consulta.getDescripcio());
 				nova.setValorsPredefinits(consulta.getValorsPredefinits());
@@ -1512,6 +1515,7 @@ public class DissenyService {
 				}
 				nova.setExportarActiu(consulta.isExportarActiu());
 				nova.setOcultarActiu(consulta.isOcultarActiu());
+				nova.setOrdre(consulta.getOrdre());
 				nova.setEntorn(entorn);
 				nova.setExpedientTipus(expedientTipus);
 				for (ConsultaCamp consultaCamp: nova.getCamps()) {
@@ -1540,6 +1544,12 @@ public class DissenyService {
 					nova.addCamp(campNou);
 				}
 				consultaDao.saveOrUpdate(nova);
+			}
+			int nombreConsultes = exportacio.getConsultes().size();
+			for (int i = 0; i < llista.size(); i++){
+				Consulta c = llista.get(i);
+				c.setOrdre(nombreConsultes + i);
+				consultaDao.saveOrUpdate(c);
 			}
 		}
 		// Importa les definicions de procés

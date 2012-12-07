@@ -23,6 +23,7 @@ public class ConsultaExportacio implements Serializable {
 	private byte[] informeContingut;
 	private boolean exportarActiu;
 	private boolean ocultarActiu;
+	private int ordre;
 	private List<ConsultaCampExportacio> camps;
 
 
@@ -88,7 +89,12 @@ public class ConsultaExportacio implements Serializable {
 	public void setCamps(List<ConsultaCampExportacio> camps) {
 		this.camps = camps;
 	}
-
+	public int getOrdre() {
+		return ordre;
+	}
+	public void setOrdre(int ordre) {
+		this.ordre = ordre;
+	}
 
 
 	private static final long serialVersionUID = 1L;
