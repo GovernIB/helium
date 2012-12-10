@@ -303,7 +303,7 @@ public class TascaDocumentsController extends BaseController {
 						DocumentDto document = documentService.documentPerTasca(
 								tascaId,
 								codi,
-								false);
+								true);
 						int indexPunt = document.getArxiuNom().lastIndexOf(".");
 						StringBuilder nomEntrada = new StringBuilder();
 						nomEntrada.append(document.getArxiuNom().substring(0, indexPunt));
