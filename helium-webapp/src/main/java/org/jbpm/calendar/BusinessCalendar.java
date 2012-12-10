@@ -84,18 +84,8 @@ private List holidays = null;
 	  FestiuDao festiuDao = null;
 	  try{
 		  festiuDao = DaoProxy.getInstance().getFestiuDao();
-	  } catch (Exception e) {}
+	  } catch (Exception ex) {}
 	  
-	  int maxRetry = 50;
-	  while (festiuDao == null && maxRetry > 0){
-		  maxRetry--;
-		  try { 
-			  Thread.sleep(100);
-			  festiuDao = DaoProxy.getInstance().getFestiuDao();
-		  } catch (Exception ex) {} 
-	  }
-	  
-//	  FestiuDao festiuDao = DaoProxy.getInstance().getFestiuDao();
 	  if (festiuDao != null && festiuDao.isModificatFestius(dataActualitzacio)) {
 		  List<Festiu> festius = festiuDao.findAll();
 		  int i = 0;
