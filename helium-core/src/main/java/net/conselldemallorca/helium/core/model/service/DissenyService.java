@@ -2842,6 +2842,130 @@ public class DissenyService {
 		}
 		return serviceUtils;
 	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void goToSignaturaTasca(Long id, int NouOrd) {
+		FirmaTasca firmaTasca = getFirmaTascaById(id);
+		int ordreAntic = firmaTasca.getOrder();
+		
+		// Si no s'ha canviat l'ordre, sortim sense fer res.
+		if (ordreAntic == NouOrd) return;
+		firmaTasca.setOrder(-1);				
+		Tasca tasca = firmaTasca.getTasca();
+		List<FirmaTasca> firmes = tasca.getFirmes();
+		//List<CampTasca> camps = (List<CampTasca>) campTascaDao.findAmbTascaOrdenats(tasca.getId());
+		
+		if (ordreAntic < NouOrd) {
+			//Collections.reverse(camps);
+			Collections.sort(
+					firmes,
+					new Comparator() {
+					public int compare(Object o1, Object o2) {
+						if (o1 == null && o2 == null) return 0;
+						return (((FirmaTasca)o1).getOrder()<((FirmaTasca)o2).getOrder() ? -1 : ((FirmaTasca)o1).getOrder()==((FirmaTasca)o2).getOrder() ? 0 : 1);
+					}
+					});
+			
+			for (FirmaTasca ft : firmes){
+				int ordre = ft.getOrder();
+				if (ordre > ordreAntic) {
+					if (ordre <= NouOrd) {
+						ft.setOrder(ordre - 1);
+						firmaTascaDao.saveOrUpdate(ft);
+						firmaTascaDao.flush();
+					}
+				}
+			}
+	
+		} else {
+			
+			Collections.sort(
+					firmes,
+					new Comparator() {
+					public int compare(Object o1, Object o2) {
+						if (o1 == null && o2 == null) return 0;
+						return (((FirmaTasca)o1).getOrder()>((FirmaTasca)o2).getOrder() ? -1 : ((FirmaTasca)o1).getOrder()==((FirmaTasca)o2).getOrder() ? 0 : 1);
+					}
+					});
+			
+			for (FirmaTasca ft : firmes){
+			
+				int ordre = ft.getOrder();
+				if (ordre < ordreAntic)  {
+					if (ordre >= NouOrd) {
+						ft.setOrder(ordre + 1);
+						firmaTascaDao.saveOrUpdate(ft);
+						firmaTascaDao.flush();
+					}
+				}
+			}
+		}
+		firmaTasca.setOrder(NouOrd);
+		firmaTascaDao.saveOrUpdate(firmaTasca);
+		tascaDao.merge(tasca);
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void goToDocumentTasca(Long id, int NouOrd) {
+		DocumentTasca documentTasca = getDocumentTascaById(id);
+		int ordreAntic = documentTasca.getOrder();
+		
+		// Si no s'ha canviat l'ordre, sortim sense fer res.
+		if (ordreAntic == NouOrd) return;
+		documentTasca.setOrder(-1);				
+		Tasca tasca = documentTasca.getTasca();
+		List<DocumentTasca> documents = tasca.getDocuments();
+		//List<CampTasca> camps = (List<CampTasca>) campTascaDao.findAmbTascaOrdenats(tasca.getId());
+		
+		if (ordreAntic < NouOrd) {
+			//Collections.reverse(camps);
+			Collections.sort(
+					documents,
+					new Comparator() {
+					public int compare(Object o1, Object o2) {
+						if (o1 == null && o2 == null) return 0;
+						return (((DocumentTasca)o1).getOrder()<((DocumentTasca)o2).getOrder() ? -1 : ((DocumentTasca)o1).getOrder()==((DocumentTasca)o2).getOrder() ? 0 : 1);
+					}
+					});
+			
+			for (DocumentTasca dt : documents){
+				int ordre = dt.getOrder();
+				if (ordre > ordreAntic) {
+					if (ordre <= NouOrd) {
+						dt.setOrder(ordre - 1);
+						documentTascaDao.saveOrUpdate(dt);
+						documentTascaDao.flush();
+					}
+				}
+			}
+	
+		} else {
+			
+			Collections.sort(
+					documents,
+					new Comparator() {
+					public int compare(Object o1, Object o2) {
+						if (o1 == null && o2 == null) return 0;
+						return (((DocumentTasca)o1).getOrder()>((DocumentTasca)o2).getOrder() ? -1 : ((DocumentTasca)o1).getOrder()==((DocumentTasca)o2).getOrder() ? 0 : 1);
+					}
+					});
+			
+			for (DocumentTasca dt : documents){
+			
+				int ordre = dt.getOrder();
+				if (ordre < ordreAntic)  {
+					if (ordre >= NouOrd) {
+						dt.setOrder(ordre + 1);
+						documentTascaDao.saveOrUpdate(dt);
+						documentTascaDao.flush();
+					}
+				}
+			}
+		}
+		documentTasca.setOrder(NouOrd);
+		documentTascaDao.saveOrUpdate(documentTasca);
+		tascaDao.merge(tasca);
+	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void goToCampTasca(Long id, int NouOrd) {

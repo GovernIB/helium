@@ -8,18 +8,115 @@
 <head>
 	<title><fmt:message key='comuns.def_proces' />: ${definicioProces.jbpmName}</title>
 	<meta name="titolcmp" content="<fmt:message key='comuns.disseny' />" />
+	<input id="regId" name="registreId" value="${registre.id}" type="hidden">
+	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.tablednd.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/dwr/engine.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/dwr/util.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/dwr/interface/campsProcesDwrService.js"/>"></script>
     <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
     <link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
     <c:import url="../common/formIncludes.jsp"/>
+  
+<script type="text/javascript">
+
+$(document).ready(function() {
+	    // Initialise the table
+	    //$("#registre").tableDnD();
+	
+	$("#modifVar").hide();
+	// Inicialitza la taula
+    $("#registre").tableDnD({
+    	onDragClass: "drag",
+    	onDrop: function(table, row) {
+        	$("#registre tr:even").removeClass("odd");
+        	$("#registre tr:not(:first)").addClass("even");
+        	$("#registre tr:odd").removeClass("even");
+        	$("#registre tr:odd").addClass("odd");
+        	
+        	var pos = row.rowIndex - 1;
+        	var id= obtenirId(pos);
+        	campsProcesDwrService.goToDocumentTasca(id, pos, {
+				callback: function() {
+				},
+				async: false
+			});
+    	},
+    	onDragStart: function(table, row) {
+    			filaMovem = row.rowIndex-1;
+			
+		}
+    });
+    $("#registre tr").hover(function() {
+        $(this.cells[0]).addClass('showDragHandle');
+    }, function() {
+        $(this.cells[0]).removeClass('showDragHandle');
+    });	
+  	$("#registre tr").each(function(){
+  	  	$(this).find("td:first").css("padding-left", "22px");
+  	});
+});
+</script>
 <script type="text/javascript">
 // <![CDATA[
 function confirmar(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
-	return confirm("<fmt:message key='defproc.tascadocs.confirmacio' />");
+	return confirm("<fmt:message key='defproc.tascacamps.confirmacio' />");
 }
+
+function obtenirId(pos){
+	if(filaMovem==pos){
+		
+		var fila = filaMovem + 1;
+		id = $("#registre tr:eq("+fila+") td div").attr("id");
+
+	}
+	else{
+	
+		if( filaMovem < pos){	//baixam elements
+			var fila = filaMovem + (pos-filaMovem)+1;
+			id = $("#registre tr:eq("+fila+") td div").attr("id");
+		}else{					//pujam elements
+			var fila = filaMovem - (filaMovem-pos)+1;
+			id = $("#registre tr:eq("+fila+") td div").attr("id");	
+		}
+		
+	}
+	id2 = id.split("_");
+	return id2[1] ;
+}
+
+function actualitzar(tascaId, campId, registre){
+	$("#registreId").val(registre);
+	var rf="";
+	var wt="";
+	var rq="";
+	var ro="";
+	rf = $("#rf_"+registre).is(":checked");
+  	wt = $("#wt_"+registre).is(":checked");
+ 	rq = $("#rq_"+registre).is(":checked");
+  	ro = $("#ro_"+registre).is(":checked");
+	
+	campsProcesDwrService.updateCampTasca(tascaId, campId, rf, wt, rq, ro,
+	{
+		callback: function() {
+			$("#mostrarBoto_"+registre).hide()
+		},
+		async: false
+	});
+}
+
+function mostrarDesar(registreId){
+	$("#mostrarBoto_"+registreId).show();
+}
+
+
+$(".func").click(function(event){
+	confirmar(this.dataset['id']);
+});
+
 // ]]>
 </script>
 </head>
@@ -38,14 +135,14 @@ function confirmar(e) {
 			<c:if test="${registre.required}">rq</c:if>
 			<c:if test="${registre.readOnly}">ro</c:if>
 		</display:column>
-		<display:column property="order" titleKey="comuns.ordre"/>
-		<display:column>
-			<a href="<c:url value="/definicioProces/tascaDocumentPujar.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/></c:url>"><img src="<c:url value="/img/famarrow_up.png"/>" alt="<fmt:message key='comuns.amunt' />" title="<fmt:message key='comuns.amunt' />" border="0"/></a>
-			<a href="<c:url value="/definicioProces/tascaDocumentBaixar.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/></c:url>"><img src="<c:url value="/img/famarrow_down.png"/>" alt="<fmt:message key='comuns.avall' />" title="<fmt:message key='comuns.avall' />" border="0"/></a>
-		</display:column>
 		<display:column>
 			<a href="<c:url value="/definicioProces/tascaDocumentEsborrar.html"><c:param name="definicioProcesId" value="${param.definicioProcesId}"/><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 		</display:column>
+		<display:column>
+			<div id="mostrarBoto_${registre.id}" style="display:none">
+				<input id="actualitzar_${registre.id}" type="button" value="<fmt:message key='comuns.desar' />">
+			</div>
+		</display:column>		
 	</display:table>
 
 	<form:form action="tascaDocuments.html" cssClass="uniForm">
