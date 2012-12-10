@@ -104,7 +104,7 @@ public class ExpedientRelacionarController extends BaseController {
 						missatgeInfo(request, getMessage("expedient.relacionar.ok"));
 					} catch (Exception ex) {
 					  	Long entornId = entorn.getId();
-						String numeroExpedient = exp.getIdentificador();
+						String numeroExpedient = expedient.getIdentificador();
 						logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+"No s'ha pogut relacionar l'expedient " + expedient.getIdentificador(), ex);
 						missatgeError(request, getMessage("error.expedient.relacionar"), ex.getLocalizedMessage());
 			        	return "expedient/info";
