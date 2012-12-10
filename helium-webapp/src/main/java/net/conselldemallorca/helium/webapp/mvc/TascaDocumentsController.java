@@ -19,6 +19,7 @@ import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
 import net.conselldemallorca.helium.core.model.exception.NotFoundException;
+import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.service.DocumentService;
@@ -300,10 +301,11 @@ public class TascaDocumentsController extends BaseController {
 					ByteArrayOutputStream baos = new ByteArrayOutputStream();
 					ZipOutputStream out = new ZipOutputStream(baos);
 					for (String tascaId: tascaIds) {
+						
 						DocumentDto document = documentService.documentPerTasca(
 								tascaId,
 								codi,
-								false);
+								true);
 						int indexPunt = document.getArxiuNom().lastIndexOf(".");
 						StringBuilder nomEntrada = new StringBuilder();
 						nomEntrada.append(document.getArxiuNom().substring(0, indexPunt));
