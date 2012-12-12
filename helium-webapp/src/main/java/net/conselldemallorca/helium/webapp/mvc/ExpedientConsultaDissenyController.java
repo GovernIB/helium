@@ -352,6 +352,8 @@ public class ExpedientConsultaDissenyController extends BaseController {
 					}
 					String extensio = consulta.getInformeNom().substring(
 							consulta.getInformeNom().lastIndexOf(".") + 1);
+					String formatExportacio = consulta.getFormatExport();
+					request.setAttribute("formatJR", formatExportacio);
 					String nom = consulta.getInformeNom().substring(0,
 							consulta.getInformeNom().lastIndexOf("."));
 					if ("zip".equals(extensio)) {
@@ -450,7 +452,6 @@ public class ExpedientConsultaDissenyController extends BaseController {
 					ExtendedPermission.READ});
 		model.addAttribute("expedientTipus", tipus);
 		if (commandSeleccio != null) {
-			
 				List<Consulta> consultes = dissenyService.findConsultesAmbEntornIExpedientTipusOrdenat(
 						entorn.getId(),
 						commandSeleccio.getExpedientTipusId());

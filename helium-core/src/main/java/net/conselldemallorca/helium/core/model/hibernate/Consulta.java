@@ -74,7 +74,7 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 
 	private Set<Consulta> subConsultes = new HashSet<Consulta>();
 	private Set<Consulta> superConsultes = new HashSet<Consulta>();
-
+	private String formatExport;
 
 
 	public Consulta() {}
@@ -175,6 +175,14 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 	public void setOrdre(int ordre) {
 		this.ordre = ordre;
 	}
+	
+	@Column(name="format_exportacio", length=4)
+	public String getFormatExport() {
+		return formatExport;
+	}
+	public void setFormatExport(String formatExport) {
+		this.formatExport = formatExport;
+	}
 
 	@ManyToOne(optional=false)
 	@JoinColumn(name="entorn_id")
@@ -273,7 +281,8 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 			return false;
 		return true;
 	}
-
+	
+	
 	private static final long serialVersionUID = 1L;
 
 }

@@ -3,15 +3,19 @@
  */
 package net.conselldemallorca.helium.webapp.mvc;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
+import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
@@ -85,6 +89,15 @@ public class ConsultaController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
+	
+	
+	@ModelAttribute("formatsExportacio")
+	public String[] formatsExportacio() {
+		String[] formatsExportacio = {"PDF","ODT","RTF","HTML","CSV","XLS","XML"};
+		return formatsExportacio;
+	}
+	
+	
 
 	@RequestMapping(value = "/consulta/form", method = RequestMethod.GET)
 	public String formGet(
@@ -104,6 +117,7 @@ public class ConsultaController extends BaseController {
 			@RequestParam(value = "submit", required = false) String submit,
 			@RequestParam(value = "informeContingut", required = false) final MultipartFile multipartFile,
 			@RequestParam(value = "informeContingut_deleted", required = false) final String deleted,
+			@RequestParam(value = "formatExport", required = false) String formatExport,
 			@ModelAttribute("command") Consulta command,
 			BindingResult result,
 			SessionStatus status,
@@ -115,12 +129,14 @@ public class ConsultaController extends BaseController {
 					command.setEntorn(entorn);
 					command.setInformeNom(null);
 					command.setInformeContingut(null);
+					command.setFormatExport(formatExport);
 				}
 				if (multipartFile != null && multipartFile.getSize() > 0) {
 					try {
 						command.setEntorn(entorn);
 						command.setInformeContingut(multipartFile.getBytes());
 						command.setInformeNom(multipartFile.getOriginalFilename());
+						command.setFormatExport(formatExport);
 					} catch (Exception ignored) {}
 				}
 				annotationValidator.validate(command, result);

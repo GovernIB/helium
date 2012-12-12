@@ -22,6 +22,9 @@ ALTER TABLE HEL_EXPEDIENT_LOG ADD INI_RETROCES NUMBER(19);
 -- Nou camp pel domini intern --
 ALTER TABLE HEL_CAMP ADD DOMINI_INTERN NUMBER(1) NOT NULL DEFAULT 0;
 
+-- Nou camp per les consultes. Defineix el tipus de format er exportar un report amb JasperReports
+ALTER TABLE HEL_CONSULTA ADD FORMAT_EXPORTACIO VARCHAR2(4 CHAR) DEFAULT 'PDF';
+
 -- Actualització a la nova versió --
 INSERT INTO HEL_VERSIO (
     ID,
