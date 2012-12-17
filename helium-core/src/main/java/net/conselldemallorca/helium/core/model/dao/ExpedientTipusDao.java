@@ -62,13 +62,16 @@ public class ExpedientTipusDao extends HibernateGenericDao<ExpedientTipus, Long>
 				seq + increment,
 				expedientTipus.isReiniciarCadaAny());
 	}
+	
 	public String getNumeroExpedientDefaultActual(
-			Long expedientTipusId) {
+			Long expedientTipusId,
+			long increment) {
 		ExpedientTipus expedientTipus = getById(expedientTipusId, false);
+		long seq = expedientTipus.getSequenciaDefault();
 		return getNumeroExpedientExpressio(
 				expedientTipus,
 				getNumexpExpression(),
-				expedientTipus.getSequenciaDefault(),
+				seq + increment,
 				true);
 	}
 

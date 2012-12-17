@@ -244,7 +244,7 @@ public class ExpedientService {
 		expedient.setAvisosMobil(avisosMobil);
 		expedient.setNotificacioTelematicaHabilitada(notificacioTelematicaHabilitada);
 		expedient.setNumeroDefault(
-				expedientTipusDao.getNumeroExpedientDefaultActual(expedientTipusId));
+				getNumeroExpedientDefaultActual(entornId, expedientTipusId));
 		if (expedientTipus.getTeNumero()) {
 			if (numero != null && numero.length() > 0) {
 				expedient.setNumero(numero);
@@ -253,6 +253,7 @@ public class ExpedientService {
 						getNumeroExpedientActual(entornId, expedientTipusId));
 			}
 		}
+	
 		// Verifica si l'expedient té el número repetit
 		if (expedientDao.findAmbEntornTipusINumero(
 				entornId,
@@ -279,7 +280,7 @@ public class ExpedientService {
 				expedientTipus.setSequencia(expedientTipus.getSequencia() + 1);
 		}
 		// Actualitza la seqüència del número d'expedient per defecte
-		if (expedient.getNumeroDefault().equals(expedientTipusDao.getNumeroExpedientDefaultActual(expedientTipusId)))
+		if (expedient.getNumeroDefault().equals(getNumeroExpedientDefaultActual(entornId, expedientTipusId)))
 			expedientTipus.setSequenciaDefault(expedientTipus.getSequenciaDefault() + 1);
 		// Configura el títol de l'expedient
 		if (expedientTipus.getTeTitol()) {
@@ -366,6 +367,25 @@ public class ExpedientService {
 					expedientTipusId,
 					increment);
 			expedient = expedientDao.findAmbEntornTipusINumero(
+					entornId,
+					expedientTipusId,
+					numero);
+			increment++;
+		} while (expedient != null);
+		return numero;
+	}
+	
+	public String getNumeroExpedientDefaultActual(
+			Long entornId,
+			Long expedientTipusId) {
+		long increment = 0;
+		String numero = null;
+		Expedient expedient = null;
+		do {
+			numero = expedientTipusDao.getNumeroExpedientDefaultActual(
+					expedientTipusId,
+					increment);
+			expedient = expedientDao.findAmbEntornTipusINumeroDefault(
 					entornId,
 					expedientTipusId,
 					numero);
