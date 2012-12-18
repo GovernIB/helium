@@ -83,9 +83,13 @@ public class ExpedientLogHelper {
 				getMessageLogPerTipus(tipus));
 		JbpmTask task = jbpmDao.getTaskById(taskInstanceId);
 		Expedient expedient = getExpedientPerProcessInstanceId(task.getProcessInstanceId());
+		String usuari = "Timer";
+		try {
+			usuari = SecurityContextHolder.getContext().getAuthentication().getName();
+		}catch (Exception e){}
 		ExpedientLog expedientLog = new ExpedientLog(
 				expedient,
-				SecurityContextHolder.getContext().getAuthentication().getName(),
+				usuari,
 				taskInstanceId,
 				tipus);
 		expedientLog.setProcessInstanceId(new Long(task.getProcessInstanceId()));
@@ -103,9 +107,13 @@ public class ExpedientLogHelper {
 				processInstanceId,
 				getMessageLogPerTipus(tipus));
 		Expedient expedient = getExpedientPerProcessInstanceId(processInstanceId);
+		String usuari = "Timer";
+		try {
+			usuari = SecurityContextHolder.getContext().getAuthentication().getName();
+		}catch (Exception e){}
 		ExpedientLog expedientLog = new ExpedientLog(
 				expedient,
-				SecurityContextHolder.getContext().getAuthentication().getName(),
+				usuari,
 				processInstanceId,
 				tipus);
 		expedientLog.setProcessInstanceId(new Long(processInstanceId));
@@ -122,9 +130,14 @@ public class ExpedientLogHelper {
 			String accioParams) {
 		Expedient expedient = expedientDao.getById(expedientId, false);
 		String processInstanceId = expedient.getProcessInstanceId();
+		String usuari = "Timer";
+		try {
+			usuari = SecurityContextHolder.getContext().getAuthentication().getName();
+		}catch (Exception e){}
+	
 		ExpedientLog expedientLog = new ExpedientLog(
 				expedient,
-				SecurityContextHolder.getContext().getAuthentication().getName(),
+				usuari,
 				processInstanceId,
 				tipus);
 		expedientLog.setProcessInstanceId(new Long(processInstanceId));

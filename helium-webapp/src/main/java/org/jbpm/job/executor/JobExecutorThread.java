@@ -55,7 +55,6 @@ public class JobExecutorThread extends Thread {
 		while (isActive) {
 			try {
 				Collection acquiredJobs = acquireJobs();
-
 				if (! acquiredJobs.isEmpty()) {
 					Iterator iter = acquiredJobs.iterator();
 					while (iter.hasNext() && isActive) {
@@ -188,12 +187,12 @@ public class JobExecutorThread extends Thread {
 					throw e;
 				} else {
 					// prevent unsafe use of the session after an exception occurs
-					jbpmContext.setRollbackOnly();
+//					jbpmContext.setRollbackOnly();
 					log.debug("exception while executing " + job, e);
 					StaleObjectLogConfigurer.getStaleObjectExceptionsLog().error("failed to complete " + job);
 				}
 			} catch (Error e) {
-				jbpmContext.setRollbackOnly();
+//				jbpmContext.setRollbackOnly();
 				throw e;
 			}
 
