@@ -127,6 +127,6 @@ public class DaoProxy implements ApplicationContextAware {
 					Thread.sleep(500);
 				} catch (Exception ex) {}
 		}
-		System.out.println(">>>>>DaoProxy ctx OK (" + System.currentTimeMillis() + ")");
+//		System.out.println(">>>>>DaoProxy ctx OK (" + System.currentTimeMillis() + ")");
 	}
 }

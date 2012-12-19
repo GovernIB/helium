@@ -490,10 +490,15 @@ public class ExpedientService {
 		}
 		// Estat
 		if (estatId != null) {
-			if (expedient.getEstat() == null || expedient.getEstat().getId() != estatId) {
+			if (expedient.getEstat() == null) {
 				expedientLogHelper.afegirProcessLogInfoExpedient(
 						expedient.getProcessInstanceId(), 
 						LogInfo.ESTAT + "#@#" + "---");
+				expedient.setEstat(estatDao.getById(estatId, false));
+			} else if (expedient.getEstat().getId() != estatId){
+				expedientLogHelper.afegirProcessLogInfoExpedient(
+						expedient.getProcessInstanceId(), 
+						LogInfo.ESTAT + "#@#" + expedient.getEstat().getId());
 				expedient.setEstat(estatDao.getById(estatId, false));
 			}
 		} else if (expedient.getEstat() != null) {
