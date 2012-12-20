@@ -1838,13 +1838,16 @@ public class DissenyService {
 		return consultaDao.saveOrUpdate(entity);
 	}
 	public Consulta updateConsulta(Consulta entity, boolean delete) {
-		Consulta vella = consultaDao.getById(entity.getId(), false);
-		if (vella != null && !delete) {
-			if (entity.getInformeContingut() == null || entity.getInformeContingut().length == 0) {
-				entity.setInformeNom(vella.getInformeNom());
-				entity.setInformeContingut(vella.getInformeContingut());
-			}
-		}
+//		Consulta vella = consultaDao.getById(entity.getId(), false);
+//		if (vella != null && !delete) {
+//			if (entity.getInformeContingut() == null || entity.getInformeContingut().length == 0) {
+//				entity.setInformeNom(vella.getInformeNom());
+//				entity.setInformeContingut(vella.getInformeContingut());
+//			}
+//		}
+		return consultaDao.merge(entity);
+	}
+	public Consulta updateConsulta(Consulta entity) {
 		return consultaDao.merge(entity);
 	}
 	public void deleteConsulta(Long id) {
