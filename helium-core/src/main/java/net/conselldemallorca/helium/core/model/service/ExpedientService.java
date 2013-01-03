@@ -1648,7 +1648,36 @@ public class ExpedientService {
 	public List<ExpedientLogDto> getLogsOrdenatsPerData(Long expedientId) {
 		List<ExpedientLogDto> resposta = new ArrayList<ExpedientLogDto>();
 		List<ExpedientLog> logs = expedientLogDao.findAmbExpedientIdOrdenatsPerData(expedientId);
+		String parentProcessInstanceId = null;
+		Map<String, String> processos = new HashMap<String, String>();
 		for (ExpedientLog log: logs) {
+			// Obtenim el token de cada registre
+			JbpmToken token = null;
+			if (log.getJbpmLogId() != null) {
+				token = expedientLogHelper.getTokenByJbpmLogId(log.getJbpmLogId());
+			}
+			String tokenName = null;
+			String processInstanceId = null;
+			if (token != null && token.getToken() != null) {
+				tokenName = token.getToken().getFullName();
+				processInstanceId = token.getProcessInstanceId();
+				
+				// Entram per primera vegada
+				if (parentProcessInstanceId == null) {
+					parentProcessInstanceId = processInstanceId;
+					processos.put(processInstanceId, "");
+				} else {
+					// Canviam de procés
+					if (!parentProcessInstanceId.equals(token.getProcessInstanceId())){
+						// Entram en un nou subproces
+						if (!processos.containsKey(processInstanceId)) {
+							processos.put(processInstanceId, token.getToken().getProcessInstance().getSuperProcessToken().getFullName());
+						}
+					}
+					tokenName = processos.get(processInstanceId) + tokenName;
+				}
+			}
+				
 			ExpedientLogDto dto = new ExpedientLogDto();
 			dto.setId(log.getId());
 			dto.setData(log.getData());
@@ -1657,6 +1686,7 @@ public class ExpedientService {
 			dto.setAccioTipus(log.getAccioTipus().name());
 			dto.setAccioParams(log.getAccioParams());
 			dto.setTargetId(log.getTargetId());
+			dto.setTokenName(tokenName);
 			dto.setTargetTasca(log.isTargetTasca());
 			dto.setTargetProces(log.isTargetProces());
 			dto.setTargetExpedient(log.isTargetExpedient());

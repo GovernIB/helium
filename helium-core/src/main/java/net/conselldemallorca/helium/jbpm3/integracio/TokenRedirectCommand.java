@@ -11,7 +11,6 @@ import org.jbpm.graph.def.Node;
 import org.jbpm.graph.def.Node.NodeType;
 import org.jbpm.graph.exe.ExecutionContext;
 import org.jbpm.graph.exe.Token;
-import org.jbpm.graph.node.TaskNode;
 import org.jbpm.taskmgmt.exe.TaskInstance;
 
 /**
@@ -148,9 +147,10 @@ public class TokenRedirectCommand extends AbstractGetObjectBaseCommand {
 
 	private boolean isTaskOrProcessState(Node node) {
 		String nodeClassName = node.toString();
-		return (node instanceof TaskNode || 
-				nodeClassName.contains("ProcessState") || 
-				node.getNodeType() == NodeType.State);
+		NodeType nodeType = node.getNodeType();
+		return (nodeClassName.contains("ProcessState") || nodeType == NodeType.Task);
+//		return (node instanceof TaskNode || 
+//				nodeClassName.contains("ProcessState") || 
+//				node.getNodeType() == NodeType.State);
 	}
-
 }

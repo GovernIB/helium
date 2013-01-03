@@ -226,6 +226,26 @@ public class ExpedientLogHelper {
 					System.out.println();
 				}
 			}
+			
+//			// Obtenim els logs de la tasca, per tal de poder saber a quin log hem de fer el node enter
+//			long nodeRetrocedir = -1;
+//			if (retrocedirPerTasques) {
+//				try {
+//					List<ExpedientLog> elogs = expedientLogDao.findLogsTascaByIdOrdenatsPerData(Long.valueOf(expedientLog.getTargetId()));
+//					List<ProcessLog> logsLog = getLogsJbpmPerRetrocedir(elogs);
+//					for (ProcessLog pl: logsLog) {
+//						if (pl instanceof TransitionLog) {
+//							TransitionLog trl = (TransitionLog)pl;
+//							nodeRetrocedir = trl.getId();
+//							break;
+//						}
+//					}
+//					
+//				} catch (Exception e) {
+//					logger.error("ERROR: Error al obtenir la tasca de l'expedient dels logs", e);
+//				}
+//			}
+				
 			// Emmagatzema els paràmetres per a retrocedir cada acció
 			Map<Long, String> paramsAccio = new HashMap<Long, String>();
 			for (LogObject logo: logObjects) {
@@ -294,24 +314,25 @@ public class ExpedientLogHelper {
 							Node forkNode = getForkNode(logo.getProcessInstanceId(), joinNode);
 							if (forkNode != null)
 								desti = forkNode.getName();
-						}
+						} 
 						
 						if (debugRetroces) {
 							JbpmToken jtok = jbpmDao.getTokenById(String.valueOf(logo.getObjectId()));
 							System.out.println(">>> [LOGTOKEN] Retroces abans token redirect (" + logo.getName() + ") - End: " + jtok.getToken().getEnd());
 						}
 						
+//						boolean enterNode = (nodeRetrocedir == logo.getLogId());
+						boolean enterNode = retrocedirPerTasques;
 						boolean executeNode = (!jbpmDao.isProcessStateNodeJoinOrFork( //(!jbpmDao.isProcessStateNode(
 								logo.getProcessInstanceId(),
 								(String)logo.getValorInicial()));
 						if (debugRetroces)
-							System.out.println(">>> [RETLOG] Retornar token (name=" + logo.getName() + ") al node (name=" + desti + ", execute=" + executeNode + ")");
+							System.out.println(">>> [RETLOG] Retornar token (name=" + logo.getName() + ") al node (name=" + desti + ", enter = " + enterNode + ", execute=" + executeNode + ")");
 						jbpmDao.tokenRedirect(
 								logo.getObjectId(),
-								//(String)logo.getValorInicial(),
 								desti,
 								true,
-								false,
+								enterNode,
 								executeNode);
 						
 						if (debugRetroces) {
@@ -892,14 +913,15 @@ public class ExpedientLogHelper {
 			if (elog.getId().equals(expedientLogId)) {
 				found = true;
 				incloure = true;
-				if (retrocedirPerTasques  && elog.isTargetTasca()) {
+				if (/*retrocedirPerTasques  && */elog.isTargetTasca()) {
 					JbpmToken jbpmTokenRetroces = getTokenByJbpmLogId(elog.getJbpmLogId());
 					if (jbpmTokenRetroces != null) tokenRetroces = jbpmTokenRetroces.getToken();
 				}
 			}
 			// Obtenim els logs a retrocedir
 			if (found) {
-				if (retrocedirPerTasques) {
+				// Ara
+//				if (retrocedirPerTasques) {
 					 if (elog.isTargetTasca() && tokenRetroces != null) {
 						 // Si la tasca seleccionada es del token arrel, llavors 
 						 // totes les tasques posteriors s'han de incloure
@@ -944,9 +966,9 @@ public class ExpedientLogHelper {
 						expedientLogsRetrocedir.add(elog);
 						incloure = false;
 					}
-				} else {
-					expedientLogsRetrocedir.add(elog);
-				}
+//				} else {
+//					expedientLogsRetrocedir.add(elog);
+//				}
 			}
 		}
 		return expedientLogsRetrocedir;

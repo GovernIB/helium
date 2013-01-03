@@ -49,7 +49,7 @@ function confirmarRetrocedir(e) {
 jQuery(document).ready(function(){
 	jQuery("table#registre").find("tbody > tr > td > a.retroces").each(function(){
 		jQuery(this).hover(
-		<c:if test="${param.tipus_retroces != 0}">
+		<%--c:if test="${param.tipus_retroces != 0}"--%>
 			function(){
 				var $fil = jQuery(this).parent().parent();					// Fila de la taula
 				var element = $fil.find("td:nth-child(3)").html().trim(); 	// Tasca
@@ -89,16 +89,16 @@ jQuery(document).ready(function(){
 					});
 				}
 			},
-		</c:if>
-		<c:if test="${param.tipus_retroces == 0}">
-			function(){
-				var $fil = jQuery(this).parent().parent();
-				$fil.addClass("registre_a_retrocedir");
-				$fil.nextAll().each(function(){
-					jQuery(this).addClass("registre_a_retrocedir");
-				});
-			},
-		</c:if>
+		<%--/c:if>
+		<c:if test="${param.tipus_retroces == 0}"--%>
+//			function(){
+//				var $fil = jQuery(this).parent().parent();
+//				$fil.addClass("registre_a_retrocedir");
+//				$fil.nextAll().each(function(){
+//					jQuery(this).addClass("registre_a_retrocedir");
+//				});
+//			},
+		<%--/c:if--%>
 			function(){
 				jQuery("table#registre").find("tbody > tr").removeClass("registre_a_retrocedir");
 			});
@@ -179,7 +179,9 @@ jQuery(document).ready(function(){
 				<c:otherwise></c:otherwise>
 			</c:choose>
 		</display:column>
-		<c:if test="${param.tipus_retroces != 0}"><display:column property="tokenName" titleKey="expedient.lot.token" style="${cellStyle}"/></c:if>
+		<%--c:if test="${param.tipus_retroces != 0}"--%>
+		<display:column property="tokenName" titleKey="expedient.lot.token" style="${cellStyle}"/>
+		<%--/c:if--%>
 		<display:column>
 			<c:if test="${registre.estat == 'NORMAL' && numBloquejos == 0}">
 				<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
