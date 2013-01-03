@@ -54,30 +54,31 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 			Object handler) throws Exception {
 		if (request.getUserPrincipal() != null) {
 			Entorn entornActual = (Entorn)request.getSession().getAttribute(VARIABLE_SESSIO_ENTORN_ACTUAL);
-			// Si l'usuari només té un entorn el selecciona automàticament
-			if (entornActual == null) {
-				try {
-					List<Entorn> entorns = entornService.findActius();
-					permissionService.filterAllowed(
-							entorns,
-							Entorn.class,
-							new Permission[] {
-								ExtendedPermission.ADMINISTRATION,
-								ExtendedPermission.READ});
-					if (entorns.size() == 1) {
-						entornActual = entorns.get(0);
-					} else {
-						UsuariPreferencies prefs = personaService.getUsuariPreferencies();
-						if (prefs != null && prefs.getDefaultEntornCodi() != null) {
-							Entorn entornDefecte = entornService.findAmbCodi(
-									prefs.getDefaultEntornCodi());
-							if (entornDefecte != null)
-								entornActual = entornDefecte;
+			try {
+				List<Entorn> entorns = entornService.findActius();
+				request.setAttribute("entorns", entorns); 
+				// Si l'usuari només té un entorn el selecciona automàticament
+				if (entornActual == null) {
+						permissionService.filterAllowed(
+								entorns,
+								Entorn.class,
+								new Permission[] {
+									ExtendedPermission.ADMINISTRATION,
+									ExtendedPermission.READ});
+						if (entorns.size() == 1) {
+							entornActual = entorns.get(0);
+						} else {
+							UsuariPreferencies prefs = personaService.getUsuariPreferencies();
+							if (prefs != null && prefs.getDefaultEntornCodi() != null) {
+								Entorn entornDefecte = entornService.findAmbCodi(
+										prefs.getDefaultEntornCodi());
+								if (entornDefecte != null)
+									entornActual = entornDefecte;
+							}
 						}
-					}
-				} catch (Exception ex) {
-					logger.error("Error cercant els entorns", ex);
 				}
+			} catch (Exception ex) {
+				logger.error("Error cercant els entorns", ex);
 			}
 			// Si en el request existeix el paràmetre de selecció d'entorn
 			// configura l'entorn actual

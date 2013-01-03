@@ -5,7 +5,15 @@
 
 <ul id="menu-superior" class="dropdown dropdown-horizontal">
 	<li class="image inici"><a href="<c:url value="/"/>"><fmt:message key='decorators.superior.inici' /></a></li>
-	<li class="image entorns"><a href="<c:url value="/entorn/seleccio.html"/>"><fmt:message key='decorators.superior.selec_entorn' /></a></li>
+	<li class="image entorns"><a href="<c:url value="/entorn/seleccio.html"/>"><fmt:message key='decorators.superior.selec_entorn' /></a>
+		 <ul class="llista-entorns">
+		 	<c:forEach var="list" items="${entorns}">
+				<li>
+					<a href="<c:url value="/index.html"><c:param name="entornCanviarAmbId" value="${list.id}"/></c:url>">${list.nom}</a>
+				</li>
+    		</c:forEach>
+    	</ul>		
+   	</li>
 	<c:if test="${globalProperties['app.persones.actiu']}">
 		<li class="image perfil"><a href="<c:url value="/perfil/info.html"/>"><fmt:message key='decorators.superior.meu_perfil' /></a></li>
 	</c:if>
