@@ -58,7 +58,7 @@ ul.dropdown a:active	{ color: #4c4c4c; }
 ul.dropdown ul {
 	border: 1px solid #a1a1a1;
 	padding: 4px 0px;
-	width: 178px;
+	width: 132px;
 	background-color: white;
 }
 ul.dropdown ul li {
@@ -84,6 +84,9 @@ ul.dropdown li.dir > a {
 }
 
 /* -- Components override -- */
+.dropdown li.image  > ul.llista-entorns {
+	width: 400px;
+}
 
 ul.dropdown-horizontal ul *.dir {
 	padding-right: 15px;
