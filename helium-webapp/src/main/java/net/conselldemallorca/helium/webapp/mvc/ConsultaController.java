@@ -113,7 +113,7 @@ public class ConsultaController extends BaseController {
 	@RequestMapping(value = "/consulta/form", method = RequestMethod.GET)
 	public String formGet(
 			HttpServletRequest request,
-			@RequestParam(value = "id", required = true) Long id,
+			@RequestParam(value = "id", required = false) Long id,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
@@ -126,8 +126,8 @@ public class ConsultaController extends BaseController {
 	@RequestMapping(value = "/consulta/form", method = RequestMethod.POST)
 	public String formPost(
 			HttpServletRequest request,
-			@RequestParam(value = "id", required = true) Long id,
-			@RequestParam(value = "informeContingut", required = true) byte[] informeContingut,
+			@RequestParam(value = "id", required = false) Long id,
+//			@RequestParam(value = "informeContingut", required = true) byte[] informeContingut,
 			@RequestParam(value = "submit", required = false) String submit,
 			@RequestParam(value = "informeContingut", required = false) final MultipartFile multipartFile,
 			@RequestParam(value = "informeContingut_deleted", required = false) final String deleted,
@@ -139,10 +139,11 @@ public class ConsultaController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		
 		if (entorn != null) {
+			Consulta consulta = new Consulta();
+			if(id != null) consulta = dissenyService.getConsultaById(id);
 			
-			Consulta consulta = dissenyService.getConsultaById(id);
 			consulta.setId(command.getId());
-			consulta.setEntorn(command.getEntorn());
+			consulta.setEntorn(entorn);
 			consulta.setCodi(command.getCodi());
 			consulta.setNom(command.getNom());
 			consulta.setDescripcio(command.getDescripcio());
@@ -151,6 +152,8 @@ public class ConsultaController extends BaseController {
 			consulta.setValorsPredefinits(command.getValorsPredefinits());
 			consulta.setExportarActiu(command.isExportarActiu());
 			consulta.setOcultarActiu(command.isOcultarActiu());
+			
+			
 			
 			if ("submit".equals(submit) || submit.length() == 0) {
 				if("deleted".equalsIgnoreCase(deleted)){
