@@ -1082,7 +1082,7 @@ public class TascaService {
 							new DadesTascaOrdenacio(
 									task.getId(),
 									dadesCacheTasca.getTitol(),
-									dadesCacheTasca.getIdentificadorOrdenacio(),
+									dadesCacheTasca.getNumeroIdentificador(),
 									dadesCacheTasca.getExpedientTipusNom(),
 									task.getCreateTime(),
 									task.getPriority(),
