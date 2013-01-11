@@ -859,6 +859,10 @@ public class DissenyService {
 		return enumeracioDao.findAmbEntornSenseTipusExpICodi(entornId, codi);
 	}
 	
+	public Enumeracio findAmbEntornTipusExpICodi(Long entornId, Long tipusExp, String codi) {
+		return enumeracioDao.findAmbEntornAmbTipusExpICodi(entornId ,tipusExp, codi);
+	}
+	
 	public EnumeracioValors getEnumeracioValorsById(Long id) {
 		return enumeracioValorsDao.getById(id, false);
 	}
@@ -1456,8 +1460,9 @@ public class DissenyService {
 		// Crea les enumeracions del tipus d'expedient
 		if (exportacio.getEnumeracions() != null) {
 			for (EnumeracioExportacio enumeracio: exportacio.getEnumeracions()) {
-				Enumeracio nova = enumeracioDao.findAmbEntornICodi(
+				Enumeracio nova = enumeracioDao.findAmbEntornAmbTipusExpICodi(
 						entornId,
+						expedientTipusId,
 						enumeracio.getCodi());
 				if (nova == null) {
 					nova = new Enumeracio(
