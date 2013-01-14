@@ -165,10 +165,13 @@ public class PluginService {
 			if (annexosId != null) {
 				annexos = new ArrayList<DocumentDto>();
 				for (Long docId: annexosId) {
-					annexos.add(documentHelper.getDocumentVista(
+					DocumentDto docDto = documentHelper.getDocumentVista(
 							docId,
 							false,
-							false));
+							false);
+					if (docDto != null){
+						annexos.add(docDto);
+					}
 				}
 			}
 			Integer doc = pluginPortasignaturesDao.uploadDocument(

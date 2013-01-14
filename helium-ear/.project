@@ -3,7 +3,6 @@
 	<name>helium-ear</name>
 	<comment></comment>
 	<projects>
-		<project>helium-webapp</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
