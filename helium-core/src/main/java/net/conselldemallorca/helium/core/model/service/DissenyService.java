@@ -2536,11 +2536,15 @@ public class DissenyService {
 			nou.setOcult(camp.isOcult());
 			nou.setJbpmAction(camp.getJbpmAction());
 			nou.setOrdre(camp.getOrdre());
+			
 			if (camp.getCodiEnumeracio() != null) {
-				Enumeracio enumeracio = enumeracioDao.findAmbEntornICodi(
+				Enumeracio enumeracio = enumeracioDao.findAmbEntornAmbTipusExpICodi(
 						entornId,
+						expedientTipusId,
 						camp.getCodiEnumeracio());
+				
 				if (enumeracio != null) {
+					enumeracio.setCodi(camp.getCodiEnumeracio());
 					nou.setEnumeracio(enumeracio);
 				} else {
 					enumeracio = new Enumeracio();
