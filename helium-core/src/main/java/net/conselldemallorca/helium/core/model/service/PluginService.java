@@ -668,6 +668,7 @@ public class PluginService {
 					portasignatures.getExpedient().getEntorn());
 			alerta.setExpedient(portasignatures.getExpedient());
 			DocumentDto document = documentHelper.getDocumentSenseContingut(portasignatures.getDocumentStoreId());
+			String causa = null;
 			if (document != null)
 				causa = "Error al processar resposta del portasignatures per al document \"" + document.getDocumentNom() + "\": " + errorCallback;
 			else
