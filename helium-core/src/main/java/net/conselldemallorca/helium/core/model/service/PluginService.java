@@ -669,9 +669,13 @@ public class PluginService {
 			alerta.setExpedient(portasignatures.getExpedient());
 			DocumentDto document = documentHelper.getDocumentSenseContingut(portasignatures.getDocumentStoreId());
 			if (document != null)
-				alerta.setCausa("Error al processar resposta del portasignatures per al document \"" + document.getDocumentNom() + "\": " + errorCallback);
+				causa = "Error al processar resposta del portasignatures per al document \"" + document.getDocumentNom() + "\": " + errorCallback;
 			else
-				alerta.setCausa("Error al processar resposta del portasignatures amb id " + portasignatures.getDocumentId());
+				causa = "Error al processar resposta del portasignatures amb id " + portasignatures.getDocumentId();
+			if (causa.length() > 255)
+				alerta.setCausa(causa.substring(0, 248) + "[...]");
+			else
+				alerta.setCausa(causa);
 			alertaDao.saveOrUpdate(alerta);
 		}
 	}
