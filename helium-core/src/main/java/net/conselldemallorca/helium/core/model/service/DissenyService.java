@@ -1236,6 +1236,7 @@ public class DissenyService {
 						getServiceUtils().getMessage("error.dissenyService.generantContingut"), ex);
 			}
 		}
+		
         return definicioProcesExportacio;
 	}
 	public void importar(
@@ -2538,24 +2539,32 @@ public class DissenyService {
 			nou.setOrdre(camp.getOrdre());
 			
 			if (camp.getCodiEnumeracio() != null) {
-				Enumeracio enumeracio = enumeracioDao.findAmbEntornAmbTipusExpICodi(
+				
+				Enumeracio enumeracioEntorn = enumeracioDao.findAmbEntornSenseTipusExpICodi(
 						entornId,
-						expedientTipusId,
 						camp.getCodiEnumeracio());
 				
-				if (enumeracio != null) {
-					enumeracio.setCodi(camp.getCodiEnumeracio());
-					nou.setEnumeracio(enumeracio);
-				} else {
-					enumeracio = new Enumeracio();
-					enumeracio.setEntorn(entornDao.getById(entornId, false));
-					enumeracio.setCodi(camp.getCodiEnumeracio());
-					enumeracio.setNom(camp.getCodiEnumeracio());
-					if (expedientTipusId != null)
-						enumeracio.setExpedientTipus(
-								expedientTipusDao.getById(expedientTipusId, false));
-					enumeracioDao.saveOrUpdate(enumeracio);
+				if(enumeracioEntorn==null){
+					Enumeracio enumeracio = enumeracioDao.findAmbEntornAmbTipusExpICodi(
+							entornId,
+							expedientTipusId,
+							camp.getCodiEnumeracio());
+					if (enumeracio != null) {
+						enumeracio.setCodi(camp.getCodiEnumeracio());
+						nou.setEnumeracio(enumeracio);
+					} else {
+							enumeracio = new Enumeracio();
+							enumeracio.setEntorn(entornDao.getById(entornId, false));
+							enumeracio.setCodi(camp.getCodiEnumeracio());
+							enumeracio.setNom(camp.getCodiEnumeracio());
+							if (expedientTipusId != null)
+								enumeracio.setExpedientTipus(
+										expedientTipusDao.getById(expedientTipusId, false));
+						enumeracioDao.saveOrUpdate(enumeracio);
+					}
+									
 				}
+				
 			}
 			if (camp.getCodiDomini() != null) {
 				Domini domini = dominiDao.findAmbEntornICodi(entornId, camp.getCodiDomini());
