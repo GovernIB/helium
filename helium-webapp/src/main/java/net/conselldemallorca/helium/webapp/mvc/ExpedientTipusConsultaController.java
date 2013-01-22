@@ -59,6 +59,13 @@ public class ExpedientTipusConsultaController extends BaseController {
 	}
 
 
+	@ModelAttribute("formatsExportacio")
+	public String[] formatsExportacio() {
+		String[] formatsExportacio = {"PDF","ODT","RTF","HTML","CSV","XLS","XML"};
+		return formatsExportacio;
+	}
+	
+
 	@ModelAttribute("command")
 	public Consulta populateCommand(
 			HttpServletRequest request,
@@ -123,6 +130,7 @@ public class ExpedientTipusConsultaController extends BaseController {
 			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
 			@RequestParam(value = "informeContingut", required = false) final MultipartFile multipartFile,
 			@RequestParam(value = "informeContingut_deleted", required = false) final String deleted,
+			@RequestParam(value = "formatExport", required = false) String formatExport,
 			@ModelAttribute("command") Consulta command,
 			BindingResult result,
 			SessionStatus status,
@@ -136,6 +144,7 @@ public class ExpedientTipusConsultaController extends BaseController {
 					command.setExpedientTipus(expedientTipus);
 					command.setInformeNom(null);
 					command.setInformeContingut(null);
+					command.setFormatExport(formatExport);
 					if (multipartFile != null && multipartFile.getSize() > 0) {
 						try {
 							command.setInformeContingut(multipartFile.getBytes());
