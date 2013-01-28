@@ -2565,6 +2565,8 @@ public class DissenyService {
 						enumeracioDao.saveOrUpdate(enumeracio);
 					}
 									
+				}else{
+					nou.setEnumeracio(enumeracioEntorn);
 				}
 				
 			}
