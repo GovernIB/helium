@@ -377,17 +377,35 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
-			if (valor instanceof XMLGregorianCalendar)
-				expedientService.updateVariable(
-						processInstanceId,
-						varCodi,
-						((XMLGregorianCalendar)valor).toGregorianCalendar().getTime());
-			else
+			if (valor instanceof Object[]) {
+				Object[] vs = (Object[])valor;
+				for (int i = 0; i < vs.length; i++) {
+					if (vs[i] instanceof Object[]) {
+						Object[] vss = (Object[])vs[i];
+						for (int j = 0; j < vss.length; j++) {
+							if (vss[j] instanceof XMLGregorianCalendar)
+								vss[j] = ((XMLGregorianCalendar)vss[j]).toGregorianCalendar().getTime();
+						}
+					} else {
+						if (vs[i] instanceof XMLGregorianCalendar)
+							vs[i] = ((XMLGregorianCalendar)vs[i]).toGregorianCalendar().getTime();
+					}
+				}
 				expedientService.updateVariable(
 						processInstanceId,
 						varCodi,
 						valor);
-			
+			} else if (valor instanceof XMLGregorianCalendar) {
+				expedientService.updateVariable(
+						processInstanceId,
+						varCodi,
+						((XMLGregorianCalendar)valor).toGregorianCalendar().getTime());
+			} else {
+				expedientService.updateVariable(
+						processInstanceId,
+						varCodi,
+						valor);
+			}
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar la variable al procés", ex);
 			throw new TramitacioException("No s'ha pogut guardar la variable al procés: " + ex.getMessage());
