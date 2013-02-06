@@ -160,7 +160,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			populateModelCommon(entorn, model, commandSeleccio);
 			Object commandFiltre = session.getAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);
 			if (commandFiltre != null && commandSeleccio != null && commandSeleccio.getConsultaId() != null) {
-				model.addAttribute("commandFiltre", commandFiltre);
+				//model.addAttribute("commandFiltre", commandFiltre);
 				model.addAttribute("expedientTipusId", commandSeleccio.getExpedientTipusId());
 				List<Camp> camps = dissenyService.findCampsPerCampsConsulta(
 						commandSeleccio.getConsultaId(),
@@ -191,6 +191,9 @@ public class ExpedientConsultaDissenyController extends BaseController {
 							valor);
 				}
 				boolean export = request.getParameter(TableTagParameters.PARAMETER_EXPORTING) != null;
+				
+				commandFiltre = TascaFormUtil.getCommandForFiltre(camps, valors, null, null);
+				model.addAttribute("commandFiltre", commandFiltre);
 				
 				model.addAttribute(
 						"expedients",
