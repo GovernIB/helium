@@ -171,9 +171,16 @@ public class ExpedientConsultaDissenyController extends BaseController {
 						commandFiltre,
 						true,
 						true);
+				ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(commandSeleccio.getExpedientTipusId());
 				Map<String, Object> valorsPerService = new HashMap<String, Object>();
 				for (String clau: valors.keySet()) {
-					String clauPerService = clau.replaceFirst("_", ".");
+					String clauPerService;
+					String expedientTipusCodi = expedientTipus.getCodi();
+					if (clau.startsWith(expedientTipusCodi)) {
+						clauPerService = expedientTipusCodi + clau.substring(expedientTipusCodi.length()).replaceFirst("_", ".");
+					} else {
+						clauPerService = clau.replaceFirst("_", ".");
+					}
 					Object valor = valors.get(clau);
 					/*if (valor instanceof Object[])
 						System.out.println("@@@ " + clauPerService + ": [" + ((Object[])valor)[0] + ", " + ((Object[])valor)[1] + "]");
