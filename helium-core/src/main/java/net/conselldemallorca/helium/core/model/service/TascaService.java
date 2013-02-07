@@ -834,8 +834,9 @@ public class TascaService {
 				taskId,
 				ExpedientLogAccioTipus.TASCA_ACCIO_EXECUTAR,
 				accio);
-		comprovarSeguretatTasca(entornId, taskId, null, true);
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		jbpmDao.executeActionInstanciaTasca(taskId, accio);
+		getServiceUtils().expedientIndexLuceneUpdate(task.getProcessInstanceId());
 	}
 
 	public void comprovarTascaAssignadaIValidada(

@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.StaleStateException;
 import org.hibernate.exception.LockAcquisitionException;
@@ -24,6 +25,8 @@ import org.jbpm.svc.Services;
 
 public class JobExecutorThread extends Thread {
 
+	private static Log log = LogFactory.getLog(JobExecutorThread.class);
+	
 	public JobExecutorThread( String name,
 			JobExecutor jobExecutor,
 			JbpmConfiguration jbpmConfiguration,
@@ -42,6 +45,7 @@ public class JobExecutorThread extends Thread {
 
 	final JobExecutor jobExecutor; 
 	final JbpmConfiguration jbpmConfiguration;
+	
 	final int idleInterval;
 	final int maxIdleInterval;
 	final long maxLockTime;
@@ -106,7 +110,7 @@ public class JobExecutorThread extends Thread {
 		}
 		log.info(getName()+" leaves cyberspace");
 	}
-
+	
 	@SuppressWarnings("rawtypes")
 	protected Collection acquireJobs() {
 		Collection acquiredJobs;
@@ -120,6 +124,7 @@ public class JobExecutorThread extends Thread {
 				log.debug("querying for acquirable job...");
 				Job job = jobSession.getFirstAcquirableJob(lockOwner);
 				if (job!=null) {
+					Hibernate.initialize(job.getProcessInstance());
 					if (job.isExclusive()) {
 						log.debug("found exclusive " + job);
 						ProcessInstance processInstance = job.getProcessInstance();
@@ -301,7 +306,5 @@ public class JobExecutorThread extends Thread {
 			interrupt();      
 		}
 	}
-
-	private static Log log = LogFactory.getLog(JobExecutorThread.class);
 }
 

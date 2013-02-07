@@ -3,6 +3,8 @@ package net.conselldemallorca.helium.jbpm3.spring;
 import java.util.Collection;
 import java.util.Date;
 
+import net.conselldemallorca.helium.core.model.service.ExpedientService;
+
 import org.jbpm.JbpmConfiguration;
 import org.jbpm.job.Job;
 import org.jbpm.job.executor.JobExecutor;
@@ -21,6 +23,8 @@ import org.springframework.transaction.support.TransactionTemplate;
  */
 public class SpringJobExecutorThread extends JobExecutorThread {
 	
+	private ExpedientService expedientService;
+	
 	private TransactionTemplate transactionTemplate;
 	
 	public SpringJobExecutorThread(String name,
@@ -30,10 +34,12 @@ public class SpringJobExecutorThread extends JobExecutorThread {
                             int idleInterval,
                             int maxIdleInterval,
                             long maxLockTime,
-                            int maxHistory
+                            int maxHistory,
+                            ExpedientService expedientService
                           ) {
 		super(name, jobExecutor, jbpmConfiguration, idleInterval, maxIdleInterval, maxLockTime, maxHistory);
 		this.transactionTemplate = transactionTemplate;
+		this.expedientService = expedientService;
 	}
 	
 	/* WRAPPED OPERATIONS */
@@ -55,6 +61,11 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 			
 			public Object doInTransaction(TransactionStatus transactionStatus) {
 				SpringJobExecutorThread.super.executeJob(job);
+				try{
+					expedientService.luceneUpdateIndexExpedient(String.valueOf(job.getProcessInstance().getId()));
+				} catch (Exception e) {
+					System.out.println("TIMER-LUCENE: Error al indexar l'expedient amb ProcessInsatnce num. " + job.getProcessInstance().getId());
+				}
 				return null;
 			}
 			
@@ -71,5 +82,4 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 			
 		});
 	}
-
 }
