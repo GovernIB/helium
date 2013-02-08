@@ -1980,7 +1980,7 @@ public class DissenyService {
 		}
 	}
 
-	public void consultaAfegirSubconsulta(Long consultaId, Long subconsultaId) {
+	/*public void consultaAfegirSubconsulta(Long consultaId, Long subconsultaId) {
 		Consulta consulta = consultaDao.getById(consultaId, false);
 		Consulta subconsulta = consultaDao.getById(subconsultaId, false);
 		consulta.addSubConsulta(subconsulta);
@@ -1989,7 +1989,7 @@ public class DissenyService {
 		Consulta consulta = consultaDao.getById(consultaId, false);
 		Consulta subconsulta = consultaDao.getById(subconsultaId, false);
 		consulta.removeSubConsulta(subconsulta);
-	}
+	}*/
 
 	public Accio getAccioById(Long id) {
 		Accio accio = accioDao.getById(id, false);

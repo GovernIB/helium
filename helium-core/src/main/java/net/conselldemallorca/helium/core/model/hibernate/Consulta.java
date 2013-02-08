@@ -16,9 +16,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.Lob;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -72,8 +70,8 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 
 	private Set<ConsultaCamp> camps = new HashSet<ConsultaCamp>();
 
-	private Set<Consulta> subConsultes = new HashSet<Consulta>();
-	private Set<Consulta> superConsultes = new HashSet<Consulta>();
+	/*private Set<Consulta> subConsultes = new HashSet<Consulta>();
+	private Set<Consulta> superConsultes = new HashSet<Consulta>();*/
 	private String formatExport;
 
 
@@ -218,7 +216,7 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 		getCamps().remove(camp);
 	}
 
-	@ManyToMany()
+	/*@ManyToMany()
 	@JoinTable(
 			name="hel_consulta_sub",
 			joinColumns=@JoinColumn(name="pare_id", referencedColumnName="id"),
@@ -250,7 +248,7 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 	}
 	public void removeSuperConsulta(Consulta consulta) {
 		getSuperConsultes().remove(consulta);
-	}
+	}*/
 
 	@Override
 	public int hashCode() {

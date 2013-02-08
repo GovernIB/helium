@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.core.model.dao;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -376,14 +377,20 @@ public class LuceneDao extends LuceneIndexSupport {
 				Map<String, Object> valorsProces = valors.get(clau);
 				if (valorsProces != null) {
 					for (Camp camp: camps.get(clau)) {
-						updateDocumentCamp(
-								document,
-								definicioProces,
-								camp,
-								valorsProces.get(camp.getCodi()),
-								textDominis.get(clau),
-								true,
-								isUpdate);
+						try {
+							updateDocumentCamp(
+									document,
+									definicioProces,
+									camp,
+									valorsProces.get(camp.getCodi()),
+									textDominis.get(clau),
+									true,
+									isUpdate);
+						} catch (Exception ex) {
+							StringBuilder sb = new StringBuilder();
+							getClassAsString(sb, valorsProces.get(camp.getCodi()));
+							logger.error("No s'ha pogut indexar el camp (definicioProces=" + definicioProces.getJbpmKey() + "(v." + definicioProces.getVersio() + ")" + ", camp=" + camp.getCodi() + ", tipus=" + camp.getTipus() + ", multiple=" + camp.isMultiple() + ") amb un valor (tipus=" + sb.toString() + ")", ex);
+						}
 					}
 				}
 			}
@@ -745,48 +752,44 @@ public class LuceneDao extends LuceneIndexSupport {
 				// System.out.println(">>> /Registre " + camp.getCodi());
 			} else {
 				String clauIndex = definicioProces.getJbpmKey() + "." + camp.getCodi();
-				try {
-					String valorIndex = valorIndexPerCamp(camp, valor);
-					boolean analyzed = 
-						camp.getTipus().equals(TipusCamp.STRING) ||
-						camp.getTipus().equals(TipusCamp.TEXTAREA);
-					// System.out.println(">>>>>> " + clauIndex + ": " + valorIndex);
+				String valorIndex = valorIndexPerCamp(camp, valor);
+				boolean analyzed = 
+					camp.getTipus().equals(TipusCamp.STRING) ||
+					camp.getTipus().equals(TipusCamp.TEXTAREA);
+				// System.out.println(">>>>>> " + clauIndex + ": " + valorIndex);
+				createOrUpdateDocumentField(
+						document,
+						new Field(
+								clauIndex,
+								valorIndex,
+								Field.Store.YES,
+								(analyzed) ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED),
+						isUpdate);
+				createOrUpdateDocumentField(
+						document,
+						new Field(
+								clauIndex+"_no_analyzed",
+								valorIndex,
+								Field.Store.NO,
+								Field.Index.NOT_ANALYZED),
+						isUpdate);
+				String textDomini = textDominis.get(camp.getCodi() + "@" + valorIndex);
+				if (	textDomini != null &&
+						(camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST)) &&
+						document.get(clauIndex + VALOR_DOMINI_SUFIX + valorIndex) == null) {
 					createOrUpdateDocumentField(
 							document,
 							new Field(
-									clauIndex,
-									valorIndex,
+										clauIndex + VALOR_DOMINI_SUFIX + valorIndex,
+									textDomini,
 									Field.Store.YES,
-									(analyzed) ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED),
+									Field.Index.ANALYZED),
 							isUpdate);
-					createOrUpdateDocumentField(
-							document,
-							new Field(
-									clauIndex+"_no_analyzed",
-									valorIndex,
-									Field.Store.NO,
-									Field.Index.NOT_ANALYZED),
-							isUpdate);
-					String textDomini = textDominis.get(camp.getCodi() + "@" + valorIndex);
-					if (	textDomini != null &&
-							(camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST)) &&
-							document.get(clauIndex + VALOR_DOMINI_SUFIX + valorIndex) == null) {
-						createOrUpdateDocumentField(
-								document,
-								new Field(
-											clauIndex + VALOR_DOMINI_SUFIX + valorIndex,
-										textDomini,
-										Field.Store.YES,
-										Field.Index.ANALYZED),
-								isUpdate);
-					}
-				} catch (Exception ex) {
-					logger.error("No s'ha pogut afegir el camp " + clauIndex + " al document per indexar", ex);
 				}
 			}
 		}
 	}
-	private String valorIndexPerCamp(Camp camp, Object valor) throws Exception {
+	private String valorIndexPerCamp(Camp camp, Object valor) {
 		if (camp.getTipus().equals(TipusCamp.INTEGER)) {
 			return numberPerIndexar((Long)valor);
 		} else if (camp.getTipus().equals(TipusCamp.FLOAT)) {
@@ -865,6 +868,21 @@ public class LuceneDao extends LuceneIndexSupport {
 	private String dataPerIndexar(Date data) {
 		DateFormat sdf = new SimpleDateFormat(PATRO_DATES_INDEX);
 		return sdf.format(data);
+	}
+
+	private void getClassAsString(StringBuilder sb, Object o) {
+		if (o.getClass().isArray()) {
+			sb.append("[");
+			int length = Array.getLength(o);
+			for (int i = 0; i < length; i++) {
+				getClassAsString(sb, Array.get(o, i));
+				if (i < length - 1)
+					sb.append(", ");
+			}
+			sb.append("]");
+		} else {
+			sb.append(o.getClass().getName());
+		}
 	}
 
 	private String normalitzarILlevarAccents(String str) {
