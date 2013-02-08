@@ -88,7 +88,7 @@ public class JbpmConfigurationFactoryBean implements FactoryBean, InitializingBe
 			LOG.info("Job executor started.");
 		}
 	}
-	
+
 	public void onApplicationEvent(ApplicationEvent applicationEvent) {
 		if (applicationEvent instanceof ContextClosedEvent) {
 			jbpmConfiguration.getJobExecutor().stop();
@@ -98,7 +98,6 @@ public class JbpmConfigurationFactoryBean implements FactoryBean, InitializingBe
 	public void setObjectFactory(ObjectFactory objectFactory) {
 		this.objectFactory = objectFactory;
 	}
-
 
 	public void setStartJobExecutor(boolean startJobExecutor) {
 		this.startJobExecutor = startJobExecutor;
