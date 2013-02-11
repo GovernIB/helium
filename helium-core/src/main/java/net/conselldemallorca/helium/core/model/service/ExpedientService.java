@@ -833,6 +833,7 @@ public class ExpedientService {
 				TipusConsultaCamp.FILTRE);
 		afegirValorsPredefinits(consulta, valors, campsFiltre);
 		List<Long> idExpedients = luceneDao.findNomesIds(
+				consulta.getEntorn().getCodi(),
 				consulta.getExpedientTipus().getCodi(),
 				campsFiltre,
 				valors);
@@ -886,6 +887,7 @@ public class ExpedientService {
 				TipusConsultaCamp.INFORME);
 		afegirValorsPredefinits(consulta, valors, campsFiltre);
 		List<Map<String, DadaIndexadaDto>> dadesExpedients = luceneDao.findAmbDadesExpedient(
+				consulta.getEntorn().getCodi(),
 				consulta.getExpedientTipus().getCodi(),
 				campsFiltre,
 				valors,
