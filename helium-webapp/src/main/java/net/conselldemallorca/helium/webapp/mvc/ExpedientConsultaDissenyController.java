@@ -397,6 +397,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
+		binder.setAutoGrowNestedPaths(false);
 		binder.registerCustomEditor(
 				Long.class,
 				new CustomNumberEditor(Long.class, true));
@@ -418,7 +419,6 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		binder.registerCustomEditor(
 				Termini.class,
 				new TerminiTypeEditor());
-		binder.setAutoGrowNestedPaths(false);
 	}
 
 	public class ExpedientConsultaDissenyCommand {
