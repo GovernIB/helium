@@ -61,7 +61,12 @@ function confirmarModificarVariables(e) {
 	if (e.stopPropagation) e.stopPropagation();
 	return confirm("<fmt:message key='expedient.eines.confirm_modificar_variable' />");
 }
-
+function confirmarAturar(e) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	if (e.stopPropagation) e.stopPropagation();
+	return confirm("<fmt:message key='expedient.eines.confirm_reindexar_expedients' />");
+}
 
 function massiva(e){
 
@@ -70,6 +75,7 @@ function massiva(e){
 			$("#massiva").attr("action","consultaDisseny.html");
 			$("#target").val("disseny");
 			$("#target2").val("disseny");
+			$("#targetIdx").val("disseny");
 
 	}
 	else if("<%=request.getAttribute("javax.servlet.forward.request_uri")%>" == "/helium/expedient/massivaInfo.html"){
@@ -178,7 +184,7 @@ function massiva(e){
 			<c:set var="hiHaAccions" value="${false}"/>
 			<c:set var="hiHaAccions" value="${fn:length(instanciaProces.definicioProces.accions) > 0}"/>
 			
-				<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key="expedient.massiva.accions"/></h3>
+			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key="expedient.massiva.accions"/></h3>
 			<c:if test="${hiHaAccions}">
 				<c:set var="hiHaAccionsPubliques" value="${false}"/>
 				<c:forEach var="accio" items="${instanciaProces.definicioProces.accions}">
@@ -239,55 +245,64 @@ function massiva(e){
 				</div>
 			</form:form>
 			
-		<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key="expedient.massiva.documents"/></h3>
-		<c:if test="${not empty docStoreId}">
-			<form:form action="documentModificarMas.html" cssClass="uniForm" method="GET" commandName="documentCommandForm" onsubmit="return confirmarModificarDocument(event)">
-				<input type="hidden" name="procesInstanceId" value="${instanciaProces.id}"/>
-				<div style="display:none">
-					<display:table name="instanciaProces.sortedDocumentKeys" id="codi" class="displaytag">
-						<display:column>
-							<c:forEach var="document" items="${instanciaProces.documents}">
-								<c:if test="${document.codi == codi}">${document.nom}
-								
+			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key="expedient.massiva.documents"/></h3>
+			<c:if test="${not empty docStoreId}">
+				<form:form action="documentModificarMas.html" cssClass="uniForm" method="GET" commandName="documentCommandForm" onsubmit="return confirmarModificarDocument(event)">
+					<input type="hidden" name="procesInstanceId" value="${instanciaProces.id}"/>
+					<div style="display:none">
+						<display:table name="instanciaProces.sortedDocumentKeys" id="codi" class="displaytag">
+							<display:column>
+								<c:forEach var="document" items="${instanciaProces.documents}">
+									<c:if test="${document.codi == codi}">${document.nom}
+									
+									</c:if>
+									
+								</c:forEach>
+							</display:column>
+							<display:column>
+								<c:if test="${not instanciaProces.varsDocuments[codi].signat and empty psignaPendentActual}">
+									<a href="<c:url value="/expedient/documentModificarMas.html"><c:param name="procesInstanceId" value="${instanciaProces.id}"/><c:param name="docId" value="${instanciaProces.varsDocuments[codi].id}"/></c:url>" onclick="return confirmarModificar(event)"><img src="<c:url value="/img/page_white_edit.png"/>" alt="<fmt:message key='comuns.editar' />" title="<fmt:message key='comuns.editar' />" border="0"/></a>
 								</c:if>
-								
-							</c:forEach>
-						</display:column>
-						<display:column>
-							<c:if test="${not instanciaProces.varsDocuments[codi].signat and empty psignaPendentActual}">
-								<a href="<c:url value="/expedient/documentModificarMas.html"><c:param name="procesInstanceId" value="${instanciaProces.id}"/><c:param name="docId" value="${instanciaProces.varsDocuments[codi].id}"/></c:url>" onclick="return confirmarModificar(event)"><img src="<c:url value="/img/page_white_edit.png"/>" alt="<fmt:message key='comuns.editar' />" title="<fmt:message key='comuns.editar' />" border="0"/></a>
-							</c:if>
-						</display:column>
-					</display:table>
-				</div>
-				
-				<div class="inlineLabels">
-				<input type="hidden" name="docId" value="${docStoreId}"/>
-				<c:set var="documents" value="${documents}" scope="request"/>
-					<c:import url="../common/formElement.jsp">
-						<c:param name="property">nom</c:param>
-						<c:param name="type" value="select"/>
-						<c:param name="items" value="documents"/>
-						<c:param name="itemLabel" value="nom"/>
-						<c:param name="itemValue" value="nom"/>
-						<c:param name="itemBuit">&lt;&lt; <fmt:message key='expedient.consulta.select.variable'/> &gt;&gt;</c:param>
-						<c:param name="label"><fmt:message key="expedient.massiva.documents"/></c:param>
-					</c:import>
+							</display:column>
+						</display:table>
+					</div>
 					
-				</div>
+					<div class="inlineLabels">
+					<input type="hidden" name="docId" value="${docStoreId}"/>
+					<c:set var="documents" value="${documents}" scope="request"/>
+						<c:import url="../common/formElement.jsp">
+							<c:param name="property">nom</c:param>
+							<c:param name="type" value="select"/>
+							<c:param name="items" value="documents"/>
+							<c:param name="itemLabel" value="nom"/>
+							<c:param name="itemValue" value="nom"/>
+							<c:param name="itemBuit">&lt;&lt; <fmt:message key='expedient.consulta.select.variable'/> &gt;&gt;</c:param>
+							<c:param name="label"><fmt:message key="expedient.massiva.documents"/></c:param>
+						</c:import>
+						
+					</div>
+					<c:import url="../common/formElement.jsp">
+						<c:param name="type" value="buttons"/>
+						<c:param name="values">submit</c:param>
+						<c:param name="titles"><fmt:message key='comuns.modificar' /></c:param>
+					</c:import>
+	
+				</form:form>
+			</c:if>
+			<c:if test="${empty docStoreId}">
+			<br>
+				<fmt:message key="expedient.document.info.sensedocuments"/>
+			<br>
+			</c:if>	
+			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key='expedient.eines.reindexar.expedients' /></h3>
+			<form:form action="reindexarMas.html" cssClass="uniForm" onsubmit="return confirmarReindexar(event)">
+				<input type="hidden" id="targetIdx" name="targetIdx" value="">
 				<c:import url="../common/formElement.jsp">
 					<c:param name="type" value="buttons"/>
 					<c:param name="values">submit</c:param>
-					<c:param name="titles"><fmt:message key='comuns.modificar' /></c:param>
+					<c:param name="titles"><fmt:message key='comuns.reindexar' /></c:param>
 				</c:import>
-
 			</form:form>
-		</c:if>
-		<c:if test="${empty docStoreId}">
-		<br>
-			<fmt:message key="expedient.document.info.sensedocuments"/>
-		<br>
-		</c:if>	
 		</div>
 		
 

@@ -318,6 +318,12 @@ h3.titol-canvi-versio {
 	background-repeat: no-repeat;
 	background-position: 2px 6px;
 }
+h3.titol-reindexar {
+	padding-left: 24px;
+	background-image: url(../img/refresh.png);
+	background-repeat: no-repeat;
+	background-position: 2px 6px;
+}
 h3.titol-documents-tasca {
 	padding-left: 24px;
 	background-image: url(../img/page_white_stack.png);

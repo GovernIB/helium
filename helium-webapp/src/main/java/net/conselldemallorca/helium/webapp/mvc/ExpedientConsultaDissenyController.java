@@ -418,6 +418,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		binder.registerCustomEditor(
 				Termini.class,
 				new TerminiTypeEditor());
+		binder.setAutoGrowNestedPaths(false);
 	}
 
 	public class ExpedientConsultaDissenyCommand {
