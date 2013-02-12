@@ -814,49 +814,45 @@ public class LuceneDao extends LuceneIndexSupport {
 				// System.out.println(">>> /Registre " + camp.getCodi());
 			} else {
 				String clauIndex = definicioProces.getJbpmKey() + "." + camp.getCodi();
-				try {
-					String valorIndex = valorIndexPerCamp(camp, valor);
-					boolean analyzed = 
-							camp.getTipus().equals(TipusCamp.STRING) ||
-							camp	.getTipus().equals(TipusCamp.TEXTAREA);
-					// System.out.println(">>>>>> " + clauIndex + ": " + valorIndex);
-					boolean update = isUpdate && !campsActualitzats.contains(clauIndex);
-					campsActualitzats.add(clauIndex);
+				String valorIndex = valorIndexPerCamp(camp, valor);
+				boolean analyzed = 
+						camp.getTipus().equals(TipusCamp.STRING) ||
+						camp	.getTipus().equals(TipusCamp.TEXTAREA);
+				// System.out.println(">>>>>> " + clauIndex + ": " + valorIndex);
+				boolean update = isUpdate && !campsActualitzats.contains(clauIndex);
+				campsActualitzats.add(clauIndex);
+				createOrUpdateDocumentField(
+						document,
+						new Field(
+								clauIndex,
+								valorIndex,
+								Field.Store.YES,
+								(analyzed) ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED),
+								update);
+				update = isUpdate && !campsActualitzats.contains(clauIndex+"_no_analyzed");
+				campsActualitzats.add(clauIndex+"_no_analyzed");
+				createOrUpdateDocumentField(
+						document,
+						new Field(
+								clauIndex+"_no_analyzed",
+								valorIndex,
+								Field.Store.NO,
+								Field.Index.NOT_ANALYZED),
+								update);
+				String textDomini = textDominis.get(camp.getCodi() + "@" + valorIndex);
+				if (	textDomini != null &&
+						(camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST)) &&
+						document.get(clauIndex + VALOR_DOMINI_SUFIX + valorIndex) == null) {
+					update = isUpdate && !campsActualitzats.contains(clauIndex + VALOR_DOMINI_SUFIX + valorIndex);
+					campsActualitzats.add(clauIndex + VALOR_DOMINI_SUFIX + valorIndex);
 					createOrUpdateDocumentField(
 							document,
 							new Field(
-									clauIndex,
-									valorIndex,
+									clauIndex + VALOR_DOMINI_SUFIX + valorIndex,
+									textDomini,
 									Field.Store.YES,
-									(analyzed) ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED),
+									Field.Index.ANALYZED),
 									update);
-					update = isUpdate && !campsActualitzats.contains(clauIndex+"_no_analyzed");
-					campsActualitzats.add(clauIndex+"_no_analyzed");
-					createOrUpdateDocumentField(
-							document,
-							new Field(
-									clauIndex+"_no_analyzed",
-									valorIndex,
-									Field.Store.NO,
-									Field.Index.NOT_ANALYZED),
-									update);
-					String textDomini = textDominis.get(camp.getCodi() + "@" + valorIndex);
-					if (	textDomini != null &&
-							(camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST)) &&
-							document.get(clauIndex + VALOR_DOMINI_SUFIX + valorIndex) == null) {
-						update = isUpdate && !campsActualitzats.contains(clauIndex + VALOR_DOMINI_SUFIX + valorIndex);
-						campsActualitzats.add(clauIndex + VALOR_DOMINI_SUFIX + valorIndex);
-						createOrUpdateDocumentField(
-								document,
-								new Field(
-										clauIndex + VALOR_DOMINI_SUFIX + valorIndex,
-										textDomini,
-										Field.Store.YES,
-										Field.Index.ANALYZED),
-										update);
-					}
-				} catch (Exception ex) {
-					logger.error("No s'ha pogut afegir el camp " + clauIndex + " al document per indexar", ex);
 				}
 			}
 		}
