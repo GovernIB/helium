@@ -32,6 +32,7 @@ public class CampExportacio implements Serializable {
 	private boolean multiple;
 	private boolean ocult;
 	private boolean dominiIntern;
+	private boolean dominiCacheText;
 	private String codiEnumeracio;
 	private String codiDomini;
 	private String agrupacioCodi;
@@ -57,6 +58,7 @@ public class CampExportacio implements Serializable {
 			boolean multiple,
 			boolean ocult,
 			boolean dominiIntern,
+			boolean dominiCacheText,
 			String codiEnumeracio,
 			String codiDomini,
 			String agrupacioCodi,
@@ -76,7 +78,8 @@ public class CampExportacio implements Serializable {
 		this.consultaCampValor = consultaCampValor;
 		this.multiple = multiple;
 		this.ocult = ocult;
-		this.setDominiIntern(dominiIntern);
+		this.dominiIntern = dominiIntern;
+		this.dominiCacheText = dominiCacheText;
 		this.codiEnumeracio = codiEnumeracio;
 		this.codiDomini = codiDomini;
 		this.agrupacioCodi = agrupacioCodi;
@@ -226,6 +229,14 @@ public class CampExportacio implements Serializable {
 
 	public void setDominiIntern(boolean dominiIntern) {
 		this.dominiIntern = dominiIntern;
+	}
+
+	public boolean isDominiCacheText() {
+		return dominiCacheText;
+	}
+
+	public void setDominiCacheText(boolean dominiCacheText) {
+		this.dominiCacheText = dominiCacheText;
 	}
 
 

@@ -1059,6 +1059,7 @@ public class DissenyService {
 					camp.isMultiple(),
 					camp.isOcult(),
 					camp.isDominiIntern(),
+					camp.isDominiCacheText(),
 					(camp.getEnumeracio() != null) ? camp.getEnumeracio().getCodi() : null,
 					(camp.getDomini() != null) ? camp.getDomini().getCodi() : null,
 					(camp.getAgrupacio() != null) ? camp.getAgrupacio().getCodi() : null,
@@ -2534,6 +2535,7 @@ public class DissenyService {
 			nou.setDominiParams(camp.getDominiParams());
 			nou.setDominiCampText(camp.getDominiCampText());
 			nou.setDominiCampValor(camp.getDominiCampValor());
+			nou.setDominiCacheText(camp.isDominiCacheText());
 			nou.setMultiple(camp.isMultiple());
 			nou.setOcult(camp.isOcult());
 			nou.setDominiIntern(camp.isDominiIntern());
