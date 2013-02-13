@@ -142,6 +142,7 @@ public class ServiceUtils {
 		}
 		informeCamps.addAll(findAllCampsExpedientConsulta());
 		return luceneDao.getDadesExpedient(
+				expedient.getEntorn().getCodi(),
 				expedient,
 				informeCamps);
 	}

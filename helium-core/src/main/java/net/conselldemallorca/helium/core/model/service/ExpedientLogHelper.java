@@ -31,6 +31,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
@@ -47,6 +48,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jbpm.bytes.ByteArray;
+import org.jbpm.context.exe.ContextInstance;
 import org.jbpm.context.exe.VariableInstance;
 import org.jbpm.context.log.VariableCreateLog;
 import org.jbpm.context.log.VariableDeleteLog;
@@ -103,9 +105,13 @@ public class ExpedientLogHelper {
 				getMessageLogPerTipus(tipus));
 		JbpmTask task = jbpmDao.getTaskById(taskInstanceId);
 		Expedient expedient = getExpedientPerProcessInstanceId(task.getProcessInstanceId());
+		String usuari = "Timer";
+		try {
+			usuari = SecurityContextHolder.getContext().getAuthentication().getName();
+		}catch (Exception e){}
 		ExpedientLog expedientLog = new ExpedientLog(
 				expedient,
-				SecurityContextHolder.getContext().getAuthentication().getName(),
+				usuari,
 				taskInstanceId,
 				tipus);
 		expedientLog.setProcessInstanceId(new Long(task.getProcessInstanceId()));
@@ -123,9 +129,13 @@ public class ExpedientLogHelper {
 				processInstanceId,
 				getMessageLogPerTipus(tipus));
 		Expedient expedient = getExpedientPerProcessInstanceId(processInstanceId);
+		String usuari = "Timer";
+		try {
+			usuari = SecurityContextHolder.getContext().getAuthentication().getName();
+		}catch (Exception e){}
 		ExpedientLog expedientLog = new ExpedientLog(
 				expedient,
-				SecurityContextHolder.getContext().getAuthentication().getName(),
+				usuari,
 				processInstanceId,
 				tipus);
 		expedientLog.setProcessInstanceId(new Long(processInstanceId));
@@ -141,9 +151,13 @@ public class ExpedientLogHelper {
 			String accioParams) {
 		Expedient expedient = expedientDao.getById(expedientId, false);
 		String processInstanceId = expedient.getProcessInstanceId();
+		String usuari = "Timer";
+		try {
+			usuari = SecurityContextHolder.getContext().getAuthentication().getName();
+		}catch (Exception e){}
 		ExpedientLog expedientLog = new ExpedientLog(
 				expedient,
-				SecurityContextHolder.getContext().getAuthentication().getName(),
+				usuari,
 				processInstanceId,
 				tipus);
 		expedientLog.setProcessInstanceId(new Long(processInstanceId));
@@ -163,13 +177,31 @@ public class ExpedientLogHelper {
 	
 	public void retrocedirFinsLog(Long expedientLogId, boolean retrocedirPerTasques, Long iniciadorId) {
 		boolean debugRetroces = true;
+		
 		ExpedientLog expedientLog = expedientLogDao.getById(expedientLogId, false);
+		JbpmTask jtask = jbpmDao.getTaskById(expedientLog.getTargetId());
+		
+		// Variables per a desar la informació per a executar el node enter al final de tot
+//		long nodeEnterObjectId = 0;
+		Long nodeEnterTokenId = null;
+				
 		List<ExpedientLog> expedientLogs = expedientLogDao.findAmbExpedientIdOrdenatsPerData(
 				expedientLog.getExpedient().getId());
 		expedientLogs = filtraExpedientsLogPerRetrocedir(expedientLogs, expedientLogId, retrocedirPerTasques);
 
 		// Retrocedeix els canvis al jBPM relacionats amb els logs
 		List<ProcessLog> logsJbpm = getLogsJbpmPerRetrocedir(expedientLogs); //, expedientLogId);
+		
+		// Primer i últim log (rang a retrocedir)
+		long beginLogId = logsJbpm.get(0).getId();
+		long endLogId = logsJbpm.get(logsJbpm.size() - 1).getId();
+		
+		// Info log actual
+		Token currentToken = null;
+//		LogObject currentLog = null;
+		Node nodeDesti = null;
+		boolean tascaActual = false;
+		
 		if (debugRetroces)
 			printLogs(logsJbpm);
 		jbpmDao.addProcessInstanceMessageLog(
@@ -214,6 +246,7 @@ public class ExpedientLogHelper {
 					System.out.println();
 				}
 			}
+			
 			// Emmagatzema els paràmetres per a retrocedir cada acció
 			Map<Long, String> paramsAccio = new HashMap<Long, String>();
 			for (LogObject logo: logObjects) {
@@ -225,6 +258,20 @@ public class ExpedientLogHelper {
 					paramsAccio.put(new Long(logo.getObjectId()), params);
 				}
 			}
+			
+			// comprovam si estem retrocedint únicament la tasca actual
+			JbpmProcessInstance pi = jbpmDao.getProcessInstance(String.valueOf(expedientLog.getProcessInstanceId()));
+			currentToken = jbpmDao.getProcessLogById(expedientLog.getJbpmLogId()).getToken();
+			Collection<TaskInstance> tis = pi.getProcessInstance().getTaskMgmtInstance().getUnfinishedTasks(currentToken);
+			for (TaskInstance ti: tis) {
+				if (ti.getId() == jtask.getTask().getId()){
+					nodeDesti = ti.getTask().getTaskNode();
+					tascaActual = true;
+					System.out.println(">>> [LOGTASK] Retroces de la tasca actual (" + nodeDesti + ")!");
+					break;
+				}
+			}
+							
 			// Executa les accions necessàries per a retrocedir l'expedient
 			for (LogObject logo: logObjects) {
 				boolean created = logo.getAccions().contains(LogObject.LOG_ACTION_CREATE);
@@ -282,24 +329,31 @@ public class ExpedientLogHelper {
 							Node forkNode = getForkNode(logo.getProcessInstanceId(), joinNode);
 							if (forkNode != null)
 								desti = forkNode.getName();
-						}
+						} 
 						
 						if (debugRetroces) {
 							JbpmToken jtok = jbpmDao.getTokenById(String.valueOf(logo.getObjectId()));
 							System.out.println(">>> [LOGTOKEN] Retroces abans token redirect (" + logo.getName() + ") - End: " + jtok.getToken().getEnd());
 						}
 						
+//						boolean enterNode = (nodeRetrocedir == logo.getLogId());
+//						JbpmTask jtask = jbpmDao.getTaskById(expedientLog.getTargetId());
+						Node ndesti = jbpmDao.getNodeByName(logo.getProcessInstanceId(), desti);
+						boolean enterNode = retrocedirPerTasques && (ndesti.getId() == jtask.getTask().getTask().getTaskNode().getId()); // és la tasca a la que volem retrocedir!!
 						boolean executeNode = (!jbpmDao.isProcessStateNodeJoinOrFork( //(!jbpmDao.isProcessStateNode(
 								logo.getProcessInstanceId(),
 								(String)logo.getValorInicial()));
+						if (enterNode) {
+//							nodeEnterObjectId = logo.getObjectId();
+							nodeEnterTokenId = logo.getTokenId();
+						}
 						if (debugRetroces)
-							System.out.println(">>> [RETLOG] Retornar token (name=" + logo.getName() + ") al node (name=" + desti + ", execute=" + executeNode + ")");
+							System.out.println(">>> [RETLOG] Retornar token (name=" + logo.getName() + ") al node (name=" + desti + ", enter = " + enterNode + ", execute=" + executeNode + ")");
 						jbpmDao.tokenRedirect(
 								logo.getObjectId(),
-								//(String)logo.getValorInicial(),
 								desti,
 								true,
-								false,
+								enterNode,
 								executeNode);
 						
 						if (debugRetroces) {
@@ -309,7 +363,8 @@ public class ExpedientLogHelper {
 					}
 					break;
 				case LogObject.LOG_OBJECT_TASK:
-					if (!started && assigned) {
+					boolean tascaStarted = jbpmDao.hasStartBetweenLogs(beginLogId, endLogId, logo.getObjectId());
+					if (!tascaStarted && assigned) {
 						JbpmTask task = jbpmDao.findEquivalentTaskInstance(logo.getTokenId(), logo.getObjectId());
 						String valor = (String)logo.getValorInicial();
 						if (valor != null && !"".equals(valor)) {
@@ -326,7 +381,7 @@ public class ExpedientLogHelper {
 										valor);
 							}
 						}
-					} else if (!started && ended) {
+					} else if (!tascaStarted && ended) {
 						JbpmTask task = jbpmDao.findEquivalentTaskInstance(logo.getTokenId(), logo.getObjectId());
 						if (debugRetroces)
 							System.out.println(">>> [RETLOG] Copiar variables de la tasca (id=" + logo.getObjectId() + ") a la tasca (id=" + task.getId() + ")");
@@ -409,13 +464,14 @@ public class ExpedientLogHelper {
 						for (LogObject lo: logObjects) {
 							if (lo.getTipus() == LogObject.LOG_OBJECT_TASK && lo.getObjectId() == logo.getTaskInstanceId()) {
 								hiHaLogTasca = true;
-								logTascaStarted = lo.getAccions().contains(LogObject.LOG_ACTION_START);
+//								logTascaStarted = lo.getAccions().contains(LogObject.LOG_ACTION_START);
+								logTascaStarted = jbpmDao.hasStartBetweenLogs(beginLogId, endLogId, logo.getTaskInstanceId());
 								break;
 							}
 						}
 						if (!hiHaLogTasca || (hiHaLogTasca && !logTascaStarted)) {
 							JbpmTask task = jbpmDao.findEquivalentTaskInstance(logo.getTokenId(), logo.getTaskInstanceId());
-							//String tid = new Long(logo.getTaskInstanceId()).toString();
+								//String tid = new Long(logo.getTaskInstanceId()).toString();
 							if (created && !deleted) {
 								if (debugRetroces)
 									System.out.println(">>> [RETLOG] Esborrar variable " + logo.getName() + " de la tasca (" + task.getId() + ")");
@@ -569,6 +625,66 @@ public class ExpedientLogHelper {
 			}
 		}*/
 		
+		// Si retrocedim la tasca actual...
+		if (tascaActual) {
+//			Node ndesti = jbpmDao.getNodeByName(expedientLog.getProcessInstanceId(), desti);
+			boolean enterNode = retrocedirPerTasques; //&& (nodeDesti.getId() == jtask.getTask().getTask().getTaskNode().getId()); // és la tasca a la que volem retrocedir!!
+			boolean executeNode = (!jbpmDao.isProcessStateNodeJoinOrFork( //(!jbpmDao.isProcessStateNode(
+					expedientLog.getProcessInstanceId(),
+					nodeDesti.getName()));
+			if (enterNode) {
+//				nodeEnterObjectId =  currentToken.getId();
+				nodeEnterTokenId = currentToken.getId();
+			}
+			if (debugRetroces)
+				System.out.println(">>> [RETLOG] Retornar token (name=" + currentToken.getName() + ") al node (name=" + nodeDesti.getName() + ", enter = " + enterNode + ", execute=" + executeNode + ")");
+			jbpmDao.tokenRedirect(
+					currentToken.getId(),
+					nodeDesti.getName(),
+					true,
+					enterNode,
+					executeNode);
+			
+			if (debugRetroces) {
+				System.out.println(">>> [LOGTOKEN] Retroces després token redirect (" + currentToken.getName() + ") - End: " + currentToken.getEnd());
+			}
+		}
+		if (retrocedirPerTasques && nodeEnterTokenId != null) {//nodeEnterObjectId > 0) {
+//			if (debugRetroces)
+//				System.out.println(">>> [RETLOG] Retornar token (name=" + nodeEnterName + ") al node (name=" + nodeEnterDesti + ", enter = true, execute = true)");
+//			jbpmDao.tokenRedirect(
+//					nodeEnterObjectId,
+//					nodeEnterDesti,
+//					true,
+//					true,
+//					true);
+			JbpmTask task = jbpmDao.findEquivalentTaskInstance(nodeEnterTokenId, Long.valueOf(expedientLog.getTargetId()));
+			TaskInstance ti = task.getTask();
+			ContextInstance ci = ti.getProcessInstance().getContextInstance();
+			for (CampTasca camp: getCampsPerTaskInstance(ti)) {
+				if (camp.isReadFrom()) {
+					if (debugRetroces)
+						System.out.println(">>> [RETVAR] Carregar variable del procés " + camp.getCamp().getCodi() + " a la tasca " + task.getName() + " (" + task.getId() + ")");
+					String codi = camp.getCamp().getCodi();
+					ti.setVariableLocally(
+							codi,
+							ci.getVariable(codi));
+				}
+			}
+			for (DocumentTasca document: getDocumentsPerTaskInstance(ti)) {
+				String codi = DocumentHelper.PREFIX_VAR_DOCUMENT + document.getDocument().getCodi();
+				if (!document.isReadOnly()) {
+					Object valor = ci.getVariable(DocumentHelper.PREFIX_VAR_DOCUMENT + document.getDocument().getCodi());
+					if (valor != null)
+						if (debugRetroces)
+							System.out.println(">>> [RETDOC] Carregar document del procés " + codi + " a la tasca " + task.getName() + " (" + task.getId() + ")");
+						ti.setVariableLocally(
+								codi,
+								ci.getVariable(codi));
+				}
+			}
+		}
+		
 		for (ExpedientLog elog: expedientLogs) {
 			// Marca les accions com a retrocedides
 			if (ExpedientLogEstat.NORMAL.equals(elog.getEstat()))
@@ -580,6 +696,21 @@ public class ExpedientLogHelper {
 			if (elog.getId() != iniciadorId) elog.setIniciadorRetroces(iniciadorId);
 			// Retrocediex la informació de l'expedient
 		}
+	}
+	
+	private List<CampTasca> getCampsPerTaskInstance(TaskInstance taskInstance) {
+		long processDefinitionId = taskInstance.getProcessInstance().getProcessDefinition().getId();
+		Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
+				taskInstance.getTask().getName(),
+				new Long(processDefinitionId).toString());
+		return tasca.getCamps();
+	}
+	private List<DocumentTasca> getDocumentsPerTaskInstance(TaskInstance taskInstance) {
+		long processDefinitionId = taskInstance.getProcessInstance().getProcessDefinition().getId();
+		Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
+				taskInstance.getTask().getName(),
+				new Long(processDefinitionId).toString());
+		return tasca.getDocuments();
 	}
 
 	public String getActorsPerReassignacioTasca(String taskInstanceId) {
@@ -880,14 +1011,15 @@ public class ExpedientLogHelper {
 			if (elog.getId().equals(expedientLogId)) {
 				found = true;
 				incloure = true;
-				if (retrocedirPerTasques  && elog.isTargetTasca()) {
+				if (/*retrocedirPerTasques  && */elog.isTargetTasca()) {
 					JbpmToken jbpmTokenRetroces = getTokenByJbpmLogId(elog.getJbpmLogId());
 					if (jbpmTokenRetroces != null) tokenRetroces = jbpmTokenRetroces.getToken();
 				}
 			}
 			// Obtenim els logs a retrocedir
 			if (found) {
-				if (retrocedirPerTasques) {
+				// Ara
+//				if (retrocedirPerTasques) {
 					 if (elog.isTargetTasca() && tokenRetroces != null) {
 						 // Si la tasca seleccionada es del token arrel, llavors 
 						 // totes les tasques posteriors s'han de incloure
@@ -932,9 +1064,9 @@ public class ExpedientLogHelper {
 						expedientLogsRetrocedir.add(elog);
 						incloure = false;
 					}
-				} else {
-					expedientLogsRetrocedir.add(elog);
-				}
+//				} else {
+//					expedientLogsRetrocedir.add(elog);
+//				}
 			}
 		}
 		return expedientLogsRetrocedir;

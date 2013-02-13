@@ -83,6 +83,23 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 				setString(2, numero);
 		return (Expedient)query.uniqueResult();
 	}
+	
+	public Expedient findAmbEntornTipusINumeroDefault(
+			Long entornId,
+			Long expedientTipusId,
+			String numeroDefault) {
+		Query query = getSession().createQuery(
+				"from " +
+				"    Expedient e " +
+				"where " +
+				"    e.entorn.id=? " +
+				"and e.tipus.id=? " +
+				"and e.numeroDefault=? ").
+				setLong(0, entornId).
+				setLong(1, expedientTipusId).
+				setString(2, numeroDefault);
+		return (Expedient)query.uniqueResult();
+	}
 
 	public int countAmbEntornConsultaGeneral(
 			Long entornId,

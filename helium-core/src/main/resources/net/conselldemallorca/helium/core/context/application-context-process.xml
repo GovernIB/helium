@@ -32,6 +32,7 @@
 		<property name="lockMonitorInterval" value="5000" /><!-- 5 seconds -->
 		<property name="lockBufferTime" value="5000" /><!-- 5 seconds -->
 		<property name="globalProperties" ref="globalProperties" />
+		<property name="expedientService" ref="expedientService" />
 	</bean>
 
 	<bean id="jbpmDao" class="net.conselldemallorca.helium.jbpm3.integracio.JbpmDao">

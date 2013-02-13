@@ -22,6 +22,11 @@ alter table hel_expedient_log add ini_retroces bigint;
 -- Nou camp pel domini intern --
 alter table hel_camp add column domini_intern boolean not null set default 0;
 
+
+-- Nou camp per les consultes. Defineix el tipus de format er exportar un report amb JasperReports
+alter table hel_consulta add column format_exportacio character varying(4) default 'PDF';
+
+
 -- Actualització a la nova versió --
 insert into hel_versio (
     id,

@@ -244,7 +244,7 @@ public class ExpedientService {
 		expedient.setAvisosMobil(avisosMobil);
 		expedient.setNotificacioTelematicaHabilitada(notificacioTelematicaHabilitada);
 		expedient.setNumeroDefault(
-				expedientTipusDao.getNumeroExpedientDefaultActual(expedientTipusId));
+				getNumeroExpedientDefaultActual(entornId, expedientTipusId));
 		if (expedientTipus.getTeNumero()) {
 			if (numero != null && numero.length() > 0) {
 				expedient.setNumero(numero);
@@ -253,6 +253,7 @@ public class ExpedientService {
 						getNumeroExpedientActual(entornId, expedientTipusId));
 			}
 		}
+	
 		// Verifica si l'expedient té el número repetit
 		if (expedientDao.findAmbEntornTipusINumero(
 				entornId,
@@ -279,7 +280,7 @@ public class ExpedientService {
 				expedientTipus.setSequencia(expedientTipus.getSequencia() + 1);
 		}
 		// Actualitza la seqüència del número d'expedient per defecte
-		if (expedient.getNumeroDefault().equals(expedientTipusDao.getNumeroExpedientDefaultActual(expedientTipusId)))
+		if (expedient.getNumeroDefault().equals(getNumeroExpedientDefaultActual(entornId, expedientTipusId)))
 			expedientTipus.setSequenciaDefault(expedientTipus.getSequenciaDefault() + 1);
 		// Configura el títol de l'expedient
 		if (expedientTipus.getTeTitol()) {
@@ -366,6 +367,25 @@ public class ExpedientService {
 					expedientTipusId,
 					increment);
 			expedient = expedientDao.findAmbEntornTipusINumero(
+					entornId,
+					expedientTipusId,
+					numero);
+			increment++;
+		} while (expedient != null);
+		return numero;
+	}
+	
+	public String getNumeroExpedientDefaultActual(
+			Long entornId,
+			Long expedientTipusId) {
+		long increment = 0;
+		String numero = null;
+		Expedient expedient = null;
+		do {
+			numero = expedientTipusDao.getNumeroExpedientDefaultActual(
+					expedientTipusId,
+					increment);
+			expedient = expedientDao.findAmbEntornTipusINumeroDefault(
 					entornId,
 					expedientTipusId,
 					numero);
@@ -470,10 +490,15 @@ public class ExpedientService {
 		}
 		// Estat
 		if (estatId != null) {
-			if (expedient.getEstat() == null || expedient.getEstat().getId() != estatId) {
+			if (expedient.getEstat() == null) {
 				expedientLogHelper.afegirProcessLogInfoExpedient(
 						expedient.getProcessInstanceId(), 
 						LogInfo.ESTAT + "#@#" + "---");
+				expedient.setEstat(estatDao.getById(estatId, false));
+			} else if (expedient.getEstat().getId() != estatId){
+				expedientLogHelper.afegirProcessLogInfoExpedient(
+						expedient.getProcessInstanceId(), 
+						LogInfo.ESTAT + "#@#" + expedient.getEstat().getId());
 				expedient.setEstat(estatDao.getById(estatId, false));
 			}
 		} else if (expedient.getEstat() != null) {
@@ -808,6 +833,7 @@ public class ExpedientService {
 				TipusConsultaCamp.FILTRE);
 		afegirValorsPredefinits(consulta, valors, campsFiltre);
 		List<Long> idExpedients = luceneDao.findNomesIds(
+				consulta.getEntorn().getCodi(),
 				consulta.getExpedientTipus().getCodi(),
 				campsFiltre,
 				valors);
@@ -836,6 +862,21 @@ public class ExpedientService {
 			boolean asc,
 			int firstRow,
 			int maxResults) {
+		
+			
+		@SuppressWarnings("rawtypes")
+		Iterator it = valors.entrySet().iterator();
+		while (it.hasNext()) {
+			@SuppressWarnings("rawtypes")
+			Map.Entry e = (Map.Entry)it.next();
+			String nom = (String) e.getKey();
+			Object valor = e.getValue();
+			if(valor instanceof String){
+				valor = ((String) valor).toLowerCase();
+			}
+			valors.put(nom, valor);
+		}
+		
 		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
 		Consulta consulta = consultaDao.getById(consultaId, false);
 		List<Camp> campsFiltre = getServiceUtils().findCampsPerCampsConsulta(
@@ -846,6 +887,7 @@ public class ExpedientService {
 				TipusConsultaCamp.INFORME);
 		afegirValorsPredefinits(consulta, valors, campsFiltre);
 		List<Map<String, DadaIndexadaDto>> dadesExpedients = luceneDao.findAmbDadesExpedient(
+				consulta.getEntorn().getCodi(),
 				consulta.getExpedientTipus().getCodi(),
 				campsFiltre,
 				valors,
@@ -1623,7 +1665,36 @@ public class ExpedientService {
 	public List<ExpedientLogDto> getLogsOrdenatsPerData(Long expedientId) {
 		List<ExpedientLogDto> resposta = new ArrayList<ExpedientLogDto>();
 		List<ExpedientLog> logs = expedientLogDao.findAmbExpedientIdOrdenatsPerData(expedientId);
+		String parentProcessInstanceId = null;
+		Map<String, String> processos = new HashMap<String, String>();
 		for (ExpedientLog log: logs) {
+			// Obtenim el token de cada registre
+			JbpmToken token = null;
+			if (log.getJbpmLogId() != null) {
+				token = expedientLogHelper.getTokenByJbpmLogId(log.getJbpmLogId());
+			}
+			String tokenName = null;
+			String processInstanceId = null;
+			if (token != null && token.getToken() != null) {
+				tokenName = token.getToken().getFullName();
+				processInstanceId = token.getProcessInstanceId();
+				
+				// Entram per primera vegada
+				if (parentProcessInstanceId == null) {
+					parentProcessInstanceId = processInstanceId;
+					processos.put(processInstanceId, "");
+				} else {
+					// Canviam de procés
+					if (!parentProcessInstanceId.equals(token.getProcessInstanceId())){
+						// Entram en un nou subproces
+						if (!processos.containsKey(processInstanceId)) {
+							processos.put(processInstanceId, token.getToken().getProcessInstance().getSuperProcessToken().getFullName());
+						}
+					}
+					tokenName = processos.get(processInstanceId) + tokenName;
+				}
+			}
+				
 			ExpedientLogDto dto = new ExpedientLogDto();
 			dto.setId(log.getId());
 			dto.setData(log.getData());
@@ -1632,6 +1703,7 @@ public class ExpedientService {
 			dto.setAccioTipus(log.getAccioTipus().name());
 			dto.setAccioParams(log.getAccioParams());
 			dto.setTargetId(log.getTargetId());
+			dto.setTokenName(tokenName);
 			dto.setTargetTasca(log.isTargetTasca());
 			dto.setTargetProces(log.isTargetProces());
 			dto.setTargetExpedient(log.isTargetExpedient());

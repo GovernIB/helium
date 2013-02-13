@@ -84,9 +84,13 @@ ul.dropdown li.dir > a {
 }
 
 /* -- Components override -- */
+.dropdown li.image  > ul.llista-entorns {
+	width: 400px;
+}
 
 ul.dropdown-horizontal ul *.dir {
 	padding-right: 15px;
+	padding-left: 2px;
 	background-image: url(images/nav-arrow-right.png);
 	background-position: 100% 50%;
 	background-repeat: no-repeat;
@@ -112,14 +116,16 @@ ul#menu-superior ul li {
 ul#menu-entorn ul {
 	width: 180px;
 }
+
 ul#menu-entorn ul li {
 	z-index: -1;
 }
 ul#menu-entorn a:link,
 ul#menu-entorn a:visited	{ color: #ccc; text-decoration: none; }
 ul#menu-entorn a:hover		{ color: #ccc; text-decoration: underline; }
-ul#menu-entorn a:active	{ color: #ccc; }
+ul#menu-entorn a:active		{ color: #ccc; }
 ul#menu-entorn ul a:link,
 ul#menu-entorn ul a:visited	{ color: #4c4c4c; text-decoration: none; }
-ul#menu-entorn ul a:hover		{ color: #4c4c4c; text-decoration: underline; }
+ul#menu-entorn ul a:hover	{ color: #4c4c4c; text-decoration: underline; }
 ul#menu-entorn ul a:active	{ color: #4c4c4c; }
+

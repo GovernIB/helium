@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.core.model.dto;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -193,6 +194,34 @@ public class InstanciaProcesDto {
 
 	public boolean isFinalitzat() {
 		return dataFi != null;
+	}
+
+	public String getVariableClassAsString(String var) {
+		Object valor = variables.get(var);
+		if (valor != null) {
+			StringBuilder sb = new StringBuilder();
+			getClassAsString(sb, variables.get(var));
+			return sb.toString();
+		} else {
+			return "<null>";
+		}
+	}
+
+
+
+	private static void getClassAsString(StringBuilder sb, Object o) {
+		if (o.getClass().isArray()) {
+			sb.append("[");
+			int length = Array.getLength(o);
+			for (int i = 0; i < length; i++) {
+				getClassAsString(sb, Array.get(o, i));
+				if (i < length - 1)
+					sb.append(", ");
+			}
+			sb.append("]");
+		} else {
+			sb.append(o.getClass().getName());
+		}
 	}
 
 }

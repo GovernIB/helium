@@ -89,6 +89,7 @@ function confirmarModificar(e) {
 						</c:when>
 						<c:otherwise>${instanciaProces.varsComText[codi]}</c:otherwise>
 					</c:choose>
+					<c:if test="${param.classes}"> (class=<%=instanciaProces.getVariableClassAsString((String)(pageContext.getAttribute("codi")))%>)</c:if>
 				</display:column>
 				<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
 					<display:column>
@@ -145,6 +146,7 @@ function confirmarModificar(e) {
 									</c:when>
 									<c:otherwise>${instanciaProces.varsComText[campAgrup.codi]}</c:otherwise>
 								</c:choose>
+								<c:if test="${param.classes}"> <c:set var="campAgrupCodi" value="${campAgrup.codi}"/>(class=<%=instanciaProces.getVariableClassAsString((String)(pageContext.getAttribute("campAgrupCodi")))%>)</c:if>
 							</display:column>
 							<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
 								<display:column>

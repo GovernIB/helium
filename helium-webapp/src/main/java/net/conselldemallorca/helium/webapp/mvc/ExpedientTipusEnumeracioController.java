@@ -122,7 +122,7 @@ public class ExpedientTipusEnumeracioController extends BaseController {
 					command.setEntorn(entorn);
 					command.setExpedientTipus(expedientTipus);
 					annotationValidator.validate(command, result);
-					new EnumeracioValidator(dissenyService).validate(command, result);
+					new EnumeracioValidator(dissenyService).validateSenseExpTipus(command, result,expedientTipusId );
 			        if (result.hasErrors()) {
 			        	return "expedientTipus/enumeracioForm";
 			        }

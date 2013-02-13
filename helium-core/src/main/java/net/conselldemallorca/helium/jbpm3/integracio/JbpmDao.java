@@ -930,6 +930,13 @@ public class JbpmDao {
 		ProcessInstance pi = (ProcessInstance)commandService.execute(command);
 		return pi.getProcessDefinition().getNode(nodeName);
 	}
+	
+	public boolean hasStartBetweenLogs(long begin, long end, long taskInstanceId) {
+		HasStartBetweenLogsCommand command = new HasStartBetweenLogsCommand(begin, end, taskInstanceId);
+		Boolean hasStart = (Boolean)commandService.execute(command);
+		return hasStart.booleanValue();
+	}
+	
 
 	@Autowired
 	public void setCommandService(CommandService commandService) {

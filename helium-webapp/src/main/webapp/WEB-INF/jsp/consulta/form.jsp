@@ -2,16 +2,24 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <html>
 <head>
 	<title><c:choose><c:when test="${empty command.id}"><fmt:message key='consulta.form.crear_nova' /></c:when><c:otherwise><fmt:message key='consulta.form.modificar' /></c:otherwise></c:choose></title>
 	<meta name="titolcmp" content="<fmt:message key='comuns.disseny' />" />
 	<c:import url="../common/formIncludes.jsp"/>
+	
+	<script type="text/javascript">
+	function exportF(){
+		$("#formatExport").value("PDF");
+	}
+	
+	</script>
 </head>
 <body>
 
 	<form:form action="form.html" cssClass="uniForm" enctype="multipart/form-data">
+		
 		<div class="inlineLabels">
 			<c:if test="${not empty command.id}"><form:hidden path="id"/></c:if>
 			<c:import url="../common/formElement.jsp">
@@ -47,6 +55,14 @@
 				<c:param name="label"><fmt:message key='consulta.form.informe' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
+	                <c:param name="property" value="formatExport"/>
+	                <c:param name="required" value="true"/>
+	                <c:param name="type" value="select"/>
+	                <c:param name="items" value="formatsExportacio"/>
+<%-- 	                <c:param name="itemBuit">&lt;&lt; <fmt:message key="consulta.form.formatExportacio.seleccio"/> &gt;&gt;</c:param> --%>
+	                <c:param name="label"><fmt:message key="consulta.form.formatExportacio"/></c:param>
+	            </c:import> 			
+			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="valorsPredefinits"/>
 				<c:param name="type" value="textarea"/>
 				<c:param name="label"><fmt:message key='consulta.form.valors' /></c:param>
@@ -67,6 +83,7 @@
 			<c:param name="values">submit,cancel</c:param>
 			<c:param name="titles"><c:choose><c:when test="${empty command.id}"><fmt:message key='comuns.crear' />,<fmt:message key='comuns.cancelar' /></c:when><c:otherwise><fmt:message key='comuns.modificar' />,<fmt:message key='comuns.cancelar' /></c:otherwise></c:choose></c:param>
 		</c:import>
+		<input type="hidden" id="formatExport" value="${export}"></input>
 	</form:form>
 
 	<p class="aclaracio"><fmt:message key='comuns.camps_marcats' /> <img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='comuns.camp_oblig' />" title="<fmt:message key='comuns.camp_oblig' />" border="0"/> <fmt:message key='comuns.son_oblig' /></p>

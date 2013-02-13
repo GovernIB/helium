@@ -17,7 +17,45 @@
 	<script type="text/javascript" src="<c:url value="/dwr/engine.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/dwr/util.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/dwr/interface/campsProcesDwrService.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.tablednd.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.DOMWindow.js"/>"></script>
+	
+<script type="text/javascript">
+$(document).ready(function() {
+    // Inicialitza la taula
+    $("#registre").tableDnD({
+        onDragClass: "drag",
+    	onDrop: function(table, row) {
+        	$("#registre tr:even").removeClass("odd");
+        	$("#registre tr:not(:first)").addClass("even");
+        	$("#registre tr:odd").removeClass("even");
+        	$("#registre tr:odd").addClass("odd");
+
+        	var id = $("tr:has(.showDragHandle) td:last").html();
+        	var pos = row.rowIndex - 1;
+                
+        	//campsProcesDwrService.goToCampRegistre(id, pos, {
+			//	callback: function() {
+			//		var rows = table.rows;
+			//        for (var i = 1; i < rows.length; i++) {
+			//	        rows[i].cells[4].innerHTML = rows[i].rowIndex - 1; 
+			//        }
+			//	},
+			//	async: false
+			//});
+    	}
+    });
+    $("#registre tr").hover(function() {
+        $(this.cells[0]).addClass('showDragHandle');
+    }, function() {
+        $(this.cells[0]).removeClass('showDragHandle');
+    });	
+  	$("#registre tr").each(function(){
+  	  	$(this).find("td:first").css("padding-left", "22px");
+  	});
+});
+</script>	
+	
 <script type="text/javascript">
 	// <![CDATA[
 	var info = null;
@@ -70,7 +108,8 @@
 
 	<c:if test="${param.tipus == 'INFORME'}">
 		<div style="text-align: right; margin: 0 0 2px 0">
-			<a href="#codiXml" class="mostrarCodiXml"><img src="<c:url value="/img/page_white_code.png"/>" alt="<fmt:message key='consulta.camps.mostrarxml' />" title="<fmt:message key='consulta.camps.mostrarxml' />" border="0"/></a>
+<%-- 			<a href="#codiXml" class="mostrarCodiXml"><img src="<c:url value="/img/page_white_code.png"/>" alt="<fmt:message key='consulta.camps.mostrarxml' />" title="<fmt:message key='consulta.camps.mostrarxml' />" border="0"/></a> --%>
+			<a href="<c:url value="/consulta/reportDownload.html"><c:param name="consultaId" value="${param.id}"/><c:param name="id" value="${consultaCamp.id}"/><c:param name="tipus" value="${param.tipus}"/></c:url>"><img src="<c:url value="/img/page_white_code.png"/>" alt="<fmt:message key='consulta.camps.mostrarxml' />" title="<fmt:message key='consulta.camps.mostrarxml' />" border="0"/></a>
 		</div>
 	</c:if>
 	<display:table name="llistat" id="consultaCamp" requestURI="" class="displaytag selectable">

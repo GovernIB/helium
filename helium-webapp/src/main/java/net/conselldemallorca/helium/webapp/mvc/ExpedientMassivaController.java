@@ -899,12 +899,63 @@ public class ExpedientMassivaController extends BaseController {
 			}
 			if(request.getParameter("target2").equals("disseny")){
 				return "redirect:/expedient/massivaInfoTE.html";
-			}else if(request.getParameter("target2").equals("consulta")){
+			}else {
 				return "redirect:/expedient/massivaInfo.html";
 			}
-			return "redirect:/expedient/massivaInfo.html";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec"));
+			return "redirect:/index.html";
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/expedient/reindexarMas")
+	public String expedientReindexar(
+			HttpServletRequest request,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			List<Long> ids = null;
+			if(request.getParameter("targetIdx").equals("disseny")){
+				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS_TE);
+			}
+			else{
+				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
+			}
+			if (ids == null || ids.size() == 0) {
+				missatgeError(request, getMessage("error.no.exp.selec"));
+				return "redirect:/expedient/massivaInfo.html";
+			}
+			List<ExpedientDto> expedients = getExpedientsMassius(ids.subList(1, ids.size()));
+			
+			boolean error = false;
+			int numOk = 0;
+			for(ExpedientDto exp: expedients){
+				if (potModificarExpedient(exp)) {
+					String idPI = exp.getProcessInstanceId();
+					try {
+						expedientService.luceneReindexarExpedient(idPI);
+						numOk++;
+					} catch (Exception ex) {
+						missatgeError(request, getMessage("error.reindexar.expedient") + " " + exp.getIdentificador(), ex.getLocalizedMessage());
+			        	logger.error("No s'ha pogut reindexar l'expedient " + exp.getIdentificador(), ex);
+			        	error = true;
+					}
+				}
+			}
+			if (numOk > 0) {
+				if (!error)
+					missatgeInfo(request, getMessage("info.reindexar.executat"));
+				else
+					missatgeInfo(request, getMessage("info.reindexar.executat.nprimers", new Object[] {new Integer(numOk)}));
+			}
+			if(request.getParameter("targetIdx").equals("disseny")){
+				return "redirect:/expedient/massivaInfoTE.html";
+			}else {
+				return "redirect:/expedient/massivaInfo.html";
+			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}

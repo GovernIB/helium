@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.core.model.dao;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -10,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -62,6 +65,11 @@ public class LuceneDao extends LuceneIndexSupport {
 	private static final String VALOR_DOMINI_SUFIX = "@text@";
 
 	private LuceneSearchTemplate searchTemplate;
+
+	// TODO Ha d'estar actiu mentre els expedients no es reindexin totalment
+	// si es desactiva abans de la reindexació total aleshores hi haura expedients
+	// que no sortiran als resultats de les consultes per tipus.
+	private static final boolean PEGAT_ENTORN_ACTIU = true;
 
 
 
@@ -165,11 +173,13 @@ public class LuceneDao extends LuceneIndexSupport {
 
 	@SuppressWarnings("unchecked")
 	public List<Long> findNomesIds(
+			final String entornCodi,
 			String tipusCodi,
 			List<Camp> filtreCamps,
 			Map<String, Object> filtreValors) {
 		checkIndexOk();
 		Query query = queryPerFiltre(
+				entornCodi,
 				tipusCodi,
 				filtreCamps,
 				filtreValors);
@@ -177,13 +187,31 @@ public class LuceneDao extends LuceneIndexSupport {
 				query,
 				new HitExtractor() {
 				    public Object mapHit(int id, Document document, float score) {
-			    		return new Long(document.get(ExpedientCamps.EXPEDIENT_CAMP_ID));
+				    	boolean ignorar = false;
+				    	if (PEGAT_ENTORN_ACTIU) {
+				    		Field campEntorn = document.getField(ExpedientCamps.EXPEDIENT_CAMP_ENTORN);
+				    		ignorar = campEntorn != null && !campEntorn.stringValue().equals(entornCodi);
+				    	}
+				    	if (!ignorar) {
+				    		return new Long(document.get(ExpedientCamps.EXPEDIENT_CAMP_ID));
+				    	} else {
+				    		return null;
+				    	}
 				    }
 				},
 				new Sort(new SortField(ExpedientCamps.EXPEDIENT_CAMP_ID, SortField.STRING, true)));
+		if (PEGAT_ENTORN_ACTIU) {
+			Iterator<Long> it = resposta.iterator();
+			while (it.hasNext()) {
+				Long valor = it.next();
+				if (valor == null)
+					it.remove();
+			}
+		}
 		return resposta;
 	}
 	public List<Map<String, DadaIndexadaDto>> findAmbDadesExpedient(
+			String entornCodi,
 			String tipusCodi,
 			List<Camp> filtreCamps,
 			Map<String, Object> filtreValors,
@@ -194,10 +222,12 @@ public class LuceneDao extends LuceneIndexSupport {
 			int maxResults) {
 		checkIndexOk();
 		Query query = queryPerFiltre(
+				entornCodi,
 				tipusCodi,
 				filtreCamps,
 				filtreValors);
 		return getDadesExpedientPerConsulta(
+				entornCodi,
 				query,
 				informeCamps,
 				true,
@@ -208,6 +238,7 @@ public class LuceneDao extends LuceneIndexSupport {
 	}
 
 	public List<Map<String, DadaIndexadaDto>> getDadesExpedient(
+			String entornCodi,
 			Expedient expedient,
 			List<Camp> informeCamps) {
 		checkIndexOk();
@@ -216,6 +247,7 @@ public class LuceneDao extends LuceneIndexSupport {
 				expedient.getId().toString(),
 				null);
 		return getDadesExpedientPerConsulta(
+				entornCodi,
 				query,
 				informeCamps,
 				false,
@@ -244,6 +276,14 @@ public class LuceneDao extends LuceneIndexSupport {
 			boolean finalitzat) {
 		boolean isUpdate = (docLucene != null);
 		Document document = (docLucene != null) ? docLucene : new Document();
+		createOrUpdateDocumentField(
+				document,
+				new Field(
+						ExpedientCamps.EXPEDIENT_CAMP_ENTORN,
+			    		expedient.getEntorn().getCodi(),
+						Field.Store.YES,
+						Field.Index.NOT_ANALYZED),
+				isUpdate);
 		createOrUpdateDocumentField(
 				document,
 				new Field(
@@ -376,14 +416,21 @@ public class LuceneDao extends LuceneIndexSupport {
 				Map<String, Object> valorsProces = valors.get(clau);
 				if (valorsProces != null) {
 					for (Camp camp: camps.get(clau)) {
-						updateDocumentCamp(
-								document,
-								definicioProces,
-								camp,
-								valorsProces.get(camp.getCodi()),
-								textDominis.get(clau),
-								true,
-								isUpdate);
+						try {
+							updateDocumentCamp(
+									document,
+									definicioProces,
+									camp,
+									valorsProces.get(camp.getCodi()),
+									textDominis.get(clau),
+									true,
+									isUpdate,
+									new HashSet<String>());
+						} catch (Exception ex) {
+							StringBuilder sb = new StringBuilder();
+							getClassAsString(sb, valorsProces.get(camp.getCodi()));
+							logger.error("No s'ha pogut indexar el camp (definicioProces=" + definicioProces.getJbpmKey() + "(v." + definicioProces.getVersio() + ")" + ", camp=" + camp.getCodi() + ", tipus=" + camp.getTipus() + ", multiple=" + camp.isMultiple() + ") amb un valor (tipus=" + sb.toString() + ")", ex);
+						}
 					}
 				}
 			}
@@ -401,10 +448,20 @@ public class LuceneDao extends LuceneIndexSupport {
 	}
 
 	private Query queryPerFiltre(
+			String entornCodi,
 			String tipusCodi,
 			List<Camp> filtreCamps,
 			Map<String, Object> filtreValors) {
 		BooleanQuery bquery = new BooleanQuery();
+		if (!PEGAT_ENTORN_ACTIU) {
+			bquery.add(
+					new BooleanClause(
+							queryFromCampFiltre(
+									ExpedientCamps.EXPEDIENT_CAMP_ENTORN,
+									entornCodi,
+									null),
+							BooleanClause.Occur.MUST));
+		}
 		bquery.add(
 				new BooleanClause(
 						queryFromCampFiltre(
@@ -430,6 +487,7 @@ public class LuceneDao extends LuceneIndexSupport {
 			if (valorFiltre != null) {
 				if (codiCamp.startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
 					if (	ExpedientCamps.EXPEDIENT_CAMP_ID.equals(codiCamp) ||
+							ExpedientCamps.EXPEDIENT_CAMP_ENTORN.equals(codiCamp) ||
 							ExpedientCamps.EXPEDIENT_CAMP_INICIADOR.equals(codiCamp) ||
 							ExpedientCamps.EXPEDIENT_CAMP_RESPONSABLE.equals(codiCamp) ||
 							ExpedientCamps.EXPEDIENT_CAMP_GEOX.equals(codiCamp) ||
@@ -559,6 +617,7 @@ public class LuceneDao extends LuceneIndexSupport {
 
 	@SuppressWarnings("unchecked")
 	private List<Map<String, DadaIndexadaDto>> getDadesExpedientPerConsulta(
+			final String entornCodi,
 			Query query,
 			List<Camp> campsInforme,
 			boolean incloureId,
@@ -589,22 +648,29 @@ public class LuceneDao extends LuceneIndexSupport {
 					private int count = 0;
 				    public Object mapHit(int id, Document document, float score) {
 				    	Map<String, List<String>> valorsDocument = null;
-				    	if (maxResults == -1 || (count >= firstRow && count < firstRow + maxResults)) {
-					    	valorsDocument = new HashMap<String, List<String>>();
-					    	for (Field field: (List<Field>)document.getFields()) {
-					    		if (valorsDocument.get(field.name()) == null) {
-					    			List<String> valors = new ArrayList<String>();
-					    			valors.add(field.stringValue());
-					    			valorsDocument.put(
-						    				field.name(),
-						    				valors);
-					    		} else {
-					    			List<String> valors = valorsDocument.get(field.name());
-					    			valors.add(field.stringValue());
-					    		}
-					    	}
+				    	boolean ignorar = false;
+				    	if (PEGAT_ENTORN_ACTIU) {
+				    		Field campEntorn = document.getField(ExpedientCamps.EXPEDIENT_CAMP_ENTORN);
+				    		ignorar = campEntorn != null && !campEntorn.stringValue().equals(entornCodi);
 				    	}
-				    	count++;
+				    	if (!ignorar) {
+					    	if (maxResults == -1 || (count >= firstRow && count < firstRow + maxResults)) {
+						    	valorsDocument = new HashMap<String, List<String>>();
+						    	for (Field field: (List<Field>)document.getFields()) {
+						    		if (valorsDocument.get(field.name()) == null) {
+						    			List<String> valors = new ArrayList<String>();
+						    			valors.add(field.stringValue());
+						    			valorsDocument.put(
+							    				field.name(),
+							    				valors);
+						    		} else {
+						    			List<String> valors = valorsDocument.get(field.name());
+						    			valors.add(field.stringValue());
+						    		}
+						    	}
+					    	}
+					    	count++;
+				    	}
 				    	return valorsDocument;
 				    }
 				},
@@ -710,7 +776,8 @@ public class LuceneDao extends LuceneIndexSupport {
 			Object valor,
 			Map<String, String> textDominis,
 			boolean checkMultiple,
-			boolean isUpdate) {
+			boolean isUpdate,
+			Set<String> campsActualitzats) {
 		if (valor != null) {
 			if (checkMultiple && camp.isMultiple()) {
 				// System.out.println(">>> Multiple " + camp.getCodi());
@@ -723,7 +790,8 @@ public class LuceneDao extends LuceneIndexSupport {
 							o,
 							textDominis,
 							false,
-							isUpdate);
+							isUpdate,
+							campsActualitzats);
 				}
 				// System.out.println(">>> /Multiple " + camp.getCodi());
 			} else if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
@@ -740,53 +808,56 @@ public class LuceneDao extends LuceneIndexSupport {
 								valorsMembres[index++],
 								textDominis,
 								false,
-								isUpdate);
+								isUpdate,
+								campsActualitzats);
 				}
 				// System.out.println(">>> /Registre " + camp.getCodi());
 			} else {
 				String clauIndex = definicioProces.getJbpmKey() + "." + camp.getCodi();
-				try {
-					String valorIndex = valorIndexPerCamp(camp, valor);
-					boolean analyzed = 
+				String valorIndex = valorIndexPerCamp(camp, valor);
+				boolean analyzed = 
 						camp.getTipus().equals(TipusCamp.STRING) ||
-						camp.getTipus().equals(TipusCamp.TEXTAREA);
-					// System.out.println(">>>>>> " + clauIndex + ": " + valorIndex);
+						camp	.getTipus().equals(TipusCamp.TEXTAREA);
+				// System.out.println(">>>>>> " + clauIndex + ": " + valorIndex);
+				boolean update = isUpdate && !campsActualitzats.contains(clauIndex);
+				campsActualitzats.add(clauIndex);
+				createOrUpdateDocumentField(
+						document,
+						new Field(
+								clauIndex,
+								valorIndex,
+								Field.Store.YES,
+								(analyzed) ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED),
+								update);
+				update = isUpdate && !campsActualitzats.contains(clauIndex+"_no_analyzed");
+				campsActualitzats.add(clauIndex+"_no_analyzed");
+				createOrUpdateDocumentField(
+						document,
+						new Field(
+								clauIndex+"_no_analyzed",
+								valorIndex,
+								Field.Store.NO,
+								Field.Index.NOT_ANALYZED),
+								update);
+				String textDomini = textDominis.get(camp.getCodi() + "@" + valorIndex);
+				if (	textDomini != null &&
+						(camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST)) &&
+						document.get(clauIndex + VALOR_DOMINI_SUFIX + valorIndex) == null) {
+					update = isUpdate && !campsActualitzats.contains(clauIndex + VALOR_DOMINI_SUFIX + valorIndex);
+					campsActualitzats.add(clauIndex + VALOR_DOMINI_SUFIX + valorIndex);
 					createOrUpdateDocumentField(
 							document,
 							new Field(
-									clauIndex,
-									valorIndex,
+									clauIndex + VALOR_DOMINI_SUFIX + valorIndex,
+									textDomini,
 									Field.Store.YES,
-									(analyzed) ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED),
-							isUpdate);
-					createOrUpdateDocumentField(
-							document,
-							new Field(
-									clauIndex+"_no_analyzed",
-									valorIndex,
-									Field.Store.NO,
-									Field.Index.NOT_ANALYZED),
-							isUpdate);
-					String textDomini = textDominis.get(camp.getCodi() + "@" + valorIndex);
-					if (	textDomini != null &&
-							(camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST)) &&
-							document.get(clauIndex + VALOR_DOMINI_SUFIX + valorIndex) == null) {
-						createOrUpdateDocumentField(
-								document,
-								new Field(
-											clauIndex + VALOR_DOMINI_SUFIX + valorIndex,
-										textDomini,
-										Field.Store.YES,
-										Field.Index.ANALYZED),
-								isUpdate);
-					}
-				} catch (Exception ex) {
-					logger.error("No s'ha pogut afegir el camp " + clauIndex + " al document per indexar", ex);
+									Field.Index.ANALYZED),
+									update);
 				}
 			}
 		}
 	}
-	private String valorIndexPerCamp(Camp camp, Object valor) throws Exception {
+	private String valorIndexPerCamp(Camp camp, Object valor) {
 		if (camp.getTipus().equals(TipusCamp.INTEGER)) {
 			return numberPerIndexar((Long)valor);
 		} else if (camp.getTipus().equals(TipusCamp.FLOAT)) {
@@ -865,6 +936,21 @@ public class LuceneDao extends LuceneIndexSupport {
 	private String dataPerIndexar(Date data) {
 		DateFormat sdf = new SimpleDateFormat(PATRO_DATES_INDEX);
 		return sdf.format(data);
+	}
+
+	private void getClassAsString(StringBuilder sb, Object o) {
+		if (o.getClass().isArray()) {
+			sb.append("[");
+			int length = Array.getLength(o);
+			for (int i = 0; i < length; i++) {
+				getClassAsString(sb, Array.get(o, i));
+				if (i < length - 1)
+					sb.append(", ");
+			}
+			sb.append("]");
+		} else {
+			sb.append(o.getClass().getName());
+		}
 	}
 
 	private String normalitzarILlevarAccents(String str) {

@@ -30,9 +30,29 @@ public class EnumeracioValidator {
 		Enumeracio e = dissenyService.findAmbEntornSenseTipusExpICodi(
 				enumeracio.getEntorn().getId(),
 				enumeracio.getCodi());
-		if (e != null)
+		if (e != null  && !(enumeracio.getCodi().equals(e.getCodi())))
 			errors.rejectValue("codi", "error.enumeracio.codi.repetit");
 
 	}
+	
+	public void validateSenseExpTipus(Object command, Errors errors, Long expedientTipusId) {
+		Enumeracio enumeracio = (Enumeracio)command;
+		if(expedientTipusId!=null){
+			Enumeracio e = dissenyService.findAmbEntornTipusExpICodi(
+			enumeracio.getEntorn().getId(),
+			expedientTipusId,
+			enumeracio.getCodi());
+			if (e != null  && !(enumeracio.getCodi().equals(e.getCodi())))
+				errors.rejectValue("codi", "error.enumeracio.codi.repetit");
+		}else{
+			Enumeracio e = dissenyService.findAmbEntornSenseTipusExpICodi(
+			enumeracio.getEntorn().getId(),
+			enumeracio.getCodi());
+			if (e != null  && !enumeracio.getCodi().equals(e.getCodi()))
+				errors.rejectValue("codi", "error.enumeracio.codi.repetit");
+		}
+
+	}
+	
 
 }

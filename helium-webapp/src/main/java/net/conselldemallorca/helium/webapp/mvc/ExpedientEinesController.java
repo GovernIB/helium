@@ -258,6 +258,33 @@ public class ExpedientEinesController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
+	
+	@RequestMapping(value = "/expedient/reindexa", method = RequestMethod.POST)
+	public String reindexa(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) String instanciaProcesId,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(instanciaProcesId);
+			if (potModificarExpedient(expedient)) {
+				try {
+					expedientService.luceneReindexarExpedient(instanciaProcesId);
+					missatgeInfo(request, getMessage("info.expedient.reindexat"));
+				} catch (Exception ex) {
+					missatgeError(request, getMessage("error.reindexar.expedient"), ex.getLocalizedMessage());
+		        	logger.error("No s'ha pogut reindexar l'expedient", ex);
+				}
+				return "expedient/eines";
+			} else {
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
+				return "redirect:/expedient/consulta.html";
+			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
 
 
 

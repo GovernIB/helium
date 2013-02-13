@@ -160,7 +160,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			populateModelCommon(entorn, model, commandSeleccio);
 			Object commandFiltre = session.getAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);
 			if (commandFiltre != null && commandSeleccio != null && commandSeleccio.getConsultaId() != null) {
-				model.addAttribute("commandFiltre", commandFiltre);
+				//model.addAttribute("commandFiltre", commandFiltre);
 				model.addAttribute("expedientTipusId", commandSeleccio.getExpedientTipusId());
 				List<Camp> camps = dissenyService.findCampsPerCampsConsulta(
 						commandSeleccio.getConsultaId(),
@@ -171,9 +171,16 @@ public class ExpedientConsultaDissenyController extends BaseController {
 						commandFiltre,
 						true,
 						true);
+				ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(commandSeleccio.getExpedientTipusId());
 				Map<String, Object> valorsPerService = new HashMap<String, Object>();
 				for (String clau: valors.keySet()) {
-					String clauPerService = clau.replaceFirst("_", ".");
+					String clauPerService;
+					String expedientTipusCodi = expedientTipus.getCodi();
+					if (clau.startsWith(expedientTipusCodi)) {
+						clauPerService = expedientTipusCodi + clau.substring(expedientTipusCodi.length()).replaceFirst("_", ".");
+					} else {
+						clauPerService = clau.replaceFirst("_", ".");
+					}
 					Object valor = valors.get(clau);
 					/*if (valor instanceof Object[])
 						System.out.println("@@@ " + clauPerService + ": [" + ((Object[])valor)[0] + ", " + ((Object[])valor)[1] + "]");
@@ -184,6 +191,9 @@ public class ExpedientConsultaDissenyController extends BaseController {
 							valor);
 				}
 				boolean export = request.getParameter(TableTagParameters.PARAMETER_EXPORTING) != null;
+				
+				commandFiltre = TascaFormUtil.getCommandForFiltre(camps, valors, null, null);
+				model.addAttribute("commandFiltre", commandFiltre);
 				
 				model.addAttribute(
 						"expedients",
@@ -352,6 +362,8 @@ public class ExpedientConsultaDissenyController extends BaseController {
 					}
 					String extensio = consulta.getInformeNom().substring(
 							consulta.getInformeNom().lastIndexOf(".") + 1);
+					String formatExportacio = consulta.getFormatExport();
+					request.setAttribute("formatJR", formatExportacio);
 					String nom = consulta.getInformeNom().substring(0,
 							consulta.getInformeNom().lastIndexOf("."));
 					if ("zip".equals(extensio)) {
@@ -385,6 +397,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
+		binder.setAutoGrowNestedPaths(false);
 		binder.registerCustomEditor(
 				Long.class,
 				new CustomNumberEditor(Long.class, true));
@@ -450,7 +463,6 @@ public class ExpedientConsultaDissenyController extends BaseController {
 					ExtendedPermission.READ});
 		model.addAttribute("expedientTipus", tipus);
 		if (commandSeleccio != null) {
-			
 				List<Consulta> consultes = dissenyService.findConsultesAmbEntornIExpedientTipusOrdenat(
 						entorn.getId(),
 						commandSeleccio.getExpedientTipusId());

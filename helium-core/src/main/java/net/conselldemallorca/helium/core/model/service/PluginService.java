@@ -167,12 +167,15 @@ public class PluginService {
 			if (annexosId != null) {
 				annexos = new ArrayList<DocumentDto>();
 				for (Long docId: annexosId) {
-					annexos.add(documentHelper.getDocumentVista(
+					DocumentDto docDto = documentHelper.getDocumentVista(
 							docId,
 							false,
-							false));
+							false);
+					if (docDto != null){
+						annexos.add(docDto);
+					}
 				}
-			}
+			}	
 			Integer doc = pluginPortasignaturesDao.uploadDocument(
 					document,
 					annexos,
@@ -665,10 +668,15 @@ public class PluginService {
 					portasignatures.getExpedient().getEntorn());
 			alerta.setExpedient(portasignatures.getExpedient());
 			DocumentDto document = documentHelper.getDocumentSenseContingut(portasignatures.getDocumentStoreId());
+			String causa = null;
 			if (document != null)
-				alerta.setCausa("Error al processar resposta del portasignatures per al document \"" + document.getDocumentNom() + "\": " + errorCallback);
+				causa = "Error al processar resposta del portasignatures per al document \"" + document.getDocumentNom() + "\": " + errorCallback;
 			else
-				alerta.setCausa("Error al processar resposta del portasignatures amb id " + portasignatures.getDocumentId());
+				causa = "Error al processar resposta del portasignatures amb id " + portasignatures.getDocumentId();
+			if (causa.length() > 255)
+				alerta.setCausa(causa.substring(0, 248) + "[...]");
+			else
+				alerta.setCausa(causa);
 			alertaDao.saveOrUpdate(alerta);
 		}
 	}

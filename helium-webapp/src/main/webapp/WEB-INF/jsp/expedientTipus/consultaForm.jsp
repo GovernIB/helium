@@ -42,6 +42,15 @@
 				<c:param name="fileExists" value="${not empty command.informeNom}"/>
 				<c:param name="label"><fmt:message key='consulta.form.informe' /></c:param>
 			</c:import>
+			
+			<c:import url="../common/formElement.jsp">
+	                <c:param name="property" value="formatExport"/>
+	                <c:param name="required" value="true"/>
+	                <c:param name="type" value="select"/>
+	                <c:param name="items" value="formatsExportacio"/>
+	                <c:param name="label"><fmt:message key="consulta.form.formatExportacio"/></c:param>
+	            </c:import> 
+			
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="valorsPredefinits"/>
 				<c:param name="type" value="textarea"/>
