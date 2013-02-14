@@ -48,7 +48,10 @@
 					<c:param name="type" value="custom"/>
 					<c:param name="label">${campActual.etiqueta}</c:param>
 					<c:param name="content">
-						<c:set var="files" scope="request" value="${tasca.varsComText[codiActual]}"/>
+						<c:set var="registreFiles" value="${tasca.varsComText[codiActual]}" scope="request"/>
+						<c:set var="registreReadOnly" value="${true}" scope="request"/>
+						<c:import url="../common/taulaVarRegistre.jsp"/>
+						<%--c:set var="files" scope="request" value="${tasca.varsComText[codiActual]}"/>
 						<c:if test="${not empty tasca.varsComText[codiActual]}">
 							<div style="overflow:auto">
 								<display:table name="files" id="registre" requestURI="" class="displaytag selectable">
@@ -59,7 +62,7 @@
 									</c:forEach>
 								</display:table>
 							</div>
-						</c:if>
+						</c:if--%>
 					</c:param>
 				</c:import>
 			</c:when>
@@ -248,7 +251,10 @@
 			<c:param name="type" value="custom"/>
 			<c:param name="label">${campActual.etiqueta}</c:param>
 			<c:param name="content">
-				<c:set var="files" scope="request" value="${tasca.varsComText[codiActual]}"/>
+				<c:set var="registreFiles" value="${tasca.varsComText[codiActual]}" scope="request"/>
+				<c:set var="registreReadOnly" value="${false}" scope="request"/>
+				<c:import url="../common/taulaVarRegistre.jsp"/>
+				<%--c:set var="files" scope="request" value="${tasca.varsComText[codiActual]}"/>
 				<c:if test="${not empty tasca.varsComText[codiActual]}">
 					<div style="overflow:auto">
 						<display:table name="files" id="registre" requestURI="" class="displaytag selectable">
@@ -270,7 +276,7 @@
 				<c:if test="${campActual.multiple || fn:length(files) < 1}">
 					<button style="font-size:11px;margin-top: 2px" type="submit" class="submitButton" onclick="return editarRegistre(${campActual.id}, '${codiActual}', '<%=toJavascript((String)request.getAttribute("etiquetaActual"))%>', ${fn:length(campActual.registreMembres)})"><fmt:message key='comuns.afegir' /></button>
 				</c:if>
-				<div style="clear:both"></div>
+				<div style="clear:both"></div--%>
 			</c:param>
 			<c:param name="comment">${campActual.observacions}</c:param>
 		</c:import>

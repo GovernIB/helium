@@ -34,6 +34,7 @@ import net.conselldemallorca.helium.core.model.exception.IllegalStateException;
 import net.conselldemallorca.helium.core.model.exception.NotFoundException;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
@@ -381,45 +382,44 @@ public class TascaService {
 			String campCodi,
 			Object[] valors,
 			int index) {
-		Object valor = jbpmDao.getTaskInstanceVariable(taskId, campCodi);
-		if (valor == null) {
+		JbpmTask task = jbpmDao.getTaskById(taskId);
+		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(task.getProcessDefinitionId());
+		Camp camp = campDao.findAmbDefinicioProcesICodi(definicioProces.getId(), campCodi);
+		if (camp.isMultiple()) {
+			Object valor = jbpmDao.getTaskInstanceVariable(taskId, campCodi);
+			if (valor == null) {
+				guardarVariable(
+						entornId,
+						taskId,
+						campCodi,
+						new Object[]{valors});
+			} else {
+				Object[] valorMultiple = (Object[])valor;
+				if (index != -1) {
+					valorMultiple[index] = valors;
+					guardarVariable(
+							entornId,
+							taskId,
+							campCodi,
+							valor);
+				} else {
+					Object[] valorNou = new Object[valorMultiple.length + 1];
+					for (int i = 0; i < valorMultiple.length; i++)
+						valorNou[i] = valorMultiple[i];
+					valorNou[valorMultiple.length] = valors;
+					guardarVariable(
+							entornId,
+							taskId,
+							campCodi,
+							valorNou);
+				}
+			}
+		} else {
 			guardarVariable(
 					entornId,
 					taskId,
 					campCodi,
-					new Object[]{valors});
-			/*jbpmDao.setTaskInstanceVariable(
-					taskId,
-					campCodi,
-					new Object[]{valors});*/
-		} else {
-			Object[] valorMultiple = (Object[])valor;
-			if (index != -1) {
-				valorMultiple[index] = valors;
-				guardarVariable(
-						entornId,
-						taskId,
-						campCodi,
-						valor);
-				/*jbpmDao.setTaskInstanceVariable(
-						taskId,
-						campCodi,
-						valor);*/
-			} else {
-				Object[] valorNou = new Object[valorMultiple.length + 1];
-				for (int i = 0; i < valorMultiple.length; i++)
-					valorNou[i] = valorMultiple[i];
-				valorNou[valorMultiple.length] = valors;
-				guardarVariable(
-						entornId,
-						taskId,
-						campCodi,
-						valorNou);
-				/*jbpmDao.setTaskInstanceVariable(
-						taskId,
-						campCodi,
-						valorNou);*/
-			}
+					valors);
 		}
 	}
 	public void esborrarRegistre(
@@ -427,23 +427,30 @@ public class TascaService {
 			String taskId,
 			String campCodi,
 			int index) {
-		Object valor = jbpmDao.getTaskInstanceVariable(taskId, campCodi);
-		if (valor != null) {
-			Object[] valorMultiple = (Object[])valor;
-			if (valorMultiple.length > 0) {
-				Object[] valorNou = new Object[valorMultiple.length - 1];
-				for (int i = 0; i < valorNou.length; i++)
-					valorNou[i] = (i < index) ? valorMultiple[i] : valorMultiple[i + 1];
-				guardarVariable(
-						entornId,
-						taskId,
-						campCodi,
-						valorNou);
-				/*jbpmDao.setTaskInstanceVariable(
-						taskId,
-						campCodi,
-						valorNou);*/
+		JbpmTask task = jbpmDao.getTaskById(taskId);
+		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(task.getProcessDefinitionId());
+		Camp camp = campDao.findAmbDefinicioProcesICodi(definicioProces.getId(), campCodi);
+		if (camp.isMultiple()) {
+			Object valor = jbpmDao.getTaskInstanceVariable(taskId, campCodi);
+			if (valor != null) {
+				Object[] valorMultiple = (Object[])valor;
+				if (valorMultiple.length > 0) {
+					Object[] valorNou = new Object[valorMultiple.length - 1];
+					for (int i = 0; i < valorNou.length; i++)
+						valorNou[i] = (i < index) ? valorMultiple[i] : valorMultiple[i + 1];
+					guardarVariable(
+							entornId,
+							taskId,
+							campCodi,
+							valorNou);
+				}
 			}
+		} else {
+			guardarVariable(
+					entornId,
+					taskId,
+					campCodi,
+					null);
 		}
 	}
 
