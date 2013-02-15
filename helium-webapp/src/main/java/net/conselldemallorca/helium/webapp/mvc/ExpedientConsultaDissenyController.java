@@ -643,11 +643,17 @@ public class ExpedientConsultaDissenyController extends BaseController {
 					camp,
 					true,
 					false);
-			String definicioProcesKey = camp.getDefinicioProces().getJbpmKey();
-			String clauPerService = definicioProcesKey + clau.substring(definicioProcesKey.length()).replaceFirst("_", ".");
-			valorsPerService.put(
-					clauPerService,
-					valors.get(clau));
+			if (camp.getDefinicioProces() != null) {
+				String definicioProcesKey = camp.getDefinicioProces().getJbpmKey();
+				String clauPerService = definicioProcesKey + clau.substring(definicioProcesKey.length()).replaceFirst("_", ".");
+				valorsPerService.put(
+						clauPerService,
+						valors.get(clau));
+			} else {
+				valorsPerService.put(
+						clau,
+						valors.get(clau));
+			}
 		}
 		return valorsPerService;
 	}
