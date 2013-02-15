@@ -75,7 +75,8 @@ public class ExpedientConsultaDissenyController extends BaseController {
 	public static final String VARIABLE_SESSIO_IDS_MASSIUS_TE = "consultaExpedientsIdsMassiusTE";
 	private static final String VARIABLE_SESSIO_SELCON_COMMAND_TE = "expedientTipusConsultaDissenyCommandTE";
 	public static final String VARIABLE_SESSIO_IDS_MASSIUS = "consultaExpedientsIdsMassius";
-	
+
+
 
 	private DissenyService dissenyService;
 	private ExpedientService expedientService;
@@ -133,8 +134,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		}
 		return null;
 	}
-	
-	
+
 	@ModelAttribute("valorsBoolea")
 	public List<ParellaCodiValorDto> valorsBoolea() {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
@@ -142,7 +142,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		resposta.add(new ParellaCodiValorDto("false",  getMessage("comuns.no") ));
 		return resposta;
 	}
-	
+
 	@RequestMapping(value = "/expedient/consultaDisseny")
 	public String consultaDisseny(
 			HttpServletRequest request,
@@ -160,7 +160,6 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			populateModelCommon(entorn, model, commandSeleccio);
 			Object commandFiltre = session.getAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);
 			if (commandFiltre != null && commandSeleccio != null && commandSeleccio.getConsultaId() != null) {
-				//model.addAttribute("commandFiltre", commandFiltre);
 				model.addAttribute("expedientTipusId", commandSeleccio.getExpedientTipusId());
 				List<Camp> camps = dissenyService.findCampsPerCampsConsulta(
 						commandSeleccio.getConsultaId(),
@@ -171,36 +170,19 @@ public class ExpedientConsultaDissenyController extends BaseController {
 						commandFiltre,
 						true,
 						true);
-				ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(commandSeleccio.getExpedientTipusId());
-				Map<String, Object> valorsPerService = new HashMap<String, Object>();
-				for (String clau: valors.keySet()) {
-					String clauPerService;
-					String expedientTipusCodi = expedientTipus.getCodi();
-					if (clau.startsWith(expedientTipusCodi)) {
-						clauPerService = expedientTipusCodi + clau.substring(expedientTipusCodi.length()).replaceFirst("_", ".");
-					} else {
-						clauPerService = clau.replaceFirst("_", ".");
-					}
-					Object valor = valors.get(clau);
-					/*if (valor instanceof Object[])
-						System.out.println("@@@ " + clauPerService + ": [" + ((Object[])valor)[0] + ", " + ((Object[])valor)[1] + "]");
-					else
-						System.out.println("@@@ " + clauPerService + ": " + valor);*/
-					valorsPerService.put(
-							clauPerService,
-							valor);
-				}
 				boolean export = request.getParameter(TableTagParameters.PARAMETER_EXPORTING) != null;
-				
-				commandFiltre = TascaFormUtil.getCommandForFiltre(camps, valors, null, null);
+				commandFiltre = TascaFormUtil.getCommandForFiltre(
+						camps,
+						valors,
+						null,
+						null);
 				model.addAttribute("commandFiltre", commandFiltre);
-				
 				model.addAttribute(
 						"expedients",
 						getPaginaExpedients(
 								entorn.getId(),
 								commandSeleccio.getConsultaId(),
-								valorsPerService,
+								getValorsPerService(camps, valors),
 								page,
 								sort,
 								dir,
@@ -327,18 +309,10 @@ public class ExpedientConsultaDissenyController extends BaseController {
 							commandFiltre,
 							true,
 							true);
-					Map<String, Object> valorsPerService = new HashMap<String, Object>();
-					for (String clau: valors.keySet()) {
-						String clauPerService = clau.replaceFirst("_", ".");
-						Object valor = valors.get(clau);
-						valorsPerService.put(
-								clauPerService,
-								valor);
-					}
 					List<ExpedientConsultaDissenyDto> expedients = expedientService.findAmbEntornConsultaDisseny(
 							entorn.getId(),
 							commandSeleccio.getConsultaId(),
-							valorsPerService,
+							getValorsPerService(camps, valors),
 							ExpedientCamps.EXPEDIENT_CAMP_ID,
 							true);
 					List<ExpedientConsultaDissenyDto> expedientsTE = new ArrayList<ExpedientConsultaDissenyDto>();
@@ -659,8 +633,70 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		}
 		return docs;
 	}
-	
-	/*private void mostrarDadesExpedient(ExpedientConsultaDissenyDto dadesExpedient) {
+
+	private Map<String, Object> getValorsPerService(
+			List<Camp> camps,
+			Map<String, Object> valors) {
+		Map<String, Object> valorsPerService = new HashMap<String, Object>();
+		for (Camp camp: camps) {
+			String clau = TascaFormUtil.getCampCodi(
+					camp,
+					true,
+					false);
+			String definicioProcesKey = camp.getDefinicioProces().getJbpmKey();
+			String clauPerService = definicioProcesKey + clau.substring(definicioProcesKey.length()).replaceFirst("_", ".");
+			valorsPerService.put(
+					clauPerService,
+					valors.get(clau));
+		}
+		return valorsPerService;
+	}
+
+	/*private void debugCommandFiltre(
+			List<Camp> camps,
+			Map<String, Object> valors,
+			Object commandFiltre) {
+		System.out.println(">>> Informació command per filtre");
+		System.out.println(">>>    Camps:");
+		for (Camp camp: camps)
+			System.out.println(">>>       Camp (codi=" + camp.getCodi() + ")");
+		if (valors != null) {
+			System.out.println(">>>    Valors:");
+			for (String clau: valors.keySet()) {
+				Object valor = valors.get(clau);
+				if (valor.getClass().isArray()) {
+					System.out.println(">>>       Valor array (clau=" + clau + "):");
+					for (int i = 0; i < Array.getLength(valor); i++) {
+						System.out.println(">>>          [" + i + "]: (valor=" + Array.get(valor, i) + ")");
+					}
+				} else {
+					System.out.println(">>>       Valor (clau=" + clau + ", valor=" + valor + ")");
+				}
+			}
+		}
+		System.out.println(">>>    Command:");
+		for (PropertyDescriptor property: PropertyUtils.getPropertyDescriptors(commandFiltre)) {
+			try {
+				if (property.getPropertyType().isArray()) {
+					System.out.println(">>>       Property (name=" + property.getName() + ", class=" + property.getPropertyType().getName() + "):");
+					Object valor = PropertyUtils.getProperty(commandFiltre, property.getName());
+					if (valor != null) {
+						for (int i = 0; i < Array.getLength(valor); i++) {
+							System.out.println(">>>          [" + i + "]: (valor=" + Array.get(valor, i) + ")");
+						}
+					} else {
+						System.out.println(">>>          valor <null>");
+					}
+				} else {
+					System.out.println(">>>       Property (name=" + property.getName() + ", class=" + property.getPropertyType().getName() + ", valor=" + PropertyUtils.getProperty(commandFiltre, property.getName()) + ")");
+				}
+			} catch (Exception ex) {
+				System.out.println(">>>          Property (name=" + property.getName() + ", class=" + property.getPropertyType().getName() + ", valor=<Exception>)");
+				ex.printStackTrace();
+			}
+		}
+	}
+	private void mostrarDadesExpedient(ExpedientConsultaDissenyDto dadesExpedient) {
 		System.out.println(">>>>>> (" + dadesExpedient.getExpedient().getId() + ") " + dadesExpedient.getExpedient().getIdentificador());
 		if (dadesExpedient.getDadesExpedient() != null) {
 			for (String clau: dadesExpedient.getDadesExpedient().keySet()) {
@@ -669,5 +705,5 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			}
 		}
 	}*/
-	
+
 }
