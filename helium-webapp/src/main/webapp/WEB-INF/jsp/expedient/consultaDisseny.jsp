@@ -120,32 +120,61 @@ function selTots(){
 							<c:set var="required" value="${false}" scope="request"/>
 							<c:import url="../common/campFiltre.jsp"/>
 						</c:forEach>
-						<c:choose>
-							<c:when test="${fn:length(expedients.list) > 0}">	
-								<c:if test="${sessionCommand.massivaActiu}">
-									<c:import url="../common/formElement.jsp">
-										<c:param name="type" value="buttons"/>
-										<c:param name="values">informe,submit,netejar,nomassiva</c:param>
-										<c:param name="titles"><fmt:message key='expedient.consulta.informe' />,<fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' />,<fmt:message key="expedient.consulta.massiva.seleccio.desactivar"/></c:param>
-									</c:import>
-								</c:if>
-								<c:if test="${not sessionCommand.massivaActiu}">
-									<c:import url="../common/formElement.jsp">
-										<c:param name="type" value="buttons"/>
-										<c:param name="values">informe,submit,netejar,massiva</c:param>
-										<c:param name="titles"><fmt:message key='expedient.consulta.informe' />,<fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' />,<fmt:message key="expedient.consulta.massiva.seleccio.activar"/></c:param>
-									</c:import>
-								</c:if>
-								
-							</c:when>
-							<c:otherwise>
-								<c:import url="../common/formElement.jsp">
-									<c:param name="type" value="buttons"/>
-									<c:param name="values">submit,netejar</c:param>
-									<c:param name="titles"><fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' /></c:param>
-								</c:import>
-							</c:otherwise>
-						</c:choose>
+					
+						<c:if test="${empty consulta.informeNom}">
+								<c:choose>
+									<c:when test="${fn:length(expedients.list) > 0}">
+										<c:if test="${sessionCommand.massivaActiu}">
+											<c:import url="../common/formElement.jsp">
+												<c:param name="type" value="buttons"/>
+												<c:param name="values">submit,netejar,nomassiva</c:param>
+												<c:param name="titles"><fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' />,<fmt:message key="expedient.consulta.massiva.seleccio.desactivar"/></c:param>
+											</c:import>
+										</c:if>
+										<c:if test="${not sessionCommand.massivaActiu}">
+											<c:import url="../common/formElement.jsp">
+												<c:param name="type" value="buttons"/>
+												<c:param name="values">submit,netejar,massiva</c:param>
+												<c:param name="titles"><fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' />,<fmt:message key="expedient.consulta.massiva.seleccio.activar"/></c:param>
+											</c:import>
+										</c:if>
+									</c:when>
+									<c:otherwise>
+										<c:import url="../common/formElement.jsp">
+											<c:param name="type" value="buttons"/>
+											<c:param name="values">submit,netejar</c:param>
+											<c:param name="titles"><fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' /></c:param>
+										</c:import>
+									</c:otherwise>
+								</c:choose>
+						</c:if>
+						<c:if test="${not empty consulta.informeNom}">
+								<c:choose>
+									<c:when test="${fn:length(expedients.list) > 0}">
+										<c:if test="${sessionCommand.massivaActiu}">
+											<c:import url="../common/formElement.jsp">
+												<c:param name="type" value="buttons"/>
+												<c:param name="values">informe,submit,netejar,nomassiva</c:param>
+												<c:param name="titles"><fmt:message key='expedient.consulta.informe' />,<fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' />,<fmt:message key="expedient.consulta.massiva.seleccio.desactivar"/></c:param>
+											</c:import>
+										</c:if>
+										<c:if test="${not sessionCommand.massivaActiu}">
+											<c:import url="../common/formElement.jsp">
+												<c:param name="type" value="buttons"/>
+												<c:param name="values">informe,submit,netejar,massiva</c:param>
+												<c:param name="titles"><fmt:message key='expedient.consulta.informe' />,<fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' />,<fmt:message key="expedient.consulta.massiva.seleccio.activar"/></c:param>
+											</c:import>
+										</c:if>
+									</c:when>
+									<c:otherwise>
+										<c:import url="../common/formElement.jsp">
+											<c:param name="type" value="buttons"/>
+											<c:param name="values">submit,netejar</c:param>
+											<c:param name="titles"><fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' /></c:param>
+										</c:import>
+									</c:otherwise>
+								</c:choose>
+						</c:if>
 					</div>
 			</form:form>
 			<table >
