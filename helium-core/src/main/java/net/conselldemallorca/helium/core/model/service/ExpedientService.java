@@ -1053,30 +1053,40 @@ public class ExpedientService {
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_VARIABLE_MODIFICAR,
 				campCodi);
-		Object valor = jbpmDao.getProcessInstanceVariable(processInstanceId, campCodi);
-		if (valor == null) {
+		JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(processInstanceId);
+		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(jpd.getId());
+		Camp camp = campDao.findAmbDefinicioProcesICodi(definicioProces.getId(), campCodi);
+		if (camp.isMultiple()) {
+			Object valor = jbpmDao.getProcessInstanceVariable(processInstanceId, campCodi);
+			if (valor == null) {
+				jbpmDao.setProcessInstanceVariable(
+						processInstanceId,
+						campCodi,
+						new Object[]{valors});
+			} else {
+				Object[] valorMultiple = (Object[])valor;
+				if (index != -1) {
+					valorMultiple[index] = valors;
+					jbpmDao.setProcessInstanceVariable(
+							processInstanceId,
+							campCodi,
+							valor);
+				} else {
+					Object[] valorNou = new Object[valorMultiple.length + 1];
+					for (int i = 0; i < valorMultiple.length; i++)
+						valorNou[i] = valorMultiple[i];
+					valorNou[valorMultiple.length] = valors;
+					jbpmDao.setProcessInstanceVariable(
+							processInstanceId,
+							campCodi,
+							valorNou);
+				}
+			}
+		} else {
 			jbpmDao.setProcessInstanceVariable(
 					processInstanceId,
 					campCodi,
-					new Object[]{valors});
-		} else {
-			Object[] valorMultiple = (Object[])valor;
-			if (index != -1) {
-				valorMultiple[index] = valors;
-				jbpmDao.setProcessInstanceVariable(
-						processInstanceId,
-						campCodi,
-						valor);
-			} else {
-				Object[] valorNou = new Object[valorMultiple.length + 1];
-				for (int i = 0; i < valorMultiple.length; i++)
-					valorNou[i] = valorMultiple[i];
-				valorNou[valorMultiple.length] = valors;
-				jbpmDao.setProcessInstanceVariable(
-						processInstanceId,
-						campCodi,
-						valorNou);
-			}
+					valors);
 		}
 		getServiceUtils().expedientIndexLuceneUpdate(processInstanceId);
 	}
@@ -1088,18 +1098,28 @@ public class ExpedientService {
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_VARIABLE_MODIFICAR,
 				campCodi);
-		Object valor = jbpmDao.getProcessInstanceVariable(processInstanceId, campCodi);
-		if (valor != null) {
-			Object[] valorMultiple = (Object[])valor;
-			if (valorMultiple.length > 0) {
-				Object[] valorNou = new Object[valorMultiple.length - 1];
-				for (int i = 0; i < valorNou.length; i++)
-					valorNou[i] = (i < index) ? valorMultiple[i] : valorMultiple[i + 1];
-				jbpmDao.setProcessInstanceVariable(
-						processInstanceId,
-						campCodi,
-						valorNou);
+		JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(processInstanceId);
+		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(jpd.getId());
+		Camp camp = campDao.findAmbDefinicioProcesICodi(definicioProces.getId(), campCodi);
+		if (camp.isMultiple()) {
+			Object valor = jbpmDao.getProcessInstanceVariable(processInstanceId, campCodi);
+			if (valor != null) {
+				Object[] valorMultiple = (Object[])valor;
+				if (valorMultiple.length > 0) {
+					Object[] valorNou = new Object[valorMultiple.length - 1];
+					for (int i = 0; i < valorNou.length; i++)
+						valorNou[i] = (i < index) ? valorMultiple[i] : valorMultiple[i + 1];
+					jbpmDao.setProcessInstanceVariable(
+							processInstanceId,
+							campCodi,
+							valorNou);
+				}
 			}
+		} else {
+			jbpmDao.setProcessInstanceVariable(
+					processInstanceId,
+					campCodi,
+					null);
 		}
 		getServiceUtils().expedientIndexLuceneUpdate(processInstanceId);
 	}

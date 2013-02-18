@@ -1059,6 +1059,7 @@ public class DissenyService {
 					camp.isMultiple(),
 					camp.isOcult(),
 					camp.isDominiIntern(),
+					camp.isDominiCacheText(),
 					(camp.getEnumeracio() != null) ? camp.getEnumeracio().getCodi() : null,
 					(camp.getDomini() != null) ? camp.getDomini().getCodi() : null,
 					(camp.getAgrupacio() != null) ? camp.getAgrupacio().getCodi() : null,
@@ -2412,7 +2413,6 @@ public class DissenyService {
 		for (Tasca nova: desti.getTasques()) {
 			for (Tasca vella: origen.getTasques()) {
 				if (nova.getJbpmName().equals(vella.getJbpmName())) {
-					System.out.println(">>> (C) TASCA: " + nova.getJbpmName());
 					nova.setNom(vella.getNom());
 					nova.setTipus(vella.getTipus());
 					nova.setMissatgeInfo(vella.getMissatgeInfo());
@@ -2424,7 +2424,6 @@ public class DissenyService {
 					nova.setTramitacioMassiva(vella.isTramitacioMassiva());
 					// Copia els camps de les tasques
 					for (CampTasca camp: vella.getCamps()) {
-						System.out.println(">>> (C) CAMP: " + camp.getCamp().getCodi());
 						CampTasca nouCamp = new CampTasca(
 								camps.get(camp.getCamp().getCodi()),
 								nova,
@@ -2437,7 +2436,6 @@ public class DissenyService {
 					}
 					// Copia els documents de la tasca
 					for (DocumentTasca document: vella.getDocuments()) {
-						System.out.println(">>> (C) DOC: " + document.getDocument().getCodi());
 						DocumentTasca nouDocument = new DocumentTasca(
 								documents.get(document.getDocument().getCodi()),
 								nova,
@@ -2537,6 +2535,7 @@ public class DissenyService {
 			nou.setDominiParams(camp.getDominiParams());
 			nou.setDominiCampText(camp.getDominiCampText());
 			nou.setDominiCampValor(camp.getDominiCampValor());
+			nou.setDominiCacheText(camp.isDominiCacheText());
 			nou.setMultiple(camp.isMultiple());
 			nou.setOcult(camp.isOcult());
 			nou.setDominiIntern(camp.isDominiIntern());

@@ -103,13 +103,23 @@ public abstract class CommonRegistreController extends BaseController {
 						entorn.getId(),
 						id,
 						camp.getCodi());
-				if (index < valorRegistre.length) {
+				if (camp.isMultiple()) {
+					if (index < valorRegistre.length) {
+						valors = new HashMap<String, Object>();
+						for (int i = 0; i < camp.getRegistreMembres().size(); i++) {
+							CampRegistre campRegistre = camp.getRegistreMembres().get(i);
+							valors.put(
+									campRegistre.getMembre().getCodi(),
+									Array.get(valorRegistre[index], i));
+						}
+					}
+				} else {
 					valors = new HashMap<String, Object>();
 					for (int i = 0; i < camp.getRegistreMembres().size(); i++) {
 						CampRegistre campRegistre = camp.getRegistreMembres().get(i);
 						valors.put(
 								campRegistre.getMembre().getCodi(),
-								Array.get(valorRegistre[index], i));
+								valorRegistre[i]);
 					}
 				}
 			}

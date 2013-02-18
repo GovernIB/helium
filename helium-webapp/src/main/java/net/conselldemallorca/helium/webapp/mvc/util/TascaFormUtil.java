@@ -97,7 +97,7 @@ public class TascaFormUtil {
     	for (Camp camp: camps) {
     		if (!camp.getTipus().equals(TipusCamp.REGISTRE)) {
 	    		try {
-		    		String campCodi = getCampCodi(camp, perFiltre);
+		    		String campCodi = getCampCodi(camp, perFiltre, true);
 		    		Object valor = PropertyUtils.getSimpleProperty(command, campCodi);
 		    		if (camp.isMultiple() && revisarArrays) {
 	    				// Lleva els valors buits de l'array
@@ -119,11 +119,17 @@ public class TascaFormUtil {
 		    					Array.set(newArray, index++, va);
 		    			}
 		    			if (Array.getLength(newArray) > 0)
-		    				resposta.put(campCodi, newArray);
+		    				resposta.put(
+		    						getCampCodi(camp, perFiltre, false),
+		    						newArray);
 		    			else
-		    				resposta.put(campCodi, null);
+		    				resposta.put(
+		    						getCampCodi(camp, perFiltre, false),
+		    						null);
 		    		} else {
-		    			resposta.put(campCodi, valor);
+		    			resposta.put(
+		    					getCampCodi(camp, perFiltre, false),
+		    					valor);
 		    		}
 	    		} catch (Exception ignored) {}
     		}
@@ -232,25 +238,31 @@ public class TascaFormUtil {
 				bg.addProperty(codi, campsAddicionalsClasses.get(codi));
 		}
 		for (Camp camp: camps) {
-			String campCodi = getCampCodi(camp, perFiltre);
+			String campCodi = getCampCodi(camp, perFiltre, true);
 			if (camp.getTipus() != null)  {
-				boolean ambArray;
 				if (!perFiltre) {
-					ambArray = camp.isMultiple();
+					if (camp.isMultiple())
+						bg.addProperty(
+								campCodi,
+								Array.newInstance(camp.getJavaClass(), 1).getClass());
+					else
+						bg.addProperty(
+								campCodi,
+								camp.getJavaClass());
 				} else {
-					ambArray = 	camp.getTipus().equals(TipusCamp.DATE) ||
+					boolean ambArray = 	camp.getTipus().equals(TipusCamp.DATE) ||
 								camp.getTipus().equals(TipusCamp.INTEGER) ||
 								camp.getTipus().equals(TipusCamp.FLOAT) ||
 								camp.getTipus().equals(TipusCamp.PRICE);
-				}
-				if (ambArray) {
-					bg.addProperty(
-							campCodi,
-							Array.newInstance(camp.getJavaClass(), 1).getClass());
-				} else {
-					bg.addProperty(
-							campCodi,
-							camp.getJavaClass());
+					if (ambArray) {
+						bg.addProperty(
+								campCodi,
+								Array.newInstance(camp.getJavaClass(), 2).getClass());
+					} else {
+						bg.addProperty(
+								campCodi,
+								camp.getJavaClass());
+					}
 				}
 			} else {
 				bg.addProperty(
@@ -258,8 +270,8 @@ public class TascaFormUtil {
 						Object.class);
 			}
 		}
-		// Omplit el command amb els valors per defecte
 		Object command = bg.create();
+		// Omplit el command amb els valors per defecte
 		if (campsAddicionals != null) {
 			for (String codi: campsAddicionals.keySet()) {
 				String tipusCommand = null;
@@ -278,11 +290,13 @@ public class TascaFormUtil {
 		// Inicialitza els camps del command amb els valors de la tasca
 		for (Camp camp: camps) {
 			if (!camp.getTipus().equals(TipusCamp.REGISTRE)) {
-				String campCodi = getCampCodi(camp, perFiltre);
+				String campCodi = getCampCodi(camp, perFiltre, true);
+				String campCodiValors = getCampCodi(camp, perFiltre, false);
 				String tipusCommand = null;
-				String tipusCamp = (valors != null && valors.get(campCodi) != null) ? valors.get(campCodi).getClass().getName() : null;
+				String tipusCamp = (valors != null && valors.get(campCodiValors) != null) ? valors.get(campCodiValors).getClass().getName() : null;
 				try {
-					tipusCommand = PropertyUtils.getPropertyType(command, campCodi).getName();
+					Class propertyType = PropertyUtils.getPropertyType(command, campCodi);
+					tipusCommand = (propertyType != null) ? propertyType.getName() : null;
 					boolean ambArray;
 					if (!perFiltre) {
 						ambArray = camp.isMultiple();
@@ -293,11 +307,11 @@ public class TascaFormUtil {
 									camp.getTipus().equals(TipusCamp.PRICE);
 					}
 					if (ambArray) {
-						if (valors != null && valors.get(campCodi) != null) {
+						if (valors != null && valors.get(campCodiValors) != null) {
 							PropertyUtils.setSimpleProperty(
 									command,
 									campCodi,
-									valors.get(campCodi));
+									valors.get(campCodiValors));
 						} else {
 							PropertyUtils.setSimpleProperty(
 									command,
@@ -310,7 +324,7 @@ public class TascaFormUtil {
 						PropertyUtils.setSimpleProperty(
 								command,
 								campCodi,
-								(valors != null) ? valors.get(campCodi) : null);
+								(valors != null) ? valors.get(campCodiValors) : null);
 					}
 				} catch (Exception ex) {
 					logger.error("No s'ha pogut afegir el camp '" + campCodi + "' al command (" + tipusCommand + ", " + tipusCamp + ")", ex);
@@ -318,6 +332,27 @@ public class TascaFormUtil {
 			}
 		}
 		return command;
+	}
+
+	public static String getCampCodi(
+			Camp camp,
+			boolean perFiltre,
+			boolean evitarProblema) {
+		if (perFiltre) {
+			if (camp.getCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
+				return camp.getCodi();
+			} else {
+				String definicioProcesKey = camp.getDefinicioProces().getJbpmKey();
+				// Per evitar el problema amb cglib quan la propietat
+				// comença amb majúscula+minúscula
+				if (evitarProblema && definicioProcesKey.matches("^[A-Z]{1}[a-z]{1}.*"))
+					definicioProcesKey = definicioProcesKey.substring(0, 1).toLowerCase() + definicioProcesKey.substring(1);
+				//
+				return definicioProcesKey + "_" + camp.getCodi();
+			}
+		} else {
+			return camp.getCodi();
+		}
 	}
 
 
@@ -343,18 +378,6 @@ public class TascaFormUtil {
 			}
 		}
 		return null;
-	}
-
-	private static String getCampCodi(Camp camp, boolean perFiltre) {
-		if (perFiltre) {
-			if (camp.getCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
-				return camp.getCodi();
-			} else {
-				return camp.getDefinicioProces().getJbpmKey() + "_" + camp.getCodi();
-			}
-		} else {
-			return camp.getCodi();
-		}
 	}
 
 	private static final Log logger = LogFactory.getLog(TascaFormUtil.class);

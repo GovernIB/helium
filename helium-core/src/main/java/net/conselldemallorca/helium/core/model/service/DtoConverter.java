@@ -1192,49 +1192,23 @@ public class DtoConverter {
 							Object valor = valors.get(key);
 							if (valor != null && valor instanceof Object[]) {
 								List<String[]> grid = new ArrayList<String[]>();
-								for (int i = 0; i < Array.getLength(valor); i++) {
-									Object valorRegistre = Array.get(valor, i);
-									if (valorRegistre != null) {
-										String[] texts = new String[camp.getRegistreMembres().size()];
-										Map<String, Object> valorsAddicionalsConsulta = new HashMap<String, Object>();
-										for (int j = 0; j < camp.getRegistreMembres().size(); j++) {
-											if (j < Array.getLength(valorRegistre)) {
-												valorsAddicionalsConsulta.put(
-														camp.getRegistreMembres().get(j).getMembre().getCodi(),
-														Array.get(valorRegistre, j));
-											}
+								if (camp.isMultiple()) {
+									for (int i = 0; i < Array.getLength(valor); i++) {
+										Object valorRegistre = Array.get(valor, i);
+										if (valorRegistre != null) {
+											grid.add(textsPerCampTipusRegistre(
+													taskId,
+													processInstanceId,
+													camp,
+													valorRegistre));
 										}
-										for (int j = 0; j < Array.getLength(valorRegistre); j++) {
-											if (j == camp.getRegistreMembres().size())
-												break;
-											Camp membreRegistre = camp.getRegistreMembres().get(j).getMembre();
-											if (membreRegistre.getTipus().equals(TipusCamp.SUGGEST) || membreRegistre.getTipus().equals(TipusCamp.SELECCIO)) {
-												ParellaCodiValor codiValor = obtenirValorDomini(
-														taskId,
-														processInstanceId,
-														valorsAddicionalsConsulta,
-														membreRegistre,
-														Array.get(valorRegistre, j),
-														true);
-												ParellaCodiValorDto parellaDto = null;
-												if (codiValor != null) {
-													parellaDto = new ParellaCodiValorDto(
-															codiValor.getCodi(),
-															codiValor.getValor());
-												}
-												texts[j] = textPerCampDonatValorDomini(
-														membreRegistre,
-														Array.get(valorRegistre, j),
-														parellaDto);
-											} else {
-												texts[j] = textPerCampDonatValorDomini(
-														membreRegistre,
-														Array.get(valorRegistre, j),
-														null);
-											}
-										}
-										grid.add(texts);
 									}
+								} else {
+									grid.add(textsPerCampTipusRegistre(
+											taskId,
+											processInstanceId,
+											camp,
+											valor));
 								}
 								resposta.put(key, grid);
 							} else {
@@ -1296,6 +1270,51 @@ public class DtoConverter {
 					camp.getTipus(),
 					valor,
 					(valorDomini != null) ? (String)valorDomini.getValor() : null);
+	}
+	private String[] textsPerCampTipusRegistre(
+			String taskId,
+			String processInstanceId,
+			Camp camp,
+			Object valorRegistre) {
+		String[] texts = new String[camp.getRegistreMembres().size()];
+		Map<String, Object> valorsAddicionalsConsulta = new HashMap<String, Object>();
+		for (int j = 0; j < camp.getRegistreMembres().size(); j++) {
+			if (j < Array.getLength(valorRegistre)) {
+				valorsAddicionalsConsulta.put(
+						camp.getRegistreMembres().get(j).getMembre().getCodi(),
+						Array.get(valorRegistre, j));
+			}
+		}
+		for (int j = 0; j < Array.getLength(valorRegistre); j++) {
+			if (j == camp.getRegistreMembres().size())
+				break;
+			Camp membreRegistre = camp.getRegistreMembres().get(j).getMembre();
+			if (membreRegistre.getTipus().equals(TipusCamp.SUGGEST) || membreRegistre.getTipus().equals(TipusCamp.SELECCIO)) {
+				ParellaCodiValor codiValor = obtenirValorDomini(
+						taskId,
+						processInstanceId,
+						valorsAddicionalsConsulta,
+						membreRegistre,
+						Array.get(valorRegistre, j),
+						true);
+				ParellaCodiValorDto parellaDto = null;
+				if (codiValor != null) {
+					parellaDto = new ParellaCodiValorDto(
+							codiValor.getCodi(),
+							codiValor.getValor());
+				}
+				texts[j] = textPerCampDonatValorDomini(
+						membreRegistre,
+						Array.get(valorRegistre, j),
+						parellaDto);
+			} else {
+				texts[j] = textPerCampDonatValorDomini(
+						membreRegistre,
+						Array.get(valorRegistre, j),
+						null);
+			}
+		}
+		return texts;
 	}
 	private Map<String, Boolean> obtenirVarsOcultes(
 			Collection<Camp> camps) {
