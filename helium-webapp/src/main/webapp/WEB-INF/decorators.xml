@@ -1,5 +1,10 @@
 <decorators defaultdir="/WEB-INF/jsp/decorators">
 	<excludes>
+		<pattern>/js*</pattern>
+		<pattern>/css*</pattern>
+		<pattern>/img*</pattern>
+		<pattern>/ico*</pattern>
+		<pattern>/recobriment*</pattern>
 		<pattern>/dwr*</pattern>
 		<pattern>/spring_security_login*</pattern>
 		<pattern>/ws*</pattern>
@@ -11,6 +16,9 @@
 		<pattern>/expedient/logAccionsTasca*</pattern>
 		<pattern>/signatura/verificar*</pattern>
 	</excludes>
+	<decorator name="v3" page="v3.jsp">
+		<pattern>/v3/*</pattern>
+	</decorator>
 	<decorator name="default" page="default.jsp">
 		<pattern>/*</pattern>
 	</decorator>

@@ -406,7 +406,7 @@
 	</filter>
 	<filter-mapping>
 		<filter-name>CharacterEncoding</filter-name>
-		<url-pattern>*.html</url-pattern>
+		<url-pattern>*</url-pattern>
 	</filter-mapping>
 
 	<filter>
@@ -424,7 +424,7 @@
 	</filter>
 	<filter-mapping>
 		<filter-name>sitemesh</filter-name>
-		<url-pattern>*.html</url-pattern>
+		<url-pattern>*</url-pattern>
 	</filter-mapping>
 
 	<listener>
@@ -464,7 +464,7 @@
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>helium</servlet-name>
-		<url-pattern>*.html</url-pattern>
+		<url-pattern>/</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>dwr-invoker</servlet-name>
@@ -493,9 +493,6 @@
 		<role-name>HEL_USER</role-name>
 	</security-role>
 	<security-role>
-		<role-name>TOTHOM</role-name>
-	</security-role>
-	<security-role>
 		<role-name>tothom</role-name>
 	</security-role>
 
@@ -508,11 +505,10 @@
 		<auth-constraint>
 			<role-name>HEL_ADMIN</role-name>
 			<role-name>HEL_USER</role-name>
-			<role-name>TOTHOM</role-name>
 			<role-name>tothom</role-name>
 		</auth-constraint>
 	</security-constraint>
-	<security-constraint>
+	<!--security-constraint>
 		<web-resource-collection>
 			<web-resource-name>All areas</web-resource-name>
 			<url-pattern>/index.jsp</url-pattern>
@@ -534,7 +530,7 @@
 			<url-pattern>/signatura/arxiu.html</url-pattern>
 			<url-pattern>/rol/test.html</url-pattern>
 		</web-resource-collection>
-	</security-constraint>
+	</security-constraint-->
 	<!-- security-constraint.end -->
 
 	<error-page>
