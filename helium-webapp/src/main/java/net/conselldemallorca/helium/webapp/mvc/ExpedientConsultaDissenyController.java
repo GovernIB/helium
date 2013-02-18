@@ -177,6 +177,15 @@ public class ExpedientConsultaDissenyController extends BaseController {
 						null,
 						null);
 				model.addAttribute("commandFiltre", commandFiltre);
+				@SuppressWarnings("rawtypes")
+				Iterator it = valors.entrySet().iterator();
+				while (it.hasNext()) {
+					@SuppressWarnings("rawtypes")
+					Map.Entry e = (Map.Entry)it.next();
+					if (e.getValue() instanceof String){
+						e.setValue(e.getValue().toString().toLowerCase());
+					}
+				}			
 				model.addAttribute(
 						"expedients",
 						getPaginaExpedients(
