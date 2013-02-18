@@ -18,14 +18,14 @@ import net.conselldemallorca.helium.core.util.GlobalProperties;
 
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.hibernate.criterion.Restrictions;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * Dao pels objectes de tipus FormulariExtern
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Repository
+@Component
 public class FormulariExternDao extends HibernateGenericDao<FormulariExtern, Long> {
 
 	public FormulariExternDao() {

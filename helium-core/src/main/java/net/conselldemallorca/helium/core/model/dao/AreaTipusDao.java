@@ -9,14 +9,14 @@ import net.conselldemallorca.helium.core.model.hibernate.AreaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 
 import org.hibernate.criterion.Restrictions;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * Dao pels objectes de tipus AreaTipus
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Repository
+@Component
 public class AreaTipusDao extends HibernateGenericDao<AreaTipus, Long> {
 
 	public AreaTipusDao() {

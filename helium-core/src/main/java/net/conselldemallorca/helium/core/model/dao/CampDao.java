@@ -8,14 +8,14 @@ import java.util.List;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * Dao pels objectes de tipus camp
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Repository
+@Component
 public class CampDao extends HibernateGenericDao<Camp, Long> {
 
 	public CampDao() {

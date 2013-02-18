@@ -9,14 +9,14 @@ import java.util.List;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * Dao pels objectes de tipus document
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Repository
+@Component
 public class DocumentStoreDao extends HibernateGenericDao<DocumentStore, Long> {
 
 	public DocumentStoreDao() {

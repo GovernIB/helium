@@ -5,14 +5,14 @@ package net.conselldemallorca.helium.core.model.dao;
 
 import net.conselldemallorca.helium.core.model.hibernate.UsuariPreferencies;
 
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * Dao pels objectes de tipus preferencies d'usuari
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Repository
+@Component
 public class UsuariPreferenciesDao extends HibernateGenericDao<UsuariPreferencies, String> {
 
 

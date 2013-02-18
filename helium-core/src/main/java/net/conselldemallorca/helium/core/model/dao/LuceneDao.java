@@ -41,7 +41,7 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TermRangeQuery;
 import org.apache.lucene.search.WildcardQuery;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 import org.springmodules.lucene.index.core.DocumentModifier;
 import org.springmodules.lucene.index.support.LuceneIndexSupport;
 import org.springmodules.lucene.search.core.HitExtractor;
@@ -52,7 +52,7 @@ import org.springmodules.lucene.search.core.LuceneSearchTemplate;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Repository
+@Component
 public class LuceneDao extends LuceneIndexSupport {
 
 	public static final String CLAU_EXPEDIENT_ID = "H3l1um#expedient.id";

@@ -20,14 +20,14 @@ import net.conselldemallorca.helium.integracio.plugins.portasignatures.Portasign
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Restrictions;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * Dao per accedir a la funcionalitat del plugin del portasignatures.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Repository
+@Component
 public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignatures, Long> {
 
 	private PortasignaturesPlugin portasignaturesPlugin;

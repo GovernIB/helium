@@ -9,14 +9,14 @@ import net.conselldemallorca.helium.core.model.hibernate.Carrec;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 
 import org.hibernate.criterion.Restrictions;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * Dao pels objectes de tipus Carrec
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Repository
+@Component
 public class CarrecDao extends HibernateGenericDao<Carrec, Long> {
 
 	public CarrecDao() {

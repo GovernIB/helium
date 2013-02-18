@@ -6,7 +6,7 @@ import java.util.List;
 import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 
 import org.hibernate.criterion.Restrictions;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * Dao pels objectes de tipus reassignació.
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
  * @author Limit Tecnologies <limit@limit.es>
  */
 
-@Repository
+@Component
 public class ReassignacioDao extends HibernateGenericDao<Reassignacio, Long> {
 
 	public ReassignacioDao() {

@@ -7,14 +7,14 @@ import java.util.List;
 
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
 
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * Dao pels objectes que representen l'estat d'un expedient
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Repository
+@Component
 public class MapeigSistraDao extends HibernateGenericDao<MapeigSistra, Long> {
 
 	public MapeigSistraDao() {

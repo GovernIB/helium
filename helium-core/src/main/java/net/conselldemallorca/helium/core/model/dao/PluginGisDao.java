@@ -14,14 +14,14 @@ import net.conselldemallorca.helium.integracio.plugins.gis.GisPluginException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * Dao pels objectes de tipus persona
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Repository
+@Component
 public class PluginGisDao {
 
 	private GisPlugin gisPlugin;

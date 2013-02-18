@@ -41,7 +41,7 @@ import net.sf.jooreports.templates.DocumentTemplate;
 import net.sf.jooreports.templates.DocumentTemplateFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 import freemarker.core.Environment;
 import freemarker.core.NonStringException;
@@ -65,7 +65,7 @@ import freemarker.template.TemplateModelException;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Repository
+@Component
 public class PlantillaDocumentDao {
 
 	private PluginPersonaDao pluginPersonaDao;

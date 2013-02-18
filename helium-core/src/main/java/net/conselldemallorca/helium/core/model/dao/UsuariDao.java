@@ -7,14 +7,14 @@ import net.conselldemallorca.helium.core.model.hibernate.Usuari;
 import net.conselldemallorca.helium.core.util.PasswordDigester;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * Dao pels objectes de tipus usuari
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Repository
+@Component
 public class UsuariDao extends HibernateGenericDao<Usuari, String> {
 
 	private PasswordDigester passwordDigester;

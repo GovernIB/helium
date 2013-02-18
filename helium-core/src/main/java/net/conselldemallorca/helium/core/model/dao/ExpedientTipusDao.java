@@ -16,14 +16,14 @@ import org.jbpm.jpdl.el.ELException;
 import org.jbpm.jpdl.el.ExpressionEvaluator;
 import org.jbpm.jpdl.el.VariableResolver;
 import org.jbpm.jpdl.el.impl.ExpressionEvaluatorImpl;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * Dao pels objectes tipus d'expedient
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Repository
+@Component
 public class ExpedientTipusDao extends HibernateGenericDao<ExpedientTipus, Long> {
 
 	public ExpedientTipusDao() {

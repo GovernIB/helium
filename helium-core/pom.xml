@@ -4,21 +4,18 @@
 	<parent>
 		<artifactId>helium</artifactId>
 		<groupId>net.conselldemallorca</groupId>
-		<version>2.5</version>
+		<version>3.0</version>
 	</parent>
 	<artifactId>helium-core</artifactId>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
 	<dependencies>
-		<dependency>
-			<groupId>javax.persistence</groupId>
-			<artifactId>persistence-api</artifactId>
-			<version>1.0</version>
+		<!--dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>${hibernate.version}</version>
 			<type>jar</type>
 			<scope>compile</scope>
-		</dependency>
-		<dependency>
+		</dependency-->
+		<!--dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-annotations</artifactId>
 			<version>3.3.1.GA</version>
@@ -32,6 +29,28 @@
 				<exclusion>
 					<artifactId>hibernate</artifactId>
 					<groupId>org.hibernate</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency-->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-entitymanager</artifactId>
+			<version>${hibernate.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>slf4j-api</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>${hibernate.validator.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>slf4j-api</artifactId>
+					<groupId>org.slf4j</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -64,40 +83,39 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>javax.mail</groupId>
-			<artifactId>mail</artifactId>
-			<version>1.4</version>
-			<type>jar</type>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.jbpm.jbpm3</groupId>
-			<artifactId>jbpm-jpdl</artifactId>
-			<version>3.3.1.GA</version>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-beans</artifactId>
+			<version>${spring.version}</version>
 			<type>jar</type>
 			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-jpa</artifactId>
+			<version>${spring-data.version}</version>
 			<exclusions>
 				<exclusion>
-					<artifactId>jackrabbit-core</artifactId>
-					<groupId>org.apache.jackrabbit</groupId>
+					<artifactId>jcl-over-slf4j</artifactId>
+					<groupId>org.slf4j</groupId>
 				</exclusion>
 				<exclusion>
-					<artifactId>hibernate</artifactId>
-					<groupId>org.hibernate</groupId>
+					<artifactId>slf4j-api</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>spring-beans</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>spring-core</artifactId>
+					<groupId>org.springframework</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>org.jbpm.jbpm3</groupId>
-			<artifactId>jbpm-identity</artifactId>
-			<version>3.3.1.GA</version>
-			<type>jar</type>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-core-tiger</artifactId>
-			<version>2.0.5.RELEASE</version>
+			<version>${spring-security.version}</version>
 			<type>jar</type>
 			<scope>compile</scope>
 			<exclusions>
@@ -110,7 +128,7 @@
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-acl</artifactId>
-			<version>2.0.5.RELEASE</version>
+			<version>${spring-security.version}</version>
 			<type>jar</type>
 			<scope>compile</scope>
 			<exclusions>
@@ -123,21 +141,14 @@
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-taglibs</artifactId>
-			<version>2.0.5.RELEASE</version>
-			<type>jar</type>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.freemarker</groupId>
-			<artifactId>freemarker</artifactId>
-			<version>2.3.16</version>
+			<version>${spring-security.version}</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-rt-frontend-jaxws</artifactId>
-			<version>2.2.10</version>
+			<version>${cxf.version}</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>spring-beans</artifactId>
@@ -151,18 +162,36 @@
 					<artifactId>geronimo-activation_1.1_spec</artifactId>
 					<groupId>org.apache.geronimo.specs</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>asm</artifactId>
+					<groupId>asm</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-rt-transports-http</artifactId>
-			<version>2.2.10</version>
+			<version>${cxf.version}</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>spring-web</artifactId>
 					<groupId>org.springframework</groupId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springmodules</groupId>
+			<artifactId>springmodules-lucene</artifactId>
+			<version>${spring-modules.version}</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/spring-modules-lucene.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>org.springmodules</groupId>
+			<artifactId>springmodules-validation</artifactId>
+			<version>${spring-modules.version}</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/spring-modules-validation.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>org.jasig.cas.client</groupId>
@@ -192,17 +221,10 @@
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
-		<dependency>
+		<!--dependency>
 			<groupId>asm</groupId>
 			<artifactId>asm</artifactId>
 			<version>1.5.3</version>
-			<type>jar</type>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-core</artifactId>
-			<version>3.3.1.GA</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
@@ -214,16 +236,21 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.lucene</groupId>
-			<artifactId>lucene-core</artifactId>
-			<version>2.9.4</version>
-			<type>jar</type>
-			<scope>compile</scope>
-		</dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib-nodep</artifactId>
+			<version>2.1_3</version>
+		</dependency-->
 		<dependency>
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjweaver</artifactId>
 			<version>1.6.2</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-core</artifactId>
+			<version>${lucene.version}</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
@@ -235,41 +262,58 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>cglib</groupId>
-			<artifactId>cglib-nodep</artifactId>
-			<version>2.1_3</version>
+			<groupId>org.freemarker</groupId>
+			<artifactId>freemarker</artifactId>
+			<version>2.3.16</version>
+			<type>jar</type>
 		</dependency>
 		<dependency>
-			<groupId>org.springmodules</groupId>
-			<artifactId>springmodules-lucene</artifactId>
-			<version>0.9</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/spring-modules-lucene.jar</systemPath>
+			<groupId>ma.glasnost.orika</groupId>
+			<artifactId>orika-core</artifactId>
+			<version>1.1.7</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>slf4j-simple</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>org.springmodules</groupId>
-			<artifactId>springmodules-validation</artifactId>
-			<version>0.9</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/spring-modules-validation.jar</systemPath>
+			<groupId>javax.mail</groupId>
+			<artifactId>mail</artifactId>
+			<version>1.4</version>
+			<type>jar</type>
+			<scope>provided</scope>
 		</dependency>
+		<!--dependency>
+			<groupId>javax.persistence</groupId>
+			<artifactId>persistence-api</artifactId>
+			<version>1.0</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency-->
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-plugin-api</artifactId>
-			<version>2.5</version>
+			<version>${helium.version}</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-util</artifactId>
-			<version>2.5</version>
+			<version>${helium.version}</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
-			<artifactId>helium-disseny</artifactId>
-			<version>2.5</version>
+			<artifactId>helium-jbpm3</artifactId>
+			<version>${helium.version}</version>
 			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>javax.transaction</groupId>
+			<artifactId>jta</artifactId>
+			<version>1.1</version>
 		</dependency>
 	</dependencies>
 	<repositories>
@@ -285,9 +329,9 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 					<fork>true</fork>
-					<compilerVersion>1.5</compilerVersion>
-					<source>1.5</source>
-					<target>1.5</target>
+					<compilerVersion>${java.version}</compilerVersion>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
 				</configuration>
 			</plugin>
 		</plugins>

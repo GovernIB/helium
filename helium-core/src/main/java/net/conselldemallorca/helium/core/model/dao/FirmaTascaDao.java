@@ -7,14 +7,14 @@ import java.util.List;
 
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * Dao pels objectes de tipus firma de tasca
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Repository
+@Component
 public class FirmaTascaDao extends HibernateGenericDao<FirmaTasca, Long> {
 
 	public FirmaTascaDao() {

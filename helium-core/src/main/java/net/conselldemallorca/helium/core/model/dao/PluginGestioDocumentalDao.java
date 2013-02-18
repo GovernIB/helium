@@ -13,14 +13,14 @@ import net.conselldemallorca.helium.integracio.plugins.gesdoc.GestioDocumentalPl
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * Dao per accedir a la funcionalitat del plugin de gestió documental
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Repository
+@Component
 public class PluginGestioDocumentalDao {
 
 	private GestioDocumentalPlugin gestioDocumentalPlugin;

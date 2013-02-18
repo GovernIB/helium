@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:aop="http://www.springframework.org/schema/aop"
 	xmlns:tx="http://www.springframework.org/schema/tx"
 	xsi:schemaLocation="
-		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
-		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-3.1.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-3.1.xsd"
+	default-autowire="byName">
 
 	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="location" value="${es.caib.helium.properties.path}"/>
@@ -22,32 +29,17 @@
 		</property>
 	</bean>
 
+	<context:annotation-config/>
+
 	<bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
 		<property name="resourceRef" value="true"/>
 		<property name="jndiName" value="jdbc/HeliumDS"/>
 	</bean>
-	
-	<bean id="defaultLobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler" lazy-init="true"/>
 
-	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+	<bean id="lobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler" lazy-init="true"/>
+	
+	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
 		<property name="dataSource" ref="dataSource" />
-		<property name="hibernateProperties">
-			<props>
-				<prop key="hibernate.dialect">${app.hibernate.dialect}</prop>
-				<prop key="hibernate.show_sql">${app.hibernate.show_sql}</prop>
-				<prop key="hibernate.hbm2ddl.auto">${app.hibernate.hbm2ddl.auto}</prop>
-			</props>
-		</property>
-		<property name="configLocations">
-			<list>
-				<value>classpath:net/conselldemallorca/helium/core/context/jbpm3.hibernate.cfg.xml</value>
-			</list>
-		</property>
-		<property name="mappingLocations">
-			<list>
-				<value>classpath:hibernate.identity.hbm.xml</value>
-			</list>
-		</property>
 		<property name="packagesToScan">
 			<list>
 				 <value>net.conselldemallorca.helium.core.model.hibernate</value>
@@ -56,22 +48,33 @@
 				 <value>net.conselldemallorca.helium.core.model.update</value>
 			</list>
 		</property>
-		<property name="entityInterceptor">
-			<bean name="auditLogInterceptor" class="net.conselldemallorca.helium.core.security.audit.AuditLogInterceptor">
-				<property name="actionLoggerBean" value="actionLogger"/>
-			</bean>
+		<property name="mappingResources">
+			<list>
+				<value>hibernate.identity.hbm.xml</value>
+			</list>
 		</property>
-		<property name="lobHandler" ref="defaultLobHandler"/>
+		<property name="jpaDialect">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaDialect" />
+		</property>
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+		</property>
+		<property name="jpaProperties">
+			<props>
+				<prop key="hibernate.dialect">${app.hibernate.dialect}</prop>
+				<prop key="hibernate.show_sql">${app.hibernate.show_sql}</prop>
+				<prop key="hibernate.hbm2ddl.auto">${app.hibernate.hbm2ddl.auto}</prop>
+				<!--prop key="hibernate.ejb.metamodel.generation">disabled</prop-->
+				<prop key="hibernate.ejb.cfgfile">/net/conselldemallorca/helium/core/context/jbpm3.hibernate.cfg.xml</prop>
+			</props>
+		</property>
 	</bean>
 
-	<bean id="actionLogger" class="net.conselldemallorca.helium.core.security.audit.HibernateActionLogger" lazy-init="true">
-		<property name="sessionFactory" ref="sessionFactory"/>
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
 	</bean>
-
-	<bean id="txManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-		<property name="sessionFactory" ref="sessionFactory"/>
-	</bean>
-	<tx:advice id="txAdvice" transaction-manager="txManager">
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	<tx:advice id="transactionAdvice" transaction-manager="transactionManager">
 		<tx:attributes>
 			<tx:method name="get*" read-only="true"/>
 			<tx:method name="find*" read-only="true"/>
@@ -80,9 +83,10 @@
 	</tx:advice>
 	<aop:config>
 		<aop:pointcut id="serviceOperationCommon" expression="execution(* net.conselldemallorca.helium.core.model.service.*Service.*(..))"/>
-		<aop:advisor advice-ref="txAdvice" pointcut-ref="serviceOperationCommon" />
+		<aop:advisor advice-ref="transactionAdvice" pointcut-ref="serviceOperationCommon" />
 	</aop:config>
-	<tx:annotation-driven transaction-manager="txManager"/>
+
+	<bean id="sessionFactory" factory-bean="entityManagerFactory" factory-method="getSessionFactory" />
 
 	<bean id="passwordDigester" class="net.conselldemallorca.helium.core.util.PasswordDigester">
 		<constructor-arg value="MD5"/>

@@ -7,14 +7,14 @@ import java.util.List;
 
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
 
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * Dao pels objectes de tipus accio
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Repository
+@Component
 public class AccioDao extends HibernateGenericDao<Accio, Long> {
 
 	public AccioDao() {

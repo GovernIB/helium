@@ -8,14 +8,14 @@ import java.util.List;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 
 import org.hibernate.criterion.Restrictions;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * Dao pels objectes de tipus log d'expedient
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Repository
+@Component
 public class ExpedientLogDao extends HibernateGenericDao<ExpedientLog, Long> {
 
 	public ExpedientLogDao() {

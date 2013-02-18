@@ -7,14 +7,14 @@ import java.util.List;
 
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * Dao pels objectes de tipus tasca
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Repository
+@Component
 public class TascaDao extends HibernateGenericDao<Tasca, Long> {
 
 	public TascaDao() {

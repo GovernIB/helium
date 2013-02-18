@@ -10,14 +10,14 @@ import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 
 import org.hibernate.criterion.Restrictions;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * Dao pels objectes de tipus Enumeracio
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Repository
+@Component
 public class EnumeracioValorsDao extends HibernateGenericDao<EnumeracioValors, Long> {
 
 	public EnumeracioValorsDao() {

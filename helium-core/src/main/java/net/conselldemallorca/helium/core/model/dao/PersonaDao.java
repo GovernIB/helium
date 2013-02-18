@@ -11,14 +11,14 @@ import net.conselldemallorca.helium.core.model.hibernate.Persona;
 
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * Dao per al plugin de persones
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Repository
+@Component
 public class PersonaDao extends HibernateGenericDao<Persona, Long> {
 
 	public PersonaDao() {

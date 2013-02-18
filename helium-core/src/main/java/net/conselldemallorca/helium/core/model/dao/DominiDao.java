@@ -34,14 +34,14 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * Dao pels objectes de tipus Domini
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Repository
+@Component
 public class DominiDao extends HibernateGenericDao<Domini, Long> {
 
 	private static final String CACHE_KEY_SEPARATOR = "#";

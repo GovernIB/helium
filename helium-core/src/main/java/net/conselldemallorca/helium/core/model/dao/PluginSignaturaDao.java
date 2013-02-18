@@ -11,14 +11,14 @@ import net.conselldemallorca.helium.core.util.GlobalProperties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * Dao per accedir a la funcionalitat del plugin de signatura
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Repository
+@Component
 public class PluginSignaturaDao {
 
 	private SignaturaPlugin signaturaPlugin;

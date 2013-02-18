@@ -14,14 +14,14 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * Dao pels objectes de tipus CarrecJbpmId
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Repository
+@Component
 public class CarrecJbpmIdDao extends HibernateGenericDao<CarrecJbpmId, Long> {
 
 	public CarrecJbpmIdDao() {

@@ -11,14 +11,14 @@ import java.util.List;
 import net.conselldemallorca.helium.core.model.hibernate.Festiu;
 
 import org.hibernate.criterion.Restrictions;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * Dao pels objectes de tipus Festiu
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Repository
+@Component
 public class FestiuDao extends HibernateGenericDao<Festiu, Long> {
 
 	private Date dataModificacioFestius;

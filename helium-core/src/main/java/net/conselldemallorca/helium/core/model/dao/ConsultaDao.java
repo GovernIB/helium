@@ -8,14 +8,14 @@ import java.util.List;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 
 import org.hibernate.criterion.Restrictions;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * Dao pels objectes de tipus Consulta
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Repository
+@Component
 public class ConsultaDao extends HibernateGenericDao<Consulta, Long> {
 
 	public ConsultaDao() {

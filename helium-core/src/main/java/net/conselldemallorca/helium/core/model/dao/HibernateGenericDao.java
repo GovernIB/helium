@@ -10,19 +10,11 @@ import javax.sql.DataSource;
 
 import org.hibernate.Criteria;
 import org.hibernate.LockMode;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Example;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
-import org.hibernate.engine.SessionFactoryImplementor;
-import org.hibernate.engine.SessionImplementor;
-import org.hibernate.impl.AbstractQueryImpl;
-import org.hibernate.impl.CriteriaImpl;
-import org.hibernate.loader.criteria.CriteriaJoinWalker;
-import org.hibernate.loader.criteria.CriteriaQueryTranslator;
-import org.hibernate.persister.entity.OuterJoinLoadable;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -48,7 +40,7 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 		m_persistentClass = p_persistentClass;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "deprecation" })
 	public T getById(ID p_id, boolean p_lock) {
 		T entity;
 		if (p_lock) {
@@ -224,7 +216,7 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 	}
 	public int getCountByCriteria(Criteria crit) {
 		crit.setProjection(Projections.rowCount());
-		Integer result = (Integer)crit.uniqueResult();
+		Long result = (Long)crit.uniqueResult();
 		return (result == null) ? 0 : result.intValue();
 	}
 
@@ -245,7 +237,7 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 		return this.jdbcTemplate;
 	}
 
-	public String getCriteriaSql(Criteria criteria) {
+	/*public String getCriteriaSql(Criteria criteria) {
 		CriteriaImpl criteriaImpl = (CriteriaImpl)criteria;
 		SessionImplementor session = criteriaImpl.getSession();
 		SessionFactoryImplementor factory = session.getFactory();
@@ -262,7 +254,7 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 				factory,
 				criteriaImpl,
 				criteriaImpl.getEntityOrClassName(),
-				session.getEnabledFilters());
+				(LoadQueryInfluencers) session.getEnabledFilters());
 		return walker.getSQLString();
 	}
 	public static String getQuerySql(Query query) {
@@ -276,7 +268,7 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 			}
 		}
 		return result;
-	}
+	}*/
 
 
 

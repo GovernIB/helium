@@ -8,14 +8,14 @@ import java.util.List;
 
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * Dao pels objectes que registren els canvis als expedients
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Repository
+@Component
 public class RegistreDao extends HibernateGenericDao<Registre, Long> {
 
 	public RegistreDao() {
