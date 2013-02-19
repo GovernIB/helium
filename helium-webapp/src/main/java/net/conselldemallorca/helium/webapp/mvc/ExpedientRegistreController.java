@@ -76,20 +76,39 @@ public class ExpedientRegistreController extends CommonRegistreController {
 	}
 
 	@Override
-	public void esborrarRegistre(HttpServletRequest request, String id, String campCodi, int index) {
+	public void esborrarRegistre(
+			HttpServletRequest request,
+			String id,
+			String campCodi,
+			boolean multiple,
+			int index) {
 		expedientService.esborrarRegistre(id, campCodi, index);
 	}
 	@Override
-	public Object[] getValorRegistre(HttpServletRequest request, Long entornId, String id, String campCodi) {
+	public Object[] getValorRegistre(
+			HttpServletRequest request,
+			Long entornId,
+			String id,
+			String campCodi) {
 		return (Object[])expedientService.getVariable(id, campCodi);
 	}
 	@Override
-	public void guardarRegistre(HttpServletRequest request, String id, String campCodi, Object[] valors,
+	public void guardarRegistre(
+			HttpServletRequest request,
+			String id,
+			String campCodi,
+			boolean multiple,
+			Object[] valors,
 			int index) {
 		expedientService.guardarRegistre(id, campCodi, valors, index);
 	}
 	@Override
-	public void guardarRegistre(HttpServletRequest request, String id, String campCodi, Object[] valors) {
+	public void guardarRegistre(
+			HttpServletRequest request,
+			String id,
+			String campCodi,
+			boolean multiple,
+			Object[] valors) {
 		expedientService.guardarRegistre(id, campCodi, valors);
 	}
 	@Override
