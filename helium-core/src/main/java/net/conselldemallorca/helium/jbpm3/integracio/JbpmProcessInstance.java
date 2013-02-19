@@ -40,6 +40,8 @@ public class JbpmProcessInstance {
 	}
 
 	public Date getEnd() {
+		if (processInstance == null)
+			return null;
 		return processInstance.getEnd();
 	}
 

@@ -954,7 +954,7 @@ public class LuceneDao extends LuceneIndexSupport {
 	}
 
 	private String normalitzarILlevarAccents(String str) {
-		return str;
+		return str.toLowerCase();
 		/*String resultat = str.toLowerCase().
 	    replaceAll("[àâ]","a").
 		replaceAll("[èéêë]","e").

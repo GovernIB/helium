@@ -177,15 +177,6 @@ public class ExpedientConsultaDissenyController extends BaseController {
 						null,
 						null);
 				model.addAttribute("commandFiltre", commandFiltre);
-				@SuppressWarnings("rawtypes")
-				Iterator it = valors.entrySet().iterator();
-				while (it.hasNext()) {
-					@SuppressWarnings("rawtypes")
-					Map.Entry e = (Map.Entry)it.next();
-					if (e.getValue() instanceof String){
-						e.setValue(e.getValue().toString().toLowerCase());
-					}
-				}			
 				model.addAttribute(
 						"expedients",
 						getPaginaExpedients(
@@ -574,7 +565,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		int fullsize = expedientService.countAmbEntornConsultaDisseny(
 				entornId,
 				consultaId,
-				valors); 
+				valors);
 		paginatedList.setFullListSize(fullsize);
 		paginatedList.setObjectsPerPage(export? fullsize : maxResults);
 		paginatedList.setPageNumber(export? 1 : pagina);
