@@ -214,7 +214,7 @@ public class ServiceUtils {
 		if (ExpedientCamps.EXPEDIENT_CAMP_ID.equals(campCodi)) {
 			Camp campExpedient = new Camp();
 			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(TipusCamp.INTEGER);
+			campExpedient.setTipus(TipusCamp.STRING);
 			campExpedient.setEtiqueta(getMessage("etiqueta.exp.id"));
 			return campExpedient;
 		}

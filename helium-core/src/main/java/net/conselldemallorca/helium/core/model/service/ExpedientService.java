@@ -862,21 +862,6 @@ public class ExpedientService {
 			boolean asc,
 			int firstRow,
 			int maxResults) {
-		
-			
-		@SuppressWarnings("rawtypes")
-		Iterator it = valors.entrySet().iterator();
-		while (it.hasNext()) {
-			@SuppressWarnings("rawtypes")
-			Map.Entry e = (Map.Entry)it.next();
-			String nom = (String) e.getKey();
-			Object valor = e.getValue();
-			if(valor instanceof String){
-				valor = ((String) valor).toLowerCase();
-			}
-			valors.put(nom, valor);
-		}
-		
 		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
 		Consulta consulta = consultaDao.getById(consultaId, false);
 		List<Camp> campsFiltre = getServiceUtils().findCampsPerCampsConsulta(

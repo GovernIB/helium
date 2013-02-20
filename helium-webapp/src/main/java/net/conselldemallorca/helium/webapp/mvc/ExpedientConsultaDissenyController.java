@@ -483,10 +483,12 @@ public class ExpedientConsultaDissenyController extends BaseController {
 	private void afegirEstatsInicialIFinal(List<Estat> estats) {
 		Estat iniciat = new Estat();
 		iniciat.setId(new Long(0));
+		iniciat.setCodi(new Long(0).toString());
 		iniciat.setNom( getMessage("expedient.consulta.iniciat") );
 		estats.add(0, iniciat);
 		Estat finalitzat = new Estat();
 		finalitzat.setId(new Long(-1));
+		finalitzat.setCodi(new Long(-1).toString());
 		finalitzat.setNom( getMessage("expedient.consulta.finalitzat") );
 		estats.add(finalitzat);
 	}
