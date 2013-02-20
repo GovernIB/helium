@@ -565,7 +565,7 @@ public class LuceneDao extends LuceneIndexSupport {
 								}
 							} else if (	camp.getTipus().equals(TipusCamp.STRING) ||
 										camp.getTipus().equals(TipusCamp.TEXTAREA)) {
-								String valorIndex = valorIndexPerCamp(camp, valorFiltre);
+								String valorIndex = valorIndexPerCamp(camp, valorFiltre).toLowerCase();
 								if (valorIndex != null && valorIndex.length() > 0) {
 									//System.out.println(">>> WildcardQuery " + codiCamp + ": " + valorIndex);
 									return queryPerStringAmbWildcards(
@@ -954,7 +954,7 @@ public class LuceneDao extends LuceneIndexSupport {
 	}
 
 	private String normalitzarILlevarAccents(String str) {
-		return str.toLowerCase();
+		return str;
 		/*String resultat = str.toLowerCase().
 	    replaceAll("[àâ]","a").
 		replaceAll("[èéêë]","e").
