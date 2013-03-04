@@ -1900,28 +1900,49 @@ public class DissenyService {
 	public List<Camp> findCampsProces(Long consultaId, String defprocJbpmKey) {
 		List<Camp> list = new ArrayList<Camp>();
 		Consulta consulta = consultaDao.getById(consultaId, false);
+		Set<ConsultaCamp> campsConsulta = consulta.getCamps();
+		
+		
 		if (consulta != null) {
-			for (Camp camp: consultaCampDao.findCampsDefinicioProcesAmbJbpmKey(
+			
+			List<Camp> campsDefinicioProces = consultaCampDao.findCampsDefinicioProcesAmbJbpmKey(
 					consulta.getEntorn().getId(),
-					defprocJbpmKey)) {
-				if (!camp.getTipus().equals(TipusCamp.REGISTRE)) {
-					Camp c = new Camp();
-					c.setId(camp.getId());
-					c.setCodi(camp.getCodi());
-					c.setEtiqueta(camp.getEtiqueta());
-					c.setTipus(camp.getTipus());
-					DefinicioProces dp = new DefinicioProces();
-					dp.setId(camp.getDefinicioProces().getId());
-					dp.setJbpmId(camp.getDefinicioProces().getJbpmId());
-					dp.setJbpmKey(camp.getDefinicioProces().getJbpmKey());
-					dp.setVersio(camp.getDefinicioProces().getVersio());
-					c.setDefinicioProces(dp);
-					list.add(c);
+					defprocJbpmKey);
+			
+			for(Camp camp:campsDefinicioProces){
+				DefinicioProces definicioProces = camp.getDefinicioProces();
+				if(NoExisteixAInforme(campsConsulta,camp, definicioProces)){
+					if (!camp.getTipus().equals(TipusCamp.REGISTRE)) {
+						Camp c = new Camp();
+						c.setId(camp.getId());
+						c.setCodi(camp.getCodi());
+						c.setEtiqueta(camp.getEtiqueta());
+						c.setTipus(camp.getTipus());
+						DefinicioProces dp = new DefinicioProces();
+						dp.setId(camp.getDefinicioProces().getId());
+						dp.setJbpmId(camp.getDefinicioProces().getJbpmId());
+						dp.setJbpmKey(camp.getDefinicioProces().getJbpmKey());
+						dp.setVersio(camp.getDefinicioProces().getVersio());
+						c.setDefinicioProces(dp);
+						list.add(c);
+					}
 				}
 			}
 		}
 		return list;
 	}
+	
+	
+public boolean NoExisteixAInforme(Set<ConsultaCamp> consultaCamps,Camp camp, DefinicioProces definicioProces){
+		
+		for(ConsultaCamp consultaCamp:consultaCamps){
+			if(consultaCamp.getCampCodi().equals(camp.getCodi())){
+					return false;
+			}
+		}
+		return true;
+	}
+	
 	public List<ConsultaCamp> findCampsConsulta(Long consultaId, TipusConsultaCamp tipus) {
 		return consultaCampDao.findCampsConsulta(consultaId, tipus);
 	}
