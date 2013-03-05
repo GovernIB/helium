@@ -512,7 +512,7 @@ public class LuceneDao extends LuceneIndexSupport {
 							ExpedientCamps.EXPEDIENT_CAMP_COMENTARI.equals(codiCamp) ||
 							ExpedientCamps.EXPEDIENT_CAMP_INFOATUR.equals(codiCamp)
 							) {
-						String valorIndex = (String)valorFiltre;
+						String valorIndex = ((String)valorFiltre).toLowerCase();
 						if (valorIndex != null && valorIndex.length() > 0) {
 							//System.out.println(">>> WildcardQuery " + codiCamp + ": " + valorIndex);
 							return queryPerStringAmbWildcards(
