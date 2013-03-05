@@ -227,7 +227,7 @@ function massiva(e){
 			<form:form action="dadaModificarMas.html" method="GET" cssClass="uniForm" commandName="modificarVariablesMasCommand" onsubmit="return confirmarModificarVariables(event)">
 				<div class="inlineLabels">
 					<input type="hidden" name="id" value="${instanciaProces.id}"/>
-					<c:set var="variables" value="${instanciaProces.camps}" scope="request"/>
+					<c:set var="variables" value="${camps}" scope="request"/>
 						<c:import url="../common/formElement.jsp">
 							<c:param name="property">var</c:param>
 							<c:param name="type" value="select"/>

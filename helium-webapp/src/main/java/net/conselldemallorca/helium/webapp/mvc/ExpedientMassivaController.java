@@ -5,6 +5,8 @@ package net.conselldemallorca.helium.webapp.mvc;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -59,6 +61,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
+
+import edu.emory.mathcs.backport.java.util.Collections;
 
 
 /**
@@ -739,7 +743,15 @@ public class ExpedientMassivaController extends BaseController {
 				model.addAttribute(
 						"instanciaProces",
 						instanciaProces);
-				
+				Set<Camp> camp = instanciaProces.getCamps();
+				List<Camp> llistaCamps = new ArrayList<Camp>();
+				for(Camp c: camp){
+					llistaCamps.add(c);
+				}
+				Collections.sort(llistaCamps, new ComparadorCampCodi());
+				model.addAttribute(
+						"camps",
+						llistaCamps);
 				List<Document> documents = instanciaProces.getDocuments();
 				model.addAttribute(
 						"documents",
@@ -751,8 +763,6 @@ public class ExpedientMassivaController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
-	
-	
 	
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/expedient/massivaInfoTE")
@@ -784,6 +794,15 @@ public class ExpedientMassivaController extends BaseController {
 				model.addAttribute(
 						"instanciaProces",
 						instanciaProces);
+				Set<Camp> camp = instanciaProces.getCamps();
+				List<Camp> llistaCamps = new ArrayList<Camp>();
+				for(Camp c: camp){
+					llistaCamps.add(c);
+				}
+				Collections.sort(llistaCamps, new ComparadorCampCodi());
+				model.addAttribute(
+						"camps",
+						llistaCamps);
 			}
 			return "/expedient/massivaInfo";
 		} else {
@@ -1138,6 +1157,11 @@ public class ExpedientMassivaController extends BaseController {
 		}
 	}
 	
+	public class ComparadorCampCodi implements Comparator<Camp> {
+	    public int compare(Camp c1, Camp c2) {
+	        return c1.getCodi().compareToIgnoreCase(c2.getCodi());
+	    }
+	}
 	
 	private static final Log logger = LogFactory.getLog(ExpedientMassivaController.class);
 
