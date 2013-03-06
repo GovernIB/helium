@@ -84,7 +84,7 @@
 					<c:otherwise><c:set var="codiActualJquery" value="${fn:replace(codiActual,'$','_')}"/></c:otherwise>
 				</c:choose>
 				<spring:bind path="${codiActual}[0]">
-					<label for="${codiActual}0" ><fmt:message key='common.campfiltre.entre' />
+					<label for="${codiActual}0" class="blockLabel"><fmt:message key='common.campfiltre.entre' />
 						<input id="${codiActualJquery}0" name="${codiActual}" value="${status.value}" type="text" class="inputText"/>
 						<script type="text/javascript">
 							// <![CDATA[
