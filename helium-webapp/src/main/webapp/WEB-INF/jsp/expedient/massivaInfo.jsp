@@ -73,8 +73,12 @@ function massiva(e){
 	if("<%=request.getAttribute("javax.servlet.forward.request_uri")%>" == "/helium/expedient/massivaInfoTE.html" )
 	{
 			$("#massiva").attr("action","consultaDisseny.html");
-			$("#target").val("disseny");
-			$("#target2").val("disseny");
+			$("#targetScript").val("disseny");
+			$("#targetAturar").val("disseny");
+			$("#targetAccio").val("disseny");
+			$("#targetModificarVar").val("disseny");
+			$("#targetModificarDoc").val("disseny");
+			$("#targetVersio").val("disseny");
 			$("#targetIdx").val("disseny");
 
 	}
@@ -121,7 +125,7 @@ function massiva(e){
 		<div class="inlineLabels col first">
 			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key="expedient.massiva.actualitzar"/></h3>
 			<form:form action="massivaCanviVersio.html" cssClass="uniForm" commandName="canviVersioProcesCommand" onsubmit="return confirmarCanviVersio(event)" onclick="javascript:massiva(event)">
-				<input type="hidden" id="target" name="target" value="">
+				<input type="hidden" id="targetVersio" name="targetVersio" value="">
 				<div class="inlineLabels">
 					<c:set var="definicionsProces" value="${definicioProces.jbpmIdsAmbDescripcio}" scope="request"/>
 					<c:import url="../common/formElement.jsp">
@@ -144,8 +148,10 @@ function massiva(e){
 			<c:set var="tePermisExecutarScript" value="${false}"/>
 			<security:accesscontrollist domainObject="${instanciaProces.expedient.tipus}" hasPermission="16,2"><c:set var="tePermisAccions" value="${true}"/></security:accesscontrollist>
 			<c:if test="${tePermisAccions}">
-				<form:form action="scriptMas.html" cssClass="uniForm" commandName="scriptCommandMas" onsubmit="return confirmarScript(event)">
+				<form:form action="scriptMas.html" cssClass="uniForm" commandName="scriptCommandMas" onsubmit="return confirmarScript(event)" onclick="javascript:massiva(event)">
+						
 						<div class="inlineLabels">
+							<input type="hidden" id="targetScript" name="targetScript" value="">
 							<input type="hidden" name="id" value="${instanciaProces.id}"/>
 							<c:import url="../common/formElement.jsp">
 								<c:param name="property">script</c:param>
@@ -163,8 +169,9 @@ function massiva(e){
 			</c:if>
 		
 			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key='expedient.eines.aturar_tramitacio' /></h3>
-			<form:form action="aturarMas.html" cssClass="uniForm" commandName="aturarCommandMas" onsubmit="return confirmarAturar(event)">
+			<form:form action="aturarMas.html" cssClass="uniForm" commandName="aturarCommandMas" onsubmit="return confirmarAturar(event)" onclick="javascript:massiva(event)">
 				<div class="inlineLabels">
+				<input type="hidden" id="targetAturar" name="targetAturar" value="">
 					<input type="hidden" name="id" value="${instanciaProces.id}"/>
 					<c:import url="../common/formElement.jsp">
 						<c:param name="property">motiu</c:param>
@@ -196,8 +203,8 @@ function massiva(e){
 				<c:set var="tePermisAccions" value="${false}"/>
 				<security:accesscontrollist domainObject="${instanciaProces.expedient.tipus}" hasPermission="16,2"><c:set var="tePermisAccions" value="${true}"/></security:accesscontrollist>
 				<c:if test="${hiHaAccionsPubliques || (hiHaAccions && tePermisAccions)}">
-					<form:form action="massivaExecutarAccio.html" cssClass="uniForm" commandName="execucioAccioCommand" onsubmit="return confirmarExecutarAccio(event)">
-						<input type="hidden" id="target2" name="target2" value="">
+					<form:form action="massivaExecutarAccio.html" cssClass="uniForm" commandName="execucioAccioCommand" onsubmit="return confirmarExecutarAccio(event)" onclick="javascript:massiva(event)">
+						<input type="hidden" id="targetAccio" name="targetAccio" value="">
 						<div class="inlineLabels">
 							<c:set var="accions" value="${instanciaProces.definicioProces.accions}" scope="request"/>
 							<c:import url="../common/formElement.jsp">
@@ -224,8 +231,9 @@ function massiva(e){
 			</c:if>
 			
 			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key='expedient.massiva.modificar_variables' /></h3>
-			<form:form action="dadaModificarMas.html" method="GET" cssClass="uniForm" commandName="modificarVariablesMasCommand" onsubmit="return confirmarModificarVariables(event)">
+			<form:form action="dadaModificarMas.html" method="GET" cssClass="uniForm" commandName="modificarVariablesMasCommand" onsubmit="return confirmarModificarVariables(event)" onclick="javascript:massiva(event)">
 				<div class="inlineLabels">
+				<input type="hidden" id="targetModificarVar" name="targetModificarVar" value="">
 					<input type="hidden" name="id" value="${instanciaProces.id}"/>
 					<c:set var="variables" value="${camps}" scope="request"/>
 						<c:import url="../common/formElement.jsp">
@@ -247,7 +255,8 @@ function massiva(e){
 			
 			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key="expedient.massiva.documents"/></h3>
 			<c:if test="${not empty docStoreId}">
-				<form:form action="documentModificarMas.html" cssClass="uniForm" method="GET" commandName="documentCommandForm" onsubmit="return confirmarModificarDocument(event)">
+				<form:form action="documentModificarMas.html" cssClass="uniForm" method="GET" commandName="documentCommandForm" onsubmit="return confirmarModificarDocument(event)" onclick="javascript:massiva(event)">
+					<input type="hidden" id="targetModificarDoc" name="targetModificarDoc" value="">
 					<input type="hidden" name="procesInstanceId" value="${instanciaProces.id}"/>
 					<div style="display:none">
 						<display:table name="instanciaProces.sortedDocumentKeys" id="codi" class="displaytag">
@@ -295,7 +304,7 @@ function massiva(e){
 			<br>
 			</c:if>	
 			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key='expedient.eines.reindexar.expedients' /></h3>
-			<form:form action="reindexarMas.html" cssClass="uniForm" onsubmit="return confirmarReindexar(event)">
+			<form:form action="reindexarMas.html" cssClass="uniForm" onsubmit="return confirmarReindexar(event)"  onclick="javascript:massiva(event)">
 				<input type="hidden" id="targetIdx" name="targetIdx" value="">
 				<c:import url="../common/formElement.jsp">
 					<c:param name="type" value="buttons"/>
@@ -304,8 +313,7 @@ function massiva(e){
 				</c:import>
 			</form:form>
 		</div>
-		
-
+	</div>
 					
 </body>
 
