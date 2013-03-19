@@ -142,7 +142,6 @@ public class DissenyService {
 	private ServiceUtils serviceUtils;
 
 	private Map<Long, Boolean> hasStartTask = new HashMap<Long, Boolean>();
-	private Map nodes;
 
 
 
@@ -1345,23 +1344,40 @@ public class DissenyService {
 		}
 		dto.setConsultes(consultes);
 		List<DefinicioProcesExportacio> definicionsProces = new ArrayList<DefinicioProcesExportacio>();
-		Set<Long> afegits = new HashSet<Long>();
+		// Cerca les definicions de procés pares
+		Set<String> jbpmKeyFilles = new HashSet<String>();
 		for (DefinicioProces definicioProces : definicioProcesDao.findDarreresVersionsAmbEntorn(expedientTipus.getEntorn().getId())) {
-			if (definicioProces.getExpedientTipus() != null) {
-				if (expedientTipus.getId().equals(definicioProces.getExpedientTipus().getId())){
-					List<DefinicioProcesDto> subprocesos = findSubDefinicionsProces(definicioProces.getId());
-					if(!subprocesos.isEmpty()){
-						for(DefinicioProcesDto subProc:subprocesos){
-							definicionsProces.add(exportar(subProc.getId()));
-							afegits.add(subProc.getId());
-						}
-					}
-					if(!afegits.contains(definicioProces.getId())){
-						definicionsProces.add(exportar(definicioProces.getId()));
-						afegits.add(definicioProces.getId());
+			if (	definicioProces.getExpedientTipus() != null &&
+					definicioProces.getExpedientTipus().getId().equals(expedientTipus.getId())) {
+				List<JbpmProcessDefinition> subPds = jbpmDao.getSubProcessDefinitions(definicioProces.getJbpmId());
+				if (subPds != null) {
+					for (JbpmProcessDefinition subPd: subPds)
+						jbpmKeyFilles.add(subPd.getKey());
+				}
+			}
+		}
+		List<DefinicioProces> pares = new ArrayList<DefinicioProces>();
+		for (DefinicioProces definicioProces : definicioProcesDao.findDarreresVersionsAmbEntorn(expedientTipus.getEntorn().getId())) {
+			if (	definicioProces.getExpedientTipus() != null &&
+					definicioProces.getExpedientTipus().getId().equals(expedientTipus.getId())) {
+				if (!jbpmKeyFilles.contains(definicioProces.getJbpmKey()))
+					pares.add(definicioProces);
+			}
+		}
+		// Afegeix les definicions de procés filles i les pares
+		Set<String> afegits = new HashSet<String>();
+		for (DefinicioProces definicioProces : pares) {
+			List<DefinicioProcesDto> subprocesos = findSubDefinicionsProces(definicioProces.getId());
+			if (!subprocesos.isEmpty()) {
+				for (DefinicioProcesDto subProc:subprocesos) {
+					if (!afegits.contains(definicioProces.getJbpmKey())) {
+						definicionsProces.add(exportar(subProc.getId()));
+						afegits.add(subProc.getJbpmKey());
 					}
 				}
 			}
+			definicionsProces.add(exportar(definicioProces.getId()));
+			afegits.add(definicioProces.getJbpmKey());
 		}
 		dto.setDefinicionsProces(definicionsProces);
 		return dto;
@@ -1579,6 +1595,7 @@ public class DissenyService {
 		// Importa les definicions de procés
 		if (exportacio.getDefinicionsProces() != null) {
 			for (DefinicioProcesExportacio definicio : exportacio.getDefinicionsProces()) {
+				System.out.println(">>> [ET_IMP] Important definició de procés (nom=" + definicio.getNomDeploy() + ")");
 				importar(
 					entornId,
 					expedientTipus.getId(),
@@ -1916,16 +1933,11 @@ public class DissenyService {
 	public List<Camp> findCampsProces(Long consultaId, String defprocJbpmKey) {
 		List<Camp> list = new ArrayList<Camp>();
 		Consulta consulta = consultaDao.getById(consultaId, false);
-		Set<ConsultaCamp> campsConsulta = consulta.getCamps();
-		
-		
 		if (consulta != null) {
 			List<Camp> campsDefinicioProces = consultaCampDao.findCampsDefinicioProcesAmbJbpmKey(
 					consulta.getEntorn().getId(),
 					defprocJbpmKey);
-			
 			for(Camp camp:campsDefinicioProces){
-				DefinicioProces definicioProces = camp.getDefinicioProces();
 				//if(NoExisteixAInforme(campsConsulta,camp)){
 					if (!camp.getTipus().equals(TipusCamp.REGISTRE)) {
 						Camp c = new Camp();
@@ -1946,27 +1958,20 @@ public class DissenyService {
 		}
 		return list;
 	}
-	
-	
-	public boolean NoExisteixAInforme(Set<ConsultaCamp> consultaCamps,Camp camp){
-		
-		
-		for(ConsultaCamp consultaCamp:consultaCamps){
-			if(consultaCamp.getCampCodi().equals(camp.getCodi())){
-				
-				if(consultaCamp.getTipus().name().equals("FILTRE") && !consultaCamp.getTipus().name().equals("INFORME")){
+	/*private boolean NoExisteixAInforme(Set<ConsultaCamp> consultaCamps,Camp camp){
+		for (ConsultaCamp consultaCamp:consultaCamps) {
+			if (consultaCamp.getCampCodi().equals(camp.getCodi())) {
+				if (consultaCamp.getTipus().name().equals("FILTRE") && !consultaCamp.getTipus().name().equals("INFORME"))
 					return false;
-				}
-				if(consultaCamp.getTipus().name().equals("INFORME") && !consultaCamp.getTipus().name().equals("FILTRE")){
+				if (consultaCamp.getTipus().name().equals("INFORME") && !consultaCamp.getTipus().name().equals("FILTRE"))
 					return true;
-				}
-			}else{return true;}
+			} else {
+				return true;
+			}
 		}
 		return true;
-		
-		
-	}
-	
+	}*/
+
 	public List<ConsultaCamp> findCampsConsulta(Long consultaId, TipusConsultaCamp tipus) {
 		return consultaCampDao.findCampsConsulta(consultaId, tipus);
 	}
