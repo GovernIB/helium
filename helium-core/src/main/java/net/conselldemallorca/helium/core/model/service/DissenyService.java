@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -1344,40 +1343,25 @@ public class DissenyService {
 		}
 		dto.setConsultes(consultes);
 		List<DefinicioProcesExportacio> definicionsProces = new ArrayList<DefinicioProcesExportacio>();
-		// Cerca les definicions de procés pares
-		Set<String> jbpmKeyFilles = new HashSet<String>();
+		List<String> jbpmKeyOrdenats = new ArrayList<String>();
 		for (DefinicioProces definicioProces : definicioProcesDao.findDarreresVersionsAmbEntorn(expedientTipus.getEntorn().getId())) {
 			if (	definicioProces.getExpedientTipus() != null &&
 					definicioProces.getExpedientTipus().getId().equals(expedientTipus.getId())) {
-				List<JbpmProcessDefinition> subPds = jbpmDao.getSubProcessDefinitions(definicioProces.getJbpmId());
-				if (subPds != null) {
-					for (JbpmProcessDefinition subPd: subPds)
-						jbpmKeyFilles.add(subPd.getKey());
-				}
+				afegirJbpmKeyProcesAmbSubprocessos(
+						jbpmDao.getProcessDefinition(definicioProces.getJbpmId()),
+						jbpmKeyOrdenats);
 			}
 		}
-		List<DefinicioProces> pares = new ArrayList<DefinicioProces>();
-		for (DefinicioProces definicioProces : definicioProcesDao.findDarreresVersionsAmbEntorn(expedientTipus.getEntorn().getId())) {
-			if (	definicioProces.getExpedientTipus() != null &&
-					definicioProces.getExpedientTipus().getId().equals(expedientTipus.getId())) {
-				if (!jbpmKeyFilles.contains(definicioProces.getJbpmKey()))
-					pares.add(definicioProces);
-			}
-		}
-		// Afegeix les definicions de procés filles i les pares
-		Set<String> afegits = new HashSet<String>();
-		for (DefinicioProces definicioProces : pares) {
-			List<DefinicioProcesDto> subprocesos = findSubDefinicionsProces(definicioProces.getId());
-			if (!subprocesos.isEmpty()) {
-				for (DefinicioProcesDto subProc:subprocesos) {
-					if (!afegits.contains(definicioProces.getJbpmKey())) {
-						definicionsProces.add(exportar(subProc.getId()));
-						afegits.add(subProc.getJbpmKey());
+		for (String jbpmKey: jbpmKeyOrdenats) {
+			for (DefinicioProces definicioProces : definicioProcesDao.findDarreresVersionsAmbEntorn(expedientTipus.getEntorn().getId())) {
+				if (	definicioProces.getExpedientTipus() != null &&
+						definicioProces.getExpedientTipus().getId().equals(expedientTipus.getId())) {
+					if (definicioProces.getJbpmKey().equals(jbpmKey)) {
+						definicionsProces.add(exportar(definicioProces.getId()));
+						break;
 					}
 				}
 			}
-			definicionsProces.add(exportar(definicioProces.getId()));
-			afegits.add(definicioProces.getJbpmKey());
 		}
 		dto.setDefinicionsProces(definicionsProces);
 		return dto;
@@ -2899,6 +2883,21 @@ public class DissenyService {
 				return resourceName;
 		}
 		return null;
+	}
+
+	private void afegirJbpmKeyProcesAmbSubprocessos(
+			JbpmProcessDefinition jpd,
+			List<String> jbpmKeys) {
+		List<JbpmProcessDefinition> subPds = jbpmDao.getSubProcessDefinitions(jpd.getId());
+		if (subPds != null) {
+			for (JbpmProcessDefinition subPd: subPds) {
+				afegirJbpmKeyProcesAmbSubprocessos(subPd, jbpmKeys);
+				if (!jbpmKeys.contains(subPd.getKey()))
+					jbpmKeys.add(subPd.getKey());
+			}
+		}
+		if (!jbpmKeys.contains(jpd.getKey()))
+			jbpmKeys.add(jpd.getKey());
 	}
 
 	public List<Camp> getVariablesSenseAgruapcio(Long definicioProcesId) {
