@@ -143,7 +143,7 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 		return accioParams;
 	}
 	public void setAccioParams(String accioParams) {
-		this.accioParams = accioParams;
+		this.accioParams = accioParams.substring(0, 255);
 	}
 
 	@Column(name="data", nullable=false)
