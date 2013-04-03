@@ -145,8 +145,9 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 	public void setAccioParams(String accioParams) {
 		if(accioParams.length()>255){
 			this.accioParams = accioParams.substring(0, 255);
+		}else{
+			this.accioParams = accioParams;
 		}
-		this.accioParams = accioParams;
 	}
 
 	@Column(name="data", nullable=false)
