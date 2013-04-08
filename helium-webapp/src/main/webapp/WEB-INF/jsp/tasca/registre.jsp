@@ -43,8 +43,14 @@
 		</c:when>
 		<c:otherwise>
 			<script type="text/javascript">
-				parent.refresh();
- 				//parent.location.reload();
+				var versio = $.browser.version;
+				if($.browser.msie && versio.substring(0,2)=="7."){
+					parent.location.reload();
+				}else{
+					parent.refresh();
+				}
+				
+ 				//
 			</script>
 		</c:otherwise>
 	</c:choose>
