@@ -43,7 +43,8 @@
 		</c:when>
 		<c:otherwise>
 			<script type="text/javascript">
-				parent.location.reload(true);
+				parent.refresh();
+ 				//parent.location.reload();
 			</script>
 		</c:otherwise>
 	</c:choose>
