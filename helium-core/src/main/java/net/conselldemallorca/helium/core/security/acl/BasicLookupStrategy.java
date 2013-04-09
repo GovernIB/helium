@@ -31,6 +31,8 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
+import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
@@ -45,7 +47,6 @@ import org.springframework.security.acls.domain.AccessControlEntryImpl;
 import org.springframework.security.acls.domain.AclAuthorizationStrategy;
 import org.springframework.security.acls.domain.AclImpl;
 import org.springframework.security.acls.domain.AuditLogger;
-import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.jdbc.AclCache;
 import org.springframework.security.acls.jdbc.LookupStrategy;
 import org.springframework.security.acls.objectidentity.ObjectIdentity;
@@ -303,7 +304,7 @@ private void convertCurrentResultIntoObject(Map acls, ResultSet rs)
    }
 
 	protected Permission convertMaskIntoPermission(int mask) {
-		return BasePermission.buildFromMask(mask);
+		return ExtendedPermission.buildFromMask(mask);
 	}
 
    /**

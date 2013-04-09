@@ -117,6 +117,18 @@
 									</script>
 								</c:if>
 							</c:when>
+							<c:when test="${param.type == 'datetime'}">
+								<input id="${inputId}" name="${inputName}" value="${status.value}" type="text" class="textInput" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>/>
+								<c:if test="${empty param.includeCalendar or param.includeCalendar}">
+									<script type="text/javascript">
+										// <![CDATA[
+										$(function() {
+											$("#${inputId}").datetimepicker();
+										});
+										// ]]>
+									</script>
+								</c:if>
+							</c:when>
 							<c:when test="${param.type == 'select'}">
 								<c:set var="items" value="${requestScope[param.items]}"/>
 								<select id="${inputId}" name="${inputName}" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>>

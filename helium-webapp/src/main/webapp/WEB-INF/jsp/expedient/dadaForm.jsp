@@ -54,7 +54,7 @@
 
 	<h3 class="titol-tab titol-dades-tasca"><fmt:message key='expedient.dada.modificar_dada' /></h3>
 
-	<form:form action="dadaModificar.html" cssClass="uniForm">
+	<form:form action="dadaModificar.html" cssClass="uniForm tascaForm zebraForm">
 		<div class="inlineLabels">
 			<c:if test="${not empty param.id}">
 				<form:hidden path="id"/>

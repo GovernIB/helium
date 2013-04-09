@@ -3,6 +3,10 @@
  */
 package net.conselldemallorca.helium.webapp.mvc;
 
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -13,24 +17,25 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.model.dao.DocumentStoreDao;
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
+import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
+import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca.TipusTasca;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 import net.conselldemallorca.helium.core.model.service.DocumentService;
+import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
@@ -66,68 +71,37 @@ import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@SuppressWarnings("unused")
 @Controller
 public class ExpedientMassivaController extends BaseController {
 
 	public static final String VARIABLE_SESSIO_IDS_MASSIUS = "consultaExpedientsIdsMassius";
 	public static final String VARIABLE_SESSIO_IDS_MASSIUS_TE = "consultaExpedientsIdsMassiusTE";
+
+	private ExecucioMassivaService execucioMassivaService;
 	private ExpedientService expedientService;
 	private PermissionService permissionService;
 	private DissenyService dissenyService;
 	private TascaService tascaService;
 	private Validator validator;
-	private CommonRegistreController commonRegistreController;
-	private ExpedientRegistreController expedientRegistreController;
 	private DocumentService documentService;
-	private DocumentHelper documentHelper;
-	private DocumentStoreDao documentStoreDao;
-	public DocumentStoreDao getDocumentStoreDao() {
-		return documentStoreDao;
-	}
 
-
-	public void setDocumentStoreDao(DocumentStoreDao documentStoreDao) {
-		this.documentStoreDao = documentStoreDao;
-	}
-
-
-	public ExpedientRegistreController getExpedientRegistreController() {
-		return expedientRegistreController;
-	}
-
-
-	public void setExpedientRegistreController(
-			ExpedientRegistreController expedientRegistreController) {
-		this.expedientRegistreController = expedientRegistreController;
-	}
-
-
-	public CommonRegistreController getCommonRegistreController() {
-		return commonRegistreController;
-	}
-
-
-	public void setCommonRegistreController(
-			CommonRegistreController commonRegistreController) {
-		this.commonRegistreController = commonRegistreController;
-	}
 
 
 	@Autowired
 	public ExpedientMassivaController(
+			ExecucioMassivaService execucioMassivaService,
 			ExpedientService expedientService,
 			PermissionService permissionService,
 			DissenyService dissenyService,
 			TascaService tascaService,
 			DocumentService documentService,
 			DocumentHelper documentHelper) {
+		this.execucioMassivaService = execucioMassivaService;
 		this.expedientService = expedientService;
 		this.permissionService = permissionService;
 		this.dissenyService = dissenyService;
 		this.tascaService = tascaService;
 		this.documentService = documentService;
-		this.documentHelper = documentHelper;
 		this.validator = new TascaFormValidator(expedientService);
 	}
 
@@ -195,89 +169,186 @@ public class ExpedientMassivaController extends BaseController {
 		} 
 		return null;
 	}
-
 	
-
-	
-	
+	@SuppressWarnings("unchecked")
 	@ModelAttribute("documentCommandMas")
 	public DocumentExpedientCommand populateCommand(
 			HttpServletRequest request,
-			@RequestParam(value = "procesInstanceId", required = false) String procesInstanceId,
-			@RequestParam(value = "docId", required = false) Long docId) {
+			@RequestParam(value = "id", required = false) String id,
+			@RequestParam(value = "docId", required = false) Long docId,
+			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
+		DocumentExpedientCommand command = new DocumentExpedientCommand();
+		command.setData(new Date());
 		if (entorn != null) {
-			if(procesInstanceId!=null && docId!=null){
-				DocumentExpedientCommand command = new DocumentExpedientCommand();
-				DocumentDto dto = documentService.documentInfo(docId);
-				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesInstanceId, false, false, true);
-				Document document = dissenyService.findDocumentAmbDefinicioProcesICodi(
-						instanciaProces.getDefinicioProces().getId(),
-						dto.getDocumentCodi());
+			if(id!=null && docId!=null){
+//				DocumentExpedientCommand command = new DocumentExpedientCommand();
+//				command.setData(new Date());
+				DocumentDto dto = null; //documentService.documentInfo(docId);
 				command.setDocId(docId);
-				if (dto.isAdjunt())
-					command.setNom(dto.getAdjuntTitol());
-				else
-					command.setNom(document.getNom());
-				command.setData(dto.getDataDocument());
-				return command;
+				List<Long> ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
+				List<ExpedientDto> expedients = getExpedientsMassius(
+						ids.subList(1, ids.size()));
+				for(ExpedientDto expedient: expedients){
+					dto = documentService.documentPerProces(
+							expedient.getProcessInstanceId(), 
+							docId, 
+							false);
+					if (dto != null) {
+							command.setCodi(dto.getDocumentCodi());
+							command.setNom(dto.getDocumentNom());
+							command.setData(dto.getDataDocument());
+							break;
+					}
+				}
 			}
+			return command;
 		}
 		return null;
 	}
-	
 	
 	//modificar documents massivament als expedients seleccionats
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/expedient/documentModificarMas", method = RequestMethod.GET)
 	public String documentModificarGet(
 			HttpServletRequest request,
+			@RequestParam(value = "submit", required = false) String submit,
+			@RequestParam(value = "id", required = true) String id,
 			@RequestParam(value = "docId", required = true) Long docId,
-			@RequestParam(value = "nom", required = true) String nom,
+			@RequestParam(value = "inici", required = true) String inici,
+			@RequestParam(value = "correu", required = true) String correu,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
+		Object command = model.get("documentCommandMas");
+		model.clear();
+		model.addAttribute("inici", inici);
+		model.addAttribute("correu", correu);
 		if (entorn != null) {
 			List<Long> ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
 			List<ExpedientDto> expedients = getExpedientsMassius(
 					ids.subList(1, ids.size()));
-			String procesInstanceId = expedients.get(0).getProcessInstanceId();
-			model.addAttribute("expedients", expedients);
-			for(ExpedientDto exp: expedients){
-				if (potModificarExpedient(exp)) {
-							DocumentDto doc = documentService.documentInfo(docId);
-							if(doc.getAdjuntTitol().equals(nom)){
-								if (!doc.isSignat()) {
-									model.addAttribute("expedient", exp);
-									model.addAttribute("document", doc);
-									model.addAttribute(
-											"documentDisseny",
-											dissenyService.getDocumentById(docId));
-									return "/expedient/documentFormMassiva";
-								} else {
-									missatgeError(request, getMessage("error.modificar.doc.signat") );
-									return "redirect:/expedient/documents.html?id=" + procesInstanceId;
-								}
-							}
-							else{
-								missatgeError(request, getMessage("error.modificar.document.tipus") );
-								InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(
-										procesInstanceId,
-										false,
-										true,
-										true);
-								List<Document> documents = instanciaProces.getDocuments();
-								model.addAttribute(
-										"documents",
-										documents);
-								return "redirect:/expedient/massivaInfo.html";
-							}
-					
+			int numExp = ids.size() - 1;
+			// Modificar document
+			// ---------------------------------------------
+			if ("subdoc".equals(submit) || submit.length() == 0) {
+				model.addAttribute("command", command);
+				for(ExpedientDto expedient: expedients){
+					if (potModificarExpedient(expedient)) {
+						DocumentDto doc = documentService.documentPerProces(
+								expedient.getProcessInstanceId(), 
+								docId, 
+								false);
+						if (doc != null) {
+//							model.addAttribute("expedient", expedient);
+							model.addAttribute("document", doc);
+							model.addAttribute(
+									"documentDisseny",
+									dissenyService.getDocumentById(docId));
+							return "expedient/documentFormMassiva";
+						}
+					} else {
+						missatgeError(request, getMessage("error.permisos.modificar.expedient"));
+						return "/expedient/massivaInfo";
+					}
+				}
+				model.addAttribute(
+						"documentDisseny",
+						dissenyService.getDocumentById(docId));
+				return "expedient/documentFormMassiva";
+			
+			// Adjuntar document
+			// ---------------------------------------------
+			} else if ("adjunt".equals(submit)) {
+				ExpedientDto expedientPrimer = expedientService.getById(ids.get(1));
+				if (potModificarExpedient(expedientPrimer)) {
+					DocumentExpedientCommand cmd = new DocumentExpedientCommand();
+					cmd.setData(new Date());
+					model.addAttribute("command", cmd);
+					return "expedient/documentAdjuntFormMassiva";
 				} else {
 					missatgeError(request, getMessage("error.permisos.modificar.expedient"));
+					return "/expedient/massivaInfo";
+				}
+			
+			// Esborrar document
+			// ---------------------------------------------
+			} else if ("delete".equals(submit)) {
+				// Obtenim informació de l'execució massiva
+				// Data d'inici
+				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+				Date dInici = new Date();
+				if (inici != null) {
+					try { dInici = sdf.parse(inici); } catch (ParseException pe) {};
+				}
+				// Enviar correu
+				Boolean bCorreu = false;
+				if (correu != null && correu.equals("true")) bCorreu = true;
+				
+				ExpedientDto expedientPrimer = expedientService.getById(ids.get(1));
+				if (potModificarExpedient(expedientPrimer)) {
+					try {
+						ExecucioMassivaDto dto = new ExecucioMassivaDto();
+						dto.setDataInici(dInici);
+						dto.setEnviarCorreu(bCorreu);
+						dto.setExpedientIds(ids.subList(1, ids.size()));
+						dto.setExpedientTipusId(ids.get(0));
+						dto.setTipus(ExecucioMassivaTipus.MODIFICAR_DOCUMENT);
+						dto.setParam1(null);
+						Object[] params = new Object[4];
+						params[0] = docId;
+						params[1] = null;
+						params[2] = "delete";
+						dto.setParam2(serialize(params));
+						execucioMassivaService.crearExecucioMassiva(dto);
+						missatgeInfo(request, getMessage("info.document.massiu.esborrar", new Object[] {numExp}));
+					} catch (Exception e) {
+						missatgeError(request, getMessage("error.no.massiu"));
+					}
+				} else {
+					missatgeError(request, getMessage("error.permisos.modificar.expedient"));
+					return "/expedient/massivaInfo";
+				}
+				
+			// Autogenerar document a partir de plantilla
+			// ---------------------------------------------
+			} else if ("generar".equals(submit)) {
+			
+				// Obtenim informació de l'execució massiva
+				// Data d'inici
+				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+				Date dInici = new Date();
+				if (inici != null) {
+					try { dInici = sdf.parse(inici); } catch (ParseException pe) {};
+				}
+				// Enviar correu
+				Boolean bCorreu = false;
+				if (correu != null && correu.equals("true")) bCorreu = true;
+						
+				ExpedientDto expedientPrimer = expedientService.getById(ids.get(1));
+				if (potModificarExpedient(expedientPrimer)) {
+					try {
+						ExecucioMassivaDto dto = new ExecucioMassivaDto();
+						dto.setDataInici(dInici);
+						dto.setEnviarCorreu(bCorreu);
+						dto.setExpedientIds(ids.subList(1, ids.size()));
+						dto.setExpedientTipusId(ids.get(0));
+						dto.setTipus(ExecucioMassivaTipus.MODIFICAR_DOCUMENT);
+						dto.setParam1(null);
+						Object[] params = new Object[4];
+						params[0] = docId;
+						params[1] = new Date();
+						params[2] = "generate";
+						dto.setParam2(serialize(params));
+						execucioMassivaService.crearExecucioMassiva(dto);
+						missatgeInfo(request, getMessage("info.document.massiu.generar", new Object[] {numExp}));
+					} catch (Exception e) {
+						missatgeError(request, getMessage("error.no.massiu"));
+					}
+				} else {
+					missatgeError(request, getMessage("info.massiu.permisos.no"));
 				}
 			}
-			
-			return "/expedient/massivaInfo";
+			return "redirect:/expedient/massivaInfo.html";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
@@ -291,81 +362,154 @@ public class ExpedientMassivaController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "submit", required = false) String submit,
 			@RequestParam("contingut") final MultipartFile multipartFile,
-			@ModelAttribute("command") DocumentExpedientCommand command,
+			@RequestParam(value = "inici", required = false) String inici,
+			@RequestParam(value = "correu", required = false) String correu,
+			@ModelAttribute("documentCommandMas") DocumentExpedientCommand command,
 			BindingResult result,
 			SessionStatus status,
 			ModelMap model) {
+		
 		Entorn entorn = getEntornActiu(request);
+		model.addAttribute("inici", inici);
+		model.addAttribute("correu", correu);
 		if (entorn != null) {
 			List<Long> ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
-			if (ids == null || ids.size() == 0) {
+			if (ids == null || ids.size() <= 1) {
 				missatgeError(request, getMessage("error.no.exp.selec"));
 				return "redirect:/expedient/massivaInfo.html";
 			}
-			List<ExpedientDto> expedients = getExpedientsMassius(
-					ids.subList(1, ids.size()));
-			for(ExpedientDto exp: expedients){
-				if (potModificarExpedient(exp)) {
-					if ("submit".equals(submit) || submit.length() == 0) {
-						
-						new DocumentAdjuntCrearValidator().validate(command, result);
-				        if (result.hasErrors())
-				        	return "expedient/documentAdjuntForm";
-				        String nomArxiu = "arxiu";
-				        if (multipartFile.getSize() > 0) {
-							try {
-								nomArxiu = multipartFile.getOriginalFilename();
-							} catch (Exception ignored) {}
+			int numExp = ids.size() - 1;
+			
+			// Obtenim informació de l'execució massiva
+			// Data d'inici
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+			Date dInici = new Date();
+			if (inici != null) {
+				try { dInici = sdf.parse(inici); } catch (ParseException pe) {};
+			}
+			// Enviar correu
+			Boolean bCorreu = false;
+			if (correu != null && correu.equals("true")) bCorreu = true;
+			
+			ExpedientDto expedientPrimer = expedientService.getById(ids.get(1));
+			if (potModificarExpedient(expedientPrimer)) {
+				
+				if ("submit".equals(submit) || submit.length() == 0) {
+					try {
+						new DocumentModificarValidator().validate(command, result);
+					        if (result.hasErrors()) {
+								model.addAttribute(
+										"document",
+										documentService.documentInfo(command.getDocId()));
+					        	return "expedient/documentFormMassiva";
+					        }
+			        } catch(Exception ex) {
+			        	Long entornId = entorn.getId();
+						String numeroExpedient = expedientPrimer.getIdentificador();
+						logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'ha pogut crear el document adjunt", ex);
+			        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
+			        }
+					try {
+						ExecucioMassivaDto dto = new ExecucioMassivaDto();
+						dto.setDataInici(dInici);
+						dto.setEnviarCorreu(bCorreu);
+						dto.setExpedientIds(ids.subList(1, ids.size()));
+						dto.setExpedientTipusId(ids.get(0));
+						dto.setTipus(ExecucioMassivaTipus.MODIFICAR_DOCUMENT);
+						Object[] params = new Object[4];
+						params[0] = command.getDocId();
+						// Modificar document
+						if (multipartFile.getSize() > 0) {
+							dto.setParam1(multipartFile.getOriginalFilename());
+							params[1] = command.getData();
+							params[2] = command.getCodi();
+							params[3] = command.getContingut();
+						// Modificar data
+						} else {
+							dto.setParam1(null);
+							params[1] = command.getData();
+							params[2] = "date";
+							params[3] = null;
 						}
-						try{
-							new DocumentModificarValidator().validate(command, result);
-						        if (result.hasErrors()) {
-						        	model.addAttribute("expedient", exp);
-									model.addAttribute(
-											"document",
-											documentService.documentInfo(command.getDocId()));
-						        	return "expedient/documentFormMassiva";
-						        }
-				        }catch(Exception ex){
-				        	Long entornId = entorn.getId();
-							String numeroExpedient = exp.getIdentificador();
-							logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'ha pogut crear el document adjunt", ex);
-				        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
-				        }
-						try {
-							DocumentDto doc = documentService.documentInfo(command.getDocId());
-							String idExp = exp.getProcessInstanceId();
-							if (!doc.isAdjunt() ) {
-								documentService.guardarDocumentProces(
-										idExp,
-										doc.getDocumentCodi(),
-										null,
-										command.getData(),
-										(multipartFile.getSize() > 0) ? multipartFile.getOriginalFilename() : null,
-										(multipartFile.getSize() > 0) ? command.getContingut() : null,
-										false);
-								}else{
-										documentService.guardarAdjunt(
-										idExp,
-										doc.getAdjuntId(),
-										command.getNom(),
-										command.getData(),
-										(multipartFile.getSize() > 0) ? multipartFile.getOriginalFilename() : null,
-										(multipartFile.getSize() > 0) ? command.getContingut() : null);
-							}
-							
-				        } catch (Exception ex) {
-				        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
-				        	logger.error("No s'ha pogut guardar el document", ex);
-				        }
-					}
-				} else {
-					missatgeError(request, getMessage("error.permisos.modificar.expedient"));
-					return "redirect:/expedient/consulta.html";
+						
+						dto.setParam2(serialize(params));
+						execucioMassivaService.crearExecucioMassiva(dto);
+					} catch(Exception ex) {
+			        	missatgeError(request, getMessage("error.no.massiu"));
+			        }
+				} else if ("adjunt".equals(submit)) {
+					new DocumentAdjuntCrearValidator().validate(command, result);
+			        if (result.hasErrors())
+			        	return "expedient/documentAdjuntFormMassiva";
+					try {
+						ExecucioMassivaDto dto = new ExecucioMassivaDto();
+						dto.setDataInici(dInici);
+						dto.setEnviarCorreu(bCorreu);
+						dto.setExpedientIds(ids.subList(1, ids.size()));
+						dto.setExpedientTipusId(ids.get(0));
+						dto.setTipus(ExecucioMassivaTipus.MODIFICAR_DOCUMENT);
+						Object[] params = new Object[4];
+						params[0] = null;
+						params[1] = command.getData();
+						params[2] = command.getNom();
+						if (multipartFile.getSize() > 0) {
+							dto.setParam1(multipartFile.getOriginalFilename());
+							params[3] = command.getContingut();
+						}
+						dto.setParam2(serialize(params));
+						execucioMassivaService.crearExecucioMassiva(dto);
+			        } catch(Exception ex) {
+			        	missatgeError(request, getMessage("error.no.massiu"));
+			        }
+				} else if ("cancel".equals(submit)) {
+					return "redirect:/expedient/massivaInfo.html";
 				}
-			}//final For expedients
-			missatgeInfo(request, getMessage("info.document.guardat") );
+				missatgeInfo(request, getMessage("info.document.massiu.guardat", new Object[] {numExp}));
+			} else {
+				missatgeError(request, getMessage("info.massiu.permisos.no"));
+			}
 			return "redirect:/expedient/massivaInfo.html";
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+	
+	@RequestMapping(value = "/expedient/documentGenerarMas", method = RequestMethod.GET)
+	public String documentGenerarGet(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) String id,
+			@RequestParam(value = "docId", required = true) Long docId,
+			@RequestParam(value = "inici", required = false) String inici,
+			@RequestParam(value = "correu", required = false) String correu,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			try {
+				//documentService.documentInfo(docId);
+				DocumentDto doc = documentService.documentPerProces(
+						id, 
+						docId, 
+						false);
+				DocumentDto generat = documentService.generarDocumentPlantilla(
+						entorn.getId(),
+						doc.getDocumentId(),
+						null,
+						id,
+						new Date(),
+						false,
+						false,
+						null);
+				if (generat != null) {
+					model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, generat.getArxiuNom());
+					model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, generat.getArxiuContingut());
+				}
+				return "arxiuView";
+			} catch (Exception ex) {
+				missatgeError(request, getMessage("error.generar.document"), ex.getLocalizedMessage());
+	        	logger.error("Error generant el document " + docId + " per la instància de procés " + id, ex);
+	        	return "redirect:/expedient/documentModificarMas.html?id=" + id + "&docId=" + docId + "&inici=" + inici + "&correu=" + correu + "&submit=subdoc";
+			}
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
@@ -382,53 +526,63 @@ public class ExpedientMassivaController extends BaseController {
 		}
 	}
 	
-	
-	
 	//executar un script massivament als expedients seleccionats
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/expedient/scriptMas", method = RequestMethod.POST)
 	public String script(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) String id,
+			@RequestParam(value = "inici", required = true) String inici,
+			@RequestParam(value = "correu", required = true) String correu,
 			@ModelAttribute("scriptCommandMas") ExpedientEinesScriptCommand command,
 			BindingResult result,
-			SessionStatus status) {
+			SessionStatus status,
+			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
+		model.addAttribute("inici", inici);
+		model.addAttribute("correu", correu);
 		if (entorn != null) {
 			List<Long> ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
-			if (ids == null || ids.size() == 0) {
+			if (ids == null || ids.size() <= 1) {
 				missatgeError(request, getMessage("error.no.exp.selec"));
 				return "redirect:/expedient/massivaInfo.html";
 			}
-				new ExpedientScriptValidator().validate(command, result);
-				if (result.hasErrors()) {
-					return "redirect:/expedient/massivaInfo.html";
-		        }
-				List<ExpedientDto> expedients = getExpedientsMassius(
-						ids.subList(1, ids.size()));
-				for (ExpedientDto exp: expedients) {
-					if (potModificarExpedient(exp)) {
-						try {
-							expedientService.evaluateScript(
-									exp.getProcessInstanceId(),
-									command.getScript(),
-									null);
-							
-						} catch (Exception ex) {
-							Long entornId = entorn.getId();
-							String numeroExpedient = id;
-							logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'ha pogut executar l'script", ex);
-							missatgeError(request, getMessage("error.executar.script"), getMissageFinalCadenaExcepcions(ex));
-							return "redirect:/expedient/massivaInfo.html";
-						}
-					}else {
-						missatgeError(request, getMessage("error.permisos.modificar.expedient"));
-						return "redirect:/expedient/massivaInfo.html";
-					
-					}
+			int numExp = ids.size() - 1;
+			new ExpedientScriptValidator().validate(command, result);
+			if (result.hasErrors()) {
+				return "redirect:/expedient/massivaInfo.html";
+	        }
+			
+			// Obtenim informació de l'execució massiva
+			// Data d'inici
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+			Date dInici = new Date();
+			if (inici != null) {
+				try { dInici = sdf.parse(inici); } catch (ParseException pe) {};
+			}
+			// Enviar correu
+			Boolean bCorreu = false;
+			if (correu != null && correu.equals("true")) bCorreu = true;
+			
+			ExpedientDto expedientPrimer = expedientService.getById(ids.get(1));
+			if (potModificarExpedient(expedientPrimer)) {
+				try {
+					ExecucioMassivaDto dto = new ExecucioMassivaDto();
+					dto.setDataInici(dInici);
+					dto.setEnviarCorreu(bCorreu);
+					dto.setExpedientIds(ids.subList(1, ids.size()));
+					dto.setExpedientTipusId(ids.get(0));
+					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_SCRIPT);
+					dto.setParam2(serialize(command.getScript()));
+					execucioMassivaService.crearExecucioMassiva(dto);
+					missatgeInfo(request, getMessage("info.script.massiu.executat", new Object[] {numExp}));
+				} catch (Exception e) {
+					missatgeError(request, getMessage("error.no.massiu"));
 				}
-				missatgeInfo(request, getMessage("info.script.executat"));
-				return "redirect:/expedient/massivaInfo.html";	
+			} else {
+				missatgeError(request, getMessage("info.massiu.permisos.no"));
+			}
+			return "redirect:/expedient/massivaInfo.html";	
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
@@ -442,58 +596,97 @@ public class ExpedientMassivaController extends BaseController {
 	public String aturar(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) String id,
+			@RequestParam(value = "inici", required = true) String inici,
+			@RequestParam(value = "correu", required = true) String correu,
 			@ModelAttribute("aturarCommandMas") ExpedientEinesAturarCommand command,
 			BindingResult result,
-			SessionStatus status) {
+			SessionStatus status,
+			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
+		model.addAttribute("inici", inici);
+		model.addAttribute("correu", correu);
 		if (entorn != null) {
-			int aturats=0;
 			List<Long> ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
-			if (ids == null || ids.size() == 0) {
+			if (ids == null || ids.size() <= 1) { // Primer element de la llista: id tipus expedient
 				missatgeError(request, getMessage("error.no.exp.selec"));
 				return "redirect:/expedient/massivaInfo.html";
 			}
+			int numExp = ids.size() - 1;
 			new ExpedientAturarValidator().validate(command, result);
 			if (result.hasErrors()) {
 				missatgeError(request, getMessage("error.aturar.expedient"),result.toString());
 				return "redirect:/expedient/massivaInfo.html";
 	        }
-			List<ExpedientDto> expedients = getExpedientsMassius(
-					ids.subList(1, ids.size()));
-			for (ExpedientDto exp: expedients) {
 			
-				if (potModificarExpedient(exp)) {
-					if (!exp.isAturat()) {
-						try {
-							expedientService.aturar(
-									exp.getProcessInstanceId(),
-									command.getMotiu(),
-									null);
-							aturats+=1;
-							
-						} catch (Exception ex) {
-							missatgeError(request, getMessage("error.aturar.expedient"), ex.getLocalizedMessage());
-				        	logger.error("No s'ha pogut aturar l'expedient", ex);
-				        	return "redirect:/expedient/massivaInfo.html";
-						}
-					} else {
-						missatgeError(request, getMessage("error.expedient.ja.aturat") );
-					}
-				}else {
-					missatgeError(request, getMessage("error.permisos.modificar.expedient"));
-					return "redirect:/expedient/massivaInfo.html";
-				}
+			// Obtenim informació de l'execució massiva
+			// Data d'inici
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+			Date dInici = new Date();
+			if (inici != null) {
+				try { dInici = sdf.parse(inici); } catch (ParseException pe) {};
 			}
-				missatgeInfo(request, getMessage("info.expedient.aturats") +" "+ aturats+" "+ "expedient(s)");
-				return "redirect:/expedient/massivaInfo.html";
+			// Enviar correu
+			Boolean bCorreu = false;
+			if (correu != null && correu.equals("true")) bCorreu = true;
+			
+			ExpedientDto expedientPrimer = expedientService.getById(ids.get(1));
+			if (potModificarExpedient(expedientPrimer)) {
+				try {
+					ExecucioMassivaDto dto = new ExecucioMassivaDto();
+					dto.setDataInici(dInici);
+					dto.setEnviarCorreu(bCorreu);
+					dto.setExpedientIds(ids.subList(1, ids.size()));
+					dto.setExpedientTipusId(ids.get(0));
+					dto.setTipus(ExecucioMassivaTipus.ATURAR_EXPEDIENT);
+					dto.setParam2(serialize(command.getMotiu()));
+					execucioMassivaService.crearExecucioMassiva(dto);
+					missatgeInfo(request, getMessage("info.expedient.massiu.aturats", new Object[] {numExp}));
+				} catch (Exception e) {
+					missatgeError(request, getMessage("error.no.massiu"));
+				}
+			} else {
+				missatgeError(request, getMessage("info.massiu.permisos.no"));
+			}
+			return "redirect:/expedient/massivaInfo.html";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
 	}
 
-	
-	
+	@RequestMapping(value = "/expedient/dadaModificarMas", method = RequestMethod.GET)
+	public String dadaModificar(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = false) String id,
+			@RequestParam(value = "taskId", required = false) String taskId,
+			@RequestParam(value = "var", required = true) String var,
+			@RequestParam(value = "inici", required = true) String inici,
+			@RequestParam(value = "correu", required = true) String correu,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			ExpedientDto expedient = getExpedient(entorn.getId(), id, taskId);
+			
+			if (potModificarExpedient(expedient)) {
+				TascaDto tasca = createTascaAmbVar(entorn.getId(), id, taskId, var);
+				Object command = model.get("modificarVariableCommand");
+				model.clear();
+				model.addAttribute("command", command);
+				model.addAttribute("tasca", tasca);
+				model.addAttribute("expedient", expedient);
+				model.addAttribute("valorsPerSuggest", TascaFormUtil.getValorsPerSuggest(tasca, command));
+				model.addAttribute("inici", inici);
+				model.addAttribute("correu", correu);
+				return "/expedient/dadaFormMassiva";
+			} else {
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
+			}
+			return "redirect:/expedient/massivaInfo.html";
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
 
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/expedient/dadaModificarMas", method = RequestMethod.POST)
@@ -505,81 +698,113 @@ public class ExpedientMassivaController extends BaseController {
 			@RequestParam(value = "var", required = false) String var,
 			@RequestParam(value = "helMultipleIndex", required = false) Integer index,
 			@RequestParam(value = "helMultipleField", required = false) String field,
+			@RequestParam(value = "inici", required = false) String inici,
+			@RequestParam(value = "correu", required = false) String correu,
 			@ModelAttribute("modificarVariableCommand") Object command,
 			BindingResult result,
 			SessionStatus status,
-			ModelMap model) {
+			ModelMap model)  throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
+			model.clear();
+			model.addAttribute("command", command);
+			model.addAttribute("inici", inici);
+			model.addAttribute("correu", correu);
+			
 			List<Long> ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
-			if (ids == null || ids.size() == 0) {
+			if (ids == null || ids.size() <= 1) {
 				missatgeError(request, getMessage("error.no.exp.selec"));
-				return "redirect:/expedient/massivaInfo.html";
+				return "expedient/massivaInfo";
 			}
-			List<ExpedientDto> expedients = getExpedientsMassius(
-					ids.subList(1, ids.size()));
-			for(ExpedientDto exp: expedients){
-				if (potModificarExpedient(exp)) {
-					String idPI = exp.getProcessInstanceId();
-					TascaDto tasca = createTascaAmbVar(entorn.getId(), idPI, taskId, var);
-					List<Camp> camps = new ArrayList<Camp>();
-		    		for (CampTasca campTasca: tasca.getCamps())
-		    			camps.add(campTasca.getCamp());
-					if ("submit".equals(submit) || submit.length() == 0) {
-						((TascaFormValidator)validator).setTasca(tasca);
-						validator.validate(command, result);
-						if (result.hasErrors()) {
-							model.addAttribute("expedients", expedients);
-							model.addAttribute("tasca", tasca);
-				        	model.addAttribute("valorsPerSuggest", TascaFormUtil.getValorsPerSuggest(tasca, command));
-				        	return "redirect:/expedient/massivaInfo.html";
-				        }
-						try {
-							if (idPI != null) {
-						        expedientService.updateVariable(
-						        		idPI,
-						        		var,
-						        		PropertyUtils.getSimpleProperty(command, var));
-							} else {
-								tascaService.updateVariable(
-										entorn.getId(),
-										taskId,
-										var,
-										PropertyUtils.getSimpleProperty(command, var));
-							}
-					        
-				        } catch (Exception ex) {
-							missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
-				        	logger.error("No s'ha pogut modificat la dada", ex);
-				        	return "redirect:/expedient/massivaInfo.html";
-						}
-					} else if ("multipleAdd".equals(submit)) {
-						try {
-							if (field != null)
-								PropertyUtils.setSimpleProperty(
-										command,
-										field,
-										TascaFormUtil.addMultiple(field, command, camps));
-						} catch (Exception ex) {
-							missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
-							logger.error("No s'ha pogut afegir el camp múltiple", ex);
-						}
-						model.addAttribute("expedients", expedients);
+			int numExp = ids.size() - 1;
+			
+//			List<ExpedientDto> expedients = getExpedientsMassius(ids.subList(1, ids.size()));
+			
+			ExpedientDto expedientPrimer = expedientService.getById(ids.get(1));
+			if (potModificarExpedient(expedientPrimer)) {
+				
+				String idPI = expedientPrimer.getProcessInstanceId();
+				TascaDto tasca = createTascaAmbVar(entorn.getId(), idPI, taskId, var);
+				List<Camp> camps = new ArrayList<Camp>();
+	    		for (CampTasca campTasca: tasca.getCamps())
+	    			camps.add(campTasca.getCamp());
+				
+	    		// Executam la acció massiva
+	    		if ("submit".equals(submit) || submit.length() == 0) {
+					
+	    			((TascaFormValidator)validator).setTasca(tasca);
+					validator.validate(command, result);
+					if (result.hasErrors()) {
+//						model.addAttribute("expedients", expedients);
 						model.addAttribute("tasca", tasca);
 			        	model.addAttribute("valorsPerSuggest", TascaFormUtil.getValorsPerSuggest(tasca, command));
 			        	return "redirect:/expedient/massivaInfo.html";
-					} else if("cancel".equals("submit")){
-						
-						return "redirect:/expedient/massivaInfo.html";
+			        }
+					
+	    			// Obtenim informació de l'execució massiva
+	    			// Data d'inici
+	    			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+	    			Date dInici = new Date();
+	    			if (inici != null) {
+	    				try { dInici = sdf.parse(inici); } catch (ParseException pe) {};
+	    			}
+	    			// Enviar correu
+	    			Boolean bCorreu = false;
+	    			if (correu != null && correu.equals("true")) bCorreu = true;
+	    			try {
+	    				ExecucioMassivaDto dto = new ExecucioMassivaDto();
+	    				dto.setDataInici(dInici);
+	    				dto.setEnviarCorreu(bCorreu);
+	    				dto.setExpedientIds(ids.subList(1, ids.size()));
+	    				dto.setExpedientTipusId(ids.get(0));
+	    				dto.setTipus(ExecucioMassivaTipus.MODIFICAR_VARIABLE);
+	    				dto.setParam1(var);
+	    				Object[] params = new Object[] {entorn.getId(), taskId, PropertyUtils.getSimpleProperty(command, var)};
+	    				dto.setParam2(serialize(params));
+	    				execucioMassivaService.crearExecucioMassiva(dto);
+	    				missatgeInfo(request, getMessage("info.dada.massiu.modificat", new Object[] {var, numExp}));
+	    			} catch (Exception e) {
+	    				missatgeError(request, getMessage("info.dada.massiu.error", new Object[] {var}), e.getLocalizedMessage());
+	    				return "redirect:/expedient/massivaInfo.html";
+	    			}
+	    			
+	    		// Afegim elements a una variable múltiple
+				} else if ("multipleAdd".equals(submit)) {
+					try {
+						if (field != null)
+							PropertyUtils.setSimpleProperty(
+									command,
+									field,
+									TascaFormUtil.addMultiple(field, command, camps));
+					} catch (Exception ex) {
+						missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
+						logger.error("No s'ha pogut afegir el camp múltiple", ex);
 					}
-				} else {
-					missatgeError(request, getMessage("error.permisos.modificar.expedient"));
+					model.addAttribute("tasca", tasca);
+		        	model.addAttribute("valorsPerSuggest", TascaFormUtil.getValorsPerSuggest(tasca, command));
+		        	return "/expedient/dadaFormMassiva";
+				} else  if ("multipleRemove".equals(submit)) {
+					try {
+						if (field != null && index != null)
+							PropertyUtils.setSimpleProperty(
+									command,
+									field,
+									TascaFormUtil.deleteMultiple(field, command, camps, index));
+					} catch (Exception ex) {
+						missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
+						logger.error("No s'ha pogut modificar el camp múltiple", ex);
+					}
+//					model.addAttribute("expedient", expedient);
+					model.addAttribute("tasca", tasca);
+		        	model.addAttribute("valorsPerSuggest", TascaFormUtil.getValorsPerSuggest(tasca, command));
+		        	return "expedient/dadaFormMassiva";
+		        	// Cancel·lam
+				} else if("cancel".equals("submit")){
 					return "redirect:/expedient/massivaInfo.html";
 				}
-			
-		
-		    }//if del For expedients
-		    missatgeInfo(request, getMessage("info.variable.modificada"));
+			} else {
+				missatgeError(request, getMessage("info.massiu.permisos.no"));
+			}
 		    return "redirect:/expedient/massivaInfo.html";
 			
 		} else {
@@ -588,36 +813,6 @@ public class ExpedientMassivaController extends BaseController {
 		}
 		
 	}
-	
-	
-	@RequestMapping(value = "/expedient/dadaModificarMas", method = RequestMethod.GET)
-	public String dadaModificar(
-			HttpServletRequest request,
-			@RequestParam(value = "id", required = false) String id,
-			@RequestParam(value = "taskId", required = false) String taskId,
-			@RequestParam(value = "var", required = true) String var,
-			ModelMap model) {
-		Entorn entorn = getEntornActiu(request);
-		if (entorn != null) {
-			ExpedientDto expedient = getExpedient(entorn.getId(), id, taskId);
-			if (potModificarExpedient(expedient)) {
-				model.addAttribute("expedient", expedient);
-				TascaDto tasca = createTascaAmbVar(entorn.getId(), id, taskId, var);
-				Object command = model.get("modificarVariableCommand");
-				model.addAttribute("tasca", tasca);
-				model.addAttribute("valorsPerSuggest", TascaFormUtil.getValorsPerSuggest(tasca, command));
-				return "/expedient/dadaFormMassiva";
-			} else {
-				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
-			}
-			return "redirect:/expedient/massivaInfo.html";
-		} else {
-			missatgeError(request, getMessage("error.no.entorn.selec") );
-			return "redirect:/index.html";
-		}
-	}
-	
-	
 
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/expedient/massivaIds")
@@ -709,41 +904,43 @@ public class ExpedientMassivaController extends BaseController {
 			List<ExpedientDto> expedients = getExpedientsMassius(
 					ids.subList(1, ids.size()));
 			model.addAttribute("expedients", expedients);
-			boolean teDocuments = false;
 			if (expedients.size() > 0) {
 				String piid = expedients.get(0).getProcessInstanceId();
+
 				// Definicions de procés per al canvi de versió
-				model.addAttribute(
-						"definicioProces",
-						dissenyService.findDefinicioProcesAmbProcessInstanceId(piid));
+				DefinicioProcesDto definicioProces = dissenyService.findDefinicioProcesAmbProcessInstanceId(piid);
+				model.addAttribute("definicioProces", definicioProces);
 				
-				for(ExpedientDto exp: expedients){
-					String pi = exp.getProcessInstanceId();
-					List<DocumentStore> storeList = documentStoreDao.findAmbProcessInstanceId(pi);
-					for(DocumentStore docS: storeList){
-						if(!docS.isSignat() && docS.isAdjunt()){
-							teDocuments = true;
-							model.addAttribute(
-									"docStoreId",
-									docS.getId());
-						}
-					}
-					storeList.clear();
-				}
 				// Accions per a executar
+				if (definicioProces != null) {
+					List <Accio> accions = dissenyService.findAccionsAmbDefinicioProces(definicioProces.getId());
+					model.addAttribute("accions", accions); //findAccionsJbpmOrdenades(definicioProces.getId()));
+				}
+				
+				// Documents
 				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(
 						piid,
 						false,
 						true,
 						true);
-				model.addAttribute(
-						"instanciaProces",
-						instanciaProces);
-				
+				model.addAttribute("instanciaProces", instanciaProces);
 				List<Document> documents = instanciaProces.getDocuments();
-				model.addAttribute(
-						"documents",
-						documents);
+				model.addAttribute("documents", documents);
+//				List<DocumentDto> docsAdjunts = new ArrayList<DocumentDto>(); 
+//				
+//				for (ExpedientDto exp: expedients) {
+//					InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(
+//							exp.getProcessInstanceId(),
+//							false,
+//							true,
+//							true);
+//					for (DocumentDto document: instanciaProces.getVarsDocuments().values()) {
+//						if (!document.isSignat() && document.isAdjunt()) {
+//							docsAdjunts.add(document);
+//						}
+//					}
+//				}
+//				model.addAttribute("docsAdjunts", docsAdjunts);
 			}
 			return "expedient/massivaInfo";
 		} else {
@@ -771,19 +968,26 @@ public class ExpedientMassivaController extends BaseController {
 			model.addAttribute("expedients", expedients);
 			if (expedients.size() > 0) {
 				String piid = expedients.get(0).getProcessInstanceId();
+				
 				// Definicions de procés per al canvi de versió
-				model.addAttribute(
-						"definicioProces",
-						dissenyService.findDefinicioProcesAmbProcessInstanceId(piid));
+				DefinicioProcesDto definicioProces = dissenyService.findDefinicioProcesAmbProcessInstanceId(piid);
+				model.addAttribute("definicioProces", definicioProces);
+				
 				// Accions per a executar
+				if (definicioProces != null) {
+					model.addAttribute("accions", dissenyService.findAccionsJbpmOrdenades(definicioProces.getId()));
+				}
+				
+				// Documents
 				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(
 						piid,
 						false,
-						false,
-						false);
-				model.addAttribute(
-						"instanciaProces",
-						instanciaProces);
+						true,
+						true);
+				model.addAttribute("instanciaProces", instanciaProces);
+				List<Document> documents = instanciaProces.getDocuments();
+				model.addAttribute("documents", documents);
+				
 			}
 			return "/expedient/massivaInfo";
 		} else {
@@ -798,9 +1002,13 @@ public class ExpedientMassivaController extends BaseController {
 	public String accioCanviVersio(
 			HttpServletRequest request,
 			@RequestParam(value="target",required=false) String target,
+			@RequestParam(value = "inici", required = true) String inici,
+			@RequestParam(value = "correu", required = true) String correu,
 			@ModelAttribute("canviVersioProcesCommand") CanviVersioProcesCommand command,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
+		model.addAttribute("inici", inici);
+		model.addAttribute("correu", correu);
 		if (entorn != null) {
 			List<Long> ids = new ArrayList<Long>();
 			if(request.getParameter("target").equals("disseny")){
@@ -810,33 +1018,34 @@ public class ExpedientMassivaController extends BaseController {
 				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
 			}
 
-			if (ids == null || ids.size() == 0) {
+			if (ids == null || ids.size() <= 1) {
 				missatgeError(request, getMessage("error.no.exp.selec"));
 				return "redirect:/expedient/consulta.html";
 			}
-			List<ExpedientDto> expedients = getExpedientsMassius(
-					ids.subList(1, ids.size()));
-			boolean error = false;
-			int numOk = 0;
-			for (ExpedientDto expedient: expedients) {
-				try {
-					DefinicioProcesDto definicioProces = dissenyService.getById(command.getDefinicioProcesId(), false);
-					expedientService.changeProcessInstanceVersion(expedient.getProcessInstanceId(), definicioProces.getVersio());
-					numOk++;
-				} catch (Exception ex) {
-					missatgeError(
-			    			request,
-			    			getMessage("error.expedient.accio.masiva") + " " + expedient.getIdentificador(),
-			    			ex.getLocalizedMessage());
-					logger.error("No s'ha pogut canviar la versió del procés " + expedient.getProcessInstanceId(), ex);
-					error = true;
-				}
+			int numExp = ids.size() - 1;
+			// Obtenim informació de l'execució massiva
+			// Data d'inici
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+			Date dInici = new Date();
+			if (inici != null) {
+				try { dInici = sdf.parse(inici); } catch (ParseException pe) {};
 			}
-			if (numOk > 0) {
-				if (!error)
-					missatgeInfo(request, getMessage("info.canvi.versio.realitzat"));
-				else
-					missatgeInfo(request, getMessage("info.canvi.versio.realitzat.nprimers", new Object[] {new Integer(numOk)}));
+			// Enviar correu
+			Boolean bCorreu = false;
+			if (correu != null && correu.equals("true")) bCorreu = true;
+			
+			try {
+				ExecucioMassivaDto dto = new ExecucioMassivaDto();
+				dto.setDataInici(dInici);
+				dto.setEnviarCorreu(bCorreu);
+				dto.setExpedientIds(ids.subList(1, ids.size()));
+				dto.setExpedientTipusId(ids.get(0));
+				dto.setTipus(ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC);
+				dto.setParam2(serialize(command.getDefinicioProcesId()));
+				execucioMassivaService.crearExecucioMassiva(dto);
+				missatgeInfo(request, getMessage("info.canvi.versio.massiu", new Object[] {numExp}));
+			} catch (Exception e) {
+				missatgeError(request, getMessage("error.no.massiu"));
 			}
 			if(request.getParameter("target").equals("disseny")){
 				return "redirect:/expedient/massivaInfoTE.html";
@@ -856,8 +1065,12 @@ public class ExpedientMassivaController extends BaseController {
 	public String accioExecutarAccio(
 			HttpServletRequest request,
 			@RequestParam(value="target2",required=false) String target2,
+			@RequestParam(value = "inici", required = true) String inici,
+			@RequestParam(value = "correu", required = true) String correu,
 			@ModelAttribute("execucioAccioCommand") ExecucioAccioCommand command,
 			ModelMap model) {
+		model.addAttribute("inici", inici);
+		model.addAttribute("correu", correu);
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			List<Long> ids = new ArrayList<Long>();
@@ -868,35 +1081,60 @@ public class ExpedientMassivaController extends BaseController {
 			
 				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
 			}
-			if (ids == null || ids.size() == 0) {
+			if (ids == null || ids.size() <= 1) {
 				missatgeError(request, getMessage("error.no.exp.selec"));
 				return "redirect:/expedient/consulta.html";
 			}
-			List<ExpedientDto> expedients = getExpedientsMassius(
-					ids.subList(1, ids.size()));
-			boolean error = false;
-			int numOk = 0;
-			for (ExpedientDto expedient: expedients) {
-				try {
-					System.out.println(">>> Executant acció (codi=" + command.getAccioId() + ") en l'expedient " + expedient.getIdentificador());
-					expedientService.executarAccio(expedient.getProcessInstanceId(), command.getAccioId());
-					System.out.println(">>> Acció executada (codi=" + command.getAccioId() + ") en l'expedient " + expedient.getIdentificador());
-					numOk++;
-				} catch (Exception ex) {
-					missatgeError(
-			    			request,
-			    			getMessage("error.expedient.accio.masiva") + " " + expedient.getIdentificador(),
-			    			ex.getLocalizedMessage());
-					logger.error("No s'ha pogut excutar l'acció " + command.getAccioId() + " del procés " + expedient.getProcessInstanceId(), ex);
-					error = true;
-				}
+			
+			int numExp = ids.size() - 1;
+			// Obtenim informació de l'execució massiva
+			// Data d'inici
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+			Date dInici = new Date();
+			if (inici != null) {
+				try { dInici = sdf.parse(inici); } catch (ParseException pe) {};
 			}
-			if (numOk > 0) {
-				if (!error)
-					missatgeInfo(request, getMessage("info.accio.executat"));
-				else
-					missatgeInfo(request, getMessage("info.accio.executat.nprimers", new Object[] {new Integer(numOk)}));
-			}
+			// Enviar correu
+			Boolean bCorreu = false;
+			if (correu != null && correu.equals("true")) bCorreu = true;
+			
+			try {
+				ExecucioMassivaDto dto = new ExecucioMassivaDto();
+				dto.setDataInici(dInici);
+				dto.setEnviarCorreu(bCorreu);
+				dto.setExpedientIds(ids.subList(1, ids.size()));
+				dto.setExpedientTipusId(ids.get(0));
+				dto.setTipus(ExecucioMassivaTipus.EXECUTAR_ACCIO);
+				dto.setParam2(serialize(command.getAccioId()));
+				execucioMassivaService.crearExecucioMassiva(dto);
+				missatgeInfo(request, getMessage("info.accio.massiu.executat", new Object[] {numExp}));
+			} catch (Exception e) {
+				missatgeError(request, getMessage("error.no.massiu"));
+			} 
+			
+//			List<ExpedientDto> expedients = getExpedientsMassius(
+//					ids.subList(1, ids.size()));
+//			boolean error = false;
+//			int numOk = 0;
+//			for (ExpedientDto expedient: expedients) {
+//				try {
+//					expedientService.executarAccio(expedient.getProcessInstanceId(), command.getAccioId());
+//					numOk++;
+//				} catch (Exception ex) {
+//					missatgeError(
+//			    			request,
+//			    			getMessage("error.expedient.accio.masiva") + " " + expedient.getIdentificador(),
+//			    			ex.getLocalizedMessage());
+//					logger.error("No s'ha pogut excutar l'acció " + command.getAccioId() + " del procés " + expedient.getProcessInstanceId(), ex);
+//					error = true;
+//				}
+//			}
+//			if (numOk > 0) {
+//				if (!error)
+//					missatgeInfo(request, getMessage("info.accio.executat"));
+//				else
+//					missatgeInfo(request, getMessage("info.accio.executat.nprimers", new Object[] {new Integer(numOk)}));
+//			}
 			if(request.getParameter("target2").equals("disseny")){
 				return "redirect:/expedient/massivaInfoTE.html";
 			}else {
@@ -910,27 +1148,59 @@ public class ExpedientMassivaController extends BaseController {
 	
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/expedient/reindexarMas")
-	public String expedientReindexar(
+	public String accioReindexar(
 			HttpServletRequest request,
+			@RequestParam(value = "inici", required = true) String inici,
+			@RequestParam(value = "correu", required = true) String correu,
 			ModelMap model) {
+		model.addAttribute("inici", inici);
+		model.addAttribute("correu", correu);
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			List<Long> ids = null;
-			if(request.getParameter("targetIdx").equals("disseny")){
+			if (request.getParameter("targetIdx").equals("disseny")){
 				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS_TE);
-			}
-			else{
+			} else {
 				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
 			}
-			if (ids == null || ids.size() == 0) {
+			if (ids == null || ids.size() <= 1) {
 				missatgeError(request, getMessage("error.no.exp.selec"));
 				return "redirect:/expedient/massivaInfo.html";
 			}
-			List<ExpedientDto> expedients = getExpedientsMassius(ids.subList(1, ids.size()));
 			
-			boolean error = false;
+			int numExp = ids.size() - 1;
+			// Obtenim informació de l'execució massiva
+			// Data d'inici
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+			Date dInici = new Date();
+			if (inici != null) {
+				try { dInici = sdf.parse(inici); } catch (ParseException pe) {};
+			}
+			// Enviar correu
+			Boolean bCorreu = false;
+			if (correu != null && correu.equals("true")) bCorreu = true;
+			
+			ExpedientDto expedientPrimer = expedientService.getById(ids.get(1));
+			if (potModificarExpedient(expedientPrimer)) {
+				try {
+					ExecucioMassivaDto dto = new ExecucioMassivaDto();
+					dto.setDataInici(dInici);
+					dto.setEnviarCorreu(bCorreu);
+					dto.setExpedientIds(ids.subList(1, ids.size()));
+					dto.setExpedientTipusId(ids.get(0));
+					dto.setTipus(ExecucioMassivaTipus.REINDEXAR);
+					execucioMassivaService.crearExecucioMassiva(dto);
+					missatgeInfo(request, getMessage("info.accio.massiu.executat", new Object[] {numExp}));
+				} catch (Exception e) {
+					missatgeError(request, getMessage("error.no.massiu"));
+				}
+			} else {
+				missatgeError(request, getMessage("info.massiu.permisos.no"));
+			}
+			
+			/*boolean error = false;
 			int numOk = 0;
-			for(ExpedientDto exp: expedients){
+			for (ExpedientDto exp: expedients) {
 				if (potModificarExpedient(exp)) {
 					String idPI = exp.getProcessInstanceId();
 					try {
@@ -948,10 +1218,10 @@ public class ExpedientMassivaController extends BaseController {
 					missatgeInfo(request, getMessage("info.reindexar.executat"));
 				else
 					missatgeInfo(request, getMessage("info.reindexar.executat.nprimers", new Object[] {new Integer(numOk)}));
-			}
-			if(request.getParameter("targetIdx").equals("disseny")){
+			}*/
+			if (request.getParameter("targetIdx").equals("disseny")) {
 				return "redirect:/expedient/massivaInfoTE.html";
-			}else {
+			} else {
 				return "redirect:/expedient/massivaInfo.html";
 			}
 		} else {
@@ -968,8 +1238,7 @@ public class ExpedientMassivaController extends BaseController {
 					ExtendedPermission.ADMINISTRATION,
 					ExtendedPermission.WRITE}) != null;
 	}
-	
-	
+
 	private class ExpedientScriptValidator implements Validator {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
@@ -980,15 +1249,13 @@ public class ExpedientMassivaController extends BaseController {
 		}
 	}
 
-	
-	private String getMissageFinalCadenaExcepcions(Throwable ex) {
-		if (ex.getCause() == null) {
-			return ex.getClass().getName() + ": " + ex.getMessage();
-		} else {
-			return getMissageFinalCadenaExcepcions(ex.getCause());
-		}
-	}
-	
+//	private String getMissageFinalCadenaExcepcions(Throwable ex) {
+//		if (ex.getCause() == null) {
+//			return ex.getClass().getName() + ": " + ex.getMessage();
+//		} else {
+//			return getMissageFinalCadenaExcepcions(ex.getCause());
+//		}
+//	}
 
 	private List<ExpedientDto> getExpedientsMassius(List<Long> ids) {
 		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
@@ -1006,7 +1273,7 @@ public class ExpedientMassivaController extends BaseController {
 			ValidationUtils.rejectIfEmpty(errors, "motiu", "not.blank");
 		}
 	}
-	
+
 	public List<String> getVariablesProces(
 			Set<Camp> camps,
 			Map<String, Object> varsComText) {
@@ -1026,7 +1293,6 @@ public class ExpedientMassivaController extends BaseController {
 		return resposta;
 	}
 	
-	
 	private TascaDto createTascaAmbVar(
 			Long entornId,
 			String id,
@@ -1038,12 +1304,14 @@ public class ExpedientMassivaController extends BaseController {
 		TascaDto tasca = null;
 		if (taskId == null) {
 			instanciaProces = expedientService.getInstanciaProcesById(
-					id,
-					false, true, false);
+					id, 
+					false, 
+					true, 
+					false);
 			camp = dissenyService.findCampAmbDefinicioProcesICodi(
-					instanciaProces.getDefinicioProces().getId(),
+					instanciaProces.getDefinicioProces().getId(), 
 					var);
-			valor = instanciaProces.getVariables().get(var);
+			valor = instanciaProces.getVariable(var);
 		} else {
 			tasca = tascaService.getById(
 					entornId,
@@ -1054,7 +1322,9 @@ public class ExpedientMassivaController extends BaseController {
 					true);
 			instanciaProces = expedientService.getInstanciaProcesById(
 					tasca.getProcessInstanceId(),
-					false, true, false);
+					false, 
+					true, 
+					false);
 			for (CampTasca campTasca: tasca.getCamps()) {
 				if (campTasca.getCamp().getCodi().equals(var)) {
 					camp = campTasca.getCamp();
@@ -1068,6 +1338,7 @@ public class ExpedientMassivaController extends BaseController {
 			camp.setTipus(TipusCamp.STRING);
 			camp.setCodi(var);
 			camp.setEtiqueta(var);
+			valor = tasca.getVariable(var);
 		}
 		TascaDto tascaNova = new TascaDto();
 		tascaNova.setId(taskId);
@@ -1138,6 +1409,36 @@ public class ExpedientMassivaController extends BaseController {
 		}
 	}
 	
+	public byte[] serialize(Object obj) throws Exception{
+		byte[] bytes = null;
+		if (obj != null) {
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//		try {
+			ObjectOutputStream oos = new ObjectOutputStream(bos);
+			oos.writeObject(obj);
+			oos.flush();
+			oos.close();
+			bos.close();
+			bytes = bos.toByteArray();
+//		} catch (IOException ex) {
+//			// TODO: Handle the exception
+		}
+		return bytes;
+	}
+
+//	public Object deserialize(byte[] bytes) {
+//		Object obj = null;
+//		try {
+//			ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+//			ObjectInputStream ois = new ObjectInputStream(bis);
+//			obj = ois.readObject();
+//		} catch (IOException ex) {
+//			// TODO: Handle the exception
+//		} catch (ClassNotFoundException ex) {
+//			// TODO: Handle the exception
+//		}
+//		return obj;
+//	}
 	
 	private static final Log logger = LogFactory.getLog(ExpedientMassivaController.class);
 

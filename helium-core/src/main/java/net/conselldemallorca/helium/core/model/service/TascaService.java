@@ -594,16 +594,32 @@ public class TascaService {
 			String taskId,
 			String codiVariable,
 			Object valor) {
+		updateVariable(
+				entornId,
+				taskId,
+				codiVariable,
+				valor,
+				null);
+	}
+	public void updateVariable(
+			Long entornId,
+			String taskId,
+			String codiVariable,
+			Object valor,
+			String user) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		Object valorVell = getServiceUtils().getVariableJbpmTascaValor(task.getId(), codiVariable);
 		Map<String, Object> variables = new HashMap<String, Object>();
 		variables.put(codiVariable, valor);
 		jbpmDao.setTaskInstanceVariables(task.getId(), variables, false);
 		TascaDto tasca = toTascaDto(task, null, true, true);
+		if (user == null) {
+			user = SecurityContextHolder.getContext().getAuthentication().getName();
+		}
 		registreDao.crearRegistreModificarVariableTasca(
 				tasca.getExpedient().getId(),
 				taskId,
-				SecurityContextHolder.getContext().getAuthentication().getName(),
+				user,
 				codiVariable,
 				valorVell,
 				valor);

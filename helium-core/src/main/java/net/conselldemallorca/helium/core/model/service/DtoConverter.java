@@ -30,9 +30,11 @@ import net.conselldemallorca.helium.core.model.dao.PluginPersonaDao;
 import net.conselldemallorca.helium.core.model.dao.TascaDao;
 import net.conselldemallorca.helium.core.model.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
+import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.core.model.dto.OperacioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
@@ -47,6 +49,8 @@ import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
@@ -461,6 +465,51 @@ public class DtoConverter {
 		return dto;
 	}
 
+	public ExecucioMassivaDto toExecucioMassicaDto(ExecucioMassiva massiva) {
+		ExecucioMassivaDto dto = new ExecucioMassivaDto();
+		dto.setId(massiva.getId());
+		dto.setUsuari(massiva.getUsuari());
+		dto.setTipus(massiva.getTipus());
+		dto.setDataInici(massiva.getDataInici());
+		dto.setDataFi(massiva.getDataFi());
+		dto.setParam1(massiva.getParam1());
+		dto.setParam2(massiva.getParam2());
+		dto.setEnviarCorreu(massiva.getEnviarCorreu());
+		dto.setExpedientTipusId(massiva.getExpedientTipus().getId());
+		for (ExecucioMassivaExpedient expedient: massiva.getExpedients()) {
+			OperacioMassivaDto expedientDto = new OperacioMassivaDto();
+			expedientDto.setDataInici(expedient.getDataInici());
+			expedientDto.setDataFi(expedient.getDataFi());
+			expedientDto.setEstat(expedient.getEstat());
+			expedientDto.setError(expedient.getError());
+			expedientDto.setOrdre(expedient.getOrdre());
+		}
+		return dto;
+	}
+	
+	public OperacioMassivaDto toOperacioMassiva(ExecucioMassivaExpedient expedient) {
+		OperacioMassivaDto dto = null;
+		if (expedient != null) {
+			dto = new OperacioMassivaDto();
+			dto.setId(expedient.getId());
+			dto.setDataInici(expedient.getDataInici());
+			dto.setDataFi(expedient.getDataFi());
+			dto.setEstat(expedient.getEstat());
+			dto.setOrdre(expedient.getOrdre());
+			dto.setError(expedient.getError());
+			dto.setExpedient(toExpedientDto(expedient.getExpedient(), false));
+			dto.setParam1(expedient.getExecucioMassiva().getParam1());
+			dto.setParam2(expedient.getExecucioMassiva().getParam2());
+			dto.setEnviarCorreu(expedient.getExecucioMassiva().getEnviarCorreu());
+			dto.setExecucioMassivaId(expedient.getExecucioMassiva().getId());
+			dto.setExpedientTipusId(expedient.getExecucioMassiva().getExpedientTipus().getId());
+			dto.setUltimaOperacio(expedient.getExecucioMassiva().getExpedients().size() == expedient.getOrdre() + 1);
+			dto.setTipus(expedient.getExecucioMassiva().getTipus());
+			dto.setUsuari(expedient.getExecucioMassiva().getUsuari());
+		}
+		return dto;
+	}
+	
 	/*public DocumentDto toDocumentDto(
 			Long documentStoreId,
 			boolean ambContingutOriginal,
@@ -1396,5 +1445,4 @@ public class DtoConverter {
 	}
 	
 	private static final Log logger = LogFactory.getLog(DtoConverter.class);
-
 }

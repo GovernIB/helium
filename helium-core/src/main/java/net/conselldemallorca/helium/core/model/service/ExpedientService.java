@@ -982,6 +982,18 @@ public class ExpedientService {
 			String processInstanceId,
 			String varName,
 			Object value) {
+		updateVariable(
+				processInstanceId,
+				varName,
+				value,
+				null);
+	}
+	
+	public void updateVariable(
+			String processInstanceId,
+			String varName,
+			Object value,
+			String user) {
 		expedientLogHelper.afegirLogExpedientPerProces(
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_VARIABLE_MODIFICAR,
@@ -993,14 +1005,18 @@ public class ExpedientService {
 				value);
 		jbpmDao.setProcessInstanceVariable(processInstanceId, varName, valorOptimitzat);
 		getServiceUtils().expedientIndexLuceneUpdate(processInstanceId);
+		if (user == null) {
+			user = SecurityContextHolder.getContext().getAuthentication().getName();
+		}
 		registreDao.crearRegistreModificarVariableInstanciaProces(
 				getExpedientPerProcessInstanceId(processInstanceId).getId(),
 				processInstanceId,
-				SecurityContextHolder.getContext().getAuthentication().getName(),
+				user,
 				varName,
 				valorVell,
 				value);
 	}
+	
 	public void deleteVariable(String processInstanceId, String varName) {
 		expedientLogHelper.afegirLogExpedientPerProces(
 				processInstanceId,

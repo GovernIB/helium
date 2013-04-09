@@ -50,8 +50,10 @@ public class UpdateService {
 	public static final int VERSIO_240_ORDRE = 240;
 	public static final String VERSIO_250_STR = "2.5.0";
 	public static final int VERSIO_250_ORDRE = 250;
-	public static final String VERSIO_ACTUAL_STR = "2.5.0";
-	public static final int VERSIO_ACTUAL_ORDRE = 250;
+	public static final String VERSIO_260_STR = "2.6.0";
+	public static final int VERSIO_260_ORDRE = 260;
+	public static final String VERSIO_ACTUAL_STR = "2.6.0";
+	public static final int VERSIO_ACTUAL_ORDRE = 260;
 
 	private VersioDao versioDao;
 	private PersonaDao personaDao;
@@ -99,6 +101,10 @@ public class UpdateService {
 					boolean actualitzat = actualitzarV250();
 					if (!actualitzat) break;
 				}
+				if (versio.getOrdre() == VERSIO_260_ORDRE) {
+					boolean actualitzat = actualitzarV260();
+					if (!actualitzat) break;
+				}
 			}
 		}
 		Versio darrera = versioDao.findLast();
@@ -120,6 +126,9 @@ public class UpdateService {
 		}
 		if (actualitzat && darrera.getOrdre() < 250) {
 			actualitzarV250();
+		}
+		if (actualitzat && darrera.getOrdre() < 260) {
+			actualitzarV260();
 		}
 	}
 
@@ -394,6 +403,27 @@ public class UpdateService {
 			} catch (Exception ex) {
 				logger.error("Error al executar l'actualització a la versió " + VERSIO_250_STR, ex);
 				errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_250_STR + ": " + getMessage("error.update.proces.ko");
+			}
+		}
+		return actualitzat;
+	}
+	
+	/*---------- ACTUALITZACIÓ V. 2.6.0 -----------------------------------------------*/
+	private boolean actualitzarV260() {
+		boolean actualitzat = false;
+		Versio versio260 = obtenirOCrearVersio(VERSIO_260_STR, VERSIO_260_ORDRE);
+		if (!versio260.isScriptExecutat()) {
+			errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_260_STR + ": " + getMessage("error.update.script.ko");
+		} else if (!versio260.isProcesExecutat()) {
+			try {
+				versio260.setProcesExecutat(true);
+				versio260.setDataExecucioProces(new Date());
+				versioDao.saveOrUpdate(versio260);
+				logger.info("Actualització a la versió " + VERSIO_260_STR + " realitzada correctament");
+				actualitzat = true;
+			} catch (Exception ex) {
+				logger.error("Error al executar l'actualització a la versió " + VERSIO_260_STR, ex);
+				errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_260_STR + ": " + getMessage("error.update.proces.ko");
 			}
 		}
 		return actualitzat;

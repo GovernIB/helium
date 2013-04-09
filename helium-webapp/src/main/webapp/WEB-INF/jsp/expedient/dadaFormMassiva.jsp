@@ -49,14 +49,13 @@
 <body>
 
 	<h3 class="titol-tab titol-dades-tasca"><fmt:message key='expedient.dada.modificar_dada' /></h3>
-	<form:form action="/helium/expedient/dadaModificarMas.html" cssClass="uniForm" commandName="modificarVariableCommand">
+	
+	<form:form action="dadaModificarMas.html" cssClass="uniForm tascaForm zebraForm">
 		<div class="inlineLabels">
-			<c:if test="${not empty param.id}">
-				<form:hidden path="id"/>
-			</c:if>
-			<c:if test="${not empty param.taskId}">
-				<form:hidden path="taskId"/>
-			</c:if>
+			<c:if test="${not empty param.id}"><form:hidden path="id"/></c:if>
+			<c:if test="${not empty param.taskId}"><form:hidden path="taskId"/></c:if>
+			<c:if test="${not empty param.inici}"><input type="hidden" id="inici" name="inici" value="${param.inici}"/></c:if>
+			<c:if test="${not empty param.correu}"><input type="hidden" id="correu" name="correu" value="${param.correu}"/></c:if>
 			<form:hidden path="var"/>
 			<c:if test="${not empty tasca.camps}">
 				<c:forEach var="camp" items="${tasca.camps}">
@@ -65,11 +64,22 @@
 				</c:forEach>
 			</c:if>
 		</div>
+		<c:choose>
+			<c:when test="${tasca.camps[0].camp.tipus == 'REGISTRE'}">
+				<c:import url="../common/formElement.jsp">
+					<c:param name="type" value="buttons"/>
+					<c:param name="values">cancel</c:param>
+					<c:param name="titles"><fmt:message key='comuns.tornar' /></c:param>
+				</c:import>
+			</c:when>
+			<c:otherwise>
 				<c:import url="../common/formElement.jsp">
 					<c:param name="type" value="buttons"/>
 					<c:param name="values">submit,cancel</c:param>
 					<c:param name="titles"><fmt:message key='comuns.modificar' />,<fmt:message key='comuns.cancelar' /></c:param>
 				</c:import>
+			</c:otherwise>
+		</c:choose>
 	</form:form>
 </body>
 </html>

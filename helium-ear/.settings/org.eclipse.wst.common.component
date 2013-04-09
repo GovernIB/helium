@@ -3,7 +3,7 @@
     <wb-module deploy-name="helium-ear-2.4">
         <wb-resource deploy-path="/" source-path="/target/m2e-wtp/ear-resources"/>
         <wb-resource deploy-path="/" source-path="/src/main/application" tag="defaultRootSource"/>
-        <dependent-module archiveName="helium-webapp-2.4.war" deploy-path="/" handle="module:/resource/helium-webapp/helium-webapp">
+        <dependent-module archiveName="helium-webapp-2.5.war" deploy-path="/" handle="module:/resource/helium-webapp/helium-webapp">
             <dependency-type>uses</dependency-type>
         </dependent-module>
     </wb-module>

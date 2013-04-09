@@ -128,6 +128,25 @@ public class DocumentService {
 			String arxiuNom,
 			byte[] arxiuContingut,
 			boolean isAdjunt) {
+		return guardarDocumentProces(
+				processInstanceId, 
+				documentCodi, 
+				adjuntTitol, 
+				documentData, 
+				arxiuNom, 
+				arxiuContingut, 
+				isAdjunt, 
+				null);
+	}
+	public Long guardarDocumentProces(
+			String processInstanceId,
+			String documentCodi,
+			String adjuntTitol,
+			Date documentData,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			boolean isAdjunt,
+			String user) {
 		DocumentStore documentStore = documentHelper.getDocumentStore(
 				null,
 				processInstanceId,
@@ -156,6 +175,9 @@ public class DocumentService {
 				arxiuNom,
 				arxiuContingut,
 				isAdjunt);
+		if (user == null) {
+			user = SecurityContextHolder.getContext().getAuthentication().getName();
+		}
 		// Registra l'acció
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(
 				jbpmDao.getRootProcessInstance(processInstanceId).getId());
@@ -163,14 +185,14 @@ public class DocumentService {
 			registreDao.crearRegistreCrearDocumentInstanciaProces(
 					expedient.getId(),
 					processInstanceId,
-					SecurityContextHolder.getContext().getAuthentication().getName(),
+					user,
 					documentCodi,
 					arxiuNom);
 		} else {
 			registreDao.crearRegistreModificarDocumentInstanciaProces(
 					expedient.getId(),
 					processInstanceId,
-					SecurityContextHolder.getContext().getAuthentication().getName(),
+					user,
 					documentCodi,
 					arxiuNomAntic,
 					arxiuNom);
@@ -185,6 +207,23 @@ public class DocumentService {
 			Date data,
 			String arxiuNom,
 			byte[] arxiuContingut) {
+		return guardarAdjunt(
+				processInstanceId, 
+				adjuntId, 
+				adjuntTitol, 
+				data, 
+				arxiuNom, 
+				arxiuContingut, 
+				null);
+	}
+	public Long guardarAdjunt(
+			String processInstanceId,
+			String adjuntId,
+			String adjuntTitol,
+			Date data,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			String user) {
 		expedientLogHelper.afegirLogExpedientPerProces(
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_DOCUMENT_ADJUNTAR,
@@ -197,7 +236,8 @@ public class DocumentService {
 				data,
 				arxiuNom,
 				arxiuContingut,
-				true);
+				true,
+				user);
 	}
 
 	public void guardarDadesRegistre(
@@ -214,11 +254,17 @@ public class DocumentService {
 		documentStore.setRegistreOficinaNom(registreOficinaNom);
 		documentStore.setRegistreEntrada(registreEntrada);
 	}
-
 	public void esborrarDocument(
 			String taskInstanceId,
 			String processInstanceId,
 			String documentCodi) {
+		esborrarDocument(taskInstanceId, processInstanceId, documentCodi, null);
+	}
+	public void esborrarDocument(
+			String taskInstanceId,
+			String processInstanceId,
+			String documentCodi,
+			String user) {
 		String piid = processInstanceId;
 		if (piid == null && taskInstanceId != null) {
 			JbpmTask task = jbpmDao.getTaskById(taskInstanceId);
@@ -239,19 +285,22 @@ public class DocumentService {
 				taskInstanceId,
 				piid,
 				documentCodi);
+		if (user == null) {
+			user = SecurityContextHolder.getContext().getAuthentication().getName();
+		}
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(
 				jbpmDao.getRootProcessInstance(piid).getId());
 		if (taskInstanceId != null) {
 			registreDao.crearRegistreEsborrarDocumentTasca(
 					expedient.getId(),
 					taskInstanceId,
-					SecurityContextHolder.getContext().getAuthentication().getName(),
+					user,
 					documentCodi);
 		} else {
 			registreDao.crearRegistreEsborrarDocumentInstanciaProces(
 					expedient.getId(),
 					piid,
-					SecurityContextHolder.getContext().getAuthentication().getName(),
+					user,
 					documentCodi);
 		}
 	}
@@ -276,6 +325,21 @@ public class DocumentService {
 				null,
 				documentCodi,
 				ambContingut);
+	}
+	public DocumentDto documentPerProces(
+			String procesInstanceId,
+			Long documentId,
+			boolean ambContingut) {
+		DocumentDto dto = null;
+		Document doc = documentDao.getById(documentId, false);
+		if (doc != null) {
+			dto = documentHelper.getDocumentOriginal(
+						null,
+						procesInstanceId,
+						doc.getCodi(),
+						ambContingut);
+		} 
+		return dto;
 	}
 
 	public ArxiuDto arxiuDocumentPerMostrar(String token) {
@@ -333,6 +397,43 @@ public class DocumentService {
 			String processInstanceId,
 			Date dataDocument,
 			boolean forsarAdjuntarAuto) {
+		return generarDocumentPlantilla(
+					entornId, 
+					documentId, 
+					taskInstanceId, 
+					processInstanceId, 
+					dataDocument, 
+					forsarAdjuntarAuto, 
+					true,
+					null);
+	}
+	public DocumentDto generarDocumentPlantilla(
+			Long entornId,
+			Long documentId,
+			String taskInstanceId,
+			String processInstanceId,
+			Date dataDocument,
+			boolean forsarAdjuntarAuto,
+			String user) {
+		return generarDocumentPlantilla(
+					entornId, 
+					documentId, 
+					taskInstanceId, 
+					processInstanceId, 
+					dataDocument, 
+					forsarAdjuntarAuto, 
+					true,
+					user);
+	}
+	public DocumentDto generarDocumentPlantilla(
+			Long entornId,
+			Long documentId,
+			String taskInstanceId,
+			String processInstanceId,
+			Date dataDocument,
+			boolean forsarAdjuntarAuto,
+			boolean adjuntarAuto,
+			String user) {
 		Document document = documentDao.getById(documentId, false);
 		DocumentDto resposta = new DocumentDto();
 		resposta.setDataCreacio(new Date());
@@ -371,8 +472,8 @@ public class DocumentService {
 				expedient = dtoConverter.toExpedientDto(
 						expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId()),
 						false);
-				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-				responsableCodi = auth.getName();
+				
+				responsableCodi = user == null ? SecurityContextHolder.getContext().getAuthentication().getName() : user;
 				InstanciaProcesDto instanciaProces = dtoConverter.toInstanciaProcesDto(
 						processInstanceId,
 						true,
@@ -405,7 +506,7 @@ public class DocumentService {
 				} else {
 					resposta.setArxiuContingut(resultat);
 				}
-				if (forsarAdjuntarAuto || document.isAdjuntarAuto()) {
+				if (adjuntarAuto && (forsarAdjuntarAuto || document.isAdjuntarAuto())) {
 					documentHelper.actualitzarDocument(
 							taskInstanceId,
 							(processInstanceId != null) ? processInstanceId : tasca.getProcessInstanceId(),

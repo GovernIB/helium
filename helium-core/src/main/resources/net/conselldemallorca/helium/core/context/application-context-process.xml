@@ -34,6 +34,18 @@
 		<property name="globalProperties" ref="globalProperties" />
 		<property name="expedientService" ref="expedientService" />
 	</bean>
+	
+	<bean id="jbpm.massiva.executor" class="net.conselldemallorca.helium.jbpm3.spring.SpringMassiuExecutor">
+		<property name="name" value="SpringJbpmMassiuExecutor" />
+		<property name="nbrOfThreads" value="1" />
+		<property name="idleInterval" value="5000" />
+		<property name="maxIdleInterval" value="3600000" />
+		<property name="historyMaxSize" value="20" />
+		<property name="lockMonitorInterval" value="5000" />
+		<property name="lockBufferTime" value="5000" />
+		<property name="globalProperties" ref="globalProperties" />
+		<property name="execucioMassivaService" ref="execucioMassivaService" />
+	</bean>
 
 	<bean id="jbpmDao" class="net.conselldemallorca.helium.jbpm3.integracio.JbpmDao">
 		<property name="commandService" ref="jbpm3CommandService" />

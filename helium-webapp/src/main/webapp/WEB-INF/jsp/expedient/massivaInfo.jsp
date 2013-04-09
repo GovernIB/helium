@@ -15,13 +15,20 @@
 	<c:import url="../common/formIncludes.jsp"/>
 <script type="text/javascript">
 // <![CDATA[
+var docPlantilla = {
+	<c:forEach items="${documents}" var="document">${document.codi} : ${document.plantilla},
+	</c:forEach>__none__ : false
+}
+            
 function mostrarOcultar(img, objid) {
 	var obj = document.getElementById(objid);
 	if (obj.style.display=="none") {
-		obj.style.display = "block";
+		$("#"+objid).show("blind", 500);
+		//obj.style.display = "block";
 		img.src = '<c:url value="/img/magnifier_zoom_out.png"/>';
 	} else {
-		obj.style.display = "none";
+		$("#"+objid).hide("blind", 500);
+		//obj.style.display = "none";
 		img.src = '<c:url value="/img/magnifier_zoom_in.png"/>';
 	}
 }
@@ -29,54 +36,95 @@ function confirmarCanviVersio(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
-	return confirm("<fmt:message key="expedient.massiva.confirm_canviar_versio_pro	ces"/>");
+	programacio();
+	return confirm("<fmt:message key='expedient.massiva.confirm_canviar_versio_proces'/>");
 }
 function confirmarExecutarAccio(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
-	return confirm("<fmt:message key="expedient.massiva.confirm_exec_accio"/>");
+	programacio();
+	return confirm("<fmt:message key='expedient.massiva.confirm_exec_accio'/>");
 }
 function confirmarScript(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
+	programacio();
 	return confirm("<fmt:message key='expedient.eines.confirm_executar_script_proces' />");
 }
 function confirmarAturar(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
-	return confirm("<fmt:message key='expedient.eines.confirm_aturar_tramitacio' />");
+	programacio();
+	return confirm("<fmt:message key='expedient.massiva.confirm_aturar_tramitacio' />");
 }
 function confirmarModificarDocument(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
+	programacio();
 	return confirm("<fmt:message key='expedient.eines.confirm_modificar_document' />");
 }
 function confirmarModificarVariables(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
+	programacio();
 	return confirm("<fmt:message key='expedient.eines.confirm_modificar_variable' />");
 }
-function confirmarAturar(e) {
+function confirmarReindexar(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
+	programacio();
 	return confirm("<fmt:message key='expedient.eines.confirm_reindexar_expedients' />");
 }
-
+function programacio(){
+	var inici = $("#inici").val();
+	var correu = $("#correu").is(":checked") ? true : false;
+	$("input[type='hidden'][name='inici']").each(function(){ $(this).val(inici); });
+	$("input[type='hidden'][name='correu']").each(function(){ $(this).val(correu); });
+}
+function changeDoc(){
+	var docId = $("#nom0").val();
+	$("#docId").val(docId);
+	
+	var doc = "__none__";
+	if (docId != "") {
+	 	doc = $("#nom0 option[value='" + docId + "']").text();
+	 	$("button[value='delete']").removeAttr("disabled");
+	 	$("button[value='subdoc']").removeAttr("disabled");
+	} else {
+		$("button[value='delete']").attr("disabled", "disabled");
+		$("button[value='subdoc']").attr("disabled", "disabled");
+	}
+	var plant = "docPlantilla." + doc;
+	if (eval(plant)) {
+		$("button[value='generar']").removeAttr("disabled");
+	} else {
+		$("button[value='generar']").attr("disabled", "disabled");
+	}
+}
+function changeVar(){
+	var varId = $("#var0").val();
+	
+	if (varId != "") {
+	 	$("button[value='subvar']").removeAttr("disabled");
+	} else {
+		$("button[value='subvar']").attr("disabled", "disabled");
+	}
+}
 function massiva(e){
 
 	if("<%=request.getAttribute("javax.servlet.forward.request_uri")%>" == "/helium/expedient/massivaInfoTE.html" )
 	{
-			$("#massiva").attr("action","consultaDisseny.html");
-			$("#target").val("disseny");
-			$("#target2").val("disseny");
-			$("#targetIdx").val("disseny");
-
+		$("#massiva").attr("action","consultaDisseny.html");
+		$("#target").val("disseny");
+		$("#target2").val("disseny");
+		$("#targetIdx").val("disseny");
+			
 	}
 	else if("<%=request.getAttribute("javax.servlet.forward.request_uri")%>" == "/helium/expedient/massivaInfo.html"){
 		$("#massiva").attr("action","consulta.html");
@@ -84,6 +132,23 @@ function massiva(e){
 	}
 }
 
+$(document).ready(function(){
+	var d = new Date();
+	var dia = ("0" + d.getDate()).slice(-2);
+    var mes = ("0" + (d.getMonth() + 1)).slice(-2);
+    var any = d.getFullYear();
+    var hora = ("0" + d.getHours()).slice(-2);
+    var minuts = ("0" + d.getMinutes()).slice(-2);
+    var ara = dia + '/' + mes + '/' + any + ' ' + hora + ":" + minuts
+    
+    //$('#inici').val(ara);
+	$('#inici').datetimepicker({defaultValue: ara});
+	$("button[value='delete']").attr("disabled", "disabled");
+	$("button[value='generar']").attr("disabled", "disabled");
+	$("button[value='subdoc']").attr("disabled", "disabled");
+	$("button[value='subvar']").attr("disabled", "disabled");
+	//programacio();
+});
 // ]]>
 </script>
 </head>
@@ -119,9 +184,15 @@ function massiva(e){
 	</div>
 	<div class="uniForm">
 		<div class="inlineLabels col first">
+			<div class="ctrlHolder" style="height:45px;">
+				<label for="inici"><fmt:message key="expedient.consulta.datainici"/></label>
+				<input id="inici" name="inici" type="text" class="textInput" <c:if test="${not empty param.inici}">value="${param.inici}"</c:if>/>
+			</div>
 			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key="expedient.massiva.actualitzar"/></h3>
-			<form:form action="massivaCanviVersio.html" cssClass="uniForm" commandName="canviVersioProcesCommand" onsubmit="return confirmarCanviVersio(event)" onclick="javascript:massiva(event)">
+			<form:form action="massivaCanviVersio.html" cssClass="" commandName="canviVersioProcesCommand" onsubmit="return confirmarCanviVersio(event)" onclick="javascript:massiva(event)">
 				<input type="hidden" id="target" name="target" value="">
+				<input type="hidden" id="ver_inici" name="inici">
+				<input type="hidden" id="ver_correu" name="correu">
 				<div class="inlineLabels">
 					<c:set var="definicionsProces" value="${definicioProces.jbpmIdsAmbDescripcio}" scope="request"/>
 					<c:import url="../common/formElement.jsp">
@@ -147,6 +218,8 @@ function massiva(e){
 				<form:form action="scriptMas.html" cssClass="uniForm" commandName="scriptCommandMas" onsubmit="return confirmarScript(event)">
 						<div class="inlineLabels">
 							<input type="hidden" name="id" value="${instanciaProces.id}"/>
+							<input type="hidden" id="scr_inici" name="inici">
+							<input type="hidden" id="scr_correu" name="correu">
 							<c:import url="../common/formElement.jsp">
 								<c:param name="property">script</c:param>
 								<c:param name="required">${true}</c:param>
@@ -166,6 +239,8 @@ function massiva(e){
 			<form:form action="aturarMas.html" cssClass="uniForm" commandName="aturarCommandMas" onsubmit="return confirmarAturar(event)">
 				<div class="inlineLabels">
 					<input type="hidden" name="id" value="${instanciaProces.id}"/>
+					<input type="hidden" id="atu_inici" name="inici">
+					<input type="hidden" id="atu_correu" name="correu">
 					<c:import url="../common/formElement.jsp">
 						<c:param name="property">motiu</c:param>
 						<c:param name="required">${true}</c:param>
@@ -182,12 +257,17 @@ function massiva(e){
 		</div>
 		<div class="inlineLabels uniForm col last">
 			<c:set var="hiHaAccions" value="${false}"/>
-			<c:set var="hiHaAccions" value="${fn:length(instanciaProces.definicioProces.accions) > 0}"/>
+			<c:if test="${not empty accions}"><c:set var="hiHaAccions" value="${fn:length(accions) > 0}"/></c:if>
+			
+			<div class="ctrlHolder" style="height:45px;">
+				<label for="correu"><fmt:message key="expedient.massiva.correu"/></label>
+				<input id="correu" name="correu" type="checkbox"  <c:if test="${not empty param.correu and param.correu == 'true'}">checked="checked"</c:if>/>
+			</div>
 			
 			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key="expedient.massiva.accions"/></h3>
 			<c:if test="${hiHaAccions}">
 				<c:set var="hiHaAccionsPubliques" value="${false}"/>
-				<c:forEach var="accio" items="${instanciaProces.definicioProces.accions}">
+				<c:forEach var="accio" items="${accions}">
 					<c:if test="${not accio.oculta}">
 						<c:set var="hiHaAccions" value="${true}"/>
 						<c:if test="${accio.publica}"><c:set var="hiHaAccionsPubliques" value="${true}"/></c:if>
@@ -196,10 +276,12 @@ function massiva(e){
 				<c:set var="tePermisAccions" value="${false}"/>
 				<security:accesscontrollist domainObject="${instanciaProces.expedient.tipus}" hasPermission="16,2"><c:set var="tePermisAccions" value="${true}"/></security:accesscontrollist>
 				<c:if test="${hiHaAccionsPubliques || (hiHaAccions && tePermisAccions)}">
-					<form:form action="massivaExecutarAccio.html" cssClass="uniForm" commandName="execucioAccioCommand" onsubmit="return confirmarExecutarAccio(event)">
+					<form:form action="massivaExecutarAccio.html" cssClass="" commandName="execucioAccioCommand" onsubmit="return confirmarExecutarAccio(event)">
 						<input type="hidden" id="target2" name="target2" value="">
+						<input type="hidden" id="acc_inici" name="inici">
+						<input type="hidden" id="acc_correu" name="correu">
 						<div class="inlineLabels">
-							<c:set var="accions" value="${instanciaProces.definicioProces.accions}" scope="request"/>
+							<c:set var="accions" value="${accions}" scope="request"/>
 							<c:import url="../common/formElement.jsp">
 								<c:param name="property" value="accioId"/>
 								<c:param name="type" value="select"/>
@@ -227,6 +309,8 @@ function massiva(e){
 			<form:form action="dadaModificarMas.html" method="GET" cssClass="uniForm" commandName="modificarVariablesMasCommand" onsubmit="return confirmarModificarVariables(event)">
 				<div class="inlineLabels">
 					<input type="hidden" name="id" value="${instanciaProces.id}"/>
+					<input type="hidden" id="var_inici" name="inici">
+					<input type="hidden" id="var_correu" name="correu">
 					<c:set var="variables" value="${instanciaProces.camps}" scope="request"/>
 						<c:import url="../common/formElement.jsp">
 							<c:param name="property">var</c:param>
@@ -236,67 +320,54 @@ function massiva(e){
 							<c:param name="itemValue" value="codi"/>
 							<c:param name="itemBuit">&lt;&lt; <fmt:message key='expedient.consulta.select.variable'/> &gt;&gt;</c:param>
 							<c:param name="label"><fmt:message key="expedient.eines.modificar_variables"/></c:param>
+							<c:param name="onchange">changeVar()</c:param>
 						</c:import>
 						<c:import url="../common/formElement.jsp">
 							<c:param name="type" value="buttons"/>
-							<c:param name="values">submit</c:param>
+							<c:param name="values">subvar</c:param>
 							<c:param name="titles"><fmt:message key='comuns.modificar'/></c:param>
 						</c:import>
 				</div>
 			</form:form>
 			
 			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key="expedient.massiva.documents"/></h3>
-			<c:if test="${not empty docStoreId}">
+			<c:if test="${not empty documents}">
 				<form:form action="documentModificarMas.html" cssClass="uniForm" method="GET" commandName="documentCommandForm" onsubmit="return confirmarModificarDocument(event)">
-					<input type="hidden" name="procesInstanceId" value="${instanciaProces.id}"/>
-					<div style="display:none">
-						<display:table name="instanciaProces.sortedDocumentKeys" id="codi" class="displaytag">
-							<display:column>
-								<c:forEach var="document" items="${instanciaProces.documents}">
-									<c:if test="${document.codi == codi}">${document.nom}
-									
-									</c:if>
-									
-								</c:forEach>
-							</display:column>
-							<display:column>
-								<c:if test="${not instanciaProces.varsDocuments[codi].signat and empty psignaPendentActual}">
-									<a href="<c:url value="/expedient/documentModificarMas.html"><c:param name="procesInstanceId" value="${instanciaProces.id}"/><c:param name="docId" value="${instanciaProces.varsDocuments[codi].id}"/></c:url>" onclick="return confirmarModificar(event)"><img src="<c:url value="/img/page_white_edit.png"/>" alt="<fmt:message key='comuns.editar' />" title="<fmt:message key='comuns.editar' />" border="0"/></a>
-								</c:if>
-							</display:column>
-						</display:table>
-					</div>
-					
+					<input type="hidden" name="id" value="${instanciaProces.id}"/>
+					<input type="hidden" id="doc_inici" name="inici">
+					<input type="hidden" id="doc_correu" name="correu">
 					<div class="inlineLabels">
-					<input type="hidden" name="docId" value="${docStoreId}"/>
-					<c:set var="documents" value="${documents}" scope="request"/>
+						<input type="hidden" id="docId" name="docId"/>
+						<c:set var="documents" value="${documents}" scope="request"/>
 						<c:import url="../common/formElement.jsp">
 							<c:param name="property">nom</c:param>
 							<c:param name="type" value="select"/>
 							<c:param name="items" value="documents"/>
 							<c:param name="itemLabel" value="nom"/>
-							<c:param name="itemValue" value="nom"/>
-							<c:param name="itemBuit">&lt;&lt; <fmt:message key='expedient.consulta.select.variable'/> &gt;&gt;</c:param>
+							<c:param name="itemValue" value="id"/>
+							<c:param name="itemBuit">&lt;&lt; <fmt:message key='expedient.consulta.select.document'/> &gt;&gt;</c:param>
 							<c:param name="label"><fmt:message key="expedient.massiva.documents"/></c:param>
+							<c:param name="onchange">changeDoc()</c:param>
 						</c:import>
-						
 					</div>
 					<c:import url="../common/formElement.jsp">
 						<c:param name="type" value="buttons"/>
-						<c:param name="values">submit</c:param>
-						<c:param name="titles"><fmt:message key='comuns.modificar' /></c:param>
+						<c:param name="values">subdoc,generar,delete,adjunt</c:param>
+						<c:param name="titles"><fmt:message key='comuns.modificar' />,<fmt:message key='tasca.doc.generar' />,<fmt:message key='comuns.esborrar' />,<fmt:message key='expedient.document.adjuntar_document_massiu' /></c:param>
 					</c:import>
-	
 				</form:form>
 			</c:if>
-			<c:if test="${empty docStoreId}">
+			<c:if test="${empty documents}">
 			<br>
 				<fmt:message key="expedient.document.info.sensedocuments"/>
 			<br>
 			</c:if>	
+			
 			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key='expedient.eines.reindexar.expedients' /></h3>
 			<form:form action="reindexarMas.html" cssClass="uniForm" onsubmit="return confirmarReindexar(event)">
 				<input type="hidden" id="targetIdx" name="targetIdx" value="">
+				<input type="hidden" id="idx_inici" name="inici">
+				<input type="hidden" id="idx_correu" name="correu">
 				<c:import url="../common/formElement.jsp">
 					<c:param name="type" value="buttons"/>
 					<c:param name="values">submit</c:param>
@@ -304,8 +375,6 @@ function massiva(e){
 				</c:import>
 			</form:form>
 		</div>
-		
-
 					
 </body>
 
