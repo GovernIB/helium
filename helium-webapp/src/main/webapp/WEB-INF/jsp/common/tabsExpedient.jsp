@@ -57,7 +57,7 @@
 	<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="2,16,128">
 		<li<c:if test="${param.tabActiu == 'tasques'}"> class="active"</c:if>><a href="<c:url value="/expedient/tasques.html"><c:param name="id" value="${param.id}"/></c:url>"><fmt:message key='comuns.tasques' /></a></li>
 	</security:accesscontrollist>
-	<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="2,16">
+	<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16">
 		<li<c:if test="${param.tabActiu == 'tokens'}"> class="active"</c:if>><a href="<c:url value="/expedient/tokens.html"><c:param name="id" value="${param.id}"/></c:url>"><fmt:message key='common.tabsexp.tokens' /></a></li>
 	</security:accesscontrollist>
 	<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16">
