@@ -94,8 +94,13 @@
       .uniForm .inlineLabels label,
       .uniForm .inlineLabels .label{ float: left; margin: .3em 2% 0 0; padding: 0; line-height: 1; position: relative; width: 32%; }
       
-      /* Float the input elements */
-      .uniForm .inlineLabels .textInput,
+      /* Float the input elements */ 
+      .uniForm .inlineLabels .inputText{
+      	float: none;
+      	width: 64%;
+      	margin: 0;
+      }
+	  .uniForm .inlineLabels .textInput,
       .uniForm .inlineLabels .fileUpload,
       .uniForm .inlineLabels .selectInput,
       .uniForm .inlineLabels select,

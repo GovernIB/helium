@@ -56,7 +56,13 @@ public class ExpedientLogDto {
 		return accioParams;
 	}
 	public void setAccioParams(String accioParams) {
-		this.accioParams = accioParams;
+		if(accioParams!=null){
+			if(accioParams.length()>255){
+				this.accioParams = accioParams.substring(0, 255);
+			}else{
+				this.accioParams = accioParams;
+			}
+		}
 	}
 	public String getEstat() {
 		return estat;

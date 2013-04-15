@@ -43,14 +43,15 @@
 		window.location = "varRegistreEsborrar.html?id=${param.id}&registreId=" + campId + "&index=" + index;
 		return false;
 	}
+	
 // ]]>
 </script>
 </head>
 <body>
 
 	<h3 class="titol-tab titol-dades-tasca"><fmt:message key='expedient.dada.modificar_dada' /></h3>
-	
 	<form:form action="dadaModificarMas.html" cssClass="uniForm tascaForm zebraForm">
+		<input type="hidden" id="targetModificarVar" name="targetModificarVar" value="disseny">
 		<div class="inlineLabels">
 			<c:if test="${not empty param.id}"><form:hidden path="id"/></c:if>
 			<c:if test="${not empty param.taskId}"><form:hidden path="taskId"/></c:if>

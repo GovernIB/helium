@@ -17,10 +17,13 @@ import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.export.JExcelApiExporterParameter;
 import net.sf.jasperreports.engine.export.JRCsvExporter;
 import net.sf.jasperreports.engine.export.JRHtmlExporter;
 import net.sf.jasperreports.engine.export.JRRtfExporter;
+import net.sf.jasperreports.engine.export.JRXlsAbstractExporterParameter;
 import net.sf.jasperreports.engine.export.JRXlsExporter;
+import net.sf.jasperreports.engine.export.JRXlsExporterParameter;
 import net.sf.jasperreports.engine.export.JRXmlExporter;
 import net.sf.jasperreports.engine.export.oasis.JROdtExporter;
 
@@ -44,7 +47,7 @@ public class JasperReportsView implements View {
 
 
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes", "unchecked", "deprecation" })
 	public void render(
 			Map model,
 			HttpServletRequest request,
@@ -159,7 +162,7 @@ public class JasperReportsView implements View {
 				response.setContentType("text/xml");
 				JRXmlExporter xmlExporter = new JRXmlExporter();
 				File xmlFile = new File("filename=\"informe.xml\"");
-				xmlExporter.setParameter(JRExporterParameter. JASPER_PRINT, jasperPrint);
+				xmlExporter.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);
 				xmlExporter.setParameter(JRExporterParameter.OUTPUT_STREAM, response.getOutputStream());  
 				xmlExporter.setParameter(JRExporterParameter.CHARACTER_ENCODING, "UTF-8");
 				xmlExporter.setParameter(JRExporterParameter.OUTPUT_FILE, xmlFile);
@@ -171,9 +174,11 @@ public class JasperReportsView implements View {
 				response.setHeader("Content-Disposition","attachment; filename=\"informe.xls\"");
 				response.setContentType("application/excel");
 				JRXlsExporter loXlsExp = new JRXlsExporter();
-				loXlsExp.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);
-				loXlsExp.setParameter(JRExporterParameter.CHARACTER_ENCODING, "UTF-8");
-				loXlsExp.setParameter(JRExporterParameter.OUTPUT_STREAM, response.getOutputStream());
+				loXlsExp.setParameter(JRXlsExporterParameter.IS_REMOVE_EMPTY_SPACE_BETWEEN_ROWS, Boolean.TRUE);
+				loXlsExp.setParameter(JRXlsExporterParameter.JASPER_PRINT, jasperPrint);
+				loXlsExp.setParameter(JRXlsExporterParameter.CHARACTER_ENCODING, "UTF-8");
+				loXlsExp.setParameter(JRXlsExporterParameter.OUTPUT_STREAM, response.getOutputStream());
+				loXlsExp.setParameter(JRXlsExporterParameter.IS_DETECT_CELL_TYPE, Boolean.TRUE);
 				loXlsExp.exportReport();
 
 			}

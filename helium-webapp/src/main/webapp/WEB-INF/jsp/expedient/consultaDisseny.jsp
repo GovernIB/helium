@@ -17,49 +17,66 @@
 	<c:import url="../common/formIncludes.jsp"/>
 <script type="text/javascript">
 // <![CDATA[
-function confirmarEsborrar(e) {
-	var e = e || window.event;
-	e.cancelBubble = true;
-	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Estau segur que voleu esborrar aquest expedient?");
-}
-function confirmarAnular(e) {
-	var e = e || window.event;
-	e.cancelBubble = true;
-	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Estau segur que voleu anul·lar aquest expedient?");
-}
-
-
-function clicCheckMassiu(e) {
-	var e = e || window.event;
-	e.cancelBubble = true;
-	if (e.stopPropagation) e.stopPropagation();
-	$.get(	"massivaIdsTE.html",
-			{	expedientTipusId: "${consulta.expedientTipus.id}",
-				expedientId: e.target.value,
-				checked: e.target.checked});
-}
-
-
-
-function selTots(){
-	
-	if($("#selTots").is(":checked")){
-		$("#registre input[type=checkbox]").each(function(){
-			if(this.checked){
-				this.click();
-			}
-			}).attr("checked",true);
-	}else{
-		$("#registre input[type=checkbox]").each(function(){
-			if(!this.checked){
-				this.click();
-			}
-			
-		}).attr("checked",false);
+            
+	function confirmarEsborrar(e) {
+		var e = e || window.event;
+		e.cancelBubble = true;
+		if (e.stopPropagation) e.stopPropagation();
+		return confirm("Estau segur que voleu esborrar aquest expedient?");
 	}
-}
+	function confirmarAnular(e) {
+		var e = e || window.event;
+		e.cancelBubble = true;
+		if (e.stopPropagation) e.stopPropagation();
+		return confirm("Estau segur que voleu anul·lar aquest expedient?");
+	}
+	
+	
+	function clicCheckMassiu(e) {
+		var e = e || window.event;
+		e.cancelBubble = true;
+		if (e.stopPropagation) e.stopPropagation();
+		$.get(	"massivaIdsTE.html",
+				{	expedientTipusId: "${consulta.expedientTipus.id}",
+					expedientId: (e.target || e.srcElement).value,
+					checked: (e.target || e.srcElement).checked
+				});
+	}
+	
+	function selTots(){
+		var versio =  $.browser.version;
+		var ch = $("#selTots:checked").val();
+		if(!ch){
+			$("#registre input[type='checkbox'][name='expedientId']").each(function(){
+				if($(this).is(':checked')){
+					if(!$.browser.msie){
+						$(this).click();
+					}else{
+						simularClick($(this).val(),false);
+				        }
+				}
+			}).attr("checked",false);
+		}else{
+			$("#registre input[type='checkbox'][name='expedientId']").each(function(){
+				if(!$(this).is(':checked')){
+					if(!$.browser.msie){
+						$(this).click();
+					}else{
+						simularClick($(this).val(),true);
+					}
+				}
+				
+			}).attr("checked",true);
+		}
+	}
+	function simularClick(valor,xec){
+			$.get(	"massivaIdsTE.html",
+					{	expedientTipusId: "${consulta.expedientTipus.id}",
+						expedientId: valor,
+						checked: xec
+					});
+	}
+
 // ]]>
 </script>
 </head>

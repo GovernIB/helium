@@ -210,27 +210,32 @@ public class PluginService {
 			Integer id,
 			boolean rebujat,
 			String motiuRebuig) {
-		Portasignatures portasignatures = pluginPortasignaturesDao.findByDocument(id);
-		if (portasignatures != null) {
-			if (TipusEstat.PENDENT.equals(portasignatures.getEstat())) {
-				if (!rebujat) {
-					portasignatures.setEstat(TipusEstat.SIGNAT);
-					portasignatures.setTransition(Transicio.SIGNAT);
+		try {
+			Portasignatures portasignatures = pluginPortasignaturesDao.findByDocument(id);
+			if (portasignatures != null) {
+				if (TipusEstat.PENDENT.equals(portasignatures.getEstat())) {
+					if (!rebujat) {
+						portasignatures.setEstat(TipusEstat.SIGNAT);
+						portasignatures.setTransition(Transicio.SIGNAT);
+					} else {
+						portasignatures.setEstat(TipusEstat.REBUTJAT);
+						portasignatures.setTransition(Transicio.REBUTJAT);
+						portasignatures.setMotiuRebuig(motiuRebuig);
+					}
+					processarDocumentPendentPortasignatures(id);
+					pluginPortasignaturesDao.saveOrUpdate(portasignatures);
+					return true;
+				} else if (TipusEstat.ESBORRAT.equals(portasignatures.getEstat())) {
+					return true;
 				} else {
-					portasignatures.setEstat(TipusEstat.REBUTJAT);
-					portasignatures.setTransition(Transicio.REBUTJAT);
-					portasignatures.setMotiuRebuig(motiuRebuig);
+					logger.error("El document rebut al callback (id=" + id + ") no està pendent del callback, el seu estat és " + portasignatures.getEstat());
 				}
-				processarDocumentPendentPortasignatures(id);
-				pluginPortasignaturesDao.saveOrUpdate(portasignatures);
-				return true;
-			} else if (TipusEstat.ESBORRAT.equals(portasignatures.getEstat())) {
-				return true;
 			} else {
-				logger.error("El document rebut al callback (id=" + id + ") no està pendent del callback, el seu estat és " + portasignatures.getEstat());
+				logger.error("El document rebut al callback (id=" + id + ") no s'ha trobat entre els documents enviats al portasignatures");
 			}
-		} else {
-			logger.error("El document rebut al callback (id=" + id + ") no s'ha trobat entre els documents enviats al portasignatures");
+		} catch (Exception ex) {
+			logger.error("El document rebut al callback (id=" + id + ") ha produit una excepció al ser processat: " + ex.getMessage());
+			logger.debug("El document rebut al callback (id=" + id + ") ha produit una excepció al ser processat", ex);
 		}
 		return false;
 	}
@@ -271,12 +276,12 @@ public class PluginService {
 						errorProcesPsigna(
 								portasignatures,
 								getMissageFinalCadenaExcepcions(pex));
-						logger.error("Error al processar el document pel callback (id=" + id + "): " + getMissageFinalCadenaExcepcions(pex), pex);
+						logger.error("Error al processar el document pel callback (id=" + portasignatures.getDocumentId() + "): " + getMissageFinalCadenaExcepcions(pex), pex);
 					} catch (Exception ex) {
 						errorProcesPsigna(
 								portasignatures,
 								getMissageFinalCadenaExcepcions(ex));
-						logger.error("Error al processar el document pel callback (id=" + id + ")", ex);
+						logger.error("Error al processar el document pel callback (id=" + portasignatures.getDocumentId() + ")", ex);
 					}
 					pluginPortasignaturesDao.saveOrUpdate(portasignatures);
 				} else if (TipusEstat.REBUTJAT.equals(portasignatures.getEstat()) ||
@@ -298,18 +303,18 @@ public class PluginService {
 						errorProcesPsigna(
 								portasignatures,
 								getMissageFinalCadenaExcepcions(ex));
-						logger.error("Error al processar el document pel callback (id=" + id + ")", ex);
+						logger.error("Error al processar el document pel callback (id=" + portasignatures.getDocumentId() + ")", ex);
 					}
 					pluginPortasignaturesDao.saveOrUpdate(portasignatures);
 				} else {
-					String error = "El document de portasignatures (id=" + id + ") no està pendent de processar, està en estat " + portasignatures.getEstat().toString();
+					String error = "El document de portasignatures (id=" + portasignatures.getDocumentId() + ") no està pendent de processar, està en estat " + portasignatures.getEstat().toString();
 					errorProcesPsigna(
 							portasignatures,
 							error);
 					logger.error(error);
 				}
 			} else {
-				String error = "El document rebut al callback (id=" + id + ") fa referència a un documentStore inexistent (id=" + portasignatures.getDocumentStoreId() + ")";
+				String error = "El document rebut al callback (id=" + portasignatures.getDocumentId() + ") fa referència a un documentStore inexistent (id=" + portasignatures.getDocumentStoreId() + ")";
 				errorProcesPsigna(
 						portasignatures,
 						error);

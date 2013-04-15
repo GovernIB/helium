@@ -9,6 +9,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -64,6 +66,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
+
+import edu.emory.mathcs.backport.java.util.Collections;
 
 
 /**
@@ -373,7 +377,12 @@ public class ExpedientMassivaController extends BaseController {
 		model.addAttribute("inici", inici);
 		model.addAttribute("correu", correu);
 		if (entorn != null) {
-			List<Long> ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
+			List<Long> ids = null;
+			if(request.getParameter("targetModificarDoc").equals("disseny")){
+				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS_TE);
+			}else{
+				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
+			}
 			if (ids == null || ids.size() <= 1) {
 				missatgeError(request, getMessage("error.no.exp.selec"));
 				return "redirect:/expedient/massivaInfo.html";
@@ -468,7 +477,10 @@ public class ExpedientMassivaController extends BaseController {
 			} else {
 				missatgeError(request, getMessage("info.massiu.permisos.no"));
 			}
-			return "redirect:/expedient/massivaInfo.html";
+			if(request.getParameter("targetModificarDoc").equals("disseny")){
+				return "redirect:/expedient/massivaInfoTE.html";
+			}
+			return "redirect:/expedient/massivaInfo.html";	
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
@@ -542,14 +554,26 @@ public class ExpedientMassivaController extends BaseController {
 		model.addAttribute("inici", inici);
 		model.addAttribute("correu", correu);
 		if (entorn != null) {
-			List<Long> ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
+			List<Long> ids = null;
+			if(request.getParameter("targetScript").equals("disseny")){
+				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS_TE);
+			}else{
+				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
+			}
+			
 			if (ids == null || ids.size() <= 1) {
 				missatgeError(request, getMessage("error.no.exp.selec"));
+				if(request.getParameter("targetScript").equals("disseny")){
+					return "redirect:/expedient/massivaInfoTE.html";
+				}
 				return "redirect:/expedient/massivaInfo.html";
 			}
 			int numExp = ids.size() - 1;
 			new ExpedientScriptValidator().validate(command, result);
 			if (result.hasErrors()) {
+				if(request.getParameter("targetScript").equals("disseny")){
+					return "redirect:/expedient/massivaInfoTE.html";
+				}
 				return "redirect:/expedient/massivaInfo.html";
 	        }
 			
@@ -582,6 +606,9 @@ public class ExpedientMassivaController extends BaseController {
 			} else {
 				missatgeError(request, getMessage("info.massiu.permisos.no"));
 			}
+			if(request.getParameter("targetScript").equals("disseny")){
+				return "redirect:/expedient/massivaInfoTE.html";
+			}
 			return "redirect:/expedient/massivaInfo.html";	
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
@@ -606,15 +633,26 @@ public class ExpedientMassivaController extends BaseController {
 		model.addAttribute("inici", inici);
 		model.addAttribute("correu", correu);
 		if (entorn != null) {
-			List<Long> ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
+			List<Long> ids = null;
+			if(request.getParameter("targetAturar").equals("disseny")){
+				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS_TE);
+			}else{
+				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
+			}
 			if (ids == null || ids.size() <= 1) { // Primer element de la llista: id tipus expedient
 				missatgeError(request, getMessage("error.no.exp.selec"));
+				if(request.getParameter("targetAturar").equals("disseny")){
+					return "redirect:/expedient/massivaInfoTE.html";
+				}
 				return "redirect:/expedient/massivaInfo.html";
 			}
 			int numExp = ids.size() - 1;
 			new ExpedientAturarValidator().validate(command, result);
 			if (result.hasErrors()) {
 				missatgeError(request, getMessage("error.aturar.expedient"),result.toString());
+				if(request.getParameter("targetAturar").equals("disseny")){
+					return "redirect:/expedient/massivaInfoTE.html";
+				}
 				return "redirect:/expedient/massivaInfo.html";
 	        }
 			
@@ -646,6 +684,9 @@ public class ExpedientMassivaController extends BaseController {
 				}
 			} else {
 				missatgeError(request, getMessage("info.massiu.permisos.no"));
+			}
+			if(request.getParameter("targetAturar").equals("disseny")){
+				return "redirect:/expedient/massivaInfoTE.html";
 			}
 			return "redirect:/expedient/massivaInfo.html";
 		} else {
@@ -681,6 +722,9 @@ public class ExpedientMassivaController extends BaseController {
 			} else {
 				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 			}
+			if(request.getParameter("targetModificarVar").equals("disseny")){
+				return "redirect:/expedient/massivaInfoTE.html";
+			}
 			return "redirect:/expedient/massivaInfo.html";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
@@ -711,10 +755,18 @@ public class ExpedientMassivaController extends BaseController {
 			model.addAttribute("inici", inici);
 			model.addAttribute("correu", correu);
 			
-			List<Long> ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
+			List<Long> ids = null;
+			if(request.getParameter("targetModificarVar").equals("disseny")){
+				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS_TE);
+			}else{
+				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
+			}
 			if (ids == null || ids.size() <= 1) {
 				missatgeError(request, getMessage("error.no.exp.selec"));
-				return "expedient/massivaInfo";
+				if(request.getParameter("targetModificarVar").equals("disseny")){
+					return "redirect:/expedient/massivaInfoTE.html";
+				}
+				return "redirect:/expedient/massivaInfo.html";
 			}
 			int numExp = ids.size() - 1;
 			
@@ -738,6 +790,9 @@ public class ExpedientMassivaController extends BaseController {
 //						model.addAttribute("expedients", expedients);
 						model.addAttribute("tasca", tasca);
 			        	model.addAttribute("valorsPerSuggest", TascaFormUtil.getValorsPerSuggest(tasca, command));
+			        	if(request.getParameter("targetModificarVar").equals("disseny")){
+							return "redirect:/expedient/massivaInfoTE.html";
+						}
 			        	return "redirect:/expedient/massivaInfo.html";
 			        }
 					
@@ -797,15 +852,21 @@ public class ExpedientMassivaController extends BaseController {
 //					model.addAttribute("expedient", expedient);
 					model.addAttribute("tasca", tasca);
 		        	model.addAttribute("valorsPerSuggest", TascaFormUtil.getValorsPerSuggest(tasca, command));
-		        	return "expedient/dadaFormMassiva";
+		        	return "/expedient/dadaFormMassiva";
 		        	// Cancel·lam
 				} else if("cancel".equals("submit")){
+					if(request.getParameter("targetModificarVar").equals("disseny")){
+						return "redirect:/expedient/massivaInfoTE.html";
+					}
 					return "redirect:/expedient/massivaInfo.html";
 				}
 			} else {
 				missatgeError(request, getMessage("info.massiu.permisos.no"));
 			}
-		    return "redirect:/expedient/massivaInfo.html";
+		    if(request.getParameter("targetModificarVar").equals("disseny")){
+				return "redirect:/expedient/massivaInfoTE.html";
+			}
+			return "redirect:/expedient/massivaInfo.html";
 			
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
@@ -813,7 +874,8 @@ public class ExpedientMassivaController extends BaseController {
 		}
 		
 	}
-
+	
+	
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/expedient/massivaIds")
 	public String consultaMassiva(
@@ -924,6 +986,7 @@ public class ExpedientMassivaController extends BaseController {
 						true,
 						true);
 				model.addAttribute("instanciaProces", instanciaProces);
+
 				List<Document> documents = instanciaProces.getDocuments();
 				model.addAttribute("documents", documents);
 //				List<DocumentDto> docsAdjunts = new ArrayList<DocumentDto>(); 
@@ -941,6 +1004,14 @@ public class ExpedientMassivaController extends BaseController {
 //					}
 //				}
 //				model.addAttribute("docsAdjunts", docsAdjunts);
+				
+				Set<Camp> camp = instanciaProces.getCamps();
+				List<Camp> llistaCamps = new ArrayList<Camp>();
+				for(Camp c: camp){
+					llistaCamps.add(c);
+				}
+				Collections.sort(llistaCamps, new ComparadorCampCodi());
+				model.addAttribute("camps",	llistaCamps);
 			}
 			return "expedient/massivaInfo";
 		} else {
@@ -948,8 +1019,6 @@ public class ExpedientMassivaController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
-	
-	
 	
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/expedient/massivaInfoTE")
@@ -988,6 +1057,13 @@ public class ExpedientMassivaController extends BaseController {
 				List<Document> documents = instanciaProces.getDocuments();
 				model.addAttribute("documents", documents);
 				
+				Set<Camp> camp = instanciaProces.getCamps();
+				List<Camp> llistaCamps = new ArrayList<Camp>();
+				for(Camp c: camp){
+					llistaCamps.add(c);
+				}
+				Collections.sort(llistaCamps, new ComparadorCampCodi());
+				model.addAttribute("camps", llistaCamps);
 			}
 			return "/expedient/massivaInfo";
 		} else {
@@ -1001,7 +1077,6 @@ public class ExpedientMassivaController extends BaseController {
 	@RequestMapping(value = "/expedient/massivaCanviVersio")
 	public String accioCanviVersio(
 			HttpServletRequest request,
-			@RequestParam(value="target",required=false) String target,
 			@RequestParam(value = "inici", required = true) String inici,
 			@RequestParam(value = "correu", required = true) String correu,
 			@ModelAttribute("canviVersioProcesCommand") CanviVersioProcesCommand command,
@@ -1011,7 +1086,7 @@ public class ExpedientMassivaController extends BaseController {
 		model.addAttribute("correu", correu);
 		if (entorn != null) {
 			List<Long> ids = new ArrayList<Long>();
-			if(request.getParameter("target").equals("disseny")){
+			if(request.getParameter("targetVersio").equals("disseny")){
 				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS_TE);
 			}
 			else{
@@ -1047,12 +1122,11 @@ public class ExpedientMassivaController extends BaseController {
 			} catch (Exception e) {
 				missatgeError(request, getMessage("error.no.massiu"));
 			}
-			if(request.getParameter("target").equals("disseny")){
+			if(request.getParameter("targetVersio").equals("disseny")){
 				return "redirect:/expedient/massivaInfoTE.html";
-			}else if(request.getParameter("target").equals("consulta")){
+			}else if(request.getParameter("targetVersio").equals("consulta")){
 				return "redirect:/expedient/massivaInfo.html";
 			}
-			
 			return "redirect:/expedient/massivaInfo.html";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec"));
@@ -1064,7 +1138,6 @@ public class ExpedientMassivaController extends BaseController {
 	@RequestMapping(value = "/expedient/massivaExecutarAccio")
 	public String accioExecutarAccio(
 			HttpServletRequest request,
-			@RequestParam(value="target2",required=false) String target2,
 			@RequestParam(value = "inici", required = true) String inici,
 			@RequestParam(value = "correu", required = true) String correu,
 			@ModelAttribute("execucioAccioCommand") ExecucioAccioCommand command,
@@ -1074,7 +1147,7 @@ public class ExpedientMassivaController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			List<Long> ids = new ArrayList<Long>();
-			if(request.getParameter("target2").equals("disseny")){
+			if(request.getParameter("targetAccio").equals("disseny")){
 				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS_TE);
 			}
 			else{
@@ -1135,7 +1208,7 @@ public class ExpedientMassivaController extends BaseController {
 //				else
 //					missatgeInfo(request, getMessage("info.accio.executat.nprimers", new Object[] {new Integer(numOk)}));
 //			}
-			if(request.getParameter("target2").equals("disseny")){
+			if(request.getParameter("targetAccio").equals("disseny")){
 				return "redirect:/expedient/massivaInfoTE.html";
 			}else {
 				return "redirect:/expedient/massivaInfo.html";
@@ -1152,6 +1225,7 @@ public class ExpedientMassivaController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "inici", required = true) String inici,
 			@RequestParam(value = "correu", required = true) String correu,
+			@RequestParam(value="targetIdx",required=false) String targetIdx,
 			ModelMap model) {
 		model.addAttribute("inici", inici);
 		model.addAttribute("correu", correu);
@@ -1165,7 +1239,11 @@ public class ExpedientMassivaController extends BaseController {
 			}
 			if (ids == null || ids.size() <= 1) {
 				missatgeError(request, getMessage("error.no.exp.selec"));
-				return "redirect:/expedient/massivaInfo.html";
+				if(request.getParameter("targetIdx").equals("disseny")){
+					return "redirect:/expedient/massivaInfoTE.html";
+				}else{
+					return "redirect:/expedient/massivaInfo.html"; 
+				}
 			}
 			
 			int numExp = ids.size() - 1;
@@ -1439,6 +1517,12 @@ public class ExpedientMassivaController extends BaseController {
 //		}
 //		return obj;
 //	}
+
+	public class ComparadorCampCodi implements Comparator<Camp> {
+	    public int compare(Camp c1, Camp c2) {
+	        return c1.getCodi().compareToIgnoreCase(c2.getCodi());
+	    }
+	}
 	
 	private static final Log logger = LogFactory.getLog(ExpedientMassivaController.class);
 

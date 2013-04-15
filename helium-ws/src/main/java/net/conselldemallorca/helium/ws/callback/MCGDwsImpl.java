@@ -70,7 +70,7 @@ public class MCGDwsImpl implements es.indra.www.portafirmasmcgdws.mcgdws.MCGDws 
 						break;
 				}
 			} catch (Exception ex) {
-				logger.error("Error procés petició callback portasignatures (id=" + document + ", estat=" + estat.getValue() + ", resposta=" + resposta + ")", ex);
+				logger.error("Error procés petició callback portasignatures (id=" + document + ", estat=" + estat.getValue() + ", resposta=" + resposta + "): " + ex.getMessage());
 			}
 			callbackResponse.setVersion("1.0");
 			callbackResponse.setLogMessages(new LogMessage[] {new LogMessage()});
