@@ -2371,6 +2371,7 @@ public class DissenyService {
 			nou.setDominiCampText(camp.getDominiCampText());
 			nou.setDominiCampValor(camp.getDominiCampValor());
 			nou.setDominiParams(camp.getDominiParams());
+			nou.setDominiIntern(camp.isDominiIntern());
 			nou.setEnumeracio(camp.getEnumeracio());
 			nou.setJbpmAction(camp.getJbpmAction());
 			nou.setOrdre(camp.getOrdre());
