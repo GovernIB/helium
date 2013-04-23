@@ -5,6 +5,7 @@
 	<session-factory name="jbpm3">
 
    <property name="hibernate.cache.provider_class">org.hibernate.cache.HashtableCacheProvider</property>
+   <property name="hibernate.cache.use_query_cache">true</property>
 
    <!-- ###################### -->
    <!-- # jbpm mapping files # -->

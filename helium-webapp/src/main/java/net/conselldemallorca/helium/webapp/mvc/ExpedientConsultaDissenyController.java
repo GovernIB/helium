@@ -1,6 +1,3 @@
-/**
- * 
- */
 package net.conselldemallorca.helium.webapp.mvc;
 
 import java.io.ByteArrayInputStream;
@@ -482,13 +479,13 @@ public class ExpedientConsultaDissenyController extends BaseController {
 
 	private void afegirEstatsInicialIFinal(List<Estat> estats) {
 		Estat iniciat = new Estat();
-		iniciat.setId(new Long(0));
-		iniciat.setCodi(new Long(0).toString());
+		iniciat.setId(Long.parseLong("0"));
+		iniciat.setCodi("0");
 		iniciat.setNom( getMessage("expedient.consulta.iniciat") );
 		estats.add(0, iniciat);
 		Estat finalitzat = new Estat();
-		finalitzat.setId(new Long(-1));
-		finalitzat.setCodi(new Long(-1).toString());
+		finalitzat.setId(Long.parseLong("-1"));
+		finalitzat.setCodi("-1");
 		finalitzat.setNom( getMessage("expedient.consulta.finalitzat") );
 		estats.add(finalitzat);
 	}
@@ -556,7 +553,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			String objectsPerPage,
 			boolean export) {
 		int maxResults = getObjectsPerPage(objectsPerPage);
-		int pagina = (page != null) ? new Integer(page).intValue() : 1;
+		int pagina = (page == null) ? 1 : Integer.valueOf(page);
 		int firstRow = (pagina - 1) * maxResults;
 		boolean isAsc = (dir == null) || "asc".equals(dir);
 		// Si no s'especifica columna per cercar ordena en sentit descendent

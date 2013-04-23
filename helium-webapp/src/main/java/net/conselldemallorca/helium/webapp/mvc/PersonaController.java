@@ -136,10 +136,8 @@ public class PersonaController extends BaseController {
 	        	logger.error("No s'ha pogut guardar el registre", ex);
 	        	return "persona/form";
 	        }
-	        return "redirect:/persona/consulta.html";
-		} else {
-			return "redirect:/persona/consulta.html";
-		}
+		} 
+        return "redirect:/persona/consulta.html";
 	}
 
 	@RequestMapping(value = "delete")

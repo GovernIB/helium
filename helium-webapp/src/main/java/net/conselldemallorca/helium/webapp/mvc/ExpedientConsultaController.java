@@ -1,6 +1,3 @@
-/**
- * 
- */
 package net.conselldemallorca.helium.webapp.mvc;
 
 import java.text.SimpleDateFormat;
@@ -213,11 +210,11 @@ public class ExpedientConsultaController extends BaseController {
 
 	public void afegirEstatsInicialIFinal(List<Estat> estats) {
 		Estat iniciat = new Estat();
-		iniciat.setId(new Long(0));
+		iniciat.setId(Long.parseLong("0"));
 		iniciat.setNom( getMessage("expedient.consulta.iniciat") );
 		estats.add(0, iniciat);
 		Estat finalitzat = new Estat();
-		finalitzat.setId(new Long(-1));
+		finalitzat.setId(Long.parseLong("-1"));
 		finalitzat.setNom( getMessage("expedient.consulta.finalitzat") );
 		estats.add(finalitzat);
 	}
@@ -240,13 +237,13 @@ public class ExpedientConsultaController extends BaseController {
 			estatId = (!iniciat && !finalitzat) ? command.getEstat() : null;
 		}
 		int maxResults = getObjectsPerPage(objectsPerPage);
-		int pagina = (page != null) ? new Integer(page).intValue() : 1;
+		int pagina = (page == null) ? 1: Integer.valueOf(page);
 		int firstRow = (pagina - 1) * maxResults;
 		boolean isAsc = (dir == null) || "asc".equals(dir);
 		// Si no s'especifica columna per cercar ordena en sentit descendent
 		if (sort == null || sort.length() == 0)
 			isAsc = false;
-		//
+		
 		PaginatedList paginatedList = new PaginatedList();
 		paginatedList.setFullListSize(expedientService.countAmbEntornConsultaGeneral(
 				entorn.getId(),
@@ -254,7 +251,7 @@ public class ExpedientConsultaController extends BaseController {
 				command.getNumero(),
 				command.getDataInici1(),
 				command.getDataInici2(),
-				(command.getExpedientTipus() != null) ? command.getExpedientTipus().getId() : null,
+				(command.getExpedientTipus() == null) ? null : command.getExpedientTipus().getId(),
 				estatId,
 				iniciat,
 				finalitzat,
@@ -272,7 +269,7 @@ public class ExpedientConsultaController extends BaseController {
 				command.getNumero(),
 				command.getDataInici1(),
 				command.getDataInici2(),
-				(command.getExpedientTipus() != null) ? command.getExpedientTipus().getId() : null,
+				(command.getExpedientTipus() == null) ? null: command.getExpedientTipus().getId(),
 				estatId,
 				iniciat,
 				finalitzat,
