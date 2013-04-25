@@ -149,6 +149,9 @@ public class TerminiService {
 			}
 			terminiIniciat.setDataAturada(null);
 			terminiIniciat.setDataCancelacio(null);
+			terminiIniciat.setDies(dies);
+			terminiIniciat.setMesos(mesos);
+			terminiIniciat.setAnys(anys);
 			resumeTimers(terminiIniciat);
 		}
 		Long expedientId = getExpedientForProcessInstanceId(processInstanceId).getId();
