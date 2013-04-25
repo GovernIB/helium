@@ -170,7 +170,7 @@ public class ExpedientMassivaController extends BaseController {
 				campsAddicionals.put("var", var);
 				campsAddicionalsClasses.put("var", String.class);
 				Object command = TascaFormUtil.getCommandForTasca(
-						createTascaAmbVar(entorn.getId(), id, taskId, var),
+						createTascaAmbVar(request, entorn.getId(), id, taskId, var),
 						campsAddicionals,
 						campsAddicionalsClasses);
 				return command;
@@ -699,7 +699,7 @@ public class ExpedientMassivaController extends BaseController {
 			ExpedientDto expedient = getExpedient(entorn.getId(), id, taskId);
 			
 			if (potModificarExpedient(expedient)) {
-				TascaDto tasca = createTascaAmbVar(entorn.getId(), id, taskId, var);
+				TascaDto tasca = createTascaAmbVar(request, entorn.getId(), id, taskId, var);
 				Object command = model.get("modificarVariableCommand");
 				model.clear();
 				model.addAttribute("command", command);
@@ -753,7 +753,7 @@ public class ExpedientMassivaController extends BaseController {
 			ExpedientDto expedientPrimer = expedientService.getById(ids.get(1));
 			if (potModificarExpedient(expedientPrimer)) {				
 				String idPI = expedientPrimer.getProcessInstanceId();
-				TascaDto tasca = createTascaAmbVar(entorn.getId(), idPI, taskId, var);
+				TascaDto tasca = createTascaAmbVar(request, entorn.getId(), idPI, taskId, var);
 				List<Camp> camps = new ArrayList<Camp>();
 	    		for (CampTasca campTasca: tasca.getCamps())
 	    			camps.add(campTasca.getCamp());
@@ -788,7 +788,10 @@ public class ExpedientMassivaController extends BaseController {
 	    				dto.setExpedientTipusId(ids.get(0));
 	    				dto.setTipus(ExecucioMassivaTipus.MODIFICAR_VARIABLE);
 	    				dto.setParam1(var);
-	    				Object[] params = new Object[] {entorn.getId(), taskId, PropertyUtils.getSimpleProperty(command, var)};
+	    				Object valors = ExpedientMassivaRegistreController.getRegistreMassiuSessio(request, id, var);
+	    				if (valors == null)
+	    					valors = PropertyUtils.getSimpleProperty(command, var);
+	    				Object[] params = new Object[] {entorn.getId(), taskId, valors};
 	    				dto.setParam2(serialize(params));
 	    				execucioMassivaService.crearExecucioMassiva(dto);
 
@@ -798,6 +801,7 @@ public class ExpedientMassivaController extends BaseController {
 						
 						missatgeInfo(request, getMessage("info.dada.massiu.modificat", new Object[] {var, numExp}));
 	    			} catch (Exception e) {
+	    				ExpedientMassivaRegistreController.removeRegistreMassiuSessio(request, id, var);
 	    				missatgeError(request, getMessage("info.dada.massiu.error", new Object[] {var}), e.getLocalizedMessage());
 	    				return getRedirMassius(request);
 	    			}
@@ -833,15 +837,18 @@ public class ExpedientMassivaController extends BaseController {
 		        	model.addAttribute("valorsPerSuggest", TascaFormUtil.getValorsPerSuggest(tasca, command));
 		        	return "/expedient/dadaFormMassiva";
 		        	// Cancel·lam
-				} else if("cancel".equals("submit")){
+				} else if("cancel".equals(submit)){
+					ExpedientMassivaRegistreController.removeRegistreMassiuSessio(request, id, var);
 					return getRedirMassius(request);
 				}
 			} else {
+				ExpedientMassivaRegistreController.removeRegistreMassiuSessio(request, id, var);
 				missatgeError(request, getMessage("info.massiu.permisos.no"));
 			}
 			return getRedirMassius(request);
 			
 		} else {
+			ExpedientMassivaRegistreController.removeRegistreMassiuSessio(request, id, var);
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}		
@@ -1323,6 +1330,7 @@ public class ExpedientMassivaController extends BaseController {
 	}
 	
 	private TascaDto createTascaAmbVar(
+			HttpServletRequest request,
 			Long entornId,
 			String id,
 			String taskId,
@@ -1331,12 +1339,24 @@ public class ExpedientMassivaController extends BaseController {
 		Object valor = null;
 		InstanciaProcesDto instanciaProces = null;
 		TascaDto tasca = null;
+		Object[] valorsRegistre = ExpedientMassivaRegistreController.getRegistreMassiuSessio(request, id, var);
+		
 		if (taskId == null) {
-			instanciaProces = expedientService.getInstanciaProcesById(
-					id, 
-					false, 
-					true, 
-					false);
+			if (valorsRegistre == null) {
+				instanciaProces = expedientService.getInstanciaProcesById(
+						id, 
+						false, 
+						true, 
+						false);
+			} else {
+				instanciaProces = expedientService.getInstanciaProcesByIdReg(
+						id, 
+						false, 
+						true, 
+						false,
+						var,
+						valorsRegistre);
+			}
 			camp = dissenyService.findCampAmbDefinicioProcesICodi(
 					instanciaProces.getDefinicioProces().getId(), 
 					var);
@@ -1349,11 +1369,21 @@ public class ExpedientMassivaController extends BaseController {
 					null,
 					true,
 					true);
-			instanciaProces = expedientService.getInstanciaProcesById(
-					tasca.getProcessInstanceId(),
-					false, 
-					true, 
-					false);
+			if (valorsRegistre == null) {
+				instanciaProces = expedientService.getInstanciaProcesById(
+						tasca.getProcessInstanceId(),
+						false, 
+						true, 
+						false);
+			} else {
+				instanciaProces = expedientService.getInstanciaProcesByIdReg(
+						tasca.getProcessInstanceId(),
+						false, 
+						true, 
+						false,
+						var,
+						valorsRegistre);
+			}
 			for (CampTasca campTasca: tasca.getCamps()) {
 				if (campTasca.getCamp().getCodi().equals(var)) {
 					camp = campTasca.getCamp();
@@ -1369,6 +1399,8 @@ public class ExpedientMassivaController extends BaseController {
 			camp.setEtiqueta(var);
 			valor = tasca.getVariable(var);
 		}
+		if (camp.getTipus() == TipusCamp.REGISTRE && valorsRegistre != null) 
+			valor = valorsRegistre;
 		TascaDto tascaNova = new TascaDto();
 		tascaNova.setId(taskId);
 		tascaNova.setTipus(TipusTasca.FORM);

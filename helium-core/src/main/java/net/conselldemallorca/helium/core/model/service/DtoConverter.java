@@ -405,6 +405,9 @@ public class DtoConverter {
 	}
 
 	public InstanciaProcesDto toInstanciaProcesDto(String processInstanceId , boolean ambImatgeProces, boolean ambVariables, boolean ambDocuments) {
+		return toInstanciaProcesDto(processInstanceId , ambImatgeProces, ambVariables, ambDocuments, null, null);
+	}
+	public InstanciaProcesDto toInstanciaProcesDto(String processInstanceId , boolean ambImatgeProces, boolean ambVariables, boolean ambDocuments, String varRegistre, Object[] valorsRegistre) {
 		JbpmProcessInstance pi = jbpmDao.getProcessInstance(processInstanceId);
 		JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(processInstanceId);
 		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(jpd.getId());
@@ -437,6 +440,8 @@ public class DtoConverter {
 		dto.setAgrupacions(campAgrupacioDao.findAmbDefinicioProcesOrdenats(definicioProces.getId()));
 		if (ambVariables) {
 			Map<String, Object> valors = jbpmDao.getProcessInstanceVariables(processInstanceId);
+			if (varRegistre != null) 
+				valors.put(varRegistre, valorsRegistre);
 			filtrarVariablesTasca(valors);
 			Map<String, ParellaCodiValorDto> valorsDomini = obtenirValorsDomini(
 					null,

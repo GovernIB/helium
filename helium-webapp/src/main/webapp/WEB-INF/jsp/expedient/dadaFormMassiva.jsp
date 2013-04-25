@@ -23,7 +23,7 @@
 	function editarRegistre(campId, campCodi, campEtiqueta, numCamps, index) {
 		var amplada = 686;
 		var alcada = 64 * numCamps + 80;
-		var url = "varRegistre.html?id=${param.id}&registreId=" + campId;
+		var url = "varRegistreMassiva.html?id=${param.id}&registreId=" + campId + "&campCodi=" + campCodi + "&inici=${param.inici}&correu=${param.correu}";
 		if (index != null)
 			url = url + "&index=" + index;
 		$('<iframe id="' + campCodi + '" src="' + url + '" frameborder="0" marginheight="0" marginwidth="0"/>').dialog({
@@ -40,7 +40,7 @@
 		var e = e || window.event;
 		e.cancelBubble = true;
 		if (e.stopPropagation) e.stopPropagation();
-		window.location = "varRegistreEsborrar.html?id=${param.id}&registreId=" + campId + "&index=" + index;
+		window.location = "varRegistreMassivaEsborrar.html?id=${param.id}&registreId=" + campId + "&index=" + index;
 		return false;
 	}
 	
@@ -59,12 +59,14 @@
 			<c:if test="${not empty param.correu}"><input type="hidden" id="correu" name="correu" value="${param.correu}"/></c:if>
 			<form:hidden path="var"/>
 			<c:if test="${not empty tasca.camps}">
+<%-- 				<c:set var="massiu" value="${true}" scope="request"/> --%>
 				<c:forEach var="camp" items="${tasca.camps}">
 					<c:set var="campTascaActual" value="${camp}" scope="request"/>
 					<c:import url="../common/campTasca.jsp"/>
 				</c:forEach>
 			</c:if>
 		</div>
+<%--
 		<c:choose>
 			<c:when test="${tasca.camps[0].camp.tipus == 'REGISTRE'}">
 				<c:import url="../common/formElement.jsp">
@@ -74,13 +76,16 @@
 				</c:import>
 			</c:when>
 			<c:otherwise>
+--%>
 				<c:import url="../common/formElement.jsp">
 					<c:param name="type" value="buttons"/>
 					<c:param name="values">submit,cancel</c:param>
 					<c:param name="titles"><fmt:message key='comuns.modificar' />,<fmt:message key='comuns.cancelar' /></c:param>
 				</c:import>
-			</c:otherwise>
+<%-- 			
+			</c:otherwise> 
 		</c:choose>
+--%>
 	</form:form>
 </body>
 </html>

@@ -60,8 +60,7 @@ function initSelect(selectId, valor, url, extraParams, dominiParams) {
 	var valorActual = $("select#" + selectId).val();
 	$("select#" + selectId).html(
 			'<option><fmt:message key="js.helforms.carregant" /></option>');
-    $.getJSON(
-    		url,
+    $.getJSON(url,
     		extraParams,
     		function(j) {
 			    var options = '';
@@ -85,6 +84,10 @@ function initSelect(selectId, valor, url, extraParams, dominiParams) {
 		        $("select#" + selectId).html(options);
 		        if (canvisSelectInicialitzat)
 		        	$("select#" + selectId).val(valorActual);
+			})
+			.fail(function( jqxhr, textStatus, error ) {
+				var err = textStatus + ', ' + error;
+				console.log( "Request Failed: " + err);
 			});
 }
 

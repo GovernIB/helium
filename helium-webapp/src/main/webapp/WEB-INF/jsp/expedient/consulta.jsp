@@ -99,7 +99,7 @@ function obreVisorGis() {
     		  
     			var input = document.createElement('input');
     		    input.type = 'hidden';
-    		    input.name = 'xmlexpedients';
+    		    input.name = 'xml';
     		    input.value = sXML;
 
     			form.appendChild(input);

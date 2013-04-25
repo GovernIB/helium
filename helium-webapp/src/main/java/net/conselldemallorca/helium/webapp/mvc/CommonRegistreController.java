@@ -15,12 +15,12 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
+import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
 
@@ -51,7 +51,6 @@ public abstract class CommonRegistreController extends BaseController {
 
 	protected DissenyService dissenyService;
 	private Validator validator;
-
 
 
 	@Autowired
@@ -98,11 +97,14 @@ public abstract class CommonRegistreController extends BaseController {
 			campsAddicionalsClasses.put("procesScope", Map.class);
 			Map<String, Object> valors = null;
 			if (index != null) {
-				Object[] valorRegistre = getValorRegistre(
-						request,
-						entorn.getId(),
-						id,
-						camp.getCodi());
+				Object[] valorRegistre = ExpedientMassivaRegistreController.getRegistreMassiuSessio(request, id, camp.getCodi());
+				if (valorRegistre == null) {
+					valorRegistre = getValorRegistre(
+							request,
+							entorn.getId(),
+							id,
+							camp.getCodi());
+				}
 				if (camp.isMultiple()) {
 					if (index < valorRegistre.length) {
 						valors = new HashMap<String, Object>();
@@ -247,6 +249,14 @@ public abstract class CommonRegistreController extends BaseController {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
+	}
+	
+	protected Object[] getValorRegistre(
+			HttpServletRequest request,
+			String campCodi,
+			String id) {
+		Entorn entorn = getEntornActiu(request);
+		return getValorRegistre(request, entorn.getId(), id, campCodi);//camp.getCodi());
 	}
 
 	@InitBinder

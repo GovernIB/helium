@@ -916,6 +916,15 @@ public class ExpedientService {
 			boolean ambDocuments) {
 		return dtoConverter.toInstanciaProcesDto(processInstanceId, ambImatgeProces, ambVariables, ambDocuments);
 	}
+	public InstanciaProcesDto getInstanciaProcesByIdReg(
+			String processInstanceId,
+			boolean ambImatgeProces,
+			boolean ambVariables,
+			boolean ambDocuments,
+			String varRegistre,
+			Object[] valorsRegistre) {
+		return dtoConverter.toInstanciaProcesDto(processInstanceId, ambImatgeProces, ambVariables, ambDocuments, varRegistre, valorsRegistre);
+	}
 	public List<InstanciaProcesDto> getArbreInstanciesProces(
 			String processInstanceId) {
 		List<InstanciaProcesDto> resposta = new ArrayList<InstanciaProcesDto>();
