@@ -106,10 +106,51 @@ public class ExecucioMassivaService {
 			resposta.add(dtoConverter.toExecucioMassicaDto(massiva));
 		return resposta;
 	}
+
+	public List<ExecucioMassivaDto> getExecucionsMassivesActivesByUser(String username) {
+		List<ExecucioMassivaDto> resposta = new ArrayList<ExecucioMassivaDto>();
+		for (ExecucioMassiva massiva: execucioMassivaDao.getExecucionsMassivesActivesByUser(username))
+			resposta.add(dtoConverter.toExecucioMassicaDto(massiva));
+		return resposta;
+	}
+	
+	public List<OperacioMassivaDto> getExecucionsMassivesActivaByIds(List<Long> attribute) {
+		List<OperacioMassivaDto> resposta = new ArrayList<OperacioMassivaDto>();
+		for (Long id : attribute) {
+			for (ExecucioMassivaExpedient expedient: execucioMassivaExpedientDao.getExecucioMassivaActivaById(id)) {
+				resposta.add(dtoConverter.toOperacioMassiva(expedient));
+			}
+		}
+		return resposta;
+	}
+	
+	public List<OperacioMassivaDto> getExecucionsMassivesActivaById(Long id) {
+		List<OperacioMassivaDto> resposta = new ArrayList<OperacioMassivaDto>();
+		for (ExecucioMassivaExpedient expedient: execucioMassivaExpedientDao.getExecucioMassivaActivaById(id)) {
+			resposta.add(dtoConverter.toOperacioMassiva(expedient));
+		}
+		return resposta;
+	}
+	
+	public List<OperacioMassivaDto> getExecucionsMassivesById(Long id) {
+		List<OperacioMassivaDto> resposta = new ArrayList<OperacioMassivaDto>();
+		for (ExecucioMassivaExpedient expedient: execucioMassivaExpedientDao.getExecucioMassivaById(id)) {
+			resposta.add(dtoConverter.toOperacioMassiva(expedient));
+		}
+		return resposta;
+	}
 	
 	public OperacioMassivaDto getExecucionsMassivesActiva(Long ultimaExecucioMassiva) {
 		ExecucioMassivaExpedient expedient = execucioMassivaExpedientDao.getExecucioMassivaActiva(ultimaExecucioMassiva);
 		return dtoConverter.toOperacioMassiva(expedient);
+	}
+	
+	public List<OperacioMassivaDto> getExecucionsMassivesActivaByUser(String username) {
+		List<OperacioMassivaDto> resposta = new ArrayList<OperacioMassivaDto>();
+		for (ExecucioMassivaExpedient expedient : execucioMassivaExpedientDao.getExecucioMassivaActivaByUser(username)) {
+			resposta.add(dtoConverter.toOperacioMassiva(expedient));
+		}
+		return resposta;
 	}
 	
 	public void executarExecucioMassiva(OperacioMassivaDto dto) throws Exception {
@@ -150,6 +191,33 @@ public class ExecucioMassivaService {
 			logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut canviar la versió del procés", ex);
 			throw ex;
 		}
+	}
+	
+	public void actualitzarEstat(Long id, ExecucioMassivaEstat estat) throws Exception {
+		ExecucioMassivaExpedient eme = null;
+		try {
+			eme = execucioMassivaExpedientDao.getById(id, false);
+			eme.setEstat(estat);
+			execucioMassivaExpedientDao.saveOrUpdate(eme);
+		} catch (Exception ex) {
+			logger.error("OPERACIO:" +id + ". No s'ha pogut canviar el estat del procés", ex);
+			throw ex;
+		}
+	}
+	
+	public Object getDefinicioProces(OperacioMassivaDto dto) {
+		Object definicioProces = null;
+		try {
+			Object obj = (Object) deserialize(dto.getParam2());
+			if (obj instanceof Long) {
+				definicioProces = definicioProcesDao.getById((Long) obj, false);
+			} else if (obj instanceof String) {
+				definicioProces = obj;
+			}
+		} catch (Exception ex) {
+			logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut getDefinicioProces del procés", ex);
+		}
+		return definicioProces;
 	}
 	
 	private void executarScript(OperacioMassivaDto dto) throws Exception {
@@ -500,5 +568,4 @@ public class ExecucioMassivaService {
 	}
 
 	private static final Log logger = LogFactory.getLog(ExecucioMassivaService.class);
-
 }

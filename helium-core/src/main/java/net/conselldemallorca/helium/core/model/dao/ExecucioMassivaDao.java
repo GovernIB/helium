@@ -22,12 +22,19 @@ public class ExecucioMassivaDao extends HibernateGenericDao<ExecucioMassiva, Lon
 	public ExecucioMassivaDao() {
 		super(ExecucioMassiva.class);
 	}
-
 	
 	public List<ExecucioMassiva> getExecucionsMassivesActives() {
 		return findByCriteria(
 				Restrictions.and(
 						Restrictions.le("dataInici", new Date()), 
 						Restrictions.isNull("dataFi")));
+	}
+	
+	public List<ExecucioMassiva> getExecucionsMassivesActivesByUser(String username) {
+		return findByCriteria(
+				Restrictions.and(
+						Restrictions.le("dataInici", new Date()), 
+						Restrictions.isNull("dataFi")),
+						Restrictions.eq("usuari", username));
 	}
 }

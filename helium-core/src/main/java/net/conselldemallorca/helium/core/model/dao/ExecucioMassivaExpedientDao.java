@@ -11,8 +11,6 @@ import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedien
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 
-import com.sun.star.util.DateTime;
-
 /**
  * Dao pels objectes del tipus ExecucioMassivaExpedient.
  * 
@@ -66,5 +64,43 @@ public class ExecucioMassivaExpedientDao extends HibernateGenericDao<ExecucioMas
 			return llista.get(0);
 		}
 		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<ExecucioMassivaExpedient> getExecucioMassivaActivaByUser(String username) {
+		Query query = null;
+		query = getSession().createQuery(
+				"select e " +
+				"from	ExecucioMassivaExpedient e " +
+				"where 	e.execucioMassiva.usuari =	'" + username +"'" +
+				" and	e.execucioMassiva.dataFi is null " +
+				" order by e.ordre");
+
+		return (List<ExecucioMassivaExpedient>)query.list();
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<ExecucioMassivaExpedient> getExecucioMassivaActivaById(Long id) {
+		Query query = null;
+		query = getSession().createQuery(
+				"select e " +
+				"from	ExecucioMassivaExpedient e " +
+				"where 	e.execucioMassiva.id =	" + id +
+				" and	e.execucioMassiva.dataFi is null " +
+				" order by e.ordre");
+
+		return (List<ExecucioMassivaExpedient>)query.list();
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<ExecucioMassivaExpedient> getExecucioMassivaById(Long id) {
+		Query query = null;
+		query = getSession().createQuery(
+				"select e " +
+				"from	ExecucioMassivaExpedient e " +
+				"where 	e.execucioMassiva.id =	" + id +
+				" order by e.ordre");
+
+		return (List<ExecucioMassivaExpedient>)query.list();
 	}
 }

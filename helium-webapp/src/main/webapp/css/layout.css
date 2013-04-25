@@ -161,8 +161,116 @@ html, body{
 #footer #version {
 	float: left;
 }
+#footer #copyright {
+	float: right;
+	margin-top: -11px;
+}
 #footer {
 	background-color: #f2f2f2;
 	border-top: 1px solid #dfdfdf;
+}
+
+#footerSlideContainer {
+	position: fixed;
+	bottom:40px;
+	width: 60%;
+	height: auto;
+	margin-left: 20%;
+	margin-right: 20%;
+	display: none;
+	z-index: 5;
+}
+
+#footerSlideContent {
+	width: 100%;
+	background-color: #f2f2f2;
+	border: 1px solid #dfdfdf;
+	color: #4C4C4C;
+	font-size: 0.8em;
+	font-family: DejaVuSansBook, Sans-Serif;
+}
+	
+#footerSlideText {
+	padding: 15px 10px 15px 25px;
+}
+	
+#footerSlideText table {
+	width: 99%;
+	
+}
+	
+#footerSlideText table tr .td_texto{
+	width: 20%;
+}
+
+	
+#footerSlideText table tr .td_texto{
+	border-spacing: 0px;
+}
+
+#footerSlideText table tr .td_barra{
+	width: 80%;
+}
+
+#footerSlideText td{
+	vertical-align: middle;
+}
+	
+#pbar_total_massive_div {
+	margin-left: auto;
+	margin-right: auto;
+	width: 40%;
+	height: 11px;	
+}
+
+#pbar_total_massive_icon {
+	cursor: pointer;
+}
+	
+#pbar_total_massive_div table {
+	border-spacing: 0px;
+}
+
+#pbar_total_massive_table_bars {
+	width: 100%;
+}
+
+#pbar_total_massive_detail {
+	width: 100%;
+}
+
+#pbar_total_massive_div table td {
+	vertical-align: middle;
+}
+	
+#pbar_total_massive_text {
 	text-align: right;
+	padding-right: 10px;
+}
+	
+#pbar_total_massive {
+	margin-left: auto;
+	margin-right: auto;
+	height: 10px;
+}
+
+#pbar_total_massive_icon {
+	padding-left: 10px;
+}
+
+#list_massive li {
+	padding: 0px;
+	cursor: pointer;
+}
+
+#list_massive li a{
+	border: 0px;
+}
+
+.pbar {
+	margin: 5px;
+}
+
+#div_progressBarMassiveDetail #main #push {
+	border-top: 0px;
 }

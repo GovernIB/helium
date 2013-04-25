@@ -28,6 +28,7 @@
 <![endif]-->
 	<link href="<c:url value="/css/layout.css"/>" rel="stylesheet" type="text/css"/>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/dropdown/jquery/jquery.popup.footer.js"/>"></script>
 <%-- menu --%>
 	<link href="<c:url value="/css/dropdown/dropdown.css"/>" media="all" rel="stylesheet" type="text/css" />
 	<link href="<c:url value="/css/dropdown/themes/helium/helium.css"/>" media="all" rel="stylesheet" type="text/css" />
@@ -165,13 +166,20 @@
 	
 	<div id="footer">
 		<span id="version">v.${versioNom}</span>
-		<c:choose>
-			<c:when test="${empty globalProperties['app.copyright.text']}">
-				<jsp:useBean id="ara" class="java.util.Date" />
-				&copy; <fmt:formatDate value="${ara}" pattern="yyyy"/> Govern de les Illes Balears
-			</c:when>
-			<c:otherwise>${globalProperties['app.copyright.text']}</c:otherwise>
-		</c:choose>
+		
+		<!-- Barra de progreso en acciones masivas -->
+		<jsp:include page="progressBarMassive.jsp"/>
+		<!-- FIN Barra de progreso en acciones masivas -->
+		
+		<span id="copyright">
+			<c:choose>
+				<c:when test="${empty globalProperties['app.copyright.text']}">
+					<jsp:useBean id="ara" class="java.util.Date" />
+					&copy; <fmt:formatDate value="${ara}" pattern="yyyy"/> Govern de les Illes Balears
+				</c:when>
+				<c:otherwise>${globalProperties['app.copyright.text']}</c:otherwise>
+			</c:choose>
+		</span>
 	</div>
 </body>
 </html>

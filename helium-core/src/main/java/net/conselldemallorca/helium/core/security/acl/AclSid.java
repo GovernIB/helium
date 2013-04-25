@@ -16,6 +16,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.security.acls.sid.Sid;
 
 /**
@@ -24,6 +26,7 @@ import org.springframework.security.acls.sid.Sid;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(name="hel_acl_sid")
 public class AclSid implements Sid, Serializable {
 

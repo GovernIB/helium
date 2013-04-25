@@ -72,7 +72,7 @@ public class ExpedientController extends BaseController {
 	public String llistat(
 			HttpServletRequest request,
 			ModelMap model) {
-		Entorn entorn = getEntornActiu(request);
+		final Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			List<ExpedientTipus> tipus = dissenyService.findExpedientTipusAmbEntorn(entorn.getId());
 			permissionService.filterAllowed(
@@ -82,10 +82,10 @@ public class ExpedientController extends BaseController {
 						ExtendedPermission.ADMINISTRATION,
 						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.READ});
-			List<ExpedientDto> expedients = expedientService.findAmbEntorn(entorn.getId());
+			final List<ExpedientDto> expedients = expedientService.findAmbEntorn(entorn.getId());
 			Iterator<ExpedientDto> it = expedients.iterator();
 			while (it.hasNext()) {
-				ExpedientDto expedient = it.next();
+				final ExpedientDto expedient = it.next();
 				if (!tipus.contains(expedient.getTipus()))
 					it.remove();
 			}
@@ -112,11 +112,10 @@ public class ExpedientController extends BaseController {
 					missatgeError(request, getMessage("error.esborrar.expedient"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut esborrar el registre", ex);
 				}
-				return "redirect:/expedient/consulta.html";
 			} else {
-				missatgeError(request, getMessage("error.permisos.esborrar.expedient"));
-				return "redirect:/expedient/consulta.html";
+				missatgeError(request, getMessage("error.permisos.esborrar.expedient"));				
 			}
+			return "redirect:/expedient/consulta.html";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
@@ -138,11 +137,10 @@ public class ExpedientController extends BaseController {
 					missatgeError(request, getMessage("error.anular.expedient"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut esborrar el registre", ex);
 				}
-				return "redirect:/expedient/consulta.html";
 			} else {
-				missatgeError(request, getMessage("error.permisos.anular.expedient"));
-				return "redirect:/expedient/consulta.html";
+				missatgeError(request, getMessage("error.permisos.anular.expedient"));				
 			}
+			return "redirect:/expedient/consulta.html";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
@@ -490,7 +488,7 @@ public class ExpedientController extends BaseController {
 				} else {
 					logs = expedientService.getLogsOrdenatsPerData(expedient.getId());
 				}
-				if (logs == null || logs.size() == 0) {
+				if (logs == null || logs.isEmpty()) {
 					model.addAttribute(
 							"registre",
 							expedientService.getRegistrePerExpedient(expedient.getId()));
@@ -630,7 +628,7 @@ public class ExpedientController extends BaseController {
 				logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'ha pogut executar el retrocés", ex);
 			}
 			
-			if(retorn.equals("t")){
+			if("t".equals(retorn)){
 				return "redirect:/expedient/tasques.html?id=" + id;
 			}else{
 				return "redirect:/expedient/registre.html?id=" + id;

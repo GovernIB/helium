@@ -149,7 +149,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	@Column(name="te_numero")
 	public Boolean getTeNumero() {
 		if (teNumero == null)
-			return new Boolean(false);
+			return Boolean.FALSE;
 		return teNumero;
 	}
 	public void setTeNumero(Boolean teNumero) {
@@ -159,7 +159,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	@Column(name="te_titol")
 	public Boolean getTeTitol() {
 		if (teTitol == null)
-			return new Boolean(false);
+			return Boolean.FALSE;
 		return teTitol;
 	}
 	public void setTeTitol(Boolean teTitol) {
@@ -169,7 +169,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	@Column(name="demana_numero")
 	public Boolean getDemanaNumero() {
 		if (demanaNumero == null)
-			return new Boolean(false);
+			return Boolean.FALSE;
 		return demanaNumero;
 	}
 	public void setDemanaNumero(Boolean demanaNumero) {
@@ -179,7 +179,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	@Column(name="demana_titol")
 	public Boolean getDemanaTitol() {
 		if (demanaTitol == null)
-			return new Boolean(false);
+			return Boolean.FALSE;
 		return demanaTitol;
 	}
 	public void setDemanaTitol(Boolean demanaTitol) {

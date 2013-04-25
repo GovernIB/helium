@@ -16,12 +16,16 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 /**
  * Taula acl_class
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(name="hel_acl_class")
 public class AclClass implements Serializable {
 

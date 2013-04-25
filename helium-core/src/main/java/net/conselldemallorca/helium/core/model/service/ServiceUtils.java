@@ -482,26 +482,22 @@ public class ServiceUtils {
 			Class clazz,
 			Permission[] permissions) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		Set<Sid> sids = new HashSet<Sid>();
+		List<Sid> sids = new ArrayList<Sid>();
 		sids.add(new PrincipalSid(auth.getName()));
 		for (GrantedAuthority ga: auth.getAuthorities()) {
 			sids.add(new GrantedAuthoritySid(ga.getAuthority()));
 		}
 		try {
 			Acl acl = aclServiceDao.readAclById(new ObjectIdentityImpl(clazz, object.getId()));
-			boolean[] granted = new boolean[permissions.length];
-			for (int i = 0; i < permissions.length; i++) {
-				granted[i] = false;
+			for (Permission perm : permissions) {
 				try {
-					granted[i] = acl.isGranted(
-							new Permission[]{permissions[i]},
-							(Sid[])sids.toArray(new Sid[sids.size()]),
-							false);
+					if (acl.isGranted(
+							new Permission[]{perm},
+							sids.toArray(new Sid[sids.size()]),
+							false)) {
+						return true;
+					}
 				} catch (NotFoundException ex) {}
-			}
-			for (int i = 0; i < granted.length; i++) {
-				if (granted[i])
-					return true;
 			}
 			return false;
 		} catch (NotFoundException ex) {

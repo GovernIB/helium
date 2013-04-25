@@ -26,6 +26,8 @@ import javax.persistence.UniqueConstraint;
 
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
@@ -38,6 +40,7 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(	name="hel_enumeracio",
 		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "entorn_id", "expedient_tipus_id"})})
 @org.hibernate.annotations.Table(

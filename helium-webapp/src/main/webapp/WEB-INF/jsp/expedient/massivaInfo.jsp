@@ -116,23 +116,16 @@ function changeVar(){
 		$("button[value='subvar']").attr("disabled", "disabled");
 	}
 }
-function massiva(e){
-
+function massiva(form){
 	if("<%=request.getAttribute("javax.servlet.forward.request_uri")%>" == "/helium/expedient/massivaInfoTE.html" )
 	{
 			$("#massiva").attr("action","consultaDisseny.html");
-			$("#targetScript").val("disseny");
-			$("#targetAturar").val("disseny");
-			$("#targetAccio").val("disseny");
-			$("#targetModificarVar").val("disseny");
-			$("#targetModificarDoc").val("disseny");
-			$("#targetVersio").val("disseny");
-			$("#targetIdx").val("disseny");
 	}
 	else if("<%=request.getAttribute("javax.servlet.forward.request_uri")%>" == "/helium/expedient/massivaInfo.html"){
 		$("#massiva").attr("action","consulta.html");
 		$("#target").val("consulta");
 	}
+	$('<input type="hidden" name="targetConsulta" value="<%=request.getAttribute("javax.servlet.forward.request_uri")%>" />').appendTo(form);
 }
 
 $(document).ready(function(){
@@ -176,7 +169,7 @@ $(document).ready(function(){
 					</c:choose>
 				</display:column>
 			</display:table>
-			<form id="massiva" action="consulta.html" class="uniForm" onclick="javascript:massiva(event)">
+			<form id="massiva" action="consulta.html" class="uniForm" onclick="javascript:massiva(this)">
 				<c:import url="../common/formElement.jsp">
 					<c:param name="type" value="buttons"/>
 					<c:param name="values">submit</c:param>
@@ -192,8 +185,7 @@ $(document).ready(function(){
 				<input id="inici" name="inici" type="text" class="textInput" <c:if test="${not empty param.inici}">value="${param.inici}"</c:if>/>
 			</div>
 			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key="expedient.massiva.actualitzar"/></h3>
-			<form:form action="massivaCanviVersio.html" cssClass="" commandName="canviVersioProcesCommand" onsubmit="return confirmarCanviVersio(event)" onclick="javascript:massiva(event)">
-				<input type="hidden" id="targetVersio" name="targetVersio" value="">
+			<form:form action="massivaCanviVersio.html" cssClass="" commandName="canviVersioProcesCommand" onsubmit="return confirmarCanviVersio(event)" onclick="javascript:massiva(this)">
 				<input type="hidden" id="ver_inici" name="inici">
 				<input type="hidden" id="ver_correu" name="correu">
 				<div class="inlineLabels">
@@ -218,10 +210,9 @@ $(document).ready(function(){
 			<c:set var="tePermisExecutarScript" value="${false}"/>
 			<security:accesscontrollist domainObject="${instanciaProces.expedient.tipus}" hasPermission="16,2"><c:set var="tePermisAccions" value="${true}"/></security:accesscontrollist>
 			<c:if test="${tePermisAccions}">
-				<form:form action="scriptMas.html" cssClass="uniForm" commandName="scriptCommandMas" onsubmit="return confirmarScript(event)" onclick="javascript:massiva(event)">
+				<form:form action="scriptMas.html" cssClass="uniForm" commandName="scriptCommandMas" onsubmit="return confirmarScript(event)" onclick="javascript:massiva(this)">
 						
 						<div class="inlineLabels">
-							<input type="hidden" id="targetScript" name="targetScript" value="">
 							<input type="hidden" name="id" value="${instanciaProces.id}"/>
 							<input type="hidden" id="scr_inici" name="inici">
 							<input type="hidden" id="scr_correu" name="correu">
@@ -241,9 +232,8 @@ $(document).ready(function(){
 			</c:if>
 		
 			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key='expedient.eines.aturar_tramitacio' /></h3>
-			<form:form action="aturarMas.html" cssClass="uniForm" commandName="aturarCommandMas" onsubmit="return confirmarAturar(event)" onclick="javascript:massiva(event)">
+			<form:form action="aturarMas.html" cssClass="uniForm" commandName="aturarCommandMas" onsubmit="return confirmarAturar(event)" onclick="javascript:massiva(this)">
 				<div class="inlineLabels">
-				<input type="hidden" id="targetAturar" name="targetAturar" value="">
 					<input type="hidden" name="id" value="${instanciaProces.id}"/>
 					<input type="hidden" id="atu_inici" name="inici">
 					<input type="hidden" id="atu_correu" name="correu">
@@ -263,7 +253,7 @@ $(document).ready(function(){
 		</div>
 		<div class="inlineLabels uniForm col last">
 			<c:set var="hiHaAccions" value="${false}"/>
-			<c:if test="${not empty accions}"><c:set var="hiHaAccions" value="${fn:length(accions) > 0}"/></c:if>
+			<c:if test="${not empty instanciaProces.definicioProces.accions}"><c:set var="hiHaAccions" value="${fn:length(instanciaProces.definicioProces.accions) > 0}"/></c:if>
 			
 			<div class="ctrlHolder" style="height:45px;">
 				<label for="correu"><fmt:message key="expedient.massiva.correu"/></label>
@@ -273,7 +263,7 @@ $(document).ready(function(){
 			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key="expedient.massiva.accions"/></h3>
 			<c:if test="${hiHaAccions}">
 				<c:set var="hiHaAccionsPubliques" value="${false}"/>
-				<c:forEach var="accio" items="${accions}">
+				<c:forEach var="accio" items="${instanciaProces.definicioProces.accions}">
 					<c:if test="${not accio.oculta}">
 						<c:set var="hiHaAccions" value="${true}"/>
 						<c:if test="${accio.publica}"><c:set var="hiHaAccionsPubliques" value="${true}"/></c:if>
@@ -282,16 +272,15 @@ $(document).ready(function(){
 				<c:set var="tePermisAccions" value="${false}"/>
 				<security:accesscontrollist domainObject="${instanciaProces.expedient.tipus}" hasPermission="16,2"><c:set var="tePermisAccions" value="${true}"/></security:accesscontrollist>
 				<c:if test="${hiHaAccionsPubliques || (hiHaAccions && tePermisAccions)}">
-					<form:form action="massivaExecutarAccio.html" cssClass="" commandName="execucioAccioCommand" onsubmit="return confirmarExecutarAccio(event)" onclick="javascript:massiva(event)">
-						<input type="hidden" id="targetAccio" name="targetAccio" value="">
+					<form:form action="massivaExecutarAccio.html" cssClass="" commandName="execucioAccioCommand" onsubmit="return confirmarExecutarAccio(event)" onclick="javascript:massiva(this)">
 						<input type="hidden" id="acc_inici" name="inici">
 						<input type="hidden" id="acc_correu" name="correu">
 						<div class="inlineLabels">
-							<c:set var="accions" value="${accions}" scope="request"/>
+							<c:set var="accio" value="${instanciaProces.definicioProces.accions}" scope="request"/>
 							<c:import url="../common/formElement.jsp">
 								<c:param name="property" value="accioId"/>
 								<c:param name="type" value="select"/>
-								<c:param name="items" value="accions"/>
+								<c:param name="items" value="accio"/>
 								<c:param name="itemLabel" value="nom"/>
 								<c:param name="itemValue" value="codi"/>
 								<c:param name="label"><fmt:message key="expedient.massiva.exec_accio"/></c:param>
@@ -312,13 +301,12 @@ $(document).ready(function(){
 			</c:if>
 			
 			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key='expedient.massiva.modificar_variables' /></h3>
-			<form:form action="dadaModificarMas.html" method="GET" cssClass="uniForm" commandName="modificarVariablesMasCommand" onsubmit="return confirmarModificarVariables(event)" onclick="javascript:massiva(event)">
+			<form:form action="dadaModificarMas.html" method="GET" cssClass="uniForm" commandName="modificarVariablesMasCommand" onsubmit="return confirmarModificarVariables(event)" onclick="javascript:massiva(this)">
 				<div class="inlineLabels">
-				<input type="hidden" id="targetModificarVar" name="targetModificarVar" value="">
 					<input type="hidden" name="id" value="${instanciaProces.id}"/>
 					<input type="hidden" id="var_inici" name="inici">
 					<input type="hidden" id="var_correu" name="correu">
-					<c:set var="variables" value="${camps}" scope="request"/>
+					<c:set var="variables" value="${instanciaProces.camps}" scope="request"/>
 						<c:import url="../common/formElement.jsp">
 							<c:param name="property">var</c:param>
 							<c:param name="type" value="select"/>
@@ -339,8 +327,7 @@ $(document).ready(function(){
 			
 			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key="expedient.massiva.documents"/></h3>
 			<c:if test="${not empty documents}">
-				<form:form action="documentModificarMas.html" cssClass="uniForm" method="GET" commandName="documentCommandForm" onsubmit="return confirmarModificarDocument(event)" onclick="javascript:massiva(event)">
-					<input type="hidden" id="targetModificarDoc" name="targetModificarDoc" value="">
+				<form:form action="documentModificarMas.html" cssClass="uniForm" method="GET" commandName="documentCommandForm" onsubmit="return confirmarModificarDocument(event)" onclick="javascript:massiva(this)">
 					<input type="hidden" name="id" value="${instanciaProces.id}"/>
 					<input type="hidden" id="doc_inici" name="inici">
 					<input type="hidden" id="doc_correu" name="correu">
@@ -372,8 +359,7 @@ $(document).ready(function(){
 			</c:if>	
 			
 			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key='expedient.eines.reindexar.expedients' /></h3>
-			<form:form action="reindexarMas.html" cssClass="uniForm" onsubmit="return confirmarReindexar(event)"  onclick="javascript:massiva(event)">
-				<input type="hidden" id="targetIdx" name="targetIdx" value="">
+			<form:form action="reindexarMas.html" cssClass="uniForm" onsubmit="return confirmarReindexar(event)"  onclick="javascript:massiva(this)">
 				<input type="hidden" id="idx_inici" name="inici">
 				<input type="hidden" id="idx_correu" name="correu">
 				<c:import url="../common/formElement.jsp">

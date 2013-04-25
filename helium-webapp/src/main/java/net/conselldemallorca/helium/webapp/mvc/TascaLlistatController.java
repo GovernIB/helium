@@ -167,6 +167,11 @@ public class TascaLlistatController extends BaseController {
 							(List<TascaLlistatDto>)pagina.getList()));
 			model.addAttribute("command", tascaPersonaFiltreCommand);
 			model.addAttribute("tipusExp", llistatExpedientTipusAmbPermisos(entorn));
+			
+			// Asignamos los valores del filtro a la pestaña de grup
+			model.addAttribute("grupLlistatCount", getPaginaTasquesGrup(entorn,tascaPersonaFiltreCommand,null,null,null,objectsPerPage).getFullListSize());
+			request.getSession().setAttribute("commandTascaGrupFiltre", tascaPersonaFiltreCommand);
+			
 			return "tasca/personaLlistat";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
@@ -241,6 +246,11 @@ public class TascaLlistatController extends BaseController {
 							(List<TascaLlistatDto>)pagina.getList()));
 			model.addAttribute("command", tascaGrupFiltreCommand);
 			model.addAttribute("tipusExp", llistatExpedientTipusAmbPermisos(entorn));
+			
+			// Asignamos los valores del filtro a la pestaña de personals
+			model.addAttribute("personaLlistatCount", getPaginaTasquesPersonals(entorn,tascaGrupFiltreCommand,null,null,null,objectsPerPage).getFullListSize());
+			request.getSession().setAttribute("commandTascaPersonaFiltre", tascaGrupFiltreCommand);
+			
 			return "tasca/grupLlistat";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
@@ -381,7 +391,7 @@ public class TascaLlistatController extends BaseController {
 			String dir,
 			String objectsPerPage) {
 		int maxResults = getObjectsPerPage(objectsPerPage);
-		int pagina = (page != null) ? new Integer(page).intValue() : 1;
+		int pagina = (page == null) ? 1: Integer.valueOf(page);
 		int firstRow = (pagina - 1) * maxResults;
 		boolean isAsc = (dir == null) || "asc".equals(dir);
 		// Ordenació per defecte
@@ -422,7 +432,7 @@ public class TascaLlistatController extends BaseController {
 			String dir,
 			String objectsPerPage) {
 		int maxResults = getObjectsPerPage(objectsPerPage);
-		int pagina = (page != null) ? new Integer(page).intValue() : 1;
+		int pagina = (page == null) ? 1 : Integer.valueOf(page);
 		int firstRow = (pagina - 1) * maxResults;
 		boolean isAsc = (dir == null) || "asc".equals(dir);
 		// Ordenació per defecte

@@ -18,6 +18,8 @@ import javax.persistence.TemporalType;
 import net.conselldemallorca.helium.core.model.hibernate.GenericEntity;
 import net.conselldemallorca.helium.core.security.acl.SecureObject;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
@@ -28,6 +30,7 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(name="hel_versio")
 public class Versio implements Serializable, GenericEntity<Long>, SecureObject {
 
