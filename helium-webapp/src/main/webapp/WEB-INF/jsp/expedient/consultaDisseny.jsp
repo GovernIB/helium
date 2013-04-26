@@ -24,11 +24,22 @@
 		if (e.stopPropagation) e.stopPropagation();
 		return confirm("Estau segur que voleu esborrar aquest expedient?");
 	}
-	function confirmarAnular(e) {
+	function confirmarAnular(e, registre) {
+		var resposta="";
+		$("#id").val(registre);
 		var e = e || window.event;
 		e.cancelBubble = true;
-		if (e.stopPropagation) e.stopPropagation();
-		return confirm("Estau segur que voleu anul·lar aquest expedient?");
+		var confirmaAnula = confirm("<fmt:message key="expedient.consulta.confirm.anular"/>"); 
+	 	if (confirmaAnula){	
+	 		resposta = prompt("Introdueix el motiu de l'anul·lació",'');
+	 		$("#motiu").val(resposta);
+	 	}
+	 	
+	 	if(resposta!="null"){
+	 		document.forms["anularMot"].submit();
+	 		//return;
+	 	}
+	 	if (e.stopPropagation) e.stopPropagation();
 	}
 	
 	
@@ -291,7 +302,7 @@
 					<security:accesscontrollist domainObject="${consulta.expedientTipus}" hasPermission="16,2">
 						<display:column media="html">
 							<c:if test="${!registre.expedient.anulat}">
-								<a href="<c:url value="/expedient/anular.html"><c:param name="id" value="${registre.expedient.id}"/></c:url>" onclick="return confirmarAnular(event)"><img src="<c:url value="/img/delete.png"/>" alt="<fmt:message key='comuns.anular' />" title="<fmt:message key='comuns.anular' />" border="0"/></a>
+								<a href="javascript:void(0);" onclick="confirmarAnular(event, ${registre.expedient.id})"><img src="<c:url value="/img/delete.png"/>" alt="<fmt:message key="comuns.anular"/>" title="<fmt:message key="comuns.anular"/>" border="0"/></a>
 							</c:if>
 						</display:column>
 					</security:accesscontrollist>
@@ -316,6 +327,9 @@
 			</c:if>
 		</c:if>
 	</c:if>
-
+	<form:form  method="GET" name="anularMot" id="anularMot" action="/helium/expedient/dissenyAnular.html?id=${registreId}&motiu=${param.motiu}"  cssClass="uniForm">
+		<input type="hidden" id="id" name="id" value=""></input>
+		<input type="hidden" id="motiu" name="motiu" value=""></input>
+	</form:form>
 </body>
 </html>
