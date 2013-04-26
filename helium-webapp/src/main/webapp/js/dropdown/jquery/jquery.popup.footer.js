@@ -1,16 +1,29 @@
+var interval_pbar_total_massive; 
+var interval_pbar_total_massiveDetail;
+var delayBarDetail = 1000;
+var delayBar = 1000;
+var numBarras = 0;
+var mostrarDetalle = true;
+
+function ocultarDetalleExpediente() {
+	if (interval_pbar_total_massiveDetail != null) {
+ 		window.clearInterval(interval_pbar_total_massiveDetail);
+ 		interval_pbar_total_massiveDetail = null;
+ 	}
+}
+
 $(function() {
-	var open = false;
 	$('#pbar_total_massive_table').click(function() {
-		if(open === false) {
-			$('#footerSlideContainer').show();
-			$(this).css('backgroundPosition', 'bottom left');
-			open = true;
+		if (numBarras > 1) {
+			$('#footerSlideContainer').slideToggle();
 		} else {
-			$('#footerSlideContainer').hide();
-			$(this).css('backgroundPosition', 'top left');
-			open = false;
+			if (mostrarDetalle) {
+				mostrarDetalle = false;
+				var idBarra = $('.pbar').attr('id');
+				mostrarDetalleExpediente(idBarra.substr(5, idBarra.length-1));
+			}
 		}
-	});		
+	});	
 });
 
 /**
@@ -20,34 +33,34 @@ function mostrarDetalleExpediente(id) {
 	$.post("/helium/expedient/refreshBarExpedientMassiveDetailAct.html",
     { idExp: id },
     function(data){
-    	 	// Recibimos los datos
-    		$('#pbar_total_massive_table_bars').hide();
-    		$('#pbar_total_massive_detail').hide();
-    		
-    		$('#div_progressBarMassiveDetail').html(data);
-    		
+    	 	// Recibimos los datos    		
+    		$('#div_progressBarMassiveDetail').html(data);    		
     		$('#div_progressBarMassiveDetail #main #header').hide();
     		$('#div_progressBarMassiveDetail #footer').hide();
-
+    		$('#div_progressBarMassiveDetail #main #push').hide();
     		$('#div_progressBarMassiveDetail  #main #content').attr("id", "contenido");
-
-    		$('#pbar_total_massive_detail').show();
+    		$('#footerSlideContainerDetail').dialog("open");
     		
     		// Refrescamos los datos
-    		//refreshTable();
+    		if (interval_pbar_total_massiveDetail == null) {
+    			refreshTable(id);
+    		}
+    		mostrarDetalle = true;
 	});
 }
 
 function cancelarExpedientMassiveAct(url,id) {
-	$.post(url,
-    { idExp: id },
-     function(data){});
+	$.post(url, { idExp: id }, function(data){});
 }
 
-function refreshTable(){
-	var delay = 1000;
-	var auto = setInterval(function ()
+function refreshTable(id) {
+	interval_pbar_total_massiveDetail = setInterval(function ()
 	{
-          $('#div_progressBarMassiveDetail').load('/WEB-INF/jsp/decorators/progressBarMassiveDetail.jsp');
-    }, delay); // refresh every 5000 milliseconds
+			$.post("/helium/expedient/refreshRegistreExpedientMassiveDetailAct.html",
+			{ idExp: id },
+		    function(data){
+				// Recibimos los datos
+	    		$('#registrosDetalles').html(data);
+			});
+    }, delayBarDetail);
 }

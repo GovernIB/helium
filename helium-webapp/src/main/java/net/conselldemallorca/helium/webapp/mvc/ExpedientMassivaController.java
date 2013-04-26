@@ -1663,11 +1663,15 @@ public class ExpedientMassivaController extends BaseController {
 	    "<th>"+getMessage("expedient.llistat.expedient")+"</th>"+
 	    "<th>"+getMessage("expedient.consulta.estat")+"</th>"+
 	    "<th></th></tr></thead>"+
-	    "<tbody>");	    
+	    "<tbody id=\"registrosDetalles\">");	    
 	    for (OperacioMassivaDto operac : listado) {
+	    	String titulo = operac.getExpedient().getNumeroDefault();
+	    	if (operac.getExpedient().getTitol() != null) {
+	    		titulo +=" "+operac.getExpedient().getTitol();
+	    	}
 	    	out.println(
 	    		"<tr class=\"odd\">"+
-				    "<td>"+operac.getExpedient().getNumeroDefault()+"</td>"+
+				    "<td>"+titulo+"</td>"+
 				    "<td>"+getTextImgEstatusExecucioMassiva(operac)+"</td>"+
 			    	"<td>");
 	    	if (operac.getEstat().equals(ExecucioMassivaEstat.ESTAT_PENDENT)){
@@ -1678,6 +1682,42 @@ public class ExpedientMassivaController extends BaseController {
 	    	out.println("</td></tr>");
 	    }	    
 	    out.println("</tbody></table>");
+	}
+	
+	/**
+	 * Refresca las barras de progreso de detalle de las acciones masivas
+	 */
+	@RequestMapping(value = "/expedient/refreshRegistreExpedientMassiveDetailAct", method = RequestMethod.POST)
+	@ResponseBody
+	public String refreshRegistreExpedientMassiveDetailAct(
+			@RequestParam(value = "idExp", required = false) Long idExp, 
+			HttpServletRequest request, 
+			HttpServletResponse response, 
+			ModelMap model, 
+			HttpSession session
+		) throws ServletException, IOException {
+		List<OperacioMassivaDto> listado = execucioMassivaService.getExecucionsMassivesById(idExp);
+		
+		// Generamos la tabla
+		String salida = "";
+	    for (OperacioMassivaDto operac : listado) {
+	    	String titulo = operac.getExpedient().getNumeroDefault();
+	    	if (operac.getExpedient().getTitol() != null) {
+	    		titulo +=" "+operac.getExpedient().getTitol();
+	    	}
+	    	salida += (
+	    		"<tr class=\"odd\">"+
+				    "<td>"+titulo+"</td>"+
+				    "<td>"+getTextImgEstatusExecucioMassiva(operac)+"</td>"+
+			    	"<td>");
+	    	if (operac.getEstat().equals(ExecucioMassivaEstat.ESTAT_PENDENT)){
+	    		salida += ("<img style=\"cursor: pointer\" onclick=\"cancelarExpedientMassiveAct('/helium/expedient/cancelExpedientMassiveAct.html','"+operac.getId()+"')\" border=\"0\" title=\""+getMessage("expedient.termini.estat.cancelat")+"\" alt=\""+getMessage("expedient.termini.estat.cancelat")+"\" src=\"/helium/img/delete.png\">");
+	    	} else if (operac.getEstat().equals(ExecucioMassivaEstat.ESTAT_ERROR) && (operac.getError() != null)){
+	    		salida += ("<label style=\"cursor: pointer\" onclick=\"alert(escape('"+operac.getError()+"'))\">"+getMessage("expedient.termini.estat.error")+"</label>");
+	    	}
+	    	salida += ("</td></tr>");
+	    }
+	    return salida;
 	}
 	
 	/**

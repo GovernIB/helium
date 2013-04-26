@@ -28,8 +28,11 @@
 <![endif]-->
 	<link href="<c:url value="/css/layout.css"/>" rel="stylesheet" type="text/css"/>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.js"/>"></script>
+	<script  type="text/javascript" src="<c:url value="/js/jquery/ui/jquery-ui-1.7.2.custom.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/dropdown/jquery/jquery.popup.footer.js"/>"></script>
 <%-- menu --%>
+	<link media="all" type="text/css" href="http://code.jquery.com/ui/1.8.21/themes/base/jquery-ui.css" rel="stylesheet">
+	<link media="all" type="text/css" href="http://static.jquery.com/ui/css/demo-docs-theme/ui.theme.css" rel="stylesheet">
 	<link href="<c:url value="/css/dropdown/dropdown.css"/>" media="all" rel="stylesheet" type="text/css" />
 	<link href="<c:url value="/css/dropdown/themes/helium/helium.css"/>" media="all" rel="stylesheet" type="text/css" />
 <!--[if lt IE 7]>

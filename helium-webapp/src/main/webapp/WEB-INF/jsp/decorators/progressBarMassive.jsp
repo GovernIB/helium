@@ -7,8 +7,11 @@
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 
 <div id="footerSlideContainer">
-	<div id="footerSlideContent">
-		<div id="footerSlideText">
+	<div class="footerSlideContent">
+	    <div class="page-title-massiva">
+			<h2><span><fmt:message key='expedient.massiva.titol' /></span></h2>
+		</div>
+		<div class="footerSlideText">
 			<table id="pbar_total_massive_table_bars">
 				<%
 					List<Long> listaMassiva = (List<Long>) session.getAttribute( "consultaExpedientsIdsMassiusActives" );
@@ -17,14 +20,14 @@
 					for (int j=0;(listaMassiva != null) && (j<listaMassiva.size());j++) {		
 				    	%>
 				    		<tr id="pbar_tr_<%=listaMassiva.get(j)%>">
-				    			<td class="td_texto">
+				    			<td class="td_texto" style="width: 25%">
 				    				<%=listaMassivaText.get(j)%>
 				    			</td>
-				    			<td class="td_barra">
+				    			<td class="td_barra" style="width: 70%">
 				    				<div class="pbar" id="pbar_<%=listaMassiva.get(j)%>"></div>
 				    			</td>
-				    			<td>
-				    				<img id="pbar_total_massive_icon" src="/helium/img/magnifier.png" onClick="mostrarDetalleExpediente('<%=listaMassiva.get(j)%>')" style="cursor: pointer"/>
+				    			<td style="width: 5%">
+				    				<img id="pbar_total_massive_icon" src="/helium/img/magnifier.png" onClick="mostrarDetalleExpediente('<%=listaMassiva.get(j)%>')" style="padding-left: 0px;cursor: pointer"/>
 				    			</td>
 				    		</tr>
 				    		<script>
@@ -32,26 +35,38 @@
 				    				$("#pbar_<%=listaMassiva.get(j)%>").progressbar({ value: 0 });
 				    				$("#pbar_tr_<%=listaMassiva.get(j)%>").hide();
 				    			}
+				    			numBarras++;
 				    		</script>
 				    	<%
 					}
 				%>
 			</table>
-			<table id="pbar_total_massive_detail" style="display: none">
-				<tr>
-					<td>
-						<div id="div_progressBarMassiveDetail"/>
-					</td>
-				</tr>
-				<tr>
-					<td style="text-align: right; padding-right: 8px">
-						<button onClick="$('#pbar_total_massive_detail').hide();$('#pbar_total_massive_table_bars').show();" value="submit" name="submit" class="submitButton" type="button"><fmt:message key='comuns.tornar' /></button>
-					</td>
-				</tr>
-			</table>
 		</div>
 	</div>
 </div>
+
+<div class="dialog-form-massive-bar" id="footerSlideContainerDetail" title="<fmt:message key='expedient.massiva.proces' />">
+	<table id="pbar_total_massive_detail">
+		<tr>
+			<td>
+				<div id="div_progressBarMassiveDetail"/>
+			</td>
+		</tr>
+	</table>
+</div>
+	
+<script>
+	$( "#footerSlideContainerDetail" ).dialog({
+		autoOpen: false,
+		height: 'auto',
+		width: 525,
+		modal: true,
+		resizable:false,
+		close: function() {
+			ocultarDetalleExpediente();
+		}
+	});
+</script>
 
 <div id="pbar_total_massive_div">
 	<table id="pbar_total_massive_table" style="display: none">
@@ -72,10 +87,8 @@
 <script>
 	if ($.isFunction($.fn.progressbar)) {
 	<% if ((listaMassiva != null) && (listaMassiva.size() > 0))  { %>
-		var timeRefresh = 1000;
 		$("#pbar_total_massive").progressbar({ value: 0 });
 		
-		var interval_pbar_total_massive; 
 		var porcentajeTotal = 0;	
 		function pbar_total_massive(){
 		     $.post("/helium/expedient/refreshBarExpedientMassiveAct.html",
@@ -90,6 +103,9 @@
 			     	 	$("#pbar_total_massive_table").hide();
 			     	 } else {
 			     	 	$("#pbar_total_massive_table").show();
+			     	 	
+			     	 	$(".pbar").width($("#pbar_total_massive").width());
+				    	$(".pbar").height($("#pbar_total_massive").height());
 			     	 }
 			     	 <%
 						for (int j=0;(listaMassiva != null) && (j<listaMassiva.size());j++) {
@@ -98,7 +114,9 @@
 					 %>
 					 
 					 if (porcentajeTotal == 100) {
-			     	 	 window.clearInterval(interval_pbar_total_massive);
+					 	if (interval_pbar_total_massive != null) {
+			     	 		window.clearInterval(interval_pbar_total_massive);
+			     	 	}
 			     	 }
 				 }
 			 );
@@ -116,7 +134,9 @@
 			});
 		}   	 
      	
-		interval_pbar_total_massive = setInterval("pbar_total_massive()", timeRefresh);
+     	if (interval_pbar_total_massive == null) {
+			interval_pbar_total_massive = setInterval("pbar_total_massive()", delayBar);
+		}
 	<% } %>
 	}
 </script>

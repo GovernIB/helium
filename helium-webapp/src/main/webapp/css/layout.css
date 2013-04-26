@@ -78,7 +78,7 @@ html, body{
 	border-bottom: 1px dotted #d4d4d4;
 	/* Original */
 	/* min-height: 2em; */
-	/* Versió ie6 */
+	/* VersiÃ³ ie6 */
 	height: 2em;
 }
 #header #page-entorn-title h2 {
@@ -173,46 +173,47 @@ html, body{
 #footerSlideContainer {
 	position: fixed;
 	bottom:40px;
-	width: 60%;
+	width: 40%;
 	height: auto;
-	margin-left: 20%;
-	margin-right: 20%;
+	margin-left: 30%;
+	margin-right: 30%;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding-left: 8px;
 	display: none;
 	z-index: 5;
 }
 
-#footerSlideContent {
+.footerSlideContent {
 	width: 100%;
 	background-color: #f2f2f2;
 	border: 1px solid #dfdfdf;
 	color: #4C4C4C;
-	font-size: 0.8em;
-	font-family: DejaVuSansBook, Sans-Serif;
 }
 	
-#footerSlideText {
+.footerSlideText {
 	padding: 15px 10px 15px 25px;
 }
 	
-#footerSlideText table {
+.footerSlideText table {
 	width: 99%;
 	
 }
 	
-#footerSlideText table tr .td_texto{
+.footerSlideText table tr .td_texto{
 	width: 20%;
 }
 
 	
-#footerSlideText table tr .td_texto{
+.footerSlideText table tr .td_texto{
 	border-spacing: 0px;
 }
 
-#footerSlideText table tr .td_barra{
+.footerSlideText table tr .td_barra{
 	width: 80%;
 }
 
-#footerSlideText td{
+.footerSlideText td{
 	vertical-align: middle;
 }
 	
@@ -239,6 +240,11 @@ html, body{
 	width: 100%;
 }
 
+#pbar_total_massive_detail {
+	border-spacing: 15px;
+	padding-bottom: 15px;
+}
+
 #pbar_total_massive_div table td {
 	vertical-align: middle;
 }
@@ -246,12 +252,14 @@ html, body{
 #pbar_total_massive_text {
 	text-align: right;
 	padding-right: 10px;
+	cursor: pointer;
 }
 	
 #pbar_total_massive {
 	margin-left: auto;
 	margin-right: auto;
 	height: 10px;
+	cursor: pointer;
 }
 
 #pbar_total_massive_icon {
@@ -273,4 +281,38 @@ html, body{
 
 #div_progressBarMassiveDetail #main #push {
 	border-top: 0px;
+}
+
+.page-title-massiva {
+	background-color: #666;
+	height: 2em;
+	padding: 0.5em 0.8em;
+	clear: left;
+}
+
+.page-title-massiva h2 {
+	color: #848484;
+	font-family: Helvetica,Arial,sans-serif;
+	font-size: 146.5%;
+	font-weight: normal;
+	margin-top: 4px;
+	float: left;
+}
+
+.page-title-massiva h2 span {
+	color: white;
+	margin-right: 2px;
+}
+
+.dialog-form-massive-bar{
+        position:fixed; 
+	    font-family:arial;
+    	font-size:1em;
+    	border:0.05em solid black;
+    	overflow:false;
+    	background-color:#fff;
+}
+
+.pbar {
+	float: right;
 }

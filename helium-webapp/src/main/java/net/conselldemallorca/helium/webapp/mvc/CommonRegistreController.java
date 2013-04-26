@@ -117,6 +117,13 @@ public abstract class CommonRegistreController extends BaseController {
 					}
 				} else {
 					valors = new HashMap<String, Object>();
+					
+					Object[] valorRegistreTmp = new Object[camp.getRegistreMembres().size()];
+					for (int i = 0; i < valorRegistre.length; i++) {
+						valorRegistreTmp[i] =  valorRegistre[i];
+					}
+					valorRegistre = valorRegistreTmp;
+					
 					for (int i = 0; i < camp.getRegistreMembres().size(); i++) {
 						CampRegistre campRegistre = camp.getRegistreMembres().get(i);
 						valors.put(
