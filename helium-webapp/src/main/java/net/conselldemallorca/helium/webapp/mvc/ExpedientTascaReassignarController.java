@@ -71,7 +71,7 @@ public class ExpedientTascaReassignarController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
-			if (potModificarExpedient(expedient)) {
+			if (potModificarOReassignarExpedient(expedient)) {
 				atributsModel(
 	        			entorn,
 	        			expedient,
@@ -100,7 +100,7 @@ public class ExpedientTascaReassignarController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
-			if (potModificarExpedient(expedient)) {
+			if (potModificarOReassignarExpedient(expedient)) {
 				if ("submit".equals(submit) || submit.length() == 0) {
 					new TascaReassignarValidator().validate(command, result);
 			        if (result.hasErrors()) {
@@ -145,13 +145,14 @@ public class ExpedientTascaReassignarController extends BaseController {
 
 
 
-	private boolean potModificarExpedient(ExpedientDto expedient) {
+	private boolean potModificarOReassignarExpedient(ExpedientDto expedient) {
 		return permissionService.filterAllowed(
 				expedient.getTipus(),
 				ExpedientTipus.class,
 				new Permission[] {
 					ExtendedPermission.ADMINISTRATION,
-					ExtendedPermission.WRITE}) != null;
+					ExtendedPermission.WRITE,
+					ExtendedPermission.REASSIGNMENT}) != null;
 	}
 	private class TascaReassignarValidator implements Validator {
 		@SuppressWarnings({ "unchecked", "rawtypes" })

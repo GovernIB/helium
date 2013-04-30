@@ -82,7 +82,7 @@ function confirmarCancelar(e) {
 		</display:column>
 		<display:column>
 			<c:if test="${registre.open}">
-				<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
+				<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2,512">
 					<a href="<c:url value="/expedient/tascaReassignar.html"><c:param name="id" value="${param.id}"/><c:param name="taskId" value="${registre.id}"/></c:url>"><img src="<c:url value="/img/user_go.png"/>" alt="Reassignar" title="Reassignar" border="0"/></a>
 				</security:accesscontrollist>
 			</c:if>
