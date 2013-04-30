@@ -13,22 +13,16 @@ import java.util.Map;
 import java.util.Set;
 
 import net.conselldemallorca.helium.core.model.hibernate.GenericEntity;
-import net.conselldemallorca.helium.core.security.acl.AclServiceDao;
+import net.conselldemallorca.helium.core.security.AclServiceDao;
+import net.conselldemallorca.helium.core.security.PermissionUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.acls.AccessControlEntry;
-import org.springframework.security.acls.Acl;
-import org.springframework.security.acls.MutableAcl;
-import org.springframework.security.acls.NotFoundException;
-import org.springframework.security.acls.Permission;
-import org.springframework.security.acls.objectidentity.ObjectIdentity;
-import org.springframework.security.acls.objectidentity.ObjectIdentityImpl;
-import org.springframework.security.acls.sid.GrantedAuthoritySid;
-import org.springframework.security.acls.sid.PrincipalSid;
-import org.springframework.security.acls.sid.Sid;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.acls.domain.ObjectIdentityImpl;
+import org.springframework.security.acls.model.AccessControlEntry;
+import org.springframework.security.acls.model.NotFoundException;
+import org.springframework.security.acls.model.ObjectIdentity;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.acls.model.Sid;
 import org.springframework.stereotype.Service;
 
 
@@ -52,29 +46,21 @@ public class PermissionService {
 			Serializable id,
 			Class clazz,
 			boolean granting) {
-		Sid sid = (principal) ? new PrincipalSid(recipient) : new GrantedAuthoritySid(recipient);
-		ObjectIdentity objectIdentity = new ObjectIdentityImpl(clazz, id);
-		MutableAcl acl = null;
-		try {
-			acl = aclServiceDao.readMutableAclById(objectIdentity);
-		} catch (NotFoundException nfe) {
-			acl = aclServiceDao.createAcl(objectIdentity);
-		}
-		for (Permission perm: permissions) {
-			boolean insertar;
-			try {
-				insertar = !acl.isGranted(new Permission[] {perm}, new Sid[] {sid}, false);
-			} catch (Exception ignored) {
-				insertar = true;
+		for (Permission permission: permissions) {
+			if (principal) {
+				aclServiceDao.assignarPermisUsuari(
+						recipient,
+						clazz,
+						(Long)id,
+						permission);
+			} else {
+				aclServiceDao.assignarPermisRol(
+						recipient,
+						clazz,
+						(Long)id,
+						permission);
 			}
-			if (insertar)
-				acl.insertAce(
-						acl.getEntries().length,
-						perm,
-						sid,
-						true);
 		}
-		aclServiceDao.updateAcl(acl);
 	}
 	@SuppressWarnings("rawtypes")
 	public void deletePermissions(
@@ -84,57 +70,55 @@ public class PermissionService {
 			Serializable id,
 			Class clazz,
 			boolean granting) {
-		if (principal) {
-			for (Permission permission: permissions)
-				aclServiceDao.deleteAclEntry(
-						new PrincipalSid(recipient),
-						id,
+		for (Permission permission: permissions) {
+			if (principal) {
+				aclServiceDao.revocarPermisUsuari(
+						recipient,
 						clazz,
-						permission,
-						granting);
-		} else {
-			for (Permission permission: permissions)
-				aclServiceDao.deleteAclEntry(
-						new GrantedAuthoritySid(recipient),
-						id,
+						(Long)id,
+						permission);
+			} else {
+				aclServiceDao.revocarPermisRol(
+						recipient,
 						clazz,
-						permission,
-						granting);
+						(Long)id,
+						permission);
+			}
 		}
 	}
+
 	@SuppressWarnings("rawtypes")
 	public void deleteAllPermissionsForSid(
 			String recipient,
 			boolean principal,
 			Serializable id,
 			Class clazz) {
-		if (principal) {
-			aclServiceDao.deleteAclEntriesForSid(
-					new PrincipalSid(recipient),
-					id,
-					clazz);
-		} else {
-			aclServiceDao.deleteAclEntriesForSid(
-					new GrantedAuthoritySid(recipient),
-					id,
-					clazz);
-		}
+		deletePermissions(
+				recipient,
+				principal,
+				new HashSet<Permission>(PermissionUtil.permissionMap.values()),
+				id,
+				clazz,
+				true);
 	}
+
 	@SuppressWarnings("rawtypes")
 	public Map<Sid, List<AccessControlEntry>> getAclEntriesGroupedBySid(
 			Serializable id,
 			Class clazz) {
 		ObjectIdentity oid = new ObjectIdentityImpl(clazz, id);
 		try {
-			Acl acl = aclServiceDao.readAclById(oid);
 			Map<Sid, List<AccessControlEntry>> resposta = new HashMap<Sid, List<AccessControlEntry>>();
-			for (AccessControlEntry ace: acl.getEntries()) {
-				List<AccessControlEntry> entriesForSid = resposta.get(ace.getSid());
-				if (entriesForSid == null) {
-					entriesForSid = new ArrayList<AccessControlEntry>();
-					resposta.put(ace.getSid(), entriesForSid);
+			List<AccessControlEntry> aces = aclServiceDao.findAclsByOid(oid);
+			if (aces != null) {
+				for (AccessControlEntry ace: aces) {
+					List<AccessControlEntry> entriesForSid = resposta.get(ace.getSid());
+					if (entriesForSid == null) {
+						entriesForSid = new ArrayList<AccessControlEntry>();
+						resposta.put(ace.getSid(), entriesForSid);
+					}
+					entriesForSid.add(ace);
 				}
-				entriesForSid.add(ace);
 			}
 			return resposta;
 		} catch (NotFoundException ex) {
@@ -150,7 +134,7 @@ public class PermissionService {
 		Iterator it = list.iterator();
 		while (it.hasNext()) {
 			Object entry = it.next();
-			if (!isGrantedAny((GenericEntity)entry, clazz, permissions))
+			if (!aclServiceDao.isGrantedAny((GenericEntity)entry, clazz, permissions))
 				it.remove();
 		}
 	}
@@ -159,11 +143,19 @@ public class PermissionService {
 			GenericEntity object,
 			Class clazz,
 			Permission[] permissions) {
-		if (isGrantedAny(object, clazz, permissions)) {
+		if (aclServiceDao.isGrantedAny(object, clazz, permissions)) {
 			return object;
 		} else {
 			return null;
 		}
+	}
+
+	@SuppressWarnings("rawtypes")
+	public boolean isGrantedAny(
+			GenericEntity object,
+			Class clazz,
+			Permission[] permissions) {
+		return aclServiceDao.isGrantedAny(object, clazz, permissions);
 	}
 
 
@@ -171,39 +163,6 @@ public class PermissionService {
 	@Autowired
 	public void setAclServiceDao(AclServiceDao aclServiceDao) {
 		this.aclServiceDao = aclServiceDao;
-	}
-
-	@SuppressWarnings("rawtypes")
-	private boolean isGrantedAny(
-			GenericEntity object,
-			Class clazz,
-			Permission[] permissions) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		Set<Sid> sids = new HashSet<Sid>();
-		sids.add(new PrincipalSid(auth.getName()));
-		for (GrantedAuthority ga: auth.getAuthorities()) {
-			sids.add(new GrantedAuthoritySid(ga.getAuthority()));
-		}
-		try {
-			Acl acl = aclServiceDao.readAclById(new ObjectIdentityImpl(clazz, object.getId()));
-			boolean[] granted = new boolean[permissions.length];
-			for (int i = 0; i < permissions.length; i++) {
-				granted[i] = false;
-				try {
-					granted[i] = acl.isGranted(
-							new Permission[]{permissions[i]},
-							(Sid[])sids.toArray(new Sid[sids.size()]),
-							false);
-				} catch (NotFoundException ex) {}
-			}
-			for (int i = 0; i < granted.length; i++) {
-				if (granted[i])
-					return true;
-			}
-			return false;
-		} catch (NotFoundException ex) {
-			return false;
-		}
 	}
 
 }

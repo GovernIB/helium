@@ -3,7 +3,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
-<%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
 
 <html>
 <head>
@@ -50,7 +49,7 @@ function confirmar(e) {
 		<display:column title="Demana número?" sortable="false">
 			<c:choose><c:when test="${registre.demanaNumero}">Si</c:when><c:otherwise>No</c:otherwise></c:choose>
 		</display:column--%>
-		<security:accesscontrollist domainObject="${entornActual}" hasPermission="16,32">
+		<c:if test="${potDissenyarEntorn}">
 			<display:column>
 		    	<form action="<c:url value="/permisos/expedientTipus.html"/>">
 					<input type="hidden" name="id" value="${registre.id}"/>
@@ -60,15 +59,15 @@ function confirmar(e) {
 			<display:column>
 				<a href="<c:url value="/expedientTipus/delete.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 			</display:column>
-		</security:accesscontrollist>
+		</c:if>
 	</display:table>
 	<script type="text/javascript">initSelectable();</script>
 
-	<security:accesscontrollist domainObject="${entornActual}" hasPermission="16,32">
+	<c:if test="${potDissenyarEntorn}">
 		<form action="<c:url value="/expedientTipus/form.html"/>">
 			<button type="submit" class="submitButton">Nou tipus d'expedient</button>
 		</form>
-	</security:accesscontrollist>
+	</c:if>
 
 	<!-- 
 	<br /><br />

@@ -8,25 +8,27 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.v3.core.api.exception.PluginException;
 import net.conselldemallorca.helium.v3.core.api.service.ConfigService;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.PersonaHelper;
+import net.conselldemallorca.helium.v3.core.helper.UsuariActualCacheHelper;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.conselldemallorca.helium.v3.core.repository.FestiuRepository;
 import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
+import net.conselldemallorca.helium.v3.core.repository.UsuariPreferenciesRepository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.Authentication;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 /**
@@ -43,7 +45,11 @@ public class ConfigServiceImpl implements ConfigService {
 	private FestiuRepository festiuRepository;
 	@Resource
 	private ReassignacioRepository reassignacioRepository;
+	@Resource
+	private UsuariPreferenciesRepository usuariPreferenciesRepository;
 
+	@Resource
+	private UsuariActualCacheHelper usuariActualCacheHelper;
 	@Resource
 	private PersonaHelper personaHelper;
 	@Resource
@@ -55,13 +61,14 @@ public class ConfigServiceImpl implements ConfigService {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String usuariActual = auth.getName();
 		logger.debug("Cercant entorns permesos per a l'usuari actual (codi=" + usuariActual + ")");
-		List<Entorn> entorns = entornRepository.findAll();
-		// TODO Filtrar permesos
-		return conversioTipusHelper.convertirLlista(
-				entorns,
-				EntornDto.class);
+		return usuariActualCacheHelper.findEntornsPermesosUsuariActual(auth.getName());
 	}
 
+	public void setEntornActual(EntornDto entorn) {
+		Long entornId = (entorn != null) ? entorn.getId() : null;
+		logger.debug("Configurant l'entorn actual (id=" + entornId + ")");
+		EntornActual.setEntornId(entornId);
+	}
 	public EntornDto getEntornActual() {
 		Long entornId = EntornActual.getEntornId();
 		if (entornId == null)
@@ -100,6 +107,15 @@ public class ConfigServiceImpl implements ConfigService {
 						usuari,
 						new Date()),
 				ReassignacioDto.class);
+	}
+
+	public UsuariPreferenciesDto getPreferenciesUsuariActual() {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String usuariActual = auth.getName();
+		logger.debug("Obtenint preferències per a l'usuari actual (codi=" + usuariActual + ")");
+		return conversioTipusHelper.convertir(
+				usuariPreferenciesRepository.findByCodi(usuariActual),
+				UsuariPreferenciesDto.class);
 	}
 
 	public String getHeliumProperty(String propertyName) {

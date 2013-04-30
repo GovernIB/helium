@@ -30,30 +30,36 @@
 	<div class="aplication-logo pull-left"><img src="<c:url value="/img/logo-helium-w.png"/>" width="217" height="61" alt="Helium: Gestor d'expedients corporatiu" /></div>
 	<div class="pull-right main-menu">
 		<ul class="user-nav pull-right dropdown">
-			<li> <a class="dropdown-toggle text-wrap" data-toggle="dropdown" href="#"> <i class="icon-folder-close icon-white"></i> Juntes de Govern <span class="caret"></span> </a>
+			<li>
+				<a class="dropdown-toggle text-wrap" data-toggle="dropdown" href="#">
+					<i class="icon-folder-close icon-white"></i>
+					<c:choose>
+						<c:when test="${not empty expedientTipusActual}">${expedientTipusActual.nom}</c:when>
+						<c:otherwise>Tots els tipus</c:otherwise>
+					</c:choose>
+					<span class="caret"></span>
+				</a>
 				<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-					<li><a tabindex="-1" href="#">Iniciatives parlamentàries</a></li>
-					<li><a tabindex="-1" href="#">Juntes de Govern</a></li>
+					<c:forEach var="expedientTipus" items="${expedientTipusAccessibles}">
+						<li><a href="<c:url value="/v3/index"><c:param name="expedientTipusCanviarAmbId" value="${expedientTipus.id}"/></c:url>">${expedientTipus.nom}</a></li>
+					</c:forEach>
 					<li class="divider"></li>
-					<li><a tabindex="-1" href="#">Tots els tipus</a></li>
+					<li><a href="#">Tots els tipus</a></li>
 				</ul>
 			</li>
-			<li> <a class="dropdown-toggle text-wrap" data-toggle="dropdown" href="#"> <i class="icon-map-marker icon-white"></i> Adm. de Palma <span class="caret"></span> </a>
+			<li>
+				<a class="dropdown-toggle text-wrap" data-toggle="dropdown" href="#"> <i class="icon-map-marker icon-white"></i> ${entornActual.nom} <span class="caret"></span> </a>
 				<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-					<li><a tabindex="-1" href="#">Adm. de Manacor</a></li>
-					<li><a tabindex="-1" href="#">Adm. de Felanitx</a></li>
+					<c:forEach var="entorn" items="${entorns}">
+						<li><a href="<c:url value="/v3/index"><c:param name="entornCanviarAmbId" value="${entorn.id}"/></c:url>">${entorn.nom}</a></li>
+    				</c:forEach>
 				</ul>
 			</li>
-			<li> <a class="dropdown-toggle text-wrap" data-toggle="dropdown" href="#"> <i class="icon-user icon-white"></i> Rafel Sansó <span class="caret"></span> </a>
-				<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-					<li><a tabindex="-1" href="#">Configuració</a></li>
-					<li><a tabindex="-1" href="#">Sortir</a></li>
-				</ul>
-			</li>
+			<li><i class="icon-user icon-white"></i> ${dadesPersona.codi}</li>
 		</ul>
 		<div class="clearfix"></div>
 		<div class="btn-group pull-right">
-			<button class="btn btn-primary active">Expedients</button>
+			<button class="btn btn-primary active">Consultes</button>
 			<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">Informes <span class="caret"></span></button>
 				<ul class="dropdown-menu">
 					<li><a href="#" tabindex="-1">Expedient iniciatives parlamentàries</a></li>
@@ -66,7 +72,7 @@
 <div class="row-fluid container main">
 	<div class="well well-white">
 		<div class="row-fluid">
-			<jsp:include page="../common/missatgesInfoError.jsp"/>
+			<jsp:include page="../v3/missatges.jsp"/>
 			<decorator:body />
 		</div>
 		<div class="clearfix"></div>
@@ -74,7 +80,7 @@
 </div>
 <!-- /container -->
 <div class="container row-fluid">
-	<div class="pull-left colophon">Helium v3.0 | Limit Tecnologies</div>
+	<div class="pull-left colophon">Helium v${versioNom} | Limit Tecnologies</div>
 	<div class="pull-right govern-footer"> <img src="<c:url value="/img/govern-logo-neg.png"/>" width="129" height="30" alt="Govern de les Illes Balears" /></div>
 </div>
 

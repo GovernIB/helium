@@ -140,6 +140,12 @@ body {
 	padding-bottom:6px;
 	border-bottom: 1px solid #666;
 }
+
+.caret-up {
+	border-top: 0;
+	border-bottom: 4px solid #000000;
+}
+
 label {
 	font-size:12px;
 }

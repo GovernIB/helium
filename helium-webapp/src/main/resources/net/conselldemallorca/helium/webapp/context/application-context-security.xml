@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans	xmlns="http://www.springframework.org/schema/beans"
+		xmlns:sec="http://www.springframework.org/schema/security"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="
+				http://www.springframework.org/schema/beans
+				http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+				http://www.springframework.org/schema/security
+				http://www.springframework.org/schema/security/spring-security-3.1.xsd">
+
+	<sec:http create-session="never" use-expressions="false" auto-config="false" entry-point-ref="preAuthenticatedProcessingFilterEntryPoint">
+		<sec:intercept-url pattern="/index.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<sec:intercept-url pattern="/error.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<sec:intercept-url pattern="/css/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<sec:intercept-url pattern="/js/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<sec:intercept-url pattern="/img/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<sec:intercept-url pattern="/ws" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<sec:intercept-url pattern="/ws/" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<sec:intercept-url pattern="/ws/NotificacioEntradaV1" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<sec:intercept-url pattern="/ws/NotificacioEntradaV2" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<sec:intercept-url pattern="/ws/DominiIntern" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<sec:intercept-url pattern="/ws/FormulariExtern" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<sec:intercept-url pattern="/ws/TramitacioService" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<sec:intercept-url pattern="/services/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<sec:intercept-url pattern="/rol/test.html" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<sec:intercept-url pattern="/signatura/aFirma/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<sec:intercept-url pattern="/signatura/caib/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<sec:intercept-url pattern="/signatura/verificarExtern.html" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<sec:intercept-url pattern="/signatura/arxiu.html" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<sec:intercept-url pattern="/entorn/seleccio.html" access="ROLE_ADMIN,ROLE_USER" />
+		<sec:intercept-url pattern="/entorn/configDefault.html" access="ROLE_ADMIN,ROLE_USER" />
+		<sec:intercept-url pattern="/persona/suggest.html" access="ROLE_ADMIN,ROLE_USER" />
+		<sec:intercept-url pattern="/persona/**" access="ROLE_ADMIN" />
+		<sec:intercept-url pattern="/entorn/**" access="ROLE_ADMIN" />
+		<sec:intercept-url pattern="/rol/**" access="ROLE_ADMIN" />
+		<sec:intercept-url pattern="/festiu/**" access="ROLE_ADMIN" />
+		<sec:intercept-url pattern="/**" access="ROLE_ADMIN,ROLE_USER" />
+		<sec:custom-filter position="PRE_AUTH_FILTER" ref="preauthFilter"/>
+		<sec:anonymous/>
+		<sec:logout logout-url="/logout.jsp"/>
+		<sec:session-management session-fixation-protection="none"/>
+	</sec:http>
+
+	<sec:authentication-manager alias="authenticationManager">
+		<sec:authentication-provider ref="preAuthenticatedAuthenticationProvider"/>
+	</sec:authentication-manager>
+
+	<bean id="preAuthenticatedProcessingFilterEntryPoint" class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint" />
+	<bean id="preAuthenticatedAuthenticationProvider" class="org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider">
+		<property name="preAuthenticatedUserDetailsService">
+			<bean class="org.springframework.security.web.authentication.preauth.PreAuthenticatedGrantedAuthoritiesUserDetailsService" />
+		</property>
+	</bean>
+
+	<bean id="preauthFilter" class="org.springframework.security.web.authentication.preauth.j2ee.J2eePreAuthenticatedProcessingFilter">
+		<property name="authenticationDetailsSource">
+			<bean class="net.conselldemallorca.helium.webapp.v3.security.RolesBasedPreAuthenticatedWebAuthenticationDetailsSource">
+				<property name="mappableRolesRetriever">
+					<bean class="net.conselldemallorca.helium.webapp.v3.security.RolesBasedMappableAttributesRetriever">
+						<property name="defaultMappableAttributes">
+							<set>
+								<value>HEL_ADMIN</value>
+								<value>HEL_USER</value>
+								<value>tothom</value>
+							</set>
+						</property>
+					</bean>
+				</property>
+				<property name="userRoles2GrantedAuthoritiesMapper">
+					<bean class="net.conselldemallorca.helium.webapp.v3.security.RolesBasedAttributes2GrantedAuthoritiesMapper">
+						<property name="baseRoleMapping">
+							<map>
+								<entry key="HEL_ADMIN" value="ROLE_ADMIN"/>
+								<entry key="HEL_USER" value="ROLE_USER"/>
+								<entry key="tothom" value="ROLE_USER"/>
+							</map>
+						</property>
+					</bean>
+				</property>
+			</bean>
+		</property>
+		<property name="authenticationManager" ref="authenticationManager"/>
+	</bean>
+
+	<bean class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler"/>
+
+	<!-- ACL -->
+	<sec:global-method-security pre-post-annotations="enabled">
+		<sec:expression-handler ref="expressionHandler" />
+	</sec:global-method-security>
+	<bean id="expressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
+		<property name="permissionEvaluator" ref="permissionEvaluator" />
+		<property name="roleHierarchy" ref="roleHierarchy" />
+	</bean>
+	<bean id="permissionEvaluator" class="org.springframework.security.acls.AclPermissionEvaluator">
+		<constructor-arg ref="aclService" />
+		<property name="permissionFactory" ref="permissionFactory"/>
+	</bean>
+	<bean id="roleHierarchy" class="org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl">
+		<property name="hierarchy">
+			<value></value>
+			<!--value>
+				ROLE_ADMIN > ROLE_USER
+				ROLE_USER > ROLE_VISITOR
+			</value-->
+		</property>
+	</bean>
+	<!-- /ACL -->
+
+</beans>

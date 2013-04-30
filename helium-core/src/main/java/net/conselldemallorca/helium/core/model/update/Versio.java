@@ -16,7 +16,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import net.conselldemallorca.helium.core.model.hibernate.GenericEntity;
-import net.conselldemallorca.helium.core.security.acl.SecureObject;
 
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
@@ -29,7 +28,7 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
  */
 @Entity
 @Table(name="hel_versio")
-public class Versio implements Serializable, GenericEntity<Long>, SecureObject {
+public class Versio implements Serializable, GenericEntity<Long> {
 
 	private Long id;
 	@NotBlank

@@ -9,21 +9,24 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.annotation.Resource;
+
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.acls.AccessControlEntry;
-import org.springframework.security.acls.Acl;
-import org.springframework.security.acls.MutableAcl;
-import org.springframework.security.acls.MutableAclService;
-import org.springframework.security.acls.NotFoundException;
-import org.springframework.security.acls.Permission;
-import org.springframework.security.acls.objectidentity.ObjectIdentity;
-import org.springframework.security.acls.objectidentity.ObjectIdentityImpl;
-import org.springframework.security.acls.sid.GrantedAuthoritySid;
-import org.springframework.security.acls.sid.PrincipalSid;
-import org.springframework.security.acls.sid.Sid;
+import org.springframework.security.acls.domain.GrantedAuthoritySid;
+import org.springframework.security.acls.domain.ObjectIdentityImpl;
+import org.springframework.security.acls.domain.PrincipalSid;
+import org.springframework.security.acls.model.AccessControlEntry;
+import org.springframework.security.acls.model.Acl;
+import org.springframework.security.acls.model.MutableAcl;
+import org.springframework.security.acls.model.MutableAclService;
+import org.springframework.security.acls.model.NotFoundException;
+import org.springframework.security.acls.model.ObjectIdentity;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.acls.model.Sid;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.stereotype.Component;
 
 
 /**
@@ -31,107 +34,98 @@ import org.springframework.security.acls.sid.Sid;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Component
 public class PermisosHelper {
 
-	public static void assignarPermisUsuari(
+	@Resource
+	private MutableAclService aclService;
+
+
+
+	public void assignarPermisUsuari(
 			String userName,
 			Class<?> objectClass,
 			Long objectIdentifier,
-			Permission permission,
-			MutableAclService aclService) {
+			Permission permission) {
 		assignarPermisos(
 				new PrincipalSid(userName),
 				objectClass,
 				objectIdentifier,
-				new Permission[] {permission},
-				aclService);
+				new Permission[] {permission});
 	}
-	public static void assignarPermisRol(
+	public void assignarPermisRol(
 			String roleName,
 			Class<?> objectClass,
 			Long objectIdentifier,
-			Permission permission,
-			MutableAclService aclService) {
+			Permission permission) {
 		assignarPermisos(
 				new GrantedAuthoritySid(getMapeigRol(roleName)),
 				objectClass,
 				objectIdentifier,
-				new Permission[] {permission},
-				aclService);
+				new Permission[] {permission});
 	}
 
-	public static void revocarPermisUsuari(
+	public void revocarPermisUsuari(
 			String userName,
 			Class<?> objectClass,
 			Long objectIdentifier,
-			Permission permission,
-			MutableAclService aclService) {
+			Permission permission) {
 		revocarPermisos(
 				new PrincipalSid(userName),
 				objectClass,
 				objectIdentifier,
-				new Permission[] {permission},
-				aclService);
+				new Permission[] {permission});
 	}
-	public static void revocarPermisRol(
+	public void revocarPermisRol(
 			String roleName,
 			Class<?> objectClass,
 			Long objectIdentifier,
-			Permission permission,
-			MutableAclService aclService) {
+			Permission permission) {
 		revocarPermisos(
 				new GrantedAuthoritySid(getMapeigRol(roleName)),
 				objectClass,
 				objectIdentifier,
-				new Permission[] {permission},
-				aclService);
+				new Permission[] {permission});
 	}
 
-	public static void mourePermisUsuari(
+	public void mourePermisUsuari(
 			String sourceUserName,
 			String targetUserName,
 			Class<?> objectClass,
 			Long objectIdentifier,
-			Permission permission,
-			MutableAclService aclService) {
+			Permission permission) {
 		assignarPermisos(
 				new PrincipalSid(targetUserName),
 				objectClass,
 				objectIdentifier,
-				new Permission[] {permission},
-				aclService);
+				new Permission[] {permission});
 		revocarPermisos(
 				new PrincipalSid(sourceUserName),
 				objectClass,
 				objectIdentifier,
-				new Permission[] {permission},
-				aclService);
+				new Permission[] {permission});
 	}
-	public static void mourePermisRol(
+	public void mourePermisRol(
 			String sourceRoleName,
 			String targetRoleName,
 			Class<?> objectClass,
 			Long objectIdentifier,
-			Permission permission,
-			MutableAclService aclService) {
+			Permission permission) {
 		assignarPermisos(
 				new GrantedAuthoritySid(getMapeigRol(targetRoleName)),
 				objectClass,
 				objectIdentifier,
-				new Permission[] {permission},
-				aclService);
+				new Permission[] {permission});
 		revocarPermisos(
 				new GrantedAuthoritySid(getMapeigRol(sourceRoleName)),
 				objectClass,
 				objectIdentifier,
-				new Permission[] {permission},
-				aclService);
+				new Permission[] {permission});
 	}
 
-	public static AccessControlEntry[] getAclSids(
+	public List<AccessControlEntry> getAclSids(
 			Class<?> objectClass,
-			Long objectIdentifier,
-			MutableAclService aclService) {
+			Long objectIdentifier) {
 		try {
 			ObjectIdentity oid = new ObjectIdentityImpl(objectClass, objectIdentifier);
 			MutableAcl acl = (MutableAcl)aclService.readAclById(oid);
@@ -142,14 +136,13 @@ public class PermisosHelper {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static void filterGrantedAny(
-			Collection<?> objectIdentifiers,
+	public void filterGrantedAny(
+			Collection<?> objects,
 			ObjectIdentifierExtractor objectIdentifierExtractor,
 			Class<?> clazz,
 			Permission[] permissions,
-			MutableAclService aclService,
 			Authentication auth) {
-		Iterator<?> it = objectIdentifiers.iterator();
+		Iterator<?> it = objects.iterator();
 		while (it.hasNext()) {
 			Long objectIdentifier = objectIdentifierExtractor.getObjectIdentifier(
 					it.next());
@@ -157,22 +150,19 @@ public class PermisosHelper {
 					objectIdentifier,
 					clazz,
 					permissions,
-					aclService,
 					auth))
 				it.remove();
 		}
 	}
-	public static boolean isGrantedAny(
+	public boolean isGrantedAny(
 			Long objectIdentifier,
 			Class<?> clazz,
 			Permission[] permissions,
-			MutableAclService aclService,
 			Authentication auth) {
 		boolean[] granted = verificarPermisos(
 				objectIdentifier,
 				clazz,
 				permissions,
-				aclService,
 				auth);
 		for (int i = 0; i < granted.length; i++) {
 			if (granted[i])
@@ -182,14 +172,13 @@ public class PermisosHelper {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static void filterGrantedAll(
-			Collection<?> objectIdentifiers,
+	public void filterGrantedAll(
+			Collection<?> objects,
 			ObjectIdentifierExtractor objectIdentifierExtractor,
 			Class<?> clazz,
 			Permission[] permissions,
-			MutableAclService aclService,
 			Authentication auth) {
-		Iterator<?> it = objectIdentifiers.iterator();
+		Iterator<?> it = objects.iterator();
 		while (it.hasNext()) {
 			Long objectIdentifier = objectIdentifierExtractor.getObjectIdentifier(
 					it.next());
@@ -197,22 +186,19 @@ public class PermisosHelper {
 					objectIdentifier,
 					clazz,
 					permissions,
-					aclService,
 					auth))
 				it.remove();
 		}
 	}
-	public static boolean isGrantedAll(
+	public boolean isGrantedAll(
 			Long objectIdentifier,
 			Class<?> clazz,
 			Permission[] permissions,
-			MutableAclService aclService,
 			Authentication auth) {
 		boolean[] granted = verificarPermisos(
 				objectIdentifier,
 				clazz,
 				permissions,
-				aclService,
 				auth);
 		boolean result = true;
 		for (int i = 0; i < granted.length; i++) {
@@ -226,12 +212,11 @@ public class PermisosHelper {
 
 
 
-	private static void assignarPermisos(
+	private void assignarPermisos(
 			Sid sid,
 			Class<?> objectClass,
 			Serializable objectIdentifier,
-			Permission[] permissions,
-			MutableAclService aclService) {
+			Permission[] permissions) {
 		ObjectIdentity oid = new ObjectIdentityImpl(objectClass, objectIdentifier);
 		MutableAcl acl = null;
 		try {
@@ -241,19 +226,18 @@ public class PermisosHelper {
 		}
 		for (Permission permission: permissions)
 			acl.insertAce(
-					acl.getEntries().length,
+					acl.getEntries().size(),
 					permission,
 					sid,
 					true);
 		aclService.updateAcl(acl);
 	}
 
-	private static void revocarPermisos(
+	private void revocarPermisos(
 			Sid sid,
 			Class<?> objectClass,
 			Serializable objectIdentifier,
-			Permission[] permissions,
-			MutableAclService aclService) throws NotFoundException {
+			Permission[] permissions) throws NotFoundException {
 		ObjectIdentity oid = new ObjectIdentityImpl(objectClass, objectIdentifier);
 		try {
 			MutableAcl acl = (MutableAcl)aclService.readAclById(oid);
@@ -276,11 +260,10 @@ public class PermisosHelper {
 		}
 	}
 
-	private static boolean[] verificarPermisos(
+	private boolean[] verificarPermisos(
 			Long objectIdentifier,
 			Class<?> clazz,
 			Permission[] permissions,
-			MutableAclService aclService,
 			Authentication auth) {
 		List<Sid> sids = new ArrayList<Sid>();
 		sids.add(new PrincipalSid(auth.getName()));
@@ -289,32 +272,27 @@ public class PermisosHelper {
 		boolean[] granted = new boolean[permissions.length];
 		for (int i = 0; i < permissions.length; i++)
 			granted[i] = false;
-		List<Permission> ps = new ArrayList<Permission>();
 		try {
 			ObjectIdentity oid = new ObjectIdentityImpl(
 					clazz,
 					objectIdentifier);
 			Acl acl = aclService.readAclById(oid);
+			List<Permission> ps = new ArrayList<Permission>();
 			for (int i = 0; i < permissions.length; i++) {
 				try {
 					ps.add(permissions[i]);
 					granted[i] = acl.isGranted(
-							ps.toArray(new Permission[ps.size()]),
-							sids.toArray(new Sid[sids.size()]),
+							ps,
+							sids,
 							false);
+					ps.clear();
 				} catch (NotFoundException ex) {}
 			}
 		} catch (NotFoundException ex) {}
 		return granted;
 	}
 
-	public interface ObjectIdentifierExtractor<T> {
-		public Long getObjectIdentifier(T object);
-	}
-
-
-
-	private static String getMapeigRol(String rol) {
+	private String getMapeigRol(String rol) {
 		String propertyMapeig = 
 				(String)GlobalProperties.getInstance().get(
 						"es.caib.helium.mapeig.rol." + rol);
@@ -322,6 +300,12 @@ public class PermisosHelper {
 			return propertyMapeig;
 		else
 			return rol;
+	}
+
+
+
+	public interface ObjectIdentifierExtractor<T> {
+		public Long getObjectIdentifier(T object);
 	}
 
 }

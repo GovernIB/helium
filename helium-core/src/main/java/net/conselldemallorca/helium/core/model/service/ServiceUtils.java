@@ -5,7 +5,6 @@ package net.conselldemallorca.helium.core.model.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +25,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsu
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.GenericEntity;
-import net.conselldemallorca.helium.core.security.acl.AclServiceDao;
+import net.conselldemallorca.helium.core.security.AclServiceDao;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
@@ -35,16 +34,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.Registre;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.acls.Acl;
-import org.springframework.security.acls.NotFoundException;
-import org.springframework.security.acls.Permission;
-import org.springframework.security.acls.objectidentity.ObjectIdentityImpl;
-import org.springframework.security.acls.sid.GrantedAuthoritySid;
-import org.springframework.security.acls.sid.PrincipalSid;
-import org.springframework.security.acls.sid.Sid;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.acls.model.Permission;
 
 /**
  * Utilitats comunes pels serveis
@@ -481,7 +471,8 @@ public class ServiceUtils {
 			GenericEntity object,
 			Class clazz,
 			Permission[] permissions) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		return aclServiceDao.isGrantedAny(object, clazz, permissions);
+		/*Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		Set<Sid> sids = new HashSet<Sid>();
 		sids.add(new PrincipalSid(auth.getName()));
 		for (GrantedAuthority ga: auth.getAuthorities()) {
@@ -506,7 +497,7 @@ public class ServiceUtils {
 			return false;
 		} catch (NotFoundException ex) {
 			return false;
-		}
+		}*/
 	}
 
 	private Object valorVariableJbpmRevisat(Object valor) {

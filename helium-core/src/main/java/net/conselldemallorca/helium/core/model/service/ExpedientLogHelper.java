@@ -72,7 +72,7 @@ import org.jbpm.taskmgmt.log.TaskCreateLog;
 import org.jbpm.taskmgmt.log.TaskEndLog;
 import org.jbpm.taskmgmt.log.TaskLog;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 /**

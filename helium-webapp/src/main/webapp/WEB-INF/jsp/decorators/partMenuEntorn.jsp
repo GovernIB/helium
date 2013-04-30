@@ -15,9 +15,8 @@
 					</c:choose>
 				</a>
 			</c:if>
-			<%--(<security:accesscontrollist domainObject="${entornActual}" hasPermission="1">R</security:accesscontrollist><security:accesscontrollist domainObject="${entornActual}" hasPermission="2">W</security:accesscontrollist><security:accesscontrollist domainObject="${entornActual}" hasPermission="4">C</security:accesscontrollist><security:accesscontrollist domainObject="${entornActual}" hasPermission="8">D</security:accesscontrollist><security:accesscontrollist domainObject="${entornActual}" hasPermission="16">A</security:accesscontrollist><security:accesscontrollist domainObject="${entornActual}" hasPermission="32">G</security:accesscontrollist><security:accesscontrollist domainObject="${entornActual}" hasPermission="64">O</security:accesscontrollist>)--%>
 		</h2>
-		<security:accesscontrollist domainObject="${entornActual}" hasPermission="16">
+		<c:if test="${potAdministrarEntorn}">
 			<form action="<c:url value="/permisos/entorn.html"/>" class="accio-titol">
 				<input name="id" type="hidden" value="${entornActual.id}"/>
 				<input name="noa" type="hidden" value="noa"/>
@@ -27,7 +26,7 @@
 				<input name="id" type="hidden" value="${entornActual.id}"/>
 				<button type="submit" class="submitButtonImage"><span class="entorn-admin">&nbsp;</span><fmt:message key='comuns.modificar' /></button>
 			</form>
-		</security:accesscontrollist>
+		</c:if>
 	</div>
 	<div id="page-entorn-menu">
 		<ul id="menu-entorn" class="dropdown dropdown-horizontal">
@@ -43,7 +42,7 @@
 				<li class="image expedient-iniciar"><a href="<c:url value="/expedient/iniciar.html"/>"><fmt:message key='decorators.entorn.nou_exp' /></a></li>
 			</c:if>
 			<c:if test="${globalProperties['app.organigrama.actiu']}">
-				<security:accesscontrollist domainObject="${entornActual}" hasPermission="16,64">
+				<c:if test="${potOrganitzarEntorn}">
 					<li class="dir image organitzacio">
 						<a href="#" onclick="return false"><fmt:message key='comuns.organitzacio' /></a>
 						<ul>
@@ -52,10 +51,10 @@
 							<li class="image carrec"><a href="<c:url value="/carrec/llistat.html"/>"><fmt:message key='comuns.carrecs' /></a></li>
 						</ul>
 					</li>
-				</security:accesscontrollist>
+				</c:if>
 			</c:if>
 			<c:set var="esDissenyador" value="${false}"/>
-			<security:accesscontrollist domainObject="${entornActual}" hasPermission="16,32">
+			<c:if test="${potDissenyarEntorn}">
 				<li class="dir image disseny">
 					<a href="#" onclick="return false"><fmt:message key='comuns.disseny' /></a>
 					<ul>
@@ -68,7 +67,7 @@
 					</ul>
 				</li>
 				<c:set var="esDissenyador" value="${true}"/>
-			</security:accesscontrollist>
+			</c:if>
 			<c:if test="${!esDissenyador and (potDissenyarExpedientTipus or potGestionarExpedientTipus)}">
 				<li class="dir image disseny">
 					<a href="#" onclick="return false"><fmt:message key='comuns.disseny' /></a>

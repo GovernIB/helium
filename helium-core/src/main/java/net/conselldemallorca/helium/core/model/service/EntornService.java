@@ -40,14 +40,11 @@ import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
-import net.conselldemallorca.helium.core.security.acl.AclServiceDao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
-import org.springframework.security.acls.objectidentity.ObjectIdentity;
-import org.springframework.security.acls.objectidentity.ObjectIdentityImpl;
-import org.springframework.security.annotation.Secured;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 
 
@@ -69,43 +66,39 @@ public class EntornService {
 	private ExpedientTipusDao expedientTipusDao;
 	private EstatDao estatDao;
 	private MapeigSistraDao mapeigSistraDao;
-	private AclServiceDao aclServiceDao;
 	private MessageSource messageSource;
 
 
 
-	@Secured({"ROLE_ADMIN", "ROLE_USER", "AFTER_ACL_READ"})
+	//@Secured({"ROLE_ADMIN", "ROLE_USER", "AFTER_ACL_READ"})
 	public Entorn getById(Long id) {
 		return entornDao.getById(id, false);
 	}
-	@Secured({"ROLE_ADMIN", "AFTER_ACL_READ"})
+	//@Secured({"ROLE_ADMIN", "AFTER_ACL_READ"})
 	public Entorn create(Entorn entity) {
 		Entorn saved = entornDao.saveOrUpdate(entity);
-		aclServiceDao.createAcl(new ObjectIdentityImpl(Entorn.class, saved.getId()));
 		return saved;
 	}
-	@Secured({"ROLE_ADMIN", "ROLE_USER", "AFTER_ACL_READ"})
+	//@Secured({"ROLE_ADMIN", "ROLE_USER", "AFTER_ACL_READ"})
 	public Entorn update(Entorn entity) {
 		return entornDao.merge(entity);
 	}
-	@Secured({"ROLE_ADMIN"})
+	//@Secured({"ROLE_ADMIN"})
 	public void delete(Long id) {
 		Entorn vell = getById(id);
 		if (vell != null) {
-			ObjectIdentity oid = new ObjectIdentityImpl(Entorn.class, id);
-			aclServiceDao.deleteAcl(oid, true);
 			entornDao.delete(id);
 		}
 	}
-	@Secured({"ROLE_ADMIN", "AFTER_ACL_COLLECTION_READ"})
+	//@Secured({"ROLE_ADMIN", "AFTER_ACL_COLLECTION_READ"})
 	public List<Entorn> findAll() {
 		return entornDao.findAll();
 	}
-	@Secured({"ROLE_ADMIN"})
+	//@Secured({"ROLE_ADMIN"})
 	public int countAll() {
 		return entornDao.getCountAll();
 	}
-	@Secured({"ROLE_ADMIN", "AFTER_ACL_COLLECTION_READ"})
+	//@Secured({"ROLE_ADMIN", "AFTER_ACL_COLLECTION_READ"})
 	public List<Entorn> findPagedAndOrderedAll(
 			String sort,
 			boolean asc,
@@ -121,7 +114,7 @@ public class EntornService {
 	public Entorn findAmbCodi(String codi) {
 		return entornDao.findAmbCodi(codi);
 	}
-	@Secured({"ROLE_ADMIN"})
+	//@Secured({"ROLE_ADMIN"})
 	public List<Persona> findMembresEntorn(Long entornId) {
 		return entornDao.findMembresEntorn(entornId);
 	}
@@ -131,13 +124,13 @@ public class EntornService {
 		return entornDao.findTotsMembresEntorn(entornId);
 	}
 	
-	@Secured({"ROLE_ADMIN", "ROLE_USER"})
+	//@Secured({"ROLE_ADMIN", "ROLE_USER"})
 	public List<Entorn> findActius() {
 		return entornDao.findActius();
 	}
 
 
-	@Secured({"ROLE_ADMIN", "ROLE_USER"})
+	//@Secured({"ROLE_ADMIN", "ROLE_USER"})
 	public EntornExportacio exportar(Long entornId) {
 		EntornExportacio entornExportacio = new EntornExportacio();
 		// Afegeix els tipus d'àrea
@@ -268,7 +261,7 @@ public class EntornService {
 		return entornExportacio;
 	}
 
-	@Secured({"ROLE_ADMIN", "ROLE_USER"})
+	//@Secured({"ROLE_ADMIN", "ROLE_USER"})
 	public void importar(Long entornId, EntornExportacio exportacio) {
 		Entorn entorn = entornDao.getById(entornId, false);
 		if (entorn == null)
@@ -544,10 +537,6 @@ public class EntornService {
 	@Autowired
 	public void setMapeigSistraDao(MapeigSistraDao mapeigSistraDao) {
 		this.mapeigSistraDao = mapeigSistraDao;
-	}
-	@Autowired
-	public void setAclServiceDao(AclServiceDao aclServiceDao) {
-		this.aclServiceDao = aclServiceDao;
 	}
 	@Autowired
 	public void setMessageSource(MessageSource messageSource) {

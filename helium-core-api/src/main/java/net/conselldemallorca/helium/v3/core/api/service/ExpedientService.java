@@ -10,6 +10,9 @@ import java.util.Map;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaFilaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.exception.DominiNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EnumeracioNotFoundException;
@@ -55,20 +58,24 @@ public interface ExpedientService {
 	public ExpedientDto findAmbProcessInstanceId(
 			String processInstanceId);
 
-	public List<ExpedientDto> findAmbEntornConsultaGeneral(
+	public PaginaDto<ExpedientDto> findPerConsultaGeneralPaginat(
 			Long entornId,
+			Long expedientTipusId,
 			String titol,
 			String numero,
 			Date dataInici1,
 			Date dataInici2,
-			Long expedientTipusId,
+			Date dataFi1,
+			Date dataFi2,
+			EstatTipusDto estatTipus,
 			Long estatId,
-			boolean iniciat,
-			boolean finalitzat,
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean mostrarAnulats) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException;
+			boolean nomesPendents,
+			boolean nomesAlertes,
+			boolean mostrarAnulats,
+			PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException;
 
 	public void createRelacioExpedient(
 			Long expedientOrigenId,

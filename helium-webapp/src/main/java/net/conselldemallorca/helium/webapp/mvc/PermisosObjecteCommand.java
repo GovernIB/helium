@@ -5,7 +5,7 @@ package net.conselldemallorca.helium.webapp.mvc;
 
 import java.util.Set;
 
-import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.model.Permission;
 
 /**
  * Command per gestionar permisos per als objectes

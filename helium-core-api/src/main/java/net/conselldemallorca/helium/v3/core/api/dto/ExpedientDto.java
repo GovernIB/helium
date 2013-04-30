@@ -16,6 +16,11 @@ public class ExpedientDto {
 
 	private static final String SEPARADOR_SISTRA = "#";
 
+	public enum EstatTipusDto {
+		INICIAT,
+		FINALITZAT,
+		CUSTOM
+	}
 	public enum IniciadorTipusDto {
 		INTERN,
 		SISTRA
@@ -61,6 +66,7 @@ public class ExpedientDto {
 
 	private EntornDto entorn;
 	private ExpedientTipusDto tipus;
+	private EstatTipusDto estatTipus;
 	private EstatDto estat;
 
 
@@ -287,6 +293,12 @@ public class ExpedientDto {
 	}
 	public void setTipus(ExpedientTipusDto tipus) {
 		this.tipus = tipus;
+	}
+	public EstatTipusDto getEstatTipus() {
+		return estatTipus;
+	}
+	public void setEstatTipus(EstatTipusDto estatTipus) {
+		this.estatTipus = estatTipus;
 	}
 	public EstatDto getEstat() {
 		return estat;

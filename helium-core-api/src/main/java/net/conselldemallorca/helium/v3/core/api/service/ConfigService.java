@@ -9,6 +9,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.v3.core.api.exception.PluginException;
 
 
@@ -20,6 +21,8 @@ import net.conselldemallorca.helium.v3.core.api.exception.PluginException;
 public interface ConfigService {
 
 	public List<EntornDto> findEntornsPermesosUsuariActual();
+
+	public void setEntornActual(EntornDto entorn);
 
 	public EntornDto getEntornActual();
 
@@ -33,5 +36,7 @@ public interface ConfigService {
 			String usuari);
 
 	public String getHeliumProperty(String propertyName);
+
+	public UsuariPreferenciesDto getPreferenciesUsuariActual();
 
 }

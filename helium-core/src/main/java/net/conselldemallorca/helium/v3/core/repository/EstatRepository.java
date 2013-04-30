@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.v3.core.repository;
 
+import java.util.List;
+
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 
@@ -16,6 +18,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface EstatRepository extends JpaRepository<Estat, Long> {
+
+	public List<Estat> findByExpedientTipus(
+			ExpedientTipus expedientTipus);
 
 	public Estat findByExpedientTipusAndCodi(
 			ExpedientTipus expedientTipus,

@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.v3.core.repository;
 
+import java.util.List;
+
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 
@@ -16,6 +18,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, Long> {
+
+	List<ExpedientTipus> findByEntorn(Entorn entorn);
 
 	ExpedientTipus findByEntornAndCodi(Entorn entorn, String codi);
 

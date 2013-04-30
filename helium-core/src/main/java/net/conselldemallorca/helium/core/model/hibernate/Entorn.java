@@ -16,7 +16,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 
-import net.conselldemallorca.helium.core.security.acl.SecureObject;
 import net.conselldemallorca.helium.core.security.audit.Auditable;
 
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
@@ -29,7 +28,7 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank
  */
 @Entity
 @Table(name="hel_entorn")
-public class Entorn implements Serializable, GenericEntity<Long>, Auditable, SecureObject {
+public class Entorn implements Serializable, GenericEntity<Long>, Auditable {
 
 	private Long id;
 	@NotBlank

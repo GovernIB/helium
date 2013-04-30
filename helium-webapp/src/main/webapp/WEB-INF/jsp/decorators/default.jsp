@@ -162,7 +162,6 @@
 		</div>
 		<div id="push"></div>
 	</div>
-	
 	<div id="footer">
 		<span id="version">v.${versioNom}</span>
 		<c:choose>

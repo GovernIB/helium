@@ -42,9 +42,9 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 					<fork>true</fork>
-					<compilerVersion>1.5</compilerVersion>
-					<source>1.5</source>
-					<target>1.5</target>
+					<compilerVersion>${java.version}</compilerVersion>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
 				</configuration>
 			</plugin>
 			<!-- Comentar el següent plugin si es vol generar la llibreria helium-disseny.jar --> 

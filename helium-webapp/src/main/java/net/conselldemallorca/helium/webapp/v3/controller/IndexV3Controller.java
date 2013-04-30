@@ -15,12 +15,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/index")
+@RequestMapping("/v3")
 public class IndexV3Controller {
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String get(HttpServletRequest request) {
-		return "v3/index";
+		return "redirect:/v3/index";
+	}
+
+	@RequestMapping(value = "/index", method = RequestMethod.GET)
+	public String index(HttpServletRequest request) {
+		return "redirect:/v3/expedient";
 	}
 
 }

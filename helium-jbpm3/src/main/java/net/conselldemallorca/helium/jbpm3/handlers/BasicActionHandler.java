@@ -36,6 +36,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaFilaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
@@ -193,23 +195,28 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 					expedientTipus.getId(),
 					estatCodi);
 			// Consulta d'expedients
-			List<ExpedientDto> expedients = getExpedientService().findAmbEntornConsultaGeneral(
+			EstatTipusDto estatTipus = EstatTipusDto.CUSTOM;
+			if (iniciat && !finalitzat)
+				estatTipus = EstatTipusDto.INICIAT;
+			if (!iniciat && finalitzat)
+				estatTipus = EstatTipusDto.FINALITZAT;
+			PaginaDto<ExpedientDto> paginaResultats = getExpedientService().findPerConsultaGeneralPaginat(
 					expedient.getEntorn().getId(),
+					expedientTipus.getId(),
 					titol,
 					numero,
 					dataInici1,
 					dataInici2,
-					expedientTipus.getId(),
+					estatTipus,
 					estat.getId(),
-					iniciat,
-					finalitzat,
 					null,
 					null,
 					null,
-					false);
+					false,
+					null);
 			// Construcció de la resposta
 			List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
-			for (ExpedientDto dto: expedients)
+			for (ExpedientDto dto: paginaResultats.getContingut())
 				resposta.add(toExpedientInfo(dto));
 			return resposta;
 		} catch (Exception ex) {

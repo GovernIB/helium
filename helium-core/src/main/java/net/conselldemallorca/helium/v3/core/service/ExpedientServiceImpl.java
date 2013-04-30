@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.service;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -29,11 +30,15 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.service.DtoConverter;
 import net.conselldemallorca.helium.core.model.service.ExpedientLogHelper;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaFilaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.exception.DominiNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EnumeracioNotFoundException;
@@ -47,6 +52,8 @@ import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.DominiHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.helper.LuceneHelper;
+import net.conselldemallorca.helium.v3.core.helper.PaginacioHelper;
+import net.conselldemallorca.helium.v3.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.v3.core.helper.PersonaHelper;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
@@ -61,6 +68,10 @@ import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -103,6 +114,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private LuceneHelper luceneHelper;
 	@Resource
 	private DominiHelper dominiHelper;
+	@Resource
+	private PermisosHelper permisosHelper;
+	@Resource
+	private PaginacioHelper paginacioHelper;
 
 	@Resource
 	private LuceneDao luceneDao;
@@ -318,22 +333,123 @@ public class ExpedientServiceImpl implements ExpedientService {
 				ExpedientDto.class);
 	}
 
-	public List<ExpedientDto> findAmbEntornConsultaGeneral(
+	public PaginaDto<ExpedientDto> findPerConsultaGeneralPaginat(
 			Long entornId,
+			Long expedientTipusId,
 			String titol,
 			String numero,
 			Date dataInici1,
 			Date dataInici2,
-			Long expedientTipusId,
+			Date dataFi1,
+			Date dataFi2,
+			EstatTipusDto estatTipus,
 			Long estatId,
-			boolean iniciat,
-			boolean finalitzat,
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean mostrarAnulats) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
-		// TODO Auto-generated method stub
-		return null;
+			boolean nomesPendents,
+			boolean nomesAlertes,
+			boolean mostrarAnulats,
+			PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		logger.debug("Consulta general d'expedients paginada (entornId=" + entornId + "expedientTipusId=" + expedientTipusId + ")");
+		// Comprova l'accés a l'entorn
+		Entorn entorn = entornRepository.findOne(entornId);
+		if (entorn == null) {
+			logger.debug("No s'ha trobat l'entorn (entornId=" + entornId + ")");
+			throw new EntornNotFoundException();
+		} else {
+			boolean ambPermis = permisosHelper.isGrantedAny(
+					entorn.getId(),
+					Entorn.class,
+					new Permission[] {
+						ExtendedPermission.READ,
+						ExtendedPermission.ADMINISTRATION},
+					auth);
+			if (!ambPermis) {
+				logger.debug("No es tenen permisos per accedir a l'entorn (entornId=" + entornId + ")");
+				throw new EntornNotFoundException();
+			}
+		}
+		// Comprova l'accés al tipus d'expedient
+		ExpedientTipus expedientTipus = null;
+		if (expedientTipusId != null) {
+			expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+			if (expedientTipus == null) {
+				logger.debug("No s'ha trobat l'expedientTipus (expedientTipusId=" + expedientTipusId + ")");
+				throw new ExpedientTipusNotFoundException();
+			} else {
+				boolean ambPermis = permisosHelper.isGrantedAny(
+						expedientTipus.getId(),
+						ExpedientTipus.class,
+						new Permission[] {
+							ExtendedPermission.READ,
+							ExtendedPermission.ADMINISTRATION},
+						auth);
+				if (!ambPermis) {
+					logger.debug("No es tenen permisos per accedir a l'expedientTipus (expedientTipusId=" + expedientTipusId + ")");
+					throw new ExpedientTipusNotFoundException();
+				}
+			}
+		}
+		// Comprova l'accés a l'estat
+		Estat estat = null;
+		if (estatId != null) {
+			estat = estatRepository.findOne(estatId);
+			if (estat == null) {
+				logger.debug("No s'ha trobat l'estat (estatId=" + estatId + ")");
+				throw new EstatNotFoundException();
+			} else {
+				boolean ambPermis = permisosHelper.isGrantedAny(
+						estat.getId(),
+						Estat.class,
+						new Permission[] {
+							ExtendedPermission.READ,
+							ExtendedPermission.ADMINISTRATION},
+						auth);
+				if (!ambPermis) {
+					logger.debug("No es tenen permisos per accedir a l'estat (estatId=" + estatId + ")");
+					throw new EstatNotFoundException();
+				}
+			}
+		}
+		// Fa la consulta
+		if (dataInici2 != null) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(dataInici2);
+			cal.set(Calendar.HOUR_OF_DAY, 23);
+			cal.set(Calendar.MINUTE, 59);
+			cal.set(Calendar.SECOND, 59);
+			cal.set(Calendar.MILLISECOND, 999);
+			dataInici2.setTime(cal.getTime().getTime());
+		}
+		Page<Expedient> paginaResultats = expedientRepository.findByFiltreGeneralPaginat(
+				entornId,
+				(expedientTipusId == null),
+				expedientTipusId,
+				(titol == null),
+				titol,
+				(numero == null),
+				numero,
+				(dataInici1 == null),
+				dataInici1,
+				(dataInici2 == null),
+				dataInici2,
+				EstatTipusDto.INICIAT.equals(estatTipus),
+				EstatTipusDto.FINALITZAT.equals(estatTipus),
+				(!EstatTipusDto.CUSTOM.equals(estatTipus) || estatId == null),
+				estatId,
+				(geoPosX == null),
+				geoPosX,
+				(geoPosY == null),
+				geoPosY, 
+				(geoReferencia == null),
+				geoReferencia,
+				mostrarAnulats,
+				paginacioHelper.toSpringDataPageable(paginacioParams));
+		return paginacioHelper.toPaginaDto(
+				paginaResultats,
+				ExpedientDto.class);
 	}
 
 	public void createRelacioExpedient(
