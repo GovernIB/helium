@@ -42,7 +42,7 @@
 			</form:form>
 			<p class="aclaracio"><fmt:message key='comuns.camps_marcats' /> <img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='comuns.camp_oblig' />" title="<fmt:message key='comuns.camp_oblig' />" border="0"/> <fmt:message key='comuns.son_oblig' /></p>
 		</c:when>
-		<c:otherwise><script type="text/javascript">parent.location = '<c:url value="/expedient/dadaModificarMas.html"><c:param name="id" value="${param.id}"/><c:param name="var" value="${registre.codi}"/><c:param name="inici" value=""/><c:param name="correu" value="false"/></c:url>';</script></c:otherwise>
+		<c:otherwise><script type="text/javascript">parent.location = '<c:url value="/expedient/dadaModificarMas.html"><c:param name="id" value="${param.id}"/><c:param name="var" value="${registre.codi}"/></c:url>';</script></c:otherwise>
 	</c:choose>
 
 </body>

@@ -23,7 +23,7 @@
 	function editarRegistre(campId, campCodi, campEtiqueta, numCamps, index) {
 		var amplada = 686;
 		var alcada = 64 * numCamps + 80;
-		var url = "varRegistreMassiva.html?id=${param.id}&registreId=" + campId + "&campCodi=" + campCodi + "&inici=${param.inici}&correu=${param.correu}";
+		var url = "varRegistreMassiva.html?id=${param.id}&registreId=" + campId + "&campCodi=" + campCodi;
 		if (index != null)
 			url = url + "&index=" + index;
 		$('<iframe id="' + campCodi + '" src="' + url + '" frameborder="0" marginheight="0" marginwidth="0"/>').dialog({
@@ -55,8 +55,6 @@
 		<div class="inlineLabels">
 			<c:if test="${not empty param.id}"><form:hidden path="id"/></c:if>
 			<c:if test="${not empty param.taskId}"><form:hidden path="taskId"/></c:if>
-			<c:if test="${not empty param.inici}"><input type="hidden" id="inici" name="inici" value="${param.inici}"/></c:if>
-			<c:if test="${not empty param.correu}"><input type="hidden" id="correu" name="correu" value="${param.correu}"/></c:if>
 			<form:hidden path="var"/>
 			<c:if test="${not empty tasca.camps}">
 <%-- 				<c:set var="massiu" value="${true}" scope="request"/> --%>

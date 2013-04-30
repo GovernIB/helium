@@ -22,6 +22,7 @@ import net.conselldemallorca.helium.core.model.dao.MailDao;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
+import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.dto.OperacioMassivaDto;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva;
@@ -181,9 +182,22 @@ public class ExecucioMassivaService {
 		try {
 			eme = execucioMassivaExpedientDao.getById(dto.getId(), false);
 			eme.setDataInici(new Date());
-			Long definicioProcesId = (Long)deserialize(dto.getParam2());
+			Object[] param2 = (Object[])deserialize(dto.getParam2());
+			// Proces principal
+			Long definicioProcesId = (Long)param2[0];
 			DefinicioProces definicioProces = definicioProcesDao.getById(definicioProcesId, false);
 			expedientService.changeProcessInstanceVersion(exp.getProcessInstanceId(), definicioProces.getVersio());
+			
+			// Subprocessos
+			Long[] subProcesIds = (Long[])param2[1];
+			String[] keys = (String[])param2[2];
+			List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(exp.getProcessInstanceId());
+			for (InstanciaProcesDto ip : arbreProcessos) {
+				int versio = findVersioDefProcesActualitzar(keys, subProcesIds, ip.getDefinicioProces().getJbpmKey());
+				if (versio != -1)
+					expedientService.changeProcessInstanceVersion(ip.getId(), versio);
+			}
+			
 			eme.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
 			eme.setDataFi(new Date());
 			execucioMassivaExpedientDao.saveOrUpdate(eme);
@@ -191,6 +205,19 @@ public class ExecucioMassivaService {
 			logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut canviar la versió del procés", ex);
 			throw ex;
 		}
+	}
+	
+	private int findVersioDefProcesActualitzar(String[] keys, Long[] defProces, String key) {
+		int versio = -1;
+		int i = 0;
+		while (i < keys.length && !keys[i].equals(key)) 
+			i++;
+		if (i < keys.length && defProces[i] != null) {
+			DefinicioProces definicioProces = definicioProcesDao.getById(defProces[i], false);
+			if (definicioProces != null) 
+				versio = definicioProces.getVersio();
+		}
+		return versio;
 	}
 	
 	public void actualitzarEstat(Long id, ExecucioMassivaEstat estat) throws Exception {
@@ -205,19 +232,27 @@ public class ExecucioMassivaService {
 		}
 	}
 	
-	public Object getDefinicioProces(OperacioMassivaDto dto) {
-		Object definicioProces = null;
+	public DefinicioProces getDefinicioProces(OperacioMassivaDto dto) {
+		DefinicioProces definicioProces = null;
 		try {
-			Object obj = (Object) deserialize(dto.getParam2());
-			if (obj instanceof Long) {
-				definicioProces = definicioProcesDao.getById((Long) obj, false);
-			} else if (obj instanceof String) {
-				definicioProces = obj;
+			Object[] obj = (Object[]) deserialize(dto.getParam2());
+			if (obj[0] instanceof Long) {
+				definicioProces = definicioProcesDao.getById((Long) obj[0], false);
 			}
 		} catch (Exception ex) {
-			logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut getDefinicioProces del procés", ex);
+			logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut obtenir la definicioProces del procés", ex);
 		}
 		return definicioProces;
+	}
+	
+	public String getOperacio(OperacioMassivaDto dto) {
+		String op = null;
+		try {
+			op = (String) deserialize(dto.getParam2());
+		} catch (Exception ex) {
+			logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut obtenir la operació", ex);
+		}
+		return op;
 	}
 	
 	private void executarScript(OperacioMassivaDto dto) throws Exception {
@@ -436,6 +471,7 @@ public class ExecucioMassivaService {
 		}
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void actualitzaUltimaOperacio(OperacioMassivaDto dto) {
 		if (dto.getUltimaOperacio()) {
 			try {

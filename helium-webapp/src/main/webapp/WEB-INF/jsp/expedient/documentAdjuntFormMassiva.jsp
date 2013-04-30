@@ -19,8 +19,6 @@
 		<div class="inlineLabels">
 <%-- 			<input type="hidden" name="procesInstanceId" value="${param.procesInstanceId}"/> --%>
 			<c:if test="${not empty param.id}"><input type="hidden" id="id" name="id" value="param.id"/></c:if>
-			<c:if test="${not empty param.inici}"><input type="hidden" id="inici" name="inici" value="param.inici"/></c:if>
-			<c:if test="${not empty param.correu}"><input type="hidden" id="correu" name="correu" value="param.correu"/></c:if>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="nom"/>
 				<c:param name="required" value="true"/>

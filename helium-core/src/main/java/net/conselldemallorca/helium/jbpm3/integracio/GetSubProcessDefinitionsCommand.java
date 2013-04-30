@@ -6,6 +6,8 @@ package net.conselldemallorca.helium.jbpm3.integracio;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.Query;
+import org.hibernate.Session;
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractGetObjectBaseCommand;
 import org.jbpm.graph.def.Node;
@@ -30,18 +32,24 @@ public class GetSubProcessDefinitionsCommand extends AbstractGetObjectBaseComman
 	}
 
 	public Object execute(JbpmContext jbpmContext) throws Exception {
-		List<ProcessDefinition> subprocesses = new ArrayList<ProcessDefinition>();
+		List<ProcessDefinition> definicionsProces = new ArrayList<ProcessDefinition>();
+		List<ProcessState> subprocessos = null;
 		ProcessDefinition rootProcessDefinition = jbpmContext.getGraphSession().getProcessDefinition(id);
 		if (rootProcessDefinition != null) {
-			for (Node node: rootProcessDefinition.getNodes()) {
-				if (node instanceof ProcessState) {
-					ProcessState ps = (ProcessState)node;
-					if (ps.getSubProcessDefinition() != null)
-						subprocesses.add(retrieveProcessDefinition(ps.getSubProcessDefinition()));
-				}
+			Session session = jbpmContext.getSession();
+			Query query = session.createQuery(
+					"from org.jbpm.graph.node.ProcessState ps " +
+					"where ps.processDefinition.id= :processDefinitionId " +
+					"order by ps.id");
+			query.setParameter("processDefinitionId", id);
+			subprocessos = query.list();
+		}
+		if (subprocessos != null && !subprocessos.isEmpty()) {
+			for (ProcessState ps : subprocessos) {
+				definicionsProces.add(ps.getSubProcessDefinition());
 			}
 		}
-		return subprocesses;
+		return definicionsProces;
 	}
 
 	public long getId() {

@@ -21,14 +21,12 @@
 		<h4 class="titol-missatge">
 			${command.nom}
  			<c:if test="${documentDisseny.plantilla}"> 
- 				<a href="<c:url value="/expedient/documentGenerarMas.html"><c:param name="id" value="${param.id}"/><c:param name="docId" value="${command.docId}"/><c:param name="inici" value="${param.inici}"/><c:param name="correu" value="${param.correu}"/></c:url>"><img src="<c:url value="/img/page_white_star.png"/>" alt="Generar" title="Generar" border="0"/></a>
+ 				<a href="<c:url value="/expedient/documentGenerarMas.html"><c:param name="id" value="${param.id}"/><c:param name="docId" value="${command.docId}"/></c:url>"><img src="<c:url value="/img/page_white_star.png"/>" alt="Generar" title="Generar" border="0"/></a>
  			</c:if> 
 		</h4>
 		<form:form action="documentModificarMas.html" cssClass="uniForm" enctype="multipart/form-data">
 		<div class="inlineLabels">
 			<c:if test="${not empty param.id}"><input type="hidden" id="id" name="id" value="${param.id}"/></c:if>
-			<c:if test="${not empty param.inici}"><input type="hidden" id="inici" name="inici" value="${param.inici}"/></c:if>
-			<c:if test="${not empty param.correu}"><input type="hidden" id="correu" name="correu" value="${param.correu}"/></c:if>
 			<form:hidden path="docId"/>
 			<form:hidden path="nom"/>
 			<c:import url="../common/formElement.jsp">

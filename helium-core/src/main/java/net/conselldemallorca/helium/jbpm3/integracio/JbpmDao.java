@@ -902,7 +902,7 @@ public class JbpmDao {
 		Node node = pi.getProcessDefinition().getNode(nodeName);
 		String nodeClassName = node.toString();
 		NodeType nodeType = node.getNodeType();
-		return (nodeClassName.contains("ProcessState") || nodeType == NodeType.Fork || nodeType == NodeType.Join);
+		return (nodeClassName.startsWith("ProcessState") || nodeType == NodeType.Fork || nodeType == NodeType.Join);
 	}
 
 	public boolean isJoinNode(long processInstanceId, String nodeName) {

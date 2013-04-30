@@ -53,9 +53,7 @@ public class ExpedientMassivaRegistreController extends CommonRegistreController
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) String id,
 			@RequestParam(value = "registreId", required = true) Long registreId,
-			@RequestParam(value = "campCodi", required = true) String campCodi,
-			@RequestParam(value = "inici", required = false) String inici,
-			@RequestParam(value = "correu", required = false) String correu) {
+			@RequestParam(value = "campCodi", required = true) String campCodi) {
 		if (getRegistreMassiuSessio(request, id, campCodi) == null)
 			setRegistreMassiuSessio(request, id, campCodi, getValorRegistre(request, campCodi, id));
 		return super.registreGet(request); 
@@ -128,7 +126,7 @@ public class ExpedientMassivaRegistreController extends CommonRegistreController
 		if (multiple) {
 			Object valor = getRegistreMassiuSessio(request, id, campCodi);
 			if (valor == null) {
-				setRegistreMassiuSessio(request, id, campCodi, valors);
+				setRegistreMassiuSessio(request, id, campCodi, new Object[] {valors});
 			} else {
 				Object[] valorMultiple = (Object[])valor;
 				if (index != -1) {
@@ -162,7 +160,7 @@ public class ExpedientMassivaRegistreController extends CommonRegistreController
 	}
 	@Override
 	public String redirectUrl(String id, String campCodi) {
-		return "redirect:/expedient/dadaModificarMas.html?id=" + id + "&var=" + campCodi+ "&inici=&correu=false";
+		return "redirect:/expedient/dadaModificarMas.html?id=" + id + "&var=" + campCodi;
 	}
 	@Override
 	public String registreUrl() {

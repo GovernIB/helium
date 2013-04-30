@@ -196,8 +196,25 @@ $(document).ready(function(){
 						<c:param name="items" value="definicionsProces"/>
 						<c:param name="itemLabel" value="descripcio"/>
 						<c:param name="itemValue" value="jbpmId"/>
-						<c:param name="label"><fmt:message key="expedient.eines.canviar_versio"/></c:param>
+						<c:param name="label">${definicioProces.jbpmKey}<%--(<fmt:message key="expedient.massiva.proces.principal"/>) --%></c:param>
 					</c:import>
+					<c:if test="${not empty subDefinicioProces}">
+						<div class="ctrlHolder">
+							<h4 style="font-weight: bold;"><fmt:message key="expedient.massiva.subprocessos"/>:</h4>
+						</div>
+						<c:forEach var="subProces" items="${subDefinicioProces}">
+							<c:set var="subDefinicionsProces" value="${subProces.jbpmIdsAmbDescripcio}" scope="request"/>
+							<c:import url="../common/formElement.jsp">
+								<c:param name="property" value="subprocesId"/>
+								<c:param name="type" value="select"/>
+								<c:param name="items" value="subDefinicionsProces"/>
+								<c:param name="itemLabel" value="descripcio"/>
+								<c:param name="itemValue" value="jbpmId"/>
+								<c:param name="itemBuit">&lt;&lt; <fmt:message key='expedient.consulta.select.def_proces'/> &gt;&gt;</c:param>
+								<c:param name="label">${subProces.jbpmKey}</c:param>
+							</c:import>
+						</c:forEach>
+					</c:if>
 				</div>
 				<c:import url="../common/formElement.jsp">
 					<c:param name="type" value="buttons"/>
@@ -231,7 +248,7 @@ $(document).ready(function(){
 					</form:form>
 			</c:if>
 		
-			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key='expedient.eines.aturar_tramitacio' /></h3>
+			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key='expedient.massiva.aturar' /></h3>
 			<form:form action="aturarMas.html" cssClass="uniForm" commandName="aturarCommandMas" onsubmit="return confirmarAturar(event)" onclick="javascript:massiva(this)">
 				<div class="inlineLabels">
 					<input type="hidden" name="id" value="${instanciaProces.id}"/>
@@ -304,9 +321,10 @@ $(document).ready(function(){
 			<form:form action="dadaModificarMas.html" method="GET" cssClass="uniForm" commandName="modificarVariablesMasCommand" onsubmit="return confirmarModificarVariables(event)" onclick="javascript:massiva(this)">
 				<div class="inlineLabels">
 					<input type="hidden" name="id" value="${instanciaProces.id}"/>
-					<input type="hidden" id="var_inici" name="inici">
-					<input type="hidden" id="var_correu" name="correu">
-					<c:set var="variables" value="${instanciaProces.camps}" scope="request"/>
+					<input type="hidden" id="var_inici" name="inici"/>
+					<input type="hidden" id="var_correu" name="correu"/>
+					<input type="hidden" id="var_start" name="start" value="true"/>
+<%-- 					<c:set var="variables" value="${instanciaProces.camps}" scope="request"/> --%>
 						<c:import url="../common/formElement.jsp">
 							<c:param name="property">var</c:param>
 							<c:param name="type" value="select"/>
@@ -331,6 +349,7 @@ $(document).ready(function(){
 					<input type="hidden" name="id" value="${instanciaProces.id}"/>
 					<input type="hidden" id="doc_inici" name="inici">
 					<input type="hidden" id="doc_correu" name="correu">
+					<input type="hidden" id="doc_start" name="start" value="true"/>
 					<div class="inlineLabels">
 						<input type="hidden" id="docId" name="docId"/>
 						<c:set var="documents" value="${documents}" scope="request"/>

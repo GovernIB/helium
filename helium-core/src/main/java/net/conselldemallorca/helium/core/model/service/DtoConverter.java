@@ -440,6 +440,8 @@ public class DtoConverter {
 		dto.setAgrupacions(campAgrupacioDao.findAmbDefinicioProcesOrdenats(definicioProces.getId()));
 		if (ambVariables) {
 			Map<String, Object> valors = jbpmDao.getProcessInstanceVariables(processInstanceId);
+			if (valors == null)
+				valors = new HashMap<String, Object>();
 			if (varRegistre != null) 
 				valors.put(varRegistre, valorsRegistre);
 			filtrarVariablesTasca(valors);

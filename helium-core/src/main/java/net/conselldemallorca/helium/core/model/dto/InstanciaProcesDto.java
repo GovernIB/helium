@@ -125,6 +125,8 @@ public class InstanciaProcesDto {
 		this.variables = variables;
 	}
 	public Object getVariable(String varName) {
+		if (variables == null) 
+			return null;
 		return variables.get(varName);
 	}
 	public Map<String, DocumentDto> getVarsDocuments() {
@@ -197,7 +199,7 @@ public class InstanciaProcesDto {
 	}
 
 	public String getVariableClassAsString(String var) {
-		Object valor = variables.get(var);
+		Object valor = variables == null ? null : variables.get(var);
 		if (valor != null) {
 			StringBuilder sb = new StringBuilder();
 			getClassAsString(sb, variables.get(var));

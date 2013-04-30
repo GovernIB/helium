@@ -2886,6 +2886,36 @@ public class DissenyService {
 		return null;
 	}
 
+	public List<DefinicioProcesDto> getSubprocessosByProces(String jbpmPdId) {
+		List<DefinicioProcesDto> subprocessos = new ArrayList<DefinicioProcesDto>();
+		List<String> ids = new ArrayList<String>(); 
+		afegirJbpmIdProcesAmbSubprocessos(jbpmDao.getProcessDefinition(jbpmPdId), ids, false);
+		
+		for(String id: ids){
+			subprocessos.add(findDefinicioProcesAmbJbpmId(id));
+		}
+		return subprocessos;
+	}
+	private void afegirJbpmIdProcesAmbSubprocessos(
+			JbpmProcessDefinition jpd,
+			List<String> jbpmIds, 
+			Boolean incloure) {
+		List<JbpmProcessDefinition> subPds = jbpmDao.getSubProcessDefinitions(jpd.getId());
+		if (subPds != null) {
+			for (JbpmProcessDefinition subPd: subPds) {
+				afegirJbpmIdProcesAmbSubprocessos(subPd, jbpmIds, true);
+				if (!jbpmIds.contains(subPd.getId()))
+					jbpmIds.add(subPd.getId());
+			}
+		}
+		if (!jbpmIds.contains(jpd.getId()) && incloure)
+			jbpmIds.add(jpd.getId());
+	}
+	private DefinicioProcesDto findDefinicioProcesAmbJbpmId(String jbpmId) {
+		String processDefinitionId = jbpmDao.getProcessDefinition(jbpmId).getId();
+		return toDto(definicioProcesDao.findAmbJbpmId(processDefinitionId), false);
+	}
+	
 	private void afegirJbpmKeyProcesAmbSubprocessos(
 			JbpmProcessDefinition jpd,
 			List<String> jbpmKeys) {
