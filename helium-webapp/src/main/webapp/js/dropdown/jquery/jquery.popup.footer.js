@@ -1,7 +1,7 @@
 var interval_pbar_total_massive; 
 var interval_pbar_total_massiveDetail;
 var delayBarDetail = 1000;
-var delayBar = 1000;
+var delayBar = 2000;
 var numBarras = 0;
 var mostrarDetalle = true;
 

@@ -13,10 +13,10 @@
 <script type="text/javascript">
 // <![CDATA[
 function disable(blocid) {
-	$("#" + blocid).find("input,select,textarea").attr("disabled", "disabled");
+	$("#" + blocid).find("input,select,textarea").prop('disabled', true);
 }
 function enable(blocid) {
-	$("#" + blocid).find("input,select,textarea").removeAttr("disabled");
+	$("#" + blocid).find("input,select,textarea").prop('disabled', false);
 }
 function canviPredef(input) {
 	if (input.checked)

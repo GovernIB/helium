@@ -94,26 +94,26 @@ function changeDoc(){
 	var doc = "__none__";
 	if (docId != "") {
 	 	doc = $("#nom0 option[value='" + docId + "']").text();
-	 	$("button[value='delete']").removeAttr("disabled");
-	 	$("button[value='subdoc']").removeAttr("disabled");
+	 	$("button[value='delete']").prop('disabled', false);
+	 	$("button[value='subdoc']").prop('disabled', false);
 	} else {
-		$("button[value='delete']").attr("disabled", "disabled");
-		$("button[value='subdoc']").attr("disabled", "disabled");
+		$("button[value='delete']").prop('disabled', true);
+		$("button[value='subdoc']").prop('disabled', true);
 	}
 	var plant = "docPlantilla." + doc;
 	if (eval(plant)) {
-		$("button[value='generar']").removeAttr("disabled");
+		$("button[value='generar']").prop('disabled', false);
 	} else {
-		$("button[value='generar']").attr("disabled", "disabled");
+		$("button[value='generar']").prop('disabled', true);
 	}
 }
 function changeVar(){
 	var varId = $("#var0").val();
 	
 	if (varId != "") {
-	 	$("button[value='subvar']").removeAttr("disabled");
+	 	$("button[value='subvar']").prop('disabled', false);
 	} else {
-		$("button[value='subvar']").attr("disabled", "disabled");
+		$("button[value='subvar']").prop('disabled', true);
 	}
 }
 function massiva(form){
@@ -139,10 +139,10 @@ $(document).ready(function(){
     
     //$('#inici').val(ara);
 	$('#inici').datetimepicker({defaultValue: ara});
-	$("button[value='delete']").attr("disabled", "disabled");
-	$("button[value='generar']").attr("disabled", "disabled");
-	$("button[value='subdoc']").attr("disabled", "disabled");
-	$("button[value='subvar']").attr("disabled", "disabled");
+	$("button[value='delete']").prop('disabled', true);
+	$("button[value='generar']").prop('disabled', true);
+	$("button[value='subdoc']").prop('disabled', true);
+	$("button[value='subvar']").prop('disabled', true);
 	//programacio();
 });
 // ]]>

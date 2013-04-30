@@ -7,7 +7,7 @@ function findValue(li, input) {
 	var codi = input.id.substring(input.id.indexOf("_") + 1);
 	if (!!li.extra ) var sValue = li.extra[0];
 	else var sValue = li.selectValue;
-	$("#suggest_" + codi).attr("disabled", "disabled");
+	$("#suggest_" + codi).prop('disabled', true);
 	$("#suggest_" + codi + "_info").css("display", "none");
 	$("#suggest_" + codi + "_delete").css("display", "");
 	$("#" + codi).val(li.extra[0]);
@@ -26,18 +26,18 @@ function initSuggest(codi, url, callback, extraParams) {
 	if ($("#" + codi).val() == null || $("#" + codi).val() == '') {
 		$("#suggest_" + codi + "_info").css("display", "");
 		$("#suggest_" + codi + "_delete").css("display", "none");
-		$("#suggest_" + codi).attr("disabled", "");
+		$("#suggest_" + codi).prop('disabled', false);
 	} else {
 		$("#suggest_" + codi + "_info").css("display", "none");
 		$("#suggest_" + codi + "_delete").css("display", "");
-		$("#suggest_" + codi).attr("disabled", "disabled");
+		$("#suggest_" + codi).prop('disabled', true);
 	}
 	$("#suggest_" + codi + "_delete").click(function(){
 		$("#" + codi).val(null);
 		$("#suggest_" + codi).val("");
 		$("#suggest_" + codi + "_info").css("display", "");
 		$("#suggest_" + codi + "_delete").css("display", "none");
-		$("#suggest_" + codi).attr("disabled", "");
+		$("#suggest_" + codi).prop('disabled', false);
 	});
 }
 

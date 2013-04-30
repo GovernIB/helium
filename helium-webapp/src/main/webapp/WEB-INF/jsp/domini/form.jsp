@@ -141,10 +141,10 @@ $(function() {
 
 // <![CDATA[
 function disable(blocid) {
-	$("#" + blocid).find("input,select,textarea").attr("disabled", "disabled");
+	$("#" + blocid).find("input,select,textarea").prop('disabled', true);
 }
 function enable(blocid) {
-	$("#" + blocid).find("input,select,textarea").removeAttr("disabled");
+	$("#" + blocid).find("input,select,textarea").prop('disabled', false);
 }
 function canviTipus(input) {
 	if (input.value == "CONSULTA_WS") {
