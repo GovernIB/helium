@@ -252,7 +252,6 @@
 										<display:column title="${camp.etiqueta}">
 											<table class="displaytag">
 												<c:forEach var="text" items="${registre.dadesExpedient[clauCamp].valorMostrarMultiple}" varStatus="status">
-													<c:out value="${'OUT'}"/>
 													<tr><td>${text}</td></tr>
 												</c:forEach>
 											</table>
