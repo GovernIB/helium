@@ -39,6 +39,8 @@ import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.PaginatedList;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.displaytag.properties.SortOrderEnum;
 import org.displaytag.tags.TableTagParameters;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -140,6 +142,40 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		return resposta;
 	}
 
+	
+	@RequestMapping(value = "/expedient/dissenyAnular")
+	public String anular(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) Long id, @RequestParam(value = "motiu", required = true) String motiu) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			ExpedientDto expedient = expedientService.getById(id);
+			if (potModificarExpedient(expedient)) {
+				try {
+					expedientService.anular(entorn.getId(), id, motiu);
+					missatgeInfo(request, getMessage("info.expedient.anulat") );
+				} catch (Exception ex) {
+					missatgeError(request, getMessage("error.anular.expedient"), ex.getLocalizedMessage());
+		        	logger.error("No s'ha pogut esborrar el registre", ex);
+				}
+			} else {
+				missatgeError(request, getMessage("error.permisos.anular.expedient"));				
+			}
+			return "redirect:/expedient/consultaDisseny.html";
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	@RequestMapping(value = "/expedient/consultaDisseny")
 	public String consultaDisseny(
 			HttpServletRequest request,
@@ -534,10 +570,32 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			field.setValorMultiple(dadaIndex.getValorMultiple());
 			field.setValorMostrarMultiple(dadaIndex.getValorMostrarMultiple());
 			field.setValorOrdreMultiple(dadaIndex.getValorIndexMultiple());
-			if (dadaIndex.isOrdenarPerValorMostrar())
+			if (dadaIndex.isOrdenarPerValorMostrar()){
 				field.setValorOrdreMultiple(dadaIndex.getValorMostrarMultiple());
+			}
 			else
-				field.setValorOrdreMultiple(dadaIndex.getValorIndexMultiple());
+//			{
+//				String valorsMult="[";
+//				List<String> valorsMostrar = new ArrayList<String>();
+//				for(Object valMult:dadaIndex.getValorMultiple()){
+//					if(valMult instanceof String){
+//						valorsMult+=(String)valMult;	
+//					}
+//				}
+//				valorsMult = valorsMult.trim();
+//				valorsMult = valorsMult+"]";
+//				valorsMostrar.add(valorsMult);
+//				field.setValorOrdreMultiple(valorsMostrar);
+//				field.setValorMostrar(valorsMult);
+//				field.setValorMostrarMultiple(valorsMostrar);
+//
+//			}
+				
+				
+				
+				
+				
+			field.setValorOrdreMultiple(dadaIndex.getValorIndexMultiple());
 		}
 		field.setMultiple(dadaIndex.isMultiple());
 		return field;
@@ -656,5 +714,14 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		}
 		return valorsPerService;
 	}
+	private boolean potModificarExpedient(ExpedientDto expedient) {
+		return permissionService.filterAllowed(
+				expedient.getTipus(),
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.ADMINISTRATION,
+					ExtendedPermission.WRITE}) != null;
+	}
 
+	private static final Log logger = LogFactory.getLog(ExpedientConsultaDissenyController.class);
 }
