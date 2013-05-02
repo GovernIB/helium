@@ -54,6 +54,7 @@ import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.helper.LuceneHelper;
 import net.conselldemallorca.helium.v3.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.v3.core.helper.PermisosHelper;
+import net.conselldemallorca.helium.v3.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.v3.core.helper.PersonaHelper;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
@@ -395,25 +396,13 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Comprova l'accés a l'estat
 		Estat estat = null;
 		if (estatId != null) {
-			estat = estatRepository.findOne(estatId);
+			estat = estatRepository.findByExpedientTipusAndId(expedientTipus, estatId);
 			if (estat == null) {
-				logger.debug("No s'ha trobat l'estat (estatId=" + estatId + ")");
+				logger.debug("No s'ha trobat l'estat (expedientTipusId=" + expedientTipusId + ", estatId=" + estatId + ")");
 				throw new EstatNotFoundException();
-			} else {
-				boolean ambPermis = permisosHelper.isGrantedAny(
-						estat.getId(),
-						Estat.class,
-						new Permission[] {
-							ExtendedPermission.READ,
-							ExtendedPermission.ADMINISTRATION},
-						auth);
-				if (!ambPermis) {
-					logger.debug("No es tenen permisos per accedir a l'estat (estatId=" + estatId + ")");
-					throw new EstatNotFoundException();
-				}
 			}
 		}
-		// Fa la consulta
+		// Calcula la data fi pel filtre
 		if (dataInici2 != null) {
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(dataInici2);
@@ -423,8 +412,24 @@ public class ExpedientServiceImpl implements ExpedientService {
 			cal.set(Calendar.MILLISECOND, 999);
 			dataInici2.setTime(cal.getTime().getTime());
 		}
+		// Obté la llista de tipus d'expedient permesos
+		List<ExpedientTipus> tipusPermesos = expedientTipusRepository.findByEntorn(entorn);
+		permisosHelper.filterGrantedAny(
+				tipusPermesos,
+				new ObjectIdentifierExtractor<ExpedientTipus>() {
+					public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
+						return expedientTipus.getId();
+					}
+				},
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.READ,
+					ExtendedPermission.ADMINISTRATION},
+				auth);
+		// Fa la consulta
 		Page<Expedient> paginaResultats = expedientRepository.findByFiltreGeneralPaginat(
 				entornId,
+				tipusPermesos,
 				(expedientTipusId == null),
 				expedientTipusId,
 				(titol == null),
@@ -442,7 +447,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				(geoPosX == null),
 				geoPosX,
 				(geoPosY == null),
-				geoPosY, 
+				geoPosY,
 				(geoReferencia == null),
 				geoReferencia,
 				mostrarAnulats,

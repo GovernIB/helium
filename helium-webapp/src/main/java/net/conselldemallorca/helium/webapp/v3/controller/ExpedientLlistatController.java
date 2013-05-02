@@ -46,7 +46,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/v3/expedient")
 public class ExpedientLlistatController {
 
-	private static final String[] COLUMNES_LLISTAT = new String[] {"id", "identificador", "dataInici", "dataFi", "tipus.nom", "estat.nom", "id"};
+	private static final String[] COLUMNES_LLISTAT = new String[] {"id", "identificador", "dataInici", "dataFi", "tipus.nom", "estat.nom", "aturat", "anulat", "id"};
 	private static final Map<String, String[]> COLUMNES_MAPEIG_ORDENACIO;
 	static {
 		COLUMNES_MAPEIG_ORDENACIO = new HashMap<String, String[]>();

@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.Date;
+import java.util.List;
 
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
@@ -33,6 +34,7 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			"from Expedient e " +
 			"where " +
 			"    e.entorn.id = :entornId " +
+			"and e.tipus in :tipusPermesos " +
 			"and (:esNullExpedientTipusId = true or e.tipus.id = :expedientTipusId) " +
 			"and (:esNullTitol = true or e.titol = :titol) " +
 			"and (:esNullNumero = true or e.numero = :numero) " +
@@ -47,6 +49,7 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			"and (:mostrarAnulats = true or e.anulat = false)")
 	public Page<Expedient> findByFiltreGeneralPaginat(
 			@Param("entornId") Long entornId,
+			@Param("tipusPermesos") List<ExpedientTipus> tipusPermesos,
 			@Param("esNullExpedientTipusId") boolean esNullExpedientTipusId,
 			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("esNullTitol") boolean esNullTitol,
