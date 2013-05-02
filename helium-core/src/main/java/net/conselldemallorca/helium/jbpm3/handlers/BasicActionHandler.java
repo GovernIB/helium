@@ -958,6 +958,38 @@ public abstract class BasicActionHandler implements ActionHandler {
 				arxiuContingut,
 				false);
 	}
+	
+	
+	public void adjuntGuardar(
+            ExecutionContext executionContext,
+            String nomDocument,
+            String documentCodi,
+            Date data,
+            String arxiuNom,
+            byte[] arxiuContingut) {
+        long processInstanceId = executionContext.getProcessInstance().getId();
+        @SuppressWarnings("unused")
+		InstanciaProcesDto instanciaProces = getExpedientService().getInstanciaProcesById(
+                new Long(processInstanceId).toString(),
+                false,
+                false,
+                false);
+        Document document = new Document();
+        document.setNom(arxiuNom);
+        document.setCodi(documentCodi);
+        getDocumentService().guardarDocumentProces(
+                new Long(processInstanceId).toString(),
+                document.getCodi(),
+                nomDocument,
+                data,
+                arxiuNom,
+                arxiuContingut,
+                true);
+    } 
+	
+	
+	
+	
 
 	/**
 	 * Retorna el valor d'una variable global
