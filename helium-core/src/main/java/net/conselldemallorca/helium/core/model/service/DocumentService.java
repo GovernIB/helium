@@ -451,6 +451,16 @@ public class DocumentService {
 				expedient = dtoConverter.toExpedientDto(
 						expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId()),
 						false);
+				String numExpedient="";
+				if(expedient.getNumero() == null){
+					numExpedient = "";
+				}else{
+					numExpedient = expedient.getNumero() + "-";
+				}
+				String titol = numExpedient + document.getNom()+".odt";
+				String carRemp ="\\/:*?\"<>|";
+				titol.replaceAll(carRemp, "_");
+				resposta.setArxiuNom(titol);
 				tasca = dtoConverter.toTascaDto(
 						task,
 						null,
