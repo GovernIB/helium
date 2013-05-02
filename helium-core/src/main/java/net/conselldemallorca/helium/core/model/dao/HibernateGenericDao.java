@@ -9,7 +9,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.hibernate.Criteria;
-import org.hibernate.LockMode;
+import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
@@ -49,7 +49,7 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 			entity = (T)getSession().get(
 					getPersistentClass(),
 					p_id,
-					LockMode.UPGRADE);
+					LockOptions.UPGRADE);
 		} else {
 			entity = (T)getSession().get(
 					getPersistentClass(),
