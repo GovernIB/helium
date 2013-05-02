@@ -287,11 +287,13 @@
 		* add our sliders to the calendar
 		*/
 		_addTimePicker: function(dp_inst) {
-			var currDT = (this.$altInput && this._defaults.altFieldTimeOnly) ? this.$input.val() + ' ' + this.$altInput.val() : this.$input.val();
+			if (this.$input) {
+				var currDT = (this.$altInput && this._defaults.altFieldTimeOnly) ? this.$input.val() + ' ' + this.$altInput.val() : this.$input.val();
 
-			this.timeDefined = this._parseTime(currDT);
-			this._limitMinMaxDateTime(dp_inst, false);
-			this._injectTimePicker();
+				this.timeDefined = this._parseTime(currDT);
+				this._limitMinMaxDateTime(dp_inst, false);
+				this._injectTimePicker();
+			}
 		},
 
 		/*
@@ -810,10 +812,13 @@
 				else altFormattedDateTime += this.formattedTime + altTimeSuffix;
 				this.$altInput.val(altFormattedDateTime);
 			} else {
-				this.$input.val(formattedDateTime);
+				if (this.$input) {
+					this.$input.val(formattedDateTime);
+				}
 			}
-
-			this.$input.trigger("change");
+			if (this.$input) {
+				this.$input.trigger("change");
+			}
 		},
 
 		_onFocus: function() {
@@ -1262,6 +1267,8 @@
 		} else {
 			this._base_selectDate(id, dateStr);
 		}
+		if (!this._defaults.showButtonPanel) 
+			this._hideDatepicker(null, this._get(inst, 'duration'));
 	};
 
 	/*
@@ -1552,7 +1559,9 @@
 		var tp_inst = this._get(inst, 'timepicker');
 		if (tp_inst) {
 			tp_inst._updateDateTime(inst);
-			return tp_inst.$input.val();
+			if (tp_inst.$input) {
+				return tp_inst.$input.val();
+			}
 		}
 		return this._base_formatDate(inst);
 	};
