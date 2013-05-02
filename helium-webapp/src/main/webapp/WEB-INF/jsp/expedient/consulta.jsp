@@ -99,7 +99,7 @@ function obreVisorGis() {
     		  
     			var input = document.createElement('input');
     		    input.type = 'hidden';
-    		    input.name = 'xml';
+    		    input.name = 'xmlexpedients';
     		    input.value = sXML;
 
     			form.appendChild(input);
@@ -121,26 +121,43 @@ function clicCheckMassiu(e) {
 	if (e.stopPropagation) e.stopPropagation();
 	$.get(	"massivaIds.html",
 			{	expedientTipusId: "${command.expedientTipus.id}",
-				expedientId: e.target.value,
-				checked: e.target.checked});
+				expedientId: (e.target || e.srcElement).value,
+				checked: (e.target || e.srcElement).checked
+			});
 }
 
 function selTots(){
-	
-	if($("#selTots").is(":checked")){
-		$("#registre input[type=checkbox]").each(function(){
-			if(this.checked){
-				this.click();
+	var versio =  $.browser.version;
+	var ch = $("#selTots:checked").val();
+	if(!ch){
+		$("#registre input[type='checkbox'][name='expedientId']").each(function(){
+			if($(this).is(':checked')){
+				if(!$.browser.msie){
+					$(this).click();
+				}else{
+					simularClick($(this).val(),false);
+			        }
 			}
-			}).attr("checked",true);
+		}).attr("checked",false);
 	}else{
-		$("#registre input[type=checkbox]").each(function(){
-			if(!this.checked){
-				this.click();
+		$("#registre input[type='checkbox'][name='expedientId']").each(function(){
+			if(!$(this).is(':checked')){
+				if(!$.browser.msie){
+					$(this).click();
+				}else{
+					simularClick($(this).val(),true);
+				}
 			}
 			
-		}).attr("checked",false);
+		}).attr("checked",true);
 	}
+}
+function simularClick(valor,xec){
+		$.get(	"massivaIds.html",
+				{	expedientTipusId: "${command.expedientTipus.id}",
+					expedientId: valor,
+					checked: xec
+				});
 }
 
 // ]]>
