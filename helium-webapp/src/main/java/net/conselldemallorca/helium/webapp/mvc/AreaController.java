@@ -76,18 +76,18 @@ public class AreaController extends BaseController {
 
 	@RequestMapping(value = "llistat")
 	public String llistat(
-			HttpServletRequest request,
-			@RequestParam(value = "page", required = false) String page,
-			@RequestParam(value = "sort", required = false) String sort,
-			@RequestParam(value = "dir", required = false) String dir,
-			@RequestParam(value = "objectsPerPage", required = false) String objectsPerPage,
-			ModelMap model) {
-		Entorn entorn = getEntornActiu(request);
+			final HttpServletRequest request,
+			@RequestParam(value = "page", required = false) final String page,
+			@RequestParam(value = "sort", required = false) final String sort,
+			@RequestParam(value = "dir", required = false) final String dir,
+			@RequestParam(value = "objectsPerPage", required = false) final String objectsPerPage,
+			final ModelMap model) {
+		final Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			int pagina = (page != null) ? new Integer(page).intValue() : 1;
-			int firstRow = (pagina - 1) * getObjectsPerPage(objectsPerPage);
+			final int pagina = (page == null) ? 1: Integer.valueOf(page);
+			final int firstRow = (pagina - 1) * getObjectsPerPage(objectsPerPage);
 			boolean isAsc = "asc".equals(dir);
-			PaginatedList paginatedList = new PaginatedList();
+			final PaginatedList paginatedList = new PaginatedList();
 			paginatedList.setFullListSize(organitzacioService.countAreaAmbEntorn(entorn.getId()));
 			paginatedList.setObjectsPerPage(getObjectsPerPage(objectsPerPage));
 			paginatedList.setPageNumber(pagina);

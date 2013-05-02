@@ -268,13 +268,23 @@ function confirmar(e) {
 	
 	
 	$(".provar").click(function(event){
-		provar(this.dataset['id']);
+		if($.browser.msie){
+			provar(this.getAttribute('id'));
+		}
+		else{
+			provar(this.dataset['id']);
+		}
+		
 		cp=0;
 		event.stopPropagation();
 	});
 	
 	$(".provarWS").click(function(event){
-		domini = this.dataset['id'];
+		if($.browser.msie){
+			domini = this.getAttribute('id');
+		}else{
+			domini = this.dataset['id'];
+		}
 		$("#dialog-form-WS").dialog("open");
 		event.stopPropagation();
 	});

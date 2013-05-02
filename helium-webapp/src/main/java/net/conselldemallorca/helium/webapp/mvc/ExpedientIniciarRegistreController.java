@@ -101,26 +101,54 @@ public class ExpedientIniciarRegistreController extends CommonRegistreController
 			BindingResult result,
 			SessionStatus status,
 			ModelMap model) {
-		return super.registrePost(request, id, registreId, index, submit, command, result, status, model);
+		return super.registrePost(
+				request,
+				id,
+				registreId,
+				index,
+				submit,
+				command,
+				result,
+				status,
+				model);
 	}
 
 	@Override
-	public void esborrarRegistre(HttpServletRequest request, String id, String campCodi, int index) {
-		esborrarRegistre(request, campCodi, index);
+	public void esborrarRegistre(
+			HttpServletRequest request,
+			String id,
+			String campCodi,
+			boolean multiple,
+			int index) {
+		esborrarRegistre(request, campCodi, multiple, index);
 	}
 	@Override
-	public Object[] getValorRegistre(HttpServletRequest request, Long entornId, String id, String campCodi) {
+	public Object[] getValorRegistre(
+			HttpServletRequest request,
+			Long entornId,
+			String id,
+			String campCodi) {
 		return (Object[])request.getSession().getAttribute(
 				ExpedientIniciarController.getClauSessioCampRegistre(campCodi));
 	}
 	@Override
-	public void guardarRegistre(HttpServletRequest request, String id, String campCodi, Object[] valors,
+	public void guardarRegistre(
+			HttpServletRequest request,
+			String id,
+			String campCodi,
+			boolean multiple,
+			Object[] valors,
 			int index) {
-		guardarRegistre(request, campCodi, valors, index);
+		guardarRegistre(request, campCodi, multiple, valors, index);
 	}
 	@Override
-	public void guardarRegistre(HttpServletRequest request, String id, String campCodi, Object[] valors) {
-		guardarRegistre(request, campCodi, valors, -1);
+	public void guardarRegistre(
+			HttpServletRequest request,
+			String id,
+			String campCodi,
+			boolean multiple,
+			Object[] valors) {
+		guardarRegistre(request, campCodi, multiple, valors, -1);
 	}
 	@Override
 	public String redirectUrl(String id, String campCodi) {
@@ -136,48 +164,61 @@ public class ExpedientIniciarRegistreController extends CommonRegistreController
 	private void guardarRegistre(
 			HttpServletRequest request,
 			String campCodi,
+			boolean multiple,
 			Object[] valors,
 			int index) {
-		Object valor = request.getSession().getAttribute(
-				ExpedientIniciarController.getClauSessioCampRegistre(campCodi));
-		if (valor == null) {
+		if (multiple) {
+			Object valor = request.getSession().getAttribute(
+					ExpedientIniciarController.getClauSessioCampRegistre(campCodi));
+			if (valor == null) {
+				request.getSession().setAttribute(
+						ExpedientIniciarController.getClauSessioCampRegistre(campCodi),
+						new Object[]{valors});
+			} else {
+				Object[] valorMultiple = (Object[])valor;
+				if (index != -1) {
+					valorMultiple[index] = valors;
+					request.getSession().setAttribute(
+							ExpedientIniciarController.getClauSessioCampRegistre(campCodi),
+							valor);
+				} else {
+					Object[] valorNou = new Object[valorMultiple.length + 1];
+					for (int i = 0; i < valorMultiple.length; i++)
+						valorNou[i] = valorMultiple[i];
+					valorNou[valorMultiple.length] = valors;
+					request.getSession().setAttribute(
+							ExpedientIniciarController.getClauSessioCampRegistre(campCodi),
+							valorNou);
+				}
+			}
+		} else {
 			request.getSession().setAttribute(
 					ExpedientIniciarController.getClauSessioCampRegistre(campCodi),
-					new Object[]{valors});
-		} else {
-			Object[] valorMultiple = (Object[])valor;
-			if (index != -1) {
-				valorMultiple[index] = valors;
-				request.getSession().setAttribute(
-						ExpedientIniciarController.getClauSessioCampRegistre(campCodi),
-						valor);
-			} else {
-				Object[] valorNou = new Object[valorMultiple.length + 1];
-				for (int i = 0; i < valorMultiple.length; i++)
-					valorNou[i] = valorMultiple[i];
-				valorNou[valorMultiple.length] = valors;
-				request.getSession().setAttribute(
-						ExpedientIniciarController.getClauSessioCampRegistre(campCodi),
-						valorNou);
-			}
+					valors);
 		}
 	}
 	public void esborrarRegistre(
 			HttpServletRequest request,
 			String campCodi,
+			boolean multiple,
 			int index) {
-		Object valor = request.getSession().getAttribute(
-				ExpedientIniciarController.getClauSessioCampRegistre(campCodi));
-		if (valor != null) {
-			Object[] valorMultiple = (Object[])valor;
-			if (valorMultiple.length > 0) {
-				Object[] valorNou = new Object[valorMultiple.length - 1];
-				for (int i = 0; i < valorNou.length; i++)
-					valorNou[i] = (i < index) ? valorMultiple[i] : valorMultiple[i + 1];
-					request.getSession().setAttribute(
-							ExpedientIniciarController.getClauSessioCampRegistre(campCodi),
-							valorNou);
+		if (multiple) {
+			Object valor = request.getSession().getAttribute(
+					ExpedientIniciarController.getClauSessioCampRegistre(campCodi));
+			if (valor != null) {
+				Object[] valorMultiple = (Object[])valor;
+				if (valorMultiple.length > 0) {
+					Object[] valorNou = new Object[valorMultiple.length - 1];
+					for (int i = 0; i < valorNou.length; i++)
+						valorNou[i] = (i < index) ? valorMultiple[i] : valorMultiple[i + 1];
+						request.getSession().setAttribute(
+								ExpedientIniciarController.getClauSessioCampRegistre(campCodi),
+								valorNou);
+				}
 			}
+		} else {
+			request.getSession().removeAttribute(
+					ExpedientIniciarController.getClauSessioCampRegistre(campCodi));
 		}
 	}
 

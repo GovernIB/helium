@@ -108,13 +108,13 @@ function confirmarCancelar(e) {
 				</security:accesscontrollist>
 			</c:if>
 		</display:column>
-		<display:column>
-			<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="128">
-				<c:if test="${((not registre.cancelled) and (not registre.suspended) and ( expedientLogIds[cont][1] ne 'RETROCEDIT_TASQUES') and expedientLogIds[cont][0] !=null)}"> 
-						<a href="<c:url value="/expedient/retrocedir.html"><c:param name="id" value="${param.id}"/><c:param name="logId" value="${expedientLogIds[cont][0]}"/><c:param name="tipus_retroces" value="${param.tipus_retroces}"/><c:param name="retorn" value="t"/></c:url>" onclick="return confirmarRetrocedir(event)" class="retroces"><img src="<c:url value="/img/arrow_undo.png"/>" alt="<fmt:message key="expedient.log.retrocedir"/>" title="<fmt:message key="expedient.log.retrocedir"/>" border="0"/></a>
-				</c:if>
-			</security:accesscontrollist>
-		</display:column>
+<%-- 		<display:column> --%>
+<%-- 			<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="128"> --%>
+<%-- 				<c:if test="${((not registre.cancelled) and (not registre.suspended) and ( expedientLogIds[cont][1] ne 'RETROCEDIT_TASQUES') and expedientLogIds[cont][0] !=null)}">  --%>
+<%-- 						<a href="<c:url value="/expedient/retrocedir.html"><c:param name="id" value="${param.id}"/><c:param name="logId" value="${expedientLogIds[cont][0]}"/><c:param name="tipus_retroces" value="${param.tipus_retroces}"/><c:param name="retorn" value="t"/></c:url>" onclick="return confirmarRetrocedir(event)" class="retroces"><img src="<c:url value="/img/arrow_undo.png"/>" alt="<fmt:message key="expedient.log.retrocedir"/>" title="<fmt:message key="expedient.log.retrocedir"/>" border="0"/></a> --%>
+<%-- 				</c:if> --%>
+<%-- 			</security:accesscontrollist> --%>
+<%-- 		</display:column> --%>
 		<c:set var="cont" value="${cont + 1}"/>
 	</display:table>
 

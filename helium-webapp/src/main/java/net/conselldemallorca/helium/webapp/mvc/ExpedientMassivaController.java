@@ -5,6 +5,8 @@ package net.conselldemallorca.helium.webapp.mvc;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -58,6 +60,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
+
+import edu.emory.mathcs.backport.java.util.Collections;
 
 
 /**
@@ -296,7 +300,12 @@ public class ExpedientMassivaController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			List<Long> ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
+			List<Long> ids = null;
+			if(request.getParameter("targetModificarDoc").equals("disseny")){
+				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS_TE);
+			}else{
+				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
+			}
 			if (ids == null || ids.size() == 0) {
 				missatgeError(request, getMessage("error.no.exp.selec"));
 				return "redirect:/expedient/massivaInfo.html";
@@ -364,7 +373,10 @@ public class ExpedientMassivaController extends BaseController {
 				}
 			}//final For expedients
 			missatgeInfo(request, getMessage("info.document.guardat") );
-			return "redirect:/expedient/massivaInfo.html";
+			if(request.getParameter("targetModificarDoc").equals("disseny")){
+				return "redirect:/expedient/massivaInfoTE.html";
+			}
+			return "redirect:/expedient/massivaInfo.html";	
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
@@ -394,7 +406,13 @@ public class ExpedientMassivaController extends BaseController {
 			SessionStatus status) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			List<Long> ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
+			List<Long> ids = null;
+			if(request.getParameter("targetScript").equals("disseny")){
+				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS_TE);
+			}else{
+				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
+			}
+			
 			if (ids == null || ids.size() == 0) {
 				missatgeError(request, getMessage("error.no.exp.selec"));
 				return "redirect:/expedient/massivaInfo.html";
@@ -427,6 +445,9 @@ public class ExpedientMassivaController extends BaseController {
 					}
 				}
 				missatgeInfo(request, getMessage("info.script.executat"));
+				if(request.getParameter("targetScript").equals("disseny")){
+					return "redirect:/expedient/massivaInfoTE.html";
+				}
 				return "redirect:/expedient/massivaInfo.html";	
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
@@ -447,7 +468,12 @@ public class ExpedientMassivaController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			int aturats=0;
-			List<Long> ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
+			List<Long> ids = null;
+			if(request.getParameter("targetAturar").equals("disseny")){
+				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS_TE);
+			}else{
+				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
+			}
 			if (ids == null || ids.size() == 0) {
 				missatgeError(request, getMessage("error.no.exp.selec"));
 				return "redirect:/expedient/massivaInfo.html";
@@ -484,6 +510,9 @@ public class ExpedientMassivaController extends BaseController {
 				}
 			}
 				missatgeInfo(request, getMessage("info.expedient.aturats") +" "+ aturats+" "+ "expedient(s)");
+				if(request.getParameter("targetAturar").equals("disseny")){
+					return "redirect:/expedient/massivaInfoTE.html";
+				}
 				return "redirect:/expedient/massivaInfo.html";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
@@ -510,7 +539,13 @@ public class ExpedientMassivaController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			List<Long> ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
+			List<Long> ids = null;
+			if(request.getParameter("targetModificarVar").equals("disseny")){
+				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS_TE);
+			}else{
+				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS);
+			}
+			
 			if (ids == null || ids.size() == 0) {
 				missatgeError(request, getMessage("error.no.exp.selec"));
 				return "redirect:/expedient/massivaInfo.html";
@@ -579,7 +614,10 @@ public class ExpedientMassivaController extends BaseController {
 		
 		    }//if del For expedients
 		    missatgeInfo(request, getMessage("info.variable.modificada"));
-		    return "redirect:/expedient/massivaInfo.html";
+		    if(request.getParameter("targetModificarVar").equals("disseny")){
+				return "redirect:/expedient/massivaInfoTE.html";
+			}
+			return "redirect:/expedient/massivaInfo.html";
 			
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
@@ -594,6 +632,7 @@ public class ExpedientMassivaController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = false) String id,
 			@RequestParam(value = "taskId", required = false) String taskId,
+			@RequestParam(value = "targetModificarVar", required = false) String targetModificarVar,
 			@RequestParam(value = "var", required = true) String var,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
@@ -738,7 +777,15 @@ public class ExpedientMassivaController extends BaseController {
 				model.addAttribute(
 						"instanciaProces",
 						instanciaProces);
-				
+				Set<Camp> camp = instanciaProces.getCamps();
+				List<Camp> llistaCamps = new ArrayList<Camp>();
+				for(Camp c: camp){
+					llistaCamps.add(c);
+				}
+				Collections.sort(llistaCamps, new ComparadorCampCodi());
+				model.addAttribute(
+						"camps",
+						llistaCamps);
 				List<Document> documents = instanciaProces.getDocuments();
 				model.addAttribute(
 						"documents",
@@ -750,8 +797,6 @@ public class ExpedientMassivaController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
-	
-	
 	
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/expedient/massivaInfoTE")
@@ -783,6 +828,15 @@ public class ExpedientMassivaController extends BaseController {
 				model.addAttribute(
 						"instanciaProces",
 						instanciaProces);
+				Set<Camp> camp = instanciaProces.getCamps();
+				List<Camp> llistaCamps = new ArrayList<Camp>();
+				for(Camp c: camp){
+					llistaCamps.add(c);
+				}
+				Collections.sort(llistaCamps, new ComparadorCampCodi());
+				model.addAttribute(
+						"camps",
+						llistaCamps);
 			}
 			return "/expedient/massivaInfo";
 		} else {
@@ -796,13 +850,12 @@ public class ExpedientMassivaController extends BaseController {
 	@RequestMapping(value = "/expedient/massivaCanviVersio")
 	public String accioCanviVersio(
 			HttpServletRequest request,
-			@RequestParam(value="target",required=false) String target,
 			@ModelAttribute("canviVersioProcesCommand") CanviVersioProcesCommand command,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			List<Long> ids = new ArrayList<Long>();
-			if(request.getParameter("target").equals("disseny")){
+			if(request.getParameter("targetVersio").equals("disseny")){
 				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS_TE);
 			}
 			else{
@@ -837,9 +890,9 @@ public class ExpedientMassivaController extends BaseController {
 				else
 					missatgeInfo(request, getMessage("info.canvi.versio.realitzat.nprimers", new Object[] {new Integer(numOk)}));
 			}
-			if(request.getParameter("target").equals("disseny")){
+			if(request.getParameter("targetVersio").equals("disseny")){
 				return "redirect:/expedient/massivaInfoTE.html";
-			}else if(request.getParameter("target").equals("consulta")){
+			}else if(request.getParameter("targetVersio").equals("consulta")){
 				return "redirect:/expedient/massivaInfo.html";
 			}
 			
@@ -854,13 +907,12 @@ public class ExpedientMassivaController extends BaseController {
 	@RequestMapping(value = "/expedient/massivaExecutarAccio")
 	public String accioExecutarAccio(
 			HttpServletRequest request,
-			@RequestParam(value="target2",required=false) String target2,
 			@ModelAttribute("execucioAccioCommand") ExecucioAccioCommand command,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			List<Long> ids = new ArrayList<Long>();
-			if(request.getParameter("target2").equals("disseny")){
+			if(request.getParameter("targetAccio").equals("disseny")){
 				ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS_TE);
 			}
 			else{
@@ -896,7 +948,7 @@ public class ExpedientMassivaController extends BaseController {
 				else
 					missatgeInfo(request, getMessage("info.accio.executat.nprimers", new Object[] {new Integer(numOk)}));
 			}
-			if(request.getParameter("target2").equals("disseny")){
+			if(request.getParameter("targetAccio").equals("disseny")){
 				return "redirect:/expedient/massivaInfoTE.html";
 			}else {
 				return "redirect:/expedient/massivaInfo.html";
@@ -911,6 +963,7 @@ public class ExpedientMassivaController extends BaseController {
 	@RequestMapping(value = "/expedient/reindexarMas")
 	public String expedientReindexar(
 			HttpServletRequest request,
+			@RequestParam(value="targetIdx",required=false) String targetIdx,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
@@ -923,7 +976,10 @@ public class ExpedientMassivaController extends BaseController {
 			}
 			if (ids == null || ids.size() == 0) {
 				missatgeError(request, getMessage("error.no.exp.selec"));
-				return "redirect:/expedient/massivaInfo.html";
+				if(request.getParameter("targetIdx").equals("disseny")){
+					return "redirect:/expedient/massivaInfoTE.html";
+				}else{
+					return "redirect:/expedient/massivaInfo.html"; }
 			}
 			List<ExpedientDto> expedients = getExpedientsMassius(ids.subList(1, ids.size()));
 			
@@ -1137,6 +1193,11 @@ public class ExpedientMassivaController extends BaseController {
 		}
 	}
 	
+	public class ComparadorCampCodi implements Comparator<Camp> {
+	    public int compare(Camp c1, Camp c2) {
+	        return c1.getCodi().compareToIgnoreCase(c2.getCodi());
+	    }
+	}
 	
 	private static final Log logger = LogFactory.getLog(ExpedientMassivaController.class);
 

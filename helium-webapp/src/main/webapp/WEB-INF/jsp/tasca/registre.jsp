@@ -10,11 +10,13 @@
 <head>
 	<title>${registre.etiqueta}</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
- 
+ 	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
 	<link href="<c:url value="/css/reset.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/common.css"/>" rel="stylesheet" type="text/css"/>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.js"/>"></script>
-
+	<!--[if lt IE 8]>
+		<script src="http://ie7-js.googlecode.com/svn/version/2.1(beta4)/IE8.js"></script>
+	<![endif]-->
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 	<c:import url="../common/formIncludes.jsp"/>
@@ -42,7 +44,14 @@
 			<p class="aclaracio"><fmt:message key='comuns.camps_marcats' /> <img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='comuns.camp_oblig' />" title="<fmt:message key='comuns.camp_oblig' />" border="0"/> <fmt:message key='comuns.son_oblig' /></p>
 		</c:when>
 		<c:otherwise>
-			<script type="text/javascript">parent.refresh();</script>
+			<script language="JavaScript" type="text/javascript">
+				var versio = $.browser.version;
+				if($.browser.msie && versio.substring(0,2)=='7.'){
+					parent.location.reload();
+				}else{
+					parent.refresh();
+				}
+			</script>
 		</c:otherwise>
 	</c:choose>
 </body>

@@ -106,6 +106,7 @@ public class TascaRegistreController extends CommonRegistreController {
 			HttpServletRequest request,
 			String id,
 			String campCodi,
+			boolean multiple,
 			int index) {
 		Entorn entorn = getEntornActiu(request);
 		tascaService.esborrarRegistre(entorn.getId(), id, campCodi, index);
@@ -123,6 +124,7 @@ public class TascaRegistreController extends CommonRegistreController {
 			HttpServletRequest request,
 			String id,
 			String campCodi,
+			boolean multiple,
 			Object[] valors,
 			int index) {
 		Entorn entorn = getEntornActiu(request);
@@ -133,6 +135,7 @@ public class TascaRegistreController extends CommonRegistreController {
 			HttpServletRequest request,
 			String id,
 			String campCodi,
+			boolean multiple,
 			Object[] valors) {
 		Entorn entorn = getEntornActiu(request);
 		tascaService.guardarRegistre(entorn.getId(), id, campCodi, valors);

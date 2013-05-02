@@ -17,49 +17,77 @@
 	<c:import url="../common/formIncludes.jsp"/>
 <script type="text/javascript">
 // <![CDATA[
-function confirmarEsborrar(e) {
-	var e = e || window.event;
-	e.cancelBubble = true;
-	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Estau segur que voleu esborrar aquest expedient?");
-}
-function confirmarAnular(e) {
-	var e = e || window.event;
-	e.cancelBubble = true;
-	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Estau segur que voleu anul·lar aquest expedient?");
-}
-
-
-function clicCheckMassiu(e) {
-	var e = e || window.event;
-	e.cancelBubble = true;
-	if (e.stopPropagation) e.stopPropagation();
-	$.get(	"massivaIdsTE.html",
-			{	expedientTipusId: "${consulta.expedientTipus.id}",
-				expedientId: e.target.value,
-				checked: e.target.checked});
-}
-
-
-
-function selTots(){
-	
-	if($("#selTots").is(":checked")){
-		$("#registre input[type=checkbox]").each(function(){
-			if(this.checked){
-				this.click();
-			}
-			}).attr("checked",true);
-	}else{
-		$("#registre input[type=checkbox]").each(function(){
-			if(!this.checked){
-				this.click();
-			}
-			
-		}).attr("checked",false);
+            
+	function confirmarEsborrar(e) {
+		var e = e || window.event;
+		e.cancelBubble = true;
+		if (e.stopPropagation) e.stopPropagation();
+		return confirm("Estau segur que voleu esborrar aquest expedient?");
 	}
-}
+	function confirmarAnular(e, registre) {
+		var resposta="";
+		$("#id").val(registre);
+		var e = e || window.event;
+		e.cancelBubble = true;
+		var confirmaAnula = confirm("<fmt:message key="expedient.consulta.confirm.anular"/>"); 
+	 	if (confirmaAnula){	
+	 		resposta = prompt("Introdueix el motiu de l'anul·lació",'');
+	 		$("#motiu").val(resposta);
+	 	}
+	 	
+	 	if(resposta!="null"){
+	 		document.forms["anularMot"].submit();
+	 		//return;
+	 	}
+	 	if (e.stopPropagation) e.stopPropagation();
+	}
+	
+	
+	function clicCheckMassiu(e) {
+		var e = e || window.event;
+		e.cancelBubble = true;
+		if (e.stopPropagation) e.stopPropagation();
+		$.get(	"massivaIdsTE.html",
+				{	expedientTipusId: "${consulta.expedientTipus.id}",
+					expedientId: (e.target || e.srcElement).value,
+					checked: (e.target || e.srcElement).checked
+				});
+	}
+	
+	function selTots(){
+		var versio =  $.browser.version;
+		var ch = $("#selTots:checked").val();
+		if(!ch){
+			$("#registre input[type='checkbox'][name='expedientId']").each(function(){
+				if($(this).is(':checked')){
+					if(!$.browser.msie){
+						$(this).click();
+					}else{
+						simularClick($(this).val(),false);
+				        }
+				}
+			}).attr("checked",false);
+		}else{
+			$("#registre input[type='checkbox'][name='expedientId']").each(function(){
+				if(!$(this).is(':checked')){
+					if(!$.browser.msie){
+						$(this).click();
+					}else{
+						simularClick($(this).val(),true);
+					}
+				}
+				
+			}).attr("checked",true);
+		}
+	}
+	function simularClick(valor,xec){
+			$.get(	"massivaIdsTE.html",
+					{	expedientTipusId: "${consulta.expedientTipus.id}",
+						expedientId: valor,
+						checked: xec
+					});
+	}
+
 // ]]>
 </script>
 </head>
@@ -274,7 +302,7 @@ function selTots(){
 					<security:accesscontrollist domainObject="${consulta.expedientTipus}" hasPermission="16,2">
 						<display:column media="html">
 							<c:if test="${!registre.expedient.anulat}">
-								<a href="<c:url value="/expedient/anular.html"><c:param name="id" value="${registre.expedient.id}"/></c:url>" onclick="return confirmarAnular(event)"><img src="<c:url value="/img/delete.png"/>" alt="<fmt:message key='comuns.anular' />" title="<fmt:message key='comuns.anular' />" border="0"/></a>
+								<a href="javascript:void(0);" onclick="confirmarAnular(event, ${registre.expedient.id})"><img src="<c:url value="/img/delete.png"/>" alt="<fmt:message key="comuns.anular"/>" title="<fmt:message key="comuns.anular"/>" border="0"/></a>
 							</c:if>
 						</display:column>
 					</security:accesscontrollist>
@@ -299,6 +327,9 @@ function selTots(){
 			</c:if>
 		</c:if>
 	</c:if>
-
+	<form:form  method="GET" name="anularMot" id="anularMot" action="/helium/expedient/dissenyAnular.html?id=${registreId}&motiu=${param.motiu}"  cssClass="uniForm">
+		<input type="hidden" id="id" name="id" value=""></input>
+		<input type="hidden" id="motiu" name="motiu" value=""></input>
+	</form:form>
 </body>
 </html>

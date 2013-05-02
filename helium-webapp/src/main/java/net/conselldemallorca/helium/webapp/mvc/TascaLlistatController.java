@@ -146,7 +146,13 @@ public class TascaLlistatController extends BaseController {
 			TascaFiltreCommand tascaPersonaFiltreCommand = (TascaFiltreCommand)model.get("commandPersonaFiltre");
 			request.getSession().setAttribute("commandTascaPersonaFiltre", tascaPersonaFiltreCommand);
 			String expedient = request.getParameter("exp");
-			if (expedient != null) tascaPersonaFiltreCommand.setExpedient(expedient);
+			try{
+				byte[] exped = expedient.getBytes("ISO-8859-1");
+				String expeNT = new String(exped);
+				if (expedient != null) tascaPersonaFiltreCommand.setExpedient(expeNT);
+			}catch(Exception e){
+				e.getStackTrace();
+			}
 			PaginatedList pagina = getPaginaTasquesPersonals(
 					entorn,
 					tascaPersonaFiltreCommand,

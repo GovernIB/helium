@@ -208,6 +208,7 @@ public class TascaFormController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) String id,
 			ModelMap model) {
+		double millisA = System.currentTimeMillis();
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			String campFocus = (String)request.getSession().getAttribute(VARIABLE_SESSIO_CAMP_FOCUS);
@@ -222,6 +223,8 @@ public class TascaFormController extends BaseController {
 				missatgeError(request, getMessage("error.tasca.no.disponible") );
 				return "redirect:/tasca/personaLlistat.html";
 			}
+			double millisB = System.currentTimeMillis();
+			logger.error("RENDIMENT Temps càrrega formulari GET: "+(millisB-millisA)+" ms.");
 			return "tasca/form";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
@@ -247,15 +250,26 @@ public class TascaFormController extends BaseController {
 			SessionStatus status,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
+		long millis000= System.currentTimeMillis();
+		request.getSession().setAttribute("millis000", millis000);
 		if (entorn != null) {
 			if (model.get("command") == null) {
 				missatgeError(request, getMessage("error.tasca.no.disponible") );
 				return "redirect:/tasca/personaLlistat.html";
 			}
+			
 			TascaDto tasca = (TascaDto)model.get("tasca");
 			List<Camp> camps = new ArrayList<Camp>();
-    		for (CampTasca campTasca: tasca.getCamps())
-    			camps.add(campTasca.getCamp());
+			long millis001= System.currentTimeMillis();
+			request.getSession().setAttribute("millis001", millis001);
+    		for (CampTasca campTasca: tasca.getCamps()) {
+    			long millis= System.currentTimeMillis();
+    			Camp camp = campTasca.getCamp();
+    			camps.add(camp);
+    			logger.error("RENDIMENT Temps càrrega camp "+ camp.getCodi() + " (" + camp.getTipus().name() + "): "+(System.currentTimeMillis()-millis)+" ms.");
+    		}
+    		long millis002= System.currentTimeMillis();
+    		logger.error("RENDIMENT Temps càrrega camps tasca: "+(millis002-millis001)+" ms.");
     		if (campFocus != null) {
 				String[] partsCampFocus = campFocus.split("#");
 				if (partsCampFocus.length == 2) {
@@ -265,24 +279,34 @@ public class TascaFormController extends BaseController {
 				}
     		}
 			if ("submit".equals(submit) || "submit".equals(submitar) || "validate".equals(submit) || "validate".equals(submitar)) {
+				long millis003= System.currentTimeMillis();
 				validatorGuardar.validate(command, result);
+				long millis004= System.currentTimeMillis();
+				logger.error("RENDIMENT Temps validar guardar: "+(millis004-millis003)+" ms.");
 				if (result.hasErrors()) {
 					return "tasca/form";
 				}
+				//TODO: esborrar comptadors de temps
+				long millis005= System.currentTimeMillis();
 				boolean ok = accioGuardarForm(
 						request,
 						entorn.getId(),
 						id,
 						camps,
 						command);
+				long millis006= System.currentTimeMillis();
+				logger.error("RENDIMENT Temps accio guardar formulari: "+(millis006-millis005)+" ms.");
 				if (!ok)
 					return "tasca/form";
 				if (accioCamp != null && accioCamp.length() > 0) {
+					long millis007= System.currentTimeMillis();
 					ok = accioExecutarAccio(
 							request,
 							entorn.getId(),
 							id,
 							accioCamp);
+					long millis008= System.currentTimeMillis();
+					logger.error("RENDIMENT Temps accio executar accio: "+(millis008-millis007)+" ms.");
 					if (!ok)
 						return "tasca/form";
 				}
@@ -299,12 +323,15 @@ public class TascaFormController extends BaseController {
 			        if (result.hasErrors()) {
 			        	return "tasca/form";
 			        }
+			        long millis009= System.currentTimeMillis();
 			        ok = accioValidarForm(
 			        		request,
 							entorn.getId(),
 							id,
 							camps,
 							command);
+			        long millis010= System.currentTimeMillis();
+			        logger.error("RENDIMENT Temps accio validar form: "+(millis010-millis009)+" ms.");
 			        if (!ok)
 						return "tasca/form";
 				}
@@ -314,8 +341,8 @@ public class TascaFormController extends BaseController {
 				} else {
 		        	if (iframe != null)
 		        		return "redirect:/tasca/formIframe.html?id=" + id + "&iframe=iframe";
-		        	else
-		        		return "redirect:/tasca/form.html?id=" + id;
+		        	else{
+		        		return "redirect:/tasca/form.html?id=" + id;}
 				}
 			} else if ("restore".equals(submit) || "restore".equals(submitar)) {
 				boolean ok = accioRestaurarForm(

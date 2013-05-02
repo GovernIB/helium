@@ -44,7 +44,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 
 

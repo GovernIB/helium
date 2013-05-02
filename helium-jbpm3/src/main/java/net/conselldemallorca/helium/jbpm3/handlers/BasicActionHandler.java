@@ -207,11 +207,15 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 					numero,
 					dataInici1,
 					dataInici2,
+					null,
+					null,
 					estatTipus,
 					estat.getId(),
 					null,
 					null,
 					null,
+					false,
+					false,
 					false,
 					null);
 			// Construcció de la resposta
@@ -721,6 +725,21 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 				arxiuNom,
 				arxiuContingut);
 	}
+
+	public void adjuntGuardar(
+            ExecutionContext executionContext,
+            String nomDocument,
+            Date data,
+            String arxiuNom,
+            byte[] arxiuContingut) {
+		getDocumentService().guardarAdjunt(
+				getProcessInstanceId(executionContext),
+				null, // adjuntId
+				nomDocument,
+				data,
+				arxiuNom,
+				arxiuContingut);
+    }
 
 	/**
 	 * Retorna el valor d'una variable global.

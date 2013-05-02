@@ -512,7 +512,7 @@ public class LuceneDao extends LuceneIndexSupport {
 							ExpedientCamps.EXPEDIENT_CAMP_COMENTARI.equals(codiCamp) ||
 							ExpedientCamps.EXPEDIENT_CAMP_INFOATUR.equals(codiCamp)
 							) {
-						String valorIndex = (String)valorFiltre;
+						String valorIndex = ((String)valorFiltre).toLowerCase();
 						if (valorIndex != null && valorIndex.length() > 0) {
 							//System.out.println(">>> WildcardQuery " + codiCamp + ": " + valorIndex);
 							return queryPerStringAmbWildcards(
@@ -565,7 +565,7 @@ public class LuceneDao extends LuceneIndexSupport {
 								}
 							} else if (	camp.getTipus().equals(TipusCamp.STRING) ||
 										camp.getTipus().equals(TipusCamp.TEXTAREA)) {
-								String valorIndex = valorIndexPerCamp(camp, valorFiltre);
+								String valorIndex = valorIndexPerCamp(camp, valorFiltre).toLowerCase();
 								if (valorIndex != null && valorIndex.length() > 0) {
 									//System.out.println(">>> WildcardQuery " + codiCamp + ": " + valorIndex);
 									return queryPerStringAmbWildcards(
@@ -627,10 +627,10 @@ public class LuceneDao extends LuceneIndexSupport {
 			final int maxResults) {
 		Sort luceneSort = null;
 		if (sort != null && sort.length() > 0) {
-			if (ExpedientCamps.EXPEDIENT_CAMP_TITOL.equals(sort)) sort = sort + "_no_analyzed";
-			else if (ExpedientCamps.EXPEDIENT_CAMP_NUMERO.equals(sort)) sort = sort + "_no_analyzed";
-			else if (ExpedientCamps.EXPEDIENT_CAMP_COMENTARI.equals(sort)) sort = sort + "_no_analyzed";
-			else
+			if (ExpedientCamps.EXPEDIENT_CAMP_TITOL.equals(sort)) {sort = sort + "_no_analyzed";}
+			else if (ExpedientCamps.EXPEDIENT_CAMP_NUMERO.equals(sort)) {sort = sort + "_no_analyzed";}
+			else if (ExpedientCamps.EXPEDIENT_CAMP_COMENTARI.equals(sort)){ sort = sort + "_no_analyzed";}
+			else{
 				for (Camp camp : campsInforme) {
 					if (sort.endsWith(camp.getCodi())
 							&& (camp.getTipus().equals(TipusCamp.STRING) || 
@@ -639,7 +639,14 @@ public class LuceneDao extends LuceneIndexSupport {
 						break;
 					}
 				}
-			luceneSort = new Sort(new SortField(sort, SortField.STRING, !asc));
+				String campOrdenacio = null;
+				if ("expedient$identificador".equals(sort)) {
+					campOrdenacio = ExpedientCamps.EXPEDIENT_CAMP_ID;
+				} else {
+					campOrdenacio = sort;
+				}
+				luceneSort = new Sort(new SortField(campOrdenacio, SortField.STRING, !asc));
+			}
 		} else
 			luceneSort = new Sort(new SortField(ExpedientCamps.EXPEDIENT_CAMP_ID, SortField.STRING, !asc));
 		final List<Map<String, List<String>>> resultats = searchTemplate.search(

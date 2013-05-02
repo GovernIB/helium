@@ -862,21 +862,6 @@ public class ExpedientService {
 			boolean asc,
 			int firstRow,
 			int maxResults) {
-		
-			
-		@SuppressWarnings("rawtypes")
-		Iterator it = valors.entrySet().iterator();
-		while (it.hasNext()) {
-			@SuppressWarnings("rawtypes")
-			Map.Entry e = (Map.Entry)it.next();
-			String nom = (String) e.getKey();
-			Object valor = e.getValue();
-			if(valor instanceof String){
-				valor = ((String) valor).toLowerCase();
-			}
-			valors.put(nom, valor);
-		}
-		
 		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
 		Consulta consulta = consultaDao.getById(consultaId, false);
 		List<Camp> campsFiltre = getServiceUtils().findCampsPerCampsConsulta(
@@ -898,9 +883,8 @@ public class ExpedientService {
 				maxResults);
 		for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
 			DadaIndexadaDto dadaExpedientId = dadesExpedient.get(LuceneDao.CLAU_EXPEDIENT_ID);
-			Long expedientId = new Long(dadaExpedientId.getValorIndex());
 			ExpedientConsultaDissenyDto fila = new ExpedientConsultaDissenyDto();
-			Expedient expedient = expedientDao.getById(expedientId, false);
+			Expedient expedient = expedientDao.getById(Long.parseLong(dadaExpedientId.getValorIndex()), false);
 			if (expedient != null) {
 				fila.setExpedient(
 						dtoConverter.toExpedientDto(
@@ -2254,6 +2238,7 @@ public class ExpedientService {
 							ExtendedPermission.ADMINISTRATION,
 							ExtendedPermission.SUPERVISION,
 							ExtendedPermission.READ});
+		
 		Long[] resposta = new Long[tipus.size()];
 		for (int i = 0; i < resposta.length; i++)
 			resposta[i] = tipus.get(i).getId();
@@ -2266,8 +2251,8 @@ public class ExpedientService {
 			List<Camp> camps) {
 		if (consulta.getValorsPredefinits() != null && consulta.getValorsPredefinits().length() > 0) {
 			String[] parelles = consulta.getValorsPredefinits().split(",");
-			for (int i = 0; i < parelles.length; i++) {
-				String[] parella = (parelles[i].contains(":")) ? parelles[i].split(":") : parelles[i].split("=");
+			for (String parelle : parelles) {
+				String[] parella = (parelle.contains(":")) ? parelle.split(":") : parelle.split("=");
 				if (parella.length == 2) {
 					String campCodi = parella[0];
 					String valor = parella[1];

@@ -184,7 +184,7 @@ jQuery(document).ready(function(){
 		<%--/c:if--%>
 		<display:column>
 			<c:if test="${registre.estat == 'NORMAL' && numBloquejos == 0}">
-				<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
+				<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="128,16">
 					<a href="<c:url value="/expedient/retrocedir.html"><c:param name="id" value="${param.id}"/><c:param name="logId" value="${registre.id}"/><c:param name="tipus_retroces" value="${param.tipus_retroces}"/><c:param name="retorn" value="r"/></c:url>" onclick="return confirmarRetrocedir(event)" class="retroces"><img src="<c:url value="/img/arrow_undo.png"/>" alt="<fmt:message key="expedient.log.retrocedir"/>" title="<fmt:message key="expedient.log.retrocedir"/>" border="0"/></a>
 				</security:accesscontrollist>
 			</c:if>

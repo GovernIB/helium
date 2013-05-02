@@ -99,7 +99,7 @@ public class TascaFormUtil {
 	    		try {
 		    		String campCodi = getCampCodi(camp, perFiltre, true);
 		    		Object valor = PropertyUtils.getSimpleProperty(command, campCodi);
-		    		if (camp.isMultiple() && revisarArrays) {
+		    		if (!perFiltre && camp.isMultiple() && revisarArrays) {
 	    				// Lleva els valors buits de l'array
 		    			int tamany = 0;
 		    			for (int i = 0; i < Array.getLength(valor); i++) {

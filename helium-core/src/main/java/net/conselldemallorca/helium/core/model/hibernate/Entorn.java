@@ -18,6 +18,8 @@ import javax.persistence.TableGenerator;
 
 import net.conselldemallorca.helium.core.security.audit.Auditable;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 
@@ -27,6 +29,7 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(name="hel_entorn")
 public class Entorn implements Serializable, GenericEntity<Long>, Auditable {
 

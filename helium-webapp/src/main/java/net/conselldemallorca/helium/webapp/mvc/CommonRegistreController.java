@@ -195,6 +195,7 @@ public abstract class CommonRegistreController extends BaseController {
 									request,
 				        			id,
 				        			camp.getCodi(),
+				        			camp.isMultiple(),
 				        			valors,
 				        			index.intValue());
 			        	} else {
@@ -202,6 +203,7 @@ public abstract class CommonRegistreController extends BaseController {
 									request,
 				        			id,
 				        			camp.getCodi(),
+				        			camp.isMultiple(),
 				        			valors);
 			        	}
 			        	status.setComplete();
@@ -234,6 +236,7 @@ public abstract class CommonRegistreController extends BaseController {
 						request,
 						id,
 						camp.getCodi(),
+						camp.isMultiple(),
 						index);
 			} catch (Exception ex) {
 	        	missatgeError(request, getMessage("error.esborrar.registre"), ex.getLocalizedMessage());
@@ -278,11 +281,33 @@ public abstract class CommonRegistreController extends BaseController {
 			ModelMap model) {
 	}
 
-	public abstract Object[] getValorRegistre(HttpServletRequest request,Long entornId, String id, String campCodi);
-	public abstract void guardarRegistre(HttpServletRequest request,String id, String campCodi, Object[] valors, int index);
-	public abstract void guardarRegistre(HttpServletRequest request,String id, String campCodi, Object[] valors);
-	public abstract void esborrarRegistre(HttpServletRequest request,String id, String campCodi, int index);
-	public abstract String redirectUrl(String id, String campCodi);
+	public abstract Object[] getValorRegistre(
+			HttpServletRequest request,
+			Long entornId,
+			String id,
+			String campCodi);
+	public abstract void guardarRegistre(
+			HttpServletRequest request,
+			String id,
+			String campCodi,
+			boolean multiple,
+			Object[] valors,
+			int index);
+	public abstract void guardarRegistre(
+			HttpServletRequest request,
+			String id,
+			String campCodi,
+			boolean multiple,
+			Object[] valors);
+	public abstract void esborrarRegistre(
+			HttpServletRequest request,
+			String id,
+			String campCodi,
+			boolean multiple,
+			int index);
+	public abstract String redirectUrl(
+			String id,
+			String campCodi);
 	public abstract String registreUrl();
 
 

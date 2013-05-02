@@ -1,6 +1,3 @@
-/**
- * 
- */
 package net.conselldemallorca.helium.webapp.mvc;
 
 import java.io.ByteArrayInputStream;
@@ -42,6 +39,8 @@ import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.PaginatedList;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.displaytag.properties.SortOrderEnum;
 import org.displaytag.tags.TableTagParameters;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -143,7 +142,40 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		return resposta;
 	}
 
-	@SuppressWarnings("unchecked")
+	
+	@RequestMapping(value = "/expedient/dissenyAnular")
+	public String anular(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) Long id, @RequestParam(value = "motiu", required = true) String motiu) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			ExpedientDto expedient = expedientService.getById(id);
+			if (potModificarExpedient(expedient)) {
+				try {
+					expedientService.anular(entorn.getId(), id, motiu);
+					missatgeInfo(request, getMessage("info.expedient.anulat") );
+				} catch (Exception ex) {
+					missatgeError(request, getMessage("error.anular.expedient"), ex.getLocalizedMessage());
+		        	logger.error("No s'ha pogut esborrar el registre", ex);
+				}
+			} else {
+				missatgeError(request, getMessage("error.permisos.anular.expedient"));				
+			}
+			return "redirect:/expedient/consultaDisseny.html";
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	@RequestMapping(value = "/expedient/consultaDisseny")
 	public String consultaDisseny(
 			HttpServletRequest request,
@@ -178,15 +210,6 @@ public class ExpedientConsultaDissenyController extends BaseController {
 						null,
 						null);
 				model.addAttribute("commandFiltre", commandFiltre);
-				@SuppressWarnings("rawtypes")
-				Iterator it = valors.entrySet().iterator();
-				while (it.hasNext()) {
-					@SuppressWarnings("rawtypes")
-					Map.Entry e = (Map.Entry)it.next();
-					if (e.getValue() instanceof String){
-						e.setValue(e.getValue().toString().toLowerCase());
-					}
-				}			
 				model.addAttribute(
 						"expedients",
 						getPaginaExpedients(
@@ -492,11 +515,13 @@ public class ExpedientConsultaDissenyController extends BaseController {
 
 	private void afegirEstatsInicialIFinal(List<Estat> estats) {
 		Estat iniciat = new Estat();
-		iniciat.setId(new Long(0));
+		iniciat.setId(Long.parseLong("0"));
+		iniciat.setCodi("0");
 		iniciat.setNom( getMessage("expedient.consulta.iniciat") );
 		estats.add(0, iniciat);
 		Estat finalitzat = new Estat();
-		finalitzat.setId(new Long(-1));
+		finalitzat.setId(Long.parseLong("-1"));
+		finalitzat.setCodi("-1");
 		finalitzat.setNom( getMessage("expedient.consulta.finalitzat") );
 		estats.add(finalitzat);
 	}
@@ -545,10 +570,32 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			field.setValorMultiple(dadaIndex.getValorMultiple());
 			field.setValorMostrarMultiple(dadaIndex.getValorMostrarMultiple());
 			field.setValorOrdreMultiple(dadaIndex.getValorIndexMultiple());
-			if (dadaIndex.isOrdenarPerValorMostrar())
+			if (dadaIndex.isOrdenarPerValorMostrar()){
 				field.setValorOrdreMultiple(dadaIndex.getValorMostrarMultiple());
+			}
 			else
-				field.setValorOrdreMultiple(dadaIndex.getValorIndexMultiple());
+//			{
+//				String valorsMult="[";
+//				List<String> valorsMostrar = new ArrayList<String>();
+//				for(Object valMult:dadaIndex.getValorMultiple()){
+//					if(valMult instanceof String){
+//						valorsMult+=(String)valMult;	
+//					}
+//				}
+//				valorsMult = valorsMult.trim();
+//				valorsMult = valorsMult+"]";
+//				valorsMostrar.add(valorsMult);
+//				field.setValorOrdreMultiple(valorsMostrar);
+//				field.setValorMostrar(valorsMult);
+//				field.setValorMostrarMultiple(valorsMostrar);
+//
+//			}
+				
+				
+				
+				
+				
+			field.setValorOrdreMultiple(dadaIndex.getValorIndexMultiple());
 		}
 		field.setMultiple(dadaIndex.isMultiple());
 		return field;
@@ -564,7 +611,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			String objectsPerPage,
 			boolean export) {
 		int maxResults = getObjectsPerPage(objectsPerPage);
-		int pagina = (page != null) ? new Integer(page).intValue() : 1;
+		int pagina = (page == null) ? 1 : Integer.valueOf(page);
 		int firstRow = (pagina - 1) * maxResults;
 		boolean isAsc = (dir == null) || "asc".equals(dir);
 		// Si no s'especifica columna per cercar ordena en sentit descendent
@@ -575,7 +622,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		int fullsize = expedientService.countAmbEntornConsultaDisseny(
 				entornId,
 				consultaId,
-				valors); 
+				valors);
 		paginatedList.setFullListSize(fullsize);
 		paginatedList.setObjectsPerPage(export? fullsize : maxResults);
 		paginatedList.setPageNumber(export? 1 : pagina);
@@ -667,59 +714,14 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		}
 		return valorsPerService;
 	}
-
-	/*private void debugCommandFiltre(
-			List<Camp> camps,
-			Map<String, Object> valors,
-			Object commandFiltre) {
-		System.out.println(">>> Informació command per filtre");
-		System.out.println(">>>    Camps:");
-		for (Camp camp: camps)
-			System.out.println(">>>       Camp (codi=" + camp.getCodi() + ")");
-		if (valors != null) {
-			System.out.println(">>>    Valors:");
-			for (String clau: valors.keySet()) {
-				Object valor = valors.get(clau);
-				if (valor.getClass().isArray()) {
-					System.out.println(">>>       Valor array (clau=" + clau + "):");
-					for (int i = 0; i < Array.getLength(valor); i++) {
-						System.out.println(">>>          [" + i + "]: (valor=" + Array.get(valor, i) + ")");
-					}
-				} else {
-					System.out.println(">>>       Valor (clau=" + clau + ", valor=" + valor + ")");
-				}
-			}
-		}
-		System.out.println(">>>    Command:");
-		for (PropertyDescriptor property: PropertyUtils.getPropertyDescriptors(commandFiltre)) {
-			try {
-				if (property.getPropertyType().isArray()) {
-					System.out.println(">>>       Property (name=" + property.getName() + ", class=" + property.getPropertyType().getName() + "):");
-					Object valor = PropertyUtils.getProperty(commandFiltre, property.getName());
-					if (valor != null) {
-						for (int i = 0; i < Array.getLength(valor); i++) {
-							System.out.println(">>>          [" + i + "]: (valor=" + Array.get(valor, i) + ")");
-						}
-					} else {
-						System.out.println(">>>          valor <null>");
-					}
-				} else {
-					System.out.println(">>>       Property (name=" + property.getName() + ", class=" + property.getPropertyType().getName() + ", valor=" + PropertyUtils.getProperty(commandFiltre, property.getName()) + ")");
-				}
-			} catch (Exception ex) {
-				System.out.println(">>>          Property (name=" + property.getName() + ", class=" + property.getPropertyType().getName() + ", valor=<Exception>)");
-				ex.printStackTrace();
-			}
-		}
+	private boolean potModificarExpedient(ExpedientDto expedient) {
+		return permissionService.filterAllowed(
+				expedient.getTipus(),
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.ADMINISTRATION,
+					ExtendedPermission.WRITE}) != null;
 	}
-	private void mostrarDadesExpedient(ExpedientConsultaDissenyDto dadesExpedient) {
-		System.out.println(">>>>>> (" + dadesExpedient.getExpedient().getId() + ") " + dadesExpedient.getExpedient().getIdentificador());
-		if (dadesExpedient.getDadesExpedient() != null) {
-			for (String clau: dadesExpedient.getDadesExpedient().keySet()) {
-				DadaIndexadaDto dada = dadesExpedient.getDadesExpedient().get(clau);
-				System.out.println(">>> " + dada.getCampCodi() + ": (" + dada.getValorIndex() + ") " + dada.getValorMostrar());
-			}
-		}
-	}*/
 
+	private static final Log logger = LogFactory.getLog(ExpedientConsultaDissenyController.class);
 }

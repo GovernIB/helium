@@ -86,14 +86,16 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 
 	@SuppressWarnings("unchecked")
 	public Portasignatures findByDocument(Integer id) {
-		List<Portasignatures> list = getSession()
-			.createCriteria(getPersistentClass())
-			.add(Restrictions.eq("documentId", id))
-			//.add(Restrictions.eq("estat", TipusEstat.PENDENT))
-			.list();
-		if (list.size() > 0) {
+		List<Portasignatures> list = getSession().
+				createQuery(
+						"from " +
+						"    Portasignatures p " +
+						"where " +
+						"    p.documentId=?").
+				setInteger(0, id).
+				list();
+		if (list.size() > 0)
 			return list.get(0);
-		}
 		return null;
 	}
 

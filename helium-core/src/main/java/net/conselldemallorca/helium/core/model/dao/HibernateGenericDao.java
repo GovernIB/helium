@@ -10,11 +10,13 @@ import javax.sql.DataSource;
 
 import org.hibernate.Criteria;
 import org.hibernate.LockMode;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Example;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
+import org.hibernate.impl.AbstractQueryImpl;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -36,12 +38,12 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 	public HibernateGenericDao() {
 	}
 
-	public HibernateGenericDao(Class<T> p_persistentClass) {
+	public HibernateGenericDao(final Class<T> p_persistentClass) {
 		m_persistentClass = p_persistentClass;
 	}
 
-	@SuppressWarnings({ "unchecked", "deprecation" })
-	public T getById(ID p_id, boolean p_lock) {
+	@SuppressWarnings("unchecked")
+	public T getById(final ID p_id, final boolean p_lock) {
 		T entity;
 		if (p_lock) {
 			entity = (T)getSession().get(
@@ -56,17 +58,17 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 		return entity;
 	}
 
-	public T saveOrUpdate(T p_entity) {
+	public T saveOrUpdate(final T p_entity) {
 		getSession().saveOrUpdate(p_entity);
 		return p_entity;
 	}
 
-	public T merge(T p_entity) {
+	public T merge(final T p_entity) {
 		getSession().merge(p_entity);
 		return p_entity;
 	}
 
-	public void evict(T p_entity) {
+	public void evict(final T p_entity) {
 		getSession().evict(p_entity);
 	}
 
@@ -75,13 +77,13 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 	}
 
 	@SuppressWarnings("unchecked")
-	public void delete(ID id) {
-		T entity = (T)getSession().get(getPersistentClass(), id);
+	public void delete(final ID id) {
+		final T entity = (T)getSession().get(getPersistentClass(), id);
 		if (entity != null)
 			getSession().delete(entity);
 	}
 
-	public void delete(T p_entity) {
+	public void delete(final T p_entity) {
 		getSession().delete(p_entity);
 	}
 
@@ -89,17 +91,17 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 		return findByCriteria();
 	}
 	public List<T> findOrderedAll(
-			String sort[],
-			boolean asc) {
+			final String sort[],
+			final boolean asc) {
 		return findOrderedByCriteria(
 				sort,
 				asc);
 	}
 	public List<T> findPagedAndOrderedAll(
-			String sort[],
-			boolean asc,
-			int firstRow,
-			int maxResults) {
+			final String sort[],
+			final boolean asc,
+			final int firstRow,
+			final int maxResults) {
 		return findPagedAndOrderedByCriteria(
 				firstRow,
 				maxResults,
@@ -110,30 +112,30 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public int getCountAll() {
 		return ((Integer)getHibernateTemplate().execute(new HibernateCallback() {
-			public Object doInHibernate(Session session) {
+			public Object doInHibernate(final Session session) {
 				return getCountByCriteria();
 			}
 		})).intValue();
 	}
 
-	public List<T> findByExample(T p_exampleInstance) {
+	public List<T> findByExample(final T p_exampleInstance) {
 		return findByCriteria(Example.create(p_exampleInstance));
 	}
 	public List<T> findOrderedByExample(
-			T p_exampleInstance,
-			String[] sort,
-			boolean asc) {
+			final T p_exampleInstance,
+			final String[] sort,
+			final boolean asc) {
 		return findOrderedByCriteria(
 				sort,
 				asc,
 				Example.create(p_exampleInstance));
 	}
 	public List<T> findPagedAndOrderedByExample(
-			T p_exampleInstance,
-			String[] sort,
-			boolean asc,
-			int firstRow,
-			int maxResults) {
+			final T p_exampleInstance,
+			final String[] sort,
+			final boolean asc,
+			final int firstRow,
+			final int maxResults) {
 		return findPagedAndOrderedByCriteria(
 				firstRow,
 				maxResults,
@@ -144,45 +146,45 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public int getCountByExample(final T p_exampleInstance) {
 		return ((Integer)getHibernateTemplate().execute(new HibernateCallback() {
-			public Object doInHibernate(Session session) {
+			public Object doInHibernate(final Session session) {
 				return getCountByCriteria(Example.create(p_exampleInstance));
 			}
 		})).intValue();
 	}
 
 	
-	public List<T> findByCriteria(Criterion... p_criterion) {
-		Criteria crit = getSession().createCriteria(
-				getPersistentClass());
+	public List<T> findByCriteria(final Criterion... p_criterion) {
+		Criteria crit = getSession().createCriteria(getPersistentClass());
 		addCriterion(crit, p_criterion);
 		return findByCriteria(crit);
 	}
-	@SuppressWarnings("unchecked")
-	public List<T> findByCriteria(Criteria crit) {
-		return crit.list();
+
+	public List<T> findByCriteria(final Criteria crit) {
+		return getResultList(crit);
 	}
-	@SuppressWarnings("unchecked")
+
 	public List<T> findOrderedByCriteria(
-			String[] sort,
-			boolean asc,
-			Criterion... p_criterion) {
-		Criteria crit = getSession().createCriteria(
-				getPersistentClass());
+			final String[] sort,
+			final boolean asc,
+			final Criterion... p_criterion) {
+		
+		Criteria crit = getSession().createCriteria(getPersistentClass());
 		addCriterion(crit, p_criterion);
 		if (sort != null) {
 			for (String s: sort)
 				addSort(crit, s, asc);
 		}
-		return crit.list();
+		
+		return getResultList(crit);
 	}
+	
 	public List<T> findPagedAndOrderedByCriteria(
-			int firstRow,
-			int maxResults,
-			String[] sort,
-			boolean asc,
-			Criterion... p_criterion) {
-		Criteria crit = getSession().createCriteria(
-				getPersistentClass());
+			final int firstRow,
+			final int maxResults,
+			final String[] sort,
+			final boolean asc,
+			final Criterion... p_criterion) {
+		Criteria crit = getSession().createCriteria(getPersistentClass());
 		addCriterion(crit, p_criterion);
 		return findPagedAndOrderedByCriteria(
 				firstRow,
@@ -191,13 +193,13 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 				asc,
 				crit);
 	}
-	@SuppressWarnings("unchecked")
+	
 	public List<T> findPagedAndOrderedByCriteria(
-			int firstRow,
-			int maxResults,
-			String[] sort,
-			boolean asc,
-			Criteria crit) {
+			final int firstRow,
+			final int maxResults,
+			final String[] sort,
+			final boolean asc,
+			final Criteria crit) {
 		if (sort != null) {
 			for (String s: sort)
 				addSort(crit, s, asc);
@@ -206,61 +208,61 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 			crit.setFirstResult(firstRow);
 		if (maxResults >= 0)
 			crit.setMaxResults(maxResults);
-		return crit.list();
+		
+		return getResultList(crit);
 	}
-	public int getCountByCriteria(Criterion... p_criterion) {
-		Criteria crit = getSession().createCriteria(
-				getPersistentClass());
+	
+	public int getCountByCriteria(final Criterion... p_criterion) {
+		Criteria crit = getSession().createCriteria(getPersistentClass());
 		addCriterion(crit, p_criterion);
 		return getCountByCriteria(crit);
 	}
-	public int getCountByCriteria(Criteria crit) {
+	
+	public int getCountByCriteria(final Criteria crit) {
 		crit.setProjection(Projections.rowCount());
-		Long result = (Long)crit.uniqueResult();
+		final Integer result = (Integer)crit.uniqueResult();
 		return (result == null) ? 0 : result.intValue();
 	}
-
-
 
 	public Class<T> getPersistentClass() {
 		return m_persistentClass;
 	}
 
-	public void setPersistentClass(Class<T> persistentClass) {
+	public void setPersistentClass(final Class<T> persistentClass) {
 		m_persistentClass = persistentClass;
 	}
 
-	public void setDataSource(DataSource dataSource) {
+	public void setDataSource(final DataSource dataSource) {
 		this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
 	}
 	public NamedParameterJdbcTemplate getJdbcTemplate() {
 		return this.jdbcTemplate;
 	}
 
-	/*public String getCriteriaSql(Criteria criteria) {
-		CriteriaImpl criteriaImpl = (CriteriaImpl)criteria;
-		SessionImplementor session = criteriaImpl.getSession();
-		SessionFactoryImplementor factory = session.getFactory();
-		CriteriaQueryTranslator translator = new CriteriaQueryTranslator(
+	/*public String getCriteriaSql(final Criteria criteria) {
+		final CriteriaImpl criteriaImpl = (CriteriaImpl)criteria;
+		final SessionImplementor session = criteriaImpl.getSession();
+		final SessionFactoryImplementor factory = session.getFactory();
+		final CriteriaQueryTranslator translator = new CriteriaQueryTranslator(
 				factory,
 				criteriaImpl,
 				criteriaImpl.getEntityOrClassName(),
 				CriteriaQueryTranslator.ROOT_SQL_ALIAS);
-		String[] implementors = factory.getImplementors(
+		final String[] implementors = factory.getImplementors(
 				criteriaImpl.getEntityOrClassName());
-		CriteriaJoinWalker walker = new CriteriaJoinWalker(
+		final CriteriaJoinWalker walker = new CriteriaJoinWalker(
 				(OuterJoinLoadable)factory.getEntityPersister(implementors[0]),
 				translator,
 				factory,
 				criteriaImpl,
 				criteriaImpl.getEntityOrClassName(),
-				(LoadQueryInfluencers) session.getEnabledFilters());
+				session.getEnabledFilters());
 		return walker.getSQLString();
-	}
-	public static String getQuerySql(Query query) {
+	}*/
+	public static String getQuerySql(final Query query) {
 		String result = query.getQueryString();
 		if(query instanceof AbstractQueryImpl) {
-			Object[] values = ((AbstractQueryImpl)query).valueArray();
+			final Object[] values = ((AbstractQueryImpl)query).valueArray();
 			for(Object value : values) {
 				result = result.replaceFirst(
 						"\\\\?",
@@ -268,16 +270,16 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 			}
 		}
 		return result;
-	}*/
+	}
 
 
 
-	protected void addSort(Criteria crit, String sort, boolean asc) {
+	protected void addSort(final Criteria crit, final String sort, final boolean asc) {
 		if (sort != null) {
 			String column = null;
 			if (sort.contains(".")) {
-				String[] sortParts = sort.split("\\.");
-				String sortAlias = sortParts[0].substring(0, 1);
+				final String[] sortParts = sort.split("\\.");
+				final String sortAlias = sortParts[0].substring(0, 1);
 				crit.createAlias(sortParts[0], sortAlias);
 				column = sortAlias + "." + sortParts[1];
 			} else {
@@ -290,10 +292,21 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 		}
 	}
 
-	protected void addCriterion(Criteria crit, Criterion[] p_criterion) {
+	protected void addCriterion(Criteria crit, final Criterion[] p_criterion) {
 		for (Criterion c: p_criterion) {
 			crit.add(c);
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	private List<T> getResultList(final Criteria crit) {
+		List<T> result = null;
+		// Comprobamos si la entidad es cacheable
+		if (getPersistentClass().getAnnotation(org.hibernate.annotations.Cache.class) == null ) {
+			result = crit.list();
+		} else {
+			result = crit.setCacheable(true).list();
+		}
+		return result;
+	}
 }

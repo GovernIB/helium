@@ -8,7 +8,6 @@ import net.conselldemallorca.helium.core.model.dao.ReassignacioDao;
 import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 
 /**

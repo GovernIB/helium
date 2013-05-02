@@ -149,6 +149,9 @@ public class TerminiService {
 			}
 			terminiIniciat.setDataAturada(null);
 			terminiIniciat.setDataCancelacio(null);
+			terminiIniciat.setDies(dies);
+			terminiIniciat.setMesos(mesos);
+			terminiIniciat.setAnys(anys);
 			resumeTimers(terminiIniciat);
 		}
 		Long expedientId = getExpedientForProcessInstanceId(processInstanceId).getId();
@@ -342,8 +345,7 @@ public class TerminiService {
 							crearAlertaAmbTerminiAssociat(terminiIniciat, actor, getExpedientPerTask(task));
 					}
 					terminiIniciat.setAlertaFinal(true);
-				}
-				else if (terminiIniciat.getEstat() == TerminiIniciatEstat.AVIS && terminiIniciat.getTermini().isAlertaPrevia() && ! terminiIniciat.isAlertaPrevia()) {
+				} else if (terminiIniciat.getEstat() == TerminiIniciatEstat.AVIS && terminiIniciat.getTermini().isAlertaPrevia() && ! terminiIniciat.isAlertaPrevia()) {
 					JbpmTask task = jbpmDao.getTaskById(terminiIniciat.getTaskInstanceId());
 					if (task.getAssignee() != null) {
 						crearAlertaAmbTerminiAssociat(terminiIniciat, task.getAssignee(), getExpedientPerTask(task));
@@ -353,9 +355,29 @@ public class TerminiService {
 					}
 					terminiIniciat.setAlertaPrevia(true);
 				}
-			}
-			else {
-				esborrarAlertesAntigues(terminiIniciat);
+			} else {
+				if (terminiIniciat.getEstat() == TerminiIniciatEstat.CADUCAT && terminiIniciat.getTermini().isAlertaFinal() && ! terminiIniciat.isAlertaFinal()) {
+					esborrarAlertesAntigues(terminiIniciat);
+					Expedient expedient = getExpedientForProcessInstanceId(
+							terminiIniciat.getProcessInstanceId());
+					if (expedient != null && expedient.getResponsableCodi() != null) {
+						crearAlertaAmbTerminiAssociat(
+								terminiIniciat,
+								expedient.getResponsableCodi(),
+								expedient);
+					}
+					terminiIniciat.setAlertaFinal(true);
+				} else if (terminiIniciat.getEstat() == TerminiIniciatEstat.AVIS && terminiIniciat.getTermini().isAlertaPrevia() && ! terminiIniciat.isAlertaPrevia()) {
+					Expedient expedient = getExpedientForProcessInstanceId(
+							terminiIniciat.getProcessInstanceId());
+					if (expedient != null && expedient.getResponsableCodi() != null) {
+						crearAlertaAmbTerminiAssociat(
+								terminiIniciat,
+								expedient.getResponsableCodi(),
+								expedient);
+					}
+					terminiIniciat.setAlertaPrevia(true);
+				}
 			}
 		}
 		logger.debug("Fi de la comprovació de terminis");
@@ -539,8 +561,9 @@ public class TerminiService {
 	}
 	private void esborrarAlertesAntigues(TerminiIniciat terminiIniciat) {
 		List<Alerta> antigues = alertaDao.findActivesAmbTerminiIniciatId(terminiIniciat.getId());
-		for (Alerta antiga: antigues)
+		for (Alerta antiga: antigues) {
 			antiga.setDataEliminacio(new Date());
+		}
 	}
 	
 	

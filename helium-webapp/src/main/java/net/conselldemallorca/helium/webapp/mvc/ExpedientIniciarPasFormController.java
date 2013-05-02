@@ -286,7 +286,11 @@ public class ExpedientIniciarPasFormController extends BaseController {
 					if (registreEsborrarId != null && registreEsborrarIndex != null) {
 						Camp camp = dissenyService.getCampById(registreEsborrarId);
 						try {
-							esborrarRegistre(request, camp.getCodi(), registreEsborrarIndex.intValue());
+							esborrarRegistre(
+									request,
+									camp.getCodi(),
+									camp.isMultiple(),
+									registreEsborrarIndex.intValue());
 						} catch (Exception ex) {
 				        	missatgeError(request, getMessage("error.esborrar.registre"), ex.getLocalizedMessage());
 				        	logger.error("No s'ha pogut esborrar el registre", ex);
@@ -355,19 +359,25 @@ public class ExpedientIniciarPasFormController extends BaseController {
 	private void esborrarRegistre(
 			HttpServletRequest request,
 			String campCodi,
+			boolean multiple,
 			int index) {
-		Object valor = request.getSession().getAttribute(
-				ExpedientIniciarController.getClauSessioCampRegistre(campCodi));
-		if (valor != null) {
-			Object[] valorMultiple = (Object[])valor;
-			if (valorMultiple.length > 0) {
-				Object[] valorNou = new Object[valorMultiple.length - 1];
-				for (int i = 0; i < valorNou.length; i++)
-					valorNou[i] = (i < index) ? valorMultiple[i] : valorMultiple[i + 1];
-					request.getSession().setAttribute(
-							ExpedientIniciarController.getClauSessioCampRegistre(campCodi),
-							valorNou);
+		if (multiple) {
+			Object valor = request.getSession().getAttribute(
+					ExpedientIniciarController.getClauSessioCampRegistre(campCodi));
+			if (valor != null) {
+				Object[] valorMultiple = (Object[])valor;
+				if (valorMultiple.length > 0) {
+					Object[] valorNou = new Object[valorMultiple.length - 1];
+					for (int i = 0; i < valorNou.length; i++)
+						valorNou[i] = (i < index) ? valorMultiple[i] : valorMultiple[i + 1];
+						request.getSession().setAttribute(
+								ExpedientIniciarController.getClauSessioCampRegistre(campCodi),
+								valorNou);
+				}
 			}
+		} else {
+			request.getSession().removeAttribute(
+					ExpedientIniciarController.getClauSessioCampRegistre(campCodi));
 		}
 	}
 
