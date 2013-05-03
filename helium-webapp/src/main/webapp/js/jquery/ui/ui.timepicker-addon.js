@@ -1267,8 +1267,10 @@
 		} else {
 			this._base_selectDate(id, dateStr);
 		}
-		if (!this._defaults.showButtonPanel) 
+		if (!(typeof this._defaults.datepicker === "undefined")) {
 			this._hideDatepicker(null, this._get(inst, 'duration'));
+			$('input:focus').blur();
+		}
 	};
 
 	/*
