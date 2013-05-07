@@ -54,10 +54,9 @@ public class DefaultControllerHandler implements TaskControllerHandler {
 			if (camp.isWriteTo()) {
 				String codi = camp.getCamp().getCodi();
 				Object valor = taskInstance.getVariableLocally(codi);
-				if (valor != null)
-					contextInstance.setVariable(
-							codi,
-							valor);
+				contextInstance.setVariable(
+						codi,
+						valor);
 			}
 		}
 		for (DocumentTasca document: getDocumentsPerTaskInstance(taskInstance)) {
