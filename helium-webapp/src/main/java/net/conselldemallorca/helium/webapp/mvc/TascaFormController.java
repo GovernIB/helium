@@ -264,7 +264,7 @@ public class TascaFormController extends BaseController {
 					request.getSession().setAttribute(VARIABLE_SESSIO_CAMP_FOCUS, campFocus);
 				}
     		}
-			if ("submit".equals(submit) || "submit".equals(submitar) || "validate".equals(submit) || "validate".equals(submitar)) {
+			if ("submit".equals(submit) || "@@@".equals(finalitzarAmbOutcome) || "submit".equals(submitar) || "validate".equals(submit) || "validate".equals(submitar)) {
 				validatorGuardar.validate(command, result);
 				if (result.hasErrors()) {
 					return "tasca/form";
@@ -286,7 +286,7 @@ public class TascaFormController extends BaseController {
 					if (!ok)
 						return "tasca/form";
 				}
-				if ("validate".equals(submit) || "validate".equals(submitar)) {
+				if ("validate".equals(submit) || "validate".equals(submitar) || "@@@".equals(finalitzarAmbOutcome)) {
 					validatorValidar.validate(command, result);
 					try {
 						afegirVariablesDelProces(command, tasca);

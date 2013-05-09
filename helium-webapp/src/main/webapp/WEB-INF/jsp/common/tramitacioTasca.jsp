@@ -11,33 +11,34 @@
 </c:choose>
 <c:choose>
 	<c:when test="${param.pipella == 'form' and not tasca.validada}">
-<script type="text/javascript">
-// <![CDATA[
-function confirmarFinalitzar(e) {
-	var e = e || window.event;
-	e.cancelBubble = true;
-	if (e.stopPropagation) e.stopPropagation();
-	<c:choose>
-		<c:when test="${not empty missatgeAlertaFinalitzar}">
-			alert('${missatgeAlertaFinalitzar}');
-		</c:when>
-		<c:otherwise>
-			if (confirm("<fmt:message key="common.tram.confirmacio"/>")) {
-				$('#command button[value=validate]').click()
+		<script type="text/javascript">
+			// <![CDATA[
+			function confirmarFinalitzar(e) {
+				var e = e || window.event;
+				e.cancelBubble = true;
+				if (e.stopPropagation) e.stopPropagation();
+				<c:choose>
+					<c:when test="${not empty missatgeAlertaFinalitzar}">
+						alert('${missatgeAlertaFinalitzar}');
+					</c:when>
+					<c:otherwise>
+						if (confirm("<fmt:message key="common.tram.confirmacio"/>")) {
+							$('#formFinalitzar').attr('action','form.html');
+							$('#command button[value=validate]').click();
+						}
+					</c:otherwise>
+				</c:choose>
+				return false;
 			}
-		</c:otherwise>
-	</c:choose>
-	return false;
-}
-<c:if test="${empty missatgeAlertaFinalitzar}">
-$(document).ready(function() {
-	$('#formFinalitzar button').click(function() {
-		$('#helFinalitzarAmbOutcome').val(this.value);
-	});
-});
-</c:if>
-// ]]>
-</script>
+			<c:if test="${empty missatgeAlertaFinalitzar}">
+			$(document).ready(function() {
+				$('#formFinalitzar button').click(function() {
+					$('#helFinalitzarAmbOutcome').val(this.value);
+				});
+			});
+			</c:if>
+			// ]]>
+		</script>
 	</c:when>
 	<c:otherwise>
 <script type="text/javascript">
@@ -67,6 +68,7 @@ function confirmarFinalitzar(e) {
 		<form id="formFinalitzar" action="completar.html" method="post" class="uniForm" onsubmit="return confirmarFinalitzar(event)">
 			<input type="hidden" name="id" value="${tasca.id}"/>
 			<input type="hidden" name="readOnly" value="${hiHaCampsReadOnly}"/>
+			<input type="hidden" id="helFinalitzarAmbOutcome" name="helFinalitzarAmbOutcome" value="@@@"/>
 			<c:if test="${not empty param.pipella}"><input type="hidden" name="pipella" value="${param.pipella}"/></c:if>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="type" value="buttons"/>
