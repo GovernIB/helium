@@ -474,23 +474,6 @@ public class DocumentService {
 						true,
 						true,
 						true);
-				
-			//----
-				//Si el camp de tipus TextArea conté salts de línia, quan es genera el document dona un error.
-				//amb aquest codi, es supremeixen tots els salts de línia dels camps de tipus String, 
-				//per poder generar el document sense problemes
-				Map<String, Object> variables = instanciaProces.getVarsComText();
-				for (Map.Entry<String, Object> variable : variables.entrySet()) {
-				    if(variable.getValue() instanceof String){
-				    	String valor = (String) variable.getValue();
-				    	String valorNou = valor.replaceAll("\\r", " ").replaceAll("\\n", " ");
-				    	variable.setValue(valorNou);
-				    }
-				}
-				instanciaProces.setVarsComText(variables);
-				tasca.setVarsComText(variables);
-			//----
-				
 				model.putAll(instanciaProces.getVarsComText());
 				model.putAll(tasca.getVarsComText());
 				responsableCodi = task.getAssignee();
