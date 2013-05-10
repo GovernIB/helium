@@ -12,7 +12,6 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.model.dao.ConsultaDao;
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.exportacio.DefinicioProcesExportacio;
