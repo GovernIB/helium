@@ -259,12 +259,12 @@
 		<div class="buttonHolder">
 			<c:set var="buttonValues" value="${fn:split(param.values,',')}"/>
 			<c:set var="buttonTitles" value="${fn:split(param.titles,',')}"/>
-			<c:forTokens var="values" items="${param.values}" delims="," varStatus="status">
+			<c:forEach var="value" items="${buttonValues}" varStatus="status">
 				<c:choose>
 					<c:when test="${value == 'reset'}"><button type="reset" class="resetButton" onclick="${param.onclick}">${buttonTitles[status.index]}</button></c:when>
 					<c:otherwise><button type="submit" class="submitButton" name="submit" value="${buttonValues[status.index]}" onclick="saveAction(this, '${buttonValues[status.index]}');${param.onclick}">${buttonTitles[status.index]}</button></c:otherwise>
 				</c:choose>
-			</c:forTokens>
+			</c:forEach>
 		</div>
 		<div style="clear: both"></div>
 	</c:otherwise>
