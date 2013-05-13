@@ -178,7 +178,7 @@ public class DissenyService {
 					dpd.getKey(),
 					dpd.getVersion(),
 					entorn);
-			if (etiqueta != null)
+			if (etiqueta != null || etiqueta !="")
 				definicioProces.setEtiqueta(etiqueta);
 			if (expedientTipusId != null)
 				definicioProces.setExpedientTipus(expedientTipusDao.getById(expedientTipusId, false));
@@ -3108,13 +3108,26 @@ public class DissenyService {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void goToCampTasca(Long id, int NouOrd) {
 		CampTasca campTasca = getCampTascaById(id);
+		Tasca tasca = campTasca.getTasca();
+		List<CampTasca> camps = tasca.getCamps();
+		int nouOrdre= 0;
+		for(CampTasca ct:camps){
+			int ordre = ct.getOrder();
+			if(ordre!=nouOrdre){
+				ct.setOrder(nouOrdre);
+			}
+			campTascaDao.saveOrUpdate(ct);
+			campTascaDao.flush();
+			nouOrdre++;
+		}
+		
+		
 		int ordreAntic = campTasca.getOrder();
 		
 		// Si no s'ha canviat l'ordre, sortim sense fer res.
 		if (ordreAntic == NouOrd) return;
 		campTasca.setOrder(-1);				
-		Tasca tasca = campTasca.getTasca();
-		List<CampTasca> camps = tasca.getCamps();
+		
 		//List<CampTasca> camps = (List<CampTasca>) campTascaDao.findAmbTascaOrdenats(tasca.getId());
 		
 		if (ordreAntic < NouOrd) {
