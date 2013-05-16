@@ -132,22 +132,14 @@ function selTots(){
 	if(!ch){
 		$("#registre input[type='checkbox'][name='expedientId']").each(function(){
 			if($(this).is(':checked')){
-				if(!$.browser.msie){
-					$(this).click();
-				}else{
 					simularClick($(this).val(),false);
 			        }
-			}
 		}).attr("checked",false);
 	}else{
 		$("#registre input[type='checkbox'][name='expedientId']").each(function(){
 			if(!$(this).is(':checked')){
-				if(!$.browser.msie){
-					$(this).click();
-				}else{
 					simularClick($(this).val(),true);
 				}
-			}
 			
 		}).attr("checked",true);
 	}
