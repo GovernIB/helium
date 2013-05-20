@@ -132,7 +132,7 @@
 			<c:param name="type" value="number"/>
 			<c:param name="label">${campActual.etiqueta}</c:param>
 			<c:param name="comment">${campActual.observacions}</c:param>
-			<c:param name="mask">{mask:'99,999.999.999.999',type:'reverse'}</c:param>
+			<c:param name="mask">{mask:'99,999.999.999.999',type:'reverse',defaultValue:'+'}</c:param>
 			<c:param name="iterateOn"><c:if test="${campActual.multiple}">valorActual</c:if></c:param>
 			<c:param name="multipleIcons"><c:if test="${campActual.multiple}">true</c:if></c:param>
 		</c:import>
