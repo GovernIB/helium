@@ -42,7 +42,17 @@
 			<p class="aclaracio"><fmt:message key='comuns.camps_marcats' /> <img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='comuns.camp_oblig' />" title="<fmt:message key='comuns.camp_oblig' />" border="0"/> <fmt:message key='comuns.son_oblig' /></p>
 		</c:when>
 		<c:otherwise>
-			<script type="text/javascript">parent.location.reload(true);</script>
+		<script type="text/javascript">
+		var versio = $.browser.version;
+		if($.browser.msie && versio.substring(0,2)=='7.'){
+			parent.location.reload();
+		}else{
+			parent.refresh();
+		}
+		
+		</script>
+		
+		
 		</c:otherwise>
 	</c:choose>
 </body>
