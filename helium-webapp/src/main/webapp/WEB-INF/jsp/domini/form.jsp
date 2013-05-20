@@ -7,17 +7,13 @@
 <head>
 	<title><c:choose><c:when test="${empty command.id}"><fmt:message key="domini.form.crear_nou"/></c:when><c:otherwise><fmt:message key="domini.form.modificar"/></c:otherwise></c:choose></title>
 	<meta name="titolcmp" content="<fmt:message key="comuns.disseny"/>" />
-	<c:import url="../common/formIncludes.jsp"/>
-	
+	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/dwr/engine.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/dwr/interface/dominiDwrService.js"/>"></script>
-	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.js"/>"></script>
-
-	<link media="all" type="text/css" href="http://code.jquery.com/ui/1.8.21/themes/base/jquery-ui.css" rel="stylesheet">
-	<link media="all" type="text/css" href="http://static.jquery.com/ui/css/demo-docs-theme/ui.theme.css" rel="stylesheet">
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-	<script type="text/javascript" src="http://code.jquery.com/ui/1.8.21/jquery-ui.min.js"></script>
-
+	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.DOMWindow.js"/>"></script>
+    <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
+    <c:import url="../common/formIncludes.jsp"/>
 
 <style >
 	fieldset { padding:0; border:0; margin-top:25px; }

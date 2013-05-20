@@ -181,7 +181,7 @@ $(document).ready(function(){
 	<div class="uniForm">
 		<div class="inlineLabels col first">
 			<div class="ctrlHolder" style="height:45px;">
-				<label for="inici"><fmt:message key="expedient.consulta.datainici"/></label>
+				<label for="inici"><fmt:message key="expedient.consulta.datahorainici"/></label>
 				<input id="inici" name="inici" type="text" class="textInput" <c:if test="${not empty param.inici}">value="${param.inici}"</c:if>/>
 			</div>
 			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key="expedient.massiva.actualitzar"/></h3>

@@ -14,6 +14,8 @@ public class TramitacioMassiva {
 
 	public static final String SESSIO_TASQUES_TRAMITACIO = "HEL_TRAM_MASS_TASQUES";
 	public static final String SESSIO_TASCA_ACTUAL = "HEL_TRAM_MASS_TASKID";
+	public static final String SESSIO_TASCA_INICI = "HEL_TRAM_MASS_INICI";
+	public static final String SESSIO_TASCA_CORREU = "HEL_TRAM_MASS_CORREU";
 
 	public static void iniciarTramitacioMassiva(
 			HttpServletRequest request,
@@ -39,9 +41,27 @@ public class TramitacioMassiva {
 		else
 			return false;
 	}
+	public static void setParamsTramitatcio(HttpServletRequest request, String inici, String correu, String id) {
+		if (isTramitacioMassivaActiu(request, id)) {
+			request.getSession().setAttribute(SESSIO_TASCA_INICI, inici);
+			request.getSession().setAttribute(SESSIO_TASCA_CORREU, correu);
+		}
+	}
+	public static String[] getParamsTramitacioMassiva(
+			HttpServletRequest request,
+			String id) {
+		if (isTramitacioMassivaActiu(request, id))
+			return new String[] {
+				(String)request.getSession().getAttribute(SESSIO_TASCA_INICI),
+				(String)request.getSession().getAttribute(SESSIO_TASCA_CORREU)};
+		else
+			return new String[2];
+	}
 	public static void netejarTramitacioMassiva(HttpServletRequest request) {
 		request.getSession().removeAttribute(SESSIO_TASCA_ACTUAL);
 		request.getSession().removeAttribute(SESSIO_TASQUES_TRAMITACIO);
+		request.getSession().removeAttribute(SESSIO_TASCA_INICI);
+		request.getSession().removeAttribute(SESSIO_TASCA_CORREU);
 	}
 
 }

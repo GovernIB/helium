@@ -13,7 +13,7 @@
 <link href="<c:url value="/js/jquery/ui/themes/base/ui.all.css"/>" rel="stylesheet" type="text/css"/>
 <%-- Suggest --%>
 <script type="text/javascript" src="<c:url value="/js/jquery/jquery.autocomplete.js"/>"></script>
-<link media="all" type="text/css" href="http://code.jquery.com/ui/1.8.21/themes/base/jquery-ui.css" rel="stylesheet">
+<!-- <link media="all" type="text/css" href="http://code.jquery.com/ui/1.8.21/themes/base/jquery-ui.css" rel="stylesheet"> -->
 <link href="<c:url value="/css/autocomplete.css"/>" rel="stylesheet" type="text/css"/>
 <jsp:include page="/js/helforms.jsp" />
 

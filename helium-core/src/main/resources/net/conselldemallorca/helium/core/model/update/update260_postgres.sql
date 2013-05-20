@@ -22,6 +22,7 @@ CREATE TABLE hel_exec_masexp (
 	execmas_id BIGINT NOT NULL,
 	expedient_id BIGINT NOT NULL,
 	error TEXT,
+	tasca_id CHARACTER VARYING(255),
 	PRIMARY KEY (id),
 	CONSTRAINT hel_execmas_exemasex_fk FOREIGN KEY (execmas_id) REFERENCES public.hel_exec_massiva (id),
 	CONSTRAINT hel_expedient_exemasex_fk FOREIGN KEY (expedient_id) REFERENCES public.hel_expedient (id)

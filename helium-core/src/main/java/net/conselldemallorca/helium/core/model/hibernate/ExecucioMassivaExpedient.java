@@ -52,6 +52,7 @@ public class ExecucioMassivaExpedient implements Serializable, GenericEntity<Lon
 	private ExecucioMassiva execucioMassiva;
 	@NotNull
 	private Expedient expedient;
+	private String tascaId;
 
 
 
@@ -59,6 +60,13 @@ public class ExecucioMassivaExpedient implements Serializable, GenericEntity<Lon
 	public ExecucioMassivaExpedient(ExecucioMassiva execucioMassiva, Expedient expedient, int ordre) {
 		this.execucioMassiva = execucioMassiva;
 		this.expedient = expedient;
+		this.ordre = ordre;
+		this.estat = ExecucioMassivaEstat.ESTAT_PENDENT;
+	}
+	public ExecucioMassivaExpedient(ExecucioMassiva execucioMassiva, Expedient expedient, String tascaId, int ordre) {
+		this.execucioMassiva = execucioMassiva;
+		this.expedient = expedient;
+		this.tascaId = tascaId;
 		this.ordre = ordre;
 		this.estat = ExecucioMassivaEstat.ESTAT_PENDENT;
 	}
@@ -137,6 +145,13 @@ public class ExecucioMassivaExpedient implements Serializable, GenericEntity<Lon
 		this.expedient = expedient;
 	}
 
+	@Column(name="tasca_id", nullable=true)
+	public String getTascaId() {
+		return tascaId;
+	}
+	public void setTascaId(String tascaId) {
+		this.tascaId = tascaId;
+	}
 
 
 	@Override

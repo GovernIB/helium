@@ -41,6 +41,7 @@ public class ExecucioMassivaDto {
 	private Long expedientTipusId;
 
 	private List<Long> expedientIds;
+	private String[] tascaIds;
 
 
 
@@ -103,5 +104,11 @@ public class ExecucioMassivaDto {
 	}
 	public void setExpedientIds(List<Long> expedientIds) {
 		this.expedientIds = expedientIds;
+	}
+	public String[] getTascaIds() {
+		return tascaIds;
+	}
+	public void setTascaIds(String[] tascaIds) {
+		this.tascaIds = tascaIds;
 	}
 }

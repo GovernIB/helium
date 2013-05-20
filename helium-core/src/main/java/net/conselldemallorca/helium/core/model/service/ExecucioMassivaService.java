@@ -4,14 +4,16 @@
 package net.conselldemallorca.helium.core.model.service;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
 import net.conselldemallorca.helium.core.model.dao.ExecucioMassivaDao;
@@ -24,19 +26,20 @@ import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.dto.OperacioMassivaDto;
+import net.conselldemallorca.helium.core.model.dto.PersonaDto;
+import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient.ExecucioMassivaEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jbpm.JbpmConfiguration;
-import org.jbpm.JbpmException;
-import org.jbpm.mail.AddressResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
@@ -66,7 +69,7 @@ public class ExecucioMassivaService {
 	private ExpedientService expedientService;
 	private TascaService tascaService;
 	private DocumentService documentService;
-
+	private PluginService pluginService;
 
 
 	public void crearExecucioMassiva(ExecucioMassivaDto dto) {
@@ -98,23 +101,140 @@ public class ExecucioMassivaService {
 				execucioMassiva.addExpedient(eme);
 			}
 		}
+		if (dto.getTascaIds() != null) {
+			int ordre = 0;
+			for (String tascaId: dto.getTascaIds()) {
+				TascaDto tasca = tascaService.getByIdSenseComprovacio(tascaId);
+				ExecucioMassivaExpedient eme = new ExecucioMassivaExpedient(
+						execucioMassiva,
+						tasca.getExpedient(),
+						tascaId,
+						ordre++);
+				execucioMassiva.addExpedient(eme);
+			}
+		}
+		execucioMassiva.setEntorn(EntornActual.getEntornId());
 		execucioMassivaDao.saveOrUpdate(execucioMassiva);
 	}
 
 	public List<ExecucioMassivaDto> getExecucionsMassivesActives() {
 		List<ExecucioMassivaDto> resposta = new ArrayList<ExecucioMassivaDto>();
 		for (ExecucioMassiva massiva: execucioMassivaDao.getExecucionsMassivesActives())
-			resposta.add(dtoConverter.toExecucioMassicaDto(massiva));
+			resposta.add(dtoConverter.toExecucioMassivaDto(massiva));
 		return resposta;
 	}
 
 	public List<ExecucioMassivaDto> getExecucionsMassivesActivesByUser(String username) {
 		List<ExecucioMassivaDto> resposta = new ArrayList<ExecucioMassivaDto>();
 		for (ExecucioMassiva massiva: execucioMassivaDao.getExecucionsMassivesActivesByUser(username))
-			resposta.add(dtoConverter.toExecucioMassicaDto(massiva));
+			resposta.add(dtoConverter.toExecucioMassivaDto(massiva));
 		return resposta;
 	}
 	
+	public String getJsonExecucionsMassivesByUser(String username, Integer results) {
+		String json = "[";
+		List<ExecucioMassiva> execucions = execucioMassivaDao.getExecucionsMassivesByUser(username, EntornActual.getEntornId(), results);
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+		for (ExecucioMassiva execucio: execucions) {
+			List<ExecucioMassivaExpedient> expedients = execucioMassivaExpedientDao.getExecucioMassivaById(execucio.getId());
+			String json_exp = "";
+			String tasca = "";
+			if (!expedients.isEmpty()) {
+				ExecucioMassivaExpedient em = expedients.get(0);
+				if (em.getTascaId() != null) {
+					TascaDto t = tascaService.getByIdSenseComprovacio(em.getTascaId(), execucio.getUsuari());
+					if (t != null) tasca = t.getNom();
+				}
+				for (ExecucioMassivaExpedient expedient: expedients) {
+					Expedient exp = expedient.getExpedient();
+					String titol = exp.getNumeroDefault();
+			    	if (exp.getTitol() != null) {
+			    		titol += " " + exp.getTitol();
+			    	}
+			    	String error = expedient.getError();
+			    	if (error != null) error = error.replace("\n", "\\n");
+			    	json_exp += "{\"id\":\"" + expedient.getId() + "\",";
+			    	json_exp += "\"titol\":\"" + titol + "\",";
+			    	json_exp += "\"estat\":\"" + expedient.getEstat().name() + "\",";
+			    	json_exp += "\"error\":\"" + StringEscapeUtils.escapeJavaScript(error) + "\"},";
+				}
+				json_exp = json_exp.substring(0, json_exp.length() - 1);
+			}
+			
+			Long progres = getProgresExecucioMassivaById(execucio.getId());
+			json += "{\"id\":\"" + execucio.getId() + "\",";
+			json += "\"text\":\"" + getTextExecucioMassiva(execucio, tasca) + "\",";
+			json += "\"progres\":\"" + progres + "\",";
+			json += "\"data\":\"" + sdf.format(execucio.getDataInici()) + "\",";
+			json += "\"tasca\":\"" + tasca + "\",";
+			json += "\"expedients\":[" + json_exp + "]},";
+		}
+		if (json.length() > 1) json = json.substring(0, json.length() - 1);
+		json += "]";
+		return json;
+	}
+	
+	private String getTextExecucioMassiva(ExecucioMassiva execucioMassiva) {
+		 return getTextExecucioMassiva(execucioMassiva, null);
+	}
+	
+	private String getTextExecucioMassiva(ExecucioMassiva execucioMassiva, String tasca) {
+		String label = null;
+		
+		ExecucioMassivaTipus tipus = execucioMassiva.getTipus();
+		if (tipus.equals(ExecucioMassivaTipus.EXECUTAR_TASCA)){
+			label = getMessage("expedient.massiva.tasca") + " " + tasca + ": ";
+			String param = execucioMassiva.getParam1();
+			Object param2 = null;
+			try {
+				param2 = deserialize(execucioMassiva.getParam2());
+			} catch (Exception e) {};
+			
+			if (param.equals("Guardar")) {
+				label += getMessage("expedient.massiva.tasca.guardar");
+			} else if (param.equals("Validar")) {
+				label += getMessage("expedient.massiva.tasca.validar");
+			} else if (param.equals("Completar")) {
+				label += getMessage("expedient.massiva.tasca.completar");
+			} else if (param.equals("Restaurar")) {
+				label += getMessage("expedient.massiva.tasca.restaurar");
+			} else if (param.equals("Accio")) {
+				label += getMessage("expedient.massiva.tasca.accio") + (param2 == null ? "" : " '" + ((Object[])param2)[1] + "'");
+			} else if (param.equals("DocGuardar")) {
+				label += getMessage("expedient.massiva.tasca.doc.guardar") + (param2 == null ? "" : " '" + ((Object[])param2)[1] + "'");
+			} else if (param.equals("DocEsborrar")) {
+				label += getMessage("expedient.massiva.tasca.doc.borrar") + (param2 == null ? "" : " '" + ((Object[])param2)[1] + "'");
+			} else if (param.equals("DocGenerar")) {
+				label += getMessage("expedient.massiva.tasca.doc.generar") + (param2 == null ? "" : " '" + ((Object[])param2)[1] + "'");
+			} else if (param.equals("RegEsborrar")) {
+				label += getMessage("expedient.massiva.tasca.reg.borrar") + (param2 == null ? "" : " '" + ((Object[])param2)[1] + "'");
+			} else if (param.equals("RegGuardar")) {
+				label += getMessage("expedient.massiva.tasca.reg.guardar") + (param2 == null ? "" : " '" + ((Object[])param2)[1] + "'");
+			}
+		} else if (tipus.equals(ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC)){
+			DefinicioProces definicioProces = getDefinicioProces(execucioMassiva);
+			label = getMessage("expedient.massiva.actualitzar") + (definicioProces == null ? "" : " (" + definicioProces.getJbpmKey() + " v." + definicioProces.getVersio() + ")");
+		} else if (tipus.equals(ExecucioMassivaTipus.EXECUTAR_SCRIPT)){
+			String script = getOperacio(execucioMassiva);
+			label = getMessage("expedient.massiva.executarScriptMas") + " " + (script.length() > 20 ? script.substring(0,20) : script);
+		} else if (tipus.equals(ExecucioMassivaTipus.EXECUTAR_ACCIO)){
+			String accio = getOperacio(execucioMassiva);
+			label = getMessage("expedient.massiva.accions") + " " + accio;
+		} else if (tipus.equals(ExecucioMassivaTipus.ATURAR_EXPEDIENT)){
+			String motiu = getOperacio(execucioMassiva);
+			label = getMessage("expedient.massiva.aturar")+ (motiu == null ? "" : ": "+ (motiu.length() > 20 ? motiu.substring(0,20) : motiu));
+		} else if (tipus.equals(ExecucioMassivaTipus.MODIFICAR_VARIABLE)){
+			label = getMessage("expedient.massiva.modificar_variables") + " " + execucioMassiva.getParam1();
+		} else if (tipus.equals(ExecucioMassivaTipus.MODIFICAR_DOCUMENT)){
+			label = getMessage("expedient.massiva.documents");
+		} else if (tipus.equals(ExecucioMassivaTipus.REINDEXAR)){
+			label = getMessage("expedient.eines.reindexar.expedients");
+		} else {
+			label = tipus.name();
+		}
+		return label;
+	}
+		
 	public List<OperacioMassivaDto> getExecucionsMassivesActivaByIds(List<Long> attribute) {
 		List<OperacioMassivaDto> resposta = new ArrayList<OperacioMassivaDto>();
 		for (Long id : attribute) {
@@ -158,7 +278,7 @@ public class ExecucioMassivaService {
 		logger.debug("Executant la acció massiva (expedientTipusId=" + dto.getExpedientTipusId() + ", dataInici=" + dto.getDataInici() + ", expedient=" + dto.getId() + ", acció=" + dto.getTipus());
 		ExecucioMassivaTipus tipus = dto.getTipus();
 		if (tipus == ExecucioMassivaTipus.EXECUTAR_TASCA){
-			// TODO
+			gestioTasca(dto);
 		} else if (tipus == ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC){
 			actualitzarVersio(dto);
 		} else if (tipus == ExecucioMassivaTipus.EXECUTAR_SCRIPT){
@@ -173,6 +293,154 @@ public class ExecucioMassivaService {
 			modificarDocument(dto);
 		} else if (tipus == ExecucioMassivaTipus.REINDEXAR){
 			reindexarExpedient(dto);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void gestioTasca(OperacioMassivaDto dto) throws Exception {
+		ExecucioMassivaExpedient eme = null;
+		//ExpedientDto exp = dto.getExpedient();
+		String tascaId = dto.getTascaId();
+		String accio = dto.getParam1();
+		try {
+			eme = execucioMassivaExpedientDao.getById(dto.getId(), false);
+			eme.setDataInici(new Date());
+			if ("Guardar".equals(accio)) {
+				Object[] param2 = (Object[])deserialize(dto.getParam2());
+				Long entornId = (Long)param2[0];
+				Map<String, Object> valors = (Map<String, Object>)param2[1]; 
+				try {
+					tascaService.guardarVariables(entornId, tascaId, valors, dto.getUsuari());
+				} catch (Exception e) {
+					logger.error("OPERACIO:" + dto.getId() + ". No s'han pogut guardar les dades del formulari en la tasca.");
+					throw e;
+		        }
+			} else if ("Validar".equals(accio)) {
+				Object[] param2 = (Object[])deserialize(dto.getParam2());
+				Long entornId = (Long)param2[0];
+				Map<String, Object> valors = (Map<String, Object>)param2[1];
+				try {
+					tascaService.validar(entornId, tascaId, valors, true, dto.getUsuari());
+				} catch (Exception e) {
+					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut validar el formulari en la tasca.");
+					throw e;
+		        }
+			} else if ("Completar".equals(accio)) {
+				Object[] param2 = (Object[])deserialize(dto.getParam2());
+				Long entornId = (Long)param2[0];
+				String transicio = (String)param2[1];
+				try {
+					Long ea = EntornActual.getEntornId();
+					EntornActual.setEntornId(entornId);
+					tascaService.completar(entornId, tascaId, true, dto.getUsuari(), transicio);
+					EntornActual.setEntornId(ea);
+				} catch (Exception e) {
+					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut finalitzar la tasca.");
+					throw e;
+		        }
+			} else if ("Restaurar".equals(accio)) {
+				Long entornId = (Long)deserialize(dto.getParam2());
+				try {
+					tascaService.restaurar(entornId, tascaId, dto.getUsuari());
+				} catch (Exception e) {
+					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut restaurar el formulari en la tasca.");
+					throw e;
+		        }
+			} else if ("Accio".equals(accio)) {
+				Object[] param2 = (Object[])deserialize(dto.getParam2());
+				Long entornId = (Long)param2[0];
+				String accio_exec = (String)param2[1];
+				try {
+					tascaService.executarAccio(entornId, tascaId, accio_exec, dto.getUsuari());
+				} catch (Exception e) {
+					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut executar l'acció '" + accio_exec + "' en la tasca.");
+					throw e;
+		        }
+			} else if ("DocGuardar".equals(accio)) {
+				Object[] param2 = (Object[])deserialize(dto.getParam2());
+				Long entornId = (Long)param2[0];
+				String codi = (String)param2[1];
+				Date data = (Date)param2[2];
+				byte[] contingut = (byte[])param2[3];
+				String nomArxiu = (String)param2[4];
+				try {
+					tascaService.comprovarTascaAssignadaIValidada(entornId, tascaId, dto.getUsuari());
+					documentService.guardarDocumentTasca(
+							entornId,
+							tascaId,
+							codi,
+							data,
+							nomArxiu,
+							contingut,
+							dto.getUsuari());
+				} catch (Exception e) {
+					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut guardar el document a la tasca.");
+					throw e;
+		        }
+			} else if ("DocEsborrar".equals(accio)) {
+				Object[] param2 = (Object[])deserialize(dto.getParam2());
+				Long entornId = (Long)param2[0];
+				String codi = (String)param2[1];
+				try {
+					tascaService.comprovarTascaAssignadaIValidada(entornId, tascaId, dto.getUsuari());
+					documentService.esborrarDocument(
+							tascaId,
+							null,
+							codi,
+							dto.getUsuari());
+				} catch (Exception e) {
+					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut esborrar el document de la tasca.");
+					throw e;
+		        }
+			} else if ("DocGenerar".equals(accio)) {
+				Object[] param2 = (Object[])deserialize(dto.getParam2());
+				Long entornId = (Long)param2[0];
+				Long documentId = (Long)param2[1];
+				Date data = (Date)param2[2];
+				try {
+					documentService.generarDocumentPlantilla(
+							entornId,
+							documentId,
+							tascaId,
+							null,
+							data,
+							false,
+							dto.getUsuari());
+				} catch (Exception e) {
+					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut restaurar el formulari en la tasca.");
+					throw e;
+		        }
+			} else if ("RegEsborrar".equals(accio)) {
+				Object[] param2 = (Object[])deserialize(dto.getParam2());
+				Long entornId = (Long)param2[0];
+				String campCodi = (String)param2[1];
+				Integer index = (Integer)param2[2];
+				try {
+					tascaService.esborrarRegistre(entornId, tascaId, campCodi, index, dto.getUsuari());
+				} catch (Exception e) {
+					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut esborrar el registe en la tasca.");
+					throw e;
+		        }
+			} else if ("RegGuardar".equals(accio)) {
+				Object[] param2 = (Object[])deserialize(dto.getParam2());
+				Long entornId = (Long)param2[0];
+				String campCodi = (String)param2[1];
+				Object[] valors = (Object[])param2[2];
+				Integer index = (Integer)param2[3];
+				try {
+					tascaService.guardarRegistre(entornId, tascaId, campCodi, valors, index, dto.getUsuari());
+				} catch (Exception e) {
+					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut guardar el registre en la tasca.");
+					throw e;
+		        }
+			}
+
+			eme.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
+			eme.setDataFi(new Date());
+			execucioMassivaExpedientDao.saveOrUpdate(eme);
+		} catch (Exception ex) {
+			logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut executar '" + accio + "' de la tasca.", ex);
+			throw ex;
 		}
 	}
 	
@@ -220,11 +488,12 @@ public class ExecucioMassivaService {
 		return versio;
 	}
 	
-	public void actualitzarEstat(Long id, ExecucioMassivaEstat estat) throws Exception {
+	public void cancelarExecucio(Long id) throws Exception {
 		ExecucioMassivaExpedient eme = null;
 		try {
 			eme = execucioMassivaExpedientDao.getById(id, false);
-			eme.setEstat(estat);
+			eme.setEstat(ExecucioMassivaEstat.ESTAT_CANCELAT);
+			eme.setDataFi(new Date());
 			execucioMassivaExpedientDao.saveOrUpdate(eme);
 		} catch (Exception ex) {
 			logger.error("OPERACIO:" +id + ". No s'ha pogut canviar el estat del procés", ex);
@@ -245,12 +514,43 @@ public class ExecucioMassivaService {
 		return definicioProces;
 	}
 	
+	public DefinicioProces getDefinicioProces(ExecucioMassiva exe) {
+		DefinicioProces definicioProces = null;
+		try {
+			Object obj = (Object)deserialize(exe.getParam2());
+			Long dfId = null;
+			if (obj instanceof Long) {
+				dfId = (Long)obj;
+			} else {
+				Object[] arobj = (Object[]) deserialize(exe.getParam2());
+				if (arobj[0] instanceof Long) {
+					dfId = (Long)arobj[0];
+				}
+			}
+			if (dfId != null)
+				definicioProces = definicioProcesDao.getById(dfId, false);
+		} catch (Exception ex) {
+			logger.error("OPERACIO:" + exe.getId() + ". No s'ha pogut obtenir la definicioProces del procés", ex);
+		}
+		return definicioProces;
+	}
+	
 	public String getOperacio(OperacioMassivaDto dto) {
 		String op = null;
 		try {
 			op = (String) deserialize(dto.getParam2());
 		} catch (Exception ex) {
 			logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut obtenir la operació", ex);
+		}
+		return op;
+	}
+	
+	public String getOperacio(ExecucioMassiva exe) {
+		String op = null;
+		try {
+			op = (String) deserialize(exe.getParam2());
+		} catch (Exception ex) {
+			logger.error("OPERACIO:" + exe.getId() + ". No s'ha pogut obtenir la operació", ex);
 		}
 		return op;
 	}
@@ -484,24 +784,28 @@ public class ExecucioMassivaService {
 			try {
 				if (dto.getEnviarCorreu()) {
 					
-					// TODO: Correu
+					// Correu
 					List<String> emailAddresses = new ArrayList<String>();
-					AddressResolver addressResolver = (AddressResolver)JbpmConfiguration.Configs.getObject("jbpm.mail.address.resolver");
-					Object resolvedAddresses = addressResolver.resolveAddress(dto.getUsuari());
-					if (resolvedAddresses != null) {
-						if (resolvedAddresses instanceof String) {
-							emailAddresses.add((String)resolvedAddresses);
-						} else if (resolvedAddresses instanceof Collection) {
-							emailAddresses.addAll((Collection)resolvedAddresses);
-						} else if (resolvedAddresses instanceof String[]) {
-							emailAddresses.addAll(Arrays.asList((String[])resolvedAddresses));
-						} else {
-							throw new JbpmException(
-									"Address resolver '" + addressResolver +
-									"' returned '" + resolvedAddresses.getClass().getName() +
-									"' instead of a String, Collection or String-array: " + resolvedAddresses);
-						}
-					}
+					
+					PersonaDto persona = pluginService.findPersonaAmbCodi(dto.getUsuari());
+					emailAddresses.add(persona.getEmail());
+					
+//					AddressResolver addressResolver = (AddressResolver)JbpmConfiguration.Configs.getObject("jbpm.mail.address.resolver");
+//					Object resolvedAddresses = addressResolver.resolveAddress(dto.getUsuari());
+//					if (resolvedAddresses != null) {
+//						if (resolvedAddresses instanceof String) {
+//							emailAddresses.add((String)resolvedAddresses);
+//						} else if (resolvedAddresses instanceof Collection) {
+//							emailAddresses.addAll((Collection)resolvedAddresses);
+//						} else if (resolvedAddresses instanceof String[]) {
+//							emailAddresses.addAll(Arrays.asList((String[])resolvedAddresses));
+//						} else {
+//							throw new JbpmException(
+//									"Address resolver '" + addressResolver +
+//									"' returned '" + resolvedAddresses.getClass().getName() +
+//									"' instead of a String, Collection or String-array: " + resolvedAddresses);
+//						}
+//					}
 					mailDao.send(
 							GlobalProperties.getInstance().getProperty("app.correu.remitent"),
 							emailAddresses,
@@ -531,14 +835,42 @@ public class ExecucioMassivaService {
 	
 	public Object deserialize(byte[] bytes) throws Exception{
 		Object obj = null;
-		ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-		ObjectInputStream ois = new ObjectInputStream(bis);
-		obj = ois.readObject();
+		if (bytes != null) {
+			ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+			ObjectInputStream ois = new ObjectInputStream(bis);
+			obj = ois.readObject();
+		}
 		return obj;
+	}
+	
+	public byte[] serialize(Object obj) throws Exception{
+		byte[] bytes = null;
+		if (obj != null) {
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			ObjectOutputStream oos = new ObjectOutputStream(bos);
+			oos.writeObject(obj);
+			oos.flush();
+			oos.close();
+			bos.close();
+			bytes = bos.toByteArray();
+		}
+		return bytes;
 	}
 	
 	public OperacioMassivaDto getOperacioMassivaActiva(Long ultimaMassiva) {
 		return dtoConverter.toOperacioMassiva(execucioMassivaExpedientDao.getExecucioMassivaActiva(ultimaMassiva));
+	}
+	
+	public Long getNombreExecucionsMassivesActivesByUser(String username) {
+		 return execucioMassivaDao.getNombreExecucionsMassivesActivesByUser(username);
+	}
+	
+	public Long getProgresExecucioMassivaByUser(String username) {
+		return execucioMassivaExpedientDao.getProgresExecucioMassivaByUser(username);
+	}
+	
+	public Long getProgresExecucioMassivaById(Long execucioMassivaId) {
+		return execucioMassivaExpedientDao.getProgresExecucioMassivaById(execucioMassivaId);
 	}
 	
 //	public ExecucioMassivaExpedient getExecucioMassivaById(Long operacioMassivaId) {
@@ -586,6 +918,14 @@ public class ExecucioMassivaService {
 	@Autowired
 	public void setDocumentService(DocumentService documentService) {
 		this.documentService = documentService;
+	}
+	@Autowired
+	public void setPluginService(PluginService pluginService) {
+		this.pluginService = pluginService;
+	}
+	@Autowired
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
 	}
 
 	protected String getMessage(String key, Object[] vars) {

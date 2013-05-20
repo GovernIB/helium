@@ -71,7 +71,8 @@ public class DefinicioProcesDao extends HibernateGenericDao<DefinicioProces, Lon
 				"        DefinicioProces dps " +
 				"    where " +
 				"        dps.entorn.id=:entornId " +
-				"    and dps.jbpmKey=dp.jbpmKey)")
+				"    and dps.jbpmKey=dp.jbpmKey) " +
+				"order by dp.jbpmKey")
 				.setLong("entornId", entornId)
 				.list();
 	}

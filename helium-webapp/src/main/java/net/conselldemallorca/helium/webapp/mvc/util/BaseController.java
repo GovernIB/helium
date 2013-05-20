@@ -26,8 +26,6 @@ public class BaseController implements MessageSourceAware {
 
 	protected static final String INFO_MSG_SESSION_KEY = "missatgesInfo";
 	protected static final String ERROR_MSG_SESSION_KEY = "missatgesError";
-	protected static final String VARIABLE_SESSIO_IDS_MASSIUS_ACTIVES = "consultaExpedientsIdsMassiusActives";
-	protected static final String VARIABLE_SESSIO_TEXTS_MASSIUS_ACTIVES = "consultaExpedientsTextsMassiusActives";
 	private static final int DEFAULT_OBJECTS_PER_PAGE = 20;
 
 	private MessageSource messageSource;

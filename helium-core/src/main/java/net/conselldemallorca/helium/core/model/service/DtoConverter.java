@@ -472,7 +472,7 @@ public class DtoConverter {
 		return dto;
 	}
 
-	public ExecucioMassivaDto toExecucioMassicaDto(ExecucioMassiva massiva) {
+	public ExecucioMassivaDto toExecucioMassivaDto(ExecucioMassiva massiva) {
 		ExecucioMassivaDto dto = new ExecucioMassivaDto();
 		dto.setId(massiva.getId());
 		dto.setUsuari(massiva.getUsuari());
@@ -513,6 +513,7 @@ public class DtoConverter {
 			dto.setUltimaOperacio(expedient.getExecucioMassiva().getExpedients().size() == expedient.getOrdre() + 1);
 			dto.setTipus(expedient.getExecucioMassiva().getTipus());
 			dto.setUsuari(expedient.getExecucioMassiva().getUsuari());
+			dto.setTascaId(expedient.getTascaId());
 		}
 		return dto;
 	}

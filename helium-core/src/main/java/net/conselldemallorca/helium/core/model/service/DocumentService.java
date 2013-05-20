@@ -71,6 +71,16 @@ public class DocumentService {
 			Date documentData,
 			String arxiuNom,
 			byte[] arxiuContingut) {
+		return guardarDocumentTasca(entornId, taskInstanceId, documentCodi, documentData, arxiuNom, arxiuContingut, null);
+	}
+	public Long guardarDocumentTasca(
+			Long entornId,
+			String taskInstanceId,
+			String documentCodi,
+			Date documentData,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			String user) {
 		JbpmTask task = jbpmDao.getTaskById(taskInstanceId);
 		DocumentStore documentStore = documentHelper.getDocumentStore(
 				taskInstanceId,
@@ -99,20 +109,21 @@ public class DocumentService {
 				arxiuContingut,
 				false);
 		// Registra l'acció
+		if (user == null) user = SecurityContextHolder.getContext().getAuthentication().getName();
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(
 				jbpmDao.getRootProcessInstance(task.getProcessInstanceId()).getId());
 		if (creat) {
 			registreDao.crearRegistreCrearDocumentTasca(
 					expedient.getId(),
 					taskInstanceId,
-					SecurityContextHolder.getContext().getAuthentication().getName(),
+					user,
 					documentCodi,
 					arxiuNom);
 		} else {
 			registreDao.crearRegistreModificarDocumentTasca(
 					expedient.getId(),
 					taskInstanceId,
-					SecurityContextHolder.getContext().getAuthentication().getName(),
+					user,
 					documentCodi,
 					arxiuNomAntic,
 					arxiuNom);

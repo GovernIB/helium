@@ -3,18 +3,26 @@
  */
 package net.conselldemallorca.helium.webapp.mvc;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
+import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
+import net.conselldemallorca.helium.webapp.mvc.util.TramitacioMassiva;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -38,15 +46,17 @@ import org.springframework.web.bind.support.SessionStatus;
 public class TascaRegistreController extends CommonRegistreController {
 
 	private TascaService tascaService;
-
+	private ExecucioMassivaService execucioMassivaService;
 
 
 	@Autowired
 	public TascaRegistreController(
 			TascaService tascaService,
-			DissenyService dissenyService) {
+			DissenyService dissenyService,
+			ExecucioMassivaService execucioMassivaService) {
 		super(dissenyService);
 		this.tascaService = tascaService;
+		this.execucioMassivaService = execucioMassivaService;
 	}
 
 	@Override
@@ -110,6 +120,55 @@ public class TascaRegistreController extends CommonRegistreController {
 			int index) {
 		Entorn entorn = getEntornActiu(request);
 		tascaService.esborrarRegistre(entorn.getId(), id, campCodi, index);
+		
+		if (TramitacioMassiva.isTramitacioMassivaActiu(request, id)) {
+			String[] tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
+			if (tascaIds.length > 1) {
+				String[] parametresTram = TramitacioMassiva.getParamsTramitacioMassiva(request, id);
+				try {
+					TascaDto task = tascaService.getByIdSenseComprovacio(id);
+					Long expTipusId = task.getExpedient().getTipus().getId();
+					
+					// La primera tasca ja s'ha executat. Programam massivament la resta de tasques
+					// ----------------------------------------------------------------------------
+					String[] tIds = new String[tascaIds.length - 1];
+					int j = 0;
+					for (int i = 0; i < tascaIds.length; i++) {
+						if (!tascaIds[i].equals(id)) {
+							tIds[j++] = tascaIds[i];
+						}
+					}
+					// Obtenim informació de l'execució massiva
+					// Data d'inici
+					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+					Date dInici = new Date();
+					if (parametresTram[0] != null) {
+						try { dInici = sdf.parse(parametresTram[0]); } catch (ParseException pe) {};
+					}
+					// Enviar correu
+					Boolean bCorreu = false;
+					if (parametresTram[1] != null && parametresTram[1].equals("true")) bCorreu = true;
+					
+					ExecucioMassivaDto dto = new ExecucioMassivaDto();
+					dto.setDataInici(dInici);
+					dto.setEnviarCorreu(bCorreu);
+					dto.setTascaIds(tIds);
+					dto.setExpedientTipusId(expTipusId);
+					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
+					dto.setParam1("RegEsborrar");
+					Object[] params = new Object[3];
+					params[0] = entorn.getId();
+					params[1] = campCodi;
+					params[2] = Integer.valueOf(index);
+					dto.setParam2(execucioMassivaService.serialize(params));
+					execucioMassivaService.crearExecucioMassiva(dto);
+					
+					missatgeInfo(request, getMessage("info.tasca.massiu.registre.esborrar", new Object[] {tIds.length}));
+				} catch (Exception e) {
+					missatgeError(request, getMessage("error.no.massiu"));
+				}
+			}
+		}
 	}
 	@Override
 	public Object[] getValorRegistre(
@@ -129,6 +188,56 @@ public class TascaRegistreController extends CommonRegistreController {
 			int index) {
 		Entorn entorn = getEntornActiu(request);
 		tascaService.guardarRegistre(entorn.getId(), id, campCodi, valors, index);
+		
+		if (TramitacioMassiva.isTramitacioMassivaActiu(request, id)) {
+			String[] tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
+			if (tascaIds.length > 1) {
+				String[] parametresTram = TramitacioMassiva.getParamsTramitacioMassiva(request, id);
+				try {
+					TascaDto task = tascaService.getByIdSenseComprovacio(id);
+					Long expTipusId = task.getExpedient().getTipus().getId();
+					
+					// La primera tasca ja s'ha executat. Programam massivament la resta de tasques
+					// ----------------------------------------------------------------------------
+					String[] tIds = new String[tascaIds.length - 1];
+					int j = 0;
+					for (int i = 0; i < tascaIds.length; i++) {
+						if (!tascaIds[i].equals(id)) {
+							tIds[j++] = tascaIds[i];
+						}
+					}
+					// Obtenim informació de l'execució massiva
+					// Data d'inici
+					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+					Date dInici = new Date();
+					if (parametresTram[0] != null) {
+						try { dInici = sdf.parse(parametresTram[0]); } catch (ParseException pe) {};
+					}
+					// Enviar correu
+					Boolean bCorreu = false;
+					if (parametresTram[1] != null && parametresTram[1].equals("true")) bCorreu = true;
+					
+					ExecucioMassivaDto dto = new ExecucioMassivaDto();
+					dto.setDataInici(dInici);
+					dto.setEnviarCorreu(bCorreu);
+					dto.setTascaIds(tIds);
+					dto.setExpedientTipusId(expTipusId);
+					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
+					dto.setParam1("RegGuardar");
+					Object[] params = new Object[4];
+					params[0] = entorn.getId();
+					params[1] = campCodi;
+					params[2] = valors;
+					params[3] = Integer.valueOf(index);
+					dto.setParam2(execucioMassivaService.serialize(params));
+					execucioMassivaService.crearExecucioMassiva(dto);
+					
+					missatgeInfo(request, getMessage("info.tasca.massiu.registre.guardar", new Object[] {tIds.length}));
+				} catch (Exception e) {
+					missatgeError(request, getMessage("error.no.massiu"));
+				}
+			}
+		}
 	}
 	@Override
 	public void guardarRegistre(
@@ -137,8 +246,9 @@ public class TascaRegistreController extends CommonRegistreController {
 			String campCodi,
 			boolean multiple,
 			Object[] valors) {
-		Entorn entorn = getEntornActiu(request);
-		tascaService.guardarRegistre(entorn.getId(), id, campCodi, valors);
+//		Entorn entorn = getEntornActiu(request);
+//		tascaService.guardarRegistre(entorn.getId(), id, campCodi, valors);
+		guardarRegistre(request, id, campCodi, multiple, valors, -1);
 	}
 	@Override
 	public String redirectUrl(String id, String campCodi) {

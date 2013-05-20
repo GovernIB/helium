@@ -31,6 +31,7 @@ public class OperacioMassivaDto {
 	private String error;
 	private Integer ordre;
 	private ExpedientDto expedient;
+	private String tascaId;
 	
 	public Long getId() {
 		return id;
@@ -121,5 +122,11 @@ public class OperacioMassivaDto {
 	}
 	public void setExpedient(ExpedientDto expedient) {
 		this.expedient = expedient;
+	}
+	public String getTascaId() {
+		return tascaId;
+	}
+	public void setTascaId(String tascaId) {
+		this.tascaId = tascaId;
 	}
 }

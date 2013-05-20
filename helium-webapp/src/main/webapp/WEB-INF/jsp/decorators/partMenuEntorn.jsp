@@ -78,5 +78,8 @@
 				</li>
 			</c:if>
 		</ul>
+		<div class="image massives"><a id="botoMassiu" href="javascript:void(0)"><fmt:message key='comuns.massiu' /></a></div>
 	</div>
+	<!-- Progreso en acciones masivas -->
+	<jsp:include page="progressBarMassive.jsp"/>
 </c:if>

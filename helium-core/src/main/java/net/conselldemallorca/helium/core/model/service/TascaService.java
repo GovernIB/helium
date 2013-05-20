@@ -335,9 +335,17 @@ public class TascaService {
 			String taskId,
 			String variable,
 			Object valor) {
+		return guardarVariable(entornId, taskId, variable, valor, null);
+	}
+	public TascaDto guardarVariable(
+			Long entornId,
+			String taskId,
+			String variable,
+			Object valor,
+			String usuari) {
 		Map<String, Object> variables = new HashMap<String, Object>();
 		variables.put(variable, valor);
-		return guardarVariables(entornId, taskId, variables, null);
+		return guardarVariables(entornId, taskId, variables, usuari);
 	}
 	public TascaDto guardarVariables(
 			Long entornId,
@@ -348,17 +356,20 @@ public class TascaService {
 		expedientLogHelper.afegirLogExpedientPerTasca(
 				taskId,
 				ExpedientLogAccioTipus.TASCA_FORM_GUARDAR,
-				null);
+				null,
+				usuari);
 		boolean iniciada = task.getStartTime() == null;
 		optimitzarConsultesDomini(task, variables);
 		jbpmDao.startTaskInstance(taskId);
 		jbpmDao.setTaskInstanceVariables(taskId, variables, false);
 		TascaDto tasca = toTascaDto(task, null, true, true);
 		if (iniciada) {
+			if (usuari == null)
+				usuari = SecurityContextHolder.getContext().getAuthentication().getName();
 			registreDao.crearRegistreModificarTasca(
 					tasca.getExpedient().getId(),
 					taskId,
-					SecurityContextHolder.getContext().getAuthentication().getName(),
+					usuari,
 					"Iniciar tasca \"" + tasca.getNom() + "\"");
 		}
 		return tasca;
@@ -374,7 +385,8 @@ public class TascaService {
 				taskId,
 				campCodi,
 				valors,
-				-1);
+				-1,
+				null);
 	}
 	public void guardarRegistre(
 			Long entornId,
@@ -382,6 +394,35 @@ public class TascaService {
 			String campCodi,
 			Object[] valors,
 			int index) {
+		guardarRegistre(
+				entornId,
+				taskId,
+				campCodi,
+				valors,
+				index,
+				null);
+	}
+	public void guardarRegistre(
+			Long entornId,
+			String taskId,
+			String campCodi,
+			Object[] valors,
+			String usuari) {
+		guardarRegistre(
+				entornId,
+				taskId,
+				campCodi,
+				valors,
+				-1,
+				usuari);
+	}
+	public void guardarRegistre(
+			Long entornId,
+			String taskId,
+			String campCodi,
+			Object[] valors,
+			int index,
+			String usuari) {
 		JbpmTask task = jbpmDao.getTaskById(taskId);
 		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(task.getProcessDefinitionId());
 		Camp camp = campDao.findAmbDefinicioProcesICodi(definicioProces.getId(), campCodi);
@@ -392,7 +433,8 @@ public class TascaService {
 						entornId,
 						taskId,
 						campCodi,
-						new Object[]{valors});
+						new Object[]{valors},
+						usuari);
 			} else {
 				Object[] valorMultiple = (Object[])valor;
 				if (index != -1) {
@@ -401,7 +443,8 @@ public class TascaService {
 							entornId,
 							taskId,
 							campCodi,
-							valor);
+							valor,
+							usuari);
 				} else {
 					Object[] valorNou = new Object[valorMultiple.length + 1];
 					for (int i = 0; i < valorMultiple.length; i++)
@@ -411,7 +454,8 @@ public class TascaService {
 							entornId,
 							taskId,
 							campCodi,
-							valorNou);
+							valorNou,
+							usuari);
 				}
 			}
 		} else {
@@ -419,7 +463,8 @@ public class TascaService {
 					entornId,
 					taskId,
 					campCodi,
-					valors);
+					valors,
+					usuari);
 		}
 	}
 	public void esborrarRegistre(
@@ -427,6 +472,14 @@ public class TascaService {
 			String taskId,
 			String campCodi,
 			int index) {
+		esborrarRegistre(entornId, taskId, campCodi, index, null);
+	}
+	public void esborrarRegistre(
+			Long entornId,
+			String taskId,
+			String campCodi,
+			int index,
+			String usuari) {
 		JbpmTask task = jbpmDao.getTaskById(taskId);
 		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(task.getProcessDefinitionId());
 		Camp camp = campDao.findAmbDefinicioProcesICodi(definicioProces.getId(), campCodi);
@@ -442,7 +495,8 @@ public class TascaService {
 							entornId,
 							taskId,
 							campCodi,
-							valorNou);
+							valorNou,
+							usuari);
 				}
 			}
 		} else {
@@ -450,7 +504,8 @@ public class TascaService {
 					entornId,
 					taskId,
 					campCodi,
-					null);
+					null,
+					usuari);
 		}
 	}
 
@@ -471,37 +526,49 @@ public class TascaService {
 		expedientLogHelper.afegirLogExpedientPerTasca(
 				taskId,
 				ExpedientLogAccioTipus.TASCA_FORM_VALIDAR,
-				null);
+				null,
+				usuari);
 		optimitzarConsultesDomini(task, variables);
 		jbpmDao.startTaskInstance(taskId);
 		jbpmDao.setTaskInstanceVariables(taskId, variables, false);
 		validarTasca(taskId);
 		TascaDto tasca = toTascaDto(task, null, true, true);
+		if (usuari == null)
+			usuari = SecurityContextHolder.getContext().getAuthentication().getName();
 		registreDao.crearRegistreModificarTasca(
 				tasca.getExpedient().getId(),
 				taskId,
-				SecurityContextHolder.getContext().getAuthentication().getName(),
+				usuari,
 				"Validar \"" + tasca.getNom() + "\"");
 		return tasca;
 	}
 	public TascaDto restaurar(
 			Long entornId,
 			String taskId) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
+		return restaurar(entornId, taskId, null);
+	}
+	public TascaDto restaurar(
+			Long entornId,
+			String taskId,
+			String user) {
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, user, true);
 		expedientLogHelper.afegirLogExpedientPerTasca(
 				taskId,
 				ExpedientLogAccioTipus.TASCA_FORM_RESTAURAR,
-				null);
+				null,
+				user);
 		if (!isTascaValidada(task))
 			throw new IllegalStateException(
 					getServiceUtils().getMessage("error.tascaService.noValidada"));
 		//deleteDocumentsTasca(taskId);
 		restaurarTasca(taskId);
 		TascaDto tasca = toTascaDto(task, null, true, true);
+		if (user == null) 
+			user = SecurityContextHolder.getContext().getAuthentication().getName();
 		registreDao.crearRegistreModificarTasca(
 				tasca.getExpedient().getId(),
 				taskId,
-				SecurityContextHolder.getContext().getAuthentication().getName(),
+				user,
 				"Restaurar \"" + tasca.getNom() + "\"");
 		return tasca;
 	}
@@ -531,7 +598,8 @@ public class TascaService {
 		expedientLogHelper.afegirLogExpedientPerTasca(
 				taskId,
 				ExpedientLogAccioTipus.TASCA_COMPLETAR,
-				outcome);
+				outcome,
+				usuari);
 		jbpmDao.startTaskInstance(taskId);
 		jbpmDao.endTaskInstance(task.getId(), outcome);
 		// Accions per a una tasca delegada
@@ -557,10 +625,12 @@ public class TascaService {
 		actualitzarDataFiExpedient(expedient, pi);
 		getServiceUtils().expedientIndexLuceneUpdate(task.getProcessInstanceId());
 		TascaDto tasca = toTascaDto(task, null, true, true);
+		if (usuari == null)
+			usuari = SecurityContextHolder.getContext().getAuthentication().getName();
 		registreDao.crearRegistreFinalitzarTasca(
 				tasca.getExpedient().getId(),
 				taskId,
-				SecurityContextHolder.getContext().getAuthentication().getName(),
+				usuari,
 				"Finalitzar \"" + tasca.getNom() + "\"");
 	}
 
@@ -853,11 +923,19 @@ public class TascaService {
 			Long entornId,
 			String taskId,
 			String accio) throws DominiException {
+		executarAccio(entornId, taskId, accio, null);
+	}
+	public void executarAccio(
+			Long entornId,
+			String taskId,
+			String accio,
+			String user) throws DominiException {
 		expedientLogHelper.afegirLogExpedientPerTasca(
 				taskId,
 				ExpedientLogAccioTipus.TASCA_ACCIO_EXECUTAR,
-				accio);
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
+				accio,
+				user);
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, user, true);
 		jbpmDao.executeActionInstanciaTasca(taskId, accio);
 		getServiceUtils().expedientIndexLuceneUpdate(task.getProcessInstanceId());
 	}

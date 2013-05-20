@@ -66,13 +66,10 @@ public class ExecucioMassiva implements Serializable, GenericEntity<Long> {
 	private String param1;
 	private byte[] param2;
 	private Boolean enviarCorreu;
-
 	@NotNull
 	private ExpedientTipus expedientTipus;
-
 	private List<ExecucioMassivaExpedient> expedients = new ArrayList<ExecucioMassivaExpedient>();
-//	private List<ExecucioMassivaCamp> camps = new ArrayList<ExecucioMassivaCamp>();
-
+	private Long entorn;
 
 	public ExecucioMassiva() {}
 	public ExecucioMassiva(String usuari, ExecucioMassivaTipus tipus) {
@@ -176,20 +173,13 @@ public class ExecucioMassiva implements Serializable, GenericEntity<Long> {
 		getExpedients().remove(expedient);
 	}
 	
-//	@OneToMany(mappedBy="execucioMassiva", cascade=CascadeType.ALL)
-//	@OrderBy("ordre asc")
-//	public List<ExecucioMassivaCamp> getCamps() {
-//		return camps;
-//	}
-//	public void setCamps(List<ExecucioMassivaCamp> camps) {
-//		this.camps = camps;
-//	}
-//	public void addCamp(ExecucioMassivaCamp camp) {
-//		getCamps().add(camp);
-//	}
-//	public void removeCamp(ExecucioMassivaCamp camp) {
-//		getCamps().remove(camp);
-//	}
+	@Column(name="entorn")
+	public Long getEntorn() {
+		return entorn;
+	}
+	public void setEntorn(Long entorn) {
+		this.entorn = entorn;
+	}
 	
 	@Override
 	public int hashCode() {

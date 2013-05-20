@@ -149,6 +149,18 @@ function signarCaib(token, form, contentType) {
 	}
 }
 </c:if>
+function mostrarOcultar(img, objid) {
+	var obj = document.getElementById(objid);
+	if (obj.style.display=="none") {
+		$('#' + objid).slideDown();
+		//obj.style.display = "block";
+		img.src = '<c:url value="/img/magnifier_zoom_out.png"/>';
+	} else {
+		$('#' + objid).slideUp();
+		//obj.style.display = "none";
+		img.src = '<c:url value="/img/magnifier_zoom_in.png"/>';
+	}
+}
 // ]]>
 </script>
 </head>
@@ -164,6 +176,11 @@ function signarCaib(token, form, contentType) {
 
 	<c:if test="${globalProperties['app.signatura.tipus'] == 'afirma'}"><script type="text/javascript">cargarAppletFirma(base + '/${globalProperties['app.signatura.afirma.default.build']}');</script></c:if>
 
+	<c:if test="${not empty seleccioMassiva}">
+		<div class="missatgesWarn">
+			<p><fmt:message key='tasca.signa.massiu.no_es_podran' /></p>
+		</div>
+	</c:if>
 	<c:if test="${not tasca.documentsComplet}">
 		<div class="missatgesWarn">
 			<p><fmt:message key='tasca.signa.no_es_podran' /></p>
@@ -248,7 +265,7 @@ function signarCaib(token, form, contentType) {
 										<input type="password" id="passwd${documentActual.id}" name="passwd" class="textInput"/>
 									</div>
 									<div class="buttonHolder">
-										<button class="submitButton" onclick="signarCaib('${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignaturaUrlEncoded}', this.form, '1');return false"><fmt:message key="tasca.signa.signar"/></button>
+										<button class="submitButton" <c:if test="${not empty seleccioMassiva}">disabled </c:if>onclick="signarCaib('${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignaturaUrlEncoded}', this.form, '1');return false"><fmt:message key="tasca.signa.signar"/></button>
 									</div>
 								</div>
 							</form:form>
@@ -259,7 +276,7 @@ function signarCaib(token, form, contentType) {
 								<input type="hidden" name="taskId" value="${tasca.id}"/>
 								<input type="hidden" name="token" value="${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignaturaMultiple}"/>
 								<input type="hidden" name="data"/>
-								<button class="submitButton" onclick="signarAFirma(this.form, '${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignatura}');return false"><fmt:message key="tasca.signa.signar"/></button>
+								<button class="submitButton" <c:if test="${not empty seleccioMassiva}">disabled </c:if>onclick="signarAFirma(this.form, '${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignatura}');return false"><fmt:message key="tasca.signa.signar"/></button>
 							</form:form>
 						</c:when>
 						<c:otherwise>

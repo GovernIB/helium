@@ -103,4 +103,55 @@ public class ExecucioMassivaExpedientDao extends HibernateGenericDao<ExecucioMas
 
 		return (List<ExecucioMassivaExpedient>)query.list();
 	}
+	
+	@SuppressWarnings("unchecked")
+	public Long getProgresExecucioMassivaByUser(String username) {
+		Long percentatge = 100L;
+		Query query = null;
+		query = getSession().createQuery(
+				"select count(e) " +
+				"from	ExecucioMassivaExpedient e " +
+				"where 	e.execucioMassiva.usuari =	'" + username +"'" +
+				" and	e.execucioMassiva.dataFi is null");
+		Long total = (Long)query.uniqueResult();
+
+		if (total != null && total > 0) {
+			query = getSession().createQuery(
+					"select count(e) " +
+					"from	ExecucioMassivaExpedient e " +
+					"where 	e.execucioMassiva.usuari =	'" + username +"'" +
+					" and	e.execucioMassiva.dataFi is null");
+			
+			Long pendent = (Long)query.uniqueResult();
+			if (pendent != null)
+				percentatge = 100 - (pendent * 100 / total);
+		}
+		
+		return percentatge;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Long getProgresExecucioMassivaById(Long id) {
+		Long percentatge = 100L;
+		Query query = null;
+		query = getSession().createQuery(
+				"select count(e) " +
+				"from	ExecucioMassivaExpedient e " +
+				"where 	e.execucioMassiva.id =	" + id);
+		Long total = (Long)query.uniqueResult();
+
+		if (total != null && total > 0) {
+			query = getSession().createQuery(
+					"select count(e) " +
+					"from	ExecucioMassivaExpedient e " +
+					"where 	e.execucioMassiva.id =	" + id +
+					" and	e.dataFi is null");
+			
+			Long pendent = (Long)query.uniqueResult();
+			if (pendent != null)
+				percentatge = 100 - (pendent * 100 / total);
+		}
+		
+		return percentatge;
+	}
 }

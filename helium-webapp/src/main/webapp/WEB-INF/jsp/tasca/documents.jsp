@@ -16,10 +16,12 @@
 	function mostrarOcultar(img, objid) {
 		var obj = document.getElementById(objid);
 		if (obj.style.display=="none") {
-			obj.style.display = "block";
+			$('#' + objid).slideDown();
+			//obj.style.display = "block";
 			img.src = '<c:url value="/img/magnifier_zoom_out.png"/>';
 		} else {
-			obj.style.display = "none";
+			$('#' + objid).slideUp();
+			//obj.style.display = "none";
 			img.src = '<c:url value="/img/magnifier_zoom_in.png"/>';
 		}
 	}

@@ -14,6 +14,25 @@
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
+	<script type="text/javascript">
+	// <![CDATA[
+		$(document).ready(function(){
+			var d = new Date();
+			var dia = ("0" + d.getDate()).slice(-2);
+		    var mes = ("0" + (d.getMonth() + 1)).slice(-2);
+		    var any = d.getFullYear();
+		    var hora = ("0" + d.getHours()).slice(-2);
+		    var minuts = ("0" + d.getMinutes()).slice(-2);
+		    var ara = dia + '/' + mes + '/' + any + ' ' + hora + ':' + minuts
+		    
+			$('#inici').datetimepicker({defaultValue: ara});
+		});
+		function valorCorreu() {
+			var correu = $("#correu").is(":checked") ? true : false;
+			$("#correu").val(correu);
+		}
+		// ]]>
+	</script>
 </head>
 <body>
 
@@ -25,7 +44,21 @@
 		<fmt:message key="tasca.massiva.tramitacio"/>
 	</h3>
 
-	<form action="massivaTramitacio.html" method="post">
+	<form action="massivaTramitacio.html" method="post" onSubmit="valorCorreu()">
+		<div class="uniForm">
+			<div class="inlineLabels col first">
+				<div class="ctrlHolder" style="height:45px;">
+					<label for="inici"><fmt:message key="expedient.consulta.datainici"/></label>
+					<input id="inici" name="inici" type="text" class="textInput" <c:if test="${not empty param.inici}">value="${param.inici}"</c:if>/>
+				</div>
+			</div>
+			<div class="inlineLabels uniForm col last">
+				<div class="ctrlHolder" style="height:45px;">
+					<label for="correu"><fmt:message key="expedient.massiva.correu"/></label>
+					<input id="correu" name="correu" type="checkbox"  <c:if test="${not empty param.correu and param.correu == 'true'}">checked="checked"</c:if>/>
+				</div>
+			</div>
+		</div>
 		<input type="hidden" name="id" value="${param.id}"/>
 		<display:table name="personaLlistat" id="registre" requestURI="" class="displaytag selectable">
 			<display:column>

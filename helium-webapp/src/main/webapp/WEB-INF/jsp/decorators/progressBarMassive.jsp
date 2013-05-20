@@ -6,137 +6,267 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 
-<div id="footerSlideContainer">
-	<div class="footerSlideContent">
-	    <div class="page-title-massiva">
-			<h2><span><fmt:message key='expedient.massiva.titol' /></span></h2>
-		</div>
-		<div class="footerSlideText">
-			<table id="pbar_total_massive_table_bars">
-				<%
-					List<Long> listaMassiva = (List<Long>) session.getAttribute( "consultaExpedientsIdsMassiusActives" );
-					List<String> listaMassivaText = (List<String>) session.getAttribute( "consultaExpedientsTextsMassiusActives" );
-					
-					for (int j=0;(listaMassiva != null) && (j<listaMassiva.size());j++) {		
-				    	%>
-				    		<tr id="pbar_tr_<%=listaMassiva.get(j)%>">
-				    			<td class="td_texto" style="width: 25%">
-				    				<%=listaMassivaText.get(j)%>
-				    			</td>
-				    			<td class="td_barra" style="width: 70%">
-				    				<div class="pbar" id="pbar_<%=listaMassiva.get(j)%>"></div>
-				    			</td>
-				    			<td style="width: 5%">
-				    				<img id="pbar_total_massive_icon" src="/helium/img/magnifier.png" onClick="mostrarDetalleExpediente('<%=listaMassiva.get(j)%>')" style="padding-left: 0px;cursor: pointer"/>
-				    			</td>
-				    		</tr>
-				    		<script>
-				    			if ($.isFunction($.fn.progressbar)) {
-				    				$("#pbar_<%=listaMassiva.get(j)%>").progressbar({ value: 0 });
-				    				$("#pbar_tr_<%=listaMassiva.get(j)%>").hide();
-				    			}
-				    			numBarras++;
-				    		</script>
-				    	<%
-					}
-				%>
-			</table>
-		</div>
-	</div>
-</div>
-
-<div class="dialog-form-massive-bar" id="footerSlideContainerDetail" title="<fmt:message key='expedient.massiva.proces' />">
-	<table id="pbar_total_massive_detail">
-		<tr>
-			<td>
-				<div id="div_progressBarMassiveDetail"/>
-			</td>
-		</tr>
-	</table>
-</div>
 	
-<script>
-	$( "#footerSlideContainerDetail" ).dialog({
-		autoOpen: false,
-		height: 'auto',
-		width: 525,
-		modal: true,
-		resizable:false,
-		close: function() {
-			ocultarDetalleExpediente();
-		}
-	});
-</script>
-
-<div id="pbar_total_massive_div">
-	<table id="pbar_total_massive_table" style="display: none">
-		<tr>
-			<td style="width: 25%">
-				<div id="pbar_total_massive_text"><fmt:message key='expedient.massiva.proces' /></div>
-			</td>
-			<td style="width: 70%">
-				<div id="pbar_total_massive"></div>
-			</td>
-			<td style="width: 5%;">
-				<img id="pbar_total_massive_icon" src="/helium/img/magnifier.png"/>			
-			</td>
-		</tr>
-	</table>
+<div class="dialog-form-massive-bar" id="dialog-form-mass" style="display:none" title="<fmt:message key='expedient.massiva.proces' />">
+	<div id="massiva_contens"></div>
 </div>
 
+<div class="wait"></div>
+
 <script>
-	if ($.isFunction($.fn.progressbar)) {
-	<% if ((listaMassiva != null) && (listaMassiva.size() > 0))  { %>
-		$("#pbar_total_massive").progressbar({ value: 0 });
+	var timer = null;
+	var numResults = 10;
+	var progres;
+	
+	$(function() {
+		$( "#dialog-form-mass" ).dialog({
+			autoOpen: false,
+			height: 520,
+			width: 900,
+			modal: true,
+			resizable: false,
+			buttons: {
+				<fmt:message key='comuns.tancar' />: function() {
+					clearTimeout(timer);
+					$(this).dialog("close");
+				},
+				"<fmt:message key='comuns.mes.dades' />": function() {
+					var numFiles = $("#accordio_massiva h3").length;
+					carregaExecucionsMassives(numFiles + 10)
+				}
+			},
+			close: function(){
+				clearTimeout(timer);
+			}
+		});
 		
-		var porcentajeTotal = 0;	
-		function pbar_total_massive(){
-		     $.post("/helium/expedient/refreshBarExpedientMassiveAct.html",
-			     function(data){
-			     	 var value = $( "#pbar_total_massive" ).progressbar( "option", "value" );
-			     	 if (value < data) {
-			     	 	$( "#pbar_total_massive" ).progressbar( "option", "value", data );
-			     	 	porcentajeTotal = data;
-			     	 }
-			     	 
-			     	 if (value == 0 && data == 0) {
-			     	 	$("#pbar_total_massive_table").hide();
-			     	 } else {
-			     	 	$("#pbar_total_massive_table").show();
-			     	 	
-			     	 	$(".pbar").width($("#pbar_total_massive").width());
-				    	$(".pbar").height($("#pbar_total_massive").height());
-			     	 }
-			     	 <%
-						for (int j=0;(listaMassiva != null) && (j<listaMassiva.size());j++) {
-					    	%>pbar("<%=listaMassiva.get(j)%>");<%
+		$("#botoMassiu")
+		.click(function() {
+			$("body").addClass("loading");
+			carregaExecucionsMassives(10);
+			$( "#dialog-form-mass" ).dialog( "open" );
+		});
+	});
+	
+	function carregaExecucionsMassives(numResultats) {
+		numResults = numResultats;
+		$.ajax({
+			url: "/helium/expedient/refreshBarsExpedientMassive.html",
+			dataType: 'json',
+			data: {results: numResultats},
+			async: false,
+			success: function(data){
+					var length = data.length;
+					var execucio = null;
+					var content = "";
+					if (length == 0) {
+						content = "<h4><fmt:message key='execucions.massives.no'/></h4>";
+					} else {
+						content = '<div id="accordio_massiva">';
+						for (var i = 0; i < length; i++) {
+							execucio = data[i];
+							var exps =  execucio.expedients.length;
+							
+							content +=	'<h3 id="mass_' + execucio.id + '">' +
+											'<span class="massiu-data">' + execucio.data + '</span>' +
+											'<span class="massiu-accio">' + execucio.text + '</span>' +
+											'<div class="massiu-progres" id="pbar_' + execucio.id + '"><span class="plabel" id="plabel_' + execucio.id + '">' + execucio.progres + '%</span></div>' +
+										'</h3>';
+							content +=	'<div>';
+							if (exps > 0) {
+								var tableHeader = '<table class="displaytag" id="massexpt_' + execucio.id + '">' +
+													'<thead>' +
+													'<tr>' +
+														'<th class="massiu-expedient"><fmt:message key="expedient.llistat.expedient"/></th>' +
+														'<th class="massiu-estat"><fmt:message key="expedient.consulta.estat"/></th>' +
+														'<th class="massiu-opcions"></th>' +
+													'</tr>' +
+													'</thead>' +
+													'<tbody>';
+								content += tableHeader;
+								for (var j = 0; j < exps; j++) {
+									var expedient = execucio.expedients[j];
+									var estat = "";
+									var opcions = "";
+									if (expedient.estat == "ESTAT_CANCELAT"){
+										estat = "<img border=\"0\" title=\"<fmt:message key='expedient.termini.estat.cancelat'/>\" alt=\"<fmt:message key='expedient.termini.estat.cancelat'/>\" src=\"/helium/img/mass_canceled.png\"><label style=\"padding-left: 10px\"><fmt:message key='expedient.termini.estat.cancelat'/></label>";
+									} else if (expedient.estat == "ESTAT_ERROR"){
+										estat = "<img border=\"0\" title=\"<fmt:message key='expedient.termini.estat.error'/>\" alt=\"<fmt:message key='expedient.termini.estat.error'/>\" src=\"/helium/img/mass_error.png\"><label style=\"padding-left: 10px\"><fmt:message key='expedient.termini.estat.error'/></label>";
+										opcions = "<label style=\"cursor: pointer\" onclick=\"alert('" + expedient.error + "')\"><fmt:message key='expedient.termini.estat.error'/></label>";
+									} else if (expedient.estat == "ESTAT_FINALITZAT"){
+										estat = "<img border=\"0\" title=\"<fmt:message key='expedient.termini.estat.finalizat'/>\" alt=\"<fmt:message key='expedient.termini.estat.finalizat'/>\" src=\"/helium/img/mass_fin.png\"><label style=\"padding-left: 10px\"><fmt:message key='expedient.termini.estat.finalizat'/></label>";
+									} else if (expedient.estat == "ESTAT_PENDENT"){
+										estat = "<img border=\"0\" title=\"<fmt:message key='expedient.termini.estat.pendent_solament'/>\" alt=\"<fmt:message key='expedient.termini.estat.pendent_solament'/>\" src=\"/helium/img/mass_pend.png\"><label style=\"padding-left: 10px\"><fmt:message key='expedient.termini.estat.pendent_solament'/></label>";
+										if (expedient.tasca == "") {
+											opcions = "<img style=\"cursor: pointer\" onclick=\"cancelarExpedientMassiveAct('/helium/expedient/cancelExpedientMassiveAct.html','" + expedient.id + "')\" border=\"0\" title=\"<fmt:message key='expedient.termini.estat.cancelat'/>\" alt=\"<fmt:message key='expedient.termini.estat.cancelat'/>\" src=\"/helium/img/mass_cancel.png\">";
+										}
+									} else {
+										estat = "<img border=\"0\" title=\"<fmt:message key='expedient.termini.estat.process'/>\" alt=\"<fmt:message key='expedient.termini.estat.process'/>\" src=\"/helium/img/mass_prog.png\"><label style=\"padding-left: 10px\"><fmt:message key='expedient.termini.estat.process'/></label>";
+									}
+									
+									var row =	'<tr id="massexp_' + expedient.id + '" + class="mass_expedient exp_' + execucio.id + ' ' + (j % 2 == 0 ? 'odd' : 'even') + '">' +
+													'<td class="massiu-expedient">' + expedient.titol + '</td>' +
+													'<td class="massiu-estat">' + estat + '</td>' +
+													'<td class="massiu-opcions">' + opcions + '</td>' +
+						   						'</tr>';
+									content += row;
+								}
+								content += '</tbody></table>';
+							}
+							content += '</div>';
 						}
-					 %>
-					 
-					 if (porcentajeTotal == 100) {
-					 	if (interval_pbar_total_massive != null) {
-			     	 		window.clearInterval(interval_pbar_total_massive);
-			     	 	}
-			     	 }
-				 }
-			 );
-		}
+					}
+					$("#massiva_contens").html(content);
+					if ($.isFunction($.fn.progressbar)) {
+						for (var i = 0; i < length; i++) {
+							execucio = data[i];
+							$("#pbar_" + execucio.id).progressbar({value: execucio.progres});
+						}
+	    			}
+					$( "#accordio_massiva" ).accordion({
+					      collapsible: true,
+					      active: false
+				    });
+					if (length > 0) {
+						timer = setTimeout(refreshExecucionsMassives, 1500);
+					}
+				}
+		})
+				//.done(function() { console.log( "second success" ); })
+				//.fail(function( jqxhr, textStatus, error ) {
+				//	var err = textStatus + ', ' + error;
+				//	console.log( "Request Failed: " + err);
+				//})
+		.always(function() {
+			$("body").removeClass("loading");
+		});
+	}
+	
+	function refreshExecucionsMassives() {
+		$.ajax({
+			url: "/helium/expedient/refreshBarsExpedientMassive.html",
+			dataType: 'json',
+			data: {results: numResults},
+			async: false,
+			success: function(data){
+					var length = data.length;
+					var execucio = null;
+					if (length > 0) {
+						// Actualitzam barres de progrés
+						if ($.isFunction($.fn.progressbar)) {
+							for (var i = 0; i < length; i++) {
+								execucio = data[i];
+								progres = execucio.progres;
+		    					$("#pbar_" + execucio.id).progressbar("value", progres);
+		    					$("#plabel_" + execucio.id).text(progres + "%");
+							}
+		    			}
 						
-		function pbar(barra){
-		    $.post("/helium/expedient/refreshBarExpedientMassiveAct.html",
-		    { idExp: barra },
-		     function(data){
-		     	 var value = $( "#pbar_"+barra ).progressbar( "option", "value" );
-		     	 if (value < data) {
-		     	 	$( "#pbar_"+barra ).progressbar( "option", "value", data );
-		     	 	$( "#pbar_tr_"+barra ).show();
-		     	 }
-			});
-		}   	 
-     	
-     	if (interval_pbar_total_massive == null) {
-			interval_pbar_total_massive = setInterval("pbar_total_massive()", delayBar);
-		}
-	<% } %>
+						for (var i = 0; i < length; i++) {
+							execucio = data[i];
+							var exps =  execucio.expedients.length;
+							var content = "";
+							// Afegim noves execucions
+							if ($("#mass_" + execucio.id).length == 0) {
+								content +=	'<h3 id="mass_' + execucio.id + '">' +
+												'<span class="massiu-data">' + execucio.data + '</span>' +
+												'<span class="massiu-accio">' + execucio.text + '</span>' +
+												'<div class="massiu-progres" id="pbar_' + execucio.id + '"><span id="plabel_' + execucio.id + '">' + execucio.progres + '%</span></div>' +
+											'</h3>';
+								content +=	'<div>';
+								if (exps > 0) {
+									var tableHeader = '<table class="displaytag" id="massexpt_' + execucio.id + '">' +
+														'<thead>' +
+														'<tr>' +
+															'<th class="massiu-expedient"><fmt:message key="expedient.llistat.expedient"/></th>' +
+															'<th class="massiu-estat"><fmt:message key="expedient.consulta.estat"/></th>' +
+															'<th class="massiu-opcions"></th>' +
+														'</tr>' +
+														'</thead>' +
+														'<tbody>';
+									content += tableHeader;
+									for (var j = 0; j < exps; j++) {
+										var expedient = execucio.expedients[j];
+										var estat = "";
+										var opcions = "";
+										if (expedient.estat == "ESTAT_CANCELAT"){
+											estat = "<img border=\"0\" title=\"<fmt:message key='expedient.termini.estat.cancelat'/>\" alt=\"<fmt:message key='expedient.termini.estat.cancelat'/>\" src=\"/helium/img/mass_canceled.png\"><label style=\"padding-left: 10px\"><fmt:message key='expedient.termini.estat.cancelat'/></label>";
+										} else if (expedient.estat == "ESTAT_ERROR"){
+											estat = "<img border=\"0\" title=\"<fmt:message key='expedient.termini.estat.error'/>\" alt=\"<fmt:message key='expedient.termini.estat.error'/>\" src=\"/helium/img/mass_error.png\"><label style=\"padding-left: 10px\"><fmt:message key='expedient.termini.estat.error'/></label>";
+											opcions = "<label style=\"cursor: pointer\" onclick=\"alert('" + expedient.error + "')\"><fmt:message key='expedient.termini.estat.error'/></label>";
+										} else if (expedient.estat == "ESTAT_FINALITZAT"){
+											estat = "<img border=\"0\" title=\"<fmt:message key='expedient.termini.estat.finalizat'/>\" alt=\"<fmt:message key='expedient.termini.estat.finalizat'/>\" src=\"/helium/img/mass_fin.png\"><label style=\"padding-left: 10px\"><fmt:message key='expedient.termini.estat.finalizat'/></label>";
+										} else if (expedient.estat == "ESTAT_PENDENT"){
+											estat = "<img border=\"0\" title=\"<fmt:message key='expedient.termini.estat.pendent_solament'/>\" alt=\"<fmt:message key='expedient.termini.estat.pendent_solament'/>\" src=\"/helium/img/mass_pend.png\"><label style=\"padding-left: 10px\"><fmt:message key='expedient.termini.estat.pendent_solament'/></label>";
+											if (expedient.tasca == "") {
+												opcions = "<img style=\"cursor: pointer\" onclick=\"cancelarExpedientMassiveAct('/helium/expedient/cancelExpedientMassiveAct.html','" + expedient.id + "')\" border=\"0\" title=\"<fmt:message key='expedient.termini.estat.cancelat'/>\" alt=\"<fmt:message key='expedient.termini.estat.cancelat'/>\" src=\"/helium/img/mass_cancel.png\">";
+											}
+										} else {
+											estat = "<img border=\"0\" title=\"<fmt:message key='expedient.termini.estat.process'/>\" alt=\"<fmt:message key='expedient.termini.estat.process'/>\" src=\"/helium/img/mass_prog.png\"><label style=\"padding-left: 10px\"><fmt:message key='expedient.termini.estat.process'/></label>";
+										}
+										
+										var row =	'<tr id="massexp_' + expedient.id + '" + class="mass_expedient exp_' + execucio.id + ' ' + (j % 2 == 0 ? 'odd' : 'even') + '">' +
+														'<td class="massiu-expedient">' + expedient.titol + '</td>' +
+														'<td class="massiu-estat">' + estat + '</td>' +
+														'<td class="massiu-opcions">' + opcions + '</td>' +
+							   						'</tr>';
+										content += row;
+									}
+									content += '</tbody></table>';
+								}
+								content += '</div>';
+								$("#accordio_massiva").prepend(content);
+								if ($.isFunction($.fn.progressbar)) {
+									$("#pbar_" + execucio.id).progressbar({ value: execucio.progres	});
+								}
+							} else {
+								// Actualitzam execucions existents
+								if (exps > 0) {
+									for (var j = 0; j < exps; j++) {
+										var expedient = execucio.expedients[j];
+										var estat = "";
+										var opcio = "";
+										if (expedient.estat == "ESTAT_CANCELAT"){
+											estat = "<img border=\"0\" title=\"<fmt:message key='expedient.termini.estat.cancelat'/>\" alt=\"<fmt:message key='expedient.termini.estat.cancelat'/>\" src=\"/helium/img/mass_canceled.png\"><label style=\"padding-left: 10px\"><fmt:message key='expedient.termini.estat.cancelat'/></label>";
+										} else if (expedient.estat == "ESTAT_ERROR"){
+											estat = "<img border=\"0\" title=\"<fmt:message key='expedient.termini.estat.error'/>\" alt=\"<fmt:message key='expedient.termini.estat.error'/>\" src=\"/helium/img/mass_error.png\"><label style=\"padding-left: 10px\"><fmt:message key='expedient.termini.estat.error'/></label>";
+											opcio = "<label style=\"cursor: pointer\" onclick=\"alert('" + expedient.error + "')\"><fmt:message key='expedient.termini.estat.error'/></label>";
+										} else if (expedient.estat == "ESTAT_FINALITZAT"){
+											estat = "<img border=\"0\" title=\"<fmt:message key='expedient.termini.estat.finalizat'/>\" alt=\"<fmt:message key='expedient.termini.estat.finalizat'/>\" src=\"/helium/img/mass_fin.png\"><label style=\"padding-left: 10px\"><fmt:message key='expedient.termini.estat.finalizat'/></label>";
+										} else if (expedient.estat == "ESTAT_PENDENT"){
+											estat = "<img border=\"0\" title=\"<fmt:message key='expedient.termini.estat.pendent_solament'/>\" alt=\"<fmt:message key='expedient.termini.estat.pendent_solament'/>\" src=\"/helium/img/mass_pend.png\"><label style=\"padding-left: 10px\"><fmt:message key='expedient.termini.estat.pendent_solament'/></label>";
+											if (expedient.tasca == "") {
+												opcio = "<img style=\"cursor: pointer\" onclick=\"cancelarExpedientMassiveAct('/helium/expedient/cancelExpedientMassiveAct.html','" + expedient.id + "')\" border=\"0\" title=\"<fmt:message key='expedient.termini.estat.cancelat'/>\" alt=\"<fmt:message key='expedient.termini.estat.cancelat'/>\" src=\"/helium/img/mass_cancel.png\">";
+											}
+										} else {
+											estat = "<img border=\"0\" title=\"<fmt:message key='expedient.termini.estat.process'/>\" alt=\"<fmt:message key='expedient.termini.estat.process'/>\" src=\"/helium/img/mass_prog.png\"><label style=\"padding-left: 10px\"><fmt:message key='expedient.termini.estat.process'/></label>";
+										}
+										
+										var estat_org = $("#massexp_" + expedient.id + " td:nth-child(2)").html();
+										var opcio_org = $("#massexp_" + expedient.id + " td:nth-child(3)").html();
+										if (estat != estat_org) $("#massexp_" + expedient.id + " td:nth-child(2)").html(estat);										
+										if (opcio != opcio_org) $("#massexp_" + expedient.id + " td:nth-child(3)").html(opcio);
+									}
+								}
+							}
+						}
+					}
+// 					$( "#accordio_massiva" ).accordion({
+// 					      collapsible: true,
+// 					      active: false
+// 				    });
+					timer = setTimeout(refreshExecucionsMassives, 1500);
+				}
+		});
+				//.done(function() { console.log( "second success" ); })
+				//.fail(function( jqxhr, textStatus, error ) {
+				//	var err = textStatus + ', ' + error;
+				//	console.log( "Request Failed: " + err);
+				//})
+// 		.always(function() { });
+	}
+	
+	function cancelarExpedientMassiveAct(url,id) {
+		$.post(url, { idExp: id }, function(data){});
 	}
 </script>

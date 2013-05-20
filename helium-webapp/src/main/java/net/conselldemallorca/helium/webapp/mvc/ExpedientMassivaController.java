@@ -1,10 +1,10 @@
 package net.conselldemallorca.helium.webapp.mvc;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -36,6 +36,7 @@ import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient.ExecucioMassivaEstat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
@@ -48,6 +49,7 @@ import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
 
@@ -55,7 +57,9 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.security.acls.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -96,8 +100,8 @@ public class ExpedientMassivaController extends BaseController {
 	private Validator validator;
 	private DocumentService documentService;
 	
-	// Variables para la barra de progreso
-	private Map<Long, List<OperacioMassivaDto>> listExecucionsMassivesActivesByUser = orderOperacioMassivaDto(new ArrayList<OperacioMassivaDto>());
+//	// Variables para la barra de progreso
+//	private Map<Long, List<OperacioMassivaDto>> listExecucionsMassivesActivesByUser = orderOperacioMassivaDto(new ArrayList<OperacioMassivaDto>());
 	
 	@Autowired
 	public ExpedientMassivaController(
@@ -323,12 +327,12 @@ public class ExpedientMassivaController extends BaseController {
 						params[0] = docId;
 						params[1] = null;
 						params[2] = "delete";
-						dto.setParam2(serialize(params));
+						dto.setParam2(execucioMassivaService.serialize(params));
 						execucioMassivaService.crearExecucioMassiva(dto);
 						
-						// Recargamos la lista de ejecuciones masivas activas
-						listExecucionsMassivesActivesByUser = orderOperacioMassivaDto(execucioMassivaService.getExecucionsMassivesActivaByUser(request.getUserPrincipal().getName()));
-						getIdExecucionsMassivesActives(request);
+//						// Recargamos la lista de ejecuciones masivas activas
+//						listExecucionsMassivesActivesByUser = orderOperacioMassivaDto(execucioMassivaService.getExecucionsMassivesActivaByUser(request.getUserPrincipal().getName()));
+//						getIdExecucionsMassivesActives(request);
 						
 						removeParamsMassiuSessio(request);
 						
@@ -379,12 +383,12 @@ public class ExpedientMassivaController extends BaseController {
 						params[0] = docId;
 						params[1] = new Date();
 						params[2] = "generate";
-						dto.setParam2(serialize(params));
+						dto.setParam2(execucioMassivaService.serialize(params));
 						execucioMassivaService.crearExecucioMassiva(dto);
 
-						// Recargamos la lista de ejecuciones masivas activas
-						listExecucionsMassivesActivesByUser = orderOperacioMassivaDto(execucioMassivaService.getExecucionsMassivesActivaByUser(request.getUserPrincipal().getName()));
-						getIdExecucionsMassivesActives(request);
+//						// Recargamos la lista de ejecuciones masivas activas
+//						listExecucionsMassivesActivesByUser = orderOperacioMassivaDto(execucioMassivaService.getExecucionsMassivesActivaByUser(request.getUserPrincipal().getName()));
+//						getIdExecucionsMassivesActives(request);
 						
 						removeParamsMassiuSessio(request);
 						
@@ -476,12 +480,12 @@ public class ExpedientMassivaController extends BaseController {
 							params[3] = null;
 						}
 						
-						dto.setParam2(serialize(params));
+						dto.setParam2(execucioMassivaService.serialize(params));
 						execucioMassivaService.crearExecucioMassiva(dto);
 
-						// Recargamos la lista de ejecuciones masivas activas
-						listExecucionsMassivesActivesByUser = orderOperacioMassivaDto(execucioMassivaService.getExecucionsMassivesActivaByUser(request.getUserPrincipal().getName()));
-						getIdExecucionsMassivesActives(request);
+//						// Recargamos la lista de ejecuciones masivas activas
+//						listExecucionsMassivesActivesByUser = orderOperacioMassivaDto(execucioMassivaService.getExecucionsMassivesActivaByUser(request.getUserPrincipal().getName()));
+//						getIdExecucionsMassivesActives(request);
 						
 						removeParamsMassiuSessio(request);
 						
@@ -507,12 +511,12 @@ public class ExpedientMassivaController extends BaseController {
 							dto.setParam1(multipartFile.getOriginalFilename());
 							params[3] = command.getContingut();
 						}
-						dto.setParam2(serialize(params));
+						dto.setParam2(execucioMassivaService.serialize(params));
 						execucioMassivaService.crearExecucioMassiva(dto);
 
-						// Recargamos la lista de ejecuciones masivas activas
-						listExecucionsMassivesActivesByUser = orderOperacioMassivaDto(execucioMassivaService.getExecucionsMassivesActivaByUser(request.getUserPrincipal().getName()));
-						getIdExecucionsMassivesActives(request);
+//						// Recargamos la lista de ejecuciones masivas activas
+//						listExecucionsMassivesActivesByUser = orderOperacioMassivaDto(execucioMassivaService.getExecucionsMassivesActivaByUser(request.getUserPrincipal().getName()));
+//						getIdExecucionsMassivesActives(request);
 						
 						removeParamsMassiuSessio(request);
 						
@@ -632,12 +636,12 @@ public class ExpedientMassivaController extends BaseController {
 					dto.setExpedientIds(ids.subList(1, ids.size()));
 					dto.setExpedientTipusId(ids.get(0));
 					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_SCRIPT);
-					dto.setParam2(serialize(command.getScript()));
+					dto.setParam2(execucioMassivaService.serialize(command.getScript()));
 					execucioMassivaService.crearExecucioMassiva(dto);
 
-					// Recargamos la lista de ejecuciones masivas activas
-					listExecucionsMassivesActivesByUser = orderOperacioMassivaDto(execucioMassivaService.getExecucionsMassivesActivaByUser(request.getUserPrincipal().getName()));
-					getIdExecucionsMassivesActives(request);
+//					// Recargamos la lista de ejecuciones masivas activas
+//					listExecucionsMassivesActivesByUser = orderOperacioMassivaDto(execucioMassivaService.getExecucionsMassivesActivaByUser(request.getUserPrincipal().getName()));
+//					getIdExecucionsMassivesActives(request);
 					
 					missatgeInfo(request, getMessage("info.script.massiu.executat", new Object[] {numExp}));
 				} catch (Exception e) {
@@ -701,12 +705,12 @@ public class ExpedientMassivaController extends BaseController {
 					dto.setExpedientIds(ids.subList(1, ids.size()));
 					dto.setExpedientTipusId(ids.get(0));
 					dto.setTipus(ExecucioMassivaTipus.ATURAR_EXPEDIENT);
-					dto.setParam2(serialize(command.getMotiu()));
+					dto.setParam2(execucioMassivaService.serialize(command.getMotiu()));
 					execucioMassivaService.crearExecucioMassiva(dto);
 
-					// Recargamos la lista de ejecuciones masivas activas
-					listExecucionsMassivesActivesByUser = orderOperacioMassivaDto(execucioMassivaService.getExecucionsMassivesActivaByUser(request.getUserPrincipal().getName()));
-					getIdExecucionsMassivesActives(request);
+//					// Recargamos la lista de ejecuciones masivas activas
+//					listExecucionsMassivesActivesByUser = orderOperacioMassivaDto(execucioMassivaService.getExecucionsMassivesActivaByUser(request.getUserPrincipal().getName()));
+//					getIdExecucionsMassivesActives(request);
 					
 					missatgeInfo(request, getMessage("info.expedient.massiu.aturats", new Object[] {numExp}));
 				} catch (Exception e) {
@@ -809,6 +813,7 @@ public class ExpedientMassivaController extends BaseController {
 //						model.addAttribute("expedients", expedients);
 						model.addAttribute("tasca", tasca);
 			        	model.addAttribute("valorsPerSuggest", TascaFormUtil.getValorsPerSuggest(tasca, command));
+			        	missatgeError(request, getMessage("info.dada.massiu.error", new Object[] {var}));
 			        	return getRedirMassius(request);
 			        }
 					
@@ -834,12 +839,12 @@ public class ExpedientMassivaController extends BaseController {
 	    				if (valors == null)
 	    					valors = PropertyUtils.getSimpleProperty(command, var);
 	    				Object[] params = new Object[] {entorn.getId(), taskId, valors};
-	    				dto.setParam2(serialize(params));
+	    				dto.setParam2(execucioMassivaService.serialize(params));
 	    				execucioMassivaService.crearExecucioMassiva(dto);
 
-						// Recargamos la lista de ejecuciones masivas activas
-						listExecucionsMassivesActivesByUser = orderOperacioMassivaDto(execucioMassivaService.getExecucionsMassivesActivaByUser(request.getUserPrincipal().getName()));
-						getIdExecucionsMassivesActives(request);
+//						// Recargamos la lista de ejecuciones masivas activas
+//						listExecucionsMassivesActivesByUser = orderOperacioMassivaDto(execucioMassivaService.getExecucionsMassivesActivaByUser(request.getUserPrincipal().getName()));
+//						getIdExecucionsMassivesActives(request);
 						
 						removeParamsMassiuSessio(request);
 						
@@ -1135,12 +1140,12 @@ public class ExpedientMassivaController extends BaseController {
 					keys[i++] = subproces.getJbpmKey();
 				}
 				params[2] = keys;
-				dto.setParam2(serialize(params));
+				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
 				
-				// Recargamos la lista de ejecuciones masivas activas
-				listExecucionsMassivesActivesByUser = orderOperacioMassivaDto(execucioMassivaService.getExecucionsMassivesActivaByUser(request.getUserPrincipal().getName()));
-				getIdExecucionsMassivesActives(request);
+//				// Recargamos la lista de ejecuciones masivas activas
+//				listExecucionsMassivesActivesByUser = orderOperacioMassivaDto(execucioMassivaService.getExecucionsMassivesActivaByUser(request.getUserPrincipal().getName()));
+//				getIdExecucionsMassivesActives(request);
 				
 				missatgeInfo(request, getMessage("info.canvi.versio.massiu", new Object[] {numExp}));
 			} catch (Exception e) {
@@ -1189,12 +1194,12 @@ public class ExpedientMassivaController extends BaseController {
 				dto.setExpedientIds(ids.subList(1, ids.size()));
 				dto.setExpedientTipusId(ids.get(0));
 				dto.setTipus(ExecucioMassivaTipus.EXECUTAR_ACCIO);
-				dto.setParam2(serialize(command.getAccioId()));
+				dto.setParam2(execucioMassivaService.serialize(command.getAccioId()));
 				execucioMassivaService.crearExecucioMassiva(dto);
 				
-				// Recargamos la lista de ejecuciones masivas activas
-				listExecucionsMassivesActivesByUser = orderOperacioMassivaDto(execucioMassivaService.getExecucionsMassivesActivaByUser(request.getUserPrincipal().getName()));
-				getIdExecucionsMassivesActives(request);
+//				// Recargamos la lista de ejecuciones masivas activas
+//				listExecucionsMassivesActivesByUser = orderOperacioMassivaDto(execucioMassivaService.getExecucionsMassivesActivaByUser(request.getUserPrincipal().getName()));
+//				getIdExecucionsMassivesActives(request);
 				
 				missatgeInfo(request, getMessage("info.accio.massiu.executat", new Object[] {numExp}));
 			} catch (Exception e) {
@@ -1270,9 +1275,9 @@ public class ExpedientMassivaController extends BaseController {
 					dto.setTipus(ExecucioMassivaTipus.REINDEXAR);
 					execucioMassivaService.crearExecucioMassiva(dto);
 					
-					// Recargamos la lista de ejecuciones masivas activas
-					listExecucionsMassivesActivesByUser = orderOperacioMassivaDto(execucioMassivaService.getExecucionsMassivesActivaByUser(request.getUserPrincipal().getName()));
-					getIdExecucionsMassivesActives(request);
+//					// Recargamos la lista de ejecuciones masivas activas
+//					listExecucionsMassivesActivesByUser = orderOperacioMassivaDto(execucioMassivaService.getExecucionsMassivesActivaByUser(request.getUserPrincipal().getName()));
+//					getIdExecucionsMassivesActives(request);
 					
 					missatgeInfo(request, getMessage("info.accio.massiu.executat", new Object[] {numExp}));
 				} catch (Exception e) {
@@ -1499,6 +1504,24 @@ public class ExpedientMassivaController extends BaseController {
 		binder.registerCustomEditor(
 				Date.class,
 				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
+		binder.registerCustomEditor(
+				Long.class,
+				new CustomNumberEditor(Long.class, true));
+		binder.registerCustomEditor(
+				Double.class,
+				new CustomNumberEditor(Double.class, true));
+		binder.registerCustomEditor(
+				BigDecimal.class,
+				new CustomNumberEditor(
+						BigDecimal.class,
+						new DecimalFormat("#,###.00"),
+						true));
+		binder.registerCustomEditor(
+				Boolean.class,
+				new CustomBooleanEditor(false));
+		binder.registerCustomEditor(
+				Termini.class,
+				new TerminiTypeEditor());
 	}
 	
 	
@@ -1514,22 +1537,22 @@ public class ExpedientMassivaController extends BaseController {
 		}
 	}
 	
-	public byte[] serialize(Object obj) throws Exception{
-		byte[] bytes = null;
-		if (obj != null) {
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//		try {
-			ObjectOutputStream oos = new ObjectOutputStream(bos);
-			oos.writeObject(obj);
-			oos.flush();
-			oos.close();
-			bos.close();
-			bytes = bos.toByteArray();
-//		} catch (IOException ex) {
-//			// TODO: Handle the exception
-		}
-		return bytes;
-	}
+//	public byte[] serialize(Object obj) throws Exception{
+//		byte[] bytes = null;
+//		if (obj != null) {
+//			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+////		try {
+//			ObjectOutputStream oos = new ObjectOutputStream(bos);
+//			oos.writeObject(obj);
+//			oos.flush();
+//			oos.close();
+//			bos.close();
+//			bytes = bos.toByteArray();
+////		} catch (IOException ex) {
+////			// TODO: Handle the exception
+//		}
+//		return bytes;
+//	}
 
 //	public Object deserialize(byte[] bytes) {
 //		Object obj = null;
@@ -1550,98 +1573,18 @@ public class ExpedientMassivaController extends BaseController {
 	/**
 	 * Refresca la barra de progreso de las acciones masivas
 	 */
-	@SuppressWarnings("unchecked")
-	@RequestMapping(value="/expedient/refreshBarExpedientMassiveAct", method = RequestMethod.POST)
+	@RequestMapping(value="/expedient/refreshBarExpedientMassive", method = RequestMethod.POST)
 	@ResponseBody
 	public String refreshBarExpedientMassiveActVersionByTip(@RequestParam(value = "idExp", required = false) Long idExp,HttpServletRequest request,HttpServletResponse response,ModelMap model, HttpSession session)  throws ServletException, IOException {
-		int tareasTotales = 0, tareasPendientes = 0;
-		if (idExp == null && request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS_ACTIVES) != null) {
-			// Lista de IDs activos del usuario
-			for (List<OperacioMassivaDto> list : listExecucionsMassivesActivesByUser.values()) {
-				tareasTotales += list.size();
-			}
-			tareasPendientes = execucioMassivaService.getExecucionsMassivesActivaByIds((List<Long> ) request.getSession().getAttribute(VARIABLE_SESSIO_IDS_MASSIUS_ACTIVES)).size();
-		} else if (idExp != null){
-			// Tareas totales según expediente
-			for (List<OperacioMassivaDto> listOperacioMassivaDto : listExecucionsMassivesActivesByUser.values()) {
-				if (!listOperacioMassivaDto.isEmpty() && idExp.equals(listOperacioMassivaDto.get(0).getExecucioMassivaId())) {
-					tareasTotales += listOperacioMassivaDto.size();
-				}
-			}
-			tareasPendientes = execucioMassivaService.getExecucionsMassivesActivaById(idExp).size();
-		}
-		return String.valueOf((int) (100 - ((float) (tareasPendientes * 100) / (float) tareasTotales)));		
+		Long progres = execucioMassivaService.getProgresExecucioMassivaByUser(request.getUserPrincipal().getName());
+		if (progres == null) return "100";
+		return String.valueOf(progres);		
 	}
 	
-	/**
-	 * Ordena la lista de expedientes masivos según su expediente padre
-	 */
-	private Map<Long, List<OperacioMassivaDto>> orderOperacioMassivaDto(List<OperacioMassivaDto> lista) {
-		Map<Long, List<OperacioMassivaDto>> respuesta = new HashMap<Long, List<OperacioMassivaDto>>();
-		
-		for (OperacioMassivaDto oExecucioMassivaDto : lista) {
-			if (respuesta.containsKey(oExecucioMassivaDto.getId())) {
-				respuesta.get(oExecucioMassivaDto.getId()).add(oExecucioMassivaDto);
-			} else {
-				List<OperacioMassivaDto> lOperacioMassivaDto = new ArrayList<OperacioMassivaDto>();
-				lOperacioMassivaDto.add(oExecucioMassivaDto);
-				respuesta.put(oExecucioMassivaDto.getId(),lOperacioMassivaDto);
-			}
-		}
-		return respuesta;
-	}
-	
-	/**
-	 * Obtiene el texto aclarativo que se mostrará al lado de la barra de progreso de cada expediente
-	 */
-	private String getTextExecucioMassiva(OperacioMassivaDto oExecucioMassivaDto) {
-		String label = null;
-		
-		
-		ExecucioMassivaTipus tipus = oExecucioMassivaDto.getTipus();
-		if (tipus.equals(ExecucioMassivaTipus.EXECUTAR_TASCA)){
-			label = "EXECUTAR_TASCA";
-		} else if (tipus.equals(ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC)){
-			DefinicioProces definicioProces = execucioMassivaService.getDefinicioProces(oExecucioMassivaDto);
-			label = getMessage("expedient.massiva.actualitzar") + " (" + definicioProces.getJbpmKey() + " v." + definicioProces.getVersio() + ")";
-		} else if (tipus.equals(ExecucioMassivaTipus.EXECUTAR_SCRIPT)){
-			String script = execucioMassivaService.getOperacio(oExecucioMassivaDto);
-			label = getMessage("expedient.massiva.executarScriptMas") + " " + (script.length() > 20 ? script.substring(0,20) : script);
-		} else if (tipus.equals(ExecucioMassivaTipus.EXECUTAR_ACCIO)){
-			String accio = execucioMassivaService.getOperacio(oExecucioMassivaDto);
-			label = getMessage("expedient.massiva.accions") + " " + accio;
-		} else if (tipus.equals(ExecucioMassivaTipus.ATURAR_EXPEDIENT)){
-			String motiu = execucioMassivaService.getOperacio(oExecucioMassivaDto);
-			label = getMessage("expedient.massiva.aturar")+": "+ (motiu.length() > 20 ? motiu.substring(0,20) : motiu);
-		} else if (tipus.equals(ExecucioMassivaTipus.MODIFICAR_VARIABLE)){
-			label = getMessage("expedient.massiva.modificar_variables") + " " + oExecucioMassivaDto.getParam1();
-		} else if (tipus.equals(ExecucioMassivaTipus.MODIFICAR_DOCUMENT)){
-			label = getMessage("expedient.eines.modificar_documents");
-		} else if (tipus.equals(ExecucioMassivaTipus.REINDEXAR)){
-			label = getMessage("expedient.eines.reindexar.expedients");
-		} else {
-			label = tipus.name();
-		}
-		return label;
-	}
-
-	/**
-	 * Obtiene la lista de expedientes activos y sus textos asociados
-	 */
-	private void getIdExecucionsMassivesActives(HttpServletRequest request) {		
-		List<Long> identificadores = new ArrayList<Long>();
-		List<String> textos = new ArrayList<String>();
-		for (List<OperacioMassivaDto> listOperacioMassivaDto : listExecucionsMassivesActivesByUser.values()) {
-			for (OperacioMassivaDto operacioMassiva : listOperacioMassivaDto) {
-				if (!identificadores.contains(operacioMassiva.getExecucioMassivaId())) {
-					identificadores.add(operacioMassiva.getExecucioMassivaId());
-					textos.add(getTextExecucioMassiva(operacioMassiva));
-				}
-			}
-		}
-		
-		request.getSession().setAttribute(VARIABLE_SESSIO_IDS_MASSIUS_ACTIVES, identificadores);
-		request.getSession().setAttribute(VARIABLE_SESSIO_TEXTS_MASSIUS_ACTIVES, textos);
+	@RequestMapping(value="/expedient/refreshBarsExpedientMassive", method = RequestMethod.GET)
+	@ResponseBody
+	public String refreshBarsExpedientMassiveAct(@RequestParam(value = "results", required = false) Integer numResults, HttpServletRequest request,HttpServletResponse response,ModelMap model, HttpSession session)  throws ServletException, IOException {
+		return execucioMassivaService.getJsonExecucionsMassivesByUser(request.getUserPrincipal().getName(), numResults);
 	}
 	
 	/**
@@ -1689,87 +1632,6 @@ public class ExpedientMassivaController extends BaseController {
 	
 	/**
 	 * Refresca las barras de progreso de detalle de las acciones masivas
-	 */
-	@RequestMapping(value = "/expedient/refreshBarExpedientMassiveDetailAct", method = RequestMethod.POST)
-	@ResponseBody
-	public void refreshBarExpedientMassiveDetailAct(
-			@RequestParam(value = "idExp", required = false) Long idExp, 
-			HttpServletRequest request, 
-			HttpServletResponse response, 
-			ModelMap model, 
-			HttpSession session
-		) throws ServletException, IOException {
-		List<OperacioMassivaDto> listado = execucioMassivaService.getExecucionsMassivesById(idExp);
-		
-		// Generamos la tabla
-		response.setContentType("text/html");
-		PrintWriter out = response.getWriter();
-	    out.println(
-	    "<table class=\"displaytag selectable\" id=\"registre\">"+
-	    "<thead>"+
-	    "<tr>"+
-	    "<th>"+getMessage("expedient.llistat.expedient")+"</th>"+
-	    "<th>"+getMessage("expedient.consulta.estat")+"</th>"+
-	    "<th></th></tr></thead>"+
-	    "<tbody id=\"registrosDetalles\">");	    
-	    for (OperacioMassivaDto operac : listado) {
-	    	String titulo = operac.getExpedient().getNumeroDefault();
-	    	if (operac.getExpedient().getTitol() != null) {
-	    		titulo +=" "+operac.getExpedient().getTitol();
-	    	}
-	    	out.println(
-	    		"<tr class=\"odd\">"+
-				    "<td>"+titulo+"</td>"+
-				    "<td>"+getTextImgEstatusExecucioMassiva(operac)+"</td>"+
-			    	"<td>");
-	    	if (operac.getEstat().equals(ExecucioMassivaEstat.ESTAT_PENDENT)){
-	    		out.println("<img style=\"cursor: pointer\" onclick=\"cancelarExpedientMassiveAct('/helium/expedient/cancelExpedientMassiveAct.html','"+operac.getId()+"')\" border=\"0\" title=\""+getMessage("expedient.termini.estat.cancelat")+"\" alt=\""+getMessage("expedient.termini.estat.cancelat")+"\" src=\"/helium/img/delete.png\">");
-	    	} else if (operac.getEstat().equals(ExecucioMassivaEstat.ESTAT_ERROR) && (operac.getError() != null)){
-	    		out.println("<label style=\"cursor: pointer\" onclick=\"alert(escape('"+operac.getError()+"'))\">"+getMessage("expedient.termini.estat.error")+"</label>");
-	    	}
-	    	out.println("</td></tr>");
-	    }	    
-	    out.println("</tbody></table>");
-	}
-	
-	/**
-	 * Refresca las barras de progreso de detalle de las acciones masivas
-	 */
-	@RequestMapping(value = "/expedient/refreshRegistreExpedientMassiveDetailAct", method = RequestMethod.POST)
-	@ResponseBody
-	public String refreshRegistreExpedientMassiveDetailAct(
-			@RequestParam(value = "idExp", required = false) Long idExp, 
-			HttpServletRequest request, 
-			HttpServletResponse response, 
-			ModelMap model, 
-			HttpSession session
-		) throws ServletException, IOException {
-		List<OperacioMassivaDto> listado = execucioMassivaService.getExecucionsMassivesById(idExp);
-		
-		// Generamos la tabla
-		String salida = "";
-	    for (OperacioMassivaDto operac : listado) {
-	    	String titulo = operac.getExpedient().getNumeroDefault();
-	    	if (operac.getExpedient().getTitol() != null) {
-	    		titulo +=" "+operac.getExpedient().getTitol();
-	    	}
-	    	salida += (
-	    		"<tr class=\"odd\">"+
-				    "<td>"+titulo+"</td>"+
-				    "<td>"+getTextImgEstatusExecucioMassiva(operac)+"</td>"+
-			    	"<td>");
-	    	if (operac.getEstat().equals(ExecucioMassivaEstat.ESTAT_PENDENT)){
-	    		salida += ("<img style=\"cursor: pointer\" onclick=\"cancelarExpedientMassiveAct('/helium/expedient/cancelExpedientMassiveAct.html','"+operac.getId()+"')\" border=\"0\" title=\""+getMessage("expedient.termini.estat.cancelat")+"\" alt=\""+getMessage("expedient.termini.estat.cancelat")+"\" src=\"/helium/img/delete.png\">");
-	    	} else if (operac.getEstat().equals(ExecucioMassivaEstat.ESTAT_ERROR) && (operac.getError() != null)){
-	    		salida += ("<label style=\"cursor: pointer\" onclick=\"alert(escape('"+operac.getError()+"'))\">"+getMessage("expedient.termini.estat.error")+"</label>");
-	    	}
-	    	salida += ("</td></tr>");
-	    }
-	    return salida;
-	}
-	
-	/**
-	 * Refresca las barras de progreso de detalle de las acciones masivas
 	 * @throws Exception 
 	 */
 	@RequestMapping(value = "/expedient/cancelExpedientMassiveAct", method = RequestMethod.POST)
@@ -1781,28 +1643,7 @@ public class ExpedientMassivaController extends BaseController {
 			ModelMap model, 
 			HttpSession session
 		) throws Exception {
-		execucioMassivaService.actualitzarEstat(idExp,ExecucioMassivaEstat.ESTAT_CANCELAT);
-	}
-	
-	/**
-	 * Obtiene el texto aclarativo del estado de cada expediente
-	 */
-	private String getTextImgEstatusExecucioMassiva(OperacioMassivaDto oExecucioMassivaDto) {
-		String label = null;
-		
-		ExecucioMassivaEstat estado = oExecucioMassivaDto.getEstat();
-		if (estado.equals(ExecucioMassivaEstat.ESTAT_CANCELAT)){
-			label = "<img border=\"0\" title=\""+getMessage("expedient.termini.estat.cancelat")+"\" alt=\""+getMessage("expedient.termini.estat.cancelat")+"\" src=\"/helium/img/cross.png\"><label style=\"padding-left: 10px\">"+getMessage("expedient.termini.estat.cancelat")+"</label>";
-		} else if (estado.equals(ExecucioMassivaEstat.ESTAT_ERROR)){
-			label = "<img border=\"0\" title=\""+getMessage("expedient.termini.estat.error")+"\" alt=\""+getMessage("expedient.termini.estat.error")+"\" src=\"/helium/img/bullet_error.png\"><label style=\"padding-left: 10px\">"+getMessage("expedient.termini.estat.error")+"</label>";
-		} else if (estado.equals(ExecucioMassivaEstat.ESTAT_FINALITZAT)){
-			label = "<img border=\"0\" title=\""+getMessage("expedient.termini.estat.finalizat")+"\" alt=\""+getMessage("expedient.termini.estat.finalizat")+"\" src=\"/helium/img/tick.png\"><label style=\"padding-left: 10px\">"+getMessage("expedient.termini.estat.finalizat")+"</label>";
-		} else if (estado.equals(ExecucioMassivaEstat.ESTAT_PENDENT)){
-			label = "<img border=\"0\" title=\""+getMessage("expedient.termini.estat.pendent_solament")+"\" alt=\""+getMessage("expedient.termini.estat.pendent_solament")+"\" src=\"/helium/img/clock_red.png\"><label style=\"padding-left: 10px\">"+getMessage("expedient.termini.estat.pendent_solament")+"</label>";
-		} else {
-			label = "<img border=\"0\" title=\""+getMessage("expedient.termini.estat.process")+"\" alt=\""+getMessage("expedient.termini.estat.process")+"\" src=\"/helium/img/cog_go.png\"><label style=\"padding-left: 10px\">"+getMessage("expedient.termini.estat.process")+"</label>";
-		}
-		return label;
+		execucioMassivaService.cancelarExecucio(idExp);
 	}
 	
 	public static void setParamsMassiuSessio(HttpServletRequest request, String inici, String correu) {
@@ -1823,6 +1664,6 @@ public class ExpedientMassivaController extends BaseController {
 		return CLAU_SESSIO_PREFIX_INICI_MASS;
 	}
 	public static String getParamCorreuMassiuSessioKey() {
-		return CLAU_SESSIO_PREFIX_INICI_MASS;
+		return CLAU_SESSIO_PREFIX_CORREU_MASS;
 	}
 }
