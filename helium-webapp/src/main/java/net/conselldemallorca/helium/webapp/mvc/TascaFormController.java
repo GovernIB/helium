@@ -310,7 +310,7 @@ public class TascaFormController extends BaseController {
 				}
 				status.setComplete();
 				if (finalitzarAmbOutcome != null && !finalitzarAmbOutcome.equals("@#@")) {
-					return "redirect:/tasca/completar.html?id=" + id + "&pipella=form&submit=" + finalitzarAmbOutcome;
+					return "redirect:/tasca/completar.html?id=" + id + "&pipella=form&submit=" + submit;
 				} else {
 		        	if (iframe != null)
 		        		return "redirect:/tasca/formIframe.html?id=" + id + "&iframe=iframe";
