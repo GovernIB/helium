@@ -1044,28 +1044,29 @@ public class DissenyService {
 		List<Camp> camps = campDao.findAmbDefinicioProces(definicioProcesId);
 		List<CampExportacio> campsDto = new ArrayList<CampExportacio>();
 		for (Camp camp: camps) {
+			boolean necessitaDadesExternes = TipusCamp.SELECCIO.equals(camp.getTipus()) || TipusCamp.SUGGEST.equals(camp.getTipus());			
 			CampExportacio dto = new CampExportacio(
-					camp.getCodi(),
-					camp.getTipus(),
-					camp.getEtiqueta(),
-					camp.getObservacions(),
-					camp.getDominiId(),
-					camp.getDominiParams(),
-					camp.getDominiCampText(),
-					camp.getDominiCampValor(),
-					camp.getConsultaParams(),
-					camp.getConsultaCampText(),
-					camp.getConsultaCampValor(),
-					camp.isMultiple(),
-					camp.isOcult(),
-					camp.isDominiIntern(),
-					camp.isDominiCacheText(),
-					(camp.getEnumeracio() != null) ? camp.getEnumeracio().getCodi() : null,
-					(camp.getDomini() != null) ? camp.getDomini().getCodi() : null,
-					(camp.getAgrupacio() != null) ? camp.getAgrupacio().getCodi() : null,
-					camp.getJbpmAction(),
-					camp.getOrdre(),
-					camp.isIgnored());
+                    camp.getCodi(),
+                    camp.getTipus(),
+                    camp.getEtiqueta(),
+                    camp.getObservacions(),
+                    (necessitaDadesExternes) ? camp.getDominiId() : null,
+                    (necessitaDadesExternes) ? camp.getDominiParams() : null,
+                    (necessitaDadesExternes) ? camp.getDominiCampText() : null,
+                    (necessitaDadesExternes) ? camp.getDominiCampValor() : null,
+                    (necessitaDadesExternes) ? camp.getConsultaParams() : null,
+                    (necessitaDadesExternes) ? camp.getConsultaCampText() : null,
+                    (necessitaDadesExternes) ? camp.getConsultaCampValor() : null,
+                    camp.isMultiple(),
+                    camp.isOcult(),
+                    camp.isDominiIntern(),
+                    camp.isDominiCacheText(),
+                    (necessitaDadesExternes && camp.getEnumeracio() != null) ? camp.getEnumeracio().getCodi() : null,
+                    (necessitaDadesExternes && camp.getDomini() != null) ? camp.getDomini().getCodi() : null,
+                    (camp.getAgrupacio() != null) ? camp.getAgrupacio().getCodi() : null,
+                    camp.getJbpmAction(),
+                    camp.getOrdre(),
+                    camp.isIgnored());
 			
 			// Afegeix les validacions del camp
 			for (Validacio validacio: camp.getValidacions()) {
