@@ -47,3 +47,23 @@ SELECT
 FROM DUAL
 WHERE (SELECT COUNT(*) FROM HEL_VERSIO WHERE ORDRE = 260) = 0;
 
+--Nous indexos pel millorar el rendiment a la consulta dels camps de la definició de procés
+CREATE INDEX
+    HEL_CAMP_CODI_TIP
+ON
+    HEL_CAMP
+    (
+        CODI,
+        TIPUS
+    );
+
+CREATE INDEX
+    HEL_CAMP_COD_TIP_DP
+ON
+    HEL_CAMP
+    (
+        CODI,
+        TIPUS,
+        DEFINICIO_PROCES_ID
+    );
+

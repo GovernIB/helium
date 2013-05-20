@@ -46,3 +46,24 @@ select
     true script_executat,
     'now' data_execucio_script
 where (select count(*) from hel_versio where ordre = 260) = 0;
+
+--Nous indexos pel millorar el rendiment a la consulta dels camps de la definició de procés
+CREATE INDEX
+    HEL_CAMP_CODI_TIP
+ON
+    HEL_CAMP
+    (
+        CODI,
+        TIPUS
+    );
+
+CREATE INDEX
+    HEL_CAMP_COD_TIP_DP
+ON
+    HEL_CAMP
+    (
+        CODI,
+        TIPUS,
+        DEFINICIO_PROCES_ID
+    );
+
