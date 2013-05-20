@@ -24,7 +24,16 @@ function canviTipus(input) {
 	} else if (input.value == "ACCIO") {
 		enable("camps_accio");
 		disable("camps_consulta");
+	} else if(input.value!="SELECCIO" && input.value!="SUGGEST"){
+		$("#enumeracio0").val("");
+		$("#enumeracio0").trigger('click');
+		disable("camps_accio");
+		disable("camps_consulta");
+		
+		
 	} else {
+		$("#enumeracio0").val(null);
+		$("#enumeracio0").trigger('click');
 		disable("camps_accio");
 		disable("camps_consulta");
 	}
