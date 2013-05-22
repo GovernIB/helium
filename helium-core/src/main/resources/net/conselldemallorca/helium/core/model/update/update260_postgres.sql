@@ -9,6 +9,7 @@ CREATE TABLE hel_exec_massiva (
 	tipus INTEGER NOT NULL,
 	usuari CHARACTER VARYING(64) NOT NULL,
 	expedient_tipus_id BIGINT NOT NULL,
+	entorn BIGINT,
 	PRIMARY KEY (id),
 	CONSTRAINT hel_exptipus_exemas_fk FOREIGN KEY (expedient_tipus_id) REFERENCES public.hel_expedient_tipus (id)
 );
