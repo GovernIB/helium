@@ -339,6 +339,7 @@ public class ExpedientMassivaController extends BaseController {
 						missatgeInfo(request, getMessage("info.document.massiu.esborrar", new Object[] {numExp}));
 					} catch (Exception e) {
 						missatgeError(request, getMessage("error.no.massiu"));
+						logger.error("Error al programar les accions massives", e);
 					}
 				} else {
 					missatgeError(request, getMessage("error.permisos.modificar.expedient"));
@@ -395,6 +396,7 @@ public class ExpedientMassivaController extends BaseController {
 						missatgeInfo(request, getMessage("info.document.massiu.generar", new Object[] {numExp}));
 					} catch (Exception e) {
 						missatgeError(request, getMessage("error.no.massiu"));
+						logger.error("Error al programar les accions massives", e);
 					}
 				} else {
 					missatgeError(request, getMessage("info.massiu.permisos.no"));
@@ -491,6 +493,7 @@ public class ExpedientMassivaController extends BaseController {
 						
 					} catch(Exception ex) {
 			        	missatgeError(request, getMessage("error.no.massiu"));
+			        	logger.error("Error al programar les accions massives", ex);
 			        }
 				} else if ("adjunt".equals(submit)) {
 					new DocumentAdjuntCrearValidator().validate(command, result);
@@ -522,6 +525,7 @@ public class ExpedientMassivaController extends BaseController {
 						
 			        } catch(Exception ex) {
 			        	missatgeError(request, getMessage("error.no.massiu"));
+			        	logger.error("Error al programar les accions massives", ex);
 			        }
 				} else if ("cancel".equals(submit)) {
 					return getRedirMassius(request);
@@ -646,6 +650,7 @@ public class ExpedientMassivaController extends BaseController {
 					missatgeInfo(request, getMessage("info.script.massiu.executat", new Object[] {numExp}));
 				} catch (Exception e) {
 					missatgeError(request, getMessage("error.no.massiu"));
+					logger.error("Error al programar les accions massives", e);
 				}
 			} else {
 				missatgeError(request, getMessage("info.massiu.permisos.no"));
@@ -715,6 +720,7 @@ public class ExpedientMassivaController extends BaseController {
 					missatgeInfo(request, getMessage("info.expedient.massiu.aturats", new Object[] {numExp}));
 				} catch (Exception e) {
 					missatgeError(request, getMessage("error.no.massiu"));
+					logger.error("Error al programar les accions massives", e);
 				}
 			} else {
 				missatgeError(request, getMessage("info.massiu.permisos.no"));
@@ -852,6 +858,7 @@ public class ExpedientMassivaController extends BaseController {
 	    			} catch (Exception e) {
 	    				ExpedientMassivaRegistreController.removeRegistreMassiuSessio(request, id, var);
 	    				missatgeError(request, getMessage("info.dada.massiu.error", new Object[] {var}), e.getLocalizedMessage());
+	    				logger.error("Error al programar les accions massives", e);
 	    				return getRedirMassius(request);
 	    			}
 	    			
@@ -1150,6 +1157,7 @@ public class ExpedientMassivaController extends BaseController {
 				missatgeInfo(request, getMessage("info.canvi.versio.massiu", new Object[] {numExp}));
 			} catch (Exception e) {
 				missatgeError(request, getMessage("error.no.massiu"));
+				logger.error("Error al programar les accions massives", e);
 			}
 			return getRedirMassius(request);
 		} else {
@@ -1204,6 +1212,7 @@ public class ExpedientMassivaController extends BaseController {
 				missatgeInfo(request, getMessage("info.accio.massiu.executat", new Object[] {numExp}));
 			} catch (Exception e) {
 				missatgeError(request, getMessage("error.no.massiu"));
+				logger.error("Error al programar les accions massives", e);
 			} 
 			
 //			List<ExpedientDto> expedients = getExpedientsMassius(
@@ -1282,6 +1291,7 @@ public class ExpedientMassivaController extends BaseController {
 					missatgeInfo(request, getMessage("info.accio.massiu.executat", new Object[] {numExp}));
 				} catch (Exception e) {
 					missatgeError(request, getMessage("error.no.massiu"));
+					logger.error("Error al programar les accions massives", e);
 				}
 			} else {
 				missatgeError(request, getMessage("info.massiu.permisos.no"));
