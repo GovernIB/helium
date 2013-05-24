@@ -286,8 +286,18 @@ function simularClick(valor,xec){
 				</c:import>
 			</c:if>
 		</div>
+		<div class="ctrlHolder">
+		<c:set var="opp"><c:if test='${empty objectsPerPage}'>20</c:if><c:if test='${not empty objectsPerPage}'>${objectsPerPage}</c:if></c:set>
+		<select id="objectsPerPage" name="objectsPerPage" class="objectsPerPage<c:if test='${not empty llistat}'> opp-llista</c:if>">
+			<option value="10"<c:if test='${opp == "10"}'> selected="selected"</c:if>>10</option>
+			<option value="20"<c:if test='${opp == "20"}'> selected="selected"</c:if>>20</option>
+			<option value="50"<c:if test='${opp == "50"}'> selected="selected"</c:if>>50</option>
+			<option value="100"<c:if test='${opp == "100"}'> selected="selected"</c:if>>100</option>
+		</select>
+		<label for="objectsPerPage" class="objectsPerPage<c:if test='${not empty llistat}'> opp-llista</c:if>"><fmt:message key="comuns.objectsPerPage"/></label>
+	</div>
 	</form:form><div style="clear:both"></div><br/>
-
+			
 	<c:if test="${not empty sessionCommand}">
 		<c:if test="${globalProperties['app.georef.actiu'] && globalProperties['app.gis.plugin.actiu']}">
 			<div>
@@ -321,6 +331,7 @@ function simularClick(valor,xec){
 			</c:if>
 		</c:if>
 		<br>
+		
 		
 		
 		

@@ -122,6 +122,7 @@ public class ExpedientConsultaController extends BaseController {
 				estats = new ArrayList<Estat>();
 			afegirEstatsInicialIFinal(estats);
 			model.addAttribute("estats", estats);
+			model.addAttribute("objectsPerPage", objectsPerPage);
 			return "expedient/consulta";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
@@ -133,6 +134,7 @@ public class ExpedientConsultaController extends BaseController {
 			HttpServletRequest request,
 			HttpSession session,
 			@RequestParam(value = "submit", required = false) String submit,
+			@RequestParam(value = "objectsPerPage", required = false) String objectsPerPage,
 			@ModelAttribute("command") ExpedientConsultaGeneralCommand command,
 			BindingResult result,
 			SessionStatus status,
@@ -148,15 +150,15 @@ public class ExpedientConsultaController extends BaseController {
 			if (command.isMassivaActiu() && command.getExpedientTipus() == null) {
 				command.setMassivaActiu(false);
 				missatgeError(request, getMessage("error.no.tiexep.selec"));
-				return "redirect:/expedient/consulta.html";
+				return "redirect:/expedient/consulta.html?objectsPerPage=" + objectsPerPage;
 			}
 			if ("submit".equals(submit) || "massiva".equals(submit) || "nomassiva".equals(submit)) {
 				session.setAttribute(VARIABLE_SESSIO_COMMAND, command);
-				return "redirect:/expedient/consulta.html";
+				return "redirect:/expedient/consulta.html?objectsPerPage=" + objectsPerPage;
 			} else if ("clean".equals(submit)) {
 				session.removeAttribute(VARIABLE_SESSIO_COMMAND);
 				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS);
-				return "redirect:/expedient/consulta.html";
+				return "redirect:/expedient/consulta.html?objectsPerPage=" + objectsPerPage;
 			}
 			return "expedient/consulta";
 		} else {

@@ -273,3 +273,14 @@ body.loading {
 body.loading .wait {
     display: block;
 }
+.objectsPerPage {
+	float:	right !important;
+}
+select.objectsPerPage {
+	width:	60px !important;
+	margin-left: 10px !important;
+}
+.opp-llista {
+	position: relative;
+	top: 100px;
+}

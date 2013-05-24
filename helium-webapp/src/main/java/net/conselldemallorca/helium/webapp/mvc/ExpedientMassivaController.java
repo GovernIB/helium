@@ -1043,7 +1043,7 @@ public class ExpedientMassivaController extends BaseController {
 			
 			// Accions per a executar
 			if (definicioProces != null) {
-				List <Accio> accions = dissenyService.findAccionsAmbDefinicioProces(definicioProces.getId());
+				List <Accio> accions = dissenyService.findAccionsVisiblesAmbDefinicioProces(definicioProces.getId());
 				model.addAttribute("accions", accions); //findAccionsJbpmOrdenades(definicioProces.getId()));
 			}
 			
@@ -1056,7 +1056,7 @@ public class ExpedientMassivaController extends BaseController {
 			model.addAttribute("instanciaProces", instanciaProces);
 			
 			// Variables
-			Set<Camp> variables = new HashSet<Camp>();
+			List<Camp> variables = new ArrayList<Camp>();
 			if (instanciaProces != null) {
 				for (Camp camp : instanciaProces.getCamps()){
 					if (camp.getTipus() != TipusCamp.ACCIO) {
@@ -1064,8 +1064,10 @@ public class ExpedientMassivaController extends BaseController {
 					}
 				}
 			}
+			Collections.sort(variables, new ComparadorCampCodi());
 			model.addAttribute("variables", variables);
 			List<Document> documents = instanciaProces.getDocuments();
+			Collections.sort(documents, new ComparadorDocument());
 			model.addAttribute("documents", documents);
 //			List<DocumentDto> docsAdjunts = new ArrayList<DocumentDto>(); 
 //			
@@ -1083,19 +1085,25 @@ public class ExpedientMassivaController extends BaseController {
 //			}
 //			model.addAttribute("docsAdjunts", docsAdjunts);
 			
-			Set<Camp> camp = instanciaProces.getCamps();
-			List<Camp> llistaCamps = new ArrayList<Camp>();
-			for(Camp c: camp){
-				llistaCamps.add(c);
-			}
-			Collections.sort(llistaCamps, new ComparadorCampCodi());
-			model.addAttribute("camps",	llistaCamps);
+//			Set<Camp> camp = instanciaProces.getCamps();
+//			List<Camp> llistaCamps = new ArrayList<Camp>();
+//			for(Camp c: camp){
+//				llistaCamps.add(c);
+//			}
+//			Collections.sort(llistaCamps, new ComparadorCampCodi());
+//			model.addAttribute("camps",	llistaCamps);
 		}
 	}
 
 	public class ComparadorCampCodi implements Comparator<Camp> {
 	    public int compare(Camp c1, Camp c2) {
 	        return c1.getCodi().compareToIgnoreCase(c2.getCodi());
+	    }
+	}
+	
+	public class ComparadorDocument implements Comparator<Document> {
+	    public int compare(Document d1, Document d2) {
+	        return d1.getNom().compareToIgnoreCase(d2.getNom());
 	    }
 	}
 	

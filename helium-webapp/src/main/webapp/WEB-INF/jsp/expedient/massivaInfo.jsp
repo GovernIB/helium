@@ -270,7 +270,7 @@ $(document).ready(function(){
 		</div>
 		<div class="inlineLabels uniForm col last">
 			<c:set var="hiHaAccions" value="${false}"/>
-			<c:if test="${not empty instanciaProces.definicioProces.accions}"><c:set var="hiHaAccions" value="${fn:length(instanciaProces.definicioProces.accions) > 0}"/></c:if>
+			<c:if test="${not empty accions}"><c:set var="hiHaAccions" value="${fn:length(accions) > 0}"/></c:if>
 			
 			<div class="ctrlHolder" style="height:45px;">
 				<label for="correu"><fmt:message key="expedient.massiva.correu"/></label>
@@ -280,7 +280,7 @@ $(document).ready(function(){
 			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key="expedient.massiva.accions"/></h3>
 			<c:if test="${hiHaAccions}">
 				<c:set var="hiHaAccionsPubliques" value="${false}"/>
-				<c:forEach var="accio" items="${instanciaProces.definicioProces.accions}">
+				<c:forEach var="accio" items="${accions}">
 					<c:if test="${not accio.oculta}">
 						<c:set var="hiHaAccions" value="${true}"/>
 						<c:if test="${accio.publica}"><c:set var="hiHaAccionsPubliques" value="${true}"/></c:if>
@@ -293,11 +293,11 @@ $(document).ready(function(){
 						<input type="hidden" id="acc_inici" name="inici">
 						<input type="hidden" id="acc_correu" name="correu">
 						<div class="inlineLabels">
-							<c:set var="accio" value="${instanciaProces.definicioProces.accions}" scope="request"/>
+<%-- 							<c:set var="accio" value="${instanciaProces.definicioProces.accions}" scope="request"/> --%>
 							<c:import url="../common/formElement.jsp">
 								<c:param name="property" value="accioId"/>
 								<c:param name="type" value="select"/>
-								<c:param name="items" value="accio"/>
+								<c:param name="items" value="accions"/>
 								<c:param name="itemLabel" value="nom"/>
 								<c:param name="itemValue" value="codi"/>
 								<c:param name="label"><fmt:message key="expedient.massiva.exec_accio"/></c:param>

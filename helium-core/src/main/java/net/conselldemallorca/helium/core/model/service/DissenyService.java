@@ -2046,6 +2046,9 @@ public class DissenyService {
 	public List<Accio> findAccionsAmbDefinicioProces(Long definicioProcesId) {
 		return accioDao.findAmbDefinicioProces(definicioProcesId);
 	}
+	public List<Accio> findAccionsVisiblesAmbDefinicioProces(Long definicioProcesId) {
+		return accioDao.findVisiblesAmbDefinicioProces(definicioProcesId);
+	}
 	public Accio findAccioAmbDefinicioProcesICodi(Long definicioProcesId, String codi) {
 		return accioDao.findAmbDefinicioProcesICodi(definicioProcesId, codi);
 	}

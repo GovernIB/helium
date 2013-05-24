@@ -28,8 +28,24 @@ public class AccioDao extends HibernateGenericDao<Accio, Long> {
 						"from " +
 						"    Accio a " +
 						"where " +
-						"    a.definicioProces.id=?").
+						"    a.definicioProces.id=? " +
+						"order by a.nom").
 				setLong(0, definicioProcesId).
+				list();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Accio> findVisiblesAmbDefinicioProces(Long definicioProcesId) {
+		return (List<Accio>)getSession().
+				createQuery(
+						"from " +
+						"    Accio a " +
+						"where " +
+						"    a.definicioProces.id=? " +
+						"and a.oculta =?" +
+						"order by a.nom").
+				setLong(0, definicioProcesId).
+				setBoolean(1, Boolean.FALSE).
 				list();
 	}
 
@@ -41,7 +57,8 @@ public class AccioDao extends HibernateGenericDao<Accio, Long> {
 						"    Accio a " +
 						"where " +
 						"    a.definicioProces.id=?" +
-						"and a.codi=?").
+						"and a.codi=? " +
+						"order by a.nom").
 				setLong(0, definicioProcesId).
 				setString(1, codi).
 				list();

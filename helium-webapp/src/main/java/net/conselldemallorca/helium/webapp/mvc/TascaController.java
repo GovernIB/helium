@@ -53,7 +53,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class TascaController extends BaseController {
 
 	public static final String SESSIO_TRAMITACIO_MASSIVA = "HEL_TRAM_MASS";
-
+	public static final String VARIABLE_SESSIO_IDS_GRUP = "tasquesGrupIdsMassius";
+	
 	private String TAG_FORM_INICI = "<!--helium:form-inici-->";
 	private String TAG_FORM_FI = "<!--helium:form-fi-->";
 
@@ -290,6 +291,66 @@ public class TascaController extends BaseController {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/tasca/agafarMassiu")
+	public String agafarMassiu(
+			HttpServletRequest request,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			List<Long> ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_GRUP);
+			Integer tasquesOK = 0;
+			String tasquesKO = "";
+			for (Long id: ids) {
+				String tascaId = id.toString();
+				TascaDto tasca = tascaService.getByIdSenseComprovacio(tascaId);
+				try {
+					tascaService.agafar(entorn.getId(), tascaId);
+					tasquesOK++;
+				} catch (Exception ex) {
+		        	logger.error("No s'ha pogut agafar la tasca " + tasca.getNom(), ex);
+		        	tasquesKO += tasca.getNom() + " (" + tasca.getExpedient().getTitol() + "),";
+				}
+			}
+			if (tasquesOK > 0) {
+				missatgeInfo(request, getMessage("tasca.gllistat.agafar.OK", new Object[] {tasquesOK}));
+			}
+			if (tasquesKO.length() > 0) {
+				missatgeError(request, getMessage("tasca.gllistat.agafar.KO") + " " + tasquesKO.substring(0, tasquesKO.length() - 1));
+			}
+			request.getSession().setAttribute(VARIABLE_SESSIO_IDS_GRUP, new ArrayList<Long>());
+			return "redirect:/tasca/grupLlistat.html";
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/tasca/grupIds")
+	public String tascaGrupMassiva(
+			HttpServletRequest request,
+			@RequestParam(value = "tascaId", required = true) Long tascaId,
+			@RequestParam(value = "checked", required = true) boolean checked,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			List<Long> ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_GRUP);
+			if (ids == null) {
+				ids = new ArrayList<Long>();
+				request.getSession().setAttribute(VARIABLE_SESSIO_IDS_GRUP, ids);
+			}
+			if (checked) {
+				ids.add(tascaId);
+			} else {
+				ids.remove(tascaId);
+				if (ids.size() == 1)
+					ids.clear();
+			}
+		}
+		return null;
 	}
 
 	@RequestMapping(value = "/tasca/completar")
