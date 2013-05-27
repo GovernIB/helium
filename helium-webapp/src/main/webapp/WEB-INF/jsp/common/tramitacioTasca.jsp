@@ -11,34 +11,36 @@
 </c:choose>
 <c:choose>
 	<c:when test="${param.pipella == 'form' and not tasca.validada}">
-		<script type="text/javascript">
-			// <![CDATA[
-			function confirmarFinalitzar(e) {
-				var e = e || window.event;
-				e.cancelBubble = true;
-				if (e.stopPropagation) e.stopPropagation();
-				<c:choose>
-					<c:when test="${not empty missatgeAlertaFinalitzar}">
-						alert('${missatgeAlertaFinalitzar}');
-					</c:when>
-					<c:otherwise>
-						if (confirm("<fmt:message key="common.tram.confirmacio"/>")) {
-							$('#formFinalitzar').attr('action','form.html');
-							$('#command button[value=validate]').click();
-						}
-					</c:otherwise>
-				</c:choose>
-				return false;
-			}
-			<c:if test="${empty missatgeAlertaFinalitzar}">
-			$(document).ready(function() {
-				$('#formFinalitzar button').click(function() {
-					$('#helFinalitzarAmbOutcome').val(this.value);
-				});
-			});
-			</c:if>
-			// ]]>
-		</script>
+<script type="text/javascript">
+	// <![CDATA[
+	function confirmarFinalitzar(e) {
+		var e = e || window.event;
+		e.cancelBubble = true;
+		if (e.stopPropagation) e.stopPropagation();
+		<c:choose>
+			<c:when test="${not empty missatgeAlertaFinalitzar}">
+				alert('${missatgeAlertaFinalitzar}');
+			</c:when>
+			<c:otherwise>
+				if (confirm("<fmt:message key="common.tram.confirmacio"/>")) {
+					$('#formFinalitzar').attr('action','form.html');
+					$('#command button[name=submit]').remove();
+					$('#command').append("<input type=\"hidden\" name=\"submitar\" value=\"validate\"/>");
+					$('#command').submit();
+				}
+			</c:otherwise>
+		</c:choose>
+		return false;
+	}
+	<c:if test="${empty missatgeAlertaFinalitzar}">
+	$(document).ready(function() {
+		$('#formFinalitzar button').click(function() {
+			$('#helFinalitzarAmbOutcome').val(this.value);
+		});
+	});
+	</c:if>
+	// ]]>
+</script>
 	</c:when>
 	<c:otherwise>
 <script type="text/javascript">

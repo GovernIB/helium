@@ -87,7 +87,8 @@ function initSelect(selectId, valor, url, extraParams, dominiParams) {
 			})
 			.fail(function( jqxhr, textStatus, error ) {
 				var err = textStatus + ', ' + error;
-				console.log( "Request Failed: " + err);
+				console.log( "Request failed: " + err);
+				console.log( "Request extra params: " + JSON.stringify(extraParams));
 			});
 }
 
