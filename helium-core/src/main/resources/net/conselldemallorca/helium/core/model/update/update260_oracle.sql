@@ -29,6 +29,10 @@ CREATE TABLE HEL_EXEC_MASEXP (
 	CONSTRAINT HEL_EXECMAS_EXEMASEX_FK FOREIGN KEY (EXECMAS_ID) REFERENCES HEL_EXEC_MASSIVA (ID)
 );
 
+--Nous indexos pel millorar el rendiment a la consulta dels camps de la definició de procés
+CREATE INDEX HEL_CAMP_CODI_TIP ON HEL_CAMP (CODI, TIPUS);
+CREATE INDEX HEL_CAMP_COD_TIP_DP ON HEL_CAMP (CODI, TIPUS, DEFINICIO_PROCES_ID);
+
 -- Actualització a la nova versió --
 INSERT INTO HEL_VERSIO (
     ID,
@@ -48,24 +52,3 @@ SELECT
     SYSDATE DATA_EXECUCIO_SCRIPT
 FROM DUAL
 WHERE (SELECT COUNT(*) FROM HEL_VERSIO WHERE ORDRE = 260) = 0;
-
---Nous indexos pel millorar el rendiment a la consulta dels camps de la definició de procés
-CREATE INDEX
-    HEL_CAMP_CODI_TIP
-ON
-    HEL_CAMP
-    (
-        CODI,
-        TIPUS
-    );
-
-CREATE INDEX
-    HEL_CAMP_COD_TIP_DP
-ON
-    HEL_CAMP
-    (
-        CODI,
-        TIPUS,
-        DEFINICIO_PROCES_ID
-    );
-

@@ -4,7 +4,10 @@ import java.util.Collection;
 import java.util.Date;
 
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
+import net.conselldemallorca.helium.core.model.service.TascaService;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jbpm.JbpmConfiguration;
 import org.jbpm.job.Job;
 import org.jbpm.job.executor.JobExecutor;
@@ -22,6 +25,8 @@ import org.springframework.transaction.support.TransactionTemplate;
  * @author Joram Barrez
  */
 public class SpringJobExecutorThread extends JobExecutorThread {
+	
+	private static final Log logger = LogFactory.getLog(TascaService.class);
 	
 	private ExpedientService expedientService;
 	
@@ -61,15 +66,25 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 			
 			public Object doInTransaction(TransactionStatus transactionStatus) {
 				SpringJobExecutorThread.super.executeJob(job);
-				try{
-					expedientService.luceneUpdateIndexExpedient(String.valueOf(job.getProcessInstance().getId()));
-				} catch (Exception e) {
-					System.out.println("TIMER-LUCENE: Error al indexar l'expedient amb ProcessInsatnce num. " + job.getProcessInstance().getId());
-				}
 				return null;
 			}
 			
 		});
+		try{
+			expedientService.luceneUpdateIndexExpedient(String.valueOf(job.getProcessInstance().getId()));
+		} catch (Exception e) {
+			logger.error("TIMER-LUCENE: Error al indexar l'expedient ProcessInstance num. " + job.getProcessInstance().getId());
+//			ProcessInstance pi = job.getProcessInstance();
+//			ExpedientDto exp = expedientService.findExpedientAmbProcessInstanceId(String.valueOf(pi.getId()));
+//			System.out.println("TIMER-LUCENE: Error al indexar l'expedient:");
+//			System.out.println("\t - ProcessInstance num. " + pi.getId());
+//			System.out.println("\t - Número d'expedient " + exp.getNumero());
+//			System.out.println("\t - Títol d'expedient " + exp.getTitol());
+//			System.out.println("\t - Tipus d'expedient " + exp.getTipus().getNom());
+//			StringWriter out = new StringWriter();
+//			e.printStackTrace(new PrintWriter(out));
+//			System.out.println(out.toString());
+		}
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })

@@ -280,7 +280,15 @@ select.objectsPerPage {
 	width:	60px !important;
 	margin-left: 10px !important;
 }
-.opp-llista {
+.opp-llista-gis {
 	position: relative;
 	top: 100px;
+}
+.opp-llista-mas {
+	position: relative;
+	top: 90px;
+}
+.opp-llista {
+	position: relative;
+	top: 66px;
 }

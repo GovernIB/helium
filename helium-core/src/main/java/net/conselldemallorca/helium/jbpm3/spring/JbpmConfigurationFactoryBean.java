@@ -84,16 +84,16 @@ public class JbpmConfigurationFactoryBean implements FactoryBean, InitializingBe
 			}
 		}
 		
+		LOG.info("Starting accions massives ...");
+		getMassiuExecutor().start();
+		LOG.info("Accions massives started.");
+		
 		// Start job executor if needed
 		if (startJobExecutor) {
 			LOG.info("Starting job executor ...");
 			jbpmConfiguration.startJobExecutor();
 			LOG.info("Job executor started.");
 		}
-		
-		LOG.info("Starting accions massives ...");
-		getMassiuExecutor().start();
-		LOG.info("Accions massives started.");
 	}
 
 	public synchronized SpringMassiuExecutor getMassiuExecutor() {

@@ -14,7 +14,6 @@ import net.conselldemallorca.helium.core.util.GlobalProperties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jbpm.job.executor.JobExecutorThread;
 
 public class SpringMassiuExecutor implements Serializable {
 
@@ -132,8 +131,8 @@ public class SpringMassiuExecutor implements Serializable {
 
 	protected synchronized Thread stopThread() {
 		String threadName = getLastThreadName();
-		JobExecutorThread thread = (JobExecutorThread) threads.remove(threadName);
-		log.debug("removing job executor thread '" + threadName + "'");
+		SpringMassiuExecutorThread thread = (SpringMassiuExecutorThread) threads.remove(threadName);
+		log.debug("removing thread d'execució masiva '" + threadName + "'");
 		thread.deactivate();
 		return thread;
 	}
