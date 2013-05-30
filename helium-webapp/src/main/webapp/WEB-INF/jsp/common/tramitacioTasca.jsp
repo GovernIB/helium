@@ -74,6 +74,7 @@ function confirmarFinalitzar(e) {
 			<c:if test="${not empty param.pipella}"><input type="hidden" name="pipella" value="${param.pipella}"/></c:if>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="type" value="buttons"/>
+				<c:param name="onclick" value="$('#helFinalitzarAmbOutcome').val(this.value);"/>
 				<c:param name="values">${outcomes}</c:param>
 				<c:param name="titles">${outcomes}</c:param>
 			</c:import>

@@ -9,6 +9,7 @@ import net.conselldemallorca.helium.core.model.dao.DaoProxy;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 
 import org.jbpm.context.exe.ContextInstance;
@@ -51,7 +52,7 @@ public class DefaultControllerHandler implements TaskControllerHandler {
 			ContextInstance contextInstance,
 			Token token) {
 		for (CampTasca camp: getCampsPerTaskInstance(taskInstance)) {
-			if (camp.isWriteTo()) {
+			if (camp.isWriteTo() && !camp.getCamp().getTipus().equals(TipusCamp.ACCIO)) {
 				String codi = camp.getCamp().getCodi();
 				Object valor = taskInstance.getVariableLocally(codi);
 				contextInstance.setVariable(

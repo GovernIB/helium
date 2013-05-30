@@ -95,7 +95,7 @@ public class TascaFormUtil {
 			boolean perFiltre) {
     	Map<String, Object> resposta = new HashMap<String, Object>();
     	for (Camp camp: camps) {
-    		if (!camp.getTipus().equals(TipusCamp.REGISTRE)) {
+    		if (!camp.getTipus().equals(TipusCamp.REGISTRE) && !camp.getTipus().equals(TipusCamp.ACCIO)) {
 	    		try {
 		    		String campCodi = getCampCodi(camp, perFiltre, true);
 		    		Object valor = PropertyUtils.getSimpleProperty(command, campCodi);
