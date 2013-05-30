@@ -2745,10 +2745,10 @@ public class DissenyService {
 					nova.setFormExtern(vella.getFormExtern());
 					nova.setTramitacioMassiva(vella.isTramitacioMassiva());
 					// Propaga els camps de la tasca
-					int indexCamp = nova.getCamps().size();
-					List<CampTasca> campsNous = new ArrayList<CampTasca>();
+					int indexCamp = -1;
 					List<CampTascaExportacio> llistaCampsExportacio = new ArrayList<CampTascaExportacio>();
 					llistaCampsExportacio.addAll(vella.getCamps());
+					// Ordena la llista de camps tasca de l'exportació origen
 					Collections.sort(
 							llistaCampsExportacio,
 							new Comparator<CampTascaExportacio>() {
@@ -2759,16 +2759,24 @@ public class DissenyService {
 								}
 								
 							});
+					// Actualitza els camps ja existents
+					for (CampTasca campTasca: nova.getCamps()) {
+						for (CampTascaExportacio cte: llistaCampsExportacio) {
+							if (campTasca.getCamp().getCodi().equals(cte.getCampCodi())) {
+								campTasca.setReadFrom(cte.isReadFrom());
+								campTasca.setWriteTo(cte.isWriteTo());
+								campTasca.setRequired(cte.isRequired());
+								campTasca.setReadOnly(cte.isReadOnly());
+								indexCamp = campTasca.getOrder();
+							}
+						}
+					}
+					indexCamp++; // Incrementam l'index per a no repetir l'ordre
+					// Inserta els camps de l'exportació que no existeixin
 					for (CampTascaExportacio campTasca: llistaCampsExportacio) {
 						boolean trobat = false;
 						for (CampTasca ct: nova.getCamps()) {
 							if (ct.getCamp().getCodi().equals(campTasca.getCampCodi())) {
-								ct.setReadFrom(campTasca.isReadFrom());
-								ct.setWriteTo(campTasca.isWriteTo());
-								ct.setRequired(campTasca.isRequired());
-								ct.setReadOnly(campTasca.isReadOnly());
-								ct.setOrder(indexCamp++);
-								campsNous.add(ct);
 								trobat = true;
 								break;
 							} 
@@ -2783,24 +2791,9 @@ public class DissenyService {
 									campTasca.isReadOnly(),
 									indexCamp++);
 							campTascaDao.saveOrUpdate(nouct);
-							campsNous.add(nouct);
+							nova.addCamp(nouct);
 						}
 					}
-					for (CampTasca ct: nova.getCamps()) {
-						boolean trobat = false;
-						for (CampTascaExportacio campTasca: llistaCampsExportacio) {
-							if (ct.getCamp().getCodi().equals(campTasca.getCampCodi())) {
-								trobat = true;
-								break;
-							}
-						}
-						if (!trobat) {
-							ct.setOrder(indexCamp++);
-							campsNous.add(ct);
-						}
-					}
-					nova.getCamps().clear();
-					nova.getCamps().addAll(campsNous);
 					// Propaga els documents de la tasca
 					int indexDoc = nova.getDocuments().size();
 					List<DocumentTasca> documentsNous = new ArrayList<DocumentTasca>();
