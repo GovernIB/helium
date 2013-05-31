@@ -81,6 +81,13 @@ function confirmarReindexar(e) {
 	programacio();
 	return confirm("<fmt:message key='expedient.eines.confirm_reindexar_expedients' />");
 }
+function confirmarReassignar(e) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	if (e.stopPropagation) e.stopPropagation();
+	programacio();
+	return confirm("<fmt:message key='expedient.eines.confirm_reassignar_expedients' />");
+}
 function programacio(){
 	var inici = $("#inici").val();
 	var correu = $("#correu").is(":checked") ? true : false;
@@ -128,6 +135,51 @@ function massiva(form){
 	$('<input type="hidden" name="targetConsulta" value="<%=request.getAttribute("javax.servlet.forward.request_uri")%>" />').appendTo(form);
 }
 
+function changeTipus() {
+	var tipus = $("#tipusExpressio").val();
+	if (tipus == "user") {
+		$("#duser").show();
+		$("#dgrup").hide();
+		$("#dexpr").hide();
+	} else if (tipus == "grup") {
+		$("#duser").hide();
+		$("#dgrup").show();
+		$("#dexpr").hide();
+	} else {
+		$("#duser").hide();
+		$("#dgrup").hide();
+		$("#dexpr").show();
+	} 
+}
+
+function getTasques() {
+	var defProcId = $("#defProcId0").val();
+	var tasques = '<option value="">&lt;&lt; Seleccioni una tasca &gt;&gt;</option>\n';
+	if (defProcId != "") {
+		$.ajax({
+			url: "/helium/expedient/getTasques.html",
+			dataType: 'json',
+			data: {definicioProces: defProcId},
+			async: false,
+			success: function(data){
+				for (var i = 0; i < data.length; i++) {
+					tasca = data[i];
+					tasques += '<option value="' + tasca.id + '">' + tasca.nom + '</option>\n';
+				}
+			}
+		})
+		//.done(function() { console.log( "second success" ); })
+		.fail(function( jqxhr, textStatus, error ) {
+			var err = textStatus + ', ' + error;
+			console.log( "Request Failed: " + err);
+		})
+		//.always(function() {
+		//	$("body").removeClass("loading");
+		//});
+	}
+	$("#tasca0").html(tasques);
+}
+
 $(document).ready(function(){
 	var d = new Date();
 	var dia = ("0" + d.getDate()).slice(-2);
@@ -143,6 +195,8 @@ $(document).ready(function(){
 	$("button[value='generar']").prop('disabled', true);
 	$("button[value='subdoc']").prop('disabled', true);
 	$("button[value='subvar']").prop('disabled', true);
+	changeTipus();
+	getTasques();
 	//programacio();
 });
 // ]]>
@@ -386,6 +440,76 @@ $(document).ready(function(){
 					<c:param name="values">submit</c:param>
 					<c:param name="titles"><fmt:message key='comuns.reindexar' /></c:param>
 				</c:import>
+			</form:form>
+			
+			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key='expedient.eines.reassignar.expedients' /></h3>
+			<form:form action="reassignarMas.html" cssClass="uniForm" onsubmit="return confirmarReassignar(event)" commandName="reassignarCommandMas" onclick="javascript:massiva(this)">
+				<div class="inlineLabels">
+					<input type="hidden" id="rea_inici" name="inici">
+					<input type="hidden" id="rea_correu" name="correu">
+				
+					<c:import url="../common/formElement.jsp">
+						<c:param name="property" value="defProcId"/>
+						<c:param name="type" value="select"/>
+						<c:param name="items" value="defsProces"/>
+						<c:param name="itemLabel" value="jbpmKey"/>
+						<c:param name="itemValue" value="id"/>
+						<c:param name="label"><fmt:message key="comuns.def_proces"/></c:param>
+						<c:param name="onchange" value="getTasques()"/>
+					</c:import>
+					
+					<c:import url="../common/formElement.jsp">
+						<c:param name="property">tasca</c:param>
+						<c:param name="type" value="select"/>
+						<c:param name="items" value="tasques"/>
+						<c:param name="itemLabel" value="nom"/>
+						<c:param name="itemValue" value="id"/>
+						<c:param name="itemBuit">&lt;&lt; <fmt:message key='expedient.consulta.select.tasca'/> &gt;&gt;</c:param>
+						<c:param name="label"><fmt:message key="expedient.eines.reassignar.tipus"/></c:param>
+					</c:import>
+					<div class="ctrlHolder">
+						<label for="tipusExpressio"><fmt:message key='expedient.consulta.select.tasca'/></label>
+						<select id="tipusExpressio" name="tipusExpressio" onclick="" onchange="javascript:changeTipus()">
+							<option value="user"><fmt:message key='filtre.expressio.usuari'/></option>
+							<option value="grup"><fmt:message key='filtre.expressio.grup'/></option>
+							<option value="expr"><fmt:message key='filtre.expressio.expressio'/></option>
+						</select>
+					</div>
+					<div id="duser">
+						<c:import url="../common/formElement.jsp">
+							<c:param name="property" value="usuari"/>
+							<c:param name="required" value="true"/>
+							<c:param name="type" value="suggest"/>
+							<c:param name="label"><fmt:message key='filtre.expressio.usuari' /></c:param>
+							<c:param name="suggestUrl"><c:url value="/persona/suggest.html"/></c:param>
+							<c:param name="suggestText">${usuari}</c:param>
+							<c:param name="classHolder">reamass</c:param>
+						</c:import>
+					</div>
+					<div id="dgrup">
+						<c:import url="../common/formElement.jsp">
+							<c:param name="property" value="grup"/>
+							<c:param name="required" value="true"/>
+							<c:param name="type" value="suggest"/>
+							<c:param name="label"><fmt:message key='filtre.expressio.grup' /></c:param>
+							<c:param name="suggestUrl"><c:url value="/area/suggest.html"/></c:param>
+							<c:param name="suggestText">${grup}</c:param>
+							<c:param name="classHolder">reamass</c:param>
+						</c:import>
+					</div>
+					<div id="dexpr">
+						<c:import url="../common/formElement.jsp">
+							<c:param name="property" value="expression"/>
+							<c:param name="required" value="true"/>
+							<c:param name="label"><fmt:message key='filtre.expressio.expressio' /></c:param>
+						</c:import>
+					</div>
+					<c:import url="../common/formElement.jsp">
+						<c:param name="type" value="buttons"/>
+						<c:param name="values">submit</c:param>
+						<c:param name="titles"><fmt:message key='comuns.reassignar' /></c:param>
+					</c:import>
+				</div>
 			</form:form>
 		</div>
 	</div>

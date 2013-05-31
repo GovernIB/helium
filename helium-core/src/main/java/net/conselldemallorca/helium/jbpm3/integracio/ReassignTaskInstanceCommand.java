@@ -20,6 +20,7 @@ public class ReassignTaskInstanceCommand extends AbstractBaseCommand {
 	private String actorId;
 	private String[] pooledActors;
 	private String expression;
+	private Long entornId;
 
 
 
@@ -40,6 +41,7 @@ public class ReassignTaskInstanceCommand extends AbstractBaseCommand {
 			String exprTxt = "<expression>" + expression + "</expression>";
 			ExpressionAssignmentHandler assignmentHandler = new ExpressionAssignmentHandler();
 			assignmentHandler.setExpression(exprTxt);
+			assignmentHandler.setEntornId(entornId);
 			assignmentHandler.assign(new ProxyAssignable(taskInstance), new ExecutionContext(taskInstance.getToken()));
 		}
 		return taskInstance;
@@ -68,6 +70,10 @@ public class ReassignTaskInstanceCommand extends AbstractBaseCommand {
 	}
 	public void setExpression(String expression) {
 		this.expression = expression;
+	}
+
+	public void setEntornId(Long entornId) {
+		this.entornId = entornId;
 	}
 
 	@Override

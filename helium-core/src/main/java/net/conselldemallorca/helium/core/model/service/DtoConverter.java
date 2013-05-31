@@ -272,6 +272,7 @@ public class DtoConverter {
 				dto.setNom(task.getName());
 		}
 		if (tasca != null) {
+			dto.setTascaId(tasca.getId());
 			dto.setMissatgeInfo(tasca.getMissatgeInfo());
 			dto.setMissatgeWarn(tasca.getMissatgeWarn());
 			dto.setDelegable(tasca.getExpressioDelegacio() != null);
@@ -504,16 +505,17 @@ public class DtoConverter {
 			dto.setEstat(expedient.getEstat());
 			dto.setOrdre(expedient.getOrdre());
 			dto.setError(expedient.getError());
-			dto.setExpedient(toExpedientDto(expedient.getExpedient(), false));
+			if (expedient.getExpedient() != null) dto.setExpedient(toExpedientDto(expedient.getExpedient(), false));
 			dto.setParam1(expedient.getExecucioMassiva().getParam1());
 			dto.setParam2(expedient.getExecucioMassiva().getParam2());
 			dto.setEnviarCorreu(expedient.getExecucioMassiva().getEnviarCorreu());
 			dto.setExecucioMassivaId(expedient.getExecucioMassiva().getId());
-			dto.setExpedientTipusId(expedient.getExecucioMassiva().getExpedientTipus().getId());
+			if (expedient.getExecucioMassiva().getExpedientTipus() != null) dto.setExpedientTipusId(expedient.getExecucioMassiva().getExpedientTipus().getId());
 			dto.setUltimaOperacio(expedient.getExecucioMassiva().getExpedients().size() == expedient.getOrdre() + 1);
 			dto.setTipus(expedient.getExecucioMassiva().getTipus());
 			dto.setUsuari(expedient.getExecucioMassiva().getUsuari());
 			dto.setTascaId(expedient.getTascaId());
+			dto.setProcessInstanceId(expedient.getProcessInstanceId());
 		}
 		return dto;
 	}

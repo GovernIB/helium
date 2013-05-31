@@ -50,6 +50,7 @@ public class HeliumExpressionAssignmentHandler implements AssignmentHandler {
 	private static final long serialVersionUID = 1L;
 
 	protected String expression;
+	protected Long entornId;
 
 	public HeliumExpressionAssignmentHandler() {}
 
@@ -61,7 +62,8 @@ public class HeliumExpressionAssignmentHandler implements AssignmentHandler {
 		String expressio = getExpressio();
 		logger.debug("Expresió a analitzar: '" + expressio + "'");
 		String processInstanceId = new Long(executionContext.getProcessInstance().getId()).toString();
-		Long entornId = EntornActual.getEntornId();
+		if (entornId == null)
+			entornId = EntornActual.getEntornId();
 		if (entornId == null)
 			throw new RuntimeException("No s'ha trobat l'entorn per la instància de procés " + processInstanceId);
 		TermTokenizer tokenizer = new TermTokenizer(expressio);
@@ -94,8 +96,9 @@ public class HeliumExpressionAssignmentHandler implements AssignmentHandler {
 	public void setExpression(String expression) {
 		this.expression = expression;
 	}
-
-
+	public void setEntornId(Long entornId) {
+		this.entornId = entornId;
+	}
 
 	private Object resolPrimerTerme(Long entornId, String terme, ExecutionContext executionContext) {
 		logger.debug("Analitzant primer terme: '" + terme + "'");

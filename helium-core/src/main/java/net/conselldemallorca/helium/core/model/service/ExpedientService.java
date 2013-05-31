@@ -1397,19 +1397,29 @@ public class ExpedientService {
 			Long entornId,
 			String taskId,
 			String expression) {
+		reassignarTasca(entornId, taskId, expression, null);
+	}
+	public void reassignarTasca(
+			Long entornId,
+			String taskId,
+			String expression,
+			String usuari) {
 		String previousActors = expedientLogHelper.getActorsPerReassignacioTasca(taskId);
 //		JbpmTask task = jbpmDao.getTaskById(taskId);
 		ExpedientLog expedientLog = expedientLogHelper.afegirLogExpedientPerTasca(
 				taskId,
 				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
 				null);
-		jbpmDao.reassignTaskInstance(taskId, expression);
+		jbpmDao.reassignTaskInstance(taskId, expression, entornId);
 		String currentActors = expedientLogHelper.getActorsPerReassignacioTasca(taskId);
 		expedientLog.setAccioParams(previousActors + "::" + currentActors);
+		if (usuari == null) {
+			usuari = SecurityContextHolder.getContext().getAuthentication().getName();
+		}
 		registreDao.crearRegistreRedirigirTasca(
 				getExpedientPerTaskInstanceId(taskId).getId(),
 				taskId,
-				SecurityContextHolder.getContext().getAuthentication().getName(),
+				usuari,
 				expression);
 	}
 	public void suspendreTasca(
@@ -1599,6 +1609,9 @@ public class ExpedientService {
 		for (JbpmProcessInstance pi: processInstances) {
 			jbpmDao.changeProcessInstanceVersion(pi.getId(), -1);
 		}
+	}
+	public List<JbpmProcessInstance> findProcessInstancesWithProcessDefinitionName(String jbpmKey) {
+		return jbpmDao.findProcessInstancesWithProcessDefinitionName(jbpmKey);
 	}
 
 	public boolean isAccioPublica(

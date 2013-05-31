@@ -76,7 +76,7 @@ public class TascaDto implements Comparable<TascaDto> {
 	private Map<String, List<ParellaCodiValorDto>> valorsMultiplesDomini;
 	private Map<String, Object> varsComText;
 
-
+	private Long tascaId;
 
 	public String getId() {
 		return id;
@@ -388,6 +388,13 @@ public class TascaDto implements Comparable<TascaDto> {
 			return nom;
 	}
 
+	public Long getTascaId() {
+		return tascaId;
+	}
+	public void setTascaId(Long tascaId) {
+		this.tascaId = tascaId;
+	}
+	
 	public int compareTo(TascaDto aThat) {
 	    if (this == aThat) return 0;
     	return this.getCreateTime().compareTo(aThat.getCreateTime());

@@ -50,10 +50,9 @@ public class ExecucioMassivaExpedient implements Serializable, GenericEntity<Lon
 
 	@NotNull
 	private ExecucioMassiva execucioMassiva;
-	@NotNull
 	private Expedient expedient;
 	private String tascaId;
-
+	private String processInstanceId;
 
 
 	public ExecucioMassivaExpedient() {}
@@ -67,6 +66,12 @@ public class ExecucioMassivaExpedient implements Serializable, GenericEntity<Lon
 		this.execucioMassiva = execucioMassiva;
 		this.expedient = expedient;
 		this.tascaId = tascaId;
+		this.ordre = ordre;
+		this.estat = ExecucioMassivaEstat.ESTAT_PENDENT;
+	}
+	public ExecucioMassivaExpedient(ExecucioMassiva execucioMassiva, String processInstanceId, int ordre) {
+		this.execucioMassiva = execucioMassiva;
+		this.processInstanceId = processInstanceId;
 		this.ordre = ordre;
 		this.estat = ExecucioMassivaEstat.ESTAT_PENDENT;
 	}
@@ -135,7 +140,7 @@ public class ExecucioMassivaExpedient implements Serializable, GenericEntity<Lon
 		this.execucioMassiva = execucioMassiva;
 	}
 
-	@ManyToOne(optional=false)
+	@ManyToOne(optional=true)
 	@JoinColumn(name="expedient_id")
 	@ForeignKey(name="hel_expedient_exemasex_fk")
 	public Expedient getExpedient() {
@@ -153,7 +158,14 @@ public class ExecucioMassivaExpedient implements Serializable, GenericEntity<Lon
 		this.tascaId = tascaId;
 	}
 
-
+	@Column(name="procinst_id", nullable=true)
+	public String getProcessInstanceId() {
+		return processInstanceId;
+	}
+	public void setProcessInstanceId(String processInstanceId) {
+		this.processInstanceId = processInstanceId;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

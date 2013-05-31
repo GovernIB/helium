@@ -32,6 +32,7 @@ public class OperacioMassivaDto {
 	private Integer ordre;
 	private ExpedientDto expedient;
 	private String tascaId;
+	private String processInstanceId;
 	
 	public Long getId() {
 		return id;
@@ -128,5 +129,11 @@ public class OperacioMassivaDto {
 	}
 	public void setTascaId(String tascaId) {
 		this.tascaId = tascaId;
+	}
+	public String getProcessInstanceId() {
+		return processInstanceId;
+	}
+	public void setProcessInstanceId(String processInstanceId) {
+		this.processInstanceId = processInstanceId;
 	}
 }

@@ -36,6 +36,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedien
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
@@ -73,7 +74,15 @@ public class ExecucioMassivaService {
 
 
 	public void crearExecucioMassiva(ExecucioMassivaDto dto) {
-		logger.debug("Creació d'execució massiva (expedientTipusId=" + dto.getExpedientTipusId() + ", dataInici=" + dto.getDataInici() + ", numExpedients=" + ((dto.getExpedientIds() != null) ? dto.getExpedientIds().size() : 0) + ")");
+		String log = "Creació d'execució massiva (dataInici=" + dto.getDataInici();
+		if (dto.getExpedientTipusId() != null) log += ", expedientTipusId=" + dto.getExpedientTipusId();
+		log += ", numExpedients=";
+		if (dto.getExpedientIds() != null) log += dto.getExpedientIds().size();
+		else if (dto.getProcInstIds() != null) log += dto.getProcInstIds().size();
+		else log += "0";
+		log += ")";
+		logger.debug(log);
+		
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		ExecucioMassiva execucioMassiva = new ExecucioMassiva(
 				auth.getName(),
@@ -86,12 +95,15 @@ public class ExecucioMassivaService {
 		execucioMassiva.setEnviarCorreu(dto.getEnviarCorreu());
 		execucioMassiva.setParam1(dto.getParam1());
 		execucioMassiva.setParam2(dto.getParam2());
-		execucioMassiva.setExpedientTipus(
-				expedientTipusDao.getById(
-						dto.getExpedientTipusId(),
-						false));
+		if (dto.getExpedientTipusId() != null) {
+			execucioMassiva.setExpedientTipus(
+					expedientTipusDao.getById(
+							dto.getExpedientTipusId(),
+							false));
+		}
+		int ordre = 0;
 		if (dto.getExpedientIds() != null) {
-			int ordre = 0;
+			
 			for (Long expedientId: dto.getExpedientIds()) {
 				Expedient expedient = expedientDao.getById(expedientId, false);
 				ExecucioMassivaExpedient eme = new ExecucioMassivaExpedient(
@@ -100,15 +112,21 @@ public class ExecucioMassivaService {
 						ordre++);
 				execucioMassiva.addExpedient(eme);
 			}
-		}
-		if (dto.getTascaIds() != null) {
-			int ordre = 0;
+		} else if (dto.getTascaIds() != null) {
 			for (String tascaId: dto.getTascaIds()) {
 				TascaDto tasca = tascaService.getByIdSenseComprovacio(tascaId);
 				ExecucioMassivaExpedient eme = new ExecucioMassivaExpedient(
 						execucioMassiva,
 						tasca.getExpedient(),
 						tascaId,
+						ordre++);
+				execucioMassiva.addExpedient(eme);
+			}
+		} else if (dto.getProcInstIds() != null) {
+			for (String procinstId: dto.getProcInstIds()) {
+				ExecucioMassivaExpedient eme = new ExecucioMassivaExpedient(
+						execucioMassiva,
+						procinstId,
 						ordre++);
 				execucioMassiva.addExpedient(eme);
 			}
@@ -147,12 +165,17 @@ public class ExecucioMassivaService {
 				}
 				for (ExecucioMassivaExpedient expedient: expedients) {
 					Expedient exp = expedient.getExpedient();
-					String titol = exp.getNumeroDefault();
-			    	if (exp.getTitol() != null) {
-			    		titol += " " + exp.getTitol();
-			    	}
+					String titol = "";
+					if (exp != null) { 
+						titol = exp.getNumeroDefault();
+			    		if (exp.getTitol() != null) {
+			    			titol += " " + exp.getTitol();
+			    		}
+					} else {
+						titol = getMessage("expedient.massiva.actualitzar.dp") + " " + expedient.getExecucioMassiva().getParam1();
+					}
 			    	String error = expedient.getError();
-			    	if (error != null) error = error.replace("\n", "\\n");
+			    	if (error != null) error = error.replace("'", "&#8217;").replace("\n", "\\n");//.replace("\t", "\\t");
 			    	json_exp += "{\"id\":\"" + expedient.getId() + "\",";
 			    	json_exp += "\"titol\":\"" + titol + "\",";
 			    	json_exp += "\"estat\":\"" + expedient.getEstat().name() + "\",";
@@ -174,9 +197,9 @@ public class ExecucioMassivaService {
 		return json;
 	}
 	
-	private String getTextExecucioMassiva(ExecucioMassiva execucioMassiva) {
-		 return getTextExecucioMassiva(execucioMassiva, null);
-	}
+//	private String getTextExecucioMassiva(ExecucioMassiva execucioMassiva) {
+//		 return getTextExecucioMassiva(execucioMassiva, null);
+//	}
 	
 	private String getTextExecucioMassiva(ExecucioMassiva execucioMassiva, String tasca) {
 		String label = null;
@@ -199,21 +222,27 @@ public class ExecucioMassivaService {
 			} else if (param.equals("Restaurar")) {
 				label += getMessage("expedient.massiva.tasca.restaurar");
 			} else if (param.equals("Accio")) {
-				label += getMessage("expedient.massiva.tasca.accio") + (param2 == null ? "" : " '" + ((Object[])param2)[1] + "'");
+				label += getMessage("expedient.massiva.tasca.accio") + (param2 == null ? "" : " &#8216;" + ((Object[])param2)[1] + "&#8217;");
 			} else if (param.equals("DocGuardar")) {
-				label += getMessage("expedient.massiva.tasca.doc.guardar") + (param2 == null ? "" : " '" + ((Object[])param2)[1] + "'");
+				label += getMessage("expedient.massiva.tasca.doc.guardar") + (param2 == null ? "" : " &#8216;'" + ((Object[])param2)[1] + "&#8217;");
 			} else if (param.equals("DocEsborrar")) {
-				label += getMessage("expedient.massiva.tasca.doc.borrar") + (param2 == null ? "" : " '" + ((Object[])param2)[1] + "'");
+				label += getMessage("expedient.massiva.tasca.doc.borrar") + (param2 == null ? "" : " &#8216;" + ((Object[])param2)[1] + "&#8217;");
 			} else if (param.equals("DocGenerar")) {
-				label += getMessage("expedient.massiva.tasca.doc.generar") + (param2 == null ? "" : " '" + ((Object[])param2)[1] + "'");
+				label += getMessage("expedient.massiva.tasca.doc.generar") + (param2 == null ? "" : " &#8216;'" + ((Object[])param2)[1] + "&#8217;");
 			} else if (param.equals("RegEsborrar")) {
-				label += getMessage("expedient.massiva.tasca.reg.borrar") + (param2 == null ? "" : " '" + ((Object[])param2)[1] + "'");
+				label += getMessage("expedient.massiva.tasca.reg.borrar") + (param2 == null ? "" : " &#8216;" + ((Object[])param2)[1] + "&#8217;");
 			} else if (param.equals("RegGuardar")) {
-				label += getMessage("expedient.massiva.tasca.reg.guardar") + (param2 == null ? "" : " '" + ((Object[])param2)[1] + "'");
+				label += getMessage("expedient.massiva.tasca.reg.guardar") + (param2 == null ? "" : " &#8216;" + ((Object[])param2)[1] + "&#8217;");
 			}
 		} else if (tipus.equals(ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC)){
-			DefinicioProces definicioProces = getDefinicioProces(execucioMassiva);
-			label = getMessage("expedient.massiva.actualitzar") + (definicioProces == null ? "" : " (" + definicioProces.getJbpmKey() + " v." + definicioProces.getVersio() + ")");
+			if (execucioMassiva.getExpedientTipus() == null) {
+				String versio = "";
+				try { versio += (Integer)deserialize(execucioMassiva.getParam2()); } catch (Exception e){} 
+				label = getMessage("expedient.massiva.actualitzar") + " (" + execucioMassiva.getParam1() + " v." + versio + ")";
+			} else {
+				DefinicioProces definicioProces = getDefinicioProces(execucioMassiva);
+				label = getMessage("expedient.massiva.actualitzar") + (definicioProces == null ? "" : " (" + definicioProces.getJbpmKey() + " v." + definicioProces.getVersio() + ")");
+			}
 		} else if (tipus.equals(ExecucioMassivaTipus.EXECUTAR_SCRIPT)){
 			String script = getOperacio(execucioMassiva);
 			label = getMessage("expedient.massiva.executarScriptMas") + " " + (script.length() > 20 ? script.substring(0,20) : script);
@@ -229,6 +258,8 @@ public class ExecucioMassivaService {
 			label = getMessage("expedient.massiva.documents");
 		} else if (tipus.equals(ExecucioMassivaTipus.REINDEXAR)){
 			label = getMessage("expedient.eines.reindexar.expedients");
+		} else if (tipus.equals(ExecucioMassivaTipus.REASSIGNAR)){
+			label = getMessage("expedient.eines.reassignar.expedients");
 		} else {
 			label = tipus.name();
 		}
@@ -293,6 +324,8 @@ public class ExecucioMassivaService {
 			modificarDocument(dto);
 		} else if (tipus == ExecucioMassivaTipus.REINDEXAR){
 			reindexarExpedient(dto);
+		} else if (tipus == ExecucioMassivaTipus.REASSIGNAR){
+			reassignarExpedient(dto);
 		}
 	}
 	
@@ -446,24 +479,31 @@ public class ExecucioMassivaService {
 	
 	private void actualitzarVersio(OperacioMassivaDto dto) throws Exception {
 		ExecucioMassivaExpedient eme = null;
-		ExpedientDto exp = dto.getExpedient();
+		
 		try {
 			eme = execucioMassivaExpedientDao.getById(dto.getId(), false);
 			eme.setDataInici(new Date());
-			Object[] param2 = (Object[])deserialize(dto.getParam2());
-			// Proces principal
-			Long definicioProcesId = (Long)param2[0];
-			DefinicioProces definicioProces = definicioProcesDao.getById(definicioProcesId, false);
-			expedientService.changeProcessInstanceVersion(exp.getProcessInstanceId(), definicioProces.getVersio());
-			
-			// Subprocessos
-			Long[] subProcesIds = (Long[])param2[1];
-			String[] keys = (String[])param2[2];
-			List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(exp.getProcessInstanceId());
-			for (InstanciaProcesDto ip : arbreProcessos) {
-				int versio = findVersioDefProcesActualitzar(keys, subProcesIds, ip.getDefinicioProces().getJbpmKey());
-				if (versio != -1)
-					expedientService.changeProcessInstanceVersion(ip.getId(), versio);
+			if (dto.getExpedient() != null) {
+				
+				ExpedientDto exp = dto.getExpedient();
+				Object[] param2 = (Object[])deserialize(dto.getParam2());
+				// Proces principal
+				Long definicioProcesId = (Long)param2[0];
+				DefinicioProces definicioProces = definicioProcesDao.getById(definicioProcesId, false);
+				expedientService.changeProcessInstanceVersion(exp.getProcessInstanceId(), definicioProces.getVersio());
+				
+				// Subprocessos
+				Long[] subProcesIds = (Long[])param2[1];
+				String[] keys = (String[])param2[2];
+				List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(exp.getProcessInstanceId());
+				for (InstanciaProcesDto ip : arbreProcessos) {
+					int versio = findVersioDefProcesActualitzar(keys, subProcesIds, ip.getDefinicioProces().getJbpmKey());
+					if (versio != -1)
+						expedientService.changeProcessInstanceVersion(ip.getId(), versio);
+				}
+			} else {
+				Integer versio = (Integer)deserialize(dto.getParam2());
+				expedientService.changeProcessInstanceVersion(dto.getProcessInstanceId(), versio);
 			}
 			
 			eme.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
@@ -771,7 +811,57 @@ public class ExecucioMassivaService {
 		}
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private void reassignarExpedient(OperacioMassivaDto dto) throws Exception {
+		ExecucioMassivaExpedient eme = null;
+		ExpedientDto exp = dto.getExpedient();
+		try {
+			eme = execucioMassivaExpedientDao.getById(dto.getId(), false);
+			eme.setDataInici(new Date());
+			
+			// Paràmetres
+			Object[] params = (Object[])deserialize(dto.getParam2());
+			Long entornId = null;
+			Long tascaId = null;
+
+			if (params[0] != null) entornId = (Long)params[0];
+			if (params[1] != null) tascaId = (Long)params[1];
+			
+			int numReassignar = 0;
+			int numReassignades = 0;
+			// Obtenim la tasca
+			List<InstanciaProcesDto> instanciesProces = expedientService.getArbreInstanciesProces(exp.getProcessInstanceId());
+			for (InstanciaProcesDto ip: instanciesProces) {
+				List<TascaDto> tasques = expedientService.findTasquesPerInstanciaProces(ip.getId(), false);
+				
+				for (TascaDto tasca: tasques) {
+					if (tasca.getTascaId().equals(tascaId)) {
+						numReassignar++;
+						if (tasca.isOpen()) {
+							// Reassignam la tasca
+							expedientService.reassignarTasca(
+									entornId,
+									tasca.getId(),
+									dto.getParam1(),
+									dto.getUsuari());
+							numReassignades++;
+						}
+					}
+				}
+			}
+			if (numReassignar == 0) {
+				eme.setEstat(ExecucioMassivaEstat.ESTAT_ERROR);
+				eme.setError(getMessage("expedient.massiva.reassignar.buit"));
+			} else {
+				eme.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
+			}
+			eme.setDataFi(new Date());
+			execucioMassivaExpedientDao.saveOrUpdate(eme);
+		} catch (Exception ex) {
+			logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut reassignar l'expedient", ex);
+			throw ex;
+		}
+	}
+	
 	public void actualitzaUltimaOperacio(OperacioMassivaDto dto) {
 		if (dto.getUltimaOperacio()) {
 			try {

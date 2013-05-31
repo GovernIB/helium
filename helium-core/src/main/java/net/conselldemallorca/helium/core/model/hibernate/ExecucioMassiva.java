@@ -50,7 +50,8 @@ public class ExecucioMassiva implements Serializable, GenericEntity<Long> {
 		ATURAR_EXPEDIENT,
 		MODIFICAR_VARIABLE,
 		MODIFICAR_DOCUMENT,
-		REINDEXAR
+		REINDEXAR,
+		REASSIGNAR
 	}
 
 	private Long id;
@@ -66,7 +67,6 @@ public class ExecucioMassiva implements Serializable, GenericEntity<Long> {
 	private String param1;
 	private byte[] param2;
 	private Boolean enviarCorreu;
-	@NotNull
 	private ExpedientTipus expedientTipus;
 	private List<ExecucioMassivaExpedient> expedients = new ArrayList<ExecucioMassivaExpedient>();
 	private Long entorn;
@@ -148,7 +148,7 @@ public class ExecucioMassiva implements Serializable, GenericEntity<Long> {
 		this.enviarCorreu = enviarCorreu;
 	}
 	
-	@ManyToOne(optional=false)
+	@ManyToOne(optional=true)
 	@JoinColumn(name="expedient_tipus_id")
 	@ForeignKey(name="hel_exptipus_exemas_fk")
 	public ExpedientTipus getExpedientTipus() {

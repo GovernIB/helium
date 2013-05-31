@@ -10,7 +10,9 @@
 <div class="dialog-form-massive-bar" id="dialog-form-mass" style="display:none" title="<fmt:message key='expedient.massiva.proces' />">
 	<div id="massiva_contens"></div>
 </div>
-
+<div id="dialog-error" title="Error" style="display:none">
+  <p id="mass-error"></p>
+</div>
 <div class="wait"></div>
 
 <script>
@@ -40,6 +42,14 @@
 			}
 		});
 		
+		$( "#dialog-error" ).dialog({
+			autoOpen: false,
+			height: 420,
+			width: 1000,
+			modal: true,
+			resizable: true			
+		});
+		
 		$("#botoMassiu")
 		.click(function() {
 			$("body").addClass("loading");
@@ -47,6 +57,11 @@
 			$( "#dialog-form-mass" ).dialog( "open" );
 		});
 	});
+	
+	function alerta(msg) {
+		$("#mass-error").html(msg);
+		$( "#dialog-error" ).dialog( "open" );
+	}
 	
 	function carregaExecucionsMassives(numResultats) {
 		numResults = numResultats;
@@ -92,7 +107,7 @@
 										estat = "<img border=\"0\" title=\"<fmt:message key='expedient.termini.estat.cancelat'/>\" alt=\"<fmt:message key='expedient.termini.estat.cancelat'/>\" src=\"/helium/img/mass_canceled.png\"><label style=\"padding-left: 10px\"><fmt:message key='expedient.termini.estat.cancelat'/></label>";
 									} else if (expedient.estat == "ESTAT_ERROR"){
 										estat = "<img border=\"0\" title=\"<fmt:message key='expedient.termini.estat.error'/>\" alt=\"<fmt:message key='expedient.termini.estat.error'/>\" src=\"/helium/img/mass_error.png\"><label style=\"padding-left: 10px\"><fmt:message key='expedient.termini.estat.error'/></label>";
-										opcions = "<label style=\"cursor: pointer\" onclick=\"alert('" + expedient.error + "')\"><fmt:message key='expedient.termini.estat.error'/></label>";
+										opcions = "<label class='msg-error' style=\"cursor: pointer\" onclick=\"alerta('" + expedient.error + "')\"><fmt:message key='expedient.termini.estat.error'/></label>";
 									} else if (expedient.estat == "ESTAT_FINALITZAT"){
 										estat = "<img border=\"0\" title=\"<fmt:message key='expedient.termini.estat.finalizat'/>\" alt=\"<fmt:message key='expedient.termini.estat.finalizat'/>\" src=\"/helium/img/mass_fin.png\"><label style=\"padding-left: 10px\"><fmt:message key='expedient.termini.estat.finalizat'/></label>";
 									} else if (expedient.estat == "ESTAT_PENDENT"){
@@ -133,10 +148,10 @@
 				}
 		})
 				//.done(function() { console.log( "second success" ); })
-				//.fail(function( jqxhr, textStatus, error ) {
-				//	var err = textStatus + ', ' + error;
-				//	console.log( "Request Failed: " + err);
-				//})
+		.fail(function( jqxhr, textStatus, error ) {
+			var err = textStatus + ', ' + error;
+			console.log( "Request Failed: " + err);
+		})
 		.always(function() {
 			$("body").removeClass("loading");
 		});
@@ -193,7 +208,7 @@
 											estat = "<img border=\"0\" title=\"<fmt:message key='expedient.termini.estat.cancelat'/>\" alt=\"<fmt:message key='expedient.termini.estat.cancelat'/>\" src=\"/helium/img/mass_canceled.png\"><label style=\"padding-left: 10px\"><fmt:message key='expedient.termini.estat.cancelat'/></label>";
 										} else if (expedient.estat == "ESTAT_ERROR"){
 											estat = "<img border=\"0\" title=\"<fmt:message key='expedient.termini.estat.error'/>\" alt=\"<fmt:message key='expedient.termini.estat.error'/>\" src=\"/helium/img/mass_error.png\"><label style=\"padding-left: 10px\"><fmt:message key='expedient.termini.estat.error'/></label>";
-											opcions = "<label style=\"cursor: pointer\" onclick=\"alert('" + expedient.error + "')\"><fmt:message key='expedient.termini.estat.error'/></label>";
+											opcions = "<label class='msg-error' onclick=\"alerta('" + expedient.error + "')\"><fmt:message key='expedient.termini.estat.error'/></label>";
 										} else if (expedient.estat == "ESTAT_FINALITZAT"){
 											estat = "<img border=\"0\" title=\"<fmt:message key='expedient.termini.estat.finalizat'/>\" alt=\"<fmt:message key='expedient.termini.estat.finalizat'/>\" src=\"/helium/img/mass_fin.png\"><label style=\"padding-left: 10px\"><fmt:message key='expedient.termini.estat.finalizat'/></label>";
 										} else if (expedient.estat == "ESTAT_PENDENT"){
@@ -230,7 +245,7 @@
 											estat = "<img border=\"0\" title=\"<fmt:message key='expedient.termini.estat.cancelat'/>\" alt=\"<fmt:message key='expedient.termini.estat.cancelat'/>\" src=\"/helium/img/mass_canceled.png\"><label style=\"padding-left: 10px\"><fmt:message key='expedient.termini.estat.cancelat'/></label>";
 										} else if (expedient.estat == "ESTAT_ERROR"){
 											estat = "<img border=\"0\" title=\"<fmt:message key='expedient.termini.estat.error'/>\" alt=\"<fmt:message key='expedient.termini.estat.error'/>\" src=\"/helium/img/mass_error.png\"><label style=\"padding-left: 10px\"><fmt:message key='expedient.termini.estat.error'/></label>";
-											opcio = "<label style=\"cursor: pointer\" onclick=\"alert('" + expedient.error + "')\"><fmt:message key='expedient.termini.estat.error'/></label>";
+											opcio = "<label class='msg-error' onclick=\"alerta('" + expedient.error + "')\"><fmt:message key='expedient.termini.estat.error'/></label>";
 										} else if (expedient.estat == "ESTAT_FINALITZAT"){
 											estat = "<img border=\"0\" title=\"<fmt:message key='expedient.termini.estat.finalizat'/>\" alt=\"<fmt:message key='expedient.termini.estat.finalizat'/>\" src=\"/helium/img/mass_fin.png\"><label style=\"padding-left: 10px\"><fmt:message key='expedient.termini.estat.finalizat'/></label>";
 										} else if (expedient.estat == "ESTAT_PENDENT"){

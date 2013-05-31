@@ -69,6 +69,7 @@ public class ExpressionAssignmentHandler implements AssignmentHandler {
   protected ExpressionSession expressionSession = null;
   protected TermTokenizer tokenizer;
   protected Entity entity = null;
+  protected Long entornId = null;
   
   protected HeliumExpressionAssignmentHandler heliumEah = null;
 
@@ -76,6 +77,7 @@ public class ExpressionAssignmentHandler implements AssignmentHandler {
   public void assign(Assignable assignable, ExecutionContext executionContext) {
     if (useHeliumAssignmentHandler()) {
     	getHeliumExpressionAssignmentHandler().setExpression(expression);
+    	getHeliumExpressionAssignmentHandler().setEntornId(entornId);
     	getHeliumExpressionAssignmentHandler().assign(assignable, executionContext);
     } else {
     try {
@@ -117,6 +119,10 @@ public class ExpressionAssignmentHandler implements AssignmentHandler {
 
   public void setExpression(String expression) {
 	this.expression = expression;
+  }
+
+  public void setEntornId(Long entornId) {
+	this.entornId = entornId;
   }
 
 /**

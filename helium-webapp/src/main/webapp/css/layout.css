@@ -292,3 +292,21 @@ select.objectsPerPage {
 	position: relative;
 	top: 66px;
 }
+.reamass {
+	position: relative !important;
+	height: 22px;
+/* 	box-sizing: border-box; */
+}
+.reamass img {
+	float: right;
+	right: 10px;
+	left: initial;
+	top: -19px;
+}
+.msg-error {
+	cursor: pointer;
+	color: red;
+}
+.msg-error:HOVER {
+	text-decoration: underline; 
+}

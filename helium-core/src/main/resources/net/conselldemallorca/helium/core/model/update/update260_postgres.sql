@@ -1,34 +1,34 @@
 -- Taules per a execució massiva
 CREATE TABLE hel_exec_massiva (
-	id BIGINT NOT NULL,
-	data_fi TIMESTAMP(6) WITHOUT TIME ZONE,
-	data_inici TIMESTAMP(6) WITHOUT TIME ZONE NOT NULL,
-	env_correu BOOLEAN,
-	param1 CHARACTER VARYING(255),
-	param2 OID,
-	tipus INTEGER NOT NULL,
-	usuari CHARACTER VARYING(64) NOT NULL,
-	expedient_tipus_id BIGINT NOT NULL,
-	entorn BIGINT,
-	PRIMARY KEY (id),
-	CONSTRAINT hel_exptipus_exemas_fk FOREIGN KEY (expedient_tipus_id) REFERENCES public.hel_expedient_tipus (id)
+        id BIGINT NOT NULL,
+        data_inici TIMESTAMP(6) WITHOUT TIME ZONE NOT NULL,
+        data_fi TIMESTAMP(6) WITHOUT TIME ZONE,
+        env_correu BOOLEAN,
+        param1 CHARACTER VARYING(255),
+        param2 OID,
+        tipus INTEGER NOT NULL,
+        usuari CHARACTER VARYING(64) NOT NULL,
+        expedient_tipus_id BIGINT,
+        entorn BIGINT,
+        PRIMARY KEY (id),
+        CONSTRAINT hel_exptipus_exemas_fk FOREIGN KEY (expedient_tipus_id) REFERENCES public.hel_expedient_tipus (id)
 );
     
 CREATE TABLE hel_exec_masexp (
-	id BIGINT NOT NULL,
-	data_fi TIMESTAMP(6) WITHOUT TIME ZONE,
-	data_inici TIMESTAMP(6) WITHOUT TIME ZONE,
-	estat INTEGER NOT NULL,
-	ordre INTEGER NOT NULL,
-	execmas_id BIGINT NOT NULL,
-	expedient_id BIGINT NOT NULL,
-	error TEXT,
-	tasca_id CHARACTER VARYING(255),
-	PRIMARY KEY (id),
-	CONSTRAINT hel_execmas_exemasex_fk FOREIGN KEY (execmas_id) REFERENCES public.hel_exec_massiva (id),
-	CONSTRAINT hel_expedient_exemasex_fk FOREIGN KEY (expedient_id) REFERENCES public.hel_expedient (id)
+        id BIGINT NOT NULL,
+        data_inici TIMESTAMP(6) WITHOUT TIME ZONE,
+        data_fi TIMESTAMP(6) WITHOUT TIME ZONE,
+        estat INTEGER NOT NULL,
+        ordre INTEGER NOT NULL,
+        execmas_id BIGINT NOT NULL,
+        expedient_id BIGINT,
+        error TEXT,
+        tasca_id CHARACTER VARYING(255),
+        procinst_id CHARACTER VARYING(255),
+        PRIMARY KEY (id),
+        CONSTRAINT hel_execmas_exemasex_fk FOREIGN KEY (execmas_id) REFERENCES public.hel_exec_massiva (id),
+        CONSTRAINT hel_expedient_exemasex_fk FOREIGN KEY (expedient_id) REFERENCES public.hel_expedient (id)
 );
-
 
 -- Actualització a la nova versió --
 insert into hel_versio (

@@ -27,6 +27,7 @@ import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
+import net.conselldemallorca.helium.core.model.hibernate.Area;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
@@ -34,12 +35,14 @@ import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca.TipusTasca;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 import net.conselldemallorca.helium.core.model.service.DocumentService;
 import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
+import net.conselldemallorca.helium.core.model.service.OrganitzacioService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
@@ -93,6 +96,7 @@ public class ExpedientMassivaController extends BaseController {
 	private TascaService tascaService;
 	private Validator validator;
 	private DocumentService documentService;
+	private OrganitzacioService organitzacioService;
 	
 //	// Variables para la barra de progreso
 //	private Map<Long, List<OperacioMassivaDto>> listExecucionsMassivesActivesByUser = orderOperacioMassivaDto(new ArrayList<OperacioMassivaDto>());
@@ -105,7 +109,8 @@ public class ExpedientMassivaController extends BaseController {
 			DissenyService dissenyService,
 			TascaService tascaService,
 			DocumentService documentService,
-			DocumentHelper documentHelper) {
+			DocumentHelper documentHelper,
+			OrganitzacioService organitzacioService) {
 		this.execucioMassivaService = execucioMassivaService;
 		this.expedientService = expedientService;
 		this.permissionService = permissionService;
@@ -113,6 +118,7 @@ public class ExpedientMassivaController extends BaseController {
 		this.tascaService = tascaService;
 		this.documentService = documentService;
 		this.validator = new TascaFormValidator(expedientService);
+		this.organitzacioService = organitzacioService;
 	}
 
 	@ModelAttribute("execucioAccioCommand")
@@ -140,12 +146,15 @@ public class ExpedientMassivaController extends BaseController {
 		return new ModificarVariablesCommand();
 	}
 	
-	
 	@ModelAttribute("documentCommandForm")
 	public DocumentExpedientCommand populateDocumentExpedientCommand(){
 		return new DocumentExpedientCommand();
 	}
 	
+	@ModelAttribute("reassignarCommandMas")
+	public ExpedientEinesReassignarCommand populateReassignarCommand(){
+		return new ExpedientEinesReassignarCommand();
+	}
 	
 
 	@SuppressWarnings("rawtypes")
@@ -1086,7 +1095,39 @@ public class ExpedientMassivaController extends BaseController {
 //			}
 //			Collections.sort(llistaCamps, new ComparadorCampCodi());
 //			model.addAttribute("camps",	llistaCamps);
+			
+			// Tasques
+			List<DefinicioProcesDto> definicionsProces = new ArrayList<DefinicioProcesDto>(); 
+			definicionsProces.add(definicioProces);
+			definicionsProces.addAll(supProcessos);
+			model.addAttribute("defsProces", definicionsProces);
+			
+//			if (definicioProces != null) {
+//				List<Tasca> ts = dissenyService.findTasquesAmbDefinicioProces(definicioProces.getId());
+//				Set<Tasca> sTasques = new HashSet<Tasca>();
+//				sTasques.addAll(ts);
+//				for (DefinicioProcesDto df: supProcessos) {
+//					ts = dissenyService.findTasquesAmbDefinicioProces(df.getId());
+//					if (ts != null) sTasques.addAll(ts);
+//				}
+				List<Tasca> tasques = new ArrayList<Tasca>();
+//				tasques.addAll(sTasques);
+//				Collections.sort(tasques, new ComparadorTasca());
+				model.addAttribute("tasques", tasques);
+//			}
 		}
+	}
+	
+	private String getTasquesJson(Long definicioProcesId) {
+		List<Tasca> ts = dissenyService.findTasquesAmbDefinicioProces(definicioProcesId);
+		Collections.sort(ts, new ComparadorTasca());
+		String json = "[";
+		for (Tasca t: ts) {
+			json += "{\"id\":\"" + t.getId() + "\", \"nom\":\"" + t.getNom() + "\"},";
+		}
+		if (json.length() > 1) json = json.substring(0, json.length() - 1);
+		json += "]";
+		return json;
 	}
 
 	public class ComparadorCampCodi implements Comparator<Camp> {
@@ -1098,6 +1139,12 @@ public class ExpedientMassivaController extends BaseController {
 	public class ComparadorDocument implements Comparator<Document> {
 	    public int compare(Document d1, Document d2) {
 	        return d1.getNom().compareToIgnoreCase(d2.getNom());
+	    }
+	}
+	
+	public class ComparadorTasca implements Comparator<Tasca> {
+	    public int compare(Tasca t1, Tasca t2) {
+	        return t1.getNom().compareToIgnoreCase(t2.getNom());
 	    }
 	}
 	
@@ -1326,6 +1373,80 @@ public class ExpedientMassivaController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
+	
+	@RequestMapping(value = "/expedient/reassignarMas")
+	public String accioReassignar(
+			HttpServletRequest request,
+			@RequestParam(value = "inici", required = true) String inici,
+			@RequestParam(value = "correu", required = true) String correu,
+			@ModelAttribute("reassignarCommandMas") ExpedientEinesReassignarCommand command,
+			BindingResult result,
+			ModelMap model) {
+		model.addAttribute("inici", inici);
+		model.addAttribute("correu", correu);
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			List<Long> ids = getIdsMassius(request);
+			if (ids == null || ids.size() <= 1) {
+				missatgeError(request, getMessage("error.no.exp.selec"));
+				return getRedirMassius(request);
+			}
+			String tipus = request.getParameter("tipusExpressio"); 
+			ExpedientReassignarValidator validator = new ExpedientReassignarValidator();
+			validator.setTipus(tipus);
+			validator.validate(command, result);
+			if (result.hasErrors()) {
+				missatgeError(request, getMessage("error.executar.reassignacio"), result.toString());
+				return getRedirMassius(request);
+	        }
+			
+			int numExp = ids.size() - 1;
+			// Obtenim informació de l'execució massiva
+			// Data d'inici
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+			Date dInici = new Date();
+			if (inici != null) {
+				try { dInici = sdf.parse(inici); } catch (ParseException pe) {};
+			}
+			// Enviar correu
+			Boolean bCorreu = false;
+			if (correu != null && correu.equals("true")) bCorreu = true;
+			
+			ExpedientDto expedientPrimer = expedientService.getById(ids.get(1));
+			if (potModificarOReassignarExpedient(expedientPrimer)) {
+				String expression = command.getExpression();
+				if ("user".equals(tipus)) {
+					expression = "user(" + command.getUsuari() + ")";
+				} else if ("grup".equals(tipus)) {
+					Area grup = organitzacioService.getAreaById(command.getGrup());
+					expression = "group(" + grup.getCodi() + ")";
+				}
+				try {
+					ExecucioMassivaDto dto = new ExecucioMassivaDto();
+					dto.setDataInici(dInici);
+					dto.setEnviarCorreu(bCorreu);
+					dto.setExpedientIds(ids.subList(1, ids.size()));
+					dto.setExpedientTipusId(ids.get(0));
+					dto.setTipus(ExecucioMassivaTipus.REASSIGNAR);
+					dto.setParam1(expression);
+					Object[] params = new Object[] {entorn.getId(), command.getTasca()};
+    				dto.setParam2(execucioMassivaService.serialize(params));
+					execucioMassivaService.crearExecucioMassiva(dto);
+					
+					missatgeInfo(request, getMessage("info.accio.massiu.reassignat", new Object[] {numExp}));
+				} catch (Exception e) {
+					missatgeError(request, getMessage("error.no.massiu"));
+					logger.error("Error al programar les accions massives", e);
+				}
+			} else {
+				missatgeError(request, getMessage("info.massiu.permisos.no"));
+			}
+			return getRedirMassius(request);
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
 
 	private boolean potModificarExpedient(ExpedientDto expedient) {
 		return permissionService.filterAllowed(
@@ -1335,6 +1456,15 @@ public class ExpedientMassivaController extends BaseController {
 					ExtendedPermission.ADMINISTRATION,
 					ExtendedPermission.WRITE}) != null;
 	}
+	private boolean potModificarOReassignarExpedient(ExpedientDto expedient) {
+		return permissionService.filterAllowed(
+				expedient.getTipus(),
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.ADMINISTRATION,
+					ExtendedPermission.WRITE,
+					ExtendedPermission.REASSIGNMENT}) != null;
+	}
 
 	private class ExpedientScriptValidator implements Validator {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -1343,6 +1473,31 @@ public class ExpedientMassivaController extends BaseController {
 		}
 		public void validate(Object target, Errors errors) {
 			ValidationUtils.rejectIfEmpty(errors, "script", "not.blank");
+		}
+	}
+	
+	private class ExpedientReassignarValidator implements Validator {
+		
+		private String tipus;
+		
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public boolean supports(Class clazz) {
+			return clazz.isAssignableFrom(ExpedientEinesReassignarCommand.class);
+		}
+		public void validate(Object obj, Errors errors) {
+			ExpedientEinesReassignarCommand command = (ExpedientEinesReassignarCommand)obj;
+			
+			if ("user".equals(tipus)) {
+				ValidationUtils.rejectIfEmpty(errors, "usuari", "not.blank");
+			} else if ("grup".equals(tipus)) {
+				ValidationUtils.rejectIfEmpty(errors, "grup", "not.blank");
+			} else if ("expr".equals(tipus)) {
+				ValidationUtils.rejectIfEmpty(errors, "expression", "not.blank");
+			}
+			ValidationUtils.rejectIfEmpty(errors, "tasca", "not.blank");
+		}
+		public void setTipus(String tipus) {
+			this.tipus = tipus;
 		}
 	}
 
@@ -1597,6 +1752,12 @@ public class ExpedientMassivaController extends BaseController {
 	@ResponseBody
 	public String refreshBarsExpedientMassiveAct(@RequestParam(value = "results", required = false) Integer numResults, HttpServletRequest request,HttpServletResponse response,ModelMap model, HttpSession session)  throws ServletException, IOException {
 		return execucioMassivaService.getJsonExecucionsMassivesByUser(request.getUserPrincipal().getName(), numResults);
+	}
+	
+	@RequestMapping(value="/expedient/getTasques", method = RequestMethod.GET)
+	@ResponseBody
+	public String getTasques(@RequestParam(value = "definicioProces", required = false) Long definicioProces,HttpServletRequest request,HttpServletResponse response,ModelMap model, HttpSession session)  throws ServletException, IOException {
+		return getTasquesJson(definicioProces);		
 	}
 	
 	/**

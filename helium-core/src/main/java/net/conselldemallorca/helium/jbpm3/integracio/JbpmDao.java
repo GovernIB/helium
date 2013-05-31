@@ -449,10 +449,14 @@ public class JbpmDao {
 		return resposta;
 	}
 	public JbpmTask reassignTaskInstance(String taskId, String expression) {
+		return reassignTaskInstance(taskId, expression, null);
+	}
+	public JbpmTask reassignTaskInstance(String taskId, String expression, Long entornId) {
 		JbpmTask resposta = null;
 		final long id = Long.parseLong(taskId);
 		ReassignTaskInstanceCommand command = new ReassignTaskInstanceCommand(id);
 		command.setExpression(expression);
+		command.setEntornId(entornId);
 		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
