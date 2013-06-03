@@ -539,25 +539,28 @@ public class TerminiService {
 			TerminiIniciat terminiIniciat,
 			String responsable,
 			Expedient expedient) {
-		//logger.info("Creació alerta per al termini " + terminiIniciat.getId() + " per al responsable " + responsable);
-		AlertaPrioritat prioritat;
-		if (TerminiIniciatEstat.AVIS.equals(terminiIniciat.getEstat())) {
-			prioritat = AlertaPrioritat.NORMAL;
-		} else if (TerminiIniciatEstat.COMPLETAT_FORA.equals(terminiIniciat.getEstat())) {
-			prioritat = AlertaPrioritat.ALTA;
-		} else if (TerminiIniciatEstat.CADUCAT.equals(terminiIniciat.getEstat())) {
-			prioritat = AlertaPrioritat.MOLT_ALTA;
-		} else {
-			prioritat = AlertaPrioritat.BAIXA;
+		logger.debug("Creació alerta per al termini " + terminiIniciat.getId() + " per al responsable " + responsable);
+		// Només crea alertes si l'expedient no està finalitzat
+		if (expedient.getDataFi() == null) {
+			AlertaPrioritat prioritat;
+			if (TerminiIniciatEstat.AVIS.equals(terminiIniciat.getEstat())) {
+				prioritat = AlertaPrioritat.NORMAL;
+			} else if (TerminiIniciatEstat.COMPLETAT_FORA.equals(terminiIniciat.getEstat())) {
+				prioritat = AlertaPrioritat.ALTA;
+			} else if (TerminiIniciatEstat.CADUCAT.equals(terminiIniciat.getEstat())) {
+				prioritat = AlertaPrioritat.MOLT_ALTA;
+			} else {
+				prioritat = AlertaPrioritat.BAIXA;
+			}
+			Alerta alerta = new Alerta(
+					new Date(),
+					responsable,
+					prioritat,
+					terminiIniciat.getTermini().getDefinicioProces().getEntorn());
+			alerta.setExpedient(expedient);
+			alerta.setTerminiIniciat(terminiIniciat);
+			alertaDao.saveOrUpdate(alerta);
 		}
-		Alerta alerta = new Alerta(
-				new Date(),
-				responsable,
-				prioritat,
-				terminiIniciat.getTermini().getDefinicioProces().getEntorn());
-		alerta.setExpedient(expedient);
-		alerta.setTerminiIniciat(terminiIniciat);
-		alertaDao.saveOrUpdate(alerta);
 	}
 	private void esborrarAlertesAntigues(TerminiIniciat terminiIniciat) {
 		List<Alerta> antigues = alertaDao.findActivesAmbTerminiIniciatId(terminiIniciat.getId());
