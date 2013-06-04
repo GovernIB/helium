@@ -72,6 +72,8 @@ public class ExpedientConsultaDominiController extends BaseController {
 					for (ParellaCodiValor codiValor: filaResultat.getColumnes()) {
 						if (codiValor.getValor() instanceof String) {
 							String valor = (String)codiValor.getValor();
+							//codiValor.setValor(valor);
+							// Per a evitar problemes amb caràcters estranys al codi (EXSANCI)
 							codiValor.setValor(valor.replaceAll("\\p{Cntrl}", "").trim());
 						}
 					}

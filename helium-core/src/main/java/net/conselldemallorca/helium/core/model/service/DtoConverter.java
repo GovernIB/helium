@@ -1077,7 +1077,12 @@ public class DtoConverter {
 			} else if (camp.getEnumeracio() != null) {
 				Enumeracio enumeracio = camp.getEnumeracio();
 				for (ParellaCodiValor parella: enumeracioValorsDao.getLlistaValors(enumeracio.getId())) {
-					if (valor.equals(parella.getCodi())) {
+					// Per a evitar problemes amb caràcters estranys al codi (EXSANCI)
+					String codiBo = null;
+					if (parella.getCodi() != null)
+						codiBo = parella.getCodi().replaceAll("\\p{Cntrl}", "").trim();
+					String valorBo = valor.toString().replaceAll("\\p{Cntrl}", "").trim();
+					if (valorBo.equals(codiBo)) {
 						resposta = new ParellaCodiValor(
 								parella.getCodi(),
 								parella.getValor());
