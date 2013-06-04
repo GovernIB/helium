@@ -1793,66 +1793,78 @@ public class DissenyService {
 	}
 	public void goUpCampAgrupacio(Long id) {
 		CampAgrupacio campAgrupacio = getCampAgrupacioById(id);
-		int ordreActual = campAgrupacio.getOrdre();
-		CampAgrupacio anterior = campAgrupacioDao.getAmbOrdre(
-				campAgrupacio.getDefinicioProces().getId(),
-				ordreActual - 1);
-		if (anterior != null) {
-			campAgrupacio.setOrdre(-1);
-			anterior.setOrdre(ordreActual);
-			campAgrupacioDao.merge(campAgrupacio);
-			campAgrupacioDao.merge(anterior);
-			campAgrupacioDao.flush();
-			campAgrupacio.setOrdre(ordreActual - 1);
+		List<CampAgrupacio> campsOrdenats = campAgrupacioDao.findAmbDefinicioProcesOrdenats(
+				campAgrupacio.getDefinicioProces().getId());
+		int index = 0;
+		CampAgrupacio anterior = null;
+		for (CampAgrupacio ca: campsOrdenats) {
+			if (anterior != null && ca.getId().equals(id)) {
+				ca.setOrdre(index - 1);
+				anterior.setOrdre(index++);
+			} else {
+				ca.setOrdre(index++);
+			}
+			anterior = ca;
 		}
 	}
 	public void goDownCampAgrupacio(Long id) {
 		CampAgrupacio campAgrupacio = getCampAgrupacioById(id);
-		int ordreActual = campAgrupacio.getOrdre();
-		CampAgrupacio seguent = campAgrupacioDao.getAmbOrdre(
-				campAgrupacio.getDefinicioProces().getId(),
-				ordreActual + 1);
-		if (seguent != null) {
-			campAgrupacio.setOrdre(-1);
-			seguent.setOrdre(ordreActual);
-			campAgrupacioDao.merge(campAgrupacio);
-			campAgrupacioDao.merge(seguent);
-			campAgrupacioDao.flush();
-			campAgrupacio.setOrdre(ordreActual + 1);
+		List<CampAgrupacio> campsOrdenats = campAgrupacioDao.findAmbDefinicioProcesOrdenats(
+				campAgrupacio.getDefinicioProces().getId());
+		int index = 0;
+		CampAgrupacio anteriorPerModificar = null;
+		for (CampAgrupacio ca: campsOrdenats) {
+			if (anteriorPerModificar != null) {
+				ca.setOrdre(index - 1);
+				anteriorPerModificar.setOrdre(index++);
+			} else {
+				ca.setOrdre(index++);
+			}
+			if (ca.getId().equals(id)) {
+				anteriorPerModificar = ca;
+			} else {
+				anteriorPerModificar = null;
+			}
 		}
 	}
 	
 	public void goUpCamp(Long id, String agrupacioCodi) {
 		Camp camp = getCampById(id);
-		int ordreActual = camp.getOrdre();
-		Camp anterior = campDao.getAmbOrdre(
+		List<Camp> campsOrdenats = campDao.findAmbDefinicioProcesIAgrupacioOrdenats(
 				camp.getDefinicioProces().getId(),
-				agrupacioCodi,
-				ordreActual - 1);
-		if (anterior != null) {
-			camp.setOrdre(-1);
-			anterior.setOrdre(ordreActual);
-			campDao.merge(camp);
-			campDao.merge(anterior);
-			campDao.flush();
-			camp.setOrdre(ordreActual - 1);
+				camp.getAgrupacio().getId());
+		int index = 0;
+		Camp anterior = null;
+		for (Camp ca: campsOrdenats) {
+			if (anterior != null && ca.getId().equals(id)) {
+				ca.setOrdre(index - 1);
+				anterior.setOrdre(index++);
+			} else {
+				ca.setOrdre(index++);
+			}
+			anterior = ca;
 		}
 	}
 	
 	public void goDownCamp(Long id, String agrupacioCodi) {
 		Camp camp = getCampById(id);
-		int ordreActual = camp.getOrdre();
-		Camp seguent = campDao.getAmbOrdre(
+		List<Camp> campsOrdenats = campDao.findAmbDefinicioProcesIAgrupacioOrdenats(
 				camp.getDefinicioProces().getId(),
-				agrupacioCodi,
-				ordreActual + 1);
-		if (seguent != null) {
-			camp.setOrdre(-1);
-			seguent.setOrdre(ordreActual);
-			campDao.merge(camp);
-			campDao.merge(seguent);
-			campDao.flush();
-			camp.setOrdre(ordreActual + 1);
+				camp.getAgrupacio().getId());
+		int index = 0;
+		Camp anteriorPerModificar = null;
+		for (Camp ca: campsOrdenats) {
+			if (anteriorPerModificar != null) {
+				ca.setOrdre(index - 1);
+				anteriorPerModificar.setOrdre(index++);
+			} else {
+				ca.setOrdre(index++);
+			}
+			if (ca.getId().equals(id)) {
+				anteriorPerModificar = ca;
+			} else {
+				anteriorPerModificar = null;
+			}
 		}
 	}
 
