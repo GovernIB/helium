@@ -726,6 +726,9 @@ public class DtoConverter {
 					-1);
 			for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
 				FilaResultat fila = new FilaResultat();
+				revisarDadesExpedientAmbValorsEnumeracionsODominis(
+						dadesExpedient,
+						campsInforme);
 				for (String clau: dadesExpedient.keySet()) {
 					// Les claus son de la forma [TipusExpedient]/[campCodi] i hem
 					// de llevar el tipus d'expedient.
@@ -866,6 +869,26 @@ public class DtoConverter {
 		}
 	}
 
+	public void revisarDadesExpedientAmbValorsEnumeracionsODominis(
+			Map<String, DadaIndexadaDto> dadesExpedient,
+			List<Camp> campsInforme) {
+		for (Camp camp: campsInforme) {
+			if (!camp.isDominiCacheText() && (TipusCamp.SELECCIO.equals(camp.getTipus()) || TipusCamp.SUGGEST.equals(camp.getTipus()))) {
+				if (camp.getEnumeracio() != null) {
+					String dadaIndexadaClau = camp.getDefinicioProces().getJbpmKey() + "/" + camp.getCodi();
+					DadaIndexadaDto dadaIndexada = dadesExpedient.get(dadaIndexadaClau);
+					if (dadaIndexada != null) {
+						String text = getCampText(
+								null,
+								null,
+								camp,
+								dadaIndexada.getValorIndex());
+						dadaIndexada.setValorMostrar(text);
+					}
+				}
+			}
+		}
+	}
 
 	@Autowired
 	public void setExpedientService(ExpedientService expedientService) {

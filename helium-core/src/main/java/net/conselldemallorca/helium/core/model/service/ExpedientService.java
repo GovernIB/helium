@@ -890,6 +890,9 @@ public class ExpedientService {
 						dtoConverter.toExpedientDto(
 								expedient,
 								false));
+				dtoConverter.revisarDadesExpedientAmbValorsEnumeracionsODominis(
+						dadesExpedient,
+						campsInforme);
 				fila.setDadesExpedient(dadesExpedient);
 				resposta.add(fila);
 			}
@@ -2152,8 +2155,6 @@ public class ExpedientService {
 				task.getProcessInstanceId());
 		return expedientDao.findAmbProcessInstanceId(pi.getId());
 	}
-
-	
 
 	/*private Long createUpdateDocument(
 				String processInstanceId,
