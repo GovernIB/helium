@@ -281,7 +281,7 @@ public class ExpedientDadaModificarController extends BaseController {
 				BigDecimal.class,
 				new CustomNumberEditor(
 						BigDecimal.class,
-						new DecimalFormat("#,###.00"),
+						new DecimalFormat("#,##0.00"),
 						true));
 		binder.registerCustomEditor(
 				Boolean.class,
