@@ -94,6 +94,9 @@ public class EnumeracioValorsController extends BaseController {
 				new EnumeracioValorsValidator(dissenyService).validate(command, result);
 		        if (result.hasErrors()) {
 		        	model.addAttribute("llistat", dissenyService.findEnumeracioValorsAmbEnumeracio(command.getEnumeracioId()));
+		        	ImportCommand commandImportacio = new ImportCommand();
+					commandImportacio.setEnumeracioId(command.getEnumeracioId());
+					model.addAttribute("commandImportacio", commandImportacio);
 		        	return "enumeracio/valors";
 		        }
 		        try {
