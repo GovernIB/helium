@@ -196,8 +196,7 @@ $(document).ready(function(){
 	$("button[value='subdoc']").prop('disabled', true);
 	$("button[value='subvar']").prop('disabled', true);
 	changeTipus();
-	getTasques();
-	//programacio();
+	//getTasques();
 });
 // ]]>
 </script>
@@ -441,7 +440,7 @@ $(document).ready(function(){
 					<c:param name="titles"><fmt:message key='comuns.reindexar' /></c:param>
 				</c:import>
 			</form:form>
-			
+<%--			
 			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key='expedient.eines.reassignar.expedients' /></h3>
 			<form:form action="reassignarMas.html" cssClass="uniForm" onsubmit="return confirmarReassignar(event)" commandName="reassignarCommandMas" onclick="javascript:massiva(this)">
 				<div class="inlineLabels">
@@ -465,10 +464,10 @@ $(document).ready(function(){
 						<c:param name="itemLabel" value="nom"/>
 						<c:param name="itemValue" value="id"/>
 						<c:param name="itemBuit">&lt;&lt; <fmt:message key='expedient.consulta.select.tasca'/> &gt;&gt;</c:param>
-						<c:param name="label"><fmt:message key="expedient.eines.reassignar.tipus"/></c:param>
+						<c:param name="label"><fmt:message key="expedient.consulta.select.tasca"/></c:param>
 					</c:import>
 					<div class="ctrlHolder">
-						<label for="tipusExpressio"><fmt:message key='expedient.consulta.select.tasca'/></label>
+						<label for="tipusExpressio"><fmt:message key='expedient.eines.reassignar.tipus'/></label>
 						<select id="tipusExpressio" name="tipusExpressio" onclick="" onchange="javascript:changeTipus()">
 							<option value="user"><fmt:message key='filtre.expressio.usuari'/></option>
 							<option value="grup"><fmt:message key='filtre.expressio.grup'/></option>
@@ -511,6 +510,7 @@ $(document).ready(function(){
 					</c:import>
 				</div>
 			</form:form>
+ --%>
 		</div>
 	</div>
 					

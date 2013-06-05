@@ -1096,25 +1096,25 @@ public class ExpedientMassivaController extends BaseController {
 //			Collections.sort(llistaCamps, new ComparadorCampCodi());
 //			model.addAttribute("camps",	llistaCamps);
 			
-			// Tasques
-			List<DefinicioProcesDto> definicionsProces = new ArrayList<DefinicioProcesDto>(); 
-			definicionsProces.add(definicioProces);
-			definicionsProces.addAll(supProcessos);
-			model.addAttribute("defsProces", definicionsProces);
-			
-//			if (definicioProces != null) {
-//				List<Tasca> ts = dissenyService.findTasquesAmbDefinicioProces(definicioProces.getId());
-//				Set<Tasca> sTasques = new HashSet<Tasca>();
-//				sTasques.addAll(ts);
-//				for (DefinicioProcesDto df: supProcessos) {
-//					ts = dissenyService.findTasquesAmbDefinicioProces(df.getId());
-//					if (ts != null) sTasques.addAll(ts);
-//				}
-				List<Tasca> tasques = new ArrayList<Tasca>();
-//				tasques.addAll(sTasques);
-//				Collections.sort(tasques, new ComparadorTasca());
-				model.addAttribute("tasques", tasques);
-//			}
+//			// Tasques
+//			List<DefinicioProcesDto> definicionsProces = new ArrayList<DefinicioProcesDto>(); 
+//			definicionsProces.add(definicioProces);
+//			definicionsProces.addAll(supProcessos);
+//			model.addAttribute("defsProces", definicionsProces);
+//			
+////			if (definicioProces != null) {
+////				List<Tasca> ts = dissenyService.findTasquesAmbDefinicioProces(definicioProces.getId());
+////				Set<Tasca> sTasques = new HashSet<Tasca>();
+////				sTasques.addAll(ts);
+////				for (DefinicioProcesDto df: supProcessos) {
+////					ts = dissenyService.findTasquesAmbDefinicioProces(df.getId());
+////					if (ts != null) sTasques.addAll(ts);
+////				}
+//				List<Tasca> tasques = new ArrayList<Tasca>();
+////				tasques.addAll(sTasques);
+////				Collections.sort(tasques, new ComparadorTasca());
+//				model.addAttribute("tasques", tasques);
+////			}
 		}
 	}
 	
