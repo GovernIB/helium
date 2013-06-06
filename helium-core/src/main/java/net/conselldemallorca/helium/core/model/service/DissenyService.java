@@ -2757,7 +2757,6 @@ public class DissenyService {
 					nova.setFormExtern(vella.getFormExtern());
 					nova.setTramitacioMassiva(vella.isTramitacioMassiva());
 					// Propaga els camps de la tasca
-					int indexCamp = -1;
 					List<CampTascaExportacio> llistaCampsExportacio = new ArrayList<CampTascaExportacio>();
 					llistaCampsExportacio.addAll(vella.getCamps());
 					// Ordena la llista de camps tasca de l'exportació origen
@@ -2771,19 +2770,14 @@ public class DissenyService {
 								}
 								
 							});
-					// Actualitza els camps ja existents
-					for (CampTasca campTasca: nova.getCamps()) {
-						for (CampTascaExportacio cte: llistaCampsExportacio) {
-							if (campTasca.getCamp().getCodi().equals(cte.getCampCodi())) {
-								campTasca.setReadFrom(cte.isReadFrom());
-								campTasca.setWriteTo(cte.isWriteTo());
-								campTasca.setRequired(cte.isRequired());
-								campTasca.setReadOnly(cte.isReadOnly());
-								indexCamp = campTasca.getOrder();
-							}
-						}
-					}
-					indexCamp++; // Incrementam l'index per a no repetir l'ordre
+					int indexExport = 0;
+					for (CampTascaExportacio cte: llistaCampsExportacio)
+						cte.setOrder(indexExport++);
+					// Per evitar el ConstraintViolation amb l'ordre
+					int indexConstraint = nova.getCamps().size() + llistaCampsExportacio.size();
+					for (CampTasca campTasca: nova.getCamps())
+						campTasca.setOrder(indexConstraint++);
+					campTascaDao.flush();
 					// Inserta els camps de l'exportació que no existeixin
 					for (CampTascaExportacio campTasca: llistaCampsExportacio) {
 						boolean trobat = false;
@@ -2801,9 +2795,28 @@ public class DissenyService {
 									campTasca.isWriteTo(),
 									campTasca.isRequired(),
 									campTasca.isReadOnly(),
-									indexCamp++);
+									campTasca.getOrder());
 							campTascaDao.saveOrUpdate(nouct);
 							nova.addCamp(nouct);
+						}
+					}
+					// Actualitza els camps ja existents
+					int indexCamp = llistaCampsExportacio.size();
+					for (CampTasca campTasca: nova.getCamps()) {
+						boolean trobat = false;
+						for (CampTascaExportacio cte: llistaCampsExportacio) {
+							if (campTasca.getCamp().getCodi().equals(cte.getCampCodi())) {
+								campTasca.setReadFrom(cte.isReadFrom());
+								campTasca.setWriteTo(cte.isWriteTo());
+								campTasca.setRequired(cte.isRequired());
+								campTasca.setReadOnly(cte.isReadOnly());
+								campTasca.setOrder(cte.getOrder());
+								trobat = true;
+								break;
+							}
+						}
+						if (!trobat) {
+							campTasca.setOrder(indexCamp++);
 						}
 					}
 					// Propaga els documents de la tasca
