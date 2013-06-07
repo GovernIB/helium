@@ -79,6 +79,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
+import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.acl.AclServiceDao;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
@@ -1597,13 +1598,31 @@ public class ExpedientService {
 		}
 	}
 
+	public void changeProcessInstanceVersion(String processInstanceId) {
+		changeProcessInstanceVersion(processInstanceId, -1);
+	}
 	public void changeProcessInstanceVersion(
 			String processInstanceId,
 			int newVersion) {
+		DefinicioProces defprocAntiga = getDefinicioProcesPerProcessInstanceId(processInstanceId);
 		jbpmDao.changeProcessInstanceVersion(processInstanceId, newVersion);
-	}
-	public void changeProcessInstanceVersion(String processInstanceId) {
-		jbpmDao.changeProcessInstanceVersion(processInstanceId, -1);
+		// Apunta els terminis iniciats cap als terminis
+		// de la nova definició de procés
+		DefinicioProces defprocNova = getDefinicioProcesPerProcessInstanceId(processInstanceId);
+		List<TerminiIniciat> terminisIniciats = terminiIniciatDao.findAmbProcessInstanceId(processInstanceId);
+		for (TerminiIniciat terminiIniciat: terminisIniciats) {
+			Termini termini = terminiIniciat.getTermini();
+			if (termini.getDefinicioProces().getId().equals(defprocAntiga.getId())) {
+				for (Termini terminiNou: defprocNova.getTerminis()) {
+					if (terminiNou.getCodi().equals(termini.getCodi())) {
+						termini.removeIniciat(terminiIniciat);
+						terminiNou.addIniciat(terminiIniciat);
+						terminiIniciat.setTermini(terminiNou);
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	public void actualitzarProcessInstancesADarreraVersio(
