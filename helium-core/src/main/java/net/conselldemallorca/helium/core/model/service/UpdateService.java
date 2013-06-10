@@ -21,6 +21,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.hibernate.Usuari;
 import net.conselldemallorca.helium.core.model.update.Versio;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +55,8 @@ public class UpdateService {
 	public static final int VERSIO_260_ORDRE = 260;
 	public static final String VERSIO_ACTUAL_STR = "2.6.0";
 	public static final int VERSIO_ACTUAL_ORDRE = 260;
+
+	public static final int VERSIO_ACTUAL_RELEASE = 1;
 
 	private VersioDao versioDao;
 	private PersonaDao personaDao;
@@ -133,7 +136,15 @@ public class UpdateService {
 	}
 
 	public String getVersioActual() {
-		return VERSIO_ACTUAL_STR;
+		int numPunts = StringUtils.countMatches(VERSIO_ACTUAL_STR, ".");
+		if (numPunts > 1) {
+			String versioSenseRelease = VERSIO_ACTUAL_STR.substring(
+					0,
+					VERSIO_ACTUAL_STR.lastIndexOf("."));
+			return versioSenseRelease + "." + VERSIO_ACTUAL_RELEASE;
+		} else {
+			return VERSIO_ACTUAL_STR;			
+		}
 	}
 
 	public String getErrorUpdate() {
