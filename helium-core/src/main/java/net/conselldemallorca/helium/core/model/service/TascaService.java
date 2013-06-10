@@ -320,6 +320,7 @@ public class TascaService {
 				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
 				previousActors);
 		jbpmDao.takeTaskInstance(taskId, usuari);
+		getServiceUtils().expedientIndexLuceneUpdate(task.getProcessInstanceId());
 		String currentActors = expedientLogHelper.getActorsPerReassignacioTasca(taskId);
 		expedientLog.setAccioParams(previousActors + "::" + currentActors);
 		TascaDto tasca = toTascaDto(task, null, true, true);
