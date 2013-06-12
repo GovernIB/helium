@@ -3,12 +3,14 @@ package net.conselldemallorca.helium.jbpm3.spring;
 import java.util.Collection;
 import java.util.Date;
 
+import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jbpm.JbpmConfiguration;
+import org.jbpm.graph.exe.ProcessInstance;
 import org.jbpm.job.Job;
 import org.jbpm.job.executor.JobExecutor;
 import org.jbpm.job.executor.JobExecutorThread;
@@ -62,28 +64,30 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected void executeJob(final Job job) {
-		transactionTemplate.execute(new TransactionCallback() {
-			
-			public Object doInTransaction(TransactionStatus transactionStatus) {
-				SpringJobExecutorThread.super.executeJob(job);
-				return null;
+		boolean ambErrors = false;
+		try {
+			transactionTemplate.execute(new TransactionCallback() {
+				public Object doInTransaction(TransactionStatus transactionStatus) {
+					SpringJobExecutorThread.super.executeJob(job);
+					return null;
+				}
+			});
+		} catch (Exception ex) {
+			ambErrors = true;
+			ProcessInstance pi = job.getProcessInstance();
+			ExpedientDto exp = expedientService.findExpedientAmbProcessInstanceId(
+					String.valueOf(pi.getId()));
+			logger.error("Error al executar job de l'expedient (id=" + exp.getId() + ", identificador=" + exp.getIdentificadorLimitat() + ", processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
+		}
+		if (!ambErrors) {
+			try {
+				expedientService.luceneUpdateIndexExpedient(String.valueOf(job.getProcessInstance().getId()));
+			} catch (Exception ex) {
+				ProcessInstance pi = job.getProcessInstance();
+				ExpedientDto exp = expedientService.findExpedientAmbProcessInstanceId(
+						String.valueOf(pi.getId()));
+				logger.error("Error al executar job al reindexar l'expedient (id=" + exp.getId() + ", identificador=" + exp.getIdentificadorLimitat() + ", processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
 			}
-			
-		});
-		try{
-			expedientService.luceneUpdateIndexExpedient(String.valueOf(job.getProcessInstance().getId()));
-		} catch (Exception e) {
-			logger.error("TIMER-LUCENE: Error al indexar l'expedient ProcessInstance num. " + job.getProcessInstance().getId());
-//			ProcessInstance pi = job.getProcessInstance();
-//			ExpedientDto exp = expedientService.findExpedientAmbProcessInstanceId(String.valueOf(pi.getId()));
-//			System.out.println("TIMER-LUCENE: Error al indexar l'expedient:");
-//			System.out.println("\t - ProcessInstance num. " + pi.getId());
-//			System.out.println("\t - Número d'expedient " + exp.getNumero());
-//			System.out.println("\t - Títol d'expedient " + exp.getTitol());
-//			System.out.println("\t - Tipus d'expedient " + exp.getTipus().getNom());
-//			StringWriter out = new StringWriter();
-//			e.printStackTrace(new PrintWriter(out));
-//			System.out.println(out.toString());
 		}
 	}
 	
