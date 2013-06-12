@@ -23,20 +23,25 @@
 // <![CDATA[
 function refrescarEstats(element) {
 	var estatActual = $("select#estat0").val();
-	$.getJSON(
-    		"consultaEstats.html?id=" + element.value,
-    		{},
-    		function(j) {
-			    var options = '';
-			    options += '<option value="">&lt;&lt; <fmt:message key="expedient.consulta.select.estat"/> &gt;&gt;</option>';
-		        for (var i = 0; i < j.length; i++) {
-		        	if (j[i].id == estatActual)
-		        		options += '<option value="' + j[i].id + '" selected="selected">' + j[i].nom + '</option>';
-		        	else
-		        		options += '<option value="' + j[i].id + '">' + j[i].nom + '</option>';
-		        }
-		        $("select#estat0").html(options).attr('class', 'inlineLabels');
-			});
+	$.ajax({
+	    url:"consultaEstats.html?id=" + element.value,
+	    type:'GET',
+	    dataType: 'json',
+	    success: function(json) {
+	    	var options = '';
+		    options += '<option value="">&lt;&lt; <fmt:message key="expedient.consulta.select.estat"/> &gt;&gt;</option>';
+	        for (var i = 0; i < json.length; i++) {
+	        	if (json[i].id == estatActual)
+	        		options += '<option value="' + json[i].id + '" selected="selected">' + json[i].nom + '</option>';
+	        	else
+	        		options += '<option value="' + json[i].id + '">' + json[i].nom + '</option>';
+	        }
+	        $("select#estat0").html(options).attr('class', 'inlineLabels');
+	    },
+	    error: function(jqXHR, textStatus, errorThrown) {
+	    	console.log("Error al actualitzar la llista d'estats: [" + textStatus + "] " + errorThrown);
+	    }
+	});
 }
 function confirmarEsborrar(e) {
 	var e = e || window.event;
