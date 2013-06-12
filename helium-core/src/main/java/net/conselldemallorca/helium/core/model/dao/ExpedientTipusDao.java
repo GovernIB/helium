@@ -109,7 +109,7 @@ public class ExpedientTipusDao extends HibernateGenericDao<ExpedientTipus, Long>
 				return "#invalid expression#";
 			}
 		} else {
-			return new Long(expedientTipus.getSequencia()).toString();
+			return new Long(seq).toString();
 		}
 	}
 
