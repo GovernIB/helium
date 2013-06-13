@@ -55,6 +55,7 @@ import org.jbpm.util.EqualsUtil;
  * definition, just use the {@link #ProcessInstance(ProcessDefinition)}.
  * 
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class ProcessInstance implements Identifiable, Serializable
 {
 
