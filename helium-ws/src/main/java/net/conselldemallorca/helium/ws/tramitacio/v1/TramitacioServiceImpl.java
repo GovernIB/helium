@@ -106,6 +106,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 					null,
 					et.getId(),
 					null,
+					null,
 					numero,
 					titol,
 					null,

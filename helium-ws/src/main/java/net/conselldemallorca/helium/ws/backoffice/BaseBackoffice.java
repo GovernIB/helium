@@ -66,6 +66,7 @@ public abstract class BaseBackoffice {
 					null,
 					expedientTipus.getId(),
 					null,
+					null,
 					null, // expedientNumero
 					expedientTitol,
 					tramit.getRegistreNumero(),
