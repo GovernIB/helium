@@ -190,7 +190,7 @@ function simularClick(valor,xec){
 										changeMonth: true,
 										changeYear: true
 									}));
-									$("#dataInici1").datepicker();
+									$("#dataInici1").datepicker({firstDay: 1});
 								});
 								// ]]>
 							</script>
@@ -208,7 +208,7 @@ function simularClick(valor,xec){
 										changeMonth: true,
 										changeYear: true
 									}));
-									$("#dataInici2").datepicker();
+									$("#dataInici2").datepicker({firstDay: 1});
 								});
 								// ]]>
 							</script>
