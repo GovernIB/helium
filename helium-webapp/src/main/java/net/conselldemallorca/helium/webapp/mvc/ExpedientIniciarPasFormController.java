@@ -14,6 +14,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
@@ -231,7 +232,7 @@ public class ExpedientIniciarPasFormController extends BaseController {
 							Map<String, Object> valors = new HashMap<String, Object>();
 							valors.putAll(obtenirValorsSessio(request));
 							valors.putAll(TascaFormUtil.getValorsFromCommand(camps, command, true, false));
-							iniciarExpedient(
+							ExpedientDto iniciat = iniciarExpedient(
 									entorn.getId(),
 									expedientTipusId,
 									definicioProcesId,
@@ -239,7 +240,11 @@ public class ExpedientIniciarPasFormController extends BaseController {
 									(String)request.getSession().getAttribute(ExpedientIniciarController.CLAU_SESSIO_TITOL),
 									(Integer)request.getSession().getAttribute(ExpedientIniciarController.CLAU_SESSIO_ANY),
 									valors);
-							missatgeInfo(request, getMessage("info.expedient.iniciat"));
+							missatgeInfo(
+									request,
+									getMessage(
+											"info.expedient.iniciat",
+											new Object[] {iniciat.getIdentificador()}));
 							ExpedientIniciarController.netejarSessio(request);
 							return "redirect:/expedient/iniciar.html";
 						} catch (Exception ex) {
@@ -442,7 +447,7 @@ public class ExpedientIniciarPasFormController extends BaseController {
 				valors);
 	}
 
-	private synchronized void iniciarExpedient(
+	private synchronized ExpedientDto iniciarExpedient(
 			Long entornId,
 			Long expedientTipusId,
 			Long definicioProcesId,
@@ -450,7 +455,7 @@ public class ExpedientIniciarPasFormController extends BaseController {
 			String titol,
 			Integer any,
 			Map<String, Object> valors) {
-		expedientService.iniciar(
+		return expedientService.iniciar(
 				entornId,
 				null,
 				expedientTipusId,

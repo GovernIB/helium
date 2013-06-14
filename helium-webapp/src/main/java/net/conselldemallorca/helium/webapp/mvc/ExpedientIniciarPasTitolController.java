@@ -11,6 +11,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
@@ -179,7 +180,7 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 					}
 					// Si no requereix dades inicials inicia l'expedient*/
 					try {
-						iniciarExpedient(
+						ExpedientDto iniciat = iniciarExpedient(
 								request,
 								entorn.getId(),
 								command.getExpedientTipusId(),
@@ -187,7 +188,11 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 								command.getNumero(),
 								command.getTitol(),
 								command.getAny());
-					    missatgeInfo(request, getMessage("info.expedient.iniciat"));
+					    missatgeInfo(
+					    		request,
+					    		getMessage(
+										"info.expedient.iniciat",
+										new Object[] {iniciat.getIdentificador()}));
 					    ExpedientIniciarController.netejarSessio(request);
 					    return "redirect:/expedient/iniciar.html";
 					} catch (Exception ex) {
@@ -288,7 +293,7 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 	}
 
 	@SuppressWarnings("unchecked")
-	private synchronized void iniciarExpedient(
+	private synchronized ExpedientDto iniciarExpedient(
 			HttpServletRequest request,
 			Long entornId,
 			Long expedientTipusId,
@@ -321,7 +326,7 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 						false));
 			}
 		}
-		expedientService.iniciar(
+		return expedientService.iniciar(
 				entornId,
 				null,
 				expedientTipusId,
