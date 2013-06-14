@@ -88,7 +88,7 @@
 		<fmt:message key="tasca.doc.docs_tasca"/>
 	</h3>
 
-	<c:forEach var="document" items="${tasca.documents}">
+	<c:forEach var="document" items="${tasca.documentsOrdenatsPerMostrarTasca}">
 		<c:if test="${not document.readOnly}">
 			<c:set var="variableDoc" value="${null}"/>
 			<c:forEach var="var" items="${tasca.varsDocuments}">
