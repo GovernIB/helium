@@ -74,65 +74,67 @@ public class ExecucioMassivaService {
 
 
 	public void crearExecucioMassiva(ExecucioMassivaDto dto) {
-		String log = "Creació d'execució massiva (dataInici=" + dto.getDataInici();
-		if (dto.getExpedientTipusId() != null) log += ", expedientTipusId=" + dto.getExpedientTipusId();
-		log += ", numExpedients=";
-		if (dto.getExpedientIds() != null) log += dto.getExpedientIds().size();
-		else if (dto.getProcInstIds() != null) log += dto.getProcInstIds().size();
-		else log += "0";
-		log += ")";
-		logger.debug(log);
-		
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		ExecucioMassiva execucioMassiva = new ExecucioMassiva(
-				auth.getName(),
-				ExecucioMassivaTipus.valueOf(dto.getTipus().toString()));
-		if (dto.getDataInici() == null) {
-			execucioMassiva.setDataInici(new Date());
-		} else {
-			execucioMassiva.setDataInici(dto.getDataInici());
-		}
-		execucioMassiva.setEnviarCorreu(dto.getEnviarCorreu());
-		execucioMassiva.setParam1(dto.getParam1());
-		execucioMassiva.setParam2(dto.getParam2());
-		if (dto.getExpedientTipusId() != null) {
-			execucioMassiva.setExpedientTipus(
-					expedientTipusDao.getById(
-							dto.getExpedientTipusId(),
-							false));
-		}
-		int ordre = 0;
-		if (dto.getExpedientIds() != null) {
+		if (dto.getExpedientIds() != null && !dto.getExpedientIds().isEmpty()) {
+			String log = "Creació d'execució massiva (dataInici=" + dto.getDataInici();
+			if (dto.getExpedientTipusId() != null) log += ", expedientTipusId=" + dto.getExpedientTipusId();
+			log += ", numExpedients=";
+			if (dto.getExpedientIds() != null) log += dto.getExpedientIds().size();
+			else if (dto.getProcInstIds() != null) log += dto.getProcInstIds().size();
+			else log += "0";
+			log += ")";
+			logger.debug(log);
 			
-			for (Long expedientId: dto.getExpedientIds()) {
-				Expedient expedient = expedientDao.getById(expedientId, false);
-				ExecucioMassivaExpedient eme = new ExecucioMassivaExpedient(
-						execucioMassiva,
-						expedient,
-						ordre++);
-				execucioMassiva.addExpedient(eme);
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			ExecucioMassiva execucioMassiva = new ExecucioMassiva(
+					auth.getName(),
+					ExecucioMassivaTipus.valueOf(dto.getTipus().toString()));
+			if (dto.getDataInici() == null) {
+				execucioMassiva.setDataInici(new Date());
+			} else {
+				execucioMassiva.setDataInici(dto.getDataInici());
 			}
-		} else if (dto.getTascaIds() != null) {
-			for (String tascaId: dto.getTascaIds()) {
-				TascaDto tasca = tascaService.getByIdSenseComprovacio(tascaId);
-				ExecucioMassivaExpedient eme = new ExecucioMassivaExpedient(
-						execucioMassiva,
-						tasca.getExpedient(),
-						tascaId,
-						ordre++);
-				execucioMassiva.addExpedient(eme);
+			execucioMassiva.setEnviarCorreu(dto.getEnviarCorreu());
+			execucioMassiva.setParam1(dto.getParam1());
+			execucioMassiva.setParam2(dto.getParam2());
+			if (dto.getExpedientTipusId() != null) {
+				execucioMassiva.setExpedientTipus(
+						expedientTipusDao.getById(
+								dto.getExpedientTipusId(),
+								false));
 			}
-		} else if (dto.getProcInstIds() != null) {
-			for (String procinstId: dto.getProcInstIds()) {
-				ExecucioMassivaExpedient eme = new ExecucioMassivaExpedient(
-						execucioMassiva,
-						procinstId,
-						ordre++);
-				execucioMassiva.addExpedient(eme);
+			int ordre = 0;
+			if (dto.getExpedientIds() != null) {
+				
+				for (Long expedientId: dto.getExpedientIds()) {
+					Expedient expedient = expedientDao.getById(expedientId, false);
+					ExecucioMassivaExpedient eme = new ExecucioMassivaExpedient(
+							execucioMassiva,
+							expedient,
+							ordre++);
+					execucioMassiva.addExpedient(eme);
+				}
+			} else if (dto.getTascaIds() != null) {
+				for (String tascaId: dto.getTascaIds()) {
+					TascaDto tasca = tascaService.getByIdSenseComprovacio(tascaId);
+					ExecucioMassivaExpedient eme = new ExecucioMassivaExpedient(
+							execucioMassiva,
+							tasca.getExpedient(),
+							tascaId,
+							ordre++);
+					execucioMassiva.addExpedient(eme);
+				}
+			} else if (dto.getProcInstIds() != null) {
+				for (String procinstId: dto.getProcInstIds()) {
+					ExecucioMassivaExpedient eme = new ExecucioMassivaExpedient(
+							execucioMassiva,
+							procinstId,
+							ordre++);
+					execucioMassiva.addExpedient(eme);
+				}
 			}
+			execucioMassiva.setEntorn(EntornActual.getEntornId());
+			execucioMassivaDao.saveOrUpdate(execucioMassiva);
 		}
-		execucioMassiva.setEntorn(EntornActual.getEntornId());
-		execucioMassivaDao.saveOrUpdate(execucioMassiva);
 	}
 
 	public List<ExecucioMassivaDto> getExecucionsMassivesActives() {
@@ -167,15 +169,17 @@ public class ExecucioMassivaService {
 					Expedient exp = expedient.getExpedient();
 					String titol = "";
 					if (exp != null) { 
-						titol = exp.getNumeroDefault();
-			    		if (exp.getTitol() != null) {
-			    			titol += " " + exp.getTitol();
-			    		}
+						if (exp.getNumeroDefault() != null)
+							titol = "[" + exp.getNumero() + "]";
+			    		if (exp.getTitol() != null) 
+			    			titol += (titol.length() > 0 ? " " : "") + exp.getTitol();
+			    		if (titol.length() == 0)
+			    			titol = exp.getNumeroDefault();
 					} else {
 						titol = getMessage("expedient.massiva.actualitzar.dp") + " " + expedient.getExecucioMassiva().getParam1();
 					}
 			    	String error = expedient.getError();
-			    	if (error != null) error = error.replace("'", "&#8217;").replace("\n", "\\n");//.replace("\t", "\\t");
+			    	if (error != null) error = error.replace("'", "&#8217;").replace("\"", "&#8220;").replace("\n", "\\n");
 			    	json_exp += "{\"id\":\"" + expedient.getId() + "\",";
 			    	json_exp += "\"titol\":\"" + titol + "\",";
 			    	json_exp += "\"estat\":\"" + expedient.getEstat().name() + "\",";
@@ -196,10 +200,6 @@ public class ExecucioMassivaService {
 		json += "]";
 		return json;
 	}
-	
-//	private String getTextExecucioMassiva(ExecucioMassiva execucioMassiva) {
-//		 return getTextExecucioMassiva(execucioMassiva, null);
-//	}
 	
 	private String getTextExecucioMassiva(ExecucioMassiva execucioMassiva, String tasca) {
 		String label = null;
@@ -244,7 +244,7 @@ public class ExecucioMassivaService {
 				label = getMessage("expedient.massiva.actualitzar") + (definicioProces == null ? "" : " (" + definicioProces.getJbpmKey() + " v." + definicioProces.getVersio() + ")");
 			}
 		} else if (tipus.equals(ExecucioMassivaTipus.EXECUTAR_SCRIPT)){
-			String script = getOperacio(execucioMassiva);
+			String script = getOperacio(execucioMassiva).replace("'", "&#39;").replace("\"", "&#34;");
 			label = getMessage("expedient.massiva.executarScriptMas") + " " + (script.length() > 20 ? script.substring(0,20) : script);
 		} else if (tipus.equals(ExecucioMassivaTipus.EXECUTAR_ACCIO)){
 			String accio = getOperacio(execucioMassiva);
@@ -307,25 +307,30 @@ public class ExecucioMassivaService {
 	
 	public void executarExecucioMassiva(OperacioMassivaDto dto) throws Exception {
 		logger.debug("Executant la acció massiva (expedientTipusId=" + dto.getExpedientTipusId() + ", dataInici=" + dto.getDataInici() + ", expedient=" + dto.getId() + ", acció=" + dto.getTipus());
-		ExecucioMassivaTipus tipus = dto.getTipus();
-		if (tipus == ExecucioMassivaTipus.EXECUTAR_TASCA){
-			gestioTasca(dto);
-		} else if (tipus == ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC){
-			actualitzarVersio(dto);
-		} else if (tipus == ExecucioMassivaTipus.EXECUTAR_SCRIPT){
-			executarScript(dto);
-		} else if (tipus == ExecucioMassivaTipus.EXECUTAR_ACCIO){
-			executarAccio(dto);
-		} else if (tipus == ExecucioMassivaTipus.ATURAR_EXPEDIENT){
-			aturarExpedient(dto);
-		} else if (tipus == ExecucioMassivaTipus.MODIFICAR_VARIABLE){
-			modificarVariable(dto);
-		} else if (tipus == ExecucioMassivaTipus.MODIFICAR_DOCUMENT){
-			modificarDocument(dto);
-		} else if (tipus == ExecucioMassivaTipus.REINDEXAR){
-			reindexarExpedient(dto);
-		} else if (tipus == ExecucioMassivaTipus.REASSIGNAR){
-			reassignarExpedient(dto);
+		try {
+			ExecucioMassivaTipus tipus = dto.getTipus();
+			if (tipus == ExecucioMassivaTipus.EXECUTAR_TASCA){
+				gestioTasca(dto);
+			} else if (tipus == ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC){
+				actualitzarVersio(dto);
+			} else if (tipus == ExecucioMassivaTipus.EXECUTAR_SCRIPT){
+				executarScript(dto);
+			} else if (tipus == ExecucioMassivaTipus.EXECUTAR_ACCIO){
+				executarAccio(dto);
+			} else if (tipus == ExecucioMassivaTipus.ATURAR_EXPEDIENT){
+				aturarExpedient(dto);
+			} else if (tipus == ExecucioMassivaTipus.MODIFICAR_VARIABLE){
+				modificarVariable(dto);
+			} else if (tipus == ExecucioMassivaTipus.MODIFICAR_DOCUMENT){
+				modificarDocument(dto);
+			} else if (tipus == ExecucioMassivaTipus.REINDEXAR){
+				reindexarExpedient(dto);
+			} else if (tipus == ExecucioMassivaTipus.REASSIGNAR){
+				reassignarExpedient(dto);
+			}
+		} catch (Exception ex) {
+			logger.error("Error al executar la acció massiva (expedientTipusId=" + dto.getExpedientTipusId() + ", dataInici=" + dto.getDataInici() + ", expedient=" + dto.getId() + ", acció=" + dto.getTipus(), ex);
+			throw ex;
 		}
 	}
 	

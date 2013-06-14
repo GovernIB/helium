@@ -29,16 +29,19 @@
 			resizable: false,
 			buttons: {
 				<fmt:message key='comuns.tancar' />: function() {
-					clearTimeout(timer);
+					//clearTimeout(timer);
 					$(this).dialog("close");
 				},
 				"<fmt:message key='comuns.mes.dades' />": function() {
 					var numFiles = $("#accordio_massiva h3").length;
-					carregaExecucionsMassives(numFiles + 10)
+					carregaExecucionsMassives(numFiles + 10);
+				},
+				"<fmt:message key='comuns.refrescar' />": function() {
+					refreshExecucionsMassives();
 				}
 			},
 			close: function(){
-				clearTimeout(timer);
+				//clearTimeout(timer);
 			}
 		});
 		
@@ -83,8 +86,8 @@
 							var exps =  execucio.expedients.length;
 							
 							content +=	'<h3 id="mass_' + execucio.id + '">' +
-											'<span class="massiu-data">' + execucio.data + '</span>' +
-											'<span class="massiu-accio">' + execucio.text + '</span>' +
+											'<div class="massiu-data">' + execucio.data + '</div>' +
+											'<div class="massiu-accio">' + execucio.text + '</div>' +
 											'<div class="massiu-progres" id="pbar_' + execucio.id + '"><span class="plabel" id="plabel_' + execucio.id + '">' + execucio.progres + '%</span></div>' +
 										'</h3>';
 							content +=	'<div>';
@@ -143,11 +146,10 @@
 					      active: false
 				    });
 					if (length > 0) {
-						timer = setTimeout(refreshExecucionsMassives, 1500);
+						//timer = setTimeout(refreshExecucionsMassives, 1500);
 					}
 				}
 		})
-				//.done(function() { console.log( "second success" ); })
 		.fail(function( jqxhr, textStatus, error ) {
 			var err = textStatus + ', ' + error;
 			console.log( "Request Failed: " + err);
@@ -184,8 +186,8 @@
 							// Afegim noves execucions
 							if ($("#mass_" + execucio.id).length == 0) {
 								content +=	'<h3 id="mass_' + execucio.id + '">' +
-												'<span class="massiu-data">' + execucio.data + '</span>' +
-												'<span class="massiu-accio">' + execucio.text + '</span>' +
+												'<div class="massiu-data">' + execucio.data + '</div>' +
+												'<div class="massiu-accio">' + execucio.text + '</div>' +
 												'<div class="massiu-progres" id="pbar_' + execucio.id + '"><span id="plabel_' + execucio.id + '">' + execucio.progres + '%</span></div>' +
 											'</h3>';
 								content +=	'<div>';
@@ -266,18 +268,13 @@
 							}
 						}
 					}
-// 					$( "#accordio_massiva" ).accordion({
-// 					      collapsible: true,
-// 					      active: false
-// 				    });
-					timer = setTimeout(refreshExecucionsMassives, 1500);
+					//timer = setTimeout(refreshExecucionsMassives, 1500);
 				}
-		});
-				//.done(function() { console.log( "second success" ); })
-				//.fail(function( jqxhr, textStatus, error ) {
-				//	var err = textStatus + ', ' + error;
-				//	console.log( "Request Failed: " + err);
-				//})
+		})
+		.fail(function( jqxhr, textStatus, error ) {
+			var err = textStatus + ', ' + error;
+			console.log( "Request Failed: " + err);
+		})
 // 		.always(function() { });
 	}
 	

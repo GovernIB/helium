@@ -2922,16 +2922,18 @@ public class DissenyService {
 			JbpmProcessDefinition jpd,
 			List<String> jbpmIds, 
 			Boolean incloure) {
-		List<JbpmProcessDefinition> subPds = jbpmDao.getSubProcessDefinitions(jpd.getId());
-		if (subPds != null) {
-			for (JbpmProcessDefinition subPd: subPds) {
-				afegirJbpmIdProcesAmbSubprocessos(subPd, jbpmIds, true);
-				if (!jbpmIds.contains(subPd.getId()))
-					jbpmIds.add(subPd.getId());
+		if (jpd != null) {
+			List<JbpmProcessDefinition> subPds = jbpmDao.getSubProcessDefinitions(jpd.getId());
+			if (subPds != null) {
+				for (JbpmProcessDefinition subPd: subPds) {
+					afegirJbpmIdProcesAmbSubprocessos(subPd, jbpmIds, true);
+					if (!jbpmIds.contains(subPd.getId()))
+						jbpmIds.add(subPd.getId());
+				}
 			}
+			if (!jbpmIds.contains(jpd.getId()) && incloure)
+				jbpmIds.add(jpd.getId());
 		}
-		if (!jbpmIds.contains(jpd.getId()) && incloure)
-			jbpmIds.add(jpd.getId());
 	}
 	private DefinicioProcesDto findDefinicioProcesAmbJbpmId(String jbpmId) {
 		String processDefinitionId = jbpmDao.getProcessDefinition(jbpmId).getId();

@@ -187,6 +187,8 @@ html, body{
 	height: 30px;
 	margin-top: 4px !important;
 	padding-top: 2px !important;
+	overflow: hidden;
+	height: auto;
 }
 
 .ui-accordion-content {
