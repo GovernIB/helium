@@ -3,7 +3,6 @@
  */
 package net.conselldemallorca.helium.core.model.dao;
 
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +52,7 @@ public class ExpedientTipusDao extends HibernateGenericDao<ExpedientTipus, Long>
 
 	public String getNumeroExpedientActual(
 			Long expedientTipusId,
+			int any,
 			long increment) {
 		ExpedientTipus expedientTipus = getById(expedientTipusId, false);
 		long seq = expedientTipus.getSequencia();
@@ -60,11 +60,13 @@ public class ExpedientTipusDao extends HibernateGenericDao<ExpedientTipus, Long>
 				expedientTipus,
 				expedientTipus.getExpressioNumero(),
 				seq + increment,
+				any,
 				expedientTipus.isReiniciarCadaAny());
 	}
 	
 	public String getNumeroExpedientDefaultActual(
 			Long expedientTipusId,
+			int any,
 			long increment) {
 		ExpedientTipus expedientTipus = getById(expedientTipusId, false);
 		long seq = expedientTipus.getSequenciaDefault();
@@ -72,6 +74,7 @@ public class ExpedientTipusDao extends HibernateGenericDao<ExpedientTipus, Long>
 				expedientTipus,
 				getNumexpExpression(),
 				seq + increment,
+				any,
 				true);
 	}
 
@@ -80,14 +83,14 @@ public class ExpedientTipusDao extends HibernateGenericDao<ExpedientTipus, Long>
 	private String getNumeroExpedientExpressio(
 			ExpedientTipus expedientTipus,
 			String expressio,
-			long seq, 
+			long seq,
+			int any,
 			boolean reiniciarCadaAny) {
 		if (expressio != null) {
 			try {
 				final Map<String, Object> context = new HashMap<String, Object>();
 				context.put("entorn_cod", expedientTipus.getEntorn().getCodi());
 				context.put("tipexp_cod", expedientTipus.getCodi());
-				int any = Calendar.getInstance().get(Calendar.YEAR);
 				context.put("any", any);
 				if (any != 0 && any != expedientTipus.getAnyActual() && reiniciarCadaAny)
 					seq = 1;

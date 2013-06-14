@@ -188,6 +188,7 @@ public class ExpedientService {
 			String usuari,
 			Long expedientTipusId,
 			Long definicioProcesId,
+			Integer any,
 			String numero,
 			String titol,
 			String registreNumero,
@@ -245,13 +246,19 @@ public class ExpedientService {
 		expedient.setAvisosMobil(avisosMobil);
 		expedient.setNotificacioTelematicaHabilitada(notificacioTelematicaHabilitada);
 		expedient.setNumeroDefault(
-				getNumeroExpedientDefaultActual(entornId, expedientTipusId));
+				getNumeroExpedientDefaultActual(
+						entornId,
+						expedientTipusId,
+						any));
 		if (expedientTipus.getTeNumero()) {
 			if (numero != null && numero.length() > 0) {
 				expedient.setNumero(numero);
 			} else {
 				expedient.setNumero(
-						getNumeroExpedientActual(entornId, expedientTipusId));
+						getNumeroExpedientActual(
+								entornId,
+								expedientTipusId,
+								any));
 			}
 		}
 	
@@ -266,22 +273,28 @@ public class ExpedientService {
 							new Object[]{expedient.getNumero()}) );
 		}
 		// Actualitza l'any actual de l'expedient
-		int any = Calendar.getInstance().get(Calendar.YEAR);
-		if (expedientTipus.getAnyActual() == 0) {
-			expedientTipus.setAnyActual(any);
-		} else if (expedientTipus.getAnyActual() != any) {
-			if (expedientTipus.isReiniciarCadaAny())
-				expedientTipus.setSequencia(1);
-			expedientTipus.setSequenciaDefault(1);
-			expedientTipus.setAnyActual(any);
+		int anyActual = Calendar.getInstance().get(Calendar.YEAR);
+		if (any == null || any.intValue() == anyActual) {
+			if (expedientTipus.getAnyActual() == 0) {
+				expedientTipus.setAnyActual(anyActual);
+			} else if (expedientTipus.getAnyActual() != anyActual) {
+				if (expedientTipus.isReiniciarCadaAny())
+					expedientTipus.setSequencia(1);
+				expedientTipus.setSequenciaDefault(1);
+				expedientTipus.setAnyActual(anyActual);
+			}
 		}
 		// Actualitza la seqüència del número d'expedient
 		if (expedientTipus.getExpressioNumero() != null && !"".equals(expedientTipus.getExpressioNumero())) {
-			if (expedient.getNumero().equals(getNumeroExpedientActual(entornId, expedientTipusId)))
+			if (expedient.getNumero().equals(
+					getNumeroExpedientActual(
+							entornId,
+							expedientTipusId,
+							any)))
 				expedientTipus.setSequencia(expedientTipus.getSequencia() + 1);
 		}
 		// Actualitza la seqüència del número d'expedient per defecte
-		if (expedient.getNumeroDefault().equals(getNumeroExpedientDefaultActual(entornId, expedientTipusId)))
+		if (expedient.getNumeroDefault().equals(getNumeroExpedientDefaultActual(entornId, expedientTipusId, any)))
 			expedientTipus.setSequenciaDefault(expedientTipus.getSequenciaDefault() + 1);
 		// Configura el títol de l'expedient
 		if (expedientTipus.getTeTitol()) {
@@ -359,13 +372,15 @@ public class ExpedientService {
 
 	public String getNumeroExpedientActual(
 			Long entornId,
-			Long expedientTipusId) {
+			Long expedientTipusId,
+			Integer any) {
 		long increment = 0;
 		String numero = null;
 		Expedient expedient = null;
 		do {
 			numero = expedientTipusDao.getNumeroExpedientActual(
 					expedientTipusId,
+					(any != null) ? any.intValue() : Calendar.getInstance().get(Calendar.YEAR),
 					increment);
 			expedient = expedientDao.findAmbEntornTipusINumero(
 					entornId,
@@ -378,13 +393,15 @@ public class ExpedientService {
 	
 	public String getNumeroExpedientDefaultActual(
 			Long entornId,
-			Long expedientTipusId) {
+			Long expedientTipusId,
+			Integer any) {
 		long increment = 0;
 		String numero = null;
 		Expedient expedient = null;
 		do {
 			numero = expedientTipusDao.getNumeroExpedientDefaultActual(
 					expedientTipusId,
+					(any != null) ? any.intValue() : Calendar.getInstance().get(Calendar.YEAR),
 					increment);
 			expedient = expedientDao.findAmbEntornTipusINumeroDefault(
 					entornId,

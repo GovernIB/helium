@@ -3,7 +3,6 @@
  */
 package net.conselldemallorca.helium.jbpm3.handlers;
 
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 
 import org.jbpm.JbpmException;
@@ -29,16 +28,16 @@ public class DocumentEsborrarHandler extends AbstractHeliumActionHandler impleme
 		String varCodi = DocumentHelper.PREFIX_VAR_DOCUMENT + dc;
 		Object valor = executionContext.getVariable(varCodi);
 		if (valor != null && valor instanceof Long) {
-			Long id = (Long)valor;
+			/*Long id = (Long)valor;
 			DocumentStore docStore = getDocumentStoreDao().getById(id, false);
-			if (docStore != null) {
+			if (docStore != null) {*/
 				getDocumentService().esborrarDocument(
 						null,
 						new Long(executionContext.getProcessInstance().getId()).toString(),
 						dc);
-			} else {
+			/*} else {
 				throw new JbpmException("No s'ha trobat el contingut del document especificat(" + dc + ")");
-			}
+			}*/
 		}
 	}
 

@@ -237,6 +237,7 @@ public class ExpedientIniciarPasFormController extends BaseController {
 									definicioProcesId,
 									(String)request.getSession().getAttribute(ExpedientIniciarController.CLAU_SESSIO_NUMERO),
 									(String)request.getSession().getAttribute(ExpedientIniciarController.CLAU_SESSIO_TITOL),
+									(Integer)request.getSession().getAttribute(ExpedientIniciarController.CLAU_SESSIO_ANY),
 									valors);
 							missatgeInfo(request, getMessage("info.expedient.iniciat"));
 							ExpedientIniciarController.netejarSessio(request);
@@ -447,12 +448,14 @@ public class ExpedientIniciarPasFormController extends BaseController {
 			Long definicioProcesId,
 			String numero,
 			String titol,
+			Integer any,
 			Map<String, Object> valors) {
 		expedientService.iniciar(
 				entornId,
 				null,
 				expedientTipusId,
 				definicioProcesId,
+				any,
 				numero,
 				titol,
 				null,

@@ -15,6 +15,7 @@ public class ExpedientIniciarPasTitolCommand {
 	private String numero;
 	private String titol;
 	private String responsableCodi;
+	private Integer any;
 
 
 
@@ -54,6 +55,14 @@ public class ExpedientIniciarPasTitolCommand {
 
 	public void setResponsableCodi(String responsableCodi) {
 		this.responsableCodi = responsableCodi;
+	}
+
+	public Integer getAny() {
+		return any;
+	}
+
+	public void setAny(Integer any) {
+		this.any = any;
 	}
 
 }

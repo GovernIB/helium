@@ -12,10 +12,11 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.exception.ExpedientRepetitException;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
@@ -44,6 +45,7 @@ public class ExpedientIniciarController extends BaseController {
 	public static final String CLAU_SESSIO_TASKID = "iniciexp_taskId";
 	public static final String CLAU_SESSIO_TITOL = "iniciexp_titol";
 	public static final String CLAU_SESSIO_NUMERO = "iniciexp_numero";
+	public static final String CLAU_SESSIO_ANY = "iniciexp_any";
 	public static final String CLAU_SESSIO_FORM_VALIDAT = "iniciexp_form_validat";
 	public static final String CLAU_SESSIO_FORM_COMMAND = "iniciexp_form_command";
 	public static final String CLAU_SESSIO_FORM_VALORS = "iniciexp_form_registres";
@@ -142,16 +144,20 @@ public class ExpedientIniciarController extends BaseController {
 				}
 				// Si no requereix cap pas addicional inicia l'expedient directament
 				try {
-					iniciarExpedient(
+					ExpedientDto iniciat = iniciarExpedient(
 							entorn.getId(),
 							expedientTipusId,
 							definicioProcesId);
-					missatgeInfo(request, getMessage("info.expedient.iniciat") );
+					missatgeInfo(
+							request,
+							getMessage(
+									"info.expedient.iniciat",
+									new Object[] {iniciat.getIdentificador()}));
 				} catch (ExpedientRepetitException ex) {
 					missatgeError(
 							request,
-							getMessage("error.exist.exp.mateix.numero") );
-				}catch (Exception ex) {
+							getMessage("error.exist.exp.mateix.numero"));
+				} catch (Exception ex) {
 					missatgeError(
 							request,
 							getMessage("error.iniciar.expedient"),
@@ -206,15 +212,16 @@ public class ExpedientIniciarController extends BaseController {
 				"TIE_" + System.currentTimeMillis());
 	}
 
-	private synchronized void iniciarExpedient(
+	private synchronized ExpedientDto iniciarExpedient(
 			Long entornId,
 			Long expedientTipusId,
 			Long definicioProcesId) {
-		expedientService.iniciar(
+		return expedientService.iniciar(
 				entornId,
 				null,
 				expedientTipusId,
 				definicioProcesId,
+				null,
 				null,
 				null,
 				null,
