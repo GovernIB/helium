@@ -15,6 +15,7 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentDisseny;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.FilaResultat;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.ParellaCodiValor;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaRegistre;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.Tramit;
 
@@ -41,6 +42,12 @@ public abstract class BasicActionHandler implements ActionHandler {
 			String id,
 			Map<String, Object> parametres) {
 		return new ArrayList<FilaResultat>();
+	}
+
+	public List<ParellaCodiValor> consultaEnumeracio(
+			ExecutionContext executionContext,
+			String codiEnumeracio) {
+		return new ArrayList<ParellaCodiValor>();
 	}
 
 	public List<ExpedientInfo> consultaExpedients(

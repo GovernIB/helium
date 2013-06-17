@@ -167,11 +167,11 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String usuari,
 			String tascaId) throws TramitacioException {
 		Entorn e = findEntornAmbCodi(entorn);
+		boolean agafada = false;
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
 			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), usuari, false);
-			boolean agafada = false;
 			for (TascaLlistatDto tasca: tasques) {
 				if (tasca.getId().equals(tascaId)) {
 					tascaService.agafar(e.getId(), usuari, tascaId);
@@ -179,12 +179,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 					break;
 				}
 			}
-			if (!agafada)
-				throw new TramitacioException("L'usuari '" + usuari + "' no té la tasca " + tascaId + " assignada");
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut obtenir el llistat de tasques", ex);
 			throw new TramitacioException("No s'ha pogut obtenir el llistat de tasques: " + ex.getMessage());
 		}
+		if (!agafada)
+			throw new TramitacioException("L'usuari '" + usuari + "' no té la tasca " + tascaId + " assignada");
 	}
 
 	public List<CampTasca> consultaFormulariTasca(
