@@ -44,22 +44,31 @@ public class SpringMassiuExecutorThread extends Thread {
 		currentIdleInterval = idleInterval;
 		while (isActive) {
 			try {
+//				log.info("El thread de execucions massives '" + getName() + "' consulta les accions pendents...");
 				OperacioMassivaDto operacioMassiva = execucioMassivaService.getExecucionsMassivesActiva(ultimaExecucioMassiva);
 				if (operacioMassiva != null) {
+//					log.info("El thread de execucions massives '" + getName() + "' ha obtingut la acció " + operacioMassiva.getId());
 					try {
+//						log.info("El thread de execucions massives '" + getName() + "' executa la acció " + operacioMassiva.getId());
 						execucioMassivaService.executarExecucioMassiva(operacioMassiva);
+						log.info("El thread de execucions massives '" + getName() + "' ha acabat d'executar la acció " + operacioMassiva.getId());
 					}
 					catch (Exception e) {
 						// si s'ha produit una excepció, deseram l'error a la operació
+						log.info("El thread de execucions massives '" + getName() + "' ha detectat un error en la execució de la acció " + operacioMassiva.getId() + ". Anem a generar l'error.");
 						execucioMassivaService.generaInformeError(operacioMassiva, e);
+//						log.info("El thread de execucions massives '" + getName() + "' ha generat l'error per a la acció " + operacioMassiva.getId());
 					}
 					ultimaExecucioMassiva = operacioMassiva.getExecucioMassivaId();
 					actualitzaUltimaOperacio(operacioMassiva);
+//					log.info("El thread de execucions massives '" + getName() + "' ha actualitzat la acció " + operacioMassiva.getId());
 				} else {
+//					log.info("El thread de execucions massives '" + getName() + "' no ha obtingut accions.");
 					currentWaitInterval = waitTime;
 				}
 				if (isActive && currentWaitInterval > 0) {
 					synchronized (springMassiuExecutor) {
+//						log.info("El thread de execucions massives '" + getName() + "' esperarà " + currentWaitInterval + "ms abans de obtenir la seguent acció.");
 						springMassiuExecutor.wait(currentWaitInterval);
 					}
 				}

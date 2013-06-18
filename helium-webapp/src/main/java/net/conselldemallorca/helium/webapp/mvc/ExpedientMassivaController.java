@@ -1337,7 +1337,7 @@ public class ExpedientMassivaController extends BaseController {
 //					listExecucionsMassivesActivesByUser = orderOperacioMassivaDto(execucioMassivaService.getExecucionsMassivesActivaByUser(request.getUserPrincipal().getName()));
 //					getIdExecucionsMassivesActives(request);
 					
-					missatgeInfo(request, getMessage("info.accio.massiu.executat", new Object[] {numExp}));
+					missatgeInfo(request, getMessage("info.reindexar.massiu.executat", new Object[] {numExp}));
 				} catch (Exception e) {
 					missatgeError(request, getMessage("error.no.massiu"));
 					logger.error("Error al programar les accions massives", e);
