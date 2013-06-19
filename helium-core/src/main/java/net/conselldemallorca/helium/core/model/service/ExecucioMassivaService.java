@@ -9,6 +9,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -36,7 +37,6 @@ import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedien
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
@@ -46,6 +46,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -309,6 +310,18 @@ public class ExecucioMassivaService {
 		logger.debug("Executant la acció massiva (expedientTipusId=" + dto.getExpedientTipusId() + ", dataInici=" + dto.getDataInici() + ", expedient=" + dto.getId() + ", acció=" + dto.getTipus());
 		try {
 			ExecucioMassivaTipus tipus = dto.getTipus();
+			
+			Authentication orgAuthentication = SecurityContextHolder.getContext().getAuthentication();
+			final String user = dto.getUsuari();
+			
+	        Principal principal = new Principal() {
+				public String getName() {
+					return user;
+				}
+			};
+	        Authentication authentication =  new UsernamePasswordAuthenticationToken(principal, null);
+	        SecurityContextHolder.getContext().setAuthentication(authentication);
+			
 			if (tipus == ExecucioMassivaTipus.EXECUTAR_TASCA){
 				gestioTasca(dto);
 			} else if (tipus == ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC){
@@ -328,6 +341,7 @@ public class ExecucioMassivaService {
 			} else if (tipus == ExecucioMassivaTipus.REASSIGNAR){
 				reassignarExpedient(dto);
 			}
+			SecurityContextHolder.getContext().setAuthentication(orgAuthentication);
 		} catch (Exception ex) {
 			logger.error("Error al executar la acció massiva (expedientTipusId=" + dto.getExpedientTipusId() + ", dataInici=" + dto.getDataInici() + ", expedient=" + dto.getId() + ", acció=" + dto.getTipus(), ex);
 			throw ex;
