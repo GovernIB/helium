@@ -33,6 +33,18 @@ public class DocumentAdjuntarHandler extends AbstractHeliumActionHandler impleme
 
 
 	public void execute(ExecutionContext executionContext) throws Exception {
+		if ("X".equals(executionContext.getVariable("ini_condes"))) {
+			for (org.jbpm.taskmgmt.exe.TaskInstance ti: executionContext.getTaskMgmtInstance().getTaskInstances()) {
+				if (ti.getTask().getName().equals("NOM_TASCA")) {
+					java.text.SimpleDateFormat df = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+					if (ti.getCreate().after(df.parse("01/01/1970 00:00:00")) && ti.getCreate().before(df.parse("01/01/1970 00:00:00"))) {
+						executionContext.setVariable("ini_condes", "Y");
+					}
+					break;
+				}
+			}
+		}
+		
 		String dor = (String)getValorOVariable(executionContext, documentOrigen, varDocumentOrigen);
 		if (dor == null)
 			throw new JbpmException("No s'ha especificat cap document origen");

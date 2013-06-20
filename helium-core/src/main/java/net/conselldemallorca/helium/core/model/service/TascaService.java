@@ -80,6 +80,8 @@ public class TascaService {
 	public static final String DEFAULT_ENCRYPTION_SCHEME = "DES/ECB/PKCS5Padding";
 	public static final String DEFAULT_KEY_ALGORITHM = "DES";
 
+	public static final String TASKDESC_CAMP_AGAFADA = "agafada";
+
 	private ExpedientDao expedientDao;
 	private ExpedientTipusDao expedientTipusDao;
 	private TascaDao tascaDao;
@@ -320,6 +322,7 @@ public class TascaService {
 				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
 				previousActors);
 		jbpmDao.takeTaskInstance(taskId, usuari);
+		task.setFieldFromDescription(TASKDESC_CAMP_AGAFADA, "true");
 		getServiceUtils().expedientIndexLuceneUpdate(task.getProcessInstanceId());
 		String currentActors = expedientLogHelper.getActorsPerReassignacioTasca(taskId);
 		expedientLog.setAccioParams(previousActors + "::" + currentActors);
@@ -331,6 +334,45 @@ public class TascaService {
 				"Agafar tasca \"" + tasca.getNom() + "\"");
 		return tasca;
 	}
+
+	public TascaDto alliberar(
+			Long entornId,
+			String taskId,
+			boolean comprovarResponsable) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		return alliberar(entornId, auth.getName(), taskId, comprovarResponsable);
+	}
+	public TascaDto alliberar(
+			Long entornId,
+			String usuari,
+			String taskId,
+			boolean comprovarResponsable) {
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, false);
+		if (comprovarResponsable) {
+			if (!task.getAssignee().equals(usuari)) {
+				throw new NotFoundException(
+						getServiceUtils().getMessage("error.tascaService.noAssignada"));
+			}
+		}
+		String previousActors = expedientLogHelper.getActorsPerReassignacioTasca(taskId);
+		ExpedientLog expedientLog = expedientLogHelper.afegirLogExpedientPerTasca(
+				taskId,
+				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
+				previousActors);
+		jbpmDao.releaseTaskInstance(taskId);
+		task.setFieldFromDescription(TASKDESC_CAMP_AGAFADA, "false");
+		getServiceUtils().expedientIndexLuceneUpdate(task.getProcessInstanceId());
+		String currentActors = expedientLogHelper.getActorsPerReassignacioTasca(taskId);
+		expedientLog.setAccioParams(previousActors + "::" + currentActors);
+		TascaDto tasca = toTascaDto(task, null, true, true);
+		registreDao.crearRegistreIniciarTasca(
+				tasca.getExpedient().getId(),
+				taskId,
+				SecurityContextHolder.getContext().getAuthentication().getName(),
+				"Amollar tasca \"" + tasca.getNom() + "\"");
+		return tasca;
+	}
+
 	public TascaDto guardarVariable(
 			Long entornId,
 			String taskId,
@@ -1408,6 +1450,7 @@ public class TascaService {
 		dto.setCancelada(task.isCancelled());
 		dto.setSuspesa(task.isSuspended());
 		dto.setProcessInstanceId(task.getProcessInstanceId());
+		dto.setAgafada("true".equals(task.getFieldFromDescription(TASKDESC_CAMP_AGAFADA)));
 		Map<String, Object> valorsTasca = jbpmDao.getTaskInstanceVariables(task.getId());
 		DelegationInfo delegationInfo = (DelegationInfo)valorsTasca.get(
 				TascaService.VAR_TASCA_DELEGACIO);

@@ -78,6 +78,7 @@ public class TascaDto implements Comparable<TascaDto> {
 	private Map<String, Object> varsComText;
 
 	private Long tascaId;
+	private boolean agafada;
 
 	public String getId() {
 		return id;
@@ -412,7 +413,13 @@ public class TascaDto implements Comparable<TascaDto> {
 	public void setTascaId(Long tascaId) {
 		this.tascaId = tascaId;
 	}
-	
+	public boolean isAgafada() {
+		return agafada;
+	}
+	public void setAgafada(boolean agafada) {
+		this.agafada = agafada;
+	}
+
 	public int compareTo(TascaDto aThat) {
 	    if (this == aThat) return 0;
     	return this.getCreateTime().compareTo(aThat.getCreateTime());

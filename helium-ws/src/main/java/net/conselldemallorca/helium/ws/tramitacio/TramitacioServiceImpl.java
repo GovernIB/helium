@@ -180,10 +180,35 @@ public class TramitacioServiceImpl implements TramitacioService {
 				}
 			}
 		} catch (Exception ex) {
-			logger.error("No s'ha pogut obtenir el llistat de tasques", ex);
-			throw new TramitacioException("No s'ha pogut obtenir el llistat de tasques: " + ex.getMessage());
+			logger.error("No s'ha pogut agafar la tasca", ex);
+			throw new TramitacioException("No s'ha pogut agafar la tasca: " + ex.getMessage());
 		}
 		if (!agafada)
+			throw new TramitacioException("L'usuari '" + usuari + "' no té la tasca " + tascaId + " assignada");
+	}
+	
+	public void alliberarTasca(
+			String entorn,
+			String usuari,
+			String tascaId) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		boolean alliberada = false;
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		try {
+			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), usuari, false);
+			for (TascaLlistatDto tasca: tasques) {
+				if (tasca.getId().equals(tascaId)) {
+					tascaService.alliberar(e.getId(), usuari, tascaId, true);
+					alliberada = true;
+					break;
+				}
+			}
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut alliberar la tasca", ex);
+			throw new TramitacioException("No s'ha pogut alliberar la tasca: " + ex.getMessage());
+		}
+		if (!alliberada)
 			throw new TramitacioException("L'usuari '" + usuari + "' no té la tasca " + tascaId + " assignada");
 	}
 

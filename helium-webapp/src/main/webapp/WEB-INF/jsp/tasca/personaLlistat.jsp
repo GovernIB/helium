@@ -58,6 +58,14 @@
 				<a href="<c:url value="/tasca/massivaSeleccio.html"><c:param name="id" value="${registre.id}"/></c:url>"><img src="<c:url value="/img/application_cascade.png"/>" alt="<fmt:message key="tasca.tramitacio.massiva"/>" title="<fmt:message key="tasca.pllistat.massiva"/>" border="0"/></a>
 			</c:if>
 		</display:column>
+		<display:column>
+			<c:if test="${registre.agafada}">
+				<form action="alliberar.html" onsubmit="return confirmar(event)">
+					<input type="hidden" name="id" value="${registre.id}"/>
+					<button type="submit" class="submitButton"><fmt:message key="tasca.pllistat.alliberar"/></button>
+				</form>
+			</c:if>
+		</display:column>
 	</display:table>
 	<script type="text/javascript">initSelectable();</script>
 

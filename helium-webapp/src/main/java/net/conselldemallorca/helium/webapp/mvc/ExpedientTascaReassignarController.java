@@ -5,14 +5,15 @@ package net.conselldemallorca.helium.webapp.mvc;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
+import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
@@ -41,6 +42,7 @@ import org.springframework.web.bind.support.SessionStatus;
 @Controller
 public class ExpedientTascaReassignarController extends BaseController {
 
+	private TascaService tascaService;
 	private ExpedientService expedientService;
 	private PermissionService permissionService;
 
@@ -48,8 +50,10 @@ public class ExpedientTascaReassignarController extends BaseController {
 
 	@Autowired
 	public ExpedientTascaReassignarController(
+			TascaService tascaService,
 			ExpedientService expedientService,
 			PermissionService permissionService) {
+		this.tascaService = tascaService;
 		this.expedientService = expedientService;
 		this.permissionService = permissionService;
 	}
@@ -60,6 +64,31 @@ public class ExpedientTascaReassignarController extends BaseController {
 		ExpedientTascaReassignarCommand command = new ExpedientTascaReassignarCommand();
 		command.setTaskId(taskId);
 		return command;
+	}
+
+	@RequestMapping(value = "/expedient/tascaAlliberar", method = RequestMethod.GET)
+	public String tascaAlliberar(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) String id,
+			@RequestParam(value = "taskId", required = true) String taskId,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
+			if (potModificarOReassignarExpedient(expedient)) {
+				tascaService.alliberar(
+						entorn.getId(),
+						taskId,
+						false);
+				missatgeInfo(request, getMessage("info.tasca.alliberada"));
+			} else {
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
+			}
+			return "redirect:/expedient/tasques.html?id=" + id;
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
 	}
 
 	@RequestMapping(value = "/expedient/tascaReassignar", method = RequestMethod.GET)
@@ -117,7 +146,7 @@ public class ExpedientTascaReassignarController extends BaseController {
 								entorn.getId(),
 								command.getTaskId(),
 								command.getExpression());
-						missatgeInfo(request, getMessage("info.tasca.reassignada", new Object[] { command.getTaskId() } ) );
+						missatgeInfo(request, getMessage("info.tasca.reassignada"));
 					} catch (Exception ex) {
 						if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
 							missatgeError(

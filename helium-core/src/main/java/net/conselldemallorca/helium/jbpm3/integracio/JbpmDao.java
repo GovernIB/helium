@@ -393,6 +393,15 @@ public class JbpmDao {
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
 		commandService.execute(autoSaveCommand);
 	}
+	public void releaseTaskInstance(String taskId) {
+		final long id = Long.parseLong(taskId);
+		ReleaseTaskInstanceCommand command = new ReleaseTaskInstanceCommand(id);
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		commandService.execute(autoSaveCommand);
+	}
 	public JbpmTask cloneTaskInstance(String taskId, String actorId, Map<String, Object> variables) {
 		JbpmTask resposta = null;
 		final long id = Long.parseLong(taskId);

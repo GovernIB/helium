@@ -201,6 +201,32 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (!agafada)
 			throw new TramitacioException("Aquest usuari no té la tasca " + tascaId + " assignada");
 	}
+	
+	public void alliberarTasca(
+			String entorn,
+			String tascaId) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		if (!validarPermisEntornRead(e))
+			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
+		boolean alliberada = false;
+		try {
+			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), null, false);
+			for (TascaLlistatDto tasca: tasques) {
+				if (tasca.getId().equals(tascaId)) {
+					tascaService.alliberar(e.getId(), tascaId, true);
+					alliberada = true;
+					break;
+				}
+			}
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut alliberar la tasca", ex);
+			throw new TramitacioException("No s'ha pogut alliberar la tasca: " + ex.getMessage());
+		}
+		if (!alliberada)
+			throw new TramitacioException("Aquest usuari no té la tasca " + tascaId + " assignada");
+	}
 
 	public List<CampTasca> consultaFormulariTasca(
 			String entorn,

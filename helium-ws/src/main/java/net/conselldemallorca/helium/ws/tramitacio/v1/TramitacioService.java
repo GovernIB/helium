@@ -75,6 +75,18 @@ public interface TramitacioService {
 			String tascaId) throws TramitacioException;
 
 	/**
+	 * Mètode per a alliberar una tasca assignada a un grup de l'usuari
+	 * 
+	 * @param entorn
+	 * @param usuari
+	 * @param tascaId
+	 * @throws TramitacioException
+	 */
+	public void alliberarTasca(
+			String entorn,
+			String tascaId) throws TramitacioException;
+
+	/**
 	 * Mètode per a consultar els camps del formulari de la tasca
 	 * 
 	 * @param entorn

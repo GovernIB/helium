@@ -31,6 +31,12 @@ function confirmarCancelar(e) {
 	if (e.stopPropagation) e.stopPropagation();
 	return confirm("Estau segur que voleu cancel·lar aquesta tasca? Aquesta acció no es podrà desfer.");
 }
+function confirmarAlliberar(e) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	if (e.stopPropagation) e.stopPropagation();
+	return confirm("Estau segur que voleu alliberar aquesta tasca?");
+}
 // ]]>
 </script>
 </head>
@@ -84,6 +90,13 @@ function confirmarCancelar(e) {
 			<c:if test="${registre.open}">
 				<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2,512">
 					<a href="<c:url value="/expedient/tascaReassignar.html"><c:param name="id" value="${param.id}"/><c:param name="taskId" value="${registre.id}"/></c:url>"><img src="<c:url value="/img/user_go.png"/>" alt="Reassignar" title="Reassignar" border="0"/></a>
+				</security:accesscontrollist>
+			</c:if>
+		</display:column>
+		<display:column>
+			<c:if test="${registre.agafada}">
+				<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2,512">
+					<a href="<c:url value="/expedient/tascaAlliberar.html"><c:param name="id" value="${param.id}"/><c:param name="taskId" value="${registre.id}"/></c:url>" onclick="return confirmarAlliberar(event)"><img src="<c:url value="/img/link_break.png"/>" alt="<fmt:message key="tasca.pllistat.alliberar"/>" title="<fmt:message key="tasca.pllistat.alliberar"/>" border="0"/></a>
 				</security:accesscontrollist>
 			</c:if>
 		</display:column>

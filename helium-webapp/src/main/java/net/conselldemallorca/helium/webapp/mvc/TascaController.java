@@ -327,7 +327,28 @@ public class TascaController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
-	
+
+	@RequestMapping(value = "/tasca/alliberar")
+	public String alliberar(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) String id,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			try {
+				tascaService.alliberar(entorn.getId(), id, true);
+				missatgeInfo(request, getMessage("info.tasca.alliberada"));
+			} catch (Exception ex) {
+	        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
+	        	logger.error("No s'ha pogut alliberar la tasca", ex);
+	        }
+			return "redirect:/tasca/personaLlistat.html";
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/tasca/grupIds")
 	public String tascaGrupMassiva(
