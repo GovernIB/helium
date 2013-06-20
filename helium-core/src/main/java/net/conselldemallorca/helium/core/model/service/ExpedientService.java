@@ -28,6 +28,8 @@ import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentStoreDao;
 import net.conselldemallorca.helium.core.model.dao.EntornDao;
 import net.conselldemallorca.helium.core.model.dao.EstatDao;
+import net.conselldemallorca.helium.core.model.dao.ExecucioMassivaDao;
+import net.conselldemallorca.helium.core.model.dao.ExecucioMassivaExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientLogDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientTipusDao;
@@ -68,6 +70,7 @@ import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
@@ -139,7 +142,7 @@ public class ExpedientService {
 	private ExpedientLogDao expedientLogDao;
 	private AreaMembreDao areaMembreDao;
 	private AreaJbpmIdDao areaJbpmIdDao;
-
+	private ExecucioMassivaExpedientDao execucioMassivaExpedientDao;
 	private JbpmDao jbpmDao;
 	private AclServiceDao aclServiceDao;
 	private DtoConverter dtoConverter;
@@ -583,6 +586,9 @@ public class ExpedientService {
 			}
 			for (Portasignatures psigna: expedient.getPortasignatures()) {
 				psigna.setEstat(TipusEstat.ESBORRAT);
+			}
+			for (ExecucioMassivaExpedient eme: execucioMassivaExpedientDao.getExecucioMassivaByExpedient(id)) {
+				execucioMassivaExpedientDao.delete(eme);
 			}
 			expedientDao.delete(expedient);
 			luceneDao.deleteExpedient(expedient);
@@ -2098,7 +2104,10 @@ public class ExpedientService {
 	public void setAreaJbpmIdDao(AreaJbpmIdDao areaJbpmIdDao) {
 		this.areaJbpmIdDao = areaJbpmIdDao;
 	}
-
+	@Autowired
+	public void setExecucioMassivaExpedientDao(ExecucioMassivaExpedientDao execucioMassivaExpedientDao) {
+		this.execucioMassivaExpedientDao = execucioMassivaExpedientDao;
+	}
 
 
 	@SuppressWarnings("rawtypes")
@@ -2126,6 +2135,7 @@ public class ExpedientService {
 		}
 		return resposta;
 	}
+
 	private int[] getImageDimensions(String processInstanceId) {
 		JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(processInstanceId);
 		byte[] gpdBytes = jbpmDao.getResourceBytes(jpd.getId(), "gpd.xml");

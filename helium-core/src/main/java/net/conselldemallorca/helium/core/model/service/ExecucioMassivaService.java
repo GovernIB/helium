@@ -170,7 +170,7 @@ public class ExecucioMassivaService {
 					Expedient exp = expedient.getExpedient();
 					String titol = "";
 					if (exp != null) { 
-						if (exp.getNumeroDefault() != null)
+						if (exp.getNumero() != null)
 							titol = "[" + exp.getNumero() + "]";
 			    		if (exp.getTitol() != null) 
 			    			titol += (titol.length() > 0 ? " " : "") + exp.getTitol();

@@ -78,6 +78,18 @@ public class ExecucioMassivaExpedientDao extends HibernateGenericDao<ExecucioMas
 
 		return (List<ExecucioMassivaExpedient>)query.list();
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<ExecucioMassivaExpedient> getExecucioMassivaByExpedient(Long expedientId) {
+		Query query = null;
+		query = getSession().createQuery(
+				"select e " +
+				"from	ExecucioMassivaExpedient e " +
+				"where 	e.expedient.id = :expedientId ")
+				.setLong("expedientId", expedientId);
+
+		return (List<ExecucioMassivaExpedient>)query.list();
+	}
 
 	@SuppressWarnings("unchecked")
 	public List<ExecucioMassivaExpedient> getExecucioMassivaActivaById(Long id) {

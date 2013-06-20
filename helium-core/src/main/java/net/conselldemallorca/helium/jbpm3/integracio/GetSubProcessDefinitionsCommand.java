@@ -46,7 +46,8 @@ public class GetSubProcessDefinitionsCommand extends AbstractGetObjectBaseComman
 		}
 		if (subprocessos != null && !subprocessos.isEmpty()) {
 			for (ProcessState ps : subprocessos) {
-				definicionsProces.add(ps.getSubProcessDefinition());
+				if (ps.getSubProcessDefinition() != null)
+					definicionsProces.add(ps.getSubProcessDefinition());
 			}
 		}
 		return definicionsProces;
