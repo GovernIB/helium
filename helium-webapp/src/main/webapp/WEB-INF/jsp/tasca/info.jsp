@@ -36,6 +36,8 @@ function confirmarDelegar(e) {
 </head>
 <body>
 
+	<h3 class="titol-tab titol-expedient">${tasca.expedient.identificadorLimitat}</h3>
+
 	<c:import url="../common/tabsTasca.jsp">
 		<c:param name="tabActiu" value="info"/>
 	</c:import>
@@ -51,7 +53,6 @@ function confirmarDelegar(e) {
 		</div>
 	</c:if>
 
-	<h3 class="titol-tab titol-info"><fmt:message key='tasca.info.info_tasca' /></h3>
 	<dl class="form-info">
 		<dt><fmt:message key='comuns.titol' /></dt><dd>${tasca.nom}</dd>
 		<c:if test="${empty seleccioMassiva}">

@@ -170,6 +170,8 @@ function mostrarOcultar(img, objid) {
 <script>initSignaturaCaib('certs${documentActual.id}', '1')</script>
 </c:if>
 
+	<h3 class="titol-tab titol-expedient">${tasca.expedient.identificadorLimitat}</h3>
+
 	<c:import url="../common/tabsTasca.jsp">
 		<c:param name="tabActiu" value="firmes"/>
 	</c:import>
@@ -193,10 +195,6 @@ function mostrarOcultar(img, objid) {
 	</c:if>
 
 	<c:import url="../common/tascaReadOnly.jsp"/>
-
-	<h3 class="titol-tab titol-firmes-tasca">
-		<fmt:message key='tasca.signa.docs_signar' />
-	</h3>
 
 	<c:forEach var="firma" items="${tasca.signatures}">
 		<div class="missatgesDocumentGris">

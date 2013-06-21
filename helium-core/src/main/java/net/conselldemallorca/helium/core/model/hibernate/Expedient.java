@@ -567,6 +567,13 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 			return new Integer(anyInici).toString() + new DecimalFormat("0000000000000000000").format(id);
 		}
 	}
+	@Transient
+	public String getIdentificadorLimitat() {
+		if (getIdentificador() != null && getIdentificador().length() > 100)
+			return getIdentificador().substring(0, 100) + " (...)";
+		else
+			return getIdentificador();
+	}
 
 	@Transient
 	public String getNumeroEntradaSistra() {

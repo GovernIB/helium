@@ -237,6 +237,12 @@ h3.titol-tab {
     font-weight: bold;
     font-size: 16px;
 }
+h3.titol-expedient {
+	padding-left: 24px;
+	background-image: url(../img/folder.png);
+	background-repeat: no-repeat;
+	background-position: 2px 6px;
+}
 h3.titol-info {
 	padding-left: 24px;
 	background-image: url(../img/information.png);

@@ -201,7 +201,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (!agafada)
 			throw new TramitacioException("Aquest usuari no té la tasca " + tascaId + " assignada");
 	}
-	
+
 	public void alliberarTasca(
 			String entorn,
 			String tascaId) throws TramitacioException {
