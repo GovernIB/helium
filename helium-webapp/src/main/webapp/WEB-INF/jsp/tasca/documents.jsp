@@ -67,6 +67,8 @@
 </head>
 <body>
 
+	<h3 class="titol-tab titol-expedient">${tasca.expedient.identificadorLimitat}</h3>
+
 	<c:import url="../common/tabsTasca.jsp">
 		<c:param name="tabActiu" value="documents"/>
 	</c:import>
@@ -83,10 +85,6 @@
 	</c:if>
 
 	<c:import url="../common/tascaReadOnly.jsp"/>
-
-	<h3 class="titol-tab titol-documents-tasca">
-		<fmt:message key="tasca.doc.docs_tasca"/>
-	</h3>
 
 	<c:forEach var="document" items="${tasca.documentsOrdenatsPerMostrarTasca}">
 		<c:if test="${not document.readOnly}">
@@ -111,6 +109,11 @@
 							<c:if test="${not document.readOnly}">
 								<a href="<c:url value="/tasca/documentEsborrar.html"><c:param name="id" value="${tasca.id}"/><c:param name="codi" value="${document.document.codi}"/></c:url>"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key="comuns.esborrar"/>" title="<fmt:message key="comuns.esborrar"/>" border="0"/></a>
 							</c:if>
+							<p style="font-weight: normal;line-height: 1.4em;margin: 0.4em 0 0 1.6em;">
+								<b><fmt:message key="tasca.doc.adjunt.arxiu"/>:</b> ${variableDoc.arxiuNom}<br/>
+								<b><fmt:message key="tasca.doc.adjunt.adjuntat.el"/>:</b> <fmt:formatDate value="${variableDoc.dataCreacio}" pattern="dd/MM/yyyy HH:mm"/><br/>
+								<b><fmt:message key="tasca.doc.adjunt.data.document"/>:</b> <fmt:formatDate value="${variableDoc.dataDocument}" pattern="dd/MM/yyyy"/>
+							</p>
 						</c:if>
 					</c:if>
 				</h4>

@@ -94,7 +94,7 @@ function confirmarAlliberar(e) {
 			</c:if>
 		</display:column>
 		<display:column>
-			<c:if test="${registre.agafada}">
+			<c:if test="${registre.agafada and registre.open}">
 				<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2,512">
 					<a href="<c:url value="/expedient/tascaAlliberar.html"><c:param name="id" value="${param.id}"/><c:param name="taskId" value="${registre.id}"/></c:url>" onclick="return confirmarAlliberar(event)"><img src="<c:url value="/img/link_break.png"/>" alt="<fmt:message key="tasca.pllistat.alliberar"/>" title="<fmt:message key="tasca.pllistat.alliberar"/>" border="0"/></a>
 				</security:accesscontrollist>
