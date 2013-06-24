@@ -264,14 +264,34 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (valors != null) {
 			variables = new HashMap<String, Object>();
 			for (ParellaCodiValor parella: valors) {
-				if (parella.getValor() instanceof XMLGregorianCalendar)
+				if (parella.getValor() instanceof XMLGregorianCalendar) {
 					variables.put(
 							parella.getCodi(),
 							((XMLGregorianCalendar)parella.getValor()).toGregorianCalendar().getTime());
-				else
+				} else if (parella.getValor() instanceof Object[]) {
+					Object[] multiple = (Object[])parella.getValor();
+					// Converteix les dates dins registres i vars múltiples
+					// al tipus corecte 
+					for (int i = 0; i < multiple.length; i++) {
+						if (multiple[i] instanceof Object[]) {
+							Object[] fila = (Object[])multiple[i];
+							for (int j = 0; j < fila.length; j++) {
+								if (fila[j] instanceof XMLGregorianCalendar) {
+									fila[j] = ((XMLGregorianCalendar)fila[j]).toGregorianCalendar().getTime();
+								}
+							}
+						} else if (multiple[i] instanceof XMLGregorianCalendar) {
+							multiple[i] = ((XMLGregorianCalendar)multiple[i]).toGregorianCalendar().getTime();
+						}
+					}
 					variables.put(
 							parella.getCodi(),
 							parella.getValor());
+				} else {
+					variables.put(
+							parella.getCodi(),
+							parella.getValor());
+				}
 			}
 		}
 		try {
@@ -431,17 +451,37 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (!validarPermisExpedientTipusWrite(expedient.getTipus()))
 			throw new TramitacioException("No té permisos per modificar les dades del proces '" + processInstanceId + "'");
 		try {
-			if (valor instanceof XMLGregorianCalendar)
+			if (valor instanceof XMLGregorianCalendar) {
 				expedientService.updateVariable(
 						processInstanceId,
 						varCodi,
 						((XMLGregorianCalendar)valor).toGregorianCalendar().getTime());
-			else
+			} else if (valor instanceof Object[]) {
+				Object[] multiple = (Object[])valor;
+				// Converteix les dates dins registres i vars múltiples
+				// al tipus corecte 
+				for (int i = 0; i < multiple.length; i++) {
+					if (multiple[i] instanceof Object[]) {
+						Object[] fila = (Object[])multiple[i];
+						for (int j = 0; j < fila.length; j++) {
+							if (fila[j] instanceof XMLGregorianCalendar) {
+								fila[j] = ((XMLGregorianCalendar)fila[j]).toGregorianCalendar().getTime();
+							}
+						}
+					} else if (multiple[i] instanceof XMLGregorianCalendar) {
+						multiple[i] = ((XMLGregorianCalendar)multiple[i]).toGregorianCalendar().getTime();
+					}
+				}
 				expedientService.updateVariable(
 						processInstanceId,
 						varCodi,
 						valor);
-			
+			} else {
+				expedientService.updateVariable(
+						processInstanceId,
+						varCodi,
+						valor);
+			}
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar la variable al procés", ex);
 			throw new TramitacioException("No s'ha pogut guardar la variable al procés: " + ex.getMessage());

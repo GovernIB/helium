@@ -246,14 +246,35 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (valors != null) {
 			variables = new HashMap<String, Object>();
 			for (ParellaCodiValor parella: valors) {
-				if (parella.getValor() instanceof XMLGregorianCalendar)
+				if (parella.getValor() instanceof XMLGregorianCalendar) {
+					// Converteix les dates al tipus correcte
 					variables.put(
 							parella.getCodi(),
 							((XMLGregorianCalendar)parella.getValor()).toGregorianCalendar().getTime());
-				else
+				} else if (parella.getValor() instanceof Object[]) {
+					Object[] multiple = (Object[])parella.getValor();
+					// Converteix les dates dins registres i vars múltiples
+					// al tipus corecte 
+					for (int i = 0; i < multiple.length; i++) {
+						if (multiple[i] instanceof Object[]) {
+							Object[] fila = (Object[])multiple[i];
+							for (int j = 0; j < fila.length; j++) {
+								if (fila[j] instanceof XMLGregorianCalendar) {
+									fila[j] = ((XMLGregorianCalendar)fila[j]).toGregorianCalendar().getTime();
+								}
+							}
+						} else if (multiple[i] instanceof XMLGregorianCalendar) {
+							multiple[i] = ((XMLGregorianCalendar)multiple[i]).toGregorianCalendar().getTime();
+						}
+					}
 					variables.put(
 							parella.getCodi(),
 							parella.getValor());
+				} else {
+					variables.put(
+							parella.getCodi(),
+							parella.getValor());
+				}
 			}
 		}
 		try {
