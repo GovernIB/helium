@@ -16,7 +16,7 @@
 <script type="text/javascript">
 // <![CDATA[
 var docPlantilla = {
-	<c:forEach items="${documents}" var="document">${document.codi} : ${document.plantilla},
+	<c:forEach items="${documents}" var="document">'d_${document.id}' : ${document.plantilla},
 	</c:forEach>__none__ : false
 }
             
@@ -100,7 +100,8 @@ function changeDoc(){
 	
 	var doc = "__none__";
 	if (docId != "") {
-	 	doc = $("#nom0 option[value='" + docId + "']").text();
+		doc = "d_" + docId;
+	 	//doc = $("#nom0 option[value='" + docId + "']").text();
 	 	$("button[value='delete']").prop('disabled', false);
 	 	$("button[value='subdoc']").prop('disabled', false);
 	} else {
