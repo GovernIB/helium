@@ -5,6 +5,7 @@
 	"sEcho": ${pagina.echo},
 	"iTotalRecords": ${pagina.totalRecords},
 	"iTotalDisplayRecords": ${pagina.totalDisplayRecords},
+	"missatgeAlerta": "${pagina.missatgeAlerta}",
 	"aaData": [
 		<c:forEach var="dada" items="${pagina.data}" varStatus="dadaStatus">[
 			<c:forEach var="columna" items="${pagina.columnNames}" varStatus="columnaStatus">

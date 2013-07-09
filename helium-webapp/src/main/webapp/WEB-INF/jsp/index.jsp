@@ -2,7 +2,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
 <html>
 <head>
 	<title><fmt:message key='index.inici' /></title>
@@ -103,20 +102,6 @@ try {
 		</ul>
 		</div>
 	</c:if--%>
-
-	<c:if test="${not empty entornActual}">
-		<ul>
-			<c:if test="${potLlegirEntorn}">
-				<li>+READ</li>
-			</c:if>
-			<c:if test="${potDissenyarEntorn}">
-				<li>+DESIGN</li>
-			</c:if>
-			<c:if test="${potOrganitzarEntorn}">
-				<li>+ORGANIZATION</li>
-			</c:if>
-		</ul>
-	</c:if>
 
 </body>
 </html>

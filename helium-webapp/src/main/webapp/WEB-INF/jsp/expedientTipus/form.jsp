@@ -81,6 +81,11 @@
 				<c:param name="type" value="checkbox"/>
 				<c:param name="label"><fmt:message key="expedient.tipus.form.restringir_grup"/></c:param>
 			</c:import>
+			<c:import url="../common/formElement.jsp">
+				<c:param name="property" value="seleccionarAny"/>
+				<c:param name="type" value="checkbox"/>
+				<c:param name="label"><fmt:message key="expedient.tipus.form.seleccionar_any"/></c:param>
+			</c:import>
 		</div>
 		<c:import url="../common/formElement.jsp">
 			<c:param name="type" value="buttons"/>

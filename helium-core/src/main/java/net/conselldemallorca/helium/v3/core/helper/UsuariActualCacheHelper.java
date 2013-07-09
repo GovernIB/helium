@@ -49,7 +49,7 @@ public class UsuariActualCacheHelper {
 				Entorn.class,
 				new Permission[] {BasePermission.ADMINISTRATION, BasePermission.READ},
 				SecurityContextHolder.getContext().getAuthentication());
-		return conversioTipusHelper.convertirLlista(
+		return conversioTipusHelper.convertirList(
 				entorns,
 				EntornDto.class);
 	}

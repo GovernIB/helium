@@ -86,7 +86,6 @@ public class PermissionService {
 			}
 		}
 	}
-
 	@SuppressWarnings("rawtypes")
 	public void deleteAllPermissionsForSid(
 			String recipient,
@@ -101,7 +100,6 @@ public class PermissionService {
 				clazz,
 				true);
 	}
-
 	@SuppressWarnings("rawtypes")
 	public Map<Sid, List<AccessControlEntry>> getAclEntriesGroupedBySid(
 			Serializable id,

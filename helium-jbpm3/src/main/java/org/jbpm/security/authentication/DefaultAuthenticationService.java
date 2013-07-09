@@ -36,8 +36,8 @@ public class DefaultAuthenticationService implements AuthenticationService {
   }
 
   public String getActorId() {
-    String usuariCodiActual = Jbpm3HeliumBridge.getInstance().getUsuariCodiActual();
-    if (usuariCodiActual != null)
+	String usuariCodiActual = Jbpm3HeliumBridge.getInstanceService().getUsuariCodiActual();
+	if (usuariCodiActual != null)
       return usuariCodiActual;
     else
       return actorId;

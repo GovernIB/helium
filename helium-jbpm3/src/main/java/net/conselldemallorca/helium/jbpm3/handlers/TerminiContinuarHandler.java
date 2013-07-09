@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.jbpm3.handlers;
 
 import java.util.Date;
 
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 
 import org.jbpm.JbpmException;
@@ -33,13 +34,15 @@ public class TerminiContinuarHandler extends AbstractHeliumActionHandler impleme
 						varTerminiCodi));
 		if (termini != null) {
 			if (varData != null)
-				getTerminiService().continuar(
+				Jbpm3HeliumBridge.getInstanceService().terminiContinuar(
 						termini.getId(),
 						getVariableComData(
 								executionContext,
 								varData));
 			else
-				getTerminiService().continuar(termini.getId(), new Date());
+				Jbpm3HeliumBridge.getInstanceService().terminiContinuar(
+						termini.getId(),
+						new Date());
 		} else {
 			throw new JbpmException("No existeix cap termini iniciat amb aquest codi '" + terminiCodi + "'");
 		}

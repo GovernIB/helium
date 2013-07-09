@@ -143,10 +143,10 @@ public class ServiceUtils {
 	public List<Camp> findCampsPerCampsConsulta(Consulta consulta, TipusConsultaCamp tipus) {
 		List<Camp> resposta = new ArrayList<Camp>();
 		List<ConsultaCamp> camps = null;
-		if (tipus == null)
-			camps = new ArrayList<ConsultaCamp>(consulta.getCamps());
-		else
+		if (tipus != null)
 			camps = consultaCampDao.findCampsConsulta(consulta.getId(), tipus);
+		else
+			camps = new ArrayList<ConsultaCamp>(consulta.getCamps());
 		for (ConsultaCamp camp: camps) {
 			if (!camp.getCampCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
 				DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmKeyIVersio(

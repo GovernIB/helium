@@ -684,6 +684,7 @@ public class LuceneDao extends LuceneIndexSupport {
 				luceneSort);
 		List<Map<String, DadaIndexadaDto>> resposta = new ArrayList<Map<String, DadaIndexadaDto>>();
 		if (resultats.size() > 0) {
+			Set<String> clausAmbValorMultiple = new HashSet<String>();
 			for (Map<String, List<String>> fila: resultats) {
 				if (fila != null) {
 					List<DadaIndexadaDto> dadesFila = new ArrayList<DadaIndexadaDto>();
@@ -754,6 +755,7 @@ public class LuceneDao extends LuceneIndexSupport {
 						if (mapFila.containsKey(dada.getReportFieldName())) {
 							DadaIndexadaDto dadaMultiple = mapFila.get(dada.getReportFieldName());
 							if (!dadaMultiple.isMultiple()) {
+								clausAmbValorMultiple.add(dada.getReportFieldName());
 								dadaMultiple.addValorMultiple(dadaMultiple.getValor());
 								dadaMultiple.addValorIndexMultiple(dadaMultiple.getValorIndex());
 								dadaMultiple.addValorMostrarMultiple(dadaMultiple.getValorMostrar());
@@ -770,6 +772,22 @@ public class LuceneDao extends LuceneIndexSupport {
 						}
 					}
 					resposta.add(mapFila);
+				}
+			}
+			// Revisa les variables de tipus registre que només
+			// ténen 1 fila per a marcar-les com a múltiples
+			for (Map<String, DadaIndexadaDto> dadesExpedient: resposta) {
+				for (String clauMultiple: clausAmbValorMultiple) {
+					DadaIndexadaDto dadaMultiple = dadesExpedient.get(clauMultiple);
+					if (dadaMultiple != null && !dadaMultiple.isMultiple()) {
+						dadaMultiple.addValorMultiple(dadaMultiple.getValor());
+						dadaMultiple.addValorIndexMultiple(dadaMultiple.getValorIndex());
+						dadaMultiple.addValorMostrarMultiple(dadaMultiple.getValorMostrar());
+						dadaMultiple.setValor(null);
+						dadaMultiple.setValorIndex(null);
+						dadaMultiple.setValorMostrar(null);
+						dadaMultiple.setMultiple(true);
+					}
 				}
 			}
 		}

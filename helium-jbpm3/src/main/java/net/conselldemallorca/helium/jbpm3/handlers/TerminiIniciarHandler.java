@@ -6,6 +6,8 @@ package net.conselldemallorca.helium.jbpm3.handlers;
 import java.util.Calendar;
 import java.util.Date;
 
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 
 import org.jbpm.JbpmException;
@@ -29,20 +31,19 @@ public class TerminiIniciarHandler extends AbstractHeliumActionHandler implement
 
 
 	public void execute(ExecutionContext executionContext) throws Exception {
-		TerminiDto termini = getTerminiAmbCodi(
+		String tercod = (String)getValorOVariable(
 				executionContext,
-				(String)getValorOVariable(
-						executionContext,
-						terminiCodi,
-						varTerminiCodi));
+				terminiCodi,
+				varTerminiCodi);
+		TerminiDto termini = getTerminiAmbCodi(executionContext, tercod);
 		if (termini != null) {
 			if (varTermini != null) {
 				Object valorTermini = executionContext.getVariable(varTermini);
 				if (valorTermini == null)
 					throw new JbpmException("No s'ha pogut llegir el termini de la variable '" + varTermini + "'");
-				net.conselldemallorca.helium.jbpm3.integracio.Termini vt = (net.conselldemallorca.helium.jbpm3.integracio.Termini)valorTermini;
-				getTerminiService().iniciar(
-						termini.getId(),
+				Termini vt = (Termini)valorTermini;
+				Jbpm3HeliumBridge.getInstanceService().terminiIniciar(
+						tercod,
 						getProcessInstanceId(executionContext),
 						getDataVariable(executionContext),
 						vt.getAnys(),
@@ -50,8 +51,8 @@ public class TerminiIniciarHandler extends AbstractHeliumActionHandler implement
 						vt.getDies(),
 						esDataFi());
 			} else {
-				getTerminiService().iniciar(
-						termini.getId(),
+				Jbpm3HeliumBridge.getInstanceService().terminiIniciar(
+						tercod,
 						getProcessInstanceId(executionContext),
 						getDataVariable(executionContext),
 						esDataFi());

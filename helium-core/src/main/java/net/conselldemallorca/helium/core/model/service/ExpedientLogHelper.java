@@ -100,15 +100,26 @@ public class ExpedientLogHelper {
 			String taskInstanceId,
 			ExpedientLogAccioTipus tipus,
 			String accioParams) {
+		return afegirLogExpedientPerTasca(taskInstanceId, tipus, accioParams, null);
+	}
+	public ExpedientLog afegirLogExpedientPerTasca(
+			String taskInstanceId,
+			ExpedientLogAccioTipus tipus,
+			String accioParams,
+			String user) {
 		long jbpmLogId = jbpmDao.addTaskInstanceMessageLog(
 				taskInstanceId,
 				getMessageLogPerTipus(tipus));
 		JbpmTask task = jbpmDao.getTaskById(taskInstanceId);
 		Expedient expedient = getExpedientPerProcessInstanceId(task.getProcessInstanceId());
 		String usuari = "Timer";
-		try {
-			usuari = SecurityContextHolder.getContext().getAuthentication().getName();
-		}catch (Exception e){}
+		if (user != null) {
+			usuari = user;
+		} else {
+			try {
+				usuari = SecurityContextHolder.getContext().getAuthentication().getName();
+			}catch (Exception e){}
+		}
 		ExpedientLog expedientLog = new ExpedientLog(
 				expedient,
 				usuari,

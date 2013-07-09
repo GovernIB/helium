@@ -12,6 +12,7 @@ import javax.annotation.Resource;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPlugin;
 import net.conselldemallorca.helium.integracio.plugins.gesdoc.GestioDocumentalPlugin;
 import net.conselldemallorca.helium.integracio.plugins.persones.DadesPersona;
 import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPlugin;
@@ -77,14 +78,18 @@ public class PluginHelper {
 	private RegistrePlugin registrePlugin;
 	private boolean registrePluginEvaluat = false;
 
-	private PortasignaturesPlugin portasignaturesPlugin;
-	private boolean portasignaturesPluginEvaluat = false;
-
 	private GestioDocumentalPlugin gestioDocumentalPlugin;
 	private boolean gestioDocumentalPluginEvaluat = false;
 
+	private PortasignaturesPlugin portasignaturesPlugin;
+	private boolean portasignaturesPluginEvaluat = false;
 
-	public PersonaDto findPersonaByCodi(String codi) throws Exception {
+	private CustodiaPlugin custodiaPlugin;
+	private boolean custodiaPluginEvaluat = false;
+
+
+
+	public PersonaDto findPersonaAmbCodi(String codi) throws Exception {
 		DadesPersona dadesPersona = getPersonesPlugin().findAmbCodi(codi);
 		return conversioTipusHelper.convertir(
 				dadesPersona,
@@ -195,6 +200,10 @@ public class PluginHelper {
 		return getRegistrePlugin().obtenirNomOficina(codi);
 	}
 
+	public byte[] gestioDocumentalObtenirDocument(String id) throws Exception {
+		return getGestioDocumentalPlugin().retrieveDocument(id);
+	}
+
 	public Integer portasignaturesEnviarDocument(
 			DocumentDto document,
 			List<DocumentDto> annexos,
@@ -225,10 +234,15 @@ public class PluginHelper {
 				dataLimit);
 	}
 
-	public byte[] gestioDocumentalObtenirDocument(String id) throws Exception {
-		return getGestioDocumentalPlugin().retrieveDocument(id);
+	public byte[] custodiaObtenirSignaturesAmbArxiu(
+			String documentId) throws Exception {
+		return getCustodiaPlugin().getSignaturesAmbArxiu(documentId);
 	}
 
+	public String custodiaObtenirUrlComprovacioSignatura(
+			String documentId) throws Exception {
+		return getCustodiaPlugin().getUrlComprovacioSignatura(documentId);
+	}
 
 
 	private TramitDto toTramitDto(DadesTramit dadesTramit) {
@@ -573,6 +587,16 @@ public class PluginHelper {
 		}
 		return registrePlugin;
 	}
+	private GestioDocumentalPlugin getGestioDocumentalPlugin() throws Exception {
+		if (!gestioDocumentalPluginEvaluat) {
+			String pluginClass = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.class");
+			if (pluginClass != null && pluginClass.length() > 0) {
+					Class<?> clazz = Class.forName(pluginClass);
+					gestioDocumentalPlugin = (GestioDocumentalPlugin)clazz.newInstance();
+			}
+		}
+		return gestioDocumentalPlugin;
+	}
 	private PortasignaturesPlugin getPortasignaturesPlugin() throws Exception {
 		if (!portasignaturesPluginEvaluat) {
 			String pluginClass = GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.class");
@@ -583,15 +607,15 @@ public class PluginHelper {
 		}
 		return portasignaturesPlugin;
 	}
-	private GestioDocumentalPlugin getGestioDocumentalPlugin() throws Exception {
-		if (!gestioDocumentalPluginEvaluat) {
-			String pluginClass = GlobalProperties.getInstance().getProperty("app.gesdoc.plugin.class");
+	private CustodiaPlugin getCustodiaPlugin() throws Exception {
+		if (!custodiaPluginEvaluat) {
+			String pluginClass = GlobalProperties.getInstance().getProperty("app.custodia.plugin.class");
 			if (pluginClass != null && pluginClass.length() > 0) {
 					Class<?> clazz = Class.forName(pluginClass);
-					gestioDocumentalPlugin = (GestioDocumentalPlugin)clazz.newInstance();
+					custodiaPlugin = (CustodiaPlugin)clazz.newInstance();
 			}
 		}
-		return gestioDocumentalPlugin;
+		return custodiaPlugin;
 	}
 
 	private static final Log logger = LogFactory.getLog(PluginHelper.class);

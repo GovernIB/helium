@@ -3,7 +3,6 @@ package org.jbpm.graph.node;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 
 import org.dom4j.Element;
 import org.jbpm.JbpmContext;
@@ -32,13 +31,13 @@ public ProcessDefinition findSubProcess(Element subProcessElement) {
       if (subProcessName != null) {
         
         // if the name and the version are specified
+    	EntornDto entorn = Jbpm3HeliumBridge.getInstanceService().getEntornActual();
         if (subProcessVersion != null) {
           
           try {
             int version = Integer.parseInt(subProcessVersion);
-            EntornDto entorn = Jbpm3HeliumBridge.getInstance().getEntornActual();
             if (entorn != null & entorn.getId() != null) {
-            	DefinicioProcesDto definicioProces = Jbpm3HeliumBridge.getInstance().getDefinicioProcesAmbJbpmKeyIVersio(subProcessName, version);
+            	DefinicioProcesDto definicioProces = Jbpm3HeliumBridge.getInstanceService().getDefinicioProcesAmbJbpmKeyIVersio(subProcessName, version);
             	if (definicioProces != null && !definicioProces.getEntorn().getId().equals(entorn.getId()))
             		throw new JpdlException("sub-process not accesible: " + subProcessElement.asXML());
             }
@@ -50,17 +49,12 @@ public ProcessDefinition findSubProcess(Element subProcessElement) {
           }
           
         } else { // if only the name is specified
-        	EntornDto entorn = Jbpm3HeliumBridge.getInstance().getEntornActual();
         	if (entorn != null & entorn.getId() != null) {
-        		try {
-	        		DefinicioProcesDto definicioProces = Jbpm3HeliumBridge.getInstance().getDarreraVersioAmbEntornIJbpmKey(
-	            			entorn.getId(),
-	            			subProcessName);
-	            	if (definicioProces != null && !definicioProces.getEntorn().getId().equals(entorn.getId()))
-	            		throw new JpdlException("sub-process not accesible: " + subProcessElement.asXML());
-        		} catch (EntornNotFoundException ex) {
-        			throw new JpdlException("no s'ha trobat l'entorn (id=" + entorn.getId() + ")");
-        		}
+        		DefinicioProcesDto definicioProces = Jbpm3HeliumBridge.getInstanceService().getDarreraVersioAmbEntornIJbpmKey(
+        				entorn.getId(),
+        				subProcessName);
+            	if (definicioProces != null && !definicioProces.getEntorn().getId().equals(entorn.getId()))
+            		throw new JpdlException("sub-process not accesible: " + subProcessElement.asXML());
             }
           // select the latest version of that process as the subprocess
           // definition

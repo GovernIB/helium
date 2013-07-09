@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.v3.core.repository;
 
+import java.util.List;
+
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 
@@ -16,6 +18,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface DocumentRepository extends JpaRepository<Document, Long> {
+
+	List<Document> findByDefinicioProces(DefinicioProces definicioProces);
 
 	Document findByDefinicioProcesAndCodi(
 			DefinicioProces definicioProces,

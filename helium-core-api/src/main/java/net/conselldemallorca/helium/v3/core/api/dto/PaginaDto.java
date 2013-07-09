@@ -27,6 +27,8 @@ public class PaginaDto<T> implements Iterable<T>, Serializable {
 	private boolean darrera;
 	private List<T> contingut = new ArrayList<T>();
 
+
+
 	public PaginaDto() {
 	}
 

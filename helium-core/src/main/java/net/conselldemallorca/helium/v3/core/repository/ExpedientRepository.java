@@ -3,8 +3,8 @@
  */
 package net.conselldemallorca.helium.v3.core.repository;
 
+import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
@@ -34,9 +34,9 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			"from Expedient e " +
 			"where " +
 			"    e.entorn.id = :entornId " +
-			"and e.tipus in :tipusPermesos " +
+			"and e.tipus in (:tipusPermesos) " +
 			"and (:esNullExpedientTipusId = true or e.tipus.id = :expedientTipusId) " +
-			"and (:esNullTitol = true or e.titol = :titol) " +
+			"and (:esNullTitol = true or lower(e.titol) like lower('%'||:titol||'%')) " +
 			"and (:esNullNumero = true or e.numero = :numero) " +
 			"and (:esNullDataInici1 = true or e.dataInici >= :dataInici1) " +
 			"and (:esNullDataInici2 = true or e.dataInici <= :dataInici2) " +
@@ -46,10 +46,11 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			"and (:esNullGeoPosX = true or e.geoPosX = :geoPosX) " +
 			"and (:esNullGeoPosY = true or e.geoPosY = :geoPosY) " +
 			"and (:esNullGeoReferencia = true or e.geoReferencia = :geoReferencia) " +
+			"and (:nomesAmbTasquesActives = false or e.id in (:idsAmbTasquesActives)) " +
 			"and (:mostrarAnulats = true or e.anulat = false)")
 	public Page<Expedient> findByFiltreGeneralPaginat(
 			@Param("entornId") Long entornId,
-			@Param("tipusPermesos") List<ExpedientTipus> tipusPermesos,
+			@Param("tipusPermesos") Collection<ExpedientTipus> tipusPermesos,
 			@Param("esNullExpedientTipusId") boolean esNullExpedientTipusId,
 			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("esNullTitol") boolean esNullTitol,
@@ -70,6 +71,8 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			@Param("geoPosY") Double geoPosY,
 			@Param("esNullGeoReferencia") boolean esNullGeoReferencia,
 			@Param("geoReferencia") String geoReferencia,
+			@Param("nomesAmbTasquesActives") boolean nomesAmbTasquesActives,
+			@Param("idsAmbTasquesActives") Collection<Long> idsAmbTasquesActives,
 			@Param("mostrarAnulats") boolean mostrarAnulats,
 			Pageable pageable);
 

@@ -39,6 +39,8 @@ public class LuceneHelper {
 	private DefinicioProcesRepository definicioProcesRepository;
 
 	@Resource
+	private VariableHelper variableHelper;
+	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
 	private JbpmHelper jbpmHelper;
@@ -137,7 +139,7 @@ public class LuceneHelper {
 		for (JbpmProcessInstance pi: tree)
 			resposta.put(
 					pi.getId(),
-					expedientHelper.getVariablesJbpmProcesValor(pi.getId()));
+					variableHelper.getVariablesJbpmProcesValor(pi.getId()));
 		return resposta;
 	}
 	private Map<String, Map<String, String>> getMapValorsDomini(

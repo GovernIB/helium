@@ -16,6 +16,7 @@ public class DocumentExpedientCommand {
 	private Date data;
 	private byte[] contingut;
 	private String nom;
+	private String codi;
 
 
 
@@ -44,6 +45,12 @@ public class DocumentExpedientCommand {
 	}
 	public void setNom(String nom) {
 		this.nom = nom;
+	}
+	public String getCodi() {
+		return codi;
+	}
+	public void setCodi(String codi) {
+		this.codi = codi;
 	}
 
 }

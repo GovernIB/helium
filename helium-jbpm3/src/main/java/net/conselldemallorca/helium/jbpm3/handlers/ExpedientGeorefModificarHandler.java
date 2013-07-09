@@ -45,7 +45,7 @@ public class ExpedientGeorefModificarHandler extends AbstractHeliumActionHandler
 		ExpedientDto expedient = getExpedientActual(executionContext);
 		logger.debug("Modificant geo-ref de l'expedient (exp=" + expedient.getIdentificacioPerLogs() + ", posx=" + posx + ", posy=" + posy + ", referencia=" + referencia + ")");
 		try {
-			Jbpm3HeliumBridge.getInstance().expedientModificarGeoref(
+			Jbpm3HeliumBridge.getInstanceService().expedientModificarGeoref(
 					getProcessInstanceId(executionContext),
 					new Double(posx),
 					new Double(posy),

@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.jbpm3.handlers;
 import java.util.Calendar;
 import java.util.Date;
 
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 
@@ -43,14 +44,14 @@ public class TerminiCalcularDataFiHandler extends AbstractHeliumActionHandler im
 				if (valorTermini == null)
 					throw new JbpmException("No s'ha pogut llegir el termini de la variable '" + varTermini + "'");
 				Termini vt = (Termini)valorTermini;
-				dataFi = getTerminiService().getDataFiTermini(
+				dataFi = Jbpm3HeliumBridge.getInstanceService().terminiCalcularDataFi(
 						getDataInici(executionContext),
 						vt.getAnys(),
 						vt.getMesos(),
 						vt.getDies(),
 						termini.isLaborable());
 			} else {
-				dataFi = getTerminiService().getDataFiTermini(
+				dataFi = Jbpm3HeliumBridge.getInstanceService().terminiCalcularDataFi(
 						getDataInici(executionContext),
 						termini.getAnys(),
 						termini.getMesos(),

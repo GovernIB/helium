@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 package net.conselldemallorca.helium.webapp.mvc;
 
 import java.text.SimpleDateFormat;
@@ -119,6 +122,7 @@ public class ExpedientConsultaController extends BaseController {
 				estats = new ArrayList<Estat>();
 			afegirEstatsInicialIFinal(estats);
 			model.addAttribute("estats", estats);
+			model.addAttribute("objectsPerPage", objectsPerPage);
 			return "expedient/consulta";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
@@ -130,6 +134,7 @@ public class ExpedientConsultaController extends BaseController {
 			HttpServletRequest request,
 			HttpSession session,
 			@RequestParam(value = "submit", required = false) String submit,
+			@RequestParam(value = "objectsPerPage", required = false) String objectsPerPage,
 			@ModelAttribute("command") ExpedientConsultaGeneralCommand command,
 			BindingResult result,
 			SessionStatus status,
@@ -145,15 +150,15 @@ public class ExpedientConsultaController extends BaseController {
 			if (command.isMassivaActiu() && command.getExpedientTipus() == null) {
 				command.setMassivaActiu(false);
 				missatgeError(request, getMessage("error.no.tiexep.selec"));
-				return "redirect:/expedient/consulta.html";
+				return "redirect:/expedient/consulta.html?objectsPerPage=" + objectsPerPage;
 			}
 			if ("submit".equals(submit) || "massiva".equals(submit) || "nomassiva".equals(submit)) {
 				session.setAttribute(VARIABLE_SESSIO_COMMAND, command);
-				return "redirect:/expedient/consulta.html";
+				return "redirect:/expedient/consulta.html?objectsPerPage=" + objectsPerPage;
 			} else if ("clean".equals(submit)) {
 				session.removeAttribute(VARIABLE_SESSIO_COMMAND);
 				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS);
-				return "redirect:/expedient/consulta.html";
+				return "redirect:/expedient/consulta.html?objectsPerPage=" + objectsPerPage;
 			}
 			return "expedient/consulta";
 		} else {
@@ -210,11 +215,11 @@ public class ExpedientConsultaController extends BaseController {
 
 	public void afegirEstatsInicialIFinal(List<Estat> estats) {
 		Estat iniciat = new Estat();
-		iniciat.setId(Long.parseLong("0"));
+		iniciat.setId(new Long(0));
 		iniciat.setNom( getMessage("expedient.consulta.iniciat") );
 		estats.add(0, iniciat);
 		Estat finalitzat = new Estat();
-		finalitzat.setId(Long.parseLong("-1"));
+		finalitzat.setId(new Long(-1));
 		finalitzat.setNom( getMessage("expedient.consulta.finalitzat") );
 		estats.add(finalitzat);
 	}
@@ -237,13 +242,13 @@ public class ExpedientConsultaController extends BaseController {
 			estatId = (!iniciat && !finalitzat) ? command.getEstat() : null;
 		}
 		int maxResults = getObjectsPerPage(objectsPerPage);
-		int pagina = (page == null) ? 1: Integer.valueOf(page);
+		int pagina = (page != null) ? new Integer(page).intValue() : 1;
 		int firstRow = (pagina - 1) * maxResults;
 		boolean isAsc = (dir == null) || "asc".equals(dir);
 		// Si no s'especifica columna per cercar ordena en sentit descendent
 		if (sort == null || sort.length() == 0)
 			isAsc = false;
-		
+		//
 		PaginatedList paginatedList = new PaginatedList();
 		paginatedList.setFullListSize(expedientService.countAmbEntornConsultaGeneral(
 				entorn.getId(),
@@ -251,7 +256,7 @@ public class ExpedientConsultaController extends BaseController {
 				command.getNumero(),
 				command.getDataInici1(),
 				command.getDataInici2(),
-				(command.getExpedientTipus() == null) ? null : command.getExpedientTipus().getId(),
+				(command.getExpedientTipus() != null) ? command.getExpedientTipus().getId() : null,
 				estatId,
 				iniciat,
 				finalitzat,
@@ -269,7 +274,7 @@ public class ExpedientConsultaController extends BaseController {
 				command.getNumero(),
 				command.getDataInici1(),
 				command.getDataInici2(),
-				(command.getExpedientTipus() == null) ? null: command.getExpedientTipus().getId(),
+				(command.getExpedientTipus() != null) ? command.getExpedientTipus().getId() : null,
 				estatId,
 				iniciat,
 				finalitzat,

@@ -33,8 +33,6 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 	
 	private NamedParameterJdbcTemplate jdbcTemplate;
 
-
-
 	public HibernateGenericDao() {
 	}
 
@@ -220,7 +218,7 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 	
 	public int getCountByCriteria(final Criteria crit) {
 		crit.setProjection(Projections.rowCount());
-		final Integer result = (Integer)crit.uniqueResult();
+		final Long result = (Long)crit.uniqueResult();
 		return (result == null) ? 0 : result.intValue();
 	}
 

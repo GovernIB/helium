@@ -129,7 +129,7 @@ public class JbpmTask {
 		if (currentFieldValue != null) {
 			String currentFieldText = DESCRIPTION_FIELD_SEPARATOR + name + DESCRIPTION_FIELD_SEPARATOR + currentFieldValue;
 			String newFieldText = DESCRIPTION_FIELD_SEPARATOR + name + DESCRIPTION_FIELD_SEPARATOR + value;
-			getDescriptionWithFields().replace(currentFieldText, newFieldText);
+			task.setDescription(getDescriptionWithFields().replace(currentFieldText, newFieldText));
 		} else {
 			String newFieldText = DESCRIPTION_FIELD_SEPARATOR + name + DESCRIPTION_FIELD_SEPARATOR + value;
 			String fields = getDescriptionWithFields();

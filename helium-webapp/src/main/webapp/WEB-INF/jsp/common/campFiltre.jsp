@@ -95,7 +95,7 @@
 									changeYear: true
 								}));
 								
-								$("#${codiActualJquery}0").datepicker();
+								$("#${codiActualJquery}0").datepicker({firstDay: 1});
 							});
 							// ]]>
 						</script>
@@ -112,7 +112,7 @@
 									changeMonth: true,
 									changeYear: true
 								}));
-								$("#${codiActualJquery}1").datepicker();
+								$("#${codiActualJquery}1").datepicker({firstDay: 1});
 							});
 							// ]]>
 						</script>

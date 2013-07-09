@@ -27,6 +27,7 @@ import net.conselldemallorca.helium.core.model.hibernate.UsuariPreferencies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.AccessControlEntry;
@@ -54,26 +55,26 @@ public class PersonaService {
 
 
 
-	//@Secured({"ROLE_ADMIN", "ROLE_USER"})
+	@Secured({"ROLE_ADMIN", "ROLE_USER"})
 	public Persona getPerfilInfo(Long id) {
 		return personaDao.getById(id, false);
 	}
 
-	//@Secured({"ROLE_ADMIN", "ROLE_USER"})
+	@Secured({"ROLE_ADMIN", "ROLE_USER"})
 	public Persona updatePerfil(Persona persona) {
 		return personaDao.merge(persona);
 	}
 
-	//@Secured({"ROLE_ADMIN", "ROLE_USER"})
+	@Secured({"ROLE_ADMIN", "ROLE_USER"})
 	public void canviContrasenyaPerfil(Long id, String contrasenya) throws Exception {
 		canviContrasenya(id, contrasenya);
 	}
 
-	//@Secured({"ROLE_ADMIN"})
+	@Secured({"ROLE_ADMIN"})
 	public PersonaUsuariDto getPersonaUsuariById(Long id) {
 		return toPersonaUsuariDto(personaDao.getById(id, false));
 	}
-	//@Secured({"ROLE_ADMIN"})
+	@Secured({"ROLE_ADMIN"})
 	public PersonaUsuariDto createPersonaUsuari(PersonaUsuariDto entity) {
 		// Guarda les dades de la persona
 		Persona personaSaved = personaDao.saveOrUpdate(personaFromEntity(entity));
@@ -81,7 +82,7 @@ public class PersonaService {
 		createUsuariSiLogin(entity);
 		return toPersonaUsuariDto(personaSaved);
 	}
-	//@Secured({"ROLE_ADMIN"})
+	@Secured({"ROLE_ADMIN"})
 	public PersonaUsuariDto updatePersonaUsuari(PersonaUsuariDto entity) {
 		// Si hi ha un canvi de codi de persona esborra l'usuari
 		if (entity.getId() != null) {
@@ -101,7 +102,7 @@ public class PersonaService {
 		createUsuariSiLogin(entity);
 		return toPersonaUsuariDto(personaSaved);
 	}
-	//@Secured({"ROLE_ADMIN"})
+	@Secured({"ROLE_ADMIN"})
 	public void deletePersona(Long id) {
 		Persona persona = personaDao.getById(id, false);
 		if (persona != null) {
@@ -111,7 +112,7 @@ public class PersonaService {
 			personaDao.delete(persona);
 		}
 	}
-	//@Secured({"ROLE_ADMIN"})
+	@Secured({"ROLE_ADMIN"})
 	public void canviContrasenya(Long id, String contrasenya) throws Exception {
 		Persona persona = personaDao.getById(id, false);
 		if (persona!= null) {
@@ -124,18 +125,18 @@ public class PersonaService {
 			throw new NotFoundException( getMessage("error.personaService.noExisteix", new Object[]{id}) );
 		}
 	}
-	//@Secured({"ROLE_ADMIN"})
+	@Secured({"ROLE_ADMIN"})
 	public List<PersonaUsuariDto> findPersonaUsuariAll() {
 		return toPersonaUsuariDto(personaDao.findAll());
 	}
-	//@Secured({"ROLE_ADMIN"})
+	@Secured({"ROLE_ADMIN"})
 	public List<PersonaUsuariDto> findPersonaUsuariOrderedAll(String sort, boolean asc) {
 		return toPersonaUsuariDto(
 				personaDao.findOrderedAll(
 						new String[] {sort},
 						asc));
 	}
-	//@Secured({"ROLE_ADMIN"})
+	@Secured({"ROLE_ADMIN"})
 	public List<PersonaUsuariDto> findPersonaUsuariPagedAndOrderedAll(
 			String sort,
 			boolean asc,
@@ -147,11 +148,11 @@ public class PersonaService {
 				firstRow,
 				maxResults));
 	}
-	//@Secured({"ROLE_ADMIN"})
+	@Secured({"ROLE_ADMIN"})
 	public int countPersonaUsuariAll() {
 		return personaDao.getCountAll();
 	}
-	//@Secured({"ROLE_ADMIN"})
+	@Secured({"ROLE_ADMIN"})
 	public List<PersonaUsuariDto> findPersonaUsuariPagedAndOrderedFiltre(
 			String sort,
 			boolean asc,
@@ -170,7 +171,7 @@ public class PersonaService {
 						nomLike,
 						emailLike));
 	}
-	//@Secured({"ROLE_ADMIN"})
+	@Secured({"ROLE_ADMIN"})
 	public int countPersonaUsuariFiltre(
 			String codi,
 			String nomLike,
@@ -181,22 +182,22 @@ public class PersonaService {
 				emailLike);
 	}
 
-	//@Secured({"ROLE_ADMIN", "ROLE_USER"})
+	@Secured({"ROLE_ADMIN", "ROLE_USER"})
 	public Persona findPersonaAmbCodi(String codi) {
 		return personaDao.findAmbCodi(codi);
 	}
-	//@Secured({"ROLE_ADMIN", "ROLE_USER"})
+	@Secured({"ROLE_ADMIN", "ROLE_USER"})
 	public List<Permis> findPermisosAll() {
 		return permisDao.findAll();
 	}
 
-	//@Secured({"ROLE_ADMIN", "ROLE_USER"})
+	@Secured({"ROLE_ADMIN", "ROLE_USER"})
 	public UsuariPreferencies getUsuariPreferencies() {
 		return usuariPreferenciesDao.getById(
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				false);
 	}
-	//@Secured({"ROLE_ADMIN", "ROLE_USER"})
+	@Secured({"ROLE_ADMIN", "ROLE_USER"})
 	public void savePrefDefaultEntorn(String entornCodi) {
 		UsuariPreferencies preferencies = getUsuariPreferencies();
 		if (preferencies == null) {
@@ -206,7 +207,7 @@ public class PersonaService {
 		}
 		preferencies.setDefaultEntornCodi(entornCodi);
 	}
-	//@Secured({"ROLE_ADMIN", "ROLE_USER"})
+	@Secured({"ROLE_ADMIN", "ROLE_USER"})
 	public void savePrefIdioma(String idioma) {
 		UsuariPreferencies preferencies = getUsuariPreferencies();
 		if (preferencies == null) {
@@ -217,7 +218,7 @@ public class PersonaService {
 		preferencies.setIdioma(idioma);
 	}
 
-	//@Secured({"ROLE_ADMIN", "ROLE_USER"})
+	@Secured({"ROLE_ADMIN", "ROLE_USER"})
 	public Set<PersonaDto> findPersonesAmbPermisosPerExpedientTipus(Long expedientTipusId) {
 		Set<PersonaDto> resposta = new HashSet<PersonaDto>();
 		Map<Sid, List<AccessControlEntry>> permisos = permissionService.getAclEntriesGroupedBySid(

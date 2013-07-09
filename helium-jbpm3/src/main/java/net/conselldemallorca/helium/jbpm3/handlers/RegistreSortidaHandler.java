@@ -10,6 +10,7 @@ import java.util.List;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreSortida;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaRegistre;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 
 import org.dom4j.DocumentHelper;
@@ -66,7 +67,7 @@ public class RegistreSortidaHandler extends BasicActionHandler implements Regist
 	private String varData;
 
 	public void execute(ExecutionContext executionContext) throws Exception {
-		if (getPluginService().isRegistreActiu())
+		if (Jbpm3HeliumBridge.getInstanceService().isRegistreActiu())
 			throw new JbpmException("El plugin de registre no està configurat");
 		if (varDocument == null || varDocument.length() == 0)
 			throw new JbpmException("És obligatori especificar un document per registrar");
@@ -136,12 +137,12 @@ public class RegistreSortidaHandler extends BasicActionHandler implements Regist
 				executionContext,
 				anotacio,
 				annexos);
-		getDocumentService().guardarDadesRegistre(
+		Jbpm3HeliumBridge.getInstanceService().documentExpedientGuardarDadesRegistre(
 				documentInfo.getId(),
 				resposta.getNumero(),
 				resposta.getData(),
 				anotacio.getOficinaCodi(),
-				getPluginService().getRegistreOficinaNom(anotacio.getOficinaCodi()),
+				Jbpm3HeliumBridge.getInstanceService().getRegistreOficinaNom(anotacio.getOficinaCodi()),
 				false);
 		if (varNumeroAnyRegistre != null)
 			executionContext.setVariable(

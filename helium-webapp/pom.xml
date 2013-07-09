@@ -6,7 +6,7 @@
 	<parent>
 		<artifactId>helium</artifactId>
 		<groupId>net.conselldemallorca</groupId>
-		<version>3.0</version>
+		<version>2.6</version>
 	</parent>
 	<artifactId>helium-webapp</artifactId>
 	<packaging>war</packaging>
@@ -225,28 +225,28 @@
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-core</artifactId>
-			<version>3.0</version>
+			<version>${helium.version}</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-ws</artifactId>
-			<version>3.0</version>
+			<version>${helium.version}</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-plugin-api</artifactId>
-			<version>3.0</version>
+			<version>${helium.version}</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-plugin-impl</artifactId>
-			<version>3.0</version>
+			<version>${helium.version}</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>

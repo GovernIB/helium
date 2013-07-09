@@ -7,12 +7,18 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaFilaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.DominiNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EnumeracioNotFoundException;
@@ -50,6 +56,8 @@ public interface ExpedientService {
 			String motiu) throws ExpedientNotFoundException;
 	public void reprendre(Long expedientId) throws ExpedientNotFoundException;
 
+	public ExpedientDto findById(Long expedientId) throws ExpedientNotFoundException;
+
 	public ExpedientDto findAmbEntornITipusINumero(
 			Long entornId,
 			String expedientTipusCodi,
@@ -72,7 +80,7 @@ public interface ExpedientService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean nomesPendents,
+			boolean nomesAmbTasquesActives,
 			boolean nomesAlertes,
 			boolean mostrarAnulats,
 			PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException;
@@ -83,10 +91,6 @@ public interface ExpedientService {
 
 	public void luceneIndexUpdate(
 			Long expedientId) throws ExpedientNotFoundException;
-
-	public String getProcessInstanceVariableText(
-			String processInstanceId,
-			String variableCodi);
 	
 	public void processInstanceTokenRedirect(
 			long tokenId,
@@ -102,6 +106,28 @@ public interface ExpedientService {
 
 	public void alertaEsborrarAmbTaskInstanceId(
 			long taskInstanceId) throws TaskInstanceNotFoundException;
+
+	public List<ExpedientDadaDto> findDadesPerExpedient(Long expedientId);
+
+	public ExpedientDadaDto getDadaPerProcessInstance(
+			String processInstanceId,
+			String variableCodi);
+
+	public List<ExpedientDocumentDto> findDocumentsPerExpedient(Long expedientId);
+
+	public ArxiuDto getArxiuExpedient(
+			Long expedientId,
+			Long documentStoreId);
+	
+	public List<CampAgrupacioDto> findAgrupacionsDadesExpedient(Long expedientId);
+
+	public List<ExpedientTascaDto> findTasquesPerExpedient(Long expedientId);
+
+	public ExpedientTascaDto getTascaPerExpedient(
+			Long expedientId,
+			String tascaId);
+
+	public List<PersonaDto> findParticipantsPerExpedient(Long expedientId);
 
 	public List<DominiRespostaFilaDto> dominiConsultar(
 			String processInstanceId,

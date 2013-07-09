@@ -11,7 +11,7 @@
 				http://www.springframework.org/schema/context
 				http://www.springframework.org/schema/context/spring-context-3.1.xsd
 				http://www.springframework.org/schema/mvc
-				http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd"
+				http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd"
 		default-autowire="byName">
 
 	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -19,7 +19,7 @@
 	</bean>
 
 	<context:component-scan base-package="net.conselldemallorca.helium.webapp"/>
-	
+
 	<context:annotation-config/>
 	<mvc:annotation-driven/>
 	<mvc:default-servlet-handler/>
@@ -27,17 +27,19 @@
 	<mvc:interceptors>
 		<bean class="net.conselldemallorca.helium.webapp.mvc.interceptor.PersonaInterceptor"/>
 		<bean class="net.conselldemallorca.helium.webapp.mvc.interceptor.EntornInterceptor"/>
+		<bean class="net.conselldemallorca.helium.webapp.mvc.interceptor.PermisosDissenyInterceptor"/>
 		<bean class="net.conselldemallorca.helium.webapp.mvc.interceptor.GlobalPropertiesInterceptor"/>
 		<bean class="net.conselldemallorca.helium.webapp.mvc.interceptor.VersioInterceptor"/>
+		<bean class="net.conselldemallorca.helium.webapp.v3.interceptor.NoDecorarInterceptor"/>
 		<bean class="org.springframework.orm.hibernate3.support.OpenSessionInViewInterceptor">
 			<property name="singleSession" value="true"/>
 		</bean>
 		<bean id="localeChangeInterceptor" class="net.conselldemallorca.helium.webapp.mvc.interceptor.IdiomaInterceptor" />
 	</mvc:interceptors>
 
-	<!--bean id="beanNameViewResolver" class="org.springframework.web.servlet.view.BeanNameViewResolver">
+	<bean id="beanNameViewResolver" class="org.springframework.web.servlet.view.BeanNameViewResolver">
 		<property name="order" value="0"/>
-	</bean-->
+	</bean>
 	<bean id="defaultViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<property name="prefix" value="/WEB-INF/jsp/"/>
 		<property name="suffix" value=".jsp"/>
@@ -63,19 +65,6 @@
 	<bean name="arxiuConvertirView" class="net.conselldemallorca.helium.webapp.mvc.ArxiuConvertirView"/>
 	<bean name="serialitzarView" class="net.conselldemallorca.helium.webapp.mvc.SerialitzarView"/>
 	<bean name="jasperReportsView" class="net.conselldemallorca.helium.webapp.mvc.JasperReportsView"/>
-
-	<!--bean id="responseCachingFilter" class="net.conselldemallorca.helium.webapp.mvc.interceptor.ResponseCachingFilter">
-		<property name="useCacheControlHeader" value="true" />
-		<property name="cacheMappings">
-			<props>
-				<prop key="/**/*.png">86400</prop>
-				<prop key="/**/*.jpg">86400</prop>
-				<prop key="/**/*.gif">86400</prop>
-				<prop key="/**/*.css">86400</prop>
-				<prop key="/**/*.js">86400</prop>
-			</props>
-		</property>
-	</bean-->
 
 	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
 		<property name="messageConverters">

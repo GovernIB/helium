@@ -4,16 +4,20 @@
 package net.conselldemallorca.helium.webapp.mvc;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
+import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
 import net.conselldemallorca.helium.core.model.exception.NotFoundException;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
+import net.conselldemallorca.helium.webapp.mvc.util.TramitacioMassiva;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -42,6 +46,38 @@ public class TascaSignaturesController extends BaseController {
 		this.tascaService = tascaService;
 	}
 
+	@ModelAttribute("seleccioMassiva")
+	public List<TascaLlistatDto> populateSeleccioMassiva(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = false) String id) {
+		if (id != null) {
+			Entorn entorn = getEntornActiu(request);
+			if (entorn != null) {
+				String[] ids = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
+				if (ids != null) {
+					List<TascaLlistatDto> tasquesTramitacioMassiva = tascaService.findTasquesPerTramitacioMassiva(
+							entorn.getId(),
+							null,
+							id);
+					for (Iterator<TascaLlistatDto> it = tasquesTramitacioMassiva.iterator(); it.hasNext();) {
+						TascaLlistatDto tasca = it.next();
+						boolean trobada = false;
+						for (String tascaId: ids) {
+							if (tascaId.equals(tasca.getId())) {
+								trobada = true;
+								break;
+							}
+						}
+						if (!trobada)
+							it.remove();
+					}
+					return tasquesTramitacioMassiva;
+				}
+			}
+		}
+		return null;
+	}
+	
 	@ModelAttribute("commandReadOnly")
 	public Object populateCommand(
 			HttpServletRequest request,

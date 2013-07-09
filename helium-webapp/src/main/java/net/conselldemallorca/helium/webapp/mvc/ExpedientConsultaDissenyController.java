@@ -415,7 +415,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 				BigDecimal.class,
 				new CustomNumberEditor(
 						BigDecimal.class,
-						new DecimalFormat("#,###.00"),
+						new DecimalFormat("#,##0.00"),
 						true));
 		binder.registerCustomEditor(
 				Boolean.class,
@@ -611,7 +611,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			String objectsPerPage,
 			boolean export) {
 		int maxResults = getObjectsPerPage(objectsPerPage);
-		int pagina = (page == null) ? 1 : Integer.valueOf(page);
+		int pagina = (page != null) ? new Integer(page).intValue() : 1;
 		int firstRow = (pagina - 1) * maxResults;
 		boolean isAsc = (dir == null) || "asc".equals(dir);
 		// Si no s'especifica columna per cercar ordena en sentit descendent

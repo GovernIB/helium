@@ -12,10 +12,10 @@
 <script type="text/javascript">
 // <![CDATA[
 function disable(blocid) {
-	$("#" + blocid).find("input,select,textarea").attr("disabled", "disabled");
+	$("#" + blocid).find("input,select,textarea").prop('disabled', true);
 }
 function enable(blocid) {
-	$("#" + blocid).find("input,select,textarea").removeAttr("disabled");
+	$("#" + blocid).find("input,select,textarea").prop('disabled', false);
 }
 function canviTipus(input) {
 	if (input.value == "SELECCIO" || input.value == "SUGGEST") {
@@ -24,7 +24,16 @@ function canviTipus(input) {
 	} else if (input.value == "ACCIO") {
 		enable("camps_accio");
 		disable("camps_consulta");
+	} else if(input.value!="SELECCIO" && input.value!="SUGGEST"){
+		$("#enumeracio0").val("");
+		$("#enumeracio0").trigger('click');
+		disable("camps_accio");
+		disable("camps_consulta");
+		
+		
 	} else {
+		$("#enumeracio0").val(null);
+		$("#enumeracio0").trigger('click');
 		disable("camps_accio");
 		disable("camps_consulta");
 	}

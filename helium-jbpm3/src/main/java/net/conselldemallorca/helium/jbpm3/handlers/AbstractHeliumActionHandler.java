@@ -12,14 +12,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
-import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
-import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.PluginService;
-import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
 
 import org.jbpm.JbpmException;
 import org.jbpm.graph.def.ActionHandler;
@@ -37,27 +31,23 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 			throws Exception;
 
 	ExpedientDto getExpedientActual(ExecutionContext executionContext) {
-		ExpedientDto expedient = Jbpm3HeliumBridge.getInstance().getExpedientIniciant();
+		ExpedientDto expedient = Jbpm3HeliumBridge.getInstanceService().getExpedientIniciant();
 		if (expedient == null) {
-			expedient = getExpedientService().findAmbProcessInstanceId(
+			expedient = Jbpm3HeliumBridge.getInstanceService().getExpedientArrelAmbProcessInstanceId(
 					getProcessInstanceId(executionContext));
 		}
 		return expedient;
 	}
 
 	DefinicioProcesDto getDefinicioProces(ExecutionContext executionContext) {
-		return Jbpm3HeliumBridge.getInstance().getDefinicioProcesPerProcessInstanceId(
+		return Jbpm3HeliumBridge.getInstanceService().getDefinicioProcesPerProcessInstanceId(
 				getProcessInstanceId(executionContext));
-	}
-
-	PersonaDto getPersonaAmbCodi(String codi) {
-		return Jbpm3HeliumBridge.getInstance().getPersonaAmbCodi(codi);
 	}
 
 	TerminiDto getTerminiAmbCodi(ExecutionContext executionContext, String codi) {
 		try {
-			return getDissenyService().findTerminiAmbDefinicioProcesICodi(
-					getDefinicioProces(executionContext).getId(),
+			return Jbpm3HeliumBridge.getInstanceService().getTerminiAmbDefinicioProcesICodi(
+					getProcessInstanceId(executionContext),
 					codi);
 		} catch (Exception ex) {
 			throw new JbpmException("No s'ha trobat la definició de procés");
@@ -70,9 +60,9 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 				executionContext,
 				codi);
 		if (termini != null) {
-			return getTerminiService().findIniciatAmbTerminiIProcessInstance(
-					termini.getId(),
-					getProcessInstanceId(executionContext));
+			return Jbpm3HeliumBridge.getInstanceService().getTerminiIniciatAmbProcessInstanceITerminiCodi(
+					getProcessInstanceId(executionContext),
+					termini.getCodi());
 		} else {
 			return null;
 		}
@@ -82,13 +72,13 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 			ExecutionContext executionContext,
 			String documentCodi,
 			boolean ambArxiu) {
-		String varCodi = getVarDocument(documentCodi);
+		String varCodi = Jbpm3HeliumBridge.getInstanceService().getCodiVariablePerDocumentCodi(documentCodi);
 		Object valor = executionContext.getVariable(varCodi);
 		if (valor == null)
 			return null;
 		if (valor instanceof Long) {
 			Long id = (Long) valor;
-			DocumentDto document = getDocumentService().getInfo(id);
+			DocumentDto document = Jbpm3HeliumBridge.getInstanceService().getDocumentInfo(id);
 			if (document == null)
 				return null;
 			DocumentInfo resposta = new DocumentInfo();
@@ -110,7 +100,7 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 				resposta.setRegistreEntrada(document.isRegistreEntrada());
 			}
 			if (ambArxiu) {
-				ArxiuDto arxiu = getDocumentService().getArxiuPerMostrar(id);
+				ArxiuDto arxiu = Jbpm3HeliumBridge.getInstanceService().getArxiuPerMostrar(id);
 				resposta.setArxiuNom(arxiu.getNom());
 				resposta.setArxiuContingut(arxiu.getContingut());
 			}
@@ -119,25 +109,6 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 			throw new JbpmException("La referencia al document \""
 					+ documentCodi + "\" no es del tipus correcte");
 		}
-	}
-	String getVarDocument(String documentCodi) {
-		return DocumentService.PREFIX_VAR_DOCUMENT + documentCodi;
-	}
-
-	ExpedientService getExpedientService() {
-		return Jbpm3HeliumBridge.getInstance().getExpedientService();
-	}
-	DocumentService getDocumentService() {
-		return Jbpm3HeliumBridge.getInstance().getDocumentService();
-	}
-	PluginService getPluginService() {
-		return Jbpm3HeliumBridge.getInstance().getPluginService();
-	}
-	DissenyService getDissenyService() {
-		return Jbpm3HeliumBridge.getInstance().getDissenyService();
-	}
-	TerminiService getTerminiService() {
-		return Jbpm3HeliumBridge.getInstance().getTerminiService();
 	}
 
 	protected String getProcessInstanceId(ExecutionContext executionContext) {

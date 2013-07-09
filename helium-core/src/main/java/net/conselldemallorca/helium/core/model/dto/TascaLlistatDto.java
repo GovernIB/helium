@@ -49,6 +49,8 @@ public class TascaLlistatDto implements Comparable<TascaLlistatDto> {
 	private boolean delegacioSupervisada;
 	private PersonaDto delegacioPersona;
 
+	private boolean agafada;
+
 
 
 	public boolean isDelegable() {
@@ -242,6 +244,12 @@ public class TascaLlistatDto implements Comparable<TascaLlistatDto> {
 	}
 	public void setResultats(List<String> resultats) {
 		this.resultats = resultats;
+	}
+	public boolean isAgafada() {
+		return agafada;
+	}
+	public void setAgafada(boolean agafada) {
+		this.agafada = agafada;
 	}
 
 

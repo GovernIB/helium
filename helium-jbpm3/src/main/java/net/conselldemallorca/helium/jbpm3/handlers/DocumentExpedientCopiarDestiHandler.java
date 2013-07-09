@@ -59,21 +59,21 @@ public class DocumentExpedientCopiarDestiHandler extends AbstractHeliumActionHan
 					executionContext,
 					destiExpedientDocument,
 					varDestiExpedientDocument);
-			ExpedientDto expedientDesti = Jbpm3HeliumBridge.getInstance().findExpedientAmbEntornITipusINumero(
+			ExpedientDto expedientDesti = Jbpm3HeliumBridge.getInstanceService().getExpedientAmbEntornITipusINumero(
 					expedient.getEntorn().getId(),
 					expedientTipusCodi,
 					expedientNumero);
 			if (expedientDesti != null) {
 				ProcessInstance pi = executionContext.getJbpmContext().getProcessInstance(
 						new Long(expedientDesti.getProcessInstanceId()));
-				Long documentStoreId = getDocumentService().guardarDocument(
+				Long documentStoreId = Jbpm3HeliumBridge.getInstanceService().documentExpedientGuardar(
 						new Long(pi.getId()).toString(),
 						documentDestiCodi,
 						docInfo.getDataDocument(),
 						docInfo.getArxiuNom(),
 						docInfo.getArxiuContingut());
 				if (docInfo.isRegistrat()) {
-					getDocumentService().guardarDadesRegistre(
+					Jbpm3HeliumBridge.getInstanceService().documentExpedientGuardarDadesRegistre(
 							documentStoreId,
 							docInfo.getRegistreNumero(),
 							docInfo.getRegistreData(),

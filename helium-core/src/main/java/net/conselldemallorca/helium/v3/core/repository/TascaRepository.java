@@ -17,8 +17,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface TascaRepository extends JpaRepository<Tasca, Long> {
 
-	Tasca findByNomAndDefinicioProces(
-			String nom,
+	Tasca findByJbpmNameAndDefinicioProces(
+			String jbpmName,
 			DefinicioProces definicioProces);
 
 }

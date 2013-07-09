@@ -43,7 +43,7 @@ public class ExpedientConsultaCommand {
 
 	private boolean filtreDesplegat = false;
 	private boolean tramitacioMassivaActivada = false;
-	private boolean consultaRealitzada = true;
+	private boolean consultaRealitzada = false;
 
 	public ExpedientConsultaCommand() {
 	}

@@ -681,7 +681,7 @@ public class DocumentHelper {
 		}
 	}
 
-	private String getVarPerDocumentCodi(String documentCodi, boolean isAdjunt) {
+	public String getVarPerDocumentCodi(String documentCodi, boolean isAdjunt) {
 		if (isAdjunt)
 			return PREFIX_ADJUNT + documentCodi;
 		else

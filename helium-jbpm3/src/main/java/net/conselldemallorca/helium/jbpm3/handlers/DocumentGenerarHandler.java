@@ -39,10 +39,12 @@ public class DocumentGenerarHandler extends AbstractHeliumActionHandler implemen
 		Date docData = getValorOVariableData(executionContext, data, varData);
 		if (docData == null)
 			docData = new Date();
-		Jbpm3HeliumBridge.getInstance().documentGenerarAmbPlantilla(
+		Jbpm3HeliumBridge.getInstanceService().documentGenerarAmbPlantilla(
+				null,
 				getProcessInstanceId(executionContext),
 				dc,
-				docData);
+				docData,
+				true);
 		logger.debug("Handler generar document finalitzat amb èxit");
 	}
 

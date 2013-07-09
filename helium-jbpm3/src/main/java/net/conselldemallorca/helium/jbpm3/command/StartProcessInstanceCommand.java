@@ -36,7 +36,7 @@ public class StartProcessInstanceCommand extends NewProcessInstanceCommand imple
 				si.setActorId(getActorId());
 				processInstance.getTaskMgmtInstance().addSwimlaneInstance(si);
 			}
-			ExpedientDto expedientIniciant = Jbpm3HeliumBridge.getInstance().getExpedientIniciant();
+			ExpedientDto expedientIniciant = Jbpm3HeliumBridge.getInstanceService().getExpedientIniciant();
 			if (expedientIniciant != null)
 				expedientIniciant.setProcessInstanceId(new Long(processInstance
 						.getId()).toString());

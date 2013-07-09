@@ -15,7 +15,6 @@ public class DocumentGenerarException extends RuntimeException {
 	public DocumentGenerarException() {
 		super();
 	}
-
 	public DocumentGenerarException(String message) {
 		super(message);
 	}

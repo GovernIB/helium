@@ -8,6 +8,7 @@ import net.conselldemallorca.helium.core.model.dao.ReassignacioDao;
 import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 
 /**
@@ -35,7 +36,7 @@ public class ReassignacioService {
 		return reassignacioDao.findLlistaActiusModificacio(id);
 	}
 	
-	//@Secured({"ROLE_ADMIN", "ROLE_USER"})
+	@Secured({"ROLE_ADMIN", "ROLE_USER"})
 	public void createReassignacio(
 			String usuariOrigen,
 			String usuariDesti,
@@ -53,7 +54,7 @@ public class ReassignacioService {
 		reassignacioDao.saveOrUpdate(reassignacio);
 	}
 
-	//@Secured({"ROLE_ADMIN", "ROLE_USER"})
+	@Secured({"ROLE_ADMIN", "ROLE_USER"})
 	public void updateReassignacio(
 			Long id,
 			String usuariOrigen,
@@ -72,7 +73,7 @@ public class ReassignacioService {
 		reassignacioDao.saveOrUpdate(reassignacio);
 	}
 
-	//@Secured({"ROLE_ADMIN", "ROLE_USER"})
+	@Secured({"ROLE_ADMIN", "ROLE_USER"})
 	public void deleteReassignacio(Long id) {
 		Reassignacio reassignacio = reassignacioDao.getById(id, false);
 		if (reassignacio != null) {
@@ -81,7 +82,7 @@ public class ReassignacioService {
 		}
 	}
 
-	//@Secured({"ROLE_ADMIN", "ROLE_USER"})
+	@Secured({"ROLE_ADMIN", "ROLE_USER"})
 	public Reassignacio findReassignacioById(Long id) {
 		return reassignacioDao.getById(id, false);
 	}

@@ -178,7 +178,7 @@ public class DissenyService {
 					dpd.getKey(),
 					dpd.getVersion(),
 					entorn);
-			if (etiqueta != null)
+			if (etiqueta != null || etiqueta !="")
 				definicioProces.setEtiqueta(etiqueta);
 			if (expedientTipusId != null)
 				definicioProces.setExpedientTipus(expedientTipusDao.getById(expedientTipusId, false));
@@ -1044,28 +1044,29 @@ public class DissenyService {
 		List<Camp> camps = campDao.findAmbDefinicioProces(definicioProcesId);
 		List<CampExportacio> campsDto = new ArrayList<CampExportacio>();
 		for (Camp camp: camps) {
+			boolean necessitaDadesExternes = TipusCamp.SELECCIO.equals(camp.getTipus()) || TipusCamp.SUGGEST.equals(camp.getTipus());			
 			CampExportacio dto = new CampExportacio(
-					camp.getCodi(),
-					camp.getTipus(),
-					camp.getEtiqueta(),
-					camp.getObservacions(),
-					camp.getDominiId(),
-					camp.getDominiParams(),
-					camp.getDominiCampText(),
-					camp.getDominiCampValor(),
-					camp.getConsultaParams(),
-					camp.getConsultaCampText(),
-					camp.getConsultaCampValor(),
-					camp.isMultiple(),
-					camp.isOcult(),
-					camp.isDominiIntern(),
-					camp.isDominiCacheText(),
-					(camp.getEnumeracio() != null) ? camp.getEnumeracio().getCodi() : null,
-					(camp.getDomini() != null) ? camp.getDomini().getCodi() : null,
-					(camp.getAgrupacio() != null) ? camp.getAgrupacio().getCodi() : null,
-					camp.getJbpmAction(),
-					camp.getOrdre(),
-					camp.isIgnored());
+                    camp.getCodi(),
+                    camp.getTipus(),
+                    camp.getEtiqueta(),
+                    camp.getObservacions(),
+                    (necessitaDadesExternes) ? camp.getDominiId() : null,
+                    (necessitaDadesExternes) ? camp.getDominiParams() : null,
+                    (necessitaDadesExternes) ? camp.getDominiCampText() : null,
+                    (necessitaDadesExternes) ? camp.getDominiCampValor() : null,
+                    (necessitaDadesExternes) ? camp.getConsultaParams() : null,
+                    (necessitaDadesExternes) ? camp.getConsultaCampText() : null,
+                    (necessitaDadesExternes) ? camp.getConsultaCampValor() : null,
+                    camp.isMultiple(),
+                    camp.isOcult(),
+                    camp.isDominiIntern(),
+                    camp.isDominiCacheText(),
+                    (necessitaDadesExternes && camp.getEnumeracio() != null) ? camp.getEnumeracio().getCodi() : null,
+                    (necessitaDadesExternes && camp.getDomini() != null) ? camp.getDomini().getCodi() : null,
+                    (camp.getAgrupacio() != null) ? camp.getAgrupacio().getCodi() : null,
+                    camp.getJbpmAction(),
+                    camp.getOrdre(),
+                    camp.isIgnored());
 			
 			// Afegeix les validacions del camp
 			for (Validacio validacio: camp.getValidacions()) {
@@ -1792,66 +1793,78 @@ public class DissenyService {
 	}
 	public void goUpCampAgrupacio(Long id) {
 		CampAgrupacio campAgrupacio = getCampAgrupacioById(id);
-		int ordreActual = campAgrupacio.getOrdre();
-		CampAgrupacio anterior = campAgrupacioDao.getAmbOrdre(
-				campAgrupacio.getDefinicioProces().getId(),
-				ordreActual - 1);
-		if (anterior != null) {
-			campAgrupacio.setOrdre(-1);
-			anterior.setOrdre(ordreActual);
-			campAgrupacioDao.merge(campAgrupacio);
-			campAgrupacioDao.merge(anterior);
-			campAgrupacioDao.flush();
-			campAgrupacio.setOrdre(ordreActual - 1);
+		List<CampAgrupacio> campsOrdenats = campAgrupacioDao.findAmbDefinicioProcesOrdenats(
+				campAgrupacio.getDefinicioProces().getId());
+		int index = 0;
+		CampAgrupacio anterior = null;
+		for (CampAgrupacio ca: campsOrdenats) {
+			if (anterior != null && ca.getId().equals(id)) {
+				ca.setOrdre(index - 1);
+				anterior.setOrdre(index++);
+			} else {
+				ca.setOrdre(index++);
+			}
+			anterior = ca;
 		}
 	}
 	public void goDownCampAgrupacio(Long id) {
 		CampAgrupacio campAgrupacio = getCampAgrupacioById(id);
-		int ordreActual = campAgrupacio.getOrdre();
-		CampAgrupacio seguent = campAgrupacioDao.getAmbOrdre(
-				campAgrupacio.getDefinicioProces().getId(),
-				ordreActual + 1);
-		if (seguent != null) {
-			campAgrupacio.setOrdre(-1);
-			seguent.setOrdre(ordreActual);
-			campAgrupacioDao.merge(campAgrupacio);
-			campAgrupacioDao.merge(seguent);
-			campAgrupacioDao.flush();
-			campAgrupacio.setOrdre(ordreActual + 1);
+		List<CampAgrupacio> campsOrdenats = campAgrupacioDao.findAmbDefinicioProcesOrdenats(
+				campAgrupacio.getDefinicioProces().getId());
+		int index = 0;
+		CampAgrupacio anteriorPerModificar = null;
+		for (CampAgrupacio ca: campsOrdenats) {
+			if (anteriorPerModificar != null) {
+				ca.setOrdre(index - 1);
+				anteriorPerModificar.setOrdre(index++);
+			} else {
+				ca.setOrdre(index++);
+			}
+			if (ca.getId().equals(id)) {
+				anteriorPerModificar = ca;
+			} else {
+				anteriorPerModificar = null;
+			}
 		}
 	}
 	
 	public void goUpCamp(Long id, String agrupacioCodi) {
 		Camp camp = getCampById(id);
-		int ordreActual = camp.getOrdre();
-		Camp anterior = campDao.getAmbOrdre(
+		List<Camp> campsOrdenats = campDao.findAmbDefinicioProcesIAgrupacioOrdenats(
 				camp.getDefinicioProces().getId(),
-				agrupacioCodi,
-				ordreActual - 1);
-		if (anterior != null) {
-			camp.setOrdre(-1);
-			anterior.setOrdre(ordreActual);
-			campDao.merge(camp);
-			campDao.merge(anterior);
-			campDao.flush();
-			camp.setOrdre(ordreActual - 1);
+				camp.getAgrupacio().getId());
+		int index = 0;
+		Camp anterior = null;
+		for (Camp ca: campsOrdenats) {
+			if (anterior != null && ca.getId().equals(id)) {
+				ca.setOrdre(index - 1);
+				anterior.setOrdre(index++);
+			} else {
+				ca.setOrdre(index++);
+			}
+			anterior = ca;
 		}
 	}
 	
 	public void goDownCamp(Long id, String agrupacioCodi) {
 		Camp camp = getCampById(id);
-		int ordreActual = camp.getOrdre();
-		Camp seguent = campDao.getAmbOrdre(
+		List<Camp> campsOrdenats = campDao.findAmbDefinicioProcesIAgrupacioOrdenats(
 				camp.getDefinicioProces().getId(),
-				agrupacioCodi,
-				ordreActual + 1);
-		if (seguent != null) {
-			camp.setOrdre(-1);
-			seguent.setOrdre(ordreActual);
-			campDao.merge(camp);
-			campDao.merge(seguent);
-			campDao.flush();
-			camp.setOrdre(ordreActual + 1);
+				camp.getAgrupacio().getId());
+		int index = 0;
+		Camp anteriorPerModificar = null;
+		for (Camp ca: campsOrdenats) {
+			if (anteriorPerModificar != null) {
+				ca.setOrdre(index - 1);
+				anteriorPerModificar.setOrdre(index++);
+			} else {
+				ca.setOrdre(index++);
+			}
+			if (ca.getId().equals(id)) {
+				anteriorPerModificar = ca;
+			} else {
+				anteriorPerModificar = null;
+			}
 		}
 	}
 
@@ -2044,6 +2057,9 @@ public class DissenyService {
 	}
 	public List<Accio> findAccionsAmbDefinicioProces(Long definicioProcesId) {
 		return accioDao.findAmbDefinicioProces(definicioProcesId);
+	}
+	public List<Accio> findAccionsVisiblesAmbDefinicioProces(Long definicioProcesId) {
+		return accioDao.findVisiblesAmbDefinicioProces(definicioProcesId);
 	}
 	public Accio findAccioAmbDefinicioProcesICodi(Long definicioProcesId, String codi) {
 		return accioDao.findAmbDefinicioProcesICodi(definicioProcesId, codi);
@@ -2741,10 +2757,9 @@ public class DissenyService {
 					nova.setFormExtern(vella.getFormExtern());
 					nova.setTramitacioMassiva(vella.isTramitacioMassiva());
 					// Propaga els camps de la tasca
-					int indexCamp = nova.getCamps().size();
-					List<CampTasca> campsNous = new ArrayList<CampTasca>();
 					List<CampTascaExportacio> llistaCampsExportacio = new ArrayList<CampTascaExportacio>();
 					llistaCampsExportacio.addAll(vella.getCamps());
+					// Ordena la llista de camps tasca de l'exportació origen
 					Collections.sort(
 							llistaCampsExportacio,
 							new Comparator<CampTascaExportacio>() {
@@ -2755,16 +2770,19 @@ public class DissenyService {
 								}
 								
 							});
+					int indexExport = 0;
+					for (CampTascaExportacio cte: llistaCampsExportacio)
+						cte.setOrder(indexExport++);
+					// Per evitar el ConstraintViolation amb l'ordre
+					int indexConstraint = nova.getCamps().size() + llistaCampsExportacio.size();
+					for (CampTasca campTasca: nova.getCamps())
+						campTasca.setOrder(indexConstraint++);
+					campTascaDao.flush();
+					// Inserta els camps de l'exportació que no existeixin
 					for (CampTascaExportacio campTasca: llistaCampsExportacio) {
 						boolean trobat = false;
 						for (CampTasca ct: nova.getCamps()) {
 							if (ct.getCamp().getCodi().equals(campTasca.getCampCodi())) {
-								ct.setReadFrom(campTasca.isReadFrom());
-								ct.setWriteTo(campTasca.isWriteTo());
-								ct.setRequired(campTasca.isRequired());
-								ct.setReadOnly(campTasca.isReadOnly());
-								ct.setOrder(indexCamp++);
-								campsNous.add(ct);
 								trobat = true;
 								break;
 							} 
@@ -2777,26 +2795,30 @@ public class DissenyService {
 									campTasca.isWriteTo(),
 									campTasca.isRequired(),
 									campTasca.isReadOnly(),
-									indexCamp++);
+									campTasca.getOrder());
 							campTascaDao.saveOrUpdate(nouct);
-							campsNous.add(nouct);
+							nova.addCamp(nouct);
 						}
 					}
-					for (CampTasca ct: nova.getCamps()) {
+					// Actualitza els camps ja existents
+					int indexCamp = llistaCampsExportacio.size();
+					for (CampTasca campTasca: nova.getCamps()) {
 						boolean trobat = false;
-						for (CampTascaExportacio campTasca: llistaCampsExportacio) {
-							if (ct.getCamp().getCodi().equals(campTasca.getCampCodi())) {
+						for (CampTascaExportacio cte: llistaCampsExportacio) {
+							if (campTasca.getCamp().getCodi().equals(cte.getCampCodi())) {
+								campTasca.setReadFrom(cte.isReadFrom());
+								campTasca.setWriteTo(cte.isWriteTo());
+								campTasca.setRequired(cte.isRequired());
+								campTasca.setReadOnly(cte.isReadOnly());
+								campTasca.setOrder(cte.getOrder());
 								trobat = true;
 								break;
 							}
 						}
 						if (!trobat) {
-							ct.setOrder(indexCamp++);
-							campsNous.add(ct);
+							campTasca.setOrder(indexCamp++);
 						}
 					}
-					nova.getCamps().clear();
-					nova.getCamps().addAll(campsNous);
 					// Propaga els documents de la tasca
 					int indexDoc = nova.getDocuments().size();
 					List<DocumentTasca> documentsNous = new ArrayList<DocumentTasca>();
@@ -2886,6 +2908,38 @@ public class DissenyService {
 		return null;
 	}
 
+	public List<DefinicioProcesDto> getSubprocessosByProces(String jbpmPdId) {
+		List<DefinicioProcesDto> subprocessos = new ArrayList<DefinicioProcesDto>();
+		List<String> ids = new ArrayList<String>(); 
+		afegirJbpmIdProcesAmbSubprocessos(jbpmDao.getProcessDefinition(jbpmPdId), ids, false);
+		
+		for(String id: ids){
+			subprocessos.add(findDefinicioProcesAmbJbpmId(id));
+		}
+		return subprocessos;
+	}
+	private void afegirJbpmIdProcesAmbSubprocessos(
+			JbpmProcessDefinition jpd,
+			List<String> jbpmIds, 
+			Boolean incloure) {
+		if (jpd != null) {
+			List<JbpmProcessDefinition> subPds = jbpmDao.getSubProcessDefinitions(jpd.getId());
+			if (subPds != null) {
+				for (JbpmProcessDefinition subPd: subPds) {
+					afegirJbpmIdProcesAmbSubprocessos(subPd, jbpmIds, true);
+					if (!jbpmIds.contains(subPd.getId()))
+						jbpmIds.add(subPd.getId());
+				}
+			}
+			if (!jbpmIds.contains(jpd.getId()) && incloure)
+				jbpmIds.add(jpd.getId());
+		}
+	}
+	private DefinicioProcesDto findDefinicioProcesAmbJbpmId(String jbpmId) {
+		String processDefinitionId = jbpmDao.getProcessDefinition(jbpmId).getId();
+		return toDto(definicioProcesDao.findAmbJbpmId(processDefinitionId), false);
+	}
+	
 	private void afegirJbpmKeyProcesAmbSubprocessos(
 			JbpmProcessDefinition jpd,
 			List<String> jbpmKeys) {
@@ -3078,13 +3132,26 @@ public class DissenyService {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void goToCampTasca(Long id, int NouOrd) {
 		CampTasca campTasca = getCampTascaById(id);
+		Tasca tasca = campTasca.getTasca();
+		List<CampTasca> camps = tasca.getCamps();
+		int nouOrdre= 0;
+		for(CampTasca ct:camps){
+			int ordre = ct.getOrder();
+			if(ordre!=nouOrdre){
+				ct.setOrder(nouOrdre);
+			}
+			campTascaDao.saveOrUpdate(ct);
+			campTascaDao.flush();
+			nouOrdre++;
+		}
+		
+		
 		int ordreAntic = campTasca.getOrder();
 		
 		// Si no s'ha canviat l'ordre, sortim sense fer res.
 		if (ordreAntic == NouOrd) return;
 		campTasca.setOrder(-1);				
-		Tasca tasca = campTasca.getTasca();
-		List<CampTasca> camps = tasca.getCamps();
+		
 		//List<CampTasca> camps = (List<CampTasca>) campTascaDao.findAmbTascaOrdenats(tasca.getId());
 		
 		if (ordreAntic < NouOrd) {

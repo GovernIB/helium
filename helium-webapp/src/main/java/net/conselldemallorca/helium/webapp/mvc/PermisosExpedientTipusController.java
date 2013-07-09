@@ -68,7 +68,7 @@ public class PermisosExpedientTipusController extends BaseController {
 		Map<String, Permission> permisos = new HashMap<String, Permission>();
 		Map<String, Permission> permisosAll = PermissionUtil.permissionMap;
 		for (String clau: permisosAll.keySet()) {
-			if (clau.equals("ADMINISTRATION") || clau.equals("READ") || clau.equals("WRITE") || clau.equals("CREATE") || clau.equals("DELETE") || clau.equals("SUPERVISION") || clau.equals("DESIGN") || clau.equals("MANAGE"))
+			if (clau.equals("ADMINISTRATION") || clau.equals("READ") || clau.equals("WRITE") || clau.equals("CREATE") || clau.equals("DELETE") || clau.equals("SUPERVISION") || clau.equals("DESIGN") || clau.equals("MANAGE") || clau.equals("REASSIGNMENT"))
 				permisos.put(clau, permisosAll.get(clau));
 		}
 		return permisos;

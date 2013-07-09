@@ -4,7 +4,7 @@
 		<pattern>/css*</pattern>
 		<pattern>/img*</pattern>
 		<pattern>/ico*</pattern>
-		<pattern>/recobriment*</pattern>
+		<pattern>/font*</pattern>
 		<pattern>/dwr*</pattern>
 		<pattern>/spring_security_login*</pattern>
 		<pattern>/ws*</pattern>
@@ -15,6 +15,7 @@
 		<pattern>/expedient/logRetrocedit*</pattern>
 		<pattern>/expedient/logAccionsTasca*</pattern>
 		<pattern>/signatura/verificar*</pattern>
+		<pattern>/nodecorar/*</pattern>
 	</excludes>
 	<decorator name="v3" page="v3.jsp">
 		<pattern>/v3/*</pattern>

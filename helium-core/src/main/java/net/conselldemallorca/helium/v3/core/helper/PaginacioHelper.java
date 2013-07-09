@@ -80,7 +80,7 @@ public class PaginacioHelper {
 		dto.setDarrera(page.isLastPage());
 		if (page.hasContent()) {
 			dto.setContingut(
-					conversioTipusHelper.convertirLlista(
+					conversioTipusHelper.convertirList(
 							page.getContent(),
 							targetType));
 		}

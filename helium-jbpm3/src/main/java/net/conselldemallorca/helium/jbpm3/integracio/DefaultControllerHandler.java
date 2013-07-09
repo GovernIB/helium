@@ -6,8 +6,8 @@ package net.conselldemallorca.helium.jbpm3.integracio;
 import java.util.List;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
-import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
 
 import org.jbpm.context.exe.ContextInstance;
 import org.jbpm.graph.exe.Token;
@@ -34,9 +34,9 @@ public class DefaultControllerHandler implements TaskControllerHandler {
 			}
 		}
 		for (DocumentTascaDto document: getDocumentsPerTaskInstance(taskInstance)) {
-			String codi = DocumentService.PREFIX_VAR_DOCUMENT + document.getDocument().getCodi();
+			String codi = Jbpm3HeliumBridge.getInstanceService().getCodiVariablePerDocumentCodi(document.getDocument().getCodi());
 			if (!document.isReadOnly()) {
-				Object valor = contextInstance.getVariable(DocumentService.PREFIX_VAR_DOCUMENT + document.getDocument().getCodi());
+				Object valor = contextInstance.getVariable(codi);
 				if (valor != null)
 					taskInstance.setVariableLocally(
 							codi,
@@ -49,17 +49,16 @@ public class DefaultControllerHandler implements TaskControllerHandler {
 			ContextInstance contextInstance,
 			Token token) {
 		for (CampTascaDto camp: getCampsPerTaskInstance(taskInstance)) {
-			if (camp.isWriteTo()) {
+			if (camp.isWriteTo() && !camp.getCamp().getTipus().equals(CampTipusDto.ACCIO)) {
 				String codi = camp.getCamp().getCodi();
 				Object valor = taskInstance.getVariableLocally(codi);
-				if (valor != null)
-					contextInstance.setVariable(
-							codi,
-							valor);
+				contextInstance.setVariable(
+						codi,
+						valor);
 			}
 		}
 		for (DocumentTascaDto document: getDocumentsPerTaskInstance(taskInstance)) {
-			String codi = DocumentService.PREFIX_VAR_DOCUMENT + document.getDocument().getCodi();
+			String codi = Jbpm3HeliumBridge.getInstanceService().getCodiVariablePerDocumentCodi(document.getDocument().getCodi());
 			Long docId = (Long)taskInstance.getVariableLocally(codi);
 			if (docId != null && !document.isReadOnly()) {
 				contextInstance.setVariable(
@@ -72,11 +71,11 @@ public class DefaultControllerHandler implements TaskControllerHandler {
 
 
 	private List<CampTascaDto> getCampsPerTaskInstance(TaskInstance taskInstance) {
-		return Jbpm3HeliumBridge.getInstance().getTascaService().findCampsPerTaskInstance(
+		return Jbpm3HeliumBridge.getInstanceService().findCampsPerTaskInstance(
 				taskInstance.getId());
 	}
 	private List<DocumentTascaDto> getDocumentsPerTaskInstance(TaskInstance taskInstance) {
-		return Jbpm3HeliumBridge.getInstance().getTascaService().findDocumentsPerTaskInstance(
+		return Jbpm3HeliumBridge.getInstanceService().findDocumentsPerTaskInstance(
 				taskInstance.getId());
 	}
 

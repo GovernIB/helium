@@ -33,7 +33,7 @@ public class ExpedientComentariModificarHandler extends AbstractHeliumActionHand
 		ExpedientDto expedient = getExpedientActual(executionContext);
 		logger.debug("Modificant comentari de l'expedient (exp=" + expedient.getIdentificacioPerLogs() + ", comentari=" + c + ")");
 		try {
-			Jbpm3HeliumBridge.getInstance().expedientModificarComentari(
+			Jbpm3HeliumBridge.getInstanceService().expedientModificarComentari(
 					getProcessInstanceId(executionContext),
 					c);
 		} catch (Exception ex) {

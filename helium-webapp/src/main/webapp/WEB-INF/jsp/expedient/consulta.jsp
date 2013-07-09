@@ -23,20 +23,25 @@
 // <![CDATA[
 function refrescarEstats(element) {
 	var estatActual = $("select#estat0").val();
-	$.getJSON(
-    		"consultaEstats.html?id=" + element.value,
-    		{},
-    		function(j) {
-			    var options = '';
-			    options += '<option value="">&lt;&lt; <fmt:message key="expedient.consulta.select.estat"/> &gt;&gt;</option>';
-		        for (var i = 0; i < j.length; i++) {
-		        	if (j[i].id == estatActual)
-		        		options += '<option value="' + j[i].id + '" selected="selected">' + j[i].nom + '</option>';
-		        	else
-		        		options += '<option value="' + j[i].id + '">' + j[i].nom + '</option>';
-		        }
-		        $("select#estat0").html(options).attr('class', 'inlineLabels');
-			});
+	$.ajax({
+	    url:"consultaEstats.html?id=" + element.value,
+	    type:'GET',
+	    dataType: 'json',
+	    success: function(json) {
+	    	var options = '';
+		    options += '<option value="">&lt;&lt; <fmt:message key="expedient.consulta.select.estat"/> &gt;&gt;</option>';
+	        for (var i = 0; i < json.length; i++) {
+	        	if (json[i].id == estatActual)
+	        		options += '<option value="' + json[i].id + '" selected="selected">' + json[i].nom + '</option>';
+	        	else
+	        		options += '<option value="' + json[i].id + '">' + json[i].nom + '</option>';
+	        }
+	        $("select#estat0").html(options).attr('class', 'inlineLabels');
+	    },
+	    error: function(jqXHR, textStatus, errorThrown) {
+	    	console.log("Error al actualitzar la llista d'estats: [" + textStatus + "] " + errorThrown);
+	    }
+	});
 }
 function confirmarEsborrar(e) {
 	var e = e || window.event;
@@ -132,22 +137,14 @@ function selTots(){
 	if(!ch){
 		$("#registre input[type='checkbox'][name='expedientId']").each(function(){
 			if($(this).is(':checked')){
-				if(!$.browser.msie){
-					$(this).click();
-				}else{
 					simularClick($(this).val(),false);
 			        }
-			}
 		}).attr("checked",false);
 	}else{
 		$("#registre input[type='checkbox'][name='expedientId']").each(function(){
 			if(!$(this).is(':checked')){
-				if(!$.browser.msie){
-					$(this).click();
-				}else{
 					simularClick($(this).val(),true);
 				}
-			}
 			
 		}).attr("checked",true);
 	}
@@ -193,7 +190,7 @@ function simularClick(valor,xec){
 										changeMonth: true,
 										changeYear: true
 									}));
-									$("#dataInici1").datepicker();
+									$("#dataInici1").datepicker({firstDay: 1});
 								});
 								// ]]>
 							</script>
@@ -211,7 +208,7 @@ function simularClick(valor,xec){
 										changeMonth: true,
 										changeYear: true
 									}));
-									$("#dataInici2").datepicker();
+									$("#dataInici2").datepicker({firstDay: 1});
 								});
 								// ]]>
 							</script>
@@ -294,8 +291,29 @@ function simularClick(valor,xec){
 				</c:import>
 			</c:if>
 		</div>
+		<div class="ctrlHolder">
+		<c:set var="opp"><c:if test='${empty objectsPerPage}'>20</c:if><c:if test='${not empty objectsPerPage}'>${objectsPerPage}</c:if></c:set>
+		<c:set var="copp" value="opp-llista"/>
+		<c:choose>
+			<c:when test="${globalProperties['app.georef.actiu'] && globalProperties['app.gis.plugin.actiu']}">
+				<c:set var="copp" value="opp-llista-gis"/>
+			</c:when>
+			<c:otherwise> 
+				<c:if test="${command.massivaActiu}">
+					<c:set var="copp" value="opp-llista-mas"/>
+				</c:if>
+			</c:otherwise>
+		</c:choose>
+		<select id="objectsPerPage" name="objectsPerPage" class="objectsPerPage<c:if test='${not empty llistat}'> ${copp}</c:if>">
+			<option value="10"<c:if test='${opp == "10"}'> selected="selected"</c:if>>10</option>
+			<option value="20"<c:if test='${opp == "20"}'> selected="selected"</c:if>>20</option>
+			<option value="50"<c:if test='${opp == "50"}'> selected="selected"</c:if>>50</option>
+			<option value="100"<c:if test='${opp == "100"}'> selected="selected"</c:if>>100</option>
+		</select>
+		<label for="objectsPerPage" class="objectsPerPage<c:if test='${not empty llistat}'> ${copp}</c:if>"><fmt:message key="comuns.objectsPerPage"/></label>
+	</div>
 	</form:form><div style="clear:both"></div><br/>
-
+			
 	<c:if test="${not empty sessionCommand}">
 		<c:if test="${globalProperties['app.georef.actiu'] && globalProperties['app.gis.plugin.actiu']}">
 			<div>
@@ -329,6 +347,7 @@ function simularClick(valor,xec){
 			</c:if>
 		</c:if>
 		<br>
+		
 		
 		
 		

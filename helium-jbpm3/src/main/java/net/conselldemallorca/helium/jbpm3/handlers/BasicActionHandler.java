@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.AutenticacioTipus;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreEntrada;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreNotificacio;
@@ -28,6 +27,7 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.Tramit;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
+import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDissenyDto;
@@ -35,11 +35,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaColumnaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaFilaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
@@ -110,7 +108,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			Map<String, Object> parametres) {
 		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
 		try {
-			List<DominiRespostaFilaDto> files = Jbpm3HeliumBridge.getInstance().dominiConsultar(
+			List<DominiRespostaFilaDto> files = Jbpm3HeliumBridge.getInstanceService().dominiConsultar(
 					getProcessInstanceId(executionContext),
 					codiDomini,
 					id,
@@ -145,7 +143,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			String codiEnumeracio) {
 		try {
 			List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
-			List<EnumeracioValorDto> valors = Jbpm3HeliumBridge.getInstance().enumeracioConsultar(
+			List<EnumeracioValorDto> valors = Jbpm3HeliumBridge.getInstanceService().enumeracioConsultar(
 					getProcessInstanceId(executionContext),
 					codiEnumeracio);
 			if (valors != null) {
@@ -188,39 +186,28 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			boolean finalitzat) {
 		try {
 			ExpedientDto expedient = getExpedientActual(executionContext);
-			ExpedientTipusDto expedientTipus = getDissenyService().findExpedientTipusAmbEntornICodi(
+			EstatDto estat = Jbpm3HeliumBridge.getInstanceService().findEstatAmbEntornIExpedientTipusICodi(
 					expedient.getEntorn().getId(),
-					expedientTipusCodi);
-			EstatDto estat = getDissenyService().findEstatAmbExpedientTipusICodi(
-					expedientTipus.getId(),
+					expedientTipusCodi,
 					estatCodi);
 			// Consulta d'expedients
-			EstatTipusDto estatTipus = EstatTipusDto.CUSTOM;
-			if (iniciat && !finalitzat)
-				estatTipus = EstatTipusDto.INICIAT;
-			if (!iniciat && finalitzat)
-				estatTipus = EstatTipusDto.FINALITZAT;
-			PaginaDto<ExpedientDto> paginaResultats = getExpedientService().findPerConsultaGeneralPaginat(
+			List<ExpedientDto> resultats = Jbpm3HeliumBridge.getInstanceService().findExpedientsConsultaGeneral(
 					expedient.getEntorn().getId(),
-					expedientTipus.getId(),
 					titol,
 					numero,
 					dataInici1,
 					dataInici2,
-					null,
-					null,
-					estatTipus,
+					expedient.getTipus().getId(),
 					estat.getId(),
+					iniciat,
+					finalitzat,
 					null,
 					null,
 					null,
-					false,
-					false,
-					false,
-					null);
+					false);
 			// Construcció de la resposta
 			List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
-			for (ExpedientDto dto: paginaResultats.getContingut())
+			for (ExpedientDto dto: resultats)
 				resposta.add(toExpedientInfo(dto));
 			return resposta;
 		} catch (Exception ex) {
@@ -256,7 +243,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			String codiDocument) {
 		try {
 			DefinicioProcesDto definicioProces = getDefinicioProces(executionContext);
-			DocumentDissenyDto document = getDissenyService().getDocumentDisseny(
+			DocumentDissenyDto document = Jbpm3HeliumBridge.getInstanceService().getDocumentDisseny(
 					definicioProces.getId(),
 					codiDocument);
 			if (document == null)
@@ -288,7 +275,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			String varDocument) {
 		Token tokenPare = executionContext.getProcessInstance().getRootToken().getParent();
 		if (tokenPare != null) {
-			String varCodi = getVarDocument(varDocument);
+			String varCodi = Jbpm3HeliumBridge.getInstanceService().getCodiVariablePerDocumentCodi(varDocument);
 			Object valor = tokenPare.getProcessInstance().getContextInstance().getVariable(varCodi);
 			if (valor != null) {
 				if (valor instanceof Long) {
@@ -325,13 +312,13 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			if (attachments != null) {
 				documents = new ArrayList<ArxiuDto>();
 				for (Long id: attachments) {
-					ArxiuDto arxiu = getDocumentService().getArxiuPerMostrar(id);
+					ArxiuDto arxiu = Jbpm3HeliumBridge.getInstanceService().getArxiuPerMostrar(id);
 					if (arxiu != null)
 						documents.add(arxiu);
 				}
 			}
-			getPluginService().emailSend(
-					Jbpm3HeliumBridge.getInstance().getHeliumProperty("app.correu.remitent"),
+			Jbpm3HeliumBridge.getInstanceService().emailSend(
+					Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.correu.remitent"),
 					recipients,
 					ccRecipients,
 					bccRecipients,
@@ -385,7 +372,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		}
 		anotacio.setAnnexos(annexos);
 		try {
-			RegistreIdDto anotacioId = getPluginService().registreAnotacioEntrada(anotacio);
+			RegistreIdDto anotacioId = Jbpm3HeliumBridge.getInstanceService().registreAnotacioEntrada(anotacio);
 			RespostaRegistre resposta = new RespostaRegistre();
 			resposta.setNumero(anotacioId.getNumero());
 			resposta.setData(anotacioId.getData());
@@ -436,7 +423,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		}
 		anotacio.setAnnexos(annexos);
 		try {
-			RegistreIdDto anotacioId = getPluginService().registreAnotacioSortida(anotacio);
+			RegistreIdDto anotacioId = Jbpm3HeliumBridge.getInstanceService().registreAnotacioSortida(anotacio);
 			RespostaRegistre resposta = new RespostaRegistre();
 			resposta.setNumero(anotacioId.getNumero());
 			resposta.setData(anotacioId.getData());
@@ -513,7 +500,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		}
 		notificacio.setAnnexos(annexos);
 		try {
-			RegistreIdDto anotacioId = getPluginService().registreNotificacio(notificacio);
+			RegistreIdDto anotacioId = Jbpm3HeliumBridge.getInstanceService().registreNotificacio(notificacio);
 			RespostaRegistre resposta = new RespostaRegistre();
 			resposta.setNumero(anotacioId.getNumero());
 			resposta.setData(anotacioId.getData());
@@ -531,7 +518,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	 */
 	public Date registreObtenirJustificantRecepcio(String registreNumero) {
 		try {
-			return getPluginService().registreNotificacioComprovarRecepcio(
+			return Jbpm3HeliumBridge.getInstanceService().registreNotificacioComprovarRecepcio(
 					registreNumero);
 		} catch (PluginException ex) {
 			throw new JbpmException("No s'ha pogut obtenir el justificant de recepció", ex);
@@ -561,9 +548,13 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	public String getVariableText(
 			ExecutionContext executionContext,
 			String varCodi) {
-		return getExpedientService().getProcessInstanceVariableText(
+		ExpedientDadaDto dto = Jbpm3HeliumBridge.getInstanceService().getDadaPerProcessInstance(
 				getProcessInstanceId(executionContext),
 				varCodi);
+		if (dto == null)
+			return null;
+		else
+			return dto.getText();
 	}
 	public String getTextPerVariableAmbDomini(
 			ExecutionContext executionContext,
@@ -605,7 +596,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			String clau) {
 		try {
 			return toTramit(
-					getPluginService().getTramit(numero, clau));
+					Jbpm3HeliumBridge.getInstanceService().getTramit(numero, clau));
 		} catch (Exception ex) {
 			throw new JbpmException("No s'ha pogut obtenir el tràmit (numero=" + numero + ", clau=" + clau + ")", ex);
 		}
@@ -623,7 +614,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			ExecutionContext executionContext,
 			long expedientId) {
 		ExpedientInfo expedient = getExpedient(executionContext);
-		getExpedientService().createRelacioExpedient(
+		Jbpm3HeliumBridge.getInstanceService().expedientRelacionar(
 				expedient.getId(),
 				expedientId);
 	}
@@ -639,7 +630,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			long tokenId,
 			String nodeName,
 			boolean cancelarTasques) {
-		getExpedientService().processInstanceTokenRedirect(
+		Jbpm3HeliumBridge.getInstanceService().tokenRedirigir(
 				tokenId,
 				nodeName,
 				cancelarTasques);
@@ -666,23 +657,22 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	}
 
 	/**
-	 * Reindexa l'expedient corresponent a una instància de procés.
+	 * Reindexa l'expedient actual.
 	 * 
 	 * @param executionContext
 	 */
 	public void instanciaProcesReindexar(ExecutionContext executionContext) {
-		ExpedientDto expedient = getExpedientActual(executionContext);
-		getExpedientService().luceneIndexUpdate(expedient.getId());
+		instanciaProcesReindexar(executionContext.getProcessInstance().getId());
 	}
+
 	/**
 	 * Reindexa l'expedient corresponent a una instància de procés.
 	 * 
 	 * @param processInstanceId
 	 */
 	public void instanciaProcesReindexar(long processInstanceId) {
-		ExpedientDto expedient = getExpedientService().findAmbProcessInstanceId(
+		Jbpm3HeliumBridge.getInstanceService().expedientReindexar(
 				new Long(processInstanceId).toString());
-		getExpedientService().luceneIndexUpdate(expedient.getId());
 	}
 
 	/**
@@ -693,7 +683,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	 */
 	public byte[] obtenirArxiuGestorDocumental(String id) {
 		try {
-			ArxiuDto arxiu = getPluginService().gestioDocumentalArxiu(id);
+			ArxiuDto arxiu = Jbpm3HeliumBridge.getInstanceService().getArxiuGestorDocumental(id);
 			if (arxiu != null)
 				return arxiu.getContingut();
 			else
@@ -718,7 +708,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			Date data,
 			String arxiuNom,
 			byte[] arxiuContingut) {
-		getDocumentService().guardarDocument(
+		Jbpm3HeliumBridge.getInstanceService().documentExpedientGuardar(
 				getProcessInstanceId(executionContext),
 				documentCodi,
 				data,
@@ -726,13 +716,22 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 				arxiuContingut);
 	}
 
+	/**
+	 * Guarda un document adjunt.
+	 * 
+	 * @param executionContext
+	 * @param nomDocument
+	 * @param data
+	 * @param arxiuNom
+	 * @param arxiuContingut
+	 */
 	public void adjuntGuardar(
             ExecutionContext executionContext,
             String nomDocument,
             Date data,
             String arxiuNom,
             byte[] arxiuContingut) {
-		getDocumentService().guardarAdjunt(
+		Jbpm3HeliumBridge.getInstanceService().documentExpedientAdjuntar(
 				getProcessInstanceId(executionContext),
 				null, // adjuntId
 				nomDocument,

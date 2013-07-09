@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.core.model.dto;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -13,8 +14,8 @@ import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
-import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca.TipusTasca;
+import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 
 
 /**
@@ -76,7 +77,8 @@ public class TascaDto implements Comparable<TascaDto> {
 	private Map<String, List<ParellaCodiValorDto>> valorsMultiplesDomini;
 	private Map<String, Object> varsComText;
 
-
+	private Long tascaId;
+	private boolean agafada;
 
 	public String getId() {
 		return id;
@@ -386,6 +388,36 @@ public class TascaDto implements Comparable<TascaDto> {
 			return nom.substring(0, 100) + " (...)";
 		else
 			return nom;
+	}
+
+	public List<DocumentTasca> getDocumentsOrdenatsPerMostrarTasca() {
+		List<DocumentTasca> resposta = new ArrayList<DocumentTasca>();
+		// Afegeix primer els documents que ja estan adjuntats a la tasca
+		for (DocumentTasca dt: documents) {
+			if (varsDocuments.get(dt.getDocument().getCodi()) != null) {
+				resposta.add(dt);
+			}
+		}
+		// Despres afegeix els altres documents
+		for (DocumentTasca dt: documents) {
+			if (varsDocuments.get(dt.getDocument().getCodi()) == null) {
+				resposta.add(dt);
+			}
+		}
+		return resposta;
+	}
+
+	public Long getTascaId() {
+		return tascaId;
+	}
+	public void setTascaId(Long tascaId) {
+		this.tascaId = tascaId;
+	}
+	public boolean isAgafada() {
+		return agafada;
+	}
+	public void setAgafada(boolean agafada) {
+		this.agafada = agafada;
 	}
 
 	public int compareTo(TascaDto aThat) {

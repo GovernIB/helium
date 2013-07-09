@@ -52,7 +52,7 @@ public class DocumentExpedientCopiarOrigenHandler extends AbstractHeliumActionHa
 		String documentDestiCodi = (String)getValorOVariable(executionContext, documentCodi, varDocumentCodi);
 		if (documentDestiCodi != null) {
 			logger.debug("Copiant document d'origen (exp=" + expedient.getIdentificacioPerLogs() + ", document=" + documentOrigenCodi + ", expedientTipusCodi=" + expedientTipusCodi + ", expedientNumero=" + expedientNumero + ")");
-			ExpedientDto expedientOrigen = Jbpm3HeliumBridge.getInstance().findExpedientAmbEntornITipusINumero(
+			ExpedientDto expedientOrigen = Jbpm3HeliumBridge.getInstanceService().getExpedientAmbEntornITipusINumero(
 					expedient.getEntorn().getId(),
 					expedientTipusCodi,
 					expedientNumero);
@@ -63,14 +63,14 @@ public class DocumentExpedientCopiarOrigenHandler extends AbstractHeliumActionHa
 					documentOrigenCodi,
 					true);
 			if (docInfo != null) {
-				Long documentStoreId = getDocumentService().guardarDocument(
+				Long documentStoreId = Jbpm3HeliumBridge.getInstanceService().documentExpedientGuardar(
 						getProcessInstanceId(executionContext),
 						documentDestiCodi,
 						docInfo.getDataDocument(),
 						docInfo.getArxiuNom(),
 						docInfo.getArxiuContingut());
 				if (docInfo.isRegistrat()) {
-					getDocumentService().guardarDadesRegistre(
+					Jbpm3HeliumBridge.getInstanceService().documentExpedientGuardarDadesRegistre(
 							documentStoreId,
 							docInfo.getRegistreNumero(),
 							docInfo.getRegistreData(),

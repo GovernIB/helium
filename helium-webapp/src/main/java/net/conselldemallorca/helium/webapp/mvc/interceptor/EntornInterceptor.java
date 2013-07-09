@@ -19,9 +19,8 @@ import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
-import net.conselldemallorca.helium.v3.core.api.service.ConfigService;
+import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
-import net.conselldemallorca.helium.v3.core.api.service.EntornService;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +39,8 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 	public static final String VARIABLE_REQUEST_ALERTES_ACTIVES = "hiHaAlertesActives";
 	public static final String VARIABLE_REQUEST_ALERTES_NOLLEGIDES = "hiHaAlertesNollegides";
 
-	@Resource(name="entornServiceV3")
-	private EntornService entornService;
 	@Resource
-	private ConfigService configService;
+	private AdminService adminService;
 	@Resource(name="dissenyServiceV3")
 	private DissenyService dissenyService;
 	@Resource
@@ -63,7 +60,7 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 					SessionHelper.VARIABLE_ENTORN_ACTUAL_V3);
 			EntornDto entornActual = null;
 			String canviEntorn = request.getParameter(VARIABLE_REQUEST_CANVI_ENTORN);
-			List<EntornDto> entorns = entornService.findPermesosUsuariActual();
+			List<EntornDto> entorns = adminService.findEntornAmbPermisReadUsuariActual();
 			request.setAttribute("entorns", entorns);
 			// Si en el request existeix el paràmetre de selecció d'entorn
 			// canvia l'entorn actual
@@ -81,7 +78,7 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 					entornActual = entorns.get(0);
 					setEntornActual(request, entornActual);
 				} else {
-					UsuariPreferenciesDto prefs = configService.getPreferenciesUsuariActual();
+					UsuariPreferenciesDto prefs = adminService.getPreferenciesUsuariActual();
 					if (prefs != null && prefs.getDefaultEntornCodi() != null) {
 						for (EntornDto entorn: entorns) {
 							if (entorn.getCodi().equals(prefs.getDefaultEntornCodi())) {
@@ -129,21 +126,27 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 				// Refresca el tipus d'expedient actual
 				String canviExpedientTipus = request.getParameter(VARIABLE_REQUEST_CANVI_EXPTIP);
 				if (canviExpedientTipus != null) {
-					@SuppressWarnings("unchecked")
-					List<ExpedientTipusDto> accessibles = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
-							request,
-							SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES);
-					if (canviExpedientTipus != null) {
-						Long expedientTipusId = new Long(canviExpedientTipus);
-						for (ExpedientTipusDto expedientTipus: accessibles) {
-							if (expedientTipus.getId().equals(expedientTipusId)) {
-								SessionHelper.setAttribute(
-										request,
-										SessionHelper.VARIABLE_EXPTIP_ACTUAL,
-										expedientTipus);
-								break;
+					if (canviExpedientTipus.length() > 0) {
+						@SuppressWarnings("unchecked")
+						List<ExpedientTipusDto> accessibles = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
+								request,
+								SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES);
+						if (canviExpedientTipus != null) {
+							Long expedientTipusId = new Long(canviExpedientTipus);
+							for (ExpedientTipusDto expedientTipus: accessibles) {
+								if (expedientTipus.getId().equals(expedientTipusId)) {
+									SessionHelper.setAttribute(
+											request,
+											SessionHelper.VARIABLE_EXPTIP_ACTUAL,
+											expedientTipus);
+									break;
+								}
 							}
 						}
+					} else {
+						SessionHelper.removeAttribute(
+								request,
+								SessionHelper.VARIABLE_EXPTIP_ACTUAL);
 					}
 				}
 			}
@@ -223,7 +226,7 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 						new Permission[] {
 							ExtendedPermission.ADMINISTRATION}));
 		// Guarda l'entorn actual
-		configService.setEntornActual(entorn);
+		EntornActual.setEntornId(entorn.getId());
 		// Al canviar d'entorn hem de reconfigurar algunes variables de sessió
 		List<ExpedientTipusDto> expedientsTipusAmbPermisDisseny = dissenyService.findExpedientTipusAmbPermisDissenyUsuariActual(
 				entorn.getId());

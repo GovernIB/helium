@@ -43,7 +43,6 @@
 	<!-- V3 -->
 	<context:component-scan base-package="net.conselldemallorca.helium.v3.core.service"/>
 	<context:component-scan base-package="net.conselldemallorca.helium.v3.core.helper"/>
-	<bean id="jbpm3HeliumBridgeFactory" class="net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridgeFactoryBean" lazy-init="false"/>
-	<!--bean id="jbpm3HeliumBridge" factory-bean="jbpm3HeliumBridgeFactory" factory-method="getObject"/-->
+	<!--bean id="jbpm3HeliumBridgeFactory" class="net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridgeFactoryBean" lazy-init="false"/-->
 
 </beans>

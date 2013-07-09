@@ -15,6 +15,7 @@
 	<script src="<c:url value="/js/DT_bootstrap.js"/>"></script>
 	<script src="<c:url value="/js/jquery.maskedinput.js"/>"></script>
 <script>
+	<c:if test="${expedientConsultaCommand.consultaRealitzada}">
 	var seleccioInicialitzada = false;
 	var seleccioArray = [];
 	var seleccioClass = "info";
@@ -42,6 +43,7 @@
 			});
 	}
 	function actualitzarVistaSeleccio() {
+		$('#dades-carregant').hide();
 		var seleccio = obtenirSeleccioActual();
 		$('#tramitacioMassivaCount').html(seleccio.length);
 		var totsSeleccionats = true;
@@ -63,8 +65,10 @@
 		else
 			$("thead input[type=checkbox]", taula).removeAttr("checked");
 	}
+	</c:if>
 	$(document).ready(
 		function() {
+			<c:if test="${expedientConsultaCommand.consultaRealitzada}">
 			taula = $("#taulaDades").get(0);
 			// Creació del datatable 
 			$(taula).dataTable({
@@ -85,15 +89,34 @@
 				"bAutoWidth": false,
 				"bProcessing": true,
 				"bServerSide": true,
-				"sAjaxSource": "<c:url value="/v3/expedient/datatable"/>",
 				"oLanguage": {
 					"sUrl": "<c:url value="/js/DT_catala.txt"/>"
+				},
+				"sAjaxSource": "<c:url value="/v3/expedient/datatable"/>",
+				"fnServerData": function (sSource, aoData, fnCallback) {
+					$.ajax({
+						"dataType": 'json',
+						"type": "GET",
+						"url": sSource,
+						"data": aoData,
+						"success": fnCallback,
+						"timeout": 20000,
+						"error": function (xhr, textStatus, errorThrown) {
+							$('#dades-carregant').hide();
+							console.log("S'ha produït un error en la consulta d'expedients: " + xhr.responseText);
+							if (textStatus == 'timeout') {
+								alert("La consulta d'expedients ha estat molt de temps per retornar els resultats i s'ha cancel·lat.");
+							} else {
+								alert("S'ha produït un error en la consulta d'expedients: " + errorThrown);
+							}
+						}
+				    });
 				},
 				"fnDrawCallback": actualitzarVistaSeleccio,
 				"fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
 					var numColumnes = $("td", nRow).size();
 					var expedientId = aData[8];
-					$("td:eq(" + (numColumnes - 1) + ")", nRow).html('<div class="btn-group"><a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog icon-white"></i> Accions <span class="caret"></span></a><ul class="dropdown-menu"><li><a href="expedient/' + expedientId + '/open"><i class="icon-folder-open"></i> Obrir</a></li><li><a href="expedient/' + expedientId + '/stop"><i class="icon-stop"></i> Aturar</a></li><li><a href="expedient/' + expedientId + '/suspend"><i class="icon-remove"></i> Anular</a></li><li><a href="expedient/' + expedientId + '/delete"><i class="icon-trash"></i> Esborrar</a></li></ul></div>');
+					$("td:eq(" + (numColumnes - 1) + ")", nRow).html('<div class="btn-group"><a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog icon-white"></i> Accions <span class="caret"></span></a><ul class="dropdown-menu"><li><a href="expedient/' + expedientId + '"><i class="icon-folder-open"></i> Obrir</a></li><li><a href="expedient/' + expedientId + '/stop"><i class="icon-stop"></i> Aturar</a></li><li><a href="expedient/' + expedientId + '/suspend"><i class="icon-remove"></i> Anular</a></li><li><a href="expedient/' + expedientId + '/delete"><i class="icon-trash"></i> Esborrar</a></li></ul></div>');
 					if (aData[6] === 'true')
 						$("td:eq(1)", nRow).append(' <span class="label" title="Aturat">AT</span>');
 					if (aData[7] === 'true')
@@ -116,6 +139,9 @@
 							$("td:eq(0)", nRow).html('<input type="checkbox" value="' + aData[0] + '"/>');
 						}
 					}
+				},
+				"fnServerParams": function (aoData) {
+					$('#dades-carregant').show();
 				}
 			});
 			// Gestiona els clics als checkboxes de cada fila
@@ -139,6 +165,7 @@
 						ids,
 						checked);
 			});
+			</c:if>
 			$("#nomesPendentsCheck").click(function() {
 				$("input[name=nomesPendents]").val(!$("#nomesPendentsCheck").hasClass('active'));
 			});
@@ -298,40 +325,47 @@
 					</div>
 				</div>
 				<c:choose>
-					<c:when test="${true}">
-						<div class="span4">
-							<label>Geoposició</label>
-							<div class="row-fluid">
-								<div class="span12">
-									<c:set var="campPath" value="geoReferencia"/>
-									<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
-									<spring:bind path="${campPath}">
-										<input type="text" id="${campPath}" name="${campPath}" placeholder="Codi georeferencial"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span12">
-									</spring:bind>
+					<c:when test="${globalProperties['app.georef.actiu']}">
+						<c:choose>
+							<c:when test="${globalProperties['app.georef.tipus']=='ref'}">
+								<div class="span4">
+									<label>Geoposició</label>
+									<div class="row-fluid">
+										<div class="span12">
+											<c:set var="campPath" value="geoReferencia"/>
+											<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
+											<spring:bind path="${campPath}">
+												<input type="text" id="${campPath}" name="${campPath}" placeholder="Codi georeferencial"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span12">
+											</spring:bind>
+										</div>
+									</div>
 								</div>
-							</div>
-						</div>
+							</c:when>
+							<c:otherwise>
+								<div class="span4">
+									<label>Geoposició</label>
+									<div class="row-fluid">
+										<div class="span6">
+											<c:set var="campPath" value="geoPosX"/>
+											<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
+											<spring:bind path="${campPath}">
+												<input type="text" id="${campPath}" name="${campPath}" placeholder="Coordenada X"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span12">
+											</spring:bind>
+										</div>
+										<div class="span6">
+											<c:set var="campPath" value="geoPosY"/>
+											<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
+											<spring:bind path="${campPath}">
+												<input type="text" id="${campPath}" name="${campPath}" placeholder="Coordenada Y"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span12">
+											</spring:bind>
+										</div>
+									</div>
+								</div>
+							</c:otherwise>
+						</c:choose>
 					</c:when>
 					<c:otherwise>
-						<div class="span4">
-							<label>Geoposició</label>
-							<div class="row-fluid">
-								<div class="span6">
-									<c:set var="campPath" value="geoPosX"/>
-									<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
-									<spring:bind path="${campPath}">
-										<input type="text" id="${campPath}" name="${campPath}" placeholder="Coordenada X"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span12">
-									</spring:bind>
-								</div>
-								<div class="span6">
-									<c:set var="campPath" value="geoPosY"/>
-									<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
-									<spring:bind path="${campPath}">
-										<input type="text" id="${campPath}" name="${campPath}" placeholder="Coordenada Y"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span12">
-									</spring:bind>
-								</div>
-							</div>
-						</div>
+						<div class="span4"></div>
 					</c:otherwise>
 				</c:choose>
 			</div>
@@ -362,27 +396,33 @@
 				</div>
 			</div>
 			<div class="span6">
+				<input type="hidden" name="consultaRealitzada" value="true"/>
 				<button class="btn btn-primary pull-right">Consultar</button>
 				<a class="btn pull-right" href="expedient/filtre/netejar" style="margin-right:.6em">Netejar</a>
 			</div>
 		</div>
 	</form:form>
 
-	<table id="taulaDades" class="table table-striped table-bordered">
-		<thead>
-			<tr>
-				<th width="4%"><input type="checkbox"/></th>
-				<th>Expedient</th>
-				<th>Iniciat el</th>
-				<th>Finalitzat el</th>
-				<th>Tipus</th>
-				<th>Estat</th>
-				<th>Aturat</th>
-				<th>Anulat</th>
-				<th width="10%"></th>
-			</tr>
-		</thead>
-	</table>
+	<c:if test="${expedientConsultaCommand.consultaRealitzada}">
+		<table id="taulaDades" class="table table-striped table-bordered">
+			<thead>
+				<tr>
+					<th width="4%"><input type="checkbox"/></th>
+					<th>Expedient</th>
+					<th>Iniciat el</th>
+					<th>Finalitzat el</th>
+					<th>Tipus</th>
+					<th>Estat</th>
+					<th>Aturat</th>
+					<th>Anulat</th>
+					<th width="10%"></th>
+				</tr>
+				<tr id="dades-carregant">
+					<td colspan="9" style="margin-top: 2em; text-align: center"><i class="icon-spinner icon-2x icon-spin"></i></td>
+				</tr>
+			</thead>
+		</table>
+	</c:if>
 
 </body>
 </html>

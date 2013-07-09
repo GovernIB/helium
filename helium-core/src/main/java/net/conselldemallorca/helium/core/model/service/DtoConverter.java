@@ -30,9 +30,11 @@ import net.conselldemallorca.helium.core.model.dao.PluginPersonaDao;
 import net.conselldemallorca.helium.core.model.dao.TascaDao;
 import net.conselldemallorca.helium.core.model.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
+import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.core.model.dto.OperacioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
@@ -47,6 +49,8 @@ import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
@@ -236,6 +240,7 @@ public class DtoConverter {
 		dto.setCancelled(task.isCancelled());
 		dto.setSuspended(task.isSuspended());
 		dto.setProcessInstanceId(task.getProcessInstanceId());
+		dto.setAgafada("true".equals(task.getFieldFromDescription(TascaService.TASKDESC_CAMP_AGAFADA)));
 		dto.setExpedient(
 				expedientDao.findAmbProcessInstanceId(
 						jbpmDao.getRootProcessInstance(task.getProcessInstanceId()).getId()));
@@ -267,6 +272,7 @@ public class DtoConverter {
 				dto.setNom(task.getName());
 		}
 		if (tasca != null) {
+			dto.setTascaId(tasca.getId());
 			dto.setMissatgeInfo(tasca.getMissatgeInfo());
 			dto.setMissatgeWarn(tasca.getMissatgeWarn());
 			dto.setDelegable(tasca.getExpressioDelegacio() != null);
@@ -400,6 +406,9 @@ public class DtoConverter {
 	}
 
 	public InstanciaProcesDto toInstanciaProcesDto(String processInstanceId , boolean ambImatgeProces, boolean ambVariables, boolean ambDocuments) {
+		return toInstanciaProcesDto(processInstanceId , ambImatgeProces, ambVariables, ambDocuments, null, null);
+	}
+	public InstanciaProcesDto toInstanciaProcesDto(String processInstanceId , boolean ambImatgeProces, boolean ambVariables, boolean ambDocuments, String varRegistre, Object[] valorsRegistre) {
 		JbpmProcessInstance pi = jbpmDao.getProcessInstance(processInstanceId);
 		JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(processInstanceId);
 		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(jpd.getId());
@@ -432,6 +441,10 @@ public class DtoConverter {
 		dto.setAgrupacions(campAgrupacioDao.findAmbDefinicioProcesOrdenats(definicioProces.getId()));
 		if (ambVariables) {
 			Map<String, Object> valors = jbpmDao.getProcessInstanceVariables(processInstanceId);
+			if (valors == null)
+				valors = new HashMap<String, Object>();
+			if (varRegistre != null) 
+				valors.put(varRegistre, valorsRegistre);
 			filtrarVariablesTasca(valors);
 			Map<String, ParellaCodiValorDto> valorsDomini = obtenirValorsDomini(
 					null,
@@ -460,6 +473,53 @@ public class DtoConverter {
 		return dto;
 	}
 
+	public ExecucioMassivaDto toExecucioMassivaDto(ExecucioMassiva massiva) {
+		ExecucioMassivaDto dto = new ExecucioMassivaDto();
+		dto.setId(massiva.getId());
+		dto.setUsuari(massiva.getUsuari());
+		dto.setTipus(massiva.getTipus());
+		dto.setDataInici(massiva.getDataInici());
+		dto.setDataFi(massiva.getDataFi());
+		dto.setParam1(massiva.getParam1());
+		dto.setParam2(massiva.getParam2());
+		dto.setEnviarCorreu(massiva.getEnviarCorreu());
+		dto.setExpedientTipusId(massiva.getExpedientTipus().getId());
+		for (ExecucioMassivaExpedient expedient: massiva.getExpedients()) {
+			OperacioMassivaDto expedientDto = new OperacioMassivaDto();
+			expedientDto.setDataInici(expedient.getDataInici());
+			expedientDto.setDataFi(expedient.getDataFi());
+			expedientDto.setEstat(expedient.getEstat());
+			expedientDto.setError(expedient.getError());
+			expedientDto.setOrdre(expedient.getOrdre());
+		}
+		return dto;
+	}
+	
+	public OperacioMassivaDto toOperacioMassiva(ExecucioMassivaExpedient expedient) {
+		OperacioMassivaDto dto = null;
+		if (expedient != null) {
+			dto = new OperacioMassivaDto();
+			dto.setId(expedient.getId());
+			dto.setDataInici(expedient.getDataInici());
+			dto.setDataFi(expedient.getDataFi());
+			dto.setEstat(expedient.getEstat());
+			dto.setOrdre(expedient.getOrdre());
+			dto.setError(expedient.getError());
+			if (expedient.getExpedient() != null) dto.setExpedient(toExpedientDto(expedient.getExpedient(), false));
+			dto.setParam1(expedient.getExecucioMassiva().getParam1());
+			dto.setParam2(expedient.getExecucioMassiva().getParam2());
+			dto.setEnviarCorreu(expedient.getExecucioMassiva().getEnviarCorreu());
+			dto.setExecucioMassivaId(expedient.getExecucioMassiva().getId());
+			if (expedient.getExecucioMassiva().getExpedientTipus() != null) dto.setExpedientTipusId(expedient.getExecucioMassiva().getExpedientTipus().getId());
+			dto.setUltimaOperacio(expedient.getExecucioMassiva().getExpedients().size() == expedient.getOrdre() + 1);
+			dto.setTipus(expedient.getExecucioMassiva().getTipus());
+			dto.setUsuari(expedient.getExecucioMassiva().getUsuari());
+			dto.setTascaId(expedient.getTascaId());
+			dto.setProcessInstanceId(expedient.getProcessInstanceId());
+		}
+		return dto;
+	}
+	
 	/*public DocumentDto toDocumentDto(
 			Long documentStoreId,
 			boolean ambContingutOriginal,
@@ -666,6 +726,9 @@ public class DtoConverter {
 					-1);
 			for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
 				FilaResultat fila = new FilaResultat();
+				revisarDadesExpedientAmbValorsEnumeracionsODominis(
+						dadesExpedient,
+						campsInforme);
 				for (String clau: dadesExpedient.keySet()) {
 					// Les claus son de la forma [TipusExpedient]/[campCodi] i hem
 					// de llevar el tipus d'expedient.
@@ -806,6 +869,26 @@ public class DtoConverter {
 		}
 	}
 
+	public void revisarDadesExpedientAmbValorsEnumeracionsODominis(
+			Map<String, DadaIndexadaDto> dadesExpedient,
+			List<Camp> campsInforme) {
+		for (Camp camp: campsInforme) {
+			if (!camp.isDominiCacheText() && (TipusCamp.SELECCIO.equals(camp.getTipus()) || TipusCamp.SUGGEST.equals(camp.getTipus()))) {
+				if (camp.getEnumeracio() != null) {
+					String dadaIndexadaClau = camp.getDefinicioProces().getJbpmKey() + "/" + camp.getCodi();
+					DadaIndexadaDto dadaIndexada = dadesExpedient.get(dadaIndexadaClau);
+					if (dadaIndexada != null) {
+						String text = getCampText(
+								null,
+								null,
+								camp,
+								dadaIndexada.getValorIndex());
+						dadaIndexada.setValorMostrar(text);
+					}
+				}
+			}
+		}
+	}
 
 	@Autowired
 	public void setExpedientService(ExpedientService expedientService) {
@@ -1017,7 +1100,12 @@ public class DtoConverter {
 			} else if (camp.getEnumeracio() != null) {
 				Enumeracio enumeracio = camp.getEnumeracio();
 				for (ParellaCodiValor parella: enumeracioValorsDao.getLlistaValors(enumeracio.getId())) {
-					if (valor.equals(parella.getCodi())) {
+					// Per a evitar problemes amb caràcters estranys al codi (EXSANCI)
+					String codiBo = null;
+					if (parella.getCodi() != null)
+						codiBo = parella.getCodi().replaceAll("\\p{Cntrl}", "").trim();
+					String valorBo = valor.toString().replaceAll("\\p{Cntrl}", "").trim();
+					if (valorBo.equals(codiBo)) {
 						resposta = new ParellaCodiValor(
 								parella.getCodi(),
 								parella.getValor());
@@ -1395,5 +1483,4 @@ public class DtoConverter {
 	}
 	
 	private static final Log logger = LogFactory.getLog(DtoConverter.class);
-
 }

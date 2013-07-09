@@ -69,6 +69,8 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	private String responsableDefecteCodi;
 	private boolean restringirPerGrup;
 	private boolean tramitacioMassiva;
+	private boolean seleccionarAny;
+	
 
 	@MaxLength(64)
 	private String sistraTramitCodi;
@@ -149,7 +151,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	@Column(name="te_numero")
 	public Boolean getTeNumero() {
 		if (teNumero == null)
-			return new Boolean(false);
+			return Boolean.FALSE;
 		return teNumero;
 	}
 	public void setTeNumero(Boolean teNumero) {
@@ -159,7 +161,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	@Column(name="te_titol")
 	public Boolean getTeTitol() {
 		if (teTitol == null)
-			return new Boolean(false);
+			return Boolean.FALSE;
 		return teTitol;
 	}
 	public void setTeTitol(Boolean teTitol) {
@@ -169,7 +171,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	@Column(name="demana_numero")
 	public Boolean getDemanaNumero() {
 		if (demanaNumero == null)
-			return new Boolean(false);
+			return Boolean.FALSE;
 		return demanaNumero;
 	}
 	public void setDemanaNumero(Boolean demanaNumero) {
@@ -179,7 +181,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	@Column(name="demana_titol")
 	public Boolean getDemanaTitol() {
 		if (demanaTitol == null)
-			return new Boolean(false);
+			return Boolean.FALSE;
 		return demanaTitol;
 	}
 	public void setDemanaTitol(Boolean demanaTitol) {
@@ -248,6 +250,14 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	}
 	public void setTramitacioMassiva(boolean tramitacioMassiva) {
 		this.tramitacioMassiva = tramitacioMassiva;
+	}
+
+	@Column(name="seleccionar_any")
+	public boolean isSeleccionarAny() {
+		return seleccionarAny;
+	}
+	public void setSeleccionarAny(boolean seleccionarAny) {
+		this.seleccionarAny = seleccionarAny;
 	}
 
 	@Column(name="sistra_codtra", length=64, unique=true)

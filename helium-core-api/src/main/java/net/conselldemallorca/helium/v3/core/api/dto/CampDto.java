@@ -10,21 +10,6 @@ package net.conselldemallorca.helium.v3.core.api.dto;
  */
 public class CampDto {
 
-	public enum CampTipusDto {
-		STRING,
-		INTEGER,
-		FLOAT,
-		BOOLEAN,
-		TEXTAREA,
-		DATE,
-		PRICE,
-		TERMINI,
-		SELECCIO,
-		SUGGEST,
-		REGISTRE,
-		ACCIO
-	}
-
 	private Long id;
 	private String codi;
 	private CampTipusDto tipus;

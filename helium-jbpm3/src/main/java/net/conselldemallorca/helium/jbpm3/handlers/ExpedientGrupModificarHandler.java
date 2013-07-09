@@ -31,7 +31,7 @@ public class ExpedientGrupModificarHandler extends AbstractHeliumActionHandler i
 		ExpedientDto expedient = getExpedientActual(executionContext);
 		logger.debug("Modificant grup de l'expedient (exp=" + expedient.getIdentificacioPerLogs() + ", grup=" + g + ")");
 		try {
-			Jbpm3HeliumBridge.getInstance().expedientModificarGrup(
+			Jbpm3HeliumBridge.getInstanceService().expedientModificarGrup(
 					getProcessInstanceId(executionContext),
 					g);
 		} catch (Exception ex) {

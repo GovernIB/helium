@@ -18,7 +18,7 @@
     },
     "fnInfoCallback": null,
     "oAria": {
-        "sSortAscending":  ": Activar per a ordernar la columna amb ordre ascendent",
-        "sSortDescending": ": Activar per a ordernar la columna amb ordre descendent"
+        "sSortAscending":  ": Activar per a ordenar la columna amb ordre ascendent",
+        "sSortDescending": ": Activar per a ordenar la columna amb ordre descendent"
     }
 }

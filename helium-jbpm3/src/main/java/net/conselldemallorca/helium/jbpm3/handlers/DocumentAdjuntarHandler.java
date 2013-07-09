@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.jbpm3.handlers;
 import java.util.Date;
 
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 
 import org.apache.commons.logging.Log;
@@ -58,7 +59,7 @@ public class DocumentAdjuntarHandler extends AbstractHeliumActionHandler impleme
 			else
 				adjuntTitol = tit;
 			Date adjuntData = getValorOVariableData(executionContext, data, varData);
-			getDocumentService().guardarAdjunt(
+			Jbpm3HeliumBridge.getInstanceService().documentExpedientAdjuntar(
 					getProcessInstanceId(executionContext),
 					null,
 					adjuntTitol,
@@ -66,7 +67,7 @@ public class DocumentAdjuntarHandler extends AbstractHeliumActionHandler impleme
 					docInfo.getArxiuNom(),
 					docInfo.getArxiuContingut());
 			if (isEsborrarDocument()) {
-				getDocumentService().esborrarDocument(
+				Jbpm3HeliumBridge.getInstanceService().documentExpedientEsborrar(
 						null,
 						getProcessInstanceId(executionContext),
 						docInfo.getCodiDocument());

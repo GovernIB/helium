@@ -4,12 +4,14 @@
 package net.conselldemallorca.helium.webapp.mvc;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
@@ -79,12 +81,14 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (expedientTipusId != null) {
 			ExpedientIniciarPasTitolCommand command = new ExpedientIniciarPasTitolCommand();
+			command.setAny(Calendar.getInstance().get(Calendar.YEAR));
 			command.setExpedientTipusId(expedientTipusId);
 			ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
 			command.setNumero(
 					expedientService.getNumeroExpedientActual(
 							entorn.getId(),
-							expedientTipusId));
+							expedientTipusId,
+							command.getAny()));
 			command.setResponsableCodi(expedientTipus.getResponsableDefecteCodi());
 			return command;
 		}
@@ -117,12 +121,7 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 		if (entorn != null) {
 			ExpedientTipus tipus = dissenyService.getExpedientTipusById(expedientTipusId);
 			if (potIniciarExpedientTipus(tipus)) {
-				model.addAttribute(
-						"responsable",
-						getPersonaAmbCodi(tipus.getResponsableDefecteCodi()));
-				model.addAttribute(
-						"expedientTipus",
-						dissenyService.getExpedientTipusById(expedientTipusId));
+				omplirModelPerMostrarFormulari(tipus, model);
 				return "expedient/iniciarPasTitol";
 			} else {
 				missatgeError(request, getMessage("error.permisos.iniciar.tipus.exp"));
@@ -139,6 +138,7 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
 			@RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId,
+			@RequestParam(value = "nomesRefrescar", required = false) Boolean nomesRefrescar,
 			@RequestParam(value = "submit", required = false) String submit,
 			@ModelAttribute("command") ExpedientIniciarPasTitolCommand command,
 			BindingResult result,
@@ -148,14 +148,19 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 		if (entorn != null) {
 			ExpedientTipus tipus = dissenyService.getExpedientTipusById(expedientTipusId);
 			if (potIniciarExpedientTipus(tipus)) {
-				if ("submit".equals(submit) || submit.length() == 0) {
+				if (nomesRefrescar != null && nomesRefrescar.booleanValue()) {
+					command.setNumero(
+							expedientService.getNumeroExpedientActual(
+									entorn.getId(),
+									expedientTipusId,
+									command.getAny()));
+					omplirModelPerMostrarFormulari(tipus, model);
+					return "expedient/iniciarPasTitol";
+				} else if ("submit".equals(submit) || submit.length() == 0) {
 					command.setEntornId(entorn.getId());
 					validator.validate(command, result);
 					if (result.hasErrors()) {
-						model.addAttribute(
-								"responsable",
-								getPersonaAmbCodi(command.getResponsableCodi()));
-						model.addAttribute("expedientTipus", dissenyService.getExpedientTipusById(expedientTipusId));
+						omplirModelPerMostrarFormulari(tipus, model);
 						return "expedient/iniciarPasTitol";
 					}
 					/*// Si l'expedient requereix dades inicials redirigeix al pas per demanar 
@@ -175,14 +180,19 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 					}
 					// Si no requereix dades inicials inicia l'expedient*/
 					try {
-						iniciarExpedient(
+						ExpedientDto iniciat = iniciarExpedient(
 								request,
 								entorn.getId(),
 								command.getExpedientTipusId(),
 								definicioProcesId,
 								command.getNumero(),
-								command.getTitol());
-					    missatgeInfo(request, getMessage("info.expedient.iniciat"));
+								command.getTitol(),
+								command.getAny());
+					    missatgeInfo(
+					    		request,
+					    		getMessage(
+										"info.expedient.iniciat",
+										new Object[] {iniciat.getIdentificador()}));
 					    ExpedientIniciarController.netejarSessio(request);
 					    return "redirect:/expedient/iniciar.html";
 					} catch (Exception ex) {
@@ -250,6 +260,23 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 
 
 
+	private void omplirModelPerMostrarFormulari(
+			ExpedientTipus tipus,
+			ModelMap model) {
+		model.addAttribute(
+				"responsable",
+				getPersonaAmbCodi(tipus.getResponsableDefecteCodi()));
+		model.addAttribute(
+				"expedientTipus",
+				tipus);
+		Integer[] anys = new Integer[10];
+		int anyActual = Calendar.getInstance().get(Calendar.YEAR);
+		for (int i = 0; i < 10; i++) {
+			anys[i] = new Integer(anyActual - i);
+		}
+		model.addAttribute("anysSeleccionables", anys);
+	}
+
 	private boolean potIniciarExpedientTipus(ExpedientTipus expedientTipus) {
 		return permissionService.filterAllowed(
 				expedientTipus,
@@ -266,13 +293,14 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 	}
 
 	@SuppressWarnings("unchecked")
-	private synchronized void iniciarExpedient(
+	private synchronized ExpedientDto iniciarExpedient(
 			HttpServletRequest request,
 			Long entornId,
 			Long expedientTipusId,
 			Long definicioProcesId,
 			String numero,
-			String titol) {
+			String titol,
+			Integer any) {
 		Map<String, Object> valors = null;
 		Map<String, Object> valorsSessio = (Map<String, Object>)request.getSession().getAttribute(
 				ExpedientIniciarController.CLAU_SESSIO_FORM_VALORS);
@@ -298,11 +326,12 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 						false));
 			}
 		}
-		expedientService.iniciar(
+		return expedientService.iniciar(
 				entornId,
 				null,
 				expedientTipusId,
 				definicioProcesId,
+				any,
 				numero,
 				titol,
 				null,

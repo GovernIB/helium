@@ -24,10 +24,14 @@ public class AlertaDao extends HibernateGenericDao<Alerta, Long> {
 	}
 
 	public List<Alerta> findActivesAmbEntornIUsuari(Long entornId, String usuariCodi) {
-		return findByCriteria(
-				Restrictions.eq("entorn.id", entornId),
-				Restrictions.eq("destinatari", usuariCodi),
-				Restrictions.isNull("dataEliminacio"));
+		Criteria crit = getSession().createCriteria(
+				getPersistentClass());
+		crit.createAlias("expedient", "exp");
+		crit.add(Restrictions.eq("entorn.id", entornId));
+		crit.add(Restrictions.eq("destinatari", usuariCodi));
+		crit.add(Restrictions.isNull("dataEliminacio"));
+		crit.add(Restrictions.isNull("exp.dataFi"));
+		return findByCriteria(crit);
 	}
 
 	public List<Alerta> findActivesAmbEntornITipusExpedient(
@@ -36,9 +40,11 @@ public class AlertaDao extends HibernateGenericDao<Alerta, Long> {
 		Criteria crit = getSession().createCriteria(
 				getPersistentClass());
 		crit.createAlias("expedient.tipus", "tip");
+		crit.createAlias("expedient", "exp");
 		crit.add(Restrictions.eq("entorn.id", entornId));
 		crit.add(Restrictions.eq("tip.id", expedientTipusId));
 		crit.add(Restrictions.isNull("dataEliminacio"));
+		crit.add(Restrictions.isNull("exp.dataFi"));
 		return findByCriteria(crit);
 	}
 

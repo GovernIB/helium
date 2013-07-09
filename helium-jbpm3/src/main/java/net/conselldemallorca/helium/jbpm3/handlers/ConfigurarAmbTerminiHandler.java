@@ -30,7 +30,7 @@ public class ConfigurarAmbTerminiHandler extends CreateTimerAction implements Co
 				executionContext,
 				terminiCodi,
 				varTerminiCodi);
-		TerminiIniciatDto terminiIniciat = Jbpm3HeliumBridge.getInstance().getTerminiIniciat(
+		TerminiIniciatDto terminiIniciat = Jbpm3HeliumBridge.getInstanceService().getTerminiIniciatAmbProcessInstanceITerminiCodi(
 				getProcessInstanceId(executionContext),
 				tc);
 		if (terminiIniciat != null) {
@@ -40,7 +40,7 @@ public class ConfigurarAmbTerminiHandler extends CreateTimerAction implements Co
 			TaskInstance taskInstance = executionContext.getTaskInstance();
 			if (taskInstance != null)
 				taskInstance.setDueDate(terminiIniciat.getDataFiAmbAturadaActual());
-			Jbpm3HeliumBridge.getInstance().configurarTerminiIniciatAmbDadesJbpm(
+			Jbpm3HeliumBridge.getInstanceService().configurarTerminiIniciatAmbDadesJbpm(
 					terminiIniciat.getId(),
 					(taskInstance != null) ? new Long(taskInstance.getId()).toString() : null,
 					(timer != null) ? new Long(timer.getId()) : null);

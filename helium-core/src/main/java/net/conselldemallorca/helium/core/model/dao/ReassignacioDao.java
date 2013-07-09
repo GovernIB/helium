@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-
 @Component
 public class ReassignacioDao extends HibernateGenericDao<Reassignacio, Long> {
 

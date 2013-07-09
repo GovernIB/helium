@@ -57,7 +57,7 @@ public class HeliumExpressionAssignmentHandler implements AssignmentHandler {
 		String expressio = getExpressio();
 		logger.debug("Expresió a analitzar: '" + expressio + "'");
 		String processInstanceId = new Long(executionContext.getProcessInstance().getId()).toString();
-		Long entornId = Jbpm3HeliumBridge.getInstance().getEntornActual().getId();
+		Long entornId = Jbpm3HeliumBridge.getInstanceService().getEntornActual().getId();
 		if (entornId == null)
 			throw new RuntimeException("No s'ha trobat l'entorn per la instància de procés " + processInstanceId);
 		TermTokenizer tokenizer = new TermTokenizer(expressio);
@@ -98,7 +98,7 @@ public class HeliumExpressionAssignmentHandler implements AssignmentHandler {
 		Object entitat = null;
 		if (terme.equalsIgnoreCase("previous")) {
 			//String userName = SecurityHelper.getAuthenticatedActorId();
-			String userName = Jbpm3HeliumBridge.getInstance().getUsuariCodiActual();
+			String userName = Jbpm3HeliumBridge.getInstanceService().getUsuariCodiActual();
 			entitat = getPersonaAmbCodi(userName);
 		} else if ((terme.startsWith("swimlane(")) && (terme.endsWith(")"))) {
 			String swimlaneName = terme.substring(9, terme.length()-1).trim();
@@ -143,7 +143,7 @@ public class HeliumExpressionAssignmentHandler implements AssignmentHandler {
 	}
 
 	private PersonaDto getPersonaAmbCodi(String codi) {
-		PersonaDto p = Jbpm3HeliumBridge.getInstance().getPersonaAmbCodi(codi);
+		PersonaDto p = Jbpm3HeliumBridge.getInstanceService().getPersonaAmbCodi(codi);
 		if (p == null)
 			logger.warn("No s'ha pogut trobar la persona amb el codi \"" + codi + "\"");
 		return p;
@@ -151,7 +151,7 @@ public class HeliumExpressionAssignmentHandler implements AssignmentHandler {
 
 	private AreaDto getAreaAmbCodi(Long entornId, String codi) {
 		try {
-			AreaDto area = Jbpm3HeliumBridge.getInstance().getAreaAmbEntornICodi(
+			AreaDto area = Jbpm3HeliumBridge.getInstanceService().getAreaAmbEntornICodi(
 					entornId,
 					codi);
 			if (area == null)
@@ -185,7 +185,7 @@ public class HeliumExpressionAssignmentHandler implements AssignmentHandler {
 			String areaCodi,
 			String carrecCodi) {
 		try {
-			CarrecDto carrec = Jbpm3HeliumBridge.getInstance().getCarrecAmbEntornIAreaICodi(entornId, areaCodi, carrecCodi);
+			CarrecDto carrec = Jbpm3HeliumBridge.getInstanceService().getCarrecAmbEntornIAreaICodi(entornId, areaCodi, carrecCodi);
 			if (carrec != null && carrec.getPersonaCodi() != null)
 				return getPersonaAmbCodi(carrec.getPersonaCodi());
 			return null;
@@ -225,7 +225,7 @@ public class HeliumExpressionAssignmentHandler implements AssignmentHandler {
 	}
 
 	private boolean personesAmbAreaRecursiu() {
-		String esRecursiu = Jbpm3HeliumBridge.getInstance().getHeliumProperty("app.jbpm.identity.recursiu");
+		String esRecursiu = Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.jbpm.identity.recursiu");
 		return "true".equalsIgnoreCase(esRecursiu);
 	}
 

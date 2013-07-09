@@ -94,6 +94,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 					usuari,
 					et.getId(),
 					null,
+					null,
 					numero,
 					titol,
 					null,
@@ -166,11 +167,11 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String usuari,
 			String tascaId) throws TramitacioException {
 		Entorn e = findEntornAmbCodi(entorn);
+		boolean agafada = false;
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
 			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), usuari, false);
-			boolean agafada = false;
 			for (TascaLlistatDto tasca: tasques) {
 				if (tasca.getId().equals(tascaId)) {
 					tascaService.agafar(e.getId(), usuari, tascaId);
@@ -178,12 +179,37 @@ public class TramitacioServiceImpl implements TramitacioService {
 					break;
 				}
 			}
-			if (!agafada)
-				throw new TramitacioException("L'usuari '" + usuari + "' no té la tasca " + tascaId + " assignada");
 		} catch (Exception ex) {
-			logger.error("No s'ha pogut obtenir el llistat de tasques", ex);
-			throw new TramitacioException("No s'ha pogut obtenir el llistat de tasques: " + ex.getMessage());
+			logger.error("No s'ha pogut agafar la tasca", ex);
+			throw new TramitacioException("No s'ha pogut agafar la tasca: " + ex.getMessage());
 		}
+		if (!agafada)
+			throw new TramitacioException("L'usuari '" + usuari + "' no té la tasca " + tascaId + " assignada");
+	}
+	
+	public void alliberarTasca(
+			String entorn,
+			String usuari,
+			String tascaId) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		boolean alliberada = false;
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		try {
+			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), usuari, false);
+			for (TascaLlistatDto tasca: tasques) {
+				if (tasca.getId().equals(tascaId)) {
+					tascaService.alliberar(e.getId(), usuari, tascaId, true);
+					alliberada = true;
+					break;
+				}
+			}
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut alliberar la tasca", ex);
+			throw new TramitacioException("No s'ha pogut alliberar la tasca: " + ex.getMessage());
+		}
+		if (!alliberada)
+			throw new TramitacioException("L'usuari '" + usuari + "' no té la tasca " + tascaId + " assignada");
 	}
 
 	public List<CampTasca> consultaFormulariTasca(
@@ -220,14 +246,35 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (valors != null) {
 			variables = new HashMap<String, Object>();
 			for (ParellaCodiValor parella: valors) {
-				if (parella.getValor() instanceof XMLGregorianCalendar)
+				if (parella.getValor() instanceof XMLGregorianCalendar) {
+					// Converteix les dates al tipus correcte
 					variables.put(
 							parella.getCodi(),
 							((XMLGregorianCalendar)parella.getValor()).toGregorianCalendar().getTime());
-				else
+				} else if (parella.getValor() instanceof Object[]) {
+					Object[] multiple = (Object[])parella.getValor();
+					// Converteix les dates dins registres i vars múltiples
+					// al tipus corecte 
+					for (int i = 0; i < multiple.length; i++) {
+						if (multiple[i] instanceof Object[]) {
+							Object[] fila = (Object[])multiple[i];
+							for (int j = 0; j < fila.length; j++) {
+								if (fila[j] instanceof XMLGregorianCalendar) {
+									fila[j] = ((XMLGregorianCalendar)fila[j]).toGregorianCalendar().getTime();
+								}
+							}
+						} else if (multiple[i] instanceof XMLGregorianCalendar) {
+							multiple[i] = ((XMLGregorianCalendar)multiple[i]).toGregorianCalendar().getTime();
+						}
+					}
 					variables.put(
 							parella.getCodi(),
 							parella.getValor());
+				} else {
+					variables.put(
+							parella.getCodi(),
+							parella.getValor());
+				}
 			}
 		}
 		try {

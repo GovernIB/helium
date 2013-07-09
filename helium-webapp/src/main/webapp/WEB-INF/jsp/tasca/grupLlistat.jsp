@@ -21,6 +21,31 @@ function confirmar(e) {
 	if (e.stopPropagation) e.stopPropagation();
 	return confirm("<fmt:message key="tasca.gllistat.confirmacio"/>");
 }
+
+function selTots(){
+	var ch = $("#selTots").is(':checked');
+	$("#registre input[type='checkbox'][name='tascaId']").each(function(){
+		seleccionaTasca($(this).val(), ch);
+	}).attr("checked", ch);
+}
+
+function selecciona(e) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	if (e.stopPropagation) e.stopPropagation();
+	$.get(	"grupIds.html",
+			{	tascaId: (e.target || e.srcElement).value,
+				checked: (e.target || e.srcElement).checked
+			});
+}
+
+function seleccionaTasca(valor, xec) {
+	$.get(	"grupIds.html",
+			{	tascaId: valor,
+				checked: xec
+			});
+}
+
 // ]]>
 </script>
 </head>
@@ -33,7 +58,17 @@ function confirmar(e) {
 		<c:param name="formulari" value="grupLlistat.html"/>
 	</c:import>
 
+	<form:form action="agafarMassiu.html" cssClass="uniform">
+		<button type="submit" class="submitButton" style="margin-bottom:10px;"><fmt:message key="tasca.gllistat.agafar.massiu"/></button>
+	</form:form>
 	<display:table name="grupLlistat" id="registre" requestURI="" class="displaytag selectable" sort="external" defaultorder="descending">
+		<display:column title="<input id='selTots' type='checkbox' value='false' onclick='selTots()'>" style="${filaStyle}" >
+			<c:set var="tascaSeleccionada" value="${false}"/>
+			<c:forEach var="tid" items="${sessionScope.tasquesGrupIdsMassius}" varStatus="status">
+				<c:if test="${status.index gt 0 and tid == registre.id}"><c:set var="tascaSeleccionada" value="${true}"/></c:if>
+			</c:forEach>
+			<input type="checkbox" name="tascaId" value="${registre.id}"<c:if test="${tascaSeleccionada}"> checked="checked"</c:if> onclick="selecciona(event)"/>
+		</display:column>
 		<display:column property="titol" titleKey="tasca.gllistat.tasca" sortable="true" sortName="titol" sortProperty="titol"/>
 		<display:column sortProperty="expedientTitol" titleKey="tasca.gllistat.expedient" sortable="true" sortName="expedientTitol">
 			<a href="<c:url value="/expedient/info.html"><c:param name="id" value="${registre.expedientProcessInstanceId}"/></c:url>">${registre.expedientTitol}</a>
@@ -65,6 +100,6 @@ function confirmar(e) {
 	    </display:column>
 	</display:table>
 	<script type="text/javascript">initSelectable();</script>
-
+		
 </body>
 </html>

@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.jbpm3.handlers;
 
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 
 import org.apache.commons.logging.Log;
@@ -43,7 +44,7 @@ public class DocumentEscriureProcesPareHandler extends AbstractHeliumActionHandl
 			if (docInfo != null) {
 				ExpedientDto expedient = getExpedientActual(executionContext);
 				logger.debug("Enllaçant document del pare (exp=" + expedient.getIdentificacioPerLogs() + ", document=" + dc + ")");
-				String varDocument = getVarDocument(dc);
+				String varDocument = Jbpm3HeliumBridge.getInstanceService().getCodiVariablePerDocumentCodi(dc);
 				tokenPare.getProcessInstance().getContextInstance().setVariable(
 						varDocument,
 						executionContext.getVariable(varDocument));

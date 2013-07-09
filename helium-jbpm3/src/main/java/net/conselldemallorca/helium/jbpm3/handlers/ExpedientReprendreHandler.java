@@ -24,7 +24,8 @@ public class ExpedientReprendreHandler extends AbstractHeliumActionHandler imple
 		ExpedientDto expedient = getExpedientActual(executionContext);
 		logger.debug("Reprenent l'expedient (exp=" + expedient.getIdentificacioPerLogs() + ")");
 		try {
-			Jbpm3HeliumBridge.getInstance().expedientReprendre(expedient.getId());
+			Jbpm3HeliumBridge.getInstanceService().expedientReprendre(
+					getProcessInstanceId(executionContext));
 		} catch (Exception ex) {
 			throw new JbpmException("Error al modificar l'expedient", ex);
 		}

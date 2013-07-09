@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>helium</artifactId>
 		<groupId>net.conselldemallorca</groupId>
-		<version>3.0</version>
+		<version>2.6</version>
 	</parent>
 	<artifactId>helium-ws</artifactId>
 	<properties>
@@ -75,7 +75,7 @@
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-core</artifactId>
-			<version>3.0</version>
+			<version>${helium.version}</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>

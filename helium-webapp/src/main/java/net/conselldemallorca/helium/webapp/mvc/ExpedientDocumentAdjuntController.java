@@ -87,7 +87,7 @@ public class ExpedientDocumentAdjuntController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
-			if (potModificarExpedient(expedient)) {
+			if (potModificarOReassignarExpedient(expedient)) {
 				return "expedient/documentAdjuntForm";
 			} else {
 				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
@@ -111,7 +111,7 @@ public class ExpedientDocumentAdjuntController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
-			if (potModificarExpedient(expedient)) {
+			if (potModificarOReassignarExpedient(expedient)) {
 				if ("submit".equals(submit) || submit.length() == 0) {
 					new DocumentAdjuntCrearValidator().validate(command, result);
 			        if (result.hasErrors())
@@ -174,13 +174,14 @@ public class ExpedientDocumentAdjuntController extends BaseController {
 
 
 
-	private boolean potModificarExpedient(ExpedientDto expedient) {
+	private boolean potModificarOReassignarExpedient(ExpedientDto expedient) {
 		return permissionService.filterAllowed(
 				expedient.getTipus(),
 				ExpedientTipus.class,
 				new Permission[] {
 					ExtendedPermission.ADMINISTRATION,
-					ExtendedPermission.WRITE}) != null;
+					ExtendedPermission.WRITE,
+					ExtendedPermission.REASSIGNMENT}) != null;
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientDocumentAdjuntController.class);

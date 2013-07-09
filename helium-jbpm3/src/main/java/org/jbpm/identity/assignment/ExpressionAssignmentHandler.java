@@ -1,5 +1,25 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * Copyright 2005, JBoss Inc., and individual contributors as indicated
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.jbpm.identity.assignment;
-
 
 import java.util.Set;
 
@@ -44,14 +64,15 @@ public class ExpressionAssignmentHandler implements AssignmentHandler {
   protected ExpressionSession expressionSession = null;
   protected TermTokenizer tokenizer;
   protected Entity entity = null;
-
-  protected HeliumExpressionAssignmentHandler heliumExpressionAssignmentHandler = new HeliumExpressionAssignmentHandler();
+  protected Long entornId = null;
+  
+  protected HeliumExpressionAssignmentHandler heliumEah = null;
 
   @SuppressWarnings("unchecked")
-  public void assign(Assignable assignable, ExecutionContext executionContext) throws Exception {
-    if (Jbpm3HeliumBridge.getInstance().isHeliumAssignmentActive()) {
-    	heliumExpressionAssignmentHandler.setExpression(expression);
-    	heliumExpressionAssignmentHandler.assign(assignable, executionContext);
+  public void assign(Assignable assignable, ExecutionContext executionContext) {
+    if (isHeliumAssignmentActive()) {
+    	getHeliumExpressionAssignmentHandler().setExpression(expression);
+    	getHeliumExpressionAssignmentHandler().assign(assignable, executionContext);
     } else {
     try {
       expressionSession = getExpressionSession();
@@ -94,6 +115,10 @@ public class ExpressionAssignmentHandler implements AssignmentHandler {
 	this.expression = expression;
   }
 
+  public void setEntornId(Long entornId) {
+	this.entornId = entornId;
+  }
+
 /**
    * serves as a hook for customizing the way the identity session is retrieved.
    * overload this method to reuse this expression assignment handler for your 
@@ -114,8 +139,7 @@ protected ExpressionSession getExpressionSession() {
     log.debug("resolving first term '"+term+"'");
     
     if (term.equalsIgnoreCase("previous")) {
-    	//String userName = SecurityHelper.getAuthenticatedActorId();
-    	String userName = Jbpm3HeliumBridge.getInstance().getUsuariCodiActual();
+    	String userName = Jbpm3HeliumBridge.getInstanceService().getUsuariCodiActual();
 		entity = getUserByName(userName);
     } else if ( (term.startsWith("swimlane("))
          && (term.endsWith(")")) ) {
@@ -220,6 +244,12 @@ protected Entity resolveNextTerm(String term) {
     return swimlaneInstance.getActorId();
   }
   
+  private HeliumExpressionAssignmentHandler getHeliumExpressionAssignmentHandler() {
+	  if (heliumEah == null)
+		  heliumEah = new HeliumExpressionAssignmentHandler();
+	  return heliumEah;
+  }
+
   private String getExpression() {
 		String expressio = expression;
 		// lleva el tag <expression>...</expression>
@@ -228,7 +258,11 @@ protected Entity resolveNextTerm(String term) {
 		if (indexInici != -1 && indexFi != -1)
 			return expressio.substring(indexInici, indexFi);
 		return expressio;
-	}
+  }
+  private boolean isHeliumAssignmentActive() {
+		String identitySource = Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.jbpm.identity.source");
+		return "helium".equalsIgnoreCase(identitySource);
+  }
   
   private static final Log log = LogFactory.getLog(ExpressionAssignmentHandler.class);
 }

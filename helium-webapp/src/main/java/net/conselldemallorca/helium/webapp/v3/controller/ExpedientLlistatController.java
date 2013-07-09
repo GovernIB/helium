@@ -17,6 +17,7 @@ import javax.validation.Valid;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientConsultaCommand;
@@ -63,8 +64,11 @@ public class ExpedientLlistatController {
 	public String get(
 			HttpServletRequest request,
 			Model model) {
-		model.addAttribute(getFiltreCommand(request));
-		omplirModelGet(request, model);
+		ExpedientConsultaCommand filtreCommand = getFiltreCommand(request);
+		model.addAttribute(filtreCommand);
+		if (filtreCommand.isConsultaRealitzada()) {
+			omplirModelGet(request, model);
+		}
 		return "v3/expedientLlistat";
 	}
 	@RequestMapping(method = RequestMethod.POST)
@@ -191,6 +195,7 @@ public class ExpedientLlistatController {
 	}
 
 
+
 	private void omplirModelGet(
 			HttpServletRequest request,
 			Model model) {
@@ -202,6 +207,7 @@ public class ExpedientLlistatController {
 							filtreCommand.getExpedientTipusId()));
 		}
 	}
+
 	private ExpedientConsultaCommand getFiltreCommand(
 			HttpServletRequest request) {
 		ExpedientConsultaCommand filtreCommand = SessionHelper.getSessionManager(request).getFiltreConsultaGeneral();
@@ -212,6 +218,9 @@ public class ExpedientLlistatController {
 					SessionHelper.VARIABLE_FILTRE_CONSULTA_GENERAL,
 					filtreCommand);
 		}
+		ExpedientTipusDto expedientTipusActual = SessionHelper.getSessionManager(request).getExpedientTipusActual();
+		if (expedientTipusActual != null)
+			filtreCommand.setExpedientTipusId(expedientTipusActual.getId());
 		return filtreCommand;
 	}
 

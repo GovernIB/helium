@@ -94,6 +94,9 @@ public class EnumeracioValorsController extends BaseController {
 				new EnumeracioValorsValidator(dissenyService).validate(command, result);
 		        if (result.hasErrors()) {
 		        	model.addAttribute("llistat", dissenyService.findEnumeracioValorsAmbEnumeracio(command.getEnumeracioId()));
+		        	ImportCommand commandImportacio = new ImportCommand();
+					commandImportacio.setEnumeracioId(command.getEnumeracioId());
+					model.addAttribute("commandImportacio", commandImportacio);
 		        	return "enumeracio/valors";
 		        }
 		        try {
@@ -261,7 +264,12 @@ public class EnumeracioValorsController extends BaseController {
 						if (columnes.length > 1) {
 							EnumeracioValors enumeracioValors = new EnumeracioValors();
 				        	enumeracioValors.setId(null);
-				        	enumeracioValors.setCodi(columnes[0]);
+				        	// Per evitar caràcters estranys al codi de l'enumeració
+				        	String codi = columnes[0];
+				        	while (!codi.matches("^\\w.*")) {
+				        		codi = codi.substring(1);
+				        	}
+				        	enumeracioValors.setCodi(codi);
 				        	enumeracioValors.setNom(columnes[1]);
 				        	enumeracioValors.setEnumeracio(enumeracio);
 			        		dissenyService.createEnumeracioValors(enumeracioValors);

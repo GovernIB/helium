@@ -18,8 +18,9 @@
 		if (!e) var e = window.event;
 		e.cancelBubble = true;
 		if (e.stopPropagation) e.stopPropagation();
-		if ("cancel" == submitAction)
+		if ("cancel" == submitAction || "guardar" == submitAction) {
 			return true;
+		}
 <c:choose>
 	<c:when test="${not ((expedientTipus.teNumero and expedientTipus.demanaNumero) or (expedientTipus.teTitol and expedientTipus.demanaTitol))}">return confirm("<fmt:message key='expedient.iniciar.confirm_iniciar' />");</c:when>
 	<c:otherwise>return true</c:otherwise>
@@ -51,7 +52,8 @@
 		return false;
 	}
 	function refresh() {
-		$('form#command :button[name="submit"]').attr("name", "sbmt");
+		$('button[name="submit"]', $('form#command')).remove();
+		submitAction = "guardar";
 		$('form#command').submit();
 	}
 // ]]>

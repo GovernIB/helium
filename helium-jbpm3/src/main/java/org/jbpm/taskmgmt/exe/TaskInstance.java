@@ -30,7 +30,6 @@ import java.util.Set;
 
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
-import net.conselldemallorca.helium.v3.core.api.exception.PersonaNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
 
 import org.apache.commons.logging.Log;
@@ -299,15 +298,11 @@ public class TaskInstance extends VariableContainer implements Identifiable,
 		
 		String actor = actorId;
 		if (!ignorarReassignacio) {
-			try {
-				ReassignacioDto reassignacio = Jbpm3HeliumBridge.getInstance().findReassignacioActivaPerUsuariOrigen(actor);
-	  	  		if (reassignacio != null) {
-	  	  			actor = reassignacio.getUsuariDesti();
-	  	  			this.actorId = actor;
-	  	  		}
-			} catch (PersonaNotFoundException ex) {
-				log.warn("No s'ha trobat la persona (codi=" + actorId + ")", ex);
-			}
+			ReassignacioDto reassignacio = Jbpm3HeliumBridge.getInstanceService().findReassignacioActivaPerUsuariOrigen(actor);
+  	  		if (reassignacio != null) {
+  	  			actor = reassignacio.getUsuariDesti();
+  	  			this.actorId = actor;
+  	  		}
 		}
 		
 		if ((swimlaneInstance != null) && (overwriteSwimlane)) {
@@ -516,7 +511,7 @@ public class TaskInstance extends VariableContainer implements Identifiable,
 			}
 		}
 		try {
-			Jbpm3HeliumBridge.getInstance().alertaEsborrarAmbTaskInstanceId(this.getId());
+			Jbpm3HeliumBridge.getInstanceService().alertaEsborrarAmbTaskInstanceId(this.getId());
 		} catch (TaskInstanceNotFoundException ex) {
 			log.error("No s'ha trobat la taskInstance (id=" + this.getId() + ")", ex);
 		}

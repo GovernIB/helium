@@ -33,7 +33,7 @@ public class ExpedientTitolModificarHandler extends AbstractHeliumActionHandler 
 		ExpedientDto expedient = getExpedientActual(executionContext);
 		logger.debug("Modificant títol de l'expedient (exp=" + expedient.getIdentificacioPerLogs() + ", titol=" + t + ")");
 		try {
-			Jbpm3HeliumBridge.getInstance().expedientModificarTitol(
+			Jbpm3HeliumBridge.getInstanceService().expedientModificarTitol(
 					getProcessInstanceId(executionContext),
 					t);
 		} catch (Exception ex) {

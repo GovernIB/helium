@@ -38,9 +38,9 @@
 		<property name="resourceRef" value="true"/>
 		<property name="jndiName" value="jdbc/HeliumDS"/>
 	</bean>
-
-	<bean id="lobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler" lazy-init="true"/>
 	
+	<bean id="lobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler" lazy-init="true"/>
+
 	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
 		<property name="dataSource" ref="dataSource" />
 		<property name="packagesToScan">
@@ -91,6 +91,10 @@
 
 	<bean id="sessionFactory" factory-bean="entityManagerFactory" factory-method="getSessionFactory" />
 
+	<bean id="actionLogger" class="net.conselldemallorca.helium.core.security.audit.HibernateActionLogger" lazy-init="true">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+
 	<bean id="passwordDigester" class="net.conselldemallorca.helium.core.util.PasswordDigester">
 		<constructor-arg value="MD5"/>
 	</bean>
@@ -99,13 +103,6 @@
 
 	<bean id="serviceProxy" class="net.conselldemallorca.helium.core.model.service.ServiceProxy" factory-method="getInstance"/>
 	<bean id="daoProxy" class="net.conselldemallorca.helium.core.model.dao.DaoProxy" factory-method="getInstance"/>
-
-	<bean id="dominiCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
-		<property name="cacheManager">
-			<bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
-		</property>
-		<property name="cacheName" value="dominiCache"/>
-	</bean>
 
 	<bean id="globalProperties" class="net.conselldemallorca.helium.core.util.GlobalProperties">
 		<constructor-arg value="${es.caib.helium.properties.path}"/>
@@ -126,6 +123,9 @@
 			<set>
 				<bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean">
 					<property name="name" value="entornsUsuariActual"/>
+				</bean>
+				<bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean">
+					<property name="name" value="dominiCache"/>
 				</bean>
 			</set>
 		</property>

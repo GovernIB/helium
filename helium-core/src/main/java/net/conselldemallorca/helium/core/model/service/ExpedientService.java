@@ -28,6 +28,7 @@ import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentStoreDao;
 import net.conselldemallorca.helium.core.model.dao.EntornDao;
 import net.conselldemallorca.helium.core.model.dao.EstatDao;
+import net.conselldemallorca.helium.core.model.dao.ExecucioMassivaExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientLogDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientTipusDao;
@@ -68,6 +69,7 @@ import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
@@ -79,6 +81,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
+import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.AclServiceDao;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
@@ -138,7 +141,7 @@ public class ExpedientService {
 	private ExpedientLogDao expedientLogDao;
 	private AreaMembreDao areaMembreDao;
 	private AreaJbpmIdDao areaJbpmIdDao;
-
+	private ExecucioMassivaExpedientDao execucioMassivaExpedientDao;
 	private JbpmDao jbpmDao;
 	private AclServiceDao aclServiceDao;
 	private DtoConverter dtoConverter;
@@ -187,6 +190,7 @@ public class ExpedientService {
 			String usuari,
 			Long expedientTipusId,
 			Long definicioProcesId,
+			Integer any,
 			String numero,
 			String titol,
 			String registreNumero,
@@ -244,13 +248,19 @@ public class ExpedientService {
 		expedient.setAvisosMobil(avisosMobil);
 		expedient.setNotificacioTelematicaHabilitada(notificacioTelematicaHabilitada);
 		expedient.setNumeroDefault(
-				getNumeroExpedientDefaultActual(entornId, expedientTipusId));
+				getNumeroExpedientDefaultActual(
+						entornId,
+						expedientTipusId,
+						any));
 		if (expedientTipus.getTeNumero()) {
 			if (numero != null && numero.length() > 0) {
 				expedient.setNumero(numero);
 			} else {
 				expedient.setNumero(
-						getNumeroExpedientActual(entornId, expedientTipusId));
+						getNumeroExpedientActual(
+								entornId,
+								expedientTipusId,
+								any));
 			}
 		}
 	
@@ -265,22 +275,28 @@ public class ExpedientService {
 							new Object[]{expedient.getNumero()}) );
 		}
 		// Actualitza l'any actual de l'expedient
-		int any = Calendar.getInstance().get(Calendar.YEAR);
-		if (expedientTipus.getAnyActual() == 0) {
-			expedientTipus.setAnyActual(any);
-		} else if (expedientTipus.getAnyActual() != any) {
-			if (expedientTipus.isReiniciarCadaAny())
-				expedientTipus.setSequencia(1);
-			expedientTipus.setSequenciaDefault(1);
-			expedientTipus.setAnyActual(any);
+		int anyActual = Calendar.getInstance().get(Calendar.YEAR);
+		if (any == null || any.intValue() == anyActual) {
+			if (expedientTipus.getAnyActual() == 0) {
+				expedientTipus.setAnyActual(anyActual);
+			} else if (expedientTipus.getAnyActual() != anyActual) {
+				if (expedientTipus.isReiniciarCadaAny())
+					expedientTipus.setSequencia(1);
+				expedientTipus.setSequenciaDefault(1);
+				expedientTipus.setAnyActual(anyActual);
+			}
 		}
 		// Actualitza la seqüència del número d'expedient
 		if (expedientTipus.getExpressioNumero() != null && !"".equals(expedientTipus.getExpressioNumero())) {
-			if (expedient.getNumero().equals(getNumeroExpedientActual(entornId, expedientTipusId)))
+			if (expedient.getNumero().equals(
+					getNumeroExpedientActual(
+							entornId,
+							expedientTipusId,
+							any)))
 				expedientTipus.setSequencia(expedientTipus.getSequencia() + 1);
 		}
 		// Actualitza la seqüència del número d'expedient per defecte
-		if (expedient.getNumeroDefault().equals(getNumeroExpedientDefaultActual(entornId, expedientTipusId)))
+		if (expedient.getNumeroDefault().equals(getNumeroExpedientDefaultActual(entornId, expedientTipusId, any)))
 			expedientTipus.setSequenciaDefault(expedientTipus.getSequenciaDefault() + 1);
 		// Configura el títol de l'expedient
 		if (expedientTipus.getTeTitol()) {
@@ -358,13 +374,15 @@ public class ExpedientService {
 
 	public String getNumeroExpedientActual(
 			Long entornId,
-			Long expedientTipusId) {
+			Long expedientTipusId,
+			Integer any) {
 		long increment = 0;
 		String numero = null;
 		Expedient expedient = null;
 		do {
 			numero = expedientTipusDao.getNumeroExpedientActual(
 					expedientTipusId,
+					(any != null) ? any.intValue() : Calendar.getInstance().get(Calendar.YEAR),
 					increment);
 			expedient = expedientDao.findAmbEntornTipusINumero(
 					entornId,
@@ -377,13 +395,15 @@ public class ExpedientService {
 	
 	public String getNumeroExpedientDefaultActual(
 			Long entornId,
-			Long expedientTipusId) {
+			Long expedientTipusId,
+			Integer any) {
 		long increment = 0;
 		String numero = null;
 		Expedient expedient = null;
 		do {
 			numero = expedientTipusDao.getNumeroExpedientDefaultActual(
 					expedientTipusId,
+					(any != null) ? any.intValue() : Calendar.getInstance().get(Calendar.YEAR),
 					increment);
 			expedient = expedientDao.findAmbEntornTipusINumeroDefault(
 					entornId,
@@ -565,6 +585,9 @@ public class ExpedientService {
 			}
 			for (Portasignatures psigna: expedient.getPortasignatures()) {
 				psigna.setEstat(TipusEstat.ESBORRAT);
+			}
+			for (ExecucioMassivaExpedient eme: execucioMassivaExpedientDao.getExecucioMassivaByExpedient(id)) {
+				execucioMassivaExpedientDao.delete(eme);
 			}
 			expedientDao.delete(expedient);
 			luceneDao.deleteExpedient(expedient);
@@ -890,6 +913,9 @@ public class ExpedientService {
 						dtoConverter.toExpedientDto(
 								expedient,
 								false));
+				dtoConverter.revisarDadesExpedientAmbValorsEnumeracionsODominis(
+						dadesExpedient,
+						campsInforme);
 				fila.setDadesExpedient(dadesExpedient);
 				resposta.add(fila);
 			}
@@ -915,6 +941,15 @@ public class ExpedientService {
 			boolean ambVariables,
 			boolean ambDocuments) {
 		return dtoConverter.toInstanciaProcesDto(processInstanceId, ambImatgeProces, ambVariables, ambDocuments);
+	}
+	public InstanciaProcesDto getInstanciaProcesByIdReg(
+			String processInstanceId,
+			boolean ambImatgeProces,
+			boolean ambVariables,
+			boolean ambDocuments,
+			String varRegistre,
+			Object[] valorsRegistre) {
+		return dtoConverter.toInstanciaProcesDto(processInstanceId, ambImatgeProces, ambVariables, ambDocuments, varRegistre, valorsRegistre);
 	}
 	public List<InstanciaProcesDto> getArbreInstanciesProces(
 			String processInstanceId) {
@@ -981,6 +1016,18 @@ public class ExpedientService {
 			String processInstanceId,
 			String varName,
 			Object value) {
+		updateVariable(
+				processInstanceId,
+				varName,
+				value,
+				null);
+	}
+	
+	public void updateVariable(
+			String processInstanceId,
+			String varName,
+			Object value,
+			String user) {
 		expedientLogHelper.afegirLogExpedientPerProces(
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_VARIABLE_MODIFICAR,
@@ -992,14 +1039,18 @@ public class ExpedientService {
 				value);
 		jbpmDao.setProcessInstanceVariable(processInstanceId, varName, valorOptimitzat);
 		getServiceUtils().expedientIndexLuceneUpdate(processInstanceId);
+		if (user == null) {
+			user = SecurityContextHolder.getContext().getAuthentication().getName();
+		}
 		registreDao.crearRegistreModificarVariableInstanciaProces(
 				getExpedientPerProcessInstanceId(processInstanceId).getId(),
 				processInstanceId,
-				SecurityContextHolder.getContext().getAuthentication().getName(),
+				user,
 				varName,
 				valorVell,
 				value);
 	}
+	
 	public void deleteVariable(String processInstanceId, String varName) {
 		expedientLogHelper.afegirLogExpedientPerProces(
 				processInstanceId,
@@ -1372,19 +1423,29 @@ public class ExpedientService {
 			Long entornId,
 			String taskId,
 			String expression) {
+		reassignarTasca(entornId, taskId, expression, null);
+	}
+	public void reassignarTasca(
+			Long entornId,
+			String taskId,
+			String expression,
+			String usuari) {
 		String previousActors = expedientLogHelper.getActorsPerReassignacioTasca(taskId);
 //		JbpmTask task = jbpmDao.getTaskById(taskId);
 		ExpedientLog expedientLog = expedientLogHelper.afegirLogExpedientPerTasca(
 				taskId,
 				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
 				null);
-		jbpmDao.reassignTaskInstance(taskId, expression);
+		jbpmDao.reassignTaskInstance(taskId, expression, entornId);
 		String currentActors = expedientLogHelper.getActorsPerReassignacioTasca(taskId);
 		expedientLog.setAccioParams(previousActors + "::" + currentActors);
+		if (usuari == null) {
+			usuari = SecurityContextHolder.getContext().getAuthentication().getName();
+		}
 		registreDao.crearRegistreRedirigirTasca(
 				getExpedientPerTaskInstanceId(taskId).getId(),
 				taskId,
-				SecurityContextHolder.getContext().getAuthentication().getName(),
+				usuari,
 				expression);
 	}
 	public void suspendreTasca(
@@ -1559,13 +1620,31 @@ public class ExpedientService {
 		}
 	}
 
+	public void changeProcessInstanceVersion(String processInstanceId) {
+		changeProcessInstanceVersion(processInstanceId, -1);
+	}
 	public void changeProcessInstanceVersion(
 			String processInstanceId,
 			int newVersion) {
+		DefinicioProces defprocAntiga = getDefinicioProcesPerProcessInstanceId(processInstanceId);
 		jbpmDao.changeProcessInstanceVersion(processInstanceId, newVersion);
-	}
-	public void changeProcessInstanceVersion(String processInstanceId) {
-		jbpmDao.changeProcessInstanceVersion(processInstanceId, -1);
+		// Apunta els terminis iniciats cap als terminis
+		// de la nova definició de procés
+		DefinicioProces defprocNova = getDefinicioProcesPerProcessInstanceId(processInstanceId);
+		List<TerminiIniciat> terminisIniciats = terminiIniciatDao.findAmbProcessInstanceId(processInstanceId);
+		for (TerminiIniciat terminiIniciat: terminisIniciats) {
+			Termini termini = terminiIniciat.getTermini();
+			if (termini.getDefinicioProces().getId().equals(defprocAntiga.getId())) {
+				for (Termini terminiNou: defprocNova.getTerminis()) {
+					if (terminiNou.getCodi().equals(termini.getCodi())) {
+						termini.removeIniciat(terminiIniciat);
+						terminiNou.addIniciat(terminiIniciat);
+						terminiIniciat.setTermini(terminiNou);
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	public void actualitzarProcessInstancesADarreraVersio(
@@ -1574,6 +1653,9 @@ public class ExpedientService {
 		for (JbpmProcessInstance pi: processInstances) {
 			jbpmDao.changeProcessInstanceVersion(pi.getId(), -1);
 		}
+	}
+	public List<JbpmProcessInstance> findProcessInstancesWithProcessDefinitionName(String jbpmKey) {
+		return jbpmDao.findProcessInstancesWithProcessDefinitionName(jbpmKey);
 	}
 
 	public boolean isAccioPublica(
@@ -2021,7 +2103,10 @@ public class ExpedientService {
 	public void setAreaJbpmIdDao(AreaJbpmIdDao areaJbpmIdDao) {
 		this.areaJbpmIdDao = areaJbpmIdDao;
 	}
-
+	@Autowired
+	public void setExecucioMassivaExpedientDao(ExecucioMassivaExpedientDao execucioMassivaExpedientDao) {
+		this.execucioMassivaExpedientDao = execucioMassivaExpedientDao;
+	}
 
 
 	@SuppressWarnings("rawtypes")
@@ -2049,6 +2134,7 @@ public class ExpedientService {
 		}
 		return resposta;
 	}
+
 	private int[] getImageDimensions(String processInstanceId) {
 		JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(processInstanceId);
 		byte[] gpdBytes = jbpmDao.getResourceBytes(jpd.getId(), "gpd.xml");
@@ -2114,8 +2200,6 @@ public class ExpedientService {
 				task.getProcessInstanceId());
 		return expedientDao.findAmbProcessInstanceId(pi.getId());
 	}
-
-	
 
 	/*private Long createUpdateDocument(
 				String processInstanceId,

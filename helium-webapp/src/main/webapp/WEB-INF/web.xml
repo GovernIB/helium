@@ -493,6 +493,9 @@
 		<role-name>HEL_USER</role-name>
 	</security-role>
 	<security-role>
+		<role-name>TOTHOM</role-name>
+	</security-role>
+	<security-role>
 		<role-name>tothom</role-name>
 	</security-role>
 
@@ -505,6 +508,7 @@
 		<auth-constraint>
 			<role-name>HEL_ADMIN</role-name>
 			<role-name>HEL_USER</role-name>
+			<role-name>TOTHOM</role-name>
 			<role-name>tothom</role-name>
 		</auth-constraint>
 	</security-constraint>
@@ -533,10 +537,10 @@
 	</security-constraint-->
 	<!-- security-constraint.end -->
 
-	<error-page>
+	<!--error-page>
 		<exception-type>java.lang.Exception</exception-type>
 		<location>/error.jsp</location>
-	</error-page>
+	</error-page-->
 
 	<session-config>
 		<!-- session-timeout.begin --><!--@@web.session.timeout@@--><session-timeout>30</session-timeout><!-- session-timeout.end -->

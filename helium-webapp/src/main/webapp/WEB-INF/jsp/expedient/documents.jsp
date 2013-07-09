@@ -156,7 +156,7 @@ function infoPsigna(docId) {
 		</display:table><br/>
 	</c:if>
 
-	<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
+	<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2,512">
 		<form action="<c:url value="/expedient/documentAdjuntForm.html"/>">
 			<input type="hidden" name="id" value="${instanciaProces.id}"/>
 			<button class="submitButtonImage" type="submit">

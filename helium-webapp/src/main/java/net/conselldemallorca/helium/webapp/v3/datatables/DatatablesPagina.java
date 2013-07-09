@@ -18,6 +18,10 @@ public class DatatablesPagina<T> {
 	private String[] columnNames;
 	private List<T> data;
 
+	private String missatgeAlerta;
+
+
+
 	public long getTotalRecords() {
 		return totalRecords;
 	}
@@ -47,6 +51,12 @@ public class DatatablesPagina<T> {
 	}
 	public void setData(List<T> data) {
 		this.data = data;
+	}
+	public String getMissatgeAlerta() {
+		return missatgeAlerta;
+	}
+	public void setMissatgeAlerta(String missatgeAlerta) {
+		this.missatgeAlerta = missatgeAlerta;
 	}
 
 }

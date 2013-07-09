@@ -27,10 +27,9 @@ import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
 
 import org.hibernate.criterion.Restrictions;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -45,7 +44,6 @@ import org.springframework.stereotype.Component;
 public class DominiDao extends HibernateGenericDao<Domini, Long> {
 
 	private static final String CACHE_KEY_SEPARATOR = "#";
-	private Ehcache dominiCache;
 
 	private Map<Long, DominiHelium> wsCache = new HashMap<Long, DominiHelium>();
 	private Map<Long, NamedParameterJdbcTemplate> jdbcTemplates = new HashMap<Long, NamedParameterJdbcTemplate>();
@@ -96,7 +94,6 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public List<FilaResultat> consultar(
 			Long entornId,
 			Long dominiId,
@@ -119,7 +116,12 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 			}
 		}
 		String cacheKey = getCacheKey(domini.getId(), parametres);
-		Element element = null;
+		resultat = getResultatFromCache(
+				domini,
+				id,
+				parametres,
+				cacheKey);
+		/*Element element = null;
 		if (dominiCache != null)
 			element = dominiCache.get(cacheKey);
 		if (element == null) {
@@ -138,7 +140,7 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 		} else {
 			resultat = (List<FilaResultat>)element.getValue();
 			//logger.info("Resultat en cache");
-		}
+		}*/
 		if (resultat == null)
 			resultat = new ArrayList<FilaResultat>();
 		return resultat;
@@ -147,12 +149,6 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 	public void makeDirty(Long dominiId) {
 		wsCache.remove(dominiId);
 		jdbcTemplates.remove(dominiId);
-	}
-
-
-
-	public void setDominiCache(Ehcache dominiCache) {
-		this.dominiCache = dominiCache;
 	}
 
 
@@ -262,6 +258,28 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 			}
 		}
 		return sb.toString();
+	}
+
+	@Cacheable(value="dominiCache", key="cacheKey", condition="domini.cacheSegons > 0")
+	private List<FilaResultat> getResultatFromCache(
+			Domini domini,
+			String dominiConsultaWsId,
+			Map<String, Object> parametres,
+			String cacheKey) throws Exception {
+		List<FilaResultat> resultat = null;
+		if (domini.getTipus().equals(TipusDomini.CONSULTA_WS))
+			resultat = consultaWs(domini, dominiConsultaWsId, parametres);
+		else if (domini.getTipus().equals(TipusDomini.CONSULTA_SQL))
+			resultat = consultaSql(domini, parametres);
+		/*if (domini.getCacheSegons() > 0) {
+			element = new Element(cacheKey, resultat);
+			element.setTimeToLive(domini.getCacheSegons());
+			if (dominiCache != null) {
+				dominiCache.put(element);
+				//logger.info("Cache domini '" + cacheKey + "': " + resultat.size() + " registres");
+			}
+		}*/
+		return resultat;
 	}
 
 }

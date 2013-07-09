@@ -93,7 +93,7 @@ function confirmarDelegacioCancel(e) {
 </c:if>
 <c:if test="${not tasca.delegada or not tasca.delegacioOriginal}">
 	<ul id="tabnav">
-		<li<c:if test="${param.tabActiu == 'info'}"> class="active"</c:if>><a href="<c:url value="/tasca/info.html?ini=n"><c:param name="id" value="${param.id}"/></c:url>"><fmt:message key='common.tabstasca.tasca' /></a></li>
+		<li<c:if test="${param.tabActiu == 'info'}"> class="active"</c:if>><a href="<c:url value="/tasca/info.html?ini=n"><c:param name="id" value="${param.id}"/><c:if test="${not empty seleccioMassiva}"><c:param name="massiva" value="s"/></c:if></c:url>"><fmt:message key='common.tabstasca.tasca' /></a></li>
 		<c:if test="${not empty tasca.camps}">
 			<li class="<c:if test="${not tasca.validada}">warn</c:if> <c:if test="${param.tabActiu == 'form'}">active</c:if>"><a href="<c:url value="/tasca/form.html"><c:param name="id" value="${param.id}"/></c:url>"><fmt:message key='comuns.dades' /></a></li>
 		</c:if>

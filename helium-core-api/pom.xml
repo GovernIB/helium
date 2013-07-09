@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>net.conselldemallorca</groupId>
 		<artifactId>helium</artifactId>
-		<version>3.0</version>
+		<version>2.6</version>
 	</parent>
 	<artifactId>helium-core-api</artifactId>
 	<dependencies>

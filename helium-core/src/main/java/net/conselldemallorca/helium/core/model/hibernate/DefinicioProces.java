@@ -4,8 +4,10 @@
 package net.conselldemallorca.helium.core.model.hibernate;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -17,6 +19,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
@@ -65,7 +68,7 @@ public class DefinicioProces implements Serializable, GenericEntity<Long> {
 	private Set<Camp> camps = new HashSet<Camp>();
 	private Set<Document> documents = new HashSet<Document>();
 	private Set<Termini> terminis = new HashSet<Termini>();
-	private Set<CampAgrupacio> agrupacions = new HashSet<CampAgrupacio>();
+	private List<CampAgrupacio> agrupacions = new ArrayList<CampAgrupacio>();
 	private Set<Accio> accions = new HashSet<Accio>();
 
 
@@ -207,10 +210,11 @@ public class DefinicioProces implements Serializable, GenericEntity<Long> {
 	}
 
 	@OneToMany(mappedBy="definicioProces", cascade={CascadeType.ALL})
-	public Set<CampAgrupacio> getAgrupacions() {
+	@OrderBy("ordre asc")
+	public List<CampAgrupacio> getAgrupacions() {
 		return this.agrupacions;
 	}
-	public void setAgrupacions(Set<CampAgrupacio> agrupacions) {
+	public void setAgrupacions(List<CampAgrupacio> agrupacions) {
 		this.agrupacions = agrupacions;
 	}
 	public void addAgrupacio(CampAgrupacio agrupacio) {

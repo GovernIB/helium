@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 
 import org.apache.commons.logging.Log;
@@ -49,12 +50,12 @@ public class PortasignaturesHandler extends AbstractHeliumActionHandler implemen
 	public void execute(ExecutionContext executionContext) throws Exception {
 		try {
 			String personaCodi = (String)getValorOVariable(executionContext, responsableCodi, varResponsableCodi);
-			PersonaDto persona = getPersonaAmbCodi(personaCodi);
+			PersonaDto persona = Jbpm3HeliumBridge.getInstanceService().getPersonaAmbCodi(personaCodi);
 			String documentCodi = (String)getValorOVariable(executionContext, document, varDocument);
 			Long documentStoreId = null;
 			if (documentCodi != null) {
 				documentStoreId = (Long)executionContext.getVariable(
-						getVarDocument(documentCodi));
+						Jbpm3HeliumBridge.getInstanceService().getCodiVariablePerDocumentCodi(documentCodi));
 			} else {
 				throw new JbpmException("No s'ha especificat el codi del document per enviar al portasignatures");
 			}
@@ -67,12 +68,12 @@ public class PortasignaturesHandler extends AbstractHeliumActionHandler implemen
 				String[] codis = anxsCodis.split(",");
 				for (String codi: codis) {
 					Long anxId = (Long)executionContext.getVariable(
-							getVarDocument(codi.trim()));
+							Jbpm3HeliumBridge.getInstanceService().getCodiVariablePerDocumentCodi(codi.trim()));
 					if (anxId != null)
 						anxs.add(anxId);
 				}
 			}
-			getPluginService().portasignaturesEnviar(
+			Jbpm3HeliumBridge.getInstanceService().portasignaturesEnviar(
 					documentStoreId,
 					anxs,
 					persona,
@@ -188,7 +189,7 @@ public class PortasignaturesHandler extends AbstractHeliumActionHandler implemen
 			resposta = new ArrayList<PersonaDto>();
 			String[] codis = responsables.split(",");
 			for (String personaCodi: codis) {
-				PersonaDto persona = getPersonaAmbCodi(personaCodi.trim());
+				PersonaDto persona = Jbpm3HeliumBridge.getInstanceService().getPersonaAmbCodi(personaCodi.trim());
 				if (persona != null)
 					resposta.add(persona);
 			}

@@ -195,7 +195,7 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.extensionsPermeses = extensionsPermeses;
 	}
 
-	@ManyToOne(optional=false)
+	@ManyToOne(optional=false, fetch=FetchType.LAZY)
 	@JoinColumn(name="definicio_proces_id")
 	@ForeignKey(name="hel_defproc_document_fk")
 	public DefinicioProces getDefinicioProces() {
@@ -205,7 +205,7 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.definicioProces = definicioProces;
 	}
 
-	@ManyToOne(optional=true)
+	@ManyToOne(optional=true, fetch=FetchType.LAZY)
 	@JoinColumn(name="camp_data_id")
 	@ForeignKey(name="hel_camp_document_fk")
 	public Camp getCampData() {
@@ -215,7 +215,7 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.campData = campData;
 	}
 
-	@OneToMany(mappedBy="document", cascade={CascadeType.ALL}, fetch=FetchType.EAGER)
+	@OneToMany(mappedBy="document", cascade={CascadeType.ALL}, fetch=FetchType.LAZY)
 	public Set<DocumentTasca> getTasques() {
 		return this.tasques;
 	}
@@ -229,7 +229,7 @@ public class Document implements Serializable, GenericEntity<Long> {
 		getTasques().remove(tasca);
 	}
 
-	@OneToMany(mappedBy="document", cascade={CascadeType.ALL})
+	@OneToMany(mappedBy="document", cascade={CascadeType.ALL}, fetch=FetchType.LAZY)
 	public Set<FirmaTasca> getFirmes() {
 		return this.firmes;
 	}

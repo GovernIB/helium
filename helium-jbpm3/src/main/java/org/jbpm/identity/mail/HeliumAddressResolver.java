@@ -15,11 +15,10 @@ public class HeliumAddressResolver implements AddressResolver {
 	private static final long serialVersionUID = 1L;
 
 	public Object resolveAddress(String actorId) {
-		PersonaDto persona = Jbpm3HeliumBridge.getInstance().getPersonaAmbCodi(actorId);
+		PersonaDto persona = Jbpm3HeliumBridge.getInstanceService().getPersonaAmbCodi(actorId);
 		if (persona != null)
 			return persona.getEmail();
-		else
-			return null;
+		return null;
 	}
 
 }

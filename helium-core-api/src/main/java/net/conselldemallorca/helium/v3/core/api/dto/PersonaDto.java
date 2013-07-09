@@ -13,8 +13,8 @@ package net.conselldemallorca.helium.v3.core.api.dto;
 public class PersonaDto {
 
 	public enum Sexe {
-		MASCULI,
-		FEMENI}
+		SEXE_HOME,
+		SEXE_DONA}
 
 	private String codi;
 	private String nom;
@@ -79,6 +79,22 @@ public class PersonaDto {
 	}
 	public void setContrasenya(String contrasenya) {
 		this.contrasenya = contrasenya;
+	}
+
+	public String getNomSencer() {
+		if (getNom() == null)
+			return "[" + getCodi() + "]";
+		StringBuffer nomSencer = new StringBuffer();
+		nomSencer.append(getNom());
+		if (getLlinatge1() != null && getLlinatge1().length() > 0) {
+			nomSencer.append(" ");
+			nomSencer.append(getLlinatge1());
+		}
+		if (getLlinatge2() != null && getLlinatge2().length() > 0) {
+			nomSencer.append(" ");
+			nomSencer.append(getLlinatge2());
+		}
+		return nomSencer.toString();
 	}
 
 }

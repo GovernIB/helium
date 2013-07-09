@@ -8,6 +8,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.SessionFactory;
 import org.jbpm.JbpmConfiguration;
 import org.jbpm.JbpmContext;
+import org.jbpm.JbpmException;
 import org.jbpm.configuration.ObjectFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -47,6 +48,7 @@ public class JbpmConfigurationFactoryBean implements FactoryBean, InitializingBe
 	@PersistenceContext
 	private EntityManager entityManager;
 	
+	private SpringMassiuExecutor springMassiuExecutor;
 	/**
 	 * Default constructor.
 	 */
@@ -90,6 +92,10 @@ public class JbpmConfigurationFactoryBean implements FactoryBean, InitializingBe
 			}
 		}
 		
+		LOG.info("Starting accions massives ...");
+		getMassiuExecutor().start();
+		LOG.info("Accions massives started.");
+		
 		// Start job executor if needed
 		if (startJobExecutor) {
 			LOG.info("Starting job executor ...");
@@ -98,9 +104,22 @@ public class JbpmConfigurationFactoryBean implements FactoryBean, InitializingBe
 		}
 	}
 
+	public synchronized SpringMassiuExecutor getMassiuExecutor() {
+		if (springMassiuExecutor == null) {
+			try {
+				springMassiuExecutor = (SpringMassiuExecutor) this.objectFactory.createObject("jbpm.massiva.executor");
+			} catch (ClassCastException e) {
+				throw new JbpmException(
+						"jbpm configuration object under key 'jbpm.massiva.executor' is not a "	+ SpringMassiuExecutor.class.getName(), e);
+			}
+		}
+		return springMassiuExecutor;
+	}
+
 	public void onApplicationEvent(ApplicationEvent applicationEvent) {
 		if (applicationEvent instanceof ContextClosedEvent) {
 			jbpmConfiguration.getJobExecutor().stop();
+			getMassiuExecutor().stop();
 		}
 	}
 

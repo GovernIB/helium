@@ -54,38 +54,34 @@
 				});
 	}
 	
-	function selTots(){
+	function simularClick(valor,xec){
+		$.get(	"massivaIdsTE.html",
+				{	expedientTipusId: "${consulta.expedientTipus.id}",
+					expedientId: valor,
+					checked: xec
+				});
+	}
+	
+	function selTots(e){
+		var e = e || window.event;
+		e.cancelBubble = true;
+		if (e.stopPropagation) e.stopPropagation();
 		var versio =  $.browser.version;
-		var ch = $("#selTots:checked").val();
+		var ch = $("#selTots").prop('checked');
 		if(!ch){
 			$("#registre input[type='checkbox'][name='expedientId']").each(function(){
 				if($(this).is(':checked')){
-					if(!$.browser.msie){
-						$(this).click();
-					}else{
-						simularClick($(this).val(),false);
-				        }
+					simularClick($(this).val(),false);
 				}
-			}).attr("checked",false);
+			}).prop("checked",false);
 		}else{
 			$("#registre input[type='checkbox'][name='expedientId']").each(function(){
 				if(!$(this).is(':checked')){
-					if(!$.browser.msie){
-						$(this).click();
-					}else{
-						simularClick($(this).val(),true);
-					}
+					simularClick($(this).val(),true);
 				}
 				
-			}).attr("checked",true);
+			}).prop("checked",true);
 		}
-	}
-	function simularClick(valor,xec){
-			$.get(	"massivaIdsTE.html",
-					{	expedientTipusId: "${consulta.expedientTipus.id}",
-						expedientId: valor,
-						checked: xec
-					});
 	}
 
 // ]]>
@@ -220,8 +216,8 @@
 			
 			<c:if test="${not empty expedients}">
 				<display:table name="expedients" id="registre" requestURI="" class="displaytag selectable" export="${consulta.exportarActiu}" sort="external">
-					<c:if test="${sessionCommand.massivaActiu}">	
-						<display:column title="<input id='selTots' type='checkbox' value='false' onclick='selTots()'>" style="${filaStyle}" >
+					<c:if test="${sessionCommand.massivaActiu}">
+						<display:column title="<input id='selTots' type='checkbox' value='false' onclick='selTots(event)'>" style="${filaStyle}" >
 							<c:set var="expedientSeleccionat" value="${false}"/>
 							<c:forEach var="eid" items="${sessionScope.consultaExpedientsIdsMassiusTE}" varStatus="status">
 								<c:if test="${status.index gt 0 and eid == registre.expedient.id}"><c:set var="expedientSeleccionat" value="${true}"/></c:if>

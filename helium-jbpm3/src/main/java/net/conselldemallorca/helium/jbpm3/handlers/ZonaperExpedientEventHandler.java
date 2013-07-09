@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ZonaperDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ZonaperDocumentDto.DocumentEventTipus;
@@ -72,7 +73,7 @@ public class ZonaperExpedientEventHandler extends AbstractHeliumActionHandler im
 				executionContext,
 				redoseVersio,
 				varRedoseVersio);
-		getPluginService().zonaperEventCrear(
+		Jbpm3HeliumBridge.getInstanceService().zonaperEventCrear(
 				getProcessInstanceId(executionContext),
 				construirEvent(
 						expedient,

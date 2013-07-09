@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.webapp.mvc;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -14,12 +15,15 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.extern.domini.DominiHeliumException;
+import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
+import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.core.model.service.PersonaService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.model.service.TerminiService;
@@ -49,7 +53,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class TascaController extends BaseController {
 
 	public static final String SESSIO_TRAMITACIO_MASSIVA = "HEL_TRAM_MASS";
-
+	public static final String VARIABLE_SESSIO_IDS_GRUP = "tasquesGrupIdsMassius";
+	
 	private String TAG_FORM_INICI = "<!--helium:form-inici-->";
 	private String TAG_FORM_FI = "<!--helium:form-fi-->";
 
@@ -57,17 +62,20 @@ public class TascaController extends BaseController {
 	private TerminiService terminiService;
 	private DissenyService dissenyService;
 	private PersonaService  personaService;
+	private ExecucioMassivaService execucioMassivaService;
 	
 	@Autowired
 	public TascaController(
 			TascaService tascaService,
 			TerminiService terminiService,
 			DissenyService dissenyService,
-			PersonaService  personaService) {
+			PersonaService  personaService,
+			ExecucioMassivaService execucioMassivaService) {
 		this.tascaService = tascaService;
 		this.terminiService = terminiService;
 		this.dissenyService = dissenyService;
 		this.personaService = personaService;
+		this.execucioMassivaService = execucioMassivaService;
 	}
 
 	@ModelAttribute("prioritats")
@@ -166,6 +174,8 @@ public class TascaController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) String id,
 			@RequestParam(value = "tascaId", required = false) String[] tascaId,
+			@RequestParam(value = "inici", required = false) String inici,
+			@RequestParam(value = "correu", required = false) String correu,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
@@ -174,6 +184,7 @@ public class TascaController extends BaseController {
 				return "redirect:/tasca/massivaSeleccio.html?id=" + id;
 			} else {
 				TramitacioMassiva.iniciarTramitacioMassiva(request, id, tascaId);
+				 TramitacioMassiva.setParamsTramitatcio(request, inici, correu, id);
 				return "redirect:/tasca/info.html?id=" + id + "&massiva=s";
 			}
 		} else {
@@ -280,6 +291,87 @@ public class TascaController extends BaseController {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/tasca/agafarMassiu")
+	public String agafarMassiu(
+			HttpServletRequest request,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			List<Long> ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_GRUP);
+			Integer tasquesOK = 0;
+			String tasquesKO = "";
+			for (Long id: ids) {
+				String tascaId = id.toString();
+				TascaDto tasca = tascaService.getByIdSenseComprovacio(tascaId);
+				try {
+					tascaService.agafar(entorn.getId(), tascaId);
+					tasquesOK++;
+				} catch (Exception ex) {
+		        	logger.error("No s'ha pogut agafar la tasca " + tasca.getNom(), ex);
+		        	tasquesKO += tasca.getNom() + " (" + tasca.getExpedient().getTitol() + "),";
+				}
+			}
+			if (tasquesOK > 0) {
+				missatgeInfo(request, getMessage("tasca.gllistat.agafar.OK", new Object[] {tasquesOK}));
+			}
+			if (tasquesKO.length() > 0) {
+				missatgeError(request, getMessage("tasca.gllistat.agafar.KO") + " " + tasquesKO.substring(0, tasquesKO.length() - 1));
+			}
+			request.getSession().setAttribute(VARIABLE_SESSIO_IDS_GRUP, new ArrayList<Long>());
+			return "redirect:/tasca/grupLlistat.html";
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+
+	@RequestMapping(value = "/tasca/alliberar")
+	public String alliberar(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) String id,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			try {
+				tascaService.alliberar(entorn.getId(), id, true);
+				missatgeInfo(request, getMessage("info.tasca.alliberada"));
+			} catch (Exception ex) {
+	        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
+	        	logger.error("No s'ha pogut alliberar la tasca", ex);
+	        }
+			return "redirect:/tasca/personaLlistat.html";
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/tasca/grupIds")
+	public String tascaGrupMassiva(
+			HttpServletRequest request,
+			@RequestParam(value = "tascaId", required = true) Long tascaId,
+			@RequestParam(value = "checked", required = true) boolean checked,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			List<Long> ids = (List<Long>)request.getSession().getAttribute(VARIABLE_SESSIO_IDS_GRUP);
+			if (ids == null) {
+				ids = new ArrayList<Long>();
+				request.getSession().setAttribute(VARIABLE_SESSIO_IDS_GRUP, ids);
+			}
+			if (checked) {
+				ids.add(tascaId);
+			} else {
+				ids.remove(tascaId);
+				if (ids.size() == 1)
+					ids.clear();
+			}
+		}
+		return null;
 	}
 
 	@RequestMapping(value = "/tasca/completar")
@@ -546,6 +638,60 @@ public class TascaController extends BaseController {
 		return resposta;
 	}
 
+//	private boolean accioCompletarTasca(
+//			HttpServletRequest request,
+//			Long entornId,
+//			String id,
+//			String submit) {
+//		TascaDto tasca = tascaService.getById(
+//				entornId,
+//				id,
+//				null,
+//				null,
+//				false,
+//				false);
+//		String transicio = null;
+//		for (String outcome: tasca.getOutcomes()) {
+//			if (outcome != null && outcome.equals(submit)) {
+//				transicio = outcome;
+//				break;
+//			}
+//		}
+//		boolean massivaActiu = TramitacioMassiva.isTramitacioMassivaActiu(request, id);
+//		String[] tascaIds;
+//		if (massivaActiu)
+//			tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
+//		else
+//			tascaIds = new String[]{id};
+//		boolean error = false;
+//		for (String tascaId: tascaIds) {
+//			try {
+//				tascaService.completar(entornId, tascaId, true, null, transicio);
+//			} catch (Exception ex) {
+//				String tascaIdLog = getIdTascaPerLogs(entornId, tascaId);
+//				if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
+//					missatgeError(
+//		        			request,
+//		        			getMessage("error.validacio.tasca") + " " + tascaIdLog + ": " + ex.getCause().getMessage());
+//				} else {
+//					missatgeError(
+//		        			request,
+//		        			getMessage("error.finalitzar.tasca") + " " + tascaIdLog,
+//		        			(ex.getCause() != null) ? ex.getCause().getMessage() : ex.getMessage());
+//					logger.error("No s'ha pogut finalitzar la tasca " + tascaIdLog, ex);
+//				}
+//	        	error = true;
+//	        }
+//		}
+//		if (!error) {
+//			if (massivaActiu)
+//				missatgeInfo(request, getMessage("info.tasca.completades"));
+//			else
+//				missatgeInfo(request, getMessage("info.tasca.completat"));
+//		}
+//		return !error;
+//	}
+	
 	private boolean accioCompletarTasca(
 			HttpServletRequest request,
 			Long entornId,
@@ -567,16 +713,62 @@ public class TascaController extends BaseController {
 		}
 		boolean massivaActiu = TramitacioMassiva.isTramitacioMassivaActiu(request, id);
 		String[] tascaIds;
-		if (massivaActiu)
+		if (massivaActiu) {
+			String[] parametresTram = TramitacioMassiva.getParamsTramitacioMassiva(request, id);
 			tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
-		else
-			tascaIds = new String[]{id};
-		boolean error = false;
-		for (String tascaId: tascaIds) {
 			try {
-				tascaService.completar(entornId, tascaId, true, null, transicio);
+				TascaDto task = tascaService.getByIdSenseComprovacio(tascaIds[0]);
+				Long expTipusId = task.getExpedient().getTipus().getId();
+				
+				// Restauram la primera tasca
+				// ------------------------------------------
+				tascaService.completar(entornId, id, true, null, transicio);
+				
+				if (tascaIds.length > 1) {
+					// Programam massivament la resta de tasques
+					// ------------------------------------------
+					String[] tIds = new String[tascaIds.length - 1];
+					int j = 0;
+					for (int i = 0; i < tascaIds.length; i++) {
+						if (!tascaIds[i].equals(id)) {
+							tIds[j++] = tascaIds[i];
+						}
+					}
+					// Obtenim informació de l'execució massiva
+					// Data d'inici
+					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+					Date dInici = new Date();
+					if (parametresTram[0] != null) {
+						try { dInici = sdf.parse(parametresTram[0]); } catch (ParseException pe) {};
+					}
+					// Enviar correu
+					Boolean bCorreu = false;
+					if (parametresTram[1] != null && parametresTram[1].equals("true")) bCorreu = true;
+					
+					ExecucioMassivaDto dto = new ExecucioMassivaDto();
+					dto.setDataInici(dInici);
+					dto.setEnviarCorreu(bCorreu);
+					dto.setTascaIds(tIds);
+					dto.setExpedientTipusId(expTipusId);
+					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
+					dto.setParam1("Completar");
+					Object[] params = new Object[2];
+					params[0] = entornId;
+					params[1] = transicio;
+					dto.setParam2(execucioMassivaService.serialize(params));
+					execucioMassivaService.crearExecucioMassiva(dto);
+					
+					missatgeInfo(request, getMessage("info.tasca.massiu.completar", new Object[] {tIds.length}));
+				}
+			} catch (Exception e) {
+				missatgeError(request, getMessage("error.no.massiu"));
+				return false;
+			}
+		} else {
+			try {
+				tascaService.completar(entornId, id, true, null, transicio);
 			} catch (Exception ex) {
-				String tascaIdLog = getIdTascaPerLogs(entornId, tascaId);
+				String tascaIdLog = getIdTascaPerLogs(entornId, id);
 				if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
 					missatgeError(
 		        			request,
@@ -588,16 +780,11 @@ public class TascaController extends BaseController {
 		        			(ex.getCause() != null) ? ex.getCause().getMessage() : ex.getMessage());
 					logger.error("No s'ha pogut finalitzar la tasca " + tascaIdLog, ex);
 				}
-	        	error = true;
+	        	return false;
 	        }
+			missatgeInfo(request, getMessage("info.tasca.completat"));
 		}
-		if (!error) {
-			if (massivaActiu)
-				missatgeInfo(request, getMessage("info.tasca.completades"));
-			else
-				missatgeInfo(request, getMessage("info.tasca.completat"));
-		}
-		return !error;
+		return true;
 	}
 
 	private String getIdTascaPerLogs(Long entornId, String tascaId) {

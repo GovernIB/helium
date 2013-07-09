@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.jbpm3.handlers;
 
 import java.util.Date;
 
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 
 import org.jbpm.JbpmException;
@@ -28,7 +29,7 @@ public class AlertaCrearHandler extends AbstractHeliumActionHandler implements A
 	public void execute(ExecutionContext executionContext) throws Exception {
 		ExpedientDto expedient = getExpedientActual(executionContext);
 		try {
-			getExpedientService().alertaCrear(
+			Jbpm3HeliumBridge.getInstanceService().alertaCrear(
 					expedient.getEntorn().getId(),
 					expedient.getId(),
 					new Date(),

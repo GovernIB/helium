@@ -4,8 +4,8 @@
 package net.conselldemallorca.helium.v3.core.api.exception;
 
 /**
- * Excepció que es llança quan hi ha algun error al generar
- * un document mitjançant una plantilla.
+ * Excepció que es llança quan hi ha algun error el convertir
+ * un document en un altre format.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */

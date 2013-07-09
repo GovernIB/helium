@@ -45,7 +45,6 @@ public class BusinessCalendar implements Serializable {
   
   private static final long serialVersionUID = 1L;
   static Properties businessCalendarProperties = null;
-  static Date dataActualitzacio;
   
   private Day[] weekDays = null;
   
@@ -65,27 +64,27 @@ private List holidays = null;
 		  props.put("weekday.sunday", horariDia(7));
 		  props.put(
 				  "business.day.expressed.in.hours",
-				  Jbpm3HeliumBridge.getInstance().getHeliumProperty("app.calendari.horeslab.dia"));
+				  Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.calendari.horeslab.dia"));
 		  props.put(
 				  "business.week.expressed.in.hours",
-				  Jbpm3HeliumBridge.getInstance().getHeliumProperty("app.calendari.horeslab.setmana"));
+				  Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.calendari.horeslab.setmana"));
 		  props.put(
 				  "business.month.expressed.in.business.days",
-				  Jbpm3HeliumBridge.getInstance().getHeliumProperty("app.calendari.dieslab.mes"));
+				  Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.calendari.dieslab.mes"));
 		  props.put(
 				  "business.year.expressed.in.business.days",
-				  Jbpm3HeliumBridge.getInstance().getHeliumProperty("app.calendari.dieslab.any"));
+				  Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.calendari.dieslab.any"));
 		  businessCalendarProperties = props;
-		  logger.info("Actualitzant propietats");
+		  logger.debug("Propietats del calendari configurades");
 	  }
-	  List<FestiuDto> festius = Jbpm3HeliumBridge.getInstance().findFestiusAll();
+	  List<FestiuDto> festius = Jbpm3HeliumBridge.getInstanceService().findFestiusAll();
 	  int i = 0;
 	  SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 	  for (FestiuDto festiu: festius) {
-		  i++;
-		  businessCalendarProperties.put("holiday." + i, sdf.format(festiu.getData()));
+		  businessCalendarProperties.put("holiday." + ++i, sdf.format(festiu.getData()));
+		  logger.debug("Afegint festiu al calendari (data=" + sdf.format(festiu.getData()) + ")");
 	  }
-	  dataActualitzacio = new Date();
+	  logger.info("Calendari de festius actualitzat (numFestius=" + i + ")");
 	  return businessCalendarProperties;
   }
 
@@ -210,7 +209,7 @@ private List holidays = null;
   }
   
   private static String horariDia(int indexDia) {
-	  String nolabs = Jbpm3HeliumBridge.getInstance().getHeliumProperty("app.calendari.nolabs");
+	  String nolabs = Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.calendari.nolabs");
 	  if (nolabs != null) {
 			String[] dies = nolabs.split(",");
 			for (int i = 0; i < dies.length; i++) {
@@ -219,7 +218,7 @@ private List holidays = null;
 					return "";
 			}
 	  }
-	  return Jbpm3HeliumBridge.getInstance().getHeliumProperty("app.calendari.horari");
+	  return Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.calendari.horari");
   }
  
   private static final Log logger = LogFactory.getLog(BusinessCalendar.class);

@@ -33,8 +33,8 @@ public class ExpedientAturarHandler extends AbstractHeliumActionHandler implemen
 		ExpedientDto expedient = getExpedientActual(executionContext);
 		logger.debug("Aturant l'expedient (exp=" + expedient.getIdentificacioPerLogs() + ", motiu=" + m + ")");
 		try {
-			Jbpm3HeliumBridge.getInstance().expedientAturar(
-					expedient.getId(),
+			Jbpm3HeliumBridge.getInstanceService().expedientAturar(
+					getProcessInstanceId(executionContext),
 					m);
 		} catch (Exception ex) {
 			throw new JbpmException("Error al modificar l'expedient", ex);

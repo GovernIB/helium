@@ -7,17 +7,13 @@
 <head>
 	<title><c:choose><c:when test="${empty command.id}"><fmt:message key="domini.form.crear_nou"/></c:when><c:otherwise><fmt:message key="domini.form.modificar"/></c:otherwise></c:choose></title>
 	<meta name="titolcmp" content="<fmt:message key="comuns.disseny"/>" />
-	<c:import url="../common/formIncludes.jsp"/>
-	
+	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/dwr/engine.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/dwr/interface/dominiDwrService.js"/>"></script>
-	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.js"/>"></script>
-
-	<link media="all" type="text/css" href="http://code.jquery.com/ui/1.8.21/themes/base/jquery-ui.css" rel="stylesheet">
-	<link media="all" type="text/css" href="http://static.jquery.com/ui/css/demo-docs-theme/ui.theme.css" rel="stylesheet">
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-	<script type="text/javascript" src="http://code.jquery.com/ui/1.8.21/jquery-ui.min.js"></script>
-
+	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.DOMWindow.js"/>"></script>
+    <link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
+    <c:import url="../common/formIncludes.jsp"/>
 
 <style >
 	fieldset { padding:0; border:0; margin-top:25px; }
@@ -141,10 +137,10 @@ $(function() {
 
 // <![CDATA[
 function disable(blocid) {
-	$("#" + blocid).find("input,select,textarea").attr("disabled", "disabled");
+	$("#" + blocid).find("input,select,textarea").prop('disabled', true);
 }
 function enable(blocid) {
-	$("#" + blocid).find("input,select,textarea").removeAttr("disabled");
+	$("#" + blocid).find("input,select,textarea").prop('disabled', false);
 }
 function canviTipus(input) {
 	if (input.value == "CONSULTA_WS") {
@@ -190,23 +186,13 @@ function validar(){
 
 
 $(".provar").click(function(event){
-	if($.browser.msie){
-		provar(this.getAttribute('id'));
-	}
-	else{
-		provar(this.dataset['id']);
-	}
+	provar(this.dataset['id']);
 	cp=0;
 	event.stopPropagation();
 });
 
 $(".provarWS").click(function(event){
-	if($.browser.msie){
-		domini = this.getAttribute('id');
-	}else{
-		domini = this.dataset['id'];	
-	}
-	
+	domini = this.dataset['id'];
 	$("#dialog-form-WS").dialog("open");
 	event.stopPropagation();
 });

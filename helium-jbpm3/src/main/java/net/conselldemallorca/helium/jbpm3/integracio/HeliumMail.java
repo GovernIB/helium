@@ -14,8 +14,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
-import net.conselldemallorca.helium.v3.core.api.exception.PluginException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jbpm.JbpmConfiguration;
@@ -27,6 +25,7 @@ import org.jbpm.jpdl.el.VariableResolver;
 import org.jbpm.jpdl.el.impl.JbpmExpressionEvaluator;
 import org.jbpm.mail.AddressResolver;
 import org.jbpm.util.XmlUtil;
+import org.springframework.mail.MailException;
 
 /**
  * Enviament de correus des de jBPM amb Helium
@@ -118,7 +117,7 @@ public class HeliumMail implements ActionHandler {
 	    	while (0 < retries) {
 	    		retries--;
 	    		try {
-	    			Jbpm3HeliumBridge.getInstance().getPluginService().emailSend(
+	    			Jbpm3HeliumBridge.getInstanceService().emailSend(
 	    					fromAddress,
 	    					recipients,
 	    					null,
@@ -127,7 +126,7 @@ public class HeliumMail implements ActionHandler {
 	    					text,
 	    					null);
 	    			break;
-	    		} catch (PluginException msgex) {
+	    		} catch (MailException msgex) {
 	    			if (retries == 0)
 	    				throw msgex;
 	    			logger.error("No s'ha pogut enviar el missatge, reintentant: " + msgex);
@@ -189,7 +188,7 @@ public class HeliumMail implements ActionHandler {
 	}
 
 	public String getFromAddress() {
-		String globalFrom = Jbpm3HeliumBridge.getInstance().getHeliumProperty("app.correu.remitent");
+		String globalFrom = Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.correu.remitent");
 		if (globalFrom != null)
 			return globalFrom;
 		if (JbpmConfiguration.Configs.hasObject("jbpm.mail.from.address"))
@@ -198,7 +197,7 @@ public class HeliumMail implements ActionHandler {
 	}
 	
 	public int getRetries() {
-		String retries = Jbpm3HeliumBridge.getInstance().getHeliumProperty("app.correu.reintents");
+		String retries = Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.correu.reintents");
 		if (retries != null) {
 			try {
 				return Integer.parseInt(retries);
@@ -278,7 +277,7 @@ public class HeliumMail implements ActionHandler {
 			}
 			templateVariables.put(
 					"heliumBaseUrl",
-					Jbpm3HeliumBridge.getInstance().getHeliumProperty("app.base.url"));
+					Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.base.url"));
 		}
 		return (Properties)templates.get(templateName);
 	}

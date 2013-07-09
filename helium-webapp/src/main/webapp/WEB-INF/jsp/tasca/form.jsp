@@ -30,10 +30,12 @@
 function mostrarOcultar(img, objid) {
 	var obj = document.getElementById(objid);
 	if (obj.style.display=="none") {
-		obj.style.display = "block";
+		$('#' + objid).slideDown();
+		//obj.style.display = "block";
 		img.src = '<c:url value="/img/magnifier_zoom_out.png"/>';
 	} else {
-		obj.style.display = "none";
+		$('#' + objid).slideUp();
+		//obj.style.display = "none";
 		img.src = '<c:url value="/img/magnifier_zoom_in.png"/>';
 	}
 }
@@ -159,6 +161,7 @@ function confirmar(form) {
 </head>
 <body>
 	<c:if test="${not isIframe}">
+		<h3 class="titol-tab titol-expedient">${tasca.expedient.identificadorLimitat}</h3>
 		<c:import url="../common/tabsTasca.jsp">
 			<c:param name="tabActiu" value="form"/>
 		</c:import>
@@ -175,11 +178,11 @@ function confirmar(form) {
 			</div>
 		</c:if>
 		<c:import url="../common/tascaReadOnly.jsp"/>
-		<c:if test="${tasca.campsNotReadOnly}">
+		<%--c:if test="${tasca.campsNotReadOnly}">
 			<h3 class="titol-tab titol-dades-tasca">
 				<fmt:message key='tasca.form.form_tasca' />
 			</h3>
-		</c:if>
+		</c:if--%>
 	</c:if>
 
 	<c:if test="${tasca.campsNotReadOnly}">

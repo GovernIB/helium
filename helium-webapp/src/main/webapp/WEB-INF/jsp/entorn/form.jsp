@@ -90,7 +90,7 @@ function confirmar(e) {
 
 	<c:if test="${not empty command.id}">
 		<c:set var="mostrarExportacio" value="${false}"/>
-		<security:authorize access="hasRole('ROLE_ADMIN')">
+		<security:authorize ifAllGranted="ROLE_ADMIN">
 			<c:set var="mostrarExportacio" value="${true}"/>
 		</security:authorize>
 		<security:accesscontrollist domainObject="${entornActual}" hasPermission="16">

@@ -15,8 +15,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class UsuariPreferenciesDao extends HibernateGenericDao<UsuariPreferencies, String> {
 
-
-
 	public UsuariPreferenciesDao() {
 		super(UsuariPreferencies.class);
 	}

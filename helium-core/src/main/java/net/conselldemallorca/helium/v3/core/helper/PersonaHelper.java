@@ -37,7 +37,7 @@ public class PersonaHelper {
 					personaRepository.findByCodi(codi),
 					PersonaDto.class);
 		} else {
-			resposta = pluginHelper.findPersonaByCodi(codi);
+			resposta = pluginHelper.findPersonaAmbCodi(codi);
 		}
 		return resposta;
 	}

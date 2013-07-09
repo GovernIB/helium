@@ -29,7 +29,7 @@ import org.hibernate.stat.Statistics;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@SuppressWarnings({"serial", "rawtypes"})
+@SuppressWarnings({"serial", "rawtypes", "deprecation"})
 public class JbpmSessionFactory implements SessionFactory {
 
 	private SessionFactory delegate;

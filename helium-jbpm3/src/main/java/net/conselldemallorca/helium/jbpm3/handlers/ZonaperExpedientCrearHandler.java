@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.jbpm3.handlers;
 
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo.IniciadorTipus;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ZonaperExpedientDto;
 
@@ -47,7 +48,7 @@ public class ZonaperExpedientCrearHandler extends AbstractHeliumActionHandler im
 	public void execute(ExecutionContext executionContext) throws Exception {
 		ExpedientDto expedient = getExpedientActual(executionContext);
 		if (!isComprovarExistencia() || expedient.getTramitExpedientIdentificador() == null) {
-			getPluginService().zonaperExpedientCrear(
+			Jbpm3HeliumBridge.getInstanceService().zonaperExpedientCrear(
 					getProcessInstanceId(executionContext),
 					construirExpedient(
 							executionContext,

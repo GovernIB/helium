@@ -4,7 +4,6 @@
 package net.conselldemallorca.helium.v3.core.api.dto;
 
 import java.io.Serializable;
-import java.net.URLEncoder;
 import java.util.Date;
 
 /**
@@ -18,41 +17,30 @@ public class DocumentDto implements Serializable {
 	private Date dataCreacio;
 	private Date dataModificacio;
 	private Date dataDocument;
-	private String arxiuNom;
-	private byte[] arxiuContingut;
-	private boolean signat = false;
-	private String signatNom;
-	private byte[] signatContingut;
-	private boolean adjunt = false;
-	private String adjuntTitol;
-	private String vistaNom;
-	private byte[] vistaContingut;
-
-	private String processInstanceId;
 
 	private Long documentId;
 	private String documentCodi;
 	private String documentNom;
-	private String contentType;
-	private String custodiaCodi;
-	private Long portasignaturesId;
-	private Integer tipusDocPortasignatures;
+	private String documentContentType;
+	private String documentCustodiaCodi;
+	private Integer documentTipusDocPortasignatures;
 
+	private boolean signat = false;
+	private Long portasignaturesId;
+	private String signaturaUrlVerificacio;
+
+	private boolean registrat = false;
 	private String registreNumero;
 	private Date registreData;
 	private String registreOficinaCodi;
 	private String registreOficinaNom;
 	private boolean registreEntrada = true;
-	private boolean registrat = false;
 
+	private boolean adjunt = false;
 	private String adjuntId;
+	private String adjuntTitol;
 
-	private String tokenSignatura;
-	private String tokenSignaturaMultiple;
-	private boolean signatEnTasca;
-	private boolean adjuntarAuto;
-
-	private String urlVerificacioCustodia;
+	private String arxiuNom;
 
 
 
@@ -80,84 +68,6 @@ public class DocumentDto implements Serializable {
 	public void setDataDocument(Date dataDocument) {
 		this.dataDocument = dataDocument;
 	}
-	public String getArxiuNom() {
-		return arxiuNom;
-	}
-	public void setArxiuNom(String arxiuNom) {
-		this.arxiuNom = arxiuNom;
-	}
-	public byte[] getArxiuContingut() {
-		return arxiuContingut;
-	}
-	public void setArxiuContingut(byte[] arxiuContingut) {
-		this.arxiuContingut = arxiuContingut;
-	}
-	public boolean isSignat() {
-		return signat;
-	}
-	public void setSignat(boolean signat) {
-		this.signat = signat;
-	}
-	public String getSignatNom() {
-		return signatNom;
-	}
-	public void setSignatNom(String signatNom) {
-		this.signatNom = signatNom;
-	}
-	public byte[] getSignatContingut() {
-		return signatContingut;
-	}
-	public void setSignatContingut(byte[] signatContingut) {
-		this.signatContingut = signatContingut;
-	}
-	public boolean isAdjunt() {
-		return adjunt;
-	}
-	public void setAdjunt(boolean adjunt) {
-		this.adjunt = adjunt;
-	}
-	public String getAdjuntTitol() {
-		return adjuntTitol;
-	}
-	public void setAdjuntTitol(String adjuntTitol) {
-		this.adjuntTitol = adjuntTitol;
-	}
-	public String getVistaNom() {
-		return vistaNom;
-	}
-	public void setVistaNom(String vistaNom) {
-		this.vistaNom = vistaNom;
-	}
-	public byte[] getVistaContingut() {
-		return vistaContingut;
-	}
-	public void setVistaContingut(byte[] vistaContingut) {
-		this.vistaContingut = vistaContingut;
-	}
-	public String getContentType() {
-		return contentType;
-	}
-	public void setContentType(String contentType) {
-		this.contentType = contentType;
-	}
-	public String getCustodiaCodi() {
-		return custodiaCodi;
-	}
-	public void setCustodiaCodi(String custodiaCodi) {
-		this.custodiaCodi = custodiaCodi;
-	}
-	public String getAdjuntId() {
-		return adjuntId;
-	}
-	public void setAdjuntId(String adjuntId) {
-		this.adjuntId = adjuntId;
-	}
-	public String getProcessInstanceId() {
-		return processInstanceId;
-	}
-	public void setProcessInstanceId(String processInstanceId) {
-		this.processInstanceId = processInstanceId;
-	}
 	public Long getDocumentId() {
 		return documentId;
 	}
@@ -176,23 +86,30 @@ public class DocumentDto implements Serializable {
 	public void setDocumentNom(String documentNom) {
 		this.documentNom = documentNom;
 	}
-	public String getTokenSignatura() {
-		return tokenSignatura;
+	public String getDocumentContentType() {
+		return documentContentType;
 	}
-	public void setTokenSignatura(String tokenSignatura) {
-		this.tokenSignatura = tokenSignatura;
+	public void setDocumentContentType(String documentContentType) {
+		this.documentContentType = documentContentType;
 	}
-	public String getTokenSignaturaMultiple() {
-		return tokenSignaturaMultiple;
+	public String getDocumentCustodiaCodi() {
+		return documentCustodiaCodi;
 	}
-	public void setTokenSignaturaMultiple(String tokenSignaturaMultiple) {
-		this.tokenSignaturaMultiple = tokenSignaturaMultiple;
+	public void setDocumentCustodiaCodi(String documentCustodiaCodi) {
+		this.documentCustodiaCodi = documentCustodiaCodi;
 	}
-	public boolean isSignatEnTasca() {
-		return signatEnTasca;
+	public Integer getDocumentTipusDocPortasignatures() {
+		return documentTipusDocPortasignatures;
 	}
-	public void setSignatEnTasca(boolean signatEnTasca) {
-		this.signatEnTasca = signatEnTasca;
+	public void setDocumentTipusDocPortasignatures(
+			Integer documentTipusDocPortasignatures) {
+		this.documentTipusDocPortasignatures = documentTipusDocPortasignatures;
+	}
+	public boolean isSignat() {
+		return signat;
+	}
+	public void setSignat(boolean signat) {
+		this.signat = signat;
 	}
 	public Long getPortasignaturesId() {
 		return portasignaturesId;
@@ -200,11 +117,17 @@ public class DocumentDto implements Serializable {
 	public void setPortasignaturesId(Long portasignaturesId) {
 		this.portasignaturesId = portasignaturesId;
 	}
-	public Integer getTipusDocPortasignatures() {
-		return tipusDocPortasignatures;
+	public String getSignaturaUrlVerificacio() {
+		return signaturaUrlVerificacio;
 	}
-	public void setTipusDocPortasignatures(Integer tipusDocPortasignatures) {
-		this.tipusDocPortasignatures = tipusDocPortasignatures;
+	public void setSignaturaUrlVerificacio(String signaturaUrlVerificacio) {
+		this.signaturaUrlVerificacio = signaturaUrlVerificacio;
+	}
+	public boolean isRegistrat() {
+		return registrat;
+	}
+	public void setRegistrat(boolean registrat) {
+		this.registrat = registrat;
 	}
 	public String getRegistreNumero() {
 		return registreNumero;
@@ -236,23 +159,29 @@ public class DocumentDto implements Serializable {
 	public void setRegistreEntrada(boolean registreEntrada) {
 		this.registreEntrada = registreEntrada;
 	}
-	public boolean isRegistrat() {
-		return registrat;
+	public boolean isAdjunt() {
+		return adjunt;
 	}
-	public void setRegistrat(boolean registrat) {
-		this.registrat = registrat;
+	public void setAdjunt(boolean adjunt) {
+		this.adjunt = adjunt;
 	}
-	public boolean isAdjuntarAuto() {
-		return adjuntarAuto;
+	public String getAdjuntId() {
+		return adjuntId;
 	}
-	public void setAdjuntarAuto(boolean adjuntarAuto) {
-		this.adjuntarAuto = adjuntarAuto;
+	public void setAdjuntId(String adjuntId) {
+		this.adjuntId = adjuntId;
 	}
-	public String getUrlVerificacioCustodia() {
-		return urlVerificacioCustodia;
+	public String getAdjuntTitol() {
+		return adjuntTitol;
 	}
-	public void setUrlVerificacioCustodia(String urlVerificacioCustodia) {
-		this.urlVerificacioCustodia = urlVerificacioCustodia;
+	public void setAdjuntTitol(String adjuntTitol) {
+		this.adjuntTitol = adjuntTitol;
+	}
+	public String getArxiuNom() {
+		return arxiuNom;
+	}
+	public void setArxiuNom(String arxiuNom) {
+		this.arxiuNom = arxiuNom;
 	}
 
 	public String getArxiuNomSenseExtensio() {
@@ -265,6 +194,7 @@ public class DocumentDto implements Serializable {
 			return getArxiuNom();
 		}
 	}
+
 	public String getArxiuExtensio() {
 		if (getArxiuNom() == null)
 			return null;
@@ -275,37 +205,6 @@ public class DocumentDto implements Serializable {
 			return null;
 		}
 	}
-	public boolean isArxiuConvertiblePdf() {
-		String extensio = getArxiuExtensio();
-		if (extensio != null) {
-			for (int i = 0; i < extensionsConvertiblesPdf.length; i++) {
-				if (extensio.equalsIgnoreCase(extensionsConvertiblesPdf[i]))
-					return true;
-			}
-		}
-		return false;
-	}
-
-	public String getTokenSignaturaUrlEncoded() {
-		try {
-			return URLEncoder.encode(tokenSignatura, "UTF-8");
-		} catch (Exception ex) {
-			return tokenSignatura;
-		}
-	}
-	public String getTokenSignaturaMultipleUrlEncoded() {
-		try {
-			return URLEncoder.encode(tokenSignaturaMultiple, "UTF-8");
-		} catch (Exception ex) {
-			return tokenSignaturaMultiple;
-		}
-	}
-
-
-
-	private String[] extensionsConvertiblesPdf = {
-			"pdf", "odt", "sxw", "rtf", "doc", "wpd", "txt", "ods",
-			"sxc", "xls", "csv", "tsv", "odp", "sxi", "ppt"};
 
 	private static final long serialVersionUID = 774909297938469787L;
 

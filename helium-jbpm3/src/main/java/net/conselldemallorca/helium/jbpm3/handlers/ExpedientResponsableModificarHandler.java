@@ -31,12 +31,12 @@ public class ExpedientResponsableModificarHandler extends AbstractHeliumActionHa
 				executionContext,
 				responsableCodi,
 				varResponsableCodi);
-		PersonaDto persona = getPersonaAmbCodi(personaCodi);
+		PersonaDto persona = Jbpm3HeliumBridge.getInstanceService().getPersonaAmbCodi(personaCodi);
 		if (persona != null) {
 			ExpedientDto expedient = getExpedientActual(executionContext);
 			logger.debug("Modificant responsable de l'expedient (exp=" + expedient.getIdentificacioPerLogs() + ", responsable=" + personaCodi + ")");
 			try {
-				Jbpm3HeliumBridge.getInstance().expedientModificarResponsable(
+				Jbpm3HeliumBridge.getInstanceService().expedientModificarResponsable(
 						getProcessInstanceId(executionContext),
 						persona.getCodi());
 			} catch (Exception ex) {

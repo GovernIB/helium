@@ -106,7 +106,7 @@ public class ExpedientIniciarRegistreController extends CommonRegistreController
 				id,
 				registreId,
 				index,
-				submit,
+				submit, 
 				command,
 				result,
 				status,

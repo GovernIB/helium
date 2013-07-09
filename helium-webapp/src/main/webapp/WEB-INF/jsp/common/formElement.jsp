@@ -66,7 +66,7 @@
 					<input id="${inputId}" name="${inputName}" value="${status.value}" type="hidden"/>
 				</c:when>
 				<c:otherwise>
-					<div class="ctrlHolder<c:if test="${not empty errorsCamp}"> error</c:if>">
+					<div class="ctrlHolder<c:if test="${not empty errorsCamp}"> error</c:if><c:if test="${not empty param.classHolder}"> ${param.classHolder}</c:if>">
 						<c:if test="${not empty errorsCamp}"><p class="errorField"><strong>${errorsCamp}</strong></p></c:if>
 						<c:set var="labelText"><c:if test="${required}"><em><img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='comuns.camp_oblig' />" title="<fmt:message key='comuns.camp_oblig' />" border="0"/></em></c:if><c:choose><c:when test="${not empty param.labelKey}"><fmt:message key="${param.labelKey}"/></c:when><c:when test="${not empty param.label}">${param.label}</c:when></c:choose></c:set>
 						<c:if test="${varStatus.index gt 0}"><c:set var="labelText" value=""/></c:if>
@@ -111,7 +111,19 @@
 												changeMonth: true,
 												changeYear: true
 											}));
-											$("#${inputId}").datepicker(/*{firstDay: 1, minDate: new Date(2010, 1 - 1, 1)}*/);
+											$("#${inputId}").datepicker({firstDay: 1});
+										});
+										// ]]>
+									</script>
+								</c:if>
+							</c:when>
+							<c:when test="${param.type == 'datetime'}">
+								<input id="${inputId}" name="${inputName}" value="${status.value}" type="text" class="textInput" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>/>
+								<c:if test="${empty param.includeCalendar or param.includeCalendar}">
+									<script type="text/javascript">
+										// <![CDATA[
+										$(function() {
+											$("#${inputId}").datetimepicker();
 										});
 										// ]]>
 									</script>
@@ -247,12 +259,12 @@
 		<div class="buttonHolder">
 			<c:set var="buttonValues" value="${fn:split(param.values,',')}"/>
 			<c:set var="buttonTitles" value="${fn:split(param.titles,',')}"/>
-			<c:forTokens var="values" items="${param.values}" delims="," varStatus="status">
+			<c:forEach var="value" items="${buttonValues}" varStatus="status">
 				<c:choose>
 					<c:when test="${value == 'reset'}"><button type="reset" class="resetButton" onclick="${param.onclick}">${buttonTitles[status.index]}</button></c:when>
 					<c:otherwise><button type="submit" class="submitButton" name="submit" value="${buttonValues[status.index]}" onclick="saveAction(this, '${buttonValues[status.index]}');${param.onclick}">${buttonTitles[status.index]}</button></c:otherwise>
 				</c:choose>
-			</c:forTokens>
+			</c:forEach>
 		</div>
 		<div style="clear: both"></div>
 	</c:otherwise>

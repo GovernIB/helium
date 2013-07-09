@@ -3,11 +3,11 @@
  */
 package net.conselldemallorca.helium.core.model.dao;
 
+import net.conselldemallorca.helium.core.model.exception.PluginException;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.integracio.plugins.signatura.SignaturaPlugin;
 import net.conselldemallorca.helium.integracio.plugins.signatura.SignaturaPluginException;
-import net.conselldemallorca.helium.core.model.exception.PluginException;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

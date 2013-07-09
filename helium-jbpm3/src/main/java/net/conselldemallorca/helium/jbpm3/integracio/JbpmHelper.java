@@ -37,6 +37,7 @@ import net.conselldemallorca.helium.jbpm3.command.FindTaskInstanceForTokenAndTas
 import net.conselldemallorca.helium.jbpm3.command.GetGroupTaskListCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetPersonalTaskListCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetProcessDefinitionByIdCommand;
+import net.conselldemallorca.helium.jbpm3.command.GetProcessInstancesForActiveTasksCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetProcessInstancesTreeCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetProcessLogByIdCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetSubProcessDefinitionsCommand;
@@ -46,6 +47,7 @@ import net.conselldemallorca.helium.jbpm3.command.GetVariableIdFromVariableLogCo
 import net.conselldemallorca.helium.jbpm3.command.HasStartBetweenLogsCommand;
 import net.conselldemallorca.helium.jbpm3.command.ListActionsCommand;
 import net.conselldemallorca.helium.jbpm3.command.ReassignTaskInstanceCommand;
+import net.conselldemallorca.helium.jbpm3.command.ReleaseTaskInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.ResumeProcessInstanceTimerCommand;
 import net.conselldemallorca.helium.jbpm3.command.ResumeProcessInstancesCommand;
 import net.conselldemallorca.helium.jbpm3.command.ResumeTaskInstanceCommand;
@@ -403,6 +405,26 @@ public class JbpmHelper {
 			resultat.add(new JbpmTask(ti));
 		return resultat;
 	}
+	/*@SuppressWarnings("unchecked")
+	public List<JbpmTask> findTasksByActorId(String actorId) {
+		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
+		GetTaskListByActorIdCommand command = new GetTaskListByActorIdCommand(actorId);
+		List<TaskInstance> tasks = (List<TaskInstance>)commandService.execute(command);
+		for (TaskInstance ti : tasks)
+			resultat.add(new JbpmTask(ti));
+		return resultat;
+	}*/
+	@SuppressWarnings("unchecked")
+	public List<String> findProcessInstanceIdsWithActiveTasksForActorId(
+			String actorId) {
+		List<String> resultat = new ArrayList<String>();
+		GetProcessInstancesForActiveTasksCommand command = new GetProcessInstancesForActiveTasksCommand(actorId);
+		List<Object[]> files = (List<Object[]>)commandService.execute(command);
+		for (Object[] fila: files) {
+			resultat.add(((Long)fila[0]).toString());
+		}
+		return resultat;
+	}
 
 	public List<String> findStartTaskOutcomes(String jbpmId, String taskName) {
 		List<String> resultat = new ArrayList<String>();
@@ -431,6 +453,15 @@ public class JbpmHelper {
 	public void takeTaskInstance(String taskId, String actorId) {
 		final long id = Long.parseLong(taskId);
 		TakeTaskInstanceCommand command = new TakeTaskInstanceCommand(id, actorId);
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		commandService.execute(autoSaveCommand);
+	}
+	public void releaseTaskInstance(String taskId) {
+		final long id = Long.parseLong(taskId);
+		ReleaseTaskInstanceCommand command = new ReleaseTaskInstanceCommand(id);
 		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
@@ -493,10 +524,14 @@ public class JbpmHelper {
 		return resposta;
 	}
 	public JbpmTask reassignTaskInstance(String taskId, String expression) {
+		return reassignTaskInstance(taskId, expression, null);
+	}
+	public JbpmTask reassignTaskInstance(String taskId, String expression, Long entornId) {
 		JbpmTask resposta = null;
 		final long id = Long.parseLong(taskId);
 		ReassignTaskInstanceCommand command = new ReassignTaskInstanceCommand(id);
 		command.setExpression(expression);
+		command.setEntornId(entornId);
 		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
@@ -946,7 +981,7 @@ public class JbpmHelper {
 		Node node = pi.getProcessDefinition().getNode(nodeName);
 		String nodeClassName = node.toString();
 		NodeType nodeType = node.getNodeType();
-		return (nodeClassName.contains("ProcessState") || nodeType == NodeType.Fork || nodeType == NodeType.Join);
+		return (nodeClassName.startsWith("ProcessState") || nodeType == NodeType.Fork || nodeType == NodeType.Join);
 	}
 
 	public boolean isJoinNode(long processInstanceId, String nodeName) {
@@ -955,7 +990,7 @@ public class JbpmHelper {
 		NodeType nodeType = pi.getProcessDefinition().getNode(nodeName).getNodeType();
 		return nodeType == NodeType.Join;
 	}
-
+	
 	public ProcessLog getProcessLogById(Long id){
 		GetProcessLogByIdCommand command = new GetProcessLogByIdCommand(id.longValue());
 		return (ProcessLog)commandService.execute(command);
@@ -966,25 +1001,23 @@ public class JbpmHelper {
 		ProcessInstance pi = (ProcessInstance)commandService.execute(command);
 		return pi.getProcessDefinition().getNode(nodeName);
 	}
-
+	
 	public boolean hasStartBetweenLogs(long begin, long end, long taskInstanceId) {
 		HasStartBetweenLogsCommand command = new HasStartBetweenLogsCommand(begin, end, taskInstanceId);
 		Boolean hasStart = (Boolean)commandService.execute(command);
 		return hasStart.booleanValue();
 	}
-
-
+	
 
 	@Autowired
 	public void setCommandService(CommandService commandService) {
 		this.commandService = commandService;
 	}
-
+	
 	@Autowired
     public void setSessionFactory(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }
-
+	
 	private SessionFactory sessionFactory;
-
 }

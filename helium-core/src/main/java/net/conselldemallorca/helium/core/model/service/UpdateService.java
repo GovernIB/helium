@@ -21,6 +21,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.hibernate.Usuari;
 import net.conselldemallorca.helium.core.model.update.Versio;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,10 +51,12 @@ public class UpdateService {
 	public static final int VERSIO_240_ORDRE = 240;
 	public static final String VERSIO_250_STR = "2.5.0";
 	public static final int VERSIO_250_ORDRE = 250;
-	public static final String VERSIO_300_STR = "3.0.0";
-	public static final int VERSIO_300_ORDRE = 300;
-	public static final String VERSIO_ACTUAL_STR = "3.0.0";
-	public static final int VERSIO_ACTUAL_ORDRE = 300;
+	public static final String VERSIO_260_STR = "2.6.0";
+	public static final int VERSIO_260_ORDRE = 260;
+	public static final String VERSIO_ACTUAL_STR = "2.6.0";
+	public static final int VERSIO_ACTUAL_ORDRE = 260;
+
+	public static final int VERSIO_ACTUAL_RELEASE = 15;
 
 	private VersioDao versioDao;
 	private PersonaDao personaDao;
@@ -101,8 +104,8 @@ public class UpdateService {
 					boolean actualitzat = actualitzarV250();
 					if (!actualitzat) break;
 				}
-				if (versio.getOrdre() == VERSIO_300_ORDRE) {
-					boolean actualitzat = actualitzarV300();
+				if (versio.getOrdre() == VERSIO_260_ORDRE) {
+					boolean actualitzat = actualitzarV260();
 					if (!actualitzat) break;
 				}
 			}
@@ -127,13 +130,21 @@ public class UpdateService {
 		if (actualitzat && darrera.getOrdre() < 250) {
 			actualitzarV250();
 		}
-		if (actualitzat && darrera.getOrdre() < 300) {
-			actualitzarV300();
+		if (actualitzat && darrera.getOrdre() < 260) {
+			actualitzarV260();
 		}
 	}
 
 	public String getVersioActual() {
-		return VERSIO_ACTUAL_STR;
+		int numPunts = StringUtils.countMatches(VERSIO_ACTUAL_STR, ".");
+		if (numPunts > 1) {
+			String versioSenseRelease = VERSIO_ACTUAL_STR.substring(
+					0,
+					VERSIO_ACTUAL_STR.lastIndexOf("."));
+			return versioSenseRelease + "." + VERSIO_ACTUAL_RELEASE;
+		} else {
+			return VERSIO_ACTUAL_STR;			
+		}
 	}
 
 	public String getErrorUpdate() {
@@ -172,8 +183,7 @@ public class UpdateService {
 	}
 
 
-
-	/*---------- ACTUALITZACIÓ INICIAL -----------------------------------------------*/
+/*---------- ACTUALITZACIÓ INICIAL -----------------------------------------------*/
 	private void createInitialData() throws Exception {
 		Permis permisAdmin = new Permis(
 				"HEL_ADMIN",
@@ -387,7 +397,7 @@ public class UpdateService {
 		}
 		return actualitzat;
 	}
-
+	
 	/*---------- ACTUALITZACIÓ V. 2.5.0 -----------------------------------------------*/
 	private boolean actualitzarV250() {
 		boolean actualitzat = false;
@@ -408,23 +418,23 @@ public class UpdateService {
 		}
 		return actualitzat;
 	}
-
-	/*---------- ACTUALITZACIÓ V. 3.0.0 -----------------------------------------------*/
-	private boolean actualitzarV300() {
+	
+	/*---------- ACTUALITZACIÓ V. 2.6.0 -----------------------------------------------*/
+	private boolean actualitzarV260() {
 		boolean actualitzat = false;
-		Versio versio300 = obtenirOCrearVersio(VERSIO_300_STR, VERSIO_300_ORDRE);
-		if (!versio300.isScriptExecutat()) {
-			errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_300_STR + ": " + getMessage("error.update.script.ko");
-		} else if (!versio300.isProcesExecutat()) {
+		Versio versio260 = obtenirOCrearVersio(VERSIO_260_STR, VERSIO_260_ORDRE);
+		if (!versio260.isScriptExecutat()) {
+			errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_260_STR + ": " + getMessage("error.update.script.ko");
+		} else if (!versio260.isProcesExecutat()) {
 			try {
-				versio300.setProcesExecutat(true);
-				versio300.setDataExecucioProces(new Date());
-				versioDao.saveOrUpdate(versio300);
-				logger.info("Actualització a la versió " + VERSIO_300_STR + " realitzada correctament");
+				versio260.setProcesExecutat(true);
+				versio260.setDataExecucioProces(new Date());
+				versioDao.saveOrUpdate(versio260);
+				logger.info("Actualització a la versió " + VERSIO_260_STR + " realitzada correctament");
 				actualitzat = true;
 			} catch (Exception ex) {
-				logger.error("Error al executar l'actualització a la versió " + VERSIO_300_STR, ex);
-				errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_300_STR + ": " + getMessage("error.update.proces.ko");
+				logger.error("Error al executar l'actualització a la versió " + VERSIO_260_STR, ex);
+				errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_260_STR + ": " + getMessage("error.update.proces.ko");
 			}
 		}
 		return actualitzat;
