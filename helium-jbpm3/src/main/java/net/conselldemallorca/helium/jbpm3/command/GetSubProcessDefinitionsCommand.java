@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.conselldemallorca.helium.jbpm3.command;
+package net.conselldemallorca.helium.jbpm3.integracio;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +10,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractGetObjectBaseCommand;
+import org.jbpm.graph.def.Node;
 import org.jbpm.graph.def.ProcessDefinition;
 import org.jbpm.graph.node.ProcessState;
 
@@ -30,25 +31,39 @@ public class GetSubProcessDefinitionsCommand extends AbstractGetObjectBaseComman
 		this.id = id;
 	}
 
-	@SuppressWarnings("unchecked")
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		List<ProcessDefinition> definicionsProces = new ArrayList<ProcessDefinition>();
-		List<ProcessState> subprocessos = null;
+		List<Object[]> subprocessos = null;
 		ProcessDefinition rootProcessDefinition = jbpmContext.getGraphSession().getProcessDefinition(id);
 		if (rootProcessDefinition != null) {
 			Session session = jbpmContext.getSession();
 			Query query = session.createQuery(
+					"select sp, ps.subProcessName " +
 					"from org.jbpm.graph.node.ProcessState ps " +
+					"left outer join ps.subProcessDefinition sp " +
 					"where ps.processDefinition.id= :processDefinitionId " +
 					"order by ps.id");
 			query.setParameter("processDefinitionId", id);
 			subprocessos = query.list();
 		}
 		if (subprocessos != null && !subprocessos.isEmpty()) {
-			for (ProcessState ps : subprocessos) {
-				if (ps.getSubProcessDefinition() != null)
-					definicionsProces.add(ps.getSubProcessDefinition());
+			for (Object[] obj: subprocessos) {
+				ProcessDefinition spd = (ProcessDefinition)obj[0];
+				String spn = (String)obj[1];
+				
+				if (spd != null) {
+					definicionsProces.add(spd);
+				} else if (spn != null) {
+					spd = jbpmContext.getGraphSession().findLatestProcessDefinition(spn);
+					if (spd != null) 
+						definicionsProces.add(spd);
+				}
 			}
+//			for (ProcessState ps : subprocessos) {
+//				if (ps.getSubProcessDefinition() != null) {
+//					definicionsProces.add(ps.getSubProcessDefinition());
+//				}
+//			}
 		}
 		return definicionsProces;
 	}
