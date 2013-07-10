@@ -51,6 +51,7 @@ public class AdminServiceImpl implements AdminService {
 		return usuariActualCacheHelper.findEntornsPermesosUsuariActual(auth.getName());
 	}
 
+	@Override
 	public UsuariPreferenciesDto getPreferenciesUsuariActual() {
 		logger.debug("Obtenint preferències per a l'usuari actual");
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();

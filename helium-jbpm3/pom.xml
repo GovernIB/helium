@@ -83,12 +83,12 @@
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-core-api</artifactId>
-			<version>3.0</version>
+			<version>${helium.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-disseny</artifactId>
-			<version>3.0</version>
+			<version>${helium.version}</version>
 		</dependency>
 	</dependencies>
 	<repositories>

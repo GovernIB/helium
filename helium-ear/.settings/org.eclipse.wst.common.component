@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project-modules id="moduleCoreId" project-version="1.5.0">
-    <wb-module deploy-name="helium-ear-2.4">
+    <wb-module deploy-name="helium">
         <wb-resource deploy-path="/" source-path="/target/m2e-wtp/ear-resources"/>
         <wb-resource deploy-path="/" source-path="/src/main/application" tag="defaultRootSource"/>
         <dependent-module archiveName="helium-webapp-3.0.war" deploy-path="/" handle="module:/resource/helium-webapp/helium-webapp">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="hibernate-validator-legacy-4.0.2.GA.jar" deploy-path="/" handle="module:/classpath/var/M2_REPO/org/hibernate/hibernate-validator-legacy/4.0.2.GA/hibernate-validator-legacy-4.0.2.GA.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
     </wb-module>

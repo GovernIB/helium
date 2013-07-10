@@ -52,4 +52,4 @@ table, tr#consTR{
 			border-spacing: 5px;
 }
 
-#ui-datepicker-div { display: none; }
+#ui-datepicker-div { display: none; clip: auto; }

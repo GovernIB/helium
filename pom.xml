@@ -8,7 +8,7 @@
 	<packaging>pom</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<java.version>1.5</java.version>
+		<java.version>1.6</java.version>
 		<helium.version>3.0</helium.version>
 		<spring.version>3.1.1.RELEASE</spring.version>
 		<!--spring-security.version>2.0.5.RELEASE</spring-security.version-->

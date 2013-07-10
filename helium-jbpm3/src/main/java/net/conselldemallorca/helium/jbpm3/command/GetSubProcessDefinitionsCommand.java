@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.conselldemallorca.helium.jbpm3.integracio;
+package net.conselldemallorca.helium.jbpm3.command;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,9 +10,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractGetObjectBaseCommand;
-import org.jbpm.graph.def.Node;
 import org.jbpm.graph.def.ProcessDefinition;
-import org.jbpm.graph.node.ProcessState;
 
 /**
  * Command per obtenir els subprocessos donada la id d'una definició de procés
@@ -31,6 +29,7 @@ public class GetSubProcessDefinitionsCommand extends AbstractGetObjectBaseComman
 		this.id = id;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		List<ProcessDefinition> definicionsProces = new ArrayList<ProcessDefinition>();
 		List<Object[]> subprocessos = null;

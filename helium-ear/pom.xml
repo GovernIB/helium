@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>helium</artifactId>
 		<groupId>net.conselldemallorca</groupId>
-		<version>2.6</version>
+		<version>3.0</version>
 	</parent>
 	<artifactId>helium-ear</artifactId>
 	<packaging>ear</packaging>
@@ -36,7 +36,7 @@
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-webapp</artifactId>
-			<version>2.6</version>
+			<version>${helium.version}</version>
 			<type>war</type>
 		</dependency>
 	</dependencies>
