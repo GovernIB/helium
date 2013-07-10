@@ -34,6 +34,34 @@
 			</exclusions>
 		</dependency>
 		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>${hibernate.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>slf4j-api</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>${hibernate.validator.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>slf4j-api</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>net.conselldemallorca</groupId>
+			<artifactId>helium-hibernate-entitymanager</artifactId>
+			<version>${helium.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-webapp</artifactId>
 			<version>${helium.version}</version>
