@@ -151,6 +151,9 @@ function mostrarOcultar(img, objid) {
 				<button type="submit" class="submitButton">Subconsultes&nbsp;(${fn:length(registre.subConsultes)})</button>
 			</form>
 	    </display:column--%>
+	    <display:column titleKey="entorn.llistat.actiu">
+	     	<c:choose><c:when test="${registre.ocultarActiu}"><fmt:message key='comuns.no' /></c:when><c:otherwise><fmt:message key='comuns.si' /></c:otherwise></c:choose>
+	    </display:column>
 	    <c:if test="${tePermisosGestionar}">
 			<display:column>
 				<div id="consulta_${registre.id}"></div>

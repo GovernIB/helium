@@ -74,8 +74,10 @@ public class ExecucioMassivaService {
 	private PluginService pluginService;
 
 
-	public void crearExecucioMassiva(ExecucioMassivaDto dto) {
-		if (dto.getExpedientIds() != null && !dto.getExpedientIds().isEmpty()) {
+	public void crearExecucioMassiva(ExecucioMassivaDto dto) throws Exception {
+		if ((dto.getExpedientIds() != null && !dto.getExpedientIds().isEmpty()) ||
+			(dto.getTascaIds() != null && dto.getTascaIds().length > 0) ||
+			(dto.getProcInstIds() != null && !dto.getProcInstIds().isEmpty())) {
 			String log = "Creació d'execució massiva (dataInici=" + dto.getDataInici();
 			if (dto.getExpedientTipusId() != null) log += ", expedientTipusId=" + dto.getExpedientTipusId();
 			log += ", numExpedients=";
@@ -103,6 +105,7 @@ public class ExecucioMassivaService {
 								false));
 			}
 			int ordre = 0;
+			boolean expedients = false;
 			if (dto.getExpedientIds() != null) {
 				
 				for (Long expedientId: dto.getExpedientIds()) {
@@ -112,6 +115,7 @@ public class ExecucioMassivaService {
 							expedient,
 							ordre++);
 					execucioMassiva.addExpedient(eme);
+					expedients = true;
 				}
 			} else if (dto.getTascaIds() != null) {
 				for (String tascaId: dto.getTascaIds()) {
@@ -122,6 +126,7 @@ public class ExecucioMassivaService {
 							tascaId,
 							ordre++);
 					execucioMassiva.addExpedient(eme);
+					expedients = true;
 				}
 			} else if (dto.getProcInstIds() != null) {
 				for (String procinstId: dto.getProcInstIds()) {
@@ -130,10 +135,14 @@ public class ExecucioMassivaService {
 							procinstId,
 							ordre++);
 					execucioMassiva.addExpedient(eme);
+					expedients = true;
 				}
 			}
 			execucioMassiva.setEntorn(EntornActual.getEntornId());
-			execucioMassivaDao.saveOrUpdate(execucioMassiva);
+			if (expedients)
+				execucioMassivaDao.saveOrUpdate(execucioMassiva);
+			else 
+				throw new Exception("S'ha intentat crear una execució massiva sense assignar expedients.");
 		}
 	}
 

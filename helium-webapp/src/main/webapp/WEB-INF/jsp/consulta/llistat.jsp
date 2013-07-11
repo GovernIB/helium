@@ -56,6 +56,9 @@ function confirmar(e) {
 				<button type="submit" class="submitButton">Subconsultes&nbsp;(${fn:length(registre.subConsultes)})</button>
 			</form>
 	    </display:column--%>
+	    <display:column titleKey="entorn.llistat.actiu">
+	     	<c:choose><c:when test="${registre.ocultarActiu}"><fmt:message key='comuns.no' /></c:when><c:otherwise><fmt:message key='comuns.si' /></c:otherwise></c:choose>
+	    </display:column>
 		<display:column>
 			<a href="<c:url value="/consulta/delete.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 		</display:column>
