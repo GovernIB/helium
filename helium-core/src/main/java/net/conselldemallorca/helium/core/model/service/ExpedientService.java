@@ -1431,7 +1431,6 @@ public class ExpedientService {
 			String expression,
 			String usuari) {
 		String previousActors = expedientLogHelper.getActorsPerReassignacioTasca(taskId);
-//		JbpmTask task = jbpmDao.getTaskById(taskId);
 		ExpedientLog expedientLog = expedientLogHelper.afegirLogExpedientPerTasca(
 				taskId,
 				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
@@ -1439,6 +1438,10 @@ public class ExpedientService {
 		jbpmDao.reassignTaskInstance(taskId, expression, entornId);
 		String currentActors = expedientLogHelper.getActorsPerReassignacioTasca(taskId);
 		expedientLog.setAccioParams(previousActors + "::" + currentActors);
+		if (previousActors.startsWith("[")) {
+			JbpmTask task = jbpmDao.getTaskById(taskId);
+			if (task != null) task.setFieldFromDescription(TascaService.TASKDESC_CAMP_AGAFADA, "true");
+		}
 		if (usuari == null) {
 			usuari = SecurityContextHolder.getContext().getAuthentication().getName();
 		}
