@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
@@ -174,7 +175,11 @@ public class ExpedientIniciarController extends BaseController {
 		}
 	}
 
-
+	@RequestMapping(value = "/expedient/iniciar/bloqueig")
+	public void bloqueig(
+			HttpServletResponse response) throws Exception {
+		response.getOutputStream().print(expedientService.getTextBloqueigIniciExpedient());
+	}
 
 	@SuppressWarnings("unchecked")
 	public static void netejarSessio(HttpServletRequest request) {
