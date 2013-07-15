@@ -172,7 +172,7 @@ public class ExpedientTipusConsultaController extends BaseController {
 				consulta.setCodi(command.getCodi());
 				consulta.setNom(command.getNom());
 				consulta.setDescripcio(command.getDescripcio());
-				consulta.setExpedientTipus(command.getExpedientTipus());
+				consulta.setExpedientTipus(expedientTipus);
 				consulta.setFormatExport(command.getFormatExport());
 				consulta.setValorsPredefinits(command.getValorsPredefinits());
 				consulta.setExportarActiu(command.isExportarActiu());
