@@ -38,6 +38,7 @@ import net.conselldemallorca.helium.core.model.dao.ExpedientTipusDao;
 import net.conselldemallorca.helium.core.model.dao.FirmaTascaDao;
 import net.conselldemallorca.helium.core.model.dao.LuceneDao;
 import net.conselldemallorca.helium.core.model.dao.MapeigSistraDao;
+import net.conselldemallorca.helium.core.model.dao.SequenciaAnyDao;
 import net.conselldemallorca.helium.core.model.dao.TascaDao;
 import net.conselldemallorca.helium.core.model.dao.TerminiDao;
 import net.conselldemallorca.helium.core.model.dao.ValidacioDao;
@@ -131,6 +132,7 @@ public class DissenyService {
 	private ConsultaDao consultaDao;
 	private ConsultaCampDao consultaCampDao;
 	private AccioDao accioDao;
+	private SequenciaAnyDao sequenciaAnyDao;
 
 	private DtoConverter dtoConverter;
 	private JbpmDao jbpmDao;
@@ -765,7 +767,9 @@ public class DissenyService {
 		return saved;
 	}
 	public ExpedientTipus updateExpedientTipus(ExpedientTipus entity) {
-		return expedientTipusDao.merge(entity);
+		ExpedientTipus et = expedientTipusDao.merge(entity);
+		sequenciaAnyDao.clearSequencies();
+		return et;
 	}
 	public void deleteExpedientTipus(Long id) {
 		ExpedientTipus vell = getExpedientTipusById(id);
@@ -2181,7 +2185,10 @@ public class DissenyService {
 	public void setMessageSource(MessageSource messageSource) {
 		this.messageSource = messageSource;
 	}
-
+	@Autowired
+	public void setSequenciaAnyDao(SequenciaAnyDao sequenciaAnyDao) {
+		this.sequenciaAnyDao = sequenciaAnyDao;
+	}
 
 
 	private DefinicioProcesDto toDto(

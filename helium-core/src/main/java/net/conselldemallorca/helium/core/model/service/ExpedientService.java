@@ -280,20 +280,22 @@ public class ExpedientService {
 			if (expedientTipus.getAnyActual() == 0) {
 				expedientTipus.setAnyActual(anyActual);
 			} else if (expedientTipus.getAnyActual() != anyActual) {
-				if (expedientTipus.isReiniciarCadaAny())
-					expedientTipus.setSequencia(1);
+//				if (expedientTipus.isReiniciarCadaAny()) {
+//				expedientTipus.setSequencia(1);
+//			}
 				expedientTipus.setSequenciaDefault(1);
 				expedientTipus.setAnyActual(anyActual);
 			}
 		}
 		// Actualitza la seqüència del número d'expedient
-		if (expedientTipus.getExpressioNumero() != null && !"".equals(expedientTipus.getExpressioNumero())) {
+		if (expedientTipus.getTeNumero() && expedientTipus.getExpressioNumero() != null && !"".equals(expedientTipus.getExpressioNumero())) {
 			if (expedient.getNumero().equals(
 					getNumeroExpedientActual(
 							entornId,
 							expedientTipusId,
 							any)))
-				expedientTipus.setSequencia(expedientTipus.getSequencia() + 1);
+//				expedientTipus.setSequencia(expedientTipus.getSequencia() + 1);
+				expedientTipus.updateSequencia(any, 1);
 		}
 		// Actualitza la seqüència del número d'expedient per defecte
 		if (expedient.getNumeroDefault().equals(getNumeroExpedientDefaultActual(entornId, expedientTipusId, any)))

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 
 import org.hibernate.criterion.Restrictions;
@@ -59,7 +60,8 @@ public class ExpedientTipusDao extends HibernateGenericDao<ExpedientTipus, Long>
 		return getNumeroExpedientExpressio(
 				expedientTipus,
 				expedientTipus.getExpressioNumero(),
-				seq + increment,
+				seq,
+				increment,
 				any,
 				expedientTipus.isReiniciarCadaAny());
 	}
@@ -73,7 +75,8 @@ public class ExpedientTipusDao extends HibernateGenericDao<ExpedientTipus, Long>
 		return getNumeroExpedientExpressio(
 				expedientTipus,
 				getNumexpExpression(),
-				seq + increment,
+				seq,
+				increment,
 				any,
 				true);
 	}
@@ -84,16 +87,29 @@ public class ExpedientTipusDao extends HibernateGenericDao<ExpedientTipus, Long>
 			ExpedientTipus expedientTipus,
 			String expressio,
 			long seq,
+			long increment,
 			int any,
 			boolean reiniciarCadaAny) {
+		if (reiniciarCadaAny) {
+			if (any != 0) {
+				if (expedientTipus.getSequenciaAny().containsKey(any)) {
+					seq = expedientTipus.getSequenciaAny().get(any).getSequencia() + increment;
+				} else {
+					SequenciaAny sa = new SequenciaAny(expedientTipus, any, 1L);
+					expedientTipus.getSequenciaAny().put(any, sa);
+					saveOrUpdate(expedientTipus);
+					seq = 1;
+				}
+			}
+		} else {
+			seq = seq + increment;
+		}
 		if (expressio != null) {
 			try {
 				final Map<String, Object> context = new HashMap<String, Object>();
 				context.put("entorn_cod", expedientTipus.getEntorn().getCodi());
 				context.put("tipexp_cod", expedientTipus.getCodi());
 				context.put("any", any);
-				if (any != 0 && any != expedientTipus.getAnyActual() && reiniciarCadaAny)
-					seq = 1;
 				context.put("seq", seq);
 				ExpressionEvaluator evaluator = new ExpressionEvaluatorImpl();
 				String resultat = (String)evaluator.evaluate(

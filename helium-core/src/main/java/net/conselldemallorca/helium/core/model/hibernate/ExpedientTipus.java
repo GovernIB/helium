@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -17,6 +19,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
@@ -25,6 +28,8 @@ import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
+import org.hibernate.annotations.Sort;
+import org.hibernate.annotations.SortType;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
@@ -99,6 +104,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	private Set<Domini> dominis = new HashSet<Domini>();
 	private Set<Enumeracio> enumeracions = new HashSet<Enumeracio>();
 
+	private SortedMap<Integer, SequenciaAny> sequenciaAny = new TreeMap<Integer, SequenciaAny>();
 
 	public ExpedientTipus() {}
 	public ExpedientTipus(String codi, String nom, Entorn entorn) {
@@ -426,7 +432,28 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 		getEnumeracions().remove(enumeracio);
 	}
 
+	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
+	@MapKey(name = "any")
+	@Sort(type = SortType.NATURAL)
+	public SortedMap<Integer, SequenciaAny> getSequenciaAny() {
+		return sequenciaAny;
+	}
+	public void setSequenciaAny(SortedMap<Integer, SequenciaAny> sequenciaAny) {
+		this.sequenciaAny = sequenciaAny;
+	}
 
+	public void updateSequencia(Integer any, long increment) {
+		if (this.isReiniciarCadaAny()) {
+			if (this.getSequenciaAny().containsKey(any)) {
+				this.getSequenciaAny().get(any).setSequencia(this.getSequenciaAny().get(any).getSequencia() + increment);
+			} else {
+				SequenciaAny sa = new SequenciaAny(this, any, increment);
+				this.getSequenciaAny().put(any, sa);
+			}
+		} else {
+			this.sequencia = this.sequencia + increment;
+		}
+	}
 
 	@Override
 	public int hashCode() {

@@ -3,12 +3,18 @@
  */
 package net.conselldemallorca.helium.webapp.mvc;
 
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.PluginService;
@@ -63,7 +69,7 @@ public class ExpedientTipusFormController extends BaseController {
 	@ModelAttribute("command")
 	public ExpedientTipus populateCommand(@RequestParam(value = "id", required = false) Long id) {
 		if (id != null) {
-			ExpedientTipus command = dissenyService.getExpedientTipusById(id);;
+			ExpedientTipus command = dissenyService.getExpedientTipusById(id);
 			return command;
 		}
 		return new ExpedientTipus();
@@ -103,8 +109,48 @@ public class ExpedientTipusFormController extends BaseController {
 			if (potDissenyarEntorn(entorn)) {
 				if ("submit".equals(submit) || submit.length() == 0) {
 					command.setEntorn(entorn);
+					SortedMap<Integer, SequenciaAny> sequenciaAny = new TreeMap<Integer, SequenciaAny>();
+					
+					// eliminam les sequencies actuals
+					for (SequenciaAny sa: command.getSequenciaAny().values()) {
+						sa.setExpedientTipus(null);
+					}
+					command.getSequenciaAny().clear();
+					
+					if (command.isReiniciarCadaAny()) {
+						command.setSequencia(1);
+						String[] seqAny = request.getParameterValues("seqany");
+						String[] seqSeq = request.getParameterValues("seqseq");
+						
+						// afegim les noves
+						if (seqAny != null) {
+							for (int i = 0; i < seqAny.length; i++) {
+								Integer any = null;
+								Long seq = null;
+								try {
+									any = Integer.parseInt(seqAny[i]);
+									if (sequenciaAny.containsKey(any)) {
+										result.rejectValue("", "error.expedientTipus.any.repetit");
+										any = null;
+									}
+								} catch (NumberFormatException ex) {
+									result.rejectValue("", "error.expedientTipus.any.format.any");
+								}
+								try {
+									seq = Long.parseLong(seqSeq[i]);
+								} catch (NumberFormatException ex) {
+									result.rejectValue("", "error.expedientTipus.any.format.sequencia");
+								}
+								if (any != null && seq != null) {
+									sequenciaAny.put(any, new SequenciaAny(command, any, seq));
+								}
+							}
+						}
+						command.setSequenciaAny(sequenciaAny);
+					}
 					annotationValidator.validate(command, result);
 					additionalValidator.validate(command, result);
+					
 			        if (result.hasErrors()) {
 			        	model.addAttribute(
 								"responsableDefecte",

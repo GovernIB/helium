@@ -8,6 +8,78 @@
 	<title><c:choose><c:when test="${empty command.id}"><fmt:message key="expedient.tipus.form.crear_nou"/></c:when><c:otherwise><fmt:message key="expedient.tipus.form.crear_nou"/></c:otherwise></c:choose></title>
 	<meta name="titolcmp" content="<fmt:message key="comuns.disseny"/>"/>
 	<c:import url="../common/formIncludes.jsp"/>
+		
+	<script type="text/javascript">
+		var borrar = "<fmt:message key="comuns.esborrar"/>";
+		function add() {
+			var nFiles = $("#seqs > tbody > tr").length;
+			var classe = "odd";
+			if (nFiles % 2 == 1) classe = "even"; 
+			var nouDiv =	"<tr class='" + classe + "'>\n" +
+							"	<td><input type='text' style='text-align:right; width: 100%;' class='textInput' value='' name='seqany' id='seqany_" + nFiles + "'></td>\n" +
+							"	<td><input type='text' style='text-align:right; width: 100%;' class='textInput' value='' name='seqseq' id='seqseq_" + nFiles + "'></td>\n" +
+							"	<td style='width:16px'><a onclick='remove(" + nFiles +")' href='javascript:void(0)'><img border='0' title='" + borrar + "' alt='" + borrar + "' src='/helium/img/cross.png'></a></td>\n" +
+							"</tr>\n";
+			$("#seqs").append(nouDiv);
+    	}
+		
+		function remove(pos) {
+			$("#seqs > tbody > tr").eq(pos).remove();
+			var i = 0;
+			$("#seqs > tbody > tr").each(function() {
+				if (i % 2 == 0) {
+					$(this).attr('class', 'odd');
+				} else {
+					$(this).attr('class', 'even');
+				}
+				$(this).find("td:nth-child(3) > a").attr("onclick", "remove(" + i + ")");
+				i++;
+			});
+		}
+		
+		function canviReiniciar() {
+			if ($("#reiniciarCadaAny0").is(':checked')) {
+				$("#seqUnica").css("display", "none");
+				$("#seqMultiple").css("display", "");
+			} else {
+				$("#seqUnica").css("display", "");
+				$("#seqMultiple").css("display", "none");
+			}
+		}
+		
+		function validateSeqAny() {
+			var valid = true;
+			$("#seqs > tbody > tr").each(function() {
+				
+				var any = parseInt($(this).find("td:first-child").find("input").val(), 10);
+				var seq = parseInt($(this).find("td:nth-child(2)").find("input").val(), 10);
+				
+				if (isNaN(any) || isNaN(seq)) {
+					if (!$("#seqMultiple").hasClass('error')) {
+						$("#seqMultiple").addClass("error");
+						$("#seqMultiple").prepend("<p class='errorField'><strong><span id='sequencia.errors'><fmt:message key='error.seq.any'/></span></strong></p>");
+					}
+					valid = false;
+				}
+			});
+			return valid;
+		}
+		
+		$(document).ready(function() {
+		    $("form").submit(function(e) {
+		        if (e.originalEvent.type == "submit") {
+		            if (validateSeqAny()) {
+		                return true;
+		            } else {
+		                e.preventDefault();
+		                return false;
+		            }
+		        }
+		    });
+		   
+		    return;
+		});
+</script>
 </head>
 <body>
 
@@ -61,14 +133,45 @@
 				<c:param name="label"><fmt:message key="expedient.tipus.form.expressio"/></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
-				<c:param name="property" value="sequencia"/>
-				<c:param name="label"><fmt:message key="expedient.tipus.form.seq_actual"/></c:param>
-			</c:import>
-			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="reiniciarCadaAny"/>
 				<c:param name="type" value="checkbox"/>
 				<c:param name="label"><fmt:message key="expedient.tipus.form.seq_reiniciar"/></c:param>
+				<c:param name="onchange" value="canviReiniciar()"/>
 			</c:import>
+			<div id="seqUnica" <c:if test="${command.reiniciarCadaAny}">style="display:none;"</c:if>>
+				<c:import url="../common/formElement.jsp">
+					<c:param name="property" value="sequencia"/>
+					<c:param name="label"><fmt:message key="expedient.tipus.form.seq_actual"/></c:param>
+				</c:import>
+			</div>
+			<div id="seqMultiple" class="ctrlHolder" <c:if test="${not command.reiniciarCadaAny}">style="display:none;"</c:if>>
+	 			<p class="label"><fmt:message key="expedient.tipus.form.seq_actuals"/></p>
+	 			<div class="multiField" style="overflow:auto;">
+					<% 
+						String[] classes = {"odd", "even"}; 
+						int i = 0; 
+					%>
+					<table id="seqs" class="displaytag">
+						<thead>
+							<tr>
+								<th><fmt:message key="expedient.tipus.form.any"/></th>
+								<th><fmt:message key="expedient.tipus.form.sequencia"/></th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							<c:forEach var="any" items="${command.sequenciaAny}">
+							<tr class="<%=classes[i%2]%>">
+								<td><input type="text" style="text-align:right; width: 100%;" class="textInput" value="${any.key}" name="seqany" id="seqany_<%=i%>"></td>
+								<td><input type="text" style="text-align:right; width: 100%;" class="textInput" value="${any.value.sequencia}" name="seqseq" id="seqseq_<%=i%>"></td>
+								<td style="width:16px"><a onclick="remove(<%=i++%>)" href="javascript:void(0)"><img border="0" title="Esborrar" alt="Esborrar" src="/helium/img/cross.png"></a></td>
+							</tr>
+							</c:forEach>
+						</tbody>
+					</table>
+					<button onclick="add()" class="submitButton" type="button" style="font-size:11px;margin-top: 2px"><fmt:message key="comuns.afegir"/></button>
+				</div>
+			</div>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="responsableDefecteCodi"/>
 				<c:param name="type" value="suggest"/>
@@ -91,6 +194,7 @@
 			<c:param name="type" value="buttons"/>
 			<c:param name="values">submit,cancel</c:param>
 			<c:param name="titles"><c:choose><c:when test="${empty command.id}"><fmt:message key='comuns.crear' />,<fmt:message key='comuns.cancelar' /></c:when><c:otherwise><fmt:message key='comuns.modificar' />,<fmt:message key='comuns.cancelar' /></c:otherwise></c:choose></c:param>
+<%-- 			<c:param name="onclick" value="validateSeqAny(event)"/> --%>		
 		</c:import>
 	</form:form>
 

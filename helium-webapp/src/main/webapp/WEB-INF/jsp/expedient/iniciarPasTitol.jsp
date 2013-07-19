@@ -23,7 +23,7 @@ function confirmar(e) {
 	return confirm("<fmt:message key='expedient.iniciar.confirm_iniciar' />");
 }
 function canviAny(element) {
-	alert(element.value);
+	//alert(element.value);
 	$('#nomesRefrescar').val('true');
 	$('#command').submit();
 }
