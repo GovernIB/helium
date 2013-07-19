@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.annotation.Resource;
+
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.model.dao.AccioDao;
 import net.conselldemallorca.helium.core.model.dao.AreaJbpmIdDao;
@@ -153,7 +155,9 @@ public class ExpedientService {
 	private ServiceUtils serviceUtils;
 
 	private String textBloqueigIniciExpedient;
-
+	
+//	@Resource
+//	private MesuresTemporalsHelper mesuresTemporalsHelper;
 
 
 	public ExpedientDto getById(Long id) {
@@ -270,7 +274,7 @@ public class ExpedientService {
 									any));
 				}
 			}
-		
+	
 			// Verifica si l'expedient té el número repetit
 			if (expedientDao.findAmbEntornTipusINumero(
 					entornId,
@@ -287,20 +291,22 @@ public class ExpedientService {
 				if (expedientTipus.getAnyActual() == 0) {
 					expedientTipus.setAnyActual(anyActual);
 				} else if (expedientTipus.getAnyActual() != anyActual) {
-					if (expedientTipus.isReiniciarCadaAny())
-						expedientTipus.setSequencia(1);
+//					if (expedientTipus.isReiniciarCadaAny()) {
+//						expedientTipus.setSequencia(1);
+//					}
 					expedientTipus.setSequenciaDefault(1);
 					expedientTipus.setAnyActual(anyActual);
 				}
 			}
 			// Actualitza la seqüència del número d'expedient
-			if (expedientTipus.getExpressioNumero() != null && !"".equals(expedientTipus.getExpressioNumero())) {
+			if (expedientTipus.getTeNumero() && expedientTipus.getExpressioNumero() != null && !"".equals(expedientTipus.getExpressioNumero())) {
 				if (expedient.getNumero().equals(
 						getNumeroExpedientActual(
 								entornId,
 								expedientTipusId,
 								any)))
-					expedientTipus.setSequencia(expedientTipus.getSequencia() + 1);
+//					expedientTipus.setSequencia(expedientTipus.getSequencia() + 1);
+					expedientTipus.updateSequencia(any, 1);
 			}
 			// Actualitza la seqüència del número d'expedient per defecte
 			if (expedient.getNumeroDefault().equals(getNumeroExpedientDefaultActual(entornId, expedientTipusId, any)))
@@ -742,6 +748,7 @@ public class ExpedientService {
 			int maxResults,
 			String sort,
 			boolean asc) {
+//		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS");
 		List<ExpedientTipus> tipus = expedientTipusDao.findAmbEntorn(entornId);
 		getServiceUtils().filterAllowed(
 						tipus,
@@ -772,6 +779,7 @@ public class ExpedientService {
 				sort,
 				asc))
 			resposta.add(dtoConverter.toExpedientDto(expedient, false));
+//		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS");
 		return resposta;
 	}
 	public List<PortasignaturesPendentDto> findAmbEntornPendentPsigna(

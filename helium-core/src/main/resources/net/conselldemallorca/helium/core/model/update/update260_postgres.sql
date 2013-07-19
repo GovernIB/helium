@@ -30,8 +30,16 @@ CREATE TABLE hel_exec_masexp (
         CONSTRAINT hel_expedient_exemasex_fk FOREIGN KEY (expedient_id) REFERENCES public.hel_expedient (id)
 );
 
+--Nous indexos pel millorar el rendiment a la consulta dels camps de la definició de procés
+CREATE INDEX HEL_CAMP_CODI_TIP ON HEL_CAMP (CODI, TIPUS);
+CREATE INDEX HEL_CAMP_COD_TIP_DP ON HEL_CAMP (CODI, TIPUS, DEFINICIO_PROCES_ID);
+
 -- Per a permetre triar l'any en la generació del número d'expedient
 alter table hel_expedient_tipus add seleccionar_any boolean not null set default 0;
+
+-- Nou índex per la taula d'instàncies de tasca
+CREATE INDEX IDX_TASKINST_PROC ON JBPM_TASKINSTANCE (PROCINST_);
+CREATE INDEX IDX_TASKINST_TSK ON JBPM_TASKINSTANCE(TASK_);
 
 -- Actualització a la nova versió --
 insert into hel_versio (
@@ -51,24 +59,3 @@ select
     true script_executat,
     'now' data_execucio_script
 where (select count(*) from hel_versio where ordre = 260) = 0;
-
---Nous indexos pel millorar el rendiment a la consulta dels camps de la definició de procés
-CREATE INDEX
-    HEL_CAMP_CODI_TIP
-ON
-    HEL_CAMP
-    (
-        CODI,
-        TIPUS
-    );
-
-CREATE INDEX
-    HEL_CAMP_COD_TIP_DP
-ON
-    HEL_CAMP
-    (
-        CODI,
-        TIPUS,
-        DEFINICIO_PROCES_ID
-    );
-

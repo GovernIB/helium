@@ -38,6 +38,7 @@ import net.conselldemallorca.helium.core.model.dao.ExpedientTipusDao;
 import net.conselldemallorca.helium.core.model.dao.FirmaTascaDao;
 import net.conselldemallorca.helium.core.model.dao.LuceneDao;
 import net.conselldemallorca.helium.core.model.dao.MapeigSistraDao;
+import net.conselldemallorca.helium.core.model.dao.SequenciaAnyDao;
 import net.conselldemallorca.helium.core.model.dao.TascaDao;
 import net.conselldemallorca.helium.core.model.dao.TerminiDao;
 import net.conselldemallorca.helium.core.model.dao.ValidacioDao;
@@ -131,6 +132,7 @@ public class DissenyService {
 	private ConsultaDao consultaDao;
 	private ConsultaCampDao consultaCampDao;
 	private AccioDao accioDao;
+	private SequenciaAnyDao sequenciaAnyDao;
 
 	private DtoConverter dtoConverter;
 	private JbpmDao jbpmDao;
@@ -765,7 +767,9 @@ public class DissenyService {
 		return saved;
 	}
 	public ExpedientTipus updateExpedientTipus(ExpedientTipus entity) {
-		return expedientTipusDao.merge(entity);
+		ExpedientTipus et = expedientTipusDao.merge(entity);
+		sequenciaAnyDao.clearSequencies();
+		return et;
 	}
 	public void deleteExpedientTipus(Long id) {
 		ExpedientTipus vell = getExpedientTipusById(id);
@@ -1365,6 +1369,13 @@ public class DissenyService {
 			}
 		}
 		dto.setDefinicionsProces(definicionsProces);
+//		List<SequenciaAnyExportacio> seqsAny = new ArrayList<SequenciaAnyExportacio>();
+//		if (expedientTipus.getSequenciaAny() != null) {
+//			for (SequenciaAny sa: expedientTipus.getSequenciaAny().values()) {
+//				seqsAny.add(new SequenciaAnyExportacio(sa.getAny(), sa.getSequencia()));
+//			}
+//		}
+//		dto.setSequenciaAny(seqsAny);
 		return dto;
 	}
 	public void importarExpedientTipus(
@@ -1577,6 +1588,26 @@ public class DissenyService {
 				consultaDao.saveOrUpdate(c);
 			}
 		}
+//		// Crea les sequencies anuals del tipus d'expedient
+//		if (exportacio.getSequenciaAny() != null) {
+//			for (SequenciaAnyExportacio seqAny: exportacio.getSequenciaAny()) {
+//				SequenciaAny sanou = null;
+//				if (expedientTipus.getId() != null) {
+//					sanou = sequenciaAnyDao.findAmbExpedientTipusIAny(
+//						expedientTipus.getId(),
+//						seqAny.getAny());
+//				}
+//				if (sanou == null) {
+//					sanou = new SequenciaAny(
+//							expedientTipus,
+//							seqAny.getAny(),
+//							seqAny.getSequencia());
+//				} else {
+//					sanou.setSequencia(seqAny.getSequencia());
+//				}
+//				sequenciaAnyDao.saveOrUpdate(sanou);
+//			}
+//		}
 		// Importa les definicions de procés
 		if (exportacio.getDefinicionsProces() != null) {
 			for (DefinicioProcesExportacio definicio : exportacio.getDefinicionsProces()) {
@@ -2181,8 +2212,10 @@ public class DissenyService {
 	public void setMessageSource(MessageSource messageSource) {
 		this.messageSource = messageSource;
 	}
-
-
+	@Autowired
+	public void setSequenciaAnyDao(SequenciaAnyDao sequenciaAnyDao) {
+		this.sequenciaAnyDao = sequenciaAnyDao;
+	}
 
 	private DefinicioProcesDto toDto(
 			DefinicioProces definicioProces,
