@@ -120,6 +120,7 @@
 							</c:import>
 						</c:if>
 					</div>
+					
 				</form:form>
 			</c:when>
 			<c:otherwise>
@@ -134,7 +135,7 @@
 
 	<c:if test="${not empty consulta}">
 
-			<form:form action="consultaDissenyResultat.html" commandName="commandFiltre" cssClass="uniForm">
+		<form:form action="consultaDissenyResultat.html" commandName="commandFiltre" cssClass="uniForm">
 			<input type="hidden" name="idsExp" id="idsExp" value="${sessionScope.consultaExpedientsIdsMassiusTE}">
 			<input type="hidden" name="expedientTipusId" id="expedientTipusId" value="${consulta.expedientTipus.id}">
 					<div class="inlineLabels col first">
@@ -172,6 +173,27 @@
 									</c:otherwise>
 								</c:choose>
 						</c:if>
+						<div class="ctrlHolder" align="right">
+							<c:set var="opp"><c:if test='${empty objectsPerPage}'>20</c:if><c:if test='${not empty objectsPerPage}'>${objectsPerPage}</c:if></c:set>
+							<c:set var="copp" value="opp-llista"/>
+							<c:choose>
+								<c:when test="${globalProperties['app.georef.actiu'] && globalProperties['app.gis.plugin.actiu']}">
+									<c:set var="copp" value="opp-llista-gis"/>
+								</c:when>
+								<c:otherwise> 
+									<c:if test="${sessionCommand.massivaActiu}">
+										<c:set var="copp" value="opp-llista-mas"/>
+									</c:if>
+								</c:otherwise>
+							</c:choose>
+							<select id="objectsPerPage" name="objectsPerPage" class="objectsPerPage<c:if test='${not empty consulta}'> ${copp}</c:if>">
+								<option value="10"<c:if test='${opp == "10"}'> selected="selected"</c:if>>10</option>
+								<option value="20"<c:if test='${opp == "20"}'> selected="selected"</c:if>>20</option>
+								<option value="50"<c:if test='${opp == "50"}'> selected="selected"</c:if>>50</option>
+								<option value="100"<c:if test='${opp == "100"}'> selected="selected"</c:if>>100</option>
+							</select>
+							<label for="objectsPerPage" class="objectsPerPage<c:if test='${not empty consulta}'> ${copp}</c:if>"><fmt:message key="comuns.objectsPerPage"/></label>
+						</div>
 						<c:if test="${not empty consulta.informeNom}">
 								<c:choose>
 									<c:when test="${fn:length(expedients.list) > 0}">
@@ -200,6 +222,7 @@
 								</c:choose>
 						</c:if>
 					</div>
+					
 			</form:form>
 			<table >
 				<tr id="disnyTR">
@@ -211,6 +234,7 @@
 					</td>
 				</tr>
 			</table>
+			
 			
 		<c:if test="${not empty sessionScope.expedientTipusConsultaFiltreCommand or not empty sessionScope.expedientTipusConsultaFiltreCommandTE}">
 			

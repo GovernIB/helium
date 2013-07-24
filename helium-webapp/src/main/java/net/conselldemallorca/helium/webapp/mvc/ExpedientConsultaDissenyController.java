@@ -285,7 +285,9 @@ public class ExpedientConsultaDissenyController extends BaseController {
 				commandSeleccio.setMassivaActiu(false);
 			
 			} 
-
+			
+			model.addAttribute("objectsPerPage", objectsPerPage);
+			
 			//***********************
 			
 			if ("massiva".equals(submit)) {
