@@ -1183,8 +1183,6 @@ public class ExpedientLogHelper {
 						String params = expedientLog.getAccioParams();
 						if (params.indexOf("::") != -1)
 							lobj.setValorInicial(params.substring(0, params.indexOf("::")));
-						else
-							lobj.setValorInicial(params);
 					}
 				}
 			} else if (plog instanceof VariableLog) {
