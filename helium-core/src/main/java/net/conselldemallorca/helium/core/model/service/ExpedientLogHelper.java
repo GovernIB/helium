@@ -1184,7 +1184,7 @@ public class ExpedientLogHelper {
 						if (params.indexOf("::") != -1)
 							lobj.setValorInicial(params.substring(0, params.indexOf("::")));
 						else
-							lobj.setValorInicial(params);
+							logger.warn("Paràmetres incorrectes al retrocedir una assignació de tasca (taskId=" + taskInstance.getId() + ", params=" + params + ")");
 					}
 				}
 			} else if (plog instanceof VariableLog) {
