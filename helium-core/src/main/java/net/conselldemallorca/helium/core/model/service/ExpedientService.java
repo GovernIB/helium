@@ -17,8 +17,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.annotation.Resource;
-
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.model.dao.AccioDao;
 import net.conselldemallorca.helium.core.model.dao.AreaJbpmIdDao;
