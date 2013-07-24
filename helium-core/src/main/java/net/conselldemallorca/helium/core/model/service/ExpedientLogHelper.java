@@ -1181,7 +1181,10 @@ public class ExpedientLogHelper {
 					ExpedientLog expedientLog = getExpedientLogPerJbpmLogId(expedientLogs, currentMessageLogId);
 					if (expedientLog != null && expedientLog.getAccioTipus().equals(ExpedientLogAccioTipus.TASCA_REASSIGNAR)) {
 						String params = expedientLog.getAccioParams();
-						lobj.setValorInicial(params.substring(0, params.indexOf("::")));
+						if (params.indexOf("::") != -1)
+							lobj.setValorInicial(params.substring(0, params.indexOf("::")));
+						else
+							lobj.setValorInicial(params);
 					}
 				}
 			} else if (plog instanceof VariableLog) {
