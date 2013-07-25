@@ -418,7 +418,7 @@ CREATE TABLE HEL_EXPEDIENT
 CREATE TABLE HEL_EXPEDIENT_LOG(
   ID                   NUMBER(19)               NOT NULL,
   ACCIO_TIPUS          NUMBER(10)               NOT NULL,
-  ACCIO_PARAMS         VARCHAR2(255 CHAR),
+  ACCIO_PARAMS         VARCHAR2(2048 CHAR),
   DATA                 TIMESTAMP(6)             NOT NULL,
   ESTAT                NUMBER(10)               NOT NULL,
   JBPM_LOGID           NUMBER(19),
