@@ -51,6 +51,9 @@ CREATE TABLE HEL_EXPEDIENT_TIPUS_SEQANY (
   CONSTRAINT hel_exptipus_seqany_fkK FOREIGN KEY (expedient_tipus) REFERENCES public.hel_expedient_tipus(id)
 );
 
+-- Incrementar llargària camp params dels logs de l'expedient
+alter table hel_expedient_log modify accio_params CHARACTER VARYING(2048),;
+
 -- Actualització a la nova versió --
 insert into hel_versio (
     id,
