@@ -58,8 +58,12 @@ public class MesurarTemps {
 				new Integer(0));
 	}
 	public static void mitjaCalcular(String clauMitja, String clauDiferencia) {
-		double mitjaAntiga = getMitjaValors().get(clauMitja).doubleValue();
-		int contador = getMitjaContadors().get(clauMitja).intValue();
+		double mitjaAntiga = 0;
+		if (getMitjaValors().get(clauMitja) != null)
+			mitjaAntiga = getMitjaValors().get(clauMitja).doubleValue();
+		int contador = 0;
+		if (getMitjaContadors().get(clauMitja) != null)
+			contador = getMitjaContadors().get(clauMitja).intValue();
 		long diferencia = diferenciaCalcular(clauDiferencia);
 		diferenciaReiniciar(clauDiferencia);
 		double mitja = (mitjaAntiga * contador + diferencia) / (contador + 1);
@@ -71,7 +75,7 @@ public class MesurarTemps {
 				new Integer(contador + 1));
 	}
 	public static void mitjaImprimirStdout(String clau) {
-		diferenciaImprimirStdout(clau, null);
+		mitjaImprimirStdout(clau, null);
 	}
 	public static void mitjaImprimirStdout(String clau, String text) {
 		String perAfegir = "";
