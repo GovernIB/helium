@@ -116,7 +116,6 @@ public class ExecucioMassivaExpedientDao extends HibernateGenericDao<ExecucioMas
 		return (List<ExecucioMassivaExpedient>)query.list();
 	}
 	
-	@SuppressWarnings("unchecked")
 	public Long getProgresExecucioMassivaByUser(String username) {
 		Long percentatge = 100L;
 		Query query = null;
@@ -142,7 +141,6 @@ public class ExecucioMassivaExpedientDao extends HibernateGenericDao<ExecucioMas
 		return percentatge;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public Long getProgresExecucioMassivaById(Long id) {
 		Long percentatge = 100L;
 		Query query = null;

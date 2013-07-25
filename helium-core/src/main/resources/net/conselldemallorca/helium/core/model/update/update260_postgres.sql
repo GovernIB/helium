@@ -41,6 +41,16 @@ alter table hel_expedient_tipus add seleccionar_any boolean not null set default
 CREATE INDEX IDX_TASKINST_PROC ON JBPM_TASKINSTANCE (PROCINST_);
 CREATE INDEX IDX_TASKINST_TSK ON JBPM_TASKINSTANCE(TASK_);
 
+-- Seqüències del tipus d'expedient
+CREATE TABLE HEL_EXPEDIENT_TIPUS_SEQANY (
+  id BIGINT NOT NULL,
+  any_  BIGINT,
+  sequencia BIGINT,
+  expedient_tipus BIGINT,
+  PRIMARY KEY (id),
+  CONSTRAINT hel_exptipus_seqany_fkK FOREIGN KEY (expedient_tipus) REFERENCES public.hel_expedient_tipus(id)
+);
+
 -- Actualització a la nova versió --
 insert into hel_versio (
     id,

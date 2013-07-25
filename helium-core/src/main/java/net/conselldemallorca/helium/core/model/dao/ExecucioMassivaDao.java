@@ -3,7 +3,6 @@
  */
 package net.conselldemallorca.helium.core.model.dao;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -73,6 +72,7 @@ public class ExecucioMassivaDao extends HibernateGenericDao<ExecucioMassiva, Lon
 		return (Long)query.uniqueResult();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public String getExecucioMassivaTasca(Long execucioMassivaId) {
 		String tasca = null;
 		Query query = null;
@@ -80,7 +80,6 @@ public class ExecucioMassivaDao extends HibernateGenericDao<ExecucioMassiva, Lon
 				"select e " +
 				"from	ExecucioMassivaExpedient e " +
 				"where 	e.execucioMassiva.id =	" + execucioMassivaId);
-		
 		List<ExecucioMassivaExpedient> exps = (List<ExecucioMassivaExpedient>)query.list();
 		if (exps != null && !exps.isEmpty()) {
 			tasca = exps.get(0).getTascaId();

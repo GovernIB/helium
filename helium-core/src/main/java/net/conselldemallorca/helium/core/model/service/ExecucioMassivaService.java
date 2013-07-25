@@ -855,7 +855,6 @@ public class ExecucioMassivaService {
 			if (params[1] != null) tascaId = (Long)params[1];
 			
 			int numReassignar = 0;
-			int numReassignades = 0;
 			// Obtenim la tasca
 			List<InstanciaProcesDto> instanciesProces = expedientService.getArbreInstanciesProces(exp.getProcessInstanceId());
 			for (InstanciaProcesDto ip: instanciesProces) {
@@ -871,7 +870,6 @@ public class ExecucioMassivaService {
 									tasca.getId(),
 									dto.getParam1(),
 									dto.getUsuari());
-							numReassignades++;
 						}
 					}
 				}
