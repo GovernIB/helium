@@ -33,6 +33,8 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 @Table(name="hel_expedient_log")
 public class ExpedientLog implements Serializable, GenericEntity<Long> {
 
+	private static int MAX_PARAMETERS_LENGTH = 2048;
+	
 	public enum ExpedientLogAccioTipus {
 		PROCES_VARIABLE_CREAR,			// 0
 		PROCES_VARIABLE_MODIFICAR,
@@ -90,7 +92,7 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 	@NotBlank
 	@MaxLength(255)
 	private String usuari;
-	@MaxLength(255)
+	@MaxLength(2048)
 	private String accioParams;
 	@NotNull
 	private Date data = new Date();
@@ -138,18 +140,17 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 		this.usuari = usuari;
 	}
 
-	@Column(name="accio_params", length=255, nullable=true)
+	@Column(name="accio_params", length=2048, nullable=true)
 	public String getAccioParams() {
 		return accioParams;
 	}
 	public void setAccioParams(String accioParams) {
-		if(accioParams!=null){
-			if(accioParams.length()>255){
-				this.accioParams = accioParams.substring(0, 255);
-			}else{
+		if (accioParams != null) {
+			if (accioParams.length() > MAX_PARAMETERS_LENGTH)
+				this.accioParams = accioParams.substring(0, MAX_PARAMETERS_LENGTH);
+			else
 				this.accioParams = accioParams;
-			}
-		}else{
+		} else {
 			this.accioParams = accioParams;
 		}
 	}
