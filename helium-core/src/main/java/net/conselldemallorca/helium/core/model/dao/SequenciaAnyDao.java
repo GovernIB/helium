@@ -7,14 +7,14 @@ import java.util.List;
 
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * Dao pels objectes tipus SequenciaAny
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Repository
+@Component
 public class SequenciaAnyDao extends HibernateGenericDao<SequenciaAny, Long> {
 
 	public SequenciaAnyDao() {

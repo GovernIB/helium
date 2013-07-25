@@ -432,7 +432,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 		getEnumeracions().remove(enumeracio);
 	}
 
-	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
+	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL}, orphanRemoval=true)
 	@MapKey(name = "any")
 	@Sort(type = SortType.NATURAL)
 	public SortedMap<Integer, SequenciaAny> getSequenciaAny() {

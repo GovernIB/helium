@@ -15,8 +15,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.ForeignKey;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
@@ -60,7 +58,6 @@ public class SequenciaAny implements Serializable, GenericEntity<Long> {
 	@ManyToOne(optional=true)
 	@JoinColumn(name="expedient_tipus")
 	@ForeignKey(name="hel_exptipus_seqany_fk")
-	@Cascade({CascadeType.DELETE_ORPHAN})
 	public ExpedientTipus getExpedientTipus() {
 		return expedientTipus;
 	}
