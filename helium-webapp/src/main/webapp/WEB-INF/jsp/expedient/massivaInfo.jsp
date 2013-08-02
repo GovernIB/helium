@@ -205,7 +205,7 @@ $(document).ready(function(){
 <body>
 
 	<div class="missatgesBlau">
-		<h3 class="titol-tab titol-massiva"><fmt:message key="expedient.massiva.info"/> <img src="<c:url value="/img/magnifier_zoom_in.png"/>" alt="<fmt:message key="expedient.massiva.mos_ocul"/>" title="<fmt:message key="expedient.massiva.mos_ocul"/>" border="0" onclick="mostrarOcultar(this,'info-massiva')"/></h3>
+		<h3 class="titol-tab titol-massiva"><fmt:message key="expedient.massiva.info"/> (${fn:length(expedients)}) <img src="<c:url value="/img/magnifier_zoom_in.png"/>" alt="<fmt:message key="expedient.massiva.mos_ocul"/>" title="<fmt:message key="expedient.massiva.mos_ocul"/>" border="0" onclick="mostrarOcultar(this,'info-massiva')"/></h3>
 		<div id="info-massiva" style="display:none">
 			<display:table name="expedients" id="registre" requestURI="" class="displaytag selectable">
 				<c:set var="filaStyle" value=""/>

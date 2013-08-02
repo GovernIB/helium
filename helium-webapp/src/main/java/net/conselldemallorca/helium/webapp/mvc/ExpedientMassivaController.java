@@ -914,11 +914,11 @@ public class ExpedientMassivaController extends BaseController {
 	}
 	
 	
-	@RequestMapping(value = "/expedient/massivaIds")
+	@RequestMapping(value = "/expedient/massivaIds", method = RequestMethod.POST)
 	public String consultaMassiva(
 			HttpServletRequest request,
 			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
-			@RequestParam(value = "expedientId", required = true) Long expedientId,
+			@RequestParam(value = "expedientId[]", required = true) Long[] expedientId,
 			@RequestParam(value = "checked", required = true) boolean checked,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
@@ -938,12 +938,14 @@ public class ExpedientMassivaController extends BaseController {
 				ids.clear();
 				ids.add(expedientTipusId);
 			}
-			if (checked) {
-				ids.add(expedientId);
-			} else {
-				ids.remove(expedientId);
-				if (ids.size() == 1)
-					ids.clear();
+			for (Long eid: expedientId) {
+				if (checked) {
+					ids.add(eid);
+				} else {
+					ids.remove(eid);
+					if (ids.size() == 1)
+						ids.clear();
+				}
 			}
 		}
 		return null;
@@ -951,11 +953,11 @@ public class ExpedientMassivaController extends BaseController {
 	
 	
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/expedient/massivaIdsTE")
+	@RequestMapping(value = "/expedient/massivaIdsTE", method = RequestMethod.POST)
 	public String consultaMassivaTE(
 			HttpServletRequest request,
 			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
-			@RequestParam(value = "expedientId", required = true) Long expedientId,
+			@RequestParam(value = "expedientId[]", required = true) Long[] expedientId,
 			@RequestParam(value = "checked", required = true) boolean checked,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
@@ -976,12 +978,14 @@ public class ExpedientMassivaController extends BaseController {
 				ids.clear();
 				ids.add(expedientTipusId);
 			}
-			if (checked) {
-				ids.add(expedientId);
-			} else {
-				ids.remove(expedientId);
-				if (ids.size() == 1)
-					ids.clear();
+			for (Long eid: expedientId) {
+				if (checked) {
+					ids.add(eid);
+				} else {
+					ids.remove(eid);
+					if (ids.size() == 1)
+						ids.clear();
+				}
 			}
 		}
 		return null;
@@ -1485,8 +1489,6 @@ public class ExpedientMassivaController extends BaseController {
 			return clazz.isAssignableFrom(ExpedientEinesReassignarCommand.class);
 		}
 		public void validate(Object obj, Errors errors) {
-			ExpedientEinesReassignarCommand command = (ExpedientEinesReassignarCommand)obj;
-			
 			if ("user".equals(tipus)) {
 				ValidationUtils.rejectIfEmpty(errors, "usuari", "not.blank");
 			} else if ("grup".equals(tipus)) {

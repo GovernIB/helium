@@ -41,47 +41,30 @@
 	 	}
 	 	if (e.stopPropagation) e.stopPropagation();
 	}
-	
-	
+
 	function clicCheckMassiu(e) {
 		var e = e || window.event;
 		e.cancelBubble = true;
 		if (e.stopPropagation) e.stopPropagation();
-		$.get(	"massivaIdsTE.html",
-				{	expedientTipusId: "${consulta.expedientTipus.id}",
-					expedientId: (e.target || e.srcElement).value,
-					checked: (e.target || e.srcElement).checked
-				});
+		var ids = new Array();
+		ids.push((e.target || e.srcElement).value);
+		$.post("massivaIdsTE.html", {
+			expedientTipusId: "${consulta.expedientTipus.id}",
+			expedientId: ids,
+			checked: (e.target || e.srcElement).checked
+		});
 	}
-	
-	function simularClick(valor,xec){
-		$.get(	"massivaIdsTE.html",
-				{	expedientTipusId: "${consulta.expedientTipus.id}",
-					expedientId: valor,
-					checked: xec
-				});
-	}
-	
-	function selTots(e){
-		var e = e || window.event;
-		e.cancelBubble = true;
-		if (e.stopPropagation) e.stopPropagation();
-		var versio =  $.browser.version;
-		var ch = $("#selTots").prop('checked');
-		if(!ch){
-			$("#registre input[type='checkbox'][name='expedientId']").each(function(){
-				if($(this).is(':checked')){
-					simularClick($(this).val(),false);
-				}
-			}).prop("checked",false);
-		}else{
-			$("#registre input[type='checkbox'][name='expedientId']").each(function(){
-				if(!$(this).is(':checked')){
-					simularClick($(this).val(),true);
-				}
-				
-			}).prop("checked",true);
-		}
+	function selTots(){
+		var ch = $("#selTots:checked").val();
+		var ids = new Array();
+		$("#registre input[type='checkbox'][name='expedientId']").each(function() {
+			ids.push($(this).val());
+		}).attr("checked", (!ch) ? false : true);
+		$.post("massivaIdsTE.html", {
+			expedientTipusId: "${consulta.expedientTipus.id}",
+			expedientId: ids,
+			checked: (!ch) ? false : true
+		});
 	}
 
 // ]]>
