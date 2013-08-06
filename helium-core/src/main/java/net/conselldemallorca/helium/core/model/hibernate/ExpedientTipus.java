@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.core.model.hibernate;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -444,6 +445,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	}
 
 	public void updateSequencia(Integer any, long increment) {
+		if (any == null) any = Calendar.getInstance().get(Calendar.YEAR);
 		if (this.isReiniciarCadaAny()) {
 			if (this.getSequenciaAny().containsKey(any)) {
 				this.getSequenciaAny().get(any).setSequencia(this.getSequenciaAny().get(any).getSequencia() + increment);
