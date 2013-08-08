@@ -189,7 +189,7 @@ public class ExecucioMassivaService {
 						titol = getMessage("expedient.massiva.actualitzar.dp") + " " + expedient.getExecucioMassiva().getParam1();
 					}
 			    	String error = expedient.getError();
-			    	if (error != null) error = error.replace("'", "&#8217;").replace("\"", "&#8220;").replace("\n", "\\n");
+			    	if (error != null) error = error.replace("'", "&#8217;").replace("\"", "&#8220;").replace("\n", "<br>").replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
 			    	json_exp += "{\"id\":\"" + expedient.getId() + "\",";
 			    	json_exp += "\"titol\":\"" + titol + "\",";
 			    	json_exp += "\"estat\":\"" + expedient.getEstat().name() + "\",";

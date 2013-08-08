@@ -67,38 +67,53 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			return expedients.get(0);
 		return null;
 	}
+	// TODO: revisar aquestes dues consultes, ja que haurien de tenir un resultat únic!!
 	public Expedient findAmbEntornTipusINumero(
 			Long entornId,
 			Long expedientTipusId,
 			String numero) {
-		Query query = getSession().createQuery(
-				"from " +
-				"    Expedient e " +
-				"where " +
-				"    e.entorn.id=? " +
-				"and e.tipus.id=? " +
-				"and e.numero=? ").
-				setLong(0, entornId).
-				setLong(1, expedientTipusId).
-				setString(2, numero);
-		return (Expedient)query.uniqueResult();
+//		Query query = getSession().createQuery(
+//				"from " +
+//				"    Expedient e " +
+//				"where " +
+//				"    e.entorn.id=? " +
+//				"and e.tipus.id=? " +
+//				"and e.numero=? ").
+//				setLong(0, entornId).
+//				setLong(1, expedientTipusId).
+//				setString(2, numero);
+//		return (Expedient)query.uniqueResult();
+		List<Expedient> expedients = findByCriteria(
+				Restrictions.eq("entorn.id", entornId),
+				Restrictions.eq("tipus.id", expedientTipusId),
+				Restrictions.eq("numero", numero));
+		if (expedients.size() > 0)
+			return expedients.get(0);
+		return null;
 	}
 	
 	public Expedient findAmbEntornTipusINumeroDefault(
 			Long entornId,
 			Long expedientTipusId,
 			String numeroDefault) {
-		Query query = getSession().createQuery(
-				"from " +
-				"    Expedient e " +
-				"where " +
-				"    e.entorn.id=? " +
-				"and e.tipus.id=? " +
-				"and e.numeroDefault=? ").
-				setLong(0, entornId).
-				setLong(1, expedientTipusId).
-				setString(2, numeroDefault);
-		return (Expedient)query.uniqueResult();
+//		Query query = getSession().createQuery(
+//				"from " +
+//				"    Expedient e " +
+//				"where " +
+//				"    e.entorn.id=? " +
+//				"and e.tipus.id=? " +
+//				"and e.numeroDefault=? ").
+//				setLong(0, entornId).
+//				setLong(1, expedientTipusId).
+//				setString(2, numeroDefault);
+//		return (Expedient)query.uniqueResult();
+		List<Expedient> expedients = findByCriteria(
+				Restrictions.eq("entorn.id", entornId),
+				Restrictions.eq("tipus.id", expedientTipusId),
+				Restrictions.eq("numeroDefault", numeroDefault));
+		if (expedients.size() > 0)
+			return expedients.get(0);
+		return null;
 	}
 
 	public int countAmbEntornConsultaGeneral(
