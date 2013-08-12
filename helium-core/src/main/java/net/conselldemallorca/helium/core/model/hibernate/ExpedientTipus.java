@@ -106,7 +106,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	private Set<Enumeracio> enumeracions = new HashSet<Enumeracio>();
 	
 	private SortedMap<Integer, SequenciaAny> sequenciaAny = new TreeMap<Integer, SequenciaAny>();
-
+	private SortedMap<Integer, SequenciaDefaultAny> sequenciaDefaultAny = new TreeMap<Integer, SequenciaDefaultAny>();
 
 	public ExpedientTipus() {}
 	public ExpedientTipus(String codi, String nom, Entorn entorn) {
@@ -443,6 +443,16 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	public void setSequenciaAny(SortedMap<Integer, SequenciaAny> sequenciaAny) {
 		this.sequenciaAny = sequenciaAny;
 	}
+	
+	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
+	@MapKey(name = "any")
+	@Sort(type = SortType.NATURAL)
+	public SortedMap<Integer, SequenciaDefaultAny> getSequenciaDefaultAny() {
+		return sequenciaDefaultAny;
+	}
+	public void setSequenciaDefaultAny(SortedMap<Integer, SequenciaDefaultAny> sequenciaDefaultAny) {
+		this.sequenciaDefaultAny = sequenciaDefaultAny;
+	}
 
 	public void updateSequencia(Integer any, long increment) {
 		if (any == null) any = Calendar.getInstance().get(Calendar.YEAR);
@@ -455,6 +465,20 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 			}
 		} else {
 			this.sequencia = this.sequencia + increment;
+		}
+	}
+	
+	public void updateSequenciaDefault(Integer any, long increment) {
+		if (any == null) any = Calendar.getInstance().get(Calendar.YEAR);
+		if (this.isReiniciarCadaAny()) {
+			if (this.getSequenciaDefaultAny().containsKey(any)) {
+				this.getSequenciaDefaultAny().get(any).setSequenciaDefault(this.getSequenciaDefaultAny().get(any).getSequenciaDefault() + increment);
+			} else {
+				SequenciaDefaultAny sda = new SequenciaDefaultAny(this, any, increment);
+				this.getSequenciaDefaultAny().put(any, sda);
+			}
+		} else {
+			this.sequenciaDefault = this.sequenciaDefault + increment;
 		}
 	}
 	

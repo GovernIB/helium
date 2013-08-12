@@ -268,7 +268,7 @@ public class ExpedientService {
 			expedient.setNumeroDefault(
 					getNumeroExpedientDefaultActual(
 							entornId,
-							expedientTipusId,
+							expedientTipus,
 							any));
 			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "2");
 			if (expedientTipus.getTeNumero()) {
@@ -278,7 +278,7 @@ public class ExpedientService {
 					expedient.setNumero(
 							getNumeroExpedientActual(
 									entornId,
-									expedientTipusId,
+									expedientTipus,
 									any));
 				}
 			}
@@ -300,11 +300,11 @@ public class ExpedientService {
 			if (any == null || any.intValue() == anyActual) {
 				if (expedientTipus.getAnyActual() == 0) {
 					expedientTipus.setAnyActual(anyActual);
-				} else if (expedientTipus.getAnyActual() != anyActual) {
+				} else if (expedientTipus.getAnyActual() < anyActual) {
 //					if (expedientTipus.isReiniciarCadaAny()) {
 //						expedientTipus.setSequencia(1);
 //					}
-					expedientTipus.setSequenciaDefault(1);
+//					expedientTipus.setSequenciaDefault(1);
 					expedientTipus.setAnyActual(anyActual);
 				}
 			}
@@ -314,19 +314,21 @@ public class ExpedientService {
 				if (expedient.getNumero().equals(
 						getNumeroExpedientActual(
 								entornId,
-								expedientTipusId,
+								expedientTipus,
 								any)))
 //					expedientTipus.setSequencia(expedientTipus.getSequencia() + 1);
 					expedientTipus.updateSequencia(any, 1);
 			}
 			// Actualitza la seqüència del número d'expedient per defecte
-			if (expedient.getNumeroDefault().equals(getNumeroExpedientDefaultActual(entornId, expedientTipusId, any)))
-				expedientTipus.setSequenciaDefault(expedientTipus.getSequenciaDefault() + 1);
+			if (expedient.getNumeroDefault().equals(getNumeroExpedientDefaultActual(entornId, expedientTipus, any)))
+//				expedientTipus.setSequenciaDefault(expedientTipus.getSequenciaDefault() + 1);
+				expedientTipus.updateSequenciaDefault(any, 1);
 			// Configura el títol de l'expedient
 			if (expedientTipus.getTeTitol()) {
 				if (titol != null && titol.length() > 0)
 					expedient.setTitol(titol);
 				else
+					// TODO: multiidioma
 					expedient.setTitol("[Sense títol]");
 			}
 			// Inicia l'instància de procés jBPM
@@ -417,43 +419,51 @@ public class ExpedientService {
 
 	public String getNumeroExpedientActual(
 			Long entornId,
-			Long expedientTipusId,
+			ExpedientTipus expedientTipus,
 			Integer any) {
 		long increment = 0;
 		String numero = null;
 		Expedient expedient = null;
+		if (any == null) 
+			any = Calendar.getInstance().get(Calendar.YEAR);
 		do {
 			numero = expedientTipusDao.getNumeroExpedientActual(
-					expedientTipusId,
-					(any != null) ? any.intValue() : Calendar.getInstance().get(Calendar.YEAR),
+					expedientTipus.getId(),
+					any.intValue(),
 					increment);
 			expedient = expedientDao.findAmbEntornTipusINumero(
 					entornId,
-					expedientTipusId,
+					expedientTipus.getId(),
 					numero);
 			increment++;
 		} while (expedient != null);
+		if (increment > 1)
+			expedientTipus.updateSequencia(any, increment - 1);
 		return numero;
 	}
 	
 	public String getNumeroExpedientDefaultActual(
 			Long entornId,
-			Long expedientTipusId,
+			ExpedientTipus expedientTipus,
 			Integer any) {
 		long increment = 0;
 		String numero = null;
 		Expedient expedient = null;
+		if (any == null) 
+			any = Calendar.getInstance().get(Calendar.YEAR);
 		do {
 			numero = expedientTipusDao.getNumeroExpedientDefaultActual(
-					expedientTipusId,
-					(any != null) ? any.intValue() : Calendar.getInstance().get(Calendar.YEAR),
+					expedientTipus.getId(),
+					any.intValue(),
 					increment);
 			expedient = expedientDao.findAmbEntornTipusINumeroDefault(
 					entornId,
-					expedientTipusId,
+					expedientTipus.getId(),
 					numero);
 			increment++;
 		} while (expedient != null);
+		if (increment > 1)
+			expedientTipus.updateSequenciaDefault(any, increment - 1);
 		return numero;
 	}
 

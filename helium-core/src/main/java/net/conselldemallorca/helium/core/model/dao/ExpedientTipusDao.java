@@ -9,6 +9,7 @@ import java.util.Map;
 
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
+import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 
 import org.hibernate.criterion.Restrictions;
@@ -63,7 +64,8 @@ public class ExpedientTipusDao extends HibernateGenericDao<ExpedientTipus, Long>
 				seq,
 				increment,
 				any,
-				expedientTipus.isReiniciarCadaAny());
+				expedientTipus.isReiniciarCadaAny(),
+				false);
 	}
 	
 	public String getNumeroExpedientDefaultActual(
@@ -78,6 +80,7 @@ public class ExpedientTipusDao extends HibernateGenericDao<ExpedientTipus, Long>
 				seq,
 				increment,
 				any,
+				true, 
 				true);
 	}
 
@@ -89,16 +92,30 @@ public class ExpedientTipusDao extends HibernateGenericDao<ExpedientTipus, Long>
 			long seq,
 			long increment,
 			int any,
-			boolean reiniciarCadaAny) {
+			boolean reiniciarCadaAny,
+			boolean numeroDefault) {
 		if (reiniciarCadaAny) {
 			if (any != 0) {
-				if (expedientTipus.getSequenciaAny().containsKey(any)) {
-					seq = expedientTipus.getSequenciaAny().get(any).getSequencia() + increment;
+				if (numeroDefault) {
+					if (expedientTipus.getSequenciaDefaultAny().containsKey(any)) {
+						seq = expedientTipus.getSequenciaDefaultAny().get(any).getSequenciaDefault() + increment;
+					} else {
+						// TODO: podriem comprovar, segons el format del número per defecte si hi ha expedients ja creats de 
+						// l'any, i d'aquesta manera assignar com a número inicial el major utilitzat + 1
+						SequenciaDefaultAny sda = new SequenciaDefaultAny(expedientTipus, any, 1L);
+						expedientTipus.getSequenciaDefaultAny().put(any, sda);
+						saveOrUpdate(expedientTipus);
+						seq = 1;
+					}
 				} else {
-					SequenciaAny sa = new SequenciaAny(expedientTipus, any, 1L);
-					expedientTipus.getSequenciaAny().put(any, sa);
-					saveOrUpdate(expedientTipus);
-					seq = 1;
+					if (expedientTipus.getSequenciaAny().containsKey(any)) {
+						seq = expedientTipus.getSequenciaAny().get(any).getSequencia() + increment;
+					} else {
+						SequenciaAny sa = new SequenciaAny(expedientTipus, any, 1L);
+						expedientTipus.getSequenciaAny().put(any, sa);
+						saveOrUpdate(expedientTipus);
+						seq = 1;
+					}
 				}
 			}
 		} else {
