@@ -54,6 +54,9 @@ CREATE TABLE HEL_EXPEDIENT_TIPUS_SEQANY (
 -- Incrementar llargària camp params dels logs de l'expedient
 alter table hel_expedient_log modify accio_params CHARACTER VARYING(2048),;
 
+ALTER TABLE hel_expedient ADD COLUMN error_desc CHARACTER VARYING(255);
+ALTER TABLE hel_expedient ADD COLUMN error_full text;
+
 -- Actualització a la nova versió --
 insert into hel_versio (
     id,
