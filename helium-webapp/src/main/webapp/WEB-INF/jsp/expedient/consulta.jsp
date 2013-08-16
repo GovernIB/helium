@@ -49,39 +49,78 @@ function confirmarEsborrar(e) {
 	if (e.stopPropagation) e.stopPropagation();
 	return confirm("<fmt:message key="expedient.consulta.confirm.esborrar"/>");
 }
+
 function confirmarAnular(e, registre) {
 	var resposta="";
 	$("#id").val(registre);
 	var e = e || window.event;
 	e.cancelBubble = true;
-	
-	//if (e.stopPropagation) e.stopPropagation();
-	//return confirm("<fmt:message key="expedient.consulta.confirm.anular"/>"); 
+
 	var confirmaAnula = confirm("<fmt:message key="expedient.consulta.confirm.anular"/>"); 
  	if (confirmaAnula){	
  		resposta = prompt("Introdueix el motiu de l'anul·lació",'');
  		$("#motiu").val(resposta);
- 	}
+
+ 		if(resposta != null){
+ 	 		document.forms["anularMot"].submit();
+ 	 	}
+ 	} 	
  	
- 	if(resposta!="null"){
- 		document.forms["anularMot"].submit();
- 		//return;
- 	}
- 	if (e.stopPropagation) e.stopPropagation();
- 		
+ 	if (e.stopPropagation) e.stopPropagation(); 		
 }
 
+$(function() {
+	$( "#dialog-error-user" ).dialog({
+		autoOpen: false,
+		height: 120,
+		width: 1000,
+		modal: true,
+		resizable: true
+	});
+	$( "#dialog-error-admin" ).dialog({
+		autoOpen: false,
+		height: 480,
+		width: 1000,
+		modal: true,
+		resizable: true
+	});
+});
 
+function alertaErrorUser(e, desc) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	
+	var text = desc + "<br/><br/>Póngase en contacto con el responsable del expediente.";
+	$("#dialog-error-user").html(text);
+	$("#dialog-error-user").data('title.dialog', 'Error en la ejecución del expediente'); 
+	$("#dialog-error-user").dialog( "open" );
+	if (e.stopPropagation) e.stopPropagation();
+	
+	return false;
+}
 
+function alertaErrorAdmin(e, id, desc, full) {
+	var e = e || window.event;
+	e.cancelBubble = true;
 
+	var text = desc + "<br/><br/>Póngase en contacto con el responsable del expediente.";
+	$("#dialog-error-admin").html(text+"<br/><br/>"+full+$("#dialog-error-admin").html());
+	$("#processInstanceId").val(id);
+	$("#dialog-error-admin").data('title.dialog', 'Error en la ejecución del expediente'); 
+	$("#dialog-error-admin").dialog( "open" );
+
+	if (e.stopPropagation) e.stopPropagation();
+	
+	return false;
+}
 
 function confirmarDesAnular(e) {
-var e = e || window.event;
+	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
-	return confirm("<fmt:message key="expedient.consulta.confirm.desanular"/>");
-	
+	return confirm("<fmt:message key="expedient.consulta.confirm.desanular"/>");	
 }
+
 function obreVisorGis() {
     var sUrl;
 	var piis = new Array();
@@ -149,6 +188,14 @@ function selTots(){
 </script>
 </head>
 <body>
+	<div id="dialog-error-user" title="Error" style="display:none">
+	</div>
+	<div id="dialog-error-admin" title="Error" style="display:none">
+		<form method="POST" action="<c:url value="/expedient/limpiarTrazaError.html"/>">
+			<input id="processInstanceId" name="processInstanceId" value="" type="hidden"/>
+			<button type="submit" class="submitButton right"><fmt:message key="expedient.consulta.netejar"/></button>
+		</form>
+	</div>
 
 	<form:form action="consulta.html" cssClass="uniForm">
 		<div class="inlineLabels col first">
@@ -379,11 +426,22 @@ function selTots(){
 					<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,1,128">
 						<a href="<c:url value="/expedient/info.html"><c:param name="id" value="${registre.processInstanceId}"/></c:url>"><img src="<c:url value="/img/information.png"/>" alt="<fmt:message key="comuns.informacio"/>" title="<fmt:message key="comuns.informacio"/>" border="0"/></a>
 					</security:accesscontrollist>
+					<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,32">
+						<c:set var="permisosAdmin" value="${true}"/>
+						<c:if test="${not empty registre.errorDesc}">
+							<a href="javascript:void(0);" onclick="return alertaErrorAdmin(event, ${registre.processInstanceId}, '${registre.errorDesc}', '${registre.errorFull}')"><img src="<c:url value="/img/mass_error.png"/>" alt="${registre.errorDesc}" title="${registre.errorDesc}" border="0"/></a>
+						</c:if>
+					</security:accesscontrollist>
+					<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,32">
+						<c:if test="${not empty registre.errorDesc && !permisosAdmin}">
+							<a href="javascript:void(0);" onclick="return alertaErrorUser(event, '${registre.errorDesc}')"><img src="<c:url value="/img/mass_error.png"/>" alt="${registre.errorDesc}" title="${registre.errorDesc}" border="0"/></a>
+						</c:if>
+					</security:accesscontrollist>
 				</display:column>
 				<display:column>
 					<security:accesscontrollist domainObject="${registre.tipus}" hasPermission="16,2">
 						<c:if test="${!registre.anulat}">
-							<a href="javascript:void(0);" onclick="confirmarAnular(event, ${registre.id})"><img src="<c:url value="/img/delete.png"/>" alt="<fmt:message key="comuns.anular"/>" title="<fmt:message key="comuns.anular"/>" border="0"/></a>
+							<a href="javascript:void(0);" onclick="return confirmarAnular(event, ${registre.id})"><img src="<c:url value="/img/delete.png"/>" alt="<fmt:message key="comuns.anular"/>" title="<fmt:message key="comuns.anular"/>" border="0"/></a>
 						</c:if>
 						<c:if test="${registre.anulat}">
 							<a href="<c:url value="/expedient/desanular.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmarDesAnular(event)"><img src="<c:url value="/img/arrow_undo.png"/>" alt="<fmt:message key="comuns.desanular"/>" title="<fmt:message key="comuns.desanular"/>" border="0"/></a>

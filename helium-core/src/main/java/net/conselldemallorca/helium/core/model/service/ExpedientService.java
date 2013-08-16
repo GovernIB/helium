@@ -17,8 +17,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.annotation.Resource;
-
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.model.dao.AccioDao;
 import net.conselldemallorca.helium.core.model.dao.AreaJbpmIdDao;
@@ -1632,6 +1630,14 @@ public class ExpedientService {
 				token.getFullName(),
 				nodeNameVell,
 				nodeName);
+	}
+
+	public Expedient updateExpedientError(String processInstanceId, String errorDesc, String errorFull) {
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(processInstanceId);
+		expedient.setErrorDesc(errorDesc);
+		expedient.setErrorFull(errorFull);
+		expedient = expedientDao.saveOrUpdate(expedient);
+		return expedient;
 	}
 
 	public Object evaluateScript(

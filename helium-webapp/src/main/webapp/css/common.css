@@ -231,6 +231,11 @@ form.accio-titol {
 	margin: 2px 0 0 4px;
 }
 
+button.right {
+	float: right;
+	margin: 20px 0 20px 4px;
+}
+
 h3.titol-tab {
 	padding: 8px 0 12px 0;
     color: #666;

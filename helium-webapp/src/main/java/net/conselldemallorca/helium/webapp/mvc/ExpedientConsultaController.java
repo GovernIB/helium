@@ -129,6 +129,17 @@ public class ExpedientConsultaController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
+	
+	@RequestMapping(value = "/expedient/limpiarTrazaError.html", method = RequestMethod.POST)
+	public String limpiarTrazaError(
+			HttpServletRequest request,
+			@RequestParam(value = "objectsPerPage", required = false) String objectsPerPage,
+			@RequestParam(value = "processInstanceId", required = false) String id,
+			ModelMap model) {
+		expedientService.updateExpedientError(id, null, null);
+		return "redirect:/expedient/consulta.html?objectsPerPage=" + objectsPerPage;
+	}
+			
 	@RequestMapping(value = "/expedient/consulta", method = RequestMethod.POST)
 	public String consultaPost(
 			HttpServletRequest request,

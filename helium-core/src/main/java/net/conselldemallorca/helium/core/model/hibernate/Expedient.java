@@ -20,6 +20,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -117,6 +118,10 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	private String tramitExpedientIdentificador;
 	@MaxLength(255)
 	private String tramitExpedientClau;
+	
+	@MaxLength(255)
+	private String errorDesc;
+	private String errorFull;
 
 	private boolean errorsIntegracions;
 
@@ -428,6 +433,23 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 		this.errorsIntegracions = errorsIntegracions;
 	}
 
+	@Column(name="error_desc")
+	public String getErrorDesc() {
+		return errorDesc;
+	}
+	public void setErrorDesc(String errorDesc) {
+		this.errorDesc = errorDesc;
+	}
+	
+	@Lob
+	@Column(name="error_full")
+	public String getErrorFull() {
+		return errorFull;
+	}
+	public void setErrorFull(String errorFull) {
+		this.errorFull = errorFull;
+	}
+	
 	@ManyToOne(optional=true)
 	@JoinColumn(name="estat_id")
 	@ForeignKey(name="hel_estat_expedient_fk")

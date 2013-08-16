@@ -150,6 +150,8 @@ public class DtoConverter {
 		dto.setAvisosHabilitats(expedient.isAvisosHabilitats());
 		dto.setAvisosEmail(expedient.getAvisosEmail());
 		dto.setAvisosMobil(expedient.getAvisosMobil());
+		dto.setErrorDesc(expedient.getErrorDesc());
+		dto.setErrorFull(expedient.getErrorFull());
 		dto.setNotificacioTelematicaHabilitada(expedient.isNotificacioTelematicaHabilitada());
 		dto.setTramitExpedientIdentificador(expedient.getTramitExpedientIdentificador());
 		dto.setTramitExpedientClau(expedient.getTramitExpedientClau());
