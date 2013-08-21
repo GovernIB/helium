@@ -33,6 +33,7 @@
 		<property name="lockBufferTime" value="5000" /><!-- 5 seconds -->
 		<property name="globalProperties" ref="globalProperties" />
 		<property name="expedientService" ref="expedientService" />
+		<property name="adminService" ref="adminService" />
 	</bean>
 	
 	<bean id="jbpm.massiva.executor" class="net.conselldemallorca.helium.jbpm3.spring.SpringMassiuExecutor">

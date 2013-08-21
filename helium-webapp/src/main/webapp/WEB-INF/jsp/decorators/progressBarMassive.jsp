@@ -13,12 +13,16 @@
 <div id="dialog-error" title="Error" style="display:none">
   <p id="mass-error"></p>
 </div>
+<div class="dialog-form-temps" id="dialog-form-temps" style="display:none" title="<fmt:message key='expedient.mesura.temps' />">
+	<div id="temps_contens"></div>
+</div>
 <div class="wait"></div>
 
 <script>
 	var timer = null;
 	var numResults = 10;
 	var progres;
+	var datasets;
 	
 	$(function() {
 		$( "#dialog-form-mass" ).dialog({
@@ -45,6 +49,21 @@
 			}
 		});
 		
+		$( "#dialog-form-temps" ).dialog({
+			autoOpen: false,
+			height: 700,
+			width: 1000,
+			modal: true,
+			resizable: false,
+			buttons: {
+				<fmt:message key='comuns.tancar' />: function() {
+					$(this).dialog("close");
+				}
+			},
+			close: function(){
+			}
+		});
+		
 		$( "#dialog-error" ).dialog({
 			autoOpen: false,
 			height: 420,
@@ -59,11 +78,128 @@
 			carregaExecucionsMassives(10);
 			$( "#dialog-form-mass" ).dialog( "open" );
 		});
+		
+		$("#botoTemps")
+		.click(function() {
+			$("body").addClass("loading");
+			carregaMesuresTemps();
+			$( "#dialog-form-temps" ).dialog( "open" );
+		});
 	});
 	
 	function alerta(msg) {
 		$("#mass-error").html(msg);
 		$( "#dialog-error" ).dialog( "open" );
+	}
+	
+	function carregaMesuresTemps() {
+		$.ajax({
+			url: "/helium/mesura/mesuresTemps.html",
+			dataType: 'json',
+			data: {},
+ 			async: false,
+			success: function(data){
+				var length = 0;
+				var content = "";
+				var mesura = null;
+				if ($.isEmptyObject(data)) {
+					content = "<h4><fmt:message key='execucions.mesura.temps.no'/></h4>";
+				} else {
+					length = data.clau.length;
+					content = 	'<div id="mesures_temps">' +
+								'<div class="temps_well">' + 
+								'<div class="temps_fila fila_titol">' +
+								'<div class="temps_col0"></div>' +
+								'<div class="temps_col1"><fmt:message key="temps.clau"/></div>' +
+								'<div class="temps_col2"><fmt:message key="temps.darrera"/></div>' +
+								'<div class="temps_col2"><fmt:message key="temps.minima"/></div>' +
+								'<div class="temps_col2"><fmt:message key="temps.maxima"/></div>' +
+								'<div class="temps_col2"><fmt:message key="temps.numMesures"/></div>' +
+								'<div class="temps_col2"><fmt:message key="temps.mitja"/></div>' +
+								'<div class="temps_col2"><fmt:message key="temps.periode"/></div>' +
+								'</div>';
+					for (var i = 0; i < length; i++) {
+						content += 	'<div class="temps_fila">' +
+									'<div class="temps_col0"><input type="checkbox" name="' + data.clau[i] + '" checked="checked"></div>' +
+									'<div class="temps_col1">' + data.clau[i] + '</div>' +
+									'<div class="temps_col2">' + data.darrera[i] + '</div>' +
+									'<div class="temps_col2">' + data.minima[i] + '</div>' +
+									'<div class="temps_col2">' + data.maxima[i] + '</div>' +
+									'<div class="temps_col2">' + data.numMesures[i] + '</div>' +
+									'<div class="temps_col2">' + data.mitja[i] + '</div>' +
+									'<div class="temps_col2">' + data.periode[i] + '</div>' +
+									'</div>';
+					}
+					content += 	'<div class="temps_chart" id="placeholder"></div>' +
+								'<div class="temps_legend" id="temps_legend"></div>' +
+								'</div>' +
+								'</div>';
+				}
+				$("#temps_contens").html(content);
+				
+				datasets = data.series;
+				var i = 0;
+				$.each(datasets, function(key, val) {
+					val.color = i;
+					++i;
+				});
+				series = [];
+				for (var key in data.series) {
+					series.push(data.series[key]);
+				}
+				if ($.isFunction($.plot)) {
+					$.plot($("#placeholder"), series, 
+							{ 
+								series: {
+									points: { show: true},
+									lines: { show: true}
+								}, 
+								xaxis: {
+					    			mode: "time",
+					    			timeformat: "%H:%M"
+								},
+								legend: {
+									container: "#temps_legend"
+								}
+							});
+				}
+				$(":checkbox").click(plotAccordingToChoices);
+			}
+		})
+		.fail(function( jqxhr, textStatus, error ) {
+ 			var err = textStatus + ', ' + error;
+ 			console.log( "Request Failed: " + err);
+		})
+		.always(function() {
+			$("body").removeClass("loading");
+		});
+	}
+	
+	function plotAccordingToChoices() {
+
+		var data = [];
+
+		$("#mesures_temps").find("input:checked").each(function () {
+			var key = $(this).attr("name");
+			if (key && datasets[key]) {
+				data.push(datasets[key]);
+			}
+		});
+
+		$.plot("#placeholder", data, 
+				{
+					series: {
+						points: { show: true},
+						lines: { show: true}
+					}, 
+					xaxis: {
+		    			mode: "time",
+		    			timeformat: "%H:%M"
+					},
+					legend: {
+						container: "#temps_legend"
+					}
+				});
 	}
 	
 	function carregaExecucionsMassives(numResultats) {

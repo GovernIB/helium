@@ -1,0 +1,75 @@
+/**
+ * 
+ */
+package net.conselldemallorca.helium.core.model.dto;
+
+import java.util.LinkedList;
+
+
+/**
+ * DTO amb informació d'una mesura temporal per a revisar
+ * el rendiment de l'aplicació.
+ * 
+ * @author Limit Tecnologies <limit@limit.es>
+ */
+public class MesuraTemporalDto {
+
+	private String clau;
+	private long darrera;
+	private double mitja;
+	private long minima;
+	private long maxima;
+	private int numMesures;
+	private double periode;
+	
+	private LinkedList<IntervalEventDto> events;
+
+	public String getClau() {
+		return clau;
+	}
+	public void setClau(String clau) {
+		this.clau = clau;
+	}
+	public long getDarrera() {
+		return darrera;
+	}
+	public void setDarrera(long darrera) {
+		this.darrera = darrera;
+	}
+	public double getMitja() {
+		return mitja;
+	}
+	public void setMitja(double mitja) {
+		this.mitja = mitja;
+	}
+	public long getMinima() {
+		return minima;
+	}
+	public void setMinima(long minima) {
+		this.minima = minima;
+	}
+	public long getMaxima() {
+		return maxima;
+	}
+	public void setMaxima(long maxima) {
+		this.maxima = maxima;
+	}
+	public int getNumMesures() {
+		return numMesures;
+	}
+	public void setNumMesures(int numMesures) {
+		this.numMesures = numMesures;
+	}
+	public double getPeriode() {
+		return periode;
+	}
+	public void setPeriode(double periode) {
+		this.periode = periode;
+	}
+	public LinkedList<IntervalEventDto> getEvents() {
+		return events;
+	}
+	public void setEvents(LinkedList<IntervalEventDto> events) {
+		this.events = events;
+	}
+}

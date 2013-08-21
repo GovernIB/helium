@@ -56,7 +56,7 @@
 			</c:if>
 			<c:set var="esDissenyador" value="${false}"/>
 			<security:accesscontrollist domainObject="${entornActual}" hasPermission="16,32">
-				<li class="dir image disseny">
+				<li id="menuDisseny" class="dir image disseny">
 					<a href="#" onclick="return false"><fmt:message key='comuns.disseny' /></a>
 					<ul>
 						<li class="image desplegar"><a href="<c:url value="/definicioProces/deploy.html"/>"><fmt:message key='decorators.entorn.despl_arxiu' /></a></li>
@@ -78,6 +78,9 @@
 				</li>
 			</c:if>
 		</ul>
+		<security:authorize ifAllGranted="ROLE_ADMIN">
+			<div class="image temps"><a id="botoTemps" href="javascript:void(0)"></a></div>
+		</security:authorize>
 		<div class="image massives"><a id="botoMassiu" href="javascript:void(0)"><fmt:message key='comuns.massiu' /></a></div>
 	</div>
 	<!-- Progreso en acciones masivas -->

@@ -56,7 +56,7 @@ public class UpdateService {
 	public static final String VERSIO_ACTUAL_STR = "2.6.0";
 	public static final int VERSIO_ACTUAL_ORDRE = 260;
 
-	public static final int VERSIO_ACTUAL_RELEASE = 23;
+	public static final int VERSIO_ACTUAL_RELEASE = 24;
 
 	private VersioDao versioDao;
 	private PersonaDao personaDao;

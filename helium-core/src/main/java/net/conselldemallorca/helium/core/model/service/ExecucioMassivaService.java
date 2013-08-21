@@ -16,6 +16,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
+
 import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
 import net.conselldemallorca.helium.core.model.dao.ExecucioMassivaDao;
 import net.conselldemallorca.helium.core.model.dao.ExecucioMassivaExpedientDao;
@@ -72,6 +74,9 @@ public class ExecucioMassivaService {
 	private TascaService tascaService;
 	private DocumentService documentService;
 	private PluginService pluginService;
+	
+	@Resource
+	private MesuresTemporalsHelper mesuresTemporalsHelper;
 
 
 	public void crearExecucioMassiva(ExecucioMassivaDto dto) throws Exception {
@@ -334,21 +339,37 @@ public class ExecucioMassivaService {
 			if (tipus == ExecucioMassivaTipus.EXECUTAR_TASCA){
 				gestioTasca(dto);
 			} else if (tipus == ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC){
+				mesuresTemporalsHelper.mesuraIniciar("ACCIO MASSIVA ACTUALITZAR");
 				actualitzarVersio(dto);
+				mesuresTemporalsHelper.mesuraCalcular("ACCIO MASSIVA ACTUALITZAR");
 			} else if (tipus == ExecucioMassivaTipus.EXECUTAR_SCRIPT){
+				mesuresTemporalsHelper.mesuraIniciar("ACCIO MASSIVA EXECUTAR SCRIPT");
 				executarScript(dto);
+				mesuresTemporalsHelper.mesuraCalcular("ACCIO MASSIVA EXECUTAR SCRIPT");
 			} else if (tipus == ExecucioMassivaTipus.EXECUTAR_ACCIO){
+				mesuresTemporalsHelper.mesuraIniciar("ACCIO MASSIVA EXECUTAR ACCIO");
 				executarAccio(dto);
+				mesuresTemporalsHelper.mesuraCalcular("ACCIO MASSIVA EXECUTAR ACCIO");
 			} else if (tipus == ExecucioMassivaTipus.ATURAR_EXPEDIENT){
+				mesuresTemporalsHelper.mesuraIniciar("ACCIO MASSIVA ATURAR EXPEDIENT");
 				aturarExpedient(dto);
+				mesuresTemporalsHelper.mesuraCalcular("ACCIO MASSIVA ATURAR EXPEDIENT");
 			} else if (tipus == ExecucioMassivaTipus.MODIFICAR_VARIABLE){
+				mesuresTemporalsHelper.mesuraIniciar("ACCIO MASSIVA VARIABLE");
 				modificarVariable(dto);
+				mesuresTemporalsHelper.mesuraCalcular("ACCIO MASSIVA VARIABLE");
 			} else if (tipus == ExecucioMassivaTipus.MODIFICAR_DOCUMENT){
+				mesuresTemporalsHelper.mesuraIniciar("ACCIO MASSIVA DOCUMENT");
 				modificarDocument(dto);
+				mesuresTemporalsHelper.mesuraCalcular("ACCIO MASSIVA DOCUMENT");
 			} else if (tipus == ExecucioMassivaTipus.REINDEXAR){
+				mesuresTemporalsHelper.mesuraIniciar("ACCIO MASSIVA REINDEXAR");
 				reindexarExpedient(dto);
+				mesuresTemporalsHelper.mesuraCalcular("ACCIO MASSIVA REINDEXAR");
 			} else if (tipus == ExecucioMassivaTipus.REASSIGNAR){
+				mesuresTemporalsHelper.mesuraIniciar("ACCIO MASSIVA REASSIGNAR");
 				reassignarExpedient(dto);
+				mesuresTemporalsHelper.mesuraCalcular("ACCIO MASSIVA REASSIGNAR");
 			}
 			SecurityContextHolder.getContext().setAuthentication(orgAuthentication);
 		} catch (Exception ex) {
@@ -367,6 +388,7 @@ public class ExecucioMassivaService {
 			eme = execucioMassivaExpedientDao.getById(dto.getId(), false);
 			eme.setDataInici(new Date());
 			if ("Guardar".equals(accio)) {
+				mesuresTemporalsHelper.mesuraIniciar("TASCA MASSIVA GUARDAR");
 				Object[] param2 = (Object[])deserialize(dto.getParam2());
 				Long entornId = (Long)param2[0];
 				Map<String, Object> valors = (Map<String, Object>)param2[1]; 
@@ -376,7 +398,9 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'han pogut guardar les dades del formulari en la tasca.");
 					throw e;
 		        }
+				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA GUARDAR");
 			} else if ("Validar".equals(accio)) {
+				mesuresTemporalsHelper.mesuraIniciar("TASCA MASSIVA VALIDAR");
 				Object[] param2 = (Object[])deserialize(dto.getParam2());
 				Long entornId = (Long)param2[0];
 				Map<String, Object> valors = (Map<String, Object>)param2[1];
@@ -386,7 +410,9 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut validar el formulari en la tasca.");
 					throw e;
 		        }
+				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA VALIDAR");
 			} else if ("Completar".equals(accio)) {
+				mesuresTemporalsHelper.mesuraIniciar("TASCA MASSIVA COMPLETAR");
 				Object[] param2 = (Object[])deserialize(dto.getParam2());
 				Long entornId = (Long)param2[0];
 				String transicio = (String)param2[1];
@@ -399,7 +425,9 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut finalitzar la tasca.");
 					throw e;
 		        }
+				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA COMPLETAR");
 			} else if ("Restaurar".equals(accio)) {
+				mesuresTemporalsHelper.mesuraIniciar("TASCA MASSIVA RESTAURAR");
 				Long entornId = (Long)deserialize(dto.getParam2());
 				try {
 					tascaService.restaurar(entornId, tascaId, dto.getUsuari());
@@ -407,7 +435,9 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut restaurar el formulari en la tasca.");
 					throw e;
 		        }
+				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA RESTAURAR");
 			} else if ("Accio".equals(accio)) {
+				mesuresTemporalsHelper.mesuraIniciar("TASCA MASSIVA EXECUTAR ACCIO");
 				Object[] param2 = (Object[])deserialize(dto.getParam2());
 				Long entornId = (Long)param2[0];
 				String accio_exec = (String)param2[1];
@@ -417,7 +447,9 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut executar l'acció '" + accio_exec + "' en la tasca.");
 					throw e;
 		        }
+				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA EXECUTAR ACCIO");
 			} else if ("DocGuardar".equals(accio)) {
+				mesuresTemporalsHelper.mesuraIniciar("TASCA MASSIVA GUARDAR DOCUMENT");
 				Object[] param2 = (Object[])deserialize(dto.getParam2());
 				Long entornId = (Long)param2[0];
 				String codi = (String)param2[1];
@@ -438,7 +470,9 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut guardar el document a la tasca.");
 					throw e;
 		        }
+				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA GUARDAR DOCUMENT");
 			} else if ("DocEsborrar".equals(accio)) {
+				mesuresTemporalsHelper.mesuraIniciar("TASCA MASSIVA BORRAR DOCUMENT");
 				Object[] param2 = (Object[])deserialize(dto.getParam2());
 				Long entornId = (Long)param2[0];
 				String codi = (String)param2[1];
@@ -453,7 +487,9 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut esborrar el document de la tasca.");
 					throw e;
 		        }
+				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA BORRAR DOCUMENT");
 			} else if ("DocGenerar".equals(accio)) {
+				mesuresTemporalsHelper.mesuraIniciar("TASCA MASSIVA GENERAR DOCUMENT");
 				Object[] param2 = (Object[])deserialize(dto.getParam2());
 				Long entornId = (Long)param2[0];
 				Long documentId = (Long)param2[1];
@@ -471,7 +507,9 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut restaurar el formulari en la tasca.");
 					throw e;
 		        }
+				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA GENERAR DOCUMENT");
 			} else if ("RegEsborrar".equals(accio)) {
+				mesuresTemporalsHelper.mesuraIniciar("TASCA MASSIVA ESBORRAR REGISTRE");
 				Object[] param2 = (Object[])deserialize(dto.getParam2());
 				Long entornId = (Long)param2[0];
 				String campCodi = (String)param2[1];
@@ -482,7 +520,9 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut esborrar el registe en la tasca.");
 					throw e;
 		        }
+				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA ESBORRAR REGISTRE");
 			} else if ("RegGuardar".equals(accio)) {
+				mesuresTemporalsHelper.mesuraIniciar("TASCA MASSIVA GUARDAR REGISTRE");
 				Object[] param2 = (Object[])deserialize(dto.getParam2());
 				Long entornId = (Long)param2[0];
 				String campCodi = (String)param2[1];
@@ -494,6 +534,7 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut guardar el registre en la tasca.");
 					throw e;
 		        }
+				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA GUARDAR REGISTRE");
 			}
 
 			eme.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);

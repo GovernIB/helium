@@ -12,6 +12,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
+
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.model.dao.AlertaDao;
 import net.conselldemallorca.helium.core.model.dao.CampDao;
@@ -105,7 +107,8 @@ public class TascaService {
 
 	private Map<String, Map<String, Object>> dadesFormulariExternInicial;
 
-
+	@Resource
+	private MesuresTemporalsHelper mesuresTemporalsHelper;
 
 	public TascaDto getById(
 			Long entornId,
@@ -151,14 +154,12 @@ public class TascaService {
 	public int countTasquesPersonalsEntorn(
 			Long entornId,
 			String usuari) {
-		//MesurarTemps.diferenciaReiniciar("LT_PERSONA_CNT");
 		String usuariBo = usuari;
 		if (usuariBo == null) {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
 		}
 		int count = 0;
-		//MesurarTemps.diferenciaImprimirStdoutIReiniciar("LT_PERSONA_CNT", "1");
 		List<JbpmTask> tasques = jbpmDao.findPersonalTasks(usuariBo);
 		if (tasques != null) {
 			for (JbpmTask task: tasques) {
@@ -167,7 +168,6 @@ public class TascaService {
 					count++;
 			}
 		}
-		//MesurarTemps.diferenciaImprimirStdoutIReiniciar("LT_PERSONA_CNT", "2");
 		return count;
 	}
 	public PaginaLlistatDto findTasquesPersonalsFiltre(
@@ -185,14 +185,13 @@ public class TascaService {
 			int maxResults,
 			String sort,
 			boolean asc) {
-		//MesurarTemps.diferenciaReiniciar("LT_PERSONA_FLT");
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES PERSONA");
 		String usuariBo = usuari;
 		if (usuariBo == null) {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
 		}
 		List<JbpmTask> tasques = jbpmDao.findPersonalTasks(usuariBo);
-		//MesurarTemps.diferenciaImprimirStdoutIReiniciar("LT_PERSONA_FLT", "1");
 		PaginaLlistatDto resposta = tasquesLlistatFiltradesValors(
 				entornId,
 				tasques, 
@@ -208,21 +207,19 @@ public class TascaService {
 				maxResults,
 				sort,
 				asc);
-		//MesurarTemps.diferenciaImprimirStdoutIReiniciar("LT_PERSONA_FLT", "2");
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES PERSONA");
 		return resposta;
 	}
 
 	public int countTasquesGrupEntorn(
 			Long entornId,
 			String usuari) {
-		//MesurarTemps.diferenciaReiniciar("LT_GRUP_CNT");
 		String usuariBo = usuari;
 		if (usuariBo == null) {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
 		}
 		int count = 0;
-		//MesurarTemps.diferenciaImprimirStdoutIReiniciar("LT_GRUP_CNT", "1");
 		List<JbpmTask> tasques = jbpmDao.findGroupTasks(usuariBo);
 		if (tasques != null) {
 			for (JbpmTask task: tasques) {
@@ -231,7 +228,6 @@ public class TascaService {
 					count++;
 			}
 		}
-		//MesurarTemps.diferenciaImprimirStdoutIReiniciar("LT_GRUP_CNT", "2");
 		return count;
 	}
 	public PaginaLlistatDto findTasquesGrupFiltre(
@@ -249,13 +245,15 @@ public class TascaService {
 			int maxResults,
 			String sort,
 			boolean asc) {
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES GRUP");
 		String usuariBo = usuari;
 		if (usuariBo == null) {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
 		}
 		List<JbpmTask> tasques = jbpmDao.findGroupTasks(usuariBo);
-		return tasquesLlistatFiltradesValors(
+		
+		PaginaLlistatDto resposta = tasquesLlistatFiltradesValors(
 				entornId,
 				tasques,
 				tasca,
@@ -270,6 +268,8 @@ public class TascaService {
 				maxResults,
 				sort,
 				asc);
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES GRUP");
+		return resposta;
 	}
 
 	public List<TascaLlistatDto> findTasquesPerTramitacioMassiva(

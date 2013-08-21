@@ -17,6 +17,7 @@ import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.service.AdminService;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
@@ -51,6 +52,7 @@ public class ExpedientController extends BaseController {
 	private TerminiService terminiService;
 	private PluginService pluginService;
 	private PermissionService permissionService;
+	private AdminService adminService;
 
 
 
@@ -60,12 +62,14 @@ public class ExpedientController extends BaseController {
 			ExpedientService expedientService,
 			TerminiService terminiService,
 			PluginService pluginService,
-			PermissionService permissionService) {
+			PermissionService permissionService,
+			AdminService adminService) {
 		this.dissenyService = dissenyService;
 		this.expedientService = expedientService;
 		this.terminiService = terminiService;
 		this.pluginService = pluginService;
 		this.permissionService = permissionService;
+		this.adminService = adminService;
 	}
 
 	@RequestMapping(value = "llistat")
@@ -185,6 +189,7 @@ public class ExpedientController extends BaseController {
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (potConsultarExpedient(expedient)) {
+				adminService.getMesuresTemporalsHelper().mesuraIniciar("EXP INFO - " + expedient.getTipus().getCodi());
 				model.addAttribute(
 						"expedient",
 						expedient);
@@ -218,6 +223,7 @@ public class ExpedientController extends BaseController {
 							"activeTokens",
 							expedientService.getActiveTokens(id, true));
 				}
+				adminService.getMesuresTemporalsHelper().mesuraCalcular("EXP INFO - " + expedient.getTipus().getCodi());
 				try {
 					model.addAttribute(
 							"relacionarCommand",
@@ -248,6 +254,7 @@ public class ExpedientController extends BaseController {
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (potConsultarExpedient(expedient)) {
+				adminService.getMesuresTemporalsHelper().mesuraIniciar("EXP DADES - " + expedient.getTipus().getCodi());
 				model.addAttribute(
 						"expedient",
 						expedient);
@@ -262,6 +269,7 @@ public class ExpedientController extends BaseController {
 							"tasques",
 							expedientService.findTasquesPerInstanciaProces(id, true));
 				}
+				adminService.getMesuresTemporalsHelper().mesuraCalcular("EXP DADES - " + expedient.getTipus().getCodi());
 				return "expedient/dades";
 			} else {
 				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
@@ -283,6 +291,7 @@ public class ExpedientController extends BaseController {
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (potConsultarExpedient(expedient)) {
+				adminService.getMesuresTemporalsHelper().mesuraIniciar("EXP DOCUMENTS - " + expedient.getTipus().getCodi());
 				model.addAttribute(
 						"expedient",
 						expedient);
@@ -300,6 +309,7 @@ public class ExpedientController extends BaseController {
 							"tasques",
 							expedientService.findTasquesPerInstanciaProces(id, true));
 				}
+				adminService.getMesuresTemporalsHelper().mesuraCalcular("EXP DOCUMENTS - " + expedient.getTipus().getCodi());
 				return "expedient/documents";
 			} else {
 				missatgeError(request, getMessage("error.permisos.consultar.expedient"));

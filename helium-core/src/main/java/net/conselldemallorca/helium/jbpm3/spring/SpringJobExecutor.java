@@ -1,5 +1,6 @@
 package net.conselldemallorca.helium.jbpm3.spring;
 
+import net.conselldemallorca.helium.core.model.service.AdminService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 
@@ -27,6 +28,9 @@ public class SpringJobExecutor extends JobExecutor {
 	private GlobalProperties globalProperties;
 	
 	private ExpedientService expedientService;
+	private AdminService adminService;
+	
+	public static boolean tipusExpedientsInitialized = false;
 	
 	/** 
 	 * Need to override the start method of the {@link org.jbpm.job.executor.JobExecutor},
@@ -53,7 +57,7 @@ public class SpringJobExecutor extends JobExecutor {
 	protected Thread createThread(String threadName) {
 		LOG.info("Creating JobExecutor thread " + threadName);
 		return new SpringJobExecutorThread(threadName, this, jbpmConfiguration, transactionTemplate, 
-				idleInterval, maxIdleInterval, maxLockTime, historyMaxSize, expedientService);
+				idleInterval, maxIdleInterval, maxLockTime, historyMaxSize, expedientService, adminService);
 	}
 
 	public void setTransactionTemplate(TransactionTemplate transactionTemplate) {
@@ -66,6 +70,10 @@ public class SpringJobExecutor extends JobExecutor {
 	
 	public void setExpedientService(ExpedientService expedientService) {
 		this.expedientService = expedientService;
+	}
+
+	public void setAdminService(AdminService adminService) {
+		this.adminService = adminService;
 	}
 
 }

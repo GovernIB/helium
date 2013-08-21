@@ -6,7 +6,9 @@ import java.util.Collection;
 import java.util.Date;
 
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
+import net.conselldemallorca.helium.core.model.service.AdminService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
+import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -15,7 +17,10 @@ import org.apache.commons.logging.LogFactory;
 import org.jbpm.JbpmConfiguration;
 import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ProcessInstance;
+import org.jbpm.job.ExecuteActionJob;
+import org.jbpm.job.ExecuteNodeJob;
 import org.jbpm.job.Job;
+import org.jbpm.job.Timer;
 import org.jbpm.job.executor.JobExecutor;
 import org.jbpm.job.executor.JobExecutorThread;
 import org.springframework.transaction.TransactionStatus;
@@ -34,13 +39,25 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 	private static final Log logger = LogFactory.getLog(TascaService.class);
 
 	private ExpedientService expedientService;
-
+	private AdminService adminService;
+	
 	private TransactionTemplate transactionTemplate;
-
-	public SpringJobExecutorThread(String name, JobExecutor jobExecutor, JbpmConfiguration jbpmConfiguration, TransactionTemplate transactionTemplate, int idleInterval, int maxIdleInterval, long maxLockTime, int maxHistory, ExpedientService expedientService) {
+	
+	public SpringJobExecutorThread(String name,
+                            JobExecutor jobExecutor,
+                            JbpmConfiguration jbpmConfiguration,
+                            TransactionTemplate transactionTemplate,
+                            int idleInterval,
+                            int maxIdleInterval,
+                            long maxLockTime,
+                            int maxHistory,
+                            ExpedientService expedientService,
+                            AdminService adminService
+                          ) {
 		super(name, jobExecutor, jbpmConfiguration, idleInterval, maxIdleInterval, maxLockTime, maxHistory);
 		this.transactionTemplate = transactionTemplate;
 		this.expedientService = expedientService;
+		this.adminService = adminService;
 	}
 
 	/* WRAPPED OPERATIONS */
@@ -59,7 +76,20 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected void executeJob(final Job job) {
 		boolean ambErrors = false;
-		String jobName = job.getJobExecutorName();
+
+		String jobName = "JOB";
+		if (job instanceof Timer) {
+			if (((Timer) job).getName() != null)
+				jobName += " " + ((Timer) job).getName();
+		} else if (job instanceof ExecuteActionJob) {
+			if (((ExecuteActionJob) job).getAction() != null && ((ExecuteActionJob) job).getAction().getName() != null)
+				jobName += " " + ((ExecuteActionJob) job).getAction().getName();
+		} else if (job instanceof ExecuteNodeJob) {
+			if (((ExecuteNodeJob) job).getNode() != null && ((ExecuteNodeJob) job).getNode().getName() != null)
+				jobName += " " + ((ExecuteNodeJob) job).getNode().getName();
+		}
+		
+		((MesuresTemporalsHelper)adminService.getMesuresTemporalsHelper()).mesuraIniciar(jobName);
 		try {
 			transactionTemplate.execute(new TransactionCallback() {
 				public Object doInTransaction(TransactionStatus transactionStatus) {
@@ -92,6 +122,7 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 				logger.error("Error al executar job al reindexar l'expedient (id=" + exp.getId() + ", identificador=" + exp.getIdentificadorLimitat() + ", processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
 			}
 		}
+		((MesuresTemporalsHelper)adminService.getMesuresTemporalsHelper()).mesuraCalcular(jobName);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

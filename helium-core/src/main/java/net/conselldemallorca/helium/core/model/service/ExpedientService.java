@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.annotation.Resource;
+
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.model.dao.AccioDao;
 import net.conselldemallorca.helium.core.model.dao.AreaJbpmIdDao;
@@ -155,8 +157,8 @@ public class ExpedientService {
 
 	private String textBloqueigIniciExpedient;
 	
-//	@Resource
-//	private MesuresTemporalsHelper mesuresTemporalsHelper;
+	@Resource
+	private MesuresTemporalsHelper mesuresTemporalsHelper;
 
 
 	public ExpedientDto getById(Long id) {
@@ -780,7 +782,7 @@ public class ExpedientService {
 			int maxResults,
 			String sort,
 			boolean asc) {
-//		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS");
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS");
 		List<ExpedientTipus> tipus = expedientTipusDao.findAmbEntorn(entornId);
 		getServiceUtils().filterAllowed(
 						tipus,
@@ -811,7 +813,7 @@ public class ExpedientService {
 				sort,
 				asc))
 			resposta.add(dtoConverter.toExpedientDto(expedient, false));
-//		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS");
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS");
 		return resposta;
 	}
 	public List<PortasignaturesPendentDto> findAmbEntornPendentPsigna(
@@ -938,6 +940,7 @@ public class ExpedientService {
 			boolean asc,
 			int firstRow,
 			int maxResults) {
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA PER TIPUS EXPEDIENTS");
 		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
 		Consulta consulta = consultaDao.getById(consultaId, false);
 		List<Camp> campsFiltre = getServiceUtils().findCampsPerCampsConsulta(
@@ -974,6 +977,7 @@ public class ExpedientService {
 			}
 			dadesExpedient.remove(LuceneDao.CLAU_EXPEDIENT_ID);
 		}
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA PER TIPUS EXPEDIENTS");
 		return resposta;
 	}
 

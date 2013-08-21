@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
@@ -31,7 +32,7 @@ public class CampsProcesDwrService implements MessageSourceAware {
 		this.dissenyService = dissenyService;
 	}
 	
-	public List<Object[]> llistaCampsPerProces(Long consultaId, String defprocJbpmKey) {
+	public List<Object[]> llistaCampsPerProces(Long consultaId, String defprocJbpmKey, String stipus) {
 		List<Object[]> llista = new ArrayList<Object[]>();
 		if (defprocJbpmKey == null || defprocJbpmKey.length() == 0) {
 			Object[] obj = new Object[3];
@@ -95,7 +96,10 @@ public class CampsProcesDwrService implements MessageSourceAware {
 				}
 			}
 		} else {
+			TipusConsultaCamp tipus = stipus.equals(TipusConsultaCamp.FILTRE.name()) ? TipusConsultaCamp.FILTRE : TipusConsultaCamp.INFORME;
 			List<Camp> list = dissenyService.findCampsProces(consultaId, defprocJbpmKey);
+			List<Camp> listExistents = dissenyService.findCampsPerCampsConsulta(consultaId, tipus, false);
+			list.removeAll(listExistents);
 			for (Camp c : list) {
 				String text = c.getCodi() + " / " + c.getEtiqueta();
 				text += " (v." + c.getDefinicioProces().getVersio() + ")";
