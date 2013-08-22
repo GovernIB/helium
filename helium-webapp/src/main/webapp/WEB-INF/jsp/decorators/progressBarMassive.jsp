@@ -104,6 +104,7 @@
 				var mesura = null;
 				if ($.isEmptyObject(data)) {
 					content = "<h4><fmt:message key='execucions.mesura.temps.no'/></h4>";
+					$("#temps_contens").html(content);
 				} else {
 					length = data.clau.length;
 					content = 	'<div id="mesures_temps">' +
@@ -134,36 +135,37 @@
 								'<div class="temps_legend" id="temps_legend"></div>' +
 								'</div>' +
 								'</div>';
-				}
-				$("#temps_contens").html(content);
+					
+					$("#temps_contens").html(content);
 				
-				datasets = data.series;
-				var i = 0;
-				$.each(datasets, function(key, val) {
-					val.color = i;
-					++i;
-				});
-				series = [];
-				for (var key in data.series) {
-					series.push(data.series[key]);
+					datasets = data.series;
+					var i = 0;
+					$.each(datasets, function(key, val) {
+						val.color = i;
+						++i;
+					});
+					series = [];
+					for (var key in data.series) {
+						series.push(data.series[key]);
+					}
+					if ($.isFunction($.plot)) {
+						$.plot($("#placeholder"), series, 
+								{ 
+									series: {
+										points: { show: true},
+										lines: { show: true}
+									}, 
+									xaxis: {
+						    			mode: "time",
+						    			timeformat: "%H:%M"
+									},
+									legend: {
+										container: "#temps_legend"
+									}
+								});
+					}
+					$(":checkbox").click(plotAccordingToChoices);
 				}
-				if ($.isFunction($.plot)) {
-					$.plot($("#placeholder"), series, 
-							{ 
-								series: {
-									points: { show: true},
-									lines: { show: true}
-								}, 
-								xaxis: {
-					    			mode: "time",
-					    			timeformat: "%H:%M"
-								},
-								legend: {
-									container: "#temps_legend"
-								}
-							});
-				}
-				$(":checkbox").click(plotAccordingToChoices);
 			}
 		})
 		.fail(function( jqxhr, textStatus, error ) {
