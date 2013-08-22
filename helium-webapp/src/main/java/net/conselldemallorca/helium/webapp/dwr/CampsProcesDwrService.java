@@ -99,7 +99,16 @@ public class CampsProcesDwrService implements MessageSourceAware {
 			TipusConsultaCamp tipus = stipus.equals(TipusConsultaCamp.FILTRE.name()) ? TipusConsultaCamp.FILTRE : TipusConsultaCamp.INFORME;
 			List<Camp> list = dissenyService.findCampsProces(consultaId, defprocJbpmKey);
 			List<Camp> listExistents = dissenyService.findCampsPerCampsConsulta(consultaId, tipus, false);
-			list.removeAll(listExistents);
+
+			for (Camp campExistent: listExistents) {
+				for (Camp camp: list) {
+					if (camp.getCodi().equals(campExistent.getCodi())) {
+						list.remove(camp);
+						break;
+					}
+				}
+			}
+			
 			for (Camp c : list) {
 				String text = c.getCodi() + " / " + c.getEtiqueta();
 				text += " (v." + c.getDefinicioProces().getVersio() + ")";
