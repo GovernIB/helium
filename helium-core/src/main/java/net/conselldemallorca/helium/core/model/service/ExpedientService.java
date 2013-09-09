@@ -940,7 +940,7 @@ public class ExpedientService {
 			boolean asc,
 			int firstRow,
 			int maxResults) {
-		mesuresTemporalsHelper.mesuraIniciar("CONSULTA PER TIPUS EXPEDIENTS");
+//		mesuresTemporalsHelper.mesuraIniciar("CONSULTA PER TIPUS EXPEDIENTS");
 		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
 		Consulta consulta = consultaDao.getById(consultaId, false);
 		List<Camp> campsFiltre = getServiceUtils().findCampsPerCampsConsulta(
@@ -977,7 +977,7 @@ public class ExpedientService {
 			}
 			dadesExpedient.remove(LuceneDao.CLAU_EXPEDIENT_ID);
 		}
-		mesuresTemporalsHelper.mesuraCalcular("CONSULTA PER TIPUS EXPEDIENTS");
+//		mesuresTemporalsHelper.mesuraCalcular("CONSULTA PER TIPUS EXPEDIENTS");
 		return resposta;
 	}
 

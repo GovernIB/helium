@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.conselldemallorca.helium.core.model.service.AdminService;
 import net.sf.jasperreports.engine.JRExporterParameter;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperExportManager;
@@ -25,6 +26,7 @@ import net.sf.jasperreports.engine.export.JRXlsExporterParameter;
 import net.sf.jasperreports.engine.export.JRXmlExporter;
 import net.sf.jasperreports.engine.export.oasis.JROdtExporter;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.View;
 
 /**
@@ -43,8 +45,16 @@ public class JasperReportsView implements View {
 	public static final String MODEL_ATTRIBUTE_SUBREPORTS = "subreports";
 	public static final String MODEL_ATTRIBUTE_SUBREPORTDATA_PREFIX = "subreportFile_";
 
+	public static final String MODEL_ATTRIBUTE_CONSULTA = "reportConsulta";
 
 
+	private AdminService adminService;
+	
+	@Autowired
+	public JasperReportsView(AdminService adminService) {
+		this.adminService = adminService;
+	}
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void render(
 			Map model,
@@ -59,6 +69,7 @@ public class JasperReportsView implements View {
 			datasource = new JRBeanCollectionDataSource(
 					(List<Map<String, Object>>)model.get(MODEL_ATTRIBUTE_REPORTDATA));
 		if (datasource != null) {
+			adminService.getMesuresTemporalsHelper().mesuraIniciar("INFORME: " + (String)model.get(MODEL_ATTRIBUTE_CONSULTA) + " (REPORT)");
 			JasperReport report = null;
 			report = JasperCompileManager.compileReport(
 					new ByteArrayInputStream(
@@ -181,6 +192,7 @@ public class JasperReportsView implements View {
 
 			}
 			
+			adminService.getMesuresTemporalsHelper().mesuraCalcular("INFORME: " + (String)model.get(MODEL_ATTRIBUTE_CONSULTA) + " (REPORT)");
 		}
 	}
 

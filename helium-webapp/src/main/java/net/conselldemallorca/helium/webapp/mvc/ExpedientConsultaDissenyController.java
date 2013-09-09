@@ -28,6 +28,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsu
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.service.AdminService;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
@@ -80,14 +81,18 @@ public class ExpedientConsultaDissenyController extends BaseController {
 	private DissenyService dissenyService;
 	private ExpedientService expedientService;
 	private PermissionService permissionService;
+	private AdminService adminService;
+	
 	@Autowired
 	public ExpedientConsultaDissenyController(
 			DissenyService dissenyService,
 			ExpedientService expedientService,
-			PermissionService permissionService) {
+			PermissionService permissionService,
+			AdminService adminService) {
 		this.dissenyService  = dissenyService;
 		this.expedientService = expedientService;
 		this.permissionService = permissionService;
+		this.adminService = adminService;
 	}
 
 	@ModelAttribute("commandSeleccioConsulta")
@@ -169,13 +174,6 @@ public class ExpedientConsultaDissenyController extends BaseController {
 	}
 	
 	
-	
-	
-	
-	
-	
-	
-	
 	@RequestMapping(value = "/expedient/consultaDisseny")
 	public String consultaDisseny(
 			HttpServletRequest request,
@@ -193,6 +191,8 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			populateModelCommon(entorn, model, commandSeleccio);
 			Object commandFiltre = session.getAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);
 			if (commandFiltre != null && commandSeleccio != null && commandSeleccio.getConsultaId() != null) {
+				Consulta consulta = dissenyService.getConsultaById(commandSeleccio.getConsultaId());
+				adminService.getMesuresTemporalsHelper().mesuraIniciar("INFORME: " + consulta.getCodi());
 				model.addAttribute("expedientTipusId", commandSeleccio.getExpedientTipusId());
 				List<Camp> camps = dissenyService.findCampsPerCampsConsulta(
 						commandSeleccio.getConsultaId(),
@@ -221,6 +221,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 								dir,
 								objectsPerPage,
 								export));
+				adminService.getMesuresTemporalsHelper().mesuraCalcular("INFORME: " + consulta.getCodi());
 			}
 			return "expedient/consultaDisseny";
 		} else {
@@ -333,6 +334,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			if (commandFiltre != null) {
 				populateModelCommon(entorn, model, commandSeleccio);
 				Consulta consulta = dissenyService.getConsultaById(commandSeleccio.getConsultaId());
+				adminService.getMesuresTemporalsHelper().mesuraIniciar("INFORME: " + consulta.getCodi() + " (DADES)");
 				if (consulta.getInformeNom() != null) {
 					model.addAttribute("commandFiltre", commandFiltre);
 					List<Camp> camps = dissenyService.findCampsPerCampsConsulta(
@@ -390,6 +392,10 @@ public class ExpedientConsultaDissenyController extends BaseController {
 						model.addAttribute(
 								JasperReportsView.MODEL_ATTRIBUTE_REPORTCONTENT,
 								consulta.getInformeContingut());
+					model.addAttribute(
+							JasperReportsView.MODEL_ATTRIBUTE_CONSULTA,
+							consulta.getCodi());
+					adminService.getMesuresTemporalsHelper().mesuraCalcular("INFORME: " + consulta.getCodi() + " (DADES)");
 					return "jasperReportsView";
 				} else {
 					missatgeError(request, getMessage("error.consulta.informe.nonhiha"));
