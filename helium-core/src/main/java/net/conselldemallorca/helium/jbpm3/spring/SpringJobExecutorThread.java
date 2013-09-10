@@ -89,7 +89,7 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 				jobName += " " + ((ExecuteNodeJob) job).getNode().getName();
 		}
 		
-		((MesuresTemporalsHelper)adminService.getMesuresTemporalsHelper()).mesuraIniciar(jobName);
+		((MesuresTemporalsHelper)adminService.getMesuresTemporalsHelper()).mesuraIniciar(jobName, "timer");
 		try {
 			transactionTemplate.execute(new TransactionCallback() {
 				public Object doInTransaction(TransactionStatus transactionStatus) {

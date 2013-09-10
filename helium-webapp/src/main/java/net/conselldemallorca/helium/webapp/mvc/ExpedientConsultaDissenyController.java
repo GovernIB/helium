@@ -192,7 +192,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			Object commandFiltre = session.getAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);
 			if (commandFiltre != null && commandSeleccio != null && commandSeleccio.getConsultaId() != null) {
 				Consulta consulta = dissenyService.getConsultaById(commandSeleccio.getConsultaId());
-				adminService.getMesuresTemporalsHelper().mesuraIniciar("INFORME: " + consulta.getCodi());
+				adminService.getMesuresTemporalsHelper().mesuraIniciar("INFORME: " + consulta.getCodi(), "report");
 				model.addAttribute("expedientTipusId", commandSeleccio.getExpedientTipusId());
 				List<Camp> camps = dissenyService.findCampsPerCampsConsulta(
 						commandSeleccio.getConsultaId(),
@@ -334,7 +334,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			if (commandFiltre != null) {
 				populateModelCommon(entorn, model, commandSeleccio);
 				Consulta consulta = dissenyService.getConsultaById(commandSeleccio.getConsultaId());
-				adminService.getMesuresTemporalsHelper().mesuraIniciar("INFORME: " + consulta.getCodi() + " (DADES)");
+				adminService.getMesuresTemporalsHelper().mesuraIniciar("INFORME: " + consulta.getCodi() + " (DADES)", "report");
 				if (consulta.getInformeNom() != null) {
 					model.addAttribute("commandFiltre", commandFiltre);
 					List<Camp> camps = dissenyService.findCampsPerCampsConsulta(

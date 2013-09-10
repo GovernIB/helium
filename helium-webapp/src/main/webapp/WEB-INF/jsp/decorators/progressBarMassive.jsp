@@ -23,6 +23,7 @@
 	var numResults = 10;
 	var progres;
 	var datasets;
+	var fam = "";
 	
 	$(function() {
 		$( "#dialog-form-mass" ).dialog({
@@ -58,6 +59,9 @@
 			buttons: {
 				<fmt:message key='comuns.tancar' />: function() {
 					$(this).dialog("close");
+				},
+				"<fmt:message key='temps.exportar' />": function() {
+					window.location="/helium/mesura/mesuresTempsExport.html";
 				}
 			},
 			close: function(){
@@ -92,22 +96,41 @@
 		$( "#dialog-error" ).dialog( "open" );
 	}
 	
+	function carregaMesuresTempsFamilia(familia) {
+		fam = familia;
+		carregaMesuresTemps();
+	}
+	
 	function carregaMesuresTemps() {
 		$.ajax({
 			url: "/helium/mesura/mesuresTemps.html",
 			dataType: 'json',
-			data: {},
+			data: {familia: fam},
  			async: false,
 			success: function(data){
 				var length = 0;
 				var content = "";
-				var mesura = null;
 				if ($.isEmptyObject(data)) {
 					content = "<h4><fmt:message key='execucions.mesura.temps.no'/></h4>";
 					$("#temps_contens").html(content);
 				} else {
+					content = 	'<ul id="temps_tabnav">';
+					if (fam == "") {
+						content +=	'<li class="active"><span><fmt:message key="temps.familia.tot"/></span></li>';
+					} else {
+						content +=	'<li><a href="javascript:carregaMesuresTempsFamilia(\'\');"><fmt:message key="temps.familia.tot"/></a></li>';
+					}
+					for (var key in data.familia) {
+						if (fam == key) {
+							content +=	'<li class="active"><span>' + data.familia[key] + '</span></li>';
+						} else {
+							content +=	'<li><a href="javascript:carregaMesuresTempsFamilia(\'' + key + '\');">' + data.familia[key] + '</a></li>';
+						}
+					}
+					content += 	'</ul>';
+					
 					length = data.clau.length;
-					content = 	'<div id="mesures_temps">' +
+					content += 	'<div id="mesures_temps">' +
 								'<div class="temps_well">' + 
 								'<div class="temps_fila fila_titol">' +
 								'<div class="temps_col0"></div>' +

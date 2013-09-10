@@ -189,7 +189,7 @@ public class ExpedientController extends BaseController {
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (potConsultarExpedient(expedient)) {
-				adminService.getMesuresTemporalsHelper().mesuraIniciar("EXP INFO - " + expedient.getTipus().getCodi());
+				adminService.getMesuresTemporalsHelper().mesuraIniciar("EXP INFO - " + expedient.getTipus().getCodi(), "general");
 				model.addAttribute(
 						"expedient",
 						expedient);
@@ -254,7 +254,7 @@ public class ExpedientController extends BaseController {
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (potConsultarExpedient(expedient)) {
-				adminService.getMesuresTemporalsHelper().mesuraIniciar("EXP DADES - " + expedient.getTipus().getCodi());
+				adminService.getMesuresTemporalsHelper().mesuraIniciar("EXP DADES - " + expedient.getTipus().getCodi(), "general");
 				model.addAttribute(
 						"expedient",
 						expedient);
@@ -291,7 +291,7 @@ public class ExpedientController extends BaseController {
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (potConsultarExpedient(expedient)) {
-				adminService.getMesuresTemporalsHelper().mesuraIniciar("EXP DOCUMENTS - " + expedient.getTipus().getCodi());
+				adminService.getMesuresTemporalsHelper().mesuraIniciar("EXP DOCUMENTS - " + expedient.getTipus().getCodi(), "general");
 				model.addAttribute(
 						"expedient",
 						expedient);

@@ -782,7 +782,7 @@ public class ExpedientService {
 			int maxResults,
 			String sort,
 			boolean asc) {
-		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS");
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS", "general");
 		List<ExpedientTipus> tipus = expedientTipusDao.findAmbEntorn(entornId);
 		getServiceUtils().filterAllowed(
 						tipus,
@@ -940,7 +940,7 @@ public class ExpedientService {
 			boolean asc,
 			int firstRow,
 			int maxResults) {
-//		mesuresTemporalsHelper.mesuraIniciar("CONSULTA PER TIPUS EXPEDIENTS");
+//		mesuresTemporalsHelper.mesuraIniciar("CONSULTA PER TIPUS EXPEDIENTS", "general");
 		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
 		Consulta consulta = consultaDao.getById(consultaId, false);
 		List<Camp> campsFiltre = getServiceUtils().findCampsPerCampsConsulta(

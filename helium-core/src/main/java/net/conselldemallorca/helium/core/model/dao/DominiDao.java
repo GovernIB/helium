@@ -162,7 +162,7 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 			Domini domini,
 			String id,
 			Map<String, Object> parametres) throws Exception {
-		mesuresTemporalsHelper.mesuraIniciar("DOMINI WS: " + domini.getCodi());
+		mesuresTemporalsHelper.mesuraIniciar("DOMINI WS: " + domini.getCodi(), "domini");
 		if ("intern".equalsIgnoreCase(domini.getCodi())) {
 			parametres.put("entorn", domini.getEntorn().getCodi());
 		}
@@ -208,7 +208,7 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 			Domini domini,
 			Map<String, Object> parametres) throws DominiException {
 		try {
-			mesuresTemporalsHelper.mesuraIniciar("DOMINI SQL: " + domini.getCodi());
+			mesuresTemporalsHelper.mesuraIniciar("DOMINI SQL: " + domini.getCodi(), "domini");
 			NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplateFromDomini(domini);
 			MapSqlParameterSource parameterSource = new MapSqlParameterSource(parametres) {
 				public boolean hasValue(String paramName) {

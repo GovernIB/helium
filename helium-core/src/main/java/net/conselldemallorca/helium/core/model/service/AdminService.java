@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.core.model.service;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -28,10 +29,10 @@ public class AdminService {
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 
-	public List<MesuraTemporalDto> findMesuresTemporals() {
+	public List<MesuraTemporalDto> findMesuresTemporals(String familia) {
 		logger.debug("Consultant el llistat de les mesures temporals");
 		List<MesuraTemporalDto> resposta = new ArrayList<MesuraTemporalDto>();
-		for (String clau: mesuresTemporalsHelper.getClausMesures()) {
+		for (String clau: mesuresTemporalsHelper.getClausMesures(familia)) {
 			MesuraTemporalDto dto = new MesuraTemporalDto();
 			dto.setClau(clau);
 			dto.setDarrera(mesuresTemporalsHelper.getDarreraMesura(clau));
@@ -55,6 +56,10 @@ public class AdminService {
 			resposta.add(dto);
 		}
 		return resposta;
+	}
+	
+	public Set<String> findFamiliesMesuresTemporals() {
+		return mesuresTemporalsHelper.getIntervalsFamilia();
 	}
 
 	public MesuresTemporalsHelper getMesuresTemporalsHelper() {

@@ -185,7 +185,7 @@ public class TascaService {
 			int maxResults,
 			String sort,
 			boolean asc) {
-		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES PERSONA");
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES PERSONA", "general");
 		String usuariBo = usuari;
 		if (usuariBo == null) {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -245,7 +245,7 @@ public class TascaService {
 			int maxResults,
 			String sort,
 			boolean asc) {
-		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES GRUP");
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES GRUP", "general");
 		String usuariBo = usuari;
 		if (usuariBo == null) {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();

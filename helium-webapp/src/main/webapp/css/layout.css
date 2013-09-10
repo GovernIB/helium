@@ -300,6 +300,43 @@ html, body{
 	height: 400px;
 	float: left;
 }
+ul#temps_tabnav {
+	list-style-type: none;
+	padding: 0 0 24px 6px;
+	border-bottom: 1px solid #aaa;
+	margin: 5px 0 8px 0;
+	font-size: 11px;
+}
+ul#temps_tabnav li {
+	float: left;
+	height: 21px;
+	background-color: #f2f2f2;
+	margin: 2px 2px 0 2px;
+	border: 1px solid #aaa;
+}
+ul#temps_tabnav li.active {
+	border-bottom: 1px solid #fff;
+	background-color: #fff;
+	font-weight: bold;
+	color: #666;
+}
+ul#temps_tabnav a {
+	float: left;
+	display: block;
+	color: #999;
+	text-decoration: none;
+	padding: 4px 10px;
+}
+ul#temps_tabnav span {
+	float: left;
+	display: block;
+	text-decoration: none;
+	padding: 4px 10px;
+}
+ul#temps_tabnav a:hover {
+	background: #fff;
+	color: #666;
+}
 #page-entorn-menu div.massives a {
 	background-image: url(../img/application_cascade.png);
 	padding-left: 32px;

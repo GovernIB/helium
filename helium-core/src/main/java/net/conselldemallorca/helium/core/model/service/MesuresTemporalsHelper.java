@@ -7,9 +7,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
@@ -23,6 +25,7 @@ public class MesuresTemporalsHelper {
 	
 	private static final int MESURES = 100;
 
+	private Map<String, String> intervalsFamilia = new HashMap<String, String>();
 	private Map<String, Long> intervalsInici = new HashMap<String, Long>();
 	private Map<String, Long> intervalsDarreraMesura = new HashMap<String, Long>();
 	private Map<String, Long> intervalsMinim = new HashMap<String, Long>();
@@ -32,10 +35,11 @@ public class MesuresTemporalsHelper {
 	private Map<String, LinkedList<IntervalEvent>> intervalEvents = new HashMap<String, LinkedList<IntervalEvent>>();
 
 
-	public void mesuraIniciar(String clau) {
+	public void mesuraIniciar(String clau, String familia) {
 		intervalsInici.put(
 				clau,
 				new Long(System.currentTimeMillis()));
+		intervalsFamilia.put(clau, familia);
 	}
 	public void mesuraCalcular(String clau) {
 		Long inici = intervalsInici.get(clau);
@@ -97,10 +101,29 @@ public class MesuresTemporalsHelper {
 	public Long getMaxim(String clau) {
 		return intervalsMaxim.get(clau);
 	}
-	public List<String> getClausMesures() {
+	public List<String> getClausMesures(String familia) {
 		List<String> claus = new ArrayList<String>(intervalsDarreraMesura.keySet());
 		Collections.sort(claus);
-		return claus;
+		
+		if (familia != null && !"".equals(familia)) {
+			List<String> keys = new ArrayList<String>();
+			for (String clau: claus) {
+				String familiaClau = intervalsFamilia.get(clau);
+				if (familia.equals(familiaClau)) {
+					keys.add(clau);
+				}
+			}
+			return keys;
+		} else {
+			return claus;
+		}
+	}
+	public Set<String> getIntervalsFamilia() {
+		Set<String> families = new HashSet<String>();
+		for (String familia: intervalsFamilia.values()) {
+			families.add(familia);
+		}
+		return families;
 	}
 	
 	public LinkedList<IntervalEvent> getIntervalEvents(String clau) {
