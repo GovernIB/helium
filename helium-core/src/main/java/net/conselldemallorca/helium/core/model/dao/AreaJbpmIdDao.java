@@ -83,4 +83,22 @@ public class AreaJbpmIdDao extends HibernateGenericDao<AreaJbpmId, Long> {
 		});
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<AreaJbpmId> findDistinctJbpmGrupAll() {
+		return (List<AreaJbpmId>)getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				List<AreaJbpmId> resposta = new ArrayList<AreaJbpmId>();
+				Query query = session.createQuery(
+						"select distinct name from org.jbpm.identity.Group");
+				List<String> files = query.list();
+				for (String grup: files) {
+					AreaJbpmId area = new AreaJbpmId();
+					area.setCodi(grup);
+					resposta.add(area);
+				}
+				return resposta;
+			}
+		});
+	}
+
 }

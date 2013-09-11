@@ -80,6 +80,25 @@
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>
+	<profiles>
+		<profile>
+			<id>jboss</id>
+			<dependencies>
+				<dependency>
+					<groupId>org.hibernate</groupId>
+					<artifactId>hibernate-core</artifactId>
+					<version>${hibernate.version}</version>
+					<exclusions>
+						<exclusion>
+							<artifactId>slf4j-api</artifactId>
+							<groupId>org.slf4j</groupId>
+						</exclusion>
+					</exclusions>
+					<scope>provided</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
 	<build>
 		<plugins>
 			<plugin>

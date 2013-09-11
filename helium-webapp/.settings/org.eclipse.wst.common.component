@@ -30,9 +30,6 @@
         <dependent-module archiveName="helium-plugin-impl-3.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-plugin-impl/helium-plugin-impl">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="helium-hibernate-entitymanager-3.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-hibernate-entitymanager/helium-hibernate-entitymanager">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
         <property name="java-output-path" value="/helium-webapp/target/classes"/>
         <property name="context-root" value="helium"/>
         <property name="component.exclusion.patterns" value="META-INF/context.xml"/>

@@ -330,6 +330,10 @@ public class OrganitzacioService {
 		return areaJbpmIdDao.findSenseAssignar();
 	}
 
+	public List<AreaJbpmId> findDistinctJbpmGroups() {
+		return areaJbpmIdDao.findDistinctJbpmGrupAll();
+	}
+
 
 
 	@Autowired
