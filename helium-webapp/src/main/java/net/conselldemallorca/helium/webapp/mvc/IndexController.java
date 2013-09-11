@@ -59,8 +59,8 @@ public class IndexController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			model.addAttribute("personaLlistat", tascaService.findTasquesPersonalsIndex(entorn.getId()));
-			model.addAttribute("grupLlistat", tascaService.findTasquesGrupIndex(entorn.getId()));
+			model.addAttribute("countPersonaLlistat", tascaService.findCountTasquesPersonalsIndex(entorn.getId()));
+			model.addAttribute("countGrupLlistat", tascaService.findCountTasquesGrupIndex(entorn.getId()));
 			model.addAttribute("alertesLlistat", alertaService.findActivesAmbEntornIUsuariAutenticat(entorn.getId()));
 		} else {
 			Map<Entorn, List<TascaLlistatDto>> tasquesPersonaEntorn = new HashMap<Entorn, List<TascaLlistatDto>>();

@@ -10,19 +10,19 @@
 
 	<c:if test="${not empty entornActual}">
 		<c:choose>
-			<c:when test="${fn:length(personaLlistat) > 0 || fn:length(grupLlistat) > 0}">
+			<c:when test="${countPersonaLlistat > 0 || countGrupLlistat > 0}">
 				<div class="missatgesGris">
 					<h4 class="titol-missatge">
 						<img src="<c:url value="/img/application_form.png"/>" alt="<fmt:message key='comuns.tasques' />" title="<fmt:message key='comuns.tasques' />" border="0" style="position:relative;top:3px;"/>
 						<fmt:message key='index.tasq_pendents' />
 					</h4>
-					<c:if test="${fn:length(personaLlistat) > 0}">
+					<c:if test="${countPersonaLlistat > 0}">
 						<br/>
-						<p style="padding-left: 18px">(${fn:length(personaLlistat)}) <a href="<c:url value="/tasca/personaLlistat.html"/>" title="<fmt:message key='index.anar_t_personals' />"><fmt:message key='index.tasq_personals' /></a> <fmt:message key='index.pendents' /></p>
+						<p style="padding-left: 18px">(${countPersonaLlistat}) <a href="<c:url value="/tasca/personaLlistat.html"/>" title="<fmt:message key='index.anar_t_personals' />"><fmt:message key='index.tasq_personals' /></a> <fmt:message key='index.pendents' /></p>
 					</c:if>
-					<c:if test="${fn:length(grupLlistat) > 0}">
+					<c:if test="${countGrupLlistat > 0}">
 						<br/>
-						<p style="padding-left: 18px">(${fn:length(grupLlistat)}) <a href="<c:url value="/tasca/grupLlistat.html"/>" title="<fmt:message key='index.anar_t_grup' />"><fmt:message key='index.tasq_grup' /></a> <fmt:message key='index.pendents' /></p>
+						<p style="padding-left: 18px">(${countGrupLlistat}) <a href="<c:url value="/tasca/grupLlistat.html"/>" title="<fmt:message key='index.anar_t_grup' />"><fmt:message key='index.tasq_grup' /></a> <fmt:message key='index.pendents' /></p>
 					</c:if>
 				</div>
 			</c:when>

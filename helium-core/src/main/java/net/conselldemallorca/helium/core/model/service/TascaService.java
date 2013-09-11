@@ -35,8 +35,8 @@ import net.conselldemallorca.helium.core.model.exception.DominiException;
 import net.conselldemallorca.helium.core.model.exception.IllegalStateException;
 import net.conselldemallorca.helium.core.model.exception.NotFoundException;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
@@ -138,6 +138,10 @@ public class TascaService {
 	public List<TascaLlistatDto> findTasquesPersonalsIndex(Long entornId) {
 		return findTasquesPersonalsTramitacio(entornId, null, false);
 	}
+
+	public int findCountTasquesPersonalsIndex(Long entornId) {
+		return countTasquesPersonalsEntorn(entornId, null);
+	}
 	public List<TascaLlistatDto> findTasquesPersonalsTramitacio(
 			Long entornId,
 			String usuari,
@@ -159,16 +163,8 @@ public class TascaService {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
 		}
-		int count = 0;
-		List<JbpmTask> tasques = jbpmDao.findPersonalTasks(usuariBo);
-		if (tasques != null) {
-			for (JbpmTask task: tasques) {
-				Long currentEntornId = getDadesCacheTasca(task).getEntornId();
-				if (currentEntornId != null && entornId.equals(currentEntornId))
-					count++;
-			}
-		}
-		return count;
+		List<Long> lista = jbpmDao.findListIdsPersonalTasks(usuariBo,entornId);
+		return lista.size();
 	}
 	public PaginaLlistatDto findTasquesPersonalsFiltre(
 			Long entornId,
@@ -191,7 +187,19 @@ public class TascaService {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
 		}
-		List<JbpmTask> tasques = jbpmDao.findPersonalTasks(usuariBo);
+
+		List<Long> ids = jbpmDao.findListPersonalTasks(entornId, usuariBo, 
+				tasca, 
+				expedient, 
+				tipusExpedient, 
+				dataCreacioInici, 
+				dataCreacioFi, 
+				prioritat, 
+				dataLimitInici, 
+				dataLimitFi);
+
+		List<JbpmTask> tasques = jbpmDao.findPersonalTasks(ids, usuariBo, firstRow, maxResults);
+		
 		PaginaLlistatDto resposta = tasquesLlistatFiltradesValors(
 				entornId,
 				tasques, 
@@ -203,10 +211,11 @@ public class TascaService {
 				prioritat,
 				dataLimitInici,
 				dataLimitFi,
-				firstRow,
+				0,
 				maxResults,
 				sort,
 				asc);
+		resposta.setCount(ids.size());
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES PERSONA");
 		return resposta;
 	}
@@ -219,16 +228,8 @@ public class TascaService {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
 		}
-		int count = 0;
-		List<JbpmTask> tasques = jbpmDao.findGroupTasks(usuariBo);
-		if (tasques != null) {
-			for (JbpmTask task: tasques) {
-				Long currentEntornId = getDadesCacheTasca(task).getEntornId();
-				if (currentEntornId != null && entornId.equals(currentEntornId))
-					count++;
-			}
-		}
-		return count;
+		List<Long> lista = jbpmDao.findListIdsGroupTasks(usuariBo, entornId);
+		return lista.size();
 	}
 	public PaginaLlistatDto findTasquesGrupFiltre(
 			Long entornId,
@@ -251,11 +252,22 @@ public class TascaService {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
 		}
-		List<JbpmTask> tasques = jbpmDao.findGroupTasks(usuariBo);
-		
+
+		List<Long> ids = jbpmDao.findListGroupTasks(entornId, usuariBo, 
+				tasca, 
+				expedient, 
+				tipusExpedient, 
+				dataCreacioInici, 
+				dataCreacioFi, 
+				prioritat, 
+				dataLimitInici, 
+				dataLimitFi);
+
+		List<JbpmTask> tasques = jbpmDao.findGroupTasks(ids, usuariBo, firstRow, maxResults);
+
 		PaginaLlistatDto resposta = tasquesLlistatFiltradesValors(
 				entornId,
-				tasques,
+				tasques, 
 				tasca,
 				expedient,
 				tipusExpedient,
@@ -264,10 +276,11 @@ public class TascaService {
 				prioritat,
 				dataLimitInici,
 				dataLimitFi,
-				firstRow,
+				0,
 				maxResults,
 				sort,
-				asc);
+				asc);	
+		resposta.setCount(ids.size());
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES GRUP");
 		return resposta;
 	}
@@ -297,6 +310,11 @@ public class TascaService {
 	public List<TascaLlistatDto> findTasquesGrupIndex(Long entornId) {
 		return findTasquesGrupTramitacio(entornId, null, false);
 	}
+
+	public int findCountTasquesGrupIndex(Long entornId) {
+		return countTasquesGrupEntorn(entornId, null);
+	}
+	
 	public List<TascaLlistatDto> findTasquesGrupTramitacio(
 			Long entornId,
 			String usuari,
@@ -306,7 +324,7 @@ public class TascaService {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
 		}
-		List<JbpmTask> tasques = jbpmDao.findGroupTasks(usuariBo);
+		List<JbpmTask> tasques = jbpmDao.findGroupTasks(usuariBo, entornId);
 		return tasquesFiltradesPerEntorn(entornId, tasques, perTramitacio);
 	}
 

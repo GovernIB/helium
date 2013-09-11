@@ -343,18 +343,101 @@ public class JbpmDao {
 		return resposta;
 	}
 
+	public List<Long> findListPersonalTasks(Long entornId, String actorId, 
+			String tasca, 
+			String expedient, 
+			Long tipusExpedient, 
+			Date dataCreacioInici, 
+			Date dataCreacioFi, 
+			Integer prioritat, 
+			Date dataLimitInici, 
+			Date dataLimitFi) {		
+		GetProcessInstancesForActiveTasksCommand command = new GetProcessInstancesForActiveTasksCommand(entornId, actorId, 
+				tasca, 
+				expedient, 
+				tipusExpedient, 
+				dataCreacioInici, 
+				dataCreacioFi, 
+				prioritat, 
+				dataLimitInici, 
+				dataLimitFi,
+				false);
+		return (List<Long>)commandService.execute(command);
+	}
+
+	public List<Long> findListGroupTasks(Long entornId, String actorId, 
+			String tasca, 
+			String expedient, 
+			Long tipusExpedient, 
+			Date dataCreacioInici, 
+			Date dataCreacioFi, 
+			Integer prioritat, 
+			Date dataLimitInici, 
+			Date dataLimitFi) {		
+		GetProcessInstancesForActiveTasksCommand command = new GetProcessInstancesForActiveTasksCommand(entornId, actorId, 
+				tasca, 
+				expedient, 
+				tipusExpedient, 
+				dataCreacioInici, 
+				dataCreacioFi, 
+				prioritat, 
+				dataLimitInici, 
+				dataLimitFi,
+				true);
+		return (List<Long>)commandService.execute(command);
+	}
+
 	@SuppressWarnings("unchecked")
-	public List<JbpmTask> findPersonalTasks(String actorId) {
+	public List<JbpmTask> findPersonalTasks(List<Long> ids, String usuariBo, int firstRow, int maxResults) {
 		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
-		GetPersonalTaskListCommand command = new GetPersonalTaskListCommand(actorId);
+		GetPersonalTaskListCommand command = new GetPersonalTaskListCommand(usuariBo, ids);
+		command.setFirstRow(firstRow);
+		command.setMaxResults(maxResults);
 		for (TaskInstance ti : (List<TaskInstance>)commandService.execute(command))
 			resultat.add(new JbpmTask(ti));
 		return resultat;
 	}
+
 	@SuppressWarnings("unchecked")
-	public List<JbpmTask> findGroupTasks(String actorId) {
+	public List<JbpmTask> findGroupTasks(List<Long> ids, String usuariBo, int firstRow, int maxResults) {
 		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
-		GetGroupTaskListCommand command = new GetGroupTaskListCommand(actorId);
+		GetGroupTaskListCommand command = new GetGroupTaskListCommand(usuariBo, ids);
+		command.setFirstRow(firstRow);
+		command.setMaxResults(maxResults);
+		for (TaskInstance ti : (List<TaskInstance>)commandService.execute(command))
+			resultat.add(new JbpmTask(ti));
+		return resultat;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<JbpmTask> findPersonalTasks(String usuariBo) {
+		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
+		GetPersonalTaskListCommand command = new GetPersonalTaskListCommand(usuariBo);
+		for (TaskInstance ti : (List<TaskInstance>)commandService.execute(command))
+			resultat.add(new JbpmTask(ti));
+		return resultat;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<Long> findListIdsPersonalTasks(String actorId,Long entorn) {
+		GetProcessInstancesForActiveTasksCommand command = new GetProcessInstancesForActiveTasksCommand(actorId, entorn, false);
+		List<Long> resultado = (List<Long>)commandService.execute(command);
+		return resultado;
+	}
+	@SuppressWarnings("unchecked")
+	public List<Long> findListIdsGroupTasks(String actorId,Long entorn) {
+		GetProcessInstancesForActiveTasksCommand command = new GetProcessInstancesForActiveTasksCommand(actorId, entorn, true);
+		List<Long> resultado = (List<Long>)commandService.execute(command);
+		return resultado;
+	}
+	@SuppressWarnings("unchecked")
+	public List<JbpmTask> findGroupTasks(String actorId,Long entorn) {
+		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
+		
+		GetProcessInstancesForActiveTasksCommand commandIds = new GetProcessInstancesForActiveTasksCommand(actorId, entorn, true);
+		List<Long> ids = (List<Long>)commandService.execute(commandIds);
+		
+		GetGroupTaskListCommand command = new GetGroupTaskListCommand(actorId, ids);
 		for (TaskInstance ti : (List<TaskInstance>)commandService.execute(command))
 			resultat.add(new JbpmTask(ti));
 		return resultat;
