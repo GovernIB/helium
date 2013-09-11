@@ -272,7 +272,7 @@ public class ExpedientService {
 							any));
 			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "2");
 			if (expedientTipus.getTeNumero()) {
-				if (numero != null && numero.length() > 0) {
+				if (numero != null && numero.length() > 0 && expedientTipus.getDemanaNumero()) {
 					expedient.setNumero(numero);
 				} else {
 					expedient.setNumero(

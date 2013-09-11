@@ -221,7 +221,7 @@ public class ExpedientIniciarPasFormController extends BaseController {
 			        }
 					// Si l'expedient ha de demanar titol i/o número redirigeix al pas per demanar
 					// aquestes dades
-					if (tipus.getDemanaNumero().booleanValue() || tipus.getDemanaTitol().booleanValue()) {
+					if (tipus.getDemanaNumero().booleanValue() || tipus.getDemanaTitol().booleanValue() || tipus.isSeleccionarAny()) {
 						guardarCommandSessio(request, command);
 						if (definicioProcesId != null)
 							return "redirect:/expedient/iniciarPasTitol.html?expedientTipusId=" + expedientTipusId + "&definicioProcesId=" + definicioProcesId;
