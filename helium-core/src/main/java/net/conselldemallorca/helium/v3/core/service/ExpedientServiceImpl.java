@@ -472,6 +472,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		mesuresTemporalsHelper.mesuraIniciar("EXPCONGEN_1");
 		// Obté la llista d'ids d'expedient de l'entorn actual que
 		// tenen alguna tasca activa per a l'usuari actual.
+		// Per evitar la limitació d'Oracle que impedeix més de 1000
+		// elements com a paràmetres de l'operador IN cream varis
+		// conjunts d'ids.
 		Set<String> rootProcessInstanceIdsAmbTasquesActives1 = null;
 		Set<String> rootProcessInstanceIdsAmbTasquesActives2 = null;
 		Set<String> rootProcessInstanceIdsAmbTasquesActives3 = null;

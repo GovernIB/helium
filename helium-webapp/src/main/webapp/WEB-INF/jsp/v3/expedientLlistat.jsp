@@ -168,6 +168,7 @@
 			</c:if>
 			$("#nomesPendentsCheck").click(function() {
 				$("input[name=nomesPendents]").val(!$("#nomesPendentsCheck").hasClass('active'));
+				$(this).closest("form").submit();
 			});
 			$("#nomesAlertesCheck").click(function() {
 				$("input[name=nomesAlertes]").val(!$("#nomesAlertesCheck").hasClass('active'));

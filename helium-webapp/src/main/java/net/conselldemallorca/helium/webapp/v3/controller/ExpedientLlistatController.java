@@ -213,6 +213,7 @@ public class ExpedientLlistatController {
 		ExpedientConsultaCommand filtreCommand = SessionHelper.getSessionManager(request).getFiltreConsultaGeneral();
 		if (filtreCommand == null) {
 			filtreCommand = new ExpedientConsultaCommand();
+			filtreCommand.setConsultaRealitzada(true);
 			SessionHelper.setAttribute(
 					request,
 					SessionHelper.VARIABLE_FILTRE_CONSULTA_GENERAL,
