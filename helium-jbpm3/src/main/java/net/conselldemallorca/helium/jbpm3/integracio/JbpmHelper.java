@@ -37,7 +37,7 @@ import net.conselldemallorca.helium.jbpm3.command.FindTaskInstanceForTokenAndTas
 import net.conselldemallorca.helium.jbpm3.command.GetGroupTaskListCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetPersonalTaskListCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetProcessDefinitionByIdCommand;
-import net.conselldemallorca.helium.jbpm3.command.GetProcessInstancesForActiveTasksCommand;
+import net.conselldemallorca.helium.jbpm3.command.GetRootProcessInstancesForActiveTasksCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetProcessInstancesTreeCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetProcessLogByIdCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetSubProcessDefinitionsCommand;
@@ -415,10 +415,10 @@ public class JbpmHelper {
 		return resultat;
 	}*/
 	@SuppressWarnings("unchecked")
-	public List<String> findProcessInstanceIdsWithActiveTasksForActorId(
+	public List<String> findRootProcessInstanceIdsWithActiveTasksForActorId(
 			String actorId) {
 		List<String> resultat = new ArrayList<String>();
-		GetProcessInstancesForActiveTasksCommand command = new GetProcessInstancesForActiveTasksCommand(actorId);
+		GetRootProcessInstancesForActiveTasksCommand command = new GetRootProcessInstancesForActiveTasksCommand(actorId);
 		List<Object[]> files = (List<Object[]>)commandService.execute(command);
 		for (Object[] fila: files) {
 			resultat.add(((Long)fila[0]).toString());

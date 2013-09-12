@@ -3,7 +3,9 @@
  */
 package net.conselldemallorca.helium.jbpm3.command;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.Query;
 import org.jbpm.JbpmContext;
@@ -15,25 +17,24 @@ import org.jbpm.command.Command;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectBaseCommand implements Command {
+public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObjectBaseCommand implements Command {
 
 	private static final long serialVersionUID = -1908847549444051495L;
 	private String actorId;
 
-	public GetProcessInstancesForActiveTasksCommand() {}
+	public GetRootProcessInstancesForActiveTasksCommand() {}
 
-	public GetProcessInstancesForActiveTasksCommand(String actorId) {
+	public GetRootProcessInstancesForActiveTasksCommand(String actorId) {
 		super();
 		this.actorId = actorId;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings("unchecked")
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		setJbpmContext(jbpmContext);
-		long t0 = System.currentTimeMillis();
 		Query queryActorId = jbpmContext.getSession().createQuery(
 				"select " +
-				"    distinct ti.processInstance.id, " +
+				"    ti.processInstance.id, " +
 				"    ti.processInstance.superProcessToken.id " +
 				"from " +
 				"    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
@@ -42,12 +43,10 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 				"and ti.isSuspended = false " +
 				"and ti.isOpen = true");
 		queryActorId.setString("actorId", actorId);
-		List llistaActorId = queryActorId.list();
-		System.out.println(">>> queryActorId (" + (System.currentTimeMillis() - t0) + " ms): " + llistaActorId.size());
-		t0 = System.currentTimeMillis();
+		List<Object[]> llistaActorId = queryActorId.list();
 		Query queryPooledActors = jbpmContext.getSession().createQuery(
 				"select " +
-				"    distinct ti.processInstance.id, " +
+				"    ti.processInstance.id, " +
 				"    ti.processInstance.superProcessToken.id " +
 				"from " +
 				"    org.jbpm.taskmgmt.exe.TaskInstance ti " +
@@ -59,9 +58,43 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 				"and ti.isSuspended = false " +
 				"and ti.isOpen = true");
 		queryPooledActors.setString("actorId", actorId);
-		List llistaPooledActors = queryPooledActors.list();
-		System.out.println(">>> queryPooledActors (" + (System.currentTimeMillis() - t0) + " ms): " + llistaPooledActors.size());
+		List<Object[]> llistaPooledActors = queryPooledActors.list();
 		llistaActorId.addAll(llistaPooledActors);
+		// Cercar els processInstanceIds arrel
+		Set<Long> superProcessTokenIds = new HashSet<Long>();
+		do {
+			superProcessTokenIds.clear();
+			for (Object[] reg: llistaActorId) {
+				if (reg[1] != null)
+					superProcessTokenIds.add((Long)reg[1]);
+			}
+			if (superProcessTokenIds.size() > 0) {
+				Query queryProcessInstancesPare = jbpmContext.getSession().createQuery(
+						"select " +
+						"    t.id, " +
+						"    t.processInstance.id, " +
+						"    t.processInstance.superProcessToken.id " +
+						"from " +
+						"    org.jbpm.graph.exe.Token as t " +
+						"where " +
+						"    t.id in :superProcessTokenIds");
+				queryProcessInstancesPare.setParameterList(
+						"superProcessTokenIds",
+						superProcessTokenIds);
+				List<Object[]> llistaProcessInstancesPare = queryProcessInstancesPare.list();
+				for (Object[] reg1: llistaActorId) {
+					if (reg1[1] != null) {
+						for (Object[] reg2: llistaProcessInstancesPare) {
+							if (reg2[0].equals(reg1[1])) {
+								reg1[0] = reg2[1];
+								reg1[1] = reg2[2];
+								break;
+							}
+						}
+					}
+				}
+			}
+		} while (superProcessTokenIds.size() > 0);
 	    return llistaActorId;
 	}
 
@@ -77,7 +110,7 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 	    return "actorId=" + actorId;
 	}
 
-	public GetProcessInstancesForActiveTasksCommand actorId(String actorId) {
+	public GetRootProcessInstancesForActiveTasksCommand actorId(String actorId) {
 		setActorId(actorId);
 	    return this;
 	}

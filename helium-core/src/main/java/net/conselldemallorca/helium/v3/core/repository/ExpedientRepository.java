@@ -46,7 +46,12 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			"and (:esNullGeoPosX = true or e.geoPosX = :geoPosX) " +
 			"and (:esNullGeoPosY = true or e.geoPosY = :geoPosY) " +
 			"and (:esNullGeoReferencia = true or e.geoReferencia = :geoReferencia) " +
-			"and (:nomesAmbTasquesActives = false or e.id in (:idsAmbTasquesActives)) " +
+			"and (:nomesAmbTasquesActives = false " +
+			"        or e.processInstanceId in (:rootProcessInstanceIdsAmbTasquesActives1) " +
+			"        or e.processInstanceId in (:rootProcessInstanceIdsAmbTasquesActives2) " +
+			"        or e.processInstanceId in (:rootProcessInstanceIdsAmbTasquesActives3) " +
+			"        or e.processInstanceId in (:rootProcessInstanceIdsAmbTasquesActives4) " +
+			"        or e.processInstanceId in (:rootProcessInstanceIdsAmbTasquesActives5)) " +
 			"and (:mostrarAnulats = true or e.anulat = false)")
 	public Page<Expedient> findByFiltreGeneralPaginat(
 			@Param("entornId") Long entornId,
@@ -72,7 +77,11 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			@Param("esNullGeoReferencia") boolean esNullGeoReferencia,
 			@Param("geoReferencia") String geoReferencia,
 			@Param("nomesAmbTasquesActives") boolean nomesAmbTasquesActives,
-			@Param("idsAmbTasquesActives") Collection<Long> idsAmbTasquesActives,
+			@Param("rootProcessInstanceIdsAmbTasquesActives1") Collection<String> rootProcessInstanceIdsAmbTasquesActives1,
+			@Param("rootProcessInstanceIdsAmbTasquesActives2") Collection<String> rootProcessInstanceIdsAmbTasquesActives2,
+			@Param("rootProcessInstanceIdsAmbTasquesActives3") Collection<String> rootProcessInstanceIdsAmbTasquesActives3,
+			@Param("rootProcessInstanceIdsAmbTasquesActives4") Collection<String> rootProcessInstanceIdsAmbTasquesActives4,
+			@Param("rootProcessInstanceIdsAmbTasquesActives5") Collection<String> rootProcessInstanceIdsAmbTasquesActives5,
 			@Param("mostrarAnulats") boolean mostrarAnulats,
 			Pageable pageable);
 

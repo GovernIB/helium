@@ -472,15 +472,52 @@ public class ExpedientServiceImpl implements ExpedientService {
 		mesuresTemporalsHelper.mesuraIniciar("EXPCONGEN_1");
 		// Obté la llista d'ids d'expedient de l'entorn actual que
 		// tenen alguna tasca activa per a l'usuari actual.
-		Set<Long> expedientIdsAmbTasquesActives = null;
+		Set<String> rootProcessInstanceIdsAmbTasquesActives1 = null;
+		Set<String> rootProcessInstanceIdsAmbTasquesActives2 = null;
+		Set<String> rootProcessInstanceIdsAmbTasquesActives3 = null;
+		Set<String> rootProcessInstanceIdsAmbTasquesActives4 = null;
+		Set<String> rootProcessInstanceIdsAmbTasquesActives5 = null;
 		if (nomesAmbTasquesActives) {
-			Set<String> processInstancesAmbTasquesActives = null;
-			processInstancesAmbTasquesActives = new HashSet<String>();
-			List<String> ids = jbpmHelper.findProcessInstanceIdsWithActiveTasksForActorId(auth.getName());
-			for (String id: ids)
-					processInstancesAmbTasquesActives.add(id);
+			List<String> ids = jbpmHelper.findRootProcessInstanceIdsWithActiveTasksForActorId(auth.getName());
+			Set<String> idsDiferents = new HashSet<String>();
+			for (String id: ids) 
+				idsDiferents.add(id);
+			int index = 0;
+			for (String id: idsDiferents) {
+				if (index == 0)
+					rootProcessInstanceIdsAmbTasquesActives1 = new HashSet<String>();
+				if (index == 1000)
+					rootProcessInstanceIdsAmbTasquesActives2 = new HashSet<String>();
+				if (index == 2000)
+					rootProcessInstanceIdsAmbTasquesActives3 = new HashSet<String>();
+				if (index == 3000)
+					rootProcessInstanceIdsAmbTasquesActives4 = new HashSet<String>();
+				if (index == 4000)
+					rootProcessInstanceIdsAmbTasquesActives5 = new HashSet<String>();
+				if (index < 1000)
+					rootProcessInstanceIdsAmbTasquesActives1.add(id);
+				else if (index < 2000)
+					rootProcessInstanceIdsAmbTasquesActives2.add(id);
+				else if (index < 3000)
+					rootProcessInstanceIdsAmbTasquesActives3.add(id);
+				else if (index < 4000)
+					rootProcessInstanceIdsAmbTasquesActives4.add(id);
+				else
+					rootProcessInstanceIdsAmbTasquesActives5.add(id);
+				index++;
+			}
+			/*System.out.println(">>> Núm. rootProcessInstanceIds diferents amb tasques actives: " + idsDiferents.size());
+			if (rootProcessInstanceIdsAmbTasquesActives1 != null)
+				System.out.println(">>> Núm. rootProcessInstanceIdsAmbTasquesActives1: " + rootProcessInstanceIdsAmbTasquesActives1.size());
+			if (rootProcessInstanceIdsAmbTasquesActives2 != null)
+				System.out.println(">>> Núm. rootProcessInstanceIdsAmbTasquesActives2: " + rootProcessInstanceIdsAmbTasquesActives2.size());
+			if (rootProcessInstanceIdsAmbTasquesActives3 != null)
+				System.out.println(">>> Núm. rootProcessInstanceIdsAmbTasquesActives3: " + rootProcessInstanceIdsAmbTasquesActives3.size());
+			if (rootProcessInstanceIdsAmbTasquesActives4 != null)
+				System.out.println(">>> Núm. rootProcessInstanceIdsAmbTasquesActives4: " + rootProcessInstanceIdsAmbTasquesActives4.size());
+			if (rootProcessInstanceIdsAmbTasquesActives5 != null)
+				System.out.println(">>> Núm. rootProcessInstanceIdsAmbTasquesActives5: " + rootProcessInstanceIdsAmbTasquesActives5.size());*/
 		}
-		
 		mesuresTemporalsHelper.mesuraCalcular("EXPCONGEN_1");
 		mesuresTemporalsHelper.mesuraIniciar("EXPCONGEN_2");
 		// Fa la consulta
@@ -508,7 +545,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 				(geoReferencia == null),
 				geoReferencia,
 				nomesAmbTasquesActives,
-				expedientIdsAmbTasquesActives,
+				rootProcessInstanceIdsAmbTasquesActives1,
+				rootProcessInstanceIdsAmbTasquesActives2,
+				rootProcessInstanceIdsAmbTasquesActives3,
+				rootProcessInstanceIdsAmbTasquesActives4,
+				rootProcessInstanceIdsAmbTasquesActives5,
 				mostrarAnulats,
 				paginacioHelper.toSpringDataPageable(paginacioParams));
 		mesuresTemporalsHelper.mesuraCalcular("EXPCONGEN_2");

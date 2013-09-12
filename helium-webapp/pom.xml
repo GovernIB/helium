@@ -254,6 +254,9 @@
 	<profiles>
 		<profile>
 			<id>tomcat</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
 			<dependencies>
 				<dependency>
 					<groupId>org.hibernate</groupId>

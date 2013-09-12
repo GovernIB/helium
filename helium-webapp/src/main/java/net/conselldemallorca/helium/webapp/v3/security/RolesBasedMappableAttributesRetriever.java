@@ -6,6 +6,8 @@ package net.conselldemallorca.helium.webapp.v3.security;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.annotation.Resource;
+
 import net.conselldemallorca.helium.core.model.hibernate.AreaJbpmId;
 import net.conselldemallorca.helium.core.model.hibernate.Permis;
 import net.conselldemallorca.helium.core.model.service.OrganitzacioService;
@@ -24,7 +26,9 @@ import org.springframework.security.core.authority.mapping.MappableAttributesRet
  */
 public class RolesBasedMappableAttributesRetriever implements MappableAttributesRetriever {
 
+	@Resource
 	private PermisService permisService;
+	@Resource
 	private OrganitzacioService organitzacioService;
 
 	private Set<String> defaultMappableAttributes;
