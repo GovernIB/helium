@@ -5,7 +5,14 @@ package net.conselldemallorca.helium.jbpm3.integracio;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import net.conselldemallorca.helium.core.extern.formulari.LlistatIds;
 
 import org.hibernate.Query;
 import org.jbpm.JbpmContext;
@@ -21,67 +28,70 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 
 	private static final long serialVersionUID = -1908847549444051495L;
 	private String actorId;
-	private Long entornId;
-	private boolean pooled;
-	private String tasca;
-	private String expedient;
-	private Long tipusExpedient;
-	private Date dataCreacioInici;
+	private List<Long> idsPIExpedients;
+	private String tasca; 
+	private Date dataCreacioInici; 
 	private Date dataCreacioFi;
 	private Integer prioritat;
 	private Date dataLimitInici;
 	private Date dataLimitFi;
+	private boolean pooled;
+	private int firstRow;
+	private int maxResults;
+	private String sort;
+	private boolean asc;
+
+	public int getFirstRow() {
+		return firstRow;
+	}
+
+	public void setFirstRow(int firstRow) {
+		this.firstRow = firstRow;
+	}
+
+	public int getMaxResults() {
+		return maxResults;
+	}
+
+	public void setMaxResults(int maxResults) {
+		this.maxResults = maxResults;
+	}	
 
 	public GetProcessInstancesForActiveTasksCommand() {}
 
-	public GetProcessInstancesForActiveTasksCommand(String actorId, Long entornId, boolean pooled) {
+	public GetProcessInstancesForActiveTasksCommand(String actorId, List<Long> idsPIExpedients, boolean pooled) {
 		super();
 		this.actorId = actorId;
-		this.entornId = entornId;
+		this.idsPIExpedients = idsPIExpedients;
 		this.pooled = pooled;
 	}
 
-	public GetProcessInstancesForActiveTasksCommand(Long entornId, String actorId, String tasca, String expedient, Long tipusExpedient, Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi, boolean pooled) {
+	public GetProcessInstancesForActiveTasksCommand(String actorId, String tasca, List<Long> idsPIExpedients, Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi, String sort, boolean asc, boolean pooled) {
 		super();
-		this.entornId = entornId;
 		this.actorId = actorId;
-		this.tasca = tasca;
-		this.expedient = expedient;
-		this.tipusExpedient = tipusExpedient;
-		this.dataCreacioInici = dataCreacioInici;
+		this.idsPIExpedients = idsPIExpedients;
+		this.tasca = tasca; 
+		this.dataCreacioInici = dataCreacioInici; 
 		this.dataCreacioFi = dataCreacioFi;
 		this.prioritat = prioritat;
 		this.dataLimitInici = dataLimitInici;
 		this.dataLimitFi = dataLimitFi;
 		this.pooled = pooled;
+		this.sort = sort;
+		this.asc = asc;
 	}
 
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		setJbpmContext(jbpmContext);
-		List<Long> resultado = new ArrayList<Long>();
-
-		String filtradoExpediente = "select count(ex) "
-				+ " from Expedient as ex "
-				+ " where "
-				+ " ex.entorn.id = :entornId "
-				+ " AND ex.processInstanceId = ti.processInstance.id";
-		
-		if (tipusExpedient != null) {
-			filtradoExpediente += "	and ex.tipus.id = :tipusExpedient ";
-		}
-		
-		if (expedient != null && !"".equals(expedient)) {
-			filtradoExpediente += "	and UPPER('['||(case when ex.numero is not null then ex.numero ELSE ex.numeroDefault END)||']'||ex.titol) like UPPER(:expedient)";			
-		}
 		
 		String hqlPersonal =
 				"select  " + 
-				"	 ti.id," +
-				"    ti.processInstance.superProcessToken.id, " + 
-				"	 (" + filtradoExpediente + " ) " +
+				"    ti.processInstance.id, " +
+				"    ti.processInstance.superProcessToken.id, " +
+				"	 ti.id, " +
+				"	 (select (ta.nom) from Tasca as ta where ta.jbpmName = ti.name and ti.processInstance.processDefinition.id = ta.definicioProces.jbpmId) " +
 				"	 from " +
-				"    org.jbpm.taskmgmt.exe.TaskInstance as ti " + 
-				"	 join ti.processInstance pi" +
+				"    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
 				"	 where " +
 				"	 ti.actorId = :actorId " + 
 				"	 and ti.isSuspended = false " +
@@ -89,12 +99,12 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 		
 		String hqlPooled =		
 				"select  " + 
-				"	 ti.id," +
-				"    ti.processInstance.superProcessToken.id, " +  
-				"	 (" + filtradoExpediente + " ) " +
+				"    ti.processInstance.id, " +
+				"    ti.processInstance.superProcessToken.id, " +
+				"	 ti.id, " +
+				"	 (select (ta.nom) from Tasca as ta where ta.jbpmName = ti.name and ti.processInstance.processDefinition.id = ta.definicioProces.jbpmId) " +
 				"	 from " +
-				"    org.jbpm.taskmgmt.exe.TaskInstance as ti " + 
-				"	 join ti.processInstance pi" +
+				"    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
 				"	 join ti.pooledActors pooledActor " +
 				"	 where " +
 				"	 pooledActor.actorId = :actorId " +
@@ -125,12 +135,24 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 		}
 		
 		if (tasca != null && !"".equals(tasca)) {
-			hql += "	and pi.processDefinition.id = (select (ta.definicioProces.jbpmId) from Tasca as ta where UPPER(ta.nom) like UPPER(:tasca) and ta.jbpmName = ti.name and ti.processInstance.processDefinition.id = ta.definicioProces.jbpmId) ";
+			hql += "	and ti.processInstance.processDefinition.id = (select (ta.definicioProces.jbpmId) from Tasca as ta where UPPER(ta.nom) like UPPER(:tasca) and ta.jbpmName = ti.name and ti.processInstance.processDefinition.id = ta.definicioProces.jbpmId) ";
+		}
+		
+		hql += " order by ";
+		if ("dataCreacio".equals(sort)) {
+			hql += " ti.create " + (asc ? "asc" : "desc");
+		} else if ("prioritat".equals(sort)) {
+			hql += " ti.priority " + (asc ? "asc" : "desc");
+		} else if ("dataLimit".equals(sort)) {
+			hql += " ti.dueDate " + (asc ? "asc" : "desc");
+		} else if ("titol".equals(sort)) {
+			hql += " 4 " + (asc ? "asc" : "desc");
+		} else {
+			hql += " 1 ";
 		}
 		
 		Query query = jbpmContext.getSession().createQuery(hql);
 		query.setString("actorId", actorId);
-		query.setLong("entornId", entornId);
 		
 		if (dataCreacioInici != null) {
 			query.setDate("dataCreacioInici", dataCreacioInici);
@@ -155,65 +177,89 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 		if (tasca != null && !"".equals(tasca)) {
 			query.setString("tasca","%"+tasca+"%");
 		}
+		List<Object[]> llistaActorId = query.list();		
 		
-		if (expedient != null && !"".equals(expedient)) {
-			query.setString("expedient", "%"+expedient+"%");
-		}
-		
-		if (tipusExpedient != null) {
-			query.setLong("tipusExpedient", tipusExpedient);
-		}
-		List<Object[]> resultIds = query.list();
-		for (Object[] fila : resultIds) {
-			if (fila[1] != null) {
-				// Si tiene superProcessToken no es nodo final
-				boolean fin = false;
-				Long token = (Long) fila[1];
-				while(!fin) {
-					Query querySuperProcessToken = jbpmContext.getSession().createQuery(
-						"select  " + 
-						"	 ti.id," +
-						"    pi.superProcessToken.id, " +  
-						"	 (" + filtradoExpediente + " ) " +
-						"	 from " + 
-						"	 org.jbpm.taskmgmt.exe.TaskInstance as ti " +
-						"	 join ti.processInstance pi" +
-						"	 where " +
-						"	 pi.id in (select tk.processInstance.id from org.jbpm.graph.exe.Token as tk where tk.id = ( :token ) ) ");
-					querySuperProcessToken.setLong("entornId", entornId);
-					querySuperProcessToken.setLong("token",token);
-					
-					if (expedient != null && !"".equals(expedient)) {
-						querySuperProcessToken.setString("expedient", "%"+expedient+"%");
-					}
-					
-					if (tipusExpedient != null) {
-						querySuperProcessToken.setLong("tipusExpedient", tipusExpedient);
-					}
-					
-					querySuperProcessToken.setMaxResults(1);
-					
-					Object[] res = (Object[]) querySuperProcessToken.uniqueResult();
-					if (res[1] == null) {
-						// Nodo final
-						if ((Long) res[2] > 0) {
-							// Cambiamos el número de expedientes de ese taskinstance
-							fila[2] = res[2];
+		Map<Long, Long> idInstances = new HashMap<Long, Long>();
+		Set<Long> superProcessTokenIds = new HashSet<Long>();
+		do {
+			superProcessTokenIds.clear();
+			for (Object[] reg: llistaActorId) {
+				if (reg[1] != null)
+					superProcessTokenIds.add((Long)reg[1]);
+			}
+			if (superProcessTokenIds.size() > 0) {
+				Query queryProcessInstancesPare = jbpmContext.getSession().createQuery(
+						"select " +
+						"    t.id, " +
+						"    t.processInstance.id, " +
+						"    t.processInstance.superProcessToken.id " +
+						"from " +
+						"    org.jbpm.graph.exe.Token as t " +
+						"where " +
+						"    t.id in (:superProcessTokenIds)");
+				queryProcessInstancesPare.setParameterList(
+						"superProcessTokenIds",
+						superProcessTokenIds);
+				List<Object[]> llistaProcessInstancesPare = queryProcessInstancesPare.list();
+				for (Object[] reg1: llistaActorId) {
+					if (reg1[1] != null) {
+						for (Object[] reg2: llistaProcessInstancesPare) {
+							if (reg2[0].equals(reg1[1])) {
+								reg1[1] = reg2[2];
+								
+								if (reg2[2] == null && idsPIExpedients.contains((Long)reg2[1])) {
+									idInstances.put((Long)reg1[2],(Long)reg2[1]);
+								}
+								
+								break;
+							}
 						}
-						fin = true;
 					} else {
-						token = (Long) res[1];
+						Long pi = (Long)reg1[0];
+						if (idsPIExpedients.contains(pi)) {
+							idInstances.put((Long)reg1[2],(Long)reg1[0]);
+						}
 					}
 				}
 			}
-			if ((Long)fila[2] > 0 && !resultado.contains((Long) fila[0])) {
-				// Si tiene expediente
-				resultado.add((Long) fila[0]);
-			}
+		} while (superProcessTokenIds.size() > 0);
+		
+		List<Long> listadoTask = new ArrayList<Long>();
+		
+		// Ordenamos la lista en el caso de que sea por expedientes
+	    if ("expedientTitol".equals(sort) || "expedientTipusNom".equals(sort)) {
+	    	for (Long id : idsPIExpedients) {
+	    		Iterator it = idInstances.entrySet().iterator();
+				while (it.hasNext()) {
+					Map.Entry e = (Map.Entry)it.next();
+					if (id.equals(e.getValue()) && !listadoTask.contains((Long) e.getKey())) {
+						listadoTask.add((Long) e.getKey());
+						break;
+					}
+				}
+	    	}			
+		} else {
+	    	for (Object[] fila : llistaActorId) {
+	    		Iterator it = idInstances.entrySet().iterator();
+				while (it.hasNext()) {
+					Map.Entry e = (Map.Entry)it.next();
+					if (((Long)fila[2]).equals(e.getKey()) && !listadoTask.contains((Long) e.getKey())) {
+						listadoTask.add((Long) e.getKey());
+						break;
+					}
+				}
+	    	}			
 		}
-
-		return resultado;
+				
+		maxResults = (maxResults > idInstances.size()) ? idInstances.size() : maxResults;
+		int limit = (maxResults > 0)? getFirstRow()+maxResults : idInstances.size();
+	    	    
+	    LlistatIds listado = new LlistatIds();
+	    listado.setCount(idInstances.size());
+	    listado.setIds(listadoTask.subList(getFirstRow(), limit));
+		return listado;
 	}
+
 
 	public String getActorId() {
 		return actorId;

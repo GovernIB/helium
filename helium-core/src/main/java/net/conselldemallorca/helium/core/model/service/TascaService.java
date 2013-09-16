@@ -15,6 +15,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
+import net.conselldemallorca.helium.core.extern.formulari.LlistatIds;
 import net.conselldemallorca.helium.core.model.dao.AlertaDao;
 import net.conselldemallorca.helium.core.model.dao.CampDao;
 import net.conselldemallorca.helium.core.model.dao.CampTascaDao;
@@ -163,8 +164,13 @@ public class TascaService {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
 		}
-		List<Long> lista = jbpmDao.findListIdsPersonalTasks(usuariBo,entornId);
-		return lista.size();
+		
+		List<Long> idsExpedients = expedientDao.findListExpedients(
+				entornId, 
+				usuariBo);
+		
+		LlistatIds lista = jbpmDao.findListIdsPersonalTasks(usuariBo,idsExpedients);
+		return lista.getCount();
 	}
 	public PaginaLlistatDto findTasquesPersonalsFiltre(
 			Long entornId,
@@ -188,17 +194,26 @@ public class TascaService {
 			usuariBo = auth.getName();
 		}
 
-		List<Long> ids = jbpmDao.findListPersonalTasks(entornId, usuariBo, 
-				tasca, 
+		List<Long> idsExpedients = expedientDao.findListExpedients(
+				entornId, 
+				usuariBo,
 				expedient, 
-				tipusExpedient, 
+				tipusExpedient,
+				sort,
+				asc
+				);
+
+		LlistatIds ids = jbpmDao.findListPersonalTasks(
+				usuariBo, 
+				tasca, 
+				idsExpedients, 
 				dataCreacioInici, 
 				dataCreacioFi, 
 				prioritat, 
 				dataLimitInici, 
-				dataLimitFi);
+				dataLimitFi, firstRow, maxResults, sort, asc);
 
-		List<JbpmTask> tasques = jbpmDao.findPersonalTasks(ids, usuariBo, firstRow, maxResults);
+		List<JbpmTask> tasques = jbpmDao.findPersonalTasks(ids.getIds(), usuariBo);
 		
 		PaginaLlistatDto resposta = tasquesLlistatFiltradesValors(
 				entornId,
@@ -215,7 +230,7 @@ public class TascaService {
 				maxResults,
 				sort,
 				asc);
-		resposta.setCount(ids.size());
+		resposta.setCount(ids.getCount());
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES PERSONA");
 		return resposta;
 	}
@@ -228,8 +243,13 @@ public class TascaService {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
 		}
-		List<Long> lista = jbpmDao.findListIdsGroupTasks(usuariBo, entornId);
-		return lista.size();
+		
+		List<Long> idsExpedients = expedientDao.findListExpedients(
+				entornId, 
+				usuariBo);
+		
+		LlistatIds lista = jbpmDao.findListIdsGroupTasks(usuariBo, idsExpedients);
+		return lista.getCount();
 	}
 	public PaginaLlistatDto findTasquesGrupFiltre(
 			Long entornId,
@@ -252,18 +272,25 @@ public class TascaService {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
 		}
-
-		List<Long> ids = jbpmDao.findListGroupTasks(entornId, usuariBo, 
-				tasca, 
+		List<Long> idsExpedients = expedientDao.findListExpedients(
+				entornId, 
+				usuariBo,
 				expedient, 
-				tipusExpedient, 
+				tipusExpedient,
+				sort,
+				asc);
+		
+		LlistatIds ids = jbpmDao.findListGroupTasks(
+				usuariBo, 
+				tasca, 
+				idsExpedients, 
 				dataCreacioInici, 
 				dataCreacioFi, 
 				prioritat, 
 				dataLimitInici, 
-				dataLimitFi);
+				dataLimitFi, firstRow, maxResults, sort, asc);
 
-		List<JbpmTask> tasques = jbpmDao.findGroupTasks(ids, usuariBo, firstRow, maxResults);
+		List<JbpmTask> tasques = jbpmDao.findGroupTasks(ids.getIds(), usuariBo);
 
 		PaginaLlistatDto resposta = tasquesLlistatFiltradesValors(
 				entornId,
@@ -280,7 +307,7 @@ public class TascaService {
 				maxResults,
 				sort,
 				asc);	
-		resposta.setCount(ids.size());
+		resposta.setCount(ids.getCount());
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES GRUP");
 		return resposta;
 	}
@@ -324,7 +351,8 @@ public class TascaService {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
 		}
-		List<JbpmTask> tasques = jbpmDao.findGroupTasks(usuariBo, entornId);
+		
+		List<JbpmTask> tasques = jbpmDao.findGroupTasks(usuariBo);
 		return tasquesFiltradesPerEntorn(entornId, tasques, perTramitacio);
 	}
 

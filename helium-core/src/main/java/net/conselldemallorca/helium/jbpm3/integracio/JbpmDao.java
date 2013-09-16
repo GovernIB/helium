@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import net.conselldemallorca.helium.core.extern.formulari.LlistatIds;
 import net.conselldemallorca.helium.core.model.exception.DeploymentException;
 
 import org.hibernate.SessionFactory;
@@ -343,67 +344,34 @@ public class JbpmDao {
 		return resposta;
 	}
 
-	public List<Long> findListPersonalTasks(Long entornId, String actorId, 
-			String tasca, 
-			String expedient, 
-			Long tipusExpedient, 
-			Date dataCreacioInici, 
-			Date dataCreacioFi, 
-			Integer prioritat, 
-			Date dataLimitInici, 
-			Date dataLimitFi) {		
-		GetProcessInstancesForActiveTasksCommand command = new GetProcessInstancesForActiveTasksCommand(entornId, actorId, 
-				tasca, 
-				expedient, 
-				tipusExpedient, 
-				dataCreacioInici, 
-				dataCreacioFi, 
-				prioritat, 
-				dataLimitInici, 
-				dataLimitFi,
-				false);
-		return (List<Long>)commandService.execute(command);
+	public LlistatIds findListPersonalTasks(String usuariBo, String tasca, List<Long> idsExpedients, Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi, int firstRow, int maxResults, String sort, boolean asc) {
+		GetProcessInstancesForActiveTasksCommand command = new GetProcessInstancesForActiveTasksCommand(usuariBo, tasca, idsExpedients, dataCreacioInici, dataCreacioFi, prioritat, dataLimitInici, dataLimitFi, sort, asc,false);
+		command.setFirstRow(firstRow);
+		command.setMaxResults(maxResults);
+		
+		return (LlistatIds)commandService.execute(command);
 	}
 
-	public List<Long> findListGroupTasks(Long entornId, String actorId, 
-			String tasca, 
-			String expedient, 
-			Long tipusExpedient, 
-			Date dataCreacioInici, 
-			Date dataCreacioFi, 
-			Integer prioritat, 
-			Date dataLimitInici, 
-			Date dataLimitFi) {		
-		GetProcessInstancesForActiveTasksCommand command = new GetProcessInstancesForActiveTasksCommand(entornId, actorId, 
-				tasca, 
-				expedient, 
-				tipusExpedient, 
-				dataCreacioInici, 
-				dataCreacioFi, 
-				prioritat, 
-				dataLimitInici, 
-				dataLimitFi,
-				true);
-		return (List<Long>)commandService.execute(command);
+	public LlistatIds findListGroupTasks(String usuariBo, String tasca, List<Long> idsExpedients, Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi, int firstRow, int maxResults, String sort, boolean asc) {
+		GetProcessInstancesForActiveTasksCommand command = new GetProcessInstancesForActiveTasksCommand(usuariBo, tasca, idsExpedients, dataCreacioInici, dataCreacioFi, prioritat, dataLimitInici, dataLimitFi, sort, asc,true);
+		command.setFirstRow(firstRow);
+		command.setMaxResults(maxResults);
+		return (LlistatIds)commandService.execute(command);
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<JbpmTask> findPersonalTasks(List<Long> ids, String usuariBo, int firstRow, int maxResults) {
+	public List<JbpmTask> findPersonalTasks(List<Long> ids, String usuariBo) {
 		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
 		GetPersonalTaskListCommand command = new GetPersonalTaskListCommand(usuariBo, ids);
-		command.setFirstRow(firstRow);
-		command.setMaxResults(maxResults);
 		for (TaskInstance ti : (List<TaskInstance>)commandService.execute(command))
 			resultat.add(new JbpmTask(ti));
 		return resultat;
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<JbpmTask> findGroupTasks(List<Long> ids, String usuariBo, int firstRow, int maxResults) {
+	public List<JbpmTask> findGroupTasks(List<Long> ids, String usuariBo) {
 		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
 		GetGroupTaskListCommand command = new GetGroupTaskListCommand(usuariBo, ids);
-		command.setFirstRow(firstRow);
-		command.setMaxResults(maxResults);
 		for (TaskInstance ti : (List<TaskInstance>)commandService.execute(command))
 			resultat.add(new JbpmTask(ti));
 		return resultat;
@@ -418,26 +386,21 @@ public class JbpmDao {
 		return resultat;
 	}
 
-	@SuppressWarnings("unchecked")
-	public List<Long> findListIdsPersonalTasks(String actorId,Long entorn) {
-		GetProcessInstancesForActiveTasksCommand command = new GetProcessInstancesForActiveTasksCommand(actorId, entorn, false);
-		List<Long> resultado = (List<Long>)commandService.execute(command);
+	public LlistatIds findListIdsPersonalTasks(String actorId,List<Long> idsExpedients) {
+		GetProcessInstancesForActiveTasksCommand command = new GetProcessInstancesForActiveTasksCommand(actorId, idsExpedients, false);
+		LlistatIds resultado = (LlistatIds)commandService.execute(command);
+		return resultado;
+	}
+	public LlistatIds findListIdsGroupTasks(String actorId,List<Long> idsExpedients) {
+		GetProcessInstancesForActiveTasksCommand command = new GetProcessInstancesForActiveTasksCommand(actorId, idsExpedients, true);
+		LlistatIds resultado = (LlistatIds)commandService.execute(command);
 		return resultado;
 	}
 	@SuppressWarnings("unchecked")
-	public List<Long> findListIdsGroupTasks(String actorId,Long entorn) {
-		GetProcessInstancesForActiveTasksCommand command = new GetProcessInstancesForActiveTasksCommand(actorId, entorn, true);
-		List<Long> resultado = (List<Long>)commandService.execute(command);
-		return resultado;
-	}
-	@SuppressWarnings("unchecked")
-	public List<JbpmTask> findGroupTasks(String actorId,Long entorn) {
+	public List<JbpmTask> findGroupTasks(String actorId) {
 		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
 		
-		GetProcessInstancesForActiveTasksCommand commandIds = new GetProcessInstancesForActiveTasksCommand(actorId, entorn, true);
-		List<Long> ids = (List<Long>)commandService.execute(commandIds);
-		
-		GetGroupTaskListCommand command = new GetGroupTaskListCommand(actorId, ids);
+		GetGroupTaskListCommand command = new GetGroupTaskListCommand(actorId);
 		for (TaskInstance ti : (List<TaskInstance>)commandService.execute(command))
 			resultat.add(new JbpmTask(ti));
 		return resultat;

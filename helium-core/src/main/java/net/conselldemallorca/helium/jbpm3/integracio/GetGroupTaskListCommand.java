@@ -21,27 +21,10 @@ import org.jbpm.taskmgmt.exe.TaskInstance;
 public class GetGroupTaskListCommand extends AbstractGetObjectBaseCommand {
 
 	private static final long serialVersionUID = -1908847549444051495L;
-	
-	public int getFirstRow() {
-		return firstRow;
-	}
-
-	public void setFirstRow(int firstRow) {
-		this.firstRow = firstRow;
-	}
-
-	public int getMaxResults() {
-		return maxResults;
-	}
-
-	public void setMaxResults(int maxResults) {
-		this.maxResults = maxResults;
-	}
 
 	private List<Long> ids;
-	private int firstRow;
-	private int maxResults;
 	private String actorId;
+	
 	public GetGroupTaskListCommand() {}
 
 	public GetGroupTaskListCommand(String actorId, List<Long> ids) {
@@ -70,13 +53,9 @@ public class GetGroupTaskListCommand extends AbstractGetObjectBaseCommand {
 						       " 	where  " +
 						       "	ti.isSuspended != true "+
 						       " 	and ti.isOpen = true" +
-						       "	and ti.id in (:ids)";
-			
+						       "	and ti.id in (:ids)";			
 			Query query = jbpmContext.getSession().createQuery(hql);
 			query = translateIn(ids, query, "ids", "ti.id");
-			
-			query.setFirstResult(firstRow);
-			query.setMaxResults(maxResults == 0 ? 20 : maxResults);
 			result = query.list();
 		}
 		else {
@@ -105,8 +84,6 @@ public class GetGroupTaskListCommand extends AbstractGetObjectBaseCommand {
 		setActorId(actorId);
 	    return this;
 	}
-
-
 
 	@SuppressWarnings("rawtypes")
 	public List retrieveTaskInstanceDetails(List taskInstanceList) {

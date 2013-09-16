@@ -21,26 +21,8 @@ import org.jbpm.taskmgmt.exe.TaskInstance;
  */
 public class GetPersonalTaskListCommand extends AbstractGetObjectBaseCommand implements Command {
 
-	public int getFirstRow() {
-		return firstRow;
-	}
-
-	public void setFirstRow(int firstRow) {
-		this.firstRow = firstRow;
-	}
-
-	public int getMaxResults() {
-		return maxResults;
-	}
-
-	public void setMaxResults(int maxResults) {
-		this.maxResults = maxResults;
-	}
-
 	private static final long serialVersionUID = -1908847549444051495L;
 	private List<Long> ids;
-	private int firstRow;
-	private int maxResults;
 	private String actorId;
 
 	public GetPersonalTaskListCommand() {}
@@ -76,9 +58,6 @@ public class GetPersonalTaskListCommand extends AbstractGetObjectBaseCommand imp
 			Query query = jbpmContext.getSession().createQuery(hql);
 			query = translateIn(ids, query, "ids", "ti.id");
 			query.setString("actorId", actorId);
-			
-			query.setFirstResult(firstRow);
-			query.setMaxResults(maxResults == 0 ? 20 : maxResults);
 			result = query.list();
 		} else {
 			result = jbpmContext.getTaskList(actorId);
