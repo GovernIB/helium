@@ -8,6 +8,9 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import net.conselldemallorca.helium.core.util.GlobalProperties;
+
+import org.hibernate.CacheMode;
 import org.hibernate.Criteria;
 import org.hibernate.LockMode;
 import org.hibernate.Query;
@@ -306,11 +309,22 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 	private List<T> getResultList(final Criteria crit) {
 		List<T> result = null;
 		// Comprobamos si la entidad es cacheable
-		if (getPersistentClass().getAnnotation(org.hibernate.annotations.Cache.class) == null ) {
+		if (getPersistentClass().getAnnotation(org.hibernate.annotations.Cache.class) == null || !isCached()) {
 			result = crit.list();
 		} else {
 			result = crit.setCacheable(true).list();
 		}
 		return result;
+	}
+	
+	private boolean isCached() {
+		String cached = GlobalProperties.getInstance().getProperty("app.hibernate.cache");
+		if (cached == null)
+			cached = "false";
+		boolean isCached = "true".equalsIgnoreCase(cached);
+		if (!isCached) {
+			getSession().setCacheMode(CacheMode.IGNORE);
+		}
+		return isCached;
 	}
 }

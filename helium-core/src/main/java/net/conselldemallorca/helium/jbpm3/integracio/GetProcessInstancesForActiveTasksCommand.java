@@ -83,59 +83,59 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		setJbpmContext(jbpmContext);
-		
+		  
 		String hqlPersonal =
-				"select  " + 
-				"    ti.processInstance.id, " +
-				"    ti.processInstance.superProcessToken.id, " +
-				"	 ti.id, " +
-				"	 (select (ta.nom) from Tasca as ta where ta.jbpmName = ti.name and ti.processInstance.processDefinition.id = ta.definicioProces.jbpmId) " +
-				"	 from " +
-				"    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
-				"	 where " +
-				"	 ti.actorId = :actorId " + 
-				"	 and ti.isSuspended = false " +
-				"	 and ti.isOpen = true";
-		
-		String hqlPooled =		
-				"select  " + 
-				"    ti.processInstance.id, " +
-				"    ti.processInstance.superProcessToken.id, " +
-				"	 ti.id, " +
-				"	 (select (ta.nom) from Tasca as ta where ta.jbpmName = ti.name and ti.processInstance.processDefinition.id = ta.definicioProces.jbpmId) " +
-				"	 from " +
-				"    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
-				"	 join ti.pooledActors pooledActor " +
-				"	 where " +
-				"	 pooledActor.actorId = :actorId " +
-				"	 and ti.actorId is null " + 
-				"	 and ti.isSuspended = false " +
-				"	 and ti.isOpen = true";
-		
+		    "select  " + 
+		    "    ti.processInstance.id, " +
+		    "    ti.processInstance.superProcessToken.id, " +
+		    "  ti.id, " +
+		    "  (select (ta.nom) from Tasca as ta where ta.jbpmName = ti.name and ti.processInstance.processDefinition.id = cast(ta.definicioProces.jbpmId as long)) " +
+		    "  from " +
+		    "    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
+		    "  where " +
+		    "  ti.actorId = :actorId " + 
+		    "  and ti.isSuspended = false " +
+		    "  and ti.isOpen = true";
+		  
+		String hqlPooled =  
+		    "select  " + 
+		    "    ti.processInstance.id, " +
+		    "    ti.processInstance.superProcessToken.id, " +
+		    "  ti.id, " +
+		    "  (select (ta.nom) from Tasca as ta where ta.jbpmName = ti.name and ti.processInstance.processDefinition.id = cast(ta.definicioProces.jbpmId as long)) " +
+		    "  from " +
+		    "    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
+		    "  join ti.pooledActors pooledActor " +
+		    "  where " +
+		    "  pooledActor.actorId = :actorId " +
+		    "  and ti.actorId is null " + 
+		    "  and ti.isSuspended = false " +
+		    "  and ti.isOpen = true";
+		  
 		String hql = pooled ? hqlPooled : hqlPersonal;
-		
+		  
 		if (dataCreacioInici != null) {
-			hql += "	and ti.create >= :dataCreacioInici";
+			hql += " and ti.create >= :dataCreacioInici";
 		}
-		
+
 		if (dataCreacioFi != null) {
-			hql += "	and ti.create <= :dataCreacioFi";
+			hql += " and ti.create <= :dataCreacioFi";
 		}
-		
+
 		if (dataLimitInici != null) {
-			hql += "	and ti.dueDate >= :dataLimitInici";
+			hql += " and ti.dueDate >= :dataLimitInici";
 		}
-		
+
 		if (dataLimitFi != null) {
-			hql += "	and ti.dueDate <= :dataLimitFi";
+			hql += " and ti.dueDate <= :dataLimitFi";
 		}
-		
+
 		if (prioritat != null) {
-			hql += "	and ti.priority = :prioritat";
+			hql += " and ti.priority = :prioritat";
 		}
-		
+
 		if (tasca != null && !"".equals(tasca)) {
-			hql += "	and ti.processInstance.processDefinition.id = (select (ta.definicioProces.jbpmId) from Tasca as ta where UPPER(ta.nom) like UPPER(:tasca) and ta.jbpmName = ti.name and ti.processInstance.processDefinition.id = ta.definicioProces.jbpmId) ";
+			hql += " and ti.processInstance.processDefinition.id = (select (cast(ta.definicioProces.jbpmId as long)) from Tasca as ta where UPPER(ta.nom) like UPPER(:tasca) and ta.jbpmName = ti.name and ti.processInstance.processDefinition.id = cast(ta.definicioProces.jbpmId as long)) ";
 		}
 		
 		hql += " order by ";
