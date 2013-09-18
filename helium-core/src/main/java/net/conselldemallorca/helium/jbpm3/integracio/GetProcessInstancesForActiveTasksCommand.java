@@ -82,6 +82,9 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 	}
 
 	public Object execute(JbpmContext jbpmContext) throws Exception {
+		long time = System.currentTimeMillis();
+		System.out.println("GetProcessInstancesForActiveTasksCommand INICIO - POOLED " +pooled+" - " + time);
+		
 		setJbpmContext(jbpmContext);
 		  
 		String hqlPersonal =
@@ -113,7 +116,7 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 		    "  and ti.isOpen = true";
 		  
 		String hql = pooled ? hqlPooled : hqlPersonal;
-		  
+		
 		if (dataCreacioInici != null) {
 			hql += " and ti.create >= :dataCreacioInici";
 		}
@@ -177,6 +180,9 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 		if (tasca != null && !"".equals(tasca)) {
 			query.setString("tasca","%"+tasca+"%");
 		}
+		System.out.println("GetProcessInstancesForActiveTasksCommand - POOLED " +pooled+" - " + time + " - HQL: " + query.getQueryString());
+		System.out.println("GetProcessInstancesForActiveTasksCommand - POOLED " +pooled+" - " + time + " - PARAMETERS: " + getParametersToString());		
+		
 		List<Object[]> llistaActorId = query.list();		
 		
 		Map<Long, Long> idInstances = new HashMap<Long, Long>();
@@ -200,6 +206,8 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 				queryProcessInstancesPare.setParameterList(
 						"superProcessTokenIds",
 						superProcessTokenIds);
+				System.out.println("GetProcessInstancesForActiveTasksCommand - POOLED " +pooled+" - " + time + " - HQL superProcessToken: " + queryProcessInstancesPare.getQueryString());
+				System.out.println("GetProcessInstancesForActiveTasksCommand - POOLED " +pooled+" - " + time + " - PARAMETERS superProcessToken: " + superProcessTokenIds);
 				List<Object[]> llistaProcessInstancesPare = queryProcessInstancesPare.list();
 				for (Object[] reg1: llistaActorId) {
 					if (reg1[1] != null) {
@@ -258,6 +266,13 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 	    LlistatIds listado = new LlistatIds();
 	    listado.setCount(listadoTask.size());
 	    listado.setIds(listadoTask.subList(getFirstRow(), limit));
+	    
+	    System.out.println("GetProcessInstancesForActiveTasksCommand - POOLED " +pooled+" - " + time + " - listadoTask : " + listadoTask);
+	    System.out.println("GetProcessInstancesForActiveTasksCommand - POOLED " +pooled+" - " + time + " - listadoTask.size() : " + listadoTask.size());
+	    System.out.println("GetProcessInstancesForActiveTasksCommand - POOLED " +pooled+" - " + time + " - getFirstRow(), limit : " + getFirstRow() +","+ limit);
+	    
+	    System.out.println("GetProcessInstancesForActiveTasksCommand FIN - POOLED " +pooled+" - " + time);
+	    
 		return listado;
 	}
 
@@ -267,6 +282,10 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 	}
 	public void setActorId(String actorId) {
 		this.actorId = actorId;
+	}
+
+	public String getParametersToString() {
+		return "GetProcessInstancesForActiveTasksCommand [actorId=" + actorId + ", idsPIExpedients=" + idsPIExpedients + ", tasca=" + tasca + ", dataCreacioInici=" + dataCreacioInici + ", dataCreacioFi=" + dataCreacioFi + ", prioritat=" + prioritat + ", dataLimitInici=" + dataLimitInici + ", dataLimitFi=" + dataLimitFi + ", pooled=" + pooled + ", firstRow=" + firstRow + ", maxResults=" + maxResults + ", sort=" + sort + ", asc=" + asc + "]";
 	}
 
 	@Override

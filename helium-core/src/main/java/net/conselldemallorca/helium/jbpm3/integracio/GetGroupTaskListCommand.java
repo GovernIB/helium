@@ -40,6 +40,9 @@ public class GetGroupTaskListCommand extends AbstractGetObjectBaseCommand {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Object execute(JbpmContext jbpmContext) throws Exception {
+		long time = System.currentTimeMillis();
+		System.out.println("GetGroupTaskListCommand INICIO - " + time);
+		
 		setJbpmContext(jbpmContext);
 		List result = new ArrayList<TaskInstance>();
 		
@@ -56,6 +59,10 @@ public class GetGroupTaskListCommand extends AbstractGetObjectBaseCommand {
 						       "	and ti.id in (:ids)";			
 			Query query = jbpmContext.getSession().createQuery(hql);
 			query = translateIn(ids, query, "ids", "ti.id");
+			
+			System.out.println("GetGroupTaskListCommand - " + time + " - HQL : " + query.getQueryString());
+			System.out.println("GetGroupTaskListCommand - " + time + " - PARAMETERS: " + getParametersToString());		
+			
 			result = query.list();
 		}
 		else {
@@ -63,8 +70,14 @@ public class GetGroupTaskListCommand extends AbstractGetObjectBaseCommand {
 			actorIds.add(actorId);
 		    result = jbpmContext.getGroupTaskList(actorIds);
 		}
+		System.out.println("GetGroupTaskListCommand - " + time + " - result : " + result);
+		System.out.println("GetGroupTaskListCommand FIN - " + time);
 	    return result;
 	    //return retrieveTaskInstanceDetails(result);
+	}
+
+	public String getParametersToString() {
+		return "GetGroupTaskListCommand [ids=" + ids + ", actorId=" + actorId + "]";
 	}
 
 	public String getActorId() {

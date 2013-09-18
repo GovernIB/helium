@@ -40,6 +40,9 @@ public class GetPersonalTaskListCommand extends AbstractGetObjectBaseCommand imp
 
 	@SuppressWarnings("rawtypes")
 	public Object execute(JbpmContext jbpmContext) throws Exception {
+		long time = System.currentTimeMillis();
+		System.out.println("GetPersonalTaskListCommand INICIO - " + time);
+		
 		setJbpmContext(jbpmContext);
 		List result = new ArrayList<TaskInstance>();
 		
@@ -58,10 +61,16 @@ public class GetPersonalTaskListCommand extends AbstractGetObjectBaseCommand imp
 			Query query = jbpmContext.getSession().createQuery(hql);
 			query = translateIn(ids, query, "ids", "ti.id");
 			query.setString("actorId", actorId);
+			
+			System.out.println("GetPersonalTaskListCommand - " + time + " - HQL : " + query.getQueryString());
+			System.out.println("GetPersonalTaskListCommand - " + time + " - PARAMETERS: " + getParametersToString());
+			
 			result = query.list();
 		} else {
 			result = jbpmContext.getTaskList(actorId);
 		}
+		System.out.println("GetPersonalTaskListCommand - " + time + " - result : " + result);
+		System.out.println("GetPersonalTaskListCommand FIN - " + time);
 		return result;
 	}
 
@@ -70,6 +79,10 @@ public class GetPersonalTaskListCommand extends AbstractGetObjectBaseCommand imp
 	}
 	public void setActorId(String actorId) {
 		this.actorId = actorId;
+	}
+
+	public String getParametersToString() {
+		return "GetPersonalTaskListCommand [ids=" + ids + ", actorId=" + actorId + "]";
 	}
 
 	@Override
