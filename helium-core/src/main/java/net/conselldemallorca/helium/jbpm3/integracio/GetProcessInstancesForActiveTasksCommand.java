@@ -251,11 +251,12 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 	    	}			
 		}
 				
-		maxResults = (maxResults > idInstances.size()) ? idInstances.size() : maxResults;
-		int limit = (maxResults > 0)? getFirstRow()+maxResults : idInstances.size();
-	    	    
+		maxResults = (maxResults > listadoTask.size()) ? listadoTask.size() : maxResults;
+		int limit = (maxResults > 0)? getFirstRow()+maxResults : listadoTask.size();
+		limit = (limit > listadoTask.size()) ? listadoTask.size() : limit;
+		
 	    LlistatIds listado = new LlistatIds();
-	    listado.setCount(idInstances.size());
+	    listado.setCount(listadoTask.size());
 	    listado.setIds(listadoTask.subList(getFirstRow(), limit));
 		return listado;
 	}
