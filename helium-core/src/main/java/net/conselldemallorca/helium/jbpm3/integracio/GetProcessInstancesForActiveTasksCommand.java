@@ -5,11 +5,8 @@ package net.conselldemallorca.helium.jbpm3.integracio;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import net.conselldemallorca.helium.core.extern.formulari.LlistatIds;
@@ -183,9 +180,8 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 		System.out.println("GetProcessInstancesForActiveTasksCommand - POOLED " +pooled+" - " + time + " - HQL: " + query.getQueryString());
 		System.out.println("GetProcessInstancesForActiveTasksCommand - POOLED " +pooled+" - " + time + " - PARAMETERS: " + getParametersToString());		
 		
-		List<Object[]> llistaActorId = query.list();		
+		List<Object[]> llistaActorId = query.list();
 		
-		Map<Long, Long> idInstances = new HashMap<Long, Long>();
 		Set<Long> superProcessTokenIds = new HashSet<Long>();
 		do {
 			superProcessTokenIds.clear();
@@ -196,9 +192,9 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 			if (superProcessTokenIds.size() > 0) {
 				Query queryProcessInstancesPare = jbpmContext.getSession().createQuery(
 						"select " +
-						"    t.id, " +
 						"    t.processInstance.id, " +
-						"    t.processInstance.superProcessToken.id " +
+						"    t.processInstance.superProcessToken.id, " +
+						"    t.id " +
 						"from " +
 						"    org.jbpm.graph.exe.Token as t " +
 						"where " +
@@ -209,23 +205,14 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 				System.out.println("GetProcessInstancesForActiveTasksCommand - POOLED " +pooled+" - " + time + " - HQL superProcessToken: " + queryProcessInstancesPare.getQueryString());
 				System.out.println("GetProcessInstancesForActiveTasksCommand - POOLED " +pooled+" - " + time + " - PARAMETERS superProcessToken: " + superProcessTokenIds);
 				List<Object[]> llistaProcessInstancesPare = queryProcessInstancesPare.list();
-				for (Object[] reg1: llistaActorId) {
-					if (reg1[1] != null) {
-						for (Object[] reg2: llistaProcessInstancesPare) {
-							if (reg2[0].equals(reg1[1])) {
-								reg1[1] = reg2[2];
-								
-								if (reg2[2] == null && idsPIExpedients.contains((Long)reg2[1])) {
-									idInstances.put((Long)reg1[2],(Long)reg2[1]);
-								}
-								
+				for (Object[] regAct: llistaActorId) {
+					if (regAct[1] != null) {
+						for (Object[] regSup: llistaProcessInstancesPare) {
+							if (regSup[2].equals(regAct[1])) {
+								regAct[0] = regSup[0];	
+								regAct[1] = regSup[1];	
 								break;
 							}
-						}
-					} else {
-						Long pi = (Long)reg1[0];
-						if (idsPIExpedients.contains(pi)) {
-							idInstances.put((Long)reg1[2],(Long)reg1[0]);
 						}
 					}
 				}
@@ -233,47 +220,46 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 		} while (superProcessTokenIds.size() > 0);
 		
 		List<Long> listadoTask = new ArrayList<Long>();
+		String salidaLlistaActorId = "";
 		
 		// Ordenamos la lista en el caso de que sea por expedientes
 	    if ("expedientTitol".equals(sort) || "expedientTipusNom".equals(sort)) {
 	    	for (Long id : idsPIExpedients) {
-	    		Iterator it = idInstances.entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry e = (Map.Entry)it.next();
-					if (id.equals(e.getValue()) && !listadoTask.contains((Long) e.getKey())) {
-						listadoTask.add((Long) e.getKey());
-						break;
-					}
-				}
+		    	for (Object[] fila : llistaActorId) {
+		    		if (id.equals(fila[0]) && !listadoTask.contains(fila[2])) {
+		    			listadoTask.add((Long) fila[2]);
+		    		}
+		    	}	
 	    	}			
 		} else {
 	    	for (Object[] fila : llistaActorId) {
-	    		Iterator it = idInstances.entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry e = (Map.Entry)it.next();
-					if (((Long)fila[2]).equals(e.getKey()) && !listadoTask.contains((Long) e.getKey())) {
-						listadoTask.add((Long) e.getKey());
-						break;
-					}
-				}
+	    		salidaLlistaActorId += "["+fila[0]+","+fila[1]+","+fila[2]+","+fila[3]+"]";	    		
+	    		
+	    		if (idsPIExpedients.contains(fila[0]) && !listadoTask.contains(fila[2])) {
+	    			listadoTask.add((Long) fila[2]);
+	    		}
 	    	}			
 		}
-				
+		
+	    LlistatIds listado = new LlistatIds();
+	    
+	    if (getFirstRow() > listadoTask.size()) {
+	    	setFirstRow(0);
+	    }
+	    
 		maxResults = (maxResults > listadoTask.size()) ? listadoTask.size() : maxResults;
 		int limit = (maxResults > 0)? getFirstRow()+maxResults : listadoTask.size();
 		limit = (limit > listadoTask.size()) ? listadoTask.size() : limit;
-		
-	    LlistatIds listado = new LlistatIds();
 	    listado.setCount(listadoTask.size());
 	    listado.setIds(listadoTask.subList(getFirstRow(), limit));
 	    
-	    System.out.println("GetProcessInstancesForActiveTasksCommand - POOLED " +pooled+" - " + time + " - listadoTask : " + listadoTask);
+	    System.out.println("GetProcessInstancesForActiveTasksCommand - POOLED " +pooled+" - " + time + " - RESULT LlistaActorId: " + salidaLlistaActorId);
+		System.out.println("GetProcessInstancesForActiveTasksCommand - POOLED " +pooled+" - " + time + " - listadoTask : " + listadoTask);
 	    System.out.println("GetProcessInstancesForActiveTasksCommand - POOLED " +pooled+" - " + time + " - listadoTask.size() : " + listadoTask.size());
 	    System.out.println("GetProcessInstancesForActiveTasksCommand - POOLED " +pooled+" - " + time + " - getFirstRow(), limit : " + getFirstRow() +","+ limit);
-	    
 	    System.out.println("GetProcessInstancesForActiveTasksCommand FIN - POOLED " +pooled+" - " + time);
-	    
-		return listado;
+
+	    return listado;
 	}
 
 
