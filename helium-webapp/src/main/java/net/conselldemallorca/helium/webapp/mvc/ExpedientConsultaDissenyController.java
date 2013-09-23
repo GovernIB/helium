@@ -31,6 +31,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.AdminService;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
+import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
@@ -191,8 +192,11 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			populateModelCommon(entorn, model, commandSeleccio);
 			Object commandFiltre = session.getAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);
 			if (commandFiltre != null && commandSeleccio != null && commandSeleccio.getConsultaId() != null) {
-				Consulta consulta = dissenyService.getConsultaById(commandSeleccio.getConsultaId());
-				adminService.getMesuresTemporalsHelper().mesuraIniciar("INFORME: " + consulta.getCodi(), "report");
+				Consulta consulta = null;
+				if (MesuresTemporalsHelper.isActiu()) {
+					consulta = dissenyService.getConsultaById(commandSeleccio.getConsultaId());
+					adminService.getMesuresTemporalsHelper().mesuraIniciar("INFORME: " + consulta.getCodi(), "report");
+				}
 				model.addAttribute("expedientTipusId", commandSeleccio.getExpedientTipusId());
 				List<Camp> camps = dissenyService.findCampsPerCampsConsulta(
 						commandSeleccio.getConsultaId(),
@@ -221,7 +225,8 @@ public class ExpedientConsultaDissenyController extends BaseController {
 								dir,
 								objectsPerPage,
 								export));
-				adminService.getMesuresTemporalsHelper().mesuraCalcular("INFORME: " + consulta.getCodi());
+				if (MesuresTemporalsHelper.isActiu())
+					adminService.getMesuresTemporalsHelper().mesuraCalcular("INFORME: " + consulta.getCodi());
 			}
 			return "expedient/consultaDisseny";
 		} else {

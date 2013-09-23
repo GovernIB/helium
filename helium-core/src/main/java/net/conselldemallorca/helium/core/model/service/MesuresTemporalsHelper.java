@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.conselldemallorca.helium.core.util.GlobalProperties;
+
 import org.springframework.stereotype.Component;
 
 /**
@@ -24,6 +26,8 @@ import org.springframework.stereotype.Component;
 public class MesuresTemporalsHelper {
 	
 	private static final int MESURES = 100;
+	@SuppressWarnings("unused")
+	private static Boolean actiu = null;
 
 	private Map<String, String> intervalsFamilia = new HashMap<String, String>();
 	private Map<String, Long> intervalsInici = new HashMap<String, Long>();
@@ -34,43 +38,54 @@ public class MesuresTemporalsHelper {
 	private Map<String, Integer> intervalsContador = new HashMap<String, Integer>();
 	private Map<String, LinkedList<IntervalEvent>> intervalEvents = new HashMap<String, LinkedList<IntervalEvent>>();
 
-
 	public void mesuraIniciar(String clau, String familia) {
-		intervalsInici.put(
-				clau,
-				new Long(System.currentTimeMillis()));
-		intervalsFamilia.put(clau, familia);
+		if (actiu == null) {
+			String sactiu = GlobalProperties.getInstance().getProperty("app.mesura.temps.actiu");
+			if (!"true".equalsIgnoreCase(sactiu))
+				actiu = false;
+			else 
+				actiu = true;
+		}
+		if (actiu) {
+			intervalsInici.put(
+					clau,
+					new Long(System.currentTimeMillis()));
+			intervalsFamilia.put(clau, familia);
+		}
 	}
+	
 	public void mesuraCalcular(String clau) {
-		Long inici = intervalsInici.get(clau);
-		LinkedList<IntervalEvent> events;
-		if (inici != null) {
-			Long diferencia = System.currentTimeMillis() - inici.longValue();
-			intervalsDarreraMesura.put(clau, diferencia);
-			if (intervalsMinim.get(clau) == null || diferencia < intervalsMinim.get(clau))
-				intervalsMinim.put(clau, diferencia);
-			if (intervalsMaxim.get(clau) == null || diferencia > intervalsMaxim.get(clau))
-				intervalsMaxim.put(clau, diferencia);
-			Integer contador = intervalsContador.get(clau);
-			if (contador == null) {
-				contador = new Integer(1);
-				events = new LinkedList<IntervalEvent>();
-			} else {
-				contador = new Integer(contador.intValue() + 1);
-				events = intervalEvents.get(clau);
-				if (contador > MESURES)
-					events.removeFirst();
+		if (actiu) {
+			Long inici = intervalsInici.get(clau);
+			LinkedList<IntervalEvent> events;
+			if (inici != null) {
+				Long diferencia = System.currentTimeMillis() - inici.longValue();
+				intervalsDarreraMesura.put(clau, diferencia);
+				if (intervalsMinim.get(clau) == null || diferencia < intervalsMinim.get(clau))
+					intervalsMinim.put(clau, diferencia);
+				if (intervalsMaxim.get(clau) == null || diferencia > intervalsMaxim.get(clau))
+					intervalsMaxim.put(clau, diferencia);
+				Integer contador = intervalsContador.get(clau);
+				if (contador == null) {
+					contador = new Integer(1);
+					events = new LinkedList<IntervalEvent>();
+				} else {
+					contador = new Integer(contador.intValue() + 1);
+					events = intervalEvents.get(clau);
+					if (contador > MESURES)
+						events.removeFirst();
+				}
+				intervalsContador.put(clau, contador);
+				events.add(new IntervalEvent(new Date(), diferencia));
+				intervalEvents.put(clau, events);
+				Double mitja = intervalsMitja.get(clau);
+				if (mitja == null)
+					mitja = new Double(diferencia);
+				else
+					mitja = new Double((mitja * contador + diferencia) / (contador + 1));
+				intervalsMitja.put(clau, mitja);
+				intervalsInici.remove(clau);
 			}
-			intervalsContador.put(clau, contador);
-			events.add(new IntervalEvent(new Date(), diferencia));
-			intervalEvents.put(clau, events);
-			Double mitja = intervalsMitja.get(clau);
-			if (mitja == null)
-				mitja = new Double(diferencia);
-			else
-				mitja = new Double((mitja * contador + diferencia) / (contador + 1));
-			intervalsMitja.put(clau, mitja);
-			intervalsInici.remove(clau);
 		}
 	}
 
@@ -152,5 +167,9 @@ public class MesuresTemporalsHelper {
 		public void setDuracio(Long duracio) {
 			this.duracio = duracio;
 		}
+	}
+
+	public static boolean isActiu() {
+		return actiu;
 	}
 }

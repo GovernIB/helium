@@ -24,6 +24,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.Execuci
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.service.PersonaService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.model.service.TerminiService;
@@ -63,6 +64,7 @@ public class TascaController extends BaseController {
 	private DissenyService dissenyService;
 	private PersonaService  personaService;
 	private ExecucioMassivaService execucioMassivaService;
+	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	
 	@Autowired
 	public TascaController(
@@ -70,12 +72,14 @@ public class TascaController extends BaseController {
 			TerminiService terminiService,
 			DissenyService dissenyService,
 			PersonaService  personaService,
-			ExecucioMassivaService execucioMassivaService) {
+			ExecucioMassivaService execucioMassivaService,
+			MesuresTemporalsHelper mesuresTemporalsHelper) {
 		this.tascaService = tascaService;
 		this.terminiService = terminiService;
 		this.dissenyService = dissenyService;
 		this.personaService = personaService;
 		this.execucioMassivaService = execucioMassivaService;
+		this.mesuresTemporalsHelper = mesuresTemporalsHelper;
 	}
 
 	@ModelAttribute("prioritats")
@@ -204,6 +208,7 @@ public class TascaController extends BaseController {
 		TascaDto tasca = tascaService.getByIdSenseComprovacio(id);
 		Long tid = tasca.getExpedient().getTipus().getId();
 		if (entorn != null) {
+			mesuresTemporalsHelper.mesuraIniciar(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Info", "tasques");
 			if (massiva == null || !massiva.equalsIgnoreCase("s")) {
 				TramitacioMassiva.netejarTramitacioMassiva(request);
 				model.remove("seleccioMassiva");
@@ -226,6 +231,7 @@ public class TascaController extends BaseController {
 			} catch (Exception ex) {
 				logger.error("S'ha produït un error processant la seva petició", ex);
 				missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
+				mesuresTemporalsHelper.mesuraCalcular(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Info");
 				return "redirect:/tasca/personaLlistat.html";
 			}
 			if ("s".equals(ini)) {
@@ -235,20 +241,22 @@ public class TascaController extends BaseController {
 				}else{
 					
 					if (!tasca.getCamps().isEmpty()) {
+						mesuresTemporalsHelper.mesuraCalcular(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Info");
 						return "redirect:/tasca/form.html?id="+id;
 					} else if(!tasca.getDocuments().isEmpty()) {
+						mesuresTemporalsHelper.mesuraCalcular(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Info");
 						return "redirect:/tasca/documents.html?id="+id;
 					} else if (!tasca.getSignatures().isEmpty()) {
+						mesuresTemporalsHelper.mesuraCalcular(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Info");
 						return "redirect:/tasca/signatures.html?id="+id;
-						
 					}	
-					
 				}
 			}
 			Set<PersonaDto> destinataris =  personaService.findPersonesAmbPermisosPerExpedientTipus(tid);
 			model.addAttribute(
 					 "destinataris",
 					 destinataris);
+			mesuresTemporalsHelper.mesuraCalcular(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Info");
 	        return "tasca/info";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
@@ -711,6 +719,7 @@ public class TascaController extends BaseController {
 				break;
 			}
 		}
+		boolean resposta = true;
 		boolean massivaActiu = TramitacioMassiva.isTramitacioMassivaActiu(request, id);
 		String[] tascaIds;
 		if (massivaActiu) {
@@ -762,11 +771,12 @@ public class TascaController extends BaseController {
 				}
 			} catch (Exception e) {
 				missatgeError(request, getMessage("error.no.massiu"));
-				return false;
+				resposta = false;
 			}
 		} else {
 			try {
 				tascaService.completar(entornId, id, true, null, transicio);
+				missatgeInfo(request, getMessage("info.tasca.completat"));
 			} catch (Exception ex) {
 				String tascaIdLog = getIdTascaPerLogs(entornId, id);
 				if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
@@ -780,11 +790,10 @@ public class TascaController extends BaseController {
 		        			(ex.getCause() != null) ? ex.getCause().getMessage() : ex.getMessage());
 					logger.error("No s'ha pogut finalitzar la tasca " + tascaIdLog, ex);
 				}
-	        	return false;
+				resposta = false;
 	        }
-			missatgeInfo(request, getMessage("info.tasca.completat"));
 		}
-		return true;
+		return resposta;
 	}
 
 	private String getIdTascaPerLogs(Long entornId, String tascaId) {

@@ -26,6 +26,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.service.DocumentService;
 import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
@@ -58,16 +59,19 @@ public class TascaDocumentsController extends BaseController {
 	private TascaService tascaService;
 	private DocumentService documentService;
 	private ExecucioMassivaService execucioMassivaService;
+	private MesuresTemporalsHelper mesuresTemporalsHelper;
 
 
 	@Autowired
 	public TascaDocumentsController(
 			TascaService tascaService,
 			DocumentService documentService,
-			ExecucioMassivaService execucioMassivaService) {
+			ExecucioMassivaService execucioMassivaService,
+			MesuresTemporalsHelper mesuresTemporalsHelper) {
 		this.tascaService = tascaService;
 		this.documentService = documentService;
 		this.execucioMassivaService = execucioMassivaService;
+		this.mesuresTemporalsHelper = mesuresTemporalsHelper;
 	}
 
 	@ModelAttribute("seleccioMassiva")
@@ -153,6 +157,8 @@ public class TascaDocumentsController extends BaseController {
 					null,
 					true,
 					true);
+			if (MesuresTemporalsHelper.isActiu())
+				mesuresTemporalsHelper.mesuraIniciar(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Documents", "tasques");
 			model.addAttribute("tasca", tasca);
 			for (DocumentTasca document: tasca.getDocuments()) {
 				DocumentExpedientCommand command = new DocumentExpedientCommand();
@@ -161,6 +167,8 @@ public class TascaDocumentsController extends BaseController {
 						"documentCommand_" + document.getDocument().getCodi(),
 						command);
 			}
+			if (MesuresTemporalsHelper.isActiu())
+				mesuresTemporalsHelper.mesuraCalcular(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Documents");
 			return "tasca/documents";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );

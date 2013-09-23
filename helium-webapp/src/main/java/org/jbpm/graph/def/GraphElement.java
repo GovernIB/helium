@@ -29,11 +29,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import net.conselldemallorca.helium.core.model.dao.DaoProxy;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jbpm.JbpmContext;
 import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
+import org.jbpm.graph.exe.ProcessInstance;
 import org.jbpm.graph.exe.RuntimeAction;
 import org.jbpm.graph.exe.Token;
 import org.jbpm.graph.log.ActionLog;
@@ -196,7 +201,7 @@ public abstract class GraphElement implements Identifiable, Serializable {
 
       fireAndPropagateEvent(eventType, executionContext);
     } finally {
-      executionContext.setEventSource(null);
+    	executionContext.setEventSource(null);
     }
   }
 
@@ -257,6 +262,13 @@ public abstract class GraphElement implements Identifiable, Serializable {
   public void executeAction(Action action, ExecutionContext executionContext) {
     Token token = executionContext.getToken();
 
+    Expedient exp = null;
+    if (MesuresTemporalsHelper.isActiu()) {
+    	ProcessInstance pi = executionContext.getProcessInstance();
+    	exp = DaoProxy.getInstance().getExpedientDao().findAmbProcessInstanceId(String.valueOf(pi.getId()));
+    	DaoProxy.getInstance().getAdminService().getMesuresTemporalsHelper().mesuraIniciar(exp.getTipus().getNom() + " - ACCIO: " + action.getName(), "tasques");
+    }
+    
     // create action log
     ActionLog actionLog = new ActionLog(action);
     token.startCompositeLog(actionLog);
@@ -303,6 +315,8 @@ public abstract class GraphElement implements Identifiable, Serializable {
     } finally {
       executionContext.setAction(null);
       token.endCompositeLog();
+      if (MesuresTemporalsHelper.isActiu())
+    	  DaoProxy.getInstance().getAdminService().getMesuresTemporalsHelper().mesuraCalcular(exp.getTipus().getNom() + " - ACCIO: " + action.getName());
     }
   }
 

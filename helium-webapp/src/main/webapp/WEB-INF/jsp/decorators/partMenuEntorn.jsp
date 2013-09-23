@@ -79,7 +79,9 @@
 			</c:if>
 		</ul>
 		<security:authorize ifAllGranted="ROLE_ADMIN">
-			<div class="image temps"><a id="botoTemps" href="javascript:void(0)"><fmt:message key='expedient.mesura.temps' /></a></div>
+			<c:if test="${globalProperties['app.mesura.temps.actiu']}">
+				<div class="image temps"><a id="botoTemps" href="javascript:void(0)"><fmt:message key='expedient.mesura.temps' /></a></div>
+			</c:if>
 		</security:authorize>
 		<div class="image massives"><a id="botoMassiu" href="javascript:void(0)"><fmt:message key='comuns.massiu' /></a></div>
 	</div>

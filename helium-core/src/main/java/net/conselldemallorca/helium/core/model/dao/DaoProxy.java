@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.core.model.dao;
 
+import net.conselldemallorca.helium.core.model.service.AdminService;
+import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 
 import org.springframework.context.ApplicationContext;
@@ -118,6 +120,16 @@ public class DaoProxy implements ApplicationContextAware {
 		waitContext();
 		if (ctx == null) return null;
 		return (ReassignacioDao)ctx.getBean("reassignacioDao", ReassignacioDao.class);
+	}
+	public ExpedientDao getExpedientDao() {
+		waitContext();
+		if (ctx == null) return null;
+		return (ExpedientDao)ctx.getBean("expedientDao", ExpedientDao.class);
+	}
+	public AdminService getAdminService() {
+		waitContext();
+		if (ctx == null) return null;
+		return (AdminService)ctx.getBean("adminService", AdminService.class);
 	}
 
 	private void waitContext() {
