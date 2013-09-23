@@ -189,7 +189,7 @@ public class ExpedientController extends BaseController {
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (potConsultarExpedient(expedient)) {
-				adminService.getMesuresTemporalsHelper().mesuraIniciar(expedient.getTipus().getCodi() + " - INFORMACIO", "expedient");
+				adminService.getMesuresTemporalsHelper().mesuraIniciar(expedient.getTipus().getNom() + " - INFORMACIO", "expedient");
 				model.addAttribute(
 						"expedient",
 						expedient);
@@ -223,7 +223,7 @@ public class ExpedientController extends BaseController {
 							"activeTokens",
 							expedientService.getActiveTokens(id, true));
 				}
-				adminService.getMesuresTemporalsHelper().mesuraCalcular(expedient.getTipus().getCodi() + " - INFORMACIO");
+				adminService.getMesuresTemporalsHelper().mesuraCalcular(expedient.getTipus().getNom() + " - INFORMACIO");
 				try {
 					model.addAttribute(
 							"relacionarCommand",
@@ -254,7 +254,7 @@ public class ExpedientController extends BaseController {
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (potConsultarExpedient(expedient)) {
-				adminService.getMesuresTemporalsHelper().mesuraIniciar(expedient.getTipus().getCodi() + " - LLISTAT DADES", "expedient");
+				adminService.getMesuresTemporalsHelper().mesuraIniciar(expedient.getTipus().getNom() + " - LLISTAT DADES", "expedient");
 				model.addAttribute(
 						"expedient",
 						expedient);
@@ -269,7 +269,7 @@ public class ExpedientController extends BaseController {
 							"tasques",
 							expedientService.findTasquesPerInstanciaProces(id, true));
 				}
-				adminService.getMesuresTemporalsHelper().mesuraCalcular(expedient.getTipus().getCodi() + " - LLISTAT DADES");
+				adminService.getMesuresTemporalsHelper().mesuraCalcular(expedient.getTipus().getNom() + " - LLISTAT DADES");
 				return "expedient/dades";
 			} else {
 				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
@@ -291,7 +291,7 @@ public class ExpedientController extends BaseController {
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (potConsultarExpedient(expedient)) {
-				adminService.getMesuresTemporalsHelper().mesuraIniciar(expedient.getTipus().getCodi() + " - LLISTAT DOCUMENTS", "expedient");
+				adminService.getMesuresTemporalsHelper().mesuraIniciar(expedient.getTipus().getNom() + " - LLISTAT DOCUMENTS", "expedient");
 				model.addAttribute(
 						"expedient",
 						expedient);
@@ -309,7 +309,7 @@ public class ExpedientController extends BaseController {
 							"tasques",
 							expedientService.findTasquesPerInstanciaProces(id, true));
 				}
-				adminService.getMesuresTemporalsHelper().mesuraCalcular(expedient.getTipus().getCodi() + " - LLISTAT DOCUMENTS");
+				adminService.getMesuresTemporalsHelper().mesuraCalcular(expedient.getTipus().getNom() + " - LLISTAT DOCUMENTS");
 				return "expedient/documents";
 			} else {
 				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
@@ -410,7 +410,7 @@ public class ExpedientController extends BaseController {
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (potConsultarExpedient(expedient)) {
-				adminService.getMesuresTemporalsHelper().mesuraIniciar(expedient.getTipus().getCodi() + " - LLISTAT TASQUES", "expedient");
+				adminService.getMesuresTemporalsHelper().mesuraIniciar(expedient.getTipus().getNom() + " - LLISTAT TASQUES", "expedient");
 				model.addAttribute(
 						"expedient",
 						expedient);
@@ -422,14 +422,14 @@ public class ExpedientController extends BaseController {
 //						expedientService.getInstanciaProcesById(id, false, false, false, false));
 				List<TascaDto> tasques = expedientService.findTasquesPerInstanciaProces(id, false);
 				List<Object> logsId = new ArrayList<Object>();
-				for (TascaDto tasca: tasques){
-					logsId.add(expedientService.findLogIdTascaById(tasca.getId(),tasca.getId()));
-				}
-				model.addAttribute("expedientLogIds", logsId);
+//				for (TascaDto tasca: tasques){
+//					logsId.add(expedientService.findLogIdTascaById(tasca.getId(),tasca.getId()));
+//				}
+//				model.addAttribute("expedientLogIds", logsId);
 				model.addAttribute(
 						"tasques",
 						tasques);
-				adminService.getMesuresTemporalsHelper().mesuraCalcular(expedient.getTipus().getCodi() + " - LLISTAT TASQUES");
+				adminService.getMesuresTemporalsHelper().mesuraCalcular(expedient.getTipus().getNom() + " - LLISTAT TASQUES");
 				return "expedient/tasques";
 			} else {
 				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
@@ -485,7 +485,7 @@ public class ExpedientController extends BaseController {
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (potConsultarExpedient(expedient)) {
-				adminService.getMesuresTemporalsHelper().mesuraIniciar(expedient.getTipus().getCodi() + " - REGISTRE", "expedient");
+				adminService.getMesuresTemporalsHelper().mesuraIniciar(expedient.getTipus().getNom() + " - REGISTRE", "expedient");
 				model.addAttribute(
 						"expedient",
 						expedient);
@@ -505,7 +505,7 @@ public class ExpedientController extends BaseController {
 					model.addAttribute(
 							"registre",
 							expedientService.getRegistrePerExpedient(expedient.getId()));
-					adminService.getMesuresTemporalsHelper().mesuraCalcular(expedient.getTipus().getCodi() + " - REGISTRE");
+					adminService.getMesuresTemporalsHelper().mesuraCalcular(expedient.getTipus().getNom() + " - REGISTRE");
 					return "expedient/registre";
 				} else {
 					// Llevam els logs retrocedits
@@ -520,7 +520,7 @@ public class ExpedientController extends BaseController {
 					model.addAttribute(
 							"tasques",
 							expedientService.getTasquesPerLogExpedient(expedient.getId()));
-					adminService.getMesuresTemporalsHelper().mesuraCalcular(expedient.getTipus().getCodi() + " - REGISTRE");
+					adminService.getMesuresTemporalsHelper().mesuraCalcular(expedient.getTipus().getNom() + " - REGISTRE");
 					return "expedient/log";
 				}
 			} else {

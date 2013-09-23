@@ -40,5 +40,9 @@
 			</list>
 		</property>
 	</bean>
+	
+	<bean id="mesuresTemporalsHelper" class="net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper">
+		<constructor-arg type="java.lang.String" value="${app.mesura.temps.actiu?false}"/>
+	</bean>
 
 </beans>

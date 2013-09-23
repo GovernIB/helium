@@ -16,6 +16,8 @@
 
 	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="location" value="${es.caib.helium.properties.path}"/>
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="valueSeparator" value="?" />
 	</bean>
 
 	<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">

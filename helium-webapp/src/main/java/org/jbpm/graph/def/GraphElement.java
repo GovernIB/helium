@@ -265,6 +265,9 @@ public abstract class GraphElement implements Identifiable, Serializable {
     Expedient exp = null;
     if (MesuresTemporalsHelper.isActiu()) {
     	ProcessInstance pi = executionContext.getProcessInstance();
+    	while (pi.getSuperProcessToken() != null) {
+    		pi = pi.getSuperProcessToken().getProcessInstance();
+    	}
     	exp = DaoProxy.getInstance().getExpedientDao().findAmbProcessInstanceId(String.valueOf(pi.getId()));
     	DaoProxy.getInstance().getAdminService().getMesuresTemporalsHelper().mesuraIniciar(exp.getTipus().getNom() + " - ACCIO: " + action.getName(), "tasques");
     }

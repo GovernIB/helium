@@ -103,7 +103,6 @@ public class MesuraTemporalController extends BaseController {
 	@RequestMapping(value = "/mesura/mesuresTempsExport", method = RequestMethod.GET)
 	public void mesuresTempsExport(HttpServletRequest request, HttpServletResponse response) {
 			List<MesuraTemporalDto> mesures = adminService.findMesuresTemporals(null);
-			Set<String> llistatFamilies = adminService.findFamiliesMesuresTemporals();
 		
 			HSSFWorkbook wb = new HSSFWorkbook();
 			HSSFSheet sheet = wb.createSheet("Mesures de temps");
@@ -196,7 +195,8 @@ public class MesuraTemporalController extends BaseController {
                 int rowNumSeries = 0;
                 HSSFSheet sheetSeries;
                 try {
-                	sheetSeries = wb.createSheet("Mesures " + mesura.getClau().replaceAll("[]*/\\?:]+", "-"));
+                	String llibre = mesura.getClau().replaceAll("[]*/\\?:()]+", "-");
+                	sheetSeries = wb.createSheet(llibre);
                 } catch (Exception e) {
                 	sheetSeries = wb.createSheet("Mesures " + rowNum);
                 }

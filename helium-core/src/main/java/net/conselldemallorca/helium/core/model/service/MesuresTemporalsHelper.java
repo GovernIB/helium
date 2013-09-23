@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-
 import org.springframework.stereotype.Component;
 
 /**
@@ -26,7 +24,6 @@ import org.springframework.stereotype.Component;
 public class MesuresTemporalsHelper {
 	
 	private static final int MESURES = 100;
-	@SuppressWarnings("unused")
 	private static Boolean actiu = null;
 
 	private Map<String, String> intervalsFamilia = new HashMap<String, String>();
@@ -38,14 +35,16 @@ public class MesuresTemporalsHelper {
 	private Map<String, Integer> intervalsContador = new HashMap<String, Integer>();
 	private Map<String, LinkedList<IntervalEvent>> intervalEvents = new HashMap<String, LinkedList<IntervalEvent>>();
 
+	
+	public MesuresTemporalsHelper(String sactiu) {
+		super();
+		if (!"true".equalsIgnoreCase(sactiu))
+			actiu = false;
+		else 
+			actiu = true;
+	}
+
 	public void mesuraIniciar(String clau, String familia) {
-		if (actiu == null) {
-			String sactiu = GlobalProperties.getInstance().getProperty("app.mesura.temps.actiu");
-			if (!"true".equalsIgnoreCase(sactiu))
-				actiu = false;
-			else 
-				actiu = true;
-		}
 		if (actiu) {
 			intervalsInici.put(
 					clau,

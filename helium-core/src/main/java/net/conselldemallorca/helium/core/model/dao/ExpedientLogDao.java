@@ -63,21 +63,21 @@ public class ExpedientLogDao extends HibernateGenericDao<ExpedientLog, Long> {
 	}
 	
 	
-	public Object findLogIdTascaById(String logId, String estat) {
-		return getSession().
-				createQuery(
-						"select l.id, l.estat " +
-						" from " +
-						" ExpedientLog l " +
-						" where " +
-						" l.targetId = ? " +
-						" and l.id = " +
-						" (select min(id) "+
-						" from ExpedientLog "+
-						" where targetId = ?) ").
-				setString(0, logId).setString(1, estat).
-				uniqueResult();
-	}
+//	public Object findLogIdTascaById(String logId, String estat) {
+//		return getSession().
+//				createQuery(
+//						"select l.id, l.estat " +
+//						" from " +
+//						" ExpedientLog l " +
+//						" where " +
+//						" l.targetId = ? " +
+//						" and l.id = " +
+//						" (select min(id) "+
+//						" from ExpedientLog "+
+//						" where targetId = ?) ").
+//				setString(0, logId).setString(1, estat).
+//				uniqueResult();
+//	}
 	
 	
 	public ExpedientLog findAmbJbpmLogId(Long jbpmLogId) {
