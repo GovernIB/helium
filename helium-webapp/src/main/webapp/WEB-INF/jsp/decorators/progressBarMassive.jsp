@@ -110,6 +110,7 @@
 			success: function(data){
 				var length = 0;
 				var content = "";
+				var consultaBBDD = (fam == "sql_jbpm" || fam == "sql_helium");
 				if ($.isEmptyObject(data)) {
 					content = "<h4><fmt:message key='execucions.mesura.temps.no'/></h4>";
 					$("#temps_contens").html(content);
@@ -130,6 +131,7 @@
 					content += 	'</ul>';
 					
 					length = data.clau.length;
+					
 					content += 	'<div id="mesures_temps">' +
 								'<div class="temps_well">' + 
 								'<div class="temps_fila fila_titol">' +
@@ -154,8 +156,12 @@
 									'<div class="temps_col2">' + data.periode[i] + '</div>' +
 									'</div>';
 					}
-					content += 	'<div class="temps_chart" id="placeholder"></div>' +
-								'<div class="temps_legend" id="temps_legend"></div>' +
+					var noMostrar = "";
+					if(consultaBBDD) {
+						noMostrar += "style='display: none'";
+					}
+					content += 	'<div class="temps_chart" id="placeholder" '+noMostrar+'></div>' +
+								'<div class="temps_legend" id="temps_legend" '+noMostrar+'></div>' +
 								'</div>' +
 								'</div>';
 					
@@ -169,7 +175,9 @@
 					});
 					series = [];
 					for (var key in data.series) {
-						series.push(data.series[key]);
+						if (!(key == 'Consultas totales de JBPM' || key == 'Consultas totales de Helium')) {
+							series.push(data.series[key]);
+						}
 					}
 					if ($.isFunction($.plot)) {
 						$.plot($("#placeholder"), series, 
