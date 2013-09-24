@@ -67,7 +67,7 @@ public class AdminService {
 				pasar = false;
 			} 
 			
-			if (!pasar) {
+			if (!pasar && (exportar || "".equals(familia) || qStats.getExecutionMaxTime() > 100)) {
 				MesuraTemporalDto dto;
 				MesuraTemporalDto dtoDetalle;
 				if (resposta.containsKey(clau)) {
@@ -95,20 +95,18 @@ public class AdminService {
 				LinkedList<IntervalEventDto> intervalEvents = new LinkedList<IntervalEventDto>();
 				dto.setEvents(intervalEvents);
 				
-				if (exportar || qStats.getExecutionMaxTime() > 100) {
-					dtoDetalle = new MesuraTemporalDto();
-					dtoDetalle.setClau(sQuery);
-					dtoDetalle.setMinima(qStats.getExecutionMinTime());
-					dtoDetalle.setMaxima(qStats.getExecutionMaxTime());
-					dtoDetalle.setNumMesures((int) qStats.getExecutionCount());
-					dtoDetalle.setMitja(qStats.getExecutionAvgTime());
-					
-					LinkedList<IntervalEventDto> intervalEventsDetalle = new LinkedList<IntervalEventDto>();
-					dtoDetalle.setEvents(intervalEventsDetalle);
-					
-					respostaDetallada.put(StringEscapeUtils.escapeJavaScript(sQuery),dtoDetalle);
-				}
+				dtoDetalle = new MesuraTemporalDto();
+				dtoDetalle.setClau(sQuery);
+				dtoDetalle.setMinima(qStats.getExecutionMinTime());
+				dtoDetalle.setMaxima(qStats.getExecutionMaxTime());
+				dtoDetalle.setNumMesures((int) qStats.getExecutionCount());
+				dtoDetalle.setMitja(qStats.getExecutionAvgTime());
 				
+				LinkedList<IntervalEventDto> intervalEventsDetalle = new LinkedList<IntervalEventDto>();
+				dtoDetalle.setEvents(intervalEventsDetalle);
+				
+				respostaDetallada.put(StringEscapeUtils.escapeJavaScript(sQuery),dtoDetalle);
+								
 				if ("sql_helium".equals(familia)) {
 					resposta.put(StringEscapeUtils.escapeJavaScript(sQuery),dto);
 				} else if ("sql_jbpm".equals(familia)) {
