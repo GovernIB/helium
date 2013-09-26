@@ -28,6 +28,7 @@ public class MesuresTemporalsHelper {
 	
 	private static int mesures = 0;
 	private static Boolean actiu = null;
+	private static Long inici = null;
 
 	private Map<String, Map<Clau, Estadistiques>> intervalsEstadistiques = new HashMap<String, Map<Clau, Estadistiques>>();
 	
@@ -38,6 +39,7 @@ public class MesuresTemporalsHelper {
 		else 
 			actiu = true;
 		mesures = imesures;
+		inici = new Long(System.currentTimeMillis());
 	}
 
 	public void mesuraIniciar(String nom, String familia) {
@@ -100,6 +102,7 @@ public class MesuresTemporalsHelper {
 		}
 		
 		List<MesuraTemporalDto> resposta = new ArrayList<MesuraTemporalDto>();
+		Long temps = System.currentTimeMillis() - inici;
 		
 		SortedSet<String> families = new TreeSet<String>(estadistiquesFamilia.keySet());
 		for (String family: families) {
@@ -119,23 +122,12 @@ public class MesuresTemporalsHelper {
 						dto.setMaxima(estadistica.getMaxim());
 						dto.setNumMesures(estadistica.getContador());
 						LinkedList<IntervalEventDto> intervalEvents = new LinkedList<IntervalEventDto>();
-						long iniMilis = 0;
-						long fiMilis = 0;
 						for (IntervalEvent event : estadistica.getEvents()) {
 							intervalEvents.add(new IntervalEventDto(event.getDate(), event.getDuracio()));
-							long milis =  event.getDate().getTime();
-							if (iniMilis == 0 || iniMilis > milis) iniMilis = milis;
-							if (fiMilis < milis) fiMilis = milis;
 						}
 						dto.setEvents(intervalEvents);
-						if (dto.getNumMesures() > 1) {
-							// Execucions per minut
-							if (fiMilis - iniMilis == 0) {
-								dto.setPeriode(estadistica.contador.doubleValue());
-							} else {
-								dto.setPeriode((dto.getNumMesures() * 60000) / (fiMilis - iniMilis));
-							}
-						}
+						// Execucions per minut
+						dto.setPeriode((dto.getNumMesures() * 60000.0) / temps);
 						resposta.add(dto);
 					}
 				}
