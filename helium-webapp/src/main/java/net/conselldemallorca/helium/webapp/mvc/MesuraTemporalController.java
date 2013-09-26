@@ -55,6 +55,7 @@ public class MesuraTemporalController extends BaseController {
 	@ResponseBody
 	public String mesuresTemps(HttpServletRequest request, String familia) {
 		DecimalFormat df = new DecimalFormat( "####0.00" );
+		DecimalFormat df2 = new DecimalFormat( "####0.000" );
 		Map mjson = new LinkedHashMap();
 		
 		List<MesuraTemporalDto> mesures = adminService.findMesuresTemporals(familia);
@@ -94,7 +95,7 @@ public class MesuraTemporalController extends BaseController {
 				lminimes.add(mesura.getMinima() + " ms");
 				lmaximes.add(mesura.getMaxima() + " ms");
 				lnumMesures.add(mesura.getNumMesures());
-				lperiodes.add(mesura.getPeriode() < 1 ? "-" : mesura.getPeriode() + " ms");
+				lperiodes.add(df2.format(mesura.getPeriode()) + " ex/m");
 				
 				JSONArray lseries = new JSONArray();
 				for (IntervalEventDto event: mesura.getEvents()) {
@@ -219,19 +220,20 @@ public class MesuraTemporalController extends BaseController {
                 cell.setCellValue(mesura.getPeriode());
                 
                 // Series
-                int rowNumSeries = 0;
-                HSSFSheet sheetSeries;
-                try {
-					String llibre = mesura.getClau().replaceAll("[]*/\\?:()]+", "-");
-					if (llibre.length() > 31) {
-						llibre = llibre.substring(0, 14) + "..." + llibre.substring(llibre.length() - 14, llibre.length());
-					}
-					sheetSeries = wb.createSheet(llibre);
-                } catch (Exception e) {
-                	sheetSeries = wb.createSheet("Mesures " + rowNum);
-                }
-                
                 if ("Consultas Helium".equals(mesura.getClau()) || "Consultas Jbpm".equals(mesura.getClau())) {
+                
+                	int rowNumSeries = 0;
+	                HSSFSheet sheetSeries;
+	                try {
+						String llibre = mesura.getClau().replaceAll("[]*/\\?:()]+", "-");
+						if (llibre.length() > 31) {
+							llibre = llibre.substring(0, 14) + "..." + llibre.substring(llibre.length() - 14, llibre.length());
+						}
+						sheetSeries = wb.createSheet(llibre);
+	                } catch (Exception e) {
+	                	sheetSeries = wb.createSheet("Mesures " + rowNum);
+	                }
+                
                 	sheetSeries.setColumnWidth(0, 30000);
 	                sheetSeries.setColumnWidth(1, 3000);
 	                sheetSeries.setColumnWidth(2, 3000);

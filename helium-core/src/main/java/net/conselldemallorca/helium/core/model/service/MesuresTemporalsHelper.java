@@ -94,7 +94,7 @@ public class MesuresTemporalsHelper {
 	
 	public List<MesuraTemporalDto> getEstadistiques(String familia) {
 		Map<String, Map<Clau, Estadistiques>> estadistiquesFamilia = null;
-		if ("".equals(familia)) {
+		if (familia == null || "".equals(familia)) {
 			estadistiquesFamilia = intervalsEstadistiques;
 		} else {
 			estadistiquesFamilia = new HashMap<String, Map<Clau, Estadistiques>>();
