@@ -341,35 +341,35 @@ public class ExecucioMassivaService {
 			} else if (tipus == ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC){
 				mesuresTemporalsHelper.mesuraIniciar("ACCIO MASSIVA ACTUALITZAR", "massiva");
 				actualitzarVersio(dto);
-				mesuresTemporalsHelper.mesuraCalcular("ACCIO MASSIVA ACTUALITZAR");
+				mesuresTemporalsHelper.mesuraCalcular("ACCIO MASSIVA ACTUALITZAR", "massiva");
 			} else if (tipus == ExecucioMassivaTipus.EXECUTAR_SCRIPT){
 				mesuresTemporalsHelper.mesuraIniciar("ACCIO MASSIVA EXECUTAR SCRIPT", "massiva");
 				executarScript(dto);
-				mesuresTemporalsHelper.mesuraCalcular("ACCIO MASSIVA EXECUTAR SCRIPT");
+				mesuresTemporalsHelper.mesuraCalcular("ACCIO MASSIVA EXECUTAR SCRIPT", "massiva");
 			} else if (tipus == ExecucioMassivaTipus.EXECUTAR_ACCIO){
 				mesuresTemporalsHelper.mesuraIniciar("ACCIO MASSIVA EXECUTAR ACCIO", "massiva");
 				executarAccio(dto);
-				mesuresTemporalsHelper.mesuraCalcular("ACCIO MASSIVA EXECUTAR ACCIO");
+				mesuresTemporalsHelper.mesuraCalcular("ACCIO MASSIVA EXECUTAR ACCIO", "massiva");
 			} else if (tipus == ExecucioMassivaTipus.ATURAR_EXPEDIENT){
 				mesuresTemporalsHelper.mesuraIniciar("ACCIO MASSIVA ATURAR EXPEDIENT", "massiva");
 				aturarExpedient(dto);
-				mesuresTemporalsHelper.mesuraCalcular("ACCIO MASSIVA ATURAR EXPEDIENT");
+				mesuresTemporalsHelper.mesuraCalcular("ACCIO MASSIVA ATURAR EXPEDIENT", "massiva");
 			} else if (tipus == ExecucioMassivaTipus.MODIFICAR_VARIABLE){
 				mesuresTemporalsHelper.mesuraIniciar("ACCIO MASSIVA VARIABLE", "massiva");
 				modificarVariable(dto);
-				mesuresTemporalsHelper.mesuraCalcular("ACCIO MASSIVA VARIABLE");
+				mesuresTemporalsHelper.mesuraCalcular("ACCIO MASSIVA VARIABLE", "massiva");
 			} else if (tipus == ExecucioMassivaTipus.MODIFICAR_DOCUMENT){
 				mesuresTemporalsHelper.mesuraIniciar("ACCIO MASSIVA DOCUMENT", "massiva");
 				modificarDocument(dto);
-				mesuresTemporalsHelper.mesuraCalcular("ACCIO MASSIVA DOCUMENT");
+				mesuresTemporalsHelper.mesuraCalcular("ACCIO MASSIVA DOCUMENT", "massiva");
 			} else if (tipus == ExecucioMassivaTipus.REINDEXAR){
 				mesuresTemporalsHelper.mesuraIniciar("ACCIO MASSIVA REINDEXAR", "massiva");
 				reindexarExpedient(dto);
-				mesuresTemporalsHelper.mesuraCalcular("ACCIO MASSIVA REINDEXAR");
+				mesuresTemporalsHelper.mesuraCalcular("ACCIO MASSIVA REINDEXAR", "massiva");
 			} else if (tipus == ExecucioMassivaTipus.REASSIGNAR){
 				mesuresTemporalsHelper.mesuraIniciar("ACCIO MASSIVA REASSIGNAR", "massiva");
 				reassignarExpedient(dto);
-				mesuresTemporalsHelper.mesuraCalcular("ACCIO MASSIVA REASSIGNAR");
+				mesuresTemporalsHelper.mesuraCalcular("ACCIO MASSIVA REASSIGNAR", "massiva");
 			}
 			SecurityContextHolder.getContext().setAuthentication(orgAuthentication);
 		} catch (Exception ex) {
@@ -398,7 +398,7 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'han pogut guardar les dades del formulari en la tasca.");
 					throw e;
 		        }
-				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA GUARDAR");
+				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA GUARDAR", "massiva_tasca");
 			} else if ("Validar".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("TASCA MASSIVA VALIDAR", "massiva_tasca");
 				Object[] param2 = (Object[])deserialize(dto.getParam2());
@@ -410,7 +410,7 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut validar el formulari en la tasca.");
 					throw e;
 		        }
-				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA VALIDAR");
+				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA VALIDAR", "massiva_tasca");
 			} else if ("Completar".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("TASCA MASSIVA COMPLETAR", "massiva_tasca");
 				Object[] param2 = (Object[])deserialize(dto.getParam2());
@@ -425,7 +425,7 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut finalitzar la tasca.");
 					throw e;
 		        }
-				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA COMPLETAR");
+				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA COMPLETAR", "massiva_tasca");
 			} else if ("Restaurar".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("TASCA MASSIVA RESTAURAR", "massiva_tasca");
 				Long entornId = (Long)deserialize(dto.getParam2());
@@ -435,7 +435,7 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut restaurar el formulari en la tasca.");
 					throw e;
 		        }
-				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA RESTAURAR");
+				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA RESTAURAR", "massiva_tasca");
 			} else if ("Accio".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("TASCA MASSIVA EXECUTAR ACCIO", "massiva_tasca");
 				Object[] param2 = (Object[])deserialize(dto.getParam2());
@@ -447,7 +447,7 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut executar l'acció '" + accio_exec + "' en la tasca.");
 					throw e;
 		        }
-				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA EXECUTAR ACCIO");
+				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA EXECUTAR ACCIO", "massiva_tasca");
 			} else if ("DocGuardar".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("TASCA MASSIVA GUARDAR DOCUMENT", "massiva_tasca");
 				Object[] param2 = (Object[])deserialize(dto.getParam2());
@@ -470,7 +470,7 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut guardar el document a la tasca.");
 					throw e;
 		        }
-				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA GUARDAR DOCUMENT");
+				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA GUARDAR DOCUMENT", "massiva_tasca");
 			} else if ("DocEsborrar".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("TASCA MASSIVA BORRAR DOCUMENT", "massiva_tasca");
 				Object[] param2 = (Object[])deserialize(dto.getParam2());
@@ -487,7 +487,7 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut esborrar el document de la tasca.");
 					throw e;
 		        }
-				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA BORRAR DOCUMENT");
+				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA BORRAR DOCUMENT", "massiva_tasca");
 			} else if ("DocGenerar".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("TASCA MASSIVA GENERAR DOCUMENT", "massiva_tasca");
 				Object[] param2 = (Object[])deserialize(dto.getParam2());
@@ -507,7 +507,7 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut restaurar el formulari en la tasca.");
 					throw e;
 		        }
-				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA GENERAR DOCUMENT");
+				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA GENERAR DOCUMENT", "massiva_tasca");
 			} else if ("RegEsborrar".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("TASCA MASSIVA ESBORRAR REGISTRE", "massiva_tasca");
 				Object[] param2 = (Object[])deserialize(dto.getParam2());
@@ -520,7 +520,7 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut esborrar el registe en la tasca.");
 					throw e;
 		        }
-				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA ESBORRAR REGISTRE");
+				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA ESBORRAR REGISTRE", "massiva_tasca");
 			} else if ("RegGuardar".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("TASCA MASSIVA GUARDAR REGISTRE", "massiva_tasca");
 				Object[] param2 = (Object[])deserialize(dto.getParam2());
@@ -534,7 +534,7 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut guardar el registre en la tasca.");
 					throw e;
 		        }
-				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA GUARDAR REGISTRE");
+				mesuresTemporalsHelper.mesuraCalcular("TASCA MASSIVA GUARDAR REGISTRE", "massiva_tasca");
 			}
 
 			eme.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);

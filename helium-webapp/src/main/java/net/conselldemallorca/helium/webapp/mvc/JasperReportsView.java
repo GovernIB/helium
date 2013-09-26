@@ -192,7 +192,7 @@ public class JasperReportsView implements View {
 
 			}
 			
-			adminService.getMesuresTemporalsHelper().mesuraCalcular("INFORME: " + (String)model.get(MODEL_ATTRIBUTE_CONSULTA) + " (REPORT)");
+			adminService.getMesuresTemporalsHelper().mesuraCalcular("INFORME: " + (String)model.get(MODEL_ATTRIBUTE_CONSULTA) + " (REPORT)", "report");
 		}
 	}
 

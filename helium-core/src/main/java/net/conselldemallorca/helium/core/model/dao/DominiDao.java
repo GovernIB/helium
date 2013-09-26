@@ -200,7 +200,7 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 			}
 		}
 		List<FilaResultat> resposta = client.consultaDomini(id, paramsConsulta);
-		mesuresTemporalsHelper.mesuraCalcular("DOMINI WS: " + domini.getCodi());
+		mesuresTemporalsHelper.mesuraCalcular("DOMINI WS: " + domini.getCodi(), "domini");
 		return resposta;
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -230,7 +230,7 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 							return fr;
 						}
 					});
-			mesuresTemporalsHelper.mesuraCalcular("DOMINI SQL: " + domini.getCodi());
+			mesuresTemporalsHelper.mesuraCalcular("DOMINI SQL: " + domini.getCodi(), "domini");
 			return resultat;
 		} catch (Exception ex) {
 			throw new DominiException("No s'ha pogut consultar el domini", ex);

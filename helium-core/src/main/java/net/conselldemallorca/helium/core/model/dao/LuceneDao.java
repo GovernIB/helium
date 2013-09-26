@@ -17,12 +17,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
+
 import net.conselldemallorca.helium.core.model.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 
@@ -66,6 +69,9 @@ public class LuceneDao extends LuceneIndexSupport {
 
 	private LuceneSearchTemplate searchTemplate;
 
+	@Resource
+	private MesuresTemporalsHelper mesuresTemporalsHelper;
+	
 	// TODO Ha d'estar actiu mentre els expedients no es reindexin totalment
 	// si es desactiva abans de la reindexació total aleshores hi haura expedients
 	// que no sortiran als resultats de les consultes per tipus.
@@ -80,6 +86,7 @@ public class LuceneDao extends LuceneIndexSupport {
 			Map<String, Map<String, Object>> valors,
 			Map<String, Map<String, String>> textDominis,
 			boolean finalitzat) {
+		mesuresTemporalsHelper.mesuraIniciar("Lucene: createExpedient", "lucene");
 		checkIndexOk();
 		Document document = updateDocumentFromExpedient(
 				null,
@@ -90,18 +97,22 @@ public class LuceneDao extends LuceneIndexSupport {
 				textDominis,
 				finalitzat);
 		getLuceneIndexTemplate().addDocument(document);
+		mesuresTemporalsHelper.mesuraCalcular("Lucene: createExpedient", "lucene");
 	}
 
 	public synchronized boolean updateExpedientCapsalera(
 			final Expedient expedient,
 			final boolean finalitzat) {
-		return updateExpedientCamps(
+		mesuresTemporalsHelper.mesuraIniciar("Lucene: updateExpedientCapsalera", "lucene");
+		boolean resultat = updateExpedientCamps(
 				expedient,
 				null,
 				null,
 				null,
 				null,
 				finalitzat);
+		mesuresTemporalsHelper.mesuraCalcular("Lucene: updateExpedientCapsalera", "lucene");
+		return resultat;
 	}
 	@SuppressWarnings("unchecked")
 	public synchronized boolean updateExpedientCamps(
@@ -111,6 +122,7 @@ public class LuceneDao extends LuceneIndexSupport {
 			final Map<String, Map<String, Object>> valors,
 			final Map<String, Map<String, String>> textDominis,
 			final boolean finalitzat) {
+		mesuresTemporalsHelper.mesuraIniciar("Lucene: updateExpedientCamps", "lucene");
 		checkIndexOk();
 		try {
 			List<Long> resposta = searchTemplate.search(
@@ -144,20 +156,25 @@ public class LuceneDao extends LuceneIndexSupport {
 						textDominis,
 						finalitzat);
 			}
+			mesuresTemporalsHelper.mesuraCalcular("Lucene: updateExpedientCamps", "lucene");
 			return true;
 		} catch (Exception ex) {
 			logger.error("Error actualitzant l'índex per l'expedient " + expedient.getId(), ex);
+			mesuresTemporalsHelper.mesuraCalcular("Lucene: updateExpedientCamps", "lucene");
 			return false;
 		}
 	}
 	public synchronized void deleteExpedient(Expedient expedient) {
+		mesuresTemporalsHelper.mesuraIniciar("Lucene: deleteExpedient", "lucene");
 		checkIndexOk();
 		getLuceneIndexTemplate().deleteDocuments(
 				termIdFromExpedient(expedient));
+		mesuresTemporalsHelper.mesuraCalcular("Lucene: deleteExpedient", "lucene");
 	}
 
 	@SuppressWarnings("unchecked")
 	public synchronized void deleteAll() {
+		mesuresTemporalsHelper.mesuraIniciar("Lucene: deleteAll", "lucene");
 		checkIndexOk();
 		List<Integer> documentsTots = searchTemplate.search(
 				new MatchAllDocsQuery(),
@@ -169,6 +186,7 @@ public class LuceneDao extends LuceneIndexSupport {
 		for (Integer id: documentsTots)
 			getLuceneIndexTemplate().deleteDocument(id.intValue());
 		getLuceneIndexTemplate().optimize();
+		mesuresTemporalsHelper.mesuraCalcular("Lucene: deleteAll", "lucene");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -177,6 +195,7 @@ public class LuceneDao extends LuceneIndexSupport {
 			String tipusCodi,
 			List<Camp> filtreCamps,
 			Map<String, Object> filtreValors) {
+		mesuresTemporalsHelper.mesuraIniciar("Lucene: findNomesIds", "lucene");
 		checkIndexOk();
 		Query query = queryPerFiltre(
 				entornCodi,
@@ -208,6 +227,7 @@ public class LuceneDao extends LuceneIndexSupport {
 					it.remove();
 			}
 		}
+		mesuresTemporalsHelper.mesuraCalcular("Lucene: findNomesIds", "lucene");
 		return resposta;
 	}
 	public List<Map<String, DadaIndexadaDto>> findAmbDadesExpedient(
@@ -220,13 +240,14 @@ public class LuceneDao extends LuceneIndexSupport {
 			boolean asc,
 			int firstRow,
 			int maxResults) {
+		mesuresTemporalsHelper.mesuraIniciar("Lucene: findAmbDadesExpedient", "lucene");
 		checkIndexOk();
 		Query query = queryPerFiltre(
 				entornCodi,
 				tipusCodi,
 				filtreCamps,
 				filtreValors);
-		return getDadesExpedientPerConsulta(
+		List<Map<String, DadaIndexadaDto>> resultat = getDadesExpedientPerConsulta(
 				entornCodi,
 				query,
 				informeCamps,
@@ -235,18 +256,21 @@ public class LuceneDao extends LuceneIndexSupport {
 				asc,
 				firstRow,
 				maxResults);
+		mesuresTemporalsHelper.mesuraCalcular("Lucene: findAmbDadesExpedient", "lucene");
+		return resultat;
 	}
 
 	public List<Map<String, DadaIndexadaDto>> getDadesExpedient(
 			String entornCodi,
 			Expedient expedient,
 			List<Camp> informeCamps) {
+		mesuresTemporalsHelper.mesuraIniciar("Lucene: getDadesExpedient", "lucene");
 		checkIndexOk();
 		Query query = queryFromCampFiltre(
 				ExpedientCamps.EXPEDIENT_CAMP_ID,
 				expedient.getId().toString(),
 				null);
-		return getDadesExpedientPerConsulta(
+		List<Map<String, DadaIndexadaDto>> resultat = getDadesExpedientPerConsulta(
 				entornCodi,
 				query,
 				informeCamps,
@@ -255,6 +279,8 @@ public class LuceneDao extends LuceneIndexSupport {
 				true,
 				0,
 				-1);
+		mesuresTemporalsHelper.mesuraCalcular("Lucene: getDadesExpedient", "lucene");
+		return resultat;
 	}
 
 

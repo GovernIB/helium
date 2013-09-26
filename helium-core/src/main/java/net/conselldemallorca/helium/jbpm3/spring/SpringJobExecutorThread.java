@@ -122,7 +122,7 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 				logger.error("Error al executar job al reindexar l'expedient (id=" + exp.getId() + ", identificador=" + exp.getIdentificadorLimitat() + ", processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
 			}
 		}
-		((MesuresTemporalsHelper)adminService.getMesuresTemporalsHelper()).mesuraCalcular(jobName);
+		((MesuresTemporalsHelper)adminService.getMesuresTemporalsHelper()).mesuraCalcular(jobName, "timer");
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

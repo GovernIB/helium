@@ -231,7 +231,7 @@ public class TascaController extends BaseController {
 			} catch (Exception ex) {
 				logger.error("S'ha produït un error processant la seva petició", ex);
 				missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
-				mesuresTemporalsHelper.mesuraCalcular(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Info");
+				mesuresTemporalsHelper.mesuraCalcular(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Info", "tasques");
 				return "redirect:/tasca/personaLlistat.html";
 			}
 			if ("s".equals(ini)) {
@@ -241,13 +241,13 @@ public class TascaController extends BaseController {
 				}else{
 					
 					if (!tasca.getCamps().isEmpty()) {
-						mesuresTemporalsHelper.mesuraCalcular(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Info");
+						mesuresTemporalsHelper.mesuraCalcular(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Info", "tasques");
 						return "redirect:/tasca/form.html?id="+id;
 					} else if(!tasca.getDocuments().isEmpty()) {
-						mesuresTemporalsHelper.mesuraCalcular(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Info");
+						mesuresTemporalsHelper.mesuraCalcular(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Info", "tasques");
 						return "redirect:/tasca/documents.html?id="+id;
 					} else if (!tasca.getSignatures().isEmpty()) {
-						mesuresTemporalsHelper.mesuraCalcular(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Info");
+						mesuresTemporalsHelper.mesuraCalcular(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Info", "tasques");
 						return "redirect:/tasca/signatures.html?id="+id;
 					}	
 				}
@@ -256,7 +256,7 @@ public class TascaController extends BaseController {
 			model.addAttribute(
 					 "destinataris",
 					 destinataris);
-			mesuresTemporalsHelper.mesuraCalcular(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Info");
+			mesuresTemporalsHelper.mesuraCalcular(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Info", "tasques");
 	        return "tasca/info";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );

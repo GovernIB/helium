@@ -168,7 +168,7 @@ public class TascaDocumentsController extends BaseController {
 						command);
 			}
 			if (MesuresTemporalsHelper.isActiu())
-				mesuresTemporalsHelper.mesuraCalcular(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Documents");
+				mesuresTemporalsHelper.mesuraCalcular(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Documents", "tasques");
 			return "tasca/documents";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );

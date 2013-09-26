@@ -667,7 +667,7 @@ public class ExpedientService {
 			registreDao.crearRegistreAnularExpedient(
 					expedient.getId(),
 					SecurityContextHolder.getContext().getAuthentication().getName());
-			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - Anular");
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - Anular", "expedient");
 		} else {
 			throw new NotFoundException(getServiceUtils().getMessage("error.expedientService.noExisteix"));
 		}
@@ -688,7 +688,7 @@ public class ExpedientService {
 			/*registreDao.crearRegistreReprendreExpedient(
 					expedient.getId(),
 					SecurityContextHolder.getContext().getAuthentication().getName());*/
-			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - Desanular");
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - Desanular", "expedient");
 		} else {
 			throw new NotFoundException(getServiceUtils().getMessage("error.expedientService.noExisteix"));
 		}
@@ -817,7 +817,7 @@ public class ExpedientService {
 				sort,
 				asc))
 			resposta.add(dtoConverter.toExpedientDto(expedient, false));
-		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS");
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS", "consulta");
 		return resposta;
 	}
 	public List<PortasignaturesPendentDto> findAmbEntornPendentPsigna(
@@ -1597,7 +1597,7 @@ public class ExpedientService {
 				expedient.getId(),
 				(usuari != null) ? usuari : SecurityContextHolder.getContext().getAuthentication().getName(),
 				motiu);
-		mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - Aturar");
+		mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - Aturar", "expedient");
 	}
 	public void reprendre(
 			String processInstanceId,
@@ -1620,7 +1620,7 @@ public class ExpedientService {
 		registreDao.crearRegistreReprendreExpedient(
 				expedient.getId(),
 				(usuari != null) ? usuari : SecurityContextHolder.getContext().getAuthentication().getName());
-		mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - Reprendre");
+		mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - Reprendre", "expedient");
 	}
 
 	public List<String> findArrivingNodeNames(String tokenId) {
@@ -1669,7 +1669,7 @@ public class ExpedientService {
 		actualitzarDataFiExpedient(processInstanceId);
 		getServiceUtils().expedientIndexLuceneUpdate(processInstanceId);
 		if (MesuresTemporalsHelper.isActiu())
-			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - Executar script");
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - Executar script", "expedient");
 		return output.get(outputVar);
 	}
 
@@ -1771,7 +1771,7 @@ public class ExpedientService {
 		actualitzarDataFiExpedient(processInstanceId);
 		getServiceUtils().expedientIndexLuceneUpdate(processInstanceId);
 		if (MesuresTemporalsHelper.isActiu())
-			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - Executar accio " + accio.getNom());
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - Executar accio " + accio.getNom(), "expedient");
 	}
 
 	public DefinicioProces getDefinicioProcesPerProcessInstanceId(String processInstanceId) {
@@ -1954,7 +1954,7 @@ public class ExpedientService {
 		logRetroces.setEstat(ExpedientLogEstat.IGNORAR);
 		getServiceUtils().expedientIndexLuceneUpdate(
 				log.getExpedient().getProcessInstanceId());
-		mesuresTemporalsHelper.mesuraCalcular(log.getExpedient().getTipus().getNom() + " - Retrocedir");
+		mesuresTemporalsHelper.mesuraCalcular(log.getExpedient().getTipus().getNom() + " - Retrocedir", "expedient");
 	}
 	public Map<String, TascaDto> getTasquesPerLogExpedient(Long expedientId) {
 		List<ExpedientLog> logs = expedientLogDao.findAmbExpedientIdOrdenatsPerData(expedientId);

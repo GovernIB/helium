@@ -229,7 +229,7 @@ public class TascaFormController extends BaseController {
 						null,
 						true,
 						false);
-				mesuresTemporalsHelper.mesuraIniciar(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Documents ", "tasques");
+				mesuresTemporalsHelper.mesuraIniciar(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Documents", "tasques");
 			}
 			String campFocus = (String)request.getSession().getAttribute(VARIABLE_SESSIO_CAMP_FOCUS);
 			if (campFocus != null) {
@@ -240,7 +240,7 @@ public class TascaFormController extends BaseController {
 				}
 			}
 			if (MesuresTemporalsHelper.isActiu())
-				mesuresTemporalsHelper.mesuraCalcular(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Documents ");
+				mesuresTemporalsHelper.mesuraCalcular(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Documents", "tasques");
 			if (model.get("command") == null) {
 				missatgeError(request, getMessage("error.tasca.no.disponible") );
 				return "redirect:/tasca/personaLlistat.html";

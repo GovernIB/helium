@@ -15,11 +15,13 @@ import java.util.LinkedList;
 public class MesuraTemporalDto {
 
 	private String clau;
+	private String tipusExpedient;
+	private String tasca;
 	private long darrera;
 	private double mitja;
 	private long minima;
 	private long maxima;
-	private int numMesures;
+	private long numMesures;
 	private double periode;
 	
 	private LinkedList<IntervalEventDto> events;
@@ -29,6 +31,18 @@ public class MesuraTemporalDto {
 	}
 	public void setClau(String clau) {
 		this.clau = clau;
+	}
+	public String getTipusExpedient() {
+		return tipusExpedient;
+	}
+	public void setTipusExpedient(String tipusExpedient) {
+		this.tipusExpedient = tipusExpedient;
+	}
+	public String getTasca() {
+		return tasca;
+	}
+	public void setTasca(String tasca) {
+		this.tasca = tasca;
 	}
 	public long getDarrera() {
 		return darrera;
@@ -54,10 +68,10 @@ public class MesuraTemporalDto {
 	public void setMaxima(long maxima) {
 		this.maxima = maxima;
 	}
-	public int getNumMesures() {
+	public long getNumMesures() {
 		return numMesures;
 	}
-	public void setNumMesures(int numMesures) {
+	public void setNumMesures(long numMesures) {
 		this.numMesures = numMesures;
 	}
 	public double getPeriode() {

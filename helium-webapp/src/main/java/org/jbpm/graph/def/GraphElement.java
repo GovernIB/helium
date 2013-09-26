@@ -319,7 +319,7 @@ public abstract class GraphElement implements Identifiable, Serializable {
       executionContext.setAction(null);
       token.endCompositeLog();
       if (MesuresTemporalsHelper.isActiu())
-    	  DaoProxy.getInstance().getAdminService().getMesuresTemporalsHelper().mesuraCalcular(exp.getTipus().getNom() + " - ACCIO: " + action.getName());
+    	  DaoProxy.getInstance().getAdminService().getMesuresTemporalsHelper().mesuraCalcular(exp.getTipus().getNom() + " - ACCIO: " + action.getName(), "tasques");
     }
   }
 

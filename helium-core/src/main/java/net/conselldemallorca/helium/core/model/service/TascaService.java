@@ -231,7 +231,7 @@ public class TascaService {
 				sort,
 				asc);
 		resposta.setCount(ids.getCount());
-		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES PERSONA");
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES PERSONA", "consulta");
 		return resposta;
 	}
 
@@ -308,7 +308,7 @@ public class TascaService {
 				sort,
 				asc);	
 		resposta.setCount(ids.getCount());
-		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES GRUP");
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES GRUP", "consulta");
 		return resposta;
 	}
 
@@ -441,41 +441,56 @@ public class TascaService {
 			String taskId,
 			Map<String, Object> variables,
 			String usuari) {
+		mesuresTemporalsHelper.mesuraIniciar("Guardar tasca " + taskId + ": Obtenir tasca i exp", "tasques");
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);
 		Expedient expedient = null;
 		if (MesuresTemporalsHelper.isActiu()) { 
 			JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
 			expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
-			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " - Guardar tasca", "tasques");
-			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " - Guardar tasca (LOG)", "tasques");
+			mesuresTemporalsHelper.mesuraCalcular("Guardar tasca " + taskId + ": Obtenir tasca i exp", "tasques");
+			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Guardar tasca - TOTAL", "tasques");
+			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Guardar tasca - LOG", "tasques");
 		}
 		expedientLogHelper.afegirLogExpedientPerTasca(
 				taskId,
 				ExpedientLogAccioTipus.TASCA_FORM_GUARDAR,
 				null,
 				usuari);
-		if (MesuresTemporalsHelper.isActiu())
-			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " - Guardar tasca (LOG)");
+		if (MesuresTemporalsHelper.isActiu()) {
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Guardar tasca - LOG", "tasques");
+			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Guardar tasca - OptDOMINI", "tasques");
+		}
 		boolean iniciada = task.getStartTime() == null;
 		optimitzarConsultesDomini(task, variables);
+		if (MesuresTemporalsHelper.isActiu()) {
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Guardar tasca - OptDOMINI", "tasques");
+			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Guardar tasca - StartTI", "tasques");
+		}
 		jbpmDao.startTaskInstance(taskId);
+		if (MesuresTemporalsHelper.isActiu()) {
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Guardar tasca - StartTI", "tasques");
+			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Guardar tasca - tiVar", "tasques");
+		}
 		jbpmDao.setTaskInstanceVariables(taskId, variables, false);
+		if (MesuresTemporalsHelper.isActiu()) {
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Guardar tasca - tiVar", "tasques");
+		}
 		TascaDto tasca = toTascaDto(task, null, true, true);
 		if (iniciada) {
 			if (usuari == null)
 				usuari = SecurityContextHolder.getContext().getAuthentication().getName();
 			if (MesuresTemporalsHelper.isActiu())
-				mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " - Guardar tasca (REG)", "tasques");
+				mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Guardar tasca - REG", "tasques");
 			registreDao.crearRegistreModificarTasca(
 					tasca.getExpedient().getId(),
 					taskId,
 					usuari,
 					"Iniciar tasca \"" + tasca.getNom() + "\"");
 			if (MesuresTemporalsHelper.isActiu())
-				mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " - Guardar tasca (REG)");
+				mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Guardar tasca - REG", "tasques");
 		}
 		if (MesuresTemporalsHelper.isActiu())
-			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " - Guardar tasca");
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Guardar tasca - TOTAL", "tasques");
 		return tasca;
 	}
 
@@ -527,15 +542,23 @@ public class TascaService {
 			Object[] valors,
 			int index,
 			String usuari) {
+		mesuresTemporalsHelper.mesuraIniciar("Guardar registre " + taskId + ": Obtenir tasca i exp", "tasques");
 		JbpmTask task = jbpmDao.getTaskById(taskId);
 		Expedient expedient = null;
 		if (MesuresTemporalsHelper.isActiu()) {
 			JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
 			expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
-			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " - Guardar registre", "tasques");
+			mesuresTemporalsHelper.mesuraCalcular("Guardar registre " + taskId + ": Obtenir tasca i exp", "tasques");
+			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Guardar registre - TOTAL", "tasques");
 		}
 		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(task.getProcessDefinitionId());
+		if (MesuresTemporalsHelper.isActiu())
+			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Guardar registre - Camp", "tasques");
 		Camp camp = campDao.findAmbDefinicioProcesICodi(definicioProces.getId(), campCodi);
+		if (MesuresTemporalsHelper.isActiu()) {
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Guardar registre - Camp", "tasques");
+			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Guardar registre - GuardarVar", "tasques");
+		}
 		if (camp.isMultiple()) {
 			Object valor = jbpmDao.getTaskInstanceVariable(taskId, campCodi);
 			if (valor == null) {
@@ -576,8 +599,10 @@ public class TascaService {
 					valors,
 					usuari);
 		}
-		if (MesuresTemporalsHelper.isActiu())
-			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " - Guardar registre");
+		if (MesuresTemporalsHelper.isActiu()) {
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Guardar registre - GuardarVar", "tasques");
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Guardar registre - TOTAL", "tasques");
+		}
 	}
 	public void esborrarRegistre(
 			Long entornId,
@@ -592,15 +617,23 @@ public class TascaService {
 			String campCodi,
 			int index,
 			String usuari) {
+		mesuresTemporalsHelper.mesuraIniciar("Esborrar registre " + taskId + ": Obtenir tasca i exp", "tasques");
 		JbpmTask task = jbpmDao.getTaskById(taskId);
 		Expedient expedient = null;
 		if (MesuresTemporalsHelper.isActiu()) {
 			JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
 			expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
-			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " - Esborrar registre", "tasques");
+			mesuresTemporalsHelper.mesuraCalcular("Esborrar registre " + taskId + ": Obtenir tasca i exp", "tasques");
+			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Esborrar registre - TOTAL", "tasques");
 		}
 		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(task.getProcessDefinitionId());
+		if (MesuresTemporalsHelper.isActiu())
+			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Esborrar registre - Camp", "tasques");
 		Camp camp = campDao.findAmbDefinicioProcesICodi(definicioProces.getId(), campCodi);
+		if (MesuresTemporalsHelper.isActiu()) {
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Esborrar registre - Camp", "tasques");
+			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Esborrar registre - GuardarVar", "tasques");
+		}
 		if (camp.isMultiple()) {
 			Object valor = jbpmDao.getTaskInstanceVariable(taskId, campCodi);
 			if (valor != null) {
@@ -625,8 +658,10 @@ public class TascaService {
 					null,
 					usuari);
 		}
-		if (MesuresTemporalsHelper.isActiu())
-			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " - Esborrar registre");
+		if (MesuresTemporalsHelper.isActiu()) {
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Esborrar registre - GuardarVar", "tasques");
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Esborrar registre - TOTAL", "tasques");
+		}
 	}
 
 	public TascaDto validar(
@@ -642,38 +677,56 @@ public class TascaService {
 			Map<String, Object> variables,
 			boolean comprovarAssignacio,
 			String usuari) {
+		mesuresTemporalsHelper.mesuraIniciar("Validar tasca" + taskId + ": Obtenir tasca i exp", "tasques");
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, comprovarAssignacio);
 		Expedient expedient = null;
 		if (MesuresTemporalsHelper.isActiu()) {
 			JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
 			expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
-			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " - Validar tasca", "tasques");
-			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " - Validar tasca (LOG)", "tasques");
+			mesuresTemporalsHelper.mesuraCalcular("Validar tasca" + taskId + ": Obtenir tasca i exp", "tasques");
+			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Validar tasca - TOTAL", "tasques");
+			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Validar tasca - LOG", "tasques");
 		}
 		expedientLogHelper.afegirLogExpedientPerTasca(
 				taskId,
 				ExpedientLogAccioTipus.TASCA_FORM_VALIDAR,
 				null,
 				usuari);
-		if (MesuresTemporalsHelper.isActiu())
-			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " - Validar tasca (LOG)");
+		if (MesuresTemporalsHelper.isActiu()) {
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Validar tasca - LOG", "tasques");
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Validar tasca - OptDOMINI", "tasques");
+		}
 		optimitzarConsultesDomini(task, variables);
+		if (MesuresTemporalsHelper.isActiu()) {
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Validar tasca - OptDOMINI", "tasques");
+			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Validar tasca - StartTI", "tasques");
+		}
 		jbpmDao.startTaskInstance(taskId);
+		if (MesuresTemporalsHelper.isActiu()) {
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Validar tasca - StartTI", "tasques");
+			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Validar tasca - tiVar", "tasques");
+		}
 		jbpmDao.setTaskInstanceVariables(taskId, variables, false);
+		if (MesuresTemporalsHelper.isActiu()) {
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Validar tasca - tiVar", "tasques");
+			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Validar tasca - Validar", "tasques");
+		}
 		validarTasca(taskId);
+		if (MesuresTemporalsHelper.isActiu()) 
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Validar tasca - Validar", "tasques");
 		TascaDto tasca = toTascaDto(task, null, true, true);
 		if (usuari == null)
 			usuari = SecurityContextHolder.getContext().getAuthentication().getName();
 		if (MesuresTemporalsHelper.isActiu())
-			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " - Validar tasca (REG)", "tasques");
+			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Validar tasca - REG", "tasques");
 		registreDao.crearRegistreModificarTasca(
 				tasca.getExpedient().getId(),
 				taskId,
 				usuari,
 				"Validar \"" + tasca.getNom() + "\"");
 		if (MesuresTemporalsHelper.isActiu()) {
-			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " - Validar tasca (REG)");
-			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " - Validar tasca");
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Validar tasca - REG", "tasques");
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Validar tasca - TOTAL", "tasques");
 		}
 		return tasca;
 	}
@@ -686,39 +739,48 @@ public class TascaService {
 			Long entornId,
 			String taskId,
 			String user) {
+		mesuresTemporalsHelper.mesuraIniciar("Restaurar tasca" + taskId + ": Obtenir tasca i exp", "tasques");
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, user, true);
 		Expedient expedient = null;
 		if (MesuresTemporalsHelper.isActiu()) {
 			JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
 			expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
-			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " - Restaurar tasca", "tasques");
-			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " - Restaurar tasca (LOG)", "tasques");
+			mesuresTemporalsHelper.mesuraCalcular("Restaurar tasca" + taskId + ": Obtenir tasca i exp", "tasques");
+			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Restaurar tasca - TOTAL", "tasques");
+			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Restaurar tasca - LOG", "tasques");
 		}
 		expedientLogHelper.afegirLogExpedientPerTasca(
 				taskId,
 				ExpedientLogAccioTipus.TASCA_FORM_RESTAURAR,
 				null,
 				user);
-		if (MesuresTemporalsHelper.isActiu())
-			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " - Restaurar tasca (LOG)");
+		if (MesuresTemporalsHelper.isActiu()) {
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Restaurar tasca - LOG", "tasques");
+			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Restaurar tasca - Validada", "tasques");
+		}
 		if (!isTascaValidada(task))
 			throw new IllegalStateException(
 					getServiceUtils().getMessage("error.tascaService.noValidada"));
-		//deleteDocumentsTasca(taskId);
+		if (MesuresTemporalsHelper.isActiu()) {
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Restaurar tasca - Validada", "tasques");
+			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Restaurar tasca - Restaurar", "tasques");
+		}
 		restaurarTasca(taskId);
+		if (MesuresTemporalsHelper.isActiu())
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Restaurar tasca - Restaurar", "tasques");
 		TascaDto tasca = toTascaDto(task, null, true, true);
 		if (user == null) 
 			user = SecurityContextHolder.getContext().getAuthentication().getName();
 		if (MesuresTemporalsHelper.isActiu())
-			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " - Restaurar tasca (REG)", "tasques");
+			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Restaurar tasca - REG", "tasques");
 		registreDao.crearRegistreModificarTasca(
 				tasca.getExpedient().getId(),
 				taskId,
 				user,
 				"Restaurar \"" + tasca.getNom() + "\"");
 		if (MesuresTemporalsHelper.isActiu()) {
-			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " - Restaurar tasca (REG)");
-			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " - Restaurar tasca");
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Restaurar tasca - REG", "tasques");
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Restaurar tasca - TOTAL", "tasques");
 		}
 		return tasca;
 	}
@@ -735,6 +797,7 @@ public class TascaService {
 			boolean comprovarAssignacio,
 			String usuari,
 			String outcome) {
+		mesuresTemporalsHelper.mesuraIniciar("Restaurar tasca" + taskId + ": Obtenir tasca i exp", "tasques");
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, comprovarAssignacio);
 		if (!isTascaValidada(task))
 			throw new IllegalStateException(
@@ -747,19 +810,27 @@ public class TascaService {
 					getServiceUtils().getMessage("error.tascaService.faltenSignar"));
 		JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
-		mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " - Completar tasca", "tasques");
-		mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " - Completar tasca (LOG)", "tasques");
+		mesuresTemporalsHelper.mesuraCalcular("Restaurar tasca" + taskId + ": Obtenir tasca i exp", "tasques");
+		mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Completar tasca - TOTAL", "tasques");
+		mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Completar tasca - LOG", "tasques");
 		expedientLogHelper.afegirLogExpedientPerTasca(
 				taskId,
 				ExpedientLogAccioTipus.TASCA_COMPLETAR,
 				outcome,
 				usuari);
-		mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " - Completar tasca (LOG)");
+		mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Completar tasca - LOG", "tasques");
+		mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Completar tasca - StartTI", "tasques");
 		jbpmDao.startTaskInstance(taskId);
+		mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Completar tasca - StartTI", "tasques");
+		mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Completar tasca - EndTI", "tasques");
 		jbpmDao.endTaskInstance(task.getId(), outcome);
+		mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Completar tasca - EndTI", "tasques");
+		mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Completar tasca - DelegInfo", "tasques");
 		// Accions per a una tasca delegada
 		DelegationInfo delegationInfo = getDelegationInfo(task);
+		mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Completar tasca - DelegInfo", "tasques");
 		if (delegationInfo != null) {
+			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Completar tasca - Delegation", "tasques");
 			if (!taskId.equals(delegationInfo.getSourceTaskId())) {
 				// Copia les variables de la tasca delegada a la original
 				jbpmDao.setTaskInstanceVariables(
@@ -773,23 +844,28 @@ public class TascaService {
 				}
 				deleteDelegationInfo(taskOriginal);
 			}
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Completar tasca - Delegation", "tasques");
 		}
-//		JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
-//		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
+		mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Completar tasca - ActAlertes", "tasques");
 		actualitzarTerminisIAlertes(taskId, expedient);
+		mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Completar tasca - ActAlertes", "tasques");
+		mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Completar tasca - ActDataFi", "tasques");
 		actualitzarDataFiExpedient(expedient, pi);
+		mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Completar tasca - ActDataFi", "tasques");
+		mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Completar tasca - LuceneUpdate", "tasques");
 		getServiceUtils().expedientIndexLuceneUpdate(task.getProcessInstanceId());
+		mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Completar tasca - LuceneUpdate", "tasques");
 		TascaDto tasca = toTascaDto(task, null, true, true);
 		if (usuari == null)
 			usuari = SecurityContextHolder.getContext().getAuthentication().getName();
-		mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " - Completar tasca (REG)", "tasques");
+		mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Completar tasca - REG", "tasques");
 		registreDao.crearRegistreFinalitzarTasca(
 				tasca.getExpedient().getId(),
 				taskId,
 				usuari,
 				"Finalitzar \"" + tasca.getNom() + "\"");
-		mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " - Completar tasca (REG)");
-		mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " - Completar tasca");
+		mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Completar tasca - REG", "tasques");
+		mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Completar tasca - TOTAL", "tasques");
 	}
 
 	public Object getVariable(
@@ -1093,8 +1169,8 @@ public class TascaService {
 		if (MesuresTemporalsHelper.isActiu()) {
 			JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
 			expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
-			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " - Executar accio " + accio, "tasques");
-			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " - Executar accio " + accio + " (LOG)", "tasques");
+			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Executar accio " + accio, "tasques");
+			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Executar accio " + accio + " - LOG", "tasques");
 		}
 		expedientLogHelper.afegirLogExpedientPerTasca(
 				taskId,
@@ -1102,11 +1178,11 @@ public class TascaService {
 				accio,
 				user);
 		if (MesuresTemporalsHelper.isActiu())
-			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " - Executar accio " + accio + " (LOG)");
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Executar accio " + accio + " - LOG", "tasques");
 		jbpmDao.executeActionInstanciaTasca(taskId, accio);
 		getServiceUtils().expedientIndexLuceneUpdate(task.getProcessInstanceId());
 		if (MesuresTemporalsHelper.isActiu())
-			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " - Executar accio " + accio);
+			mesuresTemporalsHelper.mesuraCalcular(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Executar accio " + accio, "tasques");
 	}
 
 	public void comprovarTascaAssignadaIValidada(

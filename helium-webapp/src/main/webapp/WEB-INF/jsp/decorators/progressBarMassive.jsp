@@ -109,26 +109,29 @@
  			async: false,
 			success: function(data){
 				var length = 0;
-				var content = "";
 				var consultaBBDD = (fam == "sql_jbpm" || fam == "sql_helium");
-				if ($.isEmptyObject(data)) {
-					content = "<h4><fmt:message key='execucions.mesura.temps.no'/></h4>";
+				
+				var content = 	'<ul id="temps_tabnav">';
+				if (fam == "") {
+					content +=	'<li class="active"><span><fmt:message key="temps.familia.tot"/></span></li>';
+				} else {
+					content +=	'<li><a href="javascript:carregaMesuresTempsFamilia(\'\');"><fmt:message key="temps.familia.tot"/></a></li>';
+				}
+				for (var key in data.familia) {
+					if (fam == key) {
+						content +=	'<li class="active"><span>' + data.familia[key] + '</span></li>';
+					} else {
+						content +=	'<li><a href="javascript:carregaMesuresTempsFamilia(\'' + key + '\');">' + data.familia[key] + '</a></li>';
+					}
+				}
+				content += 	'</ul>';
+				
+				if ($.isEmptyObject(data.clau)) {
+					content += (fam == "" ? 
+							"<h4><fmt:message key='execucions.mesura.temps.no'/></h4>" : 
+							"<h4><fmt:message key='execucions.mesura.temps.bbdd.no'/></h4>");
 					$("#temps_contens").html(content);
 				} else {
-					content = 	'<ul id="temps_tabnav">';
-					if (fam == "") {
-						content +=	'<li class="active"><span><fmt:message key="temps.familia.tot"/></span></li>';
-					} else {
-						content +=	'<li><a href="javascript:carregaMesuresTempsFamilia(\'\');"><fmt:message key="temps.familia.tot"/></a></li>';
-					}
-					for (var key in data.familia) {
-						if (fam == key) {
-							content +=	'<li class="active"><span>' + data.familia[key] + '</span></li>';
-						} else {
-							content +=	'<li><a href="javascript:carregaMesuresTempsFamilia(\'' + key + '\');">' + data.familia[key] + '</a></li>';
-						}
-					}
-					content += 	'</ul>';
 					
 					length = data.clau.length;
 					

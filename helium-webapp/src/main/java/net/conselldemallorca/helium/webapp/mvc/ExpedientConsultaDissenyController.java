@@ -226,7 +226,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 								objectsPerPage,
 								export));
 				if (MesuresTemporalsHelper.isActiu())
-					adminService.getMesuresTemporalsHelper().mesuraCalcular("INFORME: " + consulta.getCodi());
+					adminService.getMesuresTemporalsHelper().mesuraCalcular("INFORME: " + consulta.getCodi(), "report");
 			}
 			return "expedient/consultaDisseny";
 		} else {
@@ -400,7 +400,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 					model.addAttribute(
 							JasperReportsView.MODEL_ATTRIBUTE_CONSULTA,
 							consulta.getCodi());
-					adminService.getMesuresTemporalsHelper().mesuraCalcular("INFORME: " + consulta.getCodi() + " (DADES)");
+					adminService.getMesuresTemporalsHelper().mesuraCalcular("INFORME: " + consulta.getCodi() + " (DADES)", "report");
 					return "jasperReportsView";
 				} else {
 					missatgeError(request, getMessage("error.consulta.informe.nonhiha"));

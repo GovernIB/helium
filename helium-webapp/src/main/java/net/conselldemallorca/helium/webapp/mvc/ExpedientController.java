@@ -4,15 +4,15 @@
 package net.conselldemallorca.helium.webapp.mvc;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Collections;
+
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
-
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
@@ -223,7 +223,7 @@ public class ExpedientController extends BaseController {
 							"activeTokens",
 							expedientService.getActiveTokens(id, true));
 				}
-				adminService.getMesuresTemporalsHelper().mesuraCalcular(expedient.getTipus().getNom() + " - INFORMACIO");
+				adminService.getMesuresTemporalsHelper().mesuraCalcular(expedient.getTipus().getNom() + " - INFORMACIO", "expedient");
 				try {
 					model.addAttribute(
 							"relacionarCommand",
@@ -269,7 +269,7 @@ public class ExpedientController extends BaseController {
 							"tasques",
 							expedientService.findTasquesPerInstanciaProces(id, true));
 				}
-				adminService.getMesuresTemporalsHelper().mesuraCalcular(expedient.getTipus().getNom() + " - LLISTAT DADES");
+				adminService.getMesuresTemporalsHelper().mesuraCalcular(expedient.getTipus().getNom() + " - LLISTAT DADES", "expedient");
 				return "expedient/dades";
 			} else {
 				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
@@ -309,7 +309,7 @@ public class ExpedientController extends BaseController {
 							"tasques",
 							expedientService.findTasquesPerInstanciaProces(id, true));
 				}
-				adminService.getMesuresTemporalsHelper().mesuraCalcular(expedient.getTipus().getNom() + " - LLISTAT DOCUMENTS");
+				adminService.getMesuresTemporalsHelper().mesuraCalcular(expedient.getTipus().getNom() + " - LLISTAT DOCUMENTS", "expedient");
 				return "expedient/documents";
 			} else {
 				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
@@ -421,7 +421,7 @@ public class ExpedientController extends BaseController {
 //						"instanciaProces",
 //						expedientService.getInstanciaProcesById(id, false, false, false, false));
 				List<TascaDto> tasques = expedientService.findTasquesPerInstanciaProces(id, false);
-				List<Object> logsId = new ArrayList<Object>();
+//				List<Object> logsId = new ArrayList<Object>();
 //				for (TascaDto tasca: tasques){
 //					logsId.add(expedientService.findLogIdTascaById(tasca.getId(),tasca.getId()));
 //				}
@@ -429,7 +429,7 @@ public class ExpedientController extends BaseController {
 				model.addAttribute(
 						"tasques",
 						tasques);
-				adminService.getMesuresTemporalsHelper().mesuraCalcular(expedient.getTipus().getNom() + " - LLISTAT TASQUES");
+				adminService.getMesuresTemporalsHelper().mesuraCalcular(expedient.getTipus().getNom() + " - LLISTAT TASQUES", "expedient");
 				return "expedient/tasques";
 			} else {
 				missatgeError(request, getMessage("error.permisos.consultar.expedient"));
@@ -505,7 +505,7 @@ public class ExpedientController extends BaseController {
 					model.addAttribute(
 							"registre",
 							expedientService.getRegistrePerExpedient(expedient.getId()));
-					adminService.getMesuresTemporalsHelper().mesuraCalcular(expedient.getTipus().getNom() + " - REGISTRE");
+					adminService.getMesuresTemporalsHelper().mesuraCalcular(expedient.getTipus().getNom() + " - REGISTRE", "expedient");
 					return "expedient/registre";
 				} else {
 					// Llevam els logs retrocedits
@@ -520,7 +520,7 @@ public class ExpedientController extends BaseController {
 					model.addAttribute(
 							"tasques",
 							expedientService.getTasquesPerLogExpedient(expedient.getId()));
-					adminService.getMesuresTemporalsHelper().mesuraCalcular(expedient.getTipus().getNom() + " - REGISTRE");
+					adminService.getMesuresTemporalsHelper().mesuraCalcular(expedient.getTipus().getNom() + " - REGISTRE", "expedient");
 					return "expedient/log";
 				}
 			} else {
