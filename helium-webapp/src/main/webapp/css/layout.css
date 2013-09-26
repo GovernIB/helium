@@ -254,6 +254,13 @@ html, body{
 	padding-top: 5px;
 	overflow: hidden;
 }
+.monitor_col1 {
+	width: 480px;
+	float: left;
+	padding-left: 20px;
+	padding-top: 5px;
+	overflow: hidden;
+}
 .temps_col1 {
 	width: 220px;
 	float: left;
@@ -362,7 +369,24 @@ ul#temps_tabnav a:hover {
 	float: right;
 	height: 20px;
 }
+#page-entorn-menu div.monitor a {
+	background-image: url(../img/terminal.png);
+	padding-left: 35px;
+	background-repeat: no-repeat;
+	background-position: 10px 0;
+	color: #CCC;
+	text-decoration: none;
+	float: right;
+	height: 20px;
+	padding-top: 2px;
+	margin-top: -2px;
+}
 #page-entorn-menu div.temps {
+	padding-top: 8px;
+	float: right;
+	padding-right: 10px;
+}
+#page-entorn-menu div.monitor {
 	padding-top: 8px;
 	float: right;
 	padding-right: 10px;

@@ -77,18 +77,15 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 						+ " ELSE ex.numeroDefault END) like UPPER(:expedient) ";			
 		}
 		
-		hql += " order by ";
 		if ("expedientTitol".equals(sort)) {
-			hql += " (case"
+			hql += " order by (case"
 						+ " when (ex.numero is not null AND ex.titol is not null) then ('['||ex.numero||'] ' || ex.titol) "
 						+ " when (ex.numero is not null AND ex.titol is null) then ex.numero "
 						+ " when (ex.numero is null AND ex.titol is not null) then ex.titol "
 						+ " ELSE ex.numeroDefault END) " + (asc ? "asc" : "desc");
 		} else if ("expedientTipusNom".equals(sort)) {
-			hql += " ex.tipus.nom " + (asc ? "asc" : "desc");
-		} else {
-			hql += " 1 ";
-		}
+			hql += " order by ex.tipus.nom " + (asc ? "asc" : "desc");
+		} 
 		
 		Query query = getSession().createQuery(hql);
 		query.setLong("entornId", entornId);

@@ -1658,7 +1658,7 @@ public class ExpedientService {
 			String outputVar) {
 		Expedient expedient = null;
 		if (MesuresTemporalsHelper.isActiu()) {
-			JbpmProcessInstance pi = jbpmDao.getProcessInstance(processInstanceId);
+			JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(processInstanceId);
 			expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
 			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - Executar script", "expedient");
 		}
@@ -1758,7 +1758,8 @@ public class ExpedientService {
 		Accio accio = accioDao.findAmbDefinicioProcesICodi(definicioProces.getId(), accioCodi);
 		Expedient expedient = null;
 		if (MesuresTemporalsHelper.isActiu()) { 
-			expedient = expedientDao.findAmbProcessInstanceId(processInstance.getId());
+			JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(processInstanceId);
+			expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 			mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - Executar accio " + accio.getNom(), "expedient");
 		}
 		expedientLogHelper.afegirLogExpedientPerProces(

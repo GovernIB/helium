@@ -16,6 +16,9 @@
 <div class="dialog-form-temps" id="dialog-form-temps" style="display:none" title="<fmt:message key='expedient.mesura.temps' />">
 	<div id="temps_contens"></div>
 </div>
+<div class="dialog-form-monitor" id="dialog-form-monitor" style="display:none" title="<fmt:message key='expedient.monitor.det' />">
+	<div id="monitor_contens"></div>
+</div>
 <div class="wait"></div>
 
 <script>
@@ -68,6 +71,24 @@
 			}
 		});
 		
+		$( "#dialog-form-monitor" ).dialog({
+			autoOpen: false,
+			height: 700,
+			width: 1000,
+			modal: true,
+			resizable: false,
+			buttons: {
+				<fmt:message key='comuns.tancar' />: function() {
+					$(this).dialog("close");
+				},
+				"<fmt:message key='comuns.refrescar' />": function() {
+					carregaMonitor();
+				}
+			},
+			close: function(){
+			}
+		});
+		
 		$( "#dialog-error" ).dialog({
 			autoOpen: false,
 			height: 420,
@@ -89,6 +110,13 @@
 			carregaMesuresTemps();
 			$( "#dialog-form-temps" ).dialog( "open" );
 		});
+		
+		$("#botoMonitor")
+		.click(function() {
+			$("body").addClass("loading");
+			carregaMonitor();
+			$( "#dialog-form-monitor" ).dialog( "open" );
+		});
 	});
 	
 	function alerta(msg) {
@@ -99,6 +127,59 @@
 	function carregaMesuresTempsFamilia(familia) {
 		fam = familia;
 		carregaMesuresTemps();
+	}
+	
+	function carregaMonitor() {
+		$.ajax({
+			url: "/helium/monitor/all.html",
+			dataType: 'json',
+ 			async: false,
+			success: function(data){
+				var content = "";
+				content += '<div class="temps_well">';
+				content += '<div class="temps_fila fila_titol">';
+				content += 'Sistema';
+				content += '</div>';
+				for (var i = 0; i < data.sistema.length; i++) {
+					content += "<h4 class='temps_fila'>"+data.sistema[i]+"</h4>";
+				}
+				
+				for (var i = 0; i < data.cabecera.length; i++) {
+					content += "<h4>"+data.cabecera[i]+"</h4>";
+				}
+				content += '</div>';
+				content += 	'<br/>';
+				content += 	'<div id="mesures_temps">' +
+							'<div class="temps_well">' + 
+							'<div class="temps_fila fila_titol">' +
+							'<div class="monitor_col1"><fmt:message key="expedient.monitor.hilo"/></div>' +
+							'<div class="temps_col2"><fmt:message key="expedient.monitor.cputime"/></div>' +
+							'<div class="temps_col2"><fmt:message key="expedient.monitor.estado"/></div>' +
+							'<div class="temps_col2"><fmt:message key="expedient.monitor.espera"/></div>' +
+							'<div class="temps_col2"><fmt:message key="expedient.monitor.blockedtime"/></div>' +
+							'</div>';
+				for (var i = 0; i < data.hilo.length; i++) {
+					content += 	'<div class="temps_fila">' +
+								'<div class="monitor_col1">' + data.hilo[i] + '</div>' +
+								'<div class="temps_col2">' + data.cputime[i] + '</div>' +
+								'<div class="temps_col2">' + data.estado[i] + '</div>' +
+								'<div class="temps_col2">' + data.espera[i] + '</div>' +
+								'<div class="temps_col2">' + data.blockedtime[i] + '</div>' +
+								'</div>';
+				}
+				content += 	'</div>' +
+							'</div>';
+				
+				$("#monitor_contens").html(content);
+			}
+		})
+		.fail(function( jqxhr, textStatus, error ) {
+ 			var err = textStatus + ', ' + error;
+ 			console.log( "Request Failed: " + err);
+		})
+		.always(function() {
+			$("body").removeClass("loading");
+		});
 	}
 	
 	function carregaMesuresTemps() {

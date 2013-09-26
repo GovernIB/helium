@@ -45,5 +45,9 @@
 		<constructor-arg type="java.lang.String" value="${app.mesura.temps.actiu?false}"/>
 		<constructor-arg type="java.lang.Integer" value="${app.mesura.temps.mesures?100}"/>
 	</bean>
+	
+	<bean id="monitorHelper" class="net.conselldemallorca.helium.core.model.service.MonitorHelper">
+		<constructor-arg type="java.lang.String" value="${app.expedient.monitor?false}"/>
+	</bean>
 
 </beans>
