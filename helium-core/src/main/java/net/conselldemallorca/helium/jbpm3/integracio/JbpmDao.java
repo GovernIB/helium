@@ -826,7 +826,7 @@ public class JbpmDao {
 	}
 	
 	public Map<String, JbpmToken> getActiveTokens(String processInstanceId) {
-		mesuresTemporalsHelper.mesuraIniciar("jBPM getActiveTokens", "jbpmDao");
+		mesuresTemporalsHelper.mesuraIniciar("jBPM getActiveTokens PI", "jbpmDao");
 		Map<String, JbpmToken> resposta = new HashMap<String, JbpmToken>();
 		final long id = Long.parseLong(processInstanceId);
 		GetProcessInstanceCommand command = new GetProcessInstanceCommand(id);
@@ -838,7 +838,7 @@ public class JbpmDao {
 		for (String tokenName: activeTokens.keySet()) {
 			resposta.put(tokenName, new JbpmToken(activeTokens.get(tokenName)));
 		}
-		mesuresTemporalsHelper.mesuraCalcular("jBPM getActiveTokens", "jbpmDao");
+		mesuresTemporalsHelper.mesuraCalcular("jBPM getActiveTokens PI", "jbpmDao");
 		return resposta;
 	}
 	
