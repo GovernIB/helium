@@ -43,12 +43,15 @@ public class MonitorController extends BaseController {
 		JSONArray blockedtime = new JSONArray();
 		
 		ThreadMXBean bean = ManagementFactory.getThreadMXBean();
-
 		sistema.add(getMessage("expedient.monitor.procesadores")+": " + Runtime.getRuntime().availableProcessors());
 		sistema.add(getMessage("expedient.monitor.memoria_disponible")+": " + MonitorHelper.humanReadableByteCount(Runtime.getRuntime().freeMemory()));
 		sistema.add(getMessage("expedient.monitor.memoria_maxima")+": " + (Runtime.getRuntime().maxMemory() == Long.MAX_VALUE ? "Ilimitada" : MonitorHelper.humanReadableByteCount(Runtime.getRuntime().maxMemory())));
 		sistema.add(getMessage("expedient.monitor.memoria_total")+": " + MonitorHelper.humanReadableByteCount(Runtime.getRuntime().totalMemory()));
-		sistema.add(getMessage("expedient.monitor.carga_cpu")+": " + MonitorHelper.getCPULoad() +"%");
+		sistema.add(getMessage("expedient.monitor.os-name")+": " + MonitorHelper.getName());
+		sistema.add(getMessage("expedient.monitor.os-arch") + ": " + MonitorHelper.getArch());
+		sistema.add(getMessage("expedient.monitor.os-version") + ": " + MonitorHelper.getVersion());
+		sistema.add(getMessage("expedient.monitor.carga_cpu") + ": " + MonitorHelper.getCPULoad());
+        
 		int numDeadlocked = 0; 
 		if (bean.findMonitorDeadlockedThreads() != null) {
 			numDeadlocked = bean.findMonitorDeadlockedThreads().length;

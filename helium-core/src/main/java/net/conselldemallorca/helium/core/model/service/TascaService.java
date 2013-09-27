@@ -797,7 +797,7 @@ public class TascaService {
 			boolean comprovarAssignacio,
 			String usuari,
 			String outcome) {
-		mesuresTemporalsHelper.mesuraIniciar("Restaurar tasca" + taskId + ": Obtenir tasca i exp", "tasques");
+		mesuresTemporalsHelper.mesuraIniciar("Completar tasca" + taskId + ": Obtenir tasca i exp", "tasques");
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, comprovarAssignacio);
 		if (!isTascaValidada(task))
 			throw new IllegalStateException(
@@ -810,7 +810,7 @@ public class TascaService {
 					getServiceUtils().getMessage("error.tascaService.faltenSignar"));
 		JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
-		mesuresTemporalsHelper.mesuraCalcular("Restaurar tasca" + taskId + ": Obtenir tasca i exp", "tasques");
+		mesuresTemporalsHelper.mesuraCalcular("Completar tasca" + taskId + ": Obtenir tasca i exp", "tasques");
 		mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Completar tasca - TOTAL", "tasques");
 		mesuresTemporalsHelper.mesuraIniciar(expedient.getTipus().getNom() + " - " + task.getName() + " (" + taskId +") - Completar tasca - LOG", "tasques");
 		expedientLogHelper.afegirLogExpedientPerTasca(

@@ -20,6 +20,40 @@ public class MonitorHelper {
 
 	private static com.sun.management.OperatingSystemMXBean sunOSMBean;
 
+	public static com.sun.management.OperatingSystemMXBean getSunOSMBean() {
+		return sunOSMBean;
+	}
+	
+	public static String getArch() {
+		String resultat;
+		try {
+			resultat = sunOSMBean.getArch();
+		} catch (Exception e) {
+			resultat = "No disponible";
+		}
+		return resultat;	
+	}
+	
+	public static String getName() {
+		String resultat;
+		try {
+			resultat = sunOSMBean.getName();
+		} catch (Exception e) {
+			resultat = "No disponible";
+		}
+		return resultat;	
+	}
+	
+	public static String getVersion() {
+		String resultat;
+		try {
+			resultat = sunOSMBean.getVersion();
+		} catch (Exception e) {
+			resultat = "No disponible";
+		}
+		return resultat;
+	}
+
 	private static Result result;
 
 	public static Boolean getActiu() {
@@ -42,8 +76,10 @@ public class MonitorHelper {
 			result = new Result();
 			result.nCPUs = sunOSMBean.getAvailableProcessors();
 			result.upTime = rmBean.getUptime();
-			result.processCpuTime = sunOSMBean.getProcessCpuTime();
-
+			result.processCpuTime = 0;
+			if (sunOSMBean != null) {
+				result.processCpuTime = sunOSMBean.getProcessCpuTime();
+			}
 		} catch (Exception e) {
 			System.err.println(MonitorHelper.class.getSimpleName() + " exception: " + e.getMessage());
 		}
@@ -73,19 +109,22 @@ public class MonitorHelper {
 		String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp - 1) + (si ? "" : "i");
 		return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
 	}
-	
-	public static float getCPULoad(){
 
-	    result.upTime = rmBean.getUptime();
-	    result.processCpuTime = sunOSMBean.getProcessCpuTime();
+	public static String getCPULoad() {
+		String resultat;
+		try {
+			result.upTime = rmBean.getUptime();
+			result.processCpuTime = sunOSMBean.getProcessCpuTime();
 
-	   if(result.upTime > 0L && result.processCpuTime >= 0L) 
-	         updateCPUInfo();
+			if (result.upTime > 0L && result.processCpuTime >= 0L)
+				updateCPUInfo();
+			resultat = result.cpuUsage + "%";
+		} catch (Exception e) {
+			resultat = "No disponible";
+		}
+		return resultat;
+	}
 
-	    return result.cpuUsage;
-
-	   }
-	
 	public static void updateCPUInfo() {
 		if (prevUpTime > 0L && result.upTime > prevUpTime) {
 			long elapsedCpu = result.processCpuTime - prevProcessCpuTime;

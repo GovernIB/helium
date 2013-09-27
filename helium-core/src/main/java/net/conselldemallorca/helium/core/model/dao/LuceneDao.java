@@ -77,7 +77,26 @@ public class LuceneDao extends LuceneIndexSupport {
 	// que no sortiran als resultats de les consultes per tipus.
 	private static final boolean PEGAT_ENTORN_ACTIU = true;
 
-
+	public void createExpedientAsync(
+			final Expedient expedient,
+			final Map<String, DefinicioProces> definicionsProces,
+			final Map<String, Set<Camp>> camps,
+			final Map<String, Map<String, Object>> valors,
+			final Map<String, Map<String, String>> textDominis,
+			final boolean finalitzat) {
+		Thread thread = new Thread(){
+		    public void run(){
+		    	createExpedient(
+						expedient,
+						definicionsProces,
+						camps,
+						valors,
+						textDominis,
+						finalitzat);
+		    }
+		};		
+		thread.start();
+	}
 
 	public synchronized void createExpedient(
 			Expedient expedient,
@@ -100,6 +119,19 @@ public class LuceneDao extends LuceneIndexSupport {
 		mesuresTemporalsHelper.mesuraCalcular("Lucene: createExpedient", "lucene");
 	}
 
+	public void updateExpedientCapsaleraAsync(
+			final Expedient expedient,
+			final boolean finalitzat) {
+		Thread thread = new Thread(){
+		    public void run(){
+		    	updateExpedientCapsalera(
+						expedient,
+						finalitzat);
+		    }
+		};
+		thread.start();
+	}
+
 	public synchronized boolean updateExpedientCapsalera(
 			final Expedient expedient,
 			final boolean finalitzat) {
@@ -114,6 +146,28 @@ public class LuceneDao extends LuceneIndexSupport {
 		mesuresTemporalsHelper.mesuraCalcular("Lucene: updateExpedientCapsalera", "lucene");
 		return resultat;
 	}
+
+	public void updateExpedientCampsAsync(
+			final Expedient expedient,
+			final Map<String, DefinicioProces> definicionsProces,
+			final Map<String, Set<Camp>> camps,
+			final Map<String, Map<String, Object>> valors,
+			final Map<String, Map<String, String>> textDominis,
+			final boolean finalitzat) {
+		Thread thread = new Thread(){
+		    public void run(){
+		    	updateExpedientCamps(
+						expedient,
+						definicionsProces,
+						camps,
+						valors,
+						textDominis,
+						finalitzat);
+		    }		    
+		};
+		thread.start();		
+	}
+	
 	@SuppressWarnings("unchecked")
 	public synchronized boolean updateExpedientCamps(
 			final Expedient expedient,
@@ -148,7 +202,7 @@ public class LuceneDao extends LuceneIndexSupport {
 							}
 						});
 			} else {
-				createExpedient(
+				createExpedientAsync(
 						expedient,
 						definicionsProces,
 						camps,
@@ -164,12 +218,32 @@ public class LuceneDao extends LuceneIndexSupport {
 			return false;
 		}
 	}
+
+	public void deleteExpedientAsync(
+			final Expedient expedient) {
+		Thread thread = new Thread(){
+		    public void run(){
+		    	deleteExpedient(
+						expedient);
+		    }
+		};
+		thread.start();
+	}
 	public synchronized void deleteExpedient(Expedient expedient) {
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: deleteExpedient", "lucene");
 		checkIndexOk();
 		getLuceneIndexTemplate().deleteDocuments(
 				termIdFromExpedient(expedient));
 		mesuresTemporalsHelper.mesuraCalcular("Lucene: deleteExpedient", "lucene");
+	}
+
+	public void deleteAllAsync() {
+		Thread thread = new Thread(){
+		    public void run(){
+		    	deleteAll();
+		    }
+		};
+		thread.start();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -282,8 +356,6 @@ public class LuceneDao extends LuceneIndexSupport {
 		mesuresTemporalsHelper.mesuraCalcular("Lucene: getDadesExpedient", "lucene");
 		return resultat;
 	}
-
-
 
 	@Autowired
 	public void setSearchTemplate(LuceneSearchTemplate searchTemplate) {

@@ -95,7 +95,7 @@ public class ServiceUtils {
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 		Map<String, Set<Camp>> mapCamps = getMapCamps(expedient.getProcessInstanceId());
 		Map<String, Map<String, Object>> mapValors = getMapValors(expedient.getProcessInstanceId());
-		luceneDao.createExpedient(
+		luceneDao.createExpedientAsync(
 				expedient,
 				getMapDefinicionsProces(expedient.getProcessInstanceId()),
 				mapCamps,
@@ -108,7 +108,7 @@ public class ServiceUtils {
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 		Map<String, Set<Camp>> mapCamps = getMapCamps(rootProcessInstance.getId());
 		Map<String, Map<String, Object>> mapValors = getMapValors(rootProcessInstance.getId());
-		luceneDao.updateExpedientCamps(
+		luceneDao.updateExpedientCampsAsync(
 				expedient,
 				getMapDefinicionsProces(rootProcessInstance.getId()),
 				mapCamps,
@@ -119,10 +119,10 @@ public class ServiceUtils {
 	public void expedientIndexLuceneRecrear(String processInstanceId) {
 		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(processInstanceId);
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
-		luceneDao.deleteExpedient(expedient);
+		luceneDao.deleteExpedientAsync(expedient);
 		Map<String, Set<Camp>> mapCamps = getMapCamps(rootProcessInstance.getId());
 		Map<String, Map<String, Object>> mapValors = getMapValors(rootProcessInstance.getId());
-		luceneDao.createExpedient(
+		luceneDao.createExpedientAsync(
 				expedient,
 				getMapDefinicionsProces(rootProcessInstance.getId()),
 				mapCamps,
