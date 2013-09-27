@@ -6,8 +6,11 @@ package net.conselldemallorca.helium.webapp.mvc;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -58,20 +61,17 @@ public class MonitorController extends BaseController {
 		if (bean.isThreadCpuTimeSupported()) {
 			long[] ids = bean.getAllThreadIds();
 			ThreadInfo[] info = bean.getThreadInfo(ids);
-			long tiempoCPUTotal = 0;
+			Set hs = new HashSet();
 			for (int a = 0; a < ids.length; ++a) {
-				String nombre = (info[a].getLockName() == null ? info[a].getThreadName() : info[a].getLockName());
-				if ("main".equals(nombre)) {
-					tiempoCPUTotal = bean.getThreadCpuTime(ids[a]);
-					break;
-				}
+				hs.add(bean.getThreadCpuTime(ids[a]));
 			}
+			long tiempoCPUTotal = Collections.max(hs);
 			for (int a = 0; a < ids.length; ++a) {
 				String nombre = (info[a].getLockName() == null ? info[a].getThreadName() : info[a].getLockName());
 				if (!"main".equals(nombre)) {
 					hilo.add(nombre);
 					long tiempoCPU = (long) ((float)100*((float) bean.getThreadCpuTime(ids[a]) / (float) tiempoCPUTotal));
-					cputime.add(tiempoCPU + " %");
+					cputime.add(((tiempoCPU>100)?100:tiempoCPU) + " %");
 					estado.add(getMessage("expedient.monitor."+info[a].getThreadState()));
 					espera.add(((info[a].getWaitedTime() == -1)? 0:info[a].getWaitedTime()) + " ns");
 					blockedtime.add(((info[a].getBlockedTime() == -1)? 0:info[a].getBlockedTime()) + " ns");
