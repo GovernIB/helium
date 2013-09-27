@@ -135,6 +135,10 @@ public class TascaService {
 		JbpmTask task = jbpmDao.getTaskById(taskId);
 		return toTascaDto(task, valorsCommand, true, true);
 	}
+	public TascaDto getByIdSenseComprovacioIDades(String taskId) {
+		JbpmTask task = jbpmDao.getTaskById(taskId);
+		return toTascaDto(task, null, false, false);
+	}
 
 	public List<TascaLlistatDto> findTasquesPersonalsIndex(Long entornId) {
 		return findTasquesPersonalsTramitacio(entornId, null, false);

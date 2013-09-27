@@ -1963,7 +1963,7 @@ public class ExpedientService {
 		for (ExpedientLog log: logs) {
 			if (log.isTargetTasca()) {
 				JbpmTask task = jbpmDao.getTaskById(log.getTargetId());
-				if (task != null)
+				if (task != null) {
 					tasquesPerLogs.put(
 							log.getTargetId(),
 							dtoConverter.toTascaDto(
@@ -1974,6 +1974,7 @@ public class ExpedientService {
 									true,
 									true,
 									true));
+				}
 			}
 		}
 		return tasquesPerLogs;
@@ -2038,9 +2039,9 @@ public class ExpedientService {
 		return resposta;
 	}
 	
-//	public Object findLogIdTascaById(String logId, String estat) {
-//		return expedientLogDao.findLogIdTascaById(logId, logId);
-//	}
+	public Object findLogIdTasquesById(List<String> tasquesId) {
+		return expedientLogDao.findLogIdTasquesById(tasquesId);
+	}
 	
 	public List<PortasignaturesDto> findDocumentsPendentsPortasignatures(String processInstanceId) {
 		List<PortasignaturesDto> resposta = new ArrayList<PortasignaturesDto>();

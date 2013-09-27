@@ -125,8 +125,9 @@ public class AdminService {
 		}
 
 		List<MesuraTemporalDto> ret = new ArrayList<MesuraTemporalDto>();
-		
+		Long temps = MesuresTemporalsHelper.getTemps();
 		for (MesuraTemporalDto mesura: resposta.values()) {
+			mesura.setPeriode((mesura.getNumMesures() * 60000.0) / temps);
 			ret.add(mesura);
 		}
 		return ret;

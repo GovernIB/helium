@@ -63,22 +63,23 @@ public class ExpedientLogDao extends HibernateGenericDao<ExpedientLog, Long> {
 	}
 	
 	
-//	public Object findLogIdTascaById(String logId, String estat) {
-//		return getSession().
-//				createQuery(
-//						"select l.id, l.estat " +
-//						" from " +
-//						" ExpedientLog l " +
-//						" where " +
-//						" l.targetId = ? " +
-//						" and l.id = " +
-//						" (select min(id) "+
-//						" from ExpedientLog "+
-//						" where targetId = ?) ").
-//				setString(0, logId).setString(1, estat).
-//				uniqueResult();
-//	}
-	
+	@SuppressWarnings("unchecked")
+	public List<Object> findLogIdTasquesById(List<String> tasquesId) {
+		return getSession().
+				createQuery(
+						"select l.id, l.estat, l.targetId " +
+						" from " +
+						" ExpedientLog l " +
+						" where " +
+						" l.targetId in (:tasquesId) " +
+						" and l.id = " +
+						" (select min(id) "+
+						" from ExpedientLog "+
+						" where targetId = l.targetId) " +
+						" order by l.targetId").
+				setParameterList("tasquesId", tasquesId).
+				list();
+	}
 	
 	public ExpedientLog findAmbJbpmLogId(Long jbpmLogId) {
 		List<ExpedientLog> logs = findByCriteria(

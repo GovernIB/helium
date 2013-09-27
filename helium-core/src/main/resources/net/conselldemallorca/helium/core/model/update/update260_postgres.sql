@@ -54,6 +54,34 @@ CREATE TABLE HEL_EXPEDIENT_TIPUS_SEQANY (
 -- Incrementar llargària camp params dels logs de l'expedient
 alter table hel_expedient_log modify accio_params CHARACTER VARYING(2048),;
 
+CREATE INDEX HEL_EXPEDIENT_LOG_EXPEDIENTID_I ON HEL_EXPEDIENT_LOG (EXPEDIENT_ID);
+CREATE INDEX HEL_EXPEDIENT_LOG_TARGETID_I ON HEL_EXPEDIENT_LOG (TARGET_ID);
+
+-- Seqüències del tipus d'expedient
+CREATE TABLE HEL_EXPEDIENT_TIPUS_SEQDEFANY (
+  id BIGINT NOT NULL,
+  any_  BIGINT,
+  sequenciadefault BIGINT,
+  expedient_tipus BIGINT,
+  PRIMARY KEY (id),
+  CONSTRAINT hel_exptipus_seqdefany_fkK FOREIGN KEY (expedient_tipus) REFERENCES public.hel_expedient_tipus(id)
+);
+
+/*
+CREATE SEQUENCE SEQDEFANY START WITH 1000000000000000;
+
+-- ATENCIÓ: SELECT per a l'expresió (app.numexp.expression) ${seq}-${any}. Si l'expresió és diferent, s'ha d'adaptar la select.
+INSERT INTO HEL_EXPEDIENT_TIPUS_SEQDEFANY (id, any_, sequenciadefault, expedient_tipus)
+SELECT nextval('SEQDEFANY'), s.anyo, s.seq, s.tipus_id 
+FROM
+(SELECT  TO_NUMBER(SUBSTR(numero_default, STRPOS(numero_default, '-') + 1), '9999999999') AS anyo, MAX(TO_NUMBER(SUBSTR(numero_default, 0, STRPOS(numero_default, '-')), '9999999999')) AS seq, tipus_id 
+FROM    hel_expedient
+GROUP BY tipus_id, TO_NUMBER(SUBSTR(numero_default, STRPOS(numero_default, '-') + 1), '9999999999')) s
+WHERE SEQ IS NOT NULL;
+
+DROP SEQUENCE SEQDEFANY;
+*/
+
 ALTER TABLE hel_expedient ADD COLUMN error_desc CHARACTER VARYING(255);
 ALTER TABLE hel_expedient ADD COLUMN error_full text;
 

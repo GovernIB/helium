@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.webapp.mvc;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -421,11 +422,16 @@ public class ExpedientController extends BaseController {
 //						"instanciaProces",
 //						expedientService.getInstanciaProcesById(id, false, false, false, false));
 				List<TascaDto> tasques = expedientService.findTasquesPerInstanciaProces(id, false);
-//				List<Object> logsId = new ArrayList<Object>();
-//				for (TascaDto tasca: tasques){
-//					logsId.add(expedientService.findLogIdTascaById(tasca.getId(),tasca.getId()));
-//				}
-//				model.addAttribute("expedientLogIds", logsId);
+				Collections.sort(tasques, new Comparator<TascaDto>() {
+					public int compare(TascaDto t1, TascaDto t2) {
+						return new Long(t1.getId()).compareTo(new Long(t2.getId()));
+					}
+				});
+				List<String> tasquesId = new ArrayList<String>();
+				for (TascaDto tasca: tasques){
+					tasquesId.add(tasca.getId());
+				}
+				model.addAttribute("expedientLogIds", expedientService.findLogIdTasquesById(tasquesId));
 				model.addAttribute(
 						"tasques",
 						tasques);
@@ -492,9 +498,6 @@ public class ExpedientController extends BaseController {
 				model.addAttribute(
 						"arbreProcessos",
 						expedientService.getArbreInstanciesProces(id));
-//				model.addAttribute(
-//						"instanciaProces",
-//						expedientService.getInstanciaProcesById(id, false, false, false, false));
 				List<ExpedientLogDto> logs = null;
 				if (tipus_retroces == null || tipus_retroces != 0) {
 					logs = expedientService.getLogsPerTascaOrdenatsPerData(expedient.getId());

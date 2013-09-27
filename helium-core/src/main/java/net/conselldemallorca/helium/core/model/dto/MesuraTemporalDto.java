@@ -17,6 +17,7 @@ public class MesuraTemporalDto {
 	private String clau;
 	private String tipusExpedient;
 	private String tasca;
+	private String detall;
 	private long darrera;
 	private double mitja;
 	private long minima;
@@ -43,6 +44,12 @@ public class MesuraTemporalDto {
 	}
 	public void setTasca(String tasca) {
 		this.tasca = tasca;
+	}
+	public String getDetall() {
+		return detall;
+	}
+	public void setDetall(String detall) {
+		this.detall = detall;
 	}
 	public long getDarrera() {
 		return darrera;

@@ -29,6 +29,7 @@ public class MesuresTemporalsHelper {
 	private static int mesures = 0;
 	private static Boolean actiu = null;
 	private static Long inici = null;
+	private static Long fi = null;
 
 	private Map<String, Map<Clau, Estadistiques>> intervalsEstadistiques = new HashMap<String, Map<Clau, Estadistiques>>();
 	
@@ -93,6 +94,7 @@ public class MesuresTemporalsHelper {
 	}
 	
 	public List<MesuraTemporalDto> getEstadistiques(String familia) {
+		fi = System.currentTimeMillis();
 		Map<String, Map<Clau, Estadistiques>> estadistiquesFamilia = null;
 		if (familia == null || "".equals(familia)) {
 			estadistiquesFamilia = intervalsEstadistiques;
@@ -102,7 +104,7 @@ public class MesuresTemporalsHelper {
 		}
 		
 		List<MesuraTemporalDto> resposta = new ArrayList<MesuraTemporalDto>();
-		Long temps = System.currentTimeMillis() - inici;
+		Long temps = fi - inici;
 		
 		SortedSet<String> families = new TreeSet<String>(estadistiquesFamilia.keySet());
 		for (String family: families) {
@@ -116,6 +118,7 @@ public class MesuresTemporalsHelper {
 						dto.setClau(clau.getNom());
 						dto.setTipusExpedient(clau.getTipusExpedient());
 						dto.setTasca(clau.getTasca());
+						dto.setDetall(clau.getDetall());
 						dto.setDarrera(estadistica.getDarreraMesura());
 						dto.setMitja(estadistica.getMitja());
 						dto.setMinima(estadistica.getMinim());
@@ -136,6 +139,12 @@ public class MesuresTemporalsHelper {
 		return resposta;
 	}
 	
+	public static Long getTemps() {
+		if (fi == null) 
+			fi = System.currentTimeMillis(); 
+		return fi - inici;
+	}
+
 	public Set<String> getIntervalsFamilia() {
 		return intervalsEstadistiques.keySet();
 	}
