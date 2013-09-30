@@ -19,6 +19,13 @@ function confirmar(e) {
 	if (e.stopPropagation) e.stopPropagation();
 	return confirm("<fmt:message key='permisos.exp.confirmacio' />");
 }
+function isValidForm(){
+	if ($("#nom0").val() == "") {
+		alert("<fmt:message key='error.usurol.buit' />");
+		return false;
+	}
+	return true;
+}
 // ]]>
 </script>
 </head>
@@ -56,7 +63,7 @@ function confirmar(e) {
 	    </display:column>
 	</display:table>
 
-	<form:form action="expedientTipus.html" cssClass="uniForm">
+	<form:form action="expedientTipus.html" cssClass="uniForm" onsubmit="return isValidForm()">
 		<fieldset class="inlineLabels">
 			<legend><fmt:message key='permisos.exp.afegir' /></legend>
 			<form:hidden path="id"/>

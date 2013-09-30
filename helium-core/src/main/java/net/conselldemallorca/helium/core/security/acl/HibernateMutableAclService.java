@@ -91,7 +91,9 @@ public class HibernateMutableAclService extends HibernateAclService implements M
 		AclObjectIdentity identity = findAclObjectIdentity(acl.getObjectIdentity());
 		// Esborra les entrades actuals
 		if (identity != null) {
-			for (AclEntry entry: identity.getEntries())
+			List<AclEntry> entries = findAclEntries(identity);
+//			for (AclEntry entry: identity.getEntries())
+			for (AclEntry entry: entries)
 				getCurrentSession().delete(entry);
 			identity.getEntries().clear();
 		}
@@ -110,7 +112,7 @@ public class HibernateMutableAclService extends HibernateAclService implements M
 			identity.addEntry(entry);
 			getCurrentSession().save(entry);
 		}
-		getCurrentSession().save(identity);
+		getCurrentSession().saveOrUpdate(identity);
 		// Retorna la acl fent una nova consulta per assegurar que tot s'omple correctament
 		Acl resposta = readAclById(acl.getObjectIdentity());
 		Assert.isInstanceOf(MutableAcl.class, resposta, "MutableAcl should be been returned");
@@ -158,6 +160,12 @@ public class HibernateMutableAclService extends HibernateAclService implements M
 		/*return getHibernateTemplate().find(
 				"from AclObjectIdentity oid where oid.objectIdentity=? and oid.objectClass.javaType=?",
 				new Object[] {id, javaType});*/
+	}
+	private List<AclEntry> findAclEntries(AclObjectIdentity identity) {
+		Query q = getCurrentSession().createQuery(
+				"from AclEntry e where e.identity=?");
+		q.setParameter(0, identity);
+		return q.list();
 	}
 	private List<AclClass> getClassesForType(String javaType) {
 		Query q = getCurrentSession().createQuery(
