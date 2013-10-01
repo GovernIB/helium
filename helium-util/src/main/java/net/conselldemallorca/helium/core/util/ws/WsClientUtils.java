@@ -6,6 +6,8 @@ package net.conselldemallorca.helium.core.util.ws;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.conselldemallorca.helium.core.util.GlobalProperties;
+
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
@@ -14,6 +16,7 @@ import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor;
 import org.apache.ws.security.WSConstants;
 import org.apache.ws.security.handler.WSHandlerConstants;
@@ -64,14 +67,26 @@ public class WsClientUtils {
 			factory.getOutInterceptors().add(new WSS4JOutInterceptor(wss4jInterceptorProps));
 		}
 		Object c = factory.create();
+		
+		Client client = ClientProxy.getClient(c);
+        HTTPConduit httpConduit = (HTTPConduit)client.getConduit();
+        HTTPClientPolicy httpClientPolicy = new HTTPClientPolicy();
+        // EnvÃ­o chunked
+		httpClientPolicy.setAllowChunking(isWsClientChunked());
+        httpConduit.setClient(httpClientPolicy);
+        
 		if (disableCnCheck) {
-			Client client = ClientProxy.getClient(c);
-	        HTTPConduit httpConduit = (HTTPConduit)client.getConduit();
 	        TLSClientParameters tlsParams = new TLSClientParameters();
 	        tlsParams.setDisableCNCheck(true);
 	        httpConduit.setTlsClientParameters(tlsParams);
 		}
 		return c;
 	}
-
+	
+	private static boolean isWsClientChunked() {
+		String chunked = GlobalProperties.getInstance().getProperty("app.ws.client.chunked");
+		if (chunked == null)
+			chunked = "false";
+		return "true".equalsIgnoreCase(chunked);
+	}
 }

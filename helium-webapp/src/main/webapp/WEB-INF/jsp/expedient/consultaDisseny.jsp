@@ -30,14 +30,12 @@
 		var e = e || window.event;
 		e.cancelBubble = true;
 		var confirmaAnula = confirm("<fmt:message key="expedient.consulta.confirm.anular"/>"); 
-	 	if (confirmaAnula){	
+		if (confirmaAnula){	
 	 		resposta = prompt("Introdueix el motiu de l'anul·lació",'');
 	 		$("#motiu").val(resposta);
-	 	}
-	 	
-	 	if(resposta!="null"){
-	 		document.forms["anularMot"].submit();
-	 		//return;
+	 		if(resposta != null){
+		 		document.forms["anularMot"].submit();
+		 	}
 	 	}
 	 	if (e.stopPropagation) e.stopPropagation();
 	}

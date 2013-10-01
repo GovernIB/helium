@@ -557,7 +557,7 @@ public class ExpedientService {
 			expedient.setGrupCodi(grupCodi);
 		}
 		
-		luceneDao.updateExpedientCapsalera(
+		luceneDao.updateExpedientCapsaleraAsync(
 				expedient,
 				getServiceUtils().isExpedientFinalitzat(expedient));
 		String informacioNova = getInformacioExpedient(expedient);
@@ -592,7 +592,7 @@ public class ExpedientService {
 				execucioMassivaExpedientDao.delete(eme);
 			}
 			expedientDao.delete(expedient);
-			luceneDao.deleteExpedient(expedient);
+			luceneDao.deleteExpedientAsync(expedient);
 			registreDao.crearRegistreEsborrarExpedient(
 					expedient.getId(),
 					SecurityContextHolder.getContext().getAuthentication().getName());
@@ -611,7 +611,7 @@ public class ExpedientService {
 			jbpmDao.suspendProcessInstances(ids);
 			expedient.setAnulat(true);
 			expedient.setComentariAnulat(motiu);
-			luceneDao.deleteExpedient(expedient);
+			luceneDao.deleteExpedientAsync(expedient);
 			registreDao.crearRegistreAnularExpedient(
 					expedient.getId(),
 					SecurityContextHolder.getContext().getAuthentication().getName());
@@ -1579,6 +1579,14 @@ public class ExpedientService {
 				token.getFullName(),
 				nodeNameVell,
 				nodeName);
+	}
+
+	public Expedient updateExpedientError(String processInstanceId, String errorDesc, String errorFull) {
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(processInstanceId);
+		expedient.setErrorDesc(errorDesc);
+		expedient.setErrorFull(errorFull);
+		expedient = expedientDao.saveOrUpdate(expedient);
+		return expedient;
 	}
 
 	public Object evaluateScript(

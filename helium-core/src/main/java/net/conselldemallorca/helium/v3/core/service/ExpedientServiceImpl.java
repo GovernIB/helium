@@ -15,8 +15,11 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
+import net.conselldemallorca.helium.core.model.dao.EstatDao;
 import net.conselldemallorca.helium.core.model.dao.LuceneDao;
+import net.conselldemallorca.helium.core.model.dao.RegistreDao;
 import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
+import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
@@ -31,8 +34,10 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientL
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.LogInfo;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
+import net.conselldemallorca.helium.core.model.service.DtoConverter;
 import net.conselldemallorca.helium.core.model.service.ExpedientLogHelper;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
@@ -112,6 +117,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Resource
 	private AlertaRepository alertaRepository;
 	@Resource
+	private RegistreDao registreDao;
+	@Resource
 	private DominiRepository dominiRepository;
 	@Resource
 	private EnumeracioRepository enumeracioRepository;
@@ -123,6 +130,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private DocumentStoreRepository documentStoreRepository;
 
 	@Resource
+	private JbpmDao jbpmDao;
+	@Resource
 	private JbpmHelper jbpmHelper;
 	@Resource
 	private PersonaHelper personaHelper;
@@ -131,11 +140,15 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Resource(name="documentHelperV3")
 	private DocumentHelperV3 documentHelper;
 	@Resource
+	EstatDao estatDao; 
+	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
 	private TascaHelper tascaHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
+	@Resource
+	private DtoConverter dtoConverter;
 	@Resource
 	private LuceneHelper luceneHelper;
 	@Resource
@@ -481,10 +494,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 		Set<String> rootProcessInstanceIdsAmbTasquesActives4 = null;
 		Set<String> rootProcessInstanceIdsAmbTasquesActives5 = null;
 		if (nomesAmbTasquesActives) {
-			List<String> ids = jbpmHelper.findRootProcessInstanceIdsWithActiveTasksForActorId(auth.getName());
+			List<Long> idsExpedients = new ArrayList<Long>();
+			List<Long> ids = jbpmHelper.findRootProcessInstanceIdsWithActiveTasksForActorId(auth.getName(), idsExpedients);
 			Set<String> idsDiferents = new HashSet<String>();
-			for (String id: ids) 
-				idsDiferents.add(id);
+			for (Long id: ids) 
+				idsDiferents.add(id.toString());
 			int index = 0;
 			for (String id: idsDiferents) {
 				if (index == 0)
@@ -839,4 +853,236 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 
+
+
+	@Override
+	public boolean updateExpedientError(String processInstanceId,
+			String errorDesc, String errorFull) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void editar(
+			Long entornId,
+			Long id,
+			String numero,
+			String titol,
+			String responsableCodi,
+			Date dataInici,
+			String comentari,
+			Long estatId,
+			Double geoPosX,
+			Double geoPosY,
+			String geoReferencia,
+			String grupCodi) {
+		editar(entornId,
+				id,
+				numero,
+				titol,
+				responsableCodi,
+				dataInici,
+				comentari,
+				estatId,
+				geoPosX,
+				geoPosY,
+				geoReferencia,
+				grupCodi, 
+				false);
+	}
+	
+	@Override
+	public void editar(
+			Long entornId,
+			Long id,
+			String numero,
+			String titol,
+			String responsableCodi,
+			Date dataInici,
+			String comentari,
+			Long estatId,
+			Double geoPosX,
+			Double geoPosY,
+			String geoReferencia,
+			String grupCodi,
+			boolean executatEnHandler) {
+		Expedient expedient = expedientHelper.findAmbEntornIId(entornId, id);
+		
+		if (!executatEnHandler) {
+			ExpedientLog elog = expedientLogHelper.afegirLogExpedientPerExpedient(
+				id,
+				ExpedientLogAccioTipus.EXPEDIENT_MODIFICAR,
+				null);
+			elog.setEstat(ExpedientLogEstat.IGNORAR);
+		}
+
+		String informacioVella = getInformacioExpedient(expedient);
+		
+		// Numero
+		if (expedient.getTipus().getTeNumero()) {
+			if (!StringUtils.equals(expedient.getNumero(), numero)) {
+				expedientLogHelper.afegirProcessLogInfoExpedient(
+						expedient.getProcessInstanceId(), 
+						LogInfo.NUMERO + "#@#" + expedient.getNumero());
+				expedient.setNumero(numero);
+			}
+		}
+		// Titol
+		if (expedient.getTipus().getTeTitol()) {
+			if (!StringUtils.equals(expedient.getTitol(), titol)) {
+				expedientLogHelper.afegirProcessLogInfoExpedient(
+						expedient.getProcessInstanceId(), 
+						LogInfo.TITOL + "#@#" + expedient.getTitol());
+				expedient.setTitol(titol);
+			}
+		}
+		// Responsable
+		if (!"".equals(responsableCodi) && !StringUtils.equals(expedient.getResponsableCodi(), responsableCodi)) {
+			expedientLogHelper.afegirProcessLogInfoExpedient(
+					expedient.getProcessInstanceId(), 
+					LogInfo.RESPONSABLE + "#@#" + expedient.getResponsableCodi());
+			expedient.setResponsableCodi(responsableCodi);
+		}
+		// Data d'inici
+		if (expedient.getDataInici() != dataInici) {
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+			String inici = sdf.format(dataInici);
+			expedientLogHelper.afegirProcessLogInfoExpedient(
+					expedient.getProcessInstanceId(), 
+					LogInfo.INICI + "#@#" + inici);
+			expedient.setDataInici(dataInici);
+		}
+		// Comentari
+		if (!StringUtils.equals(expedient.getComentari(), comentari)) {
+			expedientLogHelper.afegirProcessLogInfoExpedient(
+					expedient.getProcessInstanceId(), 
+					LogInfo.COMENTARI + "#@#" + expedient.getComentari());
+			expedient.setComentari(comentari);
+		}
+		// Estat
+		if (estatId != null) {
+			if (expedient.getEstat() == null) {
+				expedientLogHelper.afegirProcessLogInfoExpedient(
+						expedient.getProcessInstanceId(), 
+						LogInfo.ESTAT + "#@#" + "---");
+				expedient.setEstat(estatDao.getById(estatId, false));
+			} else if (expedient.getEstat().getId() != estatId){
+				expedientLogHelper.afegirProcessLogInfoExpedient(
+						expedient.getProcessInstanceId(), 
+						LogInfo.ESTAT + "#@#" + expedient.getEstat().getId());
+				expedient.setEstat(estatDao.getById(estatId, false));
+			}
+		} else if (expedient.getEstat() != null) {
+			expedientLogHelper.afegirProcessLogInfoExpedient(
+					expedient.getProcessInstanceId(), 
+					LogInfo.ESTAT + "#@#" + expedient.getEstat().getId());
+			expedient.setEstat(null);
+		}
+		// Geoposició
+		if (expedient.getGeoPosX() != geoPosX) {
+			expedientLogHelper.afegirProcessLogInfoExpedient(
+					expedient.getProcessInstanceId(), 
+					LogInfo.GEOPOSICIOX + "#@#" + expedient.getGeoPosX());
+			expedient.setGeoPosX(geoPosX);
+		}
+		if (expedient.getGeoPosY() != geoPosY) {
+			expedientLogHelper.afegirProcessLogInfoExpedient(
+					expedient.getProcessInstanceId(), 
+					LogInfo.GEOPOSICIOY + "#@#" + expedient.getGeoPosY());
+			expedient.setGeoPosY(geoPosY);
+		}
+		// Georeferencia
+		if (!StringUtils.equals(expedient.getGeoReferencia(), geoReferencia)) {
+			expedientLogHelper.afegirProcessLogInfoExpedient(
+					expedient.getProcessInstanceId(), 
+					LogInfo.GEOREFERENCIA + "#@#" + expedient.getGeoReferencia());
+			expedient.setGeoReferencia(geoReferencia);
+		}
+		// Grup
+		if (!StringUtils.equals(expedient.getGrupCodi(), grupCodi)) {
+			expedientLogHelper.afegirProcessLogInfoExpedient(
+					expedient.getProcessInstanceId(), 
+					LogInfo.GRUP + "#@#" + expedient.getGrupCodi());
+			expedient.setGrupCodi(grupCodi);
+		}
+		
+		luceneDao.updateExpedientCapsalera(
+				expedient,
+				expedientHelper.isFinalitzat(expedient));
+		String informacioNova = getInformacioExpedient(expedient);
+		registreDao.crearRegistreModificarExpedient(
+				expedient.getId(),
+				getUsuariPerRegistre(),
+				informacioVella,
+				informacioNova);
+	}
+
+	private String getUsuariPerRegistre() {
+		if (SecurityContextHolder.getContext() != null && SecurityContextHolder.getContext().getAuthentication() != null)
+			return SecurityContextHolder.getContext().getAuthentication().getName();
+		else
+			return "Procés automàtic";
+	}
+
+	private String getInformacioExpedient(Expedient expedient) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("[");
+		if (expedient.getTitol() != null)
+			sb.append("titol: \"" + expedient.getTitol() + "\", ");
+		if (expedient.getNumero() != null)
+			sb.append("numero: \"" + expedient.getNumero() + "\", ");
+		if (expedient.getEstat() != null)
+			sb.append("estat: \"" + expedient.getEstat().getNom() + "\", ");
+		sb.append("dataInici: \"" + expedient.getDataInici() + "\", ");
+		if (expedient.getDataFi() != null)
+			sb.append("dataFi: \"" + expedient.getDataFi() + "\", ");
+		if (expedient.getComentari() != null && expedient.getComentari().length() > 0)
+			sb.append("comentari: \"" + expedient.getComentari() + "\", ");
+		if (expedient.getResponsableCodi() != null)
+			sb.append("responsableCodi: \"" + expedient.getResponsableCodi() + "\", ");
+		sb.append("iniciadorCodi: \"" + expedient.getIniciadorCodi() + "\"");
+		sb.append("]");
+		return sb.toString();
+	}
+
+	@Override
+	public List<InstanciaProcesDto> getArbreInstanciesProces(
+				Long processInstanceId) {
+		List<InstanciaProcesDto> resposta = new ArrayList<InstanciaProcesDto>();
+		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(String.valueOf(processInstanceId));
+		List<JbpmProcessInstance> piTree = jbpmDao.getProcessInstanceTree(rootProcessInstance.getId());
+		for (JbpmProcessInstance jpi: piTree) {
+			resposta.add(dtoConverter.toInstanciaProcesDto(jpi.getId(), false, false, false));
+		}
+		return resposta;
+	}
+
+	@Override
+	public net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto getInstanciaProcesById(Long processInstanceId, boolean ambImatgeProces, boolean ambVariables, boolean ambDocuments) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto getInstanciaProcesByIdReg(Long processInstanceId, boolean ambImatgeProces, boolean ambVariables, boolean ambDocuments, String varRegistre, Object[] valorsRegistre) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+//	public InstanciaProcesDto getInstanciaProcesById(
+//			String processInstanceId,
+//			boolean ambImatgeProces,
+//			boolean ambVariables,
+//			boolean ambDocuments) {
+//		return dtoConverter.toInstanciaProcesDto(processInstanceId, ambImatgeProces, ambVariables, ambDocuments);
+//	}
+//	public InstanciaProcesDto getInstanciaProcesByIdReg(
+//			String processInstanceId,
+//			boolean ambImatgeProces,
+//			boolean ambVariables,
+//			boolean ambDocuments,
+//			String varRegistre,
+//			Object[] valorsRegistre) {
+//		return dtoConverter.toInstanciaProcesDto(processInstanceId, ambImatgeProces, ambVariables, ambDocuments, varRegistre, valorsRegistre);
+//	}
 }

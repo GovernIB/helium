@@ -216,6 +216,17 @@ public class TascaFormController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
+			TascaDto tasca = null;
+//			if (MesuresTemporalsHelper.isActiu()) {
+//				tasca = tascaService.getById(
+//						entorn.getId(),
+//						id,
+//						null,
+//						null,
+//						true,
+//						false);
+//				mesuresTemporalsHelper.mesuraIniciar(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Documents", "tasques");
+//			}
 			String campFocus = (String)request.getSession().getAttribute(VARIABLE_SESSIO_CAMP_FOCUS);
 			if (campFocus != null) {
 				String[] partsCampFocus = campFocus.split("#");
@@ -224,6 +235,8 @@ public class TascaFormController extends BaseController {
 						request.getSession().removeAttribute(VARIABLE_SESSIO_CAMP_FOCUS);
 				}
 			}
+//			if (MesuresTemporalsHelper.isActiu())
+//				mesuresTemporalsHelper.mesuraCalcular(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Documents", "tasques");
 			if (model.get("command") == null) {
 				missatgeError(request, getMessage("error.tasca.no.disponible") );
 				return "redirect:/tasca/personaLlistat.html";
@@ -455,13 +468,15 @@ public class TascaFormController extends BaseController {
 			String id,
 			List<Camp> camps,
 			Object command) {
+		boolean resposta = true;
 		boolean massivaActiu = TramitacioMassiva.isTramitacioMassivaActiu(request, id);
 		String[] tascaIds;
+		TascaDto task = tascaService.getByIdSenseComprovacio(id);
 		if (massivaActiu) {
 			String[] parametresTram = TramitacioMassiva.getParamsTramitacioMassiva(request, id);
 			tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
 			try {
-				TascaDto task = tascaService.getByIdSenseComprovacio(id);
+//				TascaDto task = tascaService.getByIdSenseComprovacio(id);
 				Long expTipusId = task.getExpedient().getTipus().getId();
 				Map<String, Object> variables = TascaFormUtil.getValorsFromCommand(
     					camps,
@@ -487,7 +502,7 @@ public class TascaFormController extends BaseController {
 							tIds[j++] = tascaIds[i];
 						}
 					}
-					// Obtenim informació de l'execució massiva
+					// Obtenim informaciÃ³ de l'execuciÃ³ massiva
 					// Data d'inici
 					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 					Date dInici = new Date();
@@ -515,7 +530,7 @@ public class TascaFormController extends BaseController {
 				}
 			} catch (Exception e) {
 				missatgeError(request, getMessage("error.no.massiu"));
-				return false;
+				resposta = false;
 			}
 		} else {
 			try {
@@ -528,6 +543,7 @@ public class TascaFormController extends BaseController {
 	        					true,
 	    						false),
 	    				null);
+	        	missatgeInfo(request, getMessage("info.dades.form.guardat"));
 	        } catch (Exception ex) {
 	        	String tascaIdLog = getIdTascaPerLogs(entornId, id);
 				missatgeError(
@@ -535,11 +551,10 @@ public class TascaFormController extends BaseController {
 		    			getMessage("error.proces.peticio") + " " + tascaIdLog,
 		    			ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut guardar les dades del formulari en la tasca " + tascaIdLog, ex);
-	        	return false;
+	        	resposta = false;
 	        }
-			missatgeInfo(request, getMessage("info.dades.form.guardat"));
 		}
-		return true;
+		return resposta;
 	}
 	private boolean accioValidarForm(
 			HttpServletRequest request,
@@ -547,11 +562,13 @@ public class TascaFormController extends BaseController {
 			String id,
 			List<Camp> camps,
 			Object command) {
+		boolean resposta = true;
+		TascaDto task = tascaService.getByIdSenseComprovacio(id);
 		if (TramitacioMassiva.isTramitacioMassivaActiu(request, id)) {
 			String[] tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
 			String[] parametresTram = TramitacioMassiva.getParamsTramitacioMassiva(request, id);
 			try {
-				TascaDto task = tascaService.getByIdSenseComprovacio(id);
+//				TascaDto task = tascaService.getByIdSenseComprovacio(id);
 				Long expTipusId = task.getExpedient().getTipus().getId();
 				Map<String, Object> variables = TascaFormUtil.getValorsFromCommand(
     					camps,
@@ -576,7 +593,7 @@ public class TascaFormController extends BaseController {
 							tIds[j++] = tascaIds[i];
 						}
 					}
-					// Obtenim informació de l'execució massiva
+					// Obtenim informaciÃ³ de l'execuciÃ³ massiva
 					// Data d'inici
 					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 					Date dInici = new Date();
@@ -604,7 +621,7 @@ public class TascaFormController extends BaseController {
 				}
 			} catch (Exception e) {
 				missatgeError(request, getMessage("error.no.massiu"));
-				return false;
+				resposta = false;
 			}
 		} else {
 			try {
@@ -617,6 +634,7 @@ public class TascaFormController extends BaseController {
 	        					true,
 	    						false),
 	    				true);
+	        	missatgeInfo(request, getMessage("info.formulari.validat"));
 	        } catch (Exception ex) {
 	        	String tascaIdLog = getIdTascaPerLogs(entornId, id);
 				missatgeError(
@@ -624,11 +642,10 @@ public class TascaFormController extends BaseController {
 		    			getMessage("error.validar.formulari") + " " + tascaIdLog,
 		    			ex.getLocalizedMessage());
 				logger.error("No s'ha pogut validar el formulari en la tasca " + tascaIdLog, ex);
-	        	return false;
+				resposta = false;
 	        }
-			missatgeInfo(request, getMessage("info.formulari.validat"));
 		}
-		return true;
+		return resposta;
 	}
 
 	private boolean accioRestaurarForm(
@@ -637,13 +654,15 @@ public class TascaFormController extends BaseController {
 			String id,
 			List<Camp> camps,
 			Object command) {
+		boolean resposta = true;
 		boolean massivaActiu = TramitacioMassiva.isTramitacioMassivaActiu(request, id);
 		String[] tascaIds;
+		TascaDto task = tascaService.getByIdSenseComprovacio(id);
 		if (massivaActiu) {
 			String[] parametresTram = TramitacioMassiva.getParamsTramitacioMassiva(request, id);
 			tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
 			try {
-				TascaDto task = tascaService.getByIdSenseComprovacio(id);
+//				TascaDto task = tascaService.getByIdSenseComprovacio(id);
 				Long expTipusId = task.getExpedient().getTipus().getId();
 				
 				// Restauram la primera tasca
@@ -663,7 +682,7 @@ public class TascaFormController extends BaseController {
 						}
 					}
 					
-					// Obtenim informació de l'execució massiva
+					// Obtenim informaciÃ³ de l'execuciÃ³ massiva
 					// Data d'inici
 					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 					Date dInici = new Date();
@@ -689,13 +708,14 @@ public class TascaFormController extends BaseController {
 				}
 			} catch (Exception e) {
 				missatgeError(request, getMessage("error.no.massiu"));
-				return false;
+				resposta = false;
 			}
 		} else {
 			try {
 	        	tascaService.restaurar(
 	        			entornId,
 	        			id);
+	        	missatgeInfo(request, getMessage("info.formulari.restaurat"));
 	        } catch (Exception ex) {
 	        	String tascaIdLog = getIdTascaPerLogs(entornId, id);
 				missatgeError(
@@ -703,11 +723,10 @@ public class TascaFormController extends BaseController {
 		    			getMessage("error.restaurar.formulari") + " " + tascaIdLog,
 		    			ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut restaurar el formulari en la tasca " + tascaIdLog, ex);
-	        	return false;
+	        	resposta = false;
 	        }
-			missatgeInfo(request, getMessage("info.formulari.restaurat"));
 		}
-		return true;
+		return resposta;
 	}
 
 	private boolean accioExecutarAccio(
@@ -715,13 +734,15 @@ public class TascaFormController extends BaseController {
 			Long entornId,
 			String id,
 			String accio) {
+		boolean resposta = true;
 		boolean massivaActiu = TramitacioMassiva.isTramitacioMassivaActiu(request, id);
 		String[] tascaIds;
+		TascaDto task = tascaService.getByIdSenseComprovacio(id);
 		if (massivaActiu) {
 			String[] parametresTram = TramitacioMassiva.getParamsTramitacioMassiva(request, id);
 			tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
 			try {
-				TascaDto task = tascaService.getByIdSenseComprovacio(id);
+//				TascaDto task = tascaService.getByIdSenseComprovacio(id);
 				Long expTipusId = task.getExpedient().getTipus().getId();
 				
 				// Restauram la primera tasca
@@ -741,7 +762,7 @@ public class TascaFormController extends BaseController {
 							tIds[j++] = tascaIds[i];
 						}
 					}
-					// Obtenim informació de l'execució massiva
+					// Obtenim informaciÃ³ de l'execuciÃ³ massiva
 					// Data d'inici
 					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 					Date dInici = new Date();
@@ -769,7 +790,7 @@ public class TascaFormController extends BaseController {
 				}
 			} catch (Exception e) {
 				missatgeError(request, getMessage("error.no.massiu"));
-				return false;
+				resposta = false;
 			}
 		} else {
 			try {
@@ -777,6 +798,7 @@ public class TascaFormController extends BaseController {
 						entornId,
 						id,
 						accio);
+				missatgeInfo(request, getMessage("info.accio.executat"));
 	        } catch (Exception ex) {
 	        	String tascaIdLog = getIdTascaPerLogs(entornId, id);
 	        	if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
@@ -788,13 +810,12 @@ public class TascaFormController extends BaseController {
 			    			request,
 			    			getMessage("error.executar.accio") + " " + tascaIdLog,
 			    			ex.getLocalizedMessage());
-		        	logger.error("No s'ha pogut executar l'acció '" + accio + "' en la tasca " + tascaIdLog, ex);
+		        	logger.error("No s'ha pogut executar l'acciÃ³ '" + accio + "' en la tasca " + tascaIdLog, ex);
 				}
-	        	return false;
+	        	resposta = false;
 	        }
-			missatgeInfo(request, getMessage("info.accio.executat"));
 		}
-		return true;
+		return resposta;
 	}
 	
 	private boolean accioEsborrarRegistre(

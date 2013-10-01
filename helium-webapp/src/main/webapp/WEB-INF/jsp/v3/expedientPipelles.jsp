@@ -119,8 +119,8 @@
 			<div class="btn-group">
 				<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog icon-white"></i> Accions <span class="caret"></span></a>
 				<ul class="dropdown-menu">
-					<li><a href="#"><i class="icon-pencil"></i> Modificar informació</a></li>
-					<li><a href="#"><i class="icon-stop"></i> Aturar tramitació</a></li>
+					<li><a class="link-tramitacio-modal" href="<c:url value="/v3/expedient/${expedientId}/modificar"/>"><i class="icon-pencil"></i> Modificar informació</a></li>
+					<li><a class="link-tramitacio-modal" href="<c:url value="/v3/expedient/${expedientId}/stop"/>"><i class="icon-stop"></i> Aturar tramitació</a></li>
 					<c:if test="${not empty accions}">
 						<li class="divider"></li>
 						<c:forEach var="accio" items="${accions}">

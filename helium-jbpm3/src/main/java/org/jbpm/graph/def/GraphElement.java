@@ -257,6 +257,16 @@ public abstract class GraphElement implements Identifiable, Serializable {
   public void executeAction(Action action, ExecutionContext executionContext) {
     Token token = executionContext.getToken();
 
+//    Expedient exp = null;
+//    if (MesuresTemporalsHelper.isActiu()) {
+//    	ProcessInstance pi = executionContext.getProcessInstance();
+//    	while (pi.getSuperProcessToken() != null) {
+//    		pi = pi.getSuperProcessToken().getProcessInstance();
+//    	}
+//    	exp = DaoProxy.getInstance().getExpedientDao().findAmbProcessInstanceId(String.valueOf(pi.getId()));
+//    	DaoProxy.getInstance().getAdminService().getMesuresTemporalsHelper().mesuraIniciar(exp.getTipus().getNom() + " - ACCIO: " + action.getName(), "tasques");
+//    }
+
     // create action log
     ActionLog actionLog = new ActionLog(action);
     token.startCompositeLog(actionLog);
@@ -288,6 +298,8 @@ public abstract class GraphElement implements Identifiable, Serializable {
       } finally {
         if (actionMustBeLocked) {
           token.unlock(lockOwnerId);
+//          if (MesuresTemporalsHelper.isActiu())
+//        	  DaoProxy.getInstance().getAdminService().getMesuresTemporalsHelper().mesuraCalcular(exp.getTipus().getNom() + " - ACCIO: " + action.getName(), "tasques");
         }
       }
 

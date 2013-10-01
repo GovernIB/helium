@@ -400,6 +400,7 @@ public class ExpedientController extends BaseController {
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (potConsultarExpedient(expedient)) {
+//				adminService.getMesuresTemporalsHelper().mesuraIniciar(expedient.getTipus().getNom() + " - LLISTAT TASQUES", "expedient");
 				model.addAttribute(
 						"expedient",
 						expedient);
@@ -410,14 +411,15 @@ public class ExpedientController extends BaseController {
 //						"instanciaProces",
 //						expedientService.getInstanciaProcesById(id, false, false, false, false));
 				List<TascaDto> tasques = expedientService.findTasquesPerInstanciaProces(id, false);
-				List<Object> logsId = new ArrayList<Object>();
-				for (TascaDto tasca: tasques){
-					logsId.add(expedientService.findLogIdTascaById(tasca.getId(),tasca.getId()));
-				}
-				model.addAttribute("expedientLogIds", logsId);
+//				List<Object> logsId = new ArrayList<Object>();
+//				for (TascaDto tasca: tasques){
+//					logsId.add(expedientService.findLogIdTascaById(tasca.getId(),tasca.getId()));
+//				}
+//				model.addAttribute("expedientLogIds", logsId);
 				model.addAttribute(
 						"tasques",
 						tasques);
+//				adminService.getMesuresTemporalsHelper().mesuraCalcular(expedient.getTipus().getNom() + " - LLISTAT TASQUES", "expedient");
 				return "expedient/tasques";
 			} else {
 				missatgeError(request, getMessage("error.permisos.consultar.expedient"));

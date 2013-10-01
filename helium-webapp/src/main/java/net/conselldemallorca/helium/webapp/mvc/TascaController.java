@@ -711,6 +711,7 @@ public class TascaController extends BaseController {
 				break;
 			}
 		}
+		boolean resposta = true;
 		boolean massivaActiu = TramitacioMassiva.isTramitacioMassivaActiu(request, id);
 		String[] tascaIds;
 		if (massivaActiu) {
@@ -734,7 +735,7 @@ public class TascaController extends BaseController {
 							tIds[j++] = tascaIds[i];
 						}
 					}
-					// Obtenim informació de l'execució massiva
+					// Obtenim informaciÃ³ de l'execuciÃ³ massiva
 					// Data d'inici
 					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 					Date dInici = new Date();
@@ -762,11 +763,12 @@ public class TascaController extends BaseController {
 				}
 			} catch (Exception e) {
 				missatgeError(request, getMessage("error.no.massiu"));
-				return false;
+				resposta = false;
 			}
 		} else {
 			try {
 				tascaService.completar(entornId, id, true, null, transicio);
+				missatgeInfo(request, getMessage("info.tasca.completat"));
 			} catch (Exception ex) {
 				String tascaIdLog = getIdTascaPerLogs(entornId, id);
 				if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
@@ -780,11 +782,10 @@ public class TascaController extends BaseController {
 		        			(ex.getCause() != null) ? ex.getCause().getMessage() : ex.getMessage());
 					logger.error("No s'ha pogut finalitzar la tasca " + tascaIdLog, ex);
 				}
-	        	return false;
+				resposta = false;
 	        }
-			missatgeInfo(request, getMessage("info.tasca.completat"));
 		}
-		return true;
+		return resposta;
 	}
 
 	private String getIdTascaPerLogs(Long entornId, String tascaId) {

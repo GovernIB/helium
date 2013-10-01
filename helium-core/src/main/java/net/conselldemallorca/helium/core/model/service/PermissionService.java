@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.conselldemallorca.helium.core.model.hibernate.GenericEntity;
 import net.conselldemallorca.helium.core.security.AclServiceDao;
 import net.conselldemallorca.helium.core.security.PermissionUtil;
+import net.conselldemallorca.helium.v3.core.api.dto.GenericEntityDto;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
@@ -132,13 +132,13 @@ public class PermissionService {
 		Iterator it = list.iterator();
 		while (it.hasNext()) {
 			Object entry = it.next();
-			if (!aclServiceDao.isGrantedAny((GenericEntity)entry, clazz, permissions))
+			if (!aclServiceDao.isGrantedAny((GenericEntityDto)entry, clazz, permissions))
 				it.remove();
 		}
 	}
 	@SuppressWarnings("rawtypes")
 	public Object filterAllowed(
-			GenericEntity object,
+			GenericEntityDto object,
 			Class clazz,
 			Permission[] permissions) {
 		if (aclServiceDao.isGrantedAny(object, clazz, permissions)) {
@@ -150,7 +150,7 @@ public class PermissionService {
 
 	@SuppressWarnings("rawtypes")
 	public boolean isGrantedAny(
-			GenericEntity object,
+			GenericEntityDto object,
 			Class clazz,
 			Permission[] permissions) {
 		return aclServiceDao.isGrantedAny(object, clazz, permissions);

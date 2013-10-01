@@ -21,8 +21,7 @@ import org.jbpm.taskmgmt.exe.SwimlaneInstance;
  * @author Jim Rigsbee, Tom Baeyens, Bernd Ruecker
  */
 public class StartProcessInstanceCommand extends NewProcessInstanceCommand implements Command {
-
-	private static final long serialVersionUID = -2428234069404269048L;
+	private static final long serialVersionUID = -3126723819384649394L;
 
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		Object object = super.execute(jbpmContext);
@@ -38,8 +37,7 @@ public class StartProcessInstanceCommand extends NewProcessInstanceCommand imple
 			}
 			ExpedientDto expedientIniciant = Jbpm3HeliumBridge.getInstanceService().getExpedientIniciant();
 			if (expedientIniciant != null)
-				expedientIniciant.setProcessInstanceId(new Long(processInstance
-						.getId()).toString());
+				expedientIniciant.setProcessInstanceId(new Long(processInstance.getId()).toString());
 			jbpmContext.addAutoSaveProcessInstance(processInstance);
 		}
 		return object;

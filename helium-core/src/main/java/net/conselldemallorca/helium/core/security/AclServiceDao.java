@@ -7,7 +7,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.core.model.hibernate.GenericEntity;
+import net.conselldemallorca.helium.v3.core.api.dto.GenericEntityDto;
 import net.conselldemallorca.helium.v3.core.helper.PermisosHelper;
 
 import org.springframework.security.acls.model.AccessControlEntry;
@@ -111,7 +111,7 @@ public class AclServiceDao {
 
 	@SuppressWarnings("rawtypes")
 	public boolean isGrantedAny(
-			GenericEntity object,
+			GenericEntityDto object,
 			Class clazz,
 			Permission[] permissions) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();

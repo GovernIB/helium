@@ -40,7 +40,6 @@ function confirmarAccio(e) {
 
 	<h3 class="titol-tab titol-info"><fmt:message key='expedient.info.informacio' /></h3>
 
-	<dl class="form-info">
 		<c:if test="${not empty expedient.numero}"><dt><fmt:message key='expedient.consulta.numero' /></dt><dd>${expedient.numero}</dd></c:if>
 		<c:if test="${not empty expedient.titol}"><dt><fmt:message key='expedient.consulta.titol' /></dt><dd>${expedient.titol}</dd></c:if>
 		<c:if test="${empty expedient.numero and empty expedient.titol}"><dt><fmt:message key='expedient.info.identificacio' /></dt><dd>${expedient.identificador}</dd></c:if>
@@ -86,7 +85,6 @@ function confirmarAccio(e) {
 				</c:otherwise>
 			</c:choose>
 		</c:if>
-	</dl>
 	<div style="clear: both"></div>
 
 	<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">

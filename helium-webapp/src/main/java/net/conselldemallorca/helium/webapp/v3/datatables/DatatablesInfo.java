@@ -29,6 +29,7 @@ public class DatatablesInfo {
 	private int[] sortCol;
 	private String[] sortDir;
 	private String[] dataProp;
+	private String[] property;
 	public DatatablesInfo(HttpServletRequest request) {
 		if (request.getParameter("iDisplayStart") != null)
 			displayStart = Integer.parseInt(request.getParameter("iDisplayStart"));
@@ -50,6 +51,7 @@ public class DatatablesInfo {
 		sortCol = new int[columns];
 		sortDir = new String[columns];
 		dataProp = new String[columns];
+		property = new String[columns];
 		for (int i = 0; i < columns; i++) {
 			if (request.getParameter("bSearchable_" + i) != null)
 				searchable[i] = Boolean.parseBoolean(request.getParameter("bSearchable_" + i));
@@ -62,6 +64,7 @@ public class DatatablesInfo {
 				sortCol[i] = Integer.parseInt(request.getParameter("iSortCol_" + i));
 			sortDir[i] = request.getParameter("sSortDir_" + i);
 			dataProp[i] = request.getParameter("mDataProp_" + i);
+			property[i] = request.getParameter("aProp_" + i);
 		}
 	}
 	public int getDisplayStart() {
@@ -147,6 +150,12 @@ public class DatatablesInfo {
 	}
 	public void setDataProp(String[] dataProp) {
 		this.dataProp = dataProp;
+	}
+	public String[] getProperty() {
+		return property;
+	}
+	public void setProperty(String[] property) {
+		this.property = property;
 	}
 	@Override
 	public String toString() {

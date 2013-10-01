@@ -123,7 +123,7 @@ import org.springframework.transaction.annotation.Transactional;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Service
+@Service("heliumServiceV3")
 public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 
 	@Resource

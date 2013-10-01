@@ -10,8 +10,8 @@ import java.util.Set;
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractGetObjectBaseCommand;
 import org.jbpm.graph.def.Node;
-import org.jbpm.graph.def.Transition;
 import org.jbpm.graph.def.Node.NodeType;
+import org.jbpm.graph.def.Transition;
 import org.jbpm.graph.exe.Token;
 
 /**

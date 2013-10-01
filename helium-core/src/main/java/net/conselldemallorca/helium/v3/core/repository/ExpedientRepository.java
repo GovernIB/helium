@@ -30,6 +30,10 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			ExpedientTipus tipus,
 			String numero);
 
+	Expedient findByEntornIdAndId(
+			Long entornId,
+			Long id);
+	
 	@Query(	"select e " +
 			"from Expedient e " +
 			"where " +

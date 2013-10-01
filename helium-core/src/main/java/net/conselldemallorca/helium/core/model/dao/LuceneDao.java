@@ -66,12 +66,34 @@ public class LuceneDao extends LuceneIndexSupport {
 
 	private LuceneSearchTemplate searchTemplate;
 
+//	@Resource
+//	private MesuresTemporalsHelper mesuresTemporalsHelper;
+	
 	// TODO Ha d'estar actiu mentre els expedients no es reindexin totalment
-	// si es desactiva abans de la reindexació total aleshores hi haura expedients
+	// si es desactiva abans de la reindexaciÃ³ total aleshores hi haura expedients
 	// que no sortiran als resultats de les consultes per tipus.
 	private static final boolean PEGAT_ENTORN_ACTIU = true;
 
-
+	public void createExpedientAsync(
+			final Expedient expedient,
+			final Map<String, DefinicioProces> definicionsProces,
+			final Map<String, Set<Camp>> camps,
+			final Map<String, Map<String, Object>> valors,
+			final Map<String, Map<String, String>> textDominis,
+			final boolean finalitzat) {
+		Thread thread = new Thread(){
+		    public void run(){
+		    	createExpedient(
+						expedient,
+						definicionsProces,
+						camps,
+						valors,
+						textDominis,
+						finalitzat);
+		    }
+		};		
+		thread.start();
+	}
 
 	public synchronized void createExpedient(
 			Expedient expedient,
@@ -80,6 +102,7 @@ public class LuceneDao extends LuceneIndexSupport {
 			Map<String, Map<String, Object>> valors,
 			Map<String, Map<String, String>> textDominis,
 			boolean finalitzat) {
+//		// mesuresTemporalsHelper.mesuraIniciar("Lucene: createExpedient", "lucene");
 		checkIndexOk();
 		Document document = updateDocumentFromExpedient(
 				null,
@@ -90,19 +113,58 @@ public class LuceneDao extends LuceneIndexSupport {
 				textDominis,
 				finalitzat);
 		getLuceneIndexTemplate().addDocument(document);
+//		// mesuresTemporalsHelper.mesuraCalcular("Lucene: createExpedient", "lucene");
+	}
+
+	public void updateExpedientCapsaleraAsync(
+			final Expedient expedient,
+			final boolean finalitzat) {
+		Thread thread = new Thread(){
+		    public void run(){
+		    	updateExpedientCapsalera(
+						expedient,
+						finalitzat);
+		    }
+		};
+		thread.start();
 	}
 
 	public synchronized boolean updateExpedientCapsalera(
 			final Expedient expedient,
 			final boolean finalitzat) {
-		return updateExpedientCamps(
+		// mesuresTemporalsHelper.mesuraIniciar("Lucene: updateExpedientCapsalera", "lucene");
+		boolean resultat = updateExpedientCamps(
 				expedient,
 				null,
 				null,
 				null,
 				null,
 				finalitzat);
+		// mesuresTemporalsHelper.mesuraCalcular("Lucene: updateExpedientCapsalera", "lucene");
+		return resultat;
 	}
+
+	public void updateExpedientCampsAsync(
+			final Expedient expedient,
+			final Map<String, DefinicioProces> definicionsProces,
+			final Map<String, Set<Camp>> camps,
+			final Map<String, Map<String, Object>> valors,
+			final Map<String, Map<String, String>> textDominis,
+			final boolean finalitzat) {
+		Thread thread = new Thread(){
+		    public void run(){
+		    	updateExpedientCamps(
+						expedient,
+						definicionsProces,
+						camps,
+						valors,
+						textDominis,
+						finalitzat);
+		    }		    
+		};
+		thread.start();		
+	}
+	
 	@SuppressWarnings("unchecked")
 	public synchronized boolean updateExpedientCamps(
 			final Expedient expedient,
@@ -111,6 +173,7 @@ public class LuceneDao extends LuceneIndexSupport {
 			final Map<String, Map<String, Object>> valors,
 			final Map<String, Map<String, String>> textDominis,
 			final boolean finalitzat) {
+		// mesuresTemporalsHelper.mesuraIniciar("Lucene: updateExpedientCamps", "lucene");
 		checkIndexOk();
 		try {
 			List<Long> resposta = searchTemplate.search(
@@ -136,7 +199,7 @@ public class LuceneDao extends LuceneIndexSupport {
 							}
 						});
 			} else {
-				createExpedient(
+				createExpedientAsync(
 						expedient,
 						definicionsProces,
 						camps,
@@ -144,20 +207,45 @@ public class LuceneDao extends LuceneIndexSupport {
 						textDominis,
 						finalitzat);
 			}
+			// mesuresTemporalsHelper.mesuraCalcular("Lucene: updateExpedientCamps", "lucene");
 			return true;
 		} catch (Exception ex) {
-			logger.error("Error actualitzant l'índex per l'expedient " + expedient.getId(), ex);
+			logger.error("Error actualitzant l'Ã­ndex per l'expedient " + expedient.getId(), ex);
+			// mesuresTemporalsHelper.mesuraCalcular("Lucene: updateExpedientCamps", "lucene");
 			return false;
 		}
 	}
+
+	public void deleteExpedientAsync(
+			final Expedient expedient) {
+		Thread thread = new Thread(){
+		    public void run(){
+		    	deleteExpedient(
+						expedient);
+		    }
+		};
+		thread.start();
+	}
 	public synchronized void deleteExpedient(Expedient expedient) {
+		// mesuresTemporalsHelper.mesuraIniciar("Lucene: deleteExpedient", "lucene");
 		checkIndexOk();
 		getLuceneIndexTemplate().deleteDocuments(
 				termIdFromExpedient(expedient));
+		// mesuresTemporalsHelper.mesuraCalcular("Lucene: deleteExpedient", "lucene");
+	}
+
+	public void deleteAllAsync() {
+		Thread thread = new Thread(){
+		    public void run(){
+		    	deleteAll();
+		    }
+		};
+		thread.start();
 	}
 
 	@SuppressWarnings("unchecked")
 	public synchronized void deleteAll() {
+		// mesuresTemporalsHelper.mesuraIniciar("Lucene: deleteAll", "lucene");
 		checkIndexOk();
 		List<Integer> documentsTots = searchTemplate.search(
 				new MatchAllDocsQuery(),
@@ -169,6 +257,7 @@ public class LuceneDao extends LuceneIndexSupport {
 		for (Integer id: documentsTots)
 			getLuceneIndexTemplate().deleteDocument(id.intValue());
 		getLuceneIndexTemplate().optimize();
+		// mesuresTemporalsHelper.mesuraCalcular("Lucene: deleteAll", "lucene");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -177,6 +266,7 @@ public class LuceneDao extends LuceneIndexSupport {
 			String tipusCodi,
 			List<Camp> filtreCamps,
 			Map<String, Object> filtreValors) {
+		// mesuresTemporalsHelper.mesuraIniciar("Lucene: findNomesIds", "lucene");
 		checkIndexOk();
 		Query query = queryPerFiltre(
 				entornCodi,
@@ -208,6 +298,7 @@ public class LuceneDao extends LuceneIndexSupport {
 					it.remove();
 			}
 		}
+		// mesuresTemporalsHelper.mesuraCalcular("Lucene: findNomesIds", "lucene");
 		return resposta;
 	}
 	public List<Map<String, DadaIndexadaDto>> findAmbDadesExpedient(
@@ -220,13 +311,14 @@ public class LuceneDao extends LuceneIndexSupport {
 			boolean asc,
 			int firstRow,
 			int maxResults) {
+		// mesuresTemporalsHelper.mesuraIniciar("Lucene: findAmbDadesExpedient", "lucene");
 		checkIndexOk();
 		Query query = queryPerFiltre(
 				entornCodi,
 				tipusCodi,
 				filtreCamps,
 				filtreValors);
-		return getDadesExpedientPerConsulta(
+		List<Map<String, DadaIndexadaDto>> resultat = getDadesExpedientPerConsulta(
 				entornCodi,
 				query,
 				informeCamps,
@@ -235,18 +327,21 @@ public class LuceneDao extends LuceneIndexSupport {
 				asc,
 				firstRow,
 				maxResults);
+		// mesuresTemporalsHelper.mesuraCalcular("Lucene: findAmbDadesExpedient", "lucene");
+		return resultat;
 	}
 
 	public List<Map<String, DadaIndexadaDto>> getDadesExpedient(
 			String entornCodi,
 			Expedient expedient,
 			List<Camp> informeCamps) {
+		// mesuresTemporalsHelper.mesuraIniciar("Lucene: getDadesExpedient", "lucene");
 		checkIndexOk();
 		Query query = queryFromCampFiltre(
 				ExpedientCamps.EXPEDIENT_CAMP_ID,
 				expedient.getId().toString(),
 				null);
-		return getDadesExpedientPerConsulta(
+		List<Map<String, DadaIndexadaDto>> resultat = getDadesExpedientPerConsulta(
 				entornCodi,
 				query,
 				informeCamps,
@@ -255,9 +350,9 @@ public class LuceneDao extends LuceneIndexSupport {
 				true,
 				0,
 				-1);
+		// mesuresTemporalsHelper.mesuraCalcular("Lucene: getDadesExpedient", "lucene");
+		return resultat;
 	}
-
-
 
 	@Autowired
 	public void setSearchTemplate(LuceneSearchTemplate searchTemplate) {
@@ -726,7 +821,7 @@ public class LuceneDao extends LuceneIndexSupport {
 											if (textDominiIndex != null)
 												textDomini = textDominiIndex.get(0);
 											if (textDomini == null)
-												textDomini = (valor != null && valor.toString().length() > 0) ? "¿" + valor.toString() + "?" : null;
+												textDomini = (valor != null && valor.toString().length() > 0) ? "Â¿" + valor.toString() + "?" : null;
 											dadaCamp.setValorMostrar(
 													Camp.getComText(
 															camp.getTipus(),
@@ -735,7 +830,7 @@ public class LuceneDao extends LuceneIndexSupport {
 											dadesFila.add(dadaCamp);
 										}
 									} catch (Exception ex) {
-										logger.error("Error al obtenir el valor de l'índex pel camp " + codi, ex);
+										logger.error("Error al obtenir el valor de l'Ã­ndex pel camp " + codi, ex);
 									}
 								}
 								break;
@@ -774,8 +869,8 @@ public class LuceneDao extends LuceneIndexSupport {
 					resposta.add(mapFila);
 				}
 			}
-			// Revisa les variables de tipus registre que només
-			// ténen 1 fila per a marcar-les com a múltiples
+			// Revisa les variables de tipus registre que nomÃ©s
+			// tÃ©nen 1 fila per a marcar-les com a mÃºltiples
 			for (Map<String, DadaIndexadaDto> dadesExpedient: resposta) {
 				for (String clauMultiple: clausAmbValorMultiple) {
 					DadaIndexadaDto dadaMultiple = dadesExpedient.get(clauMultiple);
@@ -981,16 +1076,16 @@ public class LuceneDao extends LuceneIndexSupport {
 	private String normalitzarILlevarAccents(String str) {
 		return str;
 		/*String resultat = str.toLowerCase().
-	    replaceAll("[àâ]","a").
-		replaceAll("[èéêë]","e").
-		replaceAll("[ïî]","i").
-	    replaceAll("Ô","o").
-	    replaceAll("[ûù]","u").
-	    replaceAll("[ÀÂ]","A").
-	    replaceAll("[ÈÉÊË]","E").
-	    replaceAll("[ÏÎ]","I").
-	    replaceAll("Ô","O").
-	    replaceAll("[ÛÙ]","U");
+	    replaceAll("[Ã Ã¢]","a").
+		replaceAll("[Ã¨Ã©ÃªÃ«]","e").
+		replaceAll("[Ã¯Ã®]","i").
+	    replaceAll("Ã”","o").
+	    replaceAll("[Ã»Ã¹]","u").
+	    replaceAll("[Ã€Ã‚]","A").
+	    replaceAll("[ÃˆÃ‰ÃŠÃ‹]","E").
+	    replaceAll("[Ã�ÃŽ]","I").
+	    replaceAll("Ã”","O").
+	    replaceAll("[Ã›Ã™]","U");
 		return resultat;*/
 	}
 

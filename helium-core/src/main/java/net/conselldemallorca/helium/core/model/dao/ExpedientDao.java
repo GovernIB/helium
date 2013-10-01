@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.core.model.dao;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -39,6 +40,57 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			return expedients.get(0);
 		return null;
 	}
+	
+	public List<Long> findListExpedients(Long entornId, String actorId) {
+		return findListExpedients(entornId, actorId, null, null, null, false);
+	}
+	
+	public List<Long> findListExpedients(Long entornId, String actorId, String expedient, Long tipusExpedient, String sort, boolean asc) {		
+		List<Long> resultat = new ArrayList<Long>();
+			
+		String hql = "select cast(ex.processInstanceId as long) "
+				+ " from Expedient as ex "
+				+ " where "
+				+ " ex.entorn.id = :entornId ";
+		
+		if (tipusExpedient != null) {
+			hql += "	and ex.tipus.id = :tipusExpedient ";
+		}
+		
+		if (expedient != null && !"".equals(expedient)) {
+			hql += "	and UPPER(case"
+						+ " when (ex.numero is not null AND ex.titol is not null) then ('['||ex.numero||'] ' || ex.titol) "
+						+ " when (ex.numero is not null AND ex.titol is null) then ex.numero "
+						+ " when (ex.numero is null AND ex.titol is not null) then ex.titol "
+						+ " ELSE ex.numeroDefault END) like UPPER(:expedient) ";			
+		}
+		
+		if ("expedientTitol".equals(sort)) {
+			hql += " order by (case"
+						+ " when (ex.numero is not null AND ex.titol is not null) then ('['||ex.numero||'] ' || ex.titol) "
+						+ " when (ex.numero is not null AND ex.titol is null) then ex.numero "
+						+ " when (ex.numero is null AND ex.titol is not null) then ex.titol "
+						+ " ELSE ex.numeroDefault END) " + (asc ? "asc" : "desc");
+		} else if ("expedientTipusNom".equals(sort)) {
+			hql += " order by ex.tipus.nom " + (asc ? "asc" : "desc");
+		} 
+		
+		Query query = getSession().createQuery(hql);
+		query.setLong("entornId", entornId);
+		
+		if (tipusExpedient != null) {
+			query.setLong("tipusExpedient", tipusExpedient);
+		}
+		
+		if (expedient != null && !"".equals(expedient)) {
+			query.setString("expedient", "%"+expedient+"%");
+		}
+		
+		resultat = (List<Long>) query.list();
+		
+		return resultat;
+	}
+	
 	public Expedient findAmbProcessInstanceId(String processInstanceId) {
 		List<Expedient> expedients = findByCriteria(
 				Restrictions.eq("processInstanceId", processInstanceId));
@@ -294,5 +346,4 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 		}
 		return crit;
 	}
-
 }

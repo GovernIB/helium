@@ -19,6 +19,8 @@ import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundEx
  */
 public interface TascaService {
 
+	public static final String TASKDESC_CAMP_AGAFADA = "agafada";
+
 	/**
 	 * Retorna les dades d'una instància de tasca.
 	 * 

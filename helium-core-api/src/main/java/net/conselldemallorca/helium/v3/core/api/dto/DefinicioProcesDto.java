@@ -13,6 +13,8 @@ public class DefinicioProcesDto {
 
 	private Long id;
 	private EntornDto entorn;
+	private String jbpmId;
+	private String jbpmKey;
 
 	public Long getId() {
 		return id;
@@ -25,6 +27,18 @@ public class DefinicioProcesDto {
 	}
 	public void setEntorn(EntornDto entorn) {
 		this.entorn = entorn;
+	}
+	public String getJbpmId() {
+		return jbpmId;
+	}
+	public void setJbpmId(String jbpmId) {
+		this.jbpmId = jbpmId;
+	}
+	public String getJbpmKey() {
+		return jbpmKey;
+	}
+	public void setJbpmKey(String jbpmKey) {
+		this.jbpmKey = jbpmKey;
 	}
 
 }

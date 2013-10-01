@@ -20,6 +20,8 @@
 
 	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="location" value="${es.caib.helium.properties.path}"/>
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="valueSeparator" value="?" />
 	</bean>
 
 	<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
@@ -69,6 +71,7 @@
 				<prop key="hibernate.hbm2ddl.auto">${app.hibernate.hbm2ddl.auto}</prop>
 				<!--prop key="hibernate.ejb.metamodel.generation">disabled</prop-->
 				<prop key="hibernate.ejb.cfgfile">/net/conselldemallorca/helium/core/context/jbpm3.hibernate.cfg.xml</prop>
+				<prop key="hibernate.generate_statistics">${hibernate.generate_statistics?false}</prop>
 			</props>
 		</property>
 	</bean>
@@ -102,7 +105,7 @@
 	<bean class="net.conselldemallorca.helium.core.model.update.Updater"/>
 
 	<bean id="serviceProxy" class="net.conselldemallorca.helium.core.model.service.ServiceProxy" factory-method="getInstance"/>
-	<bean id="daoProxy" class="net.conselldemallorca.helium.core.model.dao.DaoProxy" factory-method="getInstance"/>
+<!-- 	<bean id="daoProxy" class="net.conselldemallorca.helium.core.model.dao.DaoProxy" factory-method="getInstance"/> -->
 
 	<bean id="globalProperties" class="net.conselldemallorca.helium.core.util.GlobalProperties">
 		<constructor-arg value="${es.caib.helium.properties.path}"/>

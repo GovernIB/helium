@@ -5,12 +5,17 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.PermissionService;
 
+import org.springframework.security.acls.model.Permission;
 import org.springframework.ui.Model;
 
 /**
@@ -19,6 +24,8 @@ import org.springframework.ui.Model;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class BaseExpedientController {
+	@Resource(name="permissionServiceV3")
+	private PermissionService permissionService;
 
 	protected String mostrarInformacioExpedientPerPipella(
 			HttpServletRequest request,
@@ -38,4 +45,12 @@ public class BaseExpedientController {
 		return "v3/expedientPipelles";
 	}
 
+	protected boolean potModificarExpedient(ExpedientDto expedient) {
+		return permissionService.filterAllowed(
+				expedient.getTipus(),
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.ADMINISTRATION,
+					ExtendedPermission.WRITE}) != null;
+	}
 }

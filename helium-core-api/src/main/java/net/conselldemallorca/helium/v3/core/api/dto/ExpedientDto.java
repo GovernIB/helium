@@ -3,17 +3,21 @@
  */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
+import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 /**
  * DTO amb informació d'un expedient.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class ExpedientDto {
-
+public class ExpedientDto implements Serializable, GenericEntityDto<Long> {
+	private static final long serialVersionUID = -9207907579002520198L;
+	
 	private static final String SEPARADOR_SISTRA = "#";
 
 	public enum EstatTipusDto {
@@ -69,6 +73,51 @@ public class ExpedientDto {
 	private EstatTipusDto estatTipus;
 	private EstatDto estat;
 
+
+	private PersonaDto iniciadorPersona;
+	private PersonaDto responsablePersona;
+	private String bantelEntradaNum;
+	private List<ExpedientDto> relacionats;
+
+
+
+	public PersonaDto getIniciadorPersona() {
+		return iniciadorPersona;
+	}
+	public void setIniciadorPersona(PersonaDto iniciadorPersona) {
+		this.iniciadorPersona = iniciadorPersona;
+	}
+	public PersonaDto getResponsablePersona() {
+		return responsablePersona;
+	}
+	public void setResponsablePersona(PersonaDto responsablePersona) {
+		this.responsablePersona = responsablePersona;
+	}
+	public String getBantelEntradaNum() {
+		return bantelEntradaNum;
+	}
+	public void setBantelEntradaNum(String bantelEntradaNum) {
+		this.bantelEntradaNum = bantelEntradaNum;
+	}
+	public List<ExpedientDto> getRelacionats() {
+		return relacionats;
+	}
+	public void setRelacionats(List<ExpedientDto> relacionats) {
+		this.relacionats = relacionats;
+	}
+
+	public void addExpedientRelacionat(ExpedientDto relacionat) {
+		if (relacionats == null)
+			relacionats = new ArrayList<ExpedientDto>();
+		relacionats.add(relacionat);
+	}
+
+	public String getIdentificadorLimitat() {
+		if (getIdentificador() != null && getIdentificador().length() > 100)
+			return getIdentificador().substring(0, 100) + " (...)";
+		else
+			return getIdentificador();
+	}
 
 
 	public Long getId() {

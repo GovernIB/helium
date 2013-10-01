@@ -3,14 +3,17 @@
  */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
+import java.io.Serializable;
+
 
 /**
  * DTO amb informació d'un tipus d'expedient.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class ExpedientTipusDto {
-
+public class ExpedientTipusDto implements Serializable, GenericEntityDto<Long> {
+	private static final long serialVersionUID = 4990928454645567913L;
+	
 	private Long id;
 	private String codi;
 	private String nom;

@@ -85,6 +85,8 @@ public interface ExpedientService {
 			boolean mostrarAnulats,
 			PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException;
 
+	public boolean updateExpedientError(String processInstanceId, String errorDesc, String errorFull);
+	
 	public void createRelacioExpedient(
 			Long expedientOrigenId,
 			Long expedientDestiId);
@@ -141,4 +143,49 @@ public interface ExpedientService {
 
 	public ExpedientDto getExpedientIniciant();
 
+	public void editar(
+			Long entornId,
+			Long id,
+			String numero,
+			String titol,
+			String responsableCodi,
+			Date dataInici,
+			String comentari,
+			Long estatId,
+			Double geoPosX,
+			Double geoPosY,
+			String geoReferencia,
+			String grupCodi);
+	
+	public void editar(
+			Long entornId,
+			Long id,
+			String numero,
+			String titol,
+			String responsableCodi,
+			Date dataInici,
+			String comentari,
+			Long estatId,
+			Double geoPosX,
+			Double geoPosY,
+			String geoReferencia,
+			String grupCodi,
+			boolean executatEnHandler);
+
+	public List<?> getArbreInstanciesProces(
+			Long processInstanceId);
+
+	public net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto getInstanciaProcesById(
+			Long processInstanceId,
+			boolean ambImatgeProces,
+			boolean ambVariables,
+			boolean ambDocuments);
+	
+	public net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto getInstanciaProcesByIdReg(
+			Long processInstanceId,
+			boolean ambImatgeProces,
+			boolean ambVariables,
+			boolean ambDocuments,
+			String varRegistre,
+			Object[] valorsRegistre);
 }

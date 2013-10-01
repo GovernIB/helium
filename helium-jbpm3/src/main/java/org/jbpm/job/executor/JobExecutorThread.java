@@ -56,6 +56,13 @@ public class JobExecutorThread extends Thread {
 	@SuppressWarnings("rawtypes")
 	public void run() {
 		currentIdleInterval = idleInterval;
+
+		// Inicialitzam les definicions de procÃ©s per a poder tenir accÃ©s als seus handlers
+//		List<ExpedientTipus> llistat = DaoProxy.getInstance().getExpedientTipusDao().findAll();
+//		for (ExpedientTipus expedientTipus: llistat) {
+//			Hibernate.initialize(expedientTipus.getDefinicionsProces());
+//		}
+		
 		while (isActive) {
 			try {
 				Collection acquiredJobs = acquireJobs();
@@ -63,15 +70,26 @@ public class JobExecutorThread extends Thread {
 					Iterator iter = acquiredJobs.iterator();
 					while (iter.hasNext() && isActive) {
 						Job job = (Job) iter.next();
+						boolean error = false;
+						Throwable terror = null;
 						try {
 							executeJob(job);
 						}
+						// on exception, call returns normally
 						catch (Exception e) {
-							// on exception, call returns normally
-							saveJobException(job, e);
+							error = true;
+							terror = e;
+						} catch (Error e) {
+							error = true;
+							terror = e;
+						}
+						if (error) {
+							saveJobException(job, terror);
 							try{ 
 								executeJob(job); 
-							}catch(Exception ex){}
+							}catch(Exception ex){
+								log.error("error no controlar en el job executor thread.", ex);
+							}
 							break;
 						}
 					}
@@ -220,7 +238,7 @@ public class JobExecutorThread extends Thread {
 		}
 	}
 	
-	protected void saveJobException(Job job, Exception exception) {
+	protected void saveJobException(Job job, Throwable exception) {
 		StringWriter out = new StringWriter();
 		exception.printStackTrace(new PrintWriter(out));
 		job.setException(out.toString());

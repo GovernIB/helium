@@ -65,85 +65,56 @@
 		else
 			$("thead input[type=checkbox]", taula).removeAttr("checked");
 	}
+	
+	function formatDate(fechaSinFormato) {
+		var date = fechaSinFormato.split(" ");
+		var fecha = date[0].split("-");
+		var hora = date[1].split(":");
+		fechaFormateada = (fecha[2]+"/"+fecha[1]+"/"+fecha[0]+" " +hora[0]+":" +hora[1]);
+		return fechaFormateada;
+	}
 	</c:if>
+	
+	function fnRowCallback(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+		var numColumnes = $("td", nRow).size();
+		var expedientId = aData[8];
+		$("td:eq(" + (numColumnes - 1) + ")", nRow).html('<div class="btn-group"><a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog icon-white"></i> Accions <span class="caret"></span></a><ul class="dropdown-menu"><li><a href="expedient/' + expedientId + '"><i class="icon-folder-open"></i> Obrir</a></li><li><a href="expedient/' + expedientId + '/stop"><i class="icon-stop"></i> Aturar</a></li><li><a href="expedient/' + expedientId + '/suspend"><i class="icon-remove"></i> Anular</a></li><li><a href="expedient/' + expedientId + '/delete"><i class="icon-trash"></i> Esborrar</a></li></ul></div>');
+		if (aData[6] === 'true')
+			$("td:eq(1)", nRow).append(' <span class="label" title="Aturat">AT</span>');
+		if (aData[7] === 'true')
+			$("td:eq(1)", nRow).append('  <span class="label" title="Anulat">AN</span>');					
+		if (!aData[5]) {
+			if (aData[3])
+				$("td:eq(" + (numColumnes - 2) + ")", nRow).html('Finalitzat');
+			else
+				$("td:eq(" + (numColumnes - 2) + ")", nRow).html('Iniciat');
+		}
+		
+		$("td:eq(" + (numColumnes - 4) + ")", nRow).html(formatDate(aData[2]));
+		
+		if (!aData[5] && aData[3]) $("td:eq(" + (numColumnes - 2) + ")", nRow).html('Finalitzat');
+		var oTable = $(taula).dataTable();
+		if (oTable.fnSettings().aoColumns[0].bVisible) {
+			var seleccio = obtenirSeleccioActual();
+			var seleccionat = seleccio.indexOf(parseInt(aData[0])) != -1;
+			if (seleccionat) {
+				$(nRow).addClass(seleccioClass);
+				$("td:eq(0)", nRow).html('<input type="checkbox" value="' + aData[0] + '" checked="checked"/>');
+			} else {
+				$("td:eq(0)", nRow).html('<input type="checkbox" value="' + aData[0] + '"/>');
+			}
+		}
+	}
+	
 	$(document).ready(
 		function() {
 			<c:if test="${expedientConsultaCommand.consultaRealitzada}">
-			taula = $("#taulaDades").get(0);
-			// Creació del datatable 
-			$(taula).dataTable({
-				"iDisplayLength": 10,
-				"aLengthMenu": [[10, 50, 100], [10, 50, 100]],
-				"aaSorting": [[ 2, "desc" ]],
-				"aoColumns": [
-						{"bSearchable": false, "bSortable": false<c:if test="${not expedientConsultaCommand.tramitacioMassivaActivada}">, "bVisible": false</c:if>},
-						null,
-						null,
-						{"bSearchable": false, "bVisible": false},
-						null,
-						null,
-						{"bSearchable": false, "bVisible": false},
-						{"bSearchable": false, "bVisible": false},
-						{"bSearchable": false, "bSortable": false}
-				],
-				"bAutoWidth": false,
-				"bProcessing": true,
-				"bServerSide": true,
-				"oLanguage": {
-					"sUrl": "<c:url value="/js/DT_catala.txt"/>"
-				},
-				"sAjaxSource": "<c:url value="/v3/expedient/datatable"/>",
-				"fnServerData": function (sSource, aoData, fnCallback) {
-					$.ajax({
-						"dataType": 'json',
-						"type": "GET",
-						"url": sSource,
-						"data": aoData,
-						"success": fnCallback,
-						"timeout": 20000,
-						"error": function (xhr, textStatus, errorThrown) {
-							$('#dades-carregant').hide();
-							console.log("S'ha produït un error en la consulta d'expedients: " + xhr.responseText);
-							if (textStatus == 'timeout') {
-								alert("La consulta d'expedients ha estat molt de temps per retornar els resultats i s'ha cancel·lat.");
-							} else {
-								alert("S'ha produït un error en la consulta d'expedients: " + errorThrown);
-							}
-						}
-				    });
-				},
-				"fnDrawCallback": actualitzarVistaSeleccio,
-				"fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-					var numColumnes = $("td", nRow).size();
-					var expedientId = aData[8];
-					$("td:eq(" + (numColumnes - 1) + ")", nRow).html('<div class="btn-group"><a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog icon-white"></i> Accions <span class="caret"></span></a><ul class="dropdown-menu"><li><a href="expedient/' + expedientId + '"><i class="icon-folder-open"></i> Obrir</a></li><li><a href="expedient/' + expedientId + '/stop"><i class="icon-stop"></i> Aturar</a></li><li><a href="expedient/' + expedientId + '/suspend"><i class="icon-remove"></i> Anular</a></li><li><a href="expedient/' + expedientId + '/delete"><i class="icon-trash"></i> Esborrar</a></li></ul></div>');
-					if (aData[6] === 'true')
-						$("td:eq(1)", nRow).append(' <span class="label" title="Aturat">AT</span>');
-					if (aData[7] === 'true')
-						$("td:eq(1)", nRow).append('  <span class="label" title="Anulat">AN</span>');
-					if (!aData[5]) {
-						if (aData[3])
-							$("td:eq(" + (numColumnes - 2) + ")", nRow).html('Finalitzat');
-						else
-							$("td:eq(" + (numColumnes - 2) + ")", nRow).html('Iniciat');
-					}
-					if (!aData[5] && aData[3]) $("td:eq(" + (numColumnes - 2) + ")", nRow).html('Finalitzat');
-					var oTable = $(taula).dataTable();
-					if (oTable.fnSettings().aoColumns[0].bVisible) {
-						var seleccio = obtenirSeleccioActual();
-						var seleccionat = seleccio.indexOf(parseInt(aData[0])) != -1;
-						if (seleccionat) {
-							$(nRow).addClass(seleccioClass);
-							$("td:eq(0)", nRow).html('<input type="checkbox" value="' + aData[0] + '" checked="checked"/>');
-						} else {
-							$("td:eq(0)", nRow).html('<input type="checkbox" value="' + aData[0] + '"/>');
-						}
-					}
-				},
-				"fnServerParams": function (aoData) {
-					$('#dades-carregant').show();
-				}
-			});
+			
+			<c:import url="import/dataTable.jsp">
+				<c:param name="idTable" value="taulaDades"/>
+				<c:param name="sAjaxSource" value="/v3/expedient/datatable"/>
+			</c:import>
+			
 			// Gestiona els clics als checkboxes de cada fila
 			$("tbody", taula).delegate(
 				"input[type=checkbox]",
@@ -175,6 +146,7 @@
 			});
 			$("#mostrarAnulatsCheck").click(function() {
 				$("input[name=mostrarAnulats]").val(!$("#mostrarAnulatsCheck").hasClass('active'));
+				$(".btn-primary").click();
 			});
 			$("#tramitacioMassivaActivar").click(function() {
 				$("#tramitacioMassivaActivar").parent().addClass('hide');
@@ -408,15 +380,15 @@
 		<table id="taulaDades" class="table table-striped table-bordered">
 			<thead>
 				<tr>
-					<th width="4%"><input type="checkbox"/></th>
-					<th>Expedient</th>
-					<th>Iniciat el</th>
-					<th>Finalitzat el</th>
-					<th>Tipus</th>
-					<th>Estat</th>
-					<th>Aturat</th>
-					<th>Anulat</th>
-					<th width="10%"></th>
+					<th data-property="id" width="4%" <c:if test="${not expedientConsultaCommand.tramitacioMassivaActivada}">data-visible=false</c:if>><input type="checkbox"/></th>
+					<th data-property="identificador" data-visible=true>Expedient</th>
+					<th data-property="dataInici" data-sorting="desc" data-visible=true>Iniciat el</th>
+					<th data-property="dataFi" data-visible=false>Finalitzat el</th>
+					<th data-property="tipus.nom" data-visible=true>Tipus</th>
+					<th data-property="estat.nom" data-visible=true>Estat</th>
+					<th data-property="aturat" data-visible=false>Aturat</th>
+					<th data-property="anulat" data-visible=false>Anulat</th>
+					<th data-property="id" data-sortable="false" width="10%" data-visible=true></th>
 				</tr>
 				<tr id="dades-carregant">
 					<td colspan="9" style="margin-top: 2em; text-align: center"><i class="icon-spinner icon-2x icon-spin"></i></td>

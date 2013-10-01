@@ -1,0 +1,18 @@
+img.suggestImgInfo {
+	position: relative;
+	top: -5px;
+	left: -25px;
+}
+img.suggestImgEsborrar {
+	position: relative;
+	top: -5px;
+	left: -25px;
+}
+
+.modal-body {
+/* 	max-height: none; */
+}
+
+.datepicker {
+	padding: 0px;
+}

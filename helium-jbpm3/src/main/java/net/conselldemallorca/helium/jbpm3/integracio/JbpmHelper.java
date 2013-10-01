@@ -37,9 +37,9 @@ import net.conselldemallorca.helium.jbpm3.command.FindTaskInstanceForTokenAndTas
 import net.conselldemallorca.helium.jbpm3.command.GetGroupTaskListCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetPersonalTaskListCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetProcessDefinitionByIdCommand;
-import net.conselldemallorca.helium.jbpm3.command.GetRootProcessInstancesForActiveTasksCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetProcessInstancesTreeCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetProcessLogByIdCommand;
+import net.conselldemallorca.helium.jbpm3.command.GetRootProcessInstancesForActiveTasksCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetSubProcessDefinitionsCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetTaskIdFromVariableLogCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetTokenByIdCommand;
@@ -387,43 +387,6 @@ public class JbpmHelper {
 		if (ti != null)
 			resposta = new JbpmTask(ti);
 		return resposta;
-	}
-
-	@SuppressWarnings("unchecked")
-	public List<JbpmTask> findPersonalTasks(String actorId) {
-		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
-		GetPersonalTaskListCommand command = new GetPersonalTaskListCommand(actorId);
-		for (TaskInstance ti : (List<TaskInstance>)commandService.execute(command))
-			resultat.add(new JbpmTask(ti));
-		return resultat;
-	}
-	@SuppressWarnings("unchecked")
-	public List<JbpmTask> findGroupTasks(String actorId) {
-		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
-		GetGroupTaskListCommand command = new GetGroupTaskListCommand(actorId);
-		for (TaskInstance ti : (List<TaskInstance>)commandService.execute(command))
-			resultat.add(new JbpmTask(ti));
-		return resultat;
-	}
-	/*@SuppressWarnings("unchecked")
-	public List<JbpmTask> findTasksByActorId(String actorId) {
-		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
-		GetTaskListByActorIdCommand command = new GetTaskListByActorIdCommand(actorId);
-		List<TaskInstance> tasks = (List<TaskInstance>)commandService.execute(command);
-		for (TaskInstance ti : tasks)
-			resultat.add(new JbpmTask(ti));
-		return resultat;
-	}*/
-	@SuppressWarnings("unchecked")
-	public List<String> findRootProcessInstanceIdsWithActiveTasksForActorId(
-			String actorId) {
-		List<String> resultat = new ArrayList<String>();
-		GetRootProcessInstancesForActiveTasksCommand command = new GetRootProcessInstancesForActiveTasksCommand(actorId);
-		List<Object[]> files = (List<Object[]>)commandService.execute(command);
-		for (Object[] fila: files) {
-			resultat.add(((Long)fila[0]).toString());
-		}
-		return resultat;
 	}
 
 	public List<String> findStartTaskOutcomes(String jbpmId, String taskName) {
@@ -1018,6 +981,122 @@ public class JbpmHelper {
     public void setSessionFactory(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }
+
+	public LlistatIds findListPersonalTasks(
+			String usuariBo, 
+			String tasca, 
+			List<Long> idsExpedients, 
+			Date dataCreacioInici, 
+			Date dataCreacioFi, 
+			Integer prioritat, 
+			Date dataLimitInici, 
+			Date dataLimitFi, 
+			int firstRow, 
+			int maxResults, 
+			String sort, 
+			boolean asc) {
+//		mesuresTemporalsHelper.mesuraIniciar("jBPM findListPersonalTasks", "jbpmDao");
+		GetRootProcessInstancesForActiveTasksCommand command = new GetRootProcessInstancesForActiveTasksCommand(usuariBo, tasca, idsExpedients, dataCreacioInici, dataCreacioFi, prioritat, dataLimitInici, dataLimitFi, sort, asc,false);
+		command.setFirstRow(firstRow);
+		command.setMaxResults(maxResults);
+		LlistatIds llistat = (LlistatIds)commandService.execute(command);
+//		mesuresTemporalsHelper.mesuraCalcular("jBPM findListPersonalTasks", "jbpmDao");
+		return llistat;
+	}
+
+	public LlistatIds findListGroupTasks(
+			String usuariBo, 
+			String tasca, 
+			List<Long> idsExpedients, 
+			Date dataCreacioInici, 
+			Date dataCreacioFi, 
+			Integer prioritat, 
+			Date dataLimitInici, 
+			Date dataLimitFi, 
+			int firstRow, 
+			int maxResults, 
+			String sort, 
+			boolean asc) {
+//		mesuresTemporalsHelper.mesuraIniciar("jBPM findListGroupTasks", "jbpmDao");
+		GetRootProcessInstancesForActiveTasksCommand command = new GetRootProcessInstancesForActiveTasksCommand(usuariBo, tasca, idsExpedients, dataCreacioInici, dataCreacioFi, prioritat, dataLimitInici, dataLimitFi, sort, asc,true);
+		command.setFirstRow(firstRow);
+		command.setMaxResults(maxResults);
+		LlistatIds llistat = (LlistatIds)commandService.execute(command);
+//		mesuresTemporalsHelper.mesuraCalcular("jBPM findListGroupTasks", "jbpmDao");
+		return llistat;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<JbpmTask> findPersonalTasks(List<Long> ids, String usuariBo) {
+//		mesuresTemporalsHelper.mesuraIniciar("jBPM findPersonalTasks", "jbpmDao");
+		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
+		GetPersonalTaskListCommand command = new GetPersonalTaskListCommand(usuariBo, ids);
+		for (TaskInstance ti : (List<TaskInstance>)commandService.execute(command))
+			resultat.add(new JbpmTask(ti));
+//		mesuresTemporalsHelper.mesuraCalcular("jBPM findPersonalTasks", "jbpmDao");
+		return resultat;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<JbpmTask> findGroupTasks(List<Long> ids, String usuariBo) {
+//		mesuresTemporalsHelper.mesuraIniciar("jBPM findGroupTasks", "jbpmDao");
+		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
+		GetGroupTaskListCommand command = new GetGroupTaskListCommand(usuariBo, ids);
+		for (TaskInstance ti : (List<TaskInstance>)commandService.execute(command))
+			resultat.add(new JbpmTask(ti));
+//		mesuresTemporalsHelper.mesuraCalcular("jBPM findGroupTasks", "jbpmDao");
+		return resultat;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<JbpmTask> findPersonalTasks(String usuariBo) {
+//		mesuresTemporalsHelper.mesuraIniciar("jBPM findPersonalTasks", "jbpmDao");
+		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
+		GetPersonalTaskListCommand command = new GetPersonalTaskListCommand(usuariBo);
+		for (TaskInstance ti : (List<TaskInstance>)commandService.execute(command))
+			resultat.add(new JbpmTask(ti));
+//		mesuresTemporalsHelper.mesuraCalcular("jBPM findPersonalTasks", "jbpmDao");
+		return resultat;
+	}
+
+	public LlistatIds findListIdsPersonalTasks(String actorId,List<Long> idsExpedients) {
+//		mesuresTemporalsHelper.mesuraIniciar("jBPM findListIdsPersonalTasks", "jbpmDao");
+		GetRootProcessInstancesForActiveTasksCommand command = new GetRootProcessInstancesForActiveTasksCommand(actorId, idsExpedients, false);
+		LlistatIds resultado = (LlistatIds)commandService.execute(command);
+//		mesuresTemporalsHelper.mesuraCalcular("jBPM findListIdsPersonalTasks", "jbpmDao");
+		return resultado;
+	}
+	
+	public LlistatIds findListIdsGroupTasks(String actorId,List<Long> idsExpedients) {
+//		mesuresTemporalsHelper.mesuraIniciar("jBPM findListIdsGroupTasks", "jbpmDao");
+		GetRootProcessInstancesForActiveTasksCommand command = new GetRootProcessInstancesForActiveTasksCommand(actorId, idsExpedients, true);
+		LlistatIds resultado = (LlistatIds)commandService.execute(command);
+//		mesuresTemporalsHelper.mesuraCalcular("jBPM findListIdsGroupTasks", "jbpmDao");
+		return resultado;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<JbpmTask> findGroupTasks(String actorId) {
+//		mesuresTemporalsHelper.mesuraIniciar("jBPM findGroupTasks", "jbpmDao");
+		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
+		
+		GetGroupTaskListCommand command = new GetGroupTaskListCommand(actorId);
+		for (TaskInstance ti : (List<TaskInstance>)commandService.execute(command))
+			resultat.add(new JbpmTask(ti));
+//		mesuresTemporalsHelper.mesuraCalcular("jBPM findGroupTasks", "jbpmDao");
+		return resultat;
+	}
 	
 	private SessionFactory sessionFactory;
+
+	public List<Long> findRootProcessInstanceIdsWithActiveTasksForActorId(String actorId,List<Long> idsExpedients) {
+		List<Long> resultat = new ArrayList<Long>();
+		GetRootProcessInstancesForActiveTasksCommand commandPersonal = new GetRootProcessInstancesForActiveTasksCommand(actorId, idsExpedients, false);
+		LlistatIds resultadoPersonal = (LlistatIds)commandService.execute(commandPersonal);
+		resultat.addAll(resultadoPersonal.getIds());
+		GetRootProcessInstancesForActiveTasksCommand commandGroup = new GetRootProcessInstancesForActiveTasksCommand(actorId, idsExpedients, true);
+		LlistatIds resultadoGroup = (LlistatIds)commandService.execute(commandGroup);
+		resultat.addAll(resultadoGroup.getIds());
+		return resultat;
+	}
 }

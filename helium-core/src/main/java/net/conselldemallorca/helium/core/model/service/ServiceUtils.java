@@ -24,13 +24,13 @@ import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.GenericEntity;
 import net.conselldemallorca.helium.core.security.AclServiceDao;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.Registre;
+import net.conselldemallorca.helium.v3.core.api.dto.GenericEntityDto;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
@@ -86,7 +86,7 @@ public class ServiceUtils {
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 		Map<String, Set<Camp>> mapCamps = getMapCamps(expedient.getProcessInstanceId());
 		Map<String, Map<String, Object>> mapValors = getMapValors(expedient.getProcessInstanceId());
-		luceneDao.createExpedient(
+		luceneDao.createExpedientAsync(
 				expedient,
 				getMapDefinicionsProces(expedient.getProcessInstanceId()),
 				mapCamps,
@@ -99,7 +99,7 @@ public class ServiceUtils {
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 		Map<String, Set<Camp>> mapCamps = getMapCamps(rootProcessInstance.getId());
 		Map<String, Map<String, Object>> mapValors = getMapValors(rootProcessInstance.getId());
-		luceneDao.updateExpedientCamps(
+		luceneDao.updateExpedientCampsAsync(
 				expedient,
 				getMapDefinicionsProces(rootProcessInstance.getId()),
 				mapCamps,
@@ -110,10 +110,10 @@ public class ServiceUtils {
 	public void expedientIndexLuceneRecrear(String processInstanceId) {
 		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(processInstanceId);
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
-		luceneDao.deleteExpedient(expedient);
+		luceneDao.deleteExpedientAsync(expedient);
 		Map<String, Set<Camp>> mapCamps = getMapCamps(rootProcessInstance.getId());
 		Map<String, Map<String, Object>> mapValors = getMapValors(rootProcessInstance.getId());
-		luceneDao.createExpedient(
+		luceneDao.createExpedientAsync(
 				expedient,
 				getMapDefinicionsProces(rootProcessInstance.getId()),
 				mapCamps,
@@ -288,13 +288,13 @@ public class ServiceUtils {
 		Iterator it = list.iterator();
 		while (it.hasNext()) {
 			Object entry = it.next();
-			if (!isGrantedAny((GenericEntity)entry, clazz, permissions))
+			if (!isGrantedAny((GenericEntityDto)entry, clazz, permissions))
 				it.remove();
 		}
 	}
 	@SuppressWarnings("rawtypes")
 	public Object filterAllowed(
-			GenericEntity object,
+			GenericEntityDto object,
 			Class clazz,
 			Permission[] permissions) {
 		if (isGrantedAny(object, clazz, permissions)) {
@@ -468,7 +468,7 @@ public class ServiceUtils {
 
 	@SuppressWarnings("rawtypes")
 	private boolean isGrantedAny(
-			GenericEntity object,
+			GenericEntityDto object,
 			Class clazz,
 			Permission[] permissions) {
 		return aclServiceDao.isGrantedAny(object, clazz, permissions);

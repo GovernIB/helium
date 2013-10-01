@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.core.model.hibernate;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,6 +27,8 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
 
+import net.conselldemallorca.helium.v3.core.api.dto.GenericEntityDto;
+
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Sort;
@@ -45,7 +48,7 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 @org.hibernate.annotations.Table(
 		appliesTo = "hel_expedient_tipus",
 		indexes = @Index(name = "hel_exptip_entorn_i", columnNames = {"entorn_id"}))
-public class ExpedientTipus implements Serializable, GenericEntity<Long> {
+public class ExpedientTipus implements Serializable, GenericEntityDto<Long> {
 
 	private Long id;
 	@NotBlank
@@ -103,9 +106,9 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	private Set<Consulta> consultes = new HashSet<Consulta>();
 	private Set<Domini> dominis = new HashSet<Domini>();
 	private Set<Enumeracio> enumeracions = new HashSet<Enumeracio>();
-
+	
 	private SortedMap<Integer, SequenciaAny> sequenciaAny = new TreeMap<Integer, SequenciaAny>();
-
+	
 	public ExpedientTipus() {}
 	public ExpedientTipus(String codi, String nom, Entorn entorn) {
 		this.codi = codi;
@@ -431,8 +434,8 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	public void removeEnumeracio(Enumeracio enumeracio) {
 		getEnumeracions().remove(enumeracio);
 	}
-
-	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL}, orphanRemoval=true)
+	
+	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
 	@MapKey(name = "any")
 	@Sort(type = SortType.NATURAL)
 	public SortedMap<Integer, SequenciaAny> getSequenciaAny() {
@@ -441,8 +444,8 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	public void setSequenciaAny(SortedMap<Integer, SequenciaAny> sequenciaAny) {
 		this.sequenciaAny = sequenciaAny;
 	}
-
 	public void updateSequencia(Integer any, long increment) {
+		if (any == null) any = Calendar.getInstance().get(Calendar.YEAR);
 		if (this.isReiniciarCadaAny()) {
 			if (this.getSequenciaAny().containsKey(any)) {
 				this.getSequenciaAny().get(any).setSequencia(this.getSequenciaAny().get(any).getSequencia() + increment);
@@ -454,7 +457,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 			this.sequencia = this.sequencia + increment;
 		}
 	}
-
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -478,8 +481,6 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 			return false;
 		return true;
 	}
-
-
 
 	private static final long serialVersionUID = 1L;
 

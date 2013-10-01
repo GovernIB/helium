@@ -4,8 +4,8 @@
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
 
 <ul id="menu-superior" class="dropdown dropdown-horizontal">
-	<li class="image inici"><a href="<c:url value="/"/>"><fmt:message key='decorators.superior.inici' /></a></li>
-	<li class="image entorns"><a href="<c:url value="/entorn/seleccio.html"/>"><fmt:message key='decorators.superior.selec_entorn' /></a>
+	<li id="menuInici" class="image inici"><a href="<c:url value="/"/>"><fmt:message key='decorators.superior.inici' /></a></li>
+	<li id="menuEntorn" class="image entorns"><a href="<c:url value="/entorn/seleccio.html"/>"><fmt:message key='decorators.superior.selec_entorn' /></a>
 		 <ul class="llista-entorns">
 		 	<c:forEach var="list" items="${entorns}">
 				<li>
@@ -15,10 +15,10 @@
     	</ul>		
    	</li>
 	<c:if test="${globalProperties['app.persones.actiu']}">
-		<li class="image perfil"><a href="<c:url value="/perfil/info.html"/>"><fmt:message key='decorators.superior.meu_perfil' /></a></li>
+		<li id="menuPerfil" class="image perfil"><a href="<c:url value="/perfil/info.html"/>"><fmt:message key='decorators.superior.meu_perfil' /></a></li>
 	</c:if>
 	<security:authorize ifAllGranted="ROLE_ADMIN">
-		<li class="dir image configuracio"><a href="#" onclick="return false"><fmt:message key='comuns.configuracio' /></a>
+		<li id="menuConfiguracio" class="dir image configuracio"><a href="#" onclick="return false"><fmt:message key='comuns.configuracio' /></a>
 		<ul>
 			<c:if test="${globalProperties['app.persones.actiu']}">
 				<li class="image persones"><a href="<c:url value="/persona/consulta.html"/>"><fmt:message key='decorators.superior.persones' /></a></li>

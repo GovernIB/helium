@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.webapp.v3.helper;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,6 +15,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDire
 import net.conselldemallorca.helium.webapp.v3.datatables.DatatablesInfo;
 import net.conselldemallorca.helium.webapp.v3.datatables.DatatablesPagina;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +28,6 @@ public class PaginacioHelper {
 
 	public static PaginacioParamsDto getPaginacioDtoFromDatatable(
 			HttpServletRequest request,
-			String[] nomColumnes,
 			Map<String, String[]> mapeigOrdenacions) {
 		DatatablesInfo dtInfo = new DatatablesInfo(request);
 		LOGGER.debug("Informació de la pàgina obtingudes de datatables (displayStart=" + dtInfo.getDisplayStart() + ", displayLength=" + dtInfo.getDisplayLength() + ", echo=" + dtInfo.getEcho() + ")");
@@ -34,7 +36,7 @@ public class PaginacioHelper {
 		paginacio.setPaginaNum(paginaNum);
 		paginacio.setPaginaTamany(dtInfo.getDisplayLength());
 		for (int i = 0; i < dtInfo.getSortingCols(); i++) {
-			String columna = nomColumnes[dtInfo.getSortCol()[i]];
+			String columna = dtInfo.getProperty()[i];
 			OrdreDireccioDto direccio;
 			if ("asc".equals(dtInfo.getSortDir()[i]))
 				direccio = OrdreDireccioDto.ASCENDENT;
@@ -65,18 +67,45 @@ public class PaginacioHelper {
 
 	public static <T> DatatablesPagina<T> getPaginaPerDatatables(
 			HttpServletRequest request,
-			String[] columnes,
 			PaginaDto<T> pagina) {
 		LOGGER.debug("Informació de la pàgina (numero=" + pagina.getNumero() + ", tamany=" + pagina.getTamany() + ", total=" + pagina.getTotal() + ", elementsTotal=" + pagina.getElementsTotal() + ")");
 		DatatablesInfo dtInfo = new DatatablesInfo(request);
 		DatatablesPagina<T> resposta = new DatatablesPagina<T>();
-		resposta.setTotalRecords(pagina.getElementsTotal());
-		resposta.setTotalDisplayRecords(pagina.getElementsTotal());
-		resposta.setColumnNames(columnes);
-		resposta.setEcho(dtInfo.getEcho());
-		resposta.setData(pagina.getContingut());
-		LOGGER.debug("Informació per a datatables (totalRecords=" + resposta.getTotalRecords() + ", totalDisplayRecords=" + resposta.getTotalDisplayRecords() + ", echo=" + resposta.getEcho() + ")");
+		resposta.setiTotalRecords(pagina.getElementsTotal());
+		resposta.setiTotalDisplayRecords(pagina.getElementsTotal());
+		resposta.setsEcho(dtInfo.getEcho());
+		List<String[]> aaData = new ArrayList<String[]>();
+		for (T registre: pagina.getContingut()) {
+			String[] dadesRegistre = new String[dtInfo.getProperty().length];
+			for (int i = 0; i < dtInfo.getProperty().length; i++) {
+				try {
+					dadesRegistre[i] = BeanUtils.getProperty(registre, dtInfo.getProperty()[i]);
+				} catch (Exception ex) {
+//					dadesRegistre[i] = "!!!";
+					LOGGER.error("No s'ha pogut llegir la propietat de l'objecte (propietat=" + dtInfo.getProperty()[i] + ")");
+				}
+			}
+			aaData.add(dadesRegistre);
+		}
+		resposta.setAaData(aaData);
+		LOGGER.debug("Informació per a datatables (totalRecords=" + resposta.getiTotalRecords() + ", totalDisplayRecords=" + resposta.getiTotalDisplayRecords() + ", echo=" + resposta.getsEcho() + ")");
 		return resposta;
+	}
+	public static <T> DatatablesPagina<T> getPaginaPerDatatables(
+			HttpServletRequest request,
+			List<T> llista) {
+		LOGGER.debug("Informació de la llista (tamany=" + llista.size() + ")");
+		PaginaDto<T> dto = new PaginaDto<T>();
+		dto.setNumero(0);
+		dto.setTamany(llista.size());
+		dto.setTotal(1);
+		dto.setElementsTotal(llista.size());
+		dto.setAnteriors(false);
+		dto.setPrimera(true);
+		dto.setPosteriors(false);
+		dto.setDarrera(true);
+		dto.setContingut(llista);
+		return getPaginaPerDatatables(request, dto);
 	}
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PaginacioHelper.class);

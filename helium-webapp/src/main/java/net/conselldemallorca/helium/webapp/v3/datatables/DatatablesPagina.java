@@ -12,45 +12,35 @@ import java.util.List;
  */
 public class DatatablesPagina<T> {
 
-	private long totalRecords;
-	private long totalDisplayRecords;
-	private long echo;
-	private String[] columnNames;
-	private List<T> data;
-
+	private long iTotalRecords;
+	private long iTotalDisplayRecords;
+	private long sEcho;
+	private List<String[]> aaData;
 	private String missatgeAlerta;
 
-
-
-	public long getTotalRecords() {
-		return totalRecords;
+	public long getiTotalRecords() {
+		return iTotalRecords;
 	}
-	public void setTotalRecords(long totalRecords) {
-		this.totalRecords = totalRecords;
+	public void setiTotalRecords(long iTotalRecords) {
+		this.iTotalRecords = iTotalRecords;
 	}
-	public long getTotalDisplayRecords() {
-		return totalDisplayRecords;
+	public long getiTotalDisplayRecords() {
+		return iTotalDisplayRecords;
 	}
-	public void setTotalDisplayRecords(long totalDisplayRecords) {
-		this.totalDisplayRecords = totalDisplayRecords;
+	public void setiTotalDisplayRecords(long iTotalDisplayRecords) {
+		this.iTotalDisplayRecords = iTotalDisplayRecords;
 	}
-	public long getEcho() {
-		return echo;
+	public long getsEcho() {
+		return sEcho;
 	}
-	public void setEcho(long echo) {
-		this.echo = echo;
+	public void setsEcho(long sEcho) {
+		this.sEcho = sEcho;
 	}
-	public String[] getColumnNames() {
-		return columnNames;
+	public List<String[]> getAaData() {
+		return aaData;
 	}
-	public void setColumnNames(String[] columnNames) {
-		this.columnNames = columnNames;
-	}
-	public List<T> getData() {
-		return data;
-	}
-	public void setData(List<T> data) {
-		this.data = data;
+	public void setAaData(List<String[]> aaData) {
+		this.aaData = aaData;
 	}
 	public String getMissatgeAlerta() {
 		return missatgeAlerta;

@@ -74,6 +74,10 @@ public class ExpedientHelper {
 		return expedient;
 	}
 
+	public Expedient findAmbEntornIId(Long entornId, Long id) {
+		return expedientRepository.findByEntornIdAndId(entornId, id);
+	}
+	
 	public Expedient findExpedientByProcessInstanceId(String processInstanceId) {
 		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
 		return expedientRepository.findByProcessInstanceId(rootProcessInstance.getId());
