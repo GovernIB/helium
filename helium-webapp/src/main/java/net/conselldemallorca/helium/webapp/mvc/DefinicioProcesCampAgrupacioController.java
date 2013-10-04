@@ -262,7 +262,11 @@ public class DefinicioProcesCampAgrupacioController extends BaseController {
 				}
 				Comparator<Camp> comparador = new Comparator<Camp>() {
 					public int compare(Camp c1, Camp c2) {
-						return c1.getOrdre().compareTo(c2.getOrdre());
+						try {
+							return c1.getOrdre().compareTo(c2.getOrdre());
+						} catch (Exception e) {
+							return 0;
+						}
 					}
 				};
 				Collections.sort(camps, comparador);
