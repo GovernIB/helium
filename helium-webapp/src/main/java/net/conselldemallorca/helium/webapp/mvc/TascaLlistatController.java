@@ -278,22 +278,15 @@ public class TascaLlistatController extends BaseController {
 	}
 
 	private List<ExpedientTipus> llistatExpedientTipusAmbPermisos(Entorn entorn) {
-		List<ExpedientTipus> resposta = new ArrayList<ExpedientTipus>();
 		List<ExpedientTipus> llistat = dissenyService.findExpedientTipusAmbEntorn(entorn.getId());
-		for (ExpedientTipus expedientTipus: llistat) {
-			if (potDissenyarExpedientTipus(entorn, expedientTipus))
-				resposta.add(expedientTipus);
-		}
-		return resposta;
-	}
-
-	private boolean potDissenyarExpedientTipus(Entorn entorn, ExpedientTipus expedientTipus) {
-		return permissionService.filterAllowed(
-				expedientTipus,
+		permissionService.filterAllowed(
+				llistat,
 				ExpedientTipus.class,
 				new Permission[] {
 					ExtendedPermission.ADMINISTRATION,
-					ExtendedPermission.DESIGN}) != null;
+					ExtendedPermission.SUPERVISION,
+					ExtendedPermission.READ});
+		return llistat;
 	}
 
 	public class TascaFiltreCommand {
