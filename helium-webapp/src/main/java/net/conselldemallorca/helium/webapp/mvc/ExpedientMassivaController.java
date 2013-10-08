@@ -22,7 +22,6 @@ import javax.servlet.http.HttpSession;
 
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
-import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
@@ -33,7 +32,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca.TipusTasca;
@@ -47,6 +45,8 @@ import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
 
@@ -315,7 +315,7 @@ public class ExpedientMassivaController extends BaseController {
 						dto.setEnviarCorreu(bCorreu);
 						dto.setExpedientIds(ids.subList(1, ids.size()));
 						dto.setExpedientTipusId(ids.get(0));
-						dto.setTipus(ExecucioMassivaTipus.MODIFICAR_DOCUMENT);
+						dto.setTipus(ExecucioMassivaTipusDto.MODIFICAR_DOCUMENT);
 						for(ExpedientDto expedient: expedients){
 							DocumentDto doc = documentService.documentPerProces(
 									expedient.getProcessInstanceId(), 
@@ -372,7 +372,7 @@ public class ExpedientMassivaController extends BaseController {
 						dto.setEnviarCorreu(bCorreu);
 						dto.setExpedientIds(ids.subList(1, ids.size()));
 						dto.setExpedientTipusId(ids.get(0));
-						dto.setTipus(ExecucioMassivaTipus.MODIFICAR_DOCUMENT);
+						dto.setTipus(ExecucioMassivaTipusDto.MODIFICAR_DOCUMENT);
 						for(ExpedientDto expedient: expedients){
 							DocumentDto doc = documentService.documentPerProces(
 									expedient.getProcessInstanceId(), 
@@ -468,7 +468,7 @@ public class ExpedientMassivaController extends BaseController {
 						dto.setEnviarCorreu(bCorreu);
 						dto.setExpedientIds(ids.subList(1, ids.size()));
 						dto.setExpedientTipusId(ids.get(0));
-						dto.setTipus(ExecucioMassivaTipus.MODIFICAR_DOCUMENT);
+						dto.setTipus(ExecucioMassivaTipusDto.MODIFICAR_DOCUMENT);
 						Object[] params = new Object[4];
 						params[0] = command.getDocId();
 						// Modificar document
@@ -508,7 +508,7 @@ public class ExpedientMassivaController extends BaseController {
 						dto.setEnviarCorreu(bCorreu);
 						dto.setExpedientIds(ids.subList(1, ids.size()));
 						dto.setExpedientTipusId(ids.get(0));
-						dto.setTipus(ExecucioMassivaTipus.MODIFICAR_DOCUMENT);
+						dto.setTipus(ExecucioMassivaTipusDto.MODIFICAR_DOCUMENT);
 						Object[] params = new Object[4];
 						params[0] = null;
 						params[1] = command.getData();
@@ -642,7 +642,7 @@ public class ExpedientMassivaController extends BaseController {
 					dto.setEnviarCorreu(bCorreu);
 					dto.setExpedientIds(ids.subList(1, ids.size()));
 					dto.setExpedientTipusId(ids.get(0));
-					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_SCRIPT);
+					dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_SCRIPT);
 					dto.setParam2(execucioMassivaService.serialize(command.getScript()));
 					execucioMassivaService.crearExecucioMassiva(dto);
 
@@ -712,7 +712,7 @@ public class ExpedientMassivaController extends BaseController {
 					dto.setEnviarCorreu(bCorreu);
 					dto.setExpedientIds(ids.subList(1, ids.size()));
 					dto.setExpedientTipusId(ids.get(0));
-					dto.setTipus(ExecucioMassivaTipus.ATURAR_EXPEDIENT);
+					dto.setTipus(ExecucioMassivaTipusDto.ATURAR_EXPEDIENT);
 					dto.setParam2(execucioMassivaService.serialize(command.getMotiu()));
 					execucioMassivaService.crearExecucioMassiva(dto);
 
@@ -842,7 +842,7 @@ public class ExpedientMassivaController extends BaseController {
 	    				dto.setEnviarCorreu(bCorreu);
 	    				dto.setExpedientIds(ids.subList(1, ids.size()));
 	    				dto.setExpedientTipusId(ids.get(0));
-	    				dto.setTipus(ExecucioMassivaTipus.MODIFICAR_VARIABLE);
+	    				dto.setTipus(ExecucioMassivaTipusDto.MODIFICAR_VARIABLE);
 	    				dto.setParam1(var);
 	    				Object valors = ExpedientMassivaRegistreController.getRegistreMassiuSessio(request, id, var);
 	    				if (valors == null)
@@ -1186,7 +1186,7 @@ public class ExpedientMassivaController extends BaseController {
 				dto.setEnviarCorreu(bCorreu);
 				dto.setExpedientIds(ids.subList(1, ids.size()));
 				dto.setExpedientTipusId(ids.get(0));
-				dto.setTipus(ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC);
+				dto.setTipus(ExecucioMassivaTipusDto.ACTUALITZAR_VERSIO_DEFPROC);
 				Object[] params = new Object[3];
 				params[0] = command.getDefinicioProcesId();
 				params[1] = command.getSubprocesId();
@@ -1254,7 +1254,7 @@ public class ExpedientMassivaController extends BaseController {
 				dto.setEnviarCorreu(bCorreu);
 				dto.setExpedientIds(ids.subList(1, ids.size()));
 				dto.setExpedientTipusId(ids.get(0));
-				dto.setTipus(ExecucioMassivaTipus.EXECUTAR_ACCIO);
+				dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_ACCIO);
 				dto.setParam2(execucioMassivaService.serialize(command.getAccioId()));
 				execucioMassivaService.crearExecucioMassiva(dto);
 				
@@ -1334,7 +1334,7 @@ public class ExpedientMassivaController extends BaseController {
 					dto.setEnviarCorreu(bCorreu);
 					dto.setExpedientIds(ids.subList(1, ids.size()));
 					dto.setExpedientTipusId(ids.get(0));
-					dto.setTipus(ExecucioMassivaTipus.REINDEXAR);
+					dto.setTipus(ExecucioMassivaTipusDto.REINDEXAR);
 					execucioMassivaService.crearExecucioMassiva(dto);
 					
 //					// Recargamos la lista de ejecuciones masivas activas
@@ -1431,7 +1431,7 @@ public class ExpedientMassivaController extends BaseController {
 					dto.setEnviarCorreu(bCorreu);
 					dto.setExpedientIds(ids.subList(1, ids.size()));
 					dto.setExpedientTipusId(ids.get(0));
-					dto.setTipus(ExecucioMassivaTipus.REASSIGNAR);
+					dto.setTipus(ExecucioMassivaTipusDto.REASSIGNAR);
 					dto.setParam1(expression);
 					Object[] params = new Object[] {entorn.getId(), command.getTasca()};
     				dto.setParam2(execucioMassivaService.serialize(params));

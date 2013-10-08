@@ -1,6 +1,7 @@
 package net.conselldemallorca.helium.jbpm3.spring;
 
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.v3.core.api.dto.OperacioMassivaDto;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,27 +37,31 @@ public class SpringMassiuExecutorThread extends Thread {
 		this.timeBetweenExecutions = timeBetweenExecutions;
 	}
 
-	@SuppressWarnings("unused")
 	public void run() {
 		currentIdleInterval = idleInterval;
+		
+		while (Jbpm3HeliumBridge.getInstanceService() == null){
+			try{
+				System.out.println(">>> Massiu executor: waiting for Instance service.");
+				Thread.sleep(500);
+			} catch (Exception ex) {}
+		}
+		
 		while (isActive) {
 			try {
-				//OperacioMassivaDto operacioMassiva = execucioMassivaService.getExecucionsMassivesActiva(ultimaExecucioMassiva);
-				CampDto operacioMassiva = null;
+				OperacioMassivaDto operacioMassiva = Jbpm3HeliumBridge.getInstanceService().getExecucionsMassivesActiva(ultimaExecucioMassiva);
 				if (operacioMassiva != null) {
 					try {
-						//execucioMassivaService.executarExecucioMassiva(operacioMassiva);
+						Jbpm3HeliumBridge.getInstanceService().executarExecucioMassiva(operacioMassiva);
 						log.info("El thread de execucions massives '" + getName() + "' ha acabat d'executar la acció " + operacioMassiva.getId());
 					}
 					catch (Exception e) {
 						// si s'ha produit una excepció, deseram l'error a la operació
 						log.info("El thread de execucions massives '" + getName() + "' ha detectat un error en la execució de la acció " + operacioMassiva.getId() + ". Anem a generar l'error.");
-						//execucioMassivaService.generaInformeError(operacioMassiva, e);
+						Jbpm3HeliumBridge.getInstanceService().generaInformeError(operacioMassiva, e);
 					}
-					/*ultimaExecucioMassiva = operacioMassiva.getExecucioMassivaId();
-					if (operacioMassiva.getUltimaOperacio()) {
-						execucioMassivaService.actualitzaUltimaOperacio(operacioMassiva);
-					}*/
+					ultimaExecucioMassiva = operacioMassiva.getExecucioMassivaId();
+					Jbpm3HeliumBridge.getInstanceService().actualitzaUltimaOperacio(operacioMassiva);
 				} else {
 					currentWaitInterval = waitTime;
 				}

@@ -30,6 +30,9 @@
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery/ui/ui.core.js"/>"></script>
 	<script  type="text/javascript" src="<c:url value="/js/jquery/ui/jquery-ui-1.7.2.custom.js"/>"></script>
+	<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="<c:url value="/js/jquery/excanvas.min.js"/>"></script><![endif]-->
+	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.flot.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.flot.time.js"/>"></script>
 <%-- menu --%>
 <%--
 	<link media="all" type="text/css" href="http://code.jquery.com/ui/1.8.21/themes/base/jquery-ui.css" rel="stylesheet">

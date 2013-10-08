@@ -16,6 +16,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
+
 import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
 import net.conselldemallorca.helium.core.model.dao.ExecucioMassivaDao;
 import net.conselldemallorca.helium.core.model.dao.ExecucioMassivaExpedientDao;
@@ -23,10 +25,7 @@ import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientTipusDao;
 import net.conselldemallorca.helium.core.model.dao.MailDao;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
-import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
-import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.core.model.dto.OperacioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
@@ -37,6 +36,11 @@ import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedien
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.OperacioMassivaDto;
+import net.conselldemallorca.helium.v3.core.helper.MesuresTemporalsHelper;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
@@ -73,7 +77,9 @@ public class ExecucioMassivaService {
 	private DocumentService documentService;
 	private PluginService pluginService;
 
-
+	@Resource
+	private MesuresTemporalsHelper mesuresTemporalsHelper;
+	
 	public void crearExecucioMassiva(ExecucioMassivaDto dto) throws Exception {
 		if ((dto.getExpedientIds() != null && !dto.getExpedientIds().isEmpty()) ||
 			(dto.getTascaIds() != null && dto.getTascaIds().length > 0) ||
@@ -188,7 +194,7 @@ public class ExecucioMassivaService {
 						titol = getMessage("expedient.massiva.actualitzar.dp") + " " + expedient.getExecucioMassiva().getParam1();
 					}
 			    	String error = expedient.getError();
-			    	if (error != null) error = error.replace("'", "&#8217;").replace("\"", "&#8220;").replace("\n", "\\n");
+			    	if (error != null) error = error.replace("'", "&#8217;").replace("\"", "&#8220;").replace("\n", "<br>").replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
 			    	json_exp += "{\"id\":\"" + expedient.getId() + "\",";
 			    	json_exp += "\"titol\":\"" + titol + "\",";
 			    	json_exp += "\"estat\":\"" + expedient.getEstat().name() + "\",";
@@ -317,7 +323,7 @@ public class ExecucioMassivaService {
 	public void executarExecucioMassiva(OperacioMassivaDto dto) throws Exception {
 		logger.debug("Executant la acció massiva (expedientTipusId=" + dto.getExpedientTipusId() + ", dataInici=" + dto.getDataInici() + ", expedient=" + dto.getId() + ", acció=" + dto.getTipus());
 		try {
-			ExecucioMassivaTipus tipus = dto.getTipus();
+			ExecucioMassivaTipusDto tipus = dto.getTipus();
 			
 			Authentication orgAuthentication = SecurityContextHolder.getContext().getAuthentication();
 			final String user = dto.getUsuari();
@@ -330,24 +336,48 @@ public class ExecucioMassivaService {
 	        Authentication authentication =  new UsernamePasswordAuthenticationToken(principal, null);
 	        SecurityContextHolder.getContext().setAuthentication(authentication);
 			
-			if (tipus == ExecucioMassivaTipus.EXECUTAR_TASCA){
+	        String expedient = null;
+	        if (MesuresTemporalsHelper.isActiu()) {
+	        	try {
+		        	if (dto.getExpedient() != null)
+		        		expedient = dto.getExpedient().getTipus().getNom();
+	        	} catch (Exception e) {}
+			}
+	        
+			if (tipus == ExecucioMassivaTipusDto.EXECUTAR_TASCA){
 				gestioTasca(dto);
-			} else if (tipus == ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC){
+			} else if (tipus == ExecucioMassivaTipusDto.ACTUALITZAR_VERSIO_DEFPROC){
+				mesuresTemporalsHelper.mesuraIniciar("Actualitzar", "massiva", expedient);
 				actualitzarVersio(dto);
-			} else if (tipus == ExecucioMassivaTipus.EXECUTAR_SCRIPT){
+				mesuresTemporalsHelper.mesuraCalcular("Actualitzar", "massiva", expedient);
+			} else if (tipus == ExecucioMassivaTipusDto.EXECUTAR_SCRIPT){
+				mesuresTemporalsHelper.mesuraIniciar("Executar script", "massiva", expedient);
 				executarScript(dto);
-			} else if (tipus == ExecucioMassivaTipus.EXECUTAR_ACCIO){
+				mesuresTemporalsHelper.mesuraCalcular("Executar script", "massiva", expedient);
+			} else if (tipus == ExecucioMassivaTipusDto.EXECUTAR_ACCIO){
+				mesuresTemporalsHelper.mesuraIniciar("Executar accio", "massiva", expedient);
 				executarAccio(dto);
-			} else if (tipus == ExecucioMassivaTipus.ATURAR_EXPEDIENT){
+				mesuresTemporalsHelper.mesuraCalcular("Executar accio", "massiva", expedient);
+			} else if (tipus == ExecucioMassivaTipusDto.ATURAR_EXPEDIENT){
+				mesuresTemporalsHelper.mesuraIniciar("Aturar expedient", "massiva", expedient);
 				aturarExpedient(dto);
-			} else if (tipus == ExecucioMassivaTipus.MODIFICAR_VARIABLE){
+				mesuresTemporalsHelper.mesuraCalcular("Aturar expedient", "massiva", expedient);
+			} else if (tipus == ExecucioMassivaTipusDto.MODIFICAR_VARIABLE){
+				mesuresTemporalsHelper.mesuraIniciar("Modificar variable", "massiva", expedient);
 				modificarVariable(dto);
-			} else if (tipus == ExecucioMassivaTipus.MODIFICAR_DOCUMENT){
+				mesuresTemporalsHelper.mesuraCalcular("Modificar variable", "massiva", expedient);
+			} else if (tipus == ExecucioMassivaTipusDto.MODIFICAR_DOCUMENT){
+//				mesuresTemporalsHelper.mesuraIniciar("Modificar document", "massiva", expedient);
 				modificarDocument(dto);
-			} else if (tipus == ExecucioMassivaTipus.REINDEXAR){
+//				mesuresTemporalsHelper.mesuraCalcular("Modificar document", "massiva", expedient);
+			} else if (tipus == ExecucioMassivaTipusDto.REINDEXAR){
+				mesuresTemporalsHelper.mesuraIniciar("Reindexar", "massiva", expedient);
 				reindexarExpedient(dto);
-			} else if (tipus == ExecucioMassivaTipus.REASSIGNAR){
+				mesuresTemporalsHelper.mesuraCalcular("Reindexar", "massiva", expedient);
+			} else if (tipus == ExecucioMassivaTipusDto.REASSIGNAR){
+				mesuresTemporalsHelper.mesuraIniciar("Reassignar", "massiva", expedient);
 				reassignarExpedient(dto);
+				mesuresTemporalsHelper.mesuraCalcular("Reassignar", "massiva", expedient);
 			}
 			SecurityContextHolder.getContext().setAuthentication(orgAuthentication);
 		} catch (Exception ex) {
@@ -359,13 +389,22 @@ public class ExecucioMassivaService {
 	@SuppressWarnings("unchecked")
 	private void gestioTasca(OperacioMassivaDto dto) throws Exception {
 		ExecucioMassivaExpedient eme = null;
-		//ExpedientDto exp = dto.getExpedient();
 		String tascaId = dto.getTascaId();
 		String accio = dto.getParam1();
+		String tasca = null;
+		String expedient = null;
+		if (MesuresTemporalsHelper.isActiu()) {
+			try {
+				TascaDto task = tascaService.getByIdSenseComprovacioIDades(tascaId);
+				if (task != null) tasca = task.getNom(); 
+				expedient = dto.getExpedient().getTipus().getNom();
+			} catch (Exception e) {}
+		}
 		try {
 			eme = execucioMassivaExpedientDao.getById(dto.getId(), false);
 			eme.setDataInici(new Date());
 			if ("Guardar".equals(accio)) {
+				mesuresTemporalsHelper.mesuraIniciar("Guardar", "massiva_tasca", expedient, tasca);
 				Object[] param2 = (Object[])deserialize(dto.getParam2());
 				Long entornId = (Long)param2[0];
 				Map<String, Object> valors = (Map<String, Object>)param2[1]; 
@@ -375,7 +414,9 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'han pogut guardar les dades del formulari en la tasca.");
 					throw e;
 		        }
+				mesuresTemporalsHelper.mesuraCalcular("Guardar", "massiva_tasca", expedient, tasca);
 			} else if ("Validar".equals(accio)) {
+				mesuresTemporalsHelper.mesuraIniciar("Validar", "massiva_tasca", expedient, tasca);
 				Object[] param2 = (Object[])deserialize(dto.getParam2());
 				Long entornId = (Long)param2[0];
 				Map<String, Object> valors = (Map<String, Object>)param2[1];
@@ -385,7 +426,9 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut validar el formulari en la tasca.");
 					throw e;
 		        }
+				mesuresTemporalsHelper.mesuraCalcular("Validar", "massiva_tasca", expedient, tasca);
 			} else if ("Completar".equals(accio)) {
+				mesuresTemporalsHelper.mesuraIniciar("Completar", "massiva_tasca", expedient, tasca);
 				Object[] param2 = (Object[])deserialize(dto.getParam2());
 				Long entornId = (Long)param2[0];
 				String transicio = (String)param2[1];
@@ -398,7 +441,9 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut finalitzar la tasca.");
 					throw e;
 		        }
+				mesuresTemporalsHelper.mesuraCalcular("Completar", "massiva_tasca", expedient, tasca);
 			} else if ("Restaurar".equals(accio)) {
+				mesuresTemporalsHelper.mesuraIniciar("Restaurar", "massiva_tasca", expedient, tasca);
 				Long entornId = (Long)deserialize(dto.getParam2());
 				try {
 					tascaService.restaurar(entornId, tascaId, dto.getUsuari());
@@ -406,7 +451,9 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut restaurar el formulari en la tasca.");
 					throw e;
 		        }
+				mesuresTemporalsHelper.mesuraCalcular("Restaurar", "massiva_tasca", expedient, tasca);
 			} else if ("Accio".equals(accio)) {
+				mesuresTemporalsHelper.mesuraIniciar("Executar accio", "massiva_tasca", expedient, tasca);
 				Object[] param2 = (Object[])deserialize(dto.getParam2());
 				Long entornId = (Long)param2[0];
 				String accio_exec = (String)param2[1];
@@ -416,7 +463,9 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut executar l'acció '" + accio_exec + "' en la tasca.");
 					throw e;
 		        }
+				mesuresTemporalsHelper.mesuraCalcular("Executar accio", "massiva_tasca", expedient, tasca);
 			} else if ("DocGuardar".equals(accio)) {
+				mesuresTemporalsHelper.mesuraIniciar("Guardar document", "massiva_tasca", expedient, tasca);
 				Object[] param2 = (Object[])deserialize(dto.getParam2());
 				Long entornId = (Long)param2[0];
 				String codi = (String)param2[1];
@@ -437,7 +486,9 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut guardar el document a la tasca.");
 					throw e;
 		        }
+				mesuresTemporalsHelper.mesuraCalcular("Guardar document", "massiva_tasca", expedient, tasca);
 			} else if ("DocEsborrar".equals(accio)) {
+				mesuresTemporalsHelper.mesuraIniciar("Esborrar document", "massiva_tasca", expedient, tasca);
 				Object[] param2 = (Object[])deserialize(dto.getParam2());
 				Long entornId = (Long)param2[0];
 				String codi = (String)param2[1];
@@ -452,7 +503,9 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut esborrar el document de la tasca.");
 					throw e;
 		        }
+				mesuresTemporalsHelper.mesuraCalcular("Esborrar document", "massiva_tasca", expedient, tasca);
 			} else if ("DocGenerar".equals(accio)) {
+				mesuresTemporalsHelper.mesuraIniciar("Generar document", "massiva_tasca", expedient, tasca);
 				Object[] param2 = (Object[])deserialize(dto.getParam2());
 				Long entornId = (Long)param2[0];
 				Long documentId = (Long)param2[1];
@@ -470,7 +523,9 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut restaurar el formulari en la tasca.");
 					throw e;
 		        }
+				mesuresTemporalsHelper.mesuraCalcular("Generar document", "massiva_tasca", expedient, tasca);
 			} else if ("RegEsborrar".equals(accio)) {
+				mesuresTemporalsHelper.mesuraIniciar("Esborrar registre", "massiva_tasca", expedient, tasca);
 				Object[] param2 = (Object[])deserialize(dto.getParam2());
 				Long entornId = (Long)param2[0];
 				String campCodi = (String)param2[1];
@@ -481,7 +536,9 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut esborrar el registe en la tasca.");
 					throw e;
 		        }
+				mesuresTemporalsHelper.mesuraCalcular("Esborrar registre", "massiva_tasca", expedient, tasca);
 			} else if ("RegGuardar".equals(accio)) {
+				mesuresTemporalsHelper.mesuraIniciar("Guardar registre", "massiva_tasca", expedient, tasca);
 				Object[] param2 = (Object[])deserialize(dto.getParam2());
 				Long entornId = (Long)param2[0];
 				String campCodi = (String)param2[1];
@@ -493,6 +550,7 @@ public class ExecucioMassivaService {
 					logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut guardar el registre en la tasca.");
 					throw e;
 		        }
+				mesuresTemporalsHelper.mesuraCalcular("Guardar registre", "massiva_tasca", expedient, tasca);
 			}
 
 			eme.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
@@ -730,6 +788,7 @@ public class ExecucioMassivaService {
 			if (contingut == null) {
 				// Autogenerar
 				if (nom.equals("generate")) {
+					mesuresTemporalsHelper.mesuraIniciar("Autogenerar document", "massiva", exp.getTipus().getNom());
 					if (doc == null || (!doc.isSignat() && !doc.isRegistrat())) {
 						documentService.generarDocumentPlantilla(
 								exp.getEntorn().getId(), 
@@ -744,8 +803,10 @@ public class ExecucioMassivaService {
 					} else if (doc.isRegistrat()) {
 						throw new Exception("Document registrat: no es pot modificar");
 					}
+					mesuresTemporalsHelper.mesuraCalcular("Autogenerar document", "massiva", exp.getTipus().getNom());
 				// Esborrar
 				} else if (nom.equals("delete")) {
+					mesuresTemporalsHelper.mesuraIniciar("Esborrar document", "massiva", exp.getTipus().getNom());
 					if (doc == null) {
 						throw new Exception("Document inexistent: no es pot esborrar");
 					} else 	if (!doc.isSignat() && !doc.isRegistrat()) {
@@ -759,8 +820,10 @@ public class ExecucioMassivaService {
 					} else if (doc.isRegistrat()) {
 						throw new Exception("Document registrat: no es pot esborrar");
 					}
+					mesuresTemporalsHelper.mesuraCalcular("Esborrar document", "massiva", exp.getTipus().getNom());
 				// Modificar data
 				} else if (nom.equals("date")) {
+					mesuresTemporalsHelper.mesuraIniciar("Canviar data de document", "massiva", exp.getTipus().getNom());
 					if (doc == null) {
 						throw new Exception("Document inexistent: no es pot modificar");
 					} else 	if (!doc.isSignat() && !doc.isRegistrat()) {
@@ -778,10 +841,12 @@ public class ExecucioMassivaService {
 					} else if (doc.isRegistrat()) {
 						throw new Exception("Document registrat: no es pot modificar");
 					}
+					mesuresTemporalsHelper.mesuraCalcular("Canviar data de document", "massiva", exp.getTipus().getNom());
 				}
 			} else {
 				// Adjuntar document
 				if (docId == null) {
+					mesuresTemporalsHelper.mesuraIniciar("Adjuntar document", "massiva", exp.getTipus().getNom());
 					documentService.guardarAdjunt(
 							exp.getProcessInstanceId(),
 			        		null,
@@ -790,15 +855,13 @@ public class ExecucioMassivaService {
 			        		fileName,
 			        		contingut,
 			        		dto.getUsuari());
+					mesuresTemporalsHelper.mesuraCalcular("Adjuntar document", "massiva", exp.getTipus().getNom());
 				// Modificar document
 				} else {
-//					if (doc == null) {
-//						throw new Exception("Document inexistent: no es pot modificar");
-//					} else 
+					mesuresTemporalsHelper.mesuraIniciar("Modificar document", "massiva", exp.getTipus().getNom());
 					if (doc == null || (!doc.isSignat() && !doc.isRegistrat())) {
 						documentService.guardarDocumentProces(
 								exp.getProcessInstanceId(),
-//								doc.getDocumentCodi(),
 								nom,
 								null,
 								data,
@@ -811,6 +874,7 @@ public class ExecucioMassivaService {
 					} else if (doc.isRegistrat()) {
 						throw new Exception("Document registrat: no es pot modificar");
 					}
+					mesuresTemporalsHelper.mesuraCalcular("Modificar document", "massiva", exp.getTipus().getNom());
 				}
 			}
 			eme.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);

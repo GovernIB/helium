@@ -65,6 +65,7 @@ $(document).ready(function() {
     	campsProcesDwrService.llistaCampsPerProces(
     		document.getElementById("id").value,
 			obj.value,
+			document.getElementById("tipus").value,
 			{
 				callback: function(dades) {
 					DWRUtil.addOptions("campCodi0", dades, "0", "1");

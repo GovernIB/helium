@@ -104,8 +104,14 @@ function alertaErrorAdmin(e, id, desc, full) {
 	e.cancelBubble = true;
 
 	var text = desc + "<br/><br/>Póngase en contacto con el responsable del expediente.";
-	$("#dialog-error-admin").html(text+"<br/><br/>"+full+$("#dialog-error-admin").html());
-	$("#processInstanceId").val(id);
+	$("#dialog-error-admin").html(
+			text+"<br/><br/>" +
+			full + 
+			"<form method='POST' action='<c:url value="limpiarTrazaError.html"/>'>" +
+			"<input id='processInstanceId\' name='processInstanceId' value='" + id + "' type='hidden'/>" +
+			"<button type='submit' class='submitButton right'><fmt:message key='expedient.consulta.netejar'/></button>" +
+			"</form>");
+// 	$("#processInstanceId").val(id);
 	$("#dialog-error-admin").data('title.dialog', 'Error en la ejecución del expediente'); 
 	$("#dialog-error-admin").dialog( "open" );
 
@@ -192,7 +198,7 @@ function selTots(){
 	</div>
 	<div id="dialog-error-admin" title="Error" style="display:none">
 		<form method="POST" action="<c:url value="/expedient/limpiarTrazaError.html"/>">
-			<input id="processInstanceId" name="processInstanceId" value="" type="text"/>
+			<input id="processInstanceId" name="processInstanceId" value="" type="hidden"/>
 			<button type="submit" class="submitButton right"><fmt:message key="expedient.consulta.netejar"/></button>
 		</form>
 	</div>

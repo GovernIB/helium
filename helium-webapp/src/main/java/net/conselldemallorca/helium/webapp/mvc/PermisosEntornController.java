@@ -131,7 +131,7 @@ public class PermisosEntornController extends BaseController {
 					command.isUsuari(),
 					command.getId(),
 					Entorn.class);
-        	missatgeInfo(request, getMessage("info.permisos.entorn.esborrar") );
+        	missatgeInfo(request, getMessage("info.permisos.entorn.esborrat") );
         } catch (Exception ex) {
         	missatgeError(request, getMessage("error.esborrar.permisos.entorn"), ex.getLocalizedMessage());
         	logger.error("No s'han pogut esborrar els permisos", ex);

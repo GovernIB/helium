@@ -10,6 +10,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AreaMembreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CarrecDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.AreaNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
@@ -46,6 +47,7 @@ public class HeliumExpressionAssignmentHandler implements AssignmentHandler {
 	private static final long serialVersionUID = 1L;
 
 	protected String expression;
+	protected Long entornId;
 
 	public HeliumExpressionAssignmentHandler() {}
 
@@ -57,9 +59,14 @@ public class HeliumExpressionAssignmentHandler implements AssignmentHandler {
 		String expressio = getExpressio();
 		logger.debug("Expresió a analitzar: '" + expressio + "'");
 		String processInstanceId = new Long(executionContext.getProcessInstance().getId()).toString();
-		Long entornId = Jbpm3HeliumBridge.getInstanceService().getEntornActual().getId();
-		if (entornId == null)
-			throw new RuntimeException("No s'ha trobat l'entorn per la instància de procés " + processInstanceId);
+		if (entornId == null) {
+//			EntornDto entorn = Jbpm3HeliumBridge.getInstanceService().getEntornAmbProcessInstanceId(processInstanceId);
+			EntornDto entorn = Jbpm3HeliumBridge.getInstanceService().getEntornActual();
+			if (entorn == null)
+				throw new RuntimeException("No s'ha trobat l'entorn per la instància de procés " + processInstanceId);
+			else 
+				entornId = entorn.getId();
+		}
 		TermTokenizer tokenizer = new TermTokenizer(expressio);
 		Object entitat = null;
 		if (tokenizer.hasMoreTerms()) {
@@ -90,8 +97,9 @@ public class HeliumExpressionAssignmentHandler implements AssignmentHandler {
 	public void setExpression(String expression) {
 		this.expression = expression;
 	}
-
-
+	public void setEntornId(Long entornId) {
+		this.entornId = entornId;
+	}
 
 	private Object resolPrimerTerme(Long entornId, String terme, ExecutionContext executionContext) {
 		logger.debug("Analitzant primer terme: '" + terme + "'");

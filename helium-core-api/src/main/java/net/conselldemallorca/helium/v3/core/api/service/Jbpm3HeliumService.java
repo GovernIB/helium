@@ -22,6 +22,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.OperacioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
@@ -56,6 +57,10 @@ import net.conselldemallorca.helium.v3.core.api.exception.TerminiNotFoundExcepti
  * de Helium.
  * 
  * @author Limit Tecnologies <limit@limit.es>
+ */
+/**
+ * @author sion
+ *
  */
 public interface Jbpm3HeliumService {
 
@@ -105,6 +110,16 @@ public interface Jbpm3HeliumService {
 	 * @throws ProcessInstanceNotFoundException
 	 */
 	public ExpedientDto getExpedientArrelAmbProcessInstanceId(
+			String processInstanceId) throws ProcessInstanceNotFoundException;
+	
+	/**
+	 * Obté l'entorn donada una instància de procés jBPM.
+	 * 
+	 * @param processInstanceId
+	 * @return
+	 * @throws ProcessInstanceNotFoundException
+	 */
+	public EntornDto getEntornAmbProcessInstanceId(
 			String processInstanceId) throws ProcessInstanceNotFoundException;
 
 	/**
@@ -882,11 +897,68 @@ public interface Jbpm3HeliumService {
 			String geoReferencia,
 			boolean mostrarAnulats) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException;
 
+	
+	/**
+	 * Inicialitza les definicions de procés per a que estiguin disponibles per als handlers
+	 */
+	public void initializeDefinicionsProces();
+	
+	/**
+	 * Inicialitza una mesura de temps
+	 */
+	public void mesuraIniciar(String clau, String familia, String tipusExpedient, String tasca, String detall);
+	
+	/**
+	 * Realitza un càlcul de mesura de temps
+	 */
+	public void mesuraCalcular(String clau, String familia, String tipusExpedient, String tasca, String detall);
+	
+	/**
+	 * Informa si mesura de temps està activa
+	 */
+	public boolean mesuraIsActiu();
+	
+	/**
+	 * Actualitza els camps d'error de l'expedient
+	 * 
+	 * @param processInstanceId
+	 * @param errorDesc
+	 * @param errorFull
+	 */
+	public void updateExpedientError(String processInstanceId, String errorDesc, String errorFull);
+	
 	/**
 	 * 
 	 * @param propertyName
 	 * @return
 	 */
 	public String getHeliumProperty(String propertyName);
+
+	/**
+	 * Obté la propera operació a realitzar massivament
+	 * 
+	 * @param ultimaExecucioMassiva
+	 * @return
+	 */
+	public OperacioMassivaDto getExecucionsMassivesActiva(Long ultimaExecucioMassiva) throws Exception;
+
+	/**
+	 * Executa la operació massiva
+	 * 
+	 * @param operacioMassiva
+	 * @throws Exception 
+	 */
+	public void executarExecucioMassiva(OperacioMassivaDto operacioMassiva) throws Exception;
+
+	/**
+	 * @param operacioMassiva
+	 * @param e
+	 */
+	public void generaInformeError(OperacioMassivaDto operacioMassiva, Exception e);
+
+	/**
+	 * @param operacioMassiva
+	 */
+	public void actualitzaUltimaOperacio(OperacioMassivaDto operacioMassiva);
 
 }

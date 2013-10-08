@@ -8,6 +8,9 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.jbpm3.spring.SpringJobExecutorThread;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
@@ -56,13 +59,17 @@ public class JobExecutorThread extends Thread {
 	@SuppressWarnings("rawtypes")
 	public void run() {
 		currentIdleInterval = idleInterval;
-
-		// Inicialitzam les definicions de procÃ©s per a poder tenir accÃ©s als seus handlers
-//		List<ExpedientTipus> llistat = DaoProxy.getInstance().getExpedientTipusDao().findAll();
-//		for (ExpedientTipus expedientTipus: llistat) {
-//			Hibernate.initialize(expedientTipus.getDefinicionsProces());
-//		}
 		
+		while (Jbpm3HeliumBridge.getInstanceService() == null){
+			try{
+				System.out.println(">>> Job executor: waiting for Instance service.");
+				Thread.sleep(500);
+			} catch (Exception ex) {}
+		}
+		
+		// Inicialitzam les definicions de procés per a poder tenir accés als seus handlers
+		Jbpm3HeliumBridge.getInstanceService().initializeDefinicionsProces();
+				
 		while (isActive) {
 			try {
 				Collection acquiredJobs = acquireJobs();
@@ -88,7 +95,7 @@ public class JobExecutorThread extends Thread {
 							try{ 
 								executeJob(job); 
 							}catch(Exception ex){
-								log.error("error no controlar en el job executor thread.", ex);
+								log.error("error no controlat en el job executor thread.", ex);
 							}
 							break;
 						}
@@ -185,14 +192,14 @@ public class JobExecutorThread extends Thread {
 
 	protected void executeJob(Job job) throws Exception {
 		JbpmContext jbpmContext = jbpmConfiguration.createJbpmContext();
-		boolean jobHasBeenExecutedWithError = job.getException() != null;
-		String ex = job.getException();
+//		boolean jobHasBeenExecutedWithError = job.getException() != null;
+//		String ex = job.getException();
 		try {
 			JobSession jobSession = jbpmContext.getJobSession();
 			job = jobSession.loadJob(job.getId());
 			
-			if (jobHasBeenExecutedWithError) {
-				log.error("Job Exception: " + ex);
+			if (jobHasBeenExecutedWithError(job)) {
+				log.error("Job Exception: " + getJobException(job));
 				job.setRetries(job.getRetries() - 1);
 				jobSession.saveJob(job);
 				if (job.getRetries() <= 0) {
@@ -236,6 +243,21 @@ public class JobExecutorThread extends Thread {
 				}
 			}
 		}
+	}
+	
+	private boolean jobHasBeenExecutedWithError(Job job) {
+		if (SpringJobExecutorThread.jobErrors.containsKey(job.getId())) 
+			return true;
+		return job.getException() != null;
+	}
+	
+	private String getJobException(Job job) {
+		if (SpringJobExecutorThread.jobErrors.containsKey(job.getId())) {
+			String excepcio = SpringJobExecutorThread.jobErrors.get(job.getId());
+			SpringJobExecutorThread.jobErrors.remove(job.getId());
+			return excepcio;
+		}
+		return job.getException();
 	}
 	
 	protected void saveJobException(Job job, Throwable exception) {

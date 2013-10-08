@@ -54,6 +54,7 @@ import net.conselldemallorca.helium.core.model.service.AlertaService;
 import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 import net.conselldemallorca.helium.core.model.service.DocumentService;
 import net.conselldemallorca.helium.core.model.service.DtoConverter;
+import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.TerminiService;
 import net.conselldemallorca.helium.core.util.EntornActual;
@@ -78,6 +79,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.OperacioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
@@ -109,7 +111,9 @@ import net.conselldemallorca.helium.v3.core.api.exception.TerminiIniciatNotFound
 import net.conselldemallorca.helium.v3.core.api.exception.TerminiNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.Jbpm3HeliumService;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.v3.core.helper.MesuresTemporalsHelper;
 
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -181,6 +185,8 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 	private DocumentService documentService;
 	@Resource
 	private TerminiService terminiService;
+	@Resource
+	private ExecucioMassivaService execucioMassivaService;
 
 	@Resource
 	private JbpmHelper jbpmHelper;
@@ -188,9 +194,11 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 	private DocumentHelper documentHelper;
 	@Resource
 	private DtoConverter dtoConverter;
-
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
+	@Resource
+	private MesuresTemporalsHelper mesuresTemporalsHelper;
+
 
 
 
@@ -256,6 +264,16 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 		return conversioTipusHelper.convertir(
 				getExpedientDonatProcessInstanceId(processInstanceId),
 				ExpedientDto.class);
+	}
+	
+	@Transactional(readOnly = true)
+	@Override
+	public EntornDto getEntornAmbProcessInstanceId(
+			String processInstanceId) throws ProcessInstanceNotFoundException {
+		logger.debug("Obtenint expedient donada una instància de procés (processInstanceId=" + processInstanceId + ")");
+		return conversioTipusHelper.convertir(
+				getEntornDonatProcessInstanceId(processInstanceId),
+				EntornDto.class);
 	}
 
 	@Transactional(readOnly = true)
@@ -1318,12 +1336,58 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 	}
 
 	@Override
+	public void initializeDefinicionsProces() {
+		List<ExpedientTipus> llistat = expedientTipusDao.findAll();
+		for (ExpedientTipus expedientTipus: llistat) {
+			Hibernate.initialize(expedientTipus.getDefinicionsProces());
+		}
+	}
+	
+	@Override
+	public boolean mesuraIsActiu() {
+		return MesuresTemporalsHelper.isActiu();
+	}
+	
+	@Override
+	public void mesuraIniciar(String clau, String familia, String tipusExpedient, String tasca, String detall) {
+		mesuresTemporalsHelper.mesuraIniciar(clau, familia, tipusExpedient, tasca, detall);
+	}
+	
+	@Override
+	public void mesuraCalcular(String clau, String familia, String tipusExpedient, String tasca, String detall) {
+		mesuresTemporalsHelper.mesuraCalcular(clau, familia, tipusExpedient, tasca, detall);
+	}
+
+	@Override
+	public void updateExpedientError(String processInstanceId, String errorDesc, String errorFull) {
+		expedientService.updateExpedientError(processInstanceId, errorDesc, errorFull);
+	}
+	
+	@Override
 	public String getHeliumProperty(String propertyName) {
 		return GlobalProperties.getInstance().getProperty(propertyName);
 	}
-
-
-
+	
+	@Override
+	public OperacioMassivaDto getExecucionsMassivesActiva(Long ultimaExecucioMassiva) {
+		return execucioMassivaService.getExecucionsMassivesActiva(ultimaExecucioMassiva);
+	}
+	
+	@Override
+	public void executarExecucioMassiva(OperacioMassivaDto operacioMassiva) throws Exception {
+		execucioMassivaService.executarExecucioMassiva(operacioMassiva);
+	}
+	
+	@Override
+	public void generaInformeError(OperacioMassivaDto operacioMassiva, Exception e) {
+		execucioMassivaService.generaInformeError(operacioMassiva, e);
+	}
+	
+	@Override
+	public void actualitzaUltimaOperacio(OperacioMassivaDto operacioMassiva) {
+		execucioMassivaService.actualitzaUltimaOperacio(operacioMassiva);
+	}
+	
 	private Expedient getExpedientDonatProcessInstanceId(
 			String processInstanceId) throws ProcessInstanceNotFoundException {
 		JbpmProcessInstance processInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
@@ -1337,6 +1401,14 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 		if (processInstance == null)
 			throw new ProcessInstanceNotFoundException();
 		return definicioProcesDao.findAmbJbpmId(processInstance.getProcessDefinitionId());
+	}
+	private Entorn getEntornDonatProcessInstanceId(
+			String processInstanceId) throws ProcessInstanceNotFoundException {
+		JbpmProcessInstance processInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
+		if (processInstance == null)
+			throw new ProcessInstanceNotFoundException();
+		Expedient exp = expedientDao.findAmbProcessInstanceId(processInstance.getId());
+		return exp.getEntorn();
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(Jbpm3HeliumServiceImpl.class);

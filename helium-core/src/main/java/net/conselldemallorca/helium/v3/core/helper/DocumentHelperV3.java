@@ -17,6 +17,7 @@ import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.util.DocumentTokenUtils;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
@@ -136,24 +137,29 @@ public class DocumentHelperV3 {
 
 	public List<ExpedientDocumentDto> findDocumentsPerInstanciaProces(
 			String processInstanceId) {
-		mesuresTemporalsHelper.mesuraIniciar("DOCSIP_TOTAL");
-		mesuresTemporalsHelper.mesuraIniciar("DOCSIP_0");
+		String tipusExp = null;
+		if (MesuresTemporalsHelper.isActiu()) {
+			Expedient exp = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+			tipusExp = (exp != null ? exp.getTipus().getNom() : null);
+			mesuresTemporalsHelper.mesuraIniciar("Expedient DOCUMENTS v3", "expedient", tipusExp);
+			mesuresTemporalsHelper.mesuraIniciar("Expedient DOCUMENTS v3", "expedient", tipusExp, null, "0");
+		}
 		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 				processInstanceId);
-		mesuresTemporalsHelper.mesuraCalcular("DOCSIP_0");
-		mesuresTemporalsHelper.mesuraIniciar("DOCSIP_1");
+		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENTS v3", "expedient", tipusExp, null, "0");
+		mesuresTemporalsHelper.mesuraIniciar("Expedient DOCUMENTS v3", "expedient", tipusExp, null, "1");
 		List<Document> documents = documentRepository.findByDefinicioProces(definicioProces);
 		Map<String, Document> documentsIndexatsPerCodi = new HashMap<String, Document>();
 		for (Document document: documents)
 			documentsIndexatsPerCodi.put(document.getCodi(), document);
-		mesuresTemporalsHelper.mesuraCalcular("DOCSIP_1");
-		mesuresTemporalsHelper.mesuraIniciar("DOCSIP_2");
+		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENTS v3", "expedient", tipusExp, null, "1");
+		mesuresTemporalsHelper.mesuraIniciar("Expedient DOCUMENTS v3", "expedient", tipusExp, null, "2");
 		List<ExpedientDocumentDto> resposta = new ArrayList<ExpedientDocumentDto>();
 		Map<String, Object> varsInstanciaProces = jbpmHelper.getProcessInstanceVariables(
 				processInstanceId);
-		mesuresTemporalsHelper.mesuraCalcular("DOCSIP_2");
+		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENTS v3", "expedient", tipusExp, null, "2");
 		if (varsInstanciaProces != null) {
-			mesuresTemporalsHelper.mesuraIniciar("DOCSIP_3");
+			mesuresTemporalsHelper.mesuraIniciar("Expedient DOCUMENTS v3", "expedient", tipusExp, null, "3");
 			filtrarVariablesAmbDocuments(varsInstanciaProces);
 			for (String var: varsInstanciaProces.keySet()) {
 				Long documentStoreId = (Long)varsInstanciaProces.get(var);
@@ -170,9 +176,9 @@ public class DocumentHelperV3 {
 					resposta.add(dto);
 				}
 			}
-			mesuresTemporalsHelper.mesuraCalcular("DOCSIP_3");
+			mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENTS v3", "expedient", tipusExp, null, "3");
 		}
-		mesuresTemporalsHelper.mesuraCalcular("DOCSIP_TOTAL");
+		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENTS v3", "expedient",tipusExp);
 		return resposta;
 	}
 

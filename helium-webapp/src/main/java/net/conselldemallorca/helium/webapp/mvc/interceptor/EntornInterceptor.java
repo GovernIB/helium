@@ -96,6 +96,8 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 						break;
 					}
 				}
+				if (entornActual != null && EntornActual.getEntornId() == null)
+					EntornActual.setEntornId(entornActual.getId());
 			}
 			// Inicialitza la variable ThreadLocal de l'expedient que s'està iniciant
 			ExpedientIniciantDto.setExpedient(null);

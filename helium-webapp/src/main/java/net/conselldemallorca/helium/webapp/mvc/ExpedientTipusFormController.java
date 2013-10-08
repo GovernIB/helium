@@ -109,14 +109,15 @@ public class ExpedientTipusFormController extends BaseController {
 					command.setEntorn(entorn);
 					SortedMap<Integer, SequenciaAny> sequenciaAny = new TreeMap<Integer, SequenciaAny>();
 					
-					// eliminam les sequencies actuals
-					for (SequenciaAny sa: command.getSequenciaAny().values()) {
-						sa.setExpedientTipus(null);
-					}
-					command.getSequenciaAny().clear();
-					
 					if (command.isReiniciarCadaAny()) {
-						command.setSequencia(1);
+						//command.setSequencia(1);
+
+						// eliminam les sequencies actuals
+						for (SequenciaAny sa: command.getSequenciaAny().values()) {
+							sa.setExpedientTipus(null);
+						}
+						command.getSequenciaAny().clear();
+						
 						String[] seqAny = request.getParameterValues("seqany");
 						String[] seqSeq = request.getParameterValues("seqseq");
 						

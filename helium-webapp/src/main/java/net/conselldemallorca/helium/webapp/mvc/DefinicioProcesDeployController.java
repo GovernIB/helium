@@ -13,14 +13,12 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.core.model.exception.DeploymentException;
 import net.conselldemallorca.helium.core.model.exportacio.DefinicioProcesExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.ExpedientTipusExportacio;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
@@ -28,6 +26,8 @@ import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
@@ -163,7 +163,7 @@ public class DefinicioProcesDeployController extends BaseController {
 				    				dto.setParam1(dp.getJbpmKey());
 				    				dto.setParam2(execucioMassivaService.serialize(Integer.valueOf(dp.getVersio())));
 //				    				dto.setExpedientTipusId(command.getExpedientTipusId());
-				    				dto.setTipus(ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC);
+				    				dto.setTipus(ExecucioMassivaTipusDto.ACTUALITZAR_VERSIO_DEFPROC);
 				    				List<JbpmProcessInstance> procInstances = expedientService.findProcessInstancesWithProcessDefinitionName(dp.getJbpmKey());
 				    				List<String> pi_ids = new ArrayList<String>();
 				    				for (JbpmProcessInstance pi: procInstances) {

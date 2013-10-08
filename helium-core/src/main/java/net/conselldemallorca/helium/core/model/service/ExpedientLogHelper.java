@@ -271,15 +271,17 @@ public class ExpedientLogHelper {
 			}
 			
 			// comprovam si estem retrocedint únicament la tasca actual
-			JbpmProcessInstance pi = jbpmDao.getProcessInstance(String.valueOf(expedientLog.getProcessInstanceId()));
-			currentToken = jbpmDao.getProcessLogById(expedientLog.getJbpmLogId()).getToken();
-			Collection<TaskInstance> tis = pi.getProcessInstance().getTaskMgmtInstance().getUnfinishedTasks(currentToken);
-			for (TaskInstance ti: tis) {
-				if (ti.getId() == jtask.getTask().getId()){
-					nodeDesti = ti.getTask().getTaskNode();
-					tascaActual = true;
-					System.out.println(">>> [LOGTASK] Retroces de la tasca actual (" + nodeDesti + ")!");
-					break;
+			if (jtask != null) {
+				JbpmProcessInstance pi = jbpmDao.getProcessInstance(String.valueOf(expedientLog.getProcessInstanceId()));
+				currentToken = jbpmDao.getProcessLogById(expedientLog.getJbpmLogId()).getToken();
+				Collection<TaskInstance> tis = pi.getProcessInstance().getTaskMgmtInstance().getUnfinishedTasks(currentToken);
+				for (TaskInstance ti: tis) {
+					if (ti.getId() == jtask.getTask().getId()){
+						nodeDesti = ti.getTask().getTaskNode();
+						tascaActual = true;
+						System.out.println(">>> [LOGTASK] Retroces de la tasca actual (" + nodeDesti + ")!");
+						break;
+					}
 				}
 			}
 							

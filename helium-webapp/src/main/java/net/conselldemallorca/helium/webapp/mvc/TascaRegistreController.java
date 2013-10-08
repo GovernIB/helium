@@ -11,15 +11,15 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
 import net.conselldemallorca.helium.webapp.mvc.util.TramitacioMassiva;
 
@@ -153,7 +153,7 @@ public class TascaRegistreController extends CommonRegistreController {
 					dto.setEnviarCorreu(bCorreu);
 					dto.setTascaIds(tIds);
 					dto.setExpedientTipusId(expTipusId);
-					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
+					dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_TASCA);
 					dto.setParam1("RegEsborrar");
 					Object[] params = new Object[3];
 					params[0] = entorn.getId();
@@ -221,7 +221,7 @@ public class TascaRegistreController extends CommonRegistreController {
 					dto.setEnviarCorreu(bCorreu);
 					dto.setTascaIds(tIds);
 					dto.setExpedientTipusId(expTipusId);
-					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
+					dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_TASCA);
 					dto.setParam1("RegGuardar");
 					Object[] params = new Object[4];
 					params[0] = entorn.getId();

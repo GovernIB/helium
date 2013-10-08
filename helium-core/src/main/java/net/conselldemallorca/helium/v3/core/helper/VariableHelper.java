@@ -20,6 +20,7 @@ import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusAuthDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
@@ -109,22 +110,27 @@ public class VariableHelper {
 	}
 
 	public List<ExpedientDadaDto> findDadesPerInstanciaProces(String processInstanceId) {
-		mesuresTemporalsHelper.mesuraIniciar("VARSIP_TOTAL");
-		mesuresTemporalsHelper.mesuraIniciar("VARSIP_0");
+		String tipusExp = null;
+		if (MesuresTemporalsHelper.isActiu()) {
+			Expedient exp = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+			tipusExp = (exp != null ? exp.getTipus().getNom() : null);
+			mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp);
+			mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp, null, "0");
+		}
 		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 				processInstanceId);
 		Set<Camp> camps = definicioProces.getCamps();
 		Map<String, Camp> campsIndexatsPerCodi = new HashMap<String, Camp>();
 		for (Camp camp: camps)
 			campsIndexatsPerCodi.put(camp.getCodi(), camp);
-		mesuresTemporalsHelper.mesuraCalcular("VARSIP_0");
-		mesuresTemporalsHelper.mesuraIniciar("VARSIP_1");
+		mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "0");
+		mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp, null, "1");
 		List<ExpedientDadaDto> resposta = new ArrayList<ExpedientDadaDto>();
 		Map<String, Object> varsInstanciaProces = jbpmHelper.getProcessInstanceVariables(
 				processInstanceId);
-		mesuresTemporalsHelper.mesuraCalcular("VARSIP_1");
+		mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "1");
 		if (varsInstanciaProces != null) {
-			mesuresTemporalsHelper.mesuraIniciar("VARSIP_2");
+			mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp, null, "2");
 			filtrarVariablesUsIntern(varsInstanciaProces);
 			for (String var: varsInstanciaProces.keySet()) {
 				boolean varAmbContingut = varsInstanciaProces.get(var) != null;
@@ -144,9 +150,9 @@ public class VariableHelper {
 					resposta.add(dto);
 				}
 			}
-			mesuresTemporalsHelper.mesuraCalcular("VARSIP_2");
+			mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "2");
 		}
-		mesuresTemporalsHelper.mesuraCalcular("VARSIP_TOTAL");
+		mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp);
 		return resposta;
 	}
 	public ExpedientDadaDto getDadaPerInstanciaProces(
@@ -181,8 +187,13 @@ public class VariableHelper {
 
 	public List<TascaDadaDto> findDadesPerInstanciaTasca(
 			JbpmTask task) {
-		mesuresTemporalsHelper.mesuraIniciar("VARSIT_TOTAL");
-		mesuresTemporalsHelper.mesuraIniciar("VARSIT_0");
+		String tipusExp = null;
+		if (MesuresTemporalsHelper.isActiu()) {
+			Expedient exp = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
+			tipusExp = (exp != null ? exp.getTipus().getNom() : null);
+			mesuresTemporalsHelper.mesuraIniciar("Tasca DADES v3", "tasques", tipusExp, task.getName());
+			mesuresTemporalsHelper.mesuraIniciar("Tasca DADES v3", "tasques", tipusExp, task.getName(), "0");
+		}
 		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 				task.getProcessInstanceId());
 		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
@@ -195,13 +206,13 @@ public class VariableHelper {
 					campTasca.getCamp().getCodi(),
 					campTasca);
 		}
-		mesuresTemporalsHelper.mesuraCalcular("VARSIT_0");
-		mesuresTemporalsHelper.mesuraIniciar("VARSIT_1");
+		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getName(), "0");
+		mesuresTemporalsHelper.mesuraIniciar("Tasca DADES v3", "tasques", tipusExp, task.getName(), "1");
 		List<TascaDadaDto> resposta = new ArrayList<TascaDadaDto>();
 		Map<String, Object> varsInstanciaTasca = jbpmHelper.getTaskInstanceVariables(
 				task.getId());
-		mesuresTemporalsHelper.mesuraCalcular("VARSIT_1");
-		mesuresTemporalsHelper.mesuraIniciar("VARSIT_2");
+		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getName(), "1");
+		mesuresTemporalsHelper.mesuraIniciar("Tasca DADES v3", "tasques", tipusExp, task.getName(), "2");
 		// Només es mostraran les variables donades d'alta al formulari
 		// de la tasca. Les variables jBPM de la tasca que no siguin
 		// al formulari no es mostraran.
@@ -219,8 +230,8 @@ public class VariableHelper {
 							expedientDadaDto,
 							campTasca));
 		}
-		mesuresTemporalsHelper.mesuraCalcular("VARSIT_2");
-		mesuresTemporalsHelper.mesuraCalcular("VARSIT_TOTAL");
+		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getName(), "2");
+		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getName());
 		return resposta;
 	}
 	public ExpedientDadaDto getDadaPerInstanciaTasca(

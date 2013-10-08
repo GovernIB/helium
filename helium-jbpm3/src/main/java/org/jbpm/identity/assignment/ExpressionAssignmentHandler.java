@@ -72,6 +72,7 @@ public class ExpressionAssignmentHandler implements AssignmentHandler {
   public void assign(Assignable assignable, ExecutionContext executionContext) {
     if (isHeliumAssignmentActive()) {
     	getHeliumExpressionAssignmentHandler().setExpression(expression);
+    	getHeliumExpressionAssignmentHandler().setEntornId(entornId);
     	getHeliumExpressionAssignmentHandler().assign(assignable, executionContext);
     } else {
     try {

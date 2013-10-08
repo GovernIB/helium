@@ -1,14 +1,10 @@
 /**
  * 
  */
-package net.conselldemallorca.helium.core.model.dto;
+package net.conselldemallorca.helium.v3.core.api.dto;
 
 import java.util.Date;
 import java.util.List;
-
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
-
-
 
 /**
  * DTO amb informació d'una execució massiva
@@ -18,19 +14,20 @@ import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.Execuci
  */
 public class ExecucioMassivaDto {
 
-//	public enum ExecucioMassivaTipusDto {
-//		EXECUTAR_TASCA,
-//		ACTUALITZAR_VERSIO_DEFPROC,
-//		EXECUTAR_SCRIPT,
-//		EXECUTAR_ACCIO,
-//		ATURAR_EXPEDIENT,
-//		MODIFICAR_VARIABLE,
-//		MODIFICAR_DOCUMENT,
-//		REINDEXAR
-//	}
+	public enum ExecucioMassivaTipusDto {
+		EXECUTAR_TASCA,
+		ACTUALITZAR_VERSIO_DEFPROC,
+		EXECUTAR_SCRIPT,
+		EXECUTAR_ACCIO,
+		ATURAR_EXPEDIENT,
+		MODIFICAR_VARIABLE,
+		MODIFICAR_DOCUMENT,
+		REINDEXAR,
+		REASSIGNAR
+	}
 
 	private Long id;
-	private ExecucioMassivaTipus tipus;
+	private ExecucioMassivaTipusDto tipus;
 	private String usuari;
 	private Date dataInici;
 	private Date dataFi;
@@ -52,10 +49,10 @@ public class ExecucioMassivaDto {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public ExecucioMassivaTipus getTipus() {
+	public ExecucioMassivaTipusDto getTipus() {
 		return tipus;
 	}
-	public void setTipus(ExecucioMassivaTipus tipus) {
+	public void setTipus(ExecucioMassivaTipusDto tipus) {
 		this.tipus = tipus;
 	}
 	public String getUsuari() {

@@ -87,7 +87,7 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 			command.setNumero(
 					expedientService.getNumeroExpedientActual(
 							entorn.getId(),
-							expedientTipusId,
+							expedientTipus,
 							command.getAny()));
 			command.setResponsableCodi(expedientTipus.getResponsableDefecteCodi());
 			return command;
@@ -152,7 +152,7 @@ public class ExpedientIniciarPasTitolController extends BaseController {
 					command.setNumero(
 							expedientService.getNumeroExpedientActual(
 									entorn.getId(),
-									expedientTipusId,
+									tipus,
 									command.getAny()));
 					omplirModelPerMostrarFormulari(tipus, model);
 					return "expedient/iniciarPasTitol";

@@ -84,7 +84,10 @@ function confirmarAlliberar(e) {
 		<display:column title="Flags">
 			<c:if test="${registre.cancelled}">C</c:if>
 			<c:if test="${registre.suspended}">S</c:if>
-			<c:if test="${expedientLogIds[cont][1] eq 'RETROCEDIT_TASQUES'}">R</c:if>
+			<c:if test="${expedientLogIds[cont][2] eq registre.id}">
+				<c:if test="${expedientLogIds[cont][1] eq 'RETROCEDIT_TASQUES'}">R</c:if>
+				<c:set var="cont" value="${cont + 1}"/>
+			</c:if>
 		</display:column>
 		<display:column>
 			<c:if test="${registre.open}">
@@ -128,7 +131,7 @@ function confirmarAlliberar(e) {
 <%-- 				</c:if> --%>
 <%-- 			</security:accesscontrollist> --%>
 <%-- 		</display:column> --%>
-		<c:set var="cont" value="${cont + 1}"/>
+<%-- 		<c:set var="cont" value="${cont + 1}"/> --%>
 	</display:table>
 
 	<p align="right" class="aclaracio">Llegenda dels flags: [C] Tasca cancel·lada, [S] Tasca suspesa, [R] Tasca retrocedida</p>

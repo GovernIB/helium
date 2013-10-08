@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -27,6 +28,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
+import net.conselldemallorca.helium.v3.core.helper.MesuresTemporalsHelper;
 
 import org.hibernate.criterion.Restrictions;
 import org.springframework.cache.annotation.Cacheable;
@@ -48,7 +50,8 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 	private Map<Long, DominiHelium> wsCache = new HashMap<Long, DominiHelium>();
 	private Map<Long, NamedParameterJdbcTemplate> jdbcTemplates = new HashMap<Long, NamedParameterJdbcTemplate>();
 
-
+	@Resource
+	private MesuresTemporalsHelper mesuresTemporalsHelper;
 
 	public DominiDao() {
 		super(Domini.class);
@@ -151,12 +154,11 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 		jdbcTemplates.remove(dominiId);
 	}
 
-
-
 	private List<FilaResultat> consultaWs(
 			Domini domini,
 			String id,
 			Map<String, Object> parametres) throws Exception {
+		mesuresTemporalsHelper.mesuraIniciar("DOMINI WS: " + domini.getCodi(), "domini");
 		if ("intern".equalsIgnoreCase(domini.getCodi())) {
 			parametres.put("entorn", domini.getEntorn().getCodi());
 		}
@@ -194,6 +196,7 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 			}
 		}
 		List<FilaResultat> resposta = client.consultaDomini(id, paramsConsulta);
+		mesuresTemporalsHelper.mesuraCalcular("DOMINI WS: " + domini.getCodi(), "domini");
 		return resposta;
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -201,6 +204,7 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 			Domini domini,
 			Map<String, Object> parametres) throws DominiException {
 		try {
+			mesuresTemporalsHelper.mesuraIniciar("DOMINI SQL: " + domini.getCodi(), "domini");
 			NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplateFromDomini(domini);
 			MapSqlParameterSource parameterSource = new MapSqlParameterSource(parametres) {
 				public boolean hasValue(String paramName) {
@@ -222,6 +226,7 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 							return fr;
 						}
 					});
+			mesuresTemporalsHelper.mesuraCalcular("DOMINI SQL: " + domini.getCodi(), "domini");
 			return resultat;
 		} catch (Exception ex) {
 			throw new DominiException("No s'ha pogut consultar el domini", ex);

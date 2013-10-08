@@ -37,7 +37,6 @@ import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.service.DtoConverter;
 import net.conselldemallorca.helium.core.model.service.ExpedientLogHelper;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
@@ -129,8 +128,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Resource
 	private DocumentStoreRepository documentStoreRepository;
 
-	@Resource
-	private JbpmDao jbpmDao;
 	@Resource
 	private JbpmHelper jbpmHelper;
 	@Resource
@@ -405,8 +402,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 			boolean nomesAlertes,
 			boolean mostrarAnulats,
 			PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
-		mesuresTemporalsHelper.mesuraIniciar("EXPCONGEN_TOTAL");
-		mesuresTemporalsHelper.mesuraIniciar("EXPCONGEN_0");
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta");
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "0");
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		logger.debug("Consulta general d'expedients paginada (entornId=" + entornId + "expedientTipusId=" + expedientTipusId + ")");
 		// Comprova l'accés a l'entorn
@@ -481,8 +478,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 					ExtendedPermission.READ,
 					ExtendedPermission.ADMINISTRATION},
 				auth);
-		mesuresTemporalsHelper.mesuraCalcular("EXPCONGEN_0");
-		mesuresTemporalsHelper.mesuraIniciar("EXPCONGEN_1");
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "0");
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "1");
 		// Obté la llista d'ids d'expedient de l'entorn actual que
 		// tenen alguna tasca activa per a l'usuari actual.
 		// Per evitar la limitació d'Oracle que impedeix més de 1000
@@ -535,8 +532,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 			if (rootProcessInstanceIdsAmbTasquesActives5 != null)
 				System.out.println(">>> Núm. rootProcessInstanceIdsAmbTasquesActives5: " + rootProcessInstanceIdsAmbTasquesActives5.size());*/
 		}
-		mesuresTemporalsHelper.mesuraCalcular("EXPCONGEN_1");
-		mesuresTemporalsHelper.mesuraIniciar("EXPCONGEN_2");
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "1");
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "2");
 		// Fa la consulta
 		Page<Expedient> paginaResultats = expedientRepository.findByFiltreGeneralPaginat(
 				entornId,
@@ -569,13 +566,13 @@ public class ExpedientServiceImpl implements ExpedientService {
 				rootProcessInstanceIdsAmbTasquesActives5,
 				mostrarAnulats,
 				paginacioHelper.toSpringDataPageable(paginacioParams));
-		mesuresTemporalsHelper.mesuraCalcular("EXPCONGEN_2");
-		mesuresTemporalsHelper.mesuraIniciar("EXPCONGEN_3");
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "2");
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "3");
 		PaginaDto<ExpedientDto> resposta = paginacioHelper.toPaginaDto(
 				paginaResultats,
 				ExpedientDto.class);
-		mesuresTemporalsHelper.mesuraCalcular("EXPCONGEN_3");
-		mesuresTemporalsHelper.mesuraCalcular("EXPCONGEN_TOTAL");
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "3");
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta");
 		return resposta;
 	}
 
@@ -1049,8 +1046,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public List<InstanciaProcesDto> getArbreInstanciesProces(
 				Long processInstanceId) {
 		List<InstanciaProcesDto> resposta = new ArrayList<InstanciaProcesDto>();
-		JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(String.valueOf(processInstanceId));
-		List<JbpmProcessInstance> piTree = jbpmDao.getProcessInstanceTree(rootProcessInstance.getId());
+		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(String.valueOf(processInstanceId));
+		List<JbpmProcessInstance> piTree = jbpmHelper.getProcessInstanceTree(rootProcessInstance.getId());
 		for (JbpmProcessInstance jpi: piTree) {
 			resposta.add(dtoConverter.toInstanciaProcesDto(jpi.getId(), false, false, false));
 		}

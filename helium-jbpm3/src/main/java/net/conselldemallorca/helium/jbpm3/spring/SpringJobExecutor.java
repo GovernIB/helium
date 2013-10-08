@@ -1,7 +1,5 @@
 package net.conselldemallorca.helium.jbpm3.spring;
 
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jbpm.job.executor.JobExecutor;
@@ -16,8 +14,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 @SuppressWarnings("serial")
 public class SpringJobExecutor extends JobExecutor {
 
-	private ExpedientService expedientService;
-	
 	/** Logger for this class */
 	private static final Log LOG = LogFactory.getLog(SpringJobExecutor.class);
 	
@@ -56,8 +52,7 @@ public class SpringJobExecutor extends JobExecutor {
 				idleInterval,
 				maxIdleInterval,
 				maxLockTime,
-				historyMaxSize,
-				expedientService);
+				historyMaxSize);
 	}
 
 	public void setTransactionTemplate(TransactionTemplate transactionTemplate) {

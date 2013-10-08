@@ -224,12 +224,24 @@ public class PermisosHelper {
 		} catch (NotFoundException nfex) {
 			acl = aclService.createAcl(oid);
 		}
-		for (Permission permission: permissions)
-			acl.insertAce(
-					acl.getEntries().size(),
-					permission,
-					sid,
-					true);
+		for (Permission permission: permissions) {
+			boolean insertar;
+			try {
+				List<Permission> permisos = new ArrayList<Permission>();
+				List<Sid> sids = new ArrayList<Sid>();
+				permisos.add(permission);
+				sids.add(sid);
+				insertar = !acl.isGranted(permisos, sids, false);
+			} catch (Exception ignored) {
+				insertar = true;
+			}
+			if (insertar)
+				acl.insertAce(
+						acl.getEntries().size(),
+						permission,
+						sid,
+						true);
+		}
 		aclService.updateAcl(acl);
 	}
 

@@ -18,7 +18,6 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
@@ -26,13 +25,15 @@ import net.conselldemallorca.helium.core.model.exception.NotFoundException;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import net.conselldemallorca.helium.v3.core.helper.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
 import net.conselldemallorca.helium.webapp.mvc.util.TramitacioMassiva;
@@ -76,6 +77,7 @@ public class TascaFormController extends BaseController {
 	private Validator validatorGuardar;
 	private Validator validatorValidar;
 	private ExecucioMassivaService execucioMassivaService;
+	private MesuresTemporalsHelper mesuresTemporalsHelper;
 
 
 	@Autowired
@@ -84,13 +86,15 @@ public class TascaFormController extends BaseController {
 			DissenyService dissenyService,
 			ExpedientService expedientService, 
 			TascaController tascaController,
-			ExecucioMassivaService execucioMassivaService) {
+			ExecucioMassivaService execucioMassivaService,
+			MesuresTemporalsHelper mesuresTemporalsHelper) {
 		this.tascaService = tascaService;
 		this.dissenyService = dissenyService;
 		this.expedientService = expedientService;
 		this.validatorGuardar = new TascaFormValidator(tascaService, false);
 		this.validatorValidar = new TascaFormValidator(tascaService);
 		this.execucioMassivaService = execucioMassivaService;
+		this.mesuresTemporalsHelper = mesuresTemporalsHelper;
 	}
 
 
@@ -217,16 +221,16 @@ public class TascaFormController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			TascaDto tasca = null;
-//			if (MesuresTemporalsHelper.isActiu()) {
-//				tasca = tascaService.getById(
-//						entorn.getId(),
-//						id,
-//						null,
-//						null,
-//						true,
-//						false);
-//				mesuresTemporalsHelper.mesuraIniciar(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Documents", "tasques");
-//			}
+			if (MesuresTemporalsHelper.isActiu()) {
+				tasca = tascaService.getById(
+						entorn.getId(),
+						id,
+						null,
+						null,
+						true,
+						false);
+				mesuresTemporalsHelper.mesuraIniciar("Tasca FORM", "tasques", tasca.getExpedient().getTipus().getNom(), tasca.getNomLimitat());
+			}
 			String campFocus = (String)request.getSession().getAttribute(VARIABLE_SESSIO_CAMP_FOCUS);
 			if (campFocus != null) {
 				String[] partsCampFocus = campFocus.split("#");
@@ -235,8 +239,8 @@ public class TascaFormController extends BaseController {
 						request.getSession().removeAttribute(VARIABLE_SESSIO_CAMP_FOCUS);
 				}
 			}
-//			if (MesuresTemporalsHelper.isActiu())
-//				mesuresTemporalsHelper.mesuraCalcular(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Documents", "tasques");
+			if (MesuresTemporalsHelper.isActiu())
+				mesuresTemporalsHelper.mesuraCalcular("Tasca FORM", "tasques", tasca.getExpedient().getTipus().getNom(), tasca.getNomLimitat());
 			if (model.get("command") == null) {
 				missatgeError(request, getMessage("error.tasca.no.disponible") );
 				return "redirect:/tasca/personaLlistat.html";
@@ -502,7 +506,7 @@ public class TascaFormController extends BaseController {
 							tIds[j++] = tascaIds[i];
 						}
 					}
-					// Obtenim informaciÃ³ de l'execuciÃ³ massiva
+					// Obtenim informació de l'execució massiva
 					// Data d'inici
 					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 					Date dInici = new Date();
@@ -518,7 +522,7 @@ public class TascaFormController extends BaseController {
 					dto.setEnviarCorreu(bCorreu);
 					dto.setTascaIds(tIds);
 					dto.setExpedientTipusId(expTipusId);
-					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
+					dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_TASCA);
 					dto.setParam1("Guardar");
 					Object[] params = new Object[2];
 					params[0] = entornId;
@@ -593,7 +597,7 @@ public class TascaFormController extends BaseController {
 							tIds[j++] = tascaIds[i];
 						}
 					}
-					// Obtenim informaciÃ³ de l'execuciÃ³ massiva
+					// Obtenim informació de l'execució massiva
 					// Data d'inici
 					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 					Date dInici = new Date();
@@ -609,7 +613,7 @@ public class TascaFormController extends BaseController {
 					dto.setEnviarCorreu(bCorreu);
 					dto.setTascaIds(tIds);
 					dto.setExpedientTipusId(expTipusId);
-					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
+					dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_TASCA);
 					dto.setParam1("Validar");
 					Object[] params = new Object[2];
 					params[0] = entornId;
@@ -682,7 +686,7 @@ public class TascaFormController extends BaseController {
 						}
 					}
 					
-					// Obtenim informaciÃ³ de l'execuciÃ³ massiva
+					// Obtenim informació de l'execució massiva
 					// Data d'inici
 					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 					Date dInici = new Date();
@@ -698,7 +702,7 @@ public class TascaFormController extends BaseController {
 					dto.setEnviarCorreu(bCorreu);
 					dto.setTascaIds(tIds);
 					dto.setExpedientTipusId(expTipusId);
-					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
+					dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_TASCA);
 					dto.setParam1("Restaurar");
 					Long params = entornId;
 					dto.setParam2(execucioMassivaService.serialize(params));
@@ -762,7 +766,7 @@ public class TascaFormController extends BaseController {
 							tIds[j++] = tascaIds[i];
 						}
 					}
-					// Obtenim informaciÃ³ de l'execuciÃ³ massiva
+					// Obtenim informació de l'execució massiva
 					// Data d'inici
 					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 					Date dInici = new Date();
@@ -778,7 +782,7 @@ public class TascaFormController extends BaseController {
 					dto.setEnviarCorreu(bCorreu);
 					dto.setTascaIds(tIds);
 					dto.setExpedientTipusId(expTipusId);
-					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
+					dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_TASCA);
 					dto.setParam1("Accio");
 					Object[] params = new Object[2];
 					params[0] = entornId;
@@ -810,7 +814,7 @@ public class TascaFormController extends BaseController {
 			    			request,
 			    			getMessage("error.executar.accio") + " " + tascaIdLog,
 			    			ex.getLocalizedMessage());
-		        	logger.error("No s'ha pogut executar l'acciÃ³ '" + accio + "' en la tasca " + tascaIdLog, ex);
+		        	logger.error("No s'ha pogut executar l'acció '" + accio + "' en la tasca " + tascaIdLog, ex);
 				}
 	        	resposta = false;
 	        }
@@ -868,7 +872,7 @@ public class TascaFormController extends BaseController {
 					dto.setEnviarCorreu(bCorreu);
 					dto.setTascaIds(tIds);
 					dto.setExpedientTipusId(expTipusId);
-					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
+					dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_TASCA);
 					dto.setParam1("RegEsborrar");
 					Object[] params = new Object[3];
 					params[0] = entornId;

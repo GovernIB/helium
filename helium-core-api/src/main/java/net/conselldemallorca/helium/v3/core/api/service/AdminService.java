@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
+import java.util.Set;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MesuraTemporalDto;
@@ -39,8 +40,16 @@ public interface AdminService {
 	 * @return El llistat de mesures.
 	 */
 	//@PreAuthorize("hasRole('ROLE_ADMIN')")
-	public List<MesuraTemporalDto> findMesuresTemporals();
+	public List<MesuraTemporalDto> findMesuresTemporals(String familia);
 
-	
-
+	public Set<String> findFamiliesMesuresTemporals();
+	public Object getMesuresTemporalsHelper();
+	public void mesuraIniciar(String nom, String familia, String tipusExpedient, String tasca, String detall);
+	public void mesuraIniciar(String nom, String familia, String tipusExpedient);
+	public void mesuraIniciar(String clau, String familia);
+	public void mesuraCalcular(String nom, String familia, String tipusExpedient, String tasca, String detall);
+	public void mesuraCalcular(String nom, String familia, String tipusExpedient);
+	public void mesuraCalcular(String clau, String familia);
+	public boolean isStatisticActive();
+	public List<MesuraTemporalDto> getHibernateStatistics(String familia, boolean exportar);
 }

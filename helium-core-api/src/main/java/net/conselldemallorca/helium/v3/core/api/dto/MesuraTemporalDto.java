@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
+import java.util.LinkedList;
+
 
 /**
  * DTO amb informació d'una mesura temporal per a revisar
@@ -13,15 +15,41 @@ package net.conselldemallorca.helium.v3.core.api.dto;
 public class MesuraTemporalDto {
 
 	private String clau;
+	private String tipusExpedient;
+	private String tasca;
+	private String detall;
 	private long darrera;
 	private double mitja;
-	private int numMesures;
+	private long minima;
+	private long maxima;
+	private long numMesures;
+	private double periode;
+	
+	private LinkedList<IntervalEventDto> events;
 
 	public String getClau() {
 		return clau;
 	}
 	public void setClau(String clau) {
 		this.clau = clau;
+	}
+	public String getTipusExpedient() {
+		return tipusExpedient;
+	}
+	public void setTipusExpedient(String tipusExpedient) {
+		this.tipusExpedient = tipusExpedient;
+	}
+	public String getTasca() {
+		return tasca;
+	}
+	public void setTasca(String tasca) {
+		this.tasca = tasca;
+	}
+	public String getDetall() {
+		return detall;
+	}
+	public void setDetall(String detall) {
+		this.detall = detall;
 	}
 	public long getDarrera() {
 		return darrera;
@@ -35,11 +63,34 @@ public class MesuraTemporalDto {
 	public void setMitja(double mitja) {
 		this.mitja = mitja;
 	}
-	public int getNumMesures() {
+	public long getMinima() {
+		return minima;
+	}
+	public void setMinima(long minima) {
+		this.minima = minima;
+	}
+	public long getMaxima() {
+		return maxima;
+	}
+	public void setMaxima(long maxima) {
+		this.maxima = maxima;
+	}
+	public long getNumMesures() {
 		return numMesures;
 	}
-	public void setNumMesures(int numMesures) {
+	public void setNumMesures(long numMesures) {
 		this.numMesures = numMesures;
 	}
-
+	public double getPeriode() {
+		return periode;
+	}
+	public void setPeriode(double periode) {
+		this.periode = periode;
+	}
+	public LinkedList<IntervalEventDto> getEvents() {
+		return events;
+	}
+	public void setEvents(LinkedList<IntervalEventDto> events) {
+		this.events = events;
+	}
 }

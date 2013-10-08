@@ -15,12 +15,10 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.extern.domini.DominiHeliumException;
-import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
@@ -28,6 +26,9 @@ import net.conselldemallorca.helium.core.model.service.PersonaService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.model.service.TerminiService;
 import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import net.conselldemallorca.helium.v3.core.helper.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TramitacioMassiva;
 
@@ -63,6 +64,7 @@ public class TascaController extends BaseController {
 	private DissenyService dissenyService;
 	private PersonaService  personaService;
 	private ExecucioMassivaService execucioMassivaService;
+	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	
 	@Autowired
 	public TascaController(
@@ -70,12 +72,14 @@ public class TascaController extends BaseController {
 			TerminiService terminiService,
 			DissenyService dissenyService,
 			PersonaService  personaService,
-			ExecucioMassivaService execucioMassivaService) {
+			ExecucioMassivaService execucioMassivaService,
+			MesuresTemporalsHelper mesuresTemporalsHelper) {
 		this.tascaService = tascaService;
 		this.terminiService = terminiService;
 		this.dissenyService = dissenyService;
 		this.personaService = personaService;
 		this.execucioMassivaService = execucioMassivaService;
+		this.mesuresTemporalsHelper = mesuresTemporalsHelper;
 	}
 
 	@ModelAttribute("prioritats")
@@ -204,6 +208,7 @@ public class TascaController extends BaseController {
 		TascaDto tasca = tascaService.getByIdSenseComprovacio(id);
 		Long tid = tasca.getExpedient().getTipus().getId();
 		if (entorn != null) {
+			mesuresTemporalsHelper.mesuraIniciar("Tasca INFO", "tasques", tasca.getExpedient().getTipus().getNom(), tasca.getNomLimitat());
 			if (massiva == null || !massiva.equalsIgnoreCase("s")) {
 				TramitacioMassiva.netejarTramitacioMassiva(request);
 				model.remove("seleccioMassiva");
@@ -226,19 +231,24 @@ public class TascaController extends BaseController {
 			} catch (Exception ex) {
 				logger.error("S'ha produït un error processant la seva petició", ex);
 				missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
+				mesuresTemporalsHelper.mesuraCalcular("Tasca INFO", "tasques", tasca.getExpedient().getTipus().getNom(), tasca.getNomLimitat());
 				return "redirect:/tasca/personaLlistat.html";
 			}
 			if ("s".equals(ini)) {
 				
 				if(tasca.isDelegacioOriginal()){
+					mesuresTemporalsHelper.mesuraCalcular("Tasca INFO", "tasques", tasca.getExpedient().getTipus().getNom(), tasca.getNomLimitat());
 					return "redirect:/tasca/info.html?id="+id;
 				}else{
 					
 					if (!tasca.getCamps().isEmpty()) {
+						mesuresTemporalsHelper.mesuraCalcular("Tasca INFO", "tasques", tasca.getExpedient().getTipus().getNom(), tasca.getNomLimitat());
 						return "redirect:/tasca/form.html?id="+id;
 					} else if(!tasca.getDocuments().isEmpty()) {
+						mesuresTemporalsHelper.mesuraCalcular("Tasca INFO", "tasques", tasca.getExpedient().getTipus().getNom(), tasca.getNomLimitat());
 						return "redirect:/tasca/documents.html?id="+id;
 					} else if (!tasca.getSignatures().isEmpty()) {
+						mesuresTemporalsHelper.mesuraCalcular("Tasca INFO", "tasques", tasca.getExpedient().getTipus().getNom(), tasca.getNomLimitat());
 						return "redirect:/tasca/signatures.html?id="+id;
 						
 					}	
@@ -249,6 +259,7 @@ public class TascaController extends BaseController {
 			model.addAttribute(
 					 "destinataris",
 					 destinataris);
+			mesuresTemporalsHelper.mesuraCalcular("Tasca INFO", "tasques", tasca.getExpedient().getTipus().getNom(), tasca.getNomLimitat());
 	        return "tasca/info";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
@@ -735,7 +746,7 @@ public class TascaController extends BaseController {
 							tIds[j++] = tascaIds[i];
 						}
 					}
-					// Obtenim informaciÃ³ de l'execuciÃ³ massiva
+					// Obtenim informació de l'execució massiva
 					// Data d'inici
 					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 					Date dInici = new Date();
@@ -751,7 +762,7 @@ public class TascaController extends BaseController {
 					dto.setEnviarCorreu(bCorreu);
 					dto.setTascaIds(tIds);
 					dto.setExpedientTipusId(expTipusId);
-					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
+					dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_TASCA);
 					dto.setParam1("Completar");
 					Object[] params = new Object[2];
 					params[0] = entornId;

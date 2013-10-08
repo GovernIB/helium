@@ -1,12 +1,11 @@
 /**
  * 
  */
-package net.conselldemallorca.helium.core.model.dto;
+package net.conselldemallorca.helium.v3.core.api.dto;
 
 import java.util.Date;
 
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient.ExecucioMassivaEstat;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 
 /**
  * DTO amb informació d'una operació massiva 
@@ -16,9 +15,16 @@ import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedien
  */
 public class OperacioMassivaDto {
 
+	public enum ExecucioMassivaEstatDto {
+		ESTAT_FINALITZAT,
+		ESTAT_ERROR,
+		ESTAT_PENDENT,
+		ESTAT_CANCELAT
+	}
+	
 	private Long id;
-	private ExecucioMassivaTipus tipus;
-	private ExecucioMassivaEstat estat;
+	private ExecucioMassivaTipusDto tipus;
+	private ExecucioMassivaEstatDto estat;
 	private Date dataInici;
 	private Date dataFi;
 	private Boolean ultimaOperacio;
@@ -40,16 +46,16 @@ public class OperacioMassivaDto {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public ExecucioMassivaTipus getTipus() {
+	public ExecucioMassivaTipusDto getTipus() {
 		return tipus;
 	}
-	public void setTipus(ExecucioMassivaTipus tipus) {
+	public void setTipus(ExecucioMassivaTipusDto tipus) {
 		this.tipus = tipus;
 	}
-	public ExecucioMassivaEstat getEstat() {
+	public ExecucioMassivaEstatDto getEstat() {
 		return estat;
 	}
-	public void setEstat(ExecucioMassivaEstat estat) {
+	public void setEstat(ExecucioMassivaEstatDto estat) {
 		this.estat = estat;
 	}
 	public Date getDataInici() {
