@@ -195,6 +195,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 				Consulta consulta = null;
 				if (MesuresTemporalsHelper.isActiu()) {
 					consulta = dissenyService.getConsultaById(commandSeleccio.getConsultaId());
+					//adminService.getMesuresTemporalsHelper().mesuraIniciar("INFORME: " + consulta.getCodi(), "report", null, null, "LLISTAT");
 					adminService.getMesuresTemporalsHelper().mesuraIniciar("INFORME: " + consulta.getCodi(), "report");
 				}
 				model.addAttribute("expedientTipusId", commandSeleccio.getExpedientTipusId());
@@ -226,6 +227,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 								objectsPerPage,
 								export));
 				if (MesuresTemporalsHelper.isActiu())
+					//adminService.getMesuresTemporalsHelper().mesuraCalcular("INFORME: " + consulta.getCodi(), "report", null, null, "LLISTAT");
 					adminService.getMesuresTemporalsHelper().mesuraCalcular("INFORME: " + consulta.getCodi(), "report");
 			}
 			return "expedient/consultaDisseny";
@@ -339,6 +341,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			if (commandFiltre != null) {
 				populateModelCommon(entorn, model, commandSeleccio);
 				Consulta consulta = dissenyService.getConsultaById(commandSeleccio.getConsultaId());
+				//adminService.getMesuresTemporalsHelper().mesuraIniciar("INFORME: " + consulta.getCodi(), "report", null, null, "INFORME");
 				adminService.getMesuresTemporalsHelper().mesuraIniciar("INFORME: " + consulta.getCodi() + " (DADES)", "report");
 				if (consulta.getInformeNom() != null) {
 					model.addAttribute("commandFiltre", commandFiltre);
@@ -400,6 +403,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 					model.addAttribute(
 							JasperReportsView.MODEL_ATTRIBUTE_CONSULTA,
 							consulta.getCodi());
+					//adminService.getMesuresTemporalsHelper().mesuraCalcular("INFORME: " + consulta.getCodi(), "report", null, null, "INFORME");
 					adminService.getMesuresTemporalsHelper().mesuraCalcular("INFORME: " + consulta.getCodi() + " (DADES)", "report");
 					return "jasperReportsView";
 				} else {
@@ -473,7 +477,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			Entorn entorn,
 			ModelMap model,
 			ExpedientConsultaDissenyCommand commandSeleccio) {
-		List<ExpedientTipus> tipus = dissenyService.findExpedientTipusAmbEntorn(entorn.getId());
+		List<ExpedientTipus> tipus = dissenyService.findExpedientTipusAmbEntornOrdenat(entorn.getId(), "nom");
 		permissionService.filterAllowed(
 				tipus,
 				ExpedientTipus.class,
