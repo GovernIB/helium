@@ -45,6 +45,7 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 		return findListExpedients(entornId, actorId, null, null, null, false);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<Long> findListExpedients(Long entornId, String actorId, String expedient, Long tipusExpedient, String sort, boolean asc) {		
 		List<Long> resultat = new ArrayList<Long>();
 			
@@ -304,8 +305,14 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			crit.add(Restrictions.ilike("titol", "%" + titol + "%"));
 		if (numero != null && numero.length() > 0)
 			crit.add(Restrictions.eq("numero", numero));
-		if (dataInici1 != null && dataInici2 != null)
+		if (dataInici1 != null && dataInici2 != null) {
 			crit.add(Restrictions.between("dataInici", dataInici1, dataInici2));
+		} else {
+			if (dataInici1 != null)
+				crit.add(Restrictions.ge("dataInici", dataInici1));
+			else if (dataInici2 != null)
+				crit.add(Restrictions.le("dataInici", dataInici2));
+		}
 		if (expedientTipusId != null)
 			crit.add(Restrictions.eq("tipus.id", expedientTipusId));
 		if (expedientTipusIdPermesos != null && expedientTipusIdPermesos.length > 0)

@@ -32,7 +32,16 @@ public class ExpedientTipusDao extends HibernateGenericDao<ExpedientTipus, Long>
 	}
 
 	public List<ExpedientTipus> findAmbEntorn(Long entornId) {
-		return findByCriteria(
+		return findOrderedByCriteria(
+				new String[] {"codi"},
+				true,
+				Restrictions.eq("entorn.id", entornId));
+	}
+	
+	public List<ExpedientTipus> findAmbEntornOrdenat(Long entornId, String ordre) {
+		return findOrderedByCriteria(
+				new String[] {ordre},
+				true,
 				Restrictions.eq("entorn.id", entornId));
 	}
 

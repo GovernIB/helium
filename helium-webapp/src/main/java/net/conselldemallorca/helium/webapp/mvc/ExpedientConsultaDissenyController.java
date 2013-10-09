@@ -472,7 +472,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			Entorn entorn,
 			ModelMap model,
 			ExpedientConsultaDissenyCommand commandSeleccio) {
-		List<ExpedientTipus> tipus = dissenyService.findExpedientTipusAmbEntorn(entorn.getId());
+		List<ExpedientTipus> tipus = dissenyService.findExpedientTipusAmbEntornOrdenat(entorn.getId(), "nom");
 		permissionService.filterAllowed(
 				tipus,
 				ExpedientTipus.class,

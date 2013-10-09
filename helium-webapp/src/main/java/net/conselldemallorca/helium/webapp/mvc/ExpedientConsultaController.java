@@ -72,7 +72,7 @@ public class ExpedientConsultaController extends BaseController {
 			HttpServletRequest request) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			List<ExpedientTipus> tipus = dissenyService.findExpedientTipusAmbEntorn(entorn.getId());
+			List<ExpedientTipus> tipus = dissenyService.findExpedientTipusAmbEntornOrdenat(entorn.getId(), "nom");
 			permissionService.filterAllowed(
 					tipus,
 					ExpedientTipus.class,
@@ -129,6 +129,7 @@ public class ExpedientConsultaController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
+
 	
 	@RequestMapping(value = "/expedient/limpiarTrazaError.html", method = RequestMethod.POST)
 	public String limpiarTrazaError(
