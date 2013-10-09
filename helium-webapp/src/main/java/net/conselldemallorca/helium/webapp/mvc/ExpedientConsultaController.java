@@ -72,7 +72,7 @@ public class ExpedientConsultaController extends BaseController {
 			HttpServletRequest request) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			List<ExpedientTipus> tipus = dissenyService.findExpedientTipusAmbEntorn(entorn.getId());
+			List<ExpedientTipus> tipus = dissenyService.findExpedientTipusAmbEntornOrdenat(entorn.getId(), "nom");
 			permissionService.filterAllowed(
 					tipus,
 					ExpedientTipus.class,

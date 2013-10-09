@@ -100,25 +100,34 @@ public class CampsProcesDwrService implements MessageSourceAware {
 			List<Camp> list = dissenyService.findCampsProces(consultaId, defprocJbpmKey);
 			List<Camp> listExistents = dissenyService.findCampsPerCampsConsulta(consultaId, tipus, false);
 
-			for (Camp campExistent: listExistents) {
-				for (Camp camp: list) {
-					if (camp.getCodi().equals(campExistent.getCodi())) {
-						list.remove(camp);
+//			for (Camp campExistent: listExistents) {
+//				for (Camp camp: list) {
+//					if (camp.getCodi().equals(campExistent.getCodi())) {
+//						list.remove(camp);
+//						break;
+//					}
+//				}
+//			}
+			
+			for (Camp c : list) {
+				boolean exist = false;
+				for (Camp campExistent: listExistents) {
+					if (c.getCodi().equals(campExistent.getCodi())) { 
+						exist = true;
 						break;
 					}
 				}
-			}
-			
-			for (Camp c : list) {
-				String text = c.getCodi() + " / " + c.getEtiqueta();
-				text += " (v." + c.getDefinicioProces().getVersio() + ")";
-				text += " - " + c.getTipus();
-				
-				Object[] obj = new Object[3];
-				obj[0] = c.getCodi();
-				obj[1] = text;
-				obj[2] = c.getDefinicioProces().getVersio();
-				llista.add(obj);
+				if (!exist) {
+					String text = c.getCodi() + " / " + c.getEtiqueta();
+					text += " (v." + c.getDefinicioProces().getVersio() + ")";
+					text += " - " + c.getTipus();
+					
+					Object[] obj = new Object[3];
+					obj[0] = c.getCodi();
+					obj[1] = text;
+					obj[2] = c.getDefinicioProces().getVersio();
+					llista.add(obj);
+				}
 			}
 		}
 		return llista;

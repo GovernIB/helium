@@ -789,6 +789,9 @@ public class DissenyService {
 	public List<ExpedientTipus> findExpedientTipusAmbEntorn(Long entornId) {
 		return expedientTipusDao.findAmbEntorn(entornId);
 	}
+	public List<ExpedientTipus> findExpedientTipusAmbEntornOrdenat(Long entornId, String ordre) {
+		return expedientTipusDao.findAmbEntornOrdenat(entornId, ordre);
+	}
 	public ExpedientTipus findExpedientTipusAmbEntornICodi(Long entornId, String codi) {
 		return expedientTipusDao.findAmbEntornICodi(entornId, codi);
 	}
