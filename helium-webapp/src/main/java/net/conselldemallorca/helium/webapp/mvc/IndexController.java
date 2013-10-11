@@ -17,6 +17,7 @@ import net.conselldemallorca.helium.core.model.service.EntornService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public class IndexController extends BaseController {
 	private TascaService tascaService;
 	private AlertaService alertaService;
 	private PermissionService permissionService;
-
+	private AdminService adminService;
 
 
 	@Autowired
@@ -46,11 +47,13 @@ public class IndexController extends BaseController {
 			EntornService entornService,
 			TascaService tascaService,
 			AlertaService alertaService,
-			PermissionService permissionService) {
+			PermissionService permissionService,
+			AdminService adminService) {
 		this.entornService = entornService;
 		this.tascaService = tascaService;
 		this.alertaService = alertaService;
 		this.permissionService = permissionService;
+		this.adminService = adminService;
 	}
 
 	@RequestMapping(value = "/index", method = RequestMethod.GET)
@@ -59,10 +62,13 @@ public class IndexController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
+			adminService.mesuraIniciar("Index", "general");
 			model.addAttribute("countPersonaLlistat", tascaService.findCountTasquesPersonalsIndex(entorn.getId()));
 			model.addAttribute("countGrupLlistat", tascaService.findCountTasquesGrupIndex(entorn.getId()));
 			model.addAttribute("alertesLlistat", alertaService.findActivesAmbEntornIUsuariAutenticat(entorn.getId()));
+			adminService.mesuraCalcular("Index", "general");
 		} else {
+			adminService.mesuraIniciar("Index sense entorn actiu", "general");
 			Map<Entorn, List<TascaLlistatDto>> tasquesPersonaEntorn = new HashMap<Entorn, List<TascaLlistatDto>>();
 			Map<Entorn, List<TascaLlistatDto>> tasquesGrupEntorn = new HashMap<Entorn, List<TascaLlistatDto>>();
 			Map<Entorn, List<Alerta>> alertesEntorn = new HashMap<Entorn, List<Alerta>>();
@@ -82,6 +88,7 @@ public class IndexController extends BaseController {
 			model.addAttribute("tasquesPersonaEntorn", tasquesPersonaEntorn);
 			model.addAttribute("tasquesGrupEntorn", tasquesGrupEntorn);
 			model.addAttribute("alertesEntorn", alertesEntorn);
+			adminService.mesuraCalcular("Index sense entorn actiu", "general");
 		}
 		return "index";
 	}

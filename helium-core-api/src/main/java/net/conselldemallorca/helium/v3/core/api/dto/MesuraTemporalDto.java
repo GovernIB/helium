@@ -12,7 +12,7 @@ import java.util.LinkedList;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class MesuraTemporalDto {
+public class MesuraTemporalDto implements Comparable<MesuraTemporalDto> {
 
 	private String clau;
 	private String tipusExpedient;
@@ -93,4 +93,20 @@ public class MesuraTemporalDto {
 	public void setEvents(LinkedList<IntervalEventDto> events) {
 		this.events = events;
 	}
+	
+	public String getNom() {
+		return (tipusExpedient == null ? "" : tipusExpedient + " - ") + 
+				(tasca == null ? "" : tasca + " - ") + 
+				clau + 
+				(detall == null ? "" : " (" + detall + ")");
+	}
+	public String getNomTE() {
+		return (tipusExpedient == null ? "" : tipusExpedient + " - ") + 
+				clau + 
+				(detall == null ? "" : " (" + detall + ")");
+	}
+	public int compareTo(MesuraTemporalDto o) {
+		return Double.compare(o.mitja, this.mitja);
+	}
+	
 }

@@ -250,9 +250,7 @@ public class TascaController extends BaseController {
 					} else if (!tasca.getSignatures().isEmpty()) {
 						mesuresTemporalsHelper.mesuraCalcular("Tasca INFO", "tasques", tasca.getExpedient().getTipus().getNom(), tasca.getNomLimitat());
 						return "redirect:/tasca/signatures.html?id="+id;
-						
 					}	
-					
 				}
 			}
 			Set<PersonaDto> destinataris =  personaService.findPersonesAmbPermisosPerExpedientTipus(tid);

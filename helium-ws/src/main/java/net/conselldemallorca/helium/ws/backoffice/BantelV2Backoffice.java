@@ -79,6 +79,7 @@ public class BantelV2Backoffice extends BaseBackoffice implements BantelFacade {
 		try {
 			return ServiceProxy.getInstance().getPluginService().obtenirVistaDocument(request);
 		} catch (Exception ex) {
+			logger.error("Error al obtenir el document del tramit " + request, ex);
 			return null;
 		}
 	}

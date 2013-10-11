@@ -72,9 +72,19 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	public List<MesuraTemporalDto> findMesuresTemporals(String familia) {
+	public List<MesuraTemporalDto> findMesuresTemporals(String familia, boolean ambDetall) {
 		logger.debug("Consultant el llistat de les mesures temporals");
-		return mesuresTemporalsHelper.getEstadistiques(familia);
+		return mesuresTemporalsHelper.getEstadistiques(familia, ambDetall);
+	}
+	
+	@Override
+	public List<MesuraTemporalDto> findMesuresTemporalsTipusExpedient() {
+		return mesuresTemporalsHelper.getEstadistiquesTipusExpedient();
+	}
+	
+	@Override
+	public List<MesuraTemporalDto> findMesuresTemporalsTasca() {
+		return mesuresTemporalsHelper.getEstadistiquesTasca();
 	}
 	
 	@Override

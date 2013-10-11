@@ -500,9 +500,9 @@ public class ExpedientController extends BaseController {
 						expedientService.getArbreInstanciesProces(id));
 				List<ExpedientLogDto> logs = null;
 				if (tipus_retroces == null || tipus_retroces != 0) {
-					logs = expedientService.getLogsPerTascaOrdenatsPerData(expedient.getId());
+					logs = expedientService.getLogsPerTascaOrdenatsPerData(expedient);
 				} else {
-					logs = expedientService.getLogsOrdenatsPerData(expedient.getId());
+					logs = expedientService.getLogsOrdenatsPerData(expedient);
 				}
 				if (logs == null || logs.isEmpty()) {
 					model.addAttribute(

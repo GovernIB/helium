@@ -1832,11 +1832,14 @@ public class ExpedientService {
 		pluginTramitacioDao.publicarEvent(request);
 	}
 
-	public List<ExpedientLogDto> getLogsOrdenatsPerData(Long expedientId) {
+	public List<ExpedientLogDto> getLogsOrdenatsPerData(ExpedientDto expedient) {
+		mesuresTemporalsHelper.mesuraIniciar("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "findAmbExpedientIdOrdenatsPerData");
 		List<ExpedientLogDto> resposta = new ArrayList<ExpedientLogDto>();
-		List<ExpedientLog> logs = expedientLogDao.findAmbExpedientIdOrdenatsPerData(expedientId);
+		List<ExpedientLog> logs = expedientLogDao.findAmbExpedientIdOrdenatsPerData(expedient.getId());
 		String parentProcessInstanceId = null;
 		Map<String, String> processos = new HashMap<String, String>();
+		mesuresTemporalsHelper.mesuraCalcular("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "findAmbExpedientIdOrdenatsPerData");
+		mesuresTemporalsHelper.mesuraIniciar("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "obtenir tokens");
 		for (ExpedientLog log: logs) {
 			// Obtenim el token de cada registre
 			JbpmToken token = null;
@@ -1879,14 +1882,18 @@ public class ExpedientService {
 			dto.setTargetExpedient(log.isTargetExpedient());
 			resposta.add(dto);
 		}
+		mesuresTemporalsHelper.mesuraCalcular("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "obtenir tokens");
 		return resposta;
 	}
-	public List<ExpedientLogDto> getLogsPerTascaOrdenatsPerData(Long expedientId) {
+	public List<ExpedientLogDto> getLogsPerTascaOrdenatsPerData(ExpedientDto expedient) {
+		mesuresTemporalsHelper.mesuraIniciar("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "findAmbExpedientIdOrdenatsPerData");
 		List<ExpedientLogDto> resposta = new ArrayList<ExpedientLogDto>();
-		List<ExpedientLog> logs = expedientLogDao.findAmbExpedientIdOrdenatsPerData(expedientId);
+		List<ExpedientLog> logs = expedientLogDao.findAmbExpedientIdOrdenatsPerData(expedient.getId());
 		List<String> taskIds = new ArrayList<String>();
 		String parentProcessInstanceId = null;
 		Map<String, String> processos = new HashMap<String, String>();
+		mesuresTemporalsHelper.mesuraCalcular("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "findAmbExpedientIdOrdenatsPerData");
+		mesuresTemporalsHelper.mesuraIniciar("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "obtenir tokens tasca");
 		for (ExpedientLog log: logs) {
 			if (	//log.getAccioTipus() == ExpedientLogAccioTipus.TASCA_REASSIGNAR ||
 					!log.isTargetTasca() ||
@@ -1934,20 +1941,21 @@ public class ExpedientService {
 				resposta.add(dto);
 			}
 		}
+		mesuresTemporalsHelper.mesuraCalcular("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "obtenir tokens tasca");
 		return resposta;
 	}
 	public void retrocedirFinsLog(Long expedientLogId, boolean retrocedirPerTasques) {
 		ExpedientLog log = expedientLogDao.getById(expedientLogId, false);
-		mesuresTemporalsHelper.mesuraIniciar("Retrocedir", "expedient", log.getExpedient().getTipus().getNom());
+		mesuresTemporalsHelper.mesuraIniciar("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", log.getExpedient().getTipus().getNom());
 		ExpedientLog logRetroces = expedientLogHelper.afegirLogExpedientPerExpedient(
 				log.getExpedient().getId(),
 				retrocedirPerTasques ? ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR_TASQUES : ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR,
 				expedientLogId.toString());
-		expedientLogHelper.retrocedirFinsLog(expedientLogId, retrocedirPerTasques, logRetroces.getId());
+		expedientLogHelper.retrocedirFinsLog(log, retrocedirPerTasques, logRetroces.getId());
 		logRetroces.setEstat(ExpedientLogEstat.IGNORAR);
 		getServiceUtils().expedientIndexLuceneUpdate(
 				log.getExpedient().getProcessInstanceId());
-		mesuresTemporalsHelper.mesuraCalcular("Retrocedir", "expedient", log.getExpedient().getTipus().getNom());
+		mesuresTemporalsHelper.mesuraCalcular("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", log.getExpedient().getTipus().getNom());
 	}
 	public Map<String, TascaDto> getTasquesPerLogExpedient(Long expedientId) {
 		List<ExpedientLog> logs = expedientLogDao.findAmbExpedientIdOrdenatsPerData(expedientId);

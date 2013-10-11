@@ -6,10 +6,13 @@ package net.conselldemallorca.helium.core.model.service;
 import java.util.Date;
 import java.util.List;
 
+import javax.annotation.Resource;
+
 import net.conselldemallorca.helium.core.model.dao.AlertaDao;
 import net.conselldemallorca.helium.core.model.dao.TerminiIniciatDao;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
+import net.conselldemallorca.helium.v3.core.helper.MesuresTemporalsHelper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -25,6 +28,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class AlertaService {
 
+	@Resource
+	private MesuresTemporalsHelper mesuresTemporalsHelper;
+	
 	private AlertaDao alertaDao;
 	private TerminiIniciatDao terminiIniciatDao;
 
@@ -45,8 +51,11 @@ public class AlertaService {
 			alertaDao.delete(id);
 	}
 	public List<Alerta> findActivesAmbEntornIUsuariAutenticat(Long entornId) {
+		mesuresTemporalsHelper.mesuraIniciar("Obtenir alertes", "consulta");
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		return alertaDao.findActivesAmbEntornIUsuari(entornId, auth.getName());
+		List<Alerta> list = alertaDao.findActivesAmbEntornIUsuari(entornId, auth.getName());
+		mesuresTemporalsHelper.mesuraCalcular("Obtenir alertes", "consulta");
+		return list;
 	}
 	public List<Alerta> findActivesAmbEntornITipusExpedient(
 			Long entornId,

@@ -40,7 +40,9 @@ public interface AdminService {
 	 * @return El llistat de mesures.
 	 */
 	//@PreAuthorize("hasRole('ROLE_ADMIN')")
-	public List<MesuraTemporalDto> findMesuresTemporals(String familia);
+	public List<MesuraTemporalDto> findMesuresTemporals(String familia, boolean ambDetall);
+	public List<MesuraTemporalDto> findMesuresTemporalsTipusExpedient();
+	public List<MesuraTemporalDto> findMesuresTemporalsTasca();
 
 	public Set<String> findFamiliesMesuresTemporals();
 	public Object getMesuresTemporalsHelper();
