@@ -105,7 +105,7 @@ public class LuceneDao extends LuceneIndexSupport {
 			Map<String, Map<String, Object>> valors,
 			Map<String, Map<String, String>> textDominis,
 			boolean finalitzat) {
-		mesuresTemporalsHelper.mesuraIniciar("Lucene: createExpedient", "lucene");
+		mesuresTemporalsHelper.mesuraIniciar("Lucene: createExpedient", "lucene", expedient.getTipus().getNom());
 		checkIndexOk();
 		Document document = updateDocumentFromExpedient(
 				null,
@@ -116,7 +116,7 @@ public class LuceneDao extends LuceneIndexSupport {
 				textDominis,
 				finalitzat);
 		getLuceneIndexTemplate().addDocument(document);
-		mesuresTemporalsHelper.mesuraCalcular("Lucene: createExpedient", "lucene");
+		mesuresTemporalsHelper.mesuraCalcular("Lucene: createExpedient", "lucene", expedient.getTipus().getNom());
 	}
 
 	public void updateExpedientCapsaleraAsync(
@@ -135,7 +135,7 @@ public class LuceneDao extends LuceneIndexSupport {
 	public synchronized boolean updateExpedientCapsalera(
 			final Expedient expedient,
 			final boolean finalitzat) {
-		mesuresTemporalsHelper.mesuraIniciar("Lucene: updateExpedientCapsalera", "lucene");
+		mesuresTemporalsHelper.mesuraIniciar("Lucene: updateExpedientCapsalera", "lucene", expedient.getTipus().getNom());
 		boolean resultat = updateExpedientCamps(
 				expedient,
 				null,
@@ -143,7 +143,7 @@ public class LuceneDao extends LuceneIndexSupport {
 				null,
 				null,
 				finalitzat);
-		mesuresTemporalsHelper.mesuraCalcular("Lucene: updateExpedientCapsalera", "lucene");
+		mesuresTemporalsHelper.mesuraCalcular("Lucene: updateExpedientCapsalera", "lucene", expedient.getTipus().getNom());
 		return resultat;
 	}
 
@@ -176,7 +176,7 @@ public class LuceneDao extends LuceneIndexSupport {
 			final Map<String, Map<String, Object>> valors,
 			final Map<String, Map<String, String>> textDominis,
 			final boolean finalitzat) {
-		mesuresTemporalsHelper.mesuraIniciar("Lucene: updateExpedientCamps", "lucene");
+		mesuresTemporalsHelper.mesuraIniciar("Lucene: updateExpedientCamps", "lucene", expedient.getTipus().getNom());
 		checkIndexOk();
 		try {
 			List<Long> resposta = searchTemplate.search(
@@ -210,11 +210,11 @@ public class LuceneDao extends LuceneIndexSupport {
 						textDominis,
 						finalitzat);
 			}
-			mesuresTemporalsHelper.mesuraCalcular("Lucene: updateExpedientCamps", "lucene");
+			mesuresTemporalsHelper.mesuraCalcular("Lucene: updateExpedientCamps", "lucene", expedient.getTipus().getNom());
 			return true;
 		} catch (Exception ex) {
 			logger.error("Error actualitzant l'índex per l'expedient " + expedient.getId(), ex);
-			mesuresTemporalsHelper.mesuraCalcular("Lucene: updateExpedientCamps", "lucene");
+			mesuresTemporalsHelper.mesuraCalcular("Lucene: updateExpedientCamps", "lucene", expedient.getTipus().getNom());
 			return false;
 		}
 	}
@@ -230,11 +230,11 @@ public class LuceneDao extends LuceneIndexSupport {
 		thread.start();
 	}
 	public synchronized void deleteExpedient(Expedient expedient) {
-		mesuresTemporalsHelper.mesuraIniciar("Lucene: deleteExpedient", "lucene");
+		mesuresTemporalsHelper.mesuraIniciar("Lucene: deleteExpedient", "lucene", expedient.getTipus().getNom());
 		checkIndexOk();
 		getLuceneIndexTemplate().deleteDocuments(
 				termIdFromExpedient(expedient));
-		mesuresTemporalsHelper.mesuraCalcular("Lucene: deleteExpedient", "lucene");
+		mesuresTemporalsHelper.mesuraCalcular("Lucene: deleteExpedient", "lucene", expedient.getTipus().getNom());
 	}
 
 	public void deleteAllAsync() {
@@ -338,7 +338,7 @@ public class LuceneDao extends LuceneIndexSupport {
 			String entornCodi,
 			Expedient expedient,
 			List<Camp> informeCamps) {
-		mesuresTemporalsHelper.mesuraIniciar("Lucene: getDadesExpedient", "lucene");
+		mesuresTemporalsHelper.mesuraIniciar("Lucene: getDadesExpedient", "lucene", expedient.getTipus().getNom());
 		checkIndexOk();
 		Query query = queryFromCampFiltre(
 				ExpedientCamps.EXPEDIENT_CAMP_ID,
@@ -353,7 +353,7 @@ public class LuceneDao extends LuceneIndexSupport {
 				true,
 				0,
 				-1);
-		mesuresTemporalsHelper.mesuraCalcular("Lucene: getDadesExpedient", "lucene");
+		mesuresTemporalsHelper.mesuraCalcular("Lucene: getDadesExpedient", "lucene", expedient.getTipus().getNom());
 		return resultat;
 	}
 

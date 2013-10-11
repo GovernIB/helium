@@ -16,7 +16,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jbpm.JbpmConfiguration;
 import org.jbpm.JbpmException;
-import org.jbpm.graph.exe.ProcessInstance;
 import org.jbpm.job.ExecuteActionJob;
 import org.jbpm.job.ExecuteNodeJob;
 import org.jbpm.job.Job;
@@ -89,7 +88,14 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 				jobName += " " + ((ExecuteNodeJob) job).getNode().getName();
 		}
 		
-		((MesuresTemporalsHelper)adminService.getMesuresTemporalsHelper()).mesuraIniciar(jobName, "timer");
+		String expedientTipus = null;
+		ExpedientDto exp = null;
+		if (MesuresTemporalsHelper.isActiu()) {
+			exp = expedientService.findExpedientAmbProcessInstanceId(String.valueOf(job.getProcessInstance().getId()));
+			if (exp != null)
+				expedientTipus = exp.getTipus().getNom();
+			adminService.getMesuresTemporalsHelper().mesuraIniciar(jobName, "timer", expedientTipus);
+		}
 		try {
 			transactionTemplate.execute(new TransactionCallback() {
 				public Object doInTransaction(TransactionStatus transactionStatus) {
@@ -99,16 +105,15 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 			});
 		} catch (JbpmException ex) {
 			ambErrors = true;
-			ProcessInstance pi = job.getProcessInstance();
-			ExpedientDto exp = expedientService.findExpedientAmbProcessInstanceId(
-					String.valueOf(pi.getId()));
+			if (exp == null)
+				exp = expedientService.findExpedientAmbProcessInstanceId(String.valueOf(job.getProcessInstance().getId()));
 			String errorDesc = "Se ha producido un error al ejecutar el timer " + jobName + ".";			
 			StringWriter errors = new StringWriter();
 			ex.printStackTrace(new PrintWriter(errors));
 			String errorFull = errors.toString();			
 			errorFull = errorFull.replace("'", "&#8217;").replace("\"", "&#8220;").replace("\n", "<br>").replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
 			errorFull = StringEscapeUtils.escapeJavaScript(errorFull);
-			expedientService.updateExpedientError(String.valueOf(pi.getId()), errorDesc, errorFull);
+			expedientService.updateExpedientError(String.valueOf(job.getProcessInstance().getId()), errorDesc, errorFull);
 			logger.error("Error al executar job de l'expedient (id=" + exp.getId() + ", identificador=" + exp.getIdentificadorLimitat() + ", processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
 			throw ex;
 		}
@@ -116,13 +121,12 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 			try {
 				expedientService.luceneUpdateIndexExpedient(String.valueOf(job.getProcessInstance().getId()));
 			} catch (Exception ex) {
-				ProcessInstance pi = job.getProcessInstance();
-				ExpedientDto exp = expedientService.findExpedientAmbProcessInstanceId(
-						String.valueOf(pi.getId()));
+				if (exp == null)
+					exp = expedientService.findExpedientAmbProcessInstanceId(String.valueOf(job.getProcessInstance().getId()));
 				logger.error("Error al executar job al reindexar l'expedient (id=" + exp.getId() + ", identificador=" + exp.getIdentificadorLimitat() + ", processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
 			}
 		}
-		((MesuresTemporalsHelper)adminService.getMesuresTemporalsHelper()).mesuraCalcular(jobName, "timer");
+		adminService.getMesuresTemporalsHelper().mesuraCalcular(jobName, "timer", expedientTipus);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

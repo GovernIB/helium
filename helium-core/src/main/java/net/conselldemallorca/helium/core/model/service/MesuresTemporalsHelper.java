@@ -4,18 +4,20 @@
 package net.conselldemallorca.helium.core.model.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import net.conselldemallorca.helium.core.model.dto.IntervalEventDto;
 import net.conselldemallorca.helium.core.model.dto.MesuraTemporalDto;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -53,18 +55,22 @@ public class MesuresTemporalsHelper {
 		mesuraIniciar(nom, familia, tipusExpedient, tasca, null);
 	}
 	public void mesuraIniciar(String nom, String familia, String tipusExpedient, String tasca, String detall) {
-		if (actiu) {
-			Clau clau = new Clau(nom, tipusExpedient, tasca, detall);
-			if (!intervalsEstadistiques.containsKey(familia)) {
-				intervalsEstadistiques.put(familia, new HashMap<Clau, Estadistiques>());
+		try {
+			if (actiu) {
+				Clau clau = new Clau(nom, tipusExpedient, tasca, detall);
+				if (!intervalsEstadistiques.containsKey(familia)) {
+					intervalsEstadistiques.put(familia, new HashMap<Clau, Estadistiques>());
+				}
+				Map<Clau, Estadistiques> mEstadistiques = intervalsEstadistiques.get(familia);
+				Estadistiques est = mEstadistiques.get(clau);
+				if (est == null) {
+					mEstadistiques.put(clau, new Estadistiques());
+				} else {
+					est.setInici(new Long(System.currentTimeMillis()));
+				}
 			}
-			Map<Clau, Estadistiques> mEstadistiques = intervalsEstadistiques.get(familia);
-			Estadistiques est = mEstadistiques.get(clau);
-			if (est == null) {
-				mEstadistiques.put(clau, new Estadistiques());
-			} else {
-				est.setInici(new Long(System.currentTimeMillis()));
-			}
+		} catch (Exception e) {
+			logger.error("No s'ha pogut iniciar la mesura de temps: " + nom, e);
 		}
 	}
 	
@@ -78,11 +84,15 @@ public class MesuresTemporalsHelper {
 		mesuraCalcular(nom, familia, tipusExpedient, tasca, null);
 	}
 	public void mesuraCalcular(String nom, String familia, String tipusExpedient, String tasca, String detall) {
-		if (actiu && intervalsEstadistiques.containsKey(familia)) {
-			Clau clau = new Clau(nom, tipusExpedient, tasca, detall);
-			Estadistiques est = intervalsEstadistiques.get(familia).get(clau);
-			if (est != null)
-				est.addNovaMesura();
+		try {
+			if (actiu && intervalsEstadistiques.containsKey(familia)) {
+				Clau clau = new Clau(nom, tipusExpedient, tasca, detall);
+				Estadistiques est = intervalsEstadistiques.get(familia).get(clau);
+				if (est != null)
+					est.addNovaMesura();
+			}
+		} catch (Exception e) {
+			logger.error("No s'ha pogut calcular la mesura de temps: " + nom, e);
 		}
 	}
 
@@ -93,7 +103,7 @@ public class MesuresTemporalsHelper {
 		}
 	}
 	
-	public List<MesuraTemporalDto> getEstadistiques(String familia) {
+	public List<MesuraTemporalDto> getEstadistiques(String familia, boolean ambDetall) {
 		fi = System.currentTimeMillis();
 		Map<String, Map<Clau, Estadistiques>> estadistiquesFamilia = null;
 		if (familia == null || "".equals(familia)) {
@@ -106,12 +116,114 @@ public class MesuresTemporalsHelper {
 		List<MesuraTemporalDto> resposta = new ArrayList<MesuraTemporalDto>();
 		Long temps = fi - inici;
 		
-		SortedSet<String> families = new TreeSet<String>(estadistiquesFamilia.keySet());
-		for (String family: families) {
+//		SortedSet<String> families = new TreeSet<String>(estadistiquesFamilia.keySet());
+//		for (String family: families) {
+		for (String family: estadistiquesFamilia.keySet()) {
 			Map<Clau, Estadistiques> estadistiques = estadistiquesFamilia.get(family);
 			if (estadistiques != null) {
-				SortedSet<Clau> claus = new TreeSet<Clau>(estadistiques.keySet());
-				for (Clau clau: claus) {
+//				SortedSet<Clau> claus = new TreeSet<Clau>(estadistiques.keySet());
+//				for (Clau clau: claus) {
+				for (Clau clau: estadistiques.keySet()) {
+					if (ambDetall || clau.getDetall() == null) {
+						Estadistiques estadistica = estadistiques.get(clau);
+						if (estadistica != null && estadistica.getDarreraMesura() != null) {
+							MesuraTemporalDto dto = new MesuraTemporalDto();
+							dto.setClau(clau.getNom());
+							dto.setTipusExpedient(clau.getTipusExpedient());
+							dto.setTasca(clau.getTasca());
+							dto.setDetall(clau.getDetall());
+							dto.setDarrera(estadistica.getDarreraMesura());
+							dto.setMitja(estadistica.getMitja());
+							dto.setMinima(estadistica.getMinim());
+							dto.setMaxima(estadistica.getMaxim());
+							dto.setNumMesures(estadistica.getContador());
+							LinkedList<IntervalEventDto> intervalEvents = new LinkedList<IntervalEventDto>();
+							for (IntervalEvent event : estadistica.getEvents()) {
+								intervalEvents.add(new IntervalEventDto(event.getDate(), event.getDuracio()));
+							}
+							dto.setEvents(intervalEvents);
+							// Execucions per minut
+							dto.setPeriode((dto.getNumMesures() * 60000.0) / temps);
+							resposta.add(dto);
+						}
+					}
+				}
+			}
+		}
+		Collections.sort(resposta);
+		return resposta;
+	}
+	
+	public List<MesuraTemporalDto> getEstadistiquesTipusExpedient() {
+		List<MesuraTemporalDto> estadistiques = findMesures(true);
+		Collections.sort(estadistiques, new Comparator<MesuraTemporalDto>() {
+			public int compare(MesuraTemporalDto o1, MesuraTemporalDto o2) {
+				int comp = compareStr(o1.getTipusExpedient(), o2.getTipusExpedient()); 
+				if (comp == 0) {
+					comp = compareStr(o1.getClau(), o2.getClau());
+					if  (comp == 0) {
+						if (o1.getDetall() == null || o2.getDetall() == null)
+							return compareStr(o2.getDetall(), o1.getDetall());
+						else 
+							return compareStr(o1.getDetall(), o2.getDetall());
+					}
+				} 
+				return comp;
+			}
+		});
+
+		Long temps = fi - inici;
+		List<MesuraTemporalDto> resposta = new ArrayList<MesuraTemporalDto>();
+		MesuraTemporalDto ultima = null;
+		for (MesuraTemporalDto estadistica: estadistiques) {
+			if (ultima != null && ultima.getNomTE().equals(estadistica.getNomTE())) {
+				ultima.setMaxima(Math.max(ultima.getMaxima(), estadistica.getMaxima()));
+				ultima.setMinima(Math.min(ultima.getMinima(), estadistica.getMinima()));
+				ultima.setMitja(((ultima.getMitja() * ultima.getNumMesures()) + (estadistica.getMitja() * estadistica.getNumMesures())) / (ultima.getNumMesures() + estadistica.getNumMesures()));
+				ultima.setNumMesures(ultima.getNumMesures() + estadistica.getNumMesures());
+				ultima.setPeriode(((ultima.getNumMesures() + estadistica.getNumMesures()) * 60000.0) / temps);
+			} else {
+				resposta.add(estadistica);
+				ultima = estadistica;
+			}
+		}
+		
+		return resposta;
+	}
+
+	public List<MesuraTemporalDto> getEstadistiquesTasca() {
+		List<MesuraTemporalDto> estadistiques = findMesures(false);
+		Collections.sort(estadistiques, new Comparator<MesuraTemporalDto>() {
+			public int compare(MesuraTemporalDto o1, MesuraTemporalDto o2) {
+				int comp = compareStr(o1.getTipusExpedient(), o2.getTipusExpedient()); 
+				if (comp == 0) {
+					comp = compareStr(o1.getTasca(), o2.getTasca());
+				}
+				if (comp == 0) {
+					comp = compareStr(o1.getClau(), o2.getClau());
+					if  (comp == 0) {
+						if (o1.getDetall() == null || o2.getDetall() == null)
+							return compareStr(o2.getDetall(), o1.getDetall());
+						else 
+							return compareStr(o1.getDetall(), o2.getDetall());
+					}
+				} 
+				return comp;
+			}
+		});
+		return estadistiques;
+	}
+	
+	private List<MesuraTemporalDto> findMesures(boolean ambTipus) {
+		fi = System.currentTimeMillis();
+		List<MesuraTemporalDto> resposta = new ArrayList<MesuraTemporalDto>();
+		Long temps = fi - inici;
+		boolean ambTasca = !ambTipus;
+		
+		for (String family: intervalsEstadistiques.keySet()) {
+			Map<Clau, Estadistiques> estadistiques = intervalsEstadistiques.get(family);
+			for (Clau clau: estadistiques.keySet()) {
+				if ((ambTipus &&  clau.getTipusExpedient() != null) || (ambTasca && clau.getTasca() != null)) {
 					Estadistiques estadistica = estadistiques.get(clau);
 					if (estadistica != null && estadistica.getDarreraMesura() != null) {
 						MesuraTemporalDto dto = new MesuraTemporalDto();
@@ -124,11 +236,6 @@ public class MesuresTemporalsHelper {
 						dto.setMinima(estadistica.getMinim());
 						dto.setMaxima(estadistica.getMaxim());
 						dto.setNumMesures(estadistica.getContador());
-						LinkedList<IntervalEventDto> intervalEvents = new LinkedList<IntervalEventDto>();
-						for (IntervalEvent event : estadistica.getEvents()) {
-							intervalEvents.add(new IntervalEventDto(event.getDate(), event.getDuracio()));
-						}
-						dto.setEvents(intervalEvents);
 						// Execucions per minut
 						dto.setPeriode((dto.getNumMesures() * 60000.0) / temps);
 						resposta.add(dto);
@@ -138,6 +245,7 @@ public class MesuresTemporalsHelper {
 		}
 		return resposta;
 	}
+	
 	
 	public static Long getTemps() {
 		if (fi == null) 
@@ -270,17 +378,17 @@ public class MesuresTemporalsHelper {
 		}
 
 		public int compareTo(Clau o) {
-			int comp = this.nom.compareTo(o.nom);
+			int comp = compareStr(this.nom, o.nom);
 			if (comp == 0) {
-				comp = this.tipusExpedient.compareTo(o.tipusExpedient);
+				comp = compareStr(this.tipusExpedient, o.tipusExpedient);
 				if  (comp == 0) {
-					comp = this.tasca.compareTo(o.tasca);
-					return comp == 0 ? this.detall.compareTo(o.detall) : comp;
+					comp = compareStr(this.tasca, o.tasca);
+					return comp == 0 ? compareStr(this.detall, o.detall) : comp;
 				}
 			} 
 			return comp;
 		}
-
+		
 		private MesuresTemporalsHelper getOuterType() {
 			return MesuresTemporalsHelper.this;
 		}
@@ -319,7 +427,7 @@ public class MesuresTemporalsHelper {
 			if (mitja == null)
 				mitja = new Double(diferencia);
 			else
-				mitja = new Double((mitja * contador + diferencia) / (contador + 1));
+				mitja = new Double((mitja * (contador - 1) + diferencia) / contador);
 		}
 		
 		public Long getInici() {
@@ -382,4 +490,10 @@ public class MesuresTemporalsHelper {
 	public static boolean isActiu() {
 		return actiu;
 	}
+	
+	private int compareStr(String str1, String str2) {
+	    return (str1 == null ? (str2 == null ? 0 : 1) : (str2 == null ? -1 : str1.compareTo(str2)));
+	}
+	
+	private static final Log logger = LogFactory.getLog(MesuresTemporalsHelper.class);
 }

@@ -429,23 +429,23 @@ public class JbpmDao {
 
 	@SuppressWarnings("unchecked")
 	public List<JbpmTask> findPersonalTasks(List<Long> ids, String usuariBo) {
-		mesuresTemporalsHelper.mesuraIniciar("jBPM findPersonalTasks", "jbpmDao");
+		mesuresTemporalsHelper.mesuraIniciar("jBPM findPersonalTasks ids", "jbpmDao");
 		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
 		GetPersonalTaskListCommand command = new GetPersonalTaskListCommand(usuariBo, ids);
 		for (TaskInstance ti : (List<TaskInstance>)commandService.execute(command))
 			resultat.add(new JbpmTask(ti));
-		mesuresTemporalsHelper.mesuraCalcular("jBPM findPersonalTasks", "jbpmDao");
+		mesuresTemporalsHelper.mesuraCalcular("jBPM findPersonalTasks ids", "jbpmDao");
 		return resultat;
 	}
 
 	@SuppressWarnings("unchecked")
 	public List<JbpmTask> findGroupTasks(List<Long> ids, String usuariBo) {
-		mesuresTemporalsHelper.mesuraIniciar("jBPM findGroupTasks", "jbpmDao");
+		mesuresTemporalsHelper.mesuraIniciar("jBPM findGroupTasks ids", "jbpmDao");
 		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
 		GetGroupTaskListCommand command = new GetGroupTaskListCommand(usuariBo, ids);
 		for (TaskInstance ti : (List<TaskInstance>)commandService.execute(command))
 			resultat.add(new JbpmTask(ti));
-		mesuresTemporalsHelper.mesuraCalcular("jBPM findGroupTasks", "jbpmDao");
+		mesuresTemporalsHelper.mesuraCalcular("jBPM findGroupTasks ids", "jbpmDao");
 		return resultat;
 	}
 
@@ -619,7 +619,7 @@ public class JbpmDao {
 	}
 	
 	public JbpmTask reassignTaskInstance(String taskId, String expression, Long entornId) {
-		mesuresTemporalsHelper.mesuraIniciar("jBPM reassignTaskInstance", "jbpmDao");
+		mesuresTemporalsHelper.mesuraIniciar("jBPM reassignTaskInstance entorn", "jbpmDao");
 		JbpmTask resposta = null;
 		final long id = Long.parseLong(taskId);
 		ReassignTaskInstanceCommand command = new ReassignTaskInstanceCommand(id);
@@ -630,7 +630,7 @@ public class JbpmDao {
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
 		resposta = new JbpmTask((TaskInstance)commandService.execute(autoSaveCommand));
-		mesuresTemporalsHelper.mesuraCalcular("jBPM reassignTaskInstance", "jbpmDao");
+		mesuresTemporalsHelper.mesuraCalcular("jBPM reassignTaskInstance entorn", "jbpmDao");
 		return resposta;
 	}
 	

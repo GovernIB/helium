@@ -95,6 +95,7 @@ public class ExpedientLogHelper {
 	private CampTascaDao campTascaDao;
 	private DefinicioProcesDao definicioProcesDao;
 	private EstatDao estatDao;
+	private MesuresTemporalsHelper mesuresTemporalsHelper;
 
 	public ExpedientLog afegirLogExpedientPerTasca(
 			String taskInstanceId,
@@ -186,22 +187,28 @@ public class ExpedientLogHelper {
 		return jbpmLogId;
 	}
 	
-	public void retrocedirFinsLog(Long expedientLogId, boolean retrocedirPerTasques, Long iniciadorId) {
+	public void retrocedirFinsLog(ExpedientLog expedientLog, boolean retrocedirPerTasques, Long iniciadorId) {
 		boolean debugRetroces = true;
 		
-		ExpedientLog expedientLog = expedientLogDao.getById(expedientLogId, false);
+//		ExpedientLog expedientLog = expedientLogDao.getById(expedientLogId, false);
 		JbpmTask jtask = jbpmDao.getTaskById(expedientLog.getTargetId());
 		
 		// Variables per a desar la informació per a executar el node enter al final de tot
 //		long nodeEnterObjectId = 0;
 		Long nodeEnterTokenId = null;
 				
+		mesuresTemporalsHelper.mesuraIniciar("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedientLog.getExpedient().getTipus().getNom(), null, "findAmbExpedientIdOrdenatsPerData");
 		List<ExpedientLog> expedientLogs = expedientLogDao.findAmbExpedientIdOrdenatsPerData(
 				expedientLog.getExpedient().getId());
-		expedientLogs = filtraExpedientsLogPerRetrocedir(expedientLogs, expedientLogId, retrocedirPerTasques);
+		mesuresTemporalsHelper.mesuraCalcular("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedientLog.getExpedient().getTipus().getNom(), null, "findAmbExpedientIdOrdenatsPerData");
+		mesuresTemporalsHelper.mesuraIniciar("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedientLog.getExpedient().getTipus().getNom(), null, "filtraExpedientsLogPerRetrocedir");
+		expedientLogs = filtraExpedientsLogPerRetrocedir(expedientLogs, expedientLog.getId(), retrocedirPerTasques);
+		mesuresTemporalsHelper.mesuraCalcular("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedientLog.getExpedient().getTipus().getNom(), null, "filtraExpedientsLogPerRetrocedir");
 
 		// Retrocedeix els canvis al jBPM relacionats amb els logs
+		mesuresTemporalsHelper.mesuraIniciar("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedientLog.getExpedient().getTipus().getNom(), null, "getLogsJbpmPerRetrocedir");
 		List<ProcessLog> logsJbpm = getLogsJbpmPerRetrocedir(expedientLogs); //, expedientLogId);
+		mesuresTemporalsHelper.mesuraCalcular("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedientLog.getExpedient().getTipus().getNom(), null, "getLogsJbpmPerRetrocedir");
 		
 		// Primer i últim log (rang a retrocedir)
 		long beginLogId = logsJbpm.get(0).getId();
@@ -219,6 +226,7 @@ public class ExpedientLogHelper {
 				expedientLog.getExpedient().getProcessInstanceId(),
 				getMessageLogPerTipus(retrocedirPerTasques ? ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR_TASQUES : ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR));
 		if (logsJbpm != null && !logsJbpm.isEmpty()) {
+			mesuresTemporalsHelper.mesuraIniciar("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedientLog.getExpedient().getTipus().getNom(), null, "getAccionsJbpmPerRetrocedir");
 			// Recull totes les accions executades a jBPM relacionats amb els logs
 			Collection<LogObject> logObjects = getAccionsJbpmPerRetrocedir(
 					expedientLogs,
@@ -257,6 +265,8 @@ public class ExpedientLogHelper {
 					System.out.println();
 				}
 			}
+			mesuresTemporalsHelper.mesuraCalcular("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedientLog.getExpedient().getTipus().getNom(), null, "getAccionsJbpmPerRetrocedir");
+			mesuresTemporalsHelper.mesuraIniciar("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedientLog.getExpedient().getTipus().getNom(), null, "obtenir dades per retroces");
 			
 			// Emmagatzema els paràmetres per a retrocedir cada acció
 			Map<Long, String> paramsAccio = new HashMap<Long, String>();
@@ -284,7 +294,9 @@ public class ExpedientLogHelper {
 					}
 				}
 			}
-							
+					
+			mesuresTemporalsHelper.mesuraCalcular("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedientLog.getExpedient().getTipus().getNom(), null, "obtenir dades per retroces");
+			mesuresTemporalsHelper.mesuraIniciar("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedientLog.getExpedient().getTipus().getNom(), null, "realitzar accions de retroces");
 			// Executa les accions necessàries per a retrocedir l'expedient
 			for (LogObject logo: logObjects) {
 				boolean created = logo.getAccions().contains(LogObject.LOG_ACTION_CREATE);
@@ -623,6 +635,7 @@ public class ExpedientLogHelper {
 					break;
 				}
 			}
+			mesuresTemporalsHelper.mesuraCalcular("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedientLog.getExpedient().getTipus().getNom(), null, "realitzar accions de retroces");
 		}
 		// Retrocedeix les accions no jBPM
 		/*Collections.reverse(expedientLogs);
@@ -844,9 +857,11 @@ public class ExpedientLogHelper {
 	public void setEstatDao(EstatDao estatDao) {
 		this.estatDao = estatDao;
 	}
-
-
-
+	@Autowired
+	public void setMesuresTemporalsHelper(MesuresTemporalsHelper mesuresTemporalsHelper) {
+		this.mesuresTemporalsHelper = mesuresTemporalsHelper;
+	}
+	
 	private Expedient getExpedientPerProcessInstanceId(String processInstanceId) {
 		JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(processInstanceId);
 		return expedientDao.findAmbProcessInstanceId(pi.getId());

@@ -304,7 +304,7 @@ html, body{
 	margin-left: 25px;
 	margin-bottom: 20px;
 	width: 200px;
-	height: 400px;
+/* 	height: 400px; */
 	float: left;
 }
 ul#temps_tabnav {

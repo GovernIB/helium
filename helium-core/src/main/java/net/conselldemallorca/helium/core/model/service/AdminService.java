@@ -133,9 +133,16 @@ public class AdminService {
 		return ret;
 	}
 
-	public List<MesuraTemporalDto> findMesuresTemporals(String familia) {
+	public List<MesuraTemporalDto> findMesuresTemporals(String familia, boolean ambDetall) {
 		logger.debug("Consultant el llistat de les mesures temporals");
-		return mesuresTemporalsHelper.getEstadistiques(familia);
+		return mesuresTemporalsHelper.getEstadistiques(familia, ambDetall);
+	}
+	
+	public List<MesuraTemporalDto> findMesuresTemporalsTipusExpedient() {
+		return mesuresTemporalsHelper.getEstadistiquesTipusExpedient();
+	}
+	public List<MesuraTemporalDto> findMesuresTemporalsTasca() {
+		return mesuresTemporalsHelper.getEstadistiquesTasca();
 	}
 	
 	public Set<String> findFamiliesMesuresTemporals() {

@@ -158,7 +158,7 @@ public class TascaDocumentsController extends BaseController {
 					true,
 					true);
 			if (MesuresTemporalsHelper.isActiu())
-				mesuresTemporalsHelper.mesuraIniciar(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Documents", "tasques");
+				mesuresTemporalsHelper.mesuraIniciar("Tasca DOCUMENTS", "tasques", tasca.getExpedient().getTipus().getNom(), tasca.getNomLimitat());
 			model.addAttribute("tasca", tasca);
 			for (DocumentTasca document: tasca.getDocuments()) {
 				DocumentExpedientCommand command = new DocumentExpedientCommand();
@@ -168,7 +168,7 @@ public class TascaDocumentsController extends BaseController {
 						command);
 			}
 			if (MesuresTemporalsHelper.isActiu())
-				mesuresTemporalsHelper.mesuraCalcular(tasca.getExpedient().getTipus().getNom() + " - " + tasca.getNomLimitat() + " - Documents", "tasques");
+				mesuresTemporalsHelper.mesuraCalcular("Tasca DOCUMENTS", "tasques", tasca.getExpedient().getTipus().getNom(), tasca.getNomLimitat());
 			return "tasca/documents";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
