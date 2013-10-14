@@ -15,7 +15,6 @@ import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 /**
@@ -47,8 +46,7 @@ public class UsuariActualCacheHelper {
 					}
 				},
 				Entorn.class,
-				new Permission[] {BasePermission.ADMINISTRATION, BasePermission.READ},
-				SecurityContextHolder.getContext().getAuthentication());
+				new Permission[] {BasePermission.ADMINISTRATION, BasePermission.READ});
 		return conversioTipusHelper.convertirList(
 				entorns,
 				EntornDto.class);

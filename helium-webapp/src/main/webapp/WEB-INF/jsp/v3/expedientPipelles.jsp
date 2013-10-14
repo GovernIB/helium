@@ -84,8 +84,7 @@
 	});
 </script>
 </head>
-<body>
-
+<body>	
 	<div class="span3 mainMenu">
 		<div class="thumbnail">
 			<h4>
@@ -119,8 +118,19 @@
 			<div class="btn-group">
 				<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog icon-white"></i> Accions <span class="caret"></span></a>
 				<ul class="dropdown-menu">
-					<li><a class="link-tramitacio-modal" href="<c:url value="/v3/expedient/${expedientId}/modificar"/>"><i class="icon-pencil"></i> Modificar informació</a></li>
-					<li><a class="link-tramitacio-modal" href="<c:url value="/v3/expedient/${expedientId}/stop"/>"><i class="icon-stop"></i> Aturar tramitació</a></li>
+					<li><a class="link-tramitacio-modal" href="<c:url value="/helium/v3/expedient/${expedientId}/modificar"/>"><i class="icon-pencil"></i> Modificar informació</a></li>
+					<li>
+						<c:import url="utils/modalDefinir.jsp">
+							<c:param name="sAjaxSource" value="/helium/v3/expedient/${expedientId}/stop"/>
+							<c:param name="modalId" value="aturar"/>
+							<c:param name="refrescarAlertes" value="true"/>
+							<c:param name="refrescarPagina" value="false"/>							
+							<c:param name="refrescarTaula" value="false"/>							
+							<c:param name="refrescarTaulaId" value="false"/>
+							<c:param name="icon" value="icon-stop"/>
+							<c:param name="texto" value="Aturar tramitació"/>
+						</c:import>
+					</li>
 					<c:if test="${not empty accions}">
 						<li class="divider"></li>
 						<c:forEach var="accio" items="${accions}">
@@ -129,6 +139,7 @@
 					</c:if>
 				</ul>
 			</div>
+
 			<%--div class="buttonList">
 				<button class="btn btn-primary span12" type="button">Modificar informació</button>
 				<button class="btn btn-primary span12" type="button">Descarregar expedient</button>
@@ -161,6 +172,7 @@
 			</dl--%>
 		</div>
 	</div>
+	<c:import url="utils/modal.jsp"/>
 	<div id="contingut-contenidor" class="span9">
 		<%--div class="btn-group" data-toggle="buttons-radio">
 			<a id="dades-btn" class="btn" href="#"><i class="icon-list-alt"></i> Dades</a>

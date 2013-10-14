@@ -2,7 +2,7 @@
 <html>
 <head>
 <script>
-	window.parent.location.reload();
+	window.parent.modalTancarIRefrescar(window.frameElement);
 </script>
 </head>
 <body></body>

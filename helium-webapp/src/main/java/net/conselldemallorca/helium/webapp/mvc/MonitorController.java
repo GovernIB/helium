@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
- * Controlador per a la pÃ gina inicial (index).
+ * Controlador per a la página inicial (index).
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -68,7 +68,8 @@ public class MonitorController extends BaseController {
 			for (int a = 0; a < ids.length; ++a) {
 				hs.add(bean.getThreadCpuTime(ids[a]));
 			}
-			long tiempoCPUTotal = Collections.max(hs);
+
+			long tiempoCPUTotal =  ((Long)Collections.max(hs)).longValue();
 			for (int a = 0; a < ids.length; ++a) {
 				String nombre = (info[a].getLockName() == null ? info[a].getThreadName() : info[a].getLockName());
 				if (!"main".equals(nombre)) {

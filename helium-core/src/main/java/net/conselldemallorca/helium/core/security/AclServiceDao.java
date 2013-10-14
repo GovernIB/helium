@@ -13,8 +13,6 @@ import net.conselldemallorca.helium.v3.core.helper.PermisosHelper;
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Per a permetre cridar al PermisosHelper sense haver de
@@ -114,12 +112,10 @@ public class AclServiceDao {
 			GenericEntityDto object,
 			Class clazz,
 			Permission[] permissions) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		return permisosHelper.isGrantedAny(
 				(Long)object.getId(),
 				clazz,
-				permissions,
-				auth);
+				permissions);
 	}
 
 	

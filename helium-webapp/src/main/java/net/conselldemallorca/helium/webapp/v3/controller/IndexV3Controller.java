@@ -18,26 +18,28 @@ import org.springframework.web.bind.annotation.RequestMethod;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3")
 public class IndexV3Controller {
 
 	@Resource
 	private AdminService adminService;
 
-	@RequestMapping(method = RequestMethod.GET)
+	@RequestMapping(value = "/v3", method = RequestMethod.GET)
 	public String get(HttpServletRequest request) {
 		return "redirect:/v3/index";
 	}
 
-	@RequestMapping(value = "/index", method = RequestMethod.GET)
+	@RequestMapping(value = "/v3/missatges", method = RequestMethod.GET)
+	public String getMissatges(HttpServletRequest request) {
+		return "v3/missatges";
+	}
+
+	@RequestMapping(value = "/v3/utils/modalTancar", method = RequestMethod.GET)
+	public String modalTancar() {
+		return "utils/modalTancar";
+	}
+
+	@RequestMapping(value = "/v3/index", method = RequestMethod.GET)
 	public String index(HttpServletRequest request) {
 		return "redirect:/v3/expedient";
 	}
-
-//	@RequestMapping(value = "/mesuresTemps", method = RequestMethod.GET)
-//	@ResponseBody
-//	public List<MesuraTemporalDto> mesuresTemps(HttpServletRequest request) {
-//		return adminService.findMesuresTemporals();
-//	}
-
 }

@@ -26,6 +26,7 @@ import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 
@@ -40,7 +41,16 @@ public class PermisosHelper {
 	@Resource
 	private MutableAclService aclService;
 
-
+	public List<AccessControlEntry> findAclsByOid(
+			ObjectIdentity oid) {
+			try {
+				return getAclSids(
+						Class.forName(oid.getType()), 
+						(Long)oid.getIdentifier());
+			} catch (ClassNotFoundException e) {
+				return null;
+			}
+	}
 
 	public void assignarPermisUsuari(
 			String userName,
@@ -140,8 +150,7 @@ public class PermisosHelper {
 			Collection<?> objects,
 			ObjectIdentifierExtractor objectIdentifierExtractor,
 			Class<?> clazz,
-			Permission[] permissions,
-			Authentication auth) {
+			Permission[] permissions) {
 		Iterator<?> it = objects.iterator();
 		while (it.hasNext()) {
 			Long objectIdentifier = objectIdentifierExtractor.getObjectIdentifier(
@@ -149,21 +158,18 @@ public class PermisosHelper {
 			if (!isGrantedAny(
 					objectIdentifier,
 					clazz,
-					permissions,
-					auth))
+					permissions))
 				it.remove();
 		}
 	}
 	public boolean isGrantedAny(
 			Long objectIdentifier,
 			Class<?> clazz,
-			Permission[] permissions,
-			Authentication auth) {
+			Permission[] permissions) {
 		boolean[] granted = verificarPermisos(
 				objectIdentifier,
 				clazz,
-				permissions,
-				auth);
+				permissions);
 		for (int i = 0; i < granted.length; i++) {
 			if (granted[i])
 				return true;
@@ -198,8 +204,7 @@ public class PermisosHelper {
 		boolean[] granted = verificarPermisos(
 				objectIdentifier,
 				clazz,
-				permissions,
-				auth);
+				permissions);
 		boolean result = true;
 		for (int i = 0; i < granted.length; i++) {
 			if (!granted[i]) {
@@ -275,8 +280,8 @@ public class PermisosHelper {
 	private boolean[] verificarPermisos(
 			Long objectIdentifier,
 			Class<?> clazz,
-			Permission[] permissions,
-			Authentication auth) {
+			Permission[] permissions) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		List<Sid> sids = new ArrayList<Sid>();
 		sids.add(new PrincipalSid(auth.getName()));
 		for (GrantedAuthority ga: auth.getAuthorities())

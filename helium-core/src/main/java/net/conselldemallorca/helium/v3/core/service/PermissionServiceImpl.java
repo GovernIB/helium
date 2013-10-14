@@ -10,9 +10,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import net.conselldemallorca.helium.core.security.AclServiceDao;
-import net.conselldemallorca.helium.v3.core.api.dto.GenericEntityDto;
+import javax.annotation.Resource;
+
 import net.conselldemallorca.helium.v3.core.api.service.PermissionService;
+import net.conselldemallorca.helium.v3.core.helper.PermisosHelper;
 
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.model.AccessControlEntry;
@@ -29,14 +30,15 @@ import org.springframework.stereotype.Service;
  */
 @Service("permissionServiceV3")
 public class PermissionServiceImpl implements PermissionService {
-	private AclServiceDao aclServiceDao;
+	@Resource
+	private PermisosHelper permisosHelper;
 
 	@SuppressWarnings("rawtypes")
 	public Map<Sid, List<AccessControlEntry>> getAclEntriesGroupedBySid(Serializable id, Class clazz) {
 		ObjectIdentity oid = new ObjectIdentityImpl(clazz, id);
 		try {
 			Map<Sid, List<AccessControlEntry>> resposta = new HashMap<Sid, List<AccessControlEntry>>();
-			List<AccessControlEntry> aces = aclServiceDao.findAclsByOid(oid);
+			List<AccessControlEntry> aces = permisosHelper.findAclsByOid(oid);
 			if (aces != null) {
 				for (AccessControlEntry ace : aces) {
 					List<AccessControlEntry> entriesForSid = resposta.get(ace.getSid());
@@ -58,14 +60,14 @@ public class PermissionServiceImpl implements PermissionService {
 		Iterator it = list.iterator();
 		while (it.hasNext()) {
 			Object entry = it.next();
-			if (!aclServiceDao.isGrantedAny((GenericEntityDto) entry, clazz, permissions))
+			if (!permisosHelper.isGrantedAny((Long)entry, clazz, permissions))
 				it.remove();
 		}
 	}
 
 	@SuppressWarnings("rawtypes")
-	public Object filterAllowed(GenericEntityDto object, Class clazz, Permission[] permissions) {
-		if (aclServiceDao.isGrantedAny(object, clazz, permissions)) {
+	public Object filterAllowed(Long object, Class clazz, Permission[] permissions) {
+		if (permisosHelper.isGrantedAny(object, clazz, permissions)) {
 			return object;
 		} else {
 			return null;
@@ -73,7 +75,7 @@ public class PermissionServiceImpl implements PermissionService {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public boolean isGrantedAny(GenericEntityDto object, Class clazz, Permission[] permissions) {
-		return aclServiceDao.isGrantedAny(object, clazz, permissions);
+	public boolean isGrantedAny(Long object, Class clazz, Permission[] permissions) {
+		return permisosHelper.isGrantedAny(object, clazz, permissions);
 	}
 }

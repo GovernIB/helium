@@ -119,8 +119,7 @@ public class DissenyServiceImpl implements DissenyService {
 					}
 				},
 				ExpedientTipus.class,
-				permisos,
-				SecurityContextHolder.getContext().getAuthentication());
+				permisos);
 		return conversioTipusHelper.convertirList(
 				expedientsTipus,
 				ExpedientTipusDto.class);

@@ -417,8 +417,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					Entorn.class,
 					new Permission[] {
 						ExtendedPermission.READ,
-						ExtendedPermission.ADMINISTRATION},
-					auth);
+						ExtendedPermission.ADMINISTRATION});
 			if (!ambPermis) {
 				logger.debug("No es tenen permisos per accedir a l'entorn (entornId=" + entornId + ")");
 				throw new EntornNotFoundException();
@@ -437,8 +436,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 						ExpedientTipus.class,
 						new Permission[] {
 							ExtendedPermission.READ,
-							ExtendedPermission.ADMINISTRATION},
-						auth);
+							ExtendedPermission.ADMINISTRATION});
 				if (!ambPermis) {
 					logger.debug("No es tenen permisos per accedir a l'expedientTipus (expedientTipusId=" + expedientTipusId + ")");
 					throw new ExpedientTipusNotFoundException();
@@ -476,8 +474,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				ExpedientTipus.class,
 				new Permission[] {
 					ExtendedPermission.READ,
-					ExtendedPermission.ADMINISTRATION},
-				auth);
+					ExtendedPermission.ADMINISTRATION});
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "0");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "1");
 		// Obté la llista d'ids d'expedient de l'entorn actual que

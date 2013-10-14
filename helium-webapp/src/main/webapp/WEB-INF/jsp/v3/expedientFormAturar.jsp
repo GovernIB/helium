@@ -6,36 +6,44 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 
 <html>
-<head>
-	<title>Expedient</title>
-	<script type="text/javascript" src="<c:url value="/js/jquery.keyfilter.js"/>"></script>
-	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
-	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
-	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
-	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
-	<script type="text/javascript" src="<c:url value="/js/jquery.maskedinput.js"/>"></script>
-</head>
-<body>
-
-<form:form id="aturarExpedient" name="aturarExpedient" action="aturarExpedient" method="post" commandName="aturarCommand">
-	<div class="modal-body">
-		<div class="span1">
-			Motiu
-		</div>
-		<textarea id="motiu" name="motiu" autofocus="autofocus" class="span9"></textarea>
-	</div>
-</form:form>
-<script>
-	window.parent.canviTitolModal("Aturar la tramitació de l'expedient");
-	var transicions = new Array();
-	var texts = new Array();
-	transicions.push('aturarExpedient');texts.push('Aturar');
-	window.parent.substituirBotonsPeuModal(transicions, texts);
-	function test(codi) {
-		if (confirm('Estau segur que voleu donar aquesta tasca per finalitzada?')) {
-			$("#aturarExpedient").submit();
-			$("#tramitacio-modal").hide();
-		}
-	}
-</script>
-</body>
+	<head>
+		<title>Expediente</title>
+		<c:import url="utils/modalHead.jsp">
+			<c:param name="titol" value="Aturar la tramitació de l'expedient"/>
+			<c:param name="buttonContainerId" value="botons"/>
+		</c:import>
+	</head>
+	<body>		
+		<form:form id="aturarExpedient" name="aturarExpedient" action="aturarExpedient" method="post" commandName="aturarCommand" onsubmit="return confirmar(event)">
+			<div class="modal-body">
+				<div class="span1">
+					Motiu
+				</div>
+				<textarea id="motiu" name="motiu" autofocus="autofocus" class="span9"></textarea>
+			</div>
+			<div id="botons" class="well">
+				<button type="submit" class="btn btn-primary"><spring:message code="comuns.guardar"/></button>
+				<button type="button" class="btn btn-tancar"><spring:message code="comuns.cancelar"/></button>
+			</div>
+		</form:form>
+		<script>
+			function confirmar(e) {
+				var e = e || window.event;
+				e.cancelBubble = true;
+				if ($("#motiu").val() === "") {
+					$('.contingut-alertes').append(
+							'<div class="alert alert-error">'+
+								'<button class="close" data-dismiss="alert">×</button>' +								
+								'<spring:message code="comuns.camp_oblig"/>'+
+								': <spring:message code="expedient.eines.motiu"/>'+
+							'</div>'
+					);
+					window.parent.modalAjustarTamany(window.frameElement,$('html').height());
+					return false;
+				}
+				if (e.stopPropagation) e.stopPropagation();
+				return confirm('<spring:message code="expedient.eines.confirm_aturar"/>');
+			}
+		</script>
+	</body>
+</html>

@@ -48,7 +48,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 @RequestMapping("/v3/expedient")
-public class ExpedientLlistatController {
+public class ExpedientLlistatController extends BaseExpedientController {
 	private static final Map<String, String[]> COLUMNES_MAPEIG_ORDENACIO;
 	static {
 		COLUMNES_MAPEIG_ORDENACIO = new HashMap<String, String[]>();

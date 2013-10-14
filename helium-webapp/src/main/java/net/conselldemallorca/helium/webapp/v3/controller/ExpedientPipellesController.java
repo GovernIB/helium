@@ -132,8 +132,6 @@ public class ExpedientPipellesController extends BaseExpedientController {
 							expedientService.aturar(expedientId, aturarExpedient.getMotiu());
 							MissatgesHelper.info(request, "info.expedient.aturat");
 						} catch (Exception ex) {
-							// Long entornId = entorn.getId();
-							// log.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+expedientId+" No s'ha pogut aturar l'expedient",ex);
 							MissatgesHelper.error(request, "error.aturar.expedient");
 							ex.getLocalizedMessage();
 						}
@@ -147,8 +145,7 @@ public class ExpedientPipellesController extends BaseExpedientController {
 		} else {
 			MissatgesHelper.error(request, "error.no.entorn.selec");
 		}
-		mostrarInformacioExpedientPerPipella(request, expedientId, model, null, expedientService);
-		return "v3/utils/modalTancar";
+		return "/v3/utils/modalTancar";
 	}
 
 	private class ExpedientAturarValidator implements Validator {

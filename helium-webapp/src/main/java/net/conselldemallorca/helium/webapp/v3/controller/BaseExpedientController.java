@@ -23,7 +23,7 @@ import org.springframework.ui.Model;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class BaseExpedientController {
+public class BaseExpedientController extends BaseController {
 	@Resource(name="permissionServiceV3")
 	private PermissionService permissionService;
 
@@ -46,11 +46,8 @@ public class BaseExpedientController {
 	}
 
 	protected boolean potModificarExpedient(ExpedientDto expedient) {
-		return permissionService.filterAllowed(
-				expedient.getTipus(),
-				ExpedientTipus.class,
-				new Permission[] {
+		return permissionService.isGrantedAny(expedient.getTipus().getId(), ExpedientTipus.class, new Permission[] {
 					ExtendedPermission.ADMINISTRATION,
-					ExtendedPermission.WRITE}) != null;
+					ExtendedPermission.WRITE});
 	}
 }

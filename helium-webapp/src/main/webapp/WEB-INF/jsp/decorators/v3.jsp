@@ -84,7 +84,7 @@
 			<header>
 				<div class="row-fluid">
 					<div class="span12">
-						<jsp:include page="../v3/missatges.jsp"/>
+						<div class="contingut-alertes"><jsp:include page="../v3/missatges.jsp"/></div>						
 						<div class="lead">
 							<strong>${expedient.identificador}</strong>
 							<a id="refrescar-btn" class="btn btn-small pull-right" href="<c:url value="/v3/expedient/${expedient.id}"/>"><i class="icon-refresh"></i></a>
@@ -107,7 +107,7 @@
 		<c:otherwise>
 			<div class="well well-white">
 				<div class="row-fluid">
-					<jsp:include page="../v3/missatges.jsp"/>
+					<div class="contingut-alertes"></div>
 					<decorator:body />
 				</div>
 				<div class="clearfix"></div>

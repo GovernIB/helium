@@ -56,7 +56,6 @@ public class ExpedientHelper {
 	public Expedient geExpedientComprovantPermisosAny(
 			Long expedientId,
 			Permission[] permisos) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		Expedient expedient = expedientRepository.findOne(expedientId);
 		if (expedient == null) {
 			logger.debug("No s'ha trobat l'expedient (id=" + expedientId + ")");
@@ -65,8 +64,7 @@ public class ExpedientHelper {
 		boolean ambPermis = permisosHelper.isGrantedAny(
 				expedient.getTipus().getId(),
 				ExpedientTipus.class,
-				permisos,
-				auth);
+				permisos);
 		if (!ambPermis) {
 			logger.debug("No es tenen permisos per accedir a l'expedient (id=" + expedientId + ")");
 			throw new ExpedientNotFoundException();

@@ -16,10 +16,10 @@ import javax.servlet.http.HttpSession;
  */
 public class MissatgesHelper {
 
-	public static final String SESSION_ATTRIBUTE_ERROR = "AlertHelper.Error";
-	public static final String SESSION_ATTRIBUTE_WARNING = "AlertHelper.Warning";
-	public static final String SESSION_ATTRIBUTE_SUCCESS = "AlertHelper.Success";
-	public static final String SESSION_ATTRIBUTE_INFO = "AlertHelper.Info";
+	public static final String SESSION_ATTRIBUTE_ERROR = "MissatgesHelper.Error";
+	public static final String SESSION_ATTRIBUTE_WARNING = "MissatgesHelper.Warning";
+	public static final String SESSION_ATTRIBUTE_SUCCESS = "MissatgesHelper.Success";
+	public static final String SESSION_ATTRIBUTE_INFO = "MissatgesHelper.Info";
 
 	public static void error(
 			HttpServletRequest request,

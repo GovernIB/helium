@@ -7,8 +7,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import net.conselldemallorca.helium.v3.core.api.dto.GenericEntityDto;
-
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
@@ -23,7 +21,7 @@ public interface PermissionService {
 
 	public void filterAllowed(List list, Class clazz, Permission[] permissions);
 
-	public Object filterAllowed(GenericEntityDto object, Class clazz, Permission[] permissions);
+	public Object filterAllowed(Long object, Class clazz, Permission[] permissions);
 
-	public boolean isGrantedAny(GenericEntityDto object, Class clazz, Permission[] permissions);
+	public boolean isGrantedAny(Long object, Class clazz, Permission[] permissions);
 }
