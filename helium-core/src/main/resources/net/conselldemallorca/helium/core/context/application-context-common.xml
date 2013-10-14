@@ -71,7 +71,7 @@
 				<prop key="hibernate.hbm2ddl.auto">${app.hibernate.hbm2ddl.auto}</prop>
 				<!--prop key="hibernate.ejb.metamodel.generation">disabled</prop-->
 				<prop key="hibernate.ejb.cfgfile">/net/conselldemallorca/helium/core/context/jbpm3.hibernate.cfg.xml</prop>
-				<prop key="hibernate.generate_statistics">${hibernate.generate_statistics?false}</prop>
+				<prop key="hibernate.generate_statistics">${app.hibernate.generate_statistics?false}</prop>
 			</props>
 		</property>
 	</bean>
