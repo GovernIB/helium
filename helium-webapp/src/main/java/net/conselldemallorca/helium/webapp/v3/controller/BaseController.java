@@ -70,12 +70,12 @@ public class BaseController implements MessageSourceAware {
 		response.getOutputStream().write(fileContent);
 	}
 
-	protected String getMessage(HttpServletRequest request, String key, Object[] args) {
+	public String getMessage(HttpServletRequest request, String key, Object[] args) {
 		String message = messageSource.getMessage(key, args, "???" + key + "???", new RequestContext(request).getLocale());
 		return message;
 	}
 
-	protected String getMessage(HttpServletRequest request, String key) {
+	public String getMessage(HttpServletRequest request, String key) {
 		return getMessage(request, key, null);
 	}
 

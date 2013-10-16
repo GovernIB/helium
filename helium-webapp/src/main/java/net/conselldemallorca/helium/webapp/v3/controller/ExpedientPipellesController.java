@@ -3,9 +3,17 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.LogInfo;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
@@ -17,6 +25,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NoDecorarHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -70,7 +79,60 @@ public class ExpedientPipellesController extends BaseExpedientController {
 	public String modificarInformacio(HttpServletRequest request, @PathVariable Long expedientId, Model model) {
 		NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
 		model.addAttribute("expedientId", expedientId);
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		
 		ExpedientDto expedient = expedientService.findById(expedientId);
+		
+		// Numero
+		if (expedient.getTipus().isTeNumero()) {
+			if (!StringUtils.equals(expedient.getNumero(), expedient.getRegistreNumero())) {
+				expedient.setRegistreNumero(expedient.getNumero());
+			}
+		}
+		
+		// Titol
+		if (expedient.getTipus().isTeTitol()) {
+//			if (!StringUtils.equals(expedient.getTitol(), titol)) {
+//				expedient.setTitol(titol);
+//			}
+		}
+		
+		// Responsable
+//		if (!StringUtils.equals(expedient.getResponsableCodi(), responsableCodi)) {
+//			expedient.setResponsableCodi(responsableCodi);
+//		}
+//
+		// Comentari
+//		if (!StringUtils.equals(expedient.getComentari(), comentari)) {
+//			expedient.setComentari(comentari);
+//		}
+		// Estat
+//		if (estatId != null) {
+//			if (expedient.getEstat() == null) {
+//				expedient.setEstat(estatDao.getById(estatId, false));
+//			} else if (expedient.getEstat().getId() != estatId){
+//				expedient.setEstat(estatDao.getById(estatId, false));
+//			}
+//		} else if (expedient.getEstat() != null) {
+//			expedient.setEstat(null);
+//		}
+		// Geoposició
+//		if (expedient.getGeoPosX() != geoPosX) {
+//			expedient.setGeoPosX(geoPosX);
+//		}
+//		if (expedient.getGeoPosY() != geoPosY) {
+//			expedient.setGeoPosY(geoPosY);
+//		}
+		// Georeferencia
+//		if (!StringUtils.equals(expedient.getGeoReferencia(), geoReferencia)) {
+//			expedient.setGeoReferencia(geoReferencia);
+//		}
+		// Grup
+//		if (!StringUtils.equals(expedient.getGrupCodi(), grupCodi)) {
+//			expedient.setGrupCodi(grupCodi);
+//		}
+		
 		model.addAttribute("expedient", expedient);
 		return "v3/expedientFormModificarInformacio";
 	}
@@ -100,20 +162,20 @@ public class ExpedientPipellesController extends BaseExpedientController {
 								command.getGeoPosY(),
 								command.getGeoReferencia(),
 								command.getGrupCodi());
-						MissatgesHelper.info(request, "info.informacio.modificat" );
+						MissatgesHelper.info(request, getMessage(request, "info.informacio.modificat"));
 					} catch (Exception ex) {
 						Long entornId = entorn.getId();
 						String numeroExpedient = expedient.getIdentificador();
 //							logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'han pogut modificar les dades de l'expedient", ex);
-						MissatgesHelper.error(request, "error.modificar.dades.exp");
+						MissatgesHelper.error(request, getMessage(request, "error.modificar.dades.exp"));
 			        	dadesPaginaEditar(expedientId, expedient, model);
 			        	return "expedient/editar";
 					}
 				} else {
-					MissatgesHelper.info(request, "error.permisos.modificar.expedient");
+					MissatgesHelper.info(request, getMessage(request, "error.permisos.modificar.expedient"));
 				}
 		} else {
-			MissatgesHelper.error(request, "error.no.entorn.selec");
+			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
 		}
 		mostrarInformacioExpedientPerPipella(request, expedientId, model, null, expedientService);
 		return "v3/utils/modalTancar";
@@ -130,20 +192,20 @@ public class ExpedientPipellesController extends BaseExpedientController {
 					if (!result.hasErrors()) {
 						try {
 							expedientService.aturar(expedientId, aturarExpedient.getMotiu());
-							MissatgesHelper.info(request, "info.expedient.aturat");
+							MissatgesHelper.info(request, getMessage(request, "info.expedient.aturat"));
 						} catch (Exception ex) {
-							MissatgesHelper.error(request, "error.aturar.expedient");
+							MissatgesHelper.error(request, getMessage(request, "error.aturar.expedient"));
 							ex.getLocalizedMessage();
 						}
 					}
 				} else {
-					MissatgesHelper.error(request, "error.expedient.ja.aturat");
+					MissatgesHelper.error(request, getMessage(request, "error.expedient.ja.aturat"));
 				}
 			} else {
-				MissatgesHelper.error(request, "error.permisos.modificar.expedient");
+				MissatgesHelper.error(request, getMessage(request, "error.permisos.modificar.expedient"));
 			}
 		} else {
-			MissatgesHelper.error(request, "error.no.entorn.selec");
+			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
 		}
 		return "/v3/utils/modalTancar";
 	}

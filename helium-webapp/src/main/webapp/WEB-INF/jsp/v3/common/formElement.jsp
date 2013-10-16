@@ -30,7 +30,8 @@
 				<c:otherwise>
 					<div class="ctrlHolder<c:if test="${not empty errorsCamp}"> error</c:if><c:if test="${not empty param.classHolder}"> ${param.classHolder}</c:if>">
 						<c:if test="${not empty errorsCamp}"><p class="errorField"><strong>${errorsCamp}</strong></p></c:if>
-						<c:set var="labelText"><c:if test="${required}"><em><img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='comuns.camp_oblig' />" title="<fmt:message key='comuns.camp_oblig' />" border="0"/></em></c:if><c:choose><c:when test="${not empty param.labelKey}"><fmt:message key="${param.labelKey}"/></c:when><c:when test="${not empty param.label}">${param.label}</c:when></c:choose></c:set>
+<%-- 						<c:set var="labelText"><c:if test="${required}"><em><img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='comuns.camp_oblig' />" title="<fmt:message key='comuns.camp_oblig' />" border="0"/></em></c:if><c:choose><c:when test="${not empty param.labelKey}"><fmt:message key="${param.labelKey}"/></c:when><c:when test="${not empty param.label}">${param.label}</c:when></c:choose></c:set> --%>
+						<c:set var="labelText"><c:if test="${required}"><em><img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='comuns.camp_oblig' />" title="<fmt:message key='comuns.camp_oblig' />" border="0"/></em></c:if></c:set>
 						<c:if test="${varStatus.index gt 0}"><c:set var="labelText" value=""/></c:if>
 						<c:choose>
 							<c:when test="${param.inputOnly == 'true'}"></c:when>
@@ -60,14 +61,16 @@
 								</c:choose>
 							</c:when>
 							<c:when test="${param.type == 'textarea'}">
-								<textarea id="${inputId}" name="${inputName}" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>>${status.value}</textarea>
+								<textarea placeholder="${param.label}" id="${inputId}" name="${inputName}" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>>${status.value}</textarea>
 							</c:when>
 							<c:when test="${param.type == 'date'}">
 								<div class="input-append date datepicker">
-									<input type="text" id="${inputId}" name="${inputName}" placeholder="dd/mm/yyyy"<c:if test="${not empty param.value}"> value="${param.value}"</c:if> class="span2" onclick="${param.onclick}" onchange="${param.onchange}" <c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>>
+									<input type="text" id="${inputId}" name="${inputName}" placeholder="dd/mm/yyyy"<c:if test="${not empty param.value}"> value="${param.value}"</c:if> class="span6" onclick="${param.onclick}" onchange="${param.onchange}" <c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>>
 									<span class="add-on"><i class="icon-calendar"></i></span>
 									<script type="text/javascript">
-										$('.datepicker').datepicker({language: 'ca', autoclose: true});
+										$('.datepicker').datepicker(
+												{language: 'ca', autoclose: true, dateFormat: 'dd/MM/yyyy' }
+										);
 									</script>
 								</div>
 							</c:when>
@@ -170,7 +173,7 @@
 								</script>
 							</c:when>
 							<c:otherwise>
-								<input id="${inputId}" name="${inputName}" value="${status.value}" type="text" class="textInput" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>/>
+								<input placeholder="${param.label}" id="${inputId}" name="${inputName}" value="${status.value}" type="text" class="textInput" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>/>
 							</c:otherwise>
 						</c:choose>
 						<c:if test="${not empty param.mask || not empty param.keyfilter}">

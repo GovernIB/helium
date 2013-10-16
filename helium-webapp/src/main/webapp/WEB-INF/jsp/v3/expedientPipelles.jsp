@@ -118,7 +118,18 @@
 			<div class="btn-group">
 				<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog icon-white"></i> Accions <span class="caret"></span></a>
 				<ul class="dropdown-menu">
-					<li><a class="link-tramitacio-modal" href="<c:url value="/helium/v3/expedient/${expedientId}/modificar"/>"><i class="icon-pencil"></i> Modificar informació</a></li>
+					<li>
+						<c:import url="utils/modalDefinir.jsp">
+							<c:param name="sAjaxSource" value="/helium/v3/expedient/${expedientId}/modificar"/>
+							<c:param name="modalId" value="modificar"/>
+							<c:param name="refrescarAlertes" value="true"/>
+							<c:param name="refrescarPagina" value="false"/>							
+							<c:param name="refrescarTaula" value="false"/>							
+							<c:param name="refrescarTaulaId" value="false"/>
+							<c:param name="icon" value="icon-pencil"/>
+							<c:param name="texto" value="Modificar informació"/>
+						</c:import>
+					</li>
 					<li>
 						<c:import url="utils/modalDefinir.jsp">
 							<c:param name="sAjaxSource" value="/helium/v3/expedient/${expedientId}/stop"/>

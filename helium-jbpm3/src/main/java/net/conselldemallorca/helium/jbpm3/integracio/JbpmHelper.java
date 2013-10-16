@@ -42,6 +42,7 @@ import net.conselldemallorca.helium.jbpm3.command.GetProcessDefinitionByIdComman
 import net.conselldemallorca.helium.jbpm3.command.GetProcessInstancesTreeCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetProcessLogByIdCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetRootProcessInstancesForActiveTasksCommand;
+import net.conselldemallorca.helium.jbpm3.command.GetRootProcessInstancesForExpedientsWithActiveTasksCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetSubProcessDefinitionsCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetTaskIdFromVariableLogCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetTokenByIdCommand;
@@ -1272,6 +1273,17 @@ public class JbpmHelper {
 		LlistatIds resultadoGroup = (LlistatIds)commandService.execute(commandGroup);
 		resultat.addAll(resultadoGroup.getIds());
 		adminService.mesuraCalcular("jBPM findRootProcessInstanceIdsWithActiveTasksForActorId", "jbpmDao");
+		return resultat;
+	}
+	
+	public List<Long> findRootProcessInstancesForExpedientsWithActiveTasksCommand(String actorId,List<Long> idsExpedients) {
+		adminService.mesuraIniciar("jBPM findRootProcessInstancesForExpedientsWithActiveTasksCommand", "jbpmDao");
+		List<Long> resultat = new ArrayList<Long>();
+		GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandPersonal = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(actorId, idsExpedients, false);
+		resultat.addAll((List<Long>)commandService.execute(commandPersonal));
+		GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandGroup = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(actorId, idsExpedients, true);
+		resultat.addAll((List<Long>)commandService.execute(commandGroup));
+		adminService.mesuraCalcular("jBPM findRootProcessInstancesForExpedientsWithActiveTasksCommand", "jbpmDao");
 		return resultat;
 	}
 }

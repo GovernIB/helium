@@ -487,9 +487,39 @@ public class ExpedientServiceImpl implements ExpedientService {
 		Set<String> rootProcessInstanceIdsAmbTasquesActives3 = null;
 		Set<String> rootProcessInstanceIdsAmbTasquesActives4 = null;
 		Set<String> rootProcessInstanceIdsAmbTasquesActives5 = null;
+
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "1");
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "2");
+		
+		Page<Expedient> paginaResultats = null;
+		
 		if (nomesAmbTasquesActives) {
-			List<Long> idsExpedients = new ArrayList<Long>();
-			List<Long> ids = jbpmHelper.findRootProcessInstanceIdsWithActiveTasksForActorId(auth.getName(), idsExpedients);
+			// Fa la consulta
+			List<Long> idsExpedients = expedientRepository.findByIdFiltreGeneralPaginat(
+					entornId,
+					tipusPermesos,
+					(expedientTipusId == null),
+					expedientTipusId,
+					(titol == null),
+					titol,
+					(numero == null),
+					numero,
+					(dataInici1 == null),
+					dataInici1,
+					(dataInici2 == null),
+					dataInici2,
+					EstatTipusDto.INICIAT.equals(estatTipus),
+					EstatTipusDto.FINALITZAT.equals(estatTipus),
+					(!EstatTipusDto.CUSTOM.equals(estatTipus) || estatId == null),
+					estatId,
+					(geoPosX == null),
+					geoPosX,
+					(geoPosY == null),
+					geoPosY,
+					(geoReferencia == null),
+					geoReferencia,
+					mostrarAnulats);	
+			List<Long> ids = jbpmHelper.findRootProcessInstancesForExpedientsWithActiveTasksCommand(auth.getName(), idsExpedients);
 			Set<String> idsDiferents = new HashSet<String>();
 			for (Long id: ids) 
 				idsDiferents.add(id.toString());
@@ -517,22 +547,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 					rootProcessInstanceIdsAmbTasquesActives5.add(id);
 				index++;
 			}
-			/*System.out.println(">>> Núm. rootProcessInstanceIds diferents amb tasques actives: " + idsDiferents.size());
-			if (rootProcessInstanceIdsAmbTasquesActives1 != null)
-				System.out.println(">>> Núm. rootProcessInstanceIdsAmbTasquesActives1: " + rootProcessInstanceIdsAmbTasquesActives1.size());
-			if (rootProcessInstanceIdsAmbTasquesActives2 != null)
-				System.out.println(">>> Núm. rootProcessInstanceIdsAmbTasquesActives2: " + rootProcessInstanceIdsAmbTasquesActives2.size());
-			if (rootProcessInstanceIdsAmbTasquesActives3 != null)
-				System.out.println(">>> Núm. rootProcessInstanceIdsAmbTasquesActives3: " + rootProcessInstanceIdsAmbTasquesActives3.size());
-			if (rootProcessInstanceIdsAmbTasquesActives4 != null)
-				System.out.println(">>> Núm. rootProcessInstanceIdsAmbTasquesActives4: " + rootProcessInstanceIdsAmbTasquesActives4.size());
-			if (rootProcessInstanceIdsAmbTasquesActives5 != null)
-				System.out.println(">>> Núm. rootProcessInstanceIdsAmbTasquesActives5: " + rootProcessInstanceIdsAmbTasquesActives5.size());*/
 		}
-		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "1");
-		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "2");
+
 		// Fa la consulta
-		Page<Expedient> paginaResultats = expedientRepository.findByFiltreGeneralPaginat(
+		paginaResultats = expedientRepository.findByFiltreGeneralPaginat(
 				entornId,
 				tipusPermesos,
 				(expedientTipusId == null),
@@ -562,7 +580,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 				rootProcessInstanceIdsAmbTasquesActives4,
 				rootProcessInstanceIdsAmbTasquesActives5,
 				mostrarAnulats,
-				paginacioHelper.toSpringDataPageable(paginacioParams));
+				paginacioHelper.toSpringDataPageable(paginacioParams));			
+		
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "2");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "3");
 		PaginaDto<ExpedientDto> resposta = paginacioHelper.toPaginaDto(
