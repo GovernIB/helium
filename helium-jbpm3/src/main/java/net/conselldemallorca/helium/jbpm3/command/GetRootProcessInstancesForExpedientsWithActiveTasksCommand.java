@@ -21,15 +21,7 @@ public class GetRootProcessInstancesForExpedientsWithActiveTasksCommand extends 
 	private static final long serialVersionUID = -1908847549444051495L;
 	private String actorId;
 	private List<Long> idsPIExpedients;
-	private String tasca; 
-	private Date dataCreacioInici; 
-	private Date dataCreacioFi;
-	private Integer prioritat;
-	private Date dataLimitInici;
-	private Date dataLimitFi;
 	private boolean pooled;
-	private String sort;
-	private boolean asc;
 
 	public GetRootProcessInstancesForExpedientsWithActiveTasksCommand() {}
 
@@ -44,15 +36,7 @@ public class GetRootProcessInstancesForExpedientsWithActiveTasksCommand extends 
 		super();
 		this.actorId = actorId;
 		this.idsPIExpedients = idsPIExpedients;
-		this.tasca = tasca; 
-		this.dataCreacioInici = dataCreacioInici; 
-		this.dataCreacioFi = dataCreacioFi;
-		this.prioritat = prioritat;
-		this.dataLimitInici = dataLimitInici;
-		this.dataLimitFi = dataLimitFi;
 		this.pooled = pooled;
-		this.sort = sort;
-		this.asc = asc;
 	}
 
 	public Object execute(JbpmContext jbpmContext) throws Exception {
@@ -89,69 +73,8 @@ public class GetRootProcessInstancesForExpedientsWithActiveTasksCommand extends 
 		  
 		String hql = pooled ? hqlPooled : hqlPersonal;
 		
-		if (dataCreacioInici != null) {
-			hql += " and ti.create >= :dataCreacioInici";
-		}
-
-		if (dataCreacioFi != null) {
-			hql += " and ti.create <= :dataCreacioFi";
-		}
-
-		if (dataLimitInici != null) {
-			hql += " and ti.dueDate >= :dataLimitInici";
-		}
-
-		if (dataLimitFi != null) {
-			hql += " and ti.dueDate <= :dataLimitFi";
-		}
-
-		if (prioritat != null) {
-			hql += " and ti.priority = :prioritat";
-		}
-
-		if (tasca != null && !"".equals(tasca)) {
-			hql += " and ti.processInstance.processDefinition.id = (select (cast(ta.definicioProces.jbpmId as long)) from Tasca as ta where UPPER(ta.nom) like UPPER(:tasca) and ta.jbpmName = ti.name and ti.processInstance.processDefinition.id = cast(ta.definicioProces.jbpmId as long)) ";
-		}
-		
-		hql += " order by ";
-		if ("dataCreacio".equals(sort)) {
-			hql += " ti.create " + (asc ? "asc" : "desc");
-		} else if ("prioritat".equals(sort)) {
-			hql += " ti.priority " + (asc ? "asc" : "desc");
-		} else if ("dataLimit".equals(sort)) {
-			hql += " ti.dueDate " + (asc ? "asc" : "desc");
-		} else if ("titol".equals(sort)) {
-			hql += " 4 " + (asc ? "asc" : "desc");
-		} else {
-			hql += " 1 ";
-		}
-		
 		Query query = jbpmContext.getSession().createQuery(hql);
 		query.setString("actorId", actorId);
-		
-		if (dataCreacioInici != null) {
-			query.setDate("dataCreacioInici", dataCreacioInici);
-		}
-		
-		if (dataCreacioFi != null) {
-			query.setDate("dataCreacioFi", dataCreacioFi);
-		}
-		
-		if (dataLimitInici != null) {
-			query.setDate("dataLimitInici", dataLimitInici);
-		}
-		
-		if (dataLimitFi != null) {
-			query.setDate("dataLimitFi", dataLimitFi);
-		}
-		
-		if (prioritat != null) {
-			query.setInteger("prioritat",3-prioritat);
-		}
-		
-		if (tasca != null && !"".equals(tasca)) {
-			query.setString("tasca","%"+tasca+"%");
-		}		
 		
 		List<Object[]> llistaActorId = query.list();
 		
@@ -215,8 +138,9 @@ public class GetRootProcessInstancesForExpedientsWithActiveTasksCommand extends 
 		this.actorId = actorId;
 	}
 
-	public String getParametersToString() {
-		return "GetRootProcessInstancesForActiveTasksCommand [actorId=" + actorId + ", idsPIExpedients=" + idsPIExpedients + ", tasca=" + tasca + ", dataCreacioInici=" + dataCreacioInici + ", dataCreacioFi=" + dataCreacioFi + ", prioritat=" + prioritat + ", dataLimitInici=" + dataLimitInici + ", dataLimitFi=" + dataLimitFi + ", pooled=" + pooled + ", sort=" + sort + ", asc=" + asc + "]";
+	@Override
+	public String toString() {
+		return "GetRootProcessInstancesForExpedientsWithActiveTasksCommand [actorId=" + actorId + ", idsPIExpedients=" + idsPIExpedients + ", pooled=" + pooled + "]";
 	}
 
 	@Override

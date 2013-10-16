@@ -25,7 +25,7 @@
 <%-- 		<spring:bind path="${bindPath}"> --%>
 			<c:choose>
 				<c:when test="${param.type == 'hidden'}">
-					<input id="${inputId}" name="${inputName}" value="${status.value}" type="hidden"/>
+					<input id="${inputId}" name="${inputName}" value="${param.value}" type="hidden"/>
 				</c:when>
 				<c:otherwise>
 					<div class="ctrlHolder<c:if test="${not empty errorsCamp}"> error</c:if><c:if test="${not empty param.classHolder}"> ${param.classHolder}</c:if>">
@@ -44,24 +44,24 @@
 						</c:choose>
 						<c:choose>
 							<c:when test="${param.type == 'static'}">
-								<span class="staticField"><c:choose><c:when test="${not empty param.staticText}">${param.staticText}</c:when><c:otherwise>${status.value}</c:otherwise></c:choose></span>
-								<input id="${inputId}" name="${inputName}" value="${status.value}" type="hidden"/>
+								<span class="staticField"><c:choose><c:when test="${not empty param.staticText}">${param.staticText}</c:when><c:otherwise>${param.value}</c:otherwise></c:choose></span>
+								<input id="${inputId}" name="${inputName}" value="${param.value}" type="hidden"/>
 							</c:when>
 							<c:when test="${param.type == 'password'}">
 								<input id="${inputId}" name="${inputName}" value="" type="password" class="textInput" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>/>
 							</c:when>
 							<c:when test="${param.type == 'number'}">
-								<input id="${inputId}" name="${inputName}" value="${status.value}" type="text" class="textInput" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if> style="text-align:right"/>
+								<input id="${inputId}" name="${inputName}" value="${param.value}" type="text" class="textInput" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if> style="text-align:right"/>
 							</c:when>
 							<c:when test="${param.type == 'checkbox'}">
 								<input type="hidden" name="_${status.expression}" value="on"/>
 								<c:choose>
-									<c:when test="${not empty param.checkAsText}"><input id="${inputId}" name="${inputName}"<c:if test="${status.value == 'on'}">checked="checked"</c:if> type="checkbox" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>/></c:when>
-									<c:otherwise><input id="${inputId}" name="${inputName}"<c:if test="${status.value}">checked="checked"</c:if> type="checkbox" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>/></c:otherwise>
+									<c:when test="${not empty param.checkAsText}"><input id="${inputId}" name="${inputName}"<c:if test="${param.value == 'on'}">checked="checked"</c:if> type="checkbox" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>/></c:when>
+									<c:otherwise><input id="${inputId}" name="${inputName}"<c:if test="${param.value}">checked="checked"</c:if> type="checkbox" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>/></c:otherwise>
 								</c:choose>
 							</c:when>
 							<c:when test="${param.type == 'textarea'}">
-								<textarea placeholder="${param.label}" id="${inputId}" name="${inputName}" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>>${status.value}</textarea>
+								<textarea placeholder="${param.label}" id="${inputId}" name="${inputName}" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>>${param.value}</textarea>
 							</c:when>
 							<c:when test="${param.type == 'date'}">
 								<div class="input-append date datepicker">
@@ -81,10 +81,10 @@
 									<c:forEach var="item" items="${items}">
 										<c:choose>
 											<c:when test="${not empty param.itemLabel && not empty param.itemValue}">
-												<option value="${item[param.itemValue]}"<c:if test="${not empty status.value and item[param.itemValue]==status.value}"> selected="selected"</c:if>>${item[param.itemLabel]}</option>
+												<option value="${item[param.itemValue]}"<c:if test="${not empty param.value and item[param.itemValue]==param.value}"> selected="selected"</c:if>>${item[param.itemLabel]}</option>
 											</c:when>
 											<c:otherwise>
-												<option value="${item}"<c:if test="${item==status.value}"> selected="selected"</c:if>>${item}</option>
+												<option value="${item}"<c:if test="${item==param.value}"> selected="selected"</c:if>>${item}</option>
 											</c:otherwise>
 										</c:choose>
 									</c:forEach>
@@ -95,7 +95,7 @@
 										function initSelect_${inputId}() {
 											initSelect(
 													"${inputId}",
-													"${status.value}",
+													"${param.value}",
 													"${param.selectUrl}",
 													<c:choose>
 														<c:when test="${empty param.selectExtraParams}">null</c:when><c:otherwise>{${param.selectExtraParams}}</c:otherwise>
@@ -118,7 +118,7 @@
 									<c:if test="${not empty param.itemBuit}"><label for="${inputId}0" class="inlineLabel"><input type="checkbox" id="${inputId}" name="${inputName}" value="" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>/>${param.itemBuit}</label></c:if>
 									<c:forEach var="item" items="${items}" varStatus="mcStatus">
 										<c:set var="found" value="${false}"/>
-										<c:forEach var="value" items="${status.value}"><c:if test="${value[param.itemValue] == item[param.itemValue]}"><c:set var="found" value="${true}"/></c:if></c:forEach>
+										<c:forEach var="value" items="${param.value}"><c:if test="${value[param.itemValue] == item[param.itemValue]}"><c:set var="found" value="${true}"/></c:if></c:forEach>
 										<label for="${inputId}${mcStatus.index}" class="inlineLabel"><input type="checkbox" id="${inputId}${mcStatus.index}" name="${inputName}" value="${item[param.itemValue]}"<c:if test="${found}"> checked="checked"</c:if> onclick="${param.onclick}" onchange="${param.onchange}"/>${item[param.itemLabel]}</label>
 									</c:forEach>
 								</div>
@@ -156,7 +156,7 @@
 							<c:when test="${param.type == 'suggest'}">
 								<c:set var="suggestText" value="${param.suggestText}"/>
 								<c:if test="${not empty param.iterateOn}"><c:set var="suggestText" value="${requestScope[param.multipleSuggestText][varStatus.index]}"/></c:if>
-								<input id="${inputId}" name="${inputName}" value="${status.value}" type="hidden"/>
+								<input id="${inputId}" name="${inputName}" value="${param.value}" type="hidden"/>
 								<input name="suggest_${inputId}" id="suggest_${inputId}" type="text" class="textInput"<c:if test="${not empty suggestText}"> value="${suggestText}"</c:if><c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>/>
 								<img id="suggest_${inputId}_info" src="<c:url value="/img/page_white_magnify.png"/>" title="<fmt:message key='comuns.suggerir' />" alt="<fmt:message key='comuns.suggerir' />" class="suggestImgInfo"/>
 								<img id="suggest_${inputId}_delete" src="<c:url value="/img/page_white_delete.png"/>" title="<fmt:message key='comuns.suggerir' />" alt="<fmt:message key='comuns.suggerir' />" class="suggestImgEsborrar"/>
@@ -173,7 +173,7 @@
 								</script>
 							</c:when>
 							<c:otherwise>
-								<input placeholder="${param.label}" id="${inputId}" name="${inputName}" value="${status.value}" type="text" class="textInput" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>/>
+								<input placeholder="${param.label}" id="${inputId}" name="${inputName}" value="${param.value}" type="text" class="textInput" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>/>
 							</c:otherwise>
 						</c:choose>
 						<c:if test="${not empty param.mask || not empty param.keyfilter}">
