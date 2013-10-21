@@ -117,11 +117,9 @@ public class OpenOfficeUtils {
 			    }
 			});
 			if (getPropertyTimeout() != -1)
-				//future.get(getPropertyTimeout(), TimeUnit.SECONDS);
-				future.get(500, TimeUnit.MILLISECONDS);
+				future.get(getPropertyTimeout(), TimeUnit.SECONDS);
 			else
-				//future.get();
-				future.get(500, TimeUnit.MILLISECONDS);
+				future.get();
 		} catch (TimeoutException e) {
 			throw new RuntimeException("Conversió OpenOffice timeout");
 		} finally {

@@ -15,6 +15,7 @@ import javax.annotation.Resource;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntervalEventDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MesuraTemporalDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaCompleteDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
@@ -223,6 +224,11 @@ public class AdminServiceImpl implements AdminService {
 			ret.add(mesura);
 		}
 		return ret;
+	}
+	
+	@Override
+	public List<TascaCompleteDto> getTasquesCompletar() {
+		return mesuresTemporalsHelper.getTasquesCompletar();
 	}
 	
 	private static final Logger logger = LoggerFactory.getLogger(AdminServiceImpl.class);

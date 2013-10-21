@@ -817,6 +817,8 @@ public class TascaService {
 					getServiceUtils().getMessage("error.tascaService.faltenSignar"));
 		JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
+		DadesCacheTasca dct = getDadesCacheTasca(task);
+		mesuresTemporalsHelper.tascaCompletarIniciar(expedient, taskId, dct.getTitol());
 		mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName());
 		mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "LOG");
 		expedientLogHelper.afegirLogExpedientPerTasca(
@@ -872,6 +874,7 @@ public class TascaService {
 				"Finalitzar \"" + tasca.getNom() + "\"");
 		mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "REG");
 		mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName());
+		mesuresTemporalsHelper.tascaCompletarFinalitzar(taskId);
 	}
 
 	public Object getVariable(
