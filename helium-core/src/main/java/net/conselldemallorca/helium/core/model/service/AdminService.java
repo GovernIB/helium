@@ -15,6 +15,7 @@ import javax.annotation.Resource;
 import net.conselldemallorca.helium.core.model.dao.RegistreDao;
 import net.conselldemallorca.helium.core.model.dto.IntervalEventDto;
 import net.conselldemallorca.helium.core.model.dto.MesuraTemporalDto;
+import net.conselldemallorca.helium.core.model.dto.TascaCompleteDto;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.hibernate.stat.QueryStatistics;
@@ -149,6 +150,10 @@ public class AdminService {
 		return mesuresTemporalsHelper.getIntervalsFamilia();
 	}
 
+	public List<TascaCompleteDto> getTasquesCompletar() {
+		return mesuresTemporalsHelper.getTasquesCompletar();
+	}
+	
 	public MesuresTemporalsHelper getMesuresTemporalsHelper() {
 		return mesuresTemporalsHelper;
 	}
