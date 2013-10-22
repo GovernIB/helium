@@ -583,6 +583,7 @@ public class DocumentHelper {
 							dto.setVistaContingut(vistaContingut.toByteArray());
 						} catch (Exception ex) {
 							logger.error("No s'ha pogut generar la vista pel document '" + document.getCodiDocument() + "'", ex);
+							throw new RuntimeException("No s'ha pogut generar la vista pel document '" + document.getCodiDocument() + "'", ex);
 						}
 					} else {
 						// Si no és un pdf retornam la vista directament
