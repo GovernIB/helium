@@ -819,62 +819,65 @@ public class TascaService {
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
 		DadesCacheTasca dct = getDadesCacheTasca(task);
 		mesuresTemporalsHelper.tascaCompletarIniciar(expedient, taskId, dct.getTitol());
-		mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName());
-		mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "LOG");
-		expedientLogHelper.afegirLogExpedientPerTasca(
-				taskId,
-				ExpedientLogAccioTipus.TASCA_COMPLETAR,
-				outcome,
-				usuari);
-		mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "LOG");
-		mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Start TaskInstance");
-		jbpmDao.startTaskInstance(taskId);
-		mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Start TaskInstance");
-		mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "End TaskInstance");
-		jbpmDao.endTaskInstance(task.getId(), outcome);
-		mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "End TaskInstance");
-		mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Delegation info");
-		// Accions per a una tasca delegada
-		DelegationInfo delegationInfo = getDelegationInfo(task);
-		mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Delegation Info");
-		if (delegationInfo != null) {
-			mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Delegation");
-			if (!taskId.equals(delegationInfo.getSourceTaskId())) {
-				// Copia les variables de la tasca delegada a la original
-				jbpmDao.setTaskInstanceVariables(
-						delegationInfo.getSourceTaskId(),
-						getVariablesDelegacio(task),
-						false);
-				JbpmTask taskOriginal = jbpmDao.getTaskById(delegationInfo.getSourceTaskId());
-				if (!delegationInfo.isSupervised()) {
-					// Si no es supervisada també finalitza la tasca original
-					completar(entornId, taskOriginal.getId(), false, null, outcome);
+		try {
+			mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName());
+			mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "LOG");
+			expedientLogHelper.afegirLogExpedientPerTasca(
+					taskId,
+					ExpedientLogAccioTipus.TASCA_COMPLETAR,
+					outcome,
+					usuari);
+			mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "LOG");
+			mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Start TaskInstance");
+			jbpmDao.startTaskInstance(taskId);
+			mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Start TaskInstance");
+			mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "End TaskInstance");
+			jbpmDao.endTaskInstance(task.getId(), outcome);
+			mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "End TaskInstance");
+			mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Delegation info");
+			// Accions per a una tasca delegada
+			DelegationInfo delegationInfo = getDelegationInfo(task);
+			mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Delegation Info");
+			if (delegationInfo != null) {
+				mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Delegation");
+				if (!taskId.equals(delegationInfo.getSourceTaskId())) {
+					// Copia les variables de la tasca delegada a la original
+					jbpmDao.setTaskInstanceVariables(
+							delegationInfo.getSourceTaskId(),
+							getVariablesDelegacio(task),
+							false);
+					JbpmTask taskOriginal = jbpmDao.getTaskById(delegationInfo.getSourceTaskId());
+					if (!delegationInfo.isSupervised()) {
+						// Si no es supervisada també finalitza la tasca original
+						completar(entornId, taskOriginal.getId(), false, null, outcome);
+					}
+					deleteDelegationInfo(taskOriginal);
 				}
-				deleteDelegationInfo(taskOriginal);
+				mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Delegation");
 			}
-			mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Delegation");
+			mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Actualitzar alertes");
+			actualitzarTerminisIAlertes(taskId, expedient);
+			mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Actualitzar alertes");
+			mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Actualitzar data fi");
+			actualitzarDataFiExpedient(expedient, pi);
+			mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Actualitzar data fi");
+			mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Update lucene");
+			getServiceUtils().expedientIndexLuceneUpdate(task.getProcessInstanceId());
+			mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Update lucene");
+			TascaDto tasca = toTascaDto(task, null, true, true);
+			if (usuari == null)
+				usuari = SecurityContextHolder.getContext().getAuthentication().getName();
+			mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "REG");
+			registreDao.crearRegistreFinalitzarTasca(
+					tasca.getExpedient().getId(),
+					taskId,
+					usuari,
+					"Finalitzar \"" + tasca.getNom() + "\"");
+			mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "REG");
+			mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName());
+		} finally {
+			mesuresTemporalsHelper.tascaCompletarFinalitzar(taskId);
 		}
-		mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Actualitzar alertes");
-		actualitzarTerminisIAlertes(taskId, expedient);
-		mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Actualitzar alertes");
-		mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Actualitzar data fi");
-		actualitzarDataFiExpedient(expedient, pi);
-		mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Actualitzar data fi");
-		mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Update lucene");
-		getServiceUtils().expedientIndexLuceneUpdate(task.getProcessInstanceId());
-		mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Update lucene");
-		TascaDto tasca = toTascaDto(task, null, true, true);
-		if (usuari == null)
-			usuari = SecurityContextHolder.getContext().getAuthentication().getName();
-		mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "REG");
-		registreDao.crearRegistreFinalitzarTasca(
-				tasca.getExpedient().getId(),
-				taskId,
-				usuari,
-				"Finalitzar \"" + tasca.getNom() + "\"");
-		mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "REG");
-		mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName());
-		mesuresTemporalsHelper.tascaCompletarFinalitzar(taskId);
 	}
 
 	public Object getVariable(

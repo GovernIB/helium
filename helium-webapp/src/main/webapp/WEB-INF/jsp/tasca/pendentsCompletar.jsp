@@ -38,7 +38,7 @@
 				<display:column property="tasca" title="Tasca" sortable="true"/>
 				<display:column property="tascaId" title="Id" sortable="true"/>
 				<display:column property="inici" title="Iniciat el" format="{0,date,dd/MM/yyyy HH:mm:ss}" sortable="true"/>
-				<display:column property="tempsExecucio" title="Temps execució" format="{0,number,#,###.00 s}" sortable="true"/>
+				<display:column property="tempsExecucio" title="Temps execució" format="{0,number,#,##0.00 s}" sortable="true"/>
 			</display:table>
 			<script type="text/javascript">initSelectable();</script>
 		</c:if>
