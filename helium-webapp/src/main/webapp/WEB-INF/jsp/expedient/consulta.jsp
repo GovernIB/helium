@@ -42,6 +42,22 @@ function refrescarEstats(element) {
 	    	console.log("Error al actualitzar la llista d'estats: [" + textStatus + "] " + errorThrown);
 	    }
 	});
+	$.ajax({
+	    url:"consultaPermis.html?id=" + element.value,
+	    type:'GET',
+	    dataType: 'json',
+	    success: function(json) {
+	    	if (json.permis == true) {
+	    		$(".anulats").removeClass('ocult');
+	        } else {
+	        	$(".anulats").addClass('ocult');
+	        	$(".anulats option:eq(0)").prop('selected', true);
+	        }
+	    },
+	    error: function(jqXHR, textStatus, errorThrown) {
+	    	console.log("Error al obtenir els permisos del tipus d'expedient: [" + textStatus + "] " + errorThrown);
+	    }
+	});
 }
 function confirmarEsborrar(e) {
 	var e = e || window.event;
@@ -304,13 +320,31 @@ function selTots(){
 					</c:otherwise>
 				</c:choose>
 			</c:if>
+			
+			<c:set var="tePermis" value="${false}"/>
 			<security:accesscontrollist domainObject="${entornActual}" hasPermission="16">
-				<c:import url="../common/formElement.jsp">
-					<c:param name="property" value="mostrarAnulats"/>
-					<c:param name="type" value="checkbox"/>
-					<c:param name="label">Mostrar anul·lats</c:param>
-				</c:import>
+				<c:set var="tePermis" value="${true}"/>
 			</security:accesscontrollist>
+			<c:if test="${not empty command.expedientTipus}">
+				<security:accesscontrollist domainObject="${command.expedientTipus}" hasPermission="16,2">
+					<c:set var="tePermis" value="${true}"/>
+				</security:accesscontrollist>
+			</c:if>
+			<c:if test="${tePermis == false}">
+				<c:set var="visible" value=' ocult'/>
+			</c:if>
+			
+			<c:import url="../common/formElement.jsp">
+				<c:param name="property" value="mostrarAnulats"/>
+				<c:param name="type" value="select"/>
+				<c:param name="items" value="filtreAnulats"/>
+				<c:param name="itemLabel" value="codi"/>
+				<c:param name="itemLabelMsg" value="true"/>
+				<c:param name="itemValue" value="id"/>
+				<c:param name="label"><fmt:message key="expedient.consulta.anulats"/></c:param>
+				<c:param name="classHolder" value="anulats${visible}"/>		
+			</c:import>
+			
 			<c:if test="${not command.massivaActiu}">
 				<c:import url="../common/formElement.jsp">
 					<c:param name="type" value="buttons"/>

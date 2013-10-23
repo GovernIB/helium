@@ -6,7 +6,9 @@ package net.conselldemallorca.helium.webapp.mvc;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -18,6 +20,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
+import net.conselldemallorca.helium.core.model.service.ExpedientService.FiltreAnulat;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
@@ -26,6 +29,7 @@ import net.conselldemallorca.helium.webapp.mvc.util.PaginatedList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.displaytag.properties.SortOrderEnum;
+import org.json.simple.JSONValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.security.acls.Permission;
@@ -38,6 +42,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
 
@@ -85,6 +90,57 @@ public class ExpedientConsultaController extends BaseController {
 		return null;
 	}
 
+//	@ModelAttribute("expedientTipusAdmin")
+//	public Map<Long, Boolean> populateExpedientTipusAdmin(
+//			HttpServletRequest request) {
+//		Entorn entorn = getEntornActiu(request);
+//		Map<Long, Boolean> mExpedientTipusAdmin = new HashMap<Long, Boolean>();
+//		if (entorn != null) {
+//			List<ExpedientTipus> tipus = dissenyService.findExpedientTipusAmbEntornOrdenat(entorn.getId(), "nom");
+//			for (ExpedientTipus expedientTipus: tipus) {
+//				if (potAdministratExpedientTipus(expedientTipus))
+//					mExpedientTipusAdmin.put(expedientTipus.getId(), true);
+//				else 
+//					mExpedientTipusAdmin.put(expedientTipus.getId(), false);
+//			}
+//			return mExpedientTipusAdmin;
+//		}
+//		return null;
+//	}
+	
+	@ModelAttribute("filtreAnulats")
+	public FiltreAnulat[] populateFiltreAnulats() {
+		return FiltreAnulat.values();
+	}
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@RequestMapping(value = "/expedient/consultaPermis")
+	@ResponseBody
+	public String consultaPermis(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = false) Long id,
+			ModelMap model) {
+		Map mjson = new LinkedHashMap();
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			if (permissionService.filterAllowed(
+					entorn,
+					Entorn.class,
+					new Permission[] {ExtendedPermission.ADMINISTRATION}) != null) {
+				mjson.put("permis", true);
+				return JSONValue.toJSONString(mjson);
+			}
+			if (id != null) {
+				ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(id);
+				if (potAdministratExpedientTipus(expedientTipus)) {
+					mjson.put("permis", true);
+					return JSONValue.toJSONString(mjson);
+				}
+			}
+		}
+		mjson.put("permis", false);
+		return JSONValue.toJSONString(mjson);
+	}
+	
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/expedient/consulta", method = RequestMethod.GET)
 	public String consultaGet(
@@ -300,7 +356,15 @@ public class ExpedientConsultaController extends BaseController {
 		paginatedList.setList(expedients);
 		return paginatedList;
 	}
-
+	
+	private boolean potAdministratExpedientTipus(ExpedientTipus expedientTipus) {
+		return permissionService.filterAllowed(
+				expedientTipus,
+				ExpedientTipus.class,
+				new Permission[] {	ExtendedPermission.ADMINISTRATION,
+									ExtendedPermission.WRITE}) != null;
+	}
+	
 	@SuppressWarnings("unused")
 	private static final Log logger = LogFactory.getLog(ExpedientConsultaController.class);
 

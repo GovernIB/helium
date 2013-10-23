@@ -30,6 +30,7 @@ import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.DocumentService;
 import net.conselldemallorca.helium.core.model.service.EntornService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
+import net.conselldemallorca.helium.core.model.service.ExpedientService.FiltreAnulat;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.util.EntornActual;
 
@@ -690,7 +691,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 				geoPosX,
 				geoPosY,
 				geoReferencia,
-				false);
+				FiltreAnulat.ACTIUS);
 		// Construcció de la resposta
 		List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
 		for (ExpedientDto dto: expedients)

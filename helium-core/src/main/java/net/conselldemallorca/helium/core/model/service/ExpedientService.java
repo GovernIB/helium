@@ -160,6 +160,27 @@ public class ExpedientService {
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 
+	public enum FiltreAnulat {
+		ACTIUS		("expedient.consulta.anulats.actius"),
+		ANUL_LATS	("expedient.consulta.anulats.anulats"),
+		TOTS		("expedient.consulta.anulats.tots");
+				
+		private final String codi;
+		private final String id;
+		
+		FiltreAnulat(String codi){
+			this.codi = codi;
+			this.id = this.name();
+		}
+		
+		public String getCodi(){
+			return this.codi;
+		}
+
+		public String getId() {
+			return id;
+		}
+	}
 
 	public ExpedientDto getById(Long id) {
 		Expedient expedient = expedientDao.getById(id, false);
@@ -716,7 +737,7 @@ public class ExpedientService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean mostrarAnulats) {
+			FiltreAnulat mostrarAnulats) {
 		return expedientDao.countAmbEntornConsultaGeneral(
 				entornId,
 				titol,
@@ -747,7 +768,7 @@ public class ExpedientService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean mostrarAnulats) {
+			FiltreAnulat mostrarAnulats) {
 		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
 		for (Expedient expedient: expedientDao.findAmbEntornConsultaGeneral(
 				entornId,
@@ -781,7 +802,7 @@ public class ExpedientService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean mostrarAnulats,
+			FiltreAnulat mostrarAnulats,
 			int firstRow,
 			int maxResults,
 			String sort,
@@ -2500,7 +2521,7 @@ public class ExpedientService {
 		Camp camp = campDao.findAmbDefinicioProcesICodi(
 				definicioProces.getId(),
 				varName);
-		if (camp.isDominiCacheText()) {
+		if (camp != null && camp.isDominiCacheText()) {
 			if (varValue != null) {
 				if (	camp.getTipus().equals(TipusCamp.SELECCIO) ||
 						camp.getTipus().equals(TipusCamp.SUGGEST)) {
