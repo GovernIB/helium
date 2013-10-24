@@ -470,30 +470,30 @@ public class LuceneDao extends LuceneIndexSupport {
 						Field.Store.YES,
 						Field.Index.NOT_ANALYZED),
 				isUpdate);
-		if (expedient.getEstat() != null) {
+		if (finalitzat) {
 			createOrUpdateDocumentField(
 					document,
 					new Field(
 							ExpedientCamps.EXPEDIENT_CAMP_ESTAT,
-							expedient.getEstat().getCodi(),
-							Field.Store.YES,
-							Field.Index.NOT_ANALYZED),
-					isUpdate);
-			createOrUpdateDocumentField(
-					document,
-					new Field(
-							ExpedientCamps.EXPEDIENT_CAMP_ESTAT + VALOR_DOMINI_SUFIX + expedient.getEstat().getCodi(),
-							expedient.getEstat().getCodi(),
+				    		"-1",
 							Field.Store.YES,
 							Field.Index.NOT_ANALYZED),
 					isUpdate);
 		} else {
-			if (!finalitzat) {
+			if (expedient.getEstat() != null) {
 				createOrUpdateDocumentField(
 						document,
 						new Field(
 								ExpedientCamps.EXPEDIENT_CAMP_ESTAT,
-					    		"0",
+								expedient.getEstat().getCodi(),
+								Field.Store.YES,
+								Field.Index.NOT_ANALYZED),
+						isUpdate);
+				createOrUpdateDocumentField(
+						document,
+						new Field(
+								ExpedientCamps.EXPEDIENT_CAMP_ESTAT + VALOR_DOMINI_SUFIX + expedient.getEstat().getCodi(),
+								expedient.getEstat().getCodi(),
 								Field.Store.YES,
 								Field.Index.NOT_ANALYZED),
 						isUpdate);
@@ -502,7 +502,7 @@ public class LuceneDao extends LuceneIndexSupport {
 						document,
 						new Field(
 								ExpedientCamps.EXPEDIENT_CAMP_ESTAT,
-					    		"-1",
+					    		"0",
 								Field.Store.YES,
 								Field.Index.NOT_ANALYZED),
 						isUpdate);
