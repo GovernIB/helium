@@ -51,6 +51,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.DefinicioProcesNotFoun
 import net.conselldemallorca.helium.v3.core.api.exception.DominiNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EnumeracioNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.PluginException;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 
 import org.jbpm.JbpmException;
 import org.jbpm.context.exe.ContextInstance;
@@ -204,7 +205,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 					null,
 					null,
 					null,
-					false);
+					FiltreAnulat.ACTIUS);
 			// Construcció de la resposta
 			List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
 			for (ExpedientDto dto: resultats)

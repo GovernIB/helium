@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.webapp.mvc;
 import java.util.Date;
 
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 
 /**
  * Command per fer una consulta general d'expedients
@@ -23,7 +24,7 @@ public class ExpedientConsultaGeneralCommand {
 	private Double geoPosX;
 	private Double geoPosY;
 	private String geoReferencia;
-	private boolean mostrarAnulats = false;
+	private FiltreAnulat mostrarAnulats = FiltreAnulat.ACTIUS;
 	private boolean massivaActiu = false;
 
 
@@ -86,10 +87,13 @@ public class ExpedientConsultaGeneralCommand {
 	public void setGeoReferencia(String geoReferencia) {
 		this.geoReferencia = geoReferencia;
 	}
-	public boolean isMostrarAnulats() {
+	public FiltreAnulat isMostrarAnulats() {
 		return mostrarAnulats;
 	}
-	public void setMostrarAnulats(boolean mostrarAnulats) {
+	public FiltreAnulat getMostrarAnulats() {
+		return mostrarAnulats;
+	}
+	public void setMostrarAnulats(FiltreAnulat mostrarAnulats) {
 		this.mostrarAnulats = mostrarAnulats;
 	}
 	public boolean isMassivaActiu() {

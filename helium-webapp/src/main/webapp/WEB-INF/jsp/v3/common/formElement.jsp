@@ -81,7 +81,14 @@
 									<c:forEach var="item" items="${items}">
 										<c:choose>
 											<c:when test="${not empty param.itemLabel && not empty param.itemValue}">
-												<option value="${item[param.itemValue]}"<c:if test="${not empty param.value and item[param.itemValue]==param.value}"> selected="selected"</c:if>>${item[param.itemLabel]}</option>
+												<c:choose>
+													<c:when test="${not empty param.itemLabelMsg}">
+														<option value="${item[param.itemValue]}"<c:if test="${not empty status.value and item[param.itemValue]==status.value}"> selected="selected"</c:if>><fmt:message key="${item[param.itemLabel]}"/></option>
+													</c:when>
+													<c:otherwise>
+														<option value="${item[param.itemValue]}"<c:if test="${not empty status.value and item[param.itemValue]==status.value}"> selected="selected"</c:if>>${item[param.itemLabel]}</option>
+													</c:otherwise>
+												</c:choose>
 											</c:when>
 											<c:otherwise>
 												<option value="${item}"<c:if test="${item==param.value}"> selected="selected"</c:if>>${item}</option>

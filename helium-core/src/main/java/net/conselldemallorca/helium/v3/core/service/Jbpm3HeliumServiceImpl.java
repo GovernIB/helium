@@ -109,6 +109,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException
 import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TerminiIniciatNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TerminiNotFoundException;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 import net.conselldemallorca.helium.v3.core.api.service.Jbpm3HeliumService;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.MesuresTemporalsHelper;
@@ -1289,7 +1290,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean mostrarAnulats) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
+			FiltreAnulat mostrarAnulats) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
 		logger.debug("Consultant expedients (" +
 				"entornId=" + entornId + ", " +
 				"titol=" + titol + ", " +

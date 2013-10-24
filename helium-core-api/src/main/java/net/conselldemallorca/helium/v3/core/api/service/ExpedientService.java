@@ -37,6 +37,28 @@ import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundEx
  */
 public interface ExpedientService {
 
+	public enum FiltreAnulat {
+		ACTIUS		("expedient.consulta.anulats.actius"),
+		ANUL_LATS	("expedient.consulta.anulats.anulats"),
+		TOTS		("expedient.consulta.anulats.tots");
+				
+		private final String codi;
+		private final String id;
+		
+		FiltreAnulat(String codi){
+			this.codi = codi;
+			this.id = this.name();
+		}
+		
+		public String getCodi(){
+			return this.codi;
+		}
+
+		public String getId() {
+			return id;
+		}
+	}
+	
 	public void modificar(
 			Long id,
 			String numero,

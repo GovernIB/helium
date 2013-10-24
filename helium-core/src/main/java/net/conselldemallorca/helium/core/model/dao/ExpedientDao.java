@@ -9,6 +9,7 @@ import java.util.List;
 
 import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 
 import org.hibernate.Criteria;
 import org.hibernate.Query;
@@ -160,7 +161,7 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean mostrarAnulats,
+			FiltreAnulat mostrarAnulats,
 			String[] grupsUsuari) {
 		return getCountByCriteria(getCriteriaForConsultaGeneral(
 				entornId,
@@ -193,7 +194,7 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean mostrarAnulats,
+			FiltreAnulat mostrarAnulats,
 			String[] grupsUsuari) {
 		return findByCriteria(getCriteriaForConsultaGeneral(
 				entornId,
@@ -226,7 +227,7 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean mostrarAnulats,
+			FiltreAnulat mostrarAnulats,
 			String[] grupsUsuari,
 			int firstRow,
 			int maxResults,
@@ -295,7 +296,7 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean mostrarAnulats,
+			FiltreAnulat mostrarAnulats,
 			String[] grupsUsuari) {
 		Criteria crit = getSession().createCriteria(
 				getPersistentClass());
@@ -333,8 +334,10 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			crit.add(Restrictions.eq("geoPosY", geoPosY));
 		if (geoReferencia != null && geoReferencia.length() > 0)
 			crit.add(Restrictions.ilike("geoReferencia", "%" + geoReferencia + "%"));
-		if (!mostrarAnulats) {
+		if (mostrarAnulats == FiltreAnulat.ACTIUS) {
 			crit.add(Restrictions.eq("anulat", false));
+		} else if (mostrarAnulats == FiltreAnulat.ANUL_LATS) {
+			crit.add(Restrictions.eq("anulat", true));
 		}
 		if (grupsUsuari != null && grupsUsuari.length > 0) {
 			crit.add(Restrictions.or(

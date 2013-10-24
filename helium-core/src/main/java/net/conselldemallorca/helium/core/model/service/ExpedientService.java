@@ -100,6 +100,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 import net.conselldemallorca.helium.v3.core.helper.MesuresTemporalsHelper;
 
 import org.apache.commons.lang.StringUtils;
@@ -710,7 +711,7 @@ public class ExpedientService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean mostrarAnulats) {
+			FiltreAnulat mostrarAnulats) {
 		return expedientDao.countAmbEntornConsultaGeneral(
 				entornId,
 				titol,
@@ -741,7 +742,7 @@ public class ExpedientService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean mostrarAnulats) {
+			FiltreAnulat mostrarAnulats) {
 		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
 		for (Expedient expedient: expedientDao.findAmbEntornConsultaGeneral(
 				entornId,
@@ -775,7 +776,7 @@ public class ExpedientService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean mostrarAnulats,
+			FiltreAnulat mostrarAnulats,
 			int firstRow,
 			int maxResults,
 			String sort,
@@ -2493,7 +2494,7 @@ public class ExpedientService {
 		Camp camp = campDao.findAmbDefinicioProcesICodi(
 				definicioProces.getId(),
 				varName);
-		if (camp.isDominiCacheText()) {
+		if (camp != null && camp.isDominiCacheText()) {
 			if (varValue != null) {
 				if (	camp.getTipus().equals(TipusCamp.SELECCIO) ||
 						camp.getTipus().equals(TipusCamp.SUGGEST)) {

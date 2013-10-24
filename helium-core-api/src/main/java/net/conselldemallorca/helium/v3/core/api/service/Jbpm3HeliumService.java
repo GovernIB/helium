@@ -51,6 +51,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException
 import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TerminiIniciatNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TerminiNotFoundException;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 
 /**
  * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat
@@ -895,7 +896,7 @@ public interface Jbpm3HeliumService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean mostrarAnulats) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException;
+			FiltreAnulat mostrarAnulats) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException;
 
 	
 	/**

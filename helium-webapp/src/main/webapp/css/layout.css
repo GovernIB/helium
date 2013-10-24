@@ -457,3 +457,6 @@ select.objectsPerPage {
 .msg-error:HOVER {
 	text-decoration: underline; 
 }
+.ocult {
+	display: none;
+}
