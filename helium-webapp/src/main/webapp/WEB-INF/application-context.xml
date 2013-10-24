@@ -23,6 +23,7 @@
 		<property name="basenames">
 			<list>
 				<value>net/conselldemallorca/helium/webapp/i18n/messages</value>
+				<value>net/conselldemallorca/helium/webapp/i18n/errors</value>
 			</list>
 		</property>
 	</bean>

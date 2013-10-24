@@ -58,9 +58,14 @@
 	</bean>
 
 	<bean id="localeResolver" class="net.conselldemallorca.helium.webapp.mvc.util.IdiomaResolver" />
-	<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
-		<property name="basename" value="/WEB-INF/classes/net/conselldemallorca/helium/webapp/i18n/messages" />
-	</bean>
+	<!--bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+				<value>/WEB-INF/classes/net/conselldemallorca/helium/webapp/i18n/messages</value>
+				<value>/WEB-INF/classes/net/conselldemallorca/helium/webapp/i18n/errors</value>
+			</list>
+		</property>
+	</bean-->
 
 	<bean name="arxiuView" class="net.conselldemallorca.helium.webapp.mvc.ArxiuView"/>
 	<bean name="arxiuConvertirView" class="net.conselldemallorca.helium.webapp.mvc.ArxiuConvertirView"/>
