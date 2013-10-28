@@ -16,6 +16,15 @@
 		if (e.stopPropagation) e.stopPropagation();
 		return confirm("<spring:message code="expedient.log.confirm.retrocedir"/>");
 	}
+	
+	function recargarRegistro() {
+		$('#contingut-carregant').show();
+		$('#contingut-registre').load(
+				'<c:url value="/nodecorar/v3/expedient/${expedient.id}/registre?tipus_retroces='+$('#tipus_retroces').val()+'"/>',
+				function() {
+					$('#contingut-carregant').hide();
+		});
+	}
 </script>
 
 <c:set var="numBloquejos" value="${0}"/>
@@ -23,20 +32,19 @@
 	<c:if test="${log.estat == 'BLOCAR'}"><c:set var="numBloquejos" value="${numBloquejos + 1}"/></c:if>
 </c:forEach>
 
-<%-- <form action="<c:url value='/v3/expedient/${expedient.id}/registre'/>"> --%>
-<!-- 	<div class="buttonHolder"> -->
-<!-- 		<button type="submit" class="btn btn-primary dropdown-toggle">	 -->
-<%-- 			<c:if test="${param.tipus_retroces == 0}"> --%>
-<%-- 				<spring:message code="expedient.log.tipus.tasca"/> --%>
-<%-- 			</c:if> --%>
-<%-- 			<c:if test="${param.tipus_retroces != 0}"> --%>
-<!-- 				<input type="hidden" id="tipus_retroces" name="tipus_retroces" value="0"/> -->
-<%-- 				<spring:message code="expedient.log.tipus.detall"/> --%>
-<%-- 			</c:if> --%>
-<!-- 		</button> -->
-<!-- 	</div> -->
-<%-- </form> --%>
-
+<div class="buttonHolder">
+	<button type="button" onclick='recargarRegistro()' class="btn btn-primary dropdown-toggle">	
+		<c:if test="${param.tipus_retroces == 0}">
+			<input type="hidden" id="tipus_retroces" name="tipus_retroces" value="1"/>
+			<spring:message code="expedient.log.tipus.tasca"/>
+		</c:if>
+		<c:if test="${param.tipus_retroces != 0}">
+			<input type="hidden" id="tipus_retroces" name="tipus_retroces" value="0"/>
+			<spring:message code="expedient.log.tipus.detall"/>
+		</c:if>
+	</button>
+</div>
+<br/>
 <c:choose>
 	<c:when test="${not empty logs}">
 		<table class="table table-bordered">
