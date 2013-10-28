@@ -304,6 +304,10 @@ a:focus {
   width: 780px;
 }
 
+.span99per {
+  width: 99.9% !important;
+}
+
 .span9 {
   width: 700px;
 }

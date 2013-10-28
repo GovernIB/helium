@@ -230,7 +230,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 			if (potModificarExpedient(expedient)) {
 				try {
 					expedientService.delete(entorn.getId(), expedientId);
-					MissatgesHelper.info(request, getMessage(request, "nfo.expedient.esborrat") );
+					MissatgesHelper.info(request, getMessage(request, "info.expedient.esborrat") );
 				} catch (Exception ex) {
 					MissatgesHelper.error(request, getMessage(request, "error.esborrar.expedient") );
 		        	logger.error("No s'ha pogut esborrar el registre", ex);
@@ -238,11 +238,10 @@ public class ExpedientLlistatController extends BaseExpedientController {
 			} else {
 				MissatgesHelper.error(request, getMessage(request, "error.permisos.esborrar.expedient") );
 			}
-			return "redirect:/expedient/consulta.html";
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec") );
 		}
-		return "v3/expedientLlistat";
+		return "redirect:/v3/expedient";
 	}
 	
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientLlistatController.class);

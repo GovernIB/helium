@@ -9,6 +9,7 @@
 	<title><fmt:message key="index.inici" /></title>
 	<link href="<c:url value="/css/DT_bootstrap.css"/>" rel="stylesheet">
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
+	<meta name="capsaleraTipus" content="llistat"/>
 	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
 	<script src="<c:url value="/js/jquery.dataTables.js"/>"></script>
@@ -80,7 +81,7 @@
 		var e = e || window.event;
 		e.cancelBubble = true;
 		if (e.stopPropagation) e.stopPropagation();
-		return confirm("<fmt:message key="expedient.consulta.confirm.esborrar"/>");
+		return confirm("<spring:message code='expedient.consulta.confirm.esborrar'/>");
 	}
 	
 	function fnRowCallback(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
@@ -102,8 +103,7 @@
 				 		'<a href="expedient/' + expedientId + '/suspend"><i class="icon-remove"></i> Anular</a>' + 
 				 	'</li>' + 
 				 	'<li>' + 
-				 	'<a href="#" onclick="return confirmarEsborrar(event)">' +
-				 	//'<a href="<c:url value="expedient/' + expedientId + '/delete"></c:url>" onclick="return confirmarEsborrar(event)">' +
+				 	'<a href="<c:url value="expedient/' + expedientId + '/delete"></c:url>" onclick="return confirmarEsborrar(event)">' +
 			 			'<i class="icon-trash"></i> Esborrar' +
 				 		'</a>' +
 				 	'</li>' + 

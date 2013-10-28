@@ -16,6 +16,8 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
+import net.conselldemallorca.helium.core.model.dao.PluginCustodiaDao;
+import net.conselldemallorca.helium.core.model.dao.PluginGestioDocumentalDao;
 import net.conselldemallorca.helium.core.model.dao.RegistreDao;
 import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.model.exception.NotFoundException;
@@ -99,6 +101,7 @@ import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientLoggerRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
@@ -191,6 +194,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private PermissionService permissionService;
 	@Resource
 	private MessageSource messageSource;
+	@Resource
+	private PluginCustodiaDao pluginCustodiaDao;
+	@Resource
+	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
+	@Resource
+	private ExecucioMassivaExpedientRepository execucioMassivaExpedientRepository;
 
 	@Transactional
 	public void modificar(
@@ -1403,7 +1412,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 		return resposta;
 	}
-
+	
+	@Transactional
 	@Override
 	public void deleteConsulta(Long id) {
 		Consulta vell = consultaRepository.findById(id);
@@ -1424,36 +1434,37 @@ public class ExpedientServiceImpl implements ExpedientService {
 			consulta.setOrdre(i++);
 	}
 
+	@Transactional
 	@Override
 	public void delete(Long entornId, Long expedientId) {
 		Expedient expedient = expedientRepository.findByEntornIdAndId(entornId, expedientId);
 		if (expedient != null) {
-//			List<JbpmProcessInstance> processInstancesTree = jbpmHelper.getProcessInstanceTree(expedient.getProcessInstanceId());
-//			for (JbpmProcessInstance pi: processInstancesTree)
-//				for (TerminiIniciat ti: terminiIniciatRepository.findByProcessInstanceId(pi.getId()))
-//					terminiIniciatRepository.delete(ti);
-//			jbpmHelper.deleteProcessInstance(expedient.getProcessInstanceId());
-//			for (DocumentStore documentStore: documentStoreRepository.findByProcessInstanceId(expedient.getProcessInstanceId())) {
-//				if (documentStore.isSignat()) {
-//					try {
-//						pluginCustodiaRepository.esborrarSignatures(documentStore.getReferenciaCustodia());
-//					} catch (Exception ignored) {}
-//				}
-//				if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
-//					pluginGestioDocumentalRepository.deleteDocument(documentStore.getReferenciaFont());
-//				documentStoreRepository.delete(documentStore.getId());
-//			}
-//			for (Portasignatures psigna: expedient.getPortasignatures()) {
-//				psigna.setEstat(TipusEstat.ESBORRAT);
-//			}
-//			for (ExecucioMassivaExpedient eme: execucioMassivaExpedientRepository.getExecucioMassivaByExpedient(expedientId)) {
-//				execucioMassivaExpedientRepository.delete(eme);
-//			}
-//			expedientRepository.delete(expedient);
-//			luceneHelper.deleteExpedientAsync(expedient);
-//			registreDao.crearRegistreEsborrarExpedient(
-//					expedient.getId(),
-//					SecurityContextHolder.getContext().getAuthentication().getName());
+			List<JbpmProcessInstance> processInstancesTree = jbpmHelper.getProcessInstanceTree(expedient.getProcessInstanceId());
+			for (JbpmProcessInstance pi: processInstancesTree)
+				for (TerminiIniciat ti: terminiIniciatRepository.findByProcessInstanceId(pi.getId()))
+					terminiIniciatRepository.delete(ti);
+			jbpmHelper.deleteProcessInstance(expedient.getProcessInstanceId());
+			for (DocumentStore documentStore: documentStoreRepository.findByProcessInstanceId(expedient.getProcessInstanceId())) {
+				if (documentStore.isSignat()) {
+					try {
+						pluginCustodiaDao.esborrarSignatures(documentStore.getReferenciaCustodia());
+					} catch (Exception ignored) {}
+				}
+				if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
+					pluginGestioDocumentalDao.deleteDocument(documentStore.getReferenciaFont());
+				documentStoreRepository.delete(documentStore.getId());
+			}
+			for (Portasignatures psigna: expedient.getPortasignatures()) {
+				psigna.setEstat(TipusEstat.ESBORRAT);
+			}
+			for (ExecucioMassivaExpedient eme: execucioMassivaExpedientRepository.getExecucioMassivaByExpedient(expedientId)) {
+				execucioMassivaExpedientRepository.delete(eme);
+			}
+			expedientRepository.delete(expedient);
+			luceneHelper.deleteExpedientAsync(expedient);
+			registreDao.crearRegistreEsborrarExpedient(
+					expedient.getId(),
+					SecurityContextHolder.getContext().getAuthentication().getName());
 		} else {
 			throw new NotFoundException(getServiceUtils().getMessage("error.expedientService.noExisteix"));
 		}

@@ -8,7 +8,7 @@
 <html>
 	<head>
 		<title>Expediente</title>
-		<c:import url="utils/modalHead.jsp">
+		<c:import url="../utils/modalHead.jsp">
 			<c:param name="titol" value="Aturar la tramitació de l'expedient"/>
 			<c:param name="buttonContainerId" value="botons"/>
 		</c:import>
@@ -19,7 +19,7 @@
 				<div class="span1">
 					Motiu
 				</div>
-				<textarea id="motiu" name="motiu" autofocus="autofocus" class="span9"></textarea>
+				<textarea id="motiu" name="motiu" autofocus="autofocus" class="span99per"></textarea>
 			</div>
 			<div id="botons" class="well">
 				<button type="submit" class="btn btn-primary"><spring:message code="comuns.guardar"/></button>

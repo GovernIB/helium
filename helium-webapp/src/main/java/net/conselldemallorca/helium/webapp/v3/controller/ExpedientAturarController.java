@@ -46,7 +46,7 @@ public class ExpedientAturarController extends BaseExpedientController {
 	public String aturarForm(HttpServletRequest request, @PathVariable Long expedientId, Model model) {
 		NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
 		model.addAttribute("expedientId", expedientId);
-		return "v3/expedientFormAturar";
+		return "v3/expedient/aturar";
 	}
 
 	@RequestMapping(value = "/{expedientId}/aturarExpedient", method = RequestMethod.POST)

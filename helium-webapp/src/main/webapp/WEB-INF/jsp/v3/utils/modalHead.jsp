@@ -6,6 +6,7 @@
 <meta name="decorator" content="senseCapNiPeus"/>
 
 <link href="<c:url value="/css/commonV3.css"/>" rel="stylesheet">
+<link href="<c:url value="/css/bootstrap.css"/>" rel="stylesheet">
 
 <c:if test="${not empty buttonContainerId}">
 <script>

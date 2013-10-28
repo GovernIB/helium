@@ -46,5 +46,9 @@
 	<bean id="jbpmDao" class="net.conselldemallorca.helium.jbpm3.integracio.JbpmDao">
 		<property name="commandService" ref="jbpm3CommandService" />
 	</bean>
+	
+	<bean id="luceneHelper" class="net.conselldemallorca.helium.v3.core.helper.LuceneHelper">
+		<property name="indexFactory" ref="indexFactory" />
+	</bean>
 
 </beans>

@@ -18,23 +18,24 @@
 	}
 </script>
 
-<h3 class="titol-tab titol-registre">
-	<c:if test="${param.tipus_retroces == 0}"><spring:message code="expedient.log"/></c:if>
-	<c:if test="${param.tipus_retroces != 0}"><spring:message code="expedient.tasques"/></c:if>
-</h3>
 <c:set var="numBloquejos" value="${0}"/>
 <c:forEach var="log" items="${logs}">
 	<c:if test="${log.estat == 'BLOCAR'}"><c:set var="numBloquejos" value="${numBloquejos + 1}"/></c:if>
 </c:forEach>
-<form action="<c:url value='/v3/expedient/${expedient.id}/registre'/>">
-	<c:if test="${param.tipus_retroces == 0}">
-<%-- 		<div class="buttonHolder"><button onclick="$('#pipella-registre').click()" type="submit" class="btn btn-primary dropdown-toggle"><spring:message code="expedient.log.tipus.tasca"/></button></div> --%>
-	</c:if>
-	<c:if test="${param.tipus_retroces != 0}">
-		<input type="hidden" id="tipus_retroces" name="tipus_retroces" value="0"/>
-<%-- 		<div class="buttonHolder"><button onclick="$('#pipella-registre').click()" type="submit" class="btn btn-primary dropdown-toggle"><spring:message code="expedient.log.tipus.detall"/></button></div> --%>
-	</c:if>
-</form>
+
+<%-- <form action="<c:url value='/v3/expedient/${expedient.id}/registre'/>"> --%>
+<!-- 	<div class="buttonHolder"> -->
+<!-- 		<button type="submit" class="btn btn-primary dropdown-toggle">	 -->
+<%-- 			<c:if test="${param.tipus_retroces == 0}"> --%>
+<%-- 				<spring:message code="expedient.log.tipus.tasca"/> --%>
+<%-- 			</c:if> --%>
+<%-- 			<c:if test="${param.tipus_retroces != 0}"> --%>
+<!-- 				<input type="hidden" id="tipus_retroces" name="tipus_retroces" value="0"/> -->
+<%-- 				<spring:message code="expedient.log.tipus.detall"/> --%>
+<%-- 			</c:if> --%>
+<!-- 		</button> -->
+<!-- 	</div> -->
+<%-- </form> --%>
 
 <c:choose>
 	<c:when test="${not empty logs}">

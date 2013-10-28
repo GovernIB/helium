@@ -74,7 +74,7 @@
 		</c:if>
 		<c:if test="${refrescarAlertes == 'true'}">
 			$.ajax({
-				"url": "<c:url value="/nodeco/v3/missatges"/>",
+				"url": "<c:url value="/nodecorar/v3/missatges"/>",
 				"success": function (data) {
 					$('.contingut-alertes *').remove();
 					$('.contingut-alertes').append(data);

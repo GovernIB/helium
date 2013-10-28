@@ -104,6 +104,15 @@
 				<decorator:body />
 			</div>
 		</c:when>
+		<c:when test="${capsaleraTipus == 'llistat'}">
+			<div class="well well-white">
+				<div class="row-fluid">
+					<div class="contingut-alertes"><jsp:include page="../v3/missatges.jsp"/></div>
+					<decorator:body />
+				</div>
+				<div class="clearfix"></div>
+			</div>
+		</c:when>
 		<c:otherwise>
 			<div class="well well-white">
 				<div class="row-fluid">

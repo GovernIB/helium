@@ -37,7 +37,7 @@
 		<form:form id="scriptCommand" name="scriptCommand" action="scriptCommand" method="post" commandName="scriptCommand" onsubmit="return confirmar(event)">
 			<div class="inlineLabels">
 				<input type="hidden" name="id" value="${param.id}"/>
-				<textarea id=script name="script" autofocus="autofocus" class="span9"></textarea>
+				<textarea id=script name="script" autofocus="autofocus" class="span99per"></textarea>
 			</div>
 			<div id="botons" class="well">
 				<button type="submit" class="btn btn-primary"><spring:message code='comuns.executar' /></button>

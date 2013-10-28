@@ -31,7 +31,6 @@
 		<bean class="net.conselldemallorca.helium.webapp.mvc.interceptor.GlobalPropertiesInterceptor"/>
 		<bean class="net.conselldemallorca.helium.webapp.mvc.interceptor.VersioInterceptor"/>
 		<bean class="net.conselldemallorca.helium.webapp.v3.interceptor.NoDecorarInterceptor"/>
-		<bean class="net.conselldemallorca.helium.webapp.v3.interceptor.NodecoInterceptor"/>
 		<bean class="org.springframework.orm.hibernate3.support.OpenSessionInViewInterceptor">
 			<property name="singleSession" value="true"/>
 		</bean>
