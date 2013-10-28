@@ -1,5 +1,5 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="hel"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
@@ -20,7 +20,8 @@
 	var seleccioInicialitzada = false;
 	var seleccioArray = [];
 	var seleccioClass = "info";
-	var taula;
+ 	var oTable;
+	
 	function obtenirSeleccioActual() {
 		if (!seleccioInicialitzada) {
 			$.ajax({
@@ -76,7 +77,6 @@
 	}
 	</c:if>
 	
-
 	function confirmarEsborrar(e) {
 		var e = e || window.event;
 		e.cancelBubble = true;
@@ -84,7 +84,7 @@
 		return confirm("<spring:message code='expedient.consulta.confirm.esborrar'/>");
 	}
 	
-	function fnRowCallback(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+	function rowCallback(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
 		var numColumnes = $("td", nRow).size();
 		var expedientId = aData[8];
 		$("td:eq(" + (numColumnes - 1) + ")", nRow).html(
@@ -123,8 +123,7 @@
 		$("td:eq(" + (numColumnes - 4) + ")", nRow).html(formatDate(aData[2]));
 		
 		if (!aData[5] && aData[3]) $("td:eq(" + (numColumnes - 2) + ")", nRow).html('Finalitzat');
-		var oTable = $(taula).dataTable();
-		if (oTable.fnSettings().aoColumns[0].bVisible) {
+		if ($(taula).dataTable().fnSettings().aoColumns[0].bVisible) {
 			var seleccio = obtenirSeleccioActual();
 			var seleccionat = seleccio.indexOf(parseInt(aData[0])) != -1;
 			if (seleccionat) {
@@ -135,63 +134,95 @@
 			}
 		}
 	}
+	function serverParamsCallback(aoData) {
+		aoData.push({ "name": "numero", "value": $("#numero").val()} );
+		aoData.push({ "name": "titol", "value": $("#titol").val()} );
+		aoData.push({ "name": "expedientTipus", "value": $("#expedientTipusId").val()} );
+		aoData.push({ "name": "estat", "value": $("#estatText").val()} );
+		aoData.push({ "name": "dataIniciInicial", "value": $("#dataIniciInicial").val()} );
+		aoData.push({ "name": "dataIniciFinal", "value": $("#dataIniciFinal").val()} );
+		aoData.push({ "name": "dataFiInicial", "value": $("#dataFiInicial").val()} );
+		aoData.push({ "name": "dataFiFinal", "value": $("#dataFiFinal").val()} );
+		aoData.push({ "name": "geoposicio", "value": $("#geoReferencia").val()} );
+		
+		aoData.push({ "name": "nomesPendents", "value": $("input[name=nomesPendents]").val()} );
+		aoData.push({ "name": "nomesAlertes", "value": $("input[name=nomesAlertes]").val()} );
+		aoData.push({ "name": "mostrarAnulats", "value": $("input[name=mostrarAnulats]").val()} );
+		
+		aoData.push({ "name": "netejar", "value": $("#netejar").val()} );
+		$("#netejar").val("false");
+	}
+	function drawCallback(oSettings) {
+		oTable = $(taula).dataTable();
+		// Gestiona els clics als checkboxes de cada fila
+		$("tbody", taula).delegate(
+			"input[type=checkbox]",
+			"click",
+			function () {
+				modificarSeleccioIActualitzar(
+						$(this).attr("value"),
+						$(this).is(":checked"));
+			}
+		);
+		// Gestiona el clic al checkbox de la capçalera
+		$("thead input[type=checkbox]", taula).click(function() {
+			var checked = $(this).is(":checked");
+			var ids = [];
+			$("tbody tr", taula).each(function (index, row) {
+				ids.push($("td:eq(0) input[type=checkbox]", row).attr("value"));
+			});
+			modificarSeleccioIActualitzar(
+					ids,
+					checked);
+		});
+	}
+	function initComplete() {
+		
+	}
 	
 	$(document).ready(
 		function() {
-			<c:if test="${expedientConsultaCommand.consultaRealitzada}">
-			
-			<c:import url="import/dataTable.jsp">
-				<c:param name="idTable" value="taulaDades"/>
-				<c:param name="sAjaxSource" value="/v3/expedient/datatable"/>
-			</c:import>
-			
-			// Gestiona els clics als checkboxes de cada fila
-			$("tbody", taula).delegate(
-				"input[type=checkbox]",
-				"click",
-				function () {
-					modificarSeleccioIActualitzar(
-							$(this).attr("value"),
-							$(this).is(":checked"));
-				}
-			);
-			// Gestiona el clic al checkbox de la capçalera
-			$("thead input[type=checkbox]", taula).click(function() {
-				var checked = $(this).is(":checked");
-				var ids = [];
-				$("tbody tr", taula).each(function (index, row) {
-					ids.push($("td:eq(0) input[type=checkbox]", row).attr("value"));
-				});
-				modificarSeleccioIActualitzar(
-						ids,
-						checked);
+			$("#bconsultar").click(function() {
+				$(taula).dataTable().fnDraw();
 			});
-			</c:if>
+			$("#bnetejar").click(function() {
+				$("#netejar").val("true");
+				$("#numero").val(null);
+				$("#titol").val(null);
+				$("#estatText").val("");
+				$("#expedientTipusId").val("");
+				$("#expedientTipusId").change();
+				$("#dataIniciInicial").val(null);
+				$("#dataIniciFinal").val(null);
+				$("#dataFiInicial").val(null);
+				$("#dataFiFinal").val(null);
+				$("#geoReferencia").val(null);
+				$(taula).dataTable().fnDraw();
+			});
 			$("#nomesPendentsCheck").click(function() {
 				$("input[name=nomesPendents]").val(!$("#nomesPendentsCheck").hasClass('active'));
-				$(this).closest("form").submit();
+				$(taula).dataTable().fnDraw();
 			});
 			$("#nomesAlertesCheck").click(function() {
 				$("input[name=nomesAlertes]").val(!$("#nomesAlertesCheck").hasClass('active'));
+				$(taula).dataTable().fnDraw();
 			});
 			$("#mostrarAnulatsCheck").click(function() {
 				$("input[name=mostrarAnulats]").val(!$("#mostrarAnulatsCheck").hasClass('active'));
-				$(".btn-primary").click();
+				$(taula).dataTable().fnDraw();
 			});
 			$("#tramitacioMassivaActivar").click(function() {
 				$("#tramitacioMassivaActivar").parent().addClass('hide');
 				$("#tramitacioMassivaDesactivar").parent().removeClass('hide');
-				var oTable = $(taula).dataTable();
 				$("#tramitacioMassivaBtn").removeClass('disabled');
-				oTable.fnSetColumnVis(0, true);
+				 $(taula).dataTable().fnSetColumnVis(0, true);
 				$("input[name=tramitacioMassivaActivada]").val("true");
 			});
 			$("#tramitacioMassivaDesactivar").click(function() {
 				$("#tramitacioMassivaDesactivar").parent().addClass('hide');
 				$("#tramitacioMassivaActivar").parent().removeClass('hide');
-				var oTable = $(taula).dataTable();
 				$("#tramitacioMassivaBtn").addClass('disabled');
-				oTable.fnSetColumnVis(0, false);
+				 $(taula).dataTable().fnSetColumnVis(0, false);
 				$("input[name=tramitacioMassivaActivada]").val("false");
 			});
 			$('#filtresCollapsable').on('hide', function () {
@@ -224,9 +255,11 @@
 		}
 	);
 </script>
+<c:url value="/v3/expedient/datatable" var="dataTableAjaxSourceUrl"/>
+<hel:dataTable tableId="taulaDades" paginate="true" ajaxSourceUrl="${dataTableAjaxSourceUrl}" rowCallback="rowCallback" serverParamsCallback="serverParamsCallback" ajaxRefrescarTaula="true" ajaxRefrescarAlertes="true" drawCallback="drawCallback" initComplete="initComplete" hoverRow="check"/>
 </head>
 <body>
-
+	<input type="hidden" id="netejar" value="false"/>
 	<form:form action="" method="post" cssClass="well formbox" commandName="expedientConsultaCommand">
 		<div class="page-header">
 			Consulta d'expedients
@@ -307,6 +340,7 @@
 				<div class="span4">
 					<label>Data fi</label>
 					<div class="row-fluid">
+						<div class="span5 input-append date datepicker">
 							<c:set var="campPath" value="dataFiInicial"/>
 							<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 							<spring:bind path="${campPath}">
@@ -372,7 +406,7 @@
 				</c:choose>
 			</div>
 			<hr/>
-<!-- 		</div> -->
+		</div>
 		<div class="row-fluid">
 			<div class="span6">
 				<form:hidden path="nomesPendents"/>
@@ -380,15 +414,15 @@
 				<form:hidden path="mostrarAnulats"/>
 				<form:hidden path="tramitacioMassivaActivada"/>
 				<div class="btn-group">
-					<a id="nomesPendentsCheck" href="#" title="Només amb tasques pendents" class="btn<c:if test="${expedientConsultaCommand.nomesPendents}"> active</c:if>" data-toggle="button"><i class="icon-time"></i></a>
-					<a id="nomesAlertesCheck" href="#" title="Només amb alertes" class="btn<c:if test="${expedientConsultaCommand.nomesAlertes}"> active</c:if>" data-toggle="button"><i class="icon-warning-sign"></i></a>
-					<a id="mostrarAnulatsCheck" href="#" title="Mostrar anulats" class="btn<c:if test="${expedientConsultaCommand.mostrarAnulats}"> active</c:if>" data-toggle="button"><i class="icon-remove"></i></a>
+					<a id="nomesPendentsCheck" href="javascript:void(0)" title="Només amb tasques pendents" class="btn<c:if test="${expedientConsultaCommand.nomesPendents}"> active</c:if>" data-toggle="button"><i class="icon-time"></i></a>
+					<a id="nomesAlertesCheck" href="javascript:void(0)" title="Només amb alertes" class="hide btn<c:if test="${expedientConsultaCommand.nomesAlertes}"> active</c:if>" data-toggle="button"><i class="icon-warning-sign"></i></a>
+					<a id="mostrarAnulatsCheck" href="javascript:void(0)" title="Mostrar anulats" class="btn<c:if test="${expedientConsultaCommand.mostrarAnulats}"> active</c:if>" data-toggle="button"><i class="icon-remove"></i></a>
 				</div>
 				<%--div class="btn-group">
 					<a id="tramitacioMassivaCheck" class="btn<c:if test="${expedientConsultaCommand.tramitacioMassivaActivada}"> active</c:if>" href="#" data-toggle="button" title="Activar/desactivar tramitació massiva"><i class="icon-check"></i></a>
 					<button id="tramitacioMassivaBtn" class="btn<c:if test="${not expedientConsultaCommand.tramitacioMassivaActivada}"> disabled</c:if>">Tramitació massiva <span id="tramitacioMassivaCount" class="badge">&nbsp;</span></button>
 				</div--%>
-				<div class="btn-group">
+				<div class="hide btn-group">
 					<button id="tramitacioMassivaBtn" class="btn<c:if test="${not expedientConsultaCommand.tramitacioMassivaActivada}"> disabled</c:if>">Tramitació massiva <span id="tramitacioMassivaCount" class="badge">&nbsp;</span></button>
 					<button class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
 					<ul class="dropdown-menu">
@@ -399,8 +433,9 @@
 			</div>
 			<div class="span6">
 				<input type="hidden" name="consultaRealitzada" value="true"/>
-				<button class="btn btn-primary pull-right">Consultar</button>
-				<a class="btn pull-right" href="expedient/filtre/netejar" style="margin-right:.6em">Netejar</a>
+				<button id="bconsultar" type="button" class="btn btn-primary pull-right">Consultar</button>
+				<button id="bnetejar" type="button" class="btn pull-right" style="margin-right:.6em">Netejar</button>
+<!-- 				<a class="btn pull-right" href="expedient/filtre/netejar" style="margin-right:.6em">Netejar</a> -->
 			</div>
 		</div>
 	</form:form>
@@ -419,11 +454,12 @@
 					<th data-property="anulat" data-visible=false>Anulat</th>
 					<th data-property="id" data-sortable="false" width="10%" data-visible=true></th>
 				</tr>
-				<tr id="dades-carregant">
-					<td colspan="9" style="margin-top: 2em; text-align: center"><i class="icon-spinner icon-2x icon-spin"></i></td>
-				</tr>
+<!-- 				<tr id="dades-carregant"> -->
+<!-- 					<td colspan="9" style="margin-top: 2em; text-align: center"><i class="icon-spinner icon-2x icon-spin"></i></td> -->
+<!-- 				</tr> -->
 			</thead>
 		</table>
+<%-- 		<hel:modalDefinir modalId="mexform" refrescarAlertes="true" refrescarTaula="true" refrescarTaulaId="taulaDades"/> --%>
 	</c:if>
 
 </body>

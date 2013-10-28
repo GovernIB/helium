@@ -20,6 +20,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientConsultaCommand;
@@ -41,6 +42,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -108,10 +110,64 @@ public class ExpedientLlistatController extends BaseExpedientController {
 	@RequestMapping(value = "/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	public  DatatablesPagina<ExpedientDto>  datatable(
+			@RequestParam(value = "numero", required = false) String numero,
+			@RequestParam(value = "titol", required = false) String titol,
+			@RequestParam(value = "expedientTipus", required = false) Long expedientTipusId,
+			@RequestParam(value = "estat", required = false) String estat,
+			@RequestParam(value = "dataIniciInicial", required = false) Date dataIniciInicial,
+			@RequestParam(value = "dataIniciFinal", required = false) Date dataIniciFinal,
+			@RequestParam(value = "dataFiInicial", required = false) Date dataFiInicial,
+			@RequestParam(value = "dataFiFinal", required = false) Date dataFiFinal,
+			@RequestParam(value = "geoposicio", required = false) String geoposicio,
+			@RequestParam(value = "geoposX", required = false) Double geoposX,
+			@RequestParam(value = "geoposY", required = false) Double geoposY,
+			@RequestParam(value = "nomesPendents", required = false) Boolean nomesPendents,
+			@RequestParam(value = "nomesAlertes", required = false) Boolean nomesAlertes,
+			@RequestParam(value = "mostrarAnulats", required = false) Boolean mostrarAnulats,
+			@RequestParam(value = "netejar", required = false) Boolean netejar,
 			HttpServletRequest request,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		ExpedientConsultaCommand filtreCommand = getFiltreCommand(request);
+		ExpedientConsultaCommand filtreCommand = null;
+		if (netejar) {
+			SessionHelper.removeAttribute(
+					request,
+					SessionHelper.VARIABLE_FILTRE_CONSULTA_GENERAL);
+			SessionHelper.removeAttribute(
+					request,
+					SessionHelper.VARIABLE_SELECCIO_CONSULTA_GENERAL);
+			filtreCommand = getFiltreCommand(request);
+		} else {
+			filtreCommand = getFiltreCommand(request);
+			if (numero != null) filtreCommand.setNumero(numero);
+			if (titol != null) filtreCommand.setTitol(titol);
+			if (expedientTipusId != null) filtreCommand.setExpedientTipusId(expedientTipusId);
+			if (estat != null) {
+				if ("INICIAT".equals(estat)) filtreCommand.setEstatTipus(EstatTipusDto.INICIAT);
+				else if ("FINALITZAT".equals(estat)) filtreCommand.setEstatTipus(EstatTipusDto.FINALITZAT);
+				else {
+					try {
+						Long estatId = Long.parseLong(estat);
+						filtreCommand.setEstatTipus(EstatTipusDto.CUSTOM);
+						filtreCommand.setEstatId(estatId);
+					} catch (Exception e) {}
+				}
+			}
+			if (dataIniciInicial != null) filtreCommand.setDataIniciInicial(dataIniciInicial);
+			if (dataIniciFinal != null) filtreCommand.setDataIniciFinal(dataIniciFinal);
+			if (dataFiInicial != null) filtreCommand.setDataFiInicial(dataFiInicial);
+			if (dataFiFinal != null) filtreCommand.setDataFiFinal(dataFiFinal);
+			if (geoposicio != null) filtreCommand.setGeoReferencia(geoposicio);
+			if (geoposX != null) filtreCommand.setGeoPosX(geoposX);
+			if (geoposY != null) filtreCommand.setGeoPosY(geoposY);
+		}
+		if (nomesPendents != null) filtreCommand.setNomesPendents(nomesPendents);
+		if (nomesAlertes != null) filtreCommand.setNomesAlertes(nomesAlertes);
+		if (mostrarAnulats != null) filtreCommand.setMostrarAnulats(mostrarAnulats);
+		SessionHelper.setAttribute(
+				request,
+				SessionHelper.VARIABLE_FILTRE_CONSULTA_GENERAL,
+				filtreCommand);
 		return PaginacioHelper.getPaginaPerDatatables(
 				request,
 				expedientService.findPerConsultaGeneralPaginat(

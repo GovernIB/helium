@@ -1351,6 +1351,7 @@
 		
 						/* Expand the cell to cover as many rows as needed */
 						while ( aoLocal[i+iRowspan] !== undefined &&
+								aoLocal[i + iRowspan][j] !== undefined &&
 						        aoLocal[i][j].cell == aoLocal[i+iRowspan][j].cell )
 						{
 							aApplied[i+iRowspan][j] = 1;
