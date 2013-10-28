@@ -259,9 +259,6 @@
 	<profiles>
 		<profile>
 			<id>tomcat</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
 			<dependencies>
 				<dependency>
 					<groupId>org.hibernate</groupId>
@@ -306,6 +303,9 @@
 		</profile>
 		<profile>
 			<id>jboss</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
 			<dependencies>
 				<dependency>
 					<groupId>org.hibernate</groupId>
