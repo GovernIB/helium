@@ -36,7 +36,6 @@ import org.apache.poi.ss.usermodel.DataFormat;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -492,14 +491,5 @@ public class MesuraTemporalController extends BaseController {
 		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage("temps.pes"))));
 		cell.setCellStyle(headerStyle);
 	}
-	
-	@RequestMapping(value = "/tasca/pendentsCompletar", method = RequestMethod.GET)
-	public String tasquesCompletar(HttpServletRequest request, 
-			HttpServletResponse response, 
-			ModelMap model) {
-		model.put("tasques", adminService.getTasquesCompletar());
-		return "tasca/pendentsCompletar"; 
-	}
-	
 	private static final Log logger = LogFactory.getLog(MesuraTemporalController.class);
 }

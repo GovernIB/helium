@@ -23,7 +23,6 @@ import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 
 import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,12 +40,10 @@ public class DissenyServiceImpl implements DissenyService {
 	private ExpedientTipusRepository expedientTipusRepository;
 	@Resource
 	private EstatRepository estatRepository;
-
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private PermisosHelper permisosHelper;
-
 
 	@Transactional(readOnly=true)
 	@Override
@@ -71,6 +68,7 @@ public class DissenyServiceImpl implements DissenyService {
 						ExtendedPermission.READ,
 						ExtendedPermission.ADMINISTRATION});
 	}
+	
 	@Transactional(readOnly=true)
 	@Override
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisDissenyUsuariActual(
@@ -81,6 +79,7 @@ public class DissenyServiceImpl implements DissenyService {
 						ExtendedPermission.DESIGN,
 						ExtendedPermission.ADMINISTRATION});
 	}
+	
 	@Transactional(readOnly=true)
 	@Override
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisGestioUsuariActual(
@@ -91,6 +90,7 @@ public class DissenyServiceImpl implements DissenyService {
 						ExtendedPermission.MANAGE,
 						ExtendedPermission.ADMINISTRATION});
 	}
+	
 	@Transactional(readOnly=true)
 	@Override
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisCrearUsuariActual(
@@ -102,8 +102,7 @@ public class DissenyServiceImpl implements DissenyService {
 						ExtendedPermission.ADMINISTRATION});
 	}
 
-
-
+	@Transactional
 	private List<ExpedientTipusDto> findExpedientTipusAmbPermisosUsuariActual(
 			Long entornId,
 			Permission[] permisos) {
@@ -124,5 +123,4 @@ public class DissenyServiceImpl implements DissenyService {
 				expedientsTipus,
 				ExpedientTipusDto.class);
 	}
-
 }

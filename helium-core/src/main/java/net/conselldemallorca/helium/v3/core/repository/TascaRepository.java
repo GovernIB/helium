@@ -7,6 +7,8 @@ import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 /**
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
@@ -21,4 +23,12 @@ public interface TascaRepository extends JpaRepository<Tasca, Long> {
 			String jbpmName,
 			DefinicioProces definicioProces);
 
+	@Query(	"select t from " +
+						"    Tasca t " +
+						"where " +
+						"    t.jbpmName=:jbpmName " +
+						"and t.definicioProces.jbpmId=:jbpmId")
+	Tasca findAmbActivityNameIProcessDefinitionId(
+			@Param("jbpmName") String name,
+			@Param("jbpmId") String jbpmId);
 }

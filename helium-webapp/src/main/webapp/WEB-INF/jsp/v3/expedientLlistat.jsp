@@ -75,10 +75,40 @@
 	}
 	</c:if>
 	
+
+	function confirmarEsborrar(e) {
+		var e = e || window.event;
+		e.cancelBubble = true;
+		if (e.stopPropagation) e.stopPropagation();
+		return confirm("<fmt:message key="expedient.consulta.confirm.esborrar"/>");
+	}
+	
 	function fnRowCallback(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
 		var numColumnes = $("td", nRow).size();
 		var expedientId = aData[8];
-		$("td:eq(" + (numColumnes - 1) + ")", nRow).html('<div class="btn-group"><a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog icon-white"></i> Accions <span class="caret"></span></a><ul class="dropdown-menu"><li><a href="expedient/' + expedientId + '"><i class="icon-folder-open"></i> Obrir</a></li><li><a href="expedient/' + expedientId + '/stop"><i class="icon-stop"></i> Aturar</a></li><li><a href="expedient/' + expedientId + '/suspend"><i class="icon-remove"></i> Anular</a></li><li><a href="expedient/' + expedientId + '/delete"><i class="icon-trash"></i> Esborrar</a></li></ul></div>');
+		$("td:eq(" + (numColumnes - 1) + ")", nRow).html(
+			'<div class="btn-group">' +
+				'<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">' + 
+				 	'<i class="icon-cog icon-white"></i> Accions <span class="caret"></span>' + 
+				 '</a>' + 
+				 '<ul class="dropdown-menu">' + 
+				 	'<li>' + 
+				 		'<a href="expedient/' + expedientId + '"><i class="icon-folder-open"></i> Obrir</a>' + 
+				 	'</li>' + 
+				 	'<li>' + 
+				 		'<a href="expedient/' + expedientId + '/stop"><i class="icon-stop"></i> Aturar</a>' + 
+				 	'</li>' + 
+				 	'<li>' + 
+				 		'<a href="expedient/' + expedientId + '/suspend"><i class="icon-remove"></i> Anular</a>' + 
+				 	'</li>' + 
+				 	'<li>' + 
+				 	'<a href="#" onclick="return confirmarEsborrar(event)">' +
+				 	//'<a href="<c:url value="expedient/' + expedientId + '/delete"></c:url>" onclick="return confirmarEsborrar(event)">' +
+			 			'<i class="icon-trash"></i> Esborrar' +
+				 		'</a>' +
+				 	'</li>' + 
+				 '</ul>' + 
+			'</div>');
 		if (aData[6] === 'true')
 			$("td:eq(1)", nRow).append(' <span class="label" title="Aturat">AT</span>');
 		if (aData[7] === 'true')
@@ -277,7 +307,6 @@
 				<div class="span4">
 					<label>Data fi</label>
 					<div class="row-fluid">
-						<div class="span5 input-append date datepicker">
 							<c:set var="campPath" value="dataFiInicial"/>
 							<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 							<spring:bind path="${campPath}">
@@ -343,7 +372,7 @@
 				</c:choose>
 			</div>
 			<hr/>
-		</div>
+<!-- 		</div> -->
 		<div class="row-fluid">
 			<div class="span6">
 				<form:hidden path="nomesPendents"/>

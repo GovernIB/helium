@@ -17,6 +17,14 @@ public class CampAgrupacioDto {
 	private String descripcio;
 	private int ordre;
 
+	public CampAgrupacioDto(Long id, String codi, String nom, String descripcio, int ordre) {
+		super();
+		this.id = id;
+		this.codi = codi;
+		this.nom = nom;
+		this.descripcio = descripcio;
+		this.ordre = ordre;
+	}
 	public Long getId() {
 		return id;
 	}

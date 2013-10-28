@@ -5,6 +5,13 @@ package net.conselldemallorca.helium.v3.core.helper;
 
 import javax.annotation.Resource;
 
+import net.conselldemallorca.helium.core.model.exception.PersonaPluginException;
+import net.conselldemallorca.helium.core.model.exception.PluginException;
+import net.conselldemallorca.helium.core.model.hibernate.Persona;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.integracio.plugins.persones.DadesPersona;
+import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPlugin;
+import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPluginException;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.repository.PersonaRepository;
 
@@ -17,6 +24,10 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class PersonaHelper {
+	
+	private boolean pluginEvaluat = false;
+	
+	private PersonesPlugin personesPlugin;
 
 	@Resource
 	private PersonaRepository personaRepository;
@@ -25,8 +36,6 @@ public class PersonaHelper {
 	private PluginHelper pluginHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-
-
 
 	public PersonaDto findByCodi(String codi) throws Exception {
 		PersonaDto resposta;
@@ -42,4 +51,73 @@ public class PersonaHelper {
 		return resposta;
 	}
 
+	public PersonaDto toPersonaPlugin(Persona persona) {
+		if (persona == null)
+			return null;
+		PersonaDto.Sexe sexe = null;
+		if (persona.getSexe().equals(Persona.Sexe.SEXE_HOME))
+			sexe = PersonaDto.Sexe.SEXE_HOME;
+		else
+			sexe = PersonaDto.Sexe.SEXE_DONA;	
+		PersonaDto p = new PersonaDto(
+				persona.getCodi(),
+				persona.getNomSencer(),
+				persona.getEmail(),
+				sexe);
+		p.setDni(persona.getDni());
+		return p;
+	}
+	
+	private PersonaDto toPersonaPlugin(DadesPersona persona) {
+		if (persona == null)
+			return null;
+		PersonaDto.Sexe sexe = null;
+		if (persona.getSexe().equals(DadesPersona.Sexe.SEXE_HOME))
+			sexe = PersonaDto.Sexe.SEXE_HOME;
+		else
+			sexe = PersonaDto.Sexe.SEXE_DONA;	
+		
+		PersonaDto p = new PersonaDto(
+				persona.getCodi(),
+				persona.getNomSencer(),
+				persona.getEmail(),
+				sexe);
+		p.setDni(persona.getDni());
+		return p;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	protected PersonesPlugin getPersonesPlugin() {
+		try {
+			if (pluginEvaluat)
+				return personesPlugin;
+			String pluginClass = GlobalProperties.getInstance().getProperty("app.persones.plugin.class");
+			if (pluginClass != null) {
+				Class clazz = Class.forName(pluginClass);
+				personesPlugin = (PersonesPlugin)clazz.newInstance();
+			}
+			pluginEvaluat = true;
+			return personesPlugin;
+		} catch (Exception ex) {
+			throw new PersonaPluginException("No s'ha pogut crear la instància del plugin", ex);
+		}
+	}
+
+	public PersonaDto findAmbCodiPlugin(String codi) {
+		String codiPerConsulta = (isIgnoreCase()) ? codi.toLowerCase() : codi;
+		try {
+			return toPersonaPlugin(personesPlugin.findAmbCodi(codiPerConsulta));
+		} catch (PersonesPluginException ex) {
+			throw new PluginException("Error al cercar les persones amb el codi" + codi, ex);
+		}
+	}
+
+	public boolean isSyncActiu() {
+		String syncActiu = GlobalProperties.getInstance().getProperty("app.persones.plugin.sync.actiu");
+		return "true".equalsIgnoreCase(syncActiu);
+	}
+	private boolean isIgnoreCase() {
+		String syncActiu = GlobalProperties.getInstance().getProperty("app.persones.plugin.ignore.case");
+		return "true".equalsIgnoreCase(syncActiu);
+	}
 }

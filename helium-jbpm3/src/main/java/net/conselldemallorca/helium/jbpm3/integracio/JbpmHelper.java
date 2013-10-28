@@ -90,14 +90,17 @@ import org.jbpm.logging.log.ProcessLog;
 import org.jbpm.taskmgmt.def.Task;
 import org.jbpm.taskmgmt.exe.TaskInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Dao per a l'accés a la funcionalitat de jBPM3
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Component
 public class JbpmHelper {
-
+	@Resource
 	private CommandService commandService;
 	
 	@Resource
@@ -848,6 +851,7 @@ public class JbpmHelper {
 		adminService.mesuraCalcular("jBPM tokenRedirect", "jbpmDao");
 	}
 
+	@Transactional
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> evaluateScript(
 			String processInstanceId,
@@ -856,6 +860,8 @@ public class JbpmHelper {
 		adminService.mesuraIniciar("jBPM evaluateScript", "jbpmDao");
 		Map<String,Object> resultat = null;
 		final long id = Long.parseLong(processInstanceId);
+		if (outputNames == null)
+			outputNames = new HashSet<String>();
 		EvaluateScriptCommand command = new EvaluateScriptCommand(
 				id,
 				script,
@@ -1276,6 +1282,7 @@ public class JbpmHelper {
 		return resultat;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<Long> findRootProcessInstancesForExpedientsWithActiveTasksCommand(String actorId,List<Long> idsExpedients) {
 		adminService.mesuraIniciar("jBPM findRootProcessInstancesForExpedientsWithActiveTasksCommand", "jbpmDao");
 		List<Long> resultat = new ArrayList<Long>();

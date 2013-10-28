@@ -7,10 +7,12 @@
 <c:set var="refrescarTaulaId" value="${param.refrescarTaulaId}"/>
 <c:set var="refrescarPagina" value="${param.refrescarPagina}"/>
 <c:set var="icon" value="${param.icon}"/>
+<c:set var="img" value="${param.img}"/>
 <c:set var="texto" value="${param.texto}"/>
 
-<a id="a-modal-${modalId}" href="${sAjaxSource}">
-	<i class="${icon}"></i> ${texto}
+<a id="a-modal-${modalId}" href="${sAjaxSource}">	
+	<i class="${icon}"></i>
+	<img src="<c:url value="${img}"/>" alt="${texto}" title="${texto}" border="0"/>
 </a>
 
 <script>

@@ -67,7 +67,8 @@ public class AreaJbpmIdDao extends HibernateGenericDao<AreaJbpmId, Long> {
 						"from " +
 						"    org.jbpm.identity.Group g " +
 						"where " +
-						"    g.name not in (" +
+						"	 g.type = 'organisation'" +
+						"    and g.name not in (" +
 						"        select " +
 						"            a.codi " +
 						"        from " +

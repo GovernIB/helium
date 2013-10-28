@@ -53,7 +53,6 @@ import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.service.AlertaService;
 import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 import net.conselldemallorca.helium.core.model.service.DocumentService;
-import net.conselldemallorca.helium.core.model.service.DtoConverter;
 import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.TerminiService;
@@ -193,7 +192,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 	private JbpmHelper jbpmHelper;
 	@Resource
 	private DocumentHelper documentHelper;
-	@Resource
+	@Resource(name="dtoConverterV3")
 	private DtoConverter dtoConverter;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;

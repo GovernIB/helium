@@ -21,13 +21,6 @@ import javax.annotation.Resource;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.model.dao.CarrecJbpmIdDao;
 import net.conselldemallorca.helium.core.model.dao.DominiDao;
-import net.conselldemallorca.helium.core.model.dao.PluginPersonaDao;
-import net.conselldemallorca.helium.core.model.dto.DocumentDto;
-import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
-import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.core.model.dto.PersonaDto;
-import net.conselldemallorca.helium.core.model.dto.PersonaDto.Sexe;
-import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Area;
 import net.conselldemallorca.helium.core.model.hibernate.AreaJbpmId;
 import net.conselldemallorca.helium.core.model.hibernate.Carrec;
@@ -38,7 +31,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.service.DocumentHelper;
-import net.conselldemallorca.helium.core.model.service.DtoConverter;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.NombreEnCastella;
 import net.conselldemallorca.helium.core.util.NombreEnCatala;
@@ -47,6 +39,12 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
 import net.conselldemallorca.helium.v3.core.repository.AreaJbpmIdRepository;
 import net.conselldemallorca.helium.v3.core.repository.AreaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CarrecJbpmIdRepository;
@@ -54,6 +52,7 @@ import net.conselldemallorca.helium.v3.core.repository.CarrecRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
+import net.conselldemallorca.helium.v3.core.service.DtoConverter;
 import net.sf.jooreports.templates.DocumentTemplate;
 import net.sf.jooreports.templates.DocumentTemplateFactory;
 
@@ -86,13 +85,16 @@ import freemarker.template.TemplateModelException;
  */
 @Component("PlantillaHelperV3")
 public class PlantillaHelper {
-
+	@Resource
+	private PersonaHelper personaHelper;
 	@Resource
 	private DocumentRepository documentRepository;
 	@Resource
 	private DocumentStoreRepository documentStoreRepository;
 	@Resource
 	private ExpedientRepository expedientRepository;
+	@Resource
+	private ExpedientHelper expedientHelper;
 	@Resource
 	private AreaRepository areaRepository;
 	@Resource
@@ -105,16 +107,13 @@ public class PlantillaHelper {
 	@Resource
 	private CarrecJbpmIdDao carrecJbpmIdDao;
 	@Resource
-	private PluginPersonaDao pluginPersonaDao;
-	@Resource
 	private DominiDao dominiDao;
-
-	@Resource
+	@Resource(name="dtoConverterV3")
 	private DtoConverter dtoConverter;
+	@Resource(name="documentHelperV3")
+	private DocumentHelperV3 documentHelper;
 	@Resource
-	private DocumentHelper documentHelper;
-	@Resource
-	private JbpmHelper jbpmDao;
+	private JbpmHelper jbpmhelper;
 
 
 
@@ -133,10 +132,10 @@ public class PlantillaHelper {
 			String responsableCodi;
 			Map<String, Object> model = new HashMap<String, Object>();
 			if (taskInstanceId != null) {
-				JbpmTask task = jbpmDao.getTaskById(taskInstanceId);
-				JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
+				JbpmTask task = jbpmhelper.getTaskById(taskInstanceId);
+				JbpmProcessInstance rootProcessInstance = jbpmhelper.getRootProcessInstance(task.getProcessInstanceId());
 				expedient = dtoConverter.toExpedientDto(
-						expedientRepository.findByProcessInstanceId(rootProcessInstance.getId()),
+						expedientHelper.findAmbProcessInstanceId(rootProcessInstance.getId()),
 						false);
 				tasca = dtoConverter.toTascaDto(
 						task,
@@ -155,9 +154,9 @@ public class PlantillaHelper {
 				model.putAll(tasca.getVarsComText());
 				responsableCodi = task.getAssignee();
 			} else {
-				JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(processInstanceId);
+				JbpmProcessInstance rootProcessInstance = jbpmhelper.getRootProcessInstance(processInstanceId);
 				expedient = dtoConverter.toExpedientDto(
-						expedientRepository.findByProcessInstanceId(rootProcessInstance.getId()),
+						expedientHelper.findAmbProcessInstanceId(rootProcessInstance.getId()),
 						false);
 				InstanciaProcesDto instanciaProces = dtoConverter.toInstanciaProcesDto(
 						processInstanceId,
@@ -199,7 +198,7 @@ public class PlantillaHelper {
 			Date dataDocument,
 			Map<String, Object> model) {
 		Map<String, Object> context = new HashMap<String, Object>();
-		context.put("responsable", pluginPersonaDao.findAmbCodiPlugin(responsableCodi));
+		context.put("responsable", personaHelper.findAmbCodiPlugin(responsableCodi));
 		context.put("expedient", expedient);
 		context.put("tasca", tasca);
 		context.put("dataActual", new Date());
@@ -223,9 +222,9 @@ public class PlantillaHelper {
 								String codi = (String)arg0;
 								Object valor = null;
 								if (taskId != null)
-									valor = jbpmDao.getTaskInstanceVariable(taskId, codi);
+									valor = jbpmhelper.getTaskInstanceVariable(taskId, codi);
 								if (valor == null)
-									valor = jbpmDao.getProcessInstanceVariable(processInstanceId, codi);
+									valor = jbpmhelper.getProcessInstanceVariable(processInstanceId, codi);
 								if (valor == null)
 									return new SimpleScalar(null);
 								if (valor instanceof Object[])
@@ -255,7 +254,7 @@ public class PlantillaHelper {
 							Object arg0 = args.get(0);
 							if (arg0 != null && arg0 instanceof String) {
 								String codi = (String)arg0;
-								PersonaDto persona = pluginPersonaDao.findAmbCodiPlugin(codi);
+								PersonaDto persona = personaHelper.findAmbCodiPlugin(codi);
 								if (persona == null)
 									return new BeanModel(
 											new PersonaDto("???", "???", "???", Sexe.SEXE_HOME),
@@ -351,7 +350,7 @@ public class PlantillaHelper {
 											codiCarrec);
 									if (carrec != null) {
 										if (carrec.getPersonaCodi() != null) {
-											PersonaDto persona = pluginPersonaDao.findAmbCodiPlugin(carrec.getPersonaCodi());
+											PersonaDto persona = personaHelper.findAmbCodiPlugin(carrec.getPersonaCodi());
 											return new BeanModel(
 													persona,
 													new DefaultObjectWrapper());
@@ -362,7 +361,7 @@ public class PlantillaHelper {
 											codiArea,
 											codiCarrec);
 									if (personaCodi != null) {
-										PersonaDto persona = pluginPersonaDao.findAmbCodiPlugin(personaCodi);
+										PersonaDto persona = personaHelper.findAmbCodiPlugin(personaCodi);
 										if (persona != null)
 											return new BeanModel(
 													persona,
@@ -445,7 +444,7 @@ public class PlantillaHelper {
 									Carrec carrec = carrecRepository.findByEntornAndCodi(entorn, codi);
 									if (carrec != null) {
 										if (carrec.getPersonaCodi() != null) {
-											PersonaDto persona = pluginPersonaDao.findAmbCodiPlugin(carrec.getPersonaCodi());
+											PersonaDto persona = personaHelper.findAmbCodiPlugin(carrec.getPersonaCodi());
 											return new BeanModel(
 													persona,
 													new DefaultObjectWrapper());
@@ -456,7 +455,7 @@ public class PlantillaHelper {
 									if (carrec != null) {
 										List<String> persones = carrecJbpmIdDao.findPersonesAmbCarrecCodi(codi);
 										if (persones != null && persones.size() > 0) {
-											PersonaDto persona = pluginPersonaDao.findAmbCodiPlugin(persones.get(0));
+											PersonaDto persona = personaHelper.findAmbCodiPlugin(persones.get(0));
 											if (persona == null)
 												persona = new PersonaDto("???", "???", "???", Sexe.SEXE_HOME);
 											return new BeanModel(

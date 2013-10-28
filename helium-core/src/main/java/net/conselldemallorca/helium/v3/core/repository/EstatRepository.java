@@ -30,4 +30,5 @@ public interface EstatRepository extends JpaRepository<Estat, Long> {
 			ExpedientTipus expedientTipus,
 			Long id);
 
+	public Estat findById(Long id);
 }

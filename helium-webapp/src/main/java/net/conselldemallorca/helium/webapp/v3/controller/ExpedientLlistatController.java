@@ -29,6 +29,8 @@ import net.conselldemallorca.helium.webapp.v3.helper.PaginacioHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.stereotype.Controller;
@@ -218,4 +220,30 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		return filtreCommand;
 	}
 
+	@RequestMapping(value = "/{expedientId}/delete", method = RequestMethod.GET)
+	public String deleteAction(
+			HttpServletRequest request,
+			@PathVariable Long expedientId) {
+		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
+		if (entorn != null) {
+			ExpedientDto expedient = expedientService.findById(expedientId);
+			if (potModificarExpedient(expedient)) {
+				try {
+					expedientService.delete(entorn.getId(), expedientId);
+					MissatgesHelper.info(request, getMessage(request, "nfo.expedient.esborrat") );
+				} catch (Exception ex) {
+					MissatgesHelper.error(request, getMessage(request, "error.esborrar.expedient") );
+		        	logger.error("No s'ha pogut esborrar el registre", ex);
+				}
+			} else {
+				MissatgesHelper.error(request, getMessage(request, "error.permisos.esborrar.expedient") );
+			}
+			return "redirect:/expedient/consulta.html";
+		} else {
+			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec") );
+		}
+		return "v3/expedientLlistat";
+	}
+	
+	private static final Logger logger = LoggerFactory.getLogger(ExpedientLlistatController.class);
 }

@@ -96,6 +96,6 @@ public class EntornSeleccioController extends BaseController {
 
 
 
-	private static final Log logger = LogFactory.getLog(PermisosEntornController.class);
+	private static final Log logger = LogFactory.getLog(EntornSeleccioController.class);
 
 }

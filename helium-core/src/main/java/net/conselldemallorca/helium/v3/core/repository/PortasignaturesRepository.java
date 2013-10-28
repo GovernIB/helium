@@ -3,9 +3,13 @@
  */
 package net.conselldemallorca.helium.v3.core.repository;
 
+import java.util.List;
+
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 /**
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
@@ -16,4 +20,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface PortasignaturesRepository extends JpaRepository<Portasignatures, Long> {
 
+	@Query("select p from Portasignatures p where processInstanceId=:processInstanceId")
+	List<Portasignatures> findPendentsPerProcessInstanceId(@Param("processInstanceId") String processInstanceId);
 }

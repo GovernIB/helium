@@ -78,14 +78,14 @@
 				</li>
 			</c:if>
 		</ul>
-<%-- 		<security:authorize ifAllGranted="ROLE_ADMIN"> --%>
-<%-- 			<c:if test="${globalProperties['app.mesura.temps.actiu']}"> --%>
-<%-- 				<div class="image temps"><a id="botoTemps" href="javascript:void(0)"><fmt:message key='expedient.mesura.temps' /></a></div> --%>
-<%-- 			</c:if> --%>
-<%-- 			<c:if test="${globalProperties['app.expedient.monitor']}"> --%>
-<%-- 				<div class="image monitor"><a id="botoMonitor" href="javascript:void(0)"><fmt:message key='expedient.monitor' /></a></div> --%>
-<%-- 			</c:if> --%>
-<%-- 		</security:authorize> --%>
+		<security:authorize ifAllGranted="ROLE_ADMIN">
+			<c:if test="${globalProperties['app.mesura.temps.actiu']}">
+				<div class="image temps"><a id="botoTemps" href="javascript:void(0)"><fmt:message key='expedient.mesura.temps' /></a></div>
+			</c:if>
+			<c:if test="${globalProperties['app.expedient.monitor']}">
+				<div class="image monitor"><a id="botoMonitor" href="javascript:void(0)"><fmt:message key='expedient.monitor' /></a></div>
+			</c:if>
+		</security:authorize>
 		<div class="image massives"><a id="botoMassiu" href="javascript:void(0)"><fmt:message key='comuns.massiu' /></a></div>
 	</div>
 	<!-- Progreso en acciones masivas -->

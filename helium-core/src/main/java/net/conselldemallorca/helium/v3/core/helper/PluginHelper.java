@@ -5,12 +5,15 @@ package net.conselldemallorca.helium.v3.core.helper;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
+import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPlugin;
 import net.conselldemallorca.helium.integracio.plugins.gesdoc.GestioDocumentalPlugin;
@@ -53,6 +56,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto.TramitDocu
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ZonaperEventDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ZonaperExpedientDto;
+import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -86,6 +90,9 @@ public class PluginHelper {
 
 	private CustodiaPlugin custodiaPlugin;
 	private boolean custodiaPluginEvaluat = false;
+	
+	@Resource
+	private PortasignaturesRepository portasignaturesRepository;
 
 
 
@@ -597,6 +604,26 @@ public class PluginHelper {
 		}
 		return gestioDocumentalPlugin;
 	}
+
+	public List<Portasignatures> findPendentsPortasignaturesPerProcessInstanceId(String processInstanceId) {		
+		List<Portasignatures> psignas = portasignaturesRepository.findPendentsPerProcessInstanceId(processInstanceId);
+		Iterator<Portasignatures> it = psignas.iterator();
+		while (it.hasNext()) {
+			Portasignatures psigna = it.next();
+			if (	!TipusEstat.PENDENT.equals(psigna.getEstat()) &&
+					!TipusEstat.SIGNAT.equals(psigna.getEstat()) &&
+					!TipusEstat.REBUTJAT.equals(psigna.getEstat()) &&
+					!TipusEstat.ERROR.equals(psigna.getEstat())) {
+				it.remove();
+			}
+		}
+		return psignas;
+	}
+	
+	public void saveOrUpdatePortasignatures(Portasignatures psigna) {
+		portasignaturesRepository.save(psigna);
+	}
+	
 	private PortasignaturesPlugin getPortasignaturesPlugin() throws Exception {
 		if (!portasignaturesPluginEvaluat) {
 			String pluginClass = GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.class");
@@ -619,5 +646,4 @@ public class PluginHelper {
 	}
 
 	private static final Log logger = LogFactory.getLog(PluginHelper.class);
-
 }

@@ -14,6 +14,7 @@ import java.util.Date;
 public class DocumentDto implements Serializable {
 
 	private Long id;
+	private String codi;
 	private Date dataCreacio;
 	private Date dataModificacio;
 	private Date dataDocument;
@@ -41,9 +42,114 @@ public class DocumentDto implements Serializable {
 	private String adjuntTitol;
 
 	private String arxiuNom;
+	private byte[] arxiuContingut;
+	private String signatNom;
+	private byte[] signatContingut;
+	private String vistaNom;
+	private byte[] vistaContingut;
 
+	private String processInstanceId;
+	private String contentType;
+	private String custodiaCodi;
+	private Integer tipusDocPortasignatures;
 
+	private String tokenSignatura;
+	private String tokenSignaturaMultiple;
+	private boolean signatEnTasca;
+	private boolean adjuntarAuto;
 
+	private String urlVerificacioCustodia;
+
+	public String getCodi() {
+		return codi;
+	}
+	public void setCodi(String codi) {
+		this.codi = codi;
+	}
+	public byte[] getArxiuContingut() {
+		return arxiuContingut;
+	}
+	public void setArxiuContingut(byte[] arxiuContingut) {
+		this.arxiuContingut = arxiuContingut;
+	}
+	public String getSignatNom() {
+		return signatNom;
+	}
+	public void setSignatNom(String signatNom) {
+		this.signatNom = signatNom;
+	}
+	public byte[] getSignatContingut() {
+		return signatContingut;
+	}
+	public void setSignatContingut(byte[] signatContingut) {
+		this.signatContingut = signatContingut;
+	}
+	public String getVistaNom() {
+		return vistaNom;
+	}
+	public void setVistaNom(String vistaNom) {
+		this.vistaNom = vistaNom;
+	}
+	public byte[] getVistaContingut() {
+		return vistaContingut;
+	}
+	public void setVistaContingut(byte[] vistaContingut) {
+		this.vistaContingut = vistaContingut;
+	}
+	public String getProcessInstanceId() {
+		return processInstanceId;
+	}
+	public void setProcessInstanceId(String processInstanceId) {
+		this.processInstanceId = processInstanceId;
+	}
+	public String getContentType() {
+		return contentType;
+	}
+	public void setContentType(String contentType) {
+		this.contentType = contentType;
+	}
+	public String getCustodiaCodi() {
+		return custodiaCodi;
+	}
+	public void setCustodiaCodi(String custodiaCodi) {
+		this.custodiaCodi = custodiaCodi;
+	}
+	public Integer getTipusDocPortasignatures() {
+		return tipusDocPortasignatures;
+	}
+	public void setTipusDocPortasignatures(Integer tipusDocPortasignatures) {
+		this.tipusDocPortasignatures = tipusDocPortasignatures;
+	}
+	public String getTokenSignatura() {
+		return tokenSignatura;
+	}
+	public void setTokenSignatura(String tokenSignatura) {
+		this.tokenSignatura = tokenSignatura;
+	}
+	public String getTokenSignaturaMultiple() {
+		return tokenSignaturaMultiple;
+	}
+	public void setTokenSignaturaMultiple(String tokenSignaturaMultiple) {
+		this.tokenSignaturaMultiple = tokenSignaturaMultiple;
+	}
+	public boolean isSignatEnTasca() {
+		return signatEnTasca;
+	}
+	public void setSignatEnTasca(boolean signatEnTasca) {
+		this.signatEnTasca = signatEnTasca;
+	}
+	public boolean isAdjuntarAuto() {
+		return adjuntarAuto;
+	}
+	public void setAdjuntarAuto(boolean adjuntarAuto) {
+		this.adjuntarAuto = adjuntarAuto;
+	}
+	public String getUrlVerificacioCustodia() {
+		return urlVerificacioCustodia;
+	}
+	public void setUrlVerificacioCustodia(String urlVerificacioCustodia) {
+		this.urlVerificacioCustodia = urlVerificacioCustodia;
+	}
 	public Long getId() {
 		return id;
 	}

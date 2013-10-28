@@ -87,9 +87,6 @@ ul.dropdown li.dir > a {
 .dropdown li.image  > ul.llista-entorns {
 	width: 400px;
 }
-.dropdown li.image  > ul.mesures {
-	width: 230px;
-}
 
 ul.dropdown-horizontal ul *.dir {
 	padding-right: 15px;

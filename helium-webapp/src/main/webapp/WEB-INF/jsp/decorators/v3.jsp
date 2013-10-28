@@ -97,8 +97,8 @@
 				<li id="pipella-tasques" class="pipella<c:if test="${tabActiu == 'tasques'}"> active</c:if>"><a href="<c:url value="/v3/expedient/${expedient.id}/tasques"/>">Tasques</a></li>
 				<li id="pipella-dades" class="pipella<c:if test="${tabActiu == 'dades'}"> active</c:if>"><a href="<c:url value="/v3/expedient/${expedient.id}/dades"/>">Dades</a></li>
 				<li id="pipella-documents" class="pipella<c:if test="${tabActiu == 'documents'}"> active</c:if>"><a href="<c:url value="/v3/expedient/${expedient.id}/documents"/>">Documents</a></li>
-				<li id="pipella-terminis" class="pipella<c:if test="${tabActiu == 'terminis'}"> active</c:if>"><a href="#">Terminis</a></li>
-				<li id="pipella-registre" class="pipella<c:if test="${tabActiu == 'registre'}"> active</c:if>"><a href="#">Registre</a></li>
+				<li id="pipella-terminis" class="pipella<c:if test="${tabActiu == 'terminis'}"> active</c:if>"><a href="<c:url value="/v3/expedient/${expedient.id}/terminis"/>">Terminis</a></li>
+				<li id="pipella-registre" class="pipella<c:if test="${tabActiu == 'registre'}"> active</c:if>"><a href="<c:url value="/v3/expedient/${expedient.id}/registre"/>">Registre</a></li>
 			</ul>
 			<div class="well well-white">
 				<decorator:body />

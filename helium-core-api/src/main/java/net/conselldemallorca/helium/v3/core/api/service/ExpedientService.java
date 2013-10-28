@@ -15,10 +15,14 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.RegistreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.DominiNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EnumeracioNotFoundException;
@@ -112,9 +116,6 @@ public interface ExpedientService {
 	public void createRelacioExpedient(
 			Long expedientOrigenId,
 			Long expedientDestiId);
-
-	public void luceneIndexUpdate(
-			Long expedientId) throws ExpedientNotFoundException;
 	
 	public void processInstanceTokenRedirect(
 			long tokenId,
@@ -194,20 +195,38 @@ public interface ExpedientService {
 			String grupCodi,
 			boolean executatEnHandler);
 
-	public List<?> getArbreInstanciesProces(
+	public List<InstanciaProcesDto> getArbreInstanciesProces(
 			Long processInstanceId);
 
-	public net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto getInstanciaProcesById(
-			Long processInstanceId,
+	public InstanciaProcesDto getInstanciaProcesById(
+			String processInstanceId,
 			boolean ambImatgeProces,
 			boolean ambVariables,
 			boolean ambDocuments);
 	
-	public net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto getInstanciaProcesByIdReg(
-			Long processInstanceId,
+	public InstanciaProcesDto getInstanciaProcesByIdReg(
+			String processInstanceId,
 			boolean ambImatgeProces,
 			boolean ambVariables,
 			boolean ambDocuments,
 			String varRegistre,
 			Object[] valorsRegistre);
+
+	public List<RegistreDto> getRegistrePerExpedient(Long expedientId);
+
+	public List<ExpedientLogDto> getLogsPerTascaOrdenatsPerData(ExpedientDto expedient);
+
+	public List<ExpedientLogDto> getLogsOrdenatsPerData(ExpedientDto expedient);
+
+	public Map<String, TascaDto> getTasquesPerLogExpedient(Long expedientId);
+
+	public List<ExpedientLogDto> findLogsTascaOrdenatsPerData(Long targetId);
+
+	public void retrocedirFinsLog(Long logId, boolean b);
+
+	public List<ExpedientLogDto> findLogsRetroceditsOrdenatsPerData(Long logId);
+
+	public void deleteConsulta(Long expedientId);
+
+	public void delete(Long id, Long expedientId);
 }

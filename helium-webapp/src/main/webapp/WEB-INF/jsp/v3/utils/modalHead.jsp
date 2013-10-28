@@ -4,6 +4,9 @@
 <c:set var="buttonContainerId" value="${param.buttonContainerId}"/>
 
 <meta name="decorator" content="senseCapNiPeus"/>
+
+<link href="<c:url value="/css/commonV3.css"/>" rel="stylesheet">
+
 <c:if test="${not empty buttonContainerId}">
 <script>
 	$(document).ready(function() {

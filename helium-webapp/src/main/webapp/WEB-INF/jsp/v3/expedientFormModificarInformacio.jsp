@@ -112,22 +112,5 @@
 	</form:form>
 	<script>
 		$('.datepicker').datepicker({language: 'ca', autoclose: true});
-		function confirmar(e) {
-			var e = e || window.event;
-			e.cancelBubble = true;
-// 			if ($("#motiu").val() === "") {
-// 				$('.contingut-alertes').append(
-// 						'<div class="alert alert-error">'+
-// 							'<button class="close" data-dismiss="alert">×</button>' +								
-// 							'<spring:message code="comuns.camp_oblig"/>'+
-// 							': <spring:message code="expedient.eines.motiu"/>'+
-// 						'</div>'
-// 				);
-// 				window.parent.modalAjustarTamany(window.frameElement,$('html').height());
-// 				return false;
-// 			}
-			if (e.stopPropagation) e.stopPropagation();
-			return confirm('<spring:message code="expedient.eines.confirm_aturar"/>');
-		}
 	</script>
 </body>

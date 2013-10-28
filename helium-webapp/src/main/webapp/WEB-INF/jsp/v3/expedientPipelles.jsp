@@ -80,6 +80,23 @@
 			$('#pipella-tasques').addClass('active');
 			return false;
 		});
+		$("#pipella-registre").click(function() {
+			$('#contingut-carregant').hide();
+			if (!$('#contingut-registre').data('carregat')) {
+				$('#contingut-carregant').show();
+				$('#contingut-registre').load(
+						'<c:url value="/nodecorar/v3/expedient/${expedient.id}/registre"/>',
+						function() {
+							$('#contingut-carregant').hide();
+						});
+				$('#contingut-registre').data('carregat', 'true');
+			}
+			$('#contingut-contenidor .contingut').hide();
+			$('#contingut-registre').show();
+			$('#pipelles-expedient .pipella').removeClass('active');
+			$('#pipella-registre').addClass('active');
+			return false;
+		});
 		$("#pipella-${pipellaActiva}").click();
 	});
 </script>
@@ -118,18 +135,18 @@
 			<div class="btn-group">
 				<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog icon-white"></i> Accions <span class="caret"></span></a>
 				<ul class="dropdown-menu">
-					<li>
-						<c:import url="utils/modalDefinir.jsp">
-							<c:param name="sAjaxSource" value="/helium/v3/expedient/${expedientId}/modificar"/>
-							<c:param name="modalId" value="modificar"/>
-							<c:param name="refrescarAlertes" value="true"/>
-							<c:param name="refrescarPagina" value="false"/>							
-							<c:param name="refrescarTaula" value="false"/>							
-							<c:param name="refrescarTaulaId" value="false"/>
-							<c:param name="icon" value="icon-pencil"/>
-							<c:param name="texto" value="Modificar informació"/>
-						</c:import>
-					</li>
+<!-- 					<li> -->
+<%-- 						<c:import url="utils/modalDefinir.jsp"> --%>
+<%-- 							<c:param name="sAjaxSource" value="/helium/v3/expedient/${expedientId}/modificar"/> --%>
+<%-- 							<c:param name="modalId" value="modificar"/> --%>
+<%-- 							<c:param name="refrescarAlertes" value="true"/> --%>
+<%-- 							<c:param name="refrescarPagina" value="false"/>							 --%>
+<%-- 							<c:param name="refrescarTaula" value="false"/>							 --%>
+<%-- 							<c:param name="refrescarTaulaId" value="false"/> --%>
+<%-- 							<c:param name="icon" value="icon-pencil"/> --%>
+<%-- 							<c:param name="texto" value="Modificar informació"/> --%>
+<%-- 						</c:import> --%>
+<!-- 					</li> -->
 					<li>
 						<c:import url="utils/modalDefinir.jsp">
 							<c:param name="sAjaxSource" value="/helium/v3/expedient/${expedientId}/stop"/>
@@ -140,6 +157,18 @@
 							<c:param name="refrescarTaulaId" value="false"/>
 							<c:param name="icon" value="icon-stop"/>
 							<c:param name="texto" value="Aturar tramitació"/>
+						</c:import>
+					</li>
+					<li>
+						<c:import url="utils/modalDefinir.jsp">
+							<c:param name="sAjaxSource" value="/helium/v3/expedient/${expedientId}/execucions"/>
+							<c:param name="modalId" value="execucions"/>
+							<c:param name="refrescarAlertes" value="true"/>
+							<c:param name="refrescarPagina" value="false"/>							
+							<c:param name="refrescarTaula" value="false"/>							
+							<c:param name="refrescarTaulaId" value="false"/>
+							<c:param name="icon" value="icon-cog"/>
+							<c:param name="texto" value="Executar nou script"/>
 						</c:import>
 					</li>
 					<c:if test="${not empty accions}">
@@ -193,6 +222,7 @@
 		<div id="contingut-dades" class="contingut hide"></div>
 		<div id="contingut-documents" class="contingut hide"></div>
 		<div id="contingut-tasques" class="contingut hide"></div>
+		<div id="contingut-registre" class="contingut hide"></div>
 	</div>
 	<div class="clearfix"></div>
 

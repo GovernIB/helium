@@ -24,5 +24,7 @@ public interface TerminiIniciatRepository extends JpaRepository<TerminiIniciat, 
 			String processInstanceId);
 
 	List<TerminiIniciat> findByTaskInstanceId(String taskInstanceId);
+	
+	List<TerminiIniciat> findByProcessInstanceId(String processInstanceId);
 
 }
