@@ -139,9 +139,9 @@ public class ExpedientLlistatController extends BaseExpedientController {
 			filtreCommand = getFiltreCommand(request);
 		} else {
 			filtreCommand = getFiltreCommand(request);
-			if (numero != null) filtreCommand.setNumero(numero);
-			if (titol != null) filtreCommand.setTitol(titol);
-			if (expedientTipusId != null) filtreCommand.setExpedientTipusId(expedientTipusId);
+			filtreCommand.setNumero(numero);
+			filtreCommand.setTitol(titol);
+			filtreCommand.setExpedientTipusId(expedientTipusId);
 			if (estat != null) {
 				if ("INICIAT".equals(estat)) filtreCommand.setEstatTipus(EstatTipusDto.INICIAT);
 				else if ("FINALITZAT".equals(estat)) filtreCommand.setEstatTipus(EstatTipusDto.FINALITZAT);
@@ -152,14 +152,17 @@ public class ExpedientLlistatController extends BaseExpedientController {
 						filtreCommand.setEstatId(estatId);
 					} catch (Exception e) {}
 				}
+			} else {
+				filtreCommand.setEstatTipus(EstatTipusDto.CUSTOM);
+				filtreCommand.setEstatId(null);
 			}
-			if (dataIniciInicial != null) filtreCommand.setDataIniciInicial(dataIniciInicial);
-			if (dataIniciFinal != null) filtreCommand.setDataIniciFinal(dataIniciFinal);
-			if (dataFiInicial != null) filtreCommand.setDataFiInicial(dataFiInicial);
-			if (dataFiFinal != null) filtreCommand.setDataFiFinal(dataFiFinal);
-			if (geoposicio != null) filtreCommand.setGeoReferencia(geoposicio);
-			if (geoposX != null) filtreCommand.setGeoPosX(geoposX);
-			if (geoposY != null) filtreCommand.setGeoPosY(geoposY);
+			filtreCommand.setDataIniciInicial(dataIniciInicial);
+			filtreCommand.setDataIniciFinal(dataIniciFinal);
+			filtreCommand.setDataFiInicial(dataFiInicial);
+			filtreCommand.setDataFiFinal(dataFiFinal);
+			filtreCommand.setGeoReferencia(geoposicio);
+			filtreCommand.setGeoPosX(geoposX);
+			filtreCommand.setGeoPosY(geoposY);
 		}
 		if (nomesPendents != null) filtreCommand.setNomesPendents(nomesPendents);
 		if (nomesAlertes != null) filtreCommand.setNomesAlertes(nomesAlertes);

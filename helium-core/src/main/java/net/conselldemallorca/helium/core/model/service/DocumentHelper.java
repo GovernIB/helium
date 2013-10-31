@@ -179,6 +179,41 @@ public class DocumentHelper {
 			}
 		}
 	}
+	
+	public void esborrarDocumentAdjunt(
+			Long documentStoreId,
+			String processInstanceId,
+			String adjuntId) {
+		
+		if (documentStoreId != null){
+			DocumentStore documentStore = documentStoreDao.getById(documentStoreId, false);
+			if (documentStore != null) {
+				if (documentStore.isSignat()) {
+					if (pluginCustodiaDao.isCustodiaActiu()) {
+						try {
+							pluginCustodiaDao.esborrarSignatures(documentStore.getReferenciaCustodia());
+						} catch (PluginException ignored) {}
+					}
+				}
+				if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
+					pluginGestioDocumentalDao.deleteDocument(documentStore.getReferenciaFont());
+				if (processInstanceId != null) {
+					for (Portasignatures psigna: pluginPortasignaturesDao.findPendentsPerProcessInstanceId(processInstanceId)) {
+						if (psigna.getDocumentStoreId().longValue() == documentStore.getId().longValue()) {
+							psigna.setEstat(TipusEstat.ESBORRAT);
+							pluginPortasignaturesDao.saveOrUpdate(psigna);
+						}
+					}
+				}
+				documentStoreDao.delete(documentStoreId);
+			}
+			if (processInstanceId != null) {
+				jbpmDao.deleteProcessInstanceVariable(
+						processInstanceId,
+						getVarPerDocumentCodi(adjuntId, true));
+			}
+		}
+	}
 
 	public boolean signarDocumentTascaAmbToken(
 			String token,

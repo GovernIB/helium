@@ -347,7 +347,7 @@ function selTots(){
 				<c:param name="itemLabel" value="codi"/>
 				<c:param name="itemLabelMsg" value="true"/>
 				<c:param name="itemValue" value="id"/>
-				<c:param name="label"><fmt:message key="expedient.consulta.anulats"/></c:param>
+				<c:param name="label"><fmt:message key="expedient.consulta.anulats.mostrar"/></c:param>
 				<c:param name="classHolder" value="anulats${visible}"/>		
 			</c:import>
 			

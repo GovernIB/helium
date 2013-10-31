@@ -314,6 +314,28 @@ public class DocumentService {
 					documentCodi);
 		}
 	}
+	public void esborrarDocumentAdjunt(
+			String processInstanceId,
+			Long docStoreId,
+			String adjuntId,
+			String adjuntTitol) {
+		expedientLogHelper.afegirLogExpedientPerProces(
+				processInstanceId,
+				ExpedientLogAccioTipus.PROCES_DOCUMENT_ESBORRAR,
+				adjuntTitol);
+		documentHelper.esborrarDocumentAdjunt(
+				docStoreId,
+				processInstanceId,
+				adjuntId);
+		String user = SecurityContextHolder.getContext().getAuthentication().getName();
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(
+				jbpmDao.getRootProcessInstance(processInstanceId).getId());
+		registreDao.crearRegistreEsborrarDocumentInstanciaProces(
+				expedient.getId(),
+				processInstanceId,
+				user,
+				adjuntTitol);
+	}
 
 	public DocumentDto documentInfo(Long documentStoreId) {
 		return getDocumentInfo(documentStoreId);
