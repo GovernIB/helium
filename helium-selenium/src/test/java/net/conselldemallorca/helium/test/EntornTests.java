@@ -4,8 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
 
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import net.conselldemallorca.helium.test.util.BaseTest;
@@ -20,7 +22,7 @@ public class EntornTests extends BaseTest{
 	protected void runTests() throws InterruptedException {
 		super.runTests();
 		
-		testEntornCrear(true);
+		testEntornCrear(true);  // crear entorn actiu
 		testEntornPermisos(true);
 		testEntornPermisos(false);
 		testEntornSeleccionar(true);
@@ -29,13 +31,13 @@ public class EntornTests extends BaseTest{
 		testEntornEsborrarPermisos(true);
 		testEntornEsborrarPermisos(false);
 		testEntornReindexar();
-		testEntornCanviActiu();
+		testEntornCanviActiu();    
 		testEntornBorrar();
-		testEntornCrear(false);
+		testEntornCrear(false);  // crear entorn no actiu
 		testEntornBorrar();
 	}
 	
-	// TESTS 
+	// TESTS A NIVELL D'ENTORN
 	// --------------------------------------------------------------------------------------------------------------
 	
 	public static void testEntornCrear(boolean actiu) throws InterruptedException {
@@ -308,15 +310,15 @@ public class EntornTests extends BaseTest{
 			screenshotHelper.saveScreenshot("entorns/permisos/" + tipus + "/permisos_01.png");
 			
 			// Crear els permis READ
-			updatePermisos(isUser, userol, false, false, false, true, tipus, 3, "+READ", true);
+			updatePermisos(isUser, userol, false, false, false, true, tipus, 3, new String[]{"+READ"}, true);
 			// ORGANIZATION, DESIGN i READ
-			updatePermisos(isUser, userol, true, false, true, false, tipus, 4, "+READ +DESIGN +ORGANIZATION", false);
+			updatePermisos(isUser, userol, true, false, true, false, tipus, 4, new String[]{"+READ", "+DESIGN", "+ORGANIZATION"}, false);
 			// ADMINISTRATION
-			updatePermisos(isUser, userol, false, true, false, false, tipus, 5, "+ADMINISTRATION", true);
+			updatePermisos(isUser, userol, false, true, false, false, tipus, 5, new String[]{"+ADMINISTRATION"}, true);
 			// DESIGN i READ
-			updatePermisos(isUser, userol, false, false, true, true, tipus, 6, "+DESIGN +READ", true);
+			updatePermisos(isUser, userol, false, false, true, true, tipus, 6, new String[]{"+DESIGN", "+READ"}, true);
 			// TOTS
-			updatePermisos(isUser, userol, true, true, false, false, tipus, 7, "+DESIGN +READ +ORGANIZATION +ADMINISTRATION", false);
+			updatePermisos(isUser, userol, true, true, false, false, tipus, 7, new String[]{"+DESIGN", "+READ", "+ORGANIZATION", "+ADMINISTRATION"}, false);
 		} else {
 			fail("Entorn no existeix");
 		}
@@ -331,7 +333,7 @@ public class EntornTests extends BaseTest{
 			boolean read, 
 			String tipus,
 			int pos,
-			String permisosEsperats,
+			String[] permisosEsperats,
 			boolean borraActuals) {
 		
 		driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
@@ -353,13 +355,13 @@ public class EntornTests extends BaseTest{
 		
 		driver.findElement(By.id("nom0")).sendKeys(userol);
 		if (design)	
-			driver.findElement(By.id("permisos00")).click();
+			driver.findElement(By.xpath("//input[@value='DESIGN']")).click();
 		if (organization)	
-			driver.findElement(By.id("permisos01")).click();
+			driver.findElement(By.xpath("//input[@value='ORGANIZATION']")).click();
 		if (read)			
-			driver.findElement(By.id("permisos02")).click();
+			driver.findElement(By.xpath("//input[@value='READ']")).click();
 		if (administration)			
-			driver.findElement(By.id("permisos03")).click();
+			driver.findElement(By.xpath("//input[@value='ADMINISTRATION']")).click();
 		if (!isUser)
 			driver.findElement(By.id("usuari0")).click();
 		screenshotHelper.saveScreenshot("entorns/permisos/" + tipus + "/permisos_afegir_0" + pos + ".png");
@@ -373,8 +375,11 @@ public class EntornTests extends BaseTest{
 		screenshotHelper.saveScreenshot("entorns/permisos/" + tipus + "/permisos_0" + pos + ".png");
 		assertTrue("No s'han pogut assignar permisos a l'entorn de test", isPresent);
 		
-		String permisos = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + userol + "')]/td[3]")).getText().trim();
-		assertEquals("No s'han assignar els permisos correctament", permisosEsperats, permisos);
+		String[] permisos = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + userol + "')]/td[3]")).getText().trim().split(" ");
+		
+		Arrays.sort(permisos);
+		Arrays.sort(permisosEsperats);
+		assertArrayEquals("No s'han assignar els permisos correctament", permisosEsperats, permisos);
 	}
 	
 	public void testEntornEsborrarPermisos(boolean isUser) throws InterruptedException {
