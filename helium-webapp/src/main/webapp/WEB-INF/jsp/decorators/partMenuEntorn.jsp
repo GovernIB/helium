@@ -31,7 +31,13 @@
 	</div>
 	<div id="page-entorn-menu">
 		<ul id="menu-entorn" class="dropdown dropdown-horizontal">
-			<li id="menuTasques" class="image tasques"><a href="<c:url value="/tasca/personaLlistat.html"/>"><fmt:message key='comuns.tasques' /></a></li>
+			<li id="menuTasques" class="dir image tasques">
+				<a href="#" onclick="return false"><fmt:message key='comuns.tasques' /></a>
+				<ul>
+					<li class="image tasques"><a href="<c:url value="/tasca/personaLlistat.html"/>"><fmt:message key='common.tasques.personals' /></a></li>
+					<li class="image tasques"><a href="<c:url value="/tasca/grupLlistat.html"/>"><fmt:message key='common.tasques.grup' /></a></li>
+				</ul>
+			</li>
 			<li id="menuConsultes" class="dir image expedient-consultes">
 				<a href="#" onclick="return false"><fmt:message key='comuns.consultes' /></a>
 				<ul>

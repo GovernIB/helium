@@ -330,7 +330,19 @@ public class OrganitzacioService {
 		return areaJbpmIdDao.findSenseAssignar();
 	}
 
-
+	public List<String> findAreesMembre(String usuariCodi) {
+		List<String> codisArea = new ArrayList<String>();
+		List<AreaMembre> membres = areaMembreDao.findAmbUsuariCodi(usuariCodi);
+		for (AreaMembre membre: membres) {
+			codisArea.add(membre.getArea().getCodi());
+		}
+		return codisArea;
+	}
+	
+	public List<String> findAreesJbpmIdMembre(String usuariCodi) {
+		return areaJbpmIdDao.findAmbUsuariCodi(usuariCodi);
+	}
+	
 
 	@Autowired
 	public void setAreaDao(AreaDao areaDao) {

@@ -327,7 +327,7 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 		if (titol != null && titol.length() > 0)
 			crit.add(Restrictions.ilike("titol", "%" + titol + "%"));
 		if (numero != null && numero.length() > 0)
-			crit.add(Restrictions.eq("numero", numero));
+			crit.add(Restrictions.like("numero", "%" + numero + "%"));
 		if (dataInici1 != null && dataInici2 != null) {
 			crit.add(Restrictions.between("dataInici", dataInici1, dataInici2));
 		} else {

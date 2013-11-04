@@ -232,7 +232,7 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 		attributes.setTitle(limitarString(document.getTitol(), 100));
 		attributes.setExtension(getDocumentArxiuExtensio(document.getArxiuNom()));
 		// Atributs opcionals
-		attributes.setDescription(document.getTitol());
+		attributes.setDescription(limitarString(document.getTitol(), 250));
 		//attributes.setSubject(arxiuDescripcio);
 		if (document.getTipus() != null)
 			attributes.setType(document.getTipus());
