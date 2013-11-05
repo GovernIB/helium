@@ -22,7 +22,7 @@ public class EntornTests extends BaseTest{
 	protected void runTests() throws InterruptedException {
 		super.runTests();
 		
-		testEntornCrear(true);  // crear entorn actiu
+		testEntornCrear(true);
 		testEntornPermisos(true);
 		testEntornPermisos(false);
 		testEntornSeleccionar(true);
@@ -30,19 +30,21 @@ public class EntornTests extends BaseTest{
 		testEntornDefault();
 		testEntornEsborrarPermisos(true);
 		testEntornEsborrarPermisos(false);
-		testEntornReindexar();
-		testEntornCanviActiu();    
+		//testEntornReindexar();
+		testEntornCanviTitol();
+		testEntornCanviActiu();
 		testEntornBorrar();
-		testEntornCrear(false);  // crear entorn no actiu
-		testEntornBorrar();
+		testEntornCrear(false);
+		testEntornBorrar();	
 	}
 	
 	// TESTS A NIVELL D'ENTORN
 	// --------------------------------------------------------------------------------------------------------------
 	
 	public static void testEntornCrear(boolean actiu) throws InterruptedException {
+    // Crear un entorn actiu. Si existeix, primer l'esborra
 		
-		screenshotHelper.saveScreenshot("entorns/crear/entornsExistents_00.png");
+		//screenshotHelper.saveScreenshot("entorns/crear/entornsExistents_00.png");
 		
 		WebElement menuConfiguracio = driver.findElement(By.id("menuConfiguracio"));
 		WebElement menuEntorn = driver.findElement(By.xpath("//a[contains(@href, '/helium/entorn/llistat.html')]"));
@@ -89,10 +91,11 @@ public class EntornTests extends BaseTest{
 			
 		screenshotHelper.saveScreenshot("entorns/crear/entornCrear" + (actiu ? "Actiu" : "Inactiu") + "_02.png");
 			
-		assertTrue("No s'ha pogut crear l'entorn de test", isPresent);
+		assertTrue("No s'ha pogut crear l'entorn", isPresent);
 	}
 	
 	public static void testEntornSeleccionar(boolean directe) throws InterruptedException {
+	// Seleccionar l'entorn de proves	
 		
 		String entornActual = driver.findElement(By.xpath("//div[@id='page-entorn-title']/h2/span")).getText().trim();
 		WebElement menuEntorn = driver.findElement(By.id("menuEntorn"));
@@ -145,6 +148,7 @@ public class EntornTests extends BaseTest{
 	}
 	
 	public void testEntornDefault() throws InterruptedException {
+	// Marcar entorn per defecte
 		
 		String entornActual = driver.findElement(By.xpath("//div[@id='page-entorn-title']/h2/span")).getText().trim();
 
@@ -159,7 +163,7 @@ public class EntornTests extends BaseTest{
 			String src = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + entorn + "')]/td[1]/a/img")).getAttribute("src");
 			
 			if (src.endsWith("star.png")) {
-				fail("L'entorn de proves ja estÃ  marcat per defecte");
+				fail("L'entorn ja està  marcat per defecte");
 			} else {
 				
 				screenshotHelper.saveScreenshot("entorns/default/entornDefecte_01.png");
@@ -181,6 +185,7 @@ public class EntornTests extends BaseTest{
 		
 
 	public static void testEntornBorrar() throws InterruptedException {
+    // Esborrar un entorn
 		
 		WebElement menuConfiguracio = driver.findElement(By.id("menuConfiguracio"));
 		WebElement menuEntorn = driver.findElement(By.xpath("//a[contains(@href, '/helium/entorn/llistat.html')]"));
@@ -213,6 +218,47 @@ public class EntornTests extends BaseTest{
 			fail("Entorn no existeix");
 		}
 	}
+	
+	
+	public void testEntornCanviTitol() throws InterruptedException {
+		
+		WebElement menuConfiguracio = driver.findElement(By.id("menuConfiguracio"));
+		WebElement menuEntorn = driver.findElement(By.xpath("//a[contains(@href, '/helium/entorn/llistat.html')]"));
+
+		Actions actions = new Actions(driver);
+		actions.moveToElement(menuConfiguracio);
+		actions.build().perform();
+
+		actions.moveToElement(menuEntorn);
+		actions.click();
+		actions.build().perform();
+		
+		screenshotHelper.saveScreenshot("entorns/titol/1entornsExistents_01.png");
+		String titolEntorn = getProperty("entorn.titol");
+		
+		driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
+		boolean isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]")).size() > 0;
+		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
+
+		if (!isPresent) {
+			fail("L'entorn no existeix");
+		} else {	
+			String titol = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]/td[2]")).getText().trim();
+			
+			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]/td[1]/a")).click();
+			screenshotHelper.saveScreenshot("entorns/titol/2canviTitol.png");
+			driver.findElement(By.id("nom0")).clear();
+			driver.findElement(By.id("nom0")).sendKeys(titolEntorn);
+
+			screenshotHelper.saveScreenshot("entorns/titol/3canviTitol.png");
+			driver.findElement(By.xpath("//button[@value='submit']")).click();
+	
+			screenshotHelper.saveScreenshot("entorns/titol/4entornsExistents_02.png");
+			String nouTitol = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]/td[2]")).getText().trim();
+			assertNotEquals("No s'ha pogut canviar el títol de l'entorn de test", titol, nouTitol);
+		}
+	}
+	
 	
 	public void testEntornCanviActiu() throws InterruptedException {
 		
