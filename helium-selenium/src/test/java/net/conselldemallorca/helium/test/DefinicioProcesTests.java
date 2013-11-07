@@ -19,45 +19,48 @@ public class DefinicioProcesTests extends BaseTest {
 	@Override
 	protected void runTests() throws InterruptedException {
 		super.runTests();
-
+		
+		// Inicialitzar l'entorn de proves
 		EntornTests.testEntornSeleccionar(true);
 		
-		//importPar();
-		//crearEnumeracio(false);	
-		//crearEnumeracio(true);
+		importPar(false);
+		crearEnumeracio(false);	
+		crearEnumeracio(true);  // crear enumeració que ja existeix
 		
-		seleccionarDefProc();
+		seleccionarDefProc();   // seleccionar def. de procés
 		
-		//crearVariables();
-		//modificarVariable();
-		//validacioVar();
-		//esborrarVar();
+		crearVariables();
+		modificarVariable();
+		validacioVar();
+		esborrarVar();
 
-		//crearAgrupacio();	
-		//crearVarAgrupacio();
-		//esborrarVarAgrupacio();
-		//esborrarAgrupacio();
+		crearAgrupacio();	
+		crearVarAgrupacio();
+		esborrarVarAgrupacio();
+		esborrarAgrupacio();
 
-		//adjuntarDoc();
-		//adjuntarDocPlantilla();
-		//modificarDoc();
-		//esborrarDoc();
+		adjuntarDoc();
+		adjuntarDocPlantilla();
+		modificarDoc();
+		esborrarDoc();
 		
-		//crearTermini();
-		//esborrarTermini();
+		crearTermini();
+		esborrarTermini();
 		
-		//crearVarTasca();
-		//crearDocTasca();
-		//esborrarVarTasca();
-		//esborrarDocTasca();
+		crearVarTasca(getProperty("defproc.variable.codi1")+"/"+getProperty("defproc.variable.nom1"));
+		modificarVarTasca();
+		esborrarVarTasca(getProperty("defproc.variable.codi1")+"/"+getProperty("defproc.variable.nom1"));		 
+		crearDocTasca(getProperty("defproc.document.codi2")+"/"+getProperty("defproc.document.nom2"));	
+		modificarDocTasca();
+		esborrarDocTasca(getProperty("defproc.document.codi2")+"/"+getProperty("defproc.document.nom2"));
        		
-		//esborrarDefProc();
+		esborrarDefProc();
 	}
 
 	// TESTS A NIVELL D'UNA DEFINICIO DE PROCES
 	// --------------------------------------------------------------------------------------------------------------
 
-	public void importPar() throws InterruptedException {
+	public static void importPar(boolean tipExp) throws InterruptedException {
 		
 /*		WebElement menuDisseny = driver.findElement(By.id("menuDisseny"));
 		WebElement menuDefProces = driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]"));
@@ -95,15 +98,17 @@ public class DefinicioProcesTests extends BaseTest {
 		jbpmOption.click();
 		
 		// tipus d'expedient
-/*		WebElement selectTipusExpedient = driver.findElement(By.id("expedientTipusId0"));
-		List<WebElement> allOptions = selectTipusExpedient.findElements(By.tagName("option"));
-		for (WebElement option : allOptions) {
-		    if (option.getText().equals(properties.getProperty("deploy.tipus.expedient.nom"))) {
-		    	option.click();
-		    	break;
-		    }
-		}
-*/
+		if (tipExp) {
+			WebElement selectTipusExpedient = driver.findElement(By.id("expedientTipusId0"));
+			List<WebElement> allOptions = selectTipusExpedient.findElements(By.tagName("option"));
+			for (WebElement option : allOptions) {
+				if (option.getText().equals(properties.getProperty("deploy.tipus.expedient.nom"))) {
+					option.click();
+					break;
+				}
+			}
+		}		
+
 		WebElement arxiu = driver.findElement(By.id("arxiu0"));
 		arxiu.sendKeys(properties.getProperty("deploy.arxiu.path.windows"));
 		
@@ -149,6 +154,8 @@ public class DefinicioProcesTests extends BaseTest {
 		actions.moveToElement(menuDefProc);
 		actions.click();
 		actions.build().perform();
+
+		screenshotHelper.saveScreenshot("defproces/selecDefProc1.png");
 		
 		// Obtenir nom de la defició de procés i cercar-lo
 		String nomDefProc = getProperty("deploy.definicio.proces.nom");
@@ -162,7 +169,7 @@ public class DefinicioProcesTests extends BaseTest {
 		else
 		{
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]/td[1]/a")).click();
-			screenshotHelper.saveScreenshot("defproces/selecDefProc.png");
+			screenshotHelper.saveScreenshot("defproces/selecDefProc2.png");
 		}
 	}
 
@@ -204,6 +211,8 @@ public class DefinicioProcesTests extends BaseTest {
 
 		if (existeix) {
 			screenshotHelper.saveScreenshot("defproces/variable/enumeracio/error_exist3.png");
+			boto = driver.findElement(By.xpath("//button[@value='cancel']"));
+			boto.click();
 		}
 		else {			
 			screenshotHelper.saveScreenshot("defproces/variable/enumeracio/crea_enum3.png");
@@ -492,10 +501,14 @@ public class DefinicioProcesTests extends BaseTest {
 			boto.click(); 	    
 	  	    
 	  	    screenshotHelper.saveScreenshot("defproces/variable/val_var4.png");
-	  	    
-	  	    // comprovar si s'ha creat la validació
-	  	    String valFin = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]/td[1]")).getText().trim();
-			assertNotEquals("No s'ha pogut crear la validadció de la variable", valIni, valFin);
+	  	 
+			// Comprovar que s'ha creat
+			/*driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
+			isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + valIni + "')]")).size() > 0;
+			driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
+			if (!isPresent) {
+				assertFalse("No s'ha pogut crear la validació de la variable string", isPresent);
+			}*/		
  	    } else {
 			fail("La variable no existeix");
 		}
@@ -903,7 +916,7 @@ public class DefinicioProcesTests extends BaseTest {
 		}
 	}
 
-	public void crearVarTasca() throws InterruptedException {
+	public void crearVarTasca(String codVar) throws InterruptedException {
 		// Afegeix una variable a una tasca en una definició de procés seleccionada amb seleccionarDefProc			
 		
 		// Accedir a la fitxa de les tasques
@@ -912,7 +925,7 @@ public class DefinicioProcesTests extends BaseTest {
   	    screenshotHelper.saveScreenshot("defproces/tasca/crea_var1.png");
 
   	    String codTasca = getProperty("defproc.tasca.codi1");
-  	    String codVar = getProperty("defproc.variable.codi1")+"/"+getProperty("defproc.variable.nom1");
+  	    //String codVar = getProperty("defproc.variable.codi1")+"/"+getProperty("defproc.variable.nom1");
 
   	    // Botó nova variable
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTasca + "')]/td[3]/form/button")).click();
@@ -926,7 +939,7 @@ public class DefinicioProcesTests extends BaseTest {
 		    	option.click();
 		    	break;
 		    }
-		}	
+		}			
 
 		screenshotHelper.saveScreenshot("defproces/tasca/crea_var2.png");
 
@@ -944,8 +957,47 @@ public class DefinicioProcesTests extends BaseTest {
 			assertFalse("No s'ha pogut assignar la variable a la tasca", isPresent);
 		}		
 	}	
+
+	public void modificarVarTasca() throws InterruptedException {
+		// Modifica una variable a obligatòria d'una tasca en una definició de procés seleccionada amb seleccionarDefProc			
+		
+		// Accedir a la fitxa de les tasques
+		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/tascaLlistat.html')]")).click();			
+			
+  	    screenshotHelper.saveScreenshot("defproces/tasca/modif_var1.png");
+
+  	    String codTasca = getProperty("defproc.tasca.codi1");
+  	    String codVar = getProperty("defproc.variable.codi1")+"/"+getProperty("defproc.variable.nom1");
+  	    // Botó variables
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTasca + "')]/td[3]/form/button")).click();
+		actions.build().perform();
+
+		// Cercar variable
+  	    driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
+		boolean isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]")).size() > 0;
+		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
+
+		// Si existeix, modificar-la
+		if (isPresent) {
+	  	    // guardar valor inicial
+	  	    boolean valIni = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]/td[4]/input")).isSelected(); 
+	  	    screenshotHelper.saveScreenshot("defproces/tasca/modif_var2.png");
+	  	    
+	  	    // Modificar variable
+	  	    driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]/td[4]/input")).click();  	    
+	  	    screenshotHelper.saveScreenshot("defproces/tasca/modif_var3.png");
+	  	    driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]/td[7]/div/input")).click();
+	  	    screenshotHelper.saveScreenshot("defproces/tasca/modif_var4.png");
+	  	    
+	  	    // comprovar si s'ha modificat la variable
+	  	    boolean valFin = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]/td[4]/input")).isSelected();
+			assertNotEquals("No s'ha pogut modificar la variable de la tasca", valIni, valFin);
+ 	    } else {
+			fail("La variable no existeix");
+		}
+	}	
 	
-	public void esborrarVarTasca() throws InterruptedException {
+	public void esborrarVarTasca(String codVar) throws InterruptedException {
 		// Esborra una variable d'una tasca en una definició de procés seleccionada amb seleccionarDefProc			
 		
 		// Accedir a la fitxa de les tasques
@@ -966,7 +1018,7 @@ public class DefinicioProcesTests extends BaseTest {
 		screenshotHelper.saveScreenshot("defproces/tasca/esborra_var2.png");
 		
 		// Obtenir codi i nom variable i cercar-la
-  	    String codVar = getProperty("defproc.variable.codi1")+"/"+getProperty("defproc.variable.nom1");
+  	    //String codVar = getProperty("defproc.variable.codi1")+"/"+getProperty("defproc.variable.nom1");
 		driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
 		isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]")).size() > 0;
 		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
@@ -975,7 +1027,8 @@ public class DefinicioProcesTests extends BaseTest {
 		if (isPresent) {
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]/td[6]/a")).click();
 			screenshotHelper.saveScreenshot("defproces/tasca/esborra_var3.png");
-	  	    			
+
+			// Comprovar que s'ha esborrat			
 			driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
 			isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]")).size() > 0;
 			driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
@@ -986,7 +1039,7 @@ public class DefinicioProcesTests extends BaseTest {
 		}
 	}	
 
-	public void crearDocTasca() throws InterruptedException {
+	public void crearDocTasca(String codDoc) throws InterruptedException {
 		// Afegeix un document a una tasca en una definició de procés seleccionada amb seleccionarDefProc			
 		
 		// Accedir a la fitxa de tasques
@@ -995,7 +1048,7 @@ public class DefinicioProcesTests extends BaseTest {
   	    screenshotHelper.saveScreenshot("defproces/tasca/crea_doc1.png");
 
   	    String codTasca = getProperty("defproc.tasca.codi1");
-  	    String codDoc = getProperty("defproc.document.codi1")+"/"+getProperty("defproc.document.nom1");
+  	    //String codDoc = getProperty("defproc.document.codi1")+"/"+getProperty("defproc.document.nom1");
 
   	    // Botó document
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTasca + "')]/td[4]/form/button")).click();
@@ -1010,7 +1063,6 @@ public class DefinicioProcesTests extends BaseTest {
 		    	break;
 		    }
 		}	
-		driver.findElement(By.id("readOnly0")).click();
 
 		screenshotHelper.saveScreenshot("defproces/tasca/crea_doc2.png");
 
@@ -1029,7 +1081,62 @@ public class DefinicioProcesTests extends BaseTest {
 		}		
 	}	
 
-	public void esborrarDocTasca() throws InterruptedException {
+	public void modificarDocTasca() throws InterruptedException {
+		// Modifica un document d'una tasca com obligatoris, en una definició de procés seleccionada amb seleccionarDefProc			
+		
+		// Accedir a la fitxa de tasques
+		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/tascaLlistat.html')]")).click();			
+			
+  	    screenshotHelper.saveScreenshot("defproces/tasca/modif_doc1.png");
+
+  	    String codTasca = getProperty("defproc.tasca.codi1");
+  	    // Botó document
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTasca + "')]/td[4]/form/button")).click();
+		actions.build().perform();
+
+		screenshotHelper.saveScreenshot("defproces/tasca/modif_doc2.png");
+		
+		// Obtenir nom document i cercar-lo
+  	    String nomDoc = getProperty("defproc.document.codi2")+"/"+getProperty("defproc.document.nom2");
+		driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
+		boolean isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDoc + "')]")).size() > 0;
+		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
+
+		// Si existeix, modificar-lo
+		if (isPresent) {
+	  	    // guardar valor inicial
+			String valIni = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDoc + "')]/td[2]")).getText().trim();
+	  	    screenshotHelper.saveScreenshot("defproces/tasca/modif_doc3.png");
+	  	    
+			// Seleccionar document 
+			WebElement selectVar = driver.findElement(By.id("documentId0"));
+			List<WebElement> allOptions = selectVar.findElements(By.tagName("option"));
+			for (WebElement option : allOptions) {
+			    if (option.getText().equals(nomDoc)) {
+			    	option.click();
+			    	break;
+			    }
+			}
+			driver.findElement(By.id("required0")).click();	
+			
+			screenshotHelper.saveScreenshot("defproces/tasca/modif_doc4.png");
+
+			// Botó guardar
+			WebElement boto = driver.findElement(By.xpath("//button[@value='submit']"));
+			boto.click(); 	    
+			screenshotHelper.saveScreenshot("defproces/tasca/modif_doc5.png");
+
+			// comprovar si s'ha modificat el document
+	  	    String valFin = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDoc + "')]/td[2]")).getText().trim();
+			assertNotEquals("No s'ha pogut modificar el document de la tasca", valIni, valFin);
+ 	    } else {
+			fail("El document no existeix");
+		}
+		
+	}	
+	
+	
+	public void esborrarDocTasca(String codDoc) throws InterruptedException {
 		// Esborra un document d'una tasca en una definició de procés seleccionada amb seleccionarDefProc			
 		
 		// Accedir a la fitxa de les tasques
@@ -1050,7 +1157,7 @@ public class DefinicioProcesTests extends BaseTest {
 		screenshotHelper.saveScreenshot("defproces/tasca/esborra_doc2.png");
 		
 		// Obtenir codi i nom document i cercar-lo
-  	    String codDoc = getProperty("defproc.document.codi1")+"/"+getProperty("defproc.document.nom1");
+  	    //String codDoc = getProperty("defproc.document.codi1")+"/"+getProperty("defproc.document.nom1");
 		driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
 		isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codDoc + "')]")).size() > 0;
 		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
@@ -1070,6 +1177,40 @@ public class DefinicioProcesTests extends BaseTest {
 			fail("El document no existeix en la tasca");
 		}
 	}	
+
+	public void esborrarDefProc() throws InterruptedException {
+		// Eliminar una definició de procés 
+		
+		// Accés a l'opció de menú
+		WebElement menuDisseny = driver.findElement(By.id("menuDisseny"));
+		WebElement menuDefProc = driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]"));
+
+		Actions actions = new Actions(driver);
+		actions.moveToElement(menuDisseny);
+		actions.build().perform();
+
+		actions.moveToElement(menuDefProc);
+		actions.click();
+		actions.build().perform();
+
+		screenshotHelper.saveScreenshot("defproces/elimDefProc1.png");
+		
+		// Obtenir nom de la defició de procés i cercar-lo
+		String nomDefProc = getProperty("deploy.definicio.proces.nom");
+		driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
+		boolean isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]")).size() > 0;
+		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
+
+		if (isPresent) {  // si existeix esborrar-lo
+			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]/td[4]/a")).click();
+			driver.switchTo().alert().accept();
+			screenshotHelper.saveScreenshot("defproces/elimDefProc2.png");
+		}
+		else
+		{
+			fail("La definició de procés no existeix");
+		}
+	}
 
 }
 

@@ -25,8 +25,8 @@ public class EntornTests extends BaseTest{
 		testEntornCrear(true);
 		testEntornPermisos(true);
 		testEntornPermisos(false);
-		testEntornSeleccionar(true);
-		testEntornSeleccionar(false);
+		testEntornSeleccionar(true); // des de la llista d'entorns del menú Seleccionar entorn
+		testEntornSeleccionar(false); // des de la pantalla d'entorns 
 		testEntornDefault();
 		testEntornEsborrarPermisos(true);
 		testEntornEsborrarPermisos(false);
