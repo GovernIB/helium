@@ -84,4 +84,22 @@ public class AreaJbpmIdDao extends HibernateGenericDao<AreaJbpmId, Long> {
 		});
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<String> findRolesAmbUsuariCodi(final String usuariCodi) {
+		return (List<String>)getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query query = session.createQuery(
+						"select distinct" +
+						"    m.group.name " +
+						"from " +
+						"    org.jbpm.identity.Membership m " +
+						"where " +
+						"    m.user.name = :usuariCodi " +
+						"	 and m.group.type = 'security-role'");
+				query.setString("usuariCodi", usuariCodi);
+				List<String> resposta = query.list();
+				return resposta;
+			}
+		});
+	}
 }

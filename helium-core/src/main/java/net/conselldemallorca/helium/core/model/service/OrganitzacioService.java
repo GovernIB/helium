@@ -343,6 +343,10 @@ public class OrganitzacioService {
 		return areaJbpmIdDao.findAmbUsuariCodi(usuariCodi);
 	}
 	
+	public List<String> findRolsJbpmIdMembre(String usuariCodi) {
+		return areaJbpmIdDao.findRolesAmbUsuariCodi(usuariCodi);
+	}
+	
 
 	@Autowired
 	public void setAreaDao(AreaDao areaDao) {

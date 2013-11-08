@@ -67,14 +67,16 @@ public class DominiIntern implements DominiHelium {
 			return variableRegistre(parametersMap);
 		} else if ("AREES_AMB_PERSONA".equals(id)) {
 			return areesAmbPersona(parametersMap);
+		} else if ("ROLS_PER_USUARI".equals(id)) {
+			return rolsPerUsuari(parametersMap);
+		} else if ("USUARIS_PER_ROL".equals(id)) {
+			return usuarisPerRol(parametersMap);
 		/* Per suprimir */
 		} else if ("PERSONES_AMB_CARREC".equals(id)) {
 			return personesAmbCarrec(parametersMap);
 		}
 		return new ArrayList<FilaResultat>();
 	}
-
-
 
 	@Autowired
 	public void setEntornService(EntornService entornService) {
@@ -215,6 +217,26 @@ public class DominiIntern implements DominiHelium {
 		for (String grupCodi: getGrupsPerPersona((String)parametres.get("persona"))) {
 			FilaResultat fila = new FilaResultat();
 			fila.addColumna(new ParellaCodiValor("codi", grupCodi));
+			resposta.add(fila);
+		}
+		return resposta;
+	}
+	
+	private List<FilaResultat> usuarisPerRol(Map<String, Object> parametres) {
+		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+		for (String personaCodi: organitzacioService.findCodisPersonaAmbJbpmIdGroup((String)parametres.get("rol"))) {
+			PersonaDto persona = pluginService.findPersonaAmbCodi(personaCodi);
+			if (persona != null)
+				resposta.add(novaFilaPersona(persona));
+		}
+		return resposta;
+	}
+
+	private List<FilaResultat> rolsPerUsuari(Map<String, Object> parametres) {
+		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+		for (String rol: organitzacioService.findRolsJbpmIdMembre((String)parametres.get("persona"))) {
+			FilaResultat fila = new FilaResultat();
+			fila.addColumna(new ParellaCodiValor("rol", rol));
 			resposta.add(fila);
 		}
 		return resposta;

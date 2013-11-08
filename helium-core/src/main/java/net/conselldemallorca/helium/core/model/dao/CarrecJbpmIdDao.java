@@ -146,7 +146,7 @@ public class CarrecJbpmIdDao extends HibernateGenericDao<CarrecJbpmId, Long> {
 		return (List<String>)getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException, SQLException {
 				Query query = session.createQuery(
-						"select " +
+						"select distinct " +
 						"    m.user.name " +
 						"from " +
 						"    org.jbpm.identity.Membership m " +
