@@ -22,7 +22,7 @@ public class DefinicioProcesTests extends BaseTest {
 		
 		// Inicialitzar l'entorn de proves
 		EntornTests.testEntornSeleccionar(true);
-		
+				
 		importPar(false);
 		crearEnumeracio(false);	
 		crearEnumeracio(true);  // crear enumeració que ja existeix
@@ -51,7 +51,7 @@ public class DefinicioProcesTests extends BaseTest {
 		modificarVarTasca();
 		esborrarVarTasca(getProperty("defproc.variable.codi1")+"/"+getProperty("defproc.variable.nom1"));		 
 		crearDocTasca(getProperty("defproc.document.codi2")+"/"+getProperty("defproc.document.nom2"));	
-		modificarDocTasca();
+		modificarDocTasca(getProperty("defproc.document.codi2")+"/"+getProperty("defproc.document.nom2"));
 		esborrarDocTasca(getProperty("defproc.document.codi2")+"/"+getProperty("defproc.document.nom2"));
        		
 		esborrarDefProc();
@@ -140,7 +140,7 @@ public class DefinicioProcesTests extends BaseTest {
 		// assertEquals("La versió resultant no és correcta", versio + 1, novaVersio);
 	}
 
-	public void seleccionarDefProc() throws InterruptedException {
+	public static void seleccionarDefProc() throws InterruptedException {
 		// Seleccionar una definició de procés que s'utilitzarà per fer les proves
 		
 		// Accés a l'opció de menú
@@ -173,7 +173,7 @@ public class DefinicioProcesTests extends BaseTest {
 		}
 	}
 
-	public void crearEnumeracio(boolean existeix) throws InterruptedException {
+	public static void crearEnumeracio(boolean existeix) throws InterruptedException {
 		// Crear una enumeració per poder definir una variable de tipus selecció			
 		
 		WebElement menuDisseny = driver.findElement(By.id("menuDisseny"));
@@ -232,11 +232,7 @@ public class DefinicioProcesTests extends BaseTest {
 			boto = driver.findElement(By.xpath("//button[@value='submit']"));
 			boto.click();
 			screenshotHelper.saveScreenshot("defproces/variable/enumeracio/crea_enum6.png");
-		
-			boto = driver.findElement(By.xpath("//button[@value='cancel']"));
-			boto.click();
-			screenshotHelper.saveScreenshot("defproces/variable/enumeracio/crea_enum7.png");
-			
+				
 			// Comprovar que s'han creat els elements de l'enumeració
 			driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
 			boolean isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'S')]")).size() > 0;
@@ -247,10 +243,14 @@ public class DefinicioProcesTests extends BaseTest {
 			if (!isPresent || !isPresent2) {
 				assertFalse("No s'ha pogut crear els elements de l'enumeració", isPresent);
 			}		
+
+			boto = driver.findElement(By.xpath("//button[@value='cancel']"));
+			boto.click();
+			screenshotHelper.saveScreenshot("defproces/variable/enumeracio/crea_enum7.png");
 		}
 	}
 
-	public void crearVariables() throws InterruptedException {
+	public static void crearVariables() throws InterruptedException {
 		// Crear variables en una definició de procés seleccionada amb seleccionarDefProc			
 		
 		// Accedir a la fitxa de les variables
@@ -287,6 +287,7 @@ public class DefinicioProcesTests extends BaseTest {
 		jbpmOption = driver.findElement(By.xpath("//option[@value='DATE']"));
 		jbpmOption.click();
 		driver.findElement(By.id("etiqueta0")).sendKeys(getProperty("defproc.variable.nom2"));
+		driver.findElement(By.id("required0")).click();
 		screenshotHelper.saveScreenshot("defproces/variable/crea_var04.png");
 		// Botó crear variable
 		boto = driver.findElement(By.xpath("//button[@value='submit']"));
@@ -697,7 +698,7 @@ public class DefinicioProcesTests extends BaseTest {
 		}
 	}	
 	
-	public void adjuntarDoc() throws InterruptedException {
+	public static void adjuntarDoc() throws InterruptedException {
 		// Adjunta un document a una defició de procés seleccionada amb seleccionarDefProc			
 		
 		// Accedir a la fitxa dels documents
@@ -714,7 +715,6 @@ public class DefinicioProcesTests extends BaseTest {
 		String nomDoc = getProperty("defproc.document.codi1");
 		driver.findElement(By.id("codi0")).sendKeys(nomDoc);
 		driver.findElement(By.id("nom0")).sendKeys(getProperty("defproc.document.nom1"));
-
 		screenshotHelper.saveScreenshot("defproces/document/crea_doc3.png");
 		
 		// Botó crear document
@@ -732,7 +732,7 @@ public class DefinicioProcesTests extends BaseTest {
 		}		
 	}
 
-	public void adjuntarDocPlantilla() throws InterruptedException {
+	public static void adjuntarDocPlantilla() throws InterruptedException {
 		// Adjunta un document tipus plantilla a una defició de procés seleccionada amb seleccionarDefProc			
 		
 		// Accedir a la fitxa dels documents
@@ -916,7 +916,7 @@ public class DefinicioProcesTests extends BaseTest {
 		}
 	}
 
-	public void crearVarTasca(String codVar) throws InterruptedException {
+	public static void crearVarTasca(String codVar) throws InterruptedException {
 		// Afegeix una variable a una tasca en una definició de procés seleccionada amb seleccionarDefProc			
 		
 		// Accedir a la fitxa de les tasques
@@ -1039,7 +1039,7 @@ public class DefinicioProcesTests extends BaseTest {
 		}
 	}	
 
-	public void crearDocTasca(String codDoc) throws InterruptedException {
+	public static void crearDocTasca(String codDoc) throws InterruptedException {
 		// Afegeix un document a una tasca en una definició de procés seleccionada amb seleccionarDefProc			
 		
 		// Accedir a la fitxa de tasques
@@ -1081,7 +1081,7 @@ public class DefinicioProcesTests extends BaseTest {
 		}		
 	}	
 
-	public void modificarDocTasca() throws InterruptedException {
+	public static void modificarDocTasca(String nomDoc) throws InterruptedException {
 		// Modifica un document d'una tasca com obligatoris, en una definició de procés seleccionada amb seleccionarDefProc			
 		
 		// Accedir a la fitxa de tasques
@@ -1097,7 +1097,7 @@ public class DefinicioProcesTests extends BaseTest {
 		screenshotHelper.saveScreenshot("defproces/tasca/modif_doc2.png");
 		
 		// Obtenir nom document i cercar-lo
-  	    String nomDoc = getProperty("defproc.document.codi2")+"/"+getProperty("defproc.document.nom2");
+  	    //String nomDoc = getProperty("defproc.document.codi2")+"/"+getProperty("defproc.document.nom2");
 		driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
 		boolean isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDoc + "')]")).size() > 0;
 		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);

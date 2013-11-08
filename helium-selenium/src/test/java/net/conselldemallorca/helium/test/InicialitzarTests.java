@@ -19,7 +19,7 @@ public class InicialitzarTests extends BaseTest {
 	// TESTS 
 	// --------------------------------------------------------------------------------------------------------------
 	
-	public void testEntornTest() throws InterruptedException {
+	public static void testEntornTest() throws InterruptedException {
 		
 		String entorn = properties.getProperty("entorn.nom");
 		String usuari = properties.getProperty("test.base.usuari.configuracio");
