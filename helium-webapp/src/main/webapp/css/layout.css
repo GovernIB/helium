@@ -460,3 +460,9 @@ select.objectsPerPage {
 .ocult {
 	display: none;
 }
+.reduit  select {
+	width: 62% !important;
+}
+.reduit  input {
+	width: 62% !important;
+}

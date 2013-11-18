@@ -383,6 +383,29 @@ public class JbpmDao {
 		return resposta;
 	}
 
+	public LlistatIds findListTasks(
+			String usuariBo, 
+			String tasca, 
+			List<Long> idsExpedients, 
+			Date dataCreacioInici, 
+			Date dataCreacioFi, 
+			Integer prioritat, 
+			Date dataLimitInici, 
+			Date dataLimitFi, 
+			int firstRow, 
+			int maxResults, 
+			String sort, 
+			boolean asc,
+			boolean tasquesGrup) {
+		mesuresTemporalsHelper.mesuraIniciar("jBPM findListTasks", "jbpmDao");
+		GetProcessInstancesForActiveTasksCommand command = new GetProcessInstancesForActiveTasksCommand(usuariBo, tasca, idsExpedients, dataCreacioInici, dataCreacioFi, prioritat, dataLimitInici, dataLimitFi, sort, asc, (tasquesGrup ? null : false));
+		command.setFirstRow(firstRow);
+		command.setMaxResults(maxResults);
+		LlistatIds llistat = (LlistatIds)commandService.execute(command);
+		mesuresTemporalsHelper.mesuraCalcular("jBPM findListTasks", "jbpmDao");
+		return llistat;
+	}
+	
 	public LlistatIds findListPersonalTasks(
 			String usuariBo, 
 			String tasca, 
@@ -397,7 +420,7 @@ public class JbpmDao {
 			String sort, 
 			boolean asc) {
 		mesuresTemporalsHelper.mesuraIniciar("jBPM findListPersonalTasks", "jbpmDao");
-		GetProcessInstancesForActiveTasksCommand command = new GetProcessInstancesForActiveTasksCommand(usuariBo, tasca, idsExpedients, dataCreacioInici, dataCreacioFi, prioritat, dataLimitInici, dataLimitFi, sort, asc,false);
+		GetProcessInstancesForActiveTasksCommand command = new GetProcessInstancesForActiveTasksCommand(usuariBo, tasca, idsExpedients, dataCreacioInici, dataCreacioFi, prioritat, dataLimitInici, dataLimitFi, sort, asc, false);
 		command.setFirstRow(firstRow);
 		command.setMaxResults(maxResults);
 		LlistatIds llistat = (LlistatIds)commandService.execute(command);
@@ -419,7 +442,7 @@ public class JbpmDao {
 			String sort, 
 			boolean asc) {
 		mesuresTemporalsHelper.mesuraIniciar("jBPM findListGroupTasks", "jbpmDao");
-		GetProcessInstancesForActiveTasksCommand command = new GetProcessInstancesForActiveTasksCommand(usuariBo, tasca, idsExpedients, dataCreacioInici, dataCreacioFi, prioritat, dataLimitInici, dataLimitFi, sort, asc,true);
+		GetProcessInstancesForActiveTasksCommand command = new GetProcessInstancesForActiveTasksCommand(usuariBo, tasca, idsExpedients, dataCreacioInici, dataCreacioFi, prioritat, dataLimitInici, dataLimitFi, sort, asc, true);
 		command.setFirstRow(firstRow);
 		command.setMaxResults(maxResults);
 		LlistatIds llistat = (LlistatIds)commandService.execute(command);
@@ -427,6 +450,17 @@ public class JbpmDao {
 		return llistat;
 	}
 
+	@SuppressWarnings("unchecked")
+	public List<JbpmTask> findTasks(List<Long> ids) {
+		mesuresTemporalsHelper.mesuraIniciar("jBPM findTasks ids", "jbpmDao");
+		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
+		GetTaskListCommand command = new GetTaskListCommand(ids);
+		for (TaskInstance ti : (List<TaskInstance>)commandService.execute(command))
+			resultat.add(new JbpmTask(ti));
+		mesuresTemporalsHelper.mesuraCalcular("jBPM findTasks ids", "jbpmDao");
+		return resultat;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public List<JbpmTask> findPersonalTasks(List<Long> ids, String usuariBo) {
 		mesuresTemporalsHelper.mesuraIniciar("jBPM findPersonalTasks ids", "jbpmDao");

@@ -376,7 +376,8 @@ public class ExecucioMassivaService {
 				mesuresTemporalsHelper.mesuraCalcular("Reindexar", "massiva", expedient);
 			} else if (tipus == ExecucioMassivaTipus.REASSIGNAR){
 				mesuresTemporalsHelper.mesuraIniciar("Reassignar", "massiva", expedient);
-				reassignarExpedient(dto);
+				//reassignarExpedient(dto);
+				reassignarTasca(dto);
 				mesuresTemporalsHelper.mesuraCalcular("Reassignar", "massiva", expedient);
 			}
 			SecurityContextHolder.getContext().setAuthentication(orgAuthentication);
@@ -906,9 +907,58 @@ public class ExecucioMassivaService {
 		}
 	}
 	
-	private void reassignarExpedient(OperacioMassivaDto dto) throws Exception {
+//	private void reassignarExpedient(OperacioMassivaDto dto) throws Exception {
+//		ExecucioMassivaExpedient eme = null;
+//		ExpedientDto exp = dto.getExpedient();
+//		try {
+//			eme = execucioMassivaExpedientDao.getById(dto.getId(), false);
+//			eme.setDataInici(new Date());
+//			
+//			// Paràmetres
+//			Object[] params = (Object[])deserialize(dto.getParam2());
+//			Long entornId = null;
+//			Long tascaId = null;
+//
+//			if (params[0] != null) entornId = (Long)params[0];
+//			if (params[1] != null) tascaId = (Long)params[1];
+//			
+//			int numReassignar = 0;
+//			// Obtenim la tasca
+//			List<InstanciaProcesDto> instanciesProces = expedientService.getArbreInstanciesProces(exp.getProcessInstanceId());
+//			for (InstanciaProcesDto ip: instanciesProces) {
+//				List<TascaDto> tasques = expedientService.findTasquesPerInstanciaProces(ip.getId(), false);
+//				
+//				for (TascaDto tasca: tasques) {
+//					if (tasca.getTascaId().equals(tascaId)) {
+//						numReassignar++;
+//						if (tasca.isOpen()) {
+//							// Reassignam la tasca
+//							expedientService.reassignarTasca(
+//									entornId,
+//									tasca.getId(),
+//									dto.getParam1(),
+//									dto.getUsuari());
+//						}
+//					}
+//				}
+//			}
+//			if (numReassignar == 0) {
+//				eme.setEstat(ExecucioMassivaEstat.ESTAT_ERROR);
+//				eme.setError(getMessage("expedient.massiva.reassignar.buit"));
+//			} else {
+//				eme.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
+//			}
+//			eme.setDataFi(new Date());
+//			execucioMassivaExpedientDao.saveOrUpdate(eme);
+//		} catch (Exception ex) {
+//			logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut reassignar l'expedient", ex);
+//			throw ex;
+//		}
+//	}
+	
+	private void reassignarTasca(OperacioMassivaDto dto) throws Exception {
 		ExecucioMassivaExpedient eme = null;
-		ExpedientDto exp = dto.getExpedient();
+		String tascaId = dto.getTascaId();
 		try {
 			eme = execucioMassivaExpedientDao.getById(dto.getId(), false);
 			eme.setDataInici(new Date());
@@ -916,41 +966,28 @@ public class ExecucioMassivaService {
 			// Paràmetres
 			Object[] params = (Object[])deserialize(dto.getParam2());
 			Long entornId = null;
-			Long tascaId = null;
-
 			if (params[0] != null) entornId = (Long)params[0];
-			if (params[1] != null) tascaId = (Long)params[1];
 			
-			int numReassignar = 0;
 			// Obtenim la tasca
-			List<InstanciaProcesDto> instanciesProces = expedientService.getArbreInstanciesProces(exp.getProcessInstanceId());
-			for (InstanciaProcesDto ip: instanciesProces) {
-				List<TascaDto> tasques = expedientService.findTasquesPerInstanciaProces(ip.getId(), false);
-				
-				for (TascaDto tasca: tasques) {
-					if (tasca.getTascaId().equals(tascaId)) {
-						numReassignar++;
-						if (tasca.isOpen()) {
-							// Reassignam la tasca
-							expedientService.reassignarTasca(
-									entornId,
-									tasca.getId(),
-									dto.getParam1(),
-									dto.getUsuari());
-						}
-					}
-				}
+			TascaDto tasca = tascaService.getByIdSenseComprovacioIDades(tascaId);
+			if (tasca != null && tasca.isOpen()) {
+				// Reassignam la tasca
+				expedientService.reassignarTasca(
+						entornId,
+						tasca.getId(),
+						dto.getParam1(),
+						dto.getUsuari());
 			}
-			if (numReassignar == 0) {
+			if (tasca == null) {
 				eme.setEstat(ExecucioMassivaEstat.ESTAT_ERROR);
-				eme.setError(getMessage("expedient.massiva.reassignar.buit"));
+				eme.setError(getMessage("tasca.massiva.reassignar.buit"));
 			} else {
 				eme.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
 			}
 			eme.setDataFi(new Date());
 			execucioMassivaExpedientDao.saveOrUpdate(eme);
 		} catch (Exception ex) {
-			logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut reassignar l'expedient", ex);
+			logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut reassignar la tasca", ex);
 			throw ex;
 		}
 	}

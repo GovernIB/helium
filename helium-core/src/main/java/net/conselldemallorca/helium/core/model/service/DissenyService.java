@@ -2990,6 +2990,36 @@ public class DissenyService {
 		if (!jbpmKeys.contains(jpd.getKey()))
 			jbpmKeys.add(jpd.getKey());
 	}
+	
+	public List<DefinicioProcesDto> findDefinicionsProcesAmbExpedientTipus(ExpedientTipus expedientTipus) {
+		
+		List<DefinicioProcesDto> llista = new ArrayList<DefinicioProcesDto>();
+		JbpmProcessDefinition jpd = null;
+		List<String> jbpmKeys = new ArrayList<String>();
+		
+		List<DefinicioProcesDto> defsProces = findDarreresAmbExpedientTipusEntorn(expedientTipus.getEntorn().getId(), expedientTipus.getId(), true);
+		for (DefinicioProcesDto definicioProces: defsProces) {
+			if (definicioProces.getJbpmKey().equals(expedientTipus.getJbpmProcessDefinitionKey())) {
+				jpd = jbpmDao.getProcessDefinition(definicioProces.getJbpmId());
+				break;
+			}
+		}
+		if (jpd != null) {
+			afegirJbpmKeyProcesAmbSubprocessos(jpd, jbpmKeys);
+			for (String jbpmKey: jbpmKeys) {
+				for (DefinicioProcesDto definicioProces : defsProces) {
+//					if (	definicioProces.getExpedientTipus() != null &&
+//							definicioProces.getExpedientTipus().getId().equals(expedientTipus.getId())) {
+					if (definicioProces.getJbpmKey().equals(jbpmKey)) {
+						llista.add(definicioProces);
+						break;
+					}
+//					}
+				}
+			}
+		}
+		return llista;
+	}
 
 	public List<Camp> getVariablesSenseAgruapcio(Long definicioProcesId) {
 		return campDao.findVariablesSenseAgrupacio(definicioProcesId);

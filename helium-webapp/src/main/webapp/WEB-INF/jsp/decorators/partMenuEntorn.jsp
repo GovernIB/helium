@@ -43,6 +43,9 @@
 				<ul>
 					<li class="image expedient-consultes"><a href="<c:url value="/expedient/consulta.html"/>"><fmt:message key='decorators.entorn.consultes.llistat' /></a></li>
 					<li class="image expedient-consultes"><a href="<c:url value="/expedient/consultaDisseny.html"/>"><fmt:message key='decorators.entorn.consultes.tipus' /></a></li>
+					<c:if test="${potReassignarExpedientTipus}">
+						<li class="image expedient-consultes"><a href="<c:url value="/tasca/consultaTasques.html"/>"><fmt:message key='decorators.entorn.consultes.tasques' /></a></li>
+					</c:if>
 				</ul>
 			</li>
 			<c:if test="${hiHaTramitsPerIniciar}">

@@ -201,6 +201,7 @@
 								<option value="20"<c:if test='${opp == "20"}'> selected="selected"</c:if>>20</option>
 								<option value="50"<c:if test='${opp == "50"}'> selected="selected"</c:if>>50</option>
 								<option value="100"<c:if test='${opp == "100"}'> selected="selected"</c:if>>100</option>
+								<option value="999999999"<c:if test='${opp == "999999999"}'> selected="selected"</c:if>>Tots</option>
 							</select>
 							<label for="objectsPerPage" class="objectsPerPage<c:if test='${not empty consulta}'> ${copp}</c:if>"><fmt:message key="comuns.objectsPerPage"/></label>
 						</div>

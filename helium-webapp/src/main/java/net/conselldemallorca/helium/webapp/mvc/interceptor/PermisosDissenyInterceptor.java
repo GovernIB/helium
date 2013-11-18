@@ -28,10 +28,10 @@ public class PermisosDissenyInterceptor extends HandlerInterceptorAdapter {
 
 	public static final String VARIABLE_SESSION_PERMISOS_DISSENY = "potDissenyarExpedientTipus";
 	public static final String VARIABLE_SESSION_PERMISOS_GESTIO = "potGestionarExpedientTipus";
-
+	public static final String VARIABLE_SESSION_PERMISOS_REASSIGNAR = "potReassignarExpedientTipus";
+	
 	private DissenyService dissenyService;
 	private PermissionService permissionService;
-
 
 
 	public boolean preHandle(
@@ -42,6 +42,7 @@ public class PermisosDissenyInterceptor extends HandlerInterceptorAdapter {
 			Entorn entorn = getEntornActiu(request);
 			boolean permisosDisseny = false;
 			boolean permisosGestio = false;
+			boolean permisosReassignar = false;
 			if (entorn != null) {
 				List<ExpedientTipus> llistat = dissenyService.findExpedientTipusAmbEntorn(entorn.getId());
 				for (ExpedientTipus expedientTipus: llistat) {
@@ -53,10 +54,18 @@ public class PermisosDissenyInterceptor extends HandlerInterceptorAdapter {
 						permisosGestio = true;
 						break;
 					}
-				}			
+				}	
+				permissionService.filterAllowed(
+						llistat,
+						ExpedientTipus.class,
+						new Permission[] {
+							ExtendedPermission.ADMINISTRATION,
+							ExtendedPermission.REASSIGNMENT});
+				permisosReassignar = llistat.size() > 0;
 			}
 			request.getSession().setAttribute(VARIABLE_SESSION_PERMISOS_DISSENY, new Boolean(permisosDisseny));
 			request.getSession().setAttribute(VARIABLE_SESSION_PERMISOS_GESTIO, new Boolean(permisosGestio));
+			request.getSession().setAttribute(VARIABLE_SESSION_PERMISOS_REASSIGNAR, new Boolean(permisosReassignar));
 		}
 		return true;
 	}
@@ -93,5 +102,4 @@ public class PermisosDissenyInterceptor extends HandlerInterceptorAdapter {
 					ExtendedPermission.ADMINISTRATION,
 					ExtendedPermission.MANAGE}) != null;
 	}
-
 }
