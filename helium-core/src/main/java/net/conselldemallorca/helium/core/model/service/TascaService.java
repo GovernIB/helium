@@ -934,7 +934,7 @@ public class TascaService {
 			actualitzarTerminisIAlertes(taskId, expedient);
 			mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Actualitzar alertes");
 			mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Actualitzar data fi");
-			actualitzarDataFiExpedient(expedient, pi);
+			verificarFinalitzacioExpedient(expedient, pi);
 			mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Actualitzar data fi");
 			mesuresTemporalsHelper.mesuraIniciar("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Update lucene");
 			getServiceUtils().expedientIndexLuceneUpdate(task.getProcessInstanceId());
@@ -1862,11 +1862,24 @@ public class TascaService {
 			antiga.setDataEliminacio(new Date());
 	}
 
-	private void actualitzarDataFiExpedient(
+	private void verificarFinalitzacioExpedient(
 			Expedient expedient,
 			JbpmProcessInstance pi) {
-		if (pi.getEnd() != null)
+		if (pi.getEnd() != null) {
+			// Actualitzar data de fi de l'expedient
 			expedient.setDataFi(pi.getEnd());
+			// Finalitzar terminis actius
+			for (TerminiIniciat terminiIniciat: terminiIniciatDao.findAmbProcessInstanceId(pi.getId())) {
+				if (terminiIniciat.getDataInici() != null) {
+					terminiIniciat.setDataCancelacio(new Date());
+					long[] timerIds = terminiIniciat.getTimerIdsArray();
+					for (int i = 0; i < timerIds.length; i++)
+						jbpmDao.suspendTimer(
+								timerIds[i],
+								new Date(Long.MAX_VALUE));
+				}
+			}
+		}
 	}
 
 	private ServiceUtils getServiceUtils() {
