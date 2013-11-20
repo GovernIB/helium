@@ -142,7 +142,7 @@ function confirmarAccio(e) {
 
 	<c:set var="hiHaAccions" value="${false}"/>
 	<c:set var="hiHaAccionsPubliques" value="${false}"/>
-	<c:forEach var="accio" items="${instanciaProces.definicioProces.accions}">
+	<c:forEach var="accio" items="${accions}">
 		<c:if test="${not accio.oculta}">
 			<c:set var="hiHaAccions" value="${true}"/>
 			<c:if test="${accio.publica}"><c:set var="hiHaAccionsPubliques" value="${true}"/></c:if>

@@ -1761,13 +1761,12 @@ public class ExpedientService {
 		return jbpmDao.findProcessInstancesWithProcessDefinitionName(jbpmKey);
 	}
 
-	public boolean isAccioPublica(
+	public Accio getAccio(
 			String processInstanceId,
 			String accioCodi) {
 		JbpmProcessInstance processInstance = jbpmDao.getProcessInstance(processInstanceId);
 		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(processInstance.getProcessDefinitionId());
-		Accio accio = accioDao.findAmbDefinicioProcesICodi(definicioProces.getId(), accioCodi);
-		return accio.isPublica();
+		return accioDao.findAmbDefinicioProcesICodi(definicioProces.getId(), accioCodi);
 	}
 	public void executarAccio(
 			String processInstanceId,

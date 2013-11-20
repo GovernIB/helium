@@ -1213,7 +1213,8 @@ public class DissenyService {
 					accio.getDescripcio(),
 					accio.getJbpmAction(),
 					accio.isPublica(),
-					accio.isOculta());
+					accio.isOculta(),
+					accio.getRols());
 			accionsDto.add(dto);
 		}
 		definicioProcesExportacio.setAccions(accionsDto);
@@ -2405,6 +2406,7 @@ public class DissenyService {
 			nova.setDescripcio(accio.getDescripcio());
 			nova.setOculta(accio.isOculta());
 			nova.setPublica(accio.isPublica());
+			nova.setRols(accio.getRols());
 			accioDao.saveOrUpdate(nova);
 		}
 		// Propaga els camps
@@ -2597,6 +2599,7 @@ public class DissenyService {
 			nova.setDescripcio(accio.getDescripcio());
 			nova.setPublica(accio.isPublica());
 			nova.setOculta(accio.isOculta());
+			nova.setRols(accio.getRols());
 			accioDao.saveOrUpdate(nova);
 		}
 		// Propaga els camps

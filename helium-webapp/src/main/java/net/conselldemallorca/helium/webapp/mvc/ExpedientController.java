@@ -199,17 +199,23 @@ public class ExpedientController extends BaseController {
 						true,
 						false,
 						false);
-				List <String> llista = new ArrayList<String>();
-				for(Accio accio: instanciaProces.getDefinicioProces().getAccions()){
-					llista.add(accio.getCodi());
-				}
-				Collections.sort(llista);
-				List <Accio> accions = new ArrayList<Accio>();
-				for(String s: llista){
-					for(Accio accio: instanciaProces.getDefinicioProces().getAccions()){
-						if(accio.getCodi().equals(s)){
-							accions.add(accio);
+				List<Accio> accions = dissenyService.findAccionsVisiblesAmbDefinicioProces(instanciaProces.getDefinicioProces().getId());
+				// Filtra les accions sense permisos per a l'usuari actual
+				Iterator<Accio> it = accions.iterator();
+				while (it.hasNext()) {
+					Accio accio = it.next();
+					String rols = accio.getRols();
+					if (rols != null && rols.length() > 0) {
+						boolean permesa = false;
+						String[] llistaRols = rols.split(",");
+						for (String rol: llistaRols) {
+							if (request.isUserInRole(rol)) {
+								permesa = true;
+								break;
+							}
 						}
+						if (!permesa)
+							it.remove();
 					}
 				}
 				model.addAttribute("accions", accions);
@@ -603,21 +609,39 @@ public class ExpedientController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
-			if (expedientService.isAccioPublica(id, jbpmAction) || potModificarExpedient(expedient)) {
-				try {
-					expedientService.executarAccio(id, jbpmAction);
-					missatgeInfo(request, getMessage("info.accio.executat"));
-				} catch (JbpmException ex ) {
-					Long numeroExpedient = expedient.getId();
-					Long entornId = expedient.getEntorn().getId();
-					missatgeError(request, getMessage("error.executar.accio") +" "+ jbpmAction + ": "+ ex.getCause().getMessage());
-		        	logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" Error al executar la accio", ex);
-				}
-				return "redirect:/expedient/info.html?id=" + id;
+			boolean permesa = false;
+			Accio accio = expedientService.getAccio(id, jbpmAction);
+			if (accio.getRols() == null || accio.getRols().length() == 0) {
+				permesa = true;
 			} else {
-				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
+				String[] llistaRols = accio.getRols().split(",");
+				for (String rol: llistaRols) {
+					if (request.isUserInRole(rol)) {
+						permesa = true;
+						break;
+					}
+				}
+			}
+			if (permesa) {
+				if (accio.isPublica() || potModificarExpedient(expedient)) {
+					try {
+						expedientService.executarAccio(id, jbpmAction);
+						missatgeInfo(request, getMessage("info.accio.executat"));
+					} catch (JbpmException ex ) {
+						Long numeroExpedient = expedient.getId();
+						Long entornId = expedient.getEntorn().getId();
+						missatgeError(request, getMessage("error.executar.accio") +" "+ jbpmAction + ": "+ ex.getCause().getMessage());
+			        	logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" Error al executar la accio", ex);
+					}
+					return "redirect:/expedient/info.html?id=" + id;
+				} else {
+					missatgeError(request, getMessage("error.permisos.modificar.expedient"));
+					return "redirect:/expedient/consulta.html";
+				}
+			} else {
+				missatgeError(request, getMessage("error.accio.no.permesa"));
 				return "redirect:/expedient/consulta.html";
-			}			
+			}
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
