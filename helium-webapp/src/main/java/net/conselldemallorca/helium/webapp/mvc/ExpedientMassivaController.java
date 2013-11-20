@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1004,7 +1005,7 @@ public class ExpedientMassivaController extends BaseController {
 				return "redirect:/expedient/consulta.html";
 			}
 			
-			getInfoMassiva(ids, model);
+			getInfoMassiva(request, ids, model);
 			
 			return "expedient/massivaInfo";
 		} else {
@@ -1026,7 +1027,7 @@ public class ExpedientMassivaController extends BaseController {
 				return "redirect:/expedient/consultaDisseny.html";
 			}
 			
-			getInfoMassiva(ids, model);
+			getInfoMassiva(request, ids, model);
 				
 			return "/expedient/massivaInfo";
 		} else {
@@ -1035,7 +1036,10 @@ public class ExpedientMassivaController extends BaseController {
 		}
 	}
 	
-	private void getInfoMassiva(List<Long> ids, ModelMap model) {
+	private void getInfoMassiva(
+			HttpServletRequest request,
+			List<Long> ids,
+			ModelMap model) {
 		List<ExpedientDto> expedients = getExpedientsMassius(
 				ids.subList(1, ids.size()));
 		model.addAttribute("expedients", expedients);
@@ -1051,6 +1055,24 @@ public class ExpedientMassivaController extends BaseController {
 			// Accions per a executar
 			if (definicioProces != null) {
 				List <Accio> accions = dissenyService.findAccionsVisiblesAmbDefinicioProces(definicioProces.getId());
+				// Filtra les accions sense permisos per a l'usuari actual
+				Iterator<Accio> it = accions.iterator();
+				while (it.hasNext()) {
+					Accio accio = it.next();
+					String rols = accio.getRols();
+					if (rols != null && rols.length() > 0) {
+						boolean permesa = false;
+						String[] llistaRols = rols.split(",");
+						for (String rol: llistaRols) {
+							if (request.isUserInRole(rol)) {
+								permesa = true;
+								break;
+							}
+						}
+						if (!permesa)
+							it.remove();
+					}
+				}
 				model.addAttribute("accions", accions); //findAccionsJbpmOrdenades(definicioProces.getId()));
 			}
 			

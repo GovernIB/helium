@@ -50,6 +50,8 @@ public class Accio implements Serializable, GenericEntity<Long> {
 	private String jbpmAction;
 	private boolean publica;
 	private boolean oculta;
+	@MaxLength(512)
+	private String rols;
 	private String cron;
 
 
@@ -132,6 +134,14 @@ public class Accio implements Serializable, GenericEntity<Long> {
 	}
 	public void setCron(String cron) {
 		this.cron = cron;
+	}
+
+	@Column(name="rols", length=512)
+	public String getRols() {
+		return rols;
+	}
+	public void setRols(String rols) {
+		this.rols = rols;
 	}
 
 	@ManyToOne(optional=false)
