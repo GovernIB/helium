@@ -345,20 +345,12 @@ function selTots(){
 				<c:param name="classHolder" value="anulats${visible}"/>		
 			</c:import>
 			
-			<c:if test="${not command.massivaActiu}">
-				<c:import url="../common/formElement.jsp">
-					<c:param name="type" value="buttons"/>
-					<c:param name="values">submit,clean,massiva</c:param>
-					<c:param name="titles"><fmt:message key="expedient.consulta.consultar"/>,<fmt:message key="expedient.consulta.netejar"/>,<fmt:message key="expedient.consulta.massiva.activar"/></c:param>
-				</c:import>
-			</c:if>
-			<c:if test="${command.massivaActiu}">
-				<c:import url="../common/formElement.jsp">
-					<c:param name="type" value="buttons"/>
-					<c:param name="values">submit,clean,nomassiva</c:param>
-					<c:param name="titles"><fmt:message key="expedient.consulta.consultar"/>,<fmt:message key="expedient.consulta.netejar"/>,<fmt:message key="expedient.consulta.massiva.desactivar"/></c:param>
-				</c:import>
-			</c:if>
+			<c:import url="../common/formElement.jsp">
+				<c:param name="type" value="buttons"/>
+				<c:param name="values">submit,clean</c:param>
+				<c:param name="titles"><fmt:message key="expedient.consulta.consultar"/>,<fmt:message key="expedient.consulta.netejar"/></c:param>
+			</c:import>
+				
 		</div>
 		<div class="ctrlHolder">
 		<c:set var="opp"><c:if test='${empty objectsPerPage}'>20</c:if><c:if test='${not empty objectsPerPage}'>${objectsPerPage}</c:if></c:set>
@@ -411,9 +403,9 @@ function selTots(){
 		</c:if>
 		<c:if test="${!globalProperties['app.gis.plugin.actiu']}">
 			<c:if test="${command.massivaActiu}">
-					<form action="<c:url value="/expedient/massivaInfo.html"/>">
-						<button type="submit" class="submitButton"><fmt:message key="expedient.consulta.massiva.accions"/></button>
-					</form>
+		<form action="<c:url value="/expedient/massivaInfo.html"/>">
+			<button type="submit" class="submitButton"><fmt:message key="expedient.consulta.massiva.accions"/></button>
+		</form>
 			</c:if>
 		</c:if>
 		<br>
