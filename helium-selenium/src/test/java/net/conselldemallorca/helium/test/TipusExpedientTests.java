@@ -100,7 +100,7 @@ public class TipusExpedientTests extends BaseTest {
 			driver.findElement(By.xpath("//div[@class='ac_results']/ul/li[contains(text(),'" + getProperty("test.base.usuari.configuracio.nom") + "')]")).click();
 
 			driver.findElement(By.id("teTitol0")).click();
-			//driver.findElement(By.id("demanaTitol0")).click();
+			driver.findElement(By.id("demanaTitol0")).click();
 			driver.findElement(By.id("teNumero0")).click();
 			driver.findElement(By.id("demanaNumero0")).click();
 			driver.findElement(By.id("reiniciarCadaAny0")).click();
@@ -137,7 +137,7 @@ public class TipusExpedientTests extends BaseTest {
 		}
 	}
 
-	public void seleccionarTipExp() throws InterruptedException {
+	public static void seleccionarTipExp() throws InterruptedException {
 		// Seleccionar un tipus d'expedient que s'utilitzarà per fer les proves
 		
 		// Accés a l'opció de menú
@@ -170,7 +170,7 @@ public class TipusExpedientTests extends BaseTest {
 		}
 	}
 
-	public void modificarTipExp() throws InterruptedException {
+	public static void modificarTipExp() throws InterruptedException {
 		// Modifica el camp Expressió per calcular el número d'un tipus d'expedient
 		seleccionarTipExp();
 		

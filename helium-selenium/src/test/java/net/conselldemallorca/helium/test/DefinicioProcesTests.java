@@ -47,7 +47,7 @@ public class DefinicioProcesTests extends BaseTest {
 		crearTermini();
 		esborrarTermini();
 		
-		crearVarTasca(getProperty("defproc.variable.codi1")+"/"+getProperty("defproc.variable.nom1"));
+		crearVarTasca(getProperty("defproc.variable.codi1")+"/"+getProperty("defproc.variable.nom1"), false, false);
 		modificarVarTasca();
 		esborrarVarTasca(getProperty("defproc.variable.codi1")+"/"+getProperty("defproc.variable.nom1"));		 
 		crearDocTasca(getProperty("defproc.document.codi2")+"/"+getProperty("defproc.document.nom2"));	
@@ -287,7 +287,6 @@ public class DefinicioProcesTests extends BaseTest {
 		jbpmOption = driver.findElement(By.xpath("//option[@value='DATE']"));
 		jbpmOption.click();
 		driver.findElement(By.id("etiqueta0")).sendKeys(getProperty("defproc.variable.nom2"));
-		driver.findElement(By.id("required0")).click();
 		screenshotHelper.saveScreenshot("defproces/variable/crea_var04.png");
 		// Botó crear variable
 		boto = driver.findElement(By.xpath("//button[@value='submit']"));
@@ -916,7 +915,7 @@ public class DefinicioProcesTests extends BaseTest {
 		}
 	}
 
-	public static void crearVarTasca(String codVar) throws InterruptedException {
+	public static void crearVarTasca(String codVar, Boolean isReq, Boolean isLec) throws InterruptedException {
 		// Afegeix una variable a una tasca en una definició de procés seleccionada amb seleccionarDefProc			
 		
 		// Accedir a la fitxa de les tasques
@@ -937,6 +936,8 @@ public class DefinicioProcesTests extends BaseTest {
 		for (WebElement option : allOptions) {
 		    if (option.getText().equals(codVar)) {
 		    	option.click();
+		    	if (isReq) {driver.findElement(By.id("required0")).click();}
+		    	if (isLec) {driver.findElement(By.id("readOnly0")).click();}
 		    	break;
 		    }
 		}			
