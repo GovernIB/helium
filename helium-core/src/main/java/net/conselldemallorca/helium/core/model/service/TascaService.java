@@ -370,7 +370,7 @@ public class TascaService {
 		PaginaLlistatDto resposta = tasquesLlistatFiltradesValors(
 				entornId,
 				tasques, 
-				tasca,
+				null,
 				null,
 				tipusExpedient,
 				dataCreacioInici,

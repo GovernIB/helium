@@ -10,12 +10,12 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.jbpm3.handlers.tipus.ParellaCodiValor;
 import net.conselldemallorca.helium.core.model.dto.PersonaUsuariDto;
 import net.conselldemallorca.helium.core.model.hibernate.Permis;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.service.PersonaService;
 import net.conselldemallorca.helium.core.model.service.PluginService;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.ParellaCodiValor;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
@@ -153,6 +153,23 @@ public class PersonaController extends BaseController {
 	public String suggestAction(
 			@RequestParam(value = "q", required = true) String text,
 			ModelMap model) {
+//		String codi;
+//		try {
+//			byte[] encoded = text.getBytes("ISO-8859-1");
+//			codi = new String(encoded);
+//		} catch (UnsupportedEncodingException e) {
+//			codi = text;
+//		}
+		
+		model.addAttribute("persones", pluginService.findPersonaLikeNomSencer(text));
+		return "persona/suggest";
+	}
+	
+	@RequestMapping(value = "suggest", method = RequestMethod.POST)
+	public String suggestPostAction(
+			@RequestParam(value = "q", required = true) String text,
+			ModelMap model) {
+		
 		model.addAttribute("persones", pluginService.findPersonaLikeNomSencer(text));
 		return "persona/suggest";
 	}

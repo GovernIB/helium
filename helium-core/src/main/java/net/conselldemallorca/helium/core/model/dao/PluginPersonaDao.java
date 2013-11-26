@@ -41,15 +41,19 @@ public class PluginPersonaDao extends PersonaDao {
 			if (getPersonesPlugin() == null || isSyncActiu()) {
 				List<Persona> persones = findLikeNomSencer(text);
 				List<PersonaDto> resposta = new ArrayList<PersonaDto>();
-				for (Persona persona: persones) {
-					resposta.add(toPersonaPlugin(persona));
+				if (persones != null) {
+					for (Persona persona: persones) {
+						resposta.add(toPersonaPlugin(persona));
+					}
 				}
 				return resposta;
 			} else {
 				List<DadesPersona> persones = personesPlugin.findLikeNomSencer(text);
 				List<PersonaDto> resposta = new ArrayList<PersonaDto>();
-				for (DadesPersona persona: persones)
-					resposta.add(toPersonaPlugin(persona));
+				if (persones != null) {
+					for (DadesPersona persona: persones)
+						resposta.add(toPersonaPlugin(persona));
+				}
 				return resposta;
 			}
 		} catch (PersonesPluginException ex) {

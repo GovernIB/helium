@@ -147,7 +147,8 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 		}
 
 		if (tasca != null && !"".equals(tasca)) {
-			hql += " and ti.processInstance.processDefinition.id = (select (cast(ta.definicioProces.jbpmId as long)) from Tasca as ta where UPPER(ta.nom) like UPPER(:tasca) and ta.jbpmName = ti.name and ti.processInstance.processDefinition.id = cast(ta.definicioProces.jbpmId as long)) ";
+//			hql += " and ti.processInstance.processDefinition.id = (select (cast(ta.definicioProces.jbpmId as long)) from Tasca as ta where UPPER(ta.jbpmName) like UPPER(:tasca) and ta.jbpmName = ti.name and ti.processInstance.processDefinition.id = cast(ta.definicioProces.jbpmId as long)) ";
+			hql += " and ti.name = :tasca ";
 		}
 		
 		hql += " order by ";
@@ -184,7 +185,7 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 				query.setInteger("prioritat",3-prioritat);
 			
 			if (tasca != null && !"".equals(tasca)) 
-				query.setString("tasca","%"+tasca+"%");
+				query.setString("tasca", tasca);
 			
 			llistaActorId.addAll(query.list());
 			
@@ -221,8 +222,8 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 			}
 			
 			if (tasca != null && !"".equals(tasca)) {
-				queryPersonal.setString("tasca","%"+tasca+"%");
-				queryPooled.setString("tasca","%"+tasca+"%");
+				queryPersonal.setString("tasca", tasca);
+				queryPooled.setString("tasca", tasca);
 			}		
 			
 			if (pooled == null || pooled == false) {
