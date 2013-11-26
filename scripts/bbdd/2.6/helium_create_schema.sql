@@ -8,7 +8,8 @@ CREATE TABLE HEL_ACCIO
   NOM                  VARCHAR2(255 CHAR)       NOT NULL,
   OCULTA               NUMBER(1),
   PUBLICA              NUMBER(1),
-  DEFINICIO_PROCES_ID  NUMBER(19)               NOT NULL
+  DEFINICIO_PROCES_ID  NUMBER(19)               NOT NULL,
+  ROLS                 VARCHAR2(512 CHAR)
 );
 
 

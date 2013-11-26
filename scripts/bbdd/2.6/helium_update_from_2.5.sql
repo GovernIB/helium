@@ -54,6 +54,9 @@ CREATE TABLE HEL_EXPEDIENT_TIPUS_SEQANY (
 -- Incrementar llargària camp params dels logs de l'expedient
 ALTER TABLE HEL_EXPEDIENT_LOG MODIFY ACCIO_PARAMS VARCHAR2(2048 CHAR);
 
+-- Restringir accions per rol
+ALTER TABLE HEL_ACCIO ADD ROLS VARCHAR2(512 CHAR);
+
 -- Actualització a la nova versió --
 INSERT INTO HEL_VERSIO (
     ID,
