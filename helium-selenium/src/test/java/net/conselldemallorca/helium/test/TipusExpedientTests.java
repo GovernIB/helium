@@ -87,7 +87,7 @@ public class TipusExpedientTests extends BaseTest {
 
 			driver.findElement(By.id("codi0")).sendKeys(codTipExp);
 			driver.findElement(By.id("nom0")).sendKeys(nombreTipoExpediente);
-			//driver.findElement(By.id("expressioNumero0")).sendKeys("SE-$(seq)$(any)");
+			//driver.findElement(By.id("expressioNumero0")).sendKeys("SE-${seq}${any}");
 
 			driver.findElement(By.id("suggest_responsableDefecteCodi0")).clear();
 			driver.findElement(By.id("suggest_responsableDefecteCodi0")).sendKeys(getProperty("test.base.usuari.configuracio"));
@@ -180,7 +180,7 @@ public class TipusExpedientTests extends BaseTest {
   	    // guardar valor inicial
   	    String valIni = driver.findElement(By.id("expressioNumero0")).getText().trim();
 
-		driver.findElement(By.id("expressioNumero0")).sendKeys("SE-$(seq)$(any)");
+		driver.findElement(By.id("expressioNumero0")).sendKeys("SE-${seq}${any}");
 
 		screenshotHelper.saveScreenshot("tipusExpedient/modifTipExp2.png");
 			
