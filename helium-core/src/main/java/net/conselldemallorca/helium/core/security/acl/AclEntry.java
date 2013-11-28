@@ -117,11 +117,10 @@ public class AclEntry implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + aceOrder;
-		result = prime
-				* result
-				+ ((identity == null) ? 0 : identity
-						.hashCode());
+		result = prime * result
+				+ ((identity == null) ? 0 : identity.hashCode());
+		result = prime * result + ((sid == null) ? 0 : sid.hashCode());
+		result = prime * result + mask;
 		return result;
 	}
 	@Override
@@ -133,12 +132,17 @@ public class AclEntry implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		AclEntry other = (AclEntry) obj;
-		if (aceOrder != other.aceOrder)
-			return false;
 		if (identity == null) {
 			if (other.identity != null)
 				return false;
 		} else if (!identity.equals(other.identity))
+			return false;
+		if (mask != other.mask)
+			return false;
+		if (sid == null) {
+			if (other.sid != null)
+				return false;
+		} else if (!sid.equals(other.sid))
 			return false;
 		return true;
 	}

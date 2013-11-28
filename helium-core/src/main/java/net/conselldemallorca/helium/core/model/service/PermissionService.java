@@ -51,29 +51,32 @@ public class PermissionService {
 			Serializable id,
 			Class clazz,
 			boolean granting) {
-		Sid sid = (principal) ? new PrincipalSid(recipient) : new GrantedAuthoritySid(recipient);
-		ObjectIdentity objectIdentity = new ObjectIdentityImpl(clazz, id);
-		MutableAcl acl = null;
-		try {
-			acl = aclServiceDao.readMutableAclById(objectIdentity);
-		} catch (NotFoundException nfe) {
-			acl = aclServiceDao.createAcl(objectIdentity);
-		}
-		for (Permission perm: permissions) {
-			boolean insertar;
+		String tRecipient = recipient.trim();
+		if (tRecipient != null && !"".equals(tRecipient)) {
+			Sid sid = (principal) ? new PrincipalSid(tRecipient) : new GrantedAuthoritySid(tRecipient);
+			ObjectIdentity objectIdentity = new ObjectIdentityImpl(clazz, id);
+			MutableAcl acl = null;
 			try {
-				insertar = !acl.isGranted(new Permission[] {perm}, new Sid[] {sid}, false);
-			} catch (Exception ignored) {
-				insertar = true;
+				acl = aclServiceDao.readMutableAclById(objectIdentity);
+			} catch (NotFoundException nfe) {
+				acl = aclServiceDao.createAcl(objectIdentity);
 			}
-			if (insertar)
-				acl.insertAce(
-						acl.getEntries().length,
-						perm,
-						sid,
-						true);
+			for (Permission perm: permissions) {
+				boolean insertar;
+				try {
+					insertar = !acl.isGranted(new Permission[] {perm}, new Sid[] {sid}, false);
+				} catch (Exception ignored) {
+					insertar = true;
+				}
+				if (insertar)
+					acl.insertAce(
+							acl.getEntries().length,
+							perm,
+							sid,
+							true);
+			}
+			aclServiceDao.updateAcl(acl);
 		}
-		aclServiceDao.updateAcl(acl);
 	}
 	@SuppressWarnings("rawtypes")
 	public void deletePermissions(

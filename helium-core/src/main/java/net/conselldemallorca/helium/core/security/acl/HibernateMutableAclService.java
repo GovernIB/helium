@@ -95,6 +95,7 @@ public class HibernateMutableAclService extends HibernateAclService implements M
 //			for (AclEntry entry: identity.getEntries())
 			for (AclEntry entry: entries)
 				getCurrentSession().delete(entry);
+			getCurrentSession().flush();
 			identity.getEntries().clear();
 		}
 		// Afegeix les entrades noves
@@ -109,8 +110,10 @@ public class HibernateMutableAclService extends HibernateAclService implements M
 			entry.setAuditFailure(ace.isAuditFailure());
 			entry.setIdentity(identity);
 			entry.setSid(createOrRetrieveAclSid(ace.getSid()));
-			identity.addEntry(entry);
-			getCurrentSession().save(entry);
+			if (!identity.getEntries().contains(entry)) {
+				identity.addEntry(entry);
+				getCurrentSession().save(entry);
+			}
 		}
 		getCurrentSession().saveOrUpdate(identity);
 		// Retorna la acl fent una nova consulta per assegurar que tot s'omple correctament
