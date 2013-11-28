@@ -452,6 +452,7 @@ public class TipusExpedientTests extends BaseTest {
 			fail("L'estat del tipus d'expedient no existeix");
 		}
 	}	
+	
 	private void esborrarEstat() throws InterruptedException {
 		// Esborra un estat d'un tipus d'expedient
 		seleccionarTipExp();	
@@ -752,6 +753,7 @@ public class TipusExpedientTests extends BaseTest {
 			fail("L'enumeració del tipus d'expedient no existeix");
 		}
 	}	
+
 
 	
 // *******************************************************

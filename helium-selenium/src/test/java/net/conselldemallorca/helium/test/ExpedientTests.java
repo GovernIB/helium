@@ -21,10 +21,10 @@ public class ExpedientTests extends BaseTest {
 		super.runTests();
 
 		// Crear i seleccionar entorn
-		//InicialitzarTests.testEntornTest();
+/*		InicialitzarTests.testEntornTest();
 		EntornTests.testEntornSeleccionar(true);
 
-		/*TipusExpedientTests.crearTipoExpedienteTest();
+		TipusExpedientTests.crearTipoExpedienteTest();
 		TipusExpedientTests.modificarTipExp();
 		TipusExpedientTests.assignarPermisosTipExp(true);
 		DefinicioProcesTests.importPar(true);
@@ -42,40 +42,41 @@ public class ExpedientTests extends BaseTest {
 		DefinicioProcesTests.crearVarTasca(getProperty("defproc.variable.codi6")+"/"+getProperty("defproc.variable.nom6"), false, true);
 		DefinicioProcesTests.crearDocTasca(getProperty("defproc.document.codi1")+"/"+getProperty("defproc.document.nom1"));	
 		DefinicioProcesTests.crearDocTasca(getProperty("defproc.document.codi2")+"/"+getProperty("defproc.document.nom2"));
-		DefinicioProcesTests.modificarDocTasca(getProperty("defproc.document.codi1")+"/"+getProperty("defproc.document.nom1"));*/
-
-		 //iniciarExp();
-		 //tramitarTasca(getProperty("tramit.exp.nom"), getProperty("tramit.tasca.nom1"));
+		DefinicioProcesTests.modificarDocTasca(getProperty("defproc.document.codi1")+"/"+getProperty("defproc.document.nom1"));
+*/
+/*		 iniciarExp();
+		 tramitarTasca(getProperty("tramit.exp.nom"), getProperty("tramit.tasca.nom1"));
 		 // assignar valors a les variables de la tasca
-		 /*valorVarTasca("var_str01", "Text variable string", "STR", "0");
+		 valorVarTasca("var_str01", "Text variable string", "STR", "0");
 		 valorVarTasca("var_dat01", "26/11/2013", "DAT", "0");
 		 valorVarTasca("var_enum01", "Sí", "ENU", "0");  
-		 //valorVarTasca("var_str01", "Text variable registre 1", "REG", "4");
+		 valorVarTasca("var_str01", "Text variable registre 1", "REG", "4");
 		 valorVarTasca("var_mul", "Text var múltiple", "MUL", "0");
 		 accioTasca("GUARDAR");
 		 accioTasca("VALIDAR");
 		 accioTasca("MODIFICAR");
 		 valorVarTasca("var_str01", "Text variable string 2", "STR", "0");
-		 accioTasca("VALIDAR");*/		 
-		 // adjuntar documents
-		 //documentTasca();
-		 //accioTasca("FINALITZAR");
-		 
+		 accioTasca("VALIDAR");		 
+		 //adjuntar documents
+		 documentTasca();
+		 accioTasca("FINALITZAR");
+*/		 
 		 // Modificar informació de l'expedient
 		 seleccionarExp();
-		 //crearVarExp(getProperty("tramit.variable.codi1"), getProperty("tramit.variable.nom1"));
-		 //modificarVarExp(getProperty("defproc.variable.codi1"), getProperty("defproc.variable.nom1"));  // tipus string	 
-		 //esborrarVarExp(getProperty("tramit.variable.codi1"));
-		 //esborrarVarExp(getProperty("defproc.variable.nom3"));
+		 afegirDadaExp("1", getProperty("tramit.variable.codi1"), getProperty("tramit.variable.valor1"));
+		 afegirDadaExp("2", getProperty("defproc.variable.codi4"), getProperty("defproc.variable.nom4"));
+		 modificarVarExp(getProperty("defproc.variable.codi1"), getProperty("defproc.variable.nom1"));  // tipus string	 
+		 esborrarVarExp(getProperty("tramit.variable.codi1"));
+		 esborrarVarExp(getProperty("defproc.variable.nom3"));
 		 
-		 //suspendreTasca(getProperty("tramit.tasca.nom2"));
-		 //rependreTasca(getProperty("tramit.tasca.nom2"));
-		 //reassignarTasca(getProperty("tramit.tasca.nom2"), getProperty("tramit.usuari.codi1"));
+		 suspendreTasca(getProperty("tramit.tasca.nom2"));
+		 rependreTasca(getProperty("tramit.tasca.nom2"));
+		 reassignarTasca(getProperty("tramit.tasca.nom2"), getProperty("tramit.usuari.codi1"));
 		 
 		 adjuntarDocExp(getProperty("tramit.docadjunt.nom1"), getProperty("tramit.docadjunt.arxiu1"));
 				 
-		 //esborrarDocExp(getProperty("tramit.docadjunt.nom1"));
-		 //esborrarDocExp(getProperty("tramit.document.nom1"));
+		 esborrarDocExp(getProperty("tramit.docadjunt.nom1"));
+		 esborrarDocExp(getProperty("tramit.document.nom1"));
 	}
 
 	// TESTS A NIVELL D'EXPEDIENT
@@ -119,9 +120,14 @@ public class ExpedientTests extends BaseTest {
 	// agafar i iniciar tasca de la llista de tasques personals
 	public static void tramitarTasca(String nomExp, String nomTas) throws InterruptedException {
 	 	WebElement menu = driver.findElement(By.id("menuTasques"));
+		WebElement menuTasques = driver.findElement(By.xpath("//a[contains(@href, '/helium/tasca/personaLlistat.html')]"));
 				
 		actions = new Actions(driver);
 		actions.moveToElement(menu);
+		actions.click();
+		actions.build().perform();
+
+		actions.moveToElement(menuTasques);
 		actions.click();
 		actions.build().perform();
 
@@ -163,9 +169,10 @@ public class ExpedientTests extends BaseTest {
 		}
 		// variable tipus registre
 		if (tipVar == "REG") {
-			driver.findElement(By.xpath("html/body/div[1]/div[2]/form/div/div[" + pos + "]/div/button")).click();
-			//driver.findElement(By.xpath("//html/body/form/div[1]/div/input")).sendKeys(valVar);
-			driver.findElement(By.name(nomVar)).sendKeys("eee");
+			driver.findElement(By.xpath("//div[@class='multiField']/button[@class='submitButton']")).click();
+			driver.findElement(By.name(getProperty("defproc.variable.codi7"))).sendKeys("Valor camp 1 variable registre");
+			driver.findElement(By.xpath("//button[@value='submit']")).click();		
+			driver.findElement(By.name(getProperty("defproc.variable.codi8"))).sendKeys("Valor camp 2 variable registre");
 			driver.findElement(By.xpath("//button[@value='submit']")).click();		
 		}
 		// variable tipus múltiple
@@ -247,18 +254,57 @@ public class ExpedientTests extends BaseTest {
 	}
 
 	// crea una variable en un expedient
-	public static void crearVarExp(String codVar, String nomVar) throws InterruptedException {
-		driver.findElement(By.xpath("//a[contains(@href, '/helium/expedient/dades.html')]")).click();
-		screenshotHelper.saveScreenshot("tramitar/expedient/creaVar1.png");
+	public static void afegirDadaExp(String tip, String codVar, String valVar) throws InterruptedException {
+		// crear nova variable
+		if (tip == "1") {
+			driver.findElement(By.xpath("//a[contains(@href, '/helium/expedient/dades.html')]")).click();
+			screenshotHelper.saveScreenshot("tramitar/expedient/creaVar1.png");
 
-		driver.findElement(By.xpath("html/body/div[1]/div[2]/form/button")).click();
-		//driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
-		driver.findElement(By.id("varCodi0")).sendKeys(codVar);
-		screenshotHelper.saveScreenshot("tramitar/expedient/creaVar2.png");		
-		driver.findElement(By.xpath("//button[@value='submit']")).click();
-		
-		
-		
+			driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButtonImage']")).click();
+			// posar codi
+			driver.findElement(By.id("varCodi0")).sendKeys(codVar);
+			screenshotHelper.saveScreenshot("tramitar/expedient/creaVar2.png");		
+			driver.findElement(By.xpath("//button[@value='submit']")).click();
+			// posar valor
+			driver.findElement(By.name(codVar)).sendKeys(valVar);
+			screenshotHelper.saveScreenshot("tramitar/expedient/creaVar3.png");
+			driver.findElement(By.xpath("//button[@value='submit']")).click();
+			screenshotHelper.saveScreenshot("tramitar/expedient/creaVar4.png");
+			
+			// Comprovar que s'ha creat
+			driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
+			boolean isPresent = driver.findElements(By.xpath("//*[@id='codi']/tbody/tr[contains(td[1],'" + codVar + "')]")).size() > 0;
+			driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
+			if (!isPresent) {
+				assertFalse("No s'ha pogut crear la variable a l'expedient", isPresent);
+			}					
+		}
+			
+		// donar valor a una variable existent
+		if (tip == "2") {
+			driver.findElement(By.xpath("//a[contains(@href, '/helium/expedient/dades.html')]")).click();
+			screenshotHelper.saveScreenshot("tramitar/expedient/crea2Var1.png");
+
+			driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButtonImage']")).click();
+			// Seleccionar la variable de la llista
+			WebElement selectVar = driver.findElement(By.id("camp0"));
+			List<WebElement> allOptions = selectVar.findElements(By.tagName("option"));
+			for (WebElement option : allOptions) {
+			    if (option.getText().equals(codVar + "/" + valVar)) {
+			    	option.click();
+			    	break;
+			    }
+			}			
+			screenshotHelper.saveScreenshot("tramitar/expedient/crea2Var2.png");		
+			driver.findElement(By.xpath("//button[@value='submit']")).click();
+			// posar valors			
+			driver.findElement(By.xpath("//div[@class='multiField']/button[@class='submitButton']")).click();
+			driver.findElement(By.name(getProperty("defproc.variable.codi7"))).sendKeys("Valor camp 1 variable registre");	
+			driver.findElement(By.name(getProperty("defproc.variable.codi8"))).sendKeys("Valor camp 2 variable registre");
+			screenshotHelper.saveScreenshot("tramitar/expedient/crea2Var3.png");
+			driver.findElement(By.xpath("//button[@value='submit']")).click();
+			screenshotHelper.saveScreenshot("tramitar/expedient/crea2Var4.png");
+		}
 	}
 
 	
@@ -406,8 +452,8 @@ public class ExpedientTests extends BaseTest {
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/expedient/documents.html')]")).click();
 		screenshotHelper.saveScreenshot("tramitar/expedient/creaDoc1.png");
 		
-		driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
-		driver.findElement(By.id("expression0")).sendKeys(nomDoc);
+		driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButtonImage']")).click();
+		driver.findElement(By.id("nom0")).sendKeys(nomDoc);
 		WebElement arxiu = driver.findElement(By.id("contingut0"));
 		arxiu.sendKeys(arxiuDoc);
 		screenshotHelper.saveScreenshot("tramitar/expedient/creaDoc2.png");

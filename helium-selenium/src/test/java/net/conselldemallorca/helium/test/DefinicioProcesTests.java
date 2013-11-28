@@ -271,7 +271,6 @@ public class DefinicioProcesTests extends BaseTest {
 		// Botó crear variable
   	    WebElement boto = driver.findElement(By.xpath("//button[@value='submit']"));
   	    boto.click();
-		screenshotHelper.saveScreenshot("defproces/variable/crea_var03.png");
 		// Comprovar que s'ha creat
 		driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
 		boolean isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]")).size() > 0;
@@ -280,6 +279,41 @@ public class DefinicioProcesTests extends BaseTest {
 			assertFalse("No s'ha pogut crear la variable string", isPresent);
 		}		
 
+		driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
+		codVar = getProperty("defproc.variable.codi7");
+		driver.findElement(By.id("codi0")).sendKeys(codVar);
+		jbpmOption = driver.findElement(By.xpath("//option[@value='STRING']"));
+		jbpmOption.click();
+		driver.findElement(By.id("etiqueta0")).sendKeys(getProperty("defproc.variable.nom7"));
+		// Botó crear variable
+  	    boto = driver.findElement(By.xpath("//button[@value='submit']"));
+  	    boto.click();
+		// Comprovar que s'ha creat
+		driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
+		isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]")).size() > 0;
+		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
+		if (!isPresent) {
+			assertFalse("No s'ha pogut crear la variable string", isPresent);
+		}		
+		
+		driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
+		codVar = getProperty("defproc.variable.codi8");
+		driver.findElement(By.id("codi0")).sendKeys(codVar);
+		jbpmOption = driver.findElement(By.xpath("//option[@value='STRING']"));
+		jbpmOption.click();
+		driver.findElement(By.id("etiqueta0")).sendKeys(getProperty("defproc.variable.nom8"));
+		// Botó crear variable
+  	    boto = driver.findElement(By.xpath("//button[@value='submit']"));
+  	    boto.click();
+		screenshotHelper.saveScreenshot("defproces/variable/crea_var03.png");
+  	    // Comprovar que s'ha creat
+		driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
+		isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]")).size() > 0;
+		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
+		if (!isPresent) {
+			assertFalse("No s'ha pogut crear la variable string", isPresent);
+		}		
+		
 		// tipus date
 		driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
 		codVar = getProperty("defproc.variable.codi2");
@@ -355,7 +389,18 @@ public class DefinicioProcesTests extends BaseTest {
 			selectEnum = driver.findElement(By.id("membreId0"));
 			allOptions = selectEnum.findElements(By.tagName("option"));
 			for (WebElement option : allOptions) {
-			    if (option.getText().equals(properties.getProperty("defproc.variable.codi1")+"/"+properties.getProperty("defproc.variable.nom1"))) {
+			    if (option.getText().equals(properties.getProperty("defproc.variable.codi7")+"/"+properties.getProperty("defproc.variable.nom7"))) {
+			    	option.click();
+			    	break;
+			    }
+			}
+			boto = driver.findElement(By.xpath("//button[@value='submit']"));
+			boto.click();
+			
+			selectEnum = driver.findElement(By.id("membreId0"));
+			allOptions = selectEnum.findElements(By.tagName("option"));
+			for (WebElement option : allOptions) {
+			    if (option.getText().equals(properties.getProperty("defproc.variable.codi8")+"/"+properties.getProperty("defproc.variable.nom8"))) {
 			    	option.click();
 			    	break;
 			    }
@@ -363,6 +408,7 @@ public class DefinicioProcesTests extends BaseTest {
 			screenshotHelper.saveScreenshot("defproces/variable/crea_var10.png");
 			boto = driver.findElement(By.xpath("//button[@value='submit']"));
 			boto.click();
+
 			screenshotHelper.saveScreenshot("defproces/variable/crea_var11.png");
 			boto = driver.findElement(By.xpath("//button[@value='cancel']"));
 			boto.click();
