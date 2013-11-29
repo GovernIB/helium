@@ -370,6 +370,9 @@ public class DissenyService {
 	public Camp findCampAmbDefinicioProcesICodi(Long definicioProcesId, String codi) {
 		return campDao.findAmbDefinicioProcesICodi(definicioProcesId, codi);
 	}
+	public Camp findCampAmbDefinicioProcesICodiSimple(Long definicioProcesId, String codi) {
+		return campDao.findAmbDefinicioProcesICodiSimple(definicioProcesId, codi);
+	}
 	public List<Camp> findCampAmbDefinicioProcesITipus(Long definicioProcesId, TipusCamp tipus) {
 		return campDao.findAmbDefinicioProcesITipus(definicioProcesId, tipus);
 	}

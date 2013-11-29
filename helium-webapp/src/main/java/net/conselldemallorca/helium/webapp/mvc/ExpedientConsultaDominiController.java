@@ -60,7 +60,7 @@ public class ExpedientConsultaDominiController extends BaseController {
 			try {
 				model.addAttribute(
 						"camp",
-						dissenyService.findCampAmbDefinicioProcesICodi(definicioProcesId, campCodi));
+						dissenyService.findCampAmbDefinicioProcesICodiSimple(definicioProcesId, campCodi));
 				List<FilaResultat> resultat = dissenyService.getResultatConsultaCamp(
 						taskId,
 						processInstanceId,
