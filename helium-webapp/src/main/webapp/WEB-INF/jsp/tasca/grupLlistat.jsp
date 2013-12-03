@@ -93,7 +93,7 @@ function seleccionaTasca(valor, xec) {
 		</c:choose>
 		<display:column property="dataLimit" titleKey="tasca.gllistat.data_limit" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true" sortName="dataLimit" style="${estilData}" sortProperty="dataLimit"/>
 		<display:column>
-	    	<form action="agafar.html" onsubmit="return confirmar(event)">
+	    	<form action="agafar.html">
 				<input type="hidden" name="id" value="${registre.id}"/>
 				<button type="submit" class="submitButton"><fmt:message key="tasca.gllistat.agafar"/></button>
 			</form>

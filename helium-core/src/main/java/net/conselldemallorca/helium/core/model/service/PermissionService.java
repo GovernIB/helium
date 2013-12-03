@@ -46,19 +46,22 @@ public class PermissionService {
 			Serializable id,
 			Class clazz,
 			boolean granting) {
-		for (Permission permission: permissions) {
-			if (principal) {
-				aclServiceDao.assignarPermisUsuari(
-						recipient,
-						clazz,
-						(Long)id,
-						permission);
-			} else {
-				aclServiceDao.assignarPermisRol(
-						recipient,
-						clazz,
-						(Long)id,
-						permission);
+		String tRecipient = recipient.trim();
+		if (tRecipient != null && !"".equals(tRecipient)) {
+			for (Permission permission: permissions) {
+				if (principal) {
+					aclServiceDao.assignarPermisUsuari(
+							tRecipient,
+							clazz,
+							(Long)id,
+							permission);
+				} else {
+					aclServiceDao.assignarPermisRol(
+							tRecipient,
+							clazz,
+							(Long)id,
+							permission);
+				}
 			}
 		}
 	}

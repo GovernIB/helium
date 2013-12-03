@@ -333,9 +333,24 @@ public class OrganitzacioService {
 	public List<AreaJbpmId> findDistinctJbpmGroups() {
 		return areaJbpmIdDao.findDistinctJbpmGrupAll();
 	}
-
-
-
+	
+	public List<String> findAreesMembre(String usuariCodi) {
+		List<String> codisArea = new ArrayList<String>();
+		List<AreaMembre> membres = areaMembreDao.findAmbUsuariCodi(usuariCodi);
+		for (AreaMembre membre: membres) {
+			codisArea.add(membre.getArea().getCodi());
+		}
+		return codisArea;
+	}
+	
+	public List<String> findRolsJbpmIdMembre(String usuariCodi) {
+		return areaJbpmIdDao.findRolesAmbUsuariCodi(usuariCodi);
+	}
+	
+	public List<String> findAreesJbpmIdMembre(String usuariCodi) {
+		return areaJbpmIdDao.findAmbUsuariCodi(usuariCodi);
+	}
+	
 	@Autowired
 	public void setAreaDao(AreaDao areaDao) {
 		this.areaDao = areaDao;

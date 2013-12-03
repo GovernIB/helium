@@ -128,49 +128,20 @@
 						</c:forEach>
 					
 						<c:if test="${empty consulta.informeNom}">
-								<c:choose>
-									<c:when test="${fn:length(expedients.list) > 0}">
-										<c:if test="${sessionCommand.massivaActiu}">
-											<c:import url="../common/formElement.jsp">
-												<c:param name="type" value="buttons"/>
-												<c:param name="values">submit,netejar,nomassiva</c:param>
-												<c:param name="titles"><fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' />,<fmt:message key="expedient.consulta.massiva.seleccio.desactivar"/></c:param>
-											</c:import>
-										</c:if>
-										<c:if test="${not sessionCommand.massivaActiu}">
-											<c:import url="../common/formElement.jsp">
-												<c:param name="type" value="buttons"/>
-												<c:param name="values">submit,netejar,massiva</c:param>
-												<c:param name="titles"><fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' />,<fmt:message key="expedient.consulta.massiva.seleccio.activar"/></c:param>
-											</c:import>
-										</c:if>
-									</c:when>
-									<c:otherwise>
-										<c:import url="../common/formElement.jsp">
-											<c:param name="type" value="buttons"/>
-											<c:param name="values">submit,netejar</c:param>
-											<c:param name="titles"><fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' /></c:param>
-										</c:import>
-									</c:otherwise>
-								</c:choose>
+							<c:import url="../common/formElement.jsp">
+								<c:param name="type" value="buttons"/>
+								<c:param name="values">submit,netejar</c:param>
+								<c:param name="titles"><fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' /></c:param>
+							</c:import>
 						</c:if>
 						<c:if test="${not empty consulta.informeNom}">
 								<c:choose>
 									<c:when test="${fn:length(expedients.list) > 0}">
-										<c:if test="${sessionCommand.massivaActiu}">
-											<c:import url="../common/formElement.jsp">
-												<c:param name="type" value="buttons"/>
-												<c:param name="values">informe,submit,netejar,nomassiva</c:param>
-												<c:param name="titles"><fmt:message key='expedient.consulta.informe' />,<fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' />,<fmt:message key="expedient.consulta.massiva.seleccio.desactivar"/></c:param>
-											</c:import>
-										</c:if>
-										<c:if test="${not sessionCommand.massivaActiu}">
-											<c:import url="../common/formElement.jsp">
-												<c:param name="type" value="buttons"/>
-												<c:param name="values">informe,submit,netejar,massiva</c:param>
-												<c:param name="titles"><fmt:message key='expedient.consulta.informe' />,<fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' />,<fmt:message key="expedient.consulta.massiva.seleccio.activar"/></c:param>
-											</c:import>
-										</c:if>
+										<c:import url="../common/formElement.jsp">
+											<c:param name="type" value="buttons"/>
+											<c:param name="values">informe,submit,netejar</c:param>
+											<c:param name="titles"><fmt:message key='expedient.consulta.informe' />,<fmt:message key='expedient.consulta.consultar' />,<fmt:message key='expedient.consulta.netejar' /></c:param>
+										</c:import>
 									</c:when>
 									<c:otherwise>
 										<c:import url="../common/formElement.jsp">
@@ -185,51 +156,40 @@
 					<div class="ctrlHolder" align="right">
 						<c:set var="opp"><c:if test='${empty objectsPerPage}'>20</c:if><c:if test='${not empty objectsPerPage}'>${objectsPerPage}</c:if></c:set>
 						<c:set var="copp" value="opp-llista"/>
-						<c:choose>
-							<c:when test="${globalProperties['app.georef.actiu'] && globalProperties['app.gis.plugin.actiu']}">
-								<c:set var="copp" value="opp-llista-gis"/>
-							</c:when>
-							<c:otherwise> 
-								<c:if test="${sessionCommand.massivaActiu}">
-									<c:set var="copp" value="opp-llista-mas"/>
-								</c:if>
-							</c:otherwise>
-						</c:choose>
+						<c:if test="${not empty expedients}">
+							<c:set var="copp" value="opp-llista-mas"/>
+						</c:if>
 						<select id="objectsPerPage" name="objectsPerPage" class="objectsPerPage<c:if test='${not empty consulta}'> ${copp}</c:if>">
 							<option value="10"<c:if test='${opp == "10"}'> selected="selected"</c:if>>10</option>
 							<option value="20"<c:if test='${opp == "20"}'> selected="selected"</c:if>>20</option>
 							<option value="50"<c:if test='${opp == "50"}'> selected="selected"</c:if>>50</option>
 							<option value="100"<c:if test='${opp == "100"}'> selected="selected"</c:if>>100</option>
+							<option value="999999999"<c:if test='${opp == "999999999"}'> selected="selected"</c:if>>Tots</option>
 						</select>
 						<label for="objectsPerPage" class="objectsPerPage<c:if test='${not empty consulta}'> ${copp}</c:if>"><fmt:message key="comuns.objectsPerPage"/></label>
 					</div>
 					
 			</form:form>
-			<table >
-				<tr id="disnyTR">
-					<td id="disnyTD">
-						<c:if test="${sessionCommand.massivaActiu}">
-							<form action="<c:url value="/expedient/massivaInfoTE.html"/>"><button type="submit" class="submitButton"><fmt:message key="expedient.consulta.massiva.accions"/></button></form>
-							<br>
-						</c:if>
-					</td>
-				</tr>
-			</table>
-			
 			
 		<c:if test="${not empty sessionScope.expedientTipusConsultaFiltreCommand or not empty sessionScope.expedientTipusConsultaFiltreCommandTE}">
 			
 			<c:if test="${not empty expedients}">
+				<table >
+					<tr id="disnyTR">
+						<td id="disnyTD">
+							<form action="<c:url value="/expedient/massivaInfoTE.html"/>"><button type="submit" class="submitButton"><fmt:message key="expedient.consulta.massiva.accions"/></button></form>
+							<br>
+						</td>
+					</tr>
+				</table>
 				<display:table name="expedients" id="registre" requestURI="" class="displaytag selectable" export="${consulta.exportarActiu}" sort="external">
-					<c:if test="${sessionCommand.massivaActiu}">
-						<display:column title="<input id='selTots' type='checkbox' value='false' onclick='selTots(event)'>" style="${filaStyle}" >
-							<c:set var="expedientSeleccionat" value="${false}"/>
-							<c:forEach var="eid" items="${sessionScope.consultaExpedientsIdsMassiusTE}" varStatus="status">
-								<c:if test="${status.index gt 0 and eid == registre.expedient.id}"><c:set var="expedientSeleccionat" value="${true}"/></c:if>
-							</c:forEach>
-							<input type="checkbox" name="expedientId" value="${registre.expedient.id}"<c:if test="${expedientSeleccionat}"> checked="checked"</c:if> onclick="clicCheckMassiu(event)"/>
-						</display:column>
-					</c:if>
+					<display:column title="<input id='selTots' type='checkbox' value='false' onclick='selTots(event)'>" style="${filaStyle}" >
+						<c:set var="expedientSeleccionat" value="${false}"/>
+						<c:forEach var="eid" items="${sessionScope.consultaExpedientsIdsMassiusTE}" varStatus="status">
+							<c:if test="${status.index gt 0 and eid == registre.expedient.id}"><c:set var="expedientSeleccionat" value="${true}"/></c:if>
+						</c:forEach>
+						<input type="checkbox" name="expedientId" value="${registre.expedient.id}"<c:if test="${expedientSeleccionat}"> checked="checked"</c:if> onclick="clicCheckMassiu(event)"/>
+					</display:column>
 					<display:column property="expedient.identificador" title="Expedient" url="/tasca/personaLlistat.html" sortable="true" sortProperty="expedient$identificador" paramId="exp"/>
 					<c:choose>
 						<c:when test="${empty campsInforme}">

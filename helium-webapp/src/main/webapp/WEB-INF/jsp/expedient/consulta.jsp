@@ -351,20 +351,12 @@ function selTots(){
 				<c:param name="classHolder" value="anulats${visible}"/>		
 			</c:import>
 			
-			<c:if test="${not command.massivaActiu}">
-				<c:import url="../common/formElement.jsp">
-					<c:param name="type" value="buttons"/>
-					<c:param name="values">submit,clean,massiva</c:param>
-					<c:param name="titles"><fmt:message key="expedient.consulta.consultar"/>,<fmt:message key="expedient.consulta.netejar"/>,<fmt:message key="expedient.consulta.massiva.activar"/></c:param>
-				</c:import>
-			</c:if>
-			<c:if test="${command.massivaActiu}">
-				<c:import url="../common/formElement.jsp">
-					<c:param name="type" value="buttons"/>
-					<c:param name="values">submit,clean,nomassiva</c:param>
-					<c:param name="titles"><fmt:message key="expedient.consulta.consultar"/>,<fmt:message key="expedient.consulta.netejar"/>,<fmt:message key="expedient.consulta.massiva.desactivar"/></c:param>
-				</c:import>
-			</c:if>
+			<c:import url="../common/formElement.jsp">
+				<c:param name="type" value="buttons"/>
+				<c:param name="values">submit,clean</c:param>
+				<c:param name="titles"><fmt:message key="expedient.consulta.consultar"/>,<fmt:message key="expedient.consulta.netejar"/></c:param>
+			</c:import>
+			
 		</div>
 		<div class="ctrlHolder">
 		<c:set var="opp"><c:if test='${empty objectsPerPage}'>20</c:if><c:if test='${not empty objectsPerPage}'>${objectsPerPage}</c:if></c:set>
@@ -384,6 +376,7 @@ function selTots(){
 			<option value="20"<c:if test='${opp == "20"}'> selected="selected"</c:if>>20</option>
 			<option value="50"<c:if test='${opp == "50"}'> selected="selected"</c:if>>50</option>
 			<option value="100"<c:if test='${opp == "100"}'> selected="selected"</c:if>>100</option>
+			<option value="999999999"<c:if test='${opp == "999999999"}'> selected="selected"</c:if>>Tots</option>
 		</select>
 		<label for="objectsPerPage" class="objectsPerPage<c:if test='${not empty llistat}'> ${copp}</c:if>"><fmt:message key="comuns.objectsPerPage"/></label>
 	</div>

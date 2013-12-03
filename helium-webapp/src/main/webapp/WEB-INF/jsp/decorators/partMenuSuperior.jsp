@@ -38,5 +38,16 @@
 			<li class="image reassignar"><a href="<c:url value="/reassignar/llistat.html"/>"><fmt:message key='decorators.superior.reassignacions' /></a></li>
 		</ul>
 	</li>
+	<li id="menuMesures" class="dir image monitor"><a href="#" onclick="return false"><fmt:message key='comuns.mesures' /></a>
+			<ul class="mesures">
+				<c:if test="${globalProperties['app.mesura.temps.actiu']}">
+					<li class="image temps"><a id="botoTemps" href="javascript:void(0)"><fmt:message key='expedient.mesura.temps' /></a></li>
+				</c:if>
+				<c:if test="${globalProperties['app.expedient.monitor']}">
+					<li class="image monitor"><a id="botoMonitor" href="javascript:void(0)"><fmt:message key='expedient.monitor' /></a></li>
+				</c:if>
+				<li class="image pendents"><a href="<c:url value="/tasca/pendentsCompletar.html"/>"><fmt:message key='tasca.pendents.completar' /></a></li>
+			</ul>
+		</li>
 	</security:authorize>
 </ul>

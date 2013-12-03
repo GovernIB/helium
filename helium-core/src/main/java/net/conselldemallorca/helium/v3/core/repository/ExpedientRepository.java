@@ -43,7 +43,7 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			"and e.tipus in (:tipusPermesos) " +
 			"and (:esNullExpedientTipusId = true or e.tipus.id = :expedientTipusId) " +
 			"and (:esNullTitol = true or lower(e.titol) like lower('%'||:titol||'%')) " +
-			"and (:esNullNumero = true or e.numero = :numero) " +
+			"and (:esNullNumero = true or lower(e.numero) like lower('%'||:numero||'%')) " +
 			"and (:esNullDataInici1 = true or e.dataInici >= :dataInici1) " +
 			"and (:esNullDataInici2 = true or e.dataInici <= :dataInici2) " +
 			"and (:nomesIniciats = false or e.dataFi is null) " +
@@ -98,7 +98,7 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			"and e.tipus in (:tipusPermesos) " +
 			"and (:esNullExpedientTipusId = true or e.tipus.id = :expedientTipusId) " +
 			"and (:esNullTitol = true or lower(e.titol) like lower('%'||:titol||'%')) " +
-			"and (:esNullNumero = true or e.numero = :numero) " +
+			"and (:esNullNumero = true or lower(e.numero) like lower('%'||:numero||'%')) " +
 			"and (:esNullDataInici1 = true or e.dataInici >= :dataInici1) " +
 			"and (:esNullDataInici2 = true or e.dataInici <= :dataInici2) " +
 			"and (:nomesIniciats = false or e.dataFi is null) " +

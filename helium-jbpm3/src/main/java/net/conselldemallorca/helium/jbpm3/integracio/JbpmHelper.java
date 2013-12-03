@@ -45,6 +45,7 @@ import net.conselldemallorca.helium.jbpm3.command.GetRootProcessInstancesForActi
 import net.conselldemallorca.helium.jbpm3.command.GetRootProcessInstancesForExpedientsWithActiveTasksCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetSubProcessDefinitionsCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetTaskIdFromVariableLogCommand;
+import net.conselldemallorca.helium.jbpm3.command.GetTaskListCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetTokenByIdCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetVariableIdFromVariableLogCommand;
 import net.conselldemallorca.helium.jbpm3.command.HasStartBetweenLogsCommand;
@@ -1164,6 +1165,29 @@ public class JbpmHelper {
 		this.commandService = commandService;
 	}
 	
+	public LlistatIds findListTasks(
+			String usuariBo, 
+			String tasca, 
+			List<Long> idsExpedients, 
+			Date dataCreacioInici, 
+			Date dataCreacioFi, 
+			Integer prioritat, 
+			Date dataLimitInici, 
+			Date dataLimitFi, 
+			int firstRow, 
+			int maxResults, 
+			String sort, 
+			boolean asc,
+			boolean tasquesGrup) {
+		adminService.mesuraIniciar("jBPM findListTasks", "jbpmDao");
+		GetRootProcessInstancesForActiveTasksCommand command = new GetRootProcessInstancesForActiveTasksCommand(usuariBo, tasca, idsExpedients, dataCreacioInici, dataCreacioFi, prioritat, dataLimitInici, dataLimitFi, sort, asc, (tasquesGrup ? null : false));
+		command.setFirstRow(firstRow);
+		command.setMaxResults(maxResults);
+		LlistatIds llistat = (LlistatIds)commandService.execute(command);
+		adminService.mesuraCalcular("jBPM findListTasks", "jbpmDao");
+		return llistat;
+	}
+	
 	public LlistatIds findListPersonalTasks(
 			String usuariBo, 
 			String tasca, 
@@ -1178,7 +1202,7 @@ public class JbpmHelper {
 			String sort, 
 			boolean asc) {
 		adminService.mesuraIniciar("jBPM findListPersonalTasks", "jbpmDao");
-		GetRootProcessInstancesForActiveTasksCommand command = new GetRootProcessInstancesForActiveTasksCommand(usuariBo, tasca, idsExpedients, dataCreacioInici, dataCreacioFi, prioritat, dataLimitInici, dataLimitFi, sort, asc,false);
+		GetRootProcessInstancesForActiveTasksCommand command = new GetRootProcessInstancesForActiveTasksCommand(usuariBo, tasca, idsExpedients, dataCreacioInici, dataCreacioFi, prioritat, dataLimitInici, dataLimitFi, sort, asc, false);
 		command.setFirstRow(firstRow);
 		command.setMaxResults(maxResults);
 		LlistatIds llistat = (LlistatIds)commandService.execute(command);
@@ -1200,12 +1224,23 @@ public class JbpmHelper {
 			String sort, 
 			boolean asc) {
 		adminService.mesuraIniciar("jBPM findListGroupTasks", "jbpmDao");
-		GetRootProcessInstancesForActiveTasksCommand command = new GetRootProcessInstancesForActiveTasksCommand(usuariBo, tasca, idsExpedients, dataCreacioInici, dataCreacioFi, prioritat, dataLimitInici, dataLimitFi, sort, asc,true);
+		GetRootProcessInstancesForActiveTasksCommand command = new GetRootProcessInstancesForActiveTasksCommand(usuariBo, tasca, idsExpedients, dataCreacioInici, dataCreacioFi, prioritat, dataLimitInici, dataLimitFi, sort, asc, true);
 		command.setFirstRow(firstRow);
 		command.setMaxResults(maxResults);
 		LlistatIds llistat = (LlistatIds)commandService.execute(command);
 		adminService.mesuraCalcular("jBPM findListGroupTasks", "jbpmDao");
 		return llistat;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<JbpmTask> findTasks(List<Long> ids) {
+		adminService.mesuraIniciar("jBPM findTasks ids", "jbpmDao");
+		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
+		GetTaskListCommand command = new GetTaskListCommand(ids);
+		for (TaskInstance ti : (List<TaskInstance>)commandService.execute(command))
+			resultat.add(new JbpmTask(ti));
+		adminService.mesuraCalcular("jBPM findTasks ids", "jbpmDao");
+		return resultat;
 	}
 
 	@SuppressWarnings("unchecked")

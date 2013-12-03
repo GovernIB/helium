@@ -25,6 +25,7 @@ public class SessionHelper {
 	public static final String VARIABLE_EXPTIP_ACCESSIBLES = "expedientTipusAccessibles";
 	public static final String VARIABLE_PERMIS_EXPTIP_DISSENY = "potDissenyarExpedientTipus";
 	public static final String VARIABLE_PERMIS_EXPTIP_GESTIO = "potGestionarExpedientTipus";
+	public static final String VARIABLE_PERMIS_EXPTIP_REASSIGNAR = "potReassignarExpedientTipus";
 	public static final String VARIABLE_PERMIS_ENTORN_READ = "potLlegirEntorn";
 	public static final String VARIABLE_PERMIS_ENTORN_DESIGN = "potDissenyarEntorn";
 	public static final String VARIABLE_PERMIS_ENTORN_ORGANIZATION = "potOrganitzarEntorn";
@@ -99,6 +100,17 @@ public class SessionHelper {
 					request,
 					VARIABLE_EXPTIP_ACCESSIBLES,
 					expedientsTipus);
+		}
+		public Boolean getPotReassignarExpedientTipus() {
+			return (Boolean)getAttribute(
+					request,
+					VARIABLE_PERMIS_EXPTIP_REASSIGNAR);
+		}
+		public void setPotReassignarExpedientTipus(Boolean potReassignarExpedientTipus) {
+			setAttribute(
+					request,
+					VARIABLE_PERMIS_EXPTIP_REASSIGNAR,
+					potReassignarExpedientTipus);
 		}
 		public Boolean getPotDissenyarExpedientTipus() {
 			return (Boolean)getAttribute(

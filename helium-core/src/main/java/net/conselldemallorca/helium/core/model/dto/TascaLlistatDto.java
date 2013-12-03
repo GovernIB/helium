@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.core.model.dto;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -51,7 +52,8 @@ public class TascaLlistatDto implements Comparable<TascaLlistatDto> {
 
 	private boolean agafada;
 
-
+	private Map<String, PersonaDto> personesMap;
+	
 
 	public boolean isDelegable() {
 		return delegable;
@@ -251,7 +253,13 @@ public class TascaLlistatDto implements Comparable<TascaLlistatDto> {
 	public void setAgafada(boolean agafada) {
 		this.agafada = agafada;
 	}
-
+	public Map<String, PersonaDto> getPersonesMap() {
+		return personesMap;
+	}
+	public void setPersonesMap(Map<String, PersonaDto> personesMap) {
+		this.personesMap = personesMap;
+	}
+	
 
 
 	public String getTitolLimitat() {

@@ -7,6 +7,8 @@ import java.util.List;
 
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
+import net.conselldemallorca.helium.core.model.hibernate.Consulta;
+import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 
 import org.springframework.stereotype.Component;
 
@@ -57,6 +59,35 @@ public class CampDao extends HibernateGenericDao<Camp, Long> {
 						"and c.codi=?").
 				setLong(0, definicioProcesId).
 				setString(1, codi).uniqueResult();
+	}
+	public Camp findAmbDefinicioProcesICodiSimple(Long definicioProcesId, String codi) {
+		Camp camp = new Camp();
+		Object obj = getSession().
+				createQuery(
+						"select " +
+						"	c.dominiCampText, " +
+						"	c.dominiCampValor, " +
+						"	c.enumeracio.id, " +
+						"	c.consulta.id," +
+						"	c.consultaCampText " +
+						"from " +
+						"    Camp c " +
+						"where " +
+						"    c.definicioProces.id=? " +
+						"and c.codi=?").
+				setLong(0, definicioProcesId).
+				setString(1, codi).uniqueResult();
+		
+		if (obj != null) {
+			Object objCamp[] = (Object[])obj;
+			camp.setDominiCampText(objCamp[0] == null ? null : (String)objCamp[0]);
+			camp.setDominiCampValor(objCamp[1] == null ? null : (String)objCamp[1]);
+			camp.setEnumeracio(objCamp[2] == null ? null : new Enumeracio());
+			camp.setConsulta(objCamp[3] == null ? null : new Consulta());
+			camp.setConsultaCampText(objCamp[4] == null ? null : (String)objCamp[4]);
+		}
+		
+		return camp;
 	}
 
 	@SuppressWarnings("unchecked")

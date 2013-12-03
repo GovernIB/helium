@@ -254,7 +254,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 				(ExpedientConsultaDissenyCommand)model.get("commandSeleccioConsulta");
 			if (commandSeleccio.getConsultaId() != null) {
 				Consulta consulta = dissenyService.getConsultaById(commandSeleccio.getConsultaId());
-				commandSeleccio.setMassivaActiu(false);
+//				commandSeleccio.setMassivaActiu(false);
 				if (permissionService.filterAllowed(
 						consulta.getExpedientTipus(),
 						ExpedientTipus.class,
@@ -295,15 +295,16 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			
 			//***********************
 			
-			if ("massiva".equals(submit)) {
-				session.setAttribute(VARIABLE_SESSIO_SELCON_COMMAND_TE, commandSeleccio);
-				commandSeleccio.setMassivaActiu(true);
-				
-			} else if ("nomassiva".equals(submit)) {
-				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS_TE);
-				session.removeAttribute(VARIABLE_SESSIO_SELCON_COMMAND_TE);
-			}
-			else if ("clean".equals(submit)) {
+//			if ("massiva".equals(submit)) {
+//				session.setAttribute(VARIABLE_SESSIO_SELCON_COMMAND_TE, commandSeleccio);
+//				commandSeleccio.setMassivaActiu(true);
+//				
+//			} else if ("nomassiva".equals(submit)) {
+//				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS_TE);
+//				session.removeAttribute(VARIABLE_SESSIO_SELCON_COMMAND_TE);
+//			}
+//			else 
+			if ("clean".equals(submit)) {
 				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS);
 				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS_TE);
 			}
@@ -443,7 +444,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 	public class ExpedientConsultaDissenyCommand {
 		private Long expedientTipusId;
 		private Long consultaId;
-		private boolean massivaActiu = false;
+		private boolean massivaActiu = true;
 		
 		
 		public Long getExpedientTipusId() {

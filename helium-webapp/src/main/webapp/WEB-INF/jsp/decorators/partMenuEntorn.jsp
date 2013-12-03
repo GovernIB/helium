@@ -31,12 +31,21 @@
 	</div>
 	<div id="page-entorn-menu">
 		<ul id="menu-entorn" class="dropdown dropdown-horizontal">
-			<li id="menuTasques" class="image tasques"><a href="<c:url value="/tasca/personaLlistat.html"/>"><fmt:message key='comuns.tasques' /></a></li>
+			<li id="menuTasques" class="dir image tasques">
+				<a href="#" onclick="return false"><fmt:message key='comuns.tasques' /></a>
+				<ul>
+					<li class="image tasques"><a href="<c:url value="/tasca/personaLlistat.html"/>"><fmt:message key='common.tasques.personals' /></a></li>
+					<li class="image tasques"><a href="<c:url value="/tasca/grupLlistat.html"/>"><fmt:message key='common.tasques.grup' /></a></li>
+				</ul>
+			</li>
 			<li id="menuConsultes" class="dir image expedient-consultes">
 				<a href="#" onclick="return false"><fmt:message key='comuns.consultes' /></a>
 				<ul>
 					<li class="image expedient-consultes"><a href="<c:url value="/expedient/consulta.html"/>"><fmt:message key='decorators.entorn.consultes.llistat' /></a></li>
 					<li class="image expedient-consultes"><a href="<c:url value="/expedient/consultaDisseny.html"/>"><fmt:message key='decorators.entorn.consultes.tipus' /></a></li>
+					<c:if test="${potReassignarExpedientTipus}">
+						<li class="image expedient-consultes"><a href="<c:url value="/tasca/consultaTasques.html"/>"><fmt:message key='decorators.entorn.consultes.tasques' /></a></li>
+					</c:if>
 				</ul>
 			</li>
 			<c:if test="${hiHaTramitsPerIniciar}">
@@ -78,14 +87,14 @@
 				</li>
 			</c:if>
 		</ul>
-		<security:authorize ifAllGranted="ROLE_ADMIN">
-			<c:if test="${globalProperties['app.mesura.temps.actiu']}">
-				<div class="image temps"><a id="botoTemps" href="javascript:void(0)"><fmt:message key='expedient.mesura.temps' /></a></div>
-			</c:if>
-			<c:if test="${globalProperties['app.expedient.monitor']}">
-				<div class="image monitor"><a id="botoMonitor" href="javascript:void(0)"><fmt:message key='expedient.monitor' /></a></div>
-			</c:if>
-		</security:authorize>
+<%-- 		<security:authorize ifAllGranted="ROLE_ADMIN"> --%>
+<%-- 			<c:if test="${globalProperties['app.mesura.temps.actiu']}"> --%>
+<%-- 				<div class="image temps"><a id="botoTemps" href="javascript:void(0)"><fmt:message key='expedient.mesura.temps' /></a></div> --%>
+<%-- 			</c:if> --%>
+<%-- 			<c:if test="${globalProperties['app.expedient.monitor']}"> --%>
+<%-- 				<div class="image monitor"><a id="botoMonitor" href="javascript:void(0)"><fmt:message key='expedient.monitor' /></a></div> --%>
+<%-- 			</c:if> --%>
+<%-- 		</security:authorize> --%>
 		<div class="image massives"><a id="botoMassiu" href="javascript:void(0)"><fmt:message key='comuns.massiu' /></a></div>
 	</div>
 	<!-- Progreso en acciones masivas -->

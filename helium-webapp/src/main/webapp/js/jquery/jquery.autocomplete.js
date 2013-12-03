@@ -315,19 +315,33 @@ jQuery.autocomplete = function(input, options) {
 		return ul;
 	};
 
-	function requestData(q) {
-		if (!options.matchCase) q = q.toLowerCase();
-		var data = options.cacheLength ? loadFromCache(q) : null;
+	function requestData(qu) {
+		if (!options.matchCase) qu = qu.toLowerCase();
+		var data = options.cacheLength ? loadFromCache(qu) : null;
 		// recieve the cached data
 		if (data) {
-			receiveData(q, data);
+			receiveData(qu, data);
 		// if an AJAX url has been supplied, try loading the data now
 		} else if( (typeof options.url == "string") && (options.url.length > 0) ){
-			$.get(makeUrl(q), function(data) {
-				data = parseData(data);
-				addToCache(q, data);
-				receiveData(q, data);
-			});
+			if (options.url == "/helium/persona/suggest.html" ) {
+				$.ajax({
+				    type: "POST",
+				    url: "/helium/persona/suggest.html",
+				    contentType: "application/x-www-form-urlencoded; charset=utf-8",
+				    data: {q: qu},
+				    success: function(data) {
+				    	data = parseData(data);
+						addToCache(qu, data);
+						receiveData(qu, data);
+				    }
+				});
+			} else {
+				$.get(makeUrl(qu), function(data) {
+					data = parseData(data);
+					addToCache(qu, data);
+					receiveData(qu, data);
+				});
+			}
 		// if there's been no data found, remove the loading class
 		} else {
 			$input.removeClass(options.loadingClass);

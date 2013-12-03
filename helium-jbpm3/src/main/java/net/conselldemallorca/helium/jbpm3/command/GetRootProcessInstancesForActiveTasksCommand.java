@@ -29,7 +29,7 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 	private Integer prioritat;
 	private Date dataLimitInici;
 	private Date dataLimitFi;
-	private boolean pooled;
+	private Boolean pooled;
 	private int firstRow;
 	private int maxResults;
 	private String sort;
@@ -53,14 +53,14 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 
 	public GetRootProcessInstancesForActiveTasksCommand() {}
 
-	public GetRootProcessInstancesForActiveTasksCommand(String actorId, List<Long> idsPIExpedients, boolean pooled) {
+	public GetRootProcessInstancesForActiveTasksCommand(String actorId, List<Long> idsPIExpedients, Boolean pooled) {
 		super();
 		this.actorId = actorId;
 		this.idsPIExpedients = idsPIExpedients;
 		this.pooled = pooled;
 	}
 
-	public GetRootProcessInstancesForActiveTasksCommand(String actorId, String tasca, List<Long> idsPIExpedients, Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi, String sort, boolean asc, boolean pooled) {
+	public GetRootProcessInstancesForActiveTasksCommand(String actorId, String tasca, List<Long> idsPIExpedients, Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi, String sort, boolean asc, Boolean pooled) {
 		super();
 		this.actorId = actorId;
 		this.idsPIExpedients = idsPIExpedients;
@@ -75,9 +75,23 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		this.asc = asc;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		
 		setJbpmContext(jbpmContext);
+		
+		String hqlNoUser =
+			"select  " + 
+			"    ti.processInstance.id, " +
+			"    ti.processInstance.superProcessToken.id, " +
+			"  ti.id, " +
+			"  (select (ta.nom) from Tasca as ta where ta.jbpmName = ti.name and ti.processInstance.processDefinition.id = cast(ta.definicioProces.jbpmId as long)) " +
+			"  from " +
+			"    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
+			"  where " +
+			"  ti.isSuspended = false " +
+			(pooled != null && pooled == false ? "  and ti.actorId is not null " : "") + 
+			"  and ti.isOpen = true";
 		  
 		String hqlPersonal =
 		    "select  " + 
@@ -107,7 +121,7 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		    "  and ti.isSuspended = false " +
 		    "  and ti.isOpen = true";
 		  
-		String hql = pooled ? hqlPooled : hqlPersonal;
+		String hql = "";
 		
 		if (dataCreacioInici != null) {
 			hql += " and ti.create >= :dataCreacioInici";
@@ -130,7 +144,8 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		}
 
 		if (tasca != null && !"".equals(tasca)) {
-			hql += " and ti.processInstance.processDefinition.id = (select (cast(ta.definicioProces.jbpmId as long)) from Tasca as ta where UPPER(ta.nom) like UPPER(:tasca) and ta.jbpmName = ti.name and ti.processInstance.processDefinition.id = cast(ta.definicioProces.jbpmId as long)) ";
+//			hql += " and ti.processInstance.processDefinition.id = (select (cast(ta.definicioProces.jbpmId as long)) from Tasca as ta where UPPER(ta.nom) like UPPER(:tasca) and ta.jbpmName = ti.name and ti.processInstance.processDefinition.id = cast(ta.definicioProces.jbpmId as long)) ";
+			hql += " and ti.name = :tasca ";
 		}
 		
 		hql += " order by ";
@@ -146,34 +161,75 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 			hql += " 1 ";
 		}
 		
-		Query query = jbpmContext.getSession().createQuery(hql);
-		query.setString("actorId", actorId);
+List<Object[]> llistaActorId = new ArrayList<Object[]>();
 		
-		if (dataCreacioInici != null) {
-			query.setDate("dataCreacioInici", dataCreacioInici);
+		if (actorId == null || "".equals(actorId)) {
+			Query query = jbpmContext.getSession().createQuery(hqlNoUser + hql);
+			
+			if (dataCreacioInici != null) 
+				query.setDate("dataCreacioInici", dataCreacioInici);
+			
+			if (dataCreacioFi != null) 
+				query.setDate("dataCreacioFi", dataCreacioFi);
+			
+			if (dataLimitInici != null) 
+				query.setDate("dataLimitInici", dataLimitInici);
+			
+			if (dataLimitFi != null) 
+				query.setDate("dataLimitFi", dataLimitFi);
+			
+			if (prioritat != null) 
+				query.setInteger("prioritat",3-prioritat);
+			
+			if (tasca != null && !"".equals(tasca)) 
+				query.setString("tasca", tasca);
+			
+			llistaActorId.addAll(query.list());
+			
+		} else {
+			Query queryPersonal = jbpmContext.getSession().createQuery(hqlPersonal + hql);
+			queryPersonal.setString("actorId", actorId);
+		
+			Query queryPooled = jbpmContext.getSession().createQuery(hqlPooled + hql);
+			queryPooled.setString("actorId", actorId);
+		
+			if (dataCreacioInici != null) {
+				queryPersonal.setDate("dataCreacioInici", dataCreacioInici);
+				queryPooled.setDate("dataCreacioInici", dataCreacioInici);
+			}
+			
+			if (dataCreacioFi != null) {
+				queryPersonal.setDate("dataCreacioFi", dataCreacioFi);
+				queryPooled.setDate("dataCreacioFi", dataCreacioFi);
+			}
+			
+			if (dataLimitInici != null) {
+				queryPersonal.setDate("dataLimitInici", dataLimitInici);
+				queryPooled.setDate("dataLimitInici", dataLimitInici);
+			}
+			
+			if (dataLimitFi != null) {
+				queryPersonal.setDate("dataLimitFi", dataLimitFi);
+				queryPooled.setDate("dataLimitFi", dataLimitFi);
+			}
+			
+			if (prioritat != null) {
+				queryPersonal.setInteger("prioritat",3-prioritat);
+				queryPooled.setInteger("prioritat",3-prioritat);
+			}
+			
+			if (tasca != null && !"".equals(tasca)) {
+				queryPersonal.setString("tasca", tasca);
+				queryPooled.setString("tasca", tasca);
+			}		
+			
+			if (pooled == null || pooled == false) {
+				llistaActorId.addAll(queryPersonal.list());
+			}
+			if (pooled == null || pooled == true) {
+				llistaActorId.addAll(queryPooled.list());
+			}
 		}
-		
-		if (dataCreacioFi != null) {
-			query.setDate("dataCreacioFi", dataCreacioFi);
-		}
-		
-		if (dataLimitInici != null) {
-			query.setDate("dataLimitInici", dataLimitInici);
-		}
-		
-		if (dataLimitFi != null) {
-			query.setDate("dataLimitFi", dataLimitFi);
-		}
-		
-		if (prioritat != null) {
-			query.setInteger("prioritat",3-prioritat);
-		}
-		
-		if (tasca != null && !"".equals(tasca)) {
-			query.setString("tasca","%"+tasca+"%");
-		}		
-		
-		List<Object[]> llistaActorId = query.list();
 		
 		Set<Long> superProcessTokenIds = new HashSet<Long>();
 		do {

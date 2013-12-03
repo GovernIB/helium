@@ -71,3 +71,12 @@ ul.dropdown li.rols a {
 ul.dropdown li.reassignar a {
 	background-image: url(images/user_go.png);
 }
+ul.dropdown li.monitor a {
+	background-image: url(images/terminal.png);
+}
+ul.dropdown li.temps a {
+	background-image: url(images/clock_red.png);
+}
+ul.dropdown li.pendents a {
+	background-image: url(images/tasc_pendent.png);
+}

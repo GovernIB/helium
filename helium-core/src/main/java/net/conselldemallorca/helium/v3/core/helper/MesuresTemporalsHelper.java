@@ -160,7 +160,11 @@ public class MesuresTemporalsHelper {
 							dto.setNumMesures(estadistica.getContador());
 							LinkedList<IntervalEventDto> intervalEvents = new LinkedList<IntervalEventDto>();
 							for (IntervalEvent event : estadistica.getEvents()) {
-								intervalEvents.add(new IntervalEventDto(event.getDate(), event.getDuracio()));
+								if (event != null && event.getDate() != null && event.getDuracio() != null) {
+									intervalEvents.add(new IntervalEventDto(event.getDate(), event.getDuracio()));
+								} else {
+									logger.error("ERROR ESTADISTIQUES: Mesura " + clau.getNom() + " amb events nulls.");
+								}
 							}
 							dto.setEvents(intervalEvents);
 							// Execucions per minut

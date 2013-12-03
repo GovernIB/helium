@@ -147,6 +147,12 @@ public class ExpedientConsultaController extends BaseController {
 				List<String> piis = new ArrayList<String>();
 				for (ExpedientDto expedient: (List<ExpedientDto>)pagina.getList())
 					piis.add(expedient.getProcessInstanceId());
+				if (command.getExpedientTipus() != null) {
+					command.setMassivaActiu(true);
+				} else {
+					command.setMassivaActiu(false);
+				}
+					
 				model.addAttribute("command", command);
 				model.addAttribute("llistat", pagina);
 				model.addAttribute("piis", piis);
@@ -191,18 +197,18 @@ public class ExpedientConsultaController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			if ("massiva".equals(submit)) {
-				command.setMassivaActiu(true);
-			} else if ("nomassiva".equals(submit)) {
-				command.setMassivaActiu(false);
-				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS);
-			}
+//			if ("massiva".equals(submit)) {
+//				command.setMassivaActiu(true);
+//			} else if ("nomassiva".equals(submit)) {
+//				command.setMassivaActiu(false);
+//				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS);
+//			}
 			if (command.isMassivaActiu() && command.getExpedientTipus() == null) {
-				command.setMassivaActiu(false);
+//				command.setMassivaActiu(false);
 				missatgeError(request, getMessage("error.no.tiexep.selec"));
 				return "redirect:/expedient/consulta.html?objectsPerPage=" + objectsPerPage;
 			}
-			if ("submit".equals(submit) || "massiva".equals(submit) || "nomassiva".equals(submit)) {
+			if ("submit".equals(submit)) { // || "massiva".equals(submit) || "nomassiva".equals(submit)) {
 				session.setAttribute(VARIABLE_SESSIO_COMMAND, command);
 				return "redirect:/expedient/consulta.html?objectsPerPage=" + objectsPerPage;
 			} else if ("clean".equals(submit)) {

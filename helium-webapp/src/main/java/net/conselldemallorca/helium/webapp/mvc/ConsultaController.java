@@ -77,7 +77,7 @@ public class ConsultaController extends BaseController {
 			command.setFormatExport(consulta.getFormatExport());
 			command.setInformeNom(consulta.getInformeNom());
 			command.setInformeContingut(consulta.getInformeContingut());
-			command.setValorsPredefinits(command.getValorsPredefinits());
+			command.setValorsPredefinits(consulta.getValorsPredefinits());
 			command.setExportarActiu(consulta.isExportarActiu());
 			command.setOcultarActiu(consulta.isOcultarActiu());
 			return command;

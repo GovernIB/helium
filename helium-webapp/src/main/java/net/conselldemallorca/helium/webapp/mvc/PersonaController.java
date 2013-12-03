@@ -156,6 +156,15 @@ public class PersonaController extends BaseController {
 		model.addAttribute("persones", pluginService.findPersonaLikeNomSencer(text));
 		return "persona/suggest";
 	}
+	
+	@RequestMapping(value = "suggest", method = RequestMethod.POST)
+	public String suggestPostAction(
+			@RequestParam(value = "q", required = true) String text,
+			ModelMap model) {
+		
+		model.addAttribute("persones", pluginService.findPersonaLikeNomSencer(text));
+		return "persona/suggest";
+	}
 
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
