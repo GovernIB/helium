@@ -142,11 +142,22 @@ public class DefinicioProcesAccioController extends BaseController {
 				model.addAttribute("definicioProces", definicioProces);
 				if ("submit".equals(submit) || submit.length() == 0) {
 					annotationValidator.validate(command, result);
-			        if (result.hasErrors()) {
+					
+					if (result.hasErrors()) {
 			        	return "definicioProces/accioForm";
 			        }
 			        try {
-			        	if (command.getId() == null)
+			        	// Limpiamos los rols
+			        	if (command.getRols() != null && command.getRols().length()>0) {
+				        	StringBuffer sbRols = new StringBuffer();
+							String[] rols = command.getRols().split(",");						
+							for (String rol : rols) {
+								sbRols.append(","+rol.trim());
+							}
+							command.setRols(sbRols.substring(1));
+			        	}
+			        	
+						if (command.getId() == null)
 			        		dissenyService.createAccio(command);
 			        	else
 			        		dissenyService.updateAccio(command);
