@@ -13,32 +13,16 @@
 				http://www.springframework.org/schema/util/spring-util-3.1.xsd"
 		default-autowire="byType">
 
-	<bean id="aclService" class="org.springframework.security.acls.jdbc.JdbcMutableAclService">
+	<bean id="aclService" class="net.conselldemallorca.helium.core.security.JdbcMutableAclService">
 		<constructor-arg ref="dataSource" />
 		<constructor-arg ref="lookupStrategy" />
 		<constructor-arg ref="aclCache" />
-		<!-- Oracle -->
-		<property name="sidIdentityQuery">
-            <value>SELECT ACL_SID_SEQ.CURRVAL FROM DUAL</value>
-        </property>
-        <property name="classIdentityQuery">
-            <value>SELECT ACL_CLASS_SEQ.CURRVAL FROM DUAL</value>
-        </property>
-        <!-- Postgres -->
-		<!--property name="classIdentityQuery">
-			<value>currval(pg_get_serial_sequence('acl_class', 'id'))</value>
-		<property name="sidIdentityQuery">
-			<value>select currval(pg_get_serial_sequence('acl_sid', 'id'))</value>
-		</property-->
 	</bean>
-	<bean id="permissionFactory" class="net.conselldemallorca.helium.core.security.ExtendedPermissionFactory"/>
-	<!--bean id="permissionFactory" class="org.springframework.security.acls.domain.DefaultPermissionFactory"/-->
-	<bean id="lookupStrategy" class="org.springframework.security.acls.jdbc.BasicLookupStrategy">
+	<bean id="lookupStrategy" class="net.conselldemallorca.helium.core.security.BasicLookupStrategy">
 		<constructor-arg ref="dataSource" />
 		<constructor-arg ref="aclCache" />
 		<constructor-arg ref="aclAuthorizationStrategy" />
 		<constructor-arg ref="auditLogger" />
-		<property name="permissionFactory" ref="permissionFactory"/>
 	</bean>
 	<bean id="aclCache" class="org.springframework.security.acls.domain.EhCacheBasedAclCache">
 		<constructor-arg>
@@ -66,5 +50,7 @@
 		</constructor-arg>
 	</bean>
 	<bean id="auditLogger" class="org.springframework.security.acls.domain.ConsoleAuditLogger" />
+
+	<bean id="permissionFactory" class="net.conselldemallorca.helium.core.security.ExtendedPermissionFactory"/>
 
 </beans>
