@@ -334,6 +334,7 @@ public class TascaService {
 			Long tipusExpedient,
 			String responsable,
 			String tasca,
+			String titol,
 			Date dataCreacioInici,
 			Date dataCreacioFi,
 			Boolean mostrarTasquesGrup,
@@ -353,6 +354,7 @@ public class TascaService {
 		LlistatIds ids = jbpmDao.findListTasks(
 				responsable, 
 				tasca, 
+				titol,
 				idsExpedients, 
 				dataCreacioInici, 
 				dataCreacioFi, 

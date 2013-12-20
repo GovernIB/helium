@@ -108,7 +108,7 @@ public class ExpedientLogHelper {
 			ExpedientLogAccioTipus tipus,
 			String accioParams,
 			String user) {
-		long jbpmLogId = jbpmDao.addTaskInstanceMessageLog(
+		Long jbpmLogId = jbpmDao.addTaskInstanceMessageLog(
 				taskInstanceId,
 				getMessageLogPerTipus(tipus));
 		JbpmTask task = jbpmDao.getTaskById(taskInstanceId);
@@ -137,7 +137,7 @@ public class ExpedientLogHelper {
 			String processInstanceId,
 			ExpedientLogAccioTipus tipus,
 			String accioParams) {
-		long jbpmLogId = jbpmDao.addProcessInstanceMessageLog(
+		Long jbpmLogId = jbpmDao.addProcessInstanceMessageLog(
 				processInstanceId,
 				getMessageLogPerTipus(tipus));
 		Expedient expedient = getExpedientPerProcessInstanceId(processInstanceId);
@@ -178,10 +178,10 @@ public class ExpedientLogHelper {
 		expedientLogDao.saveOrUpdate(expedientLog);
 		return expedientLog;
 	}
-	public long afegirProcessLogInfoExpedient(
+	public Long afegirProcessLogInfoExpedient(
 			String processInstanceId,
 			String message) {
-		long jbpmLogId = jbpmDao.addProcessInstanceMessageLog(
+		Long jbpmLogId = jbpmDao.addProcessInstanceMessageLog(
 				processInstanceId,
 				MESSAGE_LOGINFO_PREFIX + "::" + message);
 		return jbpmLogId;
@@ -1039,7 +1039,7 @@ public class ExpedientLogHelper {
 			if (elog.getId().equals(expedientLogId)) {
 				found = true;
 				incloure = true;
-				if (/*retrocedirPerTasques  && */elog.isTargetTasca()) {
+				if (/*retrocedirPerTasques  && */elog.isTargetTasca()  && elog.getJbpmLogId() != null) {
 					JbpmToken jbpmTokenRetroces = getTokenByJbpmLogId(elog.getJbpmLogId());
 					if (jbpmTokenRetroces != null) tokenRetroces = jbpmTokenRetroces.getToken();
 				}
@@ -1055,7 +1055,9 @@ public class ExpedientLogHelper {
 							 incloure = true;
 						 } else {
 							Token tokenActual = null;
-							JbpmToken jbpmTokenActual = getTokenByJbpmLogId(elog.getJbpmLogId());
+							JbpmToken jbpmTokenActual = null;
+							if (elog.getJbpmLogId() != null) 
+								jbpmTokenActual = getTokenByJbpmLogId(elog.getJbpmLogId());
 							if (jbpmTokenActual != null) {
 								tokenActual = jbpmTokenActual.getToken();
 							

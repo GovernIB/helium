@@ -115,6 +115,11 @@ function selTots(){
 					<c:param name="label"><fmt:message key='common.filtres.tasca' /></c:param>
 				</c:import>
 				<c:import url="../common/formElement.jsp">
+					<c:param name="property" value="titol"/>
+					<c:param name="classHolder" value="reduit"/>
+					<c:param name="label"><fmt:message key='comuns.titol' /></c:param>
+				</c:import>
+				<c:import url="../common/formElement.jsp">
 					<c:param name="property" value="responsable"/>
 					<c:param name="type" value="suggest"/>
 					<c:param name="classHolder" value="reduit"/>

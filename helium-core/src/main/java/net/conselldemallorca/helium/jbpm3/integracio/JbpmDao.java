@@ -386,6 +386,7 @@ public class JbpmDao {
 	public LlistatIds findListTasks(
 			String usuariBo, 
 			String tasca, 
+			String titol,
 			List<Long> idsExpedients, 
 			Date dataCreacioInici, 
 			Date dataCreacioFi, 
@@ -401,6 +402,7 @@ public class JbpmDao {
 		GetProcessInstancesForActiveTasksCommand command = new GetProcessInstancesForActiveTasksCommand(usuariBo, tasca, idsExpedients, dataCreacioInici, dataCreacioFi, prioritat, dataLimitInici, dataLimitFi, sort, asc, (tasquesGrup ? null : false));
 		command.setFirstRow(firstRow);
 		command.setMaxResults(maxResults);
+		command.setTitol(titol);
 		LlistatIds llistat = (LlistatIds)commandService.execute(command);
 		mesuresTemporalsHelper.mesuraCalcular("jBPM findListTasks", "jbpmDao");
 		return llistat;
@@ -1111,7 +1113,7 @@ public class JbpmDao {
 		return resultat;
 	}
 
-	public long addProcessInstanceMessageLog(String processInstanceId, String message) {
+	public Long addProcessInstanceMessageLog(String processInstanceId, String message) {
 		mesuresTemporalsHelper.mesuraIniciar("jBPM addProcessInstanceMessageLog", "jbpmDao");
 		final long id = Long.parseLong(processInstanceId);
 		AddProcessInstanceMessageLogCommand command = new AddProcessInstanceMessageLogCommand(id, message);
@@ -1119,7 +1121,7 @@ public class JbpmDao {
 		mesuresTemporalsHelper.mesuraCalcular("jBPM addProcessInstanceMessageLog", "jbpmDao");
 		return resultat;
 	}
-	public long addTaskInstanceMessageLog(String taskInstanceId, String message) {
+	public Long addTaskInstanceMessageLog(String taskInstanceId, String message) {
 		mesuresTemporalsHelper.mesuraIniciar("jBPM addTaskInstanceMessageLog", "jbpmDao");
 		final long id = Long.parseLong(taskInstanceId);
 		AddTaskInstanceMessageLogCommand command = new AddTaskInstanceMessageLogCommand(id, message);

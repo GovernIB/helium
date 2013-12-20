@@ -137,13 +137,9 @@ public class MesuresTemporalsHelper {
 		List<MesuraTemporalDto> resposta = new ArrayList<MesuraTemporalDto>();
 		Long temps = fi - inici;
 		
-//		SortedSet<String> families = new TreeSet<String>(estadistiquesFamilia.keySet());
-//		for (String family: families) {
 		for (String family: estadistiquesFamilia.keySet()) {
 			Map<Clau, Estadistiques> estadistiques = estadistiquesFamilia.get(family);
 			if (estadistiques != null) {
-//				SortedSet<Clau> claus = new TreeSet<Clau>(estadistiques.keySet());
-//				for (Clau clau: claus) {
 				for (Clau clau: estadistiques.keySet()) {
 					if (ambDetall || clau.getDetall() == null) {
 						Estadistiques estadistica = estadistiques.get(clau);
@@ -449,6 +445,7 @@ public class MesuresTemporalsHelper {
 		public Estadistiques() {
 			super();
 			this.inici = new Long(System.currentTimeMillis());
+			this.contador = 0L;
 		}
 
 		public void addNovaMesura() {
@@ -458,8 +455,8 @@ public class MesuresTemporalsHelper {
 				minim = diferencia;
 			if (maxim == null || diferencia > maxim)
 				maxim = diferencia;
-			if (contador == null) {
-				contador = 1L;
+			if (contador == 0L) {
+				contador++;
 				events = new LinkedList<IntervalEvent>();
 			} else {
 				contador++;

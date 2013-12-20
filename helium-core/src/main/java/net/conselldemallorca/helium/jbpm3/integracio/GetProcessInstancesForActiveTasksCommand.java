@@ -28,6 +28,7 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 	private String actorId;
 	private List<Long> idsPIExpedients;
 	private String tasca; 
+	private String titol;
 	private Date dataCreacioInici; 
 	private Date dataCreacioFi;
 	private Integer prioritat;
@@ -148,9 +149,13 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 		}
 
 		if (tasca != null && !"".equals(tasca)) {
-//			hql += " and ti.processInstance.processDefinition.id = (select (cast(ta.definicioProces.jbpmId as long)) from Tasca as ta where UPPER(ta.jbpmName) like UPPER(:tasca) and ta.jbpmName = ti.name and ti.processInstance.processDefinition.id = cast(ta.definicioProces.jbpmId as long)) ";
 			hql += " and ti.name = :tasca ";
 		}
+		
+		if (titol != null && !"".equals(titol)) {
+			hql += " and upper(ti.description) like '%@#@TITOL@#@%" + titol.toUpperCase() + "%@#@ENTORNID@#@%') ";
+		}
+		
 		
 		hql += " order by ";
 		if ("dataCreacio".equals(sort)) {
@@ -187,6 +192,9 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 			
 			if (tasca != null && !"".equals(tasca)) 
 				query.setString("tasca", tasca);
+			
+//			if (titol != null && !"".equals(titol))
+//				query.setString("titol", titol.toUpperCase());
 			
 			llistaActorId.addAll(query.list());
 			
@@ -226,6 +234,11 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 				queryPersonal.setString("tasca", tasca);
 				queryPooled.setString("tasca", tasca);
 			}		
+			
+//			if (titol != null && !"".equals(titol)) {
+//				queryPersonal.setString("titol", titol.toUpperCase());
+//				queryPooled.setString("titol", titol.toUpperCase());
+//			}
 			
 			if (pooled == null || pooled == false) {
 				llistaActorId.addAll(queryPersonal.list());
@@ -313,6 +326,9 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 	}
 	public void setActorId(String actorId) {
 		this.actorId = actorId;
+	}
+	public void setTitol(String titol) {
+		this.titol = titol;
 	}
 
 	public String getParametersToString() {

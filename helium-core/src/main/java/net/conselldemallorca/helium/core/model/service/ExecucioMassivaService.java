@@ -13,6 +13,7 @@ import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,6 +44,8 @@ import net.conselldemallorca.helium.core.util.GlobalProperties;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
@@ -51,7 +54,6 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 /**
  * Servei per a gestionar la tramitació massiva d'expedients.
@@ -167,12 +169,13 @@ public class ExecucioMassivaService {
 	}
 	
 	public String getJsonExecucionsMassivesByUser(String username, Integer results) {
-		String json = "[";
+		JSONArray ljson = new JSONArray();
+		
 		List<ExecucioMassiva> execucions = execucioMassivaDao.getExecucionsMassivesByUser(username, EntornActual.getEntornId(), results);
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 		for (ExecucioMassiva execucio: execucions) {
 			List<ExecucioMassivaExpedient> expedients = execucioMassivaExpedientDao.getExecucioMassivaById(execucio.getId());
-			String json_exp = "";
+			JSONArray ljson_exp = new JSONArray();
 			String tasca = "";
 			if (!expedients.isEmpty()) {
 				ExecucioMassivaExpedient em = expedients.get(0);
@@ -193,27 +196,33 @@ public class ExecucioMassivaService {
 					} else {
 						titol = getMessage("expedient.massiva.actualitzar.dp") + " " + expedient.getExecucioMassiva().getParam1();
 					}
-			    	String error = expedient.getError();
-			    	if (error != null) error = error.replace("'", "&#8217;").replace("\"", "&#8220;").replace("\n", "<br>").replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
-			    	json_exp += "{\"id\":\"" + expedient.getId() + "\",";
-			    	json_exp += "\"titol\":\"" + titol + "\",";
-			    	json_exp += "\"estat\":\"" + expedient.getEstat().name() + "\",";
-			    	json_exp += "\"error\":\"" + StringEscapeUtils.escapeJavaScript(error) + "\"},";
+					
+					Map mjson_exp = new LinkedHashMap();
+					mjson_exp.put("id", expedient.getId());
+					mjson_exp.put("titol", titol);
+					mjson_exp.put("estat", expedient.getEstat().name());
+//					mjson_exp.put("error", StringEscapeUtils.escapeJavaScript(expedient.getError()));
+					mjson_exp.put("error", JSONValue.escape(expedient.getError()));
+					ljson_exp.add(mjson_exp);
+					
+//			    	String error = expedient.getError();
+//			    	if (error != null) error = error.replace("'", "&#8217;").replace("\"", "&#8220;").replace("\n", "<br>").replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
+//			    	json_exp += "\"error\":\"" + StringEscapeUtils.escapeJavaScript(error) + "\"},";
 				}
-				json_exp = json_exp.substring(0, json_exp.length() - 1);
 			}
 			
 			Long progres = getProgresExecucioMassivaById(execucio.getId());
-			json += "{\"id\":\"" + execucio.getId() + "\",";
-			json += "\"text\":\"" + getTextExecucioMassiva(execucio, tasca) + "\",";
-			json += "\"progres\":\"" + progres + "\",";
-			json += "\"data\":\"" + sdf.format(execucio.getDataInici()) + "\",";
-			json += "\"tasca\":\"" + tasca + "\",";
-			json += "\"expedients\":[" + json_exp + "]},";
+			Map mjson = new LinkedHashMap();
+			mjson.put("id", execucio.getId());
+			mjson.put("text", JSONValue.escape(getTextExecucioMassiva(execucio, tasca)));
+			mjson.put("progres", progres);
+			mjson.put("data", sdf.format(execucio.getDataInici()));
+			mjson.put("tasca", tasca);
+			mjson.put("expedients", ljson_exp);
+			ljson.add(mjson);
 		}
-		if (json.length() > 1) json = json.substring(0, json.length() - 1);
-		json += "]";
-		return json;
+		String ojson = JSONValue.toJSONString(ljson);
+		return ojson;
 	}
 	
 	private String getTextExecucioMassiva(ExecucioMassiva execucioMassiva, String tasca) {

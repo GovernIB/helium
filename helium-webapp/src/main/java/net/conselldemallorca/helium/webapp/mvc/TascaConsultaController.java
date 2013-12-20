@@ -382,6 +382,7 @@ public class TascaConsultaController extends BaseController {
 				expedientTipusId,
 				command.getResponsable(),
 				command.getTasca(),
+				command.getTitol(),
 				command.getDataCreacioInici(),
 				command.getDataCreacioFi(),
 				command.getMostrarTasquesGrup(),
@@ -470,6 +471,7 @@ public class TascaConsultaController extends BaseController {
 	
 	public class TascaConsultaFiltreCommand {
 		private String tasca;
+		private String titol;
 		private String responsable;
 		private Date dataCreacioInici;
 		private Date dataCreacioFi;
@@ -482,6 +484,12 @@ public class TascaConsultaController extends BaseController {
 		}
 		public void setTasca(String tasca) {
 			this.tasca = tasca;
+		}
+		public String getTitol() {
+			return titol;
+		}
+		public void setTitol(String titol) {
+			this.titol = titol;
 		}
 		public String getResponsable() {
 			return responsable;
