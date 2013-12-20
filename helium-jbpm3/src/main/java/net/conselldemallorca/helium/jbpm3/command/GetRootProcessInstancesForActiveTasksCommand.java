@@ -24,6 +24,7 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 	private String actorId;
 	private List<Long> idsPIExpedients;
 	private String tasca; 
+	private String titol;
 	private Date dataCreacioInici; 
 	private Date dataCreacioFi;
 	private Integer prioritat;
@@ -146,6 +147,10 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		if (tasca != null && !"".equals(tasca)) {
 //			hql += " and ti.processInstance.processDefinition.id = (select (cast(ta.definicioProces.jbpmId as long)) from Tasca as ta where UPPER(ta.nom) like UPPER(:tasca) and ta.jbpmName = ti.name and ti.processInstance.processDefinition.id = cast(ta.definicioProces.jbpmId as long)) ";
 			hql += " and ti.name = :tasca ";
+		}
+		
+		if (titol != null && !"".equals(titol)) {
+			hql += " and upper(ti.description) like '%@#@TITOL@#@%" + titol.toUpperCase() + "%@#@ENTORNID@#@%') ";
 		}
 		
 		hql += " order by ";
@@ -307,6 +312,9 @@ List<Object[]> llistaActorId = new ArrayList<Object[]>();
 	}
 	public void setActorId(String actorId) {
 		this.actorId = actorId;
+	}
+	public void setTitol(String titol) {
+		this.titol = titol;
 	}
 
 	public String getParametersToString() {

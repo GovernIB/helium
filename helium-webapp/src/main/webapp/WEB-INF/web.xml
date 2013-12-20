@@ -512,7 +512,7 @@
 			<role-name>tothom</role-name>
 		</auth-constraint>
 	</security-constraint>
-	<!--security-constraint>
+	<security-constraint>
 		<web-resource-collection>
 			<web-resource-name>All areas</web-resource-name>
 			<url-pattern>/index.jsp</url-pattern>
@@ -534,7 +534,7 @@
 			<url-pattern>/signatura/arxiu.html</url-pattern>
 			<url-pattern>/rol/test.html</url-pattern>
 		</web-resource-collection>
-	</security-constraint-->
+	</security-constraint>
 	<!-- security-constraint.end -->
 
 	<!--error-page>

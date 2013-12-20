@@ -1528,6 +1528,17 @@ public class DissenyService {
 				enumeracioDao.saveOrUpdate(nova);
 			}
 		}
+		// Importa les definicions de procés
+		if (exportacio.getDefinicionsProces() != null) {
+			for (DefinicioProcesExportacio definicio : exportacio.getDefinicionsProces()) {
+				System.out.println(">>> [ET_IMP] Important definició de procés (nom=" + definicio.getNomDeploy() + ")");
+				importar(
+					entornId,
+					expedientTipus.getId(),
+					definicio,
+					null);
+			}
+		}
 		// Crea les consultes del tipus d'expedient
 		if (exportacio.getConsultes() != null) {
 			List<Consulta> llista = consultaDao.findAmbEntornIExpedientTipusOrdenat(entornId, expedientTipusId);
@@ -1586,17 +1597,6 @@ public class DissenyService {
 				Consulta c = llista.get(i);
 				c.setOrdre(nombreConsultes + i);
 				consultaDao.saveOrUpdate(c);
-			}
-		}
-		// Importa les definicions de procés
-		if (exportacio.getDefinicionsProces() != null) {
-			for (DefinicioProcesExportacio definicio : exportacio.getDefinicionsProces()) {
-				System.out.println(">>> [ET_IMP] Important definició de procés (nom=" + definicio.getNomDeploy() + ")");
-				importar(
-					entornId,
-					expedientTipus.getId(),
-					definicio,
-					null);
 			}
 		}
 	}

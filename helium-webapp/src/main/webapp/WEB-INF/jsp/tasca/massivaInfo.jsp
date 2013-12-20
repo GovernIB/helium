@@ -196,11 +196,7 @@ $(document).ready(function(){
 						<c:import url="../common/formElement.jsp">
 							<c:param name="property" value="grup"/>
 							<c:param name="required" value="true"/>
-							<c:param name="type" value="suggest"/>
 							<c:param name="label"><fmt:message key='filtre.expressio.grup' /></c:param>
-							<c:param name="suggestUrl"><c:url value="/area/suggest.html"/></c:param>
-							<c:param name="suggestText">${grup}</c:param>
-							<c:param name="classHolder">reamass</c:param>
 						</c:import>
 					</div>
 					<div id="dexpr">

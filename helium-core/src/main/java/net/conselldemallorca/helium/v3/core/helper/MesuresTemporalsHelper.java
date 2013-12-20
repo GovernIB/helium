@@ -449,6 +449,7 @@ public class MesuresTemporalsHelper {
 		public Estadistiques() {
 			super();
 			this.inici = new Long(System.currentTimeMillis());
+			this.contador = 0L;
 		}
 
 		public void addNovaMesura() {
@@ -458,8 +459,8 @@ public class MesuresTemporalsHelper {
 				minim = diferencia;
 			if (maxim == null || diferencia > maxim)
 				maxim = diferencia;
-			if (contador == null) {
-				contador = 1L;
+			if (contador == 0L) {
+				contador++;
 				events = new LinkedList<IntervalEvent>();
 			} else {
 				contador++;

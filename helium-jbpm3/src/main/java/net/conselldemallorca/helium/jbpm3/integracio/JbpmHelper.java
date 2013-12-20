@@ -1167,7 +1167,8 @@ public class JbpmHelper {
 	
 	public LlistatIds findListTasks(
 			String usuariBo, 
-			String tasca, 
+			String tasca,
+			String titol,
 			List<Long> idsExpedients, 
 			Date dataCreacioInici, 
 			Date dataCreacioFi, 
@@ -1183,6 +1184,7 @@ public class JbpmHelper {
 		GetRootProcessInstancesForActiveTasksCommand command = new GetRootProcessInstancesForActiveTasksCommand(usuariBo, tasca, idsExpedients, dataCreacioInici, dataCreacioFi, prioritat, dataLimitInici, dataLimitFi, sort, asc, (tasquesGrup ? null : false));
 		command.setFirstRow(firstRow);
 		command.setMaxResults(maxResults);
+		command.setTitol(titol);
 		LlistatIds llistat = (LlistatIds)commandService.execute(command);
 		adminService.mesuraCalcular("jBPM findListTasks", "jbpmDao");
 		return llistat;
