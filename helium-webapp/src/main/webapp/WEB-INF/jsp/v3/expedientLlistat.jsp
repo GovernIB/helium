@@ -83,6 +83,26 @@
 		if (e.stopPropagation) e.stopPropagation();
 		return confirm("<spring:message code='expedient.consulta.confirm.esborrar'/>");
 	}
+
+	function confirmarAnular(e, registre) {
+		var resposta="";
+		$("#id").val(registre);
+		var e = e || window.event;
+		e.cancelBubble = true;
+
+		var confirmaAnula = confirm("<spring:message code='expedient.consulta.confirm.anular'/>"); 
+	 	if (confirmaAnula){	
+	 		resposta = prompt("Introdueix el motiu de l'anul·lació",'');
+	 		$("#motiu").val(resposta);
+
+	 		if(resposta != null){
+	 			$('#anularMot').attr('action',"expedient/"+registre+"/suspend");
+	 	 		document.forms["anularMot"].submit();
+	 	 	}
+	 	} 	
+	 	
+	 	if (e.stopPropagation) e.stopPropagation(); 		
+	}
 	
 	function rowCallback(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
 		var numColumnes = $("td", nRow).size();
@@ -100,7 +120,7 @@
 				 		'<a href="expedient/' + expedientId + '/stop"><i class="icon-stop"></i> Aturar</a>' + 
 				 	'</li>' + 
 				 	'<li>' + 
-				 		'<a href="expedient/' + expedientId + '/suspend"><i class="icon-remove"></i> Anular</a>' + 
+				 		'<a href="javascript:void(0);" onclick="return confirmarAnular(event, ' + expedientId + ')"><i class="icon-remove"></i> Anular</a>' + 
 				 	'</li>' + 
 				 	'<li>' + 
 				 	'<a href="<c:url value="expedient/' + expedientId + '/delete"></c:url>" onclick="return confirmarEsborrar(event)">' +
@@ -430,6 +450,9 @@
 						<li<c:if test="${not expedientConsultaCommand.tramitacioMassivaActivada}"> class="hide"</c:if>><a id="tramitacioMassivaDesactivar" href="#"><i class="icon-ban-circle"></i> Desactivar</a></li>
 					</ul>
 				</div>
+				<div class="btn-group">
+					<a id="biniciarexpediente" href="iniciar" title="Nou expedient" class="btn btn-primary pull-right">Nou expedient</a>
+				</div>
 			</div>
 			<div class="span6">
 				<input type="hidden" name="consultaRealitzada" value="true"/>
@@ -461,6 +484,11 @@
 		</table>
 <%-- 		<hel:modalDefinir modalId="mexform" refrescarAlertes="true" refrescarTaula="true" refrescarTaulaId="taulaDades"/> --%>
 	</c:if>
+
+	<form:form  method="POST" name="anularMot" id="anularMot" action="#"  cssClass="uniForm">
+		<input type="hidden" id="id" name="id" value=""></input>
+		<input type="hidden" id="motiu" name="motiu" value="${param.motiu}"></input>
+	</form:form>
 
 </body>
 </html>

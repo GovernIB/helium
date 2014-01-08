@@ -5,6 +5,8 @@ package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
 
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
@@ -73,4 +75,13 @@ public interface DissenyService {
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisCrearUsuariActual(
 			Long entornId) throws EntornNotFoundException;
 
+	public byte[] getDeploymentResource(Long id, String recursForm);
+
+	ExpedientTipusDto getExpedientTipusById(Long id);
+
+	DefinicioProcesDto getById(Long id, boolean ambTascaInicial);
+
+	DefinicioProcesDto findDarreraDefinicioProcesForExpedientTipus(Long expedientTipusId, boolean ambTascaInicial);
+
+	public List<ExpedientTipusDto> findExpedientTipusAmbEntorn(EntornDto entornId);
 }

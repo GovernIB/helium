@@ -61,6 +61,8 @@ public class DominiDto implements Serializable {
 		this.entorn = entorn;
 	}
 
+
+
 	public Long getId() {
 		return id;
 	}
@@ -158,10 +160,10 @@ public class DominiDto implements Serializable {
 		this.expedientTipus = expedientTipus;
 	}
 	public Set<CampDto> getCamps() {
-		return this.camps;
+		return camps;
 	}
 	public void setCamps(Set<CampDto> camps) {
-		this.camps= camps;
+		this.camps = camps;
 	}
 	public void addCamp(CampDto camp) {
 		getCamps().add(camp);
@@ -169,9 +171,6 @@ public class DominiDto implements Serializable {
 	public void removeCamp(CampDto camp) {
 		getCamps().remove(camp);
 	}
-
-
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;

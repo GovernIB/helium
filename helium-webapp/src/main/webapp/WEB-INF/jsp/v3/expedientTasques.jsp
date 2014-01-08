@@ -67,7 +67,7 @@ body .modal-body {
 														<li><a href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/suspendre"/>"><i class="icon-pause"></i> Suspendre</a></li>
 													</c:if>
 													<c:if test="${tasca.suspesa}">
-														<li><a href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/reprendre"/>"><i class="icon-play"></i> Reprendre</a></li>
+														<li><a onclick="return confirmarIniciar(event)" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/reprendre"/>"><i class="icon-play"></i> Reprendre</a></li>
 													</c:if>
 													<c:if test="${not tasca.cancelada}">
 														<li><a href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/cancelar"/>"><i class="icon-remove"></i> Cancelar</a></li>
@@ -179,21 +179,14 @@ body .modal-body {
 function canviTitolModal(titol) {
 	$('#tramitacio-modal h3').html(titol);
 }
-function substituirBotonsPeuModal(transicions, texts) {
-	$('#tramitacio-modal .modal-footer button').each(function(index) {
-		if (this.id != 'modal-button-tancar')
-			$(this).remove();
-	});
-	for (var i = 0; i < transicions.length; i++) {
-		$('#tramitacio-modal .modal-footer').append($('<button>').text(texts[i]).attr('class', 'btn btn-primary'));
-	}
-	$('#tramitacio-modal .modal-footer button').each(function(index) {
-		$(this).click(function() {
-			if (this.id != 'modal-button-tancar')
-				$('#tramitacio-modal .modal-body iframe')[0].contentWindow.test(transicions[index - 1]);
-		});
-	});
+
+function addHtmlPeuModal(html, id) {
+	if (($('#'+id).length > 0)) {
+		$('#'+id).remove();
+	} 
+	$('#tramitacio-modal .modal-footer').append(html);
 }
+
 function autoResize(element) {
 	var elementHeight = element.contentWindow.document.body.offsetHeight;
 	element.style.height = elementHeight + 'px';
@@ -218,3 +211,16 @@ $(document).ready(
 	}
 );
 </script>
+
+<c:if test="${tasca.validada}">		
+	<script type="text/javascript">
+	// <![CDATA[
+	function confirmarIniciar(e) {
+		var e = e || window.event;
+		e.cancelBubble = true;
+		if (e.stopPropagation) e.stopPropagation();
+		return confirm("Estau segur que voleu iniciar aquest termini?");
+	}
+	// ]]>
+	</script>
+</c:if>

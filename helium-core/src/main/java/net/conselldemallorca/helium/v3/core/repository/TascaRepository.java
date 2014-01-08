@@ -3,6 +3,9 @@
  */
 package net.conselldemallorca.helium.v3.core.repository;
 
+import java.util.List;
+
+import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 
@@ -30,5 +33,13 @@ public interface TascaRepository extends JpaRepository<Tasca, Long> {
 						"and t.definicioProces.jbpmId=:jbpmId")
 	Tasca findAmbActivityNameIProcessDefinitionId(
 			@Param("jbpmName") String name,
-			@Param("jbpmId") String jbpmId);
+			@Param("jbpmId") String jbpmId);	
+	
+	@Query(	"select ct from " +
+			"    CampTasca ct " +
+			"where " +
+			"    ct.tasca.id=:tascaId " +
+			"order by ct.order")
+	public List<CampTasca> findAmbTascaOrdenats(
+			@Param("tascaId") Long tascaId);
 }

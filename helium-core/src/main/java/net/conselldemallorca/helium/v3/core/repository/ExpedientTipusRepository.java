@@ -20,8 +20,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, Long> {
 
 	List<ExpedientTipus> findByEntorn(Entorn entorn);
+	
+	List<ExpedientTipus> findByEntornOrderByCodiAsc(Entorn entorn);
 
 	ExpedientTipus findByEntornAndCodi(Entorn entorn, String codi);
+
+	ExpedientTipus findById(Long expedientTipusId);
 
 	/*Entitat findByCif(String cif);
 

@@ -12,54 +12,67 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
+import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
+import net.conselldemallorca.helium.core.model.dao.ExpedientTipusDao;
 import net.conselldemallorca.helium.core.model.dao.PluginCustodiaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginGestioDocumentalDao;
 import net.conselldemallorca.helium.core.model.dao.RegistreDao;
-import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
+import net.conselldemallorca.helium.core.model.exception.ExpedientRepetitException;
+import net.conselldemallorca.helium.core.model.exception.IllegalArgumentsException;
 import net.conselldemallorca.helium.core.model.exception.NotFoundException;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.LogInfo;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
+import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.core.util.MesurarTemps;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaFilaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientIniciantDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -109,6 +122,7 @@ import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 
 import org.apache.commons.lang.StringUtils;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
@@ -197,9 +211,26 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Resource
 	private PluginCustodiaDao pluginCustodiaDao;
 	@Resource
+	private ExpedientTipusDao expedientTipusDao;
+	@Resource(name = "pluginServiceV3")
+	private PluginServiceImpl pluginService;
+	@Resource
 	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
 	@Resource
+	private ExpedientDao expedientDao;
+	@Resource
 	private ExecucioMassivaExpedientRepository execucioMassivaExpedientRepository;
+	
+	private String textBloqueigIniciExpedient;
+
+	@Transactional
+	private void comprovarUsuari(String usuari) {
+		PersonaDto persona = pluginService.findPersonaAmbCodi(usuari);
+		if (persona == null)
+			throw new IllegalArgumentsException(
+					getServiceUtils().getMessage("error.expedientService.trobarPersona",
+							new Object[]{usuari}));
+	}
 
 	@Transactional
 	public void modificar(
@@ -384,9 +415,25 @@ public class ExpedientServiceImpl implements ExpedientService {
 				new Permission[] {
 						ExtendedPermission.READ,
 						ExtendedPermission.ADMINISTRATION});
-		return conversioTipusHelper.convertir(
+		ExpedientDto expedientDto = conversioTipusHelper.convertir(
 				expedient,
 				ExpedientDto.class);
+		
+		for (Expedient relacionat: expedient.getRelacionsOrigen()) {
+			ExpedientDto relacionatDto = new ExpedientDto();
+			relacionatDto.setId(relacionat.getId());
+			relacionatDto.setTitol(relacionat.getTitol());
+			relacionatDto.setNumero(relacionat.getNumero());
+			relacionatDto.setDataInici(relacionat.getDataInici());
+			relacionatDto.setTipus(new ModelMapper().map(relacionat.getTipus(), ExpedientTipusDto.class));
+			if (relacionat.getEstat() != null) {
+				relacionatDto.setEstat(new ModelMapper().map(relacionat.getEstat(), EstatDto.class));
+			}
+			relacionatDto.setProcessInstanceId(relacionat.getProcessInstanceId());
+			expedientDto.addExpedientRelacionat(relacionatDto);
+		}
+
+		return expedientDto;
 	}
 
 	@Transactional(readOnly = true)
@@ -849,6 +896,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 
 	@Transactional(readOnly = true)
+	@Override
 	public List<DominiRespostaFilaDto> dominiConsultar(
 			String processInstanceId,
 			String dominiCodi,
@@ -863,8 +911,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 					expedient.getEntorn(),
 					dominiCodi);
 		try {
+			DominiDto dominiDto = new ModelMapper().map(domini, DominiDto.class);
 			List<FilaResultat> resposta = dominiHelper.consultar(
-					domini,
+					dominiDto,
 					dominiId,
 					parametres);
 			return conversioTipusHelper.convertirList(
@@ -936,6 +985,32 @@ public class ExpedientServiceImpl implements ExpedientService {
 				geoReferencia,
 				grupCodi, 
 				false);
+	}
+	
+	@Transactional
+	public String getNumeroExpedientDefaultActual(
+			Long entornId,
+			ExpedientTipus expedientTipus,
+			Integer any) {
+		long increment = 0;
+		String numero = null;
+		Expedient expedient = null;
+		if (any == null) 
+			any = Calendar.getInstance().get(Calendar.YEAR);
+		do {
+			numero = expedientTipusDao.getNumeroExpedientDefaultActual(
+					expedientTipus.getId(),
+					any.intValue(),
+					increment);
+			expedient = expedientDao.findAmbEntornTipusINumeroDefault(
+					entornId,
+					expedientTipus.getId(),
+					numero);
+			increment++;
+		} while (expedient != null);
+		if (increment > 1)
+			expedientTipus.updateSequenciaDefault(any, increment - 1);
+		return numero;
 	}
 	
 	@Transactional
@@ -1334,6 +1409,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 				asc,
 				firstRow,
 				maxResults);
+		
+		List<CampDto> campsInformeDto = new ArrayList<CampDto>();
+		for(Camp campTmp : campsInforme) {
+			campsInformeDto.add(new ModelMapper().map(campTmp, CampDto.class));
+		}
 		for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
 			DadaIndexadaDto dadaExpedientId = dadesExpedient.get(LuceneHelper.CLAU_EXPEDIENT_ID);
 			ExpedientConsultaDissenyDto fila = new ExpedientConsultaDissenyDto();
@@ -1345,7 +1425,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 								false));
 				dtoConverter.revisarDadesExpedientAmbValorsEnumeracionsODominis(
 						dadesExpedient,
-						campsInforme);
+						campsInformeDto);
 				fila.setDadesExpedient(dadesExpedient);
 				resposta.add(fila);
 			}
@@ -1425,6 +1505,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
+	@Transactional
 	private void reordenarConsultes(Long entornId, Long expedientTipusId) {		
 		List<Consulta> consultes = consultaRepository.findConsultesAmbEntornIExpedientTipusOrdenat(
 				entornId,
@@ -1465,6 +1546,338 @@ public class ExpedientServiceImpl implements ExpedientService {
 			registreDao.crearRegistreEsborrarExpedient(
 					expedient.getId(),
 					SecurityContextHolder.getContext().getAuthentication().getName());
+		} else {
+			throw new NotFoundException(getServiceUtils().getMessage("error.expedientService.noExisteix"));
+		}
+	}
+
+	@Transactional
+	@Override
+	public List<ExpedientDto> findAmbEntornLikeIdentificador(Long entornId, String text) {
+		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
+		List<Expedient> expedients = expedientRepository.findAmbEntornLikeIdentificador(entornId, text);
+		for (Expedient expedient : expedients) {
+			resposta.add(new ModelMapper().map(expedient, ExpedientDto.class));
+		}
+		return resposta;
+	}
+
+	@Transactional
+	@Override
+	public void deleteRelacioExpedient(Long expedientIdOrigen, Long expedientIdDesti) {
+		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
+				expedientIdOrigen,
+				ExpedientLogAccioTipus.EXPEDIENT_RELACIO_ESBORRAR,
+				expedientIdDesti.toString());
+		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
+		Expedient origen = expedientRepository.findById(expedientIdOrigen);
+		Expedient desti = expedientRepository.findById(expedientIdDesti);
+		origen.removeRelacioOrigen(desti);
+		desti.removeRelacioOrigen(origen);		
+	}
+
+	@Transactional
+	@Override
+	public TascaDto getStartTask(
+			Long entornId,
+			Long expedientTipusId,
+			Long definicioProcesId,
+			Map<String, Object> valors) {
+		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+		DefinicioProces definicioProces = null;
+		if (definicioProcesId != null) {
+			definicioProces = definicioProcesRepository.findById(definicioProcesId);
+		}
+
+		if (definicioProces == null){
+			definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
+					entornId,
+					expedientTipus.getJbpmProcessDefinitionKey());
+		}
+		if (definicioProcesId == null && definicioProces == null) {
+			logger.error("No s'ha trobat la definició de procés (entorn=" + entornId + ", jbpmKey=" + expedientTipus.getJbpmProcessDefinitionKey() + ")");
+		}
+		String startTaskName = jbpmHelper.getStartTaskName(definicioProces.getJbpmId());
+		if (startTaskName != null) {
+			return dtoConverter.toTascaInicialDto(startTaskName, definicioProces.getJbpmId(), valors);
+		}
+		return null;
+	}
+	
+	@Transactional
+	@Override
+	public synchronized ExpedientDto iniciar(
+			Long entornId,
+			String usuari,
+			Long expedientTipusId,
+			Long definicioProcesId,
+			Integer any,
+			String numero,
+			String titol,
+			String registreNumero,
+			Date registreData,
+			Long unitatAdministrativa,
+			String idioma,
+			boolean autenticat,
+			String tramitadorNif,
+			String tramitadorNom,
+			String interessatNif,
+			String interessatNom,
+			String representantNif,
+			String representantNom,
+			boolean avisosHabilitats,
+			String avisosEmail,
+			String avisosMobil,
+			boolean notificacioTelematicaHabilitada,
+			Map<String, Object> variables,
+			String transitionName,
+			IniciadorTipusDto iniciadorTipus,
+			String iniciadorCodi,
+			String responsableCodi,
+			Map<String, DadesDocumentDto> documents,
+			List<DadesDocumentDto> adjunts) {
+		if (usuari != null)
+			comprovarUsuari(usuari);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String usuariBo = (usuari != null) ? usuari : auth.getName();
+		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+		ExpedientTipusDto expedientTipusDto = new ModelMapper().map(expedientTipus, ExpedientTipusDto.class);
+		String mesuraTempsTotalPrefix = "INIEXP_TOT_" + expedientTipus.getCodi();
+		String mesuraTempsIncrementalPrefix = "INIEXP_INC_" + expedientTipus.getCodi();
+		MesurarTemps.diferenciaReiniciar(mesuraTempsTotalPrefix);
+		MesurarTemps.diferenciaReiniciar(mesuraTempsIncrementalPrefix);
+		Entorn entorn = entornRepository.findOne(entornId);
+		textBloqueigIniciExpedient = auth.getName() + " (" +
+				"entornCodi=" + entorn.getCodi() + ", " +
+				"expedientTipusCodi=" + expedientTipus.getCodi() + ", " +
+				"data=" + new Date() + ")";
+		try {
+			String iniciadorCodiCalculat = (iniciadorTipus.equals(IniciadorTipus.INTERN)) ? usuariBo : iniciadorCodi;
+			Expedient expedient = new Expedient();
+			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "0");
+			expedient.setTipus(expedientTipus);
+			expedient.setIniciadorTipus(new ModelMapper().map(iniciadorTipus, IniciadorTipus.class));
+			expedient.setIniciadorCodi(iniciadorCodiCalculat);
+			expedient.setEntorn(entorn);
+			expedient.setProcessInstanceId(UUID.randomUUID().toString());
+			String responsableCodiCalculat = (responsableCodi != null) ? responsableCodi : expedientTipus.getResponsableDefecteCodi();
+			if (responsableCodiCalculat == null)
+				responsableCodiCalculat = iniciadorCodiCalculat;
+			expedient.setResponsableCodi(responsableCodiCalculat);
+			expedient.setRegistreNumero(registreNumero);
+			expedient.setRegistreData(registreData);
+			expedient.setUnitatAdministrativa(unitatAdministrativa);
+			expedient.setIdioma(idioma);
+			expedient.setAutenticat(autenticat);
+			expedient.setTramitadorNif(tramitadorNif);
+			expedient.setTramitadorNom(tramitadorNom);
+			expedient.setInteressatNif(interessatNif);
+			expedient.setInteressatNom(interessatNom);
+			expedient.setRepresentantNif(representantNif);
+			expedient.setRepresentantNom(representantNom);
+			expedient.setAvisosHabilitats(avisosHabilitats);
+			expedient.setAvisosEmail(avisosEmail);
+			expedient.setAvisosMobil(avisosMobil);
+			expedient.setNotificacioTelematicaHabilitada(notificacioTelematicaHabilitada);
+			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "1");
+			expedient.setNumeroDefault(
+					getNumeroExpedientDefaultActual(
+							entornId,
+							expedientTipus,
+							any));
+			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "2");
+			if (expedientTipus.getTeNumero()) {
+				if (numero != null && numero.length() > 0 && expedientTipus.getDemanaNumero()) {
+					expedient.setNumero(numero);
+				} else {
+					expedient.setNumero(
+							getNumeroExpedientActual(
+									entornId,
+									expedientTipusDto,
+									any));
+				}
+			}
+	
+			// Verifica si l'expedient té el número repetit
+			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "3");
+			if (expedientDao.findAmbEntornTipusINumero(
+					entornId,
+					expedientTipusId,
+					expedient.getNumero()) != null) {
+				throw new ExpedientRepetitException(
+						getServiceUtils().getMessage(
+								"error.expedientService.jaExisteix",
+								new Object[]{expedient.getNumero()}) );
+			}
+			// Actualitza l'any actual de l'expedient
+			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "4");
+			int anyActual = Calendar.getInstance().get(Calendar.YEAR);
+			if (any == null || any.intValue() == anyActual) {
+				if (expedientTipus.getAnyActual() == 0) {
+					expedientTipus.setAnyActual(anyActual);
+				} else if (expedientTipus.getAnyActual() < anyActual) {
+					expedientTipus.setAnyActual(anyActual);
+				}
+			}
+			// Actualitza la seqüència del número d'expedient
+			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "5");
+			if (expedientTipus.getTeNumero() && expedientTipus.getExpressioNumero() != null && !"".equals(expedientTipus.getExpressioNumero())) {
+				if (expedient.getNumero().equals(
+						getNumeroExpedientActual(
+								entornId,
+								expedientTipusDto,
+								any)))
+					expedientTipus.updateSequencia(any, 1);
+			}
+			// Actualitza la seqüència del número d'expedient per defecte
+			if (expedient.getNumeroDefault().equals(getNumeroExpedientDefaultActual(entornId, expedientTipus, any)))
+				expedientTipus.updateSequenciaDefault(any, 1);
+			// Configura el títol de l'expedient
+			if (expedientTipus.getTeTitol()) {
+				if (titol != null && titol.length() > 0)
+					expedient.setTitol(titol);
+				else
+					// TODO: multiidioma
+					expedient.setTitol("[Sense títol]");
+			}
+			// Inicia l'instància de procés jBPM
+			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "6");
+			ExpedientIniciantDto.setExpedient(dtoConverter.toExpedientDto(expedient, true));
+			DefinicioProces definicioProces = null;
+			if (definicioProcesId != null) {
+				definicioProces = definicioProcesRepository.findById(definicioProcesId);
+			} else {
+				definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
+						entornId,
+						expedientTipus.getJbpmProcessDefinitionKey());
+			}
+			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "7");
+			JbpmProcessInstance processInstance = jbpmHelper.startProcessInstanceById(
+					usuariBo,
+					definicioProces.getJbpmId(),
+					variables);
+			expedient.setProcessInstanceId(processInstance.getId());
+			// Emmagatzema el nou expedient
+			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "8");
+			expedientRepository.save(expedient);
+			// Afegim els documents
+			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "9");
+			if (documents != null){
+				for (Map.Entry<String, DadesDocumentDto> doc: documents.entrySet()) {
+					if (doc.getValue() != null) {
+						documentHelper.actualitzarDocument(
+								null,
+								expedient.getProcessInstanceId(),
+								doc.getValue().getCodi(), 
+								null,
+								doc.getValue().getData(), 
+								doc.getValue().getArxiuNom(), 
+								doc.getValue().getArxiuContingut(),
+								false);
+					}
+				}
+			}
+			// Afegim els adjunts
+			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "10");
+			if (adjunts != null) {
+				for (DadesDocumentDto adjunt: adjunts) {
+					String documentCodi = new Long(new Date().getTime()).toString();
+					documentHelper.actualitzarDocument(
+							null,
+							expedient.getProcessInstanceId(),
+							documentCodi,
+							adjunt.getTitol(),
+							adjunt.getData(), 
+							adjunt.getArxiuNom(), 
+							adjunt.getArxiuContingut(),
+							true);
+				}
+			}
+			// Verificar la ultima vegada que l'expedient va modificar el seu estat
+			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "11");
+			ExpedientLog log = expedientLoggerHelper.afegirLogExpedientPerProces(
+					processInstance.getId(),
+					ExpedientLogAccioTipus.EXPEDIENT_INICIAR,
+					null);
+			log.setEstat(ExpedientLogEstat.IGNORAR);
+			// Actualitza les variables del procés
+			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "12");
+			jbpmHelper.signalProcessInstance(expedient.getProcessInstanceId(), transitionName);
+			// Indexam l'expedient
+			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "13");
+			getServiceUtils().expedientIndexLuceneCreate(expedient.getProcessInstanceId());
+			// Registra l'inici de l'expedient
+			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "14");
+			registreDao.crearRegistreIniciarExpedient(
+					expedient.getId(),
+					usuariBo);
+			// Retorna la informació de l'expedient que s'ha iniciat
+			ExpedientDto dto = dtoConverter.toExpedientDto(expedient, true);
+			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "15");
+			MesurarTemps.diferenciaImprimirStdout(mesuraTempsTotalPrefix);
+			MesurarTemps.mitjaCalcular(mesuraTempsTotalPrefix, mesuraTempsTotalPrefix);
+			MesurarTemps.mitjaImprimirStdout(mesuraTempsTotalPrefix);
+			return dto;
+		} finally {
+			textBloqueigIniciExpedient = null;
+		}
+	}
+
+	@Transactional
+	@Override
+	public String getNumeroExpedientActual(
+			Long entornId,
+			ExpedientTipusDto expedientTipus,
+			Integer any) {
+		long increment = 0;
+		String numero = null;
+		Expedient expedient = null;
+		if (any == null) 
+			any = Calendar.getInstance().get(Calendar.YEAR);
+		do {
+			numero = expedientTipusDao.getNumeroExpedientActual(
+					expedientTipus.getId(),
+					any.intValue(),
+					increment);
+			expedient = expedientDao.findAmbEntornTipusINumero(
+					entornId,
+					expedientTipus.getId(),
+					numero);
+			increment++;
+		} while (expedient != null);
+		if (increment > 1)
+			expedientTipus.updateSequencia(any, increment - 1);
+		return numero;
+	}
+
+	@Transactional
+	@Override
+	public ExpedientDto findExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol) {
+		Expedient expedient = expedientDao.findAmbEntornTipusITitol(entornId, expedientTipusId, titol);
+		if (expedient == null)
+			return null;
+		return dtoConverter.toExpedientDto(expedient, false);
+	}
+
+	@Transactional
+	@Override
+	public void anular(Long entornId, Long id, String motiu) { 
+		Expedient expedient = expedientDao.findAmbEntornIId(entornId, id);
+		if (expedient != null) {
+			mesuresTemporalsHelper.mesuraIniciar("Anular", "expedient", expedient.getTipus().getNom());
+			List<JbpmProcessInstance> processInstancesTree = jbpmHelper.getProcessInstanceTree(expedient.getProcessInstanceId());
+			String[] ids = new String[processInstancesTree.size()];
+			int i = 0;
+			for (JbpmProcessInstance pi: processInstancesTree)
+				ids[i++] = pi.getId();
+			jbpmHelper.suspendProcessInstances(ids);
+			expedient.setAnulat(true);
+			expedient.setComentariAnulat(motiu);
+			luceneHelper.deleteExpedientAsync(expedient);
+			registreDao.crearRegistreAnularExpedient(
+					expedient.getId(),
+					SecurityContextHolder.getContext().getAuthentication().getName());
+			mesuresTemporalsHelper.mesuraCalcular("Anular", "expedient", expedient.getTipus().getNom());
 		} else {
 			throw new NotFoundException(getServiceUtils().getMessage("error.expedientService.noExisteix"));
 		}

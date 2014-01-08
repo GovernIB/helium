@@ -10,6 +10,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 /**
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
@@ -19,6 +20,9 @@ import org.springframework.data.jpa.repository.Query;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces, Long> {
+
+	DefinicioProces findById(
+			Long Id);
 
 	DefinicioProces findByJbpmId(
 			String jbpmId);
@@ -47,5 +51,23 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 	DefinicioProces findDarreraVersioByEntornAndJbpmKey(
 			Entorn entorn,
 			String jbpmKey);
+
+
+
+	@Query(	"from " +
+				"    DefinicioProces dp " +
+				"where " +
+				"    dp.entorn.id=:entornId " +
+				"and dp.versio = (" +
+				"    select " +
+				"        max(dps.versio) " +
+				"    from " +
+				"        DefinicioProces dps " +
+				"    where " +
+				"        dps.entorn.id=:entornId " +
+				"    and dps.jbpmKey=dp.jbpmKey " +
+				"    and dps.jbpmKey = :jbpmProcessDefinitionKey) " +
+				"order by dp.jbpmKey")
+	DefinicioProces findDarreraVersioAmbEntornIJbpmKey(@Param("entornId") Long entornId, @Param("jbpmProcessDefinitionKey") String jbpmProcessDefinitionKey);
 
 }

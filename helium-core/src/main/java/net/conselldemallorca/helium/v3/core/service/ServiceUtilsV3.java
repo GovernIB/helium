@@ -25,6 +25,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.Registre;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.service.PermissionService;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
@@ -33,6 +34,7 @@ import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.security.acls.model.Permission;
@@ -444,7 +446,7 @@ public class ServiceUtilsV3 {
 					String valorDomini = dtoConverter.getCampText(
 							null,
 							processInstanceId,
-							camp,
+							new ModelMapper().map(camp, CampDto.class),
 							valor);
 					textDominis.put(
 							camp.getCodi() + "@" + valor.toString(),

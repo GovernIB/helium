@@ -132,5 +132,8 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			@Param("esNullGeoReferencia") boolean esNullGeoReferencia,
 			@Param("geoReferencia") String geoReferencia,
 			@Param("mostrarAnulats") boolean mostrarAnulats);
+	
+	@Query("select e from Expedient e where entorn.id = :entornId AND (titol like '%'||:text||'%' or numero like '%'||:text||'%') order by numero, titol")
+	List<Expedient> findAmbEntornLikeIdentificador(@Param("entornId") Long entornId, @Param("text") String text);
 
 }

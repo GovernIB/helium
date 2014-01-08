@@ -64,6 +64,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CarrecDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
@@ -114,6 +115,7 @@ import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.MesuresTemporalsHelper;
 
 import org.hibernate.Hibernate;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -1270,7 +1272,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				dtoConverter.getCampText(
 						null,
 						new Long(processInstanceId).toString(),
-						camp,
+						new ModelMapper().map(camp, CampDto.class),
 						valor));
 		return resposta;
 	}

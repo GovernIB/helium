@@ -21,6 +21,8 @@ public class TascaDadaDto {
 	private CampTipusDto campTipus;
 	private String campEtiqueta;
 	private boolean campMultiple;
+	private String jbpmAction;
+	private String observacions;
 
 	private boolean readOnly;
 	private boolean readFrom;
@@ -32,9 +34,19 @@ public class TascaDadaDto {
 	private List<TascaDadaDto> registreDades;
 
 	private String error;
-
-
-
+	
+	public String getObservacions() {
+		return observacions;
+	}
+	public void setObservacions(String observacions) {
+		this.observacions = observacions;
+	}
+	public String getJbpmAction() {
+		return jbpmAction;
+	}
+	public void setJbpmAction(String jbpmAction) {
+		this.jbpmAction = jbpmAction;
+	}
 	public String getVarCodi() {
 		return varCodi;
 	}

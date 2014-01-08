@@ -19,9 +19,7 @@ import org.springframework.security.acls.model.Sid;
 public interface PermissionService {
 	public Map<Sid, List<AccessControlEntry>> getAclEntriesGroupedBySid(Serializable id, Class clazz);
 
-	public void filterAllowed(List list, Class clazz, Permission[] permissions);
-
-	public Object filterAllowed(Long object, Class clazz, Permission[] permissions);
-
 	public boolean isGrantedAny(Long object, Class clazz, Permission[] permissions);
+
+	public void filterAllowed(List tipus, Object objectIdentifierExtractor, Class<?> clazz, Permission[] permissions);
 }

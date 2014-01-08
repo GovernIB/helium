@@ -2,12 +2,17 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+<%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 <c:set var="numColumnes" value="${3}"/>
 <c:set var="hiHaDadesReadOnly" value="${false}"/>
 <c:set var="countReadOnly" value="${0}"/>
 <c:forEach var="dada" items="${dades}">
-	<c:if test="${dada.readOnly}"><c:set var="countReadOnly" value="${countReadOnly + 1}"/><c:set var="hiHaDadesReadOnly" value="${true}"/></c:if>
+	<c:if test="${dada.readOnly}">
+		<c:set var="countReadOnly" value="${countReadOnly + 1}"/>
+		<c:set var="hiHaDadesReadOnly" value="${true}"/>
+	</c:if>
 </c:forEach>
 <c:if test="${hiHaDadesReadOnly}">
 	<c:import url="import/expedientDadesTaula.jsp">
@@ -27,113 +32,307 @@
 	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.maskedinput.js"/>"></script>
+	
+	<script type="text/javascript">
+	// <![CDATA[
+		$(document).ready(function() {
+			$("select").select2({
+				allowClear: true
+			});
+		});
+		
+		function confirmar(form) {
+			$("table").each(function(){
+				if ($(this).hasClass("hide")) {
+					$(this).remove();
+				}
+			});
+			return true;
+		}
+	    function verificarSignatura(element) {
+			var amplada = 800;
+			var alcada = 600;
+			$('<iframe id="verificacio" src="' + element.href + '"/>').dialog({
+				title: "<spring:message code='tasca.form.verif_signa' />",
+				autoOpen: true,
+				modal: true,
+				autoResize: true,
+				width: parseInt(amplada),
+				height: parseInt(alcada)
+			}).width(amplada - 30).height(alcada - 30);
+			return false;
+		}
+		function infoRegistre(docId) {
+			var amplada = 600;
+			var alcada = 200;
+			$('<div>' + $("#registre_" + docId).html() + '</div>').dialog({
+				title: "<spring:message code='tasca.form.info_reg' />",
+				autoOpen: true,
+				modal: true,
+				width: parseInt(amplada),
+				height: parseInt(alcada)
+			}).width(amplada - 30).height(alcada - 30);
+			return false;
+		}
+		function canviTermini(input) {
+			var campId = input.id.substring(0, input.id.lastIndexOf("_"));
+			var anys = document.getElementById(campId + "_anys").value;
+			var mesos = document.getElementById(campId + "_mesos").value;
+			var dies = document.getElementById(campId + "_dies").value;
+			if (!anys.empty() && !mesos.empty() && !dies.empty()) {
+				$(campId).val(anys + "/" + mesos + "/" + dies);
+			} else {
+				$(campId).val("");
+			}
+		}
+		function editarRegistre(campId, campCodi, campEtiqueta, numCamps, index) {
+			var amplada = 686;
+			var alcada = 64 * numCamps + 80;
+			var url = "registre.html?id=${tasca.id}&registreId=" + campId;
+			if (index != null)
+				url = url + "&index=" + index;
+			$('<iframe id="' + campCodi + '" src="' + url + '" frameborder="0" marginheight="0" marginwidth="0"/>').dialog({
+				title: campEtiqueta,
+				autoOpen: true,
+				modal: true,
+				autoResize: true,
+				width: parseInt(amplada),
+				height: parseInt(alcada)
+			}).width(amplada - 30).height(alcada - 30);
+			return false;
+		}
+		
+		function refresh() {
+			$('form#command :button[name="submit"]').attr("name", "sbmt");
+			$('form#command').submit();
+		}
+	
+		function campOnFocus(camp) {
+			$('form#command :input[name="helCampFocus"]').val("" + $(window).scrollTop() + "#${param.id}");
+		}
+
+		function addField(idTable){   
+			tabla = $('#'+idTable);
+			if(tabla.hasClass( "hide" )){
+				tabla.removeClass( "hide" );
+
+				if(tabla.hasClass( "togle" )){
+					$('#button_add_'+idTable).hide();
+				}
+			} else {
+		    	tr = $('tr:last', tabla);
+		    	var newTr = tr.clone();
+		    	limpiarFila(newTr);
+	    		newTr.find(':input').each(function(indice,valor) {
+			    	if (this.getAttribute("id") != null) {
+		    			var id = this.getAttribute("id");
+		    			var id_lim = id.substr(0, id.indexOf("["));
+		    			var id_fin = id.substr(id.lastIndexOf("["), id.lastIndexOf("]"));
+				    	var i = 1;
+		    			while (document.getElementById(id_lim+"["+i+"]"+id_fin)) {
+			    			i = i+1;
+			    		}
+			    		this.setAttribute("id", id_lim+"["+i+"]"+id_fin);
+			    		this.setAttribute("name", id_lim+"["+i+"]"+id_fin);
+		    		}
+		    	});
+		    	newTr.appendTo(tabla);
+			}
+		}
+
+		function accioCampExecutar(elem, field) {
+			if (confirm("<spring:message code='js.helforms.confirmacio' />")) {
+				var fieldField = document.getElementById("helAccioCamp");
+				if (fieldField == null) {
+					newField = document.createElement('input');
+					newField.setAttribute("id", "helAccioCamp");
+					newField.setAttribute("name", "helAccioCamp");
+					newField.setAttribute("type", "hidden");
+					newField.setAttribute("value", field);
+					elem.form.appendChild(newField);
+				}
+				return true;
+			}
+			return false;
+		}
+
+		 $(".eliminarFila").live('click', function (){
+		    if($(this).closest('table').find('tr').index() < 2) {
+			    var newTr = $(this).closest('tr');
+		    	limpiarFila(newTr);
+		    	
+		    	$(this).closest('table').addClass( "hide" );
+
+				if($(this).closest('table').hasClass( "togle" )){
+					$('#button_add_'+$(this).closest('table').attr('id')).show();
+				}
+			} else {
+	        	$(this).closest('tr').remove();
+			}
+	    });
+
+		function limpiarFila(tr) {
+			tr.find(':input').each(function() {
+			    switch(this.type) {
+			        case 'password':
+			        case 'text':
+			        case 'textarea':
+			        case 'file':
+			        case 'select-one':
+			        case 'select-multiple':
+			            $(this).val('');
+			            break;
+			        case 'checkbox':
+			        case 'radio':
+			            this.checked = false;
+			    }
+			});
+		}
+		
+		var submitAction;
+		function saveAction(element, action) {
+			submitAction = action;
+			if ($.browser.msie && $.browser.version.substr(0,1) <= 7) {
+				element.innerHTML = action;
+				var $submits = document.getElementsByName("submit");
+				for (var i = 0; i < $submits.length; i++) {
+				    if ($submits[i] != element) {
+				        $submits[i].name = $submits[i].name + i;
+				    }
+				}
+			}
+		}
+	// ]]>
+	</script>
 </head>
 <body>
-<ul class="nav nav-tabs">
-	<li class="active"><a href="#home" data-toggle="tab">1. Dades</a></li>
-	<li class="disabled"><a href="#profile" data-toggle="tab">2. Documents</a></li>
-	<li class="disabled"><a href="#settings" data-toggle="tab">3. Signatures</a></li>
+<ul id="tabnav" class="nav nav-tabs">
+	<li class="active <c:if test="${not tasca.validada}"> warn</c:if>"><a href="#dades" data-toggle="tab">1. Dades</a></li>
+	<li class=""><a href="#documents" data-toggle="tab">2. Documents</a></li>
+	<li class=""><a href="#signatures" data-toggle="tab">3. Signatures</a></li>
 </ul>
-<form class="form-horizontal form-tasca">
-	<c:forEach var="dada" items="${dades}">
-		<c:if test="${not dada.readOnly}">
-			<div class="control-group">
-				<label class="control-label" for="${dada.varCodi}">${dada.campEtiqueta} (${dada.campTipus})</label>
+
+<div class="tab-content">
+
+	<div class="tab-pane active"  id="dades">
+		<c:if test="${not tasca.validada}">
+			<div class="missatge missatgesWarn">
 				<c:choose>
-					<c:when test="${dada.campTipus == 'INTEGER'}">
-						<div class="controls">
-							<input type="text" id="${dada.varCodi}" value="${dada.text}" class="input-xlarge" style="text-align:right"/>
-							<script>
-								$("#${dada.varCodi}").keyfilter(/^[-+]?[0-9]*$/);
-							</script>
-						</div>
-					</c:when>
-					<c:when test="${dada.campTipus == 'FLOAT'}">
-						<div class="controls">
-							<input type="text" id="${dada.varCodi}" value="${dada.text}" class="input-xlarge" style="text-align:right"/>
-							<script>
-								$("#${dada.varCodi}").keyfilter(/^[-+]?[,0-9]*$/);
-							</script>
-						</div>
-					</c:when>
-					<c:when test="${dada.campTipus == 'PRICE'}">
-						<div class="controls">
-							<input type="text" id="${dada.varCodi}" value="${dada.text}" class="input-xlarge" style="text-align:right" value="-12345"/>
-							<script>
-								$("#${dada.varCodi}").priceFormat({
-									prefix: '',
-									centsSeparator: ',',
-								    thousandsSeparator: '.',
-								    allowNegative: false
-								});
-							</script>
-						</div>
-					</c:when>
-					<c:when test="${dada.campTipus == 'DATE'}">
-						<div class="controls">
-							<div class="span5 input-append date datepicker">
-								<input type="text" id="${dada.varCodi}" value="${dada.text}" class="input-xlarge" placeholder="dd/mm/yyyy"/>
-								<span class="add-on"><i class="icon-calendar"></i></span>
-							</div>
-							<script>
-								$("#${dada.varCodi}").mask("99/99/9999");
-								$("#${dada.varCodi}").datepicker({language: 'ca', autoclose: true});
-							</script>
-						</div>
-					</c:when>
-					<c:when test="${dada.campTipus == 'BOOLEAN'}">
-						<div class="controls">
-							<input type="checkbox" id="${dada.varCodi}"<c:if test="${dada.varValor}"> checked="checked"</c:if>/>
-						</div>
-					</c:when>
-					<c:when test="${dada.campTipus == 'SELECCIO'}">
-						<div class="controls">
-							<select id="${dada.varCodi}" class="input-xlarge"></select>
-							<script>
-								$.ajax({
-								    url: 'camp/${dada.campId}/valorsSeleccio',
-								    type: 'GET',
-								    dataType: 'json',
-								    success: function(json) {
-								        $.each(json, function(i, value) {
-								        	if (value.codi == '${dada.varValor}')
-								        		$('select#${dada.varCodi}').append($('<option>').text(value.text).attr('value', value.codi).attr('selected', 'selected'));
-								        	else
-								        		$('select#${dada.varCodi}').append($('<option>').text(value.text).attr('value', value.codi));
-								        });
-								    }
-								});
-							</script>
-						</div>
+					<c:when test="${empty tasca.formExtern}">
+						<p><spring:message code='tasca.form.no_validades' /></p>
 					</c:when>
 					<c:otherwise>
-						<div class="controls">
-							<input type="text" id="${dada.varCodi}" value="${dada.text}" class="input-xlarge"/>
-						</div>
+						<p><spring:message code='tasca.form.compl_form' /></p>
 					</c:otherwise>
 				</c:choose>
 			</div>
 		</c:if>
-	</c:forEach>
-	<%--div class="form-actions">
-		<c:forEach var="transicio" items="${tasca.transicions}">
-			<button class="btn btn-primary">${transicio}</button>
-		</c:forEach>
-		<c:if test="${tasca.transicioPerDefecte}">
-			<button class="btn btn-primary">Finalitzar</button>
-		</c:if>
-	</div--%>
-</form>
-<script>
+		
+		<c:set var="hiHaCampsReadOnly" value="${false}"/>
+			<c:forEach var="camp" items="${tasca.camps}">
+				<c:if test="${camp.readOnly}">
+					<c:set var="hiHaCampsReadOnly" value="${true}"/>
+				</c:if>
+			</c:forEach>
+			
+			<c:set var="hiHaDocumentsReadOnly" value="${false}"/>
+			<c:forEach var="document" items="${tasca.documents}">
+				<c:if test="${document.readOnly}">
+					<c:set var="hiHaDocumentsReadOnly" value="${true}"/>
+				</c:if>
+			</c:forEach>
+			
+			<c:if test="${hiHaCampsReadOnly or hiHaDocumentsReadOnly}">
+				<div class="missatge missatgesBlau">
+					<c:if test="${hiHaDocumentsReadOnly}">
+						<c:forEach var="document" items="${tasca.documents}">
+							<c:if test="${document.readOnly}">
+								<h4 class="titol-missatge">
+									${document.document.nom}&nbsp;&nbsp;
+									<c:if test="${not empty tasca.varsDocuments[document.document.codi]}">
+										<c:set var="tascaActual" value="${tasca}" scope="request"/>
+										<c:set var="documentActual" value="${tasca.varsDocuments[document.document.codi]}" scope="request"/>
+										<c:set var="codiDocumentActual" value="${document.document.codi}" scope="request"/>
+										<c:import url="../common/iconesConsultaDocument.jsp"/>
+									</c:if>
+								</h4><br/>
+							</c:if>
+						</c:forEach>
+					</c:if>
+					<c:if test="${hiHaCampsReadOnly}">
+						<div class="form-horizontal form-tasca">
+							<span class="titol-missatge"><fmt:message key='common.tascaro.dadesref' /></span>
+							<form  id="commandReadOnly" name="commandReadOnly" action="form" method="post">
+								<input type="hidden" id="id" name="id" value="${tasca.id}"/>
+								<div class="inlineLabels">
+									<c:forEach var="dada" items="${dades}" varStatus="varStatusMain">
+										<c:if test="${dada.readOnly}">
+											<div class="control-group">
+												<label class="control-label" for="${dada.varCodi}">${dada.campEtiqueta} - ${dada.campTipus}</label>
+												
+												<c:set var="dada" value="${dada}"/>
+												<c:set var="dada_multiple" value=""/>
+												<%@ include file="campsTasca.jsp" %>
+												<%@ include file="campsTascaRegistre.jsp" %>
+											</div>
+										</c:if>
+									</c:forEach>
+								</div>
+							</form>
+						</div>
+					</c:if>
+				</div>
+			</c:if>
+					
+		<form:form onsubmit="return confirmar(this)" id="command" name="command" action="form" cssClass="form-horizontal form-tasca" method="post" commandName="command">
+			<input type="hidden" id="id" name="id" value="${tasca.id}"/>
+			<input type="hidden" id="helFinalitzarAmbOutcome" name="helFinalitzarAmbOutcome" value="@#@"/>
+			<c:forEach var="dada" items="${dades}" varStatus="varStatusMain">
+				<c:if test="${not dada.readOnly}">
+					<div class="control-group fila_reducida <c:if test='${dada.readOnly || tasca.validada}'>fila_reducida</c:if>">
+						<label class="control-label" for="${dada.varCodi}">${dada.campEtiqueta} - ${dada.campTipus}</label>
+						
+						<c:set var="dada" value="${dada}"/>
+						<%@ include file="campsTasca.jsp" %>
+						<%@ include file="campsTascaRegistre.jsp" %>
+					</div>
+				</c:if>
+			</c:forEach>
+			<div style="clear: both"></div>
+			<%@ include file="campsTascaGuardarTasca.jsp" %>
+		</form:form>
+		<div class="hide" id="finalizarTarea">
+			<%@ include file="campsTascaTramitacioTasca.jsp" %>
+		</div>
+		
+	</div>
+	
+	<div class="tab-pane" id="documents">
+		documents
+	</div>
+	
+	<div class="tab-pane" id="signatures">
+		signatures
+	</div>
+
+</div>
+<script>	
+	$( 'input[data-required="true"]' )
+		.closest(".control-group")
+		.children("label")
+		.prepend("<i class='icon-asterisk'></i> ");
+
 	window.parent.canviTitolModal("${tasca.titol}");
-	var transicions = new Array();
-	var texts = new Array();
-	var accions = new Array();
-	<c:forEach var="transicio" items="${tasca.transicions}">transicions.push('${transicio}');texts.push('${transicio}');</c:forEach>
-	<c:if test="${tasca.transicioPerDefecte}">transicions.push('default');texts.push('Finalitzar');</c:if>
-	window.parent.substituirBotonsPeuModal(transicions, texts);
-	function test(codi) {
-		return confirm('Estau segur que voleu donar aquesta tasca per finalitzada?');
-	}
+	var html = $('#finalizarTarea').html();
+	$('#finalizarTarea').remove();
+	window.parent.addHtmlPeuModal(html,'formFinalitzar');
 </script>
+
+<%!
+private String toJavascript(String str) {
+	if (str == null)
+		return null;
+	return str.replace("'", "\\'");
+}
+%>
 </body>

@@ -9,14 +9,17 @@ import java.util.Map;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaFilaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -229,4 +232,18 @@ public interface ExpedientService {
 	public void deleteConsulta(Long expedientId);
 
 	public void delete(Long id, Long expedientId);
+
+	public List<ExpedientDto> findAmbEntornLikeIdentificador(Long id, String text);
+
+	public void deleteRelacioExpedient(Long expedientIdOrigen, Long expedientIdDesti);
+	
+	public TascaDto getStartTask(Long entornId, Long expedientTipusId, Long definicioProcesId, Map<String, Object> valors);
+
+	public ExpedientDto iniciar(Long entornId, String usuari, Long expedientTipusId, Long definicioProcesId, Integer any, String numero, String titol, String registreNumero, Date registreData, Long unitatAdministrativa, String idioma, boolean autenticat, String tramitadorNif, String tramitadorNom, String interessatNif, String interessatNom, String representantNif, String representantNom, boolean avisosHabilitats, String avisosEmail, String avisosMobil, boolean notificacioTelematicaHabilitada, Map<String, Object> variables, String transitionName, IniciadorTipusDto iniciadorTipus, String iniciadorCodi, String responsableCodi, Map<String, DadesDocumentDto> documents, List<DadesDocumentDto> adjunts);
+
+	public String getNumeroExpedientActual(Long id, ExpedientTipusDto expedientTipus, Integer any);
+
+	public ExpedientDto findExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol);
+
+	public void anular(Long id, Long expedientId, String motiu);
 }

@@ -1242,7 +1242,70 @@ public class ExpedientLoggerHelper {
 		}
 		return null;
 	}
+
+	public ExpedientLog afegirLogExpedientPerTasca(
+			String taskInstanceId,
+			ExpedientLogAccioTipus tipus,
+			String accioParams) {
+		return afegirLogExpedientPerTasca(taskInstanceId, tipus, accioParams, null);
+	}
+	
+	public ExpedientLog afegirLogExpedientPerTasca(
+			String taskInstanceId,
+			ExpedientLogAccioTipus tipus,
+			String accioParams,
+			String user) {
+		long jbpmLogId = jbpmHelper.addTaskInstanceMessageLog(
+				taskInstanceId,
+				getMessageLogPerTipus(tipus));
+		JbpmTask task = jbpmHelper.getTaskById(taskInstanceId);
+		Expedient expedient = getExpedientPerProcessInstanceId(task.getProcessInstanceId());
+		String usuari = "Timer";
+		if (user != null) {
+			usuari = user;
+		} else {
+			try {
+				usuari = SecurityContextHolder.getContext().getAuthentication().getName();
+			}catch (Exception e){}
+		}
+		ExpedientLog expedientLog = new ExpedientLog(
+				expedient,
+				usuari,
+				taskInstanceId,
+				tipus);
+		expedientLog.setProcessInstanceId(new Long(task.getProcessInstanceId()));
+		expedientLog.setJbpmLogId(jbpmLogId);
+		if (accioParams != null)
+			expedientLog.setAccioParams(accioParams);
+		expedientLoggerRepository.save(expedientLog);
+		return expedientLog;
+	}
 	
 	private static final Log logger = LogFactory.getLog(ExpedientLoggerHelper.class);
 
+	
+	public ExpedientLog afegirLogExpedientPerProces(
+			String processInstanceId,
+			ExpedientLogAccioTipus tipus,
+			String accioParams) {
+		long jbpmLogId = jbpmHelper.addProcessInstanceMessageLog(
+				processInstanceId,
+				getMessageLogPerTipus(tipus));
+		Expedient expedient = getExpedientPerProcessInstanceId(processInstanceId);
+		String usuari = "Timer";
+		try {
+			usuari = SecurityContextHolder.getContext().getAuthentication().getName();
+		}catch (Exception e){}
+		ExpedientLog expedientLog = new ExpedientLog(
+				expedient,
+				usuari,
+				processInstanceId,
+				tipus);
+		expedientLog.setProcessInstanceId(new Long(processInstanceId));
+		expedientLog.setJbpmLogId(jbpmLogId);
+		if (accioParams != null)
+			expedientLog.setAccioParams(accioParams);
+		expedientLoggerRepository.save(expedientLog);
+		return expedientLog;
+	}
 }

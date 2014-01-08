@@ -95,6 +95,32 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		}
 		
 	}
+	
+	@RequestMapping(value = "/{expedientId}/suspend", method = RequestMethod.POST)
+	public String suspend(HttpServletRequest request, 
+			@PathVariable Long expedientId, 
+			@RequestParam(value = "motiu", required = true) String motiu,
+			Model model) {
+		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
+		if (entorn != null) {		
+			ExpedientDto expedient = expedientService.findById(expedientId);
+			if (potModificarExpedient(expedient)) {
+				try {
+					expedientService.anular(entorn.getId(), expedientId, motiu);
+					MissatgesHelper.info(request, getMessage(request, "info.expedient.anulat") );
+				} catch (Exception ex) {
+					MissatgesHelper.error(request, getMessage(request, "error.anular.expedient"));
+		        	logger.error("No s'ha pogut anular el registre", ex);
+				}
+			} else {
+				MissatgesHelper.error(request, getMessage(request, "error.permisos.anular.expedient"));				
+			}
+		} else {
+			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));			
+		}
+		
+		return "redirect:/v3/expedient/" + expedientId;
+	}
 
 	@RequestMapping(value = "/filtre/netejar", method = RequestMethod.GET)
 	public String filtreNetejar(HttpServletRequest request) {

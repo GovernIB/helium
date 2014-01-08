@@ -25,7 +25,7 @@ import org.springframework.ui.Model;
  */
 public class BaseExpedientController extends BaseController {
 	@Resource(name="permissionServiceV3")
-	private PermissionService permissionService;
+	protected PermissionService permissionService;
 
 	protected String mostrarInformacioExpedientPerPipella(
 			HttpServletRequest request,
@@ -49,5 +49,18 @@ public class BaseExpedientController extends BaseController {
 		return permissionService.isGrantedAny(expedient.getTipus().getId(), ExpedientTipus.class, new Permission[] {
 					ExtendedPermission.ADMINISTRATION,
 					ExtendedPermission.WRITE});
+	}
+
+	protected boolean potConsultarExpedient(ExpedientDto expedient) {
+		return permissionService.isGrantedAny(expedient.getTipus().getId(), ExpedientTipus.class, new Permission[] {
+			ExtendedPermission.ADMINISTRATION,
+			ExtendedPermission.SUPERVISION,
+			ExtendedPermission.READ});
+	}
+	
+	protected boolean potEsborrarExpedient(ExpedientDto expedient) {
+		return permissionService.isGrantedAny(expedient.getTipus().getId(), ExpedientTipus.class, new Permission[] {
+			ExtendedPermission.ADMINISTRATION,
+			ExtendedPermission.DELETE});
 	}
 }

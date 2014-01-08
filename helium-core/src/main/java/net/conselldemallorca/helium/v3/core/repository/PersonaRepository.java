@@ -3,9 +3,13 @@
  */
 package net.conselldemallorca.helium.v3.core.repository;
 
+import java.util.List;
+
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 /**
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
@@ -18,4 +22,6 @@ public interface PersonaRepository extends JpaRepository<Persona, Long> {
 
 	public Persona findByCodi(String codi);
 
+	@Query("select e from Persona e where nomSencer like '%'||:nomSencer||'%'")
+	List<Persona> findLikeNomSencer(@Param("nomSencer") String nomSencer);
 }

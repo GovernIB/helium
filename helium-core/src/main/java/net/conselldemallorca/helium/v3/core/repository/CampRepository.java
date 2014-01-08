@@ -21,4 +21,5 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			DefinicioProces definicioProces,
 			String codi);
 
+	Camp findById(Long registreEsborrarId);
 }

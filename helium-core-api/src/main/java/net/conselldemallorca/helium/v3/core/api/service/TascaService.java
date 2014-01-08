@@ -4,9 +4,11 @@
 package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
+import java.util.Map;
 
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.CampNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
@@ -54,4 +56,131 @@ public interface TascaService {
 			String tascaId,
 			Long campId) throws TaskInstanceNotFoundException, CampNotFoundException;
 
+	public boolean isTascaValidada(Object task);
+	
+	public boolean isDocumentsComplet(Object task);
+	
+	public boolean isSignaturesComplet(Object task);
+	
+	public Object getVariable(
+			Long entornId,
+			String taskId,
+			String codiVariable);
+
+	public TascaDto getById(
+			Long entornId,
+			String taskId,
+			String usuari,
+			Map<String, Object> valorsCommand,
+			boolean ambVariables,
+			boolean ambTexts);
+	
+
+	public TascaDto getByIdSenseComprovacio(String taskId);
+	
+	public TascaDto getByIdSenseComprovacio(String taskId, Map<String, Object> valorsCommand);
+	
+	public TascaDto getByIdSenseComprovacio(String taskId, String usuari);
+	
+	public TascaDto getByIdSenseComprovacio(String taskId, String usuari, Map<String, Object> valorsCommand);
+	
+	public TascaDto getByIdSenseComprovacioIDades(String taskId);
+	
+
+	public TascaDto guardarVariables(
+			Long entornId,
+			String taskId,
+			Map<String, Object> variables,
+			String usuari);
+
+	public TascaDto validar(
+			Long entornId,
+			String taskId,
+			Map<String, Object> variables,
+			boolean comprovarAssignacio);
+	
+	public TascaDto validar(
+			Long entornId,
+			String taskId,
+			Map<String, Object> variables,
+			boolean comprovarAssignacio,
+			String usuari);
+	
+	public TascaDto restaurar(
+			Long entornId,
+			String taskId);
+	
+	public TascaDto restaurar(
+			Long entornId,
+			String taskId,
+			String user);
+	
+	public void completar(
+			Long entornId,
+			String taskId,
+			boolean comprovarAssignacio,
+			String usuari);
+	
+	public void completar(
+			Long entornId,
+			String taskId,
+			boolean comprovarAssignacio,
+			String usuari,
+			String outcome);
+	
+	public void esborrarRegistre(
+			Long entornId,
+			String taskId,
+			String campCodi,
+			int index);
+	
+	public void esborrarRegistre(
+			Long entornId,
+			String taskId,
+			String campCodi,
+			int index,
+			String usuari);
+
+	public void executarAccio(
+			Long entornId,
+			String taskId,
+			String accio);
+
+	public void executarAccio(
+			Long entornId,
+			String taskId,
+			String accio,
+			String user);
+	
+
+
+	public void guardarRegistre(
+			Long entornId,
+			String taskId,
+			String campCodi,
+			Object[] valors);
+	
+	public void guardarRegistre(
+			Long entornId,
+			String taskId,
+			String campCodi,
+			Object[] valors,
+			int index);
+	
+	public void guardarRegistre(
+			Long entornId,
+			String taskId,
+			String campCodi,
+			Object[] valors,
+			String usuari);
+	
+	public void guardarRegistre(
+			Long entornId,
+			String taskId,
+			String campCodi,
+			Object[] valors,
+			int index,
+			String usuari);
+	
+	public void borrarVariables(Long entornId, String taskId, String variable, String usuari);
 }

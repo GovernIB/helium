@@ -146,6 +146,16 @@ public class DefinicioProcesAccioController extends BaseController {
 			        	return "definicioProces/accioForm";
 			        }
 			        try {
+			        	// Limpiamos los rols
+			        	if (command.getRols() != null && command.getRols().length()>0) {
+				        	StringBuffer sbRols = new StringBuffer();
+							String[] rols = command.getRols().split(",");						
+							for (String rol : rols) {
+								sbRols.append(","+rol.trim());
+							}
+							command.setRols(sbRols.substring(1));
+			        	}			        	
+			        	
 			        	if (command.getId() == null)
 			        		dissenyService.createAccio(command);
 			        	else

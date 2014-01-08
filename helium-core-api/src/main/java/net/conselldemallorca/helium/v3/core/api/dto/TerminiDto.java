@@ -3,7 +3,6 @@
  */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
-
 /**
  * DTO amb informació d'un termini.
  * 
@@ -111,4 +110,14 @@ public class TerminiDto {
 		this.alertaCompletat = alertaCompletat;
 	}
 
+	public String getDurada() {
+		TerminiDto t = new TerminiDto();
+		t.setAnys(anys);
+		t.setMesos(mesos);
+		t.setDies(dies);
+		if (dies > 0)
+			return t.toString() + ((laborable) ? " laborables" : " naturals");
+		else
+			return t.toString();
+	}
 }

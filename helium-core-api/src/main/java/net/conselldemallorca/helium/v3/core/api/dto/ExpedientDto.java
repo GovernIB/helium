@@ -29,6 +29,18 @@ public class ExpedientDto implements Serializable, GenericEntityDto<Long> {
 		INTERN,
 		SISTRA
 	}
+	
+	public ExpedientDto(IniciadorTipusDto iniciadorTipus, String iniciadorCodi, ExpedientTipusDto tipus, EntornDto entorn, String processInstanceId) {
+		this.iniciadorTipus = iniciadorTipus;
+		this.iniciadorCodi = iniciadorCodi;
+		this.tipus = tipus;
+		this.entorn = entorn;
+		this.processInstanceId = processInstanceId;
+	}
+
+	public ExpedientDto() {
+		// TODO Auto-generated constructor stub
+	}
 
 	private Long id;
 	private String processInstanceId;

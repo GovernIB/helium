@@ -18,6 +18,8 @@
 	<link href="<c:url value="/css/bootstrap-responsive.min.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/font-awesome.min.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/bootstrap-helium.css"/>" rel="stylesheet"/>
+	<link href="<c:url value="/css/commonV3.css"/>" rel="stylesheet"/>
+	<link href="<c:url value="/js/select2/select2.css"/>" rel="stylesheet"/>	
 	<!--[if lt IE 9]>
 	      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
 	    <![endif]-->
@@ -27,6 +29,10 @@
 	<link rel="apple-touch-icon-precomposed" sizes="72x72" href="<c:url value="/img/ico/apple-touch-icon-72-precomposed.png"/>">
 	<link rel="apple-touch-icon-precomposed" href="<c:url value="/img/ico/apple-touch-icon-57-precomposed.png"/>">
 	<script src="<c:url value="/js/jquery.js"/>"></script>
+	<script src="<c:url value="/js/select2/select2.min.js"/>"></script>	 
+<script>
+	$(document).ready(function() { $("#e1").select2(); });
+</script>	
 	<decorator:head />
 </head>
 <body>
@@ -99,6 +105,7 @@
 				<li id="pipella-documents" class="pipella<c:if test="${tabActiu == 'documents'}"> active</c:if>"><a href="<c:url value="/v3/expedient/${expedient.id}/documents"/>">Documents</a></li>
 				<li id="pipella-terminis" class="pipella<c:if test="${tabActiu == 'terminis'}"> active</c:if>"><a href="<c:url value="/v3/expedient/${expedient.id}/terminis"/>">Terminis</a></li>
 				<li id="pipella-registre" class="pipella<c:if test="${tabActiu == 'registre'}"> active</c:if>"><a href="<c:url value="/v3/expedient/${expedient.id}/registre"/>">Registre</a></li>
+				<li id="pipella-relacionats" class="pipella<c:if test="${tabActiu == 'relacionats'}"> active</c:if>"><a href="<c:url value="/v3/expedient/${expedient.id}/relacionats"/>">Relacionar</a></li>
 			</ul>
 			<div class="well well-white">
 				<decorator:body />

@@ -1,11 +1,11 @@
 img.suggestImgInfo {
 	position: relative;
-	top: -5px;
+	top: 0px;
 	left: -25px;
 }
 img.suggestImgEsborrar {
 	position: relative;
-	top: -5px;
+	top: 0px;
 	left: -25px;
 }
 
@@ -15,4 +15,234 @@ img.suggestImgEsborrar {
 
 .datepicker {
 	padding: 0px;
+}
+
+.fila-base {
+	display: none;	
+}
+
+.form-init-exedient {
+	margin-bottom: 0px;
+	padding-bottom: 0px;
+}
+
+.form-actions {
+	background-color: #F5F5F5;
+	border-top: 1px solid #E5E5E5;
+	padding: 0 20px 15px;
+	margin-bottom: 0px;
+    margin-top: 0px;
+	margin-left: 0px;
+    margin-right: 0px;
+}
+
+.form-actions .titol-missatge {
+    margin-top: 0px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 14px;
+}
+
+.form-actions form {
+	margin-bottom: 5px;
+}
+
+.registre table.table {
+	display: table;
+}
+
+.registre table .opciones {
+	text-align: center;
+}
+
+.registre table .controls {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.registre .btn_afegir {
+	margin-top: -15px;	
+}
+
+.alt_termini {
+	list-style-type: none;
+	margin: 0px;
+}
+
+.alt_termini li {
+	float: left;
+    width: 33.3%;
+}
+
+.registre table .span11 {
+	width: 100% !important;
+	min-width: 65px;
+}
+
+.form-tasca .span9 {
+	margin-left: 0px !important;
+}
+
+.registre table .span5 {
+	width: 83% !important;
+	min-width: 65px;
+}
+
+.registre table .span3 {
+	width: 100% !important;
+}
+
+.form-tasca {
+	margin-left: 0px;
+}
+
+.formHint {
+	color: #777777;
+    font-size: 0.85em;
+    margin-top: 0;
+    position: static;
+}
+
+.missatge {
+	border-style: solid;
+	border-width: 1px 0;
+	margin: 0 0 1.5em;
+	padding: 5px 0px 0;
+	color: #666;	
+}
+
+.missatge p {
+	margin-bottom: 5px;
+}
+
+.control-label-value {
+	padding-top: 5px;
+}
+
+.missatge .titol-missatge {
+    margin-top: 0px;
+    margin-left: 20px;
+    font-weight: bold;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 14px;
+}
+
+.missatge p {
+    margin-left: 25px;
+}
+
+.missatge .form-tasca {
+    margin-left: 0px;
+}
+
+.missatge form {
+	margin-bottom: 0px;
+    margin-left: 0px;
+}
+
+.missatge .control-group {
+	margin-bottom: 0px;
+}
+
+.missatgesOk {
+	background: #C8FFBF url(../img/tick.png) no-repeat scroll 4px 6px;
+	border-color: #A2EF95;
+}
+.missatgesInfo {
+	background: #DCF0F6 url(../img/information.png) no-repeat scroll 4px 6px;
+	border-color: #AFD2DE;
+}
+.missatgesWarn {
+	background: url("../img/error.png") no-repeat scroll 4px 6px #FCF3C0;
+    border-color: #F9C216;
+}
+	
+.missatgesError {
+	background: #FFDFDF url(../img/exclamation.png) no-repeat scroll 4px 6px;
+	border-color: #DF7D7D;
+}
+.missatgesComment {
+	background: #DCF0F6 url(../img/comment.png) no-repeat scroll 4px 6px;
+	border-color: #AFD2DE;
+}
+.missatgesAturat {
+	background: #FFDFDF url(../img/stop.png) no-repeat scroll 4px 6px;
+	border-color: #DF7D7D;
+}
+.missatgesGris {
+	background: #F4F4F4 none repeat scroll 0 0;
+	border-color: #DDD;
+}
+.missatgesGrisFort {
+	background: #666 none repeat scroll 0 0;
+	border-color: #DDD;
+}
+
+.missatgesVermell {
+	background: #FFDFDF none repeat scroll 0 0;
+	border-color: #DFCDCD;
+}
+.missatgesBlau {
+	background: #DCF0F6 none repeat scroll 0 0;
+	border-color: #AFD2DE;
+}
+.missatgesDocumentGris {
+	background: #F4F4F4 none repeat scroll 0 0;
+	border-color: #DDD;
+}
+.missatgesDocumentVermell {
+	background: #FFDFDF none repeat scroll 0 0;
+	border-color: #DFCDCD;
+}
+
+ul#tabnav li.active a {
+	font-weight: bold;
+	color: #666;
+}
+ul#tabnav a {
+	color: #999;
+	text-decoration: none;
+}
+ul#tabnav a:hover {
+	background: #fff;
+	color: #666;
+}
+
+ul#tabnav li.warn a {
+	padding-left: 20px;
+	background-image: url(../img/bullet_error.png);
+	background-repeat: no-repeat;
+	background-position: 5px 10px;
+}
+
+#dades {
+	margin-left: 20px;
+	margin-right: 20px;
+}
+
+.tab-content #dades .pull-right {
+	margin-right: 6.6%;
+}
+
+.icon-asterisk {
+	color: red;
+	font-size: 8pt;
+}
+
+.hide {
+  display: none;
+}
+
+.form-tasca .fila_reducida {
+	margin-bottom: 0px !important;
+	margin-top: 0px !important;
+	padding-bottom: 10px;
+    padding-top: 10px;
+}
+
+.form-tasca .fila_reducida:nth-child(2n+1) {
+	background-color: #f2f2f2;
+}
+
+#formFinalitzar {
+	margin: 0px;
 }

@@ -20,6 +20,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
@@ -275,15 +276,22 @@ public class ExpedientHelper {
 				asc,
 				firstRow,
 				maxResults);
+		
+		List<CampDto> campsInformeDto = new ArrayList<CampDto>();
+		for(Camp campTmp : campsInforme) {
+			campsInformeDto.add(new ModelMapper().map(campTmp, CampDto.class));
+		}
+		
 		for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
 			DadaIndexadaDto dadaExpedientId = dadesExpedient.get(LuceneHelper.CLAU_EXPEDIENT_ID);
 			ExpedientConsultaDissenyDto fila = new ExpedientConsultaDissenyDto();
 			Expedient expedient = expedientRepository.findById(Long.parseLong(dadaExpedientId.getValorIndex()));
 			if (expedient != null) {
-				fila.setExpedient(new ModelMapper().map(expedient, ExpedientDto.class));
+				fila.setExpedient(new ModelMapper().map(expedient, ExpedientDto.class));				
+				
 				dtoConverter.revisarDadesExpedientAmbValorsEnumeracionsODominis(
 						dadesExpedient,
-						campsInforme);
+						campsInformeDto);
 				fila.setDadesExpedient(dadesExpedient);
 				resposta.add(fila);
 			}

@@ -5,11 +5,15 @@ package net.conselldemallorca.helium.v3.core.service;
 
 import java.util.List;
 
-import net.conselldemallorca.helium.core.model.dao.PluginPersonaDao;
+import javax.annotation.Resource;
+
 import net.conselldemallorca.helium.core.model.dao.UsuariDao;
-import net.conselldemallorca.helium.core.model.dto.PersonaDto;
+import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.hibernate.Usuari;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.service.PermissionService;
+import net.conselldemallorca.helium.v3.core.helper.PluginPersonaHelper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,24 +29,25 @@ import org.springframework.stereotype.Service;
 @Service("pluginServiceV3")
 public class PluginServiceImpl {
 
-	private PluginPersonaDao pluginPersonaDao;
+	@Resource
+	private PluginPersonaHelper pluginPersonaHelper;
 	private UsuariDao usuariDao;
 
 	public List<PersonaDto> findPersonaLikeNomSencer(String text) {
-		return pluginPersonaDao.findLikeNomSencerPlugin(text);
+		return pluginPersonaHelper.findLikeNomSencerPlugin(text);
 	}
 	public PersonaDto findPersonaAmbCodi(String codi) {
-		return pluginPersonaDao.findAmbCodiPlugin(codi);
+		return pluginPersonaHelper.findAmbCodiPlugin(codi);
 	}
 	public void personesSync() {
 		if (isSyncPersonesActiu()) {
-			List<PersonaDto> persones = pluginPersonaDao.findAllPlugin();
+			List<PersonaDto> persones = pluginPersonaHelper.findAllPlugin();
 			int nsyn = 0;
 			int ncre = 0;
 			logger.info("Inici de la sincronització de persones (" + persones.size() + " registres)");
 	    	for (PersonaDto persona: persones) {
 	    		try {
-		    		net.conselldemallorca.helium.core.model.hibernate.Persona p = pluginPersonaDao.findAmbCodi(persona.getCodi());
+		    		Persona p = pluginPersonaHelper.findByCodi(persona.getCodi());
 		    		if (p != null) {
 		    			p.setNom(persona.getNom());
 		    			p.setLlinatges(persona.getLlinatges());
@@ -57,8 +62,7 @@ public class PluginServiceImpl {
 		    			p.setLlinatge2(persona.getLlinatge2());
 		    			p.setDni(persona.getDni());
 		    			p.setEmail(persona.getEmail());
-		    			pluginPersonaDao.saveOrUpdate(p);
-		    			pluginPersonaDao.flush();
+		    			pluginPersonaHelper.save(p);
 		    			Usuari usuari = usuariDao.getById(codiPerCreacio, false);
 		    			if (usuari == null) {
 		    				usuari = new Usuari();
@@ -79,8 +83,8 @@ public class PluginServiceImpl {
 	}
 
 	@Autowired
-	public void setPluginPersonaDao(PluginPersonaDao pluginPersonaDao) {
-		this.pluginPersonaDao = pluginPersonaDao;
+	public void setPluginPersonaDao(PluginPersonaHelper pluginPersonaHelper) {
+		this.pluginPersonaHelper = pluginPersonaHelper;
 	}
 	@Autowired
 	public void setUsuariDao(UsuariDao usuariDao) {

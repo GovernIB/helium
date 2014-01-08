@@ -17,7 +17,7 @@ import java.util.Set;
  */
 public class CampDto implements Serializable {
 
-	public enum TipusCampDto {
+	public enum TipusCamp {
 		STRING,
 		INTEGER,
 		FLOAT,
@@ -34,7 +34,7 @@ public class CampDto implements Serializable {
 
 	private Long id;
 	private String codi;
-	private TipusCampDto tipus;
+	private TipusCamp tipus;
 	private String etiqueta;
 	private String observacions;
 	private String dominiId;
@@ -44,7 +44,6 @@ public class CampDto implements Serializable {
 	private String consultaParams;
 	private String consultaCampText;
 	private String consultaCampValor;
-	
 	
 	private boolean dominiCacheText;
 	private boolean dominiIntern;
@@ -70,6 +69,157 @@ public class CampDto implements Serializable {
 	private Integer ordre;
 
 
+	public CampDto() {}
+	public CampDto(DefinicioProcesDto definicioProces, String codi, TipusCamp tipus, String etiqueta) {
+		this.definicioProces = definicioProces;
+		this.codi = codi;
+		this.tipus = tipus;
+		this.etiqueta = etiqueta;
+	}
+	
+	public String getCodiEtiqueta() {
+		if (codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX))
+			return etiqueta;
+		else
+			return codi + "/" + etiqueta;
+	}
+
+	public String getCodiPerInforme() {
+		if (codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX))
+			return codi.replace('$', '%');
+		else
+			return definicioProces.getJbpmKey() + "/" + codi;
+	}
+
+	public Class getJavaClass() {
+		if (TipusCamp.STRING.equals(tipus)) {
+			return String.class;
+		} else if (TipusCamp.INTEGER.equals(tipus)) {
+			return Long.class;
+		} else if (TipusCamp.FLOAT.equals(tipus)) {
+			return Double.class;
+		} else if (TipusCamp.BOOLEAN.equals(tipus)) {
+			return Boolean.class;
+		} else if (TipusCamp.TEXTAREA.equals(tipus)) {
+			return String.class;
+		} else if (TipusCamp.DATE.equals(tipus)) {
+			return Date.class;
+		} else if (TipusCamp.PRICE.equals(tipus)) {
+			return BigDecimal.class;
+		} else if (TipusCamp.TERMINI.equals(tipus)) {
+			return TerminiDto.class;
+		} else if (TipusCamp.REGISTRE.equals(tipus)) {
+			return Object[].class;
+		} else {
+			return String.class;
+		}
+	}
+
+	public static String getComText(
+			CampDto camp,
+			Object valor,
+			String valorDomini) {
+		if (valor == null)
+			return null;
+		try {
+			String text = null;
+			if (camp.getTipus().equals(TipusCamp.INTEGER)) {
+				text = new DecimalFormat("#").format((Long)valor);
+			} else if (camp.getTipus().equals(TipusCamp.FLOAT)) {
+				text = new DecimalFormat("#.#").format((Double)valor);
+			} else if (camp.getTipus().equals(TipusCamp.PRICE)) {
+				text = new DecimalFormat("#,##0.00").format((BigDecimal)valor);
+			} else if (camp.getTipus().equals(TipusCamp.DATE)) {
+				text = new SimpleDateFormat("dd/MM/yyyy").format((Date)valor);
+			} else if (camp.getTipus().equals(TipusCamp.BOOLEAN)) {
+				text = (((Boolean)valor).booleanValue()) ? "Si" : "No";
+			} else if (camp.getTipus().equals(TipusCamp.SELECCIO)) {
+				text = valorDomini;
+			} else if (camp.getTipus().equals(TipusCamp.SUGGEST)) {
+				text = valorDomini;
+			} else if (camp.getTipus().equals(TipusCamp.TERMINI)) {
+				TerminiDto termini = ((TerminiDto)valor);
+				text = termini.getAnys()+"/"+termini.getMesos()+"/"+termini.getDies();
+			} else {
+				text = valor.toString();
+			}
+			return text;
+		} catch (Exception ex) {
+			return valor.toString();
+		}
+	}
+
+	public static Object getComObject(
+			TipusCamp tipus,
+			String text) {
+		if (text == null)
+			return null;
+		try {
+			Object obj = null;
+			if (tipus.equals(TipusCamp.INTEGER)) {
+				obj = new Long(text);
+			} else if (tipus.equals(TipusCamp.FLOAT)) {
+				obj = new Double(text);
+			} else if (tipus.equals(TipusCamp.PRICE)) {
+				obj = new BigDecimal(text);
+			} else if (tipus.equals(TipusCamp.DATE)) {
+				obj = new SimpleDateFormat("dd/MM/yyyy").parse(text);
+			} else if (tipus.equals(TipusCamp.BOOLEAN)) {
+				obj = new Boolean("S".equals(text));
+			} else if (tipus.equals(TipusCamp.SELECCIO)) {
+				obj = text;
+			} else if (tipus.equals(TipusCamp.SUGGEST)) {
+				obj = text;
+			} else if (tipus.equals(TipusCamp.TERMINI)) {
+				String[] parts = text.split("/");
+				TerminiDto termini = new TerminiDto();
+				if (parts.length == 3) {
+					termini.setAnys(new Integer(parts[0]));
+					termini.setMesos(new Integer(parts[1]));
+					termini.setDies(new Integer(parts[2]));
+				}
+				obj = termini;
+			} else {
+				obj = text;
+			}
+			return obj;
+		} catch (Exception ex) {
+			return text;
+		}
+	}
+
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((codi == null) ? 0 : codi.hashCode());
+		result = prime * result
+				+ ((definicioProces == null) ? 0 : definicioProces.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CampDto other = (CampDto) obj;
+		if (codi == null) {
+			if (other.codi != null)
+				return false;
+		} else if (!codi.equals(other.codi))
+			return false;
+		if (definicioProces == null) {
+			if (other.definicioProces != null)
+				return false;
+		} else if (!definicioProces.equals(other.definicioProces))
+			return false;
+		return true;
+	}
+
 	public Long getId() {
 		return id;
 	}
@@ -82,10 +232,10 @@ public class CampDto implements Serializable {
 	public void setCodi(String codi) {
 		this.codi = codi;
 	}
-	public TipusCampDto getTipus() {
+	public TipusCamp getTipus() {
 		return tipus;
 	}
-	public void setTipus(TipusCampDto tipus) {
+	public void setTipus(TipusCamp tipus) {
 		this.tipus = tipus;
 	}
 	public String getEtiqueta() {
@@ -232,174 +382,19 @@ public class CampDto implements Serializable {
 	public void setRegistrePares(Set<CampRegistreDto> registrePares) {
 		this.registrePares = registrePares;
 	}
+	public List<CampRegistreDto> getRegistreMembres() {
+		return registreMembres;
+	}
+	public void setRegistreMembres(List<CampRegistreDto> registreMembres) {
+		this.registreMembres = registreMembres;
+	}
 	public Integer getOrdre() {
 		return ordre;
 	}
 	public void setOrdre(Integer ordre) {
 		this.ordre = ordre;
 	}
-	public CampDto() {}
-	public CampDto(DefinicioProcesDto definicioProces, String codi, TipusCampDto tipus, String etiqueta) {
-		this.definicioProces = definicioProces;
-		this.codi = codi;
-		this.tipus = tipus;
-		this.etiqueta = etiqueta;
-	}
-
-	public List<CampRegistreDto> getRegistreMembres() {
-		return this.registreMembres;
-	}
-	public void setRegistreMembres(List<CampRegistreDto> registreMembres) {
-		this.registreMembres = registreMembres;
-	}
-	public void addRegistreMembre(CampRegistreDto registreMembre) {
-		getRegistreMembres().add(registreMembre);
-	}
-	public void removeRegistreMembre(CampRegistreDto registreMembre) {
-		getRegistreMembres().remove(registreMembre);
-	}
-
-	public String getCodiEtiqueta() {
-		if (codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX))
-			return etiqueta;
-		else
-			return codi + "/" + etiqueta;
-	}
-
-	public String getCodiPerInforme() {
-		if (codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX))
-			return codi.replace('$', '%');
-		else
-			return definicioProces.getJbpmKey() + "/" + codi;
-	}
-
-	public Class getJavaClass() {
-		if (TipusCampDto.STRING.equals(tipus)) {
-			return String.class;
-		} else if (TipusCampDto.INTEGER.equals(tipus)) {
-			return Long.class;
-		} else if (TipusCampDto.FLOAT.equals(tipus)) {
-			return Double.class;
-		} else if (TipusCampDto.BOOLEAN.equals(tipus)) {
-			return Boolean.class;
-		} else if (TipusCampDto.TEXTAREA.equals(tipus)) {
-			return String.class;
-		} else if (TipusCampDto.DATE.equals(tipus)) {
-			return Date.class;
-		} else if (TipusCampDto.PRICE.equals(tipus)) {
-			return BigDecimal.class;
-		} else if (TipusCampDto.TERMINI.equals(tipus)) {
-			return TerminiDto.class;
-		} else if (TipusCampDto.REGISTRE.equals(tipus)) {
-			return Object[].class;
-		} else {
-			return String.class;
-		}
-	}
-
-	public static String getComText(
-			TipusCampDto tipus,
-			Object valor,
-			String valorDomini) {
-		if (valor == null)
-			return null;
-		try {
-			String text = null;
-			if (tipus.equals(TipusCampDto.INTEGER)) {
-				text = new DecimalFormat("#").format((Long)valor);
-			} else if (tipus.equals(TipusCampDto.FLOAT)) {
-				text = new DecimalFormat("#.#").format((Double)valor);
-			} else if (tipus.equals(TipusCampDto.PRICE)) {
-				text = new DecimalFormat("#,##0.00").format((BigDecimal)valor);
-			} else if (tipus.equals(TipusCampDto.DATE)) {
-				text = new SimpleDateFormat("dd/MM/yyyy").format((Date)valor);
-			} else if (tipus.equals(TipusCampDto.BOOLEAN)) {
-				text = (((Boolean)valor).booleanValue()) ? "Si" : "No";
-			} else if (tipus.equals(TipusCampDto.SELECCIO)) {
-				text = valorDomini;
-			} else if (tipus.equals(TipusCampDto.SUGGEST)) {
-				text = valorDomini;
-			} else if (tipus.equals(TipusCampDto.TERMINI)) {
-				text = ((TerminiDto)valor).toString();
-			} else {
-				text = valor.toString();
-			}
-			return text;
-		} catch (Exception ex) {
-			return valor.toString();
-		}
-	}
-
-	public static Object getComObject(
-			TipusCampDto tipus,
-			String text) {
-		if (text == null)
-			return null;
-		try {
-			Object obj = null;
-			if (tipus.equals(TipusCampDto.INTEGER)) {
-				obj = new Long(text);
-			} else if (tipus.equals(TipusCampDto.FLOAT)) {
-				obj = new Double(text);
-			} else if (tipus.equals(TipusCampDto.PRICE)) {
-				obj = new BigDecimal(text);
-			} else if (tipus.equals(TipusCampDto.DATE)) {
-				obj = new SimpleDateFormat("dd/MM/yyyy").parse(text);
-			} else if (tipus.equals(TipusCampDto.BOOLEAN)) {
-				obj = new Boolean("S".equals(text));
-			} else if (tipus.equals(TipusCampDto.SELECCIO)) {
-				obj = text;
-			} else if (tipus.equals(TipusCampDto.SUGGEST)) {
-				obj = text;
-			} else if (tipus.equals(TipusCampDto.TERMINI)) {
-				String[] parts = text.split("/");
-				TerminiDto termini = new TerminiDto();
-				if (parts.length == 3) {
-					termini.setAnys(new Integer(parts[0]));
-					termini.setMesos(new Integer(parts[1]));
-					termini.setDies(new Integer(parts[2]));
-				}
-				obj = termini;
-			} else {
-				obj = text;
-			}
-			return obj;
-		} catch (Exception ex) {
-			return text;
-		}
-	}
-
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((codi == null) ? 0 : codi.hashCode());
-		result = prime * result
-				+ ((definicioProces == null) ? 0 : definicioProces.hashCode());
-		return result;
-	}
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		CampDto other = (CampDto) obj;
-		if (codi == null) {
-			if (other.codi != null)
-				return false;
-		} else if (!codi.equals(other.codi))
-			return false;
-		if (definicioProces == null) {
-			if (other.definicioProces != null)
-				return false;
-		} else if (!definicioProces.equals(other.definicioProces))
-			return false;
-		return true;
-	}
 
 	private static final long serialVersionUID = 1L;
+
 }

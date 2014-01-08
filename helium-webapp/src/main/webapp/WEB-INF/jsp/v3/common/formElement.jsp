@@ -30,7 +30,7 @@
 				<c:otherwise>
 					<div class="ctrlHolder<c:if test="${not empty errorsCamp}"> error</c:if><c:if test="${not empty param.classHolder}"> ${param.classHolder}</c:if>">
 						<c:if test="${not empty errorsCamp}"><p class="errorField"><strong>${errorsCamp}</strong></p></c:if>
-<%-- 						<c:set var="labelText"><c:if test="${required}"><em><img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='comuns.camp_oblig' />" title="<fmt:message key='comuns.camp_oblig' />" border="0"/></em></c:if><c:choose><c:when test="${not empty param.labelKey}"><fmt:message key="${param.labelKey}"/></c:when><c:when test="${not empty param.label}">${param.label}</c:when></c:choose></c:set> --%>
+						<c:set var="labelText"><c:if test="${required}"><em><img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='comuns.camp_oblig' />" title="<fmt:message key='comuns.camp_oblig' />" border="0"/></em></c:if><c:choose><c:when test="${not empty param.labelKey}"><fmt:message key="${param.labelKey}"/></c:when><c:when test="${not empty param.label}">${param.label}</c:when></c:choose></c:set>
 						<c:set var="labelText"><c:if test="${required}"><em><img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='comuns.camp_oblig' />" title="<fmt:message key='comuns.camp_oblig' />" border="0"/></em></c:if></c:set>
 						<c:if test="${varStatus.index gt 0}"><c:set var="labelText" value=""/></c:if>
 						<c:choose>

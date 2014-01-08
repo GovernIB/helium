@@ -3,13 +3,18 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
 
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
@@ -18,10 +23,12 @@ import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.v3.core.helper.PermisosHelper.ObjectIdentifierExtractor;
+import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +43,12 @@ public class DissenyServiceImpl implements DissenyService {
 
 	@Resource
 	private EntornRepository entornRepository;
+	@Resource(name="dtoConverterV3")
+	private DtoConverter dtoConverter;
+	@Resource
+	private JbpmHelper jbpmHelper;
+	@Resource
+	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
 	private ExpedientTipusRepository expedientTipusRepository;
 	@Resource
@@ -56,6 +69,38 @@ public class DissenyServiceImpl implements DissenyService {
 		return conversioTipusHelper.convertirList(
 				estatRepository.findByExpedientTipus(expedientTipus),
 				EstatDto.class);
+	}
+	
+	@Transactional
+	@Override
+	public DefinicioProcesDto findDarreraDefinicioProcesForExpedientTipus(
+			Long expedientTipusId,
+			boolean ambTascaInicial) {
+		ExpedientTipusDto expedientTipus = getExpedientTipusById(expedientTipusId);
+		if (expedientTipus.getJbpmProcessDefinitionKey() != null) {
+			DefinicioProces definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
+					expedientTipus.getEntorn().getId(),
+					expedientTipus.getJbpmProcessDefinitionKey());
+			if (definicioProces != null) {
+				return dtoConverter.toDto(definicioProces, ambTascaInicial);
+			}
+		}
+		return null;
+	}
+	
+	@Transactional(readOnly=true)
+	@Override
+	public DefinicioProcesDto getById(
+			Long id,
+			boolean ambTascaInicial) {
+			DefinicioProces definicioProces = definicioProcesRepository.findById(id);
+			return new ModelMapper().map(definicioProces, DefinicioProcesDto.class);
+	}
+	
+	@Transactional(readOnly=true)
+	@Override
+	public ExpedientTipusDto getExpedientTipusById(Long id) {
+		return new ModelMapper().map(expedientTipusRepository.findById(id), ExpedientTipusDto.class);
 	}
 
 	@Transactional(readOnly=true)
@@ -122,5 +167,27 @@ public class DissenyServiceImpl implements DissenyService {
 		return conversioTipusHelper.convertirList(
 				expedientsTipus,
 				ExpedientTipusDto.class);
+	}
+
+	@Transactional(readOnly=true)
+	@Override
+	public byte[] getDeploymentResource(
+			Long definicioProcesId,
+			String resourceName) {
+		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);
+		return jbpmHelper.getResourceBytes(
+				definicioProces.getJbpmId(),
+				resourceName);
+	}
+
+	@Transactional(readOnly=true)
+	@Override
+	public List<ExpedientTipusDto> findExpedientTipusAmbEntorn(EntornDto entornDto) {
+		Entorn entorn = new ModelMapper().map(entornDto, Entorn.class);
+		List<ExpedientTipusDto> list = new ArrayList<ExpedientTipusDto>();
+		for (ExpedientTipus expedientTipus : expedientTipusRepository.findByEntornOrderByCodiAsc(entorn)) {
+			list.add(new ModelMapper().map(expedientTipus, ExpedientTipusDto.class));
+		}
+		return list;
 	}
 }

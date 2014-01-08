@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.v3.core.helper;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,28 +19,34 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
+import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Domini;
-import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusAuthDomini;
-import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.service.DocumentHelper;
-import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.TipusAuthDomini;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.TipusDomini;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -281,13 +288,16 @@ public class VariableHelper {
 			boolean forsarSimple) {
 		ExpedientDadaDto dto = new ExpedientDadaDto();
 		dto.setVarCodi(varCodi);
-		dto.setVarValor(varValor);
+		dto.setVarValor(varValor);		
 		if (camp != null) {
 			dto.setCampId(camp.getId());
+			dto.setVarCodi(camp.getCodi());
 			dto.setCampEtiqueta(camp.getEtiqueta());
 			dto.setCampTipus(CampTipusDto.valueOf(camp.getTipus().name()));
 			dto.setCampMultiple(camp.isMultiple());
 			dto.setCampOcult(camp.isOcult());
+			dto.setObservacions(camp.getObservacions());
+			dto.setJbpmAction(camp.getJbpmAction());
 			if (camp.getAgrupacio() != null)
 				dto.setAgrupacioId(camp.getAgrupacio().getId());
 		} else {
@@ -295,21 +305,26 @@ public class VariableHelper {
 			dto.setCampTipus(CampTipusDto.STRING);
 		}
 		boolean esCampTipusAccio = camp != null && TipusCamp.ACCIO.equals(camp.getTipus());
-		if (varValor != null && !esCampTipusAccio) {
+		if (!esCampTipusAccio) {
 			try {
 				if (!camp.isMultiple() || forsarSimple) {
 					if (TipusCamp.REGISTRE.equals(camp.getTipus())) {
 						List<ExpedientDadaDto> registreDades = new ArrayList<ExpedientDadaDto>();
-						Object[] valorsRegistre = (Object[])varValor;
+						Object[] valorsRegistres = (Object[])varValor;
 						int index = 0;
-						for (CampRegistre campRegistre: camp.getRegistreMembres()) {
+						for (CampRegistre campRegistre: camp.getRegistreMembres()) {							
+							Object valorsRegistre = null;
+							if (valorsRegistres != null && valorsRegistres.length>index) {
+								valorsRegistre = valorsRegistres[index];
+							}
 							ExpedientDadaDto dtoRegistre = getDadaPerVariableJbpm(
 									campRegistre.getMembre(),
 									campRegistre.getMembre().getCodi(),
-									valorsRegistre[index++],
+									valorsRegistre,
 									taskInstanceId,
 									processInstanceId,
 									false);
+							index += 1;
 							registreDades.add(dtoRegistre);
 						}
 						dto.setRegistreDades(registreDades);
@@ -322,6 +337,9 @@ public class VariableHelper {
 											null,
 											taskInstanceId,
 											processInstanceId));
+							if (dto.getText() == null || dto.getText().isEmpty()) {
+								dto.setText("");
+							}							
 						} catch (Exception ex) {
 							dto.setText("[!]");
 							logger.error("Error al obtenir text per la dada de l'expedient (processInstanceId=" + processInstanceId + ", variable=" + camp.getCodi() + ")", ex);
@@ -331,11 +349,22 @@ public class VariableHelper {
 				} else {
 					Object[] valorsMultiples = (Object[])varValor;
 					List<ExpedientDadaDto> multipleDades = new ArrayList<ExpedientDadaDto>();
-					for (int i = 0; i < valorsMultiples.length; i++) {
+					if (valorsMultiples != null) {
+						for (Object valor : valorsMultiples) {
+							ExpedientDadaDto dtoMultiple = getDadaPerVariableJbpm(
+									camp,
+									varCodi,
+									valor,
+									taskInstanceId,
+									processInstanceId,
+									true);
+							multipleDades.add(dtoMultiple);
+						}
+					} else {
 						ExpedientDadaDto dtoMultiple = getDadaPerVariableJbpm(
 								camp,
 								varCodi,
-								valorsMultiples[i],
+								null,
 								taskInstanceId,
 								processInstanceId,
 								true);
@@ -363,19 +392,19 @@ public class VariableHelper {
 			return null;
 		String valorFontExterna = null;
 		if (TipusCamp.SELECCIO.equals(camp.getTipus()) || TipusCamp.SUGGEST.equals(camp.getTipus())) {
-			valorFontExterna = getTextVariableSimpleFontExterna(
+			valorFontExterna = (String) getTextVariableSimpleFontExterna(
 					camp,
 					valor,
 					null,
 					taskInstanceId,
-					processInstanceId);
+					processInstanceId).getValor();
 		}
 		return Camp.getComText(
 				camp.getTipus(),
 				valor,
 				valorFontExterna);
 	}
-	private String getTextVariableSimpleFontExterna(
+	private ParellaCodiValorDto getTextVariableSimpleFontExterna(
 			Camp camp,
 			Object valor,
 			Map<String, Object> valorsAddicionals,
@@ -384,22 +413,25 @@ public class VariableHelper {
 		if (valor == null)
 			return null;
 		if (valor instanceof DominiCodiDescripcio) {
-			return ((DominiCodiDescripcio)valor).getDescripcio();
+			return new ParellaCodiValorDto(
+					((DominiCodiDescripcio)valor).getCodi(),
+					((DominiCodiDescripcio)valor).getDescripcio());
 		}
-		String resposta = null;
+		ParellaCodiValorDto resposta = null;
 		TipusCamp tipus = camp.getTipus();
 		if (tipus.equals(TipusCamp.SELECCIO) || tipus.equals(TipusCamp.SUGGEST)) {
 			if (camp.getDomini() != null || camp.isDominiIntern()) {
-				Domini domini = camp.getDomini();
+				DominiDto domini;
 				if (camp.isDominiIntern()) {
-					domini = new Domini();
-					domini.setId(new Long(-1));
-					domini.setEntorn(camp.getDefinicioProces().getEntorn());
-					domini.setCodi("intern");
-					domini.setCacheSegons(30);
-					domini.setTipus(TipusDomini.CONSULTA_WS);
-					domini.setTipusAuth(TipusAuthDomini.NONE);
-					domini.setUrl(GlobalProperties.getInstance().getProperty("app.domini.intern.url","http://localhost:8080/helium/ws/DominiIntern"));
+					EntornDto entorn = new ModelMapper().map(camp.getDefinicioProces().getEntorn(), EntornDto.class);
+					domini = findAmbEntornICodi(entorn, "intern");
+				} else {
+					domini = new DominiDto();
+					domini.setCacheSegons(camp.getDomini().getCacheSegons());
+					domini.setTipus(new ModelMapper().map(camp.getDomini().getTipus(),TipusDomini.class));
+					domini.setId(camp.getDomini().getId());
+					domini.setSql(camp.getDomini().getSql());
+					domini.setJndiDatasource(camp.getDomini().getJndiDatasource());
 				}
 				try {
 					List<FilaResultat> resultatConsultaDomini = dominiHelper.consultar(
@@ -412,13 +444,17 @@ public class VariableHelper {
 									valorsAddicionals));
 					String columnaCodi = camp.getDominiCampValor();
 					String columnaValor = camp.getDominiCampText();
-					for (FilaResultat filaResultat: resultatConsultaDomini) {
-						for (ParellaCodiValor parellaCodi: filaResultat.getColumnes()) {
+					Iterator<FilaResultat> it = resultatConsultaDomini.iterator();
+					while (it.hasNext()) {
+						FilaResultat fr = it.next();
+						for (ParellaCodiValor parellaCodi: fr.getColumnes()) {
 							if (parellaCodi.getCodi().equals(columnaCodi) && parellaCodi.getValor().toString().equals(valor)) {
-								for (ParellaCodiValor parellaValor: filaResultat.getColumnes()) {
+								for (ParellaCodiValor parellaValor: fr.getColumnes()) {
 									if (parellaValor.getCodi().equals(columnaValor)) {
-										if (parellaValor != null && parellaValor.getValor() != null)
-											resposta = parellaValor.getValor().toString();
+										ParellaCodiValorDto codiValor = new ParellaCodiValorDto(
+												parellaCodi.getValor().toString(),
+												parellaValor.getValor());
+										resposta = codiValor;
 										break;
 									}
 								}
@@ -433,18 +469,21 @@ public class VariableHelper {
 				Enumeracio enumeracio = camp.getEnumeracio();
 				for (EnumeracioValors enumValor: enumeracio.getEnumeracioValors()) {
 					if (valor.equals(enumValor.getCodi())) {
-						resposta = enumValor.getNom();
+						resposta = new ParellaCodiValorDto(
+								enumValor.getCodi(),
+								enumValor.getNom());
+						break;
 					}
 				}
 			} else if (camp.getConsulta() != null) {
-				throw new Exception("Consultes de disseny com a fonts de dades externes no disponibles.");
-				/*Consulta consulta = camp.getConsulta();
-				List<ExpedientConsultaDissenyDto> dadesExpedients = expedientService.findAmbEntornConsultaDisseny(
+				Consulta consulta = camp.getConsulta();
+				List<ExpedientConsultaDissenyDto> dadesExpedients = expedientHelper.findAmbEntornConsultaDisseny(
 						consulta.getEntorn().getId(),
 						consulta.getId(),
 						new HashMap<String, Object>(),
 						null,
 						true);
+				
 				Iterator<ExpedientConsultaDissenyDto> it = dadesExpedients.iterator();
 				while(it.hasNext()){
 					ExpedientConsultaDissenyDto exp = it.next();
@@ -458,17 +497,32 @@ public class VariableHelper {
 							if(textDto == null){
 								textDto = exp.getDadesExpedient().get(consulta.getExpedientTipus().getJbpmProcessDefinitionKey()+"/"+camp.getConsultaCampText());
 							}
-							resposta = textDto.getValorMostrar();
+							resposta = new ParellaCodiValorDto(
+									valorDto.getValorMostrar(),
+									textDto.getValorMostrar()
+									);
 							break;
 						}
 					}
-				}*/
+				}
 			}
 		}
 		return resposta;
 	}
+	public DominiDto findAmbEntornICodi(EntornDto entorn, String codi) {
+		DominiDto domini = new DominiDto();
+		domini.setId((long) 0);
+		domini.setCacheSegons(30);
+		domini.setCodi("intern");
+		domini.setNom("Domini intern");
+		domini.setTipus(TipusDomini.CONSULTA_WS);
+		domini.setTipusAuth(TipusAuthDomini.NONE);
+		domini.setEntorn(entorn);
+		domini.setUrl(GlobalProperties.getInstance().getProperty("app.domini.intern.url","http://localhost:8080/helium/ws/DominiIntern"));
+		return domini;
+	}
 
-	private Map<String, Object> getParamsConsulta(
+	public Map<String, Object> getParamsConsulta(
 			String taskInstanceId,
 			String processInstanceId,
 			Camp camp,
@@ -552,6 +606,8 @@ public class VariableHelper {
 		tascaDto.setRequired(campTasca.isRequired());
 		tascaDto.setText(expedientDadaDto.getText());
 		tascaDto.setError(expedientDadaDto.getError());
+		tascaDto.setObservacions(expedientDadaDto.getObservacions());
+		tascaDto.setJbpmAction(expedientDadaDto.getJbpmAction());
 		if (expedientDadaDto.getMultipleDades() != null) {
 			List<TascaDadaDto> multipleDades = new ArrayList<TascaDadaDto>();
 			for (ExpedientDadaDto dto: expedientDadaDto.getMultipleDades()) {
@@ -591,5 +647,4 @@ public class VariableHelper {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(VariableHelper.class);
-
 }
