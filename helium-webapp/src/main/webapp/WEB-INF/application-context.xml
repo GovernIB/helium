@@ -18,13 +18,4 @@
 	<import resource="classpath:net/conselldemallorca/helium/webapp/context/application-context-security.xml" />
 	<import resource="classpath:net/conselldemallorca/helium/webapp/context/application-context-dwr.xml" />
 	<import resource="classpath:net/conselldemallorca/helium/ws/context/application-context-ws.xml" />
-
-	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
-		<property name="basenames">
-			<list>
-				<value>net/conselldemallorca/helium/webapp/i18n/messages</value>
-				<value>net/conselldemallorca/helium/webapp/i18n/errors</value>
-			</list>
-		</property>
-	</bean>
 </beans>
