@@ -17,17 +17,17 @@
 		// <![CDATA[
 		function confirmar(e) {
 			if ($('#nomesRefrescar').val() == 'true') {
-				$('button.submitButton').remove();
+				$('#submit').remove();
 				return true;
 			}
 			var e = e || window.event;
 			e.cancelBubble = true;
 			if (e.stopPropagation) e.stopPropagation();
-			if ("cancel" == submitAction)
-				return true;
+			
 			return confirm("<spring:message code='expedient.iniciar.confirm_iniciar' />");
 		}
-		function canviAny(element) {
+		
+		function canviAny() {
 			$('#nomesRefrescar').val('true');
 			$('#command').submit();
 		}
@@ -36,9 +36,12 @@
 </head>
 <body>
 	<h3 class="titol-tab titol-dades-tasca"><spring:message code='expedient.iniciar.iniciar_expedient' />: ${expedientTipus.nom}</h3>
-	<form:form action="iniciarPasTitol" id="command" name="command" cssClass="form-horizontal form-tasca" onsubmit="return confirmar(event)">
+	<form:form method="post" action='<c:url value="/v3/expedient/iniciarPasTitol"/>' id="command" name="command" cssClass="form-horizontal form-tasca" onsubmit="return confirmar(event)">
 		<input type="hidden" name="expedientTipusId" value="${expedientTipus.id}"/>
-		<c:if test="${not empty definicioProcesId}"><input type="hidden" name="definicioProcesId" value="${definicioProcesId}"/></c:if>
+		<input type="hidden" id="nomesRefrescar" name="nomesRefrescar"/>
+		<c:if test="${not empty definicioProcesId}">
+			<input type="hidden" name="definicioProcesId" value="${definicioProcesId}"/>
+		</c:if>
 		<c:if test="${expedientTipus.teNumero and expedientTipus.demanaNumero}">
 			<div class="control-group fila_reducida">
 				<label class="control-label" for="numero"><spring:message code='expedient.consulta.numero' /></label>
@@ -65,22 +68,13 @@
 			<div class="control-group fila_reducida">
 				<label class="control-label" for="any"><spring:message code='expedient.iniciar.canvi_any' /></label>
 				<div class="controls">
-					<select id="any" name="any" class="span11" onchange="canviAny(this)"></select>
-					<script>
-						$.ajax({
-						    url: 'camp/any/valorsSeleccio',
-						    type: 'GET',
-						    dataType: 'json',
-						    success: function(json) {
-						    	$.each(json, function(i, value) {
-						        	$('select#any').append($('<option>').text(value.text).attr('value', value.codi));
-						        });
-						    }
-						});
-					</script>
+					<select id="any" name="any" class="span11" onchange="canviAny()">
+						<c:forEach var="item" items="${anysSeleccionables}">
+							<option value="${item}"<c:if test="${item==any}"> selected="selected"</c:if>>${item}</option>
+						</c:forEach>
+					</select>
 				</div>
 			</div>
-			<input type="hidden" id="nomesRefrescar" name="nomesRefrescar"/>
 		</c:if>
 		<br/>
 		<div style="clear: both"></div>

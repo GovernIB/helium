@@ -12,6 +12,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.hibernate.Usuari;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 import net.conselldemallorca.helium.v3.core.helper.PluginPersonaHelper;
 
 import org.apache.commons.logging.Log;
@@ -26,18 +27,23 @@ import org.springframework.stereotype.Service;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Service("pluginServiceV3")
-public class PluginServiceImpl {
+public class PluginServiceImpl implements PluginService{
 
 	@Resource
 	private PluginPersonaHelper pluginPersonaHelper;
+	@Resource
 	private UsuariDao usuariDao;
-
+	
+	@Override
 	public List<PersonaDto> findPersonaLikeNomSencer(String text) {
 		return pluginPersonaHelper.findLikeNomSencerPlugin(text);
 	}
+	
+	@Override
 	public PersonaDto findPersonaAmbCodi(String codi) {
 		return pluginPersonaHelper.findAmbCodiPlugin(codi);
 	}
+	
 	public void personesSync() {
 		if (isSyncPersonesActiu()) {
 			List<PersonaDto> persones = pluginPersonaHelper.findAllPlugin();

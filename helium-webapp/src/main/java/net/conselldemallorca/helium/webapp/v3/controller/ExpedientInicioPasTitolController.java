@@ -19,11 +19,12 @@ import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.PermissionService;
+import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 import net.conselldemallorca.helium.v3.core.service.PluginServiceImpl;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientInicioPasTitolCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
@@ -60,7 +61,7 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 	@Resource(name="permissionServiceV3")
 	private PermissionService permissionService;
 	@Resource(name = "pluginServiceV3")
-	private PluginServiceImpl pluginService;
+	private PluginService pluginService;
 
 	private Validator validator;
 
@@ -117,12 +118,11 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 				return "expedient";
 			} else {
 				MissatgesHelper.error(request, getMessage(request, "error.permisos.iniciar.tipus.exp"));
-				return "redirect:/expedient/iniciar";
 			}
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec") );
-			return "redirect:/expedient/iniciar";
 		}
+		return "redirect:/expedient/iniciar";
 	}
 
 	@RequestMapping(value = "/iniciarPasTitol", method = RequestMethod.POST)

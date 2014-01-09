@@ -7,7 +7,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.service.PluginServiceImpl;
+import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,7 +28,7 @@ public class ExpedientPipellesController extends BaseExpedientController {
 	private ExpedientService expedientService;
 	
 	@Resource(name = "pluginServiceV3")
-	private PluginServiceImpl pluginService;
+	private PluginService pluginService;
 
 	@RequestMapping(value = "/{expedientId}", method = RequestMethod.GET)
 	public String info(HttpServletRequest request, @PathVariable Long expedientId, Model model) {

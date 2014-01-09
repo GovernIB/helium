@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.service.PluginServiceImpl;
+import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesAturarCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NoDecorarHelper;
@@ -40,7 +40,7 @@ public class ExpedientAturarController extends BaseExpedientController {
 	private ExpedientService expedientService;
 	
 	@Resource(name = "pluginServiceV3")
-	private PluginServiceImpl pluginService;
+	private PluginService pluginService;
 
 	@RequestMapping(value = "/{expedientId}/stop", method = RequestMethod.GET)
 	public String aturarForm(HttpServletRequest request, @PathVariable Long expedientId, Model model) {

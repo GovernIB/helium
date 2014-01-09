@@ -19,11 +19,12 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.PermissionService;
+import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
@@ -66,6 +67,9 @@ public class ExpedientInicioController extends BaseExpedientController {
 	@Resource(name = "tascaServiceV3")
 	private TascaService tascaService;
 
+	@Resource(name = "pluginServiceV3")
+	private PluginService pluginService;
+
 	@Autowired
 	public ExpedientInicioController(
 			DissenyService dissenyService,
@@ -106,7 +110,6 @@ public class ExpedientInicioController extends BaseExpedientController {
 			}
 			model.addAttribute("expedientTipus", tipus);
 			model.addAttribute("definicionsProces", definicionsProces);
-			return "v3/expedient/iniciar";
 		}  else {
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
 		}
@@ -173,6 +176,7 @@ public class ExpedientInicioController extends BaseExpedientController {
 				} else if (expedientTipus.isDemanaNumero() || expedientTipus.isDemanaTitol() || expedientTipus.isSeleccionarAny()) {
 					// Si l'expedient no requereix dades inicials però ha de demanar titol i/o número
 					// redirigeix al pas per demanar aquestes dades
+					omplirModelPerMostrarFormulari(expedientTipus, model);
 					model.addAttribute("any", Calendar.getInstance().get(Calendar.YEAR));
 					model.addAttribute("numero", expedientService.getNumeroExpedientActual(
 							entorn.getId(),
@@ -202,11 +206,27 @@ public class ExpedientInicioController extends BaseExpedientController {
 			} else {
 				MissatgesHelper.error(request, getMessage(request, "error.permisos.iniciar.tipus.exp") );
 			}
-			return "v3/expedient/iniciar";
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
 		}
 		return "v3/expedient/iniciar";
+	}
+	
+	private void omplirModelPerMostrarFormulari(
+			ExpedientTipusDto tipus,
+			ModelMap model) {
+		model.addAttribute(
+				"responsable",
+				pluginService.findPersonaAmbCodi(tipus.getResponsableDefecteCodi()));
+		model.addAttribute(
+				"expedientTipus",
+				tipus);
+		Integer[] anys = new Integer[10];
+		int anyActual = Calendar.getInstance().get(Calendar.YEAR);
+		for (int i = 0; i < 10; i++) {
+			anys[i] = new Integer(anyActual - i);
+		}
+		model.addAttribute("anysSeleccionables", anys);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -280,5 +300,4 @@ public class ExpedientInicioController extends BaseExpedientController {
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientInicioController.class);
-
 }
