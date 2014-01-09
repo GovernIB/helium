@@ -78,7 +78,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.DocumentDescarregarException;
 import net.conselldemallorca.helium.v3.core.api.exception.DominiNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
@@ -94,6 +93,7 @@ import net.conselldemallorca.helium.v3.core.helper.ConsultaHelper;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.v3.core.helper.DominiHelper;
+import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.v3.core.helper.LuceneHelper;
@@ -102,6 +102,7 @@ import net.conselldemallorca.helium.v3.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.v3.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.v3.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.v3.core.helper.PersonaHelper;
+import net.conselldemallorca.helium.v3.core.helper.ServiceUtils;
 import net.conselldemallorca.helium.v3.core.helper.TascaHelper;
 import net.conselldemallorca.helium.v3.core.helper.VariableHelper;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
@@ -201,7 +202,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Resource
 	private ExpedientLoggerHelper expedientLoggerHelper;
 	@Resource(name="serviceUtilsV3")
-	private ServiceUtilsV3 serviceUtils;
+	private ServiceUtils serviceUtils;
 	@Resource
 	private ConsultaCampRepository consultaCampRepository;
 	@Resource(name="permissionServiceV3")
@@ -708,9 +709,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 			desti.addRelacioOrigen(origen);
 	}
 
-	private ServiceUtilsV3 getServiceUtils() {
+	private ServiceUtils getServiceUtils() {
 		if (serviceUtils == null) {
-			serviceUtils = new ServiceUtilsV3();
+			serviceUtils = new ServiceUtils();
 		}
 		return serviceUtils;
 	}
@@ -1314,16 +1315,16 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 	
 	@Transactional
-	public Map<String, TascaDto> getTasquesPerLogExpedient(Long expedientId) {
+	public Map<String, ExpedientTascaDto> getTasquesPerLogExpedient(Long expedientId) {
 		List<ExpedientLog> logs = expedientLogRepository.findAmbExpedientIdOrdenatsPerData(expedientId);
-		Map<String, TascaDto> tasquesPerLogs = new HashMap<String, TascaDto>();
+		Map<String, ExpedientTascaDto> tasquesPerLogs = new HashMap<String, ExpedientTascaDto>();
 		for (ExpedientLog log: logs) {
 			if (log.isTargetTasca()) {
 				JbpmTask task = jbpmHelper.getTaskById(log.getTargetId());
 				if (task != null)
 					tasquesPerLogs.put(
 							log.getTargetId(),
-							dtoConverter.toTascaDto(
+							dtoConverter.toExpedientTascaDto(
 									task,
 									null,
 									false,
@@ -1578,7 +1579,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Transactional
 	@Override
-	public TascaDto getStartTask(
+	public ExpedientTascaDto getStartTask(
 			Long entornId,
 			Long expedientTipusId,
 			Long definicioProcesId,
@@ -1817,6 +1818,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			MesurarTemps.diferenciaImprimirStdout(mesuraTempsTotalPrefix);
 			MesurarTemps.mitjaCalcular(mesuraTempsTotalPrefix, mesuraTempsTotalPrefix);
 			MesurarTemps.mitjaImprimirStdout(mesuraTempsTotalPrefix);
+			logger.debug("textBloqueigIniciExpedient: " + textBloqueigIniciExpedient);
 			return dto;
 		} finally {
 			textBloqueigIniciExpedient = null;

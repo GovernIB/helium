@@ -25,7 +25,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.DominiNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EnumeracioNotFoundException;
@@ -221,7 +220,7 @@ public interface ExpedientService {
 
 	public List<ExpedientLogDto> getLogsOrdenatsPerData(ExpedientDto expedient);
 
-	public Map<String, TascaDto> getTasquesPerLogExpedient(Long expedientId);
+	public Map<String, ExpedientTascaDto> getTasquesPerLogExpedient(Long expedientId);
 
 	public List<ExpedientLogDto> findLogsTascaOrdenatsPerData(Long targetId);
 
@@ -237,7 +236,7 @@ public interface ExpedientService {
 
 	public void deleteRelacioExpedient(Long expedientIdOrigen, Long expedientIdDesti);
 	
-	public TascaDto getStartTask(Long entornId, Long expedientTipusId, Long definicioProcesId, Map<String, Object> valors);
+	public ExpedientTascaDto getStartTask(Long entornId, Long expedientTipusId, Long definicioProcesId, Map<String, Object> valors);
 
 	public ExpedientDto iniciar(Long entornId, String usuari, Long expedientTipusId, Long definicioProcesId, Integer any, String numero, String titol, String registreNumero, Date registreData, Long unitatAdministrativa, String idioma, boolean autenticat, String tramitadorNif, String tramitadorNom, String interessatNif, String interessatNom, String representantNif, String representantNom, boolean avisosHabilitats, String avisosEmail, String avisosMobil, boolean notificacioTelematicaHabilitada, Map<String, Object> variables, String transitionName, IniciadorTipusDto iniciadorTipus, String iniciadorCodi, String responsableCodi, Map<String, DadesDocumentDto> documents, List<DadesDocumentDto> adjunts);
 

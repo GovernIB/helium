@@ -38,9 +38,7 @@ public class ExpedientDto implements Serializable, GenericEntityDto<Long> {
 		this.processInstanceId = processInstanceId;
 	}
 
-	public ExpedientDto() {
-		// TODO Auto-generated constructor stub
-	}
+	public ExpedientDto() {}
 
 	private Long id;
 	private String processInstanceId;
@@ -84,14 +82,17 @@ public class ExpedientDto implements Serializable, GenericEntityDto<Long> {
 	private ExpedientTipusDto tipus;
 	private EstatTipusDto estatTipus;
 	private EstatDto estat;
+	
+	private String errorDesc;
+	private String errorFull;
+
+	private boolean errorsIntegracions;
 
 
 	private PersonaDto iniciadorPersona;
 	private PersonaDto responsablePersona;
 	private String bantelEntradaNum;
 	private List<ExpedientDto> relacionats;
-
-
 
 	public PersonaDto getIniciadorPersona() {
 		return iniciadorPersona;
@@ -116,6 +117,30 @@ public class ExpedientDto implements Serializable, GenericEntityDto<Long> {
 	}
 	public void setRelacionats(List<ExpedientDto> relacionats) {
 		this.relacionats = relacionats;
+	}
+
+	public String getErrorDesc() {
+		return errorDesc;
+	}
+
+	public void setErrorDesc(String errorDesc) {
+		this.errorDesc = errorDesc;
+	}
+
+	public String getErrorFull() {
+		return errorFull;
+	}
+
+	public void setErrorFull(String errorFull) {
+		this.errorFull = errorFull;
+	}
+
+	public boolean isErrorsIntegracions() {
+		return errorsIntegracions;
+	}
+
+	public void setErrorsIntegracions(boolean errorsIntegracions) {
+		this.errorsIntegracions = errorsIntegracions;
 	}
 
 	public void addExpedientRelacionat(ExpedientDto relacionat) {

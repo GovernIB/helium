@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.conselldemallorca.helium.v3.core.service;
+package net.conselldemallorca.helium.v3.core.helper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,8 +45,8 @@ import org.springframework.stereotype.Service;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Service
-public class ServiceUtilsV3 {
+@Service("serviceUtilsV3")
+public class ServiceUtils {
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource

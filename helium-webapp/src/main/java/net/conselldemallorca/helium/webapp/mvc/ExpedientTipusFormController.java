@@ -106,7 +106,6 @@ public class ExpedientTipusFormController extends BaseController {
 		if (entorn != null) {
 			if (potDissenyarEntorn(entorn)) {
 				if ("submit".equals(submit) || submit.length() == 0) {
-					command.setEntorn(entorn);
 					SortedMap<Integer, SequenciaAny> sequenciaAny = new TreeMap<Integer, SequenciaAny>();
 					
 					if (command.isReiniciarCadaAny()) {
@@ -157,10 +156,12 @@ public class ExpedientTipusFormController extends BaseController {
 			        	return "expedientTipus/form";
 			        }
 			        try {
-			        	if (command.getId() == null)
+			        	if (command.getId() == null) {
+			        		command.setEntorn(entorn);
 			        		dissenyService.createExpedientTipus(command);
-			        	else
+			        	} else {
 			        		dissenyService.updateExpedientTipus(command);
+			        	}
 			        	missatgeInfo(request, getMessage("info.tipus.exp.guardat"));
 			        	status.setComplete();
 			        } catch (Exception ex) {

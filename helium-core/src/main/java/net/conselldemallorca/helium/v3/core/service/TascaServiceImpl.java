@@ -38,15 +38,17 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.TipusDomini;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.CampNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.helper.DominiHelper;
+import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientLoggerHelper;
+import net.conselldemallorca.helium.v3.core.helper.ServiceUtils;
 import net.conselldemallorca.helium.v3.core.helper.TascaHelper;
 import net.conselldemallorca.helium.v3.core.helper.VariableHelper;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
@@ -94,7 +96,7 @@ public class TascaServiceImpl implements TascaService {
 	@Resource
 	private DominiHelper dominiHelper;
 	@Resource(name="serviceUtilsV3")
-	private ServiceUtilsV3 serviceUtils;
+	private ServiceUtils serviceUtils;
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
@@ -110,6 +112,12 @@ public class TascaServiceImpl implements TascaService {
 			String tascaId) {
 		JbpmTask tasca = tascaHelper.getTascaComprovantAcces(tascaId);
 		return variableHelper.findDadesPerInstanciaTasca(tasca);
+	}
+
+	@Transactional(readOnly = true)
+	@Override
+	public List<TascaDadaDto> findDadesPerTascaDto(ExpedientTascaDto tasca) {
+		return variableHelper.findDadesPerInstanciaTascaDto(tasca);
 	}
 	
 	@Transactional(readOnly = true)
@@ -271,7 +279,7 @@ public class TascaServiceImpl implements TascaService {
 
 	@Transactional(readOnly = true)
 	@Override
-	public TascaDto getById(
+	public ExpedientTascaDto getById(
 			Long entornId,
 			String taskId,
 			String usuari,
@@ -279,45 +287,45 @@ public class TascaServiceImpl implements TascaService {
 			boolean ambVariables,
 			boolean ambTexts) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);
-		TascaDto resposta = dtoConverter.toTascaDto(task, valorsCommand, ambVariables, ambTexts, false, false, false);
+		ExpedientTascaDto resposta = dtoConverter.toExpedientTascaDto(task, valorsCommand, ambVariables, ambTexts, false, false, false);
 		return resposta;
 	}	
 
 	@Transactional(readOnly = true)
 	@Override
-	public TascaDto getByIdSenseComprovacio(String taskId) {
+	public ExpedientTascaDto getByIdSenseComprovacio(String taskId) {
 		return getByIdSenseComprovacio(taskId, null, null);
 	}
 	
 	@Transactional(readOnly = true)
 	@Override
-	public TascaDto getByIdSenseComprovacio(String taskId, Map<String, Object> valorsCommand) {
+	public ExpedientTascaDto getByIdSenseComprovacio(String taskId, Map<String, Object> valorsCommand) {
 		return getByIdSenseComprovacio(taskId, null, valorsCommand);
 	}
 	
 	@Transactional(readOnly = true)
 	@Override
-	public TascaDto getByIdSenseComprovacio(String taskId, String usuari) {
+	public ExpedientTascaDto getByIdSenseComprovacio(String taskId, String usuari) {
 		return getByIdSenseComprovacio(taskId, usuari, null);
 	}
 	
 	@Transactional(readOnly = true)
 	@Override
-	public TascaDto getByIdSenseComprovacio(String taskId, String usuari, Map<String, Object> valorsCommand) {
+	public ExpedientTascaDto getByIdSenseComprovacio(String taskId, String usuari, Map<String, Object> valorsCommand) {
 		JbpmTask task = jbpmHelper.getTaskById(taskId);
-		return dtoConverter.toTascaDto(task, valorsCommand, true, true, false, false, false);
+		return dtoConverter.toExpedientTascaDto(task, valorsCommand, true, true, false, false, false);
 	}
 	
 	@Transactional(readOnly = true)
 	@Override
-	public TascaDto getByIdSenseComprovacioIDades(String taskId) {
+	public ExpedientTascaDto getByIdSenseComprovacioIDades(String taskId) {
 		JbpmTask task = jbpmHelper.getTaskById(taskId);
-		return dtoConverter.toTascaDto(task, null, false, false, false, false, false);
+		return dtoConverter.toExpedientTascaDto(task, null, false, false, false, false, false);
 	}	
 
 	@Transactional
 	@Override
-	public TascaDto guardarVariables(
+	public ExpedientTascaDto guardarVariables(
 			Long entornId,
 			String taskId,
 			Map<String, Object> variables,
@@ -332,7 +340,7 @@ public class TascaServiceImpl implements TascaService {
 		optimitzarConsultesDomini(task, variables);
 		jbpmHelper.startTaskInstance(taskId);
 		jbpmHelper.setTaskInstanceVariables(taskId, variables, false);
-		TascaDto tasca = dtoConverter.toTascaDto(task, null, true, true, false, false, false);
+		ExpedientTascaDto tasca = dtoConverter.toExpedientTascaDto(task, null, true, true, false, false, false);
 		if (iniciada) {
 			if (usuari == null) {
 				usuari = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -385,7 +393,7 @@ public class TascaServiceImpl implements TascaService {
 	
 	@Transactional
 	@Override
-	public TascaDto validar(
+	public ExpedientTascaDto validar(
 			Long entornId,
 			String taskId,
 			Map<String, Object> variables,
@@ -395,7 +403,7 @@ public class TascaServiceImpl implements TascaService {
 	
 	@Transactional
 	@Override
-	public TascaDto validar(
+	public ExpedientTascaDto validar(
 			Long entornId,
 			String taskId,
 			Map<String, Object> variables,
@@ -411,7 +419,7 @@ public class TascaServiceImpl implements TascaService {
 		jbpmHelper.startTaskInstance(taskId);
 		jbpmHelper.setTaskInstanceVariables(taskId, variables, false);
 		validarTasca(taskId);
-		TascaDto tasca = dtoConverter.toTascaDto(task, null, true, true, false, false, false);
+		ExpedientTascaDto tasca = dtoConverter.toExpedientTascaDto(task, null, true, true, false, false, false);
 		if (usuari == null)
 			usuari = SecurityContextHolder.getContext().getAuthentication().getName();
 		
@@ -438,7 +446,7 @@ public class TascaServiceImpl implements TascaService {
 
 	@Transactional
 	@Override
-	public TascaDto restaurar(
+	public ExpedientTascaDto restaurar(
 			Long entornId,
 			String taskId) {
 		return restaurar(entornId, taskId, null);
@@ -446,7 +454,7 @@ public class TascaServiceImpl implements TascaService {
 	
 	@Transactional
 	@Override
-	public TascaDto restaurar(
+	public ExpedientTascaDto restaurar(
 			Long entornId,
 			String taskId,
 			String user) {
@@ -460,7 +468,7 @@ public class TascaServiceImpl implements TascaService {
 			throw new IllegalStateException(
 					serviceUtils.getMessage("error.tascaService.noValidada"));
 		restaurarTasca(taskId);
-		TascaDto tasca = dtoConverter.toTascaDto(task, null, true, true, false, false, false);
+		ExpedientTascaDto tasca = dtoConverter.toExpedientTascaDto(task, null, true, true, false, false, false);
 		if (user == null) 
 			user = SecurityContextHolder.getContext().getAuthentication().getName();
 		
@@ -549,7 +557,7 @@ public class TascaServiceImpl implements TascaService {
 				verificarFinalitzacioExpedient(expedient, pi);
 			}
 			serviceUtils.expedientIndexLuceneUpdate(task.getProcessInstanceId());
-			TascaDto tasca = dtoConverter.toTascaDto(task, null, true, true, false, false, false);
+			ExpedientTascaDto tasca = dtoConverter.toExpedientTascaDto(task, null, true, true, false, false, false);
 			if (usuari == null)
 				usuari = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -694,7 +702,7 @@ public class TascaServiceImpl implements TascaService {
 	}
 
 	@Transactional
-	public TascaDto guardarVariable(
+	public ExpedientTascaDto guardarVariable(
 			Long entornId,
 			String taskId,
 			String variable,
@@ -703,7 +711,7 @@ public class TascaServiceImpl implements TascaService {
 	}
 	
 	@Transactional
-	public TascaDto guardarVariable(
+	public ExpedientTascaDto guardarVariable(
 			Long entornId,
 			String taskId,
 			String variable,
@@ -721,7 +729,7 @@ public class TascaServiceImpl implements TascaService {
 			String taskId,
 			String varName,
 			String usuari) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);
+		comprovarSeguretatTasca(entornId, taskId, usuari, true);
 		jbpmHelper.startTaskInstance(taskId);
 		jbpmHelper.deleteTaskInstanceVariable(taskId, varName);
 	}

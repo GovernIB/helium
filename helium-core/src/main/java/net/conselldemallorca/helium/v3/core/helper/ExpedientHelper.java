@@ -32,8 +32,6 @@ import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
-import net.conselldemallorca.helium.v3.core.service.DtoConverter;
-import net.conselldemallorca.helium.v3.core.service.ServiceUtilsV3;
 
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -57,7 +55,7 @@ public class ExpedientHelper {
 	@Resource
 	private DominiHelper dominiHelper;
 	@Resource(name="serviceUtilsV3")
-	private ServiceUtilsV3 serviceUtils;
+	private ServiceUtils serviceUtils;
 	@Resource
 	private PermisosHelper permisosHelper;
 	@Resource
@@ -241,9 +239,9 @@ public class ExpedientHelper {
 		}
 	}
 
-	private ServiceUtilsV3 getServiceUtils() {
+	private ServiceUtils getServiceUtils() {
 		if (serviceUtils == null) {
-			serviceUtils = new ServiceUtilsV3();
+			serviceUtils = new ServiceUtils();
 		}
 		return serviceUtils;
 	}

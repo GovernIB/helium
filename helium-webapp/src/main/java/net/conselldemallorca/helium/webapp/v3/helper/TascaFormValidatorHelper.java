@@ -11,7 +11,7 @@ import javax.annotation.Resource;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto.TipusCamp;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 
@@ -29,7 +29,7 @@ import org.springframework.validation.Validator;
  */
 public class TascaFormValidatorHelper implements Validator {
 	private static final int STRING_MAX_LENGTH = 2048;
-	private static ThreadLocal<TascaDto> tascaThreadLocal = new ThreadLocal<TascaDto>();
+	private static ThreadLocal<ExpedientTascaDto> tascaThreadLocal = new ThreadLocal<ExpedientTascaDto>();
 	@Resource(name = "tascaServiceV3")
 	private TascaService tascaService;
 	@Resource(name = "expedientServiceV3")
@@ -70,7 +70,7 @@ public class TascaFormValidatorHelper implements Validator {
 
 	public void validate(Object command, Errors errors) {
 		try {
-			TascaDto tasca = getTasca(command);
+			ExpedientTascaDto tasca = getTasca(command);
 			for (CampTascaDto camp : tasca.getCamps()) {
 				if (validarObligatoris && camp.isRequired()) {
 					if (camp.getCamp().getTipus().equals(TipusCamp.REGISTRE)) {
@@ -127,11 +127,11 @@ public class TascaFormValidatorHelper implements Validator {
 		}
 	}
 
-	public void setTasca(TascaDto tasca) {
+	public void setTasca(ExpedientTascaDto tasca) {
 		tascaThreadLocal.set(tasca);
 	}
 
-	private TascaDto getTasca(Object command) throws Exception {
+	private ExpedientTascaDto getTasca(Object command) throws Exception {
 		if (tascaThreadLocal.get() != null)
 			return tascaThreadLocal.get();
 		Long entornId = (Long) PropertyUtils.getSimpleProperty(command, "entornId");

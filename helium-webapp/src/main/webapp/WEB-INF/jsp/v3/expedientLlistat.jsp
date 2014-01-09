@@ -451,7 +451,7 @@
 					</ul>
 				</div>
 				<div class="btn-group">
-					<a id="biniciarexpediente" href="iniciar" title="Nou expedient" class="btn btn-primary pull-right">Nou expedient</a>
+					<a id="biniciarexpediente" href="expedient/iniciar" title="Nou expedient" class="btn btn-primary pull-right">Nou expedient</a>
 				</div>
 			</div>
 			<div class="span6">

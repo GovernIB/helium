@@ -29,6 +29,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
@@ -44,7 +45,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.repository.AreaJbpmIdRepository;
 import net.conselldemallorca.helium.v3.core.repository.AreaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CarrecJbpmIdRepository;
@@ -52,7 +53,6 @@ import net.conselldemallorca.helium.v3.core.repository.CarrecRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
-import net.conselldemallorca.helium.v3.core.service.DtoConverter;
 import net.sf.jooreports.templates.DocumentTemplate;
 import net.sf.jooreports.templates.DocumentTemplateFactory;
 
@@ -126,25 +126,20 @@ public class PlantillaHelper {
 		Document document = documentRepository.findOne(documentId);
 		byte[] contingut = null;
 		if (document.isPlantilla()) {
-			// Obtenir tasca, expedient, responsable i omplir el model
-			ExpedientDto expedient;
-			TascaDto tasca = null;
+			// Obtenir tasca, expedient, responsable i omplir el model						
+			ExpedientDto expedientDto;
+			
+			ExpedientTascaDto tasca = null;
 			String responsableCodi;
 			Map<String, Object> model = new HashMap<String, Object>();
 			if (taskInstanceId != null) {
 				JbpmTask task = jbpmhelper.getTaskById(taskInstanceId);
 				JbpmProcessInstance rootProcessInstance = jbpmhelper.getRootProcessInstance(task.getProcessInstanceId());
-				expedient = dtoConverter.toExpedientDto(
-						expedientHelper.findAmbProcessInstanceId(rootProcessInstance.getId()),
-						false);
-				tasca = dtoConverter.toTascaDto(
+				Expedient expedient = expedientHelper.findAmbProcessInstanceId(rootProcessInstance.getId());
+				expedientDto = dtoConverter.toExpedientDto(expedient, false);
+				tasca = dtoConverter.toExpedientTascaDto(
 						task,
-						null,
-						true,
-						true,
-						true,
-						true,
-						false);
+						expedient);
 				InstanciaProcesDto instanciaProces = dtoConverter.toInstanciaProcesDto(
 						task.getProcessInstanceId(),
 						true,
@@ -155,9 +150,8 @@ public class PlantillaHelper {
 				responsableCodi = task.getAssignee();
 			} else {
 				JbpmProcessInstance rootProcessInstance = jbpmhelper.getRootProcessInstance(processInstanceId);
-				expedient = dtoConverter.toExpedientDto(
-						expedientHelper.findAmbProcessInstanceId(rootProcessInstance.getId()),
-						false);
+				Expedient expedient = expedientHelper.findAmbProcessInstanceId(rootProcessInstance.getId());
+				expedientDto = dtoConverter.toExpedientDto(expedient, false);
 				InstanciaProcesDto instanciaProces = dtoConverter.toInstanciaProcesDto(
 						processInstanceId,
 						true,
@@ -169,7 +163,7 @@ public class PlantillaHelper {
 			}
 			afegirContextAlModel(
 					responsableCodi,
-					expedient,
+					expedientDto,
 					tasca,
 					dataDocument,
 					model);
@@ -194,7 +188,7 @@ public class PlantillaHelper {
 	private void afegirContextAlModel(
 			String responsableCodi,
 			ExpedientDto expedient,
-			TascaDto tasca,
+			ExpedientTascaDto tasca,
 			Date dataDocument,
 			Map<String, Object> model) {
 		Map<String, Object> context = new HashMap<String, Object>();

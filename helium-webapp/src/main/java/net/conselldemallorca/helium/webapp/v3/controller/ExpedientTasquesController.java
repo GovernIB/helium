@@ -27,9 +27,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
@@ -167,7 +167,7 @@ public class ExpedientTasquesController extends BaseExpedientController {
 		if (entorn != null && id != null) {
 			Object command = null;
 			Object commandSessio = TascaFormHelper.recuperarCommandTemporal(request, true);
-			TascaDto tasca = tascaService.getById(entorn.getId(), id, null, null, true, true);
+			ExpedientTascaDto tasca = tascaService.getById(entorn.getId(), id, null, null, true, true);
 			if (commandSessio != null) {
 				List<CampDto> camps = new ArrayList<CampDto>();
 				for (CampTascaDto campTasca : tasca.getCamps())
@@ -239,7 +239,7 @@ public class ExpedientTasquesController extends BaseExpedientController {
 			Long entornId,
 			String id,
 			String submit) {
-		TascaDto tasca = tascaService.getById(
+		ExpedientTascaDto tasca = tascaService.getById(
 				entornId,
 				id,
 				null,
@@ -260,7 +260,7 @@ public class ExpedientTasquesController extends BaseExpedientController {
 			String[] parametresTram = TramitacioMassiva.getParamsTramitacioMassiva(request, id);
 			tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
 			try {
-				TascaDto task = tascaService.getByIdSenseComprovacio(tascaIds[0]);
+				ExpedientTascaDto task = tascaService.getByIdSenseComprovacio(tascaIds[0]);
 				Long expTipusId = task.getExpedient().getTipus().getId();
 				
 				// Restauram la primera tasca
@@ -353,7 +353,7 @@ public class ExpedientTasquesController extends BaseExpedientController {
 			boolean opSubmit = "submit".equals(submit)  || "submit".equals(submitar);
 			boolean opRestore = "restore".equals(submit) || "restore".equals(submitar);
 			
-			TascaDto tasca = (TascaDto) model.get("tasca");
+			ExpedientTascaDto tasca = (ExpedientTascaDto) model.get("tasca");
 			List<CampDto> camps = new ArrayList<CampDto>();
 			for (CampTascaDto campTasca : tasca.getCamps()) {
 				camps.add(campTasca.getCamp());
@@ -495,7 +495,7 @@ public class ExpedientTasquesController extends BaseExpedientController {
 				new TerminiTypeEditorHelper());
 	}
 
-	private void afegirVariablesDelProces(Object command, TascaDto tasca) throws Exception {
+	private void afegirVariablesDelProces(Object command, ExpedientTascaDto tasca) throws Exception {
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(tasca.getProcessInstanceId(), false, false, false);
 		PropertyUtils.setSimpleProperty(command, "procesScope", instanciaProces.getVariables());
 	}
@@ -504,7 +504,7 @@ public class ExpedientTasquesController extends BaseExpedientController {
 		boolean resposta = true;
 		boolean massivaActiu = TramitacioMassiva.isTramitacioMassivaActiu(request, id);
 		String[] tascaIds;
-		TascaDto task = tascaService.getByIdSenseComprovacio(id);		
+		ExpedientTascaDto task = tascaService.getByIdSenseComprovacio(id);		
 
 		List<CampDto> camps = new ArrayList<CampDto>();
 		for (CampTascaDto campTasca : tasca) {
@@ -656,7 +656,7 @@ public class ExpedientTasquesController extends BaseExpedientController {
 	
 	private boolean accioValidarForm(HttpServletRequest request, Long entornId, String id, List<CampDto> camps, Object command) {
 		boolean resposta = true;
-		TascaDto task = tascaService.getByIdSenseComprovacio(id);
+		ExpedientTascaDto task = tascaService.getByIdSenseComprovacio(id);
 		if (TramitacioMassiva.isTramitacioMassivaActiu(request, id)) {
 			String[] tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
 			String[] parametresTram = TramitacioMassiva.getParamsTramitacioMassiva(request, id);
@@ -731,7 +731,7 @@ public class ExpedientTasquesController extends BaseExpedientController {
 		boolean resposta = true;
 		boolean massivaActiu = TramitacioMassiva.isTramitacioMassivaActiu(request, id);
 		String[] tascaIds;
-		TascaDto task = tascaService.getByIdSenseComprovacio(id);
+		ExpedientTascaDto task = tascaService.getByIdSenseComprovacio(id);
 		if (massivaActiu) {
 			String[] parametresTram = TramitacioMassiva.getParamsTramitacioMassiva(request, id);
 			tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
@@ -803,7 +803,7 @@ public class ExpedientTasquesController extends BaseExpedientController {
 		boolean resposta = true;
 		boolean massivaActiu = TramitacioMassiva.isTramitacioMassivaActiu(request, id);
 		String[] tascaIds;
-		TascaDto task = tascaService.getByIdSenseComprovacio(id);
+		ExpedientTascaDto task = tascaService.getByIdSenseComprovacio(id);
 		if (massivaActiu) {
 			String[] parametresTram = TramitacioMassiva.getParamsTramitacioMassiva(request, id);
 			tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
@@ -878,7 +878,7 @@ public class ExpedientTasquesController extends BaseExpedientController {
 	}
 
 	private String getIdTascaPerLogs(Long entornId, String tascaId) {
-		TascaDto tascaActual = tascaService.getById(
+		ExpedientTascaDto tascaActual = tascaService.getById(
 				entornId,
 				tascaId,
 				null,
@@ -896,7 +896,7 @@ public class ExpedientTasquesController extends BaseExpedientController {
 			String[] parametresTram = TramitacioMassiva.getParamsTramitacioMassiva(request, id);
 			tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
 			try {
-				TascaDto task = tascaService.getByIdSenseComprovacio(id);
+				ExpedientTascaDto task = tascaService.getByIdSenseComprovacio(id);
 				Long expTipusId = task.getExpedient().getTipus().getId();
 
 				// Restauram la primera tasca
@@ -972,7 +972,7 @@ public class ExpedientTasquesController extends BaseExpedientController {
 			if (tascaIds.length > 1) {
 				String[] parametresTram = TramitacioMassiva.getParamsTramitacioMassiva(request, id);
 				try {
-					TascaDto task = tascaService.getByIdSenseComprovacio(id);
+					ExpedientTascaDto task = tascaService.getByIdSenseComprovacio(id);
 					Long expTipusId = task.getExpedient().getTipus().getId();
 					
 					// La primera tasca ja s'ha executat. Programam massivament la resta de tasques

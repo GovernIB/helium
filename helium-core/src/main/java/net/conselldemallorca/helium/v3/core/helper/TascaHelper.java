@@ -17,8 +17,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
-import net.conselldemallorca.helium.v3.core.service.DtoConverter;
-import net.conselldemallorca.helium.v3.core.service.ServiceUtilsV3;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +47,7 @@ public class TascaHelper {
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource(name="serviceUtilsV3")
-	private ServiceUtilsV3 serviceUtils;
+	private ServiceUtils serviceUtils;
 	@Resource
 	private DominiHelper dominiHelper;
 	@Resource
@@ -96,7 +94,7 @@ public class TascaHelper {
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
 		List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(expedient.getProcessInstanceId());
 		for (JbpmTask task: tasks)
-			resposta.add(dtoConverter.toTascaDto(task, expedient));
+			resposta.add(dtoConverter.toExpedientTascaDto(task, expedient));
 		return resposta;
 	}
 
@@ -122,7 +120,7 @@ public class TascaHelper {
 					throw new TaskInstanceNotFoundException();
 				}
 			}
-			return dtoConverter.toTascaDto(task, expedient);
+			return dtoConverter.toExpedientTascaDto(task, expedient);
 		} else {
 			logger.debug("No s'ha trobat la tasca (expedientId=" + expedient.getId() + ", tascaId=" + tascaId + ", usuariAcces=" + auth.getName() + ")");
 			return null;

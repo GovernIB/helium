@@ -16,11 +16,11 @@ public class ValidacioDto {
 	private String expressio;
 	private String missatge;
 	int ordre;
-	private TascaDto tasca;
+	private ExpedientTascaDto tasca;
 	private CampDto camp;
 
 	public ValidacioDto() {}
-	public ValidacioDto(TascaDto tasca, String expressio, String missatge) {
+	public ValidacioDto(ExpedientTascaDto tasca, String expressio, String missatge) {
 		this.expressio = expressio;
 		this.missatge = missatge;
 		this.tasca = tasca;
@@ -31,10 +31,10 @@ public class ValidacioDto {
 		this.camp = camp;
 	}
 
-	public TascaDto getTasca() {
+	public ExpedientTascaDto getTasca() {
 		return tasca;
 	}
-	public void setTasca(TascaDto tasca) {
+	public void setTasca(ExpedientTascaDto tasca) {
 		this.tasca = tasca;
 	}
 	public CampDto getCamp() {

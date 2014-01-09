@@ -17,7 +17,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.CampRegistreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.sf.cglib.beans.BeanGenerator;
 
@@ -45,7 +45,7 @@ public class TascaFormHelper {
 
 	@SuppressWarnings("rawtypes")
 	public static Object getCommandForTasca(
-			TascaDto tasca,
+			ExpedientTascaDto tasca,
 			Map<String, Object> campsAddicionals,
 			Map<String, Class> campsAddicionalsClasses) {
 		List<CampDto> camps = new ArrayList<CampDto>();
@@ -187,7 +187,7 @@ public class TascaFormHelper {
 		return new BeanValidator(validationConfigurationLoader);
 	}
 
-	public static Map<String, List<Object>> getValorsPerSuggest(TascaDto tasca, Object command) {
+	public static Map<String, List<Object>> getValorsPerSuggest(ExpedientTascaDto tasca, Object command) {
 		Map<String, List<Object>> resposta = new HashMap<String, List<Object>>();
 		if (tasca.getValorsMultiplesDomini() != null) {
 			for (String key: tasca.getValorsMultiplesDomini().keySet()) {

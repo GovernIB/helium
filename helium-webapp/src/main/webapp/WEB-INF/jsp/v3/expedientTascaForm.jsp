@@ -317,7 +317,7 @@
 
 </div>
 <script>	
-	$( 'input[data-required="true"]' )
+	$( '[data-required="true"]' )
 		.closest(".control-group")
 		.children("label")
 		.prepend("<i class='icon-asterisk'></i> ");

@@ -112,6 +112,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.TerminiNotFoundExcepti
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 import net.conselldemallorca.helium.v3.core.api.service.Jbpm3HeliumService;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
 import net.conselldemallorca.helium.v3.core.helper.MesuresTemporalsHelper;
 
 import org.hibernate.Hibernate;

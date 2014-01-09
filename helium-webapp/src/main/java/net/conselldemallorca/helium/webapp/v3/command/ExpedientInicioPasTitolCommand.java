@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.conselldemallorca.helium.webapp.v3.command;
+package net.conselldemallorca.helium.webapp.v3.controller;
 
 /**
  * Command per iniciar un expedient

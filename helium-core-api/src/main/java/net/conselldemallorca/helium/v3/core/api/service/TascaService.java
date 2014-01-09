@@ -6,9 +6,9 @@ package net.conselldemallorca.helium.v3.core.api.service;
 import java.util.List;
 import java.util.Map;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.CampNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
@@ -67,7 +67,7 @@ public interface TascaService {
 			String taskId,
 			String codiVariable);
 
-	public TascaDto getById(
+	public ExpedientTascaDto getById(
 			Long entornId,
 			String taskId,
 			String usuari,
@@ -76,41 +76,41 @@ public interface TascaService {
 			boolean ambTexts);
 	
 
-	public TascaDto getByIdSenseComprovacio(String taskId);
+	public ExpedientTascaDto getByIdSenseComprovacio(String taskId);
 	
-	public TascaDto getByIdSenseComprovacio(String taskId, Map<String, Object> valorsCommand);
+	public ExpedientTascaDto getByIdSenseComprovacio(String taskId, Map<String, Object> valorsCommand);
 	
-	public TascaDto getByIdSenseComprovacio(String taskId, String usuari);
+	public ExpedientTascaDto getByIdSenseComprovacio(String taskId, String usuari);
 	
-	public TascaDto getByIdSenseComprovacio(String taskId, String usuari, Map<String, Object> valorsCommand);
+	public ExpedientTascaDto getByIdSenseComprovacio(String taskId, String usuari, Map<String, Object> valorsCommand);
 	
-	public TascaDto getByIdSenseComprovacioIDades(String taskId);
+	public ExpedientTascaDto getByIdSenseComprovacioIDades(String taskId);
 	
 
-	public TascaDto guardarVariables(
+	public ExpedientTascaDto guardarVariables(
 			Long entornId,
 			String taskId,
 			Map<String, Object> variables,
 			String usuari);
 
-	public TascaDto validar(
+	public ExpedientTascaDto validar(
 			Long entornId,
 			String taskId,
 			Map<String, Object> variables,
 			boolean comprovarAssignacio);
 	
-	public TascaDto validar(
+	public ExpedientTascaDto validar(
 			Long entornId,
 			String taskId,
 			Map<String, Object> variables,
 			boolean comprovarAssignacio,
 			String usuari);
 	
-	public TascaDto restaurar(
+	public ExpedientTascaDto restaurar(
 			Long entornId,
 			String taskId);
 	
-	public TascaDto restaurar(
+	public ExpedientTascaDto restaurar(
 			Long entornId,
 			String taskId,
 			String user);
@@ -183,4 +183,6 @@ public interface TascaService {
 			String usuari);
 	
 	public void borrarVariables(Long entornId, String taskId, String variable, String usuari);
+
+	public List<TascaDadaDto> findDadesPerTascaDto(ExpedientTascaDto tasca);
 }

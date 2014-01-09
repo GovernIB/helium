@@ -14,12 +14,12 @@ public class FirmaTascaDto {
 	private boolean required;
 	private int order;
 	private DocumentDto document;
-	private TascaDto tasca;
+	private ExpedientTascaDto tasca;
 
 	public FirmaTascaDto() {}
 	public FirmaTascaDto(
 			DocumentDto document,
-			TascaDto tasca,
+			ExpedientTascaDto tasca,
 			boolean required,
 			int order) {
 		this.document = document;
@@ -34,10 +34,10 @@ public class FirmaTascaDto {
 	public void setDocument(DocumentDto document) {
 		this.document = document;
 	}
-	public TascaDto getTasca() {
+	public ExpedientTascaDto getTasca() {
 		return tasca;
 	}
-	public void setTasca(TascaDto tasca) {
+	public void setTasca(ExpedientTascaDto tasca) {
 		this.tasca = tasca;
 	}
 	public Long getId() {

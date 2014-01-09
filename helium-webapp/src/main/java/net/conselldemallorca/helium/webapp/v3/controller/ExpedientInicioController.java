@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,7 +20,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.PermissionService;
@@ -113,13 +114,13 @@ public class ExpedientInicioController extends BaseExpedientController {
 		return "v3/expedient/iniciar";
 	}
 	
-	private TascaDto obtenirTascaInicial(
+	private ExpedientTascaDto obtenirTascaInicial(
 			Long entornId,
 			Long expedientTipusId,
 			Long definicioProcesId,
 			Map<String, Object> valors,
 			HttpServletRequest request) {
-		TascaDto tasca = expedientService.getStartTask(
+		ExpedientTascaDto tasca = expedientService.getStartTask(
 				entornId,
 				expedientTipusId,
 				definicioProcesId,
@@ -143,58 +144,60 @@ public class ExpedientInicioController extends BaseExpedientController {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entorn != null) {
 			model.addAttribute("entornId", entorn.getId());
-			ExpedientTipusDto tipus = dissenyService.getExpedientTipusById(expedientTipusId);
-			if (potIniciarExpedientTipus(tipus)) {
+			ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
+			model.addAttribute("expedientTipus", expedientTipus);
+			if (potIniciarExpedientTipus(expedientTipus)) {
 				netejarSessio(request);
 				generarTaskIdSessio(request);
 				// Si l'expedient requereix dades inicials redirigeix al pas per demanar
 				// aquestes dades
 				DefinicioProcesDto definicioProces = null;
-				if (definicioProcesId != null)
+				if (definicioProcesId != null) {
 					definicioProces = dissenyService.getById(definicioProcesId, true);
-				else
+					model.addAttribute("definicioProcesId", definicioProcesId);
+				} else {
 					definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId, true);
+				}				
 				
-				TascaDto tasca = obtenirTascaInicial(
-						entorn.getId(),
-						expedientTipusId,
-						definicioProces.getId(),
-						new HashMap<String, Object>(),
-						request);
-				model.addAttribute("tasca", tasca);
-				model.addAttribute("dades", tascaService.findDadesPerTasca(tasca.getId()));
-				model.addAttribute("expedientTipusId", expedientTipusId);
-				if (definicioProces.isHasStartTask()) {
-					if (definicioProcesId != null) {
-						model.addAttribute("definicioProcesId", definicioProcesId);
-					}
-					
-					return "v3/expedient/iniciarPasForm";
-				}
-				// Si l'expedient no requereix dades inicials però ha de demanar titol i/o número
-				// redirigeix al pas per demanar aquestes dades
-				if (tipus.isDemanaNumero() || tipus.isDemanaTitol() || tipus.isSeleccionarAny()) {
-					if (definicioProcesId != null)
-						return "v3/expedient/iniciarPasTitol.html?expedientTipusId=" + expedientTipusId + "&definicioProcesId=" + definicioProcesId;
-					else
-						return "v3/expedient/iniciarPasTitol.html?expedientTipusId=" + expedientTipusId;
-				}
-				// Si no requereix cap pas addicional inicia l'expedient directament
-				try {
-					ExpedientDto iniciat = iniciarExpedient(
+				if (definicioProces.isHasStartTask()) {					
+					ExpedientTascaDto tasca = obtenirTascaInicial(
 							entorn.getId(),
 							expedientTipusId,
-							definicioProcesId);
-					MissatgesHelper.info(
-							request,
-							getMessage(
-									request,
-									"info.expedient.iniciat"));
-				} catch (Exception ex) {
-					MissatgesHelper.error(
-							request,
-							getMessage(request, "error.iniciar.expedient"));
-		        	logger.error("No s'ha pogut iniciar l'expedient", ex);
+							definicioProces.getId(),
+							new HashMap<String, Object>(),
+							request);
+					model.addAttribute("tasca", tasca);
+					model.addAttribute("dades", tascaService.findDadesPerTascaDto(tasca));
+					model.addAttribute("definicioProcesId", (definicioProcesId != null)? definicioProcesId : tasca.getDefinicioProces().getId());
+					return "v3/expedient/iniciarPasForm";
+				} else if (expedientTipus.isDemanaNumero() || expedientTipus.isDemanaTitol() || expedientTipus.isSeleccionarAny()) {
+					// Si l'expedient no requereix dades inicials però ha de demanar titol i/o número
+					// redirigeix al pas per demanar aquestes dades
+					model.addAttribute("any", Calendar.getInstance().get(Calendar.YEAR));
+					model.addAttribute("numero", expedientService.getNumeroExpedientActual(
+							entorn.getId(),
+							expedientTipus,
+							Calendar.getInstance().get(Calendar.YEAR)));
+					model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
+					return "v3/expedient/iniciarPasTitol";
+				} else {
+					// Si no requereix cap pas addicional inicia l'expedient directament
+					try {
+						ExpedientDto iniciat = iniciarExpedient(
+								entorn.getId(),
+								expedientTipusId,
+								definicioProcesId);
+						MissatgesHelper.info(
+								request,
+								getMessage(
+										request,
+										"info.expedient.iniciat"));
+					} catch (Exception ex) {
+						MissatgesHelper.error(
+								request,
+								getMessage(request, "error.iniciar.expedient"));
+			        	logger.error("No s'ha pogut iniciar l'expedient", ex);
+					}
 				}
 			} else {
 				MissatgesHelper.error(request, getMessage(request, "error.permisos.iniciar.tipus.exp") );

@@ -19,7 +19,7 @@ public class CampTascaDto implements Serializable {
 
 	private CampDto camp;
 
-	private TascaDto tasca;
+	private ExpedientTascaDto tasca;
 
 
 
@@ -65,10 +65,10 @@ public class CampTascaDto implements Serializable {
 	public void setCamp(CampDto camp) {
 		this.camp = camp;
 	}
-	public TascaDto getTasca() {
+	public ExpedientTascaDto getTasca() {
 		return tasca;
 	}
-	public void setTasca(TascaDto tasca) {
+	public void setTasca(ExpedientTascaDto tasca) {
 		this.tasca = tasca;
 	}
 	public static long getSerialversionuid() {
@@ -77,7 +77,7 @@ public class CampTascaDto implements Serializable {
 	public CampTascaDto() {}
 	public CampTascaDto(
 			CampDto camp,
-			TascaDto tasca,
+			ExpedientTascaDto tasca,
 			boolean readFrom,
 			boolean writeTo,
 			boolean required,

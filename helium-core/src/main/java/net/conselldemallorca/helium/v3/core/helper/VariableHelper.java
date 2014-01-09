@@ -39,10 +39,12 @@ import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.TipusDomini;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
+import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 
@@ -69,7 +71,8 @@ public class VariableHelper {
 	private TascaRepository tascaRepository;
 	@Resource
 	private CampRepository campRepository;
-
+	@Resource
+	private CampTascaRepository campTascaRepository;
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
@@ -192,6 +195,27 @@ public class VariableHelper {
 		}
 	}
 
+	public List<TascaDadaDto> findDadesPerInstanciaTascaDto(ExpedientTascaDto tasca) {		
+		List<TascaDadaDto> resposta = new ArrayList<TascaDadaDto>();
+		
+		for (CampTasca campTasca: campTascaRepository.findAmbTascaOrdenats(tasca.getTascaId())) {
+			Camp camp = campTasca.getCamp();
+			
+			ExpedientDadaDto expedientDadaDto = getDadaPerVariableJbpm(
+					camp,
+					camp.getCodi(),
+					null,
+					String.valueOf(tasca.getTascaId()),
+					null,
+					false);
+			resposta.add(
+					getTascaDadaDtoFromExpedientDadaDto(
+							expedientDadaDto,
+							campTasca));
+		}
+		return resposta;
+	}
+	
 	public List<TascaDadaDto> findDadesPerInstanciaTasca(
 			JbpmTask task) {
 		String tipusExp = null;

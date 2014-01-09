@@ -20,7 +20,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.PermissionService;
@@ -105,6 +105,7 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 	@RequestMapping(value = "/iniciarPasTitol", method = RequestMethod.GET)
 	public String iniciarPasTitolGet(
 			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) Long tascaId,
 			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
 			@RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId,
 			ModelMap model) {
@@ -113,14 +114,14 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 			ExpedientTipusDto tipus = dissenyService.getExpedientTipusById(expedientTipusId);
 			if (potIniciarExpedientTipus(tipus)) {
 				omplirModelPerMostrarFormulari(tipus, model);
-				return "expedient/iniciarPasTitol";
+				return "expedient";
 			} else {
 				MissatgesHelper.error(request, getMessage(request, "error.permisos.iniciar.tipus.exp"));
-				return "redirect:/expedient/iniciar.html";
+				return "redirect:/expedient/iniciar";
 			}
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec") );
-			return "redirect:/index.html";
+			return "redirect:/expedient/iniciar";
 		}
 	}
 
@@ -184,8 +185,6 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 			return "redirect:/index.html";
 		}
 	}
-
-
 
 	protected class ExpedientInicioPasTitolValidator implements Validator {
 		private DissenyService dissenyService;
@@ -271,7 +270,7 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 			if (valorsSessio != null)
 				valors.putAll(valorsSessio);
 			if (command != null) {
-				TascaDto tascaInicial = expedientService.getStartTask(
+				ExpedientTascaDto tascaInicial = expedientService.getStartTask(
 						entornId,
 						expedientTipusId,
 						definicioProcesId,

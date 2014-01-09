@@ -18,7 +18,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedien
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
@@ -96,7 +96,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				}
 			} else if (dto.getTascaIds() != null) {
 				for (String tascaId: dto.getTascaIds()) {
-					TascaDto tasca = tascaService.getByIdSenseComprovacio(tascaId);
+					ExpedientTascaDto tasca = tascaService.getByIdSenseComprovacio(tascaId);
 					Expedient expedient = expedientRepository.findById(tasca.getExpedient().getId());
 					ExecucioMassivaExpedient eme = new ExecucioMassivaExpedient(
 							execucioMassiva,
