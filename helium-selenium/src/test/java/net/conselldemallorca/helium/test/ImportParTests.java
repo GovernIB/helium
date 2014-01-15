@@ -84,7 +84,7 @@ public class ImportParTests extends BaseTest{
 		}
 		
 		WebElement arxiu = driver.findElement(By.id("arxiu0"));
-		arxiu.sendKeys(properties.getProperty("deploy.arxiu.path.windows"));
+		arxiu.sendKeys(properties.getProperty("deploy.arxiu.path"));
 		
 		screenshotHelper.saveScreenshot("importPar/importPar_02.png");
 		
@@ -111,6 +111,6 @@ public class ImportParTests extends BaseTest{
 			novaVersio = Integer.parseInt(elVersio.getText().trim());
 		}
 		
-		// assertEquals("La versió resultant no és correcta", versio + 1, novaVersio);
+		// assertEquals("La versiï¿½ resultant no ï¿½s correcta", versio + 1, novaVersio);
 	}
 }

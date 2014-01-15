@@ -5,7 +5,9 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	InicialitzarTests.class,
-	EntornTests.class
+	EntornTests.class,
+	DefinicioProcesTests.class,
+	TipusExpedientTests.class,
+	ExpedientTests.class
 })
 public class TestSuite {}

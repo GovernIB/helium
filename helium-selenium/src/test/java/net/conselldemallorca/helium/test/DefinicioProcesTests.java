@@ -25,9 +25,9 @@ public class DefinicioProcesTests extends BaseTest {
 				
 		importPar(false);
 		crearEnumeracio(false);	
-		crearEnumeracio(true);  // crear enumeració que ja existeix
+		crearEnumeracio(true);  // crear enumeraciï¿½ que ja existeix
 		
-		seleccionarDefProc();   // seleccionar def. de procés
+		seleccionarDefProc();   // seleccionar def. de procï¿½s
 		
 		crearVariables();
 		modificarVariable();
@@ -110,7 +110,7 @@ public class DefinicioProcesTests extends BaseTest {
 		}		
 
 		WebElement arxiu = driver.findElement(By.id("arxiu0"));
-		arxiu.sendKeys(properties.getProperty("deploy.arxiu.path.windows"));
+		arxiu.sendKeys(properties.getProperty("deploy.arxiu.path"));
 		
 		screenshotHelper.saveScreenshot("defproces/importPar/importPar01.png");
 		
@@ -137,13 +137,13 @@ public class DefinicioProcesTests extends BaseTest {
 			novaVersio = Integer.parseInt(elVersio.getText().trim());
 		}*/
 		
-		// assertEquals("La versió resultant no és correcta", versio + 1, novaVersio);
+		// assertEquals("La versiï¿½ resultant no ï¿½s correcta", versio + 1, novaVersio);
 	}
 
 	public static void seleccionarDefProc() throws InterruptedException {
-		// Seleccionar una definició de procés que s'utilitzarà per fer les proves
+		// Seleccionar una definiciï¿½ de procï¿½s que s'utilitzarï¿½ per fer les proves
 		
-		// Accés a l'opció de menú
+		// Accï¿½s a l'opciï¿½ de menï¿½
 		WebElement menuDisseny = driver.findElement(By.id("menuDisseny"));
 		WebElement menuDefProc = driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]"));
 
@@ -157,14 +157,14 @@ public class DefinicioProcesTests extends BaseTest {
 
 		screenshotHelper.saveScreenshot("defproces/selecDefProc1.png");
 		
-		// Obtenir nom de la defició de procés i cercar-lo
+		// Obtenir nom de la deficiï¿½ de procï¿½s i cercar-lo
 		String nomDefProc = getProperty("deploy.definicio.proces.nom");
 		driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
 		boolean isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]")).size() > 0;
 		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
 
 		if (!isPresent) {
-			assertFalse("No s'ha trobat la defició de procés", isPresent);
+			assertFalse("No s'ha trobat la deficiï¿½ de procï¿½s", isPresent);
 		}
 		else
 		{
@@ -174,7 +174,7 @@ public class DefinicioProcesTests extends BaseTest {
 	}
 
 	public static void crearEnumeracio(boolean existeix) throws InterruptedException {
-		// Crear una enumeració per poder definir una variable de tipus selecció			
+		// Crear una enumeraciï¿½ per poder definir una variable de tipus selecciï¿½			
 		
 		WebElement menuDisseny = driver.findElement(By.id("menuDisseny"));
 		WebElement menuEnum = driver.findElement(By.xpath("//a[contains(@href, '/helium/enumeracio/llistat.html')]"));
@@ -217,11 +217,11 @@ public class DefinicioProcesTests extends BaseTest {
 		else {			
 			screenshotHelper.saveScreenshot("defproces/variable/enumeracio/crea_enum3.png");
 
-			// Crear elements enumeració
+			// Crear elements enumeraciï¿½
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codEnum + "')]/td[3]/form/button")).click();
 			actions.build().perform();
 			driver.findElement(By.id("codi0")).sendKeys("S");
-			driver.findElement(By.id("nom0")).sendKeys("Sí");
+			driver.findElement(By.id("nom0")).sendKeys("Sï¿½");
 			screenshotHelper.saveScreenshot("defproces/variable/enumeracio/crea_enum4.png");
 			boto = driver.findElement(By.xpath("//button[@value='submit']"));
 			boto.click();
@@ -233,7 +233,7 @@ public class DefinicioProcesTests extends BaseTest {
 			boto.click();
 			screenshotHelper.saveScreenshot("defproces/variable/enumeracio/crea_enum6.png");
 				
-			// Comprovar que s'han creat els elements de l'enumeració
+			// Comprovar que s'han creat els elements de l'enumeraciï¿½
 			driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
 			boolean isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'S')]")).size() > 0;
 			driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
@@ -241,7 +241,7 @@ public class DefinicioProcesTests extends BaseTest {
 			boolean isPresent2 = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'N')]")).size() > 0;
 			driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
 			if (!isPresent || !isPresent2) {
-				assertFalse("No s'ha pogut crear els elements de l'enumeració", isPresent);
+				assertFalse("No s'ha pogut crear els elements de l'enumeraciï¿½", isPresent);
 			}		
 
 			boto = driver.findElement(By.xpath("//button[@value='cancel']"));
@@ -251,14 +251,14 @@ public class DefinicioProcesTests extends BaseTest {
 	}
 
 	public static void crearVariables() throws InterruptedException {
-		// Crear variables en una definició de procés seleccionada amb seleccionarDefProc			
+		// Crear variables en una definiciï¿½ de procï¿½s seleccionada amb seleccionarDefProc			
 		
 		// Accedir a la fitxa de les variables
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/campLlistat.html')]")).click();			
 			
   	    screenshotHelper.saveScreenshot("defproces/variable/crea_var01.png");
 		
-  	    // Botó nova variable
+  	    // Botï¿½ nova variable
   	    driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
 
 		// tipus string
@@ -268,7 +268,7 @@ public class DefinicioProcesTests extends BaseTest {
 		jbpmOption.click();
 		driver.findElement(By.id("etiqueta0")).sendKeys(getProperty("defproc.variable.nom1"));
 		screenshotHelper.saveScreenshot("defproces/variable/crea_var02.png");
-		// Botó crear variable
+		// Botï¿½ crear variable
   	    WebElement boto = driver.findElement(By.xpath("//button[@value='submit']"));
   	    boto.click();
 		// Comprovar que s'ha creat
@@ -285,7 +285,7 @@ public class DefinicioProcesTests extends BaseTest {
 		jbpmOption = driver.findElement(By.xpath("//option[@value='STRING']"));
 		jbpmOption.click();
 		driver.findElement(By.id("etiqueta0")).sendKeys(getProperty("defproc.variable.nom7"));
-		// Botó crear variable
+		// Botï¿½ crear variable
   	    boto = driver.findElement(By.xpath("//button[@value='submit']"));
   	    boto.click();
 		// Comprovar que s'ha creat
@@ -302,7 +302,7 @@ public class DefinicioProcesTests extends BaseTest {
 		jbpmOption = driver.findElement(By.xpath("//option[@value='STRING']"));
 		jbpmOption.click();
 		driver.findElement(By.id("etiqueta0")).sendKeys(getProperty("defproc.variable.nom8"));
-		// Botó crear variable
+		// Botï¿½ crear variable
   	    boto = driver.findElement(By.xpath("//button[@value='submit']"));
   	    boto.click();
 		screenshotHelper.saveScreenshot("defproces/variable/crea_var03.png");
@@ -322,7 +322,7 @@ public class DefinicioProcesTests extends BaseTest {
 		jbpmOption.click();
 		driver.findElement(By.id("etiqueta0")).sendKeys(getProperty("defproc.variable.nom2"));
 		screenshotHelper.saveScreenshot("defproces/variable/crea_var04.png");
-		// Botó crear variable
+		// Botï¿½ crear variable
 		boto = driver.findElement(By.xpath("//button[@value='submit']"));
 		boto.click();
 		screenshotHelper.saveScreenshot("defproces/variable/crea_var05.png");
@@ -350,7 +350,7 @@ public class DefinicioProcesTests extends BaseTest {
 		    }
 		}
 		screenshotHelper.saveScreenshot("defproces/variable/crea_var06.png");
-		// Botó crear variable
+		// Botï¿½ crear variable
 		boto = driver.findElement(By.xpath("//button[@value='submit']"));
 		boto.click();
 		screenshotHelper.saveScreenshot("defproces/variable/crea_var07.png");
@@ -370,7 +370,7 @@ public class DefinicioProcesTests extends BaseTest {
 		jbpmOption.click();
 		driver.findElement(By.id("etiqueta0")).sendKeys(getProperty("defproc.variable.nom4"));
 		screenshotHelper.saveScreenshot("defproces/variable/crea_var08.png");
-		// Botó crear variable
+		// Botï¿½ crear variable
 		boto = driver.findElement(By.xpath("//button[@value='submit']"));
 		boto.click();
 		screenshotHelper.saveScreenshot("defproces/variable/crea_var09.png");
@@ -414,7 +414,7 @@ public class DefinicioProcesTests extends BaseTest {
 			boto.click();
 		}
 
-		// variable múltiple
+		// variable mï¿½ltiple
 		driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
 		codVar = getProperty("defproc.variable.codi5");
 		driver.findElement(By.id("codi0")).sendKeys(codVar);
@@ -423,7 +423,7 @@ public class DefinicioProcesTests extends BaseTest {
 		driver.findElement(By.id("etiqueta0")).sendKeys(getProperty("defproc.variable.nom5"));
 		driver.findElement(By.id("multiple0")).click();
 		screenshotHelper.saveScreenshot("defproces/variable/crea_var12.png");
-		// Botó crear variable
+		// Botï¿½ crear variable
   	    boto = driver.findElement(By.xpath("//button[@value='submit']"));
   	    boto.click();
 		screenshotHelper.saveScreenshot("defproces/variable/crea_var13.png");
@@ -432,7 +432,7 @@ public class DefinicioProcesTests extends BaseTest {
 		isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]")).size() > 0;
 		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
 		if (!isPresent) {
-			assertFalse("No s'ha pogut crear la variable múltiple", isPresent);
+			assertFalse("No s'ha pogut crear la variable mï¿½ltiple", isPresent);
 		}		
 		
 		// variable oculta
@@ -444,7 +444,7 @@ public class DefinicioProcesTests extends BaseTest {
 		driver.findElement(By.id("etiqueta0")).sendKeys(getProperty("defproc.variable.nom6"));
 		driver.findElement(By.id("ocult0")).click();
 		screenshotHelper.saveScreenshot("defproces/variable/crea_var14.png");
-		// Botó crear variable
+		// Botï¿½ crear variable
   	    boto = driver.findElement(By.xpath("//button[@value='submit']"));
   	    boto.click();
 		screenshotHelper.saveScreenshot("defproces/variable/crea_var15.png");
@@ -468,7 +468,7 @@ public class DefinicioProcesTests extends BaseTest {
 		jbpmOption.click();
 		driver.findElement(By.id("etiqueta0")).sendKeys(getProperty("defproc.variable.nom1"));
 		screenshotHelper.saveScreenshot("defproces/variable/crea_var17.png");
-		// Botó crear variable
+		// Botï¿½ crear variable
   	    boto = driver.findElement(By.xpath("//button[@value='submit']"));
   	    boto.click();
 		screenshotHelper.saveScreenshot("defproces/variable/crea_var18.png");
@@ -503,7 +503,7 @@ public class DefinicioProcesTests extends BaseTest {
 			jbpmOption.click();
 
 			screenshotHelper.saveScreenshot("defproces/variable/mod_var3.png");
-			// Botó crear variable
+			// Botï¿½ crear variable
 			WebElement boto = driver.findElement(By.xpath("//button[@value='submit']"));
 			boto.click(); 	    
 	  	    
@@ -518,7 +518,7 @@ public class DefinicioProcesTests extends BaseTest {
 	}
 	
 	private void validacioVar() {
-		// Afegeix una validació a una variable			
+		// Afegeix una validaciï¿½ a una variable			
 		
 		// Accedir a la fitxa de les variables
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/campLlistat.html')]")).click();			
@@ -542,7 +542,7 @@ public class DefinicioProcesTests extends BaseTest {
 			driver.findElement(By.id("missatge0")).sendKeys("S'ha d'especificar una data");
 
 			screenshotHelper.saveScreenshot("defproces/variable/val_var3.png");
-			// Botó crear 
+			// Botï¿½ crear 
 			WebElement boto = driver.findElement(By.xpath("//button[@value='submit']"));
 			boto.click(); 	    
 	  	    
@@ -553,7 +553,7 @@ public class DefinicioProcesTests extends BaseTest {
 			isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + valIni + "')]")).size() > 0;
 			driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
 			if (!isPresent) {
-				assertFalse("No s'ha pogut crear la validació de la variable string", isPresent);
+				assertFalse("No s'ha pogut crear la validaciï¿½ de la variable string", isPresent);
 			}*/		
  	    } else {
 			fail("La variable no existeix");
@@ -562,7 +562,7 @@ public class DefinicioProcesTests extends BaseTest {
 	
 	
 	private void esborrarVar() {
-		// Esborra una variable en una definició de procés seleccionada amb seleccionarDefProc			
+		// Esborra una variable en una definiciï¿½ de procï¿½s seleccionada amb seleccionarDefProc			
 		
 		// Accedir a la fitxa de les variables
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/campLlistat.html')]")).click();			
@@ -592,7 +592,7 @@ public class DefinicioProcesTests extends BaseTest {
 	}
 
 	public void crearAgrupacio() throws InterruptedException {
-		// Crear una agrupació de variables en una definició de procés seleccionada amb seleccionarDefProc
+		// Crear una agrupaciï¿½ de variables en una definiciï¿½ de procï¿½s seleccionada amb seleccionarDefProc
 		// Afegeix una variable creada anteriorment
 		
 		// Accedir a la fitxa de les agrupacions
@@ -600,7 +600,7 @@ public class DefinicioProcesTests extends BaseTest {
 			
   	    screenshotHelper.saveScreenshot("defproces/variable/crea_agruvar1.png");
 		
-  	    // Botó nova agrupció
+  	    // Botï¿½ nova agrupciï¿½
   	    driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
 
 		screenshotHelper.saveScreenshot("defproces/variable/crea_agruvar2.png");
@@ -608,11 +608,11 @@ public class DefinicioProcesTests extends BaseTest {
 		// Inicialitzar camps		
 		String codAgr = getProperty("defproc.agrupacio.codi1");
 		driver.findElement(By.id("codi0")).sendKeys(codAgr);
-		driver.findElement(By.id("nom0")).sendKeys("Nom agrupació variables 01");
+		driver.findElement(By.id("nom0")).sendKeys("Nom agrupaciï¿½ variables 01");
 
 		screenshotHelper.saveScreenshot("defproces/variable/crea_agruvar3.png");
 
-		// Botó crear agrupacio
+		// Botï¿½ crear agrupacio
   	    WebElement botoDeploy = driver.findElement(By.xpath("//button[@value='submit']"));
 		botoDeploy.click();
 		
@@ -623,28 +623,28 @@ public class DefinicioProcesTests extends BaseTest {
 		boolean isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codAgr + "')]")).size() > 0;
 		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
 		if (!isPresent) {
-			assertFalse("No s'ha pogut crear l'agrupació", isPresent);
+			assertFalse("No s'ha pogut crear l'agrupaciï¿½", isPresent);
 		}		
 	}
 
 	public void crearVarAgrupacio() throws InterruptedException {
-		// Afegeix una variable una agrupació de variables 
+		// Afegeix una variable una agrupaciï¿½ de variables 
 		
 		// Accedir a la fitxa de les agrupacions
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/campAgrupacioLlistat.html')]")).click();			
 			
   	    screenshotHelper.saveScreenshot("defproces/variable/crea_varagru1.png");	
   	    
-  	    // Cercar agrupació
+  	    // Cercar agrupaciï¿½
   	    String codAgr = getProperty("defproc.agrupacio.codi1");
   	    driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
 		boolean isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codAgr + "')]")).size() > 0;
 		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
 		if (!isPresent) {
-			assertFalse("L'agrupació no existeix", isPresent);
+			assertFalse("L'agrupaciï¿½ no existeix", isPresent);
 		}		
 		else {
-			// Botó Assignar variable
+			// Botï¿½ Assignar variable
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codAgr + "')]/td[4]/form/button")).click();	
 			// Seleccionar variable
 			WebElement selectVar = driver.findElement(By.id("id0"));
@@ -656,7 +656,7 @@ public class DefinicioProcesTests extends BaseTest {
 			    }
 			}
 			screenshotHelper.saveScreenshot("defproces/variable/crea_varagru2.png");
-			// Botó afegir variable
+			// Botï¿½ afegir variable
 	  	    WebElement botoVar = driver.findElement(By.xpath("//button[@value='submit']"));
 			botoVar.click();
 
@@ -668,13 +668,13 @@ public class DefinicioProcesTests extends BaseTest {
 			isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomVar + "')]")).size() > 0;
 			driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
 			if (!isPresent) {
-				assertFalse("No s'ha pogut crear la variable de l'agrupació", isPresent);
+				assertFalse("No s'ha pogut crear la variable de l'agrupaciï¿½", isPresent);
 			}
 		}
 	}	
 	
 	private void esborrarAgrupacio() {
-		// Esborra una agrupació de variables en una definició de procés seleccionada amb seleccionarDefProc			
+		// Esborra una agrupaciï¿½ de variables en una definiciï¿½ de procï¿½s seleccionada amb seleccionarDefProc			
 		
 		// Accedir a la fitxa de les agrupacions
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/campAgrupacioLlistat.html')]")).click();			
@@ -697,14 +697,14 @@ public class DefinicioProcesTests extends BaseTest {
 			isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codAgr + "')]")).size() > 0;
 			driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
 			
-			assertFalse("No s'ha pogut eliminar l'agrupació", isPresent);
+			assertFalse("No s'ha pogut eliminar l'agrupaciï¿½", isPresent);
 		} else {
-			fail("L'agrupació no existeix");
+			fail("L'agrupaciï¿½ no existeix");
 		}
 	}	
 	
 	private void esborrarVarAgrupacio() {
-		// Esborra una variable d'una agrupació de variables, en una definició de procés seleccionada amb seleccionarDefProc			
+		// Esborra una variable d'una agrupaciï¿½ de variables, en una definiciï¿½ de procï¿½s seleccionada amb seleccionarDefProc			
 		
 		// Accedir a la fitxa de les agrupacions
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/campAgrupacioLlistat.html')]")).click();			
@@ -717,7 +717,7 @@ public class DefinicioProcesTests extends BaseTest {
 		boolean isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codAgr + "')]")).size() > 0;
 		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
 
-		// Botó variable
+		// Botï¿½ variable
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codAgr + "')]/td[4]/form/button")).click();
 		screenshotHelper.saveScreenshot("defproces/variable/esborra_varagr2.png");
 		
@@ -737,21 +737,21 @@ public class DefinicioProcesTests extends BaseTest {
 			isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomVar + "')]")).size() > 0;
 			driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
 			
-			assertFalse("No s'ha pogut eliminar la variable de l'agrupació", isPresent);
+			assertFalse("No s'ha pogut eliminar la variable de l'agrupaciï¿½", isPresent);
 		} else {
-			fail("La variable no existeix en l'agrupació");
+			fail("La variable no existeix en l'agrupaciï¿½");
 		}
 	}	
 	
 	public static void adjuntarDoc() throws InterruptedException {
-		// Adjunta un document a una defició de procés seleccionada amb seleccionarDefProc			
+		// Adjunta un document a una deficiï¿½ de procï¿½s seleccionada amb seleccionarDefProc			
 		
 		// Accedir a la fitxa dels documents
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/documentLlistat.html')]")).click();			
 			
   	    screenshotHelper.saveScreenshot("defproces/document/crea_doc1.png");
 		
-  	    // Botó nou document
+  	    // Botï¿½ nou document
   	    driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
 
 		screenshotHelper.saveScreenshot("defproces/document/crea_doc2.png");
@@ -762,7 +762,7 @@ public class DefinicioProcesTests extends BaseTest {
 		driver.findElement(By.id("nom0")).sendKeys(getProperty("defproc.document.nom1"));
 		screenshotHelper.saveScreenshot("defproces/document/crea_doc3.png");
 		
-		// Botó crear document
+		// Botï¿½ crear document
   	    WebElement botoDeploy = driver.findElement(By.xpath("//button[@value='submit']"));
 		botoDeploy.click();
 		
@@ -778,14 +778,14 @@ public class DefinicioProcesTests extends BaseTest {
 	}
 
 	public static void adjuntarDocPlantilla() throws InterruptedException {
-		// Adjunta un document tipus plantilla a una defició de procés seleccionada amb seleccionarDefProc			
+		// Adjunta un document tipus plantilla a una deficiï¿½ de procï¿½s seleccionada amb seleccionarDefProc			
 		
 		// Accedir a la fitxa dels documents
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/documentLlistat.html')]")).click();			
 			
   	    screenshotHelper.saveScreenshot("defproces/document/crea_docpl1.png");
 		
-  	    // Botó nou document
+  	    // Botï¿½ nou document
   	    driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
 
 		screenshotHelper.saveScreenshot("defproces/document/crea_docpl2.png");
@@ -800,7 +800,7 @@ public class DefinicioProcesTests extends BaseTest {
 
 		screenshotHelper.saveScreenshot("defproces/document/crea_docpl3.png");
 		
-		// Botó crear document
+		// Botï¿½ crear document
   	    WebElement botoDeploy = driver.findElement(By.xpath("//button[@value='submit']"));
 		botoDeploy.click();
 		
@@ -816,7 +816,7 @@ public class DefinicioProcesTests extends BaseTest {
 	}
 	
 	private void modificarDoc() {
-		// Modifica la propietat camp amb data d'un document d'una definició de procés seleccionada amb seleccionarDefProc			
+		// Modifica la propietat camp amb data d'un document d'una definiciï¿½ de procï¿½s seleccionada amb seleccionarDefProc			
 	
 		// Accedir a la fitxa dels documents
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/documentLlistat.html')]")).click();			
@@ -847,7 +847,7 @@ public class DefinicioProcesTests extends BaseTest {
 			    }
 			}
 			screenshotHelper.saveScreenshot("defproces/document/mod_doc3.png");
-			// Botó guardar
+			// Botï¿½ guardar
 			WebElement boto = driver.findElement(By.xpath("//button[@value='submit']"));
 			boto.click(); 	    
 	  	    
@@ -865,7 +865,7 @@ public class DefinicioProcesTests extends BaseTest {
 	}
 	
 	private void esborrarDoc() {
-		// Esborra un document d'una definició de procés seleccionada amb seleccionarDefProc			
+		// Esborra un document d'una definiciï¿½ de procï¿½s seleccionada amb seleccionarDefProc			
 	
 		// Accedir a la fitxa dels documents
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/documentLlistat.html')]")).click();			
@@ -895,14 +895,14 @@ public class DefinicioProcesTests extends BaseTest {
 	}
 
 	public void crearTermini() throws InterruptedException {
-		// Crear un termini en una definició de procés seleccionada amb seleccionarDefProc			
+		// Crear un termini en una definiciï¿½ de procï¿½s seleccionada amb seleccionarDefProc			
 		
 		// Accedir a la fitxa dels terminis
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/terminiLlistat.html')]")).click();			
 			
   	    screenshotHelper.saveScreenshot("defproces/termini/crea_termini1.png");
 		
-  	    // Botó nou termini
+  	    // Botï¿½ nou termini
   	    driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
 
 		// Inicialitzar camps
@@ -916,7 +916,7 @@ public class DefinicioProcesTests extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("defproces/termini/crea_termini2.png");
 
-		// Botó crear termini
+		// Botï¿½ crear termini
   	    WebElement botoDeploy = driver.findElement(By.xpath("//button[@value='submit']"));
 		botoDeploy.click();
 		
@@ -932,7 +932,7 @@ public class DefinicioProcesTests extends BaseTest {
 	}
 
 	private void esborrarTermini() {
-		// Esborra un termini d'una definició de procés seleccionada amb seleccionarDefProc			
+		// Esborra un termini d'una definiciï¿½ de procï¿½s seleccionada amb seleccionarDefProc			
 	
 		// Accedir a la fitxa dels terminis
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/terminiLlistat.html')]")).click();			
@@ -962,7 +962,7 @@ public class DefinicioProcesTests extends BaseTest {
 	}
 
 	public static void crearVarTasca(String codVar, Boolean isReq, Boolean isLec) throws InterruptedException {
-		// Afegeix una variable a una tasca en una definició de procés seleccionada amb seleccionarDefProc			
+		// Afegeix una variable a una tasca en una definiciï¿½ de procï¿½s seleccionada amb seleccionarDefProc			
 		
 		// Accedir a la fitxa de les tasques
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/tascaLlistat.html')]")).click();			
@@ -972,7 +972,7 @@ public class DefinicioProcesTests extends BaseTest {
   	    String codTasca = getProperty("defproc.tasca.codi1");
   	    //String codVar = getProperty("defproc.variable.codi1")+"/"+getProperty("defproc.variable.nom1");
 
-  	    // Botó nova variable
+  	    // Botï¿½ nova variable
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTasca + "')]/td[3]/form/button")).click();
 		actions.build().perform();
 
@@ -990,7 +990,7 @@ public class DefinicioProcesTests extends BaseTest {
 
 		screenshotHelper.saveScreenshot("defproces/tasca/crea_var2.png");
 
-		// Botó crear variable
+		// Botï¿½ crear variable
   	    WebElement botoDeploy = driver.findElement(By.xpath("//button[@value='submit']"));
 		botoDeploy.click();
 		
@@ -1006,7 +1006,7 @@ public class DefinicioProcesTests extends BaseTest {
 	}	
 
 	public void modificarVarTasca() throws InterruptedException {
-		// Modifica una variable a obligatòria d'una tasca en una definició de procés seleccionada amb seleccionarDefProc			
+		// Modifica una variable a obligatï¿½ria d'una tasca en una definiciï¿½ de procï¿½s seleccionada amb seleccionarDefProc			
 		
 		// Accedir a la fitxa de les tasques
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/tascaLlistat.html')]")).click();			
@@ -1015,7 +1015,7 @@ public class DefinicioProcesTests extends BaseTest {
 
   	    String codTasca = getProperty("defproc.tasca.codi1");
   	    String codVar = getProperty("defproc.variable.codi1")+"/"+getProperty("defproc.variable.nom1");
-  	    // Botó variables
+  	    // Botï¿½ variables
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTasca + "')]/td[3]/form/button")).click();
 		actions.build().perform();
 
@@ -1045,7 +1045,7 @@ public class DefinicioProcesTests extends BaseTest {
 	}	
 	
 	public void esborrarVarTasca(String codVar) throws InterruptedException {
-		// Esborra una variable d'una tasca en una definició de procés seleccionada amb seleccionarDefProc			
+		// Esborra una variable d'una tasca en una definiciï¿½ de procï¿½s seleccionada amb seleccionarDefProc			
 		
 		// Accedir a la fitxa de les tasques
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/tascaLlistat.html')]")).click();			
@@ -1058,7 +1058,7 @@ public class DefinicioProcesTests extends BaseTest {
 		boolean isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTasca + "')]")).size() > 0;
 		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
 
-		// Botó variable
+		// Botï¿½ variable
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTasca + "')]/td[3]/form/button")).click();
 		actions.build().perform();
 		
@@ -1087,7 +1087,7 @@ public class DefinicioProcesTests extends BaseTest {
 	}	
 
 	public static void crearDocTasca(String codDoc) throws InterruptedException {
-		// Afegeix un document a una tasca en una definició de procés seleccionada amb seleccionarDefProc			
+		// Afegeix un document a una tasca en una definiciï¿½ de procï¿½s seleccionada amb seleccionarDefProc			
 		
 		// Accedir a la fitxa de tasques
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/tascaLlistat.html')]")).click();			
@@ -1097,7 +1097,7 @@ public class DefinicioProcesTests extends BaseTest {
   	    String codTasca = getProperty("defproc.tasca.codi1");
   	    //String codDoc = getProperty("defproc.document.codi1")+"/"+getProperty("defproc.document.nom1");
 
-  	    // Botó document
+  	    // Botï¿½ document
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTasca + "')]/td[4]/form/button")).click();
 		actions.build().perform();
 
@@ -1113,7 +1113,7 @@ public class DefinicioProcesTests extends BaseTest {
 
 		screenshotHelper.saveScreenshot("defproces/tasca/crea_doc2.png");
 
-		// Botó crear document
+		// Botï¿½ crear document
   	    WebElement botoDeploy = driver.findElement(By.xpath("//button[@value='submit']"));
 		botoDeploy.click();
 		
@@ -1129,7 +1129,7 @@ public class DefinicioProcesTests extends BaseTest {
 	}	
 
 	public static void modificarDocTasca(String nomDoc) throws InterruptedException {
-		// Modifica un document d'una tasca com obligatoris, en una definició de procés seleccionada amb seleccionarDefProc			
+		// Modifica un document d'una tasca com obligatoris, en una definiciï¿½ de procï¿½s seleccionada amb seleccionarDefProc			
 		
 		// Accedir a la fitxa de tasques
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/tascaLlistat.html')]")).click();			
@@ -1137,7 +1137,7 @@ public class DefinicioProcesTests extends BaseTest {
   	    screenshotHelper.saveScreenshot("defproces/tasca/modif_doc1.png");
 
   	    String codTasca = getProperty("defproc.tasca.codi1");
-  	    // Botó document
+  	    // Botï¿½ document
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTasca + "')]/td[4]/form/button")).click();
 		actions.build().perform();
 
@@ -1168,7 +1168,7 @@ public class DefinicioProcesTests extends BaseTest {
 			
 			screenshotHelper.saveScreenshot("defproces/tasca/modif_doc4.png");
 
-			// Botó guardar
+			// Botï¿½ guardar
 			WebElement boto = driver.findElement(By.xpath("//button[@value='submit']"));
 			boto.click(); 	    
 			screenshotHelper.saveScreenshot("defproces/tasca/modif_doc5.png");
@@ -1184,7 +1184,7 @@ public class DefinicioProcesTests extends BaseTest {
 	
 	
 	public void esborrarDocTasca(String codDoc) throws InterruptedException {
-		// Esborra un document d'una tasca en una definició de procés seleccionada amb seleccionarDefProc			
+		// Esborra un document d'una tasca en una definiciï¿½ de procï¿½s seleccionada amb seleccionarDefProc			
 		
 		// Accedir a la fitxa de les tasques
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/tascaLlistat.html')]")).click();			
@@ -1197,7 +1197,7 @@ public class DefinicioProcesTests extends BaseTest {
 		boolean isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTasca + "')]")).size() > 0;
 		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
 
-		// Botó document
+		// Botï¿½ document
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTasca + "')]/td[4]/form/button")).click();
 		actions.build().perform();
 		
@@ -1226,9 +1226,9 @@ public class DefinicioProcesTests extends BaseTest {
 	}	
 
 	public void esborrarDefProc() throws InterruptedException {
-		// Eliminar una definició de procés 
+		// Eliminar una definiciï¿½ de procï¿½s 
 		
-		// Accés a l'opció de menú
+		// Accï¿½s a l'opciï¿½ de menï¿½
 		WebElement menuDisseny = driver.findElement(By.id("menuDisseny"));
 		WebElement menuDefProc = driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]"));
 
@@ -1242,7 +1242,7 @@ public class DefinicioProcesTests extends BaseTest {
 
 		screenshotHelper.saveScreenshot("defproces/elimDefProc1.png");
 		
-		// Obtenir nom de la defició de procés i cercar-lo
+		// Obtenir nom de la deficiï¿½ de procï¿½s i cercar-lo
 		String nomDefProc = getProperty("deploy.definicio.proces.nom");
 		driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
 		boolean isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]")).size() > 0;
@@ -1255,7 +1255,7 @@ public class DefinicioProcesTests extends BaseTest {
 		}
 		else
 		{
-			fail("La definició de procés no existeix");
+			fail("La definiciï¿½ de procï¿½s no existeix");
 		}
 	}
 

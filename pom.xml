@@ -18,5 +18,6 @@
 		<module>helium-util</module>
 		<module>helium-webapp</module>
 		<module>helium-ws</module>
+		<module>helium-selenium</module>
 	</modules>
 </project>
