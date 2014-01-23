@@ -483,8 +483,9 @@ public class ServiceUtils {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		List<Sid> sids = new ArrayList<Sid>();
 		sids.add(new PrincipalSid(auth.getName()));
-		for (GrantedAuthority ga: auth.getAuthorities()) {
-			sids.add(new GrantedAuthoritySid(ga.getAuthority()));
+		if (auth.getAuthorities() != null) {
+			for (GrantedAuthority ga: auth.getAuthorities())
+				sids.add(new GrantedAuthoritySid(ga.getAuthority()));
 		}
 		try {
 			Acl acl = aclServiceDao.readAclById(new ObjectIdentityImpl(clazz, object.getId()));
