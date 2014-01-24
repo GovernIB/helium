@@ -3,7 +3,6 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
@@ -11,7 +10,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.service.PluginServiceImpl;
+import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEditarCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NoDecorarHelper;
@@ -19,6 +18,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -42,11 +42,11 @@ import org.springframework.web.bind.support.SessionStatus;
 @RequestMapping("/v3/expedient")
 public class ExpedientInformacioController extends BaseExpedientController {
 
-	@Resource(name="expedientServiceV3")
+	@Autowired
 	private ExpedientService expedientService;
 	
-	@Resource(name = "pluginServiceV3")
-	private PluginServiceImpl pluginService;
+	@Autowired
+	private PluginService pluginService;
 
 	@RequestMapping(value = "/{expedientId}/persona/suggest", method = RequestMethod.GET)
 	public String suggestAction(

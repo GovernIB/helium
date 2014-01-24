@@ -48,6 +48,12 @@ import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
+import net.conselldemallorca.helium.core.model.service.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.model.service.LuceneHelper;
+import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
+import net.conselldemallorca.helium.core.model.service.PermisosHelper;
+import net.conselldemallorca.helium.core.model.service.PermisosHelper.ObjectIdentifierExtractor;
+import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.MesurarTemps;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
@@ -90,17 +96,12 @@ import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundEx
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.PermissionService;
 import net.conselldemallorca.helium.v3.core.helper.ConsultaHelper;
-import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.v3.core.helper.DominiHelper;
 import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientLoggerHelper;
-import net.conselldemallorca.helium.v3.core.helper.LuceneHelper;
-import net.conselldemallorca.helium.v3.core.helper.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.v3.core.helper.PaginacioHelper;
-import net.conselldemallorca.helium.v3.core.helper.PermisosHelper;
-import net.conselldemallorca.helium.v3.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.v3.core.helper.PersonaHelper;
 import net.conselldemallorca.helium.v3.core.helper.ServiceUtils;
 import net.conselldemallorca.helium.v3.core.helper.TascaHelper;
@@ -1653,7 +1654,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				"expedientTipusCodi=" + expedientTipus.getCodi() + ", " +
 				"data=" + new Date() + ")";
 		try {
-			String iniciadorCodiCalculat = (iniciadorTipus.equals(IniciadorTipus.INTERN)) ? usuariBo : iniciadorCodi;
+			String iniciadorCodiCalculat = (iniciadorTipus.equals(IniciadorTipusDto.INTERN)) ? usuariBo : iniciadorCodi;
 			Expedient expedient = new Expedient();
 			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "0");
 			expedient.setTipus(expedientTipus);
@@ -1883,5 +1884,108 @@ public class ExpedientServiceImpl implements ExpedientService {
 		} else {
 			throw new NotFoundException(getServiceUtils().getMessage("error.expedientService.noExisteix"));
 		}
+	}
+	
+	@Transactional
+	@Override
+	public void suspendreTasca(
+			Long entornId,
+			String taskId) {
+		JbpmTask task = jbpmHelper.getTaskById(taskId);
+		expedientLoggerHelper.afegirLogExpedientPerProces(
+				task.getProcessInstanceId(),
+				ExpedientLogAccioTipus.TASCA_SUSPENDRE,
+				null);
+		jbpmHelper.suspendTaskInstance(taskId);
+		registreDao.crearRegistreSuspendreTasca(
+				getExpedientPerTaskInstanceId(taskId).getId(),
+				taskId,
+				SecurityContextHolder.getContext().getAuthentication().getName());
+	}
+	
+	@Transactional
+	@Override
+	public void reprendreTasca(
+			Long entornId,
+			String taskId) {
+		JbpmTask task = jbpmHelper.getTaskById(taskId);
+		expedientLoggerHelper.afegirLogExpedientPerProces(
+				task.getProcessInstanceId(),
+				ExpedientLogAccioTipus.TASCA_CONTINUAR,
+				null);
+		jbpmHelper.resumeTaskInstance(taskId);
+		registreDao.crearRegistreReprendreTasca(
+				getExpedientPerTaskInstanceId(taskId).getId(),
+				taskId,
+				SecurityContextHolder.getContext().getAuthentication().getName());
+	}
+	
+	@Transactional
+	@Override
+	public void cancelarTasca(
+			Long entornId,
+			String taskId) {
+		JbpmTask task = jbpmHelper.getTaskById(taskId);
+		expedientLoggerHelper.afegirLogExpedientPerProces(
+				task.getProcessInstanceId(),
+				ExpedientLogAccioTipus.TASCA_CANCELAR,
+				null);
+		jbpmHelper.cancelTaskInstance(taskId);
+		registreDao.crearRegistreCancelarTasca(
+				getExpedientPerTaskInstanceId(taskId).getId(),
+				taskId,
+				SecurityContextHolder.getContext().getAuthentication().getName());
+	}
+	
+	@Transactional
+	private Expedient getExpedientPerTaskInstanceId(String taskId) {
+		JbpmTask task = jbpmHelper.getTaskById(taskId);
+		JbpmProcessInstance pi = jbpmHelper.getRootProcessInstance(
+				task.getProcessInstanceId());
+		return expedientDao.findAmbProcessInstanceId(pi.getId());
+	}
+
+	@Transactional
+	@Override
+	public void reassignarTasca(Long entornId, String taskId, String expression) {
+		reassignarTasca(entornId, taskId, expression, null);
+	}
+	
+	@Transactional
+	private void reassignarTasca(
+			Long entornId,
+			String taskId,
+			String expression,
+			String usuari) {
+		String previousActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskId);
+		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerTasca(
+				taskId,
+				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
+				null);
+		jbpmHelper.reassignTaskInstance(taskId, expression, entornId);
+		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskId);
+		expedientLog.setAccioParams(previousActors + "::" + currentActors);
+		if (previousActors.startsWith("[")) {
+			JbpmTask task = jbpmHelper.getTaskById(taskId);
+			if (task != null) task.setFieldFromDescription(TascaService.TASKDESC_CAMP_AGAFADA, "true");
+		}
+		if (usuari == null) {
+			usuari = SecurityContextHolder.getContext().getAuthentication().getName();
+		}
+		registreDao.crearRegistreRedirigirTasca(
+				getExpedientPerTaskInstanceId(taskId).getId(),
+				taskId,
+				usuari,
+				expression);
+	}
+
+	@Transactional
+	@Override
+	public List<Object> findLogIdTasquesById(List<ExpedientTascaDto> tasques) {
+		List<String> tasquesIds = new ArrayList<String>();
+		for (ExpedientTascaDto tasca : tasques) {
+			tasquesIds.add(tasca.getId());
+		}
+		return expedientLoggerHelper.findLogIdTasquesById(tasquesIds);
 	}
 }

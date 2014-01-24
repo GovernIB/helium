@@ -245,4 +245,14 @@ public interface ExpedientService {
 	public ExpedientDto findExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol);
 
 	public void anular(Long id, Long expedientId, String motiu);
+
+	public void cancelarTasca(Long entornId, String taskId);
+
+	public void suspendreTasca(Long entornId, String taskId);
+
+	public void reprendreTasca(Long entornId, String taskId);
+
+	public void reassignarTasca(Long id, String taskId, String expression);
+
+	public List<Object> findLogIdTasquesById(List<ExpedientTascaDto> tasques);
 }

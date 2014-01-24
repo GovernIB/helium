@@ -3,12 +3,16 @@
  */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
+import java.io.Serializable;
+
 /**
  * DTO amb informació d'un entorn.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class EntornDto {
+public class EntornDto implements Serializable {
+	private static final long serialVersionUID = 1L;
+	
 	public EntornDto(Long id, String codi, String nom) {
 		super();
 		this.id = id;

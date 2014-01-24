@@ -39,6 +39,11 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 		FORM,
 		SIGNATURA
 	}
+	
+	public int getPrioritatOrdinal() {
+		return prioritat.ordinal();
+	}
+	
 	private String id;
 	private String nom;
 	private String missatgeInfo;
@@ -53,7 +58,6 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 	private Date endTime;
 	private Date dueDate;
 	private int priority;
-	private boolean open;
 	private boolean completed;
 	private boolean cancelled;
 	private boolean suspended;
@@ -328,12 +332,6 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 	}
 	public void setPriority(int priority) {
 		this.priority = priority;
-	}
-	public boolean isOpen() {
-		return open;
-	}
-	public void setOpen(boolean open) {
-		this.open = open;
 	}
 	public boolean isCompleted() {
 		return completed;

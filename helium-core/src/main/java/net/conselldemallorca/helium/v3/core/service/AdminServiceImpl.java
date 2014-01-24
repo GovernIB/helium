@@ -12,14 +12,14 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import net.conselldemallorca.helium.core.model.service.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntervalEventDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MesuraTemporalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaCompleteDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
-import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
-import net.conselldemallorca.helium.v3.core.helper.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.v3.core.helper.UsuariActualCacheHelper;
 import net.conselldemallorca.helium.v3.core.repository.UsuariPreferenciesRepository;
 

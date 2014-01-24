@@ -31,6 +31,7 @@ import java.util.Map;
 
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientIniciantDto;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -263,7 +264,10 @@ public abstract class GraphElement implements Identifiable, Serializable {
     ExpedientDto exp = null;
     if ( Jbpm3HeliumBridge.getInstanceService().mesuraIsActiu()) {
     	exp = Jbpm3HeliumBridge.getInstanceService().getExpedientArrelAmbProcessInstanceId(String.valueOf(executionContext.getProcessInstance().getId()));
-    	Jbpm3HeliumBridge.getInstanceService().mesuraIniciar("ACCIO: " + (action != null ? action.getName() : "null"), "tasques", exp.getTipus().getNom(), null, null);
+    	if (exp == null) {
+    		exp = ExpedientIniciantDto.getExpedient();
+    	}
+    	Jbpm3HeliumBridge.getInstanceService().mesuraIniciar("ACCIO: " + (action != null ? action.getName() : "null"), "tasques", (exp == null) ? "NULL" : exp.getTipus().getNom(), null, null);
     }
     // create action log
     ActionLog actionLog = new ActionLog(action);

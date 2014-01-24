@@ -208,8 +208,10 @@
 <body>
 <ul id="tabnav" class="nav nav-tabs">
 	<li class="active <c:if test="${not tasca.validada}"> warn</c:if>"><a href="#dades" data-toggle="tab">1. Dades</a></li>
-	<li class=""><a href="#documents" data-toggle="tab">2. Documents</a></li>
-	<li class=""><a href="#signatures" data-toggle="tab">3. Signatures</a></li>
+	<c:if test="${not empty dades}">
+		<li class=""><a href="#documents" data-toggle="tab">2. Documents</a></li>
+		<li class=""><a href="#signatures" data-toggle="tab">3. Signatures</a></li>
+	</c:if>
 </ul>
 
 <div class="tab-content">
@@ -229,67 +231,67 @@
 		</c:if>
 		
 		<c:set var="hiHaCampsReadOnly" value="${false}"/>
-			<c:forEach var="camp" items="${tasca.camps}">
-				<c:if test="${camp.readOnly}">
-					<c:set var="hiHaCampsReadOnly" value="${true}"/>
-				</c:if>
-			</c:forEach>
-			
-			<c:set var="hiHaDocumentsReadOnly" value="${false}"/>
-			<c:forEach var="document" items="${tasca.documents}">
-				<c:if test="${document.readOnly}">
-					<c:set var="hiHaDocumentsReadOnly" value="${true}"/>
-				</c:if>
-			</c:forEach>
-			
-			<c:if test="${hiHaCampsReadOnly or hiHaDocumentsReadOnly}">
-				<div class="missatge missatgesBlau">
-					<c:if test="${hiHaDocumentsReadOnly}">
-						<c:forEach var="document" items="${tasca.documents}">
-							<c:if test="${document.readOnly}">
-								<h4 class="titol-missatge">
-									${document.document.nom}&nbsp;&nbsp;
-									<c:if test="${not empty tasca.varsDocuments[document.document.codi]}">
-										<c:set var="tascaActual" value="${tasca}" scope="request"/>
-										<c:set var="documentActual" value="${tasca.varsDocuments[document.document.codi]}" scope="request"/>
-										<c:set var="codiDocumentActual" value="${document.document.codi}" scope="request"/>
-										<c:import url="../common/iconesConsultaDocument.jsp"/>
-									</c:if>
-								</h4><br/>
-							</c:if>
-						</c:forEach>
-					</c:if>
-					<c:if test="${hiHaCampsReadOnly}">
-						<div class="form-horizontal form-tasca">
-							<span class="titol-missatge"><fmt:message key='common.tascaro.dadesref' /></span>
-							<form  id="commandReadOnly" name="commandReadOnly" action="form" method="post">
-								<input type="hidden" id="id" name="id" value="${tasca.id}"/>
-								<div class="inlineLabels">
-									<c:forEach var="dada" items="${dades}" varStatus="varStatusMain">
-										<c:if test="${dada.readOnly}">
-											<div class="control-group">
-												<label class="control-label" for="${dada.varCodi}">${dada.campEtiqueta} - ${dada.campTipus}</label>
-												
-												<c:set var="dada" value="${dada}"/>
-												<c:set var="dada_multiple" value=""/>
-												<%@ include file="campsTasca.jsp" %>
-												<%@ include file="campsTascaRegistre.jsp" %>
-											</div>
-										</c:if>
-									</c:forEach>
-								</div>
-							</form>
-						</div>
-					</c:if>
-				</div>
+		<c:forEach var="camp" items="${tasca.camps}">
+			<c:if test="${camp.readOnly}">
+				<c:set var="hiHaCampsReadOnly" value="${true}"/>
 			</c:if>
+		</c:forEach>
+		
+		<c:set var="hiHaDocumentsReadOnly" value="${false}"/>
+		<c:forEach var="document" items="${tasca.documents}">
+			<c:if test="${document.readOnly}">
+				<c:set var="hiHaDocumentsReadOnly" value="${true}"/>
+			</c:if>
+		</c:forEach>
+		
+		<c:if test="${hiHaCampsReadOnly or hiHaDocumentsReadOnly}">
+			<div class="missatge missatgesBlau">
+				<c:if test="${hiHaDocumentsReadOnly}">
+					<c:forEach var="document" items="${tasca.documents}">
+						<c:if test="${document.readOnly}">
+							<h4 class="titol-missatge">
+								${document.document.nom}&nbsp;&nbsp;
+								<c:if test="${not empty tasca.varsDocuments[document.document.codi]}">
+									<c:set var="tascaActual" value="${tasca}" scope="request"/>
+									<c:set var="documentActual" value="${tasca.varsDocuments[document.document.codi]}" scope="request"/>
+									<c:set var="codiDocumentActual" value="${document.document.codi}" scope="request"/>
+									<c:import url="../common/iconesConsultaDocument.jsp"/>
+								</c:if>
+							</h4><br/>
+						</c:if>
+					</c:forEach>
+				</c:if>
+				<c:if test="${hiHaCampsReadOnly}">
+					<div class="form-horizontal form-tasca">
+						<span class="titol-missatge"><fmt:message key='common.tascaro.dadesref' /></span>
+						<form  id="commandReadOnly" name="commandReadOnly" action="form" method="post">
+							<input type="hidden" id="id" name="id" value="${tasca.id}"/>
+							<div class="inlineLabels">
+								<c:forEach var="dada" items="${dades}" varStatus="varStatusMain">
+									<c:if test="${dada.readOnly}">
+										<div class="control-group">
+											<label class="control-label" for="${dada.varCodi}">${dada.campEtiqueta} - ${dada.campTipus}</label>
+											
+											<c:set var="dada" value="${dada}"/>
+											<c:set var="dada_multiple" value=""/>
+											<%@ include file="campsTasca.jsp" %>
+											<%@ include file="campsTascaRegistre.jsp" %>
+										</div>
+									</c:if>
+								</c:forEach>
+							</div>
+						</form>
+					</div>
+				</c:if>
+			</div>
+		</c:if>
 					
 		<form:form onsubmit="return confirmar(this)" id="command" name="command" action="form" cssClass="form-horizontal form-tasca" method="post" commandName="command">
 			<input type="hidden" id="id" name="id" value="${tasca.id}"/>
 			<input type="hidden" id="helFinalitzarAmbOutcome" name="helFinalitzarAmbOutcome" value="@#@"/>
 			<c:forEach var="dada" items="${dades}" varStatus="varStatusMain">
 				<c:if test="${not dada.readOnly}">
-					<div class="control-group fila_reducida <c:if test='${dada.readOnly || tasca.validada}'>fila_reducida</c:if>">
+					<div class="control-group fila_reducida">
 						<label class="control-label" for="${dada.varCodi}">${dada.campEtiqueta} - ${dada.campTipus}</label>
 						
 						<c:set var="dada" value="${dada}"/>
@@ -297,15 +299,24 @@
 						<%@ include file="campsTascaRegistre.jsp" %>
 					</div>
 				</c:if>
-			</c:forEach>
-			<div style="clear: both"></div>
-			<%@ include file="campsTascaGuardarTasca.jsp" %>
+			</c:forEach>			
+		
+			<c:if test="${empty dades}">
+				<%@ include file="campsTascaInfo.jsp" %>		
+			</c:if>
+			
+			<c:if test="${not empty dades}">
+				<div style="clear: both"></div>
+				<%@ include file="campsTascaGuardarTasca.jsp" %>
+			</c:if>
 		</form:form>
+		
 		<div class="hide" id="finalizarTarea">
 			<%@ include file="campsTascaTramitacioTasca.jsp" %>
 		</div>
 		
 	</div>
+	
 	
 	<div class="tab-pane" id="documents">
 		documents

@@ -34,6 +34,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientL
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.LogInfo;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
+import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
@@ -1130,6 +1131,24 @@ public class ExpedientLoggerHelper {
 			// Retrocediex la informació de l'expedient
 		}
 	}
+
+	public String getActorsPerReassignacioTasca(String taskInstanceId) {
+		JbpmTask task = jbpmHelper.getTaskById(taskInstanceId);
+		String actors = "";
+		if (task.getAssignee() != null) {
+			actors = task.getAssignee();
+		} else {
+			if (task.getPooledActors().size() > 0) {
+				StringBuilder sb = new StringBuilder();
+				for (String actorId: task.getPooledActors()) {
+					sb.append(actorId);
+					sb.append(",");
+				}
+				actors = "[" + sb.substring(0, sb.length() -1) + "]";
+			}
+		}
+		return actors;
+	}
 	
 	private List<DocumentTasca> getDocumentsPerTaskInstance(TaskInstance taskInstance) {
 		long processDefinitionId = taskInstance.getProcessInstance().getProcessDefinition().getId();
@@ -1307,5 +1326,9 @@ public class ExpedientLoggerHelper {
 			expedientLog.setAccioParams(accioParams);
 		expedientLoggerRepository.save(expedientLog);
 		return expedientLog;
+	}
+
+	public List<Object> findLogIdTasquesById(List<String> tasquesIds) {
+		return expedientLoggerRepository.findLogIdTasquesById(tasquesIds);
 	}
 }

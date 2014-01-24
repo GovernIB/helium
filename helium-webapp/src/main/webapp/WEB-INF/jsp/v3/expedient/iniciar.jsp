@@ -3,11 +3,12 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 
 <html>
 <head>
 	<title><spring:message code='expedient.iniciar.disponibles' /></title>
-	<meta name="titolcmp" content="Nou expedient"/>
+	<meta name="capsaleraTipus" content="llistat"/>
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
 <script type="text/javascript">
 // <![CDATA[
@@ -35,13 +36,13 @@ function confirmar(e, form) {
 		<display:column>
 			<form class="form-init-exedient" action="<c:url value="/v3/expedient/iniciar"/>" method="post" onsubmit="return confirmar(event, this)">
 				<input type="hidden" name="expedientTipusId" value="${registre.id}"/>
-				<select name="definicioProcesId">
+				<select name="definicioProcesId" id="definicioProcesId">
 					<option value="${definicionsProces.id}">&lt;&lt; <spring:message code='expedient.iniciar.darrera_versio' /> &gt;&gt;</option>
 					<c:forEach var="id" items="${definicionsProces[registre.id].idsWithSameKey}" varStatus="status">
 						<option value="${id}">${definicionsProces[registre.id].idsMostrarWithSameKey[status.index]}</option>
 					</c:forEach>
 				</select>
-				<button type="submit" class="btn pull-right"><spring:message code='comuns.iniciar' /></button>
+				<button type="submit" class="btn btn-primary pull-right"><spring:message code='comuns.iniciar' /></button>
 			</form>
 		</display:column>
 	</display:table>

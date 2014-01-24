@@ -8,8 +8,10 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.service.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.model.service.PermisosHelper;
+import net.conselldemallorca.helium.core.model.service.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 
 import org.springframework.cache.annotation.Cacheable;

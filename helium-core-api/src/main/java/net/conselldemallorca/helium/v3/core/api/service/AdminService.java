@@ -25,6 +25,7 @@ public interface AdminService {
 	 * 
 	 * @return El llistat d'entorns.
 	 */
+//	@PreAuthorize("hasRole('ROLE_SUPER') or hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
 	public List<EntornDto> findEntornAmbPermisReadUsuariActual();
 
 	/**

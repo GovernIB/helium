@@ -3,7 +3,6 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
@@ -15,6 +14,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NoDecorarHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -36,10 +36,10 @@ import org.springframework.web.bind.support.SessionStatus;
 @RequestMapping("/v3/expedient")
 public class ExpedientAturarController extends BaseExpedientController {
 
-	@Resource(name = "expedientServiceV3")
+	@Autowired
 	private ExpedientService expedientService;
 	
-	@Resource(name = "pluginServiceV3")
+	@Autowired
 	private PluginService pluginService;
 
 	@RequestMapping(value = "/{expedientId}/stop", method = RequestMethod.GET)

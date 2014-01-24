@@ -10,12 +10,14 @@ import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
+import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 
 import org.slf4j.Logger;
@@ -34,6 +36,8 @@ public class TascaHelper {
 
 	@Resource
 	TascaRepository tascaRepository;
+	@Resource
+	ExpedientRepository expedientRepository;
 	@Resource
 	DefinicioProcesRepository definicioProcesRepository;
 	@Resource
@@ -133,4 +137,15 @@ public class TascaHelper {
 		return tascaRepository.findAmbActivityNameIProcessDefinitionId(name, processDefinitionId);
 	}
 
+	public ExpedientTascaDto getTascaPerExpedientId(Long expedientId, String tascaId) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		JbpmTask task = jbpmHelper.getTaskById(tascaId);
+		Expedient expedient = expedientRepository.findById(expedientId);
+		if (task != null) {
+			return dtoConverter.toExpedientTascaDto(task, expedient);
+		} else {
+			logger.debug("No s'ha trobat la tasca (expedientId=" + expedient.getId() + ", tascaId=" + tascaId + ", usuariAcces=" + auth.getName() + ")");
+			return null;
+		}
+	}
 }

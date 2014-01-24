@@ -18,6 +18,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -39,10 +40,10 @@ import org.springframework.web.bind.support.SessionStatus;
 @RequestMapping("/v3/expedient")
 public class ExpedientExecucionsController extends BaseExpedientController {
 
-	@Resource(name = "expedientServiceV3")
+	@Autowired
 	private ExpedientService expedientService;
 	
-	@Resource(name = "pluginServiceV3")
+	@Autowired
 	private PluginService pluginService;
 	
 	@Resource

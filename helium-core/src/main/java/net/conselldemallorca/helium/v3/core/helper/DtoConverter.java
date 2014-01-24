@@ -29,9 +29,12 @@ import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
+import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
+import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 import net.conselldemallorca.helium.core.model.service.DocumentHelper;
+import net.conselldemallorca.helium.core.model.service.LuceneHelper;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
 import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
@@ -67,7 +70,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.conselldemallorca.helium.v3.core.api.service.PermissionService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
@@ -458,6 +463,8 @@ public class DtoConverter {
 		
 		DelegationInfo delegationInfo = (DelegationInfo)valors.get(
 				TascaService.VAR_TASCA_DELEGACIO);
+		
+		dto.setExpedient(toExpedientDto(expedient, false));
 		if (delegationInfo != null) {
 			boolean original = task.getId().equals(delegationInfo.getSourceTaskId());
 			dto.setDelegada(true);
@@ -738,7 +745,7 @@ public class DtoConverter {
 		dto.setEndTime(task.getEndTime());
 		dto.setDueDate(task.getDueDate());
 		dto.setPriority(task.getPriority());
-		dto.setOpen(task.isOpen());
+		dto.setOberta(task.isOpen());
 		dto.setCompleted(task.isCompleted());
 		dto.setCancelled(task.isCancelled());
 		dto.setSuspended(task.isSuspended());
@@ -831,6 +838,37 @@ public class DtoConverter {
 		}
 		return dto;
 	}
+	
+	public static ReassignacioDto toReassignacioDto(Reassignacio reassignacio) {
+		return new ModelMapper().map(reassignacio, ReassignacioDto.class);
+	}
+	
+	public static TerminiIniciatDto toTerminiIniciatDto(TerminiIniciat terminiIniciat) {
+		TerminiIniciatDto terminiIniciatDto = new TerminiIniciatDto();
+		terminiIniciatDto.setAnys(terminiIniciat.getAnys());
+		terminiIniciatDto.setDataAturada(terminiIniciat.getDataAturada());
+		terminiIniciatDto.setDataCancelacio(terminiIniciat.getDataCancelacio());
+		terminiIniciatDto.setDataCompletat(terminiIniciat.getDataCompletat());
+		terminiIniciatDto.setDataFi(terminiIniciat.getDataFi());
+		terminiIniciatDto.setDataFiProrroga(terminiIniciat.getDataFiProrroga());
+		terminiIniciatDto.setDataInici(terminiIniciat.getDataInici());
+		terminiIniciatDto.setDies(terminiIniciat.getDies());
+		terminiIniciatDto.setDiesAturat(terminiIniciat.getDiesAturat());
+		terminiIniciatDto.setId(terminiIniciat.getId());
+		terminiIniciatDto.setMesos(terminiIniciat.getMesos());
+		
+		TerminiDto terminiDto = new ModelMapper().map(terminiIniciat.getTermini(), TerminiDto.class);
+		terminiIniciatDto.setTermini(terminiDto);
+		return terminiIniciatDto;
+	}
+	
+	public static List<ReassignacioDto> toLlistatReassignacioDto(List<Reassignacio> llistat) {
+		List<ReassignacioDto> val = new ArrayList<ReassignacioDto>();
+		for(Reassignacio validacio : llistat) {
+			val.add(toReassignacioDto(validacio));
+		}
+		return val;
+	}
 
 	private List<FirmaTascaDto> toFirmaTascaDto(List<FirmaTasca> findAmbTascaOrdenats) {
 		List<FirmaTascaDto> val = new ArrayList<FirmaTascaDto>();
@@ -897,8 +935,10 @@ public class DtoConverter {
 		return campDto;
 	}
 
-	private DefinicioProcesDto toDefinicioProcesDto(DefinicioProces definicioProces) {		
-		return new ModelMapper().map(definicioProces, DefinicioProcesDto.class);
+	private DefinicioProcesDto toDefinicioProcesDto(DefinicioProces definicioProces) {
+		DefinicioProcesDto def = new ModelMapper().map(definicioProces, DefinicioProcesDto.class);
+		def.setId(definicioProces.getId());
+		return def;
 	}
 
 	public ExpedientTascaDto toTascaInicialDto(
@@ -1390,7 +1430,8 @@ public class DtoConverter {
 			relacionatDto.setNumero(relacionat.getNumero());
 			relacionatDto.setDataInici(relacionat.getDataInici());
 			relacionatDto.setTipus(new ModelMapper().map(relacionat.getTipus(), ExpedientTipusDto.class));
-			relacionatDto.setEstat(new ModelMapper().map(relacionat.getEstat(), EstatDto.class));
+			if (relacionat.getEstat() != null)
+				relacionatDto.setEstat(new ModelMapper().map(relacionat.getEstat(), EstatDto.class));
 			relacionatDto.setProcessInstanceId(relacionat.getProcessInstanceId());
 			dto.addExpedientRelacionat(relacionatDto);
 		}
@@ -1417,7 +1458,7 @@ public class DtoConverter {
 	public DefinicioProcesDto toDto(
 			DefinicioProces definicioProces,
 			boolean ambTascaInicial) {
-		DefinicioProcesDto dto = new ModelMapper().map(definicioProces, DefinicioProcesDto.class);
+		DefinicioProcesDto dto = toDefinicioProcesDto(definicioProces);
 		JbpmProcessDefinition jpd = jbpmHelper.getProcessDefinition(definicioProces.getJbpmId());
 		if (jpd != null)
 			dto.setJbpmName(jpd.getName());

@@ -74,7 +74,7 @@
 		</dependency>
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
-			<artifactId>helium-core</artifactId>
+			<artifactId>helium-core-v26</artifactId>
 			<version>${helium.version}</version>
 			<type>jar</type>
 			<scope>compile</scope>

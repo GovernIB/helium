@@ -218,9 +218,16 @@
 			<version>3.7</version>
 		</dependency>
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-jcl</artifactId>
-			<version>1.4.3</version>
+		    <groupId>org.slf4j</groupId>
+		    <artifactId>slf4j-log4j12</artifactId>
+		    <version>${slf4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.conselldemallorca</groupId>
+			<artifactId>helium-core-v26</artifactId>
+			<version>${helium.version}</version>
+			<type>jar</type>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
@@ -255,10 +262,22 @@
 			<artifactId>json-simple</artifactId>
 			<version>1.1</version>
 		</dependency>
+		<dependency>
+			<groupId>javax.ejb</groupId>
+			<artifactId>ejb-api</artifactId>
+			<version>3.0</version>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 	<profiles>
 		<profile>
 			<id>tomcat</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<properties>
+				<application.context>application-context-tomcat.xml</application.context>
+			</properties>
 			<dependencies>
 				<dependency>
 					<groupId>org.hibernate</groupId>
@@ -270,6 +289,11 @@
 							<groupId>org.slf4j</groupId>
 						</exclusion>
 					</exclusions>
+				</dependency>
+				<dependency>
+					<groupId>net.conselldemallorca</groupId>
+					<artifactId>helium-core</artifactId>
+					<version>${helium.version}</version>
 				</dependency>
 				<dependency>
 					<groupId>org.hibernate</groupId>
@@ -306,6 +330,9 @@
 			<activation>
 				<activeByDefault>true</activeByDefault>
 			</activation>
+			<properties>
+				<application.context>application-context-jboss.xml</application.context>
+			</properties>
 			<dependencies>
 				<dependency>
 					<groupId>org.hibernate</groupId>
@@ -472,9 +499,19 @@
 					<warName>helium</warName>
 					<webXml>target/replace-dir/WEB-INF/web.xml</webXml>
 					<warSourceExcludes>META-INF/context.xml</warSourceExcludes>
+					<webResources>
+						<webResource>
+							<directory>${basedir}/src/main/webapp/WEB-INF</directory>
+							<includes>
+								<include>web.xml</include>
+							</includes>
+							<targetPath>WEB-INF</targetPath>
+							<filtering>true</filtering>
+						</webResource>
+					</webResources>
 				</configuration>
 			</plugin>
 		</plugins>
-		<finalName>helium-webapp</finalName>
+		<finalName>helium</finalName>
 	</build>
 </project>

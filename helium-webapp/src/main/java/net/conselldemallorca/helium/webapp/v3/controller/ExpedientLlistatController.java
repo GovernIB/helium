@@ -12,15 +12,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientConsultaCommand;
@@ -32,6 +31,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManage
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.stereotype.Controller;
@@ -58,9 +58,10 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		COLUMNES_MAPEIG_ORDENACIO = new HashMap<String, String[]>();
 	}
 
-	@Resource(name="expedientServiceV3")
+	@Autowired
 	private ExpedientService expedientService;
-	@Resource(name="dissenyServiceV3")
+	
+	@Autowired
 	private DissenyService dissenyService;
 
 	@RequestMapping(method = RequestMethod.GET)

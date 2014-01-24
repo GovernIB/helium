@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.v3.core.api.service;
 import java.util.List;
 import java.util.Map;
 
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
@@ -185,4 +186,16 @@ public interface TascaService {
 	public void borrarVariables(Long entornId, String taskId, String variable, String usuari);
 
 	public List<TascaDadaDto> findDadesPerTascaDto(ExpedientTascaDto tasca);
+
+	public ExpedientTascaDto guardarVariable(Long entornId, String taskId, String variable, Object valor);
+
+	public ExpedientTascaDto guardarVariable(Long entornId, String taskId, String variable, Object valor, String usuari);
+
+	public void delegacioCancelar(Long entornId, String taskId);
+
+	public ExpedientTascaDto getTascaPerExpedientId(Long expedientId, String tascaId);
+
+	public ExpedientTascaDto alliberar(Long id, String id2, boolean comprovarResponsable);
+
+	public CampDto findCampTasca(Long campId);
 }

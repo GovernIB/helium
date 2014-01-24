@@ -978,10 +978,9 @@ public class ExpedientMassivaController extends BaseController {
 			}
 			for (Long eid: expedientId) {
 				if (checked) {
-					if (!ids.contains(eid))
-						ids.add(eid);
+					ids.add(eid);
 				} else {
-					do {} while (ids.remove(eid));
+					ids.remove(eid);
 					if (ids.size() == 1)
 						ids.clear();
 				}

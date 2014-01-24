@@ -10,10 +10,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.service.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
@@ -26,7 +26,6 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.PermissionService;
 import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
-import net.conselldemallorca.helium.v3.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
@@ -58,16 +57,16 @@ public class ExpedientInicioController extends BaseExpedientController {
 	public static final String CLAU_SESSIO_FORM_VALORS = "iniciexp_form_registres";
 	public static final String CLAU_SESSIO_PREFIX_REGISTRE = "ExpedientIniciarController_reg_";
 
-	@Resource(name="dissenyServiceV3")
+	@Autowired
 	private DissenyService dissenyService;
 
-	@Resource(name="expedientServiceV3")
+	@Autowired
 	private ExpedientService expedientService;
 	
-	@Resource(name = "tascaServiceV3")
+	@Autowired
 	private TascaService tascaService;
 
-	@Resource(name = "pluginServiceV3")
+	@Autowired
 	private PluginService pluginService;
 
 	@Autowired
@@ -160,6 +159,7 @@ public class ExpedientInicioController extends BaseExpedientController {
 					model.addAttribute("definicioProcesId", definicioProcesId);
 				} else {
 					definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId, true);
+					model.addAttribute("definicioProcesId", definicioProces.getId());
 				}				
 				
 				if (definicioProces.isHasStartTask()) {					
@@ -171,7 +171,9 @@ public class ExpedientInicioController extends BaseExpedientController {
 							request);
 					model.addAttribute("tasca", tasca);
 					model.addAttribute("dades", tascaService.findDadesPerTascaDto(tasca));
-					model.addAttribute("definicioProcesId", (definicioProcesId != null)? definicioProcesId : tasca.getDefinicioProces().getId());
+					if (definicioProcesId == null) {
+						model.addAttribute("definicioProcesId", tasca.getDefinicioProces().getId());
+					}
 					return "v3/expedient/iniciarPasForm";
 				} else if (expedientTipus.isDemanaNumero() || expedientTipus.isDemanaTitol() || expedientTipus.isSeleccionarAny()) {
 					// Si l'expedient no requereix dades inicials però ha de demanar titol i/o número
@@ -191,16 +193,15 @@ public class ExpedientInicioController extends BaseExpedientController {
 								entorn.getId(),
 								expedientTipusId,
 								definicioProcesId);
-						MissatgesHelper.info(
-								request,
-								getMessage(
-										request,
-										"info.expedient.iniciat"));
+						MissatgesHelper.info(request, getMessage(request, "info.expedient.iniciat", new Object[] {iniciat.getIdentificador()}));
+					    ExpedientInicioController.netejarSessio(request);
+					    return "redirect:/v3/expedient/iniciar";
 					} catch (Exception ex) {
 						MissatgesHelper.error(
 								request,
 								getMessage(request, "error.iniciar.expedient"));
 			        	logger.error("No s'ha pogut iniciar l'expedient", ex);
+			        	return "v3/expedient/iniciarPasTitol";
 					}
 				}
 			} else {
@@ -246,15 +247,6 @@ public class ExpedientInicioController extends BaseExpedientController {
 	}
 	public static String getClauSessioCampRegistre(String campCodi) {
 		return ExpedientInicioController.CLAU_SESSIO_PREFIX_REGISTRE + campCodi;
-	}
-
-	private boolean potIniciarExpedientTipus(ExpedientTipusDto expedientTipus) {
-		return permissionService.isGrantedAny(
-				expedientTipus.getId(),
-				ExpedientTipus.class,
-				new Permission[] {
-					ExtendedPermission.ADMINISTRATION,
-					ExtendedPermission.CREATE});
 	}
 
 	private void generarTaskIdSessio(HttpServletRequest request) {

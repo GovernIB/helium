@@ -21,5 +21,5 @@ public interface PermissionService {
 
 	public boolean isGrantedAny(Long object, Class clazz, Permission[] permissions);
 
-	public void filterAllowed(List tipus, Object objectIdentifierExtractor, Class<?> clazz, Permission[] permissions);
+	public boolean filterAllowed(List tipus, Object objectIdentifierExtractor, Class<?> clazz, Permission[] permissions);
 }

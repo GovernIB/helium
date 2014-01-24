@@ -78,5 +78,8 @@
 		<div id="botons" class="well">
 			<button type="button" class="btn btn-tancar"><spring:message code="comuns.cancelar"/></button>
 		</div>
+		<script type="text/javascript">
+			window.parent.modalAjustarTamany(window.frameElement,$('html').height());
+		</script>
 	</body>
 </html>

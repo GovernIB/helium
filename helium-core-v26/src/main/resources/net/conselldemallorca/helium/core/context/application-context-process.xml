@@ -47,7 +47,7 @@
 		<property name="commandService" ref="jbpm3CommandService" />
 	</bean>
 	
-	<bean id="luceneHelper" class="net.conselldemallorca.helium.v3.core.helper.LuceneHelper">
+	<bean id="luceneHelper" class="net.conselldemallorca.helium.core.model.service.LuceneHelper">
 		<property name="indexFactory" ref="indexFactory" />
 	</bean>
 

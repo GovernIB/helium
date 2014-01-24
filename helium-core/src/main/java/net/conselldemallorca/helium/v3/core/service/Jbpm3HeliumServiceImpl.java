@@ -51,10 +51,12 @@ import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.service.AlertaService;
+import net.conselldemallorca.helium.core.model.service.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 import net.conselldemallorca.helium.core.model.service.DocumentService;
 import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
+import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.service.TerminiService;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
@@ -111,9 +113,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.TerminiIniciatNotFound
 import net.conselldemallorca.helium.v3.core.api.exception.TerminiNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 import net.conselldemallorca.helium.v3.core.api.service.Jbpm3HeliumService;
-import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
-import net.conselldemallorca.helium.v3.core.helper.MesuresTemporalsHelper;
 
 import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;

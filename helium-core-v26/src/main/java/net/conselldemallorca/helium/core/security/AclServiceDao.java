@@ -7,8 +7,8 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import net.conselldemallorca.helium.core.model.service.PermisosHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.GenericEntityDto;
-import net.conselldemallorca.helium.v3.core.helper.PermisosHelper;
 
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.ObjectIdentity;

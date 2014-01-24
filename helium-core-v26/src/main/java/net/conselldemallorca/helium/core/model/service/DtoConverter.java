@@ -64,7 +64,6 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.OperacioMassivaDto;
-import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -510,6 +509,13 @@ public class DtoConverter {
 			if (expedient.getExpedient() != null) dto.setExpedient(conversioTipusHelper.convertir(
 					expedient.getExpedient(),
 					net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.class));
+
+//			if (expedient.getExpedient() != null) { 
+//				dto.setExpedient(conversioTipusHelper.convertir(
+//					expedient.getExpedient(),
+//					net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.class));
+//				dto.setExpedient(toExpedientDto(expedient.getExpedient(), false));
+//			}
 			dto.setParam1(expedient.getExecucioMassiva().getParam1());
 			dto.setParam2(expedient.getExecucioMassiva().getParam2());
 			dto.setEnviarCorreu(expedient.getExecucioMassiva().getEnviarCorreu());
@@ -523,150 +529,6 @@ public class DtoConverter {
 		}
 		return dto;
 	}
-	
-	/*public DocumentDto toDocumentDto(
-			Long documentStoreId,
-			boolean ambContingutOriginal,
-			boolean ambContingutSignat,
-			boolean ambContingutVista,
-			boolean perSignar,
-			boolean ambSegellSignatura) {
-		if (documentStoreId != null) {
-			DocumentStore document = documentStoreDao.getById(documentStoreId, false);
-			if (document != null) {
-				DocumentDto dto = new DocumentDto();
-				dto.setId(document.getId());
-				dto.setDataCreacio(document.getDataCreacio());
-				dto.setDataDocument(document.getDataDocument());
-				dto.setArxiuNom(document.getArxiuNom());
-				dto.setProcessInstanceId(document.getProcessInstanceId());
-				dto.setSignat(document.isSignat());
-				dto.setAdjunt(document.isAdjunt());
-				dto.setAdjuntTitol(document.getAdjuntTitol());
-				try {
-					dto.setTokenSignatura(getDocumentTokenUtils().xifrarToken(documentStoreId.toString()));
-				} catch (Exception ex) {
-					logger.error("No s'ha pogut generar el token pel document " + documentStoreId, ex);
-				}
-				if (document.isSignat()) {
-					dto.setUrlVerificacioCustodia(
-							pluginCustodiaDao.getUrlComprovacioSignatura(
-									documentStoreId.toString()));
-				}
-				String codiDocument;
-				if (document.isAdjunt()) {
-					dto.setAdjuntId(document.getJbpmVariable().substring(DocumentHelper.PREFIX_ADJUNT.length()));
-				} else {
-					codiDocument = document.getJbpmVariable().substring(DocumentHelper.PREFIX_VAR_DOCUMENT.length());
-					JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(document.getProcessInstanceId());
-					DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmKeyIVersio(jpd.getKey(), jpd.getVersion());
-					Document doc = documentDao.findAmbDefinicioProcesICodi(definicioProces.getId(), codiDocument);
-					if (doc != null) {
-						dto.setContentType(doc.getContentType());
-						dto.setCustodiaCodi(doc.getCustodiaCodi());
-						dto.setDocumentId(doc.getId());
-						dto.setDocumentCodi(doc.getCodi());
-						dto.setDocumentNom(doc.getNom());
-						dto.setTipusDocPortasignatures(doc.getTipusDocPortasignatures());
-						dto.setAdjuntarAuto(doc.isAdjuntarAuto());
-					}
-				}
-				if (ambContingutOriginal) {
-					dto.setArxiuContingut(
-							getContingutDocumentAmbFont(document));
-				}
-				if (ambContingutSignat && document.isSignat() && isSignaturaFileAttached()) {
-					dto.setSignatNom(
-							getNomArxiuAmbExtensio(
-									document.getArxiuNom(),
-									getExtensioArxiuSignat()));
-					byte[] signatura = pluginCustodiaDao.obtenirSignaturesAmbArxiu(document.getReferenciaCustodia());
-					dto.setSignatContingut(signatura);
-				}
-				if (ambContingutVista) {
-					String arxiuOrigenNom;
-					byte[] arxiuOrigenContingut;
-					// Obtenim l'origen per a generar la vista o bé del document original
-					// o bé del document signat
-					if (document.isSignat() && isSignaturaFileAttached()) {
-						if (ambContingutSignat) {
-							arxiuOrigenNom = dto.getSignatNom();
-							arxiuOrigenContingut = dto.getSignatContingut();
-						} else {
-							arxiuOrigenNom = getNomArxiuAmbExtensio(
-									document.getArxiuNom(),
-									getExtensioArxiuSignat());
-							arxiuOrigenContingut = pluginCustodiaDao.obtenirSignaturesAmbArxiu(document.getReferenciaCustodia());
-						}
-					} else {
-						arxiuOrigenNom = dto.getArxiuNom();
-						if (ambContingutOriginal) {
-							arxiuOrigenContingut = dto.getArxiuContingut();
-						} else {
-							if (document.getFont().equals(DocumentFont.INTERNA)) {
-								arxiuOrigenContingut = document.getArxiuContingut();
-							} else {
-								arxiuOrigenContingut = pluginGestioDocumentalDao.retrieveDocument(
-												document.getReferenciaFont());
-							}
-						}
-					}
-					// Calculam l'extensió del document final de la vista
-					String extensioActual = null;
-					int indexPunt = arxiuOrigenNom.indexOf(".");
-					if (indexPunt != -1)
-						extensioActual = arxiuOrigenNom.substring(0, indexPunt);
-					String extensioDesti = extensioActual;
-					if (perSignar && isActiuConversioSignatura()) {
-						extensioDesti = getExtensioArxiuSignat();
-					} else if (document.isRegistrat()) {
-						extensioDesti = getExtensioArxiuRegistrat();
-					}
-					dto.setVistaNom(dto.getArxiuNomSenseExtensio() + "." + extensioDesti);
-					if ("pdf".equalsIgnoreCase(extensioDesti)) {
-						// Si és un PDF podem estampar
-						try {
-							ByteArrayOutputStream vistaContingut = new ByteArrayOutputStream();
-							DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-							String dataRegistre = null;
-							if (document.getRegistreData() != null)
-								dataRegistre = df.format(document.getRegistreData());
-							String numeroRegistre = document.getRegistreNumero();
-							getPdfUtils().estampar(
-									arxiuOrigenNom,
-									arxiuOrigenContingut,
-									(ambSegellSignatura) ? !document.isSignat() : false,
-									(ambSegellSignatura) ? getUrlComprovacioSignatura(documentStoreId, dto.getTokenSignatura()): null,
-									document.isRegistrat(),
-									numeroRegistre,
-									dataRegistre,
-									document.getRegistreOficinaNom(),
-									document.isRegistreEntrada(),
-									vistaContingut,
-									extensioDesti);
-							dto.setVistaContingut(vistaContingut.toByteArray());
-						} catch (Exception ex) {
-							logger.error("No s'ha pogut generar la vista pel document '" + document.getCodiDocument() + "'", ex);
-						}
-					} else {
-						// Si no és un pdf retornam la vista directament
-						dto.setVistaNom(arxiuOrigenNom);
-						dto.setVistaContingut(arxiuOrigenContingut);
-					}
-				}
-				if (document.isRegistrat()) {
-					dto.setRegistreData(document.getRegistreData());
-					dto.setRegistreNumero(document.getRegistreNumero());
-					dto.setRegistreOficinaCodi(document.getRegistreOficinaCodi());
-					dto.setRegistreOficinaNom(document.getRegistreOficinaNom());
-					dto.setRegistreEntrada(document.isRegistreEntrada());
-					dto.setRegistrat(true);
-				}
-				return dto;
-			}
-		}
-		return null;
-	}*/
 
 	public List<FilaResultat> getResultatConsultaEnumeracio(
 			DefinicioProces definicioProces,

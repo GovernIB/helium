@@ -3,7 +3,6 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
@@ -16,6 +15,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -36,7 +36,7 @@ import org.springframework.web.bind.support.SessionStatus;
 @RequestMapping("/v3/expedient")
 public class ExpedientRelacionatController extends BaseExpedientController {
 
-	@Resource(name = "expedientServiceV3")
+	@Autowired
 	private ExpedientService expedientService;
 
 	@RequestMapping(value = "/{expedientId}/relacionats", method = RequestMethod.GET)
@@ -74,6 +74,9 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 					expedientService.createRelacioExpedient(
 							expedientId,
 							expedientDest.getId());
+					if (!NoDecorarHelper.isRequestSenseDecoracio(request)) {
+						mostrarInformacioExpedientPerPipella(request, expedientId, model, "relacionats", expedientService);
+					}
 					MissatgesHelper.info(request, getMessage(request, "expedient.relacionar.ok"));
 				} catch (Exception ex) {
 				  	MissatgesHelper.error(request, getMessage(request, "error.expedient.relacionar"));
@@ -85,26 +88,27 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
 		}
-		return "v3/expedient/relacionar";
+		return "redirect:/v3/expedient/" + expedientId;
 	}
 
-	@RequestMapping(value = "/{expedientId}/relacioDelete", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/relacioDelete", method = RequestMethod.POST)
 	public String relacioDelete(
 			HttpServletRequest request, 
-			@PathVariable Long expedientId, 
-			Model model, 
-			@ModelAttribute("relacionarCommand") 
-			ExpedientRelacionarCommand command, 
-			BindingResult result, 
-			SessionStatus status) {
+			@PathVariable Long expedientId,
+			@RequestParam(value = "expedientIdOrigen", required = true) Long expedientIdOrigen,
+			@RequestParam(value = "expedientIdDesti", required = true) Long expedientIdDesti,
+			Model model) {
 	EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 	if (entorn != null) {
 		ExpedientDto expedient = expedientService.findById(expedientId);
 		if (potModificarExpedient(expedient)) {
 				try {
 					expedientService.deleteRelacioExpedient(
-							command.getExpedientIdOrigen(),
-							command.getExpedientIdDesti());
+							expedientIdOrigen,
+							expedientIdDesti);
+					if (!NoDecorarHelper.isRequestSenseDecoracio(request)) {
+						mostrarInformacioExpedientPerPipella(request, expedientId, model, "relacionats", expedientService);
+					}
 					MissatgesHelper.info(request, getMessage(request, "expedient.relacio.esborrar.ok"));
 				} catch (Exception ex) {
 					MissatgesHelper.error(request, getMessage(request, "error.expedient.relacio.esborrar"));
@@ -116,7 +120,7 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
 		}
-	return "v3/expedient/relacionar";
+	return "redirect:/v3/expedient/" + expedientId;
 	}
 	
 	@RequestMapping(value = "/{expedientId}/expedient/suggest", method = RequestMethod.GET)

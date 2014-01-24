@@ -6,7 +6,6 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
@@ -21,6 +20,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import org.jbpm.JbpmException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -38,10 +38,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/v3/expedient")
 public class ExpedientRegistroController extends BaseExpedientController {
 
-	@Resource(name = "expedientServiceV3")
+	@Autowired
 	private ExpedientService expedientService;
 
-	@Resource(name = "pluginServiceV3")
+	@Autowired
 	private PluginService pluginService;
 
 	@RequestMapping(value = "/{expedientId}/registre", method = RequestMethod.GET)
@@ -89,23 +89,26 @@ public class ExpedientRegistroController extends BaseExpedientController {
 					return "v3/expedient/log";
 				}
 			} else {
-				MissatgesHelper.error(request, getMessage(request, "error.permisos.consultar.expedient"));
-				return "redirect:/v3/expedient/" + expedientId + "/registre";
+				MissatgesHelper.error(request, getMessage(request, "error.permisos.consultar.expedient"));				
 			}
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
-			return "redirect:/v3/expedient/" + expedientId + "/registre";
 		}
+		return "redirect:/v3/expedient/" + expedientId;
 	}
 
 	@RequestMapping(value = "retrocedir")
 	public String retrocedir(
 			HttpServletRequest request,
-			@RequestParam(value = "id", required = true) String id,
+			@RequestParam(value = "id", required = true) Long expedientId,
 			@RequestParam(value = "tipus_retroces", required = false) Integer tipus_retroces,
 			@RequestParam(value = "logId", required = true) Long logId,
-			@RequestParam(value = "retorn", required = true) String retorn) {
+			@RequestParam(value = "retorn", required = true) String retorn,
+			Model model) {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
+		if (!NoDecorarHelper.isRequestSenseDecoracio(request)) {
+			mostrarInformacioExpedientPerPipella(request, expedientId, model, "registre", expedientService);
+		}
 		if (entorn != null) {
 			try {
 				if (tipus_retroces == null || tipus_retroces != 0) {
@@ -115,21 +118,17 @@ public class ExpedientRegistroController extends BaseExpedientController {
 				}
 			}catch (JbpmException ex ) {
 				Long entornId = entorn.getId();
-				String numeroExpedient = id;
 				MissatgesHelper.error(request, getMessage(request, "error.executar.retroces") + ": "+ ex.getCause().getMessage());
-				logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'ha pogut executar el retrocés", ex);
+				logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+expedientId+" No s'ha pogut executar el retrocés", ex);
 			}
 			
 			if("t".equals(retorn)){
-				return "redirect:/v3/expedient/tasques.html?id=" + id;
-			}else{
-				return "redirect:/v3/expedient/" + id + "/registre";
-			}
-			
+				return "redirect:/v3/expedient/tasques.html?id=" + expedientId;
+			}			
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
-			return "redirect:/v3/expedient/" + id + "/registre";
 		}
+		return "redirect:/v3/expedient/" + expedientId;
 	}
 
 	@RequestMapping(value = "logRetrocedit")
@@ -137,7 +136,11 @@ public class ExpedientRegistroController extends BaseExpedientController {
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) Long expedientId,
 			@RequestParam(value = "logId", required = true) Long logId,
+			Model mod,
 			ModelMap model) {
+		if (!NoDecorarHelper.isRequestSenseDecoracio(request)) {
+			mostrarInformacioExpedientPerPipella(request, expedientId, mod, "registre", expedientService);
+		}
 		NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entorn != null) {
@@ -154,12 +157,11 @@ public class ExpedientRegistroController extends BaseExpedientController {
 				return "v3/expedient/logRetrocedit";
 			} else {
 				MissatgesHelper.error(request, getMessage(request, "error.permisos.consultar.expedient"));
-				return "redirect:/v3/expedient/" + expedientId + "/registre";
 			}
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
-			return "redirect:/v3/expedient/" + expedientId + "/registre";
 		}
+		return "redirect:/v3/expedient/" + expedientId;
 	}
 	
 	@RequestMapping(value = "logAccionsTasca")
@@ -184,12 +186,11 @@ public class ExpedientRegistroController extends BaseExpedientController {
 				return "v3/expedient/logRetrocedit";
 			} else {
 				MissatgesHelper.error(request, getMessage(request, "error.permisos.consultar.expedient"));
-				return "redirect:/v3/expedient/" + expedientId + "/registre";
 			}
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
-			return "redirect:/v3/expedient/" + expedientId + "/registre";
 		}
+		return "redirect:/v3/expedient/" + expedientId;
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientRegistroController.class);

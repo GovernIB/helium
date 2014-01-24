@@ -12,7 +12,14 @@ import java.util.Date;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class TerminiIniciatDto {
-
+	public enum TerminiIniciatEstat {
+		NORMAL,
+		AVIS,
+		COMPLETAT_TEMPS,
+		CADUCAT,
+		COMPLETAT_FORA
+	}
+	
 	private Long id;
 	private Date dataInici;
 	private Date dataFi;
@@ -24,7 +31,15 @@ public class TerminiIniciatDto {
 	private int anys;
 	private int mesos;
 	private int dies;
+	
+	private TerminiDto termini;
 
+	public TerminiDto getTermini() {
+		return termini;
+	}
+	public void setTermini(TerminiDto termini) {
+		this.termini = termini;
+	}
 	public Long getId() {
 		return id;
 	}

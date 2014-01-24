@@ -14,7 +14,6 @@
 	<import resource="classpath:net/conselldemallorca/helium/core/context/application-context-service.xml" />
 	<import resource="classpath:net/conselldemallorca/helium/core/context/application-context-lucene.xml" />
 	<import resource="classpath:net/conselldemallorca/helium/core/context/application-context-process.xml" />
-	<!--import resource="classpath:net/conselldemallorca/helium/core/context/application-context-security.xml" /-->
 	<import resource="classpath:net/conselldemallorca/helium/webapp/context/application-context-security.xml" />
 	<import resource="classpath:net/conselldemallorca/helium/webapp/context/application-context-dwr.xml" />
 	<import resource="classpath:net/conselldemallorca/helium/ws/context/application-context-ws.xml" />

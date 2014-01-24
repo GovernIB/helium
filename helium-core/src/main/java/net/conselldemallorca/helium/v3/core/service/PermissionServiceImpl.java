@@ -11,9 +11,9 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import net.conselldemallorca.helium.core.model.service.PermisosHelper;
+import net.conselldemallorca.helium.core.model.service.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.v3.core.api.service.PermissionService;
-import net.conselldemallorca.helium.v3.core.helper.PermisosHelper;
-import net.conselldemallorca.helium.v3.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.model.AccessControlEntry;
@@ -60,9 +60,10 @@ public class PermissionServiceImpl implements PermissionService {
 		return permisosHelper.isGrantedAny(object, clazz, permissions);
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
-	public void filterAllowed(List tipus, Object objectIdentifierExtractor, Class<?> clazz, Permission[] permissions) {
-		permisosHelper.filterGrantedAny(
+	public boolean filterAllowed(List tipus, Object objectIdentifierExtractor, Class<?> clazz, Permission[] permissions) {
+		return permisosHelper.filterGrantedAny(
 				tipus,
 				(ObjectIdentifierExtractor) objectIdentifierExtractor,
 				clazz,

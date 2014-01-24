@@ -3,11 +3,11 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 public class IndexV3Controller {
 
-	@Resource
+	@Autowired
 	private AdminService adminService;
 
 	@RequestMapping(value = "/v3", method = RequestMethod.GET)

@@ -10,8 +10,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -57,7 +57,6 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.LlistatIds;
-import net.conselldemallorca.helium.v3.core.helper.MesuresTemporalsHelper;
 
 import org.apache.commons.collections.comparators.NullComparator;
 import org.apache.commons.logging.Log;

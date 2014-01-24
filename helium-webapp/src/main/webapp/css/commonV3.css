@@ -9,6 +9,26 @@ img.suggestImgEsborrar {
 	left: -25px;
 }
 
+.radius-left {
+	border-radius: 5px 0 0 5px !important;
+}
+
+.radius-right {
+	border-radius: 0 5px 5px 0 !important;
+}
+
+.radius-none {
+	border-radius: 0 !important;
+}
+
+.btn-group + .btn-group {
+	margin-left: -5px;
+}
+
+td {
+	word-break: break-all;
+}
+
 .modal-body {
 /* 	max-height: none; */
 }
@@ -221,6 +241,11 @@ ul#tabnav li.warn a {
 
 .tab-content #dades .pull-right {
 	margin-right: 6.6%;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+	background-image: none !important;
+	display: inline !important;
 }
 
 .icon-asterisk {

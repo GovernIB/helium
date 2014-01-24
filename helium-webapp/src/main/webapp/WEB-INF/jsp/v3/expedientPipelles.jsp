@@ -114,11 +114,28 @@
 			$('#pipella-relacionats').addClass('active');
 			return false;
 		});
+		$("#pipella-cronograma").click(function() {
+			$('#contingut-carregant').hide();
+			if (!$('#contingut-cronograma').data('carregat')) {
+				$('#contingut-carregant').show();
+				$('#contingut-cronograma').load(
+						'<c:url value="/nodecorar/v3/expedient/${expedient.id}/timeline"/>',
+						function() {
+							$('#contingut-carregant').hide();
+						});
+				$('#contingut-cronograma').data('carregat', 'true');
+			}
+			$('#contingut-contenidor .contingut').hide();
+			$('#contingut-cronograma').show();
+			$('#pipelles-expedient .pipella').removeClass('active');
+			$('#pipella-cronograma').addClass('active');
+			return false;
+		});
 		$("#pipella-${pipellaActiva}").click();
 	});
 </script>
 </head>
-<body>	
+<body>
 	<div class="span3 mainMenu">
 		<div class="thumbnail">
 			<h4>
@@ -241,6 +258,7 @@
 		<div id="contingut-tasques" class="contingut hide"></div>
 		<div id="contingut-registre" class="contingut hide"></div>
 		<div id="contingut-relacionats" class="contingut hide"></div>
+		<div id="contingut-cronograma" class="contingut hide"></div>
 	</div>
 	<div class="clearfix"></div>
 

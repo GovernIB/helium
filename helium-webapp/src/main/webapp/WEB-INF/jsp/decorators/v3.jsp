@@ -29,7 +29,17 @@
 	<link rel="apple-touch-icon-precomposed" sizes="72x72" href="<c:url value="/img/ico/apple-touch-icon-72-precomposed.png"/>">
 	<link rel="apple-touch-icon-precomposed" href="<c:url value="/img/ico/apple-touch-icon-57-precomposed.png"/>">
 	<script src="<c:url value="/js/jquery.js"/>"></script>
-	<script src="<c:url value="/js/select2/select2.min.js"/>"></script>	 
+	<script src="<c:url value="/js/select2/select2.min.js"/>"></script>
+	
+	<script type="text/javascript">
+	// <![CDATA[
+		Timeline_ajax_url="<c:url value="/js/timeline_2.3.0/timeline_ajax/simile-ajax-api.js"/>";
+		Timeline_urlPrefix="<c:url value="/js/timeline_2.3.0/timeline_js/"/>";       
+		Timeline_parameters="bundle=true";
+	// ]]>
+	</script>
+	<script src="<c:url value="/js/timeline_2.3.0/timeline_js/timeline-api.js?defaultLocale=ca"/>" type="text/javascript"></script>
+			 
 <script>
 	$(document).ready(function() { $("#e1").select2(); });
 </script>	
@@ -71,14 +81,24 @@
 			<li><i class="icon-user icon-white"></i> ${dadesPersona.codi}</li>
 		</ul>
 		<div class="clearfix"></div>
-		<div class="btn-group pull-right">
-			<a href="<c:url value="/v3/expedient"/>" class="btn btn-primary">Expedients</a>
-			<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">Informes <span class="caret"></span></button>
-				<ul class="dropdown-menu">
-					<li><a href="#" tabindex="-1">Expedient iniciatives parlamentàries</a></li>
-				</ul>
-			<button class="btn btn-primary">Activitat</button>
-			<button class="btn btn-primary">Arxiu</button>
+		<div class="btn-group">
+			<button type="button" class="btn btn-primary dropdown-toggle radius-left" data-toggle="dropdown">Expedients <span class="caret"></span></button>
+			<ul class="dropdown-menu">
+				<li><a href="<c:url value="/v3/expedient"/>">Consultar</a></li>
+				<li><a href="<c:url value="/v3/expedient/iniciar"/>">Nou expedient</a></li>
+			</ul>
+		</div>
+		<div class="btn-group">
+			<button type="button" class="btn btn-primary dropdown-toggle radius-none" data-toggle="dropdown">Informes <span class="caret"></span></button>
+			<ul class="dropdown-menu">
+				<li><a href="#" tabindex="-1">Expedient iniciatives parlamentàries</a></li>
+			</ul>
+		</div>
+		<div class="btn-group">
+			<button type="button" class="btn btn-primary radius-none">Activitat</button>		
+		</div>
+		<div class="btn-group">
+			<button type="button" class="btn btn-primary radius-right">Arxiu</button>
 		</div>
 	</div>
 </div>
@@ -106,6 +126,7 @@
 				<li id="pipella-terminis" class="pipella<c:if test="${tabActiu == 'terminis'}"> active</c:if>"><a href="<c:url value="/v3/expedient/${expedient.id}/terminis"/>">Terminis</a></li>
 				<li id="pipella-registre" class="pipella<c:if test="${tabActiu == 'registre'}"> active</c:if>"><a href="<c:url value="/v3/expedient/${expedient.id}/registre"/>">Registre</a></li>
 				<li id="pipella-relacionats" class="pipella<c:if test="${tabActiu == 'relacionats'}"> active</c:if>"><a href="<c:url value="/v3/expedient/${expedient.id}/relacionats"/>">Relacionar</a></li>
+				<li id="pipella-cronograma" class="pipella<c:if test="${tabActiu == 'cronograma'}"> active</c:if>"><a href="<c:url value="/v3/expedient/${expedient.id}/timeline"/>">Cronograma</a></li>
 			</ul>
 			<div class="well well-white">
 				<decorator:body />

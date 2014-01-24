@@ -450,9 +450,6 @@
 						<li<c:if test="${not expedientConsultaCommand.tramitacioMassivaActivada}"> class="hide"</c:if>><a id="tramitacioMassivaDesactivar" href="#"><i class="icon-ban-circle"></i> Desactivar</a></li>
 					</ul>
 				</div>
-				<div class="btn-group">
-					<a id="biniciarexpediente" href="expedient/iniciar" title="Nou expedient" class="btn btn-primary pull-right">Nou expedient</a>
-				</div>
 			</div>
 			<div class="span6">
 				<input type="hidden" name="consultaRealitzada" value="true"/>

@@ -8,10 +8,9 @@ import javax.annotation.Resource;
 import net.conselldemallorca.helium.core.model.exception.PersonaPluginException;
 import net.conselldemallorca.helium.core.model.exception.PluginException;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
+import net.conselldemallorca.helium.core.model.service.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.integracio.plugins.persones.DadesPersona;
 import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPlugin;
-import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPluginException;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.repository.PersonaRepository;
 
@@ -34,12 +33,13 @@ public class PersonaHelper {
 
 	@Resource
 	private PluginHelper pluginHelper;
+	
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 
 	public PersonaDto findByCodi(String codi) throws Exception {
 		PersonaDto resposta;
-		if (!pluginHelper.isPersonesPluginActiu() || pluginHelper.isPersonesSyncActiu()) {
+		if (pluginHelper == null || !pluginHelper.isPersonesPluginActiu() || pluginHelper.isPersonesSyncActiu()) {
 			// Si la sincronització està activa les persones es guarden a dins la taula
 			// de perones de Helium
 			resposta = conversioTipusHelper.convertir(
@@ -59,24 +59,6 @@ public class PersonaHelper {
 			sexe = PersonaDto.Sexe.SEXE_HOME;
 		else
 			sexe = PersonaDto.Sexe.SEXE_DONA;	
-		PersonaDto p = new PersonaDto(
-				persona.getCodi(),
-				persona.getNomSencer(),
-				persona.getEmail(),
-				sexe);
-		p.setDni(persona.getDni());
-		return p;
-	}
-	
-	private PersonaDto toPersonaPlugin(DadesPersona persona) {
-		if (persona == null)
-			return null;
-		PersonaDto.Sexe sexe = null;
-		if (persona.getSexe().equals(DadesPersona.Sexe.SEXE_HOME))
-			sexe = PersonaDto.Sexe.SEXE_HOME;
-		else
-			sexe = PersonaDto.Sexe.SEXE_DONA;	
-		
 		PersonaDto p = new PersonaDto(
 				persona.getCodi(),
 				persona.getNomSencer(),
@@ -106,8 +88,8 @@ public class PersonaHelper {
 	public PersonaDto findAmbCodiPlugin(String codi) {
 		String codiPerConsulta = (isIgnoreCase()) ? codi.toLowerCase() : codi;
 		try {
-			return toPersonaPlugin(personesPlugin.findAmbCodi(codiPerConsulta));
-		} catch (PersonesPluginException ex) {
+			return findByCodi(codiPerConsulta);
+		} catch (Exception ex) {
 			throw new PluginException("Error al cercar les persones amb el codi" + codi, ex);
 		}
 	}

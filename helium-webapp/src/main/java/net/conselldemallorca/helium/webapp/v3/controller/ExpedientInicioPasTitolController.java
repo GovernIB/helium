@@ -9,11 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
@@ -25,7 +22,6 @@ import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.PermissionService;
 import net.conselldemallorca.helium.v3.core.api.service.PluginService;
-import net.conselldemallorca.helium.v3.core.service.PluginServiceImpl;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientInicioPasTitolCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
@@ -34,7 +30,6 @@ import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -54,25 +49,24 @@ import org.springframework.web.bind.support.SessionStatus;
 @Controller
 @RequestMapping("/v3/expedient")
 public class ExpedientInicioPasTitolController extends BaseExpedientController {
-	@Resource(name="dissenyServiceV3")
+
+	@Autowired
 	private DissenyService dissenyService;
-	@Resource(name="expedientServiceV3")
+	
+	@Autowired
 	private ExpedientService expedientService;
-	@Resource(name="permissionServiceV3")
-	private PermissionService permissionService;
-	@Resource(name = "pluginServiceV3")
+	
+	@Autowired
 	private PluginService pluginService;
 
 	private Validator validator;
-
-
-
+	
 	@Autowired
 	public ExpedientInicioPasTitolController(
 			DissenyService dissenyService,
 			ExpedientService expedientService,
 			PermissionService permissionService,
-			PluginServiceImpl pluginService) {
+			PluginService pluginService) {
 		this.dissenyService = dissenyService;
 		this.expedientService = expedientService;
 		this.permissionService = permissionService;
@@ -103,28 +97,6 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 		return null;
 	}
 
-	@RequestMapping(value = "/iniciarPasTitol", method = RequestMethod.GET)
-	public String iniciarPasTitolGet(
-			HttpServletRequest request,
-			@RequestParam(value = "id", required = true) Long tascaId,
-			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
-			@RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId,
-			ModelMap model) {
-		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entorn != null) {
-			ExpedientTipusDto tipus = dissenyService.getExpedientTipusById(expedientTipusId);
-			if (potIniciarExpedientTipus(tipus)) {
-				omplirModelPerMostrarFormulari(tipus, model);
-				return "expedient";
-			} else {
-				MissatgesHelper.error(request, getMessage(request, "error.permisos.iniciar.tipus.exp"));
-			}
-		} else {
-			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec") );
-		}
-		return "redirect:/expedient/iniciar";
-	}
-
 	@RequestMapping(value = "/iniciarPasTitol", method = RequestMethod.POST)
 	public String iniciarPasTitolPost(
 			HttpServletRequest request,
@@ -138,24 +110,39 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 			ModelMap model) {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entorn != null) {
-			ExpedientTipusDto tipus = dissenyService.getExpedientTipusById(expedientTipusId);
-			if (potIniciarExpedientTipus(tipus)) {
+			ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
+			if (potIniciarExpedientTipus(expedientTipus)) {
+				model.addAttribute("definicioProcesId", definicioProcesId);
 				if (nomesRefrescar != null && nomesRefrescar.booleanValue()) {
 					command.setNumero(
 							expedientService.getNumeroExpedientActual(
 									entorn.getId(),
-									tipus,
+									expedientTipus,
 									command.getAny()));
-					omplirModelPerMostrarFormulari(tipus, model);
-					return "expedient/iniciarPasTitol";
+					model.addAttribute("any", command.getAny());
+					model.addAttribute("titol", command.getTitol());
+					model.addAttribute("numero", expedientService.getNumeroExpedientActual(
+							entorn.getId(),
+							expedientTipus,
+							command.getAny()));
+					omplirModelPerMostrarFormulari(expedientTipus, model);
+					return "v3/expedient/iniciarPasTitol";
 				} else if ("submit".equals(submit) || submit.length() == 0) {
 					command.setEntornId(entorn.getId());
 					validator.validate(command, result);
 					if (result.hasErrors()) {
-						omplirModelPerMostrarFormulari(tipus, model);
-						return "expedient/iniciarPasTitol";
+						omplirModelPerMostrarFormulari(expedientTipus, model);
+						return "v3/expedient/iniciarPasTitol";
 					}
 					try {
+						model.addAttribute("any", command.getAny());
+						model.addAttribute("titol", command.getTitol());
+						model.addAttribute("numero", command.getNumero());
+						omplirModelPerMostrarFormulari(expedientTipus, model);
+						
+						if (definicioProcesId == null) {
+							definicioProcesId = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId, true).getId();
+						}
 						ExpedientDto iniciat = iniciarExpedient(
 								request,
 								entorn.getId(),
@@ -164,25 +151,25 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 								command.getNumero(),
 								command.getTitol(),
 								command.getAny());
-						MissatgesHelper.error(request, getMessage(request, "info.expedient.iniciat"));
+						MissatgesHelper.info(request, getMessage(request, "info.expedient.iniciat", new Object[] {iniciat.getIdentificador()}));
 					    ExpedientInicioController.netejarSessio(request);
-					    return "redirect:/expedient/iniciar.html";
+					    return "redirect:/v3/expedient/iniciar";
 					} catch (Exception ex) {
 						MissatgesHelper.error(request, getMessage(request, "error.iniciar.expedient"));
 						logger.error("No s'ha pogut iniciar l'expedient", ex);
 						model.addAttribute("expedientTipus", dissenyService.getExpedientTipusById(command.getExpedientTipusId()));
-						return "expedient/iniciarPasTitol";
+						return "v3/expedient/iniciarPasTitol";
 					}
 				} else {
-					return "redirect:/expedient/iniciar.html";
+					return "v3";
 				}
 			} else {
 				MissatgesHelper.error(request, getMessage(request, "error.permisos.iniciar.tipus.exp"));
-				return "redirect:/expedient/iniciar.html";
+				return "redirect:/v3/expedient/iniciar";
 			}
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec") );
-			return "redirect:/index.html";
+			return "redirect:/v3/expedient/iniciar";
 		}
 	}
 
@@ -240,15 +227,6 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 			anys[i] = new Integer(anyActual - i);
 		}
 		model.addAttribute("anysSeleccionables", anys);
-	}
-
-	private boolean potIniciarExpedientTipus(ExpedientTipusDto expedientTipus) {
-		return permissionService.isGrantedAny(
-				expedientTipus.getId(),
-				ExpedientTipus.class,
-				new Permission[] {
-					ExtendedPermission.ADMINISTRATION,
-					ExtendedPermission.CREATE});
 	}
 
 	@SuppressWarnings("unchecked")

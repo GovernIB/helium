@@ -13,6 +13,7 @@ import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
+import net.conselldemallorca.helium.core.model.dao.RegistreDao;
 import net.conselldemallorca.helium.core.model.exception.DominiException;
 import net.conselldemallorca.helium.core.model.exception.IllegalStateException;
 import net.conselldemallorca.helium.core.model.exception.NotFoundException;
@@ -24,6 +25,7 @@ import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
@@ -105,6 +107,8 @@ public class TascaServiceImpl implements TascaService {
 	private TerminiIniciatRepository terminiIniciatRepository;
 	@Resource
 	private AlertaRepository alertaRepository;
+	@Resource
+	private RegistreDao registreDao;
 
 	@Transactional(readOnly = true)
 	@Override
@@ -223,6 +227,12 @@ public class TascaServiceImpl implements TascaService {
 		return true;
 	}
 
+	@Transactional(readOnly = true)
+	@Override
+	public CampDto findCampTasca(Long campId) {
+		return dtoConverter.toCampDto(campRepository.findOne(campId));
+	}
+	
 	@Transactional(readOnly = true)
 	@Override
 	public List<SeleccioOpcioDto> findOpcionsSeleccioPerCampTasca(
@@ -596,6 +606,23 @@ public class TascaServiceImpl implements TascaService {
 			}
 		}
 	}
+	
+	@Transactional
+	@Override
+	public void delegacioCancelar(
+			Long entornId,
+			String taskId) {
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
+		DelegationInfo delegationInfo = getDelegationInfo(task);
+		if (delegationInfo == null || !taskId.equals(delegationInfo.getSourceTaskId())) {
+			throw new IllegalStateException(
+					serviceUtils.getMessage("error.tascaService.cancelarDelegacio"));
+		}
+		// Cancelar la tasca delegada
+		jbpmHelper.cancelTaskInstance(delegationInfo.getTargetTaskId());
+		// Esborram la delegació
+		deleteDelegationInfo(task);
+	}
 
 	@Transactional
 	private void actualitzarTerminisIAlertes(
@@ -702,6 +729,7 @@ public class TascaServiceImpl implements TascaService {
 	}
 
 	@Transactional
+	@Override
 	public ExpedientTascaDto guardarVariable(
 			Long entornId,
 			String taskId,
@@ -711,6 +739,7 @@ public class TascaServiceImpl implements TascaService {
 	}
 	
 	@Transactional
+	@Override
 	public ExpedientTascaDto guardarVariable(
 			Long entornId,
 			String taskId,
@@ -735,6 +764,7 @@ public class TascaServiceImpl implements TascaService {
 	}
 
 	@Transactional
+	@Override
 	public void guardarRegistre(
 			Long entornId,
 			String taskId,
@@ -750,6 +780,7 @@ public class TascaServiceImpl implements TascaService {
 	}
 	
 	@Transactional
+	@Override
 	public void guardarRegistre(
 			Long entornId,
 			String taskId,
@@ -766,6 +797,7 @@ public class TascaServiceImpl implements TascaService {
 	}
 	
 	@Transactional
+	@Override
 	public void guardarRegistre(
 			Long entornId,
 			String taskId,
@@ -782,6 +814,7 @@ public class TascaServiceImpl implements TascaService {
 	}
 	
 	@Transactional
+	@Override
 	public void guardarRegistre(
 			Long entornId,
 			String taskId,
@@ -835,6 +868,7 @@ public class TascaServiceImpl implements TascaService {
 	}
 
 	@Transactional
+	@Override
 	public void executarAccio(
 			Long entornId,
 			String taskId,
@@ -843,6 +877,7 @@ public class TascaServiceImpl implements TascaService {
 	}
 	
 	@Transactional
+	@Override
 	public void executarAccio(
 			Long entornId,
 			String taskId,
@@ -856,5 +891,50 @@ public class TascaServiceImpl implements TascaService {
 				user);
 		jbpmHelper.executeActionInstanciaTasca(taskId, accio);
 		serviceUtils.expedientIndexLuceneUpdate(task.getProcessInstanceId());
+	}
+
+	@Transactional
+	@Override
+	public ExpedientTascaDto getTascaPerExpedientId(Long expedientId, String tascaId) {
+		return tascaHelper.getTascaPerExpedientId(expedientId, tascaId);
+	}
+
+	@Transactional
+	@Override
+	public ExpedientTascaDto alliberar(Long entornId, String tascaId, boolean comprovarResponsable) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		return alliberar(entornId, auth.getName(), tascaId, comprovarResponsable);
+	}
+	
+	@Transactional
+	private ExpedientTascaDto alliberar(
+			Long entornId,
+			String usuari,
+			String taskId,
+			boolean comprovarResponsable) {
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, false);
+		if (comprovarResponsable) {
+			if (!task.getAssignee().equals(usuari)) {
+				throw new NotFoundException(
+						serviceUtils.getMessage("error.tascaService.noAssignada"));
+			}
+		}
+		String previousActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskId);
+		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerTasca(
+				taskId,
+				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
+				previousActors);
+		jbpmHelper.releaseTaskInstance(taskId);
+		task.setFieldFromDescription(TASKDESC_CAMP_AGAFADA, "false");
+		serviceUtils.expedientIndexLuceneUpdate(task.getProcessInstanceId());
+		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskId);
+		expedientLog.setAccioParams(previousActors + "::" + currentActors);
+		ExpedientTascaDto tasca = getByIdSenseComprovacio(taskId);
+		registreDao.crearRegistreIniciarTasca(
+				tasca.getExpedient().getId(),
+				taskId,
+				SecurityContextHolder.getContext().getAuthentication().getName(),
+				"Amollar tasca \"" + tasca.getNom() + "\"");
+		return tasca;
 	}
 }

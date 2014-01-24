@@ -53,7 +53,7 @@
 		<property name="jbpm3HeliumService" ref="jbpm3HeliumBridge" />
 	</bean>
 	
-	<bean id="mesuresTemporalsHelper" class="net.conselldemallorca.helium.v3.core.helper.MesuresTemporalsHelper">
+	<bean id="mesuresTemporalsHelper" class="net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper">
 		<constructor-arg type="java.lang.String" value="${app.mesura.temps.actiu?false}"/>
 		<constructor-arg type="java.lang.Integer" value="${app.mesura.temps.mesures?100}"/>
 	</bean>

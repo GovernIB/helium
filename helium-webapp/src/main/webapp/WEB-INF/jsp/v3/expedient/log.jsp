@@ -125,7 +125,7 @@
 								<c:when test="${log.accioTipus == 'EXPEDIENT_RETROCEDIR' or log.accioTipus == 'EXPEDIENT_RETROCEDIR_TASQUES'}">
 									<c:import url="../utils/modalDefinir.jsp">
 										<c:param name="sAjaxSource" value="/helium/v3/expedient/logRetrocedit?id=${expedient.id}&logId=${log.id}"/>
-										<c:param name="modalId" value="logRetrocedit"/>
+										<c:param name="modalId" value="logRetrocedit_${expedient.id}_${log.id}"/>
 										<c:param name="refrescarAlertes" value="true"/>
 										<c:param name="refrescarPagina" value="false"/>							
 										<c:param name="refrescarTaula" value="false"/>							

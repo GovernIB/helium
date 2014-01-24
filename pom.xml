@@ -23,6 +23,7 @@
 		<slf4j.version>1.5.8</slf4j.version>
 	</properties>
 	<modules>
+		<module>helium-core-v26</module>
 		<module>helium-core</module>
 		<module>helium-disseny</module>
 		<module>helium-ear</module>

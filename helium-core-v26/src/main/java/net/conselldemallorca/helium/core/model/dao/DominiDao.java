@@ -26,9 +26,9 @@ import net.conselldemallorca.helium.core.model.hibernate.Domini.OrigenCredencial
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusAuthDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
-import net.conselldemallorca.helium.v3.core.helper.MesuresTemporalsHelper;
 
 import org.hibernate.criterion.Restrictions;
 import org.springframework.cache.annotation.Cacheable;

@@ -9,9 +9,6 @@
 	<div class="controls">
 		<c:if test="${!dada.readOnly && !tasca.validada}">	
 			<input type="text" id="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" name="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" value="${dada.text}" class="span11" <c:if test="${dada.required}"> data-required="true"</c:if>/>
-			<script>
-				$("#${dada.varCodi}").keyfilter(/^[-+]?[0-9]*$/);
-			</script>	
 			<div class="formHint">${dada.observacions}</div>
 		</c:if>
 		
@@ -24,9 +21,6 @@
 	<div class="controls">
 		<c:if test="${!dada.readOnly && !tasca.validada}">	
 			<textarea id="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" name="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" class="span11" <c:if test="${dada.required}"> data-required="true"</c:if>>${dada.text}</textarea>
-			<script>
-				$("#${dada.varCodi}").keyfilter(/^[-+]?[0-9]*$/);
-			</script>	
 			<div class="formHint">${dada.observacions}</div>
 		</c:if>
 		

@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.repository;
 
+import java.util.Collection;
 import java.util.List;
 
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
@@ -33,4 +34,17 @@ public interface ExpedientLoggerRepository extends JpaRepository<ExpedientLog, L
 	List<ExpedientLog> findLogsTascaByIdOrdenatsPerData(@Param("targetId") String targetId);
 
 	ExpedientLog findById(Long expedientLogId);
+
+
+	@Query(	"select l.id, l.estat, l.targetId " +
+			" from " +
+			" ExpedientLog l " +
+			" where " +
+			" l.targetId in (:tasquesIds) " +
+			" and l.id = " +
+			" (select min(id) "+
+			" from ExpedientLog "+
+			" where targetId = l.targetId) " +
+			" order by l.targetId")
+	List<Object> findLogIdTasquesById(@Param("tasquesIds") Collection<String> tasquesIds);
 }

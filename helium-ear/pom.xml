@@ -61,6 +61,12 @@
 			<version>${helium.version}</version>
 			<type>jar</type>
 		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>net.conselldemallorca</groupId> -->
+<!-- 			<artifactId>helium-core</artifactId> -->
+<!-- 			<version>${helium.version}</version> -->
+<!-- 			<type>ejb</type> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-webapp</artifactId>
@@ -76,6 +82,10 @@
 				<version>2.3.2</version>
 				<configuration>
 					<finalName>helium</finalName>
+<!-- 					<ejbModule> -->
+<!-- 						<groupId>net.conselldemallorca</groupId> -->
+<!-- 						<artifactId>helium-core</artifactId> -->
+<!-- 					</ejbModule> -->
 					<modules>
 						<webModule>
 							<groupId>net.conselldemallorca</groupId>

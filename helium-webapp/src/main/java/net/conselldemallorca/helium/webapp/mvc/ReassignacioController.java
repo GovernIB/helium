@@ -166,5 +166,5 @@ public class ReassignacioController extends BaseController {
 				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
 	}
 	
-	private static final Log logger = LogFactory.getLog(PersonaController.class);
+	private static final Log logger = LogFactory.getLog(ReassignacioController.class);
 }

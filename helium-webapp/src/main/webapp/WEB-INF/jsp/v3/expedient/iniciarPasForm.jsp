@@ -7,7 +7,7 @@
 <html>
 <head>
 	<title><spring:message code='expedient.iniciar.iniciar_expedient' />: ${expedientTipus.nom}</title>
-	<meta name="titolcmp" content="Nou expedient"/>
+	<meta name="capsaleraTipus" content="llistat"/>
 	<script type="text/javascript" src="<c:url value="/js/jquery.keyfilter.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
@@ -436,7 +436,7 @@
 		</form><br/>
 	</c:if>
 
-	<form:form action="iniciarPasForm" id="command" name="command" cssClass="form-horizontal form-tasca" onsubmit="return confirmar(event)">
+	<form:form action="iniciarPasForm" id="command" name="command" cssClass="form-horizontal form-tasca" onsubmit="return confirmar(event)" method="post" commandName="command">
 		<input type="hidden" id="id" name="id" value="${tasca.id}"/>
 		<input type="hidden" name="entornId" value="${entornId}"/>
 		<input type="hidden" name="expedientTipusId" value="${expedientTipus.id}"/>
