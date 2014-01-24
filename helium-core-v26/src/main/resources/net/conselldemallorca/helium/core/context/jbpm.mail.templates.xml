@@ -1,0 +1,26 @@
+<mail-templates>
+
+  <mail-template name='task-assign'>
+    <actors>#{taskInstance.actorId}</actors>
+    <subject>Nova tasca "#{taskInstance.name}"</subject>
+    <text><![CDATA[El seu usuari te una nova tasca assignada.
+
+Hi pot accedir amb la següent adreça:
+#{heliumBaseUrl}/tasca/info.html?id=#{taskInstance.id}
+
+--- Helium ---
+]]></text>
+  </mail-template>
+
+  <mail-template name='task-reminder'>
+    <actors>#{taskInstance.actorId}</actors>
+    <subject>Recordatori de la tasca "#{taskInstance.name}"</subject>
+    <text><![CDATA[Li recordam que el seu usuari te aquesta tasca assignada.
+
+Hi pot accedir amb la següent adreça:
+#{heliumBaseUrl}/tasca/info.html?id=#{taskInstance.id}
+
+--- Helium ---]]></text>
+  </mail-template>
+
+</mail-templates>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+
+	<context:component-scan base-package="net.conselldemallorca.helium.core.model.service"/>
+
+	<bean id="comprovarTerminisTask" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean">
+		<property name="targetObject" ref="terminiService" />
+		<property name="targetMethod" value="comprovarTerminisIniciats" />
+	</bean>
+	<bean id="comprovarTerminisScheduledTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
+		<property name="timerTask" ref="comprovarTerminisTask" />
+		<property name="delay" value="15000" />
+		<property name="period" value="60000" />
+	</bean>
+
+	<bean id="syncPersonesTask" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean">
+		<property name="targetObject" ref="pluginService" />
+		<property name="targetMethod" value="personesSync" />
+	</bean>
+	<bean id="syncPersonesTaskScheduledTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
+		<property name="timerTask" ref="syncPersonesTask" />
+		<property name="delay" value="30000" />
+		<property name="period" value="86400000" />
+	</bean>
+
+	<bean class="org.springframework.scheduling.timer.TimerFactoryBean">
+		<property name="scheduledTimerTasks">
+			<list>
+				<ref local="comprovarTerminisScheduledTask" />
+				<ref local="syncPersonesTaskScheduledTask" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="monitorHelper" class="net.conselldemallorca.helium.core.model.service.MonitorHelper">
+		<constructor-arg type="java.lang.String" value="${app.expedient.monitor?false}"/>
+	</bean>
+	
+	<!-- V3 -->
+	<context:component-scan base-package="net.conselldemallorca.helium.v3.core.service"/>
+	<context:component-scan base-package="net.conselldemallorca.helium.v3.core.helper"/>
+
+	<bean name="jbpm3HeliumBridge" class="net.conselldemallorca.helium.v3.core.service.Jbpm3HeliumServiceImpl"/>
+	<bean id="jbpm3HeliumBridgeFactory" class=" net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge" lazy-init="false">
+		<property name="jbpm3HeliumService" ref="jbpm3HeliumBridge" />
+	</bean>
+	
+	<bean id="mesuresTemporalsHelper" class="net.conselldemallorca.helium.v3.core.helper.MesuresTemporalsHelper">
+		<constructor-arg type="java.lang.String" value="${app.mesura.temps.actiu?false}"/>
+		<constructor-arg type="java.lang.Integer" value="${app.mesura.temps.mesures?100}"/>
+	</bean>
+	
+	
+</beans>

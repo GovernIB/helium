@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans	xmlns="http://www.springframework.org/schema/beans"
+		xmlns:context="http://www.springframework.org/schema/context"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:util="http://www.springframework.org/schema/util"
+		xsi:schemaLocation="
+				http://www.springframework.org/schema/beans
+				http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+				http://www.springframework.org/schema/context
+				http://www.springframework.org/schema/context/spring-context-3.1.xsd
+				http://www.springframework.org/schema/util
+				http://www.springframework.org/schema/util/spring-util-3.1.xsd"
+		default-autowire="byType">
+
+	<bean id="aclService" class="net.conselldemallorca.helium.core.security.JdbcMutableAclService">
+		<constructor-arg ref="dataSource" />
+		<constructor-arg ref="lookupStrategy" />
+		<constructor-arg ref="aclCache" />
+	</bean>
+	<bean id="lookupStrategy" class="net.conselldemallorca.helium.core.security.BasicLookupStrategy">
+		<constructor-arg ref="dataSource" />
+		<constructor-arg ref="aclCache" />
+		<constructor-arg ref="aclAuthorizationStrategy" />
+		<constructor-arg ref="auditLogger" />
+	</bean>
+	<bean id="aclCache" class="org.springframework.security.acls.domain.EhCacheBasedAclCache">
+		<constructor-arg>
+			<bean class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+				<property name="cacheManager">
+					<bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean" />
+				</property>
+				<property name="cacheName" value="aclCache" />
+			</bean>
+		</constructor-arg>
+	</bean>
+	<bean id="aclAuthorizationStrategy" class="org.springframework.security.acls.domain.AclAuthorizationStrategyImpl">
+		<constructor-arg>
+			<list>
+				<bean class="org.springframework.security.core.authority.GrantedAuthorityImpl">
+					<constructor-arg value="ROLE_ADMIN" />
+				</bean>
+				<bean class="org.springframework.security.core.authority.GrantedAuthorityImpl">
+					<constructor-arg value="ROLE_ADMIN" />
+				</bean>
+				<bean class="org.springframework.security.core.authority.GrantedAuthorityImpl">
+					<constructor-arg value="ROLE_ADMIN" />
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
+	<bean id="auditLogger" class="org.springframework.security.acls.domain.ConsoleAuditLogger" />
+
+	<bean id="permissionFactory" class="net.conselldemallorca.helium.core.security.ExtendedPermissionFactory"/>
+
+</beans>
