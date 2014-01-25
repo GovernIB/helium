@@ -56,7 +56,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
+import org.springframework.security.Authentication;
+import org.springframework.security.GrantedAuthority;
 import org.springframework.security.acls.Permission;
+import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -1274,7 +1277,17 @@ public class ExpedientMassivaController extends BaseController {
 				dto.setExpedientIds(ids.subList(1, ids.size()));
 				dto.setExpedientTipusId(ids.get(0));
 				dto.setTipus(ExecucioMassivaTipus.EXECUTAR_ACCIO);
-				dto.setParam2(execucioMassivaService.serialize(command.getAccioId()));
+				
+				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+				Object[] params = new Object[3];
+				params[0] = command.getAccioId();
+				params[1] = auth.getCredentials();
+				List<String> rols = new ArrayList<String>();
+				for (GrantedAuthority gauth : auth.getAuthorities()) {
+					rols.add(gauth.getAuthority());
+				}
+				params[2] = rols;
+				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
 				
 //				// Recargamos la lista de ejecuciones masivas activas

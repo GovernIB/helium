@@ -41,7 +41,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
@@ -50,6 +49,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.security.Authentication;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
@@ -335,6 +336,7 @@ public class ExecucioMassivaService {
 			ExecucioMassivaTipus tipus = dto.getTipus();
 			
 			Authentication orgAuthentication = SecurityContextHolder.getContext().getAuthentication();
+			
 			final String user = dto.getUsuari();
 			
 	        Principal principal = new Principal() {
@@ -342,7 +344,26 @@ public class ExecucioMassivaService {
 					return user;
 				}
 			};
-	        Authentication authentication =  new UsernamePasswordAuthenticationToken(principal, null);
+			
+			Authentication authentication =  new UsernamePasswordAuthenticationToken(principal, null);
+			
+			if (tipus == ExecucioMassivaTipus.EXECUTAR_ACCIO){
+				Object param2 = deserialize(dto.getParam2());
+				if (param2 instanceof Object[]) {
+					Object credentials = ((Object[])param2)[1];
+					List<String> rols = (List<String>)((Object[])param2)[2];
+					GrantedAuthority[] authorities = null;
+					if (!rols.isEmpty()) {
+						authorities = new GrantedAuthority[rols.size()];
+						int i = 0;
+						for (String rol: rols) {
+							authorities[i++] = new GrantedAuthorityImpl(rol);
+						}
+					}
+					authentication =  new UsernamePasswordAuthenticationToken(principal, credentials, authorities);
+				}
+			}
+			
 	        SecurityContextHolder.getContext().setAuthentication(authentication);
 			
 			String expedient = null;
@@ -683,7 +704,13 @@ public class ExecucioMassivaService {
 	public String getOperacio(ExecucioMassiva exe) {
 		String op = null;
 		try {
-			op = (String) deserialize(exe.getParam2());
+			Object param2 = deserialize(exe.getParam2());
+			if (param2 instanceof Object[]) {
+				op = (String)((Object[])param2)[0];
+			} else {
+				op = (String)param2;
+			}
+//			op = (String) deserialize(exe.getParam2());
 		} catch (Exception ex) {
 			logger.error("OPERACIO:" + exe.getId() + ". No s'ha pogut obtenir la operació", ex);
 		}
@@ -713,7 +740,14 @@ public class ExecucioMassivaService {
 		try {
 			eme = execucioMassivaExpedientDao.getById(dto.getId(), false);
 			eme.setDataInici(new Date());
-			String accioId = (String)deserialize(dto.getParam2());
+			Object param2 = deserialize(dto.getParam2());
+			String accioId = "";
+			if (param2 instanceof Object[]) {
+				accioId = (String)((Object[])param2)[0];
+			} else {
+				accioId = (String)param2;
+			}
+			
 			expedientService.executarAccio(exp.getProcessInstanceId(), accioId);
 			eme.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
 			eme.setDataFi(new Date());
