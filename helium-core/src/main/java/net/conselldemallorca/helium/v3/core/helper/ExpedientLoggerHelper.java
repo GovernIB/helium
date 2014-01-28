@@ -720,7 +720,8 @@ public class ExpedientLoggerHelper {
 					if (ti.getId() == jtask.getTask().getId()){
 						nodeDesti = ti.getTask().getTaskNode();
 						tascaActual = true;
-						System.out.println(">>> [LOGTASK] Retroces de la tasca actual (" + nodeDesti + ")!");
+						if (debugRetroces)
+							System.out.println(">>> [LOGTASK] Retroces de la tasca actual (" + nodeDesti + ")!");
 						break;
 					}
 				}

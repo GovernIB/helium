@@ -1531,7 +1531,7 @@ public class DissenyService {
 		// Importa les definicions de procés
 		if (exportacio.getDefinicionsProces() != null) {
 			for (DefinicioProcesExportacio definicio : exportacio.getDefinicionsProces()) {
-				System.out.println(">>> [ET_IMP] Important definició de procés (nom=" + definicio.getNomDeploy() + ")");
+				//System.out.println(">>> [ET_IMP] Important definició de procés (nom=" + definicio.getNomDeploy() + ")");
 				importar(
 					entornId,
 					expedientTipus.getId(),

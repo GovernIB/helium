@@ -61,8 +61,8 @@ public class JobExecutorThread extends Thread {
 		currentIdleInterval = idleInterval;
 		
 		while (Jbpm3HeliumBridge.getInstanceService() == null){
-			try{
-				System.out.println(">>> Job executor: waiting for Instance service.");
+			try {
+				log.info("Job executor: esperant a obtenir el InstanceService");
 				Thread.sleep(500);
 			} catch (Exception ex) {}
 		}

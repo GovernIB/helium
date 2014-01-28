@@ -42,7 +42,7 @@ public class GetTaskListByActorIdCommand extends AbstractGetObjectBaseCommand im
 				"and ti.isOpen = true");
 		queryActorId.setString("actorId", actorId);
 		List llistaActorIds = queryActorId.list();
-		System.out.println(">>> actorIds (" + (System.currentTimeMillis() - t0) + " ms): " + llistaActorIds.size());
+		//System.out.println(">>> actorIds (" + (System.currentTimeMillis() - t0) + " ms): " + llistaActorIds.size());
 		t0 = System.currentTimeMillis();
 		Query queryPooledActors = jbpmContext.getSession().createQuery(
 				"select " +
@@ -58,7 +58,7 @@ public class GetTaskListByActorIdCommand extends AbstractGetObjectBaseCommand im
 				"and ti.isOpen = true");
 		queryPooledActors.setString("actorId", actorId);
 		List llistaPooleAdctors = queryPooledActors.list();
-		System.out.println(">>> pooledActors (" + (System.currentTimeMillis() - t0) + " ms): " + llistaPooleAdctors.size());
+		//System.out.println(">>> pooledActors (" + (System.currentTimeMillis() - t0) + " ms): " + llistaPooleAdctors.size());
 	    return llistaActorIds.addAll(llistaPooleAdctors);
 	}
 

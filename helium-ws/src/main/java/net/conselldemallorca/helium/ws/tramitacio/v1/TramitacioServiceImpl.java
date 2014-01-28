@@ -1008,12 +1008,6 @@ public class TramitacioServiceImpl implements TramitacioService {
 					ExtendedPermission.ADMINISTRATION,
 					ExtendedPermission.DELETE}) != null;
 	}
-	private void printUsuari() {
-		if (PRINT_USUARI) {
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			System.out.println(">>> " + auth.getName());
-		}
-	}
 
 	private static final Log logger = LogFactory.getLog(TramitacioServiceImpl.class);
 
