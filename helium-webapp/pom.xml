@@ -273,7 +273,7 @@
 		<profile>
 			<id>tomcat</id>
 			<activation>
-				<activeByDefault>false</activeByDefault>
+				<activeByDefault>true</activeByDefault>
 			</activation>
 			<properties>
 				<application.context>application-context-tomcat.xml</application.context>
@@ -291,14 +291,10 @@
 					</exclusions>
 				</dependency>
 				<dependency>
-					<groupId>net.conselldemallorca</groupId>
-					<artifactId>helium-core</artifactId>
-					<version>${helium.version}</version>
-				</dependency>
-				<dependency>
 					<groupId>org.hibernate</groupId>
 					<artifactId>hibernate-entitymanager</artifactId>
 					<version>${hibernate.version}</version>
+					<scope>provided</scope>
 					<exclusions>
 						<exclusion>
 							<artifactId>slf4j-api</artifactId>
@@ -319,16 +315,20 @@
 				</dependency>
 				<dependency>
 					<groupId>net.conselldemallorca</groupId>
+					<artifactId>helium-core</artifactId>
+					<version>${helium.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>net.conselldemallorca</groupId>
 					<artifactId>helium-hibernate-entitymanager</artifactId>
 					<version>${helium.version}</version>
-					<type>jar</type>
 				</dependency>
 			</dependencies>
 		</profile>
 		<profile>
 			<id>jboss</id>
 			<activation>
-				<activeByDefault>true</activeByDefault>
+				<activeByDefault>false</activeByDefault>
 			</activation>
 			<properties>
 				<application.context>application-context-jboss.xml</application.context>

@@ -8,7 +8,6 @@ import javax.annotation.Resource;
 import net.conselldemallorca.helium.core.model.exception.PersonaPluginException;
 import net.conselldemallorca.helium.core.model.exception.PluginException;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
-import net.conselldemallorca.helium.core.model.service.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPlugin;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;

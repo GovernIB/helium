@@ -74,7 +74,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 	private static final String VARIABLE_SESSIO_SELCON_COMMAND = "expedientTipusConsultaDissenyCommand";
 	private static final String VARIABLE_SESSIO_FILTRE_COMMAND = "expedientTipusConsultaFiltreCommand";
 	public static final String VARIABLE_SESSIO_IDS_MASSIUS_TE = "consultaExpedientsIdsMassiusTE";
-	private static final String VARIABLE_SESSIO_SELCON_COMMAND_TE = "expedientTipusConsultaDissenyCommandTE";
+//	private static final String VARIABLE_SESSIO_SELCON_COMMAND_TE = "expedientTipusConsultaDissenyCommandTE";
 	public static final String VARIABLE_SESSIO_IDS_MASSIUS = "consultaExpedientsIdsMassius";
 
 

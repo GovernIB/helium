@@ -51,7 +51,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.service.AlertaService;
-import net.conselldemallorca.helium.core.model.service.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 import net.conselldemallorca.helium.core.model.service.DocumentService;
 import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
@@ -113,6 +112,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.TerminiIniciatNotFound
 import net.conselldemallorca.helium.v3.core.api.exception.TerminiNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 import net.conselldemallorca.helium.v3.core.api.service.Jbpm3HeliumService;
+import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
 
 import org.hibernate.Hibernate;
@@ -1365,32 +1365,45 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 	public void updateExpedientError(String processInstanceId, String errorDesc, String errorFull) {
 		expedientService.updateExpedientError(processInstanceId, errorDesc, errorFull);
 	}
-	
+
 	@Override
 	public String getHeliumProperty(String propertyName) {
 		return GlobalProperties.getInstance().getProperty(propertyName);
 	}
-	
+
 	@Override
 	public OperacioMassivaDto getExecucionsMassivesActiva(Long ultimaExecucioMassiva) {
-		return execucioMassivaService.getExecucionsMassivesActiva(ultimaExecucioMassiva);
+		net.conselldemallorca.helium.core.model.dto.OperacioMassivaDto dto = execucioMassivaService.getExecucionsMassivesActiva(ultimaExecucioMassiva);
+		return conversioTipusHelper.convertir(
+				dto,
+				OperacioMassivaDto.class);
 	}
-	
+
 	@Override
 	public void executarExecucioMassiva(OperacioMassivaDto operacioMassiva) throws Exception {
-		execucioMassivaService.executarExecucioMassiva(operacioMassiva);
+		execucioMassivaService.executarExecucioMassiva(
+				conversioTipusHelper.convertir(
+						operacioMassiva,
+						net.conselldemallorca.helium.core.model.dto.OperacioMassivaDto.class));
 	}
-	
+
 	@Override
 	public void generaInformeError(OperacioMassivaDto operacioMassiva, Exception e) {
-		execucioMassivaService.generaInformeError(operacioMassiva, e);
+		execucioMassivaService.generaInformeError(
+				conversioTipusHelper.convertir(
+						operacioMassiva,
+						net.conselldemallorca.helium.core.model.dto.OperacioMassivaDto.class),
+				e);
 	}
-	
+
 	@Override
 	public void actualitzaUltimaOperacio(OperacioMassivaDto operacioMassiva) {
-		execucioMassivaService.actualitzaUltimaOperacio(operacioMassiva);
+		execucioMassivaService.actualitzaUltimaOperacio(
+				conversioTipusHelper.convertir(
+						operacioMassiva,
+						net.conselldemallorca.helium.core.model.dto.OperacioMassivaDto.class));
 	}
-	
+
 	private Expedient getExpedientDonatProcessInstanceId(
 			String processInstanceId) throws ProcessInstanceNotFoundException {
 		JbpmProcessInstance processInstance = jbpmHelper.getRootProcessInstance(processInstanceId);

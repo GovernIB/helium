@@ -14,12 +14,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.PaginaLlistatDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
 import net.conselldemallorca.helium.core.model.hibernate.Area;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
@@ -30,8 +32,6 @@ import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.PaginatedList;
 
@@ -295,7 +295,7 @@ public class TascaConsultaController extends BaseController {
 						tasquesId[i] = ids.get(i + 1).toString();
 					dto.setTascaIds(tasquesId);
 					dto.setExpedientTipusId(ids.get(0));
-					dto.setTipus(ExecucioMassivaTipusDto.REASSIGNAR);
+					dto.setTipus(ExecucioMassivaTipus.REASSIGNAR);
 					dto.setParam1(expression);
 					Object[] params = new Object[] {entorn.getId()};
     				dto.setParam2(execucioMassivaService.serialize(params));

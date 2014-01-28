@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.conselldemallorca.helium.core.model.service;
+package net.conselldemallorca.helium.v3.core.helper;
 
 import java.util.List;
 import java.util.Set;

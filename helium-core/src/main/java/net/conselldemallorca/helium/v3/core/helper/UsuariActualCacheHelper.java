@@ -8,7 +8,6 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.service.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.model.service.PermisosHelper;
 import net.conselldemallorca.helium.core.model.service.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;

@@ -14,7 +14,6 @@ import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
-import net.conselldemallorca.helium.core.model.service.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPlugin;
 import net.conselldemallorca.helium.integracio.plugins.gesdoc.GestioDocumentalPlugin;

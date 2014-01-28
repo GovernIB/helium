@@ -17,17 +17,17 @@ import java.util.zip.ZipOutputStream;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
+import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
 import net.conselldemallorca.helium.core.model.exception.NotFoundException;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.service.DocumentService;
 import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.service.TascaService;
-import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
 import net.conselldemallorca.helium.webapp.mvc.util.TramitacioMassiva;
@@ -469,7 +469,7 @@ public class TascaDocumentsController extends BaseController {
 				dto.setEnviarCorreu(bCorreu);
 				dto.setTascaIds(tIds);
 				dto.setExpedientTipusId(expTipusId);
-				dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_TASCA);
+				dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
 				dto.setParam1("DocGuardar");
 				Object[] params = new Object[5];
 				params[0] = entornId;
@@ -555,7 +555,7 @@ public class TascaDocumentsController extends BaseController {
 				dto.setEnviarCorreu(bCorreu);
 				dto.setTascaIds(tIds);
 				dto.setExpedientTipusId(expTipusId);
-				dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_TASCA);
+				dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
 				dto.setParam1("DocEsborrar");
 				Object[] params = new Object[2];
 				params[0] = entornId;
@@ -639,7 +639,7 @@ public class TascaDocumentsController extends BaseController {
 				dto.setEnviarCorreu(bCorreu);
 				dto.setTascaIds(tIds);
 				dto.setExpedientTipusId(expTipusId);
-				dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_TASCA);
+				dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
 				dto.setParam1("DocGenerar");
 				Object[] params = new Object[3];
 				params[0] = entornId;

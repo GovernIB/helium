@@ -57,6 +57,7 @@ public class SequenciaDefaultAny implements Serializable, GenericEntity<Long> {
 		this.id = id;
 	}
 
+	@SuppressWarnings("deprecation")
 	@ManyToOne(optional=true)
 	@JoinColumn(name="expedient_tipus")
 	@ForeignKey(name="hel_exptipus_seqdefany_fk")

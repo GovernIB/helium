@@ -48,7 +48,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
-import net.conselldemallorca.helium.core.model.service.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.model.service.LuceneHelper;
 import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.service.PermisosHelper;
@@ -96,6 +95,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundEx
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.PermissionService;
 import net.conselldemallorca.helium.v3.core.helper.ConsultaHelper;
+import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.v3.core.helper.DominiHelper;
 import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
