@@ -53,10 +53,12 @@ public class UpdateService {
 	public static final int VERSIO_250_ORDRE = 250;
 	public static final String VERSIO_260_STR = "2.6.0";
 	public static final int VERSIO_260_ORDRE = 260;
-	public static final String VERSIO_ACTUAL_STR = "2.6.0";
-	public static final int VERSIO_ACTUAL_ORDRE = 260;
+	public static final String VERSIO_300_STR = "3.0.0";
+	public static final int VERSIO_300_ORDRE = 300;
+	public static final String VERSIO_ACTUAL_STR = "3.0.0";
+	public static final int VERSIO_ACTUAL_ORDRE = 300;
 
-	public static final int VERSIO_ACTUAL_RELEASE = 43;
+	public static final int VERSIO_ACTUAL_RELEASE = 1;
 
 	private VersioDao versioDao;
 	private PersonaDao personaDao;
@@ -108,6 +110,10 @@ public class UpdateService {
 					boolean actualitzat = actualitzarV260();
 					if (!actualitzat) break;
 				}
+				if (versio.getOrdre() == VERSIO_300_ORDRE) {
+					boolean actualitzat = actualitzarV300();
+					if (!actualitzat) break;
+				}
 			}
 		}
 		Versio darrera = versioDao.findLast();
@@ -132,6 +138,9 @@ public class UpdateService {
 		}
 		if (actualitzat && darrera.getOrdre() < 260) {
 			actualitzarV260();
+		}
+		if (actualitzat && darrera.getOrdre() < 300) {
+			actualitzarV300();
 		}
 	}
 
@@ -435,6 +444,27 @@ public class UpdateService {
 			} catch (Exception ex) {
 				logger.error("Error al executar l'actualització a la versió " + VERSIO_260_STR, ex);
 				errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_260_STR + ": " + getMessage("error.update.proces.ko");
+			}
+		}
+		return actualitzat;
+	}
+
+	/*---------- ACTUALITZACIÓ V. 3.0.0 -----------------------------------------------*/
+	private boolean actualitzarV300() {
+		boolean actualitzat = false;
+		Versio versio300 = obtenirOCrearVersio(VERSIO_300_STR, VERSIO_300_ORDRE);
+		if (!versio300.isScriptExecutat()) {
+			errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_300_STR + ": " + getMessage("error.update.script.ko");
+		} else if (!versio300.isProcesExecutat()) {
+			try {
+				versio300.setProcesExecutat(true);
+				versio300.setDataExecucioProces(new Date());
+				versioDao.saveOrUpdate(versio300);
+				logger.info("Actualització a la versió " + VERSIO_300_STR + " realitzada correctament");
+				actualitzat = true;
+			} catch (Exception ex) {
+				logger.error("Error al executar l'actualització a la versió " + VERSIO_300_STR, ex);
+				errorUpdate =  getMessage("error.update.actualitzar.versio") + " " + VERSIO_300_STR + ": " + getMessage("error.update.proces.ko");
 			}
 		}
 		return actualitzat;
