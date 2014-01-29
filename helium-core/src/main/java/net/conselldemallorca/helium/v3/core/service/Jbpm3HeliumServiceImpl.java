@@ -204,7 +204,6 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 
 
 
-
 	@Transactional(readOnly = true)
 	@Override
 	public String getUsuariCodiActual() {

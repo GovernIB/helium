@@ -59,10 +59,6 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreA
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-/**
- * @author sion
- *
- */
 public interface Jbpm3HeliumService {
 
 	/**

@@ -54,7 +54,6 @@ import net.conselldemallorca.helium.core.model.service.PermisosHelper;
 import net.conselldemallorca.helium.core.model.service.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.core.util.MesurarTemps;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
@@ -1644,10 +1643,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 		String usuariBo = (usuari != null) ? usuari : auth.getName();
 		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
 		ExpedientTipusDto expedientTipusDto = new ModelMapper().map(expedientTipus, ExpedientTipusDto.class);
-		String mesuraTempsTotalPrefix = "INIEXP_TOT_" + expedientTipus.getCodi();
-		String mesuraTempsIncrementalPrefix = "INIEXP_INC_" + expedientTipus.getCodi();
-		MesurarTemps.diferenciaReiniciar(mesuraTempsTotalPrefix);
-		MesurarTemps.diferenciaReiniciar(mesuraTempsIncrementalPrefix);
+		//String mesuraTempsTotalPrefix = "INIEXP_TOT_" + expedientTipus.getCodi();
+		//String mesuraTempsIncrementalPrefix = "INIEXP_INC_" + expedientTipus.getCodi();
+		//MesurarTemps.diferenciaReiniciar(mesuraTempsTotalPrefix);
+		//MesurarTemps.diferenciaReiniciar(mesuraTempsIncrementalPrefix);
 		Entorn entorn = entornRepository.findOne(entornId);
 		textBloqueigIniciExpedient = auth.getName() + " (" +
 				"entornCodi=" + entorn.getCodi() + ", " +
@@ -1656,7 +1655,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		try {
 			String iniciadorCodiCalculat = (iniciadorTipus.equals(IniciadorTipusDto.INTERN)) ? usuariBo : iniciadorCodi;
 			Expedient expedient = new Expedient();
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "0");
+			//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "0");
 			expedient.setTipus(expedientTipus);
 			expedient.setIniciadorTipus(new ModelMapper().map(iniciadorTipus, IniciadorTipus.class));
 			expedient.setIniciadorCodi(iniciadorCodiCalculat);
@@ -1681,13 +1680,13 @@ public class ExpedientServiceImpl implements ExpedientService {
 			expedient.setAvisosEmail(avisosEmail);
 			expedient.setAvisosMobil(avisosMobil);
 			expedient.setNotificacioTelematicaHabilitada(notificacioTelematicaHabilitada);
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "1");
+			//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "1");
 			expedient.setNumeroDefault(
 					getNumeroExpedientDefaultActual(
 							entornId,
 							expedientTipus,
 							any));
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "2");
+			//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "2");
 			if (expedientTipus.getTeNumero()) {
 				if (numero != null && numero.length() > 0 && expedientTipus.getDemanaNumero()) {
 					expedient.setNumero(numero);
@@ -1701,7 +1700,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			}
 	
 			// Verifica si l'expedient té el número repetit
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "3");
+			//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "3");
 			if (expedientDao.findAmbEntornTipusINumero(
 					entornId,
 					expedientTipusId,
@@ -1712,7 +1711,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 								new Object[]{expedient.getNumero()}) );
 			}
 			// Actualitza l'any actual de l'expedient
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "4");
+			//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "4");
 			int anyActual = Calendar.getInstance().get(Calendar.YEAR);
 			if (any == null || any.intValue() == anyActual) {
 				if (expedientTipus.getAnyActual() == 0) {
@@ -1722,7 +1721,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				}
 			}
 			// Actualitza la seqüència del número d'expedient
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "5");
+			//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "5");
 			if (expedientTipus.getTeNumero() && expedientTipus.getExpressioNumero() != null && !"".equals(expedientTipus.getExpressioNumero())) {
 				if (expedient.getNumero().equals(
 						getNumeroExpedientActual(
@@ -1743,7 +1742,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					expedient.setTitol("[Sense títol]");
 			}
 			// Inicia l'instància de procés jBPM
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "6");
+			//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "6");
 			ExpedientIniciantDto.setExpedient(dtoConverter.toExpedientDto(expedient, true));
 			DefinicioProces definicioProces = null;
 			if (definicioProcesId != null) {
@@ -1753,17 +1752,17 @@ public class ExpedientServiceImpl implements ExpedientService {
 						entornId,
 						expedientTipus.getJbpmProcessDefinitionKey());
 			}
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "7");
+			//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "7");
 			JbpmProcessInstance processInstance = jbpmHelper.startProcessInstanceById(
 					usuariBo,
 					definicioProces.getJbpmId(),
 					variables);
 			expedient.setProcessInstanceId(processInstance.getId());
 			// Emmagatzema el nou expedient
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "8");
+			//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "8");
 			expedientRepository.save(expedient);
 			// Afegim els documents
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "9");
+			//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "9");
 			if (documents != null){
 				for (Map.Entry<String, DadesDocumentDto> doc: documents.entrySet()) {
 					if (doc.getValue() != null) {
@@ -1780,7 +1779,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				}
 			}
 			// Afegim els adjunts
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "10");
+			//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "10");
 			if (adjunts != null) {
 				for (DadesDocumentDto adjunt: adjunts) {
 					String documentCodi = new Long(new Date().getTime()).toString();
@@ -1796,29 +1795,29 @@ public class ExpedientServiceImpl implements ExpedientService {
 				}
 			}
 			// Verificar la ultima vegada que l'expedient va modificar el seu estat
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "11");
+			//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "11");
 			ExpedientLog log = expedientLoggerHelper.afegirLogExpedientPerProces(
 					processInstance.getId(),
 					ExpedientLogAccioTipus.EXPEDIENT_INICIAR,
 					null);
 			log.setEstat(ExpedientLogEstat.IGNORAR);
 			// Actualitza les variables del procés
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "12");
+			//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "12");
 			jbpmHelper.signalProcessInstance(expedient.getProcessInstanceId(), transitionName);
 			// Indexam l'expedient
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "13");
+			//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "13");
 			getServiceUtils().expedientIndexLuceneCreate(expedient.getProcessInstanceId());
 			// Registra l'inici de l'expedient
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "14");
+			//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "14");
 			registreDao.crearRegistreIniciarExpedient(
 					expedient.getId(),
 					usuariBo);
 			// Retorna la informació de l'expedient que s'ha iniciat
 			ExpedientDto dto = dtoConverter.toExpedientDto(expedient, true);
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "15");
-			MesurarTemps.diferenciaImprimirStdout(mesuraTempsTotalPrefix);
-			MesurarTemps.mitjaCalcular(mesuraTempsTotalPrefix, mesuraTempsTotalPrefix);
-			MesurarTemps.mitjaImprimirStdout(mesuraTempsTotalPrefix);
+			//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "15");
+			//MesurarTemps.diferenciaImprimirStdout(mesuraTempsTotalPrefix);
+			//MesurarTemps.mitjaCalcular(mesuraTempsTotalPrefix, mesuraTempsTotalPrefix);
+			//MesurarTemps.mitjaImprimirStdout(mesuraTempsTotalPrefix);
 			logger.debug("textBloqueigIniciExpedient: " + textBloqueigIniciExpedient);
 			return dto;
 		} finally {
