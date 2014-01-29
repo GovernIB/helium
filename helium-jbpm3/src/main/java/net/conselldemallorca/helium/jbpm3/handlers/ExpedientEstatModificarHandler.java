@@ -31,7 +31,10 @@ public class ExpedientEstatModificarHandler extends AbstractHeliumActionHandler 
 				estatCodi,
 				varEstatCodi);
 		ExpedientDto expedient = getExpedientActual(executionContext);
-		logger.debug("Modificant estat de l'expedient (exp=" + expedient.getIdentificacioPerLogs() + ", estatActual=" + expedient.getEstat().getCodi() + ", estatNou=" + ec + ")");
+		String estatActualCodi = "null";
+		if (expedient.getEstat() != null)
+			estatActualCodi = expedient.getEstat().getCodi();
+		logger.debug("Modificant estat de l'expedient (exp=" + expedient.getIdentificacioPerLogs() + ", estatActual=" + estatActualCodi + ", estatNou=" + ec + ")");
 		try {
 			Jbpm3HeliumBridge.getInstanceService().expedientModificarEstat(
 					getProcessInstanceId(executionContext),
