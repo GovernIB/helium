@@ -48,7 +48,7 @@ public class DefaultControllerHandler implements TaskControllerHandler {
 			TaskInstance taskInstance,
 			ContextInstance contextInstance,
 			Token token) {
-		for (CampTascaDto camp: getCampsPerTaskInstance(taskInstance)) {
+		for (CampTascaDto camp: getCampsPerTaskInstance(taskInstance)) { 
 			if (camp.isWriteTo() && !camp.getCamp().getTipus().equals(CampTipusDto.ACCIO)) {
 				String codi = camp.getCamp().getCodi();
 				Object valor = taskInstance.getVariableLocally(codi);
