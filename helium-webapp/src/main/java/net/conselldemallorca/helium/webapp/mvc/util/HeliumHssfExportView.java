@@ -13,6 +13,8 @@ import javax.servlet.jsp.JspException;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
@@ -162,6 +164,7 @@ public class HeliumHssfExportView implements BinaryExportView {
         }
         catch (Exception e)
         {
+        	logger.error("Error al exportar en format Excel", e);
             throw new ExcelGenerationException(e);
         }
     }
@@ -307,5 +310,7 @@ public class HeliumHssfExportView implements BinaryExportView {
 			cell.setCellValue(new HSSFRichTextString(escapeColumnValue(value)));
 		}
 	}*/
+
+	private static final Log logger = LogFactory.getLog(HeliumHssfExportView.class);
 
 }
