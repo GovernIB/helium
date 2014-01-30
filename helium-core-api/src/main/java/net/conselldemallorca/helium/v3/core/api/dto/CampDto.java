@@ -17,24 +17,9 @@ import java.util.Set;
  */
 public class CampDto implements Serializable {
 
-	public enum TipusCamp {
-		STRING,
-		INTEGER,
-		FLOAT,
-		BOOLEAN,
-		TEXTAREA,
-		DATE,
-		PRICE,
-		TERMINI,
-		SELECCIO,
-		SUGGEST,
-		REGISTRE,
-		ACCIO
-	}
-
 	private Long id;
 	private String codi;
-	private TipusCamp tipus;
+	private CampTipusDto tipus;
 	private String etiqueta;
 	private String observacions;
 	private String dominiId;
@@ -70,7 +55,7 @@ public class CampDto implements Serializable {
 
 
 	public CampDto() {}
-	public CampDto(DefinicioProcesDto definicioProces, String codi, TipusCamp tipus, String etiqueta) {
+	public CampDto(DefinicioProcesDto definicioProces, String codi, CampTipusDto tipus, String etiqueta) {
 		this.definicioProces = definicioProces;
 		this.codi = codi;
 		this.tipus = tipus;
@@ -91,24 +76,25 @@ public class CampDto implements Serializable {
 			return definicioProces.getJbpmKey() + "/" + codi;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Class getJavaClass() {
-		if (TipusCamp.STRING.equals(tipus)) {
+		if (CampTipusDto.STRING.equals(tipus)) {
 			return String.class;
-		} else if (TipusCamp.INTEGER.equals(tipus)) {
+		} else if (CampTipusDto.INTEGER.equals(tipus)) {
 			return Long.class;
-		} else if (TipusCamp.FLOAT.equals(tipus)) {
+		} else if (CampTipusDto.FLOAT.equals(tipus)) {
 			return Double.class;
-		} else if (TipusCamp.BOOLEAN.equals(tipus)) {
+		} else if (CampTipusDto.BOOLEAN.equals(tipus)) {
 			return Boolean.class;
-		} else if (TipusCamp.TEXTAREA.equals(tipus)) {
+		} else if (CampTipusDto.TEXTAREA.equals(tipus)) {
 			return String.class;
-		} else if (TipusCamp.DATE.equals(tipus)) {
+		} else if (CampTipusDto.DATE.equals(tipus)) {
 			return Date.class;
-		} else if (TipusCamp.PRICE.equals(tipus)) {
+		} else if (CampTipusDto.PRICE.equals(tipus)) {
 			return BigDecimal.class;
-		} else if (TipusCamp.TERMINI.equals(tipus)) {
+		} else if (CampTipusDto.TERMINI.equals(tipus)) {
 			return TerminiDto.class;
-		} else if (TipusCamp.REGISTRE.equals(tipus)) {
+		} else if (CampTipusDto.REGISTRE.equals(tipus)) {
 			return Object[].class;
 		} else {
 			return String.class;
@@ -123,21 +109,21 @@ public class CampDto implements Serializable {
 			return null;
 		try {
 			String text = null;
-			if (camp.getTipus().equals(TipusCamp.INTEGER)) {
+			if (camp.getTipus().equals(CampTipusDto.INTEGER)) {
 				text = new DecimalFormat("#").format((Long)valor);
-			} else if (camp.getTipus().equals(TipusCamp.FLOAT)) {
+			} else if (camp.getTipus().equals(CampTipusDto.FLOAT)) {
 				text = new DecimalFormat("#.#").format((Double)valor);
-			} else if (camp.getTipus().equals(TipusCamp.PRICE)) {
+			} else if (camp.getTipus().equals(CampTipusDto.PRICE)) {
 				text = new DecimalFormat("#,##0.00").format((BigDecimal)valor);
-			} else if (camp.getTipus().equals(TipusCamp.DATE)) {
+			} else if (camp.getTipus().equals(CampTipusDto.DATE)) {
 				text = new SimpleDateFormat("dd/MM/yyyy").format((Date)valor);
-			} else if (camp.getTipus().equals(TipusCamp.BOOLEAN)) {
+			} else if (camp.getTipus().equals(CampTipusDto.BOOLEAN)) {
 				text = (((Boolean)valor).booleanValue()) ? "Si" : "No";
-			} else if (camp.getTipus().equals(TipusCamp.SELECCIO)) {
+			} else if (camp.getTipus().equals(CampTipusDto.SELECCIO)) {
 				text = valorDomini;
-			} else if (camp.getTipus().equals(TipusCamp.SUGGEST)) {
+			} else if (camp.getTipus().equals(CampTipusDto.SUGGEST)) {
 				text = valorDomini;
-			} else if (camp.getTipus().equals(TipusCamp.TERMINI)) {
+			} else if (camp.getTipus().equals(CampTipusDto.TERMINI)) {
 				TerminiDto termini = ((TerminiDto)valor);
 				text = termini.getAnys()+"/"+termini.getMesos()+"/"+termini.getDies();
 			} else {
@@ -150,27 +136,27 @@ public class CampDto implements Serializable {
 	}
 
 	public static Object getComObject(
-			TipusCamp tipus,
+			CampTipusDto tipus,
 			String text) {
 		if (text == null)
 			return null;
 		try {
 			Object obj = null;
-			if (tipus.equals(TipusCamp.INTEGER)) {
+			if (tipus.equals(CampTipusDto.INTEGER)) {
 				obj = new Long(text);
-			} else if (tipus.equals(TipusCamp.FLOAT)) {
+			} else if (tipus.equals(CampTipusDto.FLOAT)) {
 				obj = new Double(text);
-			} else if (tipus.equals(TipusCamp.PRICE)) {
+			} else if (tipus.equals(CampTipusDto.PRICE)) {
 				obj = new BigDecimal(text);
-			} else if (tipus.equals(TipusCamp.DATE)) {
+			} else if (tipus.equals(CampTipusDto.DATE)) {
 				obj = new SimpleDateFormat("dd/MM/yyyy").parse(text);
-			} else if (tipus.equals(TipusCamp.BOOLEAN)) {
+			} else if (tipus.equals(CampTipusDto.BOOLEAN)) {
 				obj = new Boolean("S".equals(text));
-			} else if (tipus.equals(TipusCamp.SELECCIO)) {
+			} else if (tipus.equals(CampTipusDto.SELECCIO)) {
 				obj = text;
-			} else if (tipus.equals(TipusCamp.SUGGEST)) {
+			} else if (tipus.equals(CampTipusDto.SUGGEST)) {
 				obj = text;
-			} else if (tipus.equals(TipusCamp.TERMINI)) {
+			} else if (tipus.equals(CampTipusDto.TERMINI)) {
 				String[] parts = text.split("/");
 				TerminiDto termini = new TerminiDto();
 				if (parts.length == 3) {
@@ -232,10 +218,10 @@ public class CampDto implements Serializable {
 	public void setCodi(String codi) {
 		this.codi = codi;
 	}
-	public TipusCamp getTipus() {
+	public CampTipusDto getTipus() {
 		return tipus;
 	}
-	public void setTipus(TipusCamp tipus) {
+	public void setTipus(CampTipusDto tipus) {
 		this.tipus = tipus;
 	}
 	public String getEtiqueta() {

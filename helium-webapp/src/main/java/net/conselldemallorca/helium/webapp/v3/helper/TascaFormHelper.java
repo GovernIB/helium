@@ -11,13 +11,14 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto.TipusCamp;
 import net.conselldemallorca.helium.v3.core.api.dto.CampRegistreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps;
-import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.sf.cglib.beans.BeanGenerator;
 
@@ -95,7 +96,7 @@ public class TascaFormHelper {
 			boolean perFiltre) {
     	Map<String, Object> resposta = new HashMap<String, Object>();
     	for (CampDto camp: camps) {
-    		if (!camp.getTipus().equals(TipusCamp.REGISTRE) && !camp.getTipus().equals(TipusCamp.ACCIO)) {
+    		if (!camp.getTipus().equals(CampTipusDto.REGISTRE) && !camp.getTipus().equals(CampTipusDto.ACCIO)) {
 	    		try {
 		    		String campCodi = getCampCodi(camp, perFiltre, true);
 		    		Object valor = PropertyUtils.getSimpleProperty(command, campCodi);
@@ -169,7 +170,7 @@ public class TascaFormHelper {
 						camp.getCodi(),
 						validationRule);
 			}
-			if (	camp.getTipus().equals(TipusCamp.STRING)) {// ||
+			if (	camp.getTipus().equals(CampTipusDto.STRING)) {// ||
 					//camp.getTipus().equals(TipusCamp.TEXTAREA)) {
 				ExpressionValidationRule validationRule = new ExpressionValidationRule(
 						new ValangConditionExpressionParser(),
@@ -253,10 +254,10 @@ public class TascaFormHelper {
 									campCodi,
 									camp.getJavaClass());
 					} else {
-						boolean ambArray = 	camp.getTipus().equals(TipusCamp.DATE) ||
-									camp.getTipus().equals(TipusCamp.INTEGER) ||
-									camp.getTipus().equals(TipusCamp.FLOAT) ||
-									camp.getTipus().equals(TipusCamp.PRICE);
+						boolean ambArray = 	camp.getTipus().equals(CampTipusDto.DATE) ||
+									camp.getTipus().equals(CampTipusDto.INTEGER) ||
+									camp.getTipus().equals(CampTipusDto.FLOAT) ||
+									camp.getTipus().equals(CampTipusDto.PRICE);
 						if (ambArray)
 							bg.addProperty(
 									campCodi,

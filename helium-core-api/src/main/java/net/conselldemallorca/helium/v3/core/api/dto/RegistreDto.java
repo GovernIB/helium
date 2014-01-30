@@ -187,6 +187,4 @@ public class RegistreDto {
 		return true;
 	}
 
-	private static final long serialVersionUID = 1L;
-
 }

@@ -45,9 +45,9 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto.TipusCamp;
 import net.conselldemallorca.helium.v3.core.api.dto.CampRegistreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
@@ -512,7 +512,7 @@ public class DtoConverter {
 		Map<String, ParellaCodiValorDto> resposta = new HashMap<String, ParellaCodiValorDto>();
 		if (valors != null) {
 			for (CampDto camp: camps) {
-				if (!camp.isMultiple() && (camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST))) {
+				if (!camp.isMultiple() && (camp.getTipus().equals(CampTipusDto.SELECCIO) || camp.getTipus().equals(CampTipusDto.SUGGEST))) {
 					Object valor = valors.get(camp.getCodi());
 					ParellaCodiValorDto codiValor = obtenirValorDomini(
 							taskId,
@@ -557,7 +557,7 @@ public class DtoConverter {
 			if (j == camp.getRegistreMembres().size())
 				break;
 			CampDto membreRegistre = camp.getRegistreMembres().get(j).getMembre();
-			if (membreRegistre.getTipus().equals(TipusCamp.SUGGEST) || membreRegistre.getTipus().equals(TipusCamp.SELECCIO)) {
+			if (membreRegistre.getTipus().equals(CampTipusDto.SUGGEST) || membreRegistre.getTipus().equals(CampTipusDto.SELECCIO)) {
 				ParellaCodiValorDto codiValor = obtenirValorDomini(
 						taskId,
 						processInstanceId,
@@ -598,7 +598,7 @@ public class DtoConverter {
 				boolean found = false;
 				for (CampDto camp: camps) {
 					if (camp.getCodi().equals(key)) {
-						if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
+						if (camp.getTipus().equals(CampTipusDto.REGISTRE)) {
 							Object valor = valors.get(key);
 							if (valor != null && valor instanceof Object[]) {
 								List<String[]> grid = new ArrayList<String[]>();
@@ -631,7 +631,7 @@ public class DtoConverter {
 									List<String> texts = new ArrayList<String>();
 									for (int i = 0; i < Array.getLength(valor); i++) {
 										String t = null;
-										if (camp.getTipus().equals(TipusCamp.SUGGEST) || camp.getTipus().equals(TipusCamp.SELECCIO)) {
+										if (camp.getTipus().equals(CampTipusDto.SUGGEST) || camp.getTipus().equals(CampTipusDto.SELECCIO)) {
 											if (valorsMultiplesDomini.get(key).size() > i)
 												t = textPerCampDonatValorDomini(camp, Array.get(valor, i), valorsMultiplesDomini.get(key).get(i));
 											else
@@ -650,7 +650,7 @@ public class DtoConverter {
 								resposta.put(key, null);
 							}
 						} else {
-							if (camp.getTipus().equals(TipusCamp.TERMINI)) {
+							if (camp.getTipus().equals(CampTipusDto.TERMINI)) {
 								valors.put(key, valors.get(key) == null ? null : new ModelMapper().map(valors.get(key), TerminiDto.class));
 							}
 							resposta.put(
@@ -930,7 +930,7 @@ public class DtoConverter {
 				listRegistreMembres.add(campRegistreDto);
 			}
 			campDto.setRegistreMembres(listRegistreMembres);
-			campDto.setTipus(new ModelMapper().map(val.getTipus(), CampDto.TipusCamp.class));
+			campDto.setTipus(new ModelMapper().map(val.getTipus(), CampTipusDto.class));
 		}
 		return campDto;
 	}
@@ -963,7 +963,7 @@ public class DtoConverter {
 		//Camps
 		List<CampTasca> campsTasca = tasca.getCamps();
 		for (CampTasca campTasca: campsTasca) {
-			if (campTasca.getCamp().getTipus().equals(TipusCamp.REGISTRE)) {
+			if (campTasca.getCamp().getTipus().equals(CampTipusDto.REGISTRE)) {
 				campTasca.getCamp().getRegistreMembres().size();
 			}
 		}
@@ -1051,8 +1051,8 @@ public class DtoConverter {
 					((DominiCodiDescripcio)valor).getDescripcio());
 		}
 		ParellaCodiValorDto resposta = null;
-		TipusCamp tipus = camp.getTipus();
-		if (tipus.equals(TipusCamp.SELECCIO) || tipus.equals(TipusCamp.SUGGEST)) {
+		CampTipusDto tipus = camp.getTipus();
+		if (tipus.equals(CampTipusDto.SELECCIO) || tipus.equals(CampTipusDto.SUGGEST)) {
 			if (camp.getDomini() != null || camp.isDominiIntern()) {
 				Long dominiId = (long) 0;
 				if (camp.getDomini() != null){
@@ -1207,7 +1207,7 @@ public class DtoConverter {
 			Map<String, DadaIndexadaDto> dadesExpedient,
 			List<CampDto> campsInforme) {
 		for (CampDto camp: campsInforme) {
-			if (!camp.isDominiCacheText() && (TipusCamp.SELECCIO.equals(camp.getTipus()) || TipusCamp.SUGGEST.equals(camp.getTipus()))) {
+			if (!camp.isDominiCacheText() && (CampTipusDto.SELECCIO.equals(camp.getTipus()) || CampTipusDto.SUGGEST.equals(camp.getTipus()))) {
 				if (camp.getEnumeracio() != null) {
 					String dadaIndexadaClau = camp.getDefinicioProces().getJbpmKey() + "/" + camp.getCodi();
 					DadaIndexadaDto dadaIndexada = dadesExpedient.get(dadaIndexadaClau);
@@ -1334,8 +1334,8 @@ public class DtoConverter {
 			return valor.toString();
 		} else {
 			String textDomini = null;
-			if (	camp.getTipus().equals(TipusCamp.SELECCIO) ||
-					camp.getTipus().equals(TipusCamp.SUGGEST)) {
+			if (	camp.getTipus().equals(CampTipusDto.SELECCIO) ||
+					camp.getTipus().equals(CampTipusDto.SUGGEST)) {
 				if (valor instanceof DominiCodiDescripcio) {
 					textDomini = ((DominiCodiDescripcio)valor).getDescripcio();
 				} else {

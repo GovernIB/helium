@@ -9,8 +9,8 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.util.EntornActual;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto.TipusCamp;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
@@ -73,7 +73,7 @@ public class TascaFormValidatorHelper implements Validator {
 			ExpedientTascaDto tasca = getTasca(command);
 			for (CampTascaDto camp : tasca.getCamps()) {
 				if (validarObligatoris && camp.isRequired()) {
-					if (camp.getCamp().getTipus().equals(TipusCamp.REGISTRE)) {
+					if (camp.getCamp().getTipus().equals(CampTipusDto.REGISTRE)) {
 						if (tascaService != null) {
 							Object[] valor = (Object[]) tascaService.getVariable(EntornActual.getEntornId(), tasca.getId(), camp.getCamp().getCodi());
 							if (valor == null || valor.length == 0)
@@ -102,7 +102,7 @@ public class TascaFormValidatorHelper implements Validator {
 					}
 				}
 				if (camp != null && camp.getCamp() != null && camp.getCamp().getTipus() != null) {
-					if (camp.getCamp().getTipus().equals(TipusCamp.STRING)) { // || camp.getCamp().getTipus().equals(TipusCamp.TEXTAREA)) {
+					if (camp.getCamp().getTipus().equals(CampTipusDto.STRING)) { // || camp.getCamp().getTipus().equals(TipusCamp.TEXTAREA)) {
 						try {
 							if (camp.getCamp().isMultiple()) {
 								String[] valors = (String[]) PropertyUtils.getSimpleProperty(command, camp.getCamp().getCodi());

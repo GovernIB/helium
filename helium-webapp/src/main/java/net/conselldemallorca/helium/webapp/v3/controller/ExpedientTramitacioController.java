@@ -17,11 +17,12 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto.TipusCamp;
 import net.conselldemallorca.helium.v3.core.api.dto.CampRegistreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
@@ -182,7 +183,7 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 				Object valor = null;
 				boolean sinValor = false;
 				String campMembre = registreMembre.getMembre().getCodi();
-				if (registreMembre.getMembre().getTipus().equals(TipusCamp.BOOLEAN)) {
+				if (registreMembre.getMembre().getTipus().equals(CampTipusDto.BOOLEAN)) {
 					variablesMultReg.put(campMembre, false);
 				} else {
 					variablesMultReg.put(campMembre, "");
@@ -190,7 +191,7 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 				if (request.getParameterMap().containsKey(camp.getCamp().getCodi()+"["+i+"]["+campMembre+"]")) {
 					valor = request.getParameterMap().get(camp.getCamp().getCodi()+"["+i+"]["+campMembre+"]");
 					valor = String.valueOf(((String[])valor)[0]);
-					if (registreMembre.getMembre().getTipus().equals(TipusCamp.BOOLEAN)) {						
+					if (registreMembre.getMembre().getTipus().equals(CampTipusDto.BOOLEAN)) {						
 						valor = "on".equals(valor);
 					} else if ("".equals(valor)) {
 						sinValor = true;					
