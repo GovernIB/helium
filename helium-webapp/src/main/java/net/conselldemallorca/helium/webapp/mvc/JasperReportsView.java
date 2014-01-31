@@ -66,14 +66,11 @@ public class JasperReportsView implements View {
 
 		JRBeanCollectionDataSource datasource = null;
 		if (model.get(MODEL_ATTRIBUTE_REPORTDATA) != null)
-			datasource = new JRBeanCollectionDataSource(
-					(List<Map<String, Object>>)model.get(MODEL_ATTRIBUTE_REPORTDATA));
+			datasource = new JRBeanCollectionDataSource((List<Map<String, Object>>)model.get(MODEL_ATTRIBUTE_REPORTDATA));
 		if (datasource != null) {
 			adminService.getMesuresTemporalsHelper().mesuraIniciar("INFORME: " + (String)model.get(MODEL_ATTRIBUTE_CONSULTA), "report", null, null, "REPORT");
 			JasperReport report = null;
-			report = JasperCompileManager.compileReport(
-					new ByteArrayInputStream(
-							(byte[])model.get(MODEL_ATTRIBUTE_REPORTCONTENT)));
+			report = JasperCompileManager.compileReport(new ByteArrayInputStream((byte[])model.get(MODEL_ATTRIBUTE_REPORTCONTENT)));
 			
 			Map<String, Object> params = new HashMap<String, Object>();
 			
@@ -84,23 +81,13 @@ public class JasperReportsView implements View {
 				Iterator it = subreports.entrySet().iterator();
 				while (it.hasNext()) {
 					Map.Entry e = (Map.Entry)it.next();
-					subreport = JasperCompileManager.compileReport(
-							new ByteArrayInputStream(
-									(byte[]) e.getValue()));
+					subreport = JasperCompileManager.compileReport(new ByteArrayInputStream((byte[]) e.getValue()));
 					String nom = (String) e.getKey();
 					nom = nom.substring(0, nom.lastIndexOf("."));
 					params.put(nom, subreport);
+					params.put("ds_" + nom, new JRBeanCollectionDataSource((List<Map<String, Object>>)model.get(MODEL_ATTRIBUTE_REPORTDATA)));
 				}
-				//params.put("datasource",datasource);
-			}
-//			if (subreports != null) {
-//				for (String subreportCodi: subreports) {
-//					JRDataSource subDatasource = new JRMapCollectionDataSource(
-//							(List<Map<String, Object>>)model.get(MODEL_ATTRIBUTE_REPORTDATA));
-//					params.put("helds$" + subreportCodi, subDatasource);
-//				}
-//			}
-			
+			}			
 			
 			JasperPrint jasperPrint = JasperFillManager.fillReport(
 					report,
@@ -112,7 +99,6 @@ public class JasperReportsView implements View {
 			if(exp.equals("PDF")){
 				//exportar PDF		
 				response.setHeader("Content-Disposition","attachment; filename=\"informe.pdf\"");
-				//response.setContentType(new MimetypesFileTypeMap().getContentType("informe.pdf"));
 				response.setContentType("application/pdf");
 				response.getOutputStream().write(
 						JasperExportManager.exportReportToPdf(jasperPrint));
