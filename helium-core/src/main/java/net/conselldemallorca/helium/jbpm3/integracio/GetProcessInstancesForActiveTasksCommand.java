@@ -149,7 +149,7 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 		}
 
 		if (tasca != null && !"".equals(tasca)) {
-			hql += " and ti.name = :tasca ";
+			hql += " and upper(ti.description) like '%@#@TITOL@#@%" + tasca.toUpperCase() + "%@#@ENTORNID@#@%') ";
 		}
 		
 		if (titol != null && !"".equals(titol)) {
@@ -190,8 +190,8 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 			if (prioritat != null) 
 				query.setInteger("prioritat",3-prioritat);
 			
-			if (tasca != null && !"".equals(tasca)) 
-				query.setString("tasca", tasca);
+//			if (tasca != null && !"".equals(tasca)) 
+//				query.setString("tasca", tasca);
 			
 //			if (titol != null && !"".equals(titol))
 //				query.setString("titol", titol.toUpperCase());
@@ -230,10 +230,10 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 				queryPooled.setInteger("prioritat",3-prioritat);
 			}
 			
-			if (tasca != null && !"".equals(tasca)) {
-				queryPersonal.setString("tasca", tasca);
-				queryPooled.setString("tasca", tasca);
-			}		
+//			if (tasca != null && !"".equals(tasca)) {
+//				queryPersonal.setString("tasca", tasca);
+//				queryPooled.setString("tasca", tasca);
+//			}		
 			
 //			if (titol != null && !"".equals(titol)) {
 //				queryPersonal.setString("titol", titol.toUpperCase());
