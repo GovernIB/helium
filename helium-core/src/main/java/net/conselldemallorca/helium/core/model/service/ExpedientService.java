@@ -738,22 +738,26 @@ public class ExpedientService {
 			Double geoPosY,
 			String geoReferencia,
 			FiltreAnulat mostrarAnulats) {
-		return expedientDao.countAmbEntornConsultaGeneral(
-				entornId,
-				titol,
-				numero,
-				dataInici1,
-				dataInici2,
-				expedientTipusId,
-				getExpedientTipusIdPermesos(entornId),
-				estatId,
-				iniciat,
-				finalitzat,
-				geoPosX,
-				geoPosY,
-				geoReferencia,
-				mostrarAnulats,
-				getAreesOGrupsPerUsuari());
+		Long[] expedientTipusIdPermesos = getExpedientTipusIdPermesos(entornId);
+		if (expedientTipusIdPermesos.length == 0)
+			return 0;
+		else
+			return expedientDao.countAmbEntornConsultaGeneral(
+					entornId,
+					titol,
+					numero,
+					dataInici1,
+					dataInici2,
+					expedientTipusId,
+					expedientTipusIdPermesos,
+					estatId,
+					iniciat,
+					finalitzat,
+					geoPosX,
+					geoPosY,
+					geoReferencia,
+					mostrarAnulats,
+					getAreesOGrupsPerUsuari());
 	}
 	public List<ExpedientDto> findAmbEntornConsultaGeneral(
 			Long entornId,
@@ -770,23 +774,26 @@ public class ExpedientService {
 			String geoReferencia,
 			FiltreAnulat mostrarAnulats) {
 		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
-		for (Expedient expedient: expedientDao.findAmbEntornConsultaGeneral(
-				entornId,
-				titol,
-				numero,
-				dataInici1,
-				dataInici2,
-				expedientTipusId,
-				getExpedientTipusIdPermesos(entornId),
-				estatId,
-				iniciat,
-				finalitzat,
-				geoPosX,
-				geoPosY,
-				geoReferencia,
-				mostrarAnulats,
-				getAreesOGrupsPerUsuari()))
-			resposta.add(dtoConverter.toExpedientDto(expedient, false));
+		Long[] expedientTipusIdPermesos = getExpedientTipusIdPermesos(entornId);
+		if (expedientTipusIdPermesos.length > 0) {
+			for (Expedient expedient: expedientDao.findAmbEntornConsultaGeneral(
+					entornId,
+					titol,
+					numero,
+					dataInici1,
+					dataInici2,
+					expedientTipusId,
+					expedientTipusIdPermesos,
+					estatId,
+					iniciat,
+					finalitzat,
+					geoPosX,
+					geoPosY,
+					geoReferencia,
+					mostrarAnulats,
+					getAreesOGrupsPerUsuari()))
+				resposta.add(dtoConverter.toExpedientDto(expedient, false));
+		}
 		return resposta;
 	}
 	public List<ExpedientDto> findAmbEntornConsultaGeneralPaginat(
@@ -817,27 +824,30 @@ public class ExpedientService {
 							ExtendedPermission.SUPERVISION,
 							ExtendedPermission.READ});
 		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
-		for (Expedient expedient: expedientDao.findAmbEntornConsultaGeneralPagedAndOrdered(
-				entornId,
-				titol,
-				numero,
-				dataInici1,
-				dataInici2,
-				expedientTipusId,
-				getExpedientTipusIdPermesos(entornId),
-				estatId,
-				iniciat,
-				finalitzat,
-				geoPosX,
-				geoPosY,
-				geoReferencia,
-				mostrarAnulats,
-				getAreesOGrupsPerUsuari(),
-				firstRow,
-				maxResults,
-				sort,
-				asc))
-			resposta.add(dtoConverter.toExpedientDto(expedient, false));
+		Long[] expedientTipusIdPermesos = getExpedientTipusIdPermesos(entornId);
+		if (expedientTipusIdPermesos.length > 0) {
+			for (Expedient expedient: expedientDao.findAmbEntornConsultaGeneralPagedAndOrdered(
+					entornId,
+					titol,
+					numero,
+					dataInici1,
+					dataInici2,
+					expedientTipusId,
+					expedientTipusIdPermesos,
+					estatId,
+					iniciat,
+					finalitzat,
+					geoPosX,
+					geoPosY,
+					geoReferencia,
+					mostrarAnulats,
+					getAreesOGrupsPerUsuari(),
+					firstRow,
+					maxResults,
+					sort,
+					asc))
+				resposta.add(dtoConverter.toExpedientDto(expedient, false));
+		}
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS", "consulta");
 		return resposta;
 	}
@@ -2230,6 +2240,7 @@ public class ExpedientService {
 	}
 
 
+
 	@SuppressWarnings("rawtypes")
 	private Map<String, JbpmNodePosition> getNodePositions(String processInstanceId) {
 		Map<String, JbpmNodePosition> resposta = new HashMap<String, JbpmNodePosition>();
@@ -2507,7 +2518,7 @@ public class ExpedientService {
 	private void verificarFinalitzacioExpedient(String processInstanceId) {
 		JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(processInstanceId);
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
-		if (pi.getEnd() != null) {
+		if (pi.getEnd() != null && expedient.getDataFi() == null) {
 			// Actualitzar data de fi de l'expedient
 			expedient.setDataFi(pi.getEnd());
 			// Finalitzar terminis actius
@@ -2521,6 +2532,9 @@ public class ExpedientService {
 								new Date(Long.MAX_VALUE));
 				}
 			}
+		} else if (pi.getEnd() == null && expedient.getDataFi() != null) {
+			// Actualitzar data de fi de l'expedient
+			expedient.setDataFi(null);
 		}
 	}
 
