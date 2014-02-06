@@ -459,12 +459,12 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 	}*/
 
 	private String getUsuariRegistre() {
-		String usuari = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal");
-		if (usuari == null || usuari.length() == 0) {
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			usuari = auth.getName();
-		}
-		return usuari;
+//		String usuari = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal");
+//		if (usuari == null || usuari.length() == 0) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		return auth.getName();
+//		}
+//		return usuari;
 	}
 
 	private String convertirIdioma(String iso6391) {
