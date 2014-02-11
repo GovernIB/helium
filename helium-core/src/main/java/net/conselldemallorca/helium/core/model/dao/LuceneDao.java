@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
@@ -37,12 +38,12 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
+import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TermRangeQuery;
-import org.apache.lucene.search.WildcardQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springmodules.lucene.index.core.DocumentModifier;
@@ -68,6 +69,10 @@ public class LuceneDao extends LuceneIndexSupport {
 	private static final String VALOR_DOMINI_SUFIX = "@text@";
 
 	private LuceneSearchTemplate searchTemplate;
+	
+	private static final String LUCENE_ESCAPE_CHARS = "[\\\\+\\-\\!\\(\\)\\:\\^\\]\\{\\}\\~\\*\\?]";
+	private static final Pattern LUCENE_PATTERN = Pattern.compile(LUCENE_ESCAPE_CHARS);
+	private static final String REPLACEMENT_STRING = "";
 
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
@@ -688,19 +693,19 @@ public class LuceneDao extends LuceneIndexSupport {
 		}
 		return null;
 	}
+	
 	private Query queryPerStringAmbWildcards(String codi, String termes) {
-		BooleanQuery query = new BooleanQuery();
+		PhraseQuery phraseQuery = new PhraseQuery();
+		
 		String[] termesTots = normalitzarILlevarAccents(termes).split(" ");
-		for (int i = 0; i < termesTots.length; i++) {
-			if (!"".equals(termesTots[i])) {
-				query.add(
-						new WildcardQuery(new Term(
-								codi,
-								"*" + termesTots[i] + "*")),
-						BooleanClause.Occur.MUST);
+		for (String terme : termesTots) {
+			String escaped = LUCENE_PATTERN.matcher(terme).replaceAll(REPLACEMENT_STRING);
+			if (!"".equals(escaped)) {
+				phraseQuery.add(new Term(codi, escaped));
 			}
 		}
-		return query;
+		
+		return phraseQuery;
 	}
 
 	private Term termIdFromExpedient(Expedient expedient) {
