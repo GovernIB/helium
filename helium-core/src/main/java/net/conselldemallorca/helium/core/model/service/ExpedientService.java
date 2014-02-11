@@ -1528,10 +1528,11 @@ public class ExpedientService {
 		jbpmDao.reassignTaskInstance(taskId, expression, entornId);
 		String currentActors = expedientLogHelper.getActorsPerReassignacioTasca(taskId);
 		expedientLog.setAccioParams(previousActors + "::" + currentActors);
-		if (previousActors.startsWith("[")) {
-			JbpmTask task = jbpmDao.getTaskById(taskId);
-			if (task != null) task.setFieldFromDescription(TascaService.TASKDESC_CAMP_AGAFADA, "true");
-		}
+		JbpmTask task = jbpmDao.getTaskById(taskId);
+//		if (task != null) {
+//			boolean pooled = currentActors.startsWith("[");
+		task.setFieldFromDescription(TascaService.TASKDESC_CAMP_AGAFADA, "false");
+//		}
 		if (usuari == null) {
 			usuari = SecurityContextHolder.getContext().getAuthentication().getName();
 		}
