@@ -6,11 +6,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Vector;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
 
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 
@@ -115,7 +111,6 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 			} else {
 				throw new RegistrePluginException("S'ha d'especificar algun document per registrar");
 			}
-			//imprimirDadesRegistreEntrada(registreEntrada, params);
 			RegistroEntradaFacade registroEntrada = getRegistreEntradaService();
 			ParametrosRegistroEntrada respostaValidacio = registroEntrada.validar(params);
 			if (respostaValidacio.getValidado()) {
@@ -269,7 +264,6 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 			} else {
 				throw new RegistrePluginException("S'ha d'especificar algun document per registrar");
 			}
-			//imprimirDadesRegistreSortida(registreSortida, params);
 			RegistroSalidaFacade registroSalida = getRegistreSortidaService();
 			ParametrosRegistroSalida respostaValidacio = registroSalida.validar(params);
 			if (respostaValidacio.getValidado()) {
@@ -390,81 +384,48 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 
 
 	private RegistroEntradaFacade getRegistreEntradaService() throws Exception {
-		Context ctx = getInitialContext();
-		Object objRef = ctx.lookup("es.caib.regweb.logic.RegistroEntradaFacade");
-		RegistroEntradaFacadeHome home = (RegistroEntradaFacadeHome)javax.rmi.PortableRemoteObject.narrow(
-				objRef,
+		RegistroEntradaFacadeHome home = (RegistroEntradaFacadeHome)lookupHome(
+				"es.caib.regweb.logic.RegistroEntradaFacade",
 				RegistroEntradaFacadeHome.class);
-		ctx.close();
-		//if (false)
-		//	newLogin();
 		return home.create();
 	}
 	private RegistroSalidaFacade getRegistreSortidaService() throws Exception {
-		Context ctx = getInitialContext();
-		Object objRef = ctx.lookup("es.caib.regweb.logic.RegistroSalidaFacade");
-		RegistroSalidaFacadeHome home = (RegistroSalidaFacadeHome)javax.rmi.PortableRemoteObject.narrow(
-				objRef,
+		RegistroSalidaFacadeHome home = (RegistroSalidaFacadeHome)lookupHome(
+				"es.caib.regweb.logic.RegistroSalidaFacade",
 				RegistroSalidaFacadeHome.class);
-		ctx.close();
-		//if (false)
-		//	newLogin();
 		return home.create();
 	}
 	private ValoresFacade getValoresService() throws Exception {
-		Context ctx = getInitialContext();
-		Object objRef = ctx.lookup("es.caib.regweb.logic.ValoresFacade");
-		ValoresFacadeHome home = (ValoresFacadeHome)javax.rmi.PortableRemoteObject.narrow(
-				objRef,
+		ValoresFacadeHome home = (ValoresFacadeHome)lookupHome(
+				"es.caib.regweb.logic.ValoresFacade",
 				ValoresFacadeHome.class);
-		ctx.close();
-		//if (false)
-		//	newLogin();
 		return home.create();
 	}
-
-	private Context getInitialContext() throws Exception {
-		Properties props = new Properties();
-		props.put(
-				Context.INITIAL_CONTEXT_FACTORY,
-				GlobalProperties.getInstance().getProperty("app.registre.plugin.initial.context.factory"));
-		props.put(
-				Context.URL_PKG_PREFIXES,
-				GlobalProperties.getInstance().getProperty("app.registre.plugin.url.pkg.prefixes"));
-		props.put(
-				Context.PROVIDER_URL,
-				GlobalProperties.getInstance().getProperty("app.registre.plugin.provider.url"));
-		//if (true) {
+	private Object lookupHome(
+			String jndi,
+			Class<?> narrowTo) throws Exception {
 		String principal = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal");
-		if (principal != null && principal.length() > 0)
-			props.put(
-					Context.SECURITY_PRINCIPAL,
-					principal);
-		String credentials = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.credentials");
-		if (credentials != null && credentials.length() > 0)
-			props.put(
-					Context.SECURITY_CREDENTIALS,
+		if (principal != null && principal.length() != 0) {
+			String credentials = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.credentials");
+			return EjbUtil.lookupHome(
+					jndi,
+					false,
+					GlobalProperties.getInstance().getProperty("app.registre.plugin.provider.url"),
+					narrowTo,
+					principal,
 					credentials);
-		//}
-		return new InitialContext(props);
+		} else {
+			return EjbUtil.lookupHome(
+					jndi,
+					false,
+					GlobalProperties.getInstance().getProperty("app.registre.plugin.provider.url"),
+					narrowTo);
+		}
 	}
-	/*private void newLogin() throws Exception {
-		String principal = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal");
-		String credentials = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.credentials");
-		org.jboss.security.auth.callback.UsernamePasswordHandler handler = new org.jboss.security.auth.callback.UsernamePasswordHandler(
-				principal,
-				credentials.toCharArray());
-		javax.security.auth.login.LoginContext lc = new javax.security.auth.login.LoginContext("client-login", handler);
-		lc.login();
-	}*/
 
 	private String getUsuariRegistre() {
-//		String usuari = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal");
-//		if (usuari == null || usuari.length() == 0) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		return auth.getName();
-//		}
-//		return usuari;
 	}
 
 	private String convertirIdioma(String iso6391) {
@@ -491,118 +452,6 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 		}
 		return "2";
 	}
-
-	/*private void imprimirDadesRegistreEntrada(
-			RegistreEntrada registreEntrada,
-			ParametrosRegistroEntrada params) {
-		System.out.println(">>>[REG SORTIDA]>>> usuario: " + params.getUsuario());
-		System.out.println(">>>[REG SORTIDA]>>> datasalida: " + params.getDataEntrada());
-		System.out.println(">>>[REG SORTIDA]>>> hora: " + params.getHora());
-		if (registreEntrada.getDadesOficina() != null) {
-			String oficinaCodi = registreEntrada.getDadesOficina().getOficinaCodi();
-			if (oficinaCodi != null) {
-				int indexBarra = oficinaCodi.indexOf(SEPARADOR_ENTITAT);
-				if (indexBarra != -1) {
-					System.out.println(">>>[REG SORTIDA]>>> oficina: " + params.getOficina());
-					System.out.println(">>>[REG SORTIDA]>>> oficinafisica: " + params.getOficinafisica());
-				}
-			}
-			if (registreEntrada.getDadesOficina().getOrganCodi() != null)
-				System.out.println(">>>[REG SORTIDA]>>> destinatari: " + params.getDestinatari());
-		}
-		if (registreEntrada.getDadesInteressat() != null) {
-			String entitatCodi = registreEntrada.getDadesInteressat().getEntitatCodi();
-			if (entitatCodi != null) {
-				int indexBarra = entitatCodi.indexOf(SEPARADOR_ENTITAT);
-				if (indexBarra != -1) {
-					System.out.println(">>>[REG SORTIDA]>>> entidad1: " + params.getEntidad1());
-					System.out.println(">>>[REG SORTIDA]>>> entidad2: " + params.getEntidad2());
-					System.out.println(">>>[REG SORTIDA]>>> entidadCastellano: " + params.getEntidadCastellano());
-					System.out.println(">>>[REG SORTIDA]>>> altres: >" + params.getAltres() + "<");
-				}
-			}
-			if (registreEntrada.getDadesInteressat().getNomAmbCognoms() != null)
-				System.out.println(">>>[REG SORTIDA]>>> altres: >" + params.getAltres() + "<");
-			if (registreEntrada.getDadesInteressat().getMunicipiCodi() != null)
-				System.out.println(">>>[REG SORTIDA]>>> balears: " + params.getBalears());
-			if (registreEntrada.getDadesInteressat().getMunicipiNom() != null)
-				System.out.println(">>>[REG SORTIDA]>>> fora: " + params.getFora());
-		}
-		if (registreEntrada.getDadesAssumpte() != null) {
-			if (registreEntrada.getDadesAssumpte().getTipus() != null)
-				System.out.println(">>>[REG SORTIDA]>>> tipo: " + params.getTipo());
-			if (registreEntrada.getDadesAssumpte().getRegistreNumero() != null) {
-				System.out.println(">>>[REG SORTIDA]>>> salida1: " + params.getSalida1());
-				System.out.println(">>>[REG SORTIDA]>>> salida2: " + params.getSalida2());
-			}
-			if (registreEntrada.getDadesAssumpte().getIdiomaCodi() != null)
-				System.out.println(">>>[REG SORTIDA]>>> idioex: " + params.getIdioex());
-			if (registreEntrada.getDadesAssumpte().getAssumpte() != null)
-				System.out.println(">>>[REG SORTIDA]>>> comentario: " + params.getComentario());
-		}
-		if (registreEntrada.getDocuments() != null && registreEntrada.getDocuments().size() > 0) {
-			if (registreEntrada.getDocuments().size() == 1) {
-				System.out.println(">>>[REG SORTIDA]>>> data: " + params.getData());
-				System.out.println(">>>[REG SORTIDA]>>> idioma: " + params.getIdioma());
-			}
-		}
-	}
-
-	private void imprimirDadesRegistreSortida(
-			RegistreSortida registreSortida,
-			ParametrosRegistroSalida params) {
-		System.out.println(">>>[REG SORTIDA]>>> usuario: " + params.getUsuario());
-		System.out.println(">>>[REG SORTIDA]>>> datasalida: " + params.getDataSalida());
-		System.out.println(">>>[REG SORTIDA]>>> hora: " + params.getHora());
-		if (registreSortida.getDadesOficina() != null) {
-			String oficinaCodi = registreSortida.getDadesOficina().getOficinaCodi();
-			if (oficinaCodi != null) {
-				int indexBarra = oficinaCodi.indexOf(SEPARADOR_ENTITAT);
-				if (indexBarra != -1) {
-					System.out.println(">>>[REG SORTIDA]>>> oficina: " + params.getOficina());
-					System.out.println(">>>[REG SORTIDA]>>> oficinafisica: " + params.getOficinafisica());
-				}
-			}
-			if (registreSortida.getDadesOficina().getOrganCodi() != null)
-				System.out.println(">>>[REG SORTIDA]>>> remitent: " + params.getRemitent());
-		}
-		if (registreSortida.getDadesInteressat() != null) {
-			String entitatCodi = registreSortida.getDadesInteressat().getEntitatCodi();
-			if (entitatCodi != null) {
-				int indexBarra = entitatCodi.indexOf(SEPARADOR_ENTITAT);
-				if (indexBarra != -1) {
-					System.out.println(">>>[REG SORTIDA]>>> entidad1: " + params.getEntidad1());
-					System.out.println(">>>[REG SORTIDA]>>> entidad2: " + params.getEntidad2());
-					System.out.println(">>>[REG SORTIDA]>>> entidadCastellano: " + params.getEntidadCastellano());
-					System.out.println(">>>[REG SORTIDA]>>> altres: >" + params.getAltres() + "<");
-				}
-			}
-			if (registreSortida.getDadesInteressat().getNomAmbCognoms() != null)
-				System.out.println(">>>[REG SORTIDA]>>> altres: >" + params.getAltres() + "<");
-			if (registreSortida.getDadesInteressat().getMunicipiCodi() != null)
-				System.out.println(">>>[REG SORTIDA]>>> balears: " + params.getBalears());
-			if (registreSortida.getDadesInteressat().getMunicipiNom() != null)
-				System.out.println(">>>[REG SORTIDA]>>> fora: " + params.getFora());
-		}
-		if (registreSortida.getDadesAssumpte() != null) {
-			if (registreSortida.getDadesAssumpte().getTipus() != null)
-				System.out.println(">>>[REG SORTIDA]>>> tipo: " + params.getTipo());
-			if (registreSortida.getDadesAssumpte().getRegistreNumero() != null) {
-				System.out.println(">>>[REG SORTIDA]>>> entrada1: " + params.getEntrada1());
-				System.out.println(">>>[REG SORTIDA]>>> entrada2: " + params.getEntrada2());
-			}
-			if (registreSortida.getDadesAssumpte().getIdiomaCodi() != null)
-				System.out.println(">>>[REG SORTIDA]>>> idioex: " + params.getIdioex());
-			if (registreSortida.getDadesAssumpte().getAssumpte() != null)
-				System.out.println(">>>[REG SORTIDA]>>> comentario: " + params.getComentario());
-		}
-		if (registreSortida.getDocuments() != null && registreSortida.getDocuments().size() > 0) {
-			if (registreSortida.getDocuments().size() == 1) {
-				System.out.println(">>>[REG SORTIDA]>>> data: " + params.getData());
-				System.out.println(">>>[REG SORTIDA]>>> idioma: " + params.getIdioma());
-			}
-		}
-	}*/
 
 	private static final Log logger = LogFactory.getLog(RegistrePluginRegwebLogic.class);
 
