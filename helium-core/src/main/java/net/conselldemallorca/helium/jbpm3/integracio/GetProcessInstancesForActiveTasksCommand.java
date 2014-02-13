@@ -89,8 +89,7 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 		    "select  " + 
 		    "    ti.processInstance.id, " +
 		    "    ti.processInstance.superProcessToken.id, " +
-		    "  ti.id, " +
-		    "  (select (ta.nom) from Tasca as ta where ta.jbpmName = ti.name and ti.processInstance.processDefinition.id = cast(ta.definicioProces.jbpmId as long)) " +
+		    "    ti.id " +
 		    "  from " +
 		    "    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
 		    "  where " +
@@ -102,8 +101,7 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 		    "select  " + 
 		    "    ti.processInstance.id, " +
 		    "    ti.processInstance.superProcessToken.id, " +
-		    "  ti.id, " +
-		    "  (select (ta.nom) from Tasca as ta where ta.jbpmName = ti.name and ti.processInstance.processDefinition.id = cast(ta.definicioProces.jbpmId as long)) " +
+		    "    ti.id " +
 		    "  from " +
 		    "    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
 		    "  where " +
@@ -115,8 +113,7 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 		    "select  " + 
 		    "    ti.processInstance.id, " +
 		    "    ti.processInstance.superProcessToken.id, " +
-		    "  ti.id, " +
-		    "  (select (ta.nom) from Tasca as ta where ta.jbpmName = ti.name and ti.processInstance.processDefinition.id = cast(ta.definicioProces.jbpmId as long)) " +
+		    "    ti.id " +
 		    "  from " +
 		    "    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
 		    "  join ti.pooledActors pooledActor " +
