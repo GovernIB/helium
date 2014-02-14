@@ -47,29 +47,27 @@ public class GetRootProcessInstancesForExpedientsWithActiveTasksCommand extends 
 		    "select  " + 
 		    "    ti.processInstance.id, " +
 		    "    ti.processInstance.superProcessToken.id, " +
-		    "  ti.id, " +
-		    "  (select (ta.nom) from Tasca as ta where ta.jbpmName = ti.name and ti.processInstance.processDefinition.id = cast(ta.definicioProces.jbpmId as long)) " +
-		    "  from " +
+		    "    ti.id " +
+		    "from " +
 		    "    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
-		    "  where " +
-		    "  ti.actorId = :actorId " + 
-		    "  and ti.isSuspended = false " +
-		    "  and ti.isOpen = true";
+		    "where " +
+		    "    ti.actorId = :actorId " + 
+		    "and ti.isSuspended = false " +
+		    "and ti.isOpen = true";
 		  
 		String hqlPooled =  
 		    "select  " + 
 		    "    ti.processInstance.id, " +
 		    "    ti.processInstance.superProcessToken.id, " +
-		    "  ti.id, " +
-		    "  (select (ta.nom) from Tasca as ta where ta.jbpmName = ti.name and ti.processInstance.processDefinition.id = cast(ta.definicioProces.jbpmId as long)) " +
-		    "  from " +
+		    "    ti.id " +
+		    "from " +
 		    "    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
-		    "  join ti.pooledActors pooledActor " +
-		    "  where " +
-		    "  pooledActor.actorId = :actorId " +
-		    "  and ti.actorId is null " + 
-		    "  and ti.isSuspended = false " +
-		    "  and ti.isOpen = true";
+		    "    join ti.pooledActors pooledActor " +
+		    "where " +
+		    "    pooledActor.actorId = :actorId " +
+		    "and ti.actorId is null " + 
+		    "and ti.isSuspended = false " +
+		    "and ti.isOpen = true";
 		  
 		String hql = pooled ? hqlPooled : hqlPersonal;
 		

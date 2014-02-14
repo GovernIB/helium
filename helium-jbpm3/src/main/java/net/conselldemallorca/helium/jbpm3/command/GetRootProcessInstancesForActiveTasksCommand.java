@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 package net.conselldemallorca.helium.jbpm3.command;
 
 import java.util.ArrayList;
@@ -81,26 +84,24 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		
 		setJbpmContext(jbpmContext);
-		
-		String hqlNoUser =
-			"select  " + 
-			"    ti.processInstance.id, " +
-			"    ti.processInstance.superProcessToken.id, " +
-			"  ti.id, " +
-			"  (select (ta.nom) from Tasca as ta where ta.jbpmName = ti.name and ti.processInstance.processDefinition.id = cast(ta.definicioProces.jbpmId as long)) " +
-			"  from " +
-			"    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
-			"  where " +
-			"  ti.isSuspended = false " +
-			(pooled != null && pooled == false ? "  and ti.actorId is not null " : "") + 
-			"  and ti.isOpen = true";
 		  
+		String hqlNoUser =
+		    "select  " + 
+		    "    ti.processInstance.id, " +
+		    "    ti.processInstance.superProcessToken.id, " +
+		    "    ti.id " +
+		    "  from " +
+		    "    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
+		    "  where " +
+		    "  ti.isSuspended = false " +
+		    (pooled != null && pooled == false ? "  and ti.actorId is not null " : "") + 
+		    "  and ti.isOpen = true";
+		
 		String hqlPersonal =
 		    "select  " + 
 		    "    ti.processInstance.id, " +
 		    "    ti.processInstance.superProcessToken.id, " +
-		    "  ti.id, " +
-		    "  (select (ta.nom) from Tasca as ta where ta.jbpmName = ti.name and ti.processInstance.processDefinition.id = cast(ta.definicioProces.jbpmId as long)) " +
+		    "    ti.id " +
 		    "  from " +
 		    "    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
 		    "  where " +
@@ -112,8 +113,7 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		    "select  " + 
 		    "    ti.processInstance.id, " +
 		    "    ti.processInstance.superProcessToken.id, " +
-		    "  ti.id, " +
-		    "  (select (ta.nom) from Tasca as ta where ta.jbpmName = ti.name and ti.processInstance.processDefinition.id = cast(ta.definicioProces.jbpmId as long)) " +
+		    "    ti.id " +
 		    "  from " +
 		    "    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
 		    "  join ti.pooledActors pooledActor " +
@@ -146,13 +146,13 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		}
 
 		if (tasca != null && !"".equals(tasca)) {
-//			hql += " and ti.processInstance.processDefinition.id = (select (cast(ta.definicioProces.jbpmId as long)) from Tasca as ta where UPPER(ta.nom) like UPPER(:tasca) and ta.jbpmName = ti.name and ti.processInstance.processDefinition.id = cast(ta.definicioProces.jbpmId as long)) ";
-			hql += " and ti.name = :tasca ";
+			hql += " and upper(ti.description) like '%@#@TITOL@#@%" + tasca.toUpperCase() + "%@#@ENTORNID@#@%') ";
 		}
 		
 		if (titol != null && !"".equals(titol)) {
 			hql += " and upper(ti.description) like '%@#@TITOL@#@%" + titol.toUpperCase() + "%@#@ENTORNID@#@%') ";
 		}
+		
 		
 		hql += " order by ";
 		if ("dataCreacio".equals(sort)) {
@@ -167,7 +167,7 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 			hql += " 1 ";
 		}
 		
-List<Object[]> llistaActorId = new ArrayList<Object[]>();
+		List<Object[]> llistaActorId = new ArrayList<Object[]>();
 		
 		if (actorId == null || "".equals(actorId)) {
 			Query query = jbpmContext.getSession().createQuery(hqlNoUser + hql);
@@ -187,8 +187,11 @@ List<Object[]> llistaActorId = new ArrayList<Object[]>();
 			if (prioritat != null) 
 				query.setInteger("prioritat",3-prioritat);
 			
-			if (tasca != null && !"".equals(tasca)) 
-				query.setString("tasca", tasca);
+//			if (tasca != null && !"".equals(tasca)) 
+//				query.setString("tasca", tasca);
+			
+//			if (titol != null && !"".equals(titol))
+//				query.setString("titol", titol.toUpperCase());
 			
 			llistaActorId.addAll(query.list());
 			
@@ -224,10 +227,15 @@ List<Object[]> llistaActorId = new ArrayList<Object[]>();
 				queryPooled.setInteger("prioritat",3-prioritat);
 			}
 			
-			if (tasca != null && !"".equals(tasca)) {
-				queryPersonal.setString("tasca", tasca);
-				queryPooled.setString("tasca", tasca);
-			}		
+//			if (tasca != null && !"".equals(tasca)) {
+//				queryPersonal.setString("tasca", tasca);
+//				queryPooled.setString("tasca", tasca);
+//			}		
+			
+//			if (titol != null && !"".equals(titol)) {
+//				queryPersonal.setString("titol", titol.toUpperCase());
+//				queryPooled.setString("titol", titol.toUpperCase());
+//			}
 			
 			if (pooled == null || pooled == false) {
 				llistaActorId.addAll(queryPersonal.list());
@@ -257,7 +265,7 @@ List<Object[]> llistaActorId = new ArrayList<Object[]>();
 				queryProcessInstancesPare.setParameterList(
 						"superProcessTokenIds",
 						superProcessTokenIds);
-
+				
 				queryProcessInstancesPare = translateIn(superProcessTokenIds, queryProcessInstancesPare, "superProcessTokenIds", "t.id");
 				
 				List<Object[]> llistaProcessInstancesPare = queryProcessInstancesPare.list();
