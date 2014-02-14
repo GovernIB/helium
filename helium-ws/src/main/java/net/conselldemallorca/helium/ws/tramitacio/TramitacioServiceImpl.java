@@ -37,6 +37,9 @@ import net.conselldemallorca.helium.core.util.EntornActual;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.Authentication;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 /**
  * Implementació del servei de tramitació d'expedients
@@ -676,7 +679,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 				}
 			}
 		}
-		
+		// Estableix l'usuari autenticat
+		establirUsuariAutenticat(usuari);
 		// Consulta d'expedients
 		List<ExpedientDto> expedients = expedientService.findAmbEntornConsultaGeneral(
 				e.getId(),
@@ -878,6 +882,14 @@ public class TramitacioServiceImpl implements TramitacioService {
 			return resposta;
 		}
 		return null;
+	}
+
+	private void establirUsuariAutenticat(
+			String usuariCodi) {
+		Authentication authentication =  new UsernamePasswordAuthenticationToken(
+				usuariCodi,
+				null);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 	}
 
 	private static final Log logger = LogFactory.getLog(TramitacioServiceImpl.class);
