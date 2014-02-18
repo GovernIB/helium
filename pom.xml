@@ -19,5 +19,6 @@
 		<module>helium-webapp</module>
 		<module>helium-ws</module>
 		<module>helium-selenium</module>
+		<module>helium-applet</module>
 	</modules>
 </project>

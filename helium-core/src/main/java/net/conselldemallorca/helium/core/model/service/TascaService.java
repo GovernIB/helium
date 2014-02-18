@@ -1867,7 +1867,7 @@ public class TascaService {
 	private void verificarFinalitzacioExpedient(
 			Expedient expedient,
 			JbpmProcessInstance pi) {
-		if (pi.getEnd() != null) {
+		if (pi.getEnd() != null && expedient.getDataFi() == null) {
 			// Actualitzar data de fi de l'expedient
 			expedient.setDataFi(pi.getEnd());
 			// Finalitzar terminis actius
@@ -1881,6 +1881,9 @@ public class TascaService {
 								new Date(Long.MAX_VALUE));
 				}
 			}
+		} else if (pi.getEnd() == null && expedient.getDataFi() != null) {
+			// Actualitzar data de fi de l'expedient
+			expedient.setDataFi(null);
 		}
 	}
 

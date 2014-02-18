@@ -156,10 +156,11 @@ public class DtoConverter {
 		dto.setTramitExpedientIdentificador(expedient.getTramitExpedientIdentificador());
 		dto.setTramitExpedientClau(expedient.getTramitExpedientClau());
 		dto.setErrorsIntegracions(expedient.isErrorsIntegracions());
-		if (!starting) {
+		/*if (!starting) {
 			JbpmProcessInstance processInstance = jbpmDao.getProcessInstance(expedient.getProcessInstanceId());
 			dto.setDataFi(processInstance.getEnd());
-		}
+		}*/
+		dto.setDataFi(expedient.getDataFi());
 		for (Expedient relacionat: expedient.getRelacionsOrigen()) {
 			ExpedientDto relacionatDto = new ExpedientDto();
 			relacionatDto.setId(relacionat.getId());
