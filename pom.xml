@@ -35,5 +35,6 @@
 		<module>helium-jbpm3</module>
 		<module>helium-core-api</module>
 		<module>helium-hibernate-entitymanager</module>
+		<module>helium-applet</module>
 	</modules>
 </project>
