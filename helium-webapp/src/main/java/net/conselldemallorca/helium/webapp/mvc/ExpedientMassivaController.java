@@ -45,7 +45,6 @@ import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
 
@@ -1720,9 +1719,6 @@ public class ExpedientMassivaController extends BaseController {
 		binder.registerCustomEditor(
 				Boolean.class,
 				new CustomBooleanEditor(false));
-		binder.registerCustomEditor(
-				Termini.class,
-				new TerminiTypeEditor());
 	}
 	
 	

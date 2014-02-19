@@ -1503,7 +1503,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 	}
 
 	private void imprimirFuncio(String nom) {
-		System.out.println(">>> FUNCIO " + nom);
+		//System.out.println(">>> FUNCIO " + nom);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(Jbpm3HeliumServiceImpl.class);

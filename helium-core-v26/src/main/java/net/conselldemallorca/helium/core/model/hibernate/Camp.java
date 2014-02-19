@@ -404,7 +404,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 		} else if (TipusCamp.PRICE.equals(tipus)) {
 			return BigDecimal.class;
 		} else if (TipusCamp.TERMINI.equals(tipus)) {
-			return Termini.class;
+			return String.class;
 		} else if (TipusCamp.REGISTRE.equals(tipus)) {
 			return Object[].class;
 		} else {
@@ -435,7 +435,17 @@ public class Camp implements Serializable, GenericEntity<Long> {
 			} else if (tipus.equals(TipusCamp.SUGGEST)) {
 				text = valorDomini;
 			} else if (tipus.equals(TipusCamp.TERMINI)) {
-				text = ((Termini)valor).toString();
+				if (valor instanceof Termini) {
+					text = ((Termini)valor).toString();
+				} else {
+					String termtxt = (String)valor;
+					String[] parts = termtxt.split("/");
+					Termini t = new Termini();
+					t.setAnys((parts.length >= 0) ? new Integer(parts[0]).intValue() : 0);
+					t.setMesos((parts.length >= 1) ? new Integer(parts[1]).intValue() : 0);
+					t.setDies((parts.length >= 2) ? new Integer(parts[2]).intValue() : 0);
+					text = t.toString();
+				}
 			} else {
 				text = valor.toString();
 			}

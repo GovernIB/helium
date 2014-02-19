@@ -32,7 +32,6 @@ import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.service.TascaService;
-import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
@@ -436,9 +435,6 @@ public class TascaFormController extends BaseController {
 		binder.registerCustomEditor(
 				Date.class,
 				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
-		binder.registerCustomEditor(
-				Termini.class,
-				new TerminiTypeEditor());
 	}
 
 

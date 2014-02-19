@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class MesuresTemporalsHelper {
-	
+
 	private static int mesures = 0;
 	private static Boolean actiu = null;
 	private static Long inici = null;
@@ -37,7 +37,7 @@ public class MesuresTemporalsHelper {
 
 	private Map<String, Map<Clau, Estadistiques>> intervalsEstadistiques = new HashMap<String, Map<Clau, Estadistiques>>();
 	private Map<String, TascaComplete> tasquesComplete = new HashMap<String, TascaComplete>();
-	
+
 	public MesuresTemporalsHelper(String sactiu, Integer imesures) {
 		super();
 		if (!"true".equalsIgnoreCase(sactiu))

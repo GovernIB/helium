@@ -20,7 +20,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
-import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
 
@@ -286,9 +285,6 @@ public abstract class CommonRegistreController extends BaseController {
 		binder.registerCustomEditor(
 				Date.class,
 				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
-		binder.registerCustomEditor(
-				Termini.class,
-				new TerminiTypeEditor());
 	}
 
 	public void populateOthers(
