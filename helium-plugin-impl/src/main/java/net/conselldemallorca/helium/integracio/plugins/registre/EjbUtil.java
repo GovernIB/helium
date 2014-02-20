@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.integracio.plugins.registre;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Properties;
 
 import javax.naming.Context;
@@ -13,10 +14,13 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 
 /**
- * @author Josep Gayà
+ * Utilitats per a accedir a EJBs remots.
+ * 
+ * @author Limit Tecnologies <limit@limit.es>
  *
  */
 public class EjbUtil {
@@ -28,7 +32,60 @@ public class EjbUtil {
 
 
 
-	public static InitialContext getInitialContext(
+	public Object lookupHome(
+			String jndi,
+			boolean local,
+			String url,
+			Class<?> narrowTo) throws Exception {
+		return lookupHome(
+				jndi,
+				local,
+				url,
+				narrowTo,
+				null,
+				null);
+	}
+	public Object lookupHome(
+			String jndi,
+			boolean local,
+			String url,
+			Class<?> narrowTo,
+			String userName,
+			String password) throws Exception {
+		LoginContext lc = null;
+		InitialContext initialContext = null;
+		try {
+			if (userName != null && userName.length() != 0) {
+
+				/* Realment serveix de res això */
+				URL securityConfURL = getClass().getClassLoader().getResource("security.conf");
+				System.setProperty(
+						"java.security.auth.login.config",
+						securityConfURL.toString());
+				@SuppressWarnings({ "restriction", "unused" })
+				Configuration config = new com.sun.security.auth.login.ConfigFile();
+				/* /Realment serveix de res això */
+
+				lc = new LoginContext(
+						"client-login",
+						new UsernamePasswordCallbackHandler(userName, password));
+				lc.login();
+			}
+			initialContext = getInitialContext(local, url);
+			Object objRef = initialContext.lookup(jndi);
+			if (narrowTo.isInstance(java.rmi.Remote.class))
+				return javax.rmi.PortableRemoteObject.narrow(objRef, narrowTo);
+			else
+				return objRef;
+		} finally {
+			if (lc != null)
+				lc.logout();
+			if (initialContext != null)
+				initialContext.close();
+		}
+	}
+
+	private static InitialContext getInitialContext(
 			boolean local,
 			String url) throws Exception {
 		Properties environment = null;
@@ -43,50 +100,6 @@ public class EjbUtil {
 		environment.put(Context.URL_PKG_PREFIXES, URL_PKG_PREFIXES);
 		initialContext = new javax.naming.InitialContext(environment);
 		return initialContext;
-	}
-	public static Object lookupHome(
-			String jndi,
-			boolean local,
-			String url,
-			Class<?> narrowTo) throws Exception {
-		return lookupHome(
-				jndi,
-				local,
-				url,
-				narrowTo,
-				null,
-				null);
-	}
-	public static Object lookupHome(
-			String jndi,
-			boolean local,
-			String url,
-			Class<?> narrowTo,
-			String userName,
-			String password) throws Exception {
-		// Obtain initial context
-		InitialContext initialContext = getInitialContext(local, url);
-		LoginContext lc = null;
-		try {
-			if (userName != null && userName.length() != 0) {
-				lc = new LoginContext(
-						"client-login",
-						new UsernamePasswordCallbackHandler(userName, password) {
-							
-						});
-				lc.login();
-			}
-			Object objRef = initialContext.lookup(jndi);
-			// only narrow if necessary
-			if (narrowTo.isInstance(java.rmi.Remote.class))
-				return javax.rmi.PortableRemoteObject.narrow(objRef, narrowTo);
-			else
-				return objRef;
-		} finally {
-			if (lc != null)
-				lc.logout();
-			initialContext.close();
-		}
 	}
 	private static String getInitialContextFactory(String url) {
 		return url.startsWith( HTTP_PROTOCOL ) ? HTTP_INITIAL_CONTEXT_FACTORY : JNP_INITIAL_CONTEXT_FACTORY;

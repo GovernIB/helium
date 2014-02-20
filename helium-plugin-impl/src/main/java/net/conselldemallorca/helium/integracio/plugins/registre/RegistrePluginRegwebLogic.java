@@ -37,6 +37,12 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 	private static final String SEPARADOR_ENTITAT = "-";
 	private static final String SEPARADOR_NUMERO = "/";
 
+	private EjbUtil ejbUtil;
+
+	public RegistrePluginRegwebLogic() {
+		ejbUtil = new EjbUtil();
+	}
+
 	@SuppressWarnings("unchecked")
 	public RespostaAnotacioRegistre registrarEntrada(
 			RegistreEntrada registreEntrada) throws RegistrePluginException {
@@ -407,7 +413,7 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 		String principal = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal");
 		if (principal != null && principal.length() != 0) {
 			String credentials = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.credentials");
-			return EjbUtil.lookupHome(
+			return ejbUtil.lookupHome(
 					jndi,
 					false,
 					GlobalProperties.getInstance().getProperty("app.registre.plugin.provider.url"),
@@ -415,7 +421,7 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 					principal,
 					credentials);
 		} else {
-			return EjbUtil.lookupHome(
+			return ejbUtil.lookupHome(
 					jndi,
 					false,
 					GlobalProperties.getInstance().getProperty("app.registre.plugin.provider.url"),
