@@ -244,7 +244,7 @@ public class DtoConverter {
 		dto.setCancelled(task.isCancelled());
 		dto.setSuspended(task.isSuspended());
 		dto.setProcessInstanceId(task.getProcessInstanceId());
-		dto.setAgafada("true".equals(task.getFieldFromDescription(TascaService.TASKDESC_CAMP_AGAFADA)));
+		dto.setAgafada(task.isAgafada());
 		dto.setExpedient(
 				expedientDao.findAmbProcessInstanceId(
 						jbpmDao.getRootProcessInstance(task.getProcessInstanceId()).getId()));

@@ -100,6 +100,20 @@ public class JbpmTask {
 	public boolean isCancelled() {
 		return task.isCancelled();
 	}
+	public String getPooledActorsExpression() {
+		if (task.getTask() != null) {
+			return null;
+		}
+		return task.getTask().getPooledActorsExpression();
+	}
+	
+	public boolean isAgafada() {
+		boolean resultado = false;
+		try {
+			 resultado = (getAssignee() != null && getTask().getTask().getPooledActorsExpression() != null);
+		} catch (Exception e) {}
+		return resultado;
+	}
 
 	public void setCacheActiu() {
 		setFieldFromDescription("cache", "true");
