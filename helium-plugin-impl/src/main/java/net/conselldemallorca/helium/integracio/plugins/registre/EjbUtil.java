@@ -17,6 +17,9 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Utilitats per a accedir a EJBs remots.
  * 
@@ -55,8 +58,9 @@ public class EjbUtil {
 		LoginContext lc = null;
 		InitialContext initialContext = null;
 		try {
+			logger.info(">>> EJBUTIL 0");
 			if (userName != null && userName.length() != 0) {
-
+				logger.info(">>> EJBUTIL 1");
 				/* Realment serveix de res això */
 				URL securityConfURL = getClass().getClassLoader().getResource("security.conf");
 				System.setProperty(
@@ -65,23 +69,34 @@ public class EjbUtil {
 				@SuppressWarnings({ "restriction", "unused" })
 				Configuration config = new com.sun.security.auth.login.ConfigFile();
 				/* /Realment serveix de res això */
-
+				logger.info(">>> EJBUTIL 2");
 				lc = new LoginContext(
 						"client-login",
 						new UsernamePasswordCallbackHandler(userName, password));
+				logger.info(">>> EJBUTIL 3");
 				lc.login();
+				logger.info(">>> EJBUTIL 4");
 			}
+			logger.info(">>> EJBUTIL 5");
 			initialContext = getInitialContext(local, url);
+			logger.info(">>> EJBUTIL 6");
 			Object objRef = initialContext.lookup(jndi);
-			if (narrowTo.isInstance(java.rmi.Remote.class))
+			logger.info(">>> EJBUTIL 7");
+			if (narrowTo.isInstance(java.rmi.Remote.class)) {
+				logger.info(">>> EJBUTIL 8");
 				return javax.rmi.PortableRemoteObject.narrow(objRef, narrowTo);
-			else
+			} else {
+				logger.info(">>> EJBUTIL 9");
 				return objRef;
+			}
 		} finally {
+			logger.info(">>> EJBUTIL 10");
 			if (lc != null)
 				lc.logout();
+			logger.info(">>> EJBUTIL 11");
 			if (initialContext != null)
 				initialContext.close();
+			logger.info(">>> EJBUTIL 12");
 		}
 	}
 
@@ -129,5 +144,7 @@ public class EjbUtil {
 			}
 		}
 	}
+
+	private static final Log logger = LogFactory.getLog(EjbUtil.class);
 
 }
