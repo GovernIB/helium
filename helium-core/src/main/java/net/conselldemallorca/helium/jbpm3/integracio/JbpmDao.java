@@ -773,10 +773,10 @@ public class JbpmDao {
 		mesuresTemporalsHelper.mesuraCalcular("jBPM endTaskInstance", "jbpmDao");
 	}
 	
-	public void describeTaskInstance(String taskId, String description) {
+	public void describeTaskInstance(String taskId, String titol, String description) {
 		mesuresTemporalsHelper.mesuraIniciar("jBPM describeTaskInstance", "jbpmDao");
 		final long id = Long.parseLong(taskId);
-		DescribeTaskInstanceCommand command = new DescribeTaskInstanceCommand(id, description);
+		DescribeTaskInstanceCommand command = new DescribeTaskInstanceCommand(id, titol, description);
 		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,

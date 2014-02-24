@@ -3,15 +3,21 @@
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 	<appender name="console" class="org.apache.log4j.ConsoleAppender">
 		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="%d{dd-MM-yyyy HH:mm:ss} %C %M(%L)%n%p: %m%n"/>
+			<param name="ConversionPattern" value="%d{dd-MM-yyyy HH:mm:ss} %C %M(%L)%n%p: %m%n" />
 		</layout>
 	</appender>
 	<logger name="org.hibernate.engine">
-		<level value="error"/>
-		<appender-ref ref="console"/>
+		<level value="error" />
+		<appender-ref ref="console" />
 	</logger>
+	
+	<category name="org.apache.cxf" additivity="false">
+		<priority value="INFO" />
+		<appender-ref ref="LOG" />
+	</category>
+
 	<root>
-		<level value="info"/>
-		<appender-ref ref="console"/>
+		<level value="info" />
+		<appender-ref ref="console" />
 	</root>
 </log4j:configuration>
