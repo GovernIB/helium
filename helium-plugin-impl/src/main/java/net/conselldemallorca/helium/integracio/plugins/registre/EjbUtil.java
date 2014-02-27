@@ -61,14 +61,6 @@ public class EjbUtil {
 			logger.info(">>> EJBUTIL 0");
 			if (userName != null && userName.length() != 0) {
 				logger.info(">>> EJBUTIL 1");
-				/* Realment serveix de res això */
-				URL securityConfURL = getClass().getClassLoader().getResource("security.conf");
-				System.setProperty(
-						"java.security.auth.login.config",
-						securityConfURL.toString());
-				@SuppressWarnings({ "restriction", "unused" })
-				Configuration config = new com.sun.security.auth.login.ConfigFile();
-				/* /Realment serveix de res això */
 				logger.info(">>> EJBUTIL 2");
 				lc = new LoginContext(
 						"client-login",
