@@ -86,7 +86,9 @@ public class ReassignTaskInstanceCommand extends AbstractBaseCommand {
 		private TaskInstance taskInstance;
 		public ProxyAssignable(TaskInstance taskInstance) {
 			taskInstance.setActorId(null, false);
-			taskInstance.setPooledActors(new String[0]);
+			if (taskInstance.getPooledActors() == null) {
+				taskInstance.setPooledActors(new String[0]);
+			}
 			this.taskInstance = taskInstance;
 		}
 		public void setActorId(String actorId) {

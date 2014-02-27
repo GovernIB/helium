@@ -27,8 +27,8 @@ public class ReleaseTaskInstanceCommand extends AbstractBaseCommand {
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		TaskInstance taskInstance = jbpmContext.getTaskInstance(id);
 		taskInstance.setActorId(null);
-		taskInstance.setPooledActors(new String[0]);
-		taskInstance.assign(new ExecutionContext(taskInstance.getToken()));
+//		taskInstance.setPooledActors(new String[0]);
+//		taskInstance.assign(new ExecutionContext(taskInstance.getToken()));
 		return taskInstance;
 	}
 

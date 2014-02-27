@@ -1972,7 +1972,6 @@ public class TascaService {
 			task.setCacheActiu();
 			jbpmDao.describeTaskInstance(
 					task.getId(),
-					titol,
 					task.getDescriptionWithFields());
 		}
 		dadesCache = new DadesCacheTasca(
