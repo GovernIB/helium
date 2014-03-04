@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientConsultaCommand;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientInformeCommand;
 
 /**
  * Helper per a gestionar les dades de la sessió d'usuari.
@@ -33,7 +34,9 @@ public class SessionHelper {
 	public static final String VARIABLE_HIHA_TRAMITS_INICIABLES = "hiHaTramitsPerIniciar";
 
 	public static final String VARIABLE_FILTRE_CONSULTA_GENERAL = "filtreConsultaGeneral";
+	public static final String VARIABLE_FILTRE_INFORME = "filtreInforme";
 	public static final String VARIABLE_SELECCIO_CONSULTA_GENERAL = "seleccioConsultaGeneral";
+	public static final String VARIABLE_SELECCIO_INFORME = "seleccioInforme";
 
 	public static Object getAttribute(
 			HttpServletRequest request,
@@ -206,13 +209,35 @@ public class SessionHelper {
 					request,
 					VARIABLE_SELECCIO_CONSULTA_GENERAL);
 		}
+		public ExpedientInformeCommand getFiltreInforme(Long expedientTipusId) {
+			return (ExpedientInformeCommand)getAttribute(
+					request,
+					VARIABLE_FILTRE_INFORME + expedientTipusId);
+		}
+		public void setFiltreInforme(ExpedientInformeCommand filtreInforme, Long expedientTipusId) {
+			setAttribute(
+					request,
+					VARIABLE_FILTRE_INFORME + expedientTipusId,
+					filtreInforme);
+		}
 		public void setSeleccioConsultaGeneral(Set<Long> seleccioConsultaGeneral) {
 			setAttribute(
 					request,
 					VARIABLE_SELECCIO_CONSULTA_GENERAL,
 					seleccioConsultaGeneral);
 		}
-
+		@SuppressWarnings("unchecked")
+		public Set<Long> getSeleccioInforme() {
+			return (Set<Long>)getAttribute(
+					request,
+					VARIABLE_SELECCIO_INFORME);
+		}
+		public void setSeleccioInforme(Set<Long> seleccioInforme) {
+			setAttribute(
+					request,
+					VARIABLE_SELECCIO_INFORME,
+					seleccioInforme);
+		}
 	}
 
 }

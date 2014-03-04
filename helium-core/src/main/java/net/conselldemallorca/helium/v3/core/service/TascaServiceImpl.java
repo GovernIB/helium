@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.v3.core.service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -39,13 +40,14 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.TipusDomini;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.CampNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.DominiHelper;
 import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
@@ -57,12 +59,13 @@ import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
+import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioValorsRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -77,6 +80,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class TascaServiceImpl implements TascaService {
 	@Resource(name="dtoConverterV3")
 	private DtoConverter dtoConverter;
+	@Resource
+	private DominiRepository dominiRepository;
+	@Resource
+	private EntornRepository entornRepository;
 	@Resource
 	private EnumeracioValorsRepository enumeracioValorsRepository;
 	@Resource
@@ -109,6 +116,8 @@ public class TascaServiceImpl implements TascaService {
 	private AlertaRepository alertaRepository;
 	@Resource
 	private RegistreDao registreDao;
+	@Resource
+	private ConversioTipusHelper conversioTipusHelper;
 
 	@Transactional(readOnly = true)
 	@Override
@@ -230,7 +239,7 @@ public class TascaServiceImpl implements TascaService {
 	@Transactional(readOnly = true)
 	@Override
 	public CampDto findCampTasca(Long campId) {
-		return dtoConverter.toCampDto(campRepository.findOne(campId));
+		return new ConversioTipusHelper().convertir(campRepository.findOne(campId), CampDto.class);
 	}
 	
 	@Transactional(readOnly = true)
@@ -238,52 +247,64 @@ public class TascaServiceImpl implements TascaService {
 	public List<SeleccioOpcioDto> findOpcionsSeleccioPerCampTasca(
 			String tascaId,
 			Long campId) throws TaskInstanceNotFoundException, CampNotFoundException {
-		JbpmTask tasca = tascaHelper.getTascaComprovantAcces(tascaId);
 		Camp camp = campRepository.findOne(campId);
+		List<SeleccioOpcioDto> resposta = new ArrayList<SeleccioOpcioDto>();
 		if (camp == null)
 			throw new CampNotFoundException();
+		JbpmTask tasca = tascaHelper.getTascaComprovantAcces(tascaId);
 		if (!tasca.getProcessDefinitionId().equals(camp.getDefinicioProces().getJbpmId()))
 			throw new CampNotFoundException();
-		List<SeleccioOpcioDto> resposta = new ArrayList<SeleccioOpcioDto>();
-		if (camp.getDomini() != null) {
-			DominiDto domini = new DominiDto();
-			domini.setCacheSegons(camp.getDomini().getCacheSegons());
-			domini.setTipus(new ModelMapper().map(camp.getDomini().getTipus(),TipusDomini.class));
-			domini.setId(camp.getDomini().getId());
-			domini.setSql(camp.getDomini().getSql());
-			domini.setJndiDatasource(camp.getDomini().getJndiDatasource());
-
+		
+		CampDto campDto = conversioTipusHelper.convertir(campRepository.findOne(campId), CampDto.class);
+		if (campDto.isDominiIntern()) {
+			EntornDto entorn = conversioTipusHelper.convertir(camp.getDefinicioProces().getEntorn(), EntornDto.class);
+			DominiDto domini = variableHelper.findAmbEntornICodi(entorn, "intern");
+			campDto.setDomini(domini);
+		}
+		if (campDto.getDomini() != null) {
 			try {
+				
 				List<FilaResultat> resultatConsultaDomini = dominiHelper.consultar(
-						domini,
-						camp.getDominiId(),
+						campDto.getDomini(),
+						campDto.getDominiId(),
 						variableHelper.getParamsConsulta(
 								tascaId,
 								tasca.getProcessInstanceId(),
 								camp,
 								null));
 
-				for (FilaResultat filaResultat: resultatConsultaDomini) {
-					if (filaResultat.getColumnes().size() > 1) {
-						ParellaCodiValor codi = filaResultat.getColumnes().get(0);
-						ParellaCodiValor valor = filaResultat.getColumnes().get(1);
-						valor.setValor(((String) valor.getValor()).replaceAll("\\p{Cntrl}", "").trim());
-						resposta.add(new SeleccioOpcioDto((String) codi.getValor(),(String) valor.getValor()));
-					}					
+				
+				// Filtra els resultats amb el textInicial (si n'hi ha)
+				String codi = camp.getDominiCampValor();
+				String valor = camp.getDominiCampText();
+				Iterator<FilaResultat> it = resultatConsultaDomini.iterator();
+				while (it.hasNext()) {
+					FilaResultat fr = it.next();
+					String codiSel = null;
+					String valorSel = null;
+					for (ParellaCodiValor parella: fr.getColumnes()) {
+						if (parella.getCodi().equals(codi)) {
+							codiSel = (String) parella.getValor();
+						}
+						if (parella.getCodi().equals(valor)) {
+							valorSel = (String) parella.getValor();
+						} 
+					}
+					resposta.add(new SeleccioOpcioDto(codiSel,valorSel));
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		} else if (camp.getEnumeracio() != null) {
-			List<EnumeracioValors> valors = enumeracioValorsRepository.findByEnumeracioOrderByOrdreAsc(
-					camp.getEnumeracio());
+			List<EnumeracioValors> valors = enumeracioValorsRepository.findByEnumeracioOrdenat(
+					camp.getEnumeracio().getId());
 			for (EnumeracioValors valor: valors) {
 				resposta.add(
 						new SeleccioOpcioDto(
 								valor.getCodi(),
 								valor.getNom()));
 			}
-		}
+		} 
 		return resposta;
 	}
 
@@ -384,7 +405,7 @@ public class TascaServiceImpl implements TascaService {
 				if (campValor != null) {
 					if (	campTasca.getCamp().getTipus().equals(TipusCamp.SELECCIO) ||
 							campTasca.getCamp().getTipus().equals(TipusCamp.SUGGEST)) {
-						CampDto campDto = dtoConverter.toCampDto(campTasca.getCamp());
+						CampDto campDto = new ConversioTipusHelper().convertir(campTasca.getCamp(), CampDto.class);
 						String text = dtoConverter.getCampText(
 								task.getId(),
 								null,
@@ -898,6 +919,34 @@ public class TascaServiceImpl implements TascaService {
 	public ExpedientTascaDto getTascaPerExpedientId(Long expedientId, String tascaId) {
 		return tascaHelper.getTascaPerExpedientId(expedientId, tascaId);
 	}
+	
+	@Transactional
+	@Override
+	public ExpedientTascaDto agafar(Long entornId, String taskId) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		return agafar(entornId, auth.getName(), taskId);
+	}
+	
+	@Transactional
+	private ExpedientTascaDto agafar(Long entornId, String usuari, String taskId) {
+		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, false);
+		String previousActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskId);
+		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerTasca(
+				taskId,
+				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
+				previousActors);
+		jbpmHelper.takeTaskInstance(taskId, usuari);
+		serviceUtils.expedientIndexLuceneUpdate(task.getProcessInstanceId());
+		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskId);
+		expedientLog.setAccioParams(previousActors + "::" + currentActors);
+		ExpedientTascaDto tasca = getByIdSenseComprovacio(taskId);
+		registreDao.crearRegistreIniciarTasca(
+				tasca.getExpedient().getId(),
+				taskId,
+				SecurityContextHolder.getContext().getAuthentication().getName(),
+				"Agafar tasca \"" + tasca.getNom() + "\"");
+		return tasca;
+	}
 
 	@Transactional
 	@Override
@@ -925,7 +974,6 @@ public class TascaServiceImpl implements TascaService {
 				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
 				previousActors);
 		jbpmHelper.releaseTaskInstance(taskId);
-		task.setFieldFromDescription(TASKDESC_CAMP_AGAFADA, "false");
 		serviceUtils.expedientIndexLuceneUpdate(task.getProcessInstanceId());
 		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskId);
 		expedientLog.setAccioParams(previousActors + "::" + currentActors);

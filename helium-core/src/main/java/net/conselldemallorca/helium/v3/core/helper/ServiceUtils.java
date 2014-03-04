@@ -33,7 +33,6 @@ import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.security.acls.model.Permission;
@@ -64,7 +63,9 @@ public class ServiceUtils {
 	private PermissionService permissionService;
 	@Resource
 	private MessageSource messageSource;
-
+	@Resource
+	private ConversioTipusHelper conversioTipusHelper;
+	
 	/**
 	 * Mètodes per a la reindexació d'expedients
 	 */
@@ -140,9 +141,12 @@ public class ServiceUtils {
 						camp.getDefprocJbpmKey(),
 						camp.getDefprocVersio());
 				if (definicioProces != null) {
-					resposta.add(campRepository.findByDefinicioProcesAndCodi(
+					Camp campRes = campRepository.findByDefinicioProcesAndCodi(
 							definicioProces,
-							camp.getCampCodi()));
+							camp.getCampCodi());
+					if (campRes != null) {
+						resposta.add(campRes);
+					}
 				} else {
 					resposta.add(
 							new Camp(
@@ -445,7 +449,7 @@ public class ServiceUtils {
 					String valorDomini = dtoConverter.getCampText(
 							null,
 							processInstanceId,
-							new ModelMapper().map(camp, CampDto.class),
+							conversioTipusHelper.convertir(camp, CampDto.class),
 							valor);
 					textDominis.put(
 							camp.getCodi() + "@" + valor.toString(),

@@ -43,13 +43,13 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 
-import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -78,11 +78,14 @@ public class VariableHelper {
 	private ExpedientHelper expedientHelper;
 	@Resource
 	private DominiHelper dominiHelper;
+	@Resource(name="expedientServiceV3")
+	private ExpedientService expedientService;
 	@Resource
 	private JbpmHelper jbpmHelper;
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
-
+	@Resource
+	private ConversioTipusHelper conversioTipusHelper;
 
 
 	public Object getVariableJbpmTascaValor(
@@ -448,12 +451,12 @@ public class VariableHelper {
 			if (camp.getDomini() != null || camp.isDominiIntern()) {
 				DominiDto domini;
 				if (camp.isDominiIntern()) {
-					EntornDto entorn = new ModelMapper().map(camp.getDefinicioProces().getEntorn(), EntornDto.class);
+					EntornDto entorn = conversioTipusHelper.convertir(camp.getDefinicioProces().getEntorn(), EntornDto.class);
 					domini = findAmbEntornICodi(entorn, "intern");
 				} else {
 					domini = new DominiDto();
 					domini.setCacheSegons(camp.getDomini().getCacheSegons());
-					domini.setTipus(new ModelMapper().map(camp.getDomini().getTipus(),TipusDomini.class));
+					domini.setTipus(conversioTipusHelper.convertir(camp.getDomini().getTipus(),TipusDomini.class));
 					domini.setId(camp.getDomini().getId());
 					domini.setSql(camp.getDomini().getSql());
 					domini.setJndiDatasource(camp.getDomini().getJndiDatasource());
@@ -502,7 +505,7 @@ public class VariableHelper {
 				}
 			} else if (camp.getConsulta() != null) {
 				Consulta consulta = camp.getConsulta();
-				List<ExpedientConsultaDissenyDto> dadesExpedients = expedientHelper.findAmbEntornConsultaDisseny(
+				List<ExpedientConsultaDissenyDto> dadesExpedients = expedientService.findAmbEntornConsultaDisseny(
 						consulta.getEntorn().getId(),
 						consulta.getId(),
 						new HashMap<String, Object>(),

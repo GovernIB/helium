@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.opensymphony.com/sitemesh/decorator" prefix="decorator"%>
 <%
 	request.setAttribute(
@@ -58,7 +59,7 @@
 					<i class="icon-folder-close icon-white"></i>
 					<c:choose>
 						<c:when test="${not empty expedientTipusActual}">${expedientTipusActual.nom}</c:when>
-						<c:otherwise>Tots els tipus</c:otherwise>
+						<c:otherwise><spring:message code="comuns.tots.tipus"/></c:otherwise>
 					</c:choose>
 					<span class="caret"></span>
 				</a>
@@ -67,7 +68,7 @@
 						<li><a href="<c:url value="/v3/index"><c:param name="expedientTipusCanviarAmbId" value="${expedientTipus.id}"/></c:url>">${expedientTipus.nom}</a></li>
 					</c:forEach>
 					<li class="divider"></li>
-					<li><a href="<c:url value="/v3/index"><c:param name="expedientTipusCanviarAmbId" value=""/></c:url>">Tots els tipus</a></li>
+					<li><a href="<c:url value="/v3/index"><c:param name="expedientTipusCanviarAmbId" value=""/></c:url>"><spring:message code="comuns.tots.tipus"/></a></li>
 				</ul>
 			</li>
 			<li>
@@ -82,17 +83,24 @@
 		</ul>
 		<div class="clearfix"></div>
 		<div class="btn-group">
-			<button type="button" class="btn btn-primary dropdown-toggle radius-left" data-toggle="dropdown">Expedients <span class="caret"></span></button>
+			<button type="button" class="btn btn-primary dropdown-toggle radius-left" data-toggle="dropdown"><spring:message code="comuns.expedients"/><span class="caret"></span></button>
 			<ul class="dropdown-menu">
 				<li><a href="<c:url value="/v3/expedient"/>">Consultar</a></li>
 				<li><a href="<c:url value="/v3/expedient/iniciar"/>">Nou expedient</a></li>
 			</ul>
 		</div>
 		<div class="btn-group">
-			<button type="button" class="btn btn-primary dropdown-toggle radius-none" data-toggle="dropdown">Informes <span class="caret"></span></button>
-			<ul class="dropdown-menu">
-				<li><a href="#" tabindex="-1">Expedient iniciatives parlamentàries</a></li>
-			</ul>
+			<c:choose>
+				<c:when test="${not empty expedientTipusActual}"><a href="<c:url value="/v3/informe/${expedientTipusActual.id}"></c:url>" class="btn btn-primary"><spring:message code="comuns.informes"/></a></c:when>
+				<c:otherwise>
+					<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="comuns.informes"/> <span class="caret"></span></button>
+					<ul class="dropdown-menu">
+						<c:forEach var="expedientTipus" items="${expedientTipusAccessibles}">
+							<li><a href="<c:url value="/v3/informe/${expedientTipus.id}"></c:url>">${expedientTipus.nom}</a></li>
+						</c:forEach>
+					</ul>
+				</c:otherwise>
+			</c:choose>
 		</div>
 		<div class="btn-group">
 			<button type="button" class="btn btn-primary radius-none">Activitat</button>		

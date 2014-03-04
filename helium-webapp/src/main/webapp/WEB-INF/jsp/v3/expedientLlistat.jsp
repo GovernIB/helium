@@ -153,6 +153,8 @@
 				$("td:eq(0)", nRow).html('<input type="checkbox" value="' + aData[0] + '"/>');
 			}
 		}
+
+		$("td:eq(" + (numColumnes - 1) + ")", nRow).parent().attr('id',expedientId);
 	}
 	function serverParamsCallback(aoData) {
 		aoData.push({ "name": "numero", "value": $("#numero").val()} );
@@ -285,6 +287,23 @@
 			Consulta d'expedients
 			<form:hidden path="filtreDesplegat"/>
 			<%--a id="filtresCollapse" class="btn btn-mini pull-right" href="#" title="Mostrar/ocultar camps del filtre" data-toggle="collapse" data-target="#filtresCollapsable"><i class="<c:choose><c:when test="${expedientConsultaCommand.filtreDesplegat}">icon-chevron-up</c:when><c:otherwise>icon-chevron-down</c:otherwise></c:choose>"></i></a--%>
+<%-- 			<div class="pull-right">
+ 				<c:choose>
+ 					<c:when test="${not empty expedientTipusActual}">
+ 	        			<a class="btn btn-mini" href="#">Consulta avançada</a>
+ 	        		</c:when>
+ 	        		<c:otherwise>
+ 			        	<div class="btn-group"> <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">Consulta avançada <span class="caret"></span></a>
+ 			            	<ul class="dropdown-menu">
+ 				            	<c:forEach var="expedientTipus" items="${expedientTipusAccessibles}">
+ 									<li><a href="#">${expedientTipus.nom}</a></li>
+ 								</c:forEach>
+ 			            	</ul>
+ 			          	</div>
+ 			     	</c:otherwise>
+ 				</c:choose>
+         	</div> 
+--%>
 		</div>
 		<div id="filtresCollapsable" class="collapse<c:if test="${true or expedientConsultaCommand.filtreDesplegat}"> in</c:if>">
 			<div class="row-fluid">
@@ -311,7 +330,7 @@
 					<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 					<c:choose>
 						<c:when test="${not empty expedientTipusActual}">
-							<input type="hidden" name="${campPath}" value="${expedientTipusActual.id}"/>
+							<input type="hidden" id="${campPath}" name="${campPath}" value="${expedientTipusActual.id}"/>
 							<input type="text" name="${campPath}_actual" value="${expedientTipusActual.nom}" class="span12" disabled="disabled"/>
 						</c:when>
 						<c:otherwise>
@@ -474,18 +493,8 @@
 					<th data-property="anulat" data-visible=false>Anulat</th>
 					<th data-property="id" data-sortable="false" width="10%" data-visible=true></th>
 				</tr>
-<!-- 				<tr id="dades-carregant"> -->
-<!-- 					<td colspan="9" style="margin-top: 2em; text-align: center"><i class="icon-spinner icon-2x icon-spin"></i></td> -->
-<!-- 				</tr> -->
 			</thead>
 		</table>
-<%-- 		<hel:modalDefinir modalId="mexform" refrescarAlertes="true" refrescarTaula="true" refrescarTaulaId="taulaDades"/> --%>
 	</c:if>
-
-	<form:form  method="POST" name="anularMot" id="anularMot" action="#"  cssClass="uniForm">
-		<input type="hidden" id="id" name="id" value=""></input>
-		<input type="hidden" id="motiu" name="motiu" value="${param.motiu}"></input>
-	</form:form>
-
 </body>
 </html>

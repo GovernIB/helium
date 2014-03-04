@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
@@ -24,8 +25,8 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
-import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 
 import org.apache.commons.logging.Log;
@@ -36,12 +37,12 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
+import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TermRangeQuery;
-import org.apache.lucene.search.WildcardQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springmodules.lucene.index.core.DocumentModifier;
@@ -66,6 +67,10 @@ public class LuceneHelper extends LuceneIndexSupport {
 	protected static final String VALOR_DOMINI_SUFIX = "@text@";
 	
 	protected LuceneSearchTemplate searchTemplate;
+	
+	private static final String LUCENE_ESCAPE_CHARS = "[\\\\+\\-\\!\\(\\)\\:\\^\\]\\{\\}\\~\\*\\?]";
+	private static final Pattern LUCENE_PATTERN = Pattern.compile(LUCENE_ESCAPE_CHARS);
+	private static final String REPLACEMENT_STRING = "";
 
 	@Resource
 	protected MesuresTemporalsHelper mesuresTemporalsHelper;
@@ -246,10 +251,10 @@ public class LuceneHelper extends LuceneIndexSupport {
 		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_ID, expedient.getId().toString(), Field.Store.YES, Field.Index.NOT_ANALYZED), isUpdate);
 		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_NUMERO, (expedient.getNumero() != null) ? expedient.getNumero() : VALOR_CAMP_BUIT, Field.Store.YES, Field.Index.ANALYZED), isUpdate);
 		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_NUMERO + "_no_analyzed", (expedient.getNumero() != null) ? expedient.getNumero() : VALOR_CAMP_BUIT, Field.Store.NO, Field.Index.NOT_ANALYZED), isUpdate);
-		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_TITOL, (expedient.getTitol() != null) ? normalitzarILlevarAccents(expedient.getTitol()) : VALOR_CAMP_BUIT, Field.Store.YES, (expedient.getTitol() != null) ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED), isUpdate);
-		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_TITOL + "_no_analyzed", (expedient.getTitol() != null) ? normalitzarILlevarAccents(expedient.getTitol()) : VALOR_CAMP_BUIT, Field.Store.NO, Field.Index.NOT_ANALYZED), isUpdate);
-		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_COMENTARI, (expedient.getComentari() != null) ? normalitzarILlevarAccents(expedient.getComentari()) : VALOR_CAMP_BUIT, Field.Store.YES, (expedient.getComentari() != null) ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED), isUpdate);
-		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_COMENTARI + "_no_analyzed", (expedient.getComentari() != null) ? normalitzarILlevarAccents(expedient.getComentari()) : VALOR_CAMP_BUIT, Field.Store.NO, Field.Index.NOT_ANALYZED), isUpdate);
+		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_TITOL, (expedient.getTitol() != null) ? (expedient.getTitol()) : VALOR_CAMP_BUIT, Field.Store.YES, (expedient.getTitol() != null) ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED), isUpdate);
+		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_TITOL + "_no_analyzed", (expedient.getTitol() != null) ? (expedient.getTitol()) : VALOR_CAMP_BUIT, Field.Store.NO, Field.Index.NOT_ANALYZED), isUpdate);
+		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_COMENTARI, (expedient.getComentari() != null) ? (expedient.getComentari()) : VALOR_CAMP_BUIT, Field.Store.YES, (expedient.getComentari() != null) ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED), isUpdate);
+		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_COMENTARI + "_no_analyzed", (expedient.getComentari() != null) ? (expedient.getComentari()) : VALOR_CAMP_BUIT, Field.Store.NO, Field.Index.NOT_ANALYZED), isUpdate);
 		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_INICIADOR, (expedient.getIniciadorCodi() != null) ? expedient.getIniciadorCodi() : VALOR_CAMP_BUIT, Field.Store.YES, Field.Index.NOT_ANALYZED), isUpdate);
 		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_RESPONSABLE, expedient.getResponsableCodi(), Field.Store.YES, Field.Index.NOT_ANALYZED), isUpdate);
 		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI, dataPerIndexar(expedient.getDataInici()), Field.Store.YES, Field.Index.NOT_ANALYZED), isUpdate);
@@ -306,7 +311,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 
 	protected Query queryFromCampFiltre(String codiCamp, Object valorFiltre, List<Camp> camps) {
 		try {
-			if (valorFiltre != null) {
+			if (valorFiltre != null && valorFiltre != "") {
 				if (codiCamp.startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
 					if (ExpedientCamps.EXPEDIENT_CAMP_ID.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_ENTORN.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_INICIADOR.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_RESPONSABLE.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_GEOX.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_GEOY.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_GEOREF.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_REGNUM.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_REGDATA.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_UNIADM.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_IDIOMA.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_TRAMIT.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_TIPUS.equals(codiCamp)
 							|| ExpedientCamps.EXPEDIENT_CAMP_ESTAT.equals(codiCamp)) {
@@ -374,16 +379,19 @@ public class LuceneHelper extends LuceneIndexSupport {
 		}
 		return null;
 	}
-
-	protected Query queryPerStringAmbWildcards(String codi, String termes) {
-		BooleanQuery query = new BooleanQuery();
-		String[] termesTots = normalitzarILlevarAccents(termes).split(" ");
-		for (int i = 0; i < termesTots.length; i++) {
-			if (!"".equals(termesTots[i])) {
-				query.add(new WildcardQuery(new Term(codi, "*" + termesTots[i] + "*")), BooleanClause.Occur.MUST);
+	
+	private Query queryPerStringAmbWildcards(String codi, String termes) {
+		PhraseQuery phraseQuery = new PhraseQuery();
+		
+		String[] termesTots = (termes).split(" ");
+		for (String terme : termesTots) {
+			String escaped = LUCENE_PATTERN.matcher(terme).replaceAll(REPLACEMENT_STRING);
+			if (!"".equals(escaped)) {
+				phraseQuery.add(new Term(codi, escaped));
 			}
 		}
-		return query;
+		
+		return phraseQuery;
 	}
 
 	private Term termIdFromExpedient(Expedient expedient) {
@@ -406,7 +414,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 				sort = sort + "_no_analyzed";
 			} else {
 				for (Camp camp : campsInforme) {
-					if (sort.endsWith(camp.getCodi()) && (camp.getTipus().equals(TipusCamp.STRING) || camp.getTipus().equals(TipusCamp.TEXTAREA))) {
+					if (camp != null && sort.endsWith(camp.getCodi()) && (camp.getTipus().equals(TipusCamp.STRING) || camp.getTipus().equals(TipusCamp.TEXTAREA))) {
 						sort = sort + "_no_analyzed";
 						break;
 					}
@@ -607,9 +615,9 @@ public class LuceneHelper extends LuceneIndexSupport {
 		} else if (camp.getTipus().equals(TipusCamp.SUGGEST)) {
 			return (String) valor;
 		} else if (camp.getTipus().equals(TipusCamp.STRING)) {
-			return normalitzarILlevarAccents((String) valor);
+			return ((String) valor);
 		} else if (camp.getTipus().equals(TipusCamp.TEXTAREA)) {
-			return normalitzarILlevarAccents((String) valor);
+			return ((String) valor);
 		} else {
 			if (valor == null)
 				return null;
@@ -682,13 +690,6 @@ public class LuceneHelper extends LuceneIndexSupport {
 		} else {
 			sb.append(o.getClass().getName());
 		}
-	}
-
-	private String normalitzarILlevarAccents(String str) {
-		return str;
-		/*
-		 * String resultat = str.toLowerCase(). replaceAll("[àâ]","a"). replaceAll("[èéêë]","e"). replaceAll("[ïî]","i"). replaceAll("Ô","o"). replaceAll("[ûù]","u"). replaceAll("[ÀÂ]","A"). replaceAll("[ÈÉÊË]","E"). replaceAll("[ÏÎ]","I"). replaceAll("Ô","O"). replaceAll("[ÛÙ]","U"); return resultat;
-		 */
 	}
 
 	protected static Log logger = LogFactory.getLog(LuceneHelper.class);

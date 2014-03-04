@@ -8,9 +8,7 @@ import java.util.Date;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Size;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
-import net.conselldemallorca.helium.webapp.v3.helper.ConversioHelper;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -190,11 +188,11 @@ public class ExpedientConsultaCommand {
 		return dataFiFinal.compareTo(dataFiInicial) >= 0;
 	}
 
-	public static ExpedientConsultaDto asDto(ExpedientConsultaCommand command) {
-		return ConversioHelper.convertir(
-				command,
-				ExpedientConsultaDto.class);
-	}
+//	public static ExpedientConsultaDto asDto(ExpedientConsultaCommand command) {
+//		return ConversioHelper.convertir(
+//				command,
+//				ExpedientConsultaDto.class);
+//	}
 
 	@Override
 	public String toString() {

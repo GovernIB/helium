@@ -21,17 +21,19 @@ import net.conselldemallorca.helium.core.model.dao.PluginPersonaDao;
 import net.conselldemallorca.helium.core.model.exception.DominiException;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
-import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
+import net.conselldemallorca.helium.core.model.hibernate.Consulta;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
+import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
-import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 import net.conselldemallorca.helium.core.model.service.LuceneHelper;
@@ -45,7 +47,6 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampRegistreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
@@ -72,8 +73,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.PermissionService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
@@ -91,7 +92,6 @@ import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
-import org.modelmapper.ModelMapper;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
@@ -114,6 +114,8 @@ public class DtoConverter {
 	private ExpedientRepository expedientRepository;
 	@Resource
 	private ExpedientHelper expedientHelper;
+	@Resource(name="expedientServiceV3")
+	private ExpedientService expedientService;
 	@Resource
 	private PersonaRepository personaRepository;
 	@Resource
@@ -154,6 +156,8 @@ public class DtoConverter {
 	private LuceneHelper luceneHelper;
 	@Resource
 	private CampAgrupacioRepository campAgrupacioRepository;
+	@Resource
+	private ConversioTipusHelper conversioTipusHelper;
 
 	private Map<Long, Boolean> hasStartTask = new HashMap<Long, Boolean>();
 	
@@ -272,6 +276,7 @@ public class DtoConverter {
 			task.setCacheActiu();
 			jbpmHelper.describeTaskInstance(
 					task.getId(),
+					titol,
 					task.getDescriptionWithFields());
 		}
 		dadesCache = new DadesCacheTasca(
@@ -351,6 +356,55 @@ public class DtoConverter {
 		public String getDefinicioProcesJbpmKey() {
 			return definicioProcesJbpmKey;
 		}
+	}
+	
+	public ExpedientTascaDto toExpedientTascaMinDto(
+			JbpmTask task,
+			Expedient expedient) {
+		ExpedientTascaDto dto = new ExpedientTascaDto();
+		dto.setId(task.getId());
+		DadesCacheTasca dadesCacheTasca = getDadesCacheTasca(
+				task,
+				expedient);
+		dto.setTitol(dadesCacheTasca.getTitol());
+		
+		if (task.getAssignee() != null) {
+			dto.setResponsable(
+					getResponsableTasca(task.getAssignee()));
+			dto.setResponsableCodi(task.getAssignee());
+		}
+
+		Set<String> pooledActors = task.getPooledActors();
+		if (pooledActors != null && pooledActors.size() > 0) {
+			List<PersonaDto> responsables = new ArrayList<PersonaDto>();
+			for (String pooledActor: pooledActors)
+				responsables.add(
+						getResponsableTasca(pooledActor));
+			dto.setResponsables(responsables);
+		}
+		
+		dto.setDataLimit(task.getDueDate());
+		dto.setDataCreacio(task.getCreateTime());
+
+		switch (task.getPriority()) {
+		case -2:
+			dto.setPrioritat(TascaPrioritatDto.MOLT_BAIXA);
+			break;
+		case -1:
+			dto.setPrioritat(TascaPrioritatDto.BAIXA);
+			break;
+		case 0:
+			dto.setPrioritat(TascaPrioritatDto.NORMAL);
+			break;
+		case 1:
+			dto.setPrioritat(TascaPrioritatDto.ALTA);
+			break;
+		case 2:
+			dto.setPrioritat(TascaPrioritatDto.MOLT_ALTA);
+			break;
+		}
+		
+		return dto;
 	}
 	
 	public ExpedientTascaDto toExpedientTascaDto(
@@ -456,7 +510,7 @@ public class DtoConverter {
 		dto.setDocumentsComplet(tascaService.isDocumentsComplet(task));
 		dto.setSignaturesComplet(tascaService.isSignaturesComplet(task));
 		
-		dto.setAgafada("true".equals(task.getFieldFromDescription(TascaService.TASKDESC_CAMP_AGAFADA)));
+		dto.setAgafada("true".equals(task.isAgafada()));
 		dto.setOutcomes(jbpmHelper.findTaskInstanceOutcomes(task.getId()));
 
 		Map<String, Object> valors = jbpmHelper.getTaskInstanceVariables(task.getId());
@@ -479,7 +533,7 @@ public class DtoConverter {
 				tascaDelegacio = jbpmHelper.getTaskById(delegationInfo.getSourceTaskId());
 			}			
 			
-			dto.setDelegacioPersona(new ModelMapper().map(pluginPersonaDao.findAmbCodiPlugin(tascaDelegacio.getAssignee()), PersonaDto.class));
+			dto.setDelegacioPersona(conversioTipusHelper.convertir(pluginPersonaDao.findAmbCodiPlugin(tascaDelegacio.getAssignee()), PersonaDto.class));
 		}
 		
 		filtrarVariablesTasca(valors);
@@ -651,7 +705,7 @@ public class DtoConverter {
 							}
 						} else {
 							if (camp.getTipus().equals(CampTipusDto.TERMINI)) {
-								valors.put(key, valors.get(key) == null ? null : new ModelMapper().map(valors.get(key), TerminiDto.class));
+								valors.put(key, valors.get(key) == null ? null : conversioTipusHelper.convertir(valors.get(key), TerminiDto.class));
 							}
 							resposta.put(
 									key,
@@ -750,9 +804,9 @@ public class DtoConverter {
 		dto.setCancelled(task.isCancelled());
 		dto.setSuspended(task.isSuspended());
 		dto.setProcessInstanceId(task.getProcessInstanceId());
-		dto.setAgafada("true".equals(task.getFieldFromDescription(TascaService.TASKDESC_CAMP_AGAFADA)));
+		dto.setAgafada("true".equals(task.isAgafada()));
 		
-		ExpedientDto expedientDto = new ModelMapper().map(expedientHelper.findAmbProcessInstanceId(task.getProcessInstanceId()), ExpedientDto.class);
+		ExpedientDto expedientDto = conversioTipusHelper.convertir(expedientHelper.findAmbProcessInstanceId(task.getProcessInstanceId()), ExpedientDto.class);
 		dto.setExpedient(expedientDto);
 		
 		dto.setOutcomes(jbpmHelper.findTaskInstanceOutcomes(task.getId()));
@@ -782,7 +836,7 @@ public class DtoConverter {
 			dto.setMissatgeInfo(tasca.getMissatgeInfo());
 			dto.setMissatgeWarn(tasca.getMissatgeWarn());
 			dto.setDelegable(tasca.getExpressioDelegacio() != null);
-			dto.setTipus(new ModelMapper().map(tasca.getTipus(), ExpedientTascaDto.TipusTasca.class));
+			dto.setTipus(conversioTipusHelper.convertir(tasca.getTipus(), ExpedientTascaDto.TipusTasca.class));
 			dto.setJbpmName(tasca.getJbpmName());
 			dto.setDefinicioProces(toDefinicioProcesDto(tasca.getDefinicioProces()));			
 			dto.setValidacions(toValidacionsDto(tasca.getValidacions()));
@@ -839,33 +893,10 @@ public class DtoConverter {
 		return dto;
 	}
 	
-	public static ReassignacioDto toReassignacioDto(Reassignacio reassignacio) {
-		return new ModelMapper().map(reassignacio, ReassignacioDto.class);
-	}
-	
-	public static TerminiIniciatDto toTerminiIniciatDto(TerminiIniciat terminiIniciat) {
-		TerminiIniciatDto terminiIniciatDto = new TerminiIniciatDto();
-		terminiIniciatDto.setAnys(terminiIniciat.getAnys());
-		terminiIniciatDto.setDataAturada(terminiIniciat.getDataAturada());
-		terminiIniciatDto.setDataCancelacio(terminiIniciat.getDataCancelacio());
-		terminiIniciatDto.setDataCompletat(terminiIniciat.getDataCompletat());
-		terminiIniciatDto.setDataFi(terminiIniciat.getDataFi());
-		terminiIniciatDto.setDataFiProrroga(terminiIniciat.getDataFiProrroga());
-		terminiIniciatDto.setDataInici(terminiIniciat.getDataInici());
-		terminiIniciatDto.setDies(terminiIniciat.getDies());
-		terminiIniciatDto.setDiesAturat(terminiIniciat.getDiesAturat());
-		terminiIniciatDto.setId(terminiIniciat.getId());
-		terminiIniciatDto.setMesos(terminiIniciat.getMesos());
-		
-		TerminiDto terminiDto = new ModelMapper().map(terminiIniciat.getTermini(), TerminiDto.class);
-		terminiIniciatDto.setTermini(terminiDto);
-		return terminiIniciatDto;
-	}
-	
-	public static List<ReassignacioDto> toLlistatReassignacioDto(List<Reassignacio> llistat) {
+	public List<ReassignacioDto> toLlistatReassignacioDto(List<Reassignacio> llistat) {
 		List<ReassignacioDto> val = new ArrayList<ReassignacioDto>();
-		for(Reassignacio validacio : llistat) {
-			val.add(toReassignacioDto(validacio));
+		for(Reassignacio reassignacio : llistat) {
+			val.add(conversioTipusHelper.convertir(reassignacio, ReassignacioDto.class));
 		}
 		return val;
 	}
@@ -873,7 +904,7 @@ public class DtoConverter {
 	private List<FirmaTascaDto> toFirmaTascaDto(List<FirmaTasca> findAmbTascaOrdenats) {
 		List<FirmaTascaDto> val = new ArrayList<FirmaTascaDto>();
 		for(FirmaTasca validacio : findAmbTascaOrdenats) {
-//			val.add(new ModelMapper().map(validacio, FirmaTascaDto.class));
+			val.add(conversioTipusHelper.convertir(validacio, FirmaTascaDto.class));
 		}
 		return val;
 	}
@@ -881,7 +912,7 @@ public class DtoConverter {
 	private List<ValidacioDto> toValidacionsDto(List<Validacio> validacions) {
 		List<ValidacioDto> val = new ArrayList<ValidacioDto>();
 		for(Validacio validacio : validacions) {
-			val.add(new ModelMapper().map(validacio, ValidacioDto.class));
+			val.add(conversioTipusHelper.convertir(validacio, ValidacioDto.class));
 		}
 		return val;
 	}
@@ -889,7 +920,7 @@ public class DtoConverter {
 	private List<DocumentTascaDto> toDocumentTascaDto(List<DocumentTasca> findAmbTascaOrdenats) {
 		List<DocumentTascaDto> val = new ArrayList<DocumentTascaDto>();
 		for(DocumentTasca validacio : findAmbTascaOrdenats) {
-			val.add(new ModelMapper().map(validacio, DocumentTascaDto.class));
+			val.add(conversioTipusHelper.convertir(validacio, DocumentTascaDto.class));
 		}
 		return val;
 	}
@@ -897,46 +928,13 @@ public class DtoConverter {
 	public List<CampTascaDto> toCampsTascaDto(List<CampTasca> findAmbTascaOrdenats) {
 		List<CampTascaDto> res = new ArrayList<CampTascaDto>();
 		for(CampTasca val : findAmbTascaOrdenats) {
-			CampTascaDto camp = new CampTascaDto();
-			camp.setId(val.getId());
-			camp.setOrder(val.getOrder());
-			camp.setReadOnly(val.isReadOnly());
-//			camp.setTasca(new ModelMapper().map(val.getTasca(), TascaDto.class));
-//			camp.setCamp(new ModelMapper().map(val.getCamp(), CampDto.class));			
-			camp.setCamp(toCampDto(val.getCamp()));
-			res.add(camp);
+			res.add(conversioTipusHelper.convertir(val, CampTascaDto.class));
 		}
 		return res;
 	}
 
-	public CampDto toCampDto(Camp val) {
-		CampDto campDto = new CampDto();
-		if (val != null) {
-			if (val.getDomini() != null) {
-				EntornDto entornDto = new ModelMapper().map(val.getDomini().getEntorn(), EntornDto.class);
-				DominiDto dom = new DominiDto(val.getDomini().getCodi(),val.getDomini().getNom(),entornDto);
-				dom.setId(val.getDomini().getId());
-				campDto.setDomini(dom);
-				campDto.getDomini().setId(dom.getId());
-				campDto.setDominiId(String.valueOf(dom.getId()));
-				campDto.setDefinicioProces(new ModelMapper().map(val.getDefinicioProces(), DefinicioProcesDto.class));
-			}
-
-			campDto.setCodi(val.getCodi());
-			List<CampRegistreDto> listRegistreMembres = new ArrayList<CampRegistreDto>();
-			for(CampRegistre registreMembre : val.getRegistreMembres()) {
-				CampRegistreDto campRegistreDto = new CampRegistreDto();
-				campRegistreDto.setMembre(toCampDto(registreMembre.getMembre()));
-				listRegistreMembres.add(campRegistreDto);
-			}
-			campDto.setRegistreMembres(listRegistreMembres);
-			campDto.setTipus(new ModelMapper().map(val.getTipus(), CampTipusDto.class));
-		}
-		return campDto;
-	}
-
-	private DefinicioProcesDto toDefinicioProcesDto(DefinicioProces definicioProces) {
-		DefinicioProcesDto def = new ModelMapper().map(definicioProces, DefinicioProcesDto.class);
+	public DefinicioProcesDto toDefinicioProcesDto(DefinicioProces definicioProces) {		
+		DefinicioProcesDto def = new ConversioTipusHelper().convertir(definicioProces, DefinicioProcesDto.class);
 		def.setId(definicioProces.getId());
 		return def;
 	}
@@ -950,7 +948,7 @@ public class DtoConverter {
 				jbpmId);
 		ExpedientTascaDto dto = new ExpedientTascaDto();
 		dto.setNom(tasca.getNom());
-		dto.setTipus(new ModelMapper().map(tasca.getTipus(), ExpedientTascaDto.TipusTasca.class));
+		dto.setTipus(conversioTipusHelper.convertir(tasca.getTipus(), ExpedientTascaDto.TipusTasca.class));
 		dto.setJbpmName(tasca.getJbpmName());
 		dto.setValidada(false);
 		dto.setDocumentsComplet(false);
@@ -1021,9 +1019,9 @@ public class DtoConverter {
 	public ExpedientDto findAmbProcessInstanceId(String processInstanceId) {
 		List<Expedient> expedients = expedientRepository.findByProcessInstanceId(processInstanceId);
 		if (expedients.size() > 0) {
-			return new ModelMapper().map(expedients.get(0), ExpedientDto.class);
+			return conversioTipusHelper.convertir(expedients.get(0), ExpedientDto.class);
 		} else {
-			ExpedientDto expedientIniciant = new ModelMapper().map(ExpedientIniciantDto.getExpedient(), ExpedientDto.class);
+			ExpedientDto expedientIniciant = conversioTipusHelper.convertir(ExpedientIniciantDto.getExpedient(), ExpedientDto.class);
 			
 			if (expedientIniciant != null && expedientIniciant.getProcessInstanceId().equals(processInstanceId))
 				return expedientIniciant;
@@ -1036,7 +1034,7 @@ public class DtoConverter {
 		return ent;		
 	}
 	
-	private ParellaCodiValorDto obtenirValorDomini(
+	public ParellaCodiValorDto obtenirValorDomini(
 			String taskId,
 			String processInstanceId,
 			Map<String, Object> valorsAddicionals,
@@ -1092,7 +1090,7 @@ public class DtoConverter {
 					}
 				} catch (Exception ex) {
 					//throw new DominiException("No s'ha pogut consultar el domini", ex);
-					logger.error("No s'ha pogut consultar el domini", ex);
+					logger.error("No s'ha pogut consultar el domini. Error en " + camp.getDomini() == null ? " el campo: " + camp.getCodi(): " el dominio" + camp.getDomini().getNom(), ex);
 				}
 			} else if (camp.getEnumeracio() != null) {
 				EnumeracioDto enumeracio = camp.getEnumeracio();
@@ -1110,7 +1108,7 @@ public class DtoConverter {
 				}
 			} else if (camp.getConsulta() != null) {
 				ConsultaDto consulta = camp.getConsulta();
-				List<ExpedientConsultaDissenyDto> dadesExpedients = expedientHelper.findAmbEntornConsultaDisseny(
+				List<ExpedientConsultaDissenyDto> dadesExpedients = expedientService.findAmbEntornConsultaDisseny(
 						consulta.getEntorn().getId(),
 						consulta.getId(),
 						new HashMap<String, Object>(),
@@ -1268,7 +1266,7 @@ public class DtoConverter {
 		dto.setId(processInstanceId);
 		dto.setInstanciaProcesPareId(pi.getParentProcessInstanceId());
 		JbpmProcessInstance jpi = jbpmHelper.getRootProcessInstance(processInstanceId);
-		dto.setExpedient(new ModelMapper().map(expedientHelper.findAmbProcessInstanceId(jpi.getId()), ExpedientDto.class));
+		dto.setExpedient(conversioTipusHelper.convertir(expedientHelper.findAmbProcessInstanceId(jpi.getId()), ExpedientDto.class));
 		dto.setDefinicioProces(definicioProces);
 		if (pi.getDescription() != null && pi.getDescription().length() > 0)
 			dto.setTitol(pi.getDescription());
@@ -1392,10 +1390,10 @@ public class DtoConverter {
 		}
 		if (expedient.getIniciadorTipus().equals(IniciadorTipus.SISTRA))
 			dto.setBantelEntradaNum(expedient.getNumeroEntradaSistra());
-		dto.setTipus(new ModelMapper().map(expedient.getTipus(), ExpedientTipusDto.class));
+		dto.setTipus(conversioTipusHelper.convertir(expedient.getTipus(), ExpedientTipusDto.class));
 		dto.setEntorn(toEntornDto(expedient.getEntorn()));
 		if (expedient.getEstat() != null)
-			dto.setEstat(new ModelMapper().map(expedient.getEstat(), EstatDto.class));
+			dto.setEstat(conversioTipusHelper.convertir(expedient.getEstat(), EstatDto.class));
 		dto.setGeoPosX(expedient.getGeoPosX());
 		dto.setGeoPosY(expedient.getGeoPosY());
 		dto.setGeoReferencia(expedient.getGeoReferencia());
@@ -1429,16 +1427,16 @@ public class DtoConverter {
 			relacionatDto.setTitol(relacionat.getTitol());
 			relacionatDto.setNumero(relacionat.getNumero());
 			relacionatDto.setDataInici(relacionat.getDataInici());
-			relacionatDto.setTipus(new ModelMapper().map(relacionat.getTipus(), ExpedientTipusDto.class));
+			relacionatDto.setTipus(conversioTipusHelper.convertir(relacionat.getTipus(), ExpedientTipusDto.class));
 			if (relacionat.getEstat() != null)
-				relacionatDto.setEstat(new ModelMapper().map(relacionat.getEstat(), EstatDto.class));
+				relacionatDto.setEstat(conversioTipusHelper.convertir(relacionat.getEstat(), EstatDto.class));
 			relacionatDto.setProcessInstanceId(relacionat.getProcessInstanceId());
 			dto.addExpedientRelacionat(relacionatDto);
 		}
 		return dto;
 	}
 
-	private void filtrarVariablesTasca(Map<String, Object> variables) {
+	public void filtrarVariablesTasca(Map<String, Object> variables) {
 		if (variables != null) {
 			variables.remove(TascaService.VAR_TASCA_VALIDADA);
 			variables.remove(TascaService.VAR_TASCA_DELEGACIO);
@@ -1509,4 +1507,217 @@ public class DtoConverter {
 	}
 	
 	private static final Log logger = LogFactory.getLog(DtoConverter.class);
+
+	public List<FilaResultat> getResultatConsultaEnumeracio(DefinicioProces definicioProces, String campCodi, String textInicial) {
+		Camp camp = null;
+		for (Camp c: definicioProces.getCamps()) {
+			if (c.getCodi().equals(campCodi)) {
+				camp = c;
+				break;
+			}
+		}
+		if (camp != null && camp.getEnumeracio() != null) {
+			Enumeracio enumeracio = camp.getEnumeracio();
+			List<FilaResultat> resultat = new ArrayList<FilaResultat>();
+			for (ParellaCodiValor parella: enumeracioValorsHelper.getLlistaValors(enumeracio.getId())) {
+				if (textInicial == null || ((String)parella.getValor()).toLowerCase().startsWith(textInicial.toLowerCase())) {
+					FilaResultat fila = new FilaResultat();
+					fila.addColumna(new ParellaCodiValor("codi", parella.getCodi()));
+					fila.addColumna(new ParellaCodiValor("valor", parella.getValor()));
+					resultat.add(fila);
+				}
+			}
+			return resultat;
+		}
+		return new ArrayList<FilaResultat>();
+	}
+	
+	public List<FilaResultat> getResultatConsultaDomini(
+			DefinicioProces definicioProces,
+			String taskId,
+			String processInstanceId,
+			String campCodi,
+			String textInicial,
+			Map<String, Object> valorsAddicionals) throws DominiException {
+		Camp camp = null;
+		for (Camp c: definicioProces.getCamps()) {
+			if (c.getCodi().equals(campCodi)) {
+				camp = c;
+				break;
+			}
+		}
+		if (camp != null && (camp.getDomini() != null || camp.isDominiIntern())) {
+			Map<String, Object> params = getParamsConsulta(
+					taskId,
+					processInstanceId,
+					camp,
+					valorsAddicionals);
+			return getResultatConsultaDominiPerCamp(camp, params, textInicial);
+		}
+		return new ArrayList<FilaResultat>();
+	}
+
+	private Map<String, Object> getParamsConsulta(
+			String taskId,
+			String processInstanceId,
+			Camp camp,
+			Map<String, Object> valorsAddicionals) {
+		String dominiParams = camp.getDominiParams();
+		if (dominiParams == null || dominiParams.length() == 0)
+			return null;
+		Map<String, Object> params = new HashMap<String, Object>();
+		String[] pairs = dominiParams.split(";");
+		for (String pair: pairs) {
+			String[] parts = pair.split(":");
+			String paramCodi = parts[0];
+			String campCodi = parts[1];
+			Object value = null;
+			if (campCodi.startsWith("@")) {
+				value = (String)GlobalProperties.getInstance().get(campCodi.substring(1));
+			} else if (campCodi.startsWith("#{")) {
+				if (processInstanceId != null) {
+					value = jbpmHelper.evaluateExpression(taskId, processInstanceId, campCodi, null);
+				} else if (taskId != null) {
+					JbpmTask task = jbpmHelper.getTaskById(taskId);
+					value = jbpmHelper.evaluateExpression(taskId, task.getProcessInstanceId(), campCodi, null);
+				} else if (campCodi.startsWith("#{'")) {
+					int index = campCodi.lastIndexOf("'");
+					if (index != -1 && index > 2)
+						value = campCodi.substring(3, campCodi.lastIndexOf("'"));
+				}
+			} else {
+				if (valorsAddicionals != null && valorsAddicionals.size() > 0)
+					value = valorsAddicionals.get(campCodi);
+				if (value == null && taskId != null)
+					value = getServiceUtils().getVariableJbpmTascaValor(taskId, campCodi);
+				if (value == null && processInstanceId != null)
+					value = getServiceUtils().getVariableJbpmProcesValor(processInstanceId, campCodi);
+			}
+			if (value != null)
+				params.put(paramCodi, value);
+		}
+		return params;
+	}
+
+	public List<FilaResultat> getResultatConsultaDominiPerCamp(
+			Camp camp,
+			Map<String, Object> params,
+			String textInicial) throws DominiException {
+		if (camp != null && (camp.getDomini() != null || camp.isDominiIntern())) {
+			Long dominiId = (long) 0;
+			if (camp.getDomini() != null){
+				Domini domini = camp.getDomini();
+				dominiId = domini.getId();
+			}	
+			try {
+				List<FilaResultat> resultat = dominiDao.consultar(
+						camp.getDefinicioProces().getEntorn().getId(),
+						dominiId,
+						camp.getDominiId(),
+						params);
+				// Filtra els resultats amb el textInicial (si n'hi ha)
+				if (textInicial != null) {
+					String columna = camp.getDominiCampText();
+					Iterator<FilaResultat> it = resultat.iterator();
+					while (it.hasNext()) {
+						FilaResultat fr = it.next();
+						for (ParellaCodiValor parella: fr.getColumnes()) {
+							if (parella.getCodi().equals(columna) && !parella.getValor().toString().toUpperCase().contains(textInicial.toUpperCase())) {
+								it.remove();
+								break;
+							}
+						}
+					}
+				}
+				return resultat;
+			} catch (Exception ex) {
+				throw new DominiException(
+						getServiceUtils().getMessage("error.dtoConverter.consultarDomini") + " : id : " + dominiId + " << parametros >> " + params,
+						ex);
+			}
+		}
+		return new ArrayList<FilaResultat>();
+	}
+	
+	public List<FilaResultat> getResultatConsultaConsulta(
+			DefinicioProces definicioProces,
+			String taskId,
+			String processInstanceId,
+			String campCodi,
+			String textInicial,
+			Map<String, Object> valorsAddicionals) throws DominiException {
+		List<FilaResultat> resultat = new ArrayList<FilaResultat>();
+		Camp camp = null;
+		for (Camp c: definicioProces.getCamps()) {
+			if (c.getCodi().equals(campCodi)) {
+				camp = c;
+				break;
+			}
+		}
+		if (camp != null && camp.getConsulta() != null) {
+			Consulta consulta = camp.getConsulta();
+			List<Camp> campsFiltre = getServiceUtils().findCampsPerCampsConsulta(
+					consulta,
+					TipusConsultaCamp.FILTRE);
+			List<Camp> campsInforme = getServiceUtils().findCampsPerCampsConsulta(
+					consulta,
+					TipusConsultaCamp.INFORME);
+			List<CampDto> campsInformeDto = conversioTipusHelper.convertirList(campsInforme, CampDto.class);
+			afegirValorsPredefinits(consulta, valorsAddicionals, campsFiltre);
+			List<Map<String, DadaIndexadaDto>> dadesExpedients = luceneHelper.findAmbDadesExpedientV3(
+					consulta.getEntorn().getCodi(),
+					consulta.getExpedientTipus().getCodi(),
+					campsFiltre,
+					valorsAddicionals,
+					campsInforme,
+					null,
+					true,
+					0,
+					-1);
+			for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
+				FilaResultat fila = new FilaResultat();
+				revisarDadesExpedientAmbValorsEnumeracionsODominis(
+						dadesExpedient,
+						campsInformeDto);
+				for (String clau: dadesExpedient.keySet()) {
+					// Les claus son de la forma [TipusExpedient]/[campCodi] i hem
+					// de llevar el tipus d'expedient.
+					int indexBarra = clau.indexOf("/");
+					String clauSenseBarra = (indexBarra != -1) ? clau.substring(indexBarra + 1) : clau;
+					fila.addColumna(
+							new ParellaCodiValor(
+									clauSenseBarra,
+									dadesExpedient.get(clau)));
+				}
+				resultat.add(fila);
+			}
+		}
+		return resultat;
+	}
+	
+	private void afegirValorsPredefinits(
+			Consulta consulta,
+			Map<String, Object> valors,
+			List<Camp> camps) {
+		if (consulta.getValorsPredefinits() != null && consulta.getValorsPredefinits().length() > 0) {
+			String[] parelles = consulta.getValorsPredefinits().split(",");
+			for (int i = 0; i < parelles.length; i++) {
+				String[] parella = (parelles[i].contains(":")) ? parelles[i].split(":") : parelles[i].split("=");
+				if (parella.length == 2) {
+					String campCodi = parella[0];
+					String valor = parella[1];
+					for (Camp camp: camps) {
+						if (camp.getCodi().equals(campCodi)) {
+							valors.put(
+									camp.getDefinicioProces().getJbpmKey() + "." + campCodi,
+									Camp.getComObject(
+											camp.getTipus(),
+											valor));
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
 }

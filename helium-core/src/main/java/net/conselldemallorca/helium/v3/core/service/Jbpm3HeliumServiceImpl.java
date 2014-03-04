@@ -116,7 +116,6 @@ import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
 
 import org.hibernate.Hibernate;
-import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -396,6 +395,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				ReassignacioDto.class);
 	}
 
+	@Transactional
 	@Override
 	public void alertaCrear(
 			Long entornId,
@@ -425,6 +425,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 		alertaService.create(alerta);
 	}
 
+	@Transactional
 	@Override
 	public void alertaEsborrarAmbTaskInstanceId(long taskInstanceId) {
 		imprimirFuncio("alertaEsborrarAmbTaskInstanceId");
@@ -432,6 +433,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 		alertaService.esborrarAmbTasca(taskInstanceId);
 	}
 
+	@Transactional
 	@Override
 	public void expedientModificarEstat(
 			String processInstanceId,
@@ -459,6 +461,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				expedient.getGrupCodi());
 	}
 
+	@Transactional
 	@Override
 	public void expedientModificarComentari(
 			String processInstanceId,
@@ -474,13 +477,14 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				expedient.getResponsableCodi(),
 				expedient.getDataInici(),
 				comentari,
-				expedient.getEstat().getId(),
+				(expedient.getEstat() != null) ? expedient.getEstat().getId() : null,
 				expedient.getGeoPosX(),
 				expedient.getGeoPosY(),
 				expedient.getGeoReferencia(),
 				expedient.getGrupCodi());
 	}
 
+	@Transactional
 	@Override
 	public void expedientModificarGeoref(
 			String processInstanceId,
@@ -502,13 +506,14 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				expedient.getResponsableCodi(),
 				expedient.getDataInici(),
 				expedient.getComentari(),
-				expedient.getEstat().getId(),
+				(expedient.getEstat() != null) ? expedient.getEstat().getId() : null,
 				posx,
 				posy,
 				referencia,
 				expedient.getGrupCodi());
 	}
 
+	@Transactional
 	@Override
 	public void expedientModificarGrup(
 			String processInstanceId,
@@ -524,13 +529,14 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				expedient.getResponsableCodi(),
 				expedient.getDataInici(),
 				expedient.getComentari(),
-				expedient.getEstat().getId(),
+				(expedient.getEstat() != null) ? expedient.getEstat().getId() : null,
 				expedient.getGeoPosX(),
 				expedient.getGeoPosY(),
 				expedient.getGeoReferencia(),
 				grupCodi);
 	}
 
+	@Transactional
 	@Override
 	public void expedientModificarNumero(
 			String processInstanceId,
@@ -546,13 +552,14 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				expedient.getResponsableCodi(),
 				expedient.getDataInici(),
 				expedient.getComentari(),
-				expedient.getEstat().getId(),
+				(expedient.getEstat() != null) ? expedient.getEstat().getId() : null,
 				expedient.getGeoPosX(),
 				expedient.getGeoPosY(),
 				expedient.getGeoReferencia(),
 				expedient.getGrupCodi());
 	}
 
+	@Transactional
 	@Override
 	public void expedientModificarResponsable(
 			String processInstanceId,
@@ -570,13 +577,14 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				responsableCodi,
 				expedient.getDataInici(),
 				expedient.getComentari(),
-				expedient.getEstat().getId(),
+				(expedient.getEstat() != null) ? expedient.getEstat().getId() : null,
 				expedient.getGeoPosX(),
 				expedient.getGeoPosY(),
 				expedient.getGeoReferencia(),
 				expedient.getGrupCodi());
 	}
 
+	@Transactional
 	@Override
 	public void expedientModificarTitol(
 			String processInstanceId,
@@ -592,13 +600,14 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				expedient.getResponsableCodi(),
 				expedient.getDataInici(),
 				expedient.getComentari(),
-				expedient.getEstat().getId(),
+				(expedient.getEstat() != null) ? expedient.getEstat().getId() : null,
 				expedient.getGeoPosX(),
 				expedient.getGeoPosY(),
 				expedient.getGeoReferencia(),
 				expedient.getGrupCodi());
 	}
 
+	@Transactional
 	@Override
 	public void expedientAturar(
 			String processInstanceId,
@@ -612,6 +621,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				null);
 	}
 
+	@Transactional
 	@Override
 	public void expedientReprendre(
 			String processInstanceId) throws ExpedientNotFoundException {
@@ -621,6 +631,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 		expedientService.reprendre(processInstanceId, null);
 	}
 
+	@Transactional
 	@Override
 	public void expedientReindexar(
 			String processInstanceId) throws ExpedientNotFoundException {
@@ -630,6 +641,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 		expedientService.luceneReindexarExpedient(processInstanceId);
 	}
 
+	@Transactional
 	@Override
 	public ArxiuDto documentGenerarAmbPlantilla(
 			String taskInstanceId,
@@ -707,6 +719,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				TerminiIniciatDto.class);
 	}
 
+	@Transactional
 	@Override
 	public void configurarTerminiIniciatAmbDadesJbpm(
 			Long terminiIniciatId,
@@ -726,6 +739,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				timerId);
 	}
 
+	@Transactional
 	@Override
 	public Date terminiCalcularDataInici(
 			Date fi,
@@ -743,6 +757,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 		return terminiService.getDataIniciTermini(fi, anys, mesos, dies, laborable);
 	}
 
+	@Transactional
 	@Override
 	public Date terminiCalcularDataFi(
 			Date inici,
@@ -760,6 +775,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 		return terminiService.getDataFiTermini(inici, anys, mesos, dies, laborable);
 	}
 
+	@Transactional
 	@Override
 	public void terminiIniciar(
 			String terminiCodi,
@@ -795,6 +811,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 		
 	}
 
+	@Transactional
 	@Override
 	public void terminiIniciar(
 			String terminiCodi,
@@ -820,6 +837,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				esDataFi);
 	}
 
+	@Transactional
 	@Override
 	public void terminiCancelar(
 			Long terminiIniciatId,
@@ -834,6 +852,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 		terminiService.cancelar(terminiIniciatId, data);
 	}
 
+	@Transactional
 	@Override
 	public void terminiPausar(
 			Long terminiIniciatId,
@@ -848,6 +867,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 		terminiService.pausar(terminiIniciatId, data);
 	}
 
+	@Transactional
 	@Override
 	public void terminiContinuar(
 			Long terminiIniciatId,
@@ -971,6 +991,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				DocumentTascaDto.class);
 	}
 
+	@Transactional(readOnly = true)
 	@Override
 	public String getCodiVariablePerDocumentCodi(String documentCodi) {
 		imprimirFuncio("getCodiVariablePerDocumentCodi");
@@ -988,6 +1009,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				DocumentDto.class);
 	}
 
+	@Transactional(readOnly = true)
 	@Override
 	public ArxiuDto getArxiuPerMostrar(Long documentStoreId) {
 		imprimirFuncio("getArxiuPerMostrar");
@@ -997,6 +1019,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				ArxiuDto.class);
 	}
 
+	@Transactional
 	@Override
 	public Long documentExpedientGuardar(
 			String processInstanceId,
@@ -1022,6 +1045,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				false);
 	}
 
+	@Transactional
 	@Override
 	public Long documentExpedientAdjuntar(
 			String processInstanceId,
@@ -1049,6 +1073,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				true);
 	}
 
+	@Transactional
 	@Override
 	public void documentExpedientEsborrar(
 			String taskInstanceId,
@@ -1065,6 +1090,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				documentCodi);
 	}
 
+	@Transactional
 	@Override
 	public void documentExpedientGuardarDadesRegistre(
 			Long documentStoreId,
@@ -1090,6 +1116,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				registreEntrada);
 	}
 
+	@Transactional
 	@Override
 	public void emailSend(
 			String fromAddress,
@@ -1123,6 +1150,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 		}
 	}
 
+	@Transactional
 	@Override
 	public boolean isRegistreActiu() {
 		imprimirFuncio("isRegistreActiu");
@@ -1130,6 +1158,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 		return pluginRegistreDao.isRegistreActiu();
 	}
 
+	@Transactional
 	@Override
 	public RegistreIdDto registreAnotacioEntrada(
 			RegistreAnotacioDto anotacio) throws PluginException {
@@ -1144,6 +1173,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 		return null;
 	}
 
+	@Transactional
 	@Override
 	public RegistreIdDto registreAnotacioSortida(RegistreAnotacioDto anotacio)
 			throws PluginException {
@@ -1152,6 +1182,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 		return null;
 	}
 
+	@Transactional
 	@Override
 	public RegistreIdDto registreNotificacio(RegistreNotificacioDto notificacio)
 			throws PluginException {
@@ -1160,6 +1191,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 		return null;
 	}
 
+	@Transactional
 	@Override
 	public Date registreNotificacioComprovarRecepcio(String registreNumero)
 			throws PluginException {
@@ -1168,6 +1200,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 		return null;
 	}
 
+	@Transactional
 	@Override
 	public String getRegistreOficinaNom(String oficinaCodi)
 			throws PluginException {
@@ -1176,6 +1209,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 		return null;
 	}
 
+	@Transactional
 	@Override
 	public void portasignaturesEnviar(
 			Long documentId,
@@ -1199,6 +1233,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 		
 	}
 
+	@Transactional
 	@Override
 	public void zonaperExpedientCrear(String processInstanceId,
 			ZonaperExpedientDto dadesExpedient) throws PluginException {
@@ -1207,6 +1242,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 		
 	}
 
+	@Transactional
 	@Override
 	public void zonaperEventCrear(String processInstanceId,
 			ZonaperEventDto dadesEvent) throws PluginException {
@@ -1241,6 +1277,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				EstatDto.class);
 	}
 
+	@Transactional
 	@Override
 	public DocumentDissenyDto getDocumentDisseny(
 			Long definicioProcesId,
@@ -1259,6 +1296,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				DocumentDissenyDto.class);
 	}
 
+	@Transactional
 	@Override
 	public void expedientRelacionar(
 			Long expedientIdOrigen,
@@ -1276,6 +1314,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 		expedientService.createRelacioExpedient(expedientIdOrigen, expedientIdDesti);
 	}
 
+	@Transactional
 	@Override
 	public void tokenRedirigir(
 			long tokenId,
@@ -1292,6 +1331,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				cancelarTasques);
 	}
 
+	@Transactional
 	@Override
 	public ArxiuDto getArxiuGestorDocumental(String id) {
 		imprimirFuncio("getArxiuGestorDocumental");
@@ -1302,6 +1342,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 		return arxiu;
 	}
 
+	@Transactional
 	@Override
 	public TramitDto getTramit(String numero, String clau) {
 		imprimirFuncio("getTramit");
@@ -1314,6 +1355,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				TramitDto.class);
 	}
 
+	@Transactional
 	@Override
 	public ExpedientDadaDto getDadaPerProcessInstance(
 			String processInstanceId,
@@ -1337,11 +1379,12 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				dtoConverter.getCampText(
 						null,
 						new Long(processInstanceId).toString(),
-						new ModelMapper().map(camp, CampDto.class),
+						conversioTipusHelper.convertir(camp, CampDto.class),
 						valor));
 		return resposta;
 	}
 
+	@Transactional
 	@Override
 	public List<ExpedientDto> findExpedientsConsultaGeneral(
 			Long entornId,
@@ -1403,6 +1446,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				ExpedientDto.class);
 	}
 
+	@Transactional
 	@Override
 	public void initializeDefinicionsProces() {
 		imprimirFuncio("initializeDefinicionsProces");
@@ -1412,36 +1456,42 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 		}
 	}
 	
+	@Transactional
 	@Override
 	public boolean mesuraIsActiu() {
 		imprimirFuncio("mesuraIsActiu");
 		return MesuresTemporalsHelper.isActiu();
 	}
 	
+	@Transactional
 	@Override
 	public void mesuraIniciar(String clau, String familia, String tipusExpedient, String tasca, String detall) {
 		imprimirFuncio("mesuraIniciar");
 		mesuresTemporalsHelper.mesuraIniciar(clau, familia, tipusExpedient, tasca, detall);
 	}
 	
+	@Transactional
 	@Override
 	public void mesuraCalcular(String clau, String familia, String tipusExpedient, String tasca, String detall) {
 		imprimirFuncio("mesuraCalcular");
 		mesuresTemporalsHelper.mesuraCalcular(clau, familia, tipusExpedient, tasca, detall);
 	}
 
+	@Transactional
 	@Override
 	public void updateExpedientError(String processInstanceId, String errorDesc, String errorFull) {
 		imprimirFuncio("updateExpedientError");
 		expedientService.updateExpedientError(processInstanceId, errorDesc, errorFull);
 	}
 
+	@Transactional
 	@Override
 	public String getHeliumProperty(String propertyName) {
 		imprimirFuncio("getHeliumProperty");
 		return GlobalProperties.getInstance().getProperty(propertyName);
 	}
 
+	@Transactional
 	@Override
 	public OperacioMassivaDto getExecucionsMassivesActiva(Long ultimaExecucioMassiva) {
 		imprimirFuncio("getExecucionsMassivesActiva");
@@ -1451,6 +1501,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				OperacioMassivaDto.class);
 	}
 
+	@Transactional
 	@Override
 	public void executarExecucioMassiva(OperacioMassivaDto operacioMassiva) throws Exception {
 		imprimirFuncio("executarExecucioMassiva");
@@ -1460,23 +1511,18 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 						net.conselldemallorca.helium.core.model.dto.OperacioMassivaDto.class));
 	}
 
+	@Transactional
 	@Override
 	public void generaInformeError(OperacioMassivaDto operacioMassiva, Exception e) {
 		imprimirFuncio("generaInformeError");
-		execucioMassivaService.generaInformeError(
-				conversioTipusHelper.convertir(
-						operacioMassiva,
-						net.conselldemallorca.helium.core.model.dto.OperacioMassivaDto.class),
-				e);
+		execucioMassivaService.generaInformeError(operacioMassiva, e);
 	}
 
+	@Transactional
 	@Override
 	public void actualitzaUltimaOperacio(OperacioMassivaDto operacioMassiva) {
 		imprimirFuncio("actualitzaUltimaOperacio");
-		execucioMassivaService.actualitzaUltimaOperacio(
-				conversioTipusHelper.convertir(
-						operacioMassiva,
-						net.conselldemallorca.helium.core.model.dto.OperacioMassivaDto.class));
+		execucioMassivaService.actualitzaUltimaOperacio(operacioMassiva);
 	}
 
 	private Expedient getExpedientDonatProcessInstanceId(
@@ -1503,7 +1549,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 	}
 
 	private void imprimirFuncio(String nom) {
-		//System.out.println(">>> FUNCIO " + nom);
+//		System.out.println(">>> FUNCIO " + nom);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(Jbpm3HeliumServiceImpl.class);

@@ -4,7 +4,10 @@
 package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
+import java.util.Map;
 
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
@@ -74,14 +77,33 @@ public interface DissenyService {
 	 */
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisCrearUsuariActual(
 			Long entornId) throws EntornNotFoundException;
+	
+	/**
+	 * Retorna les consultes d'un tipus d'expedient per les quals l'usuari actual
+	 * te permisos de lectura.
+	 * 
+	 * @param entornId
+	 * @param expedientTipusId
+	 * @return
+	 * @throws EntornNotFoundException
+	 */
+	public List<ConsultaDto> findConsultesActivesAmbEntornIExpedientTipusOrdenat(
+			Long entornId,
+			Long expedientTipusId) throws EntornNotFoundException;
 
 	public byte[] getDeploymentResource(Long id, String recursForm);
 
-	ExpedientTipusDto getExpedientTipusById(Long id);
+	public ExpedientTipusDto getExpedientTipusById(Long id);
 
-	DefinicioProcesDto getById(Long id, boolean ambTascaInicial);
+	public DefinicioProcesDto getById(Long id, boolean ambTascaInicial);
 
-	DefinicioProcesDto findDarreraDefinicioProcesForExpedientTipus(Long expedientTipusId, boolean ambTascaInicial);
+	public DefinicioProcesDto findDarreraDefinicioProcesForExpedientTipus(Long expedientTipusId, boolean ambTascaInicial);
 
 	public List<ExpedientTipusDto> findExpedientTipusAmbEntorn(EntornDto entornId);
+
+	public ConsultaDto findConsulteById(Long id) throws EntornNotFoundException;
+
+	public CampDto findCampAmbDefinicioProcesICodiSimple(Long definicioProcesId, String campCodi);
+
+	public List<?> getResultatConsultaCamp(String taskId, String processInstanceId, Long definicioProcesId, String campCodi, String textInicial, Map<String, Object> mapDelsValors);
 }

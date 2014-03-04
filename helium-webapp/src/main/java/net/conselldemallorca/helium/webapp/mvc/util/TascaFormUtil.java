@@ -4,7 +4,9 @@
 package net.conselldemallorca.helium.webapp.mvc.util;
 
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,10 +16,10 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Validacio;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.sf.cglib.beans.BeanGenerator;
 
@@ -244,11 +246,11 @@ public class TascaFormUtil {
 					if (camp.isMultiple())
 						bg.addProperty(
 								campCodi,
-								Array.newInstance(camp.getJavaClass(), 1).getClass());
+								Array.newInstance(getJavaClass(camp.getTipus()), 1).getClass());
 					else
 						bg.addProperty(
 								campCodi,
-								camp.getJavaClass());
+								getJavaClass(camp.getTipus()));
 				} else {
 					boolean ambArray = 	camp.getTipus().equals(TipusCamp.DATE) ||
 								camp.getTipus().equals(TipusCamp.INTEGER) ||
@@ -257,11 +259,11 @@ public class TascaFormUtil {
 					if (ambArray) {
 						bg.addProperty(
 								campCodi,
-								Array.newInstance(camp.getJavaClass(), 2).getClass());
+								Array.newInstance(getJavaClass(camp.getTipus()), 2).getClass());
 					} else {
 						bg.addProperty(
 								campCodi,
-								camp.getJavaClass());
+								getJavaClass(camp.getTipus()));
 					}
 				}
 			} else {
@@ -317,7 +319,7 @@ public class TascaFormUtil {
 									command,
 									campCodi,
 									Array.newInstance(
-											camp.getJavaClass(),
+											getJavaClass(camp.getTipus()),
 											(perFiltre) ? 2 : 1));
 						}
 					} else {
@@ -339,7 +341,7 @@ public class TascaFormUtil {
 			boolean perFiltre,
 			boolean evitarProblema) {
 		if (perFiltre) {
-			if (camp.getCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
+			if (camp.getCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX) ||  camp.getDefinicioProces() == null) {
 				return camp.getCodi();
 			} else {
 				String definicioProcesKey = camp.getDefinicioProces().getJbpmKey();
@@ -368,16 +370,40 @@ public class TascaFormUtil {
 				if (value != null) {
 					int length = ((Object[])value).length;
 					return Array.newInstance(
-							camp.getJavaClass(),
+							getJavaClass(camp.getTipus()),
 							length + addTolength);
 				} else {
 					return Array.newInstance(
-							camp.getJavaClass(),
+							getJavaClass(camp.getTipus()),
 							1);
 				}
 			}
 		}
 		return null;
+	} 
+	
+	private static Class getJavaClass(TipusCamp tipusCamp){
+		if (TipusCamp.STRING.equals(tipusCamp)) {
+			return String.class;
+		} else if (TipusCamp.INTEGER.equals(tipusCamp)) {
+			return Long.class;
+		} else if (TipusCamp.FLOAT.equals(tipusCamp)) {
+			return Double.class;
+		} else if (TipusCamp.BOOLEAN.equals(tipusCamp)) {
+			return Boolean.class;
+		} else if (TipusCamp.TEXTAREA.equals(tipusCamp)) {
+			return String.class;
+		} else if (TipusCamp.DATE.equals(tipusCamp)) {
+			return Date.class;
+		} else if (TipusCamp.PRICE.equals(tipusCamp)) {
+			return BigDecimal.class;
+		} else if (TipusCamp.TERMINI.equals(tipusCamp)) {
+			return String.class; // Termini.class
+		} else if (TipusCamp.REGISTRE.equals(tipusCamp)) {
+			return Object[].class;
+		} else {
+			return String.class;
+		}
 	}
 
 	private static final Log logger = LogFactory.getLog(TascaFormUtil.class);

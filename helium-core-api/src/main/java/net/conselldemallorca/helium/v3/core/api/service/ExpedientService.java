@@ -9,9 +9,10 @@ import java.util.Map;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaFilaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
@@ -25,13 +26,11 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreDto;
-import net.conselldemallorca.helium.v3.core.api.exception.DominiNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EnumeracioNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EstatNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
 
 
@@ -150,17 +149,13 @@ public interface ExpedientService {
 
 	public List<ExpedientTascaDto> findTasquesPerExpedient(Long expedientId);
 
+	public List<ExpedientTascaDto> findTasquesPendentsPerExpedient(Long expedientId);
+
 	public ExpedientTascaDto getTascaPerExpedient(
 			Long expedientId,
 			String tascaId);
 
 	public List<PersonaDto> findParticipantsPerExpedient(Long expedientId);
-
-	public List<DominiRespostaFilaDto> dominiConsultar(
-			String processInstanceId,
-			String dominiCodi,
-			String dominiId,
-			Map<String, Object> parametres) throws DominiNotFoundException, SistemaExternException;
 
 	public List<EnumeracioValorDto> enumeracioConsultar(
 			String processInstanceId,
@@ -255,4 +250,14 @@ public interface ExpedientService {
 	public void reassignarTasca(Long id, String taskId, String expression);
 
 	public List<Object> findLogIdTasquesById(List<ExpedientTascaDto> tasques);
+
+	public List<ExpedientConsultaDissenyDto> findAmbEntornConsultaDisseny(Long entornId, Long consultaId, Map<String, Object> valors, String sort, boolean asc, int firstRow, int maxResults);
+
+	public List<ExpedientConsultaDissenyDto> findAmbEntornConsultaDisseny(Long entornId, Long consultaId, Map<String, Object> valors, String sort, boolean asc);
+	
+	public List<CampDto> findConsultaFiltre(Long consultaId);
+
+	public List<CampDto> findConsultaInforme(Long consultaId);
+
+	public PaginaDto findPerConsultaInformePaginat(Long id, Long consultaId, Long expedientTipusId, Map<String, Object> valorsPerService, String expedientCampId, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, PaginacioParamsDto paginacioDtoFromDatatable);
 }

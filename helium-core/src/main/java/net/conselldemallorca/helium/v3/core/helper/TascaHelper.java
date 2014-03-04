@@ -148,4 +148,16 @@ public class TascaHelper {
 			return null;
 		}
 	}
+
+	public List<ExpedientTascaDto> findTasquesPendentsPerExpedient(Expedient expedient) {
+	List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
+	List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(expedient.getProcessInstanceId());
+	for (JbpmTask task: tasks) {
+		// Sólo las pendientes
+		if (task.isOpen() && !task.isCancelled() && !task.isSuspended() && !task.isCompleted()) {
+			resposta.add(dtoConverter.toExpedientTascaMinDto(task, expedient));
+		}
+	}
+	return resposta;
+}
 }

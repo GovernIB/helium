@@ -53,7 +53,7 @@ import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.AclServiceDao;
 import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.LlistatIds;
@@ -85,13 +85,11 @@ public class TascaService {
 	public static final String DEFAULT_ENCRYPTION_SCHEME = "DES/ECB/PKCS5Padding";
 	public static final String DEFAULT_KEY_ALGORITHM = "DES";
 
-	public static final String TASKDESC_CAMP_AGAFADA = "agafada";
-
 	private ExpedientDao expedientDao;
 	private ExpedientTipusDao expedientTipusDao;
 	private TascaDao tascaDao;
 	private DefinicioProcesDao definicioProcesDao;
-	private JbpmDao jbpmDao;
+	private JbpmHelper jbpmDao;
 	private AclServiceDao aclServiceDao;
 	private DtoConverter dtoConverter;
 	private PluginPersonaDao pluginPersonaDao;
@@ -462,7 +460,6 @@ public class TascaService {
 				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
 				previousActors);
 		jbpmDao.takeTaskInstance(taskId, usuari);
-		task.setFieldFromDescription(TASKDESC_CAMP_AGAFADA, "true");
 		getServiceUtils().expedientIndexLuceneUpdate(task.getProcessInstanceId());
 		String currentActors = expedientLogHelper.getActorsPerReassignacioTasca(taskId);
 		expedientLog.setAccioParams(previousActors + "::" + currentActors);
@@ -500,7 +497,6 @@ public class TascaService {
 				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
 				previousActors);
 		jbpmDao.releaseTaskInstance(taskId);
-		task.setFieldFromDescription(TASKDESC_CAMP_AGAFADA, "false");
 		getServiceUtils().expedientIndexLuceneUpdate(task.getProcessInstanceId());
 		String currentActors = expedientLogHelper.getActorsPerReassignacioTasca(taskId);
 		expedientLog.setAccioParams(previousActors + "::" + currentActors);
@@ -1325,7 +1321,7 @@ public class TascaService {
 		this.definicioProcesDao = definicioProcesDao;
 	}
 	@Autowired
-	public void setJbpmDao(JbpmDao jbpmDao) {
+	public void setJbpmHelper(JbpmHelper jbpmDao) {
 		this.jbpmDao = jbpmDao;
 	}
 	@Autowired
@@ -1782,7 +1778,7 @@ public class TascaService {
 		dto.setCancelada(task.isCancelled());
 		dto.setSuspesa(task.isSuspended());
 		dto.setProcessInstanceId(task.getProcessInstanceId());
-		dto.setAgafada("true".equals(task.getFieldFromDescription(TASKDESC_CAMP_AGAFADA)));
+		dto.setAgafada(task.isAgafada());
 		Map<String, Object> valorsTasca = jbpmDao.getTaskInstanceVariables(task.getId());
 		DelegationInfo delegationInfo = (DelegationInfo)valorsTasca.get(
 				TascaService.VAR_TASCA_DELEGACIO);
@@ -1813,7 +1809,7 @@ public class TascaService {
 		return dto;
 	}
 	
-	private Map<String, PersonaDto> getPersonesMap(String assignee, Set<String> pooledActors) {
+	public Map<String, PersonaDto> getPersonesMap(String assignee, Set<String> pooledActors) {
 		Map<String, PersonaDto> resposta = new HashMap<String, PersonaDto>();
 		if (assignee != null)
 			resposta.put(assignee, pluginPersonaDao.findAmbCodiPlugin(assignee));
@@ -1972,6 +1968,7 @@ public class TascaService {
 			task.setCacheActiu();
 			jbpmDao.describeTaskInstance(
 					task.getId(),
+					titol,
 					task.getDescriptionWithFields());
 		}
 		dadesCache = new DadesCacheTasca(

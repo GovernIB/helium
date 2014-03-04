@@ -43,7 +43,7 @@
 		<property name="lockBufferTime" value="5000" />
 	</bean>
 
-	<bean id="jbpmDao" class="net.conselldemallorca.helium.jbpm3.integracio.JbpmDao">
+	<bean id="jbpmHelper" class="net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper">
 		<property name="commandService" ref="jbpm3CommandService" />
 	</bean>
 	

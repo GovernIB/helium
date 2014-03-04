@@ -40,7 +40,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientL
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.LogInfo;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
@@ -86,7 +86,7 @@ public class ExpedientLogHelper {
 	private static final String MESSAGE_LOG_PREFIX = "[H3l1um]";
 	private static final String MESSAGE_LOGINFO_PREFIX = "[H3l1nf0]";
 
-	private JbpmDao jbpmDao;
+	private JbpmHelper jbpmDao;
 	private ExpedientLogDao expedientLogDao;
 	private ExpedientDao expedientDao;
 	private DocumentHelper documentHelper;
@@ -823,7 +823,7 @@ public class ExpedientLogHelper {
 	}
 
 	@Autowired
-	public void setJbpmDao(JbpmDao jbpmDao) {
+	public void setJbpmHelper(JbpmHelper jbpmDao) {
 		this.jbpmDao = jbpmDao;
 	}
 	@Autowired

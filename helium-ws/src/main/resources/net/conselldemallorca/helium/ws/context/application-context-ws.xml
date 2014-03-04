@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans 
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 	xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xmlns:cxf="http://cxf.apache.org/core"
 	xsi:schemaLocation="
-		http://www.springframework.org/schema/beans
-		http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://cxf.apache.org/jaxws
-		http://cxf.apache.org/schemas/jaxws.xsd">
+		http://cxf.apache.org/core 
+		http://cxf.apache.org/schemas/core.xsd
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<import resource="classpath:META-INF/cxf/cxf.xml" />
 	<import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
@@ -23,5 +25,25 @@
 
 	<bean id="tramitacioService" class="net.conselldemallorca.helium.ws.tramitacio.TramitacioServiceImpl"/>
 	<bean id="tramitacioV1" class="net.conselldemallorca.helium.ws.tramitacio.v1.TramitacioServiceImpl"/>
+	
+	<!-- Loggers for SOAP calls -->
+    <bean id="abstractLoggingInterceptor" class="org.apache.cxf.interceptor.AbstractLoggingInterceptor" abstract="true" />
+    <bean id="loggingInInterceptor" class="org.apache.cxf.interceptor.LoggingInInterceptor" parent="abstractLoggingInterceptor" />
+    <bean id="loggingOutInterceptor" class="org.apache.cxf.interceptor.LoggingOutInterceptor" parent="abstractLoggingInterceptor" />
+ 
+    <cxf:bus>
+        <cxf:inInterceptors>
+            <ref bean="loggingInInterceptor" />
+        </cxf:inInterceptors>
+        <cxf:outInterceptors>
+            <ref bean="loggingOutInterceptor" />
+        </cxf:outInterceptors>
+        <cxf:outFaultInterceptors>
+            <ref bean="loggingOutInterceptor" />
+        </cxf:outFaultInterceptors>
+        <cxf:inFaultInterceptors>
+            <ref bean="loggingInInterceptor" />
+        </cxf:inFaultInterceptors>
+    </cxf:bus>
 
 </beans>

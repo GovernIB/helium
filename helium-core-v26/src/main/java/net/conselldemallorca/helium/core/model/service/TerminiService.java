@@ -22,7 +22,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat.TerminiIniciatEstat;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 
@@ -49,7 +49,7 @@ public class TerminiService {
 	private RegistreDao registreDao;
 	private ExpedientDao expedientDao;
 	private AlertaDao alertaDao;
-	private JbpmDao jbpmDao;
+	private JbpmHelper jbpmDao;
 	private MessageSource messageSource;
 
 
@@ -455,7 +455,7 @@ public class TerminiService {
 		this.alertaDao = alertaDao;
 	}
 	@Autowired
-	public void setJbpmDao(JbpmDao jbpmDao) {
+	public void setJbpmHelper(JbpmHelper jbpmDao) {
 		this.jbpmDao = jbpmDao;
 	}
 	@Autowired

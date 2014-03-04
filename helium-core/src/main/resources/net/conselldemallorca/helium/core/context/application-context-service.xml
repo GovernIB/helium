@@ -9,8 +9,6 @@
 		http://www.springframework.org/schema/context
 		http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 
-	<context:component-scan base-package="net.conselldemallorca.helium.core.model.service"/>
-
 	<bean id="comprovarTerminisTask" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean">
 		<property name="targetObject" ref="terminiService" />
 		<property name="targetMethod" value="comprovarTerminisIniciats" />
@@ -43,20 +41,21 @@
 	<bean id="monitorHelper" class="net.conselldemallorca.helium.core.model.service.MonitorHelper">
 		<constructor-arg type="java.lang.String" value="${app.expedient.monitor?false}"/>
 	</bean>
-
+	
 	<!-- V3 -->
+	<context:component-scan base-package="net.conselldemallorca.helium.core.model.service"/>
 	<context:component-scan base-package="net.conselldemallorca.helium.v3.core.service"/>
 	<context:component-scan base-package="net.conselldemallorca.helium.v3.core.helper"/>
-	<context:component-scan base-package="net.conselldemallorca.helium.core.model.service"/>
 
 	<bean name="jbpm3HeliumBridge" class="net.conselldemallorca.helium.v3.core.service.Jbpm3HeliumServiceImpl"/>
-	<bean id="jbpm3HeliumBridgeFactory" class=" net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge" lazy-init="false">
+	<bean id="jbpm3HeliumBridgeFactory" class="net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge" lazy-init="false">
 		<property name="jbpm3HeliumService" ref="jbpm3HeliumBridge" />
 	</bean>
-
+	
 	<bean id="mesuresTemporalsHelper" class="net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper">
 		<constructor-arg type="java.lang.String" value="${app.mesura.temps.actiu?false}"/>
 		<constructor-arg type="java.lang.Integer" value="${app.mesura.temps.mesures?100}"/>
 	</bean>
-
+	
+	
 </beans>

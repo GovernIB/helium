@@ -21,6 +21,8 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 
 	List<ExpedientTipus> findByEntorn(Entorn entorn);
 	
+	List<ExpedientTipus> findByEntornOrderByNomAsc(Entorn entorn);
+	
 	List<ExpedientTipus> findByEntornOrderByCodiAsc(Entorn entorn);
 
 	ExpedientTipus findByEntornAndCodi(Entorn entorn, String codi);

@@ -16,7 +16,6 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientTipusDao;
 import net.conselldemallorca.helium.core.model.dao.PluginCustodiaDao;
@@ -28,11 +27,9 @@ import net.conselldemallorca.helium.core.model.exception.NotFoundException;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
-import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
-import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
@@ -52,8 +49,8 @@ import net.conselldemallorca.helium.core.model.service.LuceneHelper;
 import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.service.PermisosHelper;
 import net.conselldemallorca.helium.core.model.service.PermisosHelper.ObjectIdentifierExtractor;
-import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
@@ -63,8 +60,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaFilaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
@@ -83,13 +78,11 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreDto;
 import net.conselldemallorca.helium.v3.core.api.exception.DocumentDescarregarException;
-import net.conselldemallorca.helium.v3.core.api.exception.DominiNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EnumeracioNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EstatNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.PermissionService;
@@ -111,7 +104,6 @@ import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
-import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
@@ -123,11 +115,12 @@ import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 
 import org.apache.commons.lang.StringUtils;
-import org.modelmapper.ModelMapper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -161,8 +154,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private RegistreDao registreDao;
 	@Resource
 	private RegistreRepository registreRepository;
-	@Resource
-	private DominiRepository dominiRepository;
 	@Resource
 	private EnumeracioRepository enumeracioRepository;
 	@Resource
@@ -426,9 +417,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 			relacionatDto.setTitol(relacionat.getTitol());
 			relacionatDto.setNumero(relacionat.getNumero());
 			relacionatDto.setDataInici(relacionat.getDataInici());
-			relacionatDto.setTipus(new ModelMapper().map(relacionat.getTipus(), ExpedientTipusDto.class));
+			relacionatDto.setTipus(conversioTipusHelper.convertir(relacionat.getTipus(), ExpedientTipusDto.class));
 			if (relacionat.getEstat() != null) {
-				relacionatDto.setEstat(new ModelMapper().map(relacionat.getEstat(), EstatDto.class));
+				relacionatDto.setEstat(conversioTipusHelper.convertir(relacionat.getEstat(), EstatDto.class));
 			}
 			relacionatDto.setProcessInstanceId(relacionat.getProcessInstanceId());
 			expedientDto.addExpedientRelacionat(relacionatDto);
@@ -466,6 +457,81 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return conversioTipusHelper.convertir(
 				expedient,
 				ExpedientDto.class);
+	}
+
+	@Transactional(readOnly = true)
+	public PaginaDto<ExpedientDto> findPerConsultaInformePaginat(Long entornId, Long consultaId, Long expedientTipusId, Map<String, Object> valorsPerService, String expedientCampId, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta");
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "0");
+		
+		logger.debug("Consulta informe d'expedients paginada (entornId=" + entornId + "expedientTipusId=" + expedientTipusId + ")");
+		// Comprova l'accés a l'entorn
+		if (entornId == null) {
+			logger.debug("No s'ha trobat l'entorn (entornId=" + entornId + ")");
+			throw new EntornNotFoundException();
+		} else {
+			boolean ambPermis = permisosHelper.isGrantedAny(
+					entornId,
+					Entorn.class,
+					new Permission[] {
+						ExtendedPermission.READ,
+						ExtendedPermission.ADMINISTRATION});
+			if (!ambPermis) {
+				logger.debug("No es tenen permisos per accedir a l'entorn (entornId=" + entornId + ")");
+				throw new EntornNotFoundException();
+			}
+		}
+		// Comprova l'accés al tipus d'expedient
+		boolean ambPermis = permisosHelper.isGrantedAny(
+				expedientTipusId,
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.READ,
+					ExtendedPermission.ADMINISTRATION});
+		if (!ambPermis) {
+			logger.debug("No es tenen permisos per accedir a l'expedientTipus (expedientTipusId=" + expedientTipusId + ")");
+			throw new ExpedientTipusNotFoundException();
+		}
+		
+		// Obté la llista de tipus d'expedient permesos
+		Entorn entorn = entornRepository.findOne(entornId);
+		List<ExpedientTipus> tipusPermesos = expedientTipusRepository.findByEntorn(entorn);
+		permisosHelper.filterGrantedAny(
+				tipusPermesos,
+				new ObjectIdentifierExtractor<ExpedientTipus>() {
+					public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
+						return expedientTipus.getId();
+					}
+				},
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.READ,
+					ExtendedPermission.ADMINISTRATION});
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "0");
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "1");
+						
+		List<ExpedientConsultaDissenyDto> expedientsConsultaDisseny = findAmbEntornConsultaDisseny(
+				entornId,
+				consultaId,
+				valorsPerService,
+				ExpedientCamps.EXPEDIENT_CAMP_ID,
+				true);
+		
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "1");
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "2");
+		
+		List<ExpedientDto> listaExpedients = new ArrayList<ExpedientDto>();
+		for (ExpedientConsultaDissenyDto expedientConsultaDisseny : expedientsConsultaDisseny) {
+			listaExpedients.add(expedientConsultaDisseny.getExpedient());
+		}
+		Page<ExpedientDto> paginaResultats = new PageImpl<ExpedientDto>(listaExpedients);		
+		
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "2");
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "3");
+		PaginaDto<ExpedientDto> resposta = PaginacioHelper.toPaginaDto(paginaResultats);
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "3");
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA INFORME EXPEDIENTS v3", "consulta");
+		return resposta;
 	}
 
 	@Transactional(readOnly = true)
@@ -897,34 +963,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 
 	@Transactional(readOnly = true)
-	@Override
-	public List<DominiRespostaFilaDto> dominiConsultar(
-			String processInstanceId,
-			String dominiCodi,
-			String dominiId,
-			Map<String, Object> parametres) throws DominiNotFoundException, SistemaExternException {
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		Domini domini = dominiRepository.findByExpedientTipusAndCodi(
-				expedient.getTipus(),
-				dominiCodi);
-		if (domini == null)
-			domini = dominiRepository.findByEntornAndCodi(
-					expedient.getEntorn(),
-					dominiCodi);
-		try {
-			DominiDto dominiDto = new ModelMapper().map(domini, DominiDto.class);
-			List<FilaResultat> resposta = dominiHelper.consultar(
-					dominiDto,
-					dominiId,
-					parametres);
-			return conversioTipusHelper.convertirList(
-					resposta,
-					DominiRespostaFilaDto.class);
-		} catch (Exception ex) {
-			throw new SistemaExternException(ex);
-		}
-	}
-	@Transactional(readOnly = true)
 	public List<EnumeracioValorDto> enumeracioConsultar(
 			String processInstanceId,
 			String enumeracioCodi) throws EnumeracioNotFoundException {
@@ -1254,6 +1292,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 	
 	@Transactional
+	@Override
 	public List<ExpedientLogDto> getLogsPerTascaOrdenatsPerData(ExpedientDto expedient) {
 		mesuresTemporalsHelper.mesuraIniciar("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "findAmbExpedientIdOrdenatsPerData");
 		List<ExpedientLogDto> resposta = new ArrayList<ExpedientLogDto>();
@@ -1315,6 +1354,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 	
 	@Transactional
+	@Override
 	public Map<String, ExpedientTascaDto> getTasquesPerLogExpedient(Long expedientId) {
 		List<ExpedientLog> logs = expedientLogRepository.findAmbExpedientIdOrdenatsPerData(expedientId);
 		Map<String, ExpedientTascaDto> tasquesPerLogs = new HashMap<String, ExpedientTascaDto>();
@@ -1338,6 +1378,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 	
 	@Transactional
+	@Override
 	public List<ExpedientConsultaDissenyDto> findAmbEntornConsultaDisseny(
 			Long entornId,
 			Long consultaId,
@@ -1358,7 +1399,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private void afegirValorsPredefinits(
 			Consulta consulta,
 			Map<String, Object> valors,
-			List<Camp> camps) {
+			List<CampDto> camps) {
 		if (consulta.getValorsPredefinits() != null && consulta.getValorsPredefinits().length() > 0) {
 			String[] parelles = consulta.getValorsPredefinits().split(",");
 			for (String parelle : parelles) {
@@ -1366,11 +1407,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 				if (parella.length == 2) {
 					String campCodi = parella[0];
 					String valor = parella[1];
-					for (Camp camp: camps) {
+					for (CampDto camp: camps) {
 						if (camp.getCodi().equals(campCodi)) {
 							valors.put(
 									camp.getDefinicioProces().getJbpmKey() + "." + campCodi,
-									Camp.getComObject(
+									CampDto.getComObject(
 											camp.getTipus(),
 											valor));
 							break;
@@ -1382,6 +1423,33 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 
 	@Transactional
+	@Override
+	public List<CampDto> findConsultaFiltre(Long consultaId) {
+		Consulta consulta = consultaHelper.findById(consultaId);		
+		
+		List<Camp> campsFiltre = getServiceUtils().findCampsPerCampsConsulta(
+				consulta,
+				net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp.FILTRE);
+		
+		List<CampDto> campsFiltreDto = conversioTipusHelper.convertirList(campsFiltre, CampDto.class);
+		
+		return campsFiltreDto;
+	}
+
+	@Transactional
+	@Override
+	public List<CampDto> findConsultaInforme(Long consultaId) {
+		Consulta consulta = consultaHelper.findById(consultaId);List<Camp> campsInforme = getServiceUtils().findCampsPerCampsConsulta(
+				consulta,
+				net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp.INFORME);
+		
+		List<CampDto> campsInformeDto = conversioTipusHelper.convertirList(campsInforme, CampDto.class);
+		
+		return campsInformeDto;
+	}
+	
+	@Transactional
+	@Override
 	public List<ExpedientConsultaDissenyDto> findAmbEntornConsultaDisseny(
 			Long entornId,
 			Long consultaId,
@@ -1395,11 +1463,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 		
 		List<Camp> campsFiltre = getServiceUtils().findCampsPerCampsConsulta(
 				consulta,
-				TipusConsultaCamp.FILTRE);
+				net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp.FILTRE);
 		List<Camp> campsInforme = getServiceUtils().findCampsPerCampsConsulta(
 				consulta,
-				TipusConsultaCamp.INFORME);
-		afegirValorsPredefinits(consulta, valors, campsFiltre);
+				net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp.INFORME);
+		
+		List<CampDto> campsFiltreDto = conversioTipusHelper.convertirList(campsFiltre, CampDto.class);
+		List<CampDto> campsInformeDto = conversioTipusHelper.convertirList(campsInforme, CampDto.class);
+		afegirValorsPredefinits(consulta, valors, campsFiltreDto);
 		List<Map<String, DadaIndexadaDto>> dadesExpedients = luceneHelper.findAmbDadesExpedientV3(
 				consulta.getEntorn().getCodi(),
 				consulta.getExpedientTipus().getCodi(),
@@ -1411,10 +1482,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 				firstRow,
 				maxResults);
 		
-		List<CampDto> campsInformeDto = new ArrayList<CampDto>();
-		for(Camp campTmp : campsInforme) {
-			campsInformeDto.add(new ModelMapper().map(campTmp, CampDto.class));
-		}
 		for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
 			DadaIndexadaDto dadaExpedientId = dadesExpedient.get(LuceneHelper.CLAU_EXPEDIENT_ID);
 			ExpedientConsultaDissenyDto fila = new ExpedientConsultaDissenyDto();
@@ -1436,6 +1503,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 
 	@Transactional
+	@Override
 	public List<ExpedientLogDto> findLogsTascaOrdenatsPerData(Long targetId) {
 		List<ExpedientLog> logs = expedientLogRepository.findLogsTascaByIdOrdenatsPerData(String.valueOf(targetId));
 		List<ExpedientLogDto> resposta = new ArrayList<ExpedientLogDto>();
@@ -1558,7 +1626,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
 		List<Expedient> expedients = expedientRepository.findAmbEntornLikeIdentificador(entornId, text);
 		for (Expedient expedient : expedients) {
-			resposta.add(new ModelMapper().map(expedient, ExpedientDto.class));
+			resposta.add(conversioTipusHelper.convertir(expedient, ExpedientDto.class));
 		}
 		return resposta;
 	}
@@ -1642,14 +1710,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String usuariBo = (usuari != null) ? usuari : auth.getName();
 		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
-		ExpedientTipusDto expedientTipusDto = new ModelMapper().map(expedientTipus, ExpedientTipusDto.class);
-		//String mesuraTempsTotalPrefix = "INIEXP_TOT_" + expedientTipus.getCodi();
-		//String mesuraTempsIncrementalPrefix = "INIEXP_INC_" + expedientTipus.getCodi();
-		//MesurarTemps.diferenciaReiniciar(mesuraTempsTotalPrefix);
-		//MesurarTemps.diferenciaReiniciar(mesuraTempsIncrementalPrefix);
+		ExpedientTipusDto expedientTipusDto = conversioTipusHelper.convertir(expedientTipus, ExpedientTipusDto.class);
+		
 		Entorn entorn = entornRepository.findOne(entornId);
 		textBloqueigIniciExpedient = auth.getName() + " (" +
-				"entornCodi=" + entorn.getCodi() + ", " +
+				"entornCodi=" + entornId + ", " +
 				"expedientTipusCodi=" + expedientTipus.getCodi() + ", " +
 				"data=" + new Date() + ")";
 		try {
@@ -1657,7 +1722,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			Expedient expedient = new Expedient();
 			//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "0");
 			expedient.setTipus(expedientTipus);
-			expedient.setIniciadorTipus(new ModelMapper().map(iniciadorTipus, IniciadorTipus.class));
+			expedient.setIniciadorTipus(conversioTipusHelper.convertir(iniciadorTipus, IniciadorTipus.class));
 			expedient.setIniciadorCodi(iniciadorCodiCalculat);
 			expedient.setEntorn(entorn);
 			expedient.setProcessInstanceId(UUID.randomUUID().toString());
@@ -1743,7 +1808,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			}
 			// Inicia l'instància de procés jBPM
 			//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "6");
-			ExpedientIniciantDto.setExpedient(dtoConverter.toExpedientDto(expedient, true));
+			ExpedientIniciantDto.setExpedient(conversioTipusHelper.convertir(expedient, ExpedientDto.class));
 			DefinicioProces definicioProces = null;
 			if (definicioProcesId != null) {
 				definicioProces = definicioProcesRepository.findById(definicioProcesId);
@@ -1813,7 +1878,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					expedient.getId(),
 					usuariBo);
 			// Retorna la informació de l'expedient que s'ha iniciat
-			ExpedientDto dto = dtoConverter.toExpedientDto(expedient, true);
+			ExpedientDto dto = conversioTipusHelper.convertir(expedient, ExpedientDto.class);
 			//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "15");
 			//MesurarTemps.diferenciaImprimirStdout(mesuraTempsTotalPrefix);
 			//MesurarTemps.mitjaCalcular(mesuraTempsTotalPrefix, mesuraTempsTotalPrefix);
@@ -1829,7 +1894,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	public String getNumeroExpedientActual(
 			Long entornId,
-			ExpedientTipusDto expedientTipus,
+			ExpedientTipusDto expedientTipusDto,
 			Integer any) {
 		long increment = 0;
 		String numero = null;
@@ -1838,17 +1903,16 @@ public class ExpedientServiceImpl implements ExpedientService {
 			any = Calendar.getInstance().get(Calendar.YEAR);
 		do {
 			numero = expedientTipusDao.getNumeroExpedientActual(
-					expedientTipus.getId(),
+					expedientTipusDto.getId(),
 					any.intValue(),
 					increment);
-			expedient = expedientDao.findAmbEntornTipusINumero(
-					entornId,
-					expedientTipus.getId(),
+			ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusDto.getId());
+			expedient = expedientRepository.findByTipusAndNumero(expedientTipus,
 					numero);
 			increment++;
 		} while (expedient != null);
 		if (increment > 1)
-			expedientTipus.updateSequencia(any, increment - 1);
+			expedientTipusDto.updateSequencia(any, increment - 1);
 		return numero;
 	}
 
@@ -1964,10 +2028,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 		jbpmHelper.reassignTaskInstance(taskId, expression, entornId);
 		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskId);
 		expedientLog.setAccioParams(previousActors + "::" + currentActors);
-		if (previousActors.startsWith("[")) {
-			JbpmTask task = jbpmHelper.getTaskById(taskId);
-			if (task != null) task.setFieldFromDescription(TascaService.TASKDESC_CAMP_AGAFADA, "true");
-		}
 		if (usuari == null) {
 			usuari = SecurityContextHolder.getContext().getAuthentication().getName();
 		}
@@ -1986,5 +2046,18 @@ public class ExpedientServiceImpl implements ExpedientService {
 			tasquesIds.add(tasca.getId());
 		}
 		return expedientLoggerHelper.findLogIdTasquesById(tasquesIds);
+	}
+
+	@Transactional
+	@Override
+	public List<ExpedientTascaDto> findTasquesPendentsPerExpedient(Long expedientId) {
+		logger.debug("Consulta de tasques de l'expedient (id=" + expedientId + ")");
+		Expedient expedient = expedientHelper.geExpedientComprovantPermisosAny(
+				expedientId,
+				new Permission[] {
+						ExtendedPermission.READ,
+						ExtendedPermission.ADMINISTRATION});
+		return tascaHelper.findTasquesPendentsPerExpedient(
+				expedient);
 	}
 }

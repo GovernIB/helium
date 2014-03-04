@@ -9,6 +9,7 @@ import javax.annotation.Resource;
 import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.service.ReassignacioUsuarisService;
+import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
 import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
 
@@ -26,23 +27,27 @@ public class ReassignacioUsuarisServiceImpl implements ReassignacioUsuarisServic
 
 	@Resource
 	private ReassignacioRepository reassignacioRepository;
-
+	@Resource(name="dtoConverterV3")
+	private DtoConverter dtoConverter;
+	@Resource
+	private ConversioTipusHelper conversioTipusHelper;
+	
 	@Transactional
 	@Override
 	public List<ReassignacioDto> llistaReassignacions() {
-		return DtoConverter.toLlistatReassignacioDto(reassignacioRepository.findLlistaActius(Calendar.getInstance().getTime()));
+		return dtoConverter.toLlistatReassignacioDto(reassignacioRepository.findLlistaActius(Calendar.getInstance().getTime()));
 	}
 
 	@Transactional
 	@Override
 	public List<ReassignacioDto> llistaReassignacions(Long expedientTipusId) {
-		return DtoConverter.toLlistatReassignacioDto(reassignacioRepository.findLlistaActius(expedientTipusId, Calendar.getInstance().getTime()));
+		return dtoConverter.toLlistatReassignacioDto(reassignacioRepository.findLlistaActius(expedientTipusId, Calendar.getInstance().getTime()));
 	}
 
 	@Transactional
 	@Override
 	public List<ReassignacioDto> llistaReassignacionsMod(Long id) {
-		return DtoConverter.toLlistatReassignacioDto(reassignacioRepository.findLlistaActiusModificacio(id, Calendar.getInstance().getTime()));
+		return dtoConverter.toLlistatReassignacioDto(reassignacioRepository.findLlistaActiusModificacio(id, Calendar.getInstance().getTime()));
 	}
 	
 	@Transactional
@@ -97,6 +102,6 @@ public class ReassignacioUsuarisServiceImpl implements ReassignacioUsuarisServic
 	@Transactional
 	@Override
 	public ReassignacioDto findReassignacioById(Long id) {
-		return DtoConverter.toReassignacioDto(reassignacioRepository.findOne(id));
+		return conversioTipusHelper.convertir(reassignacioRepository.findOne(id), ReassignacioDto.class);
 	}
 }

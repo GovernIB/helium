@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class Jbpm3HeliumBridge {
 
-	@Resource(name = "heliumServiceV3")
+	@Resource(name="heliumServiceV3")
 	private Jbpm3HeliumService jbpm3HeliumService;
 
 	@Autowired
@@ -36,5 +36,4 @@ public class Jbpm3HeliumBridge {
 	public Jbpm3HeliumService getJbpm3HeliumService() {
 		return jbpm3HeliumService;
 	}
-
 }

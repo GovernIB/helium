@@ -120,6 +120,8 @@ td {
     font-size: 0.85em;
     margin-top: 0;
     position: static;
+    float: left;
+    width: 100%;
 }
 
 .missatge {
@@ -257,11 +259,23 @@ ul#tabnav li.warn a {
   display: none;
 }
 
+.well_mod {	
+    border: 1px solid #E3E3E3;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    min-height: 20px;
+    padding: 19px;
+}
+
 .form-tasca .fila_reducida {
 	margin-bottom: 0px !important;
 	margin-top: 0px !important;
 	padding-bottom: 10px;
     padding-top: 10px;
+}
+
+.form-tasca .fila_reducida label {
+	display: inline !important;
 }
 
 .form-tasca .fila_reducida:nth-child(2n+1) {
@@ -270,4 +284,38 @@ ul#tabnav li.warn a {
 
 #formFinalitzar {
 	margin: 0px;
+}
+
+.btn_under_taulaDades {
+	margin-top: -35px;	
+}
+
+#formConsultar .botonera {
+	margin-top: 20px;
+}
+
+.table-pendents {
+	width: 100%;
+}
+
+.tr-pendents td {
+	background-color: #FFFFFF !important;
+}
+
+.tr-pendents th, .tr-pendents td {
+	padding: 10px 10px 25px;
+	font-size: 12px;
+}
+
+.tr-pendents th {
+	background-image: repeating-radial-gradient(at center top , #EDEDED, #EDEDED);
+}	
+
+.table-pendents th, .table-pendents td {
+	padding-top: 4px;
+	padding-bottom: 4px;
+}
+.table-pendents th {
+	background-color: #B8B8B8;
+    background-repeat: repeat-x;
 }

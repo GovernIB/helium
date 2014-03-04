@@ -33,17 +33,6 @@ public class TascaServiceBean implements TascaService {
 	@Autowired
 	TascaService delegate;
 
-	public static final String VAR_PREFIX = "H3l1um#";
-
-	public static final String VAR_TASCA_VALIDADA = "H3l1um#tasca.validada";
-	public static final String VAR_TASCA_DELEGACIO = "H3l1um#tasca.delegacio";
-
-	public static final String DEFAULT_SECRET_KEY = "H3l1umKy";
-	public static final String DEFAULT_ENCRYPTION_SCHEME = "DES/ECB/PKCS5Padding";
-	public static final String DEFAULT_KEY_ALGORITHM = "DES";
-
-	public static final String TASKDESC_CAMP_AGAFADA = "agafada";
-
 	/**
 	 * Retorna les dades d'una instància de tasca.
 	 * 
@@ -256,6 +245,12 @@ public class TascaServiceBean implements TascaService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTascaDto getTascaPerExpedientId(Long expedientId, String tascaId) {
 		return delegate.getTascaPerExpedientId(expedientId, tascaId);		
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientTascaDto agafar(Long entornId, String taskId) {
+		return delegate.agafar(entornId, taskId);
 	}
 
 	@Override

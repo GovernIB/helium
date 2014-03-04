@@ -36,7 +36,7 @@ import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.NombreEnCastella;
 import net.conselldemallorca.helium.core.util.NombreEnCatala;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.sf.jooreports.templates.DocumentTemplate;
 import net.sf.jooreports.templates.DocumentTemplateFactory;
 
@@ -73,7 +73,7 @@ public class PlantillaDocumentDao {
 	private CarrecJbpmIdDao carrecJbpmIdDao;
 	private AreaDao areaDao;
 	private AreaJbpmIdDao areaJbpmIdDao;
-	private JbpmDao jbpmDao;
+	private JbpmHelper jbpmHelper;
 	private DominiDao dominiDao;
 	private DocumentStoreDao documentStoreDao;
 	private DocumentHelper documentHelper;
@@ -155,8 +155,8 @@ public class PlantillaDocumentDao {
 		this.areaJbpmIdDao = areaJbpmIdDao;
 	}
 	@Autowired
-	public void setJbpmDao(JbpmDao jbpmDao) {
-		this.jbpmDao = jbpmDao;
+	public void setjbpmHelper(JbpmHelper jbpmHelper) {
+		this.jbpmHelper = jbpmHelper;
 	}
 	@Autowired
 	public void setDominiDao(DominiDao dominiDao) {
@@ -203,9 +203,9 @@ public class PlantillaDocumentDao {
 								String codi = (String)arg0;
 								Object valor = null;
 								if (taskId != null)
-									valor = jbpmDao.getTaskInstanceVariable(taskId, codi);
+									valor = jbpmHelper.getTaskInstanceVariable(taskId, codi);
 								if (valor == null)
-									valor = jbpmDao.getProcessInstanceVariable(processInstanceId, codi);
+									valor = jbpmHelper.getProcessInstanceVariable(processInstanceId, codi);
 								if (valor == null)
 									return new SimpleScalar(null);
 								if (valor instanceof Object[])

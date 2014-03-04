@@ -153,7 +153,8 @@
 					</button>
 				</div>
 			</c:if>
-		</c:if>		
+		</c:if>
+		<br/>
 		<div class="formHint">${datosVariable.observacions}</div>
 	</div>
 </c:if>

@@ -30,7 +30,7 @@ import net.conselldemallorca.helium.core.util.DocumentTokenUtils;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
@@ -52,7 +52,7 @@ public class DocumentHelper {
 	public static final String PREFIX_ADJUNT = "H3l1um#adjunt.";
 	public static final String PREFIX_SIGNATURA = "H3l1um#signatura.";
 
-	private JbpmDao jbpmDao;
+	private JbpmHelper jbpmDao;
 	private DefinicioProcesDao definicioProcesDao;
 	private ExpedientDao expedientDao;
 	private DocumentDao documentDao;
@@ -419,7 +419,7 @@ public class DocumentHelper {
 	}
 
 	@Autowired
-	public void setJbpmDao(JbpmDao jbpmDao) {
+	public void setJbpmDao(JbpmHelper jbpmDao) {
 		this.jbpmDao = jbpmDao;
 	}
 	@Autowired

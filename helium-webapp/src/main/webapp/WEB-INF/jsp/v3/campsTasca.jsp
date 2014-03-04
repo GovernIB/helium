@@ -53,7 +53,7 @@
 				<c:param name="type" value="suggest"/>
 				<c:param name="label">${dada.campEtiqueta}</c:param>
 				<c:param name="comment">${dada.observacions}</c:param>
-				<c:param name="suggestUrl"><c:url value="/domini/consultaExpedient.html"/></c:param>
+				<c:param name="suggestUrl"><c:url value="/v3/domini/consultaExpedient"/></c:param>
 				<c:param name="suggestExtraParams">${extraParams},tipus:'suggest'</c:param>
 				<c:param name="suggestText"><c:if test="${not empty tasca.valorsDomini[dada.varCodi]}">${tasca.valorsDomini[dada.varCodi].valor}</c:if></c:param>
 				<c:param name="iterateOn"><c:if test="${dada.campMultiple}">valorActual</c:if></c:param>
@@ -214,19 +214,25 @@
 <c:if test="${dada.campTipus == 'SELECCIO'}">
 	<div class="controls">
 		<c:if test="${!dada.readOnly && !tasca.validada}">
-			<select id="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" name="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" class="span11"></select>
+			<c:if test='${not empty dada_multiple}'>
+				<c:set var="idSelect" value="${dada_multiple}[${dada.varCodi}]"/>
+			</c:if>
+			<c:if test='${empty dada_multiple}'>
+				<c:set var="idSelect" value="${dada.varCodi}"/>
+			</c:if>
+			<select id="${idSelect}" name="${idSelect}" class="span11"><option value="" <c:if test="${dada.varValor == '' || empty dada.varValor}"> selected="selected"</c:if>>&lt;&lt; <spring:message code="js.helforms.selec_valor" /> &gt;&gt;</option></select>
 			<script>
-				$.ajax({
+		       	$.ajax({
 				    url: 'camp/${dada.campId}/valorsSeleccio',
 				    type: 'GET',
 				    dataType: 'json',
 				    success: function(json) {
-				    	$('select#${dada.varCodi}').append('<option value="" <c:if test="${dada.varValor == '' || empty dada.varValor}"> selected="selected"</c:if>>&lt;&lt; <spring:message code="js.helforms.selec_valor" /> &gt;&gt;</option>');
-				        $.each(json, function(i, value) {
-				        	if (value.codi == '${dada.varValor}')
-				        		$('select#${dada.varCodi}').append($('<option>').text(value.text).attr('value', value.codi).attr('selected', 'selected'));
-				        	else
-				        		$('select#${dada.varCodi}').append($('<option>').text(value.text).attr('value', value.codi));
+				    	$.each(json, function(i, value) {
+					    	var option = new Option(value.text,value.codi);	
+					    	if(value.codi == '${dada.varValor}') {
+					    		option.setAttribute("selected","selected");
+						    }
+					    	document.getElementById('${idSelect}').options.add(option);
 				        });
 				    }
 				});

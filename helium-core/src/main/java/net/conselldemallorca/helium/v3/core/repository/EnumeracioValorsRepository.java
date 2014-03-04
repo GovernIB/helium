@@ -24,7 +24,9 @@ public interface EnumeracioValorsRepository extends JpaRepository<EnumeracioValo
 	List<EnumeracioValors> findByEnumeracioOrderByOrdreAsc(
 			Enumeracio enumeracio);
 
-	@Query("select e from EnumeracioValors e where e.enumeracio.id = :enumeracioId order by e.ordre, e.id")
+	@Query("select e from EnumeracioValors e "
+			+ "where e.enumeracio.id = :enumeracioId "
+			+ "order by e.ordre, e.id")
 	List<EnumeracioValors> findByEnumeracioOrdenat(@Param("enumeracioId") Long enumeracioId);
 
 }

@@ -950,55 +950,6 @@ public class ExecucioMassivaService {
 		}
 	}
 	
-//	private void reassignarExpedient(OperacioMassivaDto dto) throws Exception {
-//		ExecucioMassivaExpedient eme = null;
-//		ExpedientDto exp = dto.getExpedient();
-//		try {
-//			eme = execucioMassivaExpedientDao.getById(dto.getId(), false);
-//			eme.setDataInici(new Date());
-//			
-//			// Paràmetres
-//			Object[] params = (Object[])deserialize(dto.getParam2());
-//			Long entornId = null;
-//			Long tascaId = null;
-//
-//			if (params[0] != null) entornId = (Long)params[0];
-//			if (params[1] != null) tascaId = (Long)params[1];
-//			
-//			int numReassignar = 0;
-//			// Obtenim la tasca
-//			List<InstanciaProcesDto> instanciesProces = expedientService.getArbreInstanciesProces(exp.getProcessInstanceId());
-//			for (InstanciaProcesDto ip: instanciesProces) {
-//				List<TascaDto> tasques = expedientService.findTasquesPerInstanciaProces(ip.getId(), false);
-//				
-//				for (TascaDto tasca: tasques) {
-//					if (tasca.getTascaId().equals(tascaId)) {
-//						numReassignar++;
-//						if (tasca.isOpen()) {
-//							// Reassignam la tasca
-//							expedientService.reassignarTasca(
-//									entornId,
-//									tasca.getId(),
-//									dto.getParam1(),
-//									dto.getUsuari());
-//						}
-//					}
-//				}
-//			}
-//			if (numReassignar == 0) {
-//				eme.setEstat(ExecucioMassivaEstat.ESTAT_ERROR);
-//				eme.setError(getMessage("expedient.massiva.reassignar.buit"));
-//			} else {
-//				eme.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
-//			}
-//			eme.setDataFi(new Date());
-//			execucioMassivaExpedientDao.saveOrUpdate(eme);
-//		} catch (Exception ex) {
-//			logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut reassignar l'expedient", ex);
-//			throw ex;
-//		}
-//	}
-	
 	private void reassignarTasca(OperacioMassivaDto dto) throws Exception {
 		ExecucioMassivaExpedient eme = null;
 		String tascaId = dto.getTascaId();
@@ -1035,40 +986,24 @@ public class ExecucioMassivaService {
 		}
 	}
 	
-	public void actualitzaUltimaOperacio(OperacioMassivaDto dto) {
-		if (dto.getUltimaOperacio()) {
+	public void actualitzaUltimaOperacio(net.conselldemallorca.helium.v3.core.api.dto.OperacioMassivaDto operacioMassiva) {
+		if (operacioMassiva.getUltimaOperacio()) {
 			try {
-				ExecucioMassiva em = execucioMassivaDao.getById(dto.getExecucioMassivaId(), false);
+				ExecucioMassiva em = execucioMassivaDao.getById(operacioMassiva.getExecucioMassivaId(), false);
 				em.setDataFi(new Date());
 				execucioMassivaDao.saveOrUpdate(em);
 			} catch (Exception ex) {
-				logger.error("EXPEDIENTMASSIU:"+dto.getExecucioMassivaId()+". No s'ha pogut finalitzar l'expedient massiu", ex);
+				logger.error("EXPEDIENTMASSIU:"+operacioMassiva.getExecucioMassivaId()+". No s'ha pogut finalitzar l'expedient massiu", ex);
 			}
 			try {
-				if (dto.getEnviarCorreu()) {
+				if (operacioMassiva.getEnviarCorreu()) {
 					
 					// Correu
 					List<String> emailAddresses = new ArrayList<String>();
 					
-					PersonaDto persona = pluginService.findPersonaAmbCodi(dto.getUsuari());
+					PersonaDto persona = pluginService.findPersonaAmbCodi(operacioMassiva.getUsuari());
 					emailAddresses.add(persona.getEmail());
-					
-//					AddressResolver addressResolver = (AddressResolver)JbpmConfiguration.Configs.getObject("jbpm.mail.address.resolver");
-//					Object resolvedAddresses = addressResolver.resolveAddress(dto.getUsuari());
-//					if (resolvedAddresses != null) {
-//						if (resolvedAddresses instanceof String) {
-//							emailAddresses.add((String)resolvedAddresses);
-//						} else if (resolvedAddresses instanceof Collection) {
-//							emailAddresses.addAll((Collection)resolvedAddresses);
-//						} else if (resolvedAddresses instanceof String[]) {
-//							emailAddresses.addAll(Arrays.asList((String[])resolvedAddresses));
-//						} else {
-//							throw new JbpmException(
-//									"Address resolver '" + addressResolver +
-//									"' returned '" + resolvedAddresses.getClass().getName() +
-//									"' instead of a String, Collection or String-array: " + resolvedAddresses);
-//						}
-//					}
+
 					mailDao.send(
 							GlobalProperties.getInstance().getProperty("app.correu.remitent"),
 							emailAddresses,
@@ -1083,7 +1018,7 @@ public class ExecucioMassivaService {
 		}
 	}
 	
-	public void generaInformeError(OperacioMassivaDto operacioMassiva, Exception exception) {
+	public void generaInformeError(net.conselldemallorca.helium.v3.core.api.dto.OperacioMassivaDto operacioMassiva, Exception exception) {
 		ExecucioMassivaExpedient eme = execucioMassivaExpedientDao.getById(operacioMassiva.getId(), false);
 		Date ara = new Date();
 		eme.setDataInici(new Date());

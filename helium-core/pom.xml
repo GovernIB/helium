@@ -25,11 +25,6 @@
 		   <version>${slf4j.version}</version>
 		</dependency>
 		<dependency>
-		  <groupId>org.modelmapper</groupId>
-		  <artifactId>modelmapper</artifactId>
-		  <version>0.6.1</version>
-		</dependency>
-		<dependency>
 			<groupId>ma.glasnost.orika</groupId>
 			<artifactId>orika-core</artifactId>
 			<version>1.4.3</version>

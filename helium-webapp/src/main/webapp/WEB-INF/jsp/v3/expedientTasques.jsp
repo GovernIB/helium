@@ -15,7 +15,6 @@ body .modal-body {
 <c:choose>
 	<c:when test="${not empty tasques}">
 		<c:set var="hiHaPendentsMeves" value="${false}"/>
-		<c:set var="hiHaPendentsAltres" value="${false}"/>
 		<c:set var="hiHaNoPendents" value="${false}"/>
 		<c:forEach var="tasca" items="${tasques}">
 			<c:if test="${tasca.oberta}"><c:set var="hiHaPendentsMeves" value="${true}"/></c:if>
@@ -23,7 +22,7 @@ body .modal-body {
 		</c:forEach>
 		<c:if test="${hiHaPendentsMeves}">
 			<c:set var="cont" value="0"/>
-			<table class="table table-bordered">
+			<table class="dataTable table table-bordered">
 				<thead>
 					<tr>
 						<th>Tasca</th>
@@ -39,7 +38,7 @@ body .modal-body {
 				<tbody>
 					<c:forEach var="tasca" items="${tasques}">
 						<c:if test="${tasca.oberta}">
-							<tr>
+							<tr <c:if test="${tasca.responsableCodi == dadesPersona.codi and tasca.oberta and not tasca.suspesa}"> style="cursor: pointer"</c:if>>
 								<td>${tasca.titol}</td>
 								<td>
 									<c:choose>
@@ -71,7 +70,7 @@ body .modal-body {
 												<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog icon-white"></i> Accions <span class="caret"></span></a>
 												<ul class="dropdown-menu">
 													<c:if test="${tasca.oberta and not tasca.suspesa}">
-														<li><a class="link-tramitacio-modal" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/tramitar"/>"><i class="icon-folder-open"></i> Tramitar</a></li>
+														<li><a class="link-tramitacio-modal tramitar" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/tramitar"/>"><i class="icon-folder-open"></i> Tramitar</a></li>
 														<li><a href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/delegar"/>"><i class="icon-hand-right"></i> Delegar</a></li>
 														<li>
 															<c:import url="utils/modalDefinir.jsp">
@@ -104,7 +103,7 @@ body .modal-body {
 												<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog icon-white"></i> Accions <span class="caret"></span></a>
 												<ul class="dropdown-menu">
 													<c:if test="${tasca.oberta and not tasca.suspesa}">
-														<li><a href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/agafar"/>"><i class="icon-signin"></i> Agafar</a></li>
+														<li><a href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/tascaAgafar"/>"><i class="icon-signin"></i> Agafar</a></li>
 														<li>
 															<c:import url="utils/modalDefinir.jsp">
 																<c:param name="sAjaxSource" value="/helium/v3/expedient/${expedientId}/tasca/${tasca.id}/reassignar"/>
@@ -287,6 +286,14 @@ $(document).ready(
 			$('#tramitacio-modal .modal-body').html('<iframe width="100%" height="100%" frameborder="0" allowtransparency="true" src="' + url + '" onload="autoResize(this)"></iframe>');
 			$('#tramitacio-modal').modal('show');
 			$('#tramitacio-modal').css('top', '1%');
+		});
+		
+		$('.dataTable').addClass('table-hover');
+		$('.dataTable > tbody > tr > td:not(:last-child)').click(function(event) {
+			event.stopPropagation();			
+			if ($('ul a:first', $(this).parent()).hasClass('tramitar')) {
+				$('ul a:first', $(this).parent()).click();
+			}
 		});
 	}
 );

@@ -81,6 +81,21 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 	protected Validator validatorGuardar;
 	protected Validator validatorValidar;
 	
+	@ModelAttribute("valorsPerSuggest")
+	public Map<String, List<Object>> populateValorsPerSuggest(
+			HttpServletRequest request,
+			ModelMap model) {
+		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
+		if (entorn != null) {
+			ExpedientTascaDto tasca = (ExpedientTascaDto)model.get("tasca");
+			if (tasca != null) {
+				Object command = model.get("command");
+				return TascaFormHelper.getValorsPerSuggest(tasca, command);
+			}
+		}
+		return null;
+	}
+	
 	@ModelAttribute("command")
 	protected Object populateCommand(
 			HttpServletRequest request, 

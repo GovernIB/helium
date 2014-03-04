@@ -29,4 +29,13 @@ public interface ConsultaRepository extends JpaRepository<Consulta, Long> {
 	List<Consulta> findConsultesAmbEntornIExpedientTipusOrdenat(
 			@Param("entornId") Long entornId, 
 			@Param("expedientTipusId") Long expedientTipusId);
+	
+	@Query(	"select c from Consulta c " +
+			"where entorn.id = :entornId " +
+			"and expedientTipus.id = :expedientTipusId " +
+			"and c.ocultarActiu = false " +
+			"order by ordre")
+	List<Consulta> findConsultesActivesAmbEntornIExpedientTipusOrdenat(
+			@Param("entornId") Long entornId, 
+			@Param("expedientTipusId") Long expedientTipusId);
 }

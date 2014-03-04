@@ -31,8 +31,6 @@ public interface TascaService {
 	public static final String DEFAULT_ENCRYPTION_SCHEME = "DES/ECB/PKCS5Padding";
 	public static final String DEFAULT_KEY_ALGORITHM = "DES";
 
-	public static final String TASKDESC_CAMP_AGAFADA = "agafada";
-
 	/**
 	 * Retorna les dades d'una instància de tasca.
 	 * 
@@ -194,6 +192,8 @@ public interface TascaService {
 	public void delegacioCancelar(Long entornId, String taskId);
 
 	public ExpedientTascaDto getTascaPerExpedientId(Long expedientId, String tascaId);
+
+	public ExpedientTascaDto agafar(Long entornId, String taskId);
 
 	public ExpedientTascaDto alliberar(Long id, String id2, boolean comprovarResponsable);
 

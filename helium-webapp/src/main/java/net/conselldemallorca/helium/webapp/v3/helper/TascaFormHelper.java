@@ -100,6 +100,9 @@ public class TascaFormHelper {
 	    		try {
 		    		String campCodi = getCampCodi(camp, perFiltre, true);
 		    		Object valor = PropertyUtils.getSimpleProperty(command, campCodi);
+		    		if (camp.getTipus().equals(CampTipusDto.BOOLEAN) && valor == null) {
+		    			valor = Boolean.FALSE;
+		    		}
 		    		if (!perFiltre && camp.isMultiple() && revisarArrays) {
 	    				// Lleva els valors buits de l'array
 		    			int tamany = 0;
@@ -165,7 +168,7 @@ public class TascaFormHelper {
 						validacio.getExpressio());
 				String codiError = "error.camp." + camp.getCodi();
 				validationRule.setErrorCode(codiError);
-				validationRule.setDefaultErrorMessage(validacio.getMissatge());
+				validationRule.setDefaultErrorMessage(camp.getEtiqueta() + ": " + validacio.getMissatge());
 				beanValidationConfiguration.addPropertyRule(
 						camp.getCodi(),
 						validationRule);
@@ -290,10 +293,10 @@ public class TascaFormHelper {
 					if (!perFiltre)
 						ambArray = camp.isMultiple();
 					else
-						ambArray = 	camp.getTipus().equals(TipusCamp.DATE) ||
-									camp.getTipus().equals(TipusCamp.INTEGER) ||
-									camp.getTipus().equals(TipusCamp.FLOAT) ||
-									camp.getTipus().equals(TipusCamp.PRICE);
+						ambArray = 	camp.getTipus().equals(CampTipusDto.DATE) ||
+									camp.getTipus().equals(CampTipusDto.INTEGER) ||
+									camp.getTipus().equals(CampTipusDto.FLOAT) ||
+									camp.getTipus().equals(CampTipusDto.PRICE);
 					if (ambArray) {
 						if (valors != null && getValueClass(campCodiValors, camp, valors) != null)
 							PropertyUtils.setSimpleProperty(
@@ -311,7 +314,7 @@ public class TascaFormHelper {
 						PropertyUtils.setSimpleProperty(
 								command,
 								campCodi,
-								(valors.get(campCodiValors) != null) ? getValueClass(campCodiValors, camp, valors) : null);
+								(valors != null) && (valors.get(campCodiValors) != null) ? getValueClass(campCodiValors, camp, valors) : null);
 				} catch (Exception ex) {
 					logger.error("No s'ha pogut afegir el camp '" + campCodi + "' al command (" + tipusCommand + ")", ex);
 				}
@@ -339,7 +342,7 @@ public class TascaFormHelper {
 			boolean perFiltre,
 			boolean evitarProblema) {
 		if (perFiltre) {
-			if (camp.getCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
+			if (camp.getCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX) || camp.getDefinicioProces() == null) {
 				return camp.getCodi();
 			} else {
 				String definicioProcesKey = camp.getDefinicioProces().getJbpmKey();

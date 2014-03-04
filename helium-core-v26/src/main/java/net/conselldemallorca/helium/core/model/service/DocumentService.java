@@ -28,7 +28,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 
@@ -55,7 +55,7 @@ public class DocumentService {
 	private PlantillaDocumentDao plantillaDocumentDao;
 	private DocumentStoreDao documentStoreDao;
 	private RegistreDao registreDao;
-	private JbpmDao jbpmDao;
+	private JbpmHelper jbpmDao;
 	private DtoConverter dtoConverter;
 	private DocumentHelper documentHelper;
 	private ExpedientLogHelper expedientLogHelper;
@@ -618,7 +618,7 @@ public class DocumentService {
 		this.registreDao = registreDao;
 	}
 	@Autowired
-	public void setJbpmDao(JbpmDao jbpmDao) {
+	public void setJbpmHelper(JbpmHelper jbpmDao) {
 		this.jbpmDao = jbpmDao;
 	}
 	@Autowired

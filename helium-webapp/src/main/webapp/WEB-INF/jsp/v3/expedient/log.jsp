@@ -92,8 +92,7 @@
 											<c:param name="refrescarPagina" value="false"/>							
 											<c:param name="refrescarTaula" value="false"/>							
 											<c:param name="refrescarTaulaId" value="false"/>
-											<c:param name="icon" value=""/>
-											<c:param name="img" value="/img/magnifier.png"/>
+											<c:param name="icon" value="icon-search"/>
 											<c:param name="texto" value=""/>
 										</c:import>
 									</span>
@@ -130,8 +129,7 @@
 										<c:param name="refrescarPagina" value="false"/>							
 										<c:param name="refrescarTaula" value="false"/>							
 										<c:param name="refrescarTaulaId" value="false"/>
-										<c:param name="icon" value=""/>
-										<c:param name="img" value="/img/magnifier.png"/>
+										<c:param name="icon" value="icon-search"/>
 										<c:param name="texto" value=""/>
 									</c:import>								
 								</c:when>
@@ -145,16 +143,22 @@
 							<c:if test="${log.estat == 'NORMAL' && numBloquejos == 0}">
 								<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="128,16">
 									<a href="<c:url value="/v3/expedient/retrocedir">
-									<c:param name="id" value="${expedient.id}"/>
-									<c:param name="logId" value="${log.id}"/>
-									<c:param name="tipus_retroces" value="${param.tipus_retroces}"/>
-									<c:param name="retorn" value="r"/>
-									</c:url>" onclick="return confirmarRetrocedir(event)" class="retroces"><img src="<c:url value="/img/arrow_undo.png"/>" alt="<spring:message code="expedient.log.retrocedir"/>" title="<spring:message code="expedient.log.retrocedir"/>" border="0"/></a>
+											<c:param name="id" value="${expedient.id}"/>
+											<c:param name="logId" value="${log.id}"/>
+											<c:param name="tipus_retroces" value="${param.tipus_retroces}"/>
+											<c:param name="retorn" value="r"/>
+										</c:url>" onclick="return confirmarRetrocedir(event)" class="retroces">
+										<i class="icon-repeat" 
+											alt="<spring:message code="expedient.log.retrocedir"/>" 
+											title="<spring:message code="expedient.log.retrocedir"/>" 
+											border="0">
+										</i>
+									</a>
 								</security:accesscontrollist>
 							</c:if>
 							<c:if test="${numBloquejos gt 0}">B</c:if>
 						</td>
-						<c:if test="${log.estat == 'BLOCAR'}">Hola<c:set var="numBloquejos" value="${numBloquejos - 1}"/></c:if>
+						<c:if test="${log.estat == 'BLOCAR'}"><c:set var="numBloquejos" value="${numBloquejos - 1}"/></c:if>
 					</tr>
 				</c:forEach>
 			</tbody>

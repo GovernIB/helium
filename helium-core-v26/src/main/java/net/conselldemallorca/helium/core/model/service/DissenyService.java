@@ -93,7 +93,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 import net.conselldemallorca.helium.core.security.AclServiceDao;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 
@@ -135,7 +135,7 @@ public class DissenyService {
 	private SequenciaAnyDao sequenciaAnyDao;
 
 	private DtoConverter dtoConverter;
-	private JbpmDao jbpmDao;
+	private JbpmHelper jbpmDao;
 	private LuceneDao luceneDao;
 	private AclServiceDao aclServiceDao;
 	private MessageSource messageSource;
@@ -1699,7 +1699,7 @@ public class DissenyService {
 			return dominiDao.consultar(entornId, dominiId, dominiWsId, params);
 		} catch (Exception ex) {
 			throw new DominiException(
-					getServiceUtils().getMessage("error.dissenyService.consultantDomini"), ex);
+					getServiceUtils().getMessage("error.dissenyService.consultantDomini") + " : " + dominiWsId + " << parametros >> " + params, ex);
 		}
 	}
 	
@@ -2177,7 +2177,7 @@ public class DissenyService {
 		this.dtoConverter = dtoConverter;
 	}
 	@Autowired
-	public void setJbpmDao(JbpmDao jbpmDao) {
+	public void setJbpmDao(JbpmHelper jbpmDao) {
 		this.jbpmDao = jbpmDao;
 	}
 	@Autowired

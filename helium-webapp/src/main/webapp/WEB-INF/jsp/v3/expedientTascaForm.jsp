@@ -35,11 +35,6 @@
 	
 	<script type="text/javascript">
 	// <![CDATA[
-		$(document).ready(function() {
-			$("select").select2({
-				allowClear: true
-			});
-		});
 		
 		function confirmar(form) {
 			$("table").each(function(){

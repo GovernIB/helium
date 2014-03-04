@@ -450,7 +450,7 @@ public class MesuresTemporalsHelper {
 			super();
 			this.inici = new Long(System.currentTimeMillis());
 			this.contador = 0L;
-			events = new LinkedList<IntervalEvent>();
+			this.events = new LinkedList<IntervalEvent>();
 		}
 
 		public void addNovaMesura() {

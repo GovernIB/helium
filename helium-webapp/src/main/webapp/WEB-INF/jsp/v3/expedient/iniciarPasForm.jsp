@@ -1,8 +1,9 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" buffer="16kb"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 
 <html>
 <head>
@@ -30,9 +31,20 @@
 		if ("cancel" == submitAction || "guardar" == submitAction) {
 			return true;
 		}
+
+		$("table").each(function(){
+			if ($(this).hasClass("hide")) {
+				$(this).remove();
+			}
+		});
+		
 		<c:choose>
-			<c:when test="${not ((expedientTipus.teNumero and expedientTipus.demanaNumero) or (expedientTipus.teTitol and expedientTipus.demanaTitol))}">return confirm("<spring:message code='expedient.iniciar.confirm_iniciar' />");</c:when>
-			<c:otherwise>return true</c:otherwise>
+			<c:when test="${not ((expedientTipus.teNumero and expedientTipus.demanaNumero) or (expedientTipus.teTitol and expedientTipus.demanaTitol))}">
+				return confirm("<spring:message code='expedient.iniciar.confirm_iniciar' />");
+			</c:when>
+			<c:otherwise>
+				return true
+			</c:otherwise>
 		</c:choose>
 	}
 	function editarRegistre(campId, campCodi, campEtiqueta, numCamps, index) {
@@ -259,14 +271,6 @@
 		});
 	});
 	
-	function confirmar(form) {
-		$("table").each(function(){
-			if ($(this).hasClass("hide")) {
-				$(this).remove();
-			}
-		});
-		return true;
-	}
     function verificarSignatura(element) {
 		var amplada = 800;
 		var alcada = 600;
@@ -436,7 +440,7 @@
 		</form><br/>
 	</c:if>
 
-	<form:form action="iniciarPasForm" id="command" name="command" cssClass="form-horizontal form-tasca" onsubmit="return confirmar(event)" method="post" commandName="command">
+	<form:form onsubmit="return confirmar(this)" id="command" name="command" action="iniciarPasForm" cssClass="form-horizontal form-tasca" method="post" modelAttribute="command">
 		<input type="hidden" id="id" name="id" value="${tasca.id}"/>
 		<input type="hidden" name="entornId" value="${entornId}"/>
 		<input type="hidden" name="expedientTipusId" value="${expedientTipus.id}"/>

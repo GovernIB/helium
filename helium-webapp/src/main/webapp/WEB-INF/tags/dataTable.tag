@@ -77,7 +77,39 @@
 					var hfcol = oSettings.aoColumns[0].bVisible;
 					$('.dataTable > tbody > tr > td:not(:last-child' + ( tcheck && hfcol ? ', :first-child)' : ')')).click(function(event) {
 						event.stopPropagation();
-						window.location.href = $('ul a:first', $(this).parent()).attr('href');
+						
+						var url = $('ul a:first', $(this).parent()).attr("href");
+						var idExpedient = url.substr("expedient/".length ,url.length);
+
+						if ($("tr.info-" + idExpedient).length) {
+							return;
+						}
+						
+						var numCols = $("tr#" + idExpedient).children('td').length;
+
+						$( ".tr-pendents" ).each(function( index ) {
+							$( this ).fadeOut();
+							$( this ).remove();
+						});
+						
+						$("tr#" + idExpedient).after("<tr id='contingut-carregant' class='tr-pendents hide'>"+
+								"<td colspan='" + (numCols - 1)+ "'>"+
+									"<div><p style='margin-top: 2em; text-align: center'><i class='icon-spinner icon-2x icon-spin'></i></p></div>"+
+								"</td></tr>");
+						
+						$('#contingut-carregant').show();
+						
+						$.ajax({
+							"url": "/helium/nodecorar/v3/expedient/" + idExpedient + "/tasquesPendents",
+							"success": function (data) {								
+								$("tr#" + idExpedient).after("<tr class='tr-pendents info-" + idExpedient + "'>"+
+										"<td colspan='" + (numCols - 1)+ "'>" + data + "</td>").fadeIn();
+								$('#contingut-carregant').remove();
+							},
+						  	"error": function(XMLHttpRequest, textStatus, errorThrown) {
+						  		$('#contingut-carregant').remove();
+							}
+					    });
 					});
 				</c:if>
 				$("a", taula.parent()).on('click', function() {

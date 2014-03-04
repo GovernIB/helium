@@ -18,6 +18,7 @@ import net.conselldemallorca.helium.webapp.v3.datatables.DatatablesPagina;
 import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 
 /**
  * Utilitats per a la paginació de consultes.
@@ -106,6 +107,22 @@ public class PaginacioHelper {
 		dto.setDarrera(true);
 		dto.setContingut(llista);
 		return getPaginaPerDatatables(request, dto);
+	}
+
+	public static <T> PaginaDto<T> toPaginaDto(Page<?> page) {
+		PaginaDto<T> dto = new PaginaDto<T>();
+		dto.setNumero(page.getNumber());
+		dto.setTamany(page.getSize());
+		dto.setTotal(page.getTotalPages());
+		dto.setElementsTotal(page.getTotalElements());
+		dto.setAnteriors(page.hasPreviousPage());
+		dto.setPrimera(page.isFirstPage());
+		dto.setPosteriors(page.hasNextPage());
+		dto.setDarrera(page.isLastPage());
+		if (page.hasContent()) {
+			dto.setContingut((List<T>) page.getContent());
+		}
+		return dto;
 	}
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PaginacioHelper.class);

@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -27,6 +28,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,6 +57,16 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 		model.addAttribute("tasques", tasques);
 		model.addAttribute("expedientLogIds", expedientService.findLogIdTasquesById(tasques));
 		return "v3/expedientTasques";
+	}
+
+	@RequestMapping(value = "/{expedientId}/tasquesPendents", method = RequestMethod.GET)
+	public String tasquesPendents(HttpServletRequest request, @PathVariable Long expedientId, Model model) {
+		if (!NoDecorarHelper.isRequestSenseDecoracio(request)) {
+			return mostrarInformacioExpedientPerPipella(request, expedientId, model, "tasques", expedientService);
+		}
+		List<ExpedientTascaDto> tasques = expedientService.findTasquesPendentsPerExpedient(expedientId);
+		model.addAttribute("tasques", tasques);
+		return "v3/expedientTasquesPendents";
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/tramitar", 
@@ -155,6 +168,9 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 				validatorGuardar.validate(command, result);
 				if (result.hasErrors()) {
 					MissatgesHelper.error(request, getMessage(request, "error.guardar.dades"));
+					model.addAttribute(
+		        			"valorsPerSuggest",
+		        			TascaFormHelper.getValorsPerSuggest(tasca, command));
 					return "redirect:/v3/expedient/"+expedientId+"/tasca/"+tascaId+"/form";
 				}
 				boolean ok = accioGuardarForm(request, entorn.getId(), id, tasca.getCamps(), command);
@@ -175,14 +191,22 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 					validatorValidar.validate(command, result);
 					try {
 						afegirVariablesDelProces(command, tasca);
-						TascaFormHelper.getBeanValidatorForCommand(camps).validate(command, result);
+						Validator validator = TascaFormHelper.getBeanValidatorForCommand(camps);
+						Map<String, Object> valorsCommand = TascaFormHelper.getValorsFromCommand(camps, command, true, false);
+						validator.validate(TascaFormHelper.getCommandForCamps(camps,valorsCommand,null,null,false), result);
 					} catch (Exception ex) {
 						logger.error("S'han produit errors de validació", ex);
 						MissatgesHelper.error(request, getMessage(request, "error.validacio"));
 						return "redirect:/v3/expedient/"+expedientId+"/tasca/"+tascaId+"/form";
 					}
 					if (result.hasErrors()) {
-						MissatgesHelper.error(request, getMessage(request, "error.validacio"));
+						model.addAttribute(
+			        			"valorsPerSuggest",
+			        			TascaFormHelper.getValorsPerSuggest(tasca, command));
+						for ( ObjectError res : result.getAllErrors()) {
+							String error = (res.getDefaultMessage() == null || res.getDefaultMessage().isEmpty()) ? getMessage(request, "error.validacio") : res.getDefaultMessage();
+							MissatgesHelper.error(request, error);
+						}
 						return "redirect:/v3/expedient/"+expedientId+"/tasca/"+tascaId+"/form";
 					}
 					ok = accioValidarForm(request, entorn.getId(), id, camps, command);
@@ -352,10 +376,9 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 			ExpedientDto expedient = expedientService.findById(expedientId);
 			if (potModificarOReassignarExpedient(expedient)) {
 				try {
-					ExpedientTascaDto tasca = tascaService.getTascaPerExpedientId(expedient.getId(), tascaId);
 					tascaService.alliberar(
 							entorn.getId(),
-							tasca.getId(),
+							tascaId,
 							false);
 					MissatgesHelper.info(request, getMessage(request, "info.tasca.alliberada"));
 				} catch (Exception e) {
@@ -377,36 +400,24 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			ModelMap model) {
-//		Entorn entorn = getEntornActiu(request);
-//		TascaDto tasca = tascaService.getByIdSenseComprovacio(id);
-//		if (entorn != null) {
-//			try {
-//				tascaService.agafar(entorn.getId(), id);
-//				missatgeInfo(request, getMessage("info.tasca.disponible.personals") );
-//				
-//				if(tasca.isDelegacioOriginal()){
-//					return "redirect:/tasca/info.html?id="+id;
-//				}else{
-//					
-//					if (!tasca.getCamps().isEmpty()) {
-//						return "redirect:/tasca/form.html?id="+id;
-//					} else if(!tasca.getDocuments().isEmpty()) {
-//						return "redirect:/tasca/documents.html?id="+id;
-//					} else if (!tasca.getSignatures().isEmpty()) {
-//						return "redirect:/tasca/signatures.html?id="+id;
-//					}	
-//				}
-//				
-//			} catch (Exception ex) {
-//	        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
-//	        	logger.error("No s'ha pogut agafar la tasca", ex);
-//	        	return "redirect:/tasca/grupLlistat.html";
-//	        }
-//			return "redirect:/tasca/info.html?id=" + id;
-//		} else {
-//			missatgeError(request, getMessage("error.no.entorn.selec") );
-			return "redirect:/index.html";
-//		}
+		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
+		if (entorn != null) {		
+			ExpedientDto expedient = expedientService.findById(expedientId);
+			if (potModificarOReassignarExpedient(expedient)) {
+				try {
+					tascaService.agafar(entorn.getId(), tascaId);
+					MissatgesHelper.info(request, getMessage(request, "info.tasca.disponible.personals"));
+				} catch (Exception e) {
+					MissatgesHelper.error(request, getMessage(request, "error.proces.peticio"));
+					e.printStackTrace();
+				}
+			} else {
+				MissatgesHelper.error(request, getMessage(request, "error.permisos.modificar.expedient"));
+			}
+		} else {
+			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
+		}
+		return "redirect:/v3/expedient/" + expedientId;
 	}
 	
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientTasquesController.class);

@@ -13,9 +13,10 @@ import javax.interceptor.Interceptors;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaFilaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
@@ -29,13 +30,11 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreDto;
-import net.conselldemallorca.helium.v3.core.api.exception.DominiNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EnumeracioNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EstatNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 
@@ -52,26 +51,6 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 public class ExpedientServiceBean implements ExpedientService {
 	@Autowired
 	ExpedientService delegate;
-
-	public enum FiltreAnulat {
-		ACTIUS("expedient.consulta.anulats.actius"), ANUL_LATS("expedient.consulta.anulats.anulats"), TOTS("expedient.consulta.anulats.tots");
-
-		private final String codi;
-		private final String id;
-
-		FiltreAnulat(String codi) {
-			this.codi = codi;
-			this.id = this.name();
-		}
-
-		public String getCodi() {
-			return this.codi;
-		}
-
-		public String getId() {
-			return id;
-		}
-	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -191,12 +170,6 @@ public class ExpedientServiceBean implements ExpedientService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<PersonaDto> findParticipantsPerExpedient(Long expedientId) {
 		return delegate.findParticipantsPerExpedient(expedientId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<DominiRespostaFilaDto> dominiConsultar(String processInstanceId, String dominiCodi, String dominiId, Map<String, Object> parametres) throws DominiNotFoundException, SistemaExternException {
-		return delegate.dominiConsultar(processInstanceId, dominiCodi, dominiId, parametres);
 	}
 
 	@Override
@@ -365,5 +338,41 @@ public class ExpedientServiceBean implements ExpedientService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<Object> findLogIdTasquesById(List<ExpedientTascaDto> tasques) {
 		return delegate.findLogIdTasquesById(tasques);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientConsultaDissenyDto> findAmbEntornConsultaDisseny(Long entornId, Long consultaId, Map<String, Object> valors, String sort, boolean asc, int firstRow, int maxResults) {
+		return delegate.findAmbEntornConsultaDisseny(entornId, consultaId, valors, sort, asc, firstRow, maxResults);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientConsultaDissenyDto> findAmbEntornConsultaDisseny(Long entornId, Long consultaId, Map<String, Object> valors, String sort, boolean asc) {
+		return delegate.findAmbEntornConsultaDisseny(entornId, consultaId, valors, sort, asc);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<CampDto> findConsultaFiltre(Long consultaId) {
+		return delegate.findConsultaFiltre(consultaId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<CampDto> findConsultaInforme(Long consultaId) {
+		return delegate.findConsultaInforme(consultaId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PaginaDto findPerConsultaInformePaginat(Long id, Long consultaId, Long expedientTipusId, Map<String, Object> valorsPerService, String expedientCampId, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, PaginacioParamsDto paginacioDtoFromDatatable) {
+		return delegate.findPerConsultaInformePaginat(id, consultaId, expedientTipusId, valorsPerService, expedientCampId, nomesPendents, nomesAlertes, mostrarAnulats, paginacioDtoFromDatatable);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientTascaDto> findTasquesPendentsPerExpedient(Long expedientId) {
+		return delegate.findTasquesPendentsPerExpedient(expedientId);
 	}
 }

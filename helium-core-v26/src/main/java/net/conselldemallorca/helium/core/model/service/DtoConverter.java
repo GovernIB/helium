@@ -60,7 +60,7 @@ import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
 import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
@@ -91,7 +91,7 @@ public class DtoConverter {
 	private DefinicioProcesDao definicioProcesDao;
 	private DominiDao dominiDao;
 	private PluginPersonaDao pluginPersonaDao;
-	private JbpmDao jbpmDao;
+	private JbpmHelper jbpmDao;
 	private EnumeracioValorsDao enumeracioValorsDao;
 	private LuceneDao luceneDao;
 	private CampDao campDao;
@@ -240,7 +240,7 @@ public class DtoConverter {
 		dto.setCancelled(task.isCancelled());
 		dto.setSuspended(task.isSuspended());
 		dto.setProcessInstanceId(task.getProcessInstanceId());
-		dto.setAgafada("true".equals(task.getFieldFromDescription(TascaService.TASKDESC_CAMP_AGAFADA)));
+		dto.setAgafada(task.isAgafada());
 		dto.setExpedient(
 				expedientDao.findAmbProcessInstanceId(
 						jbpmDao.getRootProcessInstance(task.getProcessInstanceId()).getId()));
@@ -685,7 +685,7 @@ public class DtoConverter {
 				return resultat;
 			} catch (Exception ex) {
 				throw new DominiException(
-						getServiceUtils().getMessage("error.dtoConverter.consultarDomini"),
+						getServiceUtils().getMessage("error.dtoConverter.consultarDomini") + " : id : " + dominiId + " << parametros >> " + params,
 						ex);
 			}
 		}
@@ -795,7 +795,7 @@ public class DtoConverter {
 		this.luceneDao = luceneDao;
 	}
 	@Autowired
-	public void setJbpmDao(JbpmDao jbpmDao) {
+	public void setJbpmHelper(JbpmHelper jbpmDao) {
 		this.jbpmDao = jbpmDao;
 	}
 	@Autowired
@@ -914,12 +914,13 @@ public class DtoConverter {
 		if (tipus.equals(TipusCamp.SELECCIO) || tipus.equals(TipusCamp.SUGGEST)) {
 			if (camp.getDomini() != null || camp.isDominiIntern()) {
 				Long dominiId = (long) 0;
+				Map<String, Object> paramsConsulta = null;
 				if (camp.getDomini() != null){
 					Domini domini = camp.getDomini();
 					dominiId = domini.getId();
 				}				
 				try {
-					Map<String, Object> paramsConsulta = getParamsConsulta(
+					paramsConsulta = getParamsConsulta(
 							taskId,
 							processInstanceId,
 							camp,
@@ -951,7 +952,7 @@ public class DtoConverter {
 					}
 				} catch (Exception ex) {
 					//throw new DominiException("No s'ha pogut consultar el domini", ex);
-					logger.error("No s'ha pogut consultar el domini", ex);
+					logger.error("No s'ha pogut consultar el domini"  + " : id : " + dominiId + " << parametros >> " + paramsConsulta, ex);
 				}
 			} else if (camp.getEnumeracio() != null) {
 				Enumeracio enumeracio = camp.getEnumeracio();

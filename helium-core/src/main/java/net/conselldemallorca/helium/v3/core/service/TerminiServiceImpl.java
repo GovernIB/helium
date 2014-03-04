@@ -30,11 +30,11 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
+import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
@@ -61,6 +61,8 @@ public class TerminiServiceImpl implements TerminiService {
 	
 	@Resource
 	private RegistreDao registreDao;
+	@Resource(name="dtoConverterV3")
+	private DtoConverter dtoConverter;
 	
 	@Resource
 	private ExpedientDao expedientDao;
@@ -70,6 +72,8 @@ public class TerminiServiceImpl implements TerminiService {
 	
 	@Resource
 	private JbpmHelper jbpmHelper;
+	@Resource
+	private ConversioTipusHelper conversioTipusHelper;
 	
 	private MessageSource messageSource;
 
@@ -188,7 +192,7 @@ public class TerminiServiceImpl implements TerminiService {
 		}
 		
 		TerminiIniciat terminiObj = terminiIniciatDao.saveOrUpdate(terminiIniciat);
-		return DtoConverter.toTerminiIniciatDto(terminiObj);
+		return conversioTipusHelper.convertir(terminiObj, TerminiIniciatDto.class);
 	}
 		
 	@Transactional
@@ -331,7 +335,7 @@ public class TerminiServiceImpl implements TerminiService {
 		List<TerminiIniciat> terminisObj = terminiIniciatDao.findAmbProcessInstanceId(processInstanceId);
 		List<TerminiIniciatDto> terminiDto = new ArrayList<TerminiIniciatDto>();
 		for(TerminiIniciat terminiObj : terminisObj) {
-			terminiDto.add(DtoConverter.toTerminiIniciatDto(terminiObj));
+			terminiDto.add(conversioTipusHelper.convertir(terminiObj, TerminiIniciatDto.class));
 		}
 		return terminiDto;
 	}
@@ -343,7 +347,7 @@ public class TerminiServiceImpl implements TerminiService {
 			String processInstanceId) {
 		
 		TerminiIniciat terminiObj = terminiIniciatDao.findAmbTerminiIdIProcessInstanceId(terminiId, processInstanceId);
-		return DtoConverter.toTerminiIniciatDto(terminiObj);
+		return conversioTipusHelper.convertir(terminiObj, TerminiIniciatDto.class);
 	}
 	
 	@Transactional
@@ -355,7 +359,7 @@ public class TerminiServiceImpl implements TerminiService {
 		List<TerminiIniciat> terminisObj = terminiIniciatDao.findAmbTaskInstanceIds(taskInstanceIds);
 		List<TerminiIniciatDto> terminiDto = new ArrayList<TerminiIniciatDto>();
 		for(TerminiIniciat terminiObj : terminisObj) {
-			terminiDto.add(DtoConverter.toTerminiIniciatDto(terminiObj));
+			terminiDto.add(conversioTipusHelper.convertir(terminiObj, TerminiIniciatDto.class));
 		}
 		return terminiDto;
 	}
@@ -376,7 +380,7 @@ public class TerminiServiceImpl implements TerminiService {
 	@Override
 	public FestiuDto getFestiuById(Long id) {		
 		Festiu festiu = festiuDao.getById(id, false);
-		FestiuDto festiuDto = new ModelMapper().map(festiu, FestiuDto.class);
+		FestiuDto festiuDto = conversioTipusHelper.convertir(festiu, FestiuDto.class);
 		return festiuDto;
 	}
 	
@@ -390,7 +394,7 @@ public class TerminiServiceImpl implements TerminiService {
 		entity.setData(entityDto.getData());
 		
 		Festiu festiu = festiuDao.saveOrUpdate(entity);	
-		FestiuDto festiuDto = new ModelMapper().map(festiu, FestiuDto.class);
+		FestiuDto festiuDto = conversioTipusHelper.convertir(festiu, FestiuDto.class);
 		return festiuDto;
 	}
 	
@@ -404,7 +408,7 @@ public class TerminiServiceImpl implements TerminiService {
 		entity.setData(entityDto.getData());
 		Festiu festiu = festiuDao.merge(entity);
 		
-		FestiuDto festiuDto = new ModelMapper().map(festiu, FestiuDto.class);
+		FestiuDto festiuDto = conversioTipusHelper.convertir(festiu, FestiuDto.class);
 		return festiuDto;
 	}
 	
@@ -425,7 +429,7 @@ public class TerminiServiceImpl implements TerminiService {
 		List<Festiu> festiusObj = festiuDao.findAmbAny(any);
 		List<FestiuDto> terminisDto = new ArrayList<FestiuDto>();
 		for(Festiu festiuObj : festiusObj) {
-			terminisDto.add(new ModelMapper().map(festiuObj, FestiuDto.class));
+			terminisDto.add(conversioTipusHelper.convertir(festiuObj, FestiuDto.class));
 		}
 		return terminisDto;
 	}
@@ -434,7 +438,7 @@ public class TerminiServiceImpl implements TerminiService {
 	@Override
 	public FestiuDto findFestiuAmbData(Date data) {
 		Festiu festiu = festiuDao.findAmbData(data);	
-		FestiuDto festiuDto = new ModelMapper().map(festiu, FestiuDto.class);
+		FestiuDto festiuDto = conversioTipusHelper.convertir(festiu, FestiuDto.class);
 		return festiuDto;
 	}
 

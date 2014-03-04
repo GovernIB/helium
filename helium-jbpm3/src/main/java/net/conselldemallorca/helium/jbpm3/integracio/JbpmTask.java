@@ -5,8 +5,11 @@ package net.conselldemallorca.helium.jbpm3.integracio;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
+import org.jbpm.taskmgmt.def.Swimlane;
 import org.jbpm.taskmgmt.exe.PooledActor;
 import org.jbpm.taskmgmt.exe.TaskInstance;
 
@@ -21,8 +24,6 @@ public class JbpmTask {
 	private static final String DESCRIPTION_FIELD_SEPARATOR = "@#@";
 
 	private TaskInstance task;
-
-
 
 	public JbpmTask(TaskInstance task) {
 		this.task = task;
@@ -48,7 +49,7 @@ public class JbpmTask {
 	}
 
 	public String getName() {
-		return task.getName();
+		return task.getTask().getName();
 	}
 	public String getDescription() {
 		if (task.getDescription() == null)
@@ -99,6 +100,44 @@ public class JbpmTask {
 	}
 	public boolean isCancelled() {
 		return task.isCancelled();
+	}
+	public String getPooledActorsExpression() {
+		if (task.getTask() == null) {
+			return null;
+		}
+		return task.getTask().getPooledActorsExpression();
+	}
+	
+	public boolean isAgafada() {
+		boolean resultado = false;
+		try {
+			if (getAssignee() != null) {
+				// Tenía un grupo asignado
+				boolean conGrupoAsignado = getPooledActorsExpression() != null && getPooledActorsExpression().length() > 0;
+				// Se le reasignó posteriormente un grupo
+				boolean conGrupoAnteriorAsignado = false;
+				// Tenía un grupo asignado originalmente a la tarea
+				boolean conGrupoOriginal = false;
+				if (!conGrupoOriginal) {
+					conGrupoAnteriorAsignado = getPooledActors() != null && !getPooledActors().isEmpty();
+					if (!conGrupoAnteriorAsignado) {
+						@SuppressWarnings("rawtypes")
+						Iterator it = task.getTask().getTaskMgmtDefinition().getSwimlanes().entrySet().iterator();
+						while (it.hasNext()) {
+							@SuppressWarnings("unchecked")
+							Map.Entry<String, Swimlane> e = (Map.Entry<String, Swimlane>)it.next();
+							String pooledActorExpresion = task.getTask().getTaskMgmtDefinition().getSwimlane(e.getKey()).getPooledActorsExpression();
+							if (pooledActorExpresion != null && pooledActorExpresion.length() > 0) {
+								conGrupoOriginal = true;
+								break;
+							}
+						}
+					}
+				}
+				resultado = (conGrupoAsignado || conGrupoAnteriorAsignado || conGrupoOriginal);
+			}
+		} catch (Exception e) {}
+		return resultado;
 	}
 
 	public void setCacheActiu() {

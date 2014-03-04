@@ -44,7 +44,7 @@ import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirVistaDo
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarEventRequest;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarExpedientRequest;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.ResultatProcesTramitRequest;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 
@@ -73,7 +73,7 @@ public class PluginService {
 	private ExpedientDao expedientDao;
 	private RegistreDao registreDao;
 	private DocumentStoreDao documentStoreDao;
-	private JbpmDao jbpmDao;
+	private JbpmHelper jbpmDao;
 
 	private DocumentHelper documentHelper;
 	private ExpedientLogHelper expedientLogHelper;
@@ -492,7 +492,7 @@ public class PluginService {
 		this.expedientLogHelper = expedientLogHelper;
 	}
 	@Autowired
-	public void setJbpmDao(JbpmDao jbpmDao) {
+	public void setJbpmHelper(JbpmHelper jbpmDao) {
 		this.jbpmDao = jbpmDao;
 	}
 	@Autowired

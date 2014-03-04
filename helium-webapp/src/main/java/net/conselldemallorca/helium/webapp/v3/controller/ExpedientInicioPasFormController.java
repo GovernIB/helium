@@ -18,11 +18,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.PermissionService;
 import net.conselldemallorca.helium.v3.core.api.service.PluginService;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
@@ -34,6 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -51,18 +49,6 @@ public class ExpedientInicioPasFormController extends ExpedientTramitacioControl
 	
 	@Autowired
 	private PluginService pluginService;
-	
-	@Autowired
-	public ExpedientInicioPasFormController(
-			DissenyService dissenyService,
-			ExpedientService expedientService,
-			TascaService tascaService,
-			PermissionService permissionService) {
-		this.dissenyService = dissenyService;
-		this.expedientService = expedientService;
-		this.tascaService = tascaService;
-		this.permissionService = permissionService;
-	}
 
 	@ModelAttribute("command")
 	protected Object populateCommand(
@@ -72,12 +58,11 @@ public class ExpedientInicioPasFormController extends ExpedientTramitacioControl
 			Long expedientTipusId,
 			Long definicioProcesId,
 			ModelMap model) {
-		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entorn != null && id != null) {
+			if (entornId != null && id != null) {
 				Object command = null;
 				Object commandSessio = obtenirCommandSessio(request);
 				ExpedientTascaDto tascaInicial = obtenirTascaInicial(
-						entorn.getId(),
+						entornId,
 						expedientTipusId,
 						definicioProcesId,
 						null,
@@ -95,7 +80,7 @@ public class ExpedientInicioPasFormController extends ExpedientTramitacioControl
 					if (tascaInicial != null) {
 						Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 						campsAddicionals.put("id", id);
-						campsAddicionals.put("entornId", entorn.getId());
+						campsAddicionals.put("entornId", entornId);
 						campsAddicionals.put("expedientTipusId", expedientTipusId);
 						campsAddicionals.put("definicioProcesId", definicioProcesId);
 						@SuppressWarnings("rawtypes")
@@ -178,23 +163,29 @@ public class ExpedientInicioPasFormController extends ExpedientTramitacioControl
 						valorsCommand,
 						request);
 				model.addAttribute("tasca", tascaInicial);
-				model.addAttribute("dades", tascaService.findDadesPerTascaDto(tascaInicial));
-				
+				model.addAttribute("dades", tascaService.findDadesPerTascaDto(tascaInicial));				
 
 				this.validatorValidar = new TascaFormValidatorHelper(
 						expedientService,
 						obtenirValorsRegistresSessio(request, camps));
 				
 				validatorValidar.validate(command, result);
-				if (result.hasErrors()) {
-					MissatgesHelper.error(request, getMessage(request, "error.validacio"));
-					return "v3/expedient/iniciarPasForm";
-				}
 				try {
-					TascaFormHelper.getBeanValidatorForCommand(camps).validate(command, result);
+					Validator validator = TascaFormHelper.getBeanValidatorForCommand(camps);
+					validator.validate(TascaFormHelper.getCommandForCamps(camps,valorsCommand,null,null,false), result);
 				} catch (Exception ex) {
 					logger.error("S'han produit errors de validació", ex);
 					MissatgesHelper.error(request, getMessage(request, "error.validacio"));
+					return "v3/expedient/iniciarPasForm";
+				}
+				if (result.hasErrors()) {
+					model.addAttribute(
+		        			"valorsPerSuggest",
+		        			TascaFormHelper.getValorsPerSuggest(tascaInicial, command));
+					for ( ObjectError res : result.getAllErrors()) {
+						String error = (res.getDefaultMessage() == null || res.getDefaultMessage().isEmpty()) ? getMessage(request, "error.validacio") : res.getDefaultMessage();
+						MissatgesHelper.error(request, error);
+					}
 					return "v3/expedient/iniciarPasForm";
 				}
 				
