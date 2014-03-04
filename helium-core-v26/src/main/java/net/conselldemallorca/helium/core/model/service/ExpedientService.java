@@ -790,6 +790,7 @@ public class ExpedientService {
 							ExtendedPermission.SUPERVISION,
 							ExtendedPermission.READ});
 		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
+		boolean repetirConsulta = false;
 		for (Expedient expedient: expedientDao.findAmbEntornConsultaGeneralPagedAndOrdered(
 				entornId,
 				titol,
@@ -809,8 +810,43 @@ public class ExpedientService {
 				firstRow,
 				maxResults,
 				sort,
-				asc))
-			resposta.add(dtoConverter.toExpedientDto(expedient, false));
+				asc)) {
+			Date fechaExpedient = expedient.getDataFi();
+			ExpedientDto expedientDto = dtoConverter.toExpedientDto(expedient, false);
+			
+			if ((expedientDto.getDataFi() != null && !expedientDto.getDataFi().equals(fechaExpedient)) || 
+				 expedientDto.getDataFi() == null && fechaExpedient != null) {
+				repetirConsulta = true;
+			}
+			
+			resposta.add(expedientDto);
+		}
+		
+		if (repetirConsulta) {
+			resposta = new ArrayList<ExpedientDto>();
+			for (Expedient expedient: expedientDao.findAmbEntornConsultaGeneralPagedAndOrdered(
+					entornId,
+					titol,
+					numero,
+					dataInici1,
+					dataInici2,
+					expedientTipusId,
+					getExpedientTipusIdPermesos(entornId),
+					estatId,
+					iniciat,
+					finalitzat,
+					geoPosX,
+					geoPosY,
+					geoReferencia,
+					mostrarAnulats,
+					getAreesOGrupsPerUsuari(),
+					firstRow,
+					maxResults,
+					sort,
+					asc)) {
+				resposta.add(dtoConverter.toExpedientDto(expedient, false));
+			}			
+		}
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS", "consulta");
 		return resposta;
 	}
@@ -1491,7 +1527,6 @@ public class ExpedientService {
 		jbpmHelper.reassignTaskInstance(taskId, expression, entornId);
 		String currentActors = expedientLogHelper.getActorsPerReassignacioTasca(taskId);
 		expedientLog.setAccioParams(previousActors + "::" + currentActors);
-		JbpmTask task = jbpmHelper.getTaskById(taskId);
 		if (usuari == null) {
 			usuari = SecurityContextHolder.getContext().getAuthentication().getName();
 		}

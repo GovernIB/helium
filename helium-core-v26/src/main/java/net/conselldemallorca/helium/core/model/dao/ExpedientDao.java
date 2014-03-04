@@ -14,11 +14,7 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreA
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
-import org.jbpm.graph.exe.ProcessInstance;
 import org.springframework.stereotype.Component;
 
 /**
@@ -304,17 +300,6 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			String[] grupsUsuari) {
 		Criteria crit = getSession().createCriteria(
 				getPersistentClass());
-		
-		DetachedCriteria piDataFiNull = DetachedCriteria.forClass(ProcessInstance.class, "pi")
-				.setProjection( Projections.property("pi.id"))
-				.add(Restrictions.isNull("pi.end"))
-				.add(Restrictions.eqProperty("pi.id", crit.getAlias()+".processInstanceId"));
-		
-		DetachedCriteria piDataFiNotNull = DetachedCriteria.forClass(ProcessInstance.class, "pi")
-				.setProjection( Projections.property("pi.id"))
-				.add(Restrictions.isNotNull("pi.end"))
-				.add(Restrictions.eqProperty("pi.id", crit.getAlias()+".processInstanceId"));
-   
 		crit.createAlias("tipus", "tip");
 		crit.add(Restrictions.eq("entorn.id", entornId));
 		if (titol != null && titol.length() > 0)
@@ -337,9 +322,9 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			crit.add(Restrictions.eq("estat.id", estatId));
 		if (iniciat && !finalitzat) {
 			crit.add(Restrictions.isNull("estat.id"));
-			crit.add(Property.forName("processInstanceId").in(piDataFiNull));  
+			crit.add(Restrictions.isNull("dataFi"));
 		} else if (finalitzat && !iniciat) {
-			crit.add(Property.forName("processInstanceId").in(piDataFiNotNull));  
+			crit.add(Restrictions.isNotNull("dataFi"));
 		} else if (iniciat && finalitzat) {
 			crit.add(Restrictions.isNull("dataInici"));
 		}
