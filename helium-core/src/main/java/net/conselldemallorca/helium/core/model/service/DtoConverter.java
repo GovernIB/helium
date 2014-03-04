@@ -156,10 +156,21 @@ public class DtoConverter {
 		dto.setTramitExpedientIdentificador(expedient.getTramitExpedientIdentificador());
 		dto.setTramitExpedientClau(expedient.getTramitExpedientClau());
 		dto.setErrorsIntegracions(expedient.isErrorsIntegracions());
-		/*if (!starting) {
+		if (!starting) {
 			JbpmProcessInstance processInstance = jbpmDao.getProcessInstance(expedient.getProcessInstanceId());
 			dto.setDataFi(processInstance.getEnd());
-		}*/
+			
+			// Actualizamos la fecha de fin
+			if (processInstance.getEnd() != null && !processInstance.getEnd().equals(expedient.getDataFi())) {
+				expedient.setDataFi(processInstance.getEnd());
+				expedientDao.saveOrUpdate(expedient);
+				expedientDao.flush();
+			} else if (processInstance.getEnd() == null && expedient.getDataFi() != null) {
+				expedient.setDataFi(processInstance.getEnd());
+				expedientDao.saveOrUpdate(expedient);
+				expedientDao.flush();
+			}
+		}
 		dto.setDataFi(expedient.getDataFi());
 		for (Expedient relacionat: expedient.getRelacionsOrigen()) {
 			ExpedientDto relacionatDto = new ExpedientDto();
