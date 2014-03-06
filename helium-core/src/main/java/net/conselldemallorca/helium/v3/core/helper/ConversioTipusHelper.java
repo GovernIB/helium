@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import ma.glasnost.orika.CustomConverter;
 import ma.glasnost.orika.MapperFacade;
@@ -15,6 +17,8 @@ import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import ma.glasnost.orika.metadata.Type;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
@@ -81,6 +85,7 @@ public class ConversioTipusHelper {
 						target.setEstats(convertirList(source.getEstats(), EstatDto.class));
 						target.setExpressioNumero(source.getExpressioNumero());
 						target.setId(source.getId());
+						target.setConConsultasPorTipo(!source.getConsultes().isEmpty());
 						target.setJbpmProcessDefinitionKey(source.getJbpmProcessDefinitionKey());
 						target.setNom(source.getNom());
 						target.setReiniciarCadaAny(source.isReiniciarCadaAny());
@@ -114,6 +119,58 @@ public class ConversioTipusHelper {
 							sequenciaAnyDefaultMap.put(entry.getKey(), valueDto);
 						}					    
 						target.setSequenciaDefaultAny(sequenciaAnyDefaultMap);
+						
+						return target;
+					}
+				});
+		
+		mapperFactory.getConverterFactory().registerConverter(
+				new CustomConverter<ExpedientTipusDto, ExpedientTipus>() {
+
+					@Override
+					public ExpedientTipus convert(ExpedientTipusDto source, Type<? extends ExpedientTipus> destinationType) {
+						ExpedientTipus target = new ExpedientTipus();
+						target.setAnyActual(source.getAnyActual());
+						target.setCodi(source.getCodi());
+						target.setDemanaNumero(source.isDemanaNumero());
+						target.setDemanaTitol(source.isDemanaTitol());
+						target.setEntorn(convertir(source.getEntorn(), Entorn.class));
+						target.setEstats(convertirList(source.getEstats(), Estat.class));
+						target.setExpressioNumero(source.getExpressioNumero());
+						target.setId(source.getId());
+						target.setJbpmProcessDefinitionKey(source.getJbpmProcessDefinitionKey());
+						target.setNom(source.getNom());
+						target.setReiniciarCadaAny(source.isReiniciarCadaAny());
+						target.setResponsableDefecteCodi(source.getResponsableDefecteCodi());
+						target.setRestringirPerGrup(source.isRestringirPerGrup());
+						target.setSeleccionarAny(source.isSeleccionarAny());
+						target.setSequencia(source.getSequencia());
+						target.setSequenciaDefault(source.getSequenciaDefault());
+						target.setTeNumero(source.isTeNumero());
+						target.setTeTitol(source.isTeTitol());
+						target.setTramitacioMassiva(source.isTramitacioMassiva());						
+
+						SortedMap<Integer, SequenciaAny> sequenciaAnySorted = new TreeMap<Integer, SequenciaAny>();
+						for (Entry<Integer, SequenciaAnyDto> entry : source.getSequenciaAny().entrySet()) {
+							SequenciaAnyDto valueDto = entry.getValue();
+							SequenciaAny value = new SequenciaAny();
+							value.setAny(valueDto.getAny());
+							value.setId(valueDto.getId());
+							value.setSequencia(valueDto.getSequencia());
+							sequenciaAnySorted.put(entry.getKey(), value);
+						}					
+						target.setSequenciaAny(sequenciaAnySorted);
+						
+						SortedMap<Integer, SequenciaDefaultAny> sequenciaAnyDefaultSorted = new TreeMap<Integer, SequenciaDefaultAny>();
+						for (Entry<Integer, SequenciaDefaultAnyDto> entry : source.getSequenciaDefaultAny().entrySet()) {
+							SequenciaDefaultAnyDto valueDto = entry.getValue();
+							SequenciaDefaultAny value = new SequenciaDefaultAny();
+							value.setAny(valueDto.getAny());
+							value.setId(valueDto.getId());
+							value.setSequenciaDefault(valueDto.getSequenciaDefault());
+							sequenciaAnyDefaultSorted.put(entry.getKey(), value);
+						}					
+						target.setSequenciaDefaultAny(sequenciaAnyDefaultSorted);
 						
 						return target;
 					}
