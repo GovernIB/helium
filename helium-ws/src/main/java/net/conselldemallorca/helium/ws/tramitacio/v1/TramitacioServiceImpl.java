@@ -147,7 +147,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
 		try {
-			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), null, true);
+			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), null, null, true);
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
 			for (TascaLlistatDto tasca: tasques)
 				resposta.add(convertirTascaTramitacio(tasca));
@@ -166,7 +166,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
 		try {
-			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), null, true);
+			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), null, null, true);
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
 			for (TascaLlistatDto tasca: tasques)
 				resposta.add(convertirTascaTramitacio(tasca));
@@ -187,7 +187,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
 		boolean agafada = false;
 		try {
-			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), null, false);
+			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), null, null, false);
 			for (TascaLlistatDto tasca: tasques) {
 				if (tasca.getId().equals(tascaId)) {
 					tascaService.agafar(e.getId(), tascaId);
@@ -213,7 +213,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
 		boolean alliberada = false;
 		try {
-			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), null, false);
+			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), null, null, false);
 			for (TascaLlistatDto tasca: tasques) {
 				if (tasca.getId().equals(tascaId)) {
 					tascaService.alliberar(e.getId(), tascaId, true);
@@ -1012,6 +1012,46 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (PRINT_USUARI) {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			System.out.println(">>> " + auth.getName());
+		}
+	}
+
+	public List<TascaTramitacio> consultaTasquesPersonalsByCodi(
+			String entorn, 
+			String codi) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		if (!validarPermisEntornRead(e))
+			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
+		try {
+			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), codi, null, true);
+			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
+			for (TascaLlistatDto tasca: tasques)
+				resposta.add(convertirTascaTramitacio(tasca));
+			return resposta;
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut obtenir el llistat de tasques", ex);
+			throw new TramitacioException("No s'ha pogut obtenir el llistat de tasques: " + ex.getMessage());
+		}
+	}
+
+	public List<TascaTramitacio> consultaTasquesGrupByCodi(
+			String entorn, 
+			String codi) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		if (!validarPermisEntornRead(e))
+			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
+		try {
+			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), codi, null, true);
+			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
+			for (TascaLlistatDto tasca: tasques)
+				resposta.add(convertirTascaTramitacio(tasca));
+			return resposta;
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut obtenir el llistat de tasques", ex);
+			throw new TramitacioException("No s'ha pogut obtenir el llistat de tasques: " + ex.getMessage());
 		}
 	}
 

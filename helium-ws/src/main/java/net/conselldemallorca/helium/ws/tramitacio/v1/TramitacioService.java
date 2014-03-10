@@ -359,4 +359,28 @@ public interface TramitacioService {
 			String entorn,
 			String processInstanceId) throws TramitacioException;
 
+	/**
+	 * Mètode per a obtenir el llistat de tasques personals amb codi
+	 * 
+	 * @param entorn
+	 * @param codi
+	 * @return El llistat de tasques
+	 * @throws TramitacioException
+	 */
+	public List<TascaTramitacio> consultaTasquesPersonalsByCodi(
+			String entorn,
+			String codi) throws TramitacioException;
+
+	/**
+	 * Mètode per a obtenir el llistat de tasques de grup amb codi
+	 * 
+	 * @param entorn
+	 * @param codi
+	 * @return El llistat de tasques
+	 * @throws TramitacioException
+	 */
+	public List<TascaTramitacio> consultaTasquesGrupByCodi(
+			String entorn,
+			String codi) throws TramitacioException;
+	
 }

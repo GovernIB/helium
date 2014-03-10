@@ -345,8 +345,22 @@
 <xs:element minOccurs="0" name="arg1" type="xs:string" />
 </xs:sequence>
 </xs:complexType>
+<xs:element name="consultaTasquesPersonalsByCodi" type="tns:consultaTasquesPersonalsByCodi" />
+<xs:complexType name="consultaTasquesPersonalsByCodi">
+<xs:sequence>
+<xs:element minOccurs="0" name="arg0" type="xs:string" />
+<xs:element minOccurs="0" name="arg1" type="xs:string" />
+<xs:element minOccurs="0" name="arg2" type="xs:string" />
+</xs:sequence>
+</xs:complexType>
 <xs:element name="consultaTasquesPersonalsResponse" type="tns:consultaTasquesPersonalsResponse" />
 <xs:complexType name="consultaTasquesPersonalsResponse">
+<xs:sequence>
+<xs:element maxOccurs="unbounded" minOccurs="0" name="return" type="tns:tascaTramitacio" />
+</xs:sequence>
+</xs:complexType>
+<xs:element name="consultaTasquesPersonalsByCodiResponse" type="tns:consultaTasquesPersonalsByCodiResponse" />
+<xs:complexType name="consultaTasquesPersonalsByCodiResponse">
 <xs:sequence>
 <xs:element maxOccurs="unbounded" minOccurs="0" name="return" type="tns:tascaTramitacio" />
 </xs:sequence>
@@ -402,8 +416,22 @@
 <xs:element minOccurs="0" name="arg1" type="xs:string" />
 </xs:sequence>
 </xs:complexType>
+<xs:element name="consultaTasquesGrupByCodi" type="tns:consultaTasquesGrupByCodi" />
+<xs:complexType name="consultaTasquesGrupByCodi">
+<xs:sequence>
+<xs:element minOccurs="0" name="arg0" type="xs:string" />
+<xs:element minOccurs="0" name="arg1" type="xs:string" />
+<xs:element minOccurs="0" name="arg2" type="xs:string" />
+</xs:sequence>
+</xs:complexType>
 <xs:element name="consultaTasquesGrupResponse" type="tns:consultaTasquesGrupResponse" />
 <xs:complexType name="consultaTasquesGrupResponse">
+<xs:sequence>
+<xs:element maxOccurs="unbounded" minOccurs="0" name="return" type="tns:tascaTramitacio" />
+</xs:sequence>
+</xs:complexType>
+<xs:element name="consultaTasquesGrupByCodiResponse" type="tns:consultaTasquesGrupByCodiResponse" />
+<xs:complexType name="consultaTasquesGrupByCodiResponse">
 <xs:sequence>
 <xs:element maxOccurs="unbounded" minOccurs="0" name="return" type="tns:tascaTramitacio" />
 </xs:sequence>
@@ -443,6 +471,9 @@
   <wsdl:message name="consultaTasquesGrupResponse">
     <wsdl:part element="tns:consultaTasquesGrupResponse" name="parameters" />
   </wsdl:message>
+  <wsdl:message name="consultaTasquesGrupByCodiResponse">
+    <wsdl:part element="tns:consultaTasquesGrupByCodiResponse" name="parameters" />
+  </wsdl:message>
   <wsdl:message name="executarScriptProces">
     <wsdl:part element="tns:executarScriptProces" name="parameters" />
   </wsdl:message>
@@ -467,6 +498,9 @@
   <wsdl:message name="consultaTasquesPersonalsResponse">
     <wsdl:part element="tns:consultaTasquesPersonalsResponse" name="parameters" />
   </wsdl:message>
+  <wsdl:message name="consultaTasquesPersonalsByCodiResponse">
+    <wsdl:part element="tns:consultaTasquesPersonalsByCodiResponse" name="parameters" />
+  </wsdl:message>
   <wsdl:message name="consultaFormulariTasca">
     <wsdl:part element="tns:consultaFormulariTasca" name="parameters" />
   </wsdl:message>
@@ -476,8 +510,14 @@
   <wsdl:message name="consultaTasquesGrup">
     <wsdl:part element="tns:consultaTasquesGrup" name="parameters" />
   </wsdl:message>
+  <wsdl:message name="consultaTasquesGrupByCodi">
+    <wsdl:part element="tns:consultaTasquesGrupByCodi" name="parameters" />
+  </wsdl:message>
   <wsdl:message name="consultaTasquesPersonals">
     <wsdl:part element="tns:consultaTasquesPersonals" name="parameters" />
+  </wsdl:message>
+  <wsdl:message name="consultaTasquesPersonalsByCodi">
+    <wsdl:part element="tns:consultaTasquesPersonalsByCodi" name="parameters" />
   </wsdl:message>
   <wsdl:message name="setDocumentProces">
     <wsdl:part element="tns:setDocumentProces" name="parameters" />
@@ -615,6 +655,11 @@
       <wsdl:output message="tns:consultaTasquesPersonalsResponse" name="consultaTasquesPersonalsResponse" />
       <wsdl:fault message="tns:TramitacioException" name="TramitacioException" />
     </wsdl:operation>
+    <wsdl:operation name="consultaTasquesPersonalsByCodi">
+      <wsdl:input message="tns:consultaTasquesPersonalsByCodi" name="consultaTasquesPersonalsByCodi" />
+      <wsdl:output message="tns:consultaTasquesPersonalsByCodiResponse" name="consultaTasquesPersonalsByCodiResponse" />
+      <wsdl:fault message="tns:TramitacioException" name="TramitacioException" />
+    </wsdl:operation>
     <wsdl:operation name="executarScriptProces">
       <wsdl:input message="tns:executarScriptProces" name="executarScriptProces" />
       <wsdl:output message="tns:executarScriptProcesResponse" name="executarScriptProcesResponse" />
@@ -633,6 +678,11 @@
     <wsdl:operation name="consultaTasquesGrup">
       <wsdl:input message="tns:consultaTasquesGrup" name="consultaTasquesGrup" />
       <wsdl:output message="tns:consultaTasquesGrupResponse" name="consultaTasquesGrupResponse" />
+      <wsdl:fault message="tns:TramitacioException" name="TramitacioException" />
+    </wsdl:operation>
+    <wsdl:operation name="consultaTasquesGrupByCodi">
+      <wsdl:input message="tns:consultaTasquesGrupByCodi" name="consultaTasquesGrupByCodi" />
+      <wsdl:output message="tns:consultaTasquesGrupByCodiResponse" name="consultaTasquesGrupByCodiResponse" />
       <wsdl:fault message="tns:TramitacioException" name="TramitacioException" />
     </wsdl:operation>
   </wsdl:portType>
@@ -818,6 +868,18 @@
         <soap:fault name="TramitacioException" use="literal" />
       </wsdl:fault>
     </wsdl:operation>
+    <wsdl:operation name="consultaTasquesPersonalsByCodi">
+      <soap:operation soapAction="" style="document" />
+      <wsdl:input name="consultaTasquesPersonalsByCodi">
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output name="consultaTasquesPersonalsByCodiResponse">
+        <soap:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="TramitacioException">
+        <soap:fault name="TramitacioException" use="literal" />
+      </wsdl:fault>
+    </wsdl:operation>
     <wsdl:operation name="executarScriptProces">
       <soap:operation soapAction="" style="document" />
       <wsdl:input name="executarScriptProces">
@@ -860,6 +922,18 @@
         <soap:body use="literal" />
       </wsdl:input>
       <wsdl:output name="consultaTasquesGrupResponse">
+        <soap:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="TramitacioException">
+        <soap:fault name="TramitacioException" use="literal" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="consultaTasquesGrupByCodi">
+      <soap:operation soapAction="" style="document" />
+      <wsdl:input name="consultaTasquesGrupByCodi">
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output name="consultaTasquesGrupByCodiResponse">
         <soap:body use="literal" />
       </wsdl:output>
       <wsdl:fault name="TramitacioException">

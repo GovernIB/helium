@@ -168,6 +168,28 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			return expedients.get(0);
 		return null;
 	}
+	
+	public List<Long> findPIExpedientsAmbEntornTipusINum(
+			Long entornId,
+			String numero) {
+		List<Long> res = new ArrayList<Long>();
+		
+		List<Expedient> expedients = findByCriteria(
+			Restrictions.eq("entorn.id", entornId),
+			Restrictions.or(
+					Restrictions.eq("numero", numero),
+					Restrictions.eq("numeroDefault", numero)
+			)
+		);		
+		
+		for (Expedient expedient : expedients) {
+			if ((!expedient.getTipus().getTeNumero() && numero.equals(expedient.getNumeroDefault())) || (expedient.getTipus().getTeNumero() && numero.equals(expedient.getNumero()))) {
+				res.add(Long.valueOf(expedient.getProcessInstanceId()));
+			}
+		}
+		
+		return res;
+	}
 
 	public int countAmbEntornConsultaGeneral(
 			Long entornId,
