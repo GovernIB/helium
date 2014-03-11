@@ -16,7 +16,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
@@ -69,10 +68,6 @@ public class LuceneDao extends LuceneIndexSupport {
 	private static final String VALOR_DOMINI_SUFIX = "@text@";
 
 	private LuceneSearchTemplate searchTemplate;
-	
-	private static final String LUCENE_ESCAPE_CHARS = "[\\\\+\\-\\!\\(\\)\\:\\^\\]\\{\\}\\~\\*\\?]";
-	private static final Pattern LUCENE_PATTERN = Pattern.compile(LUCENE_ESCAPE_CHARS);
-	private static final String REPLACEMENT_STRING = "";
 
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
@@ -81,6 +76,8 @@ public class LuceneDao extends LuceneIndexSupport {
 	// si es desactiva abans de la reindexació total aleshores hi haura expedients
 	// que no sortiran als resultats de les consultes per tipus.
 	private static final boolean PEGAT_ENTORN_ACTIU = true;
+
+	private static final String LUCENE_ESCAPE_CHARS = " |\\+|\\(|\\)|\\[|\\]|\\&|\\!|\\*|\\{|\\}|\\?|\\:|\\^|\\~|\"|\\\\";
 
 	public void createExpedientAsync(
 			final Expedient expedient,
@@ -696,12 +693,10 @@ public class LuceneDao extends LuceneIndexSupport {
 	
 	private Query queryPerStringAmbWildcards(String codi, String termes) {
 		PhraseQuery phraseQuery = new PhraseQuery();
-		
-		String[] termesTots = normalitzarILlevarAccents(termes).split(" ");
+		String[] termesTots = termes.split(LUCENE_ESCAPE_CHARS);
 		for (String terme : termesTots) {
-			String escaped = LUCENE_PATTERN.matcher(terme).replaceAll(REPLACEMENT_STRING);
-			if (!"".equals(escaped)) {
-				phraseQuery.add(new Term(codi, escaped));
+			if (!"".equals(terme)) {
+				phraseQuery.add(new Term(codi, terme));
 			}
 		}
 		
