@@ -16,7 +16,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
@@ -68,9 +67,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 	
 	protected LuceneSearchTemplate searchTemplate;
 	
-	private static final String LUCENE_ESCAPE_CHARS = "[\\\\+\\-\\!\\(\\)\\:\\^\\]\\{\\}\\~\\*\\?]";
-	private static final Pattern LUCENE_PATTERN = Pattern.compile(LUCENE_ESCAPE_CHARS);
-	private static final String REPLACEMENT_STRING = "";
+	private static final String LUCENE_ESCAPE_CHARS = " |\\+|\\(|\\)|\\[|\\]|\\&|\\!|\\*|\\{|\\}|\\?|\\:|\\^|\\~|\"|\\\\";
 
 	@Resource
 	protected MesuresTemporalsHelper mesuresTemporalsHelper;
@@ -382,12 +379,10 @@ public class LuceneHelper extends LuceneIndexSupport {
 	
 	private Query queryPerStringAmbWildcards(String codi, String termes) {
 		PhraseQuery phraseQuery = new PhraseQuery();
-		
-		String[] termesTots = (termes).split(" ");
+		String[] termesTots = termes.split(LUCENE_ESCAPE_CHARS);
 		for (String terme : termesTots) {
-			String escaped = LUCENE_PATTERN.matcher(terme).replaceAll(REPLACEMENT_STRING);
-			if (!"".equals(escaped)) {
-				phraseQuery.add(new Term(codi, escaped));
+			if (!"".equals(terme)) {
+				phraseQuery.add(new Term(codi, terme));
 			}
 		}
 		
