@@ -49,7 +49,7 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 			params.fijaUsuario(getUsuariRegistre());
 			Date ara = new Date();
 			params.setdataentrada(new SimpleDateFormat("dd/MM/yyyy").format(ara));
-			params.sethora(new SimpleDateFormat("HH:mm").format(ara));
+			params.sethora(new SimpleDateFormat(getTimeFormat()).format(ara));
 			if (registreEntrada.getDadesOficina() != null) {
 				String oficinaCodi = registreEntrada.getDadesOficina().getOficinaCodi();
 				if (oficinaCodi != null) {
@@ -164,7 +164,7 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 			ParametrosRegistroEntrada llegit = registroEntrada.leer(params);
 			RespostaConsulta resposta = new RespostaConsulta();
 			resposta.setRegistreNumero(registreNumero);
-			resposta.setRegistreData(new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(llegit.getDataEntrada() + " " + llegit.getHora()));
+			resposta.setRegistreData(new SimpleDateFormat("dd/MM/yyyy " + getTimeFormat()).parse(llegit.getDataEntrada() + " " + llegit.getHora()));
 			DadesOficina dadesOficina = new DadesOficina();
 			dadesOficina.setOrganCodi(llegit.getDestinatari());
 			dadesOficina.setOficinaCodi(llegit.getOficina() + SEPARADOR_ENTITAT + llegit.getOficinafisica());
@@ -204,7 +204,7 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 			params.fijaUsuario(getUsuariRegistre());
 			Date ara = new Date();
 			params.setdatasalida(new SimpleDateFormat("dd/MM/yyyy").format(ara));
-			params.sethora(new SimpleDateFormat("HH:mm").format(ara));
+			params.sethora(new SimpleDateFormat(getTimeFormat()).format(ara));
 			if (registreSortida.getDadesOficina() != null) {
 				String oficinaCodi = registreSortida.getDadesOficina().getOficinaCodi();
 				if (oficinaCodi != null) {
@@ -319,7 +319,7 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 			ParametrosRegistroSalida llegit = registroSalida.leer(params);
 			RespostaConsulta resposta = new RespostaConsulta();
 			resposta.setRegistreNumero(registreNumero);
-			resposta.setRegistreData(new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(llegit.getDataSalida() + " " + llegit.getHora()));
+			resposta.setRegistreData(new SimpleDateFormat("dd/MM/yyyy " + getTimeFormat()).parse(llegit.getDataSalida() + " " + llegit.getHora()));
 			DadesOficina dadesOficina = new DadesOficina();
 			dadesOficina.setOrganCodi(llegit.getRemitent());
 			dadesOficina.setOficinaCodi(llegit.getOficina() + SEPARADOR_ENTITAT + llegit.getOficinafisica());
@@ -422,6 +422,17 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 		//	newLogin();
 		return home.create();
 	}
+	
+	
+	public String getTimeFormat() {
+	  String format = GlobalProperties.getInstance().getProperty("app.registre.plugin.format.time");
+	  if (format == null) {
+	    return "HH:mm";
+	  } else {
+	    return format;
+	  }
+	}
+	
 
 	private Context getInitialContext() throws Exception {
 		Properties props = new Properties();
