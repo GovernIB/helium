@@ -139,7 +139,7 @@ function signarCaib(token, form, contentType) {
 		if (cert == null || cert.length == 0) {
 			alert("<fmt:message key="tasca.signa.alert.nosel"/>");
 		} else {
-			var signaturaB64 = appletCaib.signaturaPdf(
+			var signaturaB64 = signaturaApplet.signaturaPdf(
 					"${sourceUrl}?token=" + token,
 					cert,
 					form.passwd.value,
