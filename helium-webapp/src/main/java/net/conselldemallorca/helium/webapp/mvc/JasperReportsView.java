@@ -46,8 +46,10 @@ public class JasperReportsView implements View {
 	public static final String MODEL_ATTRIBUTE_SUBREPORTDATA_PREFIX = "subreportFile_";
 
 	public static final String MODEL_ATTRIBUTE_CONSULTA = "reportConsulta";
+	public static final String MODEL_ATTRIBUTE_PARAMS = "reportParams";
 
-	
+
+
 	private AdminService adminService;
 	
 	@Autowired
@@ -90,7 +92,12 @@ public class JasperReportsView implements View {
 					}
 				}
 			}
-			
+
+			Map<String, Object> paramsModel = (Map<String, Object>)model.get(
+					MODEL_ATTRIBUTE_PARAMS);
+			if (paramsModel != null)
+				params.putAll(paramsModel);
+
 			JasperPrint jasperPrint = JasperFillManager.fillReport(
 					report,
 					params,

@@ -74,6 +74,7 @@ import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusParamConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
@@ -2027,6 +2028,36 @@ public class DissenyService {
 		}
 	}
 
+	public void addConsultaParam(
+			Long id,
+			String paramCodi,
+			String paramDescripcio,
+			TipusParamConsultaCamp paramTipus) {
+		ConsultaCamp consultaCamp = new ConsultaCamp();
+		consultaCamp.setCampCodi(paramCodi);
+		consultaCamp.setCampDescripcio(paramDescripcio);
+		consultaCamp.setTipus(TipusConsultaCamp.PARAM);
+		consultaCamp.setParamTipus(paramTipus);
+		consultaCamp.setConsulta(
+				consultaDao.getById(id, false));
+		consultaCamp.setOrdre(
+				consultaCampDao.getNextOrderPerTipus(
+						id,
+						TipusConsultaCamp.PARAM));
+		consultaCampDao.saveOrUpdate(consultaCamp);
+	}
+	public void deleteConsultaParam(
+			Long id,
+			Long paramId) {
+		ConsultaCamp consultaCamp = consultaCampDao.getAmbTipusIId(
+				id,
+				paramId,
+				TipusConsultaCamp.PARAM);
+		if (consultaCamp != null) {
+			consultaCampDao.delete(consultaCamp);
+		}
+	}
+
 	public void deleteCampFromAgrupacio(Long id) {
 		Camp camp = getCampById(id);
 		if (camp != null) {
@@ -2038,17 +2069,6 @@ public class DissenyService {
 				reordenarCamps(camp.getDefinicioProces().getId(), agrupacio.getId());
 		}
 	}
-
-	/*public void consultaAfegirSubconsulta(Long consultaId, Long subconsultaId) {
-		Consulta consulta = consultaDao.getById(consultaId, false);
-		Consulta subconsulta = consultaDao.getById(subconsultaId, false);
-		consulta.addSubConsulta(subconsulta);
-	}
-	public void consultaEsborrarSubconsulta(Long consultaId, Long subconsultaId) {
-		Consulta consulta = consultaDao.getById(consultaId, false);
-		Consulta subconsulta = consultaDao.getById(subconsultaId, false);
-		consulta.removeSubConsulta(subconsulta);
-	}*/
 
 	public Accio getAccioById(Long id) {
 		Accio accio = accioDao.getById(id, false);

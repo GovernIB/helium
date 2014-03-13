@@ -24,6 +24,7 @@ import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
@@ -75,7 +76,10 @@ public class ExpedientConsultaDissenyController extends BaseController {
 	public static final String VARIABLE_SESSIO_IDS_MASSIUS_TE = "consultaExpedientsIdsMassiusTE";
 //	private static final String VARIABLE_SESSIO_SELCON_COMMAND_TE = "expedientTipusConsultaDissenyCommandTE";
 	public static final String VARIABLE_SESSIO_IDS_MASSIUS = "consultaExpedientsIdsMassius";
+	public static final String VARIABLE_SESSIO_PARAMS = "consultaExpedientsParams";
 
+
+	
 
 
 	private DissenyService dissenyService;
@@ -316,7 +320,59 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		}
 	}
 
-	
+	@RequestMapping(value = "/expedient/consultaDissenyInformeParams", method = RequestMethod.POST)
+	public String consultaDissenyInformeParams(
+			HttpServletRequest request,
+			HttpSession session,
+			ModelMap model) {
+		ExpedientConsultaDissenyCommand commandSeleccioConsulta =
+				(ExpedientConsultaDissenyCommand)session.getAttribute(
+						VARIABLE_SESSIO_SELCON_COMMAND);
+		if (commandSeleccioConsulta != null && commandSeleccioConsulta.getConsultaId() != null) {
+			List<ConsultaCamp> params = dissenyService.findCampsConsulta(
+					commandSeleccioConsulta.getConsultaId(),
+					TipusConsultaCamp.PARAM);
+			Map<String, Object> valorsParams = new HashMap<String, Object>();
+			for (ConsultaCamp param: params) {
+				String valorRequest = request.getParameter(param.getCampCodi());
+				Object paramValor = null;
+				switch (param.getParamTipus()) {
+				case TEXT:
+					if (valorRequest != null && valorRequest.length() > 0)
+						paramValor = valorRequest;
+					break;
+				case SENCER:
+					if (valorRequest != null && valorRequest.length() > 0)
+						paramValor = new Long(valorRequest);
+					break;
+				case FLOTANT:
+					if (valorRequest != null && valorRequest.length() > 0)
+						paramValor = new Double(valorRequest);
+					break;
+				case DATA:
+					if (valorRequest != null && valorRequest.length() > 0) {
+						SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+						try {
+							paramValor = sdf.parse(valorRequest);
+						} catch (Exception ignored) {}
+					}
+					break;
+				case BOOLEAN:
+					paramValor = new Boolean(valorRequest != null);
+					break;
+				}
+				if (paramValor != null)
+					valorsParams.put(
+							param.getCampCodi(),
+							paramValor);
+			}
+			/*for (String clau: valorsParams.keySet())
+				System.out.println(">>> PARAM " + clau + ": " + valorsParams.get(clau));*/
+			session.setAttribute(VARIABLE_SESSIO_PARAMS, valorsParams);
+		}
+		return "redirect:consultaDissenyInforme.html";
+	}
+
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/expedient/consultaDissenyInforme")
 	public String consultaDissenyInforme(
@@ -399,6 +455,14 @@ public class ExpedientConsultaDissenyController extends BaseController {
 					model.addAttribute(
 							JasperReportsView.MODEL_ATTRIBUTE_CONSULTA,
 							consulta.getCodi());
+					List<ConsultaCamp> params = dissenyService.findCampsConsulta(
+							consulta.getId(),
+							TipusConsultaCamp.PARAM);
+					if (params != null && !params.isEmpty()) {
+						model.addAttribute(
+								JasperReportsView.MODEL_ATTRIBUTE_PARAMS,
+								session.getAttribute(VARIABLE_SESSIO_PARAMS));
+					}
 					adminService.mesuraCalcular("INFORME: " + consulta.getCodi(), "report", null, null, "INFORME");
 					return "jasperReportsView";
 				} else {
@@ -512,6 +576,17 @@ public class ExpedientConsultaDissenyController extends BaseController {
 									commandSeleccio.getConsultaId(),
 									TipusConsultaCamp.INFORME,
 									true));
+					List<ConsultaCamp> params = dissenyService.findCampsConsulta(
+							commandSeleccio.getConsultaId(),
+							TipusConsultaCamp.PARAM);
+					model.addAttribute("paramsInforme", params);
+					model.addAttribute(
+							"paramsCommand",
+							TascaFormUtil.getCommandForParams(
+									params,
+									null,
+									null,
+									null));
 				}
 				if (commandSeleccio.getExpedientTipusId() != null) {
 					List<Estat> estats = dissenyService.findEstatAmbExpedientTipus(commandSeleccio.getExpedientTipusId());

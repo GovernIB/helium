@@ -36,7 +36,7 @@ function confirmar(e) {
 	    	<form action="camps.html">
 				<input type="hidden" name="id" value="${registre.id}"/>
 				<input type="hidden" name="tipus" value="${tipusFiltre}"/>
-				<button type="submit" class="submitButton"><fmt:message key='consulta.llistat.vars_filtre' />&nbsp;(${numCampsFiltre})</button>
+				<button type="submit" class="submitButton"><fmt:message key="consulta.llistat.vars_filtre"/>&nbsp;(${numCampsFiltre})</button>
 			</form>
 	    </display:column>
 	    <display:column>
@@ -47,7 +47,17 @@ function confirmar(e) {
 	    	<form action="camps.html">
 				<input type="hidden" name="id" value="${registre.id}"/>
 				<input type="hidden" name="tipus" value="${tipusInforme}"/>
-				<button type="submit" class="submitButton">Variables de l'informe&nbsp;(${numCampsInforme})</button>
+				<button type="submit" class="submitButton"><fmt:message key="consulta.llistat.vars_informe"/>&nbsp;(${numCampsInforme})</button>
+			</form>
+	    </display:column>
+	    <display:column>
+	    	<c:set var="numParamsInforme" value="${0}"/>
+	    	<c:forEach var="camp" items="${registre.camps}">
+    			<c:if test="${camp.tipus=='PARAM'}"><c:set var="numParamsInforme" value="${numParamsInforme+1}"/></c:if>
+	    	</c:forEach>
+	    	<form action="params.html">
+				<input type="hidden" name="id" value="${registre.id}"/>
+				<button type="submit" class="submitButton"><fmt:message key="consulta.llistat.params_informe"/>&nbsp;(${numParamsInforme})</button>
 			</form>
 	    </display:column>
 	    <%--display:column>
@@ -58,7 +68,7 @@ function confirmar(e) {
 	    </display:column--%>
 	    <display:column titleKey="entorn.llistat.actiu">
 	     	<c:choose><c:when test="${registre.ocultarActiu}"><fmt:message key='comuns.no' /></c:when><c:otherwise><fmt:message key='comuns.si' /></c:otherwise></c:choose>
-	    </display:column>
+	     </display:column>
 		<display:column>
 			<a href="<c:url value="/consulta/delete.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 		</display:column>

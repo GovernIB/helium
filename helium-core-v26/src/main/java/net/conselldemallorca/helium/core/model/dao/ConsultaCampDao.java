@@ -67,6 +67,23 @@ public class ConsultaCampDao extends HibernateGenericDao<ConsultaCamp, Long> {
 				uniqueResult();
 	}
 
+	public ConsultaCamp getAmbTipusIId(
+			Long consultaId,
+			Long consultaCampId,
+			TipusConsultaCamp tipus) {
+		return (ConsultaCamp)getSession().createQuery(
+				"from " +
+				"    ConsultaCamp cc " +
+				"where " +
+				"    cc.consulta.id=? " +
+				"and cc.id=? " +
+				"and cc.tipus=?").
+				setLong(0, consultaId).
+				setLong(1, consultaCampId).
+				setParameter(2, tipus).
+				uniqueResult();
+	}
+
 	@SuppressWarnings("unchecked")
 	public List<Camp> findCampsDefinicioProcesAmbJbpmKey(Long entornId, String defprocJbpmKey) {
 		return getSession().createQuery(

@@ -19,6 +19,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.sf.cglib.beans.BeanGenerator;
@@ -82,6 +83,43 @@ public class TascaFormUtil {
 		List<Camp> camps = new ArrayList<Camp>();
 		for (CampRegistre campRegistre: camp.getRegistreMembres())
 			camps.add(campRegistre.getMembre());
+		return getCommandForCamps(
+				camps,
+				valors,
+				campsAddicionals,
+				campsAddicionalsClasses,
+				false);
+	}
+	@SuppressWarnings("rawtypes")
+	public static Object getCommandForParams(
+			List<ConsultaCamp> params,
+			Map<String, Object> valors,
+			Map<String, Object> campsAddicionals,
+			Map<String, Class> campsAddicionalsClasses) {
+		List<Camp> camps = new ArrayList<Camp>();
+		for (ConsultaCamp param: params) {
+			Camp camp = new Camp();
+			camp.setCodi(param.getCampCodi());
+			camp.setEtiqueta(param.getCampDescripcio());
+			switch (param.getParamTipus()) {
+			case TEXT:
+				camp.setTipus(TipusCamp.STRING);
+				break;
+			case SENCER:
+				camp.setTipus(TipusCamp.INTEGER);
+				break;
+			case FLOTANT:
+				camp.setTipus(TipusCamp.FLOAT);
+				break;
+			case DATA:
+				camp.setTipus(TipusCamp.DATE);
+				break;
+			case BOOLEAN:
+				camp.setTipus(TipusCamp.BOOLEAN);
+				break;
+			}
+			camps.add(camp);
+		}
 		return getCommandForCamps(
 				camps,
 				valors,
@@ -381,7 +419,8 @@ public class TascaFormUtil {
 		}
 		return null;
 	} 
-	
+
+	@SuppressWarnings("rawtypes")
 	private static Class getJavaClass(TipusCamp tipusCamp){
 		if (TipusCamp.STRING.equals(tipusCamp)) {
 			return String.class;
