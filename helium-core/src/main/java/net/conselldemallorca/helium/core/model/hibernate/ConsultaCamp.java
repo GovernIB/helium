@@ -37,18 +37,29 @@ public class ConsultaCamp implements Serializable, GenericEntity<Long> {
 
 	public enum TipusConsultaCamp {
 		FILTRE,
-		INFORME
+		INFORME,
+		PARAM
+	}
+	public enum TipusParamConsultaCamp {
+		TEXT,
+		SENCER,
+		FLOTANT,
+		DATA,
+		BOOLEAN
 	}
 
 	private Long id;
 	@NotBlank
 	@MaxLength(64)
 	private String campCodi;
+	@MaxLength(64)
+	private String campDescripcio;
 	@MaxLength(255)
 	private String defprocJbpmKey;
 	private int defprocVersio = -1;
 	@NotNull
 	private TipusConsultaCamp tipus;
+	private TipusParamConsultaCamp paramTipus;
 	private int ordre;
 
 	@NotNull
@@ -81,6 +92,14 @@ public class ConsultaCamp implements Serializable, GenericEntity<Long> {
 		this.campCodi = campCodi;
 	}
 
+	@Column(name="camp_descripcio", length=255, nullable=true)
+	public String getCampDescripcio() {
+		return campDescripcio;
+	}
+	public void setCampDescripcio(String campDescripcio) {
+		this.campDescripcio = campDescripcio;
+	}
+
 	@Column(name="defproc_jbpmkey", length=255)
 	public String getDefprocJbpmKey() {
 		return defprocJbpmKey;
@@ -103,6 +122,14 @@ public class ConsultaCamp implements Serializable, GenericEntity<Long> {
 	}
 	public void setTipus(TipusConsultaCamp tipus) {
 		this.tipus = tipus;
+	}
+
+	@Column(name="param_tipus")
+	public TipusParamConsultaCamp getParamTipus() {
+		return paramTipus;
+	}
+	public void setParamTipus(TipusParamConsultaCamp paramTipus) {
+		this.paramTipus = paramTipus;
 	}
 
 	@Column(name="ordre", nullable=false)

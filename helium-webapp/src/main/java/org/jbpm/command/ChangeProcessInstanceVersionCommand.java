@@ -158,7 +158,8 @@ public class ChangeProcessInstanceVersionCommand extends AbstractProcessInstance
   private void adjustTaskInstancesForToken(Token token)
   {
     ProcessDefinition newDef = getNewProcessDefinition(token);
-    Iterator<TaskInstance> iter = getTasksForToken(token).iterator();
+    @SuppressWarnings("unchecked")
+	Iterator<TaskInstance> iter = getTasksForToken(token).iterator();
     while (iter.hasNext())
     {
       TaskInstance ti = iter.next();
@@ -300,7 +301,8 @@ public class ChangeProcessInstanceVersionCommand extends AbstractProcessInstance
    * this process instance and cancel them if they are still active.
    * 
    */
-  private List getTasksForToken(Token token)
+  @SuppressWarnings("rawtypes")
+private List getTasksForToken(Token token)
   {
     Query query = getJbpmContext().getSession().getNamedQuery("TaskMgmtSession.findTaskInstancesByTokenId");
     query.setLong("tokenId", token.getId());
@@ -308,7 +310,8 @@ public class ChangeProcessInstanceVersionCommand extends AbstractProcessInstance
 
   }
 
-  public Map getNodeNameMapping()
+  @SuppressWarnings("rawtypes")
+public Map getNodeNameMapping()
   {
     return nodeNameMapping;
   }
@@ -332,7 +335,8 @@ public class ChangeProcessInstanceVersionCommand extends AbstractProcessInstance
     this.newVersion = newVersion;
   }
   
-  public Map getTaskNameMapping()
+  @SuppressWarnings("rawtypes")
+public Map getTaskNameMapping()
   {
     return taskNameMapping;
   }
@@ -368,7 +372,8 @@ public class ChangeProcessInstanceVersionCommand extends AbstractProcessInstance
   /**
    * @deprecated use getNodeNameMapping instead
    */
-  public Map getNameMapping()
+  @SuppressWarnings("rawtypes")
+public Map getNameMapping()
   {
     return getNodeNameMapping();
   }
@@ -376,7 +381,8 @@ public class ChangeProcessInstanceVersionCommand extends AbstractProcessInstance
   /**
    * @deprecated use setNodeNameMapping instead
    */
-  public void setNameMapping(Map nameMapping) {
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+public void setNameMapping(Map nameMapping) {
     setNodeNameMapping(nameMapping);
   }
 

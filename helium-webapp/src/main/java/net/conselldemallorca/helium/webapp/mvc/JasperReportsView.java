@@ -46,6 +46,7 @@ public class JasperReportsView implements View {
 	public static final String MODEL_ATTRIBUTE_SUBREPORTDATA_PREFIX = "subreportFile_";
 
 	public static final String MODEL_ATTRIBUTE_CONSULTA = "reportConsulta";
+	public static final String MODEL_ATTRIBUTE_PARAMS = "reportParams";
 
 
 	private AdminService adminService;
@@ -88,7 +89,12 @@ public class JasperReportsView implements View {
 					params.put("ds_" + nom, new JRBeanCollectionDataSource((List<Map<String, Object>>)model.get(MODEL_ATTRIBUTE_REPORTDATA)));
 				}
 			}			
-			
+
+			Map<String, Object> paramsModel = (Map<String, Object>)model.get(
+					MODEL_ATTRIBUTE_PARAMS);
+			if (paramsModel != null)
+				params.putAll(paramsModel);
+
 			JasperPrint jasperPrint = JasperFillManager.fillReport(
 					report,
 					params,

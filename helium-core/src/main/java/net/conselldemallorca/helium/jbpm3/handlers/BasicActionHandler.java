@@ -187,7 +187,7 @@ public abstract class BasicActionHandler implements ActionHandler {
 				expedient.getTipus().getId(),
 				codiEnumeracio);
 		if (enm == null)
-			throw new JbpmException("No s'ha trobat el domini amb el codi '" + codiEnumeracio + "'");
+			throw new JbpmException("No s'ha trobat l'enumeració amb el codi '" + codiEnumeracio + "'");
 		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
 		for (EnumeracioValors valor: enm.getEnumeracioValors()) {
 			resposta.add(

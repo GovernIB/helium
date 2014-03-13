@@ -4,9 +4,11 @@
 package net.conselldemallorca.helium.core.model.dao;
 
 import net.conselldemallorca.helium.core.model.service.AdminService;
-import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
+import net.conselldemallorca.helium.core.model.service.UpdateService;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
@@ -133,12 +135,15 @@ public class DaoProxy implements ApplicationContextAware {
 	}
 
 	private void waitContext() {
-		while (ctx == null){
-			System.out.println(">>>>>DaoProxy ctx == null. Retry (" + System.currentTimeMillis() + ")");
-				try{
-					Thread.sleep(500);
-				} catch (Exception ex) {}
+		while (ctx == null) {
+			logger.info("Context null, reintentant...");
+			try {
+				Thread.sleep(500);
+			} catch (Exception ex) {}
 		}
-//		System.out.println(">>>>>DaoProxy ctx OK (" + System.currentTimeMillis() + ")");
+		logger.info("Context OK, seguim endavant");
 	}
+
+	private static final Log logger = LogFactory.getLog(UpdateService.class);
+
 }

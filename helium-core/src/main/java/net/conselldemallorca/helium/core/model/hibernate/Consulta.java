@@ -70,8 +70,6 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 
 	private Set<ConsultaCamp> camps = new HashSet<ConsultaCamp>();
 
-	/*private Set<Consulta> subConsultes = new HashSet<Consulta>();
-	private Set<Consulta> superConsultes = new HashSet<Consulta>();*/
 	private String formatExport;
 
 
@@ -215,40 +213,6 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 	public void removeCamp(ConsultaCamp camp) {
 		getCamps().remove(camp);
 	}
-
-	/*@ManyToMany()
-	@JoinTable(
-			name="hel_consulta_sub",
-			joinColumns=@JoinColumn(name="pare_id", referencedColumnName="id"),
-			inverseJoinColumns=@JoinColumn(name="fill_id", referencedColumnName="id")
-	)
-	@ForeignKey(name="hel_fill_consultasub_fk", inverseName="hel_pare_consultasub_fk")
-	public Set<Consulta> getSubConsultes() {
-		return this.subConsultes;
-	}
-	public void setSubConsultes(Set<Consulta> subConsultes) {
-		this.subConsultes = subConsultes;
-	}
-	public void addSubConsulta(Consulta consulta) {
-		getSubConsultes().add(consulta);
-	}
-	public void removeSubConsulta(Consulta consulta) {
-		getSubConsultes().remove(consulta);
-	}
-
-	@ManyToMany(mappedBy="subConsultes")
-	public Set<Consulta> getSuperConsultes() {
-		return this.superConsultes;
-	}
-	public void setSuperConsultes(Set<Consulta> superConsultes) {
-		this.superConsultes = superConsultes;
-	}
-	public void addSuperConsulta(Consulta consulta) {
-		getSuperConsultes().add(consulta);
-	}
-	public void removeSuperConsulta(Consulta consulta) {
-		getSuperConsultes().remove(consulta);
-	}*/
 
 	@Override
 	public int hashCode() {

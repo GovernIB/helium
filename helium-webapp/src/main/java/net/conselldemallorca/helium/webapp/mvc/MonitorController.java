@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class MonitorController extends BaseController {
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Map<String,JSONArray> ejecutar() {
 		Map<String, JSONArray> mjson = new LinkedHashMap<String,JSONArray>();
 		JSONArray sistema = new JSONArray();

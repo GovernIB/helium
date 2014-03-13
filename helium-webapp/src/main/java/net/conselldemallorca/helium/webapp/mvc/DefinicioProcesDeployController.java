@@ -7,25 +7,21 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
-import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.core.model.exception.DeploymentException;
 import net.conselldemallorca.helium.core.model.exportacio.DefinicioProcesExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.ExpedientTipusExportacio;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
@@ -36,7 +32,6 @@ import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jbpm.graph.exe.ProcessInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.Permission;
 import org.springframework.stereotype.Controller;
