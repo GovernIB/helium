@@ -99,7 +99,7 @@ function signarAFirma(form, token) {
 </script>
 </c:if>
 <c:if test="${globalProperties['app.signatura.tipus'] == 'caib'}">
-<script src="http://www.java.com/js/deployJava.js"></script>
+<script src="https://www.java.com/js/deployJava.js"></script>
 <script>
 var attributes = {
 		id: 'signaturaApplet',
