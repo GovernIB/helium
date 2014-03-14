@@ -9,6 +9,18 @@
 	<meta name="titolcmp" content="<fmt:message key='comuns.disseny' />" />
 	<c:import url="../common/formIncludes.jsp"/>
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
+	 <script type="text/javascript">
+			function validaCaracters() {
+				var re = /^[0-9A-z]*$/;
+				var text = $('#codi0').val();
+				if (!re.test(text)) {
+					alert('Al camp codi només es permeten números i lletres sense accentuar');
+					$('#codi0').val('');
+					return false;
+				}
+			}
+</script>
+	
 </head>
 <body>
 
@@ -17,6 +29,7 @@
 	</c:import>
 
 	<form:form action="campAgrupacioForm.html" cssClass="uniForm">
+		<div id="errorCodi"></div>
 		<div class="inlineLabels">
 			<c:if test="${not empty command.id}"><form:hidden path="id"/></c:if>
 			<form:hidden path="definicioProces"/>
@@ -24,6 +37,7 @@
 				<c:param name="property" value="codi"/>
 				<c:param name="required" value="true"/>
 				<c:param name="label"><fmt:message key='comuns.codi' /></c:param>
+				<c:param name="onchange"> validaCaracters(this);</c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="nom"/>
