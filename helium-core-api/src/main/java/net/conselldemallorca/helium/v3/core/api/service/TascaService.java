@@ -72,20 +72,8 @@ public interface TascaService {
 			String usuari,
 			Map<String, Object> valorsCommand,
 			boolean ambVariables,
-			boolean ambTexts);
+			boolean ambTexts) throws TascaNotFoundException;
 	
-
-	public ExpedientTascaDto getByIdSenseComprovacio(String taskId);
-	
-	public ExpedientTascaDto getByIdSenseComprovacio(String taskId, Map<String, Object> valorsCommand);
-	
-	public ExpedientTascaDto getByIdSenseComprovacio(String taskId, String usuari);
-	
-	public ExpedientTascaDto getByIdSenseComprovacio(String taskId, String usuari, Map<String, Object> valorsCommand);
-	
-	public ExpedientTascaDto getByIdSenseComprovacioIDades(String taskId);
-	
-
 	public ExpedientTascaDto guardarVariables(
 			Long entornId,
 			String taskId,
@@ -198,4 +186,6 @@ public interface TascaService {
 	public ExpedientTascaDto alliberar(Long id, String id2, boolean comprovarResponsable);
 
 	public CampDto findCampTasca(Long campId);
+
+	public ExpedientTascaDto getByIdSenseComprovacio(String taskId);
 }

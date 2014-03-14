@@ -237,14 +237,14 @@
 				$("#tramitacioMassivaActivar").parent().addClass('hide');
 				$("#tramitacioMassivaDesactivar").parent().removeClass('hide');
 				$("#tramitacioMassivaBtn").removeClass('disabled');
-				 $(taula).dataTable().fnSetColumnVis(0, true);
+				$(taula).dataTable().fnSetColumnVis(0, true);
 				$("input[name=tramitacioMassivaActivada]").val("true");
 			});
 			$("#tramitacioMassivaDesactivar").click(function() {
 				$("#tramitacioMassivaDesactivar").parent().addClass('hide');
 				$("#tramitacioMassivaActivar").parent().removeClass('hide');
 				$("#tramitacioMassivaBtn").addClass('disabled');
-				 $(taula).dataTable().fnSetColumnVis(0, false);
+				$(taula).dataTable().fnSetColumnVis(0, false);
 				$("input[name=tramitacioMassivaActivada]").val("false");
 			});
 			$('#filtresCollapsable').on('hide', function () {
@@ -286,24 +286,6 @@
 		<div class="page-header">
 			Consulta d'expedients
 			<form:hidden path="filtreDesplegat"/>
-			<%--a id="filtresCollapse" class="btn btn-mini pull-right" href="#" title="Mostrar/ocultar camps del filtre" data-toggle="collapse" data-target="#filtresCollapsable"><i class="<c:choose><c:when test="${expedientConsultaCommand.filtreDesplegat}">icon-chevron-up</c:when><c:otherwise>icon-chevron-down</c:otherwise></c:choose>"></i></a--%>
-<%-- 			<div class="pull-right">
- 				<c:choose>
- 					<c:when test="${not empty expedientTipusActual}">
- 	        			<a class="btn btn-mini" href="#">Consulta avançada</a>
- 	        		</c:when>
- 	        		<c:otherwise>
- 			        	<div class="btn-group"> <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">Consulta avançada <span class="caret"></span></a>
- 			            	<ul class="dropdown-menu">
- 				            	<c:forEach var="expedientTipus" items="${expedientTipusAccessibles}">
- 									<li><a href="#">${expedientTipus.nom}</a></li>
- 								</c:forEach>
- 			            	</ul>
- 			          	</div>
- 			     	</c:otherwise>
- 				</c:choose>
-         	</div> 
---%>
 		</div>
 		<div id="filtresCollapsable" class="collapse<c:if test="${true or expedientConsultaCommand.filtreDesplegat}"> in</c:if>">
 			<div class="row-fluid">
@@ -457,14 +439,14 @@
 					<a id="nomesAlertesCheck" href="javascript:void(0)" title="Només amb alertes" class="hide btn<c:if test="${expedientConsultaCommand.nomesAlertes}"> active</c:if>" data-toggle="button"><i class="icon-warning-sign"></i></a>
 					<a id="mostrarAnulatsCheck" href="javascript:void(0)" title="Mostrar anulats" class="btn<c:if test="${expedientConsultaCommand.mostrarAnulats}"> active</c:if>" data-toggle="button"><i class="icon-remove"></i></a>
 				</div>
-				<%--div class="btn-group">
-					<a id="tramitacioMassivaCheck" class="btn<c:if test="${expedientConsultaCommand.tramitacioMassivaActivada}"> active</c:if>" href="#" data-toggle="button" title="Activar/desactivar tramitació massiva"><i class="icon-check"></i></a>
-					<button id="tramitacioMassivaBtn" class="btn<c:if test="${not expedientConsultaCommand.tramitacioMassivaActivada}"> disabled</c:if>">Tramitació massiva <span id="tramitacioMassivaCount" class="badge">&nbsp;</span></button>
-				</div--%>
-				<div class="hide btn-group">
-					<button id="tramitacioMassivaBtn" class="btn<c:if test="${not expedientConsultaCommand.tramitacioMassivaActivada}"> disabled</c:if>">Tramitació massiva <span id="tramitacioMassivaCount" class="badge">&nbsp;</span></button>
-					<button class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
-					<ul class="dropdown-menu">
+<!-- 				<div class="btn-group"> -->
+<%-- 					<a id="tramitacioMassivaCheck" class="btn<c:if test="${expedientConsultaCommand.tramitacioMassivaActivada}"> active</c:if>" href="#" data-toggle="button" title="Activar/desactivar tramitació massiva"><i class="icon-check"></i></a> --%>
+<%-- 					<button id="tramitacioMassivaBtn" class="btn<c:if test="${not expedientConsultaCommand.tramitacioMassivaActivada}"> disabled</c:if>">Tramitació massiva <span id="tramitacioMassivaCount" class="badge">&nbsp;</span></button> --%>
+<!-- 				</div> -->
+				<div class="btn-group">
+					<button id="tramitacioMassivaBtn" class="tramitacioMassiva btn<c:if test="${not expedientConsultaCommand.tramitacioMassivaActivada}"> disabled</c:if>">Tramitació massiva <span id="tramitacioMassivaCount" class="badge">&nbsp;</span></button>
+					<button class="tramitacioMassiva btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+					<ul class="tramitacioMassiva dropdown-menu">
 						<li<c:if test="${expedientConsultaCommand.tramitacioMassivaActivada}"> class="hide"</c:if>><a id="tramitacioMassivaActivar" href="#"><i class="icon-ok-circle"></i> Activar</a></li>
 						<li<c:if test="${not expedientConsultaCommand.tramitacioMassivaActivada}"> class="hide"</c:if>><a id="tramitacioMassivaDesactivar" href="#"><i class="icon-ban-circle"></i> Desactivar</a></li>
 					</ul>
@@ -483,7 +465,7 @@
 		<table id="taulaDades" class="table table-striped table-bordered">
 			<thead>
 				<tr>
-					<th data-property="id" width="4%" <c:if test="${not expedientConsultaCommand.tramitacioMassivaActivada}">data-visible=false</c:if>><input type="checkbox"/></th>
+					<th data-property="id" width="4%" data-sortable="false" <c:if test="${not expedientConsultaCommand.tramitacioMassivaActivada}">data-visible=false</c:if>><input type="checkbox"/></th>
 					<th data-property="identificador" data-visible=true>Expedient</th>
 					<th data-property="dataInici" data-sorting="desc" data-visible=true>Iniciat el</th>
 					<th data-property="dataFi" data-visible=false>Finalitzat el</th>

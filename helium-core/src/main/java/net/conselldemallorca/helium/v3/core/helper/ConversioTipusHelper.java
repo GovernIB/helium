@@ -16,7 +16,9 @@ import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import ma.glasnost.orika.metadata.Type;
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
+import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
@@ -25,6 +27,7 @@ import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
@@ -47,6 +50,23 @@ public class ConversioTipusHelper {
 		mapperFactory = new DefaultMapperFactory.Builder().build();
 		
 		mapperFactory.getConverterFactory().registerConverter(
+				new CustomConverter<Camp, CampDto>() {
+
+					@Override
+					public CampDto convert(Camp source, Type<? extends CampDto> destinationClass) {
+						CampDto target = new CampDto();
+						target.setId(source.getId());
+						target.setCodi(source.getCodi());
+						target.setEtiqueta(source.getEtiqueta());
+						target.setObservacions(source.getObservacions());
+						target.setTipus(
+								CampTipusDto.valueOf(
+										source.getTipus().toString()));						
+						return target;
+					}
+		});
+		
+		mapperFactory.getConverterFactory().registerConverter(
 				new CustomConverter<CampTasca, CampTascaDto>() {
 					public CampTascaDto convert(CampTasca source, Type<? extends CampTascaDto> destinationClass) {
 						CampTascaDto target = new CampTascaDto();
@@ -57,19 +77,34 @@ public class ConversioTipusHelper {
 						target.setReadOnly(source.isReadOnly());
 						target.setOrder(source.getOrder());
 						if (source.getCamp() != null) {
-							CampDto camp = new CampDto();
-							camp.setId(source.getCamp().getId());
-							camp.setCodi(source.getCamp().getCodi());
-							camp.setEtiqueta(source.getCamp().getEtiqueta());
-							camp.setObservacions(source.getCamp().getObservacions());
-							camp.setTipus(
-									CampTipusDto.valueOf(
-											source.getCamp().getTipus().toString()));
-							target.setCamp(camp);
+							target.setCamp(convertir(source.getCamp(), CampDto.class));
 						}
 						return target;
 					}
 				});
+		
+		mapperFactory.getConverterFactory().registerConverter(
+				new CustomConverter<Consulta, ConsultaDto>() {
+
+					@Override
+					public ConsultaDto convert(Consulta source, Type<? extends ConsultaDto> destinationType) {
+						ConsultaDto target = new ConsultaDto();
+						target.setCodi(source.getCodi());
+						target.setDescripcio(source.getDescripcio());
+						target.setExpedientTipus(convertir(source.getExpedientTipus(), ExpedientTipusDto.class));
+						target.setExportarActiu(source.isExportarActiu());
+						target.setFormatExport(source.getFormatExport());
+						target.setGenerica(source.isGenerica());
+						target.setId(source.getId());
+						target.setInformeContingut(source.getInformeContingut());
+						target.setInformeNom(source.getInformeNom());
+						target.setNom(source.getNom());
+						target.setOcultarActiu(source.isOcultarActiu());
+						target.setOrdre(source.getOrdre());
+						target.setValorsPredefinits(source.getValorsPredefinits());
+						return target;
+					}				
+			});
 		
 		mapperFactory.getConverterFactory().registerConverter(
 				new CustomConverter<ExpedientTipus, ExpedientTipusDto>() {
@@ -85,7 +120,12 @@ public class ConversioTipusHelper {
 						target.setEstats(convertirList(source.getEstats(), EstatDto.class));
 						target.setExpressioNumero(source.getExpressioNumero());
 						target.setId(source.getId());
-						target.setConConsultasPorTipo(!source.getConsultes().isEmpty());
+						for (Consulta consulta : source.getConsultes()) {
+							if (!consulta.isOcultarActiu()) {
+								target.setConConsultasActivasPorTipo(true);
+								break;
+							}
+						}
 						target.setJbpmProcessDefinitionKey(source.getJbpmProcessDefinitionKey());
 						target.setNom(source.getNom());
 						target.setReiniciarCadaAny(source.isReiniciarCadaAny());

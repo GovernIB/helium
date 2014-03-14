@@ -123,6 +123,14 @@ public class VariableHelper {
 		return valorsRevisats;
 	}
 
+	public Map<String, Object> findVarsDadesPerInstanciaProces(String processInstanceId) {
+		Map<String, Object> resposta = new HashMap<String, Object>();
+		for (ExpedientDadaDto dada : findDadesPerInstanciaProces(processInstanceId)) {
+			resposta.put(dada.getVarCodi(), dada.getText());
+		}
+		return resposta;
+	}
+	
 	public List<ExpedientDadaDto> findDadesPerInstanciaProces(String processInstanceId) {
 		String tipusExp = null;
 		if (MesuresTemporalsHelper.isActiu()) {
@@ -202,14 +210,14 @@ public class VariableHelper {
 	public List<TascaDadaDto> findDadesPerInstanciaTascaDto(ExpedientTascaDto tasca) {		
 		List<TascaDadaDto> resposta = new ArrayList<TascaDadaDto>();
 		
-		for (CampTasca campTasca: campTascaRepository.findAmbTascaOrdenats(tasca.getTascaId())) {
+		for (CampTasca campTasca: campTascaRepository.findAmbTascaOrdenats(Long.valueOf(tasca.getId()))) {
 			Camp camp = campTasca.getCamp();
 			
 			ExpedientDadaDto expedientDadaDto = getDadaPerVariableJbpm(
 					camp,
 					camp.getCodi(),
 					null,
-					String.valueOf(tasca.getTascaId()),
+					tasca.getId(),
 					null,
 					false);
 			resposta.add(
@@ -330,10 +338,11 @@ public class VariableHelper {
 				dto.setAgrupacioId(camp.getAgrupacio().getId());
 		} else {
 			dto.setCampEtiqueta(varCodi);
+			dto.setText((String) varValor);
 			dto.setCampTipus(CampTipusDto.STRING);
 		}
 		boolean esCampTipusAccio = camp != null && TipusCamp.ACCIO.equals(camp.getTipus());
-		if (!esCampTipusAccio) {
+		if (camp != null && !esCampTipusAccio) {
 			try {
 				if (!camp.isMultiple() || forsarSimple) {
 					if (TipusCamp.REGISTRE.equals(camp.getTipus())) {
@@ -432,7 +441,8 @@ public class VariableHelper {
 				valor,
 				valorFontExterna);
 	}
-	private ParellaCodiValorDto getTextVariableSimpleFontExterna(
+	
+	public ParellaCodiValorDto getTextVariableSimpleFontExterna(
 			Camp camp,
 			Object valor,
 			Map<String, Object> valorsAddicionals,
@@ -445,7 +455,28 @@ public class VariableHelper {
 					((DominiCodiDescripcio)valor).getCodi(),
 					((DominiCodiDescripcio)valor).getDescripcio());
 		}
-		ParellaCodiValorDto resposta = null;
+		
+		List<ParellaCodiValorDto> lista = getTextVariablesSimpleFontExterna(
+				camp,
+				valor,
+				valorsAddicionals,
+				taskInstanceId,
+				processInstanceId);
+		
+		if (!lista.isEmpty()) {
+			return lista.get(0);
+		}
+		return null;
+	}
+	
+	public List<ParellaCodiValorDto> getTextVariablesSimpleFontExterna(
+			Camp camp,
+			Object valor,
+			Map<String, Object> valorsAddicionals,
+			String taskInstanceId,
+			String processInstanceId) throws Exception {
+
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		TipusCamp tipus = camp.getTipus();
 		if (tipus.equals(TipusCamp.SELECCIO) || tipus.equals(TipusCamp.SUGGEST)) {
 			if (camp.getDomini() != null || camp.isDominiIntern()) {
@@ -476,14 +507,16 @@ public class VariableHelper {
 					while (it.hasNext()) {
 						FilaResultat fr = it.next();
 						for (ParellaCodiValor parellaCodi: fr.getColumnes()) {
-							if (parellaCodi.getCodi().equals(columnaCodi) && parellaCodi.getValor().toString().equals(valor)) {
+							if (parellaCodi.getCodi().equals(columnaCodi) && (valor == null || parellaCodi.getValor().toString().equals(valor))) {
 								for (ParellaCodiValor parellaValor: fr.getColumnes()) {
 									if (parellaValor.getCodi().equals(columnaValor)) {
 										ParellaCodiValorDto codiValor = new ParellaCodiValorDto(
 												parellaCodi.getValor().toString(),
 												parellaValor.getValor());
-										resposta = codiValor;
-										break;
+										resposta.add(codiValor);
+										if (valor != null) {
+											break;
+										}
 									}
 								}
 								break;
@@ -497,10 +530,12 @@ public class VariableHelper {
 				Enumeracio enumeracio = camp.getEnumeracio();
 				for (EnumeracioValors enumValor: enumeracio.getEnumeracioValors()) {
 					if (valor.equals(enumValor.getCodi())) {
-						resposta = new ParellaCodiValorDto(
+						resposta.add(new ParellaCodiValorDto(
 								enumValor.getCodi(),
-								enumValor.getNom());
-						break;
+								enumValor.getNom()));
+						if (valor != null) {
+							break;
+						}
 					}
 				}
 			} else if (camp.getConsulta() != null) {
@@ -520,16 +555,18 @@ public class VariableHelper {
 						valorDto = exp.getDadesExpedient().get(consulta.getExpedientTipus().getJbpmProcessDefinitionKey()+"/"+camp.getConsultaCampValor());
 					}
 					if(valorDto != null){
-						if(valorDto.getValor().toString().equals(valor)){
+						if (valorDto.getValor().toString().equals(valor)){
 							DadaIndexadaDto textDto = exp.getDadesExpedient().get(camp.getConsultaCampText());
 							if(textDto == null){
 								textDto = exp.getDadesExpedient().get(consulta.getExpedientTipus().getJbpmProcessDefinitionKey()+"/"+camp.getConsultaCampText());
 							}
-							resposta = new ParellaCodiValorDto(
+							resposta.add(new ParellaCodiValorDto(
 									valorDto.getValorMostrar(),
 									textDto.getValorMostrar()
-									);
-							break;
+									));
+							if (valor != null) {
+								break;
+							}
 						}
 					}
 				}

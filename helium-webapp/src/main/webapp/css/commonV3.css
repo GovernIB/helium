@@ -319,3 +319,8 @@ ul#tabnav li.warn a {
 	background-color: #B8B8B8;
     background-repeat: repeat-x;
 }
+
+#tramitacioMassivaBtn {
+	margin-left: 25px;	
+}
+

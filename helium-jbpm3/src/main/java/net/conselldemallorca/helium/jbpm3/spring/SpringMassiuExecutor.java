@@ -37,7 +37,7 @@ public class SpringMassiuExecutor implements Serializable {
 
 	public synchronized void start() {
 		if (!isStarted) {
-
+			
 			for (int i = 0; i < nbrOfThreads; i++) {
 				startThread();
 			}

@@ -25,7 +25,6 @@ public class ConsultaDto implements Serializable {
 	private boolean ocultarActiu;
 	private boolean generica;
 	private int ordre;
-	private EntornDto entorn;
 	private ExpedientTipusDto expedientTipus;	
 
 	private Set<ConsultaCampDto> camps = new HashSet<ConsultaCampDto>();
@@ -116,12 +115,6 @@ public class ConsultaDto implements Serializable {
 	public void setOrdre(int ordre) {
 		this.ordre = ordre;
 	}
-	public EntornDto getEntorn() {
-		return entorn;
-	}
-	public void setEntorn(EntornDto entorn) {
-		this.entorn = entorn;
-	}
 	public ExpedientTipusDto getExpedientTipus() {
 		return expedientTipus;
 	}
@@ -133,38 +126,7 @@ public class ConsultaDto implements Serializable {
 	}
 	public void setFormatExport(String formatExport) {
 		this.formatExport = formatExport;
-	}
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((codi == null) ? 0 : codi.hashCode());
-		result = prime * result + ((entorn == null) ? 0 : entorn.hashCode());
-		return result;
-	}
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ConsultaDto other = (ConsultaDto) obj;
-		if (codi == null) {
-			if (other.codi != null)
-				return false;
-		} else if (!codi.equals(other.codi))
-			return false;
-		if (entorn == null) {
-			if (other.entorn != null)
-				return false;
-		} else if (!entorn.equals(other.entorn))
-			return false;
-		return true;
-	}
-	
+	}	
 	
 	private static final long serialVersionUID = 1L;
-
 }

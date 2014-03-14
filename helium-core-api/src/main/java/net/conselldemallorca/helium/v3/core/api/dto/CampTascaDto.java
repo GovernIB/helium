@@ -4,7 +4,8 @@ import java.io.Serializable;
 
 
 /**
- * Objecte de domini que representa un camp per a un formulari.
+ * DTO amb informació d'un camp d'una tasca de la
+ * definició de procés.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -18,10 +19,6 @@ public class CampTascaDto implements Serializable {
 	private int order;
 
 	private CampDto camp;
-
-	private ExpedientTascaDto tasca;
-
-
 
 	public Long getId() {
 		return id;
@@ -65,25 +62,17 @@ public class CampTascaDto implements Serializable {
 	public void setCamp(CampDto camp) {
 		this.camp = camp;
 	}
-	public ExpedientTascaDto getTasca() {
-		return tasca;
-	}
-	public void setTasca(ExpedientTascaDto tasca) {
-		this.tasca = tasca;
-	}
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
 	public CampTascaDto() {}
 	public CampTascaDto(
 			CampDto camp,
-			ExpedientTascaDto tasca,
 			boolean readFrom,
 			boolean writeTo,
 			boolean required,
 			boolean readOnly,
 			int order) {
-		this.tasca = tasca;
 		this.camp = camp;
 		this.readFrom = readFrom;
 		this.writeTo = writeTo;
@@ -97,9 +86,9 @@ public class CampTascaDto implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((camp == null) ? 0 : camp.hashCode());
-		result = prime * result + ((tasca == null) ? 0 : tasca.hashCode());
 		return result;
 	}
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -114,15 +103,8 @@ public class CampTascaDto implements Serializable {
 				return false;
 		} else if (!camp.equals(other.camp))
 			return false;
-		if (tasca == null) {
-			if (other.tasca != null)
-				return false;
-		} else if (!tasca.equals(other.tasca))
-			return false;
 		return true;
 	}
-
-
 
 	private static final long serialVersionUID = 1L;
 

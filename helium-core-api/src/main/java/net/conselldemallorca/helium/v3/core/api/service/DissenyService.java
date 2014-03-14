@@ -95,7 +95,7 @@ public interface DissenyService {
 
 	public ExpedientTipusDto getExpedientTipusById(Long id);
 
-	public DefinicioProcesDto getById(Long id, boolean ambTascaInicial);
+	public DefinicioProcesDto getById(Long id);
 
 	public DefinicioProcesDto findDarreraDefinicioProcesForExpedientTipus(Long expedientTipusId, boolean ambTascaInicial);
 

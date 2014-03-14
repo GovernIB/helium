@@ -69,11 +69,10 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 		if (entorn != null) {		
 			ExpedientDto expedient = expedientService.findById(expedientId);
 			if (potModificarOReassignarExpedient(expedient)) {
-				ExpedientTascaDto tasca = tascaService.getTascaPerExpedientId(expedient.getId(), tascaId);
 				atributsModel(
 	        			entorn,
 	        			expedient,
-	        			tasca,
+	        			tascaId,
 	        			model);
 				NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
 				return "v3/expedient/tasca/reassignar";
@@ -104,13 +103,14 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 				if ("submit".equals(submit) || submit.length() == 0) {
 					new TascaReassignarValidator().validate(command, result);
 			        if (result.hasErrors()) {
-			        	ExpedientTascaDto tasca = tascaService.getTascaPerExpedientId(expedient.getId(), tascaId);
 			        	atributsModel(
 			        			entorn,
 			        			expedient,
-			        			tasca,
+			        			tascaId,
 			        			model);
 						NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
+
+						MissatgesHelper.error(request, result, getMessage(request, "error.validacio"));
 			        	return "v3/expedient/tasca/reassignar";
 			        }
 					try {
@@ -125,11 +125,10 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 						} else {
 							MissatgesHelper.error(request, getMessage(request, "error.reassignar.tasca", new Object[] { command.getTaskId() } ));
 						}
-						ExpedientTascaDto tasca = tascaService.getTascaPerExpedientId(expedient.getId(), tascaId);
-			        	atributsModel(
+						atributsModel(
 			        			entorn,
 			        			expedient,
-			        			tasca,
+			        			tascaId,
 			        			model);
 			        	logger.error("No s'ha pogut reassignar la tasca " + command.getTaskId(), ex);
 						NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
@@ -159,21 +158,14 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 	private void atributsModel(
 			EntornDto entorn,
 			ExpedientDto expedient,
-			ExpedientTascaDto tasca,
+			String tascaId,
 			ModelMap model) {
-		model.addAttribute(
-				"expedient",
-				expedient);
-		
+		ExpedientTascaDto tasca = tascaService.getTascaPerExpedientId(expedient.getId(), tascaId);
+    	
+		model.addAttribute("expedient",expedient);
 		model.addAttribute("tasca", tasca);
-		
-		model.addAttribute(
-				"arbreProcessos",
-				expedientService.getArbreInstanciesProces(Long.valueOf(tasca.getProcessInstanceId())));
-		
-		model.addAttribute(
-				"instanciaProces",
-				expedientService.getInstanciaProcesById(tasca.getProcessInstanceId(), true, true, true));
+		model.addAttribute("arbreProcessos",expedientService.getArbreInstanciesProces(Long.valueOf(tasca.getProcessInstanceId())));
+		model.addAttribute("instanciaProces",expedientService.getInstanciaProcesById(tasca.getProcessInstanceId(), true, true, true));
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientTasquesReassignarController.class);

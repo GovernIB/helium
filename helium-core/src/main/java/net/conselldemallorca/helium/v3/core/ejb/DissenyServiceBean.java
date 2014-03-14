@@ -111,8 +111,8 @@ public class DissenyServiceBean implements DissenyService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DefinicioProcesDto getById(Long id, boolean ambTascaInicial) {
-		return delegate.getById(id, ambTascaInicial);
+	public DefinicioProcesDto getById(Long id) {
+		return delegate.getById(id);
 	}
 
 	@Override

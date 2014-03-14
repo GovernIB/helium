@@ -18,6 +18,9 @@ public class DocumentDto implements Serializable {
 	private Date dataCreacio;
 	private Date dataModificacio;
 	private Date dataDocument;
+	
+	private boolean required;
+	private boolean readOnly;
 
 	private Long documentId;
 	private String documentCodi;
@@ -310,6 +313,20 @@ public class DocumentDto implements Serializable {
 		} else {
 			return null;
 		}
+	}
+
+	public boolean isRequired() {
+		return required;
+	}
+	public void setRequired(boolean required) {
+		this.required = required;
+	}
+
+	public boolean isReadOnly() {
+		return readOnly;
+	}
+	public void setReadOnly(boolean readOnly) {
+		this.readOnly = readOnly;
 	}
 
 	private static final long serialVersionUID = 774909297938469787L;

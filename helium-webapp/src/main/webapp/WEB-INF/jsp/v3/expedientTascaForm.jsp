@@ -226,14 +226,14 @@
 		</c:if>
 		
 		<c:set var="hiHaCampsReadOnly" value="${false}"/>
-		<c:forEach var="camp" items="${tasca.camps}">
+		<c:forEach var="camp" items="${dades}">
 			<c:if test="${camp.readOnly}">
 				<c:set var="hiHaCampsReadOnly" value="${true}"/>
 			</c:if>
 		</c:forEach>
 		
 		<c:set var="hiHaDocumentsReadOnly" value="${false}"/>
-		<c:forEach var="document" items="${tasca.documents}">
+		<c:forEach var="document" items="${documents}">
 			<c:if test="${document.readOnly}">
 				<c:set var="hiHaDocumentsReadOnly" value="${true}"/>
 			</c:if>
@@ -242,16 +242,14 @@
 		<c:if test="${hiHaCampsReadOnly or hiHaDocumentsReadOnly}">
 			<div class="missatge missatgesBlau">
 				<c:if test="${hiHaDocumentsReadOnly}">
-					<c:forEach var="document" items="${tasca.documents}">
-						<c:if test="${document.readOnly}">
+					<c:forEach var="documenTasca" items="${documents}">
+						<c:if test="${documenTasca.readOnly}">
 							<h4 class="titol-missatge">
-								${document.document.nom}&nbsp;&nbsp;
-								<c:if test="${not empty tasca.varsDocuments[document.document.codi]}">
-									<c:set var="tascaActual" value="${tasca}" scope="request"/>
-									<c:set var="documentActual" value="${tasca.varsDocuments[document.document.codi]}" scope="request"/>
-									<c:set var="codiDocumentActual" value="${document.document.codi}" scope="request"/>
-									<c:import url="../common/iconesConsultaDocument.jsp"/>
-								</c:if>
+								${documenTasca.documentNom}&nbsp;&nbsp;
+								<c:set var="tascaActual" value="${tasca}" scope="request"/>
+								<c:set var="documentActual" value="${documenTasca.documentCodi}" scope="request"/>
+								<c:set var="codiDocumentActual" value="${documenTasca.documentCodi}" scope="request"/>
+								<c:import url="../common/iconesConsultaDocument.jsp"/>
 							</h4><br/>
 						</c:if>
 					</c:forEach>

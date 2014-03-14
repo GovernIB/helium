@@ -4,8 +4,6 @@
 package net.conselldemallorca.helium.v3.core.api.dto;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Objecte de domini que representa un domini per fer consultes.
@@ -42,13 +40,8 @@ public class DominiDto implements Serializable {
 	private String descripcio;
 	private int cacheSegons = 0;
 	private String ordreParams;
-
+	
 	private EntornDto entorn;
-	private ExpedientTipusDto expedientTipus;
-
-	private Set<CampDto> camps = new HashSet<CampDto>();
-
-
 
 	public DominiDto() {}
 	public DominiDto(String codi, String nom) {
@@ -152,24 +145,6 @@ public class DominiDto implements Serializable {
 	}
 	public void setEntorn(EntornDto entorn) {
 		this.entorn = entorn;
-	}
-	public ExpedientTipusDto getExpedientTipus() {
-		return expedientTipus;
-	}
-	public void setExpedientTipus(ExpedientTipusDto expedientTipus) {
-		this.expedientTipus = expedientTipus;
-	}
-	public Set<CampDto> getCamps() {
-		return camps;
-	}
-	public void setCamps(Set<CampDto> camps) {
-		this.camps = camps;
-	}
-	public void addCamp(CampDto camp) {
-		getCamps().add(camp);
-	}
-	public void removeCamp(CampDto camp) {
-		getCamps().remove(camp);
 	}
 	@Override
 	public int hashCode() {

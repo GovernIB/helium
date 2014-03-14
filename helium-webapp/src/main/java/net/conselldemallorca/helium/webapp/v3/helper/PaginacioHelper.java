@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
 import net.conselldemallorca.helium.webapp.v3.datatables.DatatablesInfo;
 import net.conselldemallorca.helium.webapp.v3.datatables.DatatablesPagina;
 
@@ -19,6 +20,11 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 
 /**
  * Utilitats per a la paginació de consultes.
@@ -64,6 +70,37 @@ public class PaginacioHelper {
 				OrdreDireccioDto.ASCENDENT);*/
 		LOGGER.debug("Informació de la pàgina sol·licitada (paginaNum=" + paginacio.getPaginaNum() + ", paginaTamany=" + paginacio.getPaginaTamany() + ")");
 		return paginacio;
+	}
+	
+	public static <T> Pageable toSpringDataPageable(
+			PaginacioParamsDto dto,
+			Map<String, String> mapeigPropietatsOrdenacio) {
+		List<Order> orders = new ArrayList<Order>();
+		if (dto.getOrdres() != null) {
+			for (OrdreDto ordre: dto.getOrdres()) {
+				Direction direccio = OrdreDireccioDto.DESCENDENT.equals(ordre.getDireccio()) ? Sort.Direction.DESC : Sort.Direction.ASC;
+				String propietat = ordre.getCamp();
+				if (mapeigPropietatsOrdenacio != null) {
+					String mapeig = mapeigPropietatsOrdenacio.get(ordre.getCamp());
+					if (mapeig != null)
+						propietat = mapeig;
+				} else {
+					propietat = ordre.getCamp();
+				}
+				orders.add(new Order(
+						direccio,
+						propietat));
+			}
+		}
+		return new PageRequest(
+				dto.getPaginaNum(),
+				dto.getPaginaTamany(),
+				new Sort(orders));
+	}
+	
+	public static <T> Pageable toSpringDataPageable(
+			PaginacioParamsDto dto) {
+		return toSpringDataPageable(dto, null);
 	}
 
 	public static <T> DatatablesPagina<T> getPaginaPerDatatables(

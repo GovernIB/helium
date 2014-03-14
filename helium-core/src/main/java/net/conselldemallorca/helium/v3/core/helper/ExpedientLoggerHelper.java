@@ -1026,7 +1026,7 @@ public class ExpedientLoggerHelper {
 							params);
 					break;
 				case LogObjectDto.LOG_OBJECT_INFO:
-					Expedient expedient = getExpedientPerProcessInstanceId(String.valueOf(logo.getProcessInstanceId()));
+					Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(String.valueOf(logo.getProcessInstanceId()));
 					
 					LogInfo li = LogInfo.valueOf(logo.getName());
 					switch (li) {
@@ -1183,11 +1183,6 @@ public class ExpedientLoggerHelper {
 		return null;
 	}
 
-	private Expedient getExpedientPerProcessInstanceId(String processInstanceId) {
-		JbpmProcessInstance pi = jbpmHelper.getRootProcessInstance(processInstanceId);
-		return expedientHelper.findAmbProcessInstanceId(pi.getId());
-	}
-
 	private byte[] getContingutRecurs(String recurs) {
 		try {
 			InputStream inputStream = getClass().getResourceAsStream(recurs);
@@ -1279,7 +1274,7 @@ public class ExpedientLoggerHelper {
 				taskInstanceId,
 				getMessageLogPerTipus(tipus));
 		JbpmTask task = jbpmHelper.getTaskById(taskInstanceId);
-		Expedient expedient = getExpedientPerProcessInstanceId(task.getProcessInstanceId());
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		String usuari = "Timer";
 		if (user != null) {
 			usuari = user;
@@ -1311,7 +1306,7 @@ public class ExpedientLoggerHelper {
 		long jbpmLogId = jbpmHelper.addProcessInstanceMessageLog(
 				processInstanceId,
 				getMessageLogPerTipus(tipus));
-		Expedient expedient = getExpedientPerProcessInstanceId(processInstanceId);
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		String usuari = "Timer";
 		try {
 			usuari = SecurityContextHolder.getContext().getAuthentication().getName();

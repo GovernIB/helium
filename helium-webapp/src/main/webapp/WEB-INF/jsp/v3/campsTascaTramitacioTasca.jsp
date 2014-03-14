@@ -6,14 +6,14 @@
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 
-<c:choose>
-	<c:when test="${not empty tasca.documents and tasca.documentsNotReadOnly and not tasca.documentsComplet}">
-		<c:set var="missatgeAlertaFinalitzar"><spring:message code="common.tram.docs_sense_adj"/></c:set>
-	</c:when>
-	<c:when test="${not empty tasca.signatures and not tasca.signaturesComplet}">
-		<c:set var="missatgeAlertaFinalitzar"><spring:message code="common.tram.docs_sense_sign"/></c:set>
-	</c:when>
-</c:choose>
+<%-- <c:choose> --%>
+<%-- 	<c:when test="${not empty documents and tasca.documentsNotReadOnly and not tasca.documentsComplet}"> --%>
+<%-- 		<c:set var="missatgeAlertaFinalitzar"><spring:message code="common.tram.docs_sense_adj"/></c:set> --%>
+<%-- 	</c:when> --%>
+<%-- 	<c:when test="${not empty tasca.signatures and not tasca.signaturesComplet}"> --%>
+<%-- 		<c:set var="missatgeAlertaFinalitzar"><spring:message code="common.tram.docs_sense_sign"/></c:set> --%>
+<%-- 	</c:when> --%>
+<%-- </c:choose> --%>
 <c:choose>
 	<c:when test="${not tasca.validada}">
 		<script type="text/javascript">

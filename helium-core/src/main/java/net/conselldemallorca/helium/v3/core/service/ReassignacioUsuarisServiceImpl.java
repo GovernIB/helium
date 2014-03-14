@@ -35,19 +35,7 @@ public class ReassignacioUsuarisServiceImpl implements ReassignacioUsuarisServic
 	@Transactional
 	@Override
 	public List<ReassignacioDto> llistaReassignacions() {
-		return dtoConverter.toLlistatReassignacioDto(reassignacioRepository.findLlistaActius(Calendar.getInstance().getTime()));
-	}
-
-	@Transactional
-	@Override
-	public List<ReassignacioDto> llistaReassignacions(Long expedientTipusId) {
-		return dtoConverter.toLlistatReassignacioDto(reassignacioRepository.findLlistaActius(expedientTipusId, Calendar.getInstance().getTime()));
-	}
-
-	@Transactional
-	@Override
-	public List<ReassignacioDto> llistaReassignacionsMod(Long id) {
-		return dtoConverter.toLlistatReassignacioDto(reassignacioRepository.findLlistaActiusModificacio(id, Calendar.getInstance().getTime()));
+		return conversioTipusHelper.convertirList(reassignacioRepository.findLlistaActius(Calendar.getInstance().getTime()), ReassignacioDto.class);
 	}
 	
 	@Transactional

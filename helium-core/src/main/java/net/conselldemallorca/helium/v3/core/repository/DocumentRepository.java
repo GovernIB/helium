@@ -32,7 +32,7 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 			"    Document d " +
 			"where " +
 			"    d.definicioProces.id=:id")
-	List<DocumentDto> findAmbDefinicioProces(@Param("id") Long id);
+	List<Document> findAmbDefinicioProces(@Param("id") Long id);
 
 	@Query(" select d from " +
 			"    Document d " +

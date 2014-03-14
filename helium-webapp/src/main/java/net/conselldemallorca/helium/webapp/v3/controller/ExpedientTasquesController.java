@@ -10,11 +10,11 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NoDecorarHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
@@ -28,7 +28,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -83,8 +82,7 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 			@PathVariable String tascaId, 
 			Model model) {
 		NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
-
-		model.addAttribute("expedientId", expedientId);
+		model.addAttribute("documents", expedientService.findDocumentsPerExpedientTasca(expedientId, tascaId));
 		model.addAttribute("dades", tascaService.findDadesPerTasca(tascaId));
 		model.addAttribute("tasca", expedientService.getTascaPerExpedient(expedientId, tascaId));
 		return "v3/expedientTascaForm";
@@ -151,9 +149,10 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 			boolean opRestore = "restore".equals(submit) || "restore".equals(submitar);
 			
 			ExpedientTascaDto tasca = (ExpedientTascaDto) model.get("tasca");
+			List<TascaDadaDto> tascaDadas = tascaService.findDadesPerTasca(id);
 			List<CampDto> camps = new ArrayList<CampDto>();
-			for (CampTascaDto campTasca : tasca.getCamps()) {
-				camps.add(campTasca.getCamp());
+			for (TascaDadaDto campTasca : tascaDadas) {				;
+				camps.add(tascaService.findCampTasca(campTasca.getCampId()));
 			}
 
 			if (campFocus != null) {
@@ -173,7 +172,7 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 		        			TascaFormHelper.getValorsPerSuggest(tasca, command));
 					return "redirect:/v3/expedient/"+expedientId+"/tasca/"+tascaId+"/form";
 				}
-				boolean ok = accioGuardarForm(request, entorn.getId(), id, tasca.getCamps(), command);
+				boolean ok = accioGuardarForm(request, entorn.getId(), id, camps, command);
 				if (!ok) {
 					MissatgesHelper.error(request, getMessage(request, "error.guardar.dades"));
 					return "redirect:/v3/expedient/"+expedientId+"/tasca/"+tascaId+"/form";
@@ -203,10 +202,8 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 						model.addAttribute(
 			        			"valorsPerSuggest",
 			        			TascaFormHelper.getValorsPerSuggest(tasca, command));
-						for ( ObjectError res : result.getAllErrors()) {
-							String error = (res.getDefaultMessage() == null || res.getDefaultMessage().isEmpty()) ? getMessage(request, "error.validacio") : res.getDefaultMessage();
-							MissatgesHelper.error(request, error);
-						}
+
+						MissatgesHelper.error(request, result, getMessage(request, "error.validacio"));
 						return "redirect:/v3/expedient/"+expedientId+"/tasca/"+tascaId+"/form";
 					}
 					ok = accioValidarForm(request, entorn.getId(), id, camps, command);

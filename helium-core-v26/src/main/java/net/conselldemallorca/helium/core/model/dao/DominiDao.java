@@ -229,7 +229,7 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 			mesuresTemporalsHelper.mesuraCalcular("DOMINI SQL: " + domini.getCodi(), "domini");
 			return resultat;
 		} catch (Exception ex) {
-			throw new DominiException("No s'ha pogut consultar el domini", ex);
+			throw new DominiException("No s'ha pogut consultar el domini: " + domini.getCodi(), ex);
 		}
 	}
 

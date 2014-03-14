@@ -65,8 +65,10 @@
 			"fnDrawCallback": function (oSettings) {
 				$('.datatable-dades-carregant', taula).hide();
 				$('.dataTables_info', taula.parent()).removeClass('hidden');
+				$('.tramitacioMassiva').removeClass('hidden');
 				if (oSettings.aoData.length == 0) {
 					$('.dataTables_info', taula.parent()).addClass('hidden');
+					$('.tramitacioMassiva').addClass('hidden');
 				}
 				<c:if test="${infoOcultar == 'true'}">$('.dataTables_info', taula.parent()).addClass('hidden');</c:if>
 				<c:if test="${not empty drawCallback}">${drawCallback}();</c:if>

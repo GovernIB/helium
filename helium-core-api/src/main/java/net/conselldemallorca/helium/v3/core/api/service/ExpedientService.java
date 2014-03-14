@@ -111,8 +111,6 @@ public interface ExpedientService {
 			boolean nomesAlertes,
 			boolean mostrarAnulats,
 			PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException;
-
-	public boolean updateExpedientError(String processInstanceId, String errorDesc, String errorFull);
 	
 	public void createRelacioExpedient(
 			Long expedientOrigenId,
@@ -200,14 +198,6 @@ public interface ExpedientService {
 			boolean ambImatgeProces,
 			boolean ambVariables,
 			boolean ambDocuments);
-	
-	public InstanciaProcesDto getInstanciaProcesByIdReg(
-			String processInstanceId,
-			boolean ambImatgeProces,
-			boolean ambVariables,
-			boolean ambDocuments,
-			String varRegistre,
-			Object[] valorsRegistre);
 
 	public List<RegistreDto> getRegistrePerExpedient(Long expedientId);
 
@@ -237,7 +227,7 @@ public interface ExpedientService {
 
 	public String getNumeroExpedientActual(Long id, ExpedientTipusDto expedientTipus, Integer any);
 
-	public ExpedientDto findExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol);
+	public boolean existsExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol);
 
 	public void anular(Long id, Long expedientId, String motiu);
 
@@ -259,5 +249,11 @@ public interface ExpedientService {
 
 	public List<CampDto> findConsultaInforme(Long consultaId);
 
-	public PaginaDto findPerConsultaInformePaginat(Long id, Long consultaId, Long expedientTipusId, Map<String, Object> valorsPerService, String expedientCampId, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, PaginacioParamsDto paginacioDtoFromDatatable);
+	public List<ExpedientDto> findPerConsultaInformePaginat(Long id, Long consultaId, Long expedientTipusId, Map<String, Object> valorsPerService, String expedientCampId, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, PaginacioParamsDto paginacioDtoFromDatatable);
+
+	public List<ExpedientDadaDto> findDadesPerProcessInstance(String processInstanceId);
+
+	public List<ExpedientDocumentDto> findDocumentsPerExpedientTasca(Long expedientId, String tascaId);
+
+	public List<ExpedientDto> getExpedientsRelacionats(Long expedientId);
 }

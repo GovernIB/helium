@@ -39,7 +39,6 @@ public class SpringMassiuExecutorThread extends Thread {
 
 	public void run() {
 		currentIdleInterval = idleInterval;
-		
 		while (Jbpm3HeliumBridge.getInstanceService() == null){
 			try {
 				log.info("Massiu executor: esperant a obtenir el InstanceService");

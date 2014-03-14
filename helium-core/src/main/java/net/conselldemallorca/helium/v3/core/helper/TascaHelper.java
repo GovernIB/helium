@@ -155,7 +155,7 @@ public class TascaHelper {
 	for (JbpmTask task: tasks) {
 		// Sólo las pendientes
 		if (task.isOpen() && !task.isCancelled() && !task.isSuspended() && !task.isCompleted()) {
-			resposta.add(dtoConverter.toExpedientTascaMinDto(task, expedient));
+			resposta.add(dtoConverter.toExpedientTascaDto(task, expedient));
 		}
 	}
 	return resposta;

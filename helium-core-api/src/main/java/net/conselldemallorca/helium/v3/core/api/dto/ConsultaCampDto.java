@@ -23,7 +23,6 @@ public class ConsultaCampDto implements Serializable {
 	private int defprocVersio = -1;
 	private TipusConsultaCamp tipus;
 	private int ordre;
-	private ConsultaDto consulta;
 
 	public ConsultaCampDto() {}
 	public ConsultaCampDto(String campCodi, TipusConsultaCamp tipus) {
@@ -67,60 +66,6 @@ public class ConsultaCampDto implements Serializable {
 	public void setOrdre(int ordre) {
 		this.ordre = ordre;
 	}
-	public ConsultaDto getConsulta() {
-		return consulta;
-	}
-	public void setConsulta(ConsultaDto consulta) {
-		this.consulta = consulta;
-	}
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((campCodi == null) ? 0 : campCodi.hashCode());
-		result = prime * result
-				+ ((consulta == null) ? 0 : consulta.hashCode());
-		result = prime * result
-				+ ((defprocJbpmKey == null) ? 0 : defprocJbpmKey.hashCode());
-		result = prime * result + defprocVersio;
-		result = prime * result + ((tipus == null) ? 0 : tipus.hashCode());
-		return result;
-	}
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ConsultaCampDto other = (ConsultaCampDto) obj;
-		if (campCodi == null) {
-			if (other.campCodi != null)
-				return false;
-		} else if (!campCodi.equals(other.campCodi))
-			return false;
-		if (consulta == null) {
-			if (other.consulta != null)
-				return false;
-		} else if (!consulta.equals(other.consulta))
-			return false;
-		if (defprocJbpmKey == null) {
-			if (other.defprocJbpmKey != null)
-				return false;
-		} else if (!defprocJbpmKey.equals(other.defprocJbpmKey))
-			return false;
-		if (defprocVersio != other.defprocVersio)
-			return false;
-		if (tipus == null) {
-			if (other.tipus != null)
-				return false;
-		} else if (!tipus.equals(other.tipus))
-			return false;
-		return true;
-	}
 
 	private static final long serialVersionUID = 1L;
-
 }

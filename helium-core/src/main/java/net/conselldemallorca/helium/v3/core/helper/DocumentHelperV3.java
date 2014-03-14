@@ -641,8 +641,7 @@ public class DocumentHelperV3 {
 		}
 		// Crea el document a dins la gestió documental
 		if (arxiuContingut != null && pluginGestioDocumentalDao.isGestioDocumentalActiu()) {
-			JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
-			Expedient expedient = expedientHelper.findAmbProcessInstanceId(rootProcessInstance.getId());
+			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 			String docNom = documentNom;
 			if (docNom == null) {
 				Document document = getDocumentDisseny(taskInstanceId, processInstanceId, documentCodi);
@@ -777,9 +776,5 @@ public class DocumentHelperV3 {
 		} else {
 			return var;
 		}
-	}
-
-	public List<DocumentDto> findAmbDefinicioProces(Long id) {
-		return documentRepository.findAmbDefinicioProces(id);
 	}
 }

@@ -74,8 +74,6 @@ public class DefinicioProcesDto {
 		this.jbpmKey = jbpmKey;
 	}
 
-
-
 	public String getJbpmName() {
 		return jbpmName;
 	}

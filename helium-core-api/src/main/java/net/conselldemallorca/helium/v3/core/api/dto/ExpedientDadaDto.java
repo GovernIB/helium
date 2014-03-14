@@ -5,7 +5,6 @@ package net.conselldemallorca.helium.v3.core.api.dto;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -30,118 +29,6 @@ public class ExpedientDadaDto {
 	private List<ExpedientDadaDto> multipleDades;
 	private List<ExpedientDadaDto> registreDades;
 
-
-	private List<String> outcomes;
-	private List<DocumentTascaDto> documents;
-	private List<ValidacioDto> validacions;
-	private List<CampTascaDto> camps;
-	private List<FirmaTascaDto> signatures;
-
-	private Map<String, Object> variables;
-	private Map<String, DocumentDto> varsDocuments;
-	private Map<String, DocumentDto> varsDocumentsPerSignar;
-	private Map<String, ParellaCodiValorDto> valorsDomini;
-	private Map<String, List<ParellaCodiValorDto>> valorsMultiplesDomini;
-	private Map<String, Object> varsComText;
-
-	private Long tascaId;
-	private boolean agafada;
-
-
-	public List<String> getOutcomes() {
-		return outcomes;
-	}
-	public void setOutcomes(List<String> outcomes) {
-		this.outcomes = outcomes;
-	}
-	public List<DocumentTascaDto> getDocuments() {
-		return documents;
-	}
-	public void setDocuments(List<DocumentTascaDto> documents) {
-		this.documents = documents;
-	}
-	public List<ValidacioDto> getValidacions() {
-		return validacions;
-	}
-	public void setValidacions(List<ValidacioDto> validacions) {
-		this.validacions = validacions;
-	}
-	public List<CampTascaDto> getCamps() {
-		return camps;
-	}
-	public void setCamps(List<CampTascaDto> camps) {
-		this.camps = camps;
-	}
-	public List<FirmaTascaDto> getSignatures() {
-		return signatures;
-	}
-	public void setSignatures(List<FirmaTascaDto> signatures) {
-		this.signatures = signatures;
-	}
-	public Map<String, Object> getVariables() {
-		return variables;
-	}
-	public void setVariables(Map<String, Object> variables) {
-		this.variables = variables;
-	}
-	public Map<String, DocumentDto> getVarsDocuments() {
-		return varsDocuments;
-	}
-	public void setVarsDocuments(Map<String, DocumentDto> varsDocuments) {
-		this.varsDocuments = varsDocuments;
-	}
-	public Map<String, DocumentDto> getVarsDocumentsPerSignar() {
-		return varsDocumentsPerSignar;
-	}
-	public void setVarsDocumentsPerSignar(Map<String, DocumentDto> varsDocumentsPerSignar) {
-		this.varsDocumentsPerSignar = varsDocumentsPerSignar;
-	}
-	public Map<String, ParellaCodiValorDto> getValorsDomini() {
-		return valorsDomini;
-	}
-	public void setValorsDomini(Map<String, ParellaCodiValorDto> valorsDomini) {
-		this.valorsDomini = valorsDomini;
-	}
-	public Map<String, List<ParellaCodiValorDto>> getValorsMultiplesDomini() {
-		return valorsMultiplesDomini;
-	}
-	public void setValorsMultiplesDomini(Map<String, List<ParellaCodiValorDto>> valorsMultiplesDomini) {
-		this.valorsMultiplesDomini = valorsMultiplesDomini;
-	}
-	public Map<String, Object> getVarsComText() {
-		return varsComText;
-	}
-	public void setVarsComText(Map<String, Object> varsComText) {
-		this.varsComText = varsComText;
-	}
-	public Long getTascaId() {
-		return tascaId;
-	}
-	public void setTascaId(Long tascaId) {
-		this.tascaId = tascaId;
-	}
-	public boolean isAgafada() {
-		return agafada;
-	}
-	public void setAgafada(boolean agafada) {
-		this.agafada = agafada;
-	}
-	public List<DocumentTascaDto> getDocumentsOrdenatsPerMostrarTasca() {
-		List<DocumentTascaDto> resposta = new ArrayList<DocumentTascaDto>();
-		// Afegeix primer els documents que ja estan adjuntats a la tasca
-		for (DocumentTascaDto dt: documents) {
-			if (varsDocuments.get(dt.getDocument().getCodi()) != null) {
-				resposta.add(dt);
-			}
-		}
-		// Despres afegeix els altres documents
-		for (DocumentTascaDto dt: documents) {
-			if (varsDocuments.get(dt.getDocument().getCodi()) == null) {
-				resposta.add(dt);
-			}
-		}
-		return resposta;
-	}
 	private String error;
 
 	public String getObservacions() {

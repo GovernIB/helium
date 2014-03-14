@@ -146,6 +146,28 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			return expedients.get(0);
 		return null;
 	}
+	
+	public List<Long> findPIExpedientsAmbEntornTipusINum(
+			Long entornId,
+			String numero) {
+		List<Long> res = new ArrayList<Long>();
+		
+		List<Expedient> expedients = findByCriteria(
+			Restrictions.eq("entorn.id", entornId),
+			Restrictions.or(
+					Restrictions.eq("numero", numero),
+					Restrictions.eq("numeroDefault", numero)
+			)
+		);		
+		
+		for (Expedient expedient : expedients) {
+			if ((!expedient.getTipus().getTeNumero() && numero.equals(expedient.getNumeroDefault())) || (expedient.getTipus().getTeNumero() && numero.equals(expedient.getNumero()))) {
+				res.add(Long.valueOf(expedient.getProcessInstanceId()));
+			}
+		}
+		
+		return res;
+	}
 
 	public int countAmbEntornConsultaGeneral(
 			Long entornId,
@@ -232,7 +254,24 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			int firstRow,
 			int maxResults,
 			String sort,
-			boolean asc) {
+			boolean asc) {		
+		Criteria criteria = getCriteriaForConsultaGeneral(
+				entornId,
+				titol,
+				numero,
+				dataInici1,
+				dataInici2,
+				expedientTipusId,
+				expedientTipusIdPermesos,
+				estatId,
+				iniciat,
+				finalitzat,
+				geoPosX,
+				geoPosY,
+				geoReferencia,
+				mostrarAnulats,
+				grupsUsuari);
+		
 		String sorts[] = null;
 		if ("identificador".equals(sort)) {
 			sorts = new String[] {
@@ -248,22 +287,7 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 				maxResults,
 				sorts,
 				asc,
-				getCriteriaForConsultaGeneral(
-						entornId,
-						titol,
-						numero,
-						dataInici1,
-						dataInici2,
-						expedientTipusId,
-						expedientTipusIdPermesos,
-						estatId,
-						iniciat,
-						finalitzat,
-						geoPosX,
-						geoPosY,
-						geoReferencia,
-						mostrarAnulats,
-						grupsUsuari));
+				criteria);
 	}
 	public List<Expedient> findAmbEntornLikeIdentificador(
 			Long entornId,
@@ -300,7 +324,14 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			String[] grupsUsuari) {
 		Criteria crit = getSession().createCriteria(
 				getPersistentClass());
-		crit.createAlias("tipus", "tip");
+//		String sql = "(CASE "
+//				+ " WHEN (dataFi is null and estat.id is null) then 'iniciat'"
+//				+ " WHEN (dataFi is not null OR dataInici is null) then 'finalizat'"
+//				+ " ELSE estat.nom END) estat.nom";	
+//				
+//		crit.setProjection(Projections.sqlProjection(sql, new String[] {"estat.nom"}, new Type[] { StandardBasicTypes.STRING}));
+		
+		crit.createAlias("tipus", "tip");	
 		crit.add(Restrictions.eq("entorn.id", entornId));
 		if (titol != null && titol.length() > 0)
 			crit.add(Restrictions.ilike("titol", "%" + titol + "%"));

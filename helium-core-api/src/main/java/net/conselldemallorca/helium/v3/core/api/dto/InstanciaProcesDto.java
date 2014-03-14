@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+
 /**
  * DTO amb informació d'una instància de procés
  * 
@@ -23,29 +24,22 @@ public class InstanciaProcesDto {
 	private String id;
 	private String instanciaProcesPareId;
 	private String titol;
-	private Date dataInici;
 	private Date dataFi;
-	private boolean imatgeDisponible;
-
 	private DefinicioProcesDto definicioProces;
-	private ExpedientDto expedient;
-
+	
 	private Set<CampDto> camps;
-	private List<DocumentDto> documents;
-	private List<CampAgrupacioDto> agrupacions;
 
 	private Map<String, Object> variables;
-	private Map<String, DocumentDto> varsDocuments;
-	private Map<String, ParellaCodiValorDto> valorsDomini;
-	private Map<String, List<ParellaCodiValorDto>> valorsMultiplesDomini;
-	private Map<String, Object> varsComText;
-	private Map<String, Boolean> varsOcultes;
 
-	public String getTitol() {
-		if (titol != null)
-			return titol;
-		return definicioProces.getJbpmKey() + " " + id;
+	private Map<String, DocumentDto> varsDocuments;
+	
+	public Map<String, Object> getVariables() {
+		return variables;
 	}
+	public void setVariables(Map<String, Object> variables) {
+		this.variables = variables;
+	}
+
 	public String getId() {
 		return id;
 	}
@@ -58,23 +52,10 @@ public class InstanciaProcesDto {
 	public void setInstanciaProcesPareId(String instanciaProcesPareId) {
 		this.instanciaProcesPareId = instanciaProcesPareId;
 	}
-	public Date getDataInici() {
-		return dataInici;
-	}
-	public void setDataInici(Date dataInici) {
-		this.dataInici = dataInici;
-	}
-	public Date getDataFi() {
-		return dataFi;
-	}
-	public void setDataFi(Date dataFi) {
-		this.dataFi = dataFi;
-	}
-	public boolean isImatgeDisponible() {
-		return imatgeDisponible;
-	}
-	public void setImatgeDisponible(boolean imatgeDisponible) {
-		this.imatgeDisponible = imatgeDisponible;
+	public String getTitol() {
+		if (titol != null)
+			return titol;
+		return definicioProces.getJbpmKey() + " " + id;
 	}
 	public DefinicioProcesDto getDefinicioProces() {
 		return definicioProces;
@@ -82,68 +63,11 @@ public class InstanciaProcesDto {
 	public void setDefinicioProces(DefinicioProcesDto definicioProces) {
 		this.definicioProces = definicioProces;
 	}
-	public ExpedientDto getExpedient() {
-		return expedient;
-	}
-	public void setExpedient(ExpedientDto expedient) {
-		this.expedient = expedient;
-	}
 	public Set<CampDto> getCamps() {
 		return camps;
 	}
 	public void setCamps(Set<CampDto> camps) {
 		this.camps = camps;
-	}
-	public List<DocumentDto> getDocuments() {
-		return documents;
-	}
-	public void setDocuments(List<DocumentDto> documents) {
-		this.documents = documents;
-	}
-	public List<CampAgrupacioDto> getAgrupacions() {
-		return agrupacions;
-	}
-	public void setAgrupacions(List<CampAgrupacioDto> agrupacions) {
-		this.agrupacions = agrupacions;
-	}
-	public Map<String, Object> getVariables() {
-		return variables;
-	}
-	public void setVariables(Map<String, Object> variables) {
-		this.variables = variables;
-	}
-	public Map<String, DocumentDto> getVarsDocuments() {
-		return varsDocuments;
-	}
-	public void setVarsDocuments(Map<String, DocumentDto> varsDocuments) {
-		this.varsDocuments = varsDocuments;
-	}
-	public Map<String, ParellaCodiValorDto> getValorsDomini() {
-		return valorsDomini;
-	}
-	public void setValorsDomini(Map<String, ParellaCodiValorDto> valorsDomini) {
-		this.valorsDomini = valorsDomini;
-	}
-	public Map<String, List<ParellaCodiValorDto>> getValorsMultiplesDomini() {
-		return valorsMultiplesDomini;
-	}
-	public void setValorsMultiplesDomini(Map<String, List<ParellaCodiValorDto>> valorsMultiplesDomini) {
-		this.valorsMultiplesDomini = valorsMultiplesDomini;
-	}
-	public Map<String, Object> getVarsComText() {
-		return varsComText;
-	}
-	public void setVarsComText(Map<String, Object> varsComText) {
-		this.varsComText = varsComText;
-	}
-	public Map<String, Boolean> getVarsOcultes() {
-		return varsOcultes;
-	}
-	public void setVarsOcultes(Map<String, Boolean> varsOcultes) {
-		this.varsOcultes = varsOcultes;
-	}
-	public void setTitol(String titol) {
-		this.titol = titol;
 	}
 	public Object getVariable(String varName) {
 		if (variables == null) 

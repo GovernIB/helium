@@ -115,12 +115,10 @@ import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 
 import org.apache.commons.lang.StringUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -220,7 +218,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		PersonaDto persona = pluginService.findPersonaAmbCodi(usuari);
 		if (persona == null)
 			throw new IllegalArgumentsException(
-					getServiceUtils().getMessage("error.expedientService.trobarPersona",
+					serviceUtils.getMessage("error.expedientService.trobarPersona",
 							new Object[]{usuari}));
 	}
 
@@ -410,20 +408,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 		ExpedientDto expedientDto = conversioTipusHelper.convertir(
 				expedient,
 				ExpedientDto.class);
-		
-		for (Expedient relacionat: expedient.getRelacionsOrigen()) {
-			ExpedientDto relacionatDto = new ExpedientDto();
-			relacionatDto.setId(relacionat.getId());
-			relacionatDto.setTitol(relacionat.getTitol());
-			relacionatDto.setNumero(relacionat.getNumero());
-			relacionatDto.setDataInici(relacionat.getDataInici());
-			relacionatDto.setTipus(conversioTipusHelper.convertir(relacionat.getTipus(), ExpedientTipusDto.class));
-			if (relacionat.getEstat() != null) {
-				relacionatDto.setEstat(conversioTipusHelper.convertir(relacionat.getEstat(), EstatDto.class));
-			}
-			relacionatDto.setProcessInstanceId(relacionat.getProcessInstanceId());
-			expedientDto.addExpedientRelacionat(relacionatDto);
-		}
 
 		return expedientDto;
 	}
@@ -453,14 +437,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Transactional(readOnly = true)
 	public ExpedientDto findAmbProcessInstanceId(String processInstanceId) {
 		logger.debug("Consulta de l'expedient (processInstanceId=" + processInstanceId + ")");
-		Expedient expedient = expedientHelper.findAmbProcessInstanceId(processInstanceId);
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		return conversioTipusHelper.convertir(
 				expedient,
 				ExpedientDto.class);
 	}
 
 	@Transactional(readOnly = true)
-	public PaginaDto<ExpedientDto> findPerConsultaInformePaginat(Long entornId, Long consultaId, Long expedientTipusId, Map<String, Object> valorsPerService, String expedientCampId, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
+	public List<ExpedientDto> findPerConsultaInformePaginat(Long entornId, Long consultaId, Long expedientTipusId, Map<String, Object> valorsPerService, String expedientCampId, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "0");
 		
@@ -524,14 +508,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 		for (ExpedientConsultaDissenyDto expedientConsultaDisseny : expedientsConsultaDisseny) {
 			listaExpedients.add(expedientConsultaDisseny.getExpedient());
 		}
-		Page<ExpedientDto> paginaResultats = new PageImpl<ExpedientDto>(listaExpedients);		
 		
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "2");
-		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "3");
-		PaginaDto<ExpedientDto> resposta = PaginacioHelper.toPaginaDto(paginaResultats);
-		mesuresTemporalsHelper.mesuraCalcular("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "3");
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA INFORME EXPEDIENTS v3", "consulta");
-		return resposta;
+		return listaExpedients;
 	}
 
 	@Transactional(readOnly = true)
@@ -775,13 +755,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 			desti.addRelacioOrigen(origen);
 	}
 
-	private ServiceUtils getServiceUtils() {
-		if (serviceUtils == null) {
-			serviceUtils = new ServiceUtils();
-		}
-		return serviceUtils;
-	}
-
 	@Transactional
 	public void processInstanceTokenRedirect(
 			long tokenId,
@@ -843,6 +816,13 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 
 	@Transactional(readOnly = true)
+	@Override
+	public List<ExpedientDadaDto> findDadesPerProcessInstance(String processInstanceId) {
+		logger.debug("Consulta de dades de l'pprocessInstanceId (id=" + processInstanceId + ")");
+		return variableHelper.findDadesPerInstanciaProces(processInstanceId);
+	}
+
+	@Transactional(readOnly = true)
 	public ExpedientDadaDto getDadaPerProcessInstance(
 			String processInstanceId,
 			String variableCodi) {
@@ -865,6 +845,18 @@ public class ExpedientServiceImpl implements ExpedientService {
 				expedient.getProcessInstanceId());
 	}
 
+	@Transactional(readOnly = true)
+	@Override
+	public List<ExpedientDocumentDto> findDocumentsPerExpedientTasca(Long expedientId, String tascaId) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		JbpmTask task = jbpmHelper.getTaskById(tascaId);
+		if (task != null) {			
+			return documentHelper.findDocumentsPerInstanciaProces(task.getProcessInstanceId());
+		} else {
+			logger.debug("No s'ha trobat el document de la tasca (expedientId=" + expedientId + ", tascaId=" + tascaId + ", usuariAcces=" + auth.getName() + ")");
+			return null;
+		}
+	}
 	@Transactional(readOnly = true)
 	public ArxiuDto getArxiuExpedient(
 			Long expedientId,
@@ -987,15 +979,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
-
-
-
-	@Transactional
-	public boolean updateExpedientError(String processInstanceId,
-			String errorDesc, String errorFull) {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
 	@Transactional
 	public void editar(
@@ -1226,11 +1209,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 
 	@Transactional
-	public InstanciaProcesDto getInstanciaProcesByIdReg(String processInstanceId, boolean ambImatgeProces, boolean ambVariables, boolean ambDocuments, String varRegistre, Object[] valorsRegistre) {
-		return dtoConverter.toInstanciaProcesDto(processInstanceId, ambImatgeProces, ambVariables, ambDocuments, varRegistre, valorsRegistre);
-	}
-
-	@Transactional
 	public List<RegistreDto> getRegistrePerExpedient(Long expedientId) {
 		List<Registre> registre = registreRepository.findByExpedientId(expedientId);
 		return conversioTipusHelper.convertirList(registre, RegistreDto.class);
@@ -1361,17 +1339,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 		for (ExpedientLog log: logs) {
 			if (log.isTargetTasca()) {
 				JbpmTask task = jbpmHelper.getTaskById(log.getTargetId());
-				if (task != null)
-					tasquesPerLogs.put(
-							log.getTargetId(),
-							dtoConverter.toExpedientTascaDto(
-									task,
-									null,
-									false,
-									false,
-									true,
-									true,
-									true));
+				if (task != null) {
+					Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(String.valueOf(log.getProcessInstanceId()));
+					tasquesPerLogs.put(log.getTargetId(),dtoConverter.toExpedientTascaDto(task,expedient));
+				}
 			}
 		}
 		return tasquesPerLogs;
@@ -1427,7 +1398,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public List<CampDto> findConsultaFiltre(Long consultaId) {
 		Consulta consulta = consultaHelper.findById(consultaId);		
 		
-		List<Camp> campsFiltre = getServiceUtils().findCampsPerCampsConsulta(
+		List<Camp> campsFiltre = serviceUtils.findCampsPerCampsConsulta(
 				consulta,
 				net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp.FILTRE);
 		
@@ -1439,7 +1410,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Transactional
 	@Override
 	public List<CampDto> findConsultaInforme(Long consultaId) {
-		Consulta consulta = consultaHelper.findById(consultaId);List<Camp> campsInforme = getServiceUtils().findCampsPerCampsConsulta(
+		Consulta consulta = consultaHelper.findById(consultaId);List<Camp> campsInforme = serviceUtils.findCampsPerCampsConsulta(
 				consulta,
 				net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp.INFORME);
 		
@@ -1461,10 +1432,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
 		Consulta consulta = consultaHelper.findById(consultaId);		
 		
-		List<Camp> campsFiltre = getServiceUtils().findCampsPerCampsConsulta(
+		List<Camp> campsFiltre = serviceUtils.findCampsPerCampsConsulta(
 				consulta,
 				net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp.FILTRE);
-		List<Camp> campsInforme = getServiceUtils().findCampsPerCampsConsulta(
+		List<Camp> campsInforme = serviceUtils.findCampsPerCampsConsulta(
 				consulta,
 				net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp.INFORME);
 		
@@ -1487,10 +1458,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			ExpedientConsultaDissenyDto fila = new ExpedientConsultaDissenyDto();
 			Expedient expedient = expedientRepository.findById(Long.parseLong(dadaExpedientId.getValorIndex()));
 			if (expedient != null) {
-				fila.setExpedient(
-						dtoConverter.toExpedientDto(
-								expedient,
-								false));
+				fila.setExpedient(dtoConverter.toExpedientDto(expedient));
 				dtoConverter.revisarDadesExpedientAmbValorsEnumeracionsODominis(
 						dadesExpedient,
 						campsInformeDto);
@@ -1535,7 +1503,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				expedientLogId.toString());
 		expedientLoggerHelper.retrocedirFinsLog(log, retrocedirPerTasques, logRetroces.getId());
 		logRetroces.setEstat(ExpedientLogEstat.IGNORAR);
-		getServiceUtils().expedientIndexLuceneUpdate(
+		serviceUtils.expedientIndexLuceneUpdate(
 				log.getExpedient().getProcessInstanceId());
 		mesuresTemporalsHelper.mesuraCalcular("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", log.getExpedient().getTipus().getNom());
 	}
@@ -1616,7 +1584,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					expedient.getId(),
 					SecurityContextHolder.getContext().getAuthentication().getName());
 		} else {
-			throw new NotFoundException(getServiceUtils().getMessage("error.expedientService.noExisteix"));
+			throw new NotFoundException(serviceUtils.getMessage("error.expedientService.noExisteix"));
 		}
 	}
 
@@ -1771,7 +1739,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					expedientTipusId,
 					expedient.getNumero()) != null) {
 				throw new ExpedientRepetitException(
-						getServiceUtils().getMessage(
+						serviceUtils.getMessage(
 								"error.expedientService.jaExisteix",
 								new Object[]{expedient.getNumero()}) );
 			}
@@ -1871,7 +1839,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			jbpmHelper.signalProcessInstance(expedient.getProcessInstanceId(), transitionName);
 			// Indexam l'expedient
 			//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "13");
-			getServiceUtils().expedientIndexLuceneCreate(expedient.getProcessInstanceId());
+			serviceUtils.expedientIndexLuceneCreate(expedient.getProcessInstanceId());
 			// Registra l'inici de l'expedient
 			//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "14");
 			registreDao.crearRegistreIniciarExpedient(
@@ -1918,11 +1886,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Transactional
 	@Override
-	public ExpedientDto findExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol) {
+	public boolean existsExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol) {
 		Expedient expedient = expedientDao.findAmbEntornTipusITitol(entornId, expedientTipusId, titol);
-		if (expedient == null)
-			return null;
-		return dtoConverter.toExpedientDto(expedient, false);
+		if (expedient != null)
+			return true;
+		return false;
 	}
 
 	@Transactional
@@ -1945,7 +1913,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					SecurityContextHolder.getContext().getAuthentication().getName());
 			mesuresTemporalsHelper.mesuraCalcular("Anular", "expedient", expedient.getTipus().getNom());
 		} else {
-			throw new NotFoundException(getServiceUtils().getMessage("error.expedientService.noExisteix"));
+			throw new NotFoundException(serviceUtils.getMessage("error.expedientService.noExisteix"));
 		}
 	}
 	
@@ -2006,6 +1974,33 @@ public class ExpedientServiceImpl implements ExpedientService {
 		JbpmProcessInstance pi = jbpmHelper.getRootProcessInstance(
 				task.getProcessInstanceId());
 		return expedientDao.findAmbProcessInstanceId(pi.getId());
+	}
+	
+	@Transactional
+	@Override
+	public List<ExpedientDto> getExpedientsRelacionats(Long expedientId) {
+		logger.debug("Consulta de tasques relacionats de l'expedient (id=" + expedientId + ")");
+		List<ExpedientDto> list = new ArrayList<ExpedientDto>();
+		Expedient expedient = expedientHelper.geExpedientComprovantPermisosAny(
+				expedientId,
+				new Permission[] {
+						ExtendedPermission.READ,
+						ExtendedPermission.ADMINISTRATION});
+		
+		for (Expedient relacionat: expedient.getRelacionsOrigen()) {
+			ExpedientDto relacionatDto = new ExpedientDto();
+			relacionatDto.setId(relacionat.getId());
+			relacionatDto.setTitol(relacionat.getTitol());
+			relacionatDto.setNumero(relacionat.getNumero());
+			relacionatDto.setDataInici(relacionat.getDataInici());
+			relacionatDto.setTipus(conversioTipusHelper.convertir(relacionat.getTipus(), ExpedientTipusDto.class));
+			if (relacionat.getEstat() != null)
+				relacionatDto.setEstat(conversioTipusHelper.convertir(relacionat.getEstat(), EstatDto.class));
+			relacionatDto.setProcessInstanceId(relacionat.getProcessInstanceId());
+			list.add(relacionatDto);
+		}
+		
+		return list;
 	}
 
 	@Transactional

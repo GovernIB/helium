@@ -20,6 +20,12 @@
 
 	<context:component-scan base-package="net.conselldemallorca.helium.webapp"/>
 
+	<mvc:resources mapping="/**/*.png" location="/" cache-period="86400"/>
+	<mvc:resources mapping="/**/*.jpg" location="/" cache-period="86400"/>
+	<mvc:resources mapping="/**/*.gif" location="/" cache-period="86400"/>
+	<mvc:resources mapping="/**/*.css" location="/" cache-period="86400"/>
+	<mvc:resources mapping="/**/*.js" location="/" cache-period="86400"/>
+    
 	<context:annotation-config/>
 	<mvc:annotation-driven/>
 	<mvc:default-servlet-handler/>
@@ -31,9 +37,9 @@
 		<bean class="net.conselldemallorca.helium.webapp.mvc.interceptor.GlobalPropertiesInterceptor"/>
 		<bean class="net.conselldemallorca.helium.webapp.mvc.interceptor.VersioInterceptor"/>
 		<bean class="net.conselldemallorca.helium.webapp.v3.interceptor.NoDecorarInterceptor"/>
-		<bean class="org.springframework.orm.hibernate3.support.OpenSessionInViewInterceptor">
-			<property name="singleSession" value="true"/>
-		</bean>
+<!-- 		<bean class="org.springframework.orm.hibernate3.support.OpenSessionInViewInterceptor"> -->
+<!-- 			<property name="singleSession" value="true"/> -->
+<!-- 		</bean> -->
 		<bean id="localeChangeInterceptor" class="net.conselldemallorca.helium.webapp.mvc.interceptor.IdiomaInterceptor" />
 	</mvc:interceptors>
 
@@ -41,8 +47,8 @@
 		<property name="order" value="0"/>
 	</bean>
 	<bean id="defaultViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-		<property name="prefix" value="/WEB-INF/jsp/"/>
-		<property name="suffix" value=".jsp"/>
+		<property name="prefix" value="/WEB-INF/jsp/" />
+		<property name="suffix" value=".jsp" />
 		<property name="order" value="1"/>
 	</bean>
 
@@ -71,4 +77,16 @@
 		</property>
 	</bean>
 
+<!-- 	<bean id="webContentInterceptor" class="net.conselldemallorca.helium.webapp.mvc.interceptor.ResponseCachingFilter"> -->
+<!-- 		<property name="useCacheControlHeader" value="true" /> -->
+<!-- 		<property name="cacheMappings"> -->
+<!-- 			<props> -->
+<!-- 				<prop key="/**/*.png">86400</prop> -->
+<!-- 				<prop key="/**/*.jpg">86400</prop> -->
+<!-- 				<prop key="/**/*.gif">86400</prop> -->
+<!-- 				<prop key="/**/*.css">86400</prop> -->
+<!-- 				<prop key="/**/*.js">86400</prop> -->
+<!-- 			</props> -->
+<!-- 		</property> -->
+<!-- 	</bean> -->
 </beans>

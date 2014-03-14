@@ -3,7 +3,6 @@
  */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -77,19 +76,10 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 	private boolean signaturesComplet;
 
 	private DefinicioProcesDto definicioProces;
-	private ExpedientDto expedient;
 
 	private Map<String, PersonaDto> personesMap;
 
 	private List<String> outcomes;
-	private List<ValidacioDto> validacions;
-
-	private Map<String, Object> variables;
-	private Map<String, DocumentDto> varsDocuments;
-	private Map<String, DocumentDto> varsDocumentsPerSignar;
-	private Map<String, ParellaCodiValorDto> valorsDomini;
-	private Map<String, List<ParellaCodiValorDto>> valorsMultiplesDomini;
-	private Map<String, Object> varsComText;
 
 	private Long tascaId;
 	private boolean agafada;
@@ -111,13 +101,10 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 	private boolean suspesa;
 	private boolean transicioPerDefecte;
 	private List<String> transicions;
-
-	private List<CampTascaDto> camps;
-	private List<DocumentTascaDto> documents;
-	private List<FirmaTascaDto> signatures;
 	
 	private Long expedientId;
 	private String expedientIdentificador;
+	private String expedientTipusNom;
 
 	private String processInstanceId;
 	
@@ -441,48 +428,6 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 	public void setOutcomes(List<String> outcomes) {
 		this.outcomes = outcomes;
 	}
-	public Map<String, Object> getVariables() {
-		return variables;
-	}
-	public void setVariables(Map<String, Object> variables) {
-		this.variables = variables;
-	}
-	public Object getVariable(String varName) {
-		if (variables == null)
-			return null;
-		return variables.get(varName);
-	}
-	public Map<String, DocumentDto> getVarsDocuments() {
-		return varsDocuments;
-	}
-	public void setVarsDocuments(Map<String, DocumentDto> varsDocuments) {
-		this.varsDocuments = varsDocuments;
-	}
-	public Map<String, DocumentDto> getVarsDocumentsPerSignar() {
-		return varsDocumentsPerSignar;
-	}
-	public void setVarsDocumentsPerSignar(Map<String, DocumentDto> varsDocumentsPerSignar) {
-		this.varsDocumentsPerSignar = varsDocumentsPerSignar;
-	}
-	public Map<String, ParellaCodiValorDto> getValorsDomini() {
-		return valorsDomini;
-	}
-	public void setValorsDomini(Map<String, ParellaCodiValorDto> valorsDomini) {
-		this.valorsDomini = valorsDomini;
-	}
-	public Map<String, List<ParellaCodiValorDto>> getValorsMultiplesDomini() {
-		return valorsMultiplesDomini;
-	}
-	public void setValorsMultiplesDomini(
-			Map<String, List<ParellaCodiValorDto>> valorsMultiplesDomini) {
-		this.valorsMultiplesDomini = valorsMultiplesDomini;
-	}
-	public Map<String, Object> getVarsComText() {
-		return varsComText;
-	}
-	public void setVarsComText(Map<String, Object> varsComText) {
-		this.varsComText = varsComText;
-	}
 
 	public DefinicioProcesDto getDefinicioProces() {
 		return definicioProces;
@@ -490,84 +435,11 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 	public void setDefinicioProces(DefinicioProcesDto definicioProces) {
 		this.definicioProces = definicioProces;
 	}
-	public ExpedientDto getExpedient() {
-		return expedient;
-	}
-	public void setExpedient(ExpedientDto expedient) {
-		this.expedient = expedient;
-	}
-	public List<ValidacioDto> getValidacions() {
-		return validacions;
-	}
-	public void setValidacions(List<ValidacioDto> validacions) {
-		this.validacions = validacions;
-	}
-	public List<CampTascaDto> getCamps() {
-		return camps;
-	}
-	public void setCamps(List<CampTascaDto> camps) {
-		this.camps = camps;
-	}
-	public List<DocumentTascaDto> getDocuments() {
-		return documents;
-	}
-	public void setDocuments(List<DocumentTascaDto> documents) {
-		this.documents = documents;
-	}
-	public List<FirmaTascaDto> getSignatures() {
-		return signatures;
-	}
-	public void setSignatures(List<FirmaTascaDto> signatures) {
-		this.signatures = signatures;
-	}
-	public Set<String> getVariableKeys() {
-		if (variables == null)
-			return null;
-		return variables.keySet();
-	}
-	public Set<String> getDocumentKeys() {
-		if (varsDocuments == null)
-			return null;
-		return varsDocuments.keySet();
-	}
-
-	public boolean isCampsNotReadOnly() {
-		for (CampTascaDto camp: camps) {
-			if (!camp.isReadOnly())
-				return true;
-		}
-		return false;
-	}
-	public boolean isDocumentsNotReadOnly() {
-		for (DocumentTascaDto document: documents) {
-			if (!document.isReadOnly())
-				return true;
-		}
-		return false;
-	}
-
 	public String getNomLimitat() {
 		if (nom.length() > 100)
 			return nom.substring(0, 100) + " (...)";
 		else
 			return nom;
-	}
-
-	public List<DocumentTascaDto> getDocumentsOrdenatsPerMostrarTasca() {
-		List<DocumentTascaDto> resposta = new ArrayList<DocumentTascaDto>();
-		// Afegeix primer els documents que ja estan adjuntats a la tasca
-		for (DocumentTascaDto dt: documents) {
-			if (varsDocuments.get(dt.getDocument().getCodi()) != null) {
-				resposta.add(dt);
-			}
-		}
-		// Despres afegeix els altres documents
-		for (DocumentTascaDto dt: documents) {
-			if (varsDocuments.get(dt.getDocument().getCodi()) == null) {
-				resposta.add(dt);
-			}
-		}
-		return resposta;
 	}
 
 	public Long getTascaId() {
@@ -610,6 +482,12 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 		} else if (!id.equals(other.id))
 			return false;
 		return true;
+	}
+	public String getExpedientTipusNom() {
+		return expedientTipusNom;
+	}
+	public void setExpedientTipusNom(String expedientTipusNom) {
+		this.expedientTipusNom = expedientTipusNom;
 	}
 
 }

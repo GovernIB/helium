@@ -17,18 +17,17 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampRegistreDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
+import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
@@ -102,23 +101,28 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 			String id,
 			ModelMap model) {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entorn != null && id != null) {
+		if (entorn != null && id != null) {			
 			Object command = null;
 			Object commandSessio = TascaFormHelper.recuperarCommandTemporal(request, true);
-			ExpedientTascaDto tasca = tascaService.getById(entorn.getId(), id, null, null, true, true);
+
+			List<TascaDadaDto> tascaDadas = tascaService.findDadesPerTasca(id);
+			List<CampDto> camps = new ArrayList<CampDto>();
+			for (TascaDadaDto campTasca : tascaDadas) {				;
+				camps.add(tascaService.findCampTasca(campTasca.getCampId()));
+			}
+			
+			ExpedientTascaDto tasca;
 			if (commandSessio != null) {
-				List<CampDto> camps = new ArrayList<CampDto>();
-				for (CampTascaDto campTasca : tasca.getCamps())
-					camps.add(campTasca.getCamp());
 				tasca = tascaService.getById(entorn.getId(), id, null, TascaFormHelper.getValorsFromCommand(camps, commandSessio, true, false), true, true);
 				model.addAttribute("valorsPerSuggest", TascaFormHelper.getValorsPerSuggest(tasca, commandSessio));
 				command = commandSessio;
 			} else {
+				tasca = tascaService.getById(entorn.getId(), id, null, null, true, true);
 				try {
 					Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 					campsAddicionals.put("id", id);
 					campsAddicionals.put("entornId", entorn.getId());
-					campsAddicionals.put("expedientTipusId", tasca.getExpedient().getTipus().getId());
+					campsAddicionals.put("expedientTipusId", expedientService.findById(tasca.getExpedientId()).getId());
 					campsAddicionals.put("definicioProcesId", tasca.getDefinicioProces().getId());
 					campsAddicionals.put("procesScope", null);
 					@SuppressWarnings("rawtypes")
@@ -128,10 +132,15 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 					campsAddicionalsClasses.put("expedientTipusId", Long.class);
 					campsAddicionalsClasses.put("definicioProcesId", Long.class);
 					campsAddicionalsClasses.put("procesScope", Map.class);
-					command = TascaFormHelper.getCommandForTasca(tasca, campsAddicionals, campsAddicionalsClasses);
+					
+					Map<String,Object> variables = null;
+					command = TascaFormHelper.getCommandForCamps(camps, variables, campsAddicionals, campsAddicionalsClasses, false);
 					model.addAttribute("valorsPerSuggest", TascaFormHelper.getValorsPerSuggest(tasca, command));
+				} catch (TascaNotFoundException ex) {
+					MissatgesHelper.error(request, ex.getMessage());
+					logger.error("No s'han pogut encontrar la tasca: " + ex.getMessage(), ex);
 				} catch (Exception ignored) {
-				}
+				} 
 			}
 			if (tasca.getRecursForm() != null && tasca.getRecursForm().length() > 0) {
 				try {
@@ -185,56 +194,56 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 				new TerminiTypeEditorHelper());
 	}
 
-	protected void guardarVariablesReg(HttpServletRequest request, CampTascaDto camp, String id) {	
+	protected void guardarVariablesReg(HttpServletRequest request, CampDto camp, String id) {	
 		int i = 1;
 		
-		borrarTodosRegistres(request, id, camp.getCamp().getCodi());
+		borrarTodosRegistres(request, id, camp.getCodi());
 		
 		while (i < request.getParameterMap().size()) {
 			Map<String, Object> variablesMultReg = new HashMap<String, Object>();
-			int numMembres = camp.getCamp().getRegistreMembres().size();
-			int salir = 0;
-			for (CampRegistreDto registreMembre : camp.getCamp().getRegistreMembres()) {
-				Object valor = null;
-				boolean sinValor = false;
-				String campMembre = registreMembre.getMembre().getCodi();
-				if (registreMembre.getMembre().getTipus().equals(CampTipusDto.BOOLEAN)) {
-					variablesMultReg.put(campMembre, false);
-				} else {
-					variablesMultReg.put(campMembre, "");
-				}
-				if (request.getParameterMap().containsKey(camp.getCamp().getCodi()+"["+i+"]["+campMembre+"]")) {
-					valor = request.getParameterMap().get(camp.getCamp().getCodi()+"["+i+"]["+campMembre+"]");
-					valor = String.valueOf(((String[])valor)[0]);
-					if (registreMembre.getMembre().getTipus().equals(CampTipusDto.BOOLEAN)) {						
-						valor = "on".equals(valor);
-					} else if ("".equals(valor)) {
-						sinValor = true;					
-					}
-					variablesMultReg.put(campMembre, valor);
-				} else {
-					sinValor = true;
-				}
-				
-				if (sinValor) {
-					salir++;
-					
-					if (numMembres == salir) {
-						variablesMultReg.clear();
-						break;
-					}			
-				} 
-			}
-			
-			if (!variablesMultReg.isEmpty()) {
-				List<Object> variablesRegTmp = new ArrayList<Object>();
-				for (CampRegistreDto registreMembre : camp.getCamp().getRegistreMembres()) {
-					String campMembre = registreMembre.getMembre().getCodi();
-					variablesRegTmp.add(variablesMultReg.get(campMembre));
-				}
-				
-				guardarRegistre(request, id, camp.getCamp().getCodi(), camp.getCamp().isMultiple(), variablesRegTmp.toArray());
-			}
+//			int numMembres = camp.getCamp().getRegistreMembres().size();
+//			int salir = 0;
+//			for (CampRegistreDto registreMembre : camp.getCamp().getRegistreMembres()) {
+//				Object valor = null;
+//				boolean sinValor = false;
+//				String campMembre = registreMembre.getMembre().getCodi();
+//				if (registreMembre.getMembre().getTipus().equals(CampTipusDto.BOOLEAN)) {
+//					variablesMultReg.put(campMembre, false);
+//				} else {
+//					variablesMultReg.put(campMembre, "");
+//				}
+//				if (request.getParameterMap().containsKey(camp.getCamp().getCodi()+"["+i+"]["+campMembre+"]")) {
+//					valor = request.getParameterMap().get(camp.getCamp().getCodi()+"["+i+"]["+campMembre+"]");
+//					valor = String.valueOf(((String[])valor)[0]);
+//					if (registreMembre.getMembre().getTipus().equals(CampTipusDto.BOOLEAN)) {						
+//						valor = "on".equals(valor);
+//					} else if ("".equals(valor)) {
+//						sinValor = true;					
+//					}
+//					variablesMultReg.put(campMembre, valor);
+//				} else {
+//					sinValor = true;
+//				}
+//				
+//				if (sinValor) {
+//					salir++;
+//					
+//					if (numMembres == salir) {
+//						variablesMultReg.clear();
+//						break;
+//					}			
+//				} 
+//			}
+//			
+//			if (!variablesMultReg.isEmpty()) {
+//				List<Object> variablesRegTmp = new ArrayList<Object>();
+//				for (CampRegistreDto registreMembre : camp.getCamp().getRegistreMembres()) {
+//					String campMembre = registreMembre.getMembre().getCodi();
+//					variablesRegTmp.add(variablesMultReg.get(campMembre));
+//				}
+//				
+//				guardarRegistre(request, id, camp.getCamp().getCodi(), camp.getCamp().isMultiple(), variablesRegTmp.toArray());
+//			}
 			
 			i++;
 		}
@@ -260,7 +269,7 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 			String[] tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
 			String[] parametresTram = TramitacioMassiva.getParamsTramitacioMassiva(request, id);
 			try {
-				Long expTipusId = task.getExpedient().getTipus().getId();
+				Long expTipusId = expedientService.findById(task.getExpedientId()).getTipus().getId();
 				Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(camps, command, true, false);
 				
 				// Restauram la primera tasca
@@ -327,15 +336,13 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 	}
 
 	protected boolean accioRestaurarForm(HttpServletRequest request, Long entornId, String id, List<CampDto> camps, Object command) {
-		boolean resposta = true;
-		boolean massivaActiu = TramitacioMassiva.isTramitacioMassivaActiu(request, id);
-		String[] tascaIds;
-		ExpedientTascaDto task = tascaService.getByIdSenseComprovacio(id);
-		if (massivaActiu) {
+		boolean resposta = false;
+		if (TramitacioMassiva.isTramitacioMassivaActiu(request, id)) {
 			String[] parametresTram = TramitacioMassiva.getParamsTramitacioMassiva(request, id);
-			tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
+			String[] tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
 			try {
-				Long expTipusId = task.getExpedient().getTipus().getId();
+				ExpedientTascaDto task = tascaService.getByIdSenseComprovacio(id);
+				Long expTipusId = expedientService.findById(task.getExpedientId()).getTipus().getId();
 
 				// Restauram la primera tasca
 				tascaService.restaurar(entornId, id);
@@ -379,10 +386,10 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 					execucioMassivaService.crearExecucioMassiva(dto);
 
 					MissatgesHelper.info(request, getMessage(request, "info.tasca.massiu.restaurar", new Object[] { tIds.length }));
+					resposta = true;
 				}
 			} catch (Exception e) {
 				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
-				resposta = false;
 			}
 		} else {
 			try {
@@ -392,7 +399,6 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 				String tascaIdLog = getIdTascaPerLogs(entornId, id);
 				MissatgesHelper.error(request, getMessage(request, "error.restaurar.formulari") + " " + tascaIdLog);
 				logger.error("No s'ha pogut restaurar el formulari en la tasca " + tascaIdLog, ex);
-				resposta = false;
 			}
 		}
 		return resposta;
@@ -407,7 +413,7 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 			String[] parametresTram = TramitacioMassiva.getParamsTramitacioMassiva(request, id);
 			tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
 			try {
-				Long expTipusId = task.getExpedient().getTipus().getId();
+				Long expTipusId = expedientService.findById(task.getExpedientId()).getTipus().getId();
 
 				// Restauram la primera tasca
 				tascaService.executarAccio(entornId, id, accio);
@@ -484,7 +490,7 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 				null,
 				false,
 				false);
-		return tascaActual.getNom() + " - " + tascaActual.getExpedient().getIdentificador();
+		return tascaActual.getNom() + " - " + tascaActual.getExpedientIdentificador();
 	}
 
 	protected boolean accioEsborrarRegistre(HttpServletRequest request, Long entornId, String id, Long registreEsborrarId, Integer registreEsborrarIndex) {
@@ -496,7 +502,7 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 			tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
 			try {
 				ExpedientTascaDto task = tascaService.getByIdSenseComprovacio(id);
-				Long expTipusId = task.getExpedient().getTipus().getId();
+				Long expTipusId = expedientService.findById(task.getExpedientId()).getTipus().getId();
 
 				// Restauram la primera tasca
 				// ------------------------------------------
@@ -572,7 +578,7 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 				String[] parametresTram = TramitacioMassiva.getParamsTramitacioMassiva(request, id);
 				try {
 					ExpedientTascaDto task = tascaService.getByIdSenseComprovacio(id);
-					Long expTipusId = task.getExpedient().getTipus().getId();
+					Long expTipusId = expedientService.findById(task.getExpedientId()).getTipus().getId();
 					
 					// La primera tasca ja s'ha executat. Programam massivament la resta de tasques
 					// ----------------------------------------------------------------------------
@@ -620,21 +626,16 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 		PropertyUtils.setSimpleProperty(command, "procesScope", instanciaProces.getVariables());
 	}
 
-	protected boolean accioGuardarForm(HttpServletRequest request, Long entornId, String id, List<CampTascaDto> tasca, Object command) {
+	protected boolean accioGuardarForm(HttpServletRequest request, Long entornId, String id, List<CampDto> camps, Object command) {
 		boolean resposta = true;
 		boolean massivaActiu = TramitacioMassiva.isTramitacioMassivaActiu(request, id);
 		String[] tascaIds;
-		ExpedientTascaDto task = tascaService.getByIdSenseComprovacio(id);		
-
-		List<CampDto> camps = new ArrayList<CampDto>();
-		for (CampTascaDto campTasca : tasca) {
-			camps.add(campTasca.getCamp());
-		}
+		ExpedientTascaDto task = tascaService.getByIdSenseComprovacio(id);	
 		
 		Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(camps, command, true, false);
 				
-		for (CampTascaDto camp : tasca) {
-			if (camp.getCamp().getTipus().equals(TipusCamp.REGISTRE)) {
+		for (CampDto camp : camps) {
+			if (camp.getTipus().equals(CampTipusDto.REGISTRE)) {
 				guardarVariablesReg(request, camp, id);
 			}
 		}
@@ -677,8 +678,8 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 					ExecucioMassivaDto dto = new ExecucioMassivaDto();
 					dto.setDataInici(dInici);
 					dto.setEnviarCorreu(bCorreu);
-					dto.setTascaIds(tIds);
-					dto.setExpedientTipusId(task.getExpedient().getTipus().getId());
+					dto.setTascaIds(tIds);					
+					dto.setExpedientTipusId(expedientService.findById(task.getExpedientId()).getTipus().getId());
 					dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_TASCA);
 					dto.setParam1("Guardar");
 					Object[] params = new Object[2];
@@ -731,7 +732,7 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 			tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
 			try {
 				ExpedientTascaDto task = tascaService.getByIdSenseComprovacio(tascaIds[0]);
-				Long expTipusId = task.getExpedient().getTipus().getId();
+				Long expTipusId = expedientService.findById(task.getExpedientId()).getTipus().getId();
 				
 				// Restauram la primera tasca
 				// ------------------------------------------

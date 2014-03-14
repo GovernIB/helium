@@ -42,12 +42,8 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 	@RequestMapping(value = "/{expedientId}/relacionats", method = RequestMethod.GET)
 	public String relacionarForm(HttpServletRequest request, @PathVariable Long expedientId, Model model) {
 		NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
-		model.addAttribute("expedientId", expedientId);
-		ExpedientDto expedient = expedientService.findById(expedientId);
-		
-		model.addAttribute(
-				"expedient",
-				expedient);
+		model.addAttribute("expedientId", expedientId);		
+		model.addAttribute("relacionats",expedientService.getExpedientsRelacionats(expedientId));
 		return "v3/expedient/relacionar";
 	}
 
@@ -70,7 +66,7 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 			ExpedientDto expedientOrig = expedientService.findById(expedientId);
 			if (potModificarExpedient(expedientOrig)) {
 				try {
-					ExpedientDto expedientDest = expedientService.findAmbProcessInstanceId(String.valueOf(command.getExpedientIdDesti()));
+					ExpedientDto expedientDest = expedientService.findById(command.getExpedientIdDesti());
 					expedientService.createRelacioExpedient(
 							expedientId,
 							expedientDest.getId());

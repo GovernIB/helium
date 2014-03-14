@@ -27,18 +27,6 @@ public class ReassignacioUsuarisServiceBean implements ReassignacioUsuarisServic
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ReassignacioDto> llistaReassignacions(Long expedientTipusId) {
-		return delegate.llistaReassignacions(expedientTipusId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ReassignacioDto> llistaReassignacionsMod(Long id) {
-		return delegate.llistaReassignacionsMod(id);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void createReassignacio(String usuariOrigen, String usuariDesti, Date dataInici, Date dataFi, Date dataCancelacio, Long tipusExpedientId) {
 		delegate.createReassignacio(usuariOrigen, usuariDesti, dataInici, dataFi, dataCancelacio, tipusExpedientId);
 	}

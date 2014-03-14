@@ -70,8 +70,7 @@ public class ServiceUtils {
 	 * Mètodes per a la reindexació d'expedients
 	 */
 	public void expedientIndexLuceneCreate(String processInstanceId) {
-		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
-		Expedient expedient = expedientHelper.findAmbProcessInstanceId(rootProcessInstance.getId());
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		Map<String, Set<Camp>> mapCamps = getMapCamps(expedient.getProcessInstanceId());
 		Map<String, Map<String, Object>> mapValors = getMapValors(expedient.getProcessInstanceId());
 		luceneHelper.createExpedientAsync(
@@ -84,7 +83,7 @@ public class ServiceUtils {
 	}
 	public void expedientIndexLuceneUpdate(String processInstanceId) {
 		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
-		Expedient expedient = expedientHelper.findAmbProcessInstanceId(rootProcessInstance.getId());
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(rootProcessInstance.getId());
 		Map<String, Set<Camp>> mapCamps = getMapCamps(rootProcessInstance.getId());
 		Map<String, Map<String, Object>> mapValors = getMapValors(rootProcessInstance.getId());
 		luceneHelper.updateExpedientCampsAsync(
@@ -97,7 +96,7 @@ public class ServiceUtils {
 	}
 	public void expedientIndexLuceneRecrear(String processInstanceId) {
 		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
-		Expedient expedient = expedientHelper.findAmbProcessInstanceId(rootProcessInstance.getId());
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(rootProcessInstance.getId());
 		luceneHelper.deleteExpedientAsync(expedient);
 		Map<String, Set<Camp>> mapCamps = getMapCamps(rootProcessInstance.getId());
 		Map<String, Map<String, Object>> mapValors = getMapValors(rootProcessInstance.getId());
@@ -111,7 +110,7 @@ public class ServiceUtils {
 	}
 	public List<Map<String, DadaIndexadaDto>> expedientIndexLucenGetDades(String processInstanceId) {
 		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
-		Expedient expedient = expedientHelper.findAmbProcessInstanceId(rootProcessInstance.getId());
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(rootProcessInstance.getId());
 		List<Camp> informeCamps = new ArrayList<Camp>();
 		Map<String, Set<Camp>> camps = getMapCamps(rootProcessInstance.getId());
 		for (String clau: camps.keySet()) {
@@ -465,28 +464,6 @@ public class ServiceUtils {
 			Class clazz,
 			Permission[] permissions) {
 		return permissionService.isGrantedAny(object , clazz, permissions);
-		/*Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		List<Sid> sids = new ArrayList<Sid>();
-		sids.add(new PrincipalSid(auth.getName()));
-		for (GrantedAuthority ga: auth.getAuthorities()) {
-			sids.add(new GrantedAuthoritySid(ga.getAuthority()));
-		}
-		try {
-			Acl acl = aclServiceDao.readAclById(new ObjectIdentityImpl(clazz, object.getId()));
-			for (Permission perm : permissions) {
-				try {
-					if (acl.isGranted(
-							new Permission[]{perm},
-							sids.toArray(new Sid[sids.size()]),
-							false)) {
-						return true;
-					}
-				} catch (NotFoundException ex) {}
-			}
-			return false;
-		} catch (NotFoundException ex) {
-			return false;
-		}*/
 	}
 
 	private Object valorVariableJbpmRevisat(Object valor) {

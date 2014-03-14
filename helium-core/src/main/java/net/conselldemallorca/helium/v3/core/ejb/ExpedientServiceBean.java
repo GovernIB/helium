@@ -96,12 +96,6 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public boolean updateExpedientError(String processInstanceId, String errorDesc, String errorFull) {
-		return delegate.updateExpedientError(processInstanceId, errorDesc, errorFull);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void createRelacioExpedient(Long expedientOrigenId, Long expedientDestiId) {
 		delegate.createRelacioExpedient(expedientOrigenId, expedientDestiId);
 	}
@@ -210,12 +204,6 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public InstanciaProcesDto getInstanciaProcesByIdReg(String processInstanceId, boolean ambImatgeProces, boolean ambVariables, boolean ambDocuments, String varRegistre, Object[] valorsRegistre) {
-		return delegate.getInstanciaProcesByIdReg(processInstanceId, ambImatgeProces, ambVariables, ambDocuments, varRegistre, valorsRegistre);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<RegistreDto> getRegistrePerExpedient(Long expedientId) {
 		return delegate.getRegistrePerExpedient(expedientId);
 	}
@@ -300,8 +288,8 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ExpedientDto findExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol) {
-		return delegate.findExpedientAmbEntornTipusITitol(entornId, expedientTipusId, titol);
+	public boolean existsExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol) {
+		return delegate.existsExpedientAmbEntornTipusITitol(entornId, expedientTipusId, titol);
 	}
 
 	@Override
@@ -366,7 +354,7 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public PaginaDto findPerConsultaInformePaginat(Long id, Long consultaId, Long expedientTipusId, Map<String, Object> valorsPerService, String expedientCampId, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, PaginacioParamsDto paginacioDtoFromDatatable) {
+	public List<ExpedientDto> findPerConsultaInformePaginat(Long id, Long consultaId, Long expedientTipusId, Map<String, Object> valorsPerService, String expedientCampId, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, PaginacioParamsDto paginacioDtoFromDatatable) {
 		return delegate.findPerConsultaInformePaginat(id, consultaId, expedientTipusId, valorsPerService, expedientCampId, nomesPendents, nomesAlertes, mostrarAnulats, paginacioDtoFromDatatable);
 	}
 
@@ -374,5 +362,23 @@ public class ExpedientServiceBean implements ExpedientService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTascaDto> findTasquesPendentsPerExpedient(Long expedientId) {
 		return delegate.findTasquesPendentsPerExpedient(expedientId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientDadaDto> findDadesPerProcessInstance(String processInstanceId) {
+		return delegate.findDadesPerProcessInstance(processInstanceId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientDocumentDto> findDocumentsPerExpedientTasca(Long expedientId, String tascaId) {
+		return delegate.findDocumentsPerExpedientTasca(expedientId, tascaId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientDto> getExpedientsRelacionats(Long expedientId) {
+		return delegate.getExpedientsRelacionats(expedientId);
 	}
 }

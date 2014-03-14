@@ -9,6 +9,9 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+
 /**
  * Utilitat per a mostrar missatges d'alerta o informació.
  * 
@@ -112,6 +115,13 @@ public class MissatgesHelper {
 		if (delete)
 			session.removeAttribute(attributeName);
 		return alerts;
+	}
+	
+	public static void error(HttpServletRequest request, BindingResult result, String textValidacio) {
+		for ( ObjectError res : result.getAllErrors()) {
+			String error = (res.getDefaultMessage() == null || res.getDefaultMessage().isEmpty()) ? textValidacio : res.getDefaultMessage();
+			error(request, error);
+		}		
 	}
 
 }

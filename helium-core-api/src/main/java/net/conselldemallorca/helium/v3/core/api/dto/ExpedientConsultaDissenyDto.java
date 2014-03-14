@@ -17,8 +17,6 @@ public class ExpedientConsultaDissenyDto {
 	private ExpedientDto expedient;
 	private Map<String, DadaIndexadaDto> dadesExpedient;
 
-
-
 	public ExpedientDto getExpedient() {
 		return expedient;
 	}

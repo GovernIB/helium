@@ -137,13 +137,13 @@ public class ExpedientInformeController extends BaseExpedientController {
 			Long expedientTipusId) {
 		ExpedientInformeCommand filtreCommand = SessionHelper.getSessionManager(request).getFiltreInforme(expedientTipusId);
 		if (filtreCommand == null || filtreCommand.getExpedientTipusId().longValue() != expedientTipusId.longValue()) {
-			filtreCommand = new ExpedientInformeCommand();
-			filtreCommand.setConsultaRealitzada(true);
+			filtreCommand = new ExpedientInformeCommand();			
 			filtreCommand.setExpedientTipusId(expedientTipusId);
 			SessionHelper.getSessionManager(request).setFiltreInforme(
 					filtreCommand,
 					expedientTipusId);
 		}
+		filtreCommand.setConsultaRealitzada(filtreCommand.getConsultaId() != null && !"".equals(filtreCommand.getConsultaId()));
 		return filtreCommand;
 	}
 	
@@ -157,9 +157,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 					entorn.getId(),
 					command.getExpedientTipusId());
 			model.addAttribute("consultes", consultes);	
-			if (model.containsKey("consulta")) {
-				command.setConsultaRealitzada(true);
-			}
+			command.setConsultaRealitzada(command.getConsultaId() != null && !"".equals(command.getConsultaId()));
 		}
 	}
 	
@@ -253,14 +251,16 @@ public class ExpedientInformeController extends BaseExpedientController {
 		PaginaDto<ExpedientDto> paginaDto = null;
 		Map<String, Object> valors = new HashMap<String, Object>();
 		
+		List<ExpedientDto> listaExpedients = new ArrayList<ExpedientDto>();
 		if (consultaId != null) {
 			filtreCommand.setConsultaId(consultaId);
+		}
+		filtreCommand.setConsultaRealitzada(false);
+		if (filtreCommand.getConsultaId() != null) {
 			filtreCommand.setConsultaRealitzada(true);
 			
 			Object commandFiltre = session.getAttribute(VARIABLE_SESSIO_COMMAND);
 			
-			ConsultaDto consulta = dissenyService.findConsulteById(filtreCommand.getConsultaId());
-			model.addAttribute("consulta", consulta);
 			List<CampDto> campsFiltre = expedientService.findConsultaFiltre(filtreCommand.getConsultaId());
 			List<CampDto> campsInforme = expedientService.findConsultaInforme(filtreCommand.getConsultaId());
 			model.addAttribute("campsFiltre", campsFiltre);
@@ -280,7 +280,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 				}
 			}
 			
-			paginaDto = expedientService.findPerConsultaInformePaginat(
+			listaExpedients = expedientService.findPerConsultaInformePaginat(
 							entornActual.getId(),
 							filtreCommand.getConsultaId(),
 							expedientTipusId,
@@ -292,10 +292,9 @@ public class ExpedientInformeController extends BaseExpedientController {
 							PaginacioHelper.getPaginacioDtoFromDatatable(
 									request,
 									COLUMNES_MAPEIG_ORDENACIO));
-		} else {
-			List<ExpedientDto> listaExpedients = new ArrayList<ExpedientDto>();			
-			paginaDto = PaginacioHelper.toPaginaDto(new PageImpl<ExpedientDto>(listaExpedients));
 		}
+		
+		paginaDto = PaginacioHelper.toPaginaDto(new PageImpl<ExpedientDto>(listaExpedients));
 		
 		SessionHelper.setAttribute(
 				request,
@@ -329,6 +328,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 		
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();		
 		if (entornActual != null) {
+			@SuppressWarnings("unchecked")
 			Map<String, Object> valors = (Map<String, Object>) session.getAttribute(VARIABLE_SESSIO_COMMAND_VALUES);
 	
 			ExpedientInformeCommand filtreCommand = getFiltreCommand(request, expedientTipusId);
@@ -337,8 +337,15 @@ public class ExpedientInformeController extends BaseExpedientController {
 					entornActual,
 					model,
 					filtreCommand);
-			
-			ConsultaDto consulta = dissenyService.findConsulteById(filtreCommand.getConsultaId());
+			ConsultaDto consulta = null;
+			@SuppressWarnings("unchecked")
+			List<ConsultaDto> listaConsultas = (List<ConsultaDto>) model.get("consultes");
+			for (ConsultaDto cons: listaConsultas) {
+				if (filtreCommand.getConsultaId().equals(cons.getId())) {
+					consulta = cons;
+					break;
+				}
+			}
 			
 			List<CampDto> campsInforme = expedientService.findConsultaInforme(filtreCommand.getConsultaId());
 			
@@ -364,6 +371,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 		
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();		
 		if (entornActual != null) {
+			@SuppressWarnings("unchecked")
 			Map<String, Object> valors = (Map<String, Object>) session.getAttribute(VARIABLE_SESSIO_COMMAND_VALUES);
 	
 			ExpedientInformeCommand filtreCommand = getFiltreCommand(request, expedientTipusId);
@@ -373,7 +381,15 @@ public class ExpedientInformeController extends BaseExpedientController {
 					model,
 					filtreCommand);
 			
-			ConsultaDto consulta = dissenyService.findConsulteById(filtreCommand.getConsultaId());
+			ConsultaDto consulta = null;
+			@SuppressWarnings("unchecked")
+			List<ConsultaDto> listaConsultas = (List<ConsultaDto>) model.get("consultes");
+			for (ConsultaDto cons: listaConsultas) {
+				if (filtreCommand.getConsultaId().equals(cons.getId())) {
+					consulta = cons;
+					break;
+				}
+			}
 						
 			List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto = expedientService.findAmbEntornConsultaDisseny(
 					entornActual.getId(),
@@ -606,12 +622,12 @@ public class ExpedientInformeController extends BaseExpedientController {
 		for (CampDto campInforme : campsInforme) {
 			sheet.autoSizeColumn(colNum);
 			cell = xlsRow.createCell(colNum++);
-			cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(campInforme.getCodiEtiqueta())));
+			cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(campInforme.getEtiqueta())));
 			cell.setCellStyle(headerStyle);
 		}
 	}
 	
-	public void exportXLS(HttpServletRequest request, HttpServletResponse response, HttpSession session, ConsultaDto consulta, List<CampDto> campsInforme, List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto) {
+	private void exportXLS(HttpServletRequest request, HttpServletResponse response, HttpSession session, ConsultaDto consulta, List<CampDto> campsInforme, List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto) {
 		wb = new HSSFWorkbook();
 	
 		bold = wb.createFont();
@@ -691,8 +707,8 @@ public class ExpedientInformeController extends BaseExpedientController {
 		
 			writeFileToResponse("informe.xls", wb.getBytes(), response);		
 		
-			response.setHeader("Content-disposition", "attachment; filename=mesuresTemps.xls");
-			wb.write( response.getOutputStream() );
+//			response.setHeader("Content-disposition", "attachment; filename=mesuresTemps.xls");
+//			wb.write( response.getOutputStream() );
 		} catch (Exception e) {
 			logger.error("Mesures temporals: No s'ha pogut realitzar la exportació.");
 		}

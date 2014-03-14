@@ -24,6 +24,7 @@ public class SessionHelper {
 	public static final String VARIABLE_ENTORN_ACTUAL_V3 = "entornActualV3";
 	public static final String VARIABLE_EXPTIP_ACTUAL = "expedientTipusActual";
 	public static final String VARIABLE_EXPTIP_ACCESSIBLES = "expedientTipusAccessibles";
+	public static final String VARIABLE_EXPTIP_ACCESSIBLES_AMB_CONSULTES_ACTIVES = "expedientTipusAccessiblesAmbConsultesActives";
 	public static final String VARIABLE_PERMIS_EXPTIP_DISSENY = "potDissenyarExpedientTipus";
 	public static final String VARIABLE_PERMIS_EXPTIP_GESTIO = "potGestionarExpedientTipus";
 	public static final String VARIABLE_PERMIS_EXPTIP_REASSIGNAR = "potReassignarExpedientTipus";
@@ -91,6 +92,18 @@ public class SessionHelper {
 					request,
 					VARIABLE_EXPTIP_ACTUAL,
 					expedientTipus);
+		}
+		@SuppressWarnings("unchecked")
+		public List<ExpedientTipusDto> getExpedientTipusAccessiblesAmbConsultesActives() {
+			return (List<ExpedientTipusDto>)getAttribute(
+					request,
+					VARIABLE_EXPTIP_ACCESSIBLES_AMB_CONSULTES_ACTIVES);
+		}
+		public void setExpedientTipusAccessiblesAmbConsultesActives(List<ExpedientTipusDto> expedientsTipus) {
+			setAttribute(
+					request,
+					VARIABLE_EXPTIP_ACCESSIBLES_AMB_CONSULTES_ACTIVES,
+					expedientsTipus);
 		}
 		@SuppressWarnings("unchecked")
 		public List<ExpedientTipusDto> getExpedientTipusAccessibles() {

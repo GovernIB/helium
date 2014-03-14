@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,9 +11,11 @@ import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.service.PermisosHelper;
 import net.conselldemallorca.helium.core.model.service.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
@@ -24,6 +27,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
@@ -31,12 +35,15 @@ import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
 import net.conselldemallorca.helium.v3.core.helper.ServiceUtils;
+import net.conselldemallorca.helium.v3.core.helper.VariableHelper;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
+import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
+import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 
 import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Service;
@@ -57,6 +64,8 @@ public class DissenyServiceImpl implements DissenyService {
 	@Resource
 	private JbpmHelper jbpmHelper;
 	@Resource
+	private VariableHelper variableHelper;
+	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
 	private CampRepository campRepository;
@@ -72,6 +81,10 @@ public class DissenyServiceImpl implements DissenyService {
 	private ServiceUtils serviceUtils;
 	@Resource
 	private PermisosHelper permisosHelper;
+	@Resource
+	private TascaRepository tascaRepository;
+	@Resource
+	private CampTascaRepository campTascaRepository;
 
 	@Transactional(readOnly=true)
 	@Override
@@ -97,17 +110,69 @@ public class DissenyServiceImpl implements DissenyService {
 					expedientTipus.getEntorn().getId(),
 					expedientTipus.getJbpmProcessDefinitionKey());
 			if (definicioProces != null) {
-				return dtoConverter.toDto(definicioProces, ambTascaInicial);
+				return toDto(definicioProces, ambTascaInicial);
 			}
 		}
 		return null;
 	}
 	
+	public DefinicioProcesDto toDto(
+			DefinicioProces definicioProces,
+			boolean ambTascaInicial) {
+		DefinicioProcesDto dto = conversioTipusHelper.convertir(definicioProces, DefinicioProcesDto.class);
+		JbpmProcessDefinition jpd = jbpmHelper.getProcessDefinition(definicioProces.getJbpmId());
+		if (jpd != null)
+			dto.setJbpmName(jpd.getName());
+		else
+			dto.setJbpmName("[" + definicioProces.getJbpmKey() + "]");
+
+		List<DefinicioProces> mateixaKeyIEntorn = definicioProcesRepository.findByEntornAndJbpmKey(
+				definicioProces.getEntorn(),
+				definicioProces.getJbpmKey());
+		dto.setIdsWithSameKey(new Long[mateixaKeyIEntorn.size()]);
+		dto.setIdsMostrarWithSameKey(new String[mateixaKeyIEntorn.size()]);
+		dto.setJbpmIdsWithSameKey(new String[mateixaKeyIEntorn.size()]);
+		for (int i = 0; i < mateixaKeyIEntorn.size(); i++) {
+			dto.getIdsWithSameKey()[i] = mateixaKeyIEntorn.get(i).getId();
+			dto.getIdsMostrarWithSameKey()[i] = mateixaKeyIEntorn.get(i).getIdPerMostrar();
+			dto.getJbpmIdsWithSameKey()[i] = mateixaKeyIEntorn.get(i).getJbpmId();
+		}
+		if (ambTascaInicial) {
+			Map<Long, Boolean> hasStartTask = new HashMap<Long, Boolean>();
+			dto.setHasStartTask(hasStartTask(definicioProces, hasStartTask));
+			dto.setStartTaskName(jbpmHelper.getStartTaskName(definicioProces.getJbpmId()));
+			dto.setHasStartTaskWithSameKey(new Boolean[mateixaKeyIEntorn.size()]);
+			for (int i = 0; i < mateixaKeyIEntorn.size(); i++) {
+				dto.getHasStartTaskWithSameKey()[i] = new Boolean(
+						hasStartTask(mateixaKeyIEntorn.get(i), hasStartTask));
+			}
+		}
+		return dto;
+	}
+	private boolean hasStartTask(DefinicioProces definicioProces, Map<Long, Boolean> hasStartTask) {
+		Long definicioProcesId = definicioProces.getId();
+		Boolean result = hasStartTask.get(definicioProcesId);
+		if (result == null) {
+			result = new Boolean(false);
+			String startTaskName = jbpmHelper.getStartTaskName(
+					definicioProces.getJbpmId());
+			if (startTaskName != null) {
+				Tasca tasca = tascaRepository.findAmbActivityNameIProcessDefinitionId(
+						startTaskName,
+						definicioProces.getJbpmId());
+				if (tasca != null) {
+					List<CampTasca> camps = campTascaRepository.findAmbTascaOrdenats(tasca.getId());
+					result = new Boolean(camps.size() > 0);
+				}
+			}
+			hasStartTask.put(definicioProcesId, result);
+		}
+		return result.booleanValue();
+	}
+	
 	@Transactional(readOnly=true)
 	@Override
-	public DefinicioProcesDto getById(
-			Long id,
-			boolean ambTascaInicial) {
+	public DefinicioProcesDto getById(Long id) {
 		DefinicioProces definicioProces = definicioProcesRepository.findById(id);
 		return conversioTipusHelper.convertir(definicioProces, DefinicioProcesDto.class);
 	}
@@ -184,7 +249,7 @@ public class DissenyServiceImpl implements DissenyService {
 				ExpedientTipusDto.class);
 	}
 	
-	@Transactional(readOnly=true)
+	@Transactional
 	@Override
 	public List<ConsultaDto> findConsultesActivesAmbEntornIExpedientTipusOrdenat(
 			Long entornId,
@@ -238,41 +303,46 @@ public class DissenyServiceImpl implements DissenyService {
 					break;
 				}
 			}
-			if (camp != null && camp.getEnumeracio() != null) {
-				return dtoConverter.getResultatConsultaEnumeracio(definicioProces, campCodi, textInicial);
-			} else if (camp != null && (camp.getDomini() != null || camp.isDominiIntern())) {
-				return dtoConverter.getResultatConsultaDomini(
-						definicioProces,
-						taskId,
-						processInstanceId,
-						campCodi,
-						textInicial,
-						valorsAddicionals);
-			} else {
-				return dtoConverter.getResultatConsultaConsulta(
-						definicioProces,
-						taskId,
-						processInstanceId,
-						campCodi,
-						textInicial,
-						valorsAddicionals);
-			}
-		} else {
-			DefinicioProces dp = null;
-			if (taskId != null) {
 				JbpmTask task = jbpmHelper.getTaskById(taskId);
-				dp = definicioProcesRepository.findById(Long.valueOf(task.getProcessDefinitionId()));
-			} else {
-				JbpmProcessDefinition jpd = jbpmHelper.findProcessDefinitionWithProcessInstanceId(processInstanceId);
-				dp = definicioProcesRepository.findById(Long.valueOf(jpd.getId()));
-			}
-			return dtoConverter.getResultatConsultaDomini(
-					dp,
-					taskId,
-					processInstanceId,
-					campCodi,
-					textInicial,
-					valorsAddicionals);
+				ExpedientDadaDto expedientDada = variableHelper.getDadaPerInstanciaTasca(String.valueOf(task.getTask().getId()),camp.getCodi());
+//			if (camp != null && camp.getEnumeracio() != null) {
+//				return dtoConverter.getResultatConsultaEnumeracio(definicioProces, campCodi, textInicial);
+//			} else if (camp != null && (camp.getDomini() != null || camp.isDominiIntern())) {
+//				
+//				
+//				return dtoConverter.getResultatConsultaDomini(
+//						definicioProces,
+//						taskId,
+//						processInstanceId,
+//						campCodi,
+//						textInicial,
+//						valorsAddicionals);
+//			} else {
+//				return dtoConverter.getResultatConsultaConsulta(
+//						definicioProces,
+//						taskId,
+//						processInstanceId,
+//						campCodi,
+//						textInicial,
+//						valorsAddicionals);
+//			}
+//		} else {
+//			DefinicioProces dp = null;
+//			if (taskId != null) {
+//				JbpmTask task = jbpmHelper.getTaskById(taskId);
+//				dp = definicioProcesRepository.findById(Long.valueOf(task.getProcessDefinitionId()));
+//			} else {
+//				JbpmProcessDefinition jpd = jbpmHelper.findProcessDefinitionWithProcessInstanceId(processInstanceId);
+//				dp = definicioProcesRepository.findById(Long.valueOf(jpd.getId()));
+//			}
+//			return dtoConverter.getResultatConsultaDomini(
+//					dp,
+//					taskId,
+//					processInstanceId,
+//					campCodi,
+//					textInicial,
+//					valorsAddicionals);
 		}
+		return null;
 	}
 }

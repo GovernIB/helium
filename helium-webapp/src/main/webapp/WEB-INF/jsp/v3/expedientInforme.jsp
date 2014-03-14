@@ -25,26 +25,26 @@
  	var oTable;
 	
 	function obtenirSeleccioActual() {
-// 		if (!seleccioInicialitzada) {
-// 			$.ajax({
-// 				url: "expedient/deseleccionar/-1",
-// 				success: function (data) {
-// 					seleccioArray = data;
-// 				},
-// 				async: false
-// 			});
-// 			seleccioInicialitzada = true;
-// 		}
-// 		return seleccioArray;
+		if (!seleccioInicialitzada) {
+			$.ajax({
+				url: "deseleccionar/-1",
+				success: function (data) {
+					seleccioArray = data;
+				},
+				async: false
+			});
+			seleccioInicialitzada = true;
+		}
+		return seleccioArray;
 	}
 	function modificarSeleccioIActualitzar(valor, afegir) {
-// 		var url = (afegir) ? "expedient/seleccionar/" : "expedient/deseleccionar/";
-// 		$.get(
-// 			url + valor,
-// 			function (data) {
-// 				seleccioArray = data;
-// 				actualitzarVistaSeleccio();
-// 			});
+		var url = (afegir) ? "seleccionar/" : "deseleccionar/";
+		$.get(
+			url + valor,
+			function (data) {
+				seleccioArray = data;
+				actualitzarVistaSeleccio();
+			});
 	}
 	function actualitzarVistaSeleccio() {
 		$('#dades-carregant').hide();
@@ -294,10 +294,10 @@
 <%-- 					<a id="mostrarAnulatsCheck" href="javascript:void(0)" title="Mostrar anulats" class="btn<c:if test="${expedientInformeCommand.mostrarAnulats}"> active</c:if>" data-toggle="button"><i class="icon-remove"></i></a> --%>
 				</div>
 	
-				<div class="hide btn-group">
-					<button id="tramitacioMassivaBtn" class="btn<c:if test="${not expedientInformeCommand.tramitacioMassivaActivada}"> disabled</c:if>">Tramitació massiva <span id="tramitacioMassivaCount" class="badge">&nbsp;</span></button>
-					<button class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
-					<ul class="dropdown-menu">
+				<div class="btn-group">
+					<button id="tramitacioMassivaBtn" class="tramitacioMassiva btn<c:if test="${not expedientInformeCommand.tramitacioMassivaActivada}"> disabled</c:if>">Tramitació massiva <span id="tramitacioMassivaCount" class="badge">&nbsp;</span></button>
+					<button class="tramitacioMassiva btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+					<ul class="tramitacioMassiva dropdown-menu">
 						<li<c:if test="${expedientInformeCommand.tramitacioMassivaActivada}"> class="hide"</c:if>><a id="tramitacioMassivaActivar" href="#"><i class="icon-ok-circle"></i> Activar</a></li>
 						<li<c:if test="${not expedientInformeCommand.tramitacioMassivaActivada}"> class="hide"</c:if>><a id="tramitacioMassivaDesactivar" href="#"><i class="icon-ban-circle"></i> Desactivar</a></li>
 					</ul>
@@ -322,7 +322,7 @@
 		<table id="taulaDades" class="table table-striped table-bordered">
 			<thead>
 				<tr>
-					<th data-property="id" width="4%" <c:if test="${not expedientInformeCommand.tramitacioMassivaActivada}">data-visible=false</c:if>><input type="checkbox"/></th>
+					<th data-property="id" width="4%" data-sortable="false" <c:if test="${not expedientInformeCommand.tramitacioMassivaActivada}">data-visible=false</c:if>><input type="checkbox"/></th>
 					<th data-property="identificador" data-sorting="desc" data-visible=true>Expedient</th>
 					<c:forEach var="camp" items="${campsInforme}">
 						<th data-property="${camp.codi}" data-visible=true>${camp.etiqueta}</th>

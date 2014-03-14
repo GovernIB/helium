@@ -12,16 +12,17 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.PermissionService;
 import net.conselldemallorca.helium.v3.core.api.service.PluginService;
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientInicioPasTitolCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
@@ -59,6 +60,9 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 	@Autowired
 	private PluginService pluginService;
 
+	@Autowired
+	private TascaService tascaService;
+	
 	private Validator validator;
 	
 	@Autowired
@@ -132,6 +136,8 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 					validator.validate(command, result);
 					if (result.hasErrors()) {
 						omplirModelPerMostrarFormulari(expedientTipus, model);
+						MissatgesHelper.error(request, result, getMessage(request, "error.validacio"));
+						
 						return "v3/expedient/iniciarPasTitol";
 					}
 					try {
@@ -196,16 +202,16 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 				boolean teTitol = (tipus.isTeNumero() && tipus.isDemanaTitol());
 				if (teTitol && (command.getTitol() == null || command.getTitol().length() == 0))
 					errors.rejectValue("titol", "not.blank");
-				if (teTitol && expedientService.findExpedientAmbEntornTipusITitol(
+				if (teTitol && expedientService.existsExpedientAmbEntornTipusITitol(
 						command.getEntornId(),
 						command.getExpedientTipusId(),
-						command.getTitol()) != null) {
+						command.getTitol())) {
 					errors.rejectValue("titol", "error.expedient.titolrepetit");
 				}
-				if (teNumero && expedientService.findExpedientAmbEntornTipusITitol(
+				if (teNumero && expedientService.existsExpedientAmbEntornTipusITitol(
 						command.getEntornId(),
 						command.getExpedientTipusId(),
-						command.getNumero()) != null) {
+						command.getNumero())) {
 					errors.rejectValue("numero", "error.expedient.numerorepetit");
 				}
 			}
@@ -253,9 +259,11 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 						expedientTipusId,
 						definicioProcesId,
 						null);
+				List<TascaDadaDto> tascaDadas = tascaService.findDadesPerTasca(tascaInicial.getId());
 				List<CampDto> camps = new ArrayList<CampDto>();
-				for (CampTascaDto campTasca: tascaInicial.getCamps())
-					camps.add(campTasca.getCamp());
+				for (TascaDadaDto campTasca : tascaDadas) {
+					camps.add(tascaService.findCampTasca(campTasca.getCampId()));
+				}
 				valors.putAll(TascaFormHelper.getValorsFromCommand(
 						camps,
 						command,

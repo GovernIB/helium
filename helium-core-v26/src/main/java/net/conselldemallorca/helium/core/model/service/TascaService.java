@@ -141,7 +141,7 @@ public class TascaService {
 	}
 
 	public List<TascaLlistatDto> findTasquesPersonalsIndex(Long entornId) {
-		return findTasquesPersonalsTramitacio(entornId, null, false);
+		return findTasquesPersonalsTramitacio(entornId, null, null, false);
 	}
 	public int findCountTasquesPersonalsIndex(Long entornId) {
 		return countTasquesPersonalsEntorn(entornId, null);
@@ -149,6 +149,7 @@ public class TascaService {
 	public List<TascaLlistatDto> findTasquesPersonalsTramitacio(
 			Long entornId,
 			String usuari,
+			String codiExpedient,
 			boolean perTramitacio) {
 		mesuresTemporalsHelper.mesuraIniciar("Obtenir tasques personals", "consulta");
 		String usuariBo = usuari;
@@ -156,7 +157,14 @@ public class TascaService {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
 		}
-		List<JbpmTask> tasques = jbpmDao.findPersonalTasks(usuariBo);
+		List<JbpmTask> tasques = null;
+		if (codiExpedient == null) {
+			tasques = jbpmDao.findPersonalTasks(usuariBo);
+		} else {
+			List<Long> ids = expedientDao.findPIExpedientsAmbEntornTipusINum(entornId, codiExpedient);
+			LlistatIds llistatIds = jbpmDao.findListIdsPersonalTasks(usuari,ids);
+			tasques = jbpmDao.findPersonalTasks(llistatIds.getIds(), usuari);
+		}
 		List<TascaLlistatDto> list = tasquesFiltradesPerEntorn(entornId, tasques, perTramitacio);
 		mesuresTemporalsHelper.mesuraCalcular("Obtenir tasques personals", "consulta");
 		return list;
@@ -410,7 +418,7 @@ public class TascaService {
 	}
 
 	public List<TascaLlistatDto> findTasquesGrupIndex(Long entornId) {
-		return findTasquesGrupTramitacio(entornId, null, false);
+		return findTasquesGrupTramitacio(entornId, null, null, false);
 	}
 	
 	public int findCountTasquesGrupIndex(Long entornId) {
@@ -420,6 +428,7 @@ public class TascaService {
 	public List<TascaLlistatDto> findTasquesGrupTramitacio(
 			Long entornId,
 			String usuari,
+			String codiExpedient,
 			boolean perTramitacio) {
 		mesuresTemporalsHelper.mesuraIniciar("Obtenir tasques grup", "consulta");
 		String usuariBo = usuari;
@@ -427,8 +436,14 @@ public class TascaService {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
 		}
-		
-		List<JbpmTask> tasques = jbpmDao.findGroupTasks(usuariBo);
+		List<JbpmTask> tasques = new ArrayList<JbpmTask>();
+		if (codiExpedient == null) {
+			tasques = jbpmDao.findGroupTasks(usuariBo);
+		} else {
+			List<Long> ids = expedientDao.findPIExpedientsAmbEntornTipusINum(entornId, codiExpedient);
+			LlistatIds llistatIds = jbpmDao.findListIdsGroupTasks(usuari,ids);
+			tasques = jbpmDao.findGroupTasks(llistatIds.getIds(), usuari);
+		}
 		List<TascaLlistatDto> list = tasquesFiltradesPerEntorn(entornId, tasques, perTramitacio);
 		mesuresTemporalsHelper.mesuraCalcular("Obtenir tasques grup", "consulta");
 		return list;
@@ -1427,6 +1442,7 @@ public class TascaService {
 				isDocumentsComplet(task),
 				isSignaturesComplet(task));
 	}
+	
 	private List<TascaLlistatDto> tasquesFiltradesPerEntorn(
 			Long entornId,
 			List<JbpmTask> tasques,

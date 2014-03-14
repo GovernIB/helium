@@ -148,7 +148,7 @@
 											<c:param name="tipus_retroces" value="${param.tipus_retroces}"/>
 											<c:param name="retorn" value="r"/>
 										</c:url>" onclick="return confirmarRetrocedir(event)" class="retroces">
-										<i class="icon-repeat" 
+										<i class="icon-reply" 
 											alt="<spring:message code="expedient.log.retrocedir"/>" 
 											title="<spring:message code="expedient.log.retrocedir"/>" 
 											border="0">

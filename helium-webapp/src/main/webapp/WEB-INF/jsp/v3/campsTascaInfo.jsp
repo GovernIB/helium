@@ -17,7 +17,7 @@
 		<div class="control-group fila_reducida">	
 			<label class="control-label"><fmt:message key='tasca.info.expedient' /></label>
 			<div class="controls">
-				<label class="control-label-value">${tasca.expedient.identificador}</label>
+				<label class="control-label-value">${tasca.expedientIdentificador}</label>
 			</div>
 		</div>
 	</c:if>
@@ -25,7 +25,7 @@
 	<div class="control-group fila_reducida">	
 		<label class="control-label"><fmt:message key='comuns.tipus_exp' /></label>
 		<div class="controls">
-			<label class="control-label-value">${tasca.expedient.tipus.nom}</label>
+			<label class="control-label-value">${tasca.expedientTipusNom}</label>
 		</div>
 	</div>
 	

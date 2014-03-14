@@ -137,7 +137,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
-			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), usuari, true);
+			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), usuari, null, true);
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
 			for (TascaLlistatDto tasca: tasques)
 				resposta.add(convertirTascaTramitacio(tasca));
@@ -155,7 +155,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
-			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), usuari, true);
+			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), usuari, null, true);
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
 			for (TascaLlistatDto tasca: tasques)
 				resposta.add(convertirTascaTramitacio(tasca));
@@ -175,7 +175,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
-			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), usuari, false);
+			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), usuari, null, false);
 			for (TascaLlistatDto tasca: tasques) {
 				if (tasca.getId().equals(tascaId)) {
 					tascaService.agafar(e.getId(), usuari, tascaId);
@@ -200,7 +200,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
-			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), usuari, false);
+			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), usuari, null, false);
 			for (TascaLlistatDto tasca: tasques) {
 				if (tasca.getId().equals(tascaId)) {
 					tascaService.alliberar(e.getId(), usuari, tascaId, true);
@@ -890,6 +890,44 @@ public class TramitacioServiceImpl implements TramitacioService {
 				usuariCodi,
 				null);
         SecurityContextHolder.getContext().setAuthentication(authentication);
+	}
+
+	public List<TascaTramitacio> consultaTasquesPersonalsByCodi(
+			String entorn,
+			String usuari,
+			String codi) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		try {
+			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), usuari, codi, true);
+			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
+			for (TascaLlistatDto tasca: tasques)
+				resposta.add(convertirTascaTramitacio(tasca));
+			return resposta;
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut obtenir el llistat de tasques", ex);
+			throw new TramitacioException("No s'ha pogut obtenir el llistat de tasques: " + ex.getMessage());
+		}
+	}
+
+	public List<TascaTramitacio> consultaTasquesGrupByCodi(
+			String entorn,
+			String usuari,
+			String codi) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		try {
+			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), usuari, codi, true);
+			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
+			for (TascaLlistatDto tasca: tasques)
+				resposta.add(convertirTascaTramitacio(tasca));
+			return resposta;
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut obtenir el llistat de tasques", ex);
+			throw new TramitacioException("No s'ha pogut obtenir el llistat de tasques: " + ex.getMessage());
+		}
 	}
 
 	private static final Log logger = LogFactory.getLog(TramitacioServiceImpl.class);

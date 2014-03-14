@@ -8,17 +8,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampRegistreDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.sf.cglib.beans.BeanGenerator;
 
@@ -46,27 +45,33 @@ public class TascaFormHelper {
 
 	@SuppressWarnings("rawtypes")
 	public static Object getCommandForTasca(
-			ExpedientTascaDto tasca,
+			Set<CampDto> camps,
 			Map<String, Object> campsAddicionals,
 			Map<String, Class> campsAddicionalsClasses) {
-		List<CampDto> camps = new ArrayList<CampDto>();
-		for (CampTascaDto campTasca: tasca.getCamps())
-			camps.add(campTasca.getCamp());
-		return getCommandForCamps(
-				camps,
-				tasca.getVariables(),
-				campsAddicionals,
-				campsAddicionalsClasses,
-				false);
+		
+		Map<String, CampDto> campsIndexatsPerCodi = new HashMap<String, CampDto>();
+		for (CampDto camp: camps)
+			campsIndexatsPerCodi.put(camp.getCodi(), camp);
+		
+//		List<CampDto> camps = new ArrayList<CampDto>();
+//		for (CampTascaDto campTasca: tasca.getCamps())
+//			camps.add(campTasca.getCamp());
+//		return getCommandForCamps(
+//				camps,
+//				tasca.getVariables(),
+//				campsAddicionals,
+//				campsAddicionalsClasses,
+//				false);
+		return null;
 	}
 	@SuppressWarnings("rawtypes")
 	public static Object getCommandForFiltre(
-			List<CampDto> camps,
+			List<CampDto> campsFiltre,
 			Map<String, Object> valors,
 			Map<String, Object> campsAddicionals,
 			Map<String, Class> campsAddicionalsClasses) {
 		return getCommandForCamps(
-				camps,
+				campsFiltre,
 				valors,
 				campsAddicionals,
 				campsAddicionalsClasses,
@@ -74,13 +79,11 @@ public class TascaFormHelper {
 	}
 	@SuppressWarnings("rawtypes")
 	public static Object getCommandForRegistre(
-			CampDto camp,
+			TascaDadaDto camp,
 			Map<String, Object> valors,
 			Map<String, Object> campsAddicionals,
 			Map<String, Class> campsAddicionalsClasses) {
 		List<CampDto> camps = new ArrayList<CampDto>();
-		for (CampRegistreDto campRegistre: camp.getRegistreMembres())
-			camps.add(campRegistre.getMembre());
 		return getCommandForCamps(
 				camps,
 				valors,
@@ -174,7 +177,7 @@ public class TascaFormHelper {
 						validationRule);
 			}
 			if (	camp.getTipus().equals(CampTipusDto.STRING)) {// ||
-					//camp.getTipus().equals(TipusCamp.TEXTAREA)) {
+					//camp.getTipus().equals(CampTipusDto.TEXTAREA)) {
 				ExpressionValidationRule validationRule = new ExpressionValidationRule(
 						new ValangConditionExpressionParser(),
 						camp.getCodi() + " is null or length(" + camp.getCodi() + ") < 2049");
@@ -193,25 +196,25 @@ public class TascaFormHelper {
 
 	public static Map<String, List<Object>> getValorsPerSuggest(ExpedientTascaDto tasca, Object command) {
 		Map<String, List<Object>> resposta = new HashMap<String, List<Object>>();
-		if (tasca.getValorsMultiplesDomini() != null) {
-			for (String key: tasca.getValorsMultiplesDomini().keySet()) {
-				List<Object> liniaResposta = new ArrayList<Object>();
-				try {
-					Object value = PropertyUtils.getSimpleProperty(command, key);
-					for (int i = 0; i < Array.getLength(value); i++) {
-						String valor = null;
-						for (ParellaCodiValorDto parella: tasca.getValorsMultiplesDomini().get(key)) {
-							if (parella.getCodi().equals(Array.get(value, i))) {
-								valor = parella.getValor().toString();
-								break;
-							}
-						}
-						liniaResposta.add(valor);
-					}
-					resposta.put(key, liniaResposta);
-				} catch (Exception ex) {}
-			}
-		}
+//		if (tasca.getValorsMultiplesDomini() != null) {
+//			for (String key: tasca.getValorsMultiplesDomini().keySet()) {
+//				List<Object> liniaResposta = new ArrayList<Object>();
+//				try {
+//					Object value = PropertyUtils.getSimpleProperty(command, key);
+//					for (int i = 0; i < Array.getLength(value); i++) {
+//						String valor = null;
+//						for (ParellaCodiValorDto parella: tasca.getValorsMultiplesDomini().get(key)) {
+//							if (parella.getCodi().equals(Array.get(value, i))) {
+//								valor = parella.getValor().toString();
+//								break;
+//							}
+//						}
+//						liniaResposta.add(valor);
+//					}
+//					resposta.put(key, liniaResposta);
+//				} catch (Exception ex) {}
+//			}
+//		}
 		return resposta;
 	}
 
@@ -244,7 +247,7 @@ public class TascaFormHelper {
 			}
 		}
 		for (CampDto camp: camps) {
-			if (!camp.getTipus().equals(TipusCamp.REGISTRE)) {
+			if (!camp.getTipus().equals(CampTipusDto.REGISTRE)) {
 				String campCodi = getCampCodi(camp, perFiltre, true);
 				if (camp.getTipus() != null)  {
 					if (!perFiltre) {
@@ -282,7 +285,7 @@ public class TascaFormHelper {
 		
 		// Inicialitza els camps del command amb els valors de la tasca
 		for (CampDto camp: camps) {
-			if (!camp.getTipus().equals(TipusCamp.REGISTRE)) {
+			if (!camp.getTipus().equals(CampTipusDto.REGISTRE)) {
 				String campCodi = getCampCodi(camp, perFiltre, true);
 				String campCodiValors = getCampCodi(camp, perFiltre, false);
 				String tipusCommand = null;

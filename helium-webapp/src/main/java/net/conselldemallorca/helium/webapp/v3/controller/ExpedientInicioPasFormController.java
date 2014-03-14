@@ -12,12 +12,12 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
@@ -67,12 +67,14 @@ public class ExpedientInicioPasFormController extends ExpedientTramitacioControl
 						definicioProcesId,
 						null,
 						request);
+				List<TascaDadaDto> tascaDadas = tascaService.findDadesPerTasca(tascaInicial.getId());
 				List<CampDto> camps = new ArrayList<CampDto>();
-				for (CampTascaDto campTasca: tascaInicial.getCamps())
-					camps.add(campTasca.getCamp());
+				for (TascaDadaDto campTasca : tascaDadas) {				;
+					camps.add(tascaService.findCampTasca(campTasca.getCampId()));
+				}
 				Map<String, Object> valorsCommand = new HashMap<String, Object>();
-				if (tascaInicial.getVariables() != null)
-					valorsCommand.putAll(tascaInicial.getVariables());
+//				if (tascaInicial.getVariables() != null)
+//					valorsCommand.putAll(tascaInicial.getVariables());
 				valorsCommand.putAll(obtenirValorsRegistresSessio(request, camps));
 				if (commandSessio != null) {
 					command = commandSessio;
@@ -151,9 +153,11 @@ public class ExpedientInicioPasFormController extends ExpedientTramitacioControl
 			model.addAttribute("definicioProcesId", definicioProcesId);
 			if (potIniciarExpedientTipus(expedientTipus)) {
 				ExpedientTascaDto tasca = (ExpedientTascaDto) model.get("tasca");
+
+				List<TascaDadaDto> tascaDadas = tascaService.findDadesPerTasca(tasca.getId());
 				List<CampDto> camps = new ArrayList<CampDto>();
-				for (CampTascaDto campTasca : tasca.getCamps()) {
-					camps.add(campTasca.getCamp());
+				for (TascaDadaDto campTasca : tascaDadas) {				;
+					camps.add(tascaService.findCampTasca(campTasca.getCampId()));
 				}
 				Map<String, Object> valorsCommand = TascaFormHelper.getValorsFromCommand(camps, command, true, false);
 				ExpedientTascaDto tascaInicial = obtenirTascaInicial(

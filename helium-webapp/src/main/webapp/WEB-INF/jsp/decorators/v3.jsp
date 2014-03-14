@@ -96,7 +96,9 @@
 					<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="comuns.informes"/> <span class="caret"></span></button>
 					<ul class="dropdown-menu">
 						<c:forEach var="expedientTipus" items="${expedientTipusAccessibles}">
-							<li><a href="<c:url value="/v3/informe/${expedientTipus.id}"></c:url>">${expedientTipus.nom}</a></li>
+							<c:if test="${expedientTipus.conConsultasActivasPorTipo}">
+								<li><a href="<c:url value="/v3/informe/${expedientTipus.id}"></c:url>">${expedientTipus.nom}</a></li>
+							</c:if>
 						</c:forEach>
 					</ul>
 				</c:otherwise>

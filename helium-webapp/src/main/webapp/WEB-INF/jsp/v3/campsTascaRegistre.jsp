@@ -7,9 +7,9 @@
 
 <c:set var="datosVariable" value="${dada}"/>
 <c:if test="${datosVariable.campTipus == 'REGISTRE'}">
-	<c:set var="registreFiles" value="${tasca.varsComText[datosVariable.varCodi]}" scope="request"/>
+	<c:set var="registreFiles" value="${datosVariable.registreDades}" scope="request"/>
 	<div class="controls registre">
-		<c:if test="${datosVariable.campMultiple && (not empty datosVariable.multipleDades[0].registreDades)}">
+		<c:if test="${datosVariable.campMultiple && (datosVariable.registreDades != null)}">
 			<table id="table_mult_${varStatusMain.index}" class="<c:if test="${fn:length(registreFiles) < 1}"> hide </c:if>span11 displaytag selectable table table-bordered">
 				<c:forEach var="multiplemembre" items="${datosVariable.multipleDades}" varStatus="varStatus">
 					<tr class="fila_${varStatus.index}">

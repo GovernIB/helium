@@ -155,7 +155,7 @@ public class ExpedientInicioController extends BaseExpedientController {
 				// aquestes dades
 				DefinicioProcesDto definicioProces = null;
 				if (definicioProcesId != null) {
-					definicioProces = dissenyService.getById(definicioProcesId, true);
+					definicioProces = dissenyService.getById(definicioProcesId);
 					model.addAttribute("definicioProcesId", definicioProcesId);
 				} else {
 					definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId, true);
@@ -172,7 +172,7 @@ public class ExpedientInicioController extends BaseExpedientController {
 					model.addAttribute("tasca", tasca);
 					model.addAttribute("dades", tascaService.findDadesPerTascaDto(tasca));
 					if (definicioProcesId == null) {
-						model.addAttribute("definicioProcesId", tasca.getDefinicioProces().getId());
+						model.addAttribute("definicioProcesId", definicioProces.getId());
 					}
 					return "v3/expedient/iniciarPasForm";
 				} else if (expedientTipus.isDemanaNumero() || expedientTipus.isDemanaTitol() || expedientTipus.isSeleccionarAny()) {

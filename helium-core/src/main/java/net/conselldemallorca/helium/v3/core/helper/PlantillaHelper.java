@@ -37,13 +37,11 @@ import net.conselldemallorca.helium.core.util.NombreEnCastella;
 import net.conselldemallorca.helium.core.util.NombreEnCatala;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
 import net.conselldemallorca.helium.v3.core.repository.AreaJbpmIdRepository;
@@ -96,6 +94,8 @@ public class PlantillaHelper {
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
+	private JbpmHelper jbpmHelper;
+	@Resource
 	private AreaRepository areaRepository;
 	@Resource
 	private AreaJbpmIdRepository areaJbpmIdRepository;
@@ -114,8 +114,8 @@ public class PlantillaHelper {
 	private DocumentHelperV3 documentHelper;
 	@Resource
 	private JbpmHelper jbpmhelper;
-
-
+	@Resource
+	private VariableHelper variableHelper;
 
 	public ArxiuDto generarDocumentPlantilla(
 			Entorn entorn,
@@ -131,33 +131,19 @@ public class PlantillaHelper {
 			
 			ExpedientTascaDto tasca = null;
 			String responsableCodi;
-			Map<String, Object> model = new HashMap<String, Object>();
+			Map<String, Object> model = variableHelper.findVarsDadesPerInstanciaProces(processInstanceId);
 			if (taskInstanceId != null) {
 				JbpmTask task = jbpmhelper.getTaskById(taskInstanceId);
-				JbpmProcessInstance rootProcessInstance = jbpmhelper.getRootProcessInstance(task.getProcessInstanceId());
-				Expedient expedient = expedientHelper.findAmbProcessInstanceId(rootProcessInstance.getId());
-				expedientDto = dtoConverter.toExpedientDto(expedient, false);
+				Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
+				expedientDto = dtoConverter.toExpedientDto(expedient);
 				tasca = dtoConverter.toExpedientTascaDto(
 						task,
 						expedient);
-				InstanciaProcesDto instanciaProces = dtoConverter.toInstanciaProcesDto(
-						task.getProcessInstanceId(),
-						true,
-						true,
-						true);
-				model.putAll(instanciaProces.getVarsComText());
-				model.putAll(tasca.getVarsComText());
+				model.putAll(variableHelper.getVariablesJbpmTascaValor(task.getId()));
 				responsableCodi = task.getAssignee();
 			} else {
-				JbpmProcessInstance rootProcessInstance = jbpmhelper.getRootProcessInstance(processInstanceId);
-				Expedient expedient = expedientHelper.findAmbProcessInstanceId(rootProcessInstance.getId());
-				expedientDto = dtoConverter.toExpedientDto(expedient, false);
-				InstanciaProcesDto instanciaProces = dtoConverter.toInstanciaProcesDto(
-						processInstanceId,
-						true,
-						true,
-						true);
-				model.putAll(instanciaProces.getVarsComText());
+				Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+				expedientDto = dtoConverter.toExpedientDto(expedient);
 				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 				responsableCodi = auth.getName();
 			}
@@ -182,8 +168,6 @@ public class PlantillaHelper {
 				document.getNom() + ".odt",
 				contingut);
 	}
-
-
 
 	private void afegirContextAlModel(
 			String responsableCodi,

@@ -79,24 +79,6 @@ public class ExpedientConsultaDominiController extends BaseController {
 					}
 				}
 				model.addAttribute("resultat", resultat);
-				/*
-				List<FilaResultat> f = new ArrayList<FilaResultat>();
-				f = dissenyService.getResultatConsultaCamp(
-						taskId,
-						processInstanceId,
-						definicioProcesId,
-						campCodi,
-						textInicial,
-						getMapDelsValors(valors));
-				int indexFila = 0;
-				for (FilaResultat fila: f) {
-					System.out.println(">>> Fila: " + indexFila++);
-					int indexColumna = 0;
-					for (ParellaCodiValor columna: fila.getColumnes()) {
-						System.out.println(">>>>>> Columna: " + indexColumna++ + ": [" + columna.getCodi() + ", " + columna.getValor() + "]");
-					}
-				}
-				*/
 			} catch (Exception ex) {
 				logger.error("Error en la consulta de domini pel camp " + campCodi, ex);
 			}

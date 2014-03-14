@@ -28,14 +28,13 @@ public class ExpedientTipusDto implements Serializable, GenericEntityDto<Long> {
 	private EntornDto entorn;
 	
 	private boolean demanaNumero;
-	
+	private boolean conConsultasActivasPorTipo;
 	private boolean demanaTitol;
 	
 	private String expressioNumero;
 	private long sequencia = 1;
 	private long sequenciaDefault = 1;
 	private boolean reiniciarCadaAny;
-	private boolean conConsultasPorTipo;
 	private int anyActual = 0;
 	
 	private String responsableDefecteCodi;
@@ -231,10 +230,10 @@ public class ExpedientTipusDto implements Serializable, GenericEntityDto<Long> {
 	public void setSeleccionarAny(boolean seleccionarAny) {
 		this.seleccionarAny = seleccionarAny;
 	}
-	public boolean isConConsultasPorTipo() {
-		return conConsultasPorTipo;
+	public boolean isConConsultasActivasPorTipo() {
+		return conConsultasActivasPorTipo;
 	}
-	public void setConConsultasPorTipo(boolean conConsultasPorTipo) {
-		this.conConsultasPorTipo = conConsultasPorTipo;
+	public void setConConsultasActivasPorTipo(boolean conConsultasActivasPorTipo) {
+		this.conConsultasActivasPorTipo = conConsultasActivasPorTipo;
 	}
 }

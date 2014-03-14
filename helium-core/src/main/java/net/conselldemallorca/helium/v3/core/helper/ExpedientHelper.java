@@ -295,7 +295,7 @@ public class ExpedientHelper {
 //		return resposta;
 //	}
 	
-	public Expedient findAmbProcessInstanceId(String processInstanceId) {
+	private Expedient findAmbProcessInstanceId(String processInstanceId) {
 		List<Expedient> expedients = expedientRepository.findByProcessInstanceId(processInstanceId);
 		if (expedients.size() > 0) {
 			return expedients.get(0);

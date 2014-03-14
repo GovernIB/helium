@@ -87,7 +87,7 @@ public class TascaServiceBean implements TascaService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ExpedientTascaDto getById(Long entornId, String taskId, String usuari, Map<String, Object> valorsCommand, boolean ambVariables, boolean ambTexts) {
+	public ExpedientTascaDto getById(Long entornId, String taskId, String usuari, Map<String, Object> valorsCommand, boolean ambVariables, boolean ambTexts) throws TascaNotFoundException{
 		return delegate.getById(entornId, taskId, usuari, valorsCommand, ambVariables, ambTexts);
 	}
 
@@ -95,30 +95,6 @@ public class TascaServiceBean implements TascaService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTascaDto getByIdSenseComprovacio(String taskId) {
 		return delegate.getByIdSenseComprovacio(taskId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ExpedientTascaDto getByIdSenseComprovacio(String taskId, Map<String, Object> valorsCommand) {
-		return delegate.getByIdSenseComprovacio(taskId, valorsCommand);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ExpedientTascaDto getByIdSenseComprovacio(String taskId, String usuari) {
-		return delegate.getByIdSenseComprovacio(taskId, usuari);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ExpedientTascaDto getByIdSenseComprovacio(String taskId, String usuari, Map<String, Object> valorsCommand) {
-		return delegate.getByIdSenseComprovacio(taskId, usuari, valorsCommand);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ExpedientTascaDto getByIdSenseComprovacioIDades(String taskId) {
-		return delegate.getByIdSenseComprovacioIDades(taskId);
 	}
 
 	@Override
