@@ -103,8 +103,9 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 			String id,
 			Map<String, Object> parametres) throws Exception {
 		List<FilaResultat> resultat = null;
-		Domini domini = new Domini();
-		if(dominiId == 0){
+		Domini domini = null;
+		if (dominiId == 0) {
+			domini = new Domini();
 			domini.setId((long) 0);
 			domini.setCacheSegons(30);
 			domini.setCodi("intern");
@@ -114,7 +115,7 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 			domini.setEntorn((Entorn)getSession().load(Entorn.class, entornId));
 			domini.setUrl(GlobalProperties.getInstance().getProperty("app.domini.intern.url","http://localhost:8080/helium/ws/DominiIntern"));
 		} else {
-			if(dominiId != null){
+			if (dominiId != null){
 				domini = getById(dominiId, false);
 			}
 		}
@@ -237,7 +238,10 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 		NamedParameterJdbcTemplate jdbcTemplate = jdbcTemplates.get(domini.getId());
 		if (jdbcTemplate == null) {
 			Context initContext = new InitialContext();
-			DataSource ds = (DataSource)initContext.lookup(domini.getJndiDatasource());
+			String dataSourceJndi = domini.getJndiDatasource();
+			if (isDesplegamentTomcat() && dataSourceJndi.endsWith("java:/es.caib.helium.db"))
+				dataSourceJndi = "java:/comp/env/jdbc/HeliumDS";
+			DataSource ds = (DataSource)initContext.lookup(dataSourceJndi);
 			jdbcTemplate = new NamedParameterJdbcTemplate(ds);
 			jdbcTemplates.put(domini.getId(), jdbcTemplate);
 		}
@@ -285,6 +289,11 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 			}
 		}*/
 		return resultat;
+	}
+
+	private boolean isDesplegamentTomcat() {
+		String desplegamentTomcat = GlobalProperties.getInstance().getProperty("app.domini.desplegament.tomcat");
+		return "true".equalsIgnoreCase(desplegamentTomcat);
 	}
 
 }

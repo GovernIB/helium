@@ -57,6 +57,7 @@ public class DominiHelper {
 			DominiDto domini,
 			String id,
 			Map<String, Object> parametres) throws Exception {
+		System.out.println(">>> Consulta domini helper");
 		List<FilaResultat> resultat = null;
 		String cacheKey = getCacheKey(domini.getId(), parametres);
 		Element element = null;
@@ -107,6 +108,9 @@ public class DominiHelper {
 			auth = "BASIC";
 		if (TipusAuthDomini.USERNAMETOKEN.equals(domini.getTipusAuth()))
 			auth = "USERNAMETOKEN";
+		System.out.println(">>> Consulta domini WS (" +
+				"codi=" + domini.getCodi() + ", " + 
+				"url=" + domini.getUrl() + ")");
 		DominiHelium client = (DominiHelium)WsClientUtils.getWsClientProxy(
 				DominiHelium.class,
 				domini.getUrl(),
@@ -163,7 +167,10 @@ public class DominiHelper {
 		NamedParameterJdbcTemplate jdbcTemplate = jdbcTemplates.get(domini.getId());
 		if (jdbcTemplate == null) {
 			Context initContext = new InitialContext();
-			DataSource ds = (DataSource)initContext.lookup(domini.getJndiDatasource());
+			String dataSourceJndi = domini.getJndiDatasource();
+			if (isDesplegamentTomcat() && dataSourceJndi.endsWith("java:/es.caib.helium.db"))
+				dataSourceJndi = "java:/comp/env/jdbc/HeliumDS";
+			DataSource ds = (DataSource)initContext.lookup(dataSourceJndi);
 			jdbcTemplate = new NamedParameterJdbcTemplate(ds);
 			jdbcTemplates.put(domini.getId(), jdbcTemplate);
 		}
@@ -189,6 +196,11 @@ public class DominiHelper {
 			}
 		}
 		return sb.toString();
+	}
+
+	private boolean isDesplegamentTomcat() {
+		String desplegamentTomcat = GlobalProperties.getInstance().getProperty("app.domini.desplegament.tomcat");
+		return "true".equalsIgnoreCase(desplegamentTomcat);
 	}
 
 }

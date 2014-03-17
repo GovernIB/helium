@@ -1527,6 +1527,9 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 
 	private Expedient getExpedientDonatProcessInstanceId(
 			String processInstanceId) throws ProcessInstanceNotFoundException {
+		Expedient expedientIniciant = ExpedientIniciantDto.getExpedient();
+		if (expedientIniciant != null && expedientIniciant.getProcessInstanceId().equals(processInstanceId))
+			return expedientIniciant;
 		JbpmProcessInstance processInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
 		if (processInstance == null)
 			throw new ProcessInstanceNotFoundException();

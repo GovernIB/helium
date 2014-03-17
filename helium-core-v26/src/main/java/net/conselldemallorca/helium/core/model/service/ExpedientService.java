@@ -510,6 +510,8 @@ public class ExpedientService {
 				ExpedientLogAccioTipus.EXPEDIENT_MODIFICAR,
 				null);
 			elog.setEstat(ExpedientLogEstat.IGNORAR);
+			if (expedient == null)
+				expedient = ExpedientIniciantDto.getExpedient();
 		}
 
 		String informacioVella = getInformacioExpedient(expedient);
