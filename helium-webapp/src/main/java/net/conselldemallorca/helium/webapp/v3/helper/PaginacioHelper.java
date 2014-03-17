@@ -120,7 +120,7 @@ public class PaginacioHelper {
 					dadesRegistre[i] = BeanUtils.getProperty(registre, dtInfo.getProperty()[i]);
 				} catch (Exception ex) {
 //					dadesRegistre[i] = "!!!";
-					LOGGER.error("No s'ha pogut llegir la propietat de l'objecte (propietat=" + dtInfo.getProperty()[i] + ")");
+//					LOGGER.error("No s'ha pogut llegir la propietat de l'objecte (propietat=" + dtInfo.getProperty()[i] + ")");
 				}
 			}
 			aaData.add(dadesRegistre);

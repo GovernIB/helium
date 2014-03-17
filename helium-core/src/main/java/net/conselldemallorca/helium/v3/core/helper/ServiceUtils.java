@@ -26,7 +26,9 @@ import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.Registre;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.service.PermissionService;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
@@ -47,6 +49,8 @@ public class ServiceUtils {
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
+	private VariableHelper variableHelper;
+	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
 	private CampRepository campRepository;
@@ -56,8 +60,6 @@ public class ServiceUtils {
 	private LuceneHelper luceneHelper;
 	@Resource(name="dtoConverterV3")
 	private DtoConverter dtoConverter;
-	@Resource
-	private VariableHelper variableHelper;
 	@Resource
 	private JbpmHelper jbpmHelper;
 	@Resource(name="permissionServiceV3")
@@ -128,8 +130,8 @@ public class ServiceUtils {
 	/*
 	 * Mètodes per a obtenir els camps de les consultes per tipus
 	 */
-	public List<Camp> findCampsPerCampsConsulta(Consulta consulta, TipusConsultaCamp tipus) {
-		List<Camp> resposta = new ArrayList<Camp>();
+	public List<TascaDadaDto> findCampsPerCampsConsulta(Consulta consulta, TipusConsultaCamp tipus) {
+		List<TascaDadaDto> resposta = new ArrayList<TascaDadaDto>();
 		List<ConsultaCamp> camps = null;
 		if (tipus != null)
 			camps = consultaCampRepository.findCampsConsulta(consulta.getId(), tipus);
@@ -145,26 +147,24 @@ public class ServiceUtils {
 							definicioProces,
 							camp.getCampCodi());
 					if (campRes != null) {
-						resposta.add(campRes);
+						resposta.add(variableHelper.getTascaDadaDtoParaConsultaDisseny(campRes));
 					}
 				} else {
 					resposta.add(
-							new Camp(
-									null,
+							new TascaDadaDto(
 									camp.getCampCodi(),
-									TipusCamp.STRING,
+									CampTipusDto.STRING,
 									camp.getCampCodi()));
 				}
 			} else {
 				Camp campExpedient = getCampExpedient(camp.getCampCodi());
 				if (campExpedient != null) {
-					resposta.add(campExpedient);
+					resposta.add(variableHelper.getTascaDadaDtoParaConsultaDisseny(campExpedient));
 				} else {
 					resposta.add(
-							new Camp(
-									null,
+							new TascaDadaDto(
 									camp.getCampCodi(),
-									TipusCamp.STRING,
+									CampTipusDto.STRING,
 									camp.getCampCodi()));
 				}
 			}

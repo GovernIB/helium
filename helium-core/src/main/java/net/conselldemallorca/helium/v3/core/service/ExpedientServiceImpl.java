@@ -27,6 +27,7 @@ import net.conselldemallorca.helium.core.model.exception.NotFoundException;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
@@ -58,6 +59,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
@@ -76,6 +78,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.DocumentDescarregarException;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EnumeracioNotFoundException;
@@ -443,7 +446,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<ExpedientDto> findPerConsultaInformePaginat(Long entornId, Long consultaId, Long expedientTipusId, Map<String, Object> valorsPerService, String expedientCampId, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
+	public List<ExpedientDto> findPerConsultaInformePaginat(Long entornId, Long consultaId, Long expedientTipusId, Map<String, Object> valorsPerService, String expedientCampId, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "0");
 		
@@ -498,7 +501,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 				consultaId,
 				valorsPerService,
 				ExpedientCamps.EXPEDIENT_CAMP_ID,
-				true);
+				true
+		);
 		
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "1");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "2");
@@ -1365,11 +1369,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 				-1);
 	}
 
-	@Transactional
 	private void afegirValorsPredefinits(
 			Consulta consulta,
 			Map<String, Object> valors,
-			List<CampDto> camps) {
+			List<Camp> campsFiltre) {
 		if (consulta.getValorsPredefinits() != null && consulta.getValorsPredefinits().length() > 0) {
 			String[] parelles = consulta.getValorsPredefinits().split(",");
 			for (String parelle : parelles) {
@@ -1377,12 +1380,13 @@ public class ExpedientServiceImpl implements ExpedientService {
 				if (parella.length == 2) {
 					String campCodi = parella[0];
 					String valor = parella[1];
-					for (CampDto camp: camps) {
+					for (Camp camp: campsFiltre) {
 						if (camp.getCodi().equals(campCodi)) {
+							consulta.getExpedientTipus().getJbpmProcessDefinitionKey();
 							valors.put(
 									camp.getDefinicioProces().getJbpmKey() + "." + campCodi,
 									CampDto.getComObject(
-											camp.getTipus(),
+											conversioTipusHelper.convertir(camp.getTipus(), CampTipusDto.class),
 											valor));
 							break;
 						}
@@ -1394,28 +1398,21 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Transactional
 	@Override
-	public List<CampDto> findConsultaFiltre(Long consultaId) {
+	public List<TascaDadaDto> findConsultaFiltre(Long consultaId) {
 		Consulta consulta = consultaHelper.findById(consultaId);		
 		
-		List<Camp> campsFiltre = serviceUtils.findCampsPerCampsConsulta(
+		return serviceUtils.findCampsPerCampsConsulta(
 				consulta,
 				net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp.FILTRE);
-		
-		List<CampDto> campsFiltreDto = conversioTipusHelper.convertirList(campsFiltre, CampDto.class);
-		
-		return campsFiltreDto;
 	}
 
 	@Transactional
 	@Override
-	public List<CampDto> findConsultaInforme(Long consultaId) {
-		Consulta consulta = consultaHelper.findById(consultaId);List<Camp> campsInforme = serviceUtils.findCampsPerCampsConsulta(
+	public List<TascaDadaDto> findConsultaInforme(Long consultaId) {
+		Consulta consulta = consultaHelper.findById(consultaId);
+		return serviceUtils.findCampsPerCampsConsulta(
 				consulta,
-				net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp.INFORME);
-		
-		List<CampDto> campsInformeDto = conversioTipusHelper.convertirList(campsInforme, CampDto.class);
-		
-		return campsInformeDto;
+				TipusConsultaCamp.INFORME);
 	}
 	
 	@Transactional
@@ -1431,16 +1428,23 @@ public class ExpedientServiceImpl implements ExpedientService {
 		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
 		Consulta consulta = consultaHelper.findById(consultaId);		
 		
-		List<Camp> campsFiltre = serviceUtils.findCampsPerCampsConsulta(
+		List<TascaDadaDto> campsFiltreDto = serviceUtils.findCampsPerCampsConsulta(
 				consulta,
-				net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp.FILTRE);
-		List<Camp> campsInforme = serviceUtils.findCampsPerCampsConsulta(
+				TipusConsultaCamp.FILTRE);
+		List<TascaDadaDto> campsInformeDto = serviceUtils.findCampsPerCampsConsulta(
 				consulta,
-				net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp.INFORME);
+				TipusConsultaCamp.INFORME);
 		
-		List<CampDto> campsFiltreDto = conversioTipusHelper.convertirList(campsFiltre, CampDto.class);
-		afegirValorsPredefinits(consulta, valors, campsFiltreDto);
+		List<Camp> campsFiltre = new ArrayList<Camp>();
+		for (TascaDadaDto camp : campsFiltreDto) {
+			campsFiltre.add(campRepository.findById(camp.getCampId()));
+		}
+		List<Camp> campsInforme = new ArrayList<Camp>();
+		for (TascaDadaDto camp : campsInformeDto) {
+			campsInforme.add(campRepository.findById(camp.getCampId()));
+		}
 		
+		afegirValorsPredefinits(consulta, valors, campsFiltre);
 		List<Map<String, DadaIndexadaDto>> dadesExpedients = luceneHelper.findAmbDadesExpedientV3(
 				consulta.getEntorn().getCodi(),
 				consulta.getExpedientTipus().getCodi(),

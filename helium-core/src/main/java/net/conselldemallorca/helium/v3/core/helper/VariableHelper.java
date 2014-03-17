@@ -43,6 +43,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
@@ -698,6 +699,33 @@ public class VariableHelper {
 			}
 			tascaDto.setRegistreDades(registreDades);
 		}
+		return tascaDto;
+	}
+
+	public TascaDadaDto getTascaDadaDtoParaConsultaDisseny(Camp camp) {
+		TascaDadaDto tascaDto = new TascaDadaDto();
+		tascaDto.setVarCodi(camp.getCodi().toLowerCase());
+		tascaDto.setCampId(camp.getId());
+		tascaDto.setCampTipus(conversioTipusHelper.convertir(camp.getTipus(), CampTipusDto.class));
+		tascaDto.setCampEtiqueta(camp.getEtiqueta());
+		tascaDto.setCampMultiple(camp.isMultiple());
+		tascaDto.setObservacions(camp.getObservacions());
+		tascaDto.setJbpmAction(camp.getJbpmAction());
+		tascaDto.setValidacions(conversioTipusHelper.convertirList(camp.getValidacions(), ValidacioDto.class));
+		if (camp.isMultiple()) {
+			List<TascaDadaDto> multipleDades = new ArrayList<TascaDadaDto>();
+			for (CampRegistre dto: camp.getRegistreMembres()) {
+//				multipleDades.add(getTascaDadaDtoParaConsultaDisseny(dto.getMembre()));
+			}
+			tascaDto.setMultipleDades(multipleDades);
+		}
+		
+		List<TascaDadaDto> registreDades = new ArrayList<TascaDadaDto>();
+		for (CampRegistre dto: camp.getRegistrePares()) {
+//			registreDades.add(getTascaDadaDtoParaConsultaDisseny(dto.getRegistre()));
+		}
+		tascaDto.setRegistreDades(registreDades);
+		
 		return tascaDto;
 	}
 

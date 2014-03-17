@@ -5,13 +5,11 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 
-<c:set var="datosVariable" value="${dada}"/>
-<c:if test="${datosVariable.campTipus == 'REGISTRE'}">
-	<c:set var="registreFiles" value="${datosVariable.registreDades}" scope="request"/>
+<c:if test="${dada.campTipus == 'REGISTRE'}">
 	<div class="controls registre">
-		<c:if test="${datosVariable.campMultiple && (datosVariable.registreDades != null)}">
-			<table id="table_mult_${varStatusMain.index}" class="<c:if test="${fn:length(registreFiles) < 1}"> hide </c:if>span11 displaytag selectable table table-bordered">
-				<c:forEach var="multiplemembre" items="${datosVariable.multipleDades}" varStatus="varStatus">
+		<c:if test="${dada.campMultiple}">
+			<table id="table_mult_${varStatusMain.index}" class="<c:if test="${fn:length(dada.multipleDades) < 1}"> hide </c:if>span11 displaytag selectable table table-bordered">
+				<c:forEach var="multiplemembre" items="${dada.multipleDades}" varStatus="varStatus">
 					<tr class="fila_${varStatus.index}">
 						<c:if test="${varStatus.first}">
 							<c:forEach var="membre" items="${multiplemembre.registreDades}" varStatus="varStatusDadesCab">
@@ -28,7 +26,7 @@
 						<c:forEach var="membre" items="${multiplemembre.registreDades}" varStatus="varStatusDades">
 							<td>												
 								<c:set var="dada" value="${membre}"/>
-								<c:set var="dada_multiple" value="${datosVariable.varCodi}[${varStatus.index+1}]"/>
+								<c:set var="dada_multiple" value="${dada.varCodi}[${varStatus.index+1}]"/>
 								<%@ include file="campsTasca.jsp" %>
 							</td>
 						</c:forEach>
@@ -48,13 +46,13 @@
 		</c:if>
 		<c:if test="${not empty registreFiles}">
 			<div style="overflow:auto">
-				<c:if test="${!datosVariable.campMultiple}">
+				<c:if test="${!dada.campMultiple}">
 					<c:set var="ocultarTabla" value="${false}"/>
 					<c:if test="${dada.readOnly || tasca.validada}">
 						<c:set var="ocultarTabla" value="${true}"/>
 						<c:forEach 
 								var="membre" 
-								items="${datosVariable.registreDades}" 
+								items="${dada.registreDades}" 
 								varStatus="varStatus"
 							>
 							<c:if test="${not empty membre.text || not empty membre.varValor}">
@@ -66,12 +64,12 @@
 						<display:table id="table_mult_${varStatusMain.index}" class="span11 displaytag selectable table table-bordered" name="table_mult_${varStatusMain.index}" requestURI="">
 							<c:forEach 
 								var="membre" 
-								items="${datosVariable.registreDades}" 
+								items="${dada.registreDades}" 
 								varStatus="varStatus"
 							>							
 								<display:column title="<c:if test='${membre.required}'><i class='icon-asterisk' style='color: red'></i> </c:if>${membre.campEtiqueta}">
 									<c:set var="dada" value="${membre}"/>
-									<c:set var="dada_multiple" value="${datosVariable.varCodi}[${varStatus.index+1}]"/>
+									<c:set var="dada_multiple" value="${dada.varCodi}[${varStatus.index+1}]"/>
 									<%@ include file="campsTasca.jsp" %>
 								</display:column>
 							</c:forEach>
@@ -101,11 +99,12 @@
 				</c:if>
 			</div>
 		</c:if>
-		<c:if test="${datosVariable.campMultiple || fn:length(registreFiles) < 1}">			
-			<c:if test="${not empty datosVariable.registreDades}">
+		<c:set var="ocultar_button_mult" value="${false}"/>
+		<c:if test="${dada.campMultiple || fn:length(dada.multipleDades) < 1}">			
+			<c:if test="${not empty dada.registreDades}">
 				<table id="table_mult_${varStatusMain.index}" class="hide togle span11 displaytag selectable table table-bordered">
 					<tr>
-						<c:forEach var="membre" items="${datosVariable.registreDades}" varStatus="varStatus">
+						<c:forEach var="membre" items="${dada.registreDades}" varStatus="varStatus">
 							<th <c:if test="${membre.required}"> data-required="true"</c:if>>
 								${membre.campEtiqueta}
 							</th>
@@ -113,7 +112,7 @@
 						<th></th>
 					</tr>
 					<tr>
-						<c:forEach var="membre" items="${datosVariable.registreDades}" varStatus="varStatus">
+						<c:forEach var="membre" items="${dada.registreDades}" varStatus="varStatus">
 							<td>
 								<c:set var="dada" value="${membre}"/>
 								<%@ include file="campsTasca.jsp" %>
@@ -133,6 +132,7 @@
 				</table>
 				<c:if test="${!dada.readOnly && !tasca.validada}">
 					<div style="clear: both"></div>
+					<c:set var="ocultar_button_mult" value="${true}"/>
 					<button id="button_add_table_mult_${varStatusMain.index}"
 						type="button" 
 						class="btn pull-left btn_afegir"
@@ -143,7 +143,7 @@
 			</c:if>
 			
 			<c:if test="${!dada.readOnly && !tasca.validada}">
-				<div <c:if test="${not empty datosVariable.registreDades}"> class="hide"</c:if>>
+				<div <c:if test="${not empty dada.registreDades || ocultar_button_mult}"> class="hide"</c:if>>
 					<div style="clear: both"></div>
 					<button id="button_add_table_mult_${varStatusMain.index}"
 						type="button" 
@@ -155,6 +155,6 @@
 			</c:if>
 		</c:if>
 		<br/>
-		<div class="formHint">${datosVariable.observacions}</div>
+		<div class="formHint">${dada.observacions}</div>
 	</div>
 </c:if>

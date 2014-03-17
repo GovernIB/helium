@@ -3,7 +3,6 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -11,7 +10,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
@@ -260,14 +258,9 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 						definicioProcesId,
 						null);
 				List<TascaDadaDto> tascaDadas = tascaService.findDadesPerTasca(tascaInicial.getId());
-				List<CampDto> camps = new ArrayList<CampDto>();
-				for (TascaDadaDto campTasca : tascaDadas) {
-					camps.add(tascaService.findCampTasca(campTasca.getCampId()));
-				}
 				valors.putAll(TascaFormHelper.getValorsFromCommand(
-						camps,
+						tascaDadas,
 						command,
-						true,
 						false));
 			}
 		}
@@ -304,5 +297,4 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientInicioPasTitolController.class);
-
 }

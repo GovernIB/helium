@@ -4,29 +4,21 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<c:if test="${not empty campTascaActual}">
-	<c:set var="campActual" value="${campTascaActual.camp}" scope="request"/>
-	<c:set var="readOnly" value="${campTascaActual.readOnly}" scope="request"/>
-	<c:set var="required" value="${campTascaActual.required}" scope="request"/>
-</c:if>
-<c:choose>
-	<c:when test="${not empty campActual.definicioProces}"><c:set var="codiActual" value="${campActual.definicioProces.jbpmKey}_${campActual.codi}" scope="request"/></c:when>
-	<c:otherwise><c:set var="codiActual" value="${campActual.codi}" scope="request"/></c:otherwise>
-</c:choose>
+<c:set var="codiActual" value="${campActual.varCodi}" scope="request"/>
 <c:set var="valorActual" value="${command[codiActual]}" scope="request"/>
-<c:set var="extraParams">definicioProcesId:${campActual.definicioProces.id},campCodi:'${campActual.codi}',valors:function(){return canvisSelectValorsAddicionals}</c:set>
+<c:set var="extraParams">campCodi:'${campActual.varCodi}',valors:function(){return canvisSelectValorsAddicionals}</c:set>
 <c:choose>
-	<c:when test="${campActual.tipus == 'STRING'}">
+	<c:when test="${campActual.campTipus == 'STRING'}">
 		<c:import url="common/formElement.jsp">
 			<c:param name="property">${codiActual}</c:param>
-			<c:param name="label">${campActual.etiqueta}</c:param>
+			<c:param name="label">${campActual.campEtiqueta}</c:param>
 		</c:import>
 	</c:when>
-	<c:when test="${campActual.tipus == 'INTEGER'}">
+	<c:when test="${campActual.campTipus == 'INTEGER'}">
 		<c:import url="common/formElement.jsp">
 			<c:param name="property">${codiActual}</c:param>
 			<c:param name="type" value="custom"/>
-			<c:param name="label">${campActual.etiqueta}</c:param>
+			<c:param name="label">${campActual.campEtiqueta}</c:param>
 			<c:param name="content">
 				<spring:bind path="${codiActual}[0]">
 					<label for="${codiActual}0" class="blockLabel"><fmt:message key='common.campfiltre.entre' />
@@ -47,11 +39,11 @@
 			</c:param>
 		</c:import>
 	</c:when>
-	<c:when test="${campActual.tipus == 'FLOAT'}">
+	<c:when test="${campActual.campTipus == 'FLOAT'}">
 		<c:import url="common/formElement.jsp">
 			<c:param name="property">${codiActual}</c:param>
 			<c:param name="type" value="custom"/>
-			<c:param name="label">${campActual.etiqueta}</c:param>
+			<c:param name="label">${campActual.campEtiqueta}</c:param>
 			<c:param name="content">
 				<spring:bind path="${codiActual}[0]">
 					<label for="${codiActual}0" class="blockLabel"><fmt:message key='common.campfiltre.entre' />
@@ -72,11 +64,11 @@
 			</c:param>
 		</c:import>
 	</c:when>
-	<c:when test="${campActual.tipus == 'DATE'}">
+	<c:when test="${campActual.campTipus == 'DATE'}">
 		<c:import url="common/formElement.jsp">
 			<c:param name="property">${codiActual}</c:param>
 			<c:param name="type" value="custom"/>
-			<c:param name="label">${campActual.etiqueta}</c:param>
+			<c:param name="label">${campActual.campEtiqueta}</c:param>
 			<c:param name="content">
 				<c:choose>
 					<c:when test="${not fn:contains(codiActual, '$')}"><c:set var="codiActualJquery" value="${codiActual}"/></c:when>
@@ -113,11 +105,11 @@
 			</c:param>
 		</c:import>
 	</c:when>
-	<c:when test="${campActual.tipus == 'PRICE'}">
+	<c:when test="${campActual.campTipus == 'PRICE'}">
 		<c:import url="common/formElement.jsp">
 			<c:param name="property">${codiActual}</c:param>
 			<c:param name="type" value="custom"/>
-			<c:param name="label">${campActual.etiqueta}</c:param>
+			<c:param name="label">${campActual.campEtiqueta}</c:param>
 			<c:param name="content">
 				<spring:bind path="${codiActual}[0]">
 					<label for="${codiActual}0" class="blockLabel"><fmt:message key='common.campfiltre.entre' />
@@ -138,30 +130,30 @@
 			</c:param>
 		</c:import>
 	</c:when>
-	<c:when test="${campActual.tipus == 'BOOLEAN'}">
+	<c:when test="${campActual.campTipus == 'BOOLEAN'}">
 		<c:import url="common/formElement.jsp">
 			<c:param name="property">${codiActual}</c:param>
 			<c:param name="type" value="select"/>
-			<c:param name="label">${campActual.etiqueta}</c:param>
+			<c:param name="label">${campActual.campEtiqueta}</c:param>
 			<c:param name="items" value="valorsBoolea"/>
 			<c:param name="itemLabel" value="valor"/>
 			<c:param name="itemValue" value="codi"/>
 			<c:param name="itemBuit">&lt;&lt; <fmt:message key='common.campfiltre.item_buit' /> &gt;&gt;</c:param>
 		</c:import>
 	</c:when>
-	<c:when test="${campActual.tipus == 'TEXTAREA'}">
+	<c:when test="${campActual.campTipus == 'TEXTAREA'}">
 		<c:import url="common/formElement.jsp">
 			<c:param name="property">${codiActual}</c:param>
-			<c:param name="label">${campActual.etiqueta}</c:param>
+			<c:param name="label">${campActual.campEtiqueta}</c:param>
 		</c:import>
 	</c:when>
-	<c:when test="${campActual.tipus == 'SELECCIO'}">
+	<c:when test="${campActual.campTipus == 'SELECCIO'}">
 		<c:choose>
 			<c:when test="${codiActual == 'expedient$estat'}">
 				<c:import url="common/formElement.jsp">
 					<c:param name="property" value="${codiActual}"/>
 					<c:param name="type" value="select"/>
-					<c:param name="label">${campActual.etiqueta}</c:param>
+					<c:param name="label">${campActual.campEtiqueta}</c:param>
 					<c:param name="items" value="estats"/>
 					<c:param name="itemLabel" value="nom"/>
 					<c:param name="itemValue" value="codi"/>
@@ -172,7 +164,7 @@
 				<c:import url="common/formElement.jsp">
 					<c:param name="property">${codiActual}</c:param>
 					<c:param name="type" value="select"/>
-					<c:param name="label">${campActual.etiqueta}</c:param>
+					<c:param name="label">${campActual.campEtiqueta}</c:param>
 					<c:param name="selectUrl"><c:url value="/v3/domini/consultaExpedient"/></c:param>
 					<c:param name="selectExtraParams">${extraParams},tipus:'select'</c:param>
 					<c:param name="onchange">canviSelectTasca(this.id, this.name, '${fn:substringBefore(codiActual, '_')}_');</c:param>
@@ -180,24 +172,24 @@
 			</c:otherwise>
 		</c:choose>
 	</c:when>
-	<c:when test="${campActual.tipus == 'SUGGEST'}">
+	<c:when test="${campActual.campTipus == 'SUGGEST'}">
 		<c:set var="multipleSuggestText" value="${valorsPerSuggest[codiActual]}" scope="request"/>
 		<c:import url="common/formElement.jsp">
 			<c:param name="property">${codiActual}</c:param>
 			<c:param name="type" value="suggest"/>
-			<c:param name="label">${campActual.etiqueta}</c:param>
+			<c:param name="label">${campActual.campEtiqueta}</c:param>
 			<c:param name="suggestUrl"><c:url value="/v3/domini/consultaExpedient"/></c:param>
 			<c:param name="suggestExtraParams">${extraParams},tipus:'suggest'</c:param>
 			<c:param name="suggestText"><c:if test="${not empty tasca.valorsDomini[codiActual]}">${tasca.valorsDomini[codiActual].valor}</c:if></c:param>
 			<c:param name="multipleSuggestText">multipleSuggestText</c:param>
 		</c:import>
 	</c:when>
-	<c:when test="${campActual.tipus == 'TERMINI'}">
+	<c:when test="${campActual.campTipus == 'TERMINI'}">
 		<c:import url="common/formElement.jsp">
 			<c:param name="property">${codiActual}</c:param>
 			<c:param name="required">${required}</c:param>
 			<c:param name="type" value="custom"/>
-			<c:param name="label">${campActual.etiqueta}</c:param>
+			<c:param name="label">${campActual.campEtiqueta}</c:param>
 			<c:param name="content">
 				<spring:bind path="${codiActual}">
 					<c:set var="anys" value="${fn:split(status.value,'/')[0]}"/>
@@ -232,7 +224,7 @@
 		<c:import url="common/formElement.jsp">
 			<c:param name="property">${codiActual}</c:param>
 			<c:param name="required">${required}</c:param>
-			<c:param name="label">${campActual.etiqueta}</c:param>
+			<c:param name="label">${campActual.campEtiqueta}</c:param>
 		</c:import>
 	</c:otherwise>
 </c:choose>
@@ -241,8 +233,5 @@ private String toJavascript(String str) {
 	if (str == null)
 		return null;
 	return str.replace("'", "\\'");
-//		replace("{", "").
-//		replace("}", "").
-//		replace("#", "");
 }
 %>

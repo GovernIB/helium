@@ -29,14 +29,13 @@ import javax.validation.Valid;
 
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.report.FieldValue;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
@@ -87,7 +86,6 @@ import org.springframework.web.bind.support.SessionStatus;
 @Controller
 @RequestMapping("/v3/informe")
 public class ExpedientInformeController extends BaseExpedientController {
-	private static final Map<String, String[]> COLUMNES_MAPEIG_ORDENACIO;
 	private static final String VARIABLE_SESSIO_COMMAND = "consultaCommand";
 	private static final String VARIABLE_SESSIO_COMMAND_VALUES = "consultaCommandValues";
 
@@ -103,10 +101,6 @@ public class ExpedientInformeController extends BaseExpedientController {
 	private HSSFCellStyle greyStyle;
 	private HSSFCellStyle dGreyStyle;
 	private HSSFFont greyFont;
-	
-	static {
-		COLUMNES_MAPEIG_ORDENACIO = new HashMap<String, String[]>();
-	}
 
 	@Autowired
 	private ExpedientService expedientService;
@@ -121,14 +115,20 @@ public class ExpedientInformeController extends BaseExpedientController {
 	public String get(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
-			@ModelAttribute("commandFiltre") Object command,
+			@ModelAttribute("commandFiltre") Object filtreCommand,
 			BindingResult result,
 			SessionStatus status,
 			ModelMap model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		ExpedientInformeCommand filtreCommand = getFiltreCommand(request, expedientTipusId);
-		model.addAttribute(filtreCommand);
-		populateModelCommon(request, entornActual, model, filtreCommand);
+		if (filtreCommand == null) {
+			filtreCommand = getFiltreCommand(request, expedientTipusId);
+		}
+		if (filtreCommand instanceof ExpedientInformeCommand) {
+			ExpedientInformeCommand command = (ExpedientInformeCommand) filtreCommand;
+			command.setConsultaRealitzada(command.getConsultaId() != null && !"".equals(command.getConsultaId()));
+			model.addAttribute(filtreCommand);
+		}
+		model.addAttribute("consultes", dissenyService.findConsultesActivesAmbEntornIExpedientTipusOrdenat(entornActual.getId(),expedientTipusId));	
 		return "v3/expedientInforme";
 	}
 	
@@ -147,20 +147,6 @@ public class ExpedientInformeController extends BaseExpedientController {
 		return filtreCommand;
 	}
 	
-	private void populateModelCommon(
-			HttpServletRequest request,
-			EntornDto entorn,
-			ModelMap model,
-			ExpedientInformeCommand command) {
-		if (command != null) {
-			List<ConsultaDto> consultes = dissenyService.findConsultesActivesAmbEntornIExpedientTipusOrdenat(
-					entorn.getId(),
-					command.getExpedientTipusId());
-			model.addAttribute("consultes", consultes);	
-			command.setConsultaRealitzada(command.getConsultaId() != null && !"".equals(command.getConsultaId()));
-		}
-	}
-	
 	@ModelAttribute("commandFiltre")
 	public Object populateCommandFiltre(
 			HttpServletRequest request, 
@@ -168,8 +154,8 @@ public class ExpedientInformeController extends BaseExpedientController {
 			Long consultaId,
 			ModelMap model) {
 		Object command = null;
-		List<CampDto> campsFiltre = new ArrayList<CampDto>();
-		List<CampDto> campsInforme = new ArrayList<CampDto>();
+		List<TascaDadaDto> campsFiltre = new ArrayList<TascaDadaDto>();
+		List<TascaDadaDto> campsInforme = new ArrayList<TascaDadaDto>();
 		if (consultaId != null) {
 			ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
 			model.addAttribute("consulta", consulta);
@@ -178,29 +164,29 @@ public class ExpedientInformeController extends BaseExpedientController {
 			command = TascaFormHelper.getCommandForFiltre(campsFiltre, null, null, null);
 			session.setAttribute(VARIABLE_SESSIO_COMMAND, command);			
 
-			if (consulta.getExpedientTipus() != null) {
-				List<EstatDto> estats = dissenyService.findEstatByExpedientTipus(consulta.getExpedientTipus().getId());
-				afegirEstatsInicialIFinal(request, estats);
-				model.addAttribute("estats", estats);
-			}
+//			if (consulta.getExpedientTipus() != null) {
+//				List<EstatDto> estats = dissenyService.findEstatByExpedientTipus(consulta.getExpedientTipus().getId());
+//				afegirEstatsInicialIFinal(request, estats);
+//				model.addAttribute("estats", estats);
+//			}
 		}
 		model.addAttribute("campsFiltre", campsFiltre);	
 		model.addAttribute("campsInforme", campsInforme);	
 		return command;
 	}
 
-	private void afegirEstatsInicialIFinal(HttpServletRequest request, List<EstatDto> estats) {
-		EstatDto iniciat = new EstatDto();
-		iniciat.setId(Long.parseLong("0"));
-		iniciat.setCodi("0");
-		iniciat.setNom( getMessage(request, "expedient.consulta.iniciat") );
-		estats.add(0, iniciat);
-		EstatDto finalitzat = new EstatDto();
-		finalitzat.setId(Long.parseLong("-1"));
-		finalitzat.setCodi("-1");
-		finalitzat.setNom( getMessage(request, "expedient.consulta.finalitzat") );
-		estats.add(finalitzat);
-	}
+//	private void afegirEstatsInicialIFinal(HttpServletRequest request, List<EstatDto> estats) {
+//		EstatDto iniciat = new EstatDto();
+//		iniciat.setId(0L);
+//		iniciat.setCodi("0");
+//		iniciat.setNom( getMessage(request, "expedient.consulta.iniciat") );
+//		estats.add(0, iniciat);
+//		EstatDto finalitzat = new EstatDto();
+//		finalitzat.setId(-1L);
+//		finalitzat.setCodi("-1");
+//		finalitzat.setNom( getMessage(request, "expedient.consulta.finalitzat") );
+//		estats.add(finalitzat);
+//	}
 	
 	@RequestMapping(value = "/{expedientTipusId}", method = RequestMethod.POST)
 	public String post(
@@ -214,7 +200,11 @@ public class ExpedientInformeController extends BaseExpedientController {
 
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		model.addAttribute(filtreCommand);
-		populateModelCommon(request, entornActual, model, filtreCommand);
+		List<ConsultaDto> consultes = dissenyService.findConsultesActivesAmbEntornIExpedientTipusOrdenat(
+				entornActual.getId(),
+				expedientTipusId);
+		model.addAttribute("consultes", consultes);	
+		filtreCommand.setConsultaRealitzada(filtreCommand.getConsultaId() != null && !"".equals(filtreCommand.getConsultaId()));
 		
 		if (result.hasErrors()) {
 			MissatgesHelper.error(
@@ -240,18 +230,11 @@ public class ExpedientInformeController extends BaseExpedientController {
 			@RequestParam(value = "mostrarAnulats", required = false) Boolean mostrarAnulats,
 			HttpSession session,
 			ModelMap model) {
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		ExpedientInformeCommand filtreCommand = getFiltreCommand(request, expedientTipusId);
-		populateModelCommon(
-				request,
-				entornActual,
-				model,
-				filtreCommand);
-		
 		PaginaDto<ExpedientDto> paginaDto = null;
 		Map<String, Object> valors = new HashMap<String, Object>();
 		
 		List<ExpedientDto> listaExpedients = new ArrayList<ExpedientDto>();
+		ExpedientInformeCommand filtreCommand = getFiltreCommand(request, expedientTipusId);
 		if (consultaId != null) {
 			filtreCommand.setConsultaId(consultaId);
 		}
@@ -259,19 +242,24 @@ public class ExpedientInformeController extends BaseExpedientController {
 		if (filtreCommand.getConsultaId() != null) {
 			filtreCommand.setConsultaRealitzada(true);
 			
+			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			List<ConsultaDto> consultes = dissenyService.findConsultesActivesAmbEntornIExpedientTipusOrdenat(
+					entornActual.getId(),
+					expedientTipusId);
+			model.addAttribute("consultes", consultes);	
+			filtreCommand.setConsultaRealitzada(filtreCommand.getConsultaId() != null && !"".equals(filtreCommand.getConsultaId()));
+			
 			Object commandFiltre = session.getAttribute(VARIABLE_SESSIO_COMMAND);
 			
-			List<CampDto> campsFiltre = expedientService.findConsultaFiltre(filtreCommand.getConsultaId());
-			List<CampDto> campsInforme = expedientService.findConsultaInforme(filtreCommand.getConsultaId());
+			List<TascaDadaDto> campsFiltre = expedientService.findConsultaFiltre(filtreCommand.getConsultaId());
+			List<TascaDadaDto> campsInforme = expedientService.findConsultaInforme(filtreCommand.getConsultaId());
 			model.addAttribute("campsFiltre", campsFiltre);
 			model.addAttribute("campsInforme", campsInforme);
-			
+
 			valors = TascaFormHelper.getValorsFromCommand(
 					campsFiltre,
 					commandFiltre,
-					true,
 					true);
-			
 			Iterator<Entry<String, Object>> it = valors.entrySet().iterator();
 			while (it.hasNext()) {
 				Map.Entry<String, Object> e = it.next();
@@ -279,19 +267,17 @@ public class ExpedientInformeController extends BaseExpedientController {
 					valors.put(e.getKey(), request.getParameter(e.getKey()));
 				}
 			}
-			
+
 			listaExpedients = expedientService.findPerConsultaInformePaginat(
-							entornActual.getId(),
-							filtreCommand.getConsultaId(),
-							expedientTipusId,
-							getValorsPerService(campsFiltre, valors),
-							ExpedientCamps.EXPEDIENT_CAMP_ID,
-							nomesPendents,
-							nomesAlertes,
-							mostrarAnulats,
-							PaginacioHelper.getPaginacioDtoFromDatatable(
-									request,
-									COLUMNES_MAPEIG_ORDENACIO));
+				entornActual.getId(),
+				filtreCommand.getConsultaId(),
+				expedientTipusId,
+				getValorsPerService(campsFiltre, valors),
+				ExpedientCamps.EXPEDIENT_CAMP_ID,
+				nomesPendents,
+				nomesAlertes,
+				mostrarAnulats
+			);
 		}
 		
 		paginaDto = PaginacioHelper.toPaginaDto(new PageImpl<ExpedientDto>(listaExpedients));
@@ -332,22 +318,8 @@ public class ExpedientInformeController extends BaseExpedientController {
 			Map<String, Object> valors = (Map<String, Object>) session.getAttribute(VARIABLE_SESSIO_COMMAND_VALUES);
 	
 			ExpedientInformeCommand filtreCommand = getFiltreCommand(request, expedientTipusId);
-			populateModelCommon(
-					request,
-					entornActual,
-					model,
-					filtreCommand);
-			ConsultaDto consulta = null;
-			@SuppressWarnings("unchecked")
-			List<ConsultaDto> listaConsultas = (List<ConsultaDto>) model.get("consultes");
-			for (ConsultaDto cons: listaConsultas) {
-				if (filtreCommand.getConsultaId().equals(cons.getId())) {
-					consulta = cons;
-					break;
-				}
-			}
-			
-			List<CampDto> campsInforme = expedientService.findConsultaInforme(filtreCommand.getConsultaId());
+			ConsultaDto consulta = dissenyService.findConsulteById(filtreCommand.getConsultaId());			
+			List<TascaDadaDto> campsInforme = expedientService.findConsultaInforme(filtreCommand.getConsultaId());
 			
 			List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto = expedientService.findAmbEntornConsultaDisseny(
 					entornActual.getId(),
@@ -374,22 +346,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 			@SuppressWarnings("unchecked")
 			Map<String, Object> valors = (Map<String, Object>) session.getAttribute(VARIABLE_SESSIO_COMMAND_VALUES);
 	
-			ExpedientInformeCommand filtreCommand = getFiltreCommand(request, expedientTipusId);
-			populateModelCommon(
-					request,
-					entornActual,
-					model,
-					filtreCommand);
-			
-			ConsultaDto consulta = null;
-			@SuppressWarnings("unchecked")
-			List<ConsultaDto> listaConsultas = (List<ConsultaDto>) model.get("consultes");
-			for (ConsultaDto cons: listaConsultas) {
-				if (filtreCommand.getConsultaId().equals(cons.getId())) {
-					consulta = cons;
-					break;
-				}
-			}
+			ConsultaDto consulta = dissenyService.findConsulteById(getFiltreCommand(request, expedientTipusId).getConsultaId());
 						
 			List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto = expedientService.findAmbEntornConsultaDisseny(
 					entornActual.getId(),
@@ -397,14 +354,13 @@ public class ExpedientInformeController extends BaseExpedientController {
 					valors,
 					ExpedientCamps.EXPEDIENT_CAMP_ID,
 					true);
+			
 			model.addAttribute(
 					JasperReportsView.MODEL_ATTRIBUTE_REPORTDATA,
 					getDadesDatasource(request, expedientsConsultaDissenyDto));
-					
-			String formatExportacio = consulta.getFormatExport();
 			
 			String extensio = consulta.getInformeNom().substring(
-					consulta.getInformeNom().lastIndexOf(".") + 1);
+					consulta.getInformeNom().lastIndexOf(".") + 1).toLowerCase();
 			
 			String nom = consulta.getInformeNom().substring(0,
 					consulta.getInformeNom().lastIndexOf("."));
@@ -424,7 +380,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 						JasperReportsView.MODEL_ATTRIBUTE_REPORTCONTENT,
 						consulta.getInformeContingut());
 				
-				request.setAttribute("formatJR", formatExportacio);
+				request.setAttribute("formatJR", consulta.getFormatExport());
 				model.addAttribute(
 						JasperReportsView.MODEL_ATTRIBUTE_CONSULTA,
 						consulta.getCodi());
@@ -443,13 +399,11 @@ public class ExpedientInformeController extends BaseExpedientController {
 
 		try {
 			// get the zip file content
-			ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(
-					zipContent));
+			ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(zipContent));
 			// get the zipped file list entry
 			ZipEntry ze = zis.getNextEntry();
 
 			while (ze != null) {
-
 				String fileName = ze.getName();
 				byte[] fileContent;
 
@@ -529,16 +483,10 @@ public class ExpedientInformeController extends BaseExpedientController {
 		return field;
 	}
 	
-	private Map<String, Object> getValorsPerService(List<CampDto> camps, Map<String, Object> valors) {
+	private Map<String, Object> getValorsPerService(List<TascaDadaDto> camps, Map<String, Object> valors) {
 		Map<String, Object> valorsPerService = new HashMap<String, Object>();
-		for (CampDto camp : camps) {
-			String clau = TascaFormHelper.getCampCodi(camp, true, false);
-			if (camp.getDefinicioProces() != null) {
-				String definicioProcesKey = camp.getDefinicioProces().getJbpmKey();
-				clau = definicioProcesKey + clau.substring(definicioProcesKey.length()).replaceFirst("_", ".");
-
-			}
-			valorsPerService.put(clau, valors.get(clau));
+		for (TascaDadaDto camp : camps) {
+			valorsPerService.put(camp.getVarCodi(), valors.get(camp.getVarCodi()));
 		}
 		return valorsPerService;
 	}
@@ -606,7 +554,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
 	}
 	
-	private void createHeader(HSSFSheet sheet, List<CampDto> campsInforme) {
+	private void createHeader(HSSFSheet sheet, List<TascaDadaDto> campsInforme) {
 		int rowNum = 0;
 		int colNum = 0;
 
@@ -619,15 +567,15 @@ public class ExpedientInformeController extends BaseExpedientController {
 		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize("Expedient")));
 		cell.setCellStyle(headerStyle);
 		
-		for (CampDto campInforme : campsInforme) {
+		for (TascaDadaDto campInforme : campsInforme) {
 			sheet.autoSizeColumn(colNum);
 			cell = xlsRow.createCell(colNum++);
-			cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(campInforme.getEtiqueta())));
+			cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(campInforme.getCampEtiqueta())));
 			cell.setCellStyle(headerStyle);
 		}
 	}
 	
-	private void exportXLS(HttpServletRequest request, HttpServletResponse response, HttpSession session, ConsultaDto consulta, List<CampDto> campsInforme, List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto) {
+	private void exportXLS(HttpServletRequest request, HttpServletResponse response, HttpSession session, ConsultaDto consulta, List<TascaDadaDto> campsInforme, List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto) {
 		wb = new HSSFWorkbook();
 	
 		bold = wb.createFont();
@@ -703,12 +651,8 @@ public class ExpedientInformeController extends BaseExpedientController {
 		}
 		
 		try {   
-			wb.write( response.getOutputStream() );
-		
-			writeFileToResponse("informe.xls", wb.getBytes(), response);		
-		
-//			response.setHeader("Content-disposition", "attachment; filename=mesuresTemps.xls");
-//			wb.write( response.getOutputStream() );
+			wb.write( response.getOutputStream() );		
+			writeFileToResponse("informe.xls", wb.getBytes(), response);	
 		} catch (Exception e) {
 			logger.error("Mesures temporals: No s'ha pogut realitzar la exportació.");
 		}

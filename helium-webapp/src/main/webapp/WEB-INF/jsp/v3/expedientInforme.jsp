@@ -270,7 +270,7 @@
 		<input id="consultaId" type="hidden" value="${consulta.id}" name="consultaId">
 		<c:forEach var="camp" items="${campsFiltre}">
 			<div class="control-group fila_reducida">
-				<label class="control-label" for="${camp.codi}">${camp.etiqueta}</label>
+				<label class="control-label" for="${camp.varCodi}">${camp.campEtiqueta}</label>
 				<div class="controls">
 					<c:set var="campActual" value="${camp}" scope="request"/>
 					<c:set var="readonly" value="${false}" scope="request"/>
@@ -325,7 +325,7 @@
 					<th data-property="id" width="4%" data-sortable="false" <c:if test="${not expedientInformeCommand.tramitacioMassivaActivada}">data-visible=false</c:if>><input type="checkbox"/></th>
 					<th data-property="identificador" data-sorting="desc" data-visible=true>Expedient</th>
 					<c:forEach var="camp" items="${campsInforme}">
-						<th data-property="${camp.codi}" data-visible=true>${camp.etiqueta}</th>
+						<th data-property="${camp.varCodi}" data-visible=true>${camp.campEtiqueta}</th>
 					</c:forEach>
 					<th data-property="id" data-sortable="false" width="10%" data-visible=true></th>
 				</tr>

@@ -3,13 +3,11 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
@@ -63,8 +61,7 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 		if (!NoDecorarHelper.isRequestSenseDecoracio(request)) {
 			return mostrarInformacioExpedientPerPipella(request, expedientId, model, "tasques", expedientService);
 		}
-		List<ExpedientTascaDto> tasques = expedientService.findTasquesPendentsPerExpedient(expedientId);
-		model.addAttribute("tasques", tasques);
+		model.addAttribute("tasques", expedientService.findTasquesPendentsPerExpedient(expedientId));
 		return "v3/expedientTasquesPendents";
 	}
 
@@ -140,9 +137,7 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 			SessionStatus status, 
 			ModelMap model) {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		if (command == null) {
-			return "redirect:/v3/expedient/"+expedientId+"/tasca/"+tascaId+"/form";
-		} else if (entorn != null) {			
+		if (entorn != null) {			
 			this.validatorGuardar = new TascaFormValidatorHelper(tascaService, false);
 			this.validatorValidar = new TascaFormValidatorHelper(tascaService);
 			
@@ -152,10 +147,6 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 			
 			ExpedientTascaDto tasca = (ExpedientTascaDto) model.get("tasca");
 			List<TascaDadaDto> tascaDadas = tascaService.findDadesPerTasca(id);
-			List<CampDto> camps = new ArrayList<CampDto>();
-			for (TascaDadaDto campTasca : tascaDadas) {				;
-				camps.add(tascaService.findCampTasca(campTasca.getCampId()));
-			}
 
 			if (campFocus != null) {
 				String[] partsCampFocus = campFocus.split("#");
@@ -174,7 +165,7 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 		        			TascaFormHelper.getValorsPerSuggest(tasca, command));
 					return "redirect:/v3/expedient/"+expedientId+"/tasca/"+tascaId+"/form";
 				}
-				boolean ok = accioGuardarForm(request, entorn.getId(), id, camps, command);
+				boolean ok = accioGuardarForm(request, entorn.getId(), id, tascaDadas, command);
 				if (!ok) {
 					MissatgesHelper.error(request, getMessage(request, "error.guardar.dades"));
 					return "redirect:/v3/expedient/"+expedientId+"/tasca/"+tascaId+"/form";
@@ -192,9 +183,9 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 					validatorValidar.validate(command, result);
 					try {
 						afegirVariablesDelProces(command, tasca);
-						Validator validator = TascaFormHelper.getBeanValidatorForCommand(camps);
-						Map<String, Object> valorsCommand = TascaFormHelper.getValorsFromCommand(camps, command, true, false);
-						validator.validate(TascaFormHelper.getCommandForCamps(camps,valorsCommand,null,null,false), result);
+						Validator validator = TascaFormHelper.getBeanValidatorForCommand(tascaDadas);
+						Map<String, Object> valorsCommand = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
+						validator.validate(TascaFormHelper.getCommandForCamps(tascaDadas,valorsCommand,null,null,false), result);
 					} catch (Exception ex) {
 						logger.error("S'han produit errors de validació", ex);
 						MissatgesHelper.error(request, getMessage(request, "error.validacio"));
@@ -208,7 +199,7 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 						MissatgesHelper.error(request, result, getMessage(request, "error.validacio"));
 						return "redirect:/v3/expedient/"+expedientId+"/tasca/"+tascaId+"/form";
 					}
-					ok = accioValidarForm(request, entorn.getId(), id, camps, command);
+					ok = accioValidarForm(request, entorn.getId(), id, tascaDadas, command);
 					if (!ok) {
 						MissatgesHelper.error(request, getMessage(request, "error.validacio"));
 						return "redirect:/v3/expedient/"+expedientId+"/tasca/"+tascaId+"/form";
@@ -226,7 +217,7 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 					}
 				}
 			} else if (opRestore) {
-				boolean ok = accioRestaurarForm(request, entorn.getId(), id, camps, command);
+				boolean ok = accioRestaurarForm(request, entorn.getId(), id, tascaDadas, command);
 				if (ok) {
 					status.setComplete();
 				} else {
@@ -235,7 +226,7 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 			} else if ("multipleAdd".equals(submit)) {
 				try {
 					if (field != null) {
-						PropertyUtils.setSimpleProperty(command, field, TascaFormHelper.addMultiple(field, command, camps));
+						PropertyUtils.setSimpleProperty(command, field, TascaFormHelper.addMultiple(field, command, tascaDadas));
 					}
 				} catch (Exception ex) {
 					MissatgesHelper.error(request, getMessage(request, "error.afegir.camp.multiple"));
@@ -244,7 +235,7 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 			} else if ("multipleRemove".equals(submit)) {
 				try {
 					if (field != null && index != null) {
-						PropertyUtils.setSimpleProperty(command, field, TascaFormHelper.deleteMultiple(field, command, camps, index));
+						PropertyUtils.setSimpleProperty(command, field, TascaFormHelper.deleteMultiple(field, command, tascaDadas, index));
 					}
 				} catch (Exception ex) {
 					MissatgesHelper.error(request, getMessage(request, "error.esborrar.camp.multiple"));

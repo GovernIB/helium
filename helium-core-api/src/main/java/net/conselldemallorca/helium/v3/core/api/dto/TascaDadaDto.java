@@ -3,7 +3,9 @@
  */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -32,9 +34,21 @@ public class TascaDadaDto {
 	private String text;
 	private List<TascaDadaDto> multipleDades;
 	private List<TascaDadaDto> registreDades;
+	
+	private List<ValidacioDto> validacions = new ArrayList<ValidacioDto>();
 
 	private String error;
 	
+	public TascaDadaDto(String codi, CampTipusDto tipus, String etiqueta) {
+		this.varCodi = codi;
+		this.campTipus = tipus;
+		this.campEtiqueta = etiqueta;
+	}
+	
+	public TascaDadaDto() {
+		// TODO Auto-generated constructor stub
+	}
+
 	public String getObservacions() {
 		return observacions;
 	}
@@ -160,11 +174,41 @@ public class TascaDadaDto {
 		return resposta;
 	}
 
+	@SuppressWarnings("rawtypes")
+	public Class getJavaClass() {
+		if (CampTipusDto.STRING.equals(campTipus)) {
+			return String.class;
+		} else if (CampTipusDto.INTEGER.equals(campTipus)) {
+			return Long.class;
+		} else if (CampTipusDto.FLOAT.equals(campTipus)) {
+			return Double.class;
+		} else if (CampTipusDto.BOOLEAN.equals(campTipus)) {
+			return Boolean.class;
+		} else if (CampTipusDto.TEXTAREA.equals(campTipus)) {
+			return String.class;
+		} else if (CampTipusDto.DATE.equals(campTipus)) {
+			return Date.class;
+		} else if (CampTipusDto.PRICE.equals(campTipus)) {
+			return BigDecimal.class;
+		} else if (CampTipusDto.TERMINI.equals(campTipus)) {
+			return TerminiDto.class;
+		} else if (CampTipusDto.REGISTRE.equals(campTipus)) {
+			return Object[].class;
+		} else {
+			return String.class;
+		}
+	}
+
 	public boolean isFontExterna() {
 		return CampTipusDto.SELECCIO.equals(campTipus) || CampTipusDto.SUGGEST.equals(campTipus);
 	}
 	public boolean isCampTipusRegistre() {
 		return CampTipusDto.REGISTRE.equals(campTipus);
 	}
-
+	public List<ValidacioDto> getValidacions() {
+		return validacions;
+	}
+	public void setValidacions(List<ValidacioDto> validacions) {
+		this.validacions = validacions;
+	}
 }

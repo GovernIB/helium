@@ -3,7 +3,6 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -11,7 +10,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
@@ -68,14 +66,10 @@ public class ExpedientInicioPasFormController extends ExpedientTramitacioControl
 						null,
 						request);
 				List<TascaDadaDto> tascaDadas = tascaService.findDadesPerTasca(tascaInicial.getId());
-				List<CampDto> camps = new ArrayList<CampDto>();
-				for (TascaDadaDto campTasca : tascaDadas) {				;
-					camps.add(tascaService.findCampTasca(campTasca.getCampId()));
-				}
 				Map<String, Object> valorsCommand = new HashMap<String, Object>();
 //				if (tascaInicial.getVariables() != null)
 //					valorsCommand.putAll(tascaInicial.getVariables());
-				valorsCommand.putAll(obtenirValorsRegistresSessio(request, camps));
+				valorsCommand.putAll(obtenirValorsRegistresSessio(request, tascaDadas));
 				if (commandSessio != null) {
 					command = commandSessio;
 				} else {
@@ -92,14 +86,14 @@ public class ExpedientInicioPasFormController extends ExpedientTramitacioControl
 						campsAddicionalsClasses.put("expedientTipusId", Long.class);
 						campsAddicionalsClasses.put("definicioProcesId", Long.class);
 						command = TascaFormHelper.getCommandForCamps(
-								camps,
+								tascaDadas,
 								valorsCommand,
 								campsAddicionals,
 								campsAddicionalsClasses,
 								false);
 					}
 				}
-				model.addAttribute("camps", camps);
+				model.addAttribute("camps", tascaDadas);
 				model.addAttribute("tasca", tascaInicial);
 				guardarValorsSessio(request, valorsCommand);
 				return command;
@@ -117,12 +111,12 @@ public class ExpedientInicioPasFormController extends ExpedientTramitacioControl
 	
 	private Map<String, Object> obtenirValorsRegistresSessio(
 			HttpServletRequest request,
-			List<CampDto> camps) {
+			List<TascaDadaDto> tascaDadas) {
 		Map<String, Object> valors = new HashMap<String, Object>();
-		for (CampDto camp: camps) {
-			Object obj = request.getSession().getAttribute(ExpedientInicioController.getClauSessioCampRegistre(camp.getCodi()));
+		for (TascaDadaDto camp: tascaDadas) {
+			Object obj = request.getSession().getAttribute(ExpedientInicioController.getClauSessioCampRegistre(camp.getVarCodi()));
 			if (obj != null)
-				valors.put(camp.getCodi(), obj);
+				valors.put(camp.getVarCodi(), obj);
 		}
 		return valors;
 	}
@@ -155,11 +149,7 @@ public class ExpedientInicioPasFormController extends ExpedientTramitacioControl
 				ExpedientTascaDto tasca = (ExpedientTascaDto) model.get("tasca");
 
 				List<TascaDadaDto> tascaDadas = tascaService.findDadesPerTasca(tasca.getId());
-				List<CampDto> camps = new ArrayList<CampDto>();
-				for (TascaDadaDto campTasca : tascaDadas) {				;
-					camps.add(tascaService.findCampTasca(campTasca.getCampId()));
-				}
-				Map<String, Object> valorsCommand = TascaFormHelper.getValorsFromCommand(camps, command, true, false);
+				Map<String, Object> valorsCommand = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
 				ExpedientTascaDto tascaInicial = obtenirTascaInicial(
 						entorn.getId(),
 						expedientTipusId,
@@ -171,12 +161,12 @@ public class ExpedientInicioPasFormController extends ExpedientTramitacioControl
 
 				this.validatorValidar = new TascaFormValidatorHelper(
 						expedientService,
-						obtenirValorsRegistresSessio(request, camps));
+						obtenirValorsRegistresSessio(request, tascaDadas));
 				
 				validatorValidar.validate(command, result);
 				try {
-					Validator validator = TascaFormHelper.getBeanValidatorForCommand(camps);
-					validator.validate(TascaFormHelper.getCommandForCamps(camps,valorsCommand,null,null,false), result);
+					Validator validator = TascaFormHelper.getBeanValidatorForCommand(tascaDadas);
+					validator.validate(TascaFormHelper.getCommandForCamps(tascaDadas,valorsCommand,null,null,false), result);
 				} catch (Exception ex) {
 					logger.error("S'han produit errors de validació", ex);
 					MissatgesHelper.error(request, getMessage(request, "error.validacio"));
@@ -214,7 +204,7 @@ public class ExpedientInicioPasFormController extends ExpedientTramitacioControl
 					try {
 						Map<String, Object> valors = new HashMap<String, Object>();
 						valors.putAll(obtenirValorsSessio(request));
-						valors.putAll(TascaFormHelper.getValorsFromCommand(camps, command, true, false));
+						valors.putAll(TascaFormHelper.getValorsFromCommand(tascaDadas, command, false));
 						ExpedientDto iniciat = iniciarExpedient(
 								entorn.getId(),
 								expedientTipusId,

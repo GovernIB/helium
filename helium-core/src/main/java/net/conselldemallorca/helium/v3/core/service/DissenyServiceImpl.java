@@ -293,7 +293,7 @@ public class DissenyServiceImpl implements DissenyService {
 	@Transactional(readOnly=true)
 	@Override
 	public ConsultaDto findConsulteById(
-			Long id) throws EntornNotFoundException {
+			Long id) {
 		return conversioTipusHelper.convertir(consultaRepository.findById(id), ConsultaDto.class);
 	}
 

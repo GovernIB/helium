@@ -31,22 +31,8 @@
 </c:if>
 <c:if test="${dada.campTipus == 'SUGGEST'}">
 	<div class="controls">
-		<c:set var="multipleSuggestText" value="${valorsPerSuggest[dada.varCodi]}" scope="request"/>
-<%-- 		<c:import url="../common/formElement.jsp"> --%>
-<%-- 			<c:param name="property">${codiActual}</c:param> --%>
-<%-- 			<c:param name="required">${required}</c:param> --%>
-<%-- 			<c:param name="type" value="suggest"/> --%>
-<%-- 			<c:param name="label">${campActual.etiqueta}</c:param> --%>
-<%-- 			<c:param class="formHint">${campActual.observacions}</c:param> --%>
-<%-- 			<c:param name="suggestUrl"><c:url value="/domini/consultaExpedient.html"/></c:param> --%>
-<%-- 			<c:param name="suggestExtraParams">${extraParams},tipus:'suggest'</c:param> --%>
-<%-- 			<c:param name="suggestText"><c:if test="${not empty tasca.valorsDomini[codiActual]}">${tasca.valorsDomini[codiActual].valor}</c:if></c:param> --%>
-<%-- 			<c:param name="iterateOn"><c:if test="${campActual.multiple}">valorActual</c:if></c:param> --%>
-<%-- 			<c:param name="multipleIcons"><c:if test="${campActual.multiple}">true</c:if></c:param> --%>
-<%-- 			<c:param name="multipleSuggestText">multipleSuggestText</c:param> --%>
-<%-- 		</c:import> --%>
-		
 		<c:if test="${!dada.readOnly && !tasca.validada}">	
+			<c:set var="extraParams">campCodi:'${dada.varCodi}',valors:function(){return canvisSelectValorsAddicionals}</c:set>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property">${dada.varCodi}</c:param>
 				<c:param name="required">${dada.required}</c:param>
@@ -56,9 +42,9 @@
 				<c:param name="suggestUrl"><c:url value="/v3/domini/consultaExpedient"/></c:param>
 				<c:param name="suggestExtraParams">${extraParams},tipus:'suggest'</c:param>
 				<c:param name="suggestText"><c:if test="${not empty tasca.valorsDomini[dada.varCodi]}">${tasca.valorsDomini[dada.varCodi].valor}</c:if></c:param>
-				<c:param name="iterateOn"><c:if test="${dada.campMultiple}">valorActual</c:if></c:param>
+				<c:param name="iterateOn"><c:if test="${dada.campMultiple}">${command[dada.varCodi]}</c:if></c:param>
 				<c:param name="multipleIcons"><c:if test="${dada.campMultiple}">true</c:if></c:param>
-				<c:param name="multipleSuggestText">multipleSuggestText</c:param>
+				<c:param name="multipleSuggestText">${valorsPerSuggest[dada.varCodi]}</c:param>
 			</c:import>	
 			<div class="formHint">${dada.observacions}</div>
 		</c:if>
