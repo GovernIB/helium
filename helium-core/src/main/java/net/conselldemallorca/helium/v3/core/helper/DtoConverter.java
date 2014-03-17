@@ -11,28 +11,18 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
-import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.model.dao.PluginPersonaDao;
-import net.conselldemallorca.helium.core.model.exception.DominiException;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.Consulta;
-import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.service.DocumentHelper;
-import net.conselldemallorca.helium.core.model.service.LuceneHelper;
 import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
 import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
-import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
@@ -76,13 +66,7 @@ public class DtoConverter {
 	@Resource
 	private PluginPersonaDao pluginPersonaDao;
 	@Resource
-	private EnumeracioValorsHelper enumeracioValorsHelper;
-	@Resource(name="serviceUtilsV3")
-	private ServiceUtils serviceUtils;
-	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
-	@Resource
-	private LuceneHelper luceneHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	
@@ -402,17 +386,13 @@ public class DtoConverter {
 				
 		return dto;
 	}
-
-	public InstanciaProcesDto toInstanciaProcesDto(String processInstanceId , boolean ambImatgeProces, boolean ambVariables, boolean ambDocuments) {
-		return toInstanciaProcesDto(processInstanceId , ambImatgeProces, ambVariables, ambDocuments, null, null);
-	}
 	
-	public InstanciaProcesDto toInstanciaProcesDto(String processInstanceId , boolean ambImatgeProces, boolean ambVariables, boolean ambDocuments, String varRegistre, Object[] valorsRegistre) {
+	public InstanciaProcesDto toInstanciaProcesDto(String processInstanceId) {
 		InstanciaProcesDto dto = new InstanciaProcesDto();
-		JbpmProcessInstance pi = jbpmHelper.getProcessInstance(processInstanceId);		
 		dto.setId(processInstanceId);
+		JbpmProcessInstance pi = jbpmHelper.getProcessInstance(processInstanceId);		
 		dto.setInstanciaProcesPareId(pi.getParentProcessInstanceId());
-		dto.setDefinicioProces(conversioTipusHelper.convertir(pi.getProcessInstance().getProcessDefinition().getId(), DefinicioProcesDto.class));		
+		dto.setDefinicioProces(conversioTipusHelper.convertir(definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId()), DefinicioProcesDto.class));		
 		return dto;
 	}
 
@@ -438,81 +418,24 @@ public class DtoConverter {
 		return dto;
 	}
 
-//	private Map<String, DocumentDto> obtenirVarsDocumentsPerSignarTasca(
-//			String taskId,
-//			String processInstanceId,
-//			List<FirmaTascaDto> signatures) {
-//		Map<String, DocumentDto> resposta = new HashMap<String, DocumentDto>();
-//		if (signatures != null) {
-//			for (FirmaTascaDto signatura: signatures) {
-//				DocumentDto dto = documentHelper.getDocumentSenseContingut(
-//						taskId,
-//						processInstanceId,
-//						signatura.getDocument().getCodi(),
-//						true,
-//						false);
-//				if (dto != null)
-//					resposta.put(
-//							signatura.getDocument().getCodi(),
-//							dto);
-//			}
-//		}
-//		return resposta;
-//	}
-
 	public void revisarDadesExpedientAmbValorsEnumeracionsODominis(
 			Map<String, DadaIndexadaDto> dadesExpedient,
-			List<CampDto> campsInforme) {
-		for (CampDto camp: campsInforme) {
-			CampTipusDto tipus = camp.getTipus();
-//			if (!camp.isDominiCacheText() && (CampTipusDto.SELECCIO.equals(tipus) || CampTipusDto.SUGGEST.equals(tipus))) {
-//				if (camp.getEnumeracio() != null) {
-//					String dadaIndexadaClau = camp.getDefinicioProces().getJbpmKey() + "/" + camp.getCodi();
-//					DadaIndexadaDto dadaIndexada = dadesExpedient.get(dadaIndexadaClau);
-//					if (dadaIndexada != null) {
-//						String text = getCampText(
-//								null,
-//								null,
-//								camp,
-//								dadaIndexada.getValorIndex());
-//						dadaIndexada.setValorMostrar(text);
-//					}
-//				}
-//			}
-		}
-	}
-
-	public String getCampText(
-			String taskId,
-			String processInstanceId,
-			CampDto camp,
-			Object valor) {
-		if (valor == null) return null;
-		if (camp == null) {
-			return valor.toString();
-		} else {
-//			String textDomini = null;
-//			if (	camp.getTipus().equals(CampTipusDto.SELECCIO) ||
-//					camp.getTipus().equals(CampTipusDto.SUGGEST)) {
-//				if (valor instanceof DominiCodiDescripcio) {
-//					textDomini = ((DominiCodiDescripcio)valor).getDescripcio();
-//				} else {
-//					ParellaCodiValorDto resultat = obtenirValorDomini(
-//							taskId,
-//							processInstanceId,
-//							null,
-//							camp,
-//							valor,
-//							false);
-//					if (resultat != null && resultat.getValor() != null)
-//						textDomini = resultat.getValor().toString();
-//				}
-//			}
-//			return CampDto.getComText(
-//					camp,
-//					valor,
-//					textDomini);
-			return null;
+			List<Camp> campsInforme, 
+			String processInstanceId) {
+		for (Camp camp: campsInforme) {
+			if (camp.getEnumeracio() != null && camp.getDefinicioProces() != null) {
+				String dadaIndexadaClau = camp.getDefinicioProces().getJbpmKey() + "/" + camp.getCodi();
+				DadaIndexadaDto dadaIndexada = dadesExpedient.get(dadaIndexadaClau);
+				if (dadaIndexada != null) {
+					String text = variableHelper.getTextVariableSimple(
+							camp,
+							dadaIndexada.getValorIndex(),
+							null,
+							null,
+							processInstanceId);
+					dadaIndexada.setValorMostrar(text);
+				}
+			}
 		}
 	}
 	
@@ -585,112 +508,6 @@ public class DtoConverter {
 			}
 			for (String codi: codisEsborrar)
 				variables.remove(codi);
-		}
-	}
-
-	public List<FilaResultat> getResultatConsultaEnumeracio(DefinicioProces definicioProces, String campCodi, String textInicial) {
-		Camp camp = null;
-		for (Camp c: definicioProces.getCamps()) {
-			if (c.getCodi().equals(campCodi)) {
-				camp = c;
-				break;
-			}
-		}
-		if (camp != null && camp.getEnumeracio() != null) {
-			Enumeracio enumeracio = camp.getEnumeracio();
-			List<FilaResultat> resultat = new ArrayList<FilaResultat>();
-			for (ParellaCodiValor parella: enumeracioValorsHelper.getLlistaValors(enumeracio.getId())) {
-				if (textInicial == null || ((String)parella.getValor()).toLowerCase().startsWith(textInicial.toLowerCase())) {
-					FilaResultat fila = new FilaResultat();
-					fila.addColumna(new ParellaCodiValor("codi", parella.getCodi()));
-					fila.addColumna(new ParellaCodiValor("valor", parella.getValor()));
-					resultat.add(fila);
-				}
-			}
-			return resultat;
-		}
-		return new ArrayList<FilaResultat>();
-	}
-	
-	public List<FilaResultat> getResultatConsultaConsulta(
-			DefinicioProces definicioProces,
-			String taskId,
-			String processInstanceId,
-			String campCodi,
-			String textInicial,
-			Map<String, Object> valorsAddicionals) throws DominiException {
-		List<FilaResultat> resultat = new ArrayList<FilaResultat>();
-		Camp camp = null;
-		for (Camp c: definicioProces.getCamps()) {
-			if (c.getCodi().equals(campCodi)) {
-				camp = c;
-				break;
-			}
-		}
-		if (camp != null && camp.getConsulta() != null) {
-			Consulta consulta = camp.getConsulta();
-			List<Camp> campsFiltre = serviceUtils.findCampsPerCampsConsulta(
-					consulta,
-					TipusConsultaCamp.FILTRE);
-			List<Camp> campsInforme = serviceUtils.findCampsPerCampsConsulta(
-					consulta,
-					TipusConsultaCamp.INFORME);
-			List<CampDto> campsInformeDto = conversioTipusHelper.convertirList(campsInforme, CampDto.class);
-			afegirValorsPredefinits(consulta, valorsAddicionals, campsFiltre);
-			List<Map<String, DadaIndexadaDto>> dadesExpedients = luceneHelper.findAmbDadesExpedientV3(
-					consulta.getEntorn().getCodi(),
-					consulta.getExpedientTipus().getCodi(),
-					campsFiltre,
-					valorsAddicionals,
-					campsInforme,
-					null,
-					true,
-					0,
-					-1);
-			for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
-				FilaResultat fila = new FilaResultat();
-				revisarDadesExpedientAmbValorsEnumeracionsODominis(
-						dadesExpedient,
-						campsInformeDto);
-				for (String clau: dadesExpedient.keySet()) {
-					// Les claus son de la forma [TipusExpedient]/[campCodi] i hem
-					// de llevar el tipus d'expedient.
-					int indexBarra = clau.indexOf("/");
-					String clauSenseBarra = (indexBarra != -1) ? clau.substring(indexBarra + 1) : clau;
-					fila.addColumna(
-							new ParellaCodiValor(
-									clauSenseBarra,
-									dadesExpedient.get(clau)));
-				}
-				resultat.add(fila);
-			}
-		}
-		return resultat;
-	}
-	
-	private void afegirValorsPredefinits(
-			Consulta consulta,
-			Map<String, Object> valors,
-			List<Camp> camps) {
-		if (consulta.getValorsPredefinits() != null && consulta.getValorsPredefinits().length() > 0) {
-			String[] parelles = consulta.getValorsPredefinits().split(",");
-			for (int i = 0; i < parelles.length; i++) {
-				String[] parella = (parelles[i].contains(":")) ? parelles[i].split(":") : parelles[i].split("=");
-				if (parella.length == 2) {
-					String campCodi = parella[0];
-					String valor = parella[1];
-					for (Camp camp: camps) {
-						if (camp.getCodi().equals(campCodi)) {
-							valors.put(
-									camp.getDefinicioProces().getJbpmKey() + "." + campCodi,
-									Camp.getComObject(
-											camp.getTipus(),
-											valor));
-							break;
-						}
-					}
-				}
-			}
 		}
 	}
 	

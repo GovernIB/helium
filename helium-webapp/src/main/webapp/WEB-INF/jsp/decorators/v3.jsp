@@ -135,7 +135,6 @@
 				<li id="pipella-documents" class="pipella<c:if test="${tabActiu == 'documents'}"> active</c:if>"><a href="<c:url value="/v3/expedient/${expedient.id}/documents"/>">Documents</a></li>
 				<li id="pipella-terminis" class="pipella<c:if test="${tabActiu == 'terminis'}"> active</c:if>"><a href="<c:url value="/v3/expedient/${expedient.id}/terminis"/>">Terminis</a></li>
 				<li id="pipella-registre" class="pipella<c:if test="${tabActiu == 'registre'}"> active</c:if>"><a href="<c:url value="/v3/expedient/${expedient.id}/registre"/>">Registre</a></li>
-				<li id="pipella-relacionats" class="pipella<c:if test="${tabActiu == 'relacionats'}"> active</c:if>"><a href="<c:url value="/v3/expedient/${expedient.id}/relacionats"/>">Relacionar</a></li>
 				<li id="pipella-cronograma" class="pipella<c:if test="${tabActiu == 'cronograma'}"> active</c:if>"><a href="<c:url value="/v3/expedient/${expedient.id}/timeline"/>">Cronograma</a></li>
 			</ul>
 			<div class="well well-white">

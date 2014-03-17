@@ -97,23 +97,6 @@
 			$('#pipella-registre').addClass('active');
 			return false;
 		});
-		$("#pipella-relacionats").click(function() {
-			$('#contingut-carregant').hide();
-			if (!$('#contingut-relacionats').data('carregat')) {
-				$('#contingut-carregant').show();
-				$('#contingut-relacionats').load(
-						'<c:url value="/nodecorar/v3/expedient/${expedient.id}/relacionats"/>',
-						function() {
-							$('#contingut-carregant').hide();
-						});
-				$('#contingut-relacionats').data('carregat', 'true');
-			}
-			$('#contingut-contenidor .contingut').hide();
-			$('#contingut-relacionats').show();
-			$('#pipelles-expedient .pipella').removeClass('active');
-			$('#pipella-relacionats').addClass('active');
-			return false;
-		});
 		$("#pipella-cronograma").click(function() {
 			$('#contingut-carregant').hide();
 			if (!$('#contingut-cronograma').data('carregat')) {
@@ -133,6 +116,15 @@
 		});
 		$("#pipella-${pipellaActiva}").click();
 	});
+	
+	function confirmarEsborrarRelacio(e, idExpedient) {
+		var e = e || window.event;
+		e.cancelBubble = true;
+		if (e.stopPropagation) e.stopPropagation();
+		if (confirm("<spring:message code='expedient.info.confirm.relacio.esborrar'/>")) {
+			$('#' + idExpedient + '_formRelacioDelete').submit();
+		}
+	}
 </script>
 </head>
 <body>
@@ -158,7 +150,7 @@
 				<dt>
 					<c:choose>
 						<c:when test="${not empty expedient.estat}">${expedient.estat.nom}</c:when>
-						<c:when test="${not empty expedient.dataFi}">Finalitzat</c:when>
+							<c:when test="${not empty expedient.dataFi}">Finalitzat</c:when>
 						<c:otherwise>Iniciat</c:otherwise>
 					</c:choose>
 					<a href="#"><i class="icon-pencil"></i></a>
@@ -205,11 +197,29 @@
 							<c:param name="texto" value="Executar nou script"/>
 						</c:import>
 					</li>
+					<li>
+						<c:import url="utils/modalDefinir.jsp">
+							<c:param name="sAjaxSource" value="/helium/v3/expedient/${expedientId}/relacionats"/>
+							<c:param name="modalId" value="relacionats"/>
+							<c:param name="refrescarAlertes" value="true"/>
+							<c:param name="refrescarPagina" value="true"/>							
+							<c:param name="refrescarTaula" value="false"/>							
+							<c:param name="refrescarTaulaId" value="false"/>
+							<c:param name="icon" value="icon-cog"/>
+							<c:param name="texto" value="Relacionar"/>
+						</c:import>
+					</li>
 					<c:if test="${not empty accions}">
-						<li class="divider"></li>
-						<c:forEach var="accio" items="${accions}">
-							<li><a href="#"><i class="icon-fire"></i> accio</a></li>
-						</c:forEach>
+						<c:set var="tePermisAccions" value="${false}"/>
+						<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
+							<c:set var="tePermisAccions" value="${true}"/>
+						</security:accesscontrollist>
+						<c:if test="${hiHaAccionsPubliques || tePermisAccions}">
+							<li class="divider"></li>
+							<c:forEach var="accio" items="${accions}">
+								<li><a href="${expedient.id}/accio?accioId=${accio.id}"><i class="icon-fire"></i> ${accio.nom}</a></li>
+							</c:forEach>
+						</c:if>
 					</c:if>
 				</ul>
 			</div>
@@ -239,11 +249,24 @@
 					</c:forEach>
 				</dl>
 			</c:if>
-			<%--h5>Expedients relacionats <a href="#" class="pull-right"><i class="icon-plus"></i></a></h5>
-			<dl class="dl-horizontal tasc-description">
-				<dt><i class="icon-folder-close"></i></dt>
-				<dd><a href="#" class="text-wrap marTop2">Sessió del Ple 04 de 08 de Septembre del 2012</a></dd>
-			</dl--%>
+			<c:if test="${not empty relacionats}">
+				<h5>Expedients relacionats</h5>
+				<dl class="dl-horizontal tasc-description">
+					<c:forEach var="expedientRelacionat" items="${relacionats}">
+						<dt><i class=" icon-folder-open"></i></dt>
+						<dd>
+							<a href="${expedientRelacionat.id}">${expedientRelacionat.identificador}</a>
+							<security:accesscontrollist domainObject="${expedientRelacionat.tipus}" hasPermission="16,8">
+								<form method="POST" class="formRelacioDelete" id="${expedientId}_formRelacioDelete" action="${expedientId}/relacioDelete" >
+									<input type="hidden" id="expedientIdOrigen" name="expedientIdOrigen" value="${expedientId}"/>
+									<input type="hidden" id="expedientIdDesti" name="expedientIdDesti" value="${expedientRelacionat.id}"/>
+									<i class="icon-trash" style="cursor: pointer" onclick="return confirmarEsborrarRelacio(event, '${expedientId}')"></i>
+								</form>
+							</security:accesscontrollist>
+						</dd>
+					</c:forEach>
+				</dl>
+			</c:if>
 		</div>
 	</div>
 	<c:import url="utils/modal.jsp"/>
@@ -257,7 +280,6 @@
 		<div id="contingut-documents" class="contingut hide"></div>
 		<div id="contingut-tasques" class="contingut hide"></div>
 		<div id="contingut-registre" class="contingut hide"></div>
-		<div id="contingut-relacionats" class="contingut hide"></div>
 		<div id="contingut-cronograma" class="contingut hide"></div>
 	</div>
 	<div class="clearfix"></div>

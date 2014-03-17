@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,28 +15,37 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
+import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
+import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.service.PermisosHelper;
 import net.conselldemallorca.helium.core.model.service.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
+import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
+import net.conselldemallorca.helium.v3.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.v3.core.helper.ServiceUtils;
 import net.conselldemallorca.helium.v3.core.helper.VariableHelper;
+import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
@@ -44,6 +54,7 @@ import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
+import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 
 import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Service;
@@ -62,11 +73,17 @@ public class DissenyServiceImpl implements DissenyService {
 	@Resource(name="dtoConverterV3")
 	private DtoConverter dtoConverter;
 	@Resource
+	private ExpedientLoggerHelper expedientLoggerHelper;
+	@Resource
+	private TerminiIniciatRepository terminiIniciatRepository;
+	@Resource
 	private JbpmHelper jbpmHelper;
 	@Resource
 	private VariableHelper variableHelper;
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
+	@Resource
+	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
 	private CampRepository campRepository;
 	@Resource
@@ -85,6 +102,8 @@ public class DissenyServiceImpl implements DissenyService {
 	private TascaRepository tascaRepository;
 	@Resource
 	private CampTascaRepository campTascaRepository;
+	@Resource
+	private AccioRepository accioRepository;
 
 	@Transactional(readOnly=true)
 	@Override
@@ -218,6 +237,18 @@ public class DissenyServiceImpl implements DissenyService {
 	
 	@Transactional(readOnly=true)
 	@Override
+	public AccioDto findAccioAmbId(Long idAccio) {
+		return conversioTipusHelper.convertir(accioRepository.findOne(idAccio), AccioDto.class);
+	}
+	
+	@Transactional(readOnly=true)
+	@Override
+	public List<AccioDto> findAccionsVisiblesAmbDefinicioProces(Long definicioProcesId) {
+		return conversioTipusHelper.convertirList(accioRepository.findVisiblesAmbDefinicioProces(definicioProcesId), AccioDto.class);
+	}
+	
+	@Transactional(readOnly=true)
+	@Override
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisCrearUsuariActual(
 			Long entornId) throws EntornNotFoundException {
 		return findExpedientTipusAmbPermisosUsuariActual(
@@ -290,59 +321,66 @@ public class DissenyServiceImpl implements DissenyService {
 		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);
 		return conversioTipusHelper.convertir(campRepository.findByDefinicioProcesAndCodi(definicioProces, campCodi), CampDto.class);
 	}
+	
+	@Transactional
+	@Override
+	public void executarAccio(AccioDto accio, ExpedientDto expedient) {
+		if (MesuresTemporalsHelper.isActiu()) { 
+			mesuresTemporalsHelper.mesuraIniciar("Executar ACCIO" + accio.getNom(), "expedient", expedient.getTipus().getNom());
+		}
+		expedientLoggerHelper.afegirLogExpedientPerProces(
+				expedient.getProcessInstanceId(),
+				ExpedientLogAccioTipus.EXPEDIENT_ACCIO,
+				accio.getJbpmAction());
+		jbpmHelper.executeActionInstanciaProces(
+				expedient.getProcessInstanceId(),
+				accio.getJbpmAction());
+		verificarFinalitzacioExpedient(expedient);
+		serviceUtils.expedientIndexLuceneUpdate(expedient.getProcessInstanceId());
+		if (MesuresTemporalsHelper.isActiu())
+			mesuresTemporalsHelper.mesuraCalcular("Executar ACCIO" + accio.getNom(), "expedient", expedient.getTipus().getNom());
+	}
+
+	private void verificarFinalitzacioExpedient(ExpedientDto expedient) {
+		JbpmProcessInstance pi = jbpmHelper.getRootProcessInstance(expedient.getProcessInstanceId());
+		if (pi.getEnd() != null) {
+			// Actualitzar data de fi de l'expedient
+			expedient.setDataFi(pi.getEnd());
+			// Finalitzar terminis actius
+			for (TerminiIniciat terminiIniciat: terminiIniciatRepository.findByProcessInstanceId(pi.getId())) {
+				if (terminiIniciat.getDataInici() != null) {
+					terminiIniciat.setDataCancelacio(new Date());
+					long[] timerIds = terminiIniciat.getTimerIdsArray();
+					for (int i = 0; i < timerIds.length; i++)
+						jbpmHelper.suspendTimer(
+								timerIds[i],
+								new Date(Long.MAX_VALUE));
+				}
+			}
+		}
+	}
+
+
 
 	@Transactional(readOnly=true)
 	@Override
 	public List<FilaResultat> getResultatConsultaCamp(String taskId, String processInstanceId, Long definicioProcesId, String campCodi, String textInicial, Map<String, Object> valorsAddicionals) {
-		if (definicioProcesId != null) {
-			DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);
-			Camp camp = null;
-			for (Camp c: definicioProces.getCamps()) {
-				if (c.getCodi().equals(campCodi)) {
-					camp = c;
-					break;
-				}
+		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);
+		Camp camp = null;
+		for (Camp c : definicioProces.getCamps()) {
+			if (c.getCodi().equals(campCodi)) {
+				camp = c;
+				break;
 			}
-				JbpmTask task = jbpmHelper.getTaskById(taskId);
-				ExpedientDadaDto expedientDada = variableHelper.getDadaPerInstanciaTasca(String.valueOf(task.getTask().getId()),camp.getCodi());
-//			if (camp != null && camp.getEnumeracio() != null) {
-//				return dtoConverter.getResultatConsultaEnumeracio(definicioProces, campCodi, textInicial);
-//			} else if (camp != null && (camp.getDomini() != null || camp.isDominiIntern())) {
-//				
-//				
-//				return dtoConverter.getResultatConsultaDomini(
-//						definicioProces,
-//						taskId,
-//						processInstanceId,
-//						campCodi,
-//						textInicial,
-//						valorsAddicionals);
-//			} else {
-//				return dtoConverter.getResultatConsultaConsulta(
-//						definicioProces,
-//						taskId,
-//						processInstanceId,
-//						campCodi,
-//						textInicial,
-//						valorsAddicionals);
-//			}
-//		} else {
-//			DefinicioProces dp = null;
-//			if (taskId != null) {
-//				JbpmTask task = jbpmHelper.getTaskById(taskId);
-//				dp = definicioProcesRepository.findById(Long.valueOf(task.getProcessDefinitionId()));
-//			} else {
-//				JbpmProcessDefinition jpd = jbpmHelper.findProcessDefinitionWithProcessInstanceId(processInstanceId);
-//				dp = definicioProcesRepository.findById(Long.valueOf(jpd.getId()));
-//			}
-//			return dtoConverter.getResultatConsultaDomini(
-//					dp,
-//					taskId,
-//					processInstanceId,
-//					campCodi,
-//					textInicial,
-//					valorsAddicionals);
 		}
+		JbpmTask task = jbpmHelper.getTaskById(taskId);
+		ExpedientDadaDto expedientDada = variableHelper.getDadaPerInstanciaTasca(String.valueOf(task.getTask().getId()), camp.getCodi());
+		try {
+			List<ParellaCodiValorDto> valores = variableHelper.getTextVariablesSimpleFontExterna(camp, textInicial, valorsAddicionals, String.valueOf(task.getTask().getId()), processInstanceId);
+		} catch (Exception e) {
+			return null;
+		}
+
 		return null;
 	}
 }

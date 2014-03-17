@@ -3,11 +3,14 @@
  */
 package net.conselldemallorca.helium.webapp.v3.helper;
 
+import java.lang.reflect.Array;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
+import net.conselldemallorca.helium.core.util.EntornActual;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
@@ -17,6 +20,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.validation.Errors;
+import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
 /**
@@ -67,57 +71,58 @@ public class TascaFormValidatorHelper implements Validator {
 
 	public void validate(Object command, Errors errors) {
 		try {
-			List<TascaDadaDto> tasca = getTascaDades(command);
-//			for (CampTascaDto camp : tasca.getCamps()) {
-//				if (validarObligatoris && camp.isRequired()) {
-//					if (camp.getCamp().getTipus().equals(CampTipusDto.REGISTRE)) {
-//						if (tascaService != null) {
-//							Object[] valor = (Object[]) tascaService.getVariable(EntornActual.getEntornId(), tasca.getId(), camp.getCamp().getCodi());
-//							if (valor == null || valor.length == 0)
-//								ValidationUtils.rejectIfEmpty(errors, camp.getCamp().getCodi(), "not.blank");
-//						} else if (valorsRegistre != null) {
-//							Object valor = valorsRegistre.get(camp.getCamp().getCodi());
-//							if (valor == null || (valor instanceof Object[] && ((Object[]) valor).length == 0))
-//								ValidationUtils.rejectIfEmpty(errors, camp.getCamp().getCodi(), "not.blank");
-//						} else {
-//							ValidationUtils.rejectIfEmpty(errors, camp.getCamp().getCodi(), "not.blank");
-//						}
-//					} else if (!camp.getCamp().isMultiple()) {
-//						ValidationUtils.rejectIfEmpty(errors, camp.getCamp().getCodi(), "not.blank");
-//					} else {
-//						Object valors = PropertyUtils.getSimpleProperty(command, camp.getCamp().getCodi());
-//						boolean esBuit = true;
-//						for (int i = 0; i < Array.getLength(valors); i++) {
-//							Object valor = Array.get(valors, i);
-//							if ((valor instanceof String && !"".equals(valor)) || (!(valor instanceof String) && valor != null)) {
-//								esBuit = false;
-//								break;
-//							}
-//						}
-//						if (esBuit)
-//							errors.rejectValue(camp.getCamp().getCodi(), "not.blank");
-//					}
-//				}
-//				if (camp != null && camp.getCamp() != null && camp.getCamp().getTipus() != null) {
-//					if (camp.getCamp().getTipus().equals(CampTipusDto.STRING)) { // || camp.getCamp().getTipus().equals(TipusCamp.TEXTAREA)) {
-//						try {
-//							if (camp.getCamp().isMultiple()) {
-//								String[] valors = (String[]) PropertyUtils.getSimpleProperty(command, camp.getCamp().getCodi());
-//								for (String valor : valors) {
-//									if (valor != null && valor.length() > STRING_MAX_LENGTH)
-//										errors.rejectValue(camp.getCamp().getCodi(), "max.length");
-//								}
-//							} else {
-//								String valor = (String) PropertyUtils.getSimpleProperty(command, camp.getCamp().getCodi());
-//								if (valor != null && valor.length() > STRING_MAX_LENGTH)
-//									errors.rejectValue(camp.getCamp().getCodi(), "max.length");
-//							}
-//						} catch (NoSuchMethodException ex) {
-//							logger.error("No s'ha pogut trobar la propietat '" + camp.getCamp().getCodi() + "' al command de la tasca " + tasca.getId());
-//						}
-//					}
-//				}
-//			}
+			List<TascaDadaDto> tascas = getTascaDades(command);
+			for (TascaDadaDto camp : tascas) {
+				if (validarObligatoris && camp.isRequired()) {
+					if (camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
+						if (tascaService != null) {
+							String tascaId = (String) PropertyUtils.getSimpleProperty(command, "id");
+							Object[] valor = (Object[]) tascaService.getVariable(EntornActual.getEntornId(), tascaId, camp.getVarCodi());
+							if (valor == null || valor.length == 0)
+								ValidationUtils.rejectIfEmpty(errors, camp.getVarCodi(), "not.blank");
+						} else if (valorsRegistre != null) {
+							Object valor = valorsRegistre.get(camp.getVarCodi());
+							if (valor == null || (valor instanceof Object[] && ((Object[]) valor).length == 0))
+								ValidationUtils.rejectIfEmpty(errors, camp.getVarCodi(), "not.blank");
+						} else {
+							ValidationUtils.rejectIfEmpty(errors, camp.getVarCodi(), "not.blank");
+						}
+					} else if (!camp.isCampMultiple()) {
+						ValidationUtils.rejectIfEmpty(errors, camp.getVarCodi(), "not.blank");
+					} else {
+						Object valors = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
+						boolean esBuit = true;
+						for (int i = 0; i < Array.getLength(valors); i++) {
+							Object valor = Array.get(valors, i);
+							if ((valor instanceof String && !"".equals(valor)) || (!(valor instanceof String) && valor != null)) {
+								esBuit = false;
+								break;
+							}
+						}
+						if (esBuit)
+							errors.rejectValue(camp.getVarCodi(), "not.blank");
+					}
+				}
+				if (camp != null && camp != null && camp.getCampTipus() != null) {
+					if (camp.getCampTipus().equals(CampTipusDto.STRING)) {
+						try {
+							if (camp.isCampMultiple()) {
+								String[] valors = (String[]) PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
+								for (String valor : valors) {
+									if (valor != null && valor.length() > STRING_MAX_LENGTH)
+										errors.rejectValue(camp.getVarCodi(), "max.length");
+								}
+							} else {
+								String valor = (String) PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
+								if (valor != null && valor.length() > STRING_MAX_LENGTH)
+									errors.rejectValue(camp.getVarCodi(), "max.length");
+							}
+						} catch (NoSuchMethodException ex) {
+							logger.error("No s'ha pogut trobar la propietat '" + camp.getVarCodi() + "' con campId " + camp.getCampId());
+						}
+					}
+				}
+			}
 		} catch (Exception ex) {
 			logger.error("Error en el validator", ex);
 			errors.reject("error.validator");
@@ -132,7 +137,6 @@ public class TascaFormValidatorHelper implements Validator {
 		if (tascaThreadLocal.get() != null) {
 			return tascaThreadLocal.get();
 		}
-		;
 		Long entornId = (Long) PropertyUtils.getSimpleProperty(command, "entornId");
 		if (inicial) {
 			Long expedientTipusId = (Long) PropertyUtils.getSimpleProperty(command, "expedientTipusId");

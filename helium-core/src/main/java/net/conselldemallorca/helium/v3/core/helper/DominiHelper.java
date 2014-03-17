@@ -57,7 +57,7 @@ public class DominiHelper {
 			DominiDto domini,
 			String id,
 			Map<String, Object> parametres) throws Exception {
-		System.out.println(">>> Consulta domini helper");
+//		System.out.println(">>> Consulta domini helper");
 		List<FilaResultat> resultat = null;
 		String cacheKey = getCacheKey(domini.getId(), parametres);
 		Element element = null;
@@ -108,9 +108,9 @@ public class DominiHelper {
 			auth = "BASIC";
 		if (TipusAuthDomini.USERNAMETOKEN.equals(domini.getTipusAuth()))
 			auth = "USERNAMETOKEN";
-		System.out.println(">>> Consulta domini WS (" +
-				"codi=" + domini.getCodi() + ", " + 
-				"url=" + domini.getUrl() + ")");
+//		System.out.println(">>> Consulta domini WS (" +
+//				"codi=" + domini.getCodi() + ", " + 
+//				"url=" + domini.getUrl() + ")");
 		DominiHelium client = (DominiHelium)WsClientUtils.getWsClientProxy(
 				DominiHelium.class,
 				domini.getUrl(),

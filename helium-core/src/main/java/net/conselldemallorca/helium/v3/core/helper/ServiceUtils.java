@@ -26,7 +26,6 @@ import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.Registre;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.service.PermissionService;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
@@ -57,6 +56,8 @@ public class ServiceUtils {
 	private LuceneHelper luceneHelper;
 	@Resource(name="dtoConverterV3")
 	private DtoConverter dtoConverter;
+	@Resource
+	private VariableHelper variableHelper;
 	@Resource
 	private JbpmHelper jbpmHelper;
 	@Resource(name="permissionServiceV3")
@@ -445,11 +446,12 @@ public class ServiceUtils {
 		if (!(valor instanceof String) || ((String)valor).length() > 0) {
 			if (camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST)) {
 				if (valor != null) {
-					String valorDomini = dtoConverter.getCampText(
+					String valorDomini = variableHelper.getTextVariableSimple(
+							camp,
+							valor,
 							null,
-							processInstanceId,
-							conversioTipusHelper.convertir(camp, CampDto.class),
-							valor);
+							null,
+							processInstanceId);
 					textDominis.put(
 							camp.getCodi() + "@" + valor.toString(),
 							valorDomini);

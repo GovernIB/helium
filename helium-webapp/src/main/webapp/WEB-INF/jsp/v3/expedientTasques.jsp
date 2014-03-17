@@ -26,7 +26,7 @@ body .modal-body {
 				<thead>
 					<tr>
 						<th>Tasca</th>
-						<th>Responsable</th>
+						<th>Asginada</th>
 						<th>Data creació</th>
 						<th>Data límit</th>
 						<th>Prioritat</th>
@@ -44,9 +44,9 @@ body .modal-body {
 									<c:choose>
 										<c:when test="${not empty tasca.responsable}"><!--A-->${tasca.responsable.nomSencer}</c:when>
 										<c:when test="${not empty tasca.responsables}"><!--P-->
-											<c:forEach var="responsable" items="${tasca.responsables}" varStatus="status">
-												<!--P${status.index}-->${responsable.nomSencer}<c:if test="${not status.last}">, </c:if>
-											</c:forEach>
+<%-- 											<c:forEach var="responsable" items="${tasca.responsables}" varStatus="status"> --%>
+<%-- 												<!--P${status.index}-->${responsable.nomSencer}<c:if test="${not status.last}">, </c:if> --%>
+<%-- 											</c:forEach> --%>
 										</c:when>
 										<c:otherwise><!--O--></c:otherwise>
 									</c:choose>

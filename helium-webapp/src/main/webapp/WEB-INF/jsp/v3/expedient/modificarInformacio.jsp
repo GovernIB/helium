@@ -131,8 +131,7 @@
 				</div>
 			</div>
 		</div>
-		<div style="clear: both"></div>
-		<div class="pull-right">
+		<div id="botons" class="well">
 			<button type="submit" class="btn btn-primary"><spring:message code="comuns.modificar"/></button>
 			<button type="button" class="btn btn-tancar"><spring:message code="comuns.cancelar"/></button>
 		</div>

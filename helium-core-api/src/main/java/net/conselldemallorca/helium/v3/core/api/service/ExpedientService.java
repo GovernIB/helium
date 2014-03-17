@@ -193,11 +193,7 @@ public interface ExpedientService {
 	public List<InstanciaProcesDto> getArbreInstanciesProces(
 			Long processInstanceId);
 
-	public InstanciaProcesDto getInstanciaProcesById(
-			String processInstanceId,
-			boolean ambImatgeProces,
-			boolean ambVariables,
-			boolean ambDocuments);
+	public InstanciaProcesDto getInstanciaProcesById(String processInstanceId);
 
 	public List<RegistreDto> getRegistrePerExpedient(Long expedientId);
 

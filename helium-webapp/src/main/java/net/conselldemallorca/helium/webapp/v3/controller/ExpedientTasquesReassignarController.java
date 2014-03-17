@@ -165,7 +165,7 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 		model.addAttribute("expedient",expedient);
 		model.addAttribute("tasca", tasca);
 		model.addAttribute("arbreProcessos",expedientService.getArbreInstanciesProces(Long.valueOf(tasca.getProcessInstanceId())));
-		model.addAttribute("instanciaProces",expedientService.getInstanciaProcesById(tasca.getProcessInstanceId(), true, true, true));
+		model.addAttribute("instanciaProces",expedientService.getInstanciaProcesById(tasca.getProcessInstanceId()));
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientTasquesReassignarController.class);

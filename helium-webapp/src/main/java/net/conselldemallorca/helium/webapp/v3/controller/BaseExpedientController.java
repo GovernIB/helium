@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -10,9 +11,10 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.PermissionService;
@@ -42,9 +44,36 @@ public class BaseExpedientController extends BaseController {
 			ExpedientService expedientService) {
 		ExpedientDto expedient = expedientService.findById(expedientId);
 		model.addAttribute("expedient", expedient);
-		List<PersonaDto> participants = expedientService.findParticipantsPerExpedient(
-				expedientId);
-		model.addAttribute("participants", participants);
+		model.addAttribute("participants", expedientService.findParticipantsPerExpedient(expedientId));
+		
+		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(expedient.getProcessInstanceId());
+		
+		List<AccioDto> accions = dissenyService.findAccionsVisiblesAmbDefinicioProces(instanciaProces.getDefinicioProces().getId());
+		boolean hiHaAccionsPubliques = false;
+		Iterator<AccioDto> it = accions.iterator();
+		while (it.hasNext()) {
+			AccioDto accio = it.next();
+			String rols = accio.getRols();
+			if (accio.isPublica()) {
+				hiHaAccionsPubliques = true;
+			}
+			if (rols != null && rols.length() > 0) {
+				boolean permesa = false;
+				String[] llistaRols = rols.split(",");
+				for (String rol: llistaRols) {
+					if (request.isUserInRole(rol)) {
+						permesa = true;
+						break;
+					}
+				}
+				if (!permesa)
+					it.remove();
+			}
+		}
+		model.addAttribute("accions", accions);
+		model.addAttribute("hiHaAccionsPubliques", hiHaAccionsPubliques);
+		
+		model.addAttribute("relacionats",expedientService.getExpedientsRelacionats(expedientId));
 		if (pipellaActiva != null)
 			model.addAttribute("pipellaActiva", pipellaActiva);
 		else if (request.getParameter("pipellaActiva") != null)

@@ -12,7 +12,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps;
@@ -196,6 +196,17 @@ public class TascaFormHelper {
 
 	public static Map<String, List<Object>> getValorsPerSuggest(ExpedientTascaDto tasca, Object command) {
 		Map<String, List<Object>> resposta = new HashMap<String, List<Object>>();
+		
+//		
+		
+//		getTextVariablesSimpleFontExterna(
+//				Camp camp,
+//				Object valor,
+//				Map<String, Object> valorsAddicionals,
+//				String taskInstanceId,
+//				String processInstanceId)
+				
+				
 //		if (tasca.getValorsMultiplesDomini() != null) {
 //			for (String key: tasca.getValorsMultiplesDomini().keySet()) {
 //				List<Object> liniaResposta = new ArrayList<Object>();

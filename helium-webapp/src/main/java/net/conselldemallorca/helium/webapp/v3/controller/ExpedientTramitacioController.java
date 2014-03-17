@@ -84,12 +84,10 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 	public Map<String, List<Object>> populateValorsPerSuggest(
 			HttpServletRequest request,
 			ModelMap model) {
-		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entorn != null) {
-			ExpedientTascaDto tasca = (ExpedientTascaDto)model.get("tasca");
+		if (model.containsKey("tasca")) {
+			ExpedientTascaDto tasca = (ExpedientTascaDto) model.get("tasca");
 			if (tasca != null) {
-				Object command = model.get("command");
-				return TascaFormHelper.getValorsPerSuggest(tasca, command);
+				return TascaFormHelper.getValorsPerSuggest(tasca, model.get("command"));
 			}
 		}
 		return null;
@@ -111,14 +109,20 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 				camps.add(tascaService.findCampTasca(campTasca.getCampId()));
 			}
 			
-			ExpedientTascaDto tasca;
+			ExpedientTascaDto tasca = null;
 			if (commandSessio != null) {
-				tasca = tascaService.getById(entorn.getId(), id, null, TascaFormHelper.getValorsFromCommand(camps, commandSessio, true, false), true, true);
-				model.addAttribute("valorsPerSuggest", TascaFormHelper.getValorsPerSuggest(tasca, commandSessio));
-				command = commandSessio;
-			} else {
-				tasca = tascaService.getById(entorn.getId(), id, null, null, true, true);
 				try {
+					tasca = tascaService.getById(entorn.getId(), id, null, TascaFormHelper.getValorsFromCommand(camps, commandSessio, true, false), true, true);
+					model.addAttribute("valorsPerSuggest", TascaFormHelper.getValorsPerSuggest(tasca, commandSessio));
+					command = commandSessio;
+				} catch (TascaNotFoundException ex) {
+					MissatgesHelper.error(request, ex.getMessage());
+					logger.error("No s'han pogut encontrar la tasca: " + ex.getMessage(), ex);
+					return null;
+				}
+			} else {
+				try {
+					tasca = tascaService.getById(entorn.getId(), id, null, null, true, true);
 					Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 					campsAddicionals.put("id", id);
 					campsAddicionals.put("entornId", entorn.getId());
@@ -139,6 +143,7 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 				} catch (TascaNotFoundException ex) {
 					MissatgesHelper.error(request, ex.getMessage());
 					logger.error("No s'han pogut encontrar la tasca: " + ex.getMessage(), ex);
+					return null;
 				} catch (Exception ignored) {
 				} 
 			}
@@ -262,7 +267,12 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 				request.getUserPrincipal().getName());
 	}
 	
-	protected boolean accioValidarForm(HttpServletRequest request, Long entornId, String id, List<CampDto> camps, Object command) {
+	protected boolean accioValidarForm(
+			HttpServletRequest request, 
+			Long entornId, 
+			String id, 
+			List<CampDto> camps, 
+			Object command) {
 		boolean resposta = true;
 		ExpedientTascaDto task = tascaService.getByIdSenseComprovacio(id);
 		if (TramitacioMassiva.isTramitacioMassivaActiu(request, id)) {
@@ -622,7 +632,7 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 	}
 
 	protected void afegirVariablesDelProces(Object command, ExpedientTascaDto tasca) throws Exception {
-		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(tasca.getProcessInstanceId(), false, false, false);
+		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(tasca.getProcessInstanceId());
 		PropertyUtils.setSimpleProperty(command, "procesScope", instanciaProces.getVariables());
 	}
 

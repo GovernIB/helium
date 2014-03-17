@@ -176,7 +176,7 @@ public class ExpedientInformacioController extends BaseExpedientController {
 		model.addAttribute(
 				"arbreProcessos",
 				expedientService.getArbreInstanciesProces(procesInstanceId));
-		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(expedient.getProcessInstanceId(), false, false, false);
+		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(expedient.getProcessInstanceId());
 		model.addAttribute(
 				"instanciaProces",
 				instanciaProces);

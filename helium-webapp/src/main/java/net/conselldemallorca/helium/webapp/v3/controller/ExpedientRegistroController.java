@@ -148,7 +148,7 @@ public class ExpedientRegistroController extends BaseExpedientController {
 			if (potModificarExpedient(expedient)) {
 				model.addAttribute(
 						"instanciaProces",
-						expedientService.getInstanciaProcesById(expedient.getProcessInstanceId(), false, false, false));
+						expedientService.getInstanciaProcesById(expedient.getProcessInstanceId()));
 				List<ExpedientLogDto> logs = expedientService.findLogsRetroceditsOrdenatsPerData(logId);
 				model.addAttribute("logs", logs);
 				model.addAttribute(
@@ -177,7 +177,7 @@ public class ExpedientRegistroController extends BaseExpedientController {
 			if (potModificarExpedient(expedient)) {
 				model.addAttribute(
 						"instanciaProces",
-						expedientService.getInstanciaProcesById(expedient.getProcessInstanceId(), false, false, false));
+						expedientService.getInstanciaProcesById(expedient.getProcessInstanceId()));
 				List<ExpedientLogDto> logs = expedientService.findLogsTascaOrdenatsPerData(targetId);
 				model.addAttribute("logs", logs);
 				model.addAttribute(

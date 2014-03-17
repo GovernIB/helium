@@ -324,3 +324,9 @@ ul#tabnav li.warn a {
 	margin-left: 25px;	
 }
 
+.formRelacioDelete {
+	float: left;
+    margin-bottom: 0;
+    margin-right: 10px;
+    margin-top: 0;
+}

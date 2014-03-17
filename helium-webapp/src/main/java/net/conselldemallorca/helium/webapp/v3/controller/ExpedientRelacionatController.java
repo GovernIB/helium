@@ -70,9 +70,6 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 					expedientService.createRelacioExpedient(
 							expedientId,
 							expedientDest.getId());
-					if (!NoDecorarHelper.isRequestSenseDecoracio(request)) {
-						mostrarInformacioExpedientPerPipella(request, expedientId, model, "relacionats", expedientService);
-					}
 					MissatgesHelper.info(request, getMessage(request, "expedient.relacionar.ok"));
 				} catch (Exception ex) {
 				  	MissatgesHelper.error(request, getMessage(request, "error.expedient.relacionar"));
@@ -84,7 +81,7 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
 		}
-		return "redirect:/v3/expedient/" + expedientId;
+		return "/v3/utils/modalTancar";
 	}
 
 	@RequestMapping(value = "/{expedientId}/relacioDelete", method = RequestMethod.POST)
@@ -102,9 +99,6 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 					expedientService.deleteRelacioExpedient(
 							expedientIdOrigen,
 							expedientIdDesti);
-					if (!NoDecorarHelper.isRequestSenseDecoracio(request)) {
-						mostrarInformacioExpedientPerPipella(request, expedientId, model, "relacionats", expedientService);
-					}
 					MissatgesHelper.info(request, getMessage(request, "expedient.relacio.esborrar.ok"));
 				} catch (Exception ex) {
 					MissatgesHelper.error(request, getMessage(request, "error.expedient.relacio.esborrar"));
@@ -116,7 +110,7 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
 		}
-	return "redirect:/v3/expedient/" + expedientId;
+		return "redirect:/v3/expedient/" + expedientId;
 	}
 	
 	@RequestMapping(value = "/{expedientId}/expedient/suggest", method = RequestMethod.GET)

@@ -198,8 +198,8 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public InstanciaProcesDto getInstanciaProcesById(String processInstanceId, boolean ambImatgeProces, boolean ambVariables, boolean ambDocuments) {
-		return delegate.getInstanciaProcesById(processInstanceId, ambImatgeProces, ambVariables, ambDocuments);
+	public InstanciaProcesDto getInstanciaProcesById(String processInstanceId) {
+		return delegate.getInstanciaProcesById(processInstanceId);
 	}
 
 	@Override

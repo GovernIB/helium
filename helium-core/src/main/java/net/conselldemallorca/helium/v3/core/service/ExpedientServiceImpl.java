@@ -61,7 +61,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
@@ -1198,14 +1197,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(String.valueOf(processInstanceId));
 		List<JbpmProcessInstance> piTree = jbpmHelper.getProcessInstanceTree(rootProcessInstance.getId());
 		for (JbpmProcessInstance jpi: piTree) {
-			resposta.add(dtoConverter.toInstanciaProcesDto(jpi.getId(), false, false, false));
+			resposta.add(dtoConverter.toInstanciaProcesDto(jpi.getId()));
 		}
 		return resposta;
 	}
 
 	@Transactional
-	public InstanciaProcesDto getInstanciaProcesById(String processInstanceId, boolean ambImatgeProces, boolean ambVariables, boolean ambDocuments) {
-		return dtoConverter.toInstanciaProcesDto(processInstanceId, ambImatgeProces, ambVariables, ambDocuments);
+	public InstanciaProcesDto getInstanciaProcesById(String processInstanceId) {
+		return dtoConverter.toInstanciaProcesDto(processInstanceId);
 	}
 
 	@Transactional
@@ -1440,8 +1439,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 				net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp.INFORME);
 		
 		List<CampDto> campsFiltreDto = conversioTipusHelper.convertirList(campsFiltre, CampDto.class);
-		List<CampDto> campsInformeDto = conversioTipusHelper.convertirList(campsInforme, CampDto.class);
 		afegirValorsPredefinits(consulta, valors, campsFiltreDto);
+		
 		List<Map<String, DadaIndexadaDto>> dadesExpedients = luceneHelper.findAmbDadesExpedientV3(
 				consulta.getEntorn().getCodi(),
 				consulta.getExpedientTipus().getCodi(),
@@ -1461,7 +1460,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 				fila.setExpedient(dtoConverter.toExpedientDto(expedient));
 				dtoConverter.revisarDadesExpedientAmbValorsEnumeracionsODominis(
 						dadesExpedient,
-						campsInformeDto);
+						campsInforme,
+						expedient.getProcessInstanceId());
 				fila.setDadesExpedient(dadesExpedient);
 				resposta.add(fila);
 			}
@@ -1987,17 +1987,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 						ExtendedPermission.READ,
 						ExtendedPermission.ADMINISTRATION});
 		
-		for (Expedient relacionat: expedient.getRelacionsOrigen()) {
-			ExpedientDto relacionatDto = new ExpedientDto();
-			relacionatDto.setId(relacionat.getId());
-			relacionatDto.setTitol(relacionat.getTitol());
-			relacionatDto.setNumero(relacionat.getNumero());
-			relacionatDto.setDataInici(relacionat.getDataInici());
-			relacionatDto.setTipus(conversioTipusHelper.convertir(relacionat.getTipus(), ExpedientTipusDto.class));
-			if (relacionat.getEstat() != null)
-				relacionatDto.setEstat(conversioTipusHelper.convertir(relacionat.getEstat(), EstatDto.class));
-			relacionatDto.setProcessInstanceId(relacionat.getProcessInstanceId());
-			list.add(relacionatDto);
+		for (Expedient relacionat: expedient.getRelacionsOrigen()) {			
+			list.add(findById(relacionat.getId()));
 		}
 		
 		return list;

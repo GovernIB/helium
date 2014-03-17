@@ -419,22 +419,27 @@ public class VariableHelper {
 		}
 		return dto;
 	}
-	private String getTextVariableSimple(
+	
+	public String getTextVariableSimple(
 			Camp camp,
 			Object valor,
 			Map<String, Object> valorsAddicionals,
 			String taskInstanceId,
-			String processInstanceId) throws Exception {
+			String processInstanceId) {
 		if (valor == null)
 			return null;
 		String valorFontExterna = null;
 		if (TipusCamp.SELECCIO.equals(camp.getTipus()) || TipusCamp.SUGGEST.equals(camp.getTipus())) {
-			valorFontExterna = (String) getTextVariableSimpleFontExterna(
-					camp,
-					valor,
-					null,
-					taskInstanceId,
-					processInstanceId).getValor();
+			try {					
+				valorFontExterna = (String) getTextVariableSimpleFontExterna(
+						camp,
+						valor,
+						null,
+						taskInstanceId,
+						processInstanceId).getValor();
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		return Camp.getComText(
 				camp.getTipus(),

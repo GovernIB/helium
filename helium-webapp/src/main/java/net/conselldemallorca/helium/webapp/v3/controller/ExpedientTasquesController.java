@@ -140,7 +140,9 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 			SessionStatus status, 
 			ModelMap model) {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entorn != null) {			
+		if (command == null) {
+			return "redirect:/v3/expedient/"+expedientId+"/tasca/"+tascaId+"/form";
+		} else if (entorn != null) {			
 			this.validatorGuardar = new TascaFormValidatorHelper(tascaService, false);
 			this.validatorValidar = new TascaFormValidatorHelper(tascaService);
 			

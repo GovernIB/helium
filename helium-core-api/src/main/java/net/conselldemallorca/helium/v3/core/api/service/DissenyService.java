@@ -6,11 +6,13 @@ package net.conselldemallorca.helium.v3.core.api.service;
 import java.util.List;
 import java.util.Map;
 
+import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
@@ -106,4 +108,10 @@ public interface DissenyService {
 	public CampDto findCampAmbDefinicioProcesICodiSimple(Long definicioProcesId, String campCodi);
 
 	public List<?> getResultatConsultaCamp(String taskId, String processInstanceId, Long definicioProcesId, String campCodi, String textInicial, Map<String, Object> mapDelsValors);
+
+	public List<AccioDto> findAccionsVisiblesAmbDefinicioProces(Long definicioProcesId);
+
+	public AccioDto findAccioAmbId(Long idAccio);
+
+	public void executarAccio(AccioDto accio, ExpedientDto expedient);
 }

@@ -340,14 +340,13 @@ public class TascaServiceImpl implements TascaService {
 				if (campValor != null) {
 					if (	campTasca.getCamp().getTipus().equals(TipusCamp.SELECCIO) ||
 							campTasca.getCamp().getTipus().equals(TipusCamp.SUGGEST)) {
-						CampDto campDto = new ConversioTipusHelper().convertir(campTasca.getCamp(), CampDto.class);
-						String text = dtoConverter.getCampText(
-								task.getId(),
-								null,
-								campDto,
-								campValor);
+						String text = variableHelper.getTextVariableSimple(
+								campTasca.getCamp(), 
+								campValor, null, 
+								task.getId(), 
+								task.getProcessInstanceId());
 						variables.put(
-								campDto.getCodi(),
+								campTasca.getCamp().getCodi(),
 								new DominiCodiDescripcio(
 										(String)campValor,
 										text));

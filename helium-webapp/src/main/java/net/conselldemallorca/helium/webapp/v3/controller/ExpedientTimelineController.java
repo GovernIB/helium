@@ -72,7 +72,7 @@ public class ExpedientTimelineController extends BaseExpedientController {
 						expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId())));
 				model.addAttribute(
 						"instanciaProces",
-						expedientService.getInstanciaProcesById(expedient.getProcessInstanceId(), false, false, false));
+						expedientService.getInstanciaProcesById(expedient.getProcessInstanceId()));
 				return "v3/expedient/timeline";
 			} else {
 				MissatgesHelper.error(request, getMessage(request, "error.permisos.consultar.expedient"));
@@ -95,7 +95,7 @@ public class ExpedientTimelineController extends BaseExpedientController {
 			if (potConsultarExpedient(expedient)) {
 				model.addAttribute(
 						"instanciaProces",
-						expedientService.getInstanciaProcesById(expedient.getProcessInstanceId(), false, false, false));
+						expedientService.getInstanciaProcesById(expedient.getProcessInstanceId()));
 				model.addAttribute(
 						"terminisIniciats",
 						terminiService.findIniciatsAmbProcessInstanceId(expedient.getProcessInstanceId()));

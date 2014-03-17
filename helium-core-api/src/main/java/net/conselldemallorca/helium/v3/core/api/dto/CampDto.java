@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.v3.core.api.dto;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -90,6 +91,40 @@ public class CampDto implements Serializable {
 			return Object[].class;
 		} else {
 			return String.class;
+		}
+	}
+
+	public static String getComText(
+			CampTipusDto tipus,
+			Object valor,
+			String valorDomini) {
+		if (valor == null)
+			return null;
+		try {
+			String text = null;
+			if (tipus.equals(CampTipusDto.INTEGER)) {
+				text = new DecimalFormat("#").format((Long)valor);
+			} else if (tipus.equals(CampTipusDto.FLOAT)) {
+				text = new DecimalFormat("#.#").format((Double)valor);
+			} else if (tipus.equals(CampTipusDto.PRICE)) {
+				text = new DecimalFormat("#,##0.00").format((BigDecimal)valor);
+			} else if (tipus.equals(CampTipusDto.DATE)) {
+				text = new SimpleDateFormat("dd/MM/yyyy").format((Date)valor);
+			} else if (tipus.equals(CampTipusDto.BOOLEAN)) {
+				text = (((Boolean)valor).booleanValue()) ? "Si" : "No";
+			} else if (tipus.equals(CampTipusDto.SELECCIO)) {
+				text = valorDomini;
+			} else if (tipus.equals(CampTipusDto.SUGGEST)) {
+				text = valorDomini;
+			} else if (tipus.equals(CampTipusDto.TERMINI)) {
+				TerminiDto termini = ((TerminiDto)valor);
+				text = termini.getAnys()+"/"+termini.getMesos()+"/"+termini.getDies();
+			} else {
+				text = valor.toString();
+			}
+			return text;
+		} catch (Exception ex) {
+			return valor.toString();
 		}
 	}
 	

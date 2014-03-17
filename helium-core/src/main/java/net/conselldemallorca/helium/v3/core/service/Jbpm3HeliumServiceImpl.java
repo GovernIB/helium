@@ -65,7 +65,6 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CarrecDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
@@ -114,6 +113,7 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreA
 import net.conselldemallorca.helium.v3.core.api.service.Jbpm3HeliumService;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
+import net.conselldemallorca.helium.v3.core.helper.VariableHelper;
 
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
@@ -131,7 +131,6 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service("heliumServiceV3")
 public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
-
 	@Resource
 	private EntornDao entornDao;
 	@Resource
@@ -178,7 +177,6 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
 	@Resource
 	private PluginTramitacioDao pluginTramitacioDao;
-
 	@Resource
 	private AlertaService alertaService;
 	@Resource
@@ -189,9 +187,10 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 	private TerminiService terminiService;
 	@Resource
 	private ExecucioMassivaService execucioMassivaService;
-
 	@Resource
 	private JbpmHelper jbpmHelper;
+	@Resource
+	private VariableHelper variableHelper;
 	@Resource
 	private DocumentHelper documentHelper;
 	@Resource(name="dtoConverterV3")
@@ -200,8 +199,6 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
-
-
 
 	@Transactional(readOnly = true)
 	@Override
@@ -1376,11 +1373,12 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 				processInstanceId,
 				varCodi);
 		resposta.setText(
-				dtoConverter.getCampText(
-						null,
-						new Long(processInstanceId).toString(),
-						conversioTipusHelper.convertir(camp, CampDto.class),
-						valor));
+				variableHelper.getTextVariableSimple(
+						camp, 
+						valor, 
+						null, 
+						null, 
+						processInstanceId));
 		return resposta;
 	}
 
