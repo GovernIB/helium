@@ -22,6 +22,20 @@
 		</dependency>
 		<dependency>
 			<groupId>es.caib</groupId>
+			<artifactId>seyconsession-common</artifactId>
+			<version>3.2.8-caib7</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/libext/seyconsession-common.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss</groupId>
+			<artifactId>jboss-jmx</artifactId>
+			<version>3.2.8</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/libext/jboss-jmx.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>es.caib</groupId>
 			<artifactId>valcert-client-axis</artifactId>
 			<version>1.5</version>
 			<scope>system</scope>
