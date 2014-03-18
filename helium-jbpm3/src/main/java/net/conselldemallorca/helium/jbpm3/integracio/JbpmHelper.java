@@ -67,10 +67,8 @@ import net.conselldemallorca.helium.jbpm3.command.TakeTaskInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.TokenRedirectCommand;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 
-import org.jbpm.JbpmException;
 import org.jbpm.command.CancelTokenCommand;
 import org.jbpm.command.ChangeProcessInstanceVersionCommand;
-import org.jbpm.command.Command;
 import org.jbpm.command.CommandService;
 import org.jbpm.command.DeleteProcessDefinitionCommand;
 import org.jbpm.command.DeployProcessCommand;
@@ -80,7 +78,6 @@ import org.jbpm.command.GetTaskInstanceCommand;
 import org.jbpm.command.SignalCommand;
 import org.jbpm.command.TaskInstanceEndCommand;
 import org.jbpm.file.def.FileDefinition;
-import org.jbpm.graph.def.DelegationException;
 import org.jbpm.graph.def.Node;
 import org.jbpm.graph.def.Node.NodeType;
 import org.jbpm.graph.def.ProcessDefinition;
@@ -101,13 +98,13 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class JbpmHelper {
-
+//	@Autowired
 	private CommandService commandService;
-
+	
 	@Autowired
 	private AdminService adminService;
 
-
+	
 	public JbpmProcessDefinition desplegar(
 			String nomArxiu,
 			byte[] contingut) {
@@ -285,10 +282,11 @@ public class JbpmHelper {
 		SignalProcessInstanceCommand command = new SignalProcessInstanceCommand(id);
 		if (transitionName != null)
 			command.setStartTransitionName(transitionName);
-		executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		commandService.execute(autoSaveCommand);
 		adminService.mesuraCalcular("jBPM signalProcessInstance", "jbpmDao");
 	}
 	
@@ -353,11 +351,13 @@ public class JbpmHelper {
 		long[] ids = new long[processInstanceIds.length];
 		for (int i = 0; i < processInstanceIds.length; i++)
 			ids[i] = Long.parseLong(processInstanceIds[i]);
+		
 		SuspendProcessInstancesCommand command = new SuspendProcessInstancesCommand(ids);
-		executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				ids,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		commandService.execute(autoSaveCommand);
 		adminService.mesuraCalcular("jBPM suspendProcessInstances", "jbpmDao");
 	}
 	
@@ -377,10 +377,11 @@ public class JbpmHelper {
 		for (int i = 0; i < processInstanceIds.length; i++)
 			ids[i] = Long.parseLong(processInstanceIds[i]);
 		ResumeProcessInstancesCommand command = new ResumeProcessInstancesCommand(ids);
-		executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				ids,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		commandService.execute(autoSaveCommand);
 		adminService.mesuraCalcular("jBPM resumeProcessInstances", "jbpmDao");
 	}
 	
@@ -391,10 +392,11 @@ public class JbpmHelper {
 		adminService.mesuraIniciar("jBPM describeProcessInstance", "jbpmDao");
 		final long id = Long.parseLong(processInstanceId);
 		DescribeProcessInstanceCommand command = new DescribeProcessInstanceCommand(id, description);
-		executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		commandService.execute(autoSaveCommand);
 		adminService.mesuraCalcular("jBPM describeProcessInstance", "jbpmDao");
 	}
 
@@ -491,10 +493,11 @@ public class JbpmHelper {
 		adminService.mesuraIniciar("jBPM takeTaskInstance", "jbpmDao");
 		final long id = Long.parseLong(taskId);
 		TakeTaskInstanceCommand command = new TakeTaskInstanceCommand(id, actorId);
-		executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		commandService.execute(autoSaveCommand);
 		adminService.mesuraCalcular("jBPM takeTaskInstance", "jbpmDao");
 	}
 	
@@ -503,10 +506,11 @@ public class JbpmHelper {
 		adminService.mesuraIniciar("jBPM releaseTaskInstance", "jbpmDao");
 		final long id = Long.parseLong(taskId);
 		ReleaseTaskInstanceCommand command = new ReleaseTaskInstanceCommand(id);
-		executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		commandService.execute(autoSaveCommand);
 		adminService.mesuraCalcular("jBPM releaseTaskInstance", "jbpmDao");
 	}
 	
@@ -531,10 +535,11 @@ public class JbpmHelper {
 		JbpmTask resposta = null;
 		final long id = Long.parseLong(taskId);
 		StartTaskInstanceCommand command = new StartTaskInstanceCommand(id);
-		resposta = new JbpmTask((TaskInstance)executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
-				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA));
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		resposta = new JbpmTask((TaskInstance)commandService.execute(autoSaveCommand));
 		adminService.mesuraCalcular("jBPM startTaskInstance", "jbpmDao");
 		return resposta;
 	}
@@ -545,10 +550,11 @@ public class JbpmHelper {
 		JbpmTask resposta = null;
 		final long id = Long.parseLong(taskId);
 		CancelTaskInstanceCommand command = new CancelTaskInstanceCommand(id);
-		resposta = new JbpmTask((TaskInstance)executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
-				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA));
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		resposta = new JbpmTask((TaskInstance)commandService.execute(autoSaveCommand));
 		adminService.mesuraCalcular("jBPM cancelTaskInstance", "jbpmDao");
 		return resposta;
 	}
@@ -559,10 +565,11 @@ public class JbpmHelper {
 		JbpmTask resposta = null;
 		final long id = Long.parseLong(taskId);
 		SuspendTaskInstanceCommand command = new SuspendTaskInstanceCommand(id);
-		resposta = new JbpmTask((TaskInstance)executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
-				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA));
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		resposta = new JbpmTask((TaskInstance)commandService.execute(autoSaveCommand));
 		adminService.mesuraCalcular("jBPM suspendTaskInstance", "jbpmDao");
 		return resposta;
 	}
@@ -573,10 +580,11 @@ public class JbpmHelper {
 		JbpmTask resposta = null;
 		final long id = Long.parseLong(taskId);
 		ResumeTaskInstanceCommand command = new ResumeTaskInstanceCommand(id);
-		resposta = new JbpmTask((TaskInstance)executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
-				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA));
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		resposta = new JbpmTask((TaskInstance)commandService.execute(autoSaveCommand));
 		adminService.mesuraCalcular("jBPM resumeTaskInstance", "jbpmDao");
 		return resposta;
 	}
@@ -597,10 +605,11 @@ public class JbpmHelper {
 		ReassignTaskInstanceCommand command = new ReassignTaskInstanceCommand(id);
 		command.setExpression(expression);
 		command.setEntornId(entornId);
-		resposta = new JbpmTask((TaskInstance)executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
-				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA));
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		resposta = new JbpmTask((TaskInstance)commandService.execute(autoSaveCommand));
 		adminService.mesuraCalcular("jBPM reassignTaskInstance entorn", "jbpmDao");
 		return resposta;
 	}
@@ -611,10 +620,11 @@ public class JbpmHelper {
 		final long id = Long.parseLong(taskInstanceId);
 		ReassignTaskInstanceCommand command = new ReassignTaskInstanceCommand(id);
 		command.setActorId(actorId);
-		executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		commandService.execute(autoSaveCommand);
 		adminService.mesuraCalcular("jBPM setTaskInstanceActorId", "jbpmDao");
 	}
 	
@@ -624,10 +634,11 @@ public class JbpmHelper {
 		final long id = Long.parseLong(taskInstanceId);
 		ReassignTaskInstanceCommand command = new ReassignTaskInstanceCommand(id);
 		command.setPooledActors(pooledActors);
-		executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		commandService.execute(autoSaveCommand);
 		adminService.mesuraCalcular("jBPM setTaskInstancePooledActors", "jbpmDao");
 	}
 	
@@ -652,10 +663,11 @@ public class JbpmHelper {
 				variables);
 		command.setLocally(true);
 		command.setDeleteFirst(deleteFirst);
-		executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		commandService.execute(autoSaveCommand);
 		adminService.mesuraCalcular("jBPM setTaskInstanceVariables", "jbpmDao");
 	}
 	
@@ -693,10 +705,11 @@ public class JbpmHelper {
 				id,
 				new String[] {varName});
 		command.setLocally(true);
-		executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		commandService.execute(autoSaveCommand);
 		adminService.mesuraCalcular("jBPM deleteTaskInstanceVariable", "jbpmDao");
 	}
 	
@@ -705,10 +718,11 @@ public class JbpmHelper {
 		adminService.mesuraIniciar("jBPM endTaskInstance", "jbpmDao");
 		final long id = Long.parseLong(taskId);
 		TaskInstanceEndCommand command = new TaskInstanceEndCommand(id, outcome);
-		executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		commandService.execute(autoSaveCommand);
 		adminService.mesuraCalcular("jBPM endTaskInstance", "jbpmDao");
 	}
 	
@@ -717,10 +731,11 @@ public class JbpmHelper {
 		adminService.mesuraIniciar("jBPM describeTaskInstance", "jbpmDao");
 		final long id = Long.parseLong(taskId);
 		DescribeTaskInstanceCommand command = new DescribeTaskInstanceCommand(id, titol, description);
-		executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		commandService.execute(autoSaveCommand);
 		adminService.mesuraCalcular("jBPM describeTaskInstance", "jbpmDao");
 	}
 	
@@ -775,10 +790,11 @@ public class JbpmHelper {
 		Map<String, Object> vars = new HashMap<String, Object>();
 		vars.put(varName, value);
 		SaveProcessInstanceVariablesCommand command = new SaveProcessInstanceVariablesCommand(id, vars);
-		executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		commandService.execute(autoSaveCommand);
 		adminService.mesuraCalcular("jBPM setProcessInstanceVariable", "jbpmDao");
 	}
 	
@@ -788,10 +804,11 @@ public class JbpmHelper {
 		//setProcessInstanceVariable(processInstanceId, varName, null);
 		final long id = Long.parseLong(processInstanceId);
 		DeleteProcessInstanceVariablesCommand command = new DeleteProcessInstanceVariablesCommand(id, new String[] {varName});
-		executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		commandService.execute(autoSaveCommand);
 		adminService.mesuraCalcular("jBPM deleteProcessInstanceVariable", "jbpmDao");
 	}
 	
@@ -879,10 +896,11 @@ public class JbpmHelper {
 		command.setCancelTasks(cancelTasks);
 		command.setEnterNodeIfTask(enterNodeIfTask);
 		command.setExecuteNode(executeNode);
-		executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				tokenId,
 				AddToAutoSaveCommand.TIPUS_TOKEN);
+		commandService.execute(autoSaveCommand);
 		adminService.mesuraCalcular("jBPM tokenRedirect", "jbpmDao");
 	}
 
@@ -901,10 +919,11 @@ public class JbpmHelper {
 				id,
 				script,
 				outputNames);
-		resultat = (Map<String,Object>)executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
-				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);;
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		resultat = (Map<String,Object>)commandService.execute(autoSaveCommand);
 		adminService.mesuraCalcular("jBPM evaluateScript", "jbpmDao");
 		return resultat;
 	}
@@ -924,10 +943,11 @@ public class JbpmHelper {
 			command.setTid(Long.parseLong(taskInstanceInstanceId));
 		if (valors != null)
 			command.setValors(valors);
-		Object resultat = executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		Object resultat = commandService.execute(autoSaveCommand);
 		adminService.mesuraCalcular("jBPM evaluateExpression", "jbpmDao");
 		return resultat;
 	}
@@ -952,10 +972,11 @@ public class JbpmHelper {
 		ExecuteActionCommand command = new ExecuteActionCommand(
 				id,
 				actionName);
-		executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		commandService.execute(autoSaveCommand);
 		adminService.mesuraCalcular("jBPM executeActionInstanciaProces", "jbpmDao");
 	}
 	
@@ -969,10 +990,11 @@ public class JbpmHelper {
 				id,
 				actionName);
 		command.setTaskInstance(true);
-		executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		commandService.execute(autoSaveCommand);
 		adminService.mesuraCalcular("jBPM executeActionInstanciaTasca", "jbpmDao");
 	}
 	
@@ -988,10 +1010,11 @@ public class JbpmHelper {
 				actionName);
 		command.setGoBack(true);
 		command.setParams(params);
-		executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		commandService.execute(autoSaveCommand);
 		adminService.mesuraCalcular("jBPM retrocedirAccio", "jbpmDao");
 	}
 	
@@ -1004,10 +1027,11 @@ public class JbpmHelper {
 		ChangeProcessInstanceVersionCommand command = new ChangeProcessInstanceVersionCommand(
 				id,
 				newVersion);
-		executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		commandService.execute(autoSaveCommand);
 		adminService.mesuraCalcular("jBPM changeProcessInstanceVersion", "jbpmDao");
 	}
 	
@@ -1017,10 +1041,11 @@ public class JbpmHelper {
 			String transitionName) {
 		adminService.mesuraIniciar("jBPM signalToken", "jbpmDao");
 		SignalCommand command = new SignalCommand(tokenId, transitionName);
-		executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				tokenId,
 				AddToAutoSaveCommand.TIPUS_TOKEN);
+		commandService.execute(autoSaveCommand);
 		adminService.mesuraCalcular("jBPM signalToken", "jbpmDao");
 	}
 	
@@ -1111,10 +1136,11 @@ public class JbpmHelper {
 	public void cancelProcessInstance(long id) {
 		adminService.mesuraIniciar("jBPM cancelProcessInstance", "jbpmDao");
 		CancelProcessInstanceCommand command = new CancelProcessInstanceCommand(id);
-		executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		commandService.execute(autoSaveCommand);
 		adminService.mesuraCalcular("jBPM cancelProcessInstance", "jbpmDao");
 	}
 	
@@ -1122,10 +1148,11 @@ public class JbpmHelper {
 	public void revertProcessInstanceEnd(long id) {
 		adminService.mesuraIniciar("jBPM revertProcessInstanceEnd", "jbpmDao");
 		RevertProcessInstanceEndCommand command = new RevertProcessInstanceEndCommand(id);
-		executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+		commandService.execute(autoSaveCommand);
 		adminService.mesuraCalcular("jBPM revertProcessInstanceEnd", "jbpmDao");
 	}
 	
@@ -1133,10 +1160,11 @@ public class JbpmHelper {
 	public void cancelToken(long id) {
 		adminService.mesuraIniciar("jBPM cancelToken", "jbpmDao");
 		CancelTokenCommand command = new CancelTokenCommand(id);
-		executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_TOKEN);
+		commandService.execute(autoSaveCommand);
 		adminService.mesuraCalcular("jBPM cancelToken", "jbpmDao");
 	}
 	
@@ -1145,10 +1173,11 @@ public class JbpmHelper {
 		adminService.mesuraIniciar("jBPM revertTokenEnd", "jbpmDao");
 		JbpmToken jtoken = getTokenById(String.valueOf(id));
 		RevertTokenEndCommand command = new RevertTokenEndCommand(jtoken);
-		executeCommandWithAutoSave(
+		AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
 				command,
 				id,
 				AddToAutoSaveCommand.TIPUS_TOKEN);
+		commandService.execute(autoSaveCommand);
 //		this.sessionFactory.getCurrentSession().refresh(jtoken.getToken());
 		jtoken.getToken().setAbleToReactivateParent(true);
 		adminService.mesuraCalcular("jBPM revertTokenEnd", "jbpmDao");
@@ -1397,55 +1426,4 @@ public class JbpmHelper {
 		adminService.mesuraCalcular("jBPM findRootProcessInstancesForExpedientsWithActiveTasksCommand", "jbpmDao");
 		return resultat;
 	}
-
-
-
-	private Object executeCommandWithAutoSave(
-			Command command,
-			long id,
-			int autoSaveTipus) throws RuntimeException {
-		try {
-			AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
-					command,
-					id,
-					AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
-			return commandService.execute(autoSaveCommand);
-		} catch (JbpmException ex) {
-			throw tractarExceptionJbpm(ex);
-		}
-	}
-	private Object executeCommandWithAutoSave(
-			Command command,
-			long[] ids,
-			int autoSaveTipus) throws RuntimeException {
-		try {
-			AddToAutoSaveCommand autoSaveCommand = new AddToAutoSaveCommand(
-					command,
-					ids,
-					AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
-			return commandService.execute(autoSaveCommand);
-		} catch (JbpmException ex) {
-			throw tractarExceptionJbpm(ex);
-		}
-	}
-
-	private RuntimeException tractarExceptionJbpm(JbpmException ex) {
-		if (ex.getCause() != null && ex.getCause() instanceof DelegationException && ex.getCause().getCause() != null) {
-			for (StackTraceElement element: ex.getCause().getCause().getStackTrace()) {
-				if (element.getMethodName().equals("execute")) {
-					return new ExecucioHandlerException(
-							null,
-							null,
-							element.getClassName(),
-							element.getMethodName(),
-							element.getFileName(),
-							element.getLineNumber(),
-							ex.getCause().getCause().getMessage(),
-							ex.getCause().getCause());
-				}
-			}
-		}
-		return ex;
-	}
-
 }

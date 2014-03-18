@@ -11,7 +11,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.sf.cglib.beans.BeanGenerator;
@@ -161,30 +160,6 @@ public class TascaFormHelper {
 				Object.class,
 				beanValidationConfiguration);
 		return new BeanValidator(validationConfigurationLoader);
-	}
-
-	public static Map<String, List<Object>> getValorsPerSuggest(ExpedientTascaDto tasca, Object command) {
-		Map<String, List<Object>> resposta = new HashMap<String, List<Object>>();
-//		if (tasca.getValorsMultiplesDomini() != null) {
-//			for (String key: tasca.getValorsMultiplesDomini().keySet()) {
-//				List<Object> liniaResposta = new ArrayList<Object>();
-//				try {
-//					Object value = PropertyUtils.getSimpleProperty(command, key);
-//					for (int i = 0; i < Array.getLength(value); i++) {
-//						String valor = null;
-//						for (ParellaCodiValorDto parella: tasca.getValorsMultiplesDomini().get(key)) {
-//							if (parella.getCodi().equals(Array.get(value, i))) {
-//								valor = parella.getValor().toString();
-//								break;
-//							}
-//						}
-//						liniaResposta.add(valor);
-//					}
-//					resposta.put(key, liniaResposta);
-//				} catch (Exception ex) {}
-//			}
-//		}
-		return resposta;
 	}
 
 	public static void guardarCommandTemporal(

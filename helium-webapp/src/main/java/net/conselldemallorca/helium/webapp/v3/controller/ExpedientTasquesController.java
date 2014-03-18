@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
@@ -81,6 +82,11 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 		NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
 		model.addAttribute("documents", expedientService.findDocumentsPerExpedientTasca(expedientId, tascaId));
 		model.addAttribute("dades", tascaService.findDadesPerTasca(tascaId));
+		for (TascaDadaDto dada : tascaService.findDadesPerTasca(tascaId)) {
+			if (CampTipusDto.REGISTRE.equals(dada.getCampTipus())) {
+				System.out.println();
+			}
+		}
 		model.addAttribute("tasca", expedientService.getTascaPerExpedient(expedientId, tascaId));
 		return "v3/expedientTascaForm";
 	}
@@ -160,9 +166,6 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 				validatorGuardar.validate(command, result);
 				if (result.hasErrors()) {
 					MissatgesHelper.error(request, getMessage(request, "error.guardar.dades"));
-					model.addAttribute(
-		        			"valorsPerSuggest",
-		        			TascaFormHelper.getValorsPerSuggest(tasca, command));
 					return "redirect:/v3/expedient/"+expedientId+"/tasca/"+tascaId+"/form";
 				}
 				boolean ok = accioGuardarForm(request, entorn.getId(), id, tascaDadas, command);
@@ -192,10 +195,6 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 						return "redirect:/v3/expedient/"+expedientId+"/tasca/"+tascaId+"/form";
 					}
 					if (result.hasErrors()) {
-						model.addAttribute(
-			        			"valorsPerSuggest",
-			        			TascaFormHelper.getValorsPerSuggest(tasca, command));
-
 						MissatgesHelper.error(request, result, getMessage(request, "error.validacio"));
 						return "redirect:/v3/expedient/"+expedientId+"/tasca/"+tascaId+"/form";
 					}

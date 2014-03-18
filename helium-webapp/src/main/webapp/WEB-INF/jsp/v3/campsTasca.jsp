@@ -41,11 +41,11 @@
 				<c:param name="comment">${dada.observacions}</c:param>
 				<c:param name="suggestUrl"><c:url value="/v3/domini/consultaExpedient"/></c:param>
 				<c:param name="suggestExtraParams">${extraParams},tipus:'suggest'</c:param>
-				<c:param name="suggestText"><c:if test="${not empty tasca.valorsDomini[dada.varCodi]}">${tasca.valorsDomini[dada.varCodi].valor}</c:if></c:param>
+				<c:param name="suggestText">${dada.varCodi}</c:param>
 				<c:param name="iterateOn"><c:if test="${dada.campMultiple}">${command[dada.varCodi]}</c:if></c:param>
 				<c:param name="multipleIcons"><c:if test="${dada.campMultiple}">true</c:if></c:param>
-				<c:param name="multipleSuggestText">${valorsPerSuggest[dada.varCodi]}</c:param>
-			</c:import>	
+				<c:param name="multipleSuggestText"></c:param>
+			</c:import>
 			<div class="formHint">${dada.observacions}</div>
 		</c:if>
 		

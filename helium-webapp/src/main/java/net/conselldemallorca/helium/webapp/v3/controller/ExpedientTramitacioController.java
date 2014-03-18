@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -79,21 +80,6 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 	protected Validator validatorGuardar;
 	protected Validator validatorValidar;
 	
-	@ModelAttribute("valorsPerSuggest")
-	public Map<String, List<Object>> populateValorsPerSuggest(
-			HttpServletRequest request,
-			ModelMap model) {
-		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entorn != null) {
-			ExpedientTascaDto tasca = (ExpedientTascaDto)model.get("tasca");
-			if (tasca != null) {
-				Object command = model.get("command");
-				return TascaFormHelper.getValorsPerSuggest(tasca, command);
-			}
-		}
-		return null;
-	}
-	
 	@ModelAttribute("command")
 	protected Object populateCommand(
 			HttpServletRequest request, 
@@ -109,7 +95,6 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 			ExpedientTascaDto tasca;
 			if (commandSessio != null) {
 				tasca = tascaService.getById(entorn.getId(), id, null, TascaFormHelper.getValorsFromCommand(tascaDadas, commandSessio, false), true, true);
-				model.addAttribute("valorsPerSuggest", TascaFormHelper.getValorsPerSuggest(tasca, commandSessio));
 				command = commandSessio;
 			} else {
 				tasca = tascaService.getById(entorn.getId(), id, null, null, true, true);
@@ -129,7 +114,6 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 					campsAddicionalsClasses.put("procesScope", Map.class);
 					
 					command = TascaFormHelper.getCommandForCamps(tascaDadas, null, campsAddicionals, campsAddicionalsClasses, false);
-					model.addAttribute("valorsPerSuggest", TascaFormHelper.getValorsPerSuggest(tasca, command));
 				} catch (TascaNotFoundException ex) {
 					MissatgesHelper.error(request, ex.getMessage());
 					logger.error("No s'han pogut encontrar la tasca: " + ex.getMessage(), ex);
@@ -195,48 +179,44 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 		
 		while (i < request.getParameterMap().size()) {
 			Map<String, Object> variablesMultReg = new HashMap<String, Object>();
-			int numMembres = camp.getRegistreDades().size();
 			int salir = 0;
 			for (TascaDadaDto registreMembre : camp.getRegistreDades()) {
-				Object valor = null;
 				boolean sinValor = false;
-//				String campMembre = registreMembre.getMembre().getCodi();
-//				if (registreMembre.getMembre().getTipus().equals(CampTipusDto.BOOLEAN)) {
-//					variablesMultReg.put(campMembre, false);
-//				} else {
-//					variablesMultReg.put(campMembre, "");
-//				}
-//				if (request.getParameterMap().containsKey(camp.getCamp().getCodi()+"["+i+"]["+campMembre+"]")) {
-//					valor = request.getParameterMap().get(camp.getCamp().getCodi()+"["+i+"]["+campMembre+"]");
-//					valor = String.valueOf(((String[])valor)[0]);
-//					if (registreMembre.getMembre().getTipus().equals(CampTipusDto.BOOLEAN)) {						
-//						valor = "on".equals(valor);
-//					} else if ("".equals(valor)) {
-//						sinValor = true;					
-//					}
-//					variablesMultReg.put(campMembre, valor);
-//				} else {
-//					sinValor = true;
-//				}
-//				
-//				if (sinValor) {
-//					salir++;
-//					
-//					if (numMembres == salir) {
-//						variablesMultReg.clear();
-//						break;
-//					}			
-//				} 
-//			}
-//			
-//			if (!variablesMultReg.isEmpty()) {
-//				List<Object> variablesRegTmp = new ArrayList<Object>();
-//				for (CampRegistreDto registreMembre : camp.getCamp().getRegistreMembres()) {
-//					String campMembre = registreMembre.getMembre().getCodi();
-//					variablesRegTmp.add(variablesMultReg.get(campMembre));
-//				}
-//				
-//				guardarRegistre(request, id, camp.getCamp().getCodi(), camp.getCamp().isMultiple(), variablesRegTmp.toArray());
+				if (registreMembre.getCampTipus().equals(CampTipusDto.BOOLEAN)) {
+					variablesMultReg.put(registreMembre.getVarCodi(), false);
+				} else {
+					variablesMultReg.put(registreMembre.getVarCodi(), "");
+				}
+				if (request.getParameterMap().containsKey(camp.getVarCodi()+"["+i+"]["+registreMembre.getVarCodi()+"]")) {
+					Object valor = request.getParameterMap().get(camp.getVarCodi()+"["+i+"]["+registreMembre.getVarCodi()+"]");
+					valor = String.valueOf(((String[])valor)[0]);
+					if (registreMembre.getCampTipus().equals(CampTipusDto.BOOLEAN)) {						
+						valor = "on".equals(valor);
+					} else if ("".equals(valor)) {
+						sinValor = true;					
+					}
+					variablesMultReg.put(registreMembre.getVarCodi(), valor);
+				} else {
+					sinValor = true;
+				}
+				
+				if (sinValor) {
+					salir++;
+					if (camp.getRegistreDades().size() == salir) {
+						variablesMultReg.clear();
+						break;
+					}			
+				} 
+			}
+			
+			if (!variablesMultReg.isEmpty()) {
+				List<Object> variablesRegTmp = new ArrayList<Object>();
+				for (TascaDadaDto registreMembre : camp.getRegistreDades()) {
+					String campMembre = registreMembre.getVarCodi();
+					variablesRegTmp.add(variablesMultReg.get(campMembre));
+				}
+				
+				guardarRegistre(request, id, camp.getVarCodi(), camp.isCampMultiple(), variablesRegTmp.toArray());
 			}
 			
 			i++;

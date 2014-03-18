@@ -173,9 +173,6 @@ public class ExpedientInicioPasFormController extends ExpedientTramitacioControl
 					return "v3/expedient/iniciarPasForm";
 				}
 				if (result.hasErrors()) {
-					model.addAttribute(
-		        			"valorsPerSuggest",
-		        			TascaFormHelper.getValorsPerSuggest(tascaInicial, command));
 					for ( ObjectError res : result.getAllErrors()) {
 						String error = (res.getDefaultMessage() == null || res.getDefaultMessage().isEmpty()) ? getMessage(request, "error.validacio") : res.getDefaultMessage();
 						MissatgesHelper.error(request, error);

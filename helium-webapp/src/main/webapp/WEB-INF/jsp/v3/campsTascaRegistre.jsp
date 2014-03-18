@@ -5,6 +5,7 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 
+<c:set var="dadaActual" value="${dada}"/>
 <c:if test="${dada.campTipus == 'REGISTRE'}">
 	<div class="controls registre">
 		<c:if test="${dada.campMultiple}">
@@ -26,7 +27,7 @@
 						<c:forEach var="membre" items="${multiplemembre.registreDades}" varStatus="varStatusDades">
 							<td>												
 								<c:set var="dada" value="${membre}"/>
-								<c:set var="dada_multiple" value="${dada.varCodi}[${varStatus.index+1}]"/>
+								<c:set var="dada_multiple" value="${dadaActual.varCodi}[${varStatus.index+1}]"/>
 								<%@ include file="campsTasca.jsp" %>
 							</td>
 						</c:forEach>

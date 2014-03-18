@@ -32,6 +32,7 @@ import net.conselldemallorca.helium.report.FieldValue;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -164,29 +165,29 @@ public class ExpedientInformeController extends BaseExpedientController {
 			command = TascaFormHelper.getCommandForFiltre(campsFiltre, null, null, null);
 			session.setAttribute(VARIABLE_SESSIO_COMMAND, command);			
 
-//			if (consulta.getExpedientTipus() != null) {
-//				List<EstatDto> estats = dissenyService.findEstatByExpedientTipus(consulta.getExpedientTipus().getId());
-//				afegirEstatsInicialIFinal(request, estats);
-//				model.addAttribute("estats", estats);
-//			}
+			if (consulta.getExpedientTipus() != null) {
+				List<EstatDto> estats = dissenyService.findEstatByExpedientTipus(consulta.getExpedientTipus().getId());
+				afegirEstatsInicialIFinal(request, estats);
+				model.addAttribute("estats", estats);
+			}
 		}
 		model.addAttribute("campsFiltre", campsFiltre);	
 		model.addAttribute("campsInforme", campsInforme);	
 		return command;
 	}
 
-//	private void afegirEstatsInicialIFinal(HttpServletRequest request, List<EstatDto> estats) {
-//		EstatDto iniciat = new EstatDto();
-//		iniciat.setId(0L);
-//		iniciat.setCodi("0");
-//		iniciat.setNom( getMessage(request, "expedient.consulta.iniciat") );
-//		estats.add(0, iniciat);
-//		EstatDto finalitzat = new EstatDto();
-//		finalitzat.setId(-1L);
-//		finalitzat.setCodi("-1");
-//		finalitzat.setNom( getMessage(request, "expedient.consulta.finalitzat") );
-//		estats.add(finalitzat);
-//	}
+	private void afegirEstatsInicialIFinal(HttpServletRequest request, List<EstatDto> estats) {
+		EstatDto iniciat = new EstatDto();
+		iniciat.setId(Long.parseLong("0"));
+		iniciat.setCodi("0");
+		iniciat.setNom( getMessage(request, "expedient.consulta.iniciat") );
+		estats.add(0, iniciat);
+		EstatDto finalitzat = new EstatDto();
+		finalitzat.setId(Long.parseLong("-1"));
+		finalitzat.setCodi("-1");
+		finalitzat.setNom( getMessage(request, "expedient.consulta.finalitzat") );
+		estats.add(finalitzat);
+	}
 	
 	@RequestMapping(value = "/{expedientTipusId}", method = RequestMethod.POST)
 	public String post(
