@@ -489,32 +489,23 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 		}
 		public void run() {
 			try {
-				logger.info(">>> ENTRADA 0");
 				RegistroEntradaFacade registroEntrada = getRegistreEntradaService();
-				logger.info(">>> ENTRADA 1");
 				ParametrosRegistroEntrada respostaValidacio = registroEntrada.validar(params);
-				logger.info(">>> ENTRADA 2");
 				if (respostaValidacio.getValidado()) {
-					logger.info(">>> ENTRADA 3");
 					ParametrosRegistroEntrada respostaGrabacio = registroEntrada.grabar(params);
 					RespostaAnotacioRegistre resposta = new RespostaAnotacioRegistre();
-					logger.info(">>> ENTRADA 4");
 					if (respostaGrabacio.getGrabado()) {
-						logger.info(">>> ENTRADA 5");
 						resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_OK);
 						resposta.setNumero(
 								respostaGrabacio.getNumeroEntrada() +
 								SEPARADOR_NUMERO +
 								respostaGrabacio.getAnoEntrada());
 						resposta.setData(ara);
-						logger.info(">>> ENTRADA 6");
 						returned = resposta;
 					} else {
-						logger.info(">>> ENTRADA 7");
 						throw new RegistrePluginException("No s'ha pogut guardar l'entrada");
 					}
 				} else {
-					logger.info(">>> ENTRADA 8");
 					StringBuilder sb = new StringBuilder();
 					sb.append("Errors de validació:\n");
 					@SuppressWarnings("unchecked")
@@ -522,11 +513,9 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 					for (String camp: errors.keySet()) {
 						sb.append(" | " + errors.get(camp));
 					}
-					logger.info(">>> ENTRADA 9");
 					exception = new RegistrePluginException("S'han produit errors de validació de l'entrada: " + sb.toString());
 				}
 			} catch (Exception ex) {
-				logger.info(">>> ENTRADA 10");
 				exception = ex;
 			}
 		}
@@ -572,32 +561,23 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 		}
 		public void run() {
 			try {
-				logger.info(">>> SALIDA 0");
 				RegistroSalidaFacade registroSalida = getRegistreSortidaService();
-				logger.info(">>> SALIDA 1");
 				ParametrosRegistroSalida respostaValidacio = registroSalida.validar(params);
-				logger.info(">>> SALIDA 2");
 				if (respostaValidacio.getValidado()) {
-					logger.info(">>> SALIDA 3");
 					ParametrosRegistroSalida respostaGrabacio = registroSalida.grabar(params);
 					RespostaAnotacioRegistre resposta = new RespostaAnotacioRegistre();
-					logger.info(">>> SALIDA 4");
 					if (respostaGrabacio.getGrabado()) {
-						logger.info(">>> SALIDA 5");
 						resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_OK);
 						resposta.setNumero(
 								respostaGrabacio.getNumeroSalida() +
 								SEPARADOR_NUMERO +
 								respostaGrabacio.getAnoSalida());
 						resposta.setData(ara);
-						logger.info(">>> SALIDA 6");
 						returned = resposta;
 					} else {
-						logger.info(">>> SALIDA 7");
 						throw new RegistrePluginException("No s'ha pogut guardar la sortida");
 					}
 				} else {
-					logger.info(">>> SALIDA 8");
 					StringBuilder sb = new StringBuilder();
 					sb.append("Errors de validació:\n");
 					@SuppressWarnings("unchecked")
@@ -605,11 +585,9 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 					for (String camp: errors.keySet()) {
 						sb.append(" | " + errors.get(camp));
 					}
-					logger.info(">>> SALIDA 9");
 					throw new RegistrePluginException("S'han produit errors de validació de l'entrada: " + sb.toString());
 				}
 			} catch (Exception ex) {
-				logger.info(">>> SALIDA 10");
 				exception = ex;
 			}
 		}
