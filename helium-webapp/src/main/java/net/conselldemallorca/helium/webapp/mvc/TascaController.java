@@ -732,18 +732,9 @@ public class TascaController extends BaseController {
 				
 				// Restauram la primera tasca
 				// ------------------------------------------
-				tascaService.completar(entornId, id, true, null, transicio);
+				//tascaService.completar(entornId, id, true, null, transicio);
 				
-				if (tascaIds.length > 1) {
-					// Programam massivament la resta de tasques
-					// ------------------------------------------
-					String[] tIds = new String[tascaIds.length - 1];
-					int j = 0;
-					for (int i = 0; i < tascaIds.length; i++) {
-						if (!tascaIds[i].equals(id)) {
-							tIds[j++] = tascaIds[i];
-						}
-					}
+				if (tascaIds.length > 0) {
 					// Obtenim informació de l'execució massiva
 					// Data d'inici
 					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
@@ -758,7 +749,7 @@ public class TascaController extends BaseController {
 					ExecucioMassivaDto dto = new ExecucioMassivaDto();
 					dto.setDataInici(dInici);
 					dto.setEnviarCorreu(bCorreu);
-					dto.setTascaIds(tIds);
+					dto.setTascaIds(tascaIds);
 					dto.setExpedientTipusId(expTipusId);
 					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
 					dto.setParam1("Completar");
@@ -768,7 +759,7 @@ public class TascaController extends BaseController {
 					dto.setParam2(execucioMassivaService.serialize(params));
 					execucioMassivaService.crearExecucioMassiva(dto);
 					
-					missatgeInfo(request, getMessage("info.tasca.massiu.completar", new Object[] {tIds.length}));
+					missatgeInfo(request, getMessage("info.tasca.massiu.completar", new Object[] {tascaIds.length}));
 				}
 			} catch (Exception e) {
 				missatgeError(request, getMessage("error.no.massiu"));

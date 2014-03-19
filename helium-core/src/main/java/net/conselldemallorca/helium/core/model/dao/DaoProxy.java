@@ -141,7 +141,7 @@ public class DaoProxy implements ApplicationContextAware {
 				Thread.sleep(500);
 			} catch (Exception ex) {}
 		}
-		logger.info("Context OK, seguim endavant");
+		//logger.info("Context OK, seguim endavant");
 	}
 
 	private static final Log logger = LogFactory.getLog(UpdateService.class);
