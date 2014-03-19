@@ -72,8 +72,8 @@ import org.springframework.web.bind.support.SessionStatus;
 @Controller
 public class ExpedientConsultaDissenyController extends BaseController {
 
-	private static final String VARIABLE_SESSIO_SELCON_COMMAND = "expedientTipusConsultaDissenyCommand";
-	private static final String VARIABLE_SESSIO_FILTRE_COMMAND = "expedientTipusConsultaFiltreCommand";
+	public static final String VARIABLE_SESSIO_SELCON_COMMAND = "expedientTipusConsultaDissenyCommand";
+	public static final String VARIABLE_SESSIO_FILTRE_COMMAND = "expedientTipusConsultaFiltreCommand";
 	public static final String VARIABLE_SESSIO_IDS_MASSIUS_TE = "consultaExpedientsIdsMassiusTE";
 	public static final String VARIABLE_SESSIO_IDS_MASSIUS = "consultaExpedientsIdsMassius";
 	public static final String VARIABLE_SESSIO_PARAMS = "consultaExpedientsParams";
@@ -777,7 +777,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		return docs;
 	}
 
-	private Map<String, Object> getValorsPerService(
+	public static Map<String, Object> getValorsPerService(
 			List<Camp> camps,
 			Map<String, Object> valors) {
 		Map<String, Object> valorsPerService = new HashMap<String, Object>();

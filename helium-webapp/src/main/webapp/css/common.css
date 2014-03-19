@@ -13,6 +13,10 @@ a:hover {
 	text-decoration: underline;
 }
 
+.right {
+	float: right;
+}
+
 #content h2 {
     padding: 0 0 1.4em 0;
     color: black;

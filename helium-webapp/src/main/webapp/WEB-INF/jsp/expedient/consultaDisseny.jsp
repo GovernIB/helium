@@ -148,67 +148,73 @@
 		<form:form action="consultaDissenyResultat.html" commandName="commandFiltre" cssClass="uniForm">
 			<input type="hidden" name="idsExp" id="idsExp" value="${sessionScope.consultaExpedientsIdsMassiusTE}">
 			<input type="hidden" name="expedientTipusId" id="expedientTipusId" value="${consulta.expedientTipus.id}">
-					<div class="inlineLabels col first">
-						<c:forEach var="camp" items="${campsFiltre}">
-							<c:set var="campActual" value="${camp}" scope="request"/>
-							<c:set var="readonly" value="${false}" scope="request"/>
-							<c:set var="required" value="${false}" scope="request"/>
-							<c:import url="../common/campFiltre.jsp"/>
-						</c:forEach>
-					
-						<c:if test="${empty consulta.informeNom}">
+			<div class="inlineLabels col first">
+				<c:forEach var="camp" items="${campsFiltre}">
+					<c:set var="campActual" value="${camp}" scope="request"/>
+					<c:set var="readonly" value="${false}" scope="request"/>
+					<c:set var="required" value="${false}" scope="request"/>
+					<c:import url="../common/campFiltre.jsp"/>
+				</c:forEach>
+			
+				<c:if test="${empty consulta.informeNom}">
+					<c:import url="../common/formElement.jsp">
+						<c:param name="type" value="buttons"/>
+						<c:param name="values">submit,netejar</c:param>
+						<c:param name="titles"><fmt:message key="expedient.consulta.consultar"/>,<fmt:message key="expedient.consulta.netejar"/></c:param>
+					</c:import>
+				</c:if>
+				<c:if test="${not empty consulta.informeNom}">
+					<c:choose>
+						<c:when test="${fn:length(expedients.list) > 0}">
+							<c:import url="../common/formElement.jsp">
+								<c:param name="type" value="buttons"/>
+								<c:param name="values">informe,submit,netejar</c:param>
+								<c:param name="titles"><fmt:message key="expedient.consulta.informe"/>,<fmt:message key="expedient.consulta.consultar"/>,<fmt:message key="expedient.consulta.netejar"/></c:param>
+							</c:import>
+						</c:when>
+						<c:otherwise>
 							<c:import url="../common/formElement.jsp">
 								<c:param name="type" value="buttons"/>
 								<c:param name="values">submit,netejar</c:param>
 								<c:param name="titles"><fmt:message key="expedient.consulta.consultar"/>,<fmt:message key="expedient.consulta.netejar"/></c:param>
 							</c:import>
-						</c:if>
-						<c:if test="${not empty consulta.informeNom}">
-							<c:choose>
-								<c:when test="${fn:length(expedients.list) > 0}">
-									<c:import url="../common/formElement.jsp">
-										<c:param name="type" value="buttons"/>
-										<c:param name="values">informe,submit,netejar</c:param>
-										<c:param name="titles"><fmt:message key="expedient.consulta.informe"/>,<fmt:message key="expedient.consulta.consultar"/>,<fmt:message key="expedient.consulta.netejar"/></c:param>
-									</c:import>
-								</c:when>
-								<c:otherwise>
-									<c:import url="../common/formElement.jsp">
-										<c:param name="type" value="buttons"/>
-										<c:param name="values">submit,netejar</c:param>
-										<c:param name="titles"><fmt:message key="expedient.consulta.consultar"/>,<fmt:message key="expedient.consulta.netejar"/></c:param>
-									</c:import>
-								</c:otherwise>
-							</c:choose>
-						</c:if>
-					</div>
+						</c:otherwise>
+					</c:choose>
+				</c:if>
+			</div>
+			<c:if test="${not empty expedients}">
+				<div class="ctrlHolder" align="right">
+					<c:set var="opp"><c:if test='${empty objectsPerPage}'>20</c:if><c:if test='${not empty objectsPerPage}'>${objectsPerPage}</c:if></c:set>
+					<c:set var="copp" value="opp-llista-tipus"/>
 					<c:if test="${not empty expedients}">
-						<div class="ctrlHolder" align="right">
-							<c:set var="opp"><c:if test='${empty objectsPerPage}'>20</c:if><c:if test='${not empty objectsPerPage}'>${objectsPerPage}</c:if></c:set>
-							<c:set var="copp" value="opp-llista-tipus"/>
-							<c:if test="${not empty expedients}">
-								<c:set var="copp" value="opp-llista-mas"/>
-							</c:if>
-							<select id="objectsPerPage" name="objectsPerPage" class="objectsPerPage<c:if test='${not empty consulta}'> ${copp}</c:if>">
-								<option value="10"<c:if test='${opp == "10"}'> selected="selected"</c:if>>10</option>
-								<option value="20"<c:if test='${opp == "20"}'> selected="selected"</c:if>>20</option>
-								<option value="50"<c:if test='${opp == "50"}'> selected="selected"</c:if>>50</option>
-								<option value="100"<c:if test='${opp == "100"}'> selected="selected"</c:if>>100</option>
-								<option value="999999999"<c:if test='${opp == "999999999"}'> selected="selected"</c:if>>Tots</option>
-							</select>
-							<label for="objectsPerPage" class="objectsPerPage<c:if test='${not empty consulta}'> ${copp}</c:if>"><fmt:message key="comuns.objectsPerPage"/></label>
-						</div>
+						<c:set var="copp" value="opp-llista-mas"/>
 					</c:if>
-			</form:form>
+					<select id="objectsPerPage" name="objectsPerPage" class="objectsPerPage<c:if test='${not empty consulta}'> ${copp}</c:if>">
+						<option value="10"<c:if test='${opp == "10"}'> selected="selected"</c:if>>10</option>
+						<option value="20"<c:if test='${opp == "20"}'> selected="selected"</c:if>>20</option>
+						<option value="50"<c:if test='${opp == "50"}'> selected="selected"</c:if>>50</option>
+						<option value="100"<c:if test='${opp == "100"}'> selected="selected"</c:if>>100</option>
+						<option value="999999999"<c:if test='${opp == "999999999"}'> selected="selected"</c:if>>Tots</option>
+					</select>
+					<label for="objectsPerPage" class="objectsPerPage<c:if test='${not empty consulta}'> ${copp}</c:if>"><fmt:message key="comuns.objectsPerPage"/></label>
+				</div>
+			</c:if>
+		</form:form>
 			
 		<c:if test="${not empty sessionScope.expedientTipusConsultaFiltreCommand or not empty sessionScope.expedientTipusConsultaFiltreCommandTE}">
 			
 			<c:if test="${not empty expedients}">
 				<table >
 					<tr id="disnyTR">
-						<td id="disnyTD">
-							<form action="<c:url value="/expedient/massivaInfoTE.html"/>"><button type="submit" class="submitButton"><fmt:message key="expedient.consulta.massiva.accions"/></button></form>
-							<br>
+						<td>
+							<label><fmt:message key="expedient.consulta.massiva.accions"/></label>
+						</td>
+						<td>
+							<form id="massivaInfoForm" action="<c:url value="/expedient/massivaInfoTE.html"/>">
+								<input type="hidden" id="massivaInfoTots" name="massivaInfoTots" value="0"/>
+								<button type="button" onclick="$('#massivaInfoTots').val(0);$('#massivaInfoForm').submit()" class="submitButton"><fmt:message key="expedient.consulta.massiva.accions.sel"/></button>
+								<button type="button" class="submitButton" onclick="$('#massivaInfoTots').val(1);$('#massivaInfoForm').submit()"><fmt:message key="expedient.consulta.massiva.accions.tots"/></button>
+							</form>
 						</td>
 					</tr>
 				</table>

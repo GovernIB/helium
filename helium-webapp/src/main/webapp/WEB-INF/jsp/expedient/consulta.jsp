@@ -405,23 +405,23 @@ function selTots(){
 		</c:if>
 		<c:if test="${!globalProperties['app.gis.plugin.actiu']}">
 			<c:if test="${command.massivaActiu}">
-		<form action="<c:url value="/expedient/massivaInfo.html"/>">
-			<button type="submit" class="submitButton"><fmt:message key="expedient.consulta.massiva.accions"/></button>
-		</form>
+				<table>
+					<tr id="consTR">
+						<td>
+							<label><fmt:message key="expedient.consulta.massiva.accions"/></label>
+						</td>
+						<td>
+							<form id="massivaInfoForm" action="<c:url value="/expedient/massivaInfo.html"/>">
+								<input type="hidden" id="massivaInfoTots" name="massivaInfoTots" value="0"/>
+								<button type="button" onclick="$('#massivaInfoTots').val(0);$('#massivaInfoForm').submit()" class="submitButton"><fmt:message key="expedient.consulta.massiva.accions.sel"/></button>
+								<button type="button" class="submitButton" onclick="$('#massivaInfoTots').val(1);$('#massivaInfoForm').submit()"><fmt:message key="expedient.consulta.massiva.accions.tots"/></button>
+							</form>
+						</td>
+					</tr>
+				</table>
 			</c:if>
 		</c:if>
 		<br>
-		
-		
-		
-		
-		<%--div class="missatgesGris">
-			<c:choose>
-				<c:when test="${empty llistat}"><p><fmt:message key="expedient.consulta.notrobats"/></p></c:when>
-				<c:when test="${fn:length(llistat) == 1}"><p><fmt:message key="expedient.consulta.trobatun"/></p></c:when>
-				<c:otherwise><p><fmt:message key="expedient.consulta.trobats"><fmt:param value="${fn:length(llistat)}"/></fmt:message></p></c:otherwise>
-			</c:choose>
-		</div--%>
 		<c:if test="${not empty llistat}">
 			<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable" sort="external">
 				<c:set var="filaStyle" value=""/>
