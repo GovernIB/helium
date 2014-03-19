@@ -35,10 +35,10 @@ public class MesurarTemps {
 		diferenciaImprimirStdout(clau, null);
 	}
 	public static void diferenciaImprimirStdout(String clau, String text) {
-		String perAfegir = "";
+		/*String perAfegir = "";
 		if (text != null)
 			perAfegir += " " + text + " ";
-		System.out.println("---> [" + clau + "]" + perAfegir + ": " + diferenciaCalcular(clau) + "ms");
+		System.out.println("---> [" + clau + "]" + perAfegir + ": " + diferenciaCalcular(clau) + "ms");*/
 	}
 	public static void diferenciaImprimirStdoutIReiniciar(String clau) {
 		diferenciaImprimirStdout(clau, null);
@@ -75,7 +75,7 @@ public class MesurarTemps {
 				new Integer(contador + 1));
 	}
 	public static void mitjaImprimirStdout(String clau) {
-		diferenciaImprimirStdout(clau, null);
+		mitjaImprimirStdout(clau, null);
 	}
 	public static void mitjaImprimirStdout(String clau, String text) {
 		String perAfegir = "";

@@ -461,7 +461,7 @@ public class MesuresTemporalsHelper {
 			if (maxim == null || diferencia > maxim)
 				maxim = diferencia;
 			contador++;
-			if (events.size() == mesures)
+			if (!events.isEmpty() && events.size() == mesures)
 				events.removeFirst();
 			events.add(new IntervalEvent(new Date(), diferencia));
 			if (mitja == null)
