@@ -120,7 +120,6 @@ function mostrarOcultar(img, objid) {
 		</c:choose>
 		<display:column property="nom" titleKey="comuns.titol" sortable="false"/>
 		<display:column property="expedientTipus.nom" titleKey="comuns.tipus_exp" sortable="false" />
-		
 		<display:column>
 			<c:set var="numCampsFiltre" value="${0}"/>
 	    	<c:forEach var="camp" items="${registre.camps}">
@@ -130,7 +129,7 @@ function mostrarOcultar(img, objid) {
 				<input type="hidden" name="id" value="${registre.id}"/>
 				<input type="hidden" name="tipus" value="${tipusFiltre}"/>
 				<input type="hidden" name="expedientTipusId" value="${param.expedientTipusId}"/>
-				<button type="submit" class="submitButton"><fmt:message key='consulta.llistat.vars_filtre' />&nbsp;(${numCampsFiltre})</button>
+				<button type="submit" class="submitButton"><fmt:message key="consulta.llistat.vars_filtre"/>&nbsp;(${numCampsFiltre})</button>
 			</form>
 	    </display:column>
 	    <display:column>
@@ -142,7 +141,18 @@ function mostrarOcultar(img, objid) {
 				<input type="hidden" name="id" value="${registre.id}"/>
 				<input type="hidden" name="tipus" value="${tipusInforme}"/>
 				<input type="hidden" name="expedientTipusId" value="${param.expedientTipusId}"/>
-				<button type="submit" class="submitButton">Variables de l'informe&nbsp;(${numCampsInforme})</button>
+				<button type="submit" class="submitButton"><fmt:message key="consulta.llistat.vars_informe"/>&nbsp;(${numCampsInforme})</button>
+			</form>
+	    </display:column>
+	    <display:column>
+	    	<c:set var="numParamsInforme" value="${0}"/>
+	    	<c:forEach var="camp" items="${registre.camps}">
+    			<c:if test="${camp.tipus=='PARAM'}"><c:set var="numParamsInforme" value="${numParamsInforme+1}"/></c:if>
+	    	</c:forEach>
+	    	<form action="consultaParams.html">
+				<input type="hidden" name="id" value="${registre.id}"/>
+				<input type="hidden" name="expedientTipusId" value="${param.expedientTipusId}"/>
+				<button type="submit" class="submitButton"><fmt:message key="consulta.llistat.params_informe"/>&nbsp;(${numParamsInforme})</button>
 			</form>
 	    </display:column>
 	    <%--display:column>
