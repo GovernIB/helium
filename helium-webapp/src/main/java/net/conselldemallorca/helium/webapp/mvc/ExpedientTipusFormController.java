@@ -102,7 +102,7 @@ public class ExpedientTipusFormController extends BaseController {
 			BindingResult result,
 			SessionStatus status,
 			ModelMap model) {
-		Entorn entorn = getEntornActiu(request);
+		Entorn entorn = command.getId() == null ? getEntornActiu(request) : command.getEntorn();
 		if (entorn != null) {
 			if (potDissenyarEntorn(entorn)) {
 				if ("submit".equals(submit) || submit.length() == 0) {
