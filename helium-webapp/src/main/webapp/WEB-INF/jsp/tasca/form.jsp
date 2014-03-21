@@ -193,7 +193,7 @@ function confirmar(form) {
 						<c:param name="type" value="buttons"/>
 						<c:param name="values">restore</c:param>
 						<c:param name="titles"><fmt:message key='comuns.modificar' /></c:param>
-						<c:param name="onclick" value="guardarAccio(this.value)"/>
+<%-- 						<c:param name="onclick" value="guardarAccio(this.value)"/> --%>
 					</c:import>
 				</c:when>
 				<c:otherwise>
@@ -201,7 +201,7 @@ function confirmar(form) {
 						<c:param name="type" value="buttons"/>
 						<c:param name="values">submit,validate</c:param>
 						<c:param name="titles"><fmt:message key='tasca.form.guardar' />,<fmt:message key='tasca.form.validar' /></c:param>
-						<c:param name="onclick" value="guardarAccio(this.value)"/>
+<%-- 						<c:param name="onclick" value="guardarAccio(this.value)"/> --%>
 					</c:import>
 				</c:otherwise>
 			</c:choose>
