@@ -997,12 +997,13 @@ public class ExpedientMassivaController extends BaseController {
 	@RequestMapping(value = "/expedient/massivaInfo")
 	public String infoMassiva(
 			HttpServletRequest request,
-			@RequestParam(value = "massivaInfoTots", required = false) boolean massivaInfoTots,			
+			@RequestParam(value = "massivaInfoTots", required = false) boolean massivaInfoTots,
+			@RequestParam(value = "expedientTipusId", required = false) Long expedientTipusId,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
-		if (entorn != null) {			
+		if (entorn != null) {
 			List<ExpedientDto> expedients = null;
-			if (!massivaInfoTots) {
+			if (!massivaInfoTots && expedientTipusId == null) {
 				List<Long> ids = getIdsMassius(request);
 				if (ids == null || ids.isEmpty() || ids.size() <= 1) {
 					missatgeError(request, getMessage("error.no.exp.selec"));
@@ -1010,9 +1011,9 @@ public class ExpedientMassivaController extends BaseController {
 				}
 				expedients = getExpedientsMassius(ids.subList(1, ids.size()));	
 			} else {
-				expedients = getExpedientsMassiusTots(request);
+				expedients = getExpedientsMassiusTots(request, expedientTipusId);
 				if (expedients.isEmpty()) {
-					missatgeError(request, getMessage("error.no.exp.selec"));
+					missatgeError(request, getMessage("error.no.exp.execmasiv"));
 					return "redirect:/expedient/consulta.html";
 				}
 				
@@ -1033,24 +1034,25 @@ public class ExpedientMassivaController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
-	
+
 	@RequestMapping(value = "/expedient/massivaInfoTE")
 	public String infoMassivaTipusExpedient(
 			HttpServletRequest request,
-			@RequestParam(value = "massivaInfoTots", required = false) boolean massivaInfoTots,		
+			@RequestParam(value = "massivaInfoTots", required = false) boolean massivaInfoTots,
+			@RequestParam(value = "expedientTipusId", required = false) Long expedientTipusId,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			List<ExpedientDto> expedients = null;
 			List<Long> ids = null;
-			if (!massivaInfoTots) {
+			if (!massivaInfoTots && expedientTipusId == null) {
 				ids = getIdsMassius(request);
 			} else {
-				ids = getIdsExpedientsMassiusTotsTe(request);
+				ids = getIdsExpedientsMassiusTotsTe(request, expedientTipusId);
 			}
 			
 			if (ids == null || ids.isEmpty()  || ids.size() <= 1) {
-				missatgeError(request, getMessage("error.no.exp.selec"));
+				missatgeError(request, massivaInfoTots ? getMessage("error.no.exp.execmasiv") : getMessage("error.no.exp.selec"));
 				return "redirect:/expedient/consultaDisseny.html";
 			}
 			
@@ -1804,10 +1806,18 @@ public class ExpedientMassivaController extends BaseController {
 	}
 	
 	/**
-	 * Recupera la lista de Ids del tipo de expediente seleccionado.
+	 * Recupera la lista de Ids de la consulta de expedientes.
 	 */
-	private List<ExpedientDto> getExpedientsMassiusTots(HttpServletRequest request) {
-		ExpedientConsultaGeneralCommand command = (ExpedientConsultaGeneralCommand) request.getSession().getAttribute(ExpedientConsultaController.VARIABLE_SESSIO_COMMAND);
+	private List<ExpedientDto> getExpedientsMassiusTots(HttpServletRequest request, Long expedientTipusId) {
+		ExpedientConsultaGeneralCommand command;
+		if (expedientTipusId == null) {
+			command = (ExpedientConsultaGeneralCommand) request.getSession().getAttribute(ExpedientConsultaController.VARIABLE_SESSIO_COMMAND);
+		} else {
+			command = new ExpedientConsultaGeneralCommand();
+			ExpedientTipus expedientTipus = new ExpedientTipus();
+			expedientTipus.setId(expedientTipusId);
+			command.setExpedientTipus(expedientTipus);
+		}
 		
 		boolean iniciat = false;
 		boolean finalitzat = false;
@@ -1844,23 +1854,31 @@ public class ExpedientMassivaController extends BaseController {
 	
 	/**
 	 * Recupera la lista de Ids del tipo de expediente seleccionado.
+	 * @param expedientTipusId 
 	 */
-	private List<Long> getIdsExpedientsMassiusTotsTe(HttpServletRequest request) {
+	private List<Long> getIdsExpedientsMassiusTotsTe(HttpServletRequest request, Long expedientTipusId) {
 		List<Long> ids = new ArrayList<Long>();
 		if (request.getSession().getAttribute(ExpedientConsultaDissenyController.VARIABLE_SESSIO_SELCON_COMMAND) != null && request.getSession().getAttribute(ExpedientConsultaDissenyController.VARIABLE_SESSIO_SELCON_COMMAND) != null) {
 			ExpedientConsultaDissenyCommand commandSeleccioConsulta = (ExpedientConsultaDissenyCommand) request.getSession().getAttribute(ExpedientConsultaDissenyController.VARIABLE_SESSIO_SELCON_COMMAND);
-			Object commandFiltre = request.getSession().getAttribute(ExpedientConsultaDissenyController.VARIABLE_SESSIO_FILTRE_COMMAND);
+			Object commandFiltre = null;
+			if (expedientTipusId == null) {
+				commandFiltre = request.getSession().getAttribute(ExpedientConsultaDissenyController.VARIABLE_SESSIO_FILTRE_COMMAND);
+			} 
 			
 			List<Camp> camps = dissenyService.findCampsPerCampsConsulta(
 					commandSeleccioConsulta.getConsultaId(),
 					TipusConsultaCamp.FILTRE,
 					true);
 	
-			Map<String, Object> valors = TascaFormUtil.getValorsFromCommand(
-					camps,
-					commandFiltre,
-					true,
-					true);
+			Map<String, Object> valors = new HashMap<String, Object>(); 
+			
+			if (commandFiltre != null) {
+				valors = TascaFormUtil.getValorsFromCommand(
+						camps,
+						commandFiltre,
+						true,
+						true);
+			}
 			
 			ids = expedientService.findIdsAmbEntornConsultaDisseny(
 					getEntornActiu(request).getId(),

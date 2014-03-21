@@ -49,7 +49,7 @@ public class JbpmTask {
 	}
 
 	public String getName() {
-		return task.getName();
+		return task.getTask().getName();
 	}
 	public String getDescription() {
 		if (task.getDescription() == null)
