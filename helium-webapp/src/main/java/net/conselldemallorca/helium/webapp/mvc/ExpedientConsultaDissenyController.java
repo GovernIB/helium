@@ -449,11 +449,11 @@ public class ExpedientConsultaDissenyController extends BaseController {
 						model.addAttribute(
 								JasperReportsView.MODEL_ATTRIBUTE_SUBREPORTS,
 								reports);
-						return "jasperReportsView";
-					} else
+					} else {
 						model.addAttribute(
 								JasperReportsView.MODEL_ATTRIBUTE_REPORTCONTENT,
 								consulta.getInformeContingut());
+					}
 					model.addAttribute(
 							JasperReportsView.MODEL_ATTRIBUTE_CONSULTA,
 							consulta.getCodi());

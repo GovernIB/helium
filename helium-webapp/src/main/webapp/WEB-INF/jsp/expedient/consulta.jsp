@@ -29,8 +29,7 @@ function refrescarEstats(element) {
 	    dataType: 'json',
 	    cache: false,
 	    beforeSend: function(msg){
-	    	var options = '';
-	    	options = '<option value=""><fmt:message key="js.helforms.carreg_dades"/></option>';
+	    	var options = '<option value=""><fmt:message key="js.helforms.carreg_dades"/></option>';
 	    	$("select#estat0").html(options).attr('class', 'inlineLabels');
 		},
 	    success: function(json) {
@@ -46,6 +45,9 @@ function refrescarEstats(element) {
 	    },
 	    error: function(jqXHR, textStatus, errorThrown) {
 	    	console.log("Error al actualitzar la llista d'estats: [" + textStatus + "] " + errorThrown);
+
+	    	var options = '<option value="">&lt;&lt; <fmt:message key="expedient.consulta.select.estat"/> &gt;&gt;</option>';
+	    	$("select#estat0").html(options).attr('class', 'inlineLabels');
 	    }
 	});
 	$.ajax({
