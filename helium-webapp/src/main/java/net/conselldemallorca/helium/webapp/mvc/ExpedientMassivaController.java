@@ -1045,10 +1045,10 @@ public class ExpedientMassivaController extends BaseController {
 		if (entorn != null) {
 			List<ExpedientDto> expedients = null;
 			List<Long> ids = null;
-			if (!massivaInfoTots && expedientTipusId == null) {
+			if (!massivaInfoTots) {
 				ids = getIdsMassius(request);
 			} else {
-				ids = getIdsExpedientsMassiusTotsTe(request, expedientTipusId);
+				ids = getIdsExpedientsMassiusTotsTe(request);
 			}
 			
 			if (ids == null || ids.isEmpty()  || ids.size() <= 1) {
@@ -1856,12 +1856,12 @@ public class ExpedientMassivaController extends BaseController {
 	 * Recupera la lista de Ids del tipo de expediente seleccionado.
 	 * @param expedientTipusId 
 	 */
-	private List<Long> getIdsExpedientsMassiusTotsTe(HttpServletRequest request, Long expedientTipusId) {
+	private List<Long> getIdsExpedientsMassiusTotsTe(HttpServletRequest request) {
 		List<Long> ids = new ArrayList<Long>();
 		if (request.getSession().getAttribute(ExpedientConsultaDissenyController.VARIABLE_SESSIO_SELCON_COMMAND) != null && request.getSession().getAttribute(ExpedientConsultaDissenyController.VARIABLE_SESSIO_SELCON_COMMAND) != null) {
 			ExpedientConsultaDissenyCommand commandSeleccioConsulta = (ExpedientConsultaDissenyCommand) request.getSession().getAttribute(ExpedientConsultaDissenyController.VARIABLE_SESSIO_SELCON_COMMAND);
 			Object commandFiltre = null;
-			if (expedientTipusId == null) {
+			if (commandSeleccioConsulta.getExpedientTipusId() == null) {
 				commandFiltre = request.getSession().getAttribute(ExpedientConsultaDissenyController.VARIABLE_SESSIO_FILTRE_COMMAND);
 			} 
 			
@@ -1880,16 +1880,15 @@ public class ExpedientMassivaController extends BaseController {
 						true);
 			}
 			
-			ids = expedientService.findIdsAmbEntornConsultaDisseny(
+			ids.add(commandSeleccioConsulta.getExpedientTipusId());			
+			ids.addAll(expedientService.findIdsAmbEntornConsultaDisseny(
 					getEntornActiu(request).getId(),
 					commandSeleccioConsulta.getConsultaId(),
 					ExpedientConsultaDissenyController.getValorsPerService(camps, valors),
 					"dataInici",
 					true,
 					0,
-					-1);
-
-			ids.add(0L);
+					-1));
 			request.getSession().setAttribute(VARIABLE_SESSIO_IDS_MASSIUS_TE, ids);
 		}
 		return ids;

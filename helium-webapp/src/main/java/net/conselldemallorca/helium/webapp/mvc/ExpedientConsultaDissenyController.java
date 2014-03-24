@@ -293,7 +293,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			
 			} else if ("ejecucionMasivaTotsTipus".equals(submit)) {
 				session.removeAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);
-				return "redirect:/expedient/massivaInfoTE.html?expedientTipusId="+commandSeleccio.getExpedientTipusId();
+				return "redirect:/expedient/massivaInfoTE.html?massivaInfoTots=true&expedientTipusId="+commandSeleccio.getExpedientTipusId();
 			}
 			
 			model.addAttribute("objectsPerPage", objectsPerPage);
