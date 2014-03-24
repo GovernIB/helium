@@ -186,17 +186,15 @@ function accioCampExecutar(elem, field) {
 
 var submitAction;
 function saveAction(element, action) {
-	submitAction = action;		
-	element.innerHTML = action;
-	var $submits = document.getElementsByName("submit");
-	for (var i = 0; i < $submits.length; i++) {
-		$($submits[i]).removeAttr("onclick");
-	    if ($submits[i] != element) {
-	    	if ($.browser.msie && $.browser.version.substr(0,1) <= 7) {
-	        	$submits[i].name = $submits[i].name + i;
-	    	}
-	    	$($submits[i]).prop("disabled", true);
-	    }
+	submitAction = action;
+	if ($.browser.msie && $.browser.version.substr(0,1) <= 7) {
+		element.innerHTML = action;
+		var $submits = document.getElementsByName("submit");
+		for (var i = 0; i < $submits.length; i++) {
+		    if ($submits[i] != element) {
+		        $submits[i].name = $submits[i].name + i;
+		    }
+		}
 	}
 }
 
