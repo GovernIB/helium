@@ -31,7 +31,9 @@ public class ExpedientNumeroModificarHandler extends AbstractHeliumActionHandler
 				numero,
 				varNumero);
 		ExpedientDto expedient = getExpedientActual(executionContext);
-		logger.debug("Modificant número de l'expedient (exp=" + expedient.getIdentificacioPerLogs() + ", número=" + n + ")");
+		if (findExpedientAmbMateixTipusINumero(executionContext, n).size() > 0)
+			throw new JbpmException("Ja existeix un altre expedient d'aquest tipus amb el mateix número (" + n + ")");
+		logger.debug("Modificant número de l'expedient (expedient=" + expedient.getIdentificacioPerLogs() + ", número=" + n + ")");
 		try {
 			Jbpm3HeliumBridge.getInstanceService().expedientModificarNumero(
 					getProcessInstanceId(executionContext),

@@ -10,7 +10,7 @@ import java.util.List;
 
 
 /**
- * DTO amb informació d'una dada de l'expedient.
+ * DTO amb informació d'una dada de d'una tasca.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -26,41 +26,30 @@ public class TascaDadaDto {
 	private String jbpmAction;
 	private String observacions;
 
+	private String text;
+	private List<TascaDadaDto> multipleDades;
+	private List<TascaDadaDto> registreDades;
+
+	private String error;
+
 	private boolean readOnly;
 	private boolean readFrom;
 	private boolean writeTo;
 	private boolean required;
 
-	private String text;
-	private List<TascaDadaDto> multipleDades;
-	private List<TascaDadaDto> registreDades;
-	
 	private List<ValidacioDto> validacions = new ArrayList<ValidacioDto>();
 
-	private String error;
-	
+
+
 	public TascaDadaDto(String codi, CampTipusDto tipus, String etiqueta) {
 		this.varCodi = codi;
 		this.campTipus = tipus;
 		this.campEtiqueta = etiqueta;
 	}
-	
+
 	public TascaDadaDto() {
-		// TODO Auto-generated constructor stub
 	}
 
-	public String getObservacions() {
-		return observacions;
-	}
-	public void setObservacions(String observacions) {
-		this.observacions = observacions;
-	}
-	public String getJbpmAction() {
-		return jbpmAction;
-	}
-	public void setJbpmAction(String jbpmAction) {
-		this.jbpmAction = jbpmAction;
-	}
 	public String getVarCodi() {
 		return varCodi;
 	}
@@ -96,6 +85,18 @@ public class TascaDadaDto {
 	}
 	public void setCampMultiple(boolean campMultiple) {
 		this.campMultiple = campMultiple;
+	}
+	public String getJbpmAction() {
+		return jbpmAction;
+	}
+	public void setJbpmAction(String jbpmAction) {
+		this.jbpmAction = jbpmAction;
+	}
+	public String getObservacions() {
+		return observacions;
+	}
+	public void setObservacions(String observacions) {
+		this.observacions = observacions;
 	}
 	public boolean isReadOnly() {
 		return readOnly;
@@ -138,6 +139,12 @@ public class TascaDadaDto {
 	}
 	public void setRegistreDades(List<TascaDadaDto> registreDades) {
 		this.registreDades = registreDades;
+	}
+	public List<ValidacioDto> getValidacions() {
+		return validacions;
+	}
+	public void setValidacions(List<ValidacioDto> validacions) {
+		this.validacions = validacions;
 	}
 	public String getError() {
 		return error;
@@ -205,10 +212,5 @@ public class TascaDadaDto {
 	public boolean isCampTipusRegistre() {
 		return CampTipusDto.REGISTRE.equals(campTipus);
 	}
-	public List<ValidacioDto> getValidacions() {
-		return validacions;
-	}
-	public void setValidacions(List<ValidacioDto> validacions) {
-		this.validacions = validacions;
-	}
+
 }

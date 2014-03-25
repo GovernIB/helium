@@ -849,18 +849,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 
 	@Transactional(readOnly = true)
-	@Override
-	public List<ExpedientDocumentDto> findDocumentsPerExpedientTasca(Long expedientId, String tascaId) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		JbpmTask task = jbpmHelper.getTaskById(tascaId);
-		if (task != null) {			
-			return documentHelper.findDocumentsPerInstanciaProces(task.getProcessInstanceId());
-		} else {
-			logger.debug("No s'ha trobat el document de la tasca (expedientId=" + expedientId + ", tascaId=" + tascaId + ", usuariAcces=" + auth.getName() + ")");
-			return null;
-		}
-	}
-	@Transactional(readOnly = true)
 	public ArxiuDto getArxiuExpedient(
 			Long expedientId,
 			Long documentStoreId) {
@@ -1583,7 +1571,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				execucioMassivaExpedientRepository.delete(eme);
 			}
 			expedientRepository.delete(expedient);
-			luceneHelper.deleteExpedientAsync(expedient);
+			luceneHelper.deleteExpedient(expedient);
 			registreDao.crearRegistreEsborrarExpedient(
 					expedient.getId(),
 					SecurityContextHolder.getContext().getAuthentication().getName());
@@ -1911,7 +1899,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			jbpmHelper.suspendProcessInstances(ids);
 			expedient.setAnulat(true);
 			expedient.setComentariAnulat(motiu);
-			luceneHelper.deleteExpedientAsync(expedient);
+			luceneHelper.deleteExpedient(expedient);
 			registreDao.crearRegistreAnularExpedient(
 					expedient.getId(),
 					SecurityContextHolder.getContext().getAuthentication().getName());
@@ -2050,4 +2038,5 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return tascaHelper.findTasquesPendentsPerExpedient(
 				expedient);
 	}
+
 }

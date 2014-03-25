@@ -16,14 +16,16 @@ public class ExpedientDadaDto {
 
 	private String varCodi;
 	private Object varValor;
+
 	private Long campId;
 	private CampTipusDto campTipus;
 	private String campEtiqueta;
 	private boolean campOcult;
 	private boolean campMultiple;
-	private Long agrupacioId;
 	private String jbpmAction;
 	private String observacions;
+
+	private Long agrupacioId;
 
 	private String text;
 	private List<ExpedientDadaDto> multipleDades;

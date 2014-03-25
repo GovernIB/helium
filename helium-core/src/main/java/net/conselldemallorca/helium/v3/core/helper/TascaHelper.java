@@ -104,36 +104,43 @@ public class TascaHelper {
 
 	public ExpedientTascaDto getTascaPerExpedient(
 			Expedient expedient,
-			String tascaId,
+			String taskId,
 			boolean comprovarExpedient,
 			boolean comprovarUsuari) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		JbpmTask task = jbpmHelper.getTaskById(tascaId);
+		JbpmTask task = jbpmHelper.getTaskById(taskId);
 		if (task != null) {
 			if (comprovarExpedient) {
 				JbpmProcessInstance processInstance = jbpmHelper.getRootProcessInstance(
 						task.getProcessInstanceId());
 				if (!processInstance.getId().equals(expedient.getProcessInstanceId())) {
-					logger.debug("La tasca no pertany a l'expedient (expedientId=" + expedient.getId() + ", tascaId=" + tascaId + ")");
+					logger.debug("La tasca no pertany a l'expedient (expedientId=" + expedient.getId() + ", taskId=" + taskId + ")");
 					throw new TaskInstanceNotFoundException();
 				}
 			}
 			if (comprovarUsuari) {
 				if (!auth.getName().equals(task.getAssignee())) {
-					logger.debug("L'usuari no te la tasca assignada (expedientId=" + expedient.getId() + ", tascaId=" + tascaId + ", usuariAcces=" + auth.getName() + ", usuariTasca=" + task.getAssignee() + ")");
+					logger.debug("L'usuari no te la tasca assignada (expedientId=" + expedient.getId() + ", taskId=" + taskId + ", usuariAcces=" + auth.getName() + ", usuariTasca=" + task.getAssignee() + ")");
 					throw new TaskInstanceNotFoundException();
 				}
 			}
 			return dtoConverter.toExpedientTascaDto(task, expedient);
 		} else {
-			logger.debug("No s'ha trobat la tasca (expedientId=" + expedient.getId() + ", tascaId=" + tascaId + ", usuariAcces=" + auth.getName() + ")");
+			logger.debug("No s'ha trobat la tasca (expedientId=" + expedient.getId() + ", taskId=" + taskId + ", usuariAcces=" + auth.getName() + ")");
 			return null;
 		}
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(TascaHelper.class);
+	public Tasca findTascaByJbpmTask(
+			JbpmTask task) {
+		return tascaRepository.findAmbActivityNameIProcessDefinitionId(
+				task.getName(),
+				task.getProcessDefinitionId());
+	}
 
-	public Tasca findAmbActivityNameIProcessDefinitionId(String name, String processDefinitionId) {
+	/*public Tasca findAmbActivityNameIProcessDefinitionId(
+			String name,
+			String processDefinitionId) {
 		return tascaRepository.findAmbActivityNameIProcessDefinitionId(name, processDefinitionId);
 	}
 
@@ -147,17 +154,20 @@ public class TascaHelper {
 			logger.debug("No s'ha trobat la tasca (expedientId=" + expedient.getId() + ", tascaId=" + tascaId + ", usuariAcces=" + auth.getName() + ")");
 			return null;
 		}
-	}
+	}*/
 
 	public List<ExpedientTascaDto> findTasquesPendentsPerExpedient(Expedient expedient) {
-	List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
-	List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(expedient.getProcessInstanceId());
-	for (JbpmTask task: tasks) {
-		// Sólo las pendientes
-		if (task.isOpen() && !task.isCancelled() && !task.isSuspended() && !task.isCompleted()) {
-			resposta.add(dtoConverter.toExpedientTascaDto(task, expedient));
+		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
+		List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(expedient.getProcessInstanceId());
+		for (JbpmTask task: tasks) {
+			// Sólo las pendientes
+			if (task.isOpen() && !task.isCancelled() && !task.isSuspended() && !task.isCompleted()) {
+				resposta.add(dtoConverter.toExpedientTascaDto(task, expedient));
+			}
 		}
+		return resposta;
 	}
-	return resposta;
-}
+
+	private static final Logger logger = LoggerFactory.getLogger(TascaHelper.class);
+
 }

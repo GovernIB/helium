@@ -86,20 +86,21 @@ public class ServiceUtils {
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 		Map<String, Set<Camp>> mapCamps = getMapCamps(expedient.getProcessInstanceId());
 		Map<String, Map<String, Object>> mapValors = getMapValors(expedient.getProcessInstanceId());
-		luceneDao.createExpedientAsync(
+		luceneDao.createExpedient(
 				expedient,
 				getMapDefinicionsProces(expedient.getProcessInstanceId()),
 				mapCamps,
 				mapValors,
 				getMapValorsDomini(mapCamps, mapValors),
-				isExpedientFinalitzat(expedient));
+				isExpedientFinalitzat(expedient),
+				false);
 	}
 	public void expedientIndexLuceneUpdate(String processInstanceId) {
 		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 		Map<String, Set<Camp>> mapCamps = getMapCamps(rootProcessInstance.getId());
 		Map<String, Map<String, Object>> mapValors = getMapValors(rootProcessInstance.getId());
-		luceneDao.updateExpedientCampsAsync(
+		luceneDao.updateExpedientCamps(
 				expedient,
 				getMapDefinicionsProces(rootProcessInstance.getId()),
 				mapCamps,
@@ -110,16 +111,17 @@ public class ServiceUtils {
 	public void expedientIndexLuceneRecrear(String processInstanceId) {
 		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
-		luceneDao.deleteExpedientAsync(expedient);
+		luceneDao.deleteExpedient(expedient);
 		Map<String, Set<Camp>> mapCamps = getMapCamps(rootProcessInstance.getId());
 		Map<String, Map<String, Object>> mapValors = getMapValors(rootProcessInstance.getId());
-		luceneDao.createExpedientAsync(
+		luceneDao.createExpedient(
 				expedient,
 				getMapDefinicionsProces(rootProcessInstance.getId()),
 				mapCamps,
 				mapValors,
 				getMapValorsDomini(mapCamps, mapValors),
-				isExpedientFinalitzat(expedient));
+				isExpedientFinalitzat(expedient),
+				false);
 	}
 	public List<Map<String, DadaIndexadaDto>> expedientIndexLucenGetDades(String processInstanceId) {
 		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);

@@ -96,12 +96,12 @@
 			}).width(amplada - 30).height(alcada - 30);
 			return false;
 		}
-		
+
 		function refresh() {
 			$('form#command :button[name="submit"]').attr("name", "sbmt");
 			$('form#command').submit();
 		}
-	
+
 		function campOnFocus(camp) {
 			$('form#command :input[name="helCampFocus"]').val("" + $(window).scrollTop() + "#${param.id}");
 		}
@@ -151,8 +151,8 @@
 			return false;
 		}
 
-		 $(".eliminarFila").live('click', function (){
-		    if($(this).closest('table').find('tr').index() < 2) {
+		$(".eliminarFila").live('click', function (){
+			if($(this).closest('table').find('tr').index() < 2) {
 			    var newTr = $(this).closest('tr');
 		    	limpiarFila(newTr);
 		    	
@@ -183,7 +183,6 @@
 			    }
 			});
 		}
-		
 		var submitAction;
 		function saveAction(element, action) {
 			submitAction = action;
@@ -201,136 +200,122 @@
 	</script>
 </head>
 <body>
-<ul id="tabnav" class="nav nav-tabs">
-	<li class="active <c:if test="${not tasca.validada}"> warn</c:if>"><a href="#dades" data-toggle="tab">1. Dades</a></li>
-	<c:if test="${not empty dades}">
-		<li class=""><a href="#documents" data-toggle="tab">2. Documents</a></li>
-		<li class=""><a href="#signatures" data-toggle="tab">3. Signatures</a></li>
-	</c:if>
-</ul>
-
-<div class="tab-content">
-
-	<div class="tab-pane active"  id="dades">
-		<c:if test="${not tasca.validada}">
-			<div class="missatge missatgesWarn">
-				<c:choose>
-					<c:when test="${empty tasca.formExtern}">
-						<p><spring:message code='tasca.form.no_validades' /></p>
-					</c:when>
-					<c:otherwise>
-						<p><spring:message code='tasca.form.compl_form' /></p>
-					</c:otherwise>
-				</c:choose>
-			</div>
+	<ul id="tabnav" class="nav nav-tabs">
+		<li class="active <c:if test="${not tasca.validada}"> warn</c:if>"><a href="#dades" data-toggle="tab">1. Dades</a></li>
+		<c:if test="${not empty dades}">
+			<li class=""><a href="#documents" data-toggle="tab">2. Documents</a></li>
+			<li class=""><a href="#signatures" data-toggle="tab">3. Signatures</a></li>
 		</c:if>
-		
-		<c:set var="hiHaCampsReadOnly" value="${false}"/>
-		<c:forEach var="camp" items="${dades}">
-			<c:if test="${camp.readOnly}">
-				<c:set var="hiHaCampsReadOnly" value="${true}"/>
+	</ul>
+	<div class="tab-content">
+		<div class="tab-pane active" id="dades">
+			<c:if test="${not tasca.validada}">
+				<div class="missatge missatgesWarn">
+					<c:choose>
+						<c:when test="${empty tasca.formExtern}">
+							<p><spring:message code='tasca.form.no_validades' /></p>
+						</c:when>
+						<c:otherwise>
+							<p><spring:message code='tasca.form.compl_form' /></p>
+						</c:otherwise>
+					</c:choose>
+				</div>
 			</c:if>
-		</c:forEach>
-		
-		<c:set var="hiHaDocumentsReadOnly" value="${false}"/>
-		<c:forEach var="document" items="${documents}">
-			<c:if test="${document.readOnly}">
-				<c:set var="hiHaDocumentsReadOnly" value="${true}"/>
+			<c:set var="hiHaCampsReadOnly" value="${false}"/>
+			<c:forEach var="camp" items="${dades}">
+				<c:if test="${camp.readOnly}">
+					<c:set var="hiHaCampsReadOnly" value="${true}"/>
+				</c:if>
+			</c:forEach>
+			<c:set var="hiHaDocumentsReadOnly" value="${false}"/>
+			<c:forEach var="document" items="${documents}">
+				<c:if test="${document.readOnly}">
+					<c:set var="hiHaDocumentsReadOnly" value="${true}"/>
+				</c:if>
+			</c:forEach>
+			<c:if test="${hiHaCampsReadOnly or hiHaDocumentsReadOnly}">
+				<div class="missatge missatgesBlau">
+					<c:if test="${hiHaDocumentsReadOnly}">
+						<c:forEach var="documenTasca" items="${documents}">
+							<c:if test="${documenTasca.readOnly}">
+								<h4 class="titol-missatge">
+									${documenTasca.documentNom}&nbsp;&nbsp;
+									<c:set var="tascaActual" value="${tasca}" scope="request"/>
+									<c:set var="documentActual" value="${documenTasca.documentCodi}" scope="request"/>
+									<c:set var="codiDocumentActual" value="${documenTasca.documentCodi}" scope="request"/>
+									<c:import url="../common/iconesConsultaDocument.jsp"/>
+								</h4><br/>
+							</c:if>
+						</c:forEach>
+					</c:if>
+					<c:if test="${hiHaCampsReadOnly}">
+						<div class="form-horizontal form-tasca">
+							<span class="titol-missatge"><fmt:message key='common.tascaro.dadesref' /></span>
+							<form  id="commandReadOnly" name="commandReadOnly" action="form" method="post">
+								<input type="hidden" id="id" name="id" value="${tasca.id}"/>
+								<div class="inlineLabels">
+									<c:forEach var="dada" items="${dades}" varStatus="varStatusMain">
+										<c:if test="${dada.readOnly}">
+											<div class="control-group">
+												<label class="control-label" for="${dada.varCodi}">${dada.campEtiqueta} - ${dada.campTipus}</label>
+												
+												<c:set var="dada" value="${dada}"/>
+												<c:set var="dada_multiple" value=""/>
+												<%@ include file="campsTasca.jsp" %>
+												<%@ include file="campsTascaRegistre.jsp" %>
+											</div>
+										</c:if>
+									</c:forEach>
+								</div>
+							</form>
+						</div>
+					</c:if>
+				</div>
 			</c:if>
-		</c:forEach>
-		
-		<c:if test="${hiHaCampsReadOnly or hiHaDocumentsReadOnly}">
-			<div class="missatge missatgesBlau">
-				<c:if test="${hiHaDocumentsReadOnly}">
-					<c:forEach var="documenTasca" items="${documents}">
-						<c:if test="${documenTasca.readOnly}">
-							<h4 class="titol-missatge">
-								${documenTasca.documentNom}&nbsp;&nbsp;
-								<c:set var="tascaActual" value="${tasca}" scope="request"/>
-								<c:set var="documentActual" value="${documenTasca.documentCodi}" scope="request"/>
-								<c:set var="codiDocumentActual" value="${documenTasca.documentCodi}" scope="request"/>
-								<c:import url="../common/iconesConsultaDocument.jsp"/>
-							</h4><br/>
-						</c:if>
-					</c:forEach>
+			<form:form onsubmit="return confirmar(this)" id="command" name="command" action="form" cssClass="form-horizontal form-tasca" method="post" commandName="command">
+				<input type="hidden" id="id" name="id" value="${tasca.id}"/>
+				<input type="hidden" id="helFinalitzarAmbOutcome" name="helFinalitzarAmbOutcome" value="@#@"/>
+				<c:forEach var="dada" items="${dades}" varStatus="varStatusMain">
+					<c:if test="${not dada.readOnly}">
+						<div class="control-group fila_reducida">
+							<label class="control-label" for="${dada.varCodi}">${dada.campEtiqueta} - ${dada.campTipus}</label>
+							
+							<c:set var="dada" value="${dada}"/>
+							<%@ include file="campsTasca.jsp" %>
+							<%@ include file="campsTascaRegistre.jsp" %>
+						</div>
+					</c:if>
+				</c:forEach>			
+				<c:if test="${empty dades}">
+					<%@ include file="campsTascaInfo.jsp" %>		
 				</c:if>
-				<c:if test="${hiHaCampsReadOnly}">
-					<div class="form-horizontal form-tasca">
-						<span class="titol-missatge"><fmt:message key='common.tascaro.dadesref' /></span>
-						<form  id="commandReadOnly" name="commandReadOnly" action="form" method="post">
-							<input type="hidden" id="id" name="id" value="${tasca.id}"/>
-							<div class="inlineLabels">
-								<c:forEach var="dada" items="${dades}" varStatus="varStatusMain">
-									<c:if test="${dada.readOnly}">
-										<div class="control-group">
-											<label class="control-label" for="${dada.varCodi}">${dada.campEtiqueta} - ${dada.campTipus}</label>
-											
-											<c:set var="dada" value="${dada}"/>
-											<c:set var="dada_multiple" value=""/>
-											<%@ include file="campsTasca.jsp" %>
-											<%@ include file="campsTascaRegistre.jsp" %>
-										</div>
-									</c:if>
-								</c:forEach>
-							</div>
-						</form>
-					</div>
+				<c:if test="${not empty dades}">
+					<div style="clear: both"></div>
+					<%@ include file="campsTascaGuardarTasca.jsp" %>
 				</c:if>
+			</form:form>
+			<div class="hide" id="finalizarTarea">
+				<%@ include file="campsTascaTramitacioTasca.jsp" %>
 			</div>
-		</c:if>
-					
-		<form:form onsubmit="return confirmar(this)" id="command" name="command" action="form" cssClass="form-horizontal form-tasca" method="post" commandName="command">
-			<input type="hidden" id="id" name="id" value="${tasca.id}"/>
-			<input type="hidden" id="helFinalitzarAmbOutcome" name="helFinalitzarAmbOutcome" value="@#@"/>
-			<c:forEach var="dada" items="${dades}" varStatus="varStatusMain">
-				<c:if test="${not dada.readOnly}">
-					<div class="control-group fila_reducida">
-						<label class="control-label" for="${dada.varCodi}">${dada.campEtiqueta} - ${dada.campTipus}</label>
-						
-						<c:set var="dada" value="${dada}"/>
-						<%@ include file="campsTasca.jsp" %>
-						<%@ include file="campsTascaRegistre.jsp" %>
-					</div>
-				</c:if>
-			</c:forEach>			
-		
-			<c:if test="${empty dades}">
-				<%@ include file="campsTascaInfo.jsp" %>		
-			</c:if>
-			
-			<c:if test="${not empty dades}">
-				<div style="clear: both"></div>
-				<%@ include file="campsTascaGuardarTasca.jsp" %>
-			</c:if>
-		</form:form>
-		
-		<div class="hide" id="finalizarTarea">
-			<%@ include file="campsTascaTramitacioTasca.jsp" %>
 		</div>
-		
+		<div class="tab-pane" id="documents">
+		</div>
+		<div class="tab-pane" id="signatures">
+			signatures
+		</div>
 	</div>
+	<script>	
+		$( '[data-required="true"]' )
+			.closest(".control-group")
+			.children("label")
+			.prepend("<i class='icon-asterisk'></i> ");
 	
-	
-	<div class="tab-pane" id="documents">
-		documents
-	</div>
-	
-	<div class="tab-pane" id="signatures">
-		signatures
-	</div>
-
-</div>
-<script>	
-	$( '[data-required="true"]' )
-		.closest(".control-group")
-		.children("label")
-		.prepend("<i class='icon-asterisk'></i> ");
-
-	window.parent.canviTitolModal("${tasca.titol}");
-	var html = $('#finalizarTarea').html();
-	$('#finalizarTarea').remove();
-	window.parent.addHtmlPeuModal(html,'formFinalitzar');
-</script>
+		window.parent.canviTitolModal("${tasca.titol}");
+		var html = $('#finalizarTarea').html();
+		$('#finalizarTarea').remove();
+		window.parent.addHtmlPeuModal(html,'formFinalitzar');
+	</script>
+</body>
 
 <%!
 private String toJavascript(String str) {
@@ -339,4 +324,3 @@ private String toJavascript(String str) {
 	return str.replace("'", "\\'");
 }
 %>
-</body>

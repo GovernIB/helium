@@ -87,6 +87,7 @@ public class PaginacioHelper {
 		return dto;
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <T> PaginaDto<T> toPaginaDto(Page<?> page) {
 		PaginaDto<T> dto = new PaginaDto<T>();
 		dto.setNumero(page.getNumber());

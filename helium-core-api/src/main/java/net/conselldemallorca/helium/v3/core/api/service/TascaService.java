@@ -10,6 +10,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.exception.CampNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
@@ -39,6 +40,16 @@ public interface TascaService {
 	 * @throws TaskInstanceNotFoundException
 	 */
 	public List<TascaDadaDto> findDadesPerTasca(
+			String tascaId) throws TascaNotFoundException;
+
+	/**
+	 * Retorna els documents d'una instància de tasca.
+	 * 
+	 * @param tascaId
+	 * @return
+	 * @throws TaskInstanceNotFoundException
+	 */
+	public List<TascaDocumentDto> findDocumentsPerTasca(
 			String tascaId) throws TascaNotFoundException;
 
 	/**

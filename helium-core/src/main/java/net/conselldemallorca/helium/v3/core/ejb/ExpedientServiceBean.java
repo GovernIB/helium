@@ -49,6 +49,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 @Stateless
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class ExpedientServiceBean implements ExpedientService {
+
 	@Autowired
 	ExpedientService delegate;
 
@@ -372,13 +373,8 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientDocumentDto> findDocumentsPerExpedientTasca(Long expedientId, String tascaId) {
-		return delegate.findDocumentsPerExpedientTasca(expedientId, tascaId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientDto> getExpedientsRelacionats(Long expedientId) {
 		return delegate.getExpedientsRelacionats(expedientId);
 	}
+
 }

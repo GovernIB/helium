@@ -14,6 +14,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.exception.CampNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
@@ -30,6 +31,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 @Stateless
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class TascaServiceBean implements TascaService {
+
 	@Autowired
 	TascaService delegate;
 
@@ -44,6 +46,13 @@ public class TascaServiceBean implements TascaService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<TascaDadaDto> findDadesPerTasca(String tascaId) throws TascaNotFoundException {
 		return delegate.findDadesPerTasca(tascaId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<TascaDocumentDto> findDocumentsPerTasca(
+			String tascaId) {
+		return delegate.findDocumentsPerTasca(tascaId);
 	}
 
 	/**
@@ -240,4 +249,5 @@ public class TascaServiceBean implements TascaService {
 	public CampDto findCampTasca(Long campId) {
 		return delegate.findCampTasca(campId);
 	}
+
 }

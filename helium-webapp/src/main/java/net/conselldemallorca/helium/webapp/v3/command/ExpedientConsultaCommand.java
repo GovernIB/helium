@@ -6,7 +6,6 @@ package net.conselldemallorca.helium.webapp.v3.command;
 import java.util.Date;
 
 import javax.validation.constraints.AssertTrue;
-import javax.validation.constraints.Size;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 
@@ -20,9 +19,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  */
 public class ExpedientConsultaCommand {
 
-	@Size(max=64)
 	private String titol;
-	@Size(max=64)
 	private String numero;
 	private Long expedientTipusId;
 	private EstatTipusDto estatTipus;
@@ -33,7 +30,6 @@ public class ExpedientConsultaCommand {
 	private Date dataFiFinal;
 	private Double geoPosX;
 	private Double geoPosY;
-	@Size(max=64)
 	private String geoReferencia;
 	private boolean nomesPendents = true;
 	private boolean nomesAlertes;

@@ -249,7 +249,5 @@ public interface ExpedientService {
 
 	public List<ExpedientDadaDto> findDadesPerProcessInstance(String processInstanceId);
 
-	public List<ExpedientDocumentDto> findDocumentsPerExpedientTasca(Long expedientId, String tascaId);
-
 	public List<ExpedientDto> getExpedientsRelacionats(Long expedientId);
 }

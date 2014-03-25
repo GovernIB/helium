@@ -35,7 +35,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
@@ -65,7 +64,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -231,7 +229,6 @@ public class ExpedientInformeController extends BaseExpedientController {
 			@RequestParam(value = "mostrarAnulats", required = false) Boolean mostrarAnulats,
 			HttpSession session,
 			ModelMap model) {
-		PaginaDto<ExpedientDto> paginaDto = null;
 		Map<String, Object> valors = new HashMap<String, Object>();
 		
 		List<ExpedientDto> listaExpedients = new ArrayList<ExpedientDto>();
@@ -281,8 +278,6 @@ public class ExpedientInformeController extends BaseExpedientController {
 			);
 		}
 		
-		paginaDto = PaginacioHelper.toPaginaDto(new PageImpl<ExpedientDto>(listaExpedients));
-		
 		SessionHelper.setAttribute(
 				request,
 				VARIABLE_SESSIO_COMMAND_VALUES,
@@ -299,7 +294,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 				
 		return PaginacioHelper.getPaginaPerDatatables(
 				request,
-				paginaDto);
+				listaExpedients);
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/exportar_excel", method = RequestMethod.GET)

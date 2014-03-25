@@ -15,7 +15,7 @@ public class DatatablesPagina<T> {
 	private long iTotalRecords;
 	private long iTotalDisplayRecords;
 	private long sEcho;
-	private List<String[]> aaData;
+	private List<Object[]> aaData;
 	private String missatgeAlerta;
 
 	public long getiTotalRecords() {
@@ -36,10 +36,10 @@ public class DatatablesPagina<T> {
 	public void setsEcho(long sEcho) {
 		this.sEcho = sEcho;
 	}
-	public List<String[]> getAaData() {
+	public List<Object[]> getAaData() {
 		return aaData;
 	}
-	public void setAaData(List<String[]> aaData) {
+	public void setAaData(List<Object[]> aaData) {
 		this.aaData = aaData;
 	}
 	public String getMissatgeAlerta() {

@@ -8,7 +8,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
@@ -80,24 +79,24 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 			@PathVariable String tascaId, 
 			Model model) {
 		NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
-		model.addAttribute("documents", expedientService.findDocumentsPerExpedientTasca(expedientId, tascaId));
-		model.addAttribute("dades", tascaService.findDadesPerTasca(tascaId));
-		for (TascaDadaDto dada : tascaService.findDadesPerTasca(tascaId)) {
-			if (CampTipusDto.REGISTRE.equals(dada.getCampTipus())) {
-				System.out.println();
-			}
-		}
 		model.addAttribute("tasca", expedientService.getTascaPerExpedient(expedientId, tascaId));
+		model.addAttribute("dades", tascaService.findDadesPerTasca(tascaId));
+		model.addAttribute("documents", tascaService.findDocumentsPerTasca(tascaId));
 		return "v3/expedientTascaForm";
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/camp/{campId}/valorsSeleccio", 
 			method = RequestMethod.GET)
 	@ResponseBody
-	public List<SeleccioOpcioDto> valorsSeleccio(HttpServletRequest request, @PathVariable Long expedientId, @PathVariable String tascaId, @PathVariable Long campId, Model model) {
+	public List<SeleccioOpcioDto> valorsSeleccio(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			@PathVariable Long campId,
+			Model model) {
 		return tascaService.findOpcionsSeleccioPerCampTasca(tascaId, campId);
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/completar", method = RequestMethod.POST)
 	public String completar( 
 			@PathVariable Long expedientId,
@@ -119,7 +118,6 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));			
 		}
-		
 		return "redirect:/v3/expedient/"+expedientId+"/tasca/"+tascaId+"/form";
 	}
 	

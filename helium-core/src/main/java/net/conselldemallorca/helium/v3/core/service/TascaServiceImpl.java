@@ -40,11 +40,13 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.exception.CampNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.v3.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientLoggerHelper;
@@ -94,6 +96,8 @@ public class TascaServiceImpl implements TascaService {
 	private TascaHelper tascaHelper;
 	@Resource
 	private VariableHelper variableHelper;
+	@Resource(name="documentHelperV3")
+	private DocumentHelperV3 documentHelper;
 	@Resource(name="serviceUtilsV3")
 	private ServiceUtils serviceUtils;
 	@Resource
@@ -111,8 +115,16 @@ public class TascaServiceImpl implements TascaService {
 	@Override
 	public List<TascaDadaDto> findDadesPerTasca(
 			String tascaId) {
-		JbpmTask tasca = tascaHelper.getTascaComprovantAcces(tascaId);
-		return variableHelper.findDadesPerInstanciaTasca(tasca);
+		JbpmTask task = tascaHelper.getTascaComprovantAcces(tascaId);
+		return variableHelper.findDadesPerInstanciaTasca(task);
+	}
+
+	@Transactional(readOnly = true)
+	@Override
+	public List<TascaDocumentDto> findDocumentsPerTasca(
+			String tascaId) {
+		JbpmTask task = tascaHelper.getTascaComprovantAcces(tascaId);
+		return documentHelper.findDocumentsPerInstanciaTasca(task);
 	}
 
 	@Transactional(readOnly = true)
@@ -120,7 +132,7 @@ public class TascaServiceImpl implements TascaService {
 	public List<TascaDadaDto> findDadesPerTascaDto(ExpedientTascaDto tasca) {
 		return variableHelper.findDadesPerInstanciaTascaDto(tasca);
 	}
-	
+
 	@Transactional(readOnly = true)
 	@Override
 	public Object getVariable(
@@ -130,7 +142,7 @@ public class TascaServiceImpl implements TascaService {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		return serviceUtils.getVariableJbpmTascaValor(task.getId(), codiVariable);
 	}
-	
+
 	private JbpmTask comprovarSeguretatTasca(Long entornId, String taskId, String usuari, boolean comprovarAssignacio) {
 		JbpmTask task = jbpmHelper.getTaskById(taskId);
 		if (task == null) {
@@ -168,12 +180,10 @@ public class TascaServiceImpl implements TascaService {
 		}
 		return task;
 	}
-	
+
 	public boolean isDocumentsComplet(Object task) {
 		boolean ok = true;
-		Tasca tasca = tascaHelper.findAmbActivityNameIProcessDefinitionId(
-				((JbpmTask)task).getName(),
-				((JbpmTask)task).getProcessDefinitionId());
+		Tasca tasca = tascaHelper.findTascaByJbpmTask((JbpmTask)task);
 		for (DocumentTasca docTasca: tasca.getDocuments()) {
 			if (docTasca.isRequired()) {
 				String codiJbpm = DocumentHelper.PREFIX_VAR_DOCUMENT + docTasca.getDocument().getCodi();
@@ -190,9 +200,7 @@ public class TascaServiceImpl implements TascaService {
 	}
 	public boolean isSignaturesComplet(Object task) {
 		boolean ok = true;
-		Tasca tasca = tascaHelper.findAmbActivityNameIProcessDefinitionId(
-				((JbpmTask)task).getName(),
-				((JbpmTask)task).getProcessDefinitionId());
+		Tasca tasca = tascaHelper.findTascaByJbpmTask((JbpmTask)task);
 		for (FirmaTasca firmaTasca: tasca.getFirmes()) {
 			if (firmaTasca.isRequired()) {
 				String codiJbpm = DocumentHelper.PREFIX_SIGNATURA + firmaTasca.getDocument().getCodi();
@@ -206,9 +214,7 @@ public class TascaServiceImpl implements TascaService {
 	
 	@Transactional(readOnly = true)
 	public boolean isTascaValidada(Object task) {
-		Tasca tasca = tascaHelper.findAmbActivityNameIProcessDefinitionId(
-				((JbpmTask)task).getName(),
-				((JbpmTask)task).getProcessDefinitionId());
+		Tasca tasca = tascaHelper.findTascaByJbpmTask((JbpmTask)task);
 		boolean hiHaCampsModificables = false;
 		for (CampTasca camp: tasca.getCamps()) {
 			if (!camp.isReadOnly()) {
@@ -330,9 +336,7 @@ public class TascaServiceImpl implements TascaService {
 	private void optimitzarConsultesDomini(
 			JbpmTask task,
 			Map<String, Object> variables) {
-		Tasca tasca = tascaHelper.findAmbActivityNameIProcessDefinitionId(
-				task.getName(),
-				task.getProcessDefinitionId());
+		Tasca tasca = tascaHelper.findTascaByJbpmTask(task);
 		List<CampTasca> campsTasca = campTascaRepository.findAmbTascaOrdenats(tasca.getId());
 		for (CampTasca campTasca: campsTasca) {
 			if (campTasca.getCamp().isDominiCacheText()) {

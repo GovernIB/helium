@@ -19,6 +19,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
@@ -77,7 +78,13 @@ public class LuceneHelper extends LuceneIndexSupport {
 	// que no sortiran als resultats de les consultes per tipus.
 	protected static final boolean PEGAT_ENTORN_ACTIU = true;
 
-	public void createExpedientAsync(final Expedient expedient, final Map<String, DefinicioProces> definicionsProces, final Map<String, Set<Camp>> camps, final Map<String, Map<String, Object>> valors, final Map<String, Map<String, String>> textDominis, final boolean finalitzat) {
+	/*public synchronized void createExpedientAsync(
+			final Expedient expedient,
+			final Map<String, DefinicioProces> definicionsProces,
+			final Map<String, Set<Camp>> camps,
+			final Map<String, Map<String, Object>> valors,
+			final Map<String, Map<String, String>> textDominis,
+			final boolean finalitzat) {
 		Thread thread = new Thread() {
 			public void run() {
 				createExpedient(expedient, definicionsProces, camps, valors, textDominis, finalitzat);
@@ -85,16 +92,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 		};
 		thread.start();
 	}
-
-	public synchronized void createExpedient(Expedient expedient, Map<String, DefinicioProces> definicionsProces, Map<String, Set<Camp>> camps, Map<String, Map<String, Object>> valors, Map<String, Map<String, String>> textDominis, boolean finalitzat) {
-		mesuresTemporalsHelper.mesuraIniciar("Lucene: createExpedient", "lucene", expedient.getTipus().getNom());
-		checkIndexOk();
-		Document document = updateDocumentFromExpedient(null, expedient, definicionsProces, camps, valors, textDominis, finalitzat);
-		getLuceneIndexTemplate().addDocument(document);
-		mesuresTemporalsHelper.mesuraCalcular("Lucene: createExpedient", "lucene", expedient.getTipus().getNom());
-	}
-
-	public void updateExpedientCapsaleraAsync(final Expedient expedient, final boolean finalitzat) {
+	public synchronized void updateExpedientCapsaleraAsync(final Expedient expedient, final boolean finalitzat) {
 		Thread thread = new Thread() {
 			public void run() {
 				updateExpedientCapsalera(expedient, finalitzat);
@@ -102,21 +100,62 @@ public class LuceneHelper extends LuceneIndexSupport {
 		};
 		thread.start();
 	}
-
-	public synchronized boolean updateExpedientCapsalera(final Expedient expedient, final boolean finalitzat) {
-		mesuresTemporalsHelper.mesuraIniciar("Lucene: updateExpedientCapsalera", "lucene", expedient.getTipus().getNom());
-		boolean resultat = updateExpedientCamps(expedient, null, null, null, null, finalitzat);
-		mesuresTemporalsHelper.mesuraCalcular("Lucene: updateExpedientCapsalera", "lucene", expedient.getTipus().getNom());
-		return resultat;
-	}
-
-	public void updateExpedientCampsAsync(final Expedient expedient, final Map<String, DefinicioProces> definicionsProces, final Map<String, Set<Camp>> camps, final Map<String, Map<String, Object>> valors, final Map<String, Map<String, String>> textDominis, final boolean finalitzat) {
+	public synchronized void updateExpedientCampsAsync(final Expedient expedient, final Map<String, DefinicioProces> definicionsProces, final Map<String, Set<Camp>> camps, final Map<String, Map<String, Object>> valors, final Map<String, Map<String, String>> textDominis, final boolean finalitzat) {
 		Thread thread = new Thread() {
 			public void run() {
 				updateExpedientCamps(expedient, definicionsProces, camps, valors, textDominis, finalitzat);
 			}
 		};
 		thread.start();
+	}
+	public synchronized void deleteExpedientAsync(final Expedient expedient) {
+		Thread thread = new Thread() {
+			public void run() {
+				deleteExpedient(expedient);
+			}
+		};
+		thread.start();
+	}
+	public synchronized void deleteAllAsync() {
+		Thread thread = new Thread() {
+			public void run() {
+				deleteAll();
+			}
+		};
+		thread.start();
+	}*/
+
+	public synchronized void createExpedient(
+			Expedient expedient,
+			Map<String, DefinicioProces> definicionsProces,
+			Map<String, Set<Camp>> camps,
+			Map<String,
+			Map<String, Object>> valors,
+			Map<String,
+			Map<String, String>> textDominis,
+			boolean finalitzat,
+			boolean comprovarIniciant) {
+		// Si l'expedient s'està iniciant no l'indexa per evitar possibles duplicitats
+		// al reindexar des dels handlers de modificar dades de l'expedient
+		boolean indexarExpedient = true;
+		if (comprovarIniciant) {
+			Expedient expedientIniciant = ExpedientIniciantDto.getExpedient();
+			indexarExpedient = (expedientIniciant == null || !expedientIniciant.getId().equals(expedient.getId()));
+		}
+		if (indexarExpedient) {
+			mesuresTemporalsHelper.mesuraIniciar("Lucene: createExpedient", "lucene", expedient.getTipus().getNom());
+			checkIndexOk();
+			Document document = updateDocumentFromExpedient(null, expedient, definicionsProces, camps, valors, textDominis, finalitzat);
+			getLuceneIndexTemplate().addDocument(document);
+			mesuresTemporalsHelper.mesuraCalcular("Lucene: createExpedient", "lucene", expedient.getTipus().getNom());
+		}
+	}
+
+	public synchronized boolean updateExpedientCapsalera(final Expedient expedient, final boolean finalitzat) {
+		mesuresTemporalsHelper.mesuraIniciar("Lucene: updateExpedientCapsalera", "lucene", expedient.getTipus().getNom());
+		boolean resultat = updateExpedientCamps(expedient, null, null, null, null, finalitzat);
+		mesuresTemporalsHelper.mesuraCalcular("Lucene: updateExpedientCapsalera", "lucene", expedient.getTipus().getNom());
+		return resultat;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -136,7 +175,14 @@ public class LuceneHelper extends LuceneIndexSupport {
 					}
 				});
 			} else {
-				createExpedientAsync(expedient, definicionsProces, camps, valors, textDominis, finalitzat);
+				createExpedient(
+						expedient,
+						definicionsProces,
+						camps,
+						valors,
+						textDominis,
+						finalitzat,
+						true);
 			}
 			mesuresTemporalsHelper.mesuraCalcular("Lucene: updateExpedientCamps", "lucene", expedient.getTipus().getNom());
 			return true;
@@ -147,29 +193,11 @@ public class LuceneHelper extends LuceneIndexSupport {
 		}
 	}
 
-	public void deleteExpedientAsync(final Expedient expedient) {
-		Thread thread = new Thread() {
-			public void run() {
-				deleteExpedient(expedient);
-			}
-		};
-		thread.start();
-	}
-
 	public synchronized void deleteExpedient(Expedient expedient) {
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: deleteExpedient", "lucene", expedient.getTipus().getNom());
 		checkIndexOk();
 		getLuceneIndexTemplate().deleteDocuments(termIdFromExpedient(expedient));
 		mesuresTemporalsHelper.mesuraCalcular("Lucene: deleteExpedient", "lucene", expedient.getTipus().getNom());
-	}
-
-	public void deleteAllAsync() {
-		Thread thread = new Thread() {
-			public void run() {
-				deleteAll();
-			}
-		};
-		thread.start();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -240,6 +268,8 @@ public class LuceneHelper extends LuceneIndexSupport {
 	public void setSearchTemplate(LuceneSearchTemplate searchTemplate) {
 		this.searchTemplate = searchTemplate;
 	}
+
+
 
 	private Document updateDocumentFromExpedient(Document docLucene, Expedient expedient, Map<String, DefinicioProces> definicionsProces, Map<String, Set<Camp>> camps, Map<String, Map<String, Object>> valors, Map<String, Map<String, String>> textDominis, boolean finalitzat) {
 		boolean isUpdate = (docLucene != null);

@@ -1457,21 +1457,16 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 	@Transactional
 	@Override
 	public boolean mesuraIsActiu() {
-		imprimirFuncio("mesuraIsActiu");
 		return MesuresTemporalsHelper.isActiu();
 	}
-	
 	@Transactional
 	@Override
 	public void mesuraIniciar(String clau, String familia, String tipusExpedient, String tasca, String detall) {
-		imprimirFuncio("mesuraIniciar");
 		mesuresTemporalsHelper.mesuraIniciar(clau, familia, tipusExpedient, tasca, detall);
 	}
-	
 	@Transactional
 	@Override
 	public void mesuraCalcular(String clau, String familia, String tipusExpedient, String tasca, String detall) {
-		imprimirFuncio("mesuraCalcular");
 		mesuresTemporalsHelper.mesuraCalcular(clau, familia, tipusExpedient, tasca, detall);
 	}
 
@@ -1492,7 +1487,6 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 	@Transactional
 	@Override
 	public OperacioMassivaDto getExecucionsMassivesActiva(Long ultimaExecucioMassiva) {
-		imprimirFuncio("getExecucionsMassivesActiva");
 		net.conselldemallorca.helium.core.model.dto.OperacioMassivaDto dto = execucioMassivaService.getExecucionsMassivesActiva(ultimaExecucioMassiva);
 		return conversioTipusHelper.convertir(
 				dto,
@@ -1502,7 +1496,6 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 	@Transactional
 	@Override
 	public void executarExecucioMassiva(OperacioMassivaDto operacioMassiva) throws Exception {
-		imprimirFuncio("executarExecucioMassiva");
 		execucioMassivaService.executarExecucioMassiva(
 				conversioTipusHelper.convertir(
 						operacioMassiva,
@@ -1550,7 +1543,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 	}
 
 	private void imprimirFuncio(String nom) {
-//		System.out.println(">>> FUNCIO " + nom);
+		//System.out.println(">>> JBPM3_SERVICE METODE: " + nom);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(Jbpm3HeliumServiceImpl.class);

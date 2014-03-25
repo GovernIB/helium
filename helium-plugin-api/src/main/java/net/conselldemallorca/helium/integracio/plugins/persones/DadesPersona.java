@@ -23,7 +23,6 @@ public class DadesPersona implements Serializable {
 	private String dni;
 	private String email;
 	private Sexe sexe;
-	private String relleu;
 	private String contrasenya;
 
 
@@ -123,12 +122,6 @@ public class DadesPersona implements Serializable {
 	}
 	public void setSexe(Sexe sexe) {
 		this.sexe = sexe;
-	}
-	public String getRelleu() {
-		return relleu;
-	}
-	public void setRelleu(String relleu) {
-		this.relleu = relleu;
 	}
 	public String getContrasenya() {
 		return contrasenya;

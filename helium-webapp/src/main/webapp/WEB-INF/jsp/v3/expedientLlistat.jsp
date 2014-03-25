@@ -7,278 +7,97 @@
 <html>
 <head>
 	<title><fmt:message key="index.inici" /></title>
-	<link href="<c:url value="/css/DT_bootstrap.css"/>" rel="stylesheet">
-	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
 	<meta name="capsaleraTipus" content="llistat"/>
+	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
 	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
-	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
+	<script src="<c:url value="/js/datepicker-locales/bootstrap-datepicker.ca.js"/>"></script>
+	<script src="<c:url value="/js/jquery.maskedinput.js"/>"></script>
+	<link href="<c:url value="/css/DT_bootstrap.css"/>" rel="stylesheet">
 	<script src="<c:url value="/js/jquery.dataTables.js"/>"></script>
 	<script src="<c:url value="/js/DT_bootstrap.js"/>"></script>
-	<script src="<c:url value="/js/jquery.maskedinput.js"/>"></script>
+	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
+	<script src="<c:url value="/js/ripea.datatable.js"/>"></script>
+	<script src="<c:url value="/js/ripea.modal.js"/>"></script>
 <script>
-	<c:if test="${expedientConsultaCommand.consultaRealitzada}">
-	var seleccioInicialitzada = false;
-	var seleccioArray = [];
-	var seleccioClass = "info";
- 	var oTable;
-	
-	function obtenirSeleccioActual() {
-		if (!seleccioInicialitzada) {
+$(document).ready(function() {
+	$("#taulaDades").ripeaDataTable({
+		ajaxSourceUrl: "<c:url value="/v3/expedient/datatable"/>",
+		localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
+		alertesRefreshUrl: "<c:url value="/nodeco/util/alertes"/>",
+		rowClickCallback: function(row) {
+			$('a.obrir-expedient', $(row))[0].click();
+			/*var url = $('ul a:first', $(row)).attr("href");
+			var idExpedient = url.substr("expedient/".length, url.length);
+			if ($("tr.info-" + idExpedient, $(row).parent()).length) {
+				return;
+			}
+			var numCols = $(row).children('td').length;
+			$(".tr-pendents").each(function( index ) {
+				$(this).fadeOut();
+				$(this).remove();
+			});
+			$(row).after("<tr id='contingut-carregant' class='tr-pendents hide'>"+
+					"<td colspan='" + (numCols - 1)+ "'>"+
+						"<div><p style='margin-top: 2em; text-align: center'><i class='icon-spinner icon-2x icon-spin'></i></p></div>"+
+					"</td></tr>");
 			$.ajax({
-				url: "expedient/deseleccionar/-1",
-				success: function (data) {
-					seleccioArray = data;
+				"url": "/helium/nodecorar/v3/expedient/" + idExpedient + "/tasquesPendents",
+				"success": function (data) {								
+					$(row).after("<tr class='tr-pendents info-" + idExpedient + "'>"+
+							"<td colspan='" + (numCols - 1)+ "'>" + data + "</td>").fadeIn();
 				},
-				async: false
-			});
-			seleccioInicialitzada = true;
-		}
-		return seleccioArray;
-	}
-	function modificarSeleccioIActualitzar(valor, afegir) {
-		var url = (afegir) ? "expedient/seleccionar/" : "expedient/deseleccionar/";
-		$.get(
-			url + valor,
-			function (data) {
-				seleccioArray = data;
-				actualitzarVistaSeleccio();
-			});
-	}
-	function actualitzarVistaSeleccio() {
-		$('#dades-carregant').hide();
-		var seleccio = obtenirSeleccioActual();
-		$('#tramitacioMassivaCount').html(seleccio.length);
-		var totsSeleccionats = true;
-		$("tbody tr", taula).each(function (index, row) {
-			var checkbox = $("td:eq(0) input[type=checkbox]", row);
-			var value = checkbox.attr("value");
-			var index = seleccio.indexOf(parseInt(value));
-			if (index == -1) {
-				$(row).removeClass(seleccioClass);
-				checkbox.removeAttr("checked");
-				totsSeleccionats = false;
-			} else {
-				$(row).addClass(seleccioClass);
-				checkbox.attr("checked", "checked");
-			}
-		});
-		if (totsSeleccionats)
-			$("thead input[type=checkbox]", taula).attr("checked", "checked");
-		else
-			$("thead input[type=checkbox]", taula).removeAttr("checked");
-	}
-	
-	function formatDate(fechaSinFormato) {
-		var date = fechaSinFormato.split(" ");
-		var fecha = date[0].split("-");
-		var hora = date[1].split(":");
-		fechaFormateada = (fecha[2]+"/"+fecha[1]+"/"+fecha[0]+" " +hora[0]+":" +hora[1]);
-		return fechaFormateada;
-	}
-	</c:if>
-	
-	function confirmarEsborrar(e) {
-		var e = e || window.event;
-		e.cancelBubble = true;
-		if (e.stopPropagation) e.stopPropagation();
-		return confirm("<spring:message code='expedient.consulta.confirm.esborrar'/>");
-	}
-
-	function confirmarAnular(e, registre) {
-		var resposta="";
-		$("#id").val(registre);
-		var e = e || window.event;
-		e.cancelBubble = true;
-
-		var confirmaAnula = confirm("<spring:message code='expedient.consulta.confirm.anular'/>"); 
-	 	if (confirmaAnula){	
-	 		resposta = prompt("Introdueix el motiu de l'anul·lació",'');
-	 		$("#motiu").val(resposta);
-
-	 		if(resposta != null){
-	 			$('#anularMot').attr('action',"expedient/"+registre+"/suspend");
-	 	 		document.forms["anularMot"].submit();
-	 	 	}
-	 	} 	
-	 	
-	 	if (e.stopPropagation) e.stopPropagation(); 		
-	}
-	
-	function rowCallback(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-		var numColumnes = $("td", nRow).size();
-		var expedientId = aData[8];
-		$("td:eq(" + (numColumnes - 1) + ")", nRow).html(
-			'<div class="btn-group">' +
-				'<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">' + 
-				 	'<i class="icon-cog icon-white"></i> Accions <span class="caret"></span>' + 
-				 '</a>' + 
-				 '<ul class="dropdown-menu">' + 
-				 	'<li>' + 
-				 		'<a href="expedient/' + expedientId + '"><i class="icon-folder-open"></i> Obrir</a>' + 
-				 	'</li>' + 
-				 	'<li>' + 
-				 		'<a href="expedient/' + expedientId + '/stop"><i class="icon-stop"></i> Aturar</a>' + 
-				 	'</li>' + 
-				 	'<li>' + 
-				 		'<a href="javascript:void(0);" onclick="return confirmarAnular(event, ' + expedientId + ')"><i class="icon-remove"></i> Anular</a>' + 
-				 	'</li>' + 
-				 	'<li>' + 
-				 	'<a href="<c:url value="expedient/' + expedientId + '/delete"></c:url>" onclick="return confirmarEsborrar(event)">' +
-			 			'<i class="icon-trash"></i> Esborrar' +
-				 		'</a>' +
-				 	'</li>' + 
-				 '</ul>' + 
-			'</div>');
-		if (aData[6] === 'true')
-			$("td:eq(1)", nRow).append(' <span class="label" title="Aturat">AT</span>');
-		if (aData[7] === 'true')
-			$("td:eq(1)", nRow).append('  <span class="label" title="Anulat">AN</span>');					
-		if (!aData[5]) {
-			if (aData[3])
-				$("td:eq(" + (numColumnes - 2) + ")", nRow).html('Finalitzat');
-			else
-				$("td:eq(" + (numColumnes - 2) + ")", nRow).html('Iniciat');
-		}
-		
-		$("td:eq(" + (numColumnes - 4) + ")", nRow).html(formatDate(aData[2]));
-		
-		if (!aData[5] && aData[3]) $("td:eq(" + (numColumnes - 2) + ")", nRow).html('Finalitzat');
-		if ($(taula).dataTable().fnSettings().aoColumns[0].bVisible) {
-			var seleccio = obtenirSeleccioActual();
-			var seleccionat = seleccio.indexOf(parseInt(aData[0])) != -1;
-			if (seleccionat) {
-				$(nRow).addClass(seleccioClass);
-				$("td:eq(0)", nRow).html('<input type="checkbox" value="' + aData[0] + '" checked="checked"/>');
-			} else {
-				$("td:eq(0)", nRow).html('<input type="checkbox" value="' + aData[0] + '"/>');
-			}
-		}
-
-		$("td:eq(" + (numColumnes - 1) + ")", nRow).parent().attr('id',expedientId);
-	}
-	function serverParamsCallback(aoData) {
-		aoData.push({ "name": "numero", "value": $("#numero").val()} );
-		aoData.push({ "name": "titol", "value": $("#titol").val()} );
-		aoData.push({ "name": "expedientTipus", "value": $("#expedientTipusId").val()} );
-		aoData.push({ "name": "estat", "value": $("#estatText").val()} );
-		aoData.push({ "name": "dataIniciInicial", "value": $("#dataIniciInicial").val()} );
-		aoData.push({ "name": "dataIniciFinal", "value": $("#dataIniciFinal").val()} );
-		aoData.push({ "name": "dataFiInicial", "value": $("#dataFiInicial").val()} );
-		aoData.push({ "name": "dataFiFinal", "value": $("#dataFiFinal").val()} );
-		aoData.push({ "name": "geoposicio", "value": $("#geoReferencia").val()} );
-		
-		aoData.push({ "name": "nomesPendents", "value": $("input[name=nomesPendents]").val()} );
-		aoData.push({ "name": "nomesAlertes", "value": $("input[name=nomesAlertes]").val()} );
-		aoData.push({ "name": "mostrarAnulats", "value": $("input[name=mostrarAnulats]").val()} );
-		
-		aoData.push({ "name": "netejar", "value": $("#netejar").val()} );
-		$("#netejar").val("false");
-	}
-	function drawCallback(oSettings) {
-		oTable = $(taula).dataTable();
-		// Gestiona els clics als checkboxes de cada fila
-		$("tbody", taula).delegate(
-			"input[type=checkbox]",
-			"click",
-			function () {
-				modificarSeleccioIActualitzar(
-						$(this).attr("value"),
-						$(this).is(":checked"));
-			}
-		);
-		// Gestiona el clic al checkbox de la capçalera
-		$("thead input[type=checkbox]", taula).click(function() {
-			var checked = $(this).is(":checked");
-			var ids = [];
-			$("tbody tr", taula).each(function (index, row) {
-				ids.push($("td:eq(0) input[type=checkbox]", row).attr("value"));
-			});
-			modificarSeleccioIActualitzar(
-					ids,
-					checked);
-		});
-	}
-	function initComplete() {
-		
-	}
-	
-	$(document).ready(
-		function() {
-			$("#bconsultar").click(function() {
-				$(taula).dataTable().fnDraw();
-			});
-			$("#bnetejar").click(function() {
-				$("#netejar").val("true");
-				$("#numero").val(null);
-				$("#titol").val(null);
-				$("#estatText").val("");
-				$("#expedientTipusId").val("");
-				$("#expedientTipusId").change();
-				$("#dataIniciInicial").val(null);
-				$("#dataIniciFinal").val(null);
-				$("#dataFiInicial").val(null);
-				$("#dataFiFinal").val(null);
-				$("#geoReferencia").val(null);
-				$(taula).dataTable().fnDraw();
-			});
-			$("#nomesPendentsCheck").click(function() {
-				$("input[name=nomesPendents]").val(!$("#nomesPendentsCheck").hasClass('active'));
-				$(taula).dataTable().fnDraw();
-			});
-			$("#nomesAlertesCheck").click(function() {
-				$("input[name=nomesAlertes]").val(!$("#nomesAlertesCheck").hasClass('active'));
-				$(taula).dataTable().fnDraw();
-			});
-			$("#mostrarAnulatsCheck").click(function() {
-				$("input[name=mostrarAnulats]").val(!$("#mostrarAnulatsCheck").hasClass('active'));
-				$(taula).dataTable().fnDraw();
-			});
-			$("#tramitacioMassivaActivar").click(function() {
-				$("#tramitacioMassivaActivar").parent().addClass('hide');
-				$("#tramitacioMassivaDesactivar").parent().removeClass('hide');
-				$("#tramitacioMassivaBtn").removeClass('disabled');
-				$(taula).dataTable().fnSetColumnVis(0, true);
-				$("input[name=tramitacioMassivaActivada]").val("true");
-			});
-			$("#tramitacioMassivaDesactivar").click(function() {
-				$("#tramitacioMassivaDesactivar").parent().addClass('hide');
-				$("#tramitacioMassivaActivar").parent().removeClass('hide');
-				$("#tramitacioMassivaBtn").addClass('disabled');
-				$(taula).dataTable().fnSetColumnVis(0, false);
-				$("input[name=tramitacioMassivaActivada]").val("false");
-			});
-			$('#filtresCollapsable').on('hide', function () {
-				$('#filtresCollapse i').attr("class", "icon-chevron-down");
-				$("input[name=filtreDesplegat]").val("false");
-			});
-			$('#filtresCollapsable').on('show', function () {
-				$('#filtresCollapse i').attr("class", "icon-chevron-up");
-				$("input[name=filtreDesplegat]").val("true");
-			});
-			$('select[name=expedientTipusId]').on('change', function () {
-				$("select[name=estatText] option").each(function (index, option) {
-		    		if (index > 1 && $("select[name=estatText] option").size() > 3)
-						$(option).remove();
-				});
-				if ($(this).val()) {
-					$.ajax({
-					    url:'expedient/estatsPerTipus/' + $(this).val(),
-					    type:'GET',
-					    dataType: 'json',
-					    success: function(json) {
-					        $.each(json, function(i, value) {
-					        	$('<option>').text(value.nom).attr('value', value.id).insertAfter($("select[name=estatText] option:eq(" + (i + 1) + ")"));
-					        });
-					    }
-					});
+			  	"error": function(XMLHttpRequest, textStatus, errorThrown) {
 				}
-			});
-			$('.datepicker').datepicker({language: 'ca', autoclose: true});
+			});*/
+		},
+		seleccioCallback: function(seleccio) {
+			$('#tramitacioMassivaCount').html(seleccio.length);
 		}
-	);
+	});
+	$("#expedientConsultaCommand button[value='netejar']").click(function() {
+		$('#expedientConsultaCommand')[0].reset();
+	});
+	$("#nomesPendentsCheck").click(function() {
+		$("input[name=nomesPendents]").val(!$("#nomesPendentsCheck").hasClass('active'));
+		$('#expedientConsultaCommand').submit();
+	});
+	$("#nomesAlertesCheck").click(function() {
+		$("input[name=nomesAlertes]").val(!$("#nomesAlertesCheck").hasClass('active'));
+		$('#expedientConsultaCommand').submit();
+	});
+	$("#mostrarAnulatsCheck").click(function() {
+		$("input[name=mostrarAnulats]").val(!$("#mostrarAnulatsCheck").hasClass('active'));
+		$('#expedientConsultaCommand').submit();
+	});
+	$('#filtresCollapsable').on('hide', function () {
+		$('#filtresCollapse i').attr("class", "icon-chevron-down");
+		$("input[name=filtreDesplegat]").val("false");
+	});
+	$('#filtresCollapsable').on('show', function () {
+		$('#filtresCollapse i').attr("class", "icon-chevron-up");
+		$("input[name=filtreDesplegat]").val("true");
+	});
+	$('select[name=expedientTipusId]').on('change', function () {
+		$("select[name=estatText] option").each(function (index, option) {
+    		if (index > 1 && $("select[name=estatText] option").size() > 3)
+				$(option).remove();
+		});
+		if ($(this).val()) {
+			$.ajax({
+			    url:'expedient/estatsPerTipus/' + $(this).val(),
+			    type:'GET',
+			    dataType: 'json',
+			    success: function(json) {
+			        $.each(json, function(i, value) {
+			        	$('<option>').text(value.nom).attr('value', value.id).insertAfter($("select[name=estatText] option:eq(" + (i + 1) + ")"));
+			        });
+			    }
+			});
+		}
+	});
+	$('.datepicker').datepicker({language: 'ca', autoclose: true});
+});
 </script>
-<c:url value="/v3/expedient/datatable" var="dataTableAjaxSourceUrl"/>
-<hel:dataTable tableId="taulaDades" paginate="true" ajaxSourceUrl="${dataTableAjaxSourceUrl}" rowCallback="rowCallback" serverParamsCallback="serverParamsCallback" ajaxRefrescarTaula="true" ajaxRefrescarAlertes="true" drawCallback="drawCallback" initComplete="initComplete" hoverRow="check"/>
 </head>
 <body>
 	<input type="hidden" id="netejar" value="false"/>
@@ -439,45 +258,48 @@
 					<a id="nomesAlertesCheck" href="javascript:void(0)" title="Només amb alertes" class="hide btn<c:if test="${expedientConsultaCommand.nomesAlertes}"> active</c:if>" data-toggle="button"><i class="icon-warning-sign"></i></a>
 					<a id="mostrarAnulatsCheck" href="javascript:void(0)" title="Mostrar anulats" class="btn<c:if test="${expedientConsultaCommand.mostrarAnulats}"> active</c:if>" data-toggle="button"><i class="icon-remove"></i></a>
 				</div>
-<!-- 				<div class="btn-group"> -->
-<%-- 					<a id="tramitacioMassivaCheck" class="btn<c:if test="${expedientConsultaCommand.tramitacioMassivaActivada}"> active</c:if>" href="#" data-toggle="button" title="Activar/desactivar tramitació massiva"><i class="icon-check"></i></a> --%>
-<%-- 					<button id="tramitacioMassivaBtn" class="btn<c:if test="${not expedientConsultaCommand.tramitacioMassivaActivada}"> disabled</c:if>">Tramitació massiva <span id="tramitacioMassivaCount" class="badge">&nbsp;</span></button> --%>
-<!-- 				</div> -->
-				<div class="btn-group">
-					<button id="tramitacioMassivaBtn" class="tramitacioMassiva btn<c:if test="${not expedientConsultaCommand.tramitacioMassivaActivada}"> disabled</c:if>">Tramitació massiva <span id="tramitacioMassivaCount" class="badge">&nbsp;</span></button>
-					<button class="tramitacioMassiva btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
-					<ul class="tramitacioMassiva dropdown-menu">
-						<li<c:if test="${expedientConsultaCommand.tramitacioMassivaActivada}"> class="hide"</c:if>><a id="tramitacioMassivaActivar" href="#"><i class="icon-ok-circle"></i> Activar</a></li>
-						<li<c:if test="${not expedientConsultaCommand.tramitacioMassivaActivada}"> class="hide"</c:if>><a id="tramitacioMassivaDesactivar" href="#"><i class="icon-ban-circle"></i> Desactivar</a></li>
-					</ul>
-				</div>
 			</div>
 			<div class="span6">
 				<input type="hidden" name="consultaRealitzada" value="true"/>
-				<button id="bconsultar" type="button" class="btn btn-primary pull-right">Consultar</button>
-				<button id="bnetejar" type="button" class="btn pull-right" style="margin-right:.6em">Netejar</button>
-<!-- 				<a class="btn pull-right" href="expedient/filtre/netejar" style="margin-right:.6em">Netejar</a> -->
+				<button type="submit" name="accio" value="consultar" class="btn btn-primary pull-right">Consultar</button>
+				<button type="submit" class="btn pull-right" style="margin-right:.6em">Tramitació massiva <span id="tramitacioMassivaCount" class="badge">&nbsp;</span></button>
+				<button type="submit" name="accio" value="netejar" class="btn pull-right" style="margin-right:.6em">Netejar</button>
 			</div>
 		</div>
 	</form:form>
 
-	<c:if test="${expedientConsultaCommand.consultaRealitzada}">
-		<table id="taulaDades" class="table table-striped table-bordered">
-			<thead>
-				<tr>
-					<th data-property="id" width="4%" data-sortable="false" <c:if test="${not expedientConsultaCommand.tramitacioMassivaActivada}">data-visible=false</c:if>><input type="checkbox"/></th>
-					<th data-property="identificador" data-visible=true>Expedient</th>
-					<th data-property="dataInici" data-sorting="desc" data-visible=true>Iniciat el</th>
-					<th data-property="dataFi" data-visible=false>Finalitzat el</th>
-					<th data-property="tipus.nom" data-visible=true>Tipus</th>
-					<th data-property="estat.nom" data-visible=true>Estat</th>
-					<th data-property="aturat" data-visible=false>Aturat</th>
-					<th data-property="anulat" data-visible=false>Anulat</th>
-					<th data-property="id" data-sortable="false" width="10%" data-visible=true></th>
-				</tr>
-			</thead>
-		</table>
-	</c:if>
+	<table id="taulaDades" class="table table-striped table-bordered table-hover" data-rdt-filtre-form-id="expedientConsultaCommand" data-rdt-seleccionable="true" data-rdt-seleccionable-columna="0">
+		<thead>
+			<tr>
+				<th data-rdt-property="id" width="4%" data-rdt-sortable="false"></th>
+				<th data-rdt-property="identificador" data-rdt-visible="true">Expedient</th>
+				<th data-rdt-property="dataInici" data-rdt-type="datetime" data-rdt-sorting="desc" data-rdt-visible="true">Iniciat el</th>
+				<th data-rdt-property="dataFi" data-rdt-type="datetime" data-rdt-visible="true">Finalitzat el</th>
+				<th data-rdt-property="tipus.nom" data-rdt-visible="true">Tipus</th>
+				<th data-rdt-property="estat.nom" data-rdt-template="cellEstatTemplate" data-rdt-visible="true">
+					Estat
+					<script id="cellEstatTemplate" type="text/x-jsrender">
+					{{if dataFi}}Finalitzat{{else}}Iniciat{{/if}}
+					</script>
+				</th>
+				<th data-rdt-property="aturat" data-rdt-visible="false">Aturat</th>
+				<th data-rdt-property="anulat" data-rdt-visible="false">Anulat</th>
+				<th data-rdt-property="id" data-rdt-template="cellAccionsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
+					<script id="cellAccionsTemplate" type="text/x-jsrender">
+						<div class="dropdown">
+							<button class="btn btn-primary" data-toggle="dropdown"><i class="icon-cog icon-white"></i>&nbsp;Accions&nbsp;<span class="caret"></span></button>
+							<ul class="dropdown-menu">
+								<li><a class="obrir-expedient" href="expedient/{{:id}}"><i class="icon-folder-open"></i>&nbsp;Obrir</a></li>
+								<li><a href="expedient/{{:id}}/suspend"><i class="icon-stop"></i>&nbsp;Aturar</a></li>
+								<li><a href="expedient/{{:id}}/cancel" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code='expedient.consulta.confirm.anular'/>"><i class="icon-remove"></i>&nbsp;Anul·lar</a></li>
+								<li><a href="entitat/{{:id}}/delete" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code='expedient.consulta.confirm.esborrar'/>"><i class="icon-trash"></i>&nbsp;Esborrar</a></li>
+							</ul>
+						</div>
+					</script>
+				</th>
+			</tr>
+		</thead>
+	</table>
 
 </body>
 </html>

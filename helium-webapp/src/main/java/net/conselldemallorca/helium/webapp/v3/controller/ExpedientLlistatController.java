@@ -6,10 +6,8 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,7 +16,6 @@ import javax.validation.Valid;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
@@ -34,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -44,6 +42,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
  * Controlador per al llistat d'expedients.
@@ -53,14 +52,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping("/v3/expedient")
 public class ExpedientLlistatController extends BaseExpedientController {
-	private static final Map<String, String[]> COLUMNES_MAPEIG_ORDENACIO;
-	static {
-		COLUMNES_MAPEIG_ORDENACIO = new HashMap<String, String[]>();
-	}
 
 	@Autowired
 	private ExpedientService expedientService;
-	
 	@Autowired
 	private DissenyService dissenyService;
 
@@ -80,64 +74,33 @@ public class ExpedientLlistatController extends BaseExpedientController {
 			HttpServletRequest request,
 			@Valid ExpedientConsultaCommand filtreCommand,
 			BindingResult bindingResult,
-			Model model) {
-		if (bindingResult.hasErrors()) {
-			MissatgesHelper.error(
+			@RequestParam(value = "accio", required = false) String accio) {
+		filtre(request, filtreCommand, bindingResult, accio);
+		return "redirect:expedient";
+	}
+	@RequestMapping(value = "/filtre", method = RequestMethod.POST)
+	@ResponseStatus(value = HttpStatus.OK)
+	public void filtre(
+			HttpServletRequest request,
+			@Valid ExpedientConsultaCommand filtreCommand,
+			BindingResult bindingResult,
+			@RequestParam(value = "accio", required = false) String accio) {
+		if ("netejar".equals(accio)) {
+			SessionHelper.removeAttribute(
 					request,
-					"S'han produït errors en la validació dels camps del filtre");
-			omplirModelGet(request, model);
-			return "v3/expedientLlistat";
+					SessionHelper.VARIABLE_FILTRE_CONSULTA_GENERAL);
 		} else {
 			SessionHelper.setAttribute(
 					request,
 					SessionHelper.VARIABLE_FILTRE_CONSULTA_GENERAL,
 					filtreCommand);
-			return "redirect:expedient";
 		}
-		
-	}
-	
-	@RequestMapping(value = "/{expedientId}/suspend", method = RequestMethod.POST)
-	public String suspend(HttpServletRequest request, 
-			@PathVariable Long expedientId, 
-			@RequestParam(value = "motiu", required = true) String motiu,
-			Model model) {
-		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entorn != null) {		
-			ExpedientDto expedient = expedientService.findById(expedientId);
-			if (potModificarExpedient(expedient)) {
-				try {
-					expedientService.anular(entorn.getId(), expedientId, motiu);
-					MissatgesHelper.info(request, getMessage(request, "info.expedient.anulat") );
-				} catch (Exception ex) {
-					MissatgesHelper.error(request, getMessage(request, "error.anular.expedient"));
-		        	logger.error("No s'ha pogut anular el registre", ex);
-				}
-			} else {
-				MissatgesHelper.error(request, getMessage(request, "error.permisos.anular.expedient"));				
-			}
-		} else {
-			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));			
-		}
-		
-		return "redirect:/v3/expedient/" + expedientId;
-	}
-
-	@RequestMapping(value = "/filtre/netejar", method = RequestMethod.GET)
-	public String filtreNetejar(HttpServletRequest request) {
-		SessionHelper.removeAttribute(
-				request,
-				SessionHelper.VARIABLE_FILTRE_CONSULTA_GENERAL);
-		SessionHelper.removeAttribute(
-				request,
-				SessionHelper.VARIABLE_SELECCIO_CONSULTA_GENERAL);
-		return "redirect:../../expedient";
 	}
 
 	@RequestMapping(value = "/datatable", method = RequestMethod.GET)
 	@ResponseBody
-	public  DatatablesPagina<ExpedientDto>  datatable(
-			@RequestParam(value = "numero", required = false) String numero,
+	public DatatablesPagina<ExpedientDto> datatable(
+			/*@RequestParam(value = "numero", required = false) String numero,
 			@RequestParam(value = "titol", required = false) String titol,
 			@RequestParam(value = "expedientTipus", required = false) Long expedientTipusId,
 			@RequestParam(value = "estat", required = false) String estat,
@@ -151,12 +114,12 @@ public class ExpedientLlistatController extends BaseExpedientController {
 			@RequestParam(value = "nomesPendents", required = false) Boolean nomesPendents,
 			@RequestParam(value = "nomesAlertes", required = false) Boolean nomesAlertes,
 			@RequestParam(value = "mostrarAnulats", required = false) Boolean mostrarAnulats,
-			@RequestParam(value = "netejar", required = false) Boolean netejar,
+			@RequestParam(value = "netejar", required = false) Boolean netejar,*/
 			HttpServletRequest request,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		ExpedientConsultaCommand filtreCommand = null;
-		if (netejar) {
+		ExpedientConsultaCommand filtreCommand = getFiltreCommand(request);
+		/*if (netejar) {
 			SessionHelper.removeAttribute(
 					request,
 					SessionHelper.VARIABLE_FILTRE_CONSULTA_GENERAL);
@@ -193,7 +156,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		}
 		if (nomesPendents != null) filtreCommand.setNomesPendents(nomesPendents);
 		if (nomesAlertes != null) filtreCommand.setNomesAlertes(nomesAlertes);
-		if (mostrarAnulats != null) filtreCommand.setMostrarAnulats(mostrarAnulats);
+		if (mostrarAnulats != null) filtreCommand.setMostrarAnulats(mostrarAnulats);*/
 		SessionHelper.setAttribute(
 				request,
 				SessionHelper.VARIABLE_FILTRE_CONSULTA_GENERAL,
@@ -217,12 +180,39 @@ public class ExpedientLlistatController extends BaseExpedientController {
 						filtreCommand.isNomesPendents(),
 						filtreCommand.isNomesAlertes(),
 						filtreCommand.isMostrarAnulats(),
-						PaginacioHelper.getPaginacioDtoFromDatatable(
-								request,
-								COLUMNES_MAPEIG_ORDENACIO)));
+						PaginacioHelper.getPaginacioDtoFromDatatable(request)));
 	}
 
-	@RequestMapping(value = "/seleccionar/{expedientId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/seleccio", method = RequestMethod.POST)
+	@ResponseBody
+	public Set<Long> seleccio(
+			HttpServletRequest request,
+			@RequestParam(value = "ids", required = false) String ids) {
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		Set<Long> seleccio = sessionManager.getSeleccioConsultaGeneral();
+		if (seleccio == null) {
+			seleccio = new HashSet<Long>();
+			sessionManager.setSeleccioConsultaGeneral(seleccio);
+		}
+		if (ids != null) {
+			String[] idsparts = (ids.contains(",")) ? ids.split(",") : new String[] {ids};
+			for (String id: idsparts) {
+				try {
+					long l = Long.parseLong(id.trim());
+					if (l >= 0) {
+						//System.out.println(">>> SEL afegir " + l);
+						seleccio.add(l);
+					} else {
+						//System.out.println(">>> SEL llevar " + l);
+						seleccio.remove(-l);
+					}
+				} catch (NumberFormatException ex) {}
+			}
+		}
+		return seleccio;
+	}
+
+/*	@RequestMapping(value = "/seleccionar/{expedientId}", method = RequestMethod.GET)
 	@ResponseBody
 	public Set<Long> seleccionar(
 			HttpServletRequest request,
@@ -259,6 +249,67 @@ public class ExpedientLlistatController extends BaseExpedientController {
 			} catch (NumberFormatException ex) {}
 		}
 		return seleccio;
+	}*/
+
+	@RequestMapping(value = "/filtre/netejar", method = RequestMethod.GET)
+	public String filtreNetejar(HttpServletRequest request) {
+		SessionHelper.removeAttribute(
+				request,
+				SessionHelper.VARIABLE_FILTRE_CONSULTA_GENERAL);
+		SessionHelper.removeAttribute(
+				request,
+				SessionHelper.VARIABLE_SELECCIO_CONSULTA_GENERAL);
+		return "redirect:../../expedient";
+	}
+
+	@RequestMapping(value = "/{expedientId}/suspend", method = RequestMethod.POST)
+	public String suspend(HttpServletRequest request, 
+			@PathVariable Long expedientId, 
+			@RequestParam(value = "motiu", required = true) String motiu,
+			Model model) {
+		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
+		if (entorn != null) {		
+			ExpedientDto expedient = expedientService.findById(expedientId);
+			if (potModificarExpedient(expedient)) {
+				try {
+					expedientService.anular(entorn.getId(), expedientId, motiu);
+					MissatgesHelper.info(request, getMessage(request, "info.expedient.anulat") );
+				} catch (Exception ex) {
+					MissatgesHelper.error(request, getMessage(request, "error.anular.expedient"));
+		        	logger.error("No s'ha pogut anular el registre", ex);
+				}
+			} else {
+				MissatgesHelper.error(request, getMessage(request, "error.permisos.anular.expedient"));				
+			}
+		} else {
+			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));			
+		}
+		
+		return "redirect:/v3/expedient/" + expedientId;
+	}
+
+	@RequestMapping(value = "/{expedientId}/delete", method = RequestMethod.GET)
+	public String deleteAction(
+			HttpServletRequest request,
+			@PathVariable Long expedientId) {
+		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
+		if (entorn != null) {
+			ExpedientDto expedient = expedientService.findById(expedientId);
+			if (potModificarExpedient(expedient)) {
+				try {
+					expedientService.delete(entorn.getId(), expedientId);
+					MissatgesHelper.info(request, getMessage(request, "info.expedient.esborrat") );
+				} catch (Exception ex) {
+					MissatgesHelper.error(request, getMessage(request, "error.esborrar.expedient") );
+		        	logger.error("No s'ha pogut esborrar el registre", ex);
+				}
+			} else {
+				MissatgesHelper.error(request, getMessage(request, "error.permisos.esborrar.expedient") );
+			}
+		} else {
+			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec") );
+		}
+		return "redirect:/v3/expedient";
 	}
 
 	@RequestMapping(value = "/estatsPerTipus/{expedientTipusId}", method = RequestMethod.GET)
@@ -276,6 +327,8 @@ public class ExpedientLlistatController extends BaseExpedientController {
 	    dateFormat.setLenient(false);
 	    binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
 	}
+
+
 
 	private void omplirModelGet(
 			HttpServletRequest request,
@@ -306,29 +359,6 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		return filtreCommand;
 	}
 
-	@RequestMapping(value = "/{expedientId}/delete", method = RequestMethod.GET)
-	public String deleteAction(
-			HttpServletRequest request,
-			@PathVariable Long expedientId) {
-		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entorn != null) {
-			ExpedientDto expedient = expedientService.findById(expedientId);
-			if (potModificarExpedient(expedient)) {
-				try {
-					expedientService.delete(entorn.getId(), expedientId);
-					MissatgesHelper.info(request, getMessage(request, "info.expedient.esborrat") );
-				} catch (Exception ex) {
-					MissatgesHelper.error(request, getMessage(request, "error.esborrar.expedient") );
-		        	logger.error("No s'ha pogut esborrar el registre", ex);
-				}
-			} else {
-				MissatgesHelper.error(request, getMessage(request, "error.permisos.esborrar.expedient") );
-			}
-		} else {
-			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec") );
-		}
-		return "redirect:/v3/expedient";
-	}
-	
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientLlistatController.class);
+
 }

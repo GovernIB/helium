@@ -714,18 +714,17 @@ public class VariableHelper {
 		tascaDto.setValidacions(conversioTipusHelper.convertirList(camp.getValidacions(), ValidacioDto.class));
 		if (camp.isMultiple()) {
 			List<TascaDadaDto> multipleDades = new ArrayList<TascaDadaDto>();
-			for (CampRegistre dto: camp.getRegistreMembres()) {
-//				multipleDades.add(getTascaDadaDtoParaConsultaDisseny(dto.getMembre()));
-			}
+			/*for (CampRegistre dto: camp.getRegistreMembres()) {
+				multipleDades.add(getTascaDadaDtoParaConsultaDisseny(dto.getMembre()));
+			}*/
 			tascaDto.setMultipleDades(multipleDades);
 		}
 		
 		List<TascaDadaDto> registreDades = new ArrayList<TascaDadaDto>();
-		for (CampRegistre dto: camp.getRegistrePares()) {
-//			registreDades.add(getTascaDadaDtoParaConsultaDisseny(dto.getRegistre()));
-		}
+		/*for (CampRegistre dto: camp.getRegistrePares()) {
+			registreDades.add(getTascaDadaDtoParaConsultaDisseny(dto.getRegistre()));
+		}*/
 		tascaDto.setRegistreDades(registreDades);
-		
 		return tascaDto;
 	}
 
