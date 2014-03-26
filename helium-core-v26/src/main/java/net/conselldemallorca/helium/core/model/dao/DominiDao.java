@@ -160,35 +160,14 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 			String id,
 			Map<String, Object> parametres) throws Exception {
 		mesuresTemporalsHelper.mesuraIniciar("DOMINI WS: " + domini.getCodi(), "domini");
-		if ("intern".equalsIgnoreCase(domini.getCodi())) {
-			parametres.put("entorn", domini.getEntorn().getCodi());
-		}
-		String usuari = null;
-		String contrasenya = null;
-		if (domini.getTipusAuth() != null && !TipusAuthDomini.NONE.equals(domini.getTipusAuth())) {
-			if (OrigenCredencials.PROPERTIES.equals(domini.getOrigenCredencials())) {
-				usuari = GlobalProperties.getInstance().getProperty(domini.getUsuari());
-				contrasenya = GlobalProperties.getInstance().getProperty(domini.getContrasenya());
-			} else {
-				usuari = domini.getUsuari();
-				contrasenya = domini.getContrasenya();
-			}
-		}
-		String auth = "NONE";
-		if (TipusAuthDomini.HTTP_BASIC.equals(domini.getTipusAuth()))
-			auth = "BASIC";
-		if (TipusAuthDomini.USERNAMETOKEN.equals(domini.getTipusAuth()))
-			auth = "USERNAMETOKEN";
-		DominiHelium client = (DominiHelium)WsClientUtils.getWsClientProxy(
-				DominiHelium.class,
-				domini.getUrl(),
-				usuari,
-				contrasenya,
-				auth,
-				false,
-				false,
-				true);
+		DominiHelium client = getClientWsFromDomini(domini);
 		List<ParellaCodiValor> paramsConsulta = new ArrayList<ParellaCodiValor>();
+		if ("intern".equalsIgnoreCase(domini.getCodi())) {
+			paramsConsulta.add(
+					new ParellaCodiValor(
+							"entorn",
+							domini.getEntorn().getCodi()));
+		}
 		if (parametres != null) {
 			for (String codi: parametres.keySet()) {
 				paramsConsulta.add(new ParellaCodiValor(
@@ -232,6 +211,39 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 		} catch (Exception ex) {
 			throw new DominiException("No s'ha pogut consultar el domini: " + domini.getCodi(), ex);
 		}
+	}
+
+	private DominiHelium getClientWsFromDomini(Domini domini) {
+		DominiHelium clientWs = wsCache.get(domini.getId());
+		if (clientWs == null) {
+			String usuari = null;
+			String contrasenya = null;
+			if (domini.getTipusAuth() != null && !TipusAuthDomini.NONE.equals(domini.getTipusAuth())) {
+				if (OrigenCredencials.PROPERTIES.equals(domini.getOrigenCredencials())) {
+					usuari = GlobalProperties.getInstance().getProperty(domini.getUsuari());
+					contrasenya = GlobalProperties.getInstance().getProperty(domini.getContrasenya());
+				} else {
+					usuari = domini.getUsuari();
+					contrasenya = domini.getContrasenya();
+				}
+			}
+			String auth = "NONE";
+			if (TipusAuthDomini.HTTP_BASIC.equals(domini.getTipusAuth()))
+				auth = "BASIC";
+			if (TipusAuthDomini.USERNAMETOKEN.equals(domini.getTipusAuth()))
+				auth = "USERNAMETOKEN";
+			clientWs = (DominiHelium)WsClientUtils.getWsClientProxy(
+					DominiHelium.class,
+					domini.getUrl(),
+					usuari,
+					contrasenya,
+					auth,
+					false,
+					false,
+					true);
+			wsCache.put(domini.getId(), clientWs);
+		}
+		return clientWs;
 	}
 
 	private NamedParameterJdbcTemplate getJdbcTemplateFromDomini(Domini domini) throws NamingException {

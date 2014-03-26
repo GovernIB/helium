@@ -71,7 +71,7 @@ public class WsClientUtils {
 		Client client = ClientProxy.getClient(c);
         HTTPConduit httpConduit = (HTTPConduit)client.getConduit();
         HTTPClientPolicy httpClientPolicy = new HTTPClientPolicy();
-        // EnvÃ­o chunked
+        // Envi­o chunked
 		httpClientPolicy.setAllowChunking(isWsClientChunked());
         httpConduit.setClient(httpClientPolicy);
         

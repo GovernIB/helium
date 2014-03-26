@@ -50,6 +50,7 @@ public class DominiHelper {
 	private static final String CACHE_KEY_SEPARATOR = "#";
 	private Ehcache dominiCache;
 
+	private Map<Long, DominiHelium> wsCache = new HashMap<Long, DominiHelium>();
 	private Map<Long, NamedParameterJdbcTemplate> jdbcTemplates = new HashMap<Long, NamedParameterJdbcTemplate>();
 
 	@SuppressWarnings("unchecked")
@@ -57,7 +58,6 @@ public class DominiHelper {
 			DominiDto domini,
 			String id,
 			Map<String, Object> parametres) throws Exception {
-//		System.out.println(">>> Consulta domini helper");
 		List<FilaResultat> resultat = null;
 		String cacheKey = getCacheKey(domini.getId(), parametres);
 		Element element = null;
@@ -83,44 +83,25 @@ public class DominiHelper {
 		return resultat;
 	}
 
+	public void makeDirty(Long dominiId) {
+		wsCache.remove(dominiId);
+		jdbcTemplates.remove(dominiId);
+	}
+
 
 
 	private List<FilaResultat> consultaWs(
 			DominiDto domini,
 			String id,
 			Map<String, Object> parametres) throws Exception {
-		if ("intern".equalsIgnoreCase(domini.getCodi())) {
-			parametres.put("entorn", domini.getEntorn().getCodi());
-		}
-		String usuari = null;
-		String contrasenya = null;
-		if (domini.getTipusAuth() != null && !TipusAuthDomini.NONE.equals(domini.getTipusAuth())) {
-			if (OrigenCredencials.PROPERTIES.equals(domini.getOrigenCredencials())) {
-				usuari = GlobalProperties.getInstance().getProperty(domini.getUsuari());
-				contrasenya = GlobalProperties.getInstance().getProperty(domini.getContrasenya());
-			} else {
-				usuari = domini.getUsuari();
-				contrasenya = domini.getContrasenya();
-			}
-		}
-		String auth = "NONE";
-		if (TipusAuthDomini.HTTP_BASIC.equals(domini.getTipusAuth()))
-			auth = "BASIC";
-		if (TipusAuthDomini.USERNAMETOKEN.equals(domini.getTipusAuth()))
-			auth = "USERNAMETOKEN";
-//		System.out.println(">>> Consulta domini WS (" +
-//				"codi=" + domini.getCodi() + ", " + 
-//				"url=" + domini.getUrl() + ")");
-		DominiHelium client = (DominiHelium)WsClientUtils.getWsClientProxy(
-				DominiHelium.class,
-				domini.getUrl(),
-				usuari,
-				contrasenya,
-				auth,
-				false,
-				false,
-				true);
+		DominiHelium client = getClientWsFromDomini(domini);
 		List<ParellaCodiValor> paramsConsulta = new ArrayList<ParellaCodiValor>();
+		if ("intern".equalsIgnoreCase(domini.getCodi())) {
+			paramsConsulta.add(
+					new ParellaCodiValor(
+							"entorn",
+							domini.getEntorn().getCodi()));
+		}
 		if (parametres != null) {
 			for (String codi: parametres.keySet()) {
 				paramsConsulta.add(new ParellaCodiValor(
@@ -161,6 +142,39 @@ public class DominiHelper {
 		} catch (Exception ex) {
 			throw new DominiException("No s'ha pogut consultar el domini", ex);
 		}
+	}
+
+	private DominiHelium getClientWsFromDomini(DominiDto domini) {
+		DominiHelium clientWs = wsCache.get(domini.getId());
+		if (clientWs == null) {
+			String usuari = null;
+			String contrasenya = null;
+			if (domini.getTipusAuth() != null && !TipusAuthDomini.NONE.equals(domini.getTipusAuth())) {
+				if (OrigenCredencials.PROPERTIES.equals(domini.getOrigenCredencials())) {
+					usuari = GlobalProperties.getInstance().getProperty(domini.getUsuari());
+					contrasenya = GlobalProperties.getInstance().getProperty(domini.getContrasenya());
+				} else {
+					usuari = domini.getUsuari();
+					contrasenya = domini.getContrasenya();
+				}
+			}
+			String auth = "NONE";
+			if (TipusAuthDomini.HTTP_BASIC.equals(domini.getTipusAuth()))
+				auth = "BASIC";
+			if (TipusAuthDomini.USERNAMETOKEN.equals(domini.getTipusAuth()))
+				auth = "USERNAMETOKEN";
+			clientWs = (DominiHelium)WsClientUtils.getWsClientProxy(
+					DominiHelium.class,
+					domini.getUrl(),
+					usuari,
+					contrasenya,
+					auth,
+					false,
+					false,
+					true);
+			wsCache.put(domini.getId(), clientWs);
+		}
+		return clientWs;
 	}
 
 	private NamedParameterJdbcTemplate getJdbcTemplateFromDomini(DominiDto domini) throws NamingException {

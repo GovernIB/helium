@@ -65,6 +65,7 @@ import freemarker.ext.beans.BeanModel;
 import freemarker.ext.beans.BooleanModel;
 import freemarker.ext.beans.DateModel;
 import freemarker.ext.beans.NumberModel;
+import freemarker.log.Logger;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.SimpleNumber;
 import freemarker.template.SimpleScalar;
@@ -123,6 +124,7 @@ public class PlantillaHelper {
 			String taskInstanceId,
 			String processInstanceId,
 			Date dataDocument) throws Exception {
+		deshabilitarLogging();
 		Document document = documentRepository.findOne(documentId);
 		byte[] contingut = null;
 		if (document.isPlantilla()) {
@@ -640,6 +642,10 @@ public class PlantillaHelper {
 		});
 		template.createDocument(model, resultat);
 		return resultat.toByteArray();
+	}
+
+	private void deshabilitarLogging() throws Exception {
+		Logger.selectLoggerLibrary(Logger.LIBRARY_NONE);
 	}
 
 	private boolean esIdentitySourceHelium() {

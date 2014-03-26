@@ -50,6 +50,7 @@ import freemarker.ext.beans.BeanModel;
 import freemarker.ext.beans.BooleanModel;
 import freemarker.ext.beans.DateModel;
 import freemarker.ext.beans.NumberModel;
+import freemarker.log.Logger;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.SimpleNumber;
 import freemarker.template.SimpleScalar;
@@ -90,6 +91,7 @@ public class PlantillaDocumentDao {
 			TascaDto tasca,
 			Date dataDocument,
 			Map<String, Object> model) throws Exception {
+		deshabilitarLogging();
 		afegirContextAlModel(
 				responsableCodi,
 				expedient,
@@ -609,6 +611,10 @@ public class PlantillaDocumentDao {
 						return new SimpleScalar("[Arguments incorrectes]");
 					}
 				});
+	}
+
+	private void deshabilitarLogging() throws Exception {
+		Logger.selectLoggerLibrary(Logger.LIBRARY_NONE);
 	}
 
 	private boolean esIdentitySourceHelium() {

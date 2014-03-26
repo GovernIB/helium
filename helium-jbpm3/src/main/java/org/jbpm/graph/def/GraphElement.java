@@ -268,6 +268,13 @@ public abstract class GraphElement implements Identifiable, Serializable {
     		exp = ExpedientIniciantDto.getExpedient();
     	}
     	Jbpm3HeliumBridge.getInstanceService().mesuraIniciar("ACCIO: " + (action != null ? action.getName() : "null"), "tasques", (exp == null) ? "NULL" : exp.getTipus().getNom(), null, null);
+    	/*if (action.getActionDelegation() != null) {
+    		System.out.println(">>> EXECUCIO ACCIO (name=" + action.getName() + ", className=" + action.getActionDelegation().getClassName() + ")");
+    	} else if (action.getActionExpression() != null) {
+    		System.out.println(">>> EXECUCIO ACCIO (name=" + action.getName() + ", expression=" + new String(action.getActionExpression()) + ")");
+    	} else {
+    		System.out.println(">>> EXECUCIO SCRIPT (name=" + action.getName() + ")");
+    	}*/
     }
     // create action log
     ActionLog actionLog = new ActionLog(action);
