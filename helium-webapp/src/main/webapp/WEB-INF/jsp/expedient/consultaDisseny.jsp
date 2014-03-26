@@ -89,11 +89,22 @@
 				return false;
 			}
 		);</c:if>
+	
 	});
 
 	function informeClick(){
 		$("button.submitButton[value='informe']")[0].click();
 	}
+	
+	//executa consulta quan es clica el botó enter a un camp del filtre
+	$(document)[0].onkeypress = function(e) {
+        var key = e.which||e.keyCode;  
+        if(key == 13)   
+        {
+        	$("button.submitButton[value='submit']")[0].click();
+        }
+    };
+	
 	
 // ]]>
 </script>
