@@ -217,10 +217,16 @@
 			<artifactId>poi</artifactId>
 			<version>3.7</version>
 		</dependency>
-		<dependency>
+		<!--dependency>
 		    <groupId>org.slf4j</groupId>
 		    <artifactId>slf4j-log4j12</artifactId>
 		    <version>${slf4j.version}</version>
+		</dependency-->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
