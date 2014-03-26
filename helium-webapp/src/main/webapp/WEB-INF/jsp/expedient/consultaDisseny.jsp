@@ -171,7 +171,7 @@
 					<c:import url="../common/formElement.jsp">
 						<c:param name="type" value="buttons"/>
 						<c:param name="values">ejecucionMasivaTotsTipus,submit,netejar,</c:param>
-						<c:param name="titles"><fmt:message key="expedient.consulta.massiva.accions.totsTipus"/>,<fmt:message key="expedient.consulta.consultar"/>,<fmt:message key="expedient.consulta.netejar"/></c:param>
+						<c:param name="titles"><fmt:message key="expedient.consulta.massiva.accions.totsTipus.consulta"/>,<fmt:message key="expedient.consulta.consultar"/>,<fmt:message key="expedient.consulta.netejar"/></c:param>
 					</c:import>
 				</c:if>
 				<c:if test="${not empty consulta.informeNom}">
@@ -180,14 +180,14 @@
 							<c:import url="../common/formElement.jsp">
 								<c:param name="type" value="buttons"/>
 								<c:param name="values">ejecucionMasivaTotsTipus,informe,submit,netejar</c:param>
-								<c:param name="titles"><fmt:message key="expedient.consulta.massiva.accions.totsTipus"/>,<fmt:message key="expedient.consulta.informe"/>,<fmt:message key="expedient.consulta.consultar"/>,<fmt:message key="expedient.consulta.netejar"/></c:param>
+								<c:param name="titles"><fmt:message key="expedient.consulta.massiva.accions.totsTipus.consulta"/>,<fmt:message key="expedient.consulta.informe"/>,<fmt:message key="expedient.consulta.consultar"/>,<fmt:message key="expedient.consulta.netejar"/></c:param>
 							</c:import>
 						</c:when>
 						<c:otherwise>
 							<c:import url="../common/formElement.jsp">
 								<c:param name="type" value="buttons"/>
 								<c:param name="values">ejecucionMasivaTotsTipus,submit,netejar</c:param>
-								<c:param name="titles"><fmt:message key="expedient.consulta.massiva.accions.totsTipus"/>,<fmt:message key="expedient.consulta.consultar"/>,<fmt:message key="expedient.consulta.netejar"/></c:param>
+								<c:param name="titles"><fmt:message key="expedient.consulta.massiva.accions.totsTipus.consulta"/>,<fmt:message key="expedient.consulta.consultar"/>,<fmt:message key="expedient.consulta.netejar"/></c:param>
 							</c:import>
 						</c:otherwise>
 					</c:choose>
