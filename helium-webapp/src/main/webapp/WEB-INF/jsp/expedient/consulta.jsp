@@ -313,10 +313,17 @@ function selTots(){
 				<c:param name="itemValue" value="id"/>
 				<c:param name="itemBuit">&lt;&lt; <fmt:message key="expedient.consulta.select.tipusexpedient"/> &gt;&gt;</c:param>
 				<c:param name="label"><fmt:message key="expedient.consulta.tipusexpedient"/></c:param>
-				<c:param name="onchange">refrescarEstats(this);refrescarSelTots(this);</c:param>
+				<c:param name="onchange">
+					refrescarEstats(this);
+					<security:accesscontrollist domainObject="${entornActual}" hasPermission="16,2">
+						refrescarSelTots(this);
+					</security:accesscontrollist>
+				</c:param>
 			</c:import>
-
-			<button id="ejecucionMasivaTotsTipus" style='<c:if test="${command.expedientTipus.id == null}">display: none;</c:if> float: right; margin-right: 10px' type="button" class="submitButton" onclick="location.href = '<c:url value="/expedient/massivaInfo.html?expedientTipusId="/>'+$('#expedientTipus0').val()"><fmt:message key="expedient.consulta.massiva.accions.totsTipus"/></button>
+			
+			<security:accesscontrollist domainObject="${entornActual}" hasPermission="16,2">
+				<button id="ejecucionMasivaTotsTipus" style='<c:if test="${command.expedientTipus.id == null}">display: none;</c:if> float: right; margin-right: 10px' type="button" class="submitButton" onclick="location.href = '<c:url value="/expedient/massivaInfo.html?expedientTipusId="/>'+$('#expedientTipus0').val()"><fmt:message key="expedient.consulta.massiva.accions.totsTipus"/></button>
+			</security:accesscontrollist>
 			
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="estat"/>

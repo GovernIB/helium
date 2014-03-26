@@ -1048,7 +1048,7 @@ public class ExpedientMassivaController extends BaseController {
 			if (!massivaInfoTots) {
 				ids = getIdsMassius(request);
 			} else {
-				ids = getIdsExpedientsMassiusTotsTe(request);
+				ids = getIdsExpedientsMassiusTotsTe(request, expedientTipusId);
 			}
 			
 			if (ids == null || ids.isEmpty()  || ids.size() <= 1) {
@@ -1856,14 +1856,14 @@ public class ExpedientMassivaController extends BaseController {
 	 * Recupera la lista de Ids del tipo de expediente seleccionado.
 	 * @param expedientTipusId 
 	 */
-	private List<Long> getIdsExpedientsMassiusTotsTe(HttpServletRequest request) {
+	private List<Long> getIdsExpedientsMassiusTotsTe(HttpServletRequest request, Long expedientTipusId) {
 		List<Long> ids = new ArrayList<Long>();
 		if (request.getSession().getAttribute(ExpedientConsultaDissenyController.VARIABLE_SESSIO_SELCON_COMMAND) != null && request.getSession().getAttribute(ExpedientConsultaDissenyController.VARIABLE_SESSIO_SELCON_COMMAND) != null) {
 			ExpedientConsultaDissenyCommand commandSeleccioConsulta = (ExpedientConsultaDissenyCommand) request.getSession().getAttribute(ExpedientConsultaDissenyController.VARIABLE_SESSIO_SELCON_COMMAND);
 			Object commandFiltre = null;
-			if (commandSeleccioConsulta.getExpedientTipusId() == null) {
+			if (expedientTipusId == null) {
 				commandFiltre = request.getSession().getAttribute(ExpedientConsultaDissenyController.VARIABLE_SESSIO_FILTRE_COMMAND);
-			} 
+			}
 			
 			List<Camp> camps = dissenyService.findCampsPerCampsConsulta(
 					commandSeleccioConsulta.getConsultaId(),
