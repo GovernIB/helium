@@ -9,16 +9,9 @@
 	<meta name="capsaleraTipus" content="llistat"/>
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
-	
-	<c:import url="../../utils/modalHead.jsp">
-		<c:param name="titol" value="Reassignar tasca: ${tasca.titol}"/>
-		<c:param name="buttonContainerId" value="botons"/>
-	</c:import>
 </head>
 <body>
-
 	<form:form action="reassignar" cssClass="form-horizontal form-tasca">
-		<div class="modal-body">
 			<input type="hidden" name="tascaId" value="${tasca.id}"/>
 	
 			<div class="control-group fila_reducida">
@@ -29,11 +22,8 @@
 			</div>
 			<br/>
 			<p class="aclaracio"><spring:message code='comuns.camps_marcats' /> <i class='icon-asterisk'></i> <spring:message code='comuns.son_oblig' /></p>
-		</div>
-		<div id="botons" class="well">
-			<button type="button" class="btn" id="cancelar" name="cancelar" value="cancel" onclick="location='iniciar'">
-				<spring:message code='comuns.cancelar' />
-			</button>				
+		
+		<div id="formReasignar">
 			<button type="submit" class="btn btn-primary" id="submit" name="submit" value="submit">
 				<spring:message code='comuns.reassignar' />
 			</button>

@@ -94,6 +94,31 @@ $(document).ready(function() {
 			    }
 			});
 		}
+	});	
+	$('#tramitacioMassivaSelTots').click(function() {
+		$.ajax({
+		    url:'expedient/seleccionarTots',
+		    type:'POST',
+		    dataType: 'json',
+			async: false,
+			success: function(data) {
+				$("td input.rdt-seleccio[type=checkbox]", $("#taulaDades")).each(function(index) {
+					$(this).removeAttr('checked');
+					for (var i = 0; i < data.length; i++) {
+						if (data[i] == $(this).val()) {
+							$(this).attr('checked', 'checked');
+							break;
+						}
+					}
+					seleccio = data;
+				});
+				$('#tramitacioMassivaCount').html(seleccio.length);
+			},
+			timeout: 20000,
+			error: function (xhr, textStatus, errorThrown) {
+				alert('Error al canviar la selecció');
+			}
+		});
 	});
 	$('.datepicker').datepicker({language: 'ca', autoclose: true});
 });
@@ -262,8 +287,14 @@ $(document).ready(function() {
 			<div class="span6">
 				<input type="hidden" name="consultaRealitzada" value="true"/>
 				<button type="submit" name="accio" value="consultar" class="btn btn-primary pull-right">Consultar</button>
-				<button type="submit" class="btn pull-right" style="margin-right:.6em">Tramitació massiva <span id="tramitacioMassivaCount" class="badge">&nbsp;</span></button>
 				<button type="submit" name="accio" value="netejar" class="btn pull-right" style="margin-right:.6em">Netejar</button>
+				<div class="btn-group pull-right">
+					<button class="tramitacioMassiva btn">Tramitació massiva <span id="tramitacioMassivaCount" class="badge">&nbsp;</span></button>
+					<button class="tramitacioMassiva btn dropdown-toggle" style="margin-right:.6em" data-toggle="dropdown"><span class="caret"></span></button>
+					<ul class="tramitacioMassiva dropdown-menu" style="right: auto;">
+						<li><a id="tramitacioMassivaSelTots" href="#"><i class="icon-ok-circle"></i> seleccionar tots</a></li>
+					</ul>
+				</div>
 			</div>
 		</div>
 	</form:form>

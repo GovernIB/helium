@@ -90,6 +90,12 @@
 			</ul>
 		</div>
 		<div class="btn-group">
+			<button type="button" class="btn btn-primary dropdown-toggle radius-left" data-toggle="dropdown"><spring:message code="comuns.tasques"/>&nbsp;<span class="caret"></span></button>
+			<ul class="dropdown-menu">
+				<li><a href="<c:url value="/v3/tasca"/>">Consultar</a></li>
+			</ul>
+		</div>
+		<div class="btn-group">
 			<c:choose>
 				<c:when test="${not empty expedientTipusActual}"><a href="<c:url value="/v3/informe/${expedientTipusActual.id}"></c:url>" class="btn btn-primary"><spring:message code="comuns.informes"/></a></c:when>
 				<c:otherwise>

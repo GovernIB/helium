@@ -187,11 +187,11 @@ public class ConsultaCampController extends BaseController {
 			}
 			return "redirect:/consulta/camps.html?id=" + consultaId + "&tipus=" + tipus;
 		} else {
-			missatgeError(request, getMessage("error.no.entorn.selec") );
+			missatgeError(request, getMessage("error.no.entorn.selec"));
 			return "redirect:/index.html";
 		}
 	}
-	
+
 	@RequestMapping(value = "/consulta/reportDownload")
 	public String downloadAction(
 			HttpServletRequest request,

@@ -2549,5 +2549,42 @@ public class ExpedientService {
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientService.class);
-
+	
+	public List<Long> findIdsAmbEntornConsultaDisseny(
+			Long entornId,
+			Long consultaId,
+			Map<String, Object> valors,
+			String sort,
+			boolean asc,
+			int firstRow,
+			int maxResults) {
+		List<Long> resposta = new ArrayList<Long>();
+		Consulta consulta = consultaDao.getById(consultaId, false);
+		List<Camp> campsFiltre = getServiceUtils().findCampsPerCampsConsulta(
+				consulta,
+				TipusConsultaCamp.FILTRE);
+		List<Camp> campsInforme = getServiceUtils().findCampsPerCampsConsulta(
+				consulta,
+				TipusConsultaCamp.INFORME);
+		afegirValorsPredefinits(consulta, valors, campsFiltre);
+		List<Map<String, DadaIndexadaDto>> dadesExpedients = luceneDao.findAmbDadesExpedient(
+				consulta.getEntorn().getCodi(),
+				consulta.getExpedientTipus().getCodi(),
+				campsFiltre,
+				valors,
+				campsInforme,
+				sort,
+				asc,
+				firstRow,
+				maxResults);
+		for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
+			DadaIndexadaDto dadaExpedientId = dadesExpedient.get(LuceneDao.CLAU_EXPEDIENT_ID);
+			Expedient expedient = expedientDao.getById(Long.parseLong(dadaExpedientId.getValorIndex()), false);
+			if (expedient != null) {
+				resposta.add(expedient.getId());
+			}
+			dadesExpedient.remove(LuceneDao.CLAU_EXPEDIENT_ID);
+		}
+		return resposta;
+	}
 }

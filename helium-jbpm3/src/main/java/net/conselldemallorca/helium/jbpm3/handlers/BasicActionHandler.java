@@ -199,7 +199,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 					dataInici1,
 					dataInici2,
 					expedient.getTipus().getId(),
-					estat.getId(),
+					estat == null ? null : estat.getId(),
 					iniciat,
 					finalitzat,
 					null,

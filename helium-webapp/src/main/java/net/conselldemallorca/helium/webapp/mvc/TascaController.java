@@ -734,16 +734,7 @@ public class TascaController extends BaseController {
 				// ------------------------------------------
 				//tascaService.completar(entornId, id, true, null, transicio);
 				
-				if (tascaIds.length > 1) {
-					// Programam massivament la resta de tasques
-					// ------------------------------------------
-					/*String[] tIds = new String[tascaIds.length - 1];
-					int j = 0;
-					for (int i = 0; i < tascaIds.length; i++) {
-						if (!tascaIds[i].equals(id)) {
-							tIds[j++] = tascaIds[i];
-						}
-					}*/
+				if (tascaIds.length > 0) {
 					// Obtenim informació de l'execució massiva
 					// Data d'inici
 					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");

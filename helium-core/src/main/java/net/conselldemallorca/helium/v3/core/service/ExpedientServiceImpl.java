@@ -545,18 +545,19 @@ public class ExpedientServiceImpl implements ExpedientService {
 		if (entorn == null) {
 			logger.debug("No s'ha trobat l'entorn (entornId=" + entornId + ")");
 			throw new EntornNotFoundException();
-		} else {
-			boolean ambPermis = permisosHelper.isGrantedAny(
-					entorn.getId(),
-					Entorn.class,
-					new Permission[] {
-						ExtendedPermission.READ,
-						ExtendedPermission.ADMINISTRATION});
-			if (!ambPermis) {
-				logger.debug("No es tenen permisos per accedir a l'entorn (entornId=" + entornId + ")");
-				throw new EntornNotFoundException();
-			}
+		} 
+		
+		boolean ambPermis = permisosHelper.isGrantedAny(
+				entorn.getId(),
+				Entorn.class,
+				new Permission[] {
+					ExtendedPermission.READ,
+					ExtendedPermission.ADMINISTRATION});
+		if (!ambPermis) {
+			logger.debug("No es tenen permisos per accedir a l'entorn (entornId=" + entornId + ")");
+			throw new EntornNotFoundException();
 		}
+			
 		// Comprova l'accés al tipus d'expedient
 		ExpedientTipus expedientTipus = null;
 		if (expedientTipusId != null) {
@@ -565,7 +566,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				logger.debug("No s'ha trobat l'expedientTipus (expedientTipusId=" + expedientTipusId + ")");
 				throw new ExpedientTipusNotFoundException();
 			} else {
-				boolean ambPermis = permisosHelper.isGrantedAny(
+				ambPermis = permisosHelper.isGrantedAny(
 						expedientTipus.getId(),
 						ExpedientTipus.class,
 						new Permission[] {
@@ -724,6 +725,206 @@ public class ExpedientServiceImpl implements ExpedientService {
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "3");
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta");
 		return resposta;
+	}
+	
+	@Transactional(readOnly = true)
+	@Override
+	public List<Long> findIdsPerConsultaGeneral(
+			Long entornId,
+			Long expedientTipusId,
+			String titol,
+			String numero,
+			Date dataInici1,
+			Date dataInici2,
+			Date dataFi1,
+			Date dataFi2,
+			EstatTipusDto estatTipus,
+			Long estatId,
+			Double geoPosX,
+			Double geoPosY,
+			String geoReferencia,
+			boolean nomesAmbTasquesActives,
+			boolean nomesAlertes,
+			boolean mostrarAnulats) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
+		
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta");
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "0");
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		logger.debug("Consulta general d'expedients paginada (entornId=" + entornId + "expedientTipusId=" + expedientTipusId + ")");
+		// Comprova l'accés a l'entorn
+		Entorn entorn = entornRepository.findOne(entornId);
+		if (entorn == null) {
+			logger.debug("No s'ha trobat l'entorn (entornId=" + entornId + ")");
+			throw new EntornNotFoundException();
+		} 
+		
+		boolean ambPermis = permisosHelper.isGrantedAny(
+				entorn.getId(),
+				Entorn.class,
+				new Permission[] {
+					ExtendedPermission.READ,
+					ExtendedPermission.ADMINISTRATION});
+		if (!ambPermis) {
+			logger.debug("No es tenen permisos per accedir a l'entorn (entornId=" + entornId + ")");
+			throw new EntornNotFoundException();
+		}
+
+		// Comprova l'accés al tipus d'expedient
+		ExpedientTipus expedientTipus = null;
+		if (expedientTipusId != null) {
+			expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+			if (expedientTipus == null) {
+				logger.debug("No s'ha trobat l'expedientTipus (expedientTipusId=" + expedientTipusId + ")");
+				throw new ExpedientTipusNotFoundException();
+			} else {
+				ambPermis = permisosHelper.isGrantedAny(
+						expedientTipus.getId(),
+						ExpedientTipus.class,
+						new Permission[] {
+							ExtendedPermission.READ,
+							ExtendedPermission.ADMINISTRATION});
+				if (!ambPermis) {
+					logger.debug("No es tenen permisos per accedir a l'expedientTipus (expedientTipusId=" + expedientTipusId + ")");
+					throw new ExpedientTipusNotFoundException();
+				}
+			}
+		}
+		// Comprova l'accés a l'estat
+		Estat estat = null;
+		if (estatId != null) {
+			estat = estatRepository.findByExpedientTipusAndId(expedientTipus, estatId);
+			if (estat == null) {
+				logger.debug("No s'ha trobat l'estat (expedientTipusId=" + expedientTipusId + ", estatId=" + estatId + ")");
+				throw new EstatNotFoundException();
+			}
+		}
+		// Calcula la data fi pel filtre
+		if (dataInici2 != null) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(dataInici2);
+			cal.set(Calendar.HOUR_OF_DAY, 23);
+			cal.set(Calendar.MINUTE, 59);
+			cal.set(Calendar.SECOND, 59);
+			cal.set(Calendar.MILLISECOND, 999);
+			dataInici2.setTime(cal.getTime().getTime());
+		}
+		// Obté la llista de tipus d'expedient permesos
+		List<ExpedientTipus> tipusPermesos = expedientTipusRepository.findByEntorn(entorn);
+		permisosHelper.filterGrantedAny(
+				tipusPermesos,
+				new ObjectIdentifierExtractor<ExpedientTipus>() {
+					public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
+						return expedientTipus.getId();
+					}
+				},
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.READ,
+					ExtendedPermission.ADMINISTRATION});
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "0");
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "1");
+		// Obté la llista d'ids d'expedient de l'entorn actual que
+		// tenen alguna tasca activa per a l'usuari actual.
+		// Per evitar la limitació d'Oracle que impedeix més de 1000
+		// elements com a paràmetres de l'operador IN cream varis
+		// conjunts d'ids.
+		Set<String> rootProcessInstanceIdsAmbTasquesActives1 = null;
+		Set<String> rootProcessInstanceIdsAmbTasquesActives2 = null;
+		Set<String> rootProcessInstanceIdsAmbTasquesActives3 = null;
+		Set<String> rootProcessInstanceIdsAmbTasquesActives4 = null;
+		Set<String> rootProcessInstanceIdsAmbTasquesActives5 = null;
+		
+		if (nomesAmbTasquesActives) {
+			// Fa la consulta
+			List<Long> idsExpedients = expedientRepository.findByIdFiltreGeneralPaginat(
+					entornId,
+					tipusPermesos,
+					(expedientTipusId == null),
+					expedientTipusId,
+					(titol == null),
+					titol,
+					(numero == null),
+					numero,
+					(dataInici1 == null),
+					dataInici1,
+					(dataInici2 == null),
+					dataInici2,
+					EstatTipusDto.INICIAT.equals(estatTipus),
+					EstatTipusDto.FINALITZAT.equals(estatTipus),
+					(!EstatTipusDto.CUSTOM.equals(estatTipus) || estatId == null),
+					estatId,
+					(geoPosX == null),
+					geoPosX,
+					(geoPosY == null),
+					geoPosY,
+					(geoReferencia == null),
+					geoReferencia,
+					mostrarAnulats);	
+			List<Long> ids = jbpmHelper.findRootProcessInstancesForExpedientsWithActiveTasksCommand(auth.getName(), idsExpedients);
+			Set<String> idsDiferents = new HashSet<String>();
+			for (Long id: ids) 
+				idsDiferents.add(id.toString());
+			int index = 0;
+			for (String id: idsDiferents) {
+				if (index == 0)
+					rootProcessInstanceIdsAmbTasquesActives1 = new HashSet<String>();
+				if (index == 1000)
+					rootProcessInstanceIdsAmbTasquesActives2 = new HashSet<String>();
+				if (index == 2000)
+					rootProcessInstanceIdsAmbTasquesActives3 = new HashSet<String>();
+				if (index == 3000)
+					rootProcessInstanceIdsAmbTasquesActives4 = new HashSet<String>();
+				if (index == 4000)
+					rootProcessInstanceIdsAmbTasquesActives5 = new HashSet<String>();
+				if (index < 1000)
+					rootProcessInstanceIdsAmbTasquesActives1.add(id);
+				else if (index < 2000)
+					rootProcessInstanceIdsAmbTasquesActives2.add(id);
+				else if (index < 3000)
+					rootProcessInstanceIdsAmbTasquesActives3.add(id);
+				else if (index < 4000)
+					rootProcessInstanceIdsAmbTasquesActives4.add(id);
+				else
+					rootProcessInstanceIdsAmbTasquesActives5.add(id);
+				index++;
+			}
+		}
+	
+		// Fa la consulta
+		List<Long> listaIds = expedientRepository.findIdsByFiltreGeneral(
+				entornId,
+				tipusPermesos,
+				(expedientTipusId == null),
+				expedientTipusId,
+				(titol == null),
+				titol,
+				(numero == null),
+				numero,
+				(dataInici1 == null),
+				dataInici1,
+				(dataInici2 == null),
+				dataInici2,
+				EstatTipusDto.INICIAT.equals(estatTipus),
+				EstatTipusDto.FINALITZAT.equals(estatTipus),
+				(!EstatTipusDto.CUSTOM.equals(estatTipus) || estatId == null),
+				estatId,
+				(geoPosX == null),
+				geoPosX,
+				(geoPosY == null),
+				geoPosY,
+				(geoReferencia == null),
+				geoReferencia,
+				nomesAmbTasquesActives,
+				rootProcessInstanceIdsAmbTasquesActives1,
+				rootProcessInstanceIdsAmbTasquesActives2,
+				rootProcessInstanceIdsAmbTasquesActives3,
+				rootProcessInstanceIdsAmbTasquesActives4,
+				rootProcessInstanceIdsAmbTasquesActives5,
+				mostrarAnulats);
+		
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "1");
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta");
+		return listaIds;
 	}
 
 	@Transactional
@@ -1332,7 +1533,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				JbpmTask task = jbpmHelper.getTaskById(log.getTargetId());
 				if (task != null) {
 					Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(String.valueOf(log.getProcessInstanceId()));
-					tasquesPerLogs.put(log.getTargetId(),dtoConverter.toExpedientTascaDto(task,expedient));
+					tasquesPerLogs.put(log.getTargetId(),tascaHelper.toExpedientTascaCompleteDto(task,expedient));
 				}
 			}
 		}

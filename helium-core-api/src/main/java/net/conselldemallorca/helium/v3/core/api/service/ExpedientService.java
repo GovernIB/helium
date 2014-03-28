@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.v3.core.api.service;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
@@ -250,4 +251,12 @@ public interface ExpedientService {
 	public List<ExpedientDadaDto> findDadesPerProcessInstance(String processInstanceId);
 
 	public List<ExpedientDto> getExpedientsRelacionats(Long expedientId);
+
+	public List<Long> findIdsPerConsultaGeneral(Long entornId, Long expedientTipusId,
+			String titol, String numero, Date dataInici1, Date dataInici2,
+			Date dataFi1, Date dataFi2, EstatTipusDto estatTipus, Long estatId,
+			Double geoPosX, Double geoPosY, String geoReferencia,
+			boolean nomesAmbTasquesActives, boolean nomesAlertes,
+			boolean mostrarAnulats) throws EntornNotFoundException,
+			ExpedientTipusNotFoundException, EstatNotFoundException;
 }

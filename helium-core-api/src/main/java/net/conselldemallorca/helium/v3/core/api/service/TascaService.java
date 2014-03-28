@@ -3,11 +3,14 @@
  */
 package net.conselldemallorca.helium.v3.core.api.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
@@ -199,4 +202,6 @@ public interface TascaService {
 	public CampDto findCampTasca(Long campId);
 
 	public ExpedientTascaDto getByIdSenseComprovacio(String taskId);
+
+	public PaginaDto<ExpedientTascaDto> findTasquesConsultaFiltre(Long entornId, Long expedientTipusId, String responsable, String tasca, String expedient, Date dataCreacioInici, Date dataCreacioFi, Date dataLimitInici, Date dataLimitFi, int prioritat, boolean mostrarTasquesPersonals, boolean mostrarTasquesGrup, PaginacioParamsDto paginacioParams);
 }

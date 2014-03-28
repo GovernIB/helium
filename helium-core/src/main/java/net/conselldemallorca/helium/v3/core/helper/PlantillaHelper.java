@@ -117,6 +117,8 @@ public class PlantillaHelper {
 	private JbpmHelper jbpmhelper;
 	@Resource
 	private VariableHelper variableHelper;
+	@Resource
+	private TascaHelper tascaHelper;
 
 	public ArxiuDto generarDocumentPlantilla(
 			Entorn entorn,
@@ -138,7 +140,7 @@ public class PlantillaHelper {
 				JbpmTask task = jbpmhelper.getTaskById(taskInstanceId);
 				Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 				expedientDto = dtoConverter.toExpedientDto(expedient);
-				tasca = dtoConverter.toExpedientTascaDto(
+				tasca = tascaHelper.toExpedientTascaCompleteDto(
 						task,
 						expedient);
 				model.putAll(variableHelper.getVariablesJbpmTascaValor(task.getId()));

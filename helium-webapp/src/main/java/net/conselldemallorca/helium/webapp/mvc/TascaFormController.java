@@ -287,6 +287,11 @@ public class TascaFormController extends BaseController {
 				}
     		}
 			if ("submit".equals(submit) || "@@@".equals(finalitzarAmbOutcome) || "submit".equals(submitar) || "validate".equals(submit) || "validate".equals(submitar)) {
+				// Comprobamos si estaba validada
+				if (tasca.isValidada()) {
+					missatgeError(request, getMessage("error.tasca.validada") );
+					return "tasca/form";
+				}
 				validatorGuardar.validate(command, result);
 				if (result.hasErrors()) {
 					return "tasca/form";
@@ -472,6 +477,7 @@ public class TascaFormController extends BaseController {
 		boolean massivaActiu = TramitacioMassiva.isTramitacioMassivaActiu(request, id);
 		String[] tascaIds;
 		TascaDto task = tascaService.getByIdSenseComprovacio(id);
+		
 		if (massivaActiu) {
 			String[] parametresTram = TramitacioMassiva.getParamsTramitacioMassiva(request, id);
 			tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);

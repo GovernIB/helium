@@ -205,32 +205,46 @@ $(document).ready(function(){
 <body>
 
 	<div class="missatgesBlau">
-		<h3 class="titol-tab titol-massiva"><fmt:message key="expedient.massiva.info"/> (${fn:length(expedients)}) <img src="<c:url value="/img/magnifier_zoom_in.png"/>" alt="<fmt:message key="expedient.massiva.mos_ocul"/>" title="<fmt:message key="expedient.massiva.mos_ocul"/>" border="0" onclick="mostrarOcultar(this,'info-massiva')"/></h3>
-		<div id="info-massiva" style="display:none">
-			<display:table name="expedients" id="registre" requestURI="" class="displaytag selectable">
-				<c:set var="filaStyle" value=""/>
-				<c:if test="${registre.anulat}"><c:set var="filaStyle" value="text-decoration:line-through"/></c:if>
-				<display:column property="identificador" title="Expedient" style="${filaStyle}"/>
-				<display:column property="dataInici" title="Iniciat el" format="{0,date,dd/MM/yyyy HH:mm}" style="${filaStyle}"/>
-				<display:column property="tipus.nom" title="Tipus" style="${filaStyle}"/>
-				<display:column title="Estat" style="${filaStyle}" sortProperty="estat.nom">
-					<c:if test="${registre.aturat}"><img src="<c:url value="/img/stop.png"/>" alt="Aturat" title="Aturat" border="0"/></c:if>
-					<c:choose>
-						<c:when test="${empty registre.dataFi}">
-							<c:choose><c:when test="${empty registre.estat}"><fmt:message key="expedient.consulta.iniciat"/></c:when><c:otherwise>${registre.estat.nom}</c:otherwise></c:choose>
-						</c:when>
-						<c:otherwise><fmt:message key="expedient.consulta.finalitzat"/></c:otherwise>
-					</c:choose>
-				</display:column>
-			</display:table>
-			<form id="massiva" action="consulta.html" class="uniForm" onclick="javascript:massiva(this)">
-				<c:import url="../common/formElement.jsp">
-					<c:param name="type" value="buttons"/>
-					<c:param name="values">submit</c:param>
-					<c:param name="titles"><fmt:message key="expedient.massiva.canvi"/></c:param>
-				</c:import>
-			</form>
-		</div>
+		<h3 class="titol-tab titol-massiva">
+			<c:choose>
+				<c:when test="${massivaInfoTots}">
+					<fmt:message key="expedient.massiva.info"/> (${fn:length(expedients)})
+					<form id="massiva" action="consulta.html" class="uniForm right" onclick="javascript:massiva(this)">
+						<button onclick="saveAction(this, 'submit');" value="submit" name="submit" class="submitButton" type="submit"><fmt:message key="expedient.massiva.canvi"/></button>
+					</form>
+				</c:when>
+				<c:otherwise>
+					<fmt:message key="expedient.massiva.info"/> (${fn:length(expedients)}) <img src="<c:url value="/img/magnifier_zoom_in.png"/>" alt="<fmt:message key="expedient.massiva.mos_ocul"/>" title="<fmt:message key="expedient.massiva.mos_ocul"/>" border="0" onclick="mostrarOcultar(this,'info-massiva')"/>
+				</c:otherwise>
+			</c:choose>
+		</h3>
+		<c:if test="${!massivaInfoTots}">
+			<div id="info-massiva" style="display:none">
+				<display:table name="expedients" id="registre" requestURI="" class="displaytag selectable">
+					<c:set var="filaStyle" value=""/>
+					<c:if test="${registre.anulat}"><c:set var="filaStyle" value="text-decoration:line-through"/></c:if>
+					<display:column property="identificador" title="Expedient" style="${filaStyle}"/>
+					<display:column property="dataInici" title="Iniciat el" format="{0,date,dd/MM/yyyy HH:mm}" style="${filaStyle}"/>
+					<display:column property="tipus.nom" title="Tipus" style="${filaStyle}"/>
+					<display:column title="Estat" style="${filaStyle}" sortProperty="estat.nom">
+						<c:if test="${registre.aturat}"><img src="<c:url value="/img/stop.png"/>" alt="Aturat" title="Aturat" border="0"/></c:if>
+						<c:choose>
+							<c:when test="${empty registre.dataFi}">
+								<c:choose><c:when test="${empty registre.estat}"><fmt:message key="expedient.consulta.iniciat"/></c:when><c:otherwise>${registre.estat.nom}</c:otherwise></c:choose>
+							</c:when>
+							<c:otherwise><fmt:message key="expedient.consulta.finalitzat"/></c:otherwise>
+						</c:choose>
+					</display:column>
+				</display:table>
+				<form id="massiva" action="consulta.html" class="uniForm" onclick="javascript:massiva(this)">
+					<c:import url="../common/formElement.jsp">
+						<c:param name="type" value="buttons"/>
+						<c:param name="values">submit</c:param>
+						<c:param name="titles"><fmt:message key="expedient.massiva.canvi"/></c:param>
+					</c:import>
+				</form>
+			</div>
+		</c:if>
 	</div>
 	<div class="uniForm">
 		<div class="inlineLabels col first">

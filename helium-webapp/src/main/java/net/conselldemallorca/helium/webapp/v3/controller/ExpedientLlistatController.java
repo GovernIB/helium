@@ -7,6 +7,7 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -207,6 +208,56 @@ public class ExpedientLlistatController extends BaseExpedientController {
 						seleccio.remove(-l);
 					}
 				} catch (NumberFormatException ex) {}
+			}
+		}
+		return seleccio;
+	}
+
+	@RequestMapping(value = "/seleccionarTots", method = RequestMethod.POST)
+	@ResponseBody
+	public Set<Long> seleccionarTots(HttpServletRequest request) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		ExpedientConsultaCommand filtreCommand = getFiltreCommand(request);
+		
+		List<Long> ids = expedientService.findIdsPerConsultaGeneral(
+						entornActual.getId(),
+						filtreCommand.getExpedientTipusId(),
+						filtreCommand.getTitol(),
+						filtreCommand.getNumero(),
+						filtreCommand.getDataIniciInicial(),
+						filtreCommand.getDataIniciFinal(),
+						filtreCommand.getDataFiInicial(),
+						filtreCommand.getDataFiFinal(),
+						filtreCommand.getEstatTipus(),
+						filtreCommand.getEstatId(),
+						filtreCommand.getGeoPosX(),
+						filtreCommand.getGeoPosY(),
+						filtreCommand.getGeoReferencia(),
+						filtreCommand.isNomesPendents(),
+						filtreCommand.isNomesAlertes(),
+						filtreCommand.isMostrarAnulats());		
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		Set<Long> seleccio = sessionManager.getSeleccioConsultaGeneral();
+		if (seleccio == null) {
+			seleccio = new HashSet<Long>();
+			sessionManager.setSeleccioConsultaGeneral(seleccio);
+		}
+		if (ids != null) {
+			for (Long id: ids) {
+				try {
+					if (id >= 0) {
+						seleccio.add(id);
+					} else {
+						seleccio.remove(-id);
+					}
+				} catch (NumberFormatException ex) {}
+			}
+			
+			Iterator<Long> iterador = seleccio.iterator();
+			while( iterador.hasNext() ) {
+				if (!ids.contains(iterador.next())) {
+					iterador.remove();
+				}
 			}
 		}
 		return seleccio;

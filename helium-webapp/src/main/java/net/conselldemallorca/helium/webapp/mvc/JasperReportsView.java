@@ -49,7 +49,6 @@ public class JasperReportsView implements View {
 	public static final String MODEL_ATTRIBUTE_PARAMS = "reportParams";
 
 
-
 	private AdminService adminService;
 	
 	@Autowired
@@ -77,21 +76,19 @@ public class JasperReportsView implements View {
 			Map<String, Object> params = new HashMap<String, Object>();
 			
 			JasperReport subreport = null;
-			if (model.containsKey(MODEL_ATTRIBUTE_SUBREPORTS)) {
-				HashMap<String, byte[]> subreports = (HashMap<String, byte[]>)model.get(MODEL_ATTRIBUTE_SUBREPORTS);
-				
-				if (subreports!=null && !subreports.isEmpty()) {
-					Iterator it = subreports.entrySet().iterator();
-					while (it.hasNext()) {
-						Map.Entry e = (Map.Entry)it.next();
-						subreport = JasperCompileManager.compileReport(new ByteArrayInputStream((byte[]) e.getValue()));
-						String nom = (String) e.getKey();
-						nom = nom.substring(0, nom.lastIndexOf("."));
-						params.put(nom, subreport);
-						params.put("ds_" + nom, new JRBeanCollectionDataSource((List<Map<String, Object>>)model.get(MODEL_ATTRIBUTE_REPORTDATA)));
-					}
+			HashMap<String, byte[]> subreports = (HashMap<String, byte[]>)model.get(MODEL_ATTRIBUTE_SUBREPORTS);
+			if (subreports!=null)
+			if (!subreports.isEmpty()) {
+				Iterator it = subreports.entrySet().iterator();
+				while (it.hasNext()) {
+					Map.Entry e = (Map.Entry)it.next();
+					subreport = JasperCompileManager.compileReport(new ByteArrayInputStream((byte[]) e.getValue()));
+					String nom = (String) e.getKey();
+					nom = nom.substring(0, nom.lastIndexOf("."));
+					params.put(nom, subreport);
+					params.put("ds_" + nom, new JRBeanCollectionDataSource((List<Map<String, Object>>)model.get(MODEL_ATTRIBUTE_REPORTDATA)));
 				}
-			}
+			}			
 
 			Map<String, Object> paramsModel = (Map<String, Object>)model.get(
 					MODEL_ATTRIBUTE_PARAMS);

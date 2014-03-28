@@ -89,6 +89,24 @@ public class ExpedientConsultaController extends BaseController {
 		}
 		return null;
 	}
+
+//	@ModelAttribute("expedientTipusAdmin")
+//	public Map<Long, Boolean> populateExpedientTipusAdmin(
+//			HttpServletRequest request) {
+//		Entorn entorn = getEntornActiu(request);
+//		Map<Long, Boolean> mExpedientTipusAdmin = new HashMap<Long, Boolean>();
+//		if (entorn != null) {
+//			List<ExpedientTipus> tipus = dissenyService.findExpedientTipusAmbEntornOrdenat(entorn.getId(), "nom");
+//			for (ExpedientTipus expedientTipus: tipus) {
+//				if (potAdministratExpedientTipus(expedientTipus))
+//					mExpedientTipusAdmin.put(expedientTipus.getId(), true);
+//				else 
+//					mExpedientTipusAdmin.put(expedientTipus.getId(), false);
+//			}
+//			return mExpedientTipusAdmin;
+//		}
+//		return null;
+//	}
 	
 	@ModelAttribute("filtreAnulats")
 	public FiltreAnulat[] populateFiltreAnulats() {
@@ -122,7 +140,7 @@ public class ExpedientConsultaController extends BaseController {
 		mjson.put("permis", false);
 		return JSONValue.toJSONString(mjson);
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/expedient/consulta", method = RequestMethod.GET)
 	public String consultaGet(
@@ -173,7 +191,6 @@ public class ExpedientConsultaController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
-
 	
 	@RequestMapping(value = "/expedient/limpiarTrazaError.html", method = RequestMethod.POST)
 	public String limpiarTrazaError(
@@ -204,11 +221,11 @@ public class ExpedientConsultaController extends BaseController {
 //				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS);
 //			}
 			if (command.isMassivaActiu() && command.getExpedientTipus() == null) {
-//				command.setMassivaActiu(false);
+				//command.setMassivaActiu(false);
 				missatgeError(request, getMessage("error.no.tiexep.selec"));
 				return "redirect:/expedient/consulta.html?objectsPerPage=" + objectsPerPage;
 			}
-			if ("submit".equals(submit)) { // || "massiva".equals(submit) || "nomassiva".equals(submit)) {
+			if ("submit".equals(submit)) { //|| "massiva".equals(submit) || "nomassiva".equals(submit)) {
 				session.setAttribute(VARIABLE_SESSIO_COMMAND, command);
 				return "redirect:/expedient/consulta.html?objectsPerPage=" + objectsPerPage;
 			} else if ("clean".equals(submit)) {
@@ -345,7 +362,7 @@ public class ExpedientConsultaController extends BaseController {
 		paginatedList.setList(expedients);
 		return paginatedList;
 	}
-
+	
 	private boolean potAdministratExpedientTipus(ExpedientTipus expedientTipus) {
 		return permissionService.filterAllowed(
 				expedientTipus,
@@ -353,6 +370,7 @@ public class ExpedientConsultaController extends BaseController {
 				new Permission[] {	ExtendedPermission.ADMINISTRATION,
 									ExtendedPermission.WRITE}) != null;
 	}
+	
 	@SuppressWarnings("unused")
 	private static final Log logger = LogFactory.getLog(ExpedientConsultaController.class);
 

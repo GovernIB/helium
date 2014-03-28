@@ -65,6 +65,7 @@ import net.conselldemallorca.helium.jbpm3.command.SuspendProcessInstancesCommand
 import net.conselldemallorca.helium.jbpm3.command.SuspendTaskInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.TakeTaskInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.TokenRedirectCommand;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 
 import org.jbpm.JbpmException;
@@ -1220,6 +1221,15 @@ public class JbpmHelper {
 		this.commandService = commandService;
 	}
 	
+	public LlistatIds findListTasks(String responsable, String tasca, List<Long> idsExpedients, Date dataCreacioInici, Date dataCreacioFi, int prioritat, Date dataLimitInici, Date dataLimitFi, PaginacioParamsDto paginacioParams, boolean mostrarTasquesPersonals, boolean mostrarTasquesGrup) {
+		adminService.mesuraIniciar("jBPM findListTasks", "jbpmDao");		
+		GetRootProcessInstancesForActiveTasksCommand command = new GetRootProcessInstancesForActiveTasksCommand(responsable, tasca, idsExpedients, dataCreacioInici, dataCreacioFi, prioritat, dataLimitInici, dataLimitFi, paginacioParams.getOrdres(), mostrarTasquesPersonals, mostrarTasquesGrup);
+		command.setFirstRow(paginacioParams.getPaginaNum()*paginacioParams.getPaginaTamany());
+		command.setMaxResults(paginacioParams.getPaginaTamany());
+		LlistatIds llistat = (LlistatIds)commandService.execute(command);
+		adminService.mesuraCalcular("jBPM findListTasks", "jbpmDao");
+		return llistat;
+	}
 	
 	public LlistatIds findListTasks(
 			String usuariBo, 
@@ -1447,5 +1457,4 @@ public class JbpmHelper {
 		}
 		return ex;
 	}
-
 }

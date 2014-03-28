@@ -17,34 +17,45 @@
 				<thead>
 					<tr>
 						<th>Tasca</th>
-						<th>Asginada</th>
+						<th>Asignada</th>
 						<th>Data creació</th>
 						<th>Data límit</th>
-						<th>Prioritat</th>
 						<th>Flags</th>
-						<th>Estat</th>
 						<th></th>
 					</tr>
 				</thead>
 				<tbody>
 					<c:forEach var="tasca" items="${tasques}">
 						<c:if test="${tasca.oberta}">
-							<tr <c:if test="${tasca.responsableCodi == dadesPersona.codi and tasca.oberta and not tasca.suspesa}"> style="cursor: pointer"</c:if>>
-								<td>${tasca.titol}</td>
+							<tr <c:if test="${tasca.responsableCodi == dadesPersona.codi and not tasca.suspesa}"> style="cursor: pointer"</c:if>>
 								<td>
-									<c:choose>
-										<c:when test="${not empty tasca.responsable}"><!--A-->${tasca.responsable.nomSencer}</c:when>
-										<c:when test="${not empty tasca.responsables}"><!--P-->
-<%-- 											<c:forEach var="responsable" items="${tasca.responsables}" varStatus="status"> --%>
-<%-- 												<!--P${status.index}-->${responsable.nomSencer}<c:if test="${not status.last}">, </c:if> --%>
-<%-- 											</c:forEach> --%>
-										</c:when>
-										<c:otherwise><!--O--></c:otherwise>
-									</c:choose>
+									<c:if test="${tasca.cancelada}">
+										<i class="btn-small btn-danger pull-right" style="margin-right: .3em">CA</i>
+									</c:if>
+									<c:if test="${tasca.suspesa}">
+										<i class="btn-small btn-info pull-right" style="margin-right: .3em">SU</i>
+									</c:if>
+									<c:if test="${tasca.oberta}">
+										<i class="btn-small btn-warning pull-right" style="margin-right: .3em">OB</i>
+									</c:if>
+									<c:if test="${tasca.completed}">
+										<i class="btn-small btn-succes pull-right" style="margin-right: .3em">FI</i>
+									</c:if>
+									<c:if test="${tasca.responsableCodi == dadesPersona.codi}">
+										<i class="btn-small btn-inverse pull-right" style="margin-right: .3em">AG</i>
+									</c:if>
+									<c:if test="${not empty tasca.responsables && not tasca.agafada}">
+										<i class="icon-group" style="margin-right: .3em"/>
+									</c:if>
+									${tasca.titol}
+								</td>
+								<td>
+									<c:if test="${not empty tasca.responsable}">
+										${tasca.responsable.nomSencer}
+									</c:if>
 								</td>
 								<td><fmt:formatDate value="${tasca.dataCreacio}" pattern="dd/MM/yyyy HH:mm"/></td>
 								<td><fmt:formatDate value="${tasca.dataLimit}" pattern="dd/MM/yyyy"/></td>
-								<td>${tasca.prioritat}</td>
 								<td>
 									<c:if test="${tasca.cancelada}">C</c:if>
 									<c:if test="${tasca.suspesa}">S</c:if>
@@ -53,108 +64,34 @@
 										<c:set var="cont" value="${cont + 1}"/>
 									</c:if>
 								</td>
-								<td>${tasca.estat}</td>
 								<td>
-									<c:choose>
-										<c:when test="${tasca.responsableCodi == dadesPersona.codi}">
-											<div class="btn-group">
-												<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog icon-white"></i> Accions <span class="caret"></span></a>
-												<ul class="dropdown-menu">
-													<c:if test="${tasca.oberta and not tasca.suspesa}">
-														<li><a data-tramitar-modal="true" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/tramitar"/>"><i class="icon-folder-open"></i> Tramitar</a></li>
-														<li><a href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/delegar"/>"><i class="icon-hand-right"></i> Delegar</a></li>
-														<li>
-															<c:import url="utils/modalDefinir.jsp">
-																<c:param name="sAjaxSource" value="/helium/v3/expedient/${expedientId}/tasca/${tasca.id}/reassignar"/>
-																<c:param name="modalId" value="reassignar_${tasca.id}"/>
-																<c:param name="refrescarAlertes" value="true"/>
-																<c:param name="refrescarPagina" value="false"/>							
-																<c:param name="refrescarTaula" value="false"/>							
-																<c:param name="refrescarTaulaId" value="false"/>
-																<c:param name="icon" value="icon-share"/>
-																<c:param name="texto" value="Reassignar"/>
-															</c:import>
-														</li>
-														<li><a onclick="return confirmarSuspendre(event)" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/suspendre"/>"><i class="icon-pause"></i> Suspendre</a></li>
-													</c:if>
-													<c:if test="${tasca.suspesa}">
-														<li><a onclick="return confirmarReprendre(event)" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/reprendre"/>"><i class="icon-play"></i> Reprendre</a></li>
-													</c:if>
-													<c:if test="${not tasca.cancelada}">
-														<li><a onclick="return confirmarCancelar(event)" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/cancelar"/>"><i class="icon-remove"></i> Cancelar</a></li>
-													</c:if>
-													<c:if test="${tasca.agafada and tasca.oberta}">
-														<li><a onclick="return confirmarAlliberar(event)" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/tascaAlliberar"/>"><i class="icon-leaf"></i> <spring:message code="tasca.pllistat.alliberar"/></a></li>
-													</c:if>														
-												</ul>
-											</div>
-										</c:when>
-										<c:when test="${not empty tasca.responsables}">
-											<div class="btn-group">
-												<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog icon-white"></i> Accions <span class="caret"></span></a>
-												<ul class="dropdown-menu">
-													<c:if test="${tasca.oberta and not tasca.suspesa}">
-														<li><a href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/tascaAgafar"/>"><i class="icon-signin"></i> Agafar</a></li>
-														<li>
-															<c:import url="utils/modalDefinir.jsp">
-																<c:param name="sAjaxSource" value="/helium/v3/expedient/${expedientId}/tasca/${tasca.id}/reassignar"/>
-																<c:param name="modalId" value="reassignar_${tasca.id}"/>
-																<c:param name="refrescarAlertes" value="true"/>
-																<c:param name="refrescarPagina" value="false"/>							
-																<c:param name="refrescarTaula" value="false"/>							
-																<c:param name="refrescarTaulaId" value="false"/>
-																<c:param name="icon" value="icon-share"/>
-																<c:param name="texto" value="Reassignar"/>
-															</c:import>
-														</li>
-														<li><a onclick="return confirmarSuspendre(event)" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/suspendre"/>"><i class="icon-pause"></i> Suspendre</a></li>
-													</c:if>
-													<c:if test="${tasca.suspesa}">
-														<li>
-															<a onclick="return confirmarReprendre(event)" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/reprendre"/>"><i class="icon-play"></i> Reprendre</a>
-														</li>
-													</c:if>
-													<c:if test="${not tasca.cancelada}">
-														<li><a onclick="return confirmarCancelar(event)" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/cancelar"/>"><i class="icon-remove"></i> Cancelar</a></li>
-													</c:if>
-													<c:if test="${tasca.agafada and tasca.oberta}">
-														<li><a onclick="return confirmarAlliberar(event)" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/tascaAlliberar"/>"><i class="icon-leaf"></i> <spring:message code="tasca.pllistat.alliberar"/></a></li>
-													</c:if>	
-												</ul>
-											</div>
-										</c:when>
-										<c:otherwise>
-											<div class="btn-group">
-												<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog icon-white"></i> Accions <span class="caret"></span></a>
-												<ul class="dropdown-menu">
-													<c:if test="${tasca.oberta and not tasca.suspesa}">
-														<li>
-															<c:import url="utils/modalDefinir.jsp">
-																<c:param name="sAjaxSource" value="/helium/v3/expedient/${expedientId}/tasca/${tasca.id}/reassignar"/>
-																<c:param name="modalId" value="reassignar_${tasca.id}"/>
-																<c:param name="refrescarAlertes" value="true"/>
-																<c:param name="refrescarPagina" value="false"/>							
-																<c:param name="refrescarTaula" value="false"/>							
-																<c:param name="refrescarTaulaId" value="false"/>
-																<c:param name="icon" value="icon-share"/>
-																<c:param name="texto" value="Reassignar"/>
-															</c:import>
-														</li>
-														<li><a onclick="return confirmarSuspendre(event)" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/suspendre"/>"><i class="icon-pause"></i> Suspendre</a></li>
-													</c:if>
-													<c:if test="${tasca.suspesa}">
-														<li><a onclick="return confirmarReprendre(event)" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/reprendre"/>"><i class="icon-play"></i> Reprendre</a></li>
-													</c:if>
-													<c:if test="${not tasca.cancelada}">
-														<li><a onclick="return confirmarCancelar(event)" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/cancelar"/>"><i class="icon-remove"></i> Cancelar</a></li>
-													</c:if>
-													<c:if test="${tasca.agafada and tasca.oberta}">
-														<li><a onclick="return confirmarAlliberar(event)" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/tascaAlliberar"/>"><i class="icon-leaf"></i> <spring:message code="tasca.pllistat.alliberar"/></a></li>
-													</c:if>	
-												</ul>
-											</div>
-										</c:otherwise>
-									</c:choose>
+									<div class="btn-group">
+										<a class="btn btn-success dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog icon-white"></i> Accions <span class="caret"></span></a>
+										<ul class="dropdown-menu">
+											<c:if test="${tasca.oberta and not tasca.suspesa}">
+												<c:if test="${tasca.responsableCodi == dadesPersona.codi}">
+													<li><a data-tramitar-modal="true" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/tramitar"/>"><i class="icon-folder-open"></i> Tramitar</a></li>
+													<li><a href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/delegar"/>"><i class="icon-hand-right"></i> Delegar</a></li>
+												</c:if>
+												<c:if test="${not empty tasca.responsables && not tasca.agafada}">
+													<li><a href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/tascaAgafar"/>"><i class="icon-signin"></i> Agafar</a></li>
+												</c:if>
+												<li>
+													<li><a data-reasignar-modal="true" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/reassignar"/>"><i class="icon-share"></i> Reasignar</a></li>
+												</li>
+												<li><a onclick="return confirmarSuspendre(event)" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/suspendre"/>"><i class="icon-pause"></i> Suspendre</a></li>
+											</c:if>
+											<c:if test="${tasca.suspesa}">
+												<li><a onclick="return confirmarReprendre(event)" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/reprendre"/>"><i class="icon-play"></i> Reprendre</a></li>
+											</c:if>
+											<c:if test="${not tasca.cancelada}">
+												<li><a onclick="return confirmarCancelar(event)" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/cancelar"/>"><i class="icon-remove"></i> Cancelar</a></li>
+											</c:if>
+											<c:if test="${not empty tasca.responsables && tasca.responsableCodi == dadesPersona.codi and tasca.oberta}">
+												<li><a onclick="return confirmarAlliberar(event)" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/tascaAlliberar"/>"><i class="icon-leaf"></i> <spring:message code="tasca.pllistat.alliberar"/></a></li>
+											</c:if>													
+										</ul>
+									</div>
 								</td>
 							</tr>
 						</c:if>
@@ -220,6 +157,18 @@
 	</div>
 </div>
 <div id="tasca-tramitacio-modal"></div>
+
+<div id="reasignar-modal" class="modal modal-max hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		<h3></h3>
+	</div>
+	<div class="modal-body"></div>
+	<div class="modal-footer">
+		<button id="modal-button-tancar" class="btn pull-left" data-dismiss="modal" aria-hidden="true">Tancar</button>
+	</div>
+</div>
+<div id="tasca-reasignar-modal"></div>
 <script type="text/javascript">
 // <![CDATA[
 function confirmarSuspendre(e) {
@@ -297,6 +246,20 @@ function autoResize(element) {
 				maximize: true,
 				valignTop: true,
 				buttonContainerId: 'formFinalitzar'
+			});
+			return false;
+		} 
+		if ($(this).data('reasignar-modal')) {
+			$('#tasca-reasignar-modal').heliumModal({
+				modalUrl: $(this).attr('href'),
+				refrescarTaula: false,
+				refrescarAlertes: true,
+				refrescarPagina: false,
+				adjustWidth: false,
+				adjustHeight: false,
+				maximize: true,
+				valignTop: true,
+				buttonContainerId: 'formReasignar'
 			});
 			return false;
 		} else {

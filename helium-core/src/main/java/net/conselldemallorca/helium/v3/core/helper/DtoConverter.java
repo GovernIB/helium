@@ -11,7 +11,6 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.core.model.dao.PluginPersonaDao;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
@@ -19,7 +18,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipu
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
-import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
@@ -31,8 +29,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto.TascaEstatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto.TascaPrioritatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
@@ -55,16 +51,12 @@ public class DtoConverter {
 	private PersonaHelper personaHelper;	
 	@Resource
 	private TascaRepository tascaRepository;
-	@Resource(name="tascaServiceV3")
-	private TascaService tascaService;
 	@Resource
 	private VariableHelper variableHelper;
 	@Resource
 	private PluginHelper pluginHelper;
 	@Resource
 	private JbpmHelper jbpmHelper;
-	@Resource
-	private PluginPersonaDao pluginPersonaDao;
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
@@ -97,7 +89,7 @@ public class DtoConverter {
 		return resposta;
 	}
 
-	private String getTitolPerTasca(
+	public String getTitolPerTasca(
 			JbpmTask task,
 			Tasca tasca) {
 		String titol = null;
@@ -265,126 +257,6 @@ public class DtoConverter {
 		public String getDefinicioProcesJbpmKey() {
 			return definicioProcesJbpmKey;
 		}
-	}
-	
-	public ExpedientTascaDto toExpedientTascaDto(
-			JbpmTask task,
-			Expedient expedient) {
-		ExpedientTascaDto dto = new ExpedientTascaDto();
-		dto.setId(task.getId());
-		DadesCacheTasca dadesCacheTasca = getDadesCacheTasca(
-				task,
-				expedient);
-		dto.setTitol(dadesCacheTasca.getTitol());
-		dto.setDescripcio(task.getDescription());
-		if (task.isCancelled()) {
-			dto.setEstat(TascaEstatDto.CANCELADA);
-		} else if (task.isSuspended()) {
-			dto.setEstat(TascaEstatDto.SUSPESA);
-		} else {
-			if (task.isCompleted())
-				dto.setEstat(TascaEstatDto.FINALITZADA);
-			else
-				dto.setEstat(TascaEstatDto.PENDENT);
-		}
-		dto.setDataLimit(task.getDueDate());
-		dto.setDataCreacio(task.getCreateTime());
-		dto.setDataInici(task.getStartTime());
-		dto.setDataFi(task.getEndTime());
-		dto.setValidada(tascaService.isTascaValidada(task));
-
-		if (task.getAssignee() != null) {
-			dto.setResponsable(
-					getResponsableTasca(task.getAssignee()));
-			dto.setResponsableCodi(task.getAssignee());
-		}
-		Set<String> pooledActors = task.getPooledActors();
-		if (pooledActors != null && pooledActors.size() > 0) {
-			List<PersonaDto> responsables = new ArrayList<PersonaDto>();
-			for (String pooledActor: pooledActors)
-				responsables.add(
-						getResponsableTasca(pooledActor));
-			dto.setResponsables(responsables);
-		}
-		switch (task.getPriority()) {
-		case -2:
-			dto.setPrioritat(TascaPrioritatDto.MOLT_BAIXA);
-			break;
-		case -1:
-			dto.setPrioritat(TascaPrioritatDto.BAIXA);
-			break;
-		case 0:
-			dto.setPrioritat(TascaPrioritatDto.NORMAL);
-			break;
-		case 1:
-			dto.setPrioritat(TascaPrioritatDto.ALTA);
-			break;
-		case 2:
-			dto.setPrioritat(TascaPrioritatDto.MOLT_ALTA);
-			break;
-		}
-		dto.setOberta(task.isOpen());
-		dto.setCancelada(task.isCancelled());
-		dto.setSuspesa(task.isSuspended());
-		List<String> outcomes = jbpmHelper.findTaskInstanceOutcomes(
-				task.getId());
-		if (outcomes != null && !outcomes.isEmpty()) {
-			if (outcomes.size() == 1) {
-				String primeraTransicio = outcomes.get(0);
-				dto.setTransicioPerDefecte(primeraTransicio == null || "".equals(primeraTransicio));
-			} else {
-				dto.setTransicions(outcomes);
-			}
-		}
-		dto.setExpedientId(expedient.getId());
-		dto.setExpedientIdentificador(expedient.getIdentificador());
-		dto.setExpedientTipusNom(expedient.getTipus().getNom());
-		dto.setProcessInstanceId(task.getProcessInstanceId());
-		
-		Tasca tasca = tascaRepository.findAmbActivityNameIProcessDefinitionId(
-				task.getName(),
-				task.getProcessDefinitionId());
-		if (task.isCacheActiu()) {
-			dto.setNom(task.getFieldFromDescription("titol"));
-		} else {
-			if (tasca != null)
-				dto.setNom(tasca.getNom());
-			else
-				dto.setNom(task.getName());
-		}
-		dto.setFormExtern(tasca.getFormExtern());		
-		
-		dto.setDefinicioProces(conversioTipusHelper.convertir(tasca.getDefinicioProces(), DefinicioProcesDto.class));
-		
-		dto.setDocumentsComplet(tascaService.isDocumentsComplet(task));
-		dto.setSignaturesComplet(tascaService.isSignaturesComplet(task));
-		
-		dto.setAgafada("true".equals(task.isAgafada()));
-		dto.setOutcomes(jbpmHelper.findTaskInstanceOutcomes(task.getId()));
-
-		Map<String, Object> valors = jbpmHelper.getTaskInstanceVariables(task.getId());
-		
-		DelegationInfo delegationInfo = (DelegationInfo)valors.get(
-				TascaService.VAR_TASCA_DELEGACIO);
-		
-		if (delegationInfo != null) {
-			boolean original = task.getId().equals(delegationInfo.getSourceTaskId());
-			dto.setDelegada(true);
-			dto.setDelegacioOriginal(original);
-			dto.setDelegacioData(delegationInfo.getStart());
-			dto.setDelegacioSupervisada(delegationInfo.isSupervised());
-			dto.setDelegacioComentari(delegationInfo.getComment());
-			JbpmTask tascaDelegacio = null;
-			if (original) {
-				tascaDelegacio = jbpmHelper.getTaskById(delegationInfo.getTargetTaskId());
-			} else {
-				tascaDelegacio = jbpmHelper.getTaskById(delegationInfo.getSourceTaskId());
-			}			
-			
-			dto.setDelegacioPersona(conversioTipusHelper.convertir(pluginPersonaDao.findAmbCodiPlugin(tascaDelegacio.getAssignee()), PersonaDto.class));
-		}
-				
-		return dto;
 	}
 	
 	public InstanciaProcesDto toInstanciaProcesDto(String processInstanceId) {

@@ -67,7 +67,7 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 						+ " ELSE ex.numeroDefault END) like UPPER(:expedient) ";			
 		}
 		
-		if ("expedientTitol".equals(sort)) {
+		if ("expedientTitol".equals(sort) || "expedientIdentificador".equals(sort)) {
 			hql += " order by (case"
 						+ " when (ex.numero is not null AND ex.titol is not null) then ('['||ex.numero||'] ' || ex.titol) "
 						+ " when (ex.numero is not null AND ex.titol is null) then ex.numero "
@@ -254,41 +254,107 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			int firstRow,
 			int maxResults,
 			String sort,
-			boolean asc) {		
-		Criteria criteria = getCriteriaForConsultaGeneral(
-				entornId,
-				titol,
-				numero,
-				dataInici1,
-				dataInici2,
-				expedientTipusId,
-				expedientTipusIdPermesos,
-				estatId,
-				iniciat,
-				finalitzat,
-				geoPosX,
-				geoPosY,
-				geoReferencia,
-				mostrarAnulats,
-				grupsUsuari);
+			boolean asc) {
 		
+		String hql = "select " 
+		+ "case " 
+				+ "	WHEN (ex.dataFi is null and es.id is null) then 'iniciat'" 
+				+ " WHEN (ex.dataFi is null and es.id is not null) then es.nom "
+				+ " ELSE 'finalizat' "
+		+ "END as estatnom, ex "
+		+ "from Expedient ex left join ex.estat as es "
+		+ "where ex.entorn.id = " + entornId;
+		if (titol != null && titol.length() > 0)
+			hql += " and lower(ex.titol) like lower('%" + titol + "%')";
+		if (numero != null && numero.length() > 0)
+			hql += " and (lower(ex.numero) like lower('%" + numero + "%') OR lower(ex.numeroDefault) like lower('%" + numero + "%'))";
+		if (dataInici1 != null && dataInici2 != null) {
+			hql += " and ex.dataInici >= :dataInici1 and ex.dataInici <= :dataInici2";
+		} else {
+			if (dataInici1 != null) {
+				hql += " and ex.dataInici >= :dataInici1";
+			} else if (dataInici2 != null) {
+				hql += " and ex.dataInici <= :dataInici2";
+			}
+		}
+		if (expedientTipusId != null) {
+			hql += " and ex.tipus.id = " + expedientTipusId + "";
+		}
+		if (expedientTipusIdPermesos != null && expedientTipusIdPermesos.length > 0) {
+			hql += " and ex.tipus.id in ( :expedientTipusIdPermesos )";
+		}
+		if (geoPosX != null) {
+			hql += " and ex.geoPosX = " + geoPosX + "";
+		}
+		if (geoPosY != null) {
+			hql += " and ex.geoPosY = " + geoPosY + "";
+		}
+		if (geoReferencia != null && geoReferencia.length() > 0) {
+			hql += " and lower(ex.geoReferencia) like lower('%" + geoReferencia + "%')";
+		}
+		if (mostrarAnulats == FiltreAnulat.ACTIUS) {
+			hql += " and ex.anulat = false ";
+		} else if (mostrarAnulats == FiltreAnulat.ANUL_LATS) {
+			hql += " and ex.anulat = true ";
+		}
+		if (grupsUsuari != null && grupsUsuari.length > 0) {
+			hql += " and (ex.tipus.restringirPerGrup = false or ex.grupCodi in (" + grupsUsuari + "))";
+		} else {
+			hql += " and ex.tipus.restringirPerGrup = false ";
+		}
+		if (estatId != null && !finalitzat) {
+			hql += " and ex.estat.id = " + estatId + "";
+		}
+		if (iniciat && !finalitzat) {
+			hql += " and ex.estat.id is null ";
+			hql += " and ex.dataFi is null ";
+		} else if (finalitzat && !iniciat) {
+			hql += " and ex.dataFi is not null ";
+		} else if (iniciat && finalitzat) {
+			hql += " and ex.dataInici is null ";
+		}
+		
+		hql += " order by ";
 		String sorts[] = null;
 		if ("identificador".equals(sort)) {
-			sorts = new String[] {
-					"numero",
-					"titol"};
-		} else if (sort == null) {
-			sorts = new String[] {"id"};
+			sorts = new String[] {"ex.numero", "ex.numeroDefault", "ex.titol"};
+		} else if ("estat.nom".equals(sort)) {
+			sorts = new String[] {"1"};
+		}  else if (sort == null) {
+			sorts = new String[] {"ex.id"};
 		} else {
-			sorts = new String[] {sort};
+			sorts = new String[] {"ex."+sort};
 		}
-		return findPagedAndOrderedByCriteria(
-				firstRow,
-				maxResults,
-				sorts,
-				asc,
-				criteria);
+		
+		String orden = "";
+		for (String st : sorts) {
+			orden += "," + st + (asc ? " asc " : " desc ");
+		}
+		
+		hql += orden.substring(1);
+
+		Query query = getSession().createQuery(hql);
+		if (expedientTipusIdPermesos != null && expedientTipusIdPermesos.length > 0) {
+			query.setParameterList("expedientTipusIdPermesos", expedientTipusIdPermesos);
+		}
+		if (dataInici1 != null) {
+			query.setParameter("dataInici1", dataInici1);
+		}
+		if (dataInici2 != null) {
+			query.setParameter("dataInici2", dataInici2);
+		}
+		
+		@SuppressWarnings("unchecked")
+		List<Object[]> lista = query.setMaxResults(maxResults).setFirstResult(firstRow).list();
+		
+		List<Expedient> listaExpedients = new ArrayList<Expedient>();
+		for (Object[] obj : lista) {
+			listaExpedients.add((Expedient) obj[1]);
+		}
+		
+		return listaExpedients;
 	}
+	
 	public List<Expedient> findAmbEntornLikeIdentificador(
 			Long entornId,
 			String text) {
@@ -324,14 +390,7 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			String[] grupsUsuari) {
 		Criteria crit = getSession().createCriteria(
 				getPersistentClass());
-//		String sql = "(CASE "
-//				+ " WHEN (dataFi is null and estat.id is null) then 'iniciat'"
-//				+ " WHEN (dataFi is not null OR dataInici is null) then 'finalizat'"
-//				+ " ELSE estat.nom END) estat.nom";	
-//				
-//		crit.setProjection(Projections.sqlProjection(sql, new String[] {"estat.nom"}, new Type[] { StandardBasicTypes.STRING}));
-		
-		crit.createAlias("tipus", "tip");	
+		crit.createAlias("tipus", "tip");
 		crit.add(Restrictions.eq("entorn.id", entornId));
 		if (titol != null && titol.length() > 0)
 			crit.add(Restrictions.ilike("titol", "%" + titol + "%"));

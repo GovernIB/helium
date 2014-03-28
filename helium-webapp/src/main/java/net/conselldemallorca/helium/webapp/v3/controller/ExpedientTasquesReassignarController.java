@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
@@ -59,7 +60,15 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 		return command;
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/reassignar", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/reassignar", 
+			method = RequestMethod.GET)
+	public String tramitar(HttpServletRequest request, 
+			@PathVariable Long expedientId, 
+			@PathVariable String tascaId, Model model) {
+		return "redirect:/v3/expedient/" + expedientId + "/tasca/" + tascaId + "/reasignarForm";
+	}
+
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/reasignarForm", method = RequestMethod.GET)
 	public String tascaReassignarGet(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,

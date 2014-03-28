@@ -12,6 +12,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientConsultaCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientInformeCommand;
+import net.conselldemallorca.helium.webapp.v3.command.TascaConsultaCommand;
 
 /**
  * Helper per a gestionar les dades de la sessió d'usuari.
@@ -35,6 +36,7 @@ public class SessionHelper {
 	public static final String VARIABLE_HIHA_TRAMITS_INICIABLES = "hiHaTramitsPerIniciar";
 
 	public static final String VARIABLE_FILTRE_CONSULTA_GENERAL = "filtreConsultaGeneral";
+	public static final String VARIABLE_FILTRE_CONSULTA_TASCA = "filtreConsultaTasca";
 	public static final String VARIABLE_FILTRE_INFORME = "filtreInforme";
 	public static final String VARIABLE_SELECCIO_CONSULTA_GENERAL = "seleccioConsultaGeneral";
 	public static final String VARIABLE_SELECCIO_INFORME = "seleccioInforme";
@@ -215,6 +217,17 @@ public class SessionHelper {
 					request,
 					VARIABLE_FILTRE_CONSULTA_GENERAL,
 					filtreConsultaGeneral);
+		}
+		public TascaConsultaCommand getFiltreConsultaTasca() {
+			return (TascaConsultaCommand)getAttribute(
+					request,
+					VARIABLE_FILTRE_CONSULTA_TASCA);
+		}
+		public void setFiltreConsultaTasca(TascaConsultaCommand filtreConsultaTasca) {
+			setAttribute(
+					request,
+					VARIABLE_FILTRE_CONSULTA_TASCA,
+					filtreConsultaTasca);
 		}
 		@SuppressWarnings("unchecked")
 		public Set<Long> getSeleccioConsultaGeneral() {

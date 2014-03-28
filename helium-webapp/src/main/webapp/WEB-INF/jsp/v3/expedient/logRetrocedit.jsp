@@ -20,7 +20,7 @@
 							<th><spring:message code="expedient.document.data"/></th>
 							<th><spring:message code="expedient.editar.responsable"/></th>						
 							<th><spring:message code="expedient.log.objecte"/></th>
-							<th><spring:message code="expedient.log.accio"/></th>
+							<th><spring:message code="expedient.log.accio"/></th>							
 							<th><spring:message code="expedient.log.info"/></th>
 						</tr>
 					</thead>

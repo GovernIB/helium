@@ -27,6 +27,11 @@ function refrescarEstats(element) {
 	    url:"consultaEstats.html?id=" + element.value,
 	    type:'GET',
 	    dataType: 'json',
+	    cache: false,
+	    beforeSend: function(msg){
+	    	var options = '<option value=""><fmt:message key="js.helforms.carreg_dades"/></option>';
+	    	$("select#estat0").html(options).attr('class', 'inlineLabels');
+		},
 	    success: function(json) {
 	    	var options = '';
 		    options += '<option value="">&lt;&lt; <fmt:message key="expedient.consulta.select.estat"/> &gt;&gt;</option>';
@@ -40,6 +45,25 @@ function refrescarEstats(element) {
 	    },
 	    error: function(jqXHR, textStatus, errorThrown) {
 	    	console.log("Error al actualitzar la llista d'estats: [" + textStatus + "] " + errorThrown);
+
+	    	var options = '<option value="">&lt;&lt; <fmt:message key="expedient.consulta.select.estat"/> &gt;&gt;</option>';
+	    	$("select#estat0").html(options).attr('class', 'inlineLabels');
+	    }
+	});
+	$.ajax({
+	    url:"consultaPermis.html?id=" + element.value,
+	    type:'GET',
+	    dataType: 'json',
+	    success: function(json) {
+	    	if (json.permis == true) {
+	    		$(".anulats").removeClass('ocult');
+	        } else {
+	        	$(".anulats").addClass('ocult');
+	        	$(".anulats option:eq(0)").prop('selected', true);
+	        }
+	    },
+	    error: function(jqXHR, textStatus, errorThrown) {
+	    	console.log("Error al obtenir els permisos del tipus d'expedient: [" + textStatus + "] " + errorThrown);
 	    }
 	});
 	$.ajax({
@@ -59,6 +83,18 @@ function refrescarEstats(element) {
 	    }
 	});
 }
+
+function refrescarSelTots(e) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	if (e.stopPropagation) e.stopPropagation();
+	if(e.value == '') {
+		$("#ejecucionMasivaTotsTipus").hide();
+	} else {
+		$("#ejecucionMasivaTotsTipus").show();
+	}
+}
+
 function confirmarEsborrar(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
@@ -120,14 +156,8 @@ function alertaErrorAdmin(e, id, desc, full) {
 	e.cancelBubble = true;
 
 	var text = desc + "<br/><br/>Póngase en contacto con el responsable del expediente.";
-	$("#dialog-error-admin").html(
-			text+"<br/><br/>" +
-			full + 
-			"<form method='POST' action='<c:url value="limpiarTrazaError.html"/>'>" +
-			"<input id='processInstanceId\' name='processInstanceId' value='" + id + "' type='hidden'/>" +
-			"<button type='submit' class='submitButton right'><fmt:message key='expedient.consulta.netejar'/></button>" +
-			"</form>");
-// 	$("#processInstanceId").val(id);
+	$("#dialog-error-admin").html(text+"<br/><br/>"+full+$("#dialog-error-admin").html());
+	$("#processInstanceId").val(id);
 	$("#dialog-error-admin").data('title.dialog', 'Error en la ejecución del expediente'); 
 	$("#dialog-error-admin").dialog( "open" );
 
@@ -283,8 +313,18 @@ function selTots(){
 				<c:param name="itemValue" value="id"/>
 				<c:param name="itemBuit">&lt;&lt; <fmt:message key="expedient.consulta.select.tipusexpedient"/> &gt;&gt;</c:param>
 				<c:param name="label"><fmt:message key="expedient.consulta.tipusexpedient"/></c:param>
-				<c:param name="onchange">refrescarEstats(this)</c:param>
+				<c:param name="onchange">
+					refrescarEstats(this);
+					<security:accesscontrollist domainObject="${entornActual}" hasPermission="16,2">
+						refrescarSelTots(this);
+					</security:accesscontrollist>
+				</c:param>
 			</c:import>
+			
+			<security:accesscontrollist domainObject="${entornActual}" hasPermission="16,2">
+				<button id="ejecucionMasivaTotsTipus" style='<c:if test="${command.expedientTipus.id == null}">display: none;</c:if> float: right; margin-right: 10px' type="button" class="submitButton" onclick="location.href = '<c:url value="/expedient/massivaInfo.html?expedientTipusId="/>'+$('#expedientTipus0').val()"><fmt:message key="expedient.consulta.massiva.accions.totsTipus"/></button>
+			</security:accesscontrollist>
+			
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="estat"/>
 				<c:param name="type" value="select"/>
@@ -356,7 +396,7 @@ function selTots(){
 				<c:param name="values">submit,clean</c:param>
 				<c:param name="titles"><fmt:message key="expedient.consulta.consultar"/>,<fmt:message key="expedient.consulta.netejar"/></c:param>
 			</c:import>
-			
+				
 		</div>
 		<div class="ctrlHolder">
 		<c:set var="opp"><c:if test='${empty objectsPerPage}'>20</c:if><c:if test='${not empty objectsPerPage}'>${objectsPerPage}</c:if></c:set>
@@ -383,7 +423,7 @@ function selTots(){
 		</c:if>
 	</div>
 	</form:form><div style="clear:both"></div><br/>
-			
+
 	<c:if test="${not empty sessionCommand}">
 		<c:if test="${globalProperties['app.georef.actiu'] && globalProperties['app.gis.plugin.actiu']}">
 			<div>
@@ -411,23 +451,23 @@ function selTots(){
 		</c:if>
 		<c:if test="${!globalProperties['app.gis.plugin.actiu']}">
 			<c:if test="${command.massivaActiu}">
-					<form action="<c:url value="/expedient/massivaInfo.html"/>">
-						<button type="submit" class="submitButton"><fmt:message key="expedient.consulta.massiva.accions"/></button>
-					</form>
+				<table>
+					<tr id="consTR">
+						<td>
+							<label><fmt:message key="expedient.consulta.massiva.accions"/></label>
+						</td>
+						<td>
+							<form id="massivaInfoForm" action="<c:url value="/expedient/massivaInfo.html"/>">
+								<input type="hidden" id="massivaInfoTots" name="massivaInfoTots" value="0"/>
+								<button type="button" onclick="$('#massivaInfoTots').val(0);$('#massivaInfoForm').submit()" class="submitButton"><fmt:message key="expedient.consulta.massiva.accions.sel"/></button>
+								<button type="button" class="submitButton" onclick="$('#massivaInfoTots').val(1);$('#massivaInfoForm').submit()"><fmt:message key="expedient.consulta.massiva.accions.tots"/></button>
+							</form>
+						</td>
+					</tr>
+				</table>
 			</c:if>
 		</c:if>
 		<br>
-		
-		
-		
-		
-		<%--div class="missatgesGris">
-			<c:choose>
-				<c:when test="${empty llistat}"><p><fmt:message key="expedient.consulta.notrobats"/></p></c:when>
-				<c:when test="${fn:length(llistat) == 1}"><p><fmt:message key="expedient.consulta.trobatun"/></p></c:when>
-				<c:otherwise><p><fmt:message key="expedient.consulta.trobats"><fmt:param value="${fn:length(llistat)}"/></fmt:message></p></c:otherwise>
-			</c:choose>
-		</div--%>
 		<c:if test="${not empty llistat}">
 			<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable" sort="external">
 				<c:set var="filaStyle" value=""/>

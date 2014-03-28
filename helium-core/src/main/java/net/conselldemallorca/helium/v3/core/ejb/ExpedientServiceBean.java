@@ -377,4 +377,16 @@ public class ExpedientServiceBean implements ExpedientService {
 		return delegate.getExpedientsRelacionats(expedientId);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<Long> findIdsPerConsultaGeneral(Long entornId,
+			Long expedientTipusId, String titol, String numero,
+			Date dataInici1, Date dataInici2, Date dataFi1, Date dataFi2,
+			EstatTipusDto estatTipus, Long estatId, Double geoPosX,
+			Double geoPosY, String geoReferencia,
+			boolean nomesAmbTasquesActives, boolean nomesAlertes,
+			boolean mostrarAnulats) throws EntornNotFoundException,
+			ExpedientTipusNotFoundException, EstatNotFoundException {
+		return delegate.findIdsPerConsultaGeneral(entornId, expedientTipusId, titol, numero, dataInici1, dataInici2, dataFi1, dataFi2, estatTipus, estatId, geoPosX, geoPosY, geoReferencia, nomesAmbTasquesActives, nomesAlertes, mostrarAnulats);
+	}
 }

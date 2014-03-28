@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Set;
 
 import net.conselldemallorca.helium.jbpm3.integracio.LlistatIds;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
 
 import org.hibernate.Query;
 import org.jbpm.JbpmContext;
@@ -34,6 +36,7 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 	private Integer prioritat;
 	private Date dataLimitInici;
 	private Date dataLimitFi;
+	private boolean mostrarTasquesPersonals = true;
 	private Boolean pooled;
 	private int firstRow;
 	private int maxResults;
@@ -76,8 +79,29 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		this.dataLimitInici = dataLimitInici;
 		this.dataLimitFi = dataLimitFi;
 		this.pooled = pooled;
+		this.mostrarTasquesPersonals = !pooled;
 		this.sort = sort;
 		this.asc = asc;
+	}
+
+	public GetRootProcessInstancesForActiveTasksCommand(String responsable, String tasca, List<Long> idsExpedients, Date dataCreacioInici, Date dataCreacioFi, int prioritat, Date dataLimitInici, Date dataLimitFi, List<OrdreDto> ordres, boolean mostrarTasquesPersonals, boolean mostrarTasquesGrup) {
+		super();
+		this.actorId = responsable;
+		this.idsPIExpedients = idsExpedients;
+		this.tasca = tasca; 
+		this.dataCreacioInici = dataCreacioInici; 
+		this.dataCreacioFi = dataCreacioFi;
+		this.prioritat = prioritat;
+		this.dataLimitInici = dataLimitInici;
+		this.dataLimitFi = dataLimitFi;
+		this.mostrarTasquesPersonals = mostrarTasquesPersonals;
+		this.pooled = mostrarTasquesGrup;
+		
+		for (OrdreDto or : ordres) {
+			this.asc = or.getDireccio().equals(OrdreDireccioDto.ASCENDENT);
+			this.sort = or.getCamp();
+			break;
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -89,7 +113,8 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		    "select  " + 
 		    "    ti.processInstance.id, " +
 		    "    ti.processInstance.superProcessToken.id, " +
-		    "    ti.id " +
+		    "    ti.id," +
+		    " 	 ti.name" +
 		    "  from " +
 		    "    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
 		    "  where " +
@@ -101,7 +126,8 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		    "select  " + 
 		    "    ti.processInstance.id, " +
 		    "    ti.processInstance.superProcessToken.id, " +
-		    "    ti.id " +
+		    "    ti.id," +
+		    " 	 ti.name" +
 		    "  from " +
 		    "    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
 		    "  where " +
@@ -113,7 +139,8 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		    "select  " + 
 		    "    ti.processInstance.id, " +
 		    "    ti.processInstance.superProcessToken.id, " +
-		    "    ti.id " +
+		    "    ti.id," +
+		    " 	 ti.name" +
 		    "  from " +
 		    "    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
 		    "  join ti.pooledActors pooledActor " +
@@ -151,21 +178,17 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		
 		if (titol != null && !"".equals(titol)) {
 			hql += " and upper(ti.description) like '%@#@TITOL@#@%" + titol.toUpperCase() + "%@#@ENTORNID@#@%') ";
-		}
+		}		
 		
-		
-		hql += " order by ";
 		if ("dataCreacio".equals(sort)) {
-			hql += " ti.create " + (asc ? "asc" : "desc");
+			hql += " order by ti.create " + (asc ? "asc" : "desc");
 		} else if ("prioritat".equals(sort)) {
-			hql += " ti.priority " + (asc ? "asc" : "desc");
+			hql += " order by ti.priority " + (asc ? "asc" : "desc");
 		} else if ("dataLimit".equals(sort)) {
-			hql += " ti.dueDate " + (asc ? "asc" : "desc");
+			hql += " order by ti.dueDate " + (asc ? "asc" : "desc");
 		} else if ("titol".equals(sort)) {
-			hql += " 4 " + (asc ? "asc" : "desc");
-		} else {
-			hql += " 1 ";
-		}
+			hql += " order by ti.name " + (asc ? "asc" : "desc");
+		} 
 		
 		List<Object[]> llistaActorId = new ArrayList<Object[]>();
 		
@@ -186,12 +209,6 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 			
 			if (prioritat != null) 
 				query.setInteger("prioritat",3-prioritat);
-			
-//			if (tasca != null && !"".equals(tasca)) 
-//				query.setString("tasca", tasca);
-			
-//			if (titol != null && !"".equals(titol))
-//				query.setString("titol", titol.toUpperCase());
 			
 			llistaActorId.addAll(query.list());
 			
@@ -227,17 +244,7 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 				queryPooled.setInteger("prioritat",3-prioritat);
 			}
 			
-//			if (tasca != null && !"".equals(tasca)) {
-//				queryPersonal.setString("tasca", tasca);
-//				queryPooled.setString("tasca", tasca);
-//			}		
-			
-//			if (titol != null && !"".equals(titol)) {
-//				queryPersonal.setString("titol", titol.toUpperCase());
-//				queryPooled.setString("titol", titol.toUpperCase());
-//			}
-			
-			if (pooled == null || pooled == false) {
+			if (mostrarTasquesPersonals) {
 				llistaActorId.addAll(queryPersonal.list());
 			}
 			if (pooled == null || pooled == true) {
@@ -286,7 +293,7 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		List<Long> listadoTask = new ArrayList<Long>();
 		
 		// Ordenamos la lista en el caso de que sea por expedientes
-	    if ("expedientTitol".equals(sort) || "expedientTipusNom".equals(sort)) {
+	    if ("expedientTitol".equals(sort) || "expedientIdentificador".equals(sort) || "expedientTipusNom".equals(sort)) {
 	    	for (Long id : idsPIExpedients) {
 		    	for (Object[] fila : llistaActorId) {
 		    		if (id.equals(fila[0]) && !listadoTask.contains(fila[2])) {

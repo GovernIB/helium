@@ -39,7 +39,6 @@ import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.Validator;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -64,7 +63,7 @@ public class ExpedientTipusController extends BaseController {
 	private PermissionService permissionService;
 	private PluginService pluginService;
 	private ReassignacioService reassignacioService;
-	private Validator additionalValidator;
+//	private Validator additionalValidator;
 	private PersonaService  personaService;
 	@Autowired
 	public ExpedientTipusController(
@@ -86,14 +85,14 @@ public class ExpedientTipusController extends BaseController {
 		this.personaService = personaService;
 	}
 
-	@Autowired
-	public Validator getAdditionalValidator() {
-		return additionalValidator;
-	}
-	@Autowired
-	public void setAdditionalValidator(Validator additionalValidator) {
-		this.additionalValidator = additionalValidator;
-	}
+//	@Autowired
+//	public Validator getAdditionalValidator() {
+//		return additionalValidator;
+//	}
+//	@Autowired
+//	public void setAdditionalValidator(Validator additionalValidator) {
+//		this.additionalValidator = additionalValidator;
+//	}
 
 	@ModelAttribute("expedientTipus")
 	public ExpedientTipus populateExpedientTipus(

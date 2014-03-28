@@ -71,21 +71,19 @@ import org.springframework.web.bind.support.SessionStatus;
 @Controller
 public class ExpedientConsultaDissenyController extends BaseController {
 
-	private static final String VARIABLE_SESSIO_SELCON_COMMAND = "expedientTipusConsultaDissenyCommand";
-	private static final String VARIABLE_SESSIO_FILTRE_COMMAND = "expedientTipusConsultaFiltreCommand";
+	public static final String VARIABLE_SESSIO_SELCON_COMMAND = "expedientTipusConsultaDissenyCommand";
+	public static final String VARIABLE_SESSIO_FILTRE_COMMAND = "expedientTipusConsultaFiltreCommand";
 	public static final String VARIABLE_SESSIO_IDS_MASSIUS_TE = "consultaExpedientsIdsMassiusTE";
-//	private static final String VARIABLE_SESSIO_SELCON_COMMAND_TE = "expedientTipusConsultaDissenyCommandTE";
 	public static final String VARIABLE_SESSIO_IDS_MASSIUS = "consultaExpedientsIdsMassius";
 	public static final String VARIABLE_SESSIO_PARAMS = "consultaExpedientsParams";
 
-
-	
 
 
 	private DissenyService dissenyService;
 	private ExpedientService expedientService;
 	private PermissionService permissionService;
 	private AdminService adminService;
+	
 	@Autowired
 	public ExpedientConsultaDissenyController(
 			DissenyService dissenyService,
@@ -292,8 +290,13 @@ public class ExpedientConsultaDissenyController extends BaseController {
 				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS_TE);
 				commandSeleccio.setMassivaActiu(false);
 			
-			} 
-
+			} else if ("ejecucionMasivaTotsTipus".equals(submit)) {
+//				session.removeAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);
+				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS);
+				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS_TE);
+				return "redirect:/expedient/massivaInfoTE.html?massivaInfoTots=true&expedientTipusId="+commandSeleccio.getExpedientTipusId();
+			}
+			
 			model.addAttribute("objectsPerPage", objectsPerPage);
 			
 			//***********************
@@ -447,11 +450,11 @@ public class ExpedientConsultaDissenyController extends BaseController {
 						model.addAttribute(
 								JasperReportsView.MODEL_ATTRIBUTE_SUBREPORTS,
 								reports);
-						return "jasperReportsView";
-					} else
+					} else {
 						model.addAttribute(
 								JasperReportsView.MODEL_ATTRIBUTE_REPORTCONTENT,
 								consulta.getInformeContingut());
+					}
 					model.addAttribute(
 							JasperReportsView.MODEL_ATTRIBUTE_CONSULTA,
 							consulta.getCodi());
@@ -775,7 +778,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		return docs;
 	}
 
-	private Map<String, Object> getValorsPerService(
+	public static Map<String, Object> getValorsPerService(
 			List<Camp> camps,
 			Map<String, Object> valors) {
 		Map<String, Object> valorsPerService = new HashMap<String, Object>();

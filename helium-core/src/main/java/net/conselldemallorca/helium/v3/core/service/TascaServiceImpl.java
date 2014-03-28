@@ -4,13 +4,18 @@
 package net.conselldemallorca.helium.v3.core.service;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
+import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.RegistreDao;
 import net.conselldemallorca.helium.core.model.exception.DominiException;
 import net.conselldemallorca.helium.core.model.exception.IllegalStateException;
@@ -21,27 +26,39 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.service.DocumentHelper;
+import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
+import net.conselldemallorca.helium.core.model.service.PermisosHelper;
+import net.conselldemallorca.helium.core.model.service.PermisosHelper.ObjectIdentifierExtractor;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
+import net.conselldemallorca.helium.jbpm3.integracio.LlistatIds;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.exception.CampNotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
@@ -50,6 +67,7 @@ import net.conselldemallorca.helium.v3.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientLoggerHelper;
+import net.conselldemallorca.helium.v3.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.v3.core.helper.ServiceUtils;
 import net.conselldemallorca.helium.v3.core.helper.TascaHelper;
 import net.conselldemallorca.helium.v3.core.helper.VariableHelper;
@@ -57,13 +75,21 @@ import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioValorsRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 
+import org.apache.commons.collections.comparators.NullComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -81,6 +107,14 @@ public class TascaServiceImpl implements TascaService {
 	@Resource
 	private EnumeracioValorsRepository enumeracioValorsRepository;
 	@Resource
+	private ExpedientDao expedientDao;
+	@Resource
+	private MesuresTemporalsHelper mesuresTemporalsHelper;
+	@Resource
+	private PermisosHelper permisosHelper;
+	@Resource
+	private PaginacioHelper paginacioHelper;
+	@Resource
 	private CampRepository campRepository;
 	@Resource
 	private CampTascaRepository campTascaRepository;
@@ -94,6 +128,10 @@ public class TascaServiceImpl implements TascaService {
 	private JbpmHelper jbpmHelper;
 	@Resource
 	private TascaHelper tascaHelper;
+	@Resource
+	private EntornRepository entornRepository;
+	@Resource
+	private ExpedientTipusRepository expedientTipusRepository;
 	@Resource
 	private VariableHelper variableHelper;
 	@Resource(name="documentHelperV3")
@@ -934,6 +972,239 @@ public class TascaServiceImpl implements TascaService {
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				"Amollar tasca \"" + tasca.getTitol() + "\"");
 		return tasca;
+	}
+
+	@Transactional(readOnly = true)
+	@Override
+	public PaginaDto<ExpedientTascaDto> findTasquesConsultaFiltre(
+			Long entornId,
+			Long expedientTipusId,
+			String responsable,
+			String tasca,
+			String expedient,
+			Date dataCreacioInici,
+			Date dataCreacioFi,
+			Date dataLimitInici,
+			Date dataLimitFi,
+			int prioritat,
+			boolean mostrarTasquesPersonals,
+			boolean mostrarTasquesGrup,
+			final PaginacioParamsDto paginacioParams) {
+
+		if (responsable == null) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			responsable = auth.getName();
+		}
+		
+		// Comprova l'accés a l'entorn
+		Entorn entorn = entornRepository.findOne(entornId);
+		if (entorn == null) {
+			logger.debug("No s'ha trobat l'entorn (entornId=" + entornId + ")");
+			throw new EntornNotFoundException();
+		} else {
+			boolean ambPermis = permisosHelper.isGrantedAny(
+					entorn.getId(),
+					Entorn.class,
+					new Permission[] {
+						ExtendedPermission.READ,
+						ExtendedPermission.ADMINISTRATION});
+			if (!ambPermis) {
+				logger.debug("No es tenen permisos per accedir a l'entorn (entornId=" + entornId + ")");
+				throw new EntornNotFoundException();
+			}
+		}
+		
+		// Obté la llista de tipus d'expedient permesos
+		List<ExpedientTipus> tipusPermesos = expedientTipusRepository.findByEntorn(entorn);
+		permisosHelper.filterGrantedAny(
+				tipusPermesos,
+				new ObjectIdentifierExtractor<ExpedientTipus>() {
+					public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
+						return expedientTipus.getId();
+					}
+				},
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.READ,
+					ExtendedPermission.ADMINISTRATION});
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES LLISTAT", "consulta");
+		
+		String sort = null;
+		boolean asc = false;
+		for (OrdreDto or : paginacioParams.getOrdres()) {
+			asc = or.getDireccio().equals(OrdreDireccioDto.ASCENDENT);
+			sort = or.getCamp();
+			break;
+		}
+		
+		List<Long> idsExpedients = expedientDao.findListExpedients(
+				entornId, 
+				responsable,
+				expedient, 
+				expedientTipusId,
+				sort,
+				asc);	
+		
+
+		// Calcula la data d'creacio fi pel filtre
+		if (dataCreacioFi != null) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(dataCreacioFi);
+			cal.add(Calendar.DATE, 1);
+			dataCreacioFi.setTime(cal.getTime().getTime());
+		}
+
+		// Calcula la data limit fi pel filtre
+		if (dataLimitFi != null) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(dataLimitFi);
+			cal.add(Calendar.DATE, 1);
+			dataLimitFi.setTime(cal.getTime().getTime());
+		}
+		
+		final LlistatIds ids = jbpmHelper.findListTasks(
+				responsable, 
+				tasca,
+				idsExpedients, 
+				dataCreacioInici, 
+				dataCreacioFi,
+				prioritat, 
+				dataLimitInici, 
+				dataLimitFi, 
+				paginacioParams,
+				mostrarTasquesPersonals,
+				mostrarTasquesGrup);
+		
+		final List<JbpmTask> tasques = jbpmHelper.findTasks(ids.getIds());
+		
+		Page<ExpedientTascaDto> paginaResultats = new Page<ExpedientTascaDto>() {
+			
+			@Override
+			public Iterator<ExpedientTascaDto> iterator() {
+				return getContent().iterator();
+			}
+			
+			@Override
+			public boolean isLastPage() {
+				return false;
+			}
+			
+			@Override
+			public boolean isFirstPage() {
+				return paginacioParams.getPaginaNum() == 0;
+			}
+			
+			@Override
+			public boolean hasPreviousPage() {
+				return paginacioParams.getPaginaNum() > 0;
+			}
+			
+			@Override
+			public boolean hasNextPage() {
+				return false;
+			}
+			
+			@Override
+			public boolean hasContent() {
+				return !tasques.isEmpty();
+			}
+			
+			@Override
+			public int getTotalPages() {
+				return 0;
+			}
+			
+			@Override
+			public long getTotalElements() {
+				return ids.getCount();
+			}
+			
+			@Override
+			public Sort getSort() {
+				List<Order> orders = new ArrayList<Order>();
+				for (OrdreDto or : paginacioParams.getOrdres()) {
+					orders.add(new Order(or.getDireccio().equals(OrdreDireccioDto.ASCENDENT) ? Direction.ASC : Direction.DESC, or.getCamp()));
+				}
+				return new Sort(orders);
+			}
+			
+			@Override
+			public int getSize() {
+				return paginacioParams.getPaginaTamany();
+			}
+			
+			@Override
+			public int getNumberOfElements() {
+				return 0;
+			}
+			
+			@Override
+			public int getNumber() {
+				return 0;
+			}
+			
+			@Override
+			public List<ExpedientTascaDto> getContent() {
+				List<ExpedientTascaDto> expedientTasques = new ArrayList<ExpedientTascaDto>();
+				for (JbpmTask tasca : tasques) {
+					expedientTasques.add(tascaHelper.getExpedientTascaLlistatDto(tasca));
+				}
+				Collections.sort(expedientTasques, comparador);
+				return expedientTasques;
+			}
+			
+			Comparator<ExpedientTascaDto> comparador = new Comparator<ExpedientTascaDto>() {				
+				public int compare(ExpedientTascaDto t1, ExpedientTascaDto t2) {				
+					String finalSort = null;
+					boolean finalAsc = false;
+					for (OrdreDto or : paginacioParams.getOrdres()) {
+						finalAsc = or.getDireccio().equals(OrdreDireccioDto.ASCENDENT);
+						finalSort = or.getCamp();
+						break;
+					}
+					int result = 0;
+					NullComparator nullComparator = new NullComparator();
+					if ("titol".equals(finalSort)) {
+						if (finalAsc)
+							result = nullComparator.compare(t1.getTitol(), t2.getTitol());
+						else
+							result = nullComparator.compare(t2.getTitol(), t1.getTitol());
+					} else if ("expedientIdentificador".equals(finalSort)) {
+						if (finalAsc)
+							result = nullComparator.compare(t1.getExpedientIdentificador(), t2.getExpedientIdentificador());
+						else 
+							result = nullComparator.compare(t2.getExpedientIdentificador(), t1.getExpedientIdentificador());
+					} else if ("expedientTipusNom".equals(finalSort)) {
+						if (finalAsc)
+							result = nullComparator.compare(t1.getExpedientTipusNom(), t2.getExpedientTipusNom());
+						else
+							result = nullComparator.compare(t2.getExpedientTipusNom(), t1.getExpedientTipusNom());
+					} else if ("dataCreacio".equals(finalSort)) {
+						if (finalAsc)
+							result = nullComparator.compare(t1.getDataCreacio(), t2.getDataCreacio());
+						else
+							result = nullComparator.compare(t2.getDataCreacio(), t1.getDataCreacio());
+					} else if ("prioritat".equals(finalSort)) {
+						if (finalAsc)
+							result = t1.getPriority() - t2.getPriority();
+						else
+							result = t2.getPriority() - t1.getPriority();
+					} else if ("dataLimit".equals(finalSort)) {
+						if (finalAsc)
+							result = nullComparator.compare(t1.getDataLimit(), t2.getDataLimit());
+						else
+							result = nullComparator.compare(t2.getDataLimit(), t1.getDataLimit());
+					}
+					return result;
+				}
+			};
+		};
+
+		PaginaDto<ExpedientTascaDto> resposta = paginacioHelper.toPaginaDto(
+				paginaResultats,
+				ExpedientTascaDto.class);
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES LLISTAT", "consulta");
+		return resposta;
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(TascaServiceImpl.class);

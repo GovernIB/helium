@@ -53,6 +53,8 @@ public abstract class BasicActionHandler implements ActionHandler {
 			String estatCodi,
 			boolean iniciat,
 			boolean finalitzat){
+
+		System.out.println("entro por aquí!!!");
 		return new ArrayList<ExpedientInfo>();
 	}
 
