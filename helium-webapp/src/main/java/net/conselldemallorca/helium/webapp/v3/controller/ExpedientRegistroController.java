@@ -60,6 +60,9 @@ public class ExpedientRegistroController extends BaseExpedientController {
 						"expedient",
 						expedient);
 				model.addAttribute(
+						"isAdmin",
+						potAdministrarExpedient(expedient));
+				model.addAttribute(
 						"arbreProcessos",
 						expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId())));
 				List<ExpedientLogDto> logs = null;

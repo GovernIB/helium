@@ -89,6 +89,11 @@ public class BaseExpedientController extends BaseController {
 					ExtendedPermission.WRITE});
 	}
 
+	protected boolean potAdministrarExpedient(ExpedientDto expedient) {
+		return permissionService.isGrantedAny(expedient.getTipus().getId(), ExpedientTipus.class, new Permission[] {
+					ExtendedPermission.ADMINISTRATION});
+	}
+
 	protected boolean potModificarOReassignarExpedient(ExpedientDto expedient) {
 		List<ExpedientTipusDto> tipus = dissenyService.findExpedientTipusAmbEntorn(expedient.getEntorn());
 		return permissionService.filterAllowed(
