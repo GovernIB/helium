@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +15,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NoDecorarHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
@@ -80,9 +83,35 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 			Model model) {
 		NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
 		model.addAttribute("tasca", expedientService.getTascaPerExpedient(expedientId, tascaId));
-		model.addAttribute("dades", tascaService.findDadesPerTasca(tascaId));
-		model.addAttribute("documents", tascaService.findDocumentsPerTasca(tascaId));
-		return "v3/expedientTascaForm";
+		// Omple les dades del formulari i les de només lectura
+		List<TascaDadaDto> dades = tascaService.findDadesPerTasca(tascaId);
+		model.addAttribute("dades", dades);
+		List<TascaDadaDto> dadesNomesLectura = new ArrayList<TascaDadaDto>();
+		Iterator<TascaDadaDto> itDades = dades.iterator();
+		while (itDades.hasNext()) {
+			TascaDadaDto dada = itDades.next();
+			if (dada.isReadOnly()) {
+				if (dada.getText() != null && !dada.getText().isEmpty())
+					dadesNomesLectura.add(dada);
+				itDades.remove();
+			}
+		}
+		model.addAttribute("dadesNomesLectura", dadesNomesLectura);
+		// Omple els documents per adjuntar i els de només lectura
+		List<TascaDocumentDto> documents = tascaService.findDocumentsPerTasca(tascaId);
+		model.addAttribute("documents", documents);
+		List<TascaDocumentDto> documentsNomesLectura = new ArrayList<TascaDocumentDto>();
+		Iterator<TascaDocumentDto> itDocuments = documents.iterator();
+		while (itDocuments.hasNext()) {
+			TascaDocumentDto document = itDocuments.next();
+			if (document.isReadOnly()) {
+				if (document.getId() != null)
+					documentsNomesLectura.add(document);
+				itDocuments.remove();
+			}
+		}
+		model.addAttribute("documentsNomesLectura", documentsNomesLectura);
+		return "v3/expedientTascaTramitacio";
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/camp/{campId}/valorsSeleccio", 

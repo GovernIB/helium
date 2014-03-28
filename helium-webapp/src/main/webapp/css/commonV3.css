@@ -236,14 +236,14 @@ ul#tabnav li.warn a {
 	background-position: 5px 10px;
 }
 
-#dades {
+/*#dades {
 	margin-left: 20px;
 	margin-right: 20px;
 }
 
 .tab-content #dades .pull-right {
 	margin-right: 6.6%;
-}
+}*/
 
 [class^="icon-"], [class*=" icon-"] {
 	background-image: none !important;
@@ -330,3 +330,10 @@ ul#tabnav li.warn a {
     margin-right: 10px;
     margin-top: 0;
 }
+
+.modal-max {
+	width: 98%;
+	left: 1%;
+	margin: auto auto auto auto;
+}
+

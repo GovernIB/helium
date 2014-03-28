@@ -83,7 +83,7 @@
 		</ul>
 		<div class="clearfix"></div>
 		<div class="btn-group">
-			<button type="button" class="btn btn-primary dropdown-toggle radius-left" data-toggle="dropdown"><spring:message code="comuns.expedients"/><span class="caret"></span></button>
+			<button type="button" class="btn btn-primary dropdown-toggle radius-left" data-toggle="dropdown"><spring:message code="comuns.expedients"/>&nbsp;<span class="caret"></span></button>
 			<ul class="dropdown-menu">
 				<li><a href="<c:url value="/v3/expedient"/>">Consultar</a></li>
 				<li><a href="<c:url value="/v3/expedient/iniciar"/>">Nou expedient</a></li>

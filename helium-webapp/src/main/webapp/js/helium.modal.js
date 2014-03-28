@@ -1,5 +1,5 @@
 (function($) {
-	$.fn.ripeaModal = function(options) {
+	$.fn.heliumModal = function(options) {
 		return this.filter("div").each(function() {
 			var settings = $.extend({
 				refrescarTaula: false,
@@ -7,31 +7,28 @@
 				refrescarPagina: false,
 				adjustWidth: false,
 				adjustHeight: true,
+				maximize: false,
+				valignTop: false,
 				buttonContainerId: "modal-botons",
 				buttonCloseClass: "modal-tancar"
 			}, options);
+			var iframeHeight = (settings.maximize) ? '100%' : '100';
 			$(this).html(
-					'<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">' +
-					'	<div class="modal-dialog">' +
-					'		<div class="modal-content">' +
-					'			<div class="modal-header">' +
-					'				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' +
-					'				<h4 class="modal-title"></h4>' +
-					'			</div>' +
-					'			<div class="modal-body">' +
-					'				<iframe frameborder="0" height="100" width="99.6%"></iframe>' +
-					'			</div>' +
-					'			<div class="modal-footer">' +
-					'			</div>' +
-					'		</div>' +
+					'<div class="modal modal-max fade" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">' +
+					'	<div class="modal-header">' +
+					'		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' +
+					'		<h4 class="modal-title"></h4>' +
+					'	</div>' +
+					'	<div class="modal-body">' +
+					'		<iframe frameborder="0" height="' + iframeHeight + '" width="99.6%"></iframe>' +
+					'	</div>' +
+					'	<div class="modal-footer">' +
 					'	</div>' +
 					'</div>');
 			var modalUrl = settings.modalUrl;
-			if (modalUrl.indexOf("../") != -1)
-				modalUrl = modalUrl.substr(0, modalUrl.lastIndexOf("../") + "../".length) + "modal/" + modalUrl.substr(modalUrl.lastIndexOf("../") + "../".length);
-			else
-				modalUrl = "modal/" + modalUrl;
 			var modalobj = $('div.modal', this);
+			if (settings.maximize)
+				modalobj.css('top', '1%');
 			modalobj.on('show.bs.modal', function () {
 				$('iframe', modalobj).empty();
 				$('iframe', modalobj).attr(
@@ -40,6 +37,9 @@
 				$('iframe', modalobj).load(function() {
 					// Copiar el titol de la modal
 					var titol = $(this).contents().find("title").html();
+					var prefix = 'Helium v3: ';
+					if (titol.indexOf(prefix) != -1)
+						titol = titol.substr(titol.indexOf(prefix) + prefix.length);
 					$('.modal-header h4', $(this).parent().parent()).html(titol);
 					// Copiar botons
 					$('.modal-footer *', $(this).parent().parent()).remove();
@@ -65,11 +65,24 @@
 					if (settings.adjustHeight) {
 						var height = $(this).contents().find("html").height();
 						$(this).height(height + 'px');
+						$(this).parent().height(height + 'px');
 					}
 					if (settings.adjustWidth) {
 						var width = $(this).contents().find("html").width();
-						var modalobj = $(this).parent().parent().parent();
+						var modalobj = $(this).parent().parent();
 						modalobj.css('width', width + 'px');
+					}
+					if (settings.maximize) {
+						var elementHeight = this.contentWindow.document.body.offsetHeight;
+						this.style.height = elementHeight + 'px';
+						var taraModal = $('.modal-header', $(this).parent().parent()).height() + $('.modal-footer', $(this).parent().parent()).height();
+						var maxBodyHeight = $(document).height() - taraModal - 100;
+						if (elementHeight > maxBodyHeight) {
+							$('.modal-body', $(this).parent().parent()).css('max-height', maxBodyHeight + 'px');
+						} else {
+							var afegir = 15 + 15;
+							$('.modal-body', $(this).parent().parent()).css('max-height', elementHeight + afegir + 'px');
+						}
 					}
 				});
 			});

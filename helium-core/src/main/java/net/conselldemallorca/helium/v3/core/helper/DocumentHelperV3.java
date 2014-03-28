@@ -306,6 +306,7 @@ public class DocumentHelperV3 {
 		if (documentStoreId != null) {
 			dto.setDocumentPendent(false);
 			DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
+			dto.setId(documentStore.getId());
 			dto.setDataCreacio(documentStore.getDataCreacio());
 			dto.setDataModificacio(documentStore.getDataModificacio());
 			dto.setDataDocument(documentStore.getDataDocument());
@@ -318,6 +319,7 @@ public class DocumentHelperV3 {
 				dto.setRegistreOficinaNom(documentStore.getRegistreOficinaNom());
 				dto.setRegistreEntrada(documentStore.isRegistreEntrada());
 			}
+			dto.setArxiuNom(documentStore.getArxiuNom());
 		}
 		return dto;
 	}

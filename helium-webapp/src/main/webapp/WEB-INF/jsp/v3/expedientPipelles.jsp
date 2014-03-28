@@ -5,12 +5,14 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+<%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
 
 <html>
 <head>
-<title>Informació de l'expedient</title>
-<meta name="capsaleraTipus" content="expedient"/>
-<meta name="tabActiu" content="dades"/>
+	<title>Informació de l'expedient</title>
+	<meta name="capsaleraTipus" content="expedient"/>
+	<meta name="tabActiu" content="dades"/>
+	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 <style>
 #info-carregant {
 	margin-top: 4em;

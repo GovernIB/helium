@@ -3,15 +3,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
-<style>
-body .modal {
-	width: 98%;
-	left: 1%;
-	margin: auto auto auto auto;
-}
-body .modal-body {
-}
-</style>
 <c:choose>
 	<c:when test="${not empty tasques}">
 		<c:set var="hiHaPendentsMeves" value="${false}"/>
@@ -22,7 +13,7 @@ body .modal-body {
 		</c:forEach>
 		<c:if test="${hiHaPendentsMeves}">
 			<c:set var="cont" value="0"/>
-			<table class="dataTable table table-bordered">
+			<table id="tasques-pendents-meves" class="dataTable table table-bordered table-hover">
 				<thead>
 					<tr>
 						<th>Tasca</th>
@@ -70,7 +61,7 @@ body .modal-body {
 												<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog icon-white"></i> Accions <span class="caret"></span></a>
 												<ul class="dropdown-menu">
 													<c:if test="${tasca.oberta and not tasca.suspesa}">
-														<li><a class="link-tramitacio-modal tramitar" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/tramitar"/>"><i class="icon-folder-open"></i> Tramitar</a></li>
+														<li><a data-tramitar-modal="true" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/tramitar"/>"><i class="icon-folder-open"></i> Tramitar</a></li>
 														<li><a href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/delegar"/>"><i class="icon-hand-right"></i> Delegar</a></li>
 														<li>
 															<c:import url="utils/modalDefinir.jsp">
@@ -218,7 +209,7 @@ body .modal-body {
 	</c:otherwise>
 </c:choose>
 
-<div id="tramitacio-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div id="tramitacio-modal" class="modal modal-max hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 	<div class="modal-header">
 		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 		<h3></h3>
@@ -228,6 +219,7 @@ body .modal-body {
 		<button id="modal-button-tancar" class="btn pull-left" data-dismiss="modal" aria-hidden="true">Tancar</button>
 	</div>
 </div>
+<div id="tasca-tramitacio-modal"></div>
 <script type="text/javascript">
 // <![CDATA[
 function confirmarSuspendre(e) {
@@ -255,7 +247,7 @@ function confirmarAlliberar(e) {
 	return confirm("Estau segur que voleu alliberar aquesta tasca?");
 }
 
-function canviTitolModal(titol) {
+/*function canviTitolModal(titol) {
 	$('#tramitacio-modal h3').html(titol);
 }
 
@@ -277,39 +269,39 @@ function autoResize(element) {
 		var afegir = 15 + 15; // Padding del body de la modal
 		$('#tramitacio-modal .modal-body').css('max-height', elementHeight + afegir + 'px');
 	}
-}
-$(document).ready(
-	function() {
-		$('.link-tramitacio-modal').click(function(e) {
-			e.preventDefault();
-			var url = $(this).attr('href');
-			$('#tramitacio-modal .modal-body').html('<iframe width="100%" height="100%" frameborder="0" allowtransparency="true" src="' + url + '" onload="autoResize(this)"></iframe>');
-			$('#tramitacio-modal').modal('show');
-			$('#tramitacio-modal').css('top', '1%');
-		});
-		
-		$('.dataTable').addClass('table-hover');
-		$('.dataTable > tbody > tr > td:not(:last-child)').click(function(event) {
-			event.stopPropagation();			
-			if ($('ul a:first', $(this).parent()).hasClass('tramitar')) {
-				$('ul a:first', $(this).parent()).click();
-			}
-		});
-	}
-);
-
+}*/
+	/*$('.link-tramitacio-modal').click(function(e) {
+		e.preventDefault();
+		var url = $(this).attr('href');
+		$('#tramitacio-modal .modal-body').html('<iframe width="100%" height="100%" frameborder="0" allowtransparency="true" src="' + url + '" onload="autoResize(this)"></iframe>');
+		$('#tramitacio-modal').modal('show');
+		$('#tramitacio-modal').css('top', '1%');
+	});*/
+	
+	//$('.dataTable').addClass('table-hover');
+	/*$('.dataTable > tbody > tr > td:not(:last-child)').click(function(event) {
+		event.stopPropagation();			
+		if ($('ul a:first', $(this).parent()).hasClass('tramitar')) {
+			$('ul a:first', $(this).parent()).click();
+		}
+	});*/
+	$('#tasques-pendents-meves a').click(function() {
+		if ($(this).data('tramitar-modal')) {
+			$('#tasca-tramitacio-modal').heliumModal({
+				modalUrl: $(this).attr('href'),
+				refrescarTaula: false,
+				refrescarAlertes: false,
+				refrescarPagina: false,
+				adjustWidth: false,
+				adjustHeight: false,
+				maximize: true,
+				valignTop: true,
+				buttonContainerId: 'formFinalitzar'
+			});
+			return false;
+		} else {
+			return true;
+		}
+	});
 //]]>
 </script>
-
-<c:if test="${tasca.validada}">		
-	<script type="text/javascript">
-	// <![CDATA[
-	function confirmarIniciar(e) {
-		var e = e || window.event;
-		e.cancelBubble = true;
-		if (e.stopPropagation) e.stopPropagation();
-		return confirm("Estau segur que voleu iniciar aquest termini?");
-	}
-	// ]]>
-	</script>
-</c:if>

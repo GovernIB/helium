@@ -78,7 +78,6 @@ public class PlantillaDocumentDao {
 	private DominiDao dominiDao;
 	private DocumentStoreDao documentStoreDao;
 	private DocumentHelper documentHelper;
-	
 
 
 

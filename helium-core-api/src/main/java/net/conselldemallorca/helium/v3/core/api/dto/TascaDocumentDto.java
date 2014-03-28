@@ -13,6 +13,7 @@ import java.util.Date;
  */
 public class TascaDocumentDto {
 
+	private Long id;
 	private String varCodi;
 
 	private String documentCodi;
@@ -37,6 +38,8 @@ public class TascaDocumentDto {
 	private String registreOficinaCodi;
 	private String registreOficinaNom;
 	private boolean registreEntrada = true;
+	
+	private String arxiuNom;
 
 	private String error;
 
@@ -45,6 +48,12 @@ public class TascaDocumentDto {
 	public TascaDocumentDto() {
 	}
 
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
 	public String getVarCodi() {
 		return varCodi;
 	}
@@ -153,11 +162,39 @@ public class TascaDocumentDto {
 	public void setRegistreEntrada(boolean registreEntrada) {
 		this.registreEntrada = registreEntrada;
 	}
+	public String getArxiuNom() {
+		return arxiuNom;
+	}
+	public void setArxiuNom(String arxiuNom) {
+		this.arxiuNom = arxiuNom;
+	}
 	public String getError() {
 		return error;
 	}
 	public void setError(String error) {
 		this.error = error;
+	}
+
+	public String getArxiuNomSenseExtensio() {
+		if (getArxiuNom() == null)
+			return null;
+		int indexPunt = getArxiuNom().lastIndexOf(".");
+		if (indexPunt != -1) {
+			return getArxiuNom().substring(0, indexPunt);
+		} else {
+			return getArxiuNom();
+		}
+	}
+
+	public String getArxiuExtensio() {
+		if (getArxiuNom() == null)
+			return null;
+		int indexPunt = getArxiuNom().lastIndexOf(".");
+		if (indexPunt != -1) {
+			return getArxiuNom().substring(indexPunt + 1);
+		} else {
+			return null;
+		}
 	}
 
 }

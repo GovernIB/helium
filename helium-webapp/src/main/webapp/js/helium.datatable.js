@@ -1,5 +1,5 @@
 (function($) {
-	$.fn.ripeaDataTable = function(options) {
+	$.fn.heliumDataTable = function(options) {
 		return this.filter("table").each(function() {
 			var settings = $.extend({
 				paginacio: true,
@@ -114,7 +114,7 @@
 						var modalDivId = taula.attr('id') + "_modal";
 						if ($('#' + modalDivId).length == 0)
 							taula.parent().append('<div id="' + modalDivId + '"></div>');
-						$('#' + modalDivId).ripeaModal({
+						$('#' + modalDivId).heliumModal({
 							modalUrl: $(this).attr("href"),
 							modalCloseFunction: modalCloseFunction
 						});
