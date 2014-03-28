@@ -107,7 +107,7 @@ public class ExpedientTipusFormController extends BaseController {
 			if (potDissenyarEntorn(entorn)) {
 				if ("submit".equals(submit) || submit.length() == 0) {
 					SortedMap<Integer, SequenciaAny> sequenciaAny = new TreeMap<Integer, SequenciaAny>();
-					
+					command.setEntorn(entorn);
 					if (command.isReiniciarCadaAny()) {
 						//command.setSequencia(1);
 
@@ -157,7 +157,6 @@ public class ExpedientTipusFormController extends BaseController {
 			        }
 			        try {
 			        	if (command.getId() == null) {
-			        		command.setEntorn(entorn);
 			        		dissenyService.createExpedientTipus(command);
 			        	} else {
 			        		dissenyService.updateExpedientTipus(command);
