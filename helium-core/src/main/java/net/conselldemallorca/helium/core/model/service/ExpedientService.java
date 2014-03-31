@@ -62,6 +62,7 @@ import net.conselldemallorca.helium.core.model.exception.ExpedientRepetitExcepti
 import net.conselldemallorca.helium.core.model.exception.IllegalArgumentsException;
 import net.conselldemallorca.helium.core.model.exception.NotFoundException;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
+import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.AreaMembre;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
@@ -663,6 +664,12 @@ public class ExpedientService {
 			for (ExecucioMassivaExpedient eme: execucioMassivaExpedientDao.getExecucioMassivaByExpedient(id)) {
 				execucioMassivaExpedientDao.delete(eme);
 			}
+			for(Alerta al:expedient.getAlertes()){
+				if(!al.isEliminada()){
+					al.setDataEliminacio(new Date());
+				}
+			}
+			
 			expedientDao.delete(expedient);
 			luceneDao.deleteExpedientAsync(expedient);
 			registreDao.crearRegistreEsborrarExpedient(
