@@ -160,57 +160,13 @@
 				<%--dd><em><small>Definició de procés</small></em></dd>
 				<dt><i class="icon-picture"></i> <a href="#fluxogram" role="button" data-toggle="modal">PGEGIP v.4</a></dt--%>
 			</dl>
-			<div class="btn-group">
+			<div id="expedientAccio" class="btn-group">
 				<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog icon-white"></i> Accions <span class="caret"></span></a>
 				<ul class="dropdown-menu">
-					<li>
-						<c:import url="utils/modalDefinir.jsp">
-							<c:param name="sAjaxSource" value="/helium/v3/expedient/${expedientId}/modificar"/>
-							<c:param name="modalId" value="modificar"/>
-							<c:param name="refrescarAlertes" value="true"/>
-							<c:param name="refrescarPagina" value="true"/>							
-							<c:param name="refrescarTaula" value="false"/>							
-							<c:param name="refrescarTaulaId" value="false"/>
-							<c:param name="icon" value="icon-pencil"/>
-							<c:param name="texto" value="Modificar informació"/>
-						</c:import>
-					</li>
-					<li>
-						<c:import url="utils/modalDefinir.jsp">
-							<c:param name="sAjaxSource" value="/helium/v3/expedient/${expedientId}/stop"/>
-							<c:param name="modalId" value="aturar"/>
-							<c:param name="refrescarAlertes" value="true"/>
-							<c:param name="refrescarPagina" value="false"/>							
-							<c:param name="refrescarTaula" value="false"/>							
-							<c:param name="refrescarTaulaId" value="false"/>
-							<c:param name="icon" value="icon-stop"/>
-							<c:param name="texto" value="Aturar tramitació"/>
-						</c:import>
-					</li>
-					<li>
-						<c:import url="utils/modalDefinir.jsp">
-							<c:param name="sAjaxSource" value="/helium/v3/expedient/${expedientId}/execucions"/>
-							<c:param name="modalId" value="execucions"/>
-							<c:param name="refrescarAlertes" value="true"/>
-							<c:param name="refrescarPagina" value="false"/>							
-							<c:param name="refrescarTaula" value="false"/>							
-							<c:param name="refrescarTaulaId" value="false"/>
-							<c:param name="icon" value="icon-cog"/>
-							<c:param name="texto" value="Executar nou script"/>
-						</c:import>
-					</li>
-					<li>
-						<c:import url="utils/modalDefinir.jsp">
-							<c:param name="sAjaxSource" value="/helium/v3/expedient/${expedientId}/relacionats"/>
-							<c:param name="modalId" value="relacionats"/>
-							<c:param name="refrescarAlertes" value="true"/>
-							<c:param name="refrescarPagina" value="true"/>							
-							<c:param name="refrescarTaula" value="false"/>							
-							<c:param name="refrescarTaulaId" value="false"/>
-							<c:param name="icon" value="icon-cog"/>
-							<c:param name="texto" value="Relacionar"/>
-						</c:import>
-					</li>
+					<li><a data-modificar-modal="true" href="<c:url value="/v3/expedient/${expedientId}/modificar"/>"><i class="icon-pencil"></i>&nbsp;Modificar informació</a></li>
+					<li><a data-aturar-modal="true" href="<c:url value="/v3/expedient/${expedientId}/stop"/>"><i class="icon-stop"></i>&nbsp;Aturar tramitació</a></li>
+					<li><a data-exec-modal="true" href="<c:url value="/v3/expedient/${expedientId}/execucions"/>"><i class="icon-cog"></i>&nbsp;Executar nou script</a></li>
+					<li><a data-relacionar-modal="true" href="<c:url value="/v3/expedient/${expedientId}/relacionats"/>"><i class="icon-cog"></i>&nbsp;Relacionar</a></li>
 					<c:if test="${not empty accions}">
 						<c:set var="tePermisAccions" value="${false}"/>
 						<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
@@ -271,7 +227,117 @@
 			</c:if>
 		</div>
 	</div>
-	<c:import url="utils/modal.jsp"/>
+	
+	<div id="modificar-modal" class="modal modal-max hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+			<h3></h3>
+		</div>
+		<div class="modal-body"></div>
+		<div class="modal-footer">
+			<button id="modal-button-tancar" class="btn pull-left" data-dismiss="modal" aria-hidden="true">Tancar</button>
+		</div>
+	</div>
+	<div id="expedient-modificar-modal"></div>
+	
+	<div id="aturar-modal" class="modal modal-max hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+			<h3></h3>
+		</div>
+		<div class="modal-body"></div>
+		<div class="modal-footer">
+			<button id="modal-button-tancar" class="btn pull-left" data-dismiss="modal" aria-hidden="true">Tancar</button>
+		</div>
+	</div>
+	<div id="expedient-aturar-modal"></div>
+	
+	<div id="exec-modal" class="modal modal-max hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+			<h3></h3>
+		</div>
+		<div class="modal-body"></div>
+		<div class="modal-footer">
+			<button id="modal-button-tancar" class="btn pull-left" data-dismiss="modal" aria-hidden="true">Tancar</button>
+		</div>
+	</div>
+	<div id="expedient-exec-modal"></div>
+	
+	<div id="relacionar-modal" class="modal modal-max hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+			<h3></h3>
+		</div>
+		<div class="modal-body"></div>
+		<div class="modal-footer">
+			<button id="modal-button-tancar" class="btn pull-left" data-dismiss="modal" aria-hidden="true">Tancar</button>
+		</div>
+	</div>
+	<div id="expedient-relacionar-modal"></div>
+	
+	<script type="text/javascript">
+	// <![CDATA[
+		$('#expedientAccio a').click(function() {
+			if ($(this).data('modificar-modal')) {
+				$('#expedient-modificar-modal').heliumModal({
+					modalUrl: $(this).attr('href'),
+					refrescarTaula: false,
+					refrescarAlertes: true,
+					refrescarPagina: false,
+					adjustWidth: false,
+					adjustHeight: true,
+					maximize: true,
+					valignTop: true,
+					buttonContainerId: 'formButtons'
+				});
+				return false;
+			} else if ($(this).data('aturar-modal')) {
+				$('#expedient-aturar-modal').heliumModal({
+					modalUrl: $(this).attr('href'),
+					refrescarTaula: false,
+					refrescarAlertes: true,
+					refrescarPagina: false,
+					adjustWidth: false,
+					adjustHeight: true,
+					maximize: true,
+					valignTop: true,
+					buttonContainerId: 'formButtons'
+				});
+				return false;
+			} else if ($(this).data('exec-modal')) {
+				$('#expedient-exec-modal').heliumModal({
+					modalUrl: $(this).attr('href'),
+					refrescarTaula: false,
+					refrescarAlertes: true,
+					refrescarPagina: false,
+					adjustWidth: false,
+					adjustHeight: true,
+					maximize: true,
+					valignTop: true,
+					buttonContainerId: 'formButtons'
+				});
+				return false;
+			} else if ($(this).data('relacionar-modal')) {
+				$('#expedient-relacionar-modal').heliumModal({
+					modalUrl: $(this).attr('href'),
+					refrescarTaula: false,
+					refrescarAlertes: true,
+					refrescarPagina: false,
+					adjustWidth: false,
+					adjustHeight: true,
+					maximize: true,
+					valignTop: true,
+					buttonContainerId: 'formButtons'
+				});
+				return false;
+			} else {
+				return true;
+			}
+		});
+	//]]>
+	</script>
+
 	<div id="contingut-contenidor" class="span9">
 		<%--div class="btn-group" data-toggle="buttons-radio">
 			<a id="dades-btn" class="btn" href="#"><i class="icon-list-alt"></i> Dades</a>

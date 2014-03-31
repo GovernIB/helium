@@ -7,23 +7,17 @@
 
 <html>
 	<head>
-		<title>Expediente</title>
-		<c:import url="../utils/modalHead.jsp">
-			<c:param name="titol" value="Aturar la tramitació de l'expedient"/>
-			<c:param name="buttonContainerId" value="botons"/>
-		</c:import>
+		<title>Aturar la tramitació de l'expedient</title>
 	</head>
 	<body>		
 		<form:form id="aturarExpedient" name="aturarExpedient" action="aturarExpedient" method="post" commandName="aturarCommand" onsubmit="return confirmar(event)">
-			<div class="modal-body">
-				<div class="span1">
-					Motiu
-				</div>
-				<textarea id="motiu" name="motiu" autofocus="autofocus" class="span99per"></textarea>
+			<div class="span1">
+				Motiu
 			</div>
-			<div id="botons" class="well">
+			<textarea id="motiu" name="motiu" autofocus="autofocus" class="span99per"></textarea>
+		
+			<div id="formButtons" class="well">
 				<button type="submit" class="btn btn-primary"><spring:message code="comuns.guardar"/></button>
-				<button type="button" class="btn btn-tancar"><spring:message code="comuns.cancelar"/></button>
 			</div>
 		</form:form>
 		<script>

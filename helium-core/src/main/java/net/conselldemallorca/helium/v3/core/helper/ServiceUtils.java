@@ -149,7 +149,7 @@ public class ServiceUtils {
 							definicioProces,
 							camp.getCampCodi());
 					if (campRes != null) {
-						resposta.add(variableHelper.getTascaDadaDtoParaConsultaDisseny(campRes));
+						resposta.add(variableHelper.getTascaDadaDtoParaConsultaDisseny(campRes,tipus));
 					}
 				} else {
 					resposta.add(
@@ -161,7 +161,7 @@ public class ServiceUtils {
 			} else {
 				Camp campExpedient = getCampExpedient(camp.getCampCodi());
 				if (campExpedient != null) {
-					resposta.add(variableHelper.getTascaDadaDtoParaConsultaDisseny(campExpedient));
+					resposta.add(variableHelper.getTascaDadaDtoParaConsultaDisseny(campExpedient,tipus));
 				} else {
 					resposta.add(
 							new TascaDadaDto(

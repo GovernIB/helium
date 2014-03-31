@@ -8,10 +8,6 @@
 <html>
 	<head>
 		<title>Execució d'scripts</title>
-		<c:import url="../utils/modalHead.jsp">
-			<c:param name="titol" value="Execució d'scripts"/>
-			<c:param name="buttonContainerId" value="botons"/>
-		</c:import>
 	</head>
 	<body>		
 		<script type="text/javascript">
@@ -39,9 +35,8 @@
 				<input type="hidden" name="id" value="${param.id}"/>
 				<textarea id=script name="script" autofocus="autofocus" class="span99per"></textarea>
 			</div>
-			<div id="botons" class="well">
+			<div id="formButtons" class="well">
 				<button type="submit" class="btn btn-primary"><spring:message code='comuns.executar' /></button>
-				<button type="button" class="btn btn-tancar"><spring:message code="comuns.cancelar"/></button>
 			</div>
 		</form:form>
 	</body>

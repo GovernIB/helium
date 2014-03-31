@@ -331,16 +331,10 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientConsultaDissenyDto> findAmbEntornConsultaDisseny(Long entornId, Long consultaId, Map<String, Object> valors, String sort, boolean asc, int firstRow, int maxResults) {
-		return delegate.findAmbEntornConsultaDisseny(entornId, consultaId, valors, sort, asc, firstRow, maxResults);
+	public List<ExpedientConsultaDissenyDto> findAmbEntornConsultaDisseny(Long entornId, Long consultaId, Map<String, Object> valors, PaginacioParamsDto paginacioParams) {
+		return delegate.findAmbEntornConsultaDisseny(entornId, consultaId, valors, paginacioParams);
 	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientConsultaDissenyDto> findAmbEntornConsultaDisseny(Long entornId, Long consultaId, Map<String, Object> valors, String sort, boolean asc) {
-		return delegate.findAmbEntornConsultaDisseny(entornId, consultaId, valors, sort, asc);
-	}
-
+	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<TascaDadaDto> findConsultaFiltre(Long consultaId) {
@@ -355,8 +349,8 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientDto> findPerConsultaInformePaginat(Long id, Long consultaId, Long expedientTipusId, Map<String, Object> valorsPerService, String expedientCampId, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats) {
-		return delegate.findPerConsultaInformePaginat(id, consultaId, expedientTipusId, valorsPerService, expedientCampId, nomesPendents, nomesAlertes, mostrarAnulats);
+	public PaginaDto<ExpedientConsultaDissenyDto> findPerConsultaInformePaginat(Long id, Long consultaId, Long expedientTipusId, Map<String, Object> valorsPerService, String expedientCampId, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, PaginacioParamsDto paginacioParamsDto) {
+		return delegate.findPerConsultaInformePaginat(id, consultaId, expedientTipusId, valorsPerService, expedientCampId, nomesPendents, nomesAlertes, mostrarAnulats, paginacioParamsDto);
 	}
 
 	@Override
@@ -388,5 +382,14 @@ public class ExpedientServiceBean implements ExpedientService {
 			boolean mostrarAnulats) throws EntornNotFoundException,
 			ExpedientTipusNotFoundException, EstatNotFoundException {
 		return delegate.findIdsPerConsultaGeneral(entornId, expedientTipusId, titol, numero, dataInici1, dataInici2, dataFi1, dataFi2, estatTipus, estatId, geoPosX, geoPosY, geoReferencia, nomesAmbTasquesActives, nomesAlertes, mostrarAnulats);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<Long> findIdsPerConsultaInformePaginat(Long id,
+			Long consultaId, Long expedientTipusId,
+			Map<String, Object> valorsPerService, String expedientCampId,
+			Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats) {
+		return delegate.findIdsPerConsultaInformePaginat(id, consultaId, expedientTipusId, valorsPerService, expedientCampId, nomesPendents, nomesAlertes, mostrarAnulats);
 	}
 }

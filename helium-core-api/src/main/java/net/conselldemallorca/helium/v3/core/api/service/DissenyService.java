@@ -107,11 +107,11 @@ public interface DissenyService {
 
 	public CampDto findCampAmbDefinicioProcesICodiSimple(Long definicioProcesId, String campCodi);
 
-	public List<?> getResultatConsultaCamp(String taskId, String processInstanceId, Long definicioProcesId, String campCodi, String textInicial, Map<String, Object> mapDelsValors);
-
 	public List<AccioDto> findAccionsVisiblesAmbDefinicioProces(Long definicioProcesId);
 
 	public AccioDto findAccioAmbId(Long idAccio);
 
 	public void executarAccio(AccioDto accio, ExpedientDto expedient);
+
+	public List<?> getResultatConsultaCamp(String taskId, String processInstanceId, CampDto camp, String textInicial,Map<String, Object> mapDelsValors);
 }

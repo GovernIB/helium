@@ -328,14 +328,16 @@
 								<%@ include file="campsTascaRegistre.jsp" %>
 							</div>
 						</c:if>
-					</c:forEach>			
-					<c:if test="${empty dades}">
-						<%@ include file="campsTascaInfo.jsp" %>		
-					</c:if>
-					<c:if test="${not empty dades}">
-						<div style="clear: both"></div>
-						<%@ include file="campsTascaGuardarTasca.jsp" %>
-					</c:if>
+					</c:forEach>
+					<div id="guardarValidarTarea">
+						<c:if test="${empty dades}">
+							<%@ include file="campsTascaInfo.jsp" %>		
+						</c:if>
+						<c:if test="${not empty dades}">
+							<div style="clear: both"></div>
+							<%@ include file="campsTascaGuardarTasca.jsp" %>
+						</c:if>
+					</div>
 				</form:form>
 				<div class="hide" id="finalizarTarea">
 					<%@ include file="campsTascaTramitacioTasca.jsp" %>

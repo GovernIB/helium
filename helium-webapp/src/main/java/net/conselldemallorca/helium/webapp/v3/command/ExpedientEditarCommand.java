@@ -17,6 +17,7 @@ public class ExpedientEditarCommand {
 	private String titol;
 	private String iniciadorCodi;
 	private String responsableCodi;
+	private String responsableNomSencer;
 	private Date dataInici;
 	private String comentari;
 	private Long estatId;
@@ -24,8 +25,6 @@ public class ExpedientEditarCommand {
 	private Double geoPosY;
 	private String geoReferencia;
 	private String grupCodi;
-
-
 
 	public Long getExpedientId() {
 		return expedientId;
@@ -98,6 +97,12 @@ public class ExpedientEditarCommand {
 	}
 	public void setGrupCodi(String grupCodi) {
 		this.grupCodi = grupCodi;
+	}
+	public String getResponsableNomSencer() {
+		return responsableNomSencer;
+	}
+	public void setResponsableNomSencer(String responsableNomSencer) {
+		this.responsableNomSencer = responsableNomSencer;
 	}
 
 }

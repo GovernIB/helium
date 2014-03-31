@@ -34,7 +34,7 @@ public class BaseExpedientController extends BaseController {
 	protected PermissionService permissionService;
 	
 	@Autowired
-	private DissenyService dissenyService;
+	protected DissenyService dissenyService;
 
 	protected String mostrarInformacioExpedientPerPipella(
 			HttpServletRequest request,

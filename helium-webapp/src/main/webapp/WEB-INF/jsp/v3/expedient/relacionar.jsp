@@ -8,10 +8,6 @@
 <html>
 	<head>
 		<title>Relacionar expediente</title>
-		<c:import url="../utils/modalHead.jsp">
-			<c:param name="titol" value="Relacionar expediente"/>
-			<c:param name="buttonContainerId" value="botons"/>
-		</c:import>
 		<c:import url="../common/formIncludes.jsp"/>
 	</head>
 	<body>		
@@ -29,8 +25,7 @@
 			</div>
 		</div>
 	</div>
-	<div id="botons" class="well">
+	<div id="formButtons">
 		<button type="submit" class="btn btn-primary"><spring:message code="expedient.info.relacionar"/></button>
-		<button type="button" class="btn btn-tancar"><spring:message code="comuns.cancelar"/></button>
 	</div>
 </form:form>

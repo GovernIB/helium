@@ -76,9 +76,7 @@
 												<c:if test="${not empty tasca.responsables && not tasca.agafada}">
 													<li><a href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/tascaAgafar"/>"><i class="icon-signin"></i> Agafar</a></li>
 												</c:if>
-												<li>
-													<li><a data-reasignar-modal="true" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/reassignar"/>"><i class="icon-share"></i> Reasignar</a></li>
-												</li>
+												<li><a data-reasignar-modal="true" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/reassignar"/>"><i class="icon-share"></i> Reasignar</a></li>
 												<li><a onclick="return confirmarSuspendre(event)" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/suspendre"/>"><i class="icon-pause"></i> Suspendre</a></li>
 											</c:if>
 											<c:if test="${tasca.suspesa}">
@@ -242,10 +240,10 @@ function autoResize(element) {
 				refrescarAlertes: false,
 				refrescarPagina: false,
 				adjustWidth: false,
-				adjustHeight: false,
+				adjustHeight: true,
 				maximize: true,
 				valignTop: true,
-				buttonContainerId: 'formFinalitzar'
+				buttonContainerId: 'formFinalitzar',
 			});
 			return false;
 		} 
@@ -256,7 +254,7 @@ function autoResize(element) {
 				refrescarAlertes: true,
 				refrescarPagina: false,
 				adjustWidth: false,
-				adjustHeight: false,
+				adjustHeight: true,
 				maximize: true,
 				valignTop: true,
 				buttonContainerId: 'formReasignar'

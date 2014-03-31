@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientConsultaCommand;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientInformeCommand;
 import net.conselldemallorca.helium.webapp.v3.command.TascaConsultaCommand;
 
 /**
@@ -235,15 +234,15 @@ public class SessionHelper {
 					request,
 					VARIABLE_SELECCIO_CONSULTA_GENERAL);
 		}
-		public ExpedientInformeCommand getFiltreInforme(Long expedientTipusId) {
-			return (ExpedientInformeCommand)getAttribute(
+		public Object getFiltreInforme(Long expedientTipusId, Long consultaId) {
+			return (Object)getAttribute(
 					request,
-					VARIABLE_FILTRE_INFORME + expedientTipusId);
+					VARIABLE_FILTRE_INFORME + expedientTipusId + "-" + consultaId);
 		}
-		public void setFiltreInforme(ExpedientInformeCommand filtreInforme, Long expedientTipusId) {
+		public void setFiltreInforme(Object filtreInforme, Long expedientTipusId, Long consultaId) {
 			setAttribute(
 					request,
-					VARIABLE_FILTRE_INFORME + expedientTipusId,
+					VARIABLE_FILTRE_INFORME + expedientTipusId + "-" + consultaId,
 					filtreInforme);
 		}
 		public void setSeleccioConsultaGeneral(Set<Long> seleccioConsultaGeneral) {

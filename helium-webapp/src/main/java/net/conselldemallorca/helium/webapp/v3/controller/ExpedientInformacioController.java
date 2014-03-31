@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.PluginService;
@@ -44,35 +43,57 @@ public class ExpedientInformacioController extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientService expedientService;
-	
+
 	@Autowired
 	private PluginService pluginService;
 
 	@RequestMapping(value = "/{expedientId}/persona/suggest", method = RequestMethod.GET)
 	public String suggestAction(
-			@RequestParam(value = "q", required = true) String text,
+			@RequestParam(value = "q", required = true) String text, 
 			ModelMap model) {
 		model.addAttribute("persones", pluginService.findPersonaLikeNomSencer(text));
 		return "persona/suggest";
 	}
+	
+	public ExpedientEditarCommand populateCommand(ExpedientDto expedient) {		
+		ExpedientEditarCommand expedientEditarCommand = new ExpedientEditarCommand();
+		expedientEditarCommand.setNumero(expedient.getNumero());
+		expedientEditarCommand.setTitol(expedient.getTitol());
+		expedientEditarCommand.setComentari(expedient.getComentari());
+		expedientEditarCommand.setDataInici(expedient.getDataInici());
+		expedientEditarCommand.setEstatId(expedient.getEstat() != null ? expedient.getEstat().getId() : null);
+		expedientEditarCommand.setExpedientId(expedient.getId());
+		expedientEditarCommand.setGeoPosX(expedient.getGeoPosX());
+		expedientEditarCommand.setGeoPosY(expedient.getGeoPosY());
+		expedientEditarCommand.setGeoReferencia(expedient.getGeoReferencia());
+		expedientEditarCommand.setGrupCodi(expedient.getGrupCodi());
+		PersonaDto personaIniciador = pluginService.findPersonaAmbCodi(expedient.getIniciadorCodi());
+		expedientEditarCommand.setIniciadorCodi(personaIniciador.getCodi());
+		PersonaDto personaResponsable = pluginService.findPersonaAmbCodi(expedient.getResponsableCodi());
+		expedient.setResponsablePersona(personaResponsable);
+		expedientEditarCommand.setResponsableCodi(personaResponsable.getCodi());
+		expedientEditarCommand.setResponsableNomSencer(personaResponsable.getNomSencer());
+		
+		return expedientEditarCommand;
+	}
 
 	@RequestMapping(value = "/{expedientId}/modificar", method = RequestMethod.GET)
-	public String modificarInformacio(
-			HttpServletRequest request, 
-			@PathVariable Long expedientId, 
-			Model model) {
+	public String get(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@ModelAttribute("expedientEditarCommand") ExpedientEditarCommand filtreCommand,
+			BindingResult result,
+			SessionStatus status,
+			ModelMap model)  {
 		NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
-		model.addAttribute("expedientId", expedientId);		
-		
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findById(expedientId);
-				if (potModificarExpedient(expedient)) {
-				model.addAttribute(
-						"command",
-						initCommand(expedient));
-				dadesPaginaEditar(expedient, model);				
-			}else {
+			if (potModificarExpedient(expedient)) {
+				model.addAttribute("estats", dissenyService.findEstatByExpedientTipus(expedient.getTipus().getId()));
+				model.addAttribute("expedient", expedient); 
+				model.addAttribute(populateCommand(expedient));
+			} else {
 				MissatgesHelper.info(request, getMessage(request, "error.permisos.modificar.expedient"));
 			}
 		} else {
@@ -80,70 +101,36 @@ public class ExpedientInformacioController extends BaseExpedientController {
 		}
 		return "v3/expedient/modificarInformacio";
 	}
-	
-	private ExpedientEditarCommand initCommand(ExpedientDto expedient) {
-		ExpedientEditarCommand command = new ExpedientEditarCommand();
-		command.setExpedientId(expedient.getId());
-		command.setNumero(expedient.getNumero());
-		command.setTitol(expedient.getTitol());
-		command.setComentari(expedient.getComentari());
-		command.setDataInici(expedient.getDataInici());
-		command.setIniciadorCodi(expedient.getIniciadorCodi());
-		command.setResponsableCodi(expedient.getResponsableCodi());
-		if (expedient.getEstat() != null)
-			command.setEstatId(expedient.getEstat().getId());
-		command.setGeoPosX(expedient.getGeoPosX());
-		command.setGeoPosY(expedient.getGeoPosY());
-		command.setGeoReferencia(expedient.getGeoReferencia());
-		command.setGrupCodi(expedient.getGrupCodi());
-		return command;
-	}
 
 	@RequestMapping(value = "/{expedientId}/modificarInformacio", method = RequestMethod.POST)
-	public String modificar(
-			HttpServletRequest request, 
+	public String modificar(HttpServletRequest request, 
 			@PathVariable Long expedientId, 
 			Model model, 
-			@ModelAttribute("aturarExpedient") ExpedientEditarCommand command, 
-			BindingResult result, 
-			SessionStatus status) {
+			@ModelAttribute("expedientEditarCommand") ExpedientEditarCommand command, 
+			BindingResult result, SessionStatus status) {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findById(expedientId);
-				if (potModificarExpedient(expedient)) {
-					new ExpedientEditarValidator().validate(command, result);
-			        if (!result.hasErrors()) {
-						try {
-							expedientService.editar(
-									entorn.getId(),
-									command.getExpedientId(),
-									command.getNumero(),
-									command.getTitol(),
-									command.getResponsableCodi(),
-									command.getDataInici(),
-									command.getComentari(),
-									command.getEstatId(),
-									command.getGeoPosX(),
-									command.getGeoPosY(),
-									command.getGeoReferencia(),
-									command.getGrupCodi());
-							MissatgesHelper.info(request, getMessage(request, "info.informacio.modificat"));
-						} catch (Exception ex) {
-							Long entornId = entorn.getId();
-							String numeroExpedient = expedient.getIdentificador();
-							logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'han pogut modificar les dades de l'expedient", ex);
-							MissatgesHelper.error(request, getMessage(request, "error.modificar.dades.exp"));
-				        	dadesPaginaEditar(expedient, model);
-				        	return "expedient/editar";
-						}
-			        }
-				} else {
-					MissatgesHelper.info(request, getMessage(request, "error.permisos.modificar.expedient"));
+			if (potModificarExpedient(expedient)) {
+				new ExpedientEditarValidator().validate(command, result);
+				if (!result.hasErrors()) {
+					try {
+						expedientService.editar(entorn.getId(), command.getExpedientId(), command.getNumero(), command.getTitol(), command.getResponsableCodi(), command.getDataInici(), command.getComentari(), command.getEstatId(), command.getGeoPosX(), command.getGeoPosY(), command.getGeoReferencia(), command.getGrupCodi());
+						MissatgesHelper.info(request, getMessage(request, "info.informacio.modificat"));
+					} catch (Exception ex) {
+						Long entornId = entorn.getId();
+						String numeroExpedient = expedient.getIdentificador();
+						logger.error("ENTORNID:" + entornId + " NUMEROEXPEDIENT:" + numeroExpedient + " No s'han pogut modificar les dades de l'expedient", ex);
+						MissatgesHelper.error(request, getMessage(request, "error.modificar.dades.exp"));
+						return "expedient/editar";
+					}
 				}
+			} else {
+				MissatgesHelper.info(request, getMessage(request, "error.permisos.modificar.expedient"));
+			}
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
 		}
-		mostrarInformacioExpedientPerPipella(request, expedientId, model, null, expedientService);
 		return "v3/utils/modalTancar";
 	}
 
@@ -152,8 +139,9 @@ public class ExpedientInformacioController extends BaseExpedientController {
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(ExpedientEditarCommand.class);
 		}
+
 		public void validate(Object target, Errors errors) {
-			ExpedientEditarCommand command = (ExpedientEditarCommand)target;
+			ExpedientEditarCommand command = (ExpedientEditarCommand) target;
 			ExpedientDto expedient = expedientService.findById(command.getExpedientId());
 			if (expedient.getTipus().isTeTitol())
 				ValidationUtils.rejectIfEmpty(errors, "titol", "not.blank");
@@ -163,33 +151,5 @@ public class ExpedientInformacioController extends BaseExpedientController {
 		}
 	}
 
-	private void dadesPaginaEditar(
-			ExpedientDto expedient,
-			Model model) {
-		ExpedientEditarCommand command = (ExpedientEditarCommand)model.asMap().get("command");
-		Long procesInstanceId = Long.valueOf(expedient.getProcessInstanceId());
-		PersonaDto persona = pluginService.findPersonaAmbCodi(command.getResponsableCodi());
-		expedient.setResponsablePersona(persona);
-		model.addAttribute(
-				"expedient",
-				expedient);
-		model.addAttribute(
-				"arbreProcessos",
-				expedientService.getArbreInstanciesProces(procesInstanceId));
-		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(expedient.getProcessInstanceId());
-		model.addAttribute(
-				"instanciaProces",
-				instanciaProces);
-		if (command.getIniciadorCodi() != null)
-			model.addAttribute(
-					"iniciador",
-					pluginService.findPersonaAmbCodi(command.getIniciadorCodi()));
-		if (command.getResponsableCodi() != null)
-			model.addAttribute(
-					"responsable",
-					persona);
-	}
-
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientInformacioController.class);
-
 }

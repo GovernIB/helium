@@ -12,16 +12,16 @@
 </head>
 <body>
 	<form:form action="reassignar" cssClass="form-horizontal form-tasca">
-			<input type="hidden" name="tascaId" value="${tasca.id}"/>
-	
-			<div class="control-group fila_reducida">
-				<label class="control-label" for="expression"><spring:message code='expedient.tasca.expresio_assignacio' /></label>
-				<div class="controls">
-					<input type="text" id="expression" name="expression" class="span11" style="text-align:right" data-required="true" value="${expression}"/>
-				</div>
+		<input type="hidden" name="tascaId" value="${tasca.id}"/>
+
+		<div class="control-group fila_reducida">
+			<label class="control-label" for="expression"><spring:message code='expedient.tasca.expresio_assignacio' /></label>
+			<div class="controls">
+				<input type="text" id="expression" name="expression" class="span11" style="text-align:right" data-required="true" value="${expression}"/>
 			</div>
-			<br/>
-			<p class="aclaracio"><spring:message code='comuns.camps_marcats' /> <i class='icon-asterisk'></i> <spring:message code='comuns.son_oblig' /></p>
+		</div>
+		<br/>
+		<p class="aclaracio"><spring:message code='comuns.camps_marcats' /> <i class='icon-asterisk'></i> <spring:message code='comuns.son_oblig' /></p>
 		
 		<div id="formReasignar">
 			<button type="submit" class="btn btn-primary" id="submit" name="submit" value="submit">

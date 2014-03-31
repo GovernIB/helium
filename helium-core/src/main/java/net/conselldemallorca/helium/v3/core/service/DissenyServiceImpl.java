@@ -10,7 +10,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
@@ -26,17 +25,14 @@ import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
@@ -360,27 +356,18 @@ public class DissenyServiceImpl implements DissenyService {
 		}
 	}
 
-
-
 	@Transactional(readOnly=true)
 	@Override
-	public List<FilaResultat> getResultatConsultaCamp(String taskId, String processInstanceId, Long definicioProcesId, String campCodi, String textInicial, Map<String, Object> valorsAddicionals) {
-		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);
-		Camp camp = null;
-		for (Camp c : definicioProces.getCamps()) {
-			if (c.getCodi().equals(campCodi)) {
-				camp = c;
-				break;
-			}
+	public List<?> getResultatConsultaCamp(String taskId, String processInstanceId, CampDto campDto, String textInicial, Map<String, Object> mapDelsValors) {
+		String taskInstanceId = null;
+		if (taskId != null) {
+			taskInstanceId = String.valueOf(jbpmHelper.getTaskById(taskId).getTask().getId());
 		}
-		JbpmTask task = jbpmHelper.getTaskById(taskId);
-		ExpedientDadaDto expedientDada = variableHelper.getDadaPerInstanciaTasca(String.valueOf(task.getTask().getId()), camp.getCodi());
-		try {
-			List<ParellaCodiValorDto> valores = variableHelper.getTextVariablesSimpleFontExterna(camp, textInicial, valorsAddicionals, String.valueOf(task.getTask().getId()), processInstanceId);
+		Camp camp = campRepository.findById(campDto.getId());
+		try {			
+			return variableHelper.getTextVariablesSimpleFontExterna(camp, textInicial, mapDelsValors, taskInstanceId, processInstanceId);
 		} catch (Exception e) {
 			return null;
 		}
-
-		return null;
 	}
 }

@@ -9,6 +9,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -76,6 +77,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
@@ -121,6 +124,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -446,7 +452,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<ExpedientDto> findPerConsultaInformePaginat(Long entornId, Long consultaId, Long expedientTipusId, Map<String, Object> valorsPerService, String expedientCampId, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
+	@Override
+	public PaginaDto<ExpedientConsultaDissenyDto> findPerConsultaInformePaginat(Long entornId, final Long consultaId, Long expedientTipusId, Map<String, Object> valorsPerService, String expedientCampId, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, final PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "0");
 		
@@ -455,25 +462,24 @@ public class ExpedientServiceImpl implements ExpedientService {
 		if (entornId == null) {
 			logger.debug("No s'ha trobat l'entorn (entornId=" + entornId + ")");
 			throw new EntornNotFoundException();
-		} else {
-			boolean ambPermis = permisosHelper.isGrantedAny(
-					entornId,
-					Entorn.class,
-					new Permission[] {
-						ExtendedPermission.READ,
-						ExtendedPermission.ADMINISTRATION});
-			if (!ambPermis) {
-				logger.debug("No es tenen permisos per accedir a l'entorn (entornId=" + entornId + ")");
-				throw new EntornNotFoundException();
-			}
-		}
-		// Comprova l'accés al tipus d'expedient
+		} 
 		boolean ambPermis = permisosHelper.isGrantedAny(
-				expedientTipusId,
-				ExpedientTipus.class,
+				entornId,
+				Entorn.class,
 				new Permission[] {
 					ExtendedPermission.READ,
 					ExtendedPermission.ADMINISTRATION});
+		if (!ambPermis) {
+			logger.debug("No es tenen permisos per accedir a l'entorn (entornId=" + entornId + ")");
+			throw new EntornNotFoundException();
+		}
+		// Comprova l'accés al tipus d'expedient
+		ambPermis = permisosHelper.isGrantedAny(
+			expedientTipusId,
+			ExpedientTipus.class,
+			new Permission[] {
+				ExtendedPermission.READ,
+				ExtendedPermission.ADMINISTRATION});
 		if (!ambPermis) {
 			logger.debug("No es tenen permisos per accedir a l'expedientTipus (expedientTipusId=" + expedientTipusId + ")");
 			throw new ExpedientTipusNotFoundException();
@@ -495,26 +501,102 @@ public class ExpedientServiceImpl implements ExpedientService {
 					ExtendedPermission.ADMINISTRATION});
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "0");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "1");
-						
-		List<ExpedientConsultaDissenyDto> expedientsConsultaDisseny = findAmbEntornConsultaDisseny(
-				entornId,
-				consultaId,
-				valorsPerService,
-				ExpedientCamps.EXPEDIENT_CAMP_ID,
-				true
+		
+		final List<ExpedientConsultaDissenyDto> expedientsConsultaDisseny = findAmbEntornConsultaDisseny(
+			entornId,
+			consultaId,
+			valorsPerService,
+			paginacioParams
 		);
+		
+		final int numExpedients = findIdsAmbEntornConsultaDisseny(
+			entornId,
+			consultaId,
+			valorsPerService
+		).size();
 		
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "1");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "2");
 		
-		List<ExpedientDto> listaExpedients = new ArrayList<ExpedientDto>();
-		for (ExpedientConsultaDissenyDto expedientConsultaDisseny : expedientsConsultaDisseny) {
-			listaExpedients.add(expedientConsultaDisseny.getExpedient());
-		}
+		Page<ExpedientConsultaDissenyDto> paginaResultats = new Page<ExpedientConsultaDissenyDto>() {
+			
+			@Override
+			public Iterator<ExpedientConsultaDissenyDto> iterator() {
+				return getContent().iterator();
+			}
+			
+			@Override
+			public boolean isLastPage() {
+				return false;
+			}
+			
+			@Override
+			public boolean isFirstPage() {
+				return paginacioParams.getPaginaNum() == 0;
+			}
+			
+			@Override
+			public boolean hasPreviousPage() {
+				return paginacioParams.getPaginaNum() > 0;
+			}
+			
+			@Override
+			public boolean hasNextPage() {
+				return false;
+			}
+			
+			@Override
+			public boolean hasContent() {
+				return !expedientsConsultaDisseny.isEmpty();
+			}
+			
+			@Override
+			public int getTotalPages() {
+				return 0;
+			}
+			
+			@Override
+			public long getTotalElements() {
+				return numExpedients;
+			}
+			
+			@Override
+			public Sort getSort() {
+				List<Order> orders = new ArrayList<Order>();
+				for (OrdreDto or : paginacioParams.getOrdres()) {
+					orders.add(new Order(or.getDireccio().equals(OrdreDireccioDto.ASCENDENT) ? Direction.ASC : Direction.DESC, or.getCamp()));
+				}
+				return new Sort(orders);
+			}
+			
+			@Override
+			public int getSize() {
+				return paginacioParams.getPaginaTamany();
+			}
+			
+			@Override
+			public int getNumberOfElements() {
+				return 0;
+			}
+			
+			@Override
+			public int getNumber() {
+				return 0;
+			}
+			
+			@Override
+			public List<ExpedientConsultaDissenyDto> getContent() {				
+				return expedientsConsultaDisseny;
+			}
+		};
+
+		PaginaDto<ExpedientConsultaDissenyDto> resposta = paginacioHelper.toPaginaDto(
+				paginaResultats,
+				ExpedientConsultaDissenyDto.class);
 		
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "2");
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA INFORME EXPEDIENTS v3", "consulta");
-		return listaExpedients;
+		return resposta;
 	}
 
 	@Transactional(readOnly = true)
@@ -1539,24 +1621,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 		return tasquesPerLogs;
 	}
-	
-	@Transactional
-	@Override
-	public List<ExpedientConsultaDissenyDto> findAmbEntornConsultaDisseny(
-			Long entornId,
-			Long consultaId,
-			Map<String, Object> valors,
-			String sort,
-			boolean asc) {
-		return findAmbEntornConsultaDisseny(
-				entornId,
-				consultaId,
-				valors,
-				sort,
-				asc,
-				0,
-				-1);
-	}
 
 	private void afegirValorsPredefinits(
 			Consulta consulta,
@@ -1610,10 +1674,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			Long entornId,
 			Long consultaId,
 			Map<String, Object> valors,
-			String sort,
-			boolean asc,
-			int firstRow,
-			int maxResults) {
+			PaginacioParamsDto paginacioParams) {
 		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
 		Consulta consulta = consultaHelper.findById(consultaId);		
 		
@@ -1634,6 +1695,30 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 		
 		afegirValorsPredefinits(consulta, valors, campsFiltre);
+		
+		String sort = null;
+		boolean asc = false;
+		int firstRow;
+		int maxResults;
+		if (paginacioParams == null) {
+			sort = ExpedientCamps.EXPEDIENT_CAMP_ID;
+			asc = false;
+			firstRow = 0;
+			maxResults = -1;
+		} else {
+			for (OrdreDto or : paginacioParams.getOrdres()) {
+				asc = or.getDireccio().equals(OrdreDireccioDto.ASCENDENT);
+				if (or.getCamp().contains("dadesExpedient")) {
+					sort = or.getCamp().replace("/", ".").replace("dadesExpedient.", "").replace(".valorMostrar", "");
+				} else {
+					sort = or.getCamp().replace(".", "$");
+				}
+				break;
+			}
+			firstRow = paginacioParams.getPaginaNum()*paginacioParams.getPaginaTamany();
+			maxResults = paginacioParams.getPaginaTamany();
+		}
+		
 		List<Map<String, DadaIndexadaDto>> dadesExpedients = luceneHelper.findAmbDadesExpedientV3(
 				consulta.getEntorn().getCodi(),
 				consulta.getExpedientTipus().getCodi(),
@@ -1660,6 +1745,43 @@ public class ExpedientServiceImpl implements ExpedientService {
 			}
 			dadesExpedient.remove(LuceneHelper.CLAU_EXPEDIENT_ID);
 		}
+		return resposta;
+	}
+
+	@Transactional
+	@Override
+	public List<Long> findIdsPerConsultaInformePaginat(Long entornId,
+			Long consultaId, Long expedientTipusId,
+			Map<String, Object> valorsPerService, String expedientCampId,
+			Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats) {
+		return findIdsAmbEntornConsultaDisseny(
+				entornId,
+				consultaId,
+				valorsPerService);
+	}
+	
+	@Transactional
+	private List<Long> findIdsAmbEntornConsultaDisseny(
+			Long entornId,
+			Long consultaId,
+			Map<String, Object> valors) {
+		Consulta consulta = consultaHelper.findById(consultaId);		
+		
+		List<TascaDadaDto> campsFiltreDto = serviceUtils.findCampsPerCampsConsulta(
+				consulta,
+				TipusConsultaCamp.FILTRE);
+		
+		List<Camp> campsFiltre = new ArrayList<Camp>();
+		for (TascaDadaDto camp : campsFiltreDto) {
+			campsFiltre.add(campRepository.findById(camp.getCampId()));
+		}
+		
+		afegirValorsPredefinits(consulta, valors, campsFiltre);
+		List<Long> resposta = luceneHelper.findNomesIds(
+				consulta.getEntorn().getCodi(),
+				consulta.getExpedientTipus().getCodi(),
+				campsFiltre,
+				valors);
 		return resposta;
 	}
 
@@ -2239,5 +2361,4 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return tascaHelper.findTasquesPendentsPerExpedient(
 				expedient);
 	}
-
 }

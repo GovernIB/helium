@@ -44,17 +44,17 @@ function initSuggest(codi, url, callback, extraParams) {
 var selectDominiParams = new Array();
 var consultaActiva = new Array();
 function initSelect(selectId, valor, url, extraParams, dominiParams) {
-	$.blockUI({
-		message: '<fmt:message key="js.helforms.carreg_dades" />' ,
-		css: {
-        	border: 'none', 
-        	padding: '15px', 
-        	backgroundColor: '#000', 
-        	'-webkit-border-radius': '10px', 
-        	'-moz-border-radius': '10px', 
-        	opacity: .5, 
-        	color: '#fff'}
-	});
+// 	$.blockUI({
+// 		message: '<fmt:message key="js.helforms.carreg_dades" />' ,
+// 		css: {
+//         	border: 'none', 
+//         	padding: '15px', 
+//         	backgroundColor: '#000', 
+//         	'-webkit-border-radius': '10px', 
+//         	'-moz-border-radius': '10px', 
+//         	opacity: .5, 
+//         	color: '#fff'}
+// 	});
 	selectDominiParams[selectId] = dominiParams;
 	consultaActiva.push(selectId);
 	var valorActual = $("select#" + selectId).val();
@@ -66,10 +66,10 @@ function initSelect(selectId, valor, url, extraParams, dominiParams) {
 			    var options = '';
 			    options += '<option value="">&lt;&lt; <fmt:message key="js.helforms.selec_valor" /> &gt;&gt;</option>';
 		        for (var i = 0; i < j.length; i++) {
-		        	if (j[i].valor == valor)
-		        		options += '<option value="' + j[i].valor + '" selected="selected">' + j[i].text + '</option>';
+		        	if (j[i].codi == valor)
+		        		options += '<option value="' + j[i].codi + '" selected="selected">' + j[i].valor + '</option>';
 		        	else
-		        		options += '<option value="' + j[i].valor + '">' + j[i].text + '</option>';
+		        		options += '<option value="' + j[i].codi + '">' + j[i].valor + '</option>';
 		        }
 		        for (i = 0; i < consultaActiva.length; i++) {
 		        	if (consultaActiva[i] == selectId) {
@@ -78,8 +78,8 @@ function initSelect(selectId, valor, url, extraParams, dominiParams) {
 		        	}
 		        }
 		        //if (!$.browser.msie || parseInt(jQuery.browser.version) > 7) {
-			        if (consultaActiva.length == 0)
-			        	$.unblockUI({ message: null });
+// 			        if (consultaActiva.length == 0)
+// 			        	$.unblockUI({ message: null });
 		        //}
 		        $("select#" + selectId).html(options);
 		        if (canvisSelectInicialitzat)

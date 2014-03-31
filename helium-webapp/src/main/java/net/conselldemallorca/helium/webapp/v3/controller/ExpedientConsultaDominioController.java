@@ -3,18 +3,17 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
-import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,6 +23,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * Controlador per fer consultes als dominis de dins d'un expedient
@@ -33,56 +33,42 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @RequestMapping("/v3/domini")
 public class ExpedientConsultaDominioController extends BaseExpedientController {
-
+	@Autowired
+	private TascaService tascaService;
 	@Autowired
 	private DissenyService dissenyService;
 
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/consultaExpedient", method = RequestMethod.GET)
-	public String consultaCamp(
+	@ResponseBody
+	public List<ParellaCodiValorDto> consultaCamp(
 			HttpServletRequest request,
 			@RequestParam(value = "taskId", required = false) String taskId,
 			@RequestParam(value = "processInstanceId", required = false) String processInstanceId,
-			@RequestParam(value = "definicioProcesId", required = true) Long definicioProcesId,
-			@RequestParam(value = "campCodi", required = true) String campCodi,
+			@RequestParam(value = "campId", required = true) Long campId,
 			@RequestParam(value = "q", required = false) String textInicial,
-			@RequestParam(value = "tipus", required = true) String tipus,
 			@RequestParam(value = "valors", required = false) String valors,
 			ModelMap model) {
-		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entorn != null) {
-			try {
-				model.addAttribute(
-						"camp",
-						dissenyService.findCampAmbDefinicioProcesICodiSimple(definicioProcesId, campCodi));
-				@SuppressWarnings("unchecked")
-				List<FilaResultat> resultat = (List<FilaResultat>) dissenyService.getResultatConsultaCamp(
-						taskId,
-						processInstanceId,
-						definicioProcesId,
-						campCodi,
-						textInicial,
-						getMapDelsValors(valors));
-				for (FilaResultat filaResultat: resultat) {
-					for (ParellaCodiValor codiValor: filaResultat.getColumnes()) {
-						if (codiValor.getValor() instanceof String) {
-							String valor = (String)codiValor.getValor();
-							// Per a evitar problemes amb caràcters estranys al codi (EXSANCI)
-							codiValor.setValor(valor.replaceAll("\\p{Cntrl}", "").trim());
-						}
-					}
+		List<ParellaCodiValorDto> resultat = new ArrayList<ParellaCodiValorDto>();
+		CampDto camp = tascaService.findCampTasca(campId);
+		try {
+			resultat  = (List<ParellaCodiValorDto>) dissenyService.getResultatConsultaCamp(
+					taskId,
+					processInstanceId,
+					camp,
+					textInicial,
+					getMapDelsValors(valors));
+			for (ParellaCodiValorDto codiValor: resultat) {
+				if (codiValor.getValor() instanceof String) {
+					String valor = (String)codiValor.getValor();
+					// Per a evitar problemes amb caràcters estranys al codi (EXSANCI)
+					codiValor.setValor(valor.replaceAll("\\p{Cntrl}", "").trim());
 				}
-				model.addAttribute("resultat", resultat);
-			} catch (Exception ex) {
-				logger.error("Error en la consulta de domini pel camp " + campCodi, ex);
 			}
-			if (tipus.equals("select"))
-				return "domini/consultaCampSelect";
-			else
-				return "domini/consultaCampSuggest";
-		} else {
-			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
+		} catch (Exception ex) {
+			logger.error("Error en la consulta de domini pel camp " + campId, ex);
 		}
-		return "v3/expedientInforme";
+		return resultat;
 	}
 
 	private Map<String, Object> getMapDelsValors(String valors) {

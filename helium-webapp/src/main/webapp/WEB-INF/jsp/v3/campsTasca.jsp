@@ -32,7 +32,7 @@
 <c:if test="${dada.campTipus == 'SUGGEST'}">
 	<div class="controls">
 		<c:if test="${!dada.readOnly && !tasca.validada}">	
-			<c:set var="extraParams">campCodi:'${dada.varCodi}',valors:function(){return canvisSelectValorsAddicionals}</c:set>
+			<c:set var="extraParams">taskId:'${tasca.tascaId}',campId:'${dada.campId}',valors:function(){return canvisSelectValorsAddicionals}</c:set>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property">${dada.varCodi}</c:param>
 				<c:param name="required">${dada.required}</c:param>

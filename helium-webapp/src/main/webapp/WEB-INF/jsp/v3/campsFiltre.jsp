@@ -6,7 +6,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <c:set var="codiActual" value="${campActual.varCodi}" scope="request"/>
 <c:set var="valorActual" value="${command[codiActual]}" scope="request"/>
-<c:set var="extraParams">campCodi:'${campActual.varCodi}',valors:function(){return canvisSelectValorsAddicionals}</c:set>
+<c:set var="extraParams">campId:'${campActual.campId}',valors:function(){return canvisSelectValorsAddicionals}</c:set>
 <c:choose>
 	<c:when test="${campActual.campTipus == 'STRING'}">
 		<c:import url="common/formElement.jsp">
@@ -123,8 +123,8 @@
 				</spring:bind>
 				<script type="text/javascript">
 					// <![CDATA[
-					$(function() {$("#${codiActual}0").setMask({mask:'99,999.999.999.999',type:'reverse'});});
-					$(function() {$("#${codiActual}1").setMask({mask:'99,999.999.999.999',type:'reverse'});});
+// 					$(function() {$("#${codiActual}0").setMask({mask:'99,999.999.999.999',type:'reverse'});});
+// 					$(function() {$("#${codiActual}1").setMask({mask:'99,999.999.999.999',type:'reverse'});});
 					// ]]>
 				</script>
 			</c:param>
@@ -166,7 +166,7 @@
 					<c:param name="type" value="select"/>
 					<c:param name="label">${campActual.campEtiqueta}</c:param>
 					<c:param name="selectUrl"><c:url value="/v3/domini/consultaExpedient"/></c:param>
-					<c:param name="selectExtraParams">${extraParams},tipus:'select'</c:param>
+					<c:param name="selectExtraParams">${extraParams}</c:param>
 					<c:param name="onchange">canviSelectTasca(this.id, this.name, '${fn:substringBefore(codiActual, '_')}_');</c:param>
 				</c:import>
 			</c:otherwise>
@@ -179,7 +179,7 @@
 			<c:param name="type" value="suggest"/>
 			<c:param name="label">${campActual.campEtiqueta}</c:param>
 			<c:param name="suggestUrl"><c:url value="/v3/domini/consultaExpedient"/></c:param>
-			<c:param name="suggestExtraParams">${extraParams},tipus:'suggest'</c:param>
+			<c:param name="suggestExtraParams">${extraParams}</c:param>
 			<c:param name="suggestText"><c:if test="${not empty tasca.valorsDomini[codiActual]}">${tasca.valorsDomini[codiActual].valor}</c:if></c:param>
 			<c:param name="multipleSuggestText">multipleSuggestText</c:param>
 		</c:import>

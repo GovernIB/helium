@@ -149,12 +149,6 @@ public class DissenyServiceBean implements DissenyService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<?> getResultatConsultaCamp(String taskId, String processInstanceId, Long definicioProcesId, String campCodi, String textInicial, Map<String, Object> mapDelsValors) {
-		return delegate.getResultatConsultaCamp(taskId, processInstanceId, definicioProcesId, campCodi, textInicial, mapDelsValors);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<AccioDto> findAccionsVisiblesAmbDefinicioProces(Long definicioProcesId) {
 		return delegate.findAccionsVisiblesAmbDefinicioProces(definicioProcesId);
 	}
@@ -169,5 +163,11 @@ public class DissenyServiceBean implements DissenyService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void executarAccio(AccioDto accio, ExpedientDto expedient) {
 		delegate.executarAccio(accio, expedient);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<?> getResultatConsultaCamp(String taskId, String processInstanceId, CampDto camp, String textInicial, Map<String, Object> mapDelsValors) {
+		return delegate.getResultatConsultaCamp(taskId, processInstanceId, camp, textInicial, mapDelsValors);
 	}
 }

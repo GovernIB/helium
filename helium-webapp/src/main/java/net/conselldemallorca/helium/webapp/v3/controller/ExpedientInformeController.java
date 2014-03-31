@@ -7,6 +7,7 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -22,6 +23,7 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -35,12 +37,11 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.mvc.JasperReportsView;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientInformeCommand;
 import net.conselldemallorca.helium.webapp.v3.datatables.DatatablesPagina;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.PaginacioHelper;
@@ -48,6 +49,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
 import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
@@ -65,6 +67,7 @@ import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
@@ -85,9 +88,7 @@ import org.springframework.web.bind.support.SessionStatus;
 @Controller
 @RequestMapping("/v3/informe")
 public class ExpedientInformeController extends BaseExpedientController {
-	private static final String VARIABLE_SESSIO_COMMAND = "consultaCommand";
 	private static final String VARIABLE_SESSIO_COMMAND_VALUES = "consultaCommandValues";
-
 	public static final String VARIABLE_FILTRE_CONSULTA_TIPUS = "filtreConsultaTipus";
 
 	// Variables exportació
@@ -107,71 +108,92 @@ public class ExpedientInformeController extends BaseExpedientController {
 	@Autowired
 	private DissenyService dissenyService;
 	
-	@Autowired
-	private TascaService tascaService;
-
 	@RequestMapping(value = "/{expedientTipusId}", method = RequestMethod.GET)
 	public String get(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
-			@ModelAttribute("commandFiltre") Object filtreCommand,
+			Long consultaId,
+			@ModelAttribute("expedientInformeCommand") Object filtreCommand,
 			BindingResult result,
 			SessionStatus status,
-			ModelMap model) {
+			ModelMap model)  {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		if (filtreCommand == null) {
-			filtreCommand = getFiltreCommand(request, expedientTipusId);
-		}
-		if (filtreCommand instanceof ExpedientInformeCommand) {
-			ExpedientInformeCommand command = (ExpedientInformeCommand) filtreCommand;
-			command.setConsultaRealitzada(command.getConsultaId() != null && !"".equals(command.getConsultaId()));
-			model.addAttribute(filtreCommand);
-		}
-		model.addAttribute("consultes", dissenyService.findConsultesActivesAmbEntornIExpedientTipusOrdenat(entornActual.getId(),expedientTipusId));	
+		model.addAttribute("consultes", dissenyService.findConsultesActivesAmbEntornIExpedientTipusOrdenat(entornActual.getId(),expedientTipusId));
+		model.addAttribute("expedientTipusId", expedientTipusId);
+
 		return "v3/expedientInforme";
 	}
 	
-	private ExpedientInformeCommand getFiltreCommand(
+	private Object getFiltreCommand(
 			HttpServletRequest request,
-			Long expedientTipusId) {
-		ExpedientInformeCommand filtreCommand = SessionHelper.getSessionManager(request).getFiltreInforme(expedientTipusId);
-		if (filtreCommand == null || filtreCommand.getExpedientTipusId().longValue() != expedientTipusId.longValue()) {
-			filtreCommand = new ExpedientInformeCommand();			
-			filtreCommand.setExpedientTipusId(expedientTipusId);
+			Long expedientTipusId,
+			Long consultaId) {
+		Object filtreCommand = SessionHelper.getSessionManager(request).getFiltreInforme(expedientTipusId, consultaId);
+		if (filtreCommand == null && consultaId != null) {
+			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+			campsAddicionals.put("consultaId", consultaId);
+			campsAddicionals.put("expedientTipusId", expedientTipusId);
+			campsAddicionals.put("nomesPendents", false);
+			campsAddicionals.put("nomesAlertes", false);
+			campsAddicionals.put("mostrarAnulats", false);
+			campsAddicionals.put("filtreDesplegat", true);
+			campsAddicionals.put("tramitacioMassivaActivada", true);
+			@SuppressWarnings("rawtypes")
+			Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
+			campsAddicionalsClasses.put("consultaId", Long.class);
+			campsAddicionalsClasses.put("expedientTipusId", Long.class);
+			campsAddicionalsClasses.put("nomesPendents", Boolean.class);
+			campsAddicionalsClasses.put("nomesAlertes", Boolean.class);
+			campsAddicionalsClasses.put("mostrarAnulats", Boolean.class);
+			campsAddicionalsClasses.put("filtreDesplegat", Boolean.class);
+			campsAddicionalsClasses.put("tramitacioMassivaActivada", Boolean.class);
+			
+			List<TascaDadaDto> campsFiltre = expedientService.findConsultaFiltre(consultaId);
+			filtreCommand = TascaFormHelper.getCommandForFiltre(campsFiltre, null, campsAddicionals, campsAddicionalsClasses);
+			
 			SessionHelper.getSessionManager(request).setFiltreInforme(
 					filtreCommand,
-					expedientTipusId);
+					expedientTipusId,
+					consultaId);
 		}
-		filtreCommand.setConsultaRealitzada(filtreCommand.getConsultaId() != null && !"".equals(filtreCommand.getConsultaId()));
 		return filtreCommand;
 	}
 	
-	@ModelAttribute("commandFiltre")
-	public Object populateCommandFiltre(
+	@ModelAttribute("expedientInformeCommand")
+	public Object populateExpedientInformeCommand(
 			HttpServletRequest request, 
 			HttpSession session,
+			Long expedientTipusId,
 			Long consultaId,
-			ModelMap model) {
-		Object command = null;
+			ModelMap model)  {
 		List<TascaDadaDto> campsFiltre = new ArrayList<TascaDadaDto>();
 		List<TascaDadaDto> campsInforme = new ArrayList<TascaDadaDto>();
-		if (consultaId != null) {
+		
+		Object filtreCommand = getFiltreCommand(request, expedientTipusId, consultaId);
+		if (consultaId != null && expedientTipusId != null) {
 			ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
-			model.addAttribute("consulta", consulta);
 			campsFiltre = expedientService.findConsultaFiltre(consultaId);
 			campsInforme = expedientService.findConsultaInforme(consultaId);
-			command = TascaFormHelper.getCommandForFiltre(campsFiltre, null, null, null);
-			session.setAttribute(VARIABLE_SESSIO_COMMAND, command);			
-
+			
 			if (consulta.getExpedientTipus() != null) {
 				List<EstatDto> estats = dissenyService.findEstatByExpedientTipus(consulta.getExpedientTipus().getId());
 				afegirEstatsInicialIFinal(request, estats);
 				model.addAttribute("estats", estats);
 			}
+			model.addAttribute("consulta", consulta);
+			model.addAttribute("consultaId", consulta.getId());
+			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			model.addAttribute("consultes", dissenyService.findConsultesActivesAmbEntornIExpedientTipusOrdenat(entornActual.getId(),expedientTipusId));
+			model.addAttribute("expedientTipusId", expedientTipusId);
+		}
+		
+		if (filtreCommand != null) {
+			model.addAttribute(filtreCommand);
 		}
 		model.addAttribute("campsFiltre", campsFiltre);	
-		model.addAttribute("campsInforme", campsInforme);	
-		return command;
+		model.addAttribute("campsInforme", campsInforme);
+		
+		return filtreCommand;
 	}
 
 	private void afegirEstatsInicialIFinal(HttpServletRequest request, List<EstatDto> estats) {
@@ -191,90 +213,67 @@ public class ExpedientInformeController extends BaseExpedientController {
 	public String post(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
-			@Valid ExpedientInformeCommand filtreCommand,
-			@ModelAttribute("commandFiltre") Object command,
-			BindingResult result,
-			SessionStatus status,
-			ModelMap model) {
-
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		model.addAttribute(filtreCommand);
-		List<ConsultaDto> consultes = dissenyService.findConsultesActivesAmbEntornIExpedientTipusOrdenat(
-				entornActual.getId(),
-				expedientTipusId);
-		model.addAttribute("consultes", consultes);	
-		filtreCommand.setConsultaRealitzada(filtreCommand.getConsultaId() != null && !"".equals(filtreCommand.getConsultaId()));
+			@Valid Object filtreCommand,
+			Long consultaId,
+			BindingResult bindingResult,
+			@RequestParam(value = "accio", required = false) String accio,
+			ModelMap model)  {
 		
-		if (result.hasErrors()) {
-			MissatgesHelper.error(
-					request,
-					"S'han produït errors en la validació dels camps del filtre");	
-		} else {
-			SessionHelper.setAttribute(
-					request,
-					VARIABLE_FILTRE_CONSULTA_TIPUS,
-					filtreCommand);
-		}				
+		Object filtreAnt = SessionHelper.getAttribute(request,VARIABLE_FILTRE_CONSULTA_TIPUS);
+		try {
+			if (!consultaId.equals(PropertyUtils.getSimpleProperty(filtreAnt, "consultaId"))) {
+				populateExpedientInformeCommand(
+						request, 
+						request.getSession(),
+						expedientTipusId,
+						consultaId,
+						model);
+			}
+		} catch (Exception e) {}
+		
+		SessionHelper.setAttribute(
+				request,
+				VARIABLE_FILTRE_CONSULTA_TIPUS,
+				filtreCommand);
+		
 		return "v3/expedientInforme";
 	}
 
-	@RequestMapping(value = "/{expedientTipusId}/datatable", method = RequestMethod.GET)
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/{expedientTipusId}/{consultaId}/datatable", method = RequestMethod.GET)
 	@ResponseBody
-	public  DatatablesPagina<ExpedientDto>  datatable(
+	public  DatatablesPagina<ExpedientConsultaDissenyDto>  datatable(
 			HttpServletRequest request,
+			@PathVariable Long consultaId,
 			@PathVariable Long expedientTipusId,
-			@RequestParam(value = "consultaId", required = true) Long consultaId,
-			@RequestParam(value = "nomesPendents", required = false) Boolean nomesPendents,
-			@RequestParam(value = "nomesAlertes", required = false) Boolean nomesAlertes,
-			@RequestParam(value = "mostrarAnulats", required = false) Boolean mostrarAnulats,
 			HttpSession session,
-			ModelMap model) {
+			ModelMap model) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException  {
 		Map<String, Object> valors = new HashMap<String, Object>();
-		
-		List<ExpedientDto> listaExpedients = new ArrayList<ExpedientDto>();
-		ExpedientInformeCommand filtreCommand = getFiltreCommand(request, expedientTipusId);
+		PaginaDto<ExpedientConsultaDissenyDto> listaExpedients = new PaginaDto<ExpedientConsultaDissenyDto>();
+		Object filtreCommand = getFiltreCommand(request, expedientTipusId, consultaId);
+		List<TascaDadaDto> campsFiltre = new ArrayList<TascaDadaDto>();
+		List<TascaDadaDto> campsInforme = new ArrayList<TascaDadaDto>();
 		if (consultaId != null) {
-			filtreCommand.setConsultaId(consultaId);
-		}
-		filtreCommand.setConsultaRealitzada(false);
-		if (filtreCommand.getConsultaId() != null) {
-			filtreCommand.setConsultaRealitzada(true);
-			
-			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-			List<ConsultaDto> consultes = dissenyService.findConsultesActivesAmbEntornIExpedientTipusOrdenat(
-					entornActual.getId(),
-					expedientTipusId);
-			model.addAttribute("consultes", consultes);	
-			filtreCommand.setConsultaRealitzada(filtreCommand.getConsultaId() != null && !"".equals(filtreCommand.getConsultaId()));
-			
-			Object commandFiltre = session.getAttribute(VARIABLE_SESSIO_COMMAND);
-			
-			List<TascaDadaDto> campsFiltre = expedientService.findConsultaFiltre(filtreCommand.getConsultaId());
-			List<TascaDadaDto> campsInforme = expedientService.findConsultaInforme(filtreCommand.getConsultaId());
-			model.addAttribute("campsFiltre", campsFiltre);
-			model.addAttribute("campsInforme", campsInforme);
+			populateExpedientInformeCommand(request, session, expedientTipusId, consultaId, model);
+			campsFiltre = (List<TascaDadaDto>) model.get("campsFiltre");
+			campsInforme = (List<TascaDadaDto>) model.get("campsInforme");
+			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();			
 
 			valors = TascaFormHelper.getValorsFromCommand(
 					campsFiltre,
-					commandFiltre,
+					filtreCommand,
 					true);
-			Iterator<Entry<String, Object>> it = valors.entrySet().iterator();
-			while (it.hasNext()) {
-				Map.Entry<String, Object> e = it.next();
-				if (request.getParameterMap().containsKey(e.getKey())) {
-					valors.put(e.getKey(), request.getParameter(e.getKey()));
-				}
-			}
 
 			listaExpedients = expedientService.findPerConsultaInformePaginat(
 				entornActual.getId(),
-				filtreCommand.getConsultaId(),
+				consultaId,
 				expedientTipusId,
 				getValorsPerService(campsFiltre, valors),
 				ExpedientCamps.EXPEDIENT_CAMP_ID,
-				nomesPendents,
-				nomesAlertes,
-				mostrarAnulats
+				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesPendents"),
+				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesAlertes"),
+				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarAnulats"),
+				PaginacioHelper.getPaginacioDtoFromDatatable(request)
 			);
 		}
 		
@@ -283,46 +282,40 @@ public class ExpedientInformeController extends BaseExpedientController {
 				VARIABLE_SESSIO_COMMAND_VALUES,
 				valors);
 		
-		if (nomesPendents != null) filtreCommand.setNomesPendents(nomesPendents);
-		if (nomesAlertes != null) filtreCommand.setNomesAlertes(nomesAlertes);
-		if (mostrarAnulats != null) filtreCommand.setMostrarAnulats(mostrarAnulats);
-		
 		SessionHelper.setAttribute(
 				request,
 				VARIABLE_FILTRE_CONSULTA_TIPUS,
 				filtreCommand);
+		
+		model.addAttribute("campsFiltre", campsFiltre);
+		model.addAttribute("campsInforme", campsInforme);
 				
 		return PaginacioHelper.getPaginaPerDatatables(
 				request,
 				listaExpedients);
 	}
 
-	@RequestMapping(value = "/{expedientTipusId}/exportar_excel", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientTipusId}/{consultaId}/exportar_excel", method = RequestMethod.GET)
 	public void exportarExcel(
 			HttpServletRequest request,
 			HttpServletResponse response,
 			@PathVariable Long expedientTipusId,
-			@RequestParam(value = "nomesPendents", required = false) Boolean nomesPendents,
-			@RequestParam(value = "nomesAlertes", required = false) Boolean nomesAlertes,
-			@RequestParam(value = "mostrarAnulats", required = false) Boolean mostrarAnulats,
+			@PathVariable Long consultaId,
 			HttpSession session,
-			ModelMap model) {
+			ModelMap model)  {
 		
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();		
 		if (entornActual != null) {
 			@SuppressWarnings("unchecked")
 			Map<String, Object> valors = (Map<String, Object>) session.getAttribute(VARIABLE_SESSIO_COMMAND_VALUES);
-	
-			ExpedientInformeCommand filtreCommand = getFiltreCommand(request, expedientTipusId);
-			ConsultaDto consulta = dissenyService.findConsulteById(filtreCommand.getConsultaId());			
-			List<TascaDadaDto> campsInforme = expedientService.findConsultaInforme(filtreCommand.getConsultaId());
+			ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
+			List<TascaDadaDto> campsInforme = expedientService.findConsultaInforme(consultaId);
 			
 			List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto = expedientService.findAmbEntornConsultaDisseny(
 					entornActual.getId(),
 					consulta.getId(),
 					valors,
-					ExpedientCamps.EXPEDIENT_CAMP_ID,
-					true);
+					null);
 			
 			exportXLS(request, response, session, consulta, campsInforme, expedientsConsultaDissenyDto);
 		} else {
@@ -330,26 +323,25 @@ public class ExpedientInformeController extends BaseExpedientController {
 		}
 	}
 
-	@RequestMapping(value = "/{expedientTipusId}/mostrar_informe", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientTipusId}/{consultaId}/mostrar_informe", method = RequestMethod.GET)
 	public  String  descargar(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
+			@PathVariable Long consultaId,
 			HttpSession session,
-			ModelMap model) {
+			ModelMap model)  {
 		
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();		
 		if (entornActual != null) {
 			@SuppressWarnings("unchecked")
 			Map<String, Object> valors = (Map<String, Object>) session.getAttribute(VARIABLE_SESSIO_COMMAND_VALUES);
-	
-			ConsultaDto consulta = dissenyService.findConsulteById(getFiltreCommand(request, expedientTipusId).getConsultaId());
+			ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
 						
 			List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto = expedientService.findAmbEntornConsultaDisseny(
 					entornActual.getId(),
 					consulta.getId(),
 					valors,
-					ExpedientCamps.EXPEDIENT_CAMP_ID,
-					true);
+					null);
 			
 			model.addAttribute(
 					JasperReportsView.MODEL_ATTRIBUTE_REPORTDATA,
@@ -487,46 +479,6 @@ public class ExpedientInformeController extends BaseExpedientController {
 		return valorsPerService;
 	}
 
-	@RequestMapping(value = "/seleccionar/{expedientId}", method = RequestMethod.GET)
-	@ResponseBody
-	public Set<Long> seleccionar(
-			HttpServletRequest request,
-			@PathVariable String expedientId) {
-		SessionManager sessionManager = SessionHelper.getSessionManager(request);
-		Set<Long> seleccio = sessionManager.getSeleccioConsultaGeneral();
-		if (seleccio == null) {
-			seleccio = new HashSet<Long>();
-			sessionManager.setSeleccioConsultaGeneral(seleccio);
-		}
-		String[] ids = (expedientId.contains(",")) ? expedientId.split(",") : new String[] {expedientId};
-		for (String id: ids) {
-			try {
-				seleccio.add(Long.parseLong(id));
-			} catch (NumberFormatException ex) {}
-		}
-		return seleccio;
-	}
-	
-	@RequestMapping(value = "/deseleccionar/{expedientId}", method = RequestMethod.GET)
-	@ResponseBody
-	public Set<Long> deseleccionar(
-			HttpServletRequest request,
-			@PathVariable String expedientId) {
-		SessionManager sessionManager = SessionHelper.getSessionManager(request);
-		Set<Long> seleccio = sessionManager.getSeleccioConsultaGeneral();
-		if (seleccio == null) {
-			seleccio = new HashSet<Long>();
-			sessionManager.setSeleccioConsultaGeneral(seleccio);
-		}
-		String[] ids = (expedientId.contains(",")) ? expedientId.split(",") : new String[] {expedientId};
-		for (String id: ids) {
-			try {
-				seleccio.remove(Long.parseLong(id));
-			} catch (NumberFormatException ex) {}
-		}
-		return seleccio;
-	}
-
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 		binder.setAutoGrowNestedPaths(false);
@@ -605,7 +557,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 		dGreyStyle.setDataFormat(format.getFormat("0.00"));
 	
 		// GENERAL
-		HSSFSheet sheet = wb.createSheet(consulta.getNom());
+		HSSFSheet sheet = wb.createSheet("Hoja 1");
 	
 		createHeader(sheet, campsInforme);
 	
@@ -629,6 +581,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 		    			titol = exp.getNumeroDefault();
 				}
 				
+				sheet.autoSizeColumn(colNum);
 				HSSFCell cell = xlsRow.createCell(colNum++);
 				cell.setCellValue(titol);
 				cell.setCellStyle(dStyle);
@@ -636,6 +589,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 				Iterator<Entry<String, DadaIndexadaDto>> it = dades.entrySet().iterator();
 				while (it.hasNext()) {
 					Map.Entry<String, DadaIndexadaDto> e = (Map.Entry<String, DadaIndexadaDto>)it.next();
+					sheet.autoSizeColumn(colNum);
 					cell = xlsRow.createCell(colNum++);
 					DadaIndexadaDto val = e.getValue();
 					cell.setCellValue((val == null || val.getValorMostrar() == null) ? "" : val.getValorMostrar());
@@ -646,12 +600,161 @@ public class ExpedientInformeController extends BaseExpedientController {
 			}
 		}
 		
-		try {   
-			wb.write( response.getOutputStream() );		
-			writeFileToResponse("informe.xls", wb.getBytes(), response);	
+		try {
+			String fileName = "Informe.xls";
+			response.setHeader("Pragma", "");
+			response.setHeader("Expires", "");
+			response.setHeader("Cache-Control", "");
+			response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+			response.setContentType(new MimetypesFileTypeMap().getContentType(fileName));
+			wb.write( response.getOutputStream() );
 		} catch (Exception e) {
 			logger.error("Mesures temporals: No s'ha pogut realitzar la exportació.");
 		}
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/{consultaId}/seleccio", method = RequestMethod.POST)
+	@ResponseBody
+	public Set<Long> seleccio(
+			HttpServletRequest request,
+			@RequestParam(value = "ids", required = false) String ids) {
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		Set<Long> seleccio = sessionManager.getSeleccioConsultaGeneral();
+		if (seleccio == null) {
+			seleccio = new HashSet<Long>();
+			sessionManager.setSeleccioConsultaGeneral(seleccio);
+		}
+		if (ids != null) {
+			String[] idsparts = (ids.contains(",")) ? ids.split(",") : new String[] {ids};
+			for (String id: idsparts) {
+				try {
+					long l = Long.parseLong(id.trim());
+					if (l >= 0) {
+						//System.out.println(">>> SEL afegir " + l);
+						seleccio.add(l);
+					} else {
+						//System.out.println(">>> SEL llevar " + l);
+						seleccio.remove(-l);
+					}
+				} catch (NumberFormatException ex) {}
+			}
+		}
+		return seleccio;
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/{consultaId}/seleccionarTots", method = RequestMethod.POST)
+	@ResponseBody
+	public Set<Long> seleccionarTots(
+			HttpServletRequest request,
+			@PathVariable Long consultaId,
+			@PathVariable Long expedientTipusId,
+			HttpSession session,
+			ModelMap model) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException  {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		Object filtreCommand = getFiltreCommand(request, expedientTipusId, consultaId);
+		
+		populateExpedientInformeCommand(request, session, expedientTipusId, consultaId, model);
+		@SuppressWarnings("unchecked")
+		List<TascaDadaDto> campsFiltre = (List<TascaDadaDto>) model.get("campsFiltre");
+		
+		Map<String, Object> valors = TascaFormHelper.getValorsFromCommand(
+				campsFiltre,
+				filtreCommand,
+				true);
+
+		List<Long> ids = expedientService.findIdsPerConsultaInformePaginat(
+			entornActual.getId(),
+			consultaId,
+			expedientTipusId,
+			getValorsPerService(campsFiltre, valors),
+			ExpedientCamps.EXPEDIENT_CAMP_ID,
+			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesPendents"),
+			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesAlertes"),
+			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarAnulats")
+		);
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		Set<Long> seleccio = sessionManager.getSeleccioConsultaGeneral();
+		if (seleccio == null) {
+			seleccio = new HashSet<Long>();
+			sessionManager.setSeleccioConsultaGeneral(seleccio);
+		}
+		if (ids != null) {
+			for (Long id: ids) {
+				try {
+					if (id >= 0) {
+						seleccio.add(id);
+					} else {
+						seleccio.remove(-id);
+					}
+				} catch (NumberFormatException ex) {}
+			}
+			
+			Iterator<Long> iterador = seleccio.iterator();
+			while( iterador.hasNext() ) {
+				if (!ids.contains(iterador.next())) {
+					iterador.remove();
+				}
+			}
+		}
+		return seleccio;
+	}
+
+	@RequestMapping(value = "/filtre/netejar", method = RequestMethod.GET)
+	public String filtreNetejar(HttpServletRequest request) {
+		SessionHelper.removeAttribute(
+				request,
+				VARIABLE_FILTRE_CONSULTA_TIPUS);
+		return "redirect:../../expedientInforme";
+	}
+
+	@RequestMapping(value = "/{expedientId}/suspend", method = RequestMethod.POST)
+	public String suspend(HttpServletRequest request, 
+			@PathVariable Long expedientId, 
+			@RequestParam(value = "motiu", required = true) String motiu,
+			Model model) {
+		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
+		if (entorn != null) {		
+			ExpedientDto expedient = expedientService.findById(expedientId);
+			if (potModificarExpedient(expedient)) {
+				try {
+					expedientService.anular(entorn.getId(), expedientId, motiu);
+					MissatgesHelper.info(request, getMessage(request, "info.expedient.anulat") );
+				} catch (Exception ex) {
+					MissatgesHelper.error(request, getMessage(request, "error.anular.expedient"));
+		        	logger.error("No s'ha pogut anular el registre", ex);
+				}
+			} else {
+				MissatgesHelper.error(request, getMessage(request, "error.permisos.anular.expedient"));				
+			}
+		} else {
+			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));			
+		}
+		
+		return "redirect:/v3/expedient/" + expedientId;
+	}
+
+	@RequestMapping(value = "/{expedientId}/delete", method = RequestMethod.GET)
+	public String deleteAction(
+			HttpServletRequest request,
+			@PathVariable Long expedientId) {
+		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
+		if (entorn != null) {
+			ExpedientDto expedient = expedientService.findById(expedientId);
+			if (potModificarExpedient(expedient)) {
+				try {
+					expedientService.delete(entorn.getId(), expedientId);
+					MissatgesHelper.info(request, getMessage(request, "info.expedient.esborrat") );
+				} catch (Exception ex) {
+					MissatgesHelper.error(request, getMessage(request, "error.esborrar.expedient") );
+		        	logger.error("No s'ha pogut esborrar el registre", ex);
+				}
+			} else {
+				MissatgesHelper.error(request, getMessage(request, "error.permisos.esborrar.expedient") );
+			}
+		} else {
+			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec") );
+		}
+		return "redirect:/v3/expedient";
 	}
 	
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientInformeController.class);

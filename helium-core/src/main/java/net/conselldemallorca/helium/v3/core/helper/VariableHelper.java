@@ -20,6 +20,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
@@ -535,7 +536,7 @@ public class VariableHelper {
 			} else if (camp.getEnumeracio() != null) {
 				Enumeracio enumeracio = camp.getEnumeracio();
 				for (EnumeracioValors enumValor: enumeracio.getEnumeracioValors()) {
-					if (valor.equals(enumValor.getCodi())) {
+					if (valor == null || valor.equals(enumValor.getCodi())) {
 						resposta.add(new ParellaCodiValorDto(
 								enumValor.getCodi(),
 								enumValor.getNom()));
@@ -550,8 +551,7 @@ public class VariableHelper {
 						consulta.getEntorn().getId(),
 						consulta.getId(),
 						new HashMap<String, Object>(),
-						null,
-						true);
+						null);
 				
 				Iterator<ExpedientConsultaDissenyDto> it = dadesExpedients.iterator();
 				while(it.hasNext()){
@@ -702,9 +702,15 @@ public class VariableHelper {
 		return tascaDto;
 	}
 
-	public TascaDadaDto getTascaDadaDtoParaConsultaDisseny(Camp camp) {
+	public TascaDadaDto getTascaDadaDtoParaConsultaDisseny(Camp camp, TipusConsultaCamp tipus) {
 		TascaDadaDto tascaDto = new TascaDadaDto();
-		tascaDto.setVarCodi(camp.getCodi().toLowerCase());
+		String varCodi;
+		if (TipusConsultaCamp.INFORME.equals(tipus)) {
+			varCodi = camp.getDefinicioProces().getJbpmKey()+"/"+camp.getCodi().toLowerCase();
+		} else {
+			varCodi = camp.getCodi().toLowerCase();
+		}
+		tascaDto.setVarCodi(varCodi);
 		tascaDto.setCampId(camp.getId());
 		tascaDto.setCampTipus(conversioTipusHelper.convertir(camp.getTipus(), CampTipusDto.class));
 		tascaDto.setCampEtiqueta(camp.getEtiqueta());

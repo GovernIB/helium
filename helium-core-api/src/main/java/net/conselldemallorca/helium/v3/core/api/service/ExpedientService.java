@@ -6,7 +6,6 @@ package net.conselldemallorca.helium.v3.core.api.service;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
@@ -238,15 +237,13 @@ public interface ExpedientService {
 
 	public List<Object> findLogIdTasquesById(List<ExpedientTascaDto> tasques);
 
-	public List<ExpedientConsultaDissenyDto> findAmbEntornConsultaDisseny(Long entornId, Long consultaId, Map<String, Object> valors, String sort, boolean asc, int firstRow, int maxResults);
-
-	public List<ExpedientConsultaDissenyDto> findAmbEntornConsultaDisseny(Long entornId, Long consultaId, Map<String, Object> valors, String sort, boolean asc);
+	public List<ExpedientConsultaDissenyDto> findAmbEntornConsultaDisseny(Long entornId, Long consultaId, Map<String, Object> valors, PaginacioParamsDto paginacioParams);
 	
 	public List<TascaDadaDto> findConsultaFiltre(Long consultaId);
 
 	public List<TascaDadaDto> findConsultaInforme(Long consultaId);
 
-	public List<ExpedientDto> findPerConsultaInformePaginat(Long id, Long consultaId, Long expedientTipusId, Map<String, Object> valorsPerService, String expedientCampId, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats);
+	public PaginaDto<ExpedientConsultaDissenyDto> findPerConsultaInformePaginat(Long id, Long consultaId, Long expedientTipusId, Map<String, Object> valorsPerService, String expedientCampId, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, PaginacioParamsDto paginacioParamsDto);
 
 	public List<ExpedientDadaDto> findDadesPerProcessInstance(String processInstanceId);
 
@@ -259,4 +256,6 @@ public interface ExpedientService {
 			boolean nomesAmbTasquesActives, boolean nomesAlertes,
 			boolean mostrarAnulats) throws EntornNotFoundException,
 			ExpedientTipusNotFoundException, EstatNotFoundException;
+
+	public List<Long> findIdsPerConsultaInformePaginat(Long id, Long consultaId, Long expedientTipusId, Map<String, Object> valorsPerService, String expedientCampId, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats);
 }

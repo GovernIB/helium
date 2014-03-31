@@ -83,6 +83,8 @@ public class DadaIndexadaDto {
 		this.valorIndex = valorIndex;
 	}
 	public String getValorMostrar() {
+		if (isMultiple())
+			return getValorMostrarMultipleComText();
 		return valorMostrar;
 	}
 	public void setValorMostrar(String valorMostrar) {
