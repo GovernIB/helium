@@ -187,13 +187,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
 		boolean agafada = false;
 		try {
-			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), null, null, false);
-			for (TascaLlistatDto tasca: tasques) {
-				if (tasca.getId().equals(tascaId)) {
-					tascaService.agafar(e.getId(), tascaId);
-					agafada = true;
-					break;
-				}
+			if (tascaService.isTasquesGrupTramitacio(e.getId(), tascaId, null)) {
+				tascaService.agafar(e.getId(), tascaId);
+				agafada = true;
 			}
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut agafar la tasca", ex);

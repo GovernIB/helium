@@ -426,6 +426,31 @@ public class TascaService {
 		return countTasquesGrupEntorn(entornId, null);
 	}
 	
+	public boolean isTasquesGrupTramitacio(Long entornId, String tascaId, String usuari) {
+		boolean res = false;
+		mesuresTemporalsHelper.mesuraIniciar("is tasques grup", "consulta");
+		if (usuari == null) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			usuari = auth.getName();
+		}		
+		List<Long> idsExpedients = expedientDao.findListExpedients(entornId,usuari);
+		LlistatIds llistatIds = jbpmDao.findListIdsGroupTasks(usuari,idsExpedients);
+		if (llistatIds.getIds().contains(Long.valueOf(tascaId))) {
+			res = true;
+		} else {
+			List<Long> lista = jbpmDao.findIdsRootProcessInstanceGroupTasks(llistatIds.getIds(), usuari);
+			for (Long pid : lista) {
+				Expedient expedient = expedientDao.findAmbProcessInstanceId(String.valueOf(pid));
+				if (expedient != null && idsExpedients.contains(expedient.getId())) {
+					res = true;
+					break;
+				}
+			}
+		}
+		mesuresTemporalsHelper.mesuraCalcular("is tasques grup", "consulta");
+		return res;
+	}
+	
 	public List<TascaLlistatDto> findTasquesGrupTramitacio(
 			Long entornId,
 			String usuari,
@@ -2115,5 +2140,4 @@ public class TascaService {
 	}
 
 	private static final Log logger = LogFactory.getLog(TascaService.class);
-
 }

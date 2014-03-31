@@ -475,6 +475,15 @@ public class JbpmDao {
 	}
 
 	@SuppressWarnings("unchecked")
+	public List<Long> findIdsRootProcessInstanceGroupTasks(List<Long> ids, String usuariBo) {
+		mesuresTemporalsHelper.mesuraIniciar("jBPM findIdsRootProcessInstanceGroupTasks ids", "jbpmDao");
+		GetGroupTaskListCommand command = new GetGroupTaskListCommand(usuariBo, ids, true);
+		List<Long> res = (List<Long>) commandService.execute(command);
+		mesuresTemporalsHelper.mesuraCalcular("jBPM findIdsRootProcessInstanceGroupTasks ids", "jbpmDao");
+		return res;
+	}
+
+	@SuppressWarnings("unchecked")
 	public List<JbpmTask> findGroupTasks(List<Long> ids, String usuariBo) {
 		mesuresTemporalsHelper.mesuraIniciar("jBPM findGroupTasks ids", "jbpmDao");
 		List<JbpmTask> resultat = new ArrayList<JbpmTask>();

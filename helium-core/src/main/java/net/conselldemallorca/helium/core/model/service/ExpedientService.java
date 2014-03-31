@@ -1982,7 +1982,7 @@ public class ExpedientService {
 			dto.setId(log.getId());
 			dto.setData(log.getData());
 			dto.setUsuari(log.getUsuari());
-			dto.setEstat(log.getEstat().name());
+			dto.setEstat(token == null ? ExpedientLogEstat.IGNORAR.name() : log.getEstat().name());
 			dto.setAccioTipus(log.getAccioTipus().name());
 			dto.setAccioParams(log.getAccioParams());
 			dto.setTargetId(log.getTargetId());
@@ -2040,7 +2040,7 @@ public class ExpedientService {
 				dto.setId(log.getId());
 				dto.setData(log.getData());
 				dto.setUsuari(log.getUsuari());
-				dto.setEstat(log.getEstat().name());
+				dto.setEstat(token == null ? ExpedientLogEstat.IGNORAR.name() : log.getEstat().name());
 				dto.setAccioTipus(log.getAccioTipus().name());
 				dto.setAccioParams(log.getAccioParams());
 				dto.setTargetId(log.getTargetId());
