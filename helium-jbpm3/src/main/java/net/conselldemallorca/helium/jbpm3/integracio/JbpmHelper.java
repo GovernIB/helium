@@ -1325,7 +1325,15 @@ public class JbpmHelper {
 		adminService.mesuraCalcular("jBPM findPersonalTasks ids", "jbpmDao");
 		return resultat;
 	}
-	
+
+	@SuppressWarnings("unchecked")
+	public List<Long> findIdsRootProcessInstanceGroupTasks(List<Long> ids, String usuariBo) {
+		adminService.mesuraIniciar("jBPM findIdsRootProcessInstanceGroupTasks ids", "jbpmDao");
+		GetGroupTaskListCommand command = new GetGroupTaskListCommand(usuariBo, ids, true);
+		List<Long> res = (List<Long>) commandService.execute(command);
+		adminService.mesuraCalcular("jBPM findIdsRootProcessInstanceGroupTasks ids", "jbpmDao");
+		return res;
+	}	
 	
 	@SuppressWarnings("unchecked")
 	public List<JbpmTask> findGroupTasks(List<Long> ids, String usuariBo) {

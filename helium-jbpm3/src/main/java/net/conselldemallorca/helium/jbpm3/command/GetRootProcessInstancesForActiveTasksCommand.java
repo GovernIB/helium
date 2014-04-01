@@ -66,6 +66,7 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		this.actorId = actorId;
 		this.idsPIExpedients = idsPIExpedients;
 		this.pooled = pooled;
+		this.mostrarTasquesPersonals = !pooled;
 	}
 
 	public GetRootProcessInstancesForActiveTasksCommand(String actorId, String tasca, List<Long> idsPIExpedients, Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi, String sort, boolean asc, Boolean pooled) {

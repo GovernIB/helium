@@ -175,13 +175,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
-			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), usuari, null, false);
-			for (TascaLlistatDto tasca: tasques) {
-				if (tasca.getId().equals(tascaId)) {
-					tascaService.agafar(e.getId(), usuari, tascaId);
-					agafada = true;
-					break;
-				}
+			if (tascaService.isTasquesGrupTramitacio(e.getId(), tascaId, usuari)) {
+				tascaService.agafar(e.getId(), usuari, tascaId);
+				agafada = true;
 			}
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut agafar la tasca", ex);

@@ -298,7 +298,7 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			hql += " and ex.anulat = true ";
 		}
 		if (grupsUsuari != null && grupsUsuari.length > 0) {
-			hql += " and (ex.tipus.restringirPerGrup = false or ex.grupCodi in (" + grupsUsuari + "))";
+			hql += " and (ex.tipus.restringirPerGrup = false or ex.grupCodi in (:grupsUsuari))";
 		} else {
 			hql += " and ex.tipus.restringirPerGrup = false ";
 		}
@@ -336,6 +336,9 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 		Query query = getSession().createQuery(hql);
 		if (expedientTipusIdPermesos != null && expedientTipusIdPermesos.length > 0) {
 			query.setParameterList("expedientTipusIdPermesos", expedientTipusIdPermesos);
+		}
+		if (grupsUsuari != null && grupsUsuari.length > 0) {
+			query.setParameterList("grupsUsuari", grupsUsuari);
 		}
 		if (dataInici1 != null) {
 			query.setParameter("dataInici1", dataInici1);

@@ -21,6 +21,7 @@ public class GetGroupTaskListCommand extends AbstractGetObjectBaseCommand {
 
 	private List<Long> ids;
 	private String actorId;
+	private boolean getProcessInstanceIds = false;
 	
 	public GetGroupTaskListCommand() {}
 
@@ -28,6 +29,13 @@ public class GetGroupTaskListCommand extends AbstractGetObjectBaseCommand {
 		super();
 		this.actorId = actorId;
 		this.ids = ids;
+	}
+
+	public GetGroupTaskListCommand(String actorId, List<Long> ids, boolean getProcessInstanceIds) {
+		super();
+		this.actorId = actorId;
+		this.ids = ids;
+		this.getProcessInstanceIds = true;
 	}
 
 	public GetGroupTaskListCommand(String actorId) {
@@ -45,13 +53,19 @@ public class GetGroupTaskListCommand extends AbstractGetObjectBaseCommand {
 			if (ids.isEmpty()) {
 				return result;
 			}
-			String hql = 
-					   "select ti "+
-						       " 	from org.jbpm.taskmgmt.exe.TaskInstance as ti "+
-						       " 	where  " +
-						       "	ti.isSuspended != true "+
-						       " 	and ti.isOpen = true" +
-						       "	and ti.id in (:ids)";			
+			String hql = null;
+			if (getProcessInstanceIds) {
+				hql = "select ti.processInstance.id ";			
+			} else {
+				hql = "select ti ";
+			}
+			hql += 
+			   " 	from org.jbpm.taskmgmt.exe.TaskInstance as ti "+
+		       " 	where  " +
+		       "	ti.isSuspended != true "+
+		       " 	and ti.isOpen = true" +
+		       "	and ti.id in (:ids)";
+			
 			Query query = jbpmContext.getSession().createQuery(hql);
 			query = translateIn(ids, query, "ids", "ti.id");		
 			
