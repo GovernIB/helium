@@ -6,11 +6,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Vector;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
 
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 
@@ -36,12 +32,17 @@ import es.caib.regweb.logic.interfaces.ValoresFacadeHome;
  * @author Limit Tecnologies <limit@limit.es>
  */
 
-public class RegistrePluginRegwebLogic implements RegistrePlugin {
+public class RegistrePluginRegwebLogicNew implements RegistrePlugin {
 
 	private static final String SEPARADOR_ENTITAT = "-";
 	private static final String SEPARADOR_NUMERO = "/";
 
-	@SuppressWarnings("unchecked")
+	private EjbUtil ejbUtil;
+
+	public RegistrePluginRegwebLogicNew() {
+		ejbUtil = new EjbUtil();
+	}
+
 	public RespostaAnotacioRegistre registrarEntrada(
 			RegistreEntrada registreEntrada) throws RegistrePluginException {
 		try {
@@ -49,7 +50,7 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 			params.fijaUsuario(getUsuariRegistre());
 			Date ara = new Date();
 			params.setdataentrada(new SimpleDateFormat("dd/MM/yyyy").format(ara));
-			params.sethora(new SimpleDateFormat("HH:mm").format(ara));
+			params.sethora(new SimpleDateFormat(getTimeFormat()).format(ara));
 			if (registreEntrada.getDadesOficina() != null) {
 				String oficinaCodi = registreEntrada.getDadesOficina().getOficinaCodi();
 				if (oficinaCodi != null) {
@@ -115,32 +116,18 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 			} else {
 				throw new RegistrePluginException("S'ha d'especificar algun document per registrar");
 			}
-			//imprimirDadesRegistreEntrada(registreEntrada, params);
-			RegistroEntradaFacade registroEntrada = getRegistreEntradaService();
-			ParametrosRegistroEntrada respostaValidacio = registroEntrada.validar(params);
-			if (respostaValidacio.getValidado()) {
-				ParametrosRegistroEntrada respostaGrabacio = registroEntrada.grabar(params);
-				RespostaAnotacioRegistre resposta = new RespostaAnotacioRegistre();
-				if (respostaGrabacio.getGrabado()) {
-					resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_OK);
-					resposta.setNumero(
-							respostaGrabacio.getNumeroEntrada() +
-							SEPARADOR_NUMERO +
-							respostaGrabacio.getAnoEntrada());
-					resposta.setData(ara);
-					return resposta;
-				} else {
-					throw new RegistrePluginException("No s'ha pogut guardar l'entrada");
-				}
+			ExecValidarGrabarEntradaThread execThread = new ExecValidarGrabarEntradaThread(
+					ara,
+					params);
+			execThread.start();
+			execThread.join();
+			if (execThread.getException() != null) {
+				throw execThread.getException();
 			} else {
-				StringBuilder sb = new StringBuilder();
-				sb.append("Errors de validació:\n");
-				Map<String, String> errors = respostaValidacio.getErrores();
-				for (String camp: errors.keySet()) {
-					sb.append(" | " + errors.get(camp));
-				}
-				throw new RegistrePluginException("S'han produit errors de validació de l'entrada: " + sb.toString());
+				return execThread.getReturned();
 			}
+		} catch (RegistrePluginException rpex) {
+			throw rpex;
 		} catch (Exception ex) {
 			logger.error("Error al registrar l'entrada", ex);
 			throw new RegistrePluginException("Error al registrar l'entrada", ex);
@@ -160,11 +147,19 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 				throw new RegistrePluginException("El número de registre a consultar (" + registreNumero + ") no té el format correcte");
 			params.setNumeroEntrada(registreNumero.substring(0, index));
 			params.setAnoEntrada(registreNumero.substring(index + 1));
-			RegistroEntradaFacade registroEntrada = getRegistreEntradaService();
-			ParametrosRegistroEntrada llegit = registroEntrada.leer(params);
+			ExecLeerEntradaThread execThread = new ExecLeerEntradaThread(
+					params);
+			execThread.start();
+			execThread.join();
+			ParametrosRegistroEntrada llegit = null;
+			if (execThread.getException() != null) {
+				throw execThread.getException();
+			} else {
+				llegit = execThread.getReturned();
+			}
 			RespostaConsulta resposta = new RespostaConsulta();
 			resposta.setRegistreNumero(registreNumero);
-			resposta.setRegistreData(new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(llegit.getDataEntrada() + " " + llegit.getHora()));
+			resposta.setRegistreData(new SimpleDateFormat("dd/MM/yyyy " + getTimeFormat()).parse(llegit.getDataEntrada() + " " + llegit.getHora()));
 			DadesOficina dadesOficina = new DadesOficina();
 			dadesOficina.setOrganCodi(llegit.getDestinatari());
 			dadesOficina.setOficinaCodi(llegit.getOficina() + SEPARADOR_ENTITAT + llegit.getOficinafisica());
@@ -190,13 +185,14 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 			documents.add(document);
 			resposta.setDocuments(documents);
 			return resposta;
+		} catch (RegistrePluginException rpex) {
+			throw rpex;
 		} catch (Exception ex) {
 			logger.error("Error al consultar l'entrada", ex);
 			throw new RegistrePluginException("Error al consultar l'entrada", ex);
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public RespostaAnotacioRegistre registrarSortida(
 			RegistreSortida registreSortida) throws RegistrePluginException {
 		try {
@@ -204,7 +200,7 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 			params.fijaUsuario(getUsuariRegistre());
 			Date ara = new Date();
 			params.setdatasalida(new SimpleDateFormat("dd/MM/yyyy").format(ara));
-			params.sethora(new SimpleDateFormat("HH:mm").format(ara));
+			params.sethora(new SimpleDateFormat(getTimeFormat()).format(ara));
 			if (registreSortida.getDadesOficina() != null) {
 				String oficinaCodi = registreSortida.getDadesOficina().getOficinaCodi();
 				if (oficinaCodi != null) {
@@ -269,32 +265,18 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 			} else {
 				throw new RegistrePluginException("S'ha d'especificar algun document per registrar");
 			}
-			//imprimirDadesRegistreSortida(registreSortida, params);
-			RegistroSalidaFacade registroSalida = getRegistreSortidaService();
-			ParametrosRegistroSalida respostaValidacio = registroSalida.validar(params);
-			if (respostaValidacio.getValidado()) {
-				ParametrosRegistroSalida respostaGrabacio = registroSalida.grabar(params);
-				RespostaAnotacioRegistre resposta = new RespostaAnotacioRegistre();
-				if (respostaGrabacio.getGrabado()) {
-					resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_OK);
-					resposta.setNumero(
-							respostaGrabacio.getNumeroSalida() +
-							SEPARADOR_NUMERO +
-							respostaGrabacio.getAnoSalida());
-					resposta.setData(ara);
-					return resposta;
-				} else {
-					throw new RegistrePluginException("No s'ha pogut guardar la sortida");
-				}
+			ExecValidarGrabarSortidaThread execThread = new ExecValidarGrabarSortidaThread(
+					ara,
+					params);
+			execThread.start();
+			execThread.join();
+			if (execThread.getException() != null) {
+				throw execThread.getException();
 			} else {
-				StringBuilder sb = new StringBuilder();
-				sb.append("Errors de validació:\n");
-				Map<String, String> errors = respostaValidacio.getErrores();
-				for (String camp: errors.keySet()) {
-					sb.append(" | " + errors.get(camp));
-				}
-				throw new RegistrePluginException("S'han produit errors de validació de l'entrada: " + sb.toString());
+				return execThread.getReturned();
 			}
+		} catch (RegistrePluginException rpex) {
+			throw rpex;
 		} catch (Exception ex) {
 			logger.error("Error al registrar la sortida", ex);
 			throw new RegistrePluginException("Error al registrar la sortida", ex);
@@ -315,11 +297,19 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 				throw new RegistrePluginException("El número de registre a consultar (" + registreNumero + ") no té el format correcte");
 			params.setNumeroSalida(registreNumero.substring(0, index));
 			params.setAnoSalida(registreNumero.substring(index + 1));
-			RegistroSalidaFacade registroSalida = getRegistreSortidaService();
-			ParametrosRegistroSalida llegit = registroSalida.leer(params);
+			ExecLeerSalidaThread execThread = new ExecLeerSalidaThread(
+					params);
+			execThread.start();
+			execThread.join();
+			ParametrosRegistroSalida llegit = null;
+			if (execThread.getException() != null) {
+				throw execThread.getException();
+			} else {
+				llegit = execThread.getReturned();
+			}
 			RespostaConsulta resposta = new RespostaConsulta();
 			resposta.setRegistreNumero(registreNumero);
-			resposta.setRegistreData(new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(llegit.getDataSalida() + " " + llegit.getHora()));
+			resposta.setRegistreData(new SimpleDateFormat("dd/MM/yyyy " + getTimeFormat()).parse(llegit.getDataSalida() + " " + llegit.getHora()));
 			DadesOficina dadesOficina = new DadesOficina();
 			dadesOficina.setOrganCodi(llegit.getRemitent());
 			dadesOficina.setOficinaCodi(llegit.getOficina() + SEPARADOR_ENTITAT + llegit.getOficinafisica());
@@ -346,6 +336,8 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 			documents.add(document);
 			resposta.setDocuments(documents);
 			return resposta;
+		} catch (RegistrePluginException rpex) {
+			throw rpex;
 		} catch (Exception ex) {
 			logger.error("Error al consultar la sortida", ex);
 			throw new RegistrePluginException("Error al consultar la sortida", ex);
@@ -364,10 +356,19 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 	@SuppressWarnings({"rawtypes", "unused"})
 	public String obtenirNomOficina(String oficinaCodi) throws RegistrePluginException {
 		try {
+			String nomObtingut = null;
 			if (oficinaCodi != null) {
 				int indexBarra = oficinaCodi.indexOf(SEPARADOR_ENTITAT);
 				if (indexBarra != -1) {
-					Vector v = getValoresService().buscarOficinasFisicasDescripcion("tots", "totes");
+					ExecBuscarOficinas execThread = new ExecBuscarOficinas();
+					execThread.start();
+					execThread.join();
+					Vector v = null;
+					if (execThread.getException() != null) {
+						throw execThread.getException();
+					} else {
+						v = execThread.getReturned();
+					}
 					Iterator it = v.iterator();
 					while (it.hasNext()) {
 						String codiOficina = (String)it.next();
@@ -375,12 +376,16 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 						String nomOficinaFisica = (String)it.next();
 						String nomOficina = (String)it.next();
 						String textComparacio = codiOficina + SEPARADOR_ENTITAT + codiOficinaFisica;
-						if (textComparacio.equals(oficinaCodi))
-							return nomOficina;
+						if (textComparacio.equals(oficinaCodi)) {
+							nomObtingut = nomOficina;
+							break;
+						}
 					}
 				}
 			}
-			return null;
+			return nomObtingut;
+		} catch (RegistrePluginException rpex) {
+			throw rpex;
 		} catch (Exception ex) {
 			logger.error("Error al obtenir el nom de l'oficina " + oficinaCodi, ex);
 			throw new RegistrePluginException("Error al obtenir el nom de l'oficina " + oficinaCodi, ex);
@@ -390,81 +395,60 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 
 
 	private RegistroEntradaFacade getRegistreEntradaService() throws Exception {
-		Context ctx = getInitialContext();
-		Object objRef = ctx.lookup("es.caib.regweb.logic.RegistroEntradaFacade");
-		RegistroEntradaFacadeHome home = (RegistroEntradaFacadeHome)javax.rmi.PortableRemoteObject.narrow(
-				objRef,
+		RegistroEntradaFacadeHome home = (RegistroEntradaFacadeHome)lookupHome(
+				"es.caib.regweb.logic.RegistroEntradaFacade",
 				RegistroEntradaFacadeHome.class);
-		ctx.close();
-		//if (false)
-		//	newLogin();
 		return home.create();
 	}
 	private RegistroSalidaFacade getRegistreSortidaService() throws Exception {
-		Context ctx = getInitialContext();
-		Object objRef = ctx.lookup("es.caib.regweb.logic.RegistroSalidaFacade");
-		RegistroSalidaFacadeHome home = (RegistroSalidaFacadeHome)javax.rmi.PortableRemoteObject.narrow(
-				objRef,
+		RegistroSalidaFacadeHome home = (RegistroSalidaFacadeHome)lookupHome(
+				"es.caib.regweb.logic.RegistroSalidaFacade",
 				RegistroSalidaFacadeHome.class);
-		ctx.close();
-		//if (false)
-		//	newLogin();
 		return home.create();
 	}
 	private ValoresFacade getValoresService() throws Exception {
-		Context ctx = getInitialContext();
-		Object objRef = ctx.lookup("es.caib.regweb.logic.ValoresFacade");
-		ValoresFacadeHome home = (ValoresFacadeHome)javax.rmi.PortableRemoteObject.narrow(
-				objRef,
+		ValoresFacadeHome home = (ValoresFacadeHome)lookupHome(
+				"es.caib.regweb.logic.ValoresFacade",
 				ValoresFacadeHome.class);
-		ctx.close();
-		//if (false)
-		//	newLogin();
 		return home.create();
 	}
 
-	private Context getInitialContext() throws Exception {
-		Properties props = new Properties();
-		props.put(
-				Context.INITIAL_CONTEXT_FACTORY,
-				GlobalProperties.getInstance().getProperty("app.registre.plugin.initial.context.factory"));
-		props.put(
-				Context.URL_PKG_PREFIXES,
-				GlobalProperties.getInstance().getProperty("app.registre.plugin.url.pkg.prefixes"));
-		props.put(
-				Context.PROVIDER_URL,
-				GlobalProperties.getInstance().getProperty("app.registre.plugin.provider.url"));
-		//if (true) {
-		String principal = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal");
-		if (principal != null && principal.length() > 0)
-			props.put(
-					Context.SECURITY_PRINCIPAL,
-					principal);
-		String credentials = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.credentials");
-		if (credentials != null && credentials.length() > 0)
-			props.put(
-					Context.SECURITY_CREDENTIALS,
-					credentials);
-		//}
-		return new InitialContext(props);
+	public String getTimeFormat() {
+	  String format = GlobalProperties.getInstance().getProperty("app.registre.plugin.format.time");
+	  if (format == null) {
+	    return "HH:mm";
+	  } else {
+	    return format;
+	  }
 	}
-	/*private void newLogin() throws Exception {
+	
+
+
+	private Object lookupHome(
+			String jndi,
+			Class<?> narrowTo) throws Exception {
 		String principal = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal");
-		String credentials = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.credentials");
-		org.jboss.security.auth.callback.UsernamePasswordHandler handler = new org.jboss.security.auth.callback.UsernamePasswordHandler(
-				principal,
-				credentials.toCharArray());
-		javax.security.auth.login.LoginContext lc = new javax.security.auth.login.LoginContext("client-login", handler);
-		lc.login();
-	}*/
+		if (principal != null && principal.length() != 0) {
+			String credentials = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.credentials");
+			return ejbUtil.lookupHome(
+					jndi,
+					false,
+					GlobalProperties.getInstance().getProperty("app.registre.plugin.provider.url"),
+					narrowTo,
+					principal,
+					credentials);
+		} else {
+			return ejbUtil.lookupHome(
+					jndi,
+					false,
+					GlobalProperties.getInstance().getProperty("app.registre.plugin.provider.url"),
+					narrowTo);
+		}
+	}
 
 	private String getUsuariRegistre() {
-		String usuari = GlobalProperties.getInstance().getProperty("app.registre.plugin.security.principal");
-		if (usuari == null || usuari.length() == 0) {
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			usuari = auth.getName();
-		}
-		return usuari;
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		return auth.getName();
 	}
 
 	private String convertirIdioma(String iso6391) {
@@ -492,118 +476,174 @@ public class RegistrePluginRegwebLogic implements RegistrePlugin {
 		return "2";
 	}
 
-	/*private void imprimirDadesRegistreEntrada(
-			RegistreEntrada registreEntrada,
-			ParametrosRegistroEntrada params) {
-		System.out.println(">>>[REG SORTIDA]>>> usuario: " + params.getUsuario());
-		System.out.println(">>>[REG SORTIDA]>>> datasalida: " + params.getDataEntrada());
-		System.out.println(">>>[REG SORTIDA]>>> hora: " + params.getHora());
-		if (registreEntrada.getDadesOficina() != null) {
-			String oficinaCodi = registreEntrada.getDadesOficina().getOficinaCodi();
-			if (oficinaCodi != null) {
-				int indexBarra = oficinaCodi.indexOf(SEPARADOR_ENTITAT);
-				if (indexBarra != -1) {
-					System.out.println(">>>[REG SORTIDA]>>> oficina: " + params.getOficina());
-					System.out.println(">>>[REG SORTIDA]>>> oficinafisica: " + params.getOficinafisica());
+	private class ExecValidarGrabarEntradaThread extends Thread {
+		private Date ara;
+		private ParametrosRegistroEntrada params;
+		private RespostaAnotacioRegistre returned;
+		private Exception exception;
+		public ExecValidarGrabarEntradaThread(
+				Date ara,
+				ParametrosRegistroEntrada params) {
+			this.ara = ara;
+			this.params = params;
+		}
+		public void run() {
+			try {
+				RegistroEntradaFacade registroEntrada = getRegistreEntradaService();
+				ParametrosRegistroEntrada respostaValidacio = registroEntrada.validar(params);
+				if (respostaValidacio.getValidado()) {
+					ParametrosRegistroEntrada respostaGrabacio = registroEntrada.grabar(params);
+					RespostaAnotacioRegistre resposta = new RespostaAnotacioRegistre();
+					if (respostaGrabacio.getGrabado()) {
+						resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_OK);
+						resposta.setNumero(
+								respostaGrabacio.getNumeroEntrada() +
+								SEPARADOR_NUMERO +
+								respostaGrabacio.getAnoEntrada());
+						resposta.setData(ara);
+						returned = resposta;
+					} else {
+						throw new RegistrePluginException("No s'ha pogut guardar l'entrada");
+					}
+				} else {
+					StringBuilder sb = new StringBuilder();
+					sb.append("Errors de validació:\n");
+					@SuppressWarnings("unchecked")
+					Map<String, String> errors = respostaValidacio.getErrores();
+					for (String camp: errors.keySet()) {
+						sb.append(" | " + errors.get(camp));
+					}
+					exception = new RegistrePluginException("S'han produit errors de validació de l'entrada: " + sb.toString());
 				}
+			} catch (Exception ex) {
+				exception = ex;
 			}
-			if (registreEntrada.getDadesOficina().getOrganCodi() != null)
-				System.out.println(">>>[REG SORTIDA]>>> destinatari: " + params.getDestinatari());
 		}
-		if (registreEntrada.getDadesInteressat() != null) {
-			String entitatCodi = registreEntrada.getDadesInteressat().getEntitatCodi();
-			if (entitatCodi != null) {
-				int indexBarra = entitatCodi.indexOf(SEPARADOR_ENTITAT);
-				if (indexBarra != -1) {
-					System.out.println(">>>[REG SORTIDA]>>> entidad1: " + params.getEntidad1());
-					System.out.println(">>>[REG SORTIDA]>>> entidad2: " + params.getEntidad2());
-					System.out.println(">>>[REG SORTIDA]>>> entidadCastellano: " + params.getEntidadCastellano());
-					System.out.println(">>>[REG SORTIDA]>>> altres: >" + params.getAltres() + "<");
+		public RespostaAnotacioRegistre getReturned() {
+			return returned;
+		}
+		public Exception getException() {
+			return exception;
+		}
+	}
+	private class ExecLeerEntradaThread extends Thread {
+		private ParametrosRegistroEntrada params;
+		private ParametrosRegistroEntrada returned;
+		private Exception exception;
+		public ExecLeerEntradaThread(ParametrosRegistroEntrada params) {
+			this.params = params;
+		}
+		public void run() {
+			try {
+				RegistroEntradaFacade registroEntrada = getRegistreEntradaService();
+				returned = registroEntrada.leer(params);
+			} catch (Exception ex) {
+				exception = ex;
+			}
+		}
+		public ParametrosRegistroEntrada getReturned() {
+			return returned;
+		}
+		public Exception getException() {
+			return exception;
+		}
+	}
+	private class ExecValidarGrabarSortidaThread extends Thread {
+		private Date ara;
+		private ParametrosRegistroSalida params;
+		private RespostaAnotacioRegistre returned;
+		private Exception exception;
+		public ExecValidarGrabarSortidaThread(
+				Date ara,
+				ParametrosRegistroSalida params) {
+			this.ara = ara;
+			this.params = params;
+		}
+		public void run() {
+			try {
+				RegistroSalidaFacade registroSalida = getRegistreSortidaService();
+				ParametrosRegistroSalida respostaValidacio = registroSalida.validar(params);
+				if (respostaValidacio.getValidado()) {
+					ParametrosRegistroSalida respostaGrabacio = registroSalida.grabar(params);
+					RespostaAnotacioRegistre resposta = new RespostaAnotacioRegistre();
+					if (respostaGrabacio.getGrabado()) {
+						resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_OK);
+						resposta.setNumero(
+								respostaGrabacio.getNumeroSalida() +
+								SEPARADOR_NUMERO +
+								respostaGrabacio.getAnoSalida());
+						resposta.setData(ara);
+						returned = resposta;
+					} else {
+						throw new RegistrePluginException("No s'ha pogut guardar la sortida");
+					}
+				} else {
+					StringBuilder sb = new StringBuilder();
+					sb.append("Errors de validació:\n");
+					@SuppressWarnings("unchecked")
+					Map<String, String> errors = respostaValidacio.getErrores();
+					for (String camp: errors.keySet()) {
+						sb.append(" | " + errors.get(camp));
+					}
+					throw new RegistrePluginException("S'han produit errors de validació de l'entrada: " + sb.toString());
 				}
+			} catch (Exception ex) {
+				exception = ex;
 			}
-			if (registreEntrada.getDadesInteressat().getNomAmbCognoms() != null)
-				System.out.println(">>>[REG SORTIDA]>>> altres: >" + params.getAltres() + "<");
-			if (registreEntrada.getDadesInteressat().getMunicipiCodi() != null)
-				System.out.println(">>>[REG SORTIDA]>>> balears: " + params.getBalears());
-			if (registreEntrada.getDadesInteressat().getMunicipiNom() != null)
-				System.out.println(">>>[REG SORTIDA]>>> fora: " + params.getFora());
 		}
-		if (registreEntrada.getDadesAssumpte() != null) {
-			if (registreEntrada.getDadesAssumpte().getTipus() != null)
-				System.out.println(">>>[REG SORTIDA]>>> tipo: " + params.getTipo());
-			if (registreEntrada.getDadesAssumpte().getRegistreNumero() != null) {
-				System.out.println(">>>[REG SORTIDA]>>> salida1: " + params.getSalida1());
-				System.out.println(">>>[REG SORTIDA]>>> salida2: " + params.getSalida2());
-			}
-			if (registreEntrada.getDadesAssumpte().getIdiomaCodi() != null)
-				System.out.println(">>>[REG SORTIDA]>>> idioex: " + params.getIdioex());
-			if (registreEntrada.getDadesAssumpte().getAssumpte() != null)
-				System.out.println(">>>[REG SORTIDA]>>> comentario: " + params.getComentario());
+		public RespostaAnotacioRegistre getReturned() {
+			return returned;
 		}
-		if (registreEntrada.getDocuments() != null && registreEntrada.getDocuments().size() > 0) {
-			if (registreEntrada.getDocuments().size() == 1) {
-				System.out.println(">>>[REG SORTIDA]>>> data: " + params.getData());
-				System.out.println(">>>[REG SORTIDA]>>> idioma: " + params.getIdioma());
+		public Exception getException() {
+			return exception;
+		}
+	}
+	private class ExecLeerSalidaThread extends Thread {
+		private ParametrosRegistroSalida params;
+		private ParametrosRegistroSalida returned;
+		private Exception exception;
+		public ExecLeerSalidaThread(ParametrosRegistroSalida params) {
+			this.params = params;
+		}
+		public void run() {
+			try {
+				RegistroSalidaFacade registroSalida = getRegistreSortidaService();
+				returned = registroSalida.leer(params);
+			} catch (Exception ex) {
+				exception = ex;
 			}
+		}
+		public ParametrosRegistroSalida getReturned() {
+			return returned;
+		}
+		public Exception getException() {
+			return exception;
+		}
+	}
+	private class ExecBuscarOficinas extends Thread {
+		@SuppressWarnings("rawtypes")
+		private Vector returned;
+		private Exception exception;
+		public ExecBuscarOficinas() {
+		}
+		public void run() {
+			try {
+				returned = getValoresService().buscarOficinasFisicasDescripcion(
+						"tots",
+						"totes");
+			} catch (Exception ex) {
+				exception = ex;
+			}
+		}
+		@SuppressWarnings("rawtypes")
+		public Vector getReturned() {
+			return returned;
+		}
+		public Exception getException() {
+			return exception;
 		}
 	}
 
-	private void imprimirDadesRegistreSortida(
-			RegistreSortida registreSortida,
-			ParametrosRegistroSalida params) {
-		System.out.println(">>>[REG SORTIDA]>>> usuario: " + params.getUsuario());
-		System.out.println(">>>[REG SORTIDA]>>> datasalida: " + params.getDataSalida());
-		System.out.println(">>>[REG SORTIDA]>>> hora: " + params.getHora());
-		if (registreSortida.getDadesOficina() != null) {
-			String oficinaCodi = registreSortida.getDadesOficina().getOficinaCodi();
-			if (oficinaCodi != null) {
-				int indexBarra = oficinaCodi.indexOf(SEPARADOR_ENTITAT);
-				if (indexBarra != -1) {
-					System.out.println(">>>[REG SORTIDA]>>> oficina: " + params.getOficina());
-					System.out.println(">>>[REG SORTIDA]>>> oficinafisica: " + params.getOficinafisica());
-				}
-			}
-			if (registreSortida.getDadesOficina().getOrganCodi() != null)
-				System.out.println(">>>[REG SORTIDA]>>> remitent: " + params.getRemitent());
-		}
-		if (registreSortida.getDadesInteressat() != null) {
-			String entitatCodi = registreSortida.getDadesInteressat().getEntitatCodi();
-			if (entitatCodi != null) {
-				int indexBarra = entitatCodi.indexOf(SEPARADOR_ENTITAT);
-				if (indexBarra != -1) {
-					System.out.println(">>>[REG SORTIDA]>>> entidad1: " + params.getEntidad1());
-					System.out.println(">>>[REG SORTIDA]>>> entidad2: " + params.getEntidad2());
-					System.out.println(">>>[REG SORTIDA]>>> entidadCastellano: " + params.getEntidadCastellano());
-					System.out.println(">>>[REG SORTIDA]>>> altres: >" + params.getAltres() + "<");
-				}
-			}
-			if (registreSortida.getDadesInteressat().getNomAmbCognoms() != null)
-				System.out.println(">>>[REG SORTIDA]>>> altres: >" + params.getAltres() + "<");
-			if (registreSortida.getDadesInteressat().getMunicipiCodi() != null)
-				System.out.println(">>>[REG SORTIDA]>>> balears: " + params.getBalears());
-			if (registreSortida.getDadesInteressat().getMunicipiNom() != null)
-				System.out.println(">>>[REG SORTIDA]>>> fora: " + params.getFora());
-		}
-		if (registreSortida.getDadesAssumpte() != null) {
-			if (registreSortida.getDadesAssumpte().getTipus() != null)
-				System.out.println(">>>[REG SORTIDA]>>> tipo: " + params.getTipo());
-			if (registreSortida.getDadesAssumpte().getRegistreNumero() != null) {
-				System.out.println(">>>[REG SORTIDA]>>> entrada1: " + params.getEntrada1());
-				System.out.println(">>>[REG SORTIDA]>>> entrada2: " + params.getEntrada2());
-			}
-			if (registreSortida.getDadesAssumpte().getIdiomaCodi() != null)
-				System.out.println(">>>[REG SORTIDA]>>> idioex: " + params.getIdioex());
-			if (registreSortida.getDadesAssumpte().getAssumpte() != null)
-				System.out.println(">>>[REG SORTIDA]>>> comentario: " + params.getComentario());
-		}
-		if (registreSortida.getDocuments() != null && registreSortida.getDocuments().size() > 0) {
-			if (registreSortida.getDocuments().size() == 1) {
-				System.out.println(">>>[REG SORTIDA]>>> data: " + params.getData());
-				System.out.println(">>>[REG SORTIDA]>>> idioma: " + params.getIdioma());
-			}
-		}
-	}*/
-
-	private static final Log logger = LogFactory.getLog(RegistrePluginRegwebLogic.class);
+	private static final Log logger = LogFactory.getLog(RegistrePluginRegwebLogicNew.class);
 
 }

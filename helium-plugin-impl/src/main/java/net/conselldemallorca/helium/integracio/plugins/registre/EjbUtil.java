@@ -134,6 +134,6 @@ public class EjbUtil {
 		}
 	}
 
-	private static final Log logger = LogFactory.getLog(RegistrePluginRegwebLogic.class);
+	private static final Log logger = LogFactory.getLog(EjbUtil.class);
 
 }
