@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.integracio.plugins.registre;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -12,6 +13,9 @@ import java.util.List;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.security.Authentication;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 /**
  * Test plugin registre
@@ -33,6 +37,7 @@ public class RegistrePluginTest {
 	}
 
 	public void entrada() throws Exception {
+		establirUsuariAutenticat();
 		RegistreEntrada registreEntrada = new RegistreEntrada();
 		DadesOficina dadesOficina = new DadesOficina();
 		dadesOficina.setOficinaCodi("1-1");
@@ -113,7 +118,18 @@ public class RegistrePluginTest {
 
 
 	private RegistrePlugin getRegistrePlugin() {
-		return new RegistrePluginRegwebLogic();
+		return new RegistrePluginRegwebLogicNew();
+	}
+
+	private void establirUsuariAutenticat() {
+		Authentication authentication =  new UsernamePasswordAuthenticationToken(
+				new Principal() {
+					public String getName() {
+						return "josepg";
+					}
+				},
+				null);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 	}
 
 	private byte[] getResourceContent(String resourceName) throws Exception {

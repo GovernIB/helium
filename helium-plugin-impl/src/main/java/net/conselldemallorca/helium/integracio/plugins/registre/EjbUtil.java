@@ -3,11 +3,20 @@
  */
 package net.conselldemallorca.helium.integracio.plugins.registre;
 
+import java.io.IOException;
 import java.util.Properties;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import es.caib.loginModule.auth.ControladorSesion;
 
@@ -24,6 +33,9 @@ public class EjbUtil {
 	private final static String HTTP_INITIAL_CONTEXT_FACTORY = "org.jboss.naming.HttpNamingContextFactory";
 	private final static String URL_PKG_PREFIXES = "org.jboss.naming:org.jnp.interfaces";
 
+	private final static String TIPUS_AUTENTICACIO_CAIB = "caib";
+	private final static String TIPUS_AUTENTICACIO_LOGINC = "login-context";
+	private final static String TIPUS_AUTENTICACIO = TIPUS_AUTENTICACIO_CAIB;
 
 
 	public Object lookupHome(
@@ -50,12 +62,17 @@ public class EjbUtil {
 		InitialContext initialContext = null;
 		try {
 			if (userName != null && userName.length() != 0) {
-				/*lc = new LoginContext(
-						"client-login",
-						new UsernamePasswordCallbackHandler(userName, password));
-				lc.login();*/
-				ControladorSesion controlador = new ControladorSesion();
-				controlador.autenticar(userName, password);
+				if (TIPUS_AUTENTICACIO.equals(TIPUS_AUTENTICACIO_CAIB)) {
+					logger.info("[EJBUTIL] autenticant tipus CAIB amb usuari: " + userName);
+					ControladorSesion controlador = new ControladorSesion();
+					controlador.autenticar(userName, password);
+				} else if (TIPUS_AUTENTICACIO.equals(TIPUS_AUTENTICACIO_LOGINC)) {
+					logger.info("[EJBUTIL] autenticant tipus LOGINC amb usuari: " + userName);
+					lc = new LoginContext(
+							"client-login",
+							new UsernamePasswordCallbackHandler(userName, password));
+					lc.login();
+				}
 			}
 			initialContext = getInitialContext(local, url);
 			Object objRef = initialContext.lookup(jndi);
@@ -92,7 +109,7 @@ public class EjbUtil {
 		return url.startsWith( HTTP_PROTOCOL ) ? HTTP_INITIAL_CONTEXT_FACTORY : JNP_INITIAL_CONTEXT_FACTORY;
 	}
 
-	/*public static class UsernamePasswordCallbackHandler implements CallbackHandler {
+	public static class UsernamePasswordCallbackHandler implements CallbackHandler {
 		private String username;
 		private String password;
 		public UsernamePasswordCallbackHandler(String username, String password) {
@@ -115,6 +132,8 @@ public class EjbUtil {
 				}
 			}
 		}
-	}*/
+	}
+
+	private static final Log logger = LogFactory.getLog(EjbUtil.class);
 
 }

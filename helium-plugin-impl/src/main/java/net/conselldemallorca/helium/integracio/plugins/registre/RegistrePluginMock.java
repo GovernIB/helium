@@ -1,16 +1,9 @@
 package net.conselldemallorca.helium.integracio.plugins.registre;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import es.caib.regweb.logic.helper.ParametrosRegistroEntrada;
-import es.caib.regweb.logic.helper.ParametrosRegistroSalida;
-import es.caib.regweb.logic.interfaces.RegistroEntradaFacade;
-import es.caib.regweb.logic.interfaces.RegistroSalidaFacade;
 
 /**
  * Implementació Mock del plugin de registre.
@@ -18,7 +11,6 @@ import es.caib.regweb.logic.interfaces.RegistroSalidaFacade;
  * @author Tomeu Domenge <tomeud@limit.es>
  */
 public class RegistrePluginMock implements RegistrePlugin{
-	private static final String SEPARADOR_ENTITAT = "-";
 	private static final String SEPARADOR_NUMERO = "/";
 
 	public RespostaAnotacioRegistre registrarEntrada(
@@ -90,7 +82,7 @@ public class RegistrePluginMock implements RegistrePlugin{
 		return null;
 	}
 	
-	private String convertirIdioma(String iso6391) {
+	/*private String convertirIdioma(String iso6391) {
 		if ("es".equalsIgnoreCase(iso6391)) {
 			return "1";
 		} else if ("ca".equalsIgnoreCase(iso6391)) {
@@ -113,7 +105,7 @@ public class RegistrePluginMock implements RegistrePlugin{
 			return "F";
 		}
 		return "2";
-	}
+	}*/
 	
-	private static final Log logger = LogFactory.getLog(RegistrePluginRegwebLogic.class);
+	private static final Log logger = LogFactory.getLog(RegistrePluginMock.class);
 }
