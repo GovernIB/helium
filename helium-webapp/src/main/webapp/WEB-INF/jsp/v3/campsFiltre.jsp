@@ -30,12 +30,6 @@
 						<input id="${codiActual}1" name="${codiActual}" value="${status.value}" type="text" class="inputText" style="text-align:right"/>
 					</label>
 				</spring:bind>
-				<script type="text/javascript">
-					// <![CDATA[
-					$(function() {$("#${codiActual}0").keyfilter(/[\d\-]/);});
-					$(function() {$("#${codiActual}1").keyfilter(/[\d\-]/);});
-					// ]]>
-				</script>
 			</c:param>
 		</c:import>
 	</c:when>
@@ -55,12 +49,6 @@
 						<input id="${codiActual}1" name="${codiActual}" value="${status.value}" type="text" class="inputText" style="text-align:right"/>
 					</label>
 				</spring:bind>
-				<script type="text/javascript">
-					// <![CDATA[
-					$(function() {$("#${codiActual}0").keyfilter(/[\d\-\.]/);});
-					$(function() {$("#${codiActual}1").keyfilter(/[\d\-\.]/);});
-					// ]]>
-				</script>
 			</c:param>
 		</c:import>
 	</c:when>
@@ -121,12 +109,6 @@
 						<input id="${codiActual}1" name="${codiActual}" value="${status.value}" type="text" class="inputText" style="text-align:right"/>
 					</label>
 				</spring:bind>
-				<script type="text/javascript">
-					// <![CDATA[
-// 					$(function() {$("#${codiActual}0").setMask({mask:'99,999.999.999.999',type:'reverse'});});
-// 					$(function() {$("#${codiActual}1").setMask({mask:'99,999.999.999.999',type:'reverse'});});
-					// ]]>
-				</script>
 			</c:param>
 		</c:import>
 	</c:when>

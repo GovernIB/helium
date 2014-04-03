@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientConsultaCommand;
 import net.conselldemallorca.helium.webapp.v3.command.TascaConsultaCommand;
 
@@ -23,6 +24,7 @@ public class SessionHelper {
 	public static final String VARIABLE_ENTORN_ACTUAL = "entornActual";
 	public static final String VARIABLE_ENTORN_ACTUAL_V3 = "entornActualV3";
 	public static final String VARIABLE_EXPTIP_ACTUAL = "expedientTipusActual";
+	public static final String VARIABLE_PREFERENCIES_USUARI = "preferenciesUsuari";
 	public static final String VARIABLE_EXPTIP_ACCESSIBLES = "expedientTipusAccessibles";
 	public static final String VARIABLE_EXPTIP_ACCESSIBLES_AMB_CONSULTES_ACTIVES = "expedientTipusAccessiblesAmbConsultesActives";
 	public static final String VARIABLE_PERMIS_EXPTIP_DISSENY = "potDissenyarExpedientTipus";
@@ -263,6 +265,16 @@ public class SessionHelper {
 					VARIABLE_SELECCIO_INFORME,
 					seleccioInforme);
 		}
+		public UsuariPreferenciesDto getPreferenciesUsuari() {
+			return (UsuariPreferenciesDto)getAttribute(
+					request,
+					VARIABLE_PREFERENCIES_USUARI);
+		}
+		public void setPreferenciesUsuari(UsuariPreferenciesDto preferencies) {
+			setAttribute(
+					request,
+					VARIABLE_PREFERENCIES_USUARI,
+					preferencies);
+		}
 	}
-
 }

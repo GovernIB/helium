@@ -49,7 +49,7 @@
 <body>
 <c:choose>
 <c:when test="${not isNoCapsaleraPeu}">
-<div class="row-fluid container nav-container">
+<div class="row-fluid container <c:if test="${not preferenciesUsuari.cabeceraReducida}">nav-container</c:if> <c:if test="${preferenciesUsuari.cabeceraReducida}">cabecera_reducida</c:if>">
 	<div class="govern-logo pull-left"><img src="<c:url value="/img/govern-logo.png"/>" width="159" height="36" alt="Govern de les Illes Balears" /></div>
 	<div class="aplication-logo pull-left"><img src="<c:url value="/img/logo-helium-w.png"/>" width="217" height="61" alt="Helium: Gestor d'expedients corporatiu" /></div>
 	<div class="pull-right main-menu">
@@ -79,7 +79,7 @@
     				</c:forEach>
 				</ul>
 			</li>
-			<li><i class="icon-user icon-white"></i> ${dadesPersona.codi}</li>
+			<li><a class="dropdown-toggle text-wrap" href="<c:url value="/v3/perfil"/>"><i class="icon-user icon-white"></i> ${dadesPersona.codi}</a></li>
 		</ul>
 		<div class="clearfix"></div>
 		<div class="btn-group">
@@ -118,7 +118,7 @@
 		</div>
 	</div>
 </div>
-<div class="row-fluid container main">
+<div class="row-fluid container main <c:if test="${preferenciesUsuari.cabeceraReducida}">main_reducida</c:if>">
 	<c:set var="capsaleraTipus"><decorator:getProperty property="meta.capsaleraTipus"/></c:set>
 	<c:set var="tabActiu"><decorator:getProperty property="meta.tabActiu"/></c:set>
 	<c:choose>

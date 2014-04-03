@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.report.FieldValue;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
@@ -116,7 +117,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 			@ModelAttribute("expedientInformeCommand") Object filtreCommand,
 			BindingResult result,
 			SessionStatus status,
-			ModelMap model)  {
+			ModelMap model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		model.addAttribute("consultes", dissenyService.findConsultesActivesAmbEntornIExpedientTipusOrdenat(entornActual.getId(),expedientTipusId));
 		model.addAttribute("expedientTipusId", expedientTipusId);
@@ -158,6 +159,14 @@ public class ExpedientInformeController extends BaseExpedientController {
 		}
 		return filtreCommand;
 	}
+
+	@ModelAttribute("valorsBoolea")
+	public List<ParellaCodiValorDto> valorsBoolea(HttpServletRequest request) {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		resposta.add(new ParellaCodiValorDto("true",   getMessage(request, "comuns.si")));
+		resposta.add(new ParellaCodiValorDto("false",  getMessage(request, "comuns.no")));
+		return resposta;
+	}
 	
 	@ModelAttribute("expedientInformeCommand")
 	public Object populateExpedientInformeCommand(
@@ -170,7 +179,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 		List<TascaDadaDto> campsInforme = new ArrayList<TascaDadaDto>();
 		
 		Object filtreCommand = getFiltreCommand(request, expedientTipusId, consultaId);
-		if (consultaId != null && expedientTipusId != null) {
+		if (consultaId != null) {
 			ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
 			campsFiltre = expedientService.findConsultaFiltre(consultaId);
 			campsInforme = expedientService.findConsultaInforme(consultaId);
@@ -184,7 +193,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 			model.addAttribute("consultaId", consulta.getId());
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 			model.addAttribute("consultes", dissenyService.findConsultesActivesAmbEntornIExpedientTipusOrdenat(entornActual.getId(),expedientTipusId));
-			model.addAttribute("expedientTipusId", expedientTipusId);
+			model.addAttribute("expedientTipusId", consulta.getExpedientTipus().getId());
 		}
 		
 		if (filtreCommand != null) {
@@ -207,6 +216,39 @@ public class ExpedientInformeController extends BaseExpedientController {
 		finalitzat.setCodi("-1");
 		finalitzat.setNom( getMessage(request, "expedient.consulta.finalitzat") );
 		estats.add(finalitzat);
+	}
+	
+	@RequestMapping(value = "/consulta/{consultaId}", method = RequestMethod.GET)
+	public String getConsulta(
+			HttpServletRequest request,
+			@PathVariable Long consultaId,
+			@ModelAttribute("expedientInformeCommand") Object filtreCommand,
+			BindingResult result,
+			SessionStatus status,
+			ModelMap model)  {
+		ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
+		filtreCommand = populateExpedientInformeCommand(
+						request, 
+						request.getSession(),
+						consulta.getExpedientTipus().getId(),
+						consultaId,
+						model);
+
+		SessionHelper.setAttribute(
+		request,
+		VARIABLE_FILTRE_CONSULTA_TIPUS,
+		filtreCommand);
+		
+		get(
+				request,
+				consulta.getExpedientTipus().getId(),
+				consultaId,
+				filtreCommand,
+				result,
+				status,
+				model);
+		
+		return "redirect:/v3/informe/"+consulta.getExpedientTipus().getId();
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}", method = RequestMethod.POST)

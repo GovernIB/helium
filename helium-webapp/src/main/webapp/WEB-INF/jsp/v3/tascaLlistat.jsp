@@ -223,7 +223,7 @@ function confirmarAlliberar(e) {
 		</div>
 	</form:form>
 
-	<table id="taulaDades" class="table table-striped table-bordered table-hover" data-rdt-filtre-form-id="tascaConsultaCommand" data-rdt-seleccionable="false">
+	<table id="taulaDades" class="table table-striped table-bordered table-hover" data-rdt-filtre-form-id="tascaConsultaCommand" data-rdt-seleccionable="false" <c:if test="${not empty preferenciesUsuari.numElementosPagina}">data-rdt-display-length-default="${preferenciesUsuari.numElementosPagina}"</c:if>>
 		<thead>
 			<tr>
 				<th data-rdt-property="titol" data-rdt-template="cellPersonalGroupTemplate" data-rdt-visible="true" >

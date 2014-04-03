@@ -12,6 +12,7 @@
 	<title>Informació de l'expedient</title>
 	<meta name="capsaleraTipus" content="expedient"/>
 	<meta name="tabActiu" content="dades"/>
+	<c:import url="utils/modalDefinir.jsp"/>
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 <style>
 #info-carregant {
@@ -127,6 +128,15 @@
 			$('#' + idExpedient + '_formRelacioDelete').submit();
 		}
 	}
+
+	function confirmarCanviVersio(e) {
+		var e = e || window.event;
+		e.cancelBubble = true;
+		if (e.stopPropagation) e.stopPropagation();
+		if (confirm("<fmt:message key='expedient.eines.confirm_canviar_versio_proces' />")) {
+			$('#' + idExpedient + '_formCanviVersio').submit();
+		}
+	}
 </script>
 </head>
 <body>
@@ -154,11 +164,20 @@
 						<c:when test="${not empty expedient.estat}">${expedient.estat.nom}</c:when>
 							<c:when test="${not empty expedient.dataFi}">Finalitzat</c:when>
 						<c:otherwise>Iniciat</c:otherwise>
-					</c:choose>
-					<a href="#"><i class="icon-pencil"></i></a>
+					</c:choose>					
 				</dt>
-				<%--dd><em><small>Definició de procés</small></em></dd>
-				<dt><i class="icon-picture"></i> <a href="#fluxogram" role="button" data-toggle="modal">PGEGIP v.4</a></dt--%>
+				<dd><em><small>Definició de procés</small></em></dd>
+				<dt>	
+					<i class="icon-picture"></i> <a href="#fluxogram" role="button" data-toggle="modal"><c:out value="${definicioProcesDescripcio}"/></a> <a href="#"><i class="icon-pencil"></i></a>
+				</dt>
+<!-- 				<dt>					 -->
+<!-- 					<select class="span11" id="definicioProcesJbpmId" name="definicioProcesJbpmId"> -->
+<%-- 						<option value="">&lt;&lt; <spring:message code="js.helforms.selec_valor" /> &gt;&gt;</option> --%>
+<%-- 						<c:forEach var="definicioProcesJbpm" items="${definicionsProces}"> --%>
+<%-- 							<option <c:if test="${definicioProcesJbpmId == definicioProcesJbpm.jbpmId}">selected="selected"</c:if> value="${definicioProcesJbpm.jbpmId}"><c:out value="${definicioProcesJbpm.descripcio}"/></option> --%>
+<%-- 						</c:forEach> --%>
+<!-- 					</select> -->
+<!-- 				</dt> -->
 			</dl>
 			<div id="expedientAccio" class="btn-group">
 				<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog icon-white"></i> Accions <span class="caret"></span></a>

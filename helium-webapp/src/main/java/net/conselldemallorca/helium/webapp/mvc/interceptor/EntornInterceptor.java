@@ -236,6 +236,10 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 				request,
 				SessionHelper.VARIABLE_PERMIS_EXPTIP_DISSENY,
 				new Boolean(!expedientsTipusAmbPermisDisseny.isEmpty()));
+		SessionHelper.setAttribute(
+				request,
+				SessionHelper.VARIABLE_PREFERENCIES_USUARI,
+				adminService.getPreferenciesUsuariActual());
 		List<ExpedientTipusDto> expedientsTipusAmbPermisGestio = dissenyService.findExpedientTipusAmbPermisGestioUsuariActual(
 				entorn.getId());
 		SessionHelper.setAttribute(

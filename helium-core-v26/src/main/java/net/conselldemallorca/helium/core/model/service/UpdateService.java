@@ -111,8 +111,8 @@ public class UpdateService {
 					if (!actualitzat) break;
 				}
 				if (versio.getOrdre() == VERSIO_300_ORDRE) {
-//					boolean actualitzat = actualitzarV300();
-//					if (!actualitzat) break;
+					boolean actualitzat = actualitzarV300();
+					if (!actualitzat) break;
 				}
 			}
 		}
@@ -140,7 +140,7 @@ public class UpdateService {
 			actualitzarV260();
 		}
 		if (actualitzat && darrera.getOrdre() < 300) {
-//			actualitzarV300();
+			actualitzarV300();
 		}
 	}
 

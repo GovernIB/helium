@@ -279,7 +279,7 @@ $(document).ready(function() {
 				<form:hidden path="mostrarAnulats"/>
 				<form:hidden path="tramitacioMassivaActivada"/>
 				<div class="btn-group">
-					<a id="nomesPendentsCheck" href="javascript:void(0)" title="Només amb tasques pendents" class="btn<c:if test="${expedientConsultaCommand.nomesPendents}"> active</c:if>" data-toggle="button"><i class="icon-time"></i></a>
+					<a id="nomesPendentsCheck" href="javascript:void(0)" title="Només amb tasques pendents" class="btn<c:if test="${expedientConsultaCommand.nomesPendents || preferenciesUsuari.filtroTareasActivas}"> active</c:if>" data-toggle="button"><i class="icon-time"></i></a>
 					<a id="nomesAlertesCheck" href="javascript:void(0)" title="Només amb alertes" class="hide btn<c:if test="${expedientConsultaCommand.nomesAlertes}"> active</c:if>" data-toggle="button"><i class="icon-warning-sign"></i></a>
 					<a id="mostrarAnulatsCheck" href="javascript:void(0)" title="Mostrar anulats" class="btn<c:if test="${expedientConsultaCommand.mostrarAnulats}"> active</c:if>" data-toggle="button"><i class="icon-remove"></i></a>
 				</div>
@@ -298,8 +298,7 @@ $(document).ready(function() {
 			</div>
 		</div>
 	</form:form>
-
-	<table id="taulaDades" class="table table-striped table-bordered table-hover" data-rdt-filtre-form-id="expedientConsultaCommand" data-rdt-seleccionable="true" data-rdt-seleccionable-columna="0">
+	<table id="taulaDades" class="table table-striped table-bordered table-hover" data-rdt-filtre-form-id="expedientConsultaCommand" data-rdt-seleccionable="true" data-rdt-seleccionable-columna="0" <c:if test="${not empty preferenciesUsuari.numElementosPagina}">data-rdt-display-length-default="${preferenciesUsuari.numElementosPagina}"</c:if>>
 		<thead>
 			<tr>
 				<th data-rdt-property="id" width="4%" data-rdt-sortable="false"></th>

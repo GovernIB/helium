@@ -177,7 +177,7 @@ $(document).ready(function() {
 	</script>
 		
 	<c:if test='${not empty consulta}'>
-		<table id="taulaDades" class="table table-striped table-bordered table-hover" data-rdt-filtre-form-id="expedientInformeCommand" data-rdt-seleccionable="true" data-rdt-seleccionable-columna="0">
+		<table id="taulaDades" class="table table-striped table-bordered table-hover" data-rdt-filtre-form-id="expedientInformeCommand" data-rdt-seleccionable="true" data-rdt-seleccionable-columna="0" <c:if test="${not empty preferenciesUsuari.numElementosPagina}">data-rdt-display-length-default="${preferenciesUsuari.numElementosPagina}"</c:if>>
 			<thead>
 				<tr>
 					<th data-rdt-property="expedient.id" width="4%" data-rdt-sortable="false"></th>

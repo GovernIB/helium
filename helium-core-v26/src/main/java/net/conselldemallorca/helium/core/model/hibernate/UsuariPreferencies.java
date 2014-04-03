@@ -30,8 +30,13 @@ public class UsuariPreferencies implements Serializable, GenericEntity<String> {
 	private String defaultEntornCodi;
 	@MaxLength(255)
 	private String idioma;
-
-
+	private Boolean cabeceraReducida;
+	private Integer listado;
+	@MaxLength(255)
+	private Long consultaId;
+	private Boolean filtroTareasActivas;
+	@MaxLength(255)
+	private Long numElementosPagina;
 
 	public UsuariPreferencies() {}
 	public UsuariPreferencies(String codi) {
@@ -66,11 +71,41 @@ public class UsuariPreferencies implements Serializable, GenericEntity<String> {
 	public void setIdioma(String idioma) {
 		this.idioma = idioma;
 	}
-	
-	
-	
-	
-	
+	@Column(name="cabecera_reducida", nullable=true)
+	public Boolean isCabeceraReducida() {
+		return cabeceraReducida;
+	}
+	public void setCabeceraReducida(Boolean cabeceraReducida) {
+		this.cabeceraReducida = cabeceraReducida;
+	}
+	@Column(name="listado",nullable=true)
+	public Integer getListado() {
+		return listado;
+	}
+	public void setListado(Integer listado) {
+		this.listado = listado;
+	}
+	@Column(name="consulta_id", length=255, nullable=true)
+	public Long getConsultaId() {
+		return consultaId;
+	}
+	public void setConsultaId(Long consultaId) {
+		this.consultaId = consultaId;
+	}
+	@Column(name="filtro_tareas_activas", nullable=true)
+	public Boolean isFiltroTareasActivas() {
+		return filtroTareasActivas;
+	}
+	public void setFiltroTareasActivas(Boolean filtroTareasActivas) {
+		this.filtroTareasActivas = filtroTareasActivas;
+	}
+	@Column(name="num_elementos_pagina", length=255, nullable=true)
+	public Long getNumElementosPagina() {
+		return numElementosPagina;
+	}
+	public void setNumElementosPagina(Long numElementosPagina) {
+		this.numElementosPagina = numElementosPagina;
+	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;

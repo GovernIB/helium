@@ -140,7 +140,7 @@
 				});
 			}
 			var dataTableParams = {
-				"iDisplayLength": 10,
+				"iDisplayLength": ($(this).data("rdt-display-length-default") != undefined) ? $(this).data("rdt-display-length-default") : 10,
 				"aLengthMenu": [[10, 50, 100], [10, 50, 100]],
 				"aaSorting": aaSorting,
 				"aoColumns": aoColumns,

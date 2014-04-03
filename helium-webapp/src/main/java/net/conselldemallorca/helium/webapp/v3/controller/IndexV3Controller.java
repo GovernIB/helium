@@ -5,7 +5,9 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -40,6 +42,16 @@ public class IndexV3Controller {
 
 	@RequestMapping(value = "/v3/index", method = RequestMethod.GET)
 	public String index(HttpServletRequest request) {
-		return "redirect:/v3/expedient";
+		UsuariPreferenciesDto preferencies = SessionHelper.getSessionManager(request).getPreferenciesUsuari();
+		if (preferencies.getListado() == 2 && preferencies.getConsultaId() != null) {
+			// Informes
+			return "redirect:/v3/informe/consulta/"+preferencies.getConsultaId();
+		} else if (preferencies.getListado() == 1) {
+			// Tareas
+			return "redirect:/v3/tasca";
+		} else {
+			// Expedientes
+			return "redirect:/v3/expedient";
+		}
 	}
 }

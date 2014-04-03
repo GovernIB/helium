@@ -140,4 +140,10 @@ public class AdminServiceBean implements AdminService {
 	public List<TascaCompleteDto> getTasquesCompletar() {
 		return delegate.getTasquesCompletar();
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void updatePerfil(UsuariPreferenciesDto preferencies) {
+		delegate.updatePerfil(preferencies);
+	}
 }

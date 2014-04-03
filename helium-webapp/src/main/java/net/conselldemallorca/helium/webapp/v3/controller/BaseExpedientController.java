@@ -12,6 +12,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto.JbpmIdAmbDescripcio;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
@@ -56,8 +57,8 @@ public class BaseExpedientController extends BaseController {
 			String rols = accio.getRols();
 			if (accio.isPublica()) {
 				hiHaAccionsPubliques = true;
-			}
-			if (rols != null && rols.length() > 0) {
+				break;
+			} else if (rols != null && rols.length() > 0) {
 				boolean permesa = false;
 				String[] llistaRols = rols.split(",");
 				for (String rol: llistaRols) {
@@ -74,6 +75,21 @@ public class BaseExpedientController extends BaseController {
 		model.addAttribute("hiHaAccionsPubliques", hiHaAccionsPubliques);
 		
 		model.addAttribute("relacionats",expedientService.getExpedientsRelacionats(expedientId));
+
+		Long definicioProcesJbpmId = null;
+		String definicioProcesDescripcio = null;
+		List<JbpmIdAmbDescripcio> listaDefProc = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedient.getTipus().getId(), true).getJbpmIdsAmbDescripcio();
+		for (JbpmIdAmbDescripcio defProc : listaDefProc) {
+			if (defProc.getJbpmId().longValue() == instanciaProces.getDefinicioProces().getId().longValue()) {
+				definicioProcesDescripcio = defProc.getDescripcio();
+				definicioProcesJbpmId = defProc.getJbpmId();
+				break;
+			}
+		}
+		model.addAttribute("definicioProcesJbpmId",definicioProcesJbpmId);
+		model.addAttribute("definicioProcesDescripcio",definicioProcesDescripcio);
+		model.addAttribute("definicionsProces",listaDefProc);
+		
 		if (pipellaActiva != null)
 			model.addAttribute("pipellaActiva", pipellaActiva);
 		else if (request.getParameter("pipellaActiva") != null)

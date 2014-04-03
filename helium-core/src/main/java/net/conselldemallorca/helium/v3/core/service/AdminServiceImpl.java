@@ -12,6 +12,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import net.conselldemallorca.helium.core.model.hibernate.UsuariPreferencies;
 import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntervalEventDto;
@@ -32,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Servei per gestionar la configuració de l'aplicació.
@@ -229,6 +231,19 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	public List<TascaCompleteDto> getTasquesCompletar() {
 		return mesuresTemporalsHelper.getTasquesCompletar();
+	}
+	
+	@Transactional
+	@Override
+	public void updatePerfil(UsuariPreferenciesDto preferencies) {
+		UsuariPreferencies usuari = usuariPreferenciesRepository.findByCodi(preferencies.getCodi());
+		usuari.setCabeceraReducida(preferencies.isCabeceraReducida());
+		usuari.setConsultaId(preferencies.getConsultaId());
+		usuari.setDefaultEntornCodi(preferencies.getDefaultEntornCodi());
+		usuari.setFiltroTareasActivas(preferencies.isFiltroTareasActivas());
+		usuari.setListado(preferencies.getListado());
+		usuari.setNumElementosPagina(preferencies.getNumElementosPagina());
+		usuariPreferenciesRepository.save(usuari);
 	}
 	
 	private static final Logger logger = LoggerFactory.getLogger(AdminServiceImpl.class);

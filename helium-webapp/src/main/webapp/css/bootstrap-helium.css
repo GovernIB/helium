@@ -20,6 +20,60 @@ body {
 	box-shadow: 0 0 5px #888;
 	background-color:#ccc;
 }
+
+.cabecera_reducida {
+	height: 68px;
+	margin-bottom: 20px;
+	position:fixed;
+	width:100%;
+	z-index:1000;
+	-moz-box-shadow: 0 0 5px #888;
+	-webkit-box-shadow: 0 0 5px#888;
+	box-shadow: 0 0 5px #888;
+	background-color:#ccc;
+}
+
+.cabecera_reducida .govern-logo, .cabecera_reducida .main-menu {
+	padding: 5px 40px 10px 0
+}
+.cabecera_reducida .aplication-logo {
+	padding: 20px 0 20px 20px;
+}
+.cabecera_reducida .btn-group > .dropdown-toggle { 
+	border-radius:0;
+	-moz-border-radius:0;
+	-webkit-border-radius:0;
+	margin-right:-1px;
+}
+
+.cabecera_reducida .govern-logo{ 
+    border-right: 1px solid #FFFFFF;
+    display: block;
+   	margin-top: 0;
+    padding: 5px 23px 12px 40px;
+}
+
+.cabecera_reducida .aplication-logo {
+	padding: 4px 0 20px 20px;
+}
+.cabecera_reducida .btn-group > .dropdown-toggle { 
+	border-radius:0;
+	-moz-border-radius:0;
+	-webkit-border-radius:0;
+	margin-right:-1px;
+}
+
+/* Orange header */
+.cabecera_reducida { 
+	background-color:#ff9523;
+}
+.cabecera_reducida .govern-logo{ 
+    border-right: 1px solid #FFFFFF;
+    display: block;
+    margin-top: 8px;
+    padding: 5px 23px 12px 40px;
+}
+
 .nav-container .govern-logo, .nav-container .main-menu {
 	padding: 20px 40px 20px 0;
 }
@@ -38,6 +92,10 @@ body {
 }
 .main {
 	padding-top: 125px;
+}
+
+.main_reducida {
+	padding-top: 90px;
 }
 
 .nav-container .govern-logo{ 

@@ -25,7 +25,6 @@ public interface AdminService {
 	 * 
 	 * @return El llistat d'entorns.
 	 */
-//	@PreAuthorize("hasRole('ROLE_SUPER') or hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
 	public List<EntornDto> findEntornAmbPermisReadUsuariActual();
 
 	/**
@@ -41,7 +40,6 @@ public interface AdminService {
 	 * 
 	 * @return El llistat de mesures.
 	 */
-	//@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public List<MesuraTemporalDto> findMesuresTemporals(String familia, boolean ambDetall);
 	public List<MesuraTemporalDto> findMesuresTemporalsTipusExpedient();
 	public List<MesuraTemporalDto> findMesuresTemporalsTasca();
@@ -57,4 +55,5 @@ public interface AdminService {
 	public boolean isStatisticActive();
 	public List<MesuraTemporalDto> getHibernateStatistics(String familia, boolean exportar);
 	public List<TascaCompleteDto> getTasquesCompletar();
+	public void updatePerfil(UsuariPreferenciesDto preferencies);
 }

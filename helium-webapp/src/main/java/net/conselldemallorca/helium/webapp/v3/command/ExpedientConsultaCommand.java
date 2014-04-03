@@ -31,7 +31,7 @@ public class ExpedientConsultaCommand {
 	private Double geoPosX;
 	private Double geoPosY;
 	private String geoReferencia;
-	private boolean nomesPendents = true;
+	private boolean nomesPendents;
 	private boolean nomesAlertes;
 	private boolean mostrarAnulats;
 
