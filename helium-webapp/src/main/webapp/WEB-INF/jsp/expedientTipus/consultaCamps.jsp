@@ -23,34 +23,31 @@
 <script type="text/javascript">
 $(document).ready(function() {
     // Inicialitza la taula
-    $("#registre").tableDnD({
+    $("#consultaCamp").tableDnD({
         onDragClass: "drag",
     	onDrop: function(table, row) {
-        	$("#registre tr:even").removeClass("odd");
-        	$("#registre tr:not(:first)").addClass("even");
-        	$("#registre tr:odd").removeClass("even");
-        	$("#registre tr:odd").addClass("odd");
+        	$("#consultaCamp tr:even").removeClass("odd");
+        	$("#consultaCamp tr:not(:first)").addClass("even");
+        	$("#consultaCamp tr:odd").removeClass("even");
+        	$("#consultaCamp tr:odd").addClass("odd");
 
-        	var id = $("tr:has(.showDragHandle) td:last").html();
         	var pos = row.rowIndex - 1;
+        	var id= obtenirId(pos);
                 
-        	//campsProcesDwrService.goToCampRegistre(id, pos, {
-			//	callback: function() {
-			//		var rows = table.rows;
-			//        for (var i = 1; i < rows.length; i++) {
-			//	        rows[i].cells[4].innerHTML = rows[i].rowIndex - 1; 
-			//        }
-			//	},
-			//	async: false
-			//});
-    	}
+        	campsProcesDwrService.goToConsultaCamp(id, pos, {
+				async: false
+			});
+    	},
+    	onDragStart: function(table, row) {
+			filaMovem = row.rowIndex-1;
+	}
     });
-    $("#registre tr").hover(function() {
+    $("#consultaCamp tr").hover(function() {
         $(this.cells[0]).addClass('showDragHandle');
     }, function() {
         $(this.cells[0]).removeClass('showDragHandle');
     });	
-  	$("#registre tr").each(function(){
+  	$("#consultaCamp tr").each(function(){
   	  	$(this).find("td:first").css("padding-left", "22px");
   	});
 });
@@ -98,6 +95,28 @@ $(document).ready(function() {
 		    }
 		  }
 		};
+		
+		function obtenirId(pos){
+			if(filaMovem==pos){
+				
+				var fila = filaMovem + 1;
+				id = $("#consultaCamp tr:eq("+fila+") td:last div").attr("id");
+
+			}
+			else{
+			
+				if( filaMovem < pos){	//baixam elements
+					var fila = filaMovem + (pos-filaMovem)+1;
+					id = $("#consultaCamp tr:eq("+fila+") td:last div").attr("id");
+				}else{					//pujam elements
+					var fila = filaMovem - (filaMovem-pos)+1;
+					id = $("#consultaCamp tr:eq("+fila+") td:last div").attr("id");	
+				}
+			}
+			id2 = id.split("_");
+			return id2[1] ;
+		}		
+		
 	// ]]>
 </script>
 </head>
@@ -125,15 +144,16 @@ $(document).ready(function() {
 			${camps[consultaCamp_rowNum - 1].definicioProces.jbpmKey} v.${camps[consultaCamp_rowNum - 1].definicioProces.versio}
 			</c:if>
 		</display:column>
+<%-- 		<display:column> --%>
+<%-- 			<a href="<c:url value="/expedientTipus/consultaCampFiltrePujar.html"><c:param name="consultaId" value="${param.id}"/><c:param name="id" value="${consultaCamp.id}"/><c:param name="tipus" value="${param.tipus}"/><c:param name="expedientTipusId" value="${param.expedientTipusId}"/></c:url>"> --%>
+<%-- 				<img src="<c:url value="/img/famarrow_up.png"/>" alt="<fmt:message key='comuns.amunt' />" title="<fmt:message key='comuns.amunt' />" border="0"/> --%>
+<!-- 			</a> -->
+<%-- 			<a href="<c:url value="/expedientTipus/consultaCampFiltreBaixar.html"><c:param name="consultaId" value="${param.id}"/><c:param name="id" value="${consultaCamp.id}"/><c:param name="tipus" value="${param.tipus}"/><c:param name="expedientTipusId" value="${param.expedientTipusId}"/></c:url>"> --%>
+<%-- 				<img src="<c:url value="/img/famarrow_down.png"/>" alt="<fmt:message key='comuns.avall' />" title="<fmt:message key='comuns.avall' />" border="0"/> --%>
+<!-- 			</a> -->
+<%-- 		</display:column> --%>
 		<display:column>
-			<a href="<c:url value="/expedientTipus/consultaCampFiltrePujar.html"><c:param name="consultaId" value="${param.id}"/><c:param name="id" value="${consultaCamp.id}"/><c:param name="tipus" value="${param.tipus}"/><c:param name="expedientTipusId" value="${param.expedientTipusId}"/></c:url>">
-				<img src="<c:url value="/img/famarrow_up.png"/>" alt="<fmt:message key='comuns.amunt' />" title="<fmt:message key='comuns.amunt' />" border="0"/>
-			</a>
-			<a href="<c:url value="/expedientTipus/consultaCampFiltreBaixar.html"><c:param name="consultaId" value="${param.id}"/><c:param name="id" value="${consultaCamp.id}"/><c:param name="tipus" value="${param.tipus}"/><c:param name="expedientTipusId" value="${param.expedientTipusId}"/></c:url>">
-				<img src="<c:url value="/img/famarrow_down.png"/>" alt="<fmt:message key='comuns.avall' />" title="<fmt:message key='comuns.avall' />" border="0"/>
-			</a>
-		</display:column>
-		<display:column>
+			<div id="consultaCamps_${consultaCamp.id}"></div>
 			<a href="<c:url value="/expedientTipus/consultaCampsDelete.html"><c:param name="consultaId" value="${param.id}"/><c:param name="id" value="${consultaCamp.id}"/><c:param name="tipus" value="${param.tipus}"/><c:param name="expedientTipusId" value="${param.expedientTipusId}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 		</display:column>
 	</display:table>

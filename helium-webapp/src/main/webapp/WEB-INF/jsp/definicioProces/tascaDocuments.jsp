@@ -102,7 +102,7 @@ function actualitzar(tascaId, campId, registre){
 	campsProcesDwrService.updateCampTasca(tascaId, campId, rf, wt, rq, ro,
 	{
 		callback: function() {
-			$("#mostrarBoto_"+registre).hide()
+			$("#mostrarBoto_"+registre).hide();
 		},
 		async: false
 	});
