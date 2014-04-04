@@ -143,6 +143,15 @@ public class CampsProcesDwrService implements MessageSourceAware {
 	public void goToCampTasca(Long IdTasca, int pos) {
 		dissenyService.goToCampTasca(IdTasca, pos);		
 	}
+	
+	public void goToCampRegistreMembres(Long IdCampRegistre, int pos) {
+		dissenyService.goToCampRegistreMembres(IdCampRegistre, pos);		
+	}
+	
+	public void goToEnumeracioValors(Long IdTasca, int pos) {
+		dissenyService.goToEnumeracioValors(IdTasca, pos);		
+	}
+	
 	public void goToSignaturaTasca(Long signaturaId, int pos) {
 		dissenyService.goToSignaturaTasca(signaturaId, pos);		
 	}
@@ -150,10 +159,17 @@ public class CampsProcesDwrService implements MessageSourceAware {
 	public void goToCampEstat(Long estatId, int pos) {
 		dissenyService.goToCampEstat(estatId, pos);		
 	}
-//	
-//	public void goToCampAgrupacio(Long tipusExpId, int pos) {
-//		dissenyService.goToCampAgrupacio(tipusExpId, pos);		
-//	}
+	
+	public void goToCampAgrupacio(Long tipusExpId, int pos) {
+		dissenyService.goToCampAgrupacio(tipusExpId, pos);		
+	}
+	
+	
+	public void goToCampAgrupacioLlista(Long estatId, int pos) {
+		dissenyService.goToCampAgrupacioLlista(estatId, pos);		
+	}
+	
+	
 	public void goToCampConsLlistat(Long consultaId, int pos) {
 		dissenyService.goToCampConsLlistat(consultaId, pos);		
 	}
@@ -170,6 +186,17 @@ public class CampsProcesDwrService implements MessageSourceAware {
 		dissenyService.addDocumentTasca(IdTasca, campId, required, readOnly);		
 	}
 	
+	public void goToConsultaCamp(Long consultaId, int pos) {
+		dissenyService.goToConsultaCamp(consultaId, pos);		
+	}
+	
+	public void goToCampValidacio(Long consultaId, int pos) {
+		dissenyService.goToCampValidacio(consultaId, pos);		
+	}
+	
+	public void goToValors(Long consultaId, int pos) {
+		dissenyService.goToValors(consultaId, pos);		
+	}
 
 	protected String getMessage(String key) {
 		return getMessage(key, null);
