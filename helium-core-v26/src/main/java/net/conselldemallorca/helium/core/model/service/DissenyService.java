@@ -3336,15 +3336,264 @@ public class DissenyService {
 	
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void goToConsultaCamp(Long id, int NouOrd) {
+		ConsultaCamp consultaCamp = getConsultaCampById(id);
+		Long consultaId = consultaCamp.getConsulta().getId();
+		int ordreAntic = consultaCamp.getOrdre();
+		List<ConsultaCamp> camps = findCampsConsulta(consultaId, consultaCamp.getTipus());
+		
+		// Si no s'ha canviat l'ordre, sortim sense fer res.
+		if (ordreAntic == NouOrd) return;
+		consultaCamp.setOrdre(-1);				
+				
+		if (ordreAntic < NouOrd) {
+			//Collections.reverse(camps);
+			Collections.sort(
+					camps,
+					new Comparator() {
+					public int compare(Object o1, Object o2) {
+						if (o1 == null && o2 == null) return 0;
+						return (((ConsultaCamp)o1).getOrdre()<((ConsultaCamp)o2).getOrdre() ? -1 : ((ConsultaCamp)o1).getOrdre()==((ConsultaCamp)o2).getOrdre() ? 0 : 1);
+					}
+					});
+			
+			for (ConsultaCamp ce : camps){
+				int ordre = ce.getOrdre();
+				if (ordre > ordreAntic) {
+					if (ordre <= NouOrd) {
+						ce.setOrdre(ordre - 1);
+						consultaCampDao.saveOrUpdate(ce);
+						consultaCampDao.flush();
+					}
+				}
+			}
+	
+		} else {
+			
+			Collections.sort(
+					camps,
+					new Comparator() {
+					public int compare(Object o1, Object o2) {
+						if (o1 == null && o2 == null) return 0;
+						return (((ConsultaCamp)o1).getOrdre()>((ConsultaCamp)o2).getOrdre() ? -1 : ((ConsultaCamp)o1).getOrdre()==((ConsultaCamp)o2).getOrdre() ? 0 : 1);
+					}
+					});
+			
+			for (ConsultaCamp ct : camps){
+			
+				int ordre = ct.getOrdre();
+				if (ordre < ordreAntic)  {
+					if (ordre >= NouOrd) {
+						ct.setOrdre(ordre + 1);
+						consultaCampDao.saveOrUpdate(ct);
+						consultaCampDao.flush();
+					}
+				}
+			}
+		}
+		consultaCamp.setOrdre(NouOrd);
+		consultaCampDao.saveOrUpdate(consultaCamp);
+		consultaCampDao.merge(consultaCamp);
+	}
+	
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void goToCampValidacio(Long id, int NouOrd) {
+		Validacio validacio = getValidacioById(id);
+		int ordreAntic = validacio.getOrdre();
+		Long campId = validacio.getCamp().getId();
+		List<Validacio> validacions = findValidacionsAmbCamp(campId);
+		
+		// Si no s'ha canviat l'ordre, sortim sense fer res.
+		if (ordreAntic == NouOrd) return;
+		validacio.setOrdre(-1);				
+				
+		if (ordreAntic < NouOrd) {
+			//Collections.reverse(camps);
+			Collections.sort(
+					validacions,
+					new Comparator() {
+					public int compare(Object o1, Object o2) {
+						if (o1 == null && o2 == null) return 0;
+						return (((Validacio)o1).getOrdre()<((Validacio)o2).getOrdre() ? -1 : ((Validacio)o1).getOrdre()==((Validacio)o2).getOrdre() ? 0 : 1);
+					}
+					});
+			
+			for (Validacio ce : validacions){
+				int ordre = ce.getOrdre();
+				if (ordre > ordreAntic) {
+					if (ordre <= NouOrd) {
+						ce.setOrdre(ordre - 1);
+						validacioDao.saveOrUpdate(ce);
+						validacioDao.flush();
+					}
+				}
+			}
+	
+		} else {
+			
+			Collections.sort(
+					validacions,
+					new Comparator() {
+					public int compare(Object o1, Object o2) {
+						if (o1 == null && o2 == null) return 0;
+						return (((Validacio)o1).getOrdre()>((Validacio)o2).getOrdre() ? -1 : ((Validacio)o1).getOrdre()==((Validacio)o2).getOrdre() ? 0 : 1);
+					}
+					});
+			
+			for (Validacio ct : validacions){
+			
+				int ordre = ct.getOrdre();
+				if (ordre < ordreAntic)  {
+					if (ordre >= NouOrd) {
+						ct.setOrdre(ordre + 1);
+						validacioDao.saveOrUpdate(ct);
+						validacioDao.flush();
+					}
+				}
+			}
+		}
+		validacio.setOrdre(NouOrd);
+		validacioDao.saveOrUpdate(validacio);
+		validacioDao.merge(validacio);
+	}
+	
+	
+	
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void goToEnumeracioValors(Long id, int NouOrd) {
+		EnumeracioValors enumeracioValors = getEnumeracioValorsById(id);
+		int ordreAntic = enumeracioValors.getOrdre();
+		List<EnumeracioValors> enumeracions = findEnumeracioValorsAmbEnumeracio(enumeracioValors.getEnumeracio().getId());
+		
+		// Si no s'ha canviat l'ordre, sortim sense fer res.
+		if (ordreAntic == NouOrd) return;
+		enumeracioValors.setOrdre(-1);				
+				
+		if (ordreAntic < NouOrd) {
+			Collections.sort(
+					enumeracions,
+					new Comparator() {
+					public int compare(Object o1, Object o2) {
+						if (o1 == null && o2 == null) return 0;
+						return (((EnumeracioValors)o1).getOrdre()<((EnumeracioValors)o2).getOrdre() ? -1 : ((EnumeracioValors)o1).getOrdre()==((EnumeracioValors)o2).getOrdre() ? 0 : 1);
+					}
+					});
+			
+			for (EnumeracioValors ce : enumeracions){
+				int ordre = ce.getOrdre();
+				if (ordre > ordreAntic) {
+					if (ordre <= NouOrd) {
+						ce.setOrdre(ordre - 1);
+						enumeracioValorsDao.saveOrUpdate(ce);
+						enumeracioValorsDao.flush();
+					}
+				}
+			}
+	
+		} else {
+			
+			Collections.sort(
+					enumeracions,
+					new Comparator() {
+					public int compare(Object o1, Object o2) {
+						if (o1 == null && o2 == null) return 0;
+						return (((EnumeracioValors)o1).getOrdre()>((EnumeracioValors)o2).getOrdre() ? -1 : ((EnumeracioValors)o1).getOrdre()==((EnumeracioValors)o2).getOrdre() ? 0 : 1);
+					}
+					});
+			
+			for (EnumeracioValors ct : enumeracions){
+			
+				int ordre = ct.getOrdre();
+				if (ordre < ordreAntic)  {
+					if (ordre >= NouOrd) {
+						ct.setOrdre(ordre + 1);
+						enumeracioValorsDao.saveOrUpdate(ct);
+						enumeracioValorsDao.flush();
+					}
+				}
+			}
+		}
+		enumeracioValors.setOrdre(NouOrd);
+		enumeracioValorsDao.saveOrUpdate(enumeracioValors);
+		enumeracioValorsDao.merge(enumeracioValors);
+	}
+	
+	
+	
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void goToCampAgrupacio(Long id, int NouOrd) {
+		Camp camp = getCampById(id);
+		CampAgrupacio campAgrupacio = camp.getAgrupacio();
+		int ordreAntic = camp.getOrdre();
+		
+		// Si no s'ha canviat l'ordre, sortim sense fer res.
+		if (ordreAntic == NouOrd) return;
+		camp.setOrdre(-1);				
+		List<Camp> campsAgrupacio =  campAgrupacio.getCamps();
+		
+		if (ordreAntic < NouOrd) {
+			Collections.sort(
+					campsAgrupacio,
+					new Comparator() {
+					public int compare(Object o1, Object o2) {
+						if (o1 == null && o2 == null) return 0;
+						return (((Camp)o1).getOrdre()<((Camp)o2).getOrdre() ? -1 : ((Camp)o1).getOrdre()==((Camp)o2).getOrdre() ? 0 : 1);
+					}
+					});
+			
+			for (Camp ca : campsAgrupacio){
+				int ordre = ca.getOrdre();
+				if (ordre > ordreAntic) {
+					if (ordre <= NouOrd) {
+						ca.setOrdre(ordre - 1);
+						campDao.saveOrUpdate(ca);
+						campDao.flush();
+					}
+				}
+			}
+	
+		} else {
+			
+			Collections.sort(
+					campsAgrupacio,
+					new Comparator() {
+					public int compare(Object o1, Object o2) {
+						if (o1 == null && o2 == null) return 0;
+						return (((Camp)o1).getOrdre()>((Camp)o2).getOrdre() ? -1 : ((Camp)o1).getOrdre()==((Camp)o2).getOrdre() ? 0 : 1);
+					}
+					});
+			
+			for (Camp ca : campsAgrupacio){
+			
+				int ordre = ca.getOrdre();
+				if (ordre < ordreAntic)  {
+					if (ordre >= NouOrd) {
+						ca.setOrdre(ordre + 1);
+						campDao.saveOrUpdate(ca);
+						campDao.flush();
+					}
+				}
+			}
+		}
+		camp.setOrdre(NouOrd);
+		campDao.saveOrUpdate(camp);
+		campDao.merge(camp);
+	}
+	
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void goToCampAgrupacioLlista(Long id, int NouOrd) {
 		CampAgrupacio campAgrupacio = getCampAgrupacioById(id);
 		int ordreAntic = campAgrupacio.getOrdre();
-		Long idProces = campAgrupacio.getDefinicioProces().getId();
+		Long procesId = campAgrupacio.getDefinicioProces().getId();
 		
 		// Si no s'ha canviat l'ordre, sortim sense fer res.
 		if (ordreAntic == NouOrd) return;
 		campAgrupacio.setOrdre(-1);				
-		List<CampAgrupacio> campsAgrupacio =  campAgrupacioDao.findAmbDefinicioProcesOrdenats(idProces);
+		List<CampAgrupacio> campsAgrupacio =  findCampAgrupacioAmbDefinicioProces(procesId);
 		
 		if (ordreAntic < NouOrd) {
 			Collections.sort(
@@ -3361,7 +3610,7 @@ public class DissenyService {
 				if (ordre > ordreAntic) {
 					if (ordre <= NouOrd) {
 						ca.setOrdre(ordre - 1);
-						campAgrupacioDao.saveOrUpdate(campAgrupacio);
+						campAgrupacioDao.saveOrUpdate(ca);
 						campAgrupacioDao.flush();
 					}
 				}
@@ -3384,7 +3633,7 @@ public class DissenyService {
 				if (ordre < ordreAntic)  {
 					if (ordre >= NouOrd) {
 						ca.setOrdre(ordre + 1);
-						campAgrupacioDao.saveOrUpdate(campAgrupacio);
+						campAgrupacioDao.saveOrUpdate(ca);
 						campAgrupacioDao.flush();
 					}
 				}
@@ -3395,6 +3644,132 @@ public class DissenyService {
 		campAgrupacioDao.merge(campAgrupacio);
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void goToValors(Long id, int NouOrd) {
+		EnumeracioValors enumeracioValors = getEnumeracioValorsById(id);
+		int ordreAntic = enumeracioValors.getOrdre();
+		Long enumeracioId = enumeracioValors.getEnumeracio().getId();
+		List<EnumeracioValors> valors = findEnumeracioValorsAmbEnumeracio(enumeracioId);
+		
+		// Si no s'ha canviat l'ordre, sortim sense fer res.
+		if (ordreAntic == NouOrd) return;
+		enumeracioValors.setOrdre(-1);				
+				
+		if (ordreAntic < NouOrd) {
+			//Collections.reverse(camps);
+			Collections.sort(
+					valors,
+					new Comparator() {
+					public int compare(Object o1, Object o2) {
+						if (o1 == null && o2 == null) return 0;
+						return (((EnumeracioValors)o1).getOrdre()<((EnumeracioValors)o2).getOrdre() ? -1 : ((EnumeracioValors)o1).getOrdre()==((EnumeracioValors)o2).getOrdre() ? 0 : 1);
+					}
+					});
+			
+			for (EnumeracioValors ce : valors){
+				int ordre = ce.getOrdre();
+				if (ordre > ordreAntic) {
+					if (ordre <= NouOrd) {
+						ce.setOrdre(ordre - 1);
+						enumeracioValorsDao.saveOrUpdate(ce);
+						enumeracioValorsDao.flush();
+					}
+				}
+			}
+	
+		} else {
+			
+			Collections.sort(
+					valors,
+					new Comparator() {
+					public int compare(Object o1, Object o2) {
+						if (o1 == null && o2 == null) return 0;
+						return (((EnumeracioValors)o1).getOrdre()>((EnumeracioValors)o2).getOrdre() ? -1 : ((EnumeracioValors)o1).getOrdre()==((EnumeracioValors)o2).getOrdre() ? 0 : 1);
+					}
+					});
+			
+			for (EnumeracioValors ct : valors){
+			
+				int ordre = ct.getOrdre();
+				if (ordre < ordreAntic)  {
+					if (ordre >= NouOrd) {
+						ct.setOrdre(ordre + 1);
+						enumeracioValorsDao.saveOrUpdate(ct);
+						enumeracioValorsDao.flush();
+					}
+				}
+			}
+		}
+		enumeracioValors.setOrdre(NouOrd);
+		enumeracioValorsDao.saveOrUpdate(enumeracioValors);
+		enumeracioValorsDao.merge(enumeracioValors);
+	}
+	
+	
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void goToCampRegistreMembres(Long id, int NouOrd) {
+		CampRegistre campRegistre = getCampRegistreById(id);
+		int ordreAntic = campRegistre.getOrdre();
+		List<CampRegistre> campsRegistre = campRegistre.getRegistre().getRegistreMembres();
+		
+		try{
+		// Si no s'ha canviat l'ordre, sortim sense fer res.
+		if (ordreAntic == NouOrd) return;
+		campRegistre.setOrdre(-1);		
+		
+		if (ordreAntic < NouOrd) {
+			Collections.sort(
+					campsRegistre,
+					new Comparator() {
+					public int compare(Object o1, Object o2) {
+						if (o1 == null && o2 == null) return 0;
+						return (((CampRegistre)o1).getOrdre()<((CampRegistre)o2).getOrdre() ? -1 : ((CampRegistre)o1).getOrdre()==((CampRegistre)o2).getOrdre() ? 0 : 1);
+					}
+					});
+			
+			for (CampRegistre ca : campsRegistre){
+				int ordre = ca.getOrdre();
+				if (ordre > ordreAntic) {
+					if (ordre <= NouOrd) {
+						ca.setOrdre(ordre - 1);
+						campRegistreDao.saveOrUpdate(ca);
+						campRegistreDao.flush();
+						
+					}
+				}
+			}
+			
+		} else {
+			
+			Collections.sort(
+					campsRegistre,
+					new Comparator() {
+					public int compare(Object o1, Object o2) {
+						if (o1 == null && o2 == null) return 0;
+						return (((CampRegistre)o1).getOrdre()>((CampRegistre)o2).getOrdre() ? -1 : ((CampRegistre)o1).getOrdre()==((CampRegistre)o2).getOrdre() ? 0 : 1);
+					}
+					});
+			
+			for (CampRegistre ca : campsRegistre){
+				int ordre = ca.getOrdre();
+					if (ordre < ordreAntic)  {
+						if (ordre >= NouOrd) {
+							ca.setOrdre(ordre + 1);
+							campRegistreDao.saveOrUpdate(ca);
+							campRegistreDao.flush();
+						}
+					}
+			}
+		}
+		
+		campRegistre.setOrdre(NouOrd);
+		campRegistreDao.saveOrUpdate(campRegistre);
+		campRegistreDao.merge(campRegistre);
+
+		}
+		catch(Exception e){e.getMessage();}
+	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void goToCampConsLlistat(Long id, int NouOrd) {
