@@ -8,18 +8,24 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.core.model.exception.DeploymentException;
 import net.conselldemallorca.helium.core.model.exportacio.DefinicioProcesExportacio;
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
+import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,15 +58,19 @@ public class ExpedientTipusDeployController extends BaseController {
 
 	private DissenyService dissenyService;
 	private PermissionService permissionService;
-
-
+	private ExecucioMassivaService execucioMassivaService;
+	private ExpedientService expedientService;
 
 	@Autowired
 	public ExpedientTipusDeployController(
 			DissenyService dissenyService,
-			PermissionService permissionService) {
+			PermissionService permissionService,
+			ExecucioMassivaService execucioMassivaService,
+			ExpedientService expedientService) {
 		this.dissenyService = dissenyService;
 		this.permissionService = permissionService;
+		this.execucioMassivaService = execucioMassivaService;
+		this.expedientService = expedientService;
 	}
 
 	@ModelAttribute("desplegamentTipus")
@@ -123,7 +133,7 @@ public class ExpedientTipusDeployController extends BaseController {
 			        }
 		        	try {
 		        		if (command.getTipus().equals("JBPM")) {
-		        			dissenyService.deploy(
+		        			DefinicioProces dp = dissenyService.deploy(
 				        			entorn.getId(),
 				        			command.getExpedientTipusId(),
 				        			multipartFile.getOriginalFilename(),
@@ -131,6 +141,28 @@ public class ExpedientTipusDeployController extends BaseController {
 				        			command.getEtiqueta(),
 				        			true);
 				        	missatgeInfo(request, getMessage("info.arxiu.desplegat") );
+				        	if (command.isActualitzarProcessosActius()) {
+				        		try {
+					        		// Obtenim informaciÃ³ de l'execuciÃ³ massiva					    			
+				    				ExecucioMassivaDto dto = new ExecucioMassivaDto();
+				    				dto.setDataInici(new Date());
+				    				dto.setEnviarCorreu(false);
+				    				dto.setParam1(dp.getJbpmKey());
+				    				dto.setParam2(execucioMassivaService.serialize(Integer.valueOf(dp.getVersio())));
+//				    				dto.setTipus(ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC);
+				    				List<JbpmProcessInstance> procInstances = expedientService.findProcessInstancesWithProcessDefinitionName(dp.getJbpmKey());
+				    				List<String> pi_ids = new ArrayList<String>();
+				    				for (JbpmProcessInstance pi: procInstances) {
+				    					pi_ids.add(pi.getId());
+				    				}
+				    				dto.setProcInstIds(pi_ids);
+				    				execucioMassivaService.crearExecucioMassiva(dto);
+				    				
+				    				missatgeInfo(request, getMessage("info.canvi.versio.massiu", new Object[] {pi_ids.size()}));
+				    			} catch (Exception e) {
+				    				missatgeError(request, getMessage("error.no.massiu"));
+				    			}
+				        	}
 		        		} else {
 			        		InputStream is = new ByteArrayInputStream(multipartFile.getBytes());
 					    	ObjectInputStream input = new ObjectInputStream(is);
@@ -181,6 +213,7 @@ public class ExpedientTipusDeployController extends BaseController {
 		private String etiqueta;
 		private String tipus;
 		private byte[] arxiu;
+		private boolean actualitzarProcessosActius;
 		public Long getExpedientTipusId() {
 			return expedientTipusId;
 		}
@@ -204,6 +237,12 @@ public class ExpedientTipusDeployController extends BaseController {
 		}
 		public void setArxiu(byte[] arxiu) {
 			this.arxiu = arxiu;
+		}
+		public boolean isActualitzarProcessosActius() {
+			return actualitzarProcessosActius;
+		}
+		public void setActualitzarProcessosActius(boolean actualitzarProcessosActius) {
+			this.actualitzarProcessosActius = actualitzarProcessosActius;
 		}
 	}
 

@@ -5,7 +5,6 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
@@ -18,11 +17,9 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * Controlador per a la pàgina d'informació de l'expedient.
@@ -40,14 +37,18 @@ public class ExpedientPipellesController extends BaseExpedientController {
 	private PluginService pluginService;
 
 	@RequestMapping(value = "/{expedientId}", method = RequestMethod.GET)
-	public String info(HttpServletRequest request, @PathVariable Long expedientId, Model model) {
+	public String info(
+			HttpServletRequest request, 
+			@PathVariable Long expedientId, 
+			Model model) {
 		return mostrarInformacioExpedientPerPipella(request, expedientId, model, null, expedientService);
 	}
 
 	@RequestMapping(value = "/{expedientId}/imatgeProces", method = RequestMethod.GET)
 	public String imatgeProces(
 			HttpServletRequest request,
-			@RequestParam(value = "expedientId", required = true) Long expedientId) {
+			@PathVariable(value = "expedientId") Long expedientId, 
+			Model model) {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findById(expedientId);
@@ -55,13 +56,13 @@ public class ExpedientPipellesController extends BaseExpedientController {
 				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(expedient.getProcessInstanceId());
 				if (instanciaProces.isImatgeDisponible()) {
 					String resourceName = "processimage.jpg";
-//					model.addAttribute(
-//							ArxiuView.MODEL_ATTRIBUTE_FILENAME,
-//							resourceName);
-//					model.addAttribute(
-//							ArxiuView.MODEL_ATTRIBUTE_DATA,
-//							dissenyService.getImatgeDefinicioProces(
-//									instanciaProces.getDefinicioProces().getId()));
+					model.addAttribute(
+							ArxiuView.MODEL_ATTRIBUTE_FILENAME,
+							resourceName);
+					model.addAttribute(
+							ArxiuView.MODEL_ATTRIBUTE_DATA,
+							dissenyService.getDeploymentResource(
+									instanciaProces.getDefinicioProces().getId(),"processimage.jpg"));
 					return "arxiuView";
 				} else {
 					MissatgesHelper.error(request, getMessage(request, "error.info.expedient.imatgeproces"));

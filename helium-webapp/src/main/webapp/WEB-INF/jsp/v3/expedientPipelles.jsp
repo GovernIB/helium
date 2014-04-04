@@ -167,7 +167,7 @@
 				</dt>
 				<dd><em><small>Definició de procés</small></em></dd>
 				<dt>	
-					<i class="icon-picture"></i> <a href="<c:url value="${expedient.id}/imatgeProces"/>" role="button" data-toggle="modal"><c:out value="${definicioProcesDescripcio}"/></a> <a href="#"><i class="icon-pencil"></i></a>
+					<i class="icon-picture"></i> <a href="<c:url value="${expedient.id}/imatgeProces"/>" role="button" ><c:out value="${definicioProcesDescripcio}"/></a> <a href="#"><i class="icon-pencil"></i></a>
 				</dt>
 <!-- 				<dt>					 -->
 <!-- 					<select class="span11" id="definicioProcesJbpmId" name="definicioProcesJbpmId"> -->
