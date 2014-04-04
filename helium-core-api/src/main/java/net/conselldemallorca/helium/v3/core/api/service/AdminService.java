@@ -8,6 +8,7 @@ import java.util.Set;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MesuraTemporalDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaCompleteDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 
@@ -56,4 +57,5 @@ public interface AdminService {
 	public List<MesuraTemporalDto> getHibernateStatistics(String familia, boolean exportar);
 	public List<TascaCompleteDto> getTasquesCompletar();
 	public void updatePerfil(UsuariPreferenciesDto preferencies);
+	public void updatePersona(PersonaDto persona);
 }

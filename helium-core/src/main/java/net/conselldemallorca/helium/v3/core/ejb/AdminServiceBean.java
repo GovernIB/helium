@@ -12,6 +12,7 @@ import javax.interceptor.Interceptors;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MesuraTemporalDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaCompleteDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
@@ -145,5 +146,11 @@ public class AdminServiceBean implements AdminService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void updatePerfil(UsuariPreferenciesDto preferencies) {
 		delegate.updatePerfil(preferencies);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void updatePersona(PersonaDto persona) {
+		delegate.updatePersona(persona);
 	}
 }

@@ -140,7 +140,7 @@
 					</div>
 				</div>
 				<div class="control-group">
-					<c:set var="campPath" value="sexe"/>
+					<c:set var="campPath" value="hombre"/>
 					<label class="control-label" for="${campPath}"><spring:message code='comuns.sexe' /></label>
 					<div class="controls">
 						<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>

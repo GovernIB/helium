@@ -183,7 +183,7 @@ public class PerfilesController extends BaseController {
 		filtreCommand.setEmail(usuari.getEmail());
 		filtreCommand.setLlinatge1(usuari.getLlinatge1());
 		filtreCommand.setLlinatge2(usuari.getLlinatge2());
-		filtreCommand.setSexe(usuari.getSexe().equals(Sexe.SEXE_HOME));
+		filtreCommand.setHombre(usuari.getSexe().equals(Sexe.SEXE_HOME));
 		return filtreCommand;
 	}
 
@@ -214,7 +214,13 @@ public class PerfilesController extends BaseController {
 	        	} else if ("Modificar".equals(accio)) {
 	        		PersonaDto persona = new PersonaDto();
 	        		persona.setCodi(request.getUserPrincipal().getName());
-//	        		adminService.updatePersona(persona);
+	        		persona.setDni(personaUsuariCommand.getDni());
+	        		persona.setEmail(personaUsuariCommand.getEmail());
+	        		persona.setLlinatge1(personaUsuariCommand.getLlinatge1());
+	        		persona.setLlinatge2(personaUsuariCommand.getLlinatge2());
+	        		persona.setNom(personaUsuariCommand.getNom());
+	        		persona.setSexe(personaUsuariCommand.isHombre() ? Sexe.SEXE_HOME : Sexe.SEXE_DONA);
+	        		adminService.updatePersona(persona);
 	        		MissatgesHelper.info(request,getMessage(request, "info.perfil.guardat"));
 	        	} else {
 	        		MissatgesHelper.error(request, getMessage(request, "error.guardar.perfil"));

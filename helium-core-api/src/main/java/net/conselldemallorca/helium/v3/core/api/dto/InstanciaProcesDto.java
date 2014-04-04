@@ -26,6 +26,7 @@ public class InstanciaProcesDto {
 	private String titol;
 	private Date dataFi;
 	private DefinicioProcesDto definicioProces;
+	private boolean imatgeDisponible;
 	
 	private Set<CampDto> camps;
 
@@ -138,6 +139,12 @@ public class InstanciaProcesDto {
 		} else {
 			sb.append(o.getClass().getName());
 		}
+	}
+	public boolean isImatgeDisponible() {
+		return imatgeDisponible;
+	}
+	public void setImatgeDisponible(boolean imatgeDisponible) {
+		this.imatgeDisponible = imatgeDisponible;
 	}
 
 }

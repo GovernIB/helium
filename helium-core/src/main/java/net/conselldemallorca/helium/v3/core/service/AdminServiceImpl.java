@@ -12,16 +12,20 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.hibernate.UsuariPreferencies;
 import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntervalEventDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MesuraTemporalDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaCompleteDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.UsuariActualCacheHelper;
+import net.conselldemallorca.helium.v3.core.repository.PersonaRepository;
 import net.conselldemallorca.helium.v3.core.repository.UsuariPreferenciesRepository;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -52,8 +56,9 @@ public class AdminServiceImpl implements AdminService {
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
+	private PersonaRepository personaRepository;
+	@Resource
 	private SessionFactory sessionFactory;
-
 
 	@Override
 	public List<EntornDto> findEntornAmbPermisReadUsuariActual() {
@@ -245,7 +250,19 @@ public class AdminServiceImpl implements AdminService {
 		usuari.setNumElementosPagina(preferencies.getNumElementosPagina());
 		usuariPreferenciesRepository.save(usuari);
 	}
+
+	@Transactional
+	@Override
+	public void updatePersona(PersonaDto personaDto) {
+		Persona persona = personaRepository.findByCodi(personaDto.getCodi());
+		persona.setDni(personaDto.getDni());
+		persona.setEmail(personaDto.getEmail());
+		persona.setLlinatge1(personaDto.getLlinatge1());
+		persona.setLlinatge2(personaDto.getLlinatge2());
+		persona.setNom(personaDto.getNom());
+		persona.setSexe(personaDto.getSexe().equals(Sexe.SEXE_HOME) ? Persona.Sexe.SEXE_HOME : Persona.Sexe.SEXE_DONA);
+		personaRepository.save(persona);
+	}
 	
-	private static final Logger logger = LoggerFactory.getLogger(AdminServiceImpl.class);
-	
+	private static final Logger logger = LoggerFactory.getLogger(AdminServiceImpl.class);	
 }

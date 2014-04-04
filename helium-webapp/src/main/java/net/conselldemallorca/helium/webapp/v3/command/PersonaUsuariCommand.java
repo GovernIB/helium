@@ -21,7 +21,7 @@ public class PersonaUsuariCommand {
 	private String llinatge2;
 	private String dni;
 	private String email;
-	private boolean sexe;
+	private boolean hombre;
 
 	public String getNom() {
 		return nom;
@@ -95,10 +95,10 @@ public class PersonaUsuariCommand {
 	public void setListado(int listado) {
 		this.listado = listado;
 	}
-	public boolean isSexe() {
-		return sexe;
+	public boolean isHombre() {
+		return hombre;
 	}
-	public void setSexe(boolean sexe) {
-		this.sexe = sexe;
+	public void setHombre(boolean hombre) {
+		this.hombre = hombre;
 	}
 }
