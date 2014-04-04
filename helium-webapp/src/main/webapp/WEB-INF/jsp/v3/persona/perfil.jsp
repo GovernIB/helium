@@ -6,7 +6,7 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <html>
 <head>
-	<title><fmt:message key='perfil.info.meu_perfil' /></title>
+	<title><spring:message code='perfil.info.meu_perfil' /></title>
 	<meta name="capsaleraTipus" content="llistat"/>
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
 	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
@@ -66,9 +66,99 @@
 </script>
 </head>
 <body>
-	<h3 class="capsalera"><fmt:message key='perfil.info.meu_perfil' /></h3>
+	<c:set var="esReadOnly" value="${globalProperties['app.persones.readonly'] == 'true'}"/>
+	<c:set var="tipusText"><c:choose><c:when test="${not esReadOnly}">text</c:when><c:otherwise>static</c:otherwise></c:choose></c:set>
+	<c:set var="tipusSelect"><c:choose><c:when test="${not esReadOnly}">select</c:when><c:otherwise>static</c:otherwise></c:choose></c:set>
+	
+	<h3 class="capsalera"><spring:message code='perfil.info.meu_perfil' /></h3>
+	
+	
 	<div class="page-header">
-		<h4><fmt:message key='perfil.info.preferencies' /></h4>
+		<h4><spring:message code='perfil.info.dades_perso' /></h4>
+	</div>
+	<div class="well well-white">
+		<div class="row-fluid">  
+			<form:form action="" cssClass="form-horizontal form-tasca" commandName="personaUsuariCommand">
+				<div class="control-group">
+					<c:set var="campPath" value="nom"/>
+					<label class="control-label" for="${campPath}"><spring:message code='comuns.nom' /></label>
+					<div class="controls">
+						<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
+						<div class="control-group<c:if test="${not empty campErrors}"> error</c:if>">
+							<spring:bind path="${campPath}">
+								<input <c:if test="${tipusText == 'static'}">readonly="readonly"</c:if> type="text" id="${campPath}" name="${campPath}" placeholder="<spring:message code='comuns.nom' />"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span11">
+							</spring:bind>
+						</div>
+					</div>
+				</div>
+				<div class="control-group">
+					<c:set var="campPath" value="llinatge1"/>
+					<label class="control-label" for="${campPath}"><spring:message code='persona.form.primer_llin' /></label>
+					<div class="controls">
+						<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
+						<div class="control-group<c:if test="${not empty campErrors}"> error</c:if>">
+							<spring:bind path="${campPath}">
+								<input <c:if test="${tipusText == 'static'}">readonly="readonly"</c:if> type="text" id="${campPath}" name="${campPath}" placeholder="<spring:message code='persona.form.primer_llin' />"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span11">
+							</spring:bind>
+						</div>
+					</div>
+				</div>
+				<div class="control-group">
+					<c:set var="campPath" value="llinatge2"/>
+					<label class="control-label" for="${campPath}"><spring:message code='persona.form.segon_llin' /></label>
+					<div class="controls">
+						<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
+						<div class="control-group<c:if test="${not empty campErrors}"> error</c:if>">
+							<spring:bind path="${campPath}">
+								<input <c:if test="${tipusText == 'static'}">readonly="readonly"</c:if> type="text" id="${campPath}" name="${campPath}" placeholder="<spring:message code='persona.form.segon_llin' />"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span11">
+							</spring:bind>
+						</div>
+					</div>
+				</div>
+				<div class="control-group">
+					<c:set var="campPath" value="dni"/>
+					<label class="control-label" for="${campPath}"><spring:message code='persona.form.dni' /></label>
+					<div class="controls">
+						<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
+						<div class="control-group<c:if test="${not empty campErrors}"> error</c:if>">
+							<spring:bind path="${campPath}">
+								<input <c:if test="${tipusText == 'static'}">readonly="readonly"</c:if> type="text" id="${campPath}" name="${campPath}" placeholder="<spring:message code='persona.form.dni' />"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span11">
+							</spring:bind>
+						</div>
+					</div>
+				</div>
+				<div class="control-group">
+					<c:set var="campPath" value="email"/>
+					<label class="control-label" for="${campPath}"><spring:message code='persona.form.ae' /></label>
+					<div class="controls">
+						<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
+						<div class="control-group<c:if test="${not empty campErrors}"> error</c:if>">
+							<spring:bind path="${campPath}">
+								<input <c:if test="${tipusText == 'static'}">readonly="readonly"</c:if> type="text" id="${campPath}" name="${campPath}" placeholder="<spring:message code='persona.form.ae' />"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span11">
+							</spring:bind>
+						</div>
+					</div>
+				</div>
+				<div class="control-group">
+					<c:set var="campPath" value="sexe"/>
+					<label class="control-label" for="${campPath}"><spring:message code='comuns.sexe' /></label>
+					<div class="controls">
+						<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
+						<form:select id="sexe" name="sexe" path="${campPath}" cssClass="span11">
+							<form:options items="${sexes}" itemLabel="valor" itemValue="codi"/>
+						</form:select>
+					</div>
+				</div>
+				<br/>
+				<div class="pull-right">
+					<input class="btn btn-primary" type="submit" id="guardar" name="accio" value="Modificar" />
+				</div>
+			</form:form>
+		</div>
+	</div>
+	<br/>
+	<div class="page-header">
+		<h4><spring:message code='perfil.info.preferencies' /></h4>
 	</div>		
 	<div class="well well-white">
 		<div class="row-fluid">    
@@ -162,26 +252,18 @@
 				</div>
 				<br />
 				<div class="pull-right">
-					<input class="btn btn-primary" type="submit" id="guardar" name="guardar" value="Guardar" />
+					<input class="btn btn-primary" type="submit" id="guardar" name="accio" value="Guardar" />
 				</div>
 			</form:form>
 		</div>
 	</div>
-	<br/>
-	<div class="page-header">
-		<h4><fmt:message key='perfil.info.dades_perso' /></h4>
-	</div>
-	<div class="well well-white">
-		<div class="row-fluid">    
-			<dl class="dl-horizontal">			
-				<dt><fmt:message key='comuns.codi' /></dt><dd>${info.codi}</dd>
-				<dt><fmt:message key='comuns.nom' /></dt><dd>${info.nom}</dd>
-				<dt><fmt:message key='perfil.info.llinatges' /></dt><dd>${info.llinatges}</dd>
-				<dt><fmt:message key='perfil.info.dni' /></dt><dd>${info.dni}&nbsp;</dd>
-				<dt><fmt:message key='perfil.info.ae' /></dt><dd>${info.email}</dd>
-				<dt><fmt:message key='comuns.sexe' /></dt><dd><c:choose><c:when test="${info.sexe == 'SEXE_HOME'}"><fmt:message key='perfil.info.home' /></c:when><c:otherwise><fmt:message key='perfil.info.dona' /></c:otherwise></c:choose></dd>
-			</dl>
-		</div>
-	</div>
+	
+	<script>	
+		$( '[data-required="true"]' )
+			.closest(".control-group")
+			.children("label")
+			.prepend("<i class='icon-asterisk'></i> ");
+	</script>  
+	
 </body>
 </html>

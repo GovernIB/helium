@@ -1,4 +1,4 @@
-(function($) {
+(function($) {	
 	$.fn.heliumModal = function(options) {
 		return this.filter("div").each(function() {
 			var settings = $.extend({
@@ -23,6 +23,7 @@
 					'		<iframe frameborder="0" height="' + iframeHeight + '" width="99.6%"></iframe>' +
 					'	</div>' +
 					'	<div class="modal-footer">' +
+//					'		<button id="modal-button-tancar" class="btn pull-left" data-dismiss="modal" aria-hidden="true">Tancar</button>' +
 					'	</div>' +
 					'</div>');
 			var modalUrl = settings.modalUrl;
@@ -113,10 +114,9 @@
 							async: false,
 							timeout: 20000,
 							success: function (data) {
-								$('#contingut-alertes *').remove();
-								$('#contingut-alertes').append(data);
-							},
-							error: ajaxErrorFunction
+								$('.contingut-alertes *').remove();
+								$('.contingut-alertes').append(data);
+							}
 					    });
 					}
 				}
@@ -125,3 +125,7 @@
 		});
 	};
 }(jQuery));
+
+function modalTancarIRefrescar(iframe) {
+	$(iframe).parent().parent().modal('hide');
+}

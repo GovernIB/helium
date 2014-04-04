@@ -95,7 +95,6 @@ public class ExpedientExecucionsController extends BaseExpedientController {
 						logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+expedientId+" No s'ha pogut executar l'script", ex);
 						MissatgesHelper.error(request, getMessage(request, "error.executar.script") +": "+ command.getScript());
 			        }
-					return "/v3/utils/modalTancar";
 				}
 			} else {
 				MissatgesHelper.error(request, getMessage(request, "error.permisos.modificar.expedient"));
@@ -103,7 +102,7 @@ public class ExpedientExecucionsController extends BaseExpedientController {
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
 		}	
-		return "/v3/utils/modalTancar";
+		return modalUrlTancar();
 	}
 	
 	private class ExpedientScriptValidator implements Validator {

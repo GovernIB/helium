@@ -14,6 +14,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
@@ -62,7 +64,6 @@ public class PerfilesController extends BaseController {
 			HttpServletRequest request,
 			Model model) {
 		model.addAttribute(getFiltreCommand(request, model));
-		model.addAttribute("info", getPersonaActual(request));
 		return "v3/persona/perfil";
 	}
 
@@ -126,6 +127,14 @@ public class PerfilesController extends BaseController {
 		resposta.add(new ParellaCodiValorDto("2", "Informes"));
 		return resposta;
 	}
+
+	@ModelAttribute("sexes")
+	public List<ParellaCodiValorDto> sexes(HttpServletRequest request) {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		resposta.add(new ParellaCodiValorDto("0", getMessage(request, "txt.dona")));
+		resposta.add(new ParellaCodiValorDto("1", getMessage(request, "txt.home")));
+		return resposta;
+	}
 	
 	private PersonaUsuariCommand getFiltreCommand(HttpServletRequest request, Model model) {		
 		PersonaUsuariCommand filtreCommand = new PersonaUsuariCommand();
@@ -167,6 +176,14 @@ public class PerfilesController extends BaseController {
 		filtreCommand.setFiltroExpedientesActivos(preferencies.isFiltroTareasActivas());
 		filtreCommand.setListado(preferencies.getListado());
 		filtreCommand.setNumElementosPagina(preferencies.getNumElementosPagina());
+		
+		PersonaDto usuari = getPersonaActual(request);
+		filtreCommand.setNom(usuari.getNom());
+		filtreCommand.setDni(usuari.getDni());
+		filtreCommand.setEmail(usuari.getEmail());
+		filtreCommand.setLlinatge1(usuari.getLlinatge1());
+		filtreCommand.setLlinatge2(usuari.getLlinatge2());
+		filtreCommand.setSexe(usuari.getSexe().equals(Sexe.SEXE_HOME));
 		return filtreCommand;
 	}
 
@@ -174,23 +191,34 @@ public class PerfilesController extends BaseController {
 	public String formPost(
 			HttpServletRequest request,
 			@ModelAttribute("PersonaUsuariCommand") PersonaUsuariCommand personaUsuariCommand,
+			@RequestParam(value = "accio", required = false) String accio,
 			BindingResult result,
 			SessionStatus status,
 			Model model) {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entorn != null) {
 	        try {
-	        	UsuariPreferenciesDto preferencies = new UsuariPreferenciesDto();
-	        	preferencies.setCodi(request.getUserPrincipal().getName());
-	        	preferencies.setCabeceraReducida(personaUsuariCommand.isCabeceraReducida());
-	        	preferencies.setConsultaId(personaUsuariCommand.getConsultaId());
-	        	preferencies.setDefaultEntornCodi(personaUsuariCommand.getEntornCodi());
-	        	preferencies.setFiltroTareasActivas(personaUsuariCommand.isFiltroExpedientesActivos());
-	        	preferencies.setListado(personaUsuariCommand.getListado());
-	        	preferencies.setNumElementosPagina(personaUsuariCommand.getNumElementosPagina());
-	        	adminService.updatePerfil(preferencies);
-	        	SessionHelper.getSessionManager(request).setPreferenciesUsuari(preferencies);
-	        	MissatgesHelper.info(request,getMessage(request, "info.perfil.guardat"));
+	        	if ("Guardar".equals(accio)) {
+		        	UsuariPreferenciesDto preferencies = new UsuariPreferenciesDto();
+		        	preferencies.setCodi(request.getUserPrincipal().getName());
+		        	preferencies.setCabeceraReducida(personaUsuariCommand.isCabeceraReducida());
+		        	preferencies.setConsultaId(personaUsuariCommand.getConsultaId());
+		        	preferencies.setDefaultEntornCodi(personaUsuariCommand.getEntornCodi());
+		        	preferencies.setFiltroTareasActivas(personaUsuariCommand.isFiltroExpedientesActivos());
+		        	preferencies.setListado(personaUsuariCommand.getListado());
+		        	preferencies.setNumElementosPagina(personaUsuariCommand.getNumElementosPagina());
+		        	adminService.updatePerfil(preferencies);
+		        	SessionHelper.getSessionManager(request).setPreferenciesUsuari(preferencies);
+		        	
+		        	MissatgesHelper.info(request,getMessage(request, "info.perfil.guardat"));
+	        	} else if ("Modificar".equals(accio)) {
+	        		PersonaDto persona = new PersonaDto();
+	        		persona.setCodi(request.getUserPrincipal().getName());
+//	        		adminService.updatePersona(persona);
+	        		MissatgesHelper.info(request,getMessage(request, "info.perfil.guardat"));
+	        	} else {
+	        		MissatgesHelper.error(request, getMessage(request, "error.guardar.perfil"));
+	        	}	        	
 	        } catch (Exception ex) {
 	        	MissatgesHelper.error(request, getMessage(request, "error.guardar.perfil"));
 	        	logger.error("No s'ha pogut guardar el perfil", ex);

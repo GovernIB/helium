@@ -23,7 +23,7 @@ $(document).ready(function() {
 	$("#taulaDades").heliumDataTable({
 		ajaxSourceUrl: "<c:url value="/v3/informe/${expedientInformeCommand.expedientTipusId}/${expedientInformeCommand.consultaId}/datatable"/>",
 		localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
-		alertesRefreshUrl: "<c:url value="/nodeco/util/alertes"/>",
+		alertesRefreshUrl: "<c:url value="/nodecorar/v3/missatges"/>",
 		rowClickCallback: function(row) {
 			$('a.obrir-expedient', $(row))[0].click();
 			/*var url = $('ul a:first', $(row)).attr("href");

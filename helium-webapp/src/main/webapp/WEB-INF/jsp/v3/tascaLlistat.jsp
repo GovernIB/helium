@@ -23,7 +23,7 @@ $(document).ready(function() {
 	$("#taulaDades").heliumDataTable({
 		ajaxSourceUrl: "<c:url value="/v3/tasca/datatable"/>",
 		localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
-		alertesRefreshUrl: "<c:url value="/nodeco/util/alertes"/>"
+		alertesRefreshUrl: "<c:url value="/nodecorar/v3/missatges"/>"
 	});
 	$("#tascaConsultaCommand button[value='netejar']").click(function() {
 		$('#tascaConsultaCommand')[0].reset();
@@ -45,25 +45,6 @@ $(document).ready(function() {
 		$("input[name=filtreDesplegat]").val("true");
 	});
 	$('.datepicker').datepicker({language: 'ca', autoclose: true});
-});
-
-$('#taulaDades a').click(function() {
-	if ($(this).data('tramitar-modal')) {
-		$('#tasca-tramitacio-modal').heliumModal({
-			modalUrl: $(this).attr('href'),
-			refrescarTaula: false,
-			refrescarAlertes: false,
-			refrescarPagina: false,
-			adjustWidth: false,
-			adjustHeight: false,
-			maximize: true,
-			valignTop: true,
-			buttonContainerId: 'formFinalitzar'
-		});
-		return false;
-	} else {
-		return true;
-	}
 });
 
 function confirmarSuspendre(e) {
@@ -93,16 +74,8 @@ function confirmarAlliberar(e) {
 </script>
 </head>
 <body>
-	<div id="tramitacio-modal" class="modal modal-max hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-		<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-			<h3></h3>
-		</div>
-		<div class="modal-body"></div>
-		<div class="modal-footer">
-			<button id="modal-button-tancar" class="btn pull-left" data-dismiss="modal" aria-hidden="true">Tancar</button>
-		</div>
-	</div>
+
+	<div id="tasca-reasignar-modal"></div>
 	<div id="tasca-tramitacio-modal"></div>
 	
 	<input type="hidden" id="netejar" value="false"/>
@@ -260,12 +233,12 @@ function confirmarAlliberar(e) {
  						<div class="dropdown"> 
  							<button class="btn btn-success" data-toggle="dropdown"><i class="icon-cog icon-white"></i>&nbsp;Accions&nbsp;<span class="caret"></span></button> 
 							<ul class="dropdown-menu"> 
-								<li><a rdt-link-modal=true href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/reassignar"/>" data-rdt-link-modal="true"><i class="icon-share"></i> Reasignar</a></li>
+								<li><a rdt-link-modal="true" data-reasignar-modal="true" href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/reassignar"/>"><i class="icon-share"></i> Reasignar</a></li>
 								{{if responsables != null && !agafada && oberta && !suspesa}}
  									<li><a href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/tascaAgafar"/>"><i class="icon-signin"></i> Agafar</a></li>
 								{{/if}}
 								{{if agafada && oberta && !suspesa}}
- 									<li><a href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/tramitar"/>" data-rdt-link-modal="true"><i class="icon-folder-open"></i> Tramitar</a></li>
+ 									<li><a rdt-link-modal="true" href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/tramitar"/>" data-tramitar-modal="true"><i class="icon-folder-open"></i> Tramitar</a></li>
 									<li><a href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/delegar"/>"><i class="icon-hand-right"></i> Delegar</a></li>
 								{{/if}}
 								{{if oberta && !suspesa}}
@@ -294,6 +267,40 @@ function confirmarAlliberar(e) {
 			</tr>
 		</thead>
 	</table>
-
+<script type="text/javascript">
+$('#taulaDades a').click(function() {
+	if ($(this).data('tramitar-modal')) {
+		$('#tasca-tramitacio-modal').heliumModal({
+			modalUrl: $(this).attr('href'),
+			refrescarTaula: false,
+			refrescarAlertes: false,
+			refrescarPagina: false,
+			adjustWidth: false,
+			adjustHeight: true,
+			maximize: true,
+			alertesRefreshUrl: "<c:url value="/nodecorar/v3/missatges"/>",
+			valignTop: true,
+			buttonContainerId: 'formFinalitzar',
+		});
+		return false;
+	} else if ($(this).data('reasignar-modal')) {
+		$('#tasca-reasignar-modal').heliumModal({
+			modalUrl: $(this).attr('href'),
+			refrescarTaula: false,
+			refrescarAlertes: true,
+			refrescarPagina: false,
+			adjustWidth: false,
+			adjustHeight: true,
+			maximize: true,
+			alertesRefreshUrl: "<c:url value="/nodecorar/v3/missatges"/>",
+			valignTop: true,
+			buttonContainerId: 'formReasignar'
+		});
+		return false;
+	} else {
+		return true;
+	}
+});
+</script>
 </body>
 </html>

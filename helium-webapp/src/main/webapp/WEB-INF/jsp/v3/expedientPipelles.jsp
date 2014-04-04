@@ -12,7 +12,6 @@
 	<title>Informació de l'expedient</title>
 	<meta name="capsaleraTipus" content="expedient"/>
 	<meta name="tabActiu" content="dades"/>
-	<c:import url="utils/modalDefinir.jsp"/>
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 <style>
 #info-carregant {
@@ -246,53 +245,10 @@
 			</c:if>
 		</div>
 	</div>
-	
-	<div id="modificar-modal" class="modal modal-max hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-		<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-			<h3></h3>
-		</div>
-		<div class="modal-body"></div>
-		<div class="modal-footer">
-			<button id="modal-button-tancar" class="btn pull-left" data-dismiss="modal" aria-hidden="true">Tancar</button>
-		</div>
-	</div>
+		
 	<div id="expedient-modificar-modal"></div>
-	
-	<div id="aturar-modal" class="modal modal-max hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-		<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-			<h3></h3>
-		</div>
-		<div class="modal-body"></div>
-		<div class="modal-footer">
-			<button id="modal-button-tancar" class="btn pull-left" data-dismiss="modal" aria-hidden="true">Tancar</button>
-		</div>
-	</div>
 	<div id="expedient-aturar-modal"></div>
-	
-	<div id="exec-modal" class="modal modal-max hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-		<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-			<h3></h3>
-		</div>
-		<div class="modal-body"></div>
-		<div class="modal-footer">
-			<button id="modal-button-tancar" class="btn pull-left" data-dismiss="modal" aria-hidden="true">Tancar</button>
-		</div>
-	</div>
 	<div id="expedient-exec-modal"></div>
-	
-	<div id="relacionar-modal" class="modal modal-max hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-		<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-			<h3></h3>
-		</div>
-		<div class="modal-body"></div>
-		<div class="modal-footer">
-			<button id="modal-button-tancar" class="btn pull-left" data-dismiss="modal" aria-hidden="true">Tancar</button>
-		</div>
-	</div>
 	<div id="expedient-relacionar-modal"></div>
 	
 	<script type="text/javascript">
@@ -307,6 +263,7 @@
 					adjustWidth: false,
 					adjustHeight: true,
 					maximize: true,
+					alertesRefreshUrl: "<c:url value="/nodecorar/v3/missatges"/>",
 					valignTop: true,
 					buttonContainerId: 'formButtons'
 				});
@@ -320,6 +277,7 @@
 					adjustWidth: false,
 					adjustHeight: true,
 					maximize: true,
+					alertesRefreshUrl: "<c:url value="/nodecorar/v3/missatges"/>",
 					valignTop: true,
 					buttonContainerId: 'formButtons'
 				});
@@ -333,6 +291,7 @@
 					adjustWidth: false,
 					adjustHeight: true,
 					maximize: true,
+					alertesRefreshUrl: "<c:url value="/nodecorar/v3/missatges"/>",
 					valignTop: true,
 					buttonContainerId: 'formButtons'
 				});
@@ -346,6 +305,7 @@
 					adjustWidth: false,
 					adjustHeight: true,
 					maximize: true,
+					alertesRefreshUrl: "<c:url value="/nodecorar/v3/missatges"/>",
 					valignTop: true,
 					buttonContainerId: 'formButtons'
 				});

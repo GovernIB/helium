@@ -3,11 +3,7 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
-import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
@@ -21,53 +17,8 @@ import org.springframework.web.servlet.support.RequestContext;
 public class BaseController implements MessageSourceAware {
 	MessageSource messageSource;
 
-	protected String modalUrlTancar(String url) {
-		return url;
-	}
-
-	protected String getModalControllerReturnValueSuccess(
-			HttpServletRequest request,
-			String url,
-			String messageKey, boolean modal) {
-		return getModalControllerReturnValueSuccess(
-				request,
-				url,
-				messageKey,
-				null, modal);
-	}
-	protected String getModalControllerReturnValueSuccess(
-			HttpServletRequest request,
-			String url,
-			String messageKey,
-			Object[] messageArgs, boolean modal) {
-		if (modal) {
-			MissatgesHelper.success(
-					request, 
-					getMessage(
-							request, 
-							messageKey,
-							messageArgs));
-			return modalUrlTancar(url);
-		} else {
-			if (messageKey != null) {
-				MissatgesHelper.success(
-						request, 
-						getMessage(
-								request, 
-								messageKey,
-								messageArgs));
-			}
-			return url;
-		}
-	}
-
-	protected void writeFileToResponse(String fileName, byte[] fileContent, HttpServletResponse response) throws Exception {
-		response.setHeader("Pragma", "");
-		response.setHeader("Expires", "");
-		response.setHeader("Cache-Control", "");
-		response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
-		response.setContentType(new MimetypesFileTypeMap().getContentType(fileName));
-		response.getOutputStream().write(fileContent);
+	protected String modalUrlTancar() {
+		return "v3/utils/modalTancar";
 	}
 
 	public String getMessage(HttpServletRequest request, String key, Object[] args) {

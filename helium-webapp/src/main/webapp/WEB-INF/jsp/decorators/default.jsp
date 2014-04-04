@@ -19,6 +19,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 	<title>Helium - <decorator:title default="<fmt:message key='decorators.default.benvinguts' />"/></title>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
 	<link rel="icon" href="<c:url value="/img/favicon.ico"/>" type="image/x-icon"/>
 	<link rel="shortcut icon" href="<c:url value="/img/favicon.ico"/>" type="image/x-icon"/> 
 	<link href="<c:url value="/css/reset.css"/>" rel="stylesheet" type="text/css"/>

@@ -90,9 +90,8 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 			}
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec") );
-		}
-		
-		return "/v3/utils/modalTancar";
+		}		
+		return modalUrlTancar();
 	}
 	
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/reassignar", method = RequestMethod.POST)
@@ -151,7 +150,7 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec") );
 		}
 		
-		return "/v3/utils/modalTancar";
+		return modalUrlTancar();
 	}
 	
 	private class TascaReassignarValidator implements Validator {

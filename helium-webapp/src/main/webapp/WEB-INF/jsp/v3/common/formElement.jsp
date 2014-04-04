@@ -22,7 +22,6 @@
 			<c:when test="${hiHaPerIterar}"><c:set var="bindPath" value="${param.property}[${varStatus.index}]"/></c:when>
 			<c:otherwise><c:set var="bindPath" value="${param.property}"/></c:otherwise>
 		</c:choose>
-<%-- 		<spring:bind path="${bindPath}"> --%>
 			<c:choose>
 				<c:when test="${param.type == 'hidden'}">
 					<input id="${inputId}" name="${inputName}" value="${param.value}" type="hidden"/>
@@ -48,10 +47,10 @@
 								<input id="${inputId}" name="${inputName}" value="${param.value}" type="hidden"/>
 							</c:when>
 							<c:when test="${param.type == 'password'}">
-								<input id="${inputId}" name="${inputName}" value="" type="password" class="textInput" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>/>
+								<input id="${inputId}" name="${inputName}" value="" type="password" class="textInput span11" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>/>
 							</c:when>
 							<c:when test="${param.type == 'number'}">
-								<input id="${inputId}" name="${inputName}" value="${param.value}" type="text" class="textInput" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if> style="text-align:right"/>
+								<input id="${inputId}" name="${inputName}" value="${param.value}" type="text" class="textInput span11" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if> style="text-align:right"/>
 							</c:when>
 							<c:when test="${param.type == 'checkbox'}">
 								<input type="hidden" name="_${status.expression}" value="on"/>
@@ -76,7 +75,7 @@
 							</c:when>
 							<c:when test="${param.type == 'select'}">
 								<c:set var="items" value="${requestScope[param.items]}"/>
-								<select id="${inputId}" name="${inputName}" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>>
+								<select class="span11" id="${inputId}" name="${inputName}" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>>
 									<c:if test="${not empty param.itemBuit}"><option value="">${param.itemBuit}</option></c:if>
 									<c:forEach var="item" items="${items}">
 										<c:choose>
@@ -164,7 +163,7 @@
 								<c:set var="suggestText" value="${param.suggestText}"/>
 								<c:if test="${not empty param.iterateOn}"><c:set var="suggestText" value="${requestScope[param.multipleSuggestText][varStatus.index]}"/></c:if>
 								<input id="${inputId}" name="${inputName}" value="${param.value}" type="hidden"/>
-								<input name="suggest_${inputId}" id="suggest_${inputId}" type="text" class="textInput"<c:if test="${not empty suggestText}"> value="${suggestText}"</c:if><c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>/>
+								<input name="suggest_${inputId}" id="suggest_${inputId}" type="text" class="textInput span11"<c:if test="${not empty suggestText}"> value="${suggestText}"</c:if><c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>/>
 								<img id="suggest_${inputId}_info" src="<c:url value="/img/page_white_magnify.png"/>" title="<fmt:message key='comuns.suggerir' />" alt="<fmt:message key='comuns.suggerir' />" class="suggestImgInfo"/>
 								<img id="suggest_${inputId}_delete" src="<c:url value="/img/page_white_delete.png"/>" title="<fmt:message key='comuns.suggerir' />" alt="<fmt:message key='comuns.suggerir' />" class="suggestImgEsborrar"/>
 								<script type="text/javascript">
@@ -180,7 +179,7 @@
 								</script>
 							</c:when>
 							<c:otherwise>
-								<input placeholder="${param.label}" id="${inputId}" name="${inputName}" value="${param.value}" type="text" class="textInput" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>/>
+								<input placeholder="${param.label}" id="${inputId}" name="${inputName}" value="${param.value}" type="text" class="textInput span11" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>/>
 							</c:otherwise>
 						</c:choose>
 						<c:if test="${not empty param.mask || not empty param.keyfilter}">
@@ -203,7 +202,6 @@
 					</div>
 				</c:otherwise>
 			</c:choose>
-<%-- 		</spring:bind> --%>
 		</c:forEach>
 	</c:when>
 	<c:otherwise>

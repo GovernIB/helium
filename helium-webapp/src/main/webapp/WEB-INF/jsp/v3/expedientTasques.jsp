@@ -144,94 +144,36 @@
 	</c:otherwise>
 </c:choose>
 
-<div id="tramitacio-modal" class="modal modal-max hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-	<div class="modal-header">
-		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-		<h3></h3>
-	</div>
-	<div class="modal-body"></div>
-	<div class="modal-footer">
-		<button id="modal-button-tancar" class="btn pull-left" data-dismiss="modal" aria-hidden="true">Tancar</button>
-	</div>
-</div>
 <div id="tasca-tramitacio-modal"></div>
-
-<div id="reasignar-modal" class="modal modal-max hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-	<div class="modal-header">
-		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-		<h3></h3>
-	</div>
-	<div class="modal-body"></div>
-	<div class="modal-footer">
-		<button id="modal-button-tancar" class="btn pull-left" data-dismiss="modal" aria-hidden="true">Tancar</button>
-	</div>
-</div>
 <div id="tasca-reasignar-modal"></div>
+
 <script type="text/javascript">
 // <![CDATA[
-function confirmarSuspendre(e) {
-	var e = e || window.event;
-	e.cancelBubble = true;
-	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Estau segur que voleu suspendre aquesta tasca?");
-}
-function confirmarReprendre(e) {
-	var e = e || window.event;
-	e.cancelBubble = true;
-	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Estau segur que voleu reprendre aquesta tasca?");
-}
-function confirmarCancelar(e) {
-	var e = e || window.event;
-	e.cancelBubble = true;
-	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Estau segur que voleu cancel·lar aquesta tasca? Aquesta acció no es podrà desfer.");
-}
-function confirmarAlliberar(e) {
-	var e = e || window.event;
-	e.cancelBubble = true;
-	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Estau segur que voleu alliberar aquesta tasca?");
-}
-
-/*function canviTitolModal(titol) {
-	$('#tramitacio-modal h3').html(titol);
-}
-
-function addHtmlPeuModal(html, id) {
-	if (($('#'+id).length > 0)) {
-		$('#'+id).remove();
-	} 
-	$('#tramitacio-modal .modal-footer').append(html);
-}
-
-function autoResize(element) {
-	var elementHeight = element.contentWindow.document.body.offsetHeight;
-	element.style.height = elementHeight + 'px';
-	var taraModal = $('#tramitacio-modal .modal-header').height() + $('#tramitacio-modal .modal-footer').height();
-	var maxBodyHeight = $(document).height() - taraModal - 100;
-	if (elementHeight > maxBodyHeight) {
-		$('#tramitacio-modal .modal-body').css('max-height', maxBodyHeight + 'px');
-	} else {
-		var afegir = 15 + 15; // Padding del body de la modal
-		$('#tramitacio-modal .modal-body').css('max-height', elementHeight + afegir + 'px');
+	function confirmarSuspendre(e) {
+		var e = e || window.event;
+		e.cancelBubble = true;
+		if (e.stopPropagation) e.stopPropagation();
+		return confirm("Estau segur que voleu suspendre aquesta tasca?");
 	}
-}*/
-	/*$('.link-tramitacio-modal').click(function(e) {
-		e.preventDefault();
-		var url = $(this).attr('href');
-		$('#tramitacio-modal .modal-body').html('<iframe width="100%" height="100%" frameborder="0" allowtransparency="true" src="' + url + '" onload="autoResize(this)"></iframe>');
-		$('#tramitacio-modal').modal('show');
-		$('#tramitacio-modal').css('top', '1%');
-	});*/
-	
-	//$('.dataTable').addClass('table-hover');
-	/*$('.dataTable > tbody > tr > td:not(:last-child)').click(function(event) {
-		event.stopPropagation();			
-		if ($('ul a:first', $(this).parent()).hasClass('tramitar')) {
-			$('ul a:first', $(this).parent()).click();
-		}
-	});*/
+	function confirmarReprendre(e) {
+		var e = e || window.event;
+		e.cancelBubble = true;
+		if (e.stopPropagation) e.stopPropagation();
+		return confirm("Estau segur que voleu reprendre aquesta tasca?");
+	}
+	function confirmarCancelar(e) {
+		var e = e || window.event;
+		e.cancelBubble = true;
+		if (e.stopPropagation) e.stopPropagation();
+		return confirm("Estau segur que voleu cancel·lar aquesta tasca? Aquesta acció no es podrà desfer.");
+	}
+	function confirmarAlliberar(e) {
+		var e = e || window.event;
+		e.cancelBubble = true;
+		if (e.stopPropagation) e.stopPropagation();
+		return confirm("Estau segur que voleu alliberar aquesta tasca?");
+	}
+
 	$('#tasques-pendents-meves a').click(function() {
 		if ($(this).data('tramitar-modal')) {
 			$('#tasca-tramitacio-modal').heliumModal({
@@ -242,12 +184,12 @@ function autoResize(element) {
 				adjustWidth: false,
 				adjustHeight: true,
 				maximize: true,
+				alertesRefreshUrl: "<c:url value="/nodecorar/v3/missatges"/>",
 				valignTop: true,
 				buttonContainerId: 'formFinalitzar',
 			});
 			return false;
-		} 
-		if ($(this).data('reasignar-modal')) {
+		} else if ($(this).data('reasignar-modal')) {
 			$('#tasca-reasignar-modal').heliumModal({
 				modalUrl: $(this).attr('href'),
 				refrescarTaula: false,
@@ -256,6 +198,7 @@ function autoResize(element) {
 				adjustWidth: false,
 				adjustHeight: true,
 				maximize: true,
+				alertesRefreshUrl: "<c:url value="/nodecorar/v3/missatges"/>",
 				valignTop: true,
 				buttonContainerId: 'formReasignar'
 			});

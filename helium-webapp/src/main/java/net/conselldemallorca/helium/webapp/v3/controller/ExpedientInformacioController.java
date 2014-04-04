@@ -131,7 +131,7 @@ public class ExpedientInformacioController extends BaseExpedientController {
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
 		}
-		return "v3/utils/modalTancar";
+		return modalUrlTancar();
 	}
 
 	private class ExpedientEditarValidator implements Validator {
