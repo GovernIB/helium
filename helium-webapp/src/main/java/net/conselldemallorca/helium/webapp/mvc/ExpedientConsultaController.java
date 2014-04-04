@@ -29,6 +29,7 @@ import net.conselldemallorca.helium.webapp.mvc.util.PaginatedList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.displaytag.properties.SortOrderEnum;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -247,12 +248,23 @@ public class ExpedientConsultaController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			List<Estat> estats;
+			JSONArray ljson = new JSONArray();
 			if (id != null)
 				estats = dissenyService.findEstatAmbExpedientTipus(id);
 			else
 				estats = new ArrayList<Estat>();
 			afegirEstatsInicialIFinal(estats);
-			model.addAttribute("estats", estats);
+			try {
+				for (Estat estat : estats) {
+					Map mjson = new LinkedHashMap();
+					mjson.put("id", estat.getId());
+					mjson.put("nom", JSONValue.escape(estat.getNom()));
+					ljson.add(mjson);
+				}
+			} catch (Exception ex) {
+				logger.error("Error al parsear la lista de estados como JSON. ID: " + id, ex);
+			}
+			model.addAttribute("estats", ljson);
 			return "expedient/consultaEstats";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
