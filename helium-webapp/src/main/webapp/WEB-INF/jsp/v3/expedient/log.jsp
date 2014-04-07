@@ -99,16 +99,7 @@
 									<c:when test="${log.targetTasca and param.tipus_retroces != 0}">
 										${tasques[log.targetId].nom}
 										<span class="right">
-											<c:import url="../utils/modalDefinir.jsp">
-												<c:param name="sAjaxSource" value="/helium/v3/expedient/logAccionsTasca?id=${expedient.id}&targetId=${log.targetId}"/>
-												<c:param name="modalId" value="logAccionsTasca"/>
-												<c:param name="refrescarAlertes" value="true"/>
-												<c:param name="refrescarPagina" value="false"/>							
-												<c:param name="refrescarTaula" value="false"/>							
-												<c:param name="refrescarTaulaId" value="false"/>
-												<c:param name="icon" value="icon-search"/>
-												<c:param name="texto" value=""/>
-											</c:import>
+											<a class="a-modal-registre" href="<c:url value="/v3/expedient/logAccionsTasca?id=${expedient.id}&targetId=${log.targetId}"/>" ><i  class="icon-search"></i></a>
 										</span>
 									</c:when>
 									<c:otherwise>
@@ -137,16 +128,7 @@
 										<c:when test="${log.accioTipus == 'EXPEDIENT_ATURAR'}"><spring:message code="expedient.log.info.missatges"/>: ${log.accioParams}</c:when>
 										<c:when test="${log.accioTipus == 'EXPEDIENT_ACCIO'}"><spring:message code="expedient.log.info.accio"/>: ${log.accioParams}</c:when>
 										<c:when test="${log.accioTipus == 'EXPEDIENT_RETROCEDIR' or log.accioTipus == 'EXPEDIENT_RETROCEDIR_TASQUES'}">
-											<c:import url="../utils/modalDefinir.jsp">
-												<c:param name="sAjaxSource" value="/helium/v3/expedient/logRetrocedit?id=${expedient.id}&logId=${log.id}"/>
-												<c:param name="modalId" value="logRetrocedit_${expedient.id}_${log.id}"/>
-												<c:param name="refrescarAlertes" value="true"/>
-												<c:param name="refrescarPagina" value="false"/>							
-												<c:param name="refrescarTaula" value="false"/>							
-												<c:param name="refrescarTaulaId" value="false"/>
-												<c:param name="icon" value="icon-search"/>
-												<c:param name="texto" value=""/>
-											</c:import>								
+											<a class="a-modal-registre" href="<c:url value="/v3/expedient/logRetrocedit?id=${expedient.id}&logId=${log.id}"/>" ><i  class="icon-search"></i></a>
 										</c:when>
 										<c:otherwise></c:otherwise>
 									</c:choose>
@@ -185,3 +167,24 @@
 		<div class="well well-small">No hi ha logs per a mostrar</div>
 	</c:otherwise>
 </c:choose>
+
+<div id="expedient-registre-modal"></div>
+
+<script type="text/javascript">
+// <![CDATA[
+	$('.a-modal-registre').click(function() {
+		$('#expedient-registre-modal').heliumModal({
+			modalUrl: $(this).attr('href'),
+			refrescarTaula: false,
+			refrescarAlertes: true,
+			refrescarPagina: false,
+			adjustWidth: false,
+			adjustHeight: true,
+			maximize: true,
+			alertesRefreshUrl: "<c:url value="/nodecorar/v3/missatges"/>",
+			valignTop: true
+		});
+		return false;
+	});
+//]]>
+</script>

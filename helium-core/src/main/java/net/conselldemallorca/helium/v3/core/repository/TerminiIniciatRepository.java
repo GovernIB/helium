@@ -19,6 +19,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface TerminiIniciatRepository extends JpaRepository<TerminiIniciat, Long> {
 
+	TerminiIniciat findById(
+			Long Id);
+
 	TerminiIniciat findByTerminiAndProcessInstanceId(
 			Termini termini,
 			String processInstanceId);

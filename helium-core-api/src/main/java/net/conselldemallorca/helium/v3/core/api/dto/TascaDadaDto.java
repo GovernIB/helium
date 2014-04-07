@@ -181,8 +181,7 @@ public class TascaDadaDto {
 		return resposta;
 	}
 
-	@SuppressWarnings("rawtypes")
-	public Class getJavaClass() {
+	public  Class<?> getJavaClass() {
 		if (CampTipusDto.STRING.equals(campTipus)) {
 			return String.class;
 		} else if (CampTipusDto.INTEGER.equals(campTipus)) {

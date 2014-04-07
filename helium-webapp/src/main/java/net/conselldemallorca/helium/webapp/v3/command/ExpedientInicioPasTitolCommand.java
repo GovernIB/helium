@@ -3,6 +3,9 @@
  */
 package net.conselldemallorca.helium.webapp.v3.command;
 
+import org.springframework.format.annotation.NumberFormat;
+import org.springframework.format.annotation.NumberFormat.Style;
+
 /**
  * Command per iniciar un expedient
  * 
@@ -17,13 +20,12 @@ public class ExpedientInicioPasTitolCommand {
 	private String responsableCodi;
 	private Integer any;
 
-
-
 	public ExpedientInicioPasTitolCommand() {}
 
 	public Long getEntornId() {
 		return entornId;
 	}
+	
 	public void setEntornId(Long entornId) {
 		this.entornId = entornId;
 	}
@@ -64,5 +66,4 @@ public class ExpedientInicioPasTitolCommand {
 	public void setAny(Integer any) {
 		this.any = any;
 	}
-
 }

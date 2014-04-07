@@ -126,4 +126,34 @@ public class TerminiIniciatDto {
 		return cal.getTime();
 	}
 
+	public String getDurada() {
+		return toString() + ((dies > 0) ? ((getTermini().isLaborable()) ? " laborables" : " naturals") : "");
+	}
+	
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		boolean plural = false;
+		if (anys > 0) {
+			sb.append(anys);
+			plural = anys > 1;
+			sb.append((plural) ? " anys": " any");
+			if (mesos > 0 && dies > 0)
+				sb.append(", ");
+			else if (mesos > 0 || dies > 0)
+				sb.append(" i ");
+		}
+		if (mesos > 0) {
+			sb.append(mesos);
+			plural = mesos > 1;
+			sb.append((plural) ? " mesos": " mes");
+			if (dies > 0)
+				sb.append(" i ");
+		}
+		if (dies > 0) {
+			sb.append(dies);
+			plural = dies > 1;
+			sb.append((plural) ? " dies": " dia");
+		}
+		return sb.toString();
+	}
 }

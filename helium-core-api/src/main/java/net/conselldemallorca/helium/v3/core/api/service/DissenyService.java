@@ -14,6 +14,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
 
@@ -99,7 +101,7 @@ public interface DissenyService {
 
 	public DefinicioProcesDto getById(Long id);
 
-	public DefinicioProcesDto findDarreraDefinicioProcesForExpedientTipus(Long expedientTipusId, boolean ambTascaInicial);
+	public DefinicioProcesDto findDarreraDefinicioProcesForExpedientTipus(Long expedientTipusId);
 
 	public List<ExpedientTipusDto> findExpedientTipusAmbEntorn(EntornDto entornId);
 
@@ -114,4 +116,10 @@ public interface DissenyService {
 	public void executarAccio(AccioDto accio, ExpedientDto expedient);
 
 	public List<?> getResultatConsultaCamp(String taskId, String processInstanceId, CampDto camp, String textInicial,Map<String, Object> mapDelsValors);
+
+	public List<TerminiIniciatDto> findIniciatsAmbProcessInstanceId(String processInstanceId);
+
+	public List<TerminiDto> findTerminisAmbDefinicioProcesId(Long definicioProcesId);
+
+	public TerminiIniciatDto findIniciatAmbId(Long id);
 }

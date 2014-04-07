@@ -4,6 +4,8 @@
 package net.conselldemallorca.helium.webapp.v3.helper;
 
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +46,7 @@ public class TascaFormHelper {
 		return getCommandForCamps(
 				campsFiltre,
 				valors,
+				null,
 				campsAddicionals,
 				campsAddicionalsClasses,
 				true);
@@ -57,6 +60,7 @@ public class TascaFormHelper {
 		return getCommandForCamps(
 				camp.getRegistreDades(),
 				valors,
+				null,
 				campsAddicionals,
 				campsAddicionalsClasses,
 				false);
@@ -176,12 +180,18 @@ public class TascaFormHelper {
 		return command;
 	}
 	
-	@SuppressWarnings("rawtypes")
+	public static Object getCommandForCamps(
+			List<TascaDadaDto> tascaDadas,
+			HttpServletRequest request) {
+		return getCommandForCamps(tascaDadas, null, request, null, null, false);
+	}
+	
 	public static Object getCommandForCamps(
 			List<TascaDadaDto> tascaDadas,
 			Map<String, Object> valors,
+			HttpServletRequest request,
 			Map<String, Object> campsAddicionals,
-			Map<String, Class> campsAddicionalsClasses,
+			@SuppressWarnings("rawtypes") Map<String, Class> campsAddicionalsClasses,
 			boolean perFiltre) {
 		// Empram cglib per generar el command de manera dinàmica
 		BeanGenerator bg = new BeanGenerator();
@@ -231,34 +241,65 @@ public class TascaFormHelper {
 			if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
 				String tipusCommand = null;
 				try {
+					@SuppressWarnings("rawtypes")
 					Class propertyType = PropertyUtils.getPropertyType(command, camp.getVarCodi());
 					tipusCommand = (propertyType != null) ? propertyType.getName() : null;
+					
+					Object valor = null;
+					if (request != null && request.getParameter(camp.getVarCodi()) != null && request.getParameter(camp.getVarCodi()).length()>0){
+						if (CampTipusDto.STRING.equals(camp.getCampTipus())) {
+							valor = (String) request.getParameter(camp.getVarCodi());
+						} else if (CampTipusDto.INTEGER.equals(camp.getCampTipus())) {
+							valor = Long.valueOf(request.getParameter(camp.getVarCodi()));
+						} else if (CampTipusDto.FLOAT.equals(camp.getCampTipus())) {
+							valor = Double.valueOf(request.getParameter(camp.getVarCodi()));
+						} else if (CampTipusDto.BOOLEAN.equals(camp.getCampTipus())) {
+							valor = Boolean.valueOf(request.getParameter(camp.getVarCodi()));
+						} else if (CampTipusDto.TEXTAREA.equals(camp.getCampTipus())) {
+							valor = (String) request.getParameter(camp.getVarCodi());
+						} else if (CampTipusDto.DATE.equals(camp.getCampTipus())) {
+							SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+							valor = sdf.parse(request.getParameter(camp.getVarCodi()));
+						} else if (CampTipusDto.PRICE.equals(camp.getCampTipus())) {
+							valor = BigDecimal.valueOf(Long.parseLong(request.getParameter(camp.getVarCodi())));
+						} else if (CampTipusDto.TERMINI.equals(camp.getCampTipus())) {
+							valor = (String) request.getParameter(camp.getVarCodi());
+						} else {
+							valor = (String) request.getParameter(camp.getVarCodi());
+						}
+						camp.setText(request.getParameter(camp.getVarCodi()));
+					} else if (valors != null && valors.get(camp.getVarCodi()) != null) {
+						valor = valors.get(camp.getVarCodi());
+						camp.setText(valor.toString());
+					}
 					boolean ambArray;
-					if (!perFiltre)
+					if (!perFiltre) {
 						ambArray = camp.isCampMultiple();
-					else
+					} else {
 						ambArray = 	camp.getCampTipus().equals(CampTipusDto.DATE) ||
 									camp.getCampTipus().equals(CampTipusDto.INTEGER) ||
 									camp.getCampTipus().equals(CampTipusDto.FLOAT) ||
 									camp.getCampTipus().equals(CampTipusDto.PRICE);
+					}
 					if (ambArray) {
-						if (valors != null && valors.get(camp.getVarCodi()) != null)
+						if (valors != null) {
 							PropertyUtils.setSimpleProperty(
 									command,
 									camp.getVarCodi(),
-									valors.get(camp.getVarCodi()));
-						else
+									valor);							
+						} else {
 							PropertyUtils.setSimpleProperty(
 									command,
 									camp.getVarCodi(),
 									Array.newInstance(
 											camp.getJavaClass(),
 											(perFiltre) ? 2 : 1));
+						}
 					} else
 						PropertyUtils.setSimpleProperty(
 								command,
 								camp.getVarCodi(),
-								(valors != null) && (valors.get(camp.getVarCodi()) != null) ? valors.get(camp.getVarCodi()) : null);
+								valor);
 				} catch (Exception ex) {
 					logger.error("No s'ha pogut afegir el camp '" + camp.getVarCodi() + "' al command (" + tipusCommand + ")", ex);
 				}

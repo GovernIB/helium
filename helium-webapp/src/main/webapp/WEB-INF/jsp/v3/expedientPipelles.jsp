@@ -21,6 +21,31 @@
 </style>
 <script>
 	$(document).ready(function() {
+		$('select[name=definicioProcesJbpmId]').on('change', function () {
+			if (confirm("<spring:message code='expedient.eines.confirm_canviar_versio_proces' />")) {
+				$.ajax({
+				    url:'${expedient.id}/' + $(this).val(),
+				    type:'GET',
+				    dataType: 'json',
+				    success: function(data) {
+				        $("#imatgeproces").text(data);
+				        $("#definicioProcesJbpmId").toggle();
+				        $.ajax({
+							url: '<c:url value="/nodecorar/v3/missatges"/>',
+							async: false,
+							timeout: 20000,
+							success: function (data) {
+								$('.contingut-alertes *').remove();
+								$('.contingut-alertes').append(data);
+							}
+					    });
+				    },
+				  	"error": function(XMLHttpRequest, textStatus, errorThrown) {
+					}
+				});
+			}
+		});
+		
 		$("#pipella-dades").click(function() {
 			$('#contingut-carregant').hide();
 			if (!$('#contingut-dades').data('carregat')) {
@@ -63,6 +88,23 @@
 			$('#contingut-documents').show();
 			$('#pipelles-expedient .pipella').removeClass('active');
 			$('#pipella-documents').addClass('active');
+			return false;
+		});
+		$("#pipella-terminis").click(function() {
+			$('#contingut-carregant').hide();
+			if (!$('#contingut-terminis').data('carregat')) {
+				$('#contingut-carregant').show();
+				$('#contingut-terminis').load(
+						'<c:url value="/nodecorar/v3/expedient/${expedient.id}/terminis"/>',
+						function() {
+							$('#contingut-carregant').hide();
+						});
+				$('#contingut-terminis').data('carregat', 'true');
+			}
+			$('#contingut-contenidor .contingut').hide();
+			$('#contingut-terminis').show();
+			$('#pipelles-expedient .pipella').removeClass('active');
+			$('#pipella-terminis').addClass('active');
 			return false;
 		});
 		$("#pipella-tasques").click(function() {
@@ -127,15 +169,6 @@
 			$('#' + idExpedient + '_formRelacioDelete').submit();
 		}
 	}
-
-	function confirmarCanviVersio(e) {
-		var e = e || window.event;
-		e.cancelBubble = true;
-		if (e.stopPropagation) e.stopPropagation();
-		if (confirm("<fmt:message key='expedient.eines.confirm_canviar_versio_proces' />")) {
-			$('#' + idExpedient + '_formCanviVersio').submit();
-		}
-	}
 </script>
 </head>
 <body>
@@ -156,7 +189,7 @@
 				<dd><em><small>Tipus</small></em></dd>
 				<dt>${expedient.tipus.nom} <a href="#"><i class="icon-pencil"></i></a></dt>
 				<dd><em><small>Iniciat el:</small></em></dd>
-				<dt><fmt:formatDate value="${expedient.dataInici}" pattern="dd/MM/yyyy HH:mm"/>  <a href="#"><i class="icon-pencil"></i></a></dt>
+				<dt><fmt:formatDate value="${expedient.dataInici}" pattern="dd/MM/yyyy HH:mm"/>&nbsp;<a href="#"><i class="icon-pencil"></i></a></dt>
 				<dd><em><small>Estat</small></em></dd>
 				<dt>
 					<c:choose>
@@ -167,19 +200,19 @@
 				</dt>
 				<dd><em><small>Definició de procés</small></em></dd>
 				<dt>	
-					<i class="icon-picture"></i> <a href="<c:url value="${expedient.id}/imatgeProces"/>" role="button" ><c:out value="${definicioProcesDescripcio}"/></a> <a href="#"><i class="icon-pencil"></i></a>
+					<i class="icon-picture" onclick="$('#imgDefinicioProcesJbpm').toggle();" style="cursor: pointer"></i> <c:out value="${definicioProcesDescripcio}"/>&nbsp;<i class="icon-pencil" onclick="$('#definicioProcesJbpmId').toggle();" style="cursor: pointer"></i>
+					<div id="imgDefinicioProcesJbpm" class="hide">
+						<img src="<c:url value="/v3/expedient/${expedientId}/imatgeDefProces"/>" />
+					</div>
 				</dt>
-<!-- 				<dt>					 -->
-<!-- 					<select class="span11" id="definicioProcesJbpmId" name="definicioProcesJbpmId"> -->
-<%-- 						<option value="">&lt;&lt; <spring:message code="js.helforms.selec_valor" /> &gt;&gt;</option> --%>
-<%-- 						<c:forEach var="definicioProcesJbpm" items="${definicionsProces}"> --%>
-<%-- 							<option <c:if test="${definicioProcesJbpmId == definicioProcesJbpm.jbpmId}">selected="selected"</c:if> value="${definicioProcesJbpm.jbpmId}"><c:out value="${definicioProcesJbpm.descripcio}"/></option> --%>
-<%-- 						</c:forEach> --%>
-<!-- 					</select> -->
-<!-- 				</dt> -->
+				<select class="span12 hide" id="definicioProcesJbpmId" name="definicioProcesJbpmId">
+					<c:forEach var="definicioProcesJbpm" items="${definicionsProces}">
+						<option <c:if test="${definicioProcesJbpmId == definicioProcesJbpm.jbpmId}">selected="selected"</c:if> value="${definicioProcesJbpm.jbpmId}"><c:out value="${definicioProcesJbpm.descripcio}"/></option>
+					</c:forEach>
+				</select>
 			</dl>
 			<div id="expedientAccio" class="btn-group">
-				<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog icon-white"></i> Accions <span class="caret"></span></a>
+				<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="<c:url value="/v3/expedient/${expedientId}/imatgeProces"/>"><i class="icon-cog icon-white"></i> Accions <span class="caret"></span></a>
 				<ul class="dropdown-menu">
 					<li><a data-modificar-modal="true" href="<c:url value="/v3/expedient/${expedientId}/modificar"/>"><i class="icon-pencil"></i>&nbsp;Modificar informació</a></li>
 					<li><a data-aturar-modal="true" href="<c:url value="/v3/expedient/${expedientId}/stop"/>"><i class="icon-stop"></i>&nbsp;Aturar tramitació</a></li>
@@ -246,7 +279,7 @@
 		</div>
 	</div>
 		
-	<div id="expedient-modificar-modal"></div>
+	<div id="expedient-modificar-modal"></div>	
 	<div id="expedient-aturar-modal"></div>
 	<div id="expedient-exec-modal"></div>
 	<div id="expedient-relacionar-modal"></div>
@@ -303,14 +336,14 @@
 					refrescarAlertes: true,
 					refrescarPagina: false,
 					adjustWidth: false,
-					adjustHeight: true,
+					adjustHeight: false,
 					maximize: true,
 					alertesRefreshUrl: "<c:url value="/nodecorar/v3/missatges"/>",
 					valignTop: true,
 					buttonContainerId: 'formButtons'
 				});
 				return false;
-			} else {
+			} else { 
 				return true;
 			}
 		});
@@ -325,6 +358,7 @@
 		<div id="contingut-carregant" class="hide"><p style="margin-top: 2em; text-align: center"><i class="icon-spinner icon-2x icon-spin"></i></p></div>
 		<div id="contingut-dades" class="contingut hide"></div>
 		<div id="contingut-documents" class="contingut hide"></div>
+		<div id="contingut-terminis" class="contingut hide"></div>
 		<div id="contingut-tasques" class="contingut hide"></div>
 		<div id="contingut-registre" class="contingut hide"></div>
 		<div id="contingut-cronograma" class="contingut hide"></div>

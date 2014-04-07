@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -15,8 +16,11 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.PluginService;
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
@@ -27,10 +31,10 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
+import org.springframework.validation.FieldError;
 import org.springframework.validation.Validator;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,89 +47,16 @@ import org.springframework.web.bind.support.SessionStatus;
  */
 @Controller
 @RequestMapping("/v3/expedient")
-public class ExpedientInicioPasFormController extends ExpedientTramitacioController {
+public class ExpedientInicioPasFormController extends BaseExpedientController {
 	
 	@Autowired
 	private PluginService pluginService;
-
-	@ModelAttribute("command")
-	protected Object populateCommand(
-			HttpServletRequest request, 
-			String id,
-			Long entornId,
-			Long expedientTipusId,
-			Long definicioProcesId,
-			ModelMap model) {
-			if (entornId != null && id != null) {
-				Object command = null;
-				Object commandSessio = obtenirCommandSessio(request);
-				ExpedientTascaDto tascaInicial = obtenirTascaInicial(
-						entornId,
-						expedientTipusId,
-						definicioProcesId,
-						null,
-						request);
-				List<TascaDadaDto> tascaDadas = tascaService.findDadesPerTasca(tascaInicial.getId());
-				Map<String, Object> valorsCommand = new HashMap<String, Object>();
-//				if (tascaInicial.getVariables() != null)
-//					valorsCommand.putAll(tascaInicial.getVariables());
-				valorsCommand.putAll(obtenirValorsRegistresSessio(request, tascaDadas));
-				if (commandSessio != null) {
-					command = commandSessio;
-				} else {
-					if (tascaInicial != null) {
-						Map<String, Object> campsAddicionals = new HashMap<String, Object>();
-						campsAddicionals.put("id", id);
-						campsAddicionals.put("entornId", entornId);
-						campsAddicionals.put("expedientTipusId", expedientTipusId);
-						campsAddicionals.put("definicioProcesId", definicioProcesId);
-						@SuppressWarnings("rawtypes")
-						Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
-						campsAddicionalsClasses.put("id", String.class);
-						campsAddicionalsClasses.put("entornId", Long.class);
-						campsAddicionalsClasses.put("expedientTipusId", Long.class);
-						campsAddicionalsClasses.put("definicioProcesId", Long.class);
-						command = TascaFormHelper.getCommandForCamps(
-								tascaDadas,
-								valorsCommand,
-								campsAddicionals,
-								campsAddicionalsClasses,
-								false);
-					}
-				}
-				model.addAttribute("camps", tascaDadas);
-				model.addAttribute("tasca", tascaInicial);
-				guardarValorsSessio(request, valorsCommand);
-				return command;
-			}
-		return null;
-	}
-
-	private void guardarValorsSessio(
-			HttpServletRequest request,
-			Map<String, Object> valors) {
-		request.getSession().setAttribute(
-				ExpedientInicioController.CLAU_SESSIO_FORM_VALORS,
-				valors);
-	}
 	
-	private Map<String, Object> obtenirValorsRegistresSessio(
-			HttpServletRequest request,
-			List<TascaDadaDto> tascaDadas) {
-		Map<String, Object> valors = new HashMap<String, Object>();
-		for (TascaDadaDto camp: tascaDadas) {
-			Object obj = request.getSession().getAttribute(ExpedientInicioController.getClauSessioCampRegistre(camp.getVarCodi()));
-			if (obj != null)
-				valors.put(camp.getVarCodi(), obj);
-		}
-		return valors;
-	}
+	@Autowired
+	protected TascaService tascaService;
 
-	private Object obtenirCommandSessio(
-			HttpServletRequest request) {
-		return request.getSession().getAttribute(
-				ExpedientInicioController.CLAU_SESSIO_FORM_COMMAND);
-	}
+	@Autowired
+	protected ExpedientService expedientService;
 	
 	@RequestMapping(value = "/iniciarPasForm", method = RequestMethod.POST)
 	public String iniciarPasFormPost(
@@ -133,153 +64,135 @@ public class ExpedientInicioPasFormController extends ExpedientTramitacioControl
 			@RequestParam(value = "id", required = false) String id,
 			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
 			@RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId,
-			@RequestParam(value = "helAccioCamp", required = false) String accioCamp, 
-			@ModelAttribute("command") Object command,
-			BindingResult result,
-			SessionStatus status,
+			SessionStatus status, 
 			ModelMap model) {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entorn != null) {
-
-			model.addAttribute("entornId", entorn.getId());
-			ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
-			model.addAttribute("expedientTipus", expedientTipus);
-			model.addAttribute("definicioProcesId", definicioProcesId);
-			if (potIniciarExpedientTipus(expedientTipus)) {
-				ExpedientTascaDto tasca = (ExpedientTascaDto) model.get("tasca");
-
-				List<TascaDadaDto> tascaDadas = tascaService.findDadesPerTasca(tasca.getId());
-				Map<String, Object> valorsCommand = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
-				ExpedientTascaDto tascaInicial = obtenirTascaInicial(
-						entorn.getId(),
-						expedientTipusId,
-						definicioProcesId,
-						valorsCommand,
-						request);
-				model.addAttribute("tasca", tascaInicial);
-				model.addAttribute("dades", tascaService.findDadesPerTascaDto(tascaInicial));				
-
-				this.validatorValidar = new TascaFormValidatorHelper(
-						expedientService,
-						obtenirValorsRegistresSessio(request, tascaDadas));
-				
-				validatorValidar.validate(command, result);
-				try {
-					Validator validator = TascaFormHelper.getBeanValidatorForCommand(tascaDadas);
-					validator.validate(TascaFormHelper.getCommandForCamps(tascaDadas,valorsCommand,null,null,false), result);
-				} catch (Exception ex) {
-					logger.error("S'han produit errors de validació", ex);
-					MissatgesHelper.error(request, getMessage(request, "error.validacio"));
-					return "v3/expedient/iniciarPasForm";
-				}
-				if (result.hasErrors()) {
-					for ( ObjectError res : result.getAllErrors()) {
-						String error = (res.getDefaultMessage() == null || res.getDefaultMessage().isEmpty()) ? getMessage(request, "error.validacio") : res.getDefaultMessage();
-						MissatgesHelper.error(request, error);
-					}
-					return "v3/expedient/iniciarPasForm";
+		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
+		if (potIniciarExpedientTipus(expedientTipus) && entorn != null) {
+			
+			ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
+			
+			List<TascaDadaDto> dades = tascaService.findDadesPerTascaDto(tasca);
+			Validator validatorTasca = new TascaFormValidatorHelper(expedientService);
+						
+			Map<String, Object> valors = new HashMap<String, Object>();
+			@SuppressWarnings("rawtypes")
+			Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
+			campsAddicionalsClasses.put("listaDadas", List.class);
+			Map<String, String> errors = new HashMap<String, String>();			
+			for (TascaDadaDto dada : dades) {
+				List<TascaDadaDto> lista = null;
+				if (dada.getRegistreDades()!=null) {
+					lista = dada.getRegistreDades();
+				} else if (dada.getMultipleDades()!=null) {
+					lista = dada.getMultipleDades();
 				}
 				
-				// Si l'expedient ha de demanar titol i/o número redirigeix al pas per demanar
-				// aquestes dades
-				if (expedientTipus.isDemanaNumero() || expedientTipus.isDemanaTitol() || expedientTipus.isSeleccionarAny()) {
-					guardarCommandSessio(request, command);
-					if (definicioProcesId != null) {
-						model.addAttribute("definicioProcesId", definicioProcesId);
-					}
+				if (lista != null) {
+					Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+			        campsAddicionals.put("listaDadas", lista);
+					Object cmd = TascaFormHelper.getCommandForCamps(lista, null, request, campsAddicionals, campsAddicionalsClasses, false);
+					BindingResult res = new BeanPropertyBindingResult(cmd, "cmd");
+					Validator validatorDades = TascaFormHelper.getBeanValidatorForCommand(lista);
+			        validatorTasca.validate(cmd, res);
+					validatorDades.validate(cmd, res);
 					
-					omplirModelPerMostrarFormulari(expedientTipus, model);
-					model.addAttribute("any", Calendar.getInstance().get(Calendar.YEAR));
-					model.addAttribute("numero", expedientService.getNumeroExpedientActual(
-							entorn.getId(),
-							expedientTipus,
-							Calendar.getInstance().get(Calendar.YEAR)));
-					model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
+					valors.putAll(TascaFormHelper.getValorsFromCommand(lista, cmd, false));
 					
-					return "v3/expedient/iniciarPasTitol";
-				} else {
-					try {
-						Map<String, Object> valors = new HashMap<String, Object>();
-						valors.putAll(obtenirValorsSessio(request));
-						valors.putAll(TascaFormHelper.getValorsFromCommand(tascaDadas, command, false));
-						ExpedientDto iniciat = iniciarExpedient(
-								entorn.getId(),
-								expedientTipusId,
-								definicioProcesId,
-								(String)request.getSession().getAttribute(ExpedientInicioController.CLAU_SESSIO_NUMERO),
-								(String)request.getSession().getAttribute(ExpedientInicioController.CLAU_SESSIO_TITOL),
-								(Integer)request.getSession().getAttribute(ExpedientInicioController.CLAU_SESSIO_ANY),
-								valors);
-						MissatgesHelper.info(request, getMessage(request, "info.expedient.iniciat", new Object[] {iniciat.getIdentificador()}));
-					    ExpedientInicioController.netejarSessio(request);
-					    return "redirect:/v3/expedient/iniciar";
-					} catch (Exception ex) {
-						MissatgesHelper.error(request, getMessage(request, "error.iniciar.expedient"));
-						logger.error("No s'ha pogut iniciar l'expedient", ex);
-						return "v3/expedient/iniciarPasForm";
+					for ( FieldError rs : res.getFieldErrors()) {
+						errors.put(rs.getField(), getMessage(request, rs.getCode()));
 					}
+				}				
+			}
+			
+			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+			campsAddicionals.put("listaDadas", dades);
+			Validator validatorDades = TascaFormHelper.getBeanValidatorForCommand(dades);
+			Object cmd = TascaFormHelper.getCommandForCamps(dades, null, request, campsAddicionals, campsAddicionalsClasses, false);
+			BindingResult res = new BeanPropertyBindingResult(cmd, "cmd");
+	        validatorTasca.validate(cmd, res);
+			validatorDades.validate(cmd, res);
+			
+			valors.putAll(TascaFormHelper.getValorsFromCommand(dades, cmd, false));
+			
+			for ( FieldError rs : res.getFieldErrors()) {
+				errors.put(rs.getField(), getMessage(request, rs.getCode()));
+			}
+			
+			if (!errors.isEmpty()) {
+				MissatgesHelper.error(request, getMessage(request, "error.validacio"));
+				
+				model.addAttribute("errors", errors);
+				model.addAttribute("tasca", tasca);
+				model.addAttribute("dades", dades);
+				model.addAttribute("entornId", entorn.getId());
+				model.addAttribute("expedientTipus", expedientTipus);
+				model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
+				
+				return "v3/expedient/iniciarPasForm";
+			}
+			
+			// Si l'expedient ha de demanar titol i/o número redirigeix al pas per demanar aquestes dades
+			if (expedientTipus.isDemanaNumero() || expedientTipus.isDemanaTitol() || expedientTipus.isSeleccionarAny()) {
+				if (definicioProcesId != null) {
+					model.addAttribute("definicioProcesId", definicioProcesId);
 				}
+				model.addAttribute("entornId", entorn.getId());
+				model.addAttribute("anysSeleccionables", getAnysSeleccionables());
+				model.addAttribute("expedientTipus", expedientTipus);
+				model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
+				
+				request.getSession().setAttribute(ExpedientInicioController.CLAU_SESSIO_FORM_VALORS,valors);
+				
+				return "v3/expedient/iniciarPasTitol";
 			} else {
-			MissatgesHelper.error(request, getMessage(request, "error.permisos.iniciar.tipus.exp") );
+				try {
+					ExpedientDto iniciat = iniciarExpedient(
+							entorn.getId(),
+							expedientTipusId,
+							definicioProcesId,
+							(String)request.getSession().getAttribute(ExpedientInicioController.CLAU_SESSIO_NUMERO),
+							(String)request.getSession().getAttribute(ExpedientInicioController.CLAU_SESSIO_TITOL),
+							(Integer)request.getSession().getAttribute(ExpedientInicioController.CLAU_SESSIO_ANY),
+							valors);
+					MissatgesHelper.info(request, getMessage(request, "info.expedient.iniciat", new Object[] {iniciat.getIdentificador()}));
+				    ExpedientInicioController.netejarSessio(request);
+				} catch (Exception ex) {
+					MissatgesHelper.error(request, getMessage(request, "error.iniciar.expedient"));
+					logger.error("No s'ha pogut iniciar l'expedient", ex);
+				}
 			}
 		} else {
-			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));			
+			MissatgesHelper.error(request, getMessage(request, "error.permisos.iniciar.tipus.exp") );
 		}
 		
-		return "v3/expedient/iniciar";
-	}
-
-	private void omplirModelPerMostrarFormulari(
-			ExpedientTipusDto tipus,
-			ModelMap model) {
-		model.addAttribute(
-				"responsable",
-				pluginService.findPersonaAmbCodi(tipus.getResponsableDefecteCodi()));
-		model.addAttribute(
-				"expedientTipus",
-				tipus);
-		Integer[] anys = new Integer[10];
-		int anyActual = Calendar.getInstance().get(Calendar.YEAR);
-		for (int i = 0; i < 10; i++) {
-			anys[i] = new Integer(anyActual - i);
-		}
-		model.addAttribute("anysSeleccionables", anys);
+	    return "redirect:/v3/expedient/iniciar";
 	}
 	
-	@SuppressWarnings("unchecked")
-	private Map<String, Object> obtenirValorsSessio(
-			HttpServletRequest request) {
-		return (Map<String, Object>)request.getSession().getAttribute(
-				ExpedientInicioController.CLAU_SESSIO_FORM_VALORS);
-	}
-	
-	private void guardarCommandSessio(
-			HttpServletRequest request,
-			Object command) {
-		request.getSession().setAttribute(
-				ExpedientInicioController.CLAU_SESSIO_FORM_COMMAND,
-				command);
-	}
-
 	private ExpedientTascaDto obtenirTascaInicial(
 			Long entornId,
 			Long expedientTipusId,
 			Long definicioProcesId,
 			Map<String, Object> valors,
 			HttpServletRequest request) {
-		ExpedientTascaDto tasca = expedientService.getStartTask(
-				entornId,
-				expedientTipusId,
-				definicioProcesId,
-				valors);
-		tasca.setId(
-				(String)request.getSession().getAttribute(
-						ExpedientInicioController.CLAU_SESSIO_TASKID));
-		Object validat = request.getSession().getAttribute(
-				ExpedientInicioController.CLAU_SESSIO_FORM_VALIDAT); 
+		ExpedientTascaDto tasca = expedientService.getStartTask( entornId, expedientTipusId, definicioProcesId, valors);
+		tasca.setId((String)request.getSession().getAttribute(ExpedientInicioController.CLAU_SESSIO_TASKID));
+		Object validat = request.getSession().getAttribute(ExpedientInicioController.CLAU_SESSIO_FORM_VALIDAT); 
 		if (validat != null)
 			tasca.setValidada(true);
 		return tasca;
+	}
+
+	public List<ParellaCodiValorDto> getAnysSeleccionables() {
+		List<ParellaCodiValorDto> anys = new ArrayList<ParellaCodiValorDto>();
+		int anyActual = Calendar.getInstance().get(Calendar.YEAR);
+		for (int i = 0; i < 10; i++) {
+			ParellaCodiValorDto par = new ParellaCodiValorDto();
+			par.setCodi(String.valueOf(anyActual - i));
+			par.setValor(anyActual - i);
+			anys.add(par);
+		}
+		return anys;
 	}
 	
 	private synchronized ExpedientDto iniciarExpedient(
@@ -322,5 +235,5 @@ public class ExpedientInicioPasFormController extends ExpedientTramitacioControl
 				null);
 	}
 
-	private static final Log logger = LogFactory.getLog(ExpedientInicioPasFormController.class);
+	private static final Log logger = LogFactory.getLog(ExpedientInicioController.class);
 }

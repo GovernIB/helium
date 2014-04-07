@@ -212,7 +212,7 @@ public class VariableHelper {
 	public List<TascaDadaDto> findDadesPerInstanciaTascaDto(ExpedientTascaDto tasca) {		
 		List<TascaDadaDto> resposta = new ArrayList<TascaDadaDto>();
 		
-		for (CampTasca campTasca: campTascaRepository.findAmbTascaOrdenats(Long.valueOf(tasca.getId()))) {
+		for (CampTasca campTasca: campTascaRepository.findAmbTascaOrdenats(Long.valueOf(tasca.getTascaId()))) {
 			Camp camp = campTasca.getCamp();
 			
 			ExpedientDadaDto expedientDadaDto = getDadaPerVariableJbpm(

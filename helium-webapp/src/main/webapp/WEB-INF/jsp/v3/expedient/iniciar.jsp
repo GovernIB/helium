@@ -36,7 +36,7 @@ function confirmar(e, form) {
 		<display:column>
 			<form class="form-init-exedient" action="<c:url value="/v3/expedient/iniciar"/>" method="post" onsubmit="return confirmar(event, this)">
 				<input type="hidden" name="expedientTipusId" value="${registre.id}"/>
-				<select name="definicioProcesId" id="definicioProcesId">
+				<select name="definicioProcesId" id="definicioProcesId" class="span9">
 					<option value="${definicionsProces.id}">&lt;&lt; <spring:message code='expedient.iniciar.darrera_versio' /> &gt;&gt;</option>
 					<c:forEach var="id" items="${definicionsProces[registre.id].idsWithSameKey}" varStatus="status">
 						<option value="${id}">${definicionsProces[registre.id].idsMostrarWithSameKey[status.index]}</option>

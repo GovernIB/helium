@@ -25,7 +25,7 @@ public class DefinicioProcesTypeEditor extends ModelTypeEditor<DefinicioProces> 
 	@Override
 	public String stringFromValue() {
 		DefinicioProces dp = (DefinicioProces)getValue();
-		return dp.getId().toString();
+		return String.valueOf(dp.getId());
 	}
 	@Override
 	public DefinicioProces valueFromString(String text) {

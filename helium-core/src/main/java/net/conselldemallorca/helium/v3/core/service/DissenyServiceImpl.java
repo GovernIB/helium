@@ -33,6 +33,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
@@ -51,6 +53,7 @@ import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
+import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
 
 import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Service;
@@ -100,6 +103,8 @@ public class DissenyServiceImpl implements DissenyService {
 	private CampTascaRepository campTascaRepository;
 	@Resource
 	private AccioRepository accioRepository;
+	@Resource
+	private TerminiRepository terminiRepository;
 
 	@Transactional(readOnly=true)
 	@Override
@@ -114,56 +119,59 @@ public class DissenyServiceImpl implements DissenyService {
 				EstatDto.class);
 	}
 	
-	@Transactional
+	private DefinicioProcesDto toDefinicioProcesDto(DefinicioProces definicioProces) {
+		DefinicioProcesDto definicioProcesDto = conversioTipusHelper.convertir(definicioProces, DefinicioProcesDto.class);
+		JbpmProcessDefinition jb = jbpmHelper.getProcessDefinition(definicioProces.getJbpmId());
+		definicioProcesDto.setEtiqueta(jb.getProcessDefinition().getName()+" v."+jb.getVersion());
+		
+		List<DefinicioProces> mateixaKeyIEntorn = definicioProcesRepository.findByEntornAndJbpmKeyOrderByVersioDesc(
+				definicioProces.getEntorn(),
+				definicioProces.getJbpmKey());
+		definicioProcesDto.setIdsWithSameKey(new Long[mateixaKeyIEntorn.size()]);
+		definicioProcesDto.setIdsMostrarWithSameKey(new String[mateixaKeyIEntorn.size()]);
+		definicioProcesDto.setJbpmIdsWithSameKey(new String[mateixaKeyIEntorn.size()]);
+		for (int i = 0; i < mateixaKeyIEntorn.size(); i++) {
+			definicioProcesDto.getIdsWithSameKey()[i] = mateixaKeyIEntorn.get(i).getId();
+			definicioProcesDto.getIdsMostrarWithSameKey()[i] = mateixaKeyIEntorn.get(i).getIdPerMostrar();
+			definicioProcesDto.getJbpmIdsWithSameKey()[i] = mateixaKeyIEntorn.get(i).getJbpmId();
+		}
+		return definicioProcesDto;
+	}
+	
+	@Transactional(readOnly=true)
 	@Override
-	public DefinicioProcesDto findDarreraDefinicioProcesForExpedientTipus(
-			Long expedientTipusId,
-			boolean ambTascaInicial) {
+	public DefinicioProcesDto getById(Long id) {
+		DefinicioProces definicioProces = definicioProcesRepository.findById(id);
+		if (definicioProces != null) {	
+			return toDefinicioProcesDto(definicioProces);
+		}
+		return null;
+	}
+	
+	@Transactional(readOnly=true)
+	@Override
+	public DefinicioProcesDto findDarreraDefinicioProcesForExpedientTipus(Long expedientTipusId) {
 		ExpedientTipusDto expedientTipus = getExpedientTipusById(expedientTipusId);
 		if (expedientTipus.getJbpmProcessDefinitionKey() != null) {
 			DefinicioProces definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
 					expedientTipus.getEntorn().getId(),
 					expedientTipus.getJbpmProcessDefinitionKey());
 			if (definicioProces != null) {
-				return toDto(definicioProces, ambTascaInicial);
+				DefinicioProcesDto dto = toDefinicioProcesDto(definicioProces);
+				Map<Long, Boolean> hasStartTask = new HashMap<Long, Boolean>();
+				dto.setHasStartTask(hasStartTask(definicioProces, hasStartTask));
+//				dto.setStartTaskName(jbpmHelper.getStartTaskName(definicioProces.getJbpmId()));
+//				dto.setHasStartTaskWithSameKey(new Boolean[mateixaKeyIEntorn.size()]);
+//				for (int i = 0; i < mateixaKeyIEntorn.size(); i++) {
+//					dto.getHasStartTaskWithSameKey()[i] = new Boolean(
+//							hasStartTask(mateixaKeyIEntorn.get(i), hasStartTask));
+//				}
+				return dto;
 			}
 		}
 		return null;
 	}
 	
-	public DefinicioProcesDto toDto(
-			DefinicioProces definicioProces,
-			boolean ambTascaInicial) {
-		DefinicioProcesDto dto = conversioTipusHelper.convertir(definicioProces, DefinicioProcesDto.class);
-		JbpmProcessDefinition jpd = jbpmHelper.getProcessDefinition(definicioProces.getJbpmId());
-		if (jpd != null)
-			dto.setJbpmName(jpd.getName());
-		else
-			dto.setJbpmName("[" + definicioProces.getJbpmKey() + "]");
-
-		List<DefinicioProces> mateixaKeyIEntorn = definicioProcesRepository.findByEntornAndJbpmKey(
-				definicioProces.getEntorn(),
-				definicioProces.getJbpmKey());
-		dto.setIdsWithSameKey(new Long[mateixaKeyIEntorn.size()]);
-		dto.setIdsMostrarWithSameKey(new String[mateixaKeyIEntorn.size()]);
-		dto.setJbpmIdsWithSameKey(new String[mateixaKeyIEntorn.size()]);
-		for (int i = 0; i < mateixaKeyIEntorn.size(); i++) {
-			dto.getIdsWithSameKey()[i] = mateixaKeyIEntorn.get(i).getId();
-			dto.getIdsMostrarWithSameKey()[i] = mateixaKeyIEntorn.get(i).getIdPerMostrar();
-			dto.getJbpmIdsWithSameKey()[i] = mateixaKeyIEntorn.get(i).getJbpmId();
-		}
-		if (ambTascaInicial) {
-			Map<Long, Boolean> hasStartTask = new HashMap<Long, Boolean>();
-			dto.setHasStartTask(hasStartTask(definicioProces, hasStartTask));
-			dto.setStartTaskName(jbpmHelper.getStartTaskName(definicioProces.getJbpmId()));
-			dto.setHasStartTaskWithSameKey(new Boolean[mateixaKeyIEntorn.size()]);
-			for (int i = 0; i < mateixaKeyIEntorn.size(); i++) {
-				dto.getHasStartTaskWithSameKey()[i] = new Boolean(
-						hasStartTask(mateixaKeyIEntorn.get(i), hasStartTask));
-			}
-		}
-		return dto;
-	}
 	private boolean hasStartTask(DefinicioProces definicioProces, Map<Long, Boolean> hasStartTask) {
 		Long definicioProcesId = definicioProces.getId();
 		Boolean result = hasStartTask.get(definicioProcesId);
@@ -183,13 +191,6 @@ public class DissenyServiceImpl implements DissenyService {
 			hasStartTask.put(definicioProcesId, result);
 		}
 		return result.booleanValue();
-	}
-	
-	@Transactional(readOnly=true)
-	@Override
-	public DefinicioProcesDto getById(Long id) {
-		DefinicioProces definicioProces = definicioProcesRepository.findById(id);
-		return conversioTipusHelper.convertir(definicioProces, DefinicioProcesDto.class);
 	}
 	
 	@Transactional(readOnly=true)
@@ -254,7 +255,6 @@ public class DissenyServiceImpl implements DissenyService {
 						ExtendedPermission.ADMINISTRATION});
 	}
 
-	@Transactional
 	private List<ExpedientTipusDto> findExpedientTipusAmbPermisosUsuariActual(
 			Long entornId,
 			Permission[] permisos) {
@@ -276,7 +276,7 @@ public class DissenyServiceImpl implements DissenyService {
 				ExpedientTipusDto.class);
 	}
 	
-	@Transactional
+	@Transactional(readOnly=true)
 	@Override
 	public List<ConsultaDto> findConsultesActivesAmbEntornIExpedientTipusOrdenat(
 			Long entornId,
@@ -369,5 +369,24 @@ public class DissenyServiceImpl implements DissenyService {
 		} catch (Exception e) {
 			return null;
 		}
+	}
+
+	@Transactional(readOnly=true)
+	@Override
+	public List<TerminiDto> findTerminisAmbDefinicioProcesId(Long definicioProcesId) {
+		return conversioTipusHelper.convertirList(terminiRepository.findByDefinicioProcesId(definicioProcesId) , TerminiDto.class);
+	}
+
+	@Transactional(readOnly=true)
+	@Override
+	public List<TerminiIniciatDto> findIniciatsAmbProcessInstanceId(String processInstanceId) {
+		List<TerminiIniciat> terminiIniciats = terminiIniciatRepository.findByProcessInstanceId(processInstanceId);
+		return conversioTipusHelper.convertirList(terminiIniciats, TerminiIniciatDto.class);
+	}
+
+	@Transactional(readOnly=true)
+	@Override
+	public TerminiIniciatDto findIniciatAmbId(Long id) {
+		return conversioTipusHelper.convertir(terminiIniciatRepository.findById(id), TerminiIniciatDto.class);
 	}
 }

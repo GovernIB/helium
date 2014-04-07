@@ -258,4 +258,6 @@ public interface ExpedientService {
 			ExpedientTipusNotFoundException, EstatNotFoundException;
 
 	public List<Long> findIdsPerConsultaInformePaginat(Long id, Long consultaId, Long expedientTipusId, Map<String, Object> valorsPerService, String expedientCampId, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats);
+
+	public void changeProcessInstanceVersion(String id, int versio);
 }

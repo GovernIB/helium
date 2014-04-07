@@ -50,7 +50,7 @@
 								<input id="${inputId}" name="${inputName}" value="" type="password" class="textInput span11" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>/>
 							</c:when>
 							<c:when test="${param.type == 'number'}">
-								<input id="${inputId}" name="${inputName}" value="${param.value}" type="text" class="textInput span11" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if> style="text-align:right"/>
+								<input id="${inputId}" name="${inputName}" value="${param.value}" type="number" class="textInput span11" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if> style="text-align:right"/>
 							</c:when>
 							<c:when test="${param.type == 'checkbox'}">
 								<input type="hidden" name="_${status.expression}" value="on"/>

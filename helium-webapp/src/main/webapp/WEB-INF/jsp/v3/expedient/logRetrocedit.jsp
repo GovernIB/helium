@@ -6,12 +6,9 @@
 <html>
 	<head>
 		<title><spring:message code="expedient.log.accions.llistat"/></title>
-		<c:import url="../utils/modalHead.jsp">
-			<c:param name="titol" value="Accions de la tasca"/>
-			<c:param name="buttonContainerId" value="botons"/>
-		</c:import>
 	</head>
 	<body>
+		<br/>
 		<c:choose>
 			<c:when test="${not empty logs}">
 				<table id="table-accions-tascas" class="table table-bordered">
@@ -75,11 +72,5 @@
 				<div class="well well-small">No hi ha logs per a mostrar</div>
 			</c:otherwise>
 		</c:choose>
-		<div id="botons" class="well">
-			<button type="button" class="btn btn-tancar"><spring:message code="comuns.cancelar"/></button>
-		</div>
-		<script type="text/javascript">
-			window.parent.modalAjustarTamany(window.frameElement,$('html').height());
-		</script>
 	</body>
 </html>

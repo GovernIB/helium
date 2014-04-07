@@ -22,6 +22,7 @@ import net.conselldemallorca.helium.core.model.dao.ExpedientTipusDao;
 import net.conselldemallorca.helium.core.model.dao.PluginCustodiaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginGestioDocumentalDao;
 import net.conselldemallorca.helium.core.model.dao.RegistreDao;
+import net.conselldemallorca.helium.core.model.dao.TerminiIniciatDao;
 import net.conselldemallorca.helium.core.model.exception.ExpedientRepetitException;
 import net.conselldemallorca.helium.core.model.exception.IllegalArgumentsException;
 import net.conselldemallorca.helium.core.model.exception.NotFoundException;
@@ -46,6 +47,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
+import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.service.LuceneHelper;
 import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
@@ -216,6 +218,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
 	@Resource
 	private ExpedientDao expedientDao;
+	@Resource
+	private TerminiIniciatDao terminiIniciatDao;
 	@Resource
 	private ExecucioMassivaExpedientRepository execucioMassivaExpedientRepository;
 	
@@ -1466,6 +1470,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 
 	@Transactional
+	@Override
 	public List<InstanciaProcesDto> getArbreInstanciesProces(
 				Long processInstanceId) {
 		List<InstanciaProcesDto> resposta = new ArrayList<InstanciaProcesDto>();
@@ -1478,17 +1483,20 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 
 	@Transactional
+	@Override
 	public InstanciaProcesDto getInstanciaProcesById(String processInstanceId) {
 		return dtoConverter.toInstanciaProcesDto(processInstanceId);
 	}
 
 	@Transactional
+	@Override
 	public List<RegistreDto> getRegistrePerExpedient(Long expedientId) {
 		List<Registre> registre = registreRepository.findByExpedientId(expedientId);
 		return conversioTipusHelper.convertirList(registre, RegistreDto.class);
 	}
 
 	@Transactional
+	@Override
 	public List<ExpedientLogDto> getLogsOrdenatsPerData(ExpedientDto expedient) {
 		mesuresTemporalsHelper.mesuraIniciar("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "findAmbExpedientIdOrdenatsPerData");
 		List<ExpedientLogDto> resposta = new ArrayList<ExpedientLogDto>();
@@ -2360,5 +2368,34 @@ public class ExpedientServiceImpl implements ExpedientService {
 						ExtendedPermission.ADMINISTRATION});
 		return tascaHelper.findTasquesPendentsPerExpedient(
 				expedient);
+	}
+
+	@Transactional
+	@Override
+	public void changeProcessInstanceVersion(String processInstanceId, int newVersion) {
+		DefinicioProces defprocAntiga = getDefinicioProcesPerProcessInstanceId(processInstanceId);
+		jbpmHelper.changeProcessInstanceVersion(processInstanceId, newVersion);
+		// Apunta els terminis iniciats cap als terminis
+		// de la nova definició de procés
+		DefinicioProces defprocNova = getDefinicioProcesPerProcessInstanceId(processInstanceId);
+		List<TerminiIniciat> terminisIniciats = terminiIniciatDao.findAmbProcessInstanceId(processInstanceId);
+		for (TerminiIniciat terminiIniciat: terminisIniciats) {
+			Termini termini = terminiIniciat.getTermini();
+			if (termini.getDefinicioProces().getId().equals(defprocAntiga.getId())) {
+				for (Termini terminiNou: defprocNova.getTerminis()) {
+					if (terminiNou.getCodi().equals(termini.getCodi())) {
+						termini.removeIniciat(terminiIniciat);
+						terminiNou.addIniciat(terminiIniciat);
+						terminiIniciat.setTermini(terminiNou);
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	public DefinicioProces getDefinicioProcesPerProcessInstanceId(String processInstanceId) {
+		JbpmProcessInstance processInstance = jbpmHelper.getProcessInstance(processInstanceId);
+		return definicioProcesRepository.findByJbpmId(processInstance.getProcessDefinitionId());
 	}
 }

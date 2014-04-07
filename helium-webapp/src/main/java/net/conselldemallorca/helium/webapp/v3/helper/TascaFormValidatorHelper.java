@@ -4,6 +4,8 @@
 package net.conselldemallorca.helium.webapp.v3.helper;
 
 import java.lang.reflect.Array;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -68,7 +70,7 @@ public class TascaFormValidatorHelper implements Validator {
 	public boolean supports(Class clazz) {
 		return clazz.isAssignableFrom(Object.class);
 	}
-
+	
 	public void validate(Object command, Errors errors) {
 		try {
 			List<TascaDadaDto> tascas = getTascaDades(command);
@@ -120,6 +122,20 @@ public class TascaFormValidatorHelper implements Validator {
 						} catch (NoSuchMethodException ex) {
 							logger.error("No s'ha pogut trobar la propietat '" + camp.getVarCodi() + "' con campId " + camp.getCampId());
 						}
+					} else if (camp.getCampTipus().equals(CampTipusDto.DATE)) {
+						try {
+							PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
+							String valor = camp.getText(); 
+							if (valor != null) {
+								SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+								sdf.setLenient(false);
+								sdf.parse(valor);
+							}
+						} catch (NoSuchMethodException ex) {
+							logger.error("No s'ha pogut trobar la propietat '" + camp.getVarCodi() + "' con campId " + camp.getCampId());
+						} catch (ParseException  ex) {
+							errors.rejectValue(camp.getVarCodi(), "error.camp.dada.valida");
+						}
 					}
 				}
 			}
@@ -133,16 +149,23 @@ public class TascaFormValidatorHelper implements Validator {
 		tascaThreadLocal.set(tasca);
 	}
 
+	@SuppressWarnings("unchecked")
 	private List<TascaDadaDto> getTascaDades(Object command) throws Exception {
 		if (tascaThreadLocal.get() != null) {
 			return tascaThreadLocal.get();
 		}
-		Long entornId = (Long) PropertyUtils.getSimpleProperty(command, "entornId");
 		if (inicial) {
-			Long expedientTipusId = (Long) PropertyUtils.getSimpleProperty(command, "expedientTipusId");
-			Long definicioProcesId = (Long) PropertyUtils.getSimpleProperty(command, "definicioProcesId");
-			ExpedientTascaDto tasca = expedientService.getStartTask(entornId, expedientTipusId, definicioProcesId, null);
-			return tascaService.findDadesPerTasca(tasca.getId());
+			List<TascaDadaDto> tascas = null;
+			if (PropertyUtils.getSimpleProperty(command, "listaDadas") != null) {
+				tascas =  (List<TascaDadaDto>) PropertyUtils.getSimpleProperty(command, "listaDadas");
+			} else {
+				Long entornId = (Long) PropertyUtils.getSimpleProperty(command, "entornId");
+				Long expedientTipusId = (Long) PropertyUtils.getSimpleProperty(command, "expedientTipusId");
+				Long definicioProcesId = (Long) PropertyUtils.getSimpleProperty(command, "definicioProcesId");
+				ExpedientTascaDto tasca = expedientService.getStartTask(entornId, expedientTipusId, definicioProcesId, null);
+				tascas = tascaService.findDadesPerTasca(tasca.getId());
+			}
+			return tascas;
 		} else {
 			String id = (String) PropertyUtils.getSimpleProperty(command, "id");
 			return tascaService.findDadesPerTasca(id);

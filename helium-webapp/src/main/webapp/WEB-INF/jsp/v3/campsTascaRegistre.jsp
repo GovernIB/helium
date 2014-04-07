@@ -132,7 +132,7 @@
 					</tr>
 				</table>
 				<c:if test="${!dada.readOnly && !tasca.validada}">
-					<div style="clear: both"></div>
+<!-- 					<div style="clear: both"></div> -->
 					<c:set var="ocultar_button_mult" value="${true}"/>
 					<button id="button_add_table_mult_${varStatusMain.index}"
 						type="button" 
@@ -145,7 +145,7 @@
 			
 			<c:if test="${!dada.readOnly && !tasca.validada}">
 				<div <c:if test="${not empty dada.registreDades || ocultar_button_mult}"> class="hide"</c:if>>
-					<div style="clear: both"></div>
+<!-- 					<div style="clear: both"></div> -->
 					<button id="button_add_table_mult_${varStatusMain.index}"
 						type="button" 
 						class="btn pull-left btn_afegir"

@@ -25,7 +25,7 @@ public class BaseController implements MessageSourceAware {
 		String message = messageSource.getMessage(key, args, "???" + key + "???", new RequestContext(request).getLocale());
 		return message;
 	}
-
+	
 	public String getMessage(HttpServletRequest request, String key) {
 		return getMessage(request, key, null);
 	}

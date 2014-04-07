@@ -113,7 +113,7 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 					campsAddicionalsClasses.put("definicioProcesId", Long.class);
 					campsAddicionalsClasses.put("procesScope", Map.class);
 					
-					command = TascaFormHelper.getCommandForCamps(tascaDadas, null, campsAddicionals, campsAddicionalsClasses, false);
+					command = TascaFormHelper.getCommandForCamps(tascaDadas, null, request, campsAddicionals, campsAddicionalsClasses, false);
 				} catch (TascaNotFoundException ex) {
 					MissatgesHelper.error(request, ex.getMessage());
 					logger.error("No s'han pogut encontrar la tasca: " + ex.getMessage(), ex);

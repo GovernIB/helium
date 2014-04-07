@@ -1,5 +1,8 @@
 package net.conselldemallorca.helium.webapp.v3.command;
 
+import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.NotEmpty;
+
 
 
 /**
@@ -16,11 +19,20 @@ public class PersonaUsuariCommand {
 	private Long numElementosPagina;
 	private boolean filtroExpedientesActivos;
 
+	@NotEmpty(message="Per favor, especifiqui algun valor")
 	private String nom;
+	
+	@NotEmpty(message="Per favor, especifiqui algun valor")
 	private String llinatge1;
+	
 	private String llinatge2;
+	
 	private String dni;
+	
+	@NotEmpty(message="Per favor, especifiqui algun valor")
+	@Email(message="El contingut d''aquest camp ha de ser una adreça de correu vàlida")
 	private String email;
+	
 	private boolean hombre;
 
 	public String getNom() {

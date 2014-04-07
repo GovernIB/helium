@@ -26,7 +26,7 @@ img.suggestImgEsborrar {
 }
 
 td {
-	word-break: break-all;
+/* 	word-break: break-all; */
 }
 
 .modal-body {
@@ -44,6 +44,10 @@ td {
 .form-init-exedient {
 	margin-bottom: 0px;
 	padding-bottom: 0px;
+}
+
+.form-init-exedient select {
+	margin-bottom: 0px;
 }
 
 .form-actions {
@@ -79,10 +83,6 @@ td {
 	margin-right: auto;
 }
 
-.registre .btn_afegir {
-	margin-top: -15px;	
-}
-
 .alt_termini {
 	list-style-type: none;
 	margin: 0px;
@@ -100,6 +100,10 @@ td {
 
 .form-tasca .span9 {
 	margin-left: 0px !important;
+}
+
+.form-tasca table {
+	margin-bottom: 0px;
 }
 
 .registre table .span5 {
@@ -268,10 +272,14 @@ ul#tabnav li.warn a {
 }
 
 .form-tasca .fila_reducida {
-	margin-bottom: 0px !important;
+	margin-bottom: 0px;
 	margin-top: 0px !important;
 	padding-bottom: 10px;
     padding-top: 10px;
+}
+
+.form-tasca .control-group {
+	margin-bottom: 0px;
 }
 
 .form-tasca .fila_reducida label {
@@ -337,3 +345,24 @@ ul#tabnav li.warn a {
 	margin: auto auto auto auto;
 }
 
+.error span {
+    background: url("../img/exclamation.png") no-repeat scroll 4px 6px;
+    color: #666666;
+    display: inline-block;
+    padding: 4px 8px 4px 25px;
+}
+
+#imgDefinicioProcesJbpm {
+    bottom: auto;
+    height: auto;
+    left: 10%;
+    margin: 125px;
+    right: auto;
+    top: 1%;
+	position:absolute;
+	z-index: 1;
+}
+
+#expedientInformeCommand .datepicker span {
+	margin-left: -4px;
+}

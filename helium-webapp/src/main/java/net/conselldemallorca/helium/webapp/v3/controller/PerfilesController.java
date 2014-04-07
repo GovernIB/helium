@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
@@ -36,7 +37,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.support.SessionStatus;
 
 /**
  * Controlador per la gestió d'perfils
@@ -190,15 +190,14 @@ public class PerfilesController extends BaseController {
 	@RequestMapping(method = RequestMethod.POST)
 	public String formPost(
 			HttpServletRequest request,
-			@ModelAttribute("PersonaUsuariCommand") PersonaUsuariCommand personaUsuariCommand,
 			@RequestParam(value = "accio", required = false) String accio,
+			@Valid @ModelAttribute PersonaUsuariCommand personaUsuariCommand,
 			BindingResult result,
-			SessionStatus status,
 			Model model) {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entorn != null) {
 	        try {
-	        	if ("Guardar".equals(accio)) {
+        		if ("Guardar".equals(accio)) {
 		        	UsuariPreferenciesDto preferencies = new UsuariPreferenciesDto();
 		        	preferencies.setCodi(request.getUserPrincipal().getName());
 		        	preferencies.setCabeceraReducida(personaUsuariCommand.isCabeceraReducida());
@@ -208,10 +207,8 @@ public class PerfilesController extends BaseController {
 		        	preferencies.setListado(personaUsuariCommand.getListado());
 		        	preferencies.setNumElementosPagina(personaUsuariCommand.getNumElementosPagina());
 		        	adminService.updatePerfil(preferencies);
-		        	SessionHelper.getSessionManager(request).setPreferenciesUsuari(preferencies);
-		        	
-		        	MissatgesHelper.info(request,getMessage(request, "info.perfil.guardat"));
-	        	} else if ("Modificar".equals(accio)) {
+		        	SessionHelper.getSessionManager(request).setPreferenciesUsuari(preferencies);		        	
+	        	} else if ("Modificar".equals(accio) && !result.hasErrors()) {
 	        		PersonaDto persona = new PersonaDto();
 	        		persona.setCodi(request.getUserPrincipal().getName());
 	        		persona.setDni(personaUsuariCommand.getDni());
@@ -221,10 +218,21 @@ public class PerfilesController extends BaseController {
 	        		persona.setNom(personaUsuariCommand.getNom());
 	        		persona.setSexe(personaUsuariCommand.isHombre() ? Sexe.SEXE_HOME : Sexe.SEXE_DONA);
 	        		adminService.updatePersona(persona);
-	        		MissatgesHelper.info(request,getMessage(request, "info.perfil.guardat"));
 	        	} else {
-	        		MissatgesHelper.error(request, getMessage(request, "error.guardar.perfil"));
+	                MissatgesHelper.error(request, getMessage(request, "error.guardar.perfil"));
+	                
+	                PersonaUsuariCommand pars = getFiltreCommand(request, model);
+	                personaUsuariCommand.setCabeceraReducida(pars.isCabeceraReducida());
+	                personaUsuariCommand.setConsultaId(pars.getConsultaId());
+	                personaUsuariCommand.setEntornCodi(pars.getEntornCodi());
+	                personaUsuariCommand.setExpedientTipusId(pars.getExpedientTipusId());
+	                personaUsuariCommand.setFiltroExpedientesActivos(pars.isFiltroExpedientesActivos());
+	                personaUsuariCommand.setListado(pars.getListado());
+	                personaUsuariCommand.setNumElementosPagina(pars.getNumElementosPagina());
+	                	                
+	        		return "v3/persona/perfil";
 	        	}	        	
+	        	MissatgesHelper.info(request,getMessage(request, "info.perfil.guardat"));
 	        } catch (Exception ex) {
 	        	MissatgesHelper.error(request, getMessage(request, "error.guardar.perfil"));
 	        	logger.error("No s'ha pogut guardar el perfil", ex);

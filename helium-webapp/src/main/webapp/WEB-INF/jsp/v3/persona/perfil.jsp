@@ -78,32 +78,34 @@
 	</div>
 	<div class="well well-white">
 		<div class="row-fluid">  
-			<form:form action="" cssClass="form-horizontal form-tasca" commandName="personaUsuariCommand">
-				<div class="control-group">
+			<form:form action="" cssClass="form-horizontal form-tasca" commandName="personaUsuariCommand" method="post">
+				<div class="control-group fila_reducida">
 					<c:set var="campPath" value="nom"/>
-					<label class="control-label" for="${campPath}"><spring:message code='comuns.nom' /></label>
-					<div class="controls">
+					<label class="control-label" data-required="true" for="${campPath}"><spring:message code='comuns.nom' /></label>
+					<div class="controls ">
 						<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 						<div class="control-group<c:if test="${not empty campErrors}"> error</c:if>">
 							<spring:bind path="${campPath}">
 								<input <c:if test="${tipusText == 'static'}">readonly="readonly"</c:if> type="text" id="${campPath}" name="${campPath}" placeholder="<spring:message code='comuns.nom' />"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span11">
 							</spring:bind>
+							${campErrors}
 						</div>
 					</div>
 				</div>
-				<div class="control-group">
+				<div class="control-group fila_reducida">
 					<c:set var="campPath" value="llinatge1"/>
-					<label class="control-label" for="${campPath}"><spring:message code='persona.form.primer_llin' /></label>
+					<label class="control-label" data-required="true" for="${campPath}"><spring:message code='persona.form.primer_llin' /></label>
 					<div class="controls">
 						<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 						<div class="control-group<c:if test="${not empty campErrors}"> error</c:if>">
 							<spring:bind path="${campPath}">
 								<input <c:if test="${tipusText == 'static'}">readonly="readonly"</c:if> type="text" id="${campPath}" name="${campPath}" placeholder="<spring:message code='persona.form.primer_llin' />"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span11">
 							</spring:bind>
+							${campErrors}
 						</div>
 					</div>
 				</div>
-				<div class="control-group">
+				<div class="control-group fila_reducida">
 					<c:set var="campPath" value="llinatge2"/>
 					<label class="control-label" for="${campPath}"><spring:message code='persona.form.segon_llin' /></label>
 					<div class="controls">
@@ -112,10 +114,11 @@
 							<spring:bind path="${campPath}">
 								<input <c:if test="${tipusText == 'static'}">readonly="readonly"</c:if> type="text" id="${campPath}" name="${campPath}" placeholder="<spring:message code='persona.form.segon_llin' />"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span11">
 							</spring:bind>
+							${campErrors}
 						</div>
 					</div>
 				</div>
-				<div class="control-group">
+				<div class="control-group fila_reducida">
 					<c:set var="campPath" value="dni"/>
 					<label class="control-label" for="${campPath}"><spring:message code='persona.form.dni' /></label>
 					<div class="controls">
@@ -124,22 +127,24 @@
 							<spring:bind path="${campPath}">
 								<input <c:if test="${tipusText == 'static'}">readonly="readonly"</c:if> type="text" id="${campPath}" name="${campPath}" placeholder="<spring:message code='persona.form.dni' />"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span11">
 							</spring:bind>
+							${campErrors}
 						</div>
 					</div>
 				</div>
-				<div class="control-group">
+				<div class="control-group fila_reducida">
 					<c:set var="campPath" value="email"/>
-					<label class="control-label" for="${campPath}"><spring:message code='persona.form.ae' /></label>
+					<label class="control-label" data-required="true" for="${campPath}"><spring:message code='persona.consulta.email' /></label>
 					<div class="controls">
 						<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 						<div class="control-group<c:if test="${not empty campErrors}"> error</c:if>">
 							<spring:bind path="${campPath}">
-								<input <c:if test="${tipusText == 'static'}">readonly="readonly"</c:if> type="text" id="${campPath}" name="${campPath}" placeholder="<spring:message code='persona.form.ae' />"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span11">
+								<input <c:if test="${tipusText == 'static'}">readonly="readonly"</c:if> type="text" id="${campPath}" name="${campPath}" placeholder="<spring:message code='persona.consulta.email' />"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span11">
 							</spring:bind>
+							${campErrors}
 						</div>
 					</div>
 				</div>
-				<div class="control-group">
+				<div class="control-group fila_reducida">
 					<c:set var="campPath" value="hombre"/>
 					<label class="control-label" for="${campPath}"><spring:message code='comuns.sexe' /></label>
 					<div class="controls">
@@ -147,6 +152,7 @@
 						<form:select id="sexe" name="sexe" path="${campPath}" cssClass="span11">
 							<form:options items="${sexes}" itemLabel="valor" itemValue="codi"/>
 						</form:select>
+						${campErrors}
 					</div>
 				</div>
 				<br/>
@@ -162,16 +168,16 @@
 	</div>		
 	<div class="well well-white">
 		<div class="row-fluid">    
-			<form:form action="perfil" method="post" cssClass="formbox form-horizontal" commandName="personaUsuariCommand">
+			<form:form action="" method="post" cssClass="formbox form-horizontal" commandName="personaUsuariCommand">
 				<div class="control-group">
 					<label for="tz" class="control-label">Listado inicial</label>
 					<div class="controls">
 						<c:set var="campPath" value="listado"/>
 						<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 						<form:select path="${campPath}" cssClass="span11">
-							<option value="">&lt;&lt; <spring:message code="js.helforms.selec_valor" /> &gt;&gt;</option>
 							<form:options items="${pantallas}" itemLabel="valor" itemValue="codi"/>
 						</form:select>
+						${campErrors}
 						<p class="help-block">
 							<span class="label label-info">Nota</span> Veure la pantalla d'expedients o de tasques per defecte.
 						</p>
@@ -183,9 +189,9 @@
 						<c:set var="campPath" value="cabeceraReducida"/>
 						<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 						<form:select path="${campPath}" cssClass="span11">
-							<option value="">&lt;&lt; <spring:message code="js.helforms.selec_valor" /> &gt;&gt;</option>
 							<form:options items="${cabeceras}" itemLabel="valor" itemValue="codi"/>
 						</form:select>
+						${campErrors}
 						<p class="help-block">
 							<span class="label label-info">Nota</span> Mida i format de capcalera.
 						</p>
@@ -197,9 +203,9 @@
 						<c:set var="campPath" value="entornCodi"/>
 						<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 						<form:select path="${campPath}" cssClass="span11">
-							<option value="">&lt;&lt; <spring:message code="js.helforms.selec_valor" /> &gt;&gt;</option>
 							<form:options items="${entorns}" itemLabel="nom" itemValue="codi"/>
 						</form:select>
+						${campErrors}
 						<p class="help-block">
 							<span class="label label-info">Nota</span> Entorn per defecte que s'ha d'obrir.
 						</p>
@@ -215,6 +221,7 @@
 							<option value="">&lt;&lt; <spring:message code="js.helforms.selec_valor" /> &gt;&gt;</option>
 							<form:options items="${expedientTipus}" itemLabel="nom" itemValue="id"/>
 						</form:select>
+						${campErrors}
 						<label class="control-label" for="lc_time" style="text-align: left">Consulta por tipo</label>
 						<c:set var="campPath" value="consultaId"/>
 						<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
@@ -222,6 +229,7 @@
 							<option value="">&lt;&lt; <spring:message code="js.helforms.selec_valor" /> &gt;&gt;</option>
 							<form:options items="${consultes}" itemLabel="nom" itemValue="id"/>
 						</form:select>
+						${campErrors}
 						<p class="help-block">
 							<span class="label label-info">Nota</span> Consulta per tipus per defecte que s'ha d'obrir.
 						</p>
@@ -233,9 +241,9 @@
 						<c:set var="campPath" value="numElementosPagina"/>
 						<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 						<form:select path="${campPath}" cssClass="span11">
-							<option value="">&lt;&lt; <spring:message code="js.helforms.selec_valor" /> &gt;&gt;</option>
 							<form:options items="${numElementsPagina}" itemLabel="valor" itemValue="codi"/>
 						</form:select>
+						${campErrors}
 						<p class="help-block">
 							<span class="label label-info">Nota</span> Numero d'elements que s'han de mostrar per defecte en les taules paginades.
 						</p>
@@ -248,6 +256,7 @@
 						<label class="checkbox inline">
 							<input type="checkbox" id="filtroExpedientesActivosCheck" <c:if test="${personaUsuariCommand.filtroExpedientesActivos}">checked="checked"</c:if>> <label>Llistat d'expedients filtra per defecte o no expedients amb tasques actives per part de l'usuari.</label>
 						</label>
+						${campErrors}
 					</div>
 				</div>
 				<br />

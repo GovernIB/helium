@@ -12,7 +12,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto.JbpmIdAmbDescripcio;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
@@ -76,19 +76,10 @@ public class BaseExpedientController extends BaseController {
 		
 		model.addAttribute("relacionats",expedientService.getExpedientsRelacionats(expedientId));
 
-		Long definicioProcesJbpmId = null;
-		String definicioProcesDescripcio = null;
-		List<JbpmIdAmbDescripcio> listaDefProc = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedient.getTipus().getId(), true).getJbpmIdsAmbDescripcio();
-		for (JbpmIdAmbDescripcio defProc : listaDefProc) {
-			if (defProc.getJbpmId().longValue() == instanciaProces.getDefinicioProces().getId().longValue()) {
-				definicioProcesDescripcio = defProc.getDescripcio();
-				definicioProcesJbpmId = defProc.getJbpmId();
-				break;
-			}
-		}
-		model.addAttribute("definicioProcesJbpmId",definicioProcesJbpmId);
-		model.addAttribute("definicioProcesDescripcio",definicioProcesDescripcio);
-		model.addAttribute("definicionsProces",listaDefProc);
+		DefinicioProcesDto def = dissenyService.getById(instanciaProces.getDefinicioProces().getId());
+		model.addAttribute("definicioProcesJbpmId",def.getId());
+		model.addAttribute("definicioProcesDescripcio",def.getEtiqueta());
+		model.addAttribute("definicionsProces",def.getJbpmIdsAmbDescripcio());
 		
 		if (pipellaActiva != null)
 			model.addAttribute("pipellaActiva", pipellaActiva);

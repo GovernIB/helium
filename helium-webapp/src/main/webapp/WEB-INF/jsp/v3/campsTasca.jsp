@@ -5,11 +5,15 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 
+<c:if test="${not empty errors && errors[dada.varCodi] != ''}">
+	<c:set var="campErrors">${errors[dada.varCodi]}</c:set>
+</c:if>
 <c:if test="${dada.campTipus == 'STRING'}">
-	<div class="controls">
+	<div class="controls control-group<c:if test="${not empty campErrors}"> error</c:if>">
 		<c:if test="${!dada.readOnly && !tasca.validada}">	
-			<input type="text" id="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" name="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" value="${dada.text}" class="span11" <c:if test="${dada.required}"> data-required="true"</c:if>/>
+			<input placeholder="${dada.campEtiqueta}" type="text" id="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" name="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" value="${dada.text}" class="span11" <c:if test="${dada.required}"> data-required="true"</c:if>/>
 			<div class="formHint">${dada.observacions}</div>
+			<span>${campErrors}</span>
 		</c:if>
 		
 		<c:if test="${dada.readOnly || tasca.validada}">
@@ -18,10 +22,11 @@
 	</div>
 </c:if>
 <c:if test="${dada.campTipus == 'TEXTAREA'}">
-	<div class="controls">
+	<div class="controls control-group<c:if test="${not empty campErrors}"> error</c:if>">
 		<c:if test="${!dada.readOnly && !tasca.validada}">	
-			<textarea id="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" name="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" class="span11" <c:if test="${dada.required}"> data-required="true"</c:if>>${dada.text}</textarea>
+			<textarea placeholder="${dada.campEtiqueta}" id="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" name="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" class="span11" <c:if test="${dada.required}"> data-required="true"</c:if>>${dada.text}</textarea>
 			<div class="formHint">${dada.observacions}</div>
+			<span>${campErrors}</span>
 		</c:if>
 		
 		<c:if test="${dada.readOnly || tasca.validada}">
@@ -30,7 +35,7 @@
 	</div>
 </c:if>
 <c:if test="${dada.campTipus == 'SUGGEST'}">
-	<div class="controls">
+	<div class="controls control-group<c:if test="${not empty campErrors}"> error</c:if>">
 		<c:if test="${!dada.readOnly && !tasca.validada}">	
 			<c:set var="extraParams">taskId:'${tasca.tascaId}',campId:'${dada.campId}',valors:function(){return canvisSelectValorsAddicionals}</c:set>
 			<c:import url="../common/formElement.jsp">
@@ -47,6 +52,7 @@
 				<c:param name="multipleSuggestText"></c:param>
 			</c:import>
 			<div class="formHint">${dada.observacions}</div>
+			<span>${campErrors}</span>
 		</c:if>
 		
 		<c:if test="${dada.readOnly || tasca.validada}">
@@ -55,7 +61,7 @@
 	</div>
 </c:if>
 <c:if test="${dada.campTipus == 'TERMINI'}">
-	<div class="controls multiField">
+	<div class="controls multiField control-group<c:if test="${not empty campErrors}"> error</c:if>">
 		<c:if test="${!dada.readOnly && !tasca.validada}">	
 			<ul class="alternate alt_termini">
 				<li>
@@ -90,6 +96,7 @@
 				</li>
 			</ul>
 			<div class="formHint">${dada.observacions}</div>
+			<span>${campErrors}</span>
 		</c:if>
 		
 		<input id="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" name="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" type="hidden" value="">
@@ -101,7 +108,7 @@
 </c:if>
 <c:if test="${dada.campTipus == 'ACCIO'}">
 	<c:if test="${!dada.readOnly && !tasca.validada}">	
-		<div class="controls">
+		<div class="controls control-group<c:if test="${not empty campErrors}"> error</c:if>">
 			<button 
 				class="btn pull-lef" 
 				name="submit" 
@@ -113,21 +120,17 @@
 					">
 				<spring:message code="common.camptasca.executar" />
 			</button>
-			<script>
-				$("#${dada.varCodi}").keyfilter(/^[-+]?[0-9]*$/);
-			</script>
 			<div class="formHint">${dada.observacions}</div>
+			<span>${campErrors}</span>
 		</div>
 	</c:if>
 </c:if>
 <c:if test="${dada.campTipus == 'INTEGER'}">
-	<div class="controls">
+	<div class="controls control-group<c:if test="${not empty campErrors}"> error</c:if>">
 		<c:if test="${!dada.readOnly && !tasca.validada}">	
-			<input type="number" id="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" name="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" value="${dada.text}" class="span11" style="text-align:right" <c:if test="${dada.required}"> data-required="true"</c:if>/>
-			<script>
-				$("#${dada.varCodi}").keyfilter(/^[-+]?[0-9]*$/);
-			</script>	
+			<input placeholder="${dada.campEtiqueta}" type="number" id="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" name="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" value="${dada.text}" class="span11" style="text-align:right" <c:if test="${dada.required}"> data-required="true"</c:if>/>
 			<div class="formHint">${dada.observacions}</div>
+			<span>${campErrors}</span>
 		</c:if>
 		<c:if test="${dada.readOnly || tasca.validada}">
 			<label class="control-label-value"><c:out value="${dada.text}"/></label>
@@ -135,13 +138,11 @@
 	</div>
 </c:if>
 <c:if test="${dada.campTipus == 'FLOAT'}">
-	<div class="controls">
+	<div class="controls control-group<c:if test="${not empty campErrors}"> error</c:if>">
 		<c:if test="${!dada.readOnly && !tasca.validada}">	
-			<input type="number" id="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" name="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" value="${dada.text}" class="span11" style="text-align:right" <c:if test="${dada.required}"> data-required="true"</c:if>/>
-			<script>
-				$("#${dada.varCodi}").keyfilter(/^[-+]?[,0-9]*$/);
-			</script>	
+			<input placeholder="${dada.campEtiqueta}" type="number" id="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" name="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" value="${dada.text}" class="span11" style="text-align:right" <c:if test="${dada.required}"> data-required="true"</c:if>/>
 			<div class="formHint">${dada.observacions}</div>
+			<span>${campErrors}</span>
 		</c:if>
 		<c:if test="${dada.readOnly || tasca.validada}">
 			<label class="control-label-value"><c:out value="${dada.text}"/></label>
@@ -149,9 +150,9 @@
 	</div>
 </c:if>
 <c:if test="${dada.campTipus == 'PRICE'}">
-	<div class="controls">
+	<div class="controls control-group<c:if test="${not empty campErrors}"> error</c:if>">
 		<c:if test="${!dada.readOnly && !tasca.validada}">	
-			<input type="number" id="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" name="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" value="${dada.text}" class="span11" style="text-align:right" <c:if test="${dada.required}"> data-required="true"</c:if>/>
+			<input placeholder="${dada.campEtiqueta}" type="text" id="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" name="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" value="${dada.text}" class="span11" style="text-align:right" <c:if test="${dada.required}"> data-required="true"</c:if>/>
 			<script>
 				$("#${dada.varCodi}").priceFormat({
 					prefix: '',
@@ -161,6 +162,7 @@
 				});
 			</script>	
 			<div class="formHint">${dada.observacions}</div>
+			<span>${campErrors}</span>
 		</c:if>
 		<c:if test="${dada.readOnly || tasca.validada}">
 			<label class="control-label-value"><c:out value="${dada.text}"/></label>
@@ -168,10 +170,10 @@
 	</div>
 </c:if>
 <c:if test="${dada.campTipus == 'DATE'}">
-	<div class="controls">
+	<div class="controls control-group<c:if test="${not empty campErrors}"> error</c:if>">
 		<c:if test="${!dada.readOnly && !tasca.validada}">	
 			<div class="span5 input-append date datepicker">
-				<input type="text" id="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" name="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" value="${dada.text}" class="date_${varStatusMain.index} span3" placeholder="dd/mm/yyyy" <c:if test="${dada.required}"> data-required="true"</c:if>/>
+				<input placeholder="${dada.campEtiqueta}" type="text" id="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" name="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" value="${dada.text}" class="date_${varStatusMain.index} span3" placeholder="dd/mm/yyyy" <c:if test="${dada.required}"> data-required="true"</c:if>/>
 				<span class="add-on" onclick="$('.date_${varStatusMain.index}').focus()"><i class="icon-calendar"></i></span>
 			</div>
 			<script>
@@ -179,6 +181,7 @@
 				$(".date_${varStatusMain.index}").datepicker({language: 'ca', autoclose: true});
 			</script>
 			<div class="formHint">${dada.observacions}</div>	
+			<span>${campErrors}</span>
 		</c:if>
 		<c:if test="${dada.readOnly || tasca.validada}">
 			<label class="control-label-value"><c:out value="${dada.text}"/></label>
@@ -186,10 +189,11 @@
 	</div>
 </c:if>
 <c:if test="${dada.campTipus == 'BOOLEAN'}">
-	<div class="controls">
+	<div class="controls control-group<c:if test="${not empty campErrors}"> error</c:if>">
 		<c:if test="${!dada.readOnly && !tasca.validada}">
 			<input type="checkbox" id="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" name="<c:if test="${not empty dada_multiple}">${dada_multiple}[${dada.varCodi}]</c:if><c:if test="${empty dada_multiple}">${dada.varCodi}</c:if>" <c:if test="${dada.varValor}"> checked="checked"</c:if> <c:if test="${dada.required}"> data-required="true"</c:if>/>
 			<div class="formHint">${dada.observacions}</div>	
+			<span>${campErrors}</span>
 		</c:if>
 		
 		<c:if test="${dada.readOnly || tasca.validada}">
@@ -198,7 +202,7 @@
 	</div>	
 </c:if>
 <c:if test="${dada.campTipus == 'SELECCIO'}">
-	<div class="controls">
+	<div class="controls control-group<c:if test="${not empty campErrors}"> error</c:if>">
 		<c:if test="${!dada.readOnly && !tasca.validada}">
 			<c:if test='${not empty dada_multiple}'>
 				<c:set var="idSelect" value="${dada_multiple}[${dada.varCodi}]"/>
@@ -224,6 +228,7 @@
 				});
 			</script>
 			<div class="formHint">${dada.observacions}</div>
+			<span>${campErrors}</span>
 		</c:if>
 		<c:if test="${dada.readOnly || tasca.validada}">
 			<label class="control-label-value"><c:out value="${dada.text}"/></label>

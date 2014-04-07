@@ -215,7 +215,7 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 						afegirVariablesDelProces(command, tasca);
 						Validator validator = TascaFormHelper.getBeanValidatorForCommand(tascaDadas);
 						Map<String, Object> valorsCommand = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
-						validator.validate(TascaFormHelper.getCommandForCamps(tascaDadas,valorsCommand,null,null,false), result);
+						validator.validate(TascaFormHelper.getCommandForCamps(tascaDadas,valorsCommand,request, null,null,false), result);
 					} catch (Exception ex) {
 						logger.error("S'han produit errors de validació", ex);
 						MissatgesHelper.error(request, getMessage(request, "error.validacio"));

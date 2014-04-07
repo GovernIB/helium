@@ -28,60 +28,83 @@
 			
 			return confirm("<spring:message code='expedient.iniciar.confirm_iniciar' />");
 		}
-		
-		function canviAny() {
-			$('#nomesRefrescar').val('true');
-			$('#command').submit();
-		}
+
+		$(document).ready(function() {
+			$('select[name=any]').on('change', function () {
+				if ($(this).val()) {
+					$.ajax({
+					    url:'canviAny/' + $(this).val() + '/${entornId}/${expedientTipus.id}',
+					    type:'GET',
+					    dataType: 'json',
+					    success: function(json) {
+					    	$("#numero").val(json);
+					    }
+					});
+				}
+			});	
+		});	
 		// ]]>
 	</script>
 </head>
 <body>
 	<h3 class="titol-tab titol-dades-tasca"><spring:message code='expedient.iniciar.iniciar_expedient' />: ${expedientTipus.nom}</h3>
-	<form:form method="post" action="iniciarPasTitol" id="command" name="command" cssClass="form-horizontal form-tasca" onsubmit="return confirmar(event)">
+	<form:form method="post" action="form" id="command" name="command" cssClass="form-horizontal form-tasca" onsubmit="return confirmar(event)" commandName="expedientInicioPasTitolCommand">
 		<input type="hidden" name="expedientTipusId" value="${expedientTipus.id}"/>
-		<input type="hidden" id="nomesRefrescar" name="nomesRefrescar"/>
+		<input type="hidden" name="entornId" value="${entornId}"/>
+		<input type="hidden" name="responsableCodi" value="${responsableCodi}"/>
 		<c:if test="${not empty definicioProcesId}">
 			<input type="hidden" name="definicioProcesId" value="${definicioProcesId}"/>
 		</c:if>
 		<c:if test="${expedientTipus.teNumero and expedientTipus.demanaNumero}">
-			<div class="control-group fila_reducida">
-				<label class="control-label" for="numero"><spring:message code='expedient.consulta.numero' /></label>
+			<div class="control-group fila_reducida">				
+				<c:set var="campPath" value="numero"/>
+				<label data-required="true" class="control-label" data-required="true" for="${campPath}"><spring:message code='expedient.consulta.numero' /></label>
 				<div class="controls">
-					<input type="number" id="numero" name="numero" value="${numero}" class="span11" style="text-align:right" data-required="true"/>
-					<script>
-						$("#numero").keyfilter(/^[-+]?[0-9]*$/);
-					</script>
+					<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
+					<div class="control-group<c:if test="${not empty campErrors}"> error</c:if>">
+						<spring:bind path="${campPath}">
+							<input type="text" id="${campPath}" name="${campPath}" placeholder="<spring:message code='expedient.consulta.numero' />"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span11">
+						</spring:bind>
+						${campErrors}
+					</div>
 				</div>
 			</div>
 		</c:if>
 		<c:if test="${expedientTipus.teTitol and expedientTipus.demanaTitol}">
-			<div class="control-group fila_reducida">
-				<label class="control-label" for="titol"><spring:message code='expedient.consulta.titol' /></label>
+			<div class="control-group fila_reducida">			
+				<c:set var="campPath" value="titol"/>
+				<label data-required="true" class="control-label" data-required="true" for="${campPath}"><spring:message code='expedient.consulta.titol' /></label>
 				<div class="controls">
-					<textarea id="titol" name="titol" class="span11" style="text-align:right" data-required="true">${titol}</textarea>
+					<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
+					<div class="control-group<c:if test="${not empty campErrors}"> error</c:if>">
+						<spring:bind path="${campPath}">
+							<textarea type="text" id="${campPath}" name="${campPath}" placeholder="<spring:message code='expedient.consulta.titol' />"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span11"></textarea>
+						</spring:bind>
+						${campErrors}
+					</div>
 				</div>
 			</div>
 		</c:if>
 		<c:if test="${expedientTipus.seleccionarAny}">
 			<div class="control-group fila_reducida">
-				<label class="control-label" for="any"><spring:message code='expedient.iniciar.canvi_any' /></label>
+				<c:set var="campPath" value="any"/>
+				<label class="control-label" for="${campPath}"><spring:message code='expedient.iniciar.canvi_any' /></label>
 				<div class="controls">
-					<select id="any" name="any" class="span11" onchange="canviAny()">
-						<c:forEach var="item" items="${anysSeleccionables}">
-							<option value="${item}"<c:if test="${item==any}"> selected="selected"</c:if>>${item}</option>
-						</c:forEach>
-					</select>
+					<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
+					<form:select id="any" name="any" path="${campPath}" cssClass="span11">
+						<form:options items="${anysSeleccionables}" itemLabel="valor" itemValue="codi"/>
+					</form:select>
+					${campErrors}
 				</div>
 			</div>
 		</c:if>
 		<br/>
 		<div style="clear: both"></div>
 		<div class="pull-right">
-			<button type="button" class="btn" id="cancelar" name="cancelar" value="cancel" onclick="location='iniciar'">
+			<button type="button" class="btn" id="cancelar" name="accio" value="cancel" onclick="location='iniciar'">
 				<spring:message code='comuns.cancelar' />
 			</button>				
-			<button type="submit" class="btn btn-primary" id="submit" name="submit" value="submit">
+			<button type="submit" class="btn btn-primary" id="submit" name="accio" value="submit">
 				<spring:message code='comuns.iniciar' />
 			</button>
 		</div>

@@ -45,5 +45,4 @@ public interface TerminiService {
 	public void comprovarTerminisIniciats();
 
 	public void modificarTerminiIniciat(Long terminiIniciatId, Date dataInici, int anys, int mesos, int dies);
-
 }

@@ -39,7 +39,7 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 	private DissenyService dissenyService;
 
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/consultaExpedient", method = RequestMethod.GET)
+	@RequestMapping(value = "/consulta", method = RequestMethod.GET)
 	@ResponseBody
 	public List<ParellaCodiValorDto> consultaCamp(
 			HttpServletRequest request,

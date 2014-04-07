@@ -18,6 +18,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
@@ -119,8 +121,8 @@ public class DissenyServiceBean implements DissenyService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DefinicioProcesDto findDarreraDefinicioProcesForExpedientTipus(Long expedientTipusId, boolean ambTascaInicial) {
-		return delegate.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId, ambTascaInicial);
+	public DefinicioProcesDto findDarreraDefinicioProcesForExpedientTipus(Long expedientTipusId) {
+		return delegate.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId);
 	}
 
 	@Override
@@ -169,5 +171,23 @@ public class DissenyServiceBean implements DissenyService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<?> getResultatConsultaCamp(String taskId, String processInstanceId, CampDto camp, String textInicial, Map<String, Object> mapDelsValors) {
 		return delegate.getResultatConsultaCamp(taskId, processInstanceId, camp, textInicial, mapDelsValors);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<TerminiIniciatDto> findIniciatsAmbProcessInstanceId(String processInstanceId) {
+		return delegate.findIniciatsAmbProcessInstanceId(processInstanceId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<TerminiDto> findTerminisAmbDefinicioProcesId(Long definicioProcesId) {
+		return delegate.findTerminisAmbDefinicioProcesId(definicioProcesId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public TerminiIniciatDto findIniciatAmbId(Long id) {
+		return delegate.findIniciatAmbId(id);
 	}
 }

@@ -392,4 +392,10 @@ public class ExpedientServiceBean implements ExpedientService {
 			Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats) {
 		return delegate.findIdsPerConsultaInformePaginat(id, consultaId, expedientTipusId, valorsPerService, expedientCampId, nomesPendents, nomesAlertes, mostrarAnulats);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void changeProcessInstanceVersion(String id, int versio) {
+		delegate.changeProcessInstanceVersion(id, versio);
+	}
 }

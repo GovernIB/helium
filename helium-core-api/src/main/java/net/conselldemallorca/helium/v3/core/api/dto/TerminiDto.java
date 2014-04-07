@@ -111,13 +111,33 @@ public class TerminiDto {
 	}
 
 	public String getDurada() {
-		TerminiDto t = new TerminiDto();
-		t.setAnys(anys);
-		t.setMesos(mesos);
-		t.setDies(dies);
-		if (dies > 0)
-			return t.toString() + ((laborable) ? " laborables" : " naturals");
-		else
-			return t.toString();
+		return toString() + ((dies > 0) ? ((laborable) ? " laborables" : " naturals") : "");
+	}
+	
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		boolean plural = false;
+		if (anys > 0) {
+			sb.append(anys);
+			plural = anys > 1;
+			sb.append((plural) ? " anys": " any");
+			if (mesos > 0 && dies > 0)
+				sb.append(", ");
+			else if (mesos > 0 || dies > 0)
+				sb.append(" i ");
+		}
+		if (mesos > 0) {
+			sb.append(mesos);
+			plural = mesos > 1;
+			sb.append((plural) ? " mesos": " mes");
+			if (dies > 0)
+				sb.append(" i ");
+		}
+		if (dies > 0) {
+			sb.append(dies);
+			plural = dies > 1;
+			sb.append((plural) ? " dies": " dia");
+		}
+		return sb.toString();
 	}
 }
