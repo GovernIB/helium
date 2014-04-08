@@ -15,6 +15,7 @@
 	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.maskedinput.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/helium.tramitar.js"/>"></script>
 	<script type="text/javascript">
 		// <![CDATA[
 		function confirmar(e) {
@@ -52,36 +53,30 @@
 		<input type="hidden" name="expedientTipusId" value="${expedientTipus.id}"/>
 		<input type="hidden" name="entornId" value="${entornId}"/>
 		<input type="hidden" name="responsableCodi" value="${responsableCodi}"/>
-		<c:if test="${not empty definicioProcesId}">
-			<input type="hidden" name="definicioProcesId" value="${definicioProcesId}"/>
-		</c:if>
+		<input type="hidden" name="definicioProcesId" value="${expedientTipus.id}"/>
 		<c:if test="${expedientTipus.teNumero and expedientTipus.demanaNumero}">
 			<div class="control-group fila_reducida">				
 				<c:set var="campPath" value="numero"/>
+				<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 				<label data-required="true" class="control-label" data-required="true" for="${campPath}"><spring:message code='expedient.consulta.numero' /></label>
-				<div class="controls">
-					<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
-					<div class="control-group<c:if test="${not empty campErrors}"> error</c:if>">
-						<spring:bind path="${campPath}">
-							<input type="text" id="${campPath}" name="${campPath}" placeholder="<spring:message code='expedient.consulta.numero' />"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span11">
-						</spring:bind>
-						${campErrors}
-					</div>
+				<div class="controls<c:if test="${not empty campErrors}"> error</c:if>">
+					<spring:bind path="${campPath}">
+						<input type="text" id="${campPath}" name="${campPath}" placeholder="<spring:message code='expedient.consulta.numero' />"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span11">
+					</spring:bind>
+					${campErrors}
 				</div>
 			</div>
 		</c:if>
 		<c:if test="${expedientTipus.teTitol and expedientTipus.demanaTitol}">
 			<div class="control-group fila_reducida">			
 				<c:set var="campPath" value="titol"/>
+				<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 				<label data-required="true" class="control-label" data-required="true" for="${campPath}"><spring:message code='expedient.consulta.titol' /></label>
-				<div class="controls">
-					<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
-					<div class="control-group<c:if test="${not empty campErrors}"> error</c:if>">
-						<spring:bind path="${campPath}">
-							<textarea type="text" id="${campPath}" name="${campPath}" placeholder="<spring:message code='expedient.consulta.titol' />"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span11"></textarea>
-						</spring:bind>
-						${campErrors}
-					</div>
+				<div class="controls<c:if test="${not empty campErrors}"> error</c:if>">
+					<spring:bind path="${campPath}">
+						<textarea type="text" id="${campPath}" name="${campPath}" placeholder="<spring:message code='expedient.consulta.titol' />"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span11"></textarea>
+					</spring:bind>
+					${campErrors}
 				</div>
 			</div>
 		</c:if>
@@ -109,14 +104,6 @@
 			</button>
 		</div>
 	</form:form>
-
 	<p class="aclaracio"><spring:message code='comuns.camps_marcats' /> <i class='icon-asterisk'></i> <spring:message code='comuns.son_oblig' /></p>
-	
-	<script>	
-		$( '[data-required="true"]' )
-			.closest(".control-group")
-			.children("label")
-			.prepend("<i class='icon-asterisk'></i> ");
-	</script>
 </body>
 </html>

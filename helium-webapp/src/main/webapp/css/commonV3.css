@@ -366,3 +366,12 @@ ul#tabnav li.warn a {
 #expedientInformeCommand .datepicker span {
 	margin-left: -4px;
 }
+
+.select2-container {
+	margin-left: 0px !important;
+}
+
+.help-block {
+	clear: both;
+	padding-top: 0.4em;	
+}

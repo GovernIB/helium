@@ -150,13 +150,5 @@
 			</button>
 		</div>
 	</form:form>
-	
-	<script>	
-		$( '[data-required="true"]' )
-			.closest(".control-group")
-			.children("label")
-			.prepend("<i class='icon-asterisk'></i> ");
-		$('.datepicker').datepicker({language: 'ca', autoclose: true});
-	</script>
  		
 </body>

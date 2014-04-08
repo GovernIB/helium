@@ -69,55 +69,13 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
 		if (potIniciarExpedientTipus(expedientTipus) && entorn != null) {
-			
 			ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
-			
 			List<TascaDadaDto> dades = tascaService.findDadesPerTascaDto(tasca);
-			Validator validatorTasca = new TascaFormValidatorHelper(expedientService);
 						
 			Map<String, Object> valors = new HashMap<String, Object>();
-			@SuppressWarnings("rawtypes")
-			Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
-			campsAddicionalsClasses.put("listaDadas", List.class);
 			Map<String, String> errors = new HashMap<String, String>();			
-			for (TascaDadaDto dada : dades) {
-				List<TascaDadaDto> lista = null;
-				if (dada.getRegistreDades()!=null) {
-					lista = dada.getRegistreDades();
-				} else if (dada.getMultipleDades()!=null) {
-					lista = dada.getMultipleDades();
-				}
-				
-				if (lista != null) {
-					Map<String, Object> campsAddicionals = new HashMap<String, Object>();
-			        campsAddicionals.put("listaDadas", lista);
-					Object cmd = TascaFormHelper.getCommandForCamps(lista, null, request, campsAddicionals, campsAddicionalsClasses, false);
-					BindingResult res = new BeanPropertyBindingResult(cmd, "cmd");
-					Validator validatorDades = TascaFormHelper.getBeanValidatorForCommand(lista);
-			        validatorTasca.validate(cmd, res);
-					validatorDades.validate(cmd, res);
-					
-					valors.putAll(TascaFormHelper.getValorsFromCommand(lista, cmd, false));
-					
-					for ( FieldError rs : res.getFieldErrors()) {
-						errors.put(rs.getField(), getMessage(request, rs.getCode()));
-					}
-				}				
-			}
 			
-			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
-			campsAddicionals.put("listaDadas", dades);
-			Validator validatorDades = TascaFormHelper.getBeanValidatorForCommand(dades);
-			Object cmd = TascaFormHelper.getCommandForCamps(dades, null, request, campsAddicionals, campsAddicionalsClasses, false);
-			BindingResult res = new BeanPropertyBindingResult(cmd, "cmd");
-	        validatorTasca.validate(cmd, res);
-			validatorDades.validate(cmd, res);
-			
-			valors.putAll(TascaFormHelper.getValorsFromCommand(dades, cmd, false));
-			
-			for ( FieldError rs : res.getFieldErrors()) {
-				errors.put(rs.getField(), getMessage(request, rs.getCode()));
-			}
+			validarDades(valors, errors, dades, request);
 			
 			if (!errors.isEmpty()) {
 				MissatgesHelper.error(request, getMessage(request, "error.validacio"));
@@ -169,6 +127,49 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 	    return "redirect:/v3/expedient/iniciar";
 	}
 	
+	private void validarDades(Map<String, Object> valors, Map<String, String> errors, List<TascaDadaDto> dades, HttpServletRequest request) {
+		@SuppressWarnings("rawtypes")
+		Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
+		campsAddicionalsClasses.put("listaDadas", List.class);
+		Validator validatorTasca = new TascaFormValidatorHelper(expedientService);
+		for (TascaDadaDto dada : dades) {
+			if (dada.isCampMultiple()) {
+				validarDades(valors, errors, dada.getMultipleDades(), request);
+			}
+			if (dada.getRegistreDades()!=null) {
+				List<TascaDadaDto> lista = dada.getRegistreDades();
+
+				Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+		        campsAddicionals.put("listaDadas", lista);
+				Object cmd = TascaFormHelper.getCommandForCamps(lista, null, request, campsAddicionals, campsAddicionalsClasses, false);
+				BindingResult res = new BeanPropertyBindingResult(cmd, "cmd");
+				Validator validatorDades = TascaFormHelper.getBeanValidatorForCommand(lista);
+		        validatorTasca.validate(cmd, res);
+				validatorDades.validate(cmd, res);
+				
+				valors.putAll(TascaFormHelper.getValorsFromCommand(lista, cmd, false));
+				
+				for ( FieldError rs : res.getFieldErrors()) {
+					errors.put(rs.getField(), getMessage(request, rs.getCode()));
+				}
+			}				
+		}
+		
+		Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+		campsAddicionals.put("listaDadas", dades);
+		Validator validatorDades = TascaFormHelper.getBeanValidatorForCommand(dades);
+		Object cmd = TascaFormHelper.getCommandForCamps(dades, null, request, campsAddicionals, campsAddicionalsClasses, false);
+		BindingResult res = new BeanPropertyBindingResult(cmd, "cmd");
+        validatorTasca.validate(cmd, res);
+		validatorDades.validate(cmd, res);
+		
+		valors.putAll(TascaFormHelper.getValorsFromCommand(dades, cmd, false));
+		
+		for ( FieldError rs : res.getFieldErrors()) {
+			errors.put(rs.getField(), getMessage(request, rs.getCode()));
+		}
+	}
+
 	private ExpedientTascaDto obtenirTascaInicial(
 			Long entornId,
 			Long expedientTipusId,

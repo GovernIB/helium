@@ -156,10 +156,13 @@
 					</div>
 				</div>
 				<br/>
+				<div class="pull-left">
+					<p class="aclaracio"><spring:message code='comuns.camps_marcats' /> <i class='icon-asterisk'></i> <spring:message code='comuns.son_oblig' /></p>
+				</div>
 				<div class="pull-right">
 					<input class="btn btn-primary" type="submit" id="guardar" name="accio" value="Modificar" />
-				</div>
-			</form:form>
+				</div>				
+			</form:form>			
 		</div>
 	</div>
 	<br/>
@@ -266,13 +269,5 @@
 			</form:form>
 		</div>
 	</div>
-	
-	<script>	
-		$( '[data-required="true"]' )
-			.closest(".control-group")
-			.children("label")
-			.prepend("<i class='icon-asterisk'></i> ");
-	</script>  
-	
 </body>
 </html>

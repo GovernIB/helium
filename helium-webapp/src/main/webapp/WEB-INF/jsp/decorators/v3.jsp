@@ -41,15 +41,6 @@
 	// ]]>
 	</script>
 	<script src="<c:url value="/js/timeline_2.3.0/timeline_js/timeline-api.js?defaultLocale=ca"/>" type="text/javascript"></script>
-			 
-	<script>
-		$(document).ready(function() { $("#e1").select2(); });
-		
-		$( '[data-required="true"]' )
-			.closest(".control-group")
-			.children("label")
-			.prepend("<i class='icon-asterisk'></i> ");
-	</script>	
 	<decorator:head />
 </head>
 <body>
@@ -189,5 +180,13 @@ body {background-image:none;}
 </c:otherwise>
 </c:choose>
 <script src="<c:url value="/js/bootstrap.min.js"/>"></script>
+<script>
+	$(document).ready(function() { $("select").select2(); });
+	
+	$( '[data-required="true"]' )
+		.closest(".control-group")
+		.children("label")
+		.prepend("<i class='icon-asterisk'></i> ");
+</script>
 </body>
 </html>

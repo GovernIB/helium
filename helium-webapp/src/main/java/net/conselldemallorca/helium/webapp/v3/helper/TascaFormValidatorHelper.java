@@ -122,7 +122,7 @@ public class TascaFormValidatorHelper implements Validator {
 						} catch (NoSuchMethodException ex) {
 							logger.error("No s'ha pogut trobar la propietat '" + camp.getVarCodi() + "' con campId " + camp.getCampId());
 						}
-					} else if (camp.getCampTipus().equals(CampTipusDto.DATE)) {
+					} else if (camp.getCampTipus().equals(CampTipusDto.DATE) && !camp.getText().isEmpty()) {
 						try {
 							PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
 							String valor = camp.getText(); 

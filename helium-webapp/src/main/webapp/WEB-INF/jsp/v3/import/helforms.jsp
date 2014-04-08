@@ -44,27 +44,15 @@ function initSuggest(codi, url, callback, extraParams) {
 var selectDominiParams = new Array();
 var consultaActiva = new Array();
 function initSelect(selectId, valor, url, extraParams, dominiParams) {
-// 	$.blockUI({
-// 		message: '<fmt:message key="js.helforms.carreg_dades" />' ,
-// 		css: {
-//         	border: 'none', 
-//         	padding: '15px', 
-//         	backgroundColor: '#000', 
-//         	'-webkit-border-radius': '10px', 
-//         	'-moz-border-radius': '10px', 
-//         	opacity: .5, 
-//         	color: '#fff'}
-// 	});
 	selectDominiParams[selectId] = dominiParams;
 	consultaActiva.push(selectId);
 	var valorActual = $("select#" + selectId).val();
 	$("select#" + selectId).html(
-			'<option><fmt:message key="js.helforms.carregant" /></option>');
+			'<option value="">&lt;&lt; <fmt:message key="js.helforms.selec_valor" /> &gt;&gt;</option>');
     $.getJSON(url,
     		extraParams,
     		function(j) {
-			    var options = '';
-			    options += '<option value="">&lt;&lt; <fmt:message key="js.helforms.selec_valor" /> &gt;&gt;</option>';
+    			var options = '';
 		        for (var i = 0; i < j.length; i++) {
 		        	if (j[i].codi == valor)
 		        		options += '<option value="' + j[i].codi + '" selected="selected">' + j[i].valor + '</option>';
@@ -77,10 +65,6 @@ function initSelect(selectId, valor, url, extraParams, dominiParams) {
 		        		break;
 		        	}
 		        }
-		        //if (!$.browser.msie || parseInt(jQuery.browser.version) > 7) {
-// 			        if (consultaActiva.length == 0)
-// 			        	$.unblockUI({ message: null });
-		        //}
 		        $("select#" + selectId).html(options);
 		        if (canvisSelectInicialitzat)
 		        	$("select#" + selectId).val(valorActual);

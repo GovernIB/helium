@@ -6,23 +6,6 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 <c:set var="numColumnes" value="${3}"/>
-<%--c:set var="hiHaDadesReadOnly" value="${false}"/>
-<c:set var="countReadOnly" value="${0}"/>
-<c:forEach var="dada" items="${dades}">
-	<c:if test="${dada.readOnly}">
-		<c:set var="countReadOnly" value="${countReadOnly + 1}"/>
-		<c:set var="hiHaDadesReadOnly" value="${true}"/>
-	</c:if>
-</c:forEach>
-<c:if test="${hiHaDadesReadOnly}">
-	<c:import url="import/expedientDadesTaula.jsp">
-		<c:param name="dadesAttribute" value="dades"/>
-		<c:param name="titol" value="Dades de referència"/>
-		<c:param name="numColumnes" value="${3}"/>
-		<c:param name="count" value="${countReadOnly}"/>
-		<c:param name="condicioCamp" value="readOnly"/>
-	</c:import>
-</c:if--%>
 <html>
 <head>
 	<title>${tasca.titol}</title>
@@ -32,188 +15,21 @@
 	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.maskedinput.js"/>"></script>
-<script>
-	$(document).ready(function() {
-		$("i.agrupacio-desplegador").click(function() {
-			var taula = $(this).parent().parent().parent().parent().parent();
-			$('tbody', taula).toggleClass('hide');
-			$(this).removeClass('icon-chevron-up');
-			$(this).removeClass('icon-chevron-down');
-			if ($('tbody', taula).hasClass('hide'))
-				$(this).addClass('icon-chevron-down');
-			else
-				$(this).addClass('icon-chevron-up');
-		});
-	});
-</script>
+	<script type="text/javascript" src="<c:url value="/js/helium.tramitar.js"/>"></script>
 	<script type="text/javascript">
-	// <![CDATA[
-		
-		function confirmar(form) {
-			$("table").each(function(){
-				if ($(this).hasClass("hide")) {
-					$(this).remove();
-				}
-			});
-			return true;
-		}
-	    function verificarSignatura(element) {
-			var amplada = 800;
-			var alcada = 600;
-			$('<iframe id="verificacio" src="' + element.href + '"/>').dialog({
-				title: "<spring:message code='tasca.form.verif_signa' />",
-				autoOpen: true,
-				modal: true,
-				autoResize: true,
-				width: parseInt(amplada),
-				height: parseInt(alcada)
-			}).width(amplada - 30).height(alcada - 30);
-			return false;
-		}
-		function infoRegistre(docId) {
-			var amplada = 600;
-			var alcada = 200;
-			$('<div>' + $("#registre_" + docId).html() + '</div>').dialog({
-				title: "<spring:message code='tasca.form.info_reg' />",
-				autoOpen: true,
-				modal: true,
-				width: parseInt(amplada),
-				height: parseInt(alcada)
-			}).width(amplada - 30).height(alcada - 30);
-			return false;
-		}
-		function canviTermini(input) {
-			var campId = input.id.substring(0, input.id.lastIndexOf("_"));
-			var anys = document.getElementById(campId + "_anys").value;
-			var mesos = document.getElementById(campId + "_mesos").value;
-			var dies = document.getElementById(campId + "_dies").value;
-			if (!anys.empty() && !mesos.empty() && !dies.empty()) {
-				$(campId).val(anys + "/" + mesos + "/" + dies);
-			} else {
-				$(campId).val("");
-			}
-		}
-		function editarRegistre(campId, campCodi, campEtiqueta, numCamps, index) {
-			var amplada = 686;
-			var alcada = 64 * numCamps + 80;
-			var url = "registre.html?id=${tasca.id}&registreId=" + campId;
-			if (index != null)
-				url = url + "&index=" + index;
-			$('<iframe id="' + campCodi + '" src="' + url + '" frameborder="0" marginheight="0" marginwidth="0"/>').dialog({
-				title: campEtiqueta,
-				autoOpen: true,
-				modal: true,
-				autoResize: true,
-				width: parseInt(amplada),
-				height: parseInt(alcada)
-			}).width(amplada - 30).height(alcada - 30);
-			return false;
-		}
-
-		function refresh() {
-			$('form#command :button[name="submit"]').attr("name", "sbmt");
-			$('form#command').submit();
-		}
-
-		function campOnFocus(camp) {
-			$('form#command :input[name="helCampFocus"]').val("" + $(window).scrollTop() + "#${param.id}");
-		}
-
-		function addField(idTable){   
-			tabla = $('#'+idTable);
-			if(tabla.hasClass( "hide" )){
-				tabla.removeClass( "hide" );
-
-				if(tabla.hasClass( "togle" )){
-					$('#button_add_'+idTable).hide();
-				}
-			} else {
-		    	tr = $('tr:last', tabla);
-		    	var newTr = tr.clone();
-		    	limpiarFila(newTr);
-	    		newTr.find(':input').each(function(indice,valor) {
-			    	if (this.getAttribute("id") != null) {
-		    			var id = this.getAttribute("id");
-		    			var id_lim = id.substr(0, id.indexOf("["));
-		    			var id_fin = id.substr(id.lastIndexOf("["), id.lastIndexOf("]"));
-				    	var i = 1;
-		    			while (document.getElementById(id_lim+"["+i+"]"+id_fin)) {
-			    			i = i+1;
-			    		}
-			    		this.setAttribute("id", id_lim+"["+i+"]"+id_fin);
-			    		this.setAttribute("name", id_lim+"["+i+"]"+id_fin);
-		    		}
-		    	});
-		    	newTr.appendTo(tabla);
-			}
-		}
-
-		function accioCampExecutar(elem, field) {
-			if (confirm("<spring:message code='js.helforms.confirmacio' />")) {
-				var fieldField = document.getElementById("helAccioCamp");
-				if (fieldField == null) {
-					newField = document.createElement('input');
-					newField.setAttribute("id", "helAccioCamp");
-					newField.setAttribute("name", "helAccioCamp");
-					newField.setAttribute("type", "hidden");
-					newField.setAttribute("value", field);
-					elem.form.appendChild(newField);
-				}
+		// <![CDATA[		
+			function confirmar(form) {
+				$("table").each(function(){
+					if ($(this).hasClass("hide")) {
+						$(this).remove();
+					}
+				});
 				return true;
 			}
-			return false;
-		}
-
-		$(".eliminarFila").live('click', function (){
-			if($(this).closest('table').find('tr').index() < 2) {
-			    var newTr = $(this).closest('tr');
-		    	limpiarFila(newTr);
-		    	
-		    	$(this).closest('table').addClass( "hide" );
-
-				if($(this).closest('table').hasClass( "togle" )){
-					$('#button_add_'+$(this).closest('table').attr('id')).show();
-				}
-			} else {
-	        	$(this).closest('tr').remove();
-			}
-	    });
-
-		function limpiarFila(tr) {
-			tr.find(':input').each(function() {
-			    switch(this.type) {
-			        case 'password':
-			        case 'text':
-			        case 'textarea':
-			        case 'file':
-			        case 'select-one':
-			        case 'select-multiple':
-			            $(this).val('');
-			            break;
-			        case 'checkbox':
-			        case 'radio':
-			            this.checked = false;
-			    }
-			});
-		}
-		var submitAction;
-		function saveAction(element, action) {
-			submitAction = action;
-			if ($.browser.msie && $.browser.version.substr(0,1) <= 7) {
-				element.innerHTML = action;
-				var $submits = document.getElementsByName("submit");
-				for (var i = 0; i < $submits.length; i++) {
-				    if ($submits[i] != element) {
-				        $submits[i].name = $submits[i].name + i;
-				    }
-				}
-			}
-		}
-	// ]]>
+		// ]]>
 	</script>
 </head>
 <body>
-
 	<c:if test="${not empty dadesNomesLectura}">
 		<c:import url="import/expedientDadesTaula.jsp">
 			<c:param name="dadesAttribute" value="dadesNomesLectura"/>
@@ -359,17 +175,6 @@
 			</div>
 		</c:if>
 	</div>
-	<script>	
-		$( '[data-required="true"]' )
-			.closest(".control-group")
-			.children("label")
-			.prepend("<i class='icon-asterisk'></i> ");
-	
-		window.parent.canviTitolModal("${tasca.titol}");
-		/*var html = $('#finalizarTarea').html();
-		$('#finalizarTarea').remove();
-		window.parent.addHtmlPeuModal(html,'formFinalitzar');*/
-	</script>
 </body>
 
 <%!

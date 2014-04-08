@@ -513,3 +513,42 @@ form input[type='number']::-webkit-inner-spin-button {
    -webkit-appearance: none;
    margin: 0;
 }
+
+.controls.error .control-label,
+.controls.error .help-block,
+.controls.error .help-inline {
+  color: #b94a48;
+}
+
+.controls.error .checkbox,
+.controls.error .radio,
+.controls.error input,
+.controls.error select,
+.controls.error textarea {
+  color: #b94a48;
+}
+
+.controls.error input,
+.controls.error select,
+.controls.error textarea {
+  border-color: #b94a48;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+     -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+          box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+}
+
+.controls.error input:focus,
+.controls.error select:focus,
+.controls.error textarea:focus {
+  border-color: #953b39;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #d59392;
+     -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #d59392;
+          box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #d59392;
+}
+
+.controls.error .input-prepend .add-on,
+.controls.error .input-append .add-on {
+  color: #b94a48;
+  background-color: #f2dede;
+  border-color: #b94a48;
+}
