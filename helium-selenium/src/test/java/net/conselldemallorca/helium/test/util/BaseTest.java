@@ -83,6 +83,11 @@ public abstract class BaseTest {
 		screenshotHelper = new ScreenshotHelper(driver, prefix);
 	}
 	
+	protected String carregarPropietat(String propertyKey, String msgError) {
+		String property = properties.getProperty(propertyKey);
+		assertNotNull(msgError, property);
+		return property;
+	}
 	protected void carregarUrl(String urlKey) {
 		baseUrl = properties.getProperty(urlKey);
 		assertNotNull("Url base no configurada al fitxer de properties", baseUrl);
