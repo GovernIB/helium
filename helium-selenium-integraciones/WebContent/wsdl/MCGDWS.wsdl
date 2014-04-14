@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions targetNamespace="http://www.indra.es/portafirmasmcgdws/mcgdws" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="http://www.indra.es/portafirmasmcgdws/mcgdws" xmlns:intf="http://www.indra.es/portafirmasmcgdws/mcgdws" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<!--WSDL created by Apache Axis version: 1.4
+Built on Apr 22, 2006 (06:55:48 PDT)-->
+ <wsdl:types>
+  <schema targetNamespace="http://www.indra.es/portafirmasmcgdws/mcgdws" xmlns="http://www.w3.org/2001/XMLSchema">
+   <complexType name="Attributes">
+    <sequence>
+     <element name="state" nillable="true">
+      <simpleType name="&gt;Attributes&gt;state">
+       <restriction base="xsd:int">
+        <enumeration value="0"/>
+        <enumeration value="1"/>
+        <enumeration value="2"/>
+        <enumeration value="3"/>
+       </restriction>
+      </simpleType>
+     </element>
+     <element name="title" type="xsd:string"/>
+     <element name="date-last-update" nillable="true" type="xsd:dateTime"/>
+     <element name="sign-annexes" type="xsd:boolean"/>
+     <element name="external-data" nillable="true" type="xsd:string"/>
+    </sequence>
+   </complexType>
+   <complexType name="Delegate">
+    <sequence>
+     <element name="id" type="xsd:string"/>
+    </sequence>
+   </complexType>
+   <complexType name="Certificate">
+    <sequence>
+     <element name="serialnumber" type="xsd:string"/>
+     <element name="issuer" type="xsd:string"/>
+     <element name="subject" type="xsd:string"/>
+    </sequence>
+   </complexType>
+   <complexType name="Rejection">
+    <sequence>
+     <element name="code" type="xsd:int"/>
+     <element name="description" type="xsd:string"/>
+    </sequence>
+   </complexType>
+   <complexType name="Signer">
+    <sequence>
+     <element name="id" type="xsd:string"/>
+     <element name="date" type="xsd:dateTime"/>
+     <element maxOccurs="1" minOccurs="0" name="delegate" type="impl:Delegate"/>
+     <element maxOccurs="1" minOccurs="0" name="certificate" type="impl:Certificate"/>
+     <element maxOccurs="1" minOccurs="0" name="rejection" type="impl:Rejection"/>
+    </sequence>
+   </complexType>
+   <complexType name="Document">
+    <sequence>
+     <element name="id" type="xsd:int"/>
+     <element name="attributes" type="impl:Attributes"/>
+     <element maxOccurs="1" minOccurs="0" name="signer" type="impl:Signer"/>
+    </sequence>
+   </complexType>
+   <complexType name="Application">
+    <sequence>
+     <element name="id" type="xsd:int"/>
+     <element name="document" type="impl:Document"/>
+    </sequence>
+   </complexType>
+   <element name="callback-request">
+    <complexType>
+     <sequence>
+      <element name="application" type="impl:Application"/>
+     </sequence>
+     <attribute name="version" type="xsd:string"/>
+    </complexType>
+   </element>
+   <complexType name="LogMessage">
+    <sequence>
+     <element name="code" nillable="true" type="xsd:string"/>
+     <element name="description" nillable="true" type="xsd:string"/>
+     <element name="severity" nillable="true" type="xsd:string"/>
+     <element name="title" nillable="true" type="xsd:string"/>
+    </sequence>
+   </complexType>
+   <complexType name="ArrayOf_LogMessage">
+    <sequence>
+     <element maxOccurs="unbounded" minOccurs="0" name="item" type="impl:LogMessage"/>
+    </sequence>
+   </complexType>
+   <element name="callback-response">
+    <complexType>
+     <sequence>
+      <element name="logMessages" nillable="true" type="impl:ArrayOf_LogMessage"/>
+      <element name="return" type="xsd:double"/>
+     </sequence>
+     <attribute name="version" type="xsd:string"/>
+    </complexType>
+   </element>
+  </schema>
+ </wsdl:types>
+
+   <wsdl:message name="CallbackRequest">
+
+      <wsdl:part element="impl:callback-request" name="callback-request"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="CallbackResponse">
+
+      <wsdl:part element="impl:callback-response" name="callback-response"/>
+
+   </wsdl:message>
+
+   <wsdl:portType name="MCGDws">
+
+      <wsdl:operation name="Callback" parameterOrder="callback-request">
+
+         <wsdl:input message="impl:CallbackRequest" name="CallbackRequest"/>
+
+         <wsdl:output message="impl:CallbackResponse" name="CallbackResponse"/>
+
+      </wsdl:operation>
+
+   </wsdl:portType>
+
+   <wsdl:binding name="MCGDWSSoapBinding" type="impl:MCGDws">
+
+      <wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+      <wsdl:operation name="Callback">
+
+         <wsdlsoap:operation soapAction="Callback"/>
+
+         <wsdl:input name="CallbackRequest">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="CallbackResponse">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+   </wsdl:binding>
+
+   <wsdl:service name="MCGDwsService">
+
+      <wsdl:port binding="impl:MCGDWSSoapBinding" name="MCGDWS">
+
+         <wsdlsoap:address location="http://localhost:8080/helium/services/MCGDWS"/>
+
+      </wsdl:port>
+
+   </wsdl:service>
+
+</wsdl:definitions>
