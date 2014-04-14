@@ -1,8 +1,9 @@
 package net.conselldemallorca.helium.test.util;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -194,19 +195,17 @@ public abstract class BaseTest {
 	}
 	protected void acceptarAlerta() {
 		try {
-			driver.manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
 			driver.switchTo().alert().accept();
 		} catch (Exception e) {
-			// TODO: Definir excepció
+			fail("Error acceptant alert.");
 		}
 		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 	}
 	protected void rebutjarAlerta() {
 		try {
-			driver.manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
 			driver.switchTo().alert().dismiss();
 		} catch (Exception e) {
-			// TODO: Definir excepció
+			fail("Error rebutjant alert.");
 		}
 		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 	}

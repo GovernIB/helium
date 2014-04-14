@@ -1,4 +1,4 @@
-package net.conselldemallorca.helium.test.entorn;
+package net.conselldemallorca.helium.test.disseny;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -18,22 +18,18 @@ import org.openqa.selenium.By;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class Entorn extends BaseTest {
 
-	String entorn = null;
-	String titolEntorn = null;
-	String usuari = null;
-	String rol = null;
+	String entorn = carregarPropietat("entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
+	String titolEntorn = carregarPropietat("entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
+	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
+	String rol = carregarPropietat("test.base.rol.configuracio", "Rol configuració de l'entorn de proves no configurat al fitxer de properties");
 	
-	@Test
-	public void a_inicialitzacio() {
-		entorn = carregarPropietat("entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
-		titolEntorn = carregarPropietat("entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
-		usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
-		rol = carregarPropietat("test.base.rol.configuracio", "Rol configuració de l'entorn de proves no configurat al fitxer de properties");
-	}
+//	@Test
+//	public void a_inicialitzacio() {
+//
+//	}
 
 	@Test
 	public void b_createEntorn() {
-		
 		carregarUrlConfiguracio();
 		
 		// Comprovam que tenim permisos
@@ -155,7 +151,7 @@ public class Entorn extends BaseTest {
 		existeixElementAssert("//li[@id='menuEntorn']", "No te permisos sobre cap entorn");
 		
 		String entornActual = driver.findElement(By.xpath("//div[@id='page-entorn-title']/h2/span")).getText().trim();
-		existeixElementAssert("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]", 
+		existeixElementAssert("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + titolEntorn + "')]", 
 				"entorns/seleccionar/directe/1_entornActual.png", "L'entorn de proves no existeix.");
 			
 		// Selecció directe
@@ -166,7 +162,7 @@ public class Entorn extends BaseTest {
 		actions.build().perform();
 	
 		screenshotHelper.saveScreenshot("entorns/seleccionar/directe/1_entornActiu.png");
-		assertEquals("No s'ha pogut seleccionar l'entorn de forma directe.", entorn, driver.findElement(By.xpath("//div[@id='page-entorn-title']/h2/span")).getText().trim());
+		assertEquals("No s'ha pogut seleccionar l'entorn de forma directe.", titolEntorn, driver.findElement(By.xpath("//div[@id='page-entorn-title']/h2/span")).getText().trim());
 		
 		// Tornem a l'entorn anterior
 		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
@@ -181,11 +177,11 @@ public class Entorn extends BaseTest {
 		// Selecció via formulari
 		driver.findElement(By.id("menuEntorn")).findElement(By.tagName("a")).click();
 		screenshotHelper.saveScreenshot("entorns/seleccionar/form/2_entorns.png");
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + entorn + "')]/td[3]/form/button")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + titolEntorn + "')]/td[3]/form/button")).click();
 		
 		screenshotHelper.saveScreenshot("entorns/seleccionar/form/3_entornActiu.png");
 		
-		assertEquals("No s'ha pogut seleccionar l'entorn via formulari.", entorn, driver.findElement(By.xpath("//div[@id='page-entorn-title']/h2/span")).getText().trim());
+		assertEquals("No s'ha pogut seleccionar l'entorn via formulari.", titolEntorn, driver.findElement(By.xpath("//div[@id='page-entorn-title']/h2/span")).getText().trim());
 		
 		// Tornem a l'entorn anterior
 		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
