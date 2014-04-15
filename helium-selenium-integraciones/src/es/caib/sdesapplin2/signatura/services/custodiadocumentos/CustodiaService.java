@@ -16,13 +16,13 @@ import javax.xml.ws.Service;
  */
 @WebServiceClient(name = "CustodiaService", 
                   wsdlLocation = "file:/C:/Users/javierg/workspace_helium_30/svzd/WebContent/WEB-INF/custodia.wsdl",
-                  targetNamespace = "http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos") 
+                  targetNamespace = "http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos") 
 public class CustodiaService extends Service {
 
     public final static URL WSDL_LOCATION;
 
-    public final static QName SERVICE = new QName("http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos", "CustodiaService");
-    public final static QName CustodiaDocumentos = new QName("http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos", "CustodiaDocumentos");
+    public final static QName SERVICE = new QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "CustodiaService");
+    public final static QName CustodiaDocumentos = new QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "CustodiaDocumentos");
     static {
         URL url = null;
         try {

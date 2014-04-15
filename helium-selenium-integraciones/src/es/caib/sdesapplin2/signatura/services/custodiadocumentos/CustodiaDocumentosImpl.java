@@ -23,7 +23,7 @@ import javax.jws.soap.SOAPBinding;
 @javax.jws.WebService(
                       serviceName = "CustodiaService",
                       portName = "CustodiaDocumentos",
-                      targetNamespace = "http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos",
+                      targetNamespace = "http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos",
                       wsdlLocation = "file:/C:/Users/javierg/workspace_helium_30/svzd/WebContent/WEB-INF/custodia.wsdl",
                       endpointInterface = "es.caib.sdesapplin2.signatura.services.custodiadocumentos.Custodia")
                       

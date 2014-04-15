@@ -9,7 +9,9 @@ package es.caib.sdesapplin2.signatura.services.custodiadocumentos.cliente;
 
 public class CustodiaServiceLocator extends org.apache.axis.client.Service implements es.caib.sdesapplin2.signatura.services.custodiadocumentos.cliente.CustodiaService {
 
-    public CustodiaServiceLocator() {
+    private static final long serialVersionUID = 1L;
+
+	public CustodiaServiceLocator() {
     }
 
 
@@ -22,7 +24,7 @@ public class CustodiaServiceLocator extends org.apache.axis.client.Service imple
     }
 
     // Use to get a proxy class for CustodiaDocumentos
-    private java.lang.String CustodiaDocumentos_address = "http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos";
+    private java.lang.String CustodiaDocumentos_address = "http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos";
 
     public java.lang.String getCustodiaDocumentosAddress() {
         return CustodiaDocumentos_address;
@@ -105,7 +107,7 @@ public class CustodiaServiceLocator extends org.apache.axis.client.Service imple
     }
 
     public javax.xml.namespace.QName getServiceName() {
-        return new javax.xml.namespace.QName("http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos", "CustodiaService");
+        return new javax.xml.namespace.QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "CustodiaService");
     }
 
     private java.util.HashSet ports = null;
@@ -113,7 +115,7 @@ public class CustodiaServiceLocator extends org.apache.axis.client.Service imple
     public java.util.Iterator getPorts() {
         if (ports == null) {
             ports = new java.util.HashSet();
-            ports.add(new javax.xml.namespace.QName("http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos", "CustodiaDocumentos"));
+            ports.add(new javax.xml.namespace.QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "CustodiaDocumentos"));
         }
         return ports.iterator();
     }

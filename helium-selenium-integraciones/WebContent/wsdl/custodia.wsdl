@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="windows-1252"?>
-<wsdl:definitions targetNamespace="http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos" xmlns:intf="http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<wsdl:definitions targetNamespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" xmlns:intf="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <wsdl:message name="consultarReservaDocumentoResponse">
     <wsdl:part name="consultarReservaDocumentoResponse" type="xsd:base64Binary"/>
   </wsdl:message>
@@ -260,7 +260,7 @@
         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
       </wsdl:input>
       <wsdl:output name="verificarDocumentoResponse">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="obtenerInformeDocumento">
@@ -269,7 +269,7 @@
         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
       </wsdl:input>
       <wsdl:output name="obtenerInformeDocumentoResponse">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="consultarDocumento">
@@ -278,7 +278,7 @@
         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
       </wsdl:input>
       <wsdl:output name="consultarDocumentoResponse">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="custodiarPDFFirmado">
@@ -287,7 +287,7 @@
         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
       </wsdl:input>
       <wsdl:output name="custodiarPDFFirmadoResponse">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="custodiarPDFFirmado_v2">
@@ -296,7 +296,7 @@
         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
       </wsdl:input>
       <wsdl:output name="custodiarPDFFirmado_v2Response">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="custodiarDocumentoSMIME">
@@ -305,7 +305,7 @@
         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
       </wsdl:input>
       <wsdl:output name="custodiarDocumentoSMIMEResponse">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="custodiarDocumentoSMIME_v2">
@@ -314,7 +314,7 @@
         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
       </wsdl:input>
       <wsdl:output name="custodiarDocumentoSMIME_v2Response">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="custodiarDocumento">
@@ -323,7 +323,7 @@
         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
       </wsdl:input>
       <wsdl:output name="custodiarDocumentoResponse">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="custodiarDocumento_v2">
@@ -332,7 +332,7 @@
         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
       </wsdl:input>
       <wsdl:output name="custodiarDocumento_v2Response">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="custodiarDocumentoXAdES">
@@ -341,7 +341,7 @@
         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
       </wsdl:input>
       <wsdl:output name="custodiarDocumentoXAdESResponse">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="purgarDocumento">
@@ -350,7 +350,7 @@
         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
       </wsdl:input>
       <wsdl:output name="purgarDocumentoResponse">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="purgarDocumento_v2">
@@ -359,7 +359,7 @@
         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
       </wsdl:input>
       <wsdl:output name="purgarDocumento_v2Response">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="recuperarDocumento">
@@ -368,7 +368,7 @@
         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
       </wsdl:input>
       <wsdl:output name="recuperarDocumentoResponse">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="recuperarDocumento_v2">
@@ -377,7 +377,7 @@
         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
       </wsdl:input>
       <wsdl:output name="recuperarDocumento_v2Response">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="eliminarDocumento">
@@ -386,7 +386,7 @@
         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
       </wsdl:input>
       <wsdl:output name="eliminarDocumentoResponse">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="eliminarDocumento_v2">
@@ -395,7 +395,7 @@
         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
       </wsdl:input>
       <wsdl:output name="eliminarDocumento_v2Response">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="verificarDocumento_v2">
@@ -404,7 +404,7 @@
         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
       </wsdl:input>
       <wsdl:output name="verificarDocumento_v2Response">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="obtenerInformeDocumento_v2">
@@ -413,7 +413,7 @@
         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
       </wsdl:input>
       <wsdl:output name="obtenerInformeDocumento_v2Response">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="consultarDocumento_v2">
@@ -422,7 +422,7 @@
         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
       </wsdl:input>
       <wsdl:output name="consultarDocumento_v2Response">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="reservarDocumento">
@@ -431,7 +431,7 @@
         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
       </wsdl:input>
       <wsdl:output name="reservarDocumentoResponse">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="reservarDocumento_v2">
@@ -440,7 +440,7 @@
         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
       </wsdl:input>
       <wsdl:output name="reservarDocumento_v2Response">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="consultarReservaDocumento">
@@ -449,13 +449,13 @@
         <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
       </wsdl:input>
       <wsdl:output name="consultarReservaDocumentoResponse">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="CustodiaService">
     <wsdl:port binding="impl:CustodiaDocumentosSoapBinding" name="CustodiaDocumentos">
-      <wsdlsoap:address location="http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos"/>
+      <wsdlsoap:address location="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos"/>
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

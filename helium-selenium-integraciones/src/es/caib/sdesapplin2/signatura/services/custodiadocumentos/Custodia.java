@@ -12,11 +12,11 @@ import javax.jws.soap.SOAPBinding;
  * Generated source version: 3.0.0-milestone2
  * 
  */
-@WebService(targetNamespace = "http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos", name = "Custodia")
+@WebService(targetNamespace = "http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", name = "Custodia")
 @SOAPBinding(style = SOAPBinding.Style.RPC)
 public interface Custodia {
 
-    @WebResult(name = "obtenerInformeDocumento_v2Response", targetNamespace = "http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos", partName = "obtenerInformeDocumento_v2Response")
+    @WebResult(name = "obtenerInformeDocumento_v2Response", targetNamespace = "http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", partName = "obtenerInformeDocumento_v2Response")
     @WebMethod(operationName = "obtenerInformeDocumento_v2", action = "CustodiaDocumentos")
     public byte[] obtenerInformeDocumentoV2(
         @WebParam(partName = "in0", name = "in0")
@@ -27,7 +27,7 @@ public interface Custodia {
         java.lang.String in2
     );
 
-    @WebResult(name = "purgarDocumentoResponse", targetNamespace = "http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos", partName = "purgarDocumentoResponse")
+    @WebResult(name = "purgarDocumentoResponse", targetNamespace = "http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", partName = "purgarDocumentoResponse")
     @WebMethod(action = "CustodiaDocumentos")
     public byte[] purgarDocumento(
         @WebParam(partName = "in0", name = "in0")
@@ -38,14 +38,14 @@ public interface Custodia {
         java.lang.String in2
     );
 
-    @WebResult(name = "custodiarDocumentoXAdESResponse", targetNamespace = "http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos", partName = "custodiarDocumentoXAdESResponse")
+    @WebResult(name = "custodiarDocumentoXAdESResponse", targetNamespace = "http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", partName = "custodiarDocumentoXAdESResponse")
     @WebMethod(action = "CustodiaDocumentos")
     public byte[] custodiarDocumentoXAdES(
         @WebParam(partName = "in0", name = "in0")
         byte[] in0
     );
 
-    @WebResult(name = "reservarDocumentoResponse", targetNamespace = "http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos", partName = "reservarDocumentoResponse")
+    @WebResult(name = "reservarDocumentoResponse", targetNamespace = "http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", partName = "reservarDocumentoResponse")
     @WebMethod(action = "CustodiaDocumentos")
     public byte[] reservarDocumento(
         @WebParam(partName = "in0", name = "in0")
@@ -56,7 +56,7 @@ public interface Custodia {
         java.lang.String in2
     );
 
-    @WebResult(name = "recuperarDocumento_v2Response", targetNamespace = "http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos", partName = "recuperarDocumento_v2Response")
+    @WebResult(name = "recuperarDocumento_v2Response", targetNamespace = "http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", partName = "recuperarDocumento_v2Response")
     @WebMethod(operationName = "recuperarDocumento_v2", action = "CustodiaDocumentos")
     public byte[] recuperarDocumentoV2(
         @WebParam(partName = "in0", name = "in0")
@@ -67,21 +67,21 @@ public interface Custodia {
         java.lang.String in2
     );
 
-    @WebResult(name = "custodiarPDFFirmado_v2Response", targetNamespace = "http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos", partName = "custodiarPDFFirmado_v2Response")
+    @WebResult(name = "custodiarPDFFirmado_v2Response", targetNamespace = "http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", partName = "custodiarPDFFirmado_v2Response")
     @WebMethod(operationName = "custodiarPDFFirmado_v2", action = "CustodiaDocumentos")
     public byte[] custodiarPDFFirmadoV2(
         @WebParam(partName = "in0", name = "in0")
         byte[] in0
     );
 
-    @WebResult(name = "custodiarDocumentoSMIMEResponse", targetNamespace = "http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos", partName = "custodiarDocumentoSMIMEResponse")
+    @WebResult(name = "custodiarDocumentoSMIMEResponse", targetNamespace = "http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", partName = "custodiarDocumentoSMIMEResponse")
     @WebMethod(action = "CustodiaDocumentos")
     public byte[] custodiarDocumentoSMIME(
         @WebParam(partName = "in0", name = "in0")
         java.lang.String in0
     );
 
-    @WebResult(name = "reservarDocumento_v2Response", targetNamespace = "http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos", partName = "reservarDocumento_v2Response")
+    @WebResult(name = "reservarDocumento_v2Response", targetNamespace = "http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", partName = "reservarDocumento_v2Response")
     @WebMethod(operationName = "reservarDocumento_v2", action = "CustodiaDocumentos")
     public byte[] reservarDocumentoV2(
         @WebParam(partName = "in0", name = "in0")
@@ -92,14 +92,14 @@ public interface Custodia {
         java.lang.String in2
     );
 
-    @WebResult(name = "custodiarDocumentoSMIME_v2Response", targetNamespace = "http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos", partName = "custodiarDocumentoSMIME_v2Response")
+    @WebResult(name = "custodiarDocumentoSMIME_v2Response", targetNamespace = "http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", partName = "custodiarDocumentoSMIME_v2Response")
     @WebMethod(operationName = "custodiarDocumentoSMIME_v2", action = "CustodiaDocumentos")
     public byte[] custodiarDocumentoSMIMEV2(
         @WebParam(partName = "in0", name = "in0")
         byte[] in0
     );
 
-    @WebResult(name = "consultarDocumentoResponse", targetNamespace = "http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos", partName = "consultarDocumentoResponse")
+    @WebResult(name = "consultarDocumentoResponse", targetNamespace = "http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", partName = "consultarDocumentoResponse")
     @WebMethod(action = "CustodiaDocumentos")
     public byte[] consultarDocumento(
         @WebParam(partName = "in0", name = "in0")
@@ -110,7 +110,7 @@ public interface Custodia {
         java.lang.String in2
     );
 
-    @WebResult(name = "consultarReservaDocumentoResponse", targetNamespace = "http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos", partName = "consultarReservaDocumentoResponse")
+    @WebResult(name = "consultarReservaDocumentoResponse", targetNamespace = "http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", partName = "consultarReservaDocumentoResponse")
     @WebMethod(action = "CustodiaDocumentos")
     public byte[] consultarReservaDocumento(
         @WebParam(partName = "in0", name = "in0")
@@ -121,7 +121,7 @@ public interface Custodia {
         java.lang.String in2
     );
 
-    @WebResult(name = "eliminarDocumentoResponse", targetNamespace = "http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos", partName = "eliminarDocumentoResponse")
+    @WebResult(name = "eliminarDocumentoResponse", targetNamespace = "http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", partName = "eliminarDocumentoResponse")
     @WebMethod(action = "CustodiaDocumentos")
     public byte[] eliminarDocumento(
         @WebParam(partName = "in0", name = "in0")
@@ -132,7 +132,7 @@ public interface Custodia {
         java.lang.String in2
     );
 
-    @WebResult(name = "obtenerInformeDocumentoResponse", targetNamespace = "http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos", partName = "obtenerInformeDocumentoResponse")
+    @WebResult(name = "obtenerInformeDocumentoResponse", targetNamespace = "http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", partName = "obtenerInformeDocumentoResponse")
     @WebMethod(action = "CustodiaDocumentos")
     public byte[] obtenerInformeDocumento(
         @WebParam(partName = "in0", name = "in0")
@@ -143,7 +143,7 @@ public interface Custodia {
         java.lang.String in2
     );
 
-    @WebResult(name = "verificarDocumento_v2Response", targetNamespace = "http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos", partName = "verificarDocumento_v2Response")
+    @WebResult(name = "verificarDocumento_v2Response", targetNamespace = "http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", partName = "verificarDocumento_v2Response")
     @WebMethod(operationName = "verificarDocumento_v2", action = "CustodiaDocumentos")
     public byte[] verificarDocumentoV2(
         @WebParam(partName = "in0", name = "in0")
@@ -154,14 +154,14 @@ public interface Custodia {
         java.lang.String in2
     );
 
-    @WebResult(name = "custodiarPDFFirmadoResponse", targetNamespace = "http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos", partName = "custodiarPDFFirmadoResponse")
+    @WebResult(name = "custodiarPDFFirmadoResponse", targetNamespace = "http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", partName = "custodiarPDFFirmadoResponse")
     @WebMethod(action = "CustodiaDocumentos")
     public byte[] custodiarPDFFirmado(
         @WebParam(partName = "in0", name = "in0")
         java.lang.String in0
     );
 
-    @WebResult(name = "verificarDocumentoResponse", targetNamespace = "http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos", partName = "verificarDocumentoResponse")
+    @WebResult(name = "verificarDocumentoResponse", targetNamespace = "http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", partName = "verificarDocumentoResponse")
     @WebMethod(action = "CustodiaDocumentos")
     public byte[] verificarDocumento(
         @WebParam(partName = "in0", name = "in0")
@@ -172,7 +172,7 @@ public interface Custodia {
         java.lang.String in2
     );
 
-    @WebResult(name = "consultarDocumento_v2Response", targetNamespace = "http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos", partName = "consultarDocumento_v2Response")
+    @WebResult(name = "consultarDocumento_v2Response", targetNamespace = "http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", partName = "consultarDocumento_v2Response")
     @WebMethod(operationName = "consultarDocumento_v2", action = "CustodiaDocumentos")
     public byte[] consultarDocumentoV2(
         @WebParam(partName = "in0", name = "in0")
@@ -183,14 +183,14 @@ public interface Custodia {
         java.lang.String in2
     );
 
-    @WebResult(name = "custodiarDocumento_v2Response", targetNamespace = "http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos", partName = "custodiarDocumento_v2Response")
+    @WebResult(name = "custodiarDocumento_v2Response", targetNamespace = "http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", partName = "custodiarDocumento_v2Response")
     @WebMethod(operationName = "custodiarDocumento_v2", action = "CustodiaDocumentos")
     public byte[] custodiarDocumentoV2(
         @WebParam(partName = "in0", name = "in0")
         byte[] in0
     );
 
-    @WebResult(name = "recuperarDocumentoResponse", targetNamespace = "http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos", partName = "recuperarDocumentoResponse")
+    @WebResult(name = "recuperarDocumentoResponse", targetNamespace = "http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", partName = "recuperarDocumentoResponse")
     @WebMethod(action = "CustodiaDocumentos")
     public byte[] recuperarDocumento(
         @WebParam(partName = "in0", name = "in0")
@@ -201,14 +201,14 @@ public interface Custodia {
         java.lang.String in2
     );
 
-    @WebResult(name = "custodiarDocumentoResponse", targetNamespace = "http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos", partName = "custodiarDocumentoResponse")
+    @WebResult(name = "custodiarDocumentoResponse", targetNamespace = "http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", partName = "custodiarDocumentoResponse")
     @WebMethod(action = "CustodiaDocumentos")
     public byte[] custodiarDocumento(
         @WebParam(partName = "in0", name = "in0")
         java.lang.String in0
     );
 
-    @WebResult(name = "purgarDocumento_v2Response", targetNamespace = "http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos", partName = "purgarDocumento_v2Response")
+    @WebResult(name = "purgarDocumento_v2Response", targetNamespace = "http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", partName = "purgarDocumento_v2Response")
     @WebMethod(operationName = "purgarDocumento_v2", action = "CustodiaDocumentos")
     public byte[] purgarDocumentoV2(
         @WebParam(partName = "in0", name = "in0")
@@ -219,7 +219,7 @@ public interface Custodia {
         java.lang.String in2
     );
 
-    @WebResult(name = "eliminarDocumento_v2Response", targetNamespace = "http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos", partName = "eliminarDocumento_v2Response")
+    @WebResult(name = "eliminarDocumento_v2Response", targetNamespace = "http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", partName = "eliminarDocumento_v2Response")
     @WebMethod(operationName = "eliminarDocumento_v2", action = "CustodiaDocumentos")
     public byte[] eliminarDocumentoV2(
         @WebParam(partName = "in0", name = "in0")
