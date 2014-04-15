@@ -1,8 +1,8 @@
-package es.caib.sdesapplin2.signatura.services.CustodiaDocumentos;
+package es.caib.sdesapplin2.signatura.services.custodiadocumentos.cliente;
 
-public class CustodiaProxy implements es.caib.sdesapplin2.signatura.services.CustodiaDocumentos.Custodia {
+public class CustodiaProxy implements es.caib.sdesapplin2.signatura.services.custodiadocumentos.cliente.Custodia {
   private String _endpoint = null;
-  private es.caib.sdesapplin2.signatura.services.CustodiaDocumentos.Custodia custodia = null;
+  private es.caib.sdesapplin2.signatura.services.custodiadocumentos.cliente.Custodia custodia = null;
   
   public CustodiaProxy() {
     _initCustodiaProxy();
@@ -15,7 +15,7 @@ public class CustodiaProxy implements es.caib.sdesapplin2.signatura.services.Cus
   
   private void _initCustodiaProxy() {
     try {
-      custodia = (new es.caib.sdesapplin2.signatura.services.CustodiaDocumentos.CustodiaServiceLocator()).getCustodiaDocumentos();
+      custodia = (new es.caib.sdesapplin2.signatura.services.custodiadocumentos.cliente.CustodiaServiceLocator()).getCustodiaDocumentos();
       if (custodia != null) {
         if (_endpoint != null)
           ((javax.xml.rpc.Stub)custodia)._setProperty("javax.xml.rpc.service.endpoint.address", _endpoint);
@@ -38,7 +38,7 @@ public class CustodiaProxy implements es.caib.sdesapplin2.signatura.services.Cus
     
   }
   
-  public es.caib.sdesapplin2.signatura.services.CustodiaDocumentos.Custodia getCustodia() {
+  public es.caib.sdesapplin2.signatura.services.custodiadocumentos.cliente.Custodia getCustodia() {
     if (custodia == null)
       _initCustodiaProxy();
     return custodia;

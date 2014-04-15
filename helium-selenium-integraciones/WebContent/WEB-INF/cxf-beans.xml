@@ -13,4 +13,14 @@
 			<bean class="org.apache.cxf.feature.LoggingFeature" />
 		</jaxws:features>
 	</jaxws:endpoint>
+	<jaxws:endpoint
+		xmlns:tns="http://sdesapplin2.caib.es:28080/signatura/services/CustodiaDocumentos"
+		id="custodia"
+		implementor="es.caib.sdesapplin2.signatura.services.custodiadocumentos.CustodiaDocumentosImpl"
+		wsdlLocation="wsdl/custodia.wsdl" endpointName="tns:CustodiaDocumentos"
+		serviceName="tns:CustodiaService" address="/CustodiaDocumentos">
+		<jaxws:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxws:features>
+	</jaxws:endpoint>
 </beans>

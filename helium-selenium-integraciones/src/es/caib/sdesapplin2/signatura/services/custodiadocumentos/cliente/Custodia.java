@@ -5,7 +5,7 @@
  * by the Apache Axis 1.4 Apr 22, 2006 (06:55:48 PDT) WSDL2Java emitter.
  */
 
-package es.caib.sdesapplin2.signatura.services.CustodiaDocumentos;
+package es.caib.sdesapplin2.signatura.services.custodiadocumentos.cliente;
 
 public interface Custodia extends java.rmi.Remote {
     public byte[] verificarDocumento(java.lang.String in0, java.lang.String in1, java.lang.String in2) throws java.rmi.RemoteException;

@@ -19,7 +19,7 @@ import java.util.logging.Logger;
                       serviceName = "CwsService",
                       portName = "CWS",
                       targetNamespace = "http://www.indra.es/portafirmasws/cws",
-                      wsdlLocation = "file:/C:/Users/Javier/Workspace/helium-selenium-portasignatures/WebContent/wsdl/cws.wsdl",
+                      wsdlLocation = "file:/C:/Users/Javier/Workspace/helium-selenium-integraciones/WebContent/wsdl/cws.wsdl",
                       endpointInterface = "es.indra.portafirmasws.cws.Cws")
                       
 public class CWSImpl implements Cws {
