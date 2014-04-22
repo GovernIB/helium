@@ -20,6 +20,7 @@ import net.conselldemallorca.helium.core.model.exportacio.DefinicioProcesExporta
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
@@ -143,13 +144,13 @@ public class ExpedientTipusDeployController extends BaseController {
 				        	missatgeInfo(request, getMessage("info.arxiu.desplegat") );
 				        	if (command.isActualitzarProcessosActius()) {
 				        		try {
-					        		// Obtenim informació de l'execució massiva					    			
-				    				ExecucioMassivaDto dto = new ExecucioMassivaDto();
+				        			ExecucioMassivaDto dto = new ExecucioMassivaDto();
 				    				dto.setDataInici(new Date());
 				    				dto.setEnviarCorreu(false);
 				    				dto.setParam1(dp.getJbpmKey());
 				    				dto.setParam2(execucioMassivaService.serialize(Integer.valueOf(dp.getVersio())));
-//				    				dto.setTipus(ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC);
+//				    				dto.setExpedientTipusId(command.getExpedientTipusId());
+				    				dto.setTipus(ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC);
 				    				List<JbpmProcessInstance> procInstances = expedientService.findProcessInstancesWithProcessDefinitionName(dp.getJbpmKey());
 				    				List<String> pi_ids = new ArrayList<String>();
 				    				for (JbpmProcessInstance pi: procInstances) {
