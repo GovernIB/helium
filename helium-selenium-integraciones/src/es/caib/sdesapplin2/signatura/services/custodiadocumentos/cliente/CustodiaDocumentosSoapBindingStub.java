@@ -37,7 +37,7 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         oper.setReturnClass(byte[].class);
         oper.setReturnQName(new javax.xml.namespace.QName("", "verificarDocumentoResponse"));
         oper.setStyle(org.apache.axis.constants.Style.RPC);
-        oper.setUse(org.apache.axis.constants.Use.ENCODED);
+        oper.setUse(org.apache.axis.constants.Use.LITERAL);
         _operations[0] = oper;
 
         oper = new org.apache.axis.description.OperationDesc();
@@ -52,7 +52,7 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         oper.setReturnClass(byte[].class);
         oper.setReturnQName(new javax.xml.namespace.QName("", "obtenerInformeDocumentoResponse"));
         oper.setStyle(org.apache.axis.constants.Style.RPC);
-        oper.setUse(org.apache.axis.constants.Use.ENCODED);
+        oper.setUse(org.apache.axis.constants.Use.LITERAL);
         _operations[1] = oper;
 
         oper = new org.apache.axis.description.OperationDesc();
@@ -67,7 +67,7 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         oper.setReturnClass(byte[].class);
         oper.setReturnQName(new javax.xml.namespace.QName("", "consultarDocumentoResponse"));
         oper.setStyle(org.apache.axis.constants.Style.RPC);
-        oper.setUse(org.apache.axis.constants.Use.ENCODED);
+        oper.setUse(org.apache.axis.constants.Use.LITERAL);
         _operations[2] = oper;
 
         oper = new org.apache.axis.description.OperationDesc();
@@ -78,7 +78,7 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         oper.setReturnClass(byte[].class);
         oper.setReturnQName(new javax.xml.namespace.QName("", "custodiarPDFFirmadoResponse"));
         oper.setStyle(org.apache.axis.constants.Style.RPC);
-        oper.setUse(org.apache.axis.constants.Use.ENCODED);
+        oper.setUse(org.apache.axis.constants.Use.LITERAL);
         _operations[3] = oper;
 
         oper = new org.apache.axis.description.OperationDesc();
@@ -89,7 +89,7 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         oper.setReturnClass(byte[].class);
         oper.setReturnQName(new javax.xml.namespace.QName("", "custodiarPDFFirmado_v2Response"));
         oper.setStyle(org.apache.axis.constants.Style.RPC);
-        oper.setUse(org.apache.axis.constants.Use.ENCODED);
+        oper.setUse(org.apache.axis.constants.Use.LITERAL);
         _operations[4] = oper;
 
         oper = new org.apache.axis.description.OperationDesc();
@@ -100,7 +100,7 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         oper.setReturnClass(byte[].class);
         oper.setReturnQName(new javax.xml.namespace.QName("", "custodiarDocumentoSMIMEResponse"));
         oper.setStyle(org.apache.axis.constants.Style.RPC);
-        oper.setUse(org.apache.axis.constants.Use.ENCODED);
+        oper.setUse(org.apache.axis.constants.Use.LITERAL);
         _operations[5] = oper;
 
         oper = new org.apache.axis.description.OperationDesc();
@@ -111,7 +111,7 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         oper.setReturnClass(byte[].class);
         oper.setReturnQName(new javax.xml.namespace.QName("", "custodiarDocumentoSMIME_v2Response"));
         oper.setStyle(org.apache.axis.constants.Style.RPC);
-        oper.setUse(org.apache.axis.constants.Use.ENCODED);
+        oper.setUse(org.apache.axis.constants.Use.LITERAL);
         _operations[6] = oper;
 
         oper = new org.apache.axis.description.OperationDesc();
@@ -122,7 +122,7 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         oper.setReturnClass(byte[].class);
         oper.setReturnQName(new javax.xml.namespace.QName("", "custodiarDocumentoResponse"));
         oper.setStyle(org.apache.axis.constants.Style.RPC);
-        oper.setUse(org.apache.axis.constants.Use.ENCODED);
+        oper.setUse(org.apache.axis.constants.Use.LITERAL);
         _operations[7] = oper;
 
         oper = new org.apache.axis.description.OperationDesc();
@@ -133,7 +133,7 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         oper.setReturnClass(byte[].class);
         oper.setReturnQName(new javax.xml.namespace.QName("", "custodiarDocumento_v2Response"));
         oper.setStyle(org.apache.axis.constants.Style.RPC);
-        oper.setUse(org.apache.axis.constants.Use.ENCODED);
+        oper.setUse(org.apache.axis.constants.Use.LITERAL);
         _operations[8] = oper;
 
         oper = new org.apache.axis.description.OperationDesc();
@@ -144,7 +144,7 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         oper.setReturnClass(byte[].class);
         oper.setReturnQName(new javax.xml.namespace.QName("", "custodiarDocumentoXAdESResponse"));
         oper.setStyle(org.apache.axis.constants.Style.RPC);
-        oper.setUse(org.apache.axis.constants.Use.ENCODED);
+        oper.setUse(org.apache.axis.constants.Use.LITERAL);
         _operations[9] = oper;
 
     }
@@ -164,7 +164,7 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         oper.setReturnClass(byte[].class);
         oper.setReturnQName(new javax.xml.namespace.QName("", "purgarDocumentoResponse"));
         oper.setStyle(org.apache.axis.constants.Style.RPC);
-        oper.setUse(org.apache.axis.constants.Use.ENCODED);
+        oper.setUse(org.apache.axis.constants.Use.LITERAL);
         _operations[10] = oper;
 
         oper = new org.apache.axis.description.OperationDesc();
@@ -179,7 +179,7 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         oper.setReturnClass(byte[].class);
         oper.setReturnQName(new javax.xml.namespace.QName("", "purgarDocumento_v2Response"));
         oper.setStyle(org.apache.axis.constants.Style.RPC);
-        oper.setUse(org.apache.axis.constants.Use.ENCODED);
+        oper.setUse(org.apache.axis.constants.Use.LITERAL);
         _operations[11] = oper;
 
         oper = new org.apache.axis.description.OperationDesc();
@@ -194,7 +194,7 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         oper.setReturnClass(byte[].class);
         oper.setReturnQName(new javax.xml.namespace.QName("", "recuperarDocumentoResponse"));
         oper.setStyle(org.apache.axis.constants.Style.RPC);
-        oper.setUse(org.apache.axis.constants.Use.ENCODED);
+        oper.setUse(org.apache.axis.constants.Use.LITERAL);
         _operations[12] = oper;
 
         oper = new org.apache.axis.description.OperationDesc();
@@ -209,7 +209,7 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         oper.setReturnClass(byte[].class);
         oper.setReturnQName(new javax.xml.namespace.QName("", "recuperarDocumento_v2Response"));
         oper.setStyle(org.apache.axis.constants.Style.RPC);
-        oper.setUse(org.apache.axis.constants.Use.ENCODED);
+        oper.setUse(org.apache.axis.constants.Use.LITERAL);
         _operations[13] = oper;
 
         oper = new org.apache.axis.description.OperationDesc();
@@ -224,7 +224,7 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         oper.setReturnClass(byte[].class);
         oper.setReturnQName(new javax.xml.namespace.QName("", "eliminarDocumentoResponse"));
         oper.setStyle(org.apache.axis.constants.Style.RPC);
-        oper.setUse(org.apache.axis.constants.Use.ENCODED);
+        oper.setUse(org.apache.axis.constants.Use.LITERAL);
         _operations[14] = oper;
 
         oper = new org.apache.axis.description.OperationDesc();
@@ -239,7 +239,7 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         oper.setReturnClass(byte[].class);
         oper.setReturnQName(new javax.xml.namespace.QName("", "eliminarDocumento_v2Response"));
         oper.setStyle(org.apache.axis.constants.Style.RPC);
-        oper.setUse(org.apache.axis.constants.Use.ENCODED);
+        oper.setUse(org.apache.axis.constants.Use.LITERAL);
         _operations[15] = oper;
 
         oper = new org.apache.axis.description.OperationDesc();
@@ -254,7 +254,7 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         oper.setReturnClass(byte[].class);
         oper.setReturnQName(new javax.xml.namespace.QName("", "verificarDocumento_v2Response"));
         oper.setStyle(org.apache.axis.constants.Style.RPC);
-        oper.setUse(org.apache.axis.constants.Use.ENCODED);
+        oper.setUse(org.apache.axis.constants.Use.LITERAL);
         _operations[16] = oper;
 
         oper = new org.apache.axis.description.OperationDesc();
@@ -269,7 +269,7 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         oper.setReturnClass(byte[].class);
         oper.setReturnQName(new javax.xml.namespace.QName("", "obtenerInformeDocumento_v2Response"));
         oper.setStyle(org.apache.axis.constants.Style.RPC);
-        oper.setUse(org.apache.axis.constants.Use.ENCODED);
+        oper.setUse(org.apache.axis.constants.Use.LITERAL);
         _operations[17] = oper;
 
         oper = new org.apache.axis.description.OperationDesc();
@@ -284,7 +284,7 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         oper.setReturnClass(byte[].class);
         oper.setReturnQName(new javax.xml.namespace.QName("", "consultarDocumento_v2Response"));
         oper.setStyle(org.apache.axis.constants.Style.RPC);
-        oper.setUse(org.apache.axis.constants.Use.ENCODED);
+        oper.setUse(org.apache.axis.constants.Use.LITERAL);
         _operations[18] = oper;
 
         oper = new org.apache.axis.description.OperationDesc();
@@ -299,7 +299,7 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         oper.setReturnClass(byte[].class);
         oper.setReturnQName(new javax.xml.namespace.QName("", "reservarDocumentoResponse"));
         oper.setStyle(org.apache.axis.constants.Style.RPC);
-        oper.setUse(org.apache.axis.constants.Use.ENCODED);
+        oper.setUse(org.apache.axis.constants.Use.LITERAL);
         _operations[19] = oper;
 
     }
@@ -319,7 +319,7 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         oper.setReturnClass(byte[].class);
         oper.setReturnQName(new javax.xml.namespace.QName("", "reservarDocumento_v2Response"));
         oper.setStyle(org.apache.axis.constants.Style.RPC);
-        oper.setUse(org.apache.axis.constants.Use.ENCODED);
+        oper.setUse(org.apache.axis.constants.Use.LITERAL);
         _operations[20] = oper;
 
         oper = new org.apache.axis.description.OperationDesc();
@@ -334,7 +334,7 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         oper.setReturnClass(byte[].class);
         oper.setReturnQName(new javax.xml.namespace.QName("", "consultarReservaDocumentoResponse"));
         oper.setStyle(org.apache.axis.constants.Style.RPC);
-        oper.setUse(org.apache.axis.constants.Use.ENCODED);
+        oper.setUse(org.apache.axis.constants.Use.LITERAL);
         _operations[21] = oper;
 
     }
@@ -398,8 +398,11 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         _call.setOperation(_operations[0]);
         _call.setUseSOAPAction(true);
         _call.setSOAPActionURI("CustodiaDocumentos");
+        _call.setEncodingStyle(null);
+        _call.setProperty(org.apache.axis.client.Call.SEND_TYPE_ATTR, Boolean.FALSE);
+        _call.setProperty(org.apache.axis.AxisEngine.PROP_DOMULTIREFS, Boolean.FALSE);
         _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
-        _call.setOperationName(new javax.xml.namespace.QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "verificarDocumento"));
+        _call.setOperationName(new javax.xml.namespace.QName("http://ejb.signatura.caib.es", "verificarDocumento"));
 
         setRequestHeaders(_call);
         setAttachments(_call);
@@ -429,8 +432,11 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         _call.setOperation(_operations[1]);
         _call.setUseSOAPAction(true);
         _call.setSOAPActionURI("CustodiaDocumentos");
+        _call.setEncodingStyle(null);
+        _call.setProperty(org.apache.axis.client.Call.SEND_TYPE_ATTR, Boolean.FALSE);
+        _call.setProperty(org.apache.axis.AxisEngine.PROP_DOMULTIREFS, Boolean.FALSE);
         _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
-        _call.setOperationName(new javax.xml.namespace.QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "obtenerInformeDocumento"));
+        _call.setOperationName(new javax.xml.namespace.QName("http://ejb.signatura.caib.es", "obtenerInformeDocumento"));
 
         setRequestHeaders(_call);
         setAttachments(_call);
@@ -460,8 +466,11 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         _call.setOperation(_operations[2]);
         _call.setUseSOAPAction(true);
         _call.setSOAPActionURI("CustodiaDocumentos");
+        _call.setEncodingStyle(null);
+        _call.setProperty(org.apache.axis.client.Call.SEND_TYPE_ATTR, Boolean.FALSE);
+        _call.setProperty(org.apache.axis.AxisEngine.PROP_DOMULTIREFS, Boolean.FALSE);
         _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
-        _call.setOperationName(new javax.xml.namespace.QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "consultarDocumento"));
+        _call.setOperationName(new javax.xml.namespace.QName("http://ejb.signatura.caib.es", "consultarDocumento"));
 
         setRequestHeaders(_call);
         setAttachments(_call);
@@ -491,8 +500,11 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         _call.setOperation(_operations[3]);
         _call.setUseSOAPAction(true);
         _call.setSOAPActionURI("CustodiaDocumentos");
+        _call.setEncodingStyle(null);
+        _call.setProperty(org.apache.axis.client.Call.SEND_TYPE_ATTR, Boolean.FALSE);
+        _call.setProperty(org.apache.axis.AxisEngine.PROP_DOMULTIREFS, Boolean.FALSE);
         _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
-        _call.setOperationName(new javax.xml.namespace.QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "custodiarPDFFirmado"));
+        _call.setOperationName(new javax.xml.namespace.QName("http://ejb.signatura.caib.es", "custodiarPDFFirmado"));
 
         setRequestHeaders(_call);
         setAttachments(_call);
@@ -522,8 +534,11 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         _call.setOperation(_operations[4]);
         _call.setUseSOAPAction(true);
         _call.setSOAPActionURI("CustodiaDocumentos");
+        _call.setEncodingStyle(null);
+        _call.setProperty(org.apache.axis.client.Call.SEND_TYPE_ATTR, Boolean.FALSE);
+        _call.setProperty(org.apache.axis.AxisEngine.PROP_DOMULTIREFS, Boolean.FALSE);
         _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
-        _call.setOperationName(new javax.xml.namespace.QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "custodiarPDFFirmado_v2"));
+        _call.setOperationName(new javax.xml.namespace.QName("http://ejb.signatura.caib.es", "custodiarPDFFirmado_v2"));
 
         setRequestHeaders(_call);
         setAttachments(_call);
@@ -553,8 +568,11 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         _call.setOperation(_operations[5]);
         _call.setUseSOAPAction(true);
         _call.setSOAPActionURI("CustodiaDocumentos");
+        _call.setEncodingStyle(null);
+        _call.setProperty(org.apache.axis.client.Call.SEND_TYPE_ATTR, Boolean.FALSE);
+        _call.setProperty(org.apache.axis.AxisEngine.PROP_DOMULTIREFS, Boolean.FALSE);
         _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
-        _call.setOperationName(new javax.xml.namespace.QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "custodiarDocumentoSMIME"));
+        _call.setOperationName(new javax.xml.namespace.QName("http://ejb.signatura.caib.es", "custodiarDocumentoSMIME"));
 
         setRequestHeaders(_call);
         setAttachments(_call);
@@ -584,8 +602,11 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         _call.setOperation(_operations[6]);
         _call.setUseSOAPAction(true);
         _call.setSOAPActionURI("CustodiaDocumentos");
+        _call.setEncodingStyle(null);
+        _call.setProperty(org.apache.axis.client.Call.SEND_TYPE_ATTR, Boolean.FALSE);
+        _call.setProperty(org.apache.axis.AxisEngine.PROP_DOMULTIREFS, Boolean.FALSE);
         _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
-        _call.setOperationName(new javax.xml.namespace.QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "custodiarDocumentoSMIME_v2"));
+        _call.setOperationName(new javax.xml.namespace.QName("http://ejb.signatura.caib.es", "custodiarDocumentoSMIME_v2"));
 
         setRequestHeaders(_call);
         setAttachments(_call);
@@ -615,8 +636,11 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         _call.setOperation(_operations[7]);
         _call.setUseSOAPAction(true);
         _call.setSOAPActionURI("CustodiaDocumentos");
+        _call.setEncodingStyle(null);
+        _call.setProperty(org.apache.axis.client.Call.SEND_TYPE_ATTR, Boolean.FALSE);
+        _call.setProperty(org.apache.axis.AxisEngine.PROP_DOMULTIREFS, Boolean.FALSE);
         _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
-        _call.setOperationName(new javax.xml.namespace.QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "custodiarDocumento"));
+        _call.setOperationName(new javax.xml.namespace.QName("http://ejb.signatura.caib.es", "custodiarDocumento"));
 
         setRequestHeaders(_call);
         setAttachments(_call);
@@ -646,8 +670,11 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         _call.setOperation(_operations[8]);
         _call.setUseSOAPAction(true);
         _call.setSOAPActionURI("CustodiaDocumentos");
+        _call.setEncodingStyle(null);
+        _call.setProperty(org.apache.axis.client.Call.SEND_TYPE_ATTR, Boolean.FALSE);
+        _call.setProperty(org.apache.axis.AxisEngine.PROP_DOMULTIREFS, Boolean.FALSE);
         _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
-        _call.setOperationName(new javax.xml.namespace.QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "custodiarDocumento_v2"));
+        _call.setOperationName(new javax.xml.namespace.QName("http://ejb.signatura.caib.es", "custodiarDocumento_v2"));
 
         setRequestHeaders(_call);
         setAttachments(_call);
@@ -677,8 +704,11 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         _call.setOperation(_operations[9]);
         _call.setUseSOAPAction(true);
         _call.setSOAPActionURI("CustodiaDocumentos");
+        _call.setEncodingStyle(null);
+        _call.setProperty(org.apache.axis.client.Call.SEND_TYPE_ATTR, Boolean.FALSE);
+        _call.setProperty(org.apache.axis.AxisEngine.PROP_DOMULTIREFS, Boolean.FALSE);
         _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
-        _call.setOperationName(new javax.xml.namespace.QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "custodiarDocumentoXAdES"));
+        _call.setOperationName(new javax.xml.namespace.QName("http://ejb.signatura.caib.es", "custodiarDocumentoXAdES"));
 
         setRequestHeaders(_call);
         setAttachments(_call);
@@ -708,8 +738,11 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         _call.setOperation(_operations[10]);
         _call.setUseSOAPAction(true);
         _call.setSOAPActionURI("CustodiaDocumentos");
+        _call.setEncodingStyle(null);
+        _call.setProperty(org.apache.axis.client.Call.SEND_TYPE_ATTR, Boolean.FALSE);
+        _call.setProperty(org.apache.axis.AxisEngine.PROP_DOMULTIREFS, Boolean.FALSE);
         _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
-        _call.setOperationName(new javax.xml.namespace.QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "purgarDocumento"));
+        _call.setOperationName(new javax.xml.namespace.QName("http://ejb.signatura.caib.es", "purgarDocumento"));
 
         setRequestHeaders(_call);
         setAttachments(_call);
@@ -739,8 +772,11 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         _call.setOperation(_operations[11]);
         _call.setUseSOAPAction(true);
         _call.setSOAPActionURI("CustodiaDocumentos");
+        _call.setEncodingStyle(null);
+        _call.setProperty(org.apache.axis.client.Call.SEND_TYPE_ATTR, Boolean.FALSE);
+        _call.setProperty(org.apache.axis.AxisEngine.PROP_DOMULTIREFS, Boolean.FALSE);
         _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
-        _call.setOperationName(new javax.xml.namespace.QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "purgarDocumento_v2"));
+        _call.setOperationName(new javax.xml.namespace.QName("http://ejb.signatura.caib.es", "purgarDocumento_v2"));
 
         setRequestHeaders(_call);
         setAttachments(_call);
@@ -770,8 +806,11 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         _call.setOperation(_operations[12]);
         _call.setUseSOAPAction(true);
         _call.setSOAPActionURI("CustodiaDocumentos");
+        _call.setEncodingStyle(null);
+        _call.setProperty(org.apache.axis.client.Call.SEND_TYPE_ATTR, Boolean.FALSE);
+        _call.setProperty(org.apache.axis.AxisEngine.PROP_DOMULTIREFS, Boolean.FALSE);
         _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
-        _call.setOperationName(new javax.xml.namespace.QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "recuperarDocumento"));
+        _call.setOperationName(new javax.xml.namespace.QName("http://ejb.signatura.caib.es", "recuperarDocumento"));
 
         setRequestHeaders(_call);
         setAttachments(_call);
@@ -801,8 +840,11 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         _call.setOperation(_operations[13]);
         _call.setUseSOAPAction(true);
         _call.setSOAPActionURI("CustodiaDocumentos");
+        _call.setEncodingStyle(null);
+        _call.setProperty(org.apache.axis.client.Call.SEND_TYPE_ATTR, Boolean.FALSE);
+        _call.setProperty(org.apache.axis.AxisEngine.PROP_DOMULTIREFS, Boolean.FALSE);
         _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
-        _call.setOperationName(new javax.xml.namespace.QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "recuperarDocumento_v2"));
+        _call.setOperationName(new javax.xml.namespace.QName("http://ejb.signatura.caib.es", "recuperarDocumento_v2"));
 
         setRequestHeaders(_call);
         setAttachments(_call);
@@ -832,8 +874,11 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         _call.setOperation(_operations[14]);
         _call.setUseSOAPAction(true);
         _call.setSOAPActionURI("CustodiaDocumentos");
+        _call.setEncodingStyle(null);
+        _call.setProperty(org.apache.axis.client.Call.SEND_TYPE_ATTR, Boolean.FALSE);
+        _call.setProperty(org.apache.axis.AxisEngine.PROP_DOMULTIREFS, Boolean.FALSE);
         _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
-        _call.setOperationName(new javax.xml.namespace.QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "eliminarDocumento"));
+        _call.setOperationName(new javax.xml.namespace.QName("http://ejb.signatura.caib.es", "eliminarDocumento"));
 
         setRequestHeaders(_call);
         setAttachments(_call);
@@ -863,8 +908,11 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         _call.setOperation(_operations[15]);
         _call.setUseSOAPAction(true);
         _call.setSOAPActionURI("CustodiaDocumentos");
+        _call.setEncodingStyle(null);
+        _call.setProperty(org.apache.axis.client.Call.SEND_TYPE_ATTR, Boolean.FALSE);
+        _call.setProperty(org.apache.axis.AxisEngine.PROP_DOMULTIREFS, Boolean.FALSE);
         _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
-        _call.setOperationName(new javax.xml.namespace.QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "eliminarDocumento_v2"));
+        _call.setOperationName(new javax.xml.namespace.QName("http://ejb.signatura.caib.es", "eliminarDocumento_v2"));
 
         setRequestHeaders(_call);
         setAttachments(_call);
@@ -894,8 +942,11 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         _call.setOperation(_operations[16]);
         _call.setUseSOAPAction(true);
         _call.setSOAPActionURI("CustodiaDocumentos");
+        _call.setEncodingStyle(null);
+        _call.setProperty(org.apache.axis.client.Call.SEND_TYPE_ATTR, Boolean.FALSE);
+        _call.setProperty(org.apache.axis.AxisEngine.PROP_DOMULTIREFS, Boolean.FALSE);
         _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
-        _call.setOperationName(new javax.xml.namespace.QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "verificarDocumento_v2"));
+        _call.setOperationName(new javax.xml.namespace.QName("http://ejb.signatura.caib.es", "verificarDocumento_v2"));
 
         setRequestHeaders(_call);
         setAttachments(_call);
@@ -925,8 +976,11 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         _call.setOperation(_operations[17]);
         _call.setUseSOAPAction(true);
         _call.setSOAPActionURI("CustodiaDocumentos");
+        _call.setEncodingStyle(null);
+        _call.setProperty(org.apache.axis.client.Call.SEND_TYPE_ATTR, Boolean.FALSE);
+        _call.setProperty(org.apache.axis.AxisEngine.PROP_DOMULTIREFS, Boolean.FALSE);
         _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
-        _call.setOperationName(new javax.xml.namespace.QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "obtenerInformeDocumento_v2"));
+        _call.setOperationName(new javax.xml.namespace.QName("http://ejb.signatura.caib.es", "obtenerInformeDocumento_v2"));
 
         setRequestHeaders(_call);
         setAttachments(_call);
@@ -956,8 +1010,11 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         _call.setOperation(_operations[18]);
         _call.setUseSOAPAction(true);
         _call.setSOAPActionURI("CustodiaDocumentos");
+        _call.setEncodingStyle(null);
+        _call.setProperty(org.apache.axis.client.Call.SEND_TYPE_ATTR, Boolean.FALSE);
+        _call.setProperty(org.apache.axis.AxisEngine.PROP_DOMULTIREFS, Boolean.FALSE);
         _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
-        _call.setOperationName(new javax.xml.namespace.QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "consultarDocumento_v2"));
+        _call.setOperationName(new javax.xml.namespace.QName("http://ejb.signatura.caib.es", "consultarDocumento_v2"));
 
         setRequestHeaders(_call);
         setAttachments(_call);
@@ -987,8 +1044,11 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         _call.setOperation(_operations[19]);
         _call.setUseSOAPAction(true);
         _call.setSOAPActionURI("CustodiaDocumentos");
+        _call.setEncodingStyle(null);
+        _call.setProperty(org.apache.axis.client.Call.SEND_TYPE_ATTR, Boolean.FALSE);
+        _call.setProperty(org.apache.axis.AxisEngine.PROP_DOMULTIREFS, Boolean.FALSE);
         _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
-        _call.setOperationName(new javax.xml.namespace.QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "reservarDocumento"));
+        _call.setOperationName(new javax.xml.namespace.QName("http://ejb.signatura.caib.es", "reservarDocumento"));
 
         setRequestHeaders(_call);
         setAttachments(_call);
@@ -1018,8 +1078,11 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         _call.setOperation(_operations[20]);
         _call.setUseSOAPAction(true);
         _call.setSOAPActionURI("CustodiaDocumentos");
+        _call.setEncodingStyle(null);
+        _call.setProperty(org.apache.axis.client.Call.SEND_TYPE_ATTR, Boolean.FALSE);
+        _call.setProperty(org.apache.axis.AxisEngine.PROP_DOMULTIREFS, Boolean.FALSE);
         _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
-        _call.setOperationName(new javax.xml.namespace.QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "reservarDocumento_v2"));
+        _call.setOperationName(new javax.xml.namespace.QName("http://ejb.signatura.caib.es", "reservarDocumento_v2"));
 
         setRequestHeaders(_call);
         setAttachments(_call);
@@ -1049,8 +1112,11 @@ public class CustodiaDocumentosSoapBindingStub extends org.apache.axis.client.St
         _call.setOperation(_operations[21]);
         _call.setUseSOAPAction(true);
         _call.setSOAPActionURI("CustodiaDocumentos");
+        _call.setEncodingStyle(null);
+        _call.setProperty(org.apache.axis.client.Call.SEND_TYPE_ATTR, Boolean.FALSE);
+        _call.setProperty(org.apache.axis.AxisEngine.PROP_DOMULTIREFS, Boolean.FALSE);
         _call.setSOAPVersion(org.apache.axis.soap.SOAPConstants.SOAP11_CONSTANTS);
-        _call.setOperationName(new javax.xml.namespace.QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "consultarReservaDocumento"));
+        _call.setOperationName(new javax.xml.namespace.QName("http://ejb.signatura.caib.es", "consultarReservaDocumento"));
 
         setRequestHeaders(_call);
         setAttachments(_call);

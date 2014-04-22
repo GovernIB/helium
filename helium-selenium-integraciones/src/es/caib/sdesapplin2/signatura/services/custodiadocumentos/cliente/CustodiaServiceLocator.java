@@ -9,9 +9,7 @@ package es.caib.sdesapplin2.signatura.services.custodiadocumentos.cliente;
 
 public class CustodiaServiceLocator extends org.apache.axis.client.Service implements es.caib.sdesapplin2.signatura.services.custodiadocumentos.cliente.CustodiaService {
 
-    private static final long serialVersionUID = 1L;
-
-	public CustodiaServiceLocator() {
+    public CustodiaServiceLocator() {
     }
 
 
