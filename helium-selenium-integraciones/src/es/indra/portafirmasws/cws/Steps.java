@@ -38,7 +38,7 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class Steps {
 
-    @XmlElementRef(name = "sign-mode", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "sign-mode", type = JAXBElement.class)
     protected JAXBElement<SignModeEnum> signMode;
     @XmlElement(required = true)
     protected List<Step> step;

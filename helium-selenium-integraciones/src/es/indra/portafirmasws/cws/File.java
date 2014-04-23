@@ -61,13 +61,13 @@ public class File {
     @XmlElement(name = "file-format", required = true, nillable = true)
     protected CodificationTypeEnum fileFormat;
     protected String extension;
-    @XmlElementRef(name = "mime-type", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "mime-type", type = JAXBElement.class)
     protected JAXBElement<String> mimeType;
-    @XmlElementRef(name = "base64-data", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "base64-data", type = JAXBElement.class)
     protected JAXBElement<String> base64Data;
-    @XmlElementRef(name = "number-signatures", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "number-signatures", type = JAXBElement.class)
     protected JAXBElement<String> numberSignatures;
-    @XmlElementRef(name = "signers-id", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "signers-id", type = JAXBElement.class)
     protected JAXBElement<SignersID> signersId;
 
     /**

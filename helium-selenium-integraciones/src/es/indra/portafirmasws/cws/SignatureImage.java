@@ -38,7 +38,7 @@ public class SignatureImage {
 
     @XmlElement(name = "base64-data", required = true, nillable = true)
     protected String base64Data;
-    @XmlElementRef(name = "mime-type", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "mime-type", type = JAXBElement.class)
     protected JAXBElement<String> mimeType;
 
     /**

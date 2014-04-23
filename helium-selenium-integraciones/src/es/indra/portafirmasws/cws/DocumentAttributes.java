@@ -81,27 +81,27 @@ public class DocumentAttributes {
     protected Sender sender;
     protected String url;
     protected ImportanceEnum importance;
-    @XmlElementRef(name = "date-entry", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "date-entry", type = JAXBElement.class)
     protected JAXBElement<XMLGregorianCalendar> dateEntry;
-    @XmlElementRef(name = "date-limit", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "date-limit", type = JAXBElement.class)
     protected JAXBElement<XMLGregorianCalendar> dateLimit;
-    @XmlElementRef(name = "date-last-update", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "date-last-update", type = JAXBElement.class)
     protected JAXBElement<XMLGregorianCalendar> dateLastUpdate;
-    @XmlElementRef(name = "date-notice", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "date-notice", type = JAXBElement.class)
     protected JAXBElement<XMLGregorianCalendar> dateNotice;
-    @XmlElementRef(name = "number-annexes", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "number-annexes", type = JAXBElement.class)
     protected JAXBElement<Integer> numberAnnexes;
-    @XmlElementRef(name = "sign-annexes", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "sign-annexes", type = JAXBElement.class)
     protected JAXBElement<Boolean> signAnnexes;
-    @XmlElementRef(name = "external-data", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "external-data", type = JAXBElement.class)
     protected JAXBElement<String> externalData;
-    @XmlElementRef(name = "type-sign", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "type-sign", type = JAXBElement.class)
     protected JAXBElement<Integer> typeSign;
-    @XmlElementRef(name = "is-file-sign", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "is-file-sign", type = JAXBElement.class)
     protected JAXBElement<Boolean> isFileSign;
-    @XmlElementRef(name = "generate-visuals", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "generate-visuals", type = JAXBElement.class)
     protected JAXBElement<Boolean> generateVisuals;
-    @XmlElementRef(name = "external-ids", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "external-ids", type = JAXBElement.class)
     protected JAXBElement<ExternalIDs> externalIds;
 
     /**

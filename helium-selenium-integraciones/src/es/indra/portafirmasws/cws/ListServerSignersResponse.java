@@ -42,7 +42,7 @@ public class ListServerSignersResponse {
 
     @XmlElement(required = true)
     protected Result result;
-    @XmlElementRef(name = "server-signers", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "server-signers", type = JAXBElement.class)
     protected JAXBElement<ServerSigners> serverSigners;
     @XmlAttribute(name = "version")
     protected String version;

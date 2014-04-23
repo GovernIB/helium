@@ -54,23 +54,23 @@ public class ArchiveLocator {
 
     @XmlElement(name = "repository-id", required = true, nillable = true)
     protected String repositoryId;
-    @XmlElementRef(name = "archive-uri", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "archive-uri", type = JAXBElement.class)
     protected JAXBElement<String> archiveUri;
-    @XmlElementRef(name = "archive-version", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "archive-version", type = JAXBElement.class)
     protected JAXBElement<String> archiveVersion;
-    @XmlElementRef(name = "repository-base", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "repository-base", type = JAXBElement.class)
     protected JAXBElement<String> repositoryBase;
-    @XmlElementRef(name = "folder-name", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "folder-name", type = JAXBElement.class)
     protected JAXBElement<String> folderName;
-    @XmlElementRef(name = "file-path-name", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "file-path-name", type = JAXBElement.class)
     protected JAXBElement<String> filePathName;
-    @XmlElementRef(name = "signature-files-path-pattern", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "signature-files-path-pattern", type = JAXBElement.class)
     protected JAXBElement<String> signatureFilesPathPattern;
-    @XmlElementRef(name = "visual-file-path-name", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "visual-file-path-name", type = JAXBElement.class)
     protected JAXBElement<String> visualFilePathName;
-    @XmlElementRef(name = "retention-policy", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "retention-policy", type = JAXBElement.class)
     protected JAXBElement<String> retentionPolicy;
-    @XmlElementRef(name = "signature-custody", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "signature-custody", type = JAXBElement.class)
     protected JAXBElement<Boolean> signatureCustody;
 
     /**
