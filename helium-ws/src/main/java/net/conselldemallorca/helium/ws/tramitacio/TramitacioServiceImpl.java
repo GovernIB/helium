@@ -410,8 +410,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			}
 			return resposta;
 		} catch (Exception ex) {
-			logger.error("No s'ha pogut guardar la variable al procés", ex);
-			throw new TramitacioException("No s'ha pogut guardar la variable al procés: " + ex.getMessage());
+			logger.error("No s'ha pogut consultar las variables al procés", ex);
+			throw new TramitacioException("No s'ha pogut consultar las variables al procés: " + ex.getMessage());
 		}
 	}
 	public void setVariableProces(

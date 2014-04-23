@@ -19,6 +19,7 @@
 
 		<c:if test="${not empty command.nom
 						or not empty command.expedient
+						or not empty command.numeroExpedient
 						or not empty command.tipusExpedient
 						or not empty command.dataCreacioInici
 						or not empty command.dataCreacioFi
@@ -43,6 +44,10 @@
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="expedient"/>
 				<c:param name="label"><fmt:message key='common.filtres.expedient' /></c:param>
+			</c:import>
+			<c:import url="../common/formElement.jsp">
+				<c:param name="property" value="numeroExpedient"/>
+				<c:param name="label"><fmt:message key="expedient.consulta.numero_llarg"/></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="tipusExpedient"/>

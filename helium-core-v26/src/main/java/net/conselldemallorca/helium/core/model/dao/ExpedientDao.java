@@ -43,11 +43,11 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 	}
 	
 	public List<Long> findListExpedients(Long entornId, String actorId) {
-		return findListExpedients(entornId, actorId, null, null, null, false);
+		return findListExpedients(entornId, actorId, null, null, null, null, false);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<Long> findListExpedients(Long entornId, String actorId, String expedient, Long tipusExpedient, String sort, boolean asc) {		
+	public List<Long> findListExpedients(Long entornId, String actorId, String expedient, String numeroExpedient, Long tipusExpedient, String sort, boolean asc) {		
 		List<Long> resultat = new ArrayList<Long>();
 			
 		String hql = "select cast(ex.processInstanceId as long) "
@@ -59,6 +59,13 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			hql += "	and ex.tipus.id = :tipusExpedient ";
 		}
 		
+		if (numeroExpedient != null && !"".equals(numeroExpedient)) {
+			hql += "	and UPPER(case"
+						+ " when (ex.numero is not null AND ex.titol is not null) then ('['||ex.numero||']') "
+						+ " when (ex.numero is not null AND ex.titol is null) then ex.numero "
+						+ " ELSE ex.numeroDefault END) like UPPER(:numeroExpedient) ";			
+		}
+		
 		if (expedient != null && !"".equals(expedient)) {
 			hql += "	and UPPER(case"
 						+ " when (ex.numero is not null AND ex.titol is not null) then ('['||ex.numero||'] ' || ex.titol) "
@@ -67,7 +74,7 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 						+ " ELSE ex.numeroDefault END) like UPPER(:expedient) ";			
 		}
 		
-		if ("expedientTitol".equals(sort) || "expedientIdentificador".equals(sort)) {
+		if ("expedientTitol".equals(sort)) {
 			hql += " order by (case"
 						+ " when (ex.numero is not null AND ex.titol is not null) then ('['||ex.numero||'] ' || ex.titol) "
 						+ " when (ex.numero is not null AND ex.titol is null) then ex.numero "
@@ -86,6 +93,10 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 		
 		if (expedient != null && !"".equals(expedient)) {
 			query.setString("expedient", "%"+expedient+"%");
+		}
+		
+		if (numeroExpedient != null && !"".equals(numeroExpedient)) {
+			query.setString("numeroExpedient", "%"+numeroExpedient+"%");
 		}
 		
 		resultat = (List<Long>) query.list();
@@ -263,11 +274,11 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 				+ " ELSE 'finalizat' "
 		+ "END as estatnom, ex "
 		+ "from Expedient ex left join ex.estat as es "
-		+ "where ex.entorn.id = " + entornId;
+		+ "where ex.entorn.id = :entornId";
 		if (titol != null && titol.length() > 0)
-			hql += " and lower(ex.titol) like lower('%" + titol + "%')";
+			hql += " and lower(ex.titol) like lower(:titol)";
 		if (numero != null && numero.length() > 0)
-			hql += " and (lower(ex.numero) like lower('%" + numero + "%') OR lower(ex.numeroDefault) like lower('%" + numero + "%'))";
+			hql += " and (lower(ex.numero) like lower(:numero) OR lower(ex.numeroDefault) like lower(:numero))";
 		if (dataInici1 != null && dataInici2 != null) {
 			hql += " and ex.dataInici >= :dataInici1 and ex.dataInici <= :dataInici2";
 		} else {
@@ -278,19 +289,19 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			}
 		}
 		if (expedientTipusId != null) {
-			hql += " and ex.tipus.id = " + expedientTipusId + "";
+			hql += " and ex.tipus.id = :expedientTipusId";
 		}
 		if (expedientTipusIdPermesos != null && expedientTipusIdPermesos.length > 0) {
 			hql += " and ex.tipus.id in ( :expedientTipusIdPermesos )";
 		}
 		if (geoPosX != null) {
-			hql += " and ex.geoPosX = " + geoPosX + "";
+			hql += " and ex.geoPosX = :geoPosX";
 		}
 		if (geoPosY != null) {
-			hql += " and ex.geoPosY = " + geoPosY + "";
+			hql += " and ex.geoPosY = :geoPosY";
 		}
 		if (geoReferencia != null && geoReferencia.length() > 0) {
-			hql += " and lower(ex.geoReferencia) like lower('%" + geoReferencia + "%')";
+			hql += " and lower(ex.geoReferencia) like lower(:geoReferencia)";
 		}
 		if (mostrarAnulats == FiltreAnulat.ACTIUS) {
 			hql += " and ex.anulat = false ";
@@ -303,7 +314,7 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			hql += " and ex.tipus.restringirPerGrup = false ";
 		}
 		if (estatId != null && !finalitzat) {
-			hql += " and ex.estat.id = " + estatId + "";
+			hql += " and ex.estat.id = :estatId";
 		}
 		if (iniciat && !finalitzat) {
 			hql += " and ex.estat.id is null ";
@@ -334,6 +345,28 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 		hql += orden.substring(1);
 
 		Query query = getSession().createQuery(hql);
+		query.setParameter("entornId", entornId);
+		if (geoPosX != null) {
+			query.setParameter("geoPosX", geoPosX);
+		}
+		if (geoPosY != null) {
+			query.setParameter("geoPosY", geoPosY);
+		}
+		if (geoReferencia != null && geoReferencia.length() > 0) {
+			query.setParameter("geoReferencia", "%"+geoReferencia+"%");
+		}
+		if (titol != null && titol.length() > 0) {
+			query.setParameter("titol", "%"+titol+"%");
+		}
+		if (numero != null && numero.length() > 0) {
+			query.setParameter("numero", "%"+numero+"%");
+		}
+		if (estatId != null && !finalitzat) {
+			query.setParameter("estatId", estatId);
+		}
+		if (expedientTipusId != null) {
+			query.setParameter("expedientTipusId", expedientTipusId);
+		}
 		if (expedientTipusIdPermesos != null && expedientTipusIdPermesos.length > 0) {
 			query.setParameterList("expedientTipusIdPermesos", expedientTipusIdPermesos);
 		}

@@ -42,6 +42,7 @@ import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.security.access.annotation.Secured;
@@ -68,22 +69,23 @@ public class EntornService {
 	private MapeigSistraDao mapeigSistraDao;
 	private MessageSource messageSource;
 
-
-
 	@Secured({"ROLE_ADMIN", "ROLE_USER", "AFTER_ACL_READ"})
 	public Entorn getById(Long id) {
 		return entornDao.getById(id, false);
 	}
 	@Secured({"ROLE_ADMIN", "AFTER_ACL_READ"})
+	@CacheEvict(value = "entornsUsuariActual", allEntries=true)
 	public Entorn create(Entorn entity) {
 		Entorn saved = entornDao.saveOrUpdate(entity);
 		return saved;
 	}
 	@Secured({"ROLE_ADMIN", "ROLE_USER", "AFTER_ACL_READ"})
+	@CacheEvict(value = "entornsUsuariActual", allEntries=true)
 	public Entorn update(Entorn entity) {
 		return entornDao.merge(entity);
 	}
 	@Secured({"ROLE_ADMIN"})
+	@CacheEvict(value = "entornsUsuariActual", allEntries=true)
 	public void delete(Long id) {
 		Entorn vell = getById(id);
 		if (vell != null) {

@@ -17,6 +17,7 @@ import net.conselldemallorca.helium.core.security.PermissionUtil;
 import net.conselldemallorca.helium.v3.core.api.dto.GenericEntityDto;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.NotFoundException;
@@ -39,6 +40,7 @@ public class PermissionService {
 
 
 	@SuppressWarnings("rawtypes")
+	@CacheEvict(value = "entornsUsuariActual", allEntries=true)
 	public void addPermissions(
 			String recipient,
 			boolean principal,
@@ -66,6 +68,7 @@ public class PermissionService {
 		}
 	}
 	@SuppressWarnings("rawtypes")
+	@CacheEvict(value = "entornsUsuariActual", allEntries=true)
 	public void deletePermissions(
 			String recipient,
 			boolean principal,

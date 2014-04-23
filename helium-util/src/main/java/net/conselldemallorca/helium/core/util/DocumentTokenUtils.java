@@ -43,7 +43,7 @@ public class DocumentTokenUtils {
 	public String xifrarToken(String token) throws Exception {
 		String tokenPad = null;
 		if (isTokenLlarg() && token.length() < 15)
-			tokenPad = String.format("%s#" + (15 - token.length() + 2) + "s", token);
+			tokenPad = String.format("%1$#" + (15 - token.length() + 2) + "s", token);
 		else
 			tokenPad = token;
 		SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance(
