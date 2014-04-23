@@ -55,11 +55,11 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 	}
 	
 	public List<Long> findListExpedients(Long entornId, String actorId) {
-		return findListExpedients(entornId, actorId, null, null, null, false);
+		return findListExpedients(entornId, actorId, null, null, null, null, false);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<Long> findListExpedients(Long entornId, String actorId, String expedient, Long tipusExpedient, String sort, boolean asc) {		
+	public List<Long> findListExpedients(Long entornId, String actorId, String expedient, String numeroExpedient, Long tipusExpedient, String sort, boolean asc) {		
 		List<Long> resultat = new ArrayList<Long>();
 			
 		String hql = "select cast(ex.processInstanceId as long) "
@@ -69,6 +69,13 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 		
 		if (tipusExpedient != null) {
 			hql += "	and ex.tipus.id = :tipusExpedient ";
+		}
+		
+		if (numeroExpedient != null && !"".equals(numeroExpedient)) {
+			hql += "	and UPPER(case"
+						+ " when (ex.numero is not null AND ex.titol is not null) then ('['||ex.numero||']') "
+						+ " when (ex.numero is not null AND ex.titol is null) then ex.numero "
+						+ " ELSE ex.numeroDefault END) like UPPER(:numeroExpedient) ";			
 		}
 		
 		if (expedient != null && !"".equals(expedient)) {
@@ -98,6 +105,10 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 		
 		if (expedient != null && !"".equals(expedient)) {
 			query.setString("expedient", "%"+expedient+"%");
+		}
+		
+		if (numeroExpedient != null && !"".equals(numeroExpedient)) {
+			query.setString("numeroExpedient", "%"+numeroExpedient+"%");
 		}
 		
 		resultat = (List<Long>) query.list();

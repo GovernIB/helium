@@ -196,6 +196,7 @@ public class TascaService {
 			String usuari,
 			String tasca,
 			String expedient,
+			String numeroExpedient,
 			Long tipusExpedient,
 			Date dataCreacioInici,
 			Date dataCreacioFi,
@@ -217,6 +218,7 @@ public class TascaService {
 				entornId, 
 				usuariBo,
 				expedient, 
+				numeroExpedient,
 				tipusExpedient,
 				sort,
 				asc
@@ -279,6 +281,7 @@ public class TascaService {
 			String usuari,
 			String tasca,
 			String expedient,
+			String numeroExpedient,
 			Long tipusExpedient,
 			Date dataCreacioInici,
 			Date dataCreacioFi,
@@ -299,6 +302,7 @@ public class TascaService {
 				entornId, 
 				usuariBo,
 				expedient, 
+				numeroExpedient,
 				tipusExpedient,
 				sort,
 				asc);
@@ -353,6 +357,7 @@ public class TascaService {
 				entornId, 
 				responsable,
 				null, 
+				null,
 				tipusExpedient,
 				sort,
 				asc);

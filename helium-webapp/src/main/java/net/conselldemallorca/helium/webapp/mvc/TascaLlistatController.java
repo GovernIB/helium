@@ -292,6 +292,7 @@ public class TascaLlistatController extends BaseController {
 	public class TascaFiltreCommand {
 		private String nom;
 		private String expedient;
+		private String numeroExpedient;
 		private Long tipusExpedient;
 		private Date dataCreacioInici;
 		private Date dataCreacioFi;
@@ -346,6 +347,12 @@ public class TascaLlistatController extends BaseController {
 		}
 		public void setDataLimitFi(Date dataLimitFi) {
 			this.dataLimitFi = dataLimitFi;
+		}
+		public String getNumeroExpedient() {
+			return numeroExpedient;
+		}
+		public void setNumeroExpedient(String numeroExpedient) {
+			this.numeroExpedient = numeroExpedient;
 		}
 	}
 
@@ -409,6 +416,7 @@ public class TascaLlistatController extends BaseController {
 				null,
 				command.getNom(),
 				command.getExpedient(),
+				command.getNumeroExpedient(),
 				command.getTipusExpedient(),
 				command.getDataCreacioInici(),
 				command.getDataCreacioFi(),
@@ -450,6 +458,7 @@ public class TascaLlistatController extends BaseController {
 				null,
 				command.getNom(),
 				command.getExpedient(),
+				command.getNumeroExpedient(),
 				command.getTipusExpedient(),
 				command.getDataCreacioInici(),
 				command.getDataCreacioFi(),
