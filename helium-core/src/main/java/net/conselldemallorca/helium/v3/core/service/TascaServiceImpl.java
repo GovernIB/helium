@@ -1041,6 +1041,7 @@ public class TascaServiceImpl implements TascaService {
 				entornId, 
 				responsable,
 				expedient, 
+				null,
 				expedientTipusId,
 				sort,
 				asc);	

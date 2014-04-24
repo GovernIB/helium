@@ -200,7 +200,7 @@
 				</dt>
 				<dd><em><small>Definició de procés</small></em></dd>
 				<dt>	
-					<i class="icon-picture" onclick="$('#imgDefinicioProcesJbpm').toggle();" style="cursor: pointer"></i> <c:out value="${definicioProcesDescripcio}"/>&nbsp;<i class="icon-pencil" onclick="$('#definicioProcesJbpmId').toggle();" style="cursor: pointer"></i>
+					<i class="icon-picture" onclick="$('#imgDefinicioProcesJbpm').toggle();" style="display: none !important; cursor: pointer"></i> <c:out value="${definicioProcesDescripcio}"/>&nbsp;<i class="icon-pencil" onclick="$('#definicioProcesJbpmId').toggle();" style="cursor: pointer"></i>
 					<div id="imgDefinicioProcesJbpm" class="hide">
 						<img src="<c:url value="/v3/expedient/${expedientId}/imatgeDefProces"/>" />
 					</div>
