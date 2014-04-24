@@ -45,6 +45,7 @@ import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarEventR
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarExpedientRequest;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.Signatura;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.TramitacioPlugin;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
@@ -138,6 +139,13 @@ public class PluginHelper {
 				conversioTipusHelper.convertir(
 						dadesEvent,
 						Event.class));
+		
+		PersonaDto per = Jbpm3HeliumBridge.getInstanceService().getPersonaAmbCodi(expedient.getIniciadorCodi());
+		request.setRepresentantNif(per.getDni());
+		request.setRepresentatNom(per.getNom());
+		request.setRepresentatApe1(per.getLlinatge1());
+		request.setRepresentatApe2(per.getLlinatge2());
+		
 		getTramitacioPlugin().publicarEvent(request);
 	}
 	public TramitDto obtenirDadesTramit(
