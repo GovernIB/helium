@@ -9,6 +9,7 @@ import java.util.List;
 
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
+import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentEvent;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentEventTipus;
@@ -163,8 +164,15 @@ public class ZonaperExpedientEventHandler extends AbstractHeliumActionHandler im
 			Integer adjuntVersio) {
 		PublicarEventRequest requestEvent = new PublicarEventRequest();
 		requestEvent.setExpedientIdentificador(expedient.getTramitExpedientIdentificador());
+		
+		PersonaDto per = getPluginService().findPersonaAmbCodi(expedient.getIniciadorCodi());
+		requestEvent.setRepresentantNif(per.getDni());
+		requestEvent.setRepresentatNom(per.getNom());
+		requestEvent.setRepresentatApe1(per.getLlinatge1());
+		requestEvent.setRepresentatApe2(per.getLlinatge2());
+		
 		requestEvent.setExpedientClau(expedient.getTramitExpedientClau());
-		requestEvent.setUnitatAdministrativa(expedient.getUnitatAdministrativa());
+		requestEvent.setUnitatAdministrativa(expedient.getUnitatAdministrativa() == null ? 0L : expedient.getUnitatAdministrativa());
 		Event event = new Event();
 		event.setTitol(titol);
 		event.setText(text);
