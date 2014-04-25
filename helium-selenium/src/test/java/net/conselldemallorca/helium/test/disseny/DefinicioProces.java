@@ -15,22 +15,19 @@ public class DefinicioProces extends BaseTest {
 	String entorn = carregarPropietat("defproc.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
 	String titolEntorn = carregarPropietat("defproc.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
-	String pathDefProc = carregarPropietat("deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String nomDefProc = carregarPropietat("deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String nomTipusExp = carregarPropietat("deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
-	String codTipusExp = carregarPropietat("deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
+	String pathDefProc = carregarPropietat("defproc.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
+	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	
 	static String entornActual;
-//	String rol = carregarPropietat("test.base.rol.configuracio", "Rol configuració de l'entorn de proves no configurat al fitxer de properties");
 	
 	@Test
 	public void a_inicialitzacio() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
 		crearEntornTest(entorn, titolEntorn, usuari);
-		crearEnumeracionsTest();
 		crearTipusExpedientTest(nomTipusExp, codTipusExp);
-//		crearDominisTest();
 	}
 	
 	@Test
@@ -48,8 +45,6 @@ public class DefinicioProces extends BaseTest {
 		desplegar(false);
 	}
 	
-	
-	
 	@Test
 	public void d_eliminarDefProc() {
 		carregarUrlConfiguracio();
@@ -61,9 +56,7 @@ public class DefinicioProces extends BaseTest {
 	public void z_finalitzacio() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
-		eliminarEnumeracionsTest();
 		eliminarEntornTest(entorn, usuari, codTipusExp);
-//		eliminarDominisTest();
 	}
 	
 	
@@ -95,7 +88,6 @@ public class DefinicioProces extends BaseTest {
 		driver.findElement(By.xpath("//button[@value='submit']")).click();
 		screenshotHelper.saveScreenshot("defproces/importPar/" + (tipExp ? "tipusExp" : "global") + "/2_importPar.png");
 		
-//		actions = new Actions(driver);
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]")));
@@ -107,7 +99,6 @@ public class DefinicioProces extends BaseTest {
 			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "') and td[3][not(text())]]", "defproces/importPar/global/3_definicionsExistents.png", "No s'ha pogut importar la definició de procés a nivell global");
 		}
 	}
-	
 	
 	private void eliminar(boolean continuar) {
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
@@ -128,69 +119,6 @@ public class DefinicioProces extends BaseTest {
 		}
 	}
 	
-	
-	
-//	private void crearEntornTest() {
-//		actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
-//		actions.build().perform();
-//		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/entorn/llistat.html')]")));
-//		actions.click();
-//		actions.build().perform();
-//		if (noExisteixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]")) {
-//			driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
-//			driver.findElement(By.id("codi0")).clear();
-//			driver.findElement(By.id("codi0")).sendKeys(entorn);
-//			driver.findElement(By.id("nom0")).clear();
-//			driver.findElement(By.id("nom0")).sendKeys(titolEntorn);
-//			driver.findElement(By.xpath("//button[@value='submit']")).click();
-//			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]", "entorns/crear/3_entornCrearActiu_02.png", "No s'ha pogut crear l'entorn");
-//		}
-//		
-//		actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
-//		actions.build().perform();
-//		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/entorn/llistat.html')]")));
-//		actions.click();
-//		actions.build().perform();
-//		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]", "L'entorn de proves no existeix.");
-//		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]/td[4]/form/button")).click();
-//		if (existeixElement("//*[@id='registre']/tbody/tr[contains(td[2],'" + usuari + "')]")) {
-//			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + usuari + "')]/td[4]/a")).click();
-//			acceptarAlerta();
-//			noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[2],'" + usuari + "')]", "No s'han pogut eliminar els permisos");
-//		}
-//		driver.findElement(By.id("nom0")).sendKeys(usuari);
-//		driver.findElement(By.xpath("//input[@value='DESIGN']")).click();
-//		driver.findElement(By.xpath("//input[@value='ORGANIZATION']")).click();
-//		driver.findElement(By.xpath("//input[@value='READ']")).click();
-//		driver.findElement(By.xpath("//input[@value='ADMINISTRATION']")).click();
-//		driver.findElement(By.xpath("//button[@value='submit']")).click();
-//		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[2],'" + usuari + "')]", "No s'han pogut assignar permisos");
-//	}
-	
-	
-//	private void eliminaPermisos(String tipus, String usurol) {
-//		// Anem a la pantalla de configuració d'entorns
-//		actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
-//		actions.build().perform();
-//		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/entorn/llistat.html')]")));
-//		actions.click();
-//		actions.build().perform();
-//		
-//		screenshotHelper.saveScreenshot("entorns/permisos/" + tipus + "/1_entornsExistents_01.png");
-//		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]", "L'entorn de proves no existeix.");
-//		
-//		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]/td[4]/form/button")).click();
-//		screenshotHelper.saveScreenshot("entorns/permisos/" + tipus + "/2_permisos.png");
-//		
-//		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[2],'" + usurol + "')]", usurol + " no té permisos per aquest entorn.");
-//		// eliminam els permisos actuals
-//		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + usurol + "')]/td[4]/a")).click();
-//		acceptarAlerta();
-//		screenshotHelper.saveScreenshot("entorns/permisos/" + tipus + "/3_permisos.png");
-//		
-//		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[2],'" + usurol + "')]", "No s'han pogut eliminar els permisos");
-//	}
-
 	// Inicialitzacions
 	
 	protected void crearEntornTest(String entorn, String titolEntorn, String usuari) {
@@ -208,21 +136,11 @@ public class DefinicioProces extends BaseTest {
 			driver.findElement(By.id("nom0")).clear();
 			driver.findElement(By.id("nom0")).sendKeys(titolEntorn);
 			driver.findElement(By.xpath("//button[@value='submit']")).click();
-			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]", "entorns/crear/3_entornCrearActiu_02.png", "No s'ha pogut crear l'entorn");
+			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]", "No s'ha pogut crear l'entorn");
 		}
-		// Assignar permisos	
-		actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/entorn/llistat.html')]")));
-		actions.click();
-		actions.build().perform();
-		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]", "L'entorn de proves no existeix.");
+		// Assignar permisos
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]/td[4]/form/button")).click();
 		if (noExisteixElement("//*[@id='registre']/tbody/tr[contains(td[2],'" + usuari + "')]")) {
-//			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + usuari + "')]/td[4]/a")).click();
-//			acceptarAlerta();
-//			noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[2],'" + usuari + "')]", "No s'han pogut eliminar els permisos");
-//		}
 			driver.findElement(By.id("nom0")).sendKeys(usuari);
 			driver.findElement(By.xpath("//input[@value='DESIGN']")).click();
 			driver.findElement(By.xpath("//input[@value='ORGANIZATION']")).click();
@@ -268,69 +186,10 @@ public class DefinicioProces extends BaseTest {
 		actions.click();
 		actions.build().perform();
 		if(existeixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]")) {
-//			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]/td[4]/form/button")).click();
-//			if (existeixElement("//*[@id='registre']/tbody/tr[contains(td[2],'" + usuari + "')]")) {
-//				driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + usuari + "')]/td[4]/a")).click();
-//				acceptarAlerta();
-//				noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[2],'" + usuari + "')]", "No s'han pogut eliminar els permisos");
-//			}
-//			actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
-//			actions.build().perform();
-//			actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/entorn/llistat.html')]")));
-//			actions.click();
-//			actions.build().perform();
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]/td[6]/a")).click();
 			acceptarAlerta();
 			noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]", "No s'ha pogut eliminar l'entorn de proves");
 		}
-	}
-	
-	protected void crearEnumeracionsTest() {
-		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/enumeracio/llistat.html')]")));
-		actions.click();
-		actions.build().perform();
-		
-		if (noExisteixElement("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]")) {
-			driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
-			driver.findElement(By.id("codi0")).sendKeys("enumsel");
-			driver.findElement(By.id("nom0")).sendKeys("Enumerat selenium");
-	  	    driver.findElement(By.xpath("//button[@value='submit']")).click();
-	  	    existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]", "No s'ha pogut crear la enumeració");
-		}
-		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]/td[3]/form/button")).click();
-		if (noExisteixElement("//*[@id='registre']/tbody/tr[contains(td[1],'A')]")) {
-			driver.findElement(By.id("codi0")).sendKeys("A");
-			driver.findElement(By.id("nom0")).sendKeys("Tipus A");
-			driver.findElement(By.xpath("//button[@value='submit']")).click();
-			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'A')]", "No s'han pogut crear els elements de la enumeració");
-		}
-		if (noExisteixElement("//*[@id='registre']/tbody/tr[contains(td[1],'B')]")) {
-			driver.findElement(By.id("codi0")).sendKeys("B");
-			driver.findElement(By.id("nom0")).sendKeys("Tipus B");
-			driver.findElement(By.xpath("//button[@value='submit']")).click();
-			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'B')]", "No s'han pogut crear els elements de la enumeració");
-		}
-	}
-	
-	protected void eliminarEnumeracionsTest() {
-		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/enumeracio/llistat.html')]")));
-		actions.click();
-		actions.build().perform();
-		
-		if (existeixElement("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]")) {
-			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]/td[4]/a")).click();
-			acceptarAlerta();
-		}
-		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]", "No s'han pogut eliminar l'enumeració");
-	}
-
-	protected void crearDominisTest() {
-		
 	}
 	
 	protected void crearTipusExpedientTest(String nom, String codi) {
@@ -343,14 +202,6 @@ public class DefinicioProces extends BaseTest {
 			driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
 			driver.findElement(By.id("codi0")).sendKeys(codi);
 			driver.findElement(By.id("nom0")).sendKeys(nom);
-//			driver.findElement(By.id("teTitol0")).click();
-//			driver.findElement(By.id("demanaTitol0")).click();
-//			driver.findElement(By.id("teNumero0")).click();
-//			driver.findElement(By.id("demanaNumero0")).click();
-//			driver.findElement(By.id("reiniciarCadaAny0")).click();
-//			driver.findElement(By.xpath("//*[@id='seqMultiple']/div/button")).click();
-//			driver.findElement(By.id("seqany_0")).sendKeys("2013");
-//			driver.findElement(By.id("seqseq_0")).sendKeys("15");
 			driver.findElement(By.xpath("//button[@value='submit']")).click();
 			actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 			actions.build().perform();
