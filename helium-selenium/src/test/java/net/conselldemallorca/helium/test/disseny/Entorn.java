@@ -223,7 +223,60 @@ public class Entorn extends BaseTest {
 	}
 	
 	@Test
-	public void i_desassignarPermisosUsuari() {
+	public void i_creaEnumeracio() {
+		carregarUrlDisseny();
+		
+		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny");
+		
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/enumeracio/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+		
+		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]", "entorns/enumeracio/crear/1_enumeracionsActuals.png", "La enumeració ja existeix");
+		
+		driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
+		driver.findElement(By.id("codi0")).sendKeys("enumsel");
+		driver.findElement(By.id("nom0")).sendKeys("Enumerat selenium");
+  	    driver.findElement(By.xpath("//button[@value='submit']")).click();
+  	    existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]", "entorns/enumeracio/crear/2_enumeracionCreada.png", "No s'ha pogut crear la enumeració");
+		
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]/td[3]/form/button")).click();
+		actions.build().perform();
+		driver.findElement(By.id("codi0")).sendKeys("A");
+		driver.findElement(By.id("nom0")).sendKeys("Tipus A");
+		driver.findElement(By.xpath("//button[@value='submit']")).click();
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'A')]", "No s'han pogut crear els elements de la enumeració");
+		
+		driver.findElement(By.id("codi0")).sendKeys("B");
+		driver.findElement(By.id("nom0")).sendKeys("Tipus B");
+		driver.findElement(By.xpath("//button[@value='submit']")).click();
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'B')]", "entorns/enumeracio/crear/3_enumeracionValos.png", "No s'han pogut crear els elements de la enumeració");
+		
+		driver.findElement(By.xpath("//button[@value='cancel']")).click();
+	}
+	
+	@Test
+	public void j_eliminaEnumeracio() {
+		carregarUrlDisseny();
+		
+		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny");
+		
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/enumeracio/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+		
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]", "No existeix l'enumeració a eliminar");
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]/td[4]/a")).click();
+		acceptarAlerta();
+		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]", "No s'han pogut eliminar l'enumeració");
+	}
+	
+	@Test
+	public void k_desassignarPermisosUsuari() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
 		
@@ -231,7 +284,7 @@ public class Entorn extends BaseTest {
 	}
 	
 	@Test
-	public void j_desassignarPermisosRol() {
+	public void l_desassignarPermisosRol() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
 		
@@ -239,7 +292,7 @@ public class Entorn extends BaseTest {
 	}
 	
 	@Test
-	public void k_esborrarEntorn() {
+	public void m_esborrarEntorn() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
 		

@@ -164,7 +164,7 @@ public abstract class BaseTest {
 			if (existeix) assertTrue(msgNotFound, isPresent);
 			else assertFalse(msgNotFound, isPresent);
 		}
-		return isPresent;
+		return (existeix ? isPresent : !isPresent);
 	}
 	
 	protected boolean modalObertaAssert(String modal) {
