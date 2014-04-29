@@ -37,12 +37,12 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
-import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TermRangeQuery;
+import org.apache.lucene.search.WildcardQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springmodules.lucene.index.core.DocumentModifier;
@@ -77,7 +77,7 @@ public class LuceneDao extends LuceneIndexSupport {
 	// que no sortiran als resultats de les consultes per tipus.
 	private static final boolean PEGAT_ENTORN_ACTIU = true;
 
-	private static final String LUCENE_ESCAPE_CHARS = " |\\+|\\(|\\)|\\[|\\]|\\&|\\!|\\*|\\{|\\}|\\?|\\:|\\^|\\~|\"|\\\\";
+	private static final String LUCENE_ESCAPE_CHARS = " |\\+|\'|\\(|\\)|\\[|\\]|\\&|\\!|\\*|\\{|\\}|\\?|\\:|\\^|\\~|\"|\\\\";
 
 	public void createExpedientAsync(
 			final Expedient expedient,
@@ -691,16 +691,36 @@ public class LuceneDao extends LuceneIndexSupport {
 		return null;
 	}
 	
-	private Query queryPerStringAmbWildcards(String codi, String termes) {
-		PhraseQuery phraseQuery = new PhraseQuery();
-		String[] termesTots = termes.split(LUCENE_ESCAPE_CHARS);
+	private Query queryPerStringAmbWildcards(String codi, String termes) {		
+		BooleanQuery booleanQuery = new BooleanQuery();
+		
+		String[] termesTots = termes.trim().split(LUCENE_ESCAPE_CHARS);
 		for (String terme : termesTots) {
-			if (!"".equals(terme)) {
-				phraseQuery.add(new Term(codi, terme));
+			if (terme.equals(termesTots[0])) {
+				booleanQuery.add(
+						new WildcardQuery(new Term(
+								codi,
+								"*" + terme)),
+						BooleanClause.Occur.MUST
+				);
+			} else if (terme.equals(termesTots[termesTots.length-1])) {
+				booleanQuery.add(
+						new WildcardQuery(new Term(
+								codi,
+								terme + "*")),
+						BooleanClause.Occur.MUST
+				);
+			} else {
+				booleanQuery.add(
+						new TermQuery(new Term(
+								codi,
+								terme)),
+						BooleanClause.Occur.MUST
+				);					
 			}
 		}
 		
-		return phraseQuery;
+		return booleanQuery;
 	}
 
 	private Term termIdFromExpedient(Expedient expedient) {
