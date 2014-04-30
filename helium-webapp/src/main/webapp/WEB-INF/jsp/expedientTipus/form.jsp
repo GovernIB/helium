@@ -18,12 +18,12 @@
 			var nouDiv =	"<tr class='" + classe + "'>\n" +
 							"	<td><input type='text' style='text-align:right; width: 100%;' class='textInput' value='' name='seqany' id='seqany_" + nFiles + "'></td>\n" +
 							"	<td><input type='text' style='text-align:right; width: 100%;' class='textInput' value='' name='seqseq' id='seqseq_" + nFiles + "'></td>\n" +
-							"	<td style='width:16px'><a onclick='remove(" + nFiles +")' href='javascript:void(0)'><img border='0' title='" + borrar + "' alt='" + borrar + "' src='/helium/img/cross.png'></a></td>\n" +
+							"	<td style='width:16px'><a onclick='removeSeq(" + nFiles +")' href='javascript:void(0)'><img border='0' title='" + borrar + "' alt='" + borrar + "' src='/helium/img/cross.png'></a></td>\n" +
 							"</tr>\n";
 			$("#seqs").append(nouDiv);
     	}
 		
-		function remove(pos) {
+		function removeSeq(pos) {
 			$("#seqs > tbody > tr").eq(pos).remove();
 			var i = 0;
 			$("#seqs > tbody > tr").each(function() {
@@ -32,7 +32,7 @@
 				} else {
 					$(this).attr('class', 'even');
 				}
-				$(this).find("td:nth-child(3) > a").attr("onclick", "remove(" + i + ")");
+				$(this).find("td:nth-child(3) > a").attr("onclick", "removeSeq(" + i + ")");
 				i++;
 			});
 		}
@@ -164,7 +164,7 @@
 							<tr class="<%=classes[i%2]%>">
 								<td><input type="text" style="text-align:right; width: 100%;" class="textInput" value="${any.key}" name="seqany" id="seqany_<%=i%>"></td>
 								<td><input type="text" style="text-align:right; width: 100%;" class="textInput" value="${any.value.sequencia}" name="seqseq" id="seqseq_<%=i%>"></td>
-								<td style="width:16px"><a onclick="remove(<%=i++%>)" href="javascript:void(0)"><img border="0" title="Esborrar" alt="Esborrar" src="/helium/img/cross.png"></a></td>
+								<td style="width:16px"><a onclick="removeSeq(<%=i++%>)" href="javascript:void(0)"><img border="0" title="Esborrar" alt="Esborrar" src="/helium/img/cross.png"></a></td>
 							</tr>
 							</c:forEach>
 						</tbody>
