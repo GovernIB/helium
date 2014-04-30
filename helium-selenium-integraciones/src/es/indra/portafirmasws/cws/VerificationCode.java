@@ -41,7 +41,7 @@ public class VerificationCode {
     @XmlElement(name = "provider-id", required = true, nillable = true)
     protected String providerId;
     protected String value;
-    @XmlElementRef(name = "pdf-position", type = JAXBElement.class)
+    @XmlElementRef(name = "pdf-position", type = JAXBElement.class, required = false)
     protected JAXBElement<PdfPosition> pdfPosition;
 
     /**

@@ -48,11 +48,11 @@ public class DownloadRequest {
 
     @XmlElement(required = true)
     protected Application application;
-    @XmlElementRef(name = "download-documents", type = JAXBElement.class)
+    @XmlElementRef(name = "download-documents", type = JAXBElement.class, required = false)
     protected JAXBElement<Boolean> downloadDocuments;
-    @XmlElementRef(name = "additional-info", type = JAXBElement.class)
+    @XmlElementRef(name = "additional-info", type = JAXBElement.class, required = false)
     protected JAXBElement<Boolean> additionalInfo;
-    @XmlElementRef(name = "archive-info", type = JAXBElement.class)
+    @XmlElementRef(name = "archive-info", type = JAXBElement.class, required = false)
     protected JAXBElement<Boolean> archiveInfo;
     @XmlElement(required = true)
     protected DownloadRequestDocument document;

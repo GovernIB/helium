@@ -35,7 +35,7 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class DownloadOptions {
 
-    @XmlElementRef(name = "download-type", type = JAXBElement.class)
+    @XmlElementRef(name = "download-type", type = JAXBElement.class, required = false)
     protected JAXBElement<ModeTypeEnum> downloadType;
     protected Files files;
 

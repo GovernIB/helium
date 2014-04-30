@@ -50,9 +50,9 @@ public class SignatureFile {
     @XmlElement(name = "number-signatures")
     protected int numberSignatures;
     protected String reference;
-    @XmlElementRef(name = "external-ids", type = JAXBElement.class)
+    @XmlElementRef(name = "external-ids", type = JAXBElement.class, required = false)
     protected JAXBElement<ExternalIDs> externalIds;
-    @XmlElementRef(name = "archive-options", type = JAXBElement.class)
+    @XmlElementRef(name = "archive-options", type = JAXBElement.class, required = false)
     protected JAXBElement<ArchiveOptions> archiveOptions;
 
     /**

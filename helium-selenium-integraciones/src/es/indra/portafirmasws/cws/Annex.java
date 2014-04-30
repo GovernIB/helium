@@ -55,16 +55,16 @@ public class Annex {
     protected String extension;
     protected String reference;
     protected String url;
-    @XmlElementRef(name = "sign-annex", type = JAXBElement.class)
+    @XmlElementRef(name = "sign-annex", type = JAXBElement.class, required = false)
     protected JAXBElement<Boolean> signAnnex;
     protected Sender sender;
-    @XmlElementRef(name = "external-ids", type = JAXBElement.class)
+    @XmlElementRef(name = "external-ids", type = JAXBElement.class, required = false)
     protected JAXBElement<ExternalIDs> externalIds;
-    @XmlElementRef(name = "archive-options", type = JAXBElement.class)
+    @XmlElementRef(name = "archive-options", type = JAXBElement.class, required = false)
     protected JAXBElement<ArchiveOptions> archiveOptions;
-    @XmlElementRef(name = "type-sign", type = JAXBElement.class)
+    @XmlElementRef(name = "type-sign", type = JAXBElement.class, required = false)
     protected JAXBElement<Integer> typeSign;
-    @XmlElementRef(name = "is-file-sign", type = JAXBElement.class)
+    @XmlElementRef(name = "is-file-sign", type = JAXBElement.class, required = false)
     protected JAXBElement<Boolean> isFileSign;
 
     /**

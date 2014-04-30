@@ -41,13 +41,13 @@ public class ListStep
     extends Step
 {
 
-    @XmlElementRef(name = "minimal-signers", type = JAXBElement.class)
+    @XmlElementRef(name = "minimal-signers", type = JAXBElement.class, required = false)
     protected JAXBElement<Integer> minimalSigners;
-    @XmlElementRef(name = "signers-action", type = JAXBElement.class)
+    @XmlElementRef(name = "signers-action", type = JAXBElement.class, required = false)
     protected JAXBElement<Signers> signersAction;
-    @XmlElementRef(name = "signers-reject", type = JAXBElement.class)
+    @XmlElementRef(name = "signers-reject", type = JAXBElement.class, required = false)
     protected JAXBElement<Signers> signersReject;
-    @XmlElementRef(name = "signers-none", type = JAXBElement.class)
+    @XmlElementRef(name = "signers-none", type = JAXBElement.class, required = false)
     protected JAXBElement<Signers> signersNone;
 
     /**

@@ -47,9 +47,9 @@ public class Position {
     protected String reference;
     @XmlElement(required = true)
     protected PdfTypeEnum type;
-    @XmlElementRef(name = "pdf-position", type = JAXBElement.class)
+    @XmlElementRef(name = "pdf-position", type = JAXBElement.class, required = false)
     protected JAXBElement<PdfPosition> pdfPosition;
-    @XmlElementRef(name = "signature-image-dimensions", type = JAXBElement.class)
+    @XmlElementRef(name = "signature-image-dimensions", type = JAXBElement.class, required = false)
     protected JAXBElement<SignatureImageDimensions> signatureImageDimensions;
 
     /**

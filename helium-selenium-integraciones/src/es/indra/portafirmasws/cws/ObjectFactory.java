@@ -25,9 +25,17 @@ import javax.xml.namespace.QName;
 @XmlRegistry
 public class ObjectFactory {
 
+    private final static QName _ArchiveOptionsSourceLocators_QNAME = new QName("", "source-locators");
+    private final static QName _ArchiveOptionsArchiveMetadatas_QNAME = new QName("", "archive-metadatas");
+    private final static QName _ArchiveOptionsDestinationLocators_QNAME = new QName("", "destination-locators");
     private final static QName _ListResponseDocumentArchiveOptions_QNAME = new QName("", "archive-options");
-    private final static QName _ListServerSignersResponseServerSigners_QNAME = new QName("", "server-signers");
-    private final static QName _VisualFileExternalIds_QNAME = new QName("", "external-ids");
+    private final static QName _StepsSignMode_QNAME = new QName("", "sign-mode");
+    private final static QName _SignatureFileExternalIds_QNAME = new QName("", "external-ids");
+    private final static QName _FileNumberSignatures_QNAME = new QName("", "number-signatures");
+    private final static QName _FileBase64Data_QNAME = new QName("", "base64-data");
+    private final static QName _FileSignersId_QNAME = new QName("", "signers-id");
+    private final static QName _FileMimeType_QNAME = new QName("", "mime-type");
+    private final static QName _UploadStepMinimalSigners_QNAME = new QName("", "minimal-signers");
     private final static QName _ArchiveLocatorSignatureCustody_QNAME = new QName("", "signature-custody");
     private final static QName _ArchiveLocatorVisualFilePathName_QNAME = new QName("", "visual-file-path-name");
     private final static QName _ArchiveLocatorFilePathName_QNAME = new QName("", "file-path-name");
@@ -37,44 +45,36 @@ public class ObjectFactory {
     private final static QName _ArchiveLocatorArchiveUri_QNAME = new QName("", "archive-uri");
     private final static QName _ArchiveLocatorArchiveVersion_QNAME = new QName("", "archive-version");
     private final static QName _ArchiveLocatorRepositoryBase_QNAME = new QName("", "repository-base");
-    private final static QName _SearchRequestSearchCriterias_QNAME = new QName("", "search-criterias");
-    private final static QName _StepsSignMode_QNAME = new QName("", "sign-mode");
-    private final static QName _ArchiveOptionsSourceLocators_QNAME = new QName("", "source-locators");
-    private final static QName _ArchiveOptionsArchiveMetadatas_QNAME = new QName("", "archive-metadatas");
-    private final static QName _ArchiveOptionsDestinationLocators_QNAME = new QName("", "destination-locators");
     private final static QName _ExternalIDsVerificationCode_QNAME = new QName("", "verification-code");
     private final static QName _ExternalIDsLogicalId_QNAME = new QName("", "logical-id");
-    private final static QName _DownloadResponseDocumentVisualFiles_QNAME = new QName("", "visual-files");
-    private final static QName _DownloadResponseDocumentSignatureFiles_QNAME = new QName("", "signature-files");
-    private final static QName _ListStepSignersNone_QNAME = new QName("", "signers-none");
-    private final static QName _ListStepSignersReject_QNAME = new QName("", "signers-reject");
-    private final static QName _ListStepSignersAction_QNAME = new QName("", "signers-action");
-    private final static QName _ListStepMinimalSigners_QNAME = new QName("", "minimal-signers");
-    private final static QName _VerificationCodePdfPosition_QNAME = new QName("", "pdf-position");
-    private final static QName _DownloadOptionsDownloadType_QNAME = new QName("", "download-type");
-    private final static QName _AnnexTypeSign_QNAME = new QName("", "type-sign");
-    private final static QName _AnnexIsFileSign_QNAME = new QName("", "is-file-sign");
-    private final static QName _AnnexSignAnnex_QNAME = new QName("", "sign-annex");
-    private final static QName _DownloadRequestArchiveInfo_QNAME = new QName("", "archive-info");
-    private final static QName _DownloadRequestAdditionalInfo_QNAME = new QName("", "additional-info");
-    private final static QName _DownloadRequestDownloadDocuments_QNAME = new QName("", "download-documents");
-    private final static QName _SignerCheckCert_QNAME = new QName("", "check-cert");
-    private final static QName _SignerPdfAppearance_QNAME = new QName("", "pdf-appearance");
-    private final static QName _SignerIdUpdate_QNAME = new QName("", "id-update");
-    private final static QName _PdfAppearanceSignatureImage_QNAME = new QName("", "signature-image");
-    private final static QName _SignatureImageMimeType_QNAME = new QName("", "mime-type");
-    private final static QName _PositionSignatureImageDimensions_QNAME = new QName("", "signature-image-dimensions");
-    private final static QName _FileNumberSignatures_QNAME = new QName("", "number-signatures");
-    private final static QName _FileBase64Data_QNAME = new QName("", "base64-data");
-    private final static QName _FileSignersId_QNAME = new QName("", "signers-id");
+    private final static QName _ListRequestSearchCriterias_QNAME = new QName("", "search-criterias");
     private final static QName _DocumentAttributesDateNotice_QNAME = new QName("", "date-notice");
     private final static QName _DocumentAttributesDateEntry_QNAME = new QName("", "date-entry");
     private final static QName _DocumentAttributesNumberAnnexes_QNAME = new QName("", "number-annexes");
+    private final static QName _DocumentAttributesTypeSign_QNAME = new QName("", "type-sign");
+    private final static QName _DocumentAttributesIsFileSign_QNAME = new QName("", "is-file-sign");
     private final static QName _DocumentAttributesExternalData_QNAME = new QName("", "external-data");
     private final static QName _DocumentAttributesDateLimit_QNAME = new QName("", "date-limit");
     private final static QName _DocumentAttributesSignAnnexes_QNAME = new QName("", "sign-annexes");
     private final static QName _DocumentAttributesGenerateVisuals_QNAME = new QName("", "generate-visuals");
     private final static QName _DocumentAttributesDateLastUpdate_QNAME = new QName("", "date-last-update");
+    private final static QName _DownloadStepSignersNone_QNAME = new QName("", "signers-none");
+    private final static QName _DownloadStepSignersReject_QNAME = new QName("", "signers-reject");
+    private final static QName _DownloadStepSignersAction_QNAME = new QName("", "signers-action");
+    private final static QName _SignerCheckCert_QNAME = new QName("", "check-cert");
+    private final static QName _SignerSignatureFiles_QNAME = new QName("", "signature-files");
+    private final static QName _SignerPdfAppearance_QNAME = new QName("", "pdf-appearance");
+    private final static QName _SignerIdUpdate_QNAME = new QName("", "id-update");
+    private final static QName _DownloadOptionsDownloadType_QNAME = new QName("", "download-type");
+    private final static QName _VerificationCodePdfPosition_QNAME = new QName("", "pdf-position");
+    private final static QName _ListServerSignersResponseServerSigners_QNAME = new QName("", "server-signers");
+    private final static QName _PositionSignatureImageDimensions_QNAME = new QName("", "signature-image-dimensions");
+    private final static QName _AnnexSignAnnex_QNAME = new QName("", "sign-annex");
+    private final static QName _DownloadRequestArchiveInfo_QNAME = new QName("", "archive-info");
+    private final static QName _DownloadRequestAdditionalInfo_QNAME = new QName("", "additional-info");
+    private final static QName _DownloadRequestDownloadDocuments_QNAME = new QName("", "download-documents");
+    private final static QName _DownloadResponseDocumentVisualFiles_QNAME = new QName("", "visual-files");
+    private final static QName _PdfAppearanceSignatureImage_QNAME = new QName("", "signature-image");
 
     /**
      * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: es.indra.portafirmasws.cws
@@ -780,6 +780,33 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link SourceLocators }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "source-locators", scope = ArchiveOptions.class)
+    public JAXBElement<SourceLocators> createArchiveOptionsSourceLocators(SourceLocators value) {
+        return new JAXBElement<SourceLocators>(_ArchiveOptionsSourceLocators_QNAME, SourceLocators.class, ArchiveOptions.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link ArchiveMetadatas }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "archive-metadatas", scope = ArchiveOptions.class)
+    public JAXBElement<ArchiveMetadatas> createArchiveOptionsArchiveMetadatas(ArchiveMetadatas value) {
+        return new JAXBElement<ArchiveMetadatas>(_ArchiveOptionsArchiveMetadatas_QNAME, ArchiveMetadatas.class, ArchiveOptions.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link DestinationLocators }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "destination-locators", scope = ArchiveOptions.class)
+    public JAXBElement<DestinationLocators> createArchiveOptionsDestinationLocators(DestinationLocators value) {
+        return new JAXBElement<DestinationLocators>(_ArchiveOptionsDestinationLocators_QNAME, DestinationLocators.class, ArchiveOptions.class, value);
+    }
+
+    /**
      * Create an instance of {@link JAXBElement }{@code <}{@link ArchiveOptions }{@code >}}
      * 
      */
@@ -789,30 +816,75 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link ServerSigners }{@code >}}
+     * Create an instance of {@link JAXBElement }{@code <}{@link SignModeEnum }{@code >}}
      * 
      */
-    @XmlElementDecl(namespace = "", name = "server-signers", scope = ListServerSignersResponse.class)
-    public JAXBElement<ServerSigners> createListServerSignersResponseServerSigners(ServerSigners value) {
-        return new JAXBElement<ServerSigners>(_ListServerSignersResponseServerSigners_QNAME, ServerSigners.class, ListServerSignersResponse.class, value);
+    @XmlElementDecl(namespace = "", name = "sign-mode", scope = Steps.class)
+    public JAXBElement<SignModeEnum> createStepsSignMode(SignModeEnum value) {
+        return new JAXBElement<SignModeEnum>(_StepsSignMode_QNAME, SignModeEnum.class, Steps.class, value);
     }
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link ArchiveOptions }{@code >}}
      * 
      */
-    @XmlElementDecl(namespace = "", name = "archive-options", scope = VisualFile.class)
-    public JAXBElement<ArchiveOptions> createVisualFileArchiveOptions(ArchiveOptions value) {
-        return new JAXBElement<ArchiveOptions>(_ListResponseDocumentArchiveOptions_QNAME, ArchiveOptions.class, VisualFile.class, value);
+    @XmlElementDecl(namespace = "", name = "archive-options", scope = SignatureFile.class)
+    public JAXBElement<ArchiveOptions> createSignatureFileArchiveOptions(ArchiveOptions value) {
+        return new JAXBElement<ArchiveOptions>(_ListResponseDocumentArchiveOptions_QNAME, ArchiveOptions.class, SignatureFile.class, value);
     }
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link ExternalIDs }{@code >}}
      * 
      */
-    @XmlElementDecl(namespace = "", name = "external-ids", scope = VisualFile.class)
-    public JAXBElement<ExternalIDs> createVisualFileExternalIds(ExternalIDs value) {
-        return new JAXBElement<ExternalIDs>(_VisualFileExternalIds_QNAME, ExternalIDs.class, VisualFile.class, value);
+    @XmlElementDecl(namespace = "", name = "external-ids", scope = SignatureFile.class)
+    public JAXBElement<ExternalIDs> createSignatureFileExternalIds(ExternalIDs value) {
+        return new JAXBElement<ExternalIDs>(_SignatureFileExternalIds_QNAME, ExternalIDs.class, SignatureFile.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "number-signatures", scope = File.class)
+    public JAXBElement<String> createFileNumberSignatures(String value) {
+        return new JAXBElement<String>(_FileNumberSignatures_QNAME, String.class, File.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "base64-data", scope = File.class)
+    public JAXBElement<String> createFileBase64Data(String value) {
+        return new JAXBElement<String>(_FileBase64Data_QNAME, String.class, File.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link SignersID }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "signers-id", scope = File.class)
+    public JAXBElement<SignersID> createFileSignersId(SignersID value) {
+        return new JAXBElement<SignersID>(_FileSignersId_QNAME, SignersID.class, File.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "mime-type", scope = File.class)
+    public JAXBElement<String> createFileMimeType(String value) {
+        return new JAXBElement<String>(_FileMimeType_QNAME, String.class, File.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link Integer }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "minimal-signers", scope = UploadStep.class)
+    public JAXBElement<Integer> createUploadStepMinimalSigners(Integer value) {
+        return new JAXBElement<Integer>(_UploadStepMinimalSigners_QNAME, Integer.class, UploadStep.class, value);
     }
 
     /**
@@ -897,60 +969,6 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link SearchCriterias }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "search-criterias", scope = SearchRequest.class)
-    public JAXBElement<SearchCriterias> createSearchRequestSearchCriterias(SearchCriterias value) {
-        return new JAXBElement<SearchCriterias>(_SearchRequestSearchCriterias_QNAME, SearchCriterias.class, SearchRequest.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link SignModeEnum }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "sign-mode", scope = Steps.class)
-    public JAXBElement<SignModeEnum> createStepsSignMode(SignModeEnum value) {
-        return new JAXBElement<SignModeEnum>(_StepsSignMode_QNAME, SignModeEnum.class, Steps.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link SearchCriterias }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "search-criterias", scope = ListRequest.class)
-    public JAXBElement<SearchCriterias> createListRequestSearchCriterias(SearchCriterias value) {
-        return new JAXBElement<SearchCriterias>(_SearchRequestSearchCriterias_QNAME, SearchCriterias.class, ListRequest.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link SourceLocators }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "source-locators", scope = ArchiveOptions.class)
-    public JAXBElement<SourceLocators> createArchiveOptionsSourceLocators(SourceLocators value) {
-        return new JAXBElement<SourceLocators>(_ArchiveOptionsSourceLocators_QNAME, SourceLocators.class, ArchiveOptions.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link ArchiveMetadatas }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "archive-metadatas", scope = ArchiveOptions.class)
-    public JAXBElement<ArchiveMetadatas> createArchiveOptionsArchiveMetadatas(ArchiveMetadatas value) {
-        return new JAXBElement<ArchiveMetadatas>(_ArchiveOptionsArchiveMetadatas_QNAME, ArchiveMetadatas.class, ArchiveOptions.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link DestinationLocators }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "destination-locators", scope = ArchiveOptions.class)
-    public JAXBElement<DestinationLocators> createArchiveOptionsDestinationLocators(DestinationLocators value) {
-        return new JAXBElement<DestinationLocators>(_ArchiveOptionsDestinationLocators_QNAME, DestinationLocators.class, ArchiveOptions.class, value);
-    }
-
-    /**
      * Create an instance of {@link JAXBElement }{@code <}{@link VerificationCode }{@code >}}
      * 
      */
@@ -969,354 +987,12 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link ArchiveOptions }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "archive-options", scope = DownloadResponseDocument.class)
-    public JAXBElement<ArchiveOptions> createDownloadResponseDocumentArchiveOptions(ArchiveOptions value) {
-        return new JAXBElement<ArchiveOptions>(_ListResponseDocumentArchiveOptions_QNAME, ArchiveOptions.class, DownloadResponseDocument.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link VisualFiles }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "visual-files", scope = DownloadResponseDocument.class)
-    public JAXBElement<VisualFiles> createDownloadResponseDocumentVisualFiles(VisualFiles value) {
-        return new JAXBElement<VisualFiles>(_DownloadResponseDocumentVisualFiles_QNAME, VisualFiles.class, DownloadResponseDocument.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link SignatureFiles }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "signature-files", scope = DownloadResponseDocument.class)
-    public JAXBElement<SignatureFiles> createDownloadResponseDocumentSignatureFiles(SignatureFiles value) {
-        return new JAXBElement<SignatureFiles>(_DownloadResponseDocumentSignatureFiles_QNAME, SignatureFiles.class, DownloadResponseDocument.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link ArchiveOptions }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "archive-options", scope = UploadRequestDocument.class)
-    public JAXBElement<ArchiveOptions> createUploadRequestDocumentArchiveOptions(ArchiveOptions value) {
-        return new JAXBElement<ArchiveOptions>(_ListResponseDocumentArchiveOptions_QNAME, ArchiveOptions.class, UploadRequestDocument.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link Signers }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "signers-none", scope = ListStep.class)
-    public JAXBElement<Signers> createListStepSignersNone(Signers value) {
-        return new JAXBElement<Signers>(_ListStepSignersNone_QNAME, Signers.class, ListStep.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link Signers }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "signers-reject", scope = ListStep.class)
-    public JAXBElement<Signers> createListStepSignersReject(Signers value) {
-        return new JAXBElement<Signers>(_ListStepSignersReject_QNAME, Signers.class, ListStep.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link Signers }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "signers-action", scope = ListStep.class)
-    public JAXBElement<Signers> createListStepSignersAction(Signers value) {
-        return new JAXBElement<Signers>(_ListStepSignersAction_QNAME, Signers.class, ListStep.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link Integer }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "minimal-signers", scope = ListStep.class)
-    public JAXBElement<Integer> createListStepMinimalSigners(Integer value) {
-        return new JAXBElement<Integer>(_ListStepMinimalSigners_QNAME, Integer.class, ListStep.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link PdfPosition }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "pdf-position", scope = VerificationCode.class)
-    public JAXBElement<PdfPosition> createVerificationCodePdfPosition(PdfPosition value) {
-        return new JAXBElement<PdfPosition>(_VerificationCodePdfPosition_QNAME, PdfPosition.class, VerificationCode.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link ModeTypeEnum }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "download-type", scope = DownloadOptions.class)
-    public JAXBElement<ModeTypeEnum> createDownloadOptionsDownloadType(ModeTypeEnum value) {
-        return new JAXBElement<ModeTypeEnum>(_DownloadOptionsDownloadType_QNAME, ModeTypeEnum.class, DownloadOptions.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link Integer }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "minimal-signers", scope = UploadStep.class)
-    public JAXBElement<Integer> createUploadStepMinimalSigners(Integer value) {
-        return new JAXBElement<Integer>(_ListStepMinimalSigners_QNAME, Integer.class, UploadStep.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link Signers }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "signers-none", scope = DownloadStep.class)
-    public JAXBElement<Signers> createDownloadStepSignersNone(Signers value) {
-        return new JAXBElement<Signers>(_ListStepSignersNone_QNAME, Signers.class, DownloadStep.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link Signers }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "signers-reject", scope = DownloadStep.class)
-    public JAXBElement<Signers> createDownloadStepSignersReject(Signers value) {
-        return new JAXBElement<Signers>(_ListStepSignersReject_QNAME, Signers.class, DownloadStep.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link Signers }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "signers-action", scope = DownloadStep.class)
-    public JAXBElement<Signers> createDownloadStepSignersAction(Signers value) {
-        return new JAXBElement<Signers>(_ListStepSignersAction_QNAME, Signers.class, DownloadStep.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link Integer }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "minimal-signers", scope = DownloadStep.class)
-    public JAXBElement<Integer> createDownloadStepMinimalSigners(Integer value) {
-        return new JAXBElement<Integer>(_ListStepMinimalSigners_QNAME, Integer.class, DownloadStep.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link ArchiveOptions }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "archive-options", scope = Annex.class)
-    public JAXBElement<ArchiveOptions> createAnnexArchiveOptions(ArchiveOptions value) {
-        return new JAXBElement<ArchiveOptions>(_ListResponseDocumentArchiveOptions_QNAME, ArchiveOptions.class, Annex.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link ExternalIDs }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "external-ids", scope = Annex.class)
-    public JAXBElement<ExternalIDs> createAnnexExternalIds(ExternalIDs value) {
-        return new JAXBElement<ExternalIDs>(_VisualFileExternalIds_QNAME, ExternalIDs.class, Annex.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link Integer }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "type-sign", scope = Annex.class)
-    public JAXBElement<Integer> createAnnexTypeSign(Integer value) {
-        return new JAXBElement<Integer>(_AnnexTypeSign_QNAME, Integer.class, Annex.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link Boolean }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "is-file-sign", scope = Annex.class)
-    public JAXBElement<Boolean> createAnnexIsFileSign(Boolean value) {
-        return new JAXBElement<Boolean>(_AnnexIsFileSign_QNAME, Boolean.class, Annex.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link Boolean }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "sign-annex", scope = Annex.class)
-    public JAXBElement<Boolean> createAnnexSignAnnex(Boolean value) {
-        return new JAXBElement<Boolean>(_AnnexSignAnnex_QNAME, Boolean.class, Annex.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link Boolean }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "archive-info", scope = DownloadRequest.class)
-    public JAXBElement<Boolean> createDownloadRequestArchiveInfo(Boolean value) {
-        return new JAXBElement<Boolean>(_DownloadRequestArchiveInfo_QNAME, Boolean.class, DownloadRequest.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link Boolean }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "additional-info", scope = DownloadRequest.class)
-    public JAXBElement<Boolean> createDownloadRequestAdditionalInfo(Boolean value) {
-        return new JAXBElement<Boolean>(_DownloadRequestAdditionalInfo_QNAME, Boolean.class, DownloadRequest.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link Boolean }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "download-documents", scope = DownloadRequest.class)
-    public JAXBElement<Boolean> createDownloadRequestDownloadDocuments(Boolean value) {
-        return new JAXBElement<Boolean>(_DownloadRequestDownloadDocuments_QNAME, Boolean.class, DownloadRequest.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link Boolean }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "check-cert", scope = Signer.class)
-    public JAXBElement<Boolean> createSignerCheckCert(Boolean value) {
-        return new JAXBElement<Boolean>(_SignerCheckCert_QNAME, Boolean.class, Signer.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link SignerSignatureFiles }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "signature-files", scope = Signer.class)
-    public JAXBElement<SignerSignatureFiles> createSignerSignatureFiles(SignerSignatureFiles value) {
-        return new JAXBElement<SignerSignatureFiles>(_DownloadResponseDocumentSignatureFiles_QNAME, SignerSignatureFiles.class, Signer.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link PdfAppearance }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "pdf-appearance", scope = Signer.class)
-    public JAXBElement<PdfAppearance> createSignerPdfAppearance(PdfAppearance value) {
-        return new JAXBElement<PdfAppearance>(_SignerPdfAppearance_QNAME, PdfAppearance.class, Signer.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "id-update", scope = Signer.class)
-    public JAXBElement<String> createSignerIdUpdate(String value) {
-        return new JAXBElement<String>(_SignerIdUpdate_QNAME, String.class, Signer.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link ArchiveOptions }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "archive-options", scope = UpdateRequestDocument.class)
-    public JAXBElement<ArchiveOptions> createUpdateRequestDocumentArchiveOptions(ArchiveOptions value) {
-        return new JAXBElement<ArchiveOptions>(_ListResponseDocumentArchiveOptions_QNAME, ArchiveOptions.class, UpdateRequestDocument.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link SignatureImage }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "signature-image", scope = PdfAppearance.class)
-    public JAXBElement<SignatureImage> createPdfAppearanceSignatureImage(SignatureImage value) {
-        return new JAXBElement<SignatureImage>(_PdfAppearanceSignatureImage_QNAME, SignatureImage.class, PdfAppearance.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link ArchiveOptions }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "archive-options", scope = SignatureFile.class)
-    public JAXBElement<ArchiveOptions> createSignatureFileArchiveOptions(ArchiveOptions value) {
-        return new JAXBElement<ArchiveOptions>(_ListResponseDocumentArchiveOptions_QNAME, ArchiveOptions.class, SignatureFile.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link ExternalIDs }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "external-ids", scope = SignatureFile.class)
-    public JAXBElement<ExternalIDs> createSignatureFileExternalIds(ExternalIDs value) {
-        return new JAXBElement<ExternalIDs>(_VisualFileExternalIds_QNAME, ExternalIDs.class, SignatureFile.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "mime-type", scope = SignatureImage.class)
-    public JAXBElement<String> createSignatureImageMimeType(String value) {
-        return new JAXBElement<String>(_SignatureImageMimeType_QNAME, String.class, SignatureImage.class, value);
-    }
-
-    /**
      * Create an instance of {@link JAXBElement }{@code <}{@link SearchCriterias }{@code >}}
      * 
      */
-    @XmlElementDecl(namespace = "", name = "search-criterias", scope = DeleteRequest.class)
-    public JAXBElement<SearchCriterias> createDeleteRequestSearchCriterias(SearchCriterias value) {
-        return new JAXBElement<SearchCriterias>(_SearchRequestSearchCriterias_QNAME, SearchCriterias.class, DeleteRequest.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link SignatureImageDimensions }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "signature-image-dimensions", scope = Position.class)
-    public JAXBElement<SignatureImageDimensions> createPositionSignatureImageDimensions(SignatureImageDimensions value) {
-        return new JAXBElement<SignatureImageDimensions>(_PositionSignatureImageDimensions_QNAME, SignatureImageDimensions.class, Position.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link PdfPosition }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "pdf-position", scope = Position.class)
-    public JAXBElement<PdfPosition> createPositionPdfPosition(PdfPosition value) {
-        return new JAXBElement<PdfPosition>(_VerificationCodePdfPosition_QNAME, PdfPosition.class, Position.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "number-signatures", scope = File.class)
-    public JAXBElement<String> createFileNumberSignatures(String value) {
-        return new JAXBElement<String>(_FileNumberSignatures_QNAME, String.class, File.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "base64-data", scope = File.class)
-    public JAXBElement<String> createFileBase64Data(String value) {
-        return new JAXBElement<String>(_FileBase64Data_QNAME, String.class, File.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link SignersID }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "signers-id", scope = File.class)
-    public JAXBElement<SignersID> createFileSignersId(SignersID value) {
-        return new JAXBElement<SignersID>(_FileSignersId_QNAME, SignersID.class, File.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "", name = "mime-type", scope = File.class)
-    public JAXBElement<String> createFileMimeType(String value) {
-        return new JAXBElement<String>(_SignatureImageMimeType_QNAME, String.class, File.class, value);
+    @XmlElementDecl(namespace = "", name = "search-criterias", scope = ListRequest.class)
+    public JAXBElement<SearchCriterias> createListRequestSearchCriterias(SearchCriterias value) {
+        return new JAXBElement<SearchCriterias>(_ListRequestSearchCriterias_QNAME, SearchCriterias.class, ListRequest.class, value);
     }
 
     /**
@@ -1325,7 +1001,7 @@ public class ObjectFactory {
      */
     @XmlElementDecl(namespace = "", name = "external-ids", scope = DocumentAttributes.class)
     public JAXBElement<ExternalIDs> createDocumentAttributesExternalIds(ExternalIDs value) {
-        return new JAXBElement<ExternalIDs>(_VisualFileExternalIds_QNAME, ExternalIDs.class, DocumentAttributes.class, value);
+        return new JAXBElement<ExternalIDs>(_SignatureFileExternalIds_QNAME, ExternalIDs.class, DocumentAttributes.class, value);
     }
 
     /**
@@ -1361,7 +1037,7 @@ public class ObjectFactory {
      */
     @XmlElementDecl(namespace = "", name = "type-sign", scope = DocumentAttributes.class)
     public JAXBElement<Integer> createDocumentAttributesTypeSign(Integer value) {
-        return new JAXBElement<Integer>(_AnnexTypeSign_QNAME, Integer.class, DocumentAttributes.class, value);
+        return new JAXBElement<Integer>(_DocumentAttributesTypeSign_QNAME, Integer.class, DocumentAttributes.class, value);
     }
 
     /**
@@ -1370,7 +1046,7 @@ public class ObjectFactory {
      */
     @XmlElementDecl(namespace = "", name = "is-file-sign", scope = DocumentAttributes.class)
     public JAXBElement<Boolean> createDocumentAttributesIsFileSign(Boolean value) {
-        return new JAXBElement<Boolean>(_AnnexIsFileSign_QNAME, Boolean.class, DocumentAttributes.class, value);
+        return new JAXBElement<Boolean>(_DocumentAttributesIsFileSign_QNAME, Boolean.class, DocumentAttributes.class, value);
     }
 
     /**
@@ -1416,6 +1092,330 @@ public class ObjectFactory {
     @XmlElementDecl(namespace = "", name = "date-last-update", scope = DocumentAttributes.class)
     public JAXBElement<XMLGregorianCalendar> createDocumentAttributesDateLastUpdate(XMLGregorianCalendar value) {
         return new JAXBElement<XMLGregorianCalendar>(_DocumentAttributesDateLastUpdate_QNAME, XMLGregorianCalendar.class, DocumentAttributes.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link Signers }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "signers-none", scope = DownloadStep.class)
+    public JAXBElement<Signers> createDownloadStepSignersNone(Signers value) {
+        return new JAXBElement<Signers>(_DownloadStepSignersNone_QNAME, Signers.class, DownloadStep.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link Signers }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "signers-reject", scope = DownloadStep.class)
+    public JAXBElement<Signers> createDownloadStepSignersReject(Signers value) {
+        return new JAXBElement<Signers>(_DownloadStepSignersReject_QNAME, Signers.class, DownloadStep.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link Signers }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "signers-action", scope = DownloadStep.class)
+    public JAXBElement<Signers> createDownloadStepSignersAction(Signers value) {
+        return new JAXBElement<Signers>(_DownloadStepSignersAction_QNAME, Signers.class, DownloadStep.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link Integer }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "minimal-signers", scope = DownloadStep.class)
+    public JAXBElement<Integer> createDownloadStepMinimalSigners(Integer value) {
+        return new JAXBElement<Integer>(_UploadStepMinimalSigners_QNAME, Integer.class, DownloadStep.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link Boolean }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "check-cert", scope = Signer.class)
+    public JAXBElement<Boolean> createSignerCheckCert(Boolean value) {
+        return new JAXBElement<Boolean>(_SignerCheckCert_QNAME, Boolean.class, Signer.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link SignerSignatureFiles }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "signature-files", scope = Signer.class)
+    public JAXBElement<SignerSignatureFiles> createSignerSignatureFiles(SignerSignatureFiles value) {
+        return new JAXBElement<SignerSignatureFiles>(_SignerSignatureFiles_QNAME, SignerSignatureFiles.class, Signer.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link PdfAppearance }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "pdf-appearance", scope = Signer.class)
+    public JAXBElement<PdfAppearance> createSignerPdfAppearance(PdfAppearance value) {
+        return new JAXBElement<PdfAppearance>(_SignerPdfAppearance_QNAME, PdfAppearance.class, Signer.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "id-update", scope = Signer.class)
+    public JAXBElement<String> createSignerIdUpdate(String value) {
+        return new JAXBElement<String>(_SignerIdUpdate_QNAME, String.class, Signer.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link ModeTypeEnum }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "download-type", scope = DownloadOptions.class)
+    public JAXBElement<ModeTypeEnum> createDownloadOptionsDownloadType(ModeTypeEnum value) {
+        return new JAXBElement<ModeTypeEnum>(_DownloadOptionsDownloadType_QNAME, ModeTypeEnum.class, DownloadOptions.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link ArchiveOptions }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "archive-options", scope = UpdateRequestDocument.class)
+    public JAXBElement<ArchiveOptions> createUpdateRequestDocumentArchiveOptions(ArchiveOptions value) {
+        return new JAXBElement<ArchiveOptions>(_ListResponseDocumentArchiveOptions_QNAME, ArchiveOptions.class, UpdateRequestDocument.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link PdfPosition }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "pdf-position", scope = VerificationCode.class)
+    public JAXBElement<PdfPosition> createVerificationCodePdfPosition(PdfPosition value) {
+        return new JAXBElement<PdfPosition>(_VerificationCodePdfPosition_QNAME, PdfPosition.class, VerificationCode.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link ArchiveOptions }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "archive-options", scope = UploadRequestDocument.class)
+    public JAXBElement<ArchiveOptions> createUploadRequestDocumentArchiveOptions(ArchiveOptions value) {
+        return new JAXBElement<ArchiveOptions>(_ListResponseDocumentArchiveOptions_QNAME, ArchiveOptions.class, UploadRequestDocument.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "mime-type", scope = SignatureImage.class)
+    public JAXBElement<String> createSignatureImageMimeType(String value) {
+        return new JAXBElement<String>(_FileMimeType_QNAME, String.class, SignatureImage.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link SearchCriterias }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "search-criterias", scope = SearchRequest.class)
+    public JAXBElement<SearchCriterias> createSearchRequestSearchCriterias(SearchCriterias value) {
+        return new JAXBElement<SearchCriterias>(_ListRequestSearchCriterias_QNAME, SearchCriterias.class, SearchRequest.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link ServerSigners }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "server-signers", scope = ListServerSignersResponse.class)
+    public JAXBElement<ServerSigners> createListServerSignersResponseServerSigners(ServerSigners value) {
+        return new JAXBElement<ServerSigners>(_ListServerSignersResponseServerSigners_QNAME, ServerSigners.class, ListServerSignersResponse.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link SignatureImageDimensions }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "signature-image-dimensions", scope = Position.class)
+    public JAXBElement<SignatureImageDimensions> createPositionSignatureImageDimensions(SignatureImageDimensions value) {
+        return new JAXBElement<SignatureImageDimensions>(_PositionSignatureImageDimensions_QNAME, SignatureImageDimensions.class, Position.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link PdfPosition }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "pdf-position", scope = Position.class)
+    public JAXBElement<PdfPosition> createPositionPdfPosition(PdfPosition value) {
+        return new JAXBElement<PdfPosition>(_VerificationCodePdfPosition_QNAME, PdfPosition.class, Position.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link ArchiveOptions }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "archive-options", scope = Annex.class)
+    public JAXBElement<ArchiveOptions> createAnnexArchiveOptions(ArchiveOptions value) {
+        return new JAXBElement<ArchiveOptions>(_ListResponseDocumentArchiveOptions_QNAME, ArchiveOptions.class, Annex.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link ExternalIDs }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "external-ids", scope = Annex.class)
+    public JAXBElement<ExternalIDs> createAnnexExternalIds(ExternalIDs value) {
+        return new JAXBElement<ExternalIDs>(_SignatureFileExternalIds_QNAME, ExternalIDs.class, Annex.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link Integer }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "type-sign", scope = Annex.class)
+    public JAXBElement<Integer> createAnnexTypeSign(Integer value) {
+        return new JAXBElement<Integer>(_DocumentAttributesTypeSign_QNAME, Integer.class, Annex.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link Boolean }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "is-file-sign", scope = Annex.class)
+    public JAXBElement<Boolean> createAnnexIsFileSign(Boolean value) {
+        return new JAXBElement<Boolean>(_DocumentAttributesIsFileSign_QNAME, Boolean.class, Annex.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link Boolean }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "sign-annex", scope = Annex.class)
+    public JAXBElement<Boolean> createAnnexSignAnnex(Boolean value) {
+        return new JAXBElement<Boolean>(_AnnexSignAnnex_QNAME, Boolean.class, Annex.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link Boolean }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "archive-info", scope = DownloadRequest.class)
+    public JAXBElement<Boolean> createDownloadRequestArchiveInfo(Boolean value) {
+        return new JAXBElement<Boolean>(_DownloadRequestArchiveInfo_QNAME, Boolean.class, DownloadRequest.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link Boolean }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "additional-info", scope = DownloadRequest.class)
+    public JAXBElement<Boolean> createDownloadRequestAdditionalInfo(Boolean value) {
+        return new JAXBElement<Boolean>(_DownloadRequestAdditionalInfo_QNAME, Boolean.class, DownloadRequest.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link Boolean }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "download-documents", scope = DownloadRequest.class)
+    public JAXBElement<Boolean> createDownloadRequestDownloadDocuments(Boolean value) {
+        return new JAXBElement<Boolean>(_DownloadRequestDownloadDocuments_QNAME, Boolean.class, DownloadRequest.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link SearchCriterias }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "search-criterias", scope = DeleteRequest.class)
+    public JAXBElement<SearchCriterias> createDeleteRequestSearchCriterias(SearchCriterias value) {
+        return new JAXBElement<SearchCriterias>(_ListRequestSearchCriterias_QNAME, SearchCriterias.class, DeleteRequest.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link ArchiveOptions }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "archive-options", scope = DownloadResponseDocument.class)
+    public JAXBElement<ArchiveOptions> createDownloadResponseDocumentArchiveOptions(ArchiveOptions value) {
+        return new JAXBElement<ArchiveOptions>(_ListResponseDocumentArchiveOptions_QNAME, ArchiveOptions.class, DownloadResponseDocument.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link VisualFiles }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "visual-files", scope = DownloadResponseDocument.class)
+    public JAXBElement<VisualFiles> createDownloadResponseDocumentVisualFiles(VisualFiles value) {
+        return new JAXBElement<VisualFiles>(_DownloadResponseDocumentVisualFiles_QNAME, VisualFiles.class, DownloadResponseDocument.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link SignatureFiles }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "signature-files", scope = DownloadResponseDocument.class)
+    public JAXBElement<SignatureFiles> createDownloadResponseDocumentSignatureFiles(SignatureFiles value) {
+        return new JAXBElement<SignatureFiles>(_SignerSignatureFiles_QNAME, SignatureFiles.class, DownloadResponseDocument.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link SignatureImage }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "signature-image", scope = PdfAppearance.class)
+    public JAXBElement<SignatureImage> createPdfAppearanceSignatureImage(SignatureImage value) {
+        return new JAXBElement<SignatureImage>(_PdfAppearanceSignatureImage_QNAME, SignatureImage.class, PdfAppearance.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link ArchiveOptions }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "archive-options", scope = VisualFile.class)
+    public JAXBElement<ArchiveOptions> createVisualFileArchiveOptions(ArchiveOptions value) {
+        return new JAXBElement<ArchiveOptions>(_ListResponseDocumentArchiveOptions_QNAME, ArchiveOptions.class, VisualFile.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link ExternalIDs }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "external-ids", scope = VisualFile.class)
+    public JAXBElement<ExternalIDs> createVisualFileExternalIds(ExternalIDs value) {
+        return new JAXBElement<ExternalIDs>(_SignatureFileExternalIds_QNAME, ExternalIDs.class, VisualFile.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link Signers }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "signers-none", scope = ListStep.class)
+    public JAXBElement<Signers> createListStepSignersNone(Signers value) {
+        return new JAXBElement<Signers>(_DownloadStepSignersNone_QNAME, Signers.class, ListStep.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link Signers }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "signers-reject", scope = ListStep.class)
+    public JAXBElement<Signers> createListStepSignersReject(Signers value) {
+        return new JAXBElement<Signers>(_DownloadStepSignersReject_QNAME, Signers.class, ListStep.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link Signers }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "signers-action", scope = ListStep.class)
+    public JAXBElement<Signers> createListStepSignersAction(Signers value) {
+        return new JAXBElement<Signers>(_DownloadStepSignersAction_QNAME, Signers.class, ListStep.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link Integer }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "", name = "minimal-signers", scope = ListStep.class)
+    public JAXBElement<Integer> createListStepMinimalSigners(Integer value) {
+        return new JAXBElement<Integer>(_UploadStepMinimalSigners_QNAME, Integer.class, ListStep.class, value);
     }
 
 }

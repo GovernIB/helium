@@ -38,7 +38,7 @@ public class UploadStep
     extends Step
 {
 
-    @XmlElementRef(name = "minimal-signers", type = JAXBElement.class)
+    @XmlElementRef(name = "minimal-signers", type = JAXBElement.class, required = false)
     protected JAXBElement<Integer> minimalSigners;
     @XmlElement(required = true)
     protected Signers signers;

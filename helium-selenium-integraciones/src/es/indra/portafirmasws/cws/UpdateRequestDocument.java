@@ -43,7 +43,7 @@ public class UpdateRequestDocument {
 
     protected int id;
     protected DocumentAttributes attributes;
-    @XmlElementRef(name = "archive-options", type = JAXBElement.class)
+    @XmlElementRef(name = "archive-options", type = JAXBElement.class, required = false)
     protected JAXBElement<ArchiveOptions> archiveOptions;
     protected Annexes annexes;
     protected Steps steps;
