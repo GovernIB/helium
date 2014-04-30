@@ -59,6 +59,14 @@ import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.service.TerminiService;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.integracio.plugins.registre.DadesAssumpte;
+import net.conselldemallorca.helium.integracio.plugins.registre.DadesInteressat;
+import net.conselldemallorca.helium.integracio.plugins.registre.DadesOficina;
+import net.conselldemallorca.helium.integracio.plugins.registre.DocumentRegistre;
+import net.conselldemallorca.helium.integracio.plugins.registre.RegistreEntrada;
+import net.conselldemallorca.helium.integracio.plugins.registre.RegistreSortida;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirDadesTramitRequest;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
@@ -82,6 +90,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.OperacioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
@@ -1160,14 +1169,53 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 	public RegistreIdDto registreAnotacioEntrada(
 			RegistreAnotacioDto anotacio) throws PluginException {
 		imprimirFuncio("registreAnotacioEntrada");
-		/*RespostaAnotacioRegistre respostaPlugin = pluginRegistreDao.registrarEntrada(
+		RegistreEntrada registreEntrada = new RegistreEntrada();
+		DadesOficina dadesOficina = new DadesOficina();
+		dadesOficina.setOrganCodi(anotacio.getOrganCodi());
+		dadesOficina.setOficinaCodi(anotacio.getOficinaCodi());
+		registreEntrada.setDadesOficina(dadesOficina);
+		DadesInteressat dadesInteressat = new DadesInteressat();
+		dadesInteressat.setAutenticat(true);
+		dadesInteressat.setEntitatCodi(anotacio.getEntitatCodi());
+		dadesInteressat.setNomAmbCognoms(anotacio.getInteressatNomAmbCognoms());
+		dadesInteressat.setMunicipiCodi(anotacio.getInteressatMunicipiCodi());
+		dadesInteressat.setMunicipiNom(anotacio.getInteressatMunicipiNom());
+		registreEntrada.setDadesInteressat(dadesInteressat);
+		DadesAssumpte dadesAssumpte = new DadesAssumpte();
+		String idiomaExtracte = anotacio.getAssumpteIdiomaCodi();
+		dadesAssumpte.setAssumpte(anotacio.getAssumpteExtracte());
+		dadesAssumpte.setIdiomaCodi(
+				(idiomaExtracte != null) ? idiomaExtracte : "ca");
+		dadesAssumpte.setTipus(
+				anotacio.getAssumpteTipus());
+		dadesAssumpte.setRegistreNumero(
+				anotacio.getAssumpteRegistreNumero());
+		dadesAssumpte.setRegistreAny(
+				anotacio.getAssumpteRegistreAny());
+		registreEntrada.setDadesAssumpte(dadesAssumpte);
+		if (anotacio.getAnnexos() != null) {
+			List<DocumentRegistre> documents = new ArrayList<DocumentRegistre>();
+			for (RegistreAnnexDto annex: anotacio.getAnnexos()) {
+				DocumentRegistre document = new DocumentRegistre();
+				document.setNom(annex.getNom());
+				document.setIdiomaCodi((annex.getIdiomaCodi() != null) ? annex.getIdiomaCodi() : "ca");
+				document.setData(annex.getData());
+				document.setArxiuNom(annex.getArxiuNom());
+				document.setArxiuContingut(annex.getArxiuContingut());
+				documents.add(document);
+			}
+			registreEntrada.setDocuments(documents);
+		}
+		RespostaAnotacioRegistre respostaPlugin = pluginRegistreDao.registrarEntrada(
 				registreEntrada);
-		RegistreIdDto resposta = new RegistreIdDto();
-		resposta.setNumero(respostaPlugin.getNumero());
-		resposta.setData(respostaPlugin.getData());
-		return resposta;*/
-		// TODO Auto-generated method stub
-		return null;
+		if (respostaPlugin.isOk()) {
+			RegistreIdDto resposta = new RegistreIdDto();
+			resposta.setNumero(respostaPlugin.getNumero());
+			resposta.setData(respostaPlugin.getData());
+			return resposta;
+		} else {
+			throw new PluginException("[" + respostaPlugin.getErrorCodi() + "]: " + respostaPlugin.getErrorDescripcio());
+		}
 	}
 
 	@Transactional
@@ -1175,14 +1223,59 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 	public RegistreIdDto registreAnotacioSortida(RegistreAnotacioDto anotacio)
 			throws PluginException {
 		imprimirFuncio("registreAnotacioSortida");
-		// TODO Auto-generated method stub
-		return null;
+		RegistreSortida registreSortida = new RegistreSortida();
+		DadesOficina dadesOficina = new DadesOficina();
+		dadesOficina.setOrganCodi(anotacio.getOrganCodi());
+		dadesOficina.setOficinaCodi(anotacio.getOficinaCodi());
+		registreSortida.setDadesOficina(dadesOficina);
+		DadesInteressat dadesInteressat = new DadesInteressat();
+		dadesInteressat.setAutenticat(true);
+		dadesInteressat.setEntitatCodi(anotacio.getEntitatCodi());
+		dadesInteressat.setNomAmbCognoms(anotacio.getInteressatNomAmbCognoms());
+		dadesInteressat.setMunicipiCodi(anotacio.getInteressatMunicipiCodi());
+		dadesInteressat.setMunicipiNom(anotacio.getInteressatMunicipiNom());
+		registreSortida.setDadesInteressat(dadesInteressat);
+		DadesAssumpte dadesAssumpte = new DadesAssumpte();
+		String idiomaExtracte = anotacio.getAssumpteIdiomaCodi();
+		dadesAssumpte.setAssumpte(anotacio.getAssumpteExtracte());
+		dadesAssumpte.setIdiomaCodi(
+				(idiomaExtracte != null) ? idiomaExtracte : "ca");
+		dadesAssumpte.setTipus(
+				anotacio.getAssumpteTipus());
+		dadesAssumpte.setRegistreNumero(
+				anotacio.getAssumpteRegistreNumero());
+		dadesAssumpte.setRegistreAny(
+				anotacio.getAssumpteRegistreAny());
+		registreSortida.setDadesAssumpte(dadesAssumpte);
+		if (anotacio.getAnnexos() != null) {
+			List<DocumentRegistre> documents = new ArrayList<DocumentRegistre>();
+			for (RegistreAnnexDto annex: anotacio.getAnnexos()) {
+				DocumentRegistre document = new DocumentRegistre();
+				document.setNom(annex.getNom());
+				document.setIdiomaCodi((annex.getIdiomaCodi() != null) ? annex.getIdiomaCodi() : "ca");
+				document.setData(annex.getData());
+				document.setArxiuNom(annex.getArxiuNom());
+				document.setArxiuContingut(annex.getArxiuContingut());
+				documents.add(document);
+			}
+			registreSortida.setDocuments(documents);
+		}
+		RespostaAnotacioRegistre respostaPlugin = pluginRegistreDao.registrarSortida(
+				registreSortida);
+		if (respostaPlugin.isOk()) {
+			RegistreIdDto resposta = new RegistreIdDto();
+			resposta.setNumero(respostaPlugin.getNumero());
+			resposta.setData(respostaPlugin.getData());
+			return resposta;
+		} else {
+			throw new PluginException("[" + respostaPlugin.getErrorCodi() + "]: " + respostaPlugin.getErrorDescripcio());
+		}
 	}
 
 	@Transactional
 	@Override
-	public RegistreIdDto registreNotificacio(RegistreNotificacioDto notificacio)
-			throws PluginException {
+	public RegistreIdDto registreNotificacio(
+			RegistreNotificacioDto notificacio) throws PluginException {
 		imprimirFuncio("registreNotificacio");
 		// TODO Auto-generated method stub
 		return null;
@@ -1190,11 +1283,15 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 
 	@Transactional
 	@Override
-	public Date registreNotificacioComprovarRecepcio(String registreNumero)
-			throws PluginException {
+	public Date registreNotificacioComprovarRecepcio(
+			String registreNumero) throws PluginException {
 		imprimirFuncio("registreNotificacioComprovarRecepcio");
-		// TODO Auto-generated method stub
-		return null;
+		RespostaJustificantRecepcio resposta = pluginRegistreDao.obtenirJustificantRecepcio(registreNumero);
+		if (!resposta.isError()) {
+			return resposta.getData();
+		} else {
+			throw new PluginException("[" + resposta.getErrorCodi() + "]: " + resposta.getErrorDescripcio());
+		}
 	}
 
 	@Transactional
@@ -1202,8 +1299,7 @@ public class Jbpm3HeliumServiceImpl implements Jbpm3HeliumService {
 	public String getRegistreOficinaNom(String oficinaCodi)
 			throws PluginException {
 		imprimirFuncio("getRegistreOficinaNom");
-		// TODO Auto-generated method stub
-		return null;
+		return pluginRegistreDao.obtenirNomOficina(oficinaCodi);
 	}
 
 	@Transactional

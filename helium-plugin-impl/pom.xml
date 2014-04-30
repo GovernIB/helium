@@ -78,6 +78,13 @@
 		</dependency>
 		<dependency>
 			<groupId>es.caib</groupId>
+			<artifactId>regweb-ws</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/regweb-ws.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>es.caib</groupId>
 			<artifactId>regweb-logic</artifactId>
 			<version>1.0.5</version>
 			<scope>system</scope>
@@ -102,6 +109,34 @@
 			<artifactId>axis</artifactId>
 			<version>1.4</version>
 			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-core</artifactId>
+			<version>${spring-security.version}</version>
+			<scope>provided</scope>
+			<exclusions>
+				<exclusion>
+					<artifactId>spring-aop</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>spring-core</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>spring-expression</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>spring-beans</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>spring-context</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>jboss</groupId>
@@ -136,19 +171,6 @@
 			<version>2.5.6.SEC02</version>
 			<type>jar</type>
 			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-core-tiger</artifactId>
-			<version>2.0.5.RELEASE</version>
-			<type>jar</type>
-			<scope>provided</scope>
-			<exclusions>
-				<exclusion>
-					<artifactId>spring-aop</artifactId>
-					<groupId>org.springframework</groupId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.swinglabs</groupId>

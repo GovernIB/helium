@@ -67,7 +67,7 @@ public class RegistreSortidaHandler extends BasicActionHandler implements Regist
 	private String varData;
 
 	public void execute(ExecutionContext executionContext) throws Exception {
-		if (Jbpm3HeliumBridge.getInstanceService().isRegistreActiu())
+		if (!Jbpm3HeliumBridge.getInstanceService().isRegistreActiu())
 			throw new JbpmException("El plugin de registre no està configurat");
 		if (varDocument == null || varDocument.length() == 0)
 			throw new JbpmException("És obligatori especificar un document per registrar");
