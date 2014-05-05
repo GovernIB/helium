@@ -5,9 +5,9 @@
  * by the Apache Axis 1.4 Apr 22, 2006 (06:55:48 PDT) WSDL2Java emitter.
  */
 
-package es.caib.sdesapplin2.signatura.services.custodiadocumentos.cliente;
+package es.caib.proves.signatura.services.custodiadocumentos.cliente;
 
-public class CustodiaServiceLocator extends org.apache.axis.client.Service implements es.caib.sdesapplin2.signatura.services.custodiadocumentos.cliente.CustodiaService {
+public class CustodiaServiceLocator extends org.apache.axis.client.Service implements es.caib.proves.signatura.services.custodiadocumentos.cliente.CustodiaService {
 
     public CustodiaServiceLocator() {
     }
@@ -22,7 +22,7 @@ public class CustodiaServiceLocator extends org.apache.axis.client.Service imple
     }
 
     // Use to get a proxy class for CustodiaDocumentos
-    private java.lang.String CustodiaDocumentos_address = "http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos";
+    private java.lang.String CustodiaDocumentos_address = "https://proves.caib.es/signatura/services/CustodiaDocumentos";
 
     public java.lang.String getCustodiaDocumentosAddress() {
         return CustodiaDocumentos_address;
@@ -39,7 +39,7 @@ public class CustodiaServiceLocator extends org.apache.axis.client.Service imple
         CustodiaDocumentosWSDDServiceName = name;
     }
 
-    public es.caib.sdesapplin2.signatura.services.custodiadocumentos.cliente.Custodia getCustodiaDocumentos() throws javax.xml.rpc.ServiceException {
+    public es.caib.proves.signatura.services.custodiadocumentos.cliente.Custodia getCustodiaDocumentos() throws javax.xml.rpc.ServiceException {
        java.net.URL endpoint;
         try {
             endpoint = new java.net.URL(CustodiaDocumentos_address);
@@ -50,9 +50,9 @@ public class CustodiaServiceLocator extends org.apache.axis.client.Service imple
         return getCustodiaDocumentos(endpoint);
     }
 
-    public es.caib.sdesapplin2.signatura.services.custodiadocumentos.cliente.Custodia getCustodiaDocumentos(java.net.URL portAddress) throws javax.xml.rpc.ServiceException {
+    public es.caib.proves.signatura.services.custodiadocumentos.cliente.Custodia getCustodiaDocumentos(java.net.URL portAddress) throws javax.xml.rpc.ServiceException {
         try {
-            es.caib.sdesapplin2.signatura.services.custodiadocumentos.cliente.CustodiaDocumentosSoapBindingStub _stub = new es.caib.sdesapplin2.signatura.services.custodiadocumentos.cliente.CustodiaDocumentosSoapBindingStub(portAddress, this);
+            es.caib.proves.signatura.services.custodiadocumentos.cliente.CustodiaDocumentosSoapBindingStub _stub = new es.caib.proves.signatura.services.custodiadocumentos.cliente.CustodiaDocumentosSoapBindingStub(portAddress, this);
             _stub.setPortName(getCustodiaDocumentosWSDDServiceName());
             return _stub;
         }
@@ -72,8 +72,8 @@ public class CustodiaServiceLocator extends org.apache.axis.client.Service imple
      */
     public java.rmi.Remote getPort(Class serviceEndpointInterface) throws javax.xml.rpc.ServiceException {
         try {
-            if (es.caib.sdesapplin2.signatura.services.custodiadocumentos.cliente.Custodia.class.isAssignableFrom(serviceEndpointInterface)) {
-                es.caib.sdesapplin2.signatura.services.custodiadocumentos.cliente.CustodiaDocumentosSoapBindingStub _stub = new es.caib.sdesapplin2.signatura.services.custodiadocumentos.cliente.CustodiaDocumentosSoapBindingStub(new java.net.URL(CustodiaDocumentos_address), this);
+            if (es.caib.proves.signatura.services.custodiadocumentos.cliente.Custodia.class.isAssignableFrom(serviceEndpointInterface)) {
+                es.caib.proves.signatura.services.custodiadocumentos.cliente.CustodiaDocumentosSoapBindingStub _stub = new es.caib.proves.signatura.services.custodiadocumentos.cliente.CustodiaDocumentosSoapBindingStub(new java.net.URL(CustodiaDocumentos_address), this);
                 _stub.setPortName(getCustodiaDocumentosWSDDServiceName());
                 return _stub;
             }
@@ -105,7 +105,7 @@ public class CustodiaServiceLocator extends org.apache.axis.client.Service imple
     }
 
     public javax.xml.namespace.QName getServiceName() {
-        return new javax.xml.namespace.QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "CustodiaService");
+        return new javax.xml.namespace.QName("https://proves.caib.es/signatura/services/CustodiaDocumentos", "CustodiaService");
     }
 
     private java.util.HashSet ports = null;
@@ -113,7 +113,7 @@ public class CustodiaServiceLocator extends org.apache.axis.client.Service imple
     public java.util.Iterator getPorts() {
         if (ports == null) {
             ports = new java.util.HashSet();
-            ports.add(new javax.xml.namespace.QName("http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos", "CustodiaDocumentos"));
+            ports.add(new javax.xml.namespace.QName("https://proves.caib.es/signatura/services/CustodiaDocumentos", "CustodiaDocumentos"));
         }
         return ports.iterator();
     }

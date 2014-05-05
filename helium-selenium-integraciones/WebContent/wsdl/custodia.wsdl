@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="windows-1252"?>
-<wsdl:definitions targetNamespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" xmlns:intf="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions targetNamespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="https://proves.caib.es/signatura/services/CustodiaDocumentos" xmlns:intf="https://proves.caib.es/signatura/services/CustodiaDocumentos" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <wsdl:message name="consultarReservaDocumentoResponse">
     <wsdl:part name="consultarReservaDocumentoResponse" type="xsd:base64Binary"/>
   </wsdl:message>
@@ -257,205 +257,205 @@
     <wsdl:operation name="verificarDocumento">
       <wsdlsoap:operation soapAction="CustodiaDocumentos"/>
       <wsdl:input name="verificarDocumentoRequest">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:input>
       <wsdl:output name="verificarDocumentoResponse">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="obtenerInformeDocumento">
       <wsdlsoap:operation soapAction="CustodiaDocumentos"/>
       <wsdl:input name="obtenerInformeDocumentoRequest">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:input>
       <wsdl:output name="obtenerInformeDocumentoResponse">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="consultarDocumento">
       <wsdlsoap:operation soapAction="CustodiaDocumentos"/>
       <wsdl:input name="consultarDocumentoRequest">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:input>
       <wsdl:output name="consultarDocumentoResponse">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="custodiarPDFFirmado">
       <wsdlsoap:operation soapAction="CustodiaDocumentos"/>
       <wsdl:input name="custodiarPDFFirmadoRequest">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:input>
       <wsdl:output name="custodiarPDFFirmadoResponse">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="custodiarPDFFirmado_v2">
       <wsdlsoap:operation soapAction="CustodiaDocumentos"/>
       <wsdl:input name="custodiarPDFFirmado_v2Request">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:input>
       <wsdl:output name="custodiarPDFFirmado_v2Response">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="custodiarDocumentoSMIME">
       <wsdlsoap:operation soapAction="CustodiaDocumentos"/>
       <wsdl:input name="custodiarDocumentoSMIMERequest">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:input>
       <wsdl:output name="custodiarDocumentoSMIMEResponse">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="custodiarDocumentoSMIME_v2">
       <wsdlsoap:operation soapAction="CustodiaDocumentos"/>
       <wsdl:input name="custodiarDocumentoSMIME_v2Request">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:input>
       <wsdl:output name="custodiarDocumentoSMIME_v2Response">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="custodiarDocumento">
       <wsdlsoap:operation soapAction="CustodiaDocumentos"/>
       <wsdl:input name="custodiarDocumentoRequest">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:input>
       <wsdl:output name="custodiarDocumentoResponse">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="custodiarDocumento_v2">
       <wsdlsoap:operation soapAction="CustodiaDocumentos"/>
       <wsdl:input name="custodiarDocumento_v2Request">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:input>
       <wsdl:output name="custodiarDocumento_v2Response">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="custodiarDocumentoXAdES">
       <wsdlsoap:operation soapAction="CustodiaDocumentos"/>
       <wsdl:input name="custodiarDocumentoXAdESRequest">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:input>
       <wsdl:output name="custodiarDocumentoXAdESResponse">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="purgarDocumento">
       <wsdlsoap:operation soapAction="CustodiaDocumentos"/>
       <wsdl:input name="purgarDocumentoRequest">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:input>
       <wsdl:output name="purgarDocumentoResponse">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="purgarDocumento_v2">
       <wsdlsoap:operation soapAction="CustodiaDocumentos"/>
       <wsdl:input name="purgarDocumento_v2Request">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:input>
       <wsdl:output name="purgarDocumento_v2Response">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="recuperarDocumento">
       <wsdlsoap:operation soapAction="CustodiaDocumentos"/>
       <wsdl:input name="recuperarDocumentoRequest">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:input>
       <wsdl:output name="recuperarDocumentoResponse">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="recuperarDocumento_v2">
       <wsdlsoap:operation soapAction="CustodiaDocumentos"/>
       <wsdl:input name="recuperarDocumento_v2Request">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:input>
       <wsdl:output name="recuperarDocumento_v2Response">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="eliminarDocumento">
       <wsdlsoap:operation soapAction="CustodiaDocumentos"/>
       <wsdl:input name="eliminarDocumentoRequest">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:input>
       <wsdl:output name="eliminarDocumentoResponse">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="eliminarDocumento_v2">
       <wsdlsoap:operation soapAction="CustodiaDocumentos"/>
       <wsdl:input name="eliminarDocumento_v2Request">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:input>
       <wsdl:output name="eliminarDocumento_v2Response">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="verificarDocumento_v2">
       <wsdlsoap:operation soapAction="CustodiaDocumentos"/>
       <wsdl:input name="verificarDocumento_v2Request">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:input>
       <wsdl:output name="verificarDocumento_v2Response">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="obtenerInformeDocumento_v2">
       <wsdlsoap:operation soapAction="CustodiaDocumentos"/>
       <wsdl:input name="obtenerInformeDocumento_v2Request">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:input>
       <wsdl:output name="obtenerInformeDocumento_v2Response">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="consultarDocumento_v2">
       <wsdlsoap:operation soapAction="CustodiaDocumentos"/>
       <wsdl:input name="consultarDocumento_v2Request">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:input>
       <wsdl:output name="consultarDocumento_v2Response">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="reservarDocumento">
       <wsdlsoap:operation soapAction="CustodiaDocumentos"/>
       <wsdl:input name="reservarDocumentoRequest">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:input>
       <wsdl:output name="reservarDocumentoResponse">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="reservarDocumento_v2">
       <wsdlsoap:operation soapAction="CustodiaDocumentos"/>
       <wsdl:input name="reservarDocumento_v2Request">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:input>
       <wsdl:output name="reservarDocumento_v2Response">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="consultarReservaDocumento">
       <wsdlsoap:operation soapAction="CustodiaDocumentos"/>
       <wsdl:input name="consultarReservaDocumentoRequest">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://ejb.signatura.caib.es" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:input>
       <wsdl:output name="consultarReservaDocumentoResponse">
-        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="https://proves.caib.es/signatura/services/CustodiaDocumentos" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="CustodiaService">
     <wsdl:port binding="impl:CustodiaDocumentosSoapBinding" name="CustodiaDocumentos">
-      <wsdlsoap:address location="http://sdesapplin2.caib.es/signatura/services/CustodiaDocumentos"/>
+      <wsdlsoap:address location="https://proves.caib.es/signatura/services/CustodiaDocumentos"/>
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
