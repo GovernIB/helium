@@ -167,6 +167,21 @@ public abstract class BaseTest {
 		return (existeix ? isPresent : !isPresent);
 	}
 	
+	protected boolean checkboxSelectedAssert(String xpath, String msgNotFound, boolean selected) {
+		return comprovaCheckbox(xpath, msgNotFound, selected, false);
+	}
+	protected boolean checkboxSelected(String xpath, String msgNotFound, boolean selected) {
+		return comprovaCheckbox(xpath, msgNotFound, selected, true);
+	}
+	protected boolean comprovaCheckbox(String xpath, String msgNotFound, boolean selected, boolean continuarTest) {
+		boolean isChecked = driver.findElement(By.xpath(xpath)).isSelected();
+		if (!continuarTest) {
+			if (selected) assertTrue(msgNotFound, isChecked);
+			else assertFalse(msgNotFound, isChecked);
+		}
+		return (selected ? isChecked : !isChecked);
+	}
+	
 	protected boolean modalObertaAssert(String modal) {
 		return existeixElementAssert("//iframe[contains(@src, '" + modal + "')]", 
 						null,
