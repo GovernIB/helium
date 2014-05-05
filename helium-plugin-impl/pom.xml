@@ -71,6 +71,13 @@
 		</dependency>
 		<dependency>
 			<groupId>es.caib</groupId>
+			<artifactId>portasignatures-wsdl</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/portasignatures-wsdl.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>es.caib</groupId>
 			<artifactId>regweb-client</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
@@ -85,10 +92,10 @@
 		</dependency>
 		<dependency>
 			<groupId>es.caib</groupId>
-			<artifactId>portasignatures-wsdl</artifactId>
+			<artifactId>regweb-ws</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/portasignatures-wsdl.jar</systemPath>
+			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/regweb-ws.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>netscape</groupId>
