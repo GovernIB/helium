@@ -13,9 +13,9 @@ import java.util.List;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.security.Authentication;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Test plugin registre
@@ -118,7 +118,7 @@ public class RegistrePluginTest {
 
 
 	private RegistrePlugin getRegistrePlugin() {
-		return new RegistrePluginRegwebLogicNew();
+		return new RegistrePluginRegwebWs();
 	}
 
 	private void establirUsuariAutenticat() {
