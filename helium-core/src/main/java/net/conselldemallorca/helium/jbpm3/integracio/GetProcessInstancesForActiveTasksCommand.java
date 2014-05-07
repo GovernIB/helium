@@ -149,13 +149,12 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 		}
 
 		if (tasca != null && !"".equals(tasca)) {
-			hql += " and upper(ti.description) like '%@#@TITOL@#@%" + tasca.toUpperCase() + "%@#@ENTORNID@#@%') ";
+			hql += " and upper(ti.description) like '%@#@TITOL@#@%" + tasca.toUpperCase() + "%@#@ENTORNID@#@%' ";
 		}
 		
 		if (titol != null && !"".equals(titol)) {
-			hql += " and upper(ti.description) like '%@#@TITOL@#@%" + titol.toUpperCase() + "%@#@ENTORNID@#@%') ";
+			hql += " and upper(ti.description) like '%@#@TITOL@#@%" + titol.toUpperCase() + "%@#@ENTORNID@#@%' ";
 		}
-		
 		
 		hql += " order by ";
 		if ("dataCreacio".equals(sort)) {
