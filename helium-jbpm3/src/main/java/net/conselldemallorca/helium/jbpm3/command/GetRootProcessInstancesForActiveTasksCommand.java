@@ -66,7 +66,7 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		this.actorId = actorId;
 		this.idsPIExpedients = idsPIExpedients;
 		this.pooled = pooled;
-		this.mostrarTasquesPersonals = !pooled;
+		this.mostrarTasquesPersonals = !(pooled != null ? pooled : false);
 	}
 
 	public GetRootProcessInstancesForActiveTasksCommand(String actorId, String tasca, List<Long> idsPIExpedients, Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi, String sort, boolean asc, Boolean pooled) {
@@ -80,7 +80,7 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		this.dataLimitInici = dataLimitInici;
 		this.dataLimitFi = dataLimitFi;
 		this.pooled = pooled;
-		this.mostrarTasquesPersonals = !pooled;
+		this.mostrarTasquesPersonals = !(pooled != null ? pooled : false);
 		this.sort = sort;
 		this.asc = asc;
 	}
@@ -174,11 +174,11 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		}
 
 		if (tasca != null && !"".equals(tasca)) {
-			hql += " and upper(ti.description) like '%@#@TITOL@#@%" + tasca.toUpperCase() + "%@#@ENTORNID@#@%') ";
+			hql += " and upper(ti.description) like '%@#@TITOL@#@%" + tasca.toUpperCase() + "%@#@ENTORNID@#@%' ";
 		}
 		
 		if (titol != null && !"".equals(titol)) {
-			hql += " and upper(ti.description) like '%@#@TITOL@#@%" + titol.toUpperCase() + "%@#@ENTORNID@#@%') ";
+			hql += " and upper(ti.description) like '%@#@TITOL@#@%" + titol.toUpperCase() + "%@#@ENTORNID@#@%' ";
 		}		
 		
 		if ("dataCreacio".equals(sort)) {
