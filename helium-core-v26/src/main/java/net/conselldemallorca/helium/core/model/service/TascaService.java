@@ -342,7 +342,7 @@ public class TascaService {
 			Long entornId,
 			Long tipusExpedient,
 			String responsable,
-			String tasca,
+			Long tascaId,
 			String titol,
 			Date dataCreacioInici,
 			Date dataCreacioFi,
@@ -360,6 +360,11 @@ public class TascaService {
 				tipusExpedient,
 				sort,
 				asc);
+		
+		String tasca = null;
+		if (tascaId != null) {
+			tasca = tascaDao.getById(tascaId, false).getNom();
+		}
 		
 		LlistatIds ids = jbpmDao.findListTasks(
 				responsable, 

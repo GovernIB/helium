@@ -381,7 +381,7 @@ public class TascaConsultaController extends BaseController {
 				entorn.getId(),
 				expedientTipusId,
 				command.getResponsable(),
-				command.getTasca(),
+				command.getTascaId(),
 				command.getTitol(),
 				command.getDataCreacioInici(),
 				command.getDataCreacioFi(),
@@ -470,7 +470,7 @@ public class TascaConsultaController extends BaseController {
 	}
 	
 	public class TascaConsultaFiltreCommand {
-		private String tasca;
+		private Long tascaId;
 		private String titol;
 		private String responsable;
 		private Date dataCreacioInici;
@@ -479,11 +479,11 @@ public class TascaConsultaController extends BaseController {
 		public TascaConsultaFiltreCommand() {
 			this.mostrarTasquesGrup = true;
 		}
-		public String getTasca() {
-			return tasca;
+		public Long getTascaId() {
+			return tascaId;
 		}
-		public void setTasca(String tasca) {
-			this.tasca = tasca;
+		public void setTascaId(Long tascaId) {
+			this.tascaId = tascaId;
 		}
 		public String getTitol() {
 			return titol;

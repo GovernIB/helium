@@ -100,7 +100,8 @@ function signarAFirma(form, token) {
 </c:if>
 <c:if test="${globalProperties['app.signatura.tipus'] == 'caib'}">
 <script src="https://www.java.com/js/deployJava.js"></script>
-<script>
+<script type="text/javascript">
+//<![CDATA[
 var attributes = {
 		id: 'signaturaApplet',
 		code: 'net.conselldemallorca.helium.applet.signatura.SignaturaCaibApplet',
@@ -112,13 +113,11 @@ deployJava.runApplet(
 		attributes,
 		parameters,
 		'1.5');
-</script>
-<script type="text/javascript">
-//<![CDATA[
+
 var certsCarregats = false;
 function obtenirCertificats(selectId, contentType) {
 	try {
-		signaturaApplet.findCertificats(contentType)
+		signaturaApplet.findCertificats(contentType);
 		var certs = signaturaApplet.findCertificats(contentType);
 		if (!certs)
 			alert("<fmt:message key="tasca.signa.alert.certerr"/>");
