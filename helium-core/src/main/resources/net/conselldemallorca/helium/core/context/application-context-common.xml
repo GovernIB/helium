@@ -76,8 +76,11 @@
 		</property>
 	</bean>
 
-	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+	<!--bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
 		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean-->
+	<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"/>
 	</bean>
 	<tx:annotation-driven transaction-manager="transactionManager"/>
 	<tx:advice id="transactionAdvice" transaction-manager="transactionManager">
