@@ -149,11 +149,11 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 		}
 
 		if (tasca != null && !"".equals(tasca)) {
-			hql += " and upper(ti.description) like '%@#@TITOL@#@%" + tasca.toUpperCase() + "%@#@ENTORNID@#@%' ";
+			hql += " and upper(ti.description) like '%@#@TITOL@#@%'||:tasca||'%@#@ENTORNID@#@%' ";
 		}
 		
 		if (titol != null && !"".equals(titol)) {
-			hql += " and upper(ti.description) like '%@#@TITOL@#@%" + titol.toUpperCase() + "%@#@ENTORNID@#@%' ";
+			hql += " and upper(ti.description) like '%@#@TITOL@#@%'||:titol||'%@#@ENTORNID@#@%' ";
 		}
 		
 		hql += " order by ";
@@ -188,12 +188,12 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 			
 			if (prioritat != null) 
 				query.setInteger("prioritat",3-prioritat);
+
+			if (tasca != null && !"".equals(tasca))
+				query.setString("tasca", tasca.toUpperCase());
 			
-//			if (tasca != null && !"".equals(tasca)) 
-//				query.setString("tasca", tasca);
-			
-//			if (titol != null && !"".equals(titol))
-//				query.setString("titol", titol.toUpperCase());
+			if (titol != null && !"".equals(titol))
+				query.setString("titol", titol.toUpperCase());
 			
 			llistaActorId.addAll(query.list());
 			
@@ -228,16 +228,16 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 				queryPersonal.setInteger("prioritat",3-prioritat);
 				queryPooled.setInteger("prioritat",3-prioritat);
 			}
+
+			if (tasca != null && !"".equals(tasca)) {
+				queryPersonal.setString("tasca", tasca.toUpperCase());
+				queryPooled.setString("tasca", tasca.toUpperCase());
+			}
 			
-//			if (tasca != null && !"".equals(tasca)) {
-//				queryPersonal.setString("tasca", tasca);
-//				queryPooled.setString("tasca", tasca);
-//			}		
-			
-//			if (titol != null && !"".equals(titol)) {
-//				queryPersonal.setString("titol", titol.toUpperCase());
-//				queryPooled.setString("titol", titol.toUpperCase());
-//			}
+			if (titol != null && !"".equals(titol)) {
+				queryPersonal.setString("titol", titol.toUpperCase());
+				queryPooled.setString("titol", titol.toUpperCase());
+			}
 			
 			if (pooled == null || pooled == false) {
 				llistaActorId.addAll(queryPersonal.list());
