@@ -174,11 +174,11 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		}
 
 		if (tasca != null && !"".equals(tasca)) {
-			hql += " and upper(ti.description) like '%@#@TITOL@#@%" + tasca.toUpperCase() + "%@#@ENTORNID@#@%' ";
+			hql += " and upper(ti.description) like '%@#@TITOL@#@%'||:tasca||'%@#@ENTORNID@#@%' ";
 		}
 		
 		if (titol != null && !"".equals(titol)) {
-			hql += " and upper(ti.description) like '%@#@TITOL@#@%" + titol.toUpperCase() + "%@#@ENTORNID@#@%' ";
+			hql += " and upper(ti.description) like '%@#@TITOL@#@%'||:titol||'%@#@ENTORNID@#@%' ";
 		}		
 		
 		if ("dataCreacio".equals(sort)) {
@@ -210,6 +210,12 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 			
 			if (prioritat != null) 
 				query.setInteger("prioritat",3-prioritat);
+
+			if (tasca != null && !"".equals(tasca))
+				query.setString("tasca", tasca.toUpperCase());
+			
+			if (titol != null && !"".equals(titol))
+				query.setString("titol", titol.toUpperCase());
 			
 			llistaActorId.addAll(query.list());
 			
@@ -244,10 +250,21 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 				queryPersonal.setInteger("prioritat",3-prioritat);
 				queryPooled.setInteger("prioritat",3-prioritat);
 			}
+
+			if (tasca != null && !"".equals(tasca)) {
+				queryPersonal.setString("tasca", tasca.toUpperCase());
+				queryPooled.setString("tasca", tasca.toUpperCase());
+			}
+			
+			if (titol != null && !"".equals(titol)) {
+				queryPersonal.setString("titol", titol.toUpperCase());
+				queryPooled.setString("titol", titol.toUpperCase());
+			}
 			
 			if (mostrarTasquesPersonals) {
 				llistaActorId.addAll(queryPersonal.list());
 			}
+			
 			if (pooled == null || pooled == true) {
 				llistaActorId.addAll(queryPooled.list());
 			}
