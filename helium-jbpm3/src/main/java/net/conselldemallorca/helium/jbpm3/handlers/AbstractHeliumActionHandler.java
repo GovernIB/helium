@@ -68,7 +68,7 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 
 	TerminiDto getTerminiAmbCodi(ExecutionContext executionContext, String codi) {
 		try {
-			return Jbpm3HeliumBridge.getInstanceService().getTerminiAmbDefinicioProcesICodi(
+			return Jbpm3HeliumBridge.getInstanceService().getTerminiAmbProcessInstanceICodi(
 					getProcessInstanceId(executionContext),
 					codi);
 		} catch (Exception ex) {

@@ -47,9 +47,8 @@
 	<context:component-scan base-package="net.conselldemallorca.helium.v3.core.service"/>
 	<context:component-scan base-package="net.conselldemallorca.helium.v3.core.helper"/>
 
-	<bean name="jbpm3HeliumBridge" class="net.conselldemallorca.helium.v3.core.service.Jbpm3HeliumServiceImpl"/>
 	<bean id="jbpm3HeliumBridgeFactory" class="net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge" lazy-init="false">
-		<property name="jbpm3HeliumService" ref="jbpm3HeliumBridge" />
+		<property name="jbpm3HeliumService" ref="jbpm3HeliumHelper" />
 	</bean>
 	
 	<bean id="mesuresTemporalsHelper" class="net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper">

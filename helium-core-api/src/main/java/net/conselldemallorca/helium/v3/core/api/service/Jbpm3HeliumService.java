@@ -377,7 +377,7 @@ public interface Jbpm3HeliumService {
 	 * @return
 	 * @throws ProcessInstanceNotFoundException
 	 */
-	public TerminiDto getTerminiAmbDefinicioProcesICodi(
+	public TerminiDto getTerminiAmbProcessInstanceICodi(
 			String processInstanceId,
 			String terminiCodi) throws ProcessInstanceNotFoundException;
 

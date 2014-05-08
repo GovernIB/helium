@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Festiu;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
@@ -249,6 +250,36 @@ public class TerminiHelper {
 			dataInici.set(Calendar.MILLISECOND, 0);
 		}
 		return dataInici.getTime();
+	}
+
+	public Termini findTerminiById(Long terminiId) {
+		return terminiRepository.findOne(terminiId);
+	}
+
+	public TerminiIniciat findTerminiIniciatById(Long terminiIniciatId) {
+		return terminiIniciatRepository.findOne(terminiIniciatId);
+	}
+
+	public Termini findAmbDefinicioProcesICodi(
+			DefinicioProces definicioProces,
+			String terminiCodi) {
+		return terminiRepository.findByDefinicioProcesAndCodi(
+				definicioProces,
+				terminiCodi);
+	}
+
+	public TerminiIniciat findIniciatAmbDefinicioProcesICodi(
+			DefinicioProces definicioProces,
+			String processInstanceId,
+			String terminiCodi) {
+		Termini termini = terminiRepository.findByDefinicioProcesAndCodi(
+				definicioProces,
+				terminiCodi);
+		if (termini == null)
+			return null;
+		return terminiIniciatRepository.findByTerminiAndProcessInstanceId(
+				termini,
+				processInstanceId);
 	}
 
 

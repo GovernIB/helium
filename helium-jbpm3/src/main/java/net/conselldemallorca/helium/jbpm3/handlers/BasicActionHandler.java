@@ -507,7 +507,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			resposta.setData(anotacioId.getData());
 			return resposta;
 		} catch (PluginException ex) {
-			throw new JbpmException("No s'ha pogut enviar l'anotació", ex);
+			throw new JbpmException("No s'ha pogut enviar la notificació", ex);
 		}
 	}
 
