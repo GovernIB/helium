@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -15,10 +16,14 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.remote.CapabilityType;
+import org.openqa.selenium.remote.DesiredCapabilities;
 
 import com.thoughtworks.selenium.Selenium;
 
@@ -50,7 +55,11 @@ public abstract class BaseTest {
 			driverName = properties.getProperty("webdriver.chrome.driver");
 			assertNotNull("Driver per chrome no configurat al fitxer de properties", driverName);
 			System.setProperty("webdriver.chrome.driver", driverName);
-			driver = new ChromeDriver();
+			
+			DesiredCapabilities capability = DesiredCapabilities.chrome();
+			capability.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
+			
+			driver = new ChromeDriver(capability);
 			driverConfig("CR");
 		} else if ("iexplorer".equals(browser)) {
 			driverName = properties.getProperty("webdriver.ie.driver");
@@ -59,7 +68,14 @@ public abstract class BaseTest {
 			driver = new InternetExplorerDriver();
 			driverConfig("IE");
 		} else { //"firefox":
-			driver = new FirefoxDriver();
+			FirefoxProfile fp = new FirefoxProfile();
+			fp.setAcceptUntrustedCertificates( true );
+			fp.setPreference( "security.enable_java", true ); 
+			fp.setPreference( "plugin.state.java", 2 );
+//				plugin.state.java = 0 --> never activate
+//				plugin.state.java = 1 --> ask to activate
+//				plugin.state.java = 2 --> always activate
+			driver = new FirefoxDriver( fp );
 			driverConfig("FF");
 		}
 
@@ -223,5 +239,50 @@ public abstract class BaseTest {
 			fail("Error rebutjant alert.");
 		}
 		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+	}
+
+	protected void eliminarExpediente(String tituloExpediente) {
+		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']/ul/li[1]/a")));
+		actions.click();
+		actions.build().perform();
+		
+		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='expedientTipus0']"));
+		List<WebElement> allOptions = selectTipusExpedient.findElements(By.tagName("option"));
+		for (WebElement option : allOptions) {
+			if (option.getText().equals(properties.getProperty("defproc.deploy.tipus.expedient.nom"))) {
+				option.click();
+				break;
+			}
+		}		
+		
+		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();		
+		assertTrue("No se encontró el expediente", driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + tituloExpediente + "')]")) != null);			
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + tituloExpediente + "')]/td[8]/a/img")).click();		
+		acceptarAlerta();		
+		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut borrar el expediente");
+	}
+	
+	protected void desplegarDatosExp(String nomVarExp, String path) {		
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+		
+		for (WebElement option : driver.findElement(By.id("registre")).findElements(By.tagName("a"))) {
+			if (option.getText().equals(nomVarExp)) {
+				option.click();
+				break;
+			}
+		}
+
+		// Deploy
+		driver.findElement(By.xpath("//*[@id='content']/div[1]/h3/img")).click();
+		driver.findElement(By.id("arxiu0")).sendKeys(path);
+		driver.findElement(By.xpath("//button[@value='submit']")).click();
+		
+		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut importar la definició de procés de test");
 	}
 }
