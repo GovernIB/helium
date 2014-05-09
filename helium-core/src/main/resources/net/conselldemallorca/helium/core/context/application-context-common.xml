@@ -69,19 +69,17 @@
 				<prop key="hibernate.dialect">${app.hibernate.dialect}</prop>
 				<prop key="hibernate.show_sql">${app.hibernate.show_sql}</prop>
 				<prop key="hibernate.hbm2ddl.auto">${app.hibernate.hbm2ddl.auto}</prop>
-				<!--prop key="hibernate.ejb.metamodel.generation">disabled</prop-->
 				<prop key="hibernate.ejb.cfgfile">/net/conselldemallorca/helium/core/context/jbpm3.hibernate.cfg.xml</prop>
 				<prop key="hibernate.generate_statistics">${app.hibernate.generate_statistics?false}</prop>
 			</props>
 		</property>
 	</bean>
+	<bean id="sessionFactory" factory-bean="entityManagerFactory" factory-method="getSessionFactory"/>
 
-	<!--bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
 		<property name="entityManagerFactory" ref="entityManagerFactory" />
-	</bean-->
-	<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-		<property name="sessionFactory" ref="sessionFactory"/>
 	</bean>
+
 	<tx:annotation-driven transaction-manager="transactionManager"/>
 	<tx:advice id="transactionAdvice" transaction-manager="transactionManager">
 		<tx:attributes>
@@ -94,8 +92,6 @@
 		<aop:pointcut id="serviceOperationCommon" expression="execution(* net.conselldemallorca.helium.core.model.service.*Service.*(..))"/>
 		<aop:advisor advice-ref="transactionAdvice" pointcut-ref="serviceOperationCommon" />
 	</aop:config>
-
-	<bean id="sessionFactory" factory-bean="entityManagerFactory" factory-method="getSessionFactory" />
 
 	<bean id="actionLogger" class="net.conselldemallorca.helium.core.security.audit.HibernateActionLogger" lazy-init="true">
 		<property name="sessionFactory" ref="sessionFactory"/>

@@ -134,6 +134,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
+
 	@Resource
 	private EntornDao entornDao;
 	@Resource
@@ -183,17 +184,11 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Resource
 	private JbpmHelper jbpmHelper;
+
 	@Resource
 	private VariableHelper variableHelper;
 	@Resource
 	private DocumentHelper documentHelper;
-	@Resource(name="dtoConverterV3")
-	private DtoConverter dtoConverter;
-	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
-	@Resource
-	private MesuresTemporalsHelper mesuresTemporalsHelper;
-
 	@Resource
 	private TerminiHelper terminiHelper;
 
@@ -203,6 +198,13 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private DocumentService documentService;
 	@Resource
 	private ExecucioMassivaService execucioMassivaService;
+
+	@Resource
+	private ConversioTipusHelper conversioTipusHelper;
+	@Resource
+	private MesuresTemporalsHelper mesuresTemporalsHelper;
+
+
 
 	@Override
 	public String getUsuariCodiActual() {

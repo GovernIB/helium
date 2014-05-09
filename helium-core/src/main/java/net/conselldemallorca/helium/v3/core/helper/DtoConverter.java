@@ -46,7 +46,8 @@ import org.springframework.stereotype.Service;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Service("dtoConverterV3")
-public class DtoConverter {	
+public class DtoConverter {
+
 	@Resource
 	private PersonaHelper personaHelper;	
 	@Resource
@@ -61,7 +62,7 @@ public class DtoConverter {
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-	
+
 	public PersonaDto getResponsableTasca(String responsableCodi) {
 		try {
 			PersonaDto persona = pluginHelper.findPersonaAmbCodi(responsableCodi);
