@@ -9,7 +9,7 @@ import es.indra.www.portafirmasmcgdws.mcgdws.Attributes;
 import es.indra.www.portafirmasmcgdws.mcgdws.AttributesState;
 import es.indra.www.portafirmasmcgdws.mcgdws.CallbackRequest;
 import es.indra.www.portafirmasmcgdws.mcgdws.Document;
-import es.indra.www.portafirmasmcgdws.mcgdws.MCGDWSSoapBindingStub;
+//import es.indra.www.portafirmasmcgdws.mcgdws.MCGDWSSoapBindingStub;
 import es.indra.www.portafirmasmcgdws.mcgdws.MCGDwsService;
 import es.indra.www.portafirmasmcgdws.mcgdws.MCGDwsServiceLocator;
 
@@ -38,8 +38,9 @@ public class PortasignaturesCallback extends BaseTest {
 		app.setDocument(document);
 		callbackRequest.setApplication(app);
 		MCGDwsService service = new MCGDwsServiceLocator();
-		MCGDWSSoapBindingStub stub = (MCGDWSSoapBindingStub) service.getMCGDWS(new URL(urlEndPoint));
+//		MCGDWSSoapBindingStub stub = (MCGDWSSoapBindingStub) service.getMCGDWS(new URL(urlEndPoint));
 
-		return stub.callback(callbackRequest).get_return();
+//		return stub.callback(callbackRequest).get_return();
+		return 0L;
 	}
 }

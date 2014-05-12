@@ -13,20 +13,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.integracio.plugins.registre.DadesAssumpte;
-import net.conselldemallorca.helium.integracio.plugins.registre.DadesInteressat;
-import net.conselldemallorca.helium.integracio.plugins.registre.DadesOficina;
-import net.conselldemallorca.helium.integracio.plugins.registre.DocumentRegistre;
-import net.conselldemallorca.helium.integracio.plugins.registre.RegistreEntrada;
-import net.conselldemallorca.helium.integracio.plugins.registre.RegistreNotificacio;
 import net.conselldemallorca.helium.integracio.plugins.registre.RegistrePlugin;
-import net.conselldemallorca.helium.integracio.plugins.registre.RegistrePluginException;
-import net.conselldemallorca.helium.integracio.plugins.registre.RegistreSortida;
 import net.conselldemallorca.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
-import net.conselldemallorca.helium.integracio.plugins.registre.RespostaConsulta;
-import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
-import net.conselldemallorca.helium.integracio.plugins.registre.TramitSubsanacio;
-import net.conselldemallorca.helium.integracio.plugins.registre.TramitSubsanacioParametre;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,6 +36,18 @@ import es.caib.regtel.ws.v2.model.oficioremision.ParametroTramite;
 import es.caib.regtel.ws.v2.model.resultadoregistro.ResultadoRegistro;
 import es.caib.regweb.logic.helper.ParametrosRegistroEntrada;
 import es.caib.regweb.logic.helper.ParametrosRegistroSalida;
+import net.conselldemallorca.helium.integracio.plugins.registre.DadesAssumpte;
+import net.conselldemallorca.helium.integracio.plugins.registre.DadesInteressat;
+import net.conselldemallorca.helium.integracio.plugins.registre.DadesOficina;
+import net.conselldemallorca.helium.integracio.plugins.registre.DocumentRegistre;
+import net.conselldemallorca.helium.integracio.plugins.registre.RegistreEntrada;
+import net.conselldemallorca.helium.integracio.plugins.registre.RegistreNotificacio;
+import net.conselldemallorca.helium.integracio.plugins.registre.RegistrePluginException;
+import net.conselldemallorca.helium.integracio.plugins.registre.RegistreSortida;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaConsulta;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
+import net.conselldemallorca.helium.integracio.plugins.registre.TramitSubsanacio;
+import net.conselldemallorca.helium.integracio.plugins.registre.TramitSubsanacioParametre;
 
 /**
  * Implementació Mock del plugin de registre.
@@ -416,5 +416,5 @@ public class RegistroPlugin implements RegistrePlugin {
 		return res;
 	}
 
-	private static final Log logger = LogFactory.getLog(RegistrePlugin.class);
+	private static final Log logger = LogFactory.getLog(RegistroPlugin.class);
 }

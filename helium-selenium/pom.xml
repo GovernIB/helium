@@ -43,13 +43,13 @@
 <!-- 			<type>jar</type> -->
 <!-- 			<scope>compile</scope> -->
 <!-- 		</dependency> -->
-		<dependency>
-			<groupId>net.conselldemallorca</groupId>
-			<artifactId>helium-selenium-integraciones</artifactId>
-			<version>${helium.version}</version>
-			<type>jar</type>
-			<scope>compile</scope>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>net.conselldemallorca</groupId> -->
+<!-- 			<artifactId>helium-selenium-integraciones</artifactId> -->
+<!-- 			<version>${helium.version}</version> -->
+<!-- 			<type>jar</type> -->
+<!-- 			<scope>compile</scope> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-ws</artifactId>
