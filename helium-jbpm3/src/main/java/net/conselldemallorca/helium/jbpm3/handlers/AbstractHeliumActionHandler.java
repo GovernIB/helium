@@ -72,7 +72,7 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 					getProcessInstanceId(executionContext),
 					codi);
 		} catch (Exception ex) {
-			throw new JbpmException("No s'ha trobat la definició de procés");
+			throw new JbpmException("No s'ha trobat el termini amb codi: " + codi);
 		}
 	}
 	TerminiIniciatDto getTerminiIniciatAmbCodi(
