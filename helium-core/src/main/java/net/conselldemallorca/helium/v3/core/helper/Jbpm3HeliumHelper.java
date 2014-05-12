@@ -1555,7 +1555,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 	private DefinicioProces getDefinicioProcesDonatProcessInstanceId(
 			String processInstanceId) throws ProcessInstanceNotFoundException {
-		JbpmProcessInstance processInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
+		JbpmProcessInstance processInstance = jbpmHelper.getProcessInstance(processInstanceId);
 		if (processInstance == null)
 			throw new ProcessInstanceNotFoundException();
 		return definicioProcesDao.findAmbJbpmId(processInstance.getProcessDefinitionId());
