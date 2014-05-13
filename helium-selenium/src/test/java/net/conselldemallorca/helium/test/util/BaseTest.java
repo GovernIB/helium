@@ -280,19 +280,14 @@ public abstract class BaseTest {
 		if (noExisteixElement("//*[@id='registre']/tbody/tr[contains(td[2],'" + usuari + "')]")) {
 			driver.findElement(By.id("nom0")).sendKeys(usuari);
 			for (String permis: permisos) {
-				switch (permis) {
-				case "DESIGN":
+				if ("DESIGN".equals(permis)) {
 					driver.findElement(By.xpath("//input[@value='DESIGN']")).click();
-					break;
-				case "ORGANIZATION":
+				} else if ("ORGANIZATION".equals(permis)) {
 					driver.findElement(By.xpath("//input[@value='ORGANIZATION']")).click();
-					break;
-				case "READ":
+				} else if ("READ".equals(permis)) {
 					driver.findElement(By.xpath("//input[@value='READ']")).click();
-					break;
-				case "ADMINISTRATION":
+				} else if ("ADMINISTRATION".equals(permis)) {
 					driver.findElement(By.xpath("//input[@value='ADMINISTRATION']")).click();
-					break;
 				}
 			}
 			driver.findElement(By.xpath("//button[@value='submit']")).click();
