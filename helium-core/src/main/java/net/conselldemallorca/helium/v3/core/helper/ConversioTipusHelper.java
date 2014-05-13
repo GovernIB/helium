@@ -48,10 +48,8 @@ public class ConversioTipusHelper {
 
 	public ConversioTipusHelper() {
 		mapperFactory = new DefaultMapperFactory.Builder().build();
-		
 		mapperFactory.getConverterFactory().registerConverter(
 				new CustomConverter<Camp, CampDto>() {
-
 					@Override
 					public CampDto convert(Camp source, Type<? extends CampDto> destinationClass) {
 						CampDto target = new CampDto();
@@ -65,7 +63,6 @@ public class ConversioTipusHelper {
 						return target;
 					}
 		});
-		
 		mapperFactory.getConverterFactory().registerConverter(
 				new CustomConverter<CampTasca, CampTascaDto>() {
 					public CampTascaDto convert(CampTasca source, Type<? extends CampTascaDto> destinationClass) {
@@ -82,10 +79,8 @@ public class ConversioTipusHelper {
 						return target;
 					}
 				});
-		
 		mapperFactory.getConverterFactory().registerConverter(
 				new CustomConverter<Consulta, ConsultaDto>() {
-
 					@Override
 					public ConsultaDto convert(Consulta source, Type<? extends ConsultaDto> destinationType) {
 						ConsultaDto target = new ConsultaDto();
@@ -105,10 +100,8 @@ public class ConversioTipusHelper {
 						return target;
 					}				
 			});
-		
 		mapperFactory.getConverterFactory().registerConverter(
 				new CustomConverter<ExpedientTipus, ExpedientTipusDto>() {
-
 					@Override
 					public ExpedientTipusDto convert(ExpedientTipus source, Type<? extends ExpedientTipusDto> destinationType) {
 						ExpedientTipusDto target = new ExpedientTipusDto();
@@ -137,7 +130,6 @@ public class ConversioTipusHelper {
 						target.setTeNumero(source.getTeNumero());
 						target.setTeTitol(source.getTeTitol());
 						target.setTramitacioMassiva(source.isTramitacioMassiva());						
-
 						Map<Integer,SequenciaAnyDto> sequenciaAnyMap = new HashMap<Integer, SequenciaAnyDto>();
 						for (Entry<Integer, SequenciaAny> entry : source.getSequenciaAny().entrySet()) {
 							SequenciaAny value = entry.getValue();
@@ -148,7 +140,6 @@ public class ConversioTipusHelper {
 							sequenciaAnyMap.put(entry.getKey(), valueDto);
 						}					
 						target.setSequenciaAny(sequenciaAnyMap);
-						
 						Map<Integer,SequenciaDefaultAnyDto> sequenciaAnyDefaultMap = new HashMap<Integer, SequenciaDefaultAnyDto>();
 						for (Entry<Integer, SequenciaDefaultAny> entry : source.getSequenciaDefaultAny().entrySet()) {
 							SequenciaDefaultAny value = entry.getValue();
@@ -159,14 +150,11 @@ public class ConversioTipusHelper {
 							sequenciaAnyDefaultMap.put(entry.getKey(), valueDto);
 						}					    
 						target.setSequenciaDefaultAny(sequenciaAnyDefaultMap);
-						
 						return target;
 					}
 				});
-		
 		mapperFactory.getConverterFactory().registerConverter(
 				new CustomConverter<ExpedientTipusDto, ExpedientTipus>() {
-
 					@Override
 					public ExpedientTipus convert(ExpedientTipusDto source, Type<? extends ExpedientTipus> destinationType) {
 						ExpedientTipus target = new ExpedientTipus();
@@ -189,7 +177,6 @@ public class ConversioTipusHelper {
 						target.setTeNumero(source.isTeNumero());
 						target.setTeTitol(source.isTeTitol());
 						target.setTramitacioMassiva(source.isTramitacioMassiva());						
-
 						SortedMap<Integer, SequenciaAny> sequenciaAnySorted = new TreeMap<Integer, SequenciaAny>();
 						for (Entry<Integer, SequenciaAnyDto> entry : source.getSequenciaAny().entrySet()) {
 							SequenciaAnyDto valueDto = entry.getValue();
@@ -200,7 +187,6 @@ public class ConversioTipusHelper {
 							sequenciaAnySorted.put(entry.getKey(), value);
 						}					
 						target.setSequenciaAny(sequenciaAnySorted);
-						
 						SortedMap<Integer, SequenciaDefaultAny> sequenciaAnyDefaultSorted = new TreeMap<Integer, SequenciaDefaultAny>();
 						for (Entry<Integer, SequenciaDefaultAnyDto> entry : source.getSequenciaDefaultAny().entrySet()) {
 							SequenciaDefaultAnyDto valueDto = entry.getValue();
@@ -211,7 +197,6 @@ public class ConversioTipusHelper {
 							sequenciaAnyDefaultSorted.put(entry.getKey(), value);
 						}					
 						target.setSequenciaDefaultAny(sequenciaAnyDefaultSorted);
-						
 						return target;
 					}
 				});

@@ -135,6 +135,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
+	/* DAO v2.6 */
 	@Resource
 	private EntornDao entornDao;
 	@Resource
@@ -182,16 +183,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Resource
 	private AlertaDao alertaDao;
 
-	@Resource
-	private JbpmHelper jbpmHelper;
-
-	@Resource
-	private VariableHelper variableHelper;
-	@Resource
-	private DocumentHelper documentHelper;
-	@Resource
-	private TerminiHelper terminiHelper;
-
+	/* Service v2.6 */
 	@Resource
 	private ExpedientService expedientService;
 	@Resource
@@ -199,10 +191,22 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Resource
 	private ExecucioMassivaService execucioMassivaService;
 
+	/* Helper v2.6 */
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private DocumentHelper documentHelper;
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
+
+	/* Helper v3.0 */
+	@Resource
+	private VariableHelper variableHelper;
+	@Resource
+	private TerminiHelper terminiHelper;
+	@Resource
+	private ConversioTipusHelper conversioTipusHelper;
+
+	@Resource
+	private JbpmHelper jbpmHelper;
 
 
 
@@ -438,7 +442,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				estatCodi);
 		if (estat == null)
 			throw new EstatNotFoundException();
-		expedientService.editar(
+		expedientEditar(
 				expedient.getEntorn().getId(),
 				expedient.getId(),
 				expedient.getNumero(),
@@ -460,7 +464,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		imprimirFuncio("expedientModificarComentari");
 		logger.debug("Modificant comentari de l'expedient (processInstanceId=" + processInstanceId + ", comentari=" + comentari + ")");
 		Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
-		expedientService.editar(
+		expedientEditar(
 				expedient.getEntorn().getId(),
 				expedient.getId(),
 				expedient.getNumero(),
@@ -488,7 +492,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"posy=" + posy + ", " +
 				"referencia=" + referencia + ")");
 		Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
-		expedientService.editar(
+		expedientEditar(
 				expedient.getEntorn().getId(),
 				expedient.getId(),
 				expedient.getNumero(),
@@ -510,7 +514,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		imprimirFuncio("expedientModificarGrup");
 		logger.debug("Modificant grup de l'expedient (processInstanceId=" + processInstanceId + ", grupCodi=" + grupCodi + ")");
 		Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
-		expedientService.editar(
+		expedientEditar(
 				expedient.getEntorn().getId(),
 				expedient.getId(),
 				expedient.getNumero(),
@@ -532,7 +536,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		imprimirFuncio("expedientModificarNumero");
 		logger.debug("Modificant número de l'expedient (processInstanceId=" + processInstanceId + ", numero=" + numero + ")");
 		Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
-		expedientService.editar(
+		expedientEditar(
 				expedient.getEntorn().getId(),
 				expedient.getId(),
 				numero,
@@ -556,7 +560,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		if (pluginPersonaDao.findAmbCodiPlugin(responsableCodi) == null)
 			throw new PersonaNotFoundException();
 		Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
-		expedientService.editar(
+		expedientEditar(
 				expedient.getEntorn().getId(),
 				expedient.getId(),
 				expedient.getNumero(),
@@ -578,7 +582,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		imprimirFuncio("expedientModificarTitol");
 		logger.debug("Modificant títol de l'expedient (processInstanceId=" + processInstanceId + ", titol=" + titol + ")");
 		Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
-		expedientService.editar(
+		expedientEditar(
 				expedient.getEntorn().getId(),
 				expedient.getId(),
 				expedient.getNumero(),
@@ -1541,6 +1545,36 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public void actualitzaUltimaOperacio(OperacioMassivaDto operacioMassiva) {
 		imprimirFuncio("actualitzaUltimaOperacio");
 		execucioMassivaService.actualitzaUltimaOperacio(operacioMassiva);
+	}
+
+
+
+	private void expedientEditar(
+			Long entornId,
+			Long id,
+			String numero,
+			String titol,
+			String responsableCodi,
+			Date dataInici,
+			String comentari,
+			Long estatId,
+			Double geoPosX,
+			Double geoPosY,
+			String geoReferencia,
+			String grupCodi) {
+		expedientService.editar(
+				entornId,
+				id,
+				numero,
+				titol,
+				responsableCodi,
+				dataInici,
+				comentari,
+				estatId,
+				geoPosX,
+				geoPosY,
+				geoReferencia,
+				grupCodi);
 	}
 
 	private Expedient getExpedientDonatProcessInstanceId(
