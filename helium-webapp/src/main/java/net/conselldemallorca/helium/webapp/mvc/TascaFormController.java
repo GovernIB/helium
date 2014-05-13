@@ -32,7 +32,7 @@ import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.service.TascaService;
-import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
+import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
 import net.conselldemallorca.helium.webapp.mvc.util.TramitacioMassiva;
