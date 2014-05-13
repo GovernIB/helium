@@ -1,6 +1,8 @@
 package net.conselldemallorca.helium.test.disseny;
 
 import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertEquals;
 import net.conselldemallorca.helium.test.util.BaseTest;
 
 import org.junit.FixMethodOrder;
@@ -63,24 +65,27 @@ public class DefinicioProcesVars extends BaseTest {
 		}
 	}
 	
-//	@Test
+	@Test
 	public void a_inicialitzacio() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
-		crearEntornTest(entorn, titolEntorn, usuari);
-		desplegarDefProTest();
-		crearEnumeracionsTest();
+		crearEntorn(entorn, titolEntorn);
+		assignarPermisosEntorn(entorn, usuari, "DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
+		marcarEntornDefecte(titolEntorn);
+		seleccionarEntorn(titolEntorn);
+		desplegarDefinicioProcesEntorn(nomDefProc, pathDefProc);
+		importarDadesEntorn(entorn, pathExportEntorn);
+//		crearEnumeracionsTest();
 		crearAgrupacioTest(codAgrupacio1, nomAgrupacio1);
 		crearAgrupacioTest(codAgrupacio2, nomAgrupacio2);
-//		crearTipusExpedientTest(nomTipusExp, codTipusExp);
 //		crearDominisTest();
 	}
 	
-//	@Test
+	@Test
 	public void b_crearVarString() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
-		seleccionarDefProc();
+		seleccionarDefinicioProces(nomDefProc);
 		crearVar(carregarPropietat("defproc.variable.string.codi", "Codi de la variable string no configurat al fitxer de properties"),
 				carregarPropietat("defproc.variable.string.nom", "Nom de la variable string no configurat al fitxer de properties"),
 				TipusVar.STRING,
@@ -90,11 +95,11 @@ public class DefinicioProcesVars extends BaseTest {
 				false);
 	}
 	
-//	@Test
+	@Test
 	public void c_crearVarInteger() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
-		seleccionarDefProc();
+		seleccionarDefinicioProces(nomDefProc);
 		crearVar(carregarPropietat("defproc.variable.int.codi", "Codi de la variable string no configurat al fitxer de properties"),
 				carregarPropietat("defproc.variable.int.nom", "Nom de la variable string no configurat al fitxer de properties"),
 				TipusVar.INTEGER,
@@ -104,11 +109,11 @@ public class DefinicioProcesVars extends BaseTest {
 				true);
 	}
 	
-//	@Test
+	@Test
 	public void d_crearVarFloat() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
-		seleccionarDefProc();
+		seleccionarDefinicioProces(nomDefProc);
 		crearVar(carregarPropietat("defproc.variable.float.codi", "Codi de la variable string no configurat al fitxer de properties"),
 				carregarPropietat("defproc.variable.float.nom", "Nom de la variable string no configurat al fitxer de properties"),
 				TipusVar.FLOAT,
@@ -118,11 +123,11 @@ public class DefinicioProcesVars extends BaseTest {
 				false);
 	}
 	
-//	@Test
+	@Test
 	public void e_crearVarBoolean() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
-		seleccionarDefProc();
+		seleccionarDefinicioProces(nomDefProc);
 		crearVar(carregarPropietat("defproc.variable.bool.codi", "Codi de la variable string no configurat al fitxer de properties"),
 				carregarPropietat("defproc.variable.bool.nom", "Nom de la variable string no configurat al fitxer de properties"),
 				TipusVar.BOOLEAN,
@@ -132,11 +137,11 @@ public class DefinicioProcesVars extends BaseTest {
 				true);
 	}
 	
-//	@Test
+	@Test
 	public void f_crearVarTextArea() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
-		seleccionarDefProc();
+		seleccionarDefinicioProces(nomDefProc);
 		crearVar(carregarPropietat("defproc.variable.tarea.codi", "Codi de la variable string no configurat al fitxer de properties"),
 				carregarPropietat("defproc.variable.tarea.nom", "Nom de la variable string no configurat al fitxer de properties"),
 				TipusVar.TEXTAREA,
@@ -146,11 +151,11 @@ public class DefinicioProcesVars extends BaseTest {
 				false);
 	}
 	
-//	@Test
+	@Test
 	public void g_crearVarDate() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
-		seleccionarDefProc();
+		seleccionarDefinicioProces(nomDefProc);
 		crearVar(carregarPropietat("defproc.variable.date.codi", "Codi de la variable string no configurat al fitxer de properties"),
 				carregarPropietat("defproc.variable.date.nom", "Nom de la variable string no configurat al fitxer de properties"),
 				TipusVar.DATE,
@@ -160,11 +165,11 @@ public class DefinicioProcesVars extends BaseTest {
 				false);
 	}
 	
-//	@Test
+	@Test
 	public void h_crearVarPrice() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
-		seleccionarDefProc();
+		seleccionarDefinicioProces(nomDefProc);
 		crearVar(carregarPropietat("defproc.variable.price.codi", "Codi de la variable string no configurat al fitxer de properties"),
 				carregarPropietat("defproc.variable.price.nom", "Nom de la variable string no configurat al fitxer de properties"),
 				TipusVar.PRICE,
@@ -174,11 +179,11 @@ public class DefinicioProcesVars extends BaseTest {
 				true);
 	}
 	
-//	@Test
+	@Test
 	public void i_crearVartermini() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
-		seleccionarDefProc();
+		seleccionarDefinicioProces(nomDefProc);
 		crearVar(carregarPropietat("defproc.variable.term.codi", "Codi de la variable string no configurat al fitxer de properties"),
 				carregarPropietat("defproc.variable.term.nom", "Nom de la variable string no configurat al fitxer de properties"),
 				TipusVar.TERMINI,
@@ -188,11 +193,11 @@ public class DefinicioProcesVars extends BaseTest {
 				false);
 	}
 	
-//	@Test
+	@Test
 	public void j_crearVarSelEnum() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
-		seleccionarDefProc();
+		seleccionarDefinicioProces(nomDefProc);
 		crearVar(carregarPropietat("defproc.variable.enum.codi", "Codi de la variable string no configurat al fitxer de properties"),
 				carregarPropietat("defproc.variable.enum.nom", "Nom de la variable string no configurat al fitxer de properties"),
 				TipusVar.SEL_ENUM,
@@ -203,11 +208,11 @@ public class DefinicioProcesVars extends BaseTest {
 				"Enumerat selenium");
 	}
 	
-//	@Test
+	@Test
 	public void k_crearVarStringMultiple() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
-		seleccionarDefProc();
+		seleccionarDefinicioProces(nomDefProc);
 		crearVar(carregarPropietat("defproc.variable.string.codi", "Codi de la variable string no configurat al fitxer de properties"),
 				carregarPropietat("defproc.variable.string.nom", "Nom de la variable string no configurat al fitxer de properties"),
 				TipusVar.STRING,
@@ -217,11 +222,11 @@ public class DefinicioProcesVars extends BaseTest {
 				false);
 	}
 	
-//	@Test
+	@Test
 	public void l_crearVarStringOculta() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
-		seleccionarDefProc();
+		seleccionarDefinicioProces(nomDefProc);
 		crearVar(carregarPropietat("defproc.variable.string.codi", "Codi de la variable string no configurat al fitxer de properties"),
 				carregarPropietat("defproc.variable.string.nom", "Nom de la variable string no configurat al fitxer de properties"),
 				TipusVar.STRING,
@@ -231,11 +236,11 @@ public class DefinicioProcesVars extends BaseTest {
 				false);
 	}
 	
-//	@Test
+	@Test
 	public void m_crearVarRegistre() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
-		seleccionarDefProc();
+		seleccionarDefinicioProces(nomDefProc);
 		crearVar("reg_v1", "Registre 1", TipusVar.STRING, null, false, false, false);
 		crearVar("reg_v2", "Registre 2", TipusVar.INTEGER, null, false, false, false);
 		crearVar(carregarPropietat("defproc.variable.reg.codi", "Codi de la variable registre no configurat al fitxer de properties"),
@@ -248,11 +253,11 @@ public class DefinicioProcesVars extends BaseTest {
 				new String[]{"reg_v1/Registre 1", "reg_v2/Registre 2"});
 	}
 	
-//	@Test
+	@Test
 	public void n_crearVarRegistreMultiple() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
-		seleccionarDefProc();
+		seleccionarDefinicioProces(nomDefProc);
 		crearVar("reg_v1", "Registre 1", TipusVar.STRING, null, true, false, false);
 		crearVar("reg_v2", "Registre 2", TipusVar.INTEGER, null, true, false, false);
 		crearVar(carregarPropietat("defproc.variable.reg.codi", "Codi de la variable registre no configurat al fitxer de properties"),
@@ -266,47 +271,110 @@ public class DefinicioProcesVars extends BaseTest {
 	}
 	
 	@Test
+	public void o_modificarVariable() {
+		carregarUrlConfiguracio();
+		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
+		seleccionarDefinicioProces(nomDefProc);
+		// Modificar el camp tipus d'una variable			
+	
+		// Accedir a la fitxa de les variables
+		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/campLlistat.html')]")).click();			
+	    screenshotHelper.saveScreenshot("defproces/variable/modificar/1_variablesInici.png");
+
+	    // Obtenir nom variable i cercar-la
+	    String codVar = carregarPropietat("defproc.variable.string.codi", "Codi de la variable string no configurat al fitxer de properties");
+	    existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]", "No existeix la variable a modificar");
+
+  	    // guardar valor inicial
+  	    String nomIni = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]/td[2]")).getText().trim();
+  	    String tipIni = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]/td[3]")).getText().trim();
+
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]/td[1]/a")).click();
+  	    screenshotHelper.saveScreenshot("defproces/variable/modificar/2_variableOriginal.png");
+
+  	    driver.findElement(By.xpath("//*[@id='tipus0']/option[@value='INTEGER']")).click();
+		driver.findElement(By.id("etiqueta0")).clear();
+		driver.findElement(By.id("etiqueta0")).sendKeys("Etiqueta modificada");
+		screenshotHelper.saveScreenshot("defproces/variable/modificar/3_variableModificada.png");
+		driver.findElement(By.xpath("//button[@value='submit']")).click(); 	    
+  	    screenshotHelper.saveScreenshot("defproces/variable/modificar/4_variablesFi.png");
+  	    
+  	    // comprovar si s'ha modificat la variable
+  	    String nomFi = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]/td[2]")).getText().trim();
+  	    String tipFi = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]/td[3]")).getText().trim();
+		assertNotEquals("No s'ha pogut canviar el nom de la variable", nomIni, nomFi);
+		assertEquals("No s'ha canviar correctament el nom de la variable", "Etiqueta modificada", nomFi);
+		assertNotEquals("No s'ha pogut canviar el tipus de la variable", tipIni, tipFi);
+		assertEquals("No s'ha canviar correctament el tipus de la variable", "INTEGER", tipFi);
+	}
+
+	@Test
+	public void p_validacioVariable() {
+		carregarUrlConfiguracio();
+		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
+		seleccionarDefinicioProces(nomDefProc);
+		 // Afegeix una validació a una variable			
+	
+		// Accedir a la fitxa de les variables
+		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/campLlistat.html')]")).click();			
+	    screenshotHelper.saveScreenshot("defproces/variable/validacio/1_variablesInici.png");
+	    
+	    // Obtenir nom variable i cercar-la
+	    String codVar = carregarPropietat("defproc.variable.string.codi", "Codi de la variable string no configurat al fitxer de properties");
+	    existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]", "No existeix la variable a afegir validació");
+	    
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]/td[5]/form/button")).click();
+		screenshotHelper.saveScreenshot("defproces/variable/validacio/2_variableInici.png");
+
+		String valIni = "NOT(var_enum01='S' and var_dat01 is blank)";
+		driver.findElement(By.id("expressio0")).sendKeys(valIni);
+		driver.findElement(By.id("missatge0")).sendKeys("S'ha d'especificar una data");
+
+		screenshotHelper.saveScreenshot("defproces/variable/validacio/3_variableFi.png");
+		driver.findElement(By.xpath("//button[@value='submit']")).click(); 	    
+  	    
+		// Comprovar que s'ha creat
+//		existeixElementAssert("//*[@id='registre']/tbody/tr/td[1][normalize-space(text()) = \"NOT(var_enum01='S' and var_dat01 is blank)\"", "defproces/variable/validacio/4_variableValidacions.png", "No s'ha pogut crear la validació de la variable");
+  	    existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1], ' and var_dat01 is blank)')]", "defproces/variable/validacio/4_variableValidacions.png", "No s'ha pogut crear la validació de la variable");
+	}
+
+	@Test
+	public void q_esborrarVar() {
+		carregarUrlConfiguracio();
+		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
+		seleccionarDefinicioProces(nomDefProc);
+		// Esborra una variable en una definició de procés			
+	
+		// Accedir a la fitxa de les variables
+		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/campLlistat.html')]")).click();			
+		screenshotHelper.saveScreenshot("defproces/variable/esborra/1_variablesInici.png");
+
+	    // Obtenir nom variable i cercar-la
+		String codVar = carregarPropietat("defproc.variable.string.codi", "Codi de la variable string no configurat al fitxer de properties");
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]", "No existeix la variable a esborrar");
+
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]/td[7]/a")).click();
+		acceptarAlerta();
+
+		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]", "defproces/variable/esborra/2_variablesFi.png", "No s'ha pogut esborrar la variable");
+	}
+	
+	@Test
 	public void z_finalitzacio() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
-		eliminarDefinicioProcesTest();
+		eliminarDefinicioProces(nomDefProc);
 		eliminarEnumeracionsTest();
 //		eliminarAgrupacioTest(codAgrupacio1);
 //		eliminarAgrupacioTest(codAgrupacio2);
-		eliminarEntornTest(entorn, usuari, codTipusExp);
+		eliminarTipusExpedient(codTipusExp);
+		eliminarEntorn(entorn);
 //		eliminarDominisTest();
 	}
 	
 	
 	// Funcions ajuda
 	// ----------------------------------------------------------------------------------------
-	private void seleccionarDefProc() {
-		// Seleccionar una definició de procés que s'utilitzarà per fer les proves
-		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]")));
-		actions.click();
-		actions.build().perform();
-
-//		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]", "defproces/01_selecDefProc.png", "No s'ha trobat la defició de procés de prova");
-		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]", "No s'ha trobat la defició de procés de prova");
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]/td[1]/a")).click();
-//		screenshotHelper.saveScreenshot("defproces/02_selecDefProc.png");
-	}
-	
-	private void eliminarDefinicioProcesTest() {
-		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]")));
-		actions.click();
-		actions.build().perform();
-
-		if (existeixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]")) {
-			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]/td[4]/a")).click();
-			acceptarAlerta();
-		}
-	}
-	
 	private void crearVar(String codi, String nom, TipusVar tipus, String agrupacio, boolean multiple, boolean oculta, boolean noRetrocedir) {
 		crearVar(codi, nom, tipus, agrupacio, multiple, oculta, noRetrocedir, null);
 	}
@@ -393,114 +461,35 @@ public class DefinicioProcesVars extends BaseTest {
 	}
 	
 	// Inicialitzacions
-	
-	private void crearEntornTest(String entorn, String titolEntorn, String usuari) {
-		entornActual = driver.findElement(By.xpath("//div[@id='page-entorn-title']/h2/span")).getText().trim();
-		// Crear entorn
-		actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/entorn/llistat.html')]")));
-		actions.click();
-		actions.build().perform();
-		if (noExisteixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]")) {
-			driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
-			driver.findElement(By.id("codi0")).clear();
-			driver.findElement(By.id("codi0")).sendKeys(entorn);
-			driver.findElement(By.id("nom0")).clear();
-			driver.findElement(By.id("nom0")).sendKeys(titolEntorn);
-			driver.findElement(By.xpath("//button[@value='submit']")).click();
-			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]", "No s'ha pogut crear l'entorn");
-		}
-		// Importar entorn	
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]/td[1]")).click();
-		existeixElementAssert("//h3[@class='titol-tab titol-delegacio']/img", "No s'ha trobat la secció d'importació");
-		driver.findElement(By.xpath("//h3[@class='titol-tab titol-delegacio']/img")).click();
-		driver.findElement(By.id("arxiu0")).sendKeys(pathExportEntorn);
-		driver.findElement(By.xpath("//*[@id='commandImportacio']//button")).click();
-		acceptarAlerta();
-		// Assignar permisos
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]/td[4]/form/button")).click();
-		if (noExisteixElement("//*[@id='registre']/tbody/tr[contains(td[2],'" + usuari + "')]")) {
-			driver.findElement(By.id("nom0")).sendKeys(usuari);
-			driver.findElement(By.xpath("//input[@value='DESIGN']")).click();
-			driver.findElement(By.xpath("//input[@value='ORGANIZATION']")).click();
-			driver.findElement(By.xpath("//input[@value='READ']")).click();
-			driver.findElement(By.xpath("//input[@value='ADMINISTRATION']")).click();
-			driver.findElement(By.xpath("//button[@value='submit']")).click();
-			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[2],'" + usuari + "')]", "No s'han pogut assignar permisos");
-		}
-		// Marcar entorn per defecte
-		driver.findElement(By.id("menuEntorn")).findElement(By.tagName("a")).click();
-		String src = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + titolEntorn + "')]/td[1]/a/img")).getAttribute("src");
-		if (!src.endsWith("star.png")) {
-			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + titolEntorn + "')]/td[1]/a")).click();
-		}
-		// Selecció entorn
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + titolEntorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
-	}
-	
-	private void eliminarEntornTest(String entorn, String usuari, String codiTipusExp) {
-		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/llistat.html')]")));
-		actions.click();
-		actions.build().perform();
-		if(existeixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiTipusExp + "')]")) {
-			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiTipusExp + "')]/td[4]/a")).click();
-			acceptarAlerta();
-		}
-		//Entorn actual per defecte
-		driver.findElement(By.id("menuEntorn")).findElement(By.tagName("a")).click();
-		if (!driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + entornActual + "')]/td[1]/a/img")).getAttribute("src").endsWith("star.png")) {
-			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + entornActual + "')]/td[1]/a")).click();
-		}
-		
-		// Eliminam l'entorn de test
-		actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/entorn/llistat.html')]")));
-		actions.click();
-		actions.build().perform();
-		if(existeixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]")) {
-			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]/td[6]/a")).click();
-			acceptarAlerta();
-			noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]", "No s'ha pogut eliminar l'entorn de proves");
-		}
-	}
-	
-	private void crearEnumeracionsTest() {
-		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/enumeracio/llistat.html')]")));
-		actions.click();
-		actions.build().perform();
-		
-		if (noExisteixElement("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]")) {
-			driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
-			driver.findElement(By.id("codi0")).sendKeys("enumsel");
-			driver.findElement(By.id("nom0")).sendKeys("Enumerat selenium");
-	  	    driver.findElement(By.xpath("//button[@value='submit']")).click();
-	  	    existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]", "No s'ha pogut crear la enumeració");
-		}
-		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]/td[3]/form/button")).click();
-		if (noExisteixElement("//*[@id='registre']/tbody/tr[contains(td[1],'A')]")) {
-			driver.findElement(By.id("codi0")).sendKeys("A");
-			driver.findElement(By.id("nom0")).sendKeys("Tipus A");
-			driver.findElement(By.xpath("//button[@value='submit']")).click();
-			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'A')]", "No s'han pogut crear els elements de la enumeració");
-		}
-		if (noExisteixElement("//*[@id='registre']/tbody/tr[contains(td[1],'B')]")) {
-			driver.findElement(By.id("codi0")).sendKeys("B");
-			driver.findElement(By.id("nom0")).sendKeys("Tipus B");
-			driver.findElement(By.xpath("//button[@value='submit']")).click();
-			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'B')]", "No s'han pogut crear els elements de la enumeració");
-		}
-	}
+//	private void crearEnumeracionsTest() {
+//		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+//		actions.build().perform();
+//		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/enumeracio/llistat.html')]")));
+//		actions.click();
+//		actions.build().perform();
+//		
+//		if (noExisteixElement("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]")) {
+//			driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
+//			driver.findElement(By.id("codi0")).sendKeys("enumsel");
+//			driver.findElement(By.id("nom0")).sendKeys("Enumerat selenium");
+//	  	    driver.findElement(By.xpath("//button[@value='submit']")).click();
+//	  	    existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]", "No s'ha pogut crear la enumeració");
+//		}
+//		
+//		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]/td[3]/form/button")).click();
+//		if (noExisteixElement("//*[@id='registre']/tbody/tr[contains(td[1],'A')]")) {
+//			driver.findElement(By.id("codi0")).sendKeys("A");
+//			driver.findElement(By.id("nom0")).sendKeys("Tipus A");
+//			driver.findElement(By.xpath("//button[@value='submit']")).click();
+//			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'A')]", "No s'han pogut crear els elements de la enumeració");
+//		}
+//		if (noExisteixElement("//*[@id='registre']/tbody/tr[contains(td[1],'B')]")) {
+//			driver.findElement(By.id("codi0")).sendKeys("B");
+//			driver.findElement(By.id("nom0")).sendKeys("Tipus B");
+//			driver.findElement(By.xpath("//button[@value='submit']")).click();
+//			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'B')]", "No s'han pogut crear els elements de la enumeració");
+//		}
+//	}
 	
 	private void eliminarEnumeracionsTest() {
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
@@ -517,7 +506,7 @@ public class DefinicioProcesVars extends BaseTest {
 	}
 	
 	private void crearAgrupacioTest(String codi, String nom) {
-		seleccionarDefProc();
+		seleccionarDefinicioProces(nomDefProc);
 		// Accedir a la fitxa de les agrupacions
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/campAgrupacioLlistat.html')]")).click();			
 //		if (noExisteixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + codi + "')]", "defproces/agrupacio/01_crea_agrupacio_" + nom + ".png")) {
@@ -545,22 +534,22 @@ public class DefinicioProcesVars extends BaseTest {
 //		}
 //	}
 	
-	private void desplegarDefProTest() {
-		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/deploy.html')]")));
-		actions.click();
-		actions.build().perform();
-		
-		// Deploy
-		driver.findElement(By.xpath("//option[@value='JBPM']")).click();
-		driver.findElement(By.id("arxiu0")).sendKeys(pathDefProc);
-		driver.findElement(By.xpath("//button[@value='submit']")).click();
-		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]")));
-		actions.click();
-		actions.build().perform();
-		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "') and td[3][not(text())]]", "No s'ha pogut importar la definició de procés de test");
-	}
+//	private void desplegarDefProTest() {
+//		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+//		actions.build().perform();
+//		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/deploy.html')]")));
+//		actions.click();
+//		actions.build().perform();
+//		
+//		// Deploy
+//		driver.findElement(By.xpath("//option[@value='JBPM']")).click();
+//		driver.findElement(By.id("arxiu0")).sendKeys(pathDefProc);
+//		driver.findElement(By.xpath("//button[@value='submit']")).click();
+//		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+//		actions.build().perform();
+//		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]")));
+//		actions.click();
+//		actions.build().perform();
+//		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "') and td[3][not(text())]]", "No s'ha pogut importar la definició de procés de test");
+//	}
 }
