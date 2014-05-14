@@ -28,7 +28,7 @@ public class PermisService {
 		return permisDao.findAll();
 	}
 	public int countPermisosAll() {
-		return permisDao.getCountAll();
+		return permisDao.findAll().size();
 	}
 	public List<Permis> findPermisosPagedAndOrderedAll(
 			String sort,

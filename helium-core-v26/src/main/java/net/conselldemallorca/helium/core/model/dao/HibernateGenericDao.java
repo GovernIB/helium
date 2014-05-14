@@ -6,6 +6,8 @@ package net.conselldemallorca.helium.core.model.dao;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 
 import net.conselldemallorca.helium.core.util.GlobalProperties;
@@ -15,14 +17,14 @@ import org.hibernate.Criteria;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Example;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.impl.AbstractQueryImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**
  * Classe que implementa el patró genericDao per Hibernate
@@ -30,11 +32,21 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDaoSupport implements GenericDao<T, ID> {
+public class HibernateGenericDao<T, ID extends Serializable> implements GenericDao<T, ID> {
 
 	private Class<T> m_persistentClass;
-	
 	private NamedParameterJdbcTemplate jdbcTemplate;
+
+//	private HibernateTemplate hibernateTemplate;
+
+	@Autowired
+	private SessionFactory sessionFactory;
+
+	private EntityManager entityManager;
+	@PersistenceContext
+	public void setEntityManager(EntityManager entityManager) {
+		this.entityManager = entityManager;
+	}
 
 	public HibernateGenericDao() {
 	}
@@ -110,15 +122,6 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 				asc);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public int getCountAll() {
-		return ((Integer)getHibernateTemplate().execute(new HibernateCallback() {
-			public Object doInHibernate(final Session session) {
-				return getCountByCriteria();
-			}
-		})).intValue();
-	}
-
 	public List<T> findByExample(final T p_exampleInstance) {
 		return findByCriteria(Example.create(p_exampleInstance));
 	}
@@ -144,15 +147,6 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 				asc,
 				Example.create(p_exampleInstance));
 	}
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public int getCountByExample(final T p_exampleInstance) {
-		return ((Integer)getHibernateTemplate().execute(new HibernateCallback() {
-			public Object doInHibernate(final Session session) {
-				return getCountByCriteria(Example.create(p_exampleInstance));
-			}
-		})).intValue();
-	}
-
 	
 	public List<T> findByCriteria(final Criterion... p_criterion) {
 		Criteria crit = getSession().createCriteria(getPersistentClass());
@@ -299,6 +293,18 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 		}
 	}
 
+	protected Session getSession() {
+		return (Session)entityManager.getDelegate();
+	}
+//	protected HibernateTemplate getHibernateTemplate() {
+//		if (hibernateTemplate == null) {
+//			hibernateTemplate = new HibernateTemplate(sessionFactory);
+//		}
+//		return hibernateTemplate;
+//	}
+
+
+
 	@SuppressWarnings("unchecked")
 	private List<T> getResultList(final Criteria crit) {
 		List<T> result = null;
@@ -321,4 +327,5 @@ public class HibernateGenericDao<T, ID extends Serializable> extends HibernateDa
 		}
 		return isCached;
 	}
+
 }

@@ -110,7 +110,8 @@ public class ConversioTipusHelper {
 						target.setDemanaNumero(source.getDemanaNumero());
 						target.setDemanaTitol(source.getDemanaTitol());
 						target.setEntorn(convertir(source.getEntorn(), EntornDto.class));
-						target.setEstats(convertirList(source.getEstats(), EstatDto.class));
+						if (source.getEstats() != null)
+							target.setEstats(convertirList(source.getEstats(), EstatDto.class));
 						target.setExpressioNumero(source.getExpressioNumero());
 						target.setId(source.getId());
 						for (Consulta consulta : source.getConsultes()) {

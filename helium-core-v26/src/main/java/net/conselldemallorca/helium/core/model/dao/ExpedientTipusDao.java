@@ -150,7 +150,7 @@ public class ExpedientTipusDao extends HibernateGenericDao<ExpedientTipus, Long>
 						null);
 				return resultat;
 			} catch (Exception ex) {
-				logger.error("Error evaluant l'expressió per calcular el número d'expedient", ex);
+//				logger.error("Error evaluant l'expressió per calcular el número d'expedient", ex);
 				return "#invalid expression#";
 			}
 		} else {

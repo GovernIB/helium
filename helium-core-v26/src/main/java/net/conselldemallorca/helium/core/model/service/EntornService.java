@@ -98,7 +98,7 @@ public class EntornService {
 	}
 	@Secured({"ROLE_ADMIN"})
 	public int countAll() {
-		return entornDao.getCountAll();
+		return entornDao.findAll().size();
 	}
 	@Secured({"ROLE_ADMIN", "AFTER_ACL_COLLECTION_READ"})
 	public List<Entorn> findPagedAndOrderedAll(

@@ -150,7 +150,7 @@ public class PersonaService {
 	}
 	@Secured({"ROLE_ADMIN"})
 	public int countPersonaUsuariAll() {
-		return personaDao.getCountAll();
+		return personaDao.findAll().size();
 	}
 	@Secured({"ROLE_ADMIN"})
 	public List<PersonaUsuariDto> findPersonaUsuariPagedAndOrderedFiltre(

@@ -9,6 +9,7 @@ import java.util.List;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 
+import org.hibernate.Query;
 import org.springframework.stereotype.Component;
 
 /**
@@ -44,7 +45,8 @@ public class DocumentStoreDao extends HibernateGenericDao<DocumentStore, Long> {
 			ds.setAdjuntTitol(adjuntTitol);
 		if (arxiuContingut != null)
 			ds.setArxiuContingut(arxiuContingut);
-		getHibernateTemplate().saveOrUpdate(ds);
+
+		getSession().saveOrUpdate(ds);
 		return ds.getId();
 	}
 
@@ -103,14 +105,15 @@ public class DocumentStoreDao extends HibernateGenericDao<DocumentStore, Long> {
 
 	@SuppressWarnings("unchecked")
 	public List<DocumentStore> findAmbProcessInstanceId(String processInstanceId) {
-		return getHibernateTemplate().find(
+		Query query = getSession().createQuery(
 				"from " +
 				"    DocumentStore ds " +
 				"where " +
-				"    ds.processInstanceId=? " +
+				"    ds.processInstanceId=:processInstanceId " +
 				"order by " +
-				"    ds.dataDocument",
-				processInstanceId);
+				"    ds.dataDocument");
+		query.setString("processInstanceId", processInstanceId);
+		return query.list();
 	}
 
 

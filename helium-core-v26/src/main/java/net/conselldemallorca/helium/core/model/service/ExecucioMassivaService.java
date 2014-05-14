@@ -261,7 +261,7 @@ public class ExecucioMassivaService {
 				label += getMessage("expedient.massiva.tasca.reg.guardar") + (param2 == null ? "" : " &#8216;" + ((Object[])param2)[1] + "&#8217;");
 			}
 		} else if (tipus.equals(ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC)){
-			if (execucioMassiva.getExpedientTipus() == null) {
+			if (execucioMassiva.getExpedientTipus() == null && execucioMassiva.getParam1() != null) {
 				String versio = "";
 				try { versio += (Integer)deserialize(execucioMassiva.getParam2()); } catch (Exception e){} 
 				label = getMessage("expedient.massiva.actualitzar") + " (" + execucioMassiva.getParam1() + " v." + versio + ")";

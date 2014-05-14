@@ -15,6 +15,7 @@ import java.util.TreeMap;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -29,6 +30,8 @@ import javax.persistence.UniqueConstraint;
 
 import net.conselldemallorca.helium.v3.core.api.dto.GenericEntityDto;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Sort;
@@ -336,8 +339,9 @@ public class ExpedientTipus implements Serializable, GenericEntityDto<Long> {
 		this.entorn = entorn;
 	}
 
-	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
+	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL}, fetch=FetchType.EAGER)
 	@OrderBy("ordre asc")
+	@Fetch(value = FetchMode.SUBSELECT)
 	public List<Estat> getEstats() {
 		return this.estats;
 	}
@@ -394,7 +398,8 @@ public class ExpedientTipus implements Serializable, GenericEntityDto<Long> {
 		getDefinicionsProces().remove(definicioProces);
 	}
 
-	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
+	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL}, fetch=FetchType.EAGER)
+	@Fetch(value = FetchMode.SUBSELECT)
 	public Set<Consulta> getConsultes() {
 		return this.consultes;
 	}
@@ -408,7 +413,8 @@ public class ExpedientTipus implements Serializable, GenericEntityDto<Long> {
 		getConsultes().remove(consulta);
 	}
 
-	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
+	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL}, fetch=FetchType.EAGER)
+	@Fetch(value = FetchMode.SUBSELECT)
 	public Set<Domini> getDominis() {
 		return this.dominis;
 	}
@@ -436,7 +442,8 @@ public class ExpedientTipus implements Serializable, GenericEntityDto<Long> {
 		getEnumeracions().remove(enumeracio);
 	}
 
-	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
+	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL}, fetch=FetchType.EAGER)
+	@Fetch(value = FetchMode.SUBSELECT)
 	@MapKey(name = "any")
 	@Sort(type = SortType.NATURAL)
 	public SortedMap<Integer, SequenciaAny> getSequenciaAny() {
@@ -446,7 +453,8 @@ public class ExpedientTipus implements Serializable, GenericEntityDto<Long> {
 		this.sequenciaAny = sequenciaAny;
 	}
 
-	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
+	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL}, fetch=FetchType.EAGER)
+	@Fetch(value = FetchMode.SUBSELECT)
 	@MapKey(name = "any")
 	@Sort(type = SortType.NATURAL)
 	public SortedMap<Integer, SequenciaDefaultAny> getSequenciaDefaultAny() {
