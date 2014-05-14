@@ -48,14 +48,16 @@ public class GetSubProcessDefinitionsCommand extends AbstractGetObjectBaseComman
 		if (subprocessos != null && !subprocessos.isEmpty()) {
 			for (Object[] obj: subprocessos) {
 				ProcessDefinition spd = (ProcessDefinition)obj[0];
-				String spn = (String)obj[1];
-				
-				if (spd != null) {
-					definicionsProces.add(spd);
-				} else if (spn != null) {
-					spd = jbpmContext.getGraphSession().findLatestProcessDefinition(spn);
-					if (spd != null) 
+				if (!definicionsProces.contains(spd)) {
+					String spn = (String)obj[1];
+					
+					if (spd != null) {
 						definicionsProces.add(spd);
+					} else if (spn != null) {
+						spd = jbpmContext.getGraphSession().findLatestProcessDefinition(spn);
+						if (spd != null) 
+							definicionsProces.add(spd);
+					}
 				}
 			}
 //			for (ProcessState ps : subprocessos) {
