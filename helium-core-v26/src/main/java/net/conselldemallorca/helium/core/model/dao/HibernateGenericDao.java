@@ -17,13 +17,11 @@ import org.hibernate.Criteria;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Example;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.impl.AbstractQueryImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 /**
@@ -36,11 +34,6 @@ public class HibernateGenericDao<T, ID extends Serializable> implements GenericD
 
 	private Class<T> m_persistentClass;
 	private NamedParameterJdbcTemplate jdbcTemplate;
-
-//	private HibernateTemplate hibernateTemplate;
-
-	@Autowired
-	private SessionFactory sessionFactory;
 
 	private EntityManager entityManager;
 	@PersistenceContext
@@ -296,12 +289,6 @@ public class HibernateGenericDao<T, ID extends Serializable> implements GenericD
 	protected Session getSession() {
 		return (Session)entityManager.getDelegate();
 	}
-//	protected HibernateTemplate getHibernateTemplate() {
-//		if (hibernateTemplate == null) {
-//			hibernateTemplate = new HibernateTemplate(sessionFactory);
-//		}
-//		return hibernateTemplate;
-//	}
 
 
 
