@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -277,22 +276,29 @@ public abstract class BaseTest {
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]", "No s'ha trobat l'entorn");
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]/td[4]/form/button")).click();
-		if (noExisteixElement("//*[@id='registre']/tbody/tr[contains(td[2],'" + usuari + "')]")) {
-			driver.findElement(By.id("nom0")).sendKeys(usuari);
-			for (String permis: permisos) {
-				if ("DESIGN".equals(permis)) {
-					driver.findElement(By.xpath("//input[@value='DESIGN']")).click();
-				} else if ("ORGANIZATION".equals(permis)) {
-					driver.findElement(By.xpath("//input[@value='ORGANIZATION']")).click();
-				} else if ("READ".equals(permis)) {
-					driver.findElement(By.xpath("//input[@value='READ']")).click();
-				} else if ("ADMINISTRATION".equals(permis)) {
-					driver.findElement(By.xpath("//input[@value='ADMINISTRATION']")).click();
-				}
-			}
-			driver.findElement(By.xpath("//button[@value='submit']")).click();
-			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[2],'" + usuari + "')]", "No s'han pogut assignar permisos");
+		
+		// Eliminamos los permisos anteriores
+		if (existeixElement("//*[@id='registre']/tbody/tr[contains(td[2],'" + usuari + "')]")) {
+			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + usuari + "')]/td[4]/a/img")).click();
+			acceptarAlerta();
+			existeixElementAssert("//*[@id='infos']/p", "No se borraron los permisos correctamente");
 		}
+		
+		// Ponemos los nuevos
+		driver.findElement(By.id("nom0")).sendKeys(usuari);
+		for (String permis: permisos) {
+			if ("DESIGN".equals(permis)) {
+				driver.findElement(By.xpath("//input[@value='DESIGN']")).click();
+			} else if ("ORGANIZATION".equals(permis)) {
+				driver.findElement(By.xpath("//input[@value='ORGANIZATION']")).click();
+			} else if ("READ".equals(permis)) {
+				driver.findElement(By.xpath("//input[@value='READ']")).click();
+			} else if ("ADMINISTRATION".equals(permis)) {
+				driver.findElement(By.xpath("//input[@value='ADMINISTRATION']")).click();
+			}
+		}
+		driver.findElement(By.xpath("//button[@value='submit']")).click();
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[2],'" + usuari + "')]", "No s'han pogut assignar permisos");
 	}
 	
 	protected void importarDadesEntorn(String entorn, String pathExportEntorn) {
@@ -363,22 +369,41 @@ public abstract class BaseTest {
 	}
 	
 	protected void desplegarDefinicioProcesEntorn(String nomDefProc, String pathDefProc) {
+		desplegarDefinicioProcesEntorn(null, nomDefProc, pathDefProc);
+	}
+	
+	protected void desplegarDefinicioProcesEntorn(String tipusExpedient, String nomDefProc, String pathDefProc) {
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/deploy.html')]")));
 		actions.click();
 		actions.build().perform();
 		
+		// tipus d'expedient
+		if (tipusExpedient != null) {
+			for (WebElement option : driver.findElement(By.id("expedientTipusId0")).findElements(By.tagName("option"))) {
+				if (option.getText().equals(tipusExpedient)) {
+					option.click();
+					break;
+				}
+			}
+		}
+		
 		// Deploy
 		driver.findElement(By.xpath("//option[@value='JBPM']")).click();
 		driver.findElement(By.id("arxiu0")).sendKeys(pathDefProc);
 		driver.findElement(By.xpath("//button[@value='submit']")).click();
+		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]")));
 		actions.click();
 		actions.build().perform();
-		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "') and td[3][not(text())]]", "No s'ha pogut importar la definició de procés de test");
+		
+		if (tipusExpedient == null)
+			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "') and td[3][not(text())]]", "No s'ha pogut importar la definició de procés de test");
+		else
+			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]", "No s'ha pogut importar la definició de procés de test");
 	}
 	
 	protected void eliminarDefinicioProces(String nomDefProc) {
@@ -411,19 +436,14 @@ public abstract class BaseTest {
 	
 	// EXPEDIENT
 	// ............................................................................................................
-	protected void importarDadesExpedient(String nomVarExp, String path) {		
+	protected void importarDadesExpedient(String defProc, String path) {		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]")));
 		actions.click();
 		actions.build().perform();
 		
-		for (WebElement option : driver.findElement(By.id("registre")).findElements(By.tagName("a"))) {
-			if (option.getText().equals(nomVarExp)) {
-				option.click();
-				break;
-			}
-		}
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'"+defProc+"')]")).click();
 
 		// Deploy
 		driver.findElement(By.xpath("//*[@id='content']/div[1]/h3/img")).click();
@@ -433,26 +453,117 @@ public abstract class BaseTest {
 		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut importar la definició de procés de test");
 	}
 	
-	protected void eliminarExpedient(String tituloExpediente) {
+	protected void eliminarExpedient(String numExpediente, String tituloExpediente) {
 		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']/ul/li[1]/a")));
 		actions.click();
 		actions.build().perform();
 		
-		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='expedientTipus0']"));
-		List<WebElement> allOptions = selectTipusExpedient.findElements(By.tagName("option"));
-		for (WebElement option : allOptions) {
-			if (option.getText().equals(properties.getProperty("defproc.deploy.tipus.expedient.nom"))) {
-				option.click();
-				break;
-			}
-		}		
+		driver.findElement(By.xpath("//*[@id='titol0']")).clear();
+		if (tituloExpediente != null)
+			driver.findElement(By.xpath("//*[@id='titol0']")).sendKeys(tituloExpediente);
 		
-		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();		
-		assertTrue("No se encontró el expediente", driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + tituloExpediente + "')]")) != null);			
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + tituloExpediente + "')]/td[8]/a/img")).click();		
+		driver.findElement(By.xpath("//*[@id='numero0']")).clear();
+		if (numExpediente != null)
+			driver.findElement(By.xpath("//*[@id='numero0']")).sendKeys(numExpediente);
+		
+		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();
+		
+		assertTrue("No se encontró el expediente", driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]")) != null);			
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[contains(a/img/@src,'/helium/img/cross.png')]/a/img")).click();		
+		
 		acceptarAlerta();		
 		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut borrar el expediente");
+	}
+
+	protected String[] iniciarExpediente(String defProc, String codTipusExp, String numero, String titulo) {
+		String[] res = new String[2];
+		
+		existeixElementAssert("//li[@id='menuIniciar']", "No tiene permisos para iniciar un expediente");
+		driver.findElement(By.xpath("//*[@id='menuIniciar']/a")).click();
+		
+		// Obtenir nom del tipus d'expedient i cercar-lo
+		driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
+		boolean isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipusExp + "')]")).size() > 0;
+		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
+
+		assertTrue("No s'ha trobat el tipus d'expedient", isPresent);
+		
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipusExp + "')]/td[3]/form/button")).click();
+		
+		if (driver.findElements(By.xpath("//*[@id='numero0']")).size() > 0 && numero != null) {
+			driver.findElement(By.xpath("//*[@id='numero0']")).clear();
+			driver.findElement(By.xpath("//*[@id='numero0']")).sendKeys(numero);
+		} else {
+			numero = null;
+		}
+		if (driver.findElements(By.xpath("//*[@id='titol0']")).size() > 0 && titulo != null) {
+			driver.findElement(By.xpath("//*[@id='titol0']")).clear();
+			driver.findElement(By.xpath("//*[@id='titol0']")).sendKeys(titulo);
+		} else {
+			titulo = null;
+		}
+		driver.findElement(By.xpath("//button[@value='submit']")).click();
+		acceptarAlerta();
+		
+		existeixElementAssert("//*[@id='infos']/p", "No se inició el expediente");
+		
+		String textoInfo = driver.findElement(By.xpath("//*[@id='infos']/p")).getText();
+		if (textoInfo.indexOf("]") != -1) {
+			res[0] = textoInfo.substring(textoInfo.indexOf("[")+1, textoInfo.indexOf("]")).trim();
+			res[1] = textoInfo.substring(textoInfo.indexOf("]")+1).trim();
+		} else {
+			if (numero != null)
+				res[0] = textoInfo.substring(textoInfo.indexOf(":")+1).trim();
+			if (titulo != null)
+				res[1] = textoInfo.substring(textoInfo.indexOf(":")+1).trim();
+		}
+		
+		existeixElementAssert("//*[@id='infos']/p", "No se inició el expediente");
+		
+		return res;
+	}
+	
+	protected void assignarPermisosTipusExpedient(String tipusExp, String usuari, String... permisos) {
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + tipusExp + "')]", "No s'ha trobat l'tipus");
+		
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + tipusExp + "')]/td[3]/form/button")).click();
+		
+		// Eliminamos los permisos anteriores
+		if (existeixElement("//*[@id='registre']/tbody/tr[contains(td[2],'" + usuari + "')]")) {
+			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + usuari + "')]/td[4]/a/img")).click();
+			acceptarAlerta();
+			existeixElementAssert("//*[@id='infos']/p", "No se borraron los permisos correctamente");
+		}
+		
+		// Ponemos los nuevos
+		driver.findElement(By.id("nom0")).sendKeys(usuari);
+		for (String permis: permisos) {
+			if ("DESIGN".equals(permis)) {
+				driver.findElement(By.xpath("//input[@value='DESIGN']")).click();
+			} else if ("CREATE".equals(permis)) {
+				driver.findElement(By.xpath("//input[@value='CREATE']")).click();
+			} else if ("SUPERVISION".equals(permis)) {
+				driver.findElement(By.xpath("//input[@value='SUPERVISION']")).click();
+			} else if ("WRITE".equals(permis)) {
+				driver.findElement(By.xpath("//input[@value='WRITE']")).click();
+			} else if ("MANAGE".equals(permis)) {
+				driver.findElement(By.xpath("//input[@value='MANAGE']")).click();
+			} else if ("DELETE".equals(permis)) {
+				driver.findElement(By.xpath("//input[@value='DELETE']")).click();
+			} else if ("READ".equals(permis)) {
+				driver.findElement(By.xpath("//input[@value='READ']")).click();
+			} else if ("ADMINISTRATION".equals(permis)) {
+				driver.findElement(By.xpath("//input[@value='ADMINISTRATION']")).click();
+			}
+		}
+		driver.findElement(By.xpath("//button[@value='submit']")).click();
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[2],'" + usuari + "')]", "No s'han pogut assignar permisos");
 	}
 }
