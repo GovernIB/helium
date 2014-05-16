@@ -139,11 +139,13 @@ public class ModificarExpedient extends BaseTest {
 			assertTrue("Error al comprobar el campo " + claves.get(i).getText(), result);
 		}
 
-		screenshotHelper.saveScreenshot("tramitar/modificarInfoExp/visualizacio3.png");
-				
-		eliminarExpedient(numero, null);
-		screenshotHelper.saveScreenshot("tramitar/modificarInfoExp/visualizacio4.png");
+		screenshotHelper.saveScreenshot("tramitar/modificarInfoExp/3.png");
 		
-		screenshotHelper.saveScreenshot("tramitar/modificarInfoExp/visualizacio3.png");
+		eliminarExpedient(numero, titulo);
+			
+		// Eliminar la def de proceso
+		eliminarDefinicioProces(nomDefProc);
+		
+		screenshotHelper.saveScreenshot("tramitar/modificarInfoExp/4.png");
 	}
 }
