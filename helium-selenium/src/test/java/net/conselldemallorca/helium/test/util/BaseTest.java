@@ -34,6 +34,7 @@ public abstract class BaseTest {
 	protected static Properties properties;
 	protected static String browser;
 	protected static String baseUrl;
+	protected static boolean seycon;
 	protected static ScreenshotHelper screenshotHelper;
 	protected static Actions actions;
 
@@ -115,6 +116,15 @@ public abstract class BaseTest {
 		baseUrl = properties.getProperty("test.base.url.configuracio");
 		assertNotNull("Url base no configurada al fitxer de properties", baseUrl);
 		driver.get(baseUrl);
+		
+		seycon = "true".equals(properties.getProperty("test.base.url.inicio.seycon"));
+		if (seycon) {
+			String user = properties.getProperty("test.base.usuari.configuracio");
+			String pass = properties.getProperty("test.base.usuari.configuracio");
+			driver.findElement(By.xpath("//*[@id='j_username']")).sendKeys(user);
+			driver.findElement(By.xpath("//*[@id='j_password']")).sendKeys(pass);
+			driver.findElement(By.xpath("//*[@id='usuariclau']/form/p[3]/input")).click();
+		}
 	}
 	protected void carregarUrlDisseny() {
 		baseUrl = properties.getProperty("test.base.url.disseny");
