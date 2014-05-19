@@ -240,6 +240,7 @@ public class ExpedientConsultaController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@RequestMapping(value = "/expedient/consultaEstats")
 	public String consultaEstats(
 			HttpServletRequest request,
@@ -383,7 +384,6 @@ public class ExpedientConsultaController extends BaseController {
 									ExtendedPermission.WRITE}) != null;
 	}
 	
-	@SuppressWarnings("unused")
 	private static final Log logger = LogFactory.getLog(ExpedientConsultaController.class);
 
 }

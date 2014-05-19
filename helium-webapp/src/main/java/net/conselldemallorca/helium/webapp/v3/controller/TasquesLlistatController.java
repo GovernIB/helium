@@ -23,8 +23,6 @@ import net.conselldemallorca.helium.webapp.v3.datatables.DatatablesPagina;
 import net.conselldemallorca.helium.webapp.v3.helper.PaginacioHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
@@ -165,5 +163,4 @@ public class TasquesLlistatController extends BaseExpedientController {
 		return filtreCommand;
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(TasquesLlistatController.class);
 }

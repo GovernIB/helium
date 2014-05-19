@@ -3,8 +3,6 @@
  */
 package net.conselldemallorca.helium.webapp.v3.command;
 
-import org.springframework.format.annotation.NumberFormat;
-import org.springframework.format.annotation.NumberFormat.Style;
 
 /**
  * Command per iniciar un expedient
