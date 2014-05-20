@@ -106,6 +106,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Element;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.annotation.Secured;
@@ -2593,5 +2594,14 @@ public class ExpedientService {
 			dadesExpedient.remove(LuceneDao.CLAU_EXPEDIENT_ID);
 		}
 		return resposta;
+	}
+
+	// Inicialització de les definicions de procés per a poder utilitzar les classes
+	// java (handlers) d'aquestes en els timers. 
+	public void initializeDefinicionsProces() {
+		List<ExpedientTipus> llistat = expedientTipusDao.findAll();
+		for (ExpedientTipus expedientTipus: llistat) {
+			Hibernate.initialize(expedientTipus.getDefinicionsProces());
+		}
 	}
 }

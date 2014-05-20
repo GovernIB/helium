@@ -78,31 +78,18 @@ public class DefinicioProcesDocumentController extends BaseController {
 			@RequestParam(value = "id", required = false) Long id,
 			@RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId,
 			@RequestParam(value = "definicioProces", required = false) Long definicioProces) {
+		DefinicioProcesDto defpro = null;
+		if (definicioProcesId != null)
+			defpro = dissenyService.getById(definicioProcesId, false);
+		else if (definicioProces != null)
+			defpro = dissenyService.getById(definicioProces, false);
+		
 		if (id != null) {
-			Document vell = dissenyService.getDocumentById(id);
-			Document document = new Document();
-			document.setId(id);
-			document.setCodi(vell.getCodi());
-			document.setNom(vell.getNom());
-			document.setArxiuNom(vell.getArxiuNom());
-			document.setDescripcio(vell.getDescripcio());
-			document.setPlantilla(vell.isPlantilla());
-			document.setAdjuntarAuto(vell.isAdjuntarAuto());
-			document.setContentType(vell.getContentType());
-			document.setCustodiaCodi(vell.getCustodiaCodi());
-			document.setTipusDocPortasignatures(vell.getTipusDocPortasignatures());
-			document.setDefinicioProces(vell.getDefinicioProces());
-			document.setCampData(vell.getCampData());
-			document.setExtensionsPermeses(vell.getExtensionsPermeses());
-			document.setConvertirExtensio(vell.getConvertirExtensio());
-			return document;
+			return dissenyService.getDocumentById(id);
 		}
 		Document nou = new Document();
 		nou.setAdjuntarAuto(true);
-		if (definicioProcesId != null)
-			nou.setDefinicioProces(dissenyService.getById(definicioProcesId, false));
-		if (definicioProces != null)
-			nou.setDefinicioProces(dissenyService.getById(definicioProces, false));
+		nou.setDefinicioProces(defpro);
 		return nou;
 	}
 

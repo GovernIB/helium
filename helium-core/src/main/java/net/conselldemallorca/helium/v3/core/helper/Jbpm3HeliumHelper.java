@@ -121,7 +121,6 @@ import net.conselldemallorca.helium.v3.core.api.exception.TerminiNotFoundExcepti
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 import net.conselldemallorca.helium.v3.core.api.service.Jbpm3HeliumService;
 
-import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -1499,10 +1498,11 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public void initializeDefinicionsProces() {
 		imprimirFuncio("initializeDefinicionsProces");
-		List<ExpedientTipus> llistat = expedientTipusDao.findAll();
-		for (ExpedientTipus expedientTipus: llistat) {
-			Hibernate.initialize(expedientTipus.getDefinicionsProces());
-		}
+		expedientService.initializeDefinicionsProces();
+//		List<ExpedientTipus> llistat = expedientTipusDao.findAll();
+//		for (ExpedientTipus expedientTipus: llistat) {
+//			Hibernate.initialize(expedientTipus.getDefinicionsProces());
+//		}
 	}
 	
 	@Override
