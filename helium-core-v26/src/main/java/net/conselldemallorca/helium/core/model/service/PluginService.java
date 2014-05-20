@@ -50,7 +50,6 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jbpm.JbpmException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -157,7 +156,7 @@ public class PluginService {
 			Long tokenId,
 			Long processInstanceId,
 			String transicioOK,
-			String transicioKO) throws Exception {
+			String transicioKO) throws PluginException {
 		try {
 			DocumentDto document = documentHelper.getDocumentVista(
 					documentId,
@@ -202,7 +201,7 @@ public class PluginService {
 			portasignatures.setProcessInstanceId(processInstanceId.toString());
 			pluginPortasignaturesDao.saveOrUpdate(portasignatures);
 		} catch (Exception e) {
-			throw new JbpmException(getServiceUtils().getMessage("error.pluginService.pujarDocument"), e);
+			throw new PluginException(getServiceUtils().getMessage("error.pluginService.pujarDocument"), e);
 		}
 	}
 

@@ -36,6 +36,7 @@ import net.conselldemallorca.helium.core.model.dao.ReassignacioDao;
 import net.conselldemallorca.helium.core.model.dao.TascaDao;
 import net.conselldemallorca.helium.core.model.dao.TerminiIniciatDao;
 import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
+import net.conselldemallorca.helium.core.model.dto.PersonaDto.Sexe;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Area;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
@@ -55,6 +56,7 @@ import net.conselldemallorca.helium.core.model.service.DocumentService;
 import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
+import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.registre.DadesAssumpte;
@@ -196,6 +198,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private ExpedientService expedientService;
 	@Resource
 	private DocumentService documentService;
+	@Resource
+	private PluginService pluginService;
 	@Resource
 	private ExecucioMassivaService execucioMassivaService;
 
@@ -1228,8 +1232,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public RegistreIdDto registreNotificacio(
 			RegistreNotificacioDto notificacio) throws PluginException {
 		imprimirFuncio("registreNotificacio");
-		// TODO Auto-generated method stub
-		return null;
+		throw new PluginException("Funcionalitat no implementada");
 	}
 
 	@Override
@@ -1268,26 +1271,41 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			Long tokenId,
 			Long processInstanceId,
 			String transicioOK,
-			String transicioKO) {
+			String transicioKO) throws PluginException {
 		imprimirFuncio("portasignaturesEnviar");
-		// TODO Auto-generated method stub
-		
+		pluginService.enviarPortasignatures(
+				documentId,
+				annexosId,
+				toPersonaDto26(persona),
+				toPersonaDto26List(personesPas1),
+				minSignatarisPas1,
+				toPersonaDto26List(personesPas2),
+				minSignatarisPas2,
+				toPersonaDto26List(personesPas3),
+				minSignatarisPas3,
+				expedientDao.getById(expedientId, false),
+				importancia,
+				dataLimit,
+				tokenId,
+				processInstanceId,
+				transicioOK,
+				transicioKO);
 	}
 
 	@Override
-	public void zonaperExpedientCrear(String processInstanceId,
+	public void zonaperExpedientCrear(
+			String processInstanceId,
 			ZonaperExpedientDto dadesExpedient) throws PluginException {
 		imprimirFuncio("zonaperExpedientCrear");
-		// TODO Auto-generated method stub
-		
+		throw new PluginException("Funcionalitat no implementada");
 	}
 
 	@Override
-	public void zonaperEventCrear(String processInstanceId,
+	public void zonaperEventCrear(
+			String processInstanceId,
 			ZonaperEventDto dadesEvent) throws PluginException {
-		imprimirFuncio("");
-		// TODO Auto-generated method stub
-		
+		imprimirFuncio("zonaperEventCrear");
+		throw new PluginException("Funcionalitat no implementada");
 	}
 
 	@Override
@@ -1567,6 +1585,29 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			throw new ProcessInstanceNotFoundException();
 		Expedient exp = expedientDao.findAmbProcessInstanceId(processInstance.getId());
 		return exp.getEntorn();
+	}
+
+	private List<net.conselldemallorca.helium.core.model.dto.PersonaDto> toPersonaDto26List(
+			List<PersonaDto> persones) {
+		if (persones != null) {
+			List<net.conselldemallorca.helium.core.model.dto.PersonaDto> resposta = new ArrayList<net.conselldemallorca.helium.core.model.dto.PersonaDto>();
+			for (PersonaDto persona: persones)
+				resposta.add(toPersonaDto26(persona));
+			return resposta;
+		} else {
+			return null;
+		}
+	}
+	private net.conselldemallorca.helium.core.model.dto.PersonaDto toPersonaDto26(
+			PersonaDto personaDto30) {
+		net.conselldemallorca.helium.core.model.dto.PersonaDto resposta = new net.conselldemallorca.helium.core.model.dto.PersonaDto(
+				personaDto30.getCodi(),
+				personaDto30.getNom(),
+				personaDto30.getLlinatges(),
+				personaDto30.getEmail(),
+				Sexe.SEXE_HOME);
+		resposta.setDni(personaDto30.getDni());
+		return resposta;
 	}
 
 	private void imprimirFuncio(String nom) {

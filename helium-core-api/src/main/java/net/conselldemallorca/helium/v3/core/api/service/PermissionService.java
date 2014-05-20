@@ -17,9 +17,14 @@ import org.springframework.security.acls.model.Sid;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface PermissionService {
+
+	@SuppressWarnings("rawtypes")
 	public Map<Sid, List<AccessControlEntry>> getAclEntriesGroupedBySid(Serializable id, Class clazz);
 
+	@SuppressWarnings("rawtypes")
 	public boolean isGrantedAny(Long object, Class clazz, Permission[] permissions);
 
+	@SuppressWarnings("rawtypes")
 	public boolean filterAllowed(List tipus, Object objectIdentifierExtractor, Class<?> clazz, Permission[] permissions);
+
 }

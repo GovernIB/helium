@@ -755,7 +755,7 @@ public interface Jbpm3HeliumService {
 			Long tokenId,
 			Long processInstanceId,
 			String transicioOK,
-			String transicioKO);
+			String transicioKO) throws PluginException;
 
 	/**
 	 * 
