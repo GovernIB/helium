@@ -41,6 +41,7 @@ public class SignaturaTest {
 				buffer.write(tmp, 0, nRead);
 			}
 			buffer.flush();
+			is.close();
 			byte[] resposta = (byte[])signaturaPlugin.sign(
 					buffer.toByteArray(),
 					certList[0],

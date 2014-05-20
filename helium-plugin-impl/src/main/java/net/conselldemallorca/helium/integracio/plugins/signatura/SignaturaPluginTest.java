@@ -91,7 +91,7 @@ public class SignaturaPluginTest implements SignaturaPlugin {
 		}
 		return null;
 	}
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "resource" })
 	private List<DadesCertificat> obtenirDadesCertificatNoPdf(
 			byte[] signatura) throws Exception {
 		X509Certificate[] certificats = null;
@@ -136,7 +136,7 @@ public class SignaturaPluginTest implements SignaturaPlugin {
 		if (!existeix)
 			Security.addProvider(new BouncyCastleProvider());
     }
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "resource" })
 	private DadesCertificat getDadesCertificat(X509Certificate cert) throws Exception {
 		ASN1InputStream asn1is = new ASN1InputStream(cert.getEncoded());
 		org.bouncycastle.asn1.DERObject obj = asn1is.readObject();
