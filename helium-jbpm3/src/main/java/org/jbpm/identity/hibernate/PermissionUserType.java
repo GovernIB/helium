@@ -86,7 +86,8 @@ public class PermissionUserType implements CompositeUserType {
     try {
       // TODO optimize performance by caching the constructors
       Class permissionClass = PermissionUserType.class.getClassLoader().loadClass(className);
-      Constructor constructor = permissionClass.getDeclaredConstructor(NAME_ACTIOS_CONSTRUCTOR_PARAMETER_TYPES);
+      @SuppressWarnings("unchecked")
+	Constructor constructor = permissionClass.getDeclaredConstructor(NAME_ACTIOS_CONSTRUCTOR_PARAMETER_TYPES);
       permission = constructor.newInstance(new Object[]{name, actions});
     } catch (Exception e) {
       throw new HibernateException("couldn't create permission from database record ["+className+"|"+name+"|"+actions+"].  Does the permission class have a (String name,String actions) constructor ?", e);

@@ -30,7 +30,7 @@ public class GetTaskListByActorIdCommand extends AbstractGetObjectBaseCommand im
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		setJbpmContext(jbpmContext);
-		long t0 = System.currentTimeMillis();
+		//long t0 = System.currentTimeMillis();
 		Query queryActorId = jbpmContext.getSession().createQuery(
 				"select " +
 				"    ti " +
@@ -43,7 +43,7 @@ public class GetTaskListByActorIdCommand extends AbstractGetObjectBaseCommand im
 		queryActorId.setString("actorId", actorId);
 		List llistaActorIds = queryActorId.list();
 		//System.out.println(">>> actorIds (" + (System.currentTimeMillis() - t0) + " ms): " + llistaActorIds.size());
-		t0 = System.currentTimeMillis();
+		//t0 = System.currentTimeMillis();
 		Query queryPooledActors = jbpmContext.getSession().createQuery(
 				"select " +
 				"    ti " +

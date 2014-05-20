@@ -39,6 +39,7 @@ public class GetRootProcessInstancesForExpedientsWithActiveTasksCommand extends 
 		this.pooled = pooled;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		
 		setJbpmContext(jbpmContext);
