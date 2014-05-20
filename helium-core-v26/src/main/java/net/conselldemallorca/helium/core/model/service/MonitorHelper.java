@@ -12,12 +12,14 @@ import org.springframework.stereotype.Component;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Component
+@SuppressWarnings("restriction")
 public class MonitorHelper {
 	private static Boolean actiu = null;
 	private static long prevUpTime, prevProcessCpuTime;
 
 	private static RuntimeMXBean rmBean;
 
+	
 	private static com.sun.management.OperatingSystemMXBean sunOSMBean;
 	public static com.sun.management.OperatingSystemMXBean getSunOSMBean() {
 		return sunOSMBean;
