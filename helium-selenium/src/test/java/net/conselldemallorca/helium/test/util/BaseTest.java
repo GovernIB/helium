@@ -40,6 +40,43 @@ public abstract class BaseTest {
 
 	protected static String entornActual;
 	
+	protected static enum TipusVar {
+		STRING			("STRING"),
+		INTEGER			("INTEGER"),
+		FLOAT			("FLOAT"),
+		BOOLEAN			("BOOLEAN"),
+		TEXTAREA		("TEXTAREA"),
+		DATE			("DATE"),
+		PRICE			("PRICE"),
+		TERMINI			("TERMINI"),
+		SEL_ENUM		("SELECCIO"),
+		SEL_DOMINI		("SELECCIO"),
+		SEL_INTERN		("SELECCIO"),
+		SEL_CONSULTA	("SELECCIO"),
+		SUG_ENUM		("SUGGEST"),
+		SUG_DOMINI		("SUGGEST"),
+		SUG_INTERN		("SUGGEST"),
+		SUG_CONSULTA	("SUGGEST"),
+		ACCIO			("ACCIO"),
+		REGISTRE		("REGISTRE");
+		
+		private final  String label;
+		private final String id;
+		
+		TipusVar (String label) {
+			this.label = label;
+			this.id = this.name();
+			
+		}
+	 
+		public String getLabel() {
+			return this.label;
+		}
+		public String getId() {
+			return id;
+		}
+	}
+	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		// Carreguem el fitxer de propietats

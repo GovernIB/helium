@@ -15,7 +15,7 @@ public class DefinicioProcesVars extends BaseTest {
 
 	String entorn = carregarPropietat("defproc.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
 	String titolEntorn = carregarPropietat("defproc.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
-	String pathExportEntorn = carregarPropietat("defproc.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String pathExportEntorn = carregarPropietat("defproc.export.entorn.arxiu.path", "Ruta de l'exportació de l'entorn de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String pathDefProc = carregarPropietat("defproc.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
@@ -25,45 +25,6 @@ public class DefinicioProcesVars extends BaseTest {
 	String nomAgrupacio1 = carregarPropietat("defproc.deploy.agrupacio.1.nom", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	String codAgrupacio2 = carregarPropietat("defproc.deploy.agrupacio.2.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	String nomAgrupacio2 = carregarPropietat("defproc.deploy.agrupacio.2.nom", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
-	
-	static String entornActual;
-	
-	static enum TipusVar {
-		STRING			("STRING"),
-		INTEGER			("INTEGER"),
-		FLOAT			("FLOAT"),
-		BOOLEAN			("BOOLEAN"),
-		TEXTAREA		("TEXTAREA"),
-		DATE			("DATE"),
-		PRICE			("PRICE"),
-		TERMINI			("TERMINI"),
-		SEL_ENUM		("SELECCIO"),
-		SEL_DOMINI		("SELECCIO"),
-		SEL_INTERN		("SELECCIO"),
-		SEL_CONSULTA	("SELECCIO"),
-		SUG_ENUM		("SUGGEST"),
-		SUG_DOMINI		("SUGGEST"),
-		SUG_INTERN		("SUGGEST"),
-		SUG_CONSULTA	("SUGGEST"),
-		ACCIO			("ACCIO"),
-		REGISTRE		("REGISTRE");
-		
-		private final  String label;
-		private final String id;
-		
-		TipusVar (String label) {
-			this.label = label;
-			this.id = this.name();
-			
-		}
-	 
-		public String getLabel() {
-			return this.label;
-		}
-		public String getId() {
-			return id;
-		}
-	}
 	
 	@Test
 	public void a_inicialitzacio() {
