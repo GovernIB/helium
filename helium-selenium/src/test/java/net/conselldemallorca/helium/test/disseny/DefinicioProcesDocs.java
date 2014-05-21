@@ -16,10 +16,9 @@ public class DefinicioProcesDocs extends BaseTest {
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String pathDefProc = carregarPropietat("defproc.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-//	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	
-//	@Test
+	@Test
 	public void a_inicialitzacio() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
@@ -28,10 +27,12 @@ public class DefinicioProcesDocs extends BaseTest {
 		marcarEntornDefecte(titolEntorn);
 		seleccionarEntorn(titolEntorn);
 		desplegarDefinicioProcesEntorn(nomDefProc, pathDefProc);
+		seleccionarDefinicioProces(nomDefProc);
+		crearVar("campData", "campData", TipusVar.DATE, null, false, false, false, null);
 		importarDadesEntorn(entorn, pathExportEntorn);
 	}
 	
-//	@Test
+	@Test
 	public void b_crearDocumentSensePlantilla() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
@@ -41,7 +42,7 @@ public class DefinicioProcesDocs extends BaseTest {
 				false, null, null, false, null, null, null, null, null, null);
 	}
 	
-//	@Test
+	@Test
 	public void c_crearDocumentAmbPlantilla() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
@@ -54,7 +55,7 @@ public class DefinicioProcesDocs extends BaseTest {
 				carregarPropietat("defproc.document.plant.hash", "Hash de la plantilla no configurat al fitxer de properties"));
 	}
 	
-//	@Test
+	@Test
 	public void d_definirCampAmbData() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
@@ -70,7 +71,7 @@ public class DefinicioProcesDocs extends BaseTest {
 				carregarPropietat("defproc.document.plant2.hash", "Hash de la plantilla no configurat al fitxer de properties"));
 	}
 	
-//	@Test
+	@Test
 	public void e_adjuntaAutomaticament() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");

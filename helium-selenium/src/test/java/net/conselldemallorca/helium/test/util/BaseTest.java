@@ -474,6 +474,88 @@ public abstract class BaseTest {
 		}
 	}
 	
+	protected void crearVar(String codi, String nom, TipusVar tipus, String agrupacio, boolean multiple, boolean oculta, boolean noRetrocedir, Object parametres) {
+		// Definim sufix per a les variables depenent de la confifuració
+		String params = "";
+		if (multiple) params += "M";
+		if (oculta) params += "O";
+		if (noRetrocedir) params += "R";
+		if (!params.isEmpty()) {
+			params = "_" + params; 
+			codi += params;
+			nom += params;
+		}
+		// Accedir a la fitxa de les variables
+		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/campLlistat.html')]")).click();	
+		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codi + "')]", "defproces/variable/" + tipus.getId() + params + "/01_crea_var.png", "La variable a crear ja existeix");
+				
+  	    // Botó nova variable
+  	    driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
+  	    // Paràmetres de la variable
+  	    driver.findElement(By.id("codi0")).clear();
+		driver.findElement(By.id("codi0")).sendKeys(codi);
+		driver.findElement(By.xpath("//*[@id='tipus0']/option[@value='" + tipus.getLabel() + "']")).click();
+		driver.findElement(By.id("etiqueta0")).clear();
+		driver.findElement(By.id("etiqueta0")).sendKeys(nom);
+		driver.findElement(By.id("observacions0")).clear();
+		driver.findElement(By.id("observacions0")).sendKeys("Variable de tipus" + tipus.getLabel() + "\n" +
+															"Multiple: " + (multiple ? "Sí" : "No") + "\n" +
+															"Oculta: " + (oculta ? "Sí" : "No") + "\n" +
+															"Retrocedir: " + (noRetrocedir ? "No" : "Sí"));
+		if (agrupacio != null) driver.findElement(By.xpath("//*[@id='agrupacio0']/option[normalize-space(text())='" + agrupacio + "']")).click();
+		if (multiple) driver.findElement(By.id("multiple0")).click();
+		if (oculta) driver.findElement(By.id("ocult0")).click();
+		if (noRetrocedir) driver.findElement(By.id("ignored0")).click();
+		
+		if (tipus == TipusVar.SEL_CONSULTA) {
+			fail("Proves de Select tipus consulta no implementades");
+		} else if (tipus == TipusVar.SEL_DOMINI) {
+			fail("Proves de Select tipus domini no implementades");
+		} else if (tipus == TipusVar.SEL_ENUM) {
+			String enumeracio = (String)parametres;
+			driver.findElement(By.xpath("//*[@id='enumeracio0']/option[normalize-space(text())='" + enumeracio + "']")).click();
+		} else if (tipus == TipusVar.SEL_INTERN) {
+			fail("Proves de Select tipus domini intern no implementades");
+		} else if (tipus == TipusVar.SUG_CONSULTA) {
+			fail("Proves de Suggest tipus consulta no implementades");
+		} else if (tipus == TipusVar.SUG_DOMINI) {
+			fail("Proves de Suggest tipus domini no implementades");
+		} else if (tipus == TipusVar.SUG_ENUM) {
+			String enumeracio = (String)parametres;
+			driver.findElement(By.xpath("//*[@id='enumeracio0']/option[normalize-space(text())='" + enumeracio + "']")).click();
+		} else if (tipus == TipusVar.SUG_INTERN) {
+			fail("Proves de Suggest tipus domini intern no implementades");
+		}
+		screenshotHelper.saveScreenshot("defproces/variable/" + tipus.getId() + params + "/02_crea_var.png");
+		
+		// Crear variable
+		driver.findElement(By.xpath("//button[@value='submit']")).click();
+
+		// Comprovar que s'ha creat
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codi + "')]", "defproces/variable/" + tipus.getId() + params + "/03_crea_var.png", "La variable no s'ha pogut crear");
+		// Comprovar paràmetres
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codi + "')]/td[1]")).click();
+		if (agrupacio != null)
+			existeixElementAssert("//*[@id='agrupacio0']/option[@selected='selected' and normalize-space(text())='" + agrupacio + "']", "La agrupació de la variable no s'ha gravat correctament");
+		else 
+			noExisteixElementAssert("//*[@id='agrupacio0']/option[@selected='selected']", "La agrupació de la variable no s'ha gravat correctament");
+		checkboxSelectedAssert("//*[@id='multiple0']", "El paràmetre múltiple de la variable no s'ha gravat correctament", multiple);
+		checkboxSelectedAssert("//*[@id='ocult0']", "El paràmetre ocult de la variable no s'ha gravat correctament", oculta);
+		checkboxSelectedAssert("//*[@id='ignored0']", "El paràmetre no retrocedir de la variable no s'ha gravat correctament", noRetrocedir);
+		driver.findElement(By.xpath("//button[@value='cancel']")).click();
+		
+		if (tipus == TipusVar.REGISTRE) {
+			String[] vars = (String[])parametres;
+			// Assignam variables
+			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codi + "')]/td[6]/form/button")).click();
+			for (String textVar: vars) {
+				driver.findElement(By.xpath("//*[@id='membreId0']/option[normalize-space(text())='" + textVar + "']")).click();
+				driver.findElement(By.xpath("//button[@value='submit']")).click();
+				existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + textVar + "')]", "La variable no s'ha assignat correctament al registre");
+			}
+		}
+	}
+	
 	// TIPUS D'EXPEDIENT
 	// ............................................................................................................	
 	protected void eliminarTipusExpedient(String codiTipusExp) {

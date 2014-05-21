@@ -11,7 +11,6 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -122,7 +121,7 @@ public class Document implements Serializable, GenericEntity<Long> {
 	}
 
 	@Lob
-	@Basic(fetch=FetchType.LAZY)
+	@Basic
 	@Column(name="arxiu_contingut")
 	public byte[] getArxiuContingut() {
 		return arxiuContingut;
@@ -195,7 +194,7 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.extensionsPermeses = extensionsPermeses;
 	}
 
-	@ManyToOne(optional=false, fetch=FetchType.LAZY)
+	@ManyToOne(optional=false)
 	@JoinColumn(name="definicio_proces_id")
 	@ForeignKey(name="hel_defproc_document_fk")
 	public DefinicioProces getDefinicioProces() {
@@ -205,7 +204,7 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.definicioProces = definicioProces;
 	}
 
-	@ManyToOne(optional=true, fetch=FetchType.LAZY)
+	@ManyToOne(optional=true)
 	@JoinColumn(name="camp_data_id")
 	@ForeignKey(name="hel_camp_document_fk")
 	public Camp getCampData() {
@@ -215,7 +214,7 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.campData = campData;
 	}
 
-	@OneToMany(mappedBy="document", cascade={CascadeType.ALL}, fetch=FetchType.LAZY)
+	@OneToMany(mappedBy="document", cascade={CascadeType.ALL})
 	public Set<DocumentTasca> getTasques() {
 		return this.tasques;
 	}
@@ -229,7 +228,7 @@ public class Document implements Serializable, GenericEntity<Long> {
 		getTasques().remove(tasca);
 	}
 
-	@OneToMany(mappedBy="document", cascade={CascadeType.ALL}, fetch=FetchType.LAZY)
+	@OneToMany(mappedBy="document", cascade={CascadeType.ALL})
 	public Set<FirmaTasca> getFirmes() {
 		return this.firmes;
 	}
