@@ -79,10 +79,11 @@ public class DocumentExpedientCopiarOrigenHandler extends AbstractHeliumActionHa
 							docInfo.isRegistreEntrada());
 				}
 			} else {
-				throw new JbpmException("No s'ha trobat el document a dins l'expedient (codi=" + documentOrigenCodi + ")");
+				// throw new JbpmException("No s'ha trobat el document a dins l'expedient (codi=" + documentOrigenCodi + ")");
+				logger.debug("No s'ha trobat el document a dins l'expedient (codi=" + documentOrigenCodi + ")");
 			}
 		} else {
-			throw new JbpmException("No s'ha especificat el codi del document destí");
+			throw new JbpmException("No s'ha especificat el codi del document destí: " + documentCodi + " - " + varDocumentCodi);
 		}
 	}
 

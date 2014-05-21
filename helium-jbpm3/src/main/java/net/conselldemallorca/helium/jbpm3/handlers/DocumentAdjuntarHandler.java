@@ -40,40 +40,45 @@ public class DocumentAdjuntarHandler extends AbstractHeliumActionHandler impleme
 				documentOrigen,
 				varDocumentOrigen);
 		if (dor == null || dor.length() == 0) {
-			throw new JbpmException("No s'ha especificat cap document per adjuntar");
+			throw new JbpmException("No s'ha especificat cap document per adjuntar: " + documentOrigen);
 		}
-		DocumentInfo docInfo = getDocumentInfo(
-				executionContext,
-				dor,
-				true);
-		if (docInfo != null) {
-			ExpedientDto expedient = getExpedientActual(executionContext);
-			logger.debug("Adjuntant document (exp=" + expedient.getIdentificacioPerLogs() + ", document=" + dor + ")");
-			String tit = (String)getValorOVariable(
+		
+		String varCodi = Jbpm3HeliumBridge.getInstanceService().getCodiVariablePerDocumentCodi(dor);
+		Object valor = executionContext.getVariable(varCodi);
+		if (valor != null && valor instanceof Long) {
+			DocumentInfo docInfo = getDocumentInfo(
 					executionContext,
-					titol,
-					varTitol);
-			String adjuntTitol;
-			if (isConcatenarTitol())
-				adjuntTitol = docInfo.getTitol() + " " + tit;
-			else
-				adjuntTitol = tit;
-			Date adjuntData = getValorOVariableData(executionContext, data, varData);
-			Jbpm3HeliumBridge.getInstanceService().documentExpedientAdjuntar(
-					getProcessInstanceId(executionContext),
-					null,
-					adjuntTitol,
-					(adjuntData != null) ? adjuntData : docInfo.getDataDocument(),
-					docInfo.getArxiuNom(),
-					docInfo.getArxiuContingut());
-			if (isEsborrarDocument()) {
-				Jbpm3HeliumBridge.getInstanceService().documentExpedientEsborrar(
-						null,
+					dor,
+					true);
+			if (docInfo != null) {
+				ExpedientDto expedient = getExpedientActual(executionContext);
+				logger.debug("Adjuntant document (exp=" + expedient.getIdentificacioPerLogs() + ", document=" + dor + ")");
+				String tit = (String)getValorOVariable(
+						executionContext,
+						titol,
+						varTitol);
+				String adjuntTitol;
+				if (isConcatenarTitol())
+					adjuntTitol = docInfo.getTitol() + " " + tit;
+				else
+					adjuntTitol = tit;
+				Date adjuntData = getValorOVariableData(executionContext, data, varData);
+				Jbpm3HeliumBridge.getInstanceService().documentExpedientAdjuntar(
 						getProcessInstanceId(executionContext),
-						docInfo.getCodiDocument());
+						null,
+						adjuntTitol,
+						(adjuntData != null) ? adjuntData : docInfo.getDataDocument(),
+						docInfo.getArxiuNom(),
+						docInfo.getArxiuContingut());
+				if (isEsborrarDocument()) {
+					Jbpm3HeliumBridge.getInstanceService().documentExpedientEsborrar(
+							null,
+							getProcessInstanceId(executionContext),
+							docInfo.getCodiDocument());
+				}
+			} else {
+				throw new JbpmException("No s'ha trobat el contingut del document especificat(" + dor + ")");
 			}
-		} else {
-			throw new JbpmException("No s'ha trobat el contingut del document especificat");
 		}
 		logger.debug("Handler adjuntar document finalitzat amb èxit");
 	}
