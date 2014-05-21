@@ -1,7 +1,10 @@
 package net.conselldemallorca.helium.test.util;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -398,6 +401,11 @@ public abstract class BaseTest {
 		if(existeixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]")) {
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]/td[6]/a")).click();
 			acceptarAlerta();
+			actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
+			actions.build().perform();
+			actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/entorn/llistat.html')]")));
+			actions.click();
+			actions.build().perform();
 			noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]", "No s'ha pogut eliminar l'entorn de proves");
 		}
 	}
@@ -612,5 +620,35 @@ public abstract class BaseTest {
 		}
 		driver.findElement(By.xpath("//button[@value='submit']")).click();
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[2],'" + usuari + "')]", "No s'han pogut assignar permisos");
+	}
+	
+	protected byte[] downloadFile(String xpath, String fitxer) {
+		FileDownloader downloader = new FileDownloader(driver);
+		driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
+		boolean isPresent = driver.findElements(By.xpath(xpath)).size() > 0;
+		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+		assertTrue("Enllaç al fitxer " + fitxer + " no existeix" , isPresent);
+		
+		byte[] downloadedFile = null;
+		try {
+			downloadedFile = downloader.downloadFile(driver.findElement(By.xpath(xpath)));
+		} catch (Exception e) {
+			fail("No s'ha pogut descarregar el fitxer " + fitxer);
+		}
+		assertThat(downloader.getHTTPStatusOfLastDownloadAttempt(), is(equalTo(200)));
+		return downloadedFile;
+	}
+	
+	protected void downloadFileHash(String xpath, String md5, String fitxer) {
+		byte[] downloadedFile = downloadFile(xpath, fitxer);
+		
+		try {
+			CheckFileHash fileToCheck = new CheckFileHash();
+			fileToCheck.fileToCheck(downloadedFile);
+			fileToCheck.hashDetails(md5, HashType.MD5);
+			assertThat("El fitxer " + fitxer + " descarregat no té el hash esperat", fileToCheck.hasAValidHash(), is(equalTo(true)));
+		} catch (Exception e) {
+			fail("No s'ha pogut comprovar el fitxer " + fitxer + " descarregat");
+		}
 	}
 }

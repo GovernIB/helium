@@ -336,7 +336,7 @@ public class DefinicioProcesVars extends BaseTest {
 	
 	// Funcions ajuda
 	// ----------------------------------------------------------------------------------------
-	private void crearVar(String codi, String nom, TipusVar tipus, String agrupacio, boolean multiple, boolean oculta, boolean noRetrocedir) {
+	public void crearVar(String codi, String nom, TipusVar tipus, String agrupacio, boolean multiple, boolean oculta, boolean noRetrocedir) {
 		crearVar(codi, nom, tipus, agrupacio, multiple, oculta, noRetrocedir, null);
 	}
 	private void crearVar(String codi, String nom, TipusVar tipus, String agrupacio, boolean multiple, boolean oculta, boolean noRetrocedir, Object parametres) {

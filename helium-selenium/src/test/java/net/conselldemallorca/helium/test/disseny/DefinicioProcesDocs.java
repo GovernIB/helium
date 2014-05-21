@@ -1,7 +1,5 @@
 package net.conselldemallorca.helium.test.disseny;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import net.conselldemallorca.helium.test.util.BaseTest;
 
 import org.junit.FixMethodOrder;
@@ -40,7 +38,7 @@ public class DefinicioProcesDocs extends BaseTest {
 		seleccionarDefinicioProces(nomDefProc);
 		crearDoc(carregarPropietat("defproc.document.noplant.codi", "Codi del document sense plantilla no configurat al fitxer de properties"),
 				carregarPropietat("defproc.document.noplant.nom", "Nom del document sense plantilla no configurat al fitxer de properties"),
-				false, null, null, false, null, null, null, null, null);
+				false, null, null, false, null, null, null, null, null, null);
 	}
 	
 //	@Test
@@ -51,8 +49,9 @@ public class DefinicioProcesDocs extends BaseTest {
 		crearDoc(carregarPropietat("defproc.document.plant.codi", "Codi del document amb plantilla no configurat al fitxer de properties"),
 				carregarPropietat("defproc.document.plant.nom", "Nom del document amb plantilla no configurat al fitxer de properties"),
 				true, 
-				carregarPropietat("defproc.document.plant.path", "Nom del document amb plantilla no configurat al fitxer de properties"),
-				null, false, null, null, null, null, null);
+				carregarPropietat("defproc.document.plant.path", "Plantilla de proves no configurat al fitxer de properties"),
+				null, false, null, null, null, null, null,
+				carregarPropietat("defproc.document.plant.hash", "Hash de la plantilla no configurat al fitxer de properties"));
 	}
 	
 //	@Test
@@ -60,6 +59,15 @@ public class DefinicioProcesDocs extends BaseTest {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
 		seleccionarDefinicioProces(nomDefProc);
+		modificarDoc(carregarPropietat("defproc.document.noplant.codi", "Codi del document sense plantilla no configurat al fitxer de properties"), 
+				"Nom modificat", 
+				"Descripció modificada", 
+				true, 
+				carregarPropietat("defproc.document.plant2.path", "Plantilla de proves 2 no configurat al fitxer de properties"), 
+				null, false, 
+				"campData/campData", 
+				null, null, null, null,
+				carregarPropietat("defproc.document.plant2.hash", "Hash de la plantilla no configurat al fitxer de properties"));
 	}
 	
 //	@Test
@@ -67,109 +75,48 @@ public class DefinicioProcesDocs extends BaseTest {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
 		seleccionarDefinicioProces(nomDefProc);
+		modificarDoc(carregarPropietat("defproc.document.plant.codi", "Codi del document amb plantilla no configurat al fitxer de properties"), 
+				null, 
+				null, 
+				null, 
+				carregarPropietat("defproc.document.plant2.path", "Plantilla de proves 2 no configurat al fitxer de properties"), 
+				"odt", 
+				true, 
+				null, 
+				"odt,docx", 
+				"application/vnd.oasis.opendocument.text", 
+				"codiCustodia", 
+				null,
+				carregarPropietat("defproc.document.plant2.hash", "Hash de la plantilla no configurat al fitxer de properties"));
 	}
 	
-//	@Test
-	public void f_modificarDocument() {
+	@Test
+	public void f_descarregarPlantilla() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
 		seleccionarDefinicioProces(nomDefProc);
-		// Modificar el camp tipus d'una variable			
-	
-		// Accedir a la fitxa de les variables
-		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/campLlistat.html')]")).click();			
-	    screenshotHelper.saveScreenshot("defproces/variable/modificar/1_variablesInici.png");
-
-	    // Obtenir nom variable i cercar-la
-	    String codVar = carregarPropietat("defproc.variable.string.codi", "Codi de la variable string no configurat al fitxer de properties");
-	    existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]", "No existeix la variable a modificar");
-
-  	    // guardar valor inicial
-  	    String nomIni = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]/td[2]")).getText().trim();
-  	    String tipIni = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]/td[3]")).getText().trim();
-
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]/td[1]/a")).click();
-  	    screenshotHelper.saveScreenshot("defproces/variable/modificar/2_variableOriginal.png");
-
-  	    driver.findElement(By.xpath("//*[@id='tipus0']/option[@value='INTEGER']")).click();
-		driver.findElement(By.id("etiqueta0")).clear();
-		driver.findElement(By.id("etiqueta0")).sendKeys("Etiqueta modificada");
-		screenshotHelper.saveScreenshot("defproces/variable/modificar/3_variableModificada.png");
-		driver.findElement(By.xpath("//button[@value='submit']")).click(); 	    
-  	    screenshotHelper.saveScreenshot("defproces/variable/modificar/4_variablesFi.png");
-  	    
-  	    // comprovar si s'ha modificat la variable
-  	    String nomFi = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]/td[2]")).getText().trim();
-  	    String tipFi = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]/td[3]")).getText().trim();
-		assertNotEquals("No s'ha pogut canviar el nom de la variable", nomIni, nomFi);
-		assertEquals("No s'ha canviar correctament el nom de la variable", "Etiqueta modificada", nomFi);
-		assertNotEquals("No s'ha pogut canviar el tipus de la variable", tipIni, tipFi);
-		assertEquals("No s'ha canviar correctament el tipus de la variable", "INTEGER", tipFi);
-	}
-//	private void modificarDoc() {
-//	// Modifica la propietat camp amb data d'un document d'una definici� de proc�s seleccionada amb seleccionarDefProc			
-//
-//	// Accedir a la fitxa dels documents
-//	driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/documentLlistat.html')]")).click();			
-//	
-//	screenshotHelper.saveScreenshot("defproces/document/mod_doc1.png");
-//
-//	// Obtenir nom document i cercar-lo
-//	String nomDoc = getProperty("defproc.document.codi1");
-//	driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
-//	boolean isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDoc + "')]")).size() > 0;
-//	driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
-//
-//	// Si existeix, modificar-lo
-//	if (isPresent) {
-//		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDoc + "')]/td[1]/a")).click();
-//  	    screenshotHelper.saveScreenshot("defproces/document/mod_doc2.png");
-//		
-//  	    // guardar valor inicial
-//  	    String valIni = driver.findElement(By.id("campData0")).getText().trim();
-//
-//		// Seleccionar variable camp en la data
-//		WebElement selectVar = driver.findElement(By.id("campData0"));
-//		List<WebElement> allOptions = selectVar.findElements(By.tagName("option"));
-//		for (WebElement option : allOptions) {
-//		    if (option.getText().equals(properties.getProperty("defproc.variable.codi2")+"/"+properties.getProperty("defproc.variable.nom2"))) {
-//		    	option.click();
-//		    	break;
-//		    }
-//		}
-//		screenshotHelper.saveScreenshot("defproces/document/mod_doc3.png");
-//		// Bot� guardar
-//		WebElement boto = driver.findElement(By.xpath("//button[@value='submit']"));
-//		boto.click(); 	    
-//  	    
-//  	    screenshotHelper.saveScreenshot("defproces/document/mod_doc4.png");
-//  	    
-//  	    // comprovar si s'ha modificat la variable
-//	  	    //driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDoc + "')]/td[1]/a")).click();
-//  	    //String valFin = driver.findElement(By.id("campData0")).getText().trim();
-//  	    //boto = driver.findElement(By.xpath("//button[@value='cancel']"));
-//		//boto.click(); 	    
-//  	    //assertNotEquals("No s'ha pogut modificar el document", valIni, valFin);
-//	} else {
-//		fail("El document no existeix");
-//	}
-//}
-	
-//	@Test
-	public void g_descarregarPlantilla() {
-		carregarUrlConfiguracio();
-		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
-		seleccionarDefinicioProces(nomDefProc);
+		// Accedir a la fitxa dels documents
+		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/documentLlistat.html')]")).click();
+		screenshotHelper.saveScreenshot("defproces/document/descarregar/1_documentsInici.png");
+		
+		//comprovar document existeix i té plantilla
+		String codDoc = carregarPropietat("defproc.document.plant.codi", "Codi del document amb plantilla no configurat al fitxer de properties");
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codDoc + "')]", "No existeix el document a descarregar plantilla");
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codDoc + "')]/td[4]/a/img", "El document no té plantilla");
+		
+		downloadFileHash("//*[@id='registre']/tbody/tr[contains(td[1],'" + codDoc + "')]/td[4]/a", 
+				carregarPropietat("defproc.document.plant2.hash", "Hash de la plantilla no configurat al fitxer de properties"), 
+				"plantilla");
 	}
 	
-//	@Test
-	public void h_eliminarDocument() {
+	@Test
+	public void g_eliminarDocument() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
 		seleccionarDefinicioProces(nomDefProc);
 		// Esborra una variable en una definició de procés			
 	
-		// Accedir a la fitxa de les variables
+		// Accedir a la fitxa dels documents
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/documentLlistat.html')]")).click();
 		screenshotHelper.saveScreenshot("defproces/document/esborra/1_documentsInici.png");
 
@@ -183,11 +130,12 @@ public class DefinicioProcesDocs extends BaseTest {
 		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codDoc + "')]", "defproces/document/esborra/2_documentsFi.png", "No s'ha pogut esborrar el document");
 	}
 	
-//	@Test
+	@Test
 	public void z_finalitzacio() {
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
 		eliminarDefinicioProces(nomDefProc);
+		eliminarEnumeracionsTest();
 		eliminarTipusExpedient(codTipusExp);
 		eliminarEntorn(entorn);
 	}
@@ -195,7 +143,7 @@ public class DefinicioProcesDocs extends BaseTest {
 	
 	// Funcions ajuda
 	// ----------------------------------------------------------------------------------------
-	private void crearDoc(String codi, String nom, boolean esPlantilla, String pathPlantilla, String extensioSortida, boolean adjuntar, String campData, String extensionsPermeses, String contentType, String codiCustodia, String tipusDoc) {
+	private void crearDoc(String codi, String nom, boolean esPlantilla, String pathPlantilla, String extensioSortida, boolean adjuntar, String campData, String extensionsPermeses, String contentType, String codiCustodia, String tipusDoc, String md5Plantilla) {
 		// Accedir a la fitxa de les variables
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/documentLlistat.html')]")).click();	
 		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codi + "')]", "defproces/document/" + (esPlantilla ? "ambPlantilla" : "sensePlantilla") + "/01_crea_doc.png", "El document a crear ja existeix");
@@ -234,21 +182,110 @@ public class DefinicioProcesDocs extends BaseTest {
 
 		// Comprovar paràmetres
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codi + "')]/td[1]")).click();
-		checkboxSelected("//*[@id='plantilla0']", "", esPlantilla);
-		checkboxSelected("//*[@id='adjuntarAuto0']", "", adjuntar);
+		checkboxSelected("//*[@id='plantilla0']", "És plantilla no sa gravat correctament", esPlantilla);
+		checkboxSelected("//*[@id='adjuntarAuto0']", "Adjuntar automàticament no s'ha gravat correctament", adjuntar);
 		if (esPlantilla) {
 			if (pathPlantilla != null) existeixElementAssert("//*[@id='iconsFileInput_arxiuContingut0']/a[1]/img", "L'arxiu de la plantilla no s'ha gravat correctament");
+			if (md5Plantilla != null)
+				downloadFileHash("//*[@id='iconsFileInput_arxiuContingut0']/a[1]", md5Plantilla, "plantilla");
 			if (extensioSortida != null) existeixElementAssert("//*[@id='convertirExtensio0' and @value='" + extensioSortida + "']", "L'extensió de sortida no s'ha gravat correctament");
 		}
-
 		if (campData != null) driver.findElement(By.xpath("//*[@id='campData0']/option[normalize-space(text())='" + campData + "']")).click();
-		
 		if (extensionsPermeses != null) existeixElementAssert("//*[@id='extensionsPermeses0' and @value='" + extensionsPermeses + "']", "Les extensions permeses no s'han gravat correctament"); 
 		if (contentType != null) existeixElementAssert("//*[@id='contentType0' and @value='" + contentType + "']", "El content type no s'ha gravat correctament");
 		if (codiCustodia != null) existeixElementAssert("//*[@id='custodiaCodi0' and @value='" + codiCustodia + "']", "El codi de custòdia no s'ha gravat correctament");
 		if (tipusDoc != null) existeixElementAssert("//*[@id='tipusDocPortasignatures0' and @value='" + tipusDoc + "']", "El tipus de document de protasigantures no s'ha gravat correctament");
 		
 		driver.findElement(By.xpath("//button[@value='cancel']")).click();
+	}
+	
+	private void modificarDoc(String codi, String nom, String descripcio, Boolean esPlantilla, String pathPlantilla, String extensioSortida, Boolean adjuntar, String campData, String extensionsPermeses, String contentType, String codiCustodia, String tipusDoc, String md5Plantilla) {
+		// Accedir a la fitxa de les variables
+		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/documentLlistat.html')]")).click();	
+			
+		// Comprovar que existeix
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codi + "')]", "defproces/document/modificar/" + codi + "/03_mod_doc.png", "El document a modificar no existeix");
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codi + "')]/td[1]")).click();
 		
+  	    // Paràmetres de la variable
+		if (nom != null) {
+			driver.findElement(By.id("nom0")).clear();
+			driver.findElement(By.id("nom0")).sendKeys(nom);
+		}
+		if (descripcio != null) {
+			driver.findElement(By.id("descripcio0")).clear();
+			driver.findElement(By.id("descripcio0")).sendKeys(descripcio);
+		}
+		if (esPlantilla != null) {
+			if (!checkboxSelected("//*[@id='plantilla0']", "", esPlantilla))
+				driver.findElement(By.id("plantilla0")).click();
+		}
+		if (pathPlantilla != null) {
+			if (noExisteixElement("//*[@id='iconsFileInput_arxiuContingut0' and @style='display:none']")) {
+				driver.findElement(By.xpath("//*[@id='iconsFileInput_arxiuContingut0']/a[2]")).click();
+			}
+			driver.findElement(By.id("arxiuContingut0")).sendKeys(pathPlantilla);
+		}
+		if (extensioSortida != null) {
+			driver.findElement(By.id("convertirExtensio0")).clear();
+			driver.findElement(By.id("convertirExtensio0")).sendKeys(extensioSortida);
+		}
+		if (adjuntar != null) {
+			if (!checkboxSelected("//*[@id='adjuntarAuto0']", "", adjuntar))
+				driver.findElement(By.id("adjuntarAuto0")).click();
+		}
+		if (campData != null) driver.findElement(By.xpath("//*[@id='campData0']/option[normalize-space(text())='" + campData + "']")).click();
+		if (extensionsPermeses != null) {
+			driver.findElement(By.id("extensionsPermeses0")).clear();
+			driver.findElement(By.id("extensionsPermeses0")).sendKeys(extensionsPermeses);
+		}
+		if (contentType != null) {
+			driver.findElement(By.id("contentType0")).clear();
+			driver.findElement(By.id("contentType0")).sendKeys(contentType);
+		}
+		if (codiCustodia != null) {
+			driver.findElement(By.id("custodiaCodi0")).clear();
+			driver.findElement(By.id("custodiaCodi0")).sendKeys(codiCustodia);
+		}
+		if (tipusDoc != null) {
+			driver.findElement(By.id("tipusDocPortasignatures0")).clear();
+			driver.findElement(By.id("tipusDocPortasignatures0")).sendKeys(tipusDoc);
+		}
+		
+		screenshotHelper.saveScreenshot("defproces/document/modificar/" + codi + "/02_mod_doc.png");
+		
+		// Modifica document
+		driver.findElement(By.xpath("//button[@value='submit']")).click();
+
+		// Comprovar paràmetres
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codi + "')]/td[1]")).click();
+		if (nom != null) existeixElementAssert("//*[@id='nom0' and @value='" + nom + "']", "El nom no s'ha gravat correctament");
+		if (descripcio != null) existeixElementAssert("//*[@id='descripcio0' and normalize-space(text())='" + descripcio + "']", "La descripcio no s'ha gravat correctament");
+		if (esPlantilla != null) checkboxSelectedAssert("//*[@id='plantilla0']", "És plantilla no sa gravat correctament", esPlantilla);
+		if (adjuntar != null) checkboxSelectedAssert("//*[@id='adjuntarAuto0']", "Adjuntar automàticament no s'ha gravat correctament", adjuntar);
+		if (pathPlantilla != null) existeixElementAssert("//*[@id='iconsFileInput_arxiuContingut0']/a[1]/img", "L'arxiu de la plantilla no s'ha gravat correctament");
+		if (md5Plantilla != null) downloadFileHash("//*[@id='iconsFileInput_arxiuContingut0']/a[1]", md5Plantilla, "plantilla");
+		if (extensioSortida != null) existeixElementAssert("//*[@id='convertirExtensio0' and @value='" + extensioSortida + "']", "L'extensió de sortida no s'ha gravat correctament");
+		if (campData != null) driver.findElement(By.xpath("//*[@id='campData0']/option[normalize-space(text())='" + campData + "']")).click();
+		if (extensionsPermeses != null) existeixElementAssert("//*[@id='extensionsPermeses0' and @value='" + extensionsPermeses + "']", "Les extensions permeses no s'han gravat correctament"); 
+		if (contentType != null) existeixElementAssert("//*[@id='contentType0' and @value='" + contentType + "']", "El content type no s'ha gravat correctament");
+		if (codiCustodia != null) existeixElementAssert("//*[@id='custodiaCodi0' and @value='" + codiCustodia + "']", "El codi de custòdia no s'ha gravat correctament");
+		if (tipusDoc != null) existeixElementAssert("//*[@id='tipusDocPortasignatures0' and @value='" + tipusDoc + "']", "El tipus de document de protasigantures no s'ha gravat correctament");
+		
+		driver.findElement(By.xpath("//button[@value='cancel']")).click();
+	}
+	
+	private void eliminarEnumeracionsTest() {
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/enumeracio/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+		
+		if (existeixElement("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]")) {
+			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]/td[4]/a")).click();
+			acceptarAlerta();
+		}
+		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]", "No s'han pogut eliminar l'enumeració");
 	}
 }
