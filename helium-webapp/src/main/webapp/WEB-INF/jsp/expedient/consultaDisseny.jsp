@@ -230,7 +230,7 @@
 					</tr>
 				</table>
 				<display:table name="expedients" id="registre" requestURI="" class="displaytag selectable" export="${consulta.exportarActiu}" sort="external">
-					<display:column title="<input id='selTots' type='checkbox' value='false' onclick='selTots(event)'>" style="${filaStyle}" >
+					<display:column title="<input id='selTots' type='checkbox' value='false' onclick='selTots(event)'>" style="${filaStyle}" media="html">
 						<c:set var="expedientSeleccionat" value="${false}"/>
 						<c:forEach var="eid" items="${sessionScope.consultaExpedientsIdsMassiusTE}" varStatus="status">
 							<c:if test="${status.index gt 0 and eid == registre.expedient.id}"><c:set var="expedientSeleccionat" value="${true}"/></c:if>
