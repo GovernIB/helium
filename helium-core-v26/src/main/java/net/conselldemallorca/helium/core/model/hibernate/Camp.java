@@ -382,8 +382,13 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	public String getCodiPerInforme() {
 		if (codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX))
 			return codi.replace('$', '%');
-		else
-			return definicioProces.getJbpmKey() + "/" + codi;
+		else {
+			try {
+				return definicioProces.getJbpmKey() + "/" + codi;
+			} catch (Exception ex) {
+				return null;
+			}
+		}
 	}
 
 	@SuppressWarnings("rawtypes")
