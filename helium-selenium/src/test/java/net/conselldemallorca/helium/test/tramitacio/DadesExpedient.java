@@ -337,7 +337,7 @@ public class DadesExpedient extends BaseTest {
 	}
 	
 	@Test
-	public void d_afegir_nova_dada() throws InterruptedException {
+	public void d_iniciar_expediente() throws InterruptedException {
 		// Básicos, múltiples y registros
 		carregarUrlConfiguracio();
 		
@@ -348,19 +348,28 @@ public class DadesExpedient extends BaseTest {
 		actions.click();
 		actions.build().perform();
 					
-		String[] res = iniciarExpediente(nomDefProc,codTipusExp,"SE-22/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
+		iniciarExpediente(nomDefProc,codTipusExp,"SE-22/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
+		
+		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/iniciar_expediente/1.png");		
+	}
+	
+	@Test
+	public void e_afegir_nova_dada() throws InterruptedException {
+		// Básicos, múltiples y registros
+		carregarUrlConfiguracio();
+		
+		// Selecció directe
+		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
+		actions.click();
+		actions.build().perform();					
 		
 		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']/ul/li[1]/a")));
 		actions.click();
 		actions.build().perform();
-
-		driver.findElement(By.xpath("//*[@id='numero0']")).clear();
-		driver.findElement(By.xpath("//*[@id='numero0']")).sendKeys(res[0]);
-		
-		driver.findElement(By.xpath("//*[@id='titol0']")).clear();
-		driver.findElement(By.xpath("//*[@id='titol0']")).sendKeys(res[1]);
 		
 		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='expedientTipus0']"));
 		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
@@ -375,7 +384,7 @@ public class DadesExpedient extends BaseTest {
 		
 		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();	
 		
-		screenshotHelper.saveScreenshot("tramitar/modificarInfoExp/2.png");
+		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/afegir_nova_dada/2.png");
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[6]/a/img")).click();	
 					
@@ -456,8 +465,8 @@ public class DadesExpedient extends BaseTest {
 			}
 			
 			// Textareas
-			if (existeixElement("//*[@id='command']/div/*/textareas")) {
-				for (WebElement textarea : driver.findElements(By.xpath("//*[@id='command']/div/*/textareas"))) {
+			if (existeixElement("//*[@id='command']/div/*/textarea")) {
+				for (WebElement textarea : driver.findElements(By.xpath("//*[@id='command']/div/*/textarea"))) {
 					textarea.clear();
 					textarea.sendKeys(codi);
 				}
@@ -496,10 +505,342 @@ public class DadesExpedient extends BaseTest {
 		}
 		
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/afegir_nova_dada/3.png");
+	}
+	
+	@Test
+	public void f_modificar_dada() throws InterruptedException {
+		carregarUrlConfiguracio();
 		
-		eliminarExpedient(res[0], res[1]);
+		// Selecció directe
+		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
+		actions.click();
+		actions.build().perform();
+					
+		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']/ul/li[1]/a")));
+		actions.click();
+		actions.build().perform();
 		
-		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/afegir_nova_dada/4.png");
+		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='expedientTipus0']"));
+		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
+		for (WebElement option : options) {
+			if (option.getText().equals(properties.getProperty("defproc.deploy.tipus.expedient.nom"))) {
+				option.click();
+				break;
+			}
+		}
+		
+		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/modificar_dada/1.png");
+		
+		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();	
+		
+		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/modificar_dada/2.png");
+		
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[6]/a/img")).click();
+		
+		driver.findElement(By.xpath("//*[@id='tabnav']/li[2]/a")).click();
+		
+		// Empezamos a modificar los datos
+		boolean comprobarModificado = true;
+		int i = 1;
+		while (existeixElement("//*[@id='codi']/tbody/tr["+i+"]/td[4]/a/img")) {
+			driver.findElement(By.xpath("//*[@id='codi']/tbody/tr["+i+"]/td[3]/a/img")).click();
+			acceptarAlerta();			
+			
+			// Inputs
+			if (existeixElement("//*[@id='command']/div/*/input")) {
+				for (WebElement input1 : driver.findElements(By.xpath("//*[@id='command']/div/*/input"))) {
+					if ("text".equals(input1.getAttribute("type"))) {
+						if (input1.getAttribute("class").contains("textInput hasDatepicker")) {
+							input1.sendKeys("12/12/2015");
+						} else {
+							input1.sendKeys("1234");
+						}
+					} else if ("button".equals(input1.getAttribute("type"))) {
+						input1.click();
+	
+						for (WebElement input2 : driver.findElements(By.xpath("//*[@id='command']/div/*/input"))) {
+							if ("text".equals(input2.getAttribute("type"))) {
+								if (input2.getAttribute("class").contains("textInput hasDatepicker")) {
+									input2.sendKeys("12/12/2015");
+								} else {
+									input2.sendKeys("1234");
+								}
+							}
+						}
+					} 
+				}
+			}
+			
+			// Buttons
+			if (existeixElement("//*[@id='command']/div[1]/div/div/button")) {
+				driver.findElement(By.xpath("//*[@id='command']/div[1]/div/div/button")).click();
+				
+				String modal = "varRegistre.html?id=";
+				if (modalOberta(modal)) {
+					vesAModal(modal);
+					
+					for (WebElement input : driver.findElements(By.xpath("//*/input[@type='text']"))) {
+						if (input.getAttribute("class").contains("textInput hasDatepicker")) {
+							input.sendKeys("12/12/2015");
+						} else {
+							input.sendKeys("1234");
+						}
+					}
+					
+					driver.findElement(By.xpath("//*[@id='command']/div[3]/button[1]")).click();
+					
+					tornaAPare();
+				}
+				
+				comprobarModificado = false;
+			}
+			
+			// Textareas
+			if (existeixElement("//*[@id='command']/div/*/textarea")) {
+				for (WebElement textarea : driver.findElements(By.xpath("//*[@id='command']/div/*/textarea"))) {
+					textarea.sendKeys("1234");
+				}
+			}
+			
+			// Selects
+			if (existeixElement("//*[@id='command']/div/*/select")) {
+				for (WebElement select : driver.findElements(By.xpath("//*[@id='command']/div/*/select"))) {
+					List<WebElement> sels = select.findElements(By.tagName("option"));
+					sels.get(sels.size()-1).click();
+				}
+			}
+			
+			// Termini
+			if (existeixElement("//*[@id='var_term_anys']")) {
+				WebElement selectAnys = driver.findElement(By.xpath("//*[@id='var_term_anys']"));
+				selectAnys.findElements(By.tagName("option")).get(1).click();
+				WebElement selectMesos = driver.findElement(By.xpath("//*[@id='var_term_mesos']"));
+				selectMesos.findElements(By.tagName("option")).get(4).click();
+				WebElement input = driver.findElement(By.xpath("//*[@id='var_term_dies']"));
+				input.clear();
+				input.sendKeys("15");				
+			}
+			
+			driver.findElement(By.xpath("//*[@id='command']/div[3]/button[1]")).click();			
+			
+			if (comprobarModificado)
+				existeixElementAssert("//*[@id='infos']/p", "No se modificó la variable: " + i);
+			
+			screenshotHelper.saveScreenshot("tramitar/dadesexpedient/modificar_dada/3"+i+".png");
+			i++;
+			
+			comprobarModificado = true;
+		}
+		
+		// Modificar las agrupaciones
+		int j = 1;
+		while (existeixElement("//*[@id='dades-proces']/div["+j+"]/h4/img")) {			
+			int k = 1;
+			while (existeixElement("//*[contains(@id, 'dades-agrup-Agrupacion_"+j+"')]/table/tbody/tr["+k+"]/td[3]/a/img")) {
+				driver.findElement(By.xpath("//*[contains(@id, 'dades-agrup-Agrupacion_"+j+"')]//parent::div/h4/img")).click();
+				
+				driver.findElement(By.xpath("//*[contains(@id, 'dades-agrup-Agrupacion_"+j+"')]/table/tbody/tr["+k+"]/td[3]/a/img")).click();
+				acceptarAlerta();				
+				
+				// Inputs
+				if (existeixElement("//*[@id='command']/div/*/input")) {
+					for (WebElement input1 : driver.findElements(By.xpath("//*[@id='command']/div/*/input"))) {
+						if ("text".equals(input1.getAttribute("type"))) {
+							if (input1.getAttribute("class").contains("textInput hasDatepicker")) {
+								input1.sendKeys("12/12/2015");
+							} else {
+								input1.sendKeys("1234");
+							}
+						} else if ("button".equals(input1.getAttribute("type"))) {
+							input1.click();
+		
+							for (WebElement input2 : driver.findElements(By.xpath("//*[@id='command']/div/*/input"))) {
+								if ("text".equals(input2.getAttribute("type"))) {
+									if (input2.getAttribute("class").contains("textInput hasDatepicker")) {
+										input2.sendKeys("12/12/2015");
+									} else {
+										input2.sendKeys("1234");
+									}
+								}
+							}
+						} 
+					}
+				}
+				
+				// Buttons
+				if (existeixElement("//*[@id='command']/div[1]/div/div/button")) {
+					driver.findElement(By.xpath("//*[@id='command']/div[1]/div/div/button")).click();
+					
+					String modal = "varRegistre.html?id=";
+					if (modalOberta(modal)) {
+						vesAModal(modal);
+						
+						for (WebElement input : driver.findElements(By.xpath("//*/input[@type='text']"))) {
+							if (input.getAttribute("class").contains("textInput hasDatepicker")) {
+								input.sendKeys("12/12/2015");
+							} else {
+								input.sendKeys("1234");
+							}
+						}
+						
+						driver.findElement(By.xpath("//*[@id='command']/div[3]/button[1]")).click();
+						
+						tornaAPare();
+					}
+					
+					comprobarModificado = false;
+				}
+				
+				// Registre
+				if (existeixElement("//*[@id='registre']/tbody/tr[1]")) {
+					driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]")).click();
+					
+					String modal = "varRegistre.html?id=";
+					if (modalOberta(modal)) {
+						vesAModal(modal);
+						
+						for (WebElement input : driver.findElements(By.xpath("//*/input[@type='text']"))) {
+							if (input.getAttribute("class").contains("textInput hasDatepicker")) {
+								input.sendKeys("12/12/2015");
+							} else {
+								input.sendKeys("1234");
+							}
+						}
+						
+						driver.findElement(By.xpath("//*[@id='command']/div[3]/button[1]")).click();
+						
+						tornaAPare();
+					}
+					
+					comprobarModificado = false;
+				}
+				
+				// Textareas
+				if (existeixElement("//*[@id='command']/div/*/textarea")) {
+					for (WebElement textarea : driver.findElements(By.xpath("//*[@id='command']/div/*/textarea"))) {
+						textarea.sendKeys("1234");
+					}
+				}
+				
+				// Selects
+				if (existeixElement("//*[@id='command']/div/*/select")) {
+					for (WebElement select : driver.findElements(By.xpath("//*[@id='command']/div/*/select"))) {
+						List<WebElement> sels = select.findElements(By.tagName("option"));
+						sels.get(sels.size()-1).click();
+					}
+				}
+				
+				// Termini
+				if (existeixElement("//*[@id='var_term_anys']")) {
+					WebElement selectAnys = driver.findElement(By.xpath("//*[@id='var_term_anys']"));
+					selectAnys.findElements(By.tagName("option")).get(1).click();
+					WebElement selectMesos = driver.findElement(By.xpath("//*[@id='var_term_mesos']"));
+					selectMesos.findElements(By.tagName("option")).get(4).click();
+					WebElement input = driver.findElement(By.xpath("//*[@id='var_term_dies']"));
+					input.clear();
+					input.sendKeys("15");				
+				}
+				
+				driver.findElement(By.xpath("//*[@id='command']/div[3]/button[1]")).click();
+				
+				if (comprobarModificado)
+					existeixElementAssert("//*[@id='infos']/p", "No se modificó la variable agrupada: " + i);
+				
+				screenshotHelper.saveScreenshot("tramitar/dadesexpedient/modificar_dada/4"+i+"-"+j+"-"+k+".png");
+				
+				k++;
+				
+				comprobarModificado = true;
+			}
+			screenshotHelper.saveScreenshot("tramitar/dadesexpedient/modificar_dada/4"+i+"-"+j+".png");
+			j++;
+		}
+		
+		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/modificar_dada/5.png");
+	}
+	
+	@Test
+	public void g_eliminar_dada() throws InterruptedException {
+		// Básicos, múltiples y registros
+		carregarUrlConfiguracio();
+		
+		// Selecció directe
+		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
+		actions.click();
+		actions.build().perform();
+					
+		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']/ul/li[1]/a")));
+		actions.click();
+		actions.build().perform();
+		
+		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='expedientTipus0']"));
+		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
+		for (WebElement option : options) {
+			if (option.getText().equals(properties.getProperty("defproc.deploy.tipus.expedient.nom"))) {
+				option.click();
+				break;
+			}
+		}
+		
+		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/eliminar_dada/1.png");
+		
+		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();	
+		
+		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/eliminar_dada/2.png");
+		
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[6]/a/img")).click();
+		
+		driver.findElement(By.xpath("//*[@id='tabnav']/li[2]/a")).click();
+		
+		int i = 1;
+		
+		// Empezamos a eliminar los datos		
+		while (existeixElement("//*[@id='codi']/tbody/tr/td[4]/a/img")) {
+			driver.findElement(By.xpath("//*[@id='codi']/tbody/tr[1]/td[4]/a/img")).click();
+			acceptarAlerta();
+			
+			existeixElementAssert("//*[@id='infos']/p", "No se borró la variable: " + i);
+			screenshotHelper.saveScreenshot("tramitar/dadesexpedient/eliminar_dada/3"+i+".png");
+			i++;
+		}
+		
+		// Eliminar las agrupaciones
+		while (existeixElement("//*[@id='dades-proces']/div/h4/img")) {
+			driver.findElement(By.xpath("//*[@id='dades-proces']/div[1]/h4/img")).click();
+			
+			driver.findElement(By.xpath("//*[@id='campAgrup']/tbody/tr[1]/td[4]/a/img")).click();
+			acceptarAlerta();
+			
+			existeixElementAssert("//*[@id='infos']/p", "No se borró la variable agrupada: " + i);
+			screenshotHelper.saveScreenshot("tramitar/dadesexpedient/eliminar_dada/3"+i+".png");
+			i++;
+		}
+		
+		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/eliminar_dada/4.png");
+	}
+	
+	@Test
+	public void y_eliminar_ultimo_expediente() throws InterruptedException {
+		carregarUrlConfiguracio();
+		
+		// Selecció directe
+		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
+		actions.click();
+		actions.build().perform();	
+		
+		eliminarExpedient(null, null);
+		
+		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/eliminar_ultimo_expediente/1.png");		
 	}
 	
 	@Test
