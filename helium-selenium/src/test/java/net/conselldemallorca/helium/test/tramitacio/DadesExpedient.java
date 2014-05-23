@@ -43,8 +43,8 @@ public class DadesExpedient extends BaseTest {
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathSubDefProc);
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
 		
-		importarDadesExpedient(nomDefProc, exportDefProc);
-		importarDadesExpedient(nomSubDefProc, exportDefProc);
+		importarDadesDefPro(nomDefProc, exportDefProc);
+		importarDadesDefPro(nomSubDefProc, exportDefProc);
 		
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/crear_dades/1.png");
 	}

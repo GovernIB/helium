@@ -166,11 +166,13 @@ public abstract class BaseTest {
 			driver.findElement(By.xpath("//*[@id='j_password']")).sendKeys(pass);
 			driver.findElement(By.xpath("//*[@id='usuariclau']/form/p[3]/input")).click();
 		}
+		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
 	}
 	protected void carregarUrlDisseny() {
 		baseUrl = properties.getProperty("test.base.url.disseny");
 		assertNotNull("Url base no configurada al fitxer de properties", baseUrl);
 		driver.get(baseUrl);
+		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
 	}
 	protected void carregarUrlFeina() {
 		baseUrl = properties.getProperty("test.base.url.feina");
@@ -299,8 +301,12 @@ public abstract class BaseTest {
 	
 	// ENTORN
 	// ............................................................................................................	
-	protected void crearEntorn(String entorn, String titolEntorn) {
+	protected void saveEntornActual() {
 		entornActual = driver.findElement(By.xpath("//div[@id='page-entorn-title']/h2/span")).getText().trim();
+	}
+	
+	protected void crearEntorn(String entorn, String titolEntorn) {
+//		entornActual = driver.findElement(By.xpath("//div[@id='page-entorn-title']/h2/span")).getText().trim();
 		// Crear entorn
 		actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
 		actions.build().perform();
@@ -384,14 +390,14 @@ public abstract class BaseTest {
 	}
 	
 	protected void eliminarEntorn(String entorn) {
-		//Entorn actual per defecte
-		if (entornActual != null) {
-			driver.findElement(By.id("menuEntorn")).findElement(By.tagName("a")).click();
-			if (existeixElement("//*[@id='registre']/tbody/tr[contains(td[2],'" + entornActual + "')]") &&
-					!driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + entornActual + "')]/td[1]/a/img")).getAttribute("src").endsWith("star.png")) {
-				driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + entornActual + "')]/td[1]/a")).click();
-			}
-		}
+//		//Entorn actual per defecte
+//		if (entornActual != null) {
+//			driver.findElement(By.id("menuEntorn")).findElement(By.tagName("a")).click();
+//			if (existeixElement("//*[@id='registre']/tbody/tr[contains(td[2],'" + entornActual + "')]") &&
+//					!driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + entornActual + "')]/td[1]/a/img")).getAttribute("src").endsWith("star.png")) {
+//				driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + entornActual + "')]/td[1]/a")).click();
+//			}
+//		}
 		
 		// Eliminam l'entorn de test
 		actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
@@ -574,7 +580,7 @@ public abstract class BaseTest {
 	
 	// EXPEDIENT
 	// ............................................................................................................
-	protected void importarDadesExpedient(String defProc, String path) {		
+	protected void importarDadesDefPro(String defProc, String path) {		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]")));

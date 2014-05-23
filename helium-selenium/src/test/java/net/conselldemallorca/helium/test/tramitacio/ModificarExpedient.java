@@ -40,7 +40,7 @@ public class ModificarExpedient extends BaseTest {
 		screenshotHelper.saveScreenshot("tramitar/modificarInfoExp/1.png");
 
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
-		importarDadesExpedient(nomDefProc, exportDefProc);
+		importarDadesDefPro(nomDefProc, exportDefProc);
 		
 		screenshotHelper.saveScreenshot("accions/executar/1.png");
 		

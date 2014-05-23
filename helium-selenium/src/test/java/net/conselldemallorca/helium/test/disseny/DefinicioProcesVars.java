@@ -15,7 +15,8 @@ public class DefinicioProcesVars extends BaseTest {
 	String entorn = carregarPropietat("defproc.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
 	String titolEntorn = carregarPropietat("defproc.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	String pathExportEntorn = carregarPropietat("defproc.export.entorn.arxiu.path", "Ruta de l'exportació de l'entorn de proves no configurat al fitxer de properties");
-	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
+	String usuari = carregarPropietat("test.base.usuari.disseny", "Usuari disseny de l'entorn de proves no configurat al fitxer de properties");
+	String usuariAdmin = carregarPropietat("test.base.usuari.configuracio", "Usuari configuracio de l'entorn de proves no configurat al fitxer de properties");
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String pathDefProc = carregarPropietat("defproc.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
@@ -26,11 +27,17 @@ public class DefinicioProcesVars extends BaseTest {
 	String nomAgrupacio2 = carregarPropietat("defproc.deploy.agrupacio.2.nom", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	
 	@Test
-	public void a_inicialitzacio() {
+	public void a0_inicialitzacio() {
 		carregarUrlConfiguracio();
-		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
 		crearEntorn(entorn, titolEntorn);
-		assignarPermisosEntorn(entorn, usuari, "DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
+		assignarPermisosEntorn(entorn, usuariAdmin, "DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
+		assignarPermisosEntorn(entorn, usuari, "DESIGN", "ORGANIZATION", "READ");
+	}
+	
+	@Test
+	public void a1_inicialitzacio() {
+		carregarUrlDisseny();
+		saveEntornActual();
 		marcarEntornDefecte(titolEntorn);
 		seleccionarEntorn(titolEntorn);
 		desplegarDefinicioProcesEntorn(nomDefProc, pathDefProc);
@@ -41,8 +48,7 @@ public class DefinicioProcesVars extends BaseTest {
 	
 	@Test
 	public void b_crearVarString() {
-		carregarUrlConfiguracio();
-		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
+		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
 		crearVar(carregarPropietat("defproc.variable.string.codi", "Codi de la variable string no configurat al fitxer de properties"),
 				carregarPropietat("defproc.variable.string.nom", "Nom de la variable string no configurat al fitxer de properties"),
@@ -55,8 +61,7 @@ public class DefinicioProcesVars extends BaseTest {
 	
 	@Test
 	public void c_crearVarInteger() {
-		carregarUrlConfiguracio();
-		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
+		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
 		crearVar(carregarPropietat("defproc.variable.int.codi", "Codi de la variable string no configurat al fitxer de properties"),
 				carregarPropietat("defproc.variable.int.nom", "Nom de la variable string no configurat al fitxer de properties"),
@@ -69,8 +74,7 @@ public class DefinicioProcesVars extends BaseTest {
 	
 	@Test
 	public void d_crearVarFloat() {
-		carregarUrlConfiguracio();
-		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
+		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
 		crearVar(carregarPropietat("defproc.variable.float.codi", "Codi de la variable string no configurat al fitxer de properties"),
 				carregarPropietat("defproc.variable.float.nom", "Nom de la variable string no configurat al fitxer de properties"),
@@ -83,8 +87,7 @@ public class DefinicioProcesVars extends BaseTest {
 	
 	@Test
 	public void e_crearVarBoolean() {
-		carregarUrlConfiguracio();
-		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
+		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
 		crearVar(carregarPropietat("defproc.variable.bool.codi", "Codi de la variable string no configurat al fitxer de properties"),
 				carregarPropietat("defproc.variable.bool.nom", "Nom de la variable string no configurat al fitxer de properties"),
@@ -97,8 +100,7 @@ public class DefinicioProcesVars extends BaseTest {
 	
 	@Test
 	public void f_crearVarTextArea() {
-		carregarUrlConfiguracio();
-		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
+		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
 		crearVar(carregarPropietat("defproc.variable.tarea.codi", "Codi de la variable string no configurat al fitxer de properties"),
 				carregarPropietat("defproc.variable.tarea.nom", "Nom de la variable string no configurat al fitxer de properties"),
@@ -111,8 +113,7 @@ public class DefinicioProcesVars extends BaseTest {
 	
 	@Test
 	public void g_crearVarDate() {
-		carregarUrlConfiguracio();
-		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
+		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
 		crearVar(carregarPropietat("defproc.variable.date.codi", "Codi de la variable string no configurat al fitxer de properties"),
 				carregarPropietat("defproc.variable.date.nom", "Nom de la variable string no configurat al fitxer de properties"),
@@ -125,8 +126,7 @@ public class DefinicioProcesVars extends BaseTest {
 	
 	@Test
 	public void h_crearVarPrice() {
-		carregarUrlConfiguracio();
-		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
+		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
 		crearVar(carregarPropietat("defproc.variable.price.codi", "Codi de la variable string no configurat al fitxer de properties"),
 				carregarPropietat("defproc.variable.price.nom", "Nom de la variable string no configurat al fitxer de properties"),
@@ -139,8 +139,7 @@ public class DefinicioProcesVars extends BaseTest {
 	
 	@Test
 	public void i_crearVartermini() {
-		carregarUrlConfiguracio();
-		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
+		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
 		crearVar(carregarPropietat("defproc.variable.term.codi", "Codi de la variable string no configurat al fitxer de properties"),
 				carregarPropietat("defproc.variable.term.nom", "Nom de la variable string no configurat al fitxer de properties"),
@@ -153,8 +152,7 @@ public class DefinicioProcesVars extends BaseTest {
 	
 	@Test
 	public void j_crearVarSelEnum() {
-		carregarUrlConfiguracio();
-		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
+		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
 		crearVar(carregarPropietat("defproc.variable.enum.codi", "Codi de la variable string no configurat al fitxer de properties"),
 				carregarPropietat("defproc.variable.enum.nom", "Nom de la variable string no configurat al fitxer de properties"),
@@ -168,8 +166,7 @@ public class DefinicioProcesVars extends BaseTest {
 	
 	@Test
 	public void k_crearVarStringMultiple() {
-		carregarUrlConfiguracio();
-		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
+		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
 		crearVar(carregarPropietat("defproc.variable.string.codi", "Codi de la variable string no configurat al fitxer de properties"),
 				carregarPropietat("defproc.variable.string.nom", "Nom de la variable string no configurat al fitxer de properties"),
@@ -182,8 +179,7 @@ public class DefinicioProcesVars extends BaseTest {
 	
 	@Test
 	public void l_crearVarStringOculta() {
-		carregarUrlConfiguracio();
-		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
+		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
 		crearVar(carregarPropietat("defproc.variable.string.codi", "Codi de la variable string no configurat al fitxer de properties"),
 				carregarPropietat("defproc.variable.string.nom", "Nom de la variable string no configurat al fitxer de properties"),
@@ -196,8 +192,7 @@ public class DefinicioProcesVars extends BaseTest {
 	
 	@Test
 	public void m_crearVarRegistre() {
-		carregarUrlConfiguracio();
-		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
+		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
 		crearVar("reg_v1", "Registre 1", TipusVar.STRING, null, false, false, false);
 		crearVar("reg_v2", "Registre 2", TipusVar.INTEGER, null, false, false, false);
@@ -213,8 +208,7 @@ public class DefinicioProcesVars extends BaseTest {
 	
 	@Test
 	public void n_crearVarRegistreMultiple() {
-		carregarUrlConfiguracio();
-		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
+		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
 		crearVar("reg_v1", "Registre 1", TipusVar.STRING, null, true, false, false);
 		crearVar("reg_v2", "Registre 2", TipusVar.INTEGER, null, true, false, false);
@@ -230,8 +224,7 @@ public class DefinicioProcesVars extends BaseTest {
 	
 	@Test
 	public void o_modificarVariable() {
-		carregarUrlConfiguracio();
-		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
+		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
 		// Modificar el camp tipus d'una variable			
 	
@@ -268,8 +261,7 @@ public class DefinicioProcesVars extends BaseTest {
 
 	@Test
 	public void p_validacioVariable() {
-		carregarUrlConfiguracio();
-		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
+		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
 		 // Afegeix una validació a una variable			
 	
@@ -297,8 +289,7 @@ public class DefinicioProcesVars extends BaseTest {
 
 	@Test
 	public void q_esborrarVar() {
-		carregarUrlConfiguracio();
-		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
+		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
 		// Esborra una variable en una definició de procés			
 	
@@ -317,12 +308,18 @@ public class DefinicioProcesVars extends BaseTest {
 	}
 	
 	@Test
-	public void z_finalitzacio() {
-		carregarUrlConfiguracio();
-		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
+	public void z0_finalitzacio() {
+		carregarUrlDisseny();
 		eliminarDefinicioProces(nomDefProc);
 		eliminarEnumeracionsTest();
 		eliminarTipusExpedient(codTipusExp);
+		if (entornActual != null && !"".equals(entornActual)) 
+			marcarEntornDefecte(entornActual);
+	}
+
+	@Test
+	public void z1_finalitzacio() {
+		carregarUrlConfiguracio();
 		eliminarEntorn(entorn);
 	}
 	

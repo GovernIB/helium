@@ -19,13 +19,11 @@ public class DefinicioProces extends BaseTest {
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
-	
-	static String entornActual;
+	String pathExportDefProc = carregarPropietat("defproc.deploy.export.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	
 	@Test
 	public void a_inicialitzacio() {
 		carregarUrlConfiguracio();
-		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
 		crearEntornTest(entorn, titolEntorn, usuari);
 		crearTipusExpedientTest(nomTipusExp, codTipusExp);
 	}
@@ -33,36 +31,87 @@ public class DefinicioProces extends BaseTest {
 	@Test
 	public void b_desplegarParExp() {
 		carregarUrlConfiguracio();
-		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
-		desplegar(true);
+		desplegarDefPro(TipusDesplegament.JBPM, nomTipusExp, pathDefProc, null, false);
 		eliminar(true);
 	}
 	
 	@Test
 	public void c_desplegarPar() {
 		carregarUrlConfiguracio();
-		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
-		desplegar(false);
+		desplegarDefPro(TipusDesplegament.JBPM, null, pathDefProc, null, false);
+		eliminar(true);
+	}
+	
+//	@Test
+	public void d_desplegarParEtiqueta() {
+		carregarUrlConfiguracio();
+		desplegarDefPro(TipusDesplegament.JBPM, null, pathDefProc, "Etiqueta", false);
+		eliminar(true);
+	}
+	
+//	@Test
+	public void e_desplegarParActualitzar() {
+		carregarUrlConfiguracio();
+		desplegarDefPro(TipusDesplegament.JBPM, null, pathDefProc, null, true);
+		eliminar(true);
+	}
+	
+//	@Test
+	public void f_desplegarExp() {
+		carregarUrlConfiguracio();
+		desplegarDefPro(TipusDesplegament.EXPORTDEFPRC, null, pathExportDefProc, null, false);
 	}
 	
 	@Test
 	public void d_eliminarDefProc() {
 		carregarUrlConfiguracio();
-		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
 		eliminar(false);
 	}
 	
 	@Test
 	public void z_finalitzacio() {
 		carregarUrlConfiguracio();
-		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
 		eliminarEntornTest(entorn, usuari, codTipusExp);
 	}
 	
+	private enum TipusDesplegament {
+		JBPM,
+		EXPORTDEFPRC,
+		EXPORTTIPEXP
+	}
 	
 	// Funcions ajuda
 	// ----------------------------------------------------------------------------------------
-	private void desplegar(boolean tipExp) {
+	/**
+	 * @param tipDesp
+	 * @param nomTipusExp
+	 * @param etiqueta
+	 * @param actualitzarExps
+	 */
+	private void desplegarDefPro(TipusDesplegament tipDesp, String nomTipusExp, String path, String etiqueta, boolean actualitzarExps) {
+		// Comprovam si existeix. En cas de que existeixi, comprovam si està a tipus d'expedient, i el número de versió
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+		
+		Integer versio = null;
+		if (existeixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]")) {
+			try {
+				versio = Integer.parseInt(driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]/td[2]")).getText().trim());
+				String tipusExp = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]/td[3]")).getText().trim();
+				if (nomTipusExp == null) {
+					if(!"".equals(tipusExp)) fail("La definició de procés està desplegada a un tipus d'expedient");
+				} else if (!nomTipusExp.equals(tipusExp)) {
+					fail("La definició de procés ja està desplegada a un altre tipus d'expedient");
+				}
+			} catch (NumberFormatException nfe) {
+				fail("Número de versió actual incorrecte");
+			}
+		}
+		
+		// Anem a fer el deploy
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/deploy.html')]")));
@@ -70,20 +119,33 @@ public class DefinicioProces extends BaseTest {
 		actions.build().perform();
 		
 		// Deploy
-		driver.findElement(By.xpath("//option[@value='JBPM']")).click();
+		driver.findElement(By.xpath("//option[@value='" + tipDesp.name() + "']")).click();
 		
+		boolean tipExp = false;
 		// tipus d'expedient
-		if (tipExp) {
+		if (nomTipusExp != null) {
 			for (WebElement option : driver.findElement(By.id("expedientTipusId0")).findElements(By.tagName("option"))) {
 				if (option.getText().equals(nomTipusExp)) {
 					option.click();
 					break;
 				}
 			}
+			tipExp = true;
 		}		
 		
-		driver.findElement(By.id("arxiu0")).sendKeys(pathDefProc);
+		driver.findElement(By.id("arxiu0")).sendKeys(path);
 		screenshotHelper.saveScreenshot("defproces/importPar/" + (tipExp ? "tipusExp" : "global") + "/1_importPar.png");
+		
+		// Etiqueta
+		if (etiqueta != null) {
+			driver.findElement(By.id("etiqueta0")).clear();
+			driver.findElement(By.id("etiqueta0")).sendKeys(etiqueta);
+		}
+		
+		// Actualitza expedients
+		if (actualitzarExps) {
+			driver.findElement(By.id("actualitzarProcessosActius0")).click();
+		}
 		
 		driver.findElement(By.xpath("//button[@value='submit']")).click();
 		screenshotHelper.saveScreenshot("defproces/importPar/" + (tipExp ? "tipusExp" : "global") + "/2_importPar.png");
@@ -97,6 +159,9 @@ public class DefinicioProces extends BaseTest {
 			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "') and td[3][text() = '" + nomTipusExp + "']]", "defproces/importPar/tipusExp/3_definicionsExistents.png", "No s'ha pogut importar la definició de procés a nivell de tipus d'expedient");
 		} else {
 			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "') and td[3][not(text())]]", "defproces/importPar/global/3_definicionsExistents.png", "No s'ha pogut importar la definició de procés a nivell global");
+		}
+		if (versio != null) {
+			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "') and td[2][text() = '" + (versio + 1) + "']", "No s'ha actualitzat la versió de la definició de procés");
 		}
 	}
 	

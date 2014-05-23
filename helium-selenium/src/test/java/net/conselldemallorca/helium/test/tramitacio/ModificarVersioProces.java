@@ -38,7 +38,7 @@ public class ModificarVersioProces extends BaseTest {
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
 		
 		// No hay expedientes. Iniciamos uno
-		importarDadesExpedient(nomDefProc, properties.getProperty("defproc.mod.exp.export.arxiu.path"));
+		importarDadesDefPro(nomDefProc, properties.getProperty("defproc.mod.exp.export.arxiu.path"));
 					
 		String[] res = iniciarExpediente(nomDefProc,codTipusExp,"SE-22/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
 				

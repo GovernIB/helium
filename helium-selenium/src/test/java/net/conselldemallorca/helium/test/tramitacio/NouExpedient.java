@@ -64,7 +64,7 @@ public class NouExpedient extends BaseTest {
 		actions.build().perform();
 		
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
-		importarDadesExpedient(nomDefProc, exportDefProc);
+		importarDadesDefPro(nomDefProc, exportDefProc);
 				
 		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos sobre disseny entorn");
 			
@@ -133,7 +133,7 @@ public class NouExpedient extends BaseTest {
 		actions.build().perform();
 			
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
-		importarDadesExpedient(nomDefProc, exportDefProc);
+		importarDadesDefPro(nomDefProc, exportDefProc);
 		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
@@ -200,7 +200,7 @@ public class NouExpedient extends BaseTest {
 		actions.build().perform();
 		
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
-		importarDadesExpedient(nomDefProc, exportDefProc);
+		importarDadesDefPro(nomDefProc, exportDefProc);
 		
 		driver.findElement(By.xpath("//*[@id='menuIniciar']/a")).click();
 		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipusExp + "')]/td[3]/form/select"));
@@ -275,7 +275,7 @@ public class NouExpedient extends BaseTest {
 		String exportDefProc = carregarPropietat("defproc.nou_tasca_ini.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 		
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
-		importarDadesExpedient(nomDefProc, exportDefProc);
+		importarDadesDefPro(nomDefProc, exportDefProc);
 		
 		existeixElementAssert("//li[@id='menuIniciar']", "No tiene permisos para iniciar un expediente");
 		driver.findElement(By.xpath("//*[@id='menuIniciar']/a")).click();

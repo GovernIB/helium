@@ -36,7 +36,7 @@ public class Accions extends BaseTest {
 		actions.build().perform();
 
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
-		importarDadesExpedient(nomDefProc, exportDefProc);
+		importarDadesDefPro(nomDefProc, exportDefProc);
 		
 		screenshotHelper.saveScreenshot("accions/executar/1.png");
 
@@ -98,7 +98,7 @@ public class Accions extends BaseTest {
 		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 		
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
-		importarDadesExpedient(nomDefProc, exportDefProc);
+		importarDadesDefPro(nomDefProc, exportDefProc);
 		
 		screenshotHelper.saveScreenshot("accions/ocultar/1.png");
 
@@ -234,7 +234,7 @@ public class Accions extends BaseTest {
 		actions.build().perform();
 
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
-		importarDadesExpedient(nomDefProc, exportDefProc);
+		importarDadesDefPro(nomDefProc, exportDefProc);
 		
 		screenshotHelper.saveScreenshot("accions/ocultar/1.png");
 

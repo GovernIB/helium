@@ -38,7 +38,7 @@ public class AfegirExpedientRelacionat extends BaseTest {
 		actions.build().perform();
 		
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
-		importarDadesExpedient(nomDefProc, exportDefProc);
+		importarDadesDefPro(nomDefProc, exportDefProc);
 		
 		screenshotHelper.saveScreenshot("tramitar/AfegirExpedientRelacionat/1.png");
 		
