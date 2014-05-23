@@ -8,6 +8,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -732,5 +733,54 @@ public abstract class BaseTest {
 		} catch (Exception e) {
 			fail("No s'ha pogut comprovar el fitxer " + fitxer + " descarregat");
 		}
+	}
+	
+	protected void adjuntarDocExpediente(String numExpediente, String tituloExpediente, String tituloDocumento, String fechaDocumento, String pathDocumento) {
+		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']/ul/li[1]/a")));
+		actions.click();
+		actions.build().perform();
+
+		if (numExpediente != null) {
+			driver.findElement(By.xpath("//*[@id='numero0']")).clear();
+			driver.findElement(By.xpath("//*[@id='numero0']")).sendKeys(numExpediente);
+		}
+		
+		if (tituloExpediente != null) {
+			driver.findElement(By.xpath("//*[@id='titol0']")).clear();
+			driver.findElement(By.xpath("//*[@id='titol0']")).sendKeys(tituloExpediente);
+		}
+		
+		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='expedientTipus0']"));
+		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
+		for (WebElement option : options) {
+			if (option.getText().equals(properties.getProperty("defproc.deploy.tipus.expedient.nom"))) {
+				option.click();
+				break;
+			}
+		}
+		
+		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();	
+		
+		screenshotHelper.saveScreenshot("documentsexpedient/adjuntar_documents/2.png");
+		
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[6]/a/img")).click();
+		
+		driver.findElement(By.xpath("//*[@id='tabnav']/li[3]/a")).click();
+		
+		driver.findElement(By.xpath("//*[@id='content']/form/button")).click();
+		
+		driver.findElement(By.xpath("//*[@id='nom0']")).clear();
+		driver.findElement(By.xpath("//*[@id='nom0']")).sendKeys(tituloDocumento);
+		
+		driver.findElement(By.xpath("//*[@id='data0']")).clear();
+		driver.findElement(By.xpath("//*[@id='data0']")).sendKeys(fechaDocumento);		
+		
+		driver.findElement(By.id("contingut0")).sendKeys(pathDocumento);
+		
+		driver.findElement(By.xpath("//*[@id='command']/div[3]/button[1]")).click();
+		
+		existeixElementAssert("//*[@id='infos']/p", "No se adjuntó el documento");
 	}
 }
