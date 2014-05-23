@@ -323,10 +323,24 @@ public class ExpedientDadaModificarController extends BaseController {
 				for (Camp camp: camps) {
 					valors.add(instanciaProces.getVariable(camp.getCodi()));
 				}
-			} else {
+			}
+			boolean afegit = false;
+			for (Camp camp: camps) {
+				if (camp.getCodi().equals(var)) {
+					afegit = true;
+					break;
+				}
+			}
+			if (!afegit) {
 				Camp camp = dissenyService.findCampAmbDefinicioProcesICodi(
 						instanciaProces.getDefinicioProces().getId(),
 						var);
+				if (camp == null) {
+					camp = new Camp();
+					camp.setTipus(TipusCamp.STRING);
+					camp.setCodi(var);
+					camp.setEtiqueta(var);
+				}
 				camps.add(camp);
 				valors.add(instanciaProces.getVariable(var));
 			}
