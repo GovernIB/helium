@@ -49,7 +49,7 @@
 				<c:param name="required" value="true"/>
 				<c:param name="type" value="file"/>
 				<c:param name="fileUrl">${downloadUrl}</c:param>
-				<c:param name="fileExists" value="${not empty command.data}"/>
+				<c:param name="fileExists" value="${not empty document.tokenSignatura}"/>
 				<c:param name="label"><fmt:message key='expedient.document.document' /></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
