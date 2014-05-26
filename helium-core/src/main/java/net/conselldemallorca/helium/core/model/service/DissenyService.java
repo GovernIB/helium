@@ -27,6 +27,7 @@ import net.conselldemallorca.helium.core.model.dao.ConsultaCampDao;
 import net.conselldemallorca.helium.core.model.dao.ConsultaDao;
 import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentDao;
+import net.conselldemallorca.helium.core.model.dao.DocumentStoreDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentTascaDao;
 import net.conselldemallorca.helium.core.model.dao.DominiDao;
 import net.conselldemallorca.helium.core.model.dao.EntornDao;
@@ -77,6 +78,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsu
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusParamConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
@@ -117,6 +119,7 @@ public class DissenyService {
 	private CampDao campDao;
 	private CampTascaDao campTascaDao;
 	private CampRegistreDao campRegistreDao;
+	private DocumentStoreDao documentStoreDao;
 	private DocumentDao documentDao;
 	private DocumentTascaDao documentTascaDao;
 	private FirmaTascaDao firmaTascaDao;
@@ -453,9 +456,19 @@ public class DissenyService {
 	}
 
 	public Document getDocumentById(Long id) {
-		Document document = documentDao.getById(id, false);
+		return documentDao.getById(id, false);
+	}
+
+	public Document getDocumentStoreById(Long id) {
+		DocumentStore documentStore = documentStoreDao.getById(id, false);
+		Document document = new Document();
+		document.setId(documentStore.getId());
+		document.setCodi(documentStore.getCodiDocument());
+		document.setArxiuContingut(documentStore.getArxiuContingut());
+		document.setArxiuNom(documentStore.getArxiuNom());		
 		return document;
 	}
+	
 	public Document createDocument(Document entity) {
 		Document saved = documentDao.saveOrUpdate(entity);
 		return saved;
@@ -2129,8 +2142,6 @@ public class DissenyService {
 		return accions;
 	}
 
-
-
 	@Autowired
 	public void setDefinicioProcesDao(DefinicioProcesDao definicioProcesDao) {
 		this.definicioProcesDao = definicioProcesDao;
@@ -2242,6 +2253,10 @@ public class DissenyService {
 	@Autowired
 	public void setSequenciaAnyDao(SequenciaAnyDao sequenciaAnyDao) {
 		this.sequenciaAnyDao = sequenciaAnyDao;
+	}
+	@Autowired
+	public void setDocumentStoreDao(DocumentStoreDao documentStoreDao) {
+		this.documentStoreDao = documentStoreDao;
 	}
 
 	private DefinicioProcesDto toDto(

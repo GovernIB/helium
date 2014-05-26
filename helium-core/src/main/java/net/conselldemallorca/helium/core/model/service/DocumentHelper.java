@@ -77,7 +77,7 @@ public class DocumentHelper {
 			byte[] arxiuContingut,
 			boolean isAdjunt) {
 		DocumentStore documentStore = null;
-		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(taskInstanceId, processInstanceId, documentCodi);
+		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(taskInstanceId, processInstanceId, documentCodi, isAdjunt);
 		if (documentStoreId != null)
 			documentStore = documentStoreDao.getById(documentStoreId, false);
 		if (documentStore == null) {
@@ -456,22 +456,28 @@ public class DocumentHelper {
 		this.pluginCustodiaDao = pluginCustodiaDao;
 	}
 
-
-
 	private Long getDocumentStoreIdDeVariableJbpm(
 			String taskInstanceId,
 			String processInstanceId,
 			String documentCodi) {
+		return getDocumentStoreIdDeVariableJbpm(taskInstanceId, processInstanceId,documentCodi, false);
+	}
+
+	private Long getDocumentStoreIdDeVariableJbpm(
+			String taskInstanceId,
+			String processInstanceId,
+			String documentCodi,
+			boolean isAdjunt) {
 		Object value = null;
 		if (taskInstanceId != null) {
 			value = jbpmDao.getTaskInstanceVariable(
 					taskInstanceId,
-					getVarPerDocumentCodi(documentCodi, false));
+					getVarPerDocumentCodi(documentCodi, isAdjunt));
 		}
 		if (value == null && processInstanceId != null) {
 			value = jbpmDao.getProcessInstanceVariable(
 					processInstanceId,
-					getVarPerDocumentCodi(documentCodi, false));
+					getVarPerDocumentCodi(documentCodi, isAdjunt));
 		}
 		return (Long)value;
 	}
@@ -510,6 +516,7 @@ public class DocumentHelper {
 				dto.setDataCreacio(document.getDataCreacio());
 				dto.setDataDocument(document.getDataDocument());
 				dto.setArxiuNom(document.getArxiuNom());
+				dto.setArxiuContingut(document.getArxiuContingut());
 				dto.setProcessInstanceId(document.getProcessInstanceId());
 				dto.setSignat(document.isSignat());
 				dto.setAdjunt(document.isAdjunt());
@@ -527,6 +534,7 @@ public class DocumentHelper {
 				String codiDocument;
 				if (document.isAdjunt()) {
 					dto.setAdjuntId(document.getJbpmVariable().substring(PREFIX_ADJUNT.length()));
+					dto.setDocumentId(document.getId());
 				} else {
 					codiDocument = document.getJbpmVariable().substring(PREFIX_VAR_DOCUMENT.length());
 					JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(document.getProcessInstanceId());
