@@ -41,7 +41,7 @@ public class ListResponseDocument {
     protected int id;
     @XmlElement(required = true)
     protected DocumentAttributes attributes;
-    @XmlElementRef(name = "archive-options", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "archive-options", type = JAXBElement.class)
     protected JAXBElement<ArchiveOptions> archiveOptions;
 
     /**

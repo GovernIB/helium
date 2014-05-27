@@ -64,7 +64,7 @@ public class Signer {
     protected String id;
     protected String name;
     protected String email;
-    @XmlElementRef(name = "check-cert", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "check-cert", type = JAXBElement.class)
     protected JAXBElement<Boolean> checkCert;
     @XmlSchemaType(name = "dateTime")
     protected XMLGregorianCalendar date;
@@ -73,11 +73,11 @@ public class Signer {
     protected Job job;
     protected Certificate certificate;
     protected Rejection rejection;
-    @XmlElementRef(name = "signature-files", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "signature-files", type = JAXBElement.class)
     protected JAXBElement<SignerSignatureFiles> signatureFiles;
-    @XmlElementRef(name = "id-update", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "id-update", type = JAXBElement.class)
     protected JAXBElement<String> idUpdate;
-    @XmlElementRef(name = "pdf-appearance", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "pdf-appearance", type = JAXBElement.class)
     protected JAXBElement<PdfAppearance> pdfAppearance;
 
     /**

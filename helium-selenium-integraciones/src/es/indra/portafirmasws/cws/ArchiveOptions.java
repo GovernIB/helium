@@ -37,11 +37,11 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class ArchiveOptions {
 
-    @XmlElementRef(name = "source-locators", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "source-locators", type = JAXBElement.class)
     protected JAXBElement<SourceLocators> sourceLocators;
-    @XmlElementRef(name = "destination-locators", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "destination-locators", type = JAXBElement.class)
     protected JAXBElement<DestinationLocators> destinationLocators;
-    @XmlElementRef(name = "archive-metadatas", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "archive-metadatas", type = JAXBElement.class)
     protected JAXBElement<ArchiveMetadatas> archiveMetadatas;
 
     /**

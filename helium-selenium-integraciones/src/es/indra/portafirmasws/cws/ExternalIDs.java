@@ -35,9 +35,9 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class ExternalIDs {
 
-    @XmlElementRef(name = "logical-id", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "logical-id", type = JAXBElement.class)
     protected JAXBElement<String> logicalId;
-    @XmlElementRef(name = "verification-code", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "verification-code", type = JAXBElement.class)
     protected JAXBElement<VerificationCode> verificationCode;
 
     /**

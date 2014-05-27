@@ -3,6 +3,7 @@ package es.indra.portafirmasws.cws;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -38,7 +39,7 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class Steps {
 
-    @XmlElementRef(name = "sign-mode", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "sign-mode", type = JAXBElement.class)
     protected JAXBElement<SignModeEnum> signMode;
     @XmlElement(required = true)
     protected List<Step> step;

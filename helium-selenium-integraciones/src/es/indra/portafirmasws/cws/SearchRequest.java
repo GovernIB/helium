@@ -42,7 +42,7 @@ public class SearchRequest {
 
     @XmlElement(required = true)
     protected Application application;
-    @XmlElementRef(name = "search-criterias", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "search-criterias", type = JAXBElement.class)
     protected JAXBElement<SearchCriterias> searchCriterias;
     @XmlAttribute(name = "version")
     protected String version;

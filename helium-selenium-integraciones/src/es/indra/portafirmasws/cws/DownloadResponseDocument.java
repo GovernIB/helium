@@ -49,12 +49,12 @@ public class DownloadResponseDocument {
     protected int id;
     @XmlElement(required = true)
     protected DocumentAttributes attributes;
-    @XmlElementRef(name = "archive-options", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "archive-options", type = JAXBElement.class)
     protected JAXBElement<ArchiveOptions> archiveOptions;
     protected Annexes annexes;
-    @XmlElementRef(name = "signature-files", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "signature-files", type = JAXBElement.class)
     protected JAXBElement<SignatureFiles> signatureFiles;
-    @XmlElementRef(name = "visual-files", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "visual-files", type = JAXBElement.class)
     protected JAXBElement<VisualFiles> visualFiles;
     @XmlElement(required = true)
     protected Steps steps;

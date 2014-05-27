@@ -45,7 +45,7 @@ public class DeleteRequest {
     @XmlElement(required = true)
     protected Application application;
     protected DeleteRequestDocuments documents;
-    @XmlElementRef(name = "search-criterias", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "search-criterias", type = JAXBElement.class)
     protected JAXBElement<SearchCriterias> searchCriterias;
     @XmlAttribute(name = "version")
     protected String version;

@@ -41,13 +41,13 @@ public class DownloadStep
     extends Step
 {
 
-    @XmlElementRef(name = "minimal-signers", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "minimal-signers", type = JAXBElement.class)
     protected JAXBElement<Integer> minimalSigners;
-    @XmlElementRef(name = "signers-action", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "signers-action", type = JAXBElement.class)
     protected JAXBElement<Signers> signersAction;
-    @XmlElementRef(name = "signers-reject", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "signers-reject", type = JAXBElement.class)
     protected JAXBElement<Signers> signersReject;
-    @XmlElementRef(name = "signers-none", type = JAXBElement.class, required = false)
+    @XmlElementRef(name = "signers-none", type = JAXBElement.class)
     protected JAXBElement<Signers> signersNone;
 
     /**
