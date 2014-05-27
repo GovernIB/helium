@@ -43,7 +43,13 @@ public class TerminiCalcularDataFiHandler extends AbstractHeliumActionHandler im
 				Object valorTermini = executionContext.getVariable(varTermini);
 				if (valorTermini == null)
 					throw new JbpmException("No s'ha pogut llegir el termini de la variable '" + varTermini + "'");
-				Termini vt = (Termini)valorTermini;
+				Termini vt = null;
+				if (valorTermini instanceof Termini) {
+					vt = (Termini)valorTermini;
+				} else {
+					vt = Termini.valueFromString((String) valorTermini);
+				}
+				
 				dataFi = Jbpm3HeliumBridge.getInstanceService().terminiCalcularDataFi(
 						getDataInici(executionContext),
 						vt.getAnys(),
@@ -86,8 +92,6 @@ public class TerminiCalcularDataFiHandler extends AbstractHeliumActionHandler im
 		this.varDataFi = varDataFi;
 	}
 
-
-
 	private Date getDataInici(ExecutionContext executionContext) {
 		Date data;
 		if (varData != null && varData.length() > 0) {
@@ -104,5 +108,4 @@ public class TerminiCalcularDataFiHandler extends AbstractHeliumActionHandler im
 			return data;
 		}
 	}
-
 }

@@ -63,6 +63,23 @@ public class Termini implements Serializable {
 		}
 		return sb.toString();
 	}
+	
+	public static Termini valueFromString(String valorTermini) {
+		Termini termini = new Termini();
+		try {
+			String[] parts = valorTermini.split("/");
+			if (parts.length == 3) {
+				termini.setAnys(new Integer(parts[0]));
+				termini.setMesos(new Integer(parts[1]));
+				termini.setDies(new Integer(parts[2]));
+			}
+		} catch (Exception ex) {}
+		return termini;
+	}
+	
+	public static String valueFromTermini(Termini valorTermini) {
+		return valorTermini.getAnys() + "/" + valorTermini.getMesos() + "/" + valorTermini.getDies();
+	}
 
 	private static final long serialVersionUID = 774909297938469787L;
 

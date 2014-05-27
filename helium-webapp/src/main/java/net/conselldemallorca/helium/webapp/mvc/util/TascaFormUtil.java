@@ -361,10 +361,14 @@ public class TascaFormUtil {
 											(perFiltre) ? 2 : 1));
 						}
 					} else {
+						Object valorCamp = (valors != null) ? valors.get(campCodiValors) : null;
+						if (valorCamp instanceof net.conselldemallorca.helium.jbpm3.integracio.Termini) {
+							valorCamp = net.conselldemallorca.helium.jbpm3.integracio.Termini.valueFromTermini((net.conselldemallorca.helium.jbpm3.integracio.Termini) valorCamp);
+						} 
 						PropertyUtils.setSimpleProperty(
 								command,
 								campCodi,
-								(valors != null) ? valors.get(campCodiValors) : null);
+								valorCamp);
 					}
 				} catch (Exception ex) {
 					logger.error("No s'ha pogut afegir el camp '" + campCodi + "' al command (" + tipusCommand + ", " + tipusCamp + ")", ex);

@@ -41,7 +41,14 @@ public class TerminiIniciarHandler extends AbstractHeliumActionHandler implement
 				Object valorTermini = executionContext.getVariable(varTermini);
 				if (valorTermini == null)
 					throw new JbpmException("No s'ha pogut llegir el termini de la variable '" + varTermini + "'");
-				Termini vt = (Termini)valorTermini;
+				
+				Termini vt = null;
+				if (valorTermini instanceof Termini) {
+					vt = (Termini)valorTermini;
+				} else {
+					vt = Termini.valueFromString((String) valorTermini);
+				}
+				
 				Jbpm3HeliumBridge.getInstanceService().terminiIniciar(
 						tercod,
 						getProcessInstanceId(executionContext),
