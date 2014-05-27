@@ -100,7 +100,7 @@ public class DocumentTasca implements Serializable, GenericEntity<Long> {
 		this.order = order;
 	}
 
-	@ManyToOne(optional=false, fetch=FetchType.LAZY)
+	@ManyToOne(optional=false)
 	@JoinColumn(name="document_id")
 	@ForeignKey(name="hel_document_doctasca_fk")
 	public Document getDocument() {
