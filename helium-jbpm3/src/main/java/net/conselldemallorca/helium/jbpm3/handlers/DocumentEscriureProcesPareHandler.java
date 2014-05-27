@@ -49,7 +49,8 @@ public class DocumentEscriureProcesPareHandler extends AbstractHeliumActionHandl
 						varDocument,
 						executionContext.getVariable(varDocument));
 			} else {
-				throw new JbpmException("No s'ha trobat el document a dins l'expedient (codi=" + dc + ")");
+//				throw new JbpmException("No s'ha trobat el document a dins l'expedient (codi=" + dc + ")");
+				logger.debug("No s'ha trobat el document a dins l'expedient (codi=" + dc + ")");
 			}
 		} else {
 			throw new JbpmException("El procés no té pare (id=" + getProcessInstanceId(executionContext) + ")");
