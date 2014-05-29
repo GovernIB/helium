@@ -8,6 +8,8 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -788,5 +790,25 @@ public abstract class BaseTest {
 		driver.findElement(By.xpath("//*[@id='command']/div[3]/button[1]")).click();
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se adjuntó el documento");
+	}
+	
+	protected boolean isDate(String fecha, String pattern) {
+		if (fecha == null)  
+			return false;  
+			  
+		SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);
+		  
+		if (fecha.trim().length() != dateFormat.toPattern().length())  
+			return false;  
+		  
+		dateFormat.setLenient(false);  
+		  
+		try {  
+			dateFormat.parse(fecha.trim());  
+		}  
+		catch (ParseException pe) {  
+			return false;  
+		}  
+		return true;
 	}
 }
