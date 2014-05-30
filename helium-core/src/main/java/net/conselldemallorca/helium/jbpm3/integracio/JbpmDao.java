@@ -385,7 +385,7 @@ public class JbpmDao {
 
 	public LlistatIds findListTasks(
 			String usuariBo, 
-			String tasca, 
+			String tascaSel, 
 			String titol,
 			List<Long> idsExpedients, 
 			Date dataCreacioInici, 
@@ -399,7 +399,7 @@ public class JbpmDao {
 			boolean asc,
 			boolean tasquesGrup) {
 		mesuresTemporalsHelper.mesuraIniciar("jBPM findListTasks", "jbpmDao");
-		GetProcessInstancesForActiveTasksCommand command = new GetProcessInstancesForActiveTasksCommand(usuariBo, tasca, idsExpedients, dataCreacioInici, dataCreacioFi, prioritat, dataLimitInici, dataLimitFi, sort, asc, (tasquesGrup ? null : false));
+		GetProcessInstancesForActiveTasksCommand command = new GetProcessInstancesForActiveTasksCommand(usuariBo, null, tascaSel, idsExpedients, dataCreacioInici, dataCreacioFi, prioritat, dataLimitInici, dataLimitFi, sort, asc, (tasquesGrup ? null : false));
 		command.setFirstRow(firstRow);
 		command.setMaxResults(maxResults);
 		command.setTitol(titol);
@@ -422,7 +422,7 @@ public class JbpmDao {
 			String sort, 
 			boolean asc) {
 		mesuresTemporalsHelper.mesuraIniciar("jBPM findListPersonalTasks", "jbpmDao");
-		GetProcessInstancesForActiveTasksCommand command = new GetProcessInstancesForActiveTasksCommand(usuariBo, tasca, idsExpedients, dataCreacioInici, dataCreacioFi, prioritat, dataLimitInici, dataLimitFi, sort, asc, false);
+		GetProcessInstancesForActiveTasksCommand command = new GetProcessInstancesForActiveTasksCommand(usuariBo, tasca, null, idsExpedients, dataCreacioInici, dataCreacioFi, prioritat, dataLimitInici, dataLimitFi, sort, asc, false);
 		command.setFirstRow(firstRow);
 		command.setMaxResults(maxResults);
 		LlistatIds llistat = (LlistatIds)commandService.execute(command);
@@ -444,7 +444,7 @@ public class JbpmDao {
 			String sort, 
 			boolean asc) {
 		mesuresTemporalsHelper.mesuraIniciar("jBPM findListGroupTasks", "jbpmDao");
-		GetProcessInstancesForActiveTasksCommand command = new GetProcessInstancesForActiveTasksCommand(usuariBo, tasca, idsExpedients, dataCreacioInici, dataCreacioFi, prioritat, dataLimitInici, dataLimitFi, sort, asc, true);
+		GetProcessInstancesForActiveTasksCommand command = new GetProcessInstancesForActiveTasksCommand(usuariBo, tasca, null, idsExpedients, dataCreacioInici, dataCreacioFi, prioritat, dataLimitInici, dataLimitFi, sort, asc, true);
 		command.setFirstRow(firstRow);
 		command.setMaxResults(maxResults);
 		LlistatIds llistat = (LlistatIds)commandService.execute(command);

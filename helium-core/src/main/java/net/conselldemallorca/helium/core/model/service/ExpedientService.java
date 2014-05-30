@@ -1771,6 +1771,10 @@ public class ExpedientService {
 		Map<String, Object> output =  jbpmDao.evaluateScript(processInstanceId, script, outputVars);
 		verificarFinalitzacioExpedient(processInstanceId);
 		getServiceUtils().expedientIndexLuceneUpdate(processInstanceId);
+		expedientLogHelper.afegirLogExpedientPerProces(
+				processInstanceId,
+				ExpedientLogAccioTipus.PROCES_SCRIPT_EXECUTAR,
+				script);
 		if (MesuresTemporalsHelper.isActiu())
 			mesuresTemporalsHelper.mesuraCalcular("Executar SCRIPT", "expedient", expedient.getTipus().getNom());
 		return output.get(outputVar);

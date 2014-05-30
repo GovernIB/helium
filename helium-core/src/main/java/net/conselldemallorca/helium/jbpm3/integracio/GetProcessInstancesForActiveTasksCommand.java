@@ -28,6 +28,7 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 	private String actorId;
 	private List<Long> idsPIExpedients;
 	private String tasca; 
+	private String tascaSel; 
 	private String titol;
 	private Date dataCreacioInici; 
 	private Date dataCreacioFi;
@@ -65,11 +66,12 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 		this.pooled = pooled;
 	}
 
-	public GetProcessInstancesForActiveTasksCommand(String actorId, String tasca, List<Long> idsPIExpedients, Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi, String sort, boolean asc, Boolean pooled) {
+	public GetProcessInstancesForActiveTasksCommand(String actorId, String tasca, String tascaSel, List<Long> idsPIExpedients, Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi, String sort, boolean asc, Boolean pooled) {
 		super();
 		this.actorId = actorId;
 		this.idsPIExpedients = idsPIExpedients;
 		this.tasca = tasca; 
+		this.tascaSel = tascaSel; 
 		this.dataCreacioInici = dataCreacioInici; 
 		this.dataCreacioFi = dataCreacioFi;
 		this.prioritat = prioritat;
@@ -149,7 +151,11 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 		}
 
 		if (tasca != null && !"".equals(tasca)) {
-			hql += " and upper(ti.description) like '%@#@TITOL@#@%'||:tasca||'%@#@ENTORNID@#@%' ";
+			hql += " and upper(ti.name) like '%'||:tasca||'%' ";
+		}
+
+		if (tascaSel != null && !"".equals(tascaSel)) {
+			hql += " and upper(ti.name) = :tascaSel";
 		}
 		
 		if (titol != null && !"".equals(titol)) {
@@ -191,6 +197,9 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 
 			if (tasca != null && !"".equals(tasca))
 				query.setString("tasca", tasca.toUpperCase());
+
+			if (tascaSel != null && !"".equals(tascaSel))
+				query.setString("tascaSel", tascaSel.toUpperCase());
 			
 			if (titol != null && !"".equals(titol))
 				query.setString("titol", titol.toUpperCase());
@@ -232,6 +241,11 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 			if (tasca != null && !"".equals(tasca)) {
 				queryPersonal.setString("tasca", tasca.toUpperCase());
 				queryPooled.setString("tasca", tasca.toUpperCase());
+			}
+
+			if (tascaSel != null && !"".equals(tascaSel)) {
+				queryPersonal.setString("tascaSel", tascaSel.toUpperCase());
+				queryPooled.setString("tascaSel", tascaSel.toUpperCase());
 			}
 			
 			if (titol != null && !"".equals(titol)) {
