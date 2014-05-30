@@ -1078,76 +1078,6 @@ public class TascaService {
 				codiVariable);
 	}
 
-	/*public DocumentDto generarDocumentPlantilla(
-			Long entornId,
-			Long documentId,
-			String taskId,
-			Date dataDocument) {
-		Document document = documentDao.getById(documentId, false);
-		DocumentDto resposta = new DocumentDto();
-		resposta.setDataCreacio(new Date());
-		resposta.setDataDocument(new Date());
-		resposta.setArxiuNom(document.getNom() + ".odt");
-		resposta.setAdjuntarAuto(document.isAdjuntarAuto());
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
-		if (document.isPlantilla()) {
-			JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
-			ExpedientDto expedient = dtoConverter.toExpedientDto(
-					expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId()),
-					false);
-			TascaDto tasca = toTascaDto(task, null, true, true);
-			InstanciaProcesDto instanciaProces = dtoConverter.toInstanciaProcesDto(
-					task.getProcessInstanceId(),
-					true);
-			Map<String, Object> model = new HashMap<String, Object>();
-			model.putAll(instanciaProces.getVarsComText());
-			model.putAll(tasca.getVarsComText());
-			try {
-				byte[] resultat = plantillaDocumentDao.generarDocumentAmbPlantilla(
-						entornId,
-						document,
-						task.getAssignee(),
-						expedient,
-						task.getProcessInstanceId(),
-						tasca,
-						dataDocument,
-						model);
-				if (isActiuConversioVista()) {
-					ByteArrayOutputStream baos = new ByteArrayOutputStream();
-					getOpenOfficeUtils().convertir(
-							resposta.getArxiuNom(),
-							resultat,
-							getExtensioVista(document),
-							baos);
-					resposta.setArxiuNom(
-							nomArxiuAmbExtensio(
-									resposta.getArxiuNom(),
-									getExtensioVista(document)));
-					resposta.setArxiuContingut(baos.toByteArray());
-				} else {
-					resposta.setArxiuContingut(resultat);
-				}
-				if (document.isAdjuntarAuto()) {
-					documentHelper.actualitzarDocument(
-							taskId,
-							null,
-							document.getCodi(),
-							null,
-							dataDocument,
-							resposta.getArxiuNom(),
-							resposta.getArxiuContingut(),
-							false);
-				}
-			} catch (Exception ex) {
-				throw new TemplateException(
-						getServiceUtils().getMessage("error.tascaService.generarDocument"), ex);
-			}
-		} else {
-			resposta.setArxiuContingut(document.getArxiuContingut());
-		}
-		return resposta;
-	}*/
-
 	public void delegacioCrear(
 			Long entornId,
 			String taskId,
@@ -1331,31 +1261,6 @@ public class TascaService {
 					getServiceUtils().getMessage("error.tascaService.noValidada"));
 	}
 
-	/*public Integer getTotalTasquesPersona(Long entornId) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		String usuariBo = auth.getName();
-		List<JbpmTask> tasques = jbpmDao.findPersonalTasks(usuariBo);
-		Integer total = 0;
-		for (JbpmTask task: tasques) {
-			Long currentEntornId = getDadesCacheTasca(task).getEntornId();
-			if (currentEntornId != null && entornId.equals(currentEntornId))
-				total++;
-		}
-		return total;
-	}
-	public Integer getTotalTasquesGrup(Long entornId) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		String usuariBo = auth.getName();
-		List<JbpmTask> tasques = jbpmDao.findGroupTasks(usuariBo);
-		Integer total = 0;
-		for (JbpmTask task: tasques) {
-			Long currentEntornId = getDadesCacheTasca(task).getEntornId();;
-			if (currentEntornId != null && entornId.equals(currentEntornId))
-				total++;
-		}
-		return total;
-	}*/
-
 	@Autowired
 	public void setExpedientDao(ExpedientDao expedientDao) {
 		this.expedientDao = expedientDao;
@@ -1458,8 +1363,8 @@ public class TascaService {
 					throw new NotFoundException(
 							getServiceUtils().getMessage("error.tascaService.noAssignada"));
 			}
-		}
-		if (task.isSuspended()) {
+		}		
+		if (task.isSuspended() || !task.isOpen()) {
 			throw new IllegalStateException(
 					getServiceUtils().getMessage("error.tascaService.noDisponible"));
 		}
