@@ -1457,7 +1457,7 @@ public class TascaService {
 							getServiceUtils().getMessage("error.tascaService.noAssignada"));
 			}
 		}
-		if (task.isSuspended()) {
+		if (task.isSuspended() || !task.isOpen()) {
 			throw new IllegalStateException(
 					getServiceUtils().getMessage("error.tascaService.noDisponible"));
 		}

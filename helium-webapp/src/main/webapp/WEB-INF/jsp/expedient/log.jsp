@@ -14,6 +14,7 @@
 	<c:import url="../common/formIncludes.jsp"/>
 	<script type="text/javascript" src="<c:url value="/js/jquery/ui/ui.core.js"/>"></script>
 	<script  type="text/javascript" src="<c:url value="/js/jquery/ui/jquery-ui-1.7.2.custom.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.DOMWindow.js"/>"></script>
 <script type="text/javascript">
 // <![CDATA[
 function mostrarLogsRetrocedits(element) {
@@ -163,7 +164,33 @@ jQuery(document).ready(function(){
 				<c:when test="${registre.accioTipus == 'PROCES_DOCUMENT_MODIFICAR'}"><fmt:message key="expedient.log.info.document"/>: ${registre.accioParams}</c:when>
 				<c:when test="${registre.accioTipus == 'PROCES_DOCUMENT_ESBORRAR'}"><fmt:message key="expedient.log.info.document"/>: ${registre.accioParams}</c:when>
 				<c:when test="${registre.accioTipus == 'PROCES_DOCUMENT_ADJUNTAR'}"><fmt:message key="expedient.log.info.document"/>: ${registre.accioParams}</c:when>
-				<c:when test="${registre.accioTipus == 'PROCES_SCRIPT_EXECUTAR'}"><fmt:message key="expedient.log.info.accio"/>: ${registre.accioParams}</c:when>
+				<c:when test="${registre.accioTipus == 'PROCES_SCRIPT_EXECUTAR'}">
+					<a href="#scriptForm_${registre.id}" class="scriptLink_${registre.id}"><img src="<c:url value="/img/magnifier.png"/>"/></a>
+					<script type="text/javascript">
+						$('.scriptLink_${registre.id}').openDOMWindow({
+							eventType: 'click',
+							width: 620,
+							height: 260,
+							loader: 1,
+							loaderHeight: 50,
+							loaderWidth: 100,
+							eventType:'click', 
+							overlayOpacity: 10,							
+							windowPadding: 10,
+							draggable: 1});
+						$('.closeDOMWindow').closeDOMWindow({
+							eventType:'click'
+						});
+					</script>
+					<div id="scriptForm_${registre.id}" style="display:none" class="ui-dialog-content ui-widget-content">
+						<h3 class="titol-tab titol-script">	
+							<fmt:message key="expedient.log.accio.${registre.accioTipus}"/>
+						</h3>
+						<p>
+							${registre.accioParams}
+						</p>
+					</div>
+				</c:when>
 				<c:when test="${registre.accioTipus == 'TASCA_REASSIGNAR'}"><fmt:message key="expedient.log.info.abans"/>: ${fn:split(registre.accioParams, "::")[0]}, <fmt:message key="expedient.log.info.despres"/>: ${fn:split(registre.accioParams, "::")[1]}</c:when>
 				<c:when test="${registre.accioTipus == 'TASCA_ACCIO_EXECUTAR'}"><fmt:message key="expedient.log.info.accio"/>: ${registre.accioParams}</c:when>
 				<c:when test="${registre.accioTipus == 'TASCA_DOCUMENT_AFEGIR'}"><fmt:message key="expedient.log.info.document"/>: ${registre.accioParams}</c:when>
@@ -183,11 +210,15 @@ jQuery(document).ready(function(){
 		<display:column property="tokenName" titleKey="expedient.lot.token" style="${cellStyle}"/>
 		<%--/c:if--%>
 		<display:column>
-			<c:if test="${registre.estat == 'NORMAL' && numBloquejos == 0}">
-				<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="128,16">
-					<a href="<c:url value="/expedient/retrocedir.html"><c:param name="id" value="${param.id}"/><c:param name="logId" value="${registre.id}"/><c:param name="tipus_retroces" value="${param.tipus_retroces}"/><c:param name="retorn" value="r"/></c:url>" onclick="return confirmarRetrocedir(event)" class="retroces"><img src="<c:url value="/img/arrow_undo.png"/>" alt="<fmt:message key="expedient.log.retrocedir"/>" title="<fmt:message key="expedient.log.retrocedir"/>" border="0"/></a>
-				</security:accesscontrollist>
-			</c:if>
+			<c:choose>
+				<c:when test="${registre.accioTipus == 'PROCES_SCRIPT_EXECUTAR'}"></c:when>
+				<c:when test="${registre.estat == 'NORMAL' && numBloquejos == 0}">
+					<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="128,16">
+						<a href="<c:url value="/expedient/retrocedir.html"><c:param name="id" value="${param.id}"/><c:param name="logId" value="${registre.id}"/><c:param name="tipus_retroces" value="${param.tipus_retroces}"/><c:param name="retorn" value="r"/></c:url>" onclick="return confirmarRetrocedir(event)" class="retroces"><img src="<c:url value="/img/arrow_undo.png"/>" alt="<fmt:message key="expedient.log.retrocedir"/>" title="<fmt:message key="expedient.log.retrocedir"/>" border="0"/></a>
+					</security:accesscontrollist>
+				</c:when>				
+				<c:otherwise></c:otherwise>
+			</c:choose>
 			<c:if test="${numBloquejos gt 0}">B</c:if>
 		</display:column>
 		<c:if test="${registre.estat == 'BLOCAR'}">Hola<c:set var="numBloquejos" value="${numBloquejos - 1}"/></c:if>
