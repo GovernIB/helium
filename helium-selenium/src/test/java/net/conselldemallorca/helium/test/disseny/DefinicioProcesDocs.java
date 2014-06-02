@@ -23,7 +23,8 @@ public class DefinicioProcesDocs extends BaseTest {
 	public void a0_inicialitzacio() {
 		carregarUrlConfiguracio();
 		crearEntorn(entorn, titolEntorn);
-		assignarPermisosEntorn(entorn, usuari, "DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
+		assignarPermisosEntorn(entorn, usuariAdmin, "DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
+		assignarPermisosEntorn(entorn, usuari, "DESIGN", "ORGANIZATION", "READ");
 	}
 	
 	@Test

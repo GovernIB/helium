@@ -42,8 +42,8 @@ public class DefinicioProcesVars extends BaseTest {
 		seleccionarEntorn(titolEntorn);
 		desplegarDefinicioProcesEntorn(nomDefProc, pathDefProc);
 		importarDadesEntorn(entorn, pathExportEntorn);
-		crearAgrupacioTest(codAgrupacio1, nomAgrupacio1);
-		crearAgrupacioTest(codAgrupacio2, nomAgrupacio2);
+		crearAgrupacio(nomDefProc, codAgrupacio1, nomAgrupacio1);
+		crearAgrupacio(nomDefProc, codAgrupacio2, nomAgrupacio2);
 	}
 	
 	@Test
@@ -311,7 +311,7 @@ public class DefinicioProcesVars extends BaseTest {
 	public void z0_finalitzacio() {
 		carregarUrlDisseny();
 		eliminarDefinicioProces(nomDefProc);
-		eliminarEnumeracionsTest();
+		eliminarEnumeracio("enumsel");
 		eliminarTipusExpedient(codTipusExp);
 		if (entornActual != null && !"".equals(entornActual)) 
 			marcarEntornDefecte(entornActual);
@@ -322,42 +322,4 @@ public class DefinicioProcesVars extends BaseTest {
 		carregarUrlConfiguracio();
 		eliminarEntorn(entorn);
 	}
-	
-	
-	// Funcions ajuda
-	// ----------------------------------------------------------------------------------------
-	private void crearVar(String codi, String nom, TipusVar tipus, String agrupacio, boolean multiple, boolean oculta, boolean noRetrocedir) {
-		crearVar(codi, nom, tipus, agrupacio, multiple, oculta, noRetrocedir, null);
-	}
-	
-	// Inicialitzacions
-	private void eliminarEnumeracionsTest() {
-		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/enumeracio/llistat.html')]")));
-		actions.click();
-		actions.build().perform();
-		
-		if (existeixElement("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]")) {
-			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]/td[4]/a")).click();
-			acceptarAlerta();
-		}
-		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]", "No s'han pogut eliminar l'enumeració");
-	}
-	
-	private void crearAgrupacioTest(String codi, String nom) {
-		seleccionarDefinicioProces(nomDefProc);
-		// Accedir a la fitxa de les agrupacions
-		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/campAgrupacioLlistat.html')]")).click();			
-		if (noExisteixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + codi + "')]")) {
-			driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
-			driver.findElement(By.id("codi0")).clear();
-			driver.findElement(By.id("codi0")).sendKeys(codi);
-			driver.findElement(By.id("nom0")).clear();
-			driver.findElement(By.id("nom0")).sendKeys(nom);
-			driver.findElement(By.xpath("//button[@value='submit']")).click();
-		}
-		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codi + "')]", "No s'ha pogut crear l'agrupació de test " + nom);
-	}
-	
 }

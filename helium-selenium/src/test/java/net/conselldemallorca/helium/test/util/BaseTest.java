@@ -2,6 +2,7 @@ package net.conselldemallorca.helium.test.util;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -242,6 +243,9 @@ public abstract class BaseTest {
 	protected boolean checkboxSelectedAssert(String xpath, String msgNotFound, boolean selected) {
 		return comprovaCheckbox(xpath, msgNotFound, selected, false);
 	}
+	protected boolean checkboxSelected(String xpath, boolean selected) {
+		return comprovaCheckbox(xpath, null, selected, true);
+	}
 	protected boolean checkboxSelected(String xpath, String msgNotFound, boolean selected) {
 		return comprovaCheckbox(xpath, msgNotFound, selected, true);
 	}
@@ -421,6 +425,109 @@ public abstract class BaseTest {
 	
 	// DEFINICIÓ DE PROCÉS
 	// ............................................................................................................	
+	protected enum TipusDesplegament {
+		JBPM,
+		EXPORTDEFPRC,
+		EXPORTTIPEXP
+	}
+	
+	protected void desplegarDefinicioProcesEntorn(String nomDefProc, String pathDefProc) {
+		desplegarDefPro(TipusDesplegament.JBPM, nomDefProc, null, pathDefProc, null, false, false);
+	}
+	
+	protected void desplegarDefinicioProcesEntorn(String tipusExpedient, String nomDefProc, String pathDefProc) {
+		desplegarDefPro(TipusDesplegament.JBPM, nomDefProc, tipusExpedient, pathDefProc, null, false, false);
+	}
+	
+	protected void desplegarDefPro(TipusDesplegament tipDesp, String nomDefProc, String nomTipusExp, String path, String etiqueta, boolean actualitzarExps, boolean captures) {
+		// Comprovam si existeix. En cas de que existeixi, comprovam si està a tipus d'expedient, i el número de versió
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+		
+		Integer versio = null;
+		if (existeixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]")) {
+			try {
+				versio = Integer.parseInt(driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]/td[2]")).getText().trim());
+				String tipusExp = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]/td[3]")).getText().trim();
+				if (nomTipusExp == null) {
+					if(!"".equals(tipusExp)) fail("La definició de procés està desplegada a un tipus d'expedient");
+				} else if (!nomTipusExp.equals(tipusExp)) {
+					fail("La definició de procés ja està desplegada a un altre tipus d'expedient");
+				}
+			} catch (NumberFormatException nfe) {
+				fail("Número de versió actual incorrecte");
+			}
+		}
+		
+		// Anem a fer el deploy
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/deploy.html')]")));
+		actions.click();
+		actions.build().perform();
+		
+		// Deploy
+		driver.findElement(By.xpath("//option[@value='" + tipDesp.name() + "']")).click();
+		
+		boolean tipExp = false;
+		// tipus d'expedient
+		if (nomTipusExp != null) {
+			for (WebElement option : driver.findElement(By.id("expedientTipusId0")).findElements(By.tagName("option"))) {
+				if (option.getText().equals(nomTipusExp)) {
+					option.click();
+					break;
+				}
+			}
+			tipExp = true;
+		}		
+
+		// Path
+		driver.findElement(By.id("arxiu0")).sendKeys(path);
+		
+		// Etiqueta
+		if (etiqueta != null) {
+			driver.findElement(By.id("etiqueta0")).clear();
+			driver.findElement(By.id("etiqueta0")).sendKeys(etiqueta);
+		}
+		
+		// Actualitza expedients
+		if (actualitzarExps) {
+			driver.findElement(By.id("actualitzarProcessosActius0")).click();
+		}
+		long tm = System.currentTimeMillis();
+		
+		if (captures) screenshotHelper.saveScreenshot("defproces/import/" + nomDefProc + "_" + tm + "/" + (tipExp ? "tipusExp" : "global") + "/1_importPar.png");
+		
+		driver.findElement(By.xpath("//button[@value='submit']")).click();
+		
+		if (captures) screenshotHelper.saveScreenshot("defproces/importPar/" + nomDefProc + "_" + tm + "/" + (tipExp ? "tipusExp" : "global") + "/2_importPar.png");
+		
+		if (actualitzarExps) {
+			existeixElementAssert("//*[@id='infos']/p[2]", "No s'ha programat el canvi de versió en els expedients");
+		}
+		if (etiqueta != null) {
+			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]")).click();
+			existeixElementAssert("//*[@id='content']/dl/dd[5][text() = '" + etiqueta + "']", "No s'ha desat la etiqueta de la definició de procés");
+		}
+		
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+		if (tipExp) {
+			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "') and td[3][text() = '" + nomTipusExp + "']]", "defproces/importPar/tipusExp/3_definicionsExistents.png", "No s'ha pogut importar la definició de procés a nivell de tipus d'expedient");
+		} else {
+			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "') and td[3][not(text())]]", "No s'ha pogut importar la definició de procés a nivell global");
+		}
+		if (versio != null) {
+			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "') and td[2][text() = '" + (versio + 1) + "']]", "No s'ha actualitzat la versió de la definició de procés");
+		}
+	}
+	
 	protected void seleccionarDefinicioProces(String nomDefProc) {
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
@@ -431,44 +538,7 @@ public abstract class BaseTest {
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]", "No s'ha trobat la defició de procés de prova");
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]/td[1]/a")).click();
 	}
-	
-	protected void desplegarDefinicioProcesEntorn(String nomDefProc, String pathDefProc) {
-		desplegarDefinicioProcesEntorn(null, nomDefProc, pathDefProc);
-	}
-	
-	protected void desplegarDefinicioProcesEntorn(String tipusExpedient, String nomDefProc, String pathDefProc) {
-		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/deploy.html')]")));
-		actions.click();
-		actions.build().perform();
-		
-		// tipus d'expedient
-		if (tipusExpedient != null) {
-			for (WebElement option : driver.findElement(By.id("expedientTipusId0")).findElements(By.tagName("option"))) {
-				if (option.getText().equals(tipusExpedient)) {
-					option.click();
-					break;
-				}
-			}
-		}
-		
-		// Deploy
-		driver.findElement(By.xpath("//option[@value='JBPM']")).click();
-		driver.findElement(By.id("arxiu0")).sendKeys(pathDefProc);
-		driver.findElement(By.xpath("//button[@value='submit']")).click();
-		
-		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]")));
-		actions.click();
-		actions.build().perform();
-		
-		if (tipusExpedient == null)
-			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "') and td[3][not(text())]]", "No s'ha pogut importar la definició de procés de test");
-		else
-			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]", "No s'ha pogut importar la definició de procés de test");
-	}
+
 	
 	protected void eliminarDefinicioProces(String nomDefProc) {
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
@@ -483,6 +553,24 @@ public abstract class BaseTest {
 		}
 	}
 	
+	protected void crearAgrupacio(String nomDefProc, String codi, String nom) {
+		seleccionarDefinicioProces(nomDefProc);
+		// Accedir a la fitxa de les agrupacions
+		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/campAgrupacioLlistat.html')]")).click();			
+		if (noExisteixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + codi + "')]")) {
+			driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
+			driver.findElement(By.id("codi0")).clear();
+			driver.findElement(By.id("codi0")).sendKeys(codi);
+			driver.findElement(By.id("nom0")).clear();
+			driver.findElement(By.id("nom0")).sendKeys(nom);
+			driver.findElement(By.xpath("//button[@value='submit']")).click();
+		}
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codi + "')]", "No s'ha pogut crear l'agrupació de test " + nom);
+	}
+	
+	protected void crearVar(String codi, String nom, TipusVar tipus, String agrupacio, boolean multiple, boolean oculta, boolean noRetrocedir) {
+		crearVar(codi, nom, tipus, agrupacio, multiple, oculta, noRetrocedir, null);
+	}
 	protected void crearVar(String codi, String nom, TipusVar tipus, String agrupacio, boolean multiple, boolean oculta, boolean noRetrocedir, Object parametres) {
 		// Definim sufix per a les variables depenent de la confifuració
 		String params = "";
@@ -563,6 +651,20 @@ public abstract class BaseTest {
 				existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + textVar + "')]", "La variable no s'ha assignat correctament al registre");
 			}
 		}
+	}
+	
+	protected void eliminarEnumeracio(String nomEnumeracio) {
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/enumeracio/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+		
+		if (existeixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomEnumeracio + "')]")) {
+			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomEnumeracio + "')]/td[4]/a")).click();
+			acceptarAlerta();
+		}
+		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomEnumeracio + "')]", "No s'han pogut eliminar l'enumeració");
 	}
 	
 	// TIPUS D'EXPEDIENT
@@ -790,6 +892,57 @@ public abstract class BaseTest {
 		driver.findElement(By.xpath("//*[@id='command']/div[3]/button[1]")).click();
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se adjuntó el documento");
+	}
+	
+	protected void sortTable(String taulaId, int origen, int desti) {
+		int max = Math.max(origen, desti);
+		int min = Math.min(origen, desti);
+		String[] elements = new String[max];
+		String[] elementOrdenats = new String[max];
+		
+		for (int i = 1; i <= max; i++) {
+			elements[i-1] = driver.findElement(By.xpath("//*[@id='" + taulaId + "']/tbody/tr[" + i + "]/td[1]")).getText();
+		}
+		
+		WebElement elOrigen = driver.findElement(By.xpath("//*[@id='" + taulaId + "']/tbody/tr[" + origen + "]/td[1]"));
+		WebElement elDesti = driver.findElement(By.xpath("//*[@id='" + taulaId + "']/tbody/tr[" + desti + "]/td[1]"));
+		// Drag and drop
+		actions.clickAndHold(elOrigen).moveToElement(elDesti).release(elDesti).build().perform();
+		
+		// Comprovam la ordenació
+		driver.navigate().refresh();
+		
+		// Bug: el drag and drop pot no deixar-ho a la fila que li hem dit
+		for (int i = 1; i <= max; i++) {
+			if (elements[origen-1].equals(driver.findElement(By.xpath("//*[@id='" + taulaId + "']/tbody/tr[" + i + "]/td[1]")).getText())) {
+				desti = i;
+				max = Math.max(origen, desti);
+				min = Math.min(origen, desti);
+				break;
+			}
+		}
+		// End Bug
+		
+		for (int i = 1; i <= max; i++) {
+			if (desti > origen) {
+				if (i == desti) {
+					elementOrdenats[origen-1] = driver.findElement(By.xpath("//*[@id='" + taulaId + "']/tbody/tr[" + i + "]/td[1]")).getText();
+				} else if (i >= min && i < max) {
+					elementOrdenats[i] = driver.findElement(By.xpath("//*[@id='" + taulaId + "']/tbody/tr[" + i + "]/td[1]")).getText();
+				} else {
+					elementOrdenats[i-1] = driver.findElement(By.xpath("//*[@id='" + taulaId + "']/tbody/tr[" + i + "]/td[1]")).getText();
+				}
+			} else {
+				if (i == desti) {
+					elementOrdenats[origen-1] = driver.findElement(By.xpath("//*[@id='" + taulaId + "']/tbody/tr[" + i + "]/td[1]")).getText();
+				} else if (i > min && i <= max) {
+					elementOrdenats[i-2] = driver.findElement(By.xpath("//*[@id='" + taulaId + "']/tbody/tr[" + i + "]/td[1]")).getText();
+				} else {
+					elementOrdenats[i-1] = driver.findElement(By.xpath("//*[@id='" + taulaId + "']/tbody/tr[" + i + "]/td[1]")).getText();
+				}
+			}
+		}
+		assertArrayEquals("La taula no s'ha ordenat correctament", elementOrdenats, elements);
 	}
 	
 	protected boolean isDate(String fecha, String pattern) {
