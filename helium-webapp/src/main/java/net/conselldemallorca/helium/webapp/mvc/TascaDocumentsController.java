@@ -114,13 +114,18 @@ public class TascaDocumentsController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			try {
-				TascaDto tasca = tascaService.getById(
+				TascaDto tasca = null;
+				try {
+					tasca = tascaService.getById(
 						entorn.getId(),
 						id,
 						null,
 						null,
 						true,
 						false);
+				} catch (net.conselldemallorca.helium.core.model.exception.IllegalStateException ex) {
+					return null;
+				}
 				Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 				campsAddicionals.put("id", id);
 				campsAddicionals.put("entornId", entorn.getId());
@@ -366,13 +371,20 @@ public class TascaDocumentsController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			boolean adjuntarAuto = false;
-			TascaDto tasca = tascaService.getById(
-					entorn.getId(),
-					id,
-					null,
-					null,
-					true,
-					false);
+			TascaDto tasca;
+			try {
+				tasca = tascaService.getById(
+						entorn.getId(),
+						id,
+						null,
+						null,
+						true,
+						false);
+			} catch (net.conselldemallorca.helium.core.model.exception.IllegalStateException ex) {
+				missatgeError(request, getMessage("error.tasca.no.disponible") );
+				logger.error(getMessage("error.tascaService.noDisponible"), ex);
+				return "redirect:/index.html";
+			}
 			for (DocumentTasca document: tasca.getDocuments()) {
 				if (document.getDocument().getId().longValue() == documentId.longValue()) {
 					adjuntarAuto = document.getDocument().isAdjuntarAuto();

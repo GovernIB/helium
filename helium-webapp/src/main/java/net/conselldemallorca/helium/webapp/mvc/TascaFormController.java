@@ -139,13 +139,18 @@ public class TascaFormController extends BaseController {
 		if (entorn != null) {
 			Object command = null;
 			Object commandSessio = TascaFormUtil.recuperarCommandTemporal(request, true);
-			TascaDto tasca = tascaService.getById(
-					entorn.getId(),
-					id,
-					null,
-					null,
-					true,
-					true);
+			TascaDto tasca = null;
+			try {
+				tasca = tascaService.getById(
+						entorn.getId(),
+						id,
+						null,
+						null,
+						true,
+						true);
+			} catch (net.conselldemallorca.helium.core.model.exception.IllegalStateException ex) {
+				return null;
+			}
 			if (commandSessio != null) {
 				List<Camp> camps = new ArrayList<Camp>();
 	    		for (CampTasca campTasca: tasca.getCamps())
@@ -221,14 +226,20 @@ public class TascaFormController extends BaseController {
 		if (entorn != null) {
 			TascaDto tasca = null;
 			if (MesuresTemporalsHelper.isActiu()) {
-				tasca = tascaService.getById(
-						entorn.getId(),
-						id,
-						null,
-						null,
-						true,
-						false);
-				mesuresTemporalsHelper.mesuraIniciar("Tasca FORM", "tasques", tasca.getExpedient().getTipus().getNom(), tasca.getNomLimitat());
+				try {
+					tasca = tascaService.getById(
+							entorn.getId(),
+							id,
+							null,
+							null,
+							true,
+							false);
+					mesuresTemporalsHelper.mesuraIniciar("Tasca FORM", "tasques", tasca.getExpedient().getTipus().getNom(), tasca.getNomLimitat());
+				} catch (net.conselldemallorca.helium.core.model.exception.IllegalStateException ex) {
+					missatgeError(request, getMessage("error.tasca.no.disponible") );
+					logger.error(getMessage("error.tascaService.noDisponible"), ex);
+					return "redirect:/index.html";
+				}
 			}
 			String campFocus = (String)request.getSession().getAttribute(VARIABLE_SESSIO_CAMP_FOCUS);
 			if (campFocus != null) {

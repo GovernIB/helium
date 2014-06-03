@@ -76,11 +76,16 @@ public class ExpedientTascaReassignarController extends BaseController {
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 			if (potModificarOReassignarExpedient(expedient)) {
-				tascaService.alliberar(
-						entorn.getId(),
-						taskId,
-						false);
-				missatgeInfo(request, getMessage("info.tasca.alliberada"));
+				try {
+					tascaService.alliberar(
+							entorn.getId(),
+							taskId,
+							false);
+					missatgeInfo(request, getMessage("info.tasca.alliberada"));
+				} catch (net.conselldemallorca.helium.core.model.exception.IllegalStateException ex) {
+					missatgeError(request, getMessage("error.tasca.no.disponible") );
+					logger.error("No s'ha pogut alliberar la tasca", ex);
+				}
 			} else {
 				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
 			}

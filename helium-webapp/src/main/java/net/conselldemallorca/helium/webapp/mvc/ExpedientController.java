@@ -521,8 +521,7 @@ public class ExpedientController extends BaseController {
 					Iterator<ExpedientLogDto> itLogs = logs.iterator();
 					while (itLogs.hasNext()) {
 						ExpedientLogDto log = itLogs.next();
-						if ("RETROCEDIT".equals(log.getEstat()) ||
-								"RETROCEDIT_TASQUES".equals(log.getEstat()))
+						if ("RETROCEDIT".equals(log.getEstat()) || "RETROCEDIT_TASQUES".equals(log.getEstat()) || ("EXPEDIENT_MODIFICAR".equals(log.getAccioTipus()) && (tipus_retroces == null || tipus_retroces != 0)))
 							itLogs.remove();
 					}
 					model.addAttribute("logs", logs);
