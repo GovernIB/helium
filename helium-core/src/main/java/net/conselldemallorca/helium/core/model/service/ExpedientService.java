@@ -89,7 +89,6 @@ import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.acl.AclServiceDao;
 import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.MesurarTemps;
 import net.conselldemallorca.helium.integracio.plugins.gis.DadesExpedient;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarEventRequest;
@@ -249,10 +248,12 @@ public class ExpedientService {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String usuariBo = (usuari != null) ? usuari : auth.getName();
 		ExpedientTipus expedientTipus = expedientTipusDao.getById(expedientTipusId, false);
-		String mesuraTempsTotalPrefix = "INIEXP_TOT_" + expedientTipus.getCodi();
-		String mesuraTempsIncrementalPrefix = "INIEXP_INC_" + expedientTipus.getCodi();
-		MesurarTemps.diferenciaReiniciar(mesuraTempsTotalPrefix);
-		MesurarTemps.diferenciaReiniciar(mesuraTempsIncrementalPrefix);
+//		String mesuraTempsTotalPrefix = "INIEXP_TOT_" + expedientTipus.getCodi();
+//		String mesuraTempsIncrementalPrefix = "INIEXP_INC_" + expedientTipus.getCodi();
+//		MesurarTemps.diferenciaReiniciar(mesuraTempsTotalPrefix);
+//		MesurarTemps.diferenciaReiniciar(mesuraTempsIncrementalPrefix);
+		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom());
+		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Nou expedient");
 		Entorn entorn = entornDao.getById(entornId, false);
 		textBloqueigIniciExpedient = auth.getName() + " (" +
 				"entornCodi=" + entorn.getCodi() + ", " +
@@ -266,7 +267,9 @@ public class ExpedientService {
 					expedientTipus,
 					entorn,
 					UUID.randomUUID().toString());
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "0");
+//			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "0");
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Nou expedient");
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Omplir dades");
 			String responsableCodiCalculat = (responsableCodi != null) ? responsableCodi : expedientTipus.getResponsableDefecteCodi();
 			if (responsableCodiCalculat == null)
 				responsableCodiCalculat = iniciadorCodiCalculat;
@@ -286,13 +289,15 @@ public class ExpedientService {
 			expedient.setAvisosEmail(avisosEmail);
 			expedient.setAvisosMobil(avisosMobil);
 			expedient.setNotificacioTelematicaHabilitada(notificacioTelematicaHabilitada);
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "1");
+//			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "1");
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Omplir dades");
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Assignar numeros");
 			expedient.setNumeroDefault(
 					getNumeroExpedientDefaultActual(
 							entornId,
 							expedientTipus,
 							any));
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "2");
+//			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "2");
 			if (expedientTipus.getTeNumero()) {
 				if (numero != null && numero.length() > 0 && expedientTipus.getDemanaNumero()) {
 					expedient.setNumero(numero);
@@ -306,7 +311,9 @@ public class ExpedientService {
 			}
 	
 			// Verifica si l'expedient té el número repetit
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "3");
+//			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "3");
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Assignar numeros");
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Verificar numero repetit");
 			if (expedientDao.findAmbEntornTipusINumero(
 					entornId,
 					expedientTipusId,
@@ -317,33 +324,29 @@ public class ExpedientService {
 								new Object[]{expedient.getNumero()}) );
 			}
 			// Actualitza l'any actual de l'expedient
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "4");
+//			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "4");
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Verificar numero repetit");
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Actualitzar any i sequencia");
 			int anyActual = Calendar.getInstance().get(Calendar.YEAR);
 			if (any == null || any.intValue() == anyActual) {
 				if (expedientTipus.getAnyActual() == 0) {
 					expedientTipus.setAnyActual(anyActual);
 				} else if (expedientTipus.getAnyActual() < anyActual) {
-//					if (expedientTipus.isReiniciarCadaAny()) {
-//						expedientTipus.setSequencia(1);
-//					}
-//					expedientTipus.setSequenciaDefault(1);
 					expedientTipus.setAnyActual(anyActual);
 				}
 			}
 			// Actualitza la seqüència del número d'expedient
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "5");
+//			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "5");
 			if (expedientTipus.getTeNumero() && expedientTipus.getExpressioNumero() != null && !"".equals(expedientTipus.getExpressioNumero())) {
 				if (expedient.getNumero().equals(
 						getNumeroExpedientActual(
 								entornId,
 								expedientTipus,
 								any)))
-//					expedientTipus.setSequencia(expedientTipus.getSequencia() + 1);
 					expedientTipus.updateSequencia(any, 1);
 			}
 			// Actualitza la seqüència del número d'expedient per defecte
 			if (expedient.getNumeroDefault().equals(getNumeroExpedientDefaultActual(entornId, expedientTipus, any)))
-//				expedientTipus.setSequenciaDefault(expedientTipus.getSequenciaDefault() + 1);
 				expedientTipus.updateSequenciaDefault(any, 1);
 			// Configura el títol de l'expedient
 			if (expedientTipus.getTeTitol()) {
@@ -354,7 +357,9 @@ public class ExpedientService {
 					expedient.setTitol("[Sense títol]");
 			}
 			// Inicia l'instància de procés jBPM
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "6");
+//			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "6");
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Actualitzar any i sequencia");
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
 			ExpedientIniciantDto.setExpedient(expedient);
 			DefinicioProces definicioProces = null;
 			if (definicioProcesId != null) {
@@ -364,17 +369,21 @@ public class ExpedientService {
 						entornId,
 						expedientTipus.getJbpmProcessDefinitionKey());
 			}
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "7");
+//			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "7");
 			JbpmProcessInstance processInstance = jbpmDao.startProcessInstanceById(
 					usuariBo,
 					definicioProces.getJbpmId(),
 					variables);
 			expedient.setProcessInstanceId(processInstance.getId());
 			// Emmagatzema el nou expedient
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "8");
+//			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "8");
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
 			expedientDao.saveOrUpdate(expedient);
 			// Afegim els documents
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "9");
+//			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "9");
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
 			if (documents != null){
 				for (Map.Entry<String, DadesDocumentDto> doc: documents.entrySet()) {
 					if (doc.getValue() != null) {
@@ -391,7 +400,7 @@ public class ExpedientService {
 				}
 			}
 			// Afegim els adjunts
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "10");
+//			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "10");
 			if (adjunts != null) {
 				for (DadesDocumentDto adjunt: adjunts) {
 					String documentCodi = new Long(new Date().getTime()).toString();
@@ -407,29 +416,39 @@ public class ExpedientService {
 				}
 			}
 			// Verificar la ultima vegada que l'expedient va modificar el seu estat
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "11");
+//			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "11");
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
 			ExpedientLog log = expedientLogHelper.afegirLogExpedientPerProces(
 					processInstance.getId(),
 					ExpedientLogAccioTipus.EXPEDIENT_INICIAR,
 					null);
 			log.setEstat(ExpedientLogEstat.IGNORAR);
 			// Actualitza les variables del procés
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "12");
+//			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "12");
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
 			jbpmDao.signalProcessInstance(expedient.getProcessInstanceId(), transitionName);
 			// Indexam l'expedient
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "13");
+//			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "13");
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
 			getServiceUtils().expedientIndexLuceneCreate(expedient.getProcessInstanceId());
 			// Registra l'inici de l'expedient
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "14");
+//			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "14");
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Crear registre i convertir expedient");
 			registreDao.crearRegistreIniciarExpedient(
 					expedient.getId(),
 					usuariBo);
 			// Retorna la informació de l'expedient que s'ha iniciat
 			ExpedientDto dto = dtoConverter.toExpedientDto(expedient, true);
-			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "15");
-			MesurarTemps.diferenciaImprimirStdout(mesuraTempsTotalPrefix);
-			MesurarTemps.mitjaCalcular(mesuraTempsTotalPrefix, mesuraTempsTotalPrefix);
-			MesurarTemps.mitjaImprimirStdout(mesuraTempsTotalPrefix);
+//			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "15");
+//			MesurarTemps.diferenciaImprimirStdout(mesuraTempsTotalPrefix);
+//			MesurarTemps.mitjaCalcular(mesuraTempsTotalPrefix, mesuraTempsTotalPrefix);
+//			MesurarTemps.mitjaImprimirStdout(mesuraTempsTotalPrefix);
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Crear registre i convertir expedient");
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom());
 			return dto;
 		} finally {
 			textBloqueigIniciExpedient = null;
