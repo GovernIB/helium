@@ -356,7 +356,7 @@ public class TascaService {
 		List<Long> idsExpedients = expedientDao.findListExpedients(
 				entornId, 
 				responsable,
-				null, 
+				titol, 
 				null,
 				tipusExpedient,
 				sort,
@@ -370,7 +370,7 @@ public class TascaService {
 		LlistatIds ids = jbpmDao.findListTasks(
 				responsable, 
 				tasca, 
-				titol,
+				null,
 				idsExpedients, 
 				dataCreacioInici, 
 				dataCreacioFi, 
