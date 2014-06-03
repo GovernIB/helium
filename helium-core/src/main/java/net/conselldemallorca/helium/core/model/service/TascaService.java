@@ -117,7 +117,7 @@ public class TascaService {
 			String usuari,
 			Map<String, Object> valorsCommand,
 			boolean ambVariables,
-			boolean ambTexts) {
+			boolean ambTexts) throws NotFoundException, IllegalStateException {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);
 		TascaDto resposta = toTascaDto(task, valorsCommand, ambVariables, ambTexts);
 		return resposta;
@@ -409,7 +409,7 @@ public class TascaService {
 	public List<TascaLlistatDto> findTasquesPerTramitacioMassiva(
 			Long entornId,
 			String usuari,
-			String taskId) {
+			String taskId) throws NotFoundException, IllegalStateException {
 		String usuariBo = usuari;
 		if (usuariBo == null) {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -504,7 +504,7 @@ public class TascaService {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		return agafar(entornId, auth.getName(), taskId);
 	}
-	public TascaDto agafar(Long entornId, String usuari, String taskId) {
+	public TascaDto agafar(Long entornId, String usuari, String taskId)  throws NotFoundException, IllegalStateException{
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, false);
 		String previousActors = expedientLogHelper.getActorsPerReassignacioTasca(taskId);
 		ExpedientLog expedientLog = expedientLogHelper.afegirLogExpedientPerTasca(
@@ -535,7 +535,7 @@ public class TascaService {
 			Long entornId,
 			String usuari,
 			String taskId,
-			boolean comprovarResponsable) {
+			boolean comprovarResponsable)  throws NotFoundException, IllegalStateException{
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, false);
 		if (comprovarResponsable) {
 			if (!task.getAssignee().equals(usuari)) {
@@ -582,7 +582,7 @@ public class TascaService {
 			Long entornId,
 			String taskId,
 			Map<String, Object> variables,
-			String usuari) {
+			String usuari)  throws NotFoundException, IllegalStateException{
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);
 		Expedient expedient = null;
 		if (MesuresTemporalsHelper.isActiu()) { 
@@ -812,7 +812,7 @@ public class TascaService {
 			String taskId,
 			Map<String, Object> variables,
 			boolean comprovarAssignacio,
-			String usuari) {
+			String usuari)  throws NotFoundException, IllegalStateException{
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, comprovarAssignacio);
 		Expedient expedient = null;
 		if (MesuresTemporalsHelper.isActiu()) {
@@ -872,7 +872,7 @@ public class TascaService {
 	public TascaDto restaurar(
 			Long entornId,
 			String taskId,
-			String user) {
+			String user)  throws NotFoundException, IllegalStateException{
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, user, true);
 		Expedient expedient = null;
 		if (MesuresTemporalsHelper.isActiu()) {
@@ -928,7 +928,7 @@ public class TascaService {
 			String taskId,
 			boolean comprovarAssignacio,
 			String usuari,
-			String outcome) {
+			String outcome) throws NotFoundException, IllegalStateException {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, comprovarAssignacio);
 		if (!isTascaValidada(task))
 			throw new IllegalStateException(
@@ -1007,7 +1007,7 @@ public class TascaService {
 	public Object getVariable(
 			Long entornId,
 			String taskId,
-			String codiVariable) {
+			String codiVariable) throws NotFoundException, IllegalStateException {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		return getServiceUtils().getVariableJbpmTascaValor(task.getId(), codiVariable);
 	}
@@ -1015,7 +1015,7 @@ public class TascaService {
 			Long entornId,
 			String taskId,
 			String codiVariable,
-			Object valor) {
+			Object valor) throws NotFoundException, IllegalStateException {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		Map<String, Object> variables = new HashMap<String, Object>();
 		variables.put(codiVariable, valor);
@@ -1046,7 +1046,7 @@ public class TascaService {
 			String taskId,
 			String codiVariable,
 			Object valor,
-			String user) {
+			String user) throws NotFoundException, IllegalStateException {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		Object valorVell = getServiceUtils().getVariableJbpmTascaValor(task.getId(), codiVariable);
 		Map<String, Object> variables = new HashMap<String, Object>();
@@ -1067,7 +1067,7 @@ public class TascaService {
 	public void esborrarVariable(
 			Long entornId,
 			String taskId,
-			String codiVariable) {
+			String codiVariable) throws NotFoundException, IllegalStateException {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		jbpmDao.deleteTaskInstanceVariable(task.getId(), codiVariable);
 		TascaDto tasca = toTascaDto(task, null, true, true);
@@ -1083,7 +1083,7 @@ public class TascaService {
 			String taskId,
 			String actorId,
 			String comentari,
-			boolean supervisada) {
+			boolean supervisada)  throws NotFoundException, IllegalStateException{
 		JbpmTask original = comprovarSeguretatTasca(entornId, taskId, null, true);
 		JbpmTask delegada = jbpmDao.cloneTaskInstance(
 				taskId,
@@ -1104,7 +1104,7 @@ public class TascaService {
 	}
 	public void delegacioCancelar(
 			Long entornId,
-			String taskId) {
+			String taskId)  throws NotFoundException, IllegalStateException{
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		DelegationInfo delegationInfo = getDelegationInfo(task);
 		if (delegationInfo == null || !taskId.equals(delegationInfo.getSourceTaskId())) {
@@ -1119,7 +1119,7 @@ public class TascaService {
 
 	public FormulariExtern iniciarFormulariExtern(
 			Long entornId,
-			String taskId) {
+			String taskId) throws NotFoundException, IllegalStateException {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
 		Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
 				task.getName(),
@@ -1229,7 +1229,7 @@ public class TascaService {
 			Long entornId,
 			String taskId,
 			String accio,
-			String user) throws DominiException {
+			String user)  throws NotFoundException, IllegalStateException, DominiException {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, user, true);
 		Expedient expedient = null;
 		if (MesuresTemporalsHelper.isActiu()) {
@@ -1254,7 +1254,7 @@ public class TascaService {
 	public void comprovarTascaAssignadaIValidada(
 			Long entornId,
 			String taskInstanceId,
-			String usuari) {
+			String usuari) throws NotFoundException, IllegalStateException {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskInstanceId, usuari, true);
 		if (!isTascaValidada(task))
 			throw new IllegalStateException(
@@ -1341,7 +1341,7 @@ public class TascaService {
 
 
 
-	private JbpmTask comprovarSeguretatTasca(Long entornId, String taskId, String usuari, boolean comprovarAssignacio) {
+	private JbpmTask comprovarSeguretatTasca(Long entornId, String taskId, String usuari, boolean comprovarAssignacio) throws NotFoundException, IllegalStateException {
 		JbpmTask task = jbpmDao.getTaskById(taskId);
 		if (task == null) {
 			throw new NotFoundException(
@@ -1602,7 +1602,7 @@ public class TascaService {
 
 	private String normalitzaText(String text) {
 		return text
-			.toUpperCase()
+			.toUpperCase().trim()
 			.replaceAll("Á", "A")
 			.replaceAll("À", "A")
 			.replaceAll("É", "E")

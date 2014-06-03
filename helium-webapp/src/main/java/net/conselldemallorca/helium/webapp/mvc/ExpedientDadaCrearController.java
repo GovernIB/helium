@@ -132,9 +132,15 @@ public class ExpedientDadaCrearController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			ExpedientDto expedient = getExpedient(entorn.getId(), id, taskId);
+			ExpedientDto expedient = null;
+			try {
+				expedient = getExpedient(entorn.getId(), id, taskId);
+			} catch (net.conselldemallorca.helium.core.model.exception.IllegalStateException ex) {
+				missatgeError(request, getMessage("error.tasca.no.disponible") );
+				return "redirect:/index.html";
+			}
 			model.addAttribute("expedient", expedient);
-			return "expedient/dadaCrear";
+			return "expedient/dadaCrear";		
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
@@ -152,7 +158,13 @@ public class ExpedientDadaCrearController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			ExpedientDto expedient = getExpedient(entorn.getId(), id, taskId);
+			ExpedientDto expedient = null;
+			try {
+				expedient = getExpedient(entorn.getId(), id, taskId);
+			} catch (net.conselldemallorca.helium.core.model.exception.IllegalStateException ex) {
+				missatgeError(request, getMessage("error.tasca.no.disponible") );
+				return "redirect:/expedient/consulta.html";
+			}
 			if (potModificarExpedient(expedient)) {
 				if ("submit".equals(submit) || submit.length() == 0) {
 					validator.validate(command, result);
@@ -171,11 +183,16 @@ public class ExpedientDadaCrearController extends BaseController {
 				        		var,
 				        		null);
 					} else {
-						tascaService.createVariable(
-								entorn.getId(),
-								taskId,
-								var,
-								null);
+						try {
+							tascaService.createVariable(
+									entorn.getId(),
+									taskId,
+									var,
+									null);
+						} catch (net.conselldemallorca.helium.core.model.exception.IllegalStateException ex) {
+							missatgeError(request, getMessage("error.tasca.no.disponible") );
+							return "redirect:/expedient/consulta.html";
+						}
 					}
 					missatgeInfo(request, getMessage("info.dada.creat") );
 					if (command.isModificar()) {

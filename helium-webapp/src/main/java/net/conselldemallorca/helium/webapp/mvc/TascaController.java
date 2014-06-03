@@ -150,10 +150,17 @@ public class TascaController extends BaseController {
 			if (!TramitacioMassiva.isTramitacioMassivaActiu(request, id)) {
 				TramitacioMassiva.netejarTramitacioMassiva(request);
 			}
-			List<TascaLlistatDto> tasquesTramitacioMassiva = tascaService.findTasquesPerTramitacioMassiva(
-					entorn.getId(),
-					null,
-					id);
+			List<TascaLlistatDto> tasquesTramitacioMassiva = null;
+			try {
+				tasquesTramitacioMassiva = tascaService.findTasquesPerTramitacioMassiva(
+						entorn.getId(),
+						null,
+						id);
+			} catch (net.conselldemallorca.helium.core.model.exception.IllegalStateException ex) {
+				logger.error(getMessage("error.tascaService.noDisponible"), ex);
+				return "redirect:/index.html";
+			}
+
 			model.addAttribute("terminisIniciats", findTerminisIniciatsPerTasques(tasquesTramitacioMassiva));
 			model.addAttribute("personaLlistat", tasquesTramitacioMassiva);
 			model.addAttribute(
