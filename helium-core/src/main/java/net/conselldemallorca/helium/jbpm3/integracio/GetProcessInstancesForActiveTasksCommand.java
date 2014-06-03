@@ -70,8 +70,8 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 		super();
 		this.actorId = actorId;
 		this.idsPIExpedients = idsPIExpedients;
-		this.tasca = tasca; 
-		this.tascaSel = tascaSel; 
+		this.tasca = tasca == null ? null : tasca.trim(); 
+		this.tascaSel = tascaSel == null ? null : tascaSel.trim(); 
 		this.dataCreacioInici = dataCreacioInici; 
 		this.dataCreacioFi = dataCreacioFi;
 		this.prioritat = prioritat;
@@ -151,11 +151,11 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 		}
 
 		if (tasca != null && !"".equals(tasca)) {
-			hql += " and upper(ti.name) like '%'||:tasca||'%' ";
+			hql += " and upper(ti.description) like '%@#@TITOL@#@%'||:tasca||'%@#@ENTORNID@#@%') ";
 		}
 
 		if (tascaSel != null && !"".equals(tascaSel)) {
-			hql += " and upper(ti.name) = :tascaSel";
+			hql += " and upper(ti.description) like '%@#@TITOL@#@%'||:tascaSel||'%@#@ENTORNID@#@%') ";
 		}
 		
 		if (titol != null && !"".equals(titol)) {
