@@ -223,7 +223,88 @@ public class DefinicioProcesVars extends BaseTest {
 	}
 	
 	@Test
-	public void o_modificarVariable() {
+	public void o_crearVarDominiSql() {
+		carregarUrlDisseny();
+		seleccionarDefinicioProces(nomDefProc);
+		crearVar(carregarPropietat("defproc.variable.dom.codi", "Codi de la variable domini no configurat al fitxer de properties"),
+				carregarPropietat("defproc.variable.dom.nom", "Nom de la variable domini no configurat al fitxer de properties"),
+				TipusVar.SEL_DOMINI,
+				null,
+				false,
+				false,
+				false,
+				new String[]{
+					carregarPropietat("defproc.variable.dom.domini", "Codi del domini no configurat al fitxer de properties"),
+					carregarPropietat("defproc.variable.dom.params", "Paràmetres del domini no configurat al fitxer de properties"),
+					carregarPropietat("defproc.variable.dom.valor", "Valor del domini no configurat al fitxer de properties"),
+					carregarPropietat("defproc.variable.dom.text", "Text del domini no configurat al fitxer de properties")});
+	}
+	
+	@Test
+	public void p_crearVarDominiIntern() {
+		carregarUrlDisseny();
+		seleccionarDefinicioProces(nomDefProc);
+		crearVar(carregarPropietat("defproc.variable.int.codi", "Codi de la variable selecció per domini intern no configurat al fitxer de properties"),
+				carregarPropietat("defproc.variable.int.nom", "Nom de la variable selecció per domini intern no configurat al fitxer de properties"),
+				TipusVar.SEL_INTERN,
+				null,
+				false,
+				false,
+				false,
+				new String[]{
+					carregarPropietat("defproc.variable.int.domini", "Codi del domini intern no configurat al fitxer de properties"),
+					carregarPropietat("defproc.variable.int.params", "Paràmetres del domini intern no configurat al fitxer de properties"),
+					carregarPropietat("defproc.variable.int.valor", "Valor del domini intern no configurat al fitxer de properties"),
+					carregarPropietat("defproc.variable.int.text", "Text del domini intern no configurat al fitxer de properties")});
+	}
+	
+	@Test
+	public void q_crearVarConsulta() {
+		carregarUrlDisseny();
+		seleccionarDefinicioProces(nomDefProc);
+		crearVar(carregarPropietat("defproc.variable.con.codi", "Codi de la variable selecció per consulta no configurat al fitxer de properties"),
+				carregarPropietat("defproc.variable.con.nom", "Nom de la variable selecció per consulta no configurat al fitxer de properties"),
+				TipusVar.SEL_CONSULTA,
+				null,
+				false,
+				false,
+				false,
+				new String[]{
+					carregarPropietat("defproc.variable.con.consulta", "Codi de la consulta no configurat al fitxer de properties"),
+					carregarPropietat("defproc.variable.con.params", "Paràmetres de la consulta no configurat al fitxer de properties"),
+					carregarPropietat("defproc.variable.con.valor", "Valor de la consulta no configurat al fitxer de properties"),
+					carregarPropietat("defproc.variable.con.text", "Text de la consulta no configurat al fitxer de properties")});
+	}
+	
+	@Test
+	public void r_crearVarSuggest() {
+		carregarUrlDisseny();
+		seleccionarDefinicioProces(nomDefProc);
+		crearVar(carregarPropietat("defproc.variable.sugenum.codi", "Codi de la variable suggest no configurat al fitxer de properties"),
+				carregarPropietat("defproc.variable.sugenum.nom", "Nom de la variable suggest no configurat al fitxer de properties"),
+				TipusVar.SUG_ENUM,
+				null,
+				false,
+				false,
+				false,
+				"Enumerat selenium");
+	}
+	
+	@Test
+	public void s_crearVarAccio() {
+		carregarUrlDisseny();
+		seleccionarDefinicioProces(nomDefProc);
+		crearVar(carregarPropietat("defproc.variable.accio.codi", "Codi de la variable acció no configurat al fitxer de properties"),
+				carregarPropietat("defproc.variable.accio.nom", "Nom de la variable acció no configurat al fitxer de properties"),
+				TipusVar.ACCIO,
+				null,
+				false,
+				false,
+				false,
+				carregarPropietat("defproc.variable.accio.accio", "Nom de la acció no configurat al fitxer de properties"));
+	}
+	@Test
+	public void t_modificarVariable() {
 		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
 		// Modificar el camp tipus d'una variable			
@@ -260,7 +341,7 @@ public class DefinicioProcesVars extends BaseTest {
 	}
 
 	@Test
-	public void p_validacioVariable() {
+	public void u_validacioVariable() {
 		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
 		 // Afegeix una validació a una variable			
@@ -288,7 +369,7 @@ public class DefinicioProcesVars extends BaseTest {
 	}
 
 	@Test
-	public void q_esborrarVar() {
+	public void v_esborrarVar() {
 		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
 		// Esborra una variable en una definició de procés			
@@ -312,6 +393,7 @@ public class DefinicioProcesVars extends BaseTest {
 		carregarUrlDisseny();
 		eliminarDefinicioProces(nomDefProc);
 		eliminarEnumeracio("enumsel");
+		eliminarDomini("enumerat");
 		eliminarTipusExpedient(codTipusExp);
 		if (entornActual != null && !"".equals(entornActual)) 
 			marcarEntornDefecte(entornActual);

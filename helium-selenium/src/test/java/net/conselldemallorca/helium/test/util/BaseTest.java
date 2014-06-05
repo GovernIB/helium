@@ -604,24 +604,43 @@ public abstract class BaseTest {
 		if (oculta) driver.findElement(By.id("ocult0")).click();
 		if (noRetrocedir) driver.findElement(By.id("ignored0")).click();
 		
-		if (tipus == TipusVar.SEL_CONSULTA) {
-			fail("Proves de Select tipus consulta no implementades");
-		} else if (tipus == TipusVar.SEL_DOMINI) {
-			fail("Proves de Select tipus domini no implementades");
-		} else if (tipus == TipusVar.SEL_ENUM) {
+		if (tipus == TipusVar.SEL_CONSULTA || tipus == TipusVar.SUG_CONSULTA) {
+			String[] vars = (String[])parametres;
+			driver.findElement(By.xpath("//*[@id='consulta0']/option[normalize-space(text())='" + vars[0] + "']")).click();
+			driver.findElement(By.id("consultaParams0")).clear();
+			driver.findElement(By.id("consultaParams0")).sendKeys(vars[1]);
+			driver.findElement(By.id("consultaCampValor0")).clear();
+			driver.findElement(By.id("consultaCampValor0")).sendKeys(vars[2]);
+			driver.findElement(By.id("consultaCampText0")).clear();
+			driver.findElement(By.id("consultaCampText0")).sendKeys(vars[3]);
+		} else if (tipus == TipusVar.SEL_DOMINI || tipus == TipusVar.SUG_DOMINI) {
+			String[] vars = (String[])parametres;
+			driver.findElement(By.xpath("//*[@id='domini0']/option[normalize-space(text())='" + vars[0] + "']")).click();
+			driver.findElement(By.id("dominiId0")).clear();
+			driver.findElement(By.id("dominiId0")).sendKeys("XXX");
+			driver.findElement(By.id("dominiParams0")).clear();
+			driver.findElement(By.id("dominiParams0")).sendKeys(vars[1]);
+			driver.findElement(By.id("dominiCampValor0")).clear();
+			driver.findElement(By.id("dominiCampValor0")).sendKeys(vars[2]);
+			driver.findElement(By.id("dominiCampText0")).clear();
+			driver.findElement(By.id("dominiCampText0")).sendKeys(vars[3]);
+		} else if (tipus == TipusVar.SEL_ENUM || tipus == TipusVar.SUG_ENUM) {
 			String enumeracio = (String)parametres;
 			driver.findElement(By.xpath("//*[@id='enumeracio0']/option[normalize-space(text())='" + enumeracio + "']")).click();
-		} else if (tipus == TipusVar.SEL_INTERN) {
-			fail("Proves de Select tipus domini intern no implementades");
-		} else if (tipus == TipusVar.SUG_CONSULTA) {
-			fail("Proves de Suggest tipus consulta no implementades");
-		} else if (tipus == TipusVar.SUG_DOMINI) {
-			fail("Proves de Suggest tipus domini no implementades");
-		} else if (tipus == TipusVar.SUG_ENUM) {
-			String enumeracio = (String)parametres;
-			driver.findElement(By.xpath("//*[@id='enumeracio0']/option[normalize-space(text())='" + enumeracio + "']")).click();
-		} else if (tipus == TipusVar.SUG_INTERN) {
-			fail("Proves de Suggest tipus domini intern no implementades");
+		} else if (tipus == TipusVar.SEL_INTERN || tipus == TipusVar.SUG_INTERN) {
+			driver.findElement(By.id("dominiIntern0")).click();
+			String[] vars = (String[])parametres;
+			driver.findElement(By.id("dominiId0")).clear();
+			driver.findElement(By.id("dominiId0")).sendKeys(vars[0]);
+			driver.findElement(By.id("dominiParams0")).clear();
+			driver.findElement(By.id("dominiParams0")).sendKeys(vars[1]);
+			driver.findElement(By.id("dominiCampValor0")).clear();
+			driver.findElement(By.id("dominiCampValor0")).sendKeys(vars[2]);
+			driver.findElement(By.id("dominiCampText0")).clear();
+			driver.findElement(By.id("dominiCampText0")).sendKeys(vars[3]);
+		} else if (tipus == TipusVar.ACCIO) {
+			String accio = (String)parametres;
+			driver.findElement(By.xpath("//*[@id='jbpmAction0']/option[@value='" + accio + "']")).click();
 		}
 		screenshotHelper.saveScreenshot("defproces/variable/" + tipus.getId() + params + "/02_crea_var.png");
 		
@@ -639,8 +658,39 @@ public abstract class BaseTest {
 		checkboxSelectedAssert("//*[@id='multiple0']", "El paràmetre múltiple de la variable no s'ha gravat correctament", multiple);
 		checkboxSelectedAssert("//*[@id='ocult0']", "El paràmetre ocult de la variable no s'ha gravat correctament", oculta);
 		checkboxSelectedAssert("//*[@id='ignored0']", "El paràmetre no retrocedir de la variable no s'ha gravat correctament", noRetrocedir);
-		driver.findElement(By.xpath("//button[@value='cancel']")).click();
 		
+		if (tipus == TipusVar.SEL_CONSULTA || tipus == TipusVar.SUG_CONSULTA) {
+			String[] vars = (String[])parametres;
+			existeixElementAssert("//*[@id='consulta0']/option[@selected='selected' and normalize-space(text())='" + vars[0] + "']", "La consulta de la variable no s'ha gravat correctament");
+			existeixElementAssert("//*[@id='consultaParams0' and normalize-space(text())=\"" + vars[1] + "\"]", "Els paràmetres de la consulta no s'ha gravat correctament");
+			existeixElementAssert("//*[@id='consultaCampValor0' and @value='" + vars[2] + "']", "Els valor de la consulta no s'ha gravat correctament");
+			existeixElementAssert("//*[@id='consultaCampText0' and normalize-space(text())='" + vars[3] + "']", "Els text de la consulta no s'ha gravat correctament");
+		} else if (tipus == TipusVar.SEL_DOMINI || tipus == TipusVar.SUG_DOMINI) {
+			String[] vars = (String[])parametres;
+			existeixElementAssert("//*[@id='domini0']/option[@selected='selected' and normalize-space(text())='" + vars[0] + "']", "El domini de la variable no s'ha gravat correctament");
+			existeixElementAssert("//*[@id='dominiParams0' and normalize-space(text())=\"" + vars[1] + "\"]", "Els paràmetres del domini no s'ha gravat correctament");
+			existeixElementAssert("//*[@id='dominiCampValor0' and @value='" + vars[2] + "']", "Els valor del domini no s'ha gravat correctament");
+			existeixElementAssert("//*[@id='dominiCampText0' and normalize-space(text())='" + vars[3] + "']", "Els text del domini no s'ha gravat correctament");
+		} else if (tipus == TipusVar.SEL_ENUM || tipus == TipusVar.SUG_ENUM) {
+			String enumeracio = (String)parametres;
+			existeixElementAssert("//*[@id='enumeracio0']/option[@selected='selected' and normalize-space(text())='" + enumeracio + "']", "L'enumeració de la variable no s'ha gravat correctament");
+		} else if (tipus == TipusVar.SEL_INTERN || tipus == TipusVar.SUG_INTERN) {
+			driver.findElement(By.id("dominiIntern0")).click();
+			driver.findElement(By.id("dominiIntern0")).click();
+			checkboxSelectedAssert("//*[@id='dominiIntern0']", "La opció domini intern de la variable no s'ha gravat correctament", true);
+			String[] vars = (String[])parametres;
+			existeixElementAssert("//*[@id='dominiId0' and @value='" + vars[0] + "']", "L'identificador del domini intern no s'ha gravat correctament");
+			existeixElementAssert("//*[@id='dominiParams0' and normalize-space(text())=\"" + vars[1] + "\"]", "Els paràmetres del domini intern no s'ha gravat correctament");
+			existeixElementAssert("//*[@id='dominiCampValor0' and @value='" + vars[2] + "']", "Els valor del domini intern no s'ha gravat correctament");
+			existeixElementAssert("//*[@id='dominiCampText0' and normalize-space(text())='" + vars[3] + "']", "Els text del domini intern no s'ha gravat correctament");
+		} else if (tipus == TipusVar.ACCIO) {
+			String accio = (String)parametres;
+			existeixElementAssert("//*[@id='jbpmAction0']/option[@selected='selected' and normalize-space(text())='" + accio + "']", "La acció de la variable no s'ha gravat correctament");
+		}
+		
+		driver.findElement(By.xpath("//button[@value='cancel']")).click();
+
+		// Assignar elements a la variable tipus registre
 		if (tipus == TipusVar.REGISTRE) {
 			String[] vars = (String[])parametres;
 			// Assignam variables
@@ -665,6 +715,20 @@ public abstract class BaseTest {
 			acceptarAlerta();
 		}
 		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomEnumeracio + "')]", "No s'han pogut eliminar l'enumeració");
+	}
+	
+	protected void eliminarDomini(String codiDomini) {
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/domini/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+		
+		if (existeixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiDomini + "')]")) {
+			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiDomini + "')]/td[5]/a")).click();
+			acceptarAlerta();
+		}
+		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiDomini + "')]", "No s'han pogut eliminar el domini");
 	}
 	
 	// TIPUS D'EXPEDIENT

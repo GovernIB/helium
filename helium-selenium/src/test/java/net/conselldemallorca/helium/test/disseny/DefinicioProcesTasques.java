@@ -168,6 +168,7 @@ public class DefinicioProcesTasques extends BaseTest {
 		carregarUrlDisseny();
 		eliminarDefinicioProces(nomDefProc);
 		eliminarEnumeracio("enumsel");
+		eliminarDomini("enumerat");
 		eliminarTipusExpedient(codTipusExp);
 		if (entornActual != null && !"".equals(entornActual)) 
 			marcarEntornDefecte(entornActual);
