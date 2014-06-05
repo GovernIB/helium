@@ -89,7 +89,7 @@ public class ExpedientTipusDao extends HibernateGenericDao<ExpedientTipus, Long>
 				seq,
 				increment,
 				any,
-				true,
+				expedientTipus.isReiniciarCadaAny(),
 				true);
 	}
 

@@ -229,6 +229,10 @@ public class ExpedientService {
 		String usuariBo = (usuari != null) ? usuari : auth.getName();
 		ExpedientTipus expedientTipus = expedientTipusDao.getById(expedientTipusId, false);
 		Entorn entorn = entornDao.getById(entornId, false);
+		
+		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom());
+		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Nou expedient");
+		
 		textBloqueigIniciExpedient = auth.getName() + " (" +
 				"entornCodi=" + entorn.getCodi() + ", " +
 				"expedientTipusCodi=" + expedientTipus.getCodi() + ", " +
@@ -260,6 +264,10 @@ public class ExpedientService {
 			expedient.setAvisosEmail(avisosEmail);
 			expedient.setAvisosMobil(avisosMobil);
 			expedient.setNotificacioTelematicaHabilitada(notificacioTelematicaHabilitada);
+			
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Omplir dades");
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Assignar numeros");
+			
 			expedient.setNumeroDefault(
 					getNumeroExpedientDefaultActual(
 							entornId,
@@ -277,6 +285,9 @@ public class ExpedientService {
 				}
 			}
 	
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Assignar numeros");
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Verificar numero repetit");
+
 			// Verifica si l'expedient té el número repetit
 			if (expedientDao.findAmbEntornTipusINumero(
 					entornId,
@@ -287,6 +298,10 @@ public class ExpedientService {
 								"error.expedientService.jaExisteix",
 								new Object[]{expedient.getNumero()}) );
 			}
+			
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Verificar numero repetit");
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Actualitzar any i sequencia");
+			
 			// Actualitza l'any actual de l'expedient
 			int anyActual = Calendar.getInstance().get(Calendar.YEAR);
 			if (any == null || any.intValue() == anyActual) {
@@ -315,6 +330,10 @@ public class ExpedientService {
 				else
 					expedient.setTitol("[Sense títol]");
 			}
+			
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Actualitzar any i sequencia");
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
+			
 			// Inicia l'instància de procés jBPM
 			ExpedientIniciantDto.setExpedient(expedient);
 			DefinicioProces definicioProces = null;
@@ -330,8 +349,16 @@ public class ExpedientService {
 					definicioProces.getJbpmId(),
 					variables);
 			expedient.setProcessInstanceId(processInstance.getId());
+			
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
+			
 			// Emmagatzema el nou expedient
 			expedientDao.saveOrUpdate(expedient);
+			
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
+			
 			// Afegim els documents
 			if (documents != null){
 				for (Map.Entry<String, DadesDocumentDto> doc: documents.entrySet()) {
@@ -363,22 +390,42 @@ public class ExpedientService {
 							true);
 				}
 			}
+			
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
+			
 			// Verificar la ultima vegada que l'expedient va modificar el seu estat
 			ExpedientLog log = expedientLogHelper.afegirLogExpedientPerProces(
 					processInstance.getId(),
 					ExpedientLogAccioTipus.EXPEDIENT_INICIAR,
 					null);
 			log.setEstat(ExpedientLogEstat.IGNORAR);
+			
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
+			
 			// Actualitza les variables del procés
 			jbpmHelper.signalProcessInstance(expedient.getProcessInstanceId(), transitionName);
+			
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
+			
 			// Indexam l'expedient
 			getServiceUtils().expedientIndexLuceneCreate(expedient.getProcessInstanceId());
+			
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Crear registre i convertir expedient");
+			
 			// Registra l'inici de l'expedient
 			registreDao.crearRegistreIniciarExpedient(
 					expedient.getId(),
 					usuariBo);
 			// Retorna la informació de l'expedient que s'ha iniciat
 			ExpedientDto dto = dtoConverter.toExpedientDto(expedient, true);
+			
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Crear registre i convertir expedient");
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom());
+			
 			return dto;
 		} finally {
 			textBloqueigIniciExpedient = null;
