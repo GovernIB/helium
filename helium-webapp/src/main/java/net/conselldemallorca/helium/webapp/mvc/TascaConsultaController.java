@@ -381,7 +381,7 @@ public class TascaConsultaController extends BaseController {
 				entorn.getId(),
 				expedientTipusId,
 				command.getResponsable(),
-				command.getTascaId(),
+				command.getJbpmName(),
 				command.getTitol(),
 				command.getDataCreacioInici(),
 				command.getDataCreacioFi(),
@@ -471,6 +471,7 @@ public class TascaConsultaController extends BaseController {
 	
 	public class TascaConsultaFiltreCommand {
 		private Long tascaId;
+		private String jbpmName;
 		private String titol;
 		private String responsable;
 		private Date dataCreacioInici;
@@ -484,6 +485,12 @@ public class TascaConsultaController extends BaseController {
 		}
 		public void setTascaId(Long tascaId) {
 			this.tascaId = tascaId;
+		}
+		public String getJbpmName() {
+			return jbpmName;
+		}
+		public void setJbpmName(String jbpmName) {
+			this.jbpmName = jbpmName;
 		}
 		public String getTitol() {
 			return titol;

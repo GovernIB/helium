@@ -105,12 +105,12 @@ function selTots(){
 			<input type="hidden" name="texpedientId" id="texpedientId" value="${expedientTipus.id}">
 			<div class="inlineLabels col first">
 				<c:import url="../common/formElement.jsp">
-					<c:param name="property" value="tascaId"/>
+					<c:param name="property" value="jbpmName"/>
 					<c:param name="type" value="select"/>
 					<c:param name="classHolder" value="reduit"/>
 					<c:param name="items" value="tasques"/>
 					<c:param name="itemLabel" value="nom"/>
-					<c:param name="itemValue" value="id"/>
+					<c:param name="itemValue" value="jbpmName"/>
 					<c:param name="itemBuit">&lt;&lt; <fmt:message key='comuns.tasques' /> &gt;&gt;</c:param>
 					<c:param name="label"><fmt:message key='common.filtres.tasca' /></c:param>
 				</c:import>
