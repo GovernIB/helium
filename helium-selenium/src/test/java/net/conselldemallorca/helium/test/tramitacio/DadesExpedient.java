@@ -12,8 +12,6 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Action;
-import org.openqa.selenium.interactions.Actions;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DadesExpedient extends BaseTest {
@@ -269,23 +267,7 @@ public class DadesExpedient extends BaseTest {
 			// Cambiar de orden las variables
 			int j = 1;
 			while (j <= elementosTabla) {
-				WebElement el1 = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr["+j+"]/td[1]"));
-				
-				WebElement el2;				
-				if (j < elementosTabla) {
-					el2 = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr["+(j+1)+"]/td[1]"));	
-				} else {
-					el2 = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr["+(j-1)+"]/td[1]"));
-				}
-				
-				Actions builder = new Actions(driver);
-
-				Action dragAndDrop = builder.clickAndHold(el1)
-				   .moveToElement(el2)
-				   .release(el2)
-				   .build();
-
-				dragAndDrop.perform();
+				sortTable("registre", j, (j < elementosTabla) ? j+1 : j-1);
 				
 				screenshotHelper.saveScreenshot("tramitar/dadesexpedient/ordre_i_agrupacions/4"+i+"-"+j+".png");
 				

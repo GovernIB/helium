@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -284,6 +285,16 @@ public abstract class BaseTest {
 	protected void tornaAPare() {
 		driver.switchTo().defaultContent();
 	}
+	
+	public boolean isAlertPresent() { 
+		try {
+			driver.switchTo().alert();
+            return true;
+        } catch (NoAlertPresentException e) {
+            return false;
+        }
+	} 
+	
 	protected void acceptarAlerta() {
 		try {
 			driver.switchTo().alert().accept();
@@ -794,29 +805,26 @@ public abstract class BaseTest {
 		
 		existeixElementAssert("//li[@id='menuIniciar']", "No tiene permisos para iniciar un expediente");
 		driver.findElement(By.xpath("//*[@id='menuIniciar']/a")).click();
-		
-		// Obtenir nom del tipus d'expedient i cercar-lo
-		driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
-		boolean isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipusExp + "')]")).size() > 0;
-		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
-
-		assertTrue("No s'ha trobat el tipus d'expedient", isPresent);
+				
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipusExp + "')]", "No s'ha trobat el tipus d'expedient");
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipusExp + "')]/td[3]/form/button")).click();
 		
-		if (driver.findElements(By.xpath("//*[@id='numero0']")).size() > 0 && numero != null) {
-			driver.findElement(By.xpath("//*[@id='numero0']")).clear();
-			driver.findElement(By.xpath("//*[@id='numero0']")).sendKeys(numero);
-		} else {
-			numero = null;
+		if (!isAlertPresent()) {			
+			if (existeixElement("//*[@id='numero0']")) {
+				driver.findElement(By.xpath("//*[@id='numero0']")).clear();
+				driver.findElement(By.xpath("//*[@id='numero0']")).sendKeys(numero);
+			} else {
+				numero = null;
+			}
+			if (existeixElement("//*[@id='titol0']")) {
+				driver.findElement(By.xpath("//*[@id='titol0']")).clear();
+				driver.findElement(By.xpath("//*[@id='titol0']")).sendKeys(titulo);
+			} else {
+				titulo = null;
+			}
+			driver.findElement(By.xpath("//button[@value='submit']")).click();
 		}
-		if (driver.findElements(By.xpath("//*[@id='titol0']")).size() > 0 && titulo != null) {
-			driver.findElement(By.xpath("//*[@id='titol0']")).clear();
-			driver.findElement(By.xpath("//*[@id='titol0']")).sendKeys(titulo);
-		} else {
-			titulo = null;
-		}
-		driver.findElement(By.xpath("//button[@value='submit']")).click();
 		acceptarAlerta();
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se inició el expediente");
@@ -1027,5 +1035,25 @@ public abstract class BaseTest {
 			return false;  
 		}  
 		return true;
+	}
+	
+	protected void crearTipusExpedientTest(String nom, String codi) {
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+		if (noExisteixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + codi + "')]")) {
+			driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
+			driver.findElement(By.id("codi0")).sendKeys(codi);
+			driver.findElement(By.id("nom0")).sendKeys(nom);
+			driver.findElement(By.xpath("//button[@value='submit']")).click();
+			actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+			actions.build().perform();
+			actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/llistat.html')]")));
+			actions.click();
+			actions.build().perform();
+			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codi + "')]", "No s'ha pogut crear el tipus d'expedient de test");
+		}
 	}
 }
