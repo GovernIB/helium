@@ -258,6 +258,9 @@ public abstract class BaseTest {
 		}
 		return (selected ? isChecked : !isChecked);
 	}
+	protected void checkboxIsSelectedAssert(String xpath, String msg) {
+		assertTrue(msg, driver.findElement(By.xpath(xpath)).isSelected());
+	}
 	
 	protected boolean modalObertaAssert(String modal) {
 		return existeixElementAssert("//iframe[contains(@src, '" + modal + "')]", 
