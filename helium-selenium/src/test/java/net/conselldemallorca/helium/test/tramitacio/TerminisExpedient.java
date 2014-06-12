@@ -25,9 +25,10 @@ public class TerminisExpedient extends BaseTest {
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String pathDefProc = carregarPropietat("defproc.mod.exp.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
+	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
 	
 	@Test
-	public void a_inicializar_terminis() throws InterruptedException {
+	public void a_inicializar_expedients() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
 		// Selecció directe
@@ -36,16 +37,19 @@ public class TerminisExpedient extends BaseTest {
 		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
 		actions.click();
 		actions.build().perform();
-		
-		screenshotHelper.saveScreenshot("terminisexpedient/inicializar_terminis/1.png");
-		
+
+		screenshotHelper.saveScreenshot("TerminisExpedient/inicializar_expedients/1.png");
+
+		crearTipusExpedientTest(nomTipusExp, codTipusExp);
+		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
-		
 		importarDadesDefPro(nomDefProc, properties.getProperty("defproc.termini.exp.export.arxiu.path"));
-					
+
+		screenshotHelper.saveScreenshot("TerminisExpedient/inicializar_expedients/2.png");
+		
 		iniciarExpediente(nomDefProc,codTipusExp,"SE-22/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
 		
-		screenshotHelper.saveScreenshot("terminisexpedient/inicializar_terminis/2.png");
+		screenshotHelper.saveScreenshot("TerminisExpedient/inicializar_expedients/3.png");
 	}
 	
 	@Test
@@ -59,7 +63,7 @@ public class TerminisExpedient extends BaseTest {
 		actions.click();
 		actions.build().perform();
 		
-		screenshotHelper.saveScreenshot("documentsexpedient/generar_document/1.png");
+		screenshotHelper.saveScreenshot("TerminisExpedient/visualizar_terminis/1.png");
 		
 		// Comprobamos que se han creado los terminis	
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
@@ -106,7 +110,7 @@ public class TerminisExpedient extends BaseTest {
 		
 		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();	
 		
-		screenshotHelper.saveScreenshot("documentsexpedient/generar_document/2.png");
+		screenshotHelper.saveScreenshot("TerminisExpedient/visualizar_terminis/2.png");
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[6]/a/img")).click();
 		
@@ -134,8 +138,11 @@ public class TerminisExpedient extends BaseTest {
 			assertTrue("El campo de 'Aturat el' inicial de '"+nom+"' no era correcto", aturat.isEmpty());
 			assertTrue("El campo de 'Data de fi del termini' inicial de '"+nom+"' no era correcto", datafi.isEmpty());
 			
+			screenshotHelper.saveScreenshot("TerminisExpedient/visualizar_terminis/3+"+j+".png");
+			
 			j++;
 		}
+		screenshotHelper.saveScreenshot("TerminisExpedient/visualizar_terminis/4.png");
 	}
 	
 	@Test
@@ -149,7 +156,7 @@ public class TerminisExpedient extends BaseTest {
 		actions.click();
 		actions.build().perform();
 		
-		screenshotHelper.saveScreenshot("documentsexpedient/generar_document/1.png");
+		screenshotHelper.saveScreenshot("TerminisExpedient/iniciar_terminis/1.png");
 		
 		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
 		actions.build().perform();
@@ -168,7 +175,7 @@ public class TerminisExpedient extends BaseTest {
 		
 		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();	
 		
-		screenshotHelper.saveScreenshot("documentsexpedient/generar_document/2.png");
+		screenshotHelper.saveScreenshot("TerminisExpedient/iniciar_terminis/2.png");
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[6]/a/img")).click();
 		
@@ -246,8 +253,13 @@ public class TerminisExpedient extends BaseTest {
 				String fecha = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
 				assertTrue("El campo 'iniciat' de '"+nom+"' no era correcto", fecha.equals(iniciat));
 			}
+			
+			screenshotHelper.saveScreenshot("TerminisExpedient/iniciar_terminis/3-"+j+".png");
+			
 			j++;
 		}
+		
+		screenshotHelper.saveScreenshot("TerminisExpedient/iniciar_terminis/4.png");
 	}
 	
 	@Test
@@ -261,7 +273,7 @@ public class TerminisExpedient extends BaseTest {
 		actions.click();
 		actions.build().perform();
 		
-		screenshotHelper.saveScreenshot("documentsexpedient/generar_document/1.png");
+		screenshotHelper.saveScreenshot("TerminisExpedient/aturar_terminis/1.png");
 		
 		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
 		actions.build().perform();
@@ -280,7 +292,7 @@ public class TerminisExpedient extends BaseTest {
 		
 		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();	
 		
-		screenshotHelper.saveScreenshot("documentsexpedient/generar_document/2.png");
+		screenshotHelper.saveScreenshot("TerminisExpedient/aturar_terminis/2.png");
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[6]/a/img")).click();
 		
@@ -339,8 +351,12 @@ public class TerminisExpedient extends BaseTest {
 			estat = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr["+j+"]/td[6]")).getText();
 			assertTrue("El campo 'estat' de '"+nom+"' no era correcto", "Aturat".equals(estat));
 			
+			screenshotHelper.saveScreenshot("TerminisExpedient/aturar_terminis/3-"+j+".png");
+			
 			j++;
 		}
+		
+		screenshotHelper.saveScreenshot("TerminisExpedient/aturar_terminis/4.png");
 	}
 	
 	@Test
@@ -354,7 +370,7 @@ public class TerminisExpedient extends BaseTest {
 		actions.click();
 		actions.build().perform();
 		
-		screenshotHelper.saveScreenshot("documentsexpedient/generar_document/1.png");
+		screenshotHelper.saveScreenshot("TerminisExpedient/cancelar_terminis/1.png");
 		
 		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
 		actions.build().perform();
@@ -373,7 +389,7 @@ public class TerminisExpedient extends BaseTest {
 		
 		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();	
 		
-		screenshotHelper.saveScreenshot("documentsexpedient/generar_document/2.png");
+		screenshotHelper.saveScreenshot("TerminisExpedient/cancelar_terminis/2.png");
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[6]/a/img")).click();
 		
@@ -432,8 +448,12 @@ public class TerminisExpedient extends BaseTest {
 			estat = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr["+j+"]/td[6]")).getText();
 			assertTrue("El campo 'estat' de '"+nom+"' no era correcto", "Cancel·lat".equals(estat));
 			
+			screenshotHelper.saveScreenshot("TerminisExpedient/cancelar_terminis/3-"+j+".png");
+			
 			j++;
 		}
+		
+		screenshotHelper.saveScreenshot("TerminisExpedient/cancelar_terminis/4.png");
 	}
 	
 	@Test
@@ -447,11 +467,13 @@ public class TerminisExpedient extends BaseTest {
 		actions.click();
 		actions.build().perform();
 		
+		screenshotHelper.saveScreenshot("TerminisExpedient/finalizar_documents/1.png");	
+		
 		eliminarExpedient(null, null);
 			
 		// Eliminar la def de proceso
 		eliminarDefinicioProces(nomDefProc);
 		
-		screenshotHelper.saveScreenshot("terminisexpedient/finalizar_documents/1.png");	
+		screenshotHelper.saveScreenshot("TerminisExpedient/finalizar_documents/2.png");	
 	}
 }

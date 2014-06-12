@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import net.conselldemallorca.helium.test.util.BaseTest;
 
@@ -41,15 +40,11 @@ public class NouExpedient extends BaseTest {
 		existeixElementAssert("//li[@id='menuIniciar']", "No tiene permisos para iniciar un expediente");
 		driver.findElement(By.xpath("//*[@id='menuIniciar']/a")).click();
 
-		screenshotHelper.saveScreenshot("tramitar/listadoTipExp/11.png");
-		
-		// Obtenir nom del tipus d'expedient i cercar-lo
-		driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
-		boolean isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipusExp + "')]")).size() > 0;
-		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
+		screenshotHelper.saveScreenshot("NouExpedient/listadoTipExp/11.png");
 
-		assertTrue("No s'ha trobat el tipus d'expedient", isPresent);
-		screenshotHelper.saveScreenshot("tramitar/listadoTipExp/2.png");
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipusExp + "')]", "No s'ha trobat el tipus d'expedient");
+		
+		screenshotHelper.saveScreenshot("NouExpedient/listadoTipExp/2.png");
 	}
 
 	@Test
@@ -74,13 +69,13 @@ public class NouExpedient extends BaseTest {
 		actions.click();
 		actions.build().perform();
 	
-		screenshotHelper.saveScreenshot("tramitar/inici_any/1.png");
+		screenshotHelper.saveScreenshot("NouExpedient/inici_any/1.png");
 		
 		assertEquals("No s'ha pogut seleccionar l'entorn de forma directe.", entorn, driver.findElement(By.xpath("//div[@id='page-entorn-title']/h2/span")).getText().trim());
 			
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipusExp + "')]/td[1]/a")).click();
 		
-		screenshotHelper.saveScreenshot("tramitar/inici_any/2.png");
+		screenshotHelper.saveScreenshot("NouExpedient/inici_any/2.png");
 		
 		driver.findElement(By.xpath("//*[@id='content']/div[3]/form[1]/button")).click();
 				
@@ -109,7 +104,7 @@ public class NouExpedient extends BaseTest {
 		assertTrue("No se ha puesto con número correctamente","Si".equals(driver.findElement(By.xpath("//*[@id='content']/dl/dd[5]")).getText()));
 		assertTrue("No se ha puesto que demande número correctamente","Si".equals(driver.findElement(By.xpath("//*[@id='content']/dl/dd[6]")).getText()));
 
-		screenshotHelper.saveScreenshot("tramitar/inici_any/3.png");
+		screenshotHelper.saveScreenshot("NouExpedient/inici_any/3.png");
 		
 		String[] res = iniciarExpediente(nomDefProc,codTipusExp,"SE-22/2014", null);
 		
@@ -118,7 +113,7 @@ public class NouExpedient extends BaseTest {
 		
 		eliminarDefinicioProces(nomDefProc);
 		
-		screenshotHelper.saveScreenshot("tramitar/inici_any/4.png");
+		screenshotHelper.saveScreenshot("NouExpedient/inici_any/4.png");
 	}
 
 	@Test
@@ -141,13 +136,13 @@ public class NouExpedient extends BaseTest {
 		actions.click();
 		actions.build().perform();
 	
-		screenshotHelper.saveScreenshot("tramitar/inici_titol/1.png");
+		screenshotHelper.saveScreenshot("NouExpedient/inici_titol/1.png");
 		
 		assertEquals("No s'ha pogut seleccionar l'entorn de forma directe.", entorn, driver.findElement(By.xpath("//div[@id='page-entorn-title']/h2/span")).getText().trim());
 			
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipusExp + "')]/td[1]/a")).click();
 		
-		screenshotHelper.saveScreenshot("tramitar/inici_titol/2.png");
+		screenshotHelper.saveScreenshot("NouExpedient/inici_titol/2.png");
 		
 		driver.findElement(By.xpath("//*[@id='content']/div[3]/form[1]/button")).click();
 		
@@ -176,7 +171,7 @@ public class NouExpedient extends BaseTest {
 		assertTrue("No se ha puesto con título correctamente","Si".equals(driver.findElement(By.xpath("//*[@id='content']/dl/dd[3]")).getText()));
 		assertTrue("No se ha puesto que demande título correctamente","Si".equals(driver.findElement(By.xpath("//*[@id='content']/dl/dd[4]")).getText()));
 		
-		screenshotHelper.saveScreenshot("tramitar/inici_titol/3.png");
+		screenshotHelper.saveScreenshot("NouExpedient/inici_titol/3.png");
 		
 		String[] res = iniciarExpediente(nomDefProc,codTipusExp,null, "Expedient de prova Selenium " + (new Date()).getTime() );
 		
@@ -185,7 +180,7 @@ public class NouExpedient extends BaseTest {
 		
 		eliminarDefinicioProces(nomDefProc);
 		
-		screenshotHelper.saveScreenshot("tramitar/inici_titol/4.png");
+		screenshotHelper.saveScreenshot("NouExpedient/inici_titol/4.png");
 	}
 
 	@Test
@@ -212,7 +207,7 @@ public class NouExpedient extends BaseTest {
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipusExp + "')]/td[3]/form/button")).click();
 		acceptarAlerta();
 		
-		screenshotHelper.saveScreenshot("tramitar/iniciVersioExp/1.png");
+		screenshotHelper.saveScreenshot("NouExpedient/iniciVersioExp/1.png");
 		
 		String numero = "SE-22/2014";
 		String titulo = "Expedient de prova Selenium " + (new Date()).getTime();
@@ -233,7 +228,7 @@ public class NouExpedient extends BaseTest {
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se inició el expediente");
 		
-		screenshotHelper.saveScreenshot("tramitar/iniciAmbTascaIniExp/3.png");
+		screenshotHelper.saveScreenshot("NouExpedient/iniciAmbTascaIniExp/3.png");
 		
 		String textoInfo = driver.findElement(By.xpath("//*[@id='infos']/p")).getText();
 		
@@ -250,14 +245,14 @@ public class NouExpedient extends BaseTest {
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se inició el expediente");
 		
-		screenshotHelper.saveScreenshot("tramitar/iniciVersioExp/3.png");
+		screenshotHelper.saveScreenshot("NouExpedient/iniciVersioExp/3.png");
 		
 		// Eliminar el expediente
 		eliminarExpedient(res[0], res[1]);
 		
 		eliminarDefinicioProces(nomDefProc);
 		
-		screenshotHelper.saveScreenshot("tramitar/iniciVersioExp/4.png");
+		screenshotHelper.saveScreenshot("NouExpedient/iniciVersioExp/4.png");
 	}
 
 	@Test
@@ -280,20 +275,15 @@ public class NouExpedient extends BaseTest {
 		existeixElementAssert("//li[@id='menuIniciar']", "No tiene permisos para iniciar un expediente");
 		driver.findElement(By.xpath("//*[@id='menuIniciar']/a")).click();
 
-		screenshotHelper.saveScreenshot("tramitar/iniciAmbTascaIniExp/1.png");
-		
-		// Obtenir nom del tipus d'expedient i cercar-lo
-		driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
-		boolean isPresent = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipusExp + "')]")).size() > 0;
-		driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
+		screenshotHelper.saveScreenshot("NouExpedient/iniciAmbTascaIniExp/1.png");
 
-		assertTrue("No s'ha trobat el tipus d'expedient", isPresent);
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipusExp + "')]", "No s'ha trobat el tipus d'expedient");
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipusExp + "')]/td[3]/form/button")).click();
 		
 		driver.findElement(By.id("var_str010")).sendKeys("Una cadena de texto");
 
-		screenshotHelper.saveScreenshot("tramitar/iniciAmbTascaIniExp/2.png");
+		screenshotHelper.saveScreenshot("NouExpedient/iniciAmbTascaIniExp/2.png");
 		
 		driver.findElement(By.xpath("//button[@value='submit']")).click();
 		
@@ -316,7 +306,7 @@ public class NouExpedient extends BaseTest {
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se inició el expediente");
 		
-		screenshotHelper.saveScreenshot("tramitar/iniciAmbTascaIniExp/3.png");
+		screenshotHelper.saveScreenshot("NouExpedient/iniciAmbTascaIniExp/3.png");
 		
 		String textoInfo = driver.findElement(By.xpath("//*[@id='infos']/p")).getText();
 		
@@ -333,7 +323,7 @@ public class NouExpedient extends BaseTest {
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se inició el expediente");
 		
-		screenshotHelper.saveScreenshot("tramitar/iniciAmbTascaIniExp/4.png");
+		screenshotHelper.saveScreenshot("NouExpedient/iniciAmbTascaIniExp/4.png");
 		
 		// Eliminar el expediente
 		eliminarExpedient(res[0], res[1]);
@@ -341,6 +331,6 @@ public class NouExpedient extends BaseTest {
 		// Eliminar la def de proceso
 		eliminarDefinicioProces(nomDefProc);
 		
-		screenshotHelper.saveScreenshot("tramitar/iniciAmbTascaIniExp/5.png");
+		screenshotHelper.saveScreenshot("NouExpedient/iniciAmbTascaIniExp/5.png");
 	}
 }

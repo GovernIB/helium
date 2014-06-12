@@ -28,6 +28,8 @@ public class DocumentsExpedient extends BaseTest {
 	String pathArxiuPDF2 = carregarPropietat("deploy.arxiu.pdf.tramitacio_2", "Documento PDF a adjuntar 1");
 	String hashArxiuPDF2 = carregarPropietat("deploy.arxiu.pdf.tramitacio_2.hash", "Hash documento PDF a adjuntar 2");
 	
+	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
+	
 	@Test
 	public void a_inicializar_documents() throws InterruptedException {
 		carregarUrlConfiguracio(); 
@@ -38,16 +40,19 @@ public class DocumentsExpedient extends BaseTest {
 		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
 		actions.click();
 		actions.build().perform();
-		
-		screenshotHelper.saveScreenshot("documentsexpedient/inicializar_documents/1.png");
-		
+
+		screenshotHelper.saveScreenshot("documentsexpedient/iniciar_expedient/1.png");
+
+		crearTipusExpedientTest(nomTipusExp, codTipusExp);
+		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
+		importarDadesDefPro(nomDefProc, properties.getProperty("defproc.termini.exp.export.arxiu.path"));
+
+		screenshotHelper.saveScreenshot("documentsexpedient/iniciar_expedient/2.png");
 		
-		importarDadesDefPro(nomDefProc, properties.getProperty("defproc.mod.exp.export.arxiu.path"));
-					
 		iniciarExpediente(nomDefProc,codTipusExp,"SE-22/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
 		
-		screenshotHelper.saveScreenshot("documentsexpedient/inicializar_documents/2.png");
+		screenshotHelper.saveScreenshot("documentsexpedient/iniciar_expedient/3.png");
 	}
 	
 	@Test

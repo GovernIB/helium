@@ -21,11 +21,12 @@ public class RegistreExpedient extends BaseTest {
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String pathDefProc = carregarPropietat("defproc.mod.exp.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
-
+	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
+	
 	@Test
 	public void a_iniciar_expedient() throws InterruptedException {
-		carregarUrlConfiguracio();
-
+		carregarUrlConfiguracio(); 
+		
 		// Selecció directe
 		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
 		actions.build().perform();
@@ -33,15 +34,18 @@ public class RegistreExpedient extends BaseTest {
 		actions.click();
 		actions.build().perform();
 
-		screenshotHelper.saveScreenshot("registreexpedient/iniciar_expedient/1.png");
+		screenshotHelper.saveScreenshot("RegistreExpedient/iniciar_expedient/1.png");
 
+		crearTipusExpedientTest(nomTipusExp, codTipusExp);
+		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
-
 		importarDadesDefPro(nomDefProc, properties.getProperty("defproc.termini.exp.export.arxiu.path"));
 
+		screenshotHelper.saveScreenshot("RegistreExpedient/iniciar_expedient/2.png");
+		
 		iniciarExpediente(nomDefProc, codTipusExp, "SE-22/2014", "Expedient de prova Selenium " + (new Date()).getTime());
 
-		screenshotHelper.saveScreenshot("registreexpedient/iniciar_expedient/2.png");
+		screenshotHelper.saveScreenshot("RegistreExpedient/iniciar_expedient/3.png");
 	}
 
 	@Test
@@ -55,7 +59,7 @@ public class RegistreExpedient extends BaseTest {
 		actions.click();
 		actions.build().perform();
 
-		screenshotHelper.saveScreenshot("registreexpedient/visualizar_tasques/1.png");
+		screenshotHelper.saveScreenshot("RegistreExpedient/visualizar_tasques/1.png");
 
 		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
 		actions.build().perform();
@@ -73,7 +77,7 @@ public class RegistreExpedient extends BaseTest {
 		}
 		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();
 
-		screenshotHelper.saveScreenshot("registreexpedient/visualizar_tasques/2.png");
+		screenshotHelper.saveScreenshot("RegistreExpedient/visualizar_tasques/2.png");
 
 		assertTrue("No había ningún expediente", !driver.findElements(By.xpath("//*[@id='registre']/tbody/tr")).isEmpty());
 
@@ -81,7 +85,7 @@ public class RegistreExpedient extends BaseTest {
 
 		driver.findElement(By.xpath("//*[@id='tabnav']/li[8]/a")).click();
 
-		screenshotHelper.saveScreenshot("registreexpedient/visualizar_tasques/3.png");
+		screenshotHelper.saveScreenshot("RegistreExpedient/visualizar_tasques/3.png");
 
 		if (!existeixElement("//*[@id='content']/form/div/button[contains(text(), 'Veure registre detallat')]")) {
 			driver.findElement(By.xpath("//*[@id='content']/form/div/button")).click();
@@ -97,7 +101,7 @@ public class RegistreExpedient extends BaseTest {
 			i++;
 		}
 		
-		screenshotHelper.saveScreenshot("registreexpedient/visualizar_tasques/4.png");
+		screenshotHelper.saveScreenshot("RegistreExpedient/visualizar_tasques/4.png");
 	}
 
 	@Test
@@ -111,7 +115,7 @@ public class RegistreExpedient extends BaseTest {
 		actions.click();
 		actions.build().perform();
 
-		screenshotHelper.saveScreenshot("registreexpedient/visualizar_tasques_detall/1.png");
+		screenshotHelper.saveScreenshot("RegistreExpedient/visualizar_tasques_detall/1.png");
 
 		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
 		actions.build().perform();
@@ -129,7 +133,7 @@ public class RegistreExpedient extends BaseTest {
 		}
 		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();
 
-		screenshotHelper.saveScreenshot("registreexpedient/visualizar_tasques_detall/2.png");
+		screenshotHelper.saveScreenshot("RegistreExpedient/visualizar_tasques_detall/2.png");
 
 		assertTrue("No había ningún expediente", !driver.findElements(By.xpath("//*[@id='registre']/tbody/tr")).isEmpty());
 
@@ -137,7 +141,7 @@ public class RegistreExpedient extends BaseTest {
 
 		driver.findElement(By.xpath("//*[@id='tabnav']/li[8]/a")).click();
 
-		screenshotHelper.saveScreenshot("registreexpedient/visualizar_tasques_detall/3.png");
+		screenshotHelper.saveScreenshot("RegistreExpedient/visualizar_tasques_detall/3.png");
 
 		if (existeixElement("//*[@id='content']/form/div/button[contains(text(), 'Veure registre detallat')]")) {
 			driver.findElement(By.xpath("//*[@id='content']/form/div/button")).click();
@@ -153,7 +157,7 @@ public class RegistreExpedient extends BaseTest {
 			i++;
 		}
 		
-		screenshotHelper.saveScreenshot("registreexpedient/visualizar_tasques_detall/4.png");
+		screenshotHelper.saveScreenshot("RegistreExpedient/visualizar_tasques_detall/4.png");
 	}
 
 	@Test
@@ -167,7 +171,7 @@ public class RegistreExpedient extends BaseTest {
 		actions.click();
 		actions.build().perform();
 
-		screenshotHelper.saveScreenshot("registreexpedient/visualizar_accions_tasca/1.png");
+		screenshotHelper.saveScreenshot("RegistreExpedient/visualizar_accions_tasca/1.png");
 
 		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
 		actions.build().perform();
@@ -185,7 +189,7 @@ public class RegistreExpedient extends BaseTest {
 		}
 		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();
 
-		screenshotHelper.saveScreenshot("registreexpedient/visualizar_accions_tasca/2.png");
+		screenshotHelper.saveScreenshot("RegistreExpedient/visualizar_accions_tasca/2.png");
 
 		assertTrue("No había ningún expediente", !driver.findElements(By.xpath("//*[@id='registre']/tbody/tr")).isEmpty());
 
@@ -193,7 +197,7 @@ public class RegistreExpedient extends BaseTest {
 
 		driver.findElement(By.xpath("//*[@id='tabnav']/li[8]/a")).click();
 
-		screenshotHelper.saveScreenshot("registreexpedient/visualizar_accions_tasca/3.png");
+		screenshotHelper.saveScreenshot("RegistreExpedient/visualizar_accions_tasca/3.png");
 
 		if (!existeixElement("//*[@id='content']/form/div/button[contains(text(), 'Veure registre detallat')]")) {
 			driver.findElement(By.xpath("//*[@id='content']/form/div/button")).click();
@@ -261,7 +265,7 @@ public class RegistreExpedient extends BaseTest {
 			i++;
 		}
 		
-		screenshotHelper.saveScreenshot("registreexpedient/visualizar_accions_tasca/4.png");
+		screenshotHelper.saveScreenshot("RegistreExpedient/visualizar_accions_tasca/4.png");
 	}
 		
 	// @Test
@@ -290,7 +294,7 @@ public class RegistreExpedient extends BaseTest {
 		// Eliminar la def de proceso
 		eliminarDefinicioProces(nomDefProc);
 
-		screenshotHelper.saveScreenshot("registreexpedient/finalizar_expedient/1.png");
+		screenshotHelper.saveScreenshot("RegistreExpedient/finalizar_expedient/1.png");
 	}
 
 	private String comprobarDatosRegistro(int i, boolean modal) {
