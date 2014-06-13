@@ -758,10 +758,7 @@ public abstract class BaseTest {
 			acceptarAlerta();
 		}
 	}
-	
-	
-	// TIPUS D'EXPEDIENT
-	// ............................................................................................................
+
 	protected void importarDadesTipExp(String codiTipusExp, String path) {		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
