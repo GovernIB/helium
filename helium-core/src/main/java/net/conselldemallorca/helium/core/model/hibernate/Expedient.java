@@ -31,6 +31,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
@@ -592,9 +593,9 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	@Transient
 	public String getIdentificadorLimitat() {
 		if (getIdentificador() != null && getIdentificador().length() > 100)
-			return getIdentificador().substring(0, 100) + " (...)";
+			return StringEscapeUtils.escapeHtml(getIdentificador().substring(0, 100) + " (...)");
 		else
-			return getIdentificador();
+			return StringEscapeUtils.escapeHtml(getIdentificador());
 	}
 
 	@Transient

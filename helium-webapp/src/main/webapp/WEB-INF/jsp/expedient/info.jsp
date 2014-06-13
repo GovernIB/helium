@@ -42,7 +42,7 @@ function confirmarAccio(e) {
 
 	<dl class="form-info">
 		<c:if test="${not empty expedient.numero}"><dt><fmt:message key='expedient.consulta.numero' /></dt><dd>${expedient.numero}</dd></c:if>
-		<c:if test="${not empty expedient.titol}"><dt><fmt:message key='expedient.consulta.titol' /></dt><dd>${expedient.titol}</dd></c:if>
+		<c:if test="${not empty expedient.titol}"><dt><fmt:message key='expedient.consulta.titol' /></dt><dd><c:out value="${expedient.titol}"/></dd></c:if>
 		<c:if test="${empty expedient.numero and empty expedient.titol}"><dt><fmt:message key='expedient.info.identificacio' /></dt><dd>${expedient.identificador}</dd></c:if>
 		<dt><fmt:message key='expedient.info.tipus' /></dt><dd>${expedient.tipus.nom}</dd>
 		<dt><fmt:message key='expedient.consulta.estat' /></dt><dd>
