@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.core.model.dto;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 
 
@@ -20,8 +21,6 @@ public class ExpedientDto extends Expedient {
 	private PersonaDto responsablePersona;
 	private String bantelEntradaNum;
 	private List<ExpedientDto> relacionats;
-
-
 
 	public PersonaDto getIniciadorPersona() {
 		return iniciadorPersona;
@@ -56,13 +55,10 @@ public class ExpedientDto extends Expedient {
 
 	public String getIdentificadorLimitat() {
 		if (getIdentificador() != null && getIdentificador().length() > 100)
-			return getIdentificador().substring(0, 100) + " (...)";
+			return StringEscapeUtils.escapeHtml(getIdentificador().substring(0, 100) + " (...)");
 		else
-			return getIdentificador();
+			return StringEscapeUtils.escapeHtml(getIdentificador());
 	}
 
-
-
 	private static final long serialVersionUID = 1L;
-
 }
