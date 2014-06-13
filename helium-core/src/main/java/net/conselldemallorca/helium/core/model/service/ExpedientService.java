@@ -1867,7 +1867,9 @@ public class ExpedientService {
 	public List<JbpmProcessInstance> findProcessInstancesWithProcessDefinitionName(String jbpmKey) {
 		return jbpmDao.findProcessInstancesWithProcessDefinitionName(jbpmKey);
 	}
-
+	public List<JbpmProcessInstance> findProcessInstancesWithProcessDefinitionNameAndEntorn(String jbpmKey, Long entornId) {
+		return jbpmDao.findProcessInstancesWithProcessDefinitionNameAndEntorn(jbpmKey, entornId);
+	}
 	public Accio getAccio(
 			String processInstanceId,
 			String accioCodi) {

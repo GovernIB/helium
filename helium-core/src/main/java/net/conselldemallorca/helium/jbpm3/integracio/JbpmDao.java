@@ -357,6 +357,20 @@ public class JbpmDao {
 		mesuresTemporalsHelper.mesuraCalcular("jBPM findProcessInstancesWithProcessDefinitionName", "jbpmDao");
 		return resultat;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<JbpmProcessInstance> findProcessInstancesWithProcessDefinitionNameAndEntorn(String processName, Long entornId) {
+		mesuresTemporalsHelper.mesuraIniciar("jBPM findProcessInstancesWithProcessDefinitionNameAndEntorn", "jbpmDao");
+		List<JbpmProcessInstance> resultat = new ArrayList<JbpmProcessInstance>();
+		GetProcessInstancesEntornCommand command = new GetProcessInstancesEntornCommand();
+		command.setProcessDefinitionName(processName);
+		command.setEntornId(entornId);
+		for (ProcessInstance pd: (List<ProcessInstance>)commandService.execute(command)) {
+			resultat.add(new JbpmProcessInstance(pd));
+		}
+		mesuresTemporalsHelper.mesuraCalcular("jBPM findProcessInstancesWithProcessDefinitionNameAndEntorn", "jbpmDao");
+		return resultat;
+	}
 
 	public JbpmProcessDefinition findProcessDefinitionWithProcessInstanceId(String processInstanceId) {
 		mesuresTemporalsHelper.mesuraIniciar("jBPM findProcessDefinitionWithProcessInstanceId", "jbpmDao");
