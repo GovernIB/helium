@@ -760,6 +760,26 @@ public abstract class BaseTest {
 	}
 	
 	
+	// TIPUS D'EXPEDIENT
+	// ............................................................................................................
+	protected void importarDadesTipExp(String codiTipusExp, String path) {		
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+		
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'"+codiTipusExp+"')]")).click();
+
+		// Deploy
+		driver.findElement(By.xpath("//*[@id='content']/div[2]/h3/img")).click();
+		driver.findElement(By.id("arxiu0")).sendKeys(path);
+		driver.findElement(By.xpath("//button[@value='submit']")).click();
+		
+		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut importar la definició de procés de test");
+	}
+	
+	
 	// EXPEDIENT
 	// ............................................................................................................
 	protected void importarDadesDefPro(String defProc, String path) {		
