@@ -92,7 +92,7 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		this.actorId = responsable;
 		this.idsPIExpedients = idsExpedients;
 		this.tasca = tasca == null ? null : tasca.trim(); 
-		this.tascaSel = tascaSel == null ? null : tascaSel.trim(); 
+		this.tascaSel = tascaSel; 
 		this.dataCreacioInici = dataCreacioInici; 
 		this.dataCreacioFi = dataCreacioFi;
 		this.prioritat = prioritat;
@@ -181,7 +181,7 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		}
 
 		if (tascaSel != null && !"".equals(tascaSel)) {
-			hql += " and upper(ti.description) like '%@#@TITOL@#@%'||:tascaSel||'%@#@ENTORNID@#@%') ";
+			hql += " and ti.task.name = :tascaSel";
 		}
 		
 		if (titol != null && !"".equals(titol)) {
@@ -222,13 +222,12 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 				query.setString("tasca", tasca.toUpperCase());
 			
 			if (tascaSel != null && !"".equals(tascaSel))
-				query.setString("tascaSel", tascaSel.toUpperCase());
+				query.setString("tascaSel", tascaSel);
 			
 			if (titol != null && !"".equals(titol))
 				query.setString("titol", titol.toUpperCase());
 			
-			llistaActorId.addAll(query.list());
-			
+			llistaActorId.addAll(query.list());			
 		} else {
 			Query queryPersonal = jbpmContext.getSession().createQuery(hqlPersonal + hql);
 			queryPersonal.setString("actorId", actorId);
@@ -267,8 +266,8 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 			}
 
 			if (tascaSel != null && !"".equals(tascaSel)) {
-				queryPersonal.setString("tascaSel", tascaSel.toUpperCase());
-				queryPooled.setString("tascaSel", tascaSel.toUpperCase());
+				queryPersonal.setString("tascaSel", tascaSel);
+				queryPooled.setString("tascaSel", tascaSel);
 			}
 			
 			if (titol != null && !"".equals(titol)) {

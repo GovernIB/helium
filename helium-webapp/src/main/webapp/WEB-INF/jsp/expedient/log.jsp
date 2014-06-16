@@ -157,6 +157,7 @@ jQuery(document).ready(function(){
 		</display:column>
 		<display:column titleKey="expedient.log.info" style="${cellStyle}">
 			<c:choose>
+				<c:when test="${registre.accioTipus == 'PROCES_LLAMAR_SUBPROCES'}"><fmt:message key="expedient.log.info.nom"/>: ${registre.accioParams}</c:when>
 				<c:when test="${registre.accioTipus == 'PROCES_VARIABLE_CREAR'}"><fmt:message key="expedient.log.info.variable"/>: ${registre.accioParams}</c:when>
 				<c:when test="${registre.accioTipus == 'PROCES_VARIABLE_MODIFICAR'}"><fmt:message key="expedient.log.info.variable"/>: ${registre.accioParams}</c:when>
 				<c:when test="${registre.accioTipus == 'PROCES_VARIABLE_ESBORRAR'}"><fmt:message key="expedient.log.info.variable"/>: ${registre.accioParams}</c:when>
@@ -212,6 +213,7 @@ jQuery(document).ready(function(){
 		<display:column>
 			<c:choose>
 				<c:when test="${registre.accioTipus == 'PROCES_SCRIPT_EXECUTAR'}"></c:when>
+				<c:when test="${registre.accioTipus == 'PROCES_LLAMAR_SUBPROCES'}"></c:when>
 				<c:when test="${registre.estat == 'NORMAL' && numBloquejos == 0}">
 					<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="128,16">
 						<a href="<c:url value="/expedient/retrocedir.html"><c:param name="id" value="${param.id}"/><c:param name="logId" value="${registre.id}"/><c:param name="tipus_retroces" value="${param.tipus_retroces}"/><c:param name="retorn" value="r"/></c:url>" onclick="return confirmarRetrocedir(event)" class="retroces"><img src="<c:url value="/img/arrow_undo.png"/>" alt="<fmt:message key="expedient.log.retrocedir"/>" title="<fmt:message key="expedient.log.retrocedir"/>" border="0"/></a>
