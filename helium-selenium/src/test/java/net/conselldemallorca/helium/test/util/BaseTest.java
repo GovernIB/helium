@@ -11,10 +11,13 @@ import static org.junit.Assert.fail;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -934,6 +937,46 @@ public abstract class BaseTest {
 			assertThat("El fitxer " + fitxer + " descarregat no té el hash esperat", fileToCheck.hasAValidHash(), is(equalTo(true)));
 		} catch (Exception e) {
 			fail("No s'ha pogut comprovar el fitxer " + fitxer + " descarregat");
+		}
+	}
+	
+	protected byte[] postDownloadFile(String formXpath) {
+		FileDownloader downloader = new FileDownloader(driver);
+		driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
+		boolean isPresent = driver.findElements(By.xpath(formXpath)).size() > 0;
+		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+		assertTrue("El formulari indicat no existeix" , isPresent);
+		WebElement form = driver.findElement(By.xpath(formXpath));
+		String formAction = form.getAttribute("action");
+		if (formAction == null || "".equals(formAction))
+			fail("El formulari té una acció definida");
+	
+		List<WebElement> inputs = form.findElements(By.tagName("input"));
+		List<NameValuePair> params = new ArrayList<NameValuePair>(inputs.size());
+		for (WebElement input: inputs) {
+			params.add(new BasicNameValuePair(input.getAttribute("name"), input.getAttribute("value")));
+		}
+		
+		byte[] downloadedFile = null;
+		try {
+			downloadedFile = downloader.postDownloadFile(formAction, params);
+		} catch (Exception e) {
+			fail("No s'ha pogut descarregar el formulari");
+		}
+		assertThat(downloader.getHTTPStatusOfLastDownloadAttempt(), is(equalTo(200)));
+		return downloadedFile;
+	}
+	
+	protected void postDownloadFileHash(String formXpath, String md5) {
+		byte[] downloadedFile = postDownloadFile(formXpath);
+		
+		try {
+			CheckFileHash fileToCheck = new CheckFileHash();
+			fileToCheck.fileToCheck(downloadedFile);
+			fileToCheck.hashDetails(md5, HashType.MD5);
+			assertThat("El fitxer descarregat no té el hash esperat", fileToCheck.hasAValidHash(), is(equalTo(true)));
+		} catch (Exception e) {
+			fail("No s'ha pogut comprovar el fitxer descarregat");
 		}
 	}
 	

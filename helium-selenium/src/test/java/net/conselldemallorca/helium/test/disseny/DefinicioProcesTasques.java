@@ -61,23 +61,23 @@ public class DefinicioProcesTasques extends BaseTest {
 	public void b_assignaVarTasca() {
 		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
-		assignarVar(tasca1, codiVarStr, true, true, false, false);
-		assignarVar(tasca1, codiVarInt + "_R", true, true, true, false, true);
-		assignarVar(tasca1, codiVarFloat, true, true, false, true, true);
-		assignarVar(tasca1, codiVarDate, true, false, false, false, true);
-		assignarVar(tasca1, codiVarPrice + "_R", false, true, false, false, true);
-		assignarVar(tasca1, codiVarBoolean + "_R", true, true, false, false, true);
-		assignarVar(tasca1, codiVarSelEnum, true, true, false, false, true);
-		assignarVar(tasca1, codiVarRegistre, true, true, false, false, true);
-		assignarVar(tasca1, codiVarRegistre + "_M", true, true, false, false, true);
+		assignarVarTasca(tasca1, codiVarStr, true, true, false, false);
+		assignarVarTasca(tasca1, codiVarInt + "_R", true, true, true, false, true);
+		assignarVarTasca(tasca1, codiVarFloat, true, true, false, true, true);
+		assignarVarTasca(tasca1, codiVarDate, true, false, false, false, true);
+		assignarVarTasca(tasca1, codiVarPrice + "_R", false, true, false, false, true);
+		assignarVarTasca(tasca1, codiVarBoolean + "_R", true, true, false, false, true);
+		assignarVarTasca(tasca1, codiVarSelEnum, true, true, false, false, true);
+		assignarVarTasca(tasca1, codiVarRegistre, true, true, false, false, true);
+		assignarVarTasca(tasca1, codiVarRegistre + "_M", true, true, false, false, true);
 	}
 	
 	@Test
 	public void c_modificarVarTasca() {
 		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
-		modificarVar(tasca1, codiVarInt + "_R", false, false, false, true);
-		modificarVar(tasca1, codiVarRegistre, true, true, true, false, true);
+		modificarVarTasca(tasca1, codiVarInt + "_R", false, false, false, true);
+		modificarVarTasca(tasca1, codiVarRegistre, true, true, true, false, true);
 	}
 	
 	@Test
@@ -95,8 +95,8 @@ public class DefinicioProcesTasques extends BaseTest {
 	public void e_desassignaVarTasca() {
 		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
-		desassignarVar(tasca1, codiVarInt + "_R");
-		desassignarVar(tasca1, codiVarRegistre, true);
+		desassignarVarTasca(tasca1, codiVarInt + "_R");
+		desassignarVarTasca(tasca1, codiVarRegistre, true);
 	}
 	
 	@Test
@@ -184,10 +184,10 @@ public class DefinicioProcesTasques extends BaseTest {
 	
 	// Funcions ajuda
 	// ----------------------------------------------------------------------------------------
-	protected void assignarVar(String tasca, String codiVar, boolean isRf, boolean isWt, boolean isRq, boolean isRo) {
-		assignarVar(tasca, codiVar, isRf, isWt, isRq, isRo, false);
+	protected void assignarVarTasca(String tasca, String codiVar, boolean isRf, boolean isWt, boolean isRq, boolean isRo) {
+		assignarVarTasca(tasca, codiVar, isRf, isWt, isRq, isRo, false);
 	}
-	protected void assignarVar(String tasca, String codiVar, boolean isRf, boolean isWt, boolean isRq, boolean isRo, boolean inPlace) {
+	protected void assignarVarTasca(String tasca, String codiVar, boolean isRf, boolean isWt, boolean isRq, boolean isRo, boolean inPlace) {
 		// Accedir a la fitxa de tasques
 		if (!inPlace) {
 			driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/tascaLlistat.html')]")).click();	
@@ -230,10 +230,10 @@ public class DefinicioProcesTasques extends BaseTest {
 	    checkboxSelectedAssert("//*[@id='ro_" + id + "']", "Propietat Només llectura no assignada correctament", isRo);
 	    
 	}
-	protected void modificarVar(String tasca, String codiVar, boolean isRf, boolean isWt, boolean isRq, boolean isRo) {
-		modificarVar(tasca, codiVar, isRf, isWt, isRq, isRo, false);
+	protected void modificarVarTasca(String tasca, String codiVar, boolean isRf, boolean isWt, boolean isRq, boolean isRo) {
+		modificarVarTasca(tasca, codiVar, isRf, isWt, isRq, isRo, false);
 	}
-	protected void modificarVar(String tasca, String codiVar, boolean isRf, boolean isWt, boolean isRq, boolean isRo, boolean inPlace) {
+	protected void modificarVarTasca(String tasca, String codiVar, boolean isRf, boolean isWt, boolean isRq, boolean isRo, boolean inPlace) {
 		// Accedir a la fitxa de tasques
 		if (!inPlace) {
 			driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/tascaLlistat.html')]")).click();	
@@ -270,10 +270,10 @@ public class DefinicioProcesTasques extends BaseTest {
 	    
 	}
 
-	protected void desassignarVar(String tasca, String codiVar) {
-		desassignarVar(tasca, codiVar, false);
+	protected void desassignarVarTasca(String tasca, String codiVar) {
+		desassignarVarTasca(tasca, codiVar, false);
 	}
-	protected void desassignarVar(String tasca, String codiVar, boolean inPlace) {
+	protected void desassignarVarTasca(String tasca, String codiVar, boolean inPlace) {
 		// Accedir a la fitxa de tasques
 		if (!inPlace) {
 			driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/tascaLlistat.html')]")).click();	

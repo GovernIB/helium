@@ -1,6 +1,7 @@
 package net.conselldemallorca.helium.test.disseny;
 
 import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
 import net.conselldemallorca.helium.test.util.BaseTest;
 
 import org.junit.FixMethodOrder;
@@ -31,28 +32,28 @@ public class DefinicioProces extends BaseTest {
 	public void b_desplegarParExp() {
 		carregarUrlConfiguracio();
 		desplegarDefPro(TipusDesplegament.JBPM, nomDefProc, nomTipusExp, pathDefProc, null, false, true);
-		eliminar(true);
+		eliminar(false);
 	}
 	
 	@Test
 	public void c_desplegarPar() {
 		carregarUrlConfiguracio();
 		desplegarDefPro(TipusDesplegament.JBPM, nomDefProc, null, pathDefProc, null, false, true);
-		eliminar(true);
+		eliminar(false);
 	}
 	
 	@Test
 	public void d_desplegarParEtiqueta() {
 		carregarUrlConfiguracio();
 		desplegarDefPro(TipusDesplegament.JBPM, nomDefProc, null, pathDefProc, "Etiqueta", false, true);
-		eliminar(true);
+		eliminar(false);
 	}
 	
 	@Test
 	public void e_desplegarParActualitzar() {
 		carregarUrlConfiguracio();
 		desplegarDefPro(TipusDesplegament.JBPM, nomDefProc, null, pathDefProc, null, true, true);
-		eliminar(true);
+		eliminar(false);
 	}
 	
 	@Test
@@ -62,7 +63,96 @@ public class DefinicioProces extends BaseTest {
 	}
 	
 	@Test
-	public void g_eliminarDefProc() {
+	public void g_eliminarVersioDefProc() {
+		carregarUrlConfiguracio();
+		desplegarDefPro(TipusDesplegament.JBPM, nomDefProc, null, pathDefProc, null, false, true);
+		
+		seleccionarDefinicioProces(nomDefProc);
+		Integer versioActual = 0;
+		try {
+			versioActual = Integer.parseInt(driver.findElement(By.xpath("//*[@id='content']/dl/dd[4]")).getText());
+		} catch (Exception e) {
+			fail("No s'ha pogut obtenir la versió actual de la definició de procés");
+		}
+		existeixElementAssert("//*[@id='content']/div[2]/form[2]/button", "No s'ha trobat el botó per a borrar la versió");
+		driver.findElement(By.xpath("//*[@id='content']/div[2]/form[2]/button")).click();
+		acceptarAlerta();
+		seleccionarDefinicioProces(nomDefProc);
+		Integer versioNova = 0;
+		try {
+			versioNova = Integer.parseInt(driver.findElement(By.xpath("//*[@id='content']/dl/dd[4]")).getText());
+		} catch (Exception e) {
+			fail("No s'ha pogut obtenir la nova versió de la definició de procés");
+		}
+		assertTrue("No s'ha podut eliminar la versió de procés", versioNova < versioActual);
+//		eliminar(false);
+	}
+	
+	@Test
+	public void h_descarregarRecursos() {
+		carregarUrlConfiguracio();
+		seleccionarDefinicioProces(nomDefProc);
+		// Accedir a la fitxa de recursos
+		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/recursLlistat.html')]")).click();
+		screenshotHelper.saveScreenshot("defproces/recursos/descarregar/1_recursos.png");
+		
+		// descarregar recursos
+		existeixElementAssert("//*[@id='registre']/tbody/tr/td[1][text() ='gpd.xml']", "No existeix el recurs gpd.xml a descarregar");
+		existeixElementAssert("//*[@id='registre']/tbody/tr/td[1][text() ='processimage.jpg']", "No existeix el recurs processimage.jpg a descarregar");
+		existeixElementAssert("//*[@id='registre']/tbody/tr/td[1][text() ='processdefinition.xml']", "No existeix el recurs processdefinition.xml a descarregar");
+		
+		downloadFileHash("//*[@id='registre']/tbody/tr/td[1][text() ='gpd.xml']/../td[2]/a",
+				carregarPropietat("defproc.recurs.gpd.hash", "Hash del gpd.xml no configurat al fitxer de properties"), 
+				"gpd.xml");
+		downloadFileHash("//*[@id='registre']/tbody/tr/td[1][text() ='processimage.jpg']/../td[2]/a", 
+				carregarPropietat("defproc.recurs.processimage.hash", "Hash del processimage.jpg no configurat al fitxer de properties"), 
+				"processimage.jpg");
+		downloadFileHash("//*[@id='registre']/tbody/tr/td[1][text() ='processdefinition.xml']/../td[2]/a", 
+				carregarPropietat("defproc.recurs.processdefinition.hash", "Hash del processdefinition.xml no configurat al fitxer de properties"), 
+				"processdefinition.xml");
+	}
+	
+	@Test
+	public void i_importarDefProc() {
+		carregarUrlConfiguracio();
+		importarDadesDefPro(nomDefProc, carregarPropietat("defproc.import.dades.path", "El path a la exportació de dades de la definició de procés no configurat al fitxer de properties"));
+		// Comprovar dades importades:
+		seleccionarDefinicioProces(nomDefProc);
+		// variables
+		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/campLlistat.html')]")).click();
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'var1') and contains(td[2],'var1') and contains(td[3],'STRING')]", "La variable var1 no s'ha importat");
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'var2') and contains(td[2],'var2') and contains(td[3],'INTEGER')]", "La variable var2 no s'ha importat");
+		// documents
+		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/documentLlistat.html')]")).click();
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'doc1') and contains(td[2],'doc1')]", "El document doc1 no s'ha importat");
+		// terminis
+		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/terminiLlistat.html')]")).click();
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'ter1') and contains(td[2],'ter1') and contains(td[3],'4 di')]", "El termini ter1 no s'ha importat");
+		// agrupacions
+		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/campAgrupacioLlistat.html')]")).click();
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'agr1') and contains(td[2],'agr1') and contains(td[3]/form/button,'1')]", "La agrupacio agr1 no s'ha importat");
+		// accions
+		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/accioLlistat.html')]")).click();
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'acc1') and contains(td[2],'acc1') and contains(td[3],'action')]", "La acció acc1 no s'ha importat");
+		// tasques
+		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/tascaLlistat.html')]")).click();
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'tasca1') and contains(td[2],'tasca1') and contains(td[3]/form/button,'2') and contains(td[4]/form/button,'0') and contains(td[5]/form/button,'0')]", "La tasca1 no s'ha importat correctament");
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'tasca2') and contains(td[2],'tasca2') and contains(td[3]/form/button,'0') and contains(td[4]/form/button,'1') and contains(td[5]/form/button,'1')]", "La tasca2 no s'ha importat correctament");
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'tasca3') and contains(td[2],'tasca3') and contains(td[3]/form/button,'1') and contains(td[4]/form/button,'0') and contains(td[5]/form/button,'0')]", "La tasca3 no s'ha importat correctament");
+	}
+	
+	@Test
+	public void j_exportarDefProc() {
+		carregarUrlConfiguracio();
+		seleccionarDefinicioProces(nomDefProc);
+		// Export
+//		postDownloadFileHash("//*[@id='content']/div[2]/form[1]", 
+//				carregarPropietat("defproc.export.dades.hash", "Hash de la exportació de la definició de procés no configurat al fitxer de properties"));
+		postDownloadFile("//*[@id='content']/div[2]/form[1]");
+	}
+	
+	@Test
+	public void k_eliminarDefProc() {
 		carregarUrlConfiguracio();
 		eliminar(false);
 	}
@@ -150,7 +240,7 @@ public class DefinicioProces extends BaseTest {
 		}
 		//Entorn actual per defecte
 		driver.findElement(By.id("menuEntorn")).findElement(By.tagName("a")).click();
-		if (!driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + entornActual + "')]/td[1]/a/img")).getAttribute("src").endsWith("star.png")) {
+		if (entornActual != null && !driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + entornActual + "')]/td[1]/a/img")).getAttribute("src").endsWith("star.png")) {
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + entornActual + "')]/td[1]/a")).click();
 		}
 		

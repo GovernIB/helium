@@ -93,6 +93,7 @@
 					<includes>
 						<!-- Suites de proves a executar -->
 						<include>**/ConfiguracioEntornSuite.java</include>
+						<include>**/ConfiguracioDefinicioProcesSuite.java</include>
 					</includes>
 					<skipTests>${skipTests}</skipTests>
 				</configuration>

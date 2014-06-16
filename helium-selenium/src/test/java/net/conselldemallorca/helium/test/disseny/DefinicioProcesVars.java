@@ -21,10 +21,10 @@ public class DefinicioProcesVars extends BaseTest {
 	String pathDefProc = carregarPropietat("defproc.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
-	String codAgrupacio1 = carregarPropietat("defproc.deploy.agrupacio.1.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
-	String nomAgrupacio1 = carregarPropietat("defproc.deploy.agrupacio.1.nom", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
-	String codAgrupacio2 = carregarPropietat("defproc.deploy.agrupacio.2.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
-	String nomAgrupacio2 = carregarPropietat("defproc.deploy.agrupacio.2.nom", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
+	String codAgrupacio1 = carregarPropietat("defproc.agrupacio.1.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
+	String nomAgrupacio1 = carregarPropietat("defproc.agrupacio.1.nom", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
+	String codAgrupacio2 = carregarPropietat("defproc.agrupacio.2.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
+	String nomAgrupacio2 = carregarPropietat("defproc.agrupacio.2.nom", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	
 	@Test
 	public void a0_inicialitzacio() {

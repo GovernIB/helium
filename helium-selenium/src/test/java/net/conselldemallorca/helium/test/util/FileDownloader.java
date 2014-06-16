@@ -4,12 +4,16 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.impl.client.BasicCookieStore;
@@ -71,6 +75,17 @@ public class FileDownloader {
      */
     public byte[] downloadFile(WebElement element) throws Exception {
         return downloader(element, "href");
+    }
+    
+    /**
+     * Download the file from post form
+     *
+     * @param element
+     * @return
+     * @throws Exception
+     */
+    public byte[] postDownloadFile(String formToDownloadLocation, List<NameValuePair> params) throws Exception {
+    	return postdownloader(formToDownloadLocation, params);
     }
  
     /**
@@ -166,6 +181,42 @@ public class FileDownloader {
 //        LOG.info("File downloaded to '" + downloadedFileAbsolutePath + "'");
 // 
 //        return downloadedFileAbsolutePath;
+        byte[] file = IOUtils.toByteArray(response.getEntity().getContent());
+        response.getEntity().getContent().close();
+        return file;
+    }
+    
+    /**
+     * Perform the file/image download.
+     *
+     * @param element
+     * @param attribute
+     * @return
+     * @throws IOException
+     * @throws NullPointerException
+     */
+    @SuppressWarnings({ "resource" })
+	private byte[] postdownloader(String formToDownloadLocation, List<NameValuePair> params) throws IOException, NullPointerException, URISyntaxException {
+        HttpClient client = new DefaultHttpClient();
+        BasicHttpContext localContext = new BasicHttpContext();
+ 
+        LOG.info("Mimic WebDriver cookie state: " + this.mimicWebDriverCookieState);
+        if (this.mimicWebDriverCookieState) {
+            localContext.setAttribute(ClientContext.COOKIE_STORE, mimicCookieState(this.driver.manage().getCookies()));
+        }
+ 
+        HttpPost httppost = new HttpPost(formToDownloadLocation);
+        HttpParams httpRequestParameters = httppost.getParams();
+        httpRequestParameters.setParameter(ClientPNames.HANDLE_REDIRECTS, this.followRedirects);
+        httppost.setParams(httpRequestParameters);
+        httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+        
+ 
+        LOG.info("Sending POST request for: " + httppost.getURI());
+        HttpResponse response = client.execute(httppost, localContext);
+        this.httpStatusOfLastDownloadAttempt = response.getStatusLine().getStatusCode();
+        LOG.info("HTTP GET request status: " + this.httpStatusOfLastDownloadAttempt);
+ 
         byte[] file = IOUtils.toByteArray(response.getEntity().getContent());
         response.getEntity().getContent().close();
         return file;
