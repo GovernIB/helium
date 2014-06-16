@@ -1967,7 +1967,7 @@ public class ExpedientService {
 		pluginTramitacioDao.publicarEvent(request);
 	}
 
-	public List<ExpedientLogDto> getLogsOrdenatsPerData(ExpedientDto expedient) {
+	public List<ExpedientLogDto> getLogsOrdenatsPerData(ExpedientDto expedient, String piId) {
 		mesuresTemporalsHelper.mesuraIniciar("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "findAmbExpedientIdOrdenatsPerData");
 		List<ExpedientLogDto> resposta = new ArrayList<ExpedientLogDto>();
 		List<ExpedientLog> logs = expedientLogDao.findAmbExpedientIdOrdenatsPerData(expedient.getId());
@@ -1997,30 +1997,53 @@ public class ExpedientService {
 						// Entram en un nou subproces
 						if (!processos.containsKey(processInstanceId)) {
 							processos.put(processInstanceId, token.getToken().getProcessInstance().getSuperProcessToken().getFullName());
+							
+							if (parentProcessInstanceId.equals(piId)){
+								// Añadimos una nueva línea para indicar la llamada al subproceso
+								ExpedientLogDto dto = new ExpedientLogDto();
+								dto.setId(log.getId());
+								dto.setData(log.getData());
+								dto.setUsuari(log.getUsuari());
+								dto.setEstat(ExpedientLogEstat.IGNORAR.name());
+								dto.setAccioTipus(ExpedientLogAccioTipus.PROCES_LLAMAR_SUBPROCES.name());
+								String titol = null;
+								if (token.getToken().getProcessInstance().getKey() == null)
+									titol = token.getToken().getProcessInstance().getProcessDefinition().getName() + " " + log.getProcessInstanceId();
+								else 
+									titol = token.getToken().getProcessInstance().getKey();
+								dto.setAccioParams(titol);
+								dto.setTargetId(log.getTargetId());
+								dto.setTargetTasca(false);
+								dto.setTargetProces(false);
+								dto.setTargetExpedient(true);
+								resposta.add(dto);
+							}
 						}
 					}
 					tokenName = processos.get(processInstanceId) + tokenName;
 				}
 			}
 				
-			ExpedientLogDto dto = new ExpedientLogDto();
-			dto.setId(log.getId());
-			dto.setData(log.getData());
-			dto.setUsuari(log.getUsuari());
-			dto.setEstat(token == null ? ExpedientLogEstat.IGNORAR.name() : log.getEstat().name());
-			dto.setAccioTipus(log.getAccioTipus().name());
-			dto.setAccioParams(log.getAccioParams());
-			dto.setTargetId(log.getTargetId());
-			dto.setTokenName(tokenName);
-			dto.setTargetTasca(log.isTargetTasca());
-			dto.setTargetProces(log.isTargetProces());
-			dto.setTargetExpedient(log.isTargetExpedient());
-			resposta.add(dto);
+			if (piId == null || log.getProcessInstanceId().equals(Long.parseLong(piId))) {
+				ExpedientLogDto dto = new ExpedientLogDto();
+				dto.setId(log.getId());
+				dto.setData(log.getData());
+				dto.setUsuari(log.getUsuari());
+				dto.setEstat(token == null ? ExpedientLogEstat.IGNORAR.name() : log.getEstat().name());
+				dto.setAccioTipus(log.getAccioTipus().name());
+				dto.setAccioParams(log.getAccioParams());
+				dto.setTargetId(log.getTargetId());
+				dto.setTokenName(tokenName);
+				dto.setTargetTasca(log.isTargetTasca());
+				dto.setTargetProces(log.isTargetProces());
+				dto.setTargetExpedient(log.isTargetExpedient());
+				resposta.add(dto);
+			}
 		}
 		mesuresTemporalsHelper.mesuraCalcular("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "obtenir tokens");
 		return resposta;
 	}
-	public List<ExpedientLogDto> getLogsPerTascaOrdenatsPerData(ExpedientDto expedient) {
+	public List<ExpedientLogDto> getLogsPerTascaOrdenatsPerData(ExpedientDto expedient, String piId) {
 		mesuresTemporalsHelper.mesuraIniciar("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "findAmbExpedientIdOrdenatsPerData");
 		List<ExpedientLogDto> resposta = new ArrayList<ExpedientLogDto>();
 		List<ExpedientLog> logs = expedientLogDao.findAmbExpedientIdOrdenatsPerData(expedient.getId());
@@ -2055,25 +2078,48 @@ public class ExpedientService {
 							// Entram en un nou subproces
 							if (!processos.containsKey(processInstanceId)) {
 								processos.put(processInstanceId, token.getToken().getProcessInstance().getSuperProcessToken().getFullName());
+								
+								if (parentProcessInstanceId.equals(piId)){
+									// Añadimos una nueva línea para indicar la llamada al subproceso
+									ExpedientLogDto dto = new ExpedientLogDto();
+									dto.setId(log.getId());
+									dto.setData(log.getData());
+									dto.setUsuari(log.getUsuari());
+									dto.setEstat(ExpedientLogEstat.IGNORAR.name());
+									dto.setAccioTipus(ExpedientLogAccioTipus.PROCES_LLAMAR_SUBPROCES.name());
+									String titol = null;
+									if (token.getToken().getProcessInstance().getKey() == null)
+										titol = token.getToken().getProcessInstance().getProcessDefinition().getName() + " " + log.getProcessInstanceId();
+									else 
+										titol = token.getToken().getProcessInstance().getKey();
+									dto.setAccioParams(titol);
+									dto.setTargetId(log.getTargetId());
+									dto.setTargetTasca(false);
+									dto.setTargetProces(false);
+									dto.setTargetExpedient(true);
+									resposta.add(dto);
+								}
 							}
 						}
 						tokenName = processos.get(processInstanceId) + tokenName;
 					}
 				}
 				
-				ExpedientLogDto dto = new ExpedientLogDto();
-				dto.setId(log.getId());
-				dto.setData(log.getData());
-				dto.setUsuari(log.getUsuari());
-				dto.setEstat(token == null ? ExpedientLogEstat.IGNORAR.name() : log.getEstat().name());
-				dto.setAccioTipus(log.getAccioTipus().name());
-				dto.setAccioParams(log.getAccioParams());
-				dto.setTargetId(log.getTargetId());
-				dto.setTokenName(tokenName);
-				dto.setTargetTasca(log.isTargetTasca());
-				dto.setTargetProces(log.isTargetProces());
-				dto.setTargetExpedient(log.isTargetExpedient());
-				resposta.add(dto);
+				if (piId == null || log.getProcessInstanceId().equals(Long.parseLong(piId))) {
+					ExpedientLogDto dto = new ExpedientLogDto();
+					dto.setId(log.getId());
+					dto.setData(log.getData());
+					dto.setUsuari(log.getUsuari());
+					dto.setEstat(token == null ? ExpedientLogEstat.IGNORAR.name() : log.getEstat().name());
+					dto.setAccioTipus(log.getAccioTipus().name());
+					dto.setAccioParams(log.getAccioParams());
+					dto.setTargetId(log.getTargetId());
+					dto.setTokenName(tokenName);
+					dto.setTargetTasca(log.isTargetTasca());
+					dto.setTargetProces(log.isTargetProces());
+					dto.setTargetExpedient(log.isTargetExpedient());
+					resposta.add(dto);
+				}
 			}
 			mesuresTemporalsHelper.mesuraCalcular("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "obtenir tokens tasca");
 		}
