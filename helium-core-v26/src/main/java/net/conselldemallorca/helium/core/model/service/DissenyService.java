@@ -2925,7 +2925,7 @@ public class DissenyService {
 					nova.getDocuments().addAll(documentsNous);
 					// Propaga les firmes de la tasca
 					nova.getFirmes().clear();
-					/*for (FirmaTascaExportacio firmaTasca: vella.getFirmes()) {
+					for (FirmaTascaExportacio firmaTasca: vella.getFirmes()) {
 						FirmaTasca nouft = new FirmaTasca(
 								documents.get(firmaTasca.getDocumentCodi()),
 								nova,
@@ -2933,7 +2933,7 @@ public class DissenyService {
 								firmaTasca.getOrder());
 						nova.addFirma(nouft);
 						firmaTascaDao.saveOrUpdate(nouft);
-					}*/
+					}
 					// Propaga les validacions de la tasca
 					for (ValidacioExportacio validacio: vella.getValidacions()) {
 						Validacio novav = new Validacio(
