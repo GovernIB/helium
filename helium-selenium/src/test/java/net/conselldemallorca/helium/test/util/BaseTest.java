@@ -564,7 +564,7 @@ public abstract class BaseTest {
 		actions.click();
 		actions.build().perform();
 
-		if (existeixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]")) {
+		while (existeixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]")) {
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]/td[4]/a")).click();
 			acceptarAlerta();
 		}
@@ -816,11 +816,12 @@ public abstract class BaseTest {
 		
 		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();
 		
-		assertTrue("No se encontró el expediente", driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]")) != null);			
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[contains(a/img/@src,'/helium/img/cross.png')]/a/img")).click();		
+		if (existeixElement("//*[@id='registre']/tbody/tr[1]")) {			
+			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[contains(a/img/@src,'/helium/img/cross.png')]/a/img")).click();		
 		
-		acceptarAlerta();		
-		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut borrar el expediente");
+			acceptarAlerta();		
+			existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut borrar el expediente");
+		}
 	}
 
 	protected String[] iniciarExpediente(String defProc, String codTipusExp, String numero, String titulo) {
@@ -978,6 +979,16 @@ public abstract class BaseTest {
 		} catch (Exception e) {
 			fail("No s'ha pogut comprovar el fitxer descarregat");
 		}
+	}
+	
+	protected String getMd5(byte[] hash) {
+		// converting byte array to Hexadecimal String
+		StringBuilder sb = new StringBuilder(2 * hash.length);
+		for (byte b : hash) {
+			sb.append(String.format("%02x", b & 0xff));
+		}
+
+		return sb.toString();
 	}
 	
 	protected void adjuntarDocExpediente(String numExpediente, String tituloExpediente, String tituloDocumento, String fechaDocumento, String pathDocumento) {
