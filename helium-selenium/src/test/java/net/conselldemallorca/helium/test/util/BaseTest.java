@@ -798,8 +798,11 @@ public abstract class BaseTest {
 		
 		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut importar la definició de procés de test");
 	}
-	
 	protected void eliminarExpedient(String numExpediente, String tituloExpediente) {
+		eliminarExpedient(numExpediente, tituloExpediente, null);
+	}
+	
+	protected void eliminarExpedient(String numExpediente, String tituloExpediente, String tipusExp) {
 		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']/ul/li[1]/a")));
@@ -814,9 +817,20 @@ public abstract class BaseTest {
 		if (numExpediente != null)
 			driver.findElement(By.xpath("//*[@id='numero0']")).sendKeys(numExpediente);
 		
+		if (tipusExp != null) {
+			WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='expedientTipus0']"));
+			List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
+			for (WebElement option : options) {
+				if (option.getText().equals(tipusExp)) {
+					option.click();
+					break;
+				}
+			}
+		}
+		
 		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();
 		
-		if (existeixElement("//*[@id='registre']/tbody/tr[1]")) {			
+		while (existeixElement("//*[@id='registre']/tbody/tr[1]")) {			
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[contains(a/img/@src,'/helium/img/cross.png')]/a/img")).click();		
 		
 			acceptarAlerta();		

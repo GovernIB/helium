@@ -15,16 +15,16 @@ import org.openqa.selenium.WebElement;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DadesExpedient extends BaseTest {
-
+	
 	String entorn = carregarPropietat("entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomSubDefProc = carregarPropietat("defproc.deploy.definicio.subproces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String pathDefProc = carregarPropietat("defproc.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String pathDefProc = carregarPropietat("defproc.deploy.definicio.subproces.main.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String pathSubDefProc = carregarPropietat("defproc.subproces.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String exportDefProc = carregarPropietat("defproc.tasca_dades.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
-	
+	String tipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	static String entornActual;
 	
 	@Test
@@ -38,7 +38,7 @@ public class DadesExpedient extends BaseTest {
 		actions.click();
 		actions.build().perform();
 
-		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathSubDefProc);
+		desplegarDefinicioProcesEntorn(nomTipusExp, nomSubDefProc, pathSubDefProc);
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
 		
 		importarDadesDefPro(nomDefProc, exportDefProc);
@@ -249,7 +249,7 @@ public class DadesExpedient extends BaseTest {
 						
 			screenshotHelper.saveScreenshot("tramitar/dadesexpedient/ordre_i_agrupacions/2"+i+".png");
 			
-			driver.findElement(By.xpath("//*[@id='command']/div[3]/button[1]")).click();
+			driver.findElement(By.xpath("//button[contains(text(), 'Modificar')]")).click();
 			
 			existeixElementAssert("//*[@id='infos']/p", "No se modificó la agrupación de la fila " + i);
 
@@ -306,7 +306,7 @@ public class DadesExpedient extends BaseTest {
 					
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/ordre_i_agrupacions/6"+i+".png");
 		
-		driver.findElement(By.xpath("//*[@id='command']/div[3]/button[1]")).click();
+		driver.findElement(By.xpath("//button[contains(text(), 'Crear')]")).click();
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se creó la agrupación de la fila " + numAgrupaciones+1);
 		
@@ -810,23 +810,7 @@ public class DadesExpedient extends BaseTest {
 	}
 	
 	@Test
-	public void y_eliminar_ultimo_expediente() throws InterruptedException {
-		carregarUrlConfiguracio();
-		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();	
-		
-		eliminarExpedient(null, null);
-		
-		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/eliminar_ultimo_expediente/1.png");		
-	}
-	
-	@Test
-	public void z_borrar_dades() throws InterruptedException {
+	public void z_limpiar() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
 		// Selecció directe
@@ -836,9 +820,12 @@ public class DadesExpedient extends BaseTest {
 		actions.click();
 		actions.build().perform();
 		
-		eliminarDefinicioProces(nomSubDefProc);
+		eliminarExpedient(null, null, tipusExp);
+			
+		// Eliminar la def de proceso
 		eliminarDefinicioProces(nomDefProc);
-
-		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/borrar_dades/2.png");
+		eliminarDefinicioProces(nomSubDefProc);
+		
+		screenshotHelper.saveScreenshot("TasquesDadesTasca/finalizar_expedient/1.png");	
 	}
 }
