@@ -226,6 +226,8 @@ public class PluginService {
 					return true;
 				} else if (TipusEstat.ESBORRAT.equals(portasignatures.getEstat())) {
 					return true;
+				} else if (TipusEstat.PROCESSAT.equals(portasignatures.getEstat())) {
+					return true;
 				} else {
 					logger.error("El document rebut al callback (id=" + id + ") no està pendent del callback, el seu estat és " + portasignatures.getEstat());
 				}
