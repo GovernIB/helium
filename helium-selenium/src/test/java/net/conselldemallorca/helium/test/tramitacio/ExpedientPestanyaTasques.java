@@ -447,7 +447,7 @@ public class ExpedientPestanyaTasques extends BaseTest {
 		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/visualizar_tasques/2.png");
 
 		assertTrue("No había ningún expediente", !driver.findElements(By.xpath("//*[@id='registre']/tbody/tr")).isEmpty());
-
+		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[6]/a/img")).click();
 
 		driver.findElement(By.xpath("//*[@id='tabnav']/li[6]/a")).click();
@@ -468,16 +468,16 @@ public class ExpedientPestanyaTasques extends BaseTest {
 			assertTrue("Error al asignar el responsable", responsableOriginal.equals(responsable));
 		
 			driver.findElement(By.xpath("//img[@alt='Reassignar'][1]")).click();
-			driver.findElement(By.xpath("//*[@id='expression0']")).sendKeys("group(admin)");
+			driver.findElement(By.xpath("//*[@id='expression0']")).sendKeys("group(arq_tec)");
 			
 			driver.findElement(By.xpath("//*[@id='command']/div[3]/button[1]")).click();
 			
 			existeixElementAssert("//*[@id='infos']/p", "No se reasignó la tarea al grupo correctamente");
 			
-//			String grupoOriginal = "";
-//			String grupo = driver.findElement(By.xpath("//img[@alt='Reassignar'][1]/parent::a/parent::td/parent::tr/td[8]")).getText();
+			String grupoOriginal = "Usuari Administrador, Mariona Mestre";
+			String grupo = driver.findElement(By.xpath("//img[@alt='Reassignar'][1]/parent::a/parent::td/parent::tr/td[8]")).getText();
 			
-//			assertTrue("Error al asignar el responsable", grupoOriginal.equals(grupo));
+			assertTrue("Error al asignar el responsable", grupoOriginal.equals(grupo));
 		}
 	}
 	
