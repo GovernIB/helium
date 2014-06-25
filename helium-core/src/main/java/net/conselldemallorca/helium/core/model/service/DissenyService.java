@@ -1203,7 +1203,8 @@ public class DissenyService {
 					termini.isLaborable(),
 					termini.getDiesPrevisAvis(),
 					termini.isAlertaPrevia(),
-					termini.isAlertaFinal());
+					termini.isAlertaFinal(),
+					termini.isManual());
 			terminisDto.add(dto);
 		}
 		definicioProcesExportacio.setTerminis(terminisDto);
@@ -2818,6 +2819,7 @@ public class DissenyService {
 			nou.setAlertaPrevia(termini.isAlertaPrevia());
 			nou.setAlertaFinal(termini.isAlertaFinal());
 			nou.setAlertaCompletat(termini.isAlertaCompletat());
+			nou.setManual(termini.isManual());
 			terminiDao.saveOrUpdate(nou);
 		}
 		// Propaga les tasques

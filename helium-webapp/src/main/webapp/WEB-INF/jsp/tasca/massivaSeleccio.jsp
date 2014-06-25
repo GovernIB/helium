@@ -11,7 +11,6 @@
 	<title><fmt:message key="tasca.pllistat.tasq_pendents"/></title>
 	<meta name="titolcmp" content="<fmt:message key="comuns.tasques"/>" />
 	<c:import url="../common/formIncludes.jsp"/>
-	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<script type="text/javascript">
@@ -23,10 +22,20 @@
 		    var any = d.getFullYear();
 		    var hora = ("0" + d.getHours()).slice(-2);
 		    var minuts = ("0" + d.getMinutes()).slice(-2);
-		    var ara = dia + '/' + mes + '/' + any + ' ' + hora + ':' + minuts
+		    var ara = dia + '/' + mes + '/' + any + ' ' + hora + ':' + minuts;
 		    
 			$('#inici').datetimepicker({defaultValue: ara});
-		});
+		});	
+		
+		function selecTots() {
+			var ch = $("#selTots:checked").val();
+			$("#registre input[type='checkbox'][name='tascaId']").each(function() {
+				if(!this.disabled) {
+					this.checked = ch;
+				}
+			});
+		}
+		
 		function valorCorreu() {
 			var correu = $("#correu").is(":checked") ? true : false;
 			$("#correu").val(correu);
@@ -61,7 +70,7 @@
 		</div>
 		<input type="hidden" name="id" value="${param.id}"/>
 		<display:table name="personaLlistat" id="registre" requestURI="" class="displaytag selectable">
-			<display:column>
+			<display:column title="<input id='selTots' type='checkbox' value='false' onclick='selecTots()'>">
 				<c:if test="${registre.id == param.id}"><input type="hidden" name="tascaId" value="${registre.id}"/></c:if>
 				<c:set var="tascaSeleccionada" value="${registre.id == param.id}"/>
 				<c:forEach var="tascaMassiva" items="${seleccioMassiva}">
