@@ -19,7 +19,7 @@ function confirmar(e) {
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
 	if ("cancel" == submitAction)
-		return true;
+		return confirm("<fmt:message key='tasca.form.cancelar' />");
 	return confirm("<fmt:message key='expedient.iniciar.confirm_iniciar' />");
 }
 function canviAny(element) {

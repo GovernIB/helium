@@ -18,7 +18,9 @@
 		if (!e) var e = window.event;
 		e.cancelBubble = true;
 		if (e.stopPropagation) e.stopPropagation();
-		if ("cancel" == submitAction || "guardar" == submitAction) {
+		if ("cancel" == submitAction) {
+			return confirm("<fmt:message key='tasca.form.cancelar' />");
+		} else if ("guardar" == submitAction) {
 			return true;
 		}
 <c:choose>

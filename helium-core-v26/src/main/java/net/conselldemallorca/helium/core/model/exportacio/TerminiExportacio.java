@@ -25,8 +25,7 @@ public class TerminiExportacio implements Serializable {
 	private boolean alertaPrevia;
 	private boolean alertaFinal;
 	private boolean alertaCompletat;
-
-
+	private boolean isManual;
 
 	public TerminiExportacio(
 			String codi,
@@ -38,7 +37,8 @@ public class TerminiExportacio implements Serializable {
 			boolean laborable,
 			Integer diesPrevisAvis,
 			boolean alertaPrevia,
-			boolean alertaFinal) {
+			boolean alertaFinal,
+			boolean isManual) {
 		this.codi = codi;
 		this.nom = nom;
 		this.descripcio = descripcio;
@@ -49,6 +49,7 @@ public class TerminiExportacio implements Serializable {
 		this.diesPrevisAvis = diesPrevisAvis;
 		this.alertaPrevia = alertaPrevia;
 		this.alertaFinal = alertaFinal;
+		this.isManual = isManual;
 	}
 
 	public String getCodi() {
@@ -117,9 +118,12 @@ public class TerminiExportacio implements Serializable {
 	public void setAlertaCompletat(boolean alertaCompletat) {
 		this.alertaCompletat = alertaCompletat;
 	}
-
-
-
+	public boolean isManual() {
+		return isManual;
+	}
+	public void setManual(boolean isManual) {
+		this.isManual = isManual;
+	}
+	
 	private static final long serialVersionUID = 1L;
-
 }
