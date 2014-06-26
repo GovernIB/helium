@@ -99,7 +99,7 @@ public class TasquesExpedient extends BaseTest {
 		
 		assertEquals("No s'ha pogut seleccionar l'entorn de forma directe.", entorn, driver.findElement(By.xpath("//div[@id='page-entorn-title']/h2/span")).getText().trim());
 			
-		// Tareas proceso principal
+		// Tareas subproceso
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomSubDefProc + "')]/td[1]/a")).click();
 		driver.findElement(By.xpath("//*[@id='tabnav']/li[2]/a")).click();
 		
@@ -110,7 +110,7 @@ public class TasquesExpedient extends BaseTest {
 			i++;
 		}
 		
-		assertTrue("No existían 2 tareas en el subproceso", tareasPrincipal.size() == 2);
+		assertTrue("No existían 2 tareas en el subproceso", tareasSubproceso.size() == 2);
 		
 		String[] res = iniciarExpediente(nomDefProc,codTipusExp,"SE-22/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
 				
