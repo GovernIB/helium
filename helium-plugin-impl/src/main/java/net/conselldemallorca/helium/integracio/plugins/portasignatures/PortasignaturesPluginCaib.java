@@ -20,6 +20,9 @@ import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.Anne
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.Application;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.CWSSoapBindingStub;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.CwsProxy;
+import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.DeleteRequest;
+import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.DeleteRequestDocument;
+import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.DeleteResponse;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.DocumentAttributes;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.DownloadRequest;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.DownloadRequestDocument;
@@ -110,6 +113,34 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 			}
 		} catch (Exception ex) {
 			throw new PortasignaturesPluginException("Error al enviar el document al portasignatures", ex);
+		}
+	}
+	
+	/**
+	 * elimina un document del Portasignatures.
+	 * 
+	 * @param documents
+	 * 
+	 * @throws Exception
+	 */
+	public void deleteDocuments (
+			List<Integer> documents) throws PortasignaturesPluginException {
+		CwsProxy factory = new CwsProxy();
+		factory.setEndpoint((String)GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.url"));
+		CWSSoapBindingStub stub = (CWSSoapBindingStub)factory.getCws();
+		
+		try {
+			DeleteRequest request = new DeleteRequest(
+					getRequestApplication(),
+					getDeleteRequestDocuments(documents), 
+					null, 
+					null);
+			DeleteResponse response = stub.deleteDocuments(request);
+			if (response.getResult().getCode() != 0) {
+				throw new PortasignaturesPluginException("Error al eliminar el document del portasignatures: la resposta ha retornat l'error " + response.getResult().getMessage());
+			}
+		} catch (Exception ex) {
+			throw new PortasignaturesPluginException("Error al eliminar el document al portasignatures", ex);
 		}
 	}
 
@@ -217,6 +248,17 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 		return application;
 	}
 
+	private DeleteRequestDocument[] getDeleteRequestDocuments(
+			List<Integer> documents) {
+		DeleteRequestDocument[] documentsRequest = new DeleteRequestDocument[documents.size()];
+		int i = 0;
+		for (Integer document: documents) {
+			DeleteRequestDocument documentRequest = new DeleteRequestDocument(document);
+			documentsRequest[i++] = documentRequest; 
+		}
+			return documentsRequest;
+	}
+	
 	private UploadRequestDocument getRequestDocument(
 			DocumentPortasignatures document,
 			List<DocumentPortasignatures> annexos,

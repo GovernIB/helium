@@ -48,5 +48,10 @@ public class PortasignaturesPluginMock implements PortasignaturesPlugin {
 			Integer documentId) throws PortasignaturesPluginException {
 		return new ArrayList<byte[]>();
 	}
+	
+	public void deleteDocuments (
+			List<Integer> documents) throws PortasignaturesPluginException {
+		
+	}
 
 }

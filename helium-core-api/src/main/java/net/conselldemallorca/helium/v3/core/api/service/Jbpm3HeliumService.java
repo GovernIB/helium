@@ -756,6 +756,13 @@ public interface Jbpm3HeliumService {
 			Long processInstanceId,
 			String transicioOK,
 			String transicioKO) throws PluginException;
+	
+	/**
+	 * 
+	 * @param documentsId
+	 */
+	public void portasignaturesEliminar(
+			List<Integer> documentsId) throws PluginException;
 
 	/**
 	 * 

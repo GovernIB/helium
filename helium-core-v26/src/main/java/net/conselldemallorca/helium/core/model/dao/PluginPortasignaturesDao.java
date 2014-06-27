@@ -72,6 +72,16 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 			throw new PluginException("Error al enviar el document al portasignatures", ex);
 		}
 	}
+	
+	public void deleteDocuments(
+			List<Integer> documentIds) throws PluginException {
+		try {
+			getPortasignaturesPlugin().deleteDocuments(documentIds);
+		} catch (PortasignaturesPluginException ex) {
+			logger.error("Error al eliminar el document al portasignatures", ex);
+			throw new PluginException("Error al eliminar el document al portasignatures", ex);
+		}
+	}
 
 	public List<byte[]> obtenirSignaturesDocument(
 			Integer documentId) throws Exception {

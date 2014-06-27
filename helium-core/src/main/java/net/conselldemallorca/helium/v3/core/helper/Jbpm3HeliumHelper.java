@@ -1290,6 +1290,13 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				transicioOK,
 				transicioKO);
 	}
+	
+	@Override
+	public void portasignaturesEliminar(
+			List<Integer> documentsId) throws PluginException {
+		imprimirFuncio("portasignaturesEliminar");
+		pluginService.deletePortasignatures(documentsId);
+	}
 
 	@Override
 	public void zonaperExpedientCrear(

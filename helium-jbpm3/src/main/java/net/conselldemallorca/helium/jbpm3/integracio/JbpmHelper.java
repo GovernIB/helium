@@ -37,6 +37,7 @@ import net.conselldemallorca.helium.jbpm3.command.FindTaskInstanceForTokenAndTas
 import net.conselldemallorca.helium.jbpm3.command.GetGroupTaskListCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetPersonalTaskListCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetProcessDefinitionByIdCommand;
+import net.conselldemallorca.helium.jbpm3.command.GetProcessInstancesEntornCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetProcessInstancesTreeCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetProcessLogByIdCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetRootProcessInstancesForActiveTasksCommand;
@@ -425,6 +426,20 @@ public class JbpmHelper {
 			resultat.add(new JbpmProcessInstance(pd));
 		}
 		adminService.mesuraCalcular("jBPM findProcessInstancesWithProcessDefinitionName", "jbpmDao");
+		return resultat;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<JbpmProcessInstance> findProcessInstancesWithProcessDefinitionNameAndEntorn(String processName, Long entornId) {
+		adminService.mesuraIniciar("jBPM findProcessInstancesWithProcessDefinitionNameAndEntorn", "jbpmDao");
+		List<JbpmProcessInstance> resultat = new ArrayList<JbpmProcessInstance>();
+		GetProcessInstancesEntornCommand command = new GetProcessInstancesEntornCommand();
+		command.setProcessDefinitionName(processName);
+		command.setEntornId(entornId);
+		for (ProcessInstance pd: (List<ProcessInstance>)commandService.execute(command)) {
+			resultat.add(new JbpmProcessInstance(pd));
+		}
+		adminService.mesuraCalcular("jBPM findProcessInstancesWithProcessDefinitionNameAndEntorn", "jbpmDao");
 		return resultat;
 	}
 

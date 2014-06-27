@@ -86,7 +86,7 @@ function obtenirId(pos){
 		<c:param name="tabActiu" value="agrupacions"/>
 	</c:import>
 
-	<display:table name="agrupacions" id="registre" requestURI="" class="displaytag selectable">
+	<display:table name="agrupacions" id="registre" requestURI="" class="displaytag">
 		<display:column property="codi" titleKey="comuns.codi" url="/definicioProces/campAgrupacioForm.html?definicioProcesId=${param.definicioProcesId}" paramId="id" paramProperty="id"/>
 		<display:column property="nom" titleKey="comuns.nom"/>
 <%-- 		<display:column> --%>

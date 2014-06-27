@@ -20,7 +20,7 @@ function confirmar(e) {
 	return confirm("<fmt:message key='permisos.exp.confirmacio' />");
 }
 function isValidForm(){
-	if ($("#nom0").val() == "") {
+	if (submitAction == "submit" && $("#nom0").val() == "") {
 		alert("<fmt:message key='error.usurol.buit' />");
 		return false;
 	}

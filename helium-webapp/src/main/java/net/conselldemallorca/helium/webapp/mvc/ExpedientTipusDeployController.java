@@ -149,7 +149,7 @@ public class ExpedientTipusDeployController extends BaseController {
 				    				dto.setParam2(execucioMassivaService.serialize(Integer.valueOf(dp.getVersio())));
 //				    				dto.setExpedientTipusId(command.getExpedientTipusId());
 				    				dto.setTipus(ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC);
-				    				List<JbpmProcessInstance> procInstances = expedientService.findProcessInstancesWithProcessDefinitionName(dp.getJbpmKey());
+				    				List<JbpmProcessInstance> procInstances = expedientService.findProcessInstancesWithProcessDefinitionNameAndEntorn(dp.getJbpmKey(), entorn.getId());
 				    				List<String> pi_ids = new ArrayList<String>();
 				    				for (JbpmProcessInstance pi: procInstances) {
 				    					pi_ids.add(pi.getId());

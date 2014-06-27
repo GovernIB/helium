@@ -79,7 +79,7 @@
 	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
 		<property name="entityManagerFactory" ref="entityManagerFactory" />
 	</bean>
-
+	
 	<tx:annotation-driven transaction-manager="transactionManager"/>
 	<tx:advice id="transactionAdvice" transaction-manager="transactionManager">
 		<tx:attributes>
@@ -88,11 +88,29 @@
 			<tx:method name="*" propagation="REQUIRED"/>
 		</tx:attributes>
 	</tx:advice>
+
+	<bean id="incidentThrowsAdvice" class="net.conselldemallorca.helium.core.model.exception.IncidentThrowsAdviceHelper"/>	
 	<aop:config>
 		<aop:pointcut id="serviceOperationCommon" expression="execution(* net.conselldemallorca.helium.core.model.service.*Service.*(..))"/>
 		<aop:advisor advice-ref="transactionAdvice" pointcut-ref="serviceOperationCommon" />
+		<aop:aspect id="afterThrowingAdvice" ref="incidentThrowsAdvice">
+			<aop:before method="before" pointcut="execution(* net.conselldemallorca.helium.core.model.service.ExpedientService*.*(..)) 
+												|| execution(* net.conselldemallorca.helium.core.model.service.TascaService*.*(..)) 
+												|| execution(* net.conselldemallorca.helium.v3.core.service.ExpedientService*.*(..)) 
+												|| execution(* net.conselldemallorca.helium.v3.core.service.TascaService*.*(..)) 
+												|| execution(* net.conselldemallorca.helium.jbpm3.spring.SpringJobExecutorThread.executeJob(..))" />
+			<aop:after-throwing method="afterThrowing" throwing="e" pointcut="execution(* net.conselldemallorca.helium.core.model.service.ExpedientService*.*(..)) 
+												|| execution(* net.conselldemallorca.helium.core.model.service.TascaService*.*(..))  
+												|| execution(* net.conselldemallorca.helium.v3.core.service.ExpedientService*.*(..)) 
+												|| execution(* net.conselldemallorca.helium.v3.core.service.TascaService*.*(..))" />
+			<aop:after-returning method="after" pointcut="execution(* net.conselldemallorca.helium.core.model.service.ExpedientService*.*(..)) 
+												|| execution(* net.conselldemallorca.helium.core.model.service.TascaService*.*(..)) 
+												|| execution(* net.conselldemallorca.helium.v3.core.service.ExpedientService*.*(..)) 
+												|| execution(* net.conselldemallorca.helium.v3.core.service.TascaService*.*(..)) 
+												|| execution(* net.conselldemallorca.helium.jbpm3.spring.SpringJobExecutorThread.executeJob(..))" />			
+		</aop:aspect>
 	</aop:config>
-
+	
 	<bean id="actionLogger" class="net.conselldemallorca.helium.core.security.audit.HibernateActionLogger" lazy-init="true">
 		<property name="sessionFactory" ref="sessionFactory"/>
 	</bean>
@@ -132,5 +150,4 @@
 			</set>
 		</property>
 	</bean>
-
 </beans>
