@@ -87,9 +87,21 @@
 			<tx:method name="*" propagation="REQUIRED"/>
 		</tx:attributes>
 	</tx:advice>
+	
+	<bean id="incidentThrowsAdvice" class="net.conselldemallorca.helium.core.model.exception.IncidentThrowsAdviceHelper"/>
 	<aop:config>
 		<aop:pointcut id="serviceOperationCommon" expression="execution(* net.conselldemallorca.helium.core.model.service.*Service.*(..))"/>
 		<aop:advisor advice-ref="txAdvice" pointcut-ref="serviceOperationCommon" />
+		<aop:aspect id="afterThrowingAdvice" ref="incidentThrowsAdvice">
+			<aop:before method="before" pointcut="execution(* net.conselldemallorca.helium.core.model.service.ExpedientService*.*(..)) 
+												|| execution(* net.conselldemallorca.helium.core.model.service.TascaService*.*(..)) 
+												|| execution(* net.conselldemallorca.helium.jbpm3.spring.SpringJobExecutorThread.executeJob(..))" />
+			<aop:after-throwing method="afterThrowing" throwing="e" pointcut="execution(* net.conselldemallorca.helium.core.model.service.ExpedientService*.*(..)) 
+												|| execution(* net.conselldemallorca.helium.core.model.service.TascaService*.*(..))" />
+			<aop:after-returning method="after" pointcut="execution(* net.conselldemallorca.helium.core.model.service.ExpedientService*.*(..)) 
+												|| execution(* net.conselldemallorca.helium.core.model.service.TascaService*.*(..)) 
+												|| execution(* net.conselldemallorca.helium.jbpm3.spring.SpringJobExecutorThread.executeJob(..))" />			
+		</aop:aspect>
 	</aop:config>
 	<tx:annotation-driven transaction-manager="txManager"/>
 

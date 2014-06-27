@@ -26,6 +26,7 @@ import net.conselldemallorca.helium.core.model.dao.UsuariDao;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.exception.IllegalStateException;
+import net.conselldemallorca.helium.core.model.exception.IncidentThrowsAdviceHelper;
 import net.conselldemallorca.helium.core.model.exception.PluginException;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
@@ -189,6 +190,7 @@ public class PluginService {
 					expedient,
 					importancia,
 					dataLimit);
+			IncidentThrowsAdviceHelper.addDadesAdvicePortasignatures(doc);
 			Calendar cal = Calendar.getInstance();
 			Portasignatures portasignatures = new Portasignatures();
 			portasignatures.setDocumentId(doc);
@@ -206,6 +208,12 @@ public class PluginService {
 		}
 	}
 
+	public void deletePortasignatures(
+			List<Integer> documentsId) throws PluginException {
+//		System.out.println(">>>>>>>>>>>>>>>>>>>>>>> Okay - we're in the portasignatures delete handler... Documents: " + documentsId);
+		pluginPortasignaturesDao.deleteDocuments(documentsId);
+	}
+	
 	public boolean processarDocumentCallbackPortasignatures(
 			Integer id,
 			boolean rebujat,

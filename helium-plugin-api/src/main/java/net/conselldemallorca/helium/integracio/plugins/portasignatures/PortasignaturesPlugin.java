@@ -43,4 +43,12 @@ public interface PortasignaturesPlugin {
 	 */
 	public List<byte[]> obtenirSignaturesDocument(Integer documentId) throws PortasignaturesPluginException;
 
+	/**
+	 * Elimina documents del portasignatures
+	 * 
+	 * @param documents
+	 * 
+	 * @throws PortasignaturesPluginException
+	 */
+	public void deleteDocuments (List<Integer> documents) throws PortasignaturesPluginException;
 }

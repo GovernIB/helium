@@ -300,7 +300,9 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 		if (titol != null && titol.length() > 0)
 			hql += " and lower(ex.titol) like lower(:titol)";
 		if (numero != null && numero.length() > 0)
-			hql += " and (lower(ex.numero) like lower(:numero) OR lower(ex.numeroDefault) like lower(:numero))";
+//			hql += " and (lower(ex.numero) like lower(:numero) OR lower(ex.numeroDefault) like lower(:numero))";
+			hql += " and ((ex.tipus.teNumero = true and lower(ex.numero) like lower(:numero)) "
+					+ "or (ex.tipus.teNumero = false and lower(ex.numeroDefault) like lower(:numero)))";
 		if (dataInici1 != null && dataInici2 != null) {
 			hql += " and ex.dataInici >= :dataInici1 and ex.dataInici <= :dataInici2";
 		} else {
@@ -453,7 +455,10 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 		if (titol != null && titol.length() > 0)
 			crit.add(Restrictions.ilike("titol", "%" + titol + "%"));
 		if (numero != null && numero.length() > 0)
-			crit.add(Restrictions.ilike("numero", "%" + numero + "%"));
+			crit.add(Restrictions.or(
+					Restrictions.and(Restrictions.eq("tip.teNumero", true), Restrictions.ilike("numero", "%" + numero + "%")),
+					Restrictions.and(Restrictions.eq("tip.teNumero", false), Restrictions.ilike("numeroDefault", "%" + numero + "%"))));
+//			crit.add(Restrictions.ilike("numero", "%" + numero + "%"));
 		if (dataInici1 != null && dataInici2 != null) {
 			crit.add(Restrictions.between("dataInici", dataInici1, dataInici2));
 		} else {

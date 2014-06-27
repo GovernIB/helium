@@ -1302,6 +1302,7 @@ public class DissenyService {
 		dto.setFormextUrl(expedientTipus.getFormextUrl());
 		dto.setFormextUsuari(expedientTipus.getFormextUsuari());
 		dto.setFormextContrasenya(expedientTipus.getFormextContrasenya());
+		dto.setJbpmProcessDefinitionKey(expedientTipus.getJbpmProcessDefinitionKey());
 		List<EstatExportacio> estats = new ArrayList<EstatExportacio>();
 		for (Estat estat: expedientTipus.getEstats()) {
 			estats.add(new EstatExportacio(estat.getCodi(), estat.getNom(), estat.getOrdre()));
@@ -1436,6 +1437,7 @@ public class DissenyService {
 		expedientTipus.setExpressioNumero(exportacio.getExpressioNumero());
 		expedientTipus.setReiniciarCadaAny(exportacio.isReiniciarCadaAny());
 		expedientTipus.setSistraTramitCodi(exportacio.getSistraTramitCodi());
+		expedientTipus.setJbpmProcessDefinitionKey(exportacio.getJbpmProcessDefinitionKey());
 		/*expedientTipus.setSistraTramitMapeigCamps(exportacio.getSistraTramitMapeigCamps());
 		expedientTipus.setSistraTramitMapeigDocuments(exportacio.getSistraTramitMapeigDocuments());
 		expedientTipus.setSistraTramitMapeigAdjunts(exportacio.getSistraTramitMapeigAdjunts());*/

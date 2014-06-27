@@ -228,6 +228,7 @@ public class EntornService {
 			dto.setFormextUrl(expedientTipus.getFormextUrl());
 			dto.setFormextUsuari(expedientTipus.getFormextUsuari());
 			dto.setFormextContrasenya(expedientTipus.getFormextContrasenya());
+			dto.setJbpmProcessDefinitionKey(expedientTipus.getJbpmProcessDefinitionKey());
 			List<EstatExportacio> estats = new ArrayList<EstatExportacio>();
 			for (Estat estat: expedientTipus.getEstats()) {
 				estats.add(new EstatExportacio(estat.getCodi(), estat.getNom(), estat.getOrdre()));
@@ -413,6 +414,7 @@ public class EntornService {
 			nou.setFormextUrl(expedientTipus.getFormextUrl());
 			nou.setFormextUsuari(expedientTipus.getFormextUsuari());
 			nou.setFormextContrasenya(expedientTipus.getFormextContrasenya());
+			nou.setJbpmProcessDefinitionKey(expedientTipus.getJbpmProcessDefinitionKey());
 			expedientTipusDao.saveOrUpdate(nou);
 			// Crea els estats del tipus d'expedient.
 			for (EstatExportacio estat: expedientTipus.getEstats()) {

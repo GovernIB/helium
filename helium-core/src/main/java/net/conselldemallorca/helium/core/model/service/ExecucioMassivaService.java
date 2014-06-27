@@ -169,6 +169,7 @@ public class ExecucioMassivaService {
 		return resposta;
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public String getJsonExecucionsMassivesByUser(String username, Integer results) {
 		JSONArray ljson = new JSONArray();
 		
@@ -202,8 +203,9 @@ public class ExecucioMassivaService {
 					mjson_exp.put("id", expedient.getId());
 					mjson_exp.put("titol", titol);
 					mjson_exp.put("estat", expedient.getEstat().name());
-//					mjson_exp.put("error", StringEscapeUtils.escapeJavaScript(expedient.getError()));
-					mjson_exp.put("error", JSONValue.escape(expedient.getError()));
+					String error = expedient.getError();
+					if (error != null) error = error.replace("'", "&#8217;").replace("\"", "&#8220;");
+					mjson_exp.put("error", JSONValue.escape(error));
 					ljson_exp.add(mjson_exp);
 					
 //			    	String error = expedient.getError();
@@ -330,6 +332,7 @@ public class ExecucioMassivaService {
 		return resposta;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void executarExecucioMassiva(OperacioMassivaDto dto) throws Exception {
 		logger.debug("Executant la acció massiva (expedientTipusId=" + dto.getExpedientTipusId() + ", dataInici=" + dto.getDataInici() + ", expedient=" + dto.getId() + ", acció=" + dto.getTipus());
 		try {

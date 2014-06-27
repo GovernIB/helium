@@ -43,7 +43,8 @@ public class GetProcessInstancesEntornCommand extends AbstractGetObjectBaseComma
     return retrieveProcessInstanceDetails(query.list());
   }
 
-  public List retrieveProcessInstanceDetails(List processInstanceList) {
+  @SuppressWarnings("rawtypes")
+public List retrieveProcessInstanceDetails(List processInstanceList) {
 	  Iterator it = processInstanceList.iterator();
 	  while (it.hasNext()) {
 		  retrieveProcessInstance((ProcessInstance)it.next());

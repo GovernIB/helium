@@ -27,14 +27,13 @@ public class ExpedientTipusExportacio implements Serializable {
 	private String formextUrl;
 	private String formextUsuari;
 	private String formextContrasenya;
+	private String jbpmProcessDefinitionKey;
 	private List<EstatExportacio> estats;
 	private List<MapeigSistraExportacio> mapeigSistras;
 	private List<DominiExportacio> dominis;
 	private List<EnumeracioExportacio> enumeracions;
 	private List<DefinicioProcesExportacio> definicionsProces;
 	private List<ConsultaExportacio> consultes;
-
-
 
 	public ExpedientTipusExportacio(
 			String codi,
@@ -114,6 +113,12 @@ public class ExpedientTipusExportacio implements Serializable {
 	}
 	public void setFormextContrasenya(String formextContrasenya) {
 		this.formextContrasenya = formextContrasenya;
+	}
+	public String getJbpmProcessDefinitionKey() {
+		return jbpmProcessDefinitionKey;
+	}
+	public void setJbpmProcessDefinitionKey(String jbpmProcessDefinitionKey) {
+		this.jbpmProcessDefinitionKey = jbpmProcessDefinitionKey;
 	}
 	public List<EstatExportacio> getEstats() {
 		return estats;
