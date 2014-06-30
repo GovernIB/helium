@@ -39,7 +39,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 
 		screenshotHelper.saveScreenshot("TasquesDadesTasca/iniciar_expedient/1.png");
 
-		crearTipusExpedientTest(nomTipusExp, codTipusExp);
+		crearTipusExpedient(nomTipusExp, codTipusExp);
 		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
 

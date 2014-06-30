@@ -9,6 +9,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -154,6 +155,16 @@ public abstract class BaseTest {
 		String property = properties.getProperty(propertyKey);
 		assertNotNull(msgError, property);
 		return property;
+	}
+	protected String carregarPropietatPath(String propertyKey, String msgError) {
+		String property = properties.getProperty(propertyKey);
+		assertNotNull(msgError, property);
+		String subpath = "/src/test/resources/net/conselldemallorca/helium";
+		String path = MessageFormat.format(property, System.getProperty("user.dir") + subpath);
+		if (System.getProperty("os.name").toLowerCase().indexOf("win") >= 0) {
+			path = path.replace("/", "\\");
+		}
+		return path;
 	}
 	protected void carregarUrl(String urlKey) {
 		baseUrl = properties.getProperty(urlKey);
@@ -762,6 +773,37 @@ public abstract class BaseTest {
 	
 	// TIPUS D'EXPEDIENT
 	// ............................................................................................................	
+	protected void crearTipusExpedient(String nom, String codi) {
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+		if (noExisteixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + codi + "')]")) {
+			driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
+			driver.findElement(By.id("codi0")).sendKeys(codi);
+			driver.findElement(By.id("nom0")).sendKeys(nom);
+			driver.findElement(By.xpath("//button[@value='submit']")).click();
+			actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+			actions.build().perform();
+			actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/llistat.html')]")));
+			actions.click();
+			actions.build().perform();
+			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codi + "')]", "No s'ha pogut crear el tipus d'expedient de test");
+		}
+	}
+	
+	protected void seleccionarTipExp(String codTipExp) {
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipExp + "')]", "No s'ha trobat el tips d'expedient");
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipExp + "')]/td[1]/a")).click();
+	}
+	
 	protected void eliminarTipusExpedient(String codiTipusExp) {
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
@@ -1102,25 +1144,6 @@ public abstract class BaseTest {
 		return true;
 	}
 	
-	protected void crearTipusExpedientTest(String nom, String codi) {
-		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/llistat.html')]")));
-		actions.click();
-		actions.build().perform();
-		if (noExisteixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + codi + "')]")) {
-			driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
-			driver.findElement(By.id("codi0")).sendKeys(codi);
-			driver.findElement(By.id("nom0")).sendKeys(nom);
-			driver.findElement(By.xpath("//button[@value='submit']")).click();
-			actions.moveToElement(driver.findElement(By.id("menuDisseny")));
-			actions.build().perform();
-			actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/llistat.html')]")));
-			actions.click();
-			actions.build().perform();
-			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codi + "')]", "No s'ha pogut crear el tipus d'expedient de test");
-		}
-	}
 
 	protected void consultarExpedientes(String numExpediente, String tituloExpediente, String tipusExp) {
 		actions.moveToElement(driver.findElement(By.id("menuConsultes")));

@@ -25,7 +25,7 @@ public class DefinicioProces extends BaseTest {
 	public void a_inicialitzacio() {
 		carregarUrlConfiguracio();
 		crearEntornTest(entorn, titolEntorn, usuari);
-		crearTipusExpedientTest(nomTipusExp, codTipusExp);
+		crearTipusExpedient(nomTipusExp, codTipusExp);
 	}
 	
 	@Test
@@ -257,7 +257,7 @@ public class DefinicioProces extends BaseTest {
 		}
 	}
 	
-	protected void crearTipusExpedientTest(String nom, String codi) {
+	protected void crearTipusExpedient(String nom, String codi) {
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/llistat.html')]")));

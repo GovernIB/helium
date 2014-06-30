@@ -39,7 +39,7 @@ public class DocumentsExpedient extends BaseTest {
 
 		screenshotHelper.saveScreenshot("documentsexpedient/iniciar_expedient/1.png");
 
-		crearTipusExpedientTest(nomTipusExp, codTipusExp);
+		crearTipusExpedient(nomTipusExp, codTipusExp);
 		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
 		importarDadesDefPro(nomDefProc, properties.getProperty("defproc.termini.exp.export.arxiu.path"));
