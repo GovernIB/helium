@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.core.model.dao;
 
 import net.conselldemallorca.helium.core.model.service.AdminService;
+import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.model.service.UpdateService;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmDao;
 
@@ -132,6 +133,11 @@ public class DaoProxy implements ApplicationContextAware {
 		waitContext();
 		if (ctx == null) return null;
 		return (AdminService)ctx.getBean("adminService", AdminService.class);
+	}
+	public TascaService getTascaService() {
+		waitContext();
+		if (ctx == null) return null;
+		return (TascaService)ctx.getBean("tascaService", TascaService.class);
 	}
 
 	private void waitContext() {

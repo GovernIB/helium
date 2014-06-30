@@ -1879,7 +1879,7 @@ public class TascaService {
 		}
 	}
 
-	private DadesCacheTasca getDadesCacheTasca(JbpmTask task) {
+	public DadesCacheTasca getDadesCacheTasca(JbpmTask task) {
 		DadesCacheTasca dadesCache = null;
 		if (!task.isCacheActiu()) {
 			String rootProcessInstanceId = jbpmDao.getRootProcessInstance(task.getProcessInstanceId()).getId();

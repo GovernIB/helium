@@ -31,6 +31,7 @@ import java.util.Set;
 import net.conselldemallorca.helium.core.model.dao.DaoProxy;
 import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.core.model.service.ServiceProxy;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -171,6 +172,7 @@ public class TaskInstance extends VariableContainer implements Identifiable,
 			executionContext.setTaskInstance(this);
 			executionContext.setTask(task);
 			task.fireEvent(Event.EVENTTYPE_TASK_CREATE, executionContext);
+			DaoProxy.getInstance().getTascaService().getDadesCacheTasca(new JbpmTask(executionContext.getTaskInstance()));
 		}
 
 		// WARNING: The events create and assign are fired in the right order,
