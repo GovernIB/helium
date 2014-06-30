@@ -30,12 +30,7 @@ public class TasquesSubprocessExpedient extends BaseTest {
 	public void a_crear_dades() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomSubDefProc, pathSubDefProc);
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
@@ -50,12 +45,7 @@ public class TasquesSubprocessExpedient extends BaseTest {
 	public void b_pas_proces_subproces() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 		
 		screenshotHelper.saveScreenshot("tramitar/modificarInfoExp/1.png");
 					
@@ -209,12 +199,7 @@ public class TasquesSubprocessExpedient extends BaseTest {
 	public void z_limpiar() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 		
 		eliminarExpedient(null, null, tipusExp);
 			

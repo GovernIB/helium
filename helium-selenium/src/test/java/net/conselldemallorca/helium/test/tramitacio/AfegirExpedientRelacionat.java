@@ -3,7 +3,6 @@ package net.conselldemallorca.helium.test.tramitacio;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
-import java.util.List;
 
 import net.conselldemallorca.helium.test.util.BaseTest;
 
@@ -11,7 +10,6 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AfegirExpedientRelacionat extends BaseTest {
@@ -30,12 +28,7 @@ public class AfegirExpedientRelacionat extends BaseTest {
 	public void a_afegirExpedientRelacionat() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 		
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
 		importarDadesDefPro(nomDefProc, exportDefProc);
@@ -45,32 +38,7 @@ public class AfegirExpedientRelacionat extends BaseTest {
 		String[] res_dest = iniciarExpediente(nomDefProc,codTipusExp,"SE-21/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
 		String[] res_orig = iniciarExpediente(nomDefProc,codTipusExp,"SE-22/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
 
-		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']/ul/li[1]/a")));
-		actions.click();
-		actions.build().perform();
-
-		driver.findElement(By.xpath("//*[@id='numero0']")).clear();
-		if (res_orig[0] != null)
-			driver.findElement(By.xpath("//*[@id='numero0']")).sendKeys(res_orig[0]);
-		
-		driver.findElement(By.xpath("//*[@id='titol0']")).clear();
-		if (res_orig[1] != null)
-			driver.findElement(By.xpath("//*[@id='titol0']")).sendKeys(res_orig[1]);
-		
-		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='expedientTipus0']"));
-		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
-		for (WebElement option : options) {
-			if (option.getText().equals(nomTipusExp)) {
-				option.click();
-				break;
-			}
-		}
-		
-		screenshotHelper.saveScreenshot("tramitar/AfegirExpedientRelacionat/2.png");
-
-		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();
+		consultarExpedientes(res_orig[0], res_orig[1], nomTipusExp);
 
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[6]/a/img")).click();
 

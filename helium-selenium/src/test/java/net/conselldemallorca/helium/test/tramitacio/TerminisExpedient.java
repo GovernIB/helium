@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import net.conselldemallorca.helium.test.util.BaseTest;
@@ -26,17 +25,13 @@ public class TerminisExpedient extends BaseTest {
 	String pathDefProc = carregarPropietat("defproc.mod.exp.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
+	String tipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	
 	@Test
 	public void a_inicializar_expedients() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 
 		screenshotHelper.saveScreenshot("TerminisExpedient/inicializar_expedients/1.png");
 
@@ -56,12 +51,7 @@ public class TerminisExpedient extends BaseTest {
 	public void b_visualizar_terminis() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 		
 		screenshotHelper.saveScreenshot("TerminisExpedient/visualizar_terminis/1.png");
 		
@@ -92,23 +82,7 @@ public class TerminisExpedient extends BaseTest {
 		}
 		
 		// Comprobamos que se han mostrado los terminis correspondientes		
-		
-		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']/ul/li[1]/a")));
-		actions.click();
-		actions.build().perform();
-		
-		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='expedientTipus0']"));
-		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
-		for (WebElement option : options) {
-			if (option.getText().equals(properties.getProperty("defproc.deploy.tipus.expedient.nom"))) {
-				option.click();
-				break;
-			}
-		}
-		
-		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();	
+		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
 		
 		screenshotHelper.saveScreenshot("TerminisExpedient/visualizar_terminis/2.png");
 		
@@ -149,31 +123,11 @@ public class TerminisExpedient extends BaseTest {
 	public void c_iniciar_terminis() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 		
 		screenshotHelper.saveScreenshot("TerminisExpedient/iniciar_terminis/1.png");
 		
-		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']/ul/li[1]/a")));
-		actions.click();
-		actions.build().perform();
-		
-		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='expedientTipus0']"));
-		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
-		for (WebElement option : options) {
-			if (option.getText().equals(properties.getProperty("defproc.deploy.tipus.expedient.nom"))) {
-				option.click();
-				break;
-			}
-		}
-		
-		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();	
+		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
 		
 		screenshotHelper.saveScreenshot("TerminisExpedient/iniciar_terminis/2.png");
 		
@@ -266,31 +220,11 @@ public class TerminisExpedient extends BaseTest {
 	public void d_aturar_terminis() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 		
 		screenshotHelper.saveScreenshot("TerminisExpedient/aturar_terminis/1.png");
 		
-		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']/ul/li[1]/a")));
-		actions.click();
-		actions.build().perform();
-		
-		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='expedientTipus0']"));
-		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
-		for (WebElement option : options) {
-			if (option.getText().equals(properties.getProperty("defproc.deploy.tipus.expedient.nom"))) {
-				option.click();
-				break;
-			}
-		}
-		
-		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();	
+		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
 		
 		screenshotHelper.saveScreenshot("TerminisExpedient/aturar_terminis/2.png");
 		
@@ -363,31 +297,11 @@ public class TerminisExpedient extends BaseTest {
 	public void e_cancelar_terminis() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 		
 		screenshotHelper.saveScreenshot("TerminisExpedient/cancelar_terminis/1.png");
 		
-		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']/ul/li[1]/a")));
-		actions.click();
-		actions.build().perform();
-		
-		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='expedientTipus0']"));
-		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
-		for (WebElement option : options) {
-			if (option.getText().equals(properties.getProperty("defproc.deploy.tipus.expedient.nom"))) {
-				option.click();
-				break;
-			}
-		}
-		
-		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();	
+		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
 		
 		screenshotHelper.saveScreenshot("TerminisExpedient/cancelar_terminis/2.png");
 		
@@ -460,16 +374,11 @@ public class TerminisExpedient extends BaseTest {
 	public void z_finalizar_expedient() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 		
 		screenshotHelper.saveScreenshot("TerminisExpedient/finalizar_documents/1.png");	
 		
-		eliminarExpedient(null, null);
+		eliminarExpedient(null, null, tipusExp);
 			
 		// Eliminar la def de proceso
 		eliminarDefinicioProces(nomDefProc);

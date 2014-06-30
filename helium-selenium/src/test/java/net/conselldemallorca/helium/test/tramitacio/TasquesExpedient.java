@@ -35,12 +35,7 @@ public class TasquesExpedient extends BaseTest {
 	public void a_crear_dades() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomSubDefProc, pathSubDefProc);
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
@@ -55,12 +50,7 @@ public class TasquesExpedient extends BaseTest {
 	public void b_visualizar_tasques() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 		
 		screenshotHelper.saveScreenshot("tramitar/modificarInfoExp/1.png");
 				
@@ -262,12 +252,7 @@ public class TasquesExpedient extends BaseTest {
 	public void c_crear_dades() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathAgafarAlliberar);
 		
@@ -278,12 +263,7 @@ public class TasquesExpedient extends BaseTest {
 	public void d_agafar_alliberar_tasca() throws InterruptedException {
 		carregarUrlConfiguracio();
 
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 
 		screenshotHelper.saveScreenshot("TasquesExpedient/agafar_tasca/1.png");
 
@@ -368,12 +348,7 @@ public class TasquesExpedient extends BaseTest {
 	public void z_limpiar() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 		
 		eliminarExpedient(null, null, tipusExp);
 			

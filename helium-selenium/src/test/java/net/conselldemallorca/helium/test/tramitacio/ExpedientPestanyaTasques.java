@@ -22,17 +22,13 @@ public class ExpedientPestanyaTasques extends BaseTest {
 	String pathDefProc = carregarPropietat("defproc.mod.exp.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
+	String tipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	
 	@Test
 	public void a_iniciar_tasca() throws InterruptedException {
 		carregarUrlConfiguracio();
 
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 
 		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/iniciar_expedient/1.png");
 
@@ -48,12 +44,7 @@ public class ExpedientPestanyaTasques extends BaseTest {
 	public void b_delegar_tasca() throws InterruptedException {
 		carregarUrlConfiguracio();
 
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 
 		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/delegar_tasca/1.png");
 
@@ -104,12 +95,7 @@ public class ExpedientPestanyaTasques extends BaseTest {
 		// Básicos, múltiples y registros
 		carregarUrlConfiguracio();
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 		
 		String[] res = iniciarExpediente(nomDefProc,codTipusExp,"SE-22/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
 		
@@ -262,12 +248,7 @@ public class ExpedientPestanyaTasques extends BaseTest {
 		// Básicos, múltiples y registros
 		carregarUrlConfiguracio();
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 		
 		String[] res = iniciarExpediente(nomDefProc,codTipusExp,"SE-22/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
 		
@@ -419,30 +400,11 @@ public class ExpedientPestanyaTasques extends BaseTest {
 	public void e_reasignar_tasca() throws InterruptedException {
 		carregarUrlConfiguracio();
 
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 
 		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/visualizar_tasques/1.png");
 
-		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']/ul/li[1]/a")));
-		actions.click();
-		actions.build().perform();
-
-		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='expedientTipus0']"));
-		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
-		for (WebElement option : options) {
-			if (option.getText().equals(properties.getProperty("defproc.deploy.tipus.expedient.nom"))) {
-				option.click();
-				break;
-			}
-		}
-		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();
+		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
 
 		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/visualizar_tasques/2.png");
 
@@ -485,30 +447,11 @@ public class ExpedientPestanyaTasques extends BaseTest {
 	public void f_suspendre_tasca() throws InterruptedException {
 		carregarUrlConfiguracio();
 
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 
 		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/visualizar_tasques/1.png");
 
-		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']/ul/li[1]/a")));
-		actions.click();
-		actions.build().perform();
-
-		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='expedientTipus0']"));
-		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
-		for (WebElement option : options) {
-			if (option.getText().equals(properties.getProperty("defproc.deploy.tipus.expedient.nom"))) {
-				option.click();
-				break;
-			}
-		}
-		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();
+		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
 
 		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/visualizar_tasques/2.png");
 
@@ -546,12 +489,7 @@ public class ExpedientPestanyaTasques extends BaseTest {
 	public void g_cancellar_tasca() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
-		// Comprobamos el listado de tareas
-		actions.moveToElement(driver.findElement(By.id("menuTasques")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuTasques']/ul/li[1]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 		
 		if ("Mostrar filtre".equals(driver.findElement(By.xpath("//*[@id='botoFiltres']")).getText().trim()))
 			driver.findElement(By.xpath("//*[@id='botoFiltres']")).click();
@@ -600,14 +538,9 @@ public class ExpedientPestanyaTasques extends BaseTest {
 	public void z_finalizar_expedient() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 		
-		eliminarExpedient(null, null);
+		eliminarExpedient(null, null, tipusExp);
 			
 		// Eliminar la def de proceso
 		eliminarDefinicioProces(nomDefProc);

@@ -31,12 +31,7 @@ public class DadesExpedient extends BaseTest {
 	public void a_crear_dades() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomSubDefProc, pathSubDefProc);
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
@@ -52,12 +47,7 @@ public class DadesExpedient extends BaseTest {
 		// Básicos, múltiples y registros
 		carregarUrlConfiguracio();
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
@@ -116,12 +106,7 @@ public class DadesExpedient extends BaseTest {
 		// Básicos, múltiples y registros
 		carregarUrlConfiguracio();
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
@@ -214,12 +199,7 @@ public class DadesExpedient extends BaseTest {
 		// Básicos, múltiples y registros
 		carregarUrlConfiguracio();
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
@@ -323,12 +303,7 @@ public class DadesExpedient extends BaseTest {
 		// Básicos, múltiples y registros
 		carregarUrlConfiguracio();
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 					
 		iniciarExpediente(nomDefProc,codTipusExp,"SE-22/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
 		
@@ -340,31 +315,9 @@ public class DadesExpedient extends BaseTest {
 		// Básicos, múltiples y registros
 		carregarUrlConfiguracio();
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();					
+		seleccionarEntorno(entorn);			
 		
-		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']/ul/li[1]/a")));
-		actions.click();
-		actions.build().perform();
-		
-		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='expedientTipus0']"));
-		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
-		for (WebElement option : options) {
-			if (option.getText().equals(properties.getProperty("defproc.deploy.tipus.expedient.nom"))) {
-				option.click();
-				break;
-			}
-		}
-		
-		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/afegir_nova_dada/1.png");
-		
-		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();	
+		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
 		
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/afegir_nova_dada/2.png");
 		
@@ -493,31 +446,9 @@ public class DadesExpedient extends BaseTest {
 	public void f_modificar_dada() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 					
-		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']/ul/li[1]/a")));
-		actions.click();
-		actions.build().perform();
-		
-		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='expedientTipus0']"));
-		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
-		for (WebElement option : options) {
-			if (option.getText().equals(properties.getProperty("defproc.deploy.tipus.expedient.nom"))) {
-				option.click();
-				break;
-			}
-		}
-		
-		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/modificar_dada/1.png");
-		
-		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();	
+		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));	
 		
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/modificar_dada/2.png");
 		
@@ -750,31 +681,9 @@ public class DadesExpedient extends BaseTest {
 		// Básicos, múltiples y registros
 		carregarUrlConfiguracio();
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 					
-		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']/ul/li[1]/a")));
-		actions.click();
-		actions.build().perform();
-		
-		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='expedientTipus0']"));
-		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
-		for (WebElement option : options) {
-			if (option.getText().equals(properties.getProperty("defproc.deploy.tipus.expedient.nom"))) {
-				option.click();
-				break;
-			}
-		}
-		
-		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/eliminar_dada/1.png");
-		
-		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();	
+		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
 		
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/eliminar_dada/2.png");
 		
@@ -813,12 +722,7 @@ public class DadesExpedient extends BaseTest {
 	public void z_limpiar() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 		
 		eliminarExpedient(null, null, tipusExp);
 			

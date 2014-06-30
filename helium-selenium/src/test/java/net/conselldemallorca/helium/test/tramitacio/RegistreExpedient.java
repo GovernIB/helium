@@ -3,7 +3,6 @@ package net.conselldemallorca.helium.test.tramitacio;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
-import java.util.List;
 
 import net.conselldemallorca.helium.test.util.BaseTest;
 
@@ -22,17 +21,13 @@ public class RegistreExpedient extends BaseTest {
 	String pathDefProc = carregarPropietat("defproc.mod.exp.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
+	String tipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	
 	@Test
 	public void a_iniciar_expedient() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 
 		screenshotHelper.saveScreenshot("RegistreExpedient/iniciar_expedient/1.png");
 
@@ -52,30 +47,11 @@ public class RegistreExpedient extends BaseTest {
 	public void b_visualizar_tasques() throws InterruptedException {
 		carregarUrlConfiguracio();
 
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 
 		screenshotHelper.saveScreenshot("RegistreExpedient/visualizar_tasques/1.png");
 
-		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']/ul/li[1]/a")));
-		actions.click();
-		actions.build().perform();
-
-		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='expedientTipus0']"));
-		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
-		for (WebElement option : options) {
-			if (option.getText().equals(properties.getProperty("defproc.deploy.tipus.expedient.nom"))) {
-				option.click();
-				break;
-			}
-		}
-		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();
+		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
 
 		screenshotHelper.saveScreenshot("RegistreExpedient/visualizar_tasques/2.png");
 
@@ -108,30 +84,11 @@ public class RegistreExpedient extends BaseTest {
 	public void c_visualizar_tasques_detall() throws InterruptedException {
 		carregarUrlConfiguracio();
 
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 
 		screenshotHelper.saveScreenshot("RegistreExpedient/visualizar_tasques_detall/1.png");
 
-		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']/ul/li[1]/a")));
-		actions.click();
-		actions.build().perform();
-
-		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='expedientTipus0']"));
-		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
-		for (WebElement option : options) {
-			if (option.getText().equals(properties.getProperty("defproc.deploy.tipus.expedient.nom"))) {
-				option.click();
-				break;
-			}
-		}
-		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();
+		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
 
 		screenshotHelper.saveScreenshot("RegistreExpedient/visualizar_tasques_detall/2.png");
 
@@ -164,30 +121,11 @@ public class RegistreExpedient extends BaseTest {
 	public void e_visualizar_accions_tasca() throws InterruptedException {
 		carregarUrlConfiguracio();
 
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 
 		screenshotHelper.saveScreenshot("RegistreExpedient/visualizar_accions_tasca/1.png");
 
-		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']/ul/li[1]/a")));
-		actions.click();
-		actions.build().perform();
-
-		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='expedientTipus0']"));
-		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
-		for (WebElement option : options) {
-			if (option.getText().equals(properties.getProperty("defproc.deploy.tipus.expedient.nom"))) {
-				option.click();
-				break;
-			}
-		}
-		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();
+		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
 
 		screenshotHelper.saveScreenshot("RegistreExpedient/visualizar_accions_tasca/2.png");
 
@@ -282,14 +220,9 @@ public class RegistreExpedient extends BaseTest {
 	public void z_finalizar_expedient() throws InterruptedException {
 		carregarUrlConfiguracio();
 
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 
-		eliminarExpedient(null, null);
+		eliminarExpedient(null, null, tipusExp);
 
 		// Eliminar la def de proceso
 		eliminarDefinicioProces(nomDefProc);

@@ -26,12 +26,7 @@ public class ModificarVersioProces extends BaseTest {
 	public void a_modificarVersioExp() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 		
 		screenshotHelper.saveScreenshot("tramitar/modificarInfoExp/1.png");
 		
@@ -42,22 +37,7 @@ public class ModificarVersioProces extends BaseTest {
 					
 		String[] res = iniciarExpediente(nomDefProc,codTipusExp,"SE-22/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
 				
-		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']/ul/li[1]/a")));
-		actions.click();
-		actions.build().perform();
-		
-		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='expedientTipus0']"));
-		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
-		for (WebElement option : options) {
-			if (option.getText().equals(properties.getProperty("defproc.deploy.tipus.expedient.nom"))) {
-				option.click();
-				break;
-			}
-		}
-		
-		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();	
+		consultarExpedientes(res[0], res[1], properties.getProperty("defproc.deploy.tipus.expedient.nom"));
 		
 		screenshotHelper.saveScreenshot("tramitar/modificarInfoExp/2.png");
 		

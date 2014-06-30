@@ -30,12 +30,7 @@ public class NouExpedient extends BaseTest {
 	public void b_listadoTipExp() throws InterruptedException {
 		carregarUrlConfiguracio();
 
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 		
 		existeixElementAssert("//li[@id='menuIniciar']", "No tiene permisos para iniciar un expediente");
 		driver.findElement(By.xpath("//*[@id='menuIniciar']/a")).click();
@@ -51,12 +46,7 @@ public class NouExpedient extends BaseTest {
 	public void c_inici_any() throws InterruptedException {
 		carregarUrlConfiguracio();
 
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 		
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
 		importarDadesDefPro(nomDefProc, exportDefProc);
@@ -120,12 +110,7 @@ public class NouExpedient extends BaseTest {
 	public void d_inici_titol() throws InterruptedException {
 		carregarUrlConfiguracio();
 
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 			
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
 		importarDadesDefPro(nomDefProc, exportDefProc);
@@ -187,12 +172,7 @@ public class NouExpedient extends BaseTest {
 	public void e_iniciVersioExp() throws InterruptedException {
 		carregarUrlConfiguracio();
 
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 		
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
 		importarDadesDefPro(nomDefProc, exportDefProc);
@@ -259,12 +239,7 @@ public class NouExpedient extends BaseTest {
 	public void f_iniciAmbTascaIniExp() throws InterruptedException {
 		carregarUrlConfiguracio();
 
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 				
 		String pathDefProc = carregarPropietat("defproc.nou_tasca_ini.exp.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 		String exportDefProc = carregarPropietat("defproc.nou_tasca_ini.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");

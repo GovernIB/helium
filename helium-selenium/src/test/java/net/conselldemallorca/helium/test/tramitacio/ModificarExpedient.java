@@ -30,12 +30,7 @@ public class ModificarExpedient extends BaseTest {
 	public void a_modificarInfoExp() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
-		// Selecció directe
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
-		actions.click();
-		actions.build().perform();
+		seleccionarEntorno(entorn);
 
 		screenshotHelper.saveScreenshot("tramitar/modificarInfoExp/1.png");
 
@@ -46,28 +41,8 @@ public class ModificarExpedient extends BaseTest {
 		
 		String[] res = iniciarExpediente(nomDefProc,codTipusExp,"SE-22/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
 		
-		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']/ul/li[1]/a")));
-		actions.click();
-		actions.build().perform();
-
-		driver.findElement(By.xpath("//*[@id='numero0']")).clear();
-		driver.findElement(By.xpath("//*[@id='numero0']")).sendKeys(res[0]);
+		consultarExpedientes(res[0], res[1], properties.getProperty("defproc.deploy.tipus.expedient.nom"));
 		
-		driver.findElement(By.xpath("//*[@id='titol0']")).clear();
-		driver.findElement(By.xpath("//*[@id='titol0']")).sendKeys(res[1]);
-		
-		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='expedientTipus0']"));
-		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
-		for (WebElement option : options) {
-			if (option.getText().equals(properties.getProperty("defproc.deploy.tipus.expedient.nom"))) {
-				option.click();
-				break;
-			}
-		}
-
-		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();
 		String numero = "SE-8-9-1000";
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[6]/a/img")).click();

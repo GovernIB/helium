@@ -308,7 +308,19 @@ public abstract class BaseTest {
 			fail("Error acceptant alert.");
 		}
 		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+	} 
+	
+	protected void acceptarConfirm(String msg) {
+		try {
+			driver.switchTo().alert().accept();
+			driver.switchTo().alert().sendKeys(msg);
+			driver.switchTo().alert().accept();
+		} catch (Exception e) {
+			fail("Error acceptant alert.");
+		}
+		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 	}
+	
 	protected void rebutjarAlerta() {
 		try {
 			driver.switchTo().alert().dismiss();
@@ -803,38 +815,28 @@ public abstract class BaseTest {
 	}
 	
 	protected void eliminarExpedient(String numExpediente, String tituloExpediente, String tipusExp) {
-		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']/ul/li[1]/a")));
-		actions.click();
-		actions.build().perform();
+		consultarExpedientes(numExpediente, tituloExpediente, tipusExp);
 		
-		driver.findElement(By.xpath("//*[@id='titol0']")).clear();
-		if (tituloExpediente != null)
-			driver.findElement(By.xpath("//*[@id='titol0']")).sendKeys(tituloExpediente);
-		
-		driver.findElement(By.xpath("//*[@id='numero0']")).clear();
-		if (numExpediente != null)
-			driver.findElement(By.xpath("//*[@id='numero0']")).sendKeys(numExpediente);
-		
-		if (tipusExp != null) {
-			WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='expedientTipus0']"));
-			List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
-			for (WebElement option : options) {
-				if (option.getText().equals(tipusExp)) {
-					option.click();
-					break;
-				}
-			}
+		while (existeixElement("//*[@id='registre']/tbody/tr[1]")) {
+			borrarPrimerExpediente();
 		}
+	}
+
+	protected void borrarPrimerExpediente() {
+		existeixElementAssert("//*[@id='registre']/tbody/tr[1]/td[contains(a/img/@src,'/helium/img/cross.png')]/a/img", "No tenía permisos de borrado");
 		
-		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();
+		String expediente = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[1]")).getText();
+		String fecha = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[2]")).getText();
 		
-		while (existeixElement("//*[@id='registre']/tbody/tr[1]")) {			
-			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[contains(a/img/@src,'/helium/img/cross.png')]/a/img")).click();		
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[contains(a/img/@src,'/helium/img/cross.png')]/a/img")).click();		
+		acceptarAlerta();		
+		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut borrar el expediente");
 		
-			acceptarAlerta();		
-			existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut borrar el expediente");
+		if (existeixElement("//*[@id='registre']/tbody/tr[1]/td[1]")) {
+			String expedientePos = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[1]")).getText();
+			String fechaPos = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[2]")).getText();
+			
+			assertFalse("No se borró el expediente correctamente", expediente.equals(expedientePos) && fecha.equals(fechaPos));
 		}
 	}
 
@@ -1006,32 +1008,7 @@ public abstract class BaseTest {
 	}
 	
 	protected void adjuntarDocExpediente(String numExpediente, String tituloExpediente, String tituloDocumento, String fechaDocumento, String pathDocumento) {
-		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']/ul/li[1]/a")));
-		actions.click();
-		actions.build().perform();
-
-		if (numExpediente != null) {
-			driver.findElement(By.xpath("//*[@id='numero0']")).clear();
-			driver.findElement(By.xpath("//*[@id='numero0']")).sendKeys(numExpediente);
-		}
-		
-		if (tituloExpediente != null) {
-			driver.findElement(By.xpath("//*[@id='titol0']")).clear();
-			driver.findElement(By.xpath("//*[@id='titol0']")).sendKeys(tituloExpediente);
-		}
-		
-		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='expedientTipus0']"));
-		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
-		for (WebElement option : options) {
-			if (option.getText().equals(properties.getProperty("defproc.deploy.tipus.expedient.nom"))) {
-				option.click();
-				break;
-			}
-		}
-		
-		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();	
+		consultarExpedientes(numExpediente, tituloExpediente, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
 		
 		screenshotHelper.saveScreenshot("documentsexpedient/adjuntar_documents/2.png");
 		
@@ -1143,5 +1120,42 @@ public abstract class BaseTest {
 			actions.build().perform();
 			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codi + "')]", "No s'ha pogut crear el tipus d'expedient de test");
 		}
+	}
+
+	protected void consultarExpedientes(String numExpediente, String tituloExpediente, String tipusExp) {
+		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']/ul/li[1]/a")));
+		actions.click();
+		actions.build().perform();
+		
+		driver.findElement(By.xpath("//*[@id='titol0']")).clear();
+		if (tituloExpediente != null)
+			driver.findElement(By.xpath("//*[@id='titol0']")).sendKeys(tituloExpediente);
+		
+		driver.findElement(By.xpath("//*[@id='numero0']")).clear();
+		if (numExpediente != null)
+			driver.findElement(By.xpath("//*[@id='numero0']")).sendKeys(numExpediente);
+		
+		if (tipusExp != null) {
+			WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='expedientTipus0']"));
+			List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
+			for (WebElement option : options) {
+				if (option.getText().equals(tipusExp)) {
+					option.click();
+					break;
+				}
+			}
+		}
+		
+		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();
+	}
+	
+	protected void seleccionarEntorno(String entorn) {
+		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
+		actions.click();
+		actions.build().perform();
 	}
 }
