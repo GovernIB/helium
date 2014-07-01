@@ -83,6 +83,13 @@ public interface Jbpm3HeliumService {
 	public ExpedientDto getExpedientIniciant();
 
 	/**
+	 * Rellena el campo de descripción de la tabla de JBPM_TASKINSTANCE 
+	 * 
+	 * @param id
+	 */
+	public void createDadesTasca(Long id);
+	
+	/**
 	 * Obté l'expedient donat l'entorn, el tipus d'expedient i el seu número.
 	 * 
 	 * @param entornId

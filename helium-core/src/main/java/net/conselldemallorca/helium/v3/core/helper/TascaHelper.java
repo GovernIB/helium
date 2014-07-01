@@ -119,6 +119,10 @@ public class TascaHelper {
 		return resposta;
 	}
 
+	public void createDadesTasca(Long taskId) {
+		tascaService.createDadesTasca(taskId);
+	}
+	
 	public ExpedientTascaDto getTascaPerExpedient(
 			Expedient expedient,
 			String taskId,

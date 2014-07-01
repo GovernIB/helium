@@ -95,7 +95,8 @@
 			<div class="missatgesDocumentGris">
 				<h4 class="titol-missatge">
 					<c:if test="${document.required}"><img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key="tasca.doc.doc_oblig"/>" title="<fmt:message key="tasca.doc.doc_oblig"/>" border="0"/></c:if>
-					${document.document.nom}&nbsp;&nbsp;
+					<label>${document.document.nom}</label>
+					&nbsp;&nbsp;
 					<c:if test="${tasca.validada}">
 						<c:if test="${not empty document.document.arxiuNom and not document.readOnly}">
 							<c:set var="adjuntarAuto" value="${document.document.adjuntarAuto}"/>

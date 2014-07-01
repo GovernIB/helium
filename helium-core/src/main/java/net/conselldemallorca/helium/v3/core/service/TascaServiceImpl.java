@@ -80,6 +80,7 @@ import net.conselldemallorca.helium.v3.core.repository.EnumeracioValorsRepositor
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
+import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 
 import org.apache.commons.collections.comparators.NullComparator;
@@ -120,6 +121,8 @@ public class TascaServiceImpl implements TascaService {
 	private CampTascaRepository campTascaRepository;
 	@Resource
 	private ExpedientRepository expedientRepository;
+	@Resource
+	private TascaRepository tascaRepository;
 	@Resource
 	private RegistreRepository registreRepository;
 	@Resource
@@ -169,6 +172,62 @@ public class TascaServiceImpl implements TascaService {
 	@Override
 	public List<TascaDadaDto> findDadesPerTascaDto(ExpedientTascaDto tasca) {
 		return variableHelper.findDadesPerInstanciaTascaDto(tasca);
+	}
+	
+	@Transactional
+	@Override
+	public void createDadesTasca(Long taskId) {
+		JbpmTask task = jbpmHelper.getTaskById(String.valueOf(taskId));
+		if (task == null)
+			throw new NotFoundException(
+					serviceUtils.getMessage("error.tascaService.noTrobada"));
+		createDadesTasca(task);
+	}
+	
+	private void createDadesTasca(JbpmTask task) {
+		String rootProcessInstanceId = jbpmHelper.getRootProcessInstance(task.getProcessInstanceId()).getId();
+		Expedient expedientPerTasca = expedientDao.findAmbProcessInstanceId(rootProcessInstanceId);
+		Tasca tasca = tascaRepository.findAmbActivityNameIProcessDefinitionId(
+				task.getName(),
+				task.getProcessDefinitionId());
+		String titol = tasca.getNom();
+		if (tasca.getNomScript() != null && tasca.getNomScript().length() > 0)
+			titol = dtoConverter.getTitolPerTasca(task, tasca);
+		task.setFieldFromDescription(
+				"entornId",
+				expedientPerTasca.getEntorn().getId().toString());
+		task.setFieldFromDescription(
+				"titol",
+				titol);
+		task.setFieldFromDescription(
+				"identificador",
+				expedientPerTasca.getIdentificador());
+		task.setFieldFromDescription(
+				"identificadorOrdenacio",
+				expedientPerTasca.getIdentificadorOrdenacio());
+		task.setFieldFromDescription(
+				"numeroIdentificador",
+				expedientPerTasca.getNumeroIdentificador());
+		task.setFieldFromDescription(
+				"expedientTipusId",
+				expedientPerTasca.getTipus().getId().toString());
+		task.setFieldFromDescription(
+				"expedientTipusNom",
+				expedientPerTasca.getTipus().getNom());
+		task.setFieldFromDescription(
+				"processInstanceId",
+				expedientPerTasca.getProcessInstanceId());
+		task.setFieldFromDescription(
+				"tramitacioMassiva",
+				new Boolean(tasca.isTramitacioMassiva()).toString());
+		task.setFieldFromDescription(
+				"definicioProcesJbpmKey",
+				tasca.getDefinicioProces().getJbpmKey());
+		task.setCacheActiu();
+		jbpmHelper.describeTaskInstance(
+				task.getId(),
+				titol,
+				task.getDescriptionWithFields());
 	}
 
 	@Transactional(readOnly = true)
@@ -1208,5 +1267,5 @@ public class TascaServiceImpl implements TascaService {
 		return resposta;
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(TascaServiceImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(TascaServiceImpl.class);	
 }

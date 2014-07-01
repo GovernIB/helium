@@ -182,12 +182,12 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private PluginTramitacioDao pluginTramitacioDao;
 	@Resource
 	private AlertaDao alertaDao;
-
 	@Resource
 	private JbpmHelper jbpmHelper;
-
 	@Resource
-	private VariableHelper variableHelper;
+	private VariableHelper variableHelper;	
+	@Resource
+	private TascaHelper tascaHelper;
 	@Resource
 	private DocumentHelper documentHelper;
 	@Resource
@@ -664,6 +664,11 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		} catch (Exception ex) {
 			throw new DocumentGenerarException(ex);
 		}
+	}
+	
+	@Override
+	public void createDadesTasca(Long taskId) {
+		tascaHelper.createDadesTasca(taskId);
 	}
 
 	@Override

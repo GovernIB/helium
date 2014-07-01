@@ -188,7 +188,7 @@ function signarCaib(token, form, contentType) {
 		<div class="missatgesDocumentGris">
 			<h4 class="titol-missatge">
 				<c:if test="${firma.required}"><img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='tasca.signa.signa_oblig' />" title="<fmt:message key='tasca.signa.signa_oblig' />" border="0"/></c:if>
-				${firma.document.nom}&nbsp;&nbsp;
+				<label>${firma.document.nom}</label>&nbsp;&nbsp;
 				<c:if test="${tasca.documentsComplet}">
 					<c:set var="tascaActual" value="${tasca}" scope="request"/>
 					<c:set var="documentActual" value="${tasca.varsDocumentsPerSignar[firma.document.codi]}" scope="request"/>

@@ -204,4 +204,6 @@ public interface TascaService {
 	public ExpedientTascaDto getByIdSenseComprovacio(String taskId);
 
 	public PaginaDto<ExpedientTascaDto> findTasquesConsultaFiltre(Long entornId, Long expedientTipusId, String responsable, String tasca, String expedient, Date dataCreacioInici, Date dataCreacioFi, Date dataLimitInici, Date dataLimitFi, int prioritat, boolean mostrarTasquesPersonals, boolean mostrarTasquesGrup, PaginacioParamsDto paginacioParams);
+
+	public void createDadesTasca(Long taskId);
 }

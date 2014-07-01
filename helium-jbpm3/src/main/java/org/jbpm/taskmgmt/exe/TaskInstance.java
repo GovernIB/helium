@@ -171,6 +171,7 @@ public class TaskInstance extends VariableContainer implements Identifiable,
 			executionContext.setTaskInstance(this);
 			executionContext.setTask(task);
 			task.fireEvent(Event.EVENTTYPE_TASK_CREATE, executionContext);
+			Jbpm3HeliumBridge.getInstanceService().createDadesTasca(id);
 		}
 
 		// WARNING: The events create and assign are fired in the right order,
