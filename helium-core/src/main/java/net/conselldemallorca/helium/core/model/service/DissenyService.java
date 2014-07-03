@@ -895,6 +895,17 @@ public class DissenyService {
 		EnumeracioValors saved = enumeracioValorsDao.saveOrUpdate(entity);
 		return saved;
 	}
+	public EnumeracioValors createOrUpdateEnumeracioValors(EnumeracioValors entity) {
+		EnumeracioValors enumeracioValors = findEnumeracioValorsAmbCodi(
+				entity.getEnumeracio().getId(), 
+				entity.getCodi());
+		if (enumeracioValors == null) {			
+			return createEnumeracioValors(entity);
+		} else {
+			enumeracioValors.setNom(entity.getNom());
+			return updateEnumeracioValors(enumeracioValors);
+		}
+	}
 	public EnumeracioValors updateEnumeracioValors(EnumeracioValors entity) {
 		return enumeracioValorsDao.merge(entity);
 	}
@@ -976,6 +987,18 @@ public class DissenyService {
 	public Estat createEstat(Estat entity) {
 		entity.setOrdre(estatDao.getSeguentOrdre(entity.getExpedientTipus().getId()));
 		return estatDao.saveOrUpdate(entity);
+	}
+
+	public Estat createOrUpdateEstat(Estat entity) {
+		Estat estat = estatDao.findAmbExpedientTipusICodi(
+				entity.getExpedientTipus().getId(),
+				entity.getCodi());
+		if (estat == null) {
+			return createEstat(entity);
+		} else {			
+			estat.setNom(entity.getNom());
+			return updateEstat(estat);
+		}		
 	}
 	
 	public Estat updateEstat(Estat entity) {

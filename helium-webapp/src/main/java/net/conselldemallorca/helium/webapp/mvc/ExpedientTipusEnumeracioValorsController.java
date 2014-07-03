@@ -339,7 +339,7 @@ public class ExpedientTipusEnumeracioValorsController extends BaseController {
 				        	enumeracioValors.setCodi(columnes[0]);
 				        	enumeracioValors.setNom(columnes[1]);
 				        	enumeracioValors.setEnumeracio(enumeracio);
-			        		dissenyService.createEnumeracioValors(enumeracioValors);
+			        		dissenyService.createOrUpdateEnumeracioValors(enumeracioValors);
 						}
 						linia = br.readLine();
 					}
