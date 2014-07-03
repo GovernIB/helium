@@ -1938,7 +1938,7 @@ public class TascaService {
 				task.getFieldFromDescription("definicioProcesJbpmKey"));
 		return dadesCache;
 	}
-	private class DadesCacheTasca {
+	public class DadesCacheTasca {
 		private Long entornId;
 		private String titol;
 		private String identificador;
