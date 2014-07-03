@@ -851,6 +851,10 @@ public class ExpedientService {
 							ExtendedPermission.READ});
 		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
 		boolean repetirConsulta = false;
+		Long[] listPermesos = getExpedientTipusIdPermesos(entornId);
+		if (listPermesos == null || listPermesos.length == 0) {
+			return resposta;
+		}
 		for (Expedient expedient: expedientDao.findAmbEntornConsultaGeneralPagedAndOrdered(
 				entornId,
 				titol,
@@ -858,7 +862,7 @@ public class ExpedientService {
 				dataInici1,
 				dataInici2,
 				expedientTipusId,
-				getExpedientTipusIdPermesos(entornId),
+				listPermesos,
 				estatId,
 				iniciat,
 				finalitzat,
