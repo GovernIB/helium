@@ -225,7 +225,7 @@ public class ExpedientTipusEstatsController extends BaseController {
 							estat.setCodi(columnes[0]);
 							estat.setNom(columnes[1]);
 							estat.setExpedientTipus(expedientTipus);
-							dissenyService.createEstat(estat);
+							dissenyService.createOrUpdateEstat(estat);
 						}
 						linia = br.readLine();
 					}
