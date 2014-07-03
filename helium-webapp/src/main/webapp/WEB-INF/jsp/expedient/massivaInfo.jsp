@@ -278,7 +278,6 @@ $(document).ready(function(){
 								<c:param name="items" value="subDefinicionsProces"/>
 								<c:param name="itemLabel" value="descripcio"/>
 								<c:param name="itemValue" value="jbpmId"/>
-								<c:param name="itemBuit">&lt;&lt; <fmt:message key='expedient.consulta.select.def_proces'/> &gt;&gt;</c:param>
 								<c:param name="label">${subProces.jbpmKey}</c:param>
 							</c:import>
 						</c:forEach>
