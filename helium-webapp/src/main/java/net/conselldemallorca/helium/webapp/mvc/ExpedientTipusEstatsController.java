@@ -256,7 +256,7 @@ public class ExpedientTipusEstatsController extends BaseController {
 		if (entorn != null) {
 			ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
 			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
-				dissenyService.deleteEstat(id);
+				dissenyService.deleteEstat(id, expedientTipusId);
 				missatgeInfo(request, getMessage("info.estat.esborrat") );
 				return "redirect:/expedientTipus/estats.html?expedientTipusId=" + expedientTipusId;
 			} else {

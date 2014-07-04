@@ -1005,12 +1005,9 @@ public class DissenyService {
 		return estatDao.merge(entity);
 	}	
 	
-	public void deleteEstat(Long id) {
-		Estat vell = getEstatById(id);
-		if (vell != null) {
-			estatDao.delete(id);
-			reordenarEstats(vell.getExpedientTipus().getId());
-		}
+	public void deleteEstat(Long id, Long expedientTipusId) {
+		estatDao.delete(id);
+		reordenarEstats(expedientTipusId);
 	}
 	public List<Estat> findEstatAmbExpedientTipus(Long expedientTipusId) {
 		return estatDao.findAmbExpedientTipusOrdenats(expedientTipusId);

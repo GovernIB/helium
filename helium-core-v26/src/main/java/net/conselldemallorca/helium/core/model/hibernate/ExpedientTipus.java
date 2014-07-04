@@ -339,9 +339,8 @@ public class ExpedientTipus implements Serializable, GenericEntityDto<Long> {
 		this.entorn = entorn;
 	}
 
-	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL}, fetch=FetchType.EAGER)
+	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
 	@OrderBy("ordre asc")
-	@Fetch(value = FetchMode.SUBSELECT)
 	public List<Estat> getEstats() {
 		return this.estats;
 	}
