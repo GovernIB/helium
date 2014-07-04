@@ -20,6 +20,7 @@ public class DocumentTasca {
 	private Long id;
 	private String arxiu;
 	private Date data;
+	private String urlCustodia;
 
 
 
@@ -58,6 +59,12 @@ public class DocumentTasca {
 	}
 	public void setData(Date data) {
 		this.data = data;
+	}
+	public String getUrlCustodia() {
+		return urlCustodia;
+	}
+	public void setUrlCustodia(String urlCustodia) {
+		this.urlCustodia = urlCustodia;
 	}
 
 }

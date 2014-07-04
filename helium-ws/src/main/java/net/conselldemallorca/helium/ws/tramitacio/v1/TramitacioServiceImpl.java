@@ -878,6 +878,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 		dt.setDescripcio(documentTasca.getDocument().getDescripcio());
 		dt.setArxiu(document.getArxiuNom());
 		dt.setData(document.getDataDocument());
+		if (document.isSignat()) {
+			dt.setUrlCustodia(document.getUrlVerificacioCustodia());
+		}
 		return dt;
 	}
 	private CampProces convertirCampProces(

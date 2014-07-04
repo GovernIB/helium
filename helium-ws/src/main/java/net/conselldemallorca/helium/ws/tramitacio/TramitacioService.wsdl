@@ -116,6 +116,7 @@
 </xs:complexType>
 <xs:complexType name="documentTasca">
 <xs:sequence>
+<xs:element minOccurs="0" name="urlCustodia" type="xs:string" />
 <xs:element minOccurs="0" name="arxiu" type="xs:string" />
 <xs:element minOccurs="0" name="codi" type="xs:string" />
 <xs:element minOccurs="0" name="data" type="xs:dateTime" />
