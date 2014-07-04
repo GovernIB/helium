@@ -59,6 +59,12 @@ public class GetProcessInstancesForActiveTasksCommand extends AbstractGetObjectB
 
 	public GetProcessInstancesForActiveTasksCommand() {}
 
+	public GetProcessInstancesForActiveTasksCommand(String actorId, List<Long> idsPIExpedients) {
+		super();
+		this.actorId = actorId;
+		this.idsPIExpedients = idsPIExpedients;
+	}
+
 	public GetProcessInstancesForActiveTasksCommand(String actorId, List<Long> idsPIExpedients, Boolean pooled) {
 		super();
 		this.actorId = actorId;

@@ -535,6 +535,14 @@ public class JbpmDao {
 		return resultado;
 	}
 	
+	public LlistatIds findListIdsTasks(String actorId,List<Long> idsExpedients) {
+		mesuresTemporalsHelper.mesuraIniciar("jBPM findListIdsGroupTasks", "jbpmDao");
+		GetProcessInstancesForActiveTasksCommand command = new GetProcessInstancesForActiveTasksCommand(actorId, idsExpedients);
+		LlistatIds resultado = (LlistatIds)commandService.execute(command);
+		mesuresTemporalsHelper.mesuraCalcular("jBPM findListIdsGroupTasks", "jbpmDao");
+		return resultado;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public List<JbpmTask> findGroupTasks(String actorId) {
 		mesuresTemporalsHelper.mesuraIniciar("jBPM findGroupTasks", "jbpmDao");

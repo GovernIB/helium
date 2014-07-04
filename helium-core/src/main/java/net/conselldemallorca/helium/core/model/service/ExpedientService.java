@@ -20,6 +20,7 @@ import java.util.UUID;
 import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
+import net.conselldemallorca.helium.core.extern.formulari.LlistatIds;
 import net.conselldemallorca.helium.core.model.dao.AccioDao;
 import net.conselldemallorca.helium.core.model.dao.AreaJbpmIdDao;
 import net.conselldemallorca.helium.core.model.dao.AreaMembreDao;
@@ -43,6 +44,7 @@ import net.conselldemallorca.helium.core.model.dao.PluginPortasignaturesDao;
 import net.conselldemallorca.helium.core.model.dao.PluginSignaturaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginTramitacioDao;
 import net.conselldemallorca.helium.core.model.dao.RegistreDao;
+import net.conselldemallorca.helium.core.model.dao.TascaDao;
 import net.conselldemallorca.helium.core.model.dao.TerminiIniciatDao;
 import net.conselldemallorca.helium.core.model.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.core.model.dto.DadesDocumentDto;
@@ -65,6 +67,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.AreaMembre;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
@@ -124,6 +127,7 @@ public class ExpedientService {
 	private ExpedientDao expedientDao;
 	private ExpedientTipusDao expedientTipusDao;
 	private DefinicioProcesDao definicioProcesDao;
+	private TascaDao tascaDao;
 	private EntornDao entornDao;
 	private DocumentStoreDao documentStoreDao;
 	private EstatDao estatDao;
@@ -658,7 +662,63 @@ public class ExpedientService {
 				getUsuariPerRegistre(),
 				informacioVella,
 				informacioNova);
+		
+		actualizarCacheExpedient(expedient);
 	}
+
+	/**
+	 * Actualización de la caché en todas las jbpm_task del expediente
+	 */
+	private void actualizarCacheExpedient(Expedient expedient) {
+		List<Long> ids = new ArrayList<Long>();
+		ids.add(Long.parseLong(expedient.getProcessInstanceId()));
+		LlistatIds llistatIds = jbpmDao.findListIdsTasks(expedient.getResponsableCodi(),ids);
+		List<JbpmTask> tasques = jbpmDao.findTasks(llistatIds.getIds());
+		
+		for(JbpmTask task : tasques) {
+			Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
+					task.getName(),
+					task.getProcessDefinitionId());
+			String titol = tasca.getNom();
+			if (tasca.getNomScript() != null && tasca.getNomScript().length() > 0)
+				titol = dtoConverter.getTitolPerTasca(task, tasca);
+			task.setFieldFromDescription(
+					"entornId",
+					expedient.getEntorn().getId().toString());
+			task.setFieldFromDescription(
+					"titol",
+					titol);
+			task.setFieldFromDescription(
+					"identificador",
+					expedient.getIdentificador());
+			task.setFieldFromDescription(
+					"identificadorOrdenacio",
+					expedient.getIdentificadorOrdenacio());
+			task.setFieldFromDescription(
+					"numeroIdentificador",
+					expedient.getNumeroIdentificador());
+			task.setFieldFromDescription(
+					"expedientTipusId",
+					expedient.getTipus().getId().toString());
+			task.setFieldFromDescription(
+					"expedientTipusNom",
+					expedient.getTipus().getNom());
+			task.setFieldFromDescription(
+					"processInstanceId",
+					expedient.getProcessInstanceId());
+			task.setFieldFromDescription(
+					"tramitacioMassiva",
+					new Boolean(tasca.isTramitacioMassiva()).toString());
+			task.setFieldFromDescription(
+					"definicioProcesJbpmKey",
+					tasca.getDefinicioProces().getJbpmKey());
+			task.setCacheActiu();
+			jbpmDao.describeTaskInstance(
+					task.getId(),
+					task.getDescriptionWithFields());
+		}		
+	}
+
 	public void delete(Long entornId, Long id) {
 		Expedient expedient = expedientDao.findAmbEntornIId(entornId, id);
 		if (expedient != null) {
@@ -2328,6 +2388,10 @@ public class ExpedientService {
 	@Autowired
 	public void setAccioDao(AccioDao accioDao) {
 		this.accioDao = accioDao;
+	}
+	@Autowired
+	public void setTascaDao(TascaDao tascaDao) {
+		this.tascaDao = tascaDao;
 	}
 	@Autowired
 	public void setTerminiIniciatDao(TerminiIniciatDao terminiIniciatDao) {
