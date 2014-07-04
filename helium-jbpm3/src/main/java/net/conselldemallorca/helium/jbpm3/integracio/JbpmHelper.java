@@ -1317,6 +1317,11 @@ public class JbpmHelper {
 		return llistat;
 	}
 	
+	public LlistatIds findListIdsTasks(String actorId,List<Long> idsExpedients) {
+		GetRootProcessInstancesForActiveTasksCommand command = new GetRootProcessInstancesForActiveTasksCommand(actorId, idsExpedients);
+		LlistatIds resultado = (LlistatIds)commandService.execute(command);
+		return resultado;
+	}
 	
 	@SuppressWarnings("unchecked")
 	public List<JbpmTask> findTasks(List<Long> ids) {

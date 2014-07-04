@@ -61,6 +61,12 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 	}	
 
 	public GetRootProcessInstancesForActiveTasksCommand() {}
+	
+	public GetRootProcessInstancesForActiveTasksCommand(String actorId, List<Long> idsPIExpedients) {
+		super();
+		this.actorId = actorId;
+		this.idsPIExpedients = idsPIExpedients;
+	}
 
 	public GetRootProcessInstancesForActiveTasksCommand(String actorId, List<Long> idsPIExpedients, Boolean pooled) {
 		super();
