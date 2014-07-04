@@ -19,9 +19,8 @@ public class DocumentTasca {
 	private String descripcio;
 	private Long id;
 	private String arxiu;
+	private String urlCustodia;
 	private Date data;
-
-
 
 	public String getCodi() {
 		return codi;
@@ -59,5 +58,10 @@ public class DocumentTasca {
 	public void setData(Date data) {
 		this.data = data;
 	}
-
+	public String getUrlCustodia() {
+		return urlCustodia;
+	}
+	public void setUrlCustodia(String urlCustodia) {
+		this.urlCustodia = urlCustodia;
+	}
 }
