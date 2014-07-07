@@ -35,7 +35,7 @@ public class ExecucioMassivaDao extends HibernateGenericDao<ExecucioMassiva, Lon
 	public List<ExecucioMassiva> getExecucionsMassivesActivesByUser(String username) {
 		return findByCriteria(
 				Restrictions.and(
-						Restrictions.ge("dataInici", new Date()), 
+						Restrictions.le("dataInici", new Date()), 
 						Restrictions.isNull("dataFi")),
 						Restrictions.eq("usuari", username));
 	}

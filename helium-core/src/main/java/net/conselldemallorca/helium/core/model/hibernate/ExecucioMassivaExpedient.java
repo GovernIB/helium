@@ -61,6 +61,7 @@ public class ExecucioMassivaExpedient implements Serializable, GenericEntity<Lon
 		this.expedient = expedient;
 		this.ordre = ordre;
 		this.estat = ExecucioMassivaEstat.ESTAT_PENDENT;
+		this.dataInici = execucioMassiva.getDataInici();
 	}
 	public ExecucioMassivaExpedient(ExecucioMassiva execucioMassiva, Expedient expedient, String tascaId, int ordre) {
 		this.execucioMassiva = execucioMassiva;
@@ -68,12 +69,14 @@ public class ExecucioMassivaExpedient implements Serializable, GenericEntity<Lon
 		this.tascaId = tascaId;
 		this.ordre = ordre;
 		this.estat = ExecucioMassivaEstat.ESTAT_PENDENT;
+		this.dataInici = execucioMassiva.getDataInici();
 	}
 	public ExecucioMassivaExpedient(ExecucioMassiva execucioMassiva, String processInstanceId, int ordre) {
 		this.execucioMassiva = execucioMassiva;
 		this.processInstanceId = processInstanceId;
 		this.ordre = ordre;
 		this.estat = ExecucioMassivaEstat.ESTAT_PENDENT;
+		this.dataInici = execucioMassiva.getDataInici();
 	}
 
 	@Id
