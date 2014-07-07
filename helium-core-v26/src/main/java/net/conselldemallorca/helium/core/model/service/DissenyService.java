@@ -1006,8 +1006,14 @@ public class DissenyService {
 	}	
 	
 	public void deleteEstat(Long id, Long expedientTipusId) {
-		estatDao.delete(id);
-		reordenarEstats(expedientTipusId);
+		int i = 0;
+		for (Estat estat: findEstatAmbExpedientTipus(expedientTipusId)) {
+			if (id.equals(estat.getId())) {
+				estatDao.delete(estat);	
+			} else {
+				estat.setOrdre(i++);
+			}		
+		}
 	}
 	public List<Estat> findEstatAmbExpedientTipus(Long expedientTipusId) {
 		return estatDao.findAmbExpedientTipusOrdenats(expedientTipusId);
@@ -2354,12 +2360,6 @@ public class DissenyService {
 		int i = 0;
 		for (CampRegistre campRegistre: membres)
 			campRegistre.setOrdre(i++);
-	}
-	private void reordenarEstats(Long expedientTipusId) {
-		List<Estat> estats = estatDao.findAmbExpedientTipusOrdenats(expedientTipusId);
-		int i = 0;
-		for (Estat estat: estats)
-			estat.setOrdre(i++);
 	}
 	private void reordenarAgrupacions(Long definicioProcesId) {
 		List<CampAgrupacio> campsAgrupacio = campAgrupacioDao.findAmbDefinicioProcesOrdenats(definicioProcesId);
