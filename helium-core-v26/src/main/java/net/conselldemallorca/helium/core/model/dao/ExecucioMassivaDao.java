@@ -87,4 +87,15 @@ public class ExecucioMassivaDao extends HibernateGenericDao<ExecucioMassiva, Lon
 		}
 		return tasca;
 	}
+	
+	public Long getMinExecucioMassiva(Date ara) {
+		Query query = null;
+		query = getSession().createQuery(
+				"select min(id) " +
+						"			 from 	ExecucioMassiva " +
+						"			 where 	dataInici <= ? " +
+						"					and dataFi is null")
+						.setTimestamp(0, ara);
+		return (Long)query.uniqueResult();
+	}
 }

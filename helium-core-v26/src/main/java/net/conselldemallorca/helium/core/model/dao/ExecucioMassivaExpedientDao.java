@@ -24,9 +24,8 @@ public class ExecucioMassivaExpedientDao extends HibernateGenericDao<ExecucioMas
 	}
 
 	@SuppressWarnings("unchecked")
-	public ExecucioMassivaExpedient getExecucioMassivaActiva(Long lastMassiu) {
+	public ExecucioMassivaExpedient getExecucioMassivaActiva(Long lastMassiu, Date ara) {
 		Query query = null;
-		Date ara = new Date();
 		query = getSession().createQuery(
 				"select e " +
 				"from	ExecucioMassivaExpedient e " +
