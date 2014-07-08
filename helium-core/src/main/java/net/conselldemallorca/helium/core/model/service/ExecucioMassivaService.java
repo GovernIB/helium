@@ -320,7 +320,21 @@ public class ExecucioMassivaService {
 	}
 	
 	public OperacioMassivaDto getExecucionsMassivesActiva(Long ultimaExecucioMassiva) {
-		ExecucioMassivaExpedient expedient = execucioMassivaExpedientDao.getExecucioMassivaActiva(ultimaExecucioMassiva);
+		Date ara = new Date();
+		ExecucioMassivaExpedient expedient = execucioMassivaExpedientDao.getExecucioMassivaActiva(ultimaExecucioMassiva, ara);
+		
+		if (expedient == null) {
+			// Comprobamos si es una ejecución masiva sin expedientes asociados. En ese caso actualizamos la fecha de fin
+			Long mas = execucioMassivaDao.getMinExecucioMassiva(ara);
+			if (mas != null) {
+				ExecucioMassiva massiva = execucioMassivaDao.getById(mas, false);
+				if (massiva != null) {
+					massiva.setDataFi(new Date());
+					execucioMassivaDao.merge(massiva);
+					execucioMassivaDao.flush();
+				}
+			}
+		}
 		return dtoConverter.toOperacioMassiva(expedient);
 	}
 	
@@ -1124,7 +1138,7 @@ public class ExecucioMassivaService {
 	}
 	
 	public OperacioMassivaDto getOperacioMassivaActiva(Long ultimaMassiva) {
-		return dtoConverter.toOperacioMassiva(execucioMassivaExpedientDao.getExecucioMassivaActiva(ultimaMassiva));
+		return getExecucionsMassivesActiva(ultimaMassiva);
 	}
 	
 	public Long getNombreExecucionsMassivesActivesByUser(String username) {
