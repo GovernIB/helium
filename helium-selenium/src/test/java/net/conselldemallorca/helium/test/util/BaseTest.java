@@ -179,7 +179,7 @@ public abstract class BaseTest {
 		seycon = "true".equals(properties.getProperty("test.base.url.inicio.seycon"));
 		if (seycon) {
 			String user = properties.getProperty("test.base.usuari.configuracio");
-			String pass = properties.getProperty("test.base.usuari.configuracio");
+			String pass = properties.getProperty("test.base.usuari.configuracio.pass");
 			driver.findElement(By.xpath("//*[@id='j_username']")).sendKeys(user);
 			driver.findElement(By.xpath("//*[@id='j_password']")).sendKeys(pass);
 			driver.findElement(By.xpath("//*[@id='usuariclau']/form/p[3]/input")).click();
@@ -590,6 +590,7 @@ public abstract class BaseTest {
 		while (existeixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]")) {
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]/td[4]/a")).click();
 			acceptarAlerta();
+			existeixElementAssert("//*[@id='infos']/p", "No se borró la definición del proceso '" + nomDefProc+"'");
 		}
 	}
 	
@@ -850,7 +851,7 @@ public abstract class BaseTest {
 		driver.findElement(By.id("arxiu0")).sendKeys(path);
 		driver.findElement(By.xpath("//button[@value='submit']")).click();
 		
-		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut importar la definició de procés de test");
+		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut importar los datos de la definició de procés de '"+defProc+"' de la ruta '"+path+"'");
 	}
 	protected void eliminarExpedient(String numExpediente, String tituloExpediente) {
 		eliminarExpedient(numExpediente, tituloExpediente, null);
@@ -867,22 +868,12 @@ public abstract class BaseTest {
 	protected void borrarPrimerExpediente() {
 		existeixElementAssert("//*[@id='registre']/tbody/tr[1]/td[contains(a/img/@src,'/helium/img/cross.png')]/a/img", "No tenía permisos de borrado");
 		
-		String expediente = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[1]")).getText();
-		String fecha = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[2]")).getText();
-		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[contains(a/img/@src,'/helium/img/cross.png')]/a/img")).click();		
 		acceptarAlerta();		
 		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut borrar el expediente");
-		
-		if (existeixElement("//*[@id='registre']/tbody/tr[1]/td[1]")) {
-			String expedientePos = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[1]")).getText();
-			String fechaPos = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[2]")).getText();
-			
-			assertFalse("No se borró el expediente correctamente", expediente.equals(expedientePos) && fecha.equals(fechaPos));
-		}
 	}
 
-	protected String[] iniciarExpediente(String defProc, String codTipusExp, String numero, String titulo) {
+	protected String[] iniciarExpediente(String codTipusExp, String numero, String titulo) {
 		String[] res = new String[2];
 		
 		existeixElementAssert("//li[@id='menuIniciar']", "No tiene permisos para iniciar un expediente");
@@ -1174,11 +1165,41 @@ public abstract class BaseTest {
 		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();
 	}
 	
-	protected void seleccionarEntorno(String entorn) {
-		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
+	protected void consultarTareas(String tasca, String expediente, String tipusExp, boolean grupo) throws InterruptedException {
+		actions.moveToElement(driver.findElement(By.id("menuTasques")));
 		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + entorn + "')]/a")));
+		if (grupo)
+			actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuTasques']//a[@href='/helium/tasca/grupLlistat.html']")));
+		else
+			actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuTasques']//a[@href='/helium/tasca/personaLlistat.html']")));
 		actions.click();
 		actions.build().perform();
+		
+		if ("Mostrar filtre".equals(driver.findElement(By.xpath("//*[@id='botoFiltres']")).getText().trim()))
+			driver.findElement(By.xpath("//*[@id='botoFiltres']")).click();
+
+		driver.findElement(By.xpath("//*[@id='nom0']")).clear();
+		if (tasca != null)
+			driver.findElement(By.xpath("//*[@id='nom0']")).sendKeys(tasca);
+		
+		driver.findElement(By.xpath("//*[@id='expedient0']")).clear();
+		if (expediente != null)
+			driver.findElement(By.xpath("//*[@id='expedient0']")).sendKeys(expediente);
+		
+		if (tipusExp != null) {
+			WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='tipusExpedient0']"));
+			List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
+			for (WebElement option : options) {
+				if (option.getText().equals(tipusExp)) {
+					option.click();
+					break;
+				}
+			}
+		}
+		
+		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/tramitar_delegar_tasca/2.png");
+		
+		Thread.sleep(1000*5);
+		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[5]/button[1]")).click();
 	}
 }

@@ -14,29 +14,38 @@ import org.openqa.selenium.By;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AfegirExpedientRelacionat extends BaseTest {
 
-	String entorn = carregarPropietat("entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
-	String titolEntorn = carregarPropietat("entorn.nom", "Titol de l'entorn de proves no configurat al fitxer de properties");
+	String entorn = carregarPropietat("tramsel.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
+	String titolEntorn = carregarPropietat("tramsel.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
+	String nomSubDefProc = carregarPropietat("defproc.deploy.definicio.subproces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String pathDefProc = carregarPropietat("defproc.mod.exp.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String exportDefProc = carregarPropietat("defproc.mod.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String pathDefProc = carregarPropietatPath("defproc.mod.exp.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String exportDefProc = carregarPropietatPath("defproc.mod.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	
-	static String entornActual;
-
+	@Test
+	public void a0_inicialitzacio() {
+		carregarUrlConfiguracio();
+		crearEntorn(entorn, titolEntorn);
+		assignarPermisosEntorn(entorn, usuari, "DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
+		seleccionarEntorn(titolEntorn);
+		crearTipusExpedient(nomTipusExp, codTipusExp);
+	}
+	
 	@Test
 	public void a_afegirExpedientRelacionat() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 		
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
 		importarDadesDefPro(nomDefProc, exportDefProc);
 		
 		screenshotHelper.saveScreenshot("tramitar/AfegirExpedientRelacionat/1.png");
 		
-		String[] res_dest = iniciarExpediente(nomDefProc,codTipusExp,"SE-21/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
-		String[] res_orig = iniciarExpediente(nomDefProc,codTipusExp,"SE-22/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
+		String[] res_dest = iniciarExpediente(codTipusExp,"SE-21/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
+		String[] res_orig = iniciarExpediente(codTipusExp,"SE-22/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
 
 		consultarExpedientes(res_orig[0], res_orig[1], nomTipusExp);
 
@@ -71,5 +80,25 @@ public class AfegirExpedientRelacionat extends BaseTest {
 		eliminarDefinicioProces(nomDefProc);
 		
 		screenshotHelper.saveScreenshot("tramitar/AfegirExpedientRelacionat/6.png");
+	}
+
+	@Test
+	public void z_limpiar() throws InterruptedException {
+		carregarUrlConfiguracio();
+		
+		seleccionarEntorn(titolEntorn);
+		
+		eliminarExpedient(null, null, nomTipusExp);
+			
+		// Eliminar la def de proceso
+		eliminarDefinicioProces(nomDefProc);
+		eliminarDefinicioProces(nomSubDefProc);
+		
+		// Eliminar el tipo de expediente
+		eliminarTipusExpedient(codTipusExp);
+		
+		eliminarEntorn(entorn);
+		
+		screenshotHelper.saveScreenshot("TasquesDadesTasca/finalizar_expedient/1.png");	
 	}
 }

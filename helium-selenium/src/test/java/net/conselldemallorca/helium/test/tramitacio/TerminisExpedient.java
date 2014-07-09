@@ -19,30 +19,41 @@ import org.openqa.selenium.WebElement;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TerminisExpedient extends BaseTest {
 
-	String entorn = carregarPropietat("entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
+	String entorn = carregarPropietat("tramsel.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
+	String titolEntorn = carregarPropietat("tramsel.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String pathDefProc = carregarPropietat("defproc.mod.exp.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String nomSubDefProc = carregarPropietat("defproc.deploy.definicio.subproces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String pathDefProc = carregarPropietatPath("defproc.mod.exp.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String pathExportDefProc = carregarPropietatPath("defproc.termini.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
-	String tipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
+	
+	@Test
+	public void a0_inicialitzacio() {
+		carregarUrlConfiguracio();
+		crearEntorn(entorn, titolEntorn);
+		assignarPermisosEntorn(entorn, usuari, "DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
+		seleccionarEntorn(titolEntorn);
+		crearTipusExpedient(nomTipusExp, codTipusExp);
+	}
 	
 	@Test
 	public void a_inicializar_expedients() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 
 		screenshotHelper.saveScreenshot("TerminisExpedient/inicializar_expedients/1.png");
 
 		crearTipusExpedient(nomTipusExp, codTipusExp);
 		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
-		importarDadesDefPro(nomDefProc, properties.getProperty("defproc.termini.exp.export.arxiu.path"));
+		importarDadesDefPro(nomDefProc, pathExportDefProc);
 
 		screenshotHelper.saveScreenshot("TerminisExpedient/inicializar_expedients/2.png");
 		
-		iniciarExpediente(nomDefProc,codTipusExp,"SE-22/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
+		iniciarExpediente(codTipusExp,"SE-22/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
 		
 		screenshotHelper.saveScreenshot("TerminisExpedient/inicializar_expedients/3.png");
 	}
@@ -51,7 +62,7 @@ public class TerminisExpedient extends BaseTest {
 	public void b_visualizar_terminis() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 		
 		screenshotHelper.saveScreenshot("TerminisExpedient/visualizar_terminis/1.png");
 		
@@ -123,7 +134,7 @@ public class TerminisExpedient extends BaseTest {
 	public void c_iniciar_terminis() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 		
 		screenshotHelper.saveScreenshot("TerminisExpedient/iniciar_terminis/1.png");
 		
@@ -220,7 +231,7 @@ public class TerminisExpedient extends BaseTest {
 	public void d_aturar_terminis() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 		
 		screenshotHelper.saveScreenshot("TerminisExpedient/aturar_terminis/1.png");
 		
@@ -297,7 +308,7 @@ public class TerminisExpedient extends BaseTest {
 	public void e_cancelar_terminis() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 		
 		screenshotHelper.saveScreenshot("TerminisExpedient/cancelar_terminis/1.png");
 		
@@ -369,20 +380,24 @@ public class TerminisExpedient extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("TerminisExpedient/cancelar_terminis/4.png");
 	}
-	
+
 	@Test
-	public void z_finalizar_expedient() throws InterruptedException {
+	public void z_limpiar() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 		
-		screenshotHelper.saveScreenshot("TerminisExpedient/finalizar_documents/1.png");	
-		
-		eliminarExpedient(null, null, tipusExp);
+		eliminarExpedient(null, null, nomTipusExp);
 			
 		// Eliminar la def de proceso
 		eliminarDefinicioProces(nomDefProc);
+		eliminarDefinicioProces(nomSubDefProc);
 		
-		screenshotHelper.saveScreenshot("TerminisExpedient/finalizar_documents/2.png");	
+		// Eliminar el tipo de expediente
+		eliminarTipusExpedient(codTipusExp);
+		
+		eliminarEntorn(entorn);
+		
+		screenshotHelper.saveScreenshot("TasquesDadesTasca/finalizar_expedient/1.png");	
 	}
 }

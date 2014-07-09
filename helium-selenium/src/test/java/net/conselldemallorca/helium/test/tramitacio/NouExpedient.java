@@ -17,20 +17,32 @@ import org.openqa.selenium.WebElement;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class NouExpedient extends BaseTest {
 
-	String entorn = carregarPropietat("entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
+	String entorn = carregarPropietat("tramsel.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
+	String titolEntorn = carregarPropietat("tramsel.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
+	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
+	String nomSubDefProc = carregarPropietat("defproc.deploy.definicio.subproces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
-	String pathDefProc = carregarPropietat("defproc.nou.exp.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String exportDefProc = carregarPropietat("defproc.nou.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String pathDefProc = carregarPropietatPath("defproc.nou.exp.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String exportDefProc = carregarPropietatPath("defproc.nou.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 		
 	static String entornActual;
 
 	@Test
+	public void a0_inicialitzacio() {
+		carregarUrlConfiguracio();
+		crearEntorn(entorn, titolEntorn);
+		assignarPermisosEntorn(entorn, usuari, "DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
+		seleccionarEntorn(titolEntorn);
+		crearTipusExpedient(nomTipusExp, codTipusExp);
+	}
+	
+	@Test
 	public void b_listadoTipExp() throws InterruptedException {
 		carregarUrlConfiguracio();
 
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 		
 		existeixElementAssert("//li[@id='menuIniciar']", "No tiene permisos para iniciar un expediente");
 		driver.findElement(By.xpath("//*[@id='menuIniciar']/a")).click();
@@ -46,7 +58,7 @@ public class NouExpedient extends BaseTest {
 	public void c_inici_any() throws InterruptedException {
 		carregarUrlConfiguracio();
 
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 		
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
 		importarDadesDefPro(nomDefProc, exportDefProc);
@@ -96,7 +108,7 @@ public class NouExpedient extends BaseTest {
 
 		screenshotHelper.saveScreenshot("NouExpedient/inici_any/3.png");
 		
-		String[] res = iniciarExpediente(nomDefProc,codTipusExp,"SE-22/2014", null);
+		String[] res = iniciarExpediente(codTipusExp,"SE-22/2014", null);
 		
 		// Eliminar el expediente
 		eliminarExpedient(res[0], res[1]);
@@ -110,7 +122,7 @@ public class NouExpedient extends BaseTest {
 	public void d_inici_titol() throws InterruptedException {
 		carregarUrlConfiguracio();
 
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 			
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
 		importarDadesDefPro(nomDefProc, exportDefProc);
@@ -158,7 +170,7 @@ public class NouExpedient extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("NouExpedient/inici_titol/3.png");
 		
-		String[] res = iniciarExpediente(nomDefProc,codTipusExp,null, "Expedient de prova Selenium " + (new Date()).getTime() );
+		String[] res = iniciarExpediente(codTipusExp,null, "Expedient de prova Selenium " + (new Date()).getTime() );
 		
 		// Eliminar el expediente
 		eliminarExpedient(res[0], res[1]);
@@ -172,7 +184,7 @@ public class NouExpedient extends BaseTest {
 	public void e_iniciVersioExp() throws InterruptedException {
 		carregarUrlConfiguracio();
 
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 		
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
 		importarDadesDefPro(nomDefProc, exportDefProc);
@@ -239,7 +251,7 @@ public class NouExpedient extends BaseTest {
 	public void f_iniciAmbTascaIniExp() throws InterruptedException {
 		carregarUrlConfiguracio();
 
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 				
 		String pathDefProc = carregarPropietat("defproc.nou_tasca_ini.exp.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 		String exportDefProc = carregarPropietat("defproc.nou_tasca_ini.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
@@ -307,5 +319,25 @@ public class NouExpedient extends BaseTest {
 		eliminarDefinicioProces(nomDefProc);
 		
 		screenshotHelper.saveScreenshot("NouExpedient/iniciAmbTascaIniExp/5.png");
+	}
+
+	@Test
+	public void z_limpiar() throws InterruptedException {
+		carregarUrlConfiguracio();
+		
+		seleccionarEntorn(titolEntorn);
+		
+		eliminarExpedient(null, null, nomTipusExp);
+			
+		// Eliminar la def de proceso
+		eliminarDefinicioProces(nomDefProc);
+		eliminarDefinicioProces(nomSubDefProc);
+		
+		// Eliminar el tipo de expediente
+		eliminarTipusExpedient(codTipusExp);
+		
+		eliminarEntorn(entorn);
+		
+		screenshotHelper.saveScreenshot("TasquesDadesTasca/finalizar_expedient/1.png");	
 	}
 }

@@ -16,37 +16,48 @@ import org.openqa.selenium.WebElement;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DocumentsExpedient extends BaseTest {
 
-	String entorn = carregarPropietat("entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
+	String entorn = carregarPropietat("tramsel.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
+	String titolEntorn = carregarPropietat("tramsel.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
+	String nomSubDefProc = carregarPropietat("defproc.deploy.definicio.subproces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String pathDefProc = carregarPropietat("defproc.mod.exp.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String pathDefProc = carregarPropietatPath("defproc.mod.exp.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String pathDefProcTermini = carregarPropietatPath("defproc.termini.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
-	String tipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	
-	String pathArxiuPDF1 = carregarPropietat("deploy.arxiu.pdf.tramitacio_1", "Documento PDF a adjuntar 1");
+	String pathArxiuPDF1 = carregarPropietatPath("deploy.arxiu.pdf.tramitacio_1", "Documento PDF a adjuntar 1");
 	String hashArxiuPDF1 = carregarPropietat("deploy.arxiu.pdf.tramitacio_1.hash", "Hash documento PDF a adjuntar 1");
 	
-	String pathArxiuPDF2 = carregarPropietat("deploy.arxiu.pdf.tramitacio_2", "Documento PDF a adjuntar 1");
+	String pathArxiuPDF2 = carregarPropietatPath("deploy.arxiu.pdf.tramitacio_2", "Documento PDF a adjuntar 1");
 	String hashArxiuPDF2 = carregarPropietat("deploy.arxiu.pdf.tramitacio_2.hash", "Hash documento PDF a adjuntar 2");
 	
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
 	
 	@Test
+	public void a0_inicialitzacio() {
+		carregarUrlConfiguracio();
+		crearEntorn(entorn, titolEntorn);
+		assignarPermisosEntorn(entorn, usuari, "DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
+		seleccionarEntorn(titolEntorn);
+		crearTipusExpedient(nomTipusExp, codTipusExp);
+	}
+	
+	@Test
 	public void a_inicializar_documents() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 
 		screenshotHelper.saveScreenshot("documentsexpedient/iniciar_expedient/1.png");
 
 		crearTipusExpedient(nomTipusExp, codTipusExp);
 		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
-		importarDadesDefPro(nomDefProc, properties.getProperty("defproc.termini.exp.export.arxiu.path"));
+		importarDadesDefPro(nomDefProc, pathDefProcTermini);
 
 		screenshotHelper.saveScreenshot("documentsexpedient/iniciar_expedient/2.png");
 		
-		iniciarExpediente(nomDefProc,codTipusExp,"SE-22/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
+		iniciarExpediente(codTipusExp,"SE-22/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
 		
 		screenshotHelper.saveScreenshot("documentsexpedient/iniciar_expedient/3.png");
 	}
@@ -55,7 +66,7 @@ public class DocumentsExpedient extends BaseTest {
 	public void b_adjuntar_documents() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 		
 		// Adjuntamos 2 documentos
 		adjuntarDocExpediente(null, null, "Título del documento 1", "12/12/2014", pathArxiuPDF1);
@@ -69,7 +80,7 @@ public class DocumentsExpedient extends BaseTest {
 	public void c_visualizacio_documents_i_descarrega() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 		
 		screenshotHelper.saveScreenshot("documentsexpedient/visualizacio_documents_i_descarrega/1.png");
 		
@@ -97,7 +108,7 @@ public class DocumentsExpedient extends BaseTest {
 	public void d_generar_document() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 		
 		screenshotHelper.saveScreenshot("documentsexpedient/generar_document/1.png");
 		
@@ -135,7 +146,7 @@ public class DocumentsExpedient extends BaseTest {
 	public void e_descarregar_document() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 		
 		screenshotHelper.saveScreenshot("documentsexpedient/descarregar_document/1.png");
 		
@@ -167,7 +178,7 @@ public class DocumentsExpedient extends BaseTest {
 	public void f_modificar_data_document() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 		
 		screenshotHelper.saveScreenshot("documentsexpedient/modificar_data_document/1.png");
 		
@@ -213,7 +224,7 @@ public class DocumentsExpedient extends BaseTest {
 	public void g_esborrar_document_adjunt() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 		
 		screenshotHelper.saveScreenshot("documentsexpedient/esborrar_document_adjunt/1.png");
 		
@@ -241,7 +252,7 @@ public class DocumentsExpedient extends BaseTest {
 	public void h_esborrar_document_tipus_expedient() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 		
 		screenshotHelper.saveScreenshot("documentsexpedient/esborrar_document_tipus_expedient/1.png");
 		
@@ -283,18 +294,24 @@ public class DocumentsExpedient extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("documentsexpedient/esborrar_document_tipus_expedient/4.png");
 	}
-	
+
 	@Test
-	public void z_finalizar_documents() throws InterruptedException {
-		carregarUrlConfiguracio(); 
+	public void z_limpiar() throws InterruptedException {
+		carregarUrlConfiguracio();
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 		
-		eliminarExpedient(null, null, tipusExp);
+		eliminarExpedient(null, null, nomTipusExp);
 			
 		// Eliminar la def de proceso
 		eliminarDefinicioProces(nomDefProc);
+		eliminarDefinicioProces(nomSubDefProc);
 		
-		screenshotHelper.saveScreenshot("documentsexpedient/finalizar_documents/1.png");		
+		// Eliminar el tipo de expediente
+		eliminarTipusExpedient(codTipusExp);
+		
+		eliminarEntorn(entorn);
+		
+		screenshotHelper.saveScreenshot("TasquesDadesTasca/finalizar_expedient/1.png");	
 	}
 }

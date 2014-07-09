@@ -33,7 +33,7 @@ public class Expedient extends BaseTest {
 	public void c_netejar_filtre() throws InterruptedException, ParseException {	
 		carregarUrlConfiguracio();
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(entorn);
 		
 		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
 		actions.build().perform();
@@ -85,7 +85,7 @@ public class Expedient extends BaseTest {
 	public void d_anular_expedient() throws InterruptedException, ParseException {	
 		carregarUrlConfiguracio();
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(entorn);
 		
 		// Comprobamos permisos de borrado
 		
@@ -112,7 +112,7 @@ public class Expedient extends BaseTest {
 	public void e_mostrar_anulats() throws InterruptedException, ParseException {
 		carregarUrlConfiguracio();
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(entorn);
 		
 		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
 		actions.build().perform();
@@ -179,7 +179,7 @@ public class Expedient extends BaseTest {
 	public void g_resultats_per_pagina() throws InterruptedException, ParseException {
 		carregarUrlConfiguracio();
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(entorn);
 		
 		consultarExpedientes(null, null, tipusExp);
 		
@@ -211,7 +211,7 @@ public class Expedient extends BaseTest {
 	public void f_desplegar_tasques_expedient() throws InterruptedException, ParseException {	
 		carregarUrlConfiguracio();
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(entorn);
 		
 		// Asignamos permisos
 		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
@@ -233,7 +233,7 @@ public class Expedient extends BaseTest {
 
 		carregarUrlConfiguracio();
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(entorn);
 		
 		// Asignamos permisos
 		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
@@ -262,7 +262,7 @@ public class Expedient extends BaseTest {
 	public void i_obrir_expedient() throws InterruptedException, ParseException {	
 		carregarUrlConfiguracio();
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(entorn);
 		
 		// Asignamos permisos
 		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
@@ -281,7 +281,7 @@ public class Expedient extends BaseTest {
 	public void j_seleccio_tasques_i_acces_a_tramitacio_massiva() throws InterruptedException, ParseException {	
 		carregarUrlConfiguracio();
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(entorn);
 		
 		consultarExpedientes(null, null, tipusExp);
 		
@@ -402,7 +402,7 @@ public class Expedient extends BaseTest {
 	public void l_aturar_expedient() throws InterruptedException, ParseException {
 		carregarUrlConfiguracio();
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(entorn);
 		
 		// Comprobamos permisos de borrado
 		
@@ -449,7 +449,7 @@ public class Expedient extends BaseTest {
 	public void n_borrar_expedient() throws InterruptedException, ParseException {	
 		carregarUrlConfiguracio();
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(entorn);
 		
 		// Comprobamos permisos de borrado
 		

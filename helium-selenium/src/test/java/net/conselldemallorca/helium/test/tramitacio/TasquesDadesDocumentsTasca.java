@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import net.conselldemallorca.helium.test.util.BaseTest;
 
@@ -21,21 +20,31 @@ import org.openqa.selenium.WebElement;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TasquesDadesDocumentsTasca extends BaseTest {
 	
-	String entorn = carregarPropietat("entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
+	String entorn = carregarPropietat("tramsel.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
+	String titolEntorn = carregarPropietat("tramsel.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String pathDefProc = carregarPropietat("tramsel.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String nomSubDefProc = carregarPropietat("defproc.deploy.definicio.subproces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String pathDefProc = carregarPropietatPath("tramsel.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
-	String pathArxiuPDF1 = carregarPropietat("deploy.arxiu.pdf.tramitacio_1", "Documento PDF a adjuntar 1");
+	String pathArxiuPDF1 = carregarPropietatPath("deploy.arxiu.pdf.tramitacio_1", "Documento PDF a adjuntar 1");
 	String hashArxiuPDF1 = carregarPropietat("deploy.arxiu.pdf.tramitacio_1.hash", "Hash documento PDF a adjuntar 1");
-	String tipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
+	
+	@Test
+	public void a0_inicialitzacio() {
+		carregarUrlConfiguracio();
+		crearEntorn(entorn, titolEntorn);
+		assignarPermisosEntorn(entorn, usuari, "DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
+		seleccionarEntorn(titolEntorn);
+		crearTipusExpedient(nomTipusExp, codTipusExp);
+	}
 	
 	@Test
 	public void a_iniciar_expedient() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 
 		screenshotHelper.saveScreenshot("TasquesDadesTasca/iniciar_expedient/1.png");
 
@@ -46,7 +55,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		importarDadesTipExp(codTipusExp, properties.getProperty("tipexp.tasca_dades_doc.exp.export.arxiu.path"));
 		screenshotHelper.saveScreenshot("TasquesExpedient/iniciar_expedient/2.png");
 		
-		iniciarExpediente(nomDefProc, codTipusExp, "SE-22/2014", "Expedient de prova Selenium " + (new Date()).getTime());
+		iniciarExpediente( codTipusExp, "SE-22/2014", "Expedient de prova Selenium " + (new Date()).getTime());
 
 		screenshotHelper.saveScreenshot("TasquesDadesTasca/iniciar_expedient/2.png");
 	}
@@ -56,7 +65,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		
 		carregarUrlConfiguracio();
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
@@ -151,29 +160,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 			}
 		}
 		
-		actions.moveToElement(driver.findElement(By.id("menuTasques")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuTasques']/ul/li[1]/a")));
-		actions.click();
-		actions.build().perform();
-		
-		if ("Mostrar filtre".equals(driver.findElement(By.xpath("//*[@id='botoFiltres']")).getText().trim()))
-			driver.findElement(By.xpath("//*[@id='botoFiltres']")).click();
-
-		driver.findElement(By.xpath("//*[@id='nom0']")).clear();
-		
-		driver.findElement(By.xpath("//*[@id='expedient0']")).clear();
-		
-		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='tipusExpedient0']"));
-		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
-		for (WebElement option : options) {
-			if (option.getText().equals(properties.getProperty("defproc.deploy.tipus.expedient.nom"))) {
-				option.click();
-				break;
-			}
-		}
-		
-		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[5]/button[1]")).click();
+		consultarTareas(null, null, nomTipusExp, false);
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr/td[contains(a/text(), 'Tasca primera')]/a")).click();
 				
@@ -201,7 +188,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		
 		carregarUrlConfiguracio();
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
@@ -258,29 +245,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 			}
 		}
 		
-		actions.moveToElement(driver.findElement(By.id("menuTasques")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuTasques']/ul/li[1]/a")));
-		actions.click();
-		actions.build().perform();
-		
-		if ("Mostrar filtre".equals(driver.findElement(By.xpath("//*[@id='botoFiltres']")).getText().trim()))
-			driver.findElement(By.xpath("//*[@id='botoFiltres']")).click();
-
-		driver.findElement(By.xpath("//*[@id='nom0']")).clear();
-		
-		driver.findElement(By.xpath("//*[@id='expedient0']")).clear();
-		
-		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='tipusExpedient0']"));
-		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
-		for (WebElement option : options) {
-			if (option.getText().equals(properties.getProperty("defproc.deploy.tipus.expedient.nom"))) {
-				option.click();
-				break;
-			}
-		}
-		
-		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[5]/button[1]")).click();
+		consultarTareas(null, null, nomTipusExp, false);
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[contains(a/text(), 'Tasca primera')]/a")).click();
 				
@@ -354,7 +319,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		
 		carregarUrlConfiguracio();
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
@@ -385,29 +350,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 			i++;
 		}
 		
-		actions.moveToElement(driver.findElement(By.id("menuTasques")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuTasques']/ul/li[1]/a")));
-		actions.click();
-		actions.build().perform();
-		
-		if ("Mostrar filtre".equals(driver.findElement(By.xpath("//*[@id='botoFiltres']")).getText().trim()))
-			driver.findElement(By.xpath("//*[@id='botoFiltres']")).click();
-
-		driver.findElement(By.xpath("//*[@id='nom0']")).clear();
-		
-		driver.findElement(By.xpath("//*[@id='expedient0']")).clear();
-		
-		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='tipusExpedient0']"));
-		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
-		for (WebElement option : options) {
-			if (option.getText().equals(properties.getProperty("defproc.deploy.tipus.expedient.nom"))) {
-				option.click();
-				break;
-			}
-		}
-		
-		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[5]/button[1]")).click();
+		consultarTareas(null, null, nomTipusExp, false);
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[contains(a/text(), 'Tasca primera')]/a")).click();
 				
@@ -422,7 +365,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 				driver.findElement(By.xpath("//*/h4[contains(label/text(), '"+documento.getNom()+"')]/parent::div/form/div/div[3]/button")).click();
 			}
 			
-			driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+			Thread.sleep(1000*20);
 			
 			existeixElementAssert("//*[@id='infos']/p", "No se firmó correctamente");
 			
@@ -455,31 +398,9 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		// Ejecutamos el inicio de un termini de prueba
 		carregarUrlConfiguracio();
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 		
-		actions.moveToElement(driver.findElement(By.id("menuTasques")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuTasques']/ul/li[1]/a")));
-		actions.click();
-		actions.build().perform();
-		
-		if ("Mostrar filtre".equals(driver.findElement(By.xpath("//*[@id='botoFiltres']")).getText().trim()))
-			driver.findElement(By.xpath("//*[@id='botoFiltres']")).click();
-
-		driver.findElement(By.xpath("//*[@id='nom0']")).clear();
-		
-		driver.findElement(By.xpath("//*[@id='expedient0']")).clear();
-		
-		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='tipusExpedient0']"));
-		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
-		for (WebElement option : options) {
-			if (option.getText().equals(properties.getProperty("defproc.deploy.tipus.expedient.nom"))) {
-				option.click();
-				break;
-			}
-		}
-		
-		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[5]/button[1]")).click();
+		consultarTareas(null, null, nomTipusExp, false);
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[2]/a")).click();
 		
@@ -487,29 +408,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		
 		assertTrue("El termini ya estaba iniciado", driver.findElement(By.xpath("//*[@id='registre']/tbody/tr/td[contains(text(), 'Term nou')]/parent::tr/td[7]/a/img")).getAttribute("src").endsWith("/helium/img/control_play_blue.png"));
 		
-		actions.moveToElement(driver.findElement(By.id("menuTasques")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuTasques']/ul/li[1]/a")));
-		actions.click();
-		actions.build().perform();
-		
-		if ("Mostrar filtre".equals(driver.findElement(By.xpath("//*[@id='botoFiltres']")).getText().trim()))
-			driver.findElement(By.xpath("//*[@id='botoFiltres']")).click();
-
-		driver.findElement(By.xpath("//*[@id='nom0']")).clear();
-		
-		driver.findElement(By.xpath("//*[@id='expedient0']")).clear();
-		
-		selectTipusExpedient = driver.findElement(By.xpath("//*[@id='tipusExpedient0']"));
-		options = selectTipusExpedient.findElements(By.tagName("option"));
-		for (WebElement option : options) {
-			if (option.getText().equals(properties.getProperty("defproc.deploy.tipus.expedient.nom"))) {
-				option.click();
-				break;
-			}
-		}
-		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[1]/a")).click();
+		consultarTareas(null, null, nomTipusExp, false);
 		
 		driver.findElement(By.xpath("//*[@id='command']/div/div[contains(p/text(), 'Acció prova')]/div/button")).click();
 		
@@ -529,31 +428,9 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 	public void y_finalizar() throws InterruptedException, IOException {
 		carregarUrlConfiguracio();
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 		
-		actions.moveToElement(driver.findElement(By.id("menuTasques")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuTasques']/ul/li[1]/a")));
-		actions.click();
-		actions.build().perform();
-		
-		if ("Mostrar filtre".equals(driver.findElement(By.xpath("//*[@id='botoFiltres']")).getText().trim()))
-			driver.findElement(By.xpath("//*[@id='botoFiltres']")).click();
-
-		driver.findElement(By.xpath("//*[@id='nom0']")).clear();
-		
-		driver.findElement(By.xpath("//*[@id='expedient0']")).clear();
-		
-		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='tipusExpedient0']"));
-		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
-		for (WebElement option : options) {
-			if (option.getText().equals(properties.getProperty("defproc.deploy.tipus.expedient.nom"))) {
-				option.click();
-				break;
-			}
-		}
-		
-		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[5]/button[1]")).click();
+		consultarTareas(null, null, nomTipusExp, false);
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[contains(a/text(), 'Tasca primera')]/a")).click();
 						
@@ -561,17 +438,23 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		acceptarAlerta();
 		existeixElementAssert("//*[@id='infos']/p", "No se finalizó correctamente");
 	}
-	
+
 	@Test
-	public void z_eliminar_expedient() throws InterruptedException {
+	public void z_limpiar() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
-		seleccionarEntorno(entorn);
+		seleccionarEntorn(titolEntorn);
 		
-		eliminarExpedient(null, null, tipusExp);
+		eliminarExpedient(null, null, nomTipusExp);
 			
 		// Eliminar la def de proceso
 		eliminarDefinicioProces(nomDefProc);
+		eliminarDefinicioProces(nomSubDefProc);
+		
+		// Eliminar el tipo de expediente
+		eliminarTipusExpedient(codTipusExp);
+		
+		eliminarEntorn(entorn);
 		
 		screenshotHelper.saveScreenshot("TasquesDadesTasca/finalizar_expedient/1.png");	
 	}

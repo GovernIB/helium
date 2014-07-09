@@ -43,30 +43,30 @@ public class ConsultaExpedients extends BaseTest {
 		assignarPermisosTipusExpedient(codTipusExp2, usuari, "CREATE","WRITE","DELETE","READ");
 		
 		// Iniciam 12 expedients de cada tipus
-		iniciarExpediente(null, codTipusExp1, null, null);
-		iniciarExpediente(null, codTipusExp1, null, null);
-		iniciarExpediente(null, codTipusExp1, null, null);
-		iniciarExpediente(null, codTipusExp1, null, null);
-		iniciarExpediente(null, codTipusExp1, null, null);
-		iniciarExpediente(null, codTipusExp1, null, null);
-		iniciarExpediente(null, codTipusExp1, null, null);
-		iniciarExpediente(null, codTipusExp1, null, null);
-		iniciarExpediente(null, codTipusExp1, null, null);
-		iniciarExpediente(null, codTipusExp1, null, null);
-		iniciarExpediente(null, codTipusExp1, null, null);
-		iniciarExpediente(null, codTipusExp1, null, null);
-		iniciarExpediente(null, codTipusExp2, null, null);
-		iniciarExpediente(null, codTipusExp2, null, null);
-		iniciarExpediente(null, codTipusExp2, null, null);
-		iniciarExpediente(null, codTipusExp2, null, null);
-		iniciarExpediente(null, codTipusExp2, null, null);
-		iniciarExpediente(null, codTipusExp2, null, null);
-		iniciarExpediente(null, codTipusExp2, null, null);
-		iniciarExpediente(null, codTipusExp2, null, null);
-		iniciarExpediente(null, codTipusExp2, null, null);
-		iniciarExpediente(null, codTipusExp2, null, null);
-		iniciarExpediente(null, codTipusExp2, null, null);
-		iniciarExpediente(null, codTipusExp2, null, null);
+		iniciarExpediente(codTipusExp1, null, null);
+		iniciarExpediente(codTipusExp1, null, null);
+		iniciarExpediente(codTipusExp1, null, null);
+		iniciarExpediente(codTipusExp1, null, null);
+		iniciarExpediente(codTipusExp1, null, null);
+		iniciarExpediente(codTipusExp1, null, null);
+		iniciarExpediente(codTipusExp1, null, null);
+		iniciarExpediente(codTipusExp1, null, null);
+		iniciarExpediente(codTipusExp1, null, null);
+		iniciarExpediente(codTipusExp1, null, null);
+		iniciarExpediente(codTipusExp1, null, null);
+		iniciarExpediente(codTipusExp1, null, null);
+		iniciarExpediente(codTipusExp2, null, null);
+		iniciarExpediente(codTipusExp2, null, null);
+		iniciarExpediente(codTipusExp2, null, null);
+		iniciarExpediente(codTipusExp2, null, null);
+		iniciarExpediente(codTipusExp2, null, null);
+		iniciarExpediente(codTipusExp2, null, null);
+		iniciarExpediente(codTipusExp2, null, null);
+		iniciarExpediente(codTipusExp2, null, null);
+		iniciarExpediente(codTipusExp2, null, null);
+		iniciarExpediente(codTipusExp2, null, null);
+		iniciarExpediente(codTipusExp2, null, null);
+		iniciarExpediente(codTipusExp2, null, null);
 		
 		// Tramitam expedients
 		
