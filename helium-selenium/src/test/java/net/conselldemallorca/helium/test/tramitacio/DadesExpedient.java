@@ -23,6 +23,7 @@ public class DadesExpedient extends BaseTest {
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
 	String pathDefProc = carregarPropietatPath("defproc.deploy.definicio.subproces.main.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String pathSubDefProc = carregarPropietatPath("defproc.subproces.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String exportTipExpProc = carregarPropietatPath("tipexp.tasca_dades_doc.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String exportDefProc = carregarPropietatPath("defproc.tasca_dades.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
@@ -34,6 +35,7 @@ public class DadesExpedient extends BaseTest {
 		assignarPermisosEntorn(entorn, usuari, "DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
 		seleccionarEntorn(titolEntorn);
 		crearTipusExpedient(nomTipusExp, codTipusExp);
+		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 	}
 	
 	@Test
@@ -41,26 +43,22 @@ public class DadesExpedient extends BaseTest {
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
-
-		desplegarDefinicioProcesEntorn(nomTipusExp, nomSubDefProc, pathSubDefProc);
-		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
 		
-		importarDadesDefPro(nomDefProc, exportDefProc);
-		importarDadesDefPro(nomSubDefProc, exportDefProc);
+		importarDadesTipExp(codTipusExp, exportTipExpProc);
 		
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/crear_dades/1.png");
 	}
 
-	@Test
-	public void b_visualizacio_dades_process() throws InterruptedException {
-		// Básicos, múltiples y registros
+//	@Test
+	public void b1_visualizacio_dades_process() throws InterruptedException {
+		
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
 		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]")));
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/definicioProces/llistat.html')]")));
 		actions.click();
 		actions.build().perform();
 		
@@ -68,7 +66,7 @@ public class DadesExpedient extends BaseTest {
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'"+nomDefProc+"')]")).click();
 				
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[3]/a")).click();
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/definicioProces/campLlistat.html')]")).click();
 		
 		int i = 1;
 		while(i <= driver.findElements(By.xpath("//*[@id='registre']/tbody/tr")).size()) {
@@ -110,16 +108,16 @@ public class DadesExpedient extends BaseTest {
 		}
 	}
 
-	@Test
-	public void c_visualizacio_dades_subprocess() throws InterruptedException {
-		// Básicos, múltiples y registros
+//	@Test
+	public void b2_visualizacio_dades_subprocess() throws InterruptedException {
+		
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
 		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]")));
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/definicioProces/llistat.html')]")));
 		actions.click();
 		actions.build().perform();
 		
@@ -142,7 +140,7 @@ public class DadesExpedient extends BaseTest {
 		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]")));
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/definicioProces/llistat.html')]")));
 		actions.click();
 		actions.build().perform();
 		
@@ -163,7 +161,7 @@ public class DadesExpedient extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/visualizacio_dades_subprocess/2.png");		
 		
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[3]/a")).click();
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/definicioProces/campLlistat.html')]")).click();
 		
 		int i = 1;
 		while(i <= driver.findElements(By.xpath("//*[@id='registre']/tbody/tr")).size()) {
@@ -203,16 +201,16 @@ public class DadesExpedient extends BaseTest {
 		}
 	}
 
-	@Test
+//	@Test
 	public void c_ordre_i_agrupacions() throws InterruptedException {
-		// Básicos, múltiples y registros
+		
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
 		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]")));
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/definicioProces/llistat.html')]")));
 		actions.click();
 		actions.build().perform();
 		
@@ -220,12 +218,12 @@ public class DadesExpedient extends BaseTest {
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'"+nomDefProc+"')]")).click();
 				
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[6]/a")).click();
+		driver.findElement(By.xpath("//a[contains(@href,'/definicioProces/campAgrupacioLlistat.html')]")).click();
 		
 		int i = 1;
 		int numAgrupaciones = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr")).size();
 		while(i <= numAgrupaciones) {
-			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr["+i+"]")).click();
+			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr["+i+"]//a")).click();
 			
 			driver.findElement(By.xpath("//*[@id='codi0']")).clear();
 			driver.findElement(By.xpath("//*[@id='codi0']")).sendKeys("Agrupacion_"+i);
@@ -238,7 +236,7 @@ public class DadesExpedient extends BaseTest {
 						
 			screenshotHelper.saveScreenshot("tramitar/dadesexpedient/ordre_i_agrupacions/2"+i+".png");
 			
-			driver.findElement(By.xpath("//button[contains(text(), 'Modificar')]")).click();
+			driver.findElement(By.xpath("//*[@id='command']//button[contains(text(), 'Modificar')]")).click();
 			
 			existeixElementAssert("//*[@id='infos']/p", "No se modificó la agrupación de la fila " + i);
 
@@ -307,9 +305,9 @@ public class DadesExpedient extends BaseTest {
 		existeixElementAssert("//*[@id='infos']/p", "No se borró la agrupación de la fila " + numAgrupaciones+i);
 	}
 	
-	@Test
+//	@Test
 	public void d_iniciar_expediente() throws InterruptedException {
-		// Básicos, múltiples y registros
+		
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
@@ -319,18 +317,18 @@ public class DadesExpedient extends BaseTest {
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/iniciar_expediente/1.png");		
 	}
 	
-	@Test
+//	@Test
 	public void e_afegir_nova_dada() throws InterruptedException {
-		// Básicos, múltiples y registros
+		
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);			
 		
-		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
+		consultarExpedientes(null, null, nomTipusExp);
 		
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/afegir_nova_dada/2.png");
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[6]/a/img")).click();	
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();	
 					
 		// Empezamos a modificar los datos
 		driver.findElement(By.xpath("//*[@id='tabnav']/li[2]/a")).click();
@@ -451,17 +449,17 @@ public class DadesExpedient extends BaseTest {
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/afegir_nova_dada/3.png");
 	}
 	
-	@Test
+//	@Test
 	public void f_modificar_dada() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
 					
-		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));	
+		consultarExpedientes(null, null, nomTipusExp);	
 		
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/modificar_dada/2.png");
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[6]/a/img")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
 		
 		driver.findElement(By.xpath("//*[@id='tabnav']/li[2]/a")).click();
 		
@@ -685,18 +683,18 @@ public class DadesExpedient extends BaseTest {
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/modificar_dada/5.png");
 	}
 	
-	@Test
+//	@Test
 	public void g_eliminar_dada() throws InterruptedException {
-		// Básicos, múltiples y registros
+		
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
 					
-		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
+		consultarExpedientes(null, null, nomTipusExp);
 		
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/eliminar_dada/2.png");
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[6]/a/img")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
 		
 		driver.findElement(By.xpath("//*[@id='tabnav']/li[2]/a")).click();
 		
@@ -727,7 +725,7 @@ public class DadesExpedient extends BaseTest {
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/eliminar_dada/4.png");
 	}
 
-	@Test
+//	@Test
 	public void z_limpiar() throws InterruptedException {
 		carregarUrlConfiguracio();
 		

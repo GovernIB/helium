@@ -23,6 +23,7 @@ public class TerminisExpedient extends BaseTest {
 	String titolEntorn = carregarPropietat("tramsel.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String exportTipExpProc = carregarPropietatPath("tipexp.tasca_dades_doc.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomSubDefProc = carregarPropietat("defproc.deploy.definicio.subproces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String pathDefProc = carregarPropietatPath("defproc.mod.exp.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String pathExportDefProc = carregarPropietatPath("defproc.termini.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
@@ -36,26 +37,21 @@ public class TerminisExpedient extends BaseTest {
 		assignarPermisosEntorn(entorn, usuari, "DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
 		seleccionarEntorn(titolEntorn);
 		crearTipusExpedient(nomTipusExp, codTipusExp);
+		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 	}
 	
 	@Test
-	public void a_inicializar_expedients() throws InterruptedException {
-		carregarUrlConfiguracio(); 
+	public void a_crear_dades() throws InterruptedException {
+		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
 
-		screenshotHelper.saveScreenshot("TerminisExpedient/inicializar_expedients/1.png");
-
-		crearTipusExpedient(nomTipusExp, codTipusExp);
-		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
+		
 		importarDadesDefPro(nomDefProc, pathExportDefProc);
-
-		screenshotHelper.saveScreenshot("TerminisExpedient/inicializar_expedients/2.png");
+		importarDadesTipExp(codTipusExp, exportTipExpProc);
 		
-		iniciarExpediente(codTipusExp,"SE-22/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
-		
-		screenshotHelper.saveScreenshot("TerminisExpedient/inicializar_expedients/3.png");
+		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/crear_dades/1.png");
 	}
 	
 	@Test
@@ -97,7 +93,7 @@ public class TerminisExpedient extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("TerminisExpedient/visualizar_terminis/2.png");
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[6]/a/img")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
 		
 		driver.findElement(By.xpath("//*[@id='tabnav']/li[5]/a")).click();
 		
@@ -142,7 +138,7 @@ public class TerminisExpedient extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("TerminisExpedient/iniciar_terminis/2.png");
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[6]/a/img")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
 		
 		driver.findElement(By.xpath("//*[@id='tabnav']/li[5]/a")).click();
 		
@@ -239,7 +235,7 @@ public class TerminisExpedient extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("TerminisExpedient/aturar_terminis/2.png");
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[6]/a/img")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
 		
 		driver.findElement(By.xpath("//*[@id='tabnav']/li[5]/a")).click();
 		
@@ -316,7 +312,7 @@ public class TerminisExpedient extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("TerminisExpedient/cancelar_terminis/2.png");
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[6]/a/img")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
 		
 		driver.findElement(By.xpath("//*[@id='tabnav']/li[5]/a")).click();
 		

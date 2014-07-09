@@ -43,6 +43,7 @@ public class TasquesFlux extends BaseTest {
 		assignarPermisosEntorn(entorn, usuari, "DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
 		seleccionarEntorn(titolEntorn);
 		crearTipusExpedient(nomTipusExp, codTipusExp);
+		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 	}
 	
 	@Test
@@ -51,8 +52,8 @@ public class TasquesFlux extends BaseTest {
 		
 		seleccionarEntorn(titolEntorn);
 
-		desplegarDefinicioProcesEntorn(nomTipusExp, nomSubDefProc, pathSubDefProc);
-		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
+//		desplegarDefinicioProcesEntorn(nomTipusExp, nomSubDefProc, pathSubDefProc);
+//		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
 		
 		importarDadesTipExp(codTipusExp, exportTipExp);
 		importarDadesDefPro(nomSubDefProc, exportDefProc);

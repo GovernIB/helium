@@ -20,6 +20,7 @@ public class AfegirExpedientRelacionat extends BaseTest {
 	String nomSubDefProc = carregarPropietat("defproc.deploy.definicio.subproces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String exportTipExpProc = carregarPropietatPath("tipexp.tasca_dades_doc.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String pathDefProc = carregarPropietatPath("defproc.mod.exp.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String exportDefProc = carregarPropietatPath("defproc.mod.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
@@ -31,16 +32,25 @@ public class AfegirExpedientRelacionat extends BaseTest {
 		assignarPermisosEntorn(entorn, usuari, "DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
 		seleccionarEntorn(titolEntorn);
 		crearTipusExpedient(nomTipusExp, codTipusExp);
+		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 	}
 	
 	@Test
-	public void a_afegirExpedientRelacionat() throws InterruptedException {
+	public void a_crear_dades() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
 		
-		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
-		importarDadesDefPro(nomDefProc, exportDefProc);
+		importarDadesTipExp(codTipusExp, exportTipExpProc);
+		
+		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/crear_dades/1.png");
+	}
+	
+	@Test
+	public void b_afegirExpedientRelacionat() throws InterruptedException {
+		carregarUrlConfiguracio();
+		
+		seleccionarEntorn(titolEntorn);
 		
 		screenshotHelper.saveScreenshot("tramitar/AfegirExpedientRelacionat/1.png");
 		
@@ -49,21 +59,21 @@ public class AfegirExpedientRelacionat extends BaseTest {
 
 		consultarExpedientes(res_orig[0], res_orig[1], nomTipusExp);
 
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[6]/a/img")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
 
-		driver.findElement(By.xpath("//*[@id='content']/form[2]/button")).click();
+		driver.findElement(By.xpath("//*[@action='/helium/expedient/relacionar.html']//button")).click();
 
 		driver.findElement(By.xpath("//*[@id='suggest_expedientIdDesti0']")).clear();
-		driver.findElement(By.xpath("//*[@id='suggest_expedientIdDesti0']")).sendKeys("Expedient");
+		driver.findElement(By.xpath("//*[@id='suggest_expedientIdDesti0']")).sendKeys(res_dest[0]);
 		driver.findElement(By.xpath("//*[@class='ac_results']/ul/li[1]")).click();
 
-		driver.findElement(By.xpath("//*[@id='relacionarCommand']/div/div[3]/button[1]")).click();
+		driver.findElement(By.xpath("//*[@id='relacionarCommand']//button[1]")).click();
 		
 		assertTrue("El expediente no se relacionó de forma correcta", driver.findElements(By.xpath("//*[@id='registre']/tbody/tr")).size() > 0);
 		
 		screenshotHelper.saveScreenshot("tramitar/AfegirExpedientRelacionat/3.png");		
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[5]/a/img")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/cross.png']")).click();
 		acceptarAlerta();
 		
 		String textoInfo = driver.findElement(By.xpath("//*[@id='infos']/p")).getText();
@@ -74,12 +84,6 @@ public class AfegirExpedientRelacionat extends BaseTest {
 		eliminarExpedient(res_orig[0], res_orig[1]);
 		
 		eliminarExpedient(res_dest[0], res_dest[1]);
-		
-		screenshotHelper.saveScreenshot("tramitar/AfegirExpedientRelacionat/5.png");
-		
-		eliminarDefinicioProces(nomDefProc);
-		
-		screenshotHelper.saveScreenshot("tramitar/AfegirExpedientRelacionat/6.png");
 	}
 
 	@Test

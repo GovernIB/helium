@@ -1045,7 +1045,7 @@ public abstract class BaseTest {
 		
 		screenshotHelper.saveScreenshot("documentsexpedient/adjuntar_documents/2.png");
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[6]/a/img")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
 		
 		driver.findElement(By.xpath("//*[@id='tabnav']/li[3]/a")).click();
 		
@@ -1133,13 +1133,12 @@ public abstract class BaseTest {
 			return false;  
 		}  
 		return true;
-	}
-	
+	}	
 
 	protected void consultarExpedientes(String numExpediente, String tituloExpediente, String tipusExp) {
 		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
 		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']/ul/li[1]/a")));
+		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']//a[contains(@href, '/helium/expedient/consulta.html')]")));
 		actions.click();
 		actions.build().perform();
 		
@@ -1200,6 +1199,6 @@ public abstract class BaseTest {
 		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/tramitar_delegar_tasca/2.png");
 		
 		Thread.sleep(1000*5);
-		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[5]/button[1]")).click();
+		driver.findElement(By.xpath("//*[@id='command']//button[1]")).click();
 	}
 }

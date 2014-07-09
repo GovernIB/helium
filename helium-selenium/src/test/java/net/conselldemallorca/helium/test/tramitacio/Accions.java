@@ -28,16 +28,17 @@ public class Accions extends BaseTest {
 	
 	static String entornActual;
 	
-//	@Test
+	@Test
 	public void a0_inicialitzacio() {
 		carregarUrlConfiguracio();
 		crearEntorn(entorn, titolEntorn);
 		assignarPermisosEntorn(entorn, usuari, "DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
 		seleccionarEntorn(titolEntorn);
 		crearTipusExpedient(nomTipusExp, codTipusExp);
+		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 	}
 	
-//	@Test
+	@Test
 	public void a_crear_dades() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
@@ -49,10 +50,9 @@ public class Accions extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/crear_dades/1.png");
 					
-		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 	}
 
-//	@Test
+	@Test
 	public void a_executar() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
@@ -86,7 +86,7 @@ public class Accions extends BaseTest {
 		eliminarExpedient(null, null, tipusExp);
 	}
 
-//	@Test
+	@Test
 	public void b_comprobar_publica() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
@@ -162,7 +162,7 @@ public class Accions extends BaseTest {
 		eliminarExpedient(null, null, tipusExp);
 	}
 
-//	@Test
+	@Test
 	public void c_comprobar_ocultar() throws InterruptedException {
 		carregarUrlConfiguracio();
 		

@@ -36,6 +36,18 @@ public class ModificarExpedient extends BaseTest {
 		assignarPermisosEntorn(entorn, usuari, "DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
 		seleccionarEntorn(titolEntorn);
 		crearTipusExpedient(nomTipusExp, codTipusExp);
+		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
+	}
+	
+	@Test
+	public void a_crear_dades() throws InterruptedException {
+		carregarUrlConfiguracio();
+		
+		seleccionarEntorn(titolEntorn);
+		
+		importarDadesTipExp(codTipusExp, exportTipExpProc);
+		
+		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/crear_dades/1.png");
 	}
 	
 	@Test
@@ -57,7 +69,7 @@ public class ModificarExpedient extends BaseTest {
 		
 		String numero = "SE-8-9-1000";
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[6]/a/img")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
 
 		// Empezamos a modificar los datos
 		driver.findElement(By.xpath("//*[@id='content']/form[1]/button")).click();

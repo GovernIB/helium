@@ -21,6 +21,7 @@ public class DocumentsExpedient extends BaseTest {
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	String nomSubDefProc = carregarPropietat("defproc.deploy.definicio.subproces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String exportTipExpProc = carregarPropietatPath("tipexp.tasca_dades_doc.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String pathDefProc = carregarPropietatPath("defproc.mod.exp.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String pathDefProcTermini = carregarPropietatPath("defproc.termini.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
@@ -33,36 +34,30 @@ public class DocumentsExpedient extends BaseTest {
 	
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
 	
-	@Test
+//	@Test
 	public void a0_inicialitzacio() {
 		carregarUrlConfiguracio();
 		crearEntorn(entorn, titolEntorn);
 		assignarPermisosEntorn(entorn, usuari, "DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
 		seleccionarEntorn(titolEntorn);
 		crearTipusExpedient(nomTipusExp, codTipusExp);
+		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 	}
 	
-	@Test
-	public void a_inicializar_documents() throws InterruptedException {
-		carregarUrlConfiguracio(); 
+//	@Test
+	public void a_crear_dades() throws InterruptedException {
+		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
-
-		screenshotHelper.saveScreenshot("documentsexpedient/iniciar_expedient/1.png");
-
-		crearTipusExpedient(nomTipusExp, codTipusExp);
-		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
-		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
-		importarDadesDefPro(nomDefProc, pathDefProcTermini);
-
-		screenshotHelper.saveScreenshot("documentsexpedient/iniciar_expedient/2.png");
+		
+		importarDadesTipExp(codTipusExp, exportTipExpProc);
 		
 		iniciarExpediente(codTipusExp,"SE-22/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
 		
-		screenshotHelper.saveScreenshot("documentsexpedient/iniciar_expedient/3.png");
+		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/crear_dades/1.png");
 	}
 	
-	@Test
+//	@Test
 	public void b_adjuntar_documents() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
@@ -76,7 +71,7 @@ public class DocumentsExpedient extends BaseTest {
 		screenshotHelper.saveScreenshot("documentsexpedient/adjuntar_documents/2.png");		
 	}
 	
-	@Test
+//	@Test
 	public void c_visualizacio_documents_i_descarrega() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
@@ -84,11 +79,11 @@ public class DocumentsExpedient extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("documentsexpedient/visualizacio_documents_i_descarrega/1.png");
 		
-		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
+		consultarExpedientes(null, null, nomTipusExp);
 		
 		screenshotHelper.saveScreenshot("documentsexpedient/visualizacio_documents_i_descarrega/2.png");
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[6]/a/img")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
 		
 		driver.findElement(By.xpath("//*[@id='tabnav']/li[3]/a")).click();
 		
@@ -112,11 +107,11 @@ public class DocumentsExpedient extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("documentsexpedient/generar_document/1.png");
 		
-		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
+		consultarExpedientes(null, null, nomTipusExp);
 		
 		screenshotHelper.saveScreenshot("documentsexpedient/generar_document/2.png");
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[6]/a/img")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
 		
 		driver.findElement(By.xpath("//*[@id='tabnav']/li[3]/a")).click();
 		
@@ -150,11 +145,11 @@ public class DocumentsExpedient extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("documentsexpedient/descarregar_document/1.png");
 		
-		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
+		consultarExpedientes(null, null, nomTipusExp);
 		
 		screenshotHelper.saveScreenshot("documentsexpedient/descarregar_document/2.png");
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[6]/a/img")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
 		
 		driver.findElement(By.xpath("//*[@id='tabnav']/li[3]/a")).click();
 		
@@ -174,7 +169,7 @@ public class DocumentsExpedient extends BaseTest {
 		screenshotHelper.saveScreenshot("documentsexpedient/descarregar_document/4.png");		
 	}
 	
-	@Test
+//	@Test
 	public void f_modificar_data_document() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
@@ -182,11 +177,11 @@ public class DocumentsExpedient extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("documentsexpedient/modificar_data_document/1.png");
 		
-		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
+		consultarExpedientes(null, null, nomTipusExp);
 		
 		screenshotHelper.saveScreenshot("documentsexpedient/modificar_data_document/2.png");
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[6]/a/img")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
 		
 		driver.findElement(By.xpath("//*[@id='tabnav']/li[3]/a")).click();
 		
@@ -220,7 +215,7 @@ public class DocumentsExpedient extends BaseTest {
 		screenshotHelper.saveScreenshot("documentsexpedient/modificar_data_document/4.png");
 	}
 	
-	@Test
+//	@Test
 	public void g_esborrar_document_adjunt() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
@@ -228,11 +223,11 @@ public class DocumentsExpedient extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("documentsexpedient/esborrar_document_adjunt/1.png");
 		
-		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
+		consultarExpedientes(null, null, nomTipusExp);
 		
 		screenshotHelper.saveScreenshot("documentsexpedient/esborrar_document_adjunt/2.png");
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[6]/a/img")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
 		
 		driver.findElement(By.xpath("//*[@id='tabnav']/li[3]/a")).click();
 		
@@ -248,7 +243,7 @@ public class DocumentsExpedient extends BaseTest {
 		screenshotHelper.saveScreenshot("documentsexpedient/esborrar_document_adjunt/3.png");
 	}
 	
-	@Test
+//	@Test
 	public void h_esborrar_document_tipus_expedient() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
@@ -295,7 +290,7 @@ public class DocumentsExpedient extends BaseTest {
 		screenshotHelper.saveScreenshot("documentsexpedient/esborrar_document_tipus_expedient/4.png");
 	}
 
-	@Test
+//	@Test
 	public void z_limpiar() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
