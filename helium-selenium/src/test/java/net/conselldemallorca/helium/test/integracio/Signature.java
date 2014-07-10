@@ -39,6 +39,7 @@ public class Signature extends BaseTest {
 		assignarPermisosEntorn(entorn, usuari, "DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
 		seleccionarEntorn(titolEntorn);
 		crearTipusExpedient(nomTipusExp, codTipusExp);
+		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 	}
 	
 	@Test
@@ -52,8 +53,6 @@ public class Signature extends BaseTest {
 		importarDadesTipExp(codTipusExp, exportTipExpProc);
 		
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/crear_dades/1.png");
-					
-		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 	}
 
 	@Test

@@ -18,11 +18,10 @@ public class AfegirExpedientRelacionat extends BaseTest {
 	String titolEntorn = carregarPropietat("tramsel.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	String nomSubDefProc = carregarPropietat("defproc.deploy.definicio.subproces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String pathDefProc = carregarPropietatPath("tramsel_accio.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String exportTipExpProc = carregarPropietatPath("tipexp.tasca_dades_doc.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String pathDefProc = carregarPropietatPath("defproc.mod.exp.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String exportDefProc = carregarPropietatPath("defproc.mod.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	
 	@Test
@@ -41,6 +40,7 @@ public class AfegirExpedientRelacionat extends BaseTest {
 		
 		seleccionarEntorn(titolEntorn);
 		
+		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
 		importarDadesTipExp(codTipusExp, exportTipExpProc);
 		
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/crear_dades/1.png");
@@ -64,7 +64,7 @@ public class AfegirExpedientRelacionat extends BaseTest {
 		driver.findElement(By.xpath("//*[@action='/helium/expedient/relacionar.html']//button")).click();
 
 		driver.findElement(By.xpath("//*[@id='suggest_expedientIdDesti0']")).clear();
-		driver.findElement(By.xpath("//*[@id='suggest_expedientIdDesti0']")).sendKeys(res_dest[0]);
+		driver.findElement(By.xpath("//*[@id='suggest_expedientIdDesti0']")).sendKeys(res_dest[1]);
 		driver.findElement(By.xpath("//*[@class='ac_results']/ul/li[1]")).click();
 
 		driver.findElement(By.xpath("//*[@id='relacionarCommand']//button[1]")).click();

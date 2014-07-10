@@ -18,13 +18,12 @@ public class ModificarVersioProces extends BaseTest {
 
 	String entorn = carregarPropietat("tramsel.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
 	String titolEntorn = carregarPropietat("tramsel.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
-	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
-	String nomSubDefProc = carregarPropietat("defproc.deploy.definicio.subproces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String exportTipExpProc = carregarPropietatPath("tipexp.tasca_dades_doc.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String pathDefProc = carregarPropietatPath("tramsel_accio.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String pathDefProc = carregarPropietatPath("defproc.mod.exp.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String exportTipExpProc = carregarPropietatPath("tipexp.tasca_dades_doc.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
+	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
 	
 	@Test
 	public void a0_inicialitzacio() {
@@ -41,7 +40,7 @@ public class ModificarVersioProces extends BaseTest {
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
-		
+		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
 		importarDadesTipExp(codTipusExp, exportTipExpProc);
 		
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/crear_dades/1.png");
@@ -55,11 +54,6 @@ public class ModificarVersioProces extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("tramitar/modificarInfoExp/1.png");
 		
-		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
-		
-		// No hay expedientes. Iniciamos uno
-		importarDadesDefPro(nomDefProc, properties.getProperty("defproc.mod.exp.export.arxiu.path"));
-					
 		String[] res = iniciarExpediente(codTipusExp,"SE-22/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
 				
 		consultarExpedientes(res[0], res[1], nomTipusExp);
@@ -69,7 +63,7 @@ public class ModificarVersioProces extends BaseTest {
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();	
 					
 		// Empezamos a cambiar la versión
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[9]/a")).click();
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/eines.html')]")).click();
 		
 		driver.findElement(By.xpath("//*[@id='content']/div/h3[3]/a")).click();
 		
@@ -92,7 +86,7 @@ public class ModificarVersioProces extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("tramitar/modificarInfoExp/3.png");
 		
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[1]/a")).click();
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/info.html')]")).click();
 		
 		// Vemos la versión
 		WebElement element = driver.findElement(By.xpath("//*[@id='content']/dl"));
@@ -112,9 +106,6 @@ public class ModificarVersioProces extends BaseTest {
 		screenshotHelper.saveScreenshot("tramitar/modificarInfoExp/4.png");
 		
 		eliminarExpedient(res[0], res[1]);
-			
-		// Eliminar la def de proceso
-		eliminarDefinicioProces(nomDefProc);
 		
 		screenshotHelper.saveScreenshot("tramitar/modificarInfoExp/5.png");
 	}
@@ -126,10 +117,6 @@ public class ModificarVersioProces extends BaseTest {
 		seleccionarEntorn(titolEntorn);
 		
 		eliminarExpedient(null, null, nomTipusExp);
-			
-		// Eliminar la def de proceso
-		eliminarDefinicioProces(nomDefProc);
-		eliminarDefinicioProces(nomSubDefProc);
 		
 		// Eliminar el tipo de expediente
 		eliminarTipusExpedient(codTipusExp);

@@ -20,6 +20,7 @@ public class TasquesSubprocessExpedient extends BaseTest {
 	String pathDefProc = carregarPropietatPath("defproc.deploy.definicio.subproces.main.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String pathSubDefProc = carregarPropietatPath("defproc.subproces.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String exportDefProc = carregarPropietatPath("defproc.tasca_dades.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String pathTipExp = carregarPropietatPath("tramsel_subproces.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	
@@ -38,12 +39,11 @@ public class TasquesSubprocessExpedient extends BaseTest {
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
-
+		
+		importarDadesTipExp(codTipusExp, pathTipExp);
+		
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomSubDefProc, pathSubDefProc);
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
-		
-		importarDadesDefPro(nomDefProc, exportDefProc);
-		importarDadesDefPro(nomSubDefProc, exportDefProc);
 		
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/crear_dades/1.png");
 	}
@@ -60,7 +60,7 @@ public class TasquesSubprocessExpedient extends BaseTest {
 				
 		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/tramitar_delegar_tasca/1.png");
 
-		consultarTareas(res[0], res[1], nomTipusExp, false);
+		consultarTareas(null, res[1], nomTipusExp, false);
 		
 		existeixElementAssert("//*[@id='registre']/tbody/tr/td[contains(a/text(), '01 - Entrada')]/a", "No se encontró la tarea: 01 - Entrada");
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr/td[contains(a/text(), '01 - Entrada')]/a")).click();
@@ -80,7 +80,7 @@ public class TasquesSubprocessExpedient extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/tramitar_delegar_tasca/3.png");
 						
-		driver.findElement(By.xpath("//*[@id='formFinalitzar']/div/button[contains(text(), 'Finalitzar')]")).click();
+		driver.findElement(By.xpath("//*[@id='formFinalitzar']//button[contains(text(), 'Finalitzar')]")).click();
 		acceptarAlerta();
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se finalizó correctamente");
@@ -93,7 +93,7 @@ public class TasquesSubprocessExpedient extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/tramitar_delegar_tasca/3.png");
 						
-		driver.findElement(By.xpath("//*[@id='formFinalitzar']/div/button[contains(text(), 'Finalitzar')]")).click();
+		driver.findElement(By.xpath("//*[@id='formFinalitzar']//button[contains(text(), 'Finalitzar')]")).click();
 		acceptarAlerta();
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se finalizó correctamente");
@@ -106,7 +106,7 @@ public class TasquesSubprocessExpedient extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/tramitar_delegar_tasca/3.png");
 						
-		driver.findElement(By.xpath("//*[@id='formFinalitzar']/div/button[contains(text(), 'Finalitzar')]")).click();
+		driver.findElement(By.xpath("//*[@id='formFinalitzar']//button[contains(text(), 'Finalitzar')]")).click();
 		acceptarAlerta();
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se finalizó correctamente");
@@ -119,10 +119,6 @@ public class TasquesSubprocessExpedient extends BaseTest {
 		seleccionarEntorn(titolEntorn);
 		
 		eliminarExpedient(null, null, nomTipusExp);
-			
-		// Eliminar la def de proceso
-		eliminarDefinicioProces(nomDefProc);
-		eliminarDefinicioProces(nomSubDefProc);
 		
 		// Eliminar el tipo de expediente
 		eliminarTipusExpedient(codTipusExp);
