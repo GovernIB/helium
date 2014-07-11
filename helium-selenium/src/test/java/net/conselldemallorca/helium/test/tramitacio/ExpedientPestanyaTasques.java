@@ -19,13 +19,17 @@ public class ExpedientPestanyaTasques extends BaseTest {
 	String titolEntorn = carregarPropietat("tramsel.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	String nomSubDefProc = carregarPropietat("defproc.deploy.definicio.subproces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String exportTipExpProc = carregarPropietatPath("tipexp.tasca_dades_doc.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String pathDefProc = carregarPropietatPath("defproc.mod.exp.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String pathDefProcTermini = carregarPropietatPath("defproc.termini.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String pathDefProc = carregarPropietatPath("defproc.deploy.definicio.subproces.main.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String pathSubDefProc = carregarPropietatPath("defproc.subproces.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String exportTipExpProc = carregarPropietatPath("tipexp.tasca_dades_doc.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
-	
+	String grupo = carregarPropietat("test.base.group", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
+	String user175 = carregarPropietat("test.base.usuari.configuracio.nom","No se pudo cargar el usuario curso 175");
+	String user174 = carregarPropietat("test.base.usuari.feina.nom","No se pudo cargar el usuario curso 174");
+	String user173 = carregarPropietat("test.base.usuari.disseny.nom","No se pudo cargar el usuario curso 173");
+		
 	@Test
 	public void a0_inicialitzacio() {
 		carregarUrlConfiguracio();
@@ -44,21 +48,10 @@ public class ExpedientPestanyaTasques extends BaseTest {
 		
 		importarDadesTipExp(codTipusExp, exportTipExpProc);
 		
-		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/crear_dades/1.png");
-	}
-	
-	@Test
-	public void a_iniciar_tasca() throws InterruptedException {
-		carregarUrlConfiguracio();
-
-		seleccionarEntorn(titolEntorn);
-
-		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/iniciar_expedient/1.png");
-
+		desplegarDefinicioProcesEntorn(nomTipusExp, nomSubDefProc, pathSubDefProc);
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
-		importarDadesDefPro(nomDefProc, pathDefProcTermini);
-
-		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/iniciar_expedient/2.png");
+		
+		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/crear_dades/1.png");
 	}
 	
 	@Test
@@ -77,7 +70,7 @@ public class ExpedientPestanyaTasques extends BaseTest {
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'"+nomDefProc+"')]")).click();
 		
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[2]/a")).click();
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/definicioProces/tascaLlistat.html')]")).click();
 		
 		existeixElementAssert("//*[@id='registre']/tbody/tr", "No existía ninguna tarea");
 		
@@ -113,7 +106,7 @@ public class ExpedientPestanyaTasques extends BaseTest {
 	
 	@Test
 	public void c_tramitar_delegar_tasca() throws InterruptedException {
-		// Básicos, múltiples y registros
+		
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
@@ -122,13 +115,13 @@ public class ExpedientPestanyaTasques extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/tramitar_delegar_tasca/1.png");
 
-		consultarTareas(res[0], res[1], nomTipusExp, false);
+		consultarTareas(null, res[1], nomTipusExp, false);
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr/td[contains(a/text(), 'tasca1')]/a")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[1]/a")).click();
 		
 		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/tramitar_delegar_tasca/3.png");
 						
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[1]/a")).click();
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/tasca/info.html')]")).click();
 		
 		existeixElementAssert("//*[@id='content']/div/h3[contains(text(),'Delegar la tasca')]", "La tarea no era delegable");
 		
@@ -156,7 +149,7 @@ public class ExpedientPestanyaTasques extends BaseTest {
 		existeixElementAssert("//*[@id='infos']/p", "No se delegó la tarea correctamente");
 		
 		// Comprobamos el listado de tareas
-		consultarTareas(res[0], res[1], nomTipusExp, false);
+		consultarTareas(null, res[1], nomTipusExp, false);
 		
 		existeixElementAssert("//*[@id='registre']/tbody/tr[1]/td[1]/a/img", "No llegó la tarea delegada");
 		
@@ -168,7 +161,7 @@ public class ExpedientPestanyaTasques extends BaseTest {
 		existeixElementAssert("//*[@id='content']/div/h3[contains(text(), 'Aquesta tasca vos ha estat delegada')]", "No se encontró la cabecera de delegada");
 		
 		// Comprobamos el listado de tareas
-		consultarTareas(res[0], res[1], nomTipusExp, false);
+		consultarTareas(null, res[1], nomTipusExp, false);
 		
 		existeixElementAssert("//*[@id='registre']/tbody/tr[2]/td[1]/a/img", "No existía la tarea que fue delegada");
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[2]/td[1]")).click();
@@ -188,22 +181,24 @@ public class ExpedientPestanyaTasques extends BaseTest {
 	
 	@Test
 	public void d_tramitar_supervisar_tasca() throws InterruptedException {
-		// Básicos, múltiples y registros
+		
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
+		
+		eliminarExpedient(null, null, nomTipusExp);
 		
 		String[] res = iniciarExpediente(codTipusExp,"SE-22/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
 		
 		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/tramitar_delegar_tasca/1.png");
 
-		consultarTareas(res[0], res[1], nomTipusExp, false);
+		consultarTareas(null, res[1], nomTipusExp, false);
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr/td[contains(a/text(), 'tasca1')]/a")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[1]/a")).click();
 		
 		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/tramitar_delegar_tasca/3.png");
 						
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[1]/a")).click();
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/tasca/info.html')]")).click();
 		
 		existeixElementAssert("//*[@id='content']/div/h3[contains(text(),'Delegar la tasca')]", "La tarea no era delegable");
 		
@@ -231,7 +226,7 @@ public class ExpedientPestanyaTasques extends BaseTest {
 		existeixElementAssert("//*[@id='infos']/p", "No se delegó la tarea correctamente");
 		
 		// Comprobamos el listado de tareas
-		consultarTareas(res[0], res[1], nomTipusExp, false);
+		consultarTareas(null, res[1], nomTipusExp, false);
 		
 		existeixElementAssert("//*[@id='registre']/tbody/tr[1]/td[1]/a/img", "No llegó la tarea delegada");
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[1]")).click();
@@ -244,7 +239,7 @@ public class ExpedientPestanyaTasques extends BaseTest {
 		existeixElementAssert("//*[@id='content']/div/h3[contains(text(), 'Aquesta tasca vos ha estat delegada')]", "No se encontró la cabecera de delegada");
 		
 		// Comprobamos el listado de tareas
-		consultarTareas(res[0], res[1], nomTipusExp, false);
+		consultarTareas(null, res[1], nomTipusExp, false);
 		
 		existeixElementAssert("//*[@id='registre']/tbody/tr[2]/td[1]/a/img", "No existía la tarea que fue delegada");
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[2]/td[1]")).click();
@@ -278,35 +273,33 @@ public class ExpedientPestanyaTasques extends BaseTest {
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
 
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[6]/a")).click();
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/tasques.html')]")).click();
 		
 		existeixElementAssert("//img[@alt='Reassignar'][1]/parent::a/parent::td/parent::tr/td[8]", "No había ninguna tarea para reasignar");
 		
-		if (existeixElement("//img[@alt='Reassignar'][1]/parent::a/parent::td/parent::tr/td[8]")) {
-			String responsableOriginal = driver.findElement(By.xpath("//img[@alt='Reassignar'][1]/parent::a/parent::td/parent::tr/td[8]")).getText();
-			driver.findElement(By.xpath("//img[@alt='Reassignar'][1]")).click();
-			driver.findElement(By.xpath("//*[@id='expression0']")).sendKeys("user(admin)");
-			
-			driver.findElement(By.xpath("//*[@id='command']/div[3]/button[1]")).click();
-			
-			existeixElementAssert("//*[@id='infos']/p", "No se reasignó la tarea al usuario correctamente");
-			
-			String responsable = driver.findElement(By.xpath("//img[@alt='Reassignar'][1]/parent::a/parent::td/parent::tr/td[8]")).getText();
-			
-			assertTrue("Error al asignar el responsable", responsableOriginal.equals(responsable));
+		String responsableOriginal = driver.findElement(By.xpath("//img[@alt='Reassignar'][1]/parent::a/parent::td/parent::tr/td[8]")).getText();
+		driver.findElement(By.xpath("//img[@alt='Reassignar'][1]")).click();
+		driver.findElement(By.xpath("//*[@id='expression0']")).sendKeys("user("+usuari+")");
 		
-			driver.findElement(By.xpath("//img[@alt='Reassignar'][1]")).click();
-			driver.findElement(By.xpath("//*[@id='expression0']")).sendKeys("group(arq_tec)");
-			
-			driver.findElement(By.xpath("//*[@id='command']/div[3]/button[1]")).click();
-			
-			existeixElementAssert("//*[@id='infos']/p", "No se reasignó la tarea al grupo correctamente");
-			
-			String grupoOriginal = "Usuari Administrador, Mariona Mestre";
-			String grupo = driver.findElement(By.xpath("//img[@alt='Reassignar'][1]/parent::a/parent::td/parent::tr/td[8]")).getText();
-			
-			assertTrue("Error al asignar el responsable", grupoOriginal.equals(grupo));
-		}
+		driver.findElement(By.xpath("//*[@id='command']/div[3]/button[1]")).click();
+		
+		existeixElementAssert("//*[@id='infos']/p", "No se reasignó la tarea al usuario correctamente");
+		
+		String responsable = driver.findElement(By.xpath("//img[@alt='Reassignar'][1]/parent::a/parent::td/parent::tr/td[8]")).getText();
+		
+		assertTrue("Error al asignar el responsable", responsableOriginal.equals(responsable));
+	
+		driver.findElement(By.xpath("//img[@alt='Reassignar'][1]")).click();
+		driver.findElement(By.xpath("//*[@id='expression0']")).sendKeys("group("+grupo+")");
+		
+		driver.findElement(By.xpath("//*[@id='command']/div[3]/button[1]")).click();
+		
+		existeixElementAssert("//*[@id='infos']/p", "No se reasignó la tarea al grupo correctamente");
+		
+		String grupo = driver.findElement(By.xpath("//img[@alt='Reassignar'][1]/parent::a/parent::td/parent::tr/td[8]")).getText();
+		String[] aGrupo = grupo.split(",");
+		
+		assertTrue("Error al asignar al grupo", aGrupo.length ==3 && (grupo.contains(user175) && grupo.contains(user174) && grupo.contains(user173)));
 	}
 	
 	@Test
@@ -325,30 +318,28 @@ public class ExpedientPestanyaTasques extends BaseTest {
 
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
 
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[6]/a")).click();
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/tasques.html')]")).click();
 		
 		existeixElementAssert("//img[@alt='Suspendre'][1]", "No había ninguna tarea para suspender");
 		
-		if (existeixElement("//img[@alt='Suspendre'][1]")) {
-			String id = driver.findElement(By.xpath("//img[@alt='Suspendre'][1]/parent::a/parent::td/parent::tr/td[1]")).getText();
-			
-			String flagOriginal = driver.findElement(By.xpath("//td[contains(text(),'"+id+"')]/parent::tr/td[9]")).getText();
-			
-			assertTrue("Error la tasca ya tenía el flag de suspendida", !flagOriginal.contains("S"));
-			
-			driver.findElement(By.xpath("//td[contains(text(),'"+id+"')]/parent::tr/td[12]/a")).click();
-			acceptarAlerta();
-			
-			String flagActual = driver.findElement(By.xpath("//td[contains(text(),'"+id+"')]/parent::tr/td[9]")).getText();
-			
-			assertTrue("Error la tasca no tenía el flag de suspendida", flagActual.contains("S"));
-			
-			driver.findElement(By.xpath("//td[contains(text(),'"+id+"')]/parent::tr/td[12]/a")).click();
-			acceptarAlerta();
-			
-			flagActual = driver.findElement(By.xpath("//td[contains(text(),'"+id+"')]/parent::tr/td[9]")).getText();
-			assertTrue("Error la tasca tenía el flag de suspendida", !flagActual.contains("S"));
-		}
+		String id = driver.findElement(By.xpath("//img[@alt='Suspendre'][1]/parent::a/parent::td/parent::tr/td[1]")).getText();
+		
+		String flagOriginal = driver.findElement(By.xpath("//td[contains(text(),'"+id+"')]/parent::tr/td[9]")).getText();
+		
+		assertTrue("Error la tasca ya tenía el flag de suspendida", !flagOriginal.contains("S"));
+		
+		driver.findElement(By.xpath("//td[contains(text(),'"+id+"')]/parent::tr/td[12]/a")).click();
+		acceptarAlerta();
+		
+		String flagActual = driver.findElement(By.xpath("//td[contains(text(),'"+id+"')]/parent::tr/td[9]")).getText();
+		
+		assertTrue("Error la tasca no tenía el flag de suspendida", flagActual.contains("S"));
+		
+		driver.findElement(By.xpath("//td[contains(text(),'"+id+"')]/parent::tr/td[12]/a")).click();
+		acceptarAlerta();
+		
+		flagActual = driver.findElement(By.xpath("//td[contains(text(),'"+id+"')]/parent::tr/td[9]")).getText();
+		assertTrue("Error la tasca tenía el flag de suspendida", !flagActual.contains("S"));
 	}
 		
 	@Test
@@ -357,47 +348,29 @@ public class ExpedientPestanyaTasques extends BaseTest {
 		
 		seleccionarEntorn(titolEntorn);
 		
-		if ("Mostrar filtre".equals(driver.findElement(By.xpath("//*[@id='botoFiltres']")).getText().trim()))
-			driver.findElement(By.xpath("//*[@id='botoFiltres']")).click();
-
-		driver.findElement(By.xpath("//*[@id='nom0']")).clear();
-		
-		driver.findElement(By.xpath("//*[@id='expedient0']")).clear();
-		
-		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='tipusExpedient0']"));
-		for (WebElement option : selectTipusExpedient.findElements(By.tagName("option"))) {
-			if (option.getText().equals(nomTipusExp)) {
-				option.click();
-				break;
-			}
-		}
-		
-		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/tramitar_delegar_tasca/2.png");
-		
-		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[5]/button[1]")).click();
+		consultarExpedientes(null, null, nomTipusExp);
 		
 		assertTrue("No había ningún expediente", !driver.findElements(By.xpath("//*[@id='registre']/tbody/tr")).isEmpty());
 
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[2]/a")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
 
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[6]/a")).click();
+		
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/tasques.html')]")).click();
 		
 		existeixElementAssert("//img[@alt='Cancel·lar'][1]", "No había ninguna tarea para cancel·lar");
 		
-		if (existeixElement("//img[@alt='Cancel·lar'][1]")) {
-			String id = driver.findElement(By.xpath("//img[@alt='Cancel·lar'][1]/parent::a/parent::td/parent::tr/td[1]")).getText();
-			
-			String flagOriginal = driver.findElement(By.xpath("//td[contains(text(),'"+id+"')]/parent::tr/td[9]")).getText();
-			
-			assertTrue("Error la tasca ya tenía el flag de cancel·lar", !flagOriginal.contains("C"));
-			
-			driver.findElement(By.xpath("//td[contains(text(),'"+id+"')]/parent::tr/td[13]/a")).click();
-			acceptarAlerta();
-			
-			String flagActual = driver.findElement(By.xpath("//td[contains(text(),'"+id+"')]/parent::tr/td[9]")).getText();
-			
-			assertTrue("Error la tasca no tenía el flag de cancel·lar", flagActual.contains("C"));
-		}
+		String id = driver.findElement(By.xpath("//img[@alt='Cancel·lar'][1]/parent::a/parent::td/parent::tr/td[1]")).getText();
+		
+		String flagOriginal = driver.findElement(By.xpath("//td[contains(text(),'"+id+"')]/parent::tr/td[9]")).getText();
+		
+		assertTrue("Error la tasca ya tenía el flag de cancel·lar", !flagOriginal.contains("C"));
+		
+		driver.findElement(By.xpath("//td[contains(text(),'"+id+"')]/parent::tr/td[13]/a")).click();
+		acceptarAlerta();
+		
+		String flagActual = driver.findElement(By.xpath("//td[contains(text(),'"+id+"')]/parent::tr/td[9]")).getText();
+		
+		assertTrue("Error la tasca no tenía el flag de cancel·lar", flagActual.contains("C"));
 	}
 
 	@Test
@@ -407,10 +380,6 @@ public class ExpedientPestanyaTasques extends BaseTest {
 		seleccionarEntorn(titolEntorn);
 		
 		eliminarExpedient(null, null, nomTipusExp);
-			
-		// Eliminar la def de proceso
-		eliminarDefinicioProces(nomDefProc);
-		eliminarDefinicioProces(nomSubDefProc);
 		
 		// Eliminar el tipo de expediente
 		eliminarTipusExpedient(codTipusExp);

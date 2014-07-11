@@ -913,8 +913,6 @@ public abstract class BaseTest {
 				res[1] = textoInfo.substring(textoInfo.indexOf(":")+1).trim();
 		}
 		
-		existeixElementAssert("//*[@id='infos']/p", "No se inició el expediente");
-		
 		return res;
 	}
 	

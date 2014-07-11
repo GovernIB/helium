@@ -1,6 +1,5 @@
 package net.conselldemallorca.helium.test.tramitacio;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
@@ -20,16 +19,11 @@ public class NouExpedient extends BaseTest {
 	String entorn = carregarPropietat("tramsel.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
 	String titolEntorn = carregarPropietat("tramsel.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
-	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
-	String exportTipExpProc = carregarPropietatPath("tipexp.tasca_dades_doc.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String nomSubDefProc = carregarPropietat("defproc.deploy.definicio.subproces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String exportTipExpProc = carregarPropietatPath("tipexp.tasca_dades_doc.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
-	String pathDefProc = carregarPropietatPath("defproc.nou.exp.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String exportDefProc = carregarPropietatPath("defproc.nou.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-		
-	static String entornActual;
-
+	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
+	
 	@Test
 	public void a0_inicialitzacio() {
 		carregarUrlConfiguracio();
@@ -72,21 +66,16 @@ public class NouExpedient extends BaseTest {
 		carregarUrlConfiguracio();
 
 		seleccionarEntorn(titolEntorn);
-		
-		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
-		importarDadesDefPro(nomDefProc, exportDefProc);
 				
 		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos sobre disseny entorn");
 			
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuDisseny']/ul/li[3]/a")));
+		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuDisseny']//a[contains(@href,'/expedientTipus/llistat.html')]")));
 		actions.click();
 		actions.build().perform();
 	
 		screenshotHelper.saveScreenshot("NouExpedient/inici_any/1.png");
-		
-		assertEquals("No s'ha pogut seleccionar l'entorn de forma directe.", entorn, driver.findElement(By.xpath("//div[@id='page-entorn-title']/h2/span")).getText().trim());
 			
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipusExp + "')]/td[1]/a")).click();
 		
@@ -126,8 +115,6 @@ public class NouExpedient extends BaseTest {
 		// Eliminar el expediente
 		eliminarExpedient(res[0], res[1]);
 		
-		eliminarDefinicioProces(nomDefProc);
-		
 		screenshotHelper.saveScreenshot("NouExpedient/inici_any/4.png");
 	}
 
@@ -136,19 +123,14 @@ public class NouExpedient extends BaseTest {
 		carregarUrlConfiguracio();
 
 		seleccionarEntorn(titolEntorn);
-			
-		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
-		importarDadesDefPro(nomDefProc, exportDefProc);
 		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuDisseny']/ul/li[3]/a")));
+		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuDisseny']//a[contains(@href,'/expedientTipus/llistat.html')]")));
 		actions.click();
 		actions.build().perform();
 	
 		screenshotHelper.saveScreenshot("NouExpedient/inici_titol/1.png");
-		
-		assertEquals("No s'ha pogut seleccionar l'entorn de forma directe.", entorn, driver.findElement(By.xpath("//div[@id='page-entorn-title']/h2/span")).getText().trim());
 			
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipusExp + "')]/td[1]/a")).click();
 		
@@ -188,8 +170,6 @@ public class NouExpedient extends BaseTest {
 		// Eliminar el expediente
 		eliminarExpedient(res[0], res[1]);
 		
-		eliminarDefinicioProces(nomDefProc);
-		
 		screenshotHelper.saveScreenshot("NouExpedient/inici_titol/4.png");
 	}
 
@@ -199,65 +179,85 @@ public class NouExpedient extends BaseTest {
 
 		seleccionarEntorn(titolEntorn);
 		
+		eliminarExpedient(null, null, nomTipusExp);
+		
+		String pathDefProc = carregarPropietatPath("defproc.nou_tasca_ini.exp.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+		String exportDefProc = carregarPropietatPath("defproc.nou_tasca_ini.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+		
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
 		importarDadesDefPro(nomDefProc, exportDefProc);
 		
 		driver.findElement(By.xpath("//*[@id='menuIniciar']/a")).click();
+		
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipusExp + "')]", "No s'ha trobat el tipus d'expedient");
+				
 		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipusExp + "')]/td[3]/form/select"));
 		List<WebElement> allOptions = selectTipusExpedient.findElements(By.tagName("option"));
 		
+		assertTrue("Sólo se disponía de 1 número de versión",allOptions.size() > 2);
+		
 		// Iniciamos con la primera versión
+		String versioProc = allOptions.get(allOptions.size()-1).getText();
 		allOptions.get(allOptions.size()-1).click();
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipusExp + "')]/td[3]/form/button")).click();
-		acceptarAlerta();
+		String[] res = new String[2];
 		
-		screenshotHelper.saveScreenshot("NouExpedient/iniciVersioExp/1.png");
+		existeixElementAssert("//li[@id='menuIniciar']", "No tiene permisos para iniciar un expediente");
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipusExp + "')]/td[3]/form/button")).click();
 		
 		String numero = "SE-22/2014";
 		String titulo = "Expedient de prova Selenium " + (new Date()).getTime();
-		if (driver.findElements(By.xpath("//*[@id='numero0']")).size() > 0 && numero != null) {
-			driver.findElement(By.xpath("//*[@id='numero0']")).clear();
-			driver.findElement(By.xpath("//*[@id='numero0']")).sendKeys(numero);
-		} else {
-			numero = null;
+		
+		if (isAlertPresent()) {
+			acceptarAlerta();
 		}
-		if (driver.findElements(By.xpath("//*[@id='titol0']")).size() > 0 && titulo != null) {
-			driver.findElement(By.xpath("//*[@id='titol0']")).clear();
-			driver.findElement(By.xpath("//*[@id='titol0']")).sendKeys(titulo);
-		} else {
-			titulo = null;
+		String tituloPantalla = driver.findElement(By.xpath("//*[@id='page-title']/h2")).getText().trim();
+		if (tituloPantalla.startsWith("Iniciar expedient:")) {	
+			if (existeixElement("//*[@id='var_str010']")) {
+				driver.findElement(By.xpath("//*[@id='var_str010']")).clear();
+				driver.findElement(By.xpath("//*[@id='var_str010']")).sendKeys("Un nombre de variable");
+				driver.findElement(By.xpath("//button[@value='submit']")).click();
+			}			
+			if (existeixElement("//*[@id='numero0']")) {
+				driver.findElement(By.xpath("//*[@id='numero0']")).clear();
+				driver.findElement(By.xpath("//*[@id='numero0']")).sendKeys(numero);
+			} else {
+				numero = null;
+			}
+			if (existeixElement("//*[@id='titol0']")) {
+				driver.findElement(By.xpath("//*[@id='titol0']")).clear();
+				driver.findElement(By.xpath("//*[@id='titol0']")).sendKeys(titulo);
+			} else {
+				titulo = null;
+			}
+			driver.findElement(By.xpath("//button[@value='submit']")).click();
 		}
-		driver.findElement(By.xpath("//button[@value='submit']")).click();
+		
 		acceptarAlerta();
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se inició el expediente");
 		
-		screenshotHelper.saveScreenshot("NouExpedient/iniciAmbTascaIniExp/3.png");
-		
 		String textoInfo = driver.findElement(By.xpath("//*[@id='infos']/p")).getText();
-		
-		String[] res = new String[2];
 		if (textoInfo.indexOf("]") != -1) {
 			res[0] = textoInfo.substring(textoInfo.indexOf("[")+1, textoInfo.indexOf("]")).trim();
 			res[1] = textoInfo.substring(textoInfo.indexOf("]")+1).trim();
 		} else {
 			if (numero != null)
 				res[0] = textoInfo.substring(textoInfo.indexOf(":")+1).trim();
-			else
+			if (titulo != null)
 				res[1] = textoInfo.substring(textoInfo.indexOf(":")+1).trim();
 		}
 		
-		existeixElementAssert("//*[@id='infos']/p", "No se inició el expediente");
-		
 		screenshotHelper.saveScreenshot("NouExpedient/iniciVersioExp/3.png");
 		
-		// Eliminar el expediente
-		eliminarExpedient(res[0], res[1]);
+		// Comprobamos el número de versión del expediente
+		consultarExpedientes(numero, titulo, nomTipusExp);
 		
-		eliminarDefinicioProces(nomDefProc);
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
 		
-		screenshotHelper.saveScreenshot("NouExpedient/iniciVersioExp/4.png");
+		// Versión del proceso
+		String versioAct = driver.findElement(By.xpath("//dd[contains(text(), '"+nomDefProc+"')]")).getText().trim();
+		assertTrue("No coincidía la versión del expediente", versioProc.equals(versioAct));	
 	}
 
 	@Test
@@ -265,9 +265,11 @@ public class NouExpedient extends BaseTest {
 		carregarUrlConfiguracio();
 
 		seleccionarEntorn(titolEntorn);
+		
+		eliminarExpedient(null, null, nomTipusExp);
 				
-		String pathDefProc = carregarPropietat("defproc.nou_tasca_ini.exp.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-		String exportDefProc = carregarPropietat("defproc.nou_tasca_ini.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+		String pathDefProc = carregarPropietatPath("defproc.nou_tasca_ini.exp.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+		String exportDefProc = carregarPropietatPath("defproc.nou_tasca_ini.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 		
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
 		importarDadesDefPro(nomDefProc, exportDefProc);
@@ -324,14 +326,6 @@ public class NouExpedient extends BaseTest {
 		existeixElementAssert("//*[@id='infos']/p", "No se inició el expediente");
 		
 		screenshotHelper.saveScreenshot("NouExpedient/iniciAmbTascaIniExp/4.png");
-		
-		// Eliminar el expediente
-		eliminarExpedient(res[0], res[1]);
-		
-		// Eliminar la def de proceso
-		eliminarDefinicioProces(nomDefProc);
-		
-		screenshotHelper.saveScreenshot("NouExpedient/iniciAmbTascaIniExp/5.png");
 	}
 
 	@Test
@@ -341,10 +335,6 @@ public class NouExpedient extends BaseTest {
 		seleccionarEntorn(titolEntorn);
 		
 		eliminarExpedient(null, null, nomTipusExp);
-			
-		// Eliminar la def de proceso
-		eliminarDefinicioProces(nomDefProc);
-		eliminarDefinicioProces(nomSubDefProc);
 		
 		// Eliminar el tipo de expediente
 		eliminarTipusExpedient(codTipusExp);
