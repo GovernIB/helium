@@ -23,10 +23,7 @@ public class TerminisExpedient extends BaseTest {
 	String titolEntorn = carregarPropietat("tramsel.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String exportTipExpProc = carregarPropietatPath("tipexp.tasca_dades_doc.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String nomSubDefProc = carregarPropietat("defproc.deploy.definicio.subproces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String pathDefProc = carregarPropietatPath("defproc.mod.exp.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String pathExportDefProc = carregarPropietatPath("defproc.termini.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String exportTipExpProc = carregarPropietatPath("tipexp.exp_termini.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
 	
@@ -46,10 +43,9 @@ public class TerminisExpedient extends BaseTest {
 		
 		seleccionarEntorn(titolEntorn);
 
-		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
-		
-		importarDadesDefPro(nomDefProc, pathExportDefProc);
 		importarDadesTipExp(codTipusExp, exportTipExpProc);
+		
+		iniciarExpediente(codTipusExp,"SE-22/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
 		
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/crear_dades/1.png");
 	}
@@ -71,7 +67,7 @@ public class TerminisExpedient extends BaseTest {
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'"+nomDefProc+"')]")).click();
 		
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[5]/a")).click();
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/definicioProces/terminiLlistat.html')]")).click();
 		
 		Map<String, String[]> terminis = new HashMap<String, String[]>();
 		
@@ -83,19 +79,19 @@ public class TerminisExpedient extends BaseTest {
 			term[1] = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr["+i+"]/td[2]")).getText();
 			term[2] = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr["+i+"]/td[3]")).getText();
 			
-			terminis.put(term[0], term);
+			terminis.put(term[1], term);
 			
 			i++;
 		}
 		
 		// Comprobamos que se han mostrado los terminis correspondientes		
-		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
+		consultarExpedientes(null, null, nomTipusExp);
 		
 		screenshotHelper.saveScreenshot("TerminisExpedient/visualizar_terminis/2.png");
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
 		
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[5]/a")).click();
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/terminis.html')]")).click();
 		
 		assertTrue("No había el mísmo número de terminis", driver.findElements(By.xpath("//*[@id='registre']/tbody/tr")).size() == terminis.size());
 			
@@ -134,13 +130,13 @@ public class TerminisExpedient extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("TerminisExpedient/iniciar_terminis/1.png");
 		
-		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
+		consultarExpedientes(null, null, nomTipusExp);
 		
 		screenshotHelper.saveScreenshot("TerminisExpedient/iniciar_terminis/2.png");
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
 		
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[5]/a")).click();
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/terminis.html')]")).click();
 		
 		assertTrue("No había ningún termini", !driver.findElements(By.xpath("//*[@id='registre']/tbody/tr")).isEmpty());
 			
@@ -231,13 +227,13 @@ public class TerminisExpedient extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("TerminisExpedient/aturar_terminis/1.png");
 		
-		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
+		consultarExpedientes(null, null, nomTipusExp);
 		
 		screenshotHelper.saveScreenshot("TerminisExpedient/aturar_terminis/2.png");
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
 		
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[5]/a")).click();
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/terminis.html')]")).click();
 		
 		assertTrue("No había ningún termini", !driver.findElements(By.xpath("//*[@id='registre']/tbody/tr")).isEmpty());
 		
@@ -308,13 +304,13 @@ public class TerminisExpedient extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("TerminisExpedient/cancelar_terminis/1.png");
 		
-		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
+		consultarExpedientes(null, null, nomTipusExp);
 		
 		screenshotHelper.saveScreenshot("TerminisExpedient/cancelar_terminis/2.png");
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
 		
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[5]/a")).click();
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/terminis.html')]")).click();
 		
 		assertTrue("No había ningún termini", !driver.findElements(By.xpath("//*[@id='registre']/tbody/tr")).isEmpty());
 			
@@ -384,10 +380,6 @@ public class TerminisExpedient extends BaseTest {
 		seleccionarEntorn(titolEntorn);
 		
 		eliminarExpedient(null, null, nomTipusExp);
-			
-		// Eliminar la def de proceso
-		eliminarDefinicioProces(nomDefProc);
-		eliminarDefinicioProces(nomSubDefProc);
 		
 		// Eliminar el tipo de expediente
 		eliminarTipusExpedient(codTipusExp);

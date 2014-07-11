@@ -21,10 +21,7 @@ public class DadesExpedient extends BaseTest {
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomSubDefProc = carregarPropietat("defproc.deploy.definicio.subproces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
-	String pathDefProc = carregarPropietatPath("defproc.deploy.definicio.subproces.main.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String pathSubDefProc = carregarPropietatPath("defproc.subproces.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String exportTipExpProc = carregarPropietatPath("tipexp.tasca_dades_doc.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String exportDefProc = carregarPropietatPath("defproc.tasca_dades.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	
@@ -49,9 +46,8 @@ public class DadesExpedient extends BaseTest {
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/crear_dades/1.png");
 	}
 
-//	@Test
-	public void b1_visualizacio_dades_process() throws InterruptedException {
-		
+	@Test
+	public void b1_visualizacio_dades_process() throws InterruptedException {		
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
@@ -108,9 +104,8 @@ public class DadesExpedient extends BaseTest {
 		}
 	}
 
-//	@Test
-	public void b2_visualizacio_dades_subprocess() throws InterruptedException {
-		
+	@Test
+	public void b2_visualizacio_dades_subprocess() throws InterruptedException {		
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
@@ -201,9 +196,8 @@ public class DadesExpedient extends BaseTest {
 		}
 	}
 
-//	@Test
-	public void c_ordre_i_agrupacions() throws InterruptedException {
-		
+	@Test
+	public void c_ordre_i_agrupacions() throws InterruptedException {		
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
@@ -223,16 +217,22 @@ public class DadesExpedient extends BaseTest {
 		int i = 1;
 		int numAgrupaciones = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr")).size();
 		while(i <= numAgrupaciones) {
+			int j = 1;
+			while (existeixElement("//*[@id='registre']/tbody/tr/td[1]//a[contains(text(), 'Agrupacion_"+j+"')]")) {
+				j++;
+			}
+			String codiAgrupacio = "Agrupacion_" + j;
+			
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr["+i+"]//a")).click();
 			
 			driver.findElement(By.xpath("//*[@id='codi0']")).clear();
-			driver.findElement(By.xpath("//*[@id='codi0']")).sendKeys("Agrupacion_"+i);
+			driver.findElement(By.xpath("//*[@id='codi0']")).sendKeys(codiAgrupacio);
 			
 			driver.findElement(By.xpath("//*[@id='nom0']")).clear();
-			driver.findElement(By.xpath("//*[@id='nom0']")).sendKeys("Agrupación "+i);
+			driver.findElement(By.xpath("//*[@id='nom0']")).sendKeys("Nom " + codiAgrupacio);
 			
 			driver.findElement(By.xpath("//*[@id='descripcio0']")).clear();
-			driver.findElement(By.xpath("//*[@id='descripcio0']")).sendKeys("Descripción de agrupación "+i);
+			driver.findElement(By.xpath("//*[@id='descripcio0']")).sendKeys("Descripción de " + codiAgrupacio);
 						
 			screenshotHelper.saveScreenshot("tramitar/dadesexpedient/ordre_i_agrupacions/2"+i+".png");
 			
@@ -252,20 +252,21 @@ public class DadesExpedient extends BaseTest {
 			assertTrue("Error en el número de elementos de la variable Agrupacion_"+i, elementos == elementosTabla);
 			
 			// Cambiar de orden las variables
-			int j = 1;
-			while (j <= elementosTabla) {
-				sortTable("registre", j, (j < elementosTabla) ? j+1 : j-1);
-				
-				screenshotHelper.saveScreenshot("tramitar/dadesexpedient/ordre_i_agrupacions/4"+i+"-"+j+".png");
-				
-				j++;
+			if (elementosTabla > 1) {
+			int k = 1;			
+				while (k <= elementosTabla) {
+					sortTable("registre", k, (k < elementosTabla) ? k+1 : k-1);
+					
+					screenshotHelper.saveScreenshot("tramitar/dadesexpedient/ordre_i_agrupacions/4"+i+"-"+k+".png");
+					
+					k++;
+				}
 			}
-			
 			// Crear y borrar
 			WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='id0']"));
 			selectTipusExpedient.findElements(By.tagName("option")).get(1).click();
 			
-			driver.findElement(By.xpath("//*[@id='command']/fieldset/div[3]/button[1]")).click();
+			driver.findElement(By.xpath("//*[@id='command']/fieldset//button[1]")).click();
 			existeixElementAssert("//*[@id='infos']/p", "No se añadió la agrupación de la fila " + i);
 			
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr["+(elementosTabla+1)+"]/td[2]/a/img")).click();
@@ -274,22 +275,28 @@ public class DadesExpedient extends BaseTest {
 			
 			screenshotHelper.saveScreenshot("tramitar/dadesexpedient/ordre_i_agrupacions/5"+i+".png");
 			
-			driver.findElement(By.xpath("//*[@id='command']/fieldset/div[3]/button[2]")).click();
+			driver.findElement(By.xpath("//*[@id='command']/fieldset//button[2]")).click();
 			
 			i++;
 		}
 		
+		int j = 1;
+		while (existeixElement("//*[@id='registre']/tbody/tr/td[1]//a[contains(text(), 'Agrupacion_"+j+"')]")) {
+			j++;
+		}
+		String codiAgrupacio = "Agrupacion_" + j;
+		
 		// Crear y borrar
-		driver.findElement(By.xpath("//*[@id='content']/form/button")).click();
+		driver.findElement(By.xpath("//form[contains(@action,'/definicioProces/campAgrupacioForm.html')]/button[1]")).click();
 		
 		driver.findElement(By.xpath("//*[@id='codi0']")).clear();
-		driver.findElement(By.xpath("//*[@id='codi0']")).sendKeys("Agrupacion_"+numAgrupaciones+1);
+		driver.findElement(By.xpath("//*[@id='codi0']")).sendKeys(codiAgrupacio);
 		
 		driver.findElement(By.xpath("//*[@id='nom0']")).clear();
-		driver.findElement(By.xpath("//*[@id='nom0']")).sendKeys("Agrupación "+numAgrupaciones+1);
+		driver.findElement(By.xpath("//*[@id='nom0']")).sendKeys("Nom " + codiAgrupacio);
 		
 		driver.findElement(By.xpath("//*[@id='descripcio0']")).clear();
-		driver.findElement(By.xpath("//*[@id='descripcio0']")).sendKeys("Descripción de agrupación "+numAgrupaciones+1);
+		driver.findElement(By.xpath("//*[@id='descripcio0']")).sendKeys("Descripción " + codiAgrupacio);
 					
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/ordre_i_agrupacions/6"+i+".png");
 		
@@ -297,7 +304,7 @@ public class DadesExpedient extends BaseTest {
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se creó la agrupación de la fila " + numAgrupaciones+1);
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr["+(numAgrupaciones+1)+"]/td[4]/a/img")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr["+(numAgrupaciones+1)+"]//a[contains(@href,'/definicioProces/campAgrupacioDelete.html')]")).click();
 		acceptarAlerta();
 		
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/ordre_i_agrupacions/6"+i+".png");
@@ -305,9 +312,8 @@ public class DadesExpedient extends BaseTest {
 		existeixElementAssert("//*[@id='infos']/p", "No se borró la agrupación de la fila " + numAgrupaciones+i);
 	}
 	
-//	@Test
+	@Test
 	public void d_iniciar_expediente() throws InterruptedException {
-		
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
@@ -317,9 +323,8 @@ public class DadesExpedient extends BaseTest {
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/iniciar_expediente/1.png");		
 	}
 	
-//	@Test
+	@Test
 	public void e_afegir_nova_dada() throws InterruptedException {
-		
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);			
@@ -331,32 +336,32 @@ public class DadesExpedient extends BaseTest {
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();	
 					
 		// Empezamos a modificar los datos
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[2]/a")).click();
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/dades.html')]")).click();
 		
-		driver.findElement(By.xpath("//*[@id='content']/form/button")).click();
+		driver.findElement(By.xpath("//form[contains(@action,'/expedient/dadaCrear.html')]/button[1]")).click();
 		
 		WebElement selectVars = driver.findElement(By.xpath("//*[@id='camp0']"));
 		int numOptionsVars = selectVars.findElements(By.tagName("option")).size();
 		boolean comprobarAnadido = true;
-		for (int i = 1; i < numOptionsVars; i++) {
-			
+		for (int i = 2; i < numOptionsVars; i++) {			
 			selectVars = driver.findElement(By.xpath("//*[@id='camp0']"));
 			WebElement option = selectVars.findElements(By.tagName("option")).get(1);
 			String codi = option.getAttribute("value");
 			
 			screenshotHelper.saveScreenshot("tramitar/dadesexpedient/afegir_nova_dada/1"+i+".png");
+			String variable = option.getText();
 			option.click();
 
 			driver.findElement(By.xpath("//*[@id='varCodi0']")).clear();
 			driver.findElement(By.xpath("//*[@id='varCodi0']")).sendKeys(codi);
 
-			driver.findElement(By.xpath("//*[@id='command']/div[3]/button[1]")).click();
+			driver.findElement(By.xpath("//form[contains(@action,'dadaCrear.html')]//button[1]")).click();
 
 			existeixElementAssert("//*[@id='infos']/p", "No se añadió la variable");
 
 			// Inputs
-			if (existeixElement("//*[@id='command']/div/*/input")) {
-				for (WebElement input1 : driver.findElements(By.xpath("//*[@id='command']/div/*/input"))) {
+			if (existeixElement("//*[@id='command']//input")) {
+				for (WebElement input1 : driver.findElements(By.xpath("//*[@id='command']//input"))) {
 					if ("text".equals(input1.getAttribute("type"))) {
 						input1.clear();
 						if (input1.getAttribute("class").contains("textInput hasDatepicker")) {
@@ -367,7 +372,7 @@ public class DadesExpedient extends BaseTest {
 					} else if ("button".equals(input1.getAttribute("type"))) {
 						input1.click();
 	
-						for (WebElement input2 : driver.findElements(By.xpath("//*[@id='command']/div/*/input"))) {
+						for (WebElement input2 : driver.findElements(By.xpath("//*[@id='command']//input"))) {
 							if ("text".equals(input2.getAttribute("type"))) {
 								input2.clear();
 								if (input2.getAttribute("class").contains("textInput hasDatepicker")) {
@@ -383,8 +388,10 @@ public class DadesExpedient extends BaseTest {
 			
 			// Buttons
 			if (existeixElement("//*[@id='command']/div[1]/div/div/button")) {
-				driver.findElement(By.xpath("//*[@id='command']/div[1]/div/div/button")).click();
-				
+				driver.findElement(By.xpath("//*[@id='command']/div[1]/div/div/button")).click();			
+				if (isAlertPresent()) {
+					acceptarAlerta();
+				}
 				String modal = "varRegistre.html?id=";
 				if (modalOberta(modal)) {
 					vesAModal(modal);
@@ -398,7 +405,7 @@ public class DadesExpedient extends BaseTest {
 						}
 					}
 					
-					driver.findElement(By.xpath("//*[@id='command']/div[3]/button[1]")).click();
+					driver.findElement(By.xpath("//*[@id='command']//button[1]")).click();
 					
 					tornaAPare();
 				}
@@ -407,16 +414,16 @@ public class DadesExpedient extends BaseTest {
 			}
 			
 			// Textareas
-			if (existeixElement("//*[@id='command']/div/*/textarea")) {
-				for (WebElement textarea : driver.findElements(By.xpath("//*[@id='command']/div/*/textarea"))) {
+			if (existeixElement("//*[@id='command']//textarea")) {
+				for (WebElement textarea : driver.findElements(By.xpath("//*[@id='command']//textarea"))) {
 					textarea.clear();
 					textarea.sendKeys(codi);
 				}
 			}
 			
 			// Selects
-			if (existeixElement("//*[@id='command']/div/*/select")) {
-				for (WebElement select : driver.findElements(By.xpath("//*[@id='command']/div/*/select"))) {
+			if (existeixElement("//*[@id='command']//select")) {
+				for (WebElement select : driver.findElements(By.xpath("//*[@id='command']//select"))) {
 					List<WebElement> sels = select.findElements(By.tagName("option"));
 					sels.get(sels.size()-1).click();
 				}
@@ -433,15 +440,16 @@ public class DadesExpedient extends BaseTest {
 				input.sendKeys("20");				
 			}
 			
-			driver.findElement(By.xpath("//*[@id='command']/div[3]/button[1]")).click();
+			if (existeixElement("//form[contains(@action,'dadaModificar.html')]//div[@class='buttonHolder']//button[1]"))
+				driver.findElement(By.xpath("//form[contains(@action,'dadaModificar.html')]//div[@class='buttonHolder']//button[1]")).click();
 			
 			if (comprobarAnadido)
-				existeixElementAssert("//*[@id='infos']/p", "No se añadió la variable");
+				existeixElementAssert("//*[@id='infos']/p", "No se añadió la variable con código: " + variable + " - Posición: " + i);
 			
 			screenshotHelper.saveScreenshot("tramitar/dadesexpedient/afegir_nova_dada/2"+i+".png");
 			
 			if (i < numOptionsVars-1)
-				driver.findElement(By.xpath("//*[@id='content']/form/button")).click();
+				driver.findElement(By.xpath("//form[contains(@action,'dadaCrear.html')]//button[1]")).click();
 			
 			comprobarAnadido = true;
 		}
@@ -449,7 +457,7 @@ public class DadesExpedient extends BaseTest {
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/afegir_nova_dada/3.png");
 	}
 	
-//	@Test
+	@Test
 	public void f_modificar_dada() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
@@ -461,18 +469,18 @@ public class DadesExpedient extends BaseTest {
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
 		
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[2]/a")).click();
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/dades.html')]")).click();
 		
 		// Empezamos a modificar los datos
 		boolean comprobarModificado = true;
 		int i = 1;
-		while (existeixElement("//*[@id='codi']/tbody/tr["+i+"]/td[4]/a/img")) {
-			driver.findElement(By.xpath("//*[@id='codi']/tbody/tr["+i+"]/td[3]/a/img")).click();
+		while (existeixElement("//*[@id='codi']/tbody/tr["+i+"]//a[contains(@href,'/expedient/dadaModificar.html')]")) {
+			driver.findElement(By.xpath("//*[@id='codi']/tbody/tr["+i+"]//a[contains(@href,'/expedient/dadaModificar.html')]")).click();
 			acceptarAlerta();			
 			
 			// Inputs
-			if (existeixElement("//*[@id='command']/div/*/input")) {
-				for (WebElement input1 : driver.findElements(By.xpath("//*[@id='command']/div/*/input"))) {
+			if (existeixElement("//*[@id='command']//input")) {
+				for (WebElement input1 : driver.findElements(By.xpath("//*[@id='command']//input"))) {
 					if ("text".equals(input1.getAttribute("type"))) {
 						if (input1.getAttribute("class").contains("textInput hasDatepicker")) {
 							input1.sendKeys("12/12/2015");
@@ -482,7 +490,7 @@ public class DadesExpedient extends BaseTest {
 					} else if ("button".equals(input1.getAttribute("type"))) {
 						input1.click();
 	
-						for (WebElement input2 : driver.findElements(By.xpath("//*[@id='command']/div/*/input"))) {
+						for (WebElement input2 : driver.findElements(By.xpath("//*[@id='command']//input"))) {
 							if ("text".equals(input2.getAttribute("type"))) {
 								if (input2.getAttribute("class").contains("textInput hasDatepicker")) {
 									input2.sendKeys("12/12/2015");
@@ -497,8 +505,10 @@ public class DadesExpedient extends BaseTest {
 			
 			// Buttons
 			if (existeixElement("//*[@id='command']/div[1]/div/div/button")) {
-				driver.findElement(By.xpath("//*[@id='command']/div[1]/div/div/button")).click();
-				
+				driver.findElement(By.xpath("//*[@id='command']/div[1]/div/div/button")).click();			
+				if (isAlertPresent()) {
+					acceptarAlerta();
+				}
 				String modal = "varRegistre.html?id=";
 				if (modalOberta(modal)) {
 					vesAModal(modal);
@@ -511,7 +521,7 @@ public class DadesExpedient extends BaseTest {
 						}
 					}
 					
-					driver.findElement(By.xpath("//*[@id='command']/div[3]/button[1]")).click();
+					driver.findElement(By.xpath("//*[@id='command']//button[1]")).click();
 					
 					tornaAPare();
 				}
@@ -520,15 +530,15 @@ public class DadesExpedient extends BaseTest {
 			}
 			
 			// Textareas
-			if (existeixElement("//*[@id='command']/div/*/textarea")) {
-				for (WebElement textarea : driver.findElements(By.xpath("//*[@id='command']/div/*/textarea"))) {
+			if (existeixElement("//*[@id='command']//textarea")) {
+				for (WebElement textarea : driver.findElements(By.xpath("//*[@id='command']//textarea"))) {
 					textarea.sendKeys("1234");
 				}
 			}
 			
 			// Selects
-			if (existeixElement("//*[@id='command']/div/*/select")) {
-				for (WebElement select : driver.findElements(By.xpath("//*[@id='command']/div/*/select"))) {
+			if (existeixElement("//*[@id='command']//select")) {
+				for (WebElement select : driver.findElements(By.xpath("//*[@id='command']//select"))) {
 					List<WebElement> sels = select.findElements(By.tagName("option"));
 					sels.get(sels.size()-1).click();
 				}
@@ -545,7 +555,32 @@ public class DadesExpedient extends BaseTest {
 				input.sendKeys("15");				
 			}
 			
-			driver.findElement(By.xpath("//*[@id='command']/div[3]/button[1]")).click();			
+			// Registre
+			if (existeixElement("//*[@id='registre']/tbody/tr[1]")) {
+				driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]")).click();
+				
+				String modal = "varRegistre.html?id=";
+				if (modalOberta(modal)) {
+					vesAModal(modal);
+					
+					for (WebElement input : driver.findElements(By.xpath("//*/input[@type='text']"))) {
+						if (input.getAttribute("class").contains("textInput hasDatepicker")) {
+							input.sendKeys("12/12/2015");
+						} else {
+							input.sendKeys("1234");
+						}
+					}
+					
+					driver.findElement(By.xpath("//*[@id='command']//button[1]")).click();
+					
+					tornaAPare();
+				}
+				
+				comprobarModificado = false;	
+			}
+			
+			if (existeixElement("//form[contains(@action,'dadaModificar.html')]//div[@class='buttonHolder']//button[1]"))
+				driver.findElement(By.xpath("//form[contains(@action,'dadaModificar.html')]//div[@class='buttonHolder']//button[1]")).click();
 			
 			if (comprobarModificado)
 				existeixElementAssert("//*[@id='infos']/p", "No se modificó la variable: " + i);
@@ -567,8 +602,8 @@ public class DadesExpedient extends BaseTest {
 				acceptarAlerta();				
 				
 				// Inputs
-				if (existeixElement("//*[@id='command']/div/*/input")) {
-					for (WebElement input1 : driver.findElements(By.xpath("//*[@id='command']/div/*/input"))) {
+				if (existeixElement("//*[@id='command']//input")) {
+					for (WebElement input1 : driver.findElements(By.xpath("//*[@id='command']//input"))) {
 						if ("text".equals(input1.getAttribute("type"))) {
 							if (input1.getAttribute("class").contains("textInput hasDatepicker")) {
 								input1.sendKeys("12/12/2015");
@@ -578,7 +613,7 @@ public class DadesExpedient extends BaseTest {
 						} else if ("button".equals(input1.getAttribute("type"))) {
 							input1.click();
 		
-							for (WebElement input2 : driver.findElements(By.xpath("//*[@id='command']/div/*/input"))) {
+							for (WebElement input2 : driver.findElements(By.xpath("//*[@id='command']//input"))) {
 								if ("text".equals(input2.getAttribute("type"))) {
 									if (input2.getAttribute("class").contains("textInput hasDatepicker")) {
 										input2.sendKeys("12/12/2015");
@@ -594,7 +629,9 @@ public class DadesExpedient extends BaseTest {
 				// Buttons
 				if (existeixElement("//*[@id='command']/div[1]/div/div/button")) {
 					driver.findElement(By.xpath("//*[@id='command']/div[1]/div/div/button")).click();
-					
+					if (isAlertPresent()) {
+						acceptarAlerta();
+					}
 					String modal = "varRegistre.html?id=";
 					if (modalOberta(modal)) {
 						vesAModal(modal);
@@ -607,7 +644,7 @@ public class DadesExpedient extends BaseTest {
 							}
 						}
 						
-						driver.findElement(By.xpath("//*[@id='command']/div[3]/button[1]")).click();
+						driver.findElement(By.xpath("//*[@id='command']//button[1]")).click();
 						
 						tornaAPare();
 					}
@@ -631,7 +668,7 @@ public class DadesExpedient extends BaseTest {
 							}
 						}
 						
-						driver.findElement(By.xpath("//*[@id='command']/div[3]/button[1]")).click();
+						driver.findElement(By.xpath("//*[@id='command']//button[1]")).click();
 						
 						tornaAPare();
 					}
@@ -640,15 +677,15 @@ public class DadesExpedient extends BaseTest {
 				}
 				
 				// Textareas
-				if (existeixElement("//*[@id='command']/div/*/textarea")) {
-					for (WebElement textarea : driver.findElements(By.xpath("//*[@id='command']/div/*/textarea"))) {
+				if (existeixElement("//*[@id='command']//textarea")) {
+					for (WebElement textarea : driver.findElements(By.xpath("//*[@id='command']//textarea"))) {
 						textarea.sendKeys("1234");
 					}
 				}
 				
 				// Selects
-				if (existeixElement("//*[@id='command']/div/*/select")) {
-					for (WebElement select : driver.findElements(By.xpath("//*[@id='command']/div/*/select"))) {
+				if (existeixElement("//*[@id='command']//select")) {
+					for (WebElement select : driver.findElements(By.xpath("//*[@id='command']//select"))) {
 						List<WebElement> sels = select.findElements(By.tagName("option"));
 						sels.get(sels.size()-1).click();
 					}
@@ -665,10 +702,14 @@ public class DadesExpedient extends BaseTest {
 					input.sendKeys("15");				
 				}
 				
-				driver.findElement(By.xpath("//*[@id='command']/div[3]/button[1]")).click();
+				if (existeixElement("//form[contains(@action,'dadaModificar.html')]//div[@class='buttonHolder']//button[1]"))
+					driver.findElement(By.xpath("//form[contains(@action,'dadaModificar.html')]//div[@class='buttonHolder']//button[1]")).click();
 				
+//				if (comprobarModificado && noExisteixElement("//*[@id='infos']/p")) {
+//					System.out.println("aa");
+//				}
 				if (comprobarModificado)
-					existeixElementAssert("//*[@id='infos']/p", "No se modificó la variable agrupada: " + i);
+					existeixElementAssert("//*[@id='infos']/p", "No se modificó la variable agrupada: " + i + "-" + j);
 				
 				screenshotHelper.saveScreenshot("tramitar/dadesexpedient/modificar_dada/4"+i+"-"+j+"-"+k+".png");
 				
@@ -683,9 +724,8 @@ public class DadesExpedient extends BaseTest {
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/modificar_dada/5.png");
 	}
 	
-//	@Test
+	@Test
 	public void g_eliminar_dada() throws InterruptedException {
-		
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
@@ -696,13 +736,13 @@ public class DadesExpedient extends BaseTest {
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
 		
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[2]/a")).click();
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/dades.html')]")).click();
 		
 		int i = 1;
 		
 		// Empezamos a eliminar los datos		
-		while (existeixElement("//*[@id='codi']/tbody/tr/td[4]/a/img")) {
-			driver.findElement(By.xpath("//*[@id='codi']/tbody/tr[1]/td[4]/a/img")).click();
+		while (existeixElement("//*[@id='codi']/tbody/tr//a[contains(@href,'/expedient/dadaProcesEsborrar.html')]")) {
+			driver.findElement(By.xpath("//*[@id='codi']/tbody/tr[1]//a[contains(@href,'/expedient/dadaProcesEsborrar.html')]")).click();
 			acceptarAlerta();
 			
 			existeixElementAssert("//*[@id='infos']/p", "No se borró la variable: " + i);
@@ -711,10 +751,10 @@ public class DadesExpedient extends BaseTest {
 		}
 		
 		// Eliminar las agrupaciones
-		while (existeixElement("//*[@id='dades-proces']/div/h4/img")) {
-			driver.findElement(By.xpath("//*[@id='dades-proces']/div[1]/h4/img")).click();
+		while (existeixElement("//*[@id='dades-proces']//img[contains(@src,'/img/magnifier_zoom_in.png')]")) {
+			driver.findElement(By.xpath("//*[@id='dades-proces']//img[contains(@src,'/img/magnifier_zoom_in.png')]")).click();
 			
-			driver.findElement(By.xpath("//*[@id='campAgrup']/tbody/tr[1]/td[4]/a/img")).click();
+			driver.findElement(By.xpath("//*[@id='campAgrup']/tbody/tr[1]//a[contains(@href,'/expedient/dadaProcesEsborrar.html')]")).click();
 			acceptarAlerta();
 			
 			existeixElementAssert("//*[@id='infos']/p", "No se borró la variable agrupada: " + i);
@@ -725,17 +765,13 @@ public class DadesExpedient extends BaseTest {
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/eliminar_dada/4.png");
 	}
 
-//	@Test
+	@Test
 	public void z_limpiar() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
 		
 		eliminarExpedient(null, null, nomTipusExp);
-			
-		// Eliminar la def de proceso
-		eliminarDefinicioProces(nomDefProc);
-		eliminarDefinicioProces(nomSubDefProc);
 		
 		// Eliminar el tipo de expediente
 		eliminarTipusExpedient(codTipusExp);

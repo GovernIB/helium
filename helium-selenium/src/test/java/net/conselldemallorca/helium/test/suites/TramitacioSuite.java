@@ -3,7 +3,6 @@ package net.conselldemallorca.helium.test.suites;
 import net.conselldemallorca.helium.test.tramitacio.Accions;
 import net.conselldemallorca.helium.test.tramitacio.AfegirExpedientRelacionat;
 import net.conselldemallorca.helium.test.tramitacio.DadesExpedient;
-import net.conselldemallorca.helium.test.tramitacio.DocumentsExpedient;
 import net.conselldemallorca.helium.test.tramitacio.ExpedientPestanyaTasques;
 import net.conselldemallorca.helium.test.tramitacio.ModificarExpedient;
 import net.conselldemallorca.helium.test.tramitacio.ModificarVersioProces;
@@ -22,8 +21,7 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
 	Accions.class,
 	AfegirExpedientRelacionat.class,
-	DadesExpedient.class,
-	DocumentsExpedient.class,
+	DadesExpedient.class, // Falla al modificar una fecha en una agrupación
 	ExpedientPestanyaTasques.class,
 	ModificarExpedient.class,
 	ModificarVersioProces.class,
@@ -35,4 +33,4 @@ import org.junit.runners.Suite;
 	TasquesSubprocessExpedient.class,
 	TerminisExpedient.class
 })
-public class ConfiguracioTramitacioSuite {}
+public class TramitacioSuite {}

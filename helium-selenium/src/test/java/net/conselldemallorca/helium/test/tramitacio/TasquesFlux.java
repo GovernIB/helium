@@ -1,6 +1,5 @@
 package net.conselldemallorca.helium.test.tramitacio;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.text.ParseException;
@@ -26,17 +25,15 @@ public class TasquesFlux extends BaseTest {
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
 	String nomSubDefProc = carregarPropietat("defproc.deploy.definicio.subproces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String pathDefProc = carregarPropietatPath("tramsel_accio.deploy_flux.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String pathSubDefProc = carregarPropietatPath("defproc.subproces.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String exportDefProc = carregarPropietatPath("defproc.tasca_dades.exp.export_flux.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+//	String pathDefProc = carregarPropietatPath("tramsel_accio.deploy_flux.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+//	String pathSubDefProc = carregarPropietatPath("defproc.subproces.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+//	String exportDefProc = carregarPropietatPath("defproc.tasca_dades.exp.export_flux.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String exportTipExp = carregarPropietatPath("tipexp.tasca_dades.exp.export_flux.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	long waitTime = 1000*5;
-			
-	static String entornActual;
 	
-	@Test
+//	@Test
 	public void a0_inicialitzacio() {
 		carregarUrlConfiguracio();
 		crearEntorn(entorn, titolEntorn);
@@ -46,22 +43,18 @@ public class TasquesFlux extends BaseTest {
 		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 	}
 	
-	@Test
+//	@Test
 	public void a_crear_dades() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
-
-//		desplegarDefinicioProcesEntorn(nomTipusExp, nomSubDefProc, pathSubDefProc);
-//		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
 		
 		importarDadesTipExp(codTipusExp, exportTipExp);
-		importarDadesDefPro(nomSubDefProc, exportDefProc);
 		
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/crear_dades/1.png");
 	}
 
-//	@Test
+	@Test
 	public void b_comprobar_flux_tasca() throws InterruptedException, ParseException {
 		carregarUrlConfiguracio();
 		
@@ -73,17 +66,15 @@ public class TasquesFlux extends BaseTest {
 			
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuDisseny']/ul/li[2]/a")));
+		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuDisseny']//a[contains(@href,'/definicioProces/llistat.html')]")));
 		actions.click();
 		actions.build().perform();
 	
 		screenshotHelper.saveScreenshot("NouExpedient/inici_any/1.png");
-		
-		assertEquals("No s'ha pogut seleccionar l'entorn de forma directe.", entorn, driver.findElement(By.xpath("//div[@id='page-entorn-title']/h2/span")).getText().trim());
 			
 		// Tareas proceso principal
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]/td[1]/a")).click();
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[2]/a")).click();
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/definicioProces/tascaLlistat.html')]")).click();
 		
 		List<String> tareasPrincipal = new ArrayList<String>();
 		int i = 1;
@@ -96,17 +87,15 @@ public class TasquesFlux extends BaseTest {
 		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuDisseny']/ul/li[2]/a")));
+		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuDisseny']//a[contains(@href,'/definicioProces/llistat.html')]")));
 		actions.click();
 		actions.build().perform();
 	
 		screenshotHelper.saveScreenshot("NouExpedient/inici_any/1.png");
-		
-		assertEquals("No s'ha pogut seleccionar l'entorn de forma directe.", entorn, driver.findElement(By.xpath("//div[@id='page-entorn-title']/h2/span")).getText().trim());
 			
 		// Tareas subproceso
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomSubDefProc + "')]/td[1]/a")).click();
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[2]/a")).click();
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/definicioProces/tascaLlistat.html')]")).click();
 		
 		List<String> tareasSubproceso = new ArrayList<String>();
 		i = 1;
@@ -117,17 +106,18 @@ public class TasquesFlux extends BaseTest {
 		
 		assertTrue("No existían 2 tareas en el subproceso", tareasSubproceso.size() == 2);
 		
+		eliminarExpedient(null, null, nomTipusExp);
 		String[] res = iniciarExpediente(codTipusExp,"SE-22/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
 				
 		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/tramitar_delegar_tasca/1.png");
 
-		consultarTareas(res[0], res[1], nomTipusExp, false);
+		consultarTareas(null, res[1], nomTipusExp, true);
 		
 		existeixElementAssert("//*[@id='registre']/tbody/tr/td[contains(text(), '"+tareasPrincipal.get(0)+"')]", "No se encontró la tarea: "+tareasPrincipal.get(0)+"");
 		
 		// Cogemos la tarea ya que se asignó inicialmente a un grupo		
-		existeixElementAssert("//*[@id='registre']/tbody/tr[1]/td/form/button[contains(text(), 'Agafar')]", "No estaba el botón de agafar tarea");
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td/form/button[contains(text(), 'Agafar')]")).click();
+		existeixElementAssert("//*[@id='registre']/tbody/tr[1]//button[contains(text(), 'Agafar')]", "No estaba el botón de agafar tarea");
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//button[contains(text(), 'Agafar')]")).click();
 		
 		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/tramitar_delegar_tasca/3.png");
 						
@@ -138,8 +128,8 @@ public class TasquesFlux extends BaseTest {
 		calendar.add(Calendar.DATE, 24);
 		String fechafinTermini = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
 		calendar = Calendar.getInstance();
-		calendar.add(Calendar.DATE, 1);
-		String fechaManana = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
+		calendar.add(Calendar.DATE, 3);
+		String fecha5dias = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
 		
 		if (driver.findElement(By.xpath("//*[@id='correcte0']")).isSelected()) {
 			driver.findElement(By.xpath("//*[@id='correcte0']")).click();
@@ -152,12 +142,12 @@ public class TasquesFlux extends BaseTest {
 		driver.findElement(By.xpath("//*[@id='exp_nom0']")).clear();
 		driver.findElement(By.xpath("//*[@id='exp_nom0']")).sendKeys(titulo);
 		
-		driver.findElement(By.xpath("//*[@id='formFinalitzar']/div/button[contains(text(), 'Finalitzar')]")).click();
+		driver.findElement(By.xpath("//*[@id='formFinalitzar']//button[contains(text(), 'Finalitzar')]")).click();
 		acceptarAlerta();
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se finalizó correctamente");
 		
-		consultarTareas(res[0], res[1], nomTipusExp, false);
+		consultarTareas(null, titulo, nomTipusExp, false);
 		
 		existeixElementAssert("//*[@id='registre']/tbody/tr/td[contains(a/text(), '"+tareasPrincipal.get(1)+"')]/a", "No se encontró la tarea: "+tareasPrincipal.get(1)+"");
 		existeixElementAssert("//*[@id='registre']/tbody/tr/td[contains(a/text(), '"+tareasPrincipal.get(1)+"')]/parent::tr/td[2]", "No se encontró la tarea: "+tareasPrincipal.get(1)+"");
@@ -167,19 +157,19 @@ public class TasquesFlux extends BaseTest {
 				
 		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/tramitar_delegar_tasca/3.png");
 						
-		driver.findElement(By.xpath("//*[@id='formFinalitzar']/div/button[contains(text(), 'Finalitzar')]")).click();
+		driver.findElement(By.xpath("//*[@id='formFinalitzar']//button[contains(text(), 'Finalitzar')]")).click();
 		acceptarAlerta();
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se finalizó correctamente");
 		
 		// Debe volver a la primera tarea		
-		consultarTareas(res[0], res[1], nomTipusExp, false);
+		consultarTareas(null, titulo, nomTipusExp, true);
 		
 		existeixElementAssert("//*[@id='registre']/tbody/tr/td[contains(text(), '"+tareasPrincipal.get(0)+"')]", "No se encontró la tarea: "+tareasPrincipal.get(0)+"");
 		
 		// Cogemos la tarea ya que se asignó inicialmente a un grupo		
-		existeixElementAssert("//*[@id='registre']/tbody/tr[1]/td/form/button[contains(text(), 'Agafar')]", "No estaba el botón de agafar tarea");
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td/form/button[contains(text(), 'Agafar')]")).click();
+		existeixElementAssert("//*[@id='registre']/tbody/tr[1]//button[contains(text(), 'Agafar')]", "No estaba el botón de agafar tarea");
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//button[contains(text(), 'Agafar')]")).click();
 		
 		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/tramitar_delegar_tasca/3.png");
 		if (!driver.findElement(By.xpath("//*[@id='correcte0']")).isSelected()) {
@@ -192,13 +182,13 @@ public class TasquesFlux extends BaseTest {
 		driver.findElement(By.xpath("//*[@id='exp_nom0']")).clear();
 		driver.findElement(By.xpath("//*[@id='exp_nom0']")).sendKeys(titulo);
 		
-		driver.findElement(By.xpath("//*[@id='formFinalitzar']/div/button[contains(text(), 'Finalitzar')]")).click();
+		driver.findElement(By.xpath("//*[@id='formFinalitzar']//button[contains(text(), 'Finalitzar')]")).click();
 		acceptarAlerta();
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se finalizó correctamente");
 		
 		// Comprobamos que haya una tarea con ese nombre	
-		consultarTareas(res[0], res[1], nomTipusExp, false);
+		consultarTareas(null, titulo, nomTipusExp, false);
 		
 		existeixElementAssert("//*[@id='registre']/tbody/tr/td[contains(a/text(), '"+tareasPrincipal.get(1)+"')]/a", "No se encontró la tarea: "+tareasPrincipal.get(1)+"");
 		existeixElementAssert("//*[@id='registre']/tbody/tr/td[contains(a/text(), '"+tareasPrincipal.get(1)+"')]/parent::tr/td[2]", "No se encontró la tarea: "+tareasPrincipal.get(1)+"");
@@ -208,19 +198,19 @@ public class TasquesFlux extends BaseTest {
 				
 		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/tramitar_delegar_tasca/3.png");
 						
-		driver.findElement(By.xpath("//*[@id='formFinalitzar']/div/button[contains(text(), 'Finalitzar')]")).click();
+		driver.findElement(By.xpath("//*[@id='formFinalitzar']//button[contains(text(), 'Finalitzar')]")).click();
 		acceptarAlerta();
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se finalizó correctamente");
 
 		// Comprobamos que se haya cambiado el estado a "Pendiente"
-		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
+		consultarExpedientes(null, titulo, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
 		
 		assertTrue("El expediente no estaba en estado 'Pendiente'", "Pendiente".equals(driver.findElement(By.xpath("//*[@id='registre']/tbody/tr/td[5]")).getText()));
 		
 		// Comprobamos que se inició el exp_termini, exp_termini_lab y el timer
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr/td[6]/a")).click();
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[5]/a")).click();
+		driver.findElement(By.xpath("//*[@id='registre']//a[contains(@href,'/expedient/info.html')][1]")).click();
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/terminis.html')]")).click();
 		
 		assertTrue("No había 4 terminis", driver.findElements(By.xpath("//*[@id='registre']/tbody/tr")).size() == 4);
 				
@@ -290,7 +280,7 @@ public class TasquesFlux extends BaseTest {
 		assertTrue("El estado inicial de '"+nom+"' no era correcto", "Actiu".equals(estat));
 		assertTrue("El campo de 'Iniciat el' inicial de '"+nom+"' no era correcto", iniciat.equals(fechaTermini));
 		assertTrue("El campo de 'Aturat el' inicial de '"+nom+"' no era correcto", aturat.isEmpty());
-		assertTrue("El campo de 'Data de fi del termini' de '"+nom+"' no era correcto", datafi.equals(fechaManana));		
+		assertTrue("El campo de 'Data de fi del termini' de '"+nom+"' no era correcto", datafi.equals(fecha5dias));		
 		
 		// Comprobamos los 25 días laborables a partir de una fecha
 		String fechaTerminiNoLab = getFechaDiasLaborables(dataIniTerminiNoLab, 25);
@@ -299,7 +289,7 @@ public class TasquesFlux extends BaseTest {
 		// Comprobamos que haya una nueva alerta
 		driver.findElement(By.xpath("//*[@id='page-entorn-title']/h2/a")).click();
 		
-		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='content']/div/form/select"));
+		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='content']//select"));
 		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
 		for (WebElement option : options) {
 			if (option.getText().equals(nomTipusExp)) {
@@ -314,8 +304,8 @@ public class TasquesFlux extends BaseTest {
 		// Ejecutamos en Script
 		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr/td[6]/a")).click();
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[9]/a")).click();
+		driver.findElement(By.xpath("//*[@id='registre']//a[contains(@href,'/expedient/info.html')][1]")).click();
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/eines.html')]")).click();
 		driver.findElement(By.xpath("//*[@id='content']/div/h3[contains(a/text(), \"Execució d'scripts\")]/a")).click();
 		
 		driver.findElement(By.xpath("//*[@id='script0']")).sendKeys("executionContext.getProcessInstance().signal();");
@@ -324,38 +314,38 @@ public class TasquesFlux extends BaseTest {
 		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó el script correctamente");
 		
 		// Comprobamos que se haya cambiado el estado a "Siguiente"
-		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
+		consultarExpedientes(null, titulo, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
 		assertTrue("El expediente no estaba en estado 'Siguiente'", "Siguiente".equals(driver.findElement(By.xpath("//*[@id='registre']/tbody/tr/td[5]")).getText()));
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr/td[6]/a")).click();
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[2]/a")).click();
+		driver.findElement(By.xpath("//*[@id='registre']//a[contains(@href,'/expedient/info.html')][1]")).click();
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/dades.html')]")).click();
 				
 		existeixElementAssert("//*[@id='codi']/tbody/tr/td[contains(text(), 'Timer')]/parent::tr/td[2]", "No existía la variable timer");
 		String valorTimer = driver.findElement(By.xpath("//*[@id='codi']/tbody/tr/td[contains(text(), 'Timer')]/parent::tr/td[2]")).getText();
 		
 		Thread.sleep(waitTime);
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[2]/a")).click();
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/dades.html')]")).click();
 		assertTrue("El timer no se ejecutó", !valorTimer.equals(driver.findElement(By.xpath("//*[@id='codi']/tbody/tr/td[contains(text(), 'Timer')]/parent::tr/td[2]")).getText()));
 		valorTimer = driver.findElement(By.xpath("//*[@id='codi']/tbody/tr/td[contains(text(), 'Timer')]/parent::tr/td[2]")).getText();
 		
 		Thread.sleep(waitTime);
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[2]/a")).click();
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/dades.html')]")).click();
 		assertTrue("El timer no se ejecutó", !valorTimer.equals(driver.findElement(By.xpath("//*[@id='codi']/tbody/tr/td[contains(text(), 'Timer')]/parent::tr/td[2]")).getText()));
 		valorTimer = driver.findElement(By.xpath("//*[@id='codi']/tbody/tr/td[contains(text(), 'Timer')]/parent::tr/td[2]")).getText();
 		
 		Thread.sleep(waitTime);
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[2]/a")).click();
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/dades.html')]")).click();
 		assertTrue("El timer no se ejecutó", !valorTimer.equals(driver.findElement(By.xpath("//*[@id='codi']/tbody/tr/td[contains(text(), 'Timer')]/parent::tr/td[2]")).getText()));
 		valorTimer = driver.findElement(By.xpath("//*[@id='codi']/tbody/tr/td[contains(text(), 'Timer')]/parent::tr/td[2]")).getText();
 		
 		// Finalizamos la tasca timer
-		consultarTareas(res[0], res[1], nomTipusExp, false);
+		consultarTareas(null, titulo, nomTipusExp, false);
 		
 		existeixElementAssert("//*[@id='registre']/tbody/tr/td[contains(text(), '"+tareasPrincipal.get(3)+"')]", "No se encontró la tarea: "+tareasPrincipal.get(3)+"");
 		
 		// Cogemos la tarea ya que se asignó inicialmente a un grupo		
-		existeixElementAssert("//*[@id='registre']/tbody/tr[1]/td/form/button[contains(text(), 'Agafar')]", "No estaba el botón de agafar tarea");
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td/form/button[contains(text(), 'Agafar')]")).click();
+		existeixElementAssert("//*[@id='registre']/tbody/tr[1]//button[contains(text(), 'Agafar')]", "No estaba el botón de agafar tarea");
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//button[contains(text(), 'Agafar')]")).click();
 		
 		// Finalizamos la tarea timer
 		driver.findElement(By.xpath("//button[contains(text(), 'Finalitzar')]")).click();
@@ -366,7 +356,7 @@ public class TasquesFlux extends BaseTest {
 		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/tramitar_delegar_tasca/3.png");
 		
 		// Ejecutamos la tasca1_subproces 
-		consultarTareas(res[0], res[1], nomTipusExp, false);
+		consultarTareas(null, titulo, nomTipusExp, false);
 		
 		existeixElementAssert("//*[@id='registre']/tbody/tr/td[contains(a/text(), '"+tareasSubproceso.get(0)+"')]", "No se encontró la tarea: tasca1_subproces ");
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr/td[contains(a/text(), '"+tareasSubproceso.get(0)+"')]/a")).click();
@@ -377,10 +367,10 @@ public class TasquesFlux extends BaseTest {
 		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/tramitar_delegar_tasca/3.png");
 		
 		// Ejecutamos la tasca2_subproces 
-		consultarTareas(res[0], res[1], nomTipusExp, false);
+		consultarTareas(null, titulo, nomTipusExp, false);
 		
-		existeixElementAssert("//*[@id='registre']/tbody/tr/td[contains(a/text(), '"+tareasSubproceso.get(1)+"')]", "No se encontró la tarea: "+tareasSubproceso.get(1)+" ");
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr/td[contains(a/text(), '"+tareasSubproceso.get(1)+"')]/a")).click();
+		existeixElementAssert("//*[@id='registre']//td[contains(a/text(), '"+tareasSubproceso.get(1)+"')]", "No se encontró la tarea: "+tareasSubproceso.get(1)+" ");
+		driver.findElement(By.xpath("//*[@id='registre']//td[contains(a/text(), '"+tareasSubproceso.get(1)+"')]/a")).click();
 		driver.findElement(By.xpath("//button[contains(text(), 'Finalitzar')]")).click();
 		acceptarAlerta();
 		existeixElementAssert("//*[@id='infos']/p", "No se finalizó la tasca1_subproces correctamente");
@@ -388,12 +378,12 @@ public class TasquesFlux extends BaseTest {
 		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/tramitar_delegar_tasca/3.png");
 		
 		// Comprobamos que haya hecho el "join" y se finalice el expediente
-		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
+		consultarExpedientes(null, titulo, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
 		assertTrue("El expediente no estaba en estado 'Finalitzat'", "Finalitzat".equals(driver.findElement(By.xpath("//*[@id='registre']/tbody/tr/td[5]")).getText()));
 		
 		// Comprobamos que los terminis se hayan cancelado
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr/td[6]/a")).click();
-		driver.findElement(By.xpath("//*[@id='tabnav']/li[5]/a")).click();
+		driver.findElement(By.xpath("//*[@id='registre']//a[contains(@href,'/expedient/info.html')][1]")).click();
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/terminis.html')]")).click();
 		
 		assertTrue("No había 4 terminis", driver.findElements(By.xpath("//*[@id='registre']/tbody/tr")).size() == 4);
 				
@@ -445,17 +435,13 @@ public class TasquesFlux extends BaseTest {
 		return fechaTerminiNoLab;
 	}
 
-	@Test
+//	@Test
 	public void z_limpiar() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
 		
 		eliminarExpedient(null, null, nomTipusExp);
-			
-		// Eliminar la def de proceso
-		eliminarDefinicioProces(nomDefProc);
-		eliminarDefinicioProces(nomSubDefProc);
 		
 		// Eliminar el tipo de expediente
 		eliminarTipusExpedient(codTipusExp);
