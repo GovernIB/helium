@@ -447,7 +447,7 @@ public class ExecucioMassivaService {
 			} catch (Exception e) {}
 		}
 		try {
-			eme = execucioMassivaExpedientDao.getById(dto.getId(), false);
+			eme = execucioMassivaExpedientDao.getById(dto.getId(), true);
 			eme.setDataInici(new Date());
 			if ("Guardar".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("Guardar", "massiva_tasca", expedient, tasca);
@@ -612,7 +612,7 @@ public class ExecucioMassivaService {
 		ExecucioMassivaExpedient eme = null;
 		
 		try {
-			eme = execucioMassivaExpedientDao.getById(dto.getId(), false);
+			eme = execucioMassivaExpedientDao.getById(dto.getId(), true);
 			eme.setDataInici(new Date());
 			if (dto.getExpedient() != null) {
 				
@@ -736,7 +736,7 @@ public class ExecucioMassivaService {
 		ExecucioMassivaExpedient eme = null;
 		ExpedientDto exp = dto.getExpedient();
 		try {
-			eme = execucioMassivaExpedientDao.getById(dto.getId(), false);
+			eme = execucioMassivaExpedientDao.getById(dto.getId(), true);
 			eme.setDataInici(new Date());
 			String script = (String) deserialize(dto.getParam2());
 			expedientService.evaluateScript(exp.getProcessInstanceId(), script,	null);
@@ -753,7 +753,7 @@ public class ExecucioMassivaService {
 		ExecucioMassivaExpedient eme = null;
 		ExpedientDto exp = dto.getExpedient();
 		try {
-			eme = execucioMassivaExpedientDao.getById(dto.getId(), false);
+			eme = execucioMassivaExpedientDao.getById(dto.getId(), true);
 			eme.setDataInici(new Date());
 			Object param2 = deserialize(dto.getParam2());
 			String accioId = "";
@@ -777,7 +777,7 @@ public class ExecucioMassivaService {
 		ExecucioMassivaExpedient eme = null;
 		ExpedientDto exp = dto.getExpedient();
 		try {
-			eme = execucioMassivaExpedientDao.getById(dto.getId(), false);
+			eme = execucioMassivaExpedientDao.getById(dto.getId(), true);
 			eme.setDataInici(new Date());
 			String motiu = (dto.getParam2() == null ? null : (String)deserialize(dto.getParam2()));
 			if (!exp.isAturat()) {
@@ -799,7 +799,7 @@ public class ExecucioMassivaService {
 		ExecucioMassivaExpedient eme = null;
 		ExpedientDto exp = dto.getExpedient();
 		try {
-			eme = execucioMassivaExpedientDao.getById(dto.getId(), false);
+			eme = execucioMassivaExpedientDao.getById(dto.getId(), true);
 			eme.setDataInici(new Date());
 			String var = dto.getParam1();
 			Object[] params = (Object[])deserialize(dto.getParam2());
@@ -822,7 +822,7 @@ public class ExecucioMassivaService {
 		ExecucioMassivaExpedient eme = null;
 		ExpedientDto exp = dto.getExpedient();
 		try {
-			eme = execucioMassivaExpedientDao.getById(dto.getId(), false);
+			eme = execucioMassivaExpedientDao.getById(dto.getId(), true);
 			eme.setDataInici(new Date());
 			String fileName = dto.getParam1();
 			
@@ -953,7 +953,7 @@ public class ExecucioMassivaService {
 		ExecucioMassivaExpedient eme = null;
 		ExpedientDto exp = dto.getExpedient();
 		try {
-			eme = execucioMassivaExpedientDao.getById(dto.getId(), false);
+			eme = execucioMassivaExpedientDao.getById(dto.getId(), true);
 			eme.setDataInici(new Date());
 			expedientService.luceneReindexarExpedient(exp.getProcessInstanceId());
 			eme.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
@@ -969,7 +969,7 @@ public class ExecucioMassivaService {
 		ExecucioMassivaExpedient eme = null;
 		String tascaId = dto.getTascaId();
 		try {
-			eme = execucioMassivaExpedientDao.getById(dto.getId(), false);
+			eme = execucioMassivaExpedientDao.getById(dto.getId(), true);
 			eme.setDataInici(new Date());
 			
 			// Paràmetres
