@@ -62,7 +62,7 @@ public class ExpedientDadaEsborrarController extends BaseController {
 			if (potModificarExpedient(expedient)) {
 				try {
 					expedientService.deleteVariable(id, var);
-					missatgeInfo(request, getMessage("dada.proces.esborrada") );
+					missatgeInfo(request, getMessage("info.dada.proces.esborrada") );
 				} catch (Exception ex) {
 					Long entornId = entorn.getId();
 					String numeroExpedient = id;

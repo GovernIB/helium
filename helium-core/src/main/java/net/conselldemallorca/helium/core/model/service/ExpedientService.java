@@ -1100,6 +1100,7 @@ public class ExpedientService {
 			int maxResults) {
 		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
 		Consulta consulta = consultaDao.getById(consultaId, false);
+		mesuresTemporalsHelper.mesuraIniciar("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Recuperar consulta disseny - find camps per consulta");
 		List<Camp> campsFiltre = getServiceUtils().findCampsPerCampsConsulta(
 				consulta,
 				TipusConsultaCamp.FILTRE);
@@ -1107,6 +1108,8 @@ public class ExpedientService {
 				consulta,
 				TipusConsultaCamp.INFORME);
 		afegirValorsPredefinits(consulta, valors, campsFiltre);
+		mesuresTemporalsHelper.mesuraCalcular("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Recuperar consulta disseny - find camps per consulta");
+		mesuresTemporalsHelper.mesuraIniciar("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Recuperar consulta disseny - lucene");
 		List<Map<String, DadaIndexadaDto>> dadesExpedients = luceneDao.findAmbDadesExpedient(
 				consulta.getEntorn().getCodi(),
 				consulta.getExpedientTipus().getCodi(),
@@ -1117,6 +1120,8 @@ public class ExpedientService {
 				asc,
 				firstRow,
 				maxResults);
+		mesuresTemporalsHelper.mesuraCalcular("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Recuperar consulta disseny - lucene");
+		mesuresTemporalsHelper.mesuraIniciar("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Recuperar consulta disseny - dto converter i revisar dades expedient amb valors enumeracions o domini");
 		for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
 			DadaIndexadaDto dadaExpedientId = dadesExpedient.get(LuceneDao.CLAU_EXPEDIENT_ID);
 			ExpedientConsultaDissenyDto fila = new ExpedientConsultaDissenyDto();
@@ -1134,6 +1139,7 @@ public class ExpedientService {
 			}
 			dadesExpedient.remove(LuceneDao.CLAU_EXPEDIENT_ID);
 		}
+		mesuresTemporalsHelper.mesuraCalcular("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Recuperar consulta disseny - dto converter i revisar dades expedient amb valors enumeracions o domini");
 		return resposta;
 	}
 	
