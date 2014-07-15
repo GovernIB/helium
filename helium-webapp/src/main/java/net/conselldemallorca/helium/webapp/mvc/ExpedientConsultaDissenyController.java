@@ -397,22 +397,30 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			if (commandFiltre != null) {
 				populateModelCommon(entorn, model, commandSeleccio);
 				Consulta consulta = dissenyService.getConsultaById(commandSeleccio.getConsultaId());
-				adminService.mesuraIniciar("INFORME: " + consulta.getCodi(), "report", null, null, "INFORME");
+				((MesuresTemporalsHelper) adminService.getMesuresTemporalsHelper()).mesuraIniciar("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null);
 				if (consulta.getInformeNom() != null) {
 					model.addAttribute("commandFiltre", commandFiltre);
+					((MesuresTemporalsHelper) adminService.getMesuresTemporalsHelper()).mesuraIniciar("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Camps");
 					List<Camp> camps = dissenyService.findCampsPerCampsConsulta(
 							commandSeleccio.getConsultaId(),
 							TipusConsultaCamp.FILTRE,
 							true);
+					((MesuresTemporalsHelper) adminService.getMesuresTemporalsHelper()).mesuraCalcular("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Camps");
+					((MesuresTemporalsHelper) adminService.getMesuresTemporalsHelper()).mesuraIniciar("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Valors");
 					Map<String, Object> valors = TascaFormUtil.getValorsFromCommand(
 							camps,
 							commandFiltre,
 							true,
 							true);
+					((MesuresTemporalsHelper) adminService.getMesuresTemporalsHelper()).mesuraCalcular("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Valors");
+					((MesuresTemporalsHelper) adminService.getMesuresTemporalsHelper()).mesuraIniciar("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Valors per service");
+					Map<String, Object> valoresConsulta = getValorsPerService(camps, valors);
+					((MesuresTemporalsHelper) adminService.getMesuresTemporalsHelper()).mesuraCalcular("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Valors per service");
+					((MesuresTemporalsHelper) adminService.getMesuresTemporalsHelper()).mesuraIniciar("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Recuperar consulta disseny");
 					List<ExpedientConsultaDissenyDto> expedients = expedientService.findAmbEntornConsultaDisseny(
 							entorn.getId(),
 							commandSeleccio.getConsultaId(),
-							getValorsPerService(camps, valors),
+							valoresConsulta,
 							ExpedientCamps.EXPEDIENT_CAMP_ID,
 							true);
 					List<ExpedientConsultaDissenyDto> expedientsTE = new ArrayList<ExpedientConsultaDissenyDto>();
@@ -425,6 +433,8 @@ public class ExpedientConsultaDissenyController extends BaseController {
 							}
 						}
 					}
+					((MesuresTemporalsHelper) adminService.getMesuresTemporalsHelper()).mesuraCalcular("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Recuperar consulta disseny");
+					((MesuresTemporalsHelper) adminService.getMesuresTemporalsHelper()).mesuraIniciar("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Generar datos datasource");
 					if (expedientsTE.size() > 0) {
 						model.addAttribute(
 								JasperReportsView.MODEL_ATTRIBUTE_REPORTDATA,
@@ -466,7 +476,8 @@ public class ExpedientConsultaDissenyController extends BaseController {
 								JasperReportsView.MODEL_ATTRIBUTE_PARAMS,
 								session.getAttribute(VARIABLE_SESSIO_PARAMS));
 					}
-					adminService.mesuraCalcular("INFORME: " + consulta.getCodi(), "report", null, null, "INFORME");
+					((MesuresTemporalsHelper) adminService.getMesuresTemporalsHelper()).mesuraCalcular("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Generar datos datasource");
+					((MesuresTemporalsHelper) adminService.getMesuresTemporalsHelper()).mesuraCalcular("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null);
 					return "jasperReportsView";
 				} else {
 					missatgeError(request, getMessage("error.consulta.informe.nonhiha"));
