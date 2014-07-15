@@ -800,6 +800,12 @@ public class DissenyService {
 						vell.getId(),
 						definicioProces.getId());
 			}
+			for (Estat estat : findEstatAmbExpedientTipus(id)) {
+				estatDao.delete(estat);
+			}
+			for (Consulta consulte : findConsultesAmbEntornAmbOSenseTipusExp(vell.getEntorn().getId(), id)) {
+				consultaDao.delete(consulte);
+			}
 			expedientTipusDao.delete(id);
 		}
 	}
