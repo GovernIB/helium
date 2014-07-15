@@ -333,7 +333,7 @@ public class DadesExpedient extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/afegir_nova_dada/2.png");
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();	
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//a[contains(@href,'/expedient/info.html')]")).click();	
 					
 		// Empezamos a modificar los datos
 		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/dades.html')]")).click();
@@ -467,7 +467,7 @@ public class DadesExpedient extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/modificar_dada/2.png");
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//a[contains(@href,'/expedient/info.html')]")).click();
 		
 		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/dades.html')]")).click();
 		
@@ -705,9 +705,6 @@ public class DadesExpedient extends BaseTest {
 				if (existeixElement("//form[contains(@action,'dadaModificar.html')]//div[@class='buttonHolder']//button[1]"))
 					driver.findElement(By.xpath("//form[contains(@action,'dadaModificar.html')]//div[@class='buttonHolder']//button[1]")).click();
 				
-//				if (comprobarModificado && noExisteixElement("//*[@id='infos']/p")) {
-//					System.out.println("aa");
-//				}
 				if (comprobarModificado)
 					existeixElementAssert("//*[@id='infos']/p", "No se modificó la variable agrupada: " + i + "-" + j);
 				
@@ -734,7 +731,7 @@ public class DadesExpedient extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/eliminar_dada/2.png");
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//a[contains(@href,'/expedient/info.html')]")).click();
 		
 		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/dades.html')]")).click();
 		
@@ -772,6 +769,10 @@ public class DadesExpedient extends BaseTest {
 		seleccionarEntorn(titolEntorn);
 		
 		eliminarExpedient(null, null, nomTipusExp);
+		
+		// Eliminar la def de proceso
+		eliminarDefinicioProces(nomDefProc);
+		eliminarDefinicioProces(nomSubDefProc);
 		
 		// Eliminar el tipo de expediente
 		eliminarTipusExpedient(codTipusExp);

@@ -59,7 +59,7 @@ public class AfegirExpedientRelacionat extends BaseTest {
 
 		consultarExpedientes(res_orig[0], res_orig[1], nomTipusExp);
 
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//a[contains(@href,'/expedient/info.html')]")).click();
 
 		driver.findElement(By.xpath("//*[@action='/helium/expedient/relacionar.html']//button")).click();
 

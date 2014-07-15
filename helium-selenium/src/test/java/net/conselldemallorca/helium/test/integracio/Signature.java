@@ -4,12 +4,12 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import net.conselldemallorca.helium.test.util.BaseTest;
-import net.conselldemallorca.helium.test.util.CheckFileHash;
-import net.conselldemallorca.helium.test.util.HashType;
+import net.conselldemallorca.helium.test.util.DocumentoExpedient;
 
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -57,18 +57,45 @@ public class Signature extends BaseTest {
 
 	@Test
 	public void b_firmarDocumento() throws InterruptedException, IOException {
-		carregarUrlConfiguracio(); 
+		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
-
-		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/iniciar_expedient/1.png");
+		
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+		
+		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/visualizacio_dades_process/1.png");
+		
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'"+nomDefProc+"')]")).click();
+				
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/definicioProces/tascaLlistat.html')]")).click();
+		
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr/td[contains(text(),'tasca1')]/parent::tr/td[5]/form/button")).click();
+		
+		List<DocumentoExpedient> documentosExpedient = new ArrayList<DocumentoExpedient>();
+		
+		// Leemos las variables
+		int i = 1;
+		while(i <= driver.findElements(By.xpath("//*[@id='registre']/tbody/tr")).size()) {
+			DocumentoExpedient documento = new DocumentoExpedient();
+			String nom = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr["+i+"]/td[1]")).getText();
+			documento.setNom(nom);
+			
+			documentosExpedient.add(documento);
+			
+			screenshotHelper.saveScreenshot("tramitar/dadesexpedient/visualizacio_dades_process/3"+i+".png");
+			i++;
+		}
 		
 		iniciarExpediente(codTipusExp,"SE-1/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
 		
 		consultarTareas(null, null, nomTipusExp, false);
 		
 		driver.findElement(By.xpath("//*[@id='registre']//td[contains(a/text(), 'tasca1')]/a")).click();
-		
+				
 		// Documento
 		driver.findElement(By.xpath("//a[contains(@href,'/helium/tasca/documents.html')]")).click();
 		
@@ -78,40 +105,37 @@ public class Signature extends BaseTest {
 		existeixElementAssert("//*[@id='infos']/p", "No se guardó correctamente");
 		
 		// Signature
-		driver.findElement(By.xpath("//a[contains(@href,'/helium/tasca/signatures.html')]")).click();
-		
-		// El certificado no tiene contraseña			
-		driver.findElement(By.xpath("//*[@id='command']//button[1]")).click();
-		
-		Thread.sleep(1000*20);
-		
-		existeixElementAssert("//*[@id='infos']/p", "No se firmó correctamente");
-		
-		// Comprobamos que el hsh cambió
-		byte[] archivo = downloadFile("//*[@id='content']//a[contains(@href,'/helium/document/arxiuMostrar.html')]", "blank.pdf");
-		CheckFileHash fileToCheck = new CheckFileHash();
-		fileToCheck.fileToCheck(archivo);
-		fileToCheck.hashDetails(hashArxiuPDF, HashType.MD5);
-		
-		assertFalse("El fichero no se firmó" , fileToCheck.hasAValidHash());
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/tasca/signatures.html')]")).click();
+
+		for (DocumentoExpedient documento : documentosExpedient) {
+			byte[] archivoOriginal = downloadFile("//h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/document/arxiuPerSignar.html')]", "blank.pdf");
+			
+			// El certificado no tiene contraseña
+			driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/parent::div//button")).click();
+			Thread.sleep(1000*20);
+			
+			existeixElementAssert("//*[@id='infos']/p", "No se firmó correctamente");			
+			
+			// Comprobamos que el hash cambió
+			byte[] archivoFirmado = downloadFile("//*/h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/document/arxiuMostrar.html')]", "blank.pdf");
+			assertFalse("El fichero no se firmó" , getMd5(archivoOriginal).equals(getMd5(archivoFirmado)));
+			
+			boolean firmado = false;
+			if (existeixElement("//h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/signatura/verificar.html')]")) {
+				WebElement verificar = driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/signatura/verificar.html')]"));
+				verificar.click();;
+				Thread.sleep(1000*15);
 				
-		List<WebElement> tagsA = driver.findElements(By.xpath("//*[@class='missatgesDocumentGris']//a"));
-		WebElement verificar = driver.findElement(By.xpath("//*[@alt='Verificar signatura']"));
-		verificar.click();
-		
-		boolean hayModal = false;
-		for (WebElement tag : tagsA) {
-			String href = tag.getAttribute("href");
-			if (href.contains("/helium/signatura/verificar.html")) {
-				hayModal = modalOberta(href, "tramitar/tasca/firmarDocumento3.png");
+				String href = verificar.getAttribute("href");
+				firmado = modalOberta(href, "tramitar/tasca/firmarDocumento3.png");
+				vesAModal(href);
+				downloadFile("//a[contains(@href,'/signatura/arxiu.html')]", "blank.pdf");
+				tornaAPare();
 			}
+			assertTrue("No se firmó el documento correctamente", firmado);
+			
+			screenshotHelper.saveScreenshot("TasquesDadesTasca/visualizacio_tasca_dades/5.png");
 		}
-		assertTrue("No se firmó el documento correctamente", hayModal);
-		
-		screenshotHelper.saveScreenshot("TasquesDadesTasca/visualizacio_tasca_dades/5.png");
-		
-		tornaAPare();
-		assertTrue("No se firmó el documento correctamente", hayModal);
 	}
 
 	@Test

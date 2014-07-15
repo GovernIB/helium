@@ -25,15 +25,12 @@ public class TasquesFlux extends BaseTest {
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
 	String nomSubDefProc = carregarPropietat("defproc.deploy.definicio.subproces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-//	String pathDefProc = carregarPropietatPath("tramsel_accio.deploy_flux.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-//	String pathSubDefProc = carregarPropietatPath("defproc.subproces.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-//	String exportDefProc = carregarPropietatPath("defproc.tasca_dades.exp.export_flux.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String exportTipExp = carregarPropietatPath("tipexp.tasca_dades.exp.export_flux.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	long waitTime = 1000*5;
 	
-//	@Test
+	@Test
 	public void a0_inicialitzacio() {
 		carregarUrlConfiguracio();
 		crearEntorn(entorn, titolEntorn);
@@ -43,7 +40,7 @@ public class TasquesFlux extends BaseTest {
 		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 	}
 	
-//	@Test
+	@Test
 	public void a_crear_dades() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
@@ -128,7 +125,7 @@ public class TasquesFlux extends BaseTest {
 		calendar.add(Calendar.DATE, 24);
 		String fechafinTermini = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
 		calendar = Calendar.getInstance();
-		calendar.add(Calendar.DATE, 3);
+		calendar.add(Calendar.DATE, 1);
 		String fecha5dias = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
 		
 		if (driver.findElement(By.xpath("//*[@id='correcte0']")).isSelected()) {
@@ -280,7 +277,7 @@ public class TasquesFlux extends BaseTest {
 		assertTrue("El estado inicial de '"+nom+"' no era correcto", "Actiu".equals(estat));
 		assertTrue("El campo de 'Iniciat el' inicial de '"+nom+"' no era correcto", iniciat.equals(fechaTermini));
 		assertTrue("El campo de 'Aturat el' inicial de '"+nom+"' no era correcto", aturat.isEmpty());
-		assertTrue("El campo de 'Data de fi del termini' de '"+nom+"' no era correcto", datafi.equals(fecha5dias));		
+		assertTrue("El campo de 'Data de fi del termini' de '"+nom+"' no era correcto. Esperaba " + fecha5dias + " y encontró " + datafi, datafi.equals(fecha5dias));		
 		
 		// Comprobamos los 25 días laborables a partir de una fecha
 		String fechaTerminiNoLab = getFechaDiasLaborables(dataIniTerminiNoLab, 25);
@@ -339,9 +336,9 @@ public class TasquesFlux extends BaseTest {
 		valorTimer = driver.findElement(By.xpath("//*[@id='codi']/tbody/tr/td[contains(text(), 'Timer')]/parent::tr/td[2]")).getText();
 		
 		// Finalizamos la tasca timer
-		consultarTareas(null, titulo, nomTipusExp, false);
+		consultarTareas(null, titulo, nomTipusExp, true);
 		
-		existeixElementAssert("//*[@id='registre']/tbody/tr/td[contains(text(), '"+tareasPrincipal.get(3)+"')]", "No se encontró la tarea: "+tareasPrincipal.get(3)+"");
+		existeixElementAssert("//*[@id='registre']/tbody/tr/td[contains(text(), '"+tareasPrincipal.get(3)+"')]", "No se encontró la tarea: "+tareasPrincipal.get(3));
 		
 		// Cogemos la tarea ya que se asignó inicialmente a un grupo		
 		existeixElementAssert("//*[@id='registre']/tbody/tr[1]//button[contains(text(), 'Agafar')]", "No estaba el botón de agafar tarea");
@@ -435,13 +432,17 @@ public class TasquesFlux extends BaseTest {
 		return fechaTerminiNoLab;
 	}
 
-//	@Test
+	@Test
 	public void z_limpiar() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
 		
 		eliminarExpedient(null, null, nomTipusExp);
+		
+		// Eliminar la def de proceso
+		eliminarDefinicioProces(nomDefProc);
+		eliminarDefinicioProces(nomSubDefProc);
 		
 		// Eliminar el tipo de expediente
 		eliminarTipusExpedient(codTipusExp);

@@ -147,7 +147,7 @@ public class ExecucioMassiva extends BaseTest {
 		
 		consultarExpedientes(null, null, nomTipusExp);
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//a[contains(@href,'/expedient/info.html')]")).click();
 		
 		String versio = driver.findElement(By.xpath("//dd[contains(text(), '"+nomDefProc+"')]")).getText().trim();
 		String versioSub = driver.findElement(By.xpath("//dd[contains(text(), '"+nomDefProc+"')]")).getText().trim();
@@ -182,7 +182,7 @@ public class ExecucioMassiva extends BaseTest {
 			// Comprobamos que la versión haya cambiado
 			consultarExpedientes(null, null, nomTipusExp);
 			
-			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr["+i+"]//img[@src='/helium/img/information.png']")).click();
+			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr["+i+"]//a[contains(@href,'/expedient/info.html')]")).click();
 			
 			// Versión del proceso
 			String versioAct = driver.findElement(By.xpath("//dd[contains(text(), '"+nomDefProc+"')]")).getText().trim();
@@ -283,7 +283,7 @@ public class ExecucioMassiva extends BaseTest {
 		Thread.sleep(1000*10);		
 		for (int i = 1; i <= numExpedientesTramMasiva; i++) {
 			consultarExpedientes(null, null, nomTipusExp);
-			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr["+i+"]//img[@src='/helium/img/information.png']")).click();
+			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr["+i+"]//a[contains(@href,'/expedient/info.html')]")).click();
 			
 			driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(text(), 'Dades')]")).click();
 			existeixElementAssert("//*[@id='codi']/tbody/tr/td[contains(text(),'message')]","No se encontró la variable 'message'");

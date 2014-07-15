@@ -299,6 +299,10 @@ public class TasquesExpedient extends BaseTest {
 		
 		eliminarExpedient(null, null, nomTipusExp);
 		
+		// Eliminar la def de proceso
+		eliminarDefinicioProces(nomDefProc);
+		eliminarDefinicioProces(nomSubDefProc);
+		
 		// Eliminar el tipo de expediente
 		eliminarTipusExpedient(codTipusExp);
 		

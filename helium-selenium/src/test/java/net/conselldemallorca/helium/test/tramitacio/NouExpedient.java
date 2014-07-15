@@ -253,7 +253,7 @@ public class NouExpedient extends BaseTest {
 		// Comprobamos el número de versión del expediente
 		consultarExpedientes(numero, titulo, nomTipusExp);
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//a[contains(@href,'/expedient/info.html')]")).click();
 		
 		// Versión del proceso
 		String versioAct = driver.findElement(By.xpath("//dd[contains(text(), '"+nomDefProc+"')]")).getText().trim();
@@ -335,6 +335,9 @@ public class NouExpedient extends BaseTest {
 		seleccionarEntorn(titolEntorn);
 		
 		eliminarExpedient(null, null, nomTipusExp);
+		
+		// Eliminar la def de proceso
+		eliminarDefinicioProces(nomDefProc);
 		
 		// Eliminar el tipo de expediente
 		eliminarTipusExpedient(codTipusExp);

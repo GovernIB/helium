@@ -60,7 +60,7 @@ public class ModificarVersioProces extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("tramitar/modificarInfoExp/2.png");
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();	
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//a[contains(@href,'/expedient/info.html')]")).click();	
 					
 		// Empezamos a cambiar la versión
 		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/eines.html')]")).click();
@@ -117,6 +117,9 @@ public class ModificarVersioProces extends BaseTest {
 		seleccionarEntorn(titolEntorn);
 		
 		eliminarExpedient(null, null, nomTipusExp);
+		
+		// Eliminar la def de proceso
+		eliminarDefinicioProces(nomDefProc);
 		
 		// Eliminar el tipo de expediente
 		eliminarTipusExpedient(codTipusExp);

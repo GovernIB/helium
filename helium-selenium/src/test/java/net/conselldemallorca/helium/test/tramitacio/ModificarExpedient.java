@@ -63,7 +63,7 @@ public class ModificarExpedient extends BaseTest {
 		
 		String numero = "SE-8-9-1000";
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//a[contains(@href,'/expedient/info.html')]")).click();
 
 		// Empezamos a modificar los datos
 		driver.findElement(By.xpath("//*[@id='content']/form[1]/button")).click();
@@ -149,6 +149,10 @@ public class ModificarExpedient extends BaseTest {
 		seleccionarEntorn(titolEntorn);
 		
 		eliminarExpedient(null, null, nomTipusExp);
+		
+		// Eliminar la def de proceso
+		eliminarDefinicioProces(nomDefProc);
+		eliminarDefinicioProces(nomSubDefProc);
 		
 		// Eliminar el tipo de expediente
 		eliminarTipusExpedient(codTipusExp);

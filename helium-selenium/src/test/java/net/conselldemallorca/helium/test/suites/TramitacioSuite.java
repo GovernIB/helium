@@ -21,7 +21,7 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
 	Accions.class,
 	AfegirExpedientRelacionat.class,
-	DadesExpedient.class, // Falla al modificar una fecha en una agrupación
+	DadesExpedient.class, // TODO Falla al modificar una fecha en una agrupación (error de Helium)
 	ExpedientPestanyaTasques.class,
 	ModificarExpedient.class,
 	ModificarVersioProces.class,

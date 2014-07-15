@@ -271,7 +271,7 @@ public class ExpedientPestanyaTasques extends BaseTest {
 
 		assertTrue("No había ningún expediente", !driver.findElements(By.xpath("//*[@id='registre']/tbody/tr")).isEmpty());
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//a[contains(@href,'/expedient/info.html')]")).click();
 
 		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/tasques.html')]")).click();
 		
@@ -316,7 +316,7 @@ public class ExpedientPestanyaTasques extends BaseTest {
 
 		assertTrue("No había ningún expediente", !driver.findElements(By.xpath("//*[@id='registre']/tbody/tr")).isEmpty());
 
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//a[contains(@href,'/expedient/info.html')]")).click();
 
 		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/tasques.html')]")).click();
 		
@@ -352,7 +352,7 @@ public class ExpedientPestanyaTasques extends BaseTest {
 		
 		assertTrue("No había ningún expediente", !driver.findElements(By.xpath("//*[@id='registre']/tbody/tr")).isEmpty());
 
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//a[contains(@href,'/expedient/info.html')]")).click();
 
 		
 		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/tasques.html')]")).click();
@@ -380,6 +380,10 @@ public class ExpedientPestanyaTasques extends BaseTest {
 		seleccionarEntorn(titolEntorn);
 		
 		eliminarExpedient(null, null, nomTipusExp);
+		
+		// Eliminar la def de proceso
+		eliminarDefinicioProces(nomDefProc);
+		eliminarDefinicioProces(nomSubDefProc);
 		
 		// Eliminar el tipo de expediente
 		eliminarTipusExpedient(codTipusExp);

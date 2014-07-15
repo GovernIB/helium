@@ -64,7 +64,7 @@ public class Accions extends BaseTest {
 		
 		consultarExpedientes(null, null, nomTipusExp);
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//a[contains(@href,'/expedient/info.html')]")).click();
 
 		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(text(), 'Dades')]")).click();
 		if (existeixElement("//*[@id='codi']/tbody/tr/td[contains(text(),'message')]")) {
@@ -124,7 +124,7 @@ public class Accions extends BaseTest {
 		
 		consultarExpedientes(null, null, nomTipusExp);
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//a[contains(@href,'/expedient/info.html')]")).click();
 
 		existeixElementAssert("//button[contains(text(),'Enviar mensaje')]", "No se mostró la acción");		
 		
@@ -153,7 +153,7 @@ public class Accions extends BaseTest {
 		
 		consultarExpedientes(null, null, nomTipusExp);
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//a[contains(@href,'/expedient/info.html')]")).click();
 
 		noExisteixElementAssert("//button[contains(text(),'Enviar mensaje')]", "No se ocultó la acción");
 		
@@ -202,7 +202,7 @@ public class Accions extends BaseTest {
 		
 		consultarExpedientes(null, null, nomTipusExp);
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//a[contains(@href,'/expedient/info.html')]")).click();
 
 		noExisteixElementAssert("//button[contains(text(),'Enviar mensaje')]", "No se ocultó la acción");
 		

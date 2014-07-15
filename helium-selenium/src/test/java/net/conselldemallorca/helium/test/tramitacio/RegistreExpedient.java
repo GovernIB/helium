@@ -79,7 +79,7 @@ public class RegistreExpedient extends BaseTest {
 
 		assertTrue("No había ningún expediente", !driver.findElements(By.xpath("//*[@id='registre']/tbody/tr")).isEmpty());
 
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//a[contains(@href,'/expedient/info.html')]")).click();
 
 		driver.findElement(By.xpath("//*[@id='tabnav']/li[8]/a")).click();
 
@@ -116,7 +116,7 @@ public class RegistreExpedient extends BaseTest {
 
 		assertTrue("No había ningún expediente", !driver.findElements(By.xpath("//*[@id='registre']/tbody/tr")).isEmpty());
 
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//a[contains(@href,'/expedient/info.html')]")).click();
 
 		driver.findElement(By.xpath("//*[@id='tabnav']/li[8]/a")).click();
 
@@ -153,7 +153,7 @@ public class RegistreExpedient extends BaseTest {
 
 		assertTrue("No había ningún expediente", !driver.findElements(By.xpath("//*[@id='registre']/tbody/tr")).isEmpty());
 
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//a[contains(@href,'/expedient/info.html')]")).click();
 
 		driver.findElement(By.xpath("//*[@id='tabnav']/li[8]/a")).click();
 

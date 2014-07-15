@@ -1043,7 +1043,7 @@ public abstract class BaseTest {
 		
 		screenshotHelper.saveScreenshot("documentsexpedient/adjuntar_documents/2.png");
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//img[@src='/helium/img/information.png']")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//a[contains(@href,'/expedient/info.html')]")).click();
 		
 		driver.findElement(By.xpath("//*[@id='tabnav']/li[3]/a")).click();
 		
