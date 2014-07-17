@@ -19,6 +19,8 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
+import es.caib.signatura.mbean.ClienteCustodia;
+
 /**
  * Implementació del plugin de custodia documental que guarda
  * les signatures a dins l'aplicació de custòdia de la CAIB.
@@ -27,7 +29,7 @@ import org.dom4j.Element;
  */
 public class CustodiaPluginCaib implements CustodiaPlugin {
 
-	private ClienteCustodiaCaib clienteCustodia;
+	private ClienteCustodia clienteCustodia;
 	private Map<String, String> cacheHash = new HashMap<String, String>();
 
 
@@ -45,7 +47,7 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 					arxiuNom,
 					custodiaId,
 					tipusDocument);
-			CustodiaResponseCaib resposta = getClienteCustodia().parseResponse(xml);
+			CustodiaResponseCaib resposta = parseResponse(xml);
 			if (resposta.isError())
 				throw new CustodiaPluginException("Error en la petició de custòdia: [" + resposta.getErrorCodi() + "] " + resposta.getErrorDescripcio());
 			return custodiaId;
@@ -62,7 +64,7 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 			for (int i = 0; i < 5; i++)
 				iniciXml[i] = consultar[i];
 			if ("<?xml".equals(new String(iniciXml))) {
-				CustodiaResponseCaib resposta = getClienteCustodia().parseResponse(consultar);
+				CustodiaResponseCaib resposta = parseResponse(consultar);
 				throw new CustodiaPluginException("Error en la petició de custòdia: [" + resposta.getErrorCodi() + "] " + resposta.getErrorDescripcio());
 			} else {
 				List<byte[]> resposta = new ArrayList<byte[]>();
@@ -82,7 +84,7 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 			for (int i = 0; i < 5; i++)
 				iniciXml[i] = consultar[i];
 			if ("<?xml".equals(new String(iniciXml))) {
-				CustodiaResponseCaib resposta = getClienteCustodia().parseResponse(consultar);
+				CustodiaResponseCaib resposta = parseResponse(consultar);
 				throw new CustodiaPluginException("Error en la petició de custòdia: [" + resposta.getErrorCodi() + "] " + resposta.getErrorDescripcio());
 			} else {
 				return consultar;
@@ -96,7 +98,7 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 	public void deleteSignatures(String id) throws CustodiaPluginException {
 		try {
 			byte[] xml = getClienteCustodia().eliminarDocumento(id);
-			CustodiaResponseCaib resposta = getClienteCustodia().parseResponse(xml);
+			CustodiaResponseCaib resposta = parseResponse(xml);
 			if (resposta.isError())
 				throw new CustodiaPluginException("Error en la petició de custòdia: [" + resposta.getErrorCodi() + "] " + resposta.getErrorDescripcio());
 		} catch (Exception ex) {
@@ -108,7 +110,7 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 	public List<RespostaValidacioSignatura> dadesValidacioSignatura(String id) throws CustodiaPluginException {
 		try {
 			byte[] xml = getClienteCustodia().verificarDocumento(id);
-			CustodiaResponseCaib resposta = getClienteCustodia().parseResponse(xml);
+			CustodiaResponseCaib resposta = parseResponse(xml);
 			if (resposta.isError())
 				throw new CustodiaPluginException("Error en la petició de custòdia: [" + resposta.getErrorCodi() + "] " + resposta.getErrorDescripcio());
 			return parseSignatures(xml);
@@ -144,17 +146,20 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 
 
 
-	private ClienteCustodiaCaib getClienteCustodia() {
+	private ClienteCustodia getClienteCustodia() {
 		if (clienteCustodia == null) {
-			clienteCustodia = new ClienteCustodiaCaib(
-					GlobalProperties.getInstance().getProperty("app.custodia.plugin.caib.url"),
-					GlobalProperties.getInstance().getProperty("app.custodia.plugin.caib.usuari"),
+			clienteCustodia = new ClienteCustodia();
+			clienteCustodia.setUrlServicioCustodia(
+					GlobalProperties.getInstance().getProperty("app.custodia.plugin.caib.url"));
+			clienteCustodia.setUsuario(
+					GlobalProperties.getInstance().getProperty("app.custodia.plugin.caib.usuari"));
+			clienteCustodia.setPassword(
 					GlobalProperties.getInstance().getProperty("app.custodia.plugin.caib.password"));
 		}
 		return clienteCustodia;
 	}
 
-	/*private CustodiaResponseCaib parseResponse(byte[] response) throws DocumentException {
+	protected CustodiaResponseCaib parseResponse(byte[] response) throws DocumentException {
 		CustodiaResponseCaib resposta = new CustodiaResponseCaib();
 		Document document = DocumentHelper.parseText(new String(response));
 		Element resultMajorElement = null;
@@ -179,15 +184,17 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 		}
 		if (resultMajorElement == null)
 			throw new DocumentException("No s'ha trobat el ResultMajor");
-		boolean hasErrors = "RequesterError".equals(resultMajorElement.getText());
+		String resultMajor = resultMajorElement.getText();
+		boolean hasErrors = (resultMajor.contains("error") ||
+				resultMajor.contains("Error") ||
+				resultMajor.contains("ERROR"));
 		resposta.setError(hasErrors);
-		//System.out.println(">>> " + resultMajorElement.getText() + ":" + resultMinorElement.getText() + ":" + resultMessageElement.getText());
 		if (hasErrors) {
 			resposta.setErrorCodi(resultMinorElement.getText());
 			resposta.setErrorDescripcio(resultMessageElement.getText());
 		}
 		return resposta;
-	}*/
+	}
 
 	@SuppressWarnings("unchecked")
 	private List<RespostaValidacioSignatura> parseSignatures(byte[] response) throws DocumentException {

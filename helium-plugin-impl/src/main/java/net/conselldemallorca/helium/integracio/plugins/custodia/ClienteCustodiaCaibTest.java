@@ -12,14 +12,16 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 
+import es.caib.signatura.mbean.ClienteCustodia;
+
 /**
  * Test del client de custòdia de la CAIB
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class ClienteCustodiaCaibTest {
+public class ClienteCustodiaCaibTest extends CustodiaPluginCaib {
 
-	private ClienteCustodiaCaib clienteCustodia;
+	private ClienteCustodia clienteCustodia;
 
 	public static void main(String[] args) {
 		try {
@@ -42,18 +44,21 @@ public class ClienteCustodiaCaibTest {
 				"original.pdf",
 				"3500",
 				"HELIUM_COMINF_DOCAPRO1");
-		CustodiaResponseCaib resposta = getClienteCustodia().parseResponse(xml);
+		CustodiaResponseCaib resposta = parseResponse(xml);
 		if (resposta.isError())
 			throw new CustodiaPluginException("Error en la petició de custòdia: [" + resposta.getErrorCodi() + "] " + resposta.getErrorDescripcio());
 	}
 
 
 
-	private ClienteCustodiaCaib getClienteCustodia() {
+	private ClienteCustodia getClienteCustodia() {
 		if (clienteCustodia == null) {
-			clienteCustodia = new ClienteCustodiaCaib(
-					GlobalProperties.getInstance().getProperty("app.custodia.plugin.caib.url"),
-					GlobalProperties.getInstance().getProperty("app.custodia.plugin.caib.usuari"),
+			clienteCustodia = new ClienteCustodia();
+			clienteCustodia.setUrlServicioCustodia(
+					GlobalProperties.getInstance().getProperty("app.custodia.plugin.caib.url"));
+			clienteCustodia.setUsuario(
+					GlobalProperties.getInstance().getProperty("app.custodia.plugin.caib.usuari"));
+			clienteCustodia.setPassword(
 					GlobalProperties.getInstance().getProperty("app.custodia.plugin.caib.password"));
 		}
 		return clienteCustodia;
