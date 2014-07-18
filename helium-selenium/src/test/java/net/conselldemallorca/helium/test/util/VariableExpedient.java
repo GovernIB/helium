@@ -8,6 +8,7 @@ public class VariableExpedient {
 	private String etiqueta;
 	private String tipo;
 	private String observaciones;
+	private String valor;
 	private boolean oculta;
 	private boolean obligatorio;
 	private boolean multiple;
@@ -85,5 +86,20 @@ public class VariableExpedient {
 
 	public void setReadOnly(boolean readOnly) {
 		this.readOnly = readOnly;
+	}
+
+	public String getValor() {
+		if (isMultiple()) {
+			StringBuffer buf = new StringBuffer();
+			for (VariableExpedient var : getRegistro()) {
+				buf.append(var.getValor()+", ");
+			}
+			return "["+buf.subSequence(0, buf.length()-2)+"]";
+		}
+		return valor;
+	}
+
+	public void setValor(String valor) {
+		this.valor = valor;
 	}
 }

@@ -3,6 +3,7 @@ package net.conselldemallorca.helium.test.massiva;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -19,7 +20,7 @@ import org.openqa.selenium.interactions.Actions;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ExecucioMassiva extends BaseTest {
 	String entorn = carregarPropietat("tramas.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
-	String titolEntorn = carregarPropietat("tramas.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
+	String titolEntorn = "mas_"+carregarPropietat("tramas.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomSubDefProc = carregarPropietat("defproc.deploy.definicio.subproces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
@@ -71,9 +72,6 @@ public class ExecucioMassiva extends BaseTest {
 		
 		seleccionarEntorn(titolEntorn);
 		
-		// Eliminamos los expedientes
-		eliminarExpedient(null, null, nomTipusExp);
-		
 		// Iniciamos n expedientes
 		for (int i = 0; i < numExpedientesTramMasiva; i++) {
 			iniciarExpediente(codTipusExp,"SE-"+i+"/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
@@ -86,17 +84,51 @@ public class ExecucioMassiva extends BaseTest {
 		int numExpedients = driver.findElements(By.xpath("//*[@id='registre']/tbody/tr")).size();
 		assertFalse("Todos los expedientes estaban aturados", numAturados == numExpedients);
 		
-		// Programamos para dentro de 2 minutos
-		Calendar calendar = Calendar.getInstance();
 		driver.findElement(By.xpath("//*[@id='inici']")).click();
+		Thread.sleep(1000*10);
 		
-		WebElement minutes = driver.findElement(By.xpath("//*[@id='ui-datepicker-div']/div[2]/dl/dd[3]/div/a"));
-		WebElement hours = driver.findElement(By.xpath("//*[@id='ui-datepicker-div']/div[2]/dl/dd[2]/div/a"));
-		if (calendar.get(Calendar.MINUTE) > 57) {
-			new Actions(driver).dragAndDropBy(hours, 6, hours.getLocation().y).click().perform();
-		} else {
-			new Actions(driver).dragAndDropBy(minutes, 6, minutes.getLocation().y).click().perform();				
+		// Programamos para dentro de 2 minutos
+		Calendar calendar2Min = Calendar.getInstance();
+		calendar2Min.add(Calendar.MINUTE, 2);
+		String[] tiempoFin = new SimpleDateFormat("HH:mm").format(calendar2Min.getTime()).split(":");
+		String[] tiempo = driver.findElement(By.xpath("//*[@class='ui_tpicker_time']")).getText().split(":");
+		
+		int hora = Integer.parseInt(tiempo[0]);
+		int minutos = Integer.parseInt(tiempo[1]);
+		
+		int horaFin = Integer.parseInt(tiempoFin[0]);
+		int minutosFin = Integer.parseInt(tiempoFin[1]);
+		
+		WebElement barraMinutes = null;
+		WebElement barraHours = null;
+		
+		int i = 1;
+		while (hora != horaFin) {
+			barraHours = driver.findElement(By.xpath("//*[@class='ui_tpicker_hour']//a"));
+			if (hora < horaFin) {
+				new Actions(driver).dragAndDropBy(barraHours, +i, barraHours.getLocation().y).click().perform();
+			} else {
+				new Actions(driver).dragAndDropBy(barraHours, -i, barraHours.getLocation().y).click().perform();				
+			}
+			if (hora == Integer.parseInt(driver.findElement(By.xpath("//*[@class='ui_tpicker_time']")).getText().split(":")[0])) {
+				i++;
+			}
+			hora = Integer.parseInt(driver.findElement(By.xpath("//*[@class='ui_tpicker_time']")).getText().split(":")[0]);
 		}
+		
+		while (minutos != minutosFin) {
+			barraMinutes = driver.findElement(By.xpath("//*[@class='ui_tpicker_minute']//a"));
+			if (minutos < minutosFin) {
+				new Actions(driver).dragAndDropBy(barraMinutes, +i, barraMinutes.getLocation().y).click().perform();
+			} else {
+				new Actions(driver).dragAndDropBy(barraMinutes, -i, barraMinutes.getLocation().y).click().perform();				
+			}
+			if (minutos == Integer.parseInt(driver.findElement(By.xpath("//*[@class='ui_tpicker_time']")).getText().split(":")[1])) {
+				i++;
+			}		
+			minutos = Integer.parseInt(driver.findElement(By.xpath("//*[@class='ui_tpicker_time']")).getText().split(":")[1]);
+		}
+
 		driver.findElement(By.xpath("//*[@id='ui-datepicker-div']/div[3]/button[2]")).click();
 		
 		// Programamos el envío de correos
@@ -137,9 +169,6 @@ public class ExecucioMassiva extends BaseTest {
 		
 		seleccionarEntorn(titolEntorn);
 		
-		// Eliminamos los expedientes
-		eliminarExpedient(null, null, nomTipusExp);
-		
 		// Iniciamos n expedientes con la última versión
 		for (int i = 0; i < numExpedientesTramMasiva; i++) {
 			iniciarExpediente(codTipusExp,"SE-"+i+"/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
@@ -175,8 +204,7 @@ public class ExecucioMassiva extends BaseTest {
 		acceptarAlerta();
 		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
 		
-		// Esperamos unos segundos
-		Thread.sleep(1000*5);
+		esperaFinExecucioMassiva();
 		
 		for (int i = 1; i <= numExpedientesTramMasiva; i++) {
 			// Comprobamos que la versión haya cambiado
@@ -208,9 +236,6 @@ public class ExecucioMassiva extends BaseTest {
 		
 		seleccionarEntorn(titolEntorn);
 		
-		// Eliminamos los expedientes
-		eliminarExpedient(null, null, nomTipusExp);
-		
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProcScript);
 		
 		// Iniciamos n expedientes con la última versión
@@ -234,8 +259,8 @@ public class ExecucioMassiva extends BaseTest {
 		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
 		
 		// Vemos el estado de los n expedientes, deben ser 'Siguiente'
-		// Esperamos 10 segundos
-		Thread.sleep(1000*10);
+		esperaFinExecucioMassiva();
+		
 		consultarExpedientes(null, null, nomTipusExp);
 		for (int i = 1; i <= numExpedientesTramMasiva; i++) {
 			String estado = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr["+i+"]/td[5]")).getText();
@@ -251,9 +276,6 @@ public class ExecucioMassiva extends BaseTest {
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
-		
-		// Eliminamos los expedientes
-		eliminarExpedient(null, null, nomTipusExp);
 		
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, accioPathDefProc);
 		importarDadesTipExp(codTipusExp, exportTipExpProc);
@@ -279,8 +301,8 @@ public class ExecucioMassiva extends BaseTest {
 		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
 		
 		// Vemos las variables de los n expedientes, deben tener una variable llamada 'menssage' con el texto 'El valor de la variable 'message' no era el esperado'
-		// Esperamos 10 segundos
-		Thread.sleep(1000*10);		
+		esperaFinExecucioMassiva();
+		
 		for (int i = 1; i <= numExpedientesTramMasiva; i++) {
 			consultarExpedientes(null, null, nomTipusExp);
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr["+i+"]//a[contains(@href,'/expedient/info.html')]")).click();
@@ -296,12 +318,12 @@ public class ExecucioMassiva extends BaseTest {
 		eliminarExpedient(null, null, nomTipusExp);
 	}
 
-	@Test
+//	@Test
 	public void h_reindexar_expedients() throws InterruptedException {
 		
 	}
 
-	@Test
+//	@Test
 	public void i_consultar_estat_execucións_massives() throws InterruptedException {
 		
 	}

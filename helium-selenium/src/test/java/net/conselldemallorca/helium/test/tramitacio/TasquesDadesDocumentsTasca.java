@@ -27,27 +27,22 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomSubDefProc = carregarPropietat("defproc.deploy.definicio.subproces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String pathDefProc = carregarPropietatPath("defproc.deploy.definicio.subproces.main_direct.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String pathDefProcScript = carregarPropietatPath("defproc.deploy.expexe_executar_script.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String pathSubDefProc = carregarPropietatPath("defproc.subproces.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String exportDefProc = carregarPropietatPath("defproc.tasca_dades.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	String accioPathDefProc = carregarPropietatPath("tramsel_accio.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String exportTipExpProc = carregarPropietatPath("tramsel_accio.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String exportTipExpMasProc = carregarPropietatPath("tramas_massivo.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String pathArxiuPDF = carregarPropietatPath("deploy.arxiu.pdf.tramitacio_1", "Documento PDF a adjuntar 1");
-	String hashArxiuPDF = carregarPropietat("deploy.arxiu.pdf.tramitacio_1.hash", "Hash documento PDF a adjuntar 1");
-	String tipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
-	String pathTipusExp = carregarPropietatPath("tipexp.tasca_dades_doc.exp.export.arxiu.path", "Documento PDF a adjuntar 1");
 	String pathDefExpDocs = carregarPropietatPath("defproc.mod.exp_documents.export.arxiu.path", "Documento PDF a adjuntar 1");
-	
 	String pathArxiuPDF1 = carregarPropietatPath("deploy.arxiu.pdf.tramitacio_1", "Documento PDF a adjuntar 1");
 	String hashArxiuPDF1 = carregarPropietat("deploy.arxiu.pdf.tramitacio_1.hash", "Hash documento PDF a adjuntar 1");
-	
 	String pathArxiuPDF2 = carregarPropietatPath("deploy.arxiu.pdf.tramitacio_2", "Documento PDF a adjuntar 1");
 	String hashArxiuPDF2 = carregarPropietat("deploy.arxiu.pdf.tramitacio_2.hash", "Hash documento PDF a adjuntar 2");
 	
-//	@Test
+	String nomCert = carregarPropietat("tramsel.firma_nom", "Hash documento PDF a adjuntar 2");
+	String passCert = carregarPropietat("tramsel.firma_pass", "Hash documento PDF a adjuntar 2");
+	
+	@Test
 	public void a0_inicialitzacio() {
 		carregarUrlConfiguracio();
 		crearEntorn(entorn, titolEntorn);
@@ -57,7 +52,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 	}
 	
-//	@Test
+	@Test
 	public void a_crear_dades() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
@@ -76,7 +71,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/crear_dades/1.png");
 	}
 
-//	@Test
+	@Test
 	public void b_visualizacio_tasca_dades() throws InterruptedException {		
 		carregarUrlConfiguracio();
 		
@@ -86,7 +81,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]")));
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/definicioProces/llistat.html')]")));
 		actions.click();
 		actions.build().perform();
 		
@@ -200,7 +195,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		screenshotHelper.saveScreenshot("TasquesDadesTasca/visualizacio_tasca_dades/5.png");
 	}
 	
-//	@Test
+	@Test
 	public void c_documents() throws InterruptedException {		
 		carregarUrlConfiguracio();
 		
@@ -208,7 +203,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]")));
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/definicioProces/llistat.html')]")));
 		actions.click();
 		actions.build().perform();
 		
@@ -273,7 +268,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 			
 			String data = driver.findElement(By.xpath("//*[@id='documentCommand_"+documento.getCodi()+"']/parent::div//input[@type='text']")).getAttribute("value");
 			
-			if (documento.isEsPlantilla()) {				
+			if (documento.isEsPlantilla()) {
 				// Comprobamos que existen los 3 botones
 				existeixElement("//*/h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/tasca/documentGenerar.html')]", "no existía el botón de generar");
 				existeixElement("//*/h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/document/arxiuMostrar.html')]", "no existía el botón de descargar");
@@ -296,8 +291,8 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 				// Lo descargamos
 				downloadFile("//*/h4[contains(label/text(), '"+documento.getNom()+"')]/a[2]", "");
 			} else {
-				driver.findElement(By.xpath("//*[@id='documentCommand_"+documento.getCodi()+"']/parent::div/form/fieldset/div/div/input[@id='contingut0']")).sendKeys(pathArxiuPDF);
-				driver.findElement(By.xpath("//*[@id='documentCommand_"+documento.getCodi()+"']/parent::div/form/*/button[contains(text(), 'Guardar')]")).click();
+				driver.findElement(By.xpath("//*[@id='documentCommand_"+documento.getCodi()+"']/parent::div//input[@id='contingut0']")).sendKeys(pathArxiuPDF1);
+				driver.findElement(By.xpath("//*[@id='documentCommand_"+documento.getCodi()+"']/parent::div//button[contains(text(), 'Guardar')]")).click();
 				
 				existeixElementAssert("//*[@id='infos']/p", "No se guardó correctamente");
 				
@@ -313,8 +308,8 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 				driver.findElement(By.xpath("//*/h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/tasca/documentEsborrar.html')]")).click();
 				existeixElementAssert("//*[@id='infos']/p", "No se borró correctamente");
 				
-				driver.findElement(By.xpath("//*[@id='documentCommand_"+documento.getCodi()+"']/parent::div/form/fieldset/div/div/input[@id='contingut0']")).sendKeys(pathArxiuPDF);
-				driver.findElement(By.xpath("//*[@id='documentCommand_"+documento.getCodi()+"']/parent::div/form/*/button[contains(text(), 'Guardar')]")).click();
+				driver.findElement(By.xpath("//*[@id='documentCommand_"+documento.getCodi()+"']/parent::div//input[@id='contingut0']")).sendKeys(pathArxiuPDF1);
+				driver.findElement(By.xpath("//*[@id='documentCommand_"+documento.getCodi()+"']/parent::div//button[contains(text(), 'Guardar')]")).click();
 				
 				existeixElementAssert("//*[@id='infos']/p", "No se guardó correctamente");
 				
@@ -331,7 +326,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		screenshotHelper.saveScreenshot("TasquesDadesTasca/visualizacio_tasca_dades/5.png");
 	}
 
-//	@Test
+	@Test
 	public void d_signatura() throws InterruptedException, IOException {		
 		carregarUrlConfiguracio();
 		
@@ -339,7 +334,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]")));
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/definicioProces/llistat.html')]")));
 		actions.click();
 		actions.build().perform();
 		
@@ -375,7 +370,17 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		for (DocumentoExpedient documento : documentosExpedient) {
 			byte[] archivoOriginal = downloadFile("//h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/document/arxiuPerSignar.html')]", "blank.pdf");
 			
-			// El certificado no tiene contraseña
+			WebElement select = driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/parent::div//select"));
+			List<WebElement> options = select.findElements(By.tagName("option"));
+			for (WebElement option : options) {
+				if (option.getText().equals(nomCert)) {
+					option.click();
+					break;
+				}
+			}
+			driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/parent::div//input[@type='password']")).clear();
+			driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/parent::div//input[@type='password']")).sendKeys(passCert);
+						
 			driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/parent::div//button")).click();
 			Thread.sleep(1000*20);
 			
@@ -404,43 +409,12 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		
 		// Finalizamos
 		driver.findElement(By.xpath("//*[@id='formFinalitzar']//button")).click();
+		Thread.sleep(1000*5);
 		acceptarAlerta();
 		existeixElementAssert("//*[@id='infos']/p", "No se finalizó la tarea correctamente");
 	}
 	
-//	@Test
-	public void e_execucio_accions() throws InterruptedException {
-		carregarUrlConfiguracio();
-		//todo
-		seleccionarEntorn(titolEntorn);
-
-		screenshotHelper.saveScreenshot("accions/executar/1.png");
-
-		consultarExpedientes(null, null, nomTipusExp);
-		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//a[contains(@href,'/expedient/info.html')]")).click();
-
-		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(text(), 'Dades')]")).click();
-		if (existeixElement("//*[@id='codi']/tbody/tr/td[contains(text(),'message')]")) {
-			driver.findElement(By.xpath("//*[@id='codi']/tbody/tr/td[contains(text(),'message')]/parent::tr//img[@src='/helium/img/cross.png']")).click();
-			acceptarAlerta();
-		}
-		
-		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(text(), 'Expedient')]")).click();		
-		driver.findElement(By.xpath("//button[contains(text(),'Enviar mensaje')]")).click();
-		acceptarAlerta();		
-		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la acción correctamente");
-		
-		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(text(), 'Dades')]")).click();
-		existeixElementAssert("//*[@id='codi']/tbody/tr/td[contains(text(),'message')]","No se encontró la variable 'message'");
-		
-		String mensaje = driver.findElement(By.xpath("//*[@id='codi']/tbody/tr/td[contains(text(),'message')]/parent::tr/td[2]")).getText().trim();
-		assertTrue("El valor de la variable 'message' no era el esperado", "Se ha ejecutado la acción".equals(mensaje));
-				
-		eliminarExpedient(null, null, tipusExp);
-	}
-	
-//	@Test
+	@Test
 	public void f_adjuntar_documents() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
@@ -454,7 +428,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		screenshotHelper.saveScreenshot("documentsexpedient/adjuntar_documents/2.png");		
 	}
 	
-//	@Test
+	@Test
 	public void g_visualizacio_documents_i_descarrega() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
@@ -477,7 +451,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		}
 	}
 	
-//	@Test
+	@Test
 	public void h_generar_document() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 
@@ -525,7 +499,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		assertTrue("No se encontró ningún documento para generar", probado);
 	}
 	
-//	@Test
+	@Test
 	public void i_descarregar_document() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
@@ -560,7 +534,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		screenshotHelper.saveScreenshot("documentsexpedient/descarregar_document/4.png");		
 	}
 	
-//	@Test
+	@Test
 	public void j_modificar_data_document() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
@@ -604,7 +578,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		screenshotHelper.saveScreenshot("documentsexpedient/modificar_data_document/4.png");
 	}
 	
-//	@Test
+	@Test
 	public void k_esborrar_document_adjunt() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
@@ -638,7 +612,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		screenshotHelper.saveScreenshot("documentsexpedient/esborrar_document_adjunt/3.png");
 	}
 	
-//	@Test
+	@Test
 	public void l_esborrar_document_tipus_expedient() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
@@ -687,6 +661,45 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		assertTrue("No se encontró ningún documento para borrar", probado);
 		screenshotHelper.saveScreenshot("documentsexpedient/esborrar_document_tipus_expedient/4.png");
 	}
+	
+	@Test
+	public void m_execucio_accions() throws InterruptedException {
+		carregarUrlConfiguracio();
+		
+		seleccionarEntorn(titolEntorn);
+
+		String pathDefProc = carregarPropietatPath("tramsel_accio.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+		String exportTipExpProc = carregarPropietatPath("tramsel_accio.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+		
+		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
+		
+		importarDadesTipExp(codTipusExp, exportTipExpProc);
+
+		screenshotHelper.saveScreenshot("accions/executar/1.png");
+
+		iniciarExpediente( codTipusExp, "SE-23/2014", "Expedient de prova Selenium " + (new Date()).getTime());
+		
+		consultarExpedientes(null, null, nomTipusExp);
+		
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//a[contains(@href,'/expedient/info.html')]")).click();
+
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(text(), 'Dades')]")).click();
+		if (existeixElement("//*[@id='codi']/tbody/tr/td[contains(text(),'message')]")) {
+			driver.findElement(By.xpath("//*[@id='codi']/tbody/tr/td[contains(text(),'message')]/parent::tr//img[@src='/helium/img/cross.png']")).click();
+			acceptarAlerta();
+		}
+		
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(text(), 'Expedient')]")).click();		
+		driver.findElement(By.xpath("//button[contains(text(),'Enviar mensaje')]")).click();
+		acceptarAlerta();
+		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la acción correctamente");
+		
+		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(text(), 'Dades')]")).click();
+		existeixElementAssert("//*[@id='codi']/tbody/tr/td[contains(text(),'message')]","No se encontró la variable 'message'");
+		
+		String mensaje = driver.findElement(By.xpath("//*[@id='codi']/tbody/tr/td[contains(text(),'message')]/parent::tr/td[2]")).getText().trim();
+		assertTrue("El valor de la variable 'message' no era el esperado", "Se ha ejecutado la acción".equals(mensaje));
+	}
 
 	@Test
 	public void z_limpiar() throws InterruptedException {
@@ -706,151 +719,5 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		eliminarEntorn(entorn);
 		
 		screenshotHelper.saveScreenshot("TasquesDadesTasca/finalizar_expedient/1.png");	
-	}
-	
-	private void comprobarVariable(VariableExpedient variable, boolean esModal) {
-		existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']","La variable no oculta no se ha mostrado : " + variable.getEtiqueta());
-		if (variable.isReadOnly()) {
-			// Es readonly
-			existeixElementAssert("//*[@id='commandReadOnly']/div/div/label[contains(text(), '"+variable.getEtiqueta()+"')]","La variable readonly no se ha mostrado : " + variable.getEtiqueta());
-		} else {
-			// No es readonly
-			existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']", "La etiqueta no coincidia: " + variable.getEtiqueta());
-			
-			if (!esModal) {
-				if (variable.isObligatorio()) {
-					existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/*/em/img", "La variable no estaba como obligatoria : " + variable.getEtiqueta());
-				} else {
-					noExisteixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/*/em/img", "La variable estaba como obligatoria : " + variable.getEtiqueta());
-				}
-				
-				if (!"REGISTRE".equals(variable.getTipo())) {
-					if (variable.isMultiple() && !esModal) {
-						existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/button[contains(text(), '+')]", "La variable no contenía el botón de múltiple : " + variable.getEtiqueta());
-					} else {
-						noExisteixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/button[contains(text(), '+')]", "La variable contenía el botón de múltiple : " + variable.getEtiqueta());
-					}	
-				}
-				if (variable.getObservaciones() != null && !variable.getObservaciones().isEmpty()) {
-					existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/p[@class='formHint']","La variable debe mostrar observaciones : " + variable.getEtiqueta());
-					String obs = driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/p[@class='formHint']")).getText();
-					assertTrue("La observación no coincidía : " + variable.getEtiqueta(), obs.equals(variable.getObservaciones()));
-				} else {
-					noExisteixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/p[@class='formHint']","La variable no debe mostrar observaciones : " + variable.getEtiqueta());
-				}
-			}
-			if ("STRING".equals(variable.getTipo())) {
-				existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']", "No tenía un input: " + variable.getEtiqueta());
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']")).clear();
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']")).sendKeys("Texto 1 " + variable.getEtiqueta());
-
-				if (variable.isMultiple() && !esModal) {
-					driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/button[contains(text(), '+')]")).click();
-					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).clear();
-					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).sendKeys("Texto 2 " + variable.getEtiqueta());
-				}
-			} else if ("INTEGER".equals(variable.getTipo())) {
-				existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']", "No tenía un input: " + variable.getEtiqueta());
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']")).clear();
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']")).sendKeys("1234");
-				
-				if (variable.isMultiple() && !esModal) {
-					driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/button[contains(text(), '+')]")).click();
-					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).clear();
-					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).sendKeys("12345");
-				}
-			} else if ("FLOAT".equals(variable.getTipo())) {
-				existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']", "No tenía un input: " + variable.getEtiqueta());
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']")).clear();
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']")).sendKeys("1234");
-				
-				if (variable.isMultiple() && !esModal) {
-					driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/button[contains(text(), '+')]")).click();
-					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).clear();
-					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).sendKeys("12345");
-				}
-			} else if ("BOOLEAN".equals(variable.getTipo())) {
-				existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@type='checkbox']", "No tenía un checkbox: " + variable.getEtiqueta());
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@type='checkbox']")).click();
-				
-				if (variable.isMultiple() && !esModal) {
-					driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/button[contains(text(), '+')]")).click();
-					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).clear();
-					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).click();;
-				}
-			} else if ("TEXTAREA".equals(variable.getTipo())) {
-				existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/textarea", "No tenía un textarea: " + variable.getEtiqueta());
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/textarea")).clear();
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/textarea")).sendKeys("Texto 1 " + variable.getEtiqueta());
-				
-				if (variable.isMultiple() && !esModal) {
-					driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/button[contains(text(), '+')]")).click();
-					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).clear();
-					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).sendKeys("Texto 2 " + variable.getEtiqueta());
-				}
-			} else if ("DATE".equals(variable.getTipo())) {
-				existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput hasDatepicker']", "No tenía un input: " + variable.getEtiqueta());
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput hasDatepicker']")).clear();
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput hasDatepicker']")).sendKeys("13/11/2014");
-				
-				if (variable.isMultiple() && !esModal) {
-					driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/button[contains(text(), '+')]")).click();
-					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).clear();
-					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).sendKeys("14/12/2014");
-				}
-			} else if ("PRICE".equals(variable.getTipo())) {
-				existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']", "No tenía un input: " + variable.getEtiqueta());
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']")).clear();
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']")).sendKeys("1234");
-				
-				if (variable.isMultiple() && !esModal) {
-					driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/button[contains(text(), '+')]")).click();
-					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).clear();
-					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).sendKeys("12345");
-				}
-			} else if ("TERMINI".equals(variable.getTipo())) {
-				boolean cond = driver.findElements(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/div/ul/li/label/select")).size() == 2
-						&& driver.findElements(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/div/ul/li/label/input")).size() == 1;
-				assertTrue("El termini no era correcto : " + variable.getEtiqueta(), cond);
-				WebElement select1 = driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/div/ul/li[1]/label/select"));
-				List<WebElement> options1 = select1.findElements(By.tagName("option"));
-				options1.get(options1.size()-1).click();
-				WebElement select2 = driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/div/ul/li[2]/label/select"));
-				List<WebElement> options2 = select2.findElements(By.tagName("option"));
-				options2.get(options2.size()-1).click();
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/div/ul/li/label/input")).clear();
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/div/ul/li/label/input")).sendKeys("2");
-			} else if ("SELECCIO".equals(variable.getTipo())) {
-				existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/select", "No tenía un select: " + variable.getEtiqueta());
-				WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/select"));
-				List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
-				options.get(options.size()-1).click();
-			} else if ("SUGGEST".equals(variable.getTipo())) {
-				existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']", "No tenía un input: " + variable.getEtiqueta());
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']")).clear();
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']")).sendKeys(usuari);
-				driver.findElement(By.xpath("//*[@class='ac_results']/ul/li[1]")).click();
-			} else if ("REGISTRE".equals(variable.getTipo())) {
-				existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/div/button", "No tenía un botón: " + variable.getEtiqueta());
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/div/button")).click();
-				
-				String url = driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"']")).getAttribute("src");
-				url = url.substring(url.indexOf("registre.html"));
-				if (modalObertaAssert(url)) {
-					vesAModal(url);
-					
-					for (VariableExpedient variableReg : variable.getRegistro()) {
-						comprobarVariable(variableReg, true);
-					}
-					
-					driver.findElement(By.xpath("//*[@id='command']/div[3]/button[1]")).click();
-					tornaAPare();
-				}
-			} else if ("ACCIO".equals(variable.getTipo())) {
-				existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/div/button", "No tenía un botón: " + variable.getEtiqueta());
-			}
-		}
-
-		screenshotHelper.saveScreenshot("TasquesDadesTasca/visualizacio_tasca_dades/4-"+variable.getCodi()+".png");
 	}
 }

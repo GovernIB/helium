@@ -32,6 +32,9 @@ public class Signature extends BaseTest {
 	String pathArxiuPDF = carregarPropietatPath("deploy.arxiu.pdf.tramitacio_1", "Documento PDF a adjuntar 1");
 	String hashArxiuPDF = carregarPropietat("deploy.arxiu.pdf.tramitacio_1.hash", "Hash documento PDF a adjuntar 1");
 	
+	String nomCert = carregarPropietat("tramsel.firma_nom", "Hash documento PDF a adjuntar 2");
+	String passCert = carregarPropietat("tramsel.firma_pass", "Hash documento PDF a adjuntar 2");
+	
 	@Test
 	public void a0_inicialitzacio() {
 		carregarUrlConfiguracio();
@@ -63,7 +66,7 @@ public class Signature extends BaseTest {
 		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]")));
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/definicioProces/llistat.html')]")));
 		actions.click();
 		actions.build().perform();
 		
@@ -97,12 +100,14 @@ public class Signature extends BaseTest {
 		driver.findElement(By.xpath("//*[@id='registre']//td[contains(a/text(), 'tasca1')]/a")).click();
 				
 		// Documento
-		driver.findElement(By.xpath("//a[contains(@href,'/helium/tasca/documents.html')]")).click();
+		driver.findElement(By.xpath("//a[contains(@href,'/tasca/documents.html')]")).click();
 		
-		driver.findElement(By.xpath("//*[@id='documentCommand_exp_doc']//parent::div//input[@id='contingut0']")).sendKeys(pathArxiuPDF);
-		driver.findElement(By.xpath("//*[@id='documentCommand_exp_doc']//parent::div//button[contains(text(), 'Guardar')]")).click();
-		
-		existeixElementAssert("//*[@id='infos']/p", "No se guardó correctamente");
+		if (existeixElement("//*[@id='documentCommand_exp_doc']//parent::div//input[@id='contingut0']")) {
+			// Si no estaba subido el documento
+			driver.findElement(By.xpath("//*[@id='documentCommand_exp_doc']//parent::div//input[@id='contingut0']")).sendKeys(pathArxiuPDF);
+			driver.findElement(By.xpath("//*[@id='documentCommand_exp_doc']//parent::div//button[contains(text(), 'Guardar')]")).click();
+			existeixElementAssert("//*[@id='infos']/p", "No se guardó correctamente");
+		}		
 		
 		// Signature
 		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/tasca/signatures.html')]")).click();
@@ -110,10 +115,19 @@ public class Signature extends BaseTest {
 		for (DocumentoExpedient documento : documentosExpedient) {
 			byte[] archivoOriginal = downloadFile("//h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/document/arxiuPerSignar.html')]", "blank.pdf");
 			
-			// El certificado no tiene contraseña
+			WebElement select = driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/parent::div//select"));
+			List<WebElement> options = select.findElements(By.tagName("option"));
+			for (WebElement option : options) {
+				if (option.getText().equals(nomCert)) {
+					option.click();
+					break;
+				}
+			}
+			driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/parent::div//input[@type='password']")).clear();
+			driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/parent::div//input[@type='password']")).sendKeys(passCert);
+						
 			driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/parent::div//button")).click();
 			Thread.sleep(1000*20);
-			
 			existeixElementAssert("//*[@id='infos']/p", "No se firmó correctamente");			
 			
 			// Comprobamos que el hash cambió
@@ -123,7 +137,7 @@ public class Signature extends BaseTest {
 			boolean firmado = false;
 			if (existeixElement("//h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/signatura/verificar.html')]")) {
 				WebElement verificar = driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/signatura/verificar.html')]"));
-				verificar.click();;
+				verificar.click();
 				Thread.sleep(1000*15);
 				
 				String href = verificar.getAttribute("href");

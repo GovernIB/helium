@@ -21,15 +21,15 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
 	Accions.class,
 	AfegirExpedientRelacionat.class,
-	DadesExpedient.class, // TODO Falla al modificar una fecha en una agrupación (error de Helium)
+	DadesExpedient.class,
 	ExpedientPestanyaTasques.class,
 	ModificarExpedient.class,
 	ModificarVersioProces.class,
 	NouExpedient.class,
 	RegistreExpedient.class,
-	TasquesDadesDocumentsTasca.class,
+	TasquesDadesDocumentsTasca.class, // Fallan d_signatura (no firma) y h_generar_document (no hay documentos para generar)
 	TasquesExpedient.class,
-	TasquesFlux.class,
+	TasquesFlux.class, // b_comprobar_flux_tasca -> No aparece la alerta del termini alertas
 	TasquesSubprocessExpedient.class,
 	TerminisExpedient.class
 })

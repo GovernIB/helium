@@ -99,7 +99,7 @@ public class Accions extends BaseTest {
 		// Ponemos la acción como pública
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]")));
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/definicioProces/llistat.html')]")));
 		actions.click();
 		actions.build().perform();
 		
@@ -131,7 +131,7 @@ public class Accions extends BaseTest {
 		// Ponemos la acción como no pública				
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]")));
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/definicioProces/llistat.html')]")));
 		actions.click();
 		actions.build().perform();
 		
@@ -178,7 +178,7 @@ public class Accions extends BaseTest {
 		// Ocultamos la acción
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]")));
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/definicioProces/llistat.html')]")));
 		actions.click();
 		actions.build().perform();
 		

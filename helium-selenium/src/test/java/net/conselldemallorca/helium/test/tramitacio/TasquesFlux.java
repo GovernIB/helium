@@ -28,7 +28,7 @@ public class TasquesFlux extends BaseTest {
 	String exportTipExp = carregarPropietatPath("tipexp.tasca_dades.exp.export_flux.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
-	long waitTime = 1000*5;
+	long waitTime = 1000*15;
 	
 	@Test
 	public void a0_inicialitzacio() {
@@ -58,7 +58,9 @@ public class TasquesFlux extends BaseTest {
 		seleccionarEntorn(titolEntorn);
 		
 		screenshotHelper.saveScreenshot("tramitar/modificarInfoExp/1.png");
-				
+		
+		eliminarExpedient(null, null, nomTipusExp);
+		
 		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos sobre disseny entorn");
 			
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
@@ -201,7 +203,7 @@ public class TasquesFlux extends BaseTest {
 		existeixElementAssert("//*[@id='infos']/p", "No se finalizó correctamente");
 
 		// Comprobamos que se haya cambiado el estado a "Pendiente"
-		consultarExpedientes(null, titulo, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
+		consultarExpedientes(null, titulo, nomTipusExp);
 		
 		assertTrue("El expediente no estaba en estado 'Pendiente'", "Pendiente".equals(driver.findElement(By.xpath("//*[@id='registre']/tbody/tr/td[5]")).getText()));
 		
@@ -284,6 +286,7 @@ public class TasquesFlux extends BaseTest {
 		assertTrue("El campo de 'Data de fi del termini' de 'Termini lab' no era correcto : Inicio : " + dataIniTerminiNoLab + " - Fin esperado : " +dataFiTerminiNoLab+ " - Fin real : " + fechaTerminiNoLab, fechaTerminiNoLab.equals(dataFiTerminiNoLab));
 		
 		// Comprobamos que haya una nueva alerta
+		Thread.sleep(waitTime);
 		driver.findElement(By.xpath("//*[@id='page-entorn-title']/h2/a")).click();
 		
 		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='content']//select"));
@@ -293,13 +296,12 @@ public class TasquesFlux extends BaseTest {
 				option.click();
 				break;
 			}
-		}
-		Thread.sleep(waitTime);
+		}		
 		driver.findElement(By.xpath("//*[@id='content']/div/form/input")).click();
-		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[4]/text(),'Termini alertas')]", "Se creó una alerta del termini alertas");
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[4]/text(),'Termini alertas')]", "No se creó una alerta del termini alertas");
 		
 		// Ejecutamos en Script
-		consultarExpedientes(null, null, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
+		consultarExpedientes(null, null, nomTipusExp);
 		
 		driver.findElement(By.xpath("//*[@id='registre']//a[contains(@href,'/expedient/info.html')][1]")).click();
 		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/eines.html')]")).click();
@@ -311,7 +313,7 @@ public class TasquesFlux extends BaseTest {
 		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó el script correctamente");
 		
 		// Comprobamos que se haya cambiado el estado a "Siguiente"
-		consultarExpedientes(null, titulo, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
+		consultarExpedientes(null, titulo, nomTipusExp);
 		assertTrue("El expediente no estaba en estado 'Siguiente'", "Siguiente".equals(driver.findElement(By.xpath("//*[@id='registre']/tbody/tr/td[5]")).getText()));
 		
 		driver.findElement(By.xpath("//*[@id='registre']//a[contains(@href,'/expedient/info.html')][1]")).click();
@@ -375,7 +377,7 @@ public class TasquesFlux extends BaseTest {
 		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/tramitar_delegar_tasca/3.png");
 		
 		// Comprobamos que haya hecho el "join" y se finalice el expediente
-		consultarExpedientes(null, titulo, properties.getProperty("defproc.deploy.tipus.expedient.nom"));
+		consultarExpedientes(null, titulo, nomTipusExp);
 		assertTrue("El expediente no estaba en estado 'Finalitzat'", "Finalitzat".equals(driver.findElement(By.xpath("//*[@id='registre']/tbody/tr/td[5]")).getText()));
 		
 		// Comprobamos que los terminis se hayan cancelado
@@ -407,10 +409,9 @@ public class TasquesFlux extends BaseTest {
 		
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(new SimpleDateFormat("dd/MM/yyyy").parse(sFecha));
-		int numLab = 1;
-		String fechaTerminiNoLab = null;
+		String fechaTerminiNoLab = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
+		int numLab = 0;
 		while (numLab < numDias) {
-			calendar.add(Calendar.DATE, 1);
 			fechaTerminiNoLab = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
 			
 			WebElement select = driver.findElement(By.xpath("//*[@id='content']/h3/form/select"));
@@ -428,6 +429,7 @@ public class TasquesFlux extends BaseTest {
 					numLab++;
 				}
 			}
+			calendar.add(Calendar.DATE, 1);
 		}
 		return fechaTerminiNoLab;
 	}
