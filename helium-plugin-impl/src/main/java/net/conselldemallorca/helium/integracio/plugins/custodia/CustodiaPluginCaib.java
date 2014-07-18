@@ -132,9 +132,14 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 		try {
 			String token = cacheHash.get(id);
 			if (token == null) {
-				byte[] resposta = getClienteCustodia().reservarDocumento(getIdCustodia(id));
-				token = new String(resposta);
-				cacheHash.put(id, token);
+				byte[] response = getClienteCustodia().reservarDocumento(getIdCustodia(id));
+				CustodiaResponseCaib resposta = parseResponse(response);
+				if (!resposta.isError()) {
+					token = new String(resposta.getValorRetornat());
+					cacheHash.put(id, token);
+				} else {
+					throw new CustodiaPluginException("Error en la petició de custòdia: [" + resposta.getErrorCodi() + "] " + resposta.getErrorDescripcio());
+				}
 			}
 			String baseUrl = GlobalProperties.getInstance().getProperty("app.custodia.plugin.caib.verificacio.baseurl");
 			return baseUrl + token;
@@ -165,6 +170,7 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 		Element resultMajorElement = null;
 		Element resultMinorElement = null;
 		Element resultMessageElement = null;
+		Element valorRetornatElement = null;
 		if ("CustodiaResponse".equals(document.getRootElement().getName())) {
 			resultMajorElement = document.getRootElement().element("VerifyResponse").element("Result").element("ResultMajor");
 			resultMinorElement = document.getRootElement().element("VerifyResponse").element("Result").element("ResultMinor");
@@ -181,6 +187,11 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 			resultMajorElement = document.getRootElement().element("Result").element("ResultMajor");
 			resultMinorElement = document.getRootElement().element("Result").element("ResultMinor");
 			resultMessageElement = document.getRootElement().element("Result").element("ResultMessage");
+		} else if ("ReservaResponse".equals(document.getRootElement().getName())) {
+			resultMajorElement = document.getRootElement().element("Result").element("ResultMajor");
+			resultMinorElement = document.getRootElement().element("Result").element("ResultMinor");
+			resultMessageElement = document.getRootElement().element("Result").element("ResultMessage");
+			valorRetornatElement = document.getRootElement().element("Hash");
 		}
 		if (resultMajorElement == null)
 			throw new DocumentException("No s'ha trobat el ResultMajor");
@@ -192,6 +203,9 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 		if (hasErrors) {
 			resposta.setErrorCodi(resultMinorElement.getText());
 			resposta.setErrorDescripcio(resultMessageElement.getText());
+		}
+		if (valorRetornatElement != null) {
+			resposta.setValorRetornat(valorRetornatElement.getText());
 		}
 		return resposta;
 	}

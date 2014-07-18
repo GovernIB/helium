@@ -14,6 +14,8 @@ public class CustodiaResponseCaib {
 	private String errorCodi;
 	private String errorDescripcio;
 
+	private String valorRetornat;
+
 
 
 	public boolean isError() {
@@ -33,6 +35,12 @@ public class CustodiaResponseCaib {
 	}
 	public void setErrorDescripcio(String errorDescripcio) {
 		this.errorDescripcio = errorDescripcio;
+	}
+	public String getValorRetornat() {
+		return valorRetornat;
+	}
+	public void setValorRetornat(String valorRetornat) {
+		this.valorRetornat = valorRetornat;
 	}
 
 }
