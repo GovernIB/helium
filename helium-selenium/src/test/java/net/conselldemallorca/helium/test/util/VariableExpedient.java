@@ -96,6 +96,9 @@ public class VariableExpedient {
 			}
 			return "["+buf.subSequence(0, buf.length()-2)+"]";
 		}
+		if ("<< Seleccioni un valor >>".equals(valor)) {
+			return "";
+		}
 		return valor;
 	}
 

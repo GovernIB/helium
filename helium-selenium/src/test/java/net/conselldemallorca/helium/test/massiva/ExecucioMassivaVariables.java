@@ -186,7 +186,6 @@ public class ExecucioMassivaVariables extends BaseTest {
 			comprobarVariable(variable, false, false);
 			
 			driver.findElement(By.xpath("//*[@id='command']//button[contains(@onclick,'submit')]")).click();
-			existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");// Vemos las variables de los n expedientes
 			
 			esperaFinExecucioMassiva(expedientes);
 			
@@ -202,11 +201,18 @@ public class ExecucioMassivaVariables extends BaseTest {
 					agrupacion.click();
 				}
 				
-				existeixElementAssert("//td[contains(text(),'"+variable.getEtiqueta()+"')]","La variable '"+variable.getEtiqueta()+"' no existía");
-				
-				// Comprobamos que el valor de cada variable coincida
-				String valor = driver.findElement(By.xpath("//tr[contains(td/text(),'"+variable.getEtiqueta()+"')]/td[2]")).getText().trim();
-				assertTrue("El valor de la variable '"+variable.getEtiqueta()+"' no era el esperado: Esperaba '"+variable.getValor()+"' y encontró '"+valor+"'", variable.getValor().equals(valor));
+				if (!variable.isOculta()) { 
+					existeixElementAssert("//td[contains(text(),'"+variable.getEtiqueta()+"')]","La variable '"+variable.getEtiqueta()+"' no existía");
+					
+					// Comprobamos que el valor de cada variable coincida
+					String valor = driver.findElement(By.xpath("//tr[contains(td/text(),'"+variable.getEtiqueta()+"')]/td[2]")).getText().trim();
+					if (!variable.isMultiple() && variable.getRegistro().isEmpty())
+						assertTrue("El valor de la variable '"+variable.getEtiqueta()+"' no era el esperado: Esperaba '"+variable.getValor()+"' y encontró '"+valor+"'", variable.getValor().equals(valor));
+					else
+						assertTrue("El valor de la variable '"+variable.getEtiqueta()+"' no era el esperado", !valor.isEmpty());
+				} else {
+					noExisteixElementAssert("//td[contains(text(),'"+variable.getEtiqueta()+"')]","La variable oculta '"+variable.getEtiqueta()+"' existía");
+				}
 			}
 			
 			consultarExpedientes(null, null, nomTipusExp);

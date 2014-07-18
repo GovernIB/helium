@@ -1383,7 +1383,7 @@ public abstract class BaseTest {
 				options2.get(options2.size()-1).click();
 				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/div/ul/li/label/input")).clear();
 				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/div/ul/li/label/input")).sendKeys("2");
-				variable.setValor(options1.get(options1.size()-1)+"/"+options2.get(options2.size()-1)+"/2");
+				variable.setValor("12 anys, 12 mesos i 2 dies");
 			} else if ("SELECCIO".equals(variable.getTipo())) {
 				existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/select", "No tenía un select: " + variable.getEtiqueta());
 				WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/select"));
@@ -1402,7 +1402,7 @@ public abstract class BaseTest {
 				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/div/button")).click();
 				
 				String url = driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"']")).getAttribute("src");
-				url = url.substring(url.indexOf("registre.html"));
+				url = url.substring(url.indexOf(".html"));
 				if (modalObertaAssert(url)) {
 					vesAModal(url);
 					
