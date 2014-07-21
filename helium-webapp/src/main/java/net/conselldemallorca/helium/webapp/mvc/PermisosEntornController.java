@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.AccessControlEntry;
+import org.springframework.security.acls.NotFoundException;
 import org.springframework.security.acls.Permission;
 import org.springframework.security.acls.sid.Sid;
 import org.springframework.stereotype.Controller;
@@ -112,6 +113,9 @@ public class PermisosEntornController extends BaseController {
 	        			true);
 	        	missatgeInfo(request, getMessage("info.permisos.entorn.afegit") );
 	        	status.setComplete();
+	        } catch (NotFoundException nfex) {
+				missatgeError(request, getMessage("error.afegir.permisos.entorn.permis"));
+	        	logger.error("No s'han pogut afegir els permisos a l'entorn. No té permís", nfex);
 	        } catch (Exception ex) {
 	        	missatgeError(request, getMessage("error.afegir.permisos.entorn"), ex.getLocalizedMessage());
 	        	logger.error("No s'han pogut afegir els permisos a l'entorn", ex);
@@ -132,9 +136,12 @@ public class PermisosEntornController extends BaseController {
 					command.getId(),
 					Entorn.class);
         	missatgeInfo(request, getMessage("info.permisos.entorn.esborrat") );
-        } catch (Exception ex) {
+		} catch (NotFoundException nfex) {
+			missatgeError(request, getMessage("error.esborrar.permisos.entorn.permis"));
+        	logger.error("No s'han pogut esborrar els permisos a l'entorn. No té permís", nfex);
+		} catch (Exception ex) {
         	missatgeError(request, getMessage("error.esborrar.permisos.entorn"), ex.getLocalizedMessage());
-        	logger.error("No s'han pogut esborrar els permisos", ex);
+        	logger.error("No s'han pogut esborrar els permisos a l'entorn", ex);
         }
         return "redirect:/permisos/entorn.html?id=" + command.getId();
 	}

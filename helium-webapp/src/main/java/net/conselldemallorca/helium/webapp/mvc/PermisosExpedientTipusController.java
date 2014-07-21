@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.AccessControlEntry;
+import org.springframework.security.acls.NotFoundException;
 import org.springframework.security.acls.Permission;
 import org.springframework.security.acls.sid.Sid;
 import org.springframework.stereotype.Controller;
@@ -112,7 +113,10 @@ public class PermisosExpedientTipusController extends BaseController {
 	        			true);
 	        	missatgeInfo(request, getMessage("info.permisos.tipusexp.afegit") );
 	        	status.setComplete();
-	        } catch (Exception ex) {
+	        } catch (NotFoundException nfex) {
+				missatgeError(request, getMessage("error.afegir.permisos.tipusexp.permis"));
+	        	logger.error("No s'han pogut afegir els permisos. No té permís", nfex);
+			} catch (Exception ex) {
 	        	missatgeError(request, getMessage("error.afegir.permisos.tipusexp"), ex.getLocalizedMessage());
 	        	logger.error("No s'han pogut afegir els permisos al tipus d'expedient", ex);
 	        }
@@ -132,7 +136,10 @@ public class PermisosExpedientTipusController extends BaseController {
 					command.getId(),
 					ExpedientTipus.class);
         	missatgeInfo(request, getMessage("info.permisos.tipusexp.esborrat") );
-        } catch (Exception ex) {
+		} catch (NotFoundException nfex) {
+			missatgeError(request, getMessage("error.esborrar.permisos.tipusexp.permis"));
+        	logger.error("No s'han pogut esborrar els permisos. No té permís", nfex);
+		} catch (Exception ex) {
         	missatgeError(request, getMessage("error.esborrar.permisos.tipusexp"), ex.getLocalizedMessage());
         	logger.error("No s'han pogut esborrar els permisos", ex);
         }
