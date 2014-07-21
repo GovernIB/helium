@@ -258,7 +258,7 @@ public class PermisosHelper {
 			Serializable objectIdentifier,
 			Permission[] permissions) throws NotFoundException {
 		ObjectIdentity oid = new ObjectIdentityImpl(objectClass, objectIdentifier);
-		try {
+//		try {
 			MutableAcl acl = (MutableAcl)aclService.readAclById(oid);
 			List<Integer> indexosPerEsborrar = new ArrayList<Integer>();
 			int aceIndex = 0;
@@ -274,9 +274,9 @@ public class PermisosHelper {
 			for (Integer index: indexosPerEsborrar)
 				acl.deleteAce(index);
 			aclService.updateAcl(acl);
-		} catch (NotFoundException nfex) {
-			// Si no troba l'ACL no fa res
-		}
+//		} catch (NotFoundException nfex) {
+//			// Si no troba l'ACL no fa res
+//		}
 	}
 
 	private boolean[] verificarPermisos(
