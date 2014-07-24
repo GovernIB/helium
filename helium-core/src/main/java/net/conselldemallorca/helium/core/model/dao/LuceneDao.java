@@ -335,6 +335,46 @@ public class LuceneDao extends LuceneIndexSupport {
 		mesuresTemporalsHelper.mesuraCalcular("Lucene: findAmbDadesExpedient", "lucene");
 		return resultat;
 	}
+	public List<Map<String, DadaIndexadaDto>> findAmbDadesExpedient(
+			String entornCodi,
+			String tipusCodi,
+			List<Camp> filtreCamps,
+			Map<String, Object> filtreValors,
+			List<Camp> informeCamps,
+			String sort,
+			boolean asc,
+			int firstRow,
+			int maxResults,
+			List<Long> ids) {
+		mesuresTemporalsHelper.mesuraIniciar("Lucene: findAmbDadesExpedient", "lucene");
+		checkIndexOk();
+		Query query = null;
+		if (ids != null && !ids.isEmpty()) {
+			query = queryPerFiltre(
+					entornCodi, 
+					tipusCodi, 
+					filtreCamps, 
+					filtreValors, 
+					ids.subList(1, ids.size()));
+		} else {
+			query = queryPerFiltre(
+					entornCodi,
+					tipusCodi,
+					filtreCamps,
+					filtreValors);
+		}
+		List<Map<String, DadaIndexadaDto>> resultat = getDadesExpedientPerConsulta(
+				entornCodi,
+				query,
+				informeCamps,
+				true,
+				sort,
+				asc,
+				firstRow,
+				maxResults);
+		mesuresTemporalsHelper.mesuraCalcular("Lucene: findAmbDadesExpedient", "lucene");
+		return resultat;
+	}
 
 	public List<Map<String, DadaIndexadaDto>> getDadesExpedient(
 			String entornCodi,
@@ -579,6 +619,53 @@ public class LuceneDao extends LuceneIndexSupport {
 		}
 		return (bquery.getClauses().length > 0) ? bquery : new MatchAllDocsQuery();
 	}
+	protected Query queryPerFiltre(
+			String entornCodi, 
+			String tipusCodi, 
+			List<Camp> filtreCamps, 
+			Map<String, Object> filtreValors, 
+			List<Long> ids) {
+		BooleanQuery bquery = new BooleanQuery();
+		if (!PEGAT_ENTORN_ACTIU) {
+			bquery.add(
+					new BooleanClause(
+							queryFromCampFiltre(
+									ExpedientCamps.EXPEDIENT_CAMP_ENTORN, 
+									entornCodi, 
+									null), 
+							BooleanClause.Occur.MUST));
+		}
+		bquery.add(
+				new BooleanClause(
+						queryFromCampFiltre(
+								ExpedientCamps.EXPEDIENT_CAMP_TIPUS, 
+								tipusCodi, 
+								null), 
+						BooleanClause.Occur.MUST));
+		for (String clau : filtreValors.keySet()) {
+			Query query = queryFromCampFiltre(
+					clau, 
+					filtreValors.get(clau), 
+					filtreCamps);
+			if (query != null)
+				bquery.add(new BooleanClause(query, BooleanClause.Occur.MUST));
+		}
+		if (ids != null && !ids.isEmpty()) {
+			BooleanQuery nested = new BooleanQuery();
+			for (Long id: ids) {
+				nested.add(
+						new BooleanClause(
+								new TermQuery(
+										new Term(
+												ExpedientCamps.EXPEDIENT_CAMP_ID, 
+												id.toString())), 
+								BooleanClause.Occur.SHOULD));
+			}
+			bquery.add(nested, BooleanClause.Occur.MUST);
+		}
+		return (bquery.getClauses().length > 0) ? bquery : new MatchAllDocsQuery();
+	}
+	
 	private Query queryFromCampFiltre(
 			String codiCamp,
 			Object valorFiltre,

@@ -1080,6 +1080,23 @@ public class ExpedientService {
 			Long consultaId,
 			Map<String, Object> valors,
 			String sort,
+			boolean asc,
+			List<Long> ids) {
+		return findAmbEntornConsultaDisseny(
+				entornId,
+				consultaId,
+				valors,
+				sort,
+				asc,
+				0,
+				-1, 
+				ids);
+	}
+	public List<ExpedientConsultaDissenyDto> findAmbEntornConsultaDisseny(
+			Long entornId,
+			Long consultaId,
+			Map<String, Object> valors,
+			String sort,
 			boolean asc) {
 		return findAmbEntornConsultaDisseny(
 				entornId,
@@ -1098,6 +1115,25 @@ public class ExpedientService {
 			boolean asc,
 			int firstRow,
 			int maxResults) {
+		return findAmbEntornConsultaDisseny(
+				entornId,
+				consultaId,
+				valors,
+				sort,
+				asc,
+				firstRow,
+				maxResults,
+				null);
+	}
+	public List<ExpedientConsultaDissenyDto> findAmbEntornConsultaDisseny(
+			Long entornId,
+			Long consultaId,
+			Map<String, Object> valors,
+			String sort,
+			boolean asc,
+			int firstRow,
+			int maxResults,
+			List<Long> ids) {
 		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
 		Consulta consulta = consultaDao.getById(consultaId, false);
 		mesuresTemporalsHelper.mesuraIniciar("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Recuperar consulta disseny - find camps per consulta");
@@ -1119,7 +1155,8 @@ public class ExpedientService {
 				sort,
 				asc,
 				firstRow,
-				maxResults);
+				maxResults,
+				ids);
 		mesuresTemporalsHelper.mesuraCalcular("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Recuperar consulta disseny - lucene");
 		mesuresTemporalsHelper.mesuraIniciar("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Recuperar consulta disseny - dto converter i revisar dades expedient amb valors enumeracions o domini");
 		for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
