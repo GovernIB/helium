@@ -50,6 +50,20 @@ public class LuceneDao extends LuceneHelper {
 		mesuresTemporalsHelper.mesuraCalcular("Lucene: findAmbDadesExpedient", "lucene");
 		return resultat;
 	}
+	
+	public List<Map<String, DadaIndexadaDto>> findAmbDadesExpedient(String entornCodi, String tipusCodi, List<Camp> filtreCamps, Map<String, Object> filtreValors, List<Camp> informeCamps, String sort, boolean asc, int firstRow, int maxResults, List<Long> ids) {
+		mesuresTemporalsHelper.mesuraIniciar("Lucene: findAmbDadesExpedient", "lucene");
+		checkIndexOk();
+		Query query = null;
+		if (ids != null && !ids.isEmpty()) {
+			query = queryPerFiltre(entornCodi, tipusCodi, filtreCamps, filtreValors, ids.subList(1, ids.size()));
+		} else {
+			query = queryPerFiltre(entornCodi, tipusCodi, filtreCamps, filtreValors);
+		}
+		List<Map<String, DadaIndexadaDto>> resultat = getDadesExpedientPerConsulta(entornCodi, query, informeCamps, true, sort, asc, firstRow, maxResults);
+		mesuresTemporalsHelper.mesuraCalcular("Lucene: findAmbDadesExpedient", "lucene");
+		return resultat;
+	}
 
 	@SuppressWarnings("unchecked")
 	private List<Map<String, DadaIndexadaDto>> getDadesExpedientPerConsulta(final String entornCodi, Query query, List<Camp> campsInforme, boolean incloureId, String sort, boolean asc, final int firstRow, final int maxResults) {

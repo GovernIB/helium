@@ -58,6 +58,7 @@ public class MesuresTemporalsHelper {
 		mesuraIniciar(nom, familia, tipusExpedient, tasca, null);
 	}
 	public void mesuraIniciar(String nom, String familia, String tipusExpedient, String tasca, String detall) {
+//		System.out.println(">>> MESURA INICI: " + nom + " - " + familia + " - " +  tipusExpedient + " - " + tasca + " - " + detall);
 		try {
 			if (actiu) {
 				Clau clau = new Clau(nom, tipusExpedient, tasca, detall);
@@ -87,6 +88,7 @@ public class MesuresTemporalsHelper {
 		mesuraCalcular(nom, familia, tipusExpedient, tasca, null);
 	}
 	public void mesuraCalcular(String nom, String familia, String tipusExpedient, String tasca, String detall) {
+//		System.out.println(">>> MESURA FINAL: " + nom + " - " + familia + " - " +  tipusExpedient + " - " + tasca + " - " + detall);
 		try {
 			if (actiu && intervalsEstadistiques.containsKey(familia)) {
 				Clau clau = new Clau(nom, tipusExpedient, tasca, detall);
@@ -159,12 +161,17 @@ public class MesuresTemporalsHelper {
 							dto.setMaxima(estadistica.getMaxim());
 							dto.setNumMesures(estadistica.getContador());
 							LinkedList<IntervalEventDto> intervalEvents = new LinkedList<IntervalEventDto>();
-							for (IntervalEvent event : estadistica.getEvents()) {
-								if (event != null && event.getDate() != null && event.getDuracio() != null) {
-									intervalEvents.add(new IntervalEventDto(event.getDate(), event.getDuracio()));
-								} else {
-									logger.error("ERROR ESTADISTIQUES: Mesura " + clau.getNom() + " amb events nulls.");
-								}
+							LinkedList<IntervalEvent> events = estadistica.getEvents();
+							for (int i = 0; i < events.size(); i++) {
+//							for (IntervalEvent event : events) {
+								try {
+									IntervalEvent event = events.get(i);
+									if (event != null && event.getDate() != null && event.getDuracio() != null) {
+										intervalEvents.add(new IntervalEventDto(event.getDate(), event.getDuracio()));
+									} else {
+										logger.error("ERROR ESTADISTIQUES: Mesura " + clau.getNom() + " amb events nulls.");
+									}
+								} catch(Exception e) {}
 							}
 							dto.setEvents(intervalEvents);
 							// Execucions per minut

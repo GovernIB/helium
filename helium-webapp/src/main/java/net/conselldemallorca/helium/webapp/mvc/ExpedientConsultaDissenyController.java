@@ -422,17 +422,9 @@ public class ExpedientConsultaDissenyController extends BaseController {
 							commandSeleccio.getConsultaId(),
 							valoresConsulta,
 							ExpedientCamps.EXPEDIENT_CAMP_ID,
-							true);
+							true, 
+							ids);
 					List<ExpedientConsultaDissenyDto> expedientsTE = new ArrayList<ExpedientConsultaDissenyDto>();
-					if (ids.size() > 0) {
-						for (int c = 0; c <= expedients.size() -1 ; c++) {
-							for (int b = 1; b <= ids.size() - 1; b++) {
-								if (expedients.get(c).getExpedient().getId().equals(ids.get(b))) {
-									expedientsTE.add(expedients.get(c));
-								}
-							}
-						}
-					}
 					((MesuresTemporalsHelper) adminService.getMesuresTemporalsHelper()).mesuraCalcular("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Recuperar consulta disseny");
 					((MesuresTemporalsHelper) adminService.getMesuresTemporalsHelper()).mesuraIniciar("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Generar datos datasource");
 					if (expedientsTE.size() > 0) {
