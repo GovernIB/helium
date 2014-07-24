@@ -178,6 +178,12 @@ public class ExpedientEditarController extends BaseController {
 			if (expedient.getTipus().getTeNumero())
 				ValidationUtils.rejectIfEmpty(errors, "numero", "not.blank");
 			ValidationUtils.rejectIfEmpty(errors, "dataInici", "not.blank");
+			if (command.getTitol() != null && command.getTitol().length() > 255)
+				errors.rejectValue("titol", "max.length");
+			if (command.getNumero() != null && command.getNumero().length() > 64)
+				errors.rejectValue("numero", "max.length");
+			if (command.getComentari() != null && command.getComentari().length() > 255)
+				errors.rejectValue("comentari", "max.length");
 		}
 	}
 
