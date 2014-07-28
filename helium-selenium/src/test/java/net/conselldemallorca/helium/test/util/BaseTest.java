@@ -1135,6 +1135,9 @@ public abstract class BaseTest {
 	}	
 
 	protected void consultarExpedientes(String numExpediente, String tituloExpediente, String tipusExp) {
+		consultarExpedientes(numExpediente, tituloExpediente, tipusExp, false);
+	}
+	protected void consultarExpedientes(String numExpediente, String tituloExpediente, String tipusExp, boolean mostrarAnulats) {
 		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']//a[contains(@href, '/expedient/consulta.html')]")));
@@ -1158,6 +1161,13 @@ public abstract class BaseTest {
 					break;
 				}
 			}
+		}
+		
+		if (mostrarAnulats) {
+			// Seleccionamos los activos y anulados
+			WebElement select = driver.findElement(By.xpath("//*[@id='mostrarAnulats0']"));
+			List<WebElement> options = select.findElements(By.tagName("option"));
+			options.get(2).click();	
 		}
 		
 		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();
