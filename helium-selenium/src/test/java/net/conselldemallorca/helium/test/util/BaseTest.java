@@ -1211,6 +1211,48 @@ public abstract class BaseTest {
 		driver.findElement(By.xpath("//*[@id='command']//button[1]")).click();
 	}
 	
+	public void desplegarDP(String nomDefProc, String pathDefProc, String tipusExp){
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/deploy.html')]")));
+		actions.click();
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.id("tipus0")));
+		if (nomDefProc != null) {
+			WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='tipus0']"));
+			List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
+			for (WebElement option : options) {
+				if (option.getText().equals(TipusDesplegament.JBPM)) {
+					option.click();
+					break;
+				}
+			}
+		}
+		if (tipusExp != null) {
+			WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='expedientTipusId0']"));
+			List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
+			for (WebElement option : options) {
+				if (option.getText().equals(tipusExp)) {
+					option.click();
+					break;
+				}
+			}
+		}
+		driver.findElement(By.xpath("//*[@id='arxiu0']")).sendKeys(pathDefProc);
+		driver.findElement(By.xpath("//*[@id='command']/div/div[7]/button[1]")).click();
+		
+	}
+	
+	public void crearConsultaInforme(String codi,String titol, String tipusExp,String jrxml) {
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+		
+	}
+
+	
 	protected void comprobarVariable(VariableExpedient variable, boolean esModal) {
 		comprobarVariable(variable, esModal, true);
 	}
@@ -1496,4 +1538,5 @@ public abstract class BaseTest {
 		actions.sendKeys(Keys.ESCAPE);
 		return estado;
 	}
+
 }
