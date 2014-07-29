@@ -44,8 +44,9 @@
 		<c:otherwise>
 			<script type="text/javascript">
 				var versio = $.browser.version;
-				if($.browser.msie && versio.substring(0,2)=="7."){
-					parent.location.reload();
+// 				if($.browser.msie && versio.substring(0,2)=="7."){
+				if($.browser.msie && parseInt(versio.substring(0,3))>=7){
+					parent.location.reload(true);
 				}else{
 					parent.refresh();
 				}
