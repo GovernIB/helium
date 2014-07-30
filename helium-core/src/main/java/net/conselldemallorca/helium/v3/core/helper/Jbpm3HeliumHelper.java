@@ -192,6 +192,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private DocumentHelper documentHelper;
 	@Resource
 	private TerminiHelper terminiHelper;
+	@Resource
+	private PluginHelper pluginHelper;
 
 	@Resource
 	private ExpedientService expedientService;
@@ -1308,7 +1310,11 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			String processInstanceId,
 			ZonaperExpedientDto dadesExpedient) throws PluginException {
 		imprimirFuncio("zonaperExpedientCrear");
-		throw new PluginException("Funcionalitat no implementada");
+		try {
+			pluginHelper.zonaperExpedientCrear(dadesExpedient);
+		} catch (Exception e) {
+			throw new PluginException(e);
+		}
 	}
 
 	@Override
@@ -1316,7 +1322,12 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			String processInstanceId,
 			ZonaperEventDto dadesEvent) throws PluginException {
 		imprimirFuncio("zonaperEventCrear");
-		throw new PluginException("Funcionalitat no implementada");
+		try {
+			Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
+			pluginHelper.zonaperEventCrear(expedient, dadesEvent);
+		} catch (Exception e) {
+			throw new PluginException(e);
+		}
 	}
 
 	@Override
