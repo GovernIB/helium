@@ -126,9 +126,6 @@ public class TasquesFlux extends BaseTest {
 		String fechaTermini = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
 		calendar.add(Calendar.DATE, 24);
 		String fechafinTermini = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
-		calendar = Calendar.getInstance();
-		calendar.add(Calendar.DATE, 1);
-		String fecha5dias = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
 		
 		if (driver.findElement(By.xpath("//*[@id='correcte0']")).isSelected()) {
 			driver.findElement(By.xpath("//*[@id='correcte0']")).click();
@@ -279,6 +276,7 @@ public class TasquesFlux extends BaseTest {
 		assertTrue("El estado inicial de '"+nom+"' no era correcto", "Actiu".equals(estat));
 		assertTrue("El campo de 'Iniciat el' inicial de '"+nom+"' no era correcto", iniciat.equals(fechaTermini));
 		assertTrue("El campo de 'Aturat el' inicial de '"+nom+"' no era correcto", aturat.isEmpty());
+		String fecha5dias = getFechaDiasLaborables(datafi, 1);
 		assertTrue("El campo de 'Data de fi del termini' de '"+nom+"' no era correcto. Esperaba " + fecha5dias + " y encontró " + datafi, datafi.equals(fecha5dias));		
 		
 		// Comprobamos los 25 días laborables a partir de una fecha

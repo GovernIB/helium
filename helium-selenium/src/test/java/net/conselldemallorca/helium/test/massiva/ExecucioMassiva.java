@@ -4,6 +4,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -14,13 +15,14 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ExecucioMassiva extends BaseTest {
 	String entorn = carregarPropietat("tramas.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
-	String titolEntorn = "mas_"+carregarPropietat("tramas.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
+	String titolEntorn = carregarPropietat("tramas.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomSubDefProc = carregarPropietat("defproc.deploy.definicio.subproces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
@@ -88,48 +90,7 @@ public class ExecucioMassiva extends BaseTest {
 		Thread.sleep(1000*10);
 		
 		// Programamos para dentro de 2 minutos
-		Calendar calendar2Min = Calendar.getInstance();
-		calendar2Min.add(Calendar.MINUTE, 2);
-		String[] tiempoFin = new SimpleDateFormat("HH:mm").format(calendar2Min.getTime()).split(":");
-		String[] tiempo = driver.findElement(By.xpath("//*[@class='ui_tpicker_time']")).getText().split(":");
-		
-		int hora = Integer.parseInt(tiempo[0]);
-		int minutos = Integer.parseInt(tiempo[1]);
-		
-		int horaFin = Integer.parseInt(tiempoFin[0]);
-		int minutosFin = Integer.parseInt(tiempoFin[1]);
-		
-		WebElement barraMinutes = null;
-		WebElement barraHours = null;
-		
-		int i = 1;
-		while (hora != horaFin) {
-			barraHours = driver.findElement(By.xpath("//*[@class='ui_tpicker_hour']//a"));
-			if (hora < horaFin) {
-				new Actions(driver).dragAndDropBy(barraHours, +i, barraHours.getLocation().y).click().perform();
-			} else {
-				new Actions(driver).dragAndDropBy(barraHours, -i, barraHours.getLocation().y).click().perform();				
-			}
-			if (hora == Integer.parseInt(driver.findElement(By.xpath("//*[@class='ui_tpicker_time']")).getText().split(":")[0])) {
-				i++;
-			}
-			hora = Integer.parseInt(driver.findElement(By.xpath("//*[@class='ui_tpicker_time']")).getText().split(":")[0]);
-		}
-		
-		while (minutos != minutosFin) {
-			barraMinutes = driver.findElement(By.xpath("//*[@class='ui_tpicker_minute']//a"));
-			if (minutos < minutosFin) {
-				new Actions(driver).dragAndDropBy(barraMinutes, +i, barraMinutes.getLocation().y).click().perform();
-			} else {
-				new Actions(driver).dragAndDropBy(barraMinutes, -i, barraMinutes.getLocation().y).click().perform();				
-			}
-			if (minutos == Integer.parseInt(driver.findElement(By.xpath("//*[@class='ui_tpicker_time']")).getText().split(":")[1])) {
-				i++;
-			}		
-			minutos = Integer.parseInt(driver.findElement(By.xpath("//*[@class='ui_tpicker_time']")).getText().split(":")[1]);
-		}
-
-		driver.findElement(By.xpath("//*[@id='ui-datepicker-div']/div[3]/button[2]")).click();
+		programarEjecucionMasiva(2);
 		
 		// Programamos el envío de correos
 		if (!driver.findElement(By.xpath("//*[@id='correu']")).isSelected()) {
@@ -162,7 +123,7 @@ public class ExecucioMassiva extends BaseTest {
 		// Eliminamos los expedientes
 		eliminarExpedient(null, null, nomTipusExp);
 	}
-	
+
 	@Test
 	public void d_canvi_versio_proces() throws InterruptedException {
 		carregarUrlConfiguracio();
@@ -319,13 +280,96 @@ public class ExecucioMassiva extends BaseTest {
 	}
 
 //	@Test
-	public void h_reindexar_expedients() throws InterruptedException {
-		
-	}
+//	public void h_reindexar_expedients() throws InterruptedException {
+//		carregarUrlConfiguracio();
+//		
+//		seleccionarEntorn(titolEntorn);
+//		
+//		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, accioPathDefProc);
+//		importarDadesTipExp(codTipusExp, exportTipExpProc);
+//		
+//		// Iniciamos n expedientes con la última versión
+//		List<String[]> expedientes = new ArrayList<String[]>();
+//		for (int i = 0; i < numExpedientesTramMasiva; i++) {
+//			expedientes.add(iniciarExpediente(codTipusExp,"SE-"+i+"/2014", "Expedient de prova Selenium " + (new Date()).getTime() ));
+//		}
+//		
+//		consultarExpedientes(null, null, nomTipusExp);
+//		
+//		driver.findElement(By.xpath("//*[@id='massivaInfoForm']/button[2]")).click();
+//		
+//		// Eliminamos los expedientes en Lucene		
+////		Jbpm3HeliumBridge.getInstanceService().getExpedientAmbEntornITipusINumero(Jbpm3HeliumBridge.getInstanceService().getEntornActual().getId(), null, null).getProcessInstanceId();
+////		Jbpm3HeliumBridge.getInstanceService().expedientDeleteLucene(Jbpm3HeliumBridge.getInstanceService().getExpedientAmbEntornITipusINumero(Jbpm3HeliumBridge.getInstanceService().getEntornActual().getId(), null, null).getProcessInstanceId());
+//		
+//		// Comprobamos que no aparezcan
+//		
+//		// Reindexamos
+//		
+//		acceptarAlerta();
+//		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
+//		
+//		esperaFinExecucioMassiva();
+//		
+//		// Comprobamos que aparezcan
+//	}
 
-//	@Test
+	@Test
 	public void i_consultar_estat_execucións_massives() throws InterruptedException {
+		carregarUrlConfiguracio();
 		
+		seleccionarEntorn(titolEntorn);
+		
+		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, accioPathDefProc);
+		importarDadesTipExp(codTipusExp, exportTipExpProc);
+		
+		// Iniciamos n expedientes con la última versión
+		List<String[]> expedientes = new ArrayList<String[]>();
+		for (int i = 0; i < numExpedientesTramMasiva; i++) {
+			expedientes.add(iniciarExpediente(codTipusExp,"SE-"+i+"/2014", "Expedient de prova Selenium " + (new Date()).getTime() ));
+		}
+		
+		consultarExpedientes(null, null, nomTipusExp);
+		
+		driver.findElement(By.xpath("//*[@id='massivaInfoForm']/button[2]")).click();
+		
+		// Programamos para dentro de 2 minutos
+		programarEjecucionMasiva(2);
+		
+		// Ejecutamos que ature los expedientes 
+		driver.findElement(By.xpath("//*[@id='motiu0']")).sendKeys("El motivo para finalizar correctamente");
+		
+		driver.findElement(By.xpath("//*[@id='aturarCommandMas']//button")).click();
+		acceptarAlerta();
+		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
+				
+		// Estado pendiente
+		Thread.sleep(1000*10);
+		for (String[] expediente : expedientes) {
+			assertTrue("El expediente '"+expediente+"' no estaba en estado 'pendiente'",estadoExpedientExecucioMassiva(expediente[1]) == 0);
+		}
+		actions.sendKeys(Keys.ESCAPE);
+		
+		Thread.sleep(1000*120);
+		// Estado finalizado
+		for (String[] expediente : expedientes) {
+			assertTrue("El expediente '"+expediente+"' no estaba en estado 'finalizado'",estadoExpedientExecucioMassiva(expediente[1]) == 1);
+		}
+		actions.sendKeys(Keys.ESCAPE);
+		
+		// Ejecutamos de nuevo que ature los expedientes para que de error
+		driver.findElement(By.xpath("//*[@id='motiu0']")).sendKeys("El motivo para que de error");
+		
+		driver.findElement(By.xpath("//*[@id='aturarCommandMas']//button")).click();
+		acceptarAlerta();
+		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
+				
+		// Estado error
+		Thread.sleep(1000*10);
+		for (String[] expediente : expedientes) {
+			assertTrue("El expediente '"+expediente+"' no estaba en estado 'error'",estadoExpedientExecucioMassiva(expediente[1]) == 2);
+		}
+		actions.sendKeys(Keys.ESCAPE);
 	}
 
 	@Test
@@ -342,5 +386,50 @@ public class ExecucioMassiva extends BaseTest {
 		eliminarEntorn(entorn);
 		
 		screenshotHelper.saveScreenshot("TasquesDadesTasca/finalizar_expedient/1.png");	
+	}
+	
+	private void programarEjecucionMasiva(int minut) {
+		Calendar calendarFin = Calendar.getInstance();
+		calendarFin.add(Calendar.MINUTE, minut);
+		String[] tiempoFin = new SimpleDateFormat("HH:mm").format(calendarFin.getTime()).split(":");
+		String[] tiempo = driver.findElement(By.xpath("//*[@class='ui_tpicker_time']")).getText().split(":");
+		
+		int hora = Integer.parseInt(tiempo[0]);
+		int minutos = Integer.parseInt(tiempo[1]);
+		
+		int horaFin = Integer.parseInt(tiempoFin[0]);
+		int minutosFin = Integer.parseInt(tiempoFin[1]);
+		
+		WebElement barraMinutes = null;
+		WebElement barraHours = null;
+		
+		int i = 1;
+		while (hora != horaFin) {
+			barraHours = driver.findElement(By.xpath("//*[@class='ui_tpicker_hour']//a"));
+			if (hora < horaFin) {
+				new Actions(driver).dragAndDropBy(barraHours, +i, barraHours.getLocation().y).click().perform();
+			} else {
+				new Actions(driver).dragAndDropBy(barraHours, -i, barraHours.getLocation().y).click().perform();				
+			}
+			if (hora == Integer.parseInt(driver.findElement(By.xpath("//*[@class='ui_tpicker_time']")).getText().split(":")[0])) {
+				i++;
+			}
+			hora = Integer.parseInt(driver.findElement(By.xpath("//*[@class='ui_tpicker_time']")).getText().split(":")[0]);
+		}
+		
+		while (minutos != minutosFin) {
+			barraMinutes = driver.findElement(By.xpath("//*[@class='ui_tpicker_minute']//a"));
+			if (minutos < minutosFin) {
+				new Actions(driver).dragAndDropBy(barraMinutes, +i, barraMinutes.getLocation().y).click().perform();
+			} else {
+				new Actions(driver).dragAndDropBy(barraMinutes, -i, barraMinutes.getLocation().y).click().perform();				
+			}
+			if (minutos == Integer.parseInt(driver.findElement(By.xpath("//*[@class='ui_tpicker_time']")).getText().split(":")[1])) {
+				i++;
+			}		
+			minutos = Integer.parseInt(driver.findElement(By.xpath("//*[@class='ui_tpicker_time']")).getText().split(":")[1]);
+		}
+
+		driver.findElement(By.xpath("//*[@id='ui-datepicker-div']/div[3]/button[2]")).click();
 	}
 }

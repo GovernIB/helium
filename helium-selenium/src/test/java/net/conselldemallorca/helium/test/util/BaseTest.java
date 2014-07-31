@@ -1508,6 +1508,7 @@ public abstract class BaseTest {
 		for (WebElement fila : driver.findElements(By.xpath("//span[contains(@class,'ui-icon-triangle-1-')]"))) {
 			if (fila.getAttribute("class").contains("ui-icon-triangle-1-e"))
 				fila.click();
+			noExisteixElementAssert("//tbody/tr[contains(td/text(),'"+expedient[1]+"')]//img[contains(@src,'/img/mass_error.png')]", "El expediente '"+expedient[1]+"' dio error");
 			return existeixElement("//tbody/tr[contains(td/text(),'"+expedient[1]+"')]//img[contains(@src,'/img/mass_fin.png')]");
 		}
 		
@@ -1520,18 +1521,29 @@ public abstract class BaseTest {
 		
 		int expedientes = driver.findElements(By.xpath("//*[@id='accordio_massiva']//tbody//tr")).size();
 		int terminados = driver.findElements(By.xpath("//*[@id='accordio_massiva']//tbody//img[contains(@src,'/img/mass_fin.png')]")).size();
+		noExisteixElementAssert("//*[@id='accordio_massiva']//tbody//img[contains(@src,'/img/mass_error.png')]", "Algún expediente dio error");
 		
 		return expedientes == terminados;
 	}
 	
-	protected String estadoExpedientExecucioMassiva(String expedient) throws InterruptedException {
-		String estado = null;
+	protected int estadoExpedientExecucioMassiva(String expedient) throws InterruptedException {
+		// -1 : No encontrado
+		//  0 : Pendiente
+		//  1 : Finalizado
+		//  2 : Error
+		int estado = -1;
 		driver.findElement(By.xpath("//*[@id='botoMassiu']")).click();
 		for (WebElement fila : driver.findElements(By.xpath("//span[contains(@class,'ui-icon-triangle-1-')]"))) {
 			if (fila.getAttribute("class").contains("ui-icon-triangle-1-e"))
 				fila.click();			
 			if (existeixElement("//tbody/tr[contains(td/text(),'"+expedient+"')]//label")) {
-				estado = driver.findElement(By.xpath("//tbody/tr[contains(td/text(),'"+expedient+"')]//label")).getText();
+				if (existeixElement("//tbody/tr[contains(td/text(),'"+expedient+"')]//img[contains(@src,'/img/mass_fin.png')]")) {
+					estado = 1;
+				} else if (existeixElement("//tbody/tr[contains(td/text(),'"+expedient+"')]//img[contains(@src,'/img/mass_error.png')]")) {
+					estado = 2;
+				} else if (existeixElement("//tbody/tr[contains(td/text(),'"+expedient+"')]//img[contains(@src,'/img/mass_pend.png')]")) {
+					estado = 0;
+				}
 				break;
 			}
 		}
