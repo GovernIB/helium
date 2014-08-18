@@ -138,7 +138,7 @@ public class Signature extends BaseTest {
 			if (existeixElement("//h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/signatura/verificar.html')]")) {
 				WebElement verificar = driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/signatura/verificar.html')]"));
 				verificar.click();
-				Thread.sleep(1000*15);
+				Thread.sleep(1000*20);
 				
 				String href = verificar.getAttribute("href");
 				firmado = modalOberta(href, "tramitar/tasca/firmarDocumento3.png");

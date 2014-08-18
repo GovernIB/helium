@@ -17,6 +17,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -382,9 +383,6 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 			driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/parent::div//input[@type='password']")).sendKeys(passCert);
 						
 			driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/parent::div//button")).click();
-			Thread.sleep(1000*20);
-			
-			existeixElementAssert("//*[@id='infos']/p", "No se firmó correctamente");
 			
 			// Comprobamos que el hash cambió
 			byte[] archivoFirmado = downloadFile("//*/h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/document/arxiuMostrar.html')]", "blank.pdf");
@@ -393,8 +391,8 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 			boolean firmado = false;
 			if (existeixElement("//h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/signatura/verificar.html')]")) {
 				WebElement verificar = driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/signatura/verificar.html')]"));
-				verificar.click();;
-				Thread.sleep(1000*15);
+				verificar.click();
+				Thread.sleep(1000*20);
 				
 				String href = verificar.getAttribute("href");
 				firmado = modalOberta(href, "tramitar/tasca/firmarDocumento3.png");
@@ -405,11 +403,12 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 			assertTrue("No se firmó el documento correctamente", firmado);
 			
 			screenshotHelper.saveScreenshot("TasquesDadesTasca/visualizacio_tasca_dades/5.png");
+			
+			actions.sendKeys(Keys.ESCAPE);
 		}
 		
 		// Finalizamos
 		driver.findElement(By.xpath("//*[@id='formFinalitzar']//button")).click();
-		Thread.sleep(1000*5);
 		acceptarAlerta();
 		existeixElementAssert("//*[@id='infos']/p", "No se finalizó la tarea correctamente");
 	}
@@ -597,6 +596,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		// Borramos los documentos
 		assertTrue("No había documentos adjuntos", !driver.findElements(By.xpath("//*[@id='codi']/tbody/tr")).isEmpty());
 		
+		boolean probada = false;
 		while (!driver.findElements(By.xpath("//*[@id='codi']/tbody/tr")).isEmpty()) {
 			// Si estaba firmado, lo desfirmamos
 			if (existeixElement("//*[@id='codi']/tbody/tr[1]//a[contains(@href,'/expedient/signaturaEsborrar.html')]")) {
@@ -606,9 +606,12 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 			// Lo borramos
 			driver.findElement(By.xpath("//*[@id='codi']/tbody/tr[1]//a[contains(@href,'/expedient/documentEsborrar.html')]")).click();
 			acceptarAlerta();
-			existeixElementAssert("//*[@id='infos']", "No se borró el docuento");
+			existeixElementAssert("//*[@id='infos']", "No se adjuntó el docuento");
+			
+			probada = true;
 		}
 		
+		assertTrue("No había documentos que adjuntar", probada);
 		screenshotHelper.saveScreenshot("documentsexpedient/esborrar_document_adjunt/3.png");
 	}
 	

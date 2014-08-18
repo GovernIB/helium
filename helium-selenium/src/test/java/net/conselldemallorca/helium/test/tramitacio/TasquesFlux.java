@@ -122,9 +122,9 @@ public class TasquesFlux extends BaseTest {
 						
 		// Comprobamos que al finalizar cambie el título de la tarea según el nombre que le introducimos en "exp_nom"
 		Calendar calendar = Calendar.getInstance();
-		calendar.add(Calendar.DATE, -3);
+		calendar.add(Calendar.DATE, -4);
 		String fechaTermini = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
-		calendar.add(Calendar.DATE, 24);
+		calendar.add(Calendar.DATE, 25);
 		String fechafinTermini = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
 		
 		if (driver.findElement(By.xpath("//*[@id='correcte0']")).isSelected()) {

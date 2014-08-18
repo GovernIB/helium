@@ -123,6 +123,11 @@ public class ServiceUtils {
 				isExpedientFinalitzat(expedient),
 				false);
 	}
+	public void expedientIndexLuceneDelete(String processInstanceId) {
+		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
+		luceneDao.deleteExpedient(expedient);
+	}
 	public List<Map<String, DadaIndexadaDto>> expedientIndexLucenGetDades(String processInstanceId) {
 		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());

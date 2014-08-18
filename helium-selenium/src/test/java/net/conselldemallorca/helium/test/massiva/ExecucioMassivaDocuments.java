@@ -202,8 +202,7 @@ public class ExecucioMassivaDocuments extends BaseTest {
 		driver.findElement(By.xpath("//input[@id='contingut0']")).sendKeys(pathArxiuPDF);
 		driver.findElement(By.xpath("//button[contains(@onclick,'adjunt')]")).click();
 				
-		esperaFinExecucioMassiva();
-		
+		esperaFinExecucioMassiva();		
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
 				
@@ -242,8 +241,7 @@ public class ExecucioMassivaDocuments extends BaseTest {
 		driver.findElement(By.xpath("//*[@id='documentCommandForm']//button[contains(@onclick,'delete')]")).click();
 		acceptarAlerta();
 				
-		esperaFinExecucioMassiva();
-		
+		esperaFinExecucioMassiva();		
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
 				
@@ -359,98 +357,98 @@ public class ExecucioMassivaDocuments extends BaseTest {
 		}
 	}
 
-//	@Test
-//	public void h_modificar_documents_adjuntar_document_nou() throws InterruptedException {
-//		carregarUrlConfiguracio();
-//		
-//		seleccionarEntorn(titolEntorn);
-//		
-//		consultarExpedientes(null, null, nomTipusExp);
-//		
-//		driver.findElement(By.xpath("//*[@id='massivaInfoForm']/button[2]")).click();
-//				
-//		// Visualizamos que se muestren todos los documentos		
-//		WebElement selectVar = driver.findElement(By.xpath("//*[@id='nom0']"));
-//		List<WebElement> optionsVar = selectVar.findElements(By.tagName("option"));
-//		optionsVar.get(1).click();
-//		String document = optionsVar.get(1).getText(); 
-//		
-//		existeixElementAssert("//*[@id='documentCommandForm']//button[contains(@onclick,'subdoc')]","No existía el botón de generar");
-//		assertTrue("El botón de 'Modificar' no estaba habilitado", driver.findElement(By.xpath("//*[@id='documentCommandForm']//button[contains(@onclick,'subdoc')]")).isEnabled());
-//		driver.findElement(By.xpath("//*[@id='documentCommandForm']//button[contains(@onclick,'subdoc')]")).click();
-//		acceptarAlerta();
-//		
-//		// Introducimos los datos para adjuntar el nuevo documento
-//		if (existeixElement("//*[@id='iconsFileInput_contingut0']//img[contains(@src,'img/cross.png')]")) {
-//			driver.findElement(By.xpath("//*[@id='iconsFileInput_contingut0']//img[contains(@src,'img/cross.png')]")).click();
-//		}
-//		
-//		driver.findElement(By.xpath("//input[@id='contingut0']")).sendKeys(pathArxiuPlantillaODT);
-//		driver.findElement(By.xpath("//button[contains(@onclick,'submit')]")).click();
-//				
-//		esperaFinExecucioMassiva();		
-//		
-//		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
-//				
-//		List<String> hash = new ArrayList<String>();
-//		// Comprobamos que se ha generado uno distinto para cada expediente
-//		for (int j = 1; j <= numExpedientesTramMasiva; j++) {
-//			consultarExpedientes(null, null, nomTipusExp);
-//			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr["+j+"]//a[contains(@href,'/expedient/info.html')]")).click();
-//			
-//			driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(text(), 'Documents')]")).click();
-//			existeixElementAssert("//*[@id='codi']/tbody/tr/td[contains(text(),'"+document+"')]","No se encontró el documento '"+document+"'");
-//			
-//			// Bajamos el documento
-//			byte[] archivo = downloadFile("//tr[contains(td/text(), '"+document+"')]//a[contains(@href,'/expedient/documentModificar.html')]", "blank.pdf");
-//			// Comprobamos que los hash de todos sean diferentes
-//			String md5 = getMd5(archivo);
-//			assertFalse("El documento '"+document+"' ya estaba en otro expediente",hash.contains(md5));
-//			hash.add(md5);
-//		}
-//	}
+	@Test
+	public void h_modificar_documents_adjuntar_document_nou() throws InterruptedException {
+		carregarUrlConfiguracio();
+		
+		seleccionarEntorn(titolEntorn);
+		
+		consultarExpedientes(null, null, nomTipusExp);
+		
+		driver.findElement(By.xpath("//*[@id='massivaInfoForm']/button[2]")).click();
+				
+		// Visualizamos que se muestren todos los documentos		
+		WebElement selectVar = driver.findElement(By.xpath("//*[@id='nom0']"));
+		List<WebElement> optionsVar = selectVar.findElements(By.tagName("option"));
+		optionsVar.get(1).click();
+		String document = optionsVar.get(1).getText(); 
+		
+		existeixElementAssert("//*[@id='documentCommandForm']//button[contains(@onclick,'subdoc')]","No existía el botón de generar");
+		assertTrue("El botón de 'Modificar' no estaba habilitado", driver.findElement(By.xpath("//*[@id='documentCommandForm']//button[contains(@onclick,'subdoc')]")).isEnabled());
+		driver.findElement(By.xpath("//*[@id='documentCommandForm']//button[contains(@onclick,'subdoc')]")).click();
+		acceptarAlerta();
+		
+		// Introducimos los datos para adjuntar el nuevo documento
+		if (existeixElement("//*[@id='iconsFileInput_contingut0']//img[contains(@src,'img/cross.png')]")) {
+			driver.findElement(By.xpath("//*[@id='iconsFileInput_contingut0']//img[contains(@src,'img/cross.png')]")).click();
+		}
+		
+		driver.findElement(By.xpath("//input[@id='contingut0']")).sendKeys(pathArxiuPlantillaODT);
+		driver.findElement(By.xpath("//button[contains(@onclick,'submit')]")).click();
+				
+		esperaFinExecucioMassiva();		
+		
+		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
+				
+		List<String> hash = new ArrayList<String>();
+		// Comprobamos que se ha generado uno distinto para cada expediente
+		for (int j = 1; j <= numExpedientesTramMasiva; j++) {
+			consultarExpedientes(null, null, nomTipusExp);
+			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr["+j+"]//a[contains(@href,'/expedient/info.html')]")).click();
+			
+			driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(text(), 'Documents')]")).click();
+			existeixElementAssert("//*[@id='codi']/tbody/tr/td[contains(text(),'"+document+"')]","No se encontró el documento '"+document+"'");
+			
+			// Bajamos el documento
+			byte[] archivo = downloadFile("//tr[contains(td/text(), '"+document+"')]//a[contains(@href,'/expedient/documentModificar.html')]", "blank.pdf");
+			// Comprobamos que los hash de todos sean diferentes
+			String md5 = getMd5(archivo);
+			assertFalse("El documento '"+document+"' ya estaba en otro expediente",hash.contains(md5));
+			hash.add(md5);
+		}
+	}
 
-//	@Test
-//	public void i_modificar_documents_esborrar_document() throws InterruptedException {
-//		carregarUrlConfiguracio();
-//		
-//		seleccionarEntorn(titolEntorn);
-//		
-//		consultarExpedientes(null, null, nomTipusExp);
-//		
-//		driver.findElement(By.xpath("//*[@id='massivaInfoForm']/button[2]")).click();
-//				
-//		// Visualizamos que se muestren todos los documentos		
-//		WebElement selectVar = driver.findElement(By.xpath("//*[@id='nom0']"));
-//		List<WebElement> optionsVar = selectVar.findElements(By.tagName("option"));
-//		optionsVar.get(1).click();
-//		String document = optionsVar.get(1).getText(); 
-//		
-//		existeixElementAssert("//*[@id='documentCommandForm']//button[contains(@onclick,'subdoc')]","No existía el botón de generar");
-//		assertTrue("El botón de 'Modificar' no estaba habilitado", driver.findElement(By.xpath("//*[@id='documentCommandForm']//button[contains(@onclick,'subdoc')]")).isEnabled());
-//		driver.findElement(By.xpath("//*[@id='documentCommandForm']//button[contains(@onclick,'subdoc')]")).click();
-//		acceptarAlerta();
-//		
-//		// Borramos el documento
-//		if (existeixElement("//*[@id='iconsFileInput_contingut0']//img[contains(@src,'img/cross.png')]")) {
-//			driver.findElement(By.xpath("//*[@id='iconsFileInput_contingut0']//img[contains(@src,'img/cross.png')]")).click();
-//		}
-//		
-//		driver.findElement(By.xpath("//button[contains(@onclick,'submit')]")).click();
-//				
-//		esperaFinExecucioMassiva();		
-//		
-//		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
-//				
-//		// Comprobamos que no exista el documento en cada expediente
-//		for (int j = 1; j <= numExpedientesTramMasiva; j++) {
-//			consultarExpedientes(null, null, nomTipusExp);
-//			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr["+j+"]//a[contains(@href,'/expedient/info.html')]")).click();
-//			
-//			driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(text(), 'Documents')]")).click();
-//			noExisteixElementAssert("//*[@id='codi']/tbody/tr/td[contains(text(),'"+document+"')]","Se encontró el documento '"+document+"'");
-//		}
-//	}
+	@Test
+	public void i_modificar_documents_esborrar_document() throws InterruptedException {
+		carregarUrlConfiguracio();
+		
+		seleccionarEntorn(titolEntorn);
+		
+		consultarExpedientes(null, null, nomTipusExp);
+		
+		driver.findElement(By.xpath("//*[@id='massivaInfoForm']/button[2]")).click();
+				
+		// Visualizamos que se muestren todos los documentos		
+		WebElement selectVar = driver.findElement(By.xpath("//*[@id='nom0']"));
+		List<WebElement> optionsVar = selectVar.findElements(By.tagName("option"));
+		optionsVar.get(1).click();
+		String document = optionsVar.get(1).getText(); 
+		
+		existeixElementAssert("//*[@id='documentCommandForm']//button[contains(@onclick,'subdoc')]","No existía el botón de generar");
+		assertTrue("El botón de 'Modificar' no estaba habilitado", driver.findElement(By.xpath("//*[@id='documentCommandForm']//button[contains(@onclick,'subdoc')]")).isEnabled());
+		driver.findElement(By.xpath("//*[@id='documentCommandForm']//button[contains(@onclick,'subdoc')]")).click();
+		acceptarAlerta();
+		
+		// Borramos el documento
+		if (existeixElement("//*[@id='iconsFileInput_contingut0']//img[contains(@src,'img/cross.png')]")) {
+			driver.findElement(By.xpath("//*[@id='iconsFileInput_contingut0']//img[contains(@src,'img/cross.png')]")).click();
+		}
+		
+		driver.findElement(By.xpath("//button[contains(@onclick,'submit')]")).click();
+				
+		esperaFinExecucioMassiva();		
+		
+		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
+				
+		// Comprobamos que no exista el documento en cada expediente
+		for (int j = 1; j <= numExpedientesTramMasiva; j++) {
+			consultarExpedientes(null, null, nomTipusExp);
+			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr["+j+"]//a[contains(@href,'/expedient/info.html')]")).click();
+			
+			driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(text(), 'Documents')]")).click();
+			noExisteixElementAssert("//*[@id='codi']/tbody/tr/td[contains(text(),'"+document+"')]","Se encontró el documento '"+document+"'");
+		}
+	}
 	
 	@Test
 	public void z_limpiar() throws InterruptedException {

@@ -5,13 +5,13 @@ import java.util.Calendar;
 import java.util.Date;
 
 import net.conselldemallorca.helium.test.util.BaseTest;
-import es.indra.www.portafirmasmcgdws.mcgdws.Attributes;
-import es.indra.www.portafirmasmcgdws.mcgdws.AttributesState;
-import es.indra.www.portafirmasmcgdws.mcgdws.CallbackRequest;
-import es.indra.www.portafirmasmcgdws.mcgdws.Document;
-//import es.indra.www.portafirmasmcgdws.mcgdws.MCGDWSSoapBindingStub;
-import es.indra.www.portafirmasmcgdws.mcgdws.MCGDwsService;
-import es.indra.www.portafirmasmcgdws.mcgdws.MCGDwsServiceLocator;
+import net.conselldemallorca.helium.wsintegraciones.indra.portafirmasmcgdws.mcgdws.Attributes;
+import net.conselldemallorca.helium.wsintegraciones.indra.portafirmasmcgdws.mcgdws.AttributesState;
+import net.conselldemallorca.helium.wsintegraciones.indra.portafirmasmcgdws.mcgdws.CallbackRequest;
+import net.conselldemallorca.helium.wsintegraciones.indra.portafirmasmcgdws.mcgdws.Document;
+import net.conselldemallorca.helium.wsintegraciones.indra.portafirmasmcgdws.mcgdws.MCGDWSSoapBindingStub;
+import net.conselldemallorca.helium.wsintegraciones.indra.portafirmasmcgdws.mcgdws.MCGDwsService;
+import net.conselldemallorca.helium.wsintegraciones.indra.portafirmasmcgdws.mcgdws.MCGDwsServiceLocator;
 
 public class PortasignaturesCallback extends BaseTest {
 	public static final AttributesState DOCUMENT_BLOQUEJAT = AttributesState.value1; /** circuito de firmas bloqueado */
@@ -23,7 +23,7 @@ public class PortasignaturesCallback extends BaseTest {
 		String urlEndPoint =  properties.getProperty("app.portasignatures.plugin.url.callback");
 		
 		CallbackRequest callbackRequest = new CallbackRequest();
-		es.indra.www.portafirmasmcgdws.mcgdws.Application app = new es.indra.www.portafirmasmcgdws.mcgdws.Application();
+		net.conselldemallorca.helium.wsintegraciones.indra.portafirmasmcgdws.mcgdws.Application app = new net.conselldemallorca.helium.wsintegraciones.indra.portafirmasmcgdws.mcgdws.Application();
 		Document document = new Document();
 		document.setId(id); // Posar aquí l'id del document
 		Attributes attributes = new Attributes();
@@ -38,9 +38,8 @@ public class PortasignaturesCallback extends BaseTest {
 		app.setDocument(document);
 		callbackRequest.setApplication(app);
 		MCGDwsService service = new MCGDwsServiceLocator();
-//		MCGDWSSoapBindingStub stub = (MCGDWSSoapBindingStub) service.getMCGDWS(new URL(urlEndPoint));
+		MCGDWSSoapBindingStub stub = (MCGDWSSoapBindingStub) service.getMCGDWS(new URL(urlEndPoint));
 
-//		return stub.callback(callbackRequest).get_return();
-		return 0L;
+		return stub.callback(callbackRequest).get_return();
 	}
 }

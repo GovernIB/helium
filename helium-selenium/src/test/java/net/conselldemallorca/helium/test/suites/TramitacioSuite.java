@@ -27,9 +27,9 @@ import org.junit.runners.Suite;
 	ModificarVersioProces.class,
 	NouExpedient.class,
 	RegistreExpedient.class,
-	TasquesDadesDocumentsTasca.class, 	// Fallan d_signatura (al leer el info verde -> retardarlo) y h_generar_document (no hay documentos para generar)
+	TasquesDadesDocumentsTasca.class,
 	TasquesExpedient.class,
-	TasquesFlux.class, 					// b_comprobar_flux_tasca -> No aparece la alerta del termini alertas, hay q hacer q aparezca 1 día antes
+	TasquesFlux.class,
 	TasquesSubprocessExpedient.class,
 	TerminisExpedient.class
 })

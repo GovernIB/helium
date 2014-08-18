@@ -1199,6 +1199,9 @@ public class ExpedientService {
 	public void luceneReindexarExpedient(String processInstanceId) {
 		getServiceUtils().expedientIndexLuceneRecrear(processInstanceId);
 	}
+	public void luceneDeleteExpedient(String processInstanceId) {
+		getServiceUtils().expedientIndexLuceneDelete(processInstanceId);
+	}
 
 	@Secured({"ROLE_ADMIN"})
 	public void luceneReindexarEntorn(Long entornId) {
