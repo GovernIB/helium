@@ -249,15 +249,26 @@ public interface ExpedientService {
 
 	public List<ExpedientDto> getExpedientsRelacionats(Long expedientId);
 
-	public List<Long> findIdsPerConsultaGeneral(Long entornId, Long expedientTipusId,
-			String titol, String numero, Date dataInici1, Date dataInici2,
-			Date dataFi1, Date dataFi2, EstatTipusDto estatTipus, Long estatId,
-			Double geoPosX, Double geoPosY, String geoReferencia,
-			boolean nomesAmbTasquesActives, boolean nomesAlertes,
-			boolean mostrarAnulats) throws EntornNotFoundException,
-			ExpedientTipusNotFoundException, EstatNotFoundException;
+	public List<Long> findIdsPerConsultaGeneral(
+			Long entornId,
+			Long expedientTipusId,
+			String titol,
+			String numero,
+			Date dataInici1,
+			Date dataInici2,
+			Date dataFi1,
+			Date dataFi2,
+			EstatTipusDto estatTipus,
+			Long estatId,
+			Double geoPosX,
+			Double geoPosY,
+			String geoReferencia,
+			boolean nomesAmbTasquesActives,
+			boolean nomesAlertes,
+			boolean mostrarAnulats) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException;
 
 	public List<Long> findIdsPerConsultaInformePaginat(Long id, Long consultaId, Long expedientTipusId, Map<String, Object> valorsPerService, String expedientCampId, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats);
 
 	public void changeProcessInstanceVersion(String id, int versio);
+
 }
