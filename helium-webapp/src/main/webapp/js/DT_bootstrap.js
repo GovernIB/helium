@@ -1,6 +1,6 @@
 /* Set the defaults for DataTables initialisation */
 $.extend( true, $.fn.dataTable.defaults, {
-	"sDom": "<'row-fluid'<'span6'i><'span6'l>r>t<'row-fluid'<'span6'><'span6'p>>",
+	"sDom": "<'row'<'col-md-6'i><'col-md-6'<'#dataTables_new'>>r>t<'row'<'col-md-6'l><'col-md-6'p>>",
 	"sPaginationType": "bootstrap",
 	"oLanguage": {
 		"sLengthMenu": "_MENU_ records per page"
@@ -40,9 +40,8 @@ $.extend( $.fn.dataTableExt.oPagination, {
 					fnDraw( oSettings );
 				}
 			};
-
-			$(nPaging).addClass('pagination').append(
-				'<ul>'+
+			$(nPaging).append(
+				'<ul class="pagination pagination-datatable">'+
 					'<li class="prev disabled"><a href="#">&larr; '+oLang.sPrevious+'</a></li>'+
 					'<li class="next disabled"><a href="#">'+oLang.sNext+' &rarr; </a></li>'+
 				'</ul>'
@@ -102,6 +101,18 @@ $.extend( $.fn.dataTableExt.oPagination, {
 					$('li:last', an[i]).removeClass('disabled');
 				}
 			}
+			$("tr *", oSettings.nTHead).each(function() {
+				$("span.icon-stack", this).remove();
+				if ($(this).hasClass("sorting")) {
+					$(this).append('<span class="icon-stack pull-right"><span class="icon-sort-up icon-muted"></span><span class="icon-sort-down icon-muted"></span></span>');
+				} else if ($(this).hasClass("sorting_asc")) {
+					$(this).append('<span class="icon-stack pull-right"><span class="icon-sort-up"></span><span class="icon-sort-down icon-muted"></span></span>');
+				} else if ($(this).hasClass("sorting_desc")) {
+					$(this).append('<span class="icon-stack pull-right"><span class="icon-sort-up icon-muted"></span><span class="icon-sort-down"></span></span>');
+				}
+					
+			});
+
 		}
 	}
 } );
@@ -116,7 +127,7 @@ if ( $.fn.DataTable.TableTools ) {
 	$.extend( true, $.fn.DataTable.TableTools.classes, {
 		"container": "DTTT btn-group",
 		"buttons": {
-			"normal": "btn",
+			"normal": "btn btn-default",
 			"disabled": "disabled"
 		},
 		"collection": {
@@ -143,15 +154,3 @@ if ( $.fn.DataTable.TableTools ) {
 		}
 	} );
 }
-
-
-/* Table initialisation */
-$(document).ready(function() {
-	$('#example').dataTable( {
-		"sDom": "<'row'<'span6'l><'span6'f>r>t<'row'<'span6'i><'span6'p>>",
-		"sPaginationType": "bootstrap",
-		"oLanguage": {
-			"sLengthMenu": "_MENU_ records per page"
-		}
-	} );
-} );

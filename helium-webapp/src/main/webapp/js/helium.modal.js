@@ -1,4 +1,4 @@
-(function($) {	
+(function($) {
 	$.fn.heliumModal = function(options) {
 		return this.filter("div").each(function() {
 			var settings = $.extend({
@@ -7,29 +7,48 @@
 				refrescarPagina: false,
 				adjustWidth: false,
 				adjustHeight: true,
-				maximize: false,
-				valignTop: false,
 				buttonContainerId: "modal-botons",
 				buttonCloseClass: "modal-tancar"
 			}, options);
-			var iframeHeight = (settings.maximize) ? '100%' : '100';
+			var ajaxErrorFunction = function (jqXHR, exception) {
+				if (jqXHR.status === 0) {
+	                alert('Not connected.\n Verify Network.');
+	            } else if (jqXHR.status == 404) {
+	                alert('Requested page not found. [404]');
+	            } else if (jqXHR.status == 500) {
+	                alert('Internal Server Error [500].');
+	            } else if (exception === 'parsererror') {
+	                alert('Requested JSON parse failed.');
+	            } else if (exception === 'timeout') {
+	                alert('Time out error.');
+	            } else if (exception === 'abort') {
+	                alert('Ajax request aborted.');
+	            } else {
+	                alert('Uncaught Error.\n' + jqXHR.responseText);
+	            }
+			};
 			$(this).html(
-					'<div class="modal modal-max fade" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">' +
-					'	<div class="modal-header">' +
-					'		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' +
-					'		<h4 class="modal-title"></h4>' +
-					'	</div>' +
-					'	<div class="modal-body">' +
-					'		<iframe frameborder="0" height="' + iframeHeight + '" width="99.6%"></iframe>' +
-					'	</div>' +
-					'	<div class="modal-footer">' +
-//					'		<button id="modal-button-tancar" class="btn pull-left" data-dismiss="modal" aria-hidden="true">Tancar</button>' +
+					'<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">' +
+					'	<div class="modal-dialog modal-lg">' +
+					'		<div class="modal-content">' +
+					'			<div class="modal-header">' +
+					'				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' +
+					'				<h4 class="modal-title"></h4>' +
+					'			</div>' +
+					'			<div class="modal-body">' +
+					'				<iframe frameborder="0" height="100" width="99.6%"></iframe>' +
+					'			</div>' +
+					'			<div class="modal-footer">' +
+					'			</div>' +
+					'		</div>' +
 					'	</div>' +
 					'</div>');
 			var modalUrl = settings.modalUrl;
+			if (modalUrl.indexOf("../") != -1)
+				modalUrl = modalUrl.substr(0, modalUrl.lastIndexOf("../") + "../".length) + "modal/" + modalUrl.substr(modalUrl.lastIndexOf("../") + "../".length);
+			else
+				modalUrl = "modal/" + modalUrl;
 			var modalobj = $('div.modal', this);
-			if (settings.maximize)
-				modalobj.css('top', '1%');
 			modalobj.on('show.bs.modal', function () {
 				$('iframe', modalobj).empty();
 				$('iframe', modalobj).attr(
@@ -38,9 +57,6 @@
 				$('iframe', modalobj).load(function() {
 					// Copiar el titol de la modal
 					var titol = $(this).contents().find("title").html();
-					var prefix = 'Helium v3: ';
-					if (titol.indexOf(prefix) != -1)
-						titol = titol.substr(titol.indexOf(prefix) + prefix.length);
 					$('.modal-header h4', $(this).parent().parent()).html(titol);
 					// Copiar botons
 					$('.modal-footer *', $(this).parent().parent()).remove();
@@ -50,6 +66,7 @@
 						var clon = element.clone();
 						if (clon.hasClass(settings.buttonCloseClass)) {
 							clon.on('click', function () {
+								$(iframe).parent().parent().parent().parent().data('modal-cancel', 'true');
 								$(iframe).parent().parent().parent().parent().modal('hide');
 								return false;
 							});
@@ -66,66 +83,150 @@
 					if (settings.adjustHeight) {
 						var height = $(this).contents().find("html").height();
 						$(this).height(height + 'px');
-						$(this).parent().height(height + 'px');
 					}
 					if (settings.adjustWidth) {
 						var width = $(this).contents().find("html").width();
-						var modalobj = $(this).parent().parent();
+						var modalobj = $(this).parent().parent().parent();
 						modalobj.css('width', width + 'px');
-					}
-					if (settings.maximize) {
-						var elementHeight = this.contentWindow.document.body.offsetHeight;
-						this.style.height = elementHeight + 'px';
-						var taraModal = $('.modal-header', $(this).parent().parent()).height() + $('.modal-footer', $(this).parent().parent()).height();
-						var maxBodyHeight = $(document).height() - taraModal - 100;
-						if (elementHeight > maxBodyHeight) {
-							$('.modal-body', $(this).parent().parent()).css('max-height', maxBodyHeight + 'px');
-						} else {
-							var afegir = 15 + 15;
-							$('.modal-body', $(this).parent().parent()).css('max-height', elementHeight + afegir + 'px');
-						}
 					}
 				});
 			});
 			modalobj.on('hide.bs.modal', function () {
-				if (settings.modalCloseFunction) {
-					settings.modalCloseFunction();
-				} else {
-					if (settings.refrescarTaula && settings.dataTable) {
-						var taula = settings.dataTable;
-						if (!(taula === null)) {
-							var refrescat = false;
-							$('.dataTables_paginate li', taula.parent()).each(function() {
-								if ($(this).hasClass('active')) {
-									$('a', this).click();
-									refrescat = true;
-								}
-							});
-							if (!refrescat)
-								taula.dataTable().fnDraw();
-						}
-					}
-					if (settings.refrescarPagina) {
-						window.parent.location.reload();
-					}
-					if (settings.refrescarAlertes && settings.alertesRefreshUrl) {
-						$.ajax({
-							url: settings.alertesRefreshUrl,
-							async: false,
-							timeout: 20000,
-							success: function (data) {
-								$('.contingut-alertes *').remove();
-								$('.contingut-alertes').append(data);
+				if (!$(this).data('modal-cancel')) {
+					$(this).removeData('modal-cancel');
+					if (settings.modalCloseFunction) {
+						settings.modalCloseFunction();
+					} else {
+						if (settings.refrescarTaula && settings.dataTable) {
+							var taula = settings.dataTable;
+							if (!(taula === null)) {
+								var refrescat = false;
+								$('.dataTables_paginate li', taula.parent()).each(function() {
+									if ($(this).hasClass('active')) {
+										$('a', this).click();
+										refrescat = true;
+									}
+								});
+								if (!refrescat)
+									taula.dataTable().fnDraw();
 							}
-					    });
+						}
+						if (settings.refrescarPagina) {
+							window.parent.location.reload();
+						}
+						if (settings.refrescarAlertes && settings.alertesRefreshUrl) {
+							$.ajax({
+								url: settings.alertesRefreshUrl,
+								async: false,
+								timeout: 20000,
+								success: function (data) {
+									$('#contingut-alertes *').remove();
+									$('#contingut-alertes').append(data);
+								},
+								error: ajaxErrorFunction
+						    });
+						}
 					}
 				}
 			});
 			modalobj.modal({show:true});
 		});
 	};
+	$.fn.heliumEvalLink = function(options) {
+		return this.filter("a").each(function() {
+			var settings = $.extend({
+				refrescarAlertes: true,
+				refrescarPagina: false,
+				adjustWidth: false,
+				adjustHeight: true,
+				buttonContainerId: "modal-botons",
+				buttonCloseClass: "modal-tancar"
+			}, options);
+			$(this).on('click', function() {
+				var ajaxErrorFunction = function (jqXHR, exception) {
+					if (jqXHR.status === 0) {
+		                alert('Not connected.\n Verify Network.');
+		            } else if (jqXHR.status == 404) {
+		                alert('Requested page not found. [404]');
+		            } else if (jqXHR.status == 500) {
+		                alert('Internal Server Error [500].');
+		            } else if (exception === 'parsererror') {
+		                alert('Requested JSON parse failed.');
+		            } else if (exception === 'timeout') {
+		                alert('Time out error.');
+		            } else if (exception === 'abort') {
+		                alert('Ajax request aborted.');
+		            } else {
+		                alert('Uncaught Error.\n' + jqXHR.responseText);
+		            }
+				};
+				var confirmat = true;
+				if ($(this).data('rdt-link-confirm'))
+					confirmat = confirm($(this).data('rdt-link-confirm'));
+				var ajax = ($(this).data("rdt-link-ajax") != undefined) ? $(this).data("rdt-link-ajax") === true : false;
+				var modal = ($(this).data("rdt-link-modal") != undefined) ? $(this).data("rdt-link-modal") === true : false;
+				var refrescarPaginaFunction = function() {
+					//alert('REF. PAGINA');
+					window.parent.location.reload();
+				};
+				var refrescarAlertesFunction = function() {
+					//alert('REF. ALERTES');
+					$.ajax({
+						url: settings.alertesRefreshUrl,
+						async: false,
+						timeout: 20000,
+						success: function (data) {
+							$('#contingut-alertes *').remove();
+							$('#contingut-alertes').append(data);
+						},
+						error: ajaxErrorFunction
+				    });
+				};
+				if (confirmat) {
+					if (ajax) {
+						var ajaxUrl = $(this).attr("href");
+						if (ajaxUrl.indexOf("../") != -1)
+							ajaxUrl = ajaxUrl.substr(0, ajaxUrl.lastIndexOf("../") + "../".length) + "ajax/" + ajaxUrl.substr(ajaxUrl.lastIndexOf("../") + "../".length);
+						else
+							ajaxUrl = "ajax/" + ajaxUrl;
+						$.ajax({
+							type: "GET",
+							url: ajaxUrl,
+							async: false,
+							timeout: 20000,
+							success: function() {
+								if (settings.ajaxRefrescarPagina)
+									refrescarPaginaFunction();
+								if (settings.ajaxRefrescarAlertes && settings.alertesRefreshUrl)
+									refrescarAlertesFunction();
+							},
+							error: ajaxErrorFunction
+					    });
+						return false;
+					} else if (modal) {
+						var modalCloseFunction = function() {
+							if (settings.refrescarPagina)
+								refrescarPaginaFunction();
+							if (settings.refrescarAlertes && settings.alertesRefreshUrl)
+								refrescarAlertesFunction();
+						};
+						var modalDivId = $(this).attr('id') + "_modal";
+						if ($('#' + modalDivId).length == 0)
+							$('body').append('<div id="' + modalDivId + '"></div>');
+						$('#' + modalDivId).heliumModal({
+							modalUrl: $(this).attr("href"),
+							modalCloseFunction: modalCloseFunction,
+							refrescarPagina: settings.refrescarPagina,
+							refrescarAlertes: settings.refrescarAlertes
+						});
+						return false;
+					} else {
+						return true;
+					}
+				} else {
+					return false;
+				}
+			});
+		});
+	};
 }(jQuery));
-
-function modalTancarIRefrescar(iframe) {
-	$(iframe).parent().parent().modal('hide');
-}

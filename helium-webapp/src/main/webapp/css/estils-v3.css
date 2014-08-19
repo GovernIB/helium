@@ -1,0 +1,68 @@
+.navbar-app {
+	background-color: #ff9523;
+	height: 100px;
+	color: white;
+}
+.navbar-app .container {
+	padding-right: 0;
+	padding-left: 0;
+}
+.navbar-app .list-inline li {
+	border-right: 1px solid white;
+}
+.navbar-app .list-inline li:last-child {
+	border: none;
+}
+.navbar-app .list-inline li.dropdown>a {
+	color: white;
+	text-decoration: none;
+	background-color: #ff9523;
+}
+.navbar-app .navbar-nav {
+	padding-top: 16px;
+}
+
+#govern-logo {
+	border-right: 1px solid #FFFFFF;
+	display: block;
+	margin-top: 11px;
+	padding: 5px 24px 12px 0;
+}
+#app-logo {
+	display: block;
+	padding: 0 0 0 12px;
+}
+
+.container-main, .container-foot {
+	padding-right: 0;
+	padding-left: 0;
+}
+.container-main .panel-heading h2 {
+	margin-top: 10px;
+	margin-bottom: 0px;
+}
+
+.caret-white {
+	border-top-color: white !important;
+}
+
+.pagination-datatable {
+	margin-top: 4px !important;
+}
+
+#contingut-alertes .alert {
+	padding: 10px 15px !important;
+}
+#contingut-alertes button.close-alertes {
+    background: none repeat scroll 0 0 transparent;
+    border: 0 none;
+    cursor: pointer;
+    padding: 0;
+}
+#contingut-alertes .close-alertes {
+    color: #000000;
+    float: right;
+    font-weight: bold;
+    opacity: 0.2;
+    text-shadow: 0 1px 0 #FFFFFF;
+}

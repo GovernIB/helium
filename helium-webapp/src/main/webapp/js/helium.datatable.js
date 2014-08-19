@@ -2,7 +2,6 @@
 	$.fn.heliumDataTable = function(options) {
 		return this.filter("table").each(function() {
 			var settings = $.extend({
-				paginacio: true,
 				backgroundColor: "white",
 				infoOcultar: false,
 				ajaxRefrescarTaula: true,
@@ -13,12 +12,12 @@
 				modalRefrescarPagina: false
 			}, options);
 			var taula = $(this);
-			var aoColumns = new Array();
-			var aaSorting = new Array();
-			var aProps = new Array();
+			var aoColumns = [];
+			var aaSorting = [];
+			var aProps = [];
 			$('thead th', this).each(function() {
-				var sortable = ($(this).data("rdt-sortable") != undefined) ? $(this).data("rdt-sortable") === true : true;
-				var visible = ($(this).data("rdt-visible") != undefined) ? $(this).data("rdt-visible") === true: true;
+				var sortable = ($(this).data("rdt-sortable") !== undefined) ? $(this).data("rdt-sortable") === true : true;
+				var visible = ($(this).data("rdt-visible") !== undefined) ? $(this).data("rdt-visible") === true: true;
 				aoColumns.push({"bSortable": sortable, "bVisible": visible});
 				if ($(this).data("rdt-sorting"))
 					aaSorting.push([aoColumns.length - 1, $(this).data("rdt-sorting")]);
@@ -34,25 +33,43 @@
 				seleccioColumna = $(this).data("rdt-seleccionable-columna");
 			if (seleccioActiva && settings.ajaxSourceUrl) {
 				seleccioUrl = settings.ajaxSourceUrl;
-				seleccioUrl = seleccioUrl.substring(0, seleccioUrl.lastIndexOf("/")) + "/seleccio";
+				seleccioUrl = seleccioUrl.substring(0, seleccioUrl.lastIndexOf("/")) + "/selection";
 			}
-			var ajaxErrorFunction = function (xhr, textStatus, errorThrown) {
-				var messageAjaxError = !(settings.messageAjaxError === null) ? settings.messageAjaxError : "Error AJAX: ";
-				var messageAjaxTimeout = !(settings.messageAjaxTimeout === null) ? settings.messageAjaxTimeout : "Timeout AJAX: ";
-				console.log(messageAjaxError + xhr.responseText);
-				if (textStatus == 'timeout')
-					alert(messageAjaxTimeout);
-				else
-					alert(messageAjaxError + errorThrown);
+			var ordenacioActiva = $(this).data("rdt-ordenable");
+			var ordenacioUrl;
+			if (ordenacioActiva && settings.ajaxSourceUrl) {
+				ordenacioUrl = settings.ajaxSourceUrl;
+				ordenacioUrl = ordenacioUrl.substring(0, ordenacioUrl.lastIndexOf("/")) + "/move";
+			}
+			var paginacioActiva = true;
+			if ($(this).attr("data-rdt-paginable")) {
+				paginacioActiva = ($(this).data("rdt-paginable") == 'true');
+			}
+			var ajaxErrorFunction = function (jqXHR, exception) {
+				if (jqXHR.status === 0) {
+					alert('Not connected.\n Verify Network.');
+				} else if (jqXHR.status == 404) {
+					alert('Requested page not found. [404]');
+				} else if (jqXHR.status == 500) {
+					alert('Internal Server Error [500].');
+				} else if (exception === 'parsererror') {
+					alert('Requested JSON parse failed.');
+				} else if (exception === 'timeout') {
+					alert('Time out error.');
+				} else if (exception === 'abort') {
+					alert('Ajax request aborted.');
+				} else {
+					alert('Uncaught Error.\n' + jqXHR.responseText);
+				}
 			};
 			var dataTableLinkClick = function() {
 				var confirmat = true;
 				if ($(this).data('rdt-link-confirm'))
 					confirmat = confirm($(this).data('rdt-link-confirm'));
-				var ajax = ($(this).data("rdt-link-ajax") != undefined) ? $(this).data("rdt-link-ajax") === true : false;
-				var modal = ($(this).data("rdt-link-modal") != undefined) ? $(this).data("rdt-link-modal") === true : false;
+				var ajax = ($(this).data("rdt-link-ajax") !== undefined) ? $(this).data("rdt-link-ajax") === true : false;
+				var modal = ($(this).data("rdt-link-modal") !== undefined) ? $(this).data("rdt-link-modal") === true : false;
 				var refrescarTaulaFunction = function() {
-					if (!(taula === null)) {
+					if (taula !== null) {
 						var refrescat = false;
 						$('.dataTables_paginate li', taula.parent()).each(function() {
 							if ($(this).hasClass('active')) {
@@ -77,7 +94,7 @@
 							$('#contingut-alertes').append(data);
 						},
 						error: ajaxErrorFunction
-				    });
+					});
 				};
 				if (confirmat) {
 					if (ajax) {
@@ -100,7 +117,7 @@
 									refrescarAlertesFunction();
 							},
 							error: ajaxErrorFunction
-					    });
+						});
 						return false;
 					} else if (modal) {
 						var modalCloseFunction = function() {
@@ -112,7 +129,7 @@
 								refrescarAlertesFunction();
 						};
 						var modalDivId = taula.attr('id') + "_modal";
-						if ($('#' + modalDivId).length == 0)
+						if ($('#' + modalDivId).length === 0)
 							taula.parent().append('<div id="' + modalDivId + '"></div>');
 						$('#' + modalDivId).heliumModal({
 							modalUrl: $(this).attr("href"),
@@ -128,7 +145,24 @@
 			};
 			if ($(this).data("rdt-filtre-form-id")) {
 				var filtreFormId = $(this).data("rdt-filtre-form-id");
+				$('button[type=submit][name=accio]').click(function() {
+					if ($('input[name=accio]', $(this).parent()).length === 0) {
+						$(this).after('<input type="hidden" name="accio" value="' + $(this).val() + '"/>');
+					} else {
+						$('input[name=accio]', $(this).parent()).val($(this).val());
+					}
+					return true;
+				});
 				$('#' + filtreFormId).on('submit', function() {
+					var accio = $('input[name=accio]', $('#' + filtreFormId)).val();
+					if (accio == 'netejar') {
+						$(':input', '#' + filtreFormId)
+						.not(':button, :submit, :reset, :hidden')
+						.val('')
+						.removeAttr('checked')
+						.removeAttr('selected');
+						$(':input.select2-offscreen', '#' + filtreFormId).select2("val", "", true);
+					}
 					$.ajax({
 						type: "POST",
 						url: $('#' + filtreFormId).attr('action'),
@@ -140,19 +174,19 @@
 				});
 			}
 			var dataTableParams = {
-				"iDisplayLength": ($(this).data("rdt-display-length-default") != undefined) ? $(this).data("rdt-display-length-default") : 10,
+				"iDisplayLength": 10,
 				"aLengthMenu": [[10, 50, 100], [10, 50, 100]],
 				"aaSorting": aaSorting,
 				"aoColumns": aoColumns,
 				"bAutoWidth": false,
-				"bProcessing": !(settings.ajaxSourceUrl === null),
-				"bServerSide": !(settings.ajaxSourceUrl === null),
-				"bPaginate": settings.paginacio,
+				"bProcessing": settings.ajaxSourceUrl !== null,
+				"bServerSide": settings.ajaxSourceUrl !== null,
+				"bPaginate": paginacioActiva,
 				"oLanguage": {"sUrl": settings.localeUrl},
-				"fnDrawCallback": function (oSettings) {
+				"fnDrawCallback": function(oSettings) {
 					$('.datatable-dades-carregant', this).hide();
 					$('.dataTables_info', this.parent()).removeClass('hidden');
-					if (oSettings.aoData.length == 0)
+					if (oSettings.aoData.length === 0)
 						$('.dataTables_info', this.parent()).addClass('hidden');
 					if (settings.infoOcultar)
 						$('.dataTables_info', this.parent()).addClass('hidden');
@@ -160,7 +194,7 @@
 					if (seleccioActiva) {
 						$("th:eq(" + seleccioColumna + ")", taula).html('<input type="checkbox"/>');
 						var canviSeleccio = function(ids) {
-							var seleccio;
+							var seleccio = [];
 							$.ajax({
 								dataType: "json",
 								type: "POST",
@@ -169,11 +203,10 @@
 								async: false,
 								success: function(data) {
 									$("td input.rdt-seleccio[type=checkbox]", taula).each(function(index) {
-										var checked = false;
-										$(this).removeAttr('checked');
+										this.checked = false;
 										for (var i = 0; i < data.length; i++) {
 											if (data[i] == $(this).val()) {
-												$(this).attr('checked', 'checked');
+												this.checked = true;
 												break;
 											}
 										}
@@ -181,24 +214,22 @@
 									});
 								},
 								timeout: 20000,
-								error: function (xhr, textStatus, errorThrown) {
-									alert('Error al canviar la selecció');
-								}
-						    });
+								error: ajaxErrorFunction
+							});
 							if ($("td input.rdt-seleccio[type=checkbox]", taula).length > 0) {
 								var checkedAll = true;
 								$("td input.rdt-seleccio[type=checkbox]", taula).each(function() {
-									if (!$(this).attr('checked'))
+									if (!this.checked)
 										checkedAll = false;
 								});
 								if (checkedAll)
-									$("th:eq(" + seleccioColumna + ") input[type=checkbox]", taula).attr('checked', 'checked');
+									$("th:eq(" + seleccioColumna + ") input[type=checkbox]", taula)[0].checked = true;
 							}
 							return seleccio;
-						}
+						};
 						$("th:eq(" + seleccioColumna + ") input[type=checkbox]", taula).on('click', function() {
 							var ids = "";
-							var checked = $(this).attr('checked');
+							var checked = this.checked;
 							var numChecks = $("td input.rdt-seleccio[type=checkbox]", taula).length;
 							$("td input.rdt-seleccio[type=checkbox]", taula).each(function(index) {
 								if (!checked)
@@ -212,11 +243,10 @@
 								settings.seleccioCallback(seleccionat);
 						});
 						$("td input.rdt-seleccio[type=checkbox]", taula).on('click', function() {
-							var ids = ($(this).attr('checked')) ? $(this).val() : "-" + $(this).val();
+							var ids = (this.checked) ? $(this).val() : "-" + $(this).val();
 							var seleccionat = canviSeleccio(ids);
-							var checked = $(this).attr('checked');
-							if (!checked)
-								$("th:eq(" + seleccioColumna + ") input[type=checkbox]", taula).removeAttr('checked');
+							if (!this.checked)
+								$("th:eq(" + seleccioColumna + ") input[type=checkbox]", taula)[0].checked = false;
 							if (settings.seleccioCallback)
 								settings.seleccioCallback(seleccionat);
 						});
@@ -224,108 +254,118 @@
 						if (settings.seleccioCallback)
 							settings.seleccioCallback(seleccionat);
 					}
+					if (ordenacioActiva) {
+						$("tbody", taula).sortable({
+							cursor: 'move',
+							update: function(e, ui) {
+								var metaDadaId = ui.item.data('id');
+								var newIndex = ui.item.index();
+								var sortUrl = ordenacioUrl + "/" + metaDadaId + "/" + newIndex;
+								$.ajax({
+									url: sortUrl,
+									async: false,
+									timeout: 20000,
+									success: function (data) {
+										taula.dataTable().fnDraw();
+									},
+									error: ajaxErrorFunction
+								});
+							},
+							helper: function(e, ui) {
+								ui.children().each(function() {
+									$(this).width($(this).width());
+								});
+								return ui;
+							}
+						});
+					}
 					if (settings.drawCallback)
 						settings.drawCallback(oSettings);
 				},
-				"fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+				"fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
 					$('th', this).each(function() {
 						var index = $(this).index();
+						var propName = $(this).data('rdt-property');
+						var propIndex = aProps.indexOf(propName);
+						if (propIndex === 0 && propName == 'id') {
+							$(nRow).data('id', aData[propIndex]);
+						}
 						$('[data-rdt-content]', this).each(function() {
 							$("td:eq(" + index + ")", nRow).html(this.innerHTML);
 						});
 					});
 					$('th[data-rdt-template]', this).each(function() {
 						var index = $(this).index();
-						var dataObj = new Array();
+						var dataObj = [];
 						for (var i = 0; i < aData.length; i++) {
-							//var propName = "prop" + i;
 							var propName = aProps[i];
-							dataObj[propName] = aData[i];
+							dataObj[propName.replace(".", "_")] = aData[i];
 						}
 						var templateData = new Array(dataObj);
 						$("td:eq(" + index + ")", nRow).html(
 								$("#" + $(this).data('rdt-template')).render(
-										templateData, {
-											alert: function(text) {
-												alert(text);
-											},
-											eval: function(expression) {
-												return eval(expression);
-											}
-										}));
+									templateData, {
+										alert: function(text) {
+											alert(text);
+										},
+										eval: function(expression) {
+											return eval(expression);
+										}
+									}));
 					});
 					$('th[data-rdt-type]', this).each(function() {
 						var index = $(this).index();
 						var propIndex = aProps.indexOf($(this).data('rdt-property'));
 						var property = aData[propIndex];
-						if (property != null) {
-							var type = $(this).data('rdt-type');
-							if (type.indexOf('date') == 0 || type.indexOf('time') != -1) {
-								var data = new Date(property);
-								var horaAmbFormat = "";
-							    if (type.indexOf('time') != -1) {
-							    	var hores = ("00" + data.getHours()).slice(-2);
-							    	var minuts = ("00" + data.getMinutes()).slice(-2);
-							    	var segons = ("00" + data.getSeconds()).slice(-2);
-							    	horaAmbFormat = hores + ":" + minuts + ":" + segons;
-							    }
-								if (type.indexOf('date') == 0) {
-								    var dia = ("00" + data.getDate()).slice(-2);
-								    var mes = ("00" + (data.getMonth() + 1)).slice(-2);
-								    var any = data.getFullYear();
-								    var dataAmbFormat = dia + "/" + mes + "/" + any;
-								    if (type == 'datetime') {
-								    	dataAmbFormat += " " + horaAmbFormat;
-								    }
-								} else {
-									dataAmbFormat = horaAmbFormat;
-								}
-								$("td:eq(" + index + ")", nRow).html(dataAmbFormat);
-							} else if (type == 'time') {
-								var data = new Date(property);
+						var type = $(this).data('rdt-type');
+						if (type.indexOf('date') === 0 || type.indexOf('time') != -1) {
+							var data = new Date(property);
+							var horaAmbFormat = "";
+							var dataAmbFormat;
+							if (type.indexOf('time') != -1) {
 								var hores = ("00" + data.getHours()).slice(-2);
-						    	var minuts = ("00" + data.getMinutes()).slice(-2);
-						    	var segons = ("00" + data.getSeconds()).slice(-2);
-						    	var dataAmbFormat = hores + ":" + minuts + ":" + segons;
-						    	$("td:eq(" + index + ")", nRow).html(dataAmbFormat);
+								var minuts = ("00" + data.getMinutes()).slice(-2);
+								var segons = ("00" + data.getSeconds()).slice(-2);
+								horaAmbFormat = hores + ":" + minuts + ":" + segons;
 							}
+							if (type.indexOf('date') === 0) {
+								var dia = ("00" + data.getDate()).slice(-2);
+								var mes = ("00" + (data.getMonth() + 1)).slice(-2);
+								var any = data.getFullYear();
+								dataAmbFormat = dia + "/" + mes + "/" + any;
+								if (type == 'datetime') {
+									dataAmbFormat += " " + horaAmbFormat;
+								}
+							} else {
+								dataAmbFormat = horaAmbFormat;
+							}
+							$("td:eq(" + index + ")", nRow).html(dataAmbFormat);
+						} else if (type == 'time') {
+							var data = new Date(property);
+							var hores = ("00" + data.getHours()).slice(-2);
+							var minuts = ("00" + data.getMinutes()).slice(-2);
+							var segons = ("00" + data.getSeconds()).slice(-2);
+							var dataAmbFormat = hores + ":" + minuts + ":" + segons;
+							$("td:eq(" + index + ")", nRow).html(dataAmbFormat);
 						}
-					});
-					$('th[data-rdt-nowrap]', this).each(function() {
-						var index = $(this).index();
-						$("td:eq(" + index + ")", nRow).css('white-space', 'nowrap');
 					});
 					if (seleccioActiva) {
 						$("td:eq(" + seleccioColumna + ")", nRow).html('<input class="rdt-seleccio" type="checkbox" value="' + aData[seleccioColumna] + '"/>');
 					}
-					if (settings.rowClickCallback) {
-						$('td', nRow).each(function() {
-							var clickable = $('input', this).length == 0 && $('button', this).length == 0;
-							if (clickable) {
-								$(this).mouseenter(function() {
-									$(this).css('cursor', 'pointer');
-								});
-								$(this).mouseleave(function() {
-									$(this).css('cursor', 'auto');
-								});
-								$(this).click(function() {
-									settings.rowClickCallback($(this).closest('tr')[0]);
-								});
-							}
-						});
-					}
 				},
-				"fnServerParams": function (aoData) {
-					if ($(this).data("rdt-button-template")) {
-						$('#dataTables_new', this.parent()).html(
-								$("#" + $(this).data('rdt-button-template')).render());
+				"fnServerParams": function(aoData) {
+					if ($(this).data("rdt-button-template") && $(this).data("rdt-button-template").length > 0) {
+						$.templates("templateNew", $("#" + $(this).data('rdt-button-template')).html());
+						$('#dataTables_new', this.parent()).html($.render.templateNew());
 					}
 					$('.datatable-dades-carregant', this).show();
+					if (settings.serverParamsCallback)
+						settings.serverParamsCallback(aoData);
 				}
 			};
-			if (!(settings.ajaxSourceUrl === null)) {
-				dataTableParams["sAjaxSource"] = settings.ajaxSourceUrl;
-				dataTableParams["fnServerData"] = function (sSource, aoData, fnCallback, oSettings) {
+			if (settings.ajaxSourceUrl !== null) {
+				dataTableParams.sAjaxSource = settings.ajaxSourceUrl;
+				dataTableParams.fnServerData = function (sSource, aoData, fnCallback, oSettings) {
 					for (var i = 0; i < aProps.length; i++) {
 						aoData.push({"name": "aProp_" + i, "value": aProps[i]});
 					}
@@ -340,7 +380,7 @@
 							$('.datatable-dades-carregant', this).hide();
 							ajaxErrorFunction(xhr, textStatus, errorThrown);
 						}
-				    });
+					});
 				};
 			}
 			$(this).dataTable(dataTableParams);

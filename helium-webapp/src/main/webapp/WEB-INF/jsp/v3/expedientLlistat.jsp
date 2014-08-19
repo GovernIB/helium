@@ -1,5 +1,4 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib tagdir="/WEB-INF/tags" prefix="hel"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
@@ -16,8 +15,8 @@
 	<script src="<c:url value="/js/jquery.dataTables.js"/>"></script>
 	<script src="<c:url value="/js/DT_bootstrap.js"/>"></script>
 	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
-	<script src="<c:url value="/js/helium.datatable.js"/>"></script>
-	<script src="<c:url value="/js/helium.modal.js"/>"></script>
+	<script src="<c:url value="/js/ripea.datatable.js"/>"></script>
+	<script src="<c:url value="/js/ripea.modal.js"/>"></script>
 <script>
 $(document).ready(function() {
 	$("#taulaDades").heliumDataTable({

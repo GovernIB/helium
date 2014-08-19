@@ -184,7 +184,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 						PaginacioHelper.getPaginacioDtoFromDatatable(request)));
 	}
 
-	@RequestMapping(value = "/seleccio", method = RequestMethod.POST)
+	@RequestMapping(value = "/selection", method = RequestMethod.POST)
 	@ResponseBody
 	public Set<Long> seleccio(
 			HttpServletRequest request,
@@ -201,10 +201,8 @@ public class ExpedientLlistatController extends BaseExpedientController {
 				try {
 					long l = Long.parseLong(id.trim());
 					if (l >= 0) {
-						//System.out.println(">>> SEL afegir " + l);
 						seleccio.add(l);
 					} else {
-						//System.out.println(">>> SEL llevar " + l);
 						seleccio.remove(-l);
 					}
 				} catch (NumberFormatException ex) {}
