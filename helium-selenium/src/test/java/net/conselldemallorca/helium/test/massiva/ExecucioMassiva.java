@@ -34,6 +34,7 @@ public class ExecucioMassiva extends BaseTest {
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	String accioPathDefProc = carregarPropietatPath("tramsel_accio.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String exportTipExpProc = carregarPropietatPath("tramsel_accio.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String exportTipExpProcMassiva = carregarPropietatPath("tramsel_massiva.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String exportTipExpMasProc = carregarPropietatPath("tramas_massivo.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	int numExpedientesTramMasiva = Integer.parseInt(carregarPropietat("tramas.num_expedientes_tram_masiva", "Número de espedientes para las pruebas de tramitación masiva al fitxer de properties"));
 	
@@ -64,6 +65,9 @@ public class ExecucioMassiva extends BaseTest {
 		// Los volvemos a desplegar para tener 2 versiones diferentes
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomSubDefProc, pathSubDefProc);
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
+		
+		// Desplegamos el tipo de expediente de nuevo
+		importarDadesTipExp(codTipusExp, exportTipExpProcMassiva);
 		
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/crear_dades/1.png");
 	}
@@ -279,40 +283,66 @@ public class ExecucioMassiva extends BaseTest {
 		eliminarExpedient(null, null, nomTipusExp);
 	}
 
-//	@Test
-//	public void h_reindexar_expedients() throws InterruptedException {
-//		carregarUrlConfiguracio();
-//		
-//		seleccionarEntorn(titolEntorn);
-//		
-//		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, accioPathDefProc);
-//		importarDadesTipExp(codTipusExp, exportTipExpProc);
-//		
-//		// Iniciamos n expedientes con la última versión
-//		List<String[]> expedientes = new ArrayList<String[]>();
-//		for (int i = 0; i < numExpedientesTramMasiva; i++) {
-//			expedientes.add(iniciarExpediente(codTipusExp,"SE-"+i+"/2014", "Expedient de prova Selenium " + (new Date()).getTime() ));
-//		}
-//		
-//		consultarExpedientes(null, null, nomTipusExp);
-//		
-//		driver.findElement(By.xpath("//*[@id='massivaInfoForm']/button[2]")).click();
-//		
-//		// Eliminamos los expedientes en Lucene		
-////		Jbpm3HeliumBridge.getInstanceService().getExpedientAmbEntornITipusINumero(Jbpm3HeliumBridge.getInstanceService().getEntornActual().getId(), null, null).getProcessInstanceId();
-////		Jbpm3HeliumBridge.getInstanceService().expedientDeleteLucene(Jbpm3HeliumBridge.getInstanceService().getExpedientAmbEntornITipusINumero(Jbpm3HeliumBridge.getInstanceService().getEntornActual().getId(), null, null).getProcessInstanceId());
-//		
-//		// Comprobamos que no aparezcan
-//		
-//		// Reindexamos
-//		
-//		acceptarAlerta();
-//		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
-//		
-//		esperaFinExecucioMassiva();
-//		
-//		// Comprobamos que aparezcan
-//	}
+	@Test
+	public void h_reindexar_expedients() throws InterruptedException {
+		carregarUrlConfiguracio();
+		
+		seleccionarEntorn(titolEntorn);
+		
+		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, accioPathDefProc);
+		importarDadesTipExp(codTipusExp, exportTipExpProcMassiva);
+		
+		// Iniciamos n expedientes con la última versión
+		List<String[]> expedientes = new ArrayList<String[]>();
+		for (int i = 0; i < numExpedientesTramMasiva; i++) {
+			String[] expediente = iniciarExpediente(codTipusExp,"SE-"+i+"/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
+			expedientes.add(expediente);
+		}
+
+		// Eliminamos los expedientes en Lucene
+		for (String[] expediente : expedientes) {
+			String script = ""
+					+ "String processInstanceId = net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge.getInstanceService().getExpedientAmbEntornITipusINumero(net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge.getInstanceService().getEntornActual().getId(), \""+codTipusExp+"\", \""+expediente[0]+"\").getProcessInstanceId();"
+					+ "net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge.getInstanceService().luceneDeleteExpedient(processInstanceId);";
+			consultarExpedientes(null, null, nomTipusExp);
+			
+			driver.findElement(By.xpath("//*[@id='registre']//a[contains(@href,'/expedient/info.html')][1]")).click();
+			driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/eines.html')]")).click();
+			driver.findElement(By.xpath("//*[@id='content']/div/h3[contains(a/text(), \"Execució d'scripts\")]/a")).click();
+			
+			driver.findElement(By.xpath("//*[@id='script0']")).sendKeys(script);
+			driver.findElement(By.xpath("//button[contains(text(), 'Executar')]")).click();
+			acceptarAlerta();
+			existeixElementAssert("//*[@id='infos']/p", "No se ejecutó el script correctamente del expediente: " + expediente);			
+		}
+		
+		// Reindexamos
+		consultarExpedientes(null, null, nomTipusExp);
+		
+		driver.findElement(By.xpath("//*[@id='massivaInfoForm']/button[2]")).click();
+		
+		driver.findElement(By.xpath("//button[contains(text(), 'Reindexar')]")).click();
+		acceptarAlerta();
+		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
+		
+		esperaFinExecucioMassiva();
+		
+		// Comprobamos que aparezcan
+		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']//a[contains(@href, '/expedient/consultaDisseny.html')]")));
+		actions.click();
+		actions.build().perform();
+		
+		driver.findElement(By.xpath("//*[@id='expedientTipusId0']")).findElements(By.tagName("option")).get(1).click();
+		driver.findElement(By.xpath("//*[@id='consultaId0']")).findElements(By.tagName("option")).get(1).click();
+		
+		driver.findElement(By.xpath("//button[contains(text(), 'Consultar')]")).click();
+
+		for (String[] expediente : expedientes) {
+			existeixElementAssert("//td[contains(a/text(),'"+expediente[0]+"')]", "No se encontró el expediente: " + expediente);			
+		}
+	}
 
 	@Test
 	public void i_consultar_estat_execucións_massives() throws InterruptedException {
@@ -321,7 +351,7 @@ public class ExecucioMassiva extends BaseTest {
 		seleccionarEntorn(titolEntorn);
 		
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, accioPathDefProc);
-		importarDadesTipExp(codTipusExp, exportTipExpProc);
+		importarDadesTipExp(codTipusExp, exportTipExpProcMassiva);
 		
 		// Iniciamos n expedientes con la última versión
 		List<String[]> expedientes = new ArrayList<String[]>();
@@ -332,6 +362,9 @@ public class ExecucioMassiva extends BaseTest {
 		consultarExpedientes(null, null, nomTipusExp);
 		
 		driver.findElement(By.xpath("//*[@id='massivaInfoForm']/button[2]")).click();
+		
+		driver.findElement(By.xpath("//*[@id='inici']")).click();
+		Thread.sleep(1000*10);
 		
 		// Programamos para dentro de 2 minutos
 		programarEjecucionMasiva(2);
@@ -350,7 +383,7 @@ public class ExecucioMassiva extends BaseTest {
 		}
 		actions.sendKeys(Keys.ESCAPE);
 		
-		Thread.sleep(1000*120);
+		Thread.sleep(1000*140);
 		// Estado finalizado
 		for (String[] expediente : expedientes) {
 			assertTrue("El expediente '"+expediente+"' no estaba en estado 'finalizado'",estadoExpedientExecucioMassiva(expediente[1]) == 1);
