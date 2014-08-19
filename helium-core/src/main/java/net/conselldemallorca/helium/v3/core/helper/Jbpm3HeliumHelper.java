@@ -266,6 +266,13 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 
 	@Override
+	public void luceneDeleteExpedient(String processInstanceId) {
+		imprimirFuncio("luceneDeleteExpedient");
+		logger.debug("Borra expedient donada una instància de procés (processInstanceId=" + processInstanceId + ")");
+		expedientService.luceneDeleteExpedient(processInstanceId);
+	}
+	
+	@Override
 	public ExpedientDto getExpedientArrelAmbProcessInstanceId(
 			String processInstanceId) throws ProcessInstanceNotFoundException {
 		imprimirFuncio("getExpedientArrelAmbProcessInstanceId");
@@ -1638,5 +1645,4 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(Jbpm3HeliumHelper.class);
-
 }

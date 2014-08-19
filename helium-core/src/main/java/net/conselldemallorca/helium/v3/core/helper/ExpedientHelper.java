@@ -14,7 +14,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.service.LuceneHelper;
 import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.service.PermisosHelper;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
@@ -66,8 +65,6 @@ public class ExpedientHelper {
 	private CampRepository campRepository;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-	@Resource
-	private LuceneHelper luceneHelper;
 	@Resource
 	private CampAgrupacioRepository campAgrupacioRepository;
 	@Resource
