@@ -1382,7 +1382,9 @@ public class DissenyService {
 								consultaCamp.getCampCodi(),
 								consultaCamp.getDefprocJbpmKey(),
 								consultaCamp.getTipus(),
+								consultaCamp.getParamTipus(),
 								camp.getTipus(),
+								consultaCamp.getCampDescripcio(),
 								consultaCamp.getOrdre());
 						consultaCampsExp.add(consultaCampExp);
 						break;
@@ -1634,6 +1636,8 @@ public class DissenyService {
 							}
 						}
 					}
+					campNou.setCampDescripcio(consultaCamp.getCampDescripcio());
+					campNou.setParamTipus(consultaCamp.getTipusParamConsultaCamp());
 					campNou.setOrdre(consultaCamp.getOrdre());
 					nova.addCamp(campNou);
 				}
