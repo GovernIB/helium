@@ -7,8 +7,7 @@ import java.io.Serializable;
 
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
-
-
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusParamConsultaCamp;
 
 /**
  * DTO amb informació d'un camp d'una consulta per exportar
@@ -20,21 +19,25 @@ public class ConsultaCampExportacio implements Serializable {
 	private String codi;
 	private String jbpmKey;
 	private TipusConsultaCamp tipusConsultaCamp;
+	private TipusParamConsultaCamp tipusParamConsultaCamp;
 	private TipusCamp tipusCamp;
+	private String campDescripcio;
 	private int ordre;
-
-
 
 	public ConsultaCampExportacio(
 			String codi,
 			String jbpmKey,
 			TipusConsultaCamp tipusConsultaCamp,
+			TipusParamConsultaCamp tipusParamConsultaCamp,
 			TipusCamp tipusCamp,
+			String campDescripcio,
 			int ordre) {
 		this.codi = codi;
 		this.jbpmKey = jbpmKey;
 		this.tipusConsultaCamp = tipusConsultaCamp;
+		this.tipusParamConsultaCamp = tipusParamConsultaCamp;
 		this.tipusCamp = tipusCamp;
+		this.campDescripcio = campDescripcio;
 		this.ordre = ordre;
 	}
 
@@ -68,9 +71,18 @@ public class ConsultaCampExportacio implements Serializable {
 	public void setOrdre(int ordre) {
 		this.ordre = ordre;
 	}
-
-
+	public TipusParamConsultaCamp getTipusParamConsultaCamp() {
+		return tipusParamConsultaCamp;
+	}
+	public void setTipusParamConsultaCamp(TipusParamConsultaCamp tipusParamConsultaCamp) {
+		this.tipusParamConsultaCamp = tipusParamConsultaCamp;
+	}	
+	public String getCampDescripcio() {
+		return campDescripcio;
+	}
+	public void setCampDescripcio(String campDescripcio) {
+		this.campDescripcio = campDescripcio;
+	}
 
 	private static final long serialVersionUID = 1L;
-
 }
