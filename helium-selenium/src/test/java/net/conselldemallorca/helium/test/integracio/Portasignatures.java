@@ -4,12 +4,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 import javax.activation.DataHandler;
+import javax.activation.DataSource;
 import javax.activation.FileDataSource;
 
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortasignaturesPlugin;
@@ -39,15 +42,11 @@ import net.conselldemallorca.helium.wsintegraciones.portafirmasws.cws.cliente.Up
 import net.conselldemallorca.helium.wsintegraciones.portafirmasws.cws.cliente.UploadResponse;
 import net.conselldemallorca.helium.wsintegraciones.portafirmasws.cws.cliente.UploadStep;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import com.sun.xml.internal.ws.util.ByteArrayDataSource;
-
-@SuppressWarnings("restriction")
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class Portasignatures extends BaseTest {
 	private CWSSoapBindingStub stub;
@@ -319,8 +318,7 @@ public class Portasignatures extends BaseTest {
 		String filename = carregarPropietatPath("deploy.arxiu.portasignatures", "No se encontró el fichero a enviar al Portasignaturas");
 		FileDataSource ds = new FileDataSource(filename);
 
-		byte[] array = IOUtils.toByteArray(ds.getInputStream());
-		DataHandler attachmentFile = new DataHandler(new ByteArrayDataSource(array, "application/octet-stream"));
+		DataHandler attachmentFile = new DataHandler(new InputStreamDataSource(ds.getInputStream()));
 		b_stub();
 		stub.addAttachment(attachmentFile);
 	}
@@ -330,6 +328,34 @@ public class Portasignatures extends BaseTest {
 		application.setUser(getUserName());
 		application.setPassword(getPassword());
 		return application;
+	}
+	
+	public class InputStreamDataSource implements DataSource {
+	    private InputStream inputStream;
+
+	    public InputStreamDataSource(InputStream inputStream) {
+	        this.inputStream = inputStream;
+	    }
+
+	    @Override
+	    public InputStream getInputStream() throws IOException {
+	        return inputStream;
+	    }
+
+	    @Override
+	    public OutputStream getOutputStream() throws IOException {
+	        throw new UnsupportedOperationException("Not implemented");
+	    }
+
+	    @Override
+	    public String getContentType() {
+	        return "*/*";
+	    }
+
+	    @Override
+	    public String getName() {
+	        return "InputStreamDataSource";
+	    }
 	}
 
 	private String getUserName() {
