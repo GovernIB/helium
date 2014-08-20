@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class ModalHelper {
 
-	private static final String ESQUEMA_PREFIX = "/ripea";
+	private static final String ESQUEMA_PREFIX = "/helium";
 	private static final String URI_PREFIX_MODAL = ESQUEMA_PREFIX + "/modal";
 	private static final String REQUEST_ATTRIBUTE_MODAL = "ModalHelper.Modal";
 	private static final String SESSION_ATTRIBUTE_URIMAP = "ModalHelper.UriMap";

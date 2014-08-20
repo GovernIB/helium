@@ -66,3 +66,9 @@
     opacity: 0.2;
     text-shadow: 0 1px 0 #FFFFFF;
 }
+
+.modal-dialog.modal-maximize {
+	width: 98%;
+	top: 1%;
+	margin: auto;
+}

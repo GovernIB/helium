@@ -266,7 +266,7 @@ $(document).ready(function() {
 					<li><a id="tramitacioMassivaSelTots" href="#"><span class="fa fa-check-square-o"></span> Seleccionar tots</a></li>
 				</ul>
 			</div>
-			<a class="btn btn-default" href="expedient/iniciar" data-rdt-link-modal="true"><span class="fa fa-plus"></span>&nbsp;Nou expedient</a>
+			<a class="btn btn-default" href="../v3/expedient/iniciar" data-rdt-link-modal="true"><span class="fa fa-plus"></span>&nbsp;Nou expedient</a>
 		</div>
 	</script>
 

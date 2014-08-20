@@ -8,6 +8,7 @@
 <html>
 <head>
 	<title><spring:message code='expedient.iniciar.disponibles' /></title>
+	<meta name="decorator" content="senseCapNiPeus"/>
 	<meta name="capsaleraTipus" content="llistat"/>
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
 <script type="text/javascript">

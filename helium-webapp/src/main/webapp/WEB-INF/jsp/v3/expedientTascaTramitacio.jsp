@@ -5,10 +5,12 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
+<%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <c:set var="numColumnes" value="${3}"/>
 <html>
 <head>
 	<title>${tasca.titol}</title>
+	<meta name="decorator" content="senseCapNiPeus"/>
 	<script type="text/javascript" src="<c:url value="/js/jquery.keyfilter.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">

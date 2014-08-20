@@ -7,6 +7,7 @@
 				refrescarPagina: false,
 				adjustWidth: false,
 				adjustHeight: true,
+				maximize: false,
 				buttonContainerId: "modal-botons",
 				buttonCloseClass: "modal-tancar"
 			}, options);
@@ -29,14 +30,14 @@
 			};
 			$(this).html(
 					'<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">' +
-					'	<div class="modal-dialog modal-lg">' +
+					'	<div class="modal-dialog ' + ((settings.maximize) ? ' modal-maximize' : '') + ' modal-lg">' +
 					'		<div class="modal-content">' +
 					'			<div class="modal-header">' +
 					'				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' +
 					'				<h4 class="modal-title"></h4>' +
 					'			</div>' +
 					'			<div class="modal-body">' +
-					'				<iframe frameborder="0" height="100" width="99.6%"></iframe>' +
+					'				<iframe frameborder="0" height="100' + ((settings.maximize) ? '%' : '') + '" width="99.6%"></iframe>' +
 					'			</div>' +
 					'			<div class="modal-footer">' +
 					'			</div>' +
@@ -49,6 +50,8 @@
 			else
 				modalUrl = "modal/" + modalUrl;
 			var modalobj = $('div.modal', this);
+			/*if (settings.maximize)
+				modalobj.css('top', '1%');*/
 			modalobj.on('show.bs.modal', function () {
 				$('iframe', modalobj).empty();
 				$('iframe', modalobj).attr(
@@ -81,13 +84,27 @@
 					$('#' + settings.buttonContainerId, $(this).contents()).hide();
 					// Ajustar tamany
 					if (settings.adjustHeight) {
-						var height = $(this).contents().find("html").height();
-						$(this).height(height + 'px');
+						var contentHeight = $(this).contents().find("html").height();
+						$(this).height(contentHeight + 'px');
 					}
 					if (settings.adjustWidth) {
-						var width = $(this).contents().find("html").width();
+						var contentWidth = $(this).contents().find("html").width();
 						var modalobj = $(this).parent().parent().parent();
-						modalobj.css('width', width + 'px');
+						modalobj.css('width', contentWidth + 'px');
+					}
+					if (settings.maximize) {
+						var contentHeight = $(this).contents().find("html").height();
+						//var contentHeight = this.contentWindow.document.body.offsetHeight;
+						var modalobj = $(this).parent().parent().parent();
+						var taraModal = $('.modal-header', modalobj).height() + $('.modal-footer', modalobj).height();
+						var maxBodyHeight = $(document).height() - taraModal - 100;
+						if (contentHeight > maxBodyHeight) {
+							$(this).height((contentHeight - 14) + 'px');
+							$('.modal-body', modalobj).css('max-height', maxBodyHeight + 20 + 'px');
+						} else {
+							$(this).height(contentHeight + 'px');
+							$('.modal-body', modalobj).css('max-height', contentHeight + 30 + 'px');
+						}
 					}
 				});
 			});

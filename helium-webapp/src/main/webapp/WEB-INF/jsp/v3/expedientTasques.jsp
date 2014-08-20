@@ -73,7 +73,7 @@
 										<ul class="dropdown-menu">
 											<c:if test="${tasca.oberta and not tasca.suspesa}">
 												<c:if test="${tasca.responsableCodi == dadesPersona.codi}">
-													<li><a data-tramitar-modal="true" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/tramitar"/>"><span class="fa fa-folder-open"></span> Tramitar</a></li>
+													<li><a data-tramitar-modal="true" href="../../v3/expedient/${expedientId}/tasca/${tasca.id}/tramitar"><span class="fa fa-folder-open"></span> Tramitar</a></li>
 													<li><a href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/delegar"/>"><span class="fa fa-hand-o-right"></span> Delegar</a></li>
 												</c:if>
 												<c:if test="${not empty tasca.responsables && not tasca.agafada}">

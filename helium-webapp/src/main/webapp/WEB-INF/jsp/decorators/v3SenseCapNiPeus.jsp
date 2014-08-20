@@ -26,7 +26,7 @@
 	<decorator:head />
 </head>
 <body>
-	<div class="container">
+	<div>
 		<div id="contingut-alertes"><hel:missatges/></div>
 		<decorator:body />
 	</div>
