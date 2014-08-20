@@ -10,7 +10,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientRelacionarCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.NoDecorarHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.apache.commons.logging.Log;
@@ -41,7 +40,8 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 
 	@RequestMapping(value = "/{expedientId}/relacionats", method = RequestMethod.GET)
 	public String relacionarForm(HttpServletRequest request, @PathVariable Long expedientId, Model model) {
-		NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
+		// TODO
+		// NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
 		model.addAttribute("expedientId", expedientId);		
 		model.addAttribute("relacionats",expedientService.getExpedientsRelacionats(expedientId));
 		return "v3/expedient/relacionar";

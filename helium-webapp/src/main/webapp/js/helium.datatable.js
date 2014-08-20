@@ -317,36 +317,40 @@
 						var index = $(this).index();
 						var propIndex = aProps.indexOf($(this).data('rdt-property'));
 						var property = aData[propIndex];
-						var type = $(this).data('rdt-type');
-						if (type.indexOf('date') === 0 || type.indexOf('time') != -1) {
-							var data = new Date(property);
-							var horaAmbFormat = "";
-							var dataAmbFormat;
-							if (type.indexOf('time') != -1) {
+						if (property === null) {
+							$("td:eq(" + index + ")", nRow).empty();
+						} else {
+							var type = $(this).data('rdt-type');
+							if (type.indexOf('date') === 0 || type.indexOf('time') != -1) {
+								var data = new Date(property);
+								var horaAmbFormat = "";
+								var dataAmbFormat;
+								if (type.indexOf('time') != -1) {
+									var hores = ("00" + data.getHours()).slice(-2);
+									var minuts = ("00" + data.getMinutes()).slice(-2);
+									var segons = ("00" + data.getSeconds()).slice(-2);
+									horaAmbFormat = hores + ":" + minuts + ":" + segons;
+								}
+								if (type.indexOf('date') === 0) {
+									var dia = ("00" + data.getDate()).slice(-2);
+									var mes = ("00" + (data.getMonth() + 1)).slice(-2);
+									var any = data.getFullYear();
+									dataAmbFormat = dia + "/" + mes + "/" + any;
+									if (type == 'datetime') {
+										dataAmbFormat += " " + horaAmbFormat;
+									}
+								} else {
+									dataAmbFormat = horaAmbFormat;
+								}
+								$("td:eq(" + index + ")", nRow).html(dataAmbFormat);
+							} else if (type == 'time') {
+								var data = new Date(property);
 								var hores = ("00" + data.getHours()).slice(-2);
 								var minuts = ("00" + data.getMinutes()).slice(-2);
 								var segons = ("00" + data.getSeconds()).slice(-2);
-								horaAmbFormat = hores + ":" + minuts + ":" + segons;
+								var dataAmbFormat = hores + ":" + minuts + ":" + segons;
+								$("td:eq(" + index + ")", nRow).html(dataAmbFormat);
 							}
-							if (type.indexOf('date') === 0) {
-								var dia = ("00" + data.getDate()).slice(-2);
-								var mes = ("00" + (data.getMonth() + 1)).slice(-2);
-								var any = data.getFullYear();
-								dataAmbFormat = dia + "/" + mes + "/" + any;
-								if (type == 'datetime') {
-									dataAmbFormat += " " + horaAmbFormat;
-								}
-							} else {
-								dataAmbFormat = horaAmbFormat;
-							}
-							$("td:eq(" + index + ")", nRow).html(dataAmbFormat);
-						} else if (type == 'time') {
-							var data = new Date(property);
-							var hores = ("00" + data.getHours()).slice(-2);
-							var minuts = ("00" + data.getMinutes()).slice(-2);
-							var segons = ("00" + data.getSeconds()).slice(-2);
-							var dataAmbFormat = hores + ":" + minuts + ":" + segons;
-							$("td:eq(" + index + ")", nRow).html(dataAmbFormat);
 						}
 					});
 					if (seleccioActiva) {

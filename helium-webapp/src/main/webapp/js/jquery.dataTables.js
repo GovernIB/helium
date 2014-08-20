@@ -2753,7 +2753,7 @@
 				for ( i=0, iLen=aLengthMenu[0].length ; i<iLen ; i++ )
 				{
 					//sStdMenu += '<option value="'+aLengthMenu[0][i]+'">'+aLengthMenu[1][i]+'</option>';
-					sStdMenu += '<button class="btn" value="'+aLengthMenu[0][i]+'">'+aLengthMenu[1][i]+'</button>';
+					sStdMenu += '<button class="btn btn-default" value="'+aLengthMenu[0][i]+'">'+aLengthMenu[1][i]+'</button>';
 				}
 			}
 			else
@@ -2761,7 +2761,7 @@
 				for ( i=0, iLen=aLengthMenu.length ; i<iLen ; i++ )
 				{
 					//sStdMenu += '<option value="'+aLengthMenu[i]+'">'+aLengthMenu[i]+'</option>';
-					sStdMenu += '<button class="btn" value="'+aLengthMenu[i]+'">'+aLengthMenu[i]+'</button>';
+					sStdMenu += '<button class="btn btn-default" value="'+aLengthMenu[i]+'">'+aLengthMenu[i]+'</button>';
 				}
 			}
 			//sStdMenu += '</select>';

@@ -13,7 +13,6 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.NoDecorarHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.json.simple.JSONValue;
@@ -86,7 +85,7 @@ public class ExpedientPipellesController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			ModelMap model) {
 			model.addAttribute("expedientId", expedientId);
-		NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
+		//NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
 		return "v3/expedientImatgeProces";
 	}
 	

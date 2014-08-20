@@ -15,7 +15,6 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesScriptCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.NoDecorarHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.apache.commons.logging.Log;
@@ -64,7 +63,8 @@ public class ExpedientExecucionsController extends BaseExpedientController {
 
 	@RequestMapping(value = "/{expedientId}/execucions", method = RequestMethod.GET)
 	public String execucions(HttpServletRequest request, @PathVariable Long expedientId, Model model) {
-		NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
+		// TODO
+		//NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
 		model.addAttribute("expedientId", expedientId);
 		return "v3/expedient/execucions";
 	}

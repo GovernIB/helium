@@ -17,7 +17,7 @@ import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTerminiModificarCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTerminiModificarCommand.TerminiModificacioTipus;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.NoDecorarHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.slf4j.Logger;
@@ -86,7 +86,7 @@ public class ExpedientTerminisController extends BaseExpedientController {
 			@PathVariable Long terminiId,
 			Model model) {
 		try {
-			if (!NoDecorarHelper.isRequestSenseDecoracio(request)) {
+			if (!NodecoHelper.isNodeco(request)) {
 				mostrarInformacioExpedientPerPipella(request, expedientId, model, "terminis", expedientService);
 			}
 			terminiService.iniciar(terminiId,processInstanceId,new Date(),true);
@@ -105,7 +105,7 @@ public class ExpedientTerminisController extends BaseExpedientController {
 			@PathVariable Long terminiId,
 			Model model) {
 		try {
-			if (!NoDecorarHelper.isRequestSenseDecoracio(request)) {
+			if (!NodecoHelper.isNodeco(request)) {
 				mostrarInformacioExpedientPerPipella(request, expedientId, model, "terminis", expedientService);
 			}
 			terminiService.pausar(terminiId, new Date());
@@ -124,7 +124,7 @@ public class ExpedientTerminisController extends BaseExpedientController {
 			@PathVariable Long terminiId,
 			Model model) {
 		try {
-			if (!NoDecorarHelper.isRequestSenseDecoracio(request)) {
+			if (!NodecoHelper.isNodeco(request)) {
 				mostrarInformacioExpedientPerPipella(request, expedientId, model, "terminis", expedientService);
 			}
 			terminiService.continuar(terminiId, new Date());
@@ -143,7 +143,7 @@ public class ExpedientTerminisController extends BaseExpedientController {
 			@PathVariable Long terminiId,
 			Model model) {
 		try {
-			if (!NoDecorarHelper.isRequestSenseDecoracio(request)) {
+			if (!NodecoHelper.isNodeco(request)) {
 				mostrarInformacioExpedientPerPipella(request, expedientId, model, "terminis", expedientService);
 			}
 			terminiService.cancelar(terminiId, new Date());
@@ -165,7 +165,8 @@ public class ExpedientTerminisController extends BaseExpedientController {
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findById(expedientId);
 			if (potConsultarExpedient(expedient)) {
-				NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
+				// TODO
+				// NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
 				TerminiIniciatDto terminiIniciat = dissenyService.findIniciatAmbId(terminiId);
 				ExpedientTerminiModificarCommand expedientTerminiModificarCommand = new ExpedientTerminiModificarCommand();
 				expedientTerminiModificarCommand.setTerminiId(terminiId);

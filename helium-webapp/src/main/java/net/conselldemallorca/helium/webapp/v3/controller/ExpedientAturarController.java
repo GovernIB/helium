@@ -11,7 +11,6 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesAturarCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.NoDecorarHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +43,8 @@ public class ExpedientAturarController extends BaseExpedientController {
 
 	@RequestMapping(value = "/{expedientId}/stop", method = RequestMethod.GET)
 	public String aturarForm(HttpServletRequest request, @PathVariable Long expedientId, Model model) {
-		NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
+		// TODO
+		// NodecoHelper.marcarNoCapsaleraNiPeu(request);
 		model.addAttribute("expedientId", expedientId);
 		return "v3/expedient/aturar";
 	}

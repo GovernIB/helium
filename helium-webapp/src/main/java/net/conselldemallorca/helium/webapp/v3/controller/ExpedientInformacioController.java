@@ -12,7 +12,6 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEditarCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.NoDecorarHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.slf4j.Logger;
@@ -85,7 +84,8 @@ public class ExpedientInformacioController extends BaseExpedientController {
 			BindingResult result,
 			SessionStatus status,
 			ModelMap model)  {
-		NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
+		// TODO
+		// NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findById(expedientId);

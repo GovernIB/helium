@@ -32,8 +32,8 @@
 					${paramTitol} <c:if test="${not empty paramCount}"><span class="badge">${paramCount}</span></c:if>
 					<div class="pull-right accordion-toggle">
 						<c:choose>
-							<c:when test="${paramDesplegat}"><i class="<c:if test="${not empty paramDesplegadorClass}">${paramDesplegadorClass} </c:if>icon-chevron-up"></i></c:when>
-							<c:otherwise><i class="<c:if test="${not empty paramDesplegadorClass}">${paramDesplegadorClass} </c:if>icon-chevron-down"></i></c:otherwise>
+							<c:when test="${paramDesplegat}"><span class="<c:if test="${not empty paramDesplegadorClass}">${paramDesplegadorClass} </c:if>fa fa-chevron-up"></span></c:when>
+							<c:otherwise><span class="<c:if test="${not empty paramDesplegadorClass}">${paramDesplegadorClass} </c:if>fa fa-chevron-down"></span></c:otherwise>
 						</c:choose>
 					</div>
 				</th>
@@ -110,19 +110,19 @@
 							<c:set var="document" value="${dada}"/>
 							<c:choose>
 								<c:when test="${not empty document.error}">
-									<i class="icon-warning-sign" title="${document.error}"></i>
+									<span class="fa fa-warning fa-2x" title="${document.error}"></span>
 								</c:when>
 								<c:otherwise>
 									<dl class="dl-horizontal">
-										<dt><a href="<c:url value="/v3/expedient/${expedientId}/document/${document.id}/descarregar"/>" title="Descarregar document"><i class="icon-file icon-4x"></i><span style="float:left;position:relative;left:2.5em;top:-2.4em;font-size:10px">${fn:toUpperCase(document.arxiuExtensio)}</span></a></dt>
+										<dt><a href="<c:url value="/v3/expedient/${expedientId}/document/${document.id}/descarregar"/>" title="Descarregar document"><span class="fa fa-file fa-4x"></span><span style="float:left;position:relative;left:2.5em;top:-2.4em;font-size:10px">${fn:toUpperCase(document.arxiuExtensio)}</span></a></dt>
 										<dd>
 											<strong>${document.documentNom}</strong><br/>
 											<c:if test="${not empty document.id}">
 												<fmt:formatDate value="${document.dataDocument}" pattern="dd/MM/yyyy"/>
 												<c:if test="${document.signat or document.registrat}">
 												<br/>
-												<c:if test="${document.signat}"><a href="#"><i class="icon-certificate icon-large" title="Document signat (clic per veure detalls)"></i></a></c:if>
-												<c:if test="${document.registrat}"><a href="#"><i class="icon-book icon-large" title="Document registrat (clic per veure detalls)"></i></a></c:if>
+												<c:if test="${document.signat}"><a href="#"><span class="fa fa-certificate fa-lg" title="Document signat (clic per veure detalls)"></span></a></c:if>
+												<c:if test="${document.registrat}"><a href="#"><span class="fa fa-book fa-lg" title="Document registrat (clic per veure detalls)"></span></a></c:if>
 												</c:if>
 											</c:if>
 										</dd>

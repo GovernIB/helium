@@ -11,7 +11,6 @@ import net.conselldemallorca.helium.v3.core.api.service.ReassignacioUsuarisServi
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.command.ReassignacioUsuarisCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.NoDecorarHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ReassignacioUsuarisValidatorHelper;
 
 import org.apache.commons.logging.Log;
@@ -72,7 +71,8 @@ public class ReassignacioUsuarisController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId, 
 			Model model) {
-		NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
+		// TODO
+		//NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
 		
 		List<ReassignacioDto> reassignacions = reassignacioUsuarisService.llistaReassignacions();
 		model.addAttribute("llistat", reassignacions);
@@ -91,7 +91,8 @@ public class ReassignacioUsuarisController extends BaseExpedientController {
 			BindingResult result,
 			SessionStatus status) {
 		
-			NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
+			// TODO
+			//NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
 			
 			additionalValidator = new ReassignacioUsuarisValidatorHelper();
 			
@@ -134,7 +135,8 @@ public class ReassignacioUsuarisController extends BaseExpedientController {
 	public String deleteAction(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) Long id) {
-		NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
+		// TODO
+		//NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
 		
 		reassignacioUsuarisService.deleteReassignacio(id);
 		MissatgesHelper.info(request, getMessage(request, "info.reassignacio.cancelat") );

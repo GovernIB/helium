@@ -17,7 +17,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.NoDecorarHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper;
@@ -48,9 +48,17 @@ import org.springframework.web.bind.support.SessionStatus;
 public class ExpedientTasquesController extends ExpedientTramitacioController {
 
 	@RequestMapping(value = "/{expedientId}/tasques", method = RequestMethod.GET)
-	public String tasques(HttpServletRequest request, @PathVariable Long expedientId, Model model) {
-		if (!NoDecorarHelper.isRequestSenseDecoracio(request)) {
-			return mostrarInformacioExpedientPerPipella(request, expedientId, model, "tasques", expedientService);
+	public String tasques(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			Model model) {
+		if (!NodecoHelper.isNodeco(request)) {
+			return mostrarInformacioExpedientPerPipella(
+					request,
+					expedientId,
+					model,
+					"tasques",
+					expedientService);
 		}
 		model.addAttribute("expedientId", expedientId);
 		List<ExpedientTascaDto> tasques = expedientService.findTasquesPerExpedient(expedientId);
@@ -61,7 +69,7 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 
 	@RequestMapping(value = "/{expedientId}/tasquesPendents", method = RequestMethod.GET)
 	public String tasquesPendents(HttpServletRequest request, @PathVariable Long expedientId, Model model) {
-		if (!NoDecorarHelper.isRequestSenseDecoracio(request)) {
+		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioExpedientPerPipella(request, expedientId, model, "tasques", expedientService);
 		}
 		model.addAttribute("tasques", expedientService.findTasquesPendentsPerExpedient(expedientId));
@@ -81,7 +89,7 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId, 
 			Model model) {
-		NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
+		//NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
 		model.addAttribute("tasca", expedientService.getTascaPerExpedient(expedientId, tascaId));
 		// Omple les dades del formulari i les de només lectura
 		List<TascaDadaDto> dades = tascaService.findDadesPerTasca(tascaId);

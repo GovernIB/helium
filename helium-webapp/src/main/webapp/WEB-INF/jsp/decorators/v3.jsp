@@ -3,11 +3,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.opensymphony.com/sitemesh/decorator" prefix="decorator"%>
-<%
-	request.setAttribute(
-			"isNoCapsaleraPeu",
-			new Boolean(net.conselldemallorca.helium.webapp.v3.helper.NoDecorarHelper.isNoCapsaleraNiPeu(request)));
-%>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -30,8 +25,6 @@
 	<![endif]-->
 	<script src="<c:url value="/js/bootstrap.min.js"/>"></script>
 
-	<link href="<c:url value="/js/select2/select2.css"/>" rel="stylesheet"/>	
-	<script src="<c:url value="/js/select2/select2.min.js"/>"></script>
 <script type="text/javascript">
 // <![CDATA[
 	Timeline_ajax_url="<c:url value="/js/timeline_2.3.0/timeline_ajax/simile-ajax-api.js"/>";
@@ -76,6 +69,7 @@ body {
 				
 					<ul class="list-inline pull-right">
 						<li class="dropdown">
+							<span class="fa fa-tag"></span>
 							<c:if test="${fn:length(expedientTipusAccessibles) gt 0}"><a href="#" data-toggle="dropdown"></c:if>
 							<c:choose>
 								<c:when test="${not empty expedientTipusActual}">${expedientTipusActual.nom}</c:when>
@@ -109,16 +103,7 @@ body {
 					</ul>
 					<div class="clearfix"></div>
 					<div class="btn-group navbar-btn navbar-right">
-						<div class="btn-group">
-							<a class="btn btn-primary" href="<c:url value="/v3/expedient"/>"><spring:message code="comuns.expedients"/></a>
-							<a href="#" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-								<span class="caret"></span>
-								<span class="sr-only">Desplegar</span>
-							</a>
-							<ul class="dropdown-menu" role="menu">
-								<li><a href="<c:url value="/v3/expedient/iniciar"/>">Nou expedient</a></li>
-							</ul>
-						</div>
+						<a class="btn btn-primary" href="<c:url value="/v3/expedient"/>"><spring:message code="comuns.expedients"/></a>
 						<a class="btn btn-primary" href="<c:url value="/v3/tasca"/>"><spring:message code="comuns.tasques"/></a>
 						<div class="btn-group">
 							<c:choose>
@@ -141,7 +126,7 @@ body {
 		</div>
 	</div>
 	<div class="container container-main">
-		<c:set var="capsaleraTipus"><decorator:getProperty property="meta.capsaleraTipus"/></c:set>
+		<%--c:set var="capsaleraTipus"><decorator:getProperty property="meta.capsaleraTipus"/></c:set>
 		<c:set var="tabActiu"><decorator:getProperty property="meta.tabActiu"/></c:set>
 		<c:choose>
 			<c:when test="${capsaleraTipus == 'expedient'}">
@@ -187,7 +172,25 @@ body {
 					<div class="clearfix"></div>
 				</div>
 			</c:otherwise>
-		</c:choose>
+		</c:choose--%>
+		<div class="panel panel-default">
+			<c:set var="decoratorMetaTitle"><decorator:getProperty property="meta.title"/></c:set>
+			<c:if test="${not empty decoratorMetaTitle}">
+				<div class="panel-heading">
+					<h2>
+						<c:set var="metaTitleIconClass"><decorator:getProperty property="meta.title-icon-class"/></c:set>
+						<c:if test="${not empty metaTitleIconClass}"><span class="${metaTitleIconClass}"></span></c:if>
+						${decoratorMetaTitle}
+						<c:set var="decoratorMetaSubtitle"><decorator:getProperty property="meta.subtitle"/></c:set>
+						<c:if test="${not empty decoratorMetaSubtitle}"><small><decorator:getProperty property="meta.subtitle"/></small></c:if>
+					</h2>
+				</div>
+			</c:if>
+			<div class="panel-body">
+				<div class="contingut-alertes"></div>
+				<decorator:body />
+			</div>
+		</div>
 	</div>
     <div class="container container-foot">
     	<div class="pull-left app-version"><p>Helium v${versioNom}</p></div>
@@ -204,13 +207,13 @@ body {background-image:none;}
 	</div>
 </c:otherwise>
 </c:choose>
-<script>
+<%--script>
 	$(document).ready(function() { $("select").select2(); });
 	$( '[data-required="true"]' )
 		.closest(".control-group")
 		.children("label")
 		.prepend("<i class='icon-asterisk'></i> ");
-</script>
+</script--%>
 
 </body>
 </html>

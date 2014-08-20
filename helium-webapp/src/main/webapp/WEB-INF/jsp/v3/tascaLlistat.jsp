@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib tagdir="/WEB-INF/tags" prefix="hel"%>
+<%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
@@ -80,13 +80,10 @@ function confirmarAlliberar(e) {
 	
 	<input type="hidden" id="netejar" value="false"/>
 	<form:form action="" method="post" cssClass="well formbox" commandName="tascaConsultaCommand">
-		<div class="page-header">
-			Consulta d'tasques
-			<form:hidden path="filtreDesplegat"/>
-		</div>
+		<form:hidden path="filtreDesplegat"/>
 		<div id="filtresCollapsable" class="collapse<c:if test="${true or tascaConsultaCommand.filtreDesplegat}"> in</c:if>">
-			<div class="row-fluid">
-				<div class="span2">
+			<div class="row">
+				<div class="col-md-2">
 					<c:set var="campPath" value="tasca"/>
 					<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 					<div class="control-group<c:if test="${not empty campErrors}"> error</c:if>">
@@ -95,7 +92,7 @@ function confirmarAlliberar(e) {
 						</spring:bind>
 					</div>
 				</div>
-				<div class="span4">
+				<div class="col-md-4">
 					<c:set var="campPath" value="expedient"/>
 					<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 					<div class="control-group<c:if test="${not empty campErrors}"> error</c:if>">
@@ -104,7 +101,7 @@ function confirmarAlliberar(e) {
 						</spring:bind>
 					</div>
 				</div>
-				<div class="span3">
+				<div class="col-md-3">
 					<c:set var="campPath" value="prioritat"/>
 					<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 					<form:select path="${campPath}" cssClass="span12">
@@ -112,7 +109,7 @@ function confirmarAlliberar(e) {
 						<form:options items="${prioritats}" itemLabel="codi" itemValue="valor"/>
 					</form:select>
 				</div>
-				<div class="span3">
+				<div class="col-md-3">
 					<c:set var="campPath" value="expedientTipusId"/>
 					<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 					<c:choose>
@@ -129,8 +126,8 @@ function confirmarAlliberar(e) {
 					</c:choose>
 				</div>
 			</div>
-			<div class="row-fluid">
-				<div class="span4">
+			<div class="row">
+				<div class="col-md-4">
 					<label>Data creacio</label>
 					<div class="row-fluid">
 						<div class="span5 input-append date datepicker">
@@ -153,7 +150,7 @@ function confirmarAlliberar(e) {
 						<script>$("#${campPath}").mask("99/99/9999");</script>
 					</div>
 				</div>
-				<div class="span4">
+				<div class="col-md-4">
 					<label>Data limit</label>
 					<div class="row-fluid">
 						<div class="span5 input-append date datepicker">
@@ -177,21 +174,22 @@ function confirmarAlliberar(e) {
 					</div>
 				</div>
 			</div>
-			<hr/>
 		</div>
-		<div class="row-fluid">
-			<div class="span6">
+		<div class="row">
+			<div class="col-md-6">
 				<form:hidden path="mostrarTasquesPersonals"/>
 				<form:hidden path="mostrarTasquesGrup"/>
 				<div class="btn-group">
-					<a id="mostrarTasquesPersonalsCheck" href="javascript:void(0)" title="Mostrar tareas personales" class="btn<c:if test="${tascaConsultaCommand.mostrarTasquesPersonals}"> active</c:if>" data-toggle="button"><i class="icon-user"></i></a>
-					<a id="mostrarTasquesGrupCheck" href="javascript:void(0)" title="Mostrar tareas de grupo" class="btn<c:if test="${tascaConsultaCommand.mostrarTasquesGrup}"> active</c:if>" data-toggle="button"><i class="icon-group"></i></a>
+					<a id="mostrarTasquesPersonalsCheck" href="javascript:void(0)" title="Mostrar tareas personales" class="btn btn-default<c:if test="${tascaConsultaCommand.mostrarTasquesPersonals}"> active</c:if>" data-toggle="button"><span class="fa fa-user"></span></a>
+					<a id="mostrarTasquesGrupCheck" href="javascript:void(0)" title="Mostrar tareas de grupo" class="btn btn-default<c:if test="${tascaConsultaCommand.mostrarTasquesGrup}"> active</c:if>" data-toggle="button"><span class="fa fa-users"></span></a>
 				</div>
 			</div>
-			<div class="span6">
-				<input type="hidden" name="consultaRealitzada" value="true"/>
-				<button type="submit" name="accio" value="consultar" class="btn btn-primary pull-right">Consultar</button>
-				<button type="submit" name="accio" value="netejar" class="btn pull-right" style="margin-right:.6em">Netejar</button>
+			<div class="col-md-6">
+				<div class="pull-right">
+					<input type="hidden" name="consultaRealitzada" value="true"/>
+					<button type="submit" name="accio" value="netejar" class="btn btn-default">Netejar</button>
+					<button type="submit" name="accio" value="consultar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;Filtrar</button>
+				</div>
 			</div>
 		</div>
 	</form:form>
@@ -202,25 +200,27 @@ function confirmarAlliberar(e) {
 				<th data-rdt-property="titol" data-rdt-template="cellPersonalGroupTemplate" data-rdt-visible="true" >
 					Tasca
 					<script id="cellPersonalGroupTemplate" type="text/x-jsrender">
+						{{:titol}}
+						{{if responsables != null && !agafada}}
+							<span class="fa fa-users"></span>
+						{{/if}}
+						<div class="pull-right">
 						{{if cancelada}}
-							<i class="btn-small btn-danger pull-right" style="margin-right: .3em">CA</i>
+							<span class="label label-danger" title="Cancel·lada">CA</span>
 						{{/if}}
 						{{if suspesa}}
-							<i class="btn-small btn-info pull-right" style="margin-right: .3em">SU</i>
+							<span class="label label-info" title="Suspesa">SU</span>
 						{{/if}}
 						{{if oberta}}
-							<i class="btn-small btn-warning pull-right" style="margin-right: .3em">OB</i>
+							<span class="label label-warning" title="Oberta">OB</span>
 						{{/if}}
 						{{if completed}}
-							<i class="btn-small btn-succes pull-right" style="margin-right: .3em">FI</i>
+							<span class="label label-success" title="Finalitzada">FI</span>
 						{{/if}}
 						{{if agafada}}
-							<i class="btn-small btn-inverse pull-right" style="margin-right: .3em">AG</i>
+							<span class="label label-default" title="Agafada">AG</span>
 						{{/if}}
-						{{if responsables != null && !agafada}}
-							<i class="icon-group" style="margin-right: .3em" />
-						{{/if}}
-						{{:titol}}
+						</div>
 					</script>
 				</th>
 				<th data-rdt-property="expedientIdentificador" data-rdt-visible="true">Expedient</th>
@@ -231,7 +231,7 @@ function confirmarAlliberar(e) {
 				<th data-rdt-property="id" data-rdt-template="cellAccionsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
  						<div class="dropdown"> 
- 							<button class="btn btn-success" data-toggle="dropdown"><i class="icon-cog icon-white"></i>&nbsp;Accions&nbsp;<span class="caret"></span></button> 
+ 							<button class="btn btn-primary" data-toggle="dropdown"><i class="icon-cog icon-white"></i>&nbsp;Accions&nbsp;<span class="caret"></span></button> 
 							<ul class="dropdown-menu"> 
 								<li><a rdt-link-modal="true" data-reasignar-modal="true" href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/reassignar"/>"><i class="icon-share"></i> Reasignar</a></li>
 								{{if responsables != null && !agafada && oberta && !suspesa}}

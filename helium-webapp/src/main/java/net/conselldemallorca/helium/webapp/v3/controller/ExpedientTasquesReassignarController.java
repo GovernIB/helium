@@ -13,7 +13,6 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTascaReassignarCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.NoDecorarHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.apache.commons.logging.Log;
@@ -83,7 +82,8 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 	        			expedient,
 	        			tascaId,
 	        			model);
-				NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
+				// TODO
+				// NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
 				return "v3/expedient/tasca/reassignar";
 			} else {
 				MissatgesHelper.error(request, getMessage(request, "error.permisos.modificar.expedient"));
@@ -116,7 +116,8 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 			        			expedient,
 			        			tascaId,
 			        			model);
-						NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
+			        	// TODO
+			    		// NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
 
 						MissatgesHelper.error(request, result, getMessage(request, "error.validacio"));
 			        	return "v3/expedient/tasca/reassignar";
@@ -139,7 +140,8 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 			        			tascaId,
 			        			model);
 			        	logger.error("No s'ha pogut reassignar la tasca " + command.getTaskId(), ex);
-						NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
+			        	// TODO
+			    		// NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
 			        	return "v3/expedient/tasca/reassignar";
 					}
 				}

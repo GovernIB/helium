@@ -36,7 +36,8 @@
 		<bean class="net.conselldemallorca.helium.webapp.mvc.interceptor.PermisosDissenyInterceptor"/>
 		<bean class="net.conselldemallorca.helium.webapp.mvc.interceptor.GlobalPropertiesInterceptor"/>
 		<bean class="net.conselldemallorca.helium.webapp.mvc.interceptor.VersioInterceptor"/>
-		<bean class="net.conselldemallorca.helium.webapp.v3.interceptor.NoDecorarInterceptor"/>
+		<bean class="net.conselldemallorca.helium.webapp.v3.interceptor.NodecoInterceptor"/>
+		<bean class="net.conselldemallorca.helium.webapp.v3.interceptor.ModalInterceptor"/>
 		<bean class="org.springframework.orm.jpa.support.OpenEntityManagerInViewInterceptor"/>
 		<bean id="localeChangeInterceptor" class="net.conselldemallorca.helium.webapp.mvc.interceptor.IdiomaInterceptor" />
 	</mvc:interceptors>

@@ -3,6 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+
 <c:choose>
 	<c:when test="${not empty tasques}">
 		<c:set var="hiHaPendentsMeves" value="${false}"/>
@@ -29,25 +30,27 @@
 						<c:if test="${tasca.oberta}">
 							<tr <c:if test="${tasca.responsableCodi == dadesPersona.codi and not tasca.suspesa}"> style="cursor: pointer"</c:if>>
 								<td>
-									<c:if test="${tasca.cancelada}">
-										<i class="btn-small btn-danger pull-right" style="margin-right: .3em">CA</i>
-									</c:if>
-									<c:if test="${tasca.suspesa}">
-										<i class="btn-small btn-info pull-right" style="margin-right: .3em">SU</i>
-									</c:if>
-									<c:if test="${tasca.oberta}">
-										<i class="btn-small btn-warning pull-right" style="margin-right: .3em">OB</i>
-									</c:if>
-									<c:if test="${tasca.completed}">
-										<i class="btn-small btn-succes pull-right" style="margin-right: .3em">FI</i>
-									</c:if>
-									<c:if test="${tasca.responsableCodi == dadesPersona.codi}">
-										<i class="btn-small btn-inverse pull-right" style="margin-right: .3em">AG</i>
-									</c:if>
-									<c:if test="${not empty tasca.responsables && not tasca.agafada}">
-										<i class="icon-group" style="margin-right: .3em"/>
-									</c:if>
 									${tasca.titol}
+									<c:if test="${not empty tasca.responsables && not tasca.agafada}">
+										<span class="fa fa-users"></span>
+									</c:if>
+									<div class="pull-right">
+										<c:if test="${tasca.cancelada}">
+											<span class="label label-danger" title="Cancel·lada">CA</span>
+										</c:if>
+										<c:if test="${tasca.suspesa}">
+											<span class="label label-info" title="Suspesa">SU</span>
+										</c:if>
+										<c:if test="${tasca.oberta}">
+											<span class="label label-warning" title="Oberta">OB</span>
+										</c:if>
+										<c:if test="${tasca.completed}">
+											<span class="label label-success" title="Finalitzada">FI</span>
+										</c:if>
+										<c:if test="${tasca.responsableCodi == dadesPersona.codi}">
+											<span class="label label-default" title="Agafada">AG</span>
+										</c:if>
+									</div>
 								</td>
 								<td>
 									<c:if test="${not empty tasca.responsable}">
@@ -66,27 +69,27 @@
 								</td>
 								<td>
 									<div class="btn-group">
-										<a class="btn btn-success dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-cog icon-white"></i> Accions <span class="caret"></span></a>
+										<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-cog"></span>&nbsp;Accions <span class="caret"></span></a>
 										<ul class="dropdown-menu">
 											<c:if test="${tasca.oberta and not tasca.suspesa}">
 												<c:if test="${tasca.responsableCodi == dadesPersona.codi}">
-													<li><a data-tramitar-modal="true" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/tramitar"/>"><i class="icon-folder-open"></i> Tramitar</a></li>
-													<li><a href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/delegar"/>"><i class="icon-hand-right"></i> Delegar</a></li>
+													<li><a data-tramitar-modal="true" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/tramitar"/>"><span class="fa fa-folder-open"></span> Tramitar</a></li>
+													<li><a href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/delegar"/>"><span class="fa fa-hand-o-right"></span> Delegar</a></li>
 												</c:if>
 												<c:if test="${not empty tasca.responsables && not tasca.agafada}">
-													<li><a href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/tascaAgafar"/>"><i class="icon-signin"></i> Agafar</a></li>
+													<li><a href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/tascaAgafar"/>"><span class="fa fa-check"></span> Agafar</a></li>
 												</c:if>
-												<li><a data-reasignar-modal="true" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/reassignar"/>"><i class="icon-share"></i> Reasignar</a></li>
-												<li><a onclick="return confirmarSuspendre(event)" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/suspendre"/>"><i class="icon-pause"></i> Suspendre</a></li>
+												<li><a data-reasignar-modal="true" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/reassignar"/>"><span class="fa fa-share-square-o"></span> Reasignar</a></li>
+												<li><a onclick="return confirmarSuspendre(event)" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/suspendre"/>"><span class="fa fa-pause"></span> Suspendre</a></li>
 											</c:if>
 											<c:if test="${tasca.suspesa}">
-												<li><a onclick="return confirmarReprendre(event)" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/reprendre"/>"><i class="icon-play"></i> Reprendre</a></li>
+												<li><a onclick="return confirmarReprendre(event)" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/reprendre"/>"><span class="fa fa-play"></span> Reprendre</a></li>
 											</c:if>
 											<c:if test="${not tasca.cancelada}">
-												<li><a onclick="return confirmarCancelar(event)" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/cancelar"/>"><i class="icon-remove"></i> Cancelar</a></li>
+												<li><a onclick="return confirmarCancelar(event)" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/cancelar"/>"><span class="fa fa-times"></span> Cancelar</a></li>
 											</c:if>
 											<c:if test="${not empty tasca.responsables && tasca.responsableCodi == dadesPersona.codi and tasca.oberta}">
-												<li><a onclick="return confirmarAlliberar(event)" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/tascaAlliberar"/>"><i class="icon-leaf"></i> <spring:message code="tasca.pllistat.alliberar"/></a></li>
+												<li><a onclick="return confirmarAlliberar(event)" href="<c:url value="/v3/expedient/${expedientId}/tasca/${tasca.id}/tascaAlliberar"/>"><span class="icon-leaf"></span> <spring:message code="tasca.pllistat.alliberar"/></a></li>
 											</c:if>													
 										</ul>
 									</div>
@@ -98,10 +101,8 @@
 			</table>
 		</c:if>
 		<c:if test="${hiHaNoPendents}">
-			<div class="well well-small">
-				    <div class="page-header">
-				    <h4>Tasques finalitzades</h4>
-				    </div>
+			<div class="well well-sm">
+				<h4>Tasques finalitzades</h4>
 				<table class="table table-bordered">
 					<thead>
 						<tr>

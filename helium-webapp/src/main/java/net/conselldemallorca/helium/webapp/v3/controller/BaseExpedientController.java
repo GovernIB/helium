@@ -46,9 +46,7 @@ public class BaseExpedientController extends BaseController {
 		ExpedientDto expedient = expedientService.findById(expedientId);
 		model.addAttribute("expedient", expedient);
 		model.addAttribute("participants", expedientService.findParticipantsPerExpedient(expedientId));
-		
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(expedient.getProcessInstanceId());
-		
 		List<AccioDto> accions = dissenyService.findAccionsVisiblesAmbDefinicioProces(instanciaProces.getDefinicioProces().getId());
 		boolean hiHaAccionsPubliques = false;
 		Iterator<AccioDto> it = accions.iterator();
@@ -73,14 +71,11 @@ public class BaseExpedientController extends BaseController {
 		}
 		model.addAttribute("accions", accions);
 		model.addAttribute("hiHaAccionsPubliques", hiHaAccionsPubliques);
-		
 		model.addAttribute("relacionats",expedientService.getExpedientsRelacionats(expedientId));
-
 		DefinicioProcesDto def = dissenyService.getById(instanciaProces.getDefinicioProces().getId());
 		model.addAttribute("definicioProcesJbpmId",def.getId());
 		model.addAttribute("definicioProcesDescripcio",def.getEtiqueta());
 		model.addAttribute("definicionsProces",def.getJbpmIdsAmbDescripcio());
-		
 		if (pipellaActiva != null)
 			model.addAttribute("pipellaActiva", pipellaActiva);
 		else if (request.getParameter("pipellaActiva") != null)

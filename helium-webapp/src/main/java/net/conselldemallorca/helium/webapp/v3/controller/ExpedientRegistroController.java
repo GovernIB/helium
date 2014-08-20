@@ -14,7 +14,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.NoDecorarHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.jbpm.JbpmException;
@@ -109,7 +109,7 @@ public class ExpedientRegistroController extends BaseExpedientController {
 			@RequestParam(value = "retorn", required = true) String retorn,
 			Model model) {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		if (!NoDecorarHelper.isRequestSenseDecoracio(request)) {
+		if (!NodecoHelper.isNodeco(request)) {
 			mostrarInformacioExpedientPerPipella(request, expedientId, model, "registre", expedientService);
 		}
 		if (entorn != null) {
@@ -141,10 +141,11 @@ public class ExpedientRegistroController extends BaseExpedientController {
 			@RequestParam(value = "logId", required = true) Long logId,
 			Model mod,
 			ModelMap model) {
-		if (!NoDecorarHelper.isRequestSenseDecoracio(request)) {
+		if (!NodecoHelper.isNodeco(request)) {
 			mostrarInformacioExpedientPerPipella(request, expedientId, mod, "registre", expedientService);
 		}
-		NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
+		// TODO
+		// NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findById(expedientId);
@@ -173,7 +174,8 @@ public class ExpedientRegistroController extends BaseExpedientController {
 			@RequestParam(value = "id", required = true) Long expedientId,
 			@RequestParam(value = "targetId", required = true) Long targetId,
 			ModelMap model) {
-		NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
+		// TODO
+		// NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findById(expedientId);

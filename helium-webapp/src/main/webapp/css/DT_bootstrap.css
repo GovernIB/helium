@@ -182,3 +182,6 @@ div.DTFC_LeftFootWrapper table {
 	border-top: none;
 }
 
+#dataTables_new {
+	padding-bottom: .5em;
+}

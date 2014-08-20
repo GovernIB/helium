@@ -15,10 +15,12 @@
 		<pattern>/expedient/logRetrocedit*</pattern>
 		<pattern>/expedient/logAccionsTasca*</pattern>
 		<pattern>/signatura/verificar*</pattern>
-		<pattern>/nodecorar/*</pattern>
+		<pattern>/nodeco/*</pattern>
 	</excludes>
 	<decorator name="v3" page="v3.jsp">
 		<pattern>/v3/*</pattern>
+	</decorator>
+	<decorator name="senseCapNiPeus" page="v3SenseCapNiPeus.jsp">
 	</decorator>
 	<decorator name="default" page="default.jsp">
 		<pattern>/*</pattern>
