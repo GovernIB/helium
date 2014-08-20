@@ -4,13 +4,14 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
+<c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <html>
 <head>
 	<title><fmt:message key="index.inici" /></title>
 	<meta name="capsaleraTipus" content="llistat"/>
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
 	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
-	<script src="<c:url value="/js/datepicker-locales/bootstrap-datepicker.ca.js"/>"></script>
+	<script src="<c:url value="/js/datepicker-locales/bootstrap-datepicker.${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/jquery.maskedinput.js"/>"></script>
 	<link href="<c:url value="/css/DT_bootstrap.css"/>" rel="stylesheet">
 	<script src="<c:url value="/js/jquery.dataTables.js"/>"></script>
@@ -18,6 +19,10 @@
 	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
 	<script src="<c:url value="/js/helium.datatable.js"/>"></script>
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
+	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
+	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
+	<script src="<c:url value="/js/select2.min.js"/>"></script>
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 <script>
 $(document).ready(function() {
 	$("#taulaDades").heliumDataTable({
@@ -84,33 +89,17 @@ function confirmarAlliberar(e) {
 		<div id="filtresCollapsable" class="collapse<c:if test="${true or tascaConsultaCommand.filtreDesplegat}"> in</c:if>">
 			<div class="row">
 				<div class="col-md-2">
-					<c:set var="campPath" value="tasca"/>
-					<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
-					<div class="control-group<c:if test="${not empty campErrors}"> error</c:if>">
-						<spring:bind path="${campPath}">
-							<input type="text" id="${campPath}" name="${campPath}" placeholder="Tasca"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span12">
-						</spring:bind>
-					</div>
+					<hel:inputText name="tasca" text="Tasca" placeholder="Tasca" inline="true"/>
 				</div>
 				<div class="col-md-4">
-					<c:set var="campPath" value="expedient"/>
-					<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
-					<div class="control-group<c:if test="${not empty campErrors}"> error</c:if>">
-						<spring:bind path="${campPath}">
-							<input type="text" id="${campPath}" name="${campPath}" placeholder="Expedient"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span12">
-						</spring:bind>
-					</div>
+					<hel:inputText name="expedient" text="Expedient" placeholder="Expedient" inline="true"/>
 				</div>
 				<div class="col-md-3">
-					<c:set var="campPath" value="prioritat"/>
-					<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
-					<form:select path="${campPath}" cssClass="span12">
-						<option value="">Prioritat</option>
-						<form:options items="${prioritats}" itemLabel="codi" itemValue="valor"/>
-					</form:select>
+					<hel:inputSelect name="prioritat" text="Prioritat" placeholder="Prioritat" optionItems="${prioritats}" optionValueAttribute="valor" optionTextAttribute="codi" inline="true"/>
 				</div>
 				<div class="col-md-3">
-					<c:set var="campPath" value="expedientTipusId"/>
+					<hel:inputSelect name="expedientTipusId" text="Tipus d'expedient" placeholder="Tipus d'expedient" optionItems="${expedientTipusAccessibles}" optionValueAttribute="id" optionTextAttribute="nom"  disabled="${not empty expedientTipusActual}" inline="true"/>
+					<%--c:set var="campPath" value="expedientTipusId"/>
 					<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 					<c:choose>
 						<c:when test="${not empty expedientTipusActual}">
@@ -123,54 +112,30 @@ function confirmarAlliberar(e) {
 								<form:options items="${expedientTipusAccessibles}" itemLabel="nom" itemValue="id"/>
 							</form:select>
 						</c:otherwise>
-					</c:choose>
+					</c:choose--%>
 				</div>
 			</div>
 			<div class="row">
 				<div class="col-md-4">
-					<label>Data creacio</label>
-					<div class="row-fluid">
-						<div class="span5 input-append date datepicker">
-							<c:set var="campPath" value="dataCreacioInicial"/>
-							<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
-							<spring:bind path="${campPath}">
-								<input type="text" id="${campPath}" name="${campPath}" placeholder="dd/mm/yyyy"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span11">
-							</spring:bind>
-							<span class="add-on"><i class="icon-calendar"></i></span>
+					<label>Data creació</label>
+					<div class="row">
+						<div class="col-md-6">
+							<hel:inputDate name="dataCreacioInicial" text="Data creació inicial" placeholder="dd/mm/yyyy" inline="true"/>
 						</div>
-						<script>$("#${campPath}").mask("99/99/9999");</script>
-						<div class="span5 offset1 input-append date datepicker">
-							<c:set var="campPath" value="dataCreacioFinal"/>
-							<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
-							<spring:bind path="${campPath}">
-								<input type="text" id="${campPath}" name="${campPath}" placeholder="dd/mm/yyyy"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span11">
-							</spring:bind>
-							<span class="add-on"><i class="icon-calendar"></i></span>
+						<div class="col-md-6">
+							<hel:inputDate name="dataCreacioFinal" text="Data creació final" placeholder="dd/mm/yyyy" inline="true"/>
 						</div>
-						<script>$("#${campPath}").mask("99/99/9999");</script>
 					</div>
 				</div>
 				<div class="col-md-4">
-					<label>Data limit</label>
-					<div class="row-fluid">
-						<div class="span5 input-append date datepicker">
-							<c:set var="campPath" value="dataLimitInicial"/>
-							<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
-							<spring:bind path="${campPath}">
-								<input type="text" id="${campPath}" name="${campPath}" placeholder="dd/mm/yyyy"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span10">
-							</spring:bind>
-							<span class="add-on"><i class="icon-calendar"></i></span>
+					<label>Data límit</label>
+					<div class="row">
+						<div class="col-md-6">
+							<hel:inputDate name="dataLimitInicial" text="Data límit inicial" placeholder="dd/mm/yyyy" inline="true"/>
 						</div>
-						<script>$("#${campPath}").mask("99/99/9999");</script>
-						<div class="span5 offset1 input-append date datepicker">
-							<c:set var="campPath" value="dataLimitFinal"/>
-							<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
-							<spring:bind path="${campPath}">
-								<input type="text" id="${campPath}" name="${campPath}" placeholder="dd/mm/yyyy"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="span10">
-							</spring:bind>
-							<span class="add-on"><i class="icon-calendar"></i></span>
+						<div class="col-md-6">
+							<hel:inputDate name="dataLimitFinal" text="Data límit final" placeholder="dd/mm/yyyy" inline="true"/>
 						</div>
-						<script>$("#${campPath}").mask("99/99/9999");</script>
 					</div>
 				</div>
 			</div>

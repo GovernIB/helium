@@ -37,6 +37,7 @@
 		</div>
 	</c:otherwise>
 </c:choose>
+<script>$("#${campPath}").mask("99/99/9999");</script>
 <script>
 $(document).ready(function() {
 	$('.datepicker').datepicker({

@@ -356,6 +356,22 @@
 					if (seleccioActiva) {
 						$("td:eq(" + seleccioColumna + ")", nRow).html('<input class="rdt-seleccio" type="checkbox" value="' + aData[seleccioColumna] + '"/>');
 					}
+					if (settings.rowClickCallback) {
+						$('td', nRow).each(function() {
+							var clickable = $('input', this).length == 0 && $('button', this).length == 0;
+							if (clickable) {
+								$(this).mouseenter(function() {
+									$(this).css('cursor', 'pointer');
+								});
+								$(this).mouseleave(function() {
+									$(this).css('cursor', 'auto');
+								});
+								$(this).click(function() {
+									settings.rowClickCallback($(this).closest('tr')[0]);
+								});
+							}
+						});
+					}
 				},
 				"fnServerParams": function(aoData) {
 					if ($(this).data("rdt-button-template") && $(this).data("rdt-button-template").length > 0) {

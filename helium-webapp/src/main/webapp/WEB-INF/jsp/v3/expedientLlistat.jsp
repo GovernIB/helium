@@ -82,7 +82,7 @@ $(document).ready(function() {
 		$('#filtresCollapse i').attr("class", "icon-chevron-up");
 		$("input[name=filtreDesplegat]").val("true");
 	});
-	$('select[name=expedientTipusId]').on('change', function () {
+	/*$('select[name=expedientTipusId]').on('change', function () {
 		$("select[name=estatText] option").each(function (index, option) {
     		if (index > 1 && $("select[name=estatText] option").size() > 3)
 				$(option).remove();
@@ -99,7 +99,29 @@ $(document).ready(function() {
 			    }
 			});
 		}
-	});	
+	});*/
+	$('#expedientTipusId').on('change', function() {
+		var tipus = $(this).val();
+		$('#estatText').select2('val', '', true);
+		$('#estatText option[value!=""]').remove();
+		if ($(this).val()) {
+			$.get('expedient/estatsPerTipus/' + $(this).val())
+			.done(function(data) {
+				$('#estatText').append('<option value="<%=net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto.INICIAT%>">Iniciat</option>');
+				for (var i = 0; i < data.length; i++) {
+					$('#estatText').append('<option value="' + data[i].id + '">' + data[i].nom + '</option>');
+				}
+				$('#estatText').append('<option value="<%=net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto.FINALITZAT%>">Finalitzat</option>');
+			})
+			.fail(function() {
+				alert("Error al refrescar els estats");
+			});
+		} else {
+			$('#estatText').append('<option value="<%=net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto.INICIAT%>">Iniciat</option>');
+			$('#estatText').append('<option value="<%=net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto.FINALITZAT%>">Finalitzat</option>');
+		}
+	});
+	$('#expedientTipusId').trigger('change');
 	$('#tramitacioMassivaSelTots').click(function() {
 		$.ajax({
 		    url:'expedient/seleccionarTots',
@@ -139,17 +161,15 @@ $(document).ready(function() {
 				<hel:inputText name="titol" text="Títol" placeholder="Títol" inline="true"/>
 			</div>
 			<div class="col-md-3">
-				<hel:inputSelect name="expedientTipusId" text="Tipus d'expedient" placeholder="Tipus d'expedient" optionItems="${expedientTipusAccessibles}" optionValueAttribute="id" optionTextAttribute="nom" inline="true"/>
+				<hel:inputSelect name="expedientTipusId" text="Tipus d'expedient" placeholder="Tipus d'expedient" optionItems="${expedientTipusAccessibles}" optionValueAttribute="id" optionTextAttribute="nom" disabled="${not empty expedientTipusActual}" inline="true"/>
 			</div>
 			<div class="col-md-3">
-				<c:set var="campPath" value="estatText"/>
+				<hel:inputSelect name="estatText" text="Estat" placeholder="Estat" optionItems="${estats}" optionValueAttribute="id" optionTextAttribute="nom" inline="true"/>
+				<%--c:set var="campPath" value="estatText"/>
 				<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 				<form:select path="${campPath}" cssClass="span12">
 					<option value="">Estat</option>
-					<form:option value="<%=net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto.INICIAT%>">Iniciat</form:option>
-					<form:options items="${estats}" itemLabel="nom" itemValue="id"/>
-					<form:option value="<%=net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto.FINALITZAT%>">Finalitzat</form:option>
-				</form:select>
+				</form:select--%>
 			</div>
 		</div>
 		<div class="row">
@@ -236,7 +256,7 @@ $(document).ready(function() {
 				<th data-rdt-property="estat.nom" data-rdt-template="cellEstatTemplate" data-rdt-visible="true">
 					Estat
 					<script id="cellEstatTemplate" type="text/x-jsrender">
-					{{if dataFi}}Finalitzat{{else}}Iniciat{{/if}}
+					{{if dataFi}}Finalitzat{{else estat_nom}}{{:estat_nom}}{{else}}Iniciat{{/if}}
 					</script>
 				</th>
 				<th data-rdt-property="aturat" data-rdt-visible="false">Aturat</th>

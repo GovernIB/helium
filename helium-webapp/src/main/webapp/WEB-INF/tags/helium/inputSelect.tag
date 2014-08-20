@@ -28,7 +28,7 @@
 			<label class="control-label col-xs-4" for="${campPath}">${campLabelText}</label>
 			<div class="controls col-xs-8">
 				<form:select path="${campPath}" cssClass="form-control" id="${campPath}" disabled="${disabled}">
-					<c:if test="${emptyOption == 'true'}">
+					<c:if test="${emptyOption == 'true' or not empty campPlaceholder}">
 						<c:choose>
 							<c:when test="${not empty emptyOptionTextKey}"><option value=""><spring:message code="${emptyOptionTextKey}"/></option></c:when>
 							<c:when test="${not empty emptyOptionText}"><option value="">${emptyOptionText}</option></c:when>
@@ -62,7 +62,7 @@
 		<div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>">
     		<label class="sr-only" for="${campPath}">${campLabelText}</label>
 			<form:select path="${campPath}" cssClass="form-control" id="${campPath}" disabled="${disabled}">
-				<c:if test="${emptyOption == 'true'}">
+				<c:if test="${emptyOption == 'true' or not empty campPlaceholder}">
 					<c:choose>
 						<c:when test="${not empty emptyOptionTextKey}"><option value=""><spring:message code="${emptyOptionTextKey}"/></option></c:when>
 						<c:when test="${not empty emptyOptionText}"><option value="">${emptyOptionText}</option></c:when>
