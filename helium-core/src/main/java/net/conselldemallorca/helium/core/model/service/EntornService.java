@@ -221,6 +221,9 @@ public class EntornService {
 			dto.setDemanaTitol(expedientTipus.getDemanaTitol());
 			dto.setExpressioNumero(expedientTipus.getExpressioNumero());
 			dto.setReiniciarCadaAny(expedientTipus.isReiniciarCadaAny());
+			dto.setRestringirPerGrup(expedientTipus.isRestringirPerGrup());
+			dto.setSeleccionarAny(expedientTipus.isSeleccionarAny());
+			dto.setResponsableDefecteCodi(expedientTipus.getResponsableDefecteCodi());
 			dto.setSistraTramitCodi(expedientTipus.getSistraTramitCodi());
 			/*dto.setSistraTramitMapeigCamps(expedientTipus.getSistraTramitMapeigCamps());
 			dto.setSistraTramitMapeigDocuments(expedientTipus.getSistraTramitMapeigDocuments());
@@ -407,6 +410,9 @@ public class EntornService {
 			nou.setDemanaTitol(expedientTipus.getDemanaTitol());
 			nou.setExpressioNumero(expedientTipus.getExpressioNumero());
 			nou.setReiniciarCadaAny(expedientTipus.isReiniciarCadaAny());
+			nou.setRestringirPerGrup(expedientTipus.isRestringirPerGrup());
+			nou.setSeleccionarAny(expedientTipus.isSeleccionarAny());
+			nou.setResponsableDefecteCodi(expedientTipus.getResponsableDefecteCodi());
 			nou.setSistraTramitCodi(expedientTipus.getSistraTramitCodi());
 			/*nou.setSistraTramitMapeigCamps(expedientTipus.getSistraTramitMapeigCamps());
 			nou.setSistraTramitMapeigDocuments(expedientTipus.getSistraTramitMapeigDocuments());

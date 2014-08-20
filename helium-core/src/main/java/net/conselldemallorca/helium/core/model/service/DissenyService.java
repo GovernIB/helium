@@ -1321,6 +1321,9 @@ public class DissenyService {
 		dto.setDemanaTitol(expedientTipus.getDemanaTitol());
 		dto.setExpressioNumero(expedientTipus.getExpressioNumero());
 		dto.setReiniciarCadaAny(expedientTipus.isReiniciarCadaAny());
+		dto.setRestringirPerGrup(expedientTipus.isRestringirPerGrup());
+		dto.setSeleccionarAny(expedientTipus.isSeleccionarAny());
+		dto.setResponsableDefecteCodi(expedientTipus.getResponsableDefecteCodi());
 		dto.setSistraTramitCodi(expedientTipus.getSistraTramitCodi());
 		dto.setFormextUrl(expedientTipus.getFormextUrl());
 		dto.setFormextUsuari(expedientTipus.getFormextUsuari());
@@ -1461,6 +1464,9 @@ public class DissenyService {
 		expedientTipus.setDemanaTitol(exportacio.getDemanaTitol());
 		expedientTipus.setExpressioNumero(exportacio.getExpressioNumero());
 		expedientTipus.setReiniciarCadaAny(exportacio.isReiniciarCadaAny());
+		expedientTipus.setRestringirPerGrup(exportacio.isRestringirPerGrup());
+		expedientTipus.setSeleccionarAny(exportacio.isSeleccionarAny());
+		expedientTipus.setResponsableDefecteCodi(exportacio.getResponsableDefecteCodi());
 		expedientTipus.setSistraTramitCodi(exportacio.getSistraTramitCodi());
 		expedientTipus.setJbpmProcessDefinitionKey(exportacio.getJbpmProcessDefinitionKey());
 		/*expedientTipus.setSistraTramitMapeigCamps(exportacio.getSistraTramitMapeigCamps());
