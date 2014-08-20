@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Component
-@SuppressWarnings("restriction")
 public class MonitorHelper {
 	private static Boolean actiu = null;
 	private static long prevUpTime, prevProcessCpuTime;
