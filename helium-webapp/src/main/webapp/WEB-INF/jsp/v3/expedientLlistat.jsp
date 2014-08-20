@@ -28,7 +28,7 @@ $(document).ready(function() {
 	$("#taulaDades").heliumDataTable({
 		ajaxSourceUrl: "<c:url value="/v3/expedient/datatable"/>",
 		localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
-		alertesRefreshUrl: "<c:url value="/nodecorar/v3/missatges"/>",
+		alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
 		rowClickCallback: function(row) {
 			$('a.obrir-expedient', $(row))[0].click();
 			/*var url = $('ul a:first', $(row)).attr("href");
@@ -46,7 +46,7 @@ $(document).ready(function() {
 						"<div><p style='margin-top: 2em; text-align: center'><i class='icon-spinner icon-2x icon-spin'></i></p></div>"+
 					"</td></tr>");
 			$.ajax({
-				"url": "/helium/nodecorar/v3/expedient/" + idExpedient + "/tasquesPendents",
+				"url": "/helium/nodeco/v3/expedient/" + idExpedient + "/tasquesPendents",
 				"success": function (data) {								
 					$(row).after("<tr class='tr-pendents info-" + idExpedient + "'>"+
 							"<td colspan='" + (numCols - 1)+ "'>" + data + "</td>").fadeIn();

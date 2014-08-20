@@ -4,11 +4,12 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 
 <html>
 <head>
-	<title><spring:message code='expedient.iniciar.disponibles' /></title>
-	<meta name="decorator" content="senseCapNiPeus"/>
+	<title><spring:message code="expedient.iniciar.disponibles"/></title>
+	<hel:modalHead/>
 	<meta name="capsaleraTipus" content="llistat"/>
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
 <script type="text/javascript">

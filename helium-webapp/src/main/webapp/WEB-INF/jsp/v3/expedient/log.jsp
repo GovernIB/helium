@@ -20,7 +20,7 @@
 	function recargarRegistro() {
 		$('#contingut-carregant').show();
 		$('#contingut-registre').load(
-				'<c:url value="/nodecorar/v3/expedient/${expedient.id}/registre?tipus_retroces='+$('#tipus_retroces').val()+'"/>',
+				'<c:url value="/nodeco/v3/expedient/${expedient.id}/registre?tipus_retroces='+$('#tipus_retroces').val()+'"/>',
 				function() {
 					$('#contingut-carregant').hide();
 		});
@@ -181,7 +181,7 @@
 			adjustWidth: false,
 			adjustHeight: true,
 			maximize: true,
-			alertesRefreshUrl: "<c:url value="/nodecorar/v3/missatges"/>",
+			alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
 			valignTop: true
 		});
 		return false;

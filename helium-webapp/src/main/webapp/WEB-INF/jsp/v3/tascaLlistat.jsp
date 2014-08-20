@@ -23,7 +23,7 @@ $(document).ready(function() {
 	$("#taulaDades").heliumDataTable({
 		ajaxSourceUrl: "<c:url value="/v3/tasca/datatable"/>",
 		localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
-		alertesRefreshUrl: "<c:url value="/nodecorar/v3/missatges"/>"
+		alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"
 	});
 	$("#tascaConsultaCommand button[value='netejar']").click(function() {
 		$('#tascaConsultaCommand')[0].reset();
@@ -278,7 +278,7 @@ $('#taulaDades a').click(function() {
 			adjustWidth: false,
 			adjustHeight: true,
 			maximize: true,
-			alertesRefreshUrl: "<c:url value="/nodecorar/v3/missatges"/>",
+			alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
 			valignTop: true,
 			buttonContainerId: 'formFinalitzar',
 		});
@@ -292,7 +292,7 @@ $('#taulaDades a').click(function() {
 			adjustWidth: false,
 			adjustHeight: true,
 			maximize: true,
-			alertesRefreshUrl: "<c:url value="/nodecorar/v3/missatges"/>",
+			alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
 			valignTop: true,
 			buttonContainerId: 'formReasignar'
 		});

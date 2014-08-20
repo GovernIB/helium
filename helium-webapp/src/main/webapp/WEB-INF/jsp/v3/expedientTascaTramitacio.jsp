@@ -10,7 +10,7 @@
 <html>
 <head>
 	<title>${tasca.titol}</title>
-	<meta name="decorator" content="senseCapNiPeus"/>
+	<hel:modalHead/>
 	<script type="text/javascript" src="<c:url value="/js/jquery.keyfilter.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">

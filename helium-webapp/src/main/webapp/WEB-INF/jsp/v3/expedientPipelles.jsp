@@ -83,7 +83,7 @@
 				        $("#imatgeproces").text(data);
 				        $("#definicioProcesJbpmId").toggle();
 				        $.ajax({
-							url: '<c:url value="/nodecorar/v3/missatges"/>',
+							url: '<c:url value="/nodeco/v3/missatges"/>',
 							async: false,
 							timeout: 20000,
 							success: function (data) {
@@ -103,7 +103,7 @@
 			if (!$('#contingut-dades').data('carregat')) {
 				$('#contingut-carregant').show();
 				$('#contingut-dades').load(
-						'<c:url value="/nodecorar/v3/expedient/${expedient.id}/dades"/>',
+						'<c:url value="/nodeco/v3/expedient/${expedient.id}/dades"/>',
 						function() {
 							$("i.agrupacio-desplegador").click(function() {
 								var taula = $(this).parent().parent().parent().parent().parent();
@@ -130,7 +130,7 @@
 			if (!$('#contingut-documents').data('carregat')) {
 				$('#contingut-carregant').show();
 				$('#contingut-documents').load(
-						'<c:url value="/nodecorar/v3/expedient/${expedient.id}/documents"/>',
+						'<c:url value="/nodeco/v3/expedient/${expedient.id}/documents"/>',
 						function() {
 							$('#contingut-carregant').hide();
 						});
@@ -147,7 +147,7 @@
 			if (!$('#contingut-terminis').data('carregat')) {
 				$('#contingut-carregant').show();
 				$('#contingut-terminis').load(
-						'<c:url value="/nodecorar/v3/expedient/${expedient.id}/terminis"/>',
+						'<c:url value="/nodeco/v3/expedient/${expedient.id}/terminis"/>',
 						function() {
 							$('#contingut-carregant').hide();
 						});
@@ -164,7 +164,7 @@
 			if (!$('#contingut-tasques').data('carregat')) {
 				$('#contingut-carregant').show();
 				$('#contingut-tasques').load(
-						'<c:url value="/nodecorar/v3/expedient/${expedient.id}/tasques"/>',
+						'<c:url value="/nodeco/v3/expedient/${expedient.id}/tasques"/>',
 						function() {
 							$('#contingut-carregant').hide();
 						});
@@ -181,7 +181,7 @@
 			if (!$('#contingut-registre').data('carregat')) {
 				$('#contingut-carregant').show();
 				$('#contingut-registre').load(
-						'<c:url value="/nodecorar/v3/expedient/${expedient.id}/registre"/>',
+						'<c:url value="/nodeco/v3/expedient/${expedient.id}/registre"/>',
 						function() {
 							$('#contingut-carregant').hide();
 						});
@@ -198,7 +198,7 @@
 			if (!$('#contingut-cronograma').data('carregat')) {
 				$('#contingut-carregant').show();
 				$('#contingut-cronograma').load(
-						'<c:url value="/nodecorar/v3/expedient/${expedient.id}/timeline"/>',
+						'<c:url value="/nodeco/v3/expedient/${expedient.id}/timeline"/>',
 						function() {
 							$('#contingut-carregant').hide();
 						});
@@ -308,10 +308,10 @@
 				<div id="expedient-info-accio" class="dropdown">
 					<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="<c:url value="/v3/expedient/${expedientId}/imatgeProces"/>"><span class="fa fa-cog"></span> Accions <span class="caret"></span></a>
 					<ul class="dropdown-menu">
-						<li><a data-modificar-modal="true" href="<c:url value="/v3/expedient/${expedientId}/modificar"/>"><span class="fa fa-pencil"></span>&nbsp;Modificar informació</a></li>
-						<li><a data-aturar-modal="true" href="<c:url value="/v3/expedient/${expedientId}/stop"/>"><span class="fa fa-stop"></span>&nbsp;Aturar tramitació</a></li>
-						<li><a data-exec-modal="true" href="<c:url value="/v3/expedient/${expedientId}/execucions"/>"><span class="fa fa-cog"></span>&nbsp;Executar script</a></li>
-						<li><a data-relacionar-modal="true" href="<c:url value="/v3/expedient/${expedientId}/relacionats"/>"><span class="fa fa-link"></span>&nbsp;Relacionar</a></li>
+						<li><a data-modificar-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/modificar"/>"><span class="fa fa-pencil"></span>&nbsp;Modificar informació</a></li>
+						<li><a data-aturar-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/stop"/>"><span class="fa fa-stop"></span>&nbsp;Aturar tramitació</a></li>
+						<li><a data-exec-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/execucions"/>"><span class="fa fa-cog"></span>&nbsp;Executar script</a></li>
+						<li><a data-relacionar-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/relacionats"/>"><span class="fa fa-link"></span>&nbsp;Relacionar</a></li>
 						<c:if test="${not empty accions}">
 							<c:set var="tePermisAccions" value="${false}"/>
 							<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
@@ -320,7 +320,7 @@
 							<c:if test="${hiHaAccionsPubliques || tePermisAccions}">
 								<li class="divider"></li>
 								<c:forEach var="accio" items="${accions}">
-									<li><a href="${expedient.id}/accio?accioId=${accio.id}"><span class="fa fa-bolt"></span> ${accio.nom}</a></li>
+									<li><a href="../../v3/expedient/${expedient.id}/accio?accioId=${accio.id}"><span class="fa fa-bolt"></span> ${accio.nom}</a></li>
 								</c:forEach>
 							</c:if>
 						</c:if>
@@ -377,7 +377,7 @@
 					adjustWidth: false,
 					adjustHeight: true,
 					maximize: true,
-					alertesRefreshUrl: "<c:url value="/nodecorar/v3/missatges"/>",
+					alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
 					valignTop: true,
 					buttonContainerId: 'formButtons'
 				});
@@ -391,7 +391,7 @@
 					adjustWidth: false,
 					adjustHeight: true,
 					maximize: true,
-					alertesRefreshUrl: "<c:url value="/nodecorar/v3/missatges"/>",
+					alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
 					valignTop: true,
 					buttonContainerId: 'formButtons'
 				});
@@ -405,7 +405,7 @@
 					adjustWidth: false,
 					adjustHeight: true,
 					maximize: true,
-					alertesRefreshUrl: "<c:url value="/nodecorar/v3/missatges"/>",
+					alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
 					valignTop: true,
 					buttonContainerId: 'formButtons'
 				});
@@ -419,7 +419,7 @@
 					adjustWidth: false,
 					adjustHeight: false,
 					maximize: true,
-					alertesRefreshUrl: "<c:url value="/nodecorar/v3/missatges"/>",
+					alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
 					valignTop: true,
 					buttonContainerId: 'formButtons'
 				});

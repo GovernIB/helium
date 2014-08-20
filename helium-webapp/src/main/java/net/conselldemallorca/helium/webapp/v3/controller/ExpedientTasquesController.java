@@ -17,6 +17,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
@@ -81,7 +82,10 @@ public class ExpedientTasquesController extends ExpedientTramitacioController {
 	public String tramitar(HttpServletRequest request, 
 			@PathVariable Long expedientId, 
 			@PathVariable String tascaId, Model model) {
-		return "redirect:/v3/expedient/" + expedientId + "/tasca/" + tascaId + "/form";
+		if (ModalHelper.isModal(request))
+			return "redirect:/modal/v3/expedient/" + expedientId + "/tasca/" + tascaId + "/form";
+		else
+			return "redirect:/v3/expedient/" + expedientId + "/tasca/" + tascaId + "/form";
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/form", method = RequestMethod.GET)
