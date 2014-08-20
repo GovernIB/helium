@@ -74,54 +74,6 @@ $(document).ready(function() {
 		$("input[name=mostrarAnulats]").val(!$("#mostrarAnulatsCheck").hasClass('active'));
 		$('#expedientConsultaCommand').submit();
 	});
-	$('#filtresCollapsable').on('hide', function () {
-		$('#filtresCollapse i').attr("class", "icon-chevron-down");
-		$("input[name=filtreDesplegat]").val("false");
-	});
-	$('#filtresCollapsable').on('show', function () {
-		$('#filtresCollapse i').attr("class", "icon-chevron-up");
-		$("input[name=filtreDesplegat]").val("true");
-	});
-	/*$('select[name=expedientTipusId]').on('change', function () {
-		$("select[name=estatText] option").each(function (index, option) {
-    		if (index > 1 && $("select[name=estatText] option").size() > 3)
-				$(option).remove();
-		});
-		if ($(this).val()) {
-			$.ajax({
-			    url:'expedient/estatsPerTipus/' + $(this).val(),
-			    type:'GET',
-			    dataType: 'json',
-			    success: function(json) {
-			        $.each(json, function(i, value) {
-			        	$('<option>').text(value.nom).attr('value', value.id).insertAfter($("select[name=estatText] option:eq(" + (i + 1) + ")"));
-			        });
-			    }
-			});
-		}
-	});*/
-	$('#expedientTipusId').on('change', function() {
-		var tipus = $(this).val();
-		$('#estatText').select2('val', '', true);
-		$('#estatText option[value!=""]').remove();
-		if ($(this).val()) {
-			$.get('expedient/estatsPerTipus/' + $(this).val())
-			.done(function(data) {
-				$('#estatText').append('<option value="<%=net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto.INICIAT%>">Iniciat</option>');
-				for (var i = 0; i < data.length; i++) {
-					$('#estatText').append('<option value="' + data[i].id + '">' + data[i].nom + '</option>');
-				}
-				$('#estatText').append('<option value="<%=net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto.FINALITZAT%>">Finalitzat</option>');
-			})
-			.fail(function() {
-				alert("Error al refrescar els estats");
-			});
-		} else {
-			$('#estatText').append('<option value="<%=net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto.INICIAT%>">Iniciat</option>');
-			$('#estatText').append('<option value="<%=net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto.FINALITZAT%>">Finalitzat</option>');
-		}
-	});
-	$('#expedientTipusId').trigger('change');
 	$('#tramitacioMassivaSelTots').click(function() {
 		$.ajax({
 		    url:'expedient/seleccionarTots',
@@ -147,6 +99,28 @@ $(document).ready(function() {
 			}
 		});
 	});
+	$('#expedientTipusId').on('change', function() {
+		var tipus = $(this).val();
+		$('#estatText').select2('val', '', true);
+		$('#estatText option[value!=""]').remove();
+		if ($(this).val()) {
+			$.get('expedient/estatsPerTipus/' + $(this).val())
+			.done(function(data) {
+				$('#estatText').append('<option value="<%=net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto.INICIAT%>">Iniciat</option>');
+				for (var i = 0; i < data.length; i++) {
+					$('#estatText').append('<option value="' + data[i].id + '">' + data[i].nom + '</option>');
+				}
+				$('#estatText').append('<option value="<%=net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto.FINALITZAT%>">Finalitzat</option>');
+			})
+			.fail(function() {
+				alert("Error al refrescar els estats");
+			});
+		} else {
+			$('#estatText').append('<option value="<%=net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto.INICIAT%>">Iniciat</option>');
+			$('#estatText').append('<option value="<%=net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto.FINALITZAT%>">Finalitzat</option>');
+		}
+	});
+	$('#expedientTipusId').trigger('change');
 });
 </script>
 </head>

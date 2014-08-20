@@ -93,7 +93,7 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		this.asc = asc;
 	}
 
-	public GetRootProcessInstancesForActiveTasksCommand(String responsable, String tasca, String tascaSel, List<Long> idsExpedients, Date dataCreacioInici, Date dataCreacioFi, int prioritat, Date dataLimitInici, Date dataLimitFi, List<OrdreDto> ordres, boolean mostrarTasquesPersonals, boolean mostrarTasquesGrup) {
+	public GetRootProcessInstancesForActiveTasksCommand(String responsable, String tasca, String tascaSel, List<Long> idsExpedients, Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi, List<OrdreDto> ordres, boolean mostrarTasquesPersonals, boolean mostrarTasquesGrup) {
 		super();
 		this.actorId = responsable;
 		this.idsPIExpedients = idsExpedients;

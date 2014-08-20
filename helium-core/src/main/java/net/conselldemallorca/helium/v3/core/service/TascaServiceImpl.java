@@ -1045,7 +1045,7 @@ public class TascaServiceImpl implements TascaService {
 			Date dataCreacioFi,
 			Date dataLimitInici,
 			Date dataLimitFi,
-			int prioritat,
+			Integer prioritat,
 			boolean mostrarTasquesPersonals,
 			boolean mostrarTasquesGrup,
 			final PaginacioParamsDto paginacioParams) {

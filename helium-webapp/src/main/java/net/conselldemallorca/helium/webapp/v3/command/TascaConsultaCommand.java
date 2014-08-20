@@ -20,7 +20,7 @@ public class TascaConsultaCommand {
 	private String tasca;
 	private String expedient;
 	private Long expedientTipusId;
-	private int prioritat;
+	private Integer prioritat;
 	private Long estatId;
 	private String responsable;
 	
@@ -79,10 +79,10 @@ public class TascaConsultaCommand {
 	public void setExpedient(String expedient) {
 		this.expedient = expedient;
 	}
-	public int getPrioritat() {
+	public Integer getPrioritat() {
 		return prioritat;
 	}
-	public void setPrioritat(int prioritat) {
+	public void setPrioritat(Integer prioritat) {
 		this.prioritat = prioritat;
 	}
 	public boolean isMostrarTasquesPersonals() {

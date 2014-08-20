@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-
 @Service
 public class ReassignacioUsuarisServiceImpl implements ReassignacioUsuarisService {
 
