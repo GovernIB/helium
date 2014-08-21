@@ -3,6 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
+<%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <html>
 <head>
 	<title><spring:message code='expedient.iniciar.iniciar_expedient' />: ${expedientTipus.nom}</title>
@@ -14,6 +15,7 @@
 	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.maskedinput.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/helium.tramitar.js"/>"></script>
+	<hel:modalHead/>
 	<script type="text/javascript">
 	// <![CDATA[		
 		var accioInici;
@@ -96,7 +98,7 @@
 	</c:if>
 </head>
 <body>
-	<h3 class="titol-tab titol-dades-tasca">${tasca.nom}</h3>
+	<h3 class="titol-tab titol-dades-tasca"><i class="fa fa-file-text-o"></i> ${tasca.nom}</h3>
 
 	<c:if test="${not empty tasca.formExtern}">
 		<form action="iniciarPasForm" onclick="return clickFormExtern(this)">
@@ -124,18 +126,15 @@
 				</c:if>
 			</c:forEach>
 		</c:if>
-		<br/>
-		<div style="clear: both"></div>
-		<div class="pull-right">
-			<button type="button" class="btn" name="submit" value="cancel" onclick="location='iniciar'">
-				<spring:message code='comuns.cancelar' />
-			</button>				
-			<button type="submit" class="btn btn-primary" name="submit" value="submit" onclick="accioInici=this.value">
+		<div id="formButtons">
+			<button type="submit" id="cancelar" name="accio" class="btn" value="cancelar"><spring:message code='comuns.cancelar' /></button>	
+			<button type="submit" id="iniciar" name="accio" class="btn btn-primary" value="iniciar" onclick="accioInici=this.value">
 				<spring:message code='comuns.iniciar' />
 			</button>
 		</div>
 	</form:form>
-	<p class="aclaracio"><spring:message code='comuns.camps_marcats' /> <i class='icon-asterisk'></i> <spring:message code='comuns.son_oblig' /></p>
 
+	<div style="clear: both;"></div>
+	<p class="aclaracio"><spring:message code='comuns.camps_marcats' /> <i class="fa fa-asterisk"></i> <spring:message code='comuns.son_oblig' /></p>
 </body>
 </html>

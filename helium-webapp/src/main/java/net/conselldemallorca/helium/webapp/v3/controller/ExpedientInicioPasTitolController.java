@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
@@ -82,39 +83,48 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 			BindingResult result,
 			SessionStatus status,
 			Model model) {
-		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
-		if (potIniciarExpedientTipus(expedientTipus)) {
-			Validator validator = new ExpedientInicioPasTitolValidator(dissenyService, expedientService);
-			validator.validate(expedientInicioPasTitolCommand, result);
-			if (result.hasErrors()) {
-				model.addAttribute(expedientInicioPasTitolCommand);
-				model.addAttribute("anysSeleccionables", getAnysSeleccionables());
-				model.addAttribute("definicioProcesId", definicioProcesId);
-				model.addAttribute("expedientTipus",expedientTipus);
-				model.addAttribute("entornId", expedientInicioPasTitolCommand.getEntornId());
-				model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
-				MissatgesHelper.error(request, result, getMessage(request, "error.validacio"));						
-				return "v3/expedient/iniciarPasTitol";
+		if ("iniciar".equals(accio)) {
+			ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
+			if (potIniciarExpedientTipus(expedientTipus)) {
+				Validator validator = new ExpedientInicioPasTitolValidator(dissenyService, expedientService);
+				validator.validate(expedientInicioPasTitolCommand, result);
+				
+				DefinicioProcesDto definicioProces = null;
+				if (definicioProcesId != null) {
+					definicioProces = dissenyService.getById(definicioProcesId);
+				} else {
+					definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId);
+				}
+				if (result.hasErrors()) {
+					model.addAttribute(expedientInicioPasTitolCommand);
+					model.addAttribute("anysSeleccionables", getAnysSeleccionables());
+					model.addAttribute("definicioProces", definicioProces);
+					model.addAttribute("expedientTipus",expedientTipus);
+					model.addAttribute("entornId", expedientInicioPasTitolCommand.getEntornId());
+					model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
+					MissatgesHelper.error(request, result, getMessage(request, "error.validacio"));						
+					return "v3/expedient/iniciarPasTitol";
+				}
+				try {
+					ExpedientDto iniciat = iniciarExpedient(
+							request,
+							expedientInicioPasTitolCommand.getEntornId(),
+							expedientInicioPasTitolCommand.getExpedientTipusId(),
+							definicioProcesId,
+							expedientInicioPasTitolCommand.getNumero(),
+							expedientInicioPasTitolCommand.getTitol(),
+							expedientInicioPasTitolCommand.getAny());
+					MissatgesHelper.info(request, getMessage(request, "info.expedient.iniciat", new Object[] {iniciat.getIdentificador()}));
+				    ExpedientInicioController.netejarSessio(request);
+				} catch (Exception ex) {
+					MissatgesHelper.error(request, getMessage(request, "error.iniciar.expedient"));
+					logger.error("No s'ha pogut iniciar l'expedient", ex);
+				}
+			} else {
+				MissatgesHelper.error(request, getMessage(request, "error.permisos.iniciar.tipus.exp"));
 			}
-			try {
-				ExpedientDto iniciat = iniciarExpedient(
-						request,
-						expedientInicioPasTitolCommand.getEntornId(),
-						expedientInicioPasTitolCommand.getExpedientTipusId(),
-						definicioProcesId,
-						expedientInicioPasTitolCommand.getNumero(),
-						expedientInicioPasTitolCommand.getTitol(),
-						expedientInicioPasTitolCommand.getAny());
-				MissatgesHelper.info(request, getMessage(request, "info.expedient.iniciat", new Object[] {iniciat.getIdentificador()}));
-			    ExpedientInicioController.netejarSessio(request);
-			} catch (Exception ex) {
-				MissatgesHelper.error(request, getMessage(request, "error.iniciar.expedient"));
-				logger.error("No s'ha pogut iniciar l'expedient", ex);
-			}
-		} else {
-			MissatgesHelper.error(request, getMessage(request, "error.permisos.iniciar.tipus.exp"));
 		}
-		return "redirect:/v3/expedient/iniciar";
+		return "redirect:/modal/v3/expedient/iniciar";
 	}
 
 	public List<ParellaCodiValorDto> getAnysSeleccionables() {

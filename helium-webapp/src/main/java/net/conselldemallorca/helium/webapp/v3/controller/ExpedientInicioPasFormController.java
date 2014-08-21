@@ -11,6 +11,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
@@ -21,6 +22,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientInicioPasTitolCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
@@ -64,67 +66,86 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 			@RequestParam(value = "id", required = false) String id,
 			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
 			@RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId,
+			@RequestParam(value = "accio", required = false) String accio,
 			SessionStatus status, 
 			ModelMap model) {
-		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
-		if (potIniciarExpedientTipus(expedientTipus) && entorn != null) {
-			ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
-			List<TascaDadaDto> dades = tascaService.findDadesPerTascaDto(tasca);
-						
-			Map<String, Object> valors = new HashMap<String, Object>();
-			Map<String, String> errors = new HashMap<String, String>();			
-			
-			validarDades(valors, errors, dades, request);
-			
-			if (!errors.isEmpty()) {
-				MissatgesHelper.error(request, getMessage(request, "error.validacio"));
+		if ("iniciar".equals(accio)) {
+			EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
+			ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
+			if (potIniciarExpedientTipus(expedientTipus) && entorn != null) {
+				ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
+				List<TascaDadaDto> dades = tascaService.findDadesPerTascaDto(tasca);
+							
+				Map<String, Object> valors = new HashMap<String, Object>();
+				Map<String, String> errors = new HashMap<String, String>();			
 				
-				model.addAttribute("errors", errors);
-				model.addAttribute("tasca", tasca);
-				model.addAttribute("dades", dades);
-				model.addAttribute("entornId", entorn.getId());
-				model.addAttribute("expedientTipus", expedientTipus);
-				model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
+				validarDades(valors, errors, dades, request);
 				
-				return "v3/expedient/iniciarPasForm";
-			}
-			
-			// Si l'expedient ha de demanar titol i/o número redirigeix al pas per demanar aquestes dades
-			if (expedientTipus.isDemanaNumero() || expedientTipus.isDemanaTitol() || expedientTipus.isSeleccionarAny()) {
+				DefinicioProcesDto definicioProces = null;
 				if (definicioProcesId != null) {
-					model.addAttribute("definicioProcesId", definicioProcesId);
+					definicioProces = dissenyService.getById(definicioProcesId);
+				} else {
+					definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId);
 				}
-				model.addAttribute("entornId", entorn.getId());
-				model.addAttribute("anysSeleccionables", getAnysSeleccionables());
-				model.addAttribute("expedientTipus", expedientTipus);
-				model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
+				model.addAttribute("definicioProces", definicioProces);
+				if (!errors.isEmpty()) {
+					MissatgesHelper.error(request, getMessage(request, "error.validacio"));
+					
+					model.addAttribute("errors", errors);
+					model.addAttribute("tasca", tasca);
+					model.addAttribute("dades", dades);
+					model.addAttribute("entornId", entorn.getId());
+					model.addAttribute("expedientTipus", expedientTipus);
+					model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
+					
+					return "v3/expedient/iniciarPasForm";
+				}
 				
-				request.getSession().setAttribute(ExpedientInicioController.CLAU_SESSIO_FORM_VALORS,valors);
-				
-				return "v3/expedient/iniciarPasTitol";
+				// Si l'expedient ha de demanar titol i/o número redirigeix al pas per demanar aquestes dades
+				if (expedientTipus.isDemanaNumero() || expedientTipus.isDemanaTitol() || expedientTipus.isSeleccionarAny()) {
+					ExpedientInicioPasTitolCommand command = new ExpedientInicioPasTitolCommand();
+					command.setAny(Calendar.getInstance().get(Calendar.YEAR));
+					command.setExpedientTipusId(expedientTipusId);
+					command.setNumero(
+							expedientService.getNumeroExpedientActual(
+									entorn.getId(),
+									expedientTipus,
+									command.getAny()));
+					command.setResponsableCodi(expedientTipus.getResponsableDefecteCodi());
+					command.setEntornId(entorn.getId());
+					model.addAttribute(command);
+					
+					model.addAttribute("entornId", entorn.getId());
+					model.addAttribute("anysSeleccionables", getAnysSeleccionables());
+					model.addAttribute("expedientTipus", expedientTipus);
+					model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
+					
+					request.getSession().setAttribute(ExpedientInicioController.CLAU_SESSIO_FORM_VALORS,valors);
+					
+					return "v3/expedient/iniciarPasTitol";
+				} else {
+					try {
+						ExpedientDto iniciat = iniciarExpedient(
+								entorn.getId(),
+								expedientTipusId,
+								definicioProcesId,
+								(String)request.getSession().getAttribute(ExpedientInicioController.CLAU_SESSIO_NUMERO),
+								(String)request.getSession().getAttribute(ExpedientInicioController.CLAU_SESSIO_TITOL),
+								(Integer)request.getSession().getAttribute(ExpedientInicioController.CLAU_SESSIO_ANY),
+								valors);
+						MissatgesHelper.info(request, getMessage(request, "info.expedient.iniciat", new Object[] {iniciat.getIdentificador()}));
+					    ExpedientInicioController.netejarSessio(request);
+					} catch (Exception ex) {
+						MissatgesHelper.error(request, getMessage(request, "error.iniciar.expedient"));
+						logger.error("No s'ha pogut iniciar l'expedient", ex);
+					}
+				}
 			} else {
-				try {
-					ExpedientDto iniciat = iniciarExpedient(
-							entorn.getId(),
-							expedientTipusId,
-							definicioProcesId,
-							(String)request.getSession().getAttribute(ExpedientInicioController.CLAU_SESSIO_NUMERO),
-							(String)request.getSession().getAttribute(ExpedientInicioController.CLAU_SESSIO_TITOL),
-							(Integer)request.getSession().getAttribute(ExpedientInicioController.CLAU_SESSIO_ANY),
-							valors);
-					MissatgesHelper.info(request, getMessage(request, "info.expedient.iniciat", new Object[] {iniciat.getIdentificador()}));
-				    ExpedientInicioController.netejarSessio(request);
-				} catch (Exception ex) {
-					MissatgesHelper.error(request, getMessage(request, "error.iniciar.expedient"));
-					logger.error("No s'ha pogut iniciar l'expedient", ex);
-				}
+				MissatgesHelper.error(request, getMessage(request, "error.permisos.iniciar.tipus.exp") );
 			}
-		} else {
-			MissatgesHelper.error(request, getMessage(request, "error.permisos.iniciar.tipus.exp") );
 		}
 		
-	    return "redirect:/v3/expedient/iniciar";
+	    return "redirect:/modal/v3/expedient/iniciar";
 	}
 	
 	private void validarDades(Map<String, Object> valors, Map<String, String> errors, List<TascaDadaDto> dades, HttpServletRequest request) {

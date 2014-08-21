@@ -29,14 +29,11 @@ function confirmar(e, form) {
 </script>
 </head>
 <body>
- 	<div class="page-header">
-	    <h4>Nou expedient</h4>
-	</div>
 	<display:table name="expedientTipus" id="registre" requestURI="" class="table table-striped table-bordered">
 		<display:column property="codi" title="Codi"/>
 		<display:column property="nom" title="Nom"/>
 		<display:column>
-			<form class="form-init-exedient" action="<c:url value="/v3/expedient/iniciar"/>" method="post" onsubmit="return confirmar(event, this)">
+			<form class="form-init-exedient" action="<c:url value="/modal/v3/expedient/iniciar"/>" method="post" onsubmit="return confirmar(event, this)">
 				<input type="hidden" name="expedientTipusId" value="${registre.id}"/>
 				<select name="definicioProcesId" id="definicioProcesId" class="span9">
 					<option value="${definicionsProces.id}">&lt;&lt; <spring:message code='expedient.iniciar.darrera_versio' /> &gt;&gt;</option>
@@ -48,6 +45,10 @@ function confirmar(e, form) {
 			</form>
 		</display:column>
 	</display:table>
-
+	<div id="formButtons" class="well">
+		<button type="button" class="modal-tancar btn" name="submit" value="cancel">
+			<spring:message code='comuns.cancelar' />
+		</button>
+	</div>
 </body>
 </html>

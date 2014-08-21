@@ -9,6 +9,7 @@
 	<meta charset="utf-8">
 	<title>Helium 3: <decorator:title default="<fmt:message key='decorators.default.benvinguts' />"/></title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
 	<meta name="description" content=""/>
 	<meta name="author" content=""/>
 	<!-- Estils CSS -->
@@ -22,6 +23,7 @@
 	<!-- Llibreria per a compatibilitat amb HTML5 -->
 	<!--[if lt IE 9]>
 		<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+		<script type='text/javascript' src="<c:url value="/js/respond.js"/>"></script>
 	<![endif]-->
 	<script src="<c:url value="/js/bootstrap.min.js"/>"></script>
 
