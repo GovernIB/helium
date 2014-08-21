@@ -97,7 +97,7 @@ $(document).ready(function() {
 	    width: 'resolve',
 	    placeholder: "${campPlaceholder}",
 	    allowClear: true,
-	    minimumResultsForSearch: -1
+	    minimumResultsForSearch: 10
 	});
 	$("#${campPath}").on('select2-open', function() {
 		var iframe = $('.modal-body iframe', window.parent.document);

@@ -59,9 +59,6 @@ $(document).ready(function() {
 			$('#tramitacioMassivaCount').html(seleccio.length);
 		}
 	});
-	$("#expedientConsultaCommand button[value='netejar']").click(function() {
-		$('#expedientConsultaCommand')[0].reset();
-	});
 	$("#nomesPendentsCheck").click(function() {
 		$("input[name=nomesPendents]").val(!$("#nomesPendentsCheck").hasClass('active'));
 		$('#expedientConsultaCommand').submit();
@@ -73,31 +70,6 @@ $(document).ready(function() {
 	$("#mostrarAnulatsCheck").click(function() {
 		$("input[name=mostrarAnulats]").val(!$("#mostrarAnulatsCheck").hasClass('active'));
 		$('#expedientConsultaCommand').submit();
-	});
-	$('#tramitacioMassivaSelTots').click(function() {
-		$.ajax({
-		    url:'expedient/seleccionarTots',
-		    type:'POST',
-		    dataType: 'json',
-			async: false,
-			success: function(data) {
-				$("td input.rdt-seleccio[type=checkbox]", $("#taulaDades")).each(function(index) {
-					$(this).removeAttr('checked');
-					for (var i = 0; i < data.length; i++) {
-						if (data[i] == $(this).val()) {
-							$(this).attr('checked', 'checked');
-							break;
-						}
-					}
-					seleccio = data;
-				});
-				$('#tramitacioMassivaCount').html(seleccio.length);
-			},
-			timeout: 20000,
-			error: function (xhr, textStatus, errorThrown) {
-				alert('Error al canviar la selecció');
-			}
-		});
 	});
 	$('#expedientTipusId').on('change', function() {
 		var tipus = $(this).val();
@@ -139,11 +111,6 @@ $(document).ready(function() {
 			</div>
 			<div class="col-md-3">
 				<hel:inputSelect name="estatText" text="Estat" placeholder="Estat" optionItems="${estats}" optionValueAttribute="id" optionTextAttribute="nom" inline="true"/>
-				<%--c:set var="campPath" value="estatText"/>
-				<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
-				<form:select path="${campPath}" cssClass="span12">
-					<option value="">Estat</option>
-				</form:select--%>
 			</div>
 		</div>
 		<div class="row">
@@ -207,7 +174,7 @@ $(document).ready(function() {
 				<div class="btn-group">
 					<a id="nomesPendentsCheck" href="javascript:void(0)" title="Només amb tasques pendents" class="btn btn-default<c:if test="${expedientConsultaCommand.nomesPendents || preferenciesUsuari.filtroTareasActivas}"> active</c:if>" data-toggle="buttons"><span class="fa fa-clock-o"></span></a>
 					<a id="nomesAlertesCheck" href="javascript:void(0)" title="Només amb alertes" class="hide btn btn-default<c:if test="${expedientConsultaCommand.nomesAlertes}"> active</c:if>" data-toggle="buttons"><span class="fa fa-warning"></span></a>
-					<a id="mostrarAnulatsCheck" href="javascript:void(0)" title="Mostrar anulats" class="btn btn-default<c:if test="${expedientConsultaCommand.mostrarAnulats}"> active</c:if>" data-toggle="buttons"><span class="fa fa-times"></span></a>
+					<a id="mostrarAnulatsCheck" href="javascript:void(0)" title="Mostrar anul·lats" class="btn btn-default<c:if test="${expedientConsultaCommand.mostrarAnulats}"> active</c:if>" data-toggle="buttons"><span class="fa fa-times"></span></a>
 				</div>
 			</div>
 			<div class="col-md-6">
@@ -240,7 +207,7 @@ $(document).ready(function() {
 						<div class="dropdown">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;Accions&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
-								<li><a class="obrir-expedient" href="expedient/{{:id}}"><span class="fa fa-folder-open"></span>&nbsp;Obrir</a></li>
+								<li><a href="expedient/{{:id}}" class="obrir-expedient"><span class="fa fa-folder-open"></span>&nbsp;Obrir</a></li>
 								<li><a href="expedient/{{:id}}/suspend"><span class="fa fa-stop"></span>&nbsp;Aturar</a></li>
 								<li><a href="expedient/{{:id}}/cancel" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code='expedient.consulta.confirm.anular'/>"><span class="fa fa-times"></span>&nbsp;Anul·lar</a></li>
 								<li><a href="entitat/{{:id}}/delete" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code='expedient.consulta.confirm.esborrar'/>"><span class="fa fa-trash-o"></span>&nbsp;Esborrar</a></li>
@@ -254,11 +221,9 @@ $(document).ready(function() {
 	<script id="tableButtonsTemplate" type="text/x-jsrender">
 		<div style="text-align:right">
 			<div class="btn-group">
-				<button class="tramitacioMassiva btn btn-default">Tramitació massiva <span id="tramitacioMassivaCount" class="badge">&nbsp;</span></button>
-				<button class="tramitacioMassiva btn btn-default dropdown-toggle" style="margin-right:.6em" data-toggle="dropdown"><span class="caret"></span></button>
-				<ul class="tramitacioMassiva dropdown-menu" style="right: auto;">
-					<li><a id="tramitacioMassivaSelTots" href="#"><span class="fa fa-check-square-o"></span> Seleccionar tots</a></li>
-				</ul>
+				<a class="btn btn-default" href="../v3/expedient/seleccioTots" data-rdt-link-ajax="true" title="Seleccionar tots"><span class="fa fa-check-square-o"></span></a>
+				<a class="btn btn-default" href="../v3/expedient/seleccioNetejar" data-rdt-link-ajax="true" title="Netejar selecció"><span class="fa fa-square-o"></span></a>
+				<a class="btn btn-default" href="#">Tramitació massiva <span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
 			</div>
 			<a class="btn btn-default" href="../v3/expedient/iniciar" data-rdt-link-modal="true"><span class="fa fa-plus"></span>&nbsp;Nou expedient</a>
 		</div>

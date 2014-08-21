@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -42,7 +41,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
  * Controlador per al llistat d'expedients.
@@ -75,16 +73,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 			@Valid ExpedientConsultaCommand filtreCommand,
 			BindingResult bindingResult,
 			@RequestParam(value = "accio", required = false) String accio) {
-		filtre(request, filtreCommand, bindingResult, accio);
-		return "redirect:expedient";
-	}
-	@RequestMapping(value = "/filtre", method = RequestMethod.POST)
-	@ResponseStatus(value = HttpStatus.OK)
-	public void filtre(
-			HttpServletRequest request,
-			@Valid ExpedientConsultaCommand filtreCommand,
-			BindingResult bindingResult,
-			@RequestParam(value = "accio", required = false) String accio) {
+		//filtre(request, filtreCommand, bindingResult, accio);
 		if ("netejar".equals(accio)) {
 			SessionHelper.removeAttribute(
 					request,
@@ -95,8 +84,8 @@ public class ExpedientLlistatController extends BaseExpedientController {
 					SessionHelper.VARIABLE_FILTRE_CONSULTA_GENERAL,
 					filtreCommand);
 		}
+		return "redirect:expedient";
 	}
-
 	@RequestMapping(value = "/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	public DatatablesPagina<ExpedientDto> datatable(
@@ -129,7 +118,24 @@ public class ExpedientLlistatController extends BaseExpedientController {
 						filtreCommand.isMostrarAnulats(),
 						PaginacioHelper.getPaginacioDtoFromDatatable(request)));
 	}
-
+	/*@RequestMapping(value = "/filtre", method = RequestMethod.POST)
+	@ResponseStatus(value = HttpStatus.OK)
+	public void filtre(
+			HttpServletRequest request,
+			@Valid ExpedientConsultaCommand filtreCommand,
+			BindingResult bindingResult,
+			@RequestParam(value = "accio", required = false) String accio) {
+		if ("netejar".equals(accio)) {
+			SessionHelper.removeAttribute(
+					request,
+					SessionHelper.VARIABLE_FILTRE_CONSULTA_GENERAL);
+		} else {
+			SessionHelper.setAttribute(
+					request,
+					SessionHelper.VARIABLE_FILTRE_CONSULTA_GENERAL,
+					filtreCommand);
+		}
+	}*/
 	@RequestMapping(value = "/selection", method = RequestMethod.POST)
 	@ResponseBody
 	public Set<Long> seleccio(
@@ -157,12 +163,11 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		return seleccio;
 	}
 
-	@RequestMapping(value = "/seleccionarTots", method = RequestMethod.POST)
+	@RequestMapping(value = "/seleccioTots")
 	@ResponseBody
-	public Set<Long> seleccionarTots(HttpServletRequest request) {
+	public Set<Long> seleccioTots(HttpServletRequest request) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientConsultaCommand filtreCommand = getFiltreCommand(request);
-		
 		List<Long> ids = expedientService.findIdsPerConsultaGeneral(
 						entornActual.getId(),
 						filtreCommand.getExpedientTipusId(),
@@ -196,7 +201,6 @@ public class ExpedientLlistatController extends BaseExpedientController {
 					}
 				} catch (NumberFormatException ex) {}
 			}
-			
 			Iterator<Long> iterador = seleccio.iterator();
 			while( iterador.hasNext() ) {
 				if (!ids.contains(iterador.next())) {
@@ -207,7 +211,16 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		return seleccio;
 	}
 
-	@RequestMapping(value = "/filtre/netejar", method = RequestMethod.GET)
+	@RequestMapping(value = "/seleccioNetejar")
+	@ResponseBody
+	public Set<Long> seleccioNetejar(HttpServletRequest request) {
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		Set<Long> ids = sessionManager.getSeleccioConsultaGeneral();
+		ids.clear();
+		return ids;
+	}
+
+	/*@RequestMapping(value = "/filtre/netejar", method = RequestMethod.GET)
 	public String filtreNetejar(HttpServletRequest request) {
 		SessionHelper.removeAttribute(
 				request,
@@ -216,7 +229,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 				request,
 				SessionHelper.VARIABLE_SELECCIO_CONSULTA_GENERAL);
 		return "redirect:../../expedient";
-	}
+	}*/
 
 	@RequestMapping(value = "/{expedientId}/suspend", method = RequestMethod.POST)
 	public String suspend(HttpServletRequest request, 
