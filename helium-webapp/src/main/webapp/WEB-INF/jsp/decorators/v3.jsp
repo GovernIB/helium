@@ -71,7 +71,17 @@ body {
 				
 					<ul class="list-inline pull-right">
 						<li class="dropdown">
-							<span class="fa fa-tag"></span>
+							<c:if test="${fn:length(entorns) gt 1}"><a href="#" data-toggle="dropdown"></c:if>
+							<span class="fa fa-cubes"></span> ${entornActual.nom}
+							<c:if test="${fn:length(entorns) gt 1}"><b class="caret caret-white"></b></a></c:if>
+							<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+								<c:forEach var="entorn" items="${entorns}">
+									<li><a href="<c:url value="/v3/index"><c:param name="entornCanviarAmbId" value="${entorn.id}"/></c:url>">${entorn.nom}</a></li>
+			    				</c:forEach>
+							</ul>
+						</li>
+						<li class="dropdown">
+							<span class="fa fa-cube"></span>
 							<c:if test="${fn:length(expedientTipusAccessibles) gt 0}"><a href="#" data-toggle="dropdown"></c:if>
 							<c:choose>
 								<c:when test="${not empty expedientTipusActual}">${expedientTipusActual.nom}</c:when>
@@ -86,17 +96,11 @@ body {
 								<li><a href="<c:url value="/v3/index"><c:param name="expedientTipusCanviarAmbId" value=""/></c:url>"><spring:message code="comuns.tots.tipus"/></a></li>
 							</ul>
 						</li>
-						<li class="dropdown">
-							<c:if test="${fn:length(entorns) gt 1}"><a href="#" data-toggle="dropdown"></c:if>
-							<span class="fa fa-home"></span> ${entornActual.nom}
-							<c:if test="${fn:length(entorns) gt 1}"><b class="caret caret-white"></b></a></c:if>
-							<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-								<c:forEach var="entorn" items="${entorns}">
-									<li><a href="<c:url value="/v3/index"><c:param name="entornCanviarAmbId" value="${entorn.id}"/></c:url>">${entorn.nom}</a></li>
-			    				</c:forEach>
-							</ul>
+						<li>
+							<span class="fa fa-bookmark"></span>
+							Usuari
 						</li>
-						<li class="dropdown">
+						<li>
 							<a href="<c:url value="/v3/perfil"/>">
 								<span class="fa fa-user"></span>
 								${dadesPersona.codi}

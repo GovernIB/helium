@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -25,7 +26,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
@@ -34,8 +37,10 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.mvc.util.TramitacioMassiva;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.TerminiTypeEditorHelper;
 
 import org.apache.commons.beanutils.PropertyUtils;
@@ -46,21 +51,28 @@ import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.Validator;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.support.SessionStatus;
 
 /**
- * Controlador per a la pàgina d'informació de l'expedient.
+ * Controlador per a la tramitació de taques.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient")
-public class ExpedientTramitacioController extends BaseExpedientController {
+@RequestMapping("/v3/tasca")
+public class TascaTramitacioController extends BaseController {
 
 	protected String TAG_PARAM_REGEXP = "<!--helium:param-(.+?)-->";
 	public static final String VARIABLE_SESSIO_CAMP_FOCUS = "helCampFocus";
@@ -80,7 +92,7 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 	protected Validator validatorGuardar;
 	protected Validator validatorValidar;
 	
-	@ModelAttribute("command")
+	/*@ModelAttribute("command")
 	protected Object populateCommand(
 			HttpServletRequest request, 
 			String id,
@@ -132,21 +144,271 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 			return command;
 		}
 		return null;
+	}*/
+
+	@RequestMapping(value = "/{expedientId}/{tascaId}/tramitar", method = RequestMethod.GET)
+	public String tramitar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			Model model) {
+		if (ModalHelper.isModal(request))
+			return "redirect:/modal/v3/tasca/" + expedientId + "/" + tascaId + "/form";
+		else
+			return "redirect:/v3/tasca/" + expedientId + "/" + tascaId + "/form";
 	}
 
-	protected Map<String, String> getFormRecursParams(String text) {
-		Map<String, String> params = new HashMap<String, String>();
-		Pattern pattern = Pattern.compile(TAG_PARAM_REGEXP);
-		Matcher matcher = pattern.matcher(text);
-		while (matcher.find()) {
-			String[] paramParts = matcher.group(1).split(":");
-			if (paramParts.length == 2) {
-				params.put(paramParts[0], paramParts[1]);
+	@RequestMapping(value = "/{expedientId}/{tascaId}/form", method = RequestMethod.GET)
+	public String formGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			Model model) {
+		//NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
+		model.addAttribute(
+				"tasca",
+				expedientService.getTascaPerExpedient(expedientId, tascaId));
+		// Omple les dades del formulari i les de només lectura
+		List<TascaDadaDto> dades = tascaService.findDadesPerTasca(tascaId);
+		model.addAttribute("dades", dades);
+		List<TascaDadaDto> dadesNomesLectura = new ArrayList<TascaDadaDto>();
+		Iterator<TascaDadaDto> itDades = dades.iterator();
+		while (itDades.hasNext()) {
+			TascaDadaDto dada = itDades.next();
+			if (dada.isReadOnly()) {
+				if (dada.getText() != null && !dada.getText().isEmpty())
+					dadesNomesLectura.add(dada);
+				itDades.remove();
 			}
 		}
-		return params;
+		model.addAttribute("dadesNomesLectura", dadesNomesLectura);
+		// Omple els documents per adjuntar i els de només lectura
+		List<TascaDocumentDto> documents = tascaService.findDocumentsPerTasca(tascaId);
+		model.addAttribute("documents", documents);
+		List<TascaDocumentDto> documentsNomesLectura = new ArrayList<TascaDocumentDto>();
+		Iterator<TascaDocumentDto> itDocuments = documents.iterator();
+		while (itDocuments.hasNext()) {
+			TascaDocumentDto document = itDocuments.next();
+			if (document.isReadOnly()) {
+				if (document.getId() != null)
+					documentsNomesLectura.add(document);
+				itDocuments.remove();
+			}
+		}
+		model.addAttribute("documentsNomesLectura", documentsNomesLectura);
+		return "v3/expedientTascaTramitacio";
+	}
+	@RequestMapping(value = "/{expedientId}/{tascaId}/form", method = RequestMethod.POST)
+	public String formPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			@RequestParam(value = "id", required = false) String id,
+			@RequestParam(value = "submit", required = false) String submit,
+			@RequestParam(value = "submitar", required = false) String submitar,
+			@RequestParam(value = "helMultipleIndex", required = false) Integer index,
+			@RequestParam(value = "helMultipleField", required = false) String field,
+			@RequestParam(value = "iframe", required = false) String iframe,
+			@RequestParam(value = "registreEsborrarId", required = false) Long registreEsborrarId,
+			@RequestParam(value = "registreEsborrarIndex", required = false) Integer registreEsborrarIndex,
+			@RequestParam(value = "helAccioCamp", required = false) String accioCamp,
+			@RequestParam(value = "helCampFocus", required = false) String campFocus,
+			@RequestParam(value = "helFinalitzarAmbOutcome", required = false) String finalitzarAmbOutcome,
+			@ModelAttribute("command") Object command, 
+			BindingResult result, 
+			SessionStatus status, 
+			ModelMap model) {
+		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
+		if (entorn != null) {			
+			this.validatorGuardar = new TascaFormValidatorHelper(tascaService, false);
+			this.validatorValidar = new TascaFormValidatorHelper(tascaService);
+			
+			boolean opValidar = "validate".equals(submit) || "validate".equals(submitar);
+			boolean opSubmit = "submit".equals(submit)  || "submit".equals(submitar);
+			boolean opRestore = "restore".equals(submit) || "restore".equals(submitar);
+			
+			ExpedientTascaDto tasca = (ExpedientTascaDto) model.get("tasca");
+			List<TascaDadaDto> tascaDadas = tascaService.findDadesPerTasca(id);
+
+			if (campFocus != null) {
+				String[] partsCampFocus = campFocus.split("#");
+				if (partsCampFocus.length == 2) {
+					request.getSession().setAttribute(VARIABLE_SESSIO_CAMP_FOCUS, partsCampFocus[0]);
+				} else {
+					request.getSession().setAttribute(VARIABLE_SESSIO_CAMP_FOCUS, campFocus);
+				}
+			}
+			if (opSubmit || opValidar || "@@@".equals(finalitzarAmbOutcome)) {
+				validatorGuardar.validate(command, result);
+				if (result.hasErrors()) {
+					MissatgesHelper.error(request, getMessage(request, "error.guardar.dades"));
+					return "redirect:/v3/expedient/"+expedientId+"/tasca/"+tascaId+"/form";
+				}
+				boolean ok = accioGuardarForm(request, entorn.getId(), id, tascaDadas, command);
+				if (!ok) {
+					MissatgesHelper.error(request, getMessage(request, "error.guardar.dades"));
+					return "redirect:/v3/expedient/"+expedientId+"/tasca/"+tascaId+"/form";
+				} else if (!opValidar){
+					MissatgesHelper.info(request, getMessage(request, "info.tasca.massiu.guardar"));
+				}
+				if (accioCamp != null && accioCamp.length() > 0) {
+					ok = accioExecutarAccio(request, entorn.getId(), id, accioCamp);
+					if (!ok) {
+						MissatgesHelper.error(request, getMessage(request, "error.guardar.dades"));
+						return "redirect:/v3/expedient/"+expedientId+"/tasca/"+tascaId+"/form";
+					}
+				}
+				if (opValidar || "@@@".equals(finalitzarAmbOutcome)) {
+					validatorValidar.validate(command, result);
+					try {
+						afegirVariablesDelProces(command, tasca);
+						Validator validator = TascaFormHelper.getBeanValidatorForCommand(tascaDadas);
+						Map<String, Object> valorsCommand = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
+						validator.validate(TascaFormHelper.getCommandForCamps(tascaDadas,valorsCommand,request, null,null,false), result);
+					} catch (Exception ex) {
+						logger.error("S'han produit errors de validació", ex);
+						MissatgesHelper.error(request, getMessage(request, "error.validacio"));
+						return "redirect:/v3/expedient/"+expedientId+"/tasca/"+tascaId+"/form";
+					}
+					if (result.hasErrors()) {
+						MissatgesHelper.error(request, result, getMessage(request, "error.validacio"));
+						return "redirect:/v3/expedient/"+expedientId+"/tasca/"+tascaId+"/form";
+					}
+					ok = accioValidarForm(request, entorn.getId(), id, tascaDadas, command);
+					if (!ok) {
+						MissatgesHelper.error(request, getMessage(request, "error.validacio"));
+						return "redirect:/v3/expedient/"+expedientId+"/tasca/"+tascaId+"/form";
+					}
+				}
+				status.setComplete();
+				if (finalitzarAmbOutcome != null && !finalitzarAmbOutcome.equals("@#@")) {
+					boolean okCompletar = accioCompletarTasca(
+							request,
+							entorn.getId(),
+							id,
+							finalitzarAmbOutcome);
+					if (okCompletar) {
+						return "redirect:/v3/expedient/"+expedientId;
+					}
+				}
+			} else if (opRestore) {
+				boolean ok = accioRestaurarForm(request, entorn.getId(), id, tascaDadas, command);
+				if (ok) {
+					status.setComplete();
+				} else {
+					MissatgesHelper.error(request, getMessage(request, "error.validacio"));
+				}
+			} else if ("multipleAdd".equals(submit)) {
+				try {
+					if (field != null) {
+						PropertyUtils.setSimpleProperty(command, field, TascaFormHelper.addMultiple(field, command, tascaDadas));
+					}
+				} catch (Exception ex) {
+					MissatgesHelper.error(request, getMessage(request, "error.afegir.camp.multiple"));
+					logger.error("No s'ha pogut afegir el camp múltiple", ex);
+				}
+			} else if ("multipleRemove".equals(submit)) {
+				try {
+					if (field != null && index != null) {
+						PropertyUtils.setSimpleProperty(command, field, TascaFormHelper.deleteMultiple(field, command, tascaDadas, index));
+					}
+				} catch (Exception ex) {
+					MissatgesHelper.error(request, getMessage(request, "error.esborrar.camp.multiple"));
+					logger.error("No s'ha pogut esborrar el camp múltiple", ex);
+				}
+			} else {
+				status.setComplete();
+				if (registreEsborrarId != null && registreEsborrarIndex != null) {
+					accioEsborrarRegistre(request, entorn.getId(), id, registreEsborrarId, registreEsborrarIndex);
+				}
+				TascaFormHelper.guardarCommandTemporal(request, command);
+			}
+		} else {
+			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));			
+		}
+		
+		return "redirect:/v3/expedient/"+expedientId+"/tasca/"+tascaId+"/form";
+	}
+
+	@RequestMapping(value = "/{expedientId}/{tascaId}/camp/{campId}/valorsSeleccio", method = RequestMethod.GET)
+	@ResponseBody
+	public List<SeleccioOpcioDto> valorsSeleccio(
+			HttpServletRequest request,
+			@PathVariable String tascaId,
+			@PathVariable Long campId,
+			Model model) {
+		return tascaService.findOpcionsSeleccioPerCampTasca(tascaId, campId);
+	}
+
+	@RequestMapping(value = "/{expedientId}/{tascaId}/completar", method = RequestMethod.POST)
+	public String completar(
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) String id,
+			@RequestParam(value = "submit", required = false) String submit,
+			ModelMap model) {
+		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
+		if (entorn != null) {		
+			boolean ok = accioCompletarTasca(
+					request,
+					entorn.getId(),
+					id,
+					submit);
+			if (ok) {
+				return "redirect:/v3/expedient/" + expedientId;
+			}
+		} else {
+			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));			
+		}
+		return "redirect:/v3/expedient/" + expedientId + "/tasca/" + tascaId + "/form";
 	}
 	
+	@RequestMapping(value = "/{expedientId}/{tascaId}/tascaAgafar", method = RequestMethod.GET)
+	public String agafar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			ModelMap model) {
+		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
+		if (entorn != null) {		
+			try {
+				tascaService.agafar(entorn.getId(), tascaId);
+				MissatgesHelper.info(request, getMessage(request, "info.tasca.disponible.personals"));
+			} catch (Exception e) {
+				MissatgesHelper.error(request, getMessage(request, "error.proces.peticio"));
+				e.printStackTrace();
+			}
+		} else {
+			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
+		}
+		return "redirect:/v3/expedient/" + expedientId + "tasca/" + tascaId;
+	}
+
+	@RequestMapping(value = "/{expedientId}/{tascaId}/tascaAlliberar", method = RequestMethod.GET)
+	public String alliberar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			ModelMap model) {
+		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
+		if (entorn != null) {		
+			try {
+				tascaService.alliberar(
+						entorn.getId(),
+						tascaId,
+						false);
+				MissatgesHelper.info(request, getMessage(request, "info.tasca.alliberada"));
+			} catch (Exception e) {
+				MissatgesHelper.error(request, getMessage(request, "error.proces.peticio"));
+				e.printStackTrace();
+			}
+		} else {
+			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
+		}
+		return "redirect:/v3/expedient/" + expedientId + "tasca/" + tascaId;
+	}
+
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 		binder.registerCustomEditor(
@@ -172,7 +434,22 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 				new TerminiTypeEditorHelper());
 	}
 
-	protected void guardarVariablesReg(HttpServletRequest request, TascaDadaDto camp, String id) {	
+
+
+	private Map<String, String> getFormRecursParams(String text) {
+		Map<String, String> params = new HashMap<String, String>();
+		Pattern pattern = Pattern.compile(TAG_PARAM_REGEXP);
+		Matcher matcher = pattern.matcher(text);
+		while (matcher.find()) {
+			String[] paramParts = matcher.group(1).split(":");
+			if (paramParts.length == 2) {
+				params.put(paramParts[0], paramParts[1]);
+			}
+		}
+		return params;
+	}
+
+	private void guardarVariablesReg(HttpServletRequest request, TascaDadaDto camp, String id) {	
 		int i = 1;
 		
 		borrarTodosRegistres(request, id, camp.getVarCodi());
@@ -223,7 +500,7 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 		}
 	}
 
-	public void borrarTodosRegistres(
+	private void borrarTodosRegistres(
 			HttpServletRequest request,
 			String id,
 			String campCodi) {
@@ -236,7 +513,7 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 				request.getUserPrincipal().getName());
 	}
 	
-	protected boolean accioValidarForm(HttpServletRequest request, Long entornId, String id, List<TascaDadaDto> tascaDadas, Object command) {
+	private boolean accioValidarForm(HttpServletRequest request, Long entornId, String id, List<TascaDadaDto> tascaDadas, Object command) {
 		boolean resposta = true;
 		ExpedientTascaDto task = tascaService.getByIdSenseComprovacio(id);
 		if (TramitacioMassiva.isTramitacioMassivaActiu(request, id)) {
@@ -288,7 +565,6 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 					params[1] = variables;
 					dto.setParam2(execucioMassivaService.serialize(params));
 					execucioMassivaService.crearExecucioMassiva(dto);
-
 					MissatgesHelper.info(request, getMessage(request, "info.tasca.massiu.validar", new Object[] { tIds.length }));
 				}
 			} catch (Exception e) {
@@ -309,7 +585,7 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 		return resposta;
 	}
 
-	protected boolean accioRestaurarForm(HttpServletRequest request, Long entornId, String id, List<TascaDadaDto> tascaDadas, Object command) {
+	private boolean accioRestaurarForm(HttpServletRequest request, Long entornId, String id, List<TascaDadaDto> tascaDadas, Object command) {
 		boolean resposta = false;
 		if (TramitacioMassiva.isTramitacioMassivaActiu(request, id)) {
 			String[] parametresTram = TramitacioMassiva.getParamsTramitacioMassiva(request, id);
@@ -378,7 +654,7 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 		return resposta;
 	}
 
-	protected boolean accioExecutarAccio(HttpServletRequest request, Long entornId, String id, String accio) {
+	private boolean accioExecutarAccio(HttpServletRequest request, Long entornId, String id, String accio) {
 		boolean resposta = true;
 		boolean massivaActiu = TramitacioMassiva.isTramitacioMassivaActiu(request, id);
 		String[] tascaIds;
@@ -456,7 +732,7 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 		return resposta;
 	}
 
-	protected String getIdTascaPerLogs(Long entornId, String tascaId) {
+	private String getIdTascaPerLogs(Long entornId, String tascaId) {
 		ExpedientTascaDto tascaActual = tascaService.getById(
 				entornId,
 				tascaId,
@@ -467,7 +743,7 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 		return tascaActual.getNom() + " - " + tascaActual.getExpedientIdentificador();
 	}
 
-	protected boolean accioEsborrarRegistre(HttpServletRequest request, Long entornId, String id, Long registreEsborrarId, Integer registreEsborrarIndex) {
+	private boolean accioEsborrarRegistre(HttpServletRequest request, Long entornId, String id, Long registreEsborrarId, Integer registreEsborrarIndex) {
 		boolean massivaActiu = TramitacioMassiva.isTramitacioMassivaActiu(request, id);
 		String[] tascaIds;
 		CampDto camp = tascaService.findCampTasca(registreEsborrarId);
@@ -537,7 +813,7 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 		return true;
 	}
 	
-	public void guardarRegistre(
+	private void guardarRegistre(
 			HttpServletRequest request,
 			String id,
 			String campCodi,
@@ -597,12 +873,12 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 		}
 	}
 
-	protected void afegirVariablesDelProces(Object command, ExpedientTascaDto tasca) throws Exception {
+	private void afegirVariablesDelProces(Object command, ExpedientTascaDto tasca) throws Exception {
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(tasca.getProcessInstanceId());
 		PropertyUtils.setSimpleProperty(command, "procesScope", instanciaProces.getVariables());
 	}
 
-	protected boolean accioGuardarForm(HttpServletRequest request, Long entornId, String id, List<TascaDadaDto> tascaDadas, Object command) {
+	private boolean accioGuardarForm(HttpServletRequest request, Long entornId, String id, List<TascaDadaDto> tascaDadas, Object command) {
 		boolean resposta = true;
 		boolean massivaActiu = TramitacioMassiva.isTramitacioMassivaActiu(request, id);
 		String[] tascaIds;
@@ -683,7 +959,7 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 		return resposta;
 	}
 	
-	protected boolean accioCompletarTasca(
+	private boolean accioCompletarTasca(
 			HttpServletRequest request,
 			Long entornId,
 			String id,
@@ -774,5 +1050,5 @@ public class ExpedientTramitacioController extends BaseExpedientController {
 		return resposta;
 	}
 	
-	private static final Logger logger = LoggerFactory.getLogger(ExpedientTramitacioController.class);
+	private static final Logger logger = LoggerFactory.getLogger(TascaTramitacioController.class);
 }

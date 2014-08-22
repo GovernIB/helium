@@ -46,7 +46,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  */
 @Controller
 @RequestMapping("/v3/tasca")
-public class TasquesLlistatController extends BaseExpedientController {
+public class TascaLlistatControllerV3 extends BaseExpedientController {
 
 	@Autowired
 	private TascaService tascaService;

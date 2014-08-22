@@ -189,34 +189,34 @@ function confirmarAlliberar(e) {
 					</script>
 				</th>
 				<th data-rdt-property="expedientIdentificador" data-rdt-visible="true">Expedient</th>
-				<th data-rdt-property="dataCreacio" data-rdt-type="datetime" data-rdt-sorting="desc" data-rdt-visible="true">Iniciat el</th>
-				<th data-rdt-property="expedientTipusNom" data-rdt-visible="true">Tipus expedient</th>
-				<th data-rdt-property="prioritat" data-rdt-visible="true">Prioritat</th>
+				<th data-rdt-property="dataCreacio" data-rdt-type="datetime" data-rdt-sorting="desc" data-rdt-visible="true">Creada el</th>
+				<th data-rdt-property="expedientTipusNom" data-rdt-visible="true">Tipus d'expedient</th>
 				<th data-rdt-property="dataLimit" data-rdt-visible="true">Data límit</th>
+				<th data-rdt-property="prioritat" data-rdt-visible="true">Prioritat</th>
 				<th data-rdt-property="id" data-rdt-template="cellAccionsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
  						<div class="dropdown"> 
- 							<button class="btn btn-primary" data-toggle="dropdown"><i class="icon-cog icon-white"></i>&nbsp;Accions&nbsp;<span class="caret"></span></button> 
+ 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;Accions&nbsp;<span class="caret"></span></button> 
 							<ul class="dropdown-menu"> 
-								<li><a rdt-link-modal="true" data-reasignar-modal="true" href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/reassignar"/>"><i class="icon-share"></i> Reasignar</a></li>
-								{{if responsables != null && !agafada && oberta && !suspesa}}
- 									<li><a href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/tascaAgafar"/>"><i class="icon-signin"></i> Agafar</a></li>
-								{{/if}}
-								{{if agafada && oberta && !suspesa}}
- 									<li><a rdt-link-modal="true" href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/tramitar"/>" data-tramitar-modal="true"><i class="icon-folder-open"></i> Tramitar</a></li>
-									<li><a href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/delegar"/>"><i class="icon-hand-right"></i> Delegar</a></li>
-								{{/if}}
 								{{if oberta && !suspesa}}
-									<li><a onclick="return confirmarSuspendre(event)" href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/suspendre"/>"><i class="icon-pause"></i> Suspendre</a></li>
+ 									<li><a rdt-link-modal="true" href="<c:url value="/v3/tasca/{{:expedientId}}/{{:id}}/tramitar"/>" data-tramitar-modal="true"><span class="fa fa-folder-open"></span> Tramitar</a></li>
+									<li><a href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/delegar"/>"><span class="fa fa-hand-o-right"></span> Delegar</a></li>
+								{{/if}}
+								{{if responsables != null && !agafada && oberta && !suspesa}}
+ 									<li><a href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/tascaAgafar"/>"><span class="fa fa-chain"></span> Agafar</a></li>
+								{{/if}}
+								<li><a rdt-link-modal="true" data-reasignar-modal="true" href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/reassignar"/>"><span class="fa fa-share-square-o"></span>&nbsp;Reasignar</a></li>
+								{{if oberta && !suspesa}}
+									<li><a onclick="return confirmarSuspendre(event)" href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/suspendre"/>"><span class="fa fa-pause"></span> Suspendre</a></li>
 								{{/if}}
 								{{if suspesa}}
-									<li><a onclick="return confirmarReprendre(event)" href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/reprendre"/>"><i class="icon-play"></i> Reprendre</a></li>
+									<li><a onclick="return confirmarReprendre(event)" href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/reprendre"/>"><span class="fa fa-play"></span> Reprendre</a></li>
 								{{/if}}
 								{{if !cancelada}}
-									<li><a onclick="return confirmarCancelar(event)" href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/cancelar"/>"><i class="icon-remove"></i> Cancelar</a></li>
+									<li><a onclick="return confirmarCancelar(event)" href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/cancelar"/>"><span class="fa fa-times"></span> Cancelar</a></li>
 								{{/if}}
 								{{if agafada && oberta}}
-									<li><a onclick="return confirmarAlliberar(event)" href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/tascaAlliberar"/>"><i class="icon-leaf"></i> <spring:message code="tasca.pllistat.alliberar"/></a></li>
+									<li><a onclick="return confirmarAlliberar(event)" href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/tascaAlliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.pllistat.alliberar"/></a></li>
 								{{/if}} 
  							</ul> 
  						</div>

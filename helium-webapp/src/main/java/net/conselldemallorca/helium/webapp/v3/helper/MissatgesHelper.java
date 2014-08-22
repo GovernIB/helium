@@ -117,10 +117,13 @@ public class MissatgesHelper {
 		return alerts;
 	}
 	
-	public static void error(HttpServletRequest request, BindingResult result, String textValidacio) {
-		for ( ObjectError res : result.getAllErrors()) {
-			String error = (res.getDefaultMessage() == null || res.getDefaultMessage().isEmpty()) ? textValidacio : res.getDefaultMessage();
-			error(request, error);
+	public static void error(
+			HttpServletRequest request,
+			BindingResult result,
+			String textValidacio) {
+		for (ObjectError error: result.getAllErrors()) {
+			String errorText = (error.getDefaultMessage() == null || error.getDefaultMessage().isEmpty()) ? textValidacio : error.getDefaultMessage();
+			error(request, errorText);
 		}		
 	}
 

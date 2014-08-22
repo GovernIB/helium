@@ -73,11 +73,11 @@
 										<ul class="dropdown-menu">
 											<c:if test="${tasca.oberta and not tasca.suspesa}">
 												<c:if test="${tasca.responsableCodi == dadesPersona.codi}">
-													<li><a data-tramitar-modal="true" href="../../v3/expedient/${expedientId}/tasca/${tasca.id}/tramitar"><span class="fa fa-folder-open"></span> Tramitar</a></li>
+													<li><a data-tramitar-modal="true" href="../../v3/tasca/${expedientId}/${tasca.id}/tramitar"><span class="fa fa-folder-open"></span> Tramitar</a></li>
 													<li><a href="<c:url value="../../v3/expedient/${expedientId}/tasca/${tasca.id}/delegar"/>"><span class="fa fa-hand-o-right"></span> Delegar</a></li>
 												</c:if>
 												<c:if test="${not empty tasca.responsables && not tasca.agafada}">
-													<li><a href="<c:url value="../../v3/expedient/${expedientId}/tasca/${tasca.id}/tascaAgafar"/>"><span class="fa fa-check"></span> Agafar</a></li>
+													<li><a href="<c:url value="../../v3/expedient/${expedientId}/tasca/${tasca.id}/tascaAgafar"/>"><span class="fa fa-chain"></span> Agafar</a></li>
 												</c:if>
 												<li><a data-reasignar-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/tasca/${tasca.id}/reassignar"/>"><span class="fa fa-share-square-o"></span> Reasignar</a></li>
 												<li><a onclick="return confirmarSuspendre(event)" href="<c:url value="../../v3/expedient/${expedientId}/tasca/${tasca.id}/suspendre"/>"><span class="fa fa-pause"></span> Suspendre</a></li>
@@ -89,7 +89,7 @@
 												<li><a onclick="return confirmarCancelar(event)" href="<c:url value="../../v3/expedient/${expedientId}/tasca/${tasca.id}/cancelar"/>"><span class="fa fa-times"></span> Cancelar</a></li>
 											</c:if>
 											<c:if test="${not empty tasca.responsables && tasca.responsableCodi == dadesPersona.codi and tasca.oberta}">
-												<li><a onclick="return confirmarAlliberar(event)" href="<c:url value="../../v3/expedient/${expedientId}/tasca/${tasca.id}/tascaAlliberar"/>"><span class="icon-leaf"></span> <spring:message code="tasca.pllistat.alliberar"/></a></li>
+												<li><a onclick="return confirmarAlliberar(event)" href="<c:url value="../../v3/expedient/${expedientId}/tasca/${tasca.id}/tascaAlliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.pllistat.alliberar"/></a></li>
 											</c:if>													
 										</ul>
 									</div>

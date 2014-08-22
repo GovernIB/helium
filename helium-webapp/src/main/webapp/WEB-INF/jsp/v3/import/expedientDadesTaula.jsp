@@ -125,8 +125,32 @@
 										<span class="fa fa-warning fa-2x" title="${document.error}"></span>
 									</c:when>
 									<c:otherwise>
-										<dl class="dl-horizontal">
-											<dt><a href="<c:url value="/v3/expedient/${expedientId}/document/${document.id}/descarregar"/>" title="Descarregar document"><span class="fa fa-file fa-4x"></span><span style="float:left;position:relative;left:2.5em;top:-2.4em;font-size:10px">${fn:toUpperCase(document.arxiuExtensio)}</span></a></dt>
+										<div class="media">
+											<a class="pull-left" href="<c:url value="/v3/expedient/${expedientId}/document/${document.id}/descarregar"/>" title="Descarregar document">
+												<span class="fa fa-file-o fa-4x"></span>
+												<div style="position:relative;left:0.6em;top:-1.8em;font-size:10px;font-weight:bold;">${fn:toUpperCase(document.arxiuExtensio)}</div>
+												<%--span style="float:left;position:relative;left:2.5em;top:-2.4em;font-size:10px">${fn:toUpperCase(document.arxiuExtensio)}</span--%>
+											</a>
+											<div class="media-body">
+												<p class="media-heading">${document.documentNom}</p>
+												<c:if test="${not empty document.id}">
+													<p>
+														<strong><fmt:formatDate value="${document.dataDocument}" pattern="dd/MM/yyyy"/></strong>
+														<c:if test="${document.signat or document.registrat}">
+															<br/>
+															<c:if test="${document.signat}"><a href="#"><span class="fa fa-certificate fa-lg" title="Document signat (clic per veure detalls)"></span></a></c:if>
+															<c:if test="${document.registrat}"><a href="#"><span class="fa fa-book fa-lg" title="Document registrat (clic per veure detalls)"></span></a></c:if>
+														</c:if>
+													</p>
+												</c:if>
+											</div>
+										</div>
+										<%--dl class="dl-horizontal">
+											<dt>
+												<a href="<c:url value="/v3/expedient/${expedientId}/document/${document.id}/descarregar"/>" title="Descarregar document">
+													<span class="fa fa-file fa-4x"></span>
+												</a>
+											</dt>
 											<dd>
 												<strong>${document.documentNom}</strong><br/>
 												<c:if test="${not empty document.id}">
@@ -138,7 +162,7 @@
 													</c:if>
 												</c:if>
 											</dd>
-										</dl>
+										</dl--%>
 									</c:otherwise>
 								</c:choose>
 							</c:when>

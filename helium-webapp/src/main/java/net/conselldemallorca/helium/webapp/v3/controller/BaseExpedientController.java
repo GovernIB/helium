@@ -25,7 +25,7 @@ import org.springframework.security.acls.model.Permission;
 import org.springframework.ui.Model;
 
 /**
- * Controlador per al llistat d'expedients.
+ * Controlador base per al llistat d'expedients.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -33,7 +33,6 @@ public class BaseExpedientController extends BaseController {
 
 	@Autowired
 	protected PermissionService permissionService;
-	
 	@Autowired
 	protected DissenyService dissenyService;
 
@@ -133,4 +132,5 @@ public class BaseExpedientController extends BaseController {
 			ExtendedPermission.ADMINISTRATION,
 			ExtendedPermission.DELETE});
 	}
+
 }
